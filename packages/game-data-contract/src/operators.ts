@@ -242,7 +242,6 @@ export interface OperatorPassiveSkillDefinition {
 }
 
 export interface OperatorUpgradeDefinition {
-  key: string;
   levels: number;
   /**
    * 原生效果已经取证，但在 Endaxis 固定模拟模型中没有可观察结果。
@@ -374,7 +373,9 @@ export interface OperatorDefinition {
   /** 角色自身始终安装的隐藏基础被动；与受构筑开关控制的天赋/潜能被动分开。 */
   passiveSkills?: readonly OperatorPassiveSkillDefinition[];
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
+  /** Exactly two ordered talent slots; edit their contents, not the slot count. */
   talents: readonly OperatorUpgradeDefinition[];
+  /** Exactly five ordered potential slots. Invalid drafts are diagnosed by validation. */
   potentials: readonly OperatorUpgradeDefinition[];
   /** 未提供时视为人工审核完成；宽松转换产物必须显式携带该字段。 */
   conversionSupport?: OperatorConversionSupport;

@@ -11,6 +11,13 @@ import type {
   SkillDefinition,
   SkillGlobalBuffDefinition,
 } from '../../core/game-data/operatorDefinition';
+import { buildSkillInputWindowGraph } from './skillInputWindowGraph';
+import { buildBuffDamageModifierGraph } from './buffDamageModifierGraph';
+import { buildBuffFlatCollectionGraph } from './buffFlatCollectionGraph';
+import { buildBuffCalculationModifierGraph } from './buffCalculationModifierGraph';
+import { buildBuffShieldGraph } from './buffShieldGraph';
+import { buildBuffOptionalObjects } from './buffOptionalObjectGraph';
+import { buildBuffPresentationGraph } from './buffPresentationGraph';
 import type { EquipmentContributionDefinition } from '../../core/game-data/equipmentDefinition';
 import {
   resolveStructureValue,
@@ -52,6 +59,9 @@ export interface SkillStructureNode {
     | 'step'
     | 'lifecycle'
     | 'childSkill'
+    | 'upgradeModifier'
+    | 'upgradeHandler'
+    | 'upgradePassive'
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
@@ -59,11 +69,35 @@ export interface SkillStructureNode {
     | 'skillEventHandler'
     | 'buffAbilityResponse'
     | 'buffIgniteResponse'
+    | 'buffMember'
     | 'globalBuffChild';
   readonly payloadKind?:
+    | 'buffShield'
+    | 'buffShieldAbsorption'
+    | 'buffPresentation'
+    | 'buffChildPresentation'
+    | 'buffPresentationOrder'
+    | 'buffProtection'
+    | 'buffRole'
+    | 'buffSpellBurst'
+    | 'buffHealModifier'
+    | 'buffHealProcessor'
+    | 'buffHealCondition'
+    | 'buffPoiseModifier'
+    | 'buffPoiseProcessor'
+    | 'buffPoiseCondition'
+    | 'buffAttributeModifier'
+    | 'buffSlotReplacement'
+    | 'buffKeywordEnhancement'
+    | 'buffDamageModifier'
+    | 'buffDamageProcessor'
+    | 'buffDamageCondition'
     | 'scheduledSequence'
     | 'combatStep'
     | 'childSkill'
+    | 'upgradeModifier'
+    | 'upgradeHandler'
+    | 'upgradePassive'
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
@@ -74,9 +108,32 @@ export interface SkillStructureNode {
     | 'globalBuffDefinition'
     | 'globalBuffChild';
   readonly acceptsChildKind?:
+    | 'buffShield'
+    | 'buffShieldAbsorption'
+    | 'buffPresentation'
+    | 'buffChildPresentation'
+    | 'buffPresentationOrder'
+    | 'buffProtection'
+    | 'buffRole'
+    | 'buffSpellBurst'
+    | 'buffHealModifier'
+    | 'buffHealProcessor'
+    | 'buffHealCondition'
+    | 'buffPoiseModifier'
+    | 'buffPoiseProcessor'
+    | 'buffPoiseCondition'
+    | 'buffAttributeModifier'
+    | 'buffSlotReplacement'
+    | 'buffKeywordEnhancement'
+    | 'buffDamageModifier'
+    | 'buffDamageProcessor'
+    | 'buffDamageCondition'
     | 'scheduledSequence'
     | 'combatStep'
     | 'childSkill'
+    | 'upgradeModifier'
+    | 'upgradeHandler'
+    | 'upgradePassive'
     | 'equipmentModifier'
     | 'equipmentHandler'
     | 'combatCondition'
@@ -237,11 +294,18 @@ export function buildActionSequenceMindMap(
     `${sequence.steps.length} 个直属步骤`,
     0,
   );
-  // Only this host currently has an Inspector for arbitrary inline Buff roots.
+  return expandInlineBuffDefinitions(root, sequence);
+}
+
+/** Hosts opt in when they provide an Inspector for inline Buff definitions. */
+function expandInlineBuffDefinitions(
+  root: SkillStructureNode,
+  document: unknown,
+): SkillStructureNode {
   function expandInlineBuffs(node: SkillStructureNode): SkillStructureNode {
     const children = node.children.map(expandInlineBuffs);
     if (node.payloadKind === 'combatStep') {
-      const step = resolveStructureValue(sequence, node.sourcePath) as CombatStepDefinition;
+      const step = resolveStructureValue(document, node.sourcePath) as CombatStepDefinition;
       if (step.kind === 'applyBuff' && step.parameters.definition !== undefined) {
         children.push(
           expandInlineBuffs(
@@ -743,6 +807,62 @@ function skillEventHandlerNode(
   };
 }
 
+function switchToBuffCastNode(skill: SkillDefinition): SkillStructureNode {
+  const path = 'switchToBuffCast';
+  const value = skill.switchToBuffCast;
+  const root: SkillStructureNode = {
+    id: path,
+    sourcePath: path,
+    label: '施放旁路',
+    kind: '施放旁路',
+    summary: value ? '满足条件时执行旁路序列' : '未设置',
+    details: {},
+    children: [],
+    editorSection: 0,
+    relationToParent: 'port',
+  };
+  if (!value) return { ...root, canAddChild: 'lifecycle' };
+  return {
+    ...root,
+    canDelete: true,
+    children: [
+      value.condition
+        ? conditionNode(
+            value.condition,
+            `${path}.condition`,
+            `${path}.condition`,
+            '旁路条件',
+            0,
+            true,
+            false,
+          )
+        : {
+            id: `${path}.condition`,
+            sourcePath: `${path}.condition`,
+            label: '旁路条件',
+            kind: '结构端口',
+            summary: '未设置',
+            details: {},
+            children: [],
+            editorSection: 0,
+            relationToParent: 'port',
+            canAddChild: 'combatCondition',
+          },
+      {
+        ...sequenceNode(
+          value.sequence,
+          `${path}.sequence`,
+          '旁路响应',
+          `${path}.sequence`,
+          `${value.sequence.steps.length} 个直属步骤`,
+          0,
+        ),
+        canDelete: false,
+      },
+    ],
+  };
+}
+
 export function buildSkillStructureMindMap(
   skill: SkillDefinition,
   labels: SkillStructureMindMapLabels = {
@@ -755,72 +875,77 @@ export function buildSkillStructureMindMap(
     scheduledSequenceNode(sequence, index, labels.sequence),
   );
   const handlers = skill.eventHandlers ?? [];
-  return {
-    id: 'skill',
-    label: skill.key,
-    kind: '技能定义',
-    summary: `${skill.timelineBlockFrames} 帧 · ${sequences.length} 条时间序列 · ${handlers.length} 个事件响应`,
-    sourcePath: '',
-    details: {
-      时间轴宽度帧: skill.timelineBlockFrames,
-      冷却帧: skill.cooldownFrames ?? '—',
-      费用数: skill.costs?.length ?? 0,
-    },
-    editorSection: 'overview',
-    children: [
-      {
-        id: 'blackboard',
-        label: labels.blackboard,
-        kind: '技能设置',
-        summary: `${Object.keys(skill.blackboard ?? {}).length} 个参数`,
-        sourcePath: 'blackboard',
-        details: skill.blackboard ?? {},
-        editorSection: 'blackboard',
-        children: [],
-        relationToParent: 'port',
+  return expandInlineBuffDefinitions(
+    {
+      id: 'skill',
+      label: skill.key,
+      kind: '技能定义',
+      summary: `${skill.timelineBlockFrames} 帧 · ${sequences.length} 条时间序列 · ${handlers.length} 个事件响应`,
+      sourcePath: '',
+      details: {
+        时间轴宽度帧: skill.timelineBlockFrames,
+        冷却帧: skill.cooldownFrames ?? '—',
+        费用数: skill.costs?.length ?? 0,
       },
-      skill.availability === undefined
-        ? {
-            id: 'availability',
-            label: labels.availability,
-            kind: '技能设置',
-            summary: '未设置',
-            sourcePath: 'availability',
-            details: {},
-            editorSection: 'availability',
-            children: [],
-            canAddChild: 'combatCondition',
-            relationToParent: 'port',
-          }
-        : conditionNode(
-            skill.availability,
-            'availability',
-            'availability',
-            labels.availability,
-            'availability',
-            true,
-            false,
+      editorSection: 'overview',
+      children: [
+        {
+          id: 'blackboard',
+          label: labels.blackboard,
+          kind: '技能设置',
+          summary: `${Object.keys(skill.blackboard ?? {}).length} 个参数`,
+          sourcePath: 'blackboard',
+          details: skill.blackboard ?? {},
+          editorSection: 'blackboard',
+          children: [],
+          relationToParent: 'port',
+        },
+        skill.availability === undefined
+          ? {
+              id: 'availability',
+              label: labels.availability,
+              kind: '技能设置',
+              summary: '未设置',
+              sourcePath: 'availability',
+              details: {},
+              editorSection: 'availability',
+              children: [],
+              canAddChild: 'combatCondition',
+              relationToParent: 'port',
+            }
+          : conditionNode(
+              skill.availability,
+              'availability',
+              'availability',
+              labels.availability,
+              'availability',
+              true,
+              false,
+            ),
+        {
+          id: 'skill:handlers',
+          label: '技能事件响应',
+          kind: '结构分组',
+          summary: `${handlers.length} 项`,
+          sourcePath: 'eventHandlers',
+          details: { 数量: handlers.length },
+          editorSection: 'overview',
+          canAddChild: 'skillEventHandler',
+          acceptsChildKind: 'skillEventHandler',
+          children: handlers.map((handler, index) =>
+            skillEventHandlerNode(handler, index, handlers.length),
           ),
-      {
-        id: 'skill:handlers',
-        label: '技能事件响应',
-        kind: '结构分组',
-        summary: `${handlers.length} 项`,
-        sourcePath: 'eventHandlers',
-        details: { 数量: handlers.length },
-        editorSection: 'overview',
-        canAddChild: 'skillEventHandler',
-        acceptsChildKind: 'skillEventHandler',
-        children: handlers.map((handler, index) =>
-          skillEventHandlerNode(handler, index, handlers.length),
-        ),
-        relationToParent: 'port',
-      },
-      ...sequences,
-    ],
-    canAddChild: 'sequence',
-    acceptsChildKind: 'scheduledSequence',
-  };
+          relationToParent: 'port',
+        },
+        buildSkillInputWindowGraph(skill),
+        switchToBuffCastNode(skill),
+        ...sequences,
+      ],
+      canAddChild: 'sequence',
+      acceptsChildKind: 'scheduledSequence',
+    },
+    skill,
+  );
 }
 
 /** 武器、装备与套装共享同一贡献结构图；事件响应的动作序列继续使用技能步骤树。 */
@@ -1002,20 +1127,20 @@ export function buildBuffStructureMindMap(
         relationToParent: 'port',
       },
       ...lifecycleNodes,
-      // 条件程序也是有序动作序列，复用相同节点与编辑命令，不在属性表单递归展开。
-      ...(definition.damageModifiers ?? []).flatMap((modifier, index) =>
-        modifier.conditionProgram === undefined
-          ? []
-          : [
-              sequenceNode(
-                modifier.conditionProgram,
-                `buff:damage-modifier:${index}:condition-program`,
-                `伤害修正 ${index + 1} · 条件程序`,
-                `damageModifiers[${index}].conditionProgram`,
-                `${modifier.conditionProgram.steps.length} 个直属步骤`,
-                index,
-              ),
-            ],
+      ...buildBuffFlatCollectionGraph(definition),
+      ...buildBuffCalculationModifierGraph(definition),
+      buildBuffShieldGraph(definition.shields ?? []),
+      ...buildBuffOptionalObjects(definition),
+      ...buildBuffPresentationGraph(definition),
+      buildBuffDamageModifierGraph(definition.damageModifiers ?? [], (sequence, path) =>
+        sequenceNode(
+          sequence,
+          `buff:${path}`,
+          '条件程序',
+          path,
+          `${sequence.steps.length} 个直属步骤`,
+          0,
+        ),
       ),
       {
         id: 'buff:ability-responses',
@@ -1161,41 +1286,44 @@ export function buildAbilityEntityStructureMindMap(
     ...namedChildNodes,
   ];
   const sequenceCount = childNodes.reduce((total, node) => total + node.children.length, 0);
-  return {
-    id: 'entity',
-    label: abilityEntityId,
-    kind: '能力实体',
-    summary:
-      definition.lifetime.kind === 'limited'
-        ? `${definition.lifetime.durationSeconds}s · ${childNodes.length} 个子技能 · ${sequenceCount} 条子序列`
-        : `无限生命周期 · ${childNodes.length} 个子技能 · ${sequenceCount} 条子序列`,
-    sourcePath: '',
-    details: {
-      生命周期: definition.lifetime.kind,
-      子技能数: childNodes.length,
-      子序列数: sequenceCount,
-    },
-    editorSection: 'overview',
-    children: [
-      {
-        id: 'entity:lifetime',
-        label: '生命周期',
-        kind: '实体设置',
-        summary:
-          definition.lifetime.kind === 'limited'
-            ? `${definition.lifetime.durationSeconds} 秒`
-            : '无限',
-        sourcePath: 'lifetime',
-        details: definition.lifetime,
-        editorSection: 'overview',
-        children: [],
-        relationToParent: 'port',
+  return expandInlineBuffDefinitions(
+    {
+      id: 'entity',
+      label: abilityEntityId,
+      kind: '能力实体',
+      summary:
+        definition.lifetime.kind === 'limited'
+          ? `${definition.lifetime.durationSeconds}s · ${childNodes.length} 个子技能 · ${sequenceCount} 条子序列`
+          : `无限生命周期 · ${childNodes.length} 个子技能 · ${sequenceCount} 条子序列`,
+      sourcePath: '',
+      details: {
+        生命周期: definition.lifetime.kind,
+        子技能数: childNodes.length,
+        子序列数: sequenceCount,
       },
-      ...childNodes,
-    ],
-    ...(definition.childSkill === undefined ? { canAddChild: 'childSkill' as const } : {}),
-    ...(definition.childSkill === undefined ? { acceptsChildKind: 'childSkill' as const } : {}),
-  };
+      editorSection: 'overview',
+      children: [
+        {
+          id: 'entity:lifetime',
+          label: '生命周期',
+          kind: '实体设置',
+          summary:
+            definition.lifetime.kind === 'limited'
+              ? `${definition.lifetime.durationSeconds} 秒`
+              : '无限',
+          sourcePath: 'lifetime',
+          details: definition.lifetime,
+          editorSection: 'overview',
+          children: [],
+          relationToParent: 'port',
+        },
+        ...childNodes,
+      ],
+      ...(definition.childSkill === undefined ? { canAddChild: 'childSkill' as const } : {}),
+      ...(definition.childSkill === undefined ? { acceptsChildKind: 'childSkill' as const } : {}),
+    },
+    definition,
+  );
 }
 
 export function indexSkillStructureNodes(

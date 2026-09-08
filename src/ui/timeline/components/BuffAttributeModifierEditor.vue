@@ -12,6 +12,7 @@ import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 
 const props = defineProps<{
   modifiers: readonly CombatBuffDefinitionAttributeModifier[];
+  singleEntry?: boolean;
 }>();
 const emit = defineEmits<{
   update: [modifiers: readonly CombatBuffDefinitionAttributeModifier[]];
@@ -50,6 +51,20 @@ function setAttribute(
   event: Event,
 ): void {
   replace(index, { ...modifier, attribute: (event.target as HTMLInputElement).value });
+}
+
+function setAttributeSelection(
+  index: number,
+  modifier: CombatBuffDefinitionAttributeModifier,
+  event: Event,
+): void {
+  const kind = (event.target as HTMLSelectElement).value;
+  if (kind === 'specific') {
+    if (typeof modifier.attribute !== 'string') replace(index, { ...modifier, attribute: 'Atk' });
+  } else if (kind === 'main' || kind === 'secondary' || kind === 'all') {
+    if (typeof modifier.attribute === 'object' && modifier.attribute.kind === kind) return;
+    replace(index, { ...modifier, attribute: { kind } });
+  }
 }
 
 function setSlot(
@@ -96,8 +111,8 @@ function setConverted(
 </script>
 
 <template>
-  <section class="buff-modifier-editor">
-    <header>
+  <section class="buff-modifier-editor" :class="{ 'single-entry': singleEntry }">
+    <header v-if="!singleEntry">
       <button type="button" @click="collapsed = !collapsed">
         {{ collapsed ? '▸' : '▾' }} 属性修正器 <span>{{ modifiers.length }}</span>
       </button>
@@ -106,11 +121,11 @@ function setConverted(
     <p v-if="!collapsed">属性名与八槽公式身份直接来自公共 Buff 契约。</p>
     <article
       v-for="(modifier, index) in modifiers"
-      v-show="!collapsed"
+      v-show="singleEntry || !collapsed"
       :key="index"
       class="buff-modifier-item"
     >
-      <div class="buff-modifier-item__actions">
+      <div v-if="!singleEntry" class="buff-modifier-item__actions">
         <strong>属性修正 {{ index + 1 }}</strong>
         <button type="button" :disabled="index === 0" @click="move(index, -1)">↑</button>
         <button type="button" :disabled="index === modifiers.length - 1" @click="move(index, 1)">
@@ -119,6 +134,18 @@ function setConverted(
         <button type="button" @click="remove(index)">×</button>
       </div>
       <label>
+        <span>属性选择</span>
+        <select
+          :value="typeof modifier.attribute === 'string' ? 'specific' : modifier.attribute.kind"
+          @change="setAttributeSelection(index, modifier, $event)"
+        >
+          <option value="specific">指定属性</option>
+          <option value="main">主属性</option>
+          <option value="secondary">副属性</option>
+          <option value="all">全部属性</option>
+        </select>
+      </label>
+      <label v-if="typeof modifier.attribute === 'string'">
         <span>属性键</span>
         <input
           type="text"
@@ -227,5 +254,20 @@ function setConverted(
 .converted-source input {
   width: 16px;
   height: 16px;
+}
+.single-entry {
+  margin-top: 0;
+  border: 0;
+  padding: 0;
+}
+.single-entry article {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+.single-entry article > label {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
 }
 </style>

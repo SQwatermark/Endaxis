@@ -50,7 +50,6 @@ it('captures definition metadata once, while localization uses the captured iden
   );
   const reads = index.getOperator.mock.calls.length;
   definition.displayName = 'edited name';
-  definition.talents[0]!.key = 'edited-key';
   definition.talents[0]!.levels = 99;
   expect(operators.get(perlica.slug)!.talents[0]).toEqual(originalTalent);
   expect(Object.keys(operators.get(perlica.slug)!)).not.toContain('skills');

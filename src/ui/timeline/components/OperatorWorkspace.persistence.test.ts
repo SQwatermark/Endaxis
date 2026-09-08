@@ -1,5 +1,6 @@
 import { createRenderer, h, nextTick, shallowRef, ssrContextKey, type ComponentOptions } from 'vue';
 import { expect, it } from 'vitest';
+import { createI18n } from 'vue-i18n';
 import Workspace from './OperatorDefinitionWorkspaceDialog.vue';
 import { perlica } from '../../../data/operators/perlica';
 import { createEmptyProject } from '../../../core/project/createProject';
@@ -83,6 +84,7 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
       }),
   });
   app.provide(ssrContextKey, { modules: new Set() });
+  app.use(createI18n({ legacy: false, locale: 'zh-CN', messages: {} }));
   app.mount({});
   const edit = () => {
     panel.selectSection('buffs');
@@ -127,10 +129,31 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     panel.openBuffDetail('qa');
     expect(panel.focusedPage.value).toBe(true);
     // 详情只改变页面，不进入旧的子草稿保存模式，也不产生历史。
-    expect(panel.editingFocusedDefinition.value).toBe(false);
     expect(panel.history.canUndo.value).toBe(false);
     panel.buffDetailOpen.value = false;
     expect(JSON.stringify(panel.draft.value)).toBe(initial);
+    panel.history.commit({
+      ...panel.draft.value,
+      passiveUi: {
+        kind: 'buffProgress',
+        appearance: 'liinoMusic',
+        normalBuffId: 'qa',
+        ultimateBuffId: 'qa',
+      },
+    });
+    panel.openBuffDetail('qa');
+    expect(panel.selectedBuffReferences.value.length).toBeGreaterThan(0);
+    panel.removeBuff();
+    expect(panel.draft.value.buffDefinitions?.qa).toBeUndefined();
+    expect(panel.draft.value.passiveUi.normalBuffId).toBe('qa');
+    expect(
+      panel.draftIssues.value.some((issue: { message: string }) => issue.message.includes("'qa'")),
+    ).toBe(true);
+    panel.history.restore('undo');
+    await nextTick();
+    expect(panel.draft.value.buffDefinitions.qa).toBeDefined();
+    panel.history.restore('undo');
+    await nextTick();
     panel.addBuff();
     const addedId = panel.selectedBuffId.value;
     panel.history.restore('undo');
@@ -152,7 +175,6 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
     visible.value = true;
     await nextTick();
     for (const [section, flag] of [
-      ['progression', 'showUpgradeBehaviorEditor'],
       ['runtime', 'showRuntimeBehaviorEditor'],
       ['runtime', 'showComboEditor'],
     ]) {
@@ -164,6 +186,48 @@ it('keeps canceled Buff/entity drafts isolated and persists full replacement sna
       expect(panel.editingBehavior.value).toBe(false);
       expect(JSON.stringify(panel.draft.value)).toBe(initial);
     }
+    panel.selectSection('progression');
+    expect(panel.editingBehavior.value).toBe(true);
+    expect(panel.upgradeSlots.value).toHaveLength(2);
+    expect(panel.addUpgrade).toBeUndefined();
+    expect(panel.removeUpgrade).toBeUndefined();
+    expect(panel.moveUpgrade).toBeUndefined();
+    panel.progressionKind.value = 'potentials';
+    expect(panel.upgradeSlots.value).toHaveLength(5);
+    const originalPotential = panel.draft.value.potentials[4];
+    panel.selectedUpgradeIndex.value = 4;
+    panel.upgradeHistory.commit(
+      { ...originalPotential, initializationSequence: { steps: [] } },
+      { path: 'initializationSequence' },
+    );
+    expect(panel.draft.value.potentials).toHaveLength(5);
+    expect(panel.draft.value.potentials[4].initializationSequence.steps).toEqual([]);
+    panel.history.restore('undo');
+    expect(panel.draft.value.potentials[4]).toEqual(originalPotential);
+    const originalGrowth = [...panel.draft.value.attributes.baseAttack];
+    expect(originalGrowth).toHaveLength(6);
+    panel.updatePanelStat('baseAttack', 5, { target: { value: '123' } });
+    expect(panel.draft.value.attributes.baseAttack).toEqual([...originalGrowth.slice(0, 5), 123]);
+    expect(panel.draft.value.attributes.baseAttack).toHaveLength(6);
+    panel.history.restore('undo');
+    expect(panel.draft.value.attributes.baseAttack).toEqual(originalGrowth);
+    panel.updatePanelStat('baseAttack', 89, { target: { value: '999' } });
+    panel.updatePanelStat('baseAttack', 0, { target: { value: '' } });
+    expect(panel.draft.value.attributes.baseAttack).toEqual(originalGrowth);
+    panel.selectSection('runtime');
+    panel.showComboEditor.value = true;
+    const originalConditions = panel.draft.value.comboSkillConditions;
+    panel.comboHistory.commit(
+      { ...panel.comboDocument.value, comboSkillConditions: [] },
+      { path: 'comboSkillConditions[0].sequence.steps[0]', objectId: '0' },
+    );
+    panel.selectSection('buffs');
+    panel.history.restore('undo');
+    await nextTick();
+    expect(panel.section.value).toBe('runtime');
+    expect(panel.showComboEditor.value).toBe(true);
+    expect(panel.draft.value.comboSkillConditions).toEqual(originalConditions);
+    expect(currentDefinition().comboSkillConditions).toEqual(originalConditions);
     edit();
     await nextTick();
     expect(currentDefinition().buffDefinitions!.qa!.durationSeconds).toBe(10);

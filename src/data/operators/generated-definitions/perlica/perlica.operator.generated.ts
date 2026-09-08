@@ -994,7 +994,6 @@ export default {
   comboSkillPriority: 'default',
   talents: [
     {
-      key: 'staggerDamageBonus',
       levels: 2,
       initializationSequence: sequence(
         step('applyBuff', {
@@ -1006,7 +1005,6 @@ export default {
       ),
     },
     {
-      key: 'comboRicochetAgainstBrokenEnemy',
       levels: 1,
       modifiers: [
         {
@@ -1021,7 +1019,6 @@ export default {
   ],
   potentials: [
     {
-      key: 'extendedElectrification',
       levels: 1,
       modifiers: [
         {
@@ -1034,7 +1031,6 @@ export default {
       ],
     },
     {
-      key: 'reducedUltimateCost',
       levels: 1,
       modifiers: [
         {
@@ -1046,7 +1042,6 @@ export default {
       ],
     },
     {
-      key: 'attackAfterElectrification',
       levels: 1,
       initializationSequence: sequence(
         step('applyBuff', {
@@ -1062,7 +1057,6 @@ export default {
       ),
     },
     {
-      key: 'strongerElectrification',
       levels: 1,
       modifiers: [
         {
@@ -1075,7 +1069,6 @@ export default {
       ],
     },
     {
-      key: 'ultimateCriticalRate',
       levels: 1,
       modifiers: [
         {

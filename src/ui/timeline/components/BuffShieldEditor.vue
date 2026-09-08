@@ -4,13 +4,11 @@ import type {
   BuffDuration,
   BuffShieldDefinition,
 } from '../../../../packages/game-data-contract/src/buffs';
-import {
-  DAMAGE_TYPES,
-  type DamageType,
-} from '../../../../packages/game-data-contract/src/primitives';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
+import BuffShieldAbsorptionInspector from './BuffShieldAbsorptionInspector.vue';
+import { createBuffShield, createBuffShieldAbsorption } from '../buffShieldGraph';
 
-const props = defineProps<{ shields: readonly BuffShieldDefinition[] }>();
+const props = defineProps<{ shields: readonly BuffShieldDefinition[]; singleEntry?: boolean }>();
 const emit = defineEmits<{ update: [shields: readonly BuffShieldDefinition[]] }>();
 const collapsed = ref(true);
 
@@ -21,19 +19,7 @@ function replace(index: number, shield: BuffShieldDefinition): void {
   );
 }
 function add(): void {
-  emit('update', [
-    ...props.shields,
-    {
-      infinityValue: false,
-      value: 0,
-      damageAbsorptions: [],
-      absorbCount: -1,
-      absorbAllDamageWhenConsumed: false,
-      removeBuffWhenConsumed: true,
-      priority: 'normal',
-      replaceHitEffect: false,
-    },
-  ]);
+  emit('update', [...props.shields, createBuffShield()]);
 }
 function remove(index: number): void {
   emit(
@@ -50,6 +36,12 @@ function move(index: number, offset: -1 | 1): void {
 }
 function setValueKind(index: number, shield: BuffShieldDefinition, event: Event): void {
   const kind = (event.target as HTMLSelectElement).value;
+  if (kind !== 'attribute' && kind !== 'direct') return;
+  if (
+    kind ===
+    (typeof shield.value === 'object' && 'attribute' in shield.value ? 'attribute' : 'direct')
+  )
+    return;
   replace(index, {
     ...shield,
     value: kind === 'attribute' ? { attribute: 'HpMax', multiplier: 1, addition: 0 } : 0,
@@ -69,10 +61,7 @@ function setScalar(callback: (value: BuffDuration) => void, value: BuffDuration 
 function addAbsorption(index: number, shield: BuffShieldDefinition): void {
   replace(index, {
     ...shield,
-    damageAbsorptions: [
-      ...shield.damageAbsorptions,
-      { damageType: 'physical', ratio: 1, scale: 1 },
-    ],
+    damageAbsorptions: [...shield.damageAbsorptions, createBuffShieldAbsorption()],
   });
 }
 function replaceAbsorption(
@@ -103,14 +92,14 @@ function removeAbsorption(
 </script>
 
 <template>
-  <section class="shield-editor">
-    <header>
+  <section class="shield-editor" :class="{ 'single-entry': singleEntry }">
+    <header v-if="!singleEntry">
       <button type="button" @click="collapsed = !collapsed">
         {{ collapsed ? '▸' : '▾' }} 护盾定义 <span>{{ shields.length }}</span></button
       ><button type="button" @click="add">＋</button>
     </header>
-    <article v-for="(shield, index) in shields" v-show="!collapsed" :key="index">
-      <header>
+    <article v-for="(shield, index) in shields" v-show="singleEntry || !collapsed" :key="index">
+      <header v-if="!singleEntry">
         <strong>护盾 {{ index + 1 }}</strong
         ><button type="button" :disabled="index === 0" @click="move(index, -1)">↑</button
         ><button type="button" :disabled="index === shields.length - 1" @click="move(index, 1)">
@@ -141,6 +130,7 @@ function removeAbsorption(
           <option value="attribute">属性公式</option>
         </select></label
       >
+      <p v-if="singleEntry" class="value-kind-hint">切换值来源会替换当前数值或公式，可撤销。</p>
       <template v-if="typeof shield.value === 'object' && 'attribute' in shield.value">
         <label
           ><span>属性来源</span
@@ -254,7 +244,7 @@ function removeAbsorption(
           "
         /><span>替换受击效果证据位</span></label
       >
-      <fieldset class="absorptions">
+      <fieldset v-if="!singleEntry" class="absorptions">
         <legend>
           分伤害类型吸收 <button type="button" @click="addAbsorption(index, shield)">＋</button>
         </legend>
@@ -262,35 +252,9 @@ function removeAbsorption(
           v-for="(absorption, absorptionIndex) in shield.damageAbsorptions"
           :key="absorptionIndex"
         >
-          <select
-            :value="absorption.damageType"
-            @change="
-              replaceAbsorption(index, shield, absorptionIndex, {
-                damageType: ($event.target as HTMLSelectElement).value as DamageType,
-              })
-            "
-          >
-            <option v-for="damageType in DAMAGE_TYPES" :key="damageType" :value="damageType">
-              {{ damageType }}
-            </option>
-          </select>
-          <BuffDefinitionScalarEditor
-            :value="absorption.ratio"
-            @update="
-              setScalar(
-                ratio => replaceAbsorption(index, shield, absorptionIndex, { ratio }),
-                $event,
-              )
-            "
-          />
-          <BuffDefinitionScalarEditor
-            :value="absorption.scale"
-            @update="
-              setScalar(
-                scale => replaceAbsorption(index, shield, absorptionIndex, { scale }),
-                $event,
-              )
-            "
+          <BuffShieldAbsorptionInspector
+            :absorption="absorption"
+            @update="replaceAbsorption(index, shield, absorptionIndex, $event)"
           />
           <button type="button" @click="removeAbsorption(index, shield, absorptionIndex)">×</button>
         </div>
@@ -354,8 +318,28 @@ function removeAbsorption(
 }
 .absorptions > div {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr) minmax(0, 1fr) 30px;
+  grid-template-columns: minmax(0, 1fr) 30px;
   gap: 6px;
   margin-top: 6px;
+}
+.single-entry {
+  margin-top: 0;
+  border: 0;
+  padding: 0;
+}
+.single-entry article {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+.single-entry article > label {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
+}
+.value-kind-hint {
+  margin: 0;
+  color: var(--ea-fg-muted);
+  font-size: 12px;
 }
 </style>

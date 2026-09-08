@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {
+  createHealCondition as createCondition,
+  createHealProcessor as createProcessor,
+} from '../buffCalculationModifierGraph';
 import { ref } from 'vue';
 import type {
   HealModifierCondition,
@@ -18,19 +22,6 @@ const HEAL_SIDES = ['healer', 'receiver'] as const satisfies readonly HealModifi
 const props = defineProps<{ modifiers: readonly HealModifierDefinition[] }>();
 const emit = defineEmits<{ update: [modifiers: readonly HealModifierDefinition[]] }>();
 const collapsed = ref(true);
-
-function createCondition(kind: HealModifierCondition['kind']): HealModifierCondition {
-  if (kind === 'targetHealthCompare')
-    return { kind, valueType: 'ratio', operator: 'less', value: 0.5 };
-  if (kind === 'buffBlackboardCompare') return { kind, left: 0, operator: 'equal', right: 0 };
-  return { kind, match: 'hasAny', tags: [] };
-}
-
-function createProcessor(kind: HealProcessor['kind']): HealProcessor {
-  return kind === 'modifyCalculationResult'
-    ? { kind, timing: 'afterCalculation', baseMultiplier: 0, multiplierCount: 1 }
-    : { kind, timing: 'beforeCalculation', side: 'healer', addition: 0 };
-}
 
 function replaceModifier(index: number, modifier: HealModifierDefinition): void {
   emit(

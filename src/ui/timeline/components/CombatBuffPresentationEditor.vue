@@ -47,6 +47,7 @@ const props = withDefaults(
     presentation?: CombatBuffPresentation;
     title?: string;
     initiallyCollapsed?: boolean;
+    layerOnly?: boolean;
   }>(),
   { title: 'Buff 展示身份', initiallyCollapsed: true },
 );
@@ -64,7 +65,10 @@ watch(
 );
 
 function commit(presentation: CombatBuffPresentation): void {
-  emit('update', Object.keys(presentation).length === 0 ? undefined : presentation);
+  emit(
+    'update',
+    !props.layerOnly && Object.keys(presentation).length === 0 ? undefined : presentation,
+  );
 }
 
 function setText(
@@ -110,14 +114,14 @@ function setOrderPriority(field: 'useDirectoryValue' | 'value' | 'category', eve
 </script>
 
 <template>
-  <section class="presentation-editor">
-    <header>
+  <section class="presentation-editor" :class="{ 'layer-only': layerOnly }">
+    <header v-if="!layerOnly">
       <button type="button" @click="collapsed = !collapsed">
         {{ collapsed ? '▸' : '▾' }} {{ title }}
         <span>{{ Object.keys(presentation ?? {}).length }}</span>
       </button>
     </header>
-    <div v-if="!collapsed" class="presentation-content">
+    <div v-if="layerOnly || !collapsed" class="presentation-content">
       <div class="presentation-identity">
         <span class="presentation-icon" :class="{ 'is-hidden': presentation?.visible === false }">
           <img
@@ -181,7 +185,7 @@ function setOrderPriority(field: 'useDirectoryValue' | 'value' | 'category', eve
             @input="setText('abnormalColorType', $event)"
         /></label>
       </div>
-      <fieldset class="order-priority">
+      <fieldset v-if="!layerOnly" class="order-priority">
         <legend>
           <label
             ><input
@@ -221,6 +225,29 @@ function setOrderPriority(field: 'useDirectoryValue' | 'value' | 'category', eve
 </template>
 
 <style scoped>
+.layer-only.presentation-editor {
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.layer-only .presentation-content {
+  margin: 0;
+}
+.layer-only .presentation-identity > div,
+.layer-only .boolean-rules,
+.layer-only .text-rules {
+  grid-template-columns: minmax(0, 1fr);
+}
+.layer-only .presentation-identity label,
+.layer-only .boolean-rules label,
+.layer-only .text-rules label {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.layer-only .boolean-rules label {
+  grid-template-columns: minmax(0, 1fr) 80px;
+  gap: 8px;
+}
 .presentation-editor {
   margin-top: 12px;
   border-top: 1px solid var(--ea-border-soft);

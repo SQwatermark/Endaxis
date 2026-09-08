@@ -23,6 +23,8 @@ import { compareCombatNumbers } from '../combat/runtime/numericComparison';
 
 export interface ActiveOperatorUpgrade {
   readonly source: 'talent' | 'potential';
+  /** Zero-based fixed slot within the source collection. */
+  readonly index: number;
   readonly level: number;
   readonly definition: OperatorUpgradeDefinition;
 }
@@ -46,7 +48,7 @@ export function compileOperatorReactionModifiers(
       if (modifier.kind !== 'addReactionDuration' && modifier.kind !== 'addReactionEffectiveness') {
         return;
       }
-      const path = `${upgrade.source} '${upgrade.definition.key}'.modifiers[${modifierIndex}]`;
+      const path = `${upgrade.source} '${upgrade.index}'.modifiers[${modifierIndex}]`;
       const current = totals.get(modifier.reaction) ?? {
         durationSecondsAddition: 0,
         effectivenessAddition: 0,
@@ -87,10 +89,10 @@ export function resolveActiveOperatorUpgrades(
     const level = build.talentStates[String(index)] ?? 0;
     if (!Number.isInteger(level) || level < 0 || level > definition.levels) {
       throw new RangeError(
-        `operator talent '${definition.key}' must be an integer between 0 and ${definition.levels}`,
+        `operator talent slot ${index + 1} must be an integer between 0 and ${definition.levels}`,
       );
     }
-    if (level > 0) active.push({ source: 'talent', level, definition });
+    if (level > 0) active.push({ source: 'talent', index, level, definition });
   });
 
   const totalPotential = operator.potentials.reduce(
@@ -105,10 +107,10 @@ export function resolveActiveOperatorUpgrades(
     throw new RangeError(`operator potential must be an integer between 0 and ${totalPotential}`);
   }
   let remainingPotential = build.potential;
-  for (const definition of operator.potentials) {
+  for (const [index, definition] of operator.potentials.entries()) {
     if (remainingPotential <= 0) break;
     const level = Math.min(remainingPotential, definition.levels);
-    active.push({ source: 'potential', level, definition });
+    active.push({ source: 'potential', index, level, definition });
     remainingPotential -= level;
   }
   return active;
@@ -192,7 +194,7 @@ export function compileOperatorPassivePrograms(
   }
   for (const upgrade of upgrades) {
     for (const [index, passive] of (upgrade.definition.passiveSkills ?? []).entries()) {
-      const path = `${upgrade.source} '${upgrade.definition.key}'.passiveSkills[${index}]`;
+      const path = `${upgrade.source} '${upgrade.index}'.passiveSkills[${index}]`;
       if (passive.key.length === 0) throw new Error(`${path}.key must not be empty`);
       if (keys.has(passive.key)) throw new Error(`${path} duplicates passive '${passive.key}'`);
       keys.add(passive.key);
@@ -216,7 +218,7 @@ export function compileOperatorPassivePrograms(
   for (const upgrade of upgrades) {
     for (const [modifierIndex, modifier] of (upgrade.definition.modifiers ?? []).entries()) {
       if (modifier.kind !== 'patchPassiveBlackboard') continue;
-      const path = `${upgrade.source} '${upgrade.definition.key}'.modifiers[${modifierIndex}]`;
+      const path = `${upgrade.source} '${upgrade.index}'.modifiers[${modifierIndex}]`;
       const targets = patched.filter(program => program.key === modifier.passiveSkillKey);
       // 项目允许关闭天赋；此时潜能仍存在，但没有被动实例可供修改。
       if (targets.length === 0) continue;
@@ -260,11 +262,11 @@ export function compileOperatorInitializationPrograms(
     if (sequence === undefined) return [];
     return [
       {
-        key: `${upgrade.source}:${upgrade.definition.key}`,
+        key: `${upgrade.source}:${upgrade.index}`,
         sequence: compileActionSequence(
           sequence,
           upgrade.level,
-          `${upgrade.source} '${upgrade.definition.key}'.initializationSequence`,
+          `${upgrade.source} '${upgrade.index}'.initializationSequence`,
         ),
       },
     ];
@@ -520,7 +522,7 @@ export function applyOperatorUpgradeSkillPatches(
   let patched = programs;
   for (const upgrade of upgrades) {
     for (const [modifierIndex, modifier] of (upgrade.definition.modifiers ?? []).entries()) {
-      const path = `${upgrade.source} '${upgrade.definition.key}'.modifiers[${modifierIndex}]`;
+      const path = `${upgrade.source} '${upgrade.index}'.modifiers[${modifierIndex}]`;
       if (PANEL_MODIFIER_KINDS.has(modifier.kind)) continue;
       if (
         options.skipUncompiledSkillGroups === true &&
@@ -611,7 +613,7 @@ export function compileOperatorUpgradeEventPrograms(
   const keys = new Set<string>();
   for (const upgrade of upgrades) {
     for (const [index, handler] of (upgrade.definition.eventHandlers ?? []).entries()) {
-      const key = `${upgrade.source}:${upgrade.definition.key}:${index}`;
+      const key = `${upgrade.source}:${upgrade.index}:${index}`;
       if (keys.has(key)) throw new Error(`duplicate operator upgrade event program '${key}'`);
       keys.add(key);
       programs.push({
@@ -623,14 +625,14 @@ export function compileOperatorUpgradeEventPrograms(
             resolveUpgradeLevelValue(
               value,
               upgrade.level,
-              `${upgrade.source} '${upgrade.definition.key}'.eventHandlers[${index}].blackboard.${blackboardKey}`,
+              `${upgrade.source} '${upgrade.index}'.eventHandlers[${index}].blackboard.${blackboardKey}`,
             ),
           ]),
         ),
         sequence: compileActionSequence(
           handler.sequence,
           upgrade.level,
-          `${upgrade.source} '${upgrade.definition.key}'.eventHandlers[${index}].sequence`,
+          `${upgrade.source} '${upgrade.index}'.eventHandlers[${index}].sequence`,
         ),
       });
     }

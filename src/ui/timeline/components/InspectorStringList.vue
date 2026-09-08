@@ -62,10 +62,15 @@ function append() {
       >
         ×
       </button>
+      <div v-if="$slots.actions" class="inspector-list__actions">
+        <slot name="actions" :index="index" :item="item" />
+      </div>
     </div>
-    <button type="button" class="inspector-list__add" :disabled="disabled" @click="append">
-      ＋ {{ t('common.add') }}
-    </button>
+    <slot name="add">
+      <button type="button" class="inspector-list__add" :disabled="disabled" @click="append">
+        ＋ {{ t('common.add') }}
+      </button>
+    </slot>
   </div>
 </template>
 
@@ -93,5 +98,11 @@ function append() {
 }
 .inspector-list__add {
   justify-self: start;
+}
+.inspector-list__actions {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
 }
 </style>

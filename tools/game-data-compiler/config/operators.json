@@ -10,33 +10,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "staggerDamageBonus",
           "compile": "targetStaggeredDamage"
         },
         {
           "index": 1,
-          "key": "comboRicochetAgainstBrokenEnemy",
           "compile": "simulationNoEffectUniqueEnemy"
         }
       ],
       "potentials": [
         {
-          "key": "extendedElectrification",
           "compile": "multiplyReactionDuration"
         },
+        {},
         {
-          "key": "reducedUltimateCost"
-        },
-        {
-          "key": "attackAfterElectrification",
           "compile": "attackAfterReaction"
         },
         {
-          "key": "strongerElectrification",
           "compile": "setReactionEffectiveness"
         },
         {
-          "key": "ultimateCriticalRate",
           "compile": "addUltimateCriticalRate"
         }
       ],
@@ -195,34 +187,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedPassive"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -378,34 +363,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential2",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -561,34 +539,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedBuff"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -744,34 +715,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -943,34 +907,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -1142,34 +1099,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatchAndAttachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential3",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential4",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -1341,34 +1291,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "attachedBuff"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -1524,34 +1467,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential5",
           "compile": "skillCooldownAndBlackboardPatch"
         }
       ],
@@ -1706,33 +1642,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedBuff"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "attachedBuff"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillCooldownAndBlackboardPatch"
         }
       ],
@@ -1909,33 +1837,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -2138,33 +2058,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedPassive"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillCooldownAndBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "passiveBlackboardPatch"
         }
       ],
@@ -2384,33 +2296,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedPassive"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedBuff"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "passiveBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillCooldownAndBlackboardPatch"
         }
       ],
@@ -2584,34 +2488,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedPassive"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedPassive"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatchAndAttachedBuff"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "potential5",
           "compile": "attachedBuff"
         }
       ],
@@ -2876,34 +2773,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "formationEnhancement",
           "compile": "attachedPassiveWithConditionalCooldown"
         },
         {
           "index": 1,
-          "key": "corrosionMastery",
           "compile": "attachedPassive"
         }
       ],
       "potentials": [
         {
-          "key": "strengthenedComboSkill",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "attributeAndArtsIntensity",
           "compile": "staticAttributes"
         },
         {
-          "key": "strongerCorrosionMastery",
           "compile": "passiveBlackboardPatch"
         },
         {
-          "key": "reducedUltimateCost",
           "compile": "multiplyUltimateCost"
         },
         {
-          "key": "strengthenedFormTalentAndArcana",
           "compile": "skillAndPassiveBlackboardPatch"
         }
       ],
@@ -3105,33 +2995,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "electricDamageBonus",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "electricAdditionalHit",
           "compile": "simulationNoEffectOnBeforeTakeSpellInfliction"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatchAndAttachedBuff"
         }
       ],
@@ -3304,33 +3186,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedPassive"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential3",
           "compile": "passiveBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillCooldownAndBlackboardPatch"
         }
       ],
@@ -3493,33 +3367,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedPassive"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedBuff"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "passiveBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "attachedBuff"
         }
       ],
@@ -3679,33 +3545,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedBuff"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
+          "compile": "skillBlackboardPatch"
+        },
+        {},
+        {
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2"
-        },
-        {
-          "key": "potential3",
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "key": "potential4",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential5",
           "compile": "attachedBuff"
         }
       ],
@@ -3865,33 +3723,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "consumedNoGuardPhysicalDamage"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential3",
           "compile": "staticAttributes"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -4054,33 +3904,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "akekuriComboImbue"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillSpGainAttackStack"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "akekuriComboImbueExtension"
         }
       ],
@@ -4249,33 +4091,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillCooldownAndBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillAndPassiveBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -4458,33 +4292,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedPassive"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedPassive"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential2",
           "compile": "passiveBlackboardPatch"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "attachedBuff"
         }
       ],
@@ -4744,35 +4570,28 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedPassive"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "attachedBuff"
         },
         {
-          "key": "potential2",
           "compile": "attachedBuff"
         },
         {
-          "key": "potential3",
           "compile": "attachedBuff"
         },
         {
-          "key": "potential4",
           "compile": "staticAttributes",
           "simulationNoEffectAttributeTypes": [60]
         },
         {
-          "key": "potential5",
           "compile": "attachedBuff"
         }
       ],
@@ -4948,33 +4767,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "consumedInflictionVulnerability"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -5136,33 +4947,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "simulationNoEffectOnTakeDamage"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatchAndAttachedBuff"
         }
       ],
@@ -5402,34 +5205,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedPassive"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "attachedPassive"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "passiveBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -5680,33 +5476,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillCooldownAndBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -5887,34 +5675,27 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "attachedBuff"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential2",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential3",
           "compile": "skillBlackboardPatch"
         },
         {
-          "key": "potential4",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -6060,33 +5841,25 @@
       "talents": [
         {
           "index": 0,
-          "key": "talent1",
           "compile": "skillBlackboardPatch"
         },
         {
           "index": 1,
-          "key": "talent2",
           "compile": "skillBlackboardPatch"
         }
       ],
       "potentials": [
         {
-          "key": "potential1",
           "compile": "skillBlackboardPatchAndAttachedBuff"
         },
         {
-          "key": "potential2",
           "compile": "staticAttributes"
         },
         {
-          "key": "potential3",
           "compile": "skillCooldownAndBlackboardPatch"
         },
+        {},
         {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5",
           "compile": "skillBlackboardPatch"
         }
       ],
@@ -6284,31 +6057,13 @@
       "runtimeReplacementSkillKeys": ["battleSkillLoop", "battleSkillEnd", "floatingComboSkill"],
       "talents": [
         {
-          "index": 0,
-          "key": "talent1"
+          "index": 0
         },
         {
-          "index": 1,
-          "key": "talent2"
+          "index": 1
         }
       ],
-      "potentials": [
-        {
-          "key": "potential1"
-        },
-        {
-          "key": "potential2"
-        },
-        {
-          "key": "potential3"
-        },
-        {
-          "key": "potential4"
-        },
-        {
-          "key": "potential5"
-        }
-      ],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",

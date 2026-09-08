@@ -4,6 +4,7 @@ import { expect, it, vi } from 'vitest';
 import Panel from './AbilityEntityDefinitionsDialog.vue';
 import { useDefinitionDraftHistory } from '../useDefinitionDraftHistory';
 import type { OperatorAbilityEntityDefinitions } from '../../../core/game-data/operatorDefinition';
+import { perlica } from '../../../data/operators/perlica';
 
 it('edits the owner draft directly and restores entity edits without a secondary save', async () => {
   vi.stubGlobal('document', { addEventListener() {}, removeEventListener() {} });
@@ -55,6 +56,33 @@ it('edits the owner draft directly and restores entity edits without a secondary
           customDefinitions: definitions.value,
           skillLevel: 1,
           sharedHistory: shared,
+          operatorDefinition: {
+            ...perlica,
+            skillGroups: [
+              {
+                key: 'test',
+                skillType: 'battleSkill',
+                levelSource: 'battleSkill',
+                skills: {
+                  key: 'spawn',
+                  timelineBlockFrames: 1,
+                  scheduledSequences: [
+                    {
+                      startFrame: 0,
+                      sequence: {
+                        steps: [
+                          {
+                            kind: 'spawnAbilityEntity',
+                            parameters: { abilityEntityId: 'new-entity', dieWhenSourceDies: false },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
           onSave: save,
         });
     },
@@ -64,6 +92,17 @@ it('edits the owner draft directly and restores entity edits without a secondary
   app.mount({});
   try {
     expect(panel.detailOpen.value).toBe(false);
+    panel.beginCreate();
+    expect(panel.creating.value).toBe(true);
+    expect(history!.canUndo.value).toBe(false);
+    panel.newId.value = 'first';
+    expect(panel.canAdd.value).toBe(false);
+    expect(panel.createError.value).toContain('已被');
+    panel.addDefinition();
+    expect(definitions.value.first!.lifetime).toEqual({ kind: 'limited', durationSeconds: 10 });
+    panel.cancelCreate();
+    expect(panel.creating.value).toBe(false);
+    expect(history!.canUndo.value).toBe(false);
     panel.openDefinition('first');
     expect(panel.detailOpen.value).toBe(true);
     expect(history!.canUndo.value).toBe(false);
@@ -81,6 +120,7 @@ it('edits the owner draft directly and restores entity edits without a secondary
     panel.newId.value = 'new-entity';
     panel.addDefinition();
     await nextTick();
+    expect(panel.creating.value).toBe(false);
     expect(definitions.value['new-entity']).toBeDefined();
     history!.restore('undo');
     await nextTick();
@@ -90,6 +130,7 @@ it('edits the owner draft directly and restores entity edits without a secondary
     await nextTick();
     expect(panel.selectedId.value).toBe('new-entity');
     expect(panel.detailOpen.value).toBe(true);
+    expect(panel.selectedReferences.value.length).toBeGreaterThan(0);
     panel.removeOrResetDefinition();
     await nextTick();
     expect(definitions.value['new-entity']).toBeUndefined();

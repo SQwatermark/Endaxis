@@ -1,5 +1,11 @@
-<script setup lang="ts">
-import { computed, nextTick, ref, shallowRef, watch } from 'vue';
+<script setup lang="ts" generic="T extends object = ActionSequenceDefinition">
+import { computed, nextTick, onScopeDispose, ref, shallowRef, watch } from 'vue';
+import {
+  isBuffGraphPayload,
+  isBuffGraphClipboard,
+  pasteBuffGraphNode,
+  moveBuffGraphNode,
+} from '../buffGraphOperations';
 import type {
   ActionSequenceDefinition,
   CombatCondition,
@@ -58,19 +64,28 @@ import GlobalBuffDefinitionInspector from './GlobalBuffDefinitionInspector.vue';
 import GlobalBuffChildInspector from './GlobalBuffChildInspector.vue';
 import InlineAbilityEntityChildSkillInspector from './InlineAbilityEntityChildSkillInspector.vue';
 import BuffStepEditor from './BuffStepEditor.vue';
+import BuffDetailNodeInspector from './BuffDetailNodeInspector.vue';
+import { isBuffDetailNode, appendBuffGraphChild } from '../buffDamageModifierGraph';
 import BuffEventResponseInspector from './BuffEventResponseInspector.vue';
 import ScheduledSequenceEditor from './ScheduledSequenceEditor.vue';
 
 const props = defineProps<{
-  sequence: ActionSequenceDefinition;
+  sequence: T;
+  buildRoot?: (document: T) => SkillStructureNode;
+  customInspector?: (node: SkillStructureNode) => boolean;
+  showDetails?: boolean;
   selectedPath?: string;
+  navigationRequest?: { readonly propertyPath: InspectorPropertyPath };
   skillLevel: number;
+  nodeSkillLevel?: (node: SkillStructureNode) => number;
+  duplicatePayload?: (kind: SkillStructureNode['payloadKind'], value: unknown) => unknown;
   createStep: (kind: EditableCombatStepKind) => CombatStepDefinition;
   duplicateStep: (step: CombatStepDefinition) => CombatStepDefinition;
-  sharedHistory?: DefinitionDraftHistory<ActionSequenceDefinition>;
+  sharedHistory?: DefinitionDraftHistory<T>;
 }>();
 const emit = defineEmits<{
-  update: [sequence: ActionSequenceDefinition];
+  update: [sequence: T];
+  'custom-add': [node: SkillStructureNode, anchor: { x: number; y: number }];
   details: [path: string];
 }>();
 const shell = ref<HTMLElement | null>(null);
@@ -82,10 +97,16 @@ const history =
     value => emit('update', value),
   );
 useEditorHistoryShortcuts(shell, history.restore);
-const root = computed(() => buildActionSequenceMindMap(props.sequence));
+const root = computed(() => {
+  if (props.buildRoot) return props.buildRoot(props.sequence);
+  if (!('steps' in props.sequence) || !Array.isArray(props.sequence.steps))
+    throw new Error('A non-sequence document requires a structure projection');
+  return buildActionSequenceMindMap(props.sequence as unknown as ActionSequenceDefinition);
+});
 const nodes = computed(() => indexSkillStructureNodes(root.value));
-const selectedId = ref('action-sequence');
+const selectedId = ref(root.value.id);
 const selected = computed(() => nodes.value.get(selectedId.value) ?? root.value);
+const editingLevel = computed(() => props.nodeSkillLevel?.(selected.value) ?? props.skillLevel);
 const value = computed(() => resolveStructureValue(props.sequence, selected.value.sourcePath));
 const editContext = createDefinitionEditContext({
   read: () => props.sequence,
@@ -132,15 +153,24 @@ const map = ref<{
   transferCollapsedState: (from: string, to: string) => void;
 } | null>(null);
 
+let navigationRevision = 0;
+onScopeDispose(() => {
+  navigationRevision++;
+});
 function selectNode(node: { id: string }): void {
+  navigationRevision++;
   void revealProperty();
   selectedId.value = node.id;
   pending.value = undefined;
 }
-async function reveal(path: string): Promise<void> {
+async function reveal(path: string): Promise<boolean> {
+  const revision = ++navigationRevision;
+  void revealProperty();
   await nextTick();
+  if (revision !== navigationRevision) return false;
   selectedId.value = findSkillStructureNodeForPath(root.value, path).id;
   await map.value?.revealNode(selectedId.value);
+  return revision === navigationRevision;
 }
 watch(
   () => props.selectedPath,
@@ -149,9 +179,28 @@ watch(
   },
   { immediate: true },
 );
-function commit(value: ActionSequenceDefinition, propertyPath?: InspectorPropertyPath): void {
+function commit(value: T, propertyPath?: InspectorPropertyPath): void {
   history.commit(value, { path: selected.value.sourcePath, propertyPath });
 }
+async function focusLocation(path: string, propertyPath?: InspectorPropertyPath) {
+  if (!(await reveal(path)) || !propertyPath?.length) return;
+  const bound =
+    inlineBuff.value ||
+    condition.value ||
+    selected.value.payloadKind === 'eventResponse' ||
+    selected.value.payloadKind === 'skillEventHandler' ||
+    (step.value && (step.value.kind === 'applyBuff' || stepInspectorFields(step.value.kind)));
+  await revealProperty(bound ? [...structurePathSegments(path), ...propertyPath] : propertyPath);
+}
+watch(
+  () => props.navigationRequest,
+  request => {
+    if (!request) return;
+    const location = locateStructureProperty(root.value, request.propertyPath);
+    void focusLocation(location.path, location.propertyPath);
+  },
+  { immediate: true, flush: 'post' },
+);
 let initialHistoryLocation = true;
 watch(
   () => history.restoredLocation?.value,
@@ -159,26 +208,17 @@ watch(
     const initial = initialHistoryLocation;
     initialHistoryLocation = false;
     // 重新进入图时显式导航优先于上一次撤销留下的位置，后续撤销照常定位。
-    if (!location || (initial && props.selectedPath !== undefined)) return;
-    await revealProperty();
-    await reveal(location.path);
-    if (history.restoredLocation?.value === location && location.propertyPath) {
-      const bound =
-        condition.value ||
-        selected.value.payloadKind === 'eventResponse' ||
-        selected.value.payloadKind === 'skillEventHandler' ||
-        (step.value && (step.value.kind === 'applyBuff' || stepInspectorFields(step.value.kind)));
-      await revealProperty(
-        bound
-          ? [...structurePathSegments(location.path), ...location.propertyPath]
-          : location.propertyPath,
-      );
-    }
+    if (!location || (initial && (props.selectedPath !== undefined || props.navigationRequest)))
+      return;
+    await focusLocation(location.path, location.propertyPath);
   },
   { flush: 'post', immediate: true },
 );
 function updateValue(next: unknown, propertyPath?: InspectorPropertyPath): void {
-  if (selected.value.sourcePath === '') return;
+  if (selected.value.sourcePath === '') {
+    commit(next as T, propertyPath);
+    return;
+  }
   commit(
     replaceStructureValueAtPath(props.sequence, selected.value.sourcePath, next),
     propertyPath,
@@ -188,6 +228,12 @@ function beginAdd(source: { id: string }, anchor: { x: number; y: number }): voi
   const node = nodes.value.get(source.id);
   if (!node) return;
   selectNode(node);
+  if (node.canAddChild === 'buffMember') {
+    const result = appendBuffGraphChild(props.sequence, node.sourcePath);
+    commit(result.root);
+    void reveal(result.itemPath);
+    return;
+  }
   if (node.canAddChild === 'step' || node.canAddChild === 'combatCondition')
     pending.value = { node, anchor, kind: node.canAddChild === 'step' ? 'step' : 'condition' };
   else {
@@ -215,6 +261,7 @@ function beginAdd(source: { id: string }, anchor: { x: number; y: number }): voi
     }
     const path = kind ? childArray(node, kind) : undefined;
     if (path === undefined) {
+      emit('custom-add', node, anchor);
       emit('details', node.sourcePath);
       return;
     }
@@ -257,6 +304,8 @@ function childArray(
   kind: SkillStructureNode['payloadKind'],
 ): string | undefined {
   if (node.acceptsChildKind !== kind) return;
+  if (kind === 'upgradeModifier' || kind === 'upgradeHandler' || kind === 'upgradePassive')
+    return node.sourcePath;
   const prefix = node.sourcePath ? `${node.sourcePath}.` : '';
   if (kind === 'combatStep')
     return `${prefix}${node.payloadKind === 'scheduledSequence' ? 'sequence.' : ''}steps`;
@@ -283,6 +332,14 @@ function nodeAction(action: 'copy' | 'paste' | 'delete', source: { id: string })
     );
     void reveal('');
   } else if (action === 'paste' && clipboard.value) {
+    if (isBuffGraphClipboard(clipboard.value)) {
+      const result = pasteBuffGraphNode(props.sequence, node, clipboard.value);
+      if (result) {
+        commit(result.root);
+        void reveal(result.itemPath);
+      }
+      return;
+    }
     let path = childArray(node, clipboard.value.kind);
     let index: number | undefined;
     if (path === undefined && node.payloadKind === clipboard.value.kind) {
@@ -299,7 +356,9 @@ function nodeAction(action: 'copy' | 'paste' | 'delete', source: { id: string })
     const payload =
       clipboard.value.kind === 'combatStep'
         ? props.duplicateStep(clipboard.value.value as CombatStepDefinition)
-        : cloneStructureValue(clipboard.value.value);
+        : props.duplicatePayload
+          ? props.duplicatePayload(clipboard.value.kind, clipboard.value.value)
+          : cloneStructureValue(clipboard.value.value);
     const added = insertStructureArrayItem(props.sequence, path, payload, index);
     commit(added.root);
     void reveal(added.itemPath);
@@ -314,6 +373,16 @@ async function moveNode(operation: {
   const source = nodes.value.get(operation.source.id);
   const target = nodes.value.get(operation.target.id);
   if (!source || !target || source.canMove === false || !source.payloadKind) return;
+  if (isBuffGraphPayload(source.payloadKind)) {
+    const result = moveBuffGraphNode(props.sequence, source, target, operation.placement);
+    if (!result) return;
+    commit(result.root);
+    await nextTick();
+    const moved = findSkillStructureNodeForPath(root.value, result.itemPath);
+    map.value?.transferCollapsedState(source.id, moved.id);
+    await reveal(result.itemPath);
+    return;
+  }
   let arrayPath: string | undefined;
   let index: number | undefined;
   if (operation.placement === 'inside') arrayPath = childArray(target, source.payloadKind);
@@ -344,6 +413,7 @@ async function moveNode(operation: {
     <SkillStructureMindMap
       ref="map"
       :root="root"
+      :initial-overview="!!buildRoot"
       :selected-id="selectedId"
       :show-reference-pins="false"
       :can-undo="history.canUndo.value"
@@ -358,7 +428,13 @@ async function moveNode(operation: {
     <main class="sequence-inspector">
       <header>
         <strong>{{ selected.label }}</strong
-        ><button type="button" @click="emit('details', selected.sourcePath)">完整表单</button>
+        ><button
+          v-if="showDetails !== false"
+          type="button"
+          @click="emit('details', selected.sourcePath)"
+        >
+          完整表单
+        </button>
       </header>
       <StepTypePicker
         v-if="pending?.kind === 'step'"
@@ -374,13 +450,25 @@ async function moveNode(operation: {
         @select="appendCondition"
         @close="pending = undefined"
       />
-      <DefinitionPropertyScope v-if="step || condition" :property="selectedProperty">
+      <slot
+        v-if="customInspector?.(selected)"
+        name="inspector"
+        :node="selected"
+        :value="value"
+        :update="updateValue"
+      />
+      <BuffDetailNodeInspector
+        v-else-if="isBuffDetailNode(selected)"
+        :node="selected"
+        :property="selectedProperty"
+      />
+      <DefinitionPropertyScope v-else-if="step || condition" :property="selectedProperty">
         <CombatStepEditor
           inline-buff-in-graph
           v-if="step"
           :key="selected.sourcePath"
           :step="step"
-          :skill-level="skillLevel"
+          :skill-level="editingLevel"
           :show-header="false"
           inspector-only
           :create-step="createStep"
@@ -390,7 +478,7 @@ async function moveNode(operation: {
         <CombatConditionEditor
           v-else-if="condition"
           :condition="condition"
-          :skill-level="skillLevel"
+          :skill-level="editingLevel"
           layer-only
         />
       </DefinitionPropertyScope>
@@ -423,15 +511,17 @@ async function moveNode(operation: {
         v-else-if="selected.payloadKind === 'childSkill'"
         :key="selected.sourcePath"
         :child-skill="value as AbilityEntityChildSkillDefinition"
-        :skill-level="skillLevel"
+        :skill-level="editingLevel"
         @update="updateValue"
       />
       <BuffStepEditor
         v-else-if="inlineBuff"
         :key="selected.sourcePath"
         :step="inlineBuff"
-        :skill-level="skillLevel"
+        :definition-binding="selectedProperty"
+        :skill-level="editingLevel"
         definition-only
+        modifier-collections-in-graph
         inspector-only
         @update="updateInlineBuff"
       />
@@ -454,7 +544,7 @@ async function moveNode(operation: {
         :key="selected.sourcePath"
         :sequence="value as ScheduledSequenceDefinition"
         :title="selected.label"
-        :skill-level="skillLevel"
+        :skill-level="editingLevel"
         :create-step="createStep"
         :duplicate-step="duplicateStep"
         inspector-only

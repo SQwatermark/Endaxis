@@ -155,10 +155,7 @@ describe('next Perlica definition', () => {
   });
 
   it('preserves both talents and connects the ricochet switch through native blackboard data', () => {
-    expect(perlica.talents.map(talent => talent.key)).toEqual([
-      'staggerDamageBonus',
-      'comboRicochetAgainstBrokenEnemy',
-    ]);
+    expect(perlica.talents).toHaveLength(2);
     expect(perlica.talents[1]?.modifiers).toEqual([
       {
         kind: 'patchSkillBlackboard',
@@ -174,7 +171,7 @@ describe('next Perlica definition', () => {
     const potential = perlica.potentials[2];
 
     expect(potential).toMatchObject({
-      key: 'attackAfterElectrification',
+      levels: 1,
       initializationSequence: {
         steps: [
           {

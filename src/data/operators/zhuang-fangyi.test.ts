@@ -55,17 +55,11 @@ describe('next Zhuang Fangyi definition', () => {
   });
 
   it('preserves both talent slots and all five potential slots', () => {
-    expect(zhuangFangyi.talents.map(talent => talent.key)).toEqual(['talent1', 'talent2']);
+    expect(zhuangFangyi.talents).toHaveLength(2);
     expect(zhuangFangyi.talents.every(talent => (talent.passiveSkills?.length ?? 0) > 0)).toBe(
       true,
     );
-    expect(zhuangFangyi.potentials.map(potential => potential.key)).toEqual([
-      'potential1',
-      'potential2',
-      'potential3',
-      'potential4',
-      'potential5',
-    ]);
+    expect(zhuangFangyi.potentials).toHaveLength(5);
   });
 
   it('switches both enhanced skill slots for the lifetime of the ultimate Buff', () => {

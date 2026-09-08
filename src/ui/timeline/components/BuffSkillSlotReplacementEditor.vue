@@ -2,7 +2,10 @@
 import { ref } from 'vue';
 import type { SkillBuffSlotReplacement } from '../../../../packages/game-data-contract/src/buffs';
 
-const props = defineProps<{ replacements: readonly SkillBuffSlotReplacement[] }>();
+const props = defineProps<{
+  replacements: readonly SkillBuffSlotReplacement[];
+  singleEntry?: boolean;
+}>();
 const emit = defineEmits<{ update: [replacements: readonly SkillBuffSlotReplacement[]] }>();
 const collapsed = ref(true);
 
@@ -51,16 +54,20 @@ function setText(
 </script>
 
 <template>
-  <section class="slot-replacement-editor">
-    <header>
+  <section class="slot-replacement-editor" :class="{ 'single-entry': singleEntry }">
+    <header v-if="!singleEntry">
       <button type="button" @click="collapsed = !collapsed">
         {{ collapsed ? '▸' : '▾' }} 技能槽替换 <span>{{ replacements.length }}</span>
       </button>
       <button type="button" title="添加技能槽替换" @click="add">＋</button>
     </header>
     <p v-if="!collapsed">替换由当前 Buff 实例启用，停用或结束时还原。</p>
-    <article v-for="(replacement, index) in replacements" v-show="!collapsed" :key="index">
-      <header>
+    <article
+      v-for="(replacement, index) in replacements"
+      v-show="singleEntry || !collapsed"
+      :key="index"
+    >
+      <header v-if="!singleEntry">
         <strong>槽替换 {{ index + 1 }}</strong>
         <button type="button" :disabled="index === 0" @click="move(index, -1)">↑</button>
         <button type="button" :disabled="index === replacements.length - 1" @click="move(index, 1)">
@@ -159,5 +166,20 @@ function setText(
 .cooldown-progress input {
   width: 15px;
   height: 15px;
+}
+.single-entry {
+  margin-top: 0;
+  border: 0;
+  padding: 0;
+}
+.single-entry article {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+.single-entry article > label {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
 }
 </style>

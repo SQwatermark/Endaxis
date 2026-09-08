@@ -32,19 +32,19 @@ const metadata: PublishedOperatorMetadata = {
   displayName: 'custom name',
   skillKeys: ['skill'],
   talents: [
-    { key: 't1', levels: 2, passiveKeys: [] },
-    { key: 't2', levels: 1, passiveKeys: ['passive-t'] },
+    { levels: 2, passiveKeys: [] },
+    { levels: 1, passiveKeys: ['passive-t'] },
   ],
-  potentials: [{ key: 'p1', levels: 1, passiveKeys: ['passive-p'] }],
+  potentials: [{ levels: 1, passiveKeys: ['passive-p'] }],
 };
 const operators = new Map([['custom', metadata]]);
 
 it.each([
   ['cast', { kind: 'skill', slug: 'native', key: 'skill' }],
   ['skill', { kind: 'skill', slug: 'native', key: 'skill' }],
-  ['upgrade-initialization:talent:t2', { kind: 'talent', slug: 'native', index: 2 }],
+  ['upgrade-initialization:talent:1', { kind: 'talent', slug: 'native', index: 2 }],
   ['passive:passive-t', { kind: 'talent', slug: 'native', index: 2 }],
-  ['upgrade-initialization:potential:p1', { kind: 'potential', slug: 'native', index: 0 }],
+  ['upgrade-initialization:potential:0', { kind: 'potential', slug: 'native', index: 0 }],
   ['passive:passive-p', { kind: 'potential', slug: 'native', index: 0 }],
   ['unknown', undefined],
 ] as const)('resolves published source %s without a live definition repository', (id, expected) => {

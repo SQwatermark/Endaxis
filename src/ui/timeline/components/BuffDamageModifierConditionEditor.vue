@@ -14,8 +14,9 @@ import {
 import { GAMEPLAY_TAG_QUERY_TYPES } from '../../../../packages/game-data-contract/src/gameplayTags';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
+import InspectorStringList from './InspectorStringList.vue';
 
-const props = defineProps<{ condition: DamageModifierCondition }>();
+const props = defineProps<{ condition: DamageModifierCondition; layerOnly?: boolean }>();
 const emit = defineEmits<{ update: [condition: DamageModifierCondition] }>();
 
 const CONDITION_KINDS = [
@@ -75,7 +76,14 @@ function updatePatch(patch: Partial<DamageModifierCondition>): void {
 
 function setKind(event: Event): void {
   const kind = (event.target as HTMLSelectElement).value as DamageModifierCondition['kind'];
-  if (!CONDITION_KINDS.includes(kind)) return;
+  if (!CONDITION_KINDS.includes(kind) || kind === props.condition.kind) return;
+  if (
+    (kind === 'all' || kind === 'any') &&
+    (props.condition.kind === 'all' || props.condition.kind === 'any')
+  ) {
+    emit('update', { ...props.condition, kind });
+    return;
+  }
   emit('update', createCondition(kind));
 }
 
@@ -109,7 +117,7 @@ function removeChild(index: number): void {
 </script>
 
 <template>
-  <section class="damage-condition">
+  <section class="damage-condition" :class="{ 'damage-condition--layer': layerOnly }">
     <label>
       <span>条件类型</span>
       <select :value="condition.kind" @change="setKind">
@@ -117,6 +125,9 @@ function removeChild(index: number): void {
       </select>
     </label>
 
+    <p v-if="layerOnly" class="condition-kind-help">
+      “全部满足”和“任一满足”互换保留子条件；切换为其他类型会替换当前条件及其子树，可撤销。
+    </p>
     <template v-if="condition.kind === 'entityTagMatch'">
       <label>
         <span>目标</span>
@@ -172,21 +183,11 @@ function removeChild(index: number): void {
           </option>
         </select>
       </label>
-      <label>
-        <span>Buff ID</span>
-        <input
-          type="text"
-          :value="condition.buffIds.join(', ')"
-          @change="
-            updatePatch({
-              buffIds: ($event.target as HTMLInputElement).value
-                .split(',')
-                .map(value => value.trim())
-                .filter(Boolean),
-            })
-          "
-        />
-      </label>
+      <InspectorStringList
+        label="Buff ID"
+        :value="condition.buffIds"
+        @update="updatePatch({ buffIds: $event })"
+      />
       <label
         ><span>比较</span
         ><select :value="condition.operator" @change="setOperator">
@@ -356,6 +357,15 @@ function removeChild(index: number): void {
       /></label>
     </template>
 
+    <p
+      v-else-if="
+        layerOnly &&
+        (condition.kind === 'not' || condition.kind === 'all' || condition.kind === 'any')
+      "
+      class="structure-hint"
+    >
+      子条件在节点图中编辑。
+    </p>
     <BuffDamageModifierConditionEditor
       v-else-if="condition.kind === 'not'"
       :condition="condition.condition"
@@ -387,6 +397,17 @@ function removeChild(index: number): void {
   gap: 7px;
   padding: 8px;
   border: 1px solid var(--ea-border-soft);
+}
+.damage-condition--layer {
+  padding: 0;
+  border: 0;
+}
+.damage-condition--layer > label {
+  grid-template-columns: minmax(0, 1fr);
+}
+.structure-hint {
+  margin: 0;
+  color: var(--ea-fg-muted);
 }
 .damage-condition > label {
   display: grid;

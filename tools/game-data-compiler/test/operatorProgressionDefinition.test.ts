@@ -53,7 +53,7 @@ describe('干员养成正式定义组装', () => {
     const source = progression();
     const snapshot = structuredClone(source);
     const potentials = [1, 2, 3, 4, 5].map(level =>
-      compileOperatorPotentialDefinition(source, { key: `potential${level}`, level }, context),
+      compileOperatorPotentialDefinition(source, { level }, context),
     );
     expect(potentials).toEqual(avywenna.potentials);
     expect(source).toEqual(snapshot);
@@ -63,7 +63,7 @@ describe('干员养成正式定义组装', () => {
     const source = progression();
     const definition = compileOperatorTalentDefinition(
       { ...source, talentNodes: [...source.talentNodes].reverse() },
-      { key: 'talent2', index: 1 },
+      { index: 1 },
       context,
     );
     expect(definition).toEqual(avywenna.talents[1]);
@@ -74,11 +74,7 @@ describe('干员养成正式定义组装', () => {
   });
 
   it('第一天赋直接初始化 Buff，不伪造隐藏被动技能', () => {
-    const definition = compileOperatorTalentDefinition(
-      progression(),
-      { key: 'talent1', index: 0 },
-      context,
-    );
+    const definition = compileOperatorTalentDefinition(progression(), { index: 0 }, context);
     expect(definition).toEqual(avywenna.talents[0]);
     expect(definition.passiveSkills).toBeUndefined();
     expect(definition.initializationSequence).toBeDefined();
@@ -107,13 +103,8 @@ describe('干员养成正式定义组装', () => {
           : bundle,
       ),
     };
-    const definition = compileOperatorPotentialDefinition(
-      modified,
-      { key: 'potential1', level: 1 },
-      context,
-    );
+    const definition = compileOperatorPotentialDefinition(modified, { level: 1 }, context);
     expect(definition).toEqual({
-      key: 'potential1',
       levels: 1,
       initializationSequence: {
         steps: [
@@ -159,21 +150,14 @@ describe('干员养成正式定义组装', () => {
       ),
     };
 
-    expect(
-      compileOperatorPotentialDefinition(modified, { key: 'potential1', level: 1 }, context),
-    ).toEqual({
-      key: 'potential1',
+    expect(compileOperatorPotentialDefinition(modified, { level: 1 }, context)).toEqual({
       levels: 1,
       modifiers: [{ kind: 'addStaticHealingIncrease', target: 'output', value: 0.1 }],
     });
   });
 
   it.each([0, 1, 2])('天赋等级 %s 经正式构筑只产生零个或一个初始化程序', level => {
-    const definition = compileOperatorTalentDefinition(
-      progression(),
-      { key: 'talent1', index: 0 },
-      context,
-    );
+    const definition = compileOperatorTalentDefinition(progression(), { index: 0 }, context);
     const operator = { ...avywenna, talents: [definition] };
     const step = definition.initializationSequence!.steps[0]!;
     if (step.kind !== 'applyBuff') throw new Error('expected direct Buff initialization');
@@ -243,9 +227,7 @@ describe('干员养成正式定义组装', () => {
         ),
       })),
     });
-    expect(
-      compileOperatorTalentDefinition(modified(false), { key: 'talent1', index: 0 }, context),
-    ).toMatchObject({
+    expect(compileOperatorTalentDefinition(modified(false), { index: 0 }, context)).toMatchObject({
       initializationSequence: {
         steps: [
           {
@@ -255,9 +237,9 @@ describe('干员养成正式定义组装', () => {
         ],
       },
     });
-    expect(() =>
-      compileOperatorTalentDefinition(modified(true), { key: 'talent1', index: 0 }, context),
-    ).toThrow('unrepresentable build condition');
+    expect(() => compileOperatorTalentDefinition(modified(true), { index: 0 }, context)).toThrow(
+      'unrepresentable build condition',
+    );
   });
 
   it.each([0, 1, 2])(
@@ -305,18 +287,10 @@ describe('干员养成正式定义组装', () => {
           [id]: closure.definitions[id] as SkillBuffDefinition,
         },
         talents: [0, 1].map(index =>
-          compileOperatorTalentDefinition(
-            progression(),
-            { index, key: `talent${index + 1}` },
-            context,
-          ),
+          compileOperatorTalentDefinition(progression(), { index }, context),
         ),
         potentials: [1, 2, 3, 4, 5].map(level =>
-          compileOperatorPotentialDefinition(
-            progression(),
-            { level, key: `potential${level}` },
-            context,
-          ),
+          compileOperatorPotentialDefinition(progression(), { level }, context),
         ),
       };
       const scenario = createEmptyScenario('progression-test', '天赋初始化');
@@ -372,21 +346,21 @@ describe('干员养成正式定义组装', () => {
     expect(() =>
       compileOperatorTalentDefinition(
         { ...source, talentNodes: [...source.talentNodes, node] },
-        { key: 'talent2', index: 1 },
+        { index: 1 },
         context,
       ),
     ).toThrow('unique and contiguous');
     expect(() =>
       compileOperatorTalentDefinition(
         { ...source, talentNodes: source.talentNodes.filter(item => item !== node) },
-        { key: 'talent2', index: 1 },
+        { index: 1 },
         context,
       ),
     ).toThrow('unique and contiguous');
     expect(() =>
       compileOperatorPotentialDefinition(
         { ...source, compiledEffectBundles: [] },
-        { key: 'potential1', level: 1 },
+        { level: 1 },
         context,
       ),
     ).toThrow('expected one effect bundle');
@@ -400,15 +374,10 @@ describe('干员养成正式定义组装', () => {
         skillKeys: [...group.skillKeys, 'another'],
       })),
     };
-    const patch = compileOperatorPotentialDefinition(
-      progression(),
-      { key: 'potential5', level: 5 },
-      multi,
-    );
+    const patch = compileOperatorPotentialDefinition(progression(), { level: 5 }, multi);
     expect(patch.modifiers?.[0]).toMatchObject({ skillKey: 'battleSkill' });
     expect(
-      compileOperatorPotentialDefinition(progression(), { key: 'potential4', level: 4 }, multi)
-        .modifiers?.[0],
+      compileOperatorPotentialDefinition(progression(), { level: 4 }, multi).modifiers?.[0],
     ).toMatchObject({
       kind: 'multiplySkillCost',
       skillGroupKey: 'ultimate',
@@ -440,9 +409,7 @@ describe('干员养成正式定义组装', () => {
           : bundle,
       ),
     };
-    expect(
-      compileOperatorPotentialDefinition(modified, { key: 'potential5', level: 5 }, context),
-    ).toMatchObject({
+    expect(compileOperatorPotentialDefinition(modified, { level: 5 }, context)).toMatchObject({
       modifiers: [{ kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -90 }],
     });
   });
@@ -465,15 +432,11 @@ describe('干员养成正式定义组装', () => {
         })),
       })),
     };
-    const result = compileOperatorPotentialDefinition(
-      conditioned,
-      { key: 'potential5', level: 5 },
-      context,
-    );
+    const result = compileOperatorPotentialDefinition(conditioned, { level: 5 }, context);
     expect(result.modifiers?.[0]).toMatchObject({ condition });
-    expect(() =>
-      compileOperatorPotentialDefinition(conditioned, { key: 'potential4', level: 4 }, context),
-    ).toThrow('unrepresentable build condition');
+    expect(() => compileOperatorPotentialDefinition(conditioned, { level: 4 }, context)).toThrow(
+      'unrepresentable build condition',
+    );
   });
 
   it('保留运行时冷却条件，且不把展示冷却重复计入模拟', () => {
@@ -517,9 +480,7 @@ describe('干员养成正式定义组装', () => {
           : bundle,
       ),
     };
-    expect(
-      compileOperatorTalentDefinition(modified, { key: 'talent1', index: 0 }, context),
-    ).toMatchObject({
+    expect(compileOperatorTalentDefinition(modified, { index: 0 }, context)).toMatchObject({
       modifiers: [
         {
           kind: 'addSkillCooldownFrames',
@@ -543,8 +504,8 @@ describe('干员养成正式定义组装', () => {
             : bundle.entries,
       })),
     };
-    expect(() =>
-      compileOperatorTalentDefinition(changed, { key: 'talent2', index: 1 }, context),
-    ).toThrow('level-dependent modifier structure');
+    expect(() => compileOperatorTalentDefinition(changed, { index: 1 }, context)).toThrow(
+      'level-dependent modifier structure',
+    );
   });
 });

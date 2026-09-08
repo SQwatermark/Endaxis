@@ -668,6 +668,13 @@
       "enemyWeaknessSet": "Set weakness"
     },
     "skillEditing": {
+      "runtimeFields": {
+        "sourceSkillId": "Native skill ID",
+        "nativeSkillType": "Initial native skill type",
+        "smartTarget": "Smart target source",
+        "naturalDurationFrames": "Natural duration (frames)",
+        "exclusiveFrame": "Exclusive frame"
+      },
       "queryParameters": "Query parameters",
       "conditionStructureInGraph": "Edit child conditions and their order in the graph.",
       "unionListValue": "List",
@@ -760,6 +767,8 @@
       "levelArray": "Per-level values (read-only)",
       "costFrame": "Cost frame",
       "costs": "Costs",
+      "spConsumption": "SP cost",
+      "ultimateEnergyConsumption": "Ultimate energy cost",
       "resource": "Resource",
       "value": "Value",
       "sequences": "Sequences",
@@ -1168,7 +1177,7 @@
       "deleteGameplayTag": "Delete GameplayTag",
       "invalidGameplayTag": "Invalid tag path",
       "unknownGameplayTag": "Custom tag not listed in this version",
-      "buffApplyTags": "GameplayTags supplied by the active Buff instance. Select readable paths; both projects and simulation store the same strings.",
+      "buffApplyTags": "Buff-provided tags",
       "buffExtendTags": "Buff extension match tags",
       "timeDilationScope": "Scope",
       "timeDilationScopes": { "global": "Global", "entity": "Selected entities" },

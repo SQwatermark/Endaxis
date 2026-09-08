@@ -10,6 +10,13 @@ export interface DefinitionHistoryLocation {
   readonly section?: string;
   readonly objectId?: string;
   readonly skillGroupKey?: string;
+  readonly skillDefinitionPath?: string;
+  readonly upgradeKind?: 'talents' | 'potentials';
+  readonly upgradeIndex?: number;
+  readonly upgradeCategory?: string;
+  readonly runtimeCategory?: 'passiveSkills' | 'eventHandlers';
+  /** Child page within a root section; independent of document ownership. */
+  readonly page?: string;
   readonly operation?: 'add' | 'duplicate' | 'remove' | 'reset' | 'edit';
 }
 
@@ -125,6 +132,38 @@ export function useDefinitionDraft<T>(initial: T) {
     set: value => history.commit(value),
   });
   return { draft, history, reset: (value: T) => history.reset!(value) };
+}
+
+/** Embedded pages read the root value, never a second writable snapshot. The save
+ * scope is fixed for a mounted page; independent pages retain their own draft. */
+export function useDefinitionPageDraft<T>(
+  read: () => T,
+  shared: DefinitionDraftHistory<T> | undefined,
+  locate: () => DefinitionHistoryLocation,
+) {
+  if (!shared) return useDefinitionDraft(read());
+  let pending: DefinitionHistoryLocation | undefined;
+  const history = markRaw<DefinitionDraftHistory<T>>({
+    ...shared,
+    commit(value, location) {
+      shared.commit(value, location ?? pending ?? locate());
+    },
+    atLocation(location, edit) {
+      const previous = pending;
+      pending = location;
+      try {
+        edit();
+      } finally {
+        pending = previous;
+      }
+    },
+  });
+  return {
+    draft: computed<T>({ get: read, set: value => history.commit(value) }),
+    history,
+    // Opening an embedded page must not reset its parent's undo stack.
+    reset: (_value: T) => {},
+  };
 }
 
 /** 子视图借用所属草稿的撤销游标，只负责把局部值交给父级更新入口。 */

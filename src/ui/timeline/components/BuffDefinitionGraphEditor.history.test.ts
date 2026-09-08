@@ -89,6 +89,112 @@ it('records Inspector edits and invalidates redo when editing after undo', async
       await panel.restoreStructureHistory('redo');
       expect(definition.value).toEqual(edited);
     }
+    definition.value = {
+      stackingType: 'refresh',
+      damageModifiers: [
+        {
+          enabledSide: 'attacker',
+          processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 2 }],
+        },
+      ],
+    };
+    await nextTick();
+    const beforeDelete = definition.value;
+    const processorNode = [...panel.nodeIndex.value.values()].find(
+      (node: any) => node.sourcePath === 'damageModifiers[0].processors[0]',
+    ) as any;
+    expect(processorNode.canDelete).toBe(true);
+    await panel.runStructureNodeAction('delete', processorNode);
+    expect(definition.value.damageModifiers?.[0]?.processors).toEqual([]);
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeDelete);
+    const find = (path: string) =>
+      [...panel.nodeIndex.value.values()].find((node: any) => node.sourcePath === path) as any;
+    await panel.runStructureNodeAction('copy', find('damageModifiers[0]'));
+    expect(panel.structureClipboard.value.kind).toBe('buffDamageModifier');
+    await panel.runStructureNodeAction('paste', find('damageModifiers'));
+    await nextTick();
+    expect(definition.value.damageModifiers).toHaveLength(2);
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeDelete);
+    await panel.restoreStructureHistory('redo');
+    await nextTick();
+    panel.selectNode(find('damageModifiers[1]'));
+    panel.editing.property.value.child('enabledSide').update(() => 'defender');
+    await nextTick();
+    const beforeMove = definition.value;
+    await panel.moveStructureNode({
+      source: find('damageModifiers[1]'),
+      target: find('damageModifiers[0]'),
+      placement: 'before',
+    });
+    expect(
+      definition.value.damageModifiers?.map(
+        (modifier: { enabledSide: string }) => modifier.enabledSide,
+      ),
+    ).toEqual(['defender', 'attacker']);
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeMove);
+    await panel.beginAdd(find('damageModifiers[0].conditionProgram'), { x: 0, y: 0 });
+    await nextTick();
+    const beforeProgramDelete = definition.value;
+    expect(beforeProgramDelete.damageModifiers?.[0]?.conditionProgram).toEqual({ steps: [] });
+    await panel.runStructureNodeAction('delete', find('damageModifiers[0].conditionProgram'));
+    expect(definition.value.damageModifiers?.[0]?.conditionProgram).toBeUndefined();
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeProgramDelete);
+    for (const key of [
+      'attributeModifiers',
+      'skillSlotReplacements',
+      'keywordEnhancements',
+      'healModifiers',
+      'poiseModifiers',
+      'shields',
+      'childPresentations',
+    ]) {
+      const before = definition.value;
+      await panel.beginAdd(find(key), { x: 0, y: 0 });
+      await nextTick();
+      expect(find(key).children).toHaveLength(1);
+      await panel.runStructureNodeAction('copy', find(`${key}[0]`));
+      await panel.runStructureNodeAction('paste', find(key));
+      await nextTick();
+      expect(find(key).children).toHaveLength(2);
+      await panel.moveStructureNode({
+        source: find(`${key}[1]`),
+        target: find(`${key}[0]`),
+        placement: 'before',
+      });
+      await panel.runStructureNodeAction('delete', find(`${key}[0]`));
+      expect(find(key).children).toHaveLength(1);
+      await panel.restoreStructureHistory('undo');
+      expect(find(key).children).toHaveLength(2);
+      expect(before[key]).toBeUndefined();
+    }
+    await panel.beginAdd(find('shields[0].damageAbsorptions'), { x: 0, y: 0 });
+    await nextTick();
+    const beforeAbsorptionDelete = definition.value;
+    await panel.runStructureNodeAction('delete', find('shields[0].damageAbsorptions[0]'));
+    expect(find('shields[0].damageAbsorptions').children).toEqual([]);
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeAbsorptionDelete);
+    for (const path of [
+      'presentation',
+      'presentation.orderPriority',
+      'childPresentations[0].presentation.orderPriority',
+      'sustainedProtection',
+      'role',
+      'spellBurst',
+    ]) {
+      await panel.beginAdd(find(path), { x: 0, y: 0 });
+      await nextTick();
+      const before = definition.value;
+      expect(find(path).canDelete).toBe(true);
+      await panel.runStructureNodeAction('delete', find(path));
+      expect(find(path).canAddChild).toBe('buffMember');
+      await panel.restoreStructureHistory('undo');
+      expect(definition.value).toEqual(before);
+    }
   } finally {
     app.unmount();
     vi.unstubAllGlobals();

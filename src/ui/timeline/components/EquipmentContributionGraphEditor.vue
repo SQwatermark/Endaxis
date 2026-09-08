@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
 import { computed, nextTick, ref, shallowRef } from 'vue';
 import { useDefinitionGraphEditing } from '../useDefinitionGraphEditing';
 import DefinitionPropertyScope from './DefinitionPropertyScope.vue';
@@ -50,19 +51,7 @@ import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import EquipmentBuffDefinitionsDialog from './EquipmentBuffDefinitionsDialog.vue';
 
-type ContributionPayloadKind =
-  | 'scheduledSequence'
-  | 'combatStep'
-  | 'childSkill'
-  | 'equipmentModifier'
-  | 'equipmentHandler'
-  | 'combatCondition'
-  | 'eventResponse'
-  | 'skillEventHandler'
-  | 'buffAbilityResponse'
-  | 'buffIgniteResponse'
-  | 'globalBuffDefinition'
-  | 'globalBuffChild';
+type ContributionPayloadKind = NonNullable<StructureNodeContract['payloadKind']>;
 interface ContributionOperationNode {
   readonly id: string;
   readonly sourcePath: string;
@@ -149,19 +138,7 @@ function selectNode(node: {
 
 function beginAdd(
   node: ContributionOperationNode & {
-    readonly canAddChild?:
-      | 'step'
-      | 'equipmentModifier'
-      | 'equipmentHandler'
-      | 'combatCondition'
-      | 'eventResponse'
-      | 'skillEventHandler'
-      | 'buffAbilityResponse'
-      | 'buffIgniteResponse'
-      | 'sequence'
-      | 'lifecycle'
-      | 'childSkill'
-      | 'globalBuffChild';
+    readonly canAddChild?: StructureNodeContract['canAddChild'];
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {

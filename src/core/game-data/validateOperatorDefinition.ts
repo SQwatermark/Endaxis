@@ -10,6 +10,7 @@ import {
 } from './operatorDefinition';
 import { listOperatorSkillDefinitionBindings } from './operatorSkillDefinitions';
 import { validateComboSkillConditions } from './validateComboSkillConditions';
+import { OPERATOR_PROGRESSION_SLOTS } from './operatorProgressionSlots';
 import {
   validateAbilityEntityDefinition,
   validateActionSequenceDefinition,
@@ -50,6 +51,20 @@ export function validateOperatorDefinition(
   path = '$',
 ): SkillDefinitionValidationIssue[] {
   const issues: SkillDefinitionValidationIssue[] = [];
+  const presentation = definition.passiveUi;
+  if (presentation !== undefined) {
+    // These are structural display inputs, not inferred combat restrictions.
+    for (const [field, value] of Object.entries(presentation)) {
+      if (field.endsWith('BuffId') && (typeof value !== 'string' || value.trim() === ''))
+        push(issues, `${path}.passiveUi.${field}`, 'expected a non-empty Buff ID');
+      if (
+        ['maximum', 'activeAt', 'maximumArrows', 'maximumPoints'].includes(field) &&
+        value !== undefined &&
+        (typeof value !== 'number' || !Number.isFinite(value) || value < 0)
+      )
+        push(issues, `${path}.passiveUi.${field}`, 'expected a finite non-negative number');
+    }
+  }
   for (const [field, value] of [
     ['slug', definition.slug],
     ['gameId', definition.gameId],
@@ -122,6 +137,16 @@ export function validateOperatorDefinition(
     if (groupKeys.has(group.key))
       push(issues, `${groupPath}.key`, `duplicate group key '${group.key}'`);
     groupKeys.add(group.key);
+    (group.routedReplacementSkills ?? []).forEach((item, index) => {
+      for (const field of ['executionSkillGroupKey', 'executionSkillKey'] as const) {
+        if (item[field].trim() === '')
+          push(
+            issues,
+            `${groupPath}.routedReplacementSkills[${index}].${field}`,
+            'expected a non-empty execution identity',
+          );
+      }
+    });
   }
   for (const { group, skill, origin, variant } of listOperatorSkillDefinitionBindings(definition)) {
     const groupIndex = definition.skillGroups.indexOf(group);
@@ -173,12 +198,22 @@ export function validateOperatorDefinition(
     issues.push(...validateActionSequenceDefinition(handler.sequence, `${handlerPath}.sequence`));
   });
   for (const collection of ['talents', 'potentials'] as const) {
+    const count = OPERATOR_PROGRESSION_SLOTS[collection];
+    if (definition[collection].length !== count)
+      push(issues, `${path}.${collection}`, `expected exactly ${count} ${collection}`);
     definition[collection].forEach((upgrade, index) => {
       const upgradePath = `${path}.${collection}[${index}]`;
-      if (upgrade.key.length === 0)
-        push(issues, `${upgradePath}.key`, 'expected a non-empty string');
       if (!Number.isInteger(upgrade.levels) || upgrade.levels < 1)
         push(issues, `${upgradePath}.levels`, 'expected a positive integer');
+      (upgrade.modifiers ?? []).forEach((modifier, modifierIndex) => {
+        if (modifier.kind !== 'patchSkillBlackboard' && modifier.kind !== 'patchPassiveBlackboard')
+          return;
+        const modifierPath = `${upgradePath}.modifiers[${modifierIndex}]`;
+        // Skills may intentionally introduce a new key; do not require it to already exist.
+        if (modifier.blackboardKey.trim().length === 0)
+          push(issues, `${modifierPath}.blackboardKey`, 'expected a non-empty blackboard key');
+        issues.push(...validateLevelValuesDefinition(modifier.value, `${modifierPath}.value`));
+      });
       if (upgrade.initializationSequence !== undefined)
         issues.push(
           ...validateActionSequenceDefinition(

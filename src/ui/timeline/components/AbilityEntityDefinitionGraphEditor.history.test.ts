@@ -2,6 +2,7 @@ import { createRenderer, h, nextTick, shallowRef, ssrContextKey, type ComponentO
 import { expect, it, vi } from 'vitest';
 import Graph from './AbilityEntityDefinitionGraphEditor.vue';
 import type { AbilityEntityDefinition } from '../../../core/game-data/operatorDefinition';
+import { resolveStructureValue, structureRecordEntryPath } from '../skillStructureEditorCommands';
 
 it('keeps all entity Inspector changes in the same undo/redo transaction history', async () => {
   vi.stubGlobal('document', { addEventListener() {}, removeEventListener() {} });
@@ -105,6 +106,88 @@ it('keeps all entity Inspector changes in the same undo/redo transaction history
       await panel.restoreStructureHistory('redo');
       expect(definition.value).toEqual(after);
     }
+    definition.value = {
+      lifetime: { kind: 'infinite' },
+      childSkills: {
+        first: { skillId: 'first', scheduledSequences: [] },
+        second: { skillId: 'second', scheduledSequences: [] },
+      },
+    };
+    await nextTick();
+    select(structureRecordEntryPath('childSkills', 'first'));
+    const beforeRename = definition.value;
+    const collision = event('second');
+    await panel.updateChildSkillId(collision);
+    expect(collision.target.value).toBe('first');
+    expect(panel.childSkillRenameError.value).toContain('已存在');
+    expect(definition.value).toBe(beforeRename);
+    await panel.updateChildSkillId(event(''));
+    await nextTick();
+    expect(definition.value.childSkills?.['']?.skillId).toBe('');
+    expect(definition.value.childSkills?.second).toEqual(beforeRename.childSkills?.second);
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeRename);
+    select(structureRecordEntryPath('childSkills', 'first'));
+    await panel.updateChildSkillId(event('constructor'));
+    await nextTick();
+    expect(definition.value.childSkills?.constructor).toMatchObject({ skillId: 'constructor' });
+    definition.value = {
+      lifetime: { kind: 'infinite' },
+      childSkill: {
+        skillId: 'child',
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'applyBuff',
+                  parameters: {
+                    buffId: 'inline',
+                    target: 'enemy',
+                    definition: { stackingType: 'refresh' },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    };
+    await nextTick();
+    const damagePath =
+      'childSkill.scheduledSequences[0].sequence.steps[0].parameters.definition.damageModifiers';
+    const find = (path: string) => {
+      const node = [...panel.nodeIndex.value.values()].find(
+        (node: any) => node.sourcePath === path,
+      ) as any;
+      expect(node, path).toBeDefined();
+      return node;
+    };
+    const beforeAdd = definition.value;
+    await panel.beginAdd(find(damagePath), { x: 0, y: 0 });
+    expect(resolveStructureValue(definition.value, `${damagePath}[0].processors`)).toHaveLength(1);
+    expect(panel.selectedPath.value).toBe(`${damagePath}[0]`);
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeAdd);
+    await panel.restoreStructureHistory('redo');
+    select(`${damagePath}[0].processors[0]`);
+    panel.editing.property.value.child('addition').update(() => 3);
+    await nextTick();
+    expect(resolveStructureValue(definition.value, `${damagePath}[0].processors[0].addition`)).toBe(
+      3,
+    );
+    const beforeDelete = definition.value;
+    await panel.runStructureNodeAction('delete', find(`${damagePath}[0].processors[0]`));
+    expect(resolveStructureValue(definition.value, `${damagePath}[0].processors`)).toEqual([]);
+    await panel.restoreStructureHistory('undo');
+    expect(definition.value).toEqual(beforeDelete);
+    await panel.beginAdd(find(`${damagePath}[0].condition`), { x: 0, y: 0 });
+    expect(resolveStructureValue(definition.value, `${damagePath}[0].condition`)).toEqual({
+      kind: 'casterControlled',
+    });
+    await panel.runStructureNodeAction('delete', find(`${damagePath}[0].condition`));
+    expect(resolveStructureValue(definition.value, `${damagePath}[0].condition`)).toBeUndefined();
   } finally {
     app.unmount();
     vi.unstubAllGlobals();

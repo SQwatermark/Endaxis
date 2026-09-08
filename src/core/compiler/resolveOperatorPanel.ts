@@ -70,7 +70,11 @@ export type OperatorPanelStat =
 export type OperatorPanelContributionSource =
   | { readonly kind: 'operatorBase'; readonly operatorSlug: string }
   | { readonly kind: 'trust'; readonly operatorSlug: string; readonly node: number }
-  | { readonly kind: 'operatorUpgrade'; readonly upgradeKey: string }
+  | {
+      readonly kind: 'operatorUpgrade';
+      readonly source: 'talent' | 'potential';
+      readonly index: number;
+    }
   | { readonly kind: 'weaponBase'; readonly weaponSlug: string }
   | { readonly kind: 'gearBase'; readonly gearSlug: string }
   | { readonly kind: 'equipment'; readonly contribution: EquipmentContributionSource }
@@ -429,7 +433,11 @@ export function resolveOperatorPanel(
   }
 
   for (const upgrade of resolveActiveOperatorUpgrades(build.operatorInstance, build.operator)) {
-    const source = { kind: 'operatorUpgrade', upgradeKey: upgrade.definition.key } as const;
+    const source = {
+      kind: 'operatorUpgrade',
+      source: upgrade.source,
+      index: upgrade.index,
+    } as const;
     for (const modifier of upgrade.definition.modifiers ?? []) {
       applyUpgradeModifier(modifier, source, values, receipt, combatModifiers);
     }

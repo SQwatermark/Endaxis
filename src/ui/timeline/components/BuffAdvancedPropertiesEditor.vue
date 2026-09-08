@@ -13,12 +13,14 @@ import {
   type InflictionElement,
 } from '../../../../packages/game-data-contract/src/primitives';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
+import { BUFF_OPTIONAL_OBJECTS, type BuffOptionalObjectKey } from '../buffOptionalObjectGraph';
 
 const props = defineProps<{
   sustainedProtection?: BuffSustainedProtectionDefinition;
   role?: CombatBuffSemanticRole;
   spellBurst?: CombatBuffSpellBurstDefinition;
   affixSkillCastIdentity?: 'sourceSkillCast';
+  layer?: BuffOptionalObjectKey | 'affix';
 }>();
 const emit = defineEmits<{
   updateSustainedProtection: [value: BuffSustainedProtectionDefinition | undefined];
@@ -31,6 +33,7 @@ function roleKind(role: CombatBuffSemanticRole | undefined): CombatBuffSemanticR
   return role?.kind ?? 'elementalAttachment';
 }
 function createRole(kind: CombatBuffSemanticRole['kind']): CombatBuffSemanticRole {
+  if (props.role?.kind === kind) return props.role;
   return kind === 'elementalAttachment' || kind === 'elementalBurst'
     ? { kind, element: 'heat' }
     : { kind, consumedElement: 'heat', incomingElement: 'electric' };
@@ -49,14 +52,14 @@ function setSustainedProtectionScalar(
 </script>
 
 <template>
-  <section class="advanced-editor">
-    <header>
+  <section class="advanced-editor" :class="{ 'layer-only': layer }">
+    <header v-if="!layer">
       <button type="button" @click="collapsed = !collapsed">
         {{ collapsed ? '▸' : '▾' }} 高级原生语义
       </button>
     </header>
-    <div v-if="!collapsed" class="advanced-content">
-      <fieldset>
+    <div v-if="layer || !collapsed" class="advanced-content">
+      <fieldset v-if="!layer || layer === 'affix'">
         <legend>
           <label>
             <input
@@ -73,8 +76,8 @@ function setSustainedProtectionScalar(
         </legend>
         <p>供同一次施法限定的伤害条件使用；它不会覆盖 Buff 的普通来源身份。</p>
       </fieldset>
-      <fieldset>
-        <legend>
+      <fieldset v-if="!layer || layer === 'sustainedProtection'">
+        <legend v-if="!layer">
           <label
             ><input
               type="checkbox"
@@ -83,7 +86,7 @@ function setSustainedProtectionScalar(
                 emit(
                   'updateSustainedProtection',
                   ($event.target as HTMLInputElement).checked
-                    ? { target: 'owner', superArmor: 0, impactResistance: 0 }
+                    ? BUFF_OPTIONAL_OBJECTS.sustainedProtection.create()
                     : undefined,
                 )
               "
@@ -102,8 +105,8 @@ function setSustainedProtectionScalar(
                 })
               "
             >
-              <option value="owner">owner</option>
-              <option value="buffSource">buffSource</option>
+              <option value="owner">Buff 持有者</option>
+              <option value="buffSource">Buff 来源</option>
             </select></label
           ><label
             ><span>霸体</span
@@ -117,8 +120,8 @@ function setSustainedProtectionScalar(
               @update="setSustainedProtectionScalar('impactResistance', $event)" /></label
         ></template>
       </fieldset>
-      <fieldset>
-        <legend>
+      <fieldset v-if="!layer || layer === 'role'">
+        <legend v-if="!layer">
           <label
             ><input
               type="checkbox"
@@ -135,7 +138,8 @@ function setSustainedProtectionScalar(
           >
         </legend>
         <template v-if="role"
-          ><label
+          ><p v-if="layer">元素附着、爆发或异常的运行时语义。更换类型会替换对应参数，可撤销。</p>
+          <label
             ><span>角色类型</span
             ><select
               :value="roleKind(role)"
@@ -148,9 +152,9 @@ function setSustainedProtectionScalar(
                 )
               "
             >
-              <option value="elementalAttachment">elementalAttachment</option>
-              <option value="elementalBurst">elementalBurst</option>
-              <option value="compoundStatus">compoundStatus</option>
+              <option value="elementalAttachment">元素附着</option>
+              <option value="elementalBurst">法术爆发</option>
+              <option value="compoundStatus">法术异常</option>
             </select></label
           >
           <label v-if="role.kind === 'elementalAttachment' || role.kind === 'elementalBurst'"
@@ -206,8 +210,8 @@ function setSustainedProtectionScalar(
           >
         </template>
       </fieldset>
-      <fieldset>
-        <legend>
+      <fieldset v-if="!layer || layer === 'spellBurst'">
+        <legend v-if="!layer">
           <label
             ><input
               type="checkbox"
@@ -216,13 +220,7 @@ function setSustainedProtectionScalar(
                 emit(
                   'updateSpellBurst',
                   ($event.target as HTMLInputElement).checked
-                    ? {
-                        burstType: '',
-                        damageType: 'physical',
-                        skillSettingDataKey: '',
-                        skillSettingColumn: 1,
-                        atkScaleBase: 0,
-                      }
+                    ? BUFF_OPTIONAL_OBJECTS.spellBurst.create()
                     : undefined,
                 )
               "
@@ -282,7 +280,7 @@ function setSustainedProtectionScalar(
                 })
               " /></label
           ><label
-            ><span>基础倍率证据</span
+            ><span>原始基础倍率（仅作证据保留）</span
             ><input
               type="number"
               step="0.01"
@@ -298,6 +296,28 @@ function setSustainedProtectionScalar(
 </template>
 
 <style scoped>
+.layer-only.advanced-editor {
+  border: 0;
+  margin: 0;
+  padding: 0;
+}
+.layer-only .advanced-content {
+  margin: 0;
+}
+.layer-only .advanced-content fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+.layer-only .advanced-content fieldset > label {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 4px;
+}
+.layer-only p {
+  color: var(--ea-fg-muted);
+  margin: 0;
+}
 .advanced-editor {
   margin-top: 12px;
   border-top: 1px solid var(--ea-border-soft);

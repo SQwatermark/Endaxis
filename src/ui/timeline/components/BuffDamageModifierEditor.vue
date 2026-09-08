@@ -2,7 +2,6 @@
 import { inject, ref } from 'vue';
 import { definitionStructureNavigationKey } from '../definitionStructureNavigation';
 import type {
-  BuffDuration,
   SkillBuffDefinitionDamageModifier as CombatBuffDefinitionDamageModifier,
   CombatBuffDefinitionDamageProcessor,
 } from '../../../../packages/game-data-contract/src/buffs';
@@ -12,14 +11,11 @@ import type {
 } from '../../../core/game-data/operatorDefinition';
 import type { EditableCombatStepKind } from '../skillDefinitionEditorViewModel';
 import {
-  ATTRIBUTE_MODIFIER_SLOTS,
   DAMAGE_MODIFIER_SIDES,
-  DAMAGE_SCALE_ZONES,
-  type AttributeModifierSlot,
   type DamageModifierSide,
-  type DamageScaleZone,
 } from '../../../../packages/game-data-contract/src/modifiers';
-import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
+import BuffDamageProcessorInspector from './BuffDamageProcessorInspector.vue';
+import { createBuffDamageProcessor as createProcessor } from '../buffDamageProcessorEditing';
 import BuffDamageModifierConditionEditor from './BuffDamageModifierConditionEditor.vue';
 import ActionSequenceEditor from './ActionSequenceEditor.vue';
 const navigateStructure = inject(definitionStructureNavigationKey, undefined);
@@ -34,20 +30,6 @@ const emit = defineEmits<{
   update: [modifiers: readonly CombatBuffDefinitionDamageModifier[]];
 }>();
 const collapsed = ref(true);
-
-function createProcessor(
-  kind: CombatBuffDefinitionDamageProcessor['kind'],
-): CombatBuffDefinitionDamageProcessor {
-  return kind === 'damageScale'
-    ? { kind, side: 'attacker', zone: 'normal', addition: 0 }
-    : {
-        kind,
-        targetSide: 'attacker',
-        attribute: 'Atk',
-        values: { slot: 'baseAddition', value: 0 },
-        attributeTiming: 'runtime',
-      };
-}
 
 function replaceModifier(index: number, modifier: CombatBuffDefinitionDamageModifier): void {
   emit(
@@ -166,71 +148,6 @@ function moveProcessor(
   ];
   replaceModifier(modifierIndex, { ...modifier, processors });
 }
-
-function setProcessorKind(
-  modifierIndex: number,
-  modifier: CombatBuffDefinitionDamageModifier,
-  processorIndex: number,
-  event: Event,
-): void {
-  replaceProcessor(
-    modifierIndex,
-    modifier,
-    processorIndex,
-    createProcessor(
-      (event.target as HTMLSelectElement).value as CombatBuffDefinitionDamageProcessor['kind'],
-    ),
-  );
-}
-
-function updateDamageScale(
-  modifierIndex: number,
-  modifier: CombatBuffDefinitionDamageModifier,
-  processorIndex: number,
-  processor: Extract<CombatBuffDefinitionDamageProcessor, { kind: 'damageScale' }>,
-  patch: Partial<Extract<CombatBuffDefinitionDamageProcessor, { kind: 'damageScale' }>>,
-): void {
-  replaceProcessor(modifierIndex, modifier, processorIndex, { ...processor, ...patch });
-}
-
-function updateInstantAttribute(
-  modifierIndex: number,
-  modifier: CombatBuffDefinitionDamageModifier,
-  processorIndex: number,
-  processor: Extract<CombatBuffDefinitionDamageProcessor, { kind: 'instantAttribute' }>,
-  patch: Partial<Extract<CombatBuffDefinitionDamageProcessor, { kind: 'instantAttribute' }>>,
-): void {
-  replaceProcessor(modifierIndex, modifier, processorIndex, { ...processor, ...patch });
-}
-
-function sparseValues(
-  processor: Extract<CombatBuffDefinitionDamageProcessor, { kind: 'instantAttribute' }>,
-): { readonly slot: AttributeModifierSlot; readonly value: BuffDuration } | undefined {
-  return 'slot' in processor.values ? processor.values : undefined;
-}
-
-function setFullValue(
-  modifierIndex: number,
-  modifier: CombatBuffDefinitionDamageModifier,
-  processorIndex: number,
-  processor: Extract<CombatBuffDefinitionDamageProcessor, { kind: 'instantAttribute' }>,
-  slot: AttributeModifierSlot,
-  event: Event,
-): void {
-  if ('slot' in processor.values) return;
-  const value = Number((event.target as HTMLInputElement).value);
-  if (!Number.isFinite(value)) return;
-  updateInstantAttribute(modifierIndex, modifier, processorIndex, processor, {
-    values: { ...processor.values, [slot]: value },
-  });
-}
-
-function fullValue(
-  processor: Extract<CombatBuffDefinitionDamageProcessor, { kind: 'instantAttribute' }>,
-  slot: AttributeModifierSlot,
-): number {
-  return 'slot' in processor.values ? 0 : processor.values[slot];
-}
 </script>
 
 <template>
@@ -322,13 +239,6 @@ function fullValue(
           class="processor"
         >
           <div class="processor-heading">
-            <select
-              :value="processor.kind"
-              @change="setProcessorKind(modifierIndex, modifier, processorIndex, $event)"
-            >
-              <option value="damageScale">伤害倍率区间</option>
-              <option value="instantAttribute">即时属性</option>
-            </select>
             <button
               type="button"
               :disabled="processorIndex === 0"
@@ -351,125 +261,10 @@ function fullValue(
               ×
             </button>
           </div>
-          <template v-if="processor.kind === 'damageScale'">
-            <label>
-              <span>作用侧</span>
-              <select
-                :value="processor.side"
-                @change="
-                  updateDamageScale(modifierIndex, modifier, processorIndex, processor, {
-                    side: ($event.target as HTMLSelectElement).value as DamageModifierSide,
-                  })
-                "
-              >
-                <option v-for="side in DAMAGE_MODIFIER_SIDES" :key="side" :value="side">
-                  {{ side }}
-                </option>
-              </select>
-            </label>
-            <label>
-              <span>倍率区间</span>
-              <select
-                :value="processor.zone"
-                @change="
-                  updateDamageScale(modifierIndex, modifier, processorIndex, processor, {
-                    zone: ($event.target as HTMLSelectElement).value as DamageScaleZone,
-                  })
-                "
-              >
-                <option v-for="zone in DAMAGE_SCALE_ZONES" :key="zone" :value="zone">
-                  {{ zone }}
-                </option>
-              </select>
-            </label>
-            <label>
-              <span>增量</span>
-              <BuffDefinitionScalarEditor
-                :value="processor.addition"
-                @update="
-                  $event !== undefined &&
-                  updateDamageScale(modifierIndex, modifier, processorIndex, processor, {
-                    addition: $event,
-                  })
-                "
-              />
-            </label>
-          </template>
-          <template v-else>
-            <label>
-              <span>目标侧</span>
-              <select
-                :value="processor.targetSide"
-                @change="
-                  updateInstantAttribute(modifierIndex, modifier, processorIndex, processor, {
-                    targetSide: ($event.target as HTMLSelectElement).value as DamageModifierSide,
-                  })
-                "
-              >
-                <option v-for="side in DAMAGE_MODIFIER_SIDES" :key="side" :value="side">
-                  {{ side }}
-                </option>
-              </select>
-            </label>
-            <label>
-              <span>属性键</span>
-              <input
-                type="text"
-                :value="processor.attribute"
-                @input="
-                  updateInstantAttribute(modifierIndex, modifier, processorIndex, processor, {
-                    attribute: ($event.target as HTMLInputElement).value,
-                  })
-                "
-              />
-            </label>
-            <template v-if="sparseValues(processor)">
-              <label>
-                <span>聚合槽位</span>
-                <select
-                  :value="sparseValues(processor)!.slot"
-                  @change="
-                    updateInstantAttribute(modifierIndex, modifier, processorIndex, processor, {
-                      values: {
-                        slot: ($event.target as HTMLSelectElement).value as AttributeModifierSlot,
-                        value: sparseValues(processor)!.value,
-                      },
-                    })
-                  "
-                >
-                  <option v-for="slot in ATTRIBUTE_MODIFIER_SLOTS" :key="slot" :value="slot">
-                    {{ slot }}
-                  </option>
-                </select>
-              </label>
-              <label>
-                <span>数值</span>
-                <BuffDefinitionScalarEditor
-                  :value="sparseValues(processor)!.value"
-                  @update="
-                    $event !== undefined &&
-                    updateInstantAttribute(modifierIndex, modifier, processorIndex, processor, {
-                      values: { slot: sparseValues(processor)!.slot, value: $event },
-                    })
-                  "
-                />
-              </label>
-            </template>
-            <fieldset v-else class="full-attribute-values">
-              <legend>完整八槽值</legend>
-              <label v-for="slot in ATTRIBUTE_MODIFIER_SLOTS" :key="slot">
-                <span>{{ slot }}</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  :value="fullValue(processor, slot)"
-                  @input="
-                    setFullValue(modifierIndex, modifier, processorIndex, processor, slot, $event)
-                  "
-                />
-              </label>
-            </fieldset>
-          </template>
+          <BuffDamageProcessorInspector
+            :processor="processor"
+            @update="replaceProcessor(modifierIndex, modifier, processorIndex, $event)"
+          />
         </article>
       </section>
     </article>

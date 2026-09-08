@@ -5,6 +5,7 @@ export interface DefinitionMapViewState {
   collapsedIds: readonly string[];
   left: number;
   top: number;
+  selectedId?: string;
 }
 
 /** 根编辑会话拥有视图缓存；既不写入项目，也不保留隐藏组件及其输入监听。 */

@@ -19,6 +19,7 @@ import buffStepEditorSource from './BuffStepEditor.vue?raw';
 import buffBlackboardEditorSource from './BuffBlackboardEditor.vue?raw';
 import buffAttributeModifierEditorSource from './BuffAttributeModifierEditor.vue?raw';
 import buffDamageModifierEditorSource from './BuffDamageModifierEditor.vue?raw';
+import buffDamageProcessorInspectorSource from './BuffDamageProcessorInspector.vue?raw';
 import buffDamageModifierConditionEditorSource from './BuffDamageModifierConditionEditor.vue?raw';
 import combatBuffPresentationEditorSource from './CombatBuffPresentationEditor.vue?raw';
 import combatBuffChildPresentationsEditorSource from './CombatBuffChildPresentationsEditor.vue?raw';
@@ -166,7 +167,8 @@ describe('SkillDefinitionEditor structure', () => {
     expect(buffStepEditorSource).toContain('BuffAttributeModifierEditor');
     expect(buffStepEditorSource).toContain('BuffDamageModifierEditor');
     expect(buffAttributeModifierEditorSource).toContain('ATTRIBUTE_MODIFIER_SLOTS');
-    expect(buffDamageModifierEditorSource).toContain('DAMAGE_SCALE_ZONES');
+    expect(buffDamageModifierEditorSource).toContain('BuffDamageProcessorInspector');
+    expect(buffDamageProcessorInspectorSource).toContain('DAMAGE_SCALE_ZONES');
     expect(buffDamageModifierEditorSource).toContain('BuffDamageModifierConditionEditor');
     expect(buffDamageModifierEditorSource).toContain('conditionProgram');
     expect(buffDamageModifierEditorSource).toContain('ActionSequenceEditor');
@@ -324,7 +326,7 @@ describe('SkillDefinitionEditor structure', () => {
     expect(editorSource).toContain(':response="selectedSkillEventHandler"');
     expect(responseInspectorSource).toContain('CombatEventTriggerEditor');
     expect(responseInspectorSource).not.toContain('ScheduledSequenceEditor');
-    expect(responseInspectorSource).toContain(":binding=\"binding.child('event')\"");
+    expect(responseInspectorSource).toContain(':binding="binding.child(\'event\')"');
   });
 
   it('顶层与递归步骤参数都提供统一折叠入口', () => {

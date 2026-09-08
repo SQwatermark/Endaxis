@@ -61,8 +61,8 @@ export interface OperatorDefinitionAssemblyInput {
       readonly sourcePath: string;
     }[];
   }[];
-  readonly talentBindings: readonly { readonly index: number; readonly key: string }[];
-  readonly potentialBindings: readonly { readonly level: number; readonly key: string }[];
+  readonly talentBindings: readonly { readonly index: number }[];
+  readonly potentialBindings: readonly { readonly level: number }[];
   readonly entityCatalog: CompiledAbilityEntityTemplateCatalogSource;
   /** Buff 动作可能在主动技能规划之后才暴露实体；按发现的精确 ID 读取，不预载无关模板。 */
   readonly loadAbilityEntity?: (id: string) => unknown;

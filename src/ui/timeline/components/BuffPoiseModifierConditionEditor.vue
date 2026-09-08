@@ -1,9 +1,13 @@
 <script setup lang="ts">
+import { createPoiseCondition as createCondition } from '../buffCalculationModifierGraph';
 import type { PoiseModifierCondition } from '../../../../packages/game-data-contract/src/modifiers';
-import type { DamageTag } from '../../../../packages/game-data-contract/src/primitives';
-import GameplayTagsEditor from './GameplayTagsEditor.vue';
+import {
+  DAMAGE_TAGS,
+  type DamageTag,
+} from '../../../../packages/game-data-contract/src/primitives';
+import InspectorStringList from './InspectorStringList.vue';
 
-const props = defineProps<{ condition: PoiseModifierCondition }>();
+const props = defineProps<{ condition: PoiseModifierCondition; layerOnly?: boolean }>();
 const emit = defineEmits<{ update: [condition: PoiseModifierCondition] }>();
 const CONDITION_KINDS = [
   'casterControlled',
@@ -11,14 +15,10 @@ const CONDITION_KINDS = [
   'all',
 ] as const satisfies readonly PoiseModifierCondition['kind'][];
 
-function createCondition(kind: PoiseModifierCondition['kind']): PoiseModifierCondition {
-  if (kind === 'casterControlled') return { kind };
-  if (kind === 'eventDamageTagsMatch') return { kind, match: 'hasAny', tags: [] };
-  return { kind, conditions: [{ kind: 'casterControlled' }] };
-}
 function setKind(event: Event): void {
   const kind = (event.target as HTMLSelectElement).value as PoiseModifierCondition['kind'];
-  if (CONDITION_KINDS.includes(kind)) emit('update', createCondition(kind));
+  if (CONDITION_KINDS.includes(kind) && kind !== props.condition.kind)
+    emit('update', createCondition(kind));
 }
 function setChild(index: number, child: PoiseModifierCondition): void {
   if (props.condition.kind !== 'all') return;
@@ -50,7 +50,7 @@ function setDamageTags(tags: readonly string[]): void {
 </script>
 
 <template>
-  <fieldset class="poise-condition">
+  <fieldset class="poise-condition" :class="{ 'poise-condition--layer': layerOnly }">
     <label
       ><span>条件类型</span
       ><select :value="condition.kind" @change="setKind">
@@ -73,8 +73,16 @@ function setDamageTags(tags: readonly string[]): void {
           <option value="hasAll">hasAll</option>
         </select></label
       >
-      <GameplayTagsEditor :tags="condition.tags" :minimum="0" @update="setDamageTags" />
+      <InspectorStringList
+        :value="condition.tags"
+        :options="DAMAGE_TAGS"
+        label="伤害标签"
+        @update="setDamageTags"
+      />
     </template>
+    <p v-else-if="condition.kind === 'all' && layerOnly">
+      子条件在节点图中编辑。切换类型会替换当前子树，可撤销。
+    </p>
     <template v-else-if="condition.kind === 'all'">
       <article v-for="(child, index) in condition.conditions" :key="index">
         <BuffPoiseModifierConditionEditor :condition="child" @update="setChild(index, $event)" />
@@ -95,6 +103,15 @@ function setDamageTags(tags: readonly string[]): void {
 .poise-condition {
   display: grid;
   gap: 8px;
+}
+.poise-condition--layer {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.poise-condition--layer > label {
+  grid-template-columns: minmax(0, 1fr);
 }
 .poise-condition > label {
   display: grid;

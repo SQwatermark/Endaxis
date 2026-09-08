@@ -14,7 +14,12 @@ import {
   type EditableCombatStepKind,
 } from '../skillDefinitionEditorViewModel';
 import ActionSequenceWorkspace from './ActionSequenceWorkspace.vue';
-import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import {
+  useDefinitionPageDraft,
+  projectDefinitionHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
+import type { OperatorRuntimeDraft } from '../operatorRuntimeDraft';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
@@ -25,6 +30,7 @@ const props = defineProps<{
   passiveSkills?: readonly OperatorPassiveSkillDefinition[];
   eventHandlers?: readonly OperatorEventHandlerDefinition[];
   skillLevel: number;
+  sharedHistory?: DefinitionDraftHistory<OperatorRuntimeDraft>;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
@@ -44,10 +50,11 @@ const {
   draft,
   history,
   reset: resetDraft,
-} = useDefinitionDraft<{
-  passives: OperatorPassiveSkillDefinition[];
-  handlers: OperatorEventHandlerDefinition[];
-}>({ passives: [], handlers: [] });
+} = useDefinitionPageDraft<OperatorRuntimeDraft>(
+  () => ({ passives: props.passiveSkills ?? [], handlers: props.eventHandlers ?? [] }),
+  props.sharedHistory,
+  () => ({ path: '', section: category.value, objectId: String(selectedIndex.value) }),
+);
 const passives = computed({
   get: () => draft.value.passives,
   set: value => {
@@ -70,8 +77,9 @@ const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
 watch(
   () => history.restoredLocation?.value,
   location => {
-    if (!location) return;
-    if (location.section) category.value = location.section as Category;
+    if (!location || (props.sharedHistory && location.page !== 'behavior')) return;
+    const restoredCategory = props.sharedHistory ? location.runtimeCategory : location.section;
+    if (restoredCategory) category.value = restoredCategory as Category;
     if (location.objectId !== undefined) selectedIndex.value = Number(location.objectId);
   },
   { flush: 'sync' },
@@ -97,8 +105,12 @@ watch(
       passives: [...(props.passiveSkills ?? [])],
       handlers: [...(props.eventHandlers ?? [])],
     });
-    category.value = 'passiveSkills';
-    selectedIndex.value = 0;
+    const location = props.sharedHistory?.restoredLocation?.value;
+    category.value =
+      location?.page === 'behavior'
+        ? (location.runtimeCategory ?? 'passiveSkills')
+        : 'passiveSkills';
+    selectedIndex.value = location?.page === 'behavior' ? Number(location.objectId ?? 0) : 0;
   },
   { immediate: true },
 );
@@ -230,7 +242,7 @@ function save(): void {
     class="embedded-editor"
     :class="{ 'fill-available': fillAvailable }"
   >
-    <div class="embedded-header">
+    <div v-if="!sharedHistory" class="embedded-header">
       <button
         class="definition-focused-back ea-btn ea-btn--sm"
         @click="emit('update:visible', false)"
@@ -335,7 +347,7 @@ function save(): void {
       </main>
       <main v-else class="empty">当前分类还没有角色级行为。</main>
     </div>
-    <div class="embedded-footer">
+    <div v-if="!sharedHistory" class="embedded-footer">
       <DefinitionHistoryControls :history="history" />
       <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
         取消</button

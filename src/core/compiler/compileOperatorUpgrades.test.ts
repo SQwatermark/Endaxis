@@ -91,9 +91,9 @@ describe('operator upgrade compilation', () => {
     const [modifier] = compileOperatorReactionModifiers([
       {
         source: 'talent',
+        index: 0,
         level: 2,
         definition: {
-          key: 'corrosion-mastery',
           levels: 2,
           modifiers: [
             { kind: 'addReactionDuration', reaction: 'corrosion', seconds: [5, 10] },
@@ -103,9 +103,9 @@ describe('operator upgrade compilation', () => {
       },
       {
         source: 'potential',
+        index: 0,
         level: 1,
         definition: {
-          key: 'corrosion-potential',
           levels: 1,
           modifiers: [
             { kind: 'addReactionDuration', reaction: 'corrosion', seconds: 5 },
@@ -125,9 +125,9 @@ describe('operator upgrade compilation', () => {
     const programs = compileOperatorInitializationPrograms([
       {
         source: 'potential',
+        index: 0,
         level: 1,
         definition: {
-          key: 'attached-buff',
           levels: 1,
           initializationSequence: {
             steps: [
@@ -147,7 +147,7 @@ describe('operator upgrade compilation', () => {
 
     expect(programs).toMatchObject([
       {
-        key: 'potential:attached-buff',
+        key: 'potential:0',
         sequence: { steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff.potential' } }] },
       },
     ]);
@@ -155,7 +155,6 @@ describe('operator upgrade compilation', () => {
 
   it('resolves attached Buff blackboard inputs at the selected upgrade level', () => {
     const definition = {
-      key: 'leveled-attached-buff',
       levels: 2,
       initializationSequence: {
         steps: [
@@ -171,7 +170,7 @@ describe('operator upgrade compilation', () => {
       },
     };
     const programs = compileOperatorInitializationPrograms([
-      { source: 'talent', level: 2, definition },
+      { source: 'talent', index: 0, level: 2, definition },
     ]);
 
     expect(programs[0]?.sequence.steps[0]).toMatchObject({
@@ -188,9 +187,9 @@ describe('operator upgrade compilation', () => {
     const programs = compileOperatorInitializationPrograms(active);
 
     expect(programs.map(program => program.key)).toEqual([
-      'potential:potential1',
-      'potential:potential2',
-      'potential:potential3',
+      'potential:0',
+      'potential:1',
+      'potential:2',
     ]);
     expect(programs[0]?.sequence.steps[0]).toMatchObject({
       kind: 'applyBuff',
@@ -215,7 +214,7 @@ describe('operator upgrade compilation', () => {
       endministratorGeneratedOperator,
     );
     const program = compileOperatorInitializationPrograms(active).find(
-      item => item.key === 'potential:potential5',
+      item => item.key === 'potential:4',
     );
 
     expect(
@@ -269,7 +268,7 @@ describe('operator upgrade compilation', () => {
       estellaGeneratedOperator,
     );
     const program = compileOperatorInitializationPrograms(active).find(
-      item => item.key === 'potential:potential5',
+      item => item.key === 'potential:4',
     );
 
     expect(
@@ -383,7 +382,7 @@ describe('operator upgrade compilation', () => {
     expect(
       hydrateOperatorBuffReferences(initialization[0], arclightGeneratedOperator),
     ).toMatchObject({
-      key: 'potential:potential5',
+      key: 'potential:4',
       sequence: {
         steps: [
           {
@@ -415,25 +414,19 @@ describe('operator upgrade compilation', () => {
   it('selects talents and potentials in stable declaration order', () => {
     const operator = {
       ...perlica,
-      talents: [
-        { key: 'talent-a', levels: 2 },
-        { key: 'talent-b', levels: 1 },
-      ],
-      potentials: [
-        { key: 'potential-a', levels: 1 },
-        { key: 'potential-b', levels: 2 },
-      ],
+      talents: [{ levels: 2 }, { levels: 1 }],
+      potentials: [{ levels: 1 }, { levels: 2 }],
     };
 
     expect(
       resolveActiveOperatorUpgrades(
         build({ talentStates: { 0: 2, 1: 0 }, potential: 2 }),
         operator,
-      ).map(upgrade => [upgrade.source, upgrade.definition.key, upgrade.level]),
+      ).map(upgrade => [upgrade.source, upgrade.index, upgrade.level]),
     ).toEqual([
-      ['talent', 'talent-a', 2],
-      ['potential', 'potential-a', 1],
-      ['potential', 'potential-b', 1],
+      ['talent', 0, 2],
+      ['potential', 0, 1],
+      ['potential', 1, 1],
     ]);
   });
 
@@ -446,9 +439,9 @@ describe('operator upgrade compilation', () => {
     const upgrades = [
       {
         source: 'talent',
+        index: 0,
         level: 1,
         definition: {
-          key: 'talent-cost',
           levels: 1,
           modifiers: [
             {
@@ -462,9 +455,9 @@ describe('operator upgrade compilation', () => {
       },
       {
         source: 'potential',
+        index: 0,
         level: 1,
         definition: {
-          key: 'potential-cost',
           levels: 1,
           modifiers: [
             {
@@ -492,9 +485,9 @@ describe('operator upgrade compilation', () => {
     const patched = applyOperatorUpgradeSkillPatches(source, [
       {
         source: 'potential',
+        index: 0,
         level: 1,
         definition: {
-          key: 'ultimate-cost',
           levels: 1,
           modifiers: [
             {
@@ -528,9 +521,9 @@ describe('operator upgrade compilation', () => {
     const patched = applyOperatorUpgradeSkillPatches(source, [
       {
         source: 'talent',
+        index: 0,
         level: 2,
         definition: {
-          key: 'talent-patch',
           levels: 2,
           modifiers: [
             {
@@ -596,9 +589,9 @@ describe('operator upgrade compilation', () => {
     const patched = applyOperatorUpgradeSkillPatches(source, [
       {
         source: 'potential',
+        index: 0,
         level: 1,
         definition: {
-          key: 'combo-cooldown',
           levels: 1,
           modifiers: [
             {
@@ -627,9 +620,9 @@ describe('operator upgrade compilation', () => {
     const upgrades = [
       {
         source: 'talent' as const,
+        index: 0,
         level: 1,
         definition: {
-          key: 'form-patch',
           levels: 1,
           modifiers: [
             {
@@ -707,9 +700,9 @@ describe('operator upgrade compilation', () => {
     const patched = applyOperatorUpgradeSkillPatches(source, [
       {
         source: 'potential',
+        index: 0,
         level: 1,
         definition: {
-          key: 'reaction-upgrades',
           levels: 1,
           modifiers: [
             {
@@ -747,7 +740,7 @@ describe('operator upgrade compilation', () => {
     const base = compileOperatorDefinitionSkills('track:perlica', build(), perlica);
     const effectivenessDefinition = perlica.potentials[3]!;
     const effectivenessPatched = applyOperatorUpgradeSkillPatches(base, [
-      { source: 'potential', level: 1, definition: effectivenessDefinition },
+      { source: 'potential', index: 0, level: 1, definition: effectivenessDefinition },
     ]);
     expect(
       durationPatched.find(program => program.skillGroupKey === 'comboSkill')?.initialBlackboard,
@@ -761,12 +754,12 @@ describe('operator upgrade compilation', () => {
 
   it('compiles Perlica reaction attack potential into its native listening Buff initialization', () => {
     const programs = compileOperatorInitializationPrograms([
-      { source: 'potential', level: 1, definition: perlica.potentials[2]! },
+      { source: 'potential', index: 2, level: 1, definition: perlica.potentials[2]! },
     ]);
 
     expect(hydrateOperatorBuffReferences(programs, perlica)).toMatchObject([
       {
-        key: 'potential:attackAfterElectrification',
+        key: 'potential:2',
         sequence: {
           steps: [
             {
@@ -787,7 +780,6 @@ describe('operator upgrade compilation', () => {
 
   it('resolves an upgrade event listener blackboard at the selected talent level', () => {
     const definition: OperatorUpgradeDefinition = {
-      key: 'consumedInflictionVulnerability',
       levels: 2,
       eventHandlers: [
         {
@@ -799,7 +791,7 @@ describe('operator upgrade compilation', () => {
     };
 
     expect(
-      compileOperatorUpgradeEventPrograms([{ source: 'talent', level: 2, definition }]),
+      compileOperatorUpgradeEventPrograms([{ source: 'talent', index: 0, level: 2, definition }]),
     ).toMatchObject([
       {
         initialBlackboard: { crystal_up: 0.04, duration: 15 },
@@ -821,7 +813,7 @@ describe('operator upgrade compilation', () => {
       ),
     ).toMatchObject([
       {
-        key: 'talent:talent1',
+        key: 'talent:0',
         sequence: {
           steps: [
             {
@@ -881,7 +873,7 @@ describe('operator upgrade compilation', () => {
   it('adds Perlica ultimate critical rate to the native ultimate blackboard input', () => {
     const base = compileOperatorDefinitionSkills('track:perlica', build(), perlica);
     const patched = applyOperatorUpgradeSkillPatches(base, [
-      { source: 'potential', level: 1, definition: perlica.potentials[4]! },
+      { source: 'potential', index: 0, level: 1, definition: perlica.potentials[4]! },
     ]);
 
     expect(
@@ -901,7 +893,7 @@ describe('operator upgrade compilation', () => {
 
     expect(hydrateOperatorBuffReferences(initialization, perlica)).toMatchObject([
       {
-        key: 'talent:staggerDamageBonus',
+        key: 'talent:0',
         sequence: {
           steps: [
             {
@@ -1051,9 +1043,9 @@ describe('operator upgrade compilation', () => {
     const patched = applyOperatorUpgradeSkillPatches(source, [
       {
         source: 'talent',
+        index: 0,
         level: 1,
         definition: {
-          key: 'variant-patch',
           levels: 1,
           modifiers: [
             {
@@ -1078,9 +1070,9 @@ describe('operator upgrade compilation', () => {
       applyOperatorUpgradeSkillPatches(source, [
         {
           source: 'potential',
+          index: 0,
           level: 1,
           definition: {
-            key: 'missing-reaction',
             levels: 1,
             modifiers: [
               {
@@ -1100,9 +1092,9 @@ describe('operator upgrade compilation', () => {
     const programs = compileOperatorPassivePrograms([
       {
         source: 'talent',
+        index: 0,
         level: 2,
         definition: {
-          key: 'talent-passive',
           levels: 2,
           passiveSkills: [
             {
@@ -1244,9 +1236,9 @@ describe('operator upgrade compilation', () => {
       compileOperatorPassivePrograms(
         ['talent', 'potential'].map(source => ({
           source,
+          index: 0,
           level: 1,
           definition: {
-            key: source,
             levels: 1,
             passiveSkills: [{ key: 'same-passive', enableSequence: { steps: [] } }],
           },
@@ -1261,9 +1253,9 @@ describe('operator upgrade compilation', () => {
       applyOperatorUpgradeSkillPatches(source, [
         {
           source: 'potential',
+          index: 0,
           level: 1,
           definition: {
-            key: 'bad-target',
             levels: 1,
             modifiers: [
               {
@@ -1281,9 +1273,9 @@ describe('operator upgrade compilation', () => {
       applyOperatorUpgradeSkillPatches(source, [
         {
           source: 'potential',
+          index: 0,
           level: 1,
           definition: {
-            key: 'unsupported',
             levels: 1,
             modifiers: [
               { kind: 'multiplySkillDamage', skillGroupKey: 'ultimate', multiplier: 1.1 },
@@ -1296,9 +1288,9 @@ describe('operator upgrade compilation', () => {
       applyOperatorUpgradeSkillPatches(source, [
         {
           source: 'potential',
+          index: 0,
           level: 1,
           definition: {
-            key: 'bad-blackboard-target',
             levels: 1,
             modifiers: [
               {

@@ -5,10 +5,20 @@ import conditionSource from './CombatConditionEditor.vue?raw';
 import tagEditorSource from './GameplayTagsEditor.vue?raw';
 import healSource from './HealStepEditor.vue?raw';
 import resourceSource from './ResourceStepEditor.vue?raw';
+import entitySource from './AbilityEntityDefinitionGraphEditor.vue?raw';
 import { conditionInspectorFields } from '../conditionInspectorSchema';
 import { defaultInspectorEditors } from '../inspectorEditors';
 
 describe('GameplayTagsEditor structure', () => {
+  it('labels optional entity birth tags at the field boundary and allows removing the last tag', () => {
+    expect(entitySource).toContain('<section class="field-group" aria-label="出生标签">');
+    expect(entitySource).toMatch(/<EditorFieldLabel\s+label="出生标签"/);
+    expect(entitySource).toMatch(
+      /<GameplayTagsEditor\s+:tags="definition.bornTags \?\? \[\]"\s+:minimum="0"/,
+    );
+    expect(entitySource).toContain('if (bornTags.length === 0) delete next.bornTags;');
+    expect(tagEditorSource).toContain('background: var(--ea-fill-input)');
+  });
   it('offers the versioned path catalog without numeric identities', () => {
     expect(tagEditorSource).toContain('GAMEPLAY_TAG_PATHS');
     expect(tagEditorSource).toContain('parseGameplayTagReference');

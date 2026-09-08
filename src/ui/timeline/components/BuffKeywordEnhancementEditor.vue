@@ -5,8 +5,12 @@ import type {
   BuffKeywordEnhancementDefinition,
 } from '../../../../packages/game-data-contract/src/buffs';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
+import InspectorStringList from './InspectorStringList.vue';
 
-const props = defineProps<{ enhancements: readonly BuffKeywordEnhancementDefinition[] }>();
+const props = defineProps<{
+  enhancements: readonly BuffKeywordEnhancementDefinition[];
+  singleEntry?: boolean;
+}>();
 const emit = defineEmits<{ update: [enhancements: readonly BuffKeywordEnhancementDefinition[]] }>();
 const collapsed = ref(true);
 function replace(index: number, enhancement: BuffKeywordEnhancementDefinition): void {
@@ -40,15 +44,19 @@ function setScalar(callback: (value: BuffDuration) => void, value: BuffDuration 
 </script>
 
 <template>
-  <section class="keyword-editor">
-    <header>
+  <section class="keyword-editor" :class="{ 'single-entry': singleEntry }">
+    <header v-if="!singleEntry">
       <button type="button" @click="collapsed = !collapsed">
         {{ collapsed ? '▸' : '▾' }} 关键词强化 <span>{{ enhancements.length }}</span></button
       ><button type="button" @click="add">＋</button>
     </header>
     <p v-if="!collapsed">普通 Buff 加入边沿按触发 Buff ID 持久改写目标关键词。</p>
-    <article v-for="(enhancement, index) in enhancements" v-show="!collapsed" :key="index">
-      <header>
+    <article
+      v-for="(enhancement, index) in enhancements"
+      v-show="singleEntry || !collapsed"
+      :key="index"
+    >
+      <header v-if="!singleEntry">
         <strong>关键词强化 {{ index + 1 }}</strong
         ><button type="button" :disabled="index === 0" @click="move(index, -1)">↑</button
         ><button
@@ -61,18 +69,10 @@ function setScalar(callback: (value: BuffDuration) => void, value: BuffDuration 
       </header>
       <label
         ><span>触发 Buff ID</span
-        ><input
-          type="text"
-          :value="enhancement.triggerBuffIds.join(', ')"
-          @change="
-            replace(index, {
-              ...enhancement,
-              triggerBuffIds: ($event.target as HTMLInputElement).value
-                .split(',')
-                .map(value => value.trim())
-                .filter(Boolean),
-            })
-          "
+        ><InspectorStringList
+          :value="enhancement.triggerBuffIds"
+          label="触发 Buff ID"
+          @update="replace(index, { ...enhancement, triggerBuffIds: $event })"
       /></label>
       <label
         ><span>操作</span
@@ -163,5 +163,20 @@ function setScalar(callback: (value: BuffDuration) => void, value: BuffDuration 
   grid-template-columns: 100px minmax(0, 1fr);
   align-items: center;
   gap: 8px;
+}
+.single-entry {
+  margin-top: 0;
+  border: 0;
+  padding: 0;
+}
+.single-entry article {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  grid-template-columns: minmax(0, 1fr);
+}
+.single-entry article > label {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 5px;
 }
 </style>

@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import {
+  isBuffGraphPayload,
+  isBuffGraphClipboard,
+  pasteBuffGraphNode,
+  moveBuffGraphNode,
+  type BuffGraphClipboard,
+} from '../buffGraphOperations';
+import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import {
@@ -50,6 +58,8 @@ import {
   resolveStructureValue,
 } from '../skillStructureEditorCommands';
 import BuffStepEditor from './BuffStepEditor.vue';
+import BuffDetailNodeInspector from './BuffDetailNodeInspector.vue';
+import { isBuffDetailNode, appendBuffGraphChild } from '../buffDamageModifierGraph';
 import BuffEventResponseInspector from './BuffEventResponseInspector.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
@@ -77,31 +87,8 @@ const LIFECYCLE_KEYS = [
 type StructureOperationNode = {
   readonly id: string;
   readonly sourcePath: string;
-  readonly payloadKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffDefinition'
-    | 'globalBuffChild';
-  readonly acceptsChildKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffChild';
+  readonly payloadKind?: StructureNodeContract['payloadKind'];
+  readonly acceptsChildKind?: StructureNodeContract['acceptsChildKind'];
 };
 
 const props = defineProps<{
@@ -127,6 +114,7 @@ const pendingConditionTargetPath = ref('');
 const pickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
 const structureClipboard = shallowRef<
+  | BuffGraphClipboard
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
   | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
   | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
@@ -289,6 +277,12 @@ async function beginAdd(
 ): Promise<void> {
   selectNode(node);
   insertAnchor.value = { ...anchor };
+  if (node.canAddChild === 'buffMember') {
+    const result = appendBuffGraphChild(props.definition, node.sourcePath);
+    emitStructureUpdate(result.root);
+    await selectPath(result.itemPath);
+    return;
+  }
   if (node.canAddChild === 'lifecycle') {
     pendingMode.value = 'lifecycle';
     await nextTick();
@@ -479,6 +473,19 @@ async function moveStructureNode(operation: {
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
   const kind = operation.source.payloadKind;
+  if (isBuffGraphPayload(kind)) {
+    const source = nodeIndex.value.get(operation.source.id);
+    const target = nodeIndex.value.get(operation.target.id);
+    if (!source || !target) return;
+    const result = moveBuffGraphNode(props.definition, source, target, operation.placement);
+    if (!result) return;
+    emitStructureUpdate(result.root);
+    await nextTick();
+    const moved = findSkillStructureNodeForPath(root.value, result.itemPath);
+    map.value?.transferCollapsedState(source.id, moved.id);
+    await selectPath(result.itemPath);
+    return;
+  }
   if (
     kind !== 'combatStep' &&
     kind !== 'scheduledSequence' &&
@@ -529,6 +536,23 @@ async function runStructureNodeAction(
   action: 'delete' | 'copy' | 'paste',
   node: StructureOperationNode,
 ): Promise<void> {
+  const damageNode = nodeIndex.value.get(node.id);
+  if (action === 'copy' && isBuffGraphPayload(damageNode?.payloadKind)) {
+    structureClipboard.value = {
+      kind: damageNode.payloadKind,
+      value: cloneStructureValue(resolveStructureValue(props.definition, node.sourcePath)),
+    };
+    return;
+  }
+  if (action === 'delete' && damageNode?.canDelete && isBuffDetailNode(damageNode)) {
+    emitStructureUpdate(
+      /\[\d+\]$/.test(node.sourcePath)
+        ? removeStructureArrayItem(props.definition, node.sourcePath)
+        : deleteStructureValueAtPath(props.definition, node.sourcePath),
+    );
+    await selectPath(node.sourcePath.replace(/(?:\[\d+\]|\.[^.]+)$/, ''));
+    return;
+  }
   if (
     action === 'copy' &&
     (node.payloadKind === 'combatStep' ||
@@ -600,6 +624,16 @@ async function runStructureNodeAction(
     return;
   }
   const clipboard = structureClipboard.value;
+  if (isBuffGraphClipboard(clipboard)) {
+    if (action !== 'paste') return;
+    const target = nodeIndex.value.get(node.id);
+    const result = target && pasteBuffGraphNode(props.definition, target, clipboard);
+    if (result) {
+      emitStructureUpdate(result.root);
+      await selectPath(result.itemPath);
+    }
+    return;
+  }
   const targetArrayPath = childArrayPath(node, clipboard.kind);
   if (targetArrayPath === undefined) return;
   const value =
@@ -730,14 +764,20 @@ async function deleteCurrent(): Promise<void> {
         </div>
       </Teleport>
 
+      <BuffDetailNodeInspector
+        v-if="selectedNode && isBuffDetailNode(selectedNode)"
+        :node="selectedNode"
+        :property="editing.property.value"
+      />
       <BuffStepEditor
-        v-if="selectedId === 'buff'"
+        v-else-if="selectedId === 'buff'"
         :step="editingStep"
         :definition-binding="editing.property.value"
         :skill-level="skillLevel"
         :create-step="createStep"
         :duplicate-step="duplicateStep"
         definition-only
+        modifier-collections-in-graph
         inspector-only
         @update="updateRootStep"
       />
@@ -868,12 +908,14 @@ async function deleteCurrent(): Promise<void> {
           </button>
         </header>
         <BuffEventResponseInspector
+          :binding="editing.property.value"
           v-if="selectedAbilityResponse"
           kind="ability"
           :response="selectedAbilityResponse"
           @update="updateResponse"
         />
         <BuffEventResponseInspector
+          :binding="editing.property.value"
           v-else-if="selectedIgniteResponse"
           kind="ignite"
           :response="selectedIgniteResponse"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, markRaw, provide, ref, watch } from 'vue';
+import { computed, markRaw, nextTick, provide, ref, useId, watch } from 'vue';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useI18n } from 'vue-i18n';
 import type {
@@ -16,6 +16,7 @@ import {
   type OperatorDefinitionReference,
 } from '../operatorDefinitionReferences';
 import AbilityEntityDefinitionGraphEditor from './AbilityEntityDefinitionGraphEditor.vue';
+import DefinitionReferenceList from './DefinitionReferenceList.vue';
 import {
   useDefinitionDraftHistory,
   type DefinitionDraftHistory,
@@ -36,6 +37,7 @@ const props = defineProps<{
   operatorDefinition?: OperatorDefinition;
   sharedHistory?: DefinitionDraftHistory<OperatorAbilityEntityDefinitions>;
   paged?: boolean;
+  parentNavigation?: boolean;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
@@ -59,11 +61,28 @@ const selectedId = ref('');
 const detailOpen = ref(false);
 watch(detailOpen, open => emit('detail-change', open));
 function openDefinition(id: string): void {
+  creating.value = false;
   selectedId.value = id;
   emit('selection-change', id);
   detailOpen.value = mergedDefinitions.value[id] !== undefined;
 }
 const newId = ref('');
+const creating = ref(false);
+const newIdInput = ref<HTMLInputElement>();
+const createButton = ref<HTMLButtonElement>();
+const createErrorId = useId();
+function beginCreate() {
+  newId.value = nextCustomId();
+  creating.value = true;
+  void nextTick(() => {
+    newIdInput.value?.focus();
+    newIdInput.value?.select();
+  });
+}
+function cancelCreate() {
+  creating.value = false;
+  void nextTick(() => createButton.value?.focus());
+}
 const filterText = ref('');
 const mergedDefinitions = computed<Record<string, AbilityEntityDefinition>>(() => ({
   ...props.baseDefinitions,
@@ -83,6 +102,13 @@ const canAdd = computed(() => {
   const id = newId.value.trim();
   return id.length > 0 && !allIds.value.includes(id);
 });
+const createError = computed(() =>
+  !newId.value.trim()
+    ? '请填写用于技能引用的定义 ID。'
+    : allIds.value.includes(newId.value.trim())
+      ? '此 ID 已被干员或公共能力实体使用，请换一个。'
+      : '',
+);
 provide(ABILITY_ENTITY_IDS_KEY, allIds);
 const history = markRaw(
   props.sharedHistory ??
@@ -159,6 +185,7 @@ watch(
   () => props.visible,
   visible => {
     if (!visible) return;
+    creating.value = false;
     if (!props.sharedHistory) draft.value = cloneProjectJson(props.customDefinitions ?? {});
     const ids = Object.keys({ ...props.baseDefinitions, ...draft.value }).sort();
     selectedId.value =
@@ -218,6 +245,7 @@ function addDefinition(): void {
     { path: '', objectId: id, operation: 'add' },
   );
   selectedId.value = id;
+  creating.value = false;
   detailOpen.value = true;
   emit('selection-change', id);
   newId.value = nextCustomId([...allIds.value, id]);
@@ -240,7 +268,6 @@ function duplicateDefinition(): void {
 function removeOrResetDefinition(): void {
   const id = selectedId.value;
   if (draft.value[id] === undefined) return;
-  if (props.baseDefinitions[id] === undefined && selectedReferences.value.length > 0) return;
   const next = { ...draft.value };
   delete next[id];
   history.commit(next, {
@@ -291,15 +318,40 @@ function save(): void {
     <div class="entity-workspace" :class="{ 'entity-workspace--paged': paged }">
       <aside v-if="!paged || !detailOpen" class="entity-workspace__sidebar">
         <div class="entity-workspace__create">
-          <input v-model="newId" type="text" @keydown.enter.prevent="addDefinition" />
           <button
+            v-if="!creating"
+            ref="createButton"
             type="button"
             class="ea-btn ea-btn--sm"
-            :disabled="!canAdd"
-            @click="addDefinition"
+            @click="beginCreate"
           >
-            {{ t('timeline.skillEditing.addAbilityEntityObject') }}
+            ＋ 新增能力实体
           </button>
+          <div v-else class="entity-create-form" @keydown.esc.stop.prevent="cancelCreate">
+            <label
+              >定义 ID<input
+                ref="newIdInput"
+                v-model="newId"
+                type="text"
+                :aria-invalid="!!createError"
+                :aria-describedby="createErrorId"
+                @keydown.enter.stop.prevent="!$event.isComposing && addDefinition()"
+            /></label>
+            <p :id="createErrorId" role="status">
+              {{ createError || '用于技能引用，与图标和显示名称无关。创建后进入定义图编辑。' }}
+            </p>
+            <div class="entity-create-actions">
+              <button
+                type="button"
+                class="ea-btn ea-btn--sm"
+                :disabled="!canAdd"
+                @click="addDefinition"
+              >
+                创建并编辑
+              </button>
+              <button type="button" class="ea-btn ea-btn--sm" @click="cancelCreate">取消</button>
+            </div>
+          </div>
         </div>
         <input
           v-model="filterText"
@@ -317,12 +369,12 @@ function save(): void {
             :key="id"
             type="button"
             class="entity-workspace__item"
-            :class="{ active: id === selectedId }"
+            :class="{ active: id === selectedId && (!paged || detailOpen) }"
             :title="id"
             @click="openDefinition(id)"
           >
             <span class="entity-workspace__item-id">{{ id }}</span>
-            <span v-if="draft[id]" class="entity-workspace__badge">
+            <span v-if="!sharedHistory && draft[id]" class="entity-workspace__badge">
               {{
                 baseDefinitions[id]
                   ? t('timeline.skillEditing.abilityEntityOverride')
@@ -352,14 +404,15 @@ function save(): void {
         <template v-if="editingStep">
           <div class="entity-workspace__toolbar">
             <button
-              v-if="paged"
+              v-if="paged && !parentNavigation"
               type="button"
               class="ea-btn ea-btn--sm"
               @click="detailOpen = false"
             >
               ← 返回能力实体列表
             </button>
-            <strong>{{ selectedId }}</strong>
+            <strong v-if="!parentNavigation">{{ selectedId }}</strong>
+            <span v-else class="entity-workspace__kind">能力实体定义</span>
             <span v-if="selectedIsBase && !selectedIsOverride" class="entity-workspace__source">
               {{ t('timeline.skillEditing.abilityEntityGenerated') }}
             </span>
@@ -370,10 +423,9 @@ function save(): void {
               v-if="selectedIsOverride"
               type="button"
               class="ea-btn ea-btn--sm"
-              :disabled="!selectedIsBase && selectedReferences.length > 0"
               :title="
                 !selectedIsBase && selectedReferences.length > 0
-                  ? `仍有 ${selectedReferences.length} 处引用，不能删除`
+                  ? `删除后保留 ${selectedReferences.length} 处引用，由定义检查报告缺失；可撤销`
                   : undefined
               "
               @click="removeOrResetDefinition"
@@ -385,19 +437,11 @@ function save(): void {
               }}
             </button>
           </div>
-          <div v-if="!selectedIsBase && selectedReferences.length" class="entity-reference-guard">
-            <strong>仍有 {{ selectedReferences.length }} 处引用</strong>
-            <span>先修改这些使用点，能力实体定义才可以删除。</span>
-            <button
-              v-for="reference in selectedReferences"
-              :key="reference.path"
-              type="button"
-              @click="revealReference(reference)"
-            >
-              <b>{{ reference.ownerKind }} · {{ reference.ownerId }}</b>
-              <code>{{ reference.path }}</code>
-            </button>
-          </div>
+          <DefinitionReferenceList
+            :key="selectedId"
+            :references="selectedReferences"
+            @reveal="revealReference"
+          />
           <div class="entity-workspace__scroll">
             <AbilityEntityDefinitionGraphEditor
               fill-available
@@ -456,6 +500,12 @@ function save(): void {
 </template>
 
 <style scoped>
+.entity-workspace__kind {
+  margin-right: auto;
+  color: var(--ea-text-secondary);
+  font-size: 12px;
+}
+
 .ability-entity-definitions-editor {
   display: flex;
   min-height: 0;
@@ -510,12 +560,34 @@ function save(): void {
 }
 .entity-workspace__create {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: minmax(0, 1fr);
   gap: 6px;
   margin-bottom: 8px;
 }
 .entity-workspace__create input {
   min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--ea-fg);
+  background: var(--ea-fill-input);
+  border: 1px solid var(--ea-border);
+  padding: 7px;
+}
+.entity-create-form,
+.entity-create-form label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.entity-create-form p {
+  margin: 0;
+  color: var(--ea-text-secondary);
+  line-height: 1.6;
+}
+.entity-create-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .entity-workspace__search {
   width: 100%;
@@ -633,50 +705,9 @@ function save(): void {
   margin-right: auto;
   color: var(--el-color-danger);
 }
-.entity-reference-guard {
-  max-height: 64px;
-  flex: none;
-  overflow: auto;
-  box-sizing: border-box;
-  display: grid;
-  gap: 5px;
-  min-width: 0;
-  padding: 9px 12px;
-  border-bottom: 1px solid color-mix(in srgb, #e5a43b 50%, var(--ea-border-soft));
-  background: color-mix(in srgb, #e5a43b 8%, var(--ea-workbench-panel));
-}
-.entity-reference-guard strong {
-  color: #e5b96d;
-  font-size: 12px;
-}
-.entity-reference-guard span,
-.entity-reference-guard code {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  color: var(--ea-fg-muted);
-  font-size: 10px;
-}
-.entity-reference-guard button {
-  display: grid;
-  grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
-  gap: 8px;
-  min-width: 0;
-  padding: 6px 8px;
-  border: 1px solid var(--ea-border-soft);
-  background: var(--ea-fill-input, #16161a);
-  color: var(--ea-fg);
-  text-align: left;
-  cursor: pointer;
-}
 @media (max-width: 760px) {
   .entity-workspace {
     grid-template-columns: 150px minmax(0, 1fr);
-  }
-  .entity-reference-guard {
-    max-height: 48px;
-    box-sizing: border-box;
-    overflow: auto;
-    flex: none;
   }
   .entity-workspace__toolbar {
     min-height: 36px;

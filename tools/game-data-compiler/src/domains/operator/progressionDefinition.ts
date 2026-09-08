@@ -39,20 +39,19 @@ type Progression = Pick<
 /** 天赋每次只启用所选等级；按原生 index/level 聚合，禁止按节点名或数组出现顺序猜级别。 */
 export function compileOperatorTalentDefinition(
   source: Progression,
-  binding: { readonly index: number; readonly key: string },
+  binding: { readonly index: number },
   context: OperatorProgressionDefinitionContext,
 ): OperatorUpgradeDefinition {
   const nodes = source.talentNodes
     .filter(node => node.nodeType === 'passiveSkill' && node.passiveSkill.index === binding.index)
     .sort((left, right) => left.passiveSkill.level - right.passiveSkill.level);
-  if (!nodes.length)
-    throw new Error(`${binding.key}: missing passive talent index ${binding.index}`);
+  if (!nodes.length) throw new Error(`missing passive talent index ${binding.index}`);
   nodes.forEach((node, index) => {
     if (node.passiveSkill.level !== index + 1)
       throw new Error(`${node.sourcePath}: talent levels must be unique and contiguous from 1`);
   });
   return assembleUpgrade(
-    binding.key,
+    `talent[${binding.index}]`,
     nodes.map(node => node.talentEffectId),
     source,
     context,
@@ -62,13 +61,18 @@ export function compileOperatorTalentDefinition(
 /** 每档潜能生成一个独立启用项；累计启用由正式构筑层处理，不能在这里重复累加前档。 */
 export function compileOperatorPotentialDefinition(
   source: Progression,
-  binding: { readonly level: number; readonly key: string },
+  binding: { readonly level: number },
   context: OperatorProgressionDefinitionContext,
 ): OperatorUpgradeDefinition {
   const unlocks = source.potential.unlocks.filter(unlock => unlock.level === binding.level);
   if (unlocks.length !== 1)
-    throw new Error(`${binding.key}: expected one potential unlock at level ${binding.level}`);
-  return assembleUpgrade(binding.key, [unlocks[0]!.effectId], source, context);
+    throw new Error(`expected one potential unlock at level ${binding.level}`);
+  return assembleUpgrade(
+    `potential[${binding.level - 1}]`,
+    [unlocks[0]!.effectId],
+    source,
+    context,
+  );
 }
 
 function assembleUpgrade(
@@ -77,7 +81,6 @@ function assembleUpgrade(
   source: Progression,
   context: OperatorProgressionDefinitionContext,
 ): OperatorUpgradeDefinition {
-  if (!key.trim()) throw new Error('upgrade key must not be empty');
   const levels = effectIds.map(effectId => {
     const matches = source.compiledEffectBundles.filter(bundle => bundle.effectId === effectId);
     if (matches.length !== 1) throw new Error(`${key}: expected one effect bundle '${effectId}'`);
@@ -177,7 +180,6 @@ function assembleUpgrade(
     },
   );
   return {
-    key,
     levels: levels.length,
     ...(modifiers.length ? { modifiers } : {}),
     ...(initializationSequence.steps.length ? { initializationSequence } : {}),

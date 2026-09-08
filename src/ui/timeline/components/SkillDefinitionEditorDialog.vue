@@ -26,6 +26,7 @@ const props = defineProps<{
   backLabel?: string;
   sharedHistory?: DefinitionDraftHistory<SkillDefinition>;
   viewStateKey?: string;
+  navigationRequest?: { readonly propertyPath: readonly (string | number)[] };
 }>();
 
 const emit = defineEmits<{
@@ -76,6 +77,7 @@ const labels = () => ({
     :back-label="backLabel"
     :shared-history="sharedHistory"
     :view-state-key="viewStateKey"
+    :navigation-request="navigationRequest"
     @save="emit('save', $event)"
     @cancel="emit('update:visible', false)"
     @reset="emit('reset')"
@@ -103,6 +105,7 @@ const labels = () => ({
         :show-reference-pins="showReferencePins"
         :allow-invalid-save="allowInvalidSave"
         :back-label="backLabel"
+        :navigation-request="navigationRequest"
         @save="emit('save', $event)"
         @cancel="emit('update:visible', false)"
         @reset="emit('reset')"

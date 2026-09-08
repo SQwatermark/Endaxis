@@ -2587,7 +2587,6 @@ export default {
   comboSkillPriority: 'default',
   talents: [
     {
-      key: 'talent1',
       levels: 2,
       passiveSkills: [
         {
@@ -2672,7 +2671,6 @@ export default {
       ],
     },
     {
-      key: 'talent2',
       levels: 2,
       initializationSequence: sequence(
         step('applyBuff', {
@@ -2686,7 +2684,6 @@ export default {
   ],
   potentials: [
     {
-      key: 'potential1',
       levels: 1,
       modifiers: [
         {
@@ -2706,7 +2703,6 @@ export default {
       ],
     },
     {
-      key: 'potential2',
       levels: 1,
       modifiers: [
         { kind: 'addBuildAttribute', attributes: ['will'], value: 20 },
@@ -2714,7 +2710,6 @@ export default {
       ],
     },
     {
-      key: 'potential3',
       levels: 1,
       modifiers: [
         {
@@ -2734,7 +2729,6 @@ export default {
       ],
     },
     {
-      key: 'potential4',
       levels: 1,
       modifiers: [
         {
@@ -2746,7 +2740,6 @@ export default {
       ],
     },
     {
-      key: 'potential5',
       levels: 1,
       modifiers: [
         { kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -60 },

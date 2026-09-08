@@ -4,40 +4,48 @@ import type {
   SkillBuffIgniteEventResponse,
 } from '../../../core/game-data/operatorDefinition';
 import { BUFF_ABILITY_EVENTS } from '../../../core/game-data/operatorDefinition';
+import AbilityEventOptions from './AbilityEventOptions.vue';
+import type { DefinitionProperty } from '../definitionEditContext';
 
 const props = defineProps<
-  | { kind: 'ability'; response: SkillBuffAbilityEventResponse }
-  | { kind: 'ignite'; response: SkillBuffIgniteEventResponse }
+  | { kind: 'ability'; response: SkillBuffAbilityEventResponse; binding?: DefinitionProperty }
+  | { kind: 'ignite'; response: SkillBuffIgniteEventResponse; binding?: DefinitionProperty }
 >();
 const emit = defineEmits<{
   update: [response: SkillBuffAbilityEventResponse | SkillBuffIgniteEventResponse];
 }>();
+function fieldPath(field: string) {
+  return JSON.stringify([...(props.binding?.path ?? []), field]);
+}
+function write(field: string, value: unknown) {
+  if (props.binding)
+    props.binding.update(
+      current => ({ ...(current as object), [field]: value }),
+      [...props.binding.path, field],
+    );
+  else emit('update', { ...props.response, [field]: value });
+}
 
 function setAbilityEvent(event: Event): void {
   if (props.kind !== 'ability') return;
-  emit('update', {
-    ...props.response,
-    event: (event.target as HTMLSelectElement).value as SkillBuffAbilityEventResponse['event'],
-  });
+  write('event', (event.target as HTMLSelectElement).value);
 }
 
 function setPriority(event: Event): void {
   if (props.kind !== 'ability') return;
+  if ((event.target as HTMLInputElement).value.trim() === '') return;
   const priority = Number((event.target as HTMLInputElement).value);
-  if (Number.isInteger(priority)) emit('update', { ...props.response, priority });
+  if (Number.isInteger(priority)) write('priority', priority);
 }
 
 function setIgniteType(event: Event): void {
   if (props.kind !== 'ignite') return;
-  emit('update', { ...props.response, igniteType: (event.target as HTMLInputElement).value });
+  write('igniteType', (event.target as HTMLInputElement).value);
 }
 
 function setFinishAfterIgnited(event: Event): void {
   if (props.kind !== 'ignite') return;
-  emit('update', {
-    ...props.response,
-    finishAfterIgnited: (event.target as HTMLInputElement).checked,
-  });
+  write('finishAfterIgnited', (event.target as HTMLInputElement).checked);
 }
 </script>
 
@@ -48,25 +56,23 @@ function setFinishAfterIgnited(event: Event): void {
       <span>{{ kind === 'ability' ? response.event : response.igniteType }}</span>
     </header>
     <template v-if="kind === 'ability'">
-      <label>
+      <label :data-property-path="fieldPath('event')">
         <span>事件</span>
         <select :value="response.event" @change="setAbilityEvent">
-          <option v-for="event in BUFF_ABILITY_EVENTS" :key="event" :value="event">
-            {{ event }}
-          </option>
+          <AbilityEventOptions :events="BUFF_ABILITY_EVENTS" :current="response.event" />
         </select>
       </label>
-      <label>
+      <label :data-property-path="fieldPath('priority')">
         <span>优先级（整数）</span>
         <input type="number" step="1" :value="response.priority" @change="setPriority" />
       </label>
     </template>
     <template v-else>
-      <label>
+      <label :data-property-path="fieldPath('igniteType')">
         <span>点燃类型</span>
         <input :value="response.igniteType" @change="setIgniteType" />
       </label>
-      <label class="check-field">
+      <label class="check-field" :data-property-path="fieldPath('finishAfterIgnited')">
         <input
           type="checkbox"
           :checked="response.finishAfterIgnited"

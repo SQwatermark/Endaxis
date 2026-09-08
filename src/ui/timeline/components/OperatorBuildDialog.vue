@@ -494,7 +494,7 @@ function maxOut(): void {
 
             <div
               v-for="(talent, groupIndex) in definition.talents"
-              :key="talent.key"
+              :key="groupIndex"
               class="talent-row"
             >
               <div class="talent-info">

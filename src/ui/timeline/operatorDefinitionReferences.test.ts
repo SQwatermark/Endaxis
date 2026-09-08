@@ -5,6 +5,36 @@ import {
   referencesToDefinition,
 } from './operatorDefinitionReferences';
 
+it('tracks all passive UI Buff references using their actual contract fields', () => {
+  const operator = definition();
+  const cases: NonNullable<OperatorDefinition['passiveUi']>[] = [
+    {
+      kind: 'buffProgress',
+      appearance: 'liinoMusic',
+      normalBuffId: 'normal',
+      ultimateBuffId: 'ultimate',
+    },
+    {
+      kind: 'buffCounters',
+      appearance: 'typhoeaArrows',
+      reserveArrowBuffId: 'reserve',
+      battleArrowBuffId: 'battle',
+      pointBuffId: 'point',
+      maximumArrows: 3,
+      maximumPoints: 3,
+    },
+  ];
+  for (const passiveUi of cases) {
+    const refs = collectOperatorDefinitionReferences({ ...operator, passiveUi }).filter(ref =>
+      ref.path.startsWith('passiveUi.'),
+    );
+    expect(refs.map(ref => ref.id)).toEqual(
+      passiveUi.kind === 'buffProgress' ? ['normal', 'ultimate'] : ['reserve', 'battle', 'point'],
+    );
+    expect(refs.every(ref => ref.kind === 'buff' && ref.ownerKind === 'operator')).toBe(true);
+  }
+});
+
 function definition(): OperatorDefinition {
   return {
     slug: 'reference-test',
@@ -134,7 +164,6 @@ function definition(): OperatorDefinition {
     ],
     talents: [
       {
-        key: 'talent-a',
         levels: 1,
         initializationSequence: {
           steps: [
@@ -167,7 +196,7 @@ describe('operator definition references', () => {
     ]);
     expect(referencesToDefinition(references, 'entity', 'entity-b')).toMatchObject([
       { ownerKind: 'entity', ownerId: 'entity-a' },
-      { ownerKind: 'upgrade', ownerId: 'talents/talent-a' },
+      { ownerKind: 'upgrade', ownerId: 'talents/0' },
     ]);
   });
 

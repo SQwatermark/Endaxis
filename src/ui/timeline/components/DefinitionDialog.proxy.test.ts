@@ -18,7 +18,7 @@ const cases = [
     name: 'upgrade',
     component: Upgrade,
     props: {
-      upgrade: { key: 'qa', levels: 2, initializationSequence: { steps: [] } },
+      upgrade: { levels: 2, initializationSequence: { steps: [] } },
       skillGroupKeys: [],
     },
     draft: (p: any) => p.draft.value,

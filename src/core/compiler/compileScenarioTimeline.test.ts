@@ -476,7 +476,6 @@ describe('compileScenarioTimeline', () => {
       ...perlica,
       potentials: [
         {
-          key: 'reducedUltimateCost',
           levels: 1,
           modifiers: [
             {
@@ -598,7 +597,6 @@ describe('compileScenarioTimeline', () => {
       ...perlica,
       potentials: [
         {
-          key: 'reducedUltimateCost',
           levels: 1,
           modifiers: [
             {

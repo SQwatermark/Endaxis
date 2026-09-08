@@ -624,6 +624,13 @@
       "enemyWeaknessSet": "Установить уязвимость"
     },
     "skillEditing": {
+      "runtimeFields": {
+        "sourceSkillId": "Исходный ID навыка",
+        "nativeSkillType": "Исходный тип навыка",
+        "smartTarget": "Источник умной цели",
+        "naturalDurationFrames": "Естественная длительность (кадры)",
+        "exclusiveFrame": "Кадр запрета прерывания"
+      },
       "queryParameters": "Параметры запроса",
       "conditionStructureInGraph": "Изменяйте дочерние условия и их порядок на графе.",
       "unionListValue": "Список",
@@ -716,6 +723,8 @@
       "levelArray": "Значения по уровням (только чтение)",
       "costFrame": "Кадр оплаты",
       "costs": "Стоимость",
+      "spConsumption": "Расход SP",
+      "ultimateEnergyConsumption": "Расход энергии ультимейта",
       "resource": "Ресурс",
       "value": "Значение",
       "sequences": "Последовательности",
@@ -1128,7 +1137,7 @@
       "deleteGameplayTag": "Удалить GameplayTag",
       "invalidGameplayTag": "Недопустимый путь тега",
       "unknownGameplayTag": "Пользовательский тег вне каталога этой версии",
-      "buffApplyTags": "GameplayTag активного экземпляра Buff. Проект и симуляция используют одинаковые читаемые пути.",
+      "buffApplyTags": "Теги, предоставляемые Buff",
       "buffExtendTags": "Теги сопоставления продления Buff",
       "timeScaleCurveEditingHint": "Перетаскивайте ключи; отпустите для применения, Esc — отмена. Двойной щелчок добавляет ключ",
       "timeDilationPriority": "Приоритет",

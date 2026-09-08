@@ -1,4 +1,5 @@
 import type { ActionValueOperand } from '../../../packages/game-data-contract/src/conditions';
+import type { LevelValues } from '../../../packages/game-data-contract/src/primitives';
 import type { CombatStepParameters } from '../../../packages/game-data-contract/src/actions';
 
 export type { ActionStringOperand as InspectorStringReference } from '../../../packages/game-data-contract/src/primitives';
@@ -130,6 +131,11 @@ export function initialInspectorValue(shape: InspectorValueShape): unknown {
 
 /** 元数据只描述编辑方式，不重新声明游戏枚举或领域校验规则。 */
 type Control<V> =
+  | (NonNullable<V> extends LevelValues
+      ? LevelValues extends NonNullable<V>
+        ? { editor: 'levelValues' }
+        : never
+      : never)
   | (string extends NonNullable<V>
       ? NonNullable<V> extends string
         ? { editor: 'text' }

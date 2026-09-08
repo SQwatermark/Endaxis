@@ -12,7 +12,7 @@ export interface PublishedOperatorMetadata {
   readonly skillKeys: readonly string[];
 }
 
-type PublishedUpgradeMetadata = Pick<OperatorDefinition['talents'][number], 'key' | 'levels'> & {
+type PublishedUpgradeMetadata = Pick<OperatorDefinition['talents'][number], 'levels'> & {
   readonly passiveKeys: readonly string[];
 };
 
@@ -30,13 +30,11 @@ export function capturePublishedOperatorMetadata(
       slug: definition.slug,
       assetSlug: definition.assetSlug ?? slug,
       displayName: definition.displayName,
-      talents: definition.talents.map(({ key, levels, passiveSkills }) => ({
-        key,
+      talents: definition.talents.map(({ levels, passiveSkills }) => ({
         levels,
         passiveKeys: (passiveSkills ?? []).map(skill => skill.key),
       })),
-      potentials: definition.potentials.map(({ key, levels, passiveSkills }) => ({
-        key,
+      potentials: definition.potentials.map(({ levels, passiveSkills }) => ({
         levels,
         passiveKeys: (passiveSkills ?? []).map(skill => skill.key),
       })),

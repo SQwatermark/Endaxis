@@ -1,6 +1,11 @@
 <script setup lang="ts">
+import AbilityEventOptions from './AbilityEventOptions.vue';
 import { computed, ref, watch } from 'vue';
-import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import {
+  useDefinitionPageDraft,
+  projectDefinitionHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
@@ -23,6 +28,7 @@ const props = defineProps<{
   conditions?: readonly ComboSkillConditionDefinition[];
   skillKeys: readonly string[];
   skillLevel: number;
+  sharedHistory?: DefinitionDraftHistory<readonly ComboSkillConditionDefinition[]>;
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
@@ -34,7 +40,11 @@ const {
   draft: conditions,
   history,
   reset: resetConditions,
-} = useDefinitionDraft<ComboSkillConditionDefinition[]>([]);
+} = useDefinitionPageDraft<readonly ComboSkillConditionDefinition[]>(
+  () => props.conditions ?? [],
+  props.sharedHistory,
+  () => ({ path: '', objectId: String(selectedIndex.value) }),
+);
 const editorRoot = ref<HTMLElement | null>(null);
 useEditorHistoryShortcuts(editorRoot, history.restore);
 const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
@@ -45,11 +55,11 @@ const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
 watch(
   () => history.restoredLocation?.value,
   location => {
-    if (!location) return;
+    if (!location || (props.sharedHistory && location.page !== 'combo')) return;
 
     if (location.objectId !== undefined) selectedIndex.value = Number(location.objectId);
   },
-  { flush: 'sync' },
+  { flush: 'post', immediate: true },
 );
 const selectedCondition = computed(() => conditions.value[selectedIndex.value]);
 
@@ -58,7 +68,8 @@ watch(
   visible => {
     if (!visible) return;
     resetConditions([...(props.conditions ?? [])]);
-    selectedIndex.value = 0;
+    const location = props.sharedHistory?.restoredLocation?.value;
+    selectedIndex.value = location?.page === 'combo' ? Number(location.objectId ?? 0) : 0;
   },
   { immediate: true },
 );
@@ -255,11 +266,11 @@ function save(): void {
                 })
               "
             >
-              <option v-for="value in ABILITY_EVENTS" :key="value" :value="value">
-                {{ value }}
-              </option>
-            </select></label
-          >
+              <AbilityEventOptions
+                :events="ABILITY_EVENTS"
+                :current="selectedCondition.event"
+              /></select
+          ></label>
           <label class="checkbox-field"
             ><input
               type="checkbox"
@@ -307,7 +318,7 @@ function save(): void {
       </main>
       <main v-else class="empty">当前干员没有连携条件。</main>
     </div>
-    <div class="embedded-footer">
+    <div v-if="!sharedHistory" class="embedded-footer">
       <DefinitionHistoryControls :history="history" />
       <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
         取消

@@ -1,8 +1,68 @@
-import { createRenderer, h, shallowRef, ssrContextKey } from 'vue';
+import { createRenderer, createSSRApp, defineComponent, h, shallowRef, ssrContextKey } from 'vue';
+import { renderToString } from 'vue/server-renderer';
 import { createI18n } from 'vue-i18n';
 import { expect, it, vi } from 'vitest';
 import Editor from './BuffStepEditor.vue';
 import { createDefinitionEditContext } from '../definitionEditContext';
+
+it('hides migrated modifier collections while retaining the unconverted form sections', async () => {
+  const render = async (modifierCollectionsInGraph: boolean) => {
+    const app = createSSRApp({
+      render: () =>
+        h(Editor, {
+          step: {
+            kind: 'applyBuff',
+            parameters: {
+              target: 'caster',
+              buffId: 'test',
+              definition: { stackingType: 'refresh' },
+            },
+          },
+          skillLevel: 1,
+          definitionOnly: true,
+          inspectorOnly: true,
+          modifierCollectionsInGraph,
+        }),
+    });
+    app.use(
+      createI18n({
+        legacy: false,
+        locale: 'zh',
+        messages: {},
+        missingWarn: false,
+        fallbackWarn: false,
+      }),
+    );
+    app.component(
+      'el-tooltip',
+      defineComponent({
+        inheritAttrs: false,
+        setup(_props, { slots }) {
+          return () => slots.default?.();
+        },
+      }),
+    );
+    return renderToString(app);
+  };
+  const graph = await render(true);
+  expect(graph).not.toContain('添加伤害修正器');
+  expect(graph).not.toContain('添加属性修正器');
+  expect(graph).not.toContain('治疗修正');
+  expect(graph).not.toContain('护盾定义');
+  expect(graph).not.toContain('Buff 展示身份');
+  expect(graph).not.toContain('子 Buff 展示身份');
+  expect(graph).not.toContain('高级原生语义');
+  expect(graph).toContain('启用时记录来源技能的施法身份');
+  expect(graph).toContain('叠加与优先级');
+  expect(graph).toContain('持续时间与触发');
+  expect(graph).toContain('标签规则');
+  expect(graph.indexOf('叠加与优先级')).toBeLessThan(graph.indexOf('持续时间与触发'));
+  const standalone = await render(false);
+  expect(standalone).toContain('添加伤害修正器');
+  expect(standalone).toContain('添加属性修正器');
+  expect(standalone).toContain('Buff 展示身份');
+  expect(standalone).toContain('子 Buff 展示身份');
+});
 
 it('edits definition scalars from the latest root and records their precise field without forwarding', () => {
   const root = shallowRef<any>({ stackingType: 'refresh', durationSeconds: 10 });

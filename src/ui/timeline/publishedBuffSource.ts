@@ -42,13 +42,13 @@ export function resolvePublishedBuffSource(
   const slug = scenario.tracks.find(track => track?.id === source.sourceId)?.operator?.operatorSlug;
   const metadata = slug === undefined ? undefined : operators.get(slug);
   if (!metadata) return undefined;
-  const initialization = /^upgrade-initialization:(talent|potential):([^:]+)$/.exec(id);
+  const initialization = /^upgrade-initialization:(talent|potential):(\d+)$/.exec(id);
   const passive = id.startsWith('passive:') ? id.slice('passive:'.length) : undefined;
   for (const kind of ['talent', 'potential'] as const) {
     const values = kind === 'talent' ? metadata.talents : metadata.potentials;
     const index = values.findIndex(
-      value =>
-        (initialization?.[1] === kind && value.key === initialization[2]) ||
+      (value, slot) =>
+        (initialization?.[1] === kind && slot === Number(initialization[2])) ||
         (passive !== undefined && value.passiveKeys.includes(passive)),
     );
     if (index >= 0)

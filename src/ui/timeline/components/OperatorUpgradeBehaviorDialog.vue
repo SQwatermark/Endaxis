@@ -1,6 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { useDefinitionDraft, projectDefinitionHistory } from '../useDefinitionDraftHistory';
+import {
+  useDefinitionPageDraft,
+  projectDefinitionHistory,
+  type DefinitionDraftHistory,
+} from '../useDefinitionDraftHistory';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
@@ -31,6 +35,8 @@ const props = defineProps<{
   upgrade: OperatorUpgradeDefinition;
   skillLevel: number;
   skillGroupKeys: readonly string[];
+  sharedHistory?: DefinitionDraftHistory<OperatorUpgradeDefinition>;
+  progressionKind?: 'talents' | 'potentials';
 }>();
 const emit = defineEmits<{
   'update:visible': [visible: boolean];
@@ -40,7 +46,11 @@ const {
   draft,
   history,
   reset: resetDraft,
-} = useDefinitionDraft<OperatorUpgradeDefinition>(props.upgrade);
+} = useDefinitionPageDraft<OperatorUpgradeDefinition>(
+  () => props.upgrade,
+  props.sharedHistory,
+  () => ({ path: '', section: category.value, objectId: String(selectedIndex.value) }),
+);
 const editorRoot = ref<HTMLElement | null>(null);
 useEditorHistoryShortcuts(editorRoot, history.restore);
 const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
@@ -51,17 +61,20 @@ const sequenceHistory = projectDefinitionHistory<ActionSequenceDefinition>(
 watch(
   () => history.restoredLocation?.value,
   location => {
-    if (!location) return;
-    if (location.section) category.value = location.section as Category;
+    if (!location || (props.sharedHistory && location.page !== 'upgradeBehavior')) return;
+    const categoryName = props.sharedHistory ? location.upgradeCategory : location.section;
+    if (categoryName) category.value = categoryName as Category;
     if (location.objectId !== undefined) selectedIndex.value = Number(location.objectId);
   },
-  { flush: 'sync' },
+  { flush: 'post' },
 );
 const category = ref<Category>('initialization');
 const selectedIndex = ref(0);
 const structureRevision = ref(0);
 const upgradeLevel = ref(1);
-const upgradeLevels = computed(() => Math.max(1, props.upgrade.levels ?? 1));
+const upgradeLevels = computed(() =>
+  props.progressionKind === 'potentials' ? 1 : Math.max(1, props.upgrade.levels ?? 1),
+);
 const handlers = computed(() => draft.value.eventHandlers ?? []);
 const passives = computed(() => draft.value.passiveSkills ?? []);
 const selectedHandler = computed(() =>
@@ -80,12 +93,16 @@ const selectedSequence = computed(() =>
 );
 
 watch(
-  () => [props.visible, props.upgrade] as const,
-  ([visible]) => {
+  () => props.visible,
+  visible => {
     if (!visible) return;
     resetDraft(props.upgrade);
-    category.value = 'initialization';
-    selectedIndex.value = 0;
+    const location = props.sharedHistory?.restoredLocation?.value;
+    category.value =
+      location?.page === 'upgradeBehavior'
+        ? ((location.upgradeCategory as Category) ?? 'initialization')
+        : 'initialization';
+    selectedIndex.value = location?.page === 'upgradeBehavior' ? Number(location.objectId ?? 0) : 0;
     upgradeLevel.value = 1;
   },
   { immediate: true },
@@ -239,13 +256,13 @@ function save(): void {
         class="definition-focused-back ea-btn ea-btn--sm"
         @click="emit('update:visible', false)"
       >
-        ← 返回天赋与潜能
+        {{ progressionKind === 'potentials' ? '← 返回潜能' : '← 返回天赋' }}
       </button>
       <div class="title">
-        <strong>养成行为 · {{ draft.key }}</strong
+        <strong>{{ progressionKind === 'potentials' ? '潜能行为' : '天赋行为' }}</strong
         ><small>初始化、事件监听与附属被动具有不同安装和执行时机。</small>
       </div>
-      <label v-if="selectedPassive?.levelSource === undefined">
+      <label v-if="progressionKind !== 'potentials' && selectedPassive?.levelSource === undefined">
         编辑养成等级
         <select v-model.number="upgradeLevel">
           <option v-for="level in upgradeLevels" :key="level" :value="level">{{ level }}</option>
@@ -459,7 +476,7 @@ function save(): void {
       </main>
       <main v-else class="empty">当前分类没有行为定义。</main>
     </div>
-    <div class="embedded-footer">
+    <div v-if="!sharedHistory" class="embedded-footer">
       <DefinitionHistoryControls :history="history" />
       <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
         取消</button

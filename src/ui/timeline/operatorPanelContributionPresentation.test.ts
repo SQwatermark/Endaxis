@@ -43,10 +43,10 @@ describe('operator panel contribution presentation', () => {
   it('keeps an unresolved upgrade identity visible rather than inventing a name', () => {
     expect(
       resolveOperatorPanelContributionSourceLabel(
-        entry({ kind: 'operatorUpgrade', upgradeKey: 'unknown-upgrade' }),
+        entry({ kind: 'operatorUpgrade', source: 'potential', index: 9 }),
         context,
       ),
-    ).toBe('unknown-upgrade');
+    ).toBe('potential 10');
   });
 
   it('selects only attack-percent facts for the damage-detail attack tree', () => {

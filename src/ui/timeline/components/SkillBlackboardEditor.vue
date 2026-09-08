@@ -126,6 +126,15 @@ function setValue(key: string, value: LevelValues): void {
 </template>
 
 <style scoped>
+.section-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.section-heading h4 {
+  margin: 0;
+}
 .skill-subsection-help {
   margin: 0 0 14px;
   color: var(--ea-fg-muted);

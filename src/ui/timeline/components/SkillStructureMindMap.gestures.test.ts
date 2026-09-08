@@ -7,6 +7,7 @@ import { useInteractionSession } from '../../interaction/interactionSessionConte
 import type { InteractionSession } from '../../interaction/interactionSession';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
+import { createDefinitionViewState, definitionViewStateKey } from '../definitionViewState';
 
 // Mount production setup/lifecycle with a host renderer. Vitest compiles SFCs
 // for SSR, so templates are not executed here: this tests handler state and
@@ -76,7 +77,7 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 
-async function mount() {
+async function mount(view?: { selectedId: string; savedId: string }) {
   vi.stubGlobal('document', new EventTarget());
   vi.stubGlobal('window', new EventTarget());
   // Drag events below deliberately use a non-Element source: observer lifecycle
@@ -86,7 +87,9 @@ async function mount() {
   let session!: InteractionSession;
   let state: any;
   const move = vi.fn();
+  const nodeAction = vi.fn();
   const history = vi.fn();
+  const select = vi.fn();
   const editorRoot = ref<HTMLElement | null>(null);
   const pickerOpen = ref(false);
   const child = (id: string) => ({
@@ -121,7 +124,15 @@ async function mount() {
             },
             render: () => null,
           },
-          { root, onMoveNode: move, onHistoryAction: history },
+          {
+            root,
+            onMoveNode: move,
+            onHistoryAction: history,
+            onNodeAction: nodeAction,
+            selectedId: view?.selectedId,
+            viewStateKey: view ? 'qa' : undefined,
+            onSelect: select,
+          },
         );
     },
   });
@@ -135,6 +146,11 @@ async function mount() {
   });
   const host = new Host('root');
   app.provide(ssrContextKey, {});
+  if (view) {
+    const views = createDefinitionViewState();
+    views.write('qa', { zoom: 0.9, collapsedIds: [], left: 0, top: 0, selectedId: view.savedId });
+    app.provide(definitionViewStateKey, views);
+  }
   app.mount(host);
   let mounted = true;
   const unmount = () => {
@@ -174,7 +190,9 @@ async function mount() {
     session,
     state,
     move,
+    nodeAction,
     history,
+    select,
     pickerOpen,
     unmount,
     focus,
@@ -188,6 +206,17 @@ async function mount() {
   };
 }
 
+it('restores a remembered object selection without overriding an explicit target or selecting a missing node', async () => {
+  const returned = await mount({ selectedId: 'root', savedId: 'first' });
+  expect(returned.select).toHaveBeenCalledWith(expect.objectContaining({ id: 'first' }));
+  returned.unmount();
+  const explicit = await mount({ selectedId: 'second', savedId: 'first' });
+  expect(explicit.select).not.toHaveBeenCalled();
+  explicit.unmount();
+  const removed = await mount({ selectedId: 'root', savedId: 'removed' });
+  expect(removed.select).not.toHaveBeenCalled();
+});
+
 function keydown(key: string, extra = {}) {
   const event = new Event('keydown', { cancelable: true });
   for (const [name, value] of Object.entries({ key, ...extra }))
@@ -195,6 +224,17 @@ function keydown(key: string, extra = {}) {
   window.dispatchEvent(event);
   return event;
 }
+
+it('deletes explicitly deletable nodes independently of clipboard payload support', async () => {
+  const { state, nodeAction } = await mount();
+  const node = { id: 'window', sourcePath: 'inputWindows.commandMappings[0]', canDelete: true };
+  state.contextMenu.value = { node, x: 0, y: 0 };
+  expect(state.handleKeyboard({ key: 'Delete', target: null })).toBe(true);
+  expect(nodeAction).toHaveBeenCalledWith('delete', node);
+  state.contextMenu.value = { node: { ...node, canDelete: false }, x: 0, y: 0 };
+  expect(state.handleKeyboard({ key: 'Delete', target: null })).toBe(false);
+  expect(nodeAction).toHaveBeenCalledTimes(1);
+});
 
 describe('mounted structure map gesture ownership', () => {
   it('preserves the wheel anchor through the real zoom handler including stage offset', async () => {

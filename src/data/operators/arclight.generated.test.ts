@@ -24,7 +24,6 @@ describe('arclight generated operator', () => {
       missingCapabilities: [],
     });
     expect(arclightGeneratedOperator.talents[1]).toMatchObject({
-      key: 'electricAdditionalHit',
       levels: 2,
     });
   });

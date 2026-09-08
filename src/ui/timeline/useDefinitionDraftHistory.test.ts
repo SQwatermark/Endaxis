@@ -1,6 +1,77 @@
 import { effectScope, shallowRef } from 'vue';
 import { expect, it } from 'vitest';
-import { useDefinitionDraftHistory } from './useDefinitionDraftHistory';
+import {
+  useDefinitionDraftHistory,
+  useDefinitionPageDraft,
+  projectDefinitionHistory,
+} from './useDefinitionDraftHistory';
+
+it('embedded pages read current root values and preserve sequence locations without another history', () => {
+  const scope = effectScope();
+  const root = shallowRef({ count: 1 });
+  const { history, page } = scope.run(() => {
+    const history = useDefinitionDraftHistory(
+      () => root.value,
+      value => {
+        root.value = value;
+      },
+    );
+    const page = useDefinitionPageDraft(
+      () => root.value,
+      history,
+      () => ({ path: '', objectId: 'selected' }),
+    );
+    return { history, page };
+  })!;
+  try {
+    page.draft.value = { count: 2 };
+    expect(root.value.count).toBe(2);
+    expect(history.undoLocation?.value?.objectId).toBe('selected');
+    page.reset({ count: 99 });
+    expect(page.draft.value.count).toBe(2);
+    expect(history.canUndo.value).toBe(true);
+    const sequence = projectDefinitionHistory(
+      page.history,
+      (value: number) => {
+        page.draft.value = { count: value };
+      },
+      () => ({ objectId: 'sequence' }),
+    );
+    sequence.commit(3, { path: 'steps[1]', propertyPath: ['steps', 1, 'key'] });
+    expect(history.undoLocation?.value).toEqual({
+      path: 'steps[1]',
+      objectId: 'sequence',
+      propertyPath: ['steps', 1, 'key'],
+    });
+    page.history.restore('undo');
+    expect(page.draft.value.count).toBe(2);
+    page.history.restore('undo');
+    expect(page.draft.value.count).toBe(1);
+    expect(page.history.canUndo.value).toBe(false);
+  } finally {
+    scope.stop();
+  }
+});
+
+it('independent definition pages isolate their draft until their host saves', () => {
+  const scope = effectScope();
+  const source = { count: 1 };
+  const page = scope.run(() =>
+    useDefinitionPageDraft(
+      () => source,
+      undefined,
+      () => ({ path: '' }),
+    ),
+  )!;
+  try {
+    page.draft.value = { count: 2 };
+    expect(source.count).toBe(1);
+    page.history.restore('undo');
+    expect(page.draft.value.count).toBe(1);
+  } finally {
+    scope.stop();
+  }
+});
 
 it('isolates property location segments and keeps them through undo and redo', () => {
   const scope = effectScope();

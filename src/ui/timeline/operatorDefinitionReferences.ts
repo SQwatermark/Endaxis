@@ -115,7 +115,7 @@ export function collectOperatorDefinitionReferences(
     normalizeSkills(group.skills).forEach((skill, skillIndex) => {
       collectValueReferences(
         skill,
-        `skillGroups[${groupIndex}].skills[${skillIndex}]`,
+        `skillGroups[${groupIndex}].skills${Array.isArray(group.skills) ? `[${skillIndex}]` : ''}`,
         { kind: 'skill', id: `${group.key}/${skill.key}` },
         references,
       );
@@ -124,7 +124,7 @@ export function collectOperatorDefinitionReferences(
       normalizeSkills(variant.skills).forEach((skill, skillIndex) => {
         collectValueReferences(
           skill,
-          `skillGroups[${groupIndex}].variants[${variantIndex}].skills[${skillIndex}]`,
+          `skillGroups[${groupIndex}].variants[${variantIndex}].skills${Array.isArray(variant.skills) ? `[${skillIndex}]` : ''}`,
           { kind: 'skill', id: `${group.key}/${variant.key}/${skill.key}` },
           references,
         );
@@ -195,7 +195,7 @@ export function collectOperatorDefinitionReferences(
       collectValueReferences(
         upgrade,
         `${collection}[${index}]`,
-        { kind: 'upgrade', id: `${collection}/${upgrade.key}` },
+        { kind: 'upgrade', id: `${collection}/${index}` },
         references,
       ),
     );
@@ -212,6 +212,28 @@ export function collectOperatorDefinitionReferences(
       { kind: 'operator', id: definition.slug },
       references,
     );
+  }
+
+  const presentation = definition.passiveUi;
+  const presentationBuffs =
+    presentation?.kind === 'buffProgress'
+      ? { normalBuffId: presentation.normalBuffId, ultimateBuffId: presentation.ultimateBuffId }
+      : presentation?.kind === 'buffCounters'
+        ? {
+            reserveArrowBuffId: presentation.reserveArrowBuffId,
+            battleArrowBuffId: presentation.battleArrowBuffId,
+            pointBuffId: presentation.pointBuffId,
+          }
+        : {};
+  for (const [field, id] of Object.entries(presentationBuffs)) {
+    if (!id) continue;
+    references.push({
+      kind: 'buff',
+      id,
+      path: `passiveUi.${field}`,
+      ownerKind: 'operator',
+      ownerId: definition.slug,
+    });
   }
 
   return references;

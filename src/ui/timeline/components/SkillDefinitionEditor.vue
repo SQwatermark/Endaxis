@@ -1,4 +1,10 @@
 <script setup lang="ts">
+import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
+import InspectorFields from './InspectorFields.vue';
+import LevelValuesEditor from './LevelValuesEditor.vue';
+import SkillInputWindowInspector from './SkillInputWindowInspector.vue';
+import SkillSwitchToBuffInspector from './SkillSwitchToBuffInspector.vue';
+import { skillRuntimeIdentityFields, skillRuntimeTimingFields } from '../skillRootInspectorFields';
 /**
  * 技能逻辑编辑工作区，编辑单个技能块的完整 SkillDefinition 草稿。
  *
@@ -14,26 +20,27 @@ import type { DefinitionDraftHistory } from '../useDefinitionDraftHistory';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useDefinitionStructureNavigation } from '../definitionStructureNavigation';
 import { useI18n } from 'vue-i18n';
-import { ArrowDown, ArrowUp, CopyDocument, Delete, Plus } from '@element-plus/icons-vue';
+import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
 import {
-  COMBAT_RESOURCES,
+  SKILL_TYPES,
+  SKILL_LEVEL_SOURCES,
   type AbilityEntityChildSkillDefinition,
   type CombatCondition,
   type CombatEventResponseDefinition,
   type CombatEventHandlerDefinition,
   type CombatResource,
+  type LevelValues,
   type CombatStepDefinition,
   type ScheduledSequenceDefinition,
   type SkillDefinition,
+  type SkillBuffDefinition,
   type SkillGlobalBuffChildDefinition,
   type SkillGlobalBuffDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
 import type { ValidationIssue } from '../../../core/project/validation';
 import {
-  applySkillEditorCost,
   applySkillEditorField,
-  appendSkillEditorCost,
   appendSkillEditorSequence,
   applySkillEditorEnhancementStateBuffId,
   createSkillEditorDraft,
@@ -45,7 +52,6 @@ import {
   moveSkillEditorSequence,
   projectSkillEditor,
   removeSkillEditorSequence,
-  removeSkillEditorCost,
   type EditableCombatStepKind,
   type SkillEditorViewModel,
 } from '../skillDefinitionEditorViewModel';
@@ -75,6 +81,7 @@ import { createDefinitionEditContext } from '../definitionEditContext';
 import DefinitionPropertyScope from './DefinitionPropertyScope.vue';
 import { stepInspectorFields } from '../stepInspectorSchema';
 import CombatStepEditor from './CombatStepEditor.vue';
+import BuffStepEditor from './BuffStepEditor.vue';
 import type { InspectorPropertyPath } from '../inspectorProperty';
 import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
 import CombatConditionEditor from './CombatConditionEditor.vue';
@@ -87,36 +94,22 @@ import EditorFieldLabel from './EditorFieldLabel.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import StepTypePicker from './StepTypePicker.vue';
+import BuffDetailNodeInspector from './BuffDetailNodeInspector.vue';
+import { isBuffDetailNode, appendBuffGraphChild } from '../buffDamageModifierGraph';
+import {
+  isBuffGraphPayload,
+  isBuffGraphClipboard,
+  pasteBuffGraphNode,
+  moveBuffGraphNode,
+  type BuffGraphClipboard,
+} from '../buffGraphOperations';
 
 type EditorSection = 'overview' | 'blackboard' | 'availability' | number;
 type StructureOperationNode = {
   readonly id: string;
   readonly sourcePath: string;
-  readonly payloadKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffDefinition'
-    | 'globalBuffChild';
-  readonly acceptsChildKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffChild';
+  readonly payloadKind?: StructureNodeContract['payloadKind'];
+  readonly acceptsChildKind?: StructureNodeContract['acceptsChildKind'];
 };
 
 const props = defineProps<{
@@ -150,6 +143,7 @@ const props = defineProps<{
   backLabel?: string;
   sharedHistory?: DefinitionDraftHistory<SkillDefinition>;
   viewStateKey?: string;
+  navigationRequest?: { readonly propertyPath: InspectorPropertyPath };
 }>();
 
 const emit = defineEmits<{
@@ -192,6 +186,7 @@ const pendingConditionTargetPath = ref('');
 const stepPickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
 const structureClipboard = shallowRef<
+  | BuffGraphClipboard
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
   | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
   | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
@@ -267,6 +262,27 @@ const selectedCombatCondition = computed(() =>
     ? (resolveStructureValue(draft.value, selectedStructureSourcePath.value) as CombatCondition)
     : undefined,
 );
+const selectedInlineBuff = computed<
+  Extract<CombatStepDefinition, { kind: 'applyBuff' }> | undefined
+>(() =>
+  selectedStructureNode.value?.kind === '内联 Buff 定义'
+    ? {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: String(selectedStructureNode.value.details.BuffID ?? ''),
+          target: 'caster',
+          definition: resolveStructureValue(
+            draft.value,
+            selectedStructureSourcePath.value,
+          ) as SkillBuffDefinition,
+        },
+      }
+    : undefined,
+);
+function updateInlineBuff(step: CombatStepDefinition): void {
+  if (step.kind === 'applyBuff' && step.parameters.definition !== undefined)
+    selectedProperty.value.update(() => step.parameters.definition);
+}
 const selectedEventResponse = computed(() =>
   selectedStructureNode.value?.payloadKind === 'eventResponse'
     ? (resolveStructureValue(
@@ -366,6 +382,7 @@ async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
   await selectStructurePath(snapshot.selectedPath);
   if (revision === restoreRevision && snapshot.propertyPath) {
     const bound =
+      selectedInlineBuff.value ||
       selectedCombatCondition.value ||
       selectedEventResponse.value ||
       selectedSkillEventHandler.value ||
@@ -418,6 +435,7 @@ watch(
     await selectStructurePath(location.path);
     if (revision === restoreRevision && location.propertyPath) {
       const bound =
+        selectedInlineBuff.value ||
         selectedCombatCondition.value ||
         selectedEventResponse.value ||
         selectedSkillEventHandler.value ||
@@ -430,6 +448,16 @@ watch(
           : location.propertyPath,
       );
     }
+  },
+  { immediate: true, flush: 'post' },
+);
+
+watch(
+  () => props.navigationRequest,
+  async request => {
+    if (!request) return;
+    const location = locateStructureProperty(structureRoot.value, request.propertyPath);
+    await selectStructurePath(location.path);
   },
   { immediate: true, flush: 'post' },
 );
@@ -455,24 +483,26 @@ function setEnhancementStateBuffId(event: Event): void {
   );
 }
 
-function setCostValue(index: number, event: Event): void {
-  const value = Number((event.target as HTMLInputElement).value);
-  if (!Number.isFinite(value)) return;
-  commitStructureDraft(applySkillEditorCost(draft.value, index, { value: Math.round(value) }));
+const costFields = ['sp', 'ultimateEnergy'] as const;
+function resourceCost(resource: CombatResource): LevelValues {
+  const cost = draft.value.costs?.find(cost => cost.resource === resource);
+  return cost?.value ?? 0;
 }
-
-function setCostResource(index: number, event: Event): void {
-  const resource = (event.target as HTMLSelectElement).value as CombatResource;
-  if (!COMBAT_RESOURCES.includes(resource)) return;
-  commitStructureDraft(applySkillEditorCost(draft.value, index, { resource }));
-}
-
-function appendCost(): void {
-  commitStructureDraft(appendSkillEditorCost(draft.value));
-}
-
-function removeCost(index: number): void {
-  commitStructureDraft(removeSkillEditorCost(draft.value, index));
+function setResourceCost(resource: CombatResource, value: LevelValues | undefined): void {
+  if (value === undefined) return;
+  const costs = [...(draft.value.costs ?? [])];
+  const index = costs.findIndex(cost => cost.resource === resource);
+  if (index < 0) costs.push({ resource, value });
+  else
+    costs[index] = {
+      ...costs[index]!,
+      value,
+    };
+  commitStructureDraft(
+    { ...draft.value, costs },
+    ['costs', index < 0 ? costs.length - 1 : index, 'value'],
+    '',
+  );
 }
 
 function selectStructureNode(node: { readonly id: string }): void {
@@ -498,23 +528,45 @@ function beginAddChild(
   node: {
     readonly id: string;
     readonly sourcePath: string;
-    readonly canAddChild?:
-      | 'sequence'
-      | 'step'
-      | 'lifecycle'
-      | 'childSkill'
-      | 'equipmentModifier'
-      | 'equipmentHandler'
-      | 'combatCondition'
-      | 'eventResponse'
-      | 'skillEventHandler'
-      | 'buffAbilityResponse'
-      | 'buffIgniteResponse'
-      | 'globalBuffChild';
+    readonly canAddChild?: StructureNodeContract['canAddChild'];
   },
   anchor: { readonly x: number; readonly y: number },
 ): void {
   selectStructureNode(node);
+  if (node.canAddChild === 'buffMember') {
+    const result = appendBuffGraphChild(draft.value, node.sourcePath);
+    commitStructureDraft(result.root, undefined, node.sourcePath);
+    void selectStructurePath(result.itemPath);
+    return;
+  }
+  if (node.sourcePath === 'switchToBuffCast' && !draft.value.switchToBuffCast) {
+    commitStructureDraft(
+      { ...draft.value, switchToBuffCast: { sequence: { steps: [] } } },
+      undefined,
+      'switchToBuffCast',
+    );
+    return;
+  }
+  if (node.sourcePath === 'inputWindows' && !draft.value.inputWindows) {
+    commitStructureDraft({ ...draft.value, inputWindows: {} }, undefined, 'inputWindows');
+    return;
+  }
+  if (
+    node.sourcePath === 'inputWindows.commandMappings' ||
+    node.sourcePath === 'inputWindows.allowedNextSkills'
+  ) {
+    const mapping = node.sourcePath.endsWith('commandMappings');
+    const next = insertStructureArrayItem(
+      draft.value,
+      node.sourcePath,
+      mapping
+        ? { startFrame: 0, endFrame: 0, input: 'basicAttack', targetSourceSkillId: null }
+        : { startFrame: 0, endFrame: 0, sourceSkillIds: [] },
+    );
+    commitStructureDraft(next.root, undefined, next.itemPath);
+    void nextTick().then(() => selectStructurePath(next.itemPath));
+    return;
+  }
   if (node.canAddChild === 'sequence') {
     void appendSequence(node.sourcePath);
     return;
@@ -538,7 +590,10 @@ function beginAddChild(
     return;
   }
   if (node.canAddChild !== 'step') return;
-  pendingStepTargetPath.value = node.sourcePath;
+  pendingStepTargetPath.value =
+    structureNodeIndex.value.get(node.id)?.payloadKind === 'scheduledSequence'
+      ? `${node.sourcePath}.sequence`
+      : node.sourcePath;
   insertAnchor.value = { ...anchor };
   stepPickerKey.value += 1;
 }
@@ -613,7 +668,7 @@ async function appendStepToPendingSequence(kind: EditableCombatStepKind): Promis
     pendingStepTargetPath.value,
     createNestedStep(kind),
   );
-  commitStructureDraft(result.skill);
+  commitStructureDraft(result.skill, undefined, pendingStepTargetPath.value);
   pendingStepTargetPath.value = '';
   await selectStructurePath(result.stepPath);
 }
@@ -775,6 +830,19 @@ async function moveStructureNode(operation: {
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
   const kind = operation.source.payloadKind;
+  if (isBuffGraphPayload(kind)) {
+    const source = structureNodeIndex.value.get(operation.source.id);
+    const target = structureNodeIndex.value.get(operation.target.id);
+    if (!source || !target) return;
+    const result = moveBuffGraphNode(draft.value, source, target, operation.placement);
+    if (!result) return;
+    commitStructureDraft(result.root);
+    await nextTick();
+    const moved = findSkillStructureNodeForPath(structureRoot.value, result.itemPath);
+    structureMap.value?.transferCollapsedState(source.id, moved.id);
+    await selectStructurePath(result.itemPath);
+    return;
+  }
   if (
     kind !== 'combatStep' &&
     kind !== 'scheduledSequence' &&
@@ -821,6 +889,41 @@ async function runStructureNodeAction(
   action: 'delete' | 'copy' | 'paste',
   node: StructureOperationNode,
 ): Promise<void> {
+  const damageNode = structureNodeIndex.value.get(node.id);
+  if (action === 'copy' && isBuffGraphPayload(damageNode?.payloadKind)) {
+    structureClipboard.value = {
+      kind: damageNode.payloadKind,
+      value: cloneStructureValue(resolveStructureValue(draft.value, node.sourcePath)),
+    };
+    return;
+  }
+  if (action === 'delete' && damageNode?.canDelete && isBuffDetailNode(damageNode)) {
+    commitStructureDraft(
+      /\[\d+\]$/.test(node.sourcePath)
+        ? removeStructureArrayItem(draft.value, node.sourcePath)
+        : deleteStructureValueAtPath(draft.value, node.sourcePath),
+    );
+    await selectStructurePath(node.sourcePath.replace(/(?:\[\d+\]|\.[^.]+)$/, ''));
+    return;
+  }
+  if (action === 'delete' && node.sourcePath === 'switchToBuffCast') {
+    commitStructureDraft(
+      { ...draft.value, switchToBuffCast: undefined },
+      undefined,
+      'switchToBuffCast',
+    );
+    return;
+  }
+  if (action === 'delete' && node.sourcePath.startsWith('inputWindows')) {
+    const next =
+      node.sourcePath === 'inputWindows'
+        ? { ...draft.value, inputWindows: undefined }
+        : removeStructureArrayItem(draft.value, node.sourcePath);
+    commitStructureDraft(next, undefined, 'inputWindows');
+    await nextTick();
+    await selectStructurePath('inputWindows');
+    return;
+  }
   if (action === 'copy') {
     if (node.payloadKind === 'combatStep') {
       structureClipboard.value = {
@@ -919,6 +1022,16 @@ async function runStructureNodeAction(
     return;
   }
   const clipboard = structureClipboard.value;
+  if (isBuffGraphClipboard(clipboard)) {
+    if (action !== 'paste') return;
+    const target = structureNodeIndex.value.get(node.id);
+    const result = target && pasteBuffGraphNode(draft.value, target, clipboard);
+    if (result) {
+      commitStructureDraft(result.root);
+      await selectStructurePath(result.itemPath);
+    }
+    return;
+  }
   if (action !== 'paste' || clipboard === undefined) return;
   const arrayPath = childArrayPath(node, clipboard.kind);
   if (arrayPath === undefined) return;
@@ -1086,7 +1199,106 @@ function reset(): void {
           @select="appendConditionToPendingTarget"
           @close="pendingConditionTargetPath = ''"
         />
-        <template v-if="selectedSection === 'overview'">
+        <SkillInputWindowInspector
+          v-if="selectedStructureSourcePath.startsWith('inputWindows')"
+          :path="selectedStructureSourcePath"
+          :value="resolveStructureValue(draft.value, selectedStructureSourcePath)"
+          @update="
+            commitStructureDraft(
+              replaceStructureValueAtPath(draft.value, selectedStructureSourcePath, $event),
+            )
+          "
+        />
+        <SkillSwitchToBuffInspector
+          v-else-if="selectedStructureSourcePath === 'switchToBuffCast'"
+          :value="draft.value.switchToBuffCast"
+          @update="commitStructureDraft({ ...draft.value, switchToBuffCast: $event })"
+        />
+        <BuffDetailNodeInspector
+          v-else-if="selectedStructureNode && isBuffDetailNode(selectedStructureNode)"
+          :node="selectedStructureNode"
+          :property="selectedProperty"
+        />
+        <template v-else-if="selectedSection === 'overview'">
+          <section class="editor-section">
+            <h4>技能身份与等级</h4>
+            <label class="skill-editor__row"
+              >技能标识<input
+                :value="draft.value.key"
+                @change="
+                  commitStructureDraft({
+                    ...draft.value,
+                    key: ($event.target as HTMLInputElement).value,
+                  })
+                "
+            /></label>
+            <label class="skill-editor__row"
+              >技能分类<select
+                :value="draft.value.skillType ?? ''"
+                @change="
+                  commitStructureDraft({
+                    ...draft.value,
+                    skillType: (($event.target as HTMLSelectElement).value ||
+                      undefined) as SkillDefinition['skillType'],
+                  })
+                "
+              >
+                <option value="">未指定</option>
+                <option v-for="kind in SKILL_TYPES" :key="kind" :value="kind">
+                  {{
+                    {
+                      basicAttack: '普攻',
+                      battleSkill: '战技',
+                      comboSkill: '连携',
+                      ultimate: '终结技',
+                      finisher: '处决',
+                      plungingAttack: '下落攻击',
+                    }[kind]
+                  }}
+                </option>
+              </select></label
+            >
+            <label class="skill-editor__row"
+              >等级来源<select
+                :value="draft.value.levelSource ?? ''"
+                @change="
+                  commitStructureDraft({
+                    ...draft.value,
+                    levelSource: (($event.target as HTMLSelectElement).value ||
+                      undefined) as SkillDefinition['levelSource'],
+                  })
+                "
+              >
+                <option value="">未指定</option>
+                <option v-for="source in SKILL_LEVEL_SOURCES" :key="source" :value="source">
+                  {{
+                    {
+                      basicAttack: '普攻',
+                      battleSkill: '战技',
+                      comboSkill: '连携',
+                      ultimate: '终结技',
+                    }[source]
+                  }}
+                </option>
+              </select></label
+            >
+          </section>
+          <section class="editor-section">
+            <h4>原生身份与目标</h4>
+            <InspectorFields
+              :value="draft.value"
+              :binding="editContext.root"
+              :fields="skillRuntimeIdentityFields"
+            />
+          </section>
+          <section class="editor-section">
+            <h4>运行时时序</h4>
+            <InspectorFields
+              :value="draft.value"
+              :binding="editContext.root"
+              :fields="skillRuntimeTimingFields"
+            />
+          </section>
           <section class="editor-section">
             <h4>{{ labels.overview }}</h4>
             <div class="editor-grid">
@@ -1106,27 +1318,6 @@ function reset(): void {
                   :value="view.timelineBlockFrames"
                   @input="setField('timelineBlockFrames', $event)"
                 />
-              </label>
-
-              <label class="skill-editor__row">
-                <span class="skill-editor__label">
-                  <EditorFieldLabel
-                    :label="labels.cooldownFrames"
-                    :help="t('timeline.skillEditing.fieldHelp.cooldownFrames')"
-                  />
-                  <b v-if="view.cooldownFrames.changed">*</b>
-                </span>
-                <template v-if="!view.cooldownFrames.isLevelArray">
-                  <input
-                    type="number"
-                    min="0"
-                    step="1"
-                    class="skill-editor__input"
-                    :value="view.cooldownFrames.value ?? ''"
-                    @input="setField('cooldownFrames', $event)"
-                  />
-                </template>
-                <span v-else class="skill-editor__readonly">{{ labels.levelArrayValue }}</span>
               </label>
 
               <label class="skill-editor__row">
@@ -1171,70 +1362,29 @@ function reset(): void {
           </section>
 
           <section class="editor-section">
-            <div class="section-heading">
-              <h4>{{ labels.costs }}</h4>
-              <button
-                type="button"
-                class="icon-button"
-                :title="t('timeline.skillEditing.addCost')"
-                @click="appendCost"
-              >
-                <el-icon><Plus /></el-icon>
-              </button>
-            </div>
-            <div v-if="view.costs.length === 0" class="editor-empty">—</div>
-            <div v-else class="cost-grid">
-              <div v-for="(cost, index) in view.costs" :key="index" class="skill-editor__cost">
-                <div class="cost-heading">
-                  <strong>{{ t('timeline.skillEditing.costItem', { index: index + 1 }) }}</strong>
-                  <button
-                    type="button"
-                    class="icon-button icon-button--danger"
-                    :title="t('timeline.skillEditing.deleteCost')"
-                    @click="removeCost(index)"
-                  >
-                    <el-icon><Delete /></el-icon>
-                  </button>
-                </div>
-                <label class="skill-editor__row">
-                  <span class="skill-editor__label">
-                    <EditorFieldLabel
-                      :label="labels.costResource"
-                      :help="t('timeline.skillEditing.fieldHelp.costResource')"
-                    />
-                    <b v-if="cost.resourceChanged">*</b>
-                  </span>
-                  <select
-                    class="skill-editor__input"
-                    :value="cost.resource"
-                    @change="setCostResource(index, $event)"
-                  >
-                    <option v-for="resource in COMBAT_RESOURCES" :key="resource" :value="resource">
-                      {{ resource }}
-                    </option>
-                  </select>
-                </label>
-                <label class="skill-editor__row">
-                  <span class="skill-editor__label">
-                    <EditorFieldLabel
-                      :label="labels.costValue"
-                      :help="t('timeline.skillEditing.fieldHelp.costValue')"
-                    />
-                    <b v-if="cost.value.changed">*</b>
-                  </span>
-                  <template v-if="!cost.value.isLevelArray">
-                    <input
-                      type="number"
-                      min="0"
-                      step="1"
-                      class="skill-editor__input"
-                      :value="cost.value.value ?? ''"
-                      @input="setCostValue(index, $event)"
-                    />
-                  </template>
-                  <span v-else class="skill-editor__readonly">{{ labels.levelArrayValue }}</span>
-                </label>
-              </div>
+            <h4>{{ labels.costs }}</h4>
+            <div
+              v-for="resource in costFields"
+              :key="resource"
+              class="skill-editor__row"
+              :data-property-path="
+                JSON.stringify([
+                  'costs',
+                  draft.value.costs?.findIndex(cost => cost.resource === resource) ?? -1,
+                  'value',
+                ])
+              "
+            >
+              <span>{{
+                t(
+                  `timeline.skillEditing.${resource === 'sp' ? 'spConsumption' : 'ultimateEnergyConsumption'}`,
+                )
+              }}</span>
+              <LevelValuesEditor
+                :value="resourceCost(resource)"
+                :current-level="skillLevel"
+                @update="setResourceCost(resource, $event)"
+              />
             </div>
           </section>
         </template>
@@ -1263,6 +1413,19 @@ function reset(): void {
           scheduled
         />
 
+        <BuffStepEditor
+          v-else-if="selectedInlineBuff"
+          :key="selectedStructureSourcePath"
+          :step="selectedInlineBuff"
+          :definition-binding="selectedProperty"
+          :skill-level="skillLevel"
+          :create-step="createNestedStep"
+          :duplicate-step="duplicateNestedStep"
+          definition-only
+          modifier-collections-in-graph
+          inspector-only
+          @update="updateInlineBuff"
+        />
         <GlobalBuffDefinitionInspector
           v-else-if="selectedGlobalBuffDefinition"
           :definition="selectedGlobalBuffDefinition"
@@ -1395,6 +1558,7 @@ function reset(): void {
           </header>
           <DefinitionPropertyScope :property="selectedProperty">
             <CombatStepEditor
+              inline-buff-in-graph
               :step="selectedCombatStep"
               :skill-level="skillLevel"
               :create-step="createNestedStep"

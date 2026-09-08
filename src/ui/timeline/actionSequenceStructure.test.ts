@@ -26,7 +26,7 @@ const branch: CombatStepDefinition = {
   whenTrue: { steps: [step] },
 };
 
-it('exposes inline Buff ports only in the sequence host that supplies their Inspector', () => {
+it('exposes inline Buff ports at the real document path in both sequence and skill hosts', () => {
   const sequence: ActionSequenceDefinition = {
     steps: [
       {
@@ -48,9 +48,18 @@ it('exposes inline Buff ports only in the sequence host that supplies their Insp
     { key: 'qa', timelineBlockFrames: 0, scheduledSequences: [{ startFrame: 0, sequence }] },
     { blackboard: '', availability: '', sequence: '' },
   );
-  expect(
-    [...indexSkillStructureNodes(embedded).values()].some(node => node.kind === '内联 Buff 定义'),
-  ).toBe(false);
+  const inlinePath = 'scheduledSequences[0].sequence.steps[0].parameters.definition';
+  const nodes = [...indexSkillStructureNodes(embedded).values()];
+  expect(nodes.find(node => node.sourcePath === inlinePath)).toMatchObject({
+    kind: '内联 Buff 定义',
+    relationToParent: 'port',
+  });
+  expect(nodes.find(node => node.sourcePath === `${inlinePath}.attributeModifiers`)).toMatchObject({
+    canAddChild: 'buffMember',
+  });
+  expect(nodes.find(node => node.sourcePath === `${inlinePath}.damageModifiers`)).toMatchObject({
+    canAddChild: 'buffMember',
+  });
 });
 
 it('moves a preceding root step into the following branch without losing the destination', () => {

@@ -104,12 +104,21 @@ function remove(index: number): void {
   min-width: 0;
   width: 100%;
   box-sizing: border-box;
+  height: 30px;
+  padding: 4px 8px;
+  font: inherit;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input);
+  color: var(--ea-fg);
 }
 
 .gameplay-tag-editor button {
   width: 28px;
   height: 28px;
   padding: 0;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-input);
+  color: var(--ea-fg);
 }
 
 .gameplay-tag-editor small {

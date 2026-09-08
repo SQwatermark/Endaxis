@@ -8,6 +8,7 @@ import type {
 } from '../../../../packages/game-data-contract/src/modifiers';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import BuffPoiseModifierConditionEditor from './BuffPoiseModifierConditionEditor.vue';
+import { createPoiseProcessor } from '../buffCalculationModifierGraph';
 
 const POISE_SIDES = ['attacker', 'defender'] as const satisfies readonly PoiseModifierSide[];
 const props = defineProps<{ modifiers: readonly PoiseModifierDefinition[] }>();
@@ -24,9 +25,7 @@ function addModifier(): void {
     ...props.modifiers,
     {
       enabledSide: 'attacker',
-      processors: [
-        { kind: 'modifyPoiseScalar', timing: 'beforeCalculation', side: 'attacker', addition: 0 },
-      ],
+      processors: [createPoiseProcessor()],
     },
   ]);
 }

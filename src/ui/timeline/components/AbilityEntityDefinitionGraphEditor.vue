@@ -1,4 +1,12 @@
 <script setup lang="ts">
+import {
+  isBuffGraphPayload,
+  isBuffGraphClipboard,
+  pasteBuffGraphNode,
+  moveBuffGraphNode,
+  type BuffGraphClipboard,
+} from '../buffGraphOperations';
+import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
 import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { ArrowDown, ArrowUp, CopyDocument, Delete } from '@element-plus/icons-vue';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
@@ -11,6 +19,7 @@ import type {
   CombatStepDefinition,
   ScheduledSequenceDefinition,
   SkillDefinition,
+  SkillBuffDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import {
   createCombatEventResponseDraft,
@@ -43,11 +52,15 @@ import { useDefinitionGraphEditing } from '../useDefinitionGraphEditing';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatConditionTypePicker from './CombatConditionTypePicker.vue';
 import CombatEventResponseInspector from './CombatEventResponseInspector.vue';
+import BuffDetailNodeInspector from './BuffDetailNodeInspector.vue';
+import BuffStepEditor from './BuffStepEditor.vue';
+import { appendBuffGraphChild, isBuffDetailNode } from '../buffDamageModifierGraph';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
 import SkillStructureMindMap from './SkillStructureMindMap.vue';
 import StepTypePicker from './StepTypePicker.vue';
 import AbilityEntityDefinitionNumberEditor from './AbilityEntityDefinitionNumberEditor.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
+import EditorFieldLabel from './EditorFieldLabel.vue';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 import {
   useDefinitionDraftHistory,
@@ -57,31 +70,8 @@ import {
 type StructureOperationNode = {
   readonly id: string;
   readonly sourcePath: string;
-  readonly payloadKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffDefinition'
-    | 'globalBuffChild';
-  readonly acceptsChildKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffChild';
+  readonly payloadKind?: StructureNodeContract['payloadKind'];
+  readonly acceptsChildKind?: StructureNodeContract['acceptsChildKind'];
 };
 
 const props = defineProps<{
@@ -95,11 +85,13 @@ const emit = defineEmits<{ update: [definition: AbilityEntityDefinition] }>();
 const editorRoot = ref<HTMLElement | null>(null);
 const selectedId = ref('entity');
 const selectedPath = ref('');
+const childSkillRenameError = ref('');
 const pendingStep = ref(false);
 const pendingConditionTargetPath = ref('');
 const pickerKey = ref(0);
 const insertAnchor = ref({ x: 0, y: 0 });
 const structureClipboard = shallowRef<
+  | BuffGraphClipboard
   | { readonly kind: 'combatStep'; readonly value: CombatStepDefinition }
   | { readonly kind: 'scheduledSequence'; readonly value: ScheduledSequenceDefinition }
   | { readonly kind: 'combatCondition'; readonly value: CombatCondition }
@@ -128,6 +120,25 @@ const editing = useDefinitionGraphEditing({
   selectPath,
 });
 const selectedNode = computed(() => nodeIndex.value.get(selectedId.value));
+const inlineBuff = computed<Extract<CombatStepDefinition, { kind: 'applyBuff' }> | undefined>(() =>
+  selectedNode.value?.kind === '内联 Buff 定义'
+    ? {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: String(selectedNode.value.details.BuffID ?? ''),
+          target: 'caster',
+          definition: resolveStructureValue(
+            props.definition,
+            selectedPath.value,
+          ) as SkillBuffDefinition,
+        },
+      }
+    : undefined,
+);
+function updateInlineBuff(step: CombatStepDefinition): void {
+  if (step.kind === 'applyBuff' && step.parameters.definition !== undefined)
+    editing.property.value.update(() => step.parameters.definition);
+}
 const selectedStep = computed(() =>
   selectedNode.value?.kind === '战斗步骤'
     ? (resolveStructureValue(props.definition, selectedPath.value) as CombatStepDefinition)
@@ -203,6 +214,7 @@ async function restoreStructureHistory(action: 'undo' | 'redo'): Promise<void> {
 }
 
 function selectNode(node: { readonly id: string }): void {
+  childSkillRenameError.value = '';
   editing.cancelReveal();
   const target = nodeIndex.value.get(node.id);
   if (target === undefined) return;
@@ -228,7 +240,11 @@ async function beginAdd(
 ): Promise<void> {
   selectNode(node);
   insertAnchor.value = { ...anchor };
-  if (node.canAddChild === 'childSkill') {
+  if (node.canAddChild === 'buffMember') {
+    const result = appendBuffGraphChild(props.definition, node.sourcePath);
+    emitStructureUpdate(result.root);
+    await selectPath(result.itemPath);
+  } else if (node.canAddChild === 'childSkill') {
     const childSkills = { ...(props.definition.childSkills ?? {}) };
     let index = Object.keys(childSkills).length + 1;
     let skillId = `custom-ability-entity-child-${index}`;
@@ -369,8 +385,9 @@ async function updateChildSkillId(event: Event): Promise<void> {
   const childSkill = selectedChildSkill.value;
   const childSkillPath = selectedChildSkillPath.value;
   if (childSkill === undefined || childSkillPath === undefined) return;
-  const skillId = (event.target as HTMLInputElement).value.trim();
-  if (skillId === '') return;
+  const input = event.target as HTMLInputElement;
+  const skillId = input.value;
+  childSkillRenameError.value = '';
   if (childSkillPath === 'childSkill') {
     emitStructureUpdate(
       replaceStructureValueAtPath(props.definition, childSkillPath, { ...childSkill, skillId }),
@@ -382,7 +399,11 @@ async function updateChildSkillId(event: Event): Promise<void> {
   );
   if (oldEntry === undefined) return;
   const [oldKey] = oldEntry;
-  if (skillId !== oldKey && props.definition.childSkills?.[skillId] !== undefined) return;
+  if (skillId !== oldKey && Object.hasOwn(props.definition.childSkills ?? {}, skillId)) {
+    input.value = childSkill.skillId;
+    childSkillRenameError.value = `子技能「${skillId}」已存在，未改名或覆盖原定义。`;
+    return;
+  }
   const childSkills = Object.fromEntries(
     Object.entries(props.definition.childSkills ?? {}).map(([key, value]) =>
       key === oldKey ? [skillId, { ...value, skillId }] : [key, value],
@@ -498,6 +519,19 @@ async function moveStructureNode(operation: {
   readonly placement: 'inside' | 'before' | 'after';
 }): Promise<void> {
   const kind = operation.source.payloadKind;
+  if (isBuffGraphPayload(kind)) {
+    const source = nodeIndex.value.get(operation.source.id);
+    const target = nodeIndex.value.get(operation.target.id);
+    if (!source || !target) return;
+    const result = moveBuffGraphNode(props.definition, source, target, operation.placement);
+    if (!result) return;
+    emitStructureUpdate(result.root);
+    await nextTick();
+    const moved = findSkillStructureNodeForPath(root.value, result.itemPath);
+    map.value?.transferCollapsedState(source.id, moved.id);
+    await selectPath(result.itemPath);
+    return;
+  }
   if (
     kind !== 'combatStep' &&
     kind !== 'scheduledSequence' &&
@@ -545,6 +579,23 @@ async function runStructureNodeAction(
   action: 'delete' | 'copy' | 'paste',
   node: StructureOperationNode,
 ): Promise<void> {
+  const damageNode = nodeIndex.value.get(node.id);
+  if (action === 'copy' && isBuffGraphPayload(damageNode?.payloadKind)) {
+    structureClipboard.value = {
+      kind: damageNode.payloadKind,
+      value: cloneStructureValue(resolveStructureValue(props.definition, node.sourcePath)),
+    };
+    return;
+  }
+  if (action === 'delete' && damageNode?.canDelete && isBuffDetailNode(damageNode)) {
+    emitStructureUpdate(
+      /\[\d+\]$/.test(node.sourcePath)
+        ? removeStructureArrayItem(props.definition, node.sourcePath)
+        : deleteStructureValueAtPath(props.definition, node.sourcePath),
+    );
+    await selectPath(node.sourcePath.replace(/(?:\[\d+\]|\.[^.]+)$/, ''));
+    return;
+  }
   if (action === 'copy') {
     if (node.payloadKind === 'combatStep') {
       structureClipboard.value = {
@@ -634,6 +685,16 @@ async function runStructureNodeAction(
     return;
   }
   const clipboard = structureClipboard.value;
+  if (isBuffGraphClipboard(clipboard)) {
+    if (action !== 'paste') return;
+    const target = nodeIndex.value.get(node.id);
+    const result = target && pasteBuffGraphNode(props.definition, target, clipboard);
+    if (result) {
+      emitStructureUpdate(result.root);
+      await selectPath(result.itemPath);
+    }
+    return;
+  }
   if (action !== 'paste' || clipboard === undefined) return;
   const arrayPath = childArrayPath(node, clipboard.kind);
   if (arrayPath === undefined) return;
@@ -735,19 +796,40 @@ async function deleteCurrent(): Promise<void> {
         @select="appendCondition"
         @close="pendingConditionTargetPath = ''"
       />
-      <section v-if="selectedId === 'entity'" class="node-card">
+      <BuffDetailNodeInspector
+        v-if="selectedNode && isBuffDetailNode(selectedNode)"
+        :node="selectedNode"
+        :property="editing.property.value"
+      />
+      <BuffStepEditor
+        v-else-if="inlineBuff"
+        :key="selectedPath"
+        :step="inlineBuff"
+        :definition-binding="editing.property.value"
+        :skill-level="skillLevel"
+        :create-step="createStep"
+        :duplicate-step="duplicateStep"
+        definition-only
+        modifier-collections-in-graph
+        inspector-only
+        @update="updateInlineBuff"
+      />
+      <section v-else-if="selectedId === 'entity'" class="node-card">
         <header>
-          <div>
-            <small>能力实体</small><strong>{{ abilityEntityId }}</strong>
-          </div>
+          <div><small>能力实体</small><strong>基本设置</strong></div>
         </header>
         <p>{{ selectedNode?.summary }}</p>
-        <GameplayTagsEditor
-          label="出生标签"
-          help="实体创建时立即写入自身 AbilitySystem；实体查询和条件可依赖这些稳定标签。"
-          :tags="definition.bornTags ?? []"
-          @update="setBornTags"
-        />
+        <section class="field-group" aria-label="出生标签">
+          <EditorFieldLabel
+            label="出生标签"
+            help="实体创建时立即写入自身 AbilitySystem；实体查询和条件可依赖这些稳定标签。"
+          />
+          <GameplayTagsEditor
+            :tags="definition.bornTags ?? []"
+            :minimum="0"
+            @update="setBornTags"
+          />
+        </section>
         <label class="field-row">
           <span>死亡回收延迟（秒）</span>
           <input
@@ -804,22 +886,34 @@ async function deleteCurrent(): Promise<void> {
       </section>
       <section v-else-if="selectedNode?.payloadKind === 'childSkill'" class="node-card">
         <header>
-          <div>
-            <small>实体子技能</small><strong>{{ selectedChildSkill?.skillId }}</strong>
-          </div>
-          <button @click="deleteCurrent">
+          <div><small>实体子技能</small><strong>子技能设置</strong></div>
+          <button title="删除子技能" aria-label="删除子技能" @click="deleteCurrent">
             <el-icon><Delete /></el-icon>
           </button>
         </header>
         <label class="field-row">
-          <span>子技能 ID</span>
-          <input :value="selectedChildSkill?.skillId" @change="updateChildSkillId" />
+          <EditorFieldLabel
+            label="子技能 ID"
+            help="生成能力实体时可通过此 ID 选择子技能。改名不会自动改写其他位置的引用。"
+          />
+          <input
+            :value="selectedChildSkill?.skillId"
+            :aria-invalid="!!childSkillRenameError"
+            @change="updateChildSkillId"
+          />
         </label>
-        <SkillBlackboardEditor
-          :blackboard="selectedChildSkill?.blackboard ?? {}"
-          :skill-level="skillLevel"
-          @update="updateChildBlackboard"
-        />
+        <p v-if="childSkillRenameError" class="field-error" role="alert">
+          {{ childSkillRenameError }}
+        </p>
+        <div class="field-group">
+          <SkillBlackboardEditor
+            title="子技能初始黑板"
+            description="当前子技能使用的初始数值；不是角色共享黑板。执行步骤在图中编辑。"
+            :blackboard="selectedChildSkill?.blackboard ?? {}"
+            :skill-level="skillLevel"
+            @update="updateChildBlackboard"
+          />
+        </div>
         <p>调度序列从导图节点的＋添加。</p>
       </section>
       <section v-else-if="selectedSequence" class="node-card">
@@ -828,10 +922,17 @@ async function deleteCurrent(): Promise<void> {
             <small>子技能调度序列</small><strong>序列 {{ selectedSequenceIndex! + 1 }}</strong>
           </div>
           <div class="node-actions">
-            <button :disabled="selectedSequenceIndex === 0" @click="moveSequence(-1)">
+            <button
+              title="前移序列"
+              aria-label="前移序列"
+              :disabled="selectedSequenceIndex === 0"
+              @click="moveSequence(-1)"
+            >
               <el-icon><ArrowUp /></el-icon>
             </button>
             <button
+              title="后移序列"
+              aria-label="后移序列"
               :disabled="
                 selectedSequenceIndex === selectedChildSkill!.scheduledSequences.length - 1
               "
@@ -839,16 +940,19 @@ async function deleteCurrent(): Promise<void> {
             >
               <el-icon><ArrowDown /></el-icon>
             </button>
-            <button @click="copySequence">
+            <button title="复制序列" aria-label="复制序列" @click="copySequence">
               <el-icon><CopyDocument /></el-icon>
             </button>
-            <button @click="deleteCurrent">
+            <button title="删除序列" aria-label="删除序列" @click="deleteCurrent">
               <el-icon><Delete /></el-icon>
             </button>
           </div>
         </header>
         <label class="field-row">
-          <span>开始帧</span>
+          <EditorFieldLabel
+            label="开始帧"
+            help="按当前能力实体的局部时钟调度，不是主时间轴上的放置时刻。"
+          />
           <input
             type="number"
             :value="selectedSequence.startFrame"
@@ -856,10 +960,14 @@ async function deleteCurrent(): Promise<void> {
           />
         </label>
         <label class="field-row">
-          <span>结束帧</span>
+          <EditorFieldLabel
+            label="结束帧（可选）"
+            help="到达该帧时，调用已开始序列的结束生命周期；并非删掉序列产生的所有后续影响。"
+          />
           <input
             type="number"
             :value="selectedSequence.endFrame ?? ''"
+            placeholder="未设置结束帧"
             @input="updateSequenceFrame('endFrame', $event)"
           />
         </label>
@@ -918,6 +1026,7 @@ async function deleteCurrent(): Promise<void> {
         </header>
         <DefinitionPropertyScope :property="editing.property.value">
           <CombatStepEditor
+            inline-buff-in-graph
             :step="selectedStep"
             :skill-level="skillLevel"
             :create-step="createStep"
@@ -963,7 +1072,7 @@ async function deleteCurrent(): Promise<void> {
   width: 0;
   height: 0;
 }
-.node-card header,
+.node-card > header,
 .node-actions {
   display: flex;
   align-items: center;
@@ -973,15 +1082,20 @@ async function deleteCurrent(): Promise<void> {
   min-width: 0;
   max-width: 100%;
   box-sizing: border-box;
-  border: 1px solid var(--ea-border-soft);
 }
-.node-card header {
+.field-group {
+  display: grid;
+  min-width: 0;
+  gap: 8px;
+  padding: 10px 12px;
+}
+.node-card > header {
   min-height: 44px;
   justify-content: space-between;
   padding: 0 10px;
   border-bottom: 1px solid var(--ea-border-soft);
 }
-.node-card header > div:first-child {
+.node-card > header > div:first-child {
   min-width: 0;
   display: grid;
 }
@@ -1002,6 +1116,11 @@ async function deleteCurrent(): Promise<void> {
 }
 .node-card p {
   padding: 12px;
+}
+.node-card .field-error {
+  color: var(--ea-danger, #ff7777);
+  overflow-wrap: anywhere;
+  margin: 0;
 }
 .field-row {
   display: grid;
@@ -1050,9 +1169,8 @@ button {
     gap: 5px;
   }
 
-  .node-card header {
-    align-items: flex-start;
-    flex-direction: column;
+  .node-card > header {
+    flex-wrap: wrap;
     padding-block: 8px;
   }
 }

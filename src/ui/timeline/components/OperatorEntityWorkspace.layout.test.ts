@@ -42,11 +42,10 @@ it('shares graph viewport constraints while keeping Buff form fields responsive'
 });
 
 it('gives behavior drafts a focused workspace with a single commit scope', () => {
-  expect(workspace).toContain('const editingFocusedDefinition = computed(');
-  expect(workspace).toContain('v-if="!focusedPage" class="workspace-nav"');
-  expect(workspace).toContain('v-if="!editingBehavior" class="object-list"');
-  expect(workspace).toContain('v-else-if="!editingFocusedDefinition" class="workspace-footer"');
-  expect(workspace).toContain(':disabled="editingFocusedDefinition"');
+  expect(workspace).not.toContain('editingFocusedDefinition');
+  expect(workspace).toContain('class="workspace-footer"');
+  expect(workspace).toContain(':history="runtimeHistory"');
+  expect(workspace).toContain(':history="upgradeHistory"');
   const shared = readFileSync(
     new URL('./behaviorDefinitionWorkspace.css', import.meta.url),
     'utf8',

@@ -1,13 +1,48 @@
 <script setup lang="ts">
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
+import {
+  operatorWorkspaceIssueTarget,
+  operatorWorkspaceTargetArea,
+} from '../operatorWorkspaceStructure';
+import { useI18n } from 'vue-i18n';
+import {
+  getGameElementName,
+  getGameClassName,
+  getGameWeaponTypeName,
+  getOperatorGameName,
+} from '../../gameText';
+import OperatorDefinitionHome from './OperatorDefinitionHome.vue';
+import OperatorSkillLibraryGroupPage from './OperatorSkillLibraryGroupPage.vue';
+import {
+  createOperatorLibraryGroup,
+  appendEmptyOperatorSkill,
+  type OperatorSkillCreationDestination,
+} from '../operatorLibraryCreation';
+import OperatorStatusPresentationPage from './OperatorStatusPresentationPage.vue';
+import OperatorRoutingPage from './OperatorRoutingPage.vue';
+import OperatorInitializationPage from './OperatorInitializationPage.vue';
+import type { OperatorInitializationDocument } from '../operatorInitializationGraph';
+import OperatorProvenancePage from './OperatorProvenancePage.vue';
+import type { OperatorComboDocument } from '../operatorComboGraph';
+import type { OperatorRoutingDocument } from '../operatorRoutingGraph';
+import type { OperatorRuntimeDraft } from '../operatorRuntimeDraft';
+import DefinitionReferenceList from './DefinitionReferenceList.vue';
+import { operatorSkillBindingPath, operatorSkillIssueLocation } from '../operatorSkillLocation';
+import {
+  resolveStructureValue,
+  structurePathSegments,
+  replaceStructureValueAtPath,
+} from '../skillStructureEditorCommands';
+import type { OperatorSkillDefinitionBinding } from '../../../core/game-data/operatorSkillDefinitions';
 import { describeDefinitionHistory } from '../definitionHistoryPresentation';
 import './definitionWorkspaceLayout.css';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
 import { computed, markRaw, provide, ref, watch } from 'vue';
+import { definitionAllLevelsKey } from '../definitionLevelEditing';
 import { createDefinitionViewState, definitionViewStateKey } from '../definitionViewState';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import {
-  COMPARISON_OPERATORS,
   COMBAT_RESOURCES,
   DAMAGE_ELEMENTS,
   DEFAULT_TRUST_ATTRIBUTE_BONUS,
@@ -15,9 +50,6 @@ import {
   OPERATOR_RARITIES,
   OPERATOR_ROLES,
   OPERATOR_WEAPON_TYPES,
-  UPGRADE_MODIFIER_KINDS,
-  SKILL_LEVEL_SOURCES,
-  SKILL_TYPES,
   type CombatStepDefinition,
   type OperatorAbilityEntityDefinitions,
   type OperatorBuffDefinitions,
@@ -28,8 +60,12 @@ import {
   type SkillDefinition,
   type SkillGroupDefinition,
 } from '../../../core/game-data/operatorDefinition';
-import { listOperatorSkillDefinitionBindings } from '../../../core/game-data/operatorSkillDefinitions';
+import {
+  listOperatorSkillDefinitionBindings,
+  listSkillGroupDefinitionBindings,
+} from '../../../core/game-data/operatorSkillDefinitions';
 import { validateOperatorDefinition } from '../../../core/game-data/validateOperatorDefinition';
+import { OPERATOR_PROGRESSION_SLOTS } from '../../../core/game-data/operatorProgressionSlots';
 import type { ValidationIssue } from '../../../core/project/validation';
 import {
   collectOperatorDefinitionReferences,
@@ -39,22 +75,21 @@ import {
 import AbilityEntityDefinitionsDialog from './AbilityEntityDefinitionsDialog.vue';
 import BuffDefinitionGraphEditor from './BuffDefinitionGraphEditor.vue';
 import SkillDefinitionEditorDialog from './SkillDefinitionEditorDialog.vue';
-import OperatorRuntimeBehaviorDialog from './OperatorRuntimeBehaviorDialog.vue';
-import OperatorUpgradeModifierEditor from './OperatorUpgradeModifierEditor.vue';
-import OperatorUpgradeBehaviorDialog from './OperatorUpgradeBehaviorDialog.vue';
-import OperatorComboDefinitionsDialog from './OperatorComboDefinitionsDialog.vue';
+import OperatorRuntimeGraphPage from './OperatorRuntimeGraphPage.vue';
+import OperatorUpgradeGraphPage from './OperatorUpgradeGraphPage.vue';
+import OperatorComboGraphPage from './OperatorComboGraphPage.vue';
 import {
   useDefinitionDraftHistory,
   type DefinitionDraftHistory,
 } from '../useDefinitionDraftHistory';
 
-type Section = 'panel' | 'skills' | 'progression' | 'runtime' | 'buffs' | 'entities';
+type Section =
+  'home' | 'panel' | 'trust' | 'skills' | 'progression' | 'runtime' | 'buffs' | 'entities';
+
+// This workspace edits the definition, not one instance's selected build level.
+provide(definitionAllLevelsKey, true);
+const { locale } = useI18n();
 type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
-const PANEL_ATTRIBUTE_KEYS: readonly (keyof OperatorDefinition['attributes'])[] = [
-  ...OPERATOR_ATTRIBUTES,
-  'baseAttack',
-  'baseHealth',
-];
 const ATTRIBUTE_LABELS: Readonly<Record<keyof OperatorDefinition['attributes'], string>> = {
   strength: '力量',
   agility: '敏捷',
@@ -64,6 +99,7 @@ const ATTRIBUTE_LABELS: Readonly<Record<keyof OperatorDefinition['attributes'], 
   baseHealth: '基础生命',
 };
 const TRUST_ATTRIBUTE_OPTIONS = [...OPERATOR_ATTRIBUTES, 'main', 'secondary'] as const;
+const GROWTH_LEVELS = [1, 20, 40, 60, 80, 90] as const;
 
 interface RequiredSkillReference {
   readonly skillGroupKey: string;
@@ -86,13 +122,14 @@ const emit = defineEmits<{
   reset: [];
 }>();
 
-const section = ref<Section>('panel');
+const section = ref<Section>('home');
 const referenceOrigins = ref<ReferenceOrigin[]>([]);
 const externalReferenceNotice = ref('');
 const viewStates = createDefinitionViewState();
 provide(definitionViewStateKey, viewStates);
 const draft = ref<OperatorDefinition>(clone(props.baseDefinition));
 const workspaceRoot = ref<HTMLElement | null>(null);
+const revealRootProperty = useInspectorPropertyReveal(workspaceRoot);
 const history = markRaw(
   useDefinitionDraftHistory(
     () => draft.value,
@@ -102,37 +139,51 @@ const history = markRaw(
   ),
 );
 useEditorHistoryShortcuts(workspaceRoot, history.restore);
-const panelLevel = ref(90);
 const selectedGroupIndex = ref(0);
 const selectedSkillIndex = ref(0);
+const selectedSkillDefinitionPath = ref('');
 const selectedBuffId = ref('');
 const buffDetailOpen = ref(false);
 const entityDetailOpen = ref(false);
 const showSkillEditor = ref(false);
+const skillEntry = ref<'home' | 'library'>('home');
+const skillFromHome = computed(
+  () => section.value === 'skills' && showSkillEditor.value && skillEntry.value === 'home',
+);
 const showRuntimeBehaviorEditor = ref(false);
 const showUpgradeBehaviorEditor = ref(false);
 const showComboEditor = ref(false);
+const runtimePage = ref<
+  'blackboard' | 'initialization' | 'behavior' | 'combo' | 'presentation' | 'routing' | 'provenance'
+>('blackboard');
 const editingBehavior = computed(
   () =>
-    (section.value === 'progression' && showUpgradeBehaviorEditor.value) ||
+    section.value === 'progression' ||
     (section.value === 'runtime' && (showRuntimeBehaviorEditor.value || showComboEditor.value)),
 );
-const editingFocusedDefinition = computed(() => editingBehavior.value);
 // 保存范围不因进入详情改变；这里只决定页面布局，不接管子草稿生命周期。
 const editingPeerDefinition = computed(
   () =>
+    section.value === 'progression' ||
     (section.value === 'skills' && showSkillEditor.value) ||
+    (section.value === 'runtime' &&
+      (showComboEditor.value ||
+        showRuntimeBehaviorEditor.value ||
+        runtimePage.value === 'routing' ||
+        runtimePage.value === 'initialization')) ||
     (section.value === 'buffs' && buffDetailOpen.value) ||
     (section.value === 'entities' && entityDetailOpen.value),
 );
-const focusedPage = computed(() => editingFocusedDefinition.value || editingPeerDefinition.value);
+const focusedPage = editingPeerDefinition;
 const referencedEntityId = ref('');
 const objectSearch = ref('');
 const showProblems = ref(false);
 const progressionKind = ref<'talents' | 'potentials'>('talents');
 const selectedUpgradeIndex = ref(0);
-const selectedModifierIndex = ref(0);
-const newModifierKind = ref<UpgradeModifierDefinition['kind']>('patchSkillBlackboard');
+const upgradeNavigation = ref<{ propertyPath: readonly (string | number)[] }>();
+const skillNavigation = ref<{ propertyPath: readonly (string | number)[] }>();
+const runtimeNavigation = ref<{ propertyPath: readonly (string | number)[] }>();
+const blackboardRenameError = ref<{ key: string; message: string }>();
 
 watch(
   () => props.visible,
@@ -142,7 +193,8 @@ watch(
     referenceOrigins.value = [];
     externalReferenceNotice.value = '';
     history.reset!(clone(props.customDefinition ?? props.baseDefinition));
-    section.value = 'panel';
+    section.value = 'home';
+    selectedSkillDefinitionPath.value = '';
     buffDetailOpen.value = false;
     entityDetailOpen.value = false;
     selectedGroupIndex.value = 0;
@@ -159,7 +211,12 @@ watch(
 const groups = computed(() => draft.value.skillGroups);
 const selectedGroup = computed(() => groups.value[selectedGroupIndex.value]);
 const selectedGroupSkills = computed(() => normalizeSkills(selectedGroup.value?.skills));
-const selectedSkill = computed(() => selectedGroupSkills.value[selectedSkillIndex.value] ?? null);
+const selectedSkill = computed(() =>
+  selectedSkillDefinitionPath.value
+    ? ((resolveStructureValue(draft.value, selectedSkillDefinitionPath.value) as SkillDefinition) ??
+      null)
+    : (selectedGroupSkills.value[selectedSkillIndex.value] ?? null),
+);
 const buffIds = computed(() => Object.keys(draft.value.buffDefinitions ?? {}).sort());
 const selectedBuff = computed(() => draft.value.buffDefinitions?.[selectedBuffId.value]);
 const selectedBuffStep = computed<BuffStep | null>(() =>
@@ -225,11 +282,14 @@ const draftIssues = computed<readonly ValidationIssue[]>(() => {
   return issues;
 });
 const selectedUpgrades = computed(() => draft.value[progressionKind.value]);
-const selectedUpgrade = computed(() => selectedUpgrades.value[selectedUpgradeIndex.value]);
-const entityBlackboardEntries = computed(() => Object.entries(draft.value.entityBlackboard ?? {}));
-const selectedUpgradeModifier = computed(
-  () => selectedUpgrade.value?.modifiers?.[selectedModifierIndex.value],
+const upgradeSlots = computed<readonly OperatorUpgradeDefinition[]>(() =>
+  Array.from(
+    { length: OPERATOR_PROGRESSION_SLOTS[progressionKind.value] },
+    (_, index) => selectedUpgrades.value[index] ?? { levels: 1 },
+  ),
 );
+const selectedUpgrade = computed(() => upgradeSlots.value[selectedUpgradeIndex.value]);
+const entityBlackboardEntries = computed(() => Object.entries(draft.value.entityBlackboard ?? {}));
 const skillGroupKeys = computed(() => draft.value.skillGroups.map(group => group.key));
 const comboSkillKeys = computed(() =>
   listOperatorSkillDefinitionBindings(draft.value)
@@ -249,16 +309,27 @@ const isDirty = computed(
   () => !editorDefinitionsEqual(draft.value, props.customDefinition ?? props.baseDefinition),
 );
 const sectionLabel = computed(() => {
-  if (section.value === 'panel') return '基础面板';
-  if (section.value === 'skills') return '技能与技能组';
-  if (section.value === 'progression') return '天赋与潜能';
-  if (section.value === 'runtime') return '角色级运行数据';
+  if (section.value === 'panel') return '基本信息';
+  if (section.value === 'trust') return '信赖规则';
+  if (section.value === 'skills') return '技能库组织';
+  if (section.value === 'progression') return progressionKind.value === 'talents' ? '天赋' : '潜能';
+  if (section.value === 'runtime')
+    return {
+      blackboard: '角色黑板',
+      initialization: '条件初始化',
+      behavior: '角色行为',
+      combo: '连携条件',
+      presentation: '状态表现',
+      routing: '操作选择规则',
+      provenance: '来源与诊断',
+    }[runtimePage.value];
   if (section.value === 'buffs') return 'Buff';
   return '能力实体';
 });
 const objectLabel = computed(() => {
   if (section.value === 'skills') return selectedGroup.value?.key ?? '';
   if (section.value === 'buffs') return buffDetailOpen.value ? selectedBuffId.value : '';
+  if (section.value === 'entities') return entityDetailOpen.value ? referencedEntityId.value : '';
   return '';
 });
 
@@ -266,8 +337,17 @@ function clone<T>(value: T): T {
   return JSON.parse(JSON.stringify(value)) as T;
 }
 
-function commitDraft(value: OperatorDefinition): void {
-  history.commit(value, { path: '', section: section.value, objectId: objectLabel.value });
+function commitDraft(value: OperatorDefinition, propertyPath?: readonly (string | number)[]): void {
+  history.commit(value, {
+    path: '',
+    propertyPath,
+    section: section.value,
+    objectId: objectLabel.value,
+    ...(section.value === 'runtime' ? { page: runtimePage.value } : {}),
+    ...(section.value === 'skills' && !showSkillEditor.value
+      ? { page: 'library', objectId: String(selectedGroupIndex.value) }
+      : {}),
+  });
 }
 
 const selectedBuffHistory = markRaw<DefinitionDraftHistory<SkillBuffDefinition>>({
@@ -301,10 +381,153 @@ const entityHistory = markRaw<DefinitionDraftHistory<OperatorAbilityEntityDefini
   canRedo: history.canRedo,
   restoredLocation: history.restoredLocation,
 });
+const upgradeHistory = markRaw<DefinitionDraftHistory<OperatorUpgradeDefinition>>({
+  commit(value, location) {
+    const upgrades = [
+      ...upgradeSlots.value,
+      ...selectedUpgrades.value.slice(upgradeSlots.value.length),
+    ];
+    upgrades[selectedUpgradeIndex.value] = clone(value);
+    history.commit(
+      { ...draft.value, [progressionKind.value]: upgrades },
+      {
+        ...location,
+        path: location?.path ?? '',
+        section: 'progression',
+        page: 'upgradeBehavior',
+        upgradeKind: progressionKind.value,
+        upgradeIndex: selectedUpgradeIndex.value,
+        upgradeCategory: location?.section ?? 'initialization',
+      },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: computed(() => {
+    const location = history.restoredLocation?.value;
+    return location?.section === 'progression' &&
+      location.upgradeKind === progressionKind.value &&
+      location.upgradeIndex === selectedUpgradeIndex.value
+      ? location
+      : undefined;
+  }),
+});
+const runtimeHistory = markRaw<DefinitionDraftHistory<OperatorRuntimeDraft>>({
+  commit(value, location) {
+    history.commit(
+      {
+        ...draft.value,
+        passiveSkills: value.passives.length ? value.passives : undefined,
+        eventHandlers: value.handlers.length ? value.handlers : undefined,
+      },
+      {
+        ...location,
+        path: location?.path ?? '',
+        section: 'runtime',
+        page: 'behavior',
+        runtimeCategory: location?.section === 'eventHandlers' ? 'eventHandlers' : 'passiveSkills',
+      },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: computed(() => {
+    const location = history.restoredLocation?.value;
+    return location?.section === 'runtime' && location.page === 'behavior' ? location : undefined;
+  }),
+});
+const initializationDocument = computed<OperatorInitializationDocument>(() => ({
+  entityBlackboardInitializers: draft.value.entityBlackboardInitializers,
+}));
+const initializationHistory = markRaw<DefinitionDraftHistory<OperatorInitializationDocument>>({
+  commit(value, location) {
+    history.commit(
+      {
+        ...draft.value,
+        entityBlackboardInitializers: value.entityBlackboardInitializers?.length
+          ? value.entityBlackboardInitializers
+          : undefined,
+      },
+      { ...location, path: location?.path ?? '', section: 'runtime', page: 'initialization' },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: computed(() =>
+    history.restoredLocation?.value?.page === 'initialization'
+      ? history.restoredLocation.value
+      : undefined,
+  ),
+});
+const routingDocument = computed<OperatorRoutingDocument>(() => ({
+  skillSlots: draft.value.skillSlots,
+  playerActionRoutes: draft.value.playerActionRoutes,
+  playerActionModes: draft.value.playerActionModes,
+}));
+const routingHistory = markRaw<DefinitionDraftHistory<OperatorRoutingDocument>>({
+  commit(value, location) {
+    history.commit(
+      { ...draft.value, ...value },
+      { ...location, path: location?.path ?? '', section: 'runtime', page: 'routing' },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: computed(() =>
+    history.restoredLocation?.value?.page === 'routing'
+      ? history.restoredLocation.value
+      : undefined,
+  ),
+});
+const comboDocument = computed<OperatorComboDocument>(() => ({
+  comboSkillConditions: draft.value.comboSkillConditions,
+  comboSkillPriority: draft.value.comboSkillPriority,
+}));
+const comboHistory = markRaw<DefinitionDraftHistory<OperatorComboDocument>>({
+  commit(value, location) {
+    history.commit(
+      {
+        ...draft.value,
+        ...value,
+        comboSkillConditions: value.comboSkillConditions?.length
+          ? clone(value.comboSkillConditions)
+          : undefined,
+      },
+      { ...location, path: location?.path ?? '', section: 'runtime', page: 'combo' },
+    );
+  },
+  restore: history.restore,
+  canUndo: history.canUndo,
+  canRedo: history.canRedo,
+  restoredLocation: computed(() =>
+    history.restoredLocation?.value?.page === 'combo' ? history.restoredLocation.value : undefined,
+  ),
+});
 const selectedSkillHistory = markRaw<DefinitionDraftHistory<SkillDefinition>>({
   commit(value, location) {
     const group = selectedGroup.value;
     if (!group || !selectedSkill.value) return;
+    if (selectedSkillDefinitionPath.value) {
+      const next = replaceStructureValueAtPath(
+        draft.value,
+        selectedSkillDefinitionPath.value,
+        clone(value),
+      );
+      history.commit(next, {
+        ...location,
+        path: location?.path ?? '',
+        section: 'skills',
+        objectId: selectedSkill.value.key,
+        skillGroupKey: group.key,
+        skillDefinitionPath: selectedSkillDefinitionPath.value,
+        page: skillEntry.value === 'home' ? 'skill-home' : 'skill-library',
+      });
+      return;
+    }
     const skills = [...selectedGroupSkills.value];
     const originalKey = selectedSkill.value.key;
     skills[selectedSkillIndex.value] = clone(value);
@@ -321,6 +544,7 @@ const selectedSkillHistory = markRaw<DefinitionDraftHistory<SkillDefinition>>({
         section: 'skills',
         objectId: originalKey,
         skillGroupKey: group.key,
+        page: skillEntry.value === 'home' ? 'skill-home' : 'skill-library',
       },
     );
   },
@@ -334,12 +558,51 @@ watch(
   location => {
     if (!location?.section) return;
     selectSection(location.section as Section);
+    if (location.section === 'panel' || location.section === 'trust' || location.section === 'home')
+      void revealRootProperty(location.propertyPath);
+    if (
+      location.section === 'progression' &&
+      location.upgradeKind &&
+      location.upgradeIndex !== undefined
+    ) {
+      progressionKind.value = location.upgradeKind;
+      selectedUpgradeIndex.value = location.upgradeIndex;
+      showUpgradeBehaviorEditor.value = location.page === 'upgradeBehavior';
+    }
+    if (
+      location.section === 'runtime' &&
+      ['blackboard', 'initialization', 'behavior', 'combo', 'presentation', 'routing'].includes(
+        location.page ?? '',
+      )
+    ) {
+      runtimePage.value = location.page as typeof runtimePage.value;
+      if (runtimePage.value === 'blackboard') void revealRootProperty(location.propertyPath);
+      showComboEditor.value = runtimePage.value === 'combo';
+      showRuntimeBehaviorEditor.value = runtimePage.value === 'behavior';
+    }
+    if (location.section === 'skills' && location.page === 'library') {
+      selectedGroupIndex.value = Math.max(
+        0,
+        Math.min(Number(location.objectId ?? 0), draft.value.skillGroups.length - 1),
+      );
+      selectedSkillDefinitionPath.value = '';
+      showSkillEditor.value = false;
+    }
     if (location.section === 'skills' && location.skillGroupKey) {
+      skillEntry.value = location.page === 'skill-library' ? 'library' : 'home';
       const groupIndex = draft.value.skillGroups.findIndex(
         group => group.key === location.skillGroupKey,
       );
       if (groupIndex >= 0) {
         selectedGroupIndex.value = groupIndex;
+        if (
+          location.skillDefinitionPath &&
+          resolveStructureValue(draft.value, location.skillDefinitionPath)
+        ) {
+          selectedSkillDefinitionPath.value = location.skillDefinitionPath;
+          showSkillEditor.value = true;
+          return;
+        }
         const skillIndex = normalizeSkills(draft.value.skillGroups[groupIndex]!.skills).findIndex(
           skill => skill.key === location.objectId,
         );
@@ -357,23 +620,31 @@ watch(
 );
 
 function setTrustMode(custom: boolean): void {
-  commitDraft({
-    ...draft.value,
-    trustAttributeBonus: custom ? clone(DEFAULT_TRUST_ATTRIBUTE_BONUS) : undefined,
-  });
+  commitDraft(
+    {
+      ...draft.value,
+      trustAttributeBonus: custom ? clone(DEFAULT_TRUST_ATTRIBUTE_BONUS) : undefined,
+    },
+    ['trustAttributeBonus'],
+  );
 }
 
-function updateTrustValues(event: Event): void {
-  const tokens = (event.target as HTMLInputElement).value.split(',').map(value => value.trim());
-  const values = tokens.map(Number);
-  if (tokens.some(value => value === '') || values.some(value => !Number.isFinite(value))) return;
-  commitDraft({
-    ...draft.value,
-    trustAttributeBonus: {
-      ...(draft.value.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS),
-      values,
+function updateTrustValue(index: number, event: Event): void {
+  const raw = (event.target as HTMLInputElement).value;
+  if (raw.trim() === '' || !Number.isFinite(Number(raw))) return;
+  const values = [...(draft.value.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS).values];
+  if (index < 0 || index >= values.length) return;
+  values[index] = Number(raw);
+  commitDraft(
+    {
+      ...draft.value,
+      trustAttributeBonus: {
+        ...(draft.value.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS),
+        values,
+      },
     },
-  });
+    ['trustAttributeBonus', 'values', index],
+  );
 }
 
 function toggleTrustAttribute(attribute: (typeof TRUST_ATTRIBUTE_OPTIONS)[number]): void {
@@ -381,64 +652,10 @@ function toggleTrustAttribute(attribute: (typeof TRUST_ATTRIBUTE_OPTIONS)[number
   const attributes = current.attributes.includes(attribute as never)
     ? current.attributes.filter(value => value !== attribute)
     : [...current.attributes, attribute];
-  if (attributes.length === 0) return;
-  commitDraft({ ...draft.value, trustAttributeBonus: { ...current, attributes } });
-}
-
-function replaceUpgrades(
-  kind: 'talents' | 'potentials',
-  upgrades: readonly OperatorUpgradeDefinition[],
-): void {
-  commitDraft({ ...draft.value, [kind]: upgrades });
-}
-
-function addUpgrade(): void {
-  const upgrades = [...selectedUpgrades.value];
-  const keys = new Set(upgrades.map(upgrade => upgrade.key));
-  const base = progressionKind.value === 'talents' ? 'custom-talent' : 'custom-potential';
-  let index = 1;
-  while (keys.has(`${base}-${index}`)) index += 1;
-  upgrades.push({ key: `${base}-${index}`, levels: 1 });
-  replaceUpgrades(progressionKind.value, upgrades);
-  selectedUpgradeIndex.value = upgrades.length - 1;
-}
-
-function updateUpgrade(field: 'key' | 'levels' | 'simulationNoEffect', event: Event): void {
-  const upgrade = selectedUpgrade.value;
-  if (upgrade === undefined) return;
-  const raw = (event.target as HTMLInputElement | HTMLSelectElement).value;
-  const next = { ...upgrade };
-  if (field === 'simulationNoEffect') {
-    if (raw === '') delete next.simulationNoEffect;
-    else
-      next.simulationNoEffect = raw as NonNullable<OperatorUpgradeDefinition['simulationNoEffect']>;
-  } else if (field === 'levels') next.levels = Number(raw);
-  else next.key = raw;
-  const upgrades = [...selectedUpgrades.value];
-  upgrades[selectedUpgradeIndex.value] = next;
-  replaceUpgrades(progressionKind.value, upgrades);
-}
-
-function removeUpgrade(): void {
-  if (selectedUpgrade.value === undefined) return;
-  const upgrades = selectedUpgrades.value.filter(
-    (_, index) => index !== selectedUpgradeIndex.value,
-  );
-  replaceUpgrades(progressionKind.value, upgrades);
-  selectedUpgradeIndex.value = Math.max(
-    0,
-    Math.min(selectedUpgradeIndex.value, upgrades.length - 1),
-  );
-}
-
-function moveUpgrade(offset: -1 | 1): void {
-  const source = selectedUpgradeIndex.value;
-  const target = source + offset;
-  const upgrades = [...selectedUpgrades.value];
-  if (target < 0 || target >= upgrades.length) return;
-  [upgrades[source], upgrades[target]] = [upgrades[target]!, upgrades[source]!];
-  replaceUpgrades(progressionKind.value, upgrades);
-  selectedUpgradeIndex.value = target;
+  commitDraft({ ...draft.value, trustAttributeBonus: { ...current, attributes } }, [
+    'trustAttributeBonus',
+    'attributes',
+  ]);
 }
 
 function createUpgradeModifier(kind: UpgradeModifierDefinition['kind']): UpgradeModifierDefinition {
@@ -489,92 +706,51 @@ function createUpgradeModifier(kind: UpgradeModifierDefinition['kind']): Upgrade
   }
 }
 
-function addUpgradeModifier(): void {
-  const upgrade = selectedUpgrade.value;
-  if (upgrade === undefined) return;
-  const modifiers = [...(upgrade.modifiers ?? []), createUpgradeModifier(newModifierKind.value)];
-  updateSelectedUpgradeDefinition({ ...upgrade, modifiers });
-  selectedModifierIndex.value = modifiers.length - 1;
-}
-
-function updateSelectedUpgradeDefinition(upgrade: OperatorUpgradeDefinition): void {
-  const upgrades = [...selectedUpgrades.value];
-  upgrades[selectedUpgradeIndex.value] = upgrade;
-  replaceUpgrades(progressionKind.value, upgrades);
-}
-
-function saveUpgradeBehavior(upgrade: OperatorUpgradeDefinition): void {
-  updateSelectedUpgradeDefinition(upgrade);
-  showUpgradeBehaviorEditor.value = false;
-}
-
-function updateUpgradeModifier(modifier: UpgradeModifierDefinition): void {
-  const upgrade = selectedUpgrade.value;
-  if (upgrade === undefined) return;
-  const modifiers = [...(upgrade.modifiers ?? [])];
-  modifiers[selectedModifierIndex.value] = modifier;
-  updateSelectedUpgradeDefinition({ ...upgrade, modifiers });
-}
-
-function moveUpgradeModifier(offset: -1 | 1): void {
-  const upgrade = selectedUpgrade.value;
-  if (upgrade === undefined) return;
-  const modifiers = [...(upgrade.modifiers ?? [])];
-  const target = selectedModifierIndex.value + offset;
-  if (target < 0 || target >= modifiers.length) return;
-  [modifiers[selectedModifierIndex.value], modifiers[target]] = [
-    modifiers[target]!,
-    modifiers[selectedModifierIndex.value]!,
-  ];
-  updateSelectedUpgradeDefinition({ ...upgrade, modifiers });
-  selectedModifierIndex.value = target;
-}
-
-function removeUpgradeModifier(): void {
-  const upgrade = selectedUpgrade.value;
-  if (upgrade === undefined) return;
-  const modifiers = (upgrade.modifiers ?? []).filter(
-    (_, index) => index !== selectedModifierIndex.value,
-  );
-  const next = { ...upgrade, modifiers: modifiers.length === 0 ? undefined : modifiers };
-  updateSelectedUpgradeDefinition(next);
-  selectedModifierIndex.value = Math.max(
-    0,
-    Math.min(selectedModifierIndex.value, modifiers.length - 1),
-  );
-}
-
 function addEntityBlackboardEntry(): void {
   const values = { ...(draft.value.entityBlackboard ?? {}) };
   let index = 1;
-  while (`EntityBB_custom_${index}` in values) index += 1;
+  while (Object.hasOwn(values, `EntityBB_custom_${index}`)) index += 1;
   values[`EntityBB_custom_${index}`] = 0;
-  commitDraft({ ...draft.value, entityBlackboard: values });
+  commitDraft({ ...draft.value, entityBlackboard: values }, ['entityBlackboard']);
 }
 
 function renameEntityBlackboardEntry(oldKey: string, event: Event): void {
-  const key = (event.target as HTMLInputElement).value.trim();
-  if (key === '' || (key !== oldKey && key in (draft.value.entityBlackboard ?? {}))) return;
+  const input = event.target as HTMLInputElement;
+  const key = input.value;
+  const current = draft.value.entityBlackboard ?? {};
+  if (!Object.hasOwn(current, oldKey)) return;
+  blackboardRenameError.value = undefined;
+  if (key !== oldKey && Object.hasOwn(current, key)) {
+    input.value = oldKey;
+    blackboardRenameError.value = {
+      key: oldKey,
+      message: `键「${key}」已存在，未改名或覆盖任何初值。`,
+    };
+    return;
+  }
   const values = Object.fromEntries(
     entityBlackboardEntries.value.map(([entryKey, value]) => [
       entryKey === oldKey ? key : entryKey,
       value,
     ]),
   );
-  commitDraft({ ...draft.value, entityBlackboard: values });
+  commitDraft({ ...draft.value, entityBlackboard: values }, ['entityBlackboard']);
 }
 
 function updateEntityBlackboardEntry(key: string, event: Event): void {
   const raw = (event.target as HTMLInputElement).value;
   const current = draft.value.entityBlackboard?.[key];
-  const value =
-    typeof current === 'number' && raw.trim() !== '' && Number.isFinite(Number(raw))
-      ? Number(raw)
-      : raw;
-  commitDraft({
-    ...draft.value,
-    entityBlackboard: { ...(draft.value.entityBlackboard ?? {}), [key]: value },
-  });
+  if (current === undefined) return;
+  // Editing the value must not silently change its declared type.
+  if (typeof current === 'number' && (raw.trim() === '' || !Number.isFinite(Number(raw)))) return;
+  const value = typeof current === 'number' ? Number(raw) : raw;
+  commitDraft(
+    {
+      ...draft.value,
+      entityBlackboard: { ...(draft.value.entityBlackboard ?? {}), [key]: value },
+    },
+    ['entityBlackboard', key],
+  );
 }
 
 function toggleEntityBlackboardEntryType(key: string): void {
@@ -586,62 +762,25 @@ function toggleEntityBlackboardEntryType(key: string): void {
       : Number.isFinite(Number(current))
         ? Number(current)
         : 0;
-  commitDraft({
-    ...draft.value,
-    entityBlackboard: { ...(draft.value.entityBlackboard ?? {}), [key]: value },
-  });
+  commitDraft(
+    {
+      ...draft.value,
+      entityBlackboard: { ...(draft.value.entityBlackboard ?? {}), [key]: value },
+    },
+    ['entityBlackboard', key, 'type'],
+  );
 }
 
 function removeEntityBlackboardEntry(key: string): void {
   const values = { ...(draft.value.entityBlackboard ?? {}) };
   delete values[key];
-  commitDraft({
-    ...draft.value,
-    entityBlackboard: Object.keys(values).length === 0 ? undefined : values,
-  });
-}
-
-function addEntityBlackboardInitializer(): void {
-  const entries = [...(draft.value.entityBlackboardInitializers ?? [])];
-  const keys = new Set(entries.map(entry => entry.key));
-  let index = 1;
-  while (keys.has(`EntityBB_custom_${index}`)) index += 1;
-  entries.push({
-    key: `EntityBB_custom_${index}`,
-    condition: {
-      kind: 'deckAttributeCompare',
-      left: 'strength',
-      operator: 'equal',
-      right: 'strength',
+  commitDraft(
+    {
+      ...draft.value,
+      entityBlackboard: Object.keys(values).length === 0 ? undefined : values,
     },
-    trueValue: 1,
-    falseValue: 0,
-  });
-  commitDraft({ ...draft.value, entityBlackboardInitializers: entries });
-}
-
-function updateEntityBlackboardInitializer(
-  index: number,
-  field: 'key' | 'left' | 'operator' | 'right' | 'trueValue' | 'falseValue',
-  event: Event,
-): void {
-  const entries = [...(draft.value.entityBlackboardInitializers ?? [])];
-  const entry = entries[index];
-  if (entry === undefined) return;
-  const raw = (event.target as HTMLInputElement | HTMLSelectElement).value;
-  if (field === 'key') entries[index] = { ...entry, key: raw as `EntityBB_${string}` };
-  else if (field === 'trueValue' || field === 'falseValue')
-    entries[index] = { ...entry, [field]: Number(raw) };
-  else entries[index] = { ...entry, condition: { ...entry.condition, [field]: raw } };
-  commitDraft({ ...draft.value, entityBlackboardInitializers: entries });
-}
-
-function removeEntityBlackboardInitializer(index: number): void {
-  const entries = (draft.value.entityBlackboardInitializers ?? []).filter((_, i) => i !== index);
-  commitDraft({
-    ...draft.value,
-    entityBlackboardInitializers: entries.length === 0 ? undefined : entries,
-  });
+    ['entityBlackboard'],
+  );
 }
 
 function normalizeSkills(
@@ -651,16 +790,30 @@ function normalizeSkills(
   return Array.isArray(skills) ? skills : [skills as SkillDefinition];
 }
 
-function updatePanelStat(key: keyof OperatorDefinition['attributes'], event: Event): void {
-  const value = Number((event.target as HTMLInputElement).value);
-  if (!Number.isFinite(value)) return;
-  const index = panelLevel.value - 1;
+function updatePanelStat(
+  key: keyof OperatorDefinition['attributes'],
+  index: number,
+  event: Event,
+): void {
+  const raw = (event.target as HTMLInputElement).value.trim();
+  const value = Number(raw);
+  if (
+    !raw ||
+    !Number.isFinite(value) ||
+    !Number.isInteger(index) ||
+    index < 0 ||
+    index >= GROWTH_LEVELS.length
+  )
+    return;
   const values = [...draft.value.attributes[key]];
   values[index] = value;
-  commitDraft({
-    ...draft.value,
-    attributes: { ...draft.value.attributes, [key]: values },
-  });
+  commitDraft(
+    {
+      ...draft.value,
+      attributes: { ...draft.value.attributes, [key]: values },
+    },
+    ['attributes', key, index],
+  );
 }
 
 function updateIdentity(
@@ -677,8 +830,13 @@ function updateIdentity(
   event: Event,
 ): void {
   const raw = (event.target as HTMLInputElement | HTMLSelectElement).value;
-  const value = field === 'rarity' || field === 'defaultPotential' ? Number(raw) : raw;
-  commitDraft({ ...draft.value, [field]: value } as OperatorDefinition);
+  const value =
+    (field === 'defaultPotential' || field === 'displayName' || field === 'assetSlug') && raw === ''
+      ? undefined
+      : field === 'rarity' || field === 'defaultPotential'
+        ? Number(raw)
+        : raw;
+  commitDraft({ ...draft.value, [field]: value } as OperatorDefinition, [field]);
 }
 
 function replaceGroup(index: number, group: SkillGroupDefinition): void {
@@ -709,6 +867,39 @@ function duplicateGroup(): void {
   selectedSkillIndex.value = 0;
 }
 
+function addLibraryGroup(): void {
+  const group = createOperatorLibraryGroup(draft.value);
+  const index = draft.value.skillGroups.length;
+  history.commit(
+    { ...draft.value, skillGroups: [...draft.value.skillGroups, group] },
+    { path: '', section: 'skills', page: 'library', objectId: String(index), operation: 'add' },
+  );
+  selectedGroupIndex.value = index;
+  selectedSkillIndex.value = 0;
+  selectedSkillDefinitionPath.value = '';
+  objectSearch.value = '';
+}
+
+function addLibrarySkill(destination: OperatorSkillCreationDestination = 'base'): void {
+  skillEntry.value = 'library';
+  const group = selectedGroup.value;
+  if (!group) return;
+  const next = appendEmptyOperatorSkill(group, destination);
+  replaceGroup(selectedGroupIndex.value, next.group);
+  selectedSkillIndex.value = next.index;
+  const container =
+    typeof destination === 'object'
+      ? `variants[${destination.variant}].skills`
+      : destination === 'replacement'
+        ? 'replacementSkills'
+        : 'skills';
+  selectedSkillDefinitionPath.value =
+    destination === 'routedReplacement'
+      ? `skillGroups[${selectedGroupIndex.value}].routedReplacementSkills[${next.index}].skill`
+      : `skillGroups[${selectedGroupIndex.value}].${container}[${next.index}]`;
+  showSkillEditor.value = true;
+}
+
 function removeGroup(): void {
   if (selectedGroup.value === undefined) return;
   const groups = draft.value.skillGroups.filter((_, index) => index !== selectedGroupIndex.value);
@@ -725,50 +916,6 @@ function moveGroup(offset: -1 | 1): void {
   [groups[source], groups[target]] = [groups[target]!, groups[source]!];
   commitDraft({ ...draft.value, skillGroups: groups });
   selectedGroupIndex.value = target;
-}
-
-function updateGroup(field: 'key' | 'skillType' | 'levelSource', event: Event): void {
-  const group = selectedGroup.value;
-  if (group === undefined) return;
-  replaceGroup(selectedGroupIndex.value, {
-    ...group,
-    [field]: (event.target as HTMLInputElement | HTMLSelectElement).value,
-  } as SkillGroupDefinition);
-}
-
-function duplicateSkill(): void {
-  const group = selectedGroup.value;
-  const skill = selectedSkill.value;
-  if (group === undefined || skill === null) return;
-  const skills = [...selectedGroupSkills.value];
-  const copy = clone(skill);
-  copy.key = uniqueKey(
-    skill.key,
-    skills.map(item => item.key),
-  );
-  skills.splice(selectedSkillIndex.value + 1, 0, copy);
-  replaceGroup(selectedGroupIndex.value, { ...group, skills });
-  selectedSkillIndex.value += 1;
-}
-
-function removeSkill(): void {
-  const group = selectedGroup.value;
-  if (group === undefined || selectedSkill.value === null) return;
-  const skills = selectedGroupSkills.value.filter((_, index) => index !== selectedSkillIndex.value);
-  replaceGroup(selectedGroupIndex.value, { ...group, skills });
-  selectedSkillIndex.value = Math.max(0, Math.min(selectedSkillIndex.value, skills.length - 1));
-}
-
-function moveSkill(offset: -1 | 1): void {
-  const group = selectedGroup.value;
-  if (group === undefined) return;
-  const source = selectedSkillIndex.value;
-  const target = source + offset;
-  const skills = [...selectedGroupSkills.value];
-  if (target < 0 || target >= skills.length) return;
-  [skills[source], skills[target]] = [skills[target]!, skills[source]!];
-  replaceGroup(selectedGroupIndex.value, { ...group, skills });
-  selectedSkillIndex.value = target;
 }
 
 function updateBuffStep(step: CombatStepDefinition): void {
@@ -802,7 +949,7 @@ function addBuff(): void {
 }
 
 function removeBuff(): void {
-  if (selectedBuffId.value === '' || selectedBuffReferences.value.length > 0) return;
+  if (selectedBuffId.value === '' || !draft.value.buffDefinitions?.[selectedBuffId.value]) return;
   const next = { ...(draft.value.buffDefinitions ?? {}) };
   delete next[selectedBuffId.value];
   history.commit(
@@ -824,11 +971,19 @@ function openBuffDetail(id: string): void {
 function revealDefinitionReference(reference: OperatorDefinitionReference): void {
   rememberReferenceOrigin();
   if (reference.ownerKind === 'skill') {
-    const match = /^skillGroups\[(\d+)\]\.skills\[(\d+)\]/.exec(reference.path);
-    if (match === null) return;
+    const location = operatorSkillIssueLocation(draft.value, reference.path);
+    if (!location?.skillPath) return;
     section.value = 'skills';
-    selectedGroupIndex.value = Number(match[1]);
-    selectedSkillIndex.value = Number(match[2]);
+    selectedGroupIndex.value = location.groupIndex;
+    selectedSkillDefinitionPath.value = location.skillPath;
+    skillNavigation.value = {
+      propertyPath: structurePathSegments(
+        reference.path
+          .replace(/^\$\.?/, '')
+          .slice(location.skillPath.length)
+          .replace(/^\./, ''),
+      ),
+    };
     objectSearch.value = '';
     showSkillEditor.value = true;
     return;
@@ -845,41 +1000,16 @@ function revealDefinitionReference(reference: OperatorDefinitionReference): void
     referencedEntityId.value = reference.ownerId;
     return;
   }
-  if (reference.ownerKind === 'upgrade') {
-    section.value = 'progression';
-    const [collection, key] = reference.ownerId.split('/', 2);
-    progressionKind.value = collection === 'potentials' ? 'potentials' : 'talents';
-    selectedUpgradeIndex.value = Math.max(
-      0,
-      draft.value[progressionKind.value].findIndex(upgrade => upgrade.key === key),
-    );
-    return;
-  }
-  section.value = 'runtime';
-  if (reference.ownerKind === 'comboCondition') showComboEditor.value = true;
-  else showRuntimeBehaviorEditor.value = true;
+  // References and diagnostics address the same document fields. Reuse page/graph
+  // routing instead of opening an owner page without selecting the actual use.
+  // Ordinary page navigation clears the return stack; this cross-object hop retains it.
+  const origins = referenceOrigins.value;
+  revealIssue({ path: reference.path, message: '' });
+  referenceOrigins.value = origins;
 }
 
 function revealEntityDefinitionReference(reference: OperatorDefinitionReference): void {
   revealDefinitionReference(reference);
-}
-
-function saveRuntimeBehaviors(value: {
-  passiveSkills?: OperatorDefinition['passiveSkills'];
-  eventHandlers?: OperatorDefinition['eventHandlers'];
-}): void {
-  commitDraft({ ...draft.value, ...value });
-  showRuntimeBehaviorEditor.value = false;
-}
-
-function saveComboDefinitions(value: {
-  conditions?: OperatorDefinition['comboSkillConditions'];
-}): void {
-  commitDraft({
-    ...draft.value,
-    comboSkillConditions: value.conditions,
-  });
-  showComboEditor.value = false;
 }
 
 function save(): void {
@@ -888,6 +1018,16 @@ function save(): void {
 }
 
 function selectSection(value: Section): void {
+  skillEntry.value = 'home';
+  void revealRootProperty();
+  blackboardRenameError.value = undefined;
+  // Explicit diagnostics are one navigation intent, not sticky page state.
+  // History restoration also enters here, so stale requests must not override its location.
+  upgradeNavigation.value = undefined;
+  skillNavigation.value = undefined;
+  runtimeNavigation.value = undefined;
+  runtimePage.value = 'blackboard';
+  selectedSkillDefinitionPath.value = '';
   externalReferenceNotice.value = '';
   referenceOrigins.value = [];
   section.value = value;
@@ -901,12 +1041,107 @@ function selectSection(value: Section): void {
   showComboEditor.value = false;
 }
 
+function openRuntimePage(page: typeof runtimePage.value): void {
+  selectSection('runtime');
+  runtimePage.value = page;
+  showComboEditor.value = page === 'combo';
+  showRuntimeBehaviorEditor.value = page === 'behavior';
+}
+
+function openHomeSkill(binding: OperatorSkillDefinitionBinding): void {
+  selectSection('skills');
+  selectedGroupIndex.value = draft.value.skillGroups.findIndex(
+    group => group.key === binding.group.key,
+  );
+  selectedSkillDefinitionPath.value = operatorSkillBindingPath(binding, selectedGroupIndex.value);
+  showSkillEditor.value = true;
+}
+function openLibrarySkill(binding: OperatorSkillDefinitionBinding): void {
+  openHomeSkill(binding);
+  skillEntry.value = 'library';
+}
+function closeSkillEditor(visible: boolean): void {
+  if (visible) {
+    showSkillEditor.value = true;
+    return;
+  }
+  if (skillEntry.value === 'home') selectSection('home');
+  else showSkillEditor.value = false;
+}
+function openHomeUpgrade(kind: 'talents' | 'potentials', index: number): void {
+  selectSection('progression');
+  progressionKind.value = kind;
+  selectedUpgradeIndex.value = index;
+}
 function revealIssue(issue: ValidationIssue): void {
-  const match = /^\$?\.?skillGroups\[(\d+)\]/.exec(issue.path);
-  if (match === null) return;
-  section.value = 'skills';
-  selectedGroupIndex.value = Number(match[1]);
+  const target = operatorWorkspaceIssueTarget(issue.path);
+  if (!target || target.kind !== 'field') return;
+  const area = operatorWorkspaceTargetArea(target);
+  const runtimePages = {
+    actionRouting: 'routing',
+    blackboard: 'blackboard',
+    initialization: 'initialization',
+    passives: 'behavior',
+    listeners: 'behavior',
+    presentation: 'presentation',
+    combo: 'combo',
+    provenance: 'provenance',
+  } as const;
+  if (area in runtimePages) {
+    openRuntimePage(runtimePages[area as keyof typeof runtimePages]);
+    if (area === 'actionRouting' || area === 'combo' || area === 'initialization')
+      runtimeNavigation.value = { propertyPath: [target.field, ...target.path] };
+    else if (area === 'passives' || area === 'listeners')
+      runtimeNavigation.value = {
+        propertyPath: [area === 'passives' ? 'passives' : 'handlers', ...target.path],
+      };
+    else if (area === 'presentation') runtimeNavigation.value = { propertyPath: target.path };
+    else if (area === 'blackboard') void revealRootProperty([target.field, ...target.path]);
+  } else if (area === 'identity') {
+    openRuntimePage('provenance');
+  } else if (area === 'profile' || area === 'defaults') {
+    selectSection('panel');
+    void revealRootProperty([target.field, ...target.path]);
+  } else if (area === 'growth') {
+    selectSection(target.field === 'trustAttributeBonus' ? 'trust' : 'home');
+    void revealRootProperty([target.field, ...target.path]);
+  } else if (area === 'talents' || area === 'potentials') {
+    const index = target.path[0];
+    if (typeof index === 'number' && draft.value[area][index]) {
+      openHomeUpgrade(area, index);
+      upgradeNavigation.value = { propertyPath: target.path.slice(1) };
+    } else selectSection('home');
+  } else if (area === 'buffs' || area === 'entities') {
+    selectSection(area);
+    const id = target.path[0];
+    if (typeof id === 'string') {
+      if (area === 'buffs') openBuffDetail(id);
+      else {
+        referencedEntityId.value = id;
+        entityDetailOpen.value = true;
+      }
+    }
+  }
+  if (area !== 'skills') {
+    showProblems.value = false;
+    return;
+  }
+  const location = operatorSkillIssueLocation(draft.value, issue.path);
+  if (!location) return;
+  selectSection('skills');
+  selectedGroupIndex.value = location.groupIndex;
   selectedSkillIndex.value = 0;
+  selectedSkillDefinitionPath.value = location.skillPath ?? '';
+  if (location.skillPath)
+    skillNavigation.value = {
+      propertyPath: structurePathSegments(
+        issue.path
+          .replace(/^\$\.?/, '')
+          .slice(location.skillPath.length)
+          .replace(/^\./, ''),
+      ),
+    };
+  showSkillEditor.value = location.skillPath !== undefined;
   showProblems.value = false;
 }
 
@@ -939,6 +1174,8 @@ function openReferencedDefinition(reference: {
 }
 
 type ReferenceOrigin = {
+  skillEntry: 'home' | 'library';
+  skillDefinitionPath: string;
   section: Section;
   group: string;
   skill: string;
@@ -947,12 +1184,15 @@ type ReferenceOrigin = {
   entity: string;
   skillOpen: boolean;
   buffOpen: boolean;
+  runtimePage: typeof runtimePage.value;
 };
 function rememberReferenceOrigin(): void {
   referenceOrigins.value = [
     ...referenceOrigins.value,
     {
       section: section.value,
+      skillDefinitionPath: selectedSkillDefinitionPath.value,
+      skillEntry: skillEntry.value,
       group: selectedGroup.value?.key ?? '',
       skill: selectedSkill.value?.key ?? '',
       search: objectSearch.value,
@@ -960,6 +1200,7 @@ function rememberReferenceOrigin(): void {
       entity: referencedEntityId.value,
       skillOpen: showSkillEditor.value,
       buffOpen: buffDetailOpen.value,
+      runtimePage: runtimePage.value,
     },
   ];
 }
@@ -969,6 +1210,7 @@ function returnToReferenceOrigin(): void {
   externalReferenceNotice.value = '';
   referenceOrigins.value = referenceOrigins.value.slice(0, -1);
   section.value = origin.section;
+  runtimePage.value = origin.runtimePage;
   const groupIndex = draft.value.skillGroups.findIndex(group => group.key === origin.group);
   const skillIndex =
     groupIndex < 0
@@ -978,10 +1220,16 @@ function returnToReferenceOrigin(): void {
         );
   selectedGroupIndex.value = Math.max(0, groupIndex);
   selectedSkillIndex.value = Math.max(0, skillIndex);
+  selectedSkillDefinitionPath.value = origin.skillDefinitionPath;
+  skillEntry.value = origin.skillEntry;
   objectSearch.value = origin.search;
   selectedBuffId.value = origin.buff;
   referencedEntityId.value = origin.entity;
-  showSkillEditor.value = origin.skillOpen && skillIndex >= 0;
+  showSkillEditor.value =
+    origin.skillOpen &&
+    (origin.skillDefinitionPath
+      ? !!resolveStructureValue(draft.value, origin.skillDefinitionPath)
+      : skillIndex >= 0);
   buffDetailOpen.value =
     origin.buffOpen && draft.value.buffDefinitions?.[origin.buff] !== undefined;
 }
@@ -1008,33 +1256,11 @@ function returnToReferenceOrigin(): void {
         </div>
       </template>
 
-      <div ref="workspaceRoot" class="workspace" :class="{ 'definition-focused': focusedPage }">
-        <nav v-if="!focusedPage" class="workspace-nav">
-          <div class="nav-caption">定义结构</div>
-          <button :class="{ active: section === 'panel' }" @click="selectSection('panel')">
-            <span>基础面板</span><b>90 级</b>
-          </button>
-          <button :class="{ active: section === 'skills' }" @click="selectSection('skills')">
-            <span>技能与技能组</span><b>{{ draft.skillGroups.length }}</b>
-          </button>
-          <button
-            :class="{ active: section === 'progression' }"
-            @click="selectSection('progression')"
-          >
-            <span>天赋与潜能</span><b>{{ draft.talents.length + draft.potentials.length }}</b>
-          </button>
-          <button :class="{ active: section === 'runtime' }" @click="selectSection('runtime')">
-            <span>角色级运行数据</span><b>{{ entityBlackboardEntries.length }}</b>
-          </button>
-          <button :class="{ active: section === 'buffs' }" @click="selectSection('buffs')">
-            <span>Buff</span><b>{{ buffIds.length }}</b>
-          </button>
-          <button :class="{ active: section === 'entities' }" @click="selectSection('entities')">
-            <span>能力实体</span
-            ><b>{{ Object.keys(draft.abilityEntityDefinitions ?? {}).length }}</b>
-          </button>
-        </nav>
-
+      <div
+        ref="workspaceRoot"
+        class="workspace workspace-home-layout"
+        :class="{ 'definition-focused': focusedPage }"
+      >
         <main
           class="workspace-main"
           :class="{
@@ -1043,133 +1269,148 @@ function returnToReferenceOrigin(): void {
             'focused-editing': focusedPage,
           }"
         >
-          <nav class="workspace-breadcrumbs" aria-label="当前位置">
+          <nav v-if="section !== 'home'" class="workspace-breadcrumbs" aria-label="当前位置">
             <button v-if="referenceOrigins.length" @click="returnToReferenceOrigin">
               ← 返回上一对象
             </button>
-            <button v-if="section === 'buffs' && buffDetailOpen" @click="buffDetailOpen = false">
-              ← 返回 Buff 列表
-            </button>
-            <button :disabled="editingFocusedDefinition" @click="selectSection('panel')">
-              {{ draft.displayName ?? draft.slug }}
-            </button>
-            <span>›</span>
-            <button :disabled="editingFocusedDefinition" @click="selectSection(section)">
+            <button @click="selectSection('home')">← 返回干员总览</button>
+            <span v-if="!skillFromHome">›</span>
+            <span v-if="section === 'runtime'">{{ sectionLabel }}</span>
+            <button v-else-if="!skillFromHome" @click="selectSection(section)">
               {{ sectionLabel }}
             </button>
-            <template v-if="objectLabel">
+            <template v-if="objectLabel && !skillFromHome">
               <span>›</span><strong>{{ objectLabel }}</strong>
             </template>
-            <template v-if="section === 'skills' && selectedSkill">
+            <template v-if="section === 'skills' && showSkillEditor && selectedSkill">
               <span>›</span><strong>{{ selectedSkill.key }}</strong>
             </template>
           </nav>
           <p v-if="externalReferenceNotice" class="reference-notice">
             {{ externalReferenceNotice }}
           </p>
-          <section v-if="section === 'panel'" class="definition-section">
+          <OperatorDefinitionHome
+            v-if="section === 'home'"
+            :definition="draft"
+            @section="selectSection"
+            @runtime="openRuntimePage"
+            @skill="openHomeSkill"
+            @upgrade="openHomeUpgrade"
+            @name="updateIdentity('displayName', $event)"
+            @growth="updatePanelStat"
+          />
+          <section v-else-if="section === 'panel'" class="definition-section">
             <header>
               <div>
-                <h3>基础面板</h3>
-                <p>编辑原始成长表中的单级数值，不改变实例等级。</p>
+                <h3>基本信息</h3>
+                <p>编辑干员分类与展示信息；属性成长在总览的六个等级节点中填写。</p>
               </div>
             </header>
-            <div class="identity-grid">
-              <label title="项目内稳定引用身份。创建模板时确定，修改会使既有引用失效。"
-                >模板 ID<input :value="draft.slug" disabled
-              /></label>
-              <label title="来源游戏数据身份，仅用于追溯和资源回退，不是项目内引用。"
-                >游戏 ID<input :value="draft.gameId" disabled
-              /></label>
-              <label
-                >展示名称<input
-                  :value="draft.displayName ?? ''"
-                  @change="updateIdentity('displayName', $event)"
-              /></label>
-              <label title="继承头像、技能图标和本地化文本时使用的内置干员身份。"
-                >资源来源<input
-                  :value="draft.assetSlug ?? ''"
-                  @change="updateIdentity('assetSlug', $event)"
-              /></label>
-              <label
-                >星级<select :value="draft.rarity" @change="updateIdentity('rarity', $event)">
-                  <option v-for="value in OPERATOR_RARITIES" :key="value" :value="value">
-                    {{ value }} ★
-                  </option>
-                </select></label
-              >
-              <label
-                >默认潜能<input
-                  type="number"
-                  min="0"
-                  max="5"
-                  step="1"
-                  :value="draft.defaultPotential ?? 0"
-                  @change="updateIdentity('defaultPotential', $event)"
-              /></label>
-              <label
-                >武器类型<select
-                  :value="draft.weaponType"
-                  @change="updateIdentity('weaponType', $event)"
-                >
-                  <option v-for="value in OPERATOR_WEAPON_TYPES" :key="value" :value="value">
-                    {{ value }}
-                  </option>
-                </select></label
-              >
-              <label
-                >元素<select :value="draft.element" @change="updateIdentity('element', $event)">
-                  <option v-for="value in DAMAGE_ELEMENTS" :key="value" :value="value">
-                    {{ value }}
-                  </option>
-                </select></label
-              >
-              <label
-                >职业<select :value="draft.role" @change="updateIdentity('role', $event)">
-                  <option v-for="value in OPERATOR_ROLES" :key="value" :value="value">
-                    {{ value }}
-                  </option>
-                </select></label
-              >
-              <label
-                >主属性<select
-                  :value="draft.mainAttribute"
-                  @change="updateIdentity('mainAttribute', $event)"
-                >
-                  <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
-                    {{ ATTRIBUTE_LABELS[value] }}
-                  </option>
-                </select></label
-              >
-              <label
-                >副属性<select
-                  :value="draft.secondaryAttribute"
-                  @change="updateIdentity('secondaryAttribute', $event)"
-                >
-                  <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
-                    {{ ATTRIBUTE_LABELS[value] }}
-                  </option>
-                </select></label
-              >
+            <div class="identity-sections">
+              <section class="identity-section">
+                <h4>展示</h4>
+                <p>名称与图像来源，决定选择器和时间轴上如何显示这位干员。</p>
+                <div class="identity-grid">
+                  <label :data-property-path="JSON.stringify(['displayName'])"
+                    >展示名称<input
+                      :value="draft.displayName ?? ''"
+                      :placeholder="getOperatorGameName(draft.assetSlug ?? draft.slug, locale)"
+                      @change="updateIdentity('displayName', $event)"
+                  /></label>
+                  <label
+                    :data-property-path="JSON.stringify(['assetSlug'])"
+                    title="继承头像、技能图标和本地化文本时使用的内置干员身份。"
+                    >资源来源<input
+                      :value="draft.assetSlug ?? ''"
+                      :placeholder="`沿用 ${draft.slug}`"
+                      @change="updateIdentity('assetSlug', $event)"
+                  /></label>
+                </div>
+              </section>
+              <section class="identity-section">
+                <h4>战斗分类</h4>
+                <div class="identity-grid">
+                  <label :data-property-path="JSON.stringify(['rarity'])"
+                    >星级<select :value="draft.rarity" @change="updateIdentity('rarity', $event)">
+                      <option v-for="value in OPERATOR_RARITIES" :key="value" :value="value">
+                        {{ value }} ★
+                      </option>
+                    </select></label
+                  >
+                  <label :data-property-path="JSON.stringify(['weaponType'])"
+                    >武器类型<select
+                      :value="draft.weaponType"
+                      @change="updateIdentity('weaponType', $event)"
+                    >
+                      <option v-for="value in OPERATOR_WEAPON_TYPES" :key="value" :value="value">
+                        {{ getGameWeaponTypeName(value, locale) }}
+                      </option>
+                    </select></label
+                  >
+                  <label :data-property-path="JSON.stringify(['element'])"
+                    >元素<select :value="draft.element" @change="updateIdentity('element', $event)">
+                      <option v-for="value in DAMAGE_ELEMENTS" :key="value" :value="value">
+                        {{ getGameElementName(value, locale) }}
+                      </option>
+                    </select></label
+                  >
+                  <label :data-property-path="JSON.stringify(['role'])"
+                    >职业<select :value="draft.role" @change="updateIdentity('role', $event)">
+                      <option v-for="value in OPERATOR_ROLES" :key="value" :value="value">
+                        {{ getGameClassName(value, locale) }}
+                      </option>
+                    </select></label
+                  >
+                  <label :data-property-path="JSON.stringify(['mainAttribute'])"
+                    >主属性<select
+                      :value="draft.mainAttribute"
+                      @change="updateIdentity('mainAttribute', $event)"
+                    >
+                      <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
+                        {{ ATTRIBUTE_LABELS[value] }}
+                      </option>
+                    </select></label
+                  >
+                  <label :data-property-path="JSON.stringify(['secondaryAttribute'])"
+                    >副属性<select
+                      :value="draft.secondaryAttribute"
+                      @change="updateIdentity('secondaryAttribute', $event)"
+                    >
+                      <option v-for="value in OPERATOR_ATTRIBUTES" :key="value" :value="value">
+                        {{ ATTRIBUTE_LABELS[value] }}
+                      </option>
+                    </select></label
+                  >
+                </div>
+              </section>
+              <section class="identity-section">
+                <h4>实例默认值</h4>
+                <p>用于实例的默认构筑，不改变五档潜能的定义。</p>
+                <div class="identity-grid">
+                  <label :data-property-path="JSON.stringify(['defaultPotential'])"
+                    >默认潜能<select
+                      :value="draft.defaultPotential ?? ''"
+                      @change="updateIdentity('defaultPotential', $event)"
+                    >
+                      <option value="">沿用星级默认规则</option>
+                      <option v-for="n in [0, 1, 2, 3, 4, 5]" :key="n" :value="n">
+                        {{ n }} 潜
+                      </option>
+                    </select></label
+                  >
+                </div>
+              </section>
+              <dl class="identity-reference">
+                <dt title="项目内稳定引用身份；不随显示名称修改。">模板 ID</dt>
+                <dd>{{ draft.slug }}</dd>
+                <dt title="来源游戏数据身份，仅用于追溯。">来源游戏 ID</dt>
+                <dd>{{ draft.gameId }}</dd>
+              </dl>
             </div>
-            <div class="level-toolbar">
-              <span>正在编辑等级</span>
-              <input v-model.number="panelLevel" type="range" min="1" max="90" />
-              <strong>Lv.{{ panelLevel }}</strong>
-            </div>
-            <div class="stat-grid">
-              <label v-for="key in PANEL_ATTRIBUTE_KEYS" :key="key">
-                <span>{{ ATTRIBUTE_LABELS[key] }}</span>
-                <input
-                  type="number"
-                  step="0.01"
-                  :value="draft.attributes[key][panelLevel - 1] ?? 0"
-                  @input="updatePanelStat(key, $event)"
-                />
-              </label>
-            </div>
+          </section>
+          <section v-else-if="section === 'trust'" class="definition-section trust-page">
             <div class="panel-subsection">
-              <header>
+              <header :data-property-path="JSON.stringify(['trustAttributeBonus'])">
                 <div>
                   <h3>信赖属性节点</h3>
                   <p>四个信赖节点提供的属性值；未自定义时使用全局主属性规则 10、15、15、20。</p>
@@ -1181,21 +1422,38 @@ function returnToReferenceOrigin(): void {
                   {{ draft.trustAttributeBonus === undefined ? '改为自定义规则' : '恢复全局规则' }}
                 </button>
               </header>
-              <template v-if="draft.trustAttributeBonus">
-                <label>
-                  节点数值
+              <p v-if="draft.trustAttributeBonus && !draft.trustAttributeBonus.attributes.length">
+                未选择属性：这些节点不会增加任何属性。可重新选择，或恢复全局规则。
+              </p>
+              <div class="trust-values">
+                <label
+                  v-for="(value, index) in (
+                    draft.trustAttributeBonus ?? DEFAULT_TRUST_ATTRIBUTE_BONUS
+                  ).values"
+                  :key="index"
+                  :data-property-path="JSON.stringify(['trustAttributeBonus', 'values', index])"
+                >
+                  信赖节点 {{ index + 1 }}
                   <input
-                    :value="draft.trustAttributeBonus.values.join(', ')"
-                    @change="updateTrustValues"
+                    type="number"
+                    step="any"
+                    :disabled="!draft.trustAttributeBonus"
+                    :value="value"
+                    @change="updateTrustValue(index, $event)"
                   />
-                  <small>按节点顺序填写，使用英文逗号分隔。</small>
                 </label>
-                <fieldset class="attribute-chips">
+              </div>
+              <template v-if="draft.trustAttributeBonus">
+                <fieldset
+                  class="attribute-chips"
+                  :data-property-path="JSON.stringify(['trustAttributeBonus', 'attributes'])"
+                >
                   <legend>每个节点增加的属性</legend>
                   <button
                     v-for="attribute in TRUST_ATTRIBUTE_OPTIONS"
                     :key="attribute"
                     :class="{ active: draft.trustAttributeBonus.attributes.includes(attribute) }"
+                    :aria-pressed="draft.trustAttributeBonus.attributes.includes(attribute)"
                     @click="toggleTrustAttribute(attribute)"
                   >
                     {{
@@ -1218,6 +1476,7 @@ function returnToReferenceOrigin(): void {
           >
             <aside v-if="!showSkillEditor" class="object-list">
               <input v-model="objectSearch" class="object-search" placeholder="搜索技能组…" />
+              <button class="add-object" @click="addLibraryGroup">＋ 新建空组</button>
               <button
                 class="add-object"
                 :disabled="selectedGroup === undefined"
@@ -1236,7 +1495,7 @@ function returnToReferenceOrigin(): void {
                 "
               >
                 <span>{{ entry.group.key }}</span
-                ><small>{{ normalizeSkills(entry.group.skills).length }} 个技能</small>
+                ><small>{{ listSkillGroupDefinitionBindings(entry.group).length }} 个技能</small>
               </button>
             </aside>
             <div v-if="selectedGroup" class="object-editor">
@@ -1246,301 +1505,121 @@ function returnToReferenceOrigin(): void {
                 :visible="true"
                 :title="selectedSkill.key"
                 :template-definition="selectedSkill"
-                :key="`${selectedGroup.key}/${selectedSkill.key}`"
+                :key="selectedSkillDefinitionPath || `${selectedGroup.key}/${selectedSkill.key}`"
+                :navigation-request="skillNavigation"
                 :shared-history="selectedSkillHistory"
-                :view-state-key="`skill:${selectedGroup.key}:${selectedSkill.key}`"
+                :view-state-key="`skill:${selectedSkillDefinitionPath || `${selectedGroup.key}/${selectedSkill.key}`}`"
                 :custom-definition="undefined"
                 :skill-level="skillLevel"
                 :ability-entity-ids="abilityEntityIds"
                 show-reference-pins
                 allow-invalid-save
-                back-label="返回技能与技能组"
-                @update:visible="showSkillEditor = $event"
+                :back-label="skillEntry === 'home' ? '返回干员总览' : '返回技能库组织'"
+                @update:visible="closeSkillEditor"
                 @reference="openReferencedDefinition"
               />
-              <template v-else>
-                <header>
-                  <div>
-                    <h3>技能组</h3>
-                    <p>技能组决定技能库放置单元与养成等级来源。</p>
-                  </div>
-                  <div class="object-toolbar">
-                    <button :disabled="selectedGroupIndex === 0" @click="moveGroup(-1)">
-                      上移
-                    </button>
-                    <button
-                      :disabled="selectedGroupIndex === draft.skillGroups.length - 1"
-                      @click="moveGroup(1)"
-                    >
-                      下移
-                    </button>
-                    <button class="danger-button" @click="removeGroup">删除组</button>
-                  </div>
-                </header>
-                <div class="identity-grid three">
-                  <label
-                    >组 ID<input :value="selectedGroup.key" @change="updateGroup('key', $event)"
-                  /></label>
-                  <label
-                    >技能类型<select
-                      :value="selectedGroup.skillType"
-                      @change="updateGroup('skillType', $event)"
-                    >
-                      <option v-for="value in SKILL_TYPES" :key="value">{{ value }}</option>
-                    </select></label
-                  >
-                  <label
-                    >等级来源<select
-                      :value="selectedGroup.levelSource"
-                      @change="updateGroup('levelSource', $event)"
-                    >
-                      <option v-for="value in SKILL_LEVEL_SOURCES" :key="value">{{ value }}</option>
-                    </select></label
-                  >
-                </div>
-                <div class="skill-tabs">
-                  <button
-                    v-for="(skill, index) in selectedGroupSkills"
-                    :key="`${skill.key}:${index}`"
-                    :class="{ active: selectedSkillIndex === index }"
-                    @click="
-                      selectedSkillIndex = index;
-                      showSkillEditor = false;
-                    "
-                  >
-                    {{ skill.key }}
-                  </button>
-                  <button :disabled="selectedSkill === null" @click="duplicateSkill">
-                    ＋ 复制技能
-                  </button>
-                </div>
-                <div v-if="selectedSkill" class="skill-summary">
-                  <div>
-                    <strong>{{ selectedSkill.key }}</strong
-                    ><span
-                      >{{ selectedSkill.scheduledSequences.length }} 条时间线 ·
-                      {{ selectedSkill.timelineBlockFrames }} 帧</span
-                    >
-                  </div>
-                  <div class="skill-actions">
-                    <button :disabled="selectedSkillIndex === 0" @click="moveSkill(-1)">
-                      上移
-                    </button>
-                    <button
-                      :disabled="selectedSkillIndex === selectedGroupSkills.length - 1"
-                      @click="moveSkill(1)"
-                    >
-                      下移
-                    </button>
-                    <button class="danger-button" @click="removeSkill">删除</button>
-                    <button
-                      class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                      @click="showSkillEditor = true"
-                    >
-                      编辑完整技能
-                    </button>
-                  </div>
-                </div>
-              </template>
+              <OperatorSkillLibraryGroupPage
+                v-else
+                :group="selectedGroup"
+                :first="selectedGroupIndex === 0"
+                :last="selectedGroupIndex === draft.skillGroups.length - 1"
+                @update="replaceGroup(selectedGroupIndex, $event)"
+                @edit="openLibrarySkill"
+                @move="moveGroup"
+                @remove="removeGroup"
+                @add-skill="addLibrarySkill"
+              />
             </div>
           </section>
 
           <section
             v-else-if="section === 'progression'"
-            class="definition-section split-section"
-            :class="{ 'behavior-editing-section': editingBehavior }"
+            class="definition-section behavior-editing-section"
           >
-            <aside v-if="!editingBehavior" class="object-list">
-              <div class="kind-tabs">
-                <button
-                  :class="{ active: progressionKind === 'talents' }"
-                  @click="
-                    progressionKind = 'talents';
-                    selectedUpgradeIndex = 0;
-                  "
-                >
-                  天赋
-                </button>
-                <button
-                  :class="{ active: progressionKind === 'potentials' }"
-                  @click="
-                    progressionKind = 'potentials';
-                    selectedUpgradeIndex = 0;
-                  "
-                >
-                  潜能
-                </button>
-              </div>
-              <button class="add-object" @click="addUpgrade">
-                ＋ 新增{{ progressionKind === 'talents' ? '天赋' : '潜能' }}
-              </button>
-              <button
-                v-for="(upgrade, index) in selectedUpgrades"
-                :key="`${upgrade.key}:${index}`"
-                :class="{ active: selectedUpgradeIndex === index }"
-                @click="
-                  selectedUpgradeIndex = index;
-                  showUpgradeBehaviorEditor = false;
-                "
-              >
-                <span>{{ upgrade.key }}</span
-                ><small>{{ upgrade.levels }} 级</small>
-              </button>
-            </aside>
-            <div v-if="selectedUpgrade" class="object-editor">
-              <OperatorUpgradeBehaviorDialog
-                v-if="showUpgradeBehaviorEditor"
-                :visible="true"
-                fill-available
-                :upgrade="selectedUpgrade"
-                :skill-level="skillLevel"
-                :skill-group-keys="skillGroupKeys"
-                @update:visible="showUpgradeBehaviorEditor = $event"
-                @save="saveUpgradeBehavior"
-              />
-              <template v-else>
-                <header>
-                  <div>
-                    <h3>{{ progressionKind === 'talents' ? '天赋' : '潜能' }}</h3>
-                    <p>等级决定逐级值的解析位置；行为结构在下一阶段进入养成导图。</p>
-                  </div>
-                  <div class="object-toolbar">
-                    <button :disabled="selectedUpgradeIndex === 0" @click="moveUpgrade(-1)">
-                      上移
-                    </button>
-                    <button
-                      :disabled="selectedUpgradeIndex === selectedUpgrades.length - 1"
-                      @click="moveUpgrade(1)"
-                    >
-                      下移
-                    </button>
-                    <button class="danger-button" @click="removeUpgrade">删除</button>
-                  </div>
-                </header>
-                <div class="identity-grid">
-                  <label
-                    >稳定 key<input
-                      :value="selectedUpgrade.key"
-                      @change="updateUpgrade('key', $event)"
-                  /></label>
-                  <label
-                    >等级数量<input
-                      type="number"
-                      min="1"
-                      step="1"
-                      :value="selectedUpgrade.levels"
-                      @change="updateUpgrade('levels', $event)"
-                  /></label>
-                  <label class="wide-field">
-                    固定模型下无可观察效果
-                    <select
-                      :value="selectedUpgrade.simulationNoEffect ?? ''"
-                      @change="updateUpgrade('simulationNoEffect', $event)"
-                    >
-                      <option value="">否，存在可模拟行为</option>
-                      <option value="uniqueEnemyHasNoAlternateTarget">唯一敌人没有其他目标</option>
-                      <option value="enemyDoesNotDealDamage">木桩敌人不造成伤害</option>
-                      <option value="enemyDoesNotInflictSpellStatusOnOperators">
-                        木桩敌人不对干员施加法术状态
-                      </option>
-                    </select>
-                    <small>只有已取证且在 Endaxis 固定模型中确实无可见结果时才能选择。</small>
-                  </label>
-                </div>
-                <div class="structure-summary">
-                  <span>构筑修正 {{ selectedUpgrade.modifiers?.length ?? 0 }}</span>
-                  <span>事件响应 {{ selectedUpgrade.eventHandlers?.length ?? 0 }}</span>
-                  <span>被动技能 {{ selectedUpgrade.passiveSkills?.length ?? 0 }}</span>
-                  <span>初始化序列 {{ selectedUpgrade.initializationSequence ? 1 : 0 }}</span>
-                  <button
-                    class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                    @click="showUpgradeBehaviorEditor = true"
-                  >
-                    编辑行为结构
-                  </button>
-                </div>
-                <section class="modifier-workspace">
-                  <header>
-                    <div>
-                      <h3>构筑修正</h3>
-                      <p>按列表顺序修改最终构筑或技能编译结果。</p>
-                    </div>
-                    <div class="modifier-add">
-                      <select v-model="newModifierKind">
-                        <option v-for="kind in UPGRADE_MODIFIER_KINDS" :key="kind" :value="kind">
-                          {{ kind }}
-                        </option></select
-                      ><button @click="addUpgradeModifier">＋ 添加</button>
-                    </div>
-                  </header>
-                  <div class="modifier-tabs">
-                    <button
-                      v-for="(modifier, index) in selectedUpgrade.modifiers ?? []"
-                      :key="`${modifier.kind}:${index}`"
-                      :class="{ active: selectedModifierIndex === index }"
-                      @click="selectedModifierIndex = index"
-                    >
-                      {{ index + 1 }} · {{ modifier.kind }}
-                    </button>
-                  </div>
-                  <div v-if="selectedUpgradeModifier" class="modifier-toolbar">
-                    <button
-                      :disabled="selectedModifierIndex === 0"
-                      @click="moveUpgradeModifier(-1)"
-                    >
-                      上移</button
-                    ><button
-                      :disabled="
-                        selectedModifierIndex === (selectedUpgrade.modifiers?.length ?? 0) - 1
-                      "
-                      @click="moveUpgradeModifier(1)"
-                    >
-                      下移</button
-                    ><span /><button class="danger-button" @click="removeUpgradeModifier">
-                      删除修正
-                    </button>
-                  </div>
-                  <OperatorUpgradeModifierEditor
-                    v-if="selectedUpgradeModifier"
-                    :modifier="selectedUpgradeModifier"
-                    :skill-group-keys="skillGroupKeys"
-                    :passive-skill-keys="passiveSkillKeys"
-                    @update="updateUpgradeModifier"
-                  />
-                  <div v-else class="empty-state compact">当前养成项没有构筑修正。</div>
-                </section>
-              </template>
-            </div>
-            <div v-else class="empty-state">当前分类还没有定义。</div>
+            <OperatorUpgradeGraphPage
+              v-if="selectedUpgrade"
+              :key="`${progressionKind}:${selectedUpgradeIndex}`"
+              :upgrade="selectedUpgrade"
+              :navigation-request="upgradeNavigation"
+              :kind="progressionKind"
+              :slot="selectedUpgradeIndex"
+              :skill-level="skillLevel"
+              :skill-group-keys="skillGroupKeys"
+              :passive-skill-keys="passiveSkillKeys"
+              :history="upgradeHistory"
+              :create-modifier="createUpgradeModifier"
+            />
           </section>
 
           <section
             v-else-if="section === 'runtime'"
             class="definition-section"
-            :class="{ 'behavior-editing-section': editingBehavior }"
+            :class="{
+              'behavior-editing-section':
+                editingBehavior || runtimePage === 'routing' || runtimePage === 'initialization',
+            }"
           >
-            <OperatorComboDefinitionsDialog
-              v-if="showComboEditor"
-              :visible="true"
-              fill-available
-              :conditions="draft.comboSkillConditions"
+            <OperatorProvenancePage
+              v-if="runtimePage === 'provenance'"
+              :definition="draft"
+              :issues="draftIssues"
+              @reveal-issue="revealIssue"
+            />
+            <OperatorRoutingPage
+              :navigation-request="runtimeNavigation"
+              v-else-if="runtimePage === 'routing'"
+              :value="routingDocument"
+              :skill-keys="
+                listOperatorSkillDefinitionBindings(draft).map(binding => binding.skill.key)
+              "
+              :history="routingHistory"
+            />
+            <OperatorStatusPresentationPage
+              :navigation-request="runtimeNavigation"
+              v-else-if="runtimePage === 'presentation'"
+              :restored-location="history.restoredLocation?.value"
+              :value="draft.passiveUi"
+              :local-buff-ids="Object.keys(draft.buffDefinitions ?? {})"
+              :common-buff-ids="Object.keys(commonBuffDefinitions ?? {})"
+              @reveal-buff="
+                id => {
+                  rememberReferenceOrigin();
+                  section = 'buffs';
+                  openBuffDetail(id);
+                }
+              "
+              @update="
+                (value, field) =>
+                  commitDraft({ ...draft, passiveUi: value }, field ? [field] : undefined)
+              "
+            />
+            <OperatorComboGraphPage
+              :navigation-request="runtimeNavigation"
+              v-else-if="showComboEditor"
+              :value="comboDocument"
+              :history="comboHistory"
               :skill-keys="comboSkillKeys"
               :skill-level="skillLevel"
-              @update:visible="showComboEditor = $event"
-              @save="saveComboDefinitions"
             />
-            <OperatorRuntimeBehaviorDialog
+            <OperatorInitializationPage
+              :navigation-request="runtimeNavigation"
+              v-else-if="runtimePage === 'initialization'"
+              :value="initializationDocument"
+              :history="initializationHistory"
+            />
+            <OperatorRuntimeGraphPage
+              :navigation-request="runtimeNavigation"
               v-else-if="showRuntimeBehaviorEditor"
-              :visible="true"
-              fill-available
               :passive-skills="draft.passiveSkills"
               :event-handlers="draft.eventHandlers"
+              :history="runtimeHistory"
               :skill-level="skillLevel"
-              @update:visible="showRuntimeBehaviorEditor = $event"
-              @save="saveRuntimeBehaviors"
             />
             <template v-else>
-              <header>
+              <header
+                v-if="runtimePage === 'blackboard'"
+                :data-property-path="JSON.stringify(['entityBlackboard'])"
+              >
                 <div>
                   <h3>角色实体黑板</h3>
                   <p>角色实例跨技能共享的字面初值；与每次技能释放重置的技能黑板不同。</p>
@@ -1552,136 +1631,69 @@ function returnToReferenceOrigin(): void {
                   ＋ 添加初值
                 </button>
               </header>
-              <div class="entity-blackboard">
-                <div
-                  v-for="([key, value], index) in entityBlackboardEntries"
-                  :key="`${key}:${index}`"
-                  class="entity-blackboard-row"
-                >
-                  <label
-                    >键<input :value="key" @change="renameEntityBlackboardEntry(key, $event)"
-                  /></label>
-                  <label
-                    >值<input :value="value" @change="updateEntityBlackboardEntry(key, $event)"
-                  /></label>
-                  <button
-                    :title="
-                      typeof value === 'number'
-                        ? '当前为数值，点击改为文本'
-                        : '当前为文本，点击改为数值'
-                    "
-                    @click="toggleEntityBlackboardEntryType(key)"
-                  >
-                    {{ typeof value === 'number' ? '数值' : '文本' }}
-                  </button>
-                  <button class="danger-button" @click="removeEntityBlackboardEntry(key)">
-                    删除
-                  </button>
-                </div>
+              <div v-if="runtimePage === 'blackboard'" class="entity-blackboard">
+                <table v-if="entityBlackboardEntries.length">
+                  <thead>
+                    <tr>
+                      <th scope="col">黑板键</th>
+                      <th scope="col">类型</th>
+                      <th scope="col">初始值</th>
+                      <th scope="col"><span class="sr-only">操作</span></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr
+                      v-for="([key, value], index) in entityBlackboardEntries"
+                      :key="`${key}:${index}`"
+                    >
+                      <td>
+                        <input
+                          :aria-label="`黑板键 ${key}`"
+                          :aria-invalid="blackboardRenameError?.key === key || undefined"
+                          :value="key"
+                          @change="renameEntityBlackboardEntry(key, $event)"
+                        />
+                        <small
+                          v-if="blackboardRenameError?.key === key"
+                          role="alert"
+                          class="blackboard-rename-error"
+                          >{{ blackboardRenameError.message }}</small
+                        >
+                      </td>
+                      <td :data-property-path="JSON.stringify(['entityBlackboard', key, 'type'])">
+                        <select
+                          :aria-label="`${key} 的类型`"
+                          :value="typeof value"
+                          @change="toggleEntityBlackboardEntryType(key)"
+                        >
+                          <option value="number">数值</option>
+                          <option value="string">文本</option>
+                        </select>
+                      </td>
+                      <td :data-property-path="JSON.stringify(['entityBlackboard', key])">
+                        <input
+                          :aria-label="`${key} 的初始值`"
+                          :type="typeof value === 'number' ? 'number' : 'text'"
+                          step="any"
+                          :value="value"
+                          @change="updateEntityBlackboardEntry(key, $event)"
+                        />
+                      </td>
+                      <td>
+                        <button
+                          class="danger-button"
+                          :aria-label="`删除 ${key}`"
+                          @click="removeEntityBlackboardEntry(key)"
+                        >
+                          删除
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
                 <div v-if="entityBlackboardEntries.length === 0" class="empty-state">
                   没有角色级字面初值。
                 </div>
-              </div>
-              <div class="runtime-boundary">
-                <strong>构筑条件初始化器</strong>
-                <p>在创建技能实例前比较最终构筑四维，并把结果写入角色实体黑板。</p>
-                <button
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  @click="addEntityBlackboardInitializer"
-                >
-                  ＋ 添加初始化器
-                </button>
-                <div
-                  v-for="(initializer, index) in draft.entityBlackboardInitializers ?? []"
-                  :key="`${initializer.key}:${index}`"
-                  class="initializer-row"
-                >
-                  <label
-                    >写入键<input
-                      :value="initializer.key"
-                      @change="updateEntityBlackboardInitializer(index, 'key', $event)"
-                  /></label>
-                  <label
-                    >左属性<select
-                      :value="initializer.condition.left"
-                      @change="updateEntityBlackboardInitializer(index, 'left', $event)"
-                    >
-                      <option
-                        v-for="attribute in OPERATOR_ATTRIBUTES"
-                        :key="attribute"
-                        :value="attribute"
-                      >
-                        {{ ATTRIBUTE_LABELS[attribute] }}
-                      </option>
-                    </select></label
-                  >
-                  <label
-                    >比较<select
-                      :value="initializer.condition.operator"
-                      @change="updateEntityBlackboardInitializer(index, 'operator', $event)"
-                    >
-                      <option
-                        v-for="operator in COMPARISON_OPERATORS"
-                        :key="operator"
-                        :value="operator"
-                      >
-                        {{ operator }}
-                      </option>
-                    </select></label
-                  >
-                  <label
-                    >右属性<select
-                      :value="initializer.condition.right"
-                      @change="updateEntityBlackboardInitializer(index, 'right', $event)"
-                    >
-                      <option
-                        v-for="attribute in OPERATOR_ATTRIBUTES"
-                        :key="attribute"
-                        :value="attribute"
-                      >
-                        {{ ATTRIBUTE_LABELS[attribute] }}
-                      </option>
-                    </select></label
-                  >
-                  <label
-                    >成立值<input
-                      type="number"
-                      step="0.01"
-                      :value="initializer.trueValue"
-                      @change="updateEntityBlackboardInitializer(index, 'trueValue', $event)"
-                  /></label>
-                  <label
-                    >不成立值<input
-                      type="number"
-                      step="0.01"
-                      :value="initializer.falseValue"
-                      @change="updateEntityBlackboardInitializer(index, 'falseValue', $event)"
-                  /></label>
-                  <button class="danger-button" @click="removeEntityBlackboardInitializer(index)">
-                    删除
-                  </button>
-                </div>
-              </div>
-              <div class="runtime-boundary">
-                <strong>角色级常驻行为</strong>
-                <span>基础被动 {{ draft.passiveSkills?.length ?? 0 }}</span>
-                <span>角色事件响应 {{ draft.eventHandlers?.length ?? 0 }}</span>
-                <button
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  @click="showRuntimeBehaviorEditor = true"
-                >
-                  编辑角色级行为
-                </button>
-              </div>
-              <div class="runtime-boundary">
-                <strong>角色级连携结构</strong>
-                <span>连携条件 {{ draft.comboSkillConditions?.length ?? 0 }}</span>
-                <button
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  @click="showComboEditor = true"
-                >
-                  编辑连携定义
-                </button>
               </div>
             </template>
           </section>
@@ -1708,15 +1720,14 @@ function returnToReferenceOrigin(): void {
             <div v-else-if="selectedBuffStep" class="object-editor">
               <header>
                 <div>
-                  <h3>{{ selectedBuffId }}</h3>
+                  <span class="object-kind-label">Buff 定义</span>
                   <p>干员级 Buff 蓝图；技能只通过 ID 引用。</p>
                 </div>
                 <button
                   class="danger-button"
-                  :disabled="selectedBuffReferences.length > 0"
                   :title="
                     selectedBuffReferences.length > 0
-                      ? `仍有 ${selectedBuffReferences.length} 处引用，不能删除`
+                      ? `删除后保留 ${selectedBuffReferences.length} 处引用，由定义检查报告缺失；可撤销`
                       : '删除 Buff 定义'
                   "
                   @click="removeBuff"
@@ -1724,19 +1735,11 @@ function returnToReferenceOrigin(): void {
                   删除
                 </button>
               </header>
-              <div v-if="selectedBuffReferences.length" class="reference-guard">
-                <strong>仍有 {{ selectedBuffReferences.length }} 处引用</strong>
-                <span>先修改这些使用点，定义才可以删除。</span>
-                <button
-                  v-for="reference in selectedBuffReferences"
-                  :key="reference.path"
-                  type="button"
-                  @click="revealDefinitionReference(reference)"
-                >
-                  <b>{{ reference.ownerKind }} · {{ reference.ownerId }}</b>
-                  <code>{{ reference.path }}</code>
-                </button>
-              </div>
+              <DefinitionReferenceList
+                :key="selectedBuffId"
+                :references="selectedBuffReferences"
+                @reveal="revealDefinitionReference"
+              />
               <BuffDefinitionGraphEditor
                 fill-available
                 :buff-id="selectedBuffId"
@@ -1761,6 +1764,7 @@ function returnToReferenceOrigin(): void {
           <section v-else class="definition-section entity-editing-section">
             <AbilityEntityDefinitionsDialog
               paged
+              parent-navigation
               :visible="true"
               :base-definitions="{}"
               :custom-definitions="draft.abilityEntityDefinitions"
@@ -1778,10 +1782,7 @@ function returnToReferenceOrigin(): void {
       </div>
 
       <template #footer>
-        <div
-          v-if="!editingFocusedDefinition && showProblems && draftIssues.length"
-          class="workspace-problems"
-        >
+        <div v-if="showProblems && draftIssues.length" class="workspace-problems">
           <button
             v-for="issue in draftIssues"
             :key="`${issue.path}:${issue.message}`"
@@ -1791,10 +1792,7 @@ function returnToReferenceOrigin(): void {
             ><span>{{ issue.message }}</span>
           </button>
         </div>
-        <p v-if="editingBehavior" class="behavior-draft-note">
-          当前编辑行为草稿；保存行为返回后，再保存干员定义。取消行为仅丢弃本次行为修改。
-        </p>
-        <div v-else-if="!editingFocusedDefinition" class="workspace-footer">
+        <div class="workspace-footer">
           <button
             class="problem-summary"
             :class="{ invalid: draftIssues.length > 0 }"
@@ -1859,6 +1857,80 @@ function returnToReferenceOrigin(): void {
 </template>
 
 <style scoped>
+.object-kind-label {
+  color: var(--ea-text-secondary);
+  font-size: 12px;
+}
+
+.trust-page {
+  max-width: 920px;
+}
+.trust-values {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin: 20px 0;
+}
+.trust-values label {
+  display: grid;
+  gap: 8px;
+  font-size: 12px;
+}
+.trust-values input {
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+  color: var(--ea-fg);
+  background: var(--ea-fill-input);
+  border: 1px solid var(--ea-border);
+  padding: 8px;
+}
+.trust-values input:disabled {
+  opacity: 1;
+  -webkit-text-fill-color: var(--ea-fg);
+}
+.combo-priority-setting {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  flex: none;
+  font-size: 12px;
+}
+.combo-priority-setting select {
+  color: var(--ea-fg);
+  background: var(--ea-fill-input);
+  border: 1px solid var(--ea-border);
+  padding: 5px 8px;
+}
+.combo-priority-setting small {
+  color: var(--ea-text-secondary);
+}
+.workspace.workspace-home-layout {
+  grid-template-columns: minmax(0, 1fr);
+}
+.modifier-add {
+  position: relative;
+}
+.modifier-type-menu {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  z-index: 5;
+  max-height: 300px;
+  overflow: auto;
+  min-width: 250px;
+  background: var(--ea-workbench-panel, #252528);
+  border: 1px solid #666;
+  padding: 6px;
+  box-shadow: 0 8px 20px #0008;
+}
+.modifier-type-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+}
 .workspace {
   display: grid;
   grid-template-columns: var(--definition-outliner-width, 210px) minmax(0, 1fr);
@@ -2080,6 +2152,42 @@ p {
   margin: 0;
   color: #8f8f94;
 }
+.identity-sections {
+  max-width: 840px;
+  display: grid;
+  gap: 18px;
+}
+.identity-section {
+  display: grid;
+  gap: 12px;
+}
+.identity-section + .identity-section {
+  border-top: 1px solid var(--ea-border);
+  padding-top: 14px;
+}
+.identity-section h4 {
+  margin: 0;
+  font-size: 14px;
+}
+.identity-section p {
+  margin: 0;
+  color: var(--ea-text-secondary);
+  font-size: 12px;
+}
+.identity-reference {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 0;
+  padding-top: 16px;
+  border-top: 1px solid var(--ea-border);
+  color: var(--ea-text-secondary);
+  font-size: 12px;
+}
+.identity-reference dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
 .identity-grid,
 .stat-grid {
   display: grid;
@@ -2107,14 +2215,34 @@ select {
 input:disabled {
   color: #777;
 }
-.level-toolbar {
-  display: grid;
-  grid-template-columns: auto minmax(180px, 1fr) 64px;
-  align-items: center;
-  gap: 16px;
-  margin: 28px 0 16px;
-  padding: 14px;
-  background: #202023;
+.growth-table-scroll {
+  overflow-x: auto;
+  margin-top: 24px;
+}
+.growth-table {
+  width: 100%;
+  min-width: 640px;
+  table-layout: fixed;
+  border-collapse: collapse;
+}
+.growth-table caption {
+  text-align: left;
+  color: #aaa;
+  padding-bottom: 12px;
+}
+.growth-table th,
+.growth-table td {
+  padding: 5px;
+  text-align: left;
+}
+.growth-table th {
+  color: #bbb;
+  font-size: 12px;
+}
+.growth-table input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0 6px;
 }
 .stat-grid label {
   display: grid;
@@ -2122,9 +2250,7 @@ input:disabled {
   align-items: center;
 }
 .panel-subsection {
-  margin-top: 28px;
-  padding-top: 20px;
-  border-top: 1px solid #343438;
+  margin-top: 0;
 }
 .panel-subsection header {
   margin-bottom: 14px;
@@ -2220,43 +2346,55 @@ input:disabled {
   grid-column: 1 / -1;
 }
 .entity-blackboard {
-  display: grid;
-  gap: 8px;
+  max-width: 1000px;
+  overflow-x: auto;
 }
-.entity-blackboard-row {
-  display: grid;
-  grid-template-columns: minmax(160px, 1fr) minmax(120px, 0.8fr) 58px 58px;
-  align-items: end;
-  gap: 8px;
-  padding: 10px;
-  border: 1px solid #3c3c40;
-  background: #202023;
+.entity-blackboard table {
+  width: 100%;
+  min-width: 460px;
+  border-collapse: collapse;
+  table-layout: fixed;
 }
-.entity-blackboard-row > button:not(.danger-button) {
-  min-height: 36px;
-  border: 1px solid #444;
-  background: #1d1d20;
-  color: #bbb;
+.entity-blackboard th {
+  text-align: left;
+  font-size: 12px;
+  color: var(--ea-text-secondary);
+  font-weight: normal;
+}
+.entity-blackboard th:nth-child(2) {
+  width: 90px;
+}
+.entity-blackboard th:last-child {
+  width: 60px;
+}
+.entity-blackboard th,
+.entity-blackboard td {
+  padding: 8px 8px 8px 0;
+  border-bottom: 1px solid var(--ea-border);
+}
+.entity-blackboard input,
+.entity-blackboard select {
+  width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+.entity-blackboard > .empty-state {
+  min-height: 0;
+  padding: 16px 0;
+  text-align: left;
+}
+.entity-blackboard .sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
 }
 .runtime-boundary strong {
   width: 100%;
 }
 .runtime-boundary > p {
   width: 100%;
-}
-.initializer-row {
-  width: 100%;
-  display: grid;
-  grid-template-columns:
-    minmax(150px, 1.2fr) repeat(3, minmax(90px, 0.8fr)) repeat(2, minmax(80px, 0.7fr))
-    58px;
-  align-items: end;
-  gap: 7px;
-  padding-top: 10px;
-  border-top: 1px solid #3c3c40;
-}
-.initializer-row label {
-  min-width: 0;
 }
 .modifier-workspace {
   margin-top: 20px;
@@ -2405,40 +2543,6 @@ input:disabled {
   color: #e3876e;
   overflow-wrap: anywhere;
 }
-.reference-guard {
-  display: grid;
-  gap: 6px;
-  min-width: 0;
-  padding: 10px 12px;
-  border: 1px solid color-mix(in srgb, #e5a43b 50%, var(--ea-border-soft));
-  background: color-mix(in srgb, #e5a43b 8%, var(--ea-workbench-panel));
-}
-.reference-guard > strong {
-  color: #e5b96d;
-  font-size: 12px;
-}
-.reference-guard > span {
-  color: var(--ea-fg-muted);
-  font-size: 11px;
-}
-.reference-guard > button {
-  display: grid;
-  grid-template-columns: minmax(120px, 0.35fr) minmax(0, 1fr);
-  gap: 8px;
-  min-width: 0;
-  padding: 7px 8px;
-  border: 1px solid var(--ea-border-soft);
-  background: var(--ea-fill-input, #16161a);
-  color: var(--ea-fg);
-  text-align: left;
-  cursor: pointer;
-}
-.reference-guard code {
-  min-width: 0;
-  overflow-wrap: anywhere;
-  color: var(--ea-fg-muted);
-  font-size: 10px;
-}
 .danger-button:disabled {
   opacity: 0.42;
   cursor: not-allowed;
@@ -2457,9 +2561,6 @@ input:disabled {
   }
 }
 @media (max-width: 760px) {
-  .entity-editing .workspace-breadcrumbs {
-    display: none;
-  }
   .workspace {
     grid-template-columns: minmax(0, 1fr);
     grid-template-rows: auto minmax(0, 1fr);
@@ -2511,14 +2612,14 @@ input:disabled {
   flex: none;
   margin-bottom: 8px;
 }
-.buff-editing-section .reference-guard {
-  flex: none;
-  max-height: 60px;
-  overflow: auto;
-  box-sizing: border-box;
-}
 .buff-editing-section :deep(.definition-graph-editor.fill-available) {
   flex: 1;
   height: auto;
+}
+.blackboard-rename-error {
+  display: block;
+  margin-top: 6px;
+  color: var(--ea-danger, #ff7777);
+  overflow-wrap: anywhere;
 }
 </style>

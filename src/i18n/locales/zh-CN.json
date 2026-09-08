@@ -668,6 +668,13 @@
       "enemyWeaknessSet": "设置弱点"
     },
     "skillEditing": {
+      "runtimeFields": {
+        "sourceSkillId": "原生技能 ID",
+        "nativeSkillType": "原生技能类型初值",
+        "smartTarget": "智能目标存储来源",
+        "naturalDurationFrames": "自然结束帧",
+        "exclusiveFrame": "中断排他帧"
+      },
       "queryParameters": "查询参数",
       "conditionStructureInGraph": "子条件的增删、连接和排序在图中编辑。",
       "unionListValue": "列表",
@@ -754,6 +761,8 @@
       "levelArray": "逐等级数值（只读）",
       "costFrame": "扣费帧",
       "costs": "费用",
+      "spConsumption": "消耗技力",
+      "ultimateEnergyConsumption": "消耗终结技能量",
       "resource": "资源",
       "value": "数值",
       "sequences": "调度序列",
@@ -1154,7 +1163,7 @@
       "deleteGameplayTag": "删除 GameplayTag",
       "invalidGameplayTag": "无效标签路径",
       "unknownGameplayTag": "当前版本目录未登记的自定义标签",
-      "buffApplyTags": "Buff 实例启用时向宿主提供的 GameplayTag。按完整可读路径选择，项目与模拟都保存路径字符串。",
+      "buffApplyTags": "Buff 提供标签",
       "buffExtendTags": "Buff 延长匹配标签",
       "timeDilationScope": "作用范围",
       "timeDilationScopes": { "global": "全局", "entity": "指定实体" },

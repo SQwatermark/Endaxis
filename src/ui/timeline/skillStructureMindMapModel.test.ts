@@ -16,6 +16,31 @@ import {
 import { appendCombatStepInStructure, resolveStructureValue } from './skillStructureEditorCommands';
 
 describe('skillStructureMindMapModel', () => {
+  it('施放旁路复用条件和序列节点，保留真实路径及必填序列', () => {
+    const skill: SkillDefinition = {
+      key: 'bypass',
+      timelineBlockFrames: 1,
+      scheduledSequences: [],
+      switchToBuffCast: { asSkillCast: false, sequence: { steps: [] } },
+    };
+    const root = buildSkillStructureMindMap(skill);
+    const condition = findSkillStructureNodeForPath(root, 'switchToBuffCast.condition');
+    expect(condition.sourcePath).toBe('switchToBuffCast.condition');
+    expect(condition.canAddChild).toBe('combatCondition');
+    const sequence = findSkillStructureNodeForPath(root, 'switchToBuffCast.sequence');
+    expect(sequence.canAddChild).toBe('step');
+    expect(sequence.canDelete).toBe(false);
+    const changed = appendCombatStepInStructure(skill, sequence.sourcePath!, {
+      kind: 'finishCurrentAbilityEntity',
+      parameters: {},
+    }).root;
+    const stepPath = 'switchToBuffCast.sequence.steps[0]';
+    expect(
+      findSkillStructureNodeForPath(buildSkillStructureMindMap(changed), stepPath).sourcePath,
+    ).toBe(stepPath);
+    expect(changed.switchToBuffCast?.asSkillCast).toBe(false);
+    expect(skill.switchToBuffCast?.sequence.steps).toHaveLength(0);
+  });
   it('伤害修正条件程序复用序列节点，独立与内联 Buff 均保留真实路径', () => {
     const definition: SkillBuffDefinition = {
       stackingType: 'refresh',
@@ -369,6 +394,8 @@ describe('skillStructureMindMapModel', () => {
       'Blackboard',
       'Availability',
       '技能事件响应',
+      '输入窗口',
+      '施放旁路',
       'Sequence 1',
     ]);
     expect(nodes.get('sequence:0')?.editorSection).toBe(0);

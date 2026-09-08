@@ -33,6 +33,9 @@ export function conditionInspectorFields<K extends CombatCondition['kind']>(
       field,
       specificLabels[kind]?.[key],
     );
+    if (kind === 'deckAttributeCompare' && (key === 'left' || key === 'right')) {
+      return { ...result, optionLabelPrefix: 'timeline.skillEditing.attributes.' };
+    }
     return (kind === 'entityTagMatch' && key === 'tags') ||
       (kind === 'eventBuffTagsMatch' && key === 'buffTags')
       ? { ...result, widget: 'gameplayTags' as const }

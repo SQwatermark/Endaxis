@@ -14,14 +14,8 @@ import {
 export interface OperatorPanelContributionPresentationContext {
   readonly operator: {
     readonly slug: string;
-    readonly talents: readonly Pick<
-      PublishedOperatorMetadata['talents'][number],
-      'key' | 'levels'
-    >[];
-    readonly potentials: readonly Pick<
-      PublishedOperatorMetadata['potentials'][number],
-      'key' | 'levels'
-    >[];
+    readonly talents: readonly Pick<PublishedOperatorMetadata['talents'][number], 'levels'>[];
+    readonly potentials: readonly Pick<PublishedOperatorMetadata['potentials'][number], 'levels'>[];
   } | null;
   readonly locale: string;
   readonly translate: (key: string, params?: Record<string, unknown>) => string;
@@ -45,24 +39,22 @@ export function resolveOperatorPanelContributionSourceLabel(
   if (source.kind === 'operatorUpgrade') {
     const operator = context.operator;
     if (operator !== null) {
-      const talentIndex = operator.talents.findIndex(value => value.key === source.upgradeKey);
-      if (talentIndex >= 0) {
+      const talentIndex = source.index;
+      if (source.source === 'talent' && operator.talents[talentIndex]) {
         const flatIndex = operator.talents
           .slice(0, talentIndex)
           .reduce((sum, value) => sum + value.levels, 0);
         return getOperatorTalentName(operator.slug, flatIndex, 0, context.locale);
       }
-      const potentialIndex = operator.potentials.findIndex(
-        value => value.key === source.upgradeKey,
-      );
-      if (potentialIndex >= 0) {
+      const potentialIndex = source.index;
+      if (source.source === 'potential' && operator.potentials[potentialIndex]) {
         const flatIndex = operator.potentials
           .slice(0, potentialIndex)
           .reduce((sum, value) => sum + value.levels, 0);
         return getOperatorPotentialName(operator.slug, flatIndex, context.locale);
       }
     }
-    return source.upgradeKey;
+    return `${source.source} ${source.index + 1}`;
   }
   if (source.kind === 'globalConfig') {
     return context.translate('timeline.globalModifiers.title');

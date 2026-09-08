@@ -183,7 +183,7 @@ describe('resolveOperatorPanel', () => {
     expect(panel.attributes.will).toBe(264);
     expect(panel.attack).toBe(836);
     expect(panel.receipt).toContainEqual({
-      source: { kind: 'operatorUpgrade', upgradeKey: 'potential2' },
+      source: { kind: 'operatorUpgrade', source: 'potential', index: 1 },
       stat: 'will',
       operation: 'flat',
       value: 20,
@@ -200,7 +200,6 @@ describe('resolveOperatorPanel', () => {
       ...zhuangFangyi,
       potentials: [
         {
-          key: 'basePanelAttributes',
           levels: 1,
           modifiers: [
             {

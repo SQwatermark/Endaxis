@@ -144,7 +144,6 @@ describe('compileScenarioRuntimeAssembly', () => {
       ...perlica,
       potentials: [
         {
-          key: 'cooldown',
           levels: 1,
           modifiers: [{ kind: 'addSkillCooldownFrames', skillGroupKey: 'comboSkill', frames: -15 }],
         },

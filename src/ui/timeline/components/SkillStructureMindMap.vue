@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
 /** Reusable free-roaming structure map used by the formal skill editor and its demo. */
 import { computed, inject, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { definitionViewStateKey } from '../definitionViewState';
@@ -34,44 +35,9 @@ interface MapNodeSource {
   readonly children: readonly MapNodeSource[];
   readonly editorSection?: 'overview' | 'blackboard' | 'availability' | number;
   readonly reference?: MapReference;
-  readonly canAddChild?:
-    | 'sequence'
-    | 'step'
-    | 'lifecycle'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffChild';
-  readonly payloadKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffDefinition'
-    | 'globalBuffChild';
-  readonly acceptsChildKind?:
-    | 'scheduledSequence'
-    | 'combatStep'
-    | 'childSkill'
-    | 'equipmentModifier'
-    | 'equipmentHandler'
-    | 'combatCondition'
-    | 'eventResponse'
-    | 'skillEventHandler'
-    | 'buffAbilityResponse'
-    | 'buffIgniteResponse'
-    | 'globalBuffChild';
+  readonly canAddChild?: StructureNodeContract['canAddChild'];
+  readonly payloadKind?: StructureNodeContract['payloadKind'];
+  readonly acceptsChildKind?: StructureNodeContract['acceptsChildKind'];
   readonly canDelete?: boolean;
   readonly canMove?: boolean;
   readonly canCopy?: boolean;
@@ -97,6 +63,7 @@ const props = withDefaults(
     root: MapNodeSource;
     selectedId?: string;
     viewStateKey?: string;
+    initialOverview?: boolean;
     showReferencePins?: boolean;
     clipboardKind?: MapNodeSource['payloadKind'];
     canUndo?: boolean;
@@ -132,6 +99,7 @@ function rememberView(): void {
     collapsedIds: [...collapsedIds.value],
     left: viewport.value.scrollLeft,
     top: viewport.value.scrollTop,
+    selectedId: props.selectedId,
   });
 }
 const viewport = ref<HTMLElement | null>(null);
@@ -203,12 +171,35 @@ const selectedNode = computed(() =>
   props.selectedId === undefined ? undefined : findNode(props.root, props.selectedId),
 );
 const clipboardLabel = computed(() => {
+  if (props.clipboardKind === 'upgradeModifier') return '构筑修正';
+  if (props.clipboardKind === 'upgradeHandler') return '养成监听';
+  if (props.clipboardKind === 'upgradePassive') return '养成被动';
   if (props.clipboardKind === 'combatStep') return '战斗步骤';
   if (props.clipboardKind === 'scheduledSequence') return '调度序列';
   if (props.clipboardKind === 'childSkill') return '实体子技能';
   if (props.clipboardKind === 'equipmentModifier') return '属性修正';
   if (props.clipboardKind === 'equipmentHandler') return '事件响应';
   if (props.clipboardKind === 'combatCondition') return '战斗条件';
+  if (props.clipboardKind === 'buffDamageModifier') return '伤害修正器';
+  if (props.clipboardKind === 'buffShield') return '护盾';
+  if (props.clipboardKind === 'buffProtection') return '持续保护';
+  if (props.clipboardKind === 'buffRole') return '元素语义';
+  if (props.clipboardKind === 'buffSpellBurst') return '法术爆发参数';
+  if (props.clipboardKind === 'buffPresentation') return 'Buff 表现';
+  if (props.clipboardKind === 'buffChildPresentation') return '子 Buff 表现';
+  if (props.clipboardKind === 'buffPresentationOrder') return '表现排序';
+  if (props.clipboardKind === 'buffShieldAbsorption') return '伤害吸收规则';
+  if (props.clipboardKind === 'buffHealModifier') return '治疗修正器';
+  if (props.clipboardKind === 'buffHealProcessor') return '治疗处理器';
+  if (props.clipboardKind === 'buffHealCondition') return '治疗条件';
+  if (props.clipboardKind === 'buffPoiseModifier') return '失衡修正器';
+  if (props.clipboardKind === 'buffPoiseProcessor') return '失衡处理器';
+  if (props.clipboardKind === 'buffPoiseCondition') return '失衡条件';
+  if (props.clipboardKind === 'buffAttributeModifier') return '属性修正';
+  if (props.clipboardKind === 'buffSlotReplacement') return '技能槽替换';
+  if (props.clipboardKind === 'buffKeywordEnhancement') return '关键词强化';
+  if (props.clipboardKind === 'buffDamageProcessor') return '伤害处理器';
+  if (props.clipboardKind === 'buffDamageCondition') return '伤害修正条件';
   if (props.clipboardKind === 'eventResponse') return '事件响应';
   if (props.clipboardKind === 'skillEventHandler') return '技能事件响应';
   if (props.clipboardKind === 'buffAbilityResponse') return 'Buff Ability 事件响应';
@@ -365,8 +356,7 @@ function handleKeyboard(event: KeyboardEvent): boolean {
   if (node === undefined) return false;
   if (
     (event.key === 'Delete' || event.key === 'Backspace') &&
-    node.payloadKind !== undefined &&
-    node.canDelete !== false
+    (node.canDelete === true || (node.payloadKind !== undefined && node.canDelete !== false))
   ) {
     runNodeAction('delete', node);
   } else return false;
@@ -563,6 +553,30 @@ async function centerRoot(): Promise<void> {
   positionNodeInViewport(element, rootNode);
 }
 
+async function frameVisibleNodes(): Promise<void> {
+  await nextTick();
+  const element = viewport.value;
+  const nodes = layout.value.nodes;
+  if (!element || !nodes.length) return;
+  const left = Math.min(...nodes.map(n => n.x));
+  const top = Math.min(...nodes.map(n => n.y));
+  const width = Math.max(...nodes.map(n => n.x + NODE_WIDTH)) - left;
+  const height = Math.max(...nodes.map(n => n.y + NODE_HEIGHT)) - top;
+  zoom.value = Math.max(
+    0.45,
+    Math.min(0.9, (element.clientWidth - 64) / width, (element.clientHeight - 64) / height),
+  );
+  await nextTick();
+  element.scrollLeft = Math.max(
+    0,
+    (stage.value?.offsetLeft ?? 0) + (left + width / 2) * zoom.value - element.clientWidth / 2,
+  );
+  element.scrollTop = Math.max(
+    0,
+    (stage.value?.offsetTop ?? 0) + (top + height / 2) * zoom.value - element.clientHeight / 2,
+  );
+}
+
 function positionNodeInViewport(element: HTMLElement, node: { x: number; y: number }): void {
   const scroll = mindMapNodeScroll(
     { ...node, width: NODE_WIDTH, height: NODE_HEIGHT },
@@ -615,11 +629,17 @@ watch(
     if (!saved) {
       zoom.value = 0.9;
       expandTwoLevels();
-      await centerRoot();
+      if (props.initialOverview) await frameVisibleNodes();
+      else await centerRoot();
       return;
     }
     zoom.value = saved.zoom;
     collapsedIds.value = new Set(saved.collapsedIds.filter(id => findNode(props.root, id)));
+    // Returning to an object restores its local selection, not a document edit.
+    // A caller that already selected a specific node (history/diagnostics) wins.
+    const savedSelection = saved.selectedId && findNode(props.root, saved.selectedId);
+    if (savedSelection && (!props.selectedId || props.selectedId === props.root.id))
+      emit('select', savedSelection);
     await nextTick();
     if (revision !== viewRevision || !viewport.value) return;
     viewport.value.scrollLeft = saved.left;
@@ -800,7 +820,10 @@ watch(
           粘贴 <kbd>Ctrl+V</kbd>
         </button>
         <button
-          v-if="contextMenu.node.payloadKind && contextMenu.node.canDelete !== false"
+          v-if="
+            contextMenu.node.canDelete === true ||
+            (contextMenu.node.payloadKind && contextMenu.node.canDelete !== false)
+          "
           class="danger"
           @click="runNodeAction('delete', contextMenu.node)"
         >

@@ -99,6 +99,8 @@ const props = defineProps<{
   duplicateStep?: (step: CombatStepDefinition) => CombatStepDefinition;
   selectedStructurePath?: string;
   inspectorOnly?: boolean;
+  /** The host exposes modifier/shield collections and presentation objects in the graph. */
+  modifierCollectionsInGraph?: boolean;
   /** The host projects the inline definition as a separate selectable graph node. */
   inlineDefinitionInGraph?: boolean;
 }>();
@@ -347,7 +349,10 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
     />
   </div>
 
-  <fieldset class="buff-definition">
+  <fieldset
+    class="buff-definition"
+    :class="{ 'buff-definition--inspector': definitionOnly && inspectorOnly }"
+  >
     <legend v-if="!definitionOnly">
       <label class="step-editor__check">
         <input
@@ -366,163 +371,179 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
       定义属性在导图的“内联 Buff”子节点中编辑。
     </p>
     <template v-if="!inlineDefinitionInGraph">
-      <div v-if="step.parameters.definition" class="buff-definition__grid">
-        <label>
-          <EditorFieldLabel :label="t('timeline.skillEditing.buffStackingType')" />
-          <select :value="step.parameters.definition.stackingType" @change="setStackingType">
-            <option v-for="type in BUFF_STACKING_TYPES" :key="type" :value="type">
-              {{ type }}
-            </option>
-          </select>
-        </label>
-        <label>
-          <EditorFieldLabel :label="t('timeline.skillEditing.buffStackingKey')" />
-          <input
-            type="text"
-            :value="step.parameters.definition.stackingKey ?? ''"
-            @input="setDefinitionText('stackingKey', $event)"
-          />
-        </label>
-        <label>
-          <EditorFieldLabel label="时间域" />
-          <select :value="step.parameters.definition.timeClock ?? ''" @change="setTimeClock">
-            <option value="">默认（省略）</option>
-            <option value="default">default</option>
-            <option value="global">global</option>
-            <option value="self">self</option>
-          </select>
-        </label>
-        <label>
-          <EditorFieldLabel label="首次触发前等待间隔" />
-          <select
-            :value="
-              step.parameters.definition.waitFirstTriggerInterval === undefined
-                ? ''
-                : String(step.parameters.definition.waitFirstTriggerInterval)
-            "
-            @change="setWaitFirstTriggerInterval"
-          >
-            <option value="">未设置</option>
-            <option value="true">是</option>
-            <option value="false">否</option>
-          </select>
-        </label>
-        <label>
-          <EditorFieldLabel
-            :label="t('timeline.skillEditing.buffApplyTags')"
-            :help="t('timeline.skillEditing.fieldHelp.buffApplyTags')"
-          />
-          <GameplayTagsEditor
-            :tags="step.parameters.definition.applyTags ?? []"
-            :minimum="0"
-            @update="setDefinitionTags('applyTags', $event)"
-          />
-        </label>
-        <label>
-          <EditorFieldLabel
-            :label="t('timeline.skillEditing.buffExtendTags')"
-            :help="t('timeline.skillEditing.fieldHelp.buffExtendTags')"
-          />
-          <GameplayTagsEditor
-            :tags="step.parameters.definition.extendTags ?? []"
-            :minimum="0"
-            @update="setDefinitionTags('extendTags', $event)"
-          />
-        </label>
-        <label>
-          <EditorFieldLabel label="优先级" />
-          <span class="buff-priority-editor">
-            <BuffDefinitionScalarEditor
-              :value="step.parameters.definition.priority"
-              @update="setPriority"
-            />
-            <label v-if="typeof step.parameters.definition.priority === 'object'">
-              <input
-                type="checkbox"
-                :checked="step.parameters.definition.priority.negate === true"
-                @change="setPriorityNegate"
-              />
-              取反
+      <div v-if="step.parameters.definition" class="buff-root-fields">
+        <section class="buff-field-section">
+          <h3>叠加与优先级</h3>
+          <div class="buff-definition__grid">
+            <label>
+              <EditorFieldLabel :label="t('timeline.skillEditing.buffStackingType')" />
+              <select :value="step.parameters.definition.stackingType" @change="setStackingType">
+                <option v-for="type in BUFF_STACKING_TYPES" :key="type" :value="type">
+                  {{ type }}
+                </option>
+              </select>
             </label>
-          </span>
-        </label>
-        <label>
-          <EditorFieldLabel :label="t('timeline.skillEditing.durationSeconds')" />
-          <BuffDefinitionScalarEditor
-            :value="step.parameters.definition.durationSeconds"
-            :minimum="0"
-            :data-property-path="
-              definitionBinding
-                ? JSON.stringify([...definitionBinding.path, 'durationSeconds'])
-                : undefined
-            "
-            @update="setDefinitionScalar('durationSeconds', $event)"
-          />
-        </label>
-        <label>
-          <EditorFieldLabel :label="t('timeline.skillEditing.maxStacks')" />
-          <BuffDefinitionScalarEditor
-            :value="step.parameters.definition.maxStackCount"
-            integer
-            :minimum="0"
-            :data-property-path="
-              definitionBinding
-                ? JSON.stringify([...definitionBinding.path, 'maxStackCount'])
-                : undefined
-            "
-            @update="setDefinitionScalar('maxStackCount', $event)"
-          />
-        </label>
-        <label>
-          <EditorFieldLabel :label="t('timeline.skillEditing.buffTriggerInterval')" />
-          <BuffDefinitionScalarEditor
-            :value="step.parameters.definition.triggerIntervalSeconds"
-            :minimum="0"
-            :data-property-path="
-              definitionBinding
-                ? JSON.stringify([...definitionBinding.path, 'triggerIntervalSeconds'])
-                : undefined
-            "
-            @update="setDefinitionScalar('triggerIntervalSeconds', $event)"
-          />
-        </label>
-        <label>
-          <EditorFieldLabel :label="t('timeline.skillEditing.buffMaxTriggerCount')" />
-          <BuffDefinitionScalarEditor
-            :value="step.parameters.definition.maxTriggerCount"
-            integer
-            :minimum="-1"
-            :data-property-path="
-              definitionBinding
-                ? JSON.stringify([...definitionBinding.path, 'maxTriggerCount'])
-                : undefined
-            "
-            @update="setDefinitionScalar('maxTriggerCount', $event)"
-          />
-        </label>
+            <label>
+              <EditorFieldLabel :label="t('timeline.skillEditing.buffStackingKey')" />
+              <input
+                type="text"
+                :value="step.parameters.definition.stackingKey ?? ''"
+                @input="setDefinitionText('stackingKey', $event)"
+              />
+            </label>
+            <label>
+              <EditorFieldLabel :label="t('timeline.skillEditing.maxStacks')" />
+              <BuffDefinitionScalarEditor
+                :value="step.parameters.definition.maxStackCount"
+                integer
+                :minimum="0"
+                :data-property-path="
+                  definitionBinding
+                    ? JSON.stringify([...definitionBinding.path, 'maxStackCount'])
+                    : undefined
+                "
+                @update="setDefinitionScalar('maxStackCount', $event)"
+              />
+            </label>
+            <label>
+              <EditorFieldLabel label="优先级" />
+              <span class="buff-priority-editor">
+                <BuffDefinitionScalarEditor
+                  :value="step.parameters.definition.priority"
+                  @update="setPriority"
+                />
+                <label v-if="typeof step.parameters.definition.priority === 'object'">
+                  <input
+                    type="checkbox"
+                    :checked="step.parameters.definition.priority.negate === true"
+                    @change="setPriorityNegate"
+                  />
+                  取反
+                </label>
+              </span>
+            </label>
+          </div>
+        </section>
+        <section class="buff-field-section">
+          <h3>持续时间与触发</h3>
+          <div class="buff-definition__grid">
+            <label>
+              <EditorFieldLabel label="时间域" />
+              <select :value="step.parameters.definition.timeClock ?? ''" @change="setTimeClock">
+                <option value="">默认（省略）</option>
+                <option value="default">default</option>
+                <option value="global">global</option>
+                <option value="self">self</option>
+              </select>
+            </label>
+            <label>
+              <EditorFieldLabel :label="t('timeline.skillEditing.durationSeconds')" />
+              <BuffDefinitionScalarEditor
+                :value="step.parameters.definition.durationSeconds"
+                :minimum="0"
+                :data-property-path="
+                  definitionBinding
+                    ? JSON.stringify([...definitionBinding.path, 'durationSeconds'])
+                    : undefined
+                "
+                @update="setDefinitionScalar('durationSeconds', $event)"
+              />
+            </label>
+            <label>
+              <EditorFieldLabel :label="t('timeline.skillEditing.buffTriggerInterval')" />
+              <BuffDefinitionScalarEditor
+                :value="step.parameters.definition.triggerIntervalSeconds"
+                :minimum="0"
+                :data-property-path="
+                  definitionBinding
+                    ? JSON.stringify([...definitionBinding.path, 'triggerIntervalSeconds'])
+                    : undefined
+                "
+                @update="setDefinitionScalar('triggerIntervalSeconds', $event)"
+              />
+            </label>
+            <label>
+              <EditorFieldLabel label="首次触发前等待间隔" />
+              <select
+                :value="
+                  step.parameters.definition.waitFirstTriggerInterval === undefined
+                    ? ''
+                    : String(step.parameters.definition.waitFirstTriggerInterval)
+                "
+                @change="setWaitFirstTriggerInterval"
+              >
+                <option value="">未设置</option>
+                <option value="true">是</option>
+                <option value="false">否</option>
+              </select>
+            </label>
+            <label>
+              <EditorFieldLabel :label="t('timeline.skillEditing.buffMaxTriggerCount')" />
+              <BuffDefinitionScalarEditor
+                :value="step.parameters.definition.maxTriggerCount"
+                integer
+                :minimum="-1"
+                :data-property-path="
+                  definitionBinding
+                    ? JSON.stringify([...definitionBinding.path, 'maxTriggerCount'])
+                    : undefined
+                "
+                @update="setDefinitionScalar('maxTriggerCount', $event)"
+              />
+            </label>
+          </div>
+        </section>
+        <section class="buff-field-section">
+          <h3>标签规则</h3>
+          <div class="buff-definition__grid">
+            <label>
+              <EditorFieldLabel
+                :label="t('timeline.skillEditing.buffApplyTags')"
+                :help="t('timeline.skillEditing.fieldHelp.buffApplyTags')"
+              />
+              <GameplayTagsEditor
+                :tags="step.parameters.definition.applyTags ?? []"
+                :minimum="0"
+                @update="setDefinitionTags('applyTags', $event)"
+              />
+            </label>
+            <label>
+              <EditorFieldLabel
+                :label="t('timeline.skillEditing.buffExtendTags')"
+                :help="t('timeline.skillEditing.fieldHelp.buffExtendTags')"
+              />
+              <GameplayTagsEditor
+                :tags="step.parameters.definition.extendTags ?? []"
+                :minimum="0"
+                @update="setDefinitionTags('extendTags', $event)"
+              />
+            </label>
+          </div>
+        </section>
       </div>
       <CombatBuffPresentationEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :presentation="step.parameters.definition.presentation"
         @update="setDefinitionPresentation"
       />
       <CombatBuffChildPresentationsEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :children="step.parameters.definition.childPresentations ?? []"
         @update="setDefinitionChildPresentations"
       />
       <BuffBlackboardEditor
         v-if="step.parameters.definition"
+        :always-expanded="modifierCollectionsInGraph"
         :blackboard="step.parameters.definition.blackboard ?? {}"
         @update="setDefinitionBlackboard"
       />
       <BuffAttributeModifierEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :modifiers="step.parameters.definition.attributeModifiers ?? []"
         @update="setDefinitionAttributeModifiers"
       />
       <BuffDamageModifierEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :modifiers="step.parameters.definition.damageModifiers ?? []"
         :skill-level="skillLevel"
         :create-step="createStep"
@@ -530,32 +551,33 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
         @update="setDefinitionDamageModifiers"
       />
       <BuffSkillSlotReplacementEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :replacements="step.parameters.definition.skillSlotReplacements ?? []"
         @update="setDefinitionSkillSlotReplacements"
       />
       <BuffHealModifierEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :modifiers="step.parameters.definition.healModifiers ?? []"
         @update="setDefinitionHealModifiers"
       />
       <BuffPoiseModifierEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :modifiers="step.parameters.definition.poiseModifiers ?? []"
         @update="setDefinitionPoiseModifiers"
       />
       <BuffShieldEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :shields="step.parameters.definition.shields ?? []"
         @update="setDefinitionShields"
       />
       <BuffKeywordEnhancementEditor
-        v-if="step.parameters.definition"
+        v-if="step.parameters.definition && !modifierCollectionsInGraph"
         :enhancements="step.parameters.definition.keywordEnhancements ?? []"
         @update="setDefinitionKeywordEnhancements"
       />
       <BuffAdvancedPropertiesEditor
         v-if="step.parameters.definition"
+        :layer="modifierCollectionsInGraph ? 'affix' : undefined"
         :sustained-protection="step.parameters.definition.sustainedProtection"
         :role="step.parameters.definition.role"
         :spell-burst="step.parameters.definition.spellBurst"
@@ -640,8 +662,28 @@ function toggleLifecycle(key: BuffLifecycleKey, event: Event): void {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 10px 16px;
 }
+.buff-root-fields {
+  display: grid;
+  gap: 18px;
+}
+.buff-field-section {
+  min-width: 0;
+}
+.buff-field-section h3 {
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--ea-border-soft);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ea-fg);
+}
 .buff-definition {
   min-inline-size: 0;
+}
+.buff-definition--inspector {
+  border: 0;
+  padding: 0;
+  margin: 0;
 }
 @container (max-width: 650px) {
   .buff-definition__grid {

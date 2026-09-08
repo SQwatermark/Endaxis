@@ -45,12 +45,10 @@ describe('definition workspace layout contract', () => {
     }
   });
 
-  it('removes ancestor navigation and commit controls while editing a focused child definition', () => {
-    expect(operatorSource).toContain('const editingFocusedDefinition = computed(');
-    expect(operatorSource).toContain('<nav v-if="!focusedPage" class="workspace-nav">');
-    expect(operatorSource).toContain('<aside v-if="!showSkillEditor" class="object-list">');
-    expect(operatorSource).toContain(
-      'v-else-if="!editingFocusedDefinition" class="workspace-footer"',
-    );
+  it('keeps root navigation and one save footer available on independent object pages', () => {
+    expect(operatorSource).not.toContain('editingFocusedDefinition');
+    expect(operatorSource).toContain('@click="selectSection(\'home\')"');
+    expect(operatorSource.match(/class="workspace-footer"/g)).toHaveLength(1);
+    expect(operatorSource).not.toContain('保存行为返回后');
   });
 });

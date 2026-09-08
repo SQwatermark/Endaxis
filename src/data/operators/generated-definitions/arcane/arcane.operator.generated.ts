@@ -2663,7 +2663,6 @@ export default {
   comboSkillPriority: 'enemyRank',
   talents: [
     {
-      key: 'formationEnhancement',
       levels: 2,
       modifiers: [
         {
@@ -2708,7 +2707,6 @@ export default {
       ],
     },
     {
-      key: 'corrosionMastery',
       levels: 2,
       modifiers: [
         { kind: 'addReactionDuration', reaction: 'corrosion', seconds: [5, 10] },
@@ -2718,7 +2716,6 @@ export default {
   ],
   potentials: [
     {
-      key: 'strengthenedComboSkill',
       levels: 1,
       modifiers: [
         {
@@ -2778,7 +2775,6 @@ export default {
       ],
     },
     {
-      key: 'attributeAndArtsIntensity',
       levels: 1,
       modifiers: [
         { kind: 'addBuildAttribute', attributes: ['intellect'], value: 15 },
@@ -2787,7 +2783,6 @@ export default {
       ],
     },
     {
-      key: 'strongerCorrosionMastery',
       levels: 1,
       modifiers: [
         { kind: 'addReactionDuration', reaction: 'corrosion', seconds: 5 },
@@ -2795,7 +2790,6 @@ export default {
       ],
     },
     {
-      key: 'reducedUltimateCost',
       levels: 1,
       modifiers: [
         {
@@ -2815,7 +2809,6 @@ export default {
       ],
     },
     {
-      key: 'strengthenedFormTalentAndArcana',
       levels: 1,
       modifiers: [
         {

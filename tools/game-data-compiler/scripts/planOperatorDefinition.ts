@@ -223,13 +223,11 @@ export function planOperatorDefinition(
       const binding = requireRecord(value, 'talent');
       return {
         index: requireNonNegativeInteger(binding.index, 'talent.index'),
-        key: requireNonEmptyString(binding.key, 'talent.key'),
       };
     }),
-    // manifest 潜能 key 是产品展示顺序，原生 level 是否完整连续仍由装配层逐项验证。
-    potentialBindings: requireArray(row.potentials, 'potentials').map((value, index) => ({
+    // 固定槽位顺序绑定原生潜能等级，无额外展示身份。
+    potentialBindings: requireArray(row.potentials, 'potentials').map((_, index) => ({
       level: index + 1,
-      key: requireNonEmptyString(requireRecord(value, 'potential').key, 'potential.key'),
     })),
     loadSkill: id => read(path.join(args.sourceRoot, 'SkillData', `${id}.json`)),
     loadBuff: id => read(path.join(args.buffDataRoot, `${id}.json`)),

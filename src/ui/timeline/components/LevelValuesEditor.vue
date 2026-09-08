@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import type { LevelValues } from '../../../core/game-data/operatorDefinition';
+import { inject } from 'vue';
+import { definitionAllLevelsKey } from '../definitionLevelEditing';
 
 const props = defineProps<{ value: LevelValues; currentLevel: number }>();
 const emit = defineEmits<{ update: [value: LevelValues] }>();
+const allLevels = inject(definitionAllLevelsKey, false);
 
 function setKind(event: Event): void {
   const array = (event.target as HTMLSelectElement).value === 'levels';
   if (array && typeof props.value === 'number') emit('update', [props.value]);
   else if (!array && Array.isArray(props.value))
-    emit('update', props.value[props.currentLevel - 1] ?? props.value[0] ?? 0);
+    emit('update', props.value[allLevels ? 0 : props.currentLevel - 1] ?? props.value[0] ?? 0);
 }
 
 function setValue(event: Event, index?: number): void {
@@ -55,12 +58,12 @@ function remove(index: number): void {
       @input="setValue($event)"
     />
     <template v-else>
-      <p v-if="value[currentLevel - 1] === undefined">
+      <p v-if="!allLevels && value[currentLevel - 1] === undefined">
         当前 {{ currentLevel }} 级未定义；下方编辑已有等级。
       </p>
       <div v-for="(number, index) in value" :key="index" class="level-values-editor__row">
         <label
-          >{{ index + 1 }} 级{{ index + 1 === currentLevel ? '（当前）' : '' }}
+          >{{ index + 1 }} 级{{ !allLevels && index + 1 === currentLevel ? '（当前）' : '' }}
           <input type="number" step="any" :value="number" @input="setValue($event, index)" />
         </label>
         <button
