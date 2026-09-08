@@ -602,6 +602,14 @@ it('秘仪在本地58帧命中，队友即时连携的全局膨胀仍可延后�
   for (const withCombo of [false, true]) {
     const scenario = createEmptyScenario('arcana-global-clock', '秘仪与队友连携');
     scenario.tracks[0] = track('arcane', [['ultimate', 'arcana', 1]]);
+    scenario.tracks[0]!.operator!.talentStates = { '0': 2, '1': 2 };
+    // The public axis uses the will branch; an unequipped Arcane takes the intellect branch.
+    scenario.tracks[0]!.gears = {
+      armor: { gearSlug: 'item_equip_t4_suit_usp02_body_03', artificingLevels: [3, 3] },
+      gloves: { gearSlug: 'item_equip_t4_suit_usp02_hand_03', artificingLevels: [3, 3, 3] },
+      accessory1: { gearSlug: 'item_equip_t4_suit_usp02_edc_04', artificingLevels: [3, 3] },
+      accessory2: { gearSlug: 'item_equip_t4_suit_usp02_edc_04', artificingLevels: [3, 3] },
+    };
     if (withCombo) scenario.tracks[1] = track('last-rite', [['comboSkill', 'comboSkill', 50]]);
     const before = JSON.stringify(scenario);
     const run = await new ScenarioSimulationService({
@@ -616,6 +624,16 @@ it('秘仪在本地58帧命中，队友即时连携的全局膨胀仍可延后�
     );
     expect(hits).toHaveLength(1);
     frames.push(hits[0]!.frame);
+    const scheming = run.receiptEntries.filter(
+      e =>
+        e.event === 'BuffApplied' && e.data?.buffId === 'buff_chr_0032_lizhiyan_talent1_vulnerable',
+    );
+    expect(scheming).toHaveLength(1);
+    // The on-hit effect follows the actual actor clock, not the placement time or legacy offset.
+    expect(scheming[0]!.frame).toBe(hits[0]!.frame);
+    expect(run.receiptEntries.indexOf(scheming[0]!)).toBeLessThan(
+      run.receiptEntries.indexOf(hits[0]!),
+    );
     if (withCombo) {
       expect(run.comboWindowDiagnostics.some(e => e.frame === 50)).toBe(true);
       expect(
