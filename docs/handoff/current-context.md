@@ -1,5 +1,23 @@
 # 当前任务快照
 
+## 2026-09-09：赫拉芬格首击增益差异确认属于旧版统一顺延
+
+核对只读旧版4dadc55f的khravengger.ts：战技附着触发0.16冰伤、持续15秒，没有
+ignoreTimeShift。effectDispatch.ts的OPERATOR_EFFECT_APPLY用getShiftedTime计算
+expiresAt，SimulationEngine转调统一getShiftedEndTime。旧日志最后刷新30.967秒、
+到期57.767秒，实际26.8秒；时间含5秒准备期，即25.967→52.767。旧首击53.687秒
+（战斗48.687秒）因此仍享受它。新版对应780→1229帧（26→40.9667秒），首击1461帧。
+
+原始Buff两时钟开关均false；现有combat-spec/time-dilation.md按原生PreLateTick及
+Buff.OnTick证实TimeDilation原因下默认时钟不随全局缩放。因此这一寿命差异不应照抄。
+新增真实别礼/赫拉芬格+汤汤终结技对照，确认增益只持续449–450帧，两组起止帧相同，
+原始输入不变、0执行错误；相关文件12项通过。本轮不改变生产模拟或复刻库。
+
+至此，别礼主控诊断首击各乘区差异中的赫拉芬格0.16也已解释：来源错误曾影响前段，
+但修复后的首击缺失是正确到期。不能把旧217937当成必须复现的目标；整轴剩余差额
+仍需逐项核查。下一步清除旧affixSkillCastIdentity构造入口，再继续已有公开轴归因。
+应用vue-tsc与diff检查通过；本轮仅新增回归和证据，未重跑全量套件。
+
 ## 2026-09-09：SkillAffix直接技能动作接通，CreateBuff来源修正进入验证
 
 新增公共skillAffix步骤，Buff启用序列实际执行到该动作时，读取宿主processing编号、

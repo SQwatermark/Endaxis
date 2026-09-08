@@ -174,6 +174,58 @@ it.each([
   expect(normal.end - normal.start).toBeLessThanOrEqual(seconds * 30);
 });
 
+it('赫拉芬格战技附着增益使用15秒默认时钟，不被全屏终结技顺延', async () => {
+  async function simulate(withUltimate: boolean) {
+    const scenario = createEmptyScenario('khravengger-clock', '武器增益默认时钟');
+    const owner = track('last-rite', [
+      ['basicAttack', 'basicAttack1', 3],
+      ['battleSkill', 'battleSkill', 16],
+      ['basicAttack', 'basicAttack4', 100],
+    ]);
+    owner.weapon = {
+      weaponSlug: 'wpn_claym_0013',
+      level: 90,
+      tuned: true,
+      potential: 0,
+      traitLevels: [9, 9, 4],
+    };
+    owner.operator!.talentStates = { '0': 2, '1': 2 };
+    scenario.tracks[0] = owner;
+    scenario.tracks[1] = track('tangtang', withUltimate ? [['ultimate', 'ultimate', 200]] : []);
+    const before = JSON.stringify(scenario);
+    const result = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 700);
+    expect(result.executionDiagnostics).toEqual([]);
+    expect(JSON.stringify(scenario)).toBe(before);
+    const buffs = result.receiptEntries.filter(
+      e => e.data?.buffId === 'buff_wpn_claym_0013_normal_skill',
+    );
+    const starts = buffs.filter(e => e.event === 'BuffApplied');
+    expect(starts).toHaveLength(1);
+    const end = buffs.find(e => e.event === 'BuffFinished');
+    expect(end?.data?.reason).toBe('lifetime');
+    return { start: starts[0]!.frame, end: end!.frame, entries: result.receiptEntries };
+  }
+  const normal = await simulate(false);
+  const slowed = await simulate(true);
+  expect(
+    slowed.entries.some(
+      e =>
+        e.event === 'TimeDilationStarted' &&
+        e.sourceId === 'tangtang' &&
+        e.data?.kind === 'global' &&
+        e.frame > normal.start &&
+        e.frame < normal.end,
+    ),
+  ).toBe(true);
+  expect([slowed.start, slowed.end]).toEqual([normal.start, normal.end]);
+  expect(normal.end - normal.start).toBeGreaterThanOrEqual(449);
+  expect(normal.end - normal.start).toBeLessThanOrEqual(450);
+});
+
 it('诀秘仪命中时，负时长的筹谋增幅仍然生效', async () => {
   const damage: number[] = [];
   for (const talentLevel of [1, 2]) {

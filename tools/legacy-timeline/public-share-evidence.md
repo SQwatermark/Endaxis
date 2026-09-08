@@ -1,5 +1,28 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：赫拉芬格15秒增益不复制旧版26.8秒顺延
+
+只读旧版4dadc55f：src/data/weapons/greatsword/6/khravengger.ts将战技寒冷附着分支
+定义为15秒冰伤，当前构筑值16%；没有ignoreTimeShift。src/simulation/events/
+effectDispatch.ts的状态派发（OPERATOR_EFFECT_APPLY）因此用getShiftedTime求到期；
+engine/SimulationEngine.ts转调timeline.timeContext.getShiftedEndTime。
+
+旧OPERATORS记录战技分支刷新/到期：9.1166667→26、19.583→37.466、30.967→57.767。
+均含5秒准备期，末段实际持续26.8秒。第三次刷新对应新780帧，约有一帧命中边界差。
+旧终结技首击53.687（战斗48.687）在旧增益内；新版增益1229帧（40.9667秒）已结束，
+1461帧（48.7秒）首击不再带0.16。来源修正增加前段伤害，不应再强行延长寿命提高首击。
+
+原始buff_wpn_claym_0013_normal_skill.json SHA256
+B28397A431AA97D7C2078A3BC36258794703B202E4C77F7B645F9409AF8DBBDF，
+useTimeDilationDt=false且onlyUseSelfTimeDilation=false。现有spec/time-dilation.md
+Buff时钟选择及2026-09-08的TimeManager原因修正，依据Buff.OnTick/PreLateTick分支
+证明TimeDilation原因下此默认时钟不乘全局缩放；不是根据武器名称猜测。
+
+新增realAxisInterruptionRegression.test.ts真实别礼战技幻影触发武器增益，对照有/无
+汤汤全屏终结技，增益起止帧相同、持续449–450帧、输入不变、0执行错误；12项通过。
+结论：本项归为旧版时间模型与原生机制的合理差异，不修改新版。未证明所有剩余整轴
+差异均合理；仍需继续审计。临时摘录脚本tmp/inspect-khravengger-clock.mjs，不提交原轴。
+
 ## 2026-09-09：来源修正与SkillAffix直接动作联通后的真实轴验证
 
 本轮恢复CreateBuff动作环境继承，移除三项已知缺陷测试的fails；新增skillAffix动作
