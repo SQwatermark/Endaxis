@@ -1,5 +1,35 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：别礼第四轮普攻A2第二击被后续即时输入截断
+
+对象仍是6a8db78895147370855b45ed；此项分析使用明确标注的别礼主控对照
+tmp/public-last-rite-controlled-affix-fixed.json，不把它当原始输入结果。
+旧版参考4dadc55f，tmp/public-6a8db78895147370855b45ed-old.log。
+旧HITS先排除无有限_expectedDamage的效果标记，并将finalStrike并入basicAttack，
+得到别礼普通攻击41笔对新版40笔。不能直接用原始HITS数组长度统计伤害次数。
+
+第四轮旧A1/A2/A3伤害时刻（去掉5秒准备期）：17.767、18.397/18.867、19.367/19.967。
+新版A1输入521、命中540；A2输入542、命中556；A3输入572并中断A2，之后581/605命中。
+前置连携输入454，518帧命中的实体停帧至529；A1命中产生的实体停帧延续至548，
+跨过A2输入542。A2第二个本地24帧动作未在A3输入前执行。
+
+旧src/data/operators/last-rite.ts给A2 duration=1、命中offset=0.33/0.8。
+当前原始SkillData/chr_0026_lastrite_attack2.json包含本地10/24帧动作，伤害后的
+实体HitStop持续0.067秒；生成定义保持这些时刻及finishByAction=false。
+原始文件SHA256：884F080E87B24FF125F20B1D0524154B90889D5C97E0BFC81003F93685DE3F14。
+combat-spec/docs/time-dilation.md原生执行流程证明false时动作结束不停止实例；
+不能因为换技能就清掉残留停帧来获得旧版命中数。
+
+realAxisInterruptionRegression.test.ts新增生产数据最小对照：整体减453帧，
+combo1/A1 68/A2 89/A3 119。无前置连携A2两击；有连携一击；仅诊断延后A3到130
+恢复两击，第二击>=119。每次模拟前后输入JSON相同、0执行错误，A2在119帧被中断且
+A3在119帧开始。文件13项全通过，无跳过或预期失败；未跑全量/类型检查/视觉验收。
+
+结论：已解释缺击的当前运行时因果链，暂不修改生产逻辑；不是未转换第二击。
+原生精确Tick组调度与30fps边界仍有证据边界，本回归不证明Unity同帧先后顺序完全一致。
+整轴其余伤害与命中差异仍待核查。临时摘录脚本compare-public-hit-groups.mjs、
+align-public-basic-hits.mjs均在tmp，不提交原始轴或报告。
+
 ## 2026-09-09：赫拉芬格15秒增益不复制旧版26.8秒顺延
 
 只读旧版4dadc55f：src/data/weapons/greatsword/6/khravengger.ts将战技寒冷附着分支

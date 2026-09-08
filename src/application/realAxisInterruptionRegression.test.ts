@@ -226,6 +226,47 @@ it('赫拉芬格战技附着增益使用15秒默认时钟，不被全屏终结�
   expect(normal.end - normal.start).toBeLessThanOrEqual(450);
 });
 
+it('别礼连携后的残留停帧可使连续A2第二击晚于后续A3输入', async () => {
+  // 公开轴主控诊断的454/521/542/572帧整体减453，仅保留影响边界的技能。
+  // 延后A3只用于证明第二击可达，绝不能据此移动原始轴输入或补发已中断的命中。
+  async function simulate(withCombo: boolean, a3Frame: number) {
+    const scenario = createEmptyScenario('last-rite-a2-boundary', '连携后普攻边界');
+    scenario.tracks[0] = track('last-rite', [
+      ...(withCombo ? [['comboSkill', 'comboSkill', 1] as const] : []),
+      ['basicAttack', 'basicAttack1', 68],
+      ['basicAttack', 'basicAttack2', 89],
+      ['basicAttack', 'basicAttack3', a3Frame],
+    ]);
+    const before = JSON.stringify(scenario);
+    const result = await new ScenarioSimulationService({
+      index: gameDataRepository,
+      spellInflictionSettings: skillSettings,
+      resources,
+    }).simulate(scenario, 180);
+    expect(result.executionDiagnostics).toEqual([]);
+    expect(JSON.stringify(scenario)).toBe(before);
+    return result.receiptEntries;
+  }
+  const ordinary = await simulate(false, 119);
+  const interrupted = await simulate(true, 119);
+  const delayed = await simulate(true, 130);
+  const a2Hits = (entries: typeof ordinary) =>
+    entries.filter(e => e.event === 'DamageApplied' && e.data?.castId === 'last-rite:basicAttack2');
+  expect(a2Hits(ordinary)).toHaveLength(2);
+  expect(a2Hits(interrupted)).toHaveLength(1);
+  expect(a2Hits(delayed)).toHaveLength(2);
+  expect(a2Hits(delayed)[1]!.frame).toBeGreaterThanOrEqual(119);
+  expect(
+    interrupted.find(
+      e => e.event === 'SkillInterrupted' && e.data?.castId === 'last-rite:basicAttack2',
+    )?.frame,
+  ).toBe(119);
+  expect(
+    interrupted.find(e => e.event === 'SkillStarted' && e.data?.castId === 'last-rite:basicAttack3')
+      ?.frame,
+  ).toBe(119);
+});
+
 it('诀秘仪命中时，负时长的筹谋增幅仍然生效', async () => {
   const damage: number[] = [];
   for (const talentLevel of [1, 2]) {
