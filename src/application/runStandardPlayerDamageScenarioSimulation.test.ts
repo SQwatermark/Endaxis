@@ -1082,7 +1082,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       };
       scenario.battle.resourceRules = {
         ...scenario.battle.resourceRules,
-        initialSp: 100,
+        initialSp: 300,
         spRecoveryPerSecond: 0,
       };
       scenario.tracks[0] = {
@@ -1137,8 +1137,18 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         startFrame: 20,
         ids,
       }).scenario;
-      return runStandardPlayerDamageScenarioSimulation({
+      // 原始 timelineActions[25] 检查 NoGuard Buff，不检查 PoiseBroken。
+      // 第一段战技正常产生破防层；第二次才满足追击门，不手工注入 Buff/黑板。
+      const withFollowUp = placeSkillGroup({
         scenario: placed,
+        trackIndex: 1,
+        operator: rossiGeneratedOperator,
+        skillGroupKey: 'battleSkill',
+        startFrame: 200,
+        ids,
+      }).scenario;
+      return runStandardPlayerDamageScenarioSimulation({
+        scenario: withFollowUp,
         endFrame: 1100,
         criticalSamples: new ExplicitCriticalSampleSource(Array(200).fill(1)),
         resolveNonRandomRuntimeSnapshot: () => ({
@@ -1167,13 +1177,31 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
 
     const bleedDamage = (talentLevel: 1 | 2) => {
       const entries = run(talentLevel).receiptEntries;
-      return entries.filter(
+      expect(
+        entries.some(
+          entry =>
+            entry.event === 'BuffApplied' &&
+            entry.frame < 200 &&
+            entry.data?.buffId === 'buff_physical_no_guard',
+        ),
+      ).toBe(true);
+      expect(
+        entries.some(
+          entry =>
+            entry.event === 'BuffApplied' &&
+            entry.frame < 200 &&
+            entry.data?.buffId === 'buff_chr_0028_wulfa_tut_normalskill_failure',
+        ),
+      ).toBe(true);
+      const hits = entries.filter(
         entry =>
           entry.event === 'DamageApplied' &&
           String(entry.data?.stepKey).includes(
             'buff_chr_0028_wulfa_normal_bleed:/lifecycleSequences/trigger',
           ),
       );
+      expect(hits.filter(entry => entry.frame < 200)).toEqual([]);
+      return hits;
     };
     const level1 = bleedDamage(1);
     const level2 = bleedDamage(2);

@@ -3,6 +3,35 @@
 2026-09-08；来源为用户提供的 Endaxis_Timeline_2026-08-31.json。
 配置保存对象身份及已核实的单动作变体，不提交完整用户存档及派生数据。
 
+## 晚间续接：失衡承伤已接入，赛希末次附着到期
+
+Endaxis `6a75cd89` 后：第三轴配置截止 2231 帧期望 2082008.8836663882，
+完整 3600 帧 2112155.410831612；命中仍 264/265，前两轴不变。
+下面旧基线只作历史记录，不能继续把 1906578.40 当当前值。
+
+正式入口读取同一转换项目，事件链为：
+
+|   帧 | 事实                                                        |
+| ---: | ----------------------------------------------------------- |
+| 1428 | 汤汤施加寒冷附着实例 75，previousElement=null               |
+| 2027 | 实例 75 BuffFinished，reason=lifetime                       |
+| 2057 | 赛希施加新寒冷附着实例 93，previousLayers=0，attachmentOnly |
+| 2057 | 赛希直接命中期望 33229.191666180865，没有额外爆发           |
+
+源 `BuffData/buff_common_energy_shard_attached_cryst.json` SHA256
+`03B023473D2C3C424F2F7352BED155D2DE0DAC15E23788F8F0F44E8940941F01`，
+duration 读取黑板 duration=20，useTimeDilationDt=false、onlyUseSelfTimeDilation=false。
+旧只读工作树 `4dadc55f` 的 src/simulation/effects/types.ts::ElementCryo 则设为 Infinity，
+同元素矩阵在已有寒冷附着时生成寒冷爆发。这解释了可见差异的方向；本次没有重新实跑旧轴，
+旧轴是否有逐 hit 时长覆盖仍需核对，不能把来源默认值直接当成旧运行回执。
+新版已经有明确的附着到期事实，不补发第 2057 帧爆发，也不延长 Buff 追平旧数。
+临时事件审计脚本及回执 tmp/audit-xaihi-attachments.mjs、tmp/xaihi-attachments.json 不提交。
+
+另修复洛茜天赋回归夹具：原始 SkillData SHA256
+`AA6A4DDF0648B2ACBE08A6639AA082A8E86C6DDE9EBA2B353E926A88ABD5F2F4`，
+timelineActions[25] 检查 NoGuard BuffCount>=1，不是 PoiseBroken。夹具通过第一轮真实战技
+产生破防，第二轮才验收流血；没有修改游戏规则。全 src 5372 项通过。
+
 ## 2026-09-08 台式机接续：更正统计范围说明
 
 当前代码 `428a26a2` 重新转换 Downloads 的同名旧存档，102 个输入、零转换问题。

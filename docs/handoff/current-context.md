@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-08 晚间：洛茜回归前置纠正，全量测试恢复通过
+
+唯一失败已定位为测试夹具混淆“失衡归零”和 NoGuard 破防 Buff，未修改模拟或生成定义。
+原始洛茜战技 timelineActions[25] 的 CheckBuffStackNumAdvanced 检查 Tag 1075718177
+（Skill/Character/Common/NoGuard）的 BuffCount >= 1，成立才设置 FollowAttackTrigger=1；
+37 帧再按该值决定跳入追击。佩丽卡打空失衡条不满足此条件。
+夹具保留第一轮失败路径，再于 200 帧放第二次真实洛茜战技，利用第一轮自然产生的破防层。
+断言第一轮无流血、有破防和 failure Buff，第二轮的两级天赋均出流血且等级差异有效。
+初始技力改为三次战技所需的 300；没有手加 Buff 或修改黑板来强开分支。
+全 src 5372/5372 通过（tmp/poise-rossi-suite.json），替代下节 5371/5372 的历史结果。
+应用 vue-tsc、格式及 git diff --check 通过；本轮生产代码和生成定义均未修改。
+
+第三轴赛希末次无爆发也已有直接因果：汤汤第 1428 帧留下寒冷附着实例 75，
+第 2027 帧以 lifetime 结束，赛希第 2057 帧命中时已无附着，只能 attachmentOnly。
+源 Buff 默认 duration=20、useTimeDilationDt=false；旧只读工作树 ElementCryo 定义为 Infinity。
+这是一处可解释的新旧数据模型差异，不应为追平旧 hit 补发爆发。尚未重新实跑旧引擎逐事件
+核对该轴是否存在额外覆盖；详细来源哈希及证据边界见 tools/legacy-timeline/mapping-evidence.md。
+赛希第三次直接命中现为 33229.191666180865，仍不同于旧 42593，后续继续按乘区和时序拆解。
+
 ## 2026-09-08 晚间：Endaxis 失衡承伤生命周期已接入
 
 标准环境通过专用前置端口在 poiseZero 事件前调用普通 Buff 容器，以实际 Modifier.sourceId
