@@ -752,3 +752,25 @@ tmp/public-last-rite-final/project.json；SHA256
 60fps、准备300帧；当前24帧A2有中断/路由告警。检查战技插入是否应取消普攻链，
 原生命中与后续效果是否正确保留，再顺着附着检查四人的连携开窗。
 这只是调查入口，不是已确认根因；不移动技能、不放宽门禁、不直接按旧总伤害补倍率。
+
+# 2026-09-09 补充：洛茜披风链的直接引用边界
+
+来源：`tmp/game-data-sources-hybrid-20260905`。逐值解析6239份JSON，扫描
+`chr_0028_wulfa_passive_cape`、`buff_chr_0028_wulfa_passive_usp_detect`、
+`buff_chr_0028_wulfa_passive_cape_stack_effect`。报告与脚本分别为
+`tmp/cape-reference-audit.json`、`tmp/audit-cape-references.mjs`。
+
+引用仅为角色被动登记、被动安装usp_detect、同一usp_detect内终端Buff的结束、层数判断和
+创建，以及各文件自身ID。终端外部直接读取未发现；不能误写为没有层数读取，因为
+usp_detect内确实有三处CheckBuffStackNumAdvanced，用来限制自身创建层数。
+终端没有动作类型或图标；因此暂不以此项为理由扩展队伍能量事件，不修改正式数据。
+
+SHA-256：
+
+- SkillData：`e7bfddc501318ac7c77c82c5c4b7a576678fd0299ac9ef7ea8dca719b710c238`
+- usp_detect：`fe012fc33c59c0921ee224c2c50e7e8a0d5daf3c54cfced7e04301f6db43825d`
+- cape_stack_effect：`a10c0bdb2fdd7e413d80082c0358eb364d753e29747828eef9c88bc8a2f30c6d`
+
+证据范围仅覆盖这批JSON内精确ID值引用，不证明通用Buff计数/事件消费者、动态引用或
+运行时硬编码完全不存在。不据此删除通用机制或宣称全游戏完全无影响。本轮无生产修改，
+未新增测试、未重跑真实轴或视觉验证；最新数值继续以前一轮卡缪最终报告为准。
