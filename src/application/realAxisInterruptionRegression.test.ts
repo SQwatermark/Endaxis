@@ -993,6 +993,41 @@ function track(slug: string, casts: readonly (readonly [string, string, number])
   };
 }
 
+it.each([
+  ['basicAttack1', 'basicAttack2', 20],
+  ['basicAttack2', 'basicAttack3', 29],
+  ['basicAttack3', 'basicAttack4', 36],
+] as const)('别礼%s接%s的原生窗口%i帧只告警、不拒绝输入', async (current, next, boundary) => {
+  for (const offset of [boundary, boundary + 1]) {
+    const scenario = createEmptyScenario('last-rite-input-window', '非主控普攻接续边界');
+    scenario.tracks[0] = track('arcane', []);
+    scenario.tracks[1] = track('last-rite', [
+      ['basicAttack', current, 10],
+      ['basicAttack', next, 10 + offset],
+    ]);
+    const before = JSON.stringify(scenario);
+    const result = await createEditorSimulationService().simulate(scenario, 120);
+    expect(JSON.stringify(scenario)).toBe(before);
+    expect(result.executionDiagnostics).toEqual([]);
+    const warnings = result.receiptEntries.filter(
+      e =>
+        e.event === 'SkillInputCannotInterruptCurrentSkill' &&
+        e.data?.castId === `last-rite:${next}`,
+    );
+    expect(warnings).toHaveLength(offset === boundary ? 1 : 0);
+    if (offset === boundary)
+      expect(warnings[0]!.data?.currentSkillTimelineFrame).toBe(boundary - 1);
+    expect(
+      result.receiptEntries.some(
+        e =>
+          e.event === 'SkillStarted' &&
+          e.frame === 10 + offset &&
+          e.data?.castId === `last-rite:${next}`,
+      ),
+    ).toBe(true);
+  }
+});
+
 it('records the input-phase local frame at an exact allowed-next boundary', async () => {
   // 记录当前固定步长调度约定，不把它宣称为已闭环的原生渲染帧顺序。
   for (const offset of [22, 23]) {
