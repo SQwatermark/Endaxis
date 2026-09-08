@@ -112,16 +112,11 @@ export function projectHitEffectsByCast(
   if (targetTrack === null || targetCast === null || targetTrack.operator === null) {
     return new Map<string, TimelineHitEffectLabel>();
   }
-  const operatorId = targetTrack.id;
-  const damages = receipts.damages.filter(
-    receipt => receipt.sourceId === operatorId && receipt.castId === castId,
-  );
-  const inflictions = receipts.inflictions.filter(
-    receipt => receipt.sourceId === operatorId && receipt.castId === castId,
-  );
-  const reactions = receipts.reactions.filter(
-    receipt => receipt.sourceId === operatorId && receipt.castId === castId,
-  );
+  // 来源可以是技能创建的能力实体；归属与详情面板一样使用冻结的释放/命中身份，
+  // 不能额外要求 sourceId 是干员本人，也不能用同帧的其他释放补齐。
+  const damages = receipts.damages.filter(receipt => receipt.castId === castId);
+  const inflictions = receipts.inflictions.filter(receipt => receipt.castId === castId);
+  const reactions = receipts.reactions.filter(receipt => receipt.castId === castId);
 
   const byHitId = new Map<string, TimelineHitEffectLabel>();
   for (const marker of markers) {

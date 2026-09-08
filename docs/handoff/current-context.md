@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-09：能力实体来源的技能命中提示不再丢失
+
+核对伤害显示时发现 timelineHitEffects 对 castId 已明确的回执又要求 sourceId 等于
+干员轨道，导致能力实体命中详情可打开、技能块提示却为空。删除这个多余来源限制，
+仍按 castId/hitId/首次执行帧匹配，与既有详情入口一致；不修改模拟及伤害数值。
+新增来源替换回归，修复前 Map 为空而失败，修复后通过。连同 publishedHitDetail 与
+registeredGeneratedOperators 共3文件59项通过，无跳过/预期失败；无新视觉验收。
+完整应用 vue-tsc 通过（上一轮句柄失效且进程已不存在，重新串行运行后取得 exit 0）。
+按原始项目 cast→track 映射核对77笔伤害，sourceId 全部仍为所属轨道，本修复不会
+解释该原轴的任何数值差项；原轴后半段及 hover 视觉仍待验收。
+此为代码路径回归，不声称已在公开原轴中确认某一笔缺项。伤害口径设计仍未闭合：
+旧 timelineStore.getHitDisplayDamage 默认 expectedDamage（手动强暴用 critDamage），
+ActionItem 提示向下取整；新版直接命中提示仍 value/四舍五入，效果标记/详情为期望。
+不要在未处理状态性概率语义前把实际扣血改成期望。未推送。
+
 ## 2026-09-09：正式原轴浏览器恢复，明确实际伤害与期望总账
 
 通过现有 IAB 的受支持接口打开 tmp/public-full-visual.html，正式 TimelineEditor 已

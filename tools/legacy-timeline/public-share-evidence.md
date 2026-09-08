@@ -1,5 +1,19 @@
 # 官网公开轴扩样：2026-09-08
 
+## 2026-09-09：伤害显示口径与能力实体命中归属
+
+原轴77笔 value 合计792780.458805134，expectedDamage合计812599.970275262；
+正式深色页剩余血量9,207,220符合实际扣血，不能把期望总账当实际扣血。
+旧版timelineStore.ts的getHitDisplayDamage默认期望，手动强暴时critDamage；
+ActionItem.vue的getDamageHitTitle向下取整。新版timelineDamageAnalysis使用value，
+TimelineHitDetailDialog及TimelineEnemyEffects使用expectedDamage，口径仍待统一设计。
+
+本轮代码审查发现明确的独立显示缺陷：技能提示timelineHitEffects以干员sourceId过滤
+已带castId/hitId的能力实体回执，而详情没有这个限制。来源替换回归修复前失败，移除
+多余过滤后与干员来源提示一致，仍按释放、命中和首次帧归属；其他释放不混入。
+3文件59项通过，无跳过/预期失败。不是新模拟机制，不改变伤害；未对该修复做视觉
+验收，也未声称原公开轴有对应具体缺项。
+
 ## 2026-09-09：敌人持续条尊重明确的原生头顶栏排除
 
 原轴在146帧有一个四二式will_icon和两份will_dmg段，后续又有will_atk；原始

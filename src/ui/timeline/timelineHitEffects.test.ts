@@ -180,6 +180,19 @@ function inflictionEntry(sequence: number, frame: number): CombatReceiptEntry {
 }
 
 describe('projectHitEffectsByCast', () => {
+  it('keeps ability-owned hit effects when cast and hit identities match', () => {
+    const scenario = scenarioWithCast();
+    const entries = [damageEntry(1, 60), inflictionEntry(2, 60)];
+    const delegated = entries.map(entry => ({ ...entry, sourceId: 'ability-entity:7' }));
+    const markers = markersForCast(scenario, 'cast:1');
+    expect(projectHitEffectsByCast(scenario, delegated, 'cast:1', markers)).toEqual(
+      projectHitEffectsByCast(scenario, entries, 'cast:1', markers),
+    );
+    expect(projectHitEffectsByCast(scenario, delegated, 'cast:1', markers).size).toBe(1);
+    expect(projectTimelineHitDetailEntries(delegated, 'cast:1', markers[0]!.hitId)).toEqual(
+      delegated,
+    );
+  });
   it('复用同次模拟的解析结果不改变命中归因，也不混入其他释放', () => {
     const scenario = scenarioWithCast();
     const entries = [damageEntry(1, 40), damageEntry(2, 41, 'step:damage', 'other')];
