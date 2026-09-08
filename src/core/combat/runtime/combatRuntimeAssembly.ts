@@ -3,6 +3,7 @@
  * 这里只负责依赖接线与原生阶段顺序，不解析存档，也不为还没做通的战斗操作提供默认行为。
  */
 import { UltimatePresentationRuntime } from './ultimatePresentationRuntime';
+import { PassiveAbilityEventRuntime } from './passiveAbilityEventRuntime';
 import { HideUiOperationExecutor } from './hideUiOperationExecutor';
 import type {
   CompiledComboSkillConditionProgram,
@@ -400,6 +401,10 @@ export interface CombatRuntimeAssemblyOptions {
   ) => CombatOperationExecutor;
   /** 配装原生 AbilitySystem 事件的注册端口；仅有语义事件的旧定义不需要。 */
   readonly registerEquipmentAbilityEventAction?: RegisterEquipmentAbilityEventAction;
+  readonly registerPassiveAbilityEventAction?: (
+    operatorId: string,
+    ...args: Parameters<ConstructorParameters<typeof PassiveAbilityEventRuntime>[3]>
+  ) => import('../events/abilityEventDispatcher').AbilityEventRegistration;
   /** 原生立即连携入口；普通窗口连携不依赖此端口。 */
   readonly castComboSkillImmediately?: (operatorId: string, skillKey: string) => void;
   /** 接入真实 AbilityEvent 的 combo 阶段；标准环境提供，不能用后置 semantic event 替代。 */
@@ -501,6 +506,7 @@ export class CombatRuntimeAssembly {
   readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveSequences: ActionSequence[] = [];
+  readonly #passiveAbilityEvents: PassiveAbilityEventRuntime[] = [];
   /** 原生被动 Ability 持有的 asChildBuff；被动在整场固定战斗中常驻。 */
   readonly #passiveAbilityChildBuffs: BuffApplicationHandle[] = [];
   /** 只复用解释链的构造上下文；每个 Buff 实例必须独占有状态的动作执行器。 */
@@ -1079,7 +1085,10 @@ export class CombatRuntimeAssembly {
           });
         }
         for (const passive of operator.passivePrograms ?? []) {
-          const blackboard = new ActionBlackboard(passive.initialBlackboard);
+          const blackboard = new ActionBlackboard(
+            passive.initialBlackboard,
+            this.#entityBlackboards.get(operator.operatorId),
+          );
           const operations = this.#createReactiveOperationChain(
             operator,
             `passive:${passive.key}`,
@@ -1097,6 +1106,24 @@ export class CombatRuntimeAssembly {
             operator.operatorId,
           );
           const sequence = runtime.createSequence(passive.enableSequence);
+          if (passive.abilityEventResponses?.length) {
+            const register = options.registerPassiveAbilityEventAction;
+            if (register === undefined)
+              throw new Error(`passive '${passive.key}' requires ability event registration`);
+            this.#passiveAbilityEvents.push(
+              new PassiveAbilityEventRuntime(
+                operations,
+                {
+                  blackboard,
+                  actionOwnerId: operator.operatorId,
+                  actionSourceId: operator.operatorId,
+                  addAbilityChildBuff: child => this.#passiveAbilityChildBuffs.push(child),
+                },
+                passive.abilityEventResponses,
+                (event, priority, handle) => register(operator.operatorId, event, priority, handle),
+              ),
+            );
+          }
           if (!sequence.tryExecute({})) {
             throw new Error(`passive skill '${passive.key}' enable sequence returned false`);
           }
@@ -1317,6 +1344,7 @@ export class CombatRuntimeAssembly {
       inputRuntime.applyCurrentFrame();
       externalEvents.applyCurrentFrame();
     } catch (error) {
+      this.disposePassiveAbilityEvents();
       this.disposeComboSkillConditions();
       throw error;
     }
@@ -1750,6 +1778,10 @@ export class CombatRuntimeAssembly {
   /** 对称注销本 assembly 的原生常驻条件；不会清除同一事件中心里其他所有者的注册。 */
   disposeComboSkillConditions(): void {
     for (const registration of this.#comboConditionRegistrations.splice(0)) registration.dispose();
+  }
+
+  disposePassiveAbilityEvents(): void {
+    for (const runtime of this.#passiveAbilityEvents.splice(0)) runtime.dispose();
   }
 
   #installComboSkillConditions(): void {

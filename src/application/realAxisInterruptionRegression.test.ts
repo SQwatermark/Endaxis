@@ -12,6 +12,38 @@ const resources = {
   normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
 };
 
+it('卡缪基础被动在蝠翼实体结束时清理持续时间图标', async () => {
+  const scenario = createEmptyScenario('camille-passive-finish', '蝠翼实体清理');
+  scenario.tracks[0] = track('arcane', []);
+  scenario.tracks[1] = track('camille', [['battleSkill', 'battleSkill', 16]]);
+  const before = JSON.stringify(scenario);
+  const result = await new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources,
+  }).simulate(scenario, 2000);
+  expect(result.executionDiagnostics).toEqual([]);
+  expect(JSON.stringify(scenario)).toBe(before);
+  const entries = result.receiptEntries;
+  const ended = entries.find(
+    e =>
+      e.event === 'AbilityEntityFinished' &&
+      e.data?.abilityEntityId === 'abilityentity_chr_0033_camille_normal_skill',
+  );
+  expect(ended).toBeDefined();
+  const icon = entries.filter(
+    e => e.data?.buffId === 'buff_chr_0033_camille_normal_skill_bat_duration_icon',
+  );
+  expect(icon.find(e => e.event === 'BuffApplied')).toBeDefined();
+  expect(icon.filter(e => e.event === 'BuffFinished')).toEqual([
+    expect.objectContaining({
+      frame: ended!.frame,
+      targetId: 'camille',
+      data: expect.objectContaining({ reason: 'other' }),
+    }),
+  ]);
+});
+
 it('别礼原生基础被动拒绝通用回能，保留专属回能与不足能量时的强制扣费', async () => {
   const scenario = createEmptyScenario('last-rite-recovery', '公开轴回能来源最小回归');
   scenario.tracks[0] = track('xaihi', [['battleSkill', 'battleSkill', 3]]);

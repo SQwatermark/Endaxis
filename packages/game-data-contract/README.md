@@ -142,6 +142,12 @@ Buff 实例的独立 SkillAffix 身份槽，供明确要求该身份的条件读
 
 ## 数值与引用约定
 
+`OperatorPassiveSkillDefinition.abilityEventResponses` 保存被动 Skill 的同步原生事件程序，
+与 `enableSequence` 共用该被动的 direct 黑板，并回退到所属角色 EntityBB；事件来源施法
+不覆盖被动普通来源。当前只准入已接入来源/实体目标生命周期的 `abilityEntitySpawned` /
+`abilityEntityFinished`，身份仍来自公共 AbilityEvent，不引入新的语义事件别名。
+响应序列按被动所属等级编译，注册与释放归被动宿主，不伪装成武器或 Buff。
+
 - `LevelValues = number | readonly number[]`：单值与等级无关；数组在具体定义的等级轴上按 1 基等级取下标。
   它本身不标识等级轴：技能、武器词条、装备精锻与养成节点分别由所属定义和构筑选择确定。
 - 原生补丁的等级 ID、默认值、缺档和输入覆盖顺序由转换器保留；不得把任意补丁行号当正式等级。

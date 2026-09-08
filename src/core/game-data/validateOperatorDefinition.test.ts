@@ -4,6 +4,25 @@ import { perlica } from '../../data/operators/perlica';
 import { validateOperatorDefinition } from './validateOperatorDefinition';
 
 describe('validateOperatorDefinition', () => {
+  it('校验被动能力事件的身份、优先级和动作序列', () => {
+    const definition = structuredClone(perlica);
+    definition.passiveSkills = [
+      {
+        key: 'events',
+        enableSequence: { steps: [] },
+        abilityEventResponses: [
+          { event: 'abilityEntityFinished', priority: 0, sequence: { steps: [] } },
+        ],
+      },
+    ];
+    expect(validateOperatorDefinition(definition)).toEqual([]);
+    definition.passiveSkills[0]!.abilityEventResponses![0]!.priority = 0.5;
+    expect(validateOperatorDefinition(definition)).toContainEqual(
+      expect.objectContaining({
+        path: '$.passiveSkills[0].abilityEventResponses[0].priority',
+      }),
+    );
+  });
   it('validates upgrade blackboard edits without requiring skill keys to already exist or mutating them', () => {
     const definition = structuredClone(perlica);
     definition.talents[0]!.modifiers = [

@@ -239,6 +239,12 @@ export interface OperatorPassiveSkillDefinition {
   blackboard?: Readonly<Record<string, LevelValues>>;
   /** 原生被动 Skill.Enable 时执行的有序行为。 */
   enableSequence: ActionSequenceDefinition;
+  /** 被动 Skill 注册的原生能力实体生命周期事件；与启用程序共享被动黑板。 */
+  abilityEventResponses?: readonly {
+    event: Extract<AbilityEvent, 'abilityEntitySpawned' | 'abilityEntityFinished'>;
+    priority: number;
+    sequence: ActionSequenceDefinition;
+  }[];
 }
 
 export interface OperatorUpgradeDefinition {

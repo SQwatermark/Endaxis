@@ -2862,6 +2862,47 @@ export default {
     EntityBB_trigger_count: 0,
     EntityBB_ult_combo_count: 0,
   },
+  passiveSkills: [
+    {
+      key: 'chr_0033_camille_passive_listen_normal_skill',
+      blackboard: { atb: 15 },
+      enableSequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0033_camille_combo_2_type',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+        }),
+      ),
+      abilityEventResponses: [
+        {
+          event: 'abilityEntityFinished',
+          priority: 0,
+          sequence: sequence(
+            branch(
+              {
+                kind: 'entityTagMatch',
+                target: 'actionInputTarget',
+                tagQueryType: 'hasAny',
+                tags: ['Skill/Character/chr_0033_camille/NormalSkillBat'],
+              },
+              sequence(
+                step('modifyActionValue', {
+                  key: 'EntityBB_bat_spawned',
+                  operation: 'assign',
+                  value: { kind: 'constant', value: 0 },
+                }),
+                step('finishBuffsById', {
+                  target: 'caster',
+                  buffIds: ['buff_chr_0033_camille_normal_skill_bat_duration_icon'],
+                  reason: 'other',
+                }),
+              ),
+            ),
+          ),
+        },
+      ],
+    },
+  ],
   buffDefinitions: {
     buff_chr_0033_camille_cast_combo2: {
       stackingType: 'unique',
@@ -2879,6 +2920,23 @@ export default {
             target: 'enemy',
             skipApplyCost: false,
             inheritSourceSkillCastInfo: false,
+          }),
+        ),
+      },
+    },
+    buff_chr_0033_camille_combo_2_type: {
+      stackingType: 'unique',
+      priority: 1,
+      maxStackCount: { blackboardKey: 'max_stack' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          step('changeNativeSkillType', {
+            targetSkillKey: 'comboSkill2',
+            nativeSkillType: 'comboSkill',
           }),
         ),
       },

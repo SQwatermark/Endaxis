@@ -40,6 +40,44 @@ function build(overrides: Partial<OperatorInstanceDocument> = {}): OperatorInsta
   };
 }
 
+it('被动能力事件按所属技能等级编译，不在编译期执行或改写初始板', () => {
+  const programs = compileOperatorPassivePrograms(
+    [],
+    [
+      {
+        key: 'native-passive',
+        levelSource: 'battleSkill',
+        blackboard: { count: [1, 2] },
+        enableSequence: { steps: [] },
+        abilityEventResponses: [
+          {
+            event: 'abilityEntityFinished',
+            priority: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'changeResource',
+                  parameters: { resource: 'sp', amount: [3, 7], recipient: 'team' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    ],
+    { basicAttack: 1, battleSkill: 2, comboSkill: 1, ultimate: 1 },
+  );
+  expect(programs[0]).toMatchObject({
+    initialBlackboard: { count: 2 },
+    abilityEventResponses: [
+      {
+        event: 'abilityEntityFinished',
+        sequence: { steps: [{ kind: 'changeResource', parameters: { amount: 7 } }] },
+      },
+    ],
+  });
+});
+
 function program(
   skillId: string,
   skillGroupKey: string,

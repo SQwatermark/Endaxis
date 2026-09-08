@@ -110,6 +110,64 @@ function skill(overrides: Partial<CompiledSkillProgram> = {}): CompiledSkillProg
   };
 }
 
+it('被动写入EntityBB由同角色主动技能读取，而非留在被动局部板', () => {
+  const program = skill({
+    costFrame: undefined,
+    costs: [],
+    timelineActions: [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'changeResourceByActionValue',
+              parameters: {
+                resource: 'ultimateEnergy',
+                recipient: 'caster',
+                amount: { kind: 'blackboard', key: 'EntityBB_value' },
+                coefficient: { kind: 'constant', value: 1 },
+              },
+            },
+          ],
+        },
+      },
+    ],
+  });
+  const passive: CompiledOperatorPassiveProgram = {
+    key: 'writer',
+    initialBlackboard: {},
+    enableSequence: {
+      steps: [
+        {
+          kind: 'modifyActionValue',
+          parameters: {
+            key: 'EntityBB_value',
+            operation: 'assign',
+            value: { kind: 'constant', value: 7 },
+          },
+        },
+      ],
+    },
+  };
+  const assembly = createAssembly(
+    [program],
+    undefined,
+    undefined,
+    emptyEnemyBuffRuntime,
+    undefined,
+    testEnemy,
+    undefined,
+    undefined,
+    { EntityBB_value: 1 },
+    undefined,
+    undefined,
+    undefined,
+    [passive],
+  );
+  expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+  expect(assembly.resources.getUltimateEnergy('operator')).toBe(7);
+});
+
 function createAssembly(
   programs: readonly CompiledSkillProgram[],
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,

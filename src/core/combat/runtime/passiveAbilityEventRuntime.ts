@@ -1,5 +1,4 @@
-import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
-import type { ResolvedActionSequence } from '../../compiler/combatProgram';
+import type { CompiledOperatorPassiveProgram } from '../../compiler/combatProgram';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import {
@@ -18,13 +17,9 @@ export class PassiveAbilityEventRuntime {
   constructor(
     operations: CombatOperationExecutor,
     ownerContext: CombatOperationContext,
-    responses: readonly {
-      readonly event: Parameters<typeof normalizeAbilityEventPayload>[0];
-      readonly priority: number;
-      readonly sequence: ResolvedActionSequence;
-    }[],
+    responses: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>,
     register: (
-      event: AbilityEvent,
+      event: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event'],
       priority: number,
       handle: (payload: unknown, context?: AbilityEventRuntimeActionContext) => void,
     ) => AbilityEventRegistration,

@@ -38,6 +38,25 @@ function validatePassiveSkill(
   issues.push(
     ...validateActionSequenceDefinition(passive.enableSequence, `${path}.enableSequence`),
   );
+  if (passive.abilityEventResponses !== undefined) {
+    if (!Array.isArray(passive.abilityEventResponses))
+      push(issues, `${path}.abilityEventResponses`, 'expected an array');
+    else
+      passive.abilityEventResponses.forEach((response, index) => {
+        const responsePath = `${path}.abilityEventResponses[${index}]`;
+        if (!response || typeof response !== 'object') {
+          push(issues, responsePath, 'expected an object');
+          return;
+        }
+        if (!['abilityEntitySpawned', 'abilityEntityFinished'].includes(response.event))
+          push(issues, `${responsePath}.event`, 'unsupported passive ability event');
+        if (!Number.isInteger(response.priority))
+          push(issues, `${responsePath}.priority`, 'expected an integer');
+        issues.push(
+          ...validateActionSequenceDefinition(response.sequence, `${responsePath}.sequence`),
+        );
+      });
+  }
 }
 
 /**

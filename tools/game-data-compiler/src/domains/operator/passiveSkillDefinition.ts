@@ -17,6 +17,7 @@ import {
   compileSkillSpGainActionSequenceSource,
 } from '../../compiler/buffRuntimeProjection.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
+import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
 import type { CompiledBuffSequenceSource } from '../../compiler/combatActionProjectionTypes.ts';
 import { collectCompiledBuffIds } from '../../compiler/compiledBuffReferences.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
@@ -29,6 +30,9 @@ import {
 } from '../../source/primitives.ts';
 
 interface PlannedPassiveSkill {
+  readonly abilityEventResponses: NonNullable<
+    OperatorPassiveSkillDefinition['abilityEventResponses']
+  >;
   readonly key: string;
   readonly levelSource?: SkillLevelSource;
   readonly blackboard: Readonly<Record<string, LevelValues>>;
@@ -95,6 +99,7 @@ export function compileOperatorUpgradePassiveSkills(
         passive.initializationSequences,
         passive.reactionProjection,
         passive.eventResponses,
+        passive.abilityEventResponses,
       ]),
     ),
   );
@@ -158,6 +163,9 @@ export function compileOperatorUpgradePassiveSkills(
         ...(passive.levelSource === undefined ? {} : { levelSource: passive.levelSource }),
         ...(Object.keys(blackboard).length === 0 ? {} : { blackboard }),
         enableSequence: { steps },
+        ...(passive.abilityEventResponses.length === 0
+          ? {}
+          : { abilityEventResponses: passive.abilityEventResponses }),
       } satisfies OperatorPassiveSkillDefinition,
     ];
   });
@@ -320,8 +328,34 @@ function planPassiveSkill(
         compileCombatActionSequenceSource(sequence, passiveEventContext),
       ),
     );
+  const abilityEventResponses: NonNullable<
+    OperatorPassiveSkillDefinition['abilityEventResponses']
+  >[number][] = [];
   const eventResponses = skill.actionGraph.actionGroup.passiveEvents.flatMap(
     (event, eventIndex) => {
+      if (
+        event.abilityEvent === 'OnAbilityEntityFinished' ||
+        event.abilityEvent === 'OnAbilityEntitySpawned'
+      ) {
+        const projected = projectAbilityEvent(event.abilityEvent, request.sourcePath);
+        if (projected !== 'abilityEntityFinished' && projected !== 'abilityEntitySpawned')
+          throw new Error(`${request.sourcePath}: unexpected lifecycle event mapping`);
+        for (const sequence of event.actions) {
+          for (const node of collectNativeActionNodes(sequence)) {
+            if (
+              node.metadata.enabled &&
+              (node.metadata.priorityLevel !== 'Default' || node.metadata.priorityOffset !== 0)
+            )
+              throw new Error(`${node.sourcePath}: unsupported operator passive event priority`);
+          }
+          abilityEventResponses.push({
+            event: projected,
+            priority: 0,
+            sequence: compileCombatActionSequenceSource(sequence, passiveEventContext),
+          });
+        }
+        return [];
+      }
       // 固定战斗模拟不会退出战斗；该清理只重置角色累计黑板，对本场结果没有可见影响。
       if (event.abilityEvent === 'OnTrulyExitFight') return [];
       // 构筑属性在场景编译前已冻结；原生通知只负责刷新派生角色黑板，因此上方把该响应
@@ -404,6 +438,7 @@ function planPassiveSkill(
       return { buffId: materialized.buffId, assignments };
     }),
     eventResponses,
+    abilityEventResponses,
   };
 }
 

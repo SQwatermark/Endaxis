@@ -140,6 +140,7 @@ type EnvironmentOptions = Pick<
   | 'emitAbilityEvent'
   | 'createEquipmentEventOperationExecutor'
   | 'registerEquipmentAbilityEventAction'
+  | 'registerPassiveAbilityEventAction'
   | 'registerComboSkillCondition'
   | 'comboConditionEligibility'
   | 'resolveVitals'
@@ -461,6 +462,13 @@ export class StandardPlayerDamageEnvironment {
         this.#emit(payload.sourceId, event, payload),
       createEquipmentEventOperationExecutor: context => this.#createOperationExecutor(context),
       registerEquipmentAbilityEventAction: (operatorId, event, priority, handle) =>
+        this.eventsFor(operatorId).registerAction(event, priority, context =>
+          handle(
+            context.payload,
+            this.#resolveAbilityEventRuntimeActionContext(event, context.payload),
+          ),
+        ),
+      registerPassiveAbilityEventAction: (operatorId, event, priority, handle) =>
         this.eventsFor(operatorId).registerAction(event, priority, context =>
           handle(
             context.payload,

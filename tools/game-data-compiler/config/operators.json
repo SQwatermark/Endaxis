@@ -2051,6 +2051,7 @@
       "exportName": "camilleGeneratedSource",
       "gameId": "CAMILLE",
       "charId": "chr_0033_camille",
+      "basePassiveSkillIds": ["chr_0033_camille_passive_listen_normal_skill"],
       "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
       "routedSkillKeys": ["battleSkillDuringUltimate"],

@@ -1,5 +1,29 @@
 # 当前任务快照
 
+## 2026-09-09：卡缪被动生命周期事件正式接入
+
+OperatorPassiveSkillDefinition新增abilityEventResponses（仅公共实体出生/结束事件），
+等级编译、定义校验和战斗装配已接入前轮宿主；环境通过独立被动注册端口连接同一dispatcher。
+编译器原生事件使用既有projectAbilityEvent映射，不伪装成语义事件/装备事件。
+卡缪登记chr_0033_camille_passive_listen_normal_skill并完整再生成，新增58行正式定义：
+combo_2_type原生类型设置及实体结束时匹配NormalSkillBat标签、清EntityBB_bat_spawned和图标。
+
+原私有轴两条卡缪图标此前只有BuffApplied，没有结束；现在分别1435/1752帧BuffFinished，
+与对应蝠翼AbilityEntityFinished同帧。初次重算伤害/命中/诊断保持前基线，临时报告
+tmp/private-three-camille-passive.json。尚未人工视觉验证，不能宣称所有状态栏问题已完成。
+定向生产回归覆盖实际实体到期与图标清理；等级编译/定义校验/宿主共66项通过。
+
+同时发现原被动ActionBlackboard缺角色EntityBB父板，已补共享父板，并新增被动写入、
+主动技能读取回归（7而非旧初值1）。装配与真实轴定向文件85项通过。后续需完成最终类型
+检查、重新跑真实轴确认共享板修改影响，并检查新事件字段在定义编辑器的展示入口；本轮
+不扩展无关编辑器设计。艾尔黛拉的基础被动时间轴执行边界仍未取证，不能静默放行。
+最终验证：上述五个文件合计134项通过，无跳过/预期失败；应用vue-tsc、编译器完整tsc均通过，
+卡缪同源二次生成--check通过。最终报告tmp/private-three-camille-passive-final.json与
+tmp/public-camille-passive-final.json，三私有轴仍693530.8131581588/210、337938.8820469209/194、
+1996820.2804914764/265，公开原轴仍821184.9467385851/79，诊断数量亦未变、执行均0。
+上述类型检查中曾发现被动注册端口误用了配装事件子集，已改为从被动宿主参数派生，宿主自身
+从已编译被动协议派生响应类型，避免三个不同宽度枚举互相断言。没有修改combat-spec。
+
 ## 2026-09-09：被动能力事件运行宿主已实现，尚未接入正式定义
 
 新增runtime/passiveAbilityEventRuntime.ts：消费现有AbilityEvent身份、dispatcher注册端口、

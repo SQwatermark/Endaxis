@@ -158,6 +158,31 @@ function matchesBuildCondition(
  * 将已启用养成项中的原生常驻被动编译为单等级程序。
  * 声明顺序决定启用顺序；重复 key 会让 Buff 和事件归因不稳定，因此直接拒绝。
  */
+function compilePassiveAbilityResponses(
+  passive: OperatorPassiveSkillDefinition,
+  level: number,
+  path: string,
+): Pick<CompiledOperatorPassiveProgram, 'abilityEventResponses'> {
+  if (passive.abilityEventResponses === undefined) return {};
+  return {
+    abilityEventResponses: passive.abilityEventResponses.map((response, index) => {
+      if (
+        !['abilityEntitySpawned', 'abilityEntityFinished'].includes(response.event) ||
+        !Number.isInteger(response.priority)
+      )
+        throw new Error(`${path}.abilityEventResponses[${index}]: invalid event or priority`);
+      return {
+        ...response,
+        sequence: compileActionSequence(
+          response.sequence,
+          level,
+          `${path}.abilityEventResponses[${index}].sequence`,
+        ),
+      };
+    }),
+  };
+}
+
 export function compileOperatorPassivePrograms(
   upgrades: readonly ActiveOperatorUpgrade[],
   basePassives: readonly OperatorPassiveSkillDefinition[] = [],
@@ -190,6 +215,7 @@ export function compileOperatorPassivePrograms(
         passiveLevel,
         `${path}.enableSequence`,
       ),
+      ...compilePassiveAbilityResponses(passive, passiveLevel, path),
     });
   }
   for (const upgrade of upgrades) {
@@ -211,6 +237,7 @@ export function compileOperatorPassivePrograms(
           upgrade.level,
           `${path}.enableSequence`,
         ),
+        ...compilePassiveAbilityResponses(passive, upgrade.level, path),
       });
     }
   }
