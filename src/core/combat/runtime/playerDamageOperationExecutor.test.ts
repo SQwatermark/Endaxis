@@ -261,6 +261,13 @@ describe('PlayerDamageOperationExecutor', () => {
     executor.prepare(snapshotStep, snapshotContext);
     executor.execute(snapshotStep, snapshotContext);
     expect(targetVitals.health).toBe(250);
+    expect(receipt.entries.at(-1)?.data).toMatchObject({
+      attack: 100,
+      currentAttack: 999,
+      usesAttackSnapshot: true,
+      skillMultiplierPercent: 100,
+      baseDamage: 100,
+    });
 
     // 未选 Switch 分支内的 IfElse 也必须在 Reset 时建立快照，不能等命中后读实时攻击。
     const branchContext = {

@@ -212,7 +212,14 @@ export interface CombatOperationContext {
   /** 当前动作环境独占的 direct 黑板；生命周期由技能、Buff 或连携条件宿主管理。 */
   readonly blackboard: ActionBlackboard;
   /** 由宿主 Reset 准备、按动作实例保存的原生攻击计算快照。 */
-  readonly damageCalculationSnapshots?: Map<ResolvedCombatOperationStep, number>;
+  readonly damageCalculationSnapshots?: Map<
+    ResolvedCombatOperationStep,
+    {
+      readonly attack: number;
+      readonly attackScale: number;
+      readonly baseValue: number;
+    }
+  >;
   /** 只有读取或写入原生 Context 目标组的步骤才要求存在。 */
   readonly targetContext?: RuntimeTargetContext;
   /** 连携条件的原生 InputTarget；承受附着事件中它是施加者，不是物理事件 targetId。 */

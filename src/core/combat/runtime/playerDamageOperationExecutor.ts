@@ -136,7 +136,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       'snapshot damage scale',
     );
     const attributes = this.dependencies.captureAttributeSnapshots(step).attacker;
-    snapshots.set(step, attributes.attack * attackScale);
+    snapshots.set(step, {
+      attack: attributes.attack,
+      attackScale,
+      baseValue: attributes.attack * attackScale,
+    });
   }
 
   execute(step: RuntimeOperation, operationContext?: OperationContext): boolean {
@@ -273,6 +277,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         step.kind === 'dealDamage' &&
         (step.parameters.calculation === undefined || step.parameters.calculation === 'standard');
       const damageScaleMultiplier = context.damageScales.getFinalValue();
+      const attackSnapshot =
+        step.kind === 'dealDamage' && step.parameters.takeAttackSnapshot === true
+          ? operationContext?.damageCalculationSnapshots?.get(step)
+          : undefined;
+      const receiptAttack = attackSnapshot?.attack ?? context.attackerAttributes.attack;
       const unscaledCalculationValue = context.baseValue * damageScaleMultiplier;
       const calculationMultiplier =
         Math.abs(unscaledCalculationValue) <= Number.EPSILON
@@ -310,15 +319,23 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           ...(this.dependencies.skillType === undefined
             ? {}
             : { skillType: this.dependencies.skillType }),
-          attack: context.attackerAttributes.attack,
-          ...freezeAttackReceiptDetail(context.attackerAttributes.attack, attackDetail),
+          attack: receiptAttack,
+          ...freezeAttackReceiptDetail(receiptAttack, attackDetail),
+          ...(attackSnapshot === undefined
+            ? {}
+            : {
+                usesAttackSnapshot: true,
+                currentAttack: context.attackerAttributes.attack,
+              }),
           baseDamage: context.baseValue,
           finalAttackValue,
           standardCalculation,
-          ...(standardCalculation && context.attackerAttributes.attack !== 0
+          ...(standardCalculation && (attackSnapshot !== undefined || receiptAttack !== 0)
             ? {
                 skillMultiplierPercent:
-                  (context.baseValue / context.attackerAttributes.attack) * 100,
+                  attackSnapshot === undefined
+                    ? (context.baseValue / receiptAttack) * 100
+                    : attackSnapshot.attackScale * 100,
               }
             : {}),
           calculationMultiplier,
@@ -396,7 +413,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     if (step.parameters.takeAttackSnapshot === true) {
       const snapshot = operationContext?.damageCalculationSnapshots?.get(step);
       if (snapshot === undefined) throw new Error('attack snapshot was not prepared');
-      return snapshot;
+      return snapshot.baseValue;
     }
     const attackScale = this.#resolveActionValue(
       step.parameters.attackScale,
