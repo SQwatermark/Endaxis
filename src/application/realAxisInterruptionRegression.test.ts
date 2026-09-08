@@ -597,6 +597,22 @@ it('别礼连携后的残留停帧可使连续A2第二击晚于后续A3输入', 
   ).toBe(119);
 });
 
+it('艾尔黛拉连携半额溅射排除主目标，不重复命中唯一木桩', async () => {
+  const scenario = createEmptyScenario('ardelia-splash-exclusion', '连携主目标与溅射');
+  scenario.tracks[0] = track('ardelia', [['comboSkill', 'comboSkill', 1]]);
+  const before = JSON.stringify(scenario);
+  const result = await createEditorSimulationService().simulate(scenario, 200);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const hits = result.receiptEntries.filter(e => e.event === 'DamageApplied');
+  expect(hits.map(e => e.data?.skillMultiplierPercent)).toEqual([100, 250]);
+  expect(
+    result.receiptEntries.some(
+      e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_common_natural_natural_corrupt_do',
+    ),
+  ).toBe(true);
+});
+
 it.each([true, false])('诀集束攻击仅由主控重击触发（主控=%s）', async controlled => {
   const scenario = createEmptyScenario('arcane-cluster-controller', '集束攻击来源');
   scenario.tracks[0] = track('arcane', [['ultimate', 'ultimate', 1]]);

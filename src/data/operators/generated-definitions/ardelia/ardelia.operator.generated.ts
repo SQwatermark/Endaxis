@@ -2423,22 +2423,12 @@ export default {
                 },
                 'abilityentity_chr_0025_ardelia_combo_skill_bomb:chr_0025_ardelia_combo_skill_bomb:/childSkill/scheduledSequences/0/sequence/steps/2',
               ),
+              step('mergeContextTargets', { saveToContextKey: 'tar', sources: [] }),
               step('modifyActionValue', {
                 key: 'atk_scale_boom',
                 operation: 'multiply',
                 value: { kind: 'constant', value: 0.5 },
               }),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'nature',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale_boom' },
-                  tags: ['comboSkill'],
-                  features: ['canBreakWeakness'],
-                  stagger: { kind: 'blackboard', key: 'poise' },
-                },
-                'abilityentity_chr_0025_ardelia_combo_skill_bomb:chr_0025_ardelia_combo_skill_bomb:/childSkill/scheduledSequences/0/sequence/steps/4',
-              ),
             ),
             55,
           ),

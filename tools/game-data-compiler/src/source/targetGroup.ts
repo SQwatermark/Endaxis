@@ -408,6 +408,8 @@ function parseTargetPostProcessorAction(
       source,
       direction,
     },
+    ...(summary.excludeTargets.length === 0 ? {} : { excludeTargets: summary.excludeTargets }),
+    excludesCurrentTarget: selectorExcludesPlainCurrentTarget(action, path),
   };
 }
 

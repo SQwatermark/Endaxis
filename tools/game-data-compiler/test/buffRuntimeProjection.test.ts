@@ -17,6 +17,37 @@ import { buffHasNoAffixIdentityWriter } from '../src/compiler/buffCastIdentityPr
 import { compileActionNode } from '../src/compiler/combatActionLeafProjection.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it.each([true, false])('空目标伤害覆盖旧的静态敌人证明（alwaysNext=%s）', alwaysNext => {
+    const node = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[1]!;
+    const project = () =>
+      compileActionNode(
+        {
+          ...node,
+          body: {
+            kind: 'leaf',
+            value: {
+              family: 'damage',
+              action: {
+                ...simpleDamageFixture(),
+                alwaysNext,
+                target: { ...fixedTarget('Context'), targetGroupKey: 'tar' },
+              },
+            },
+          },
+        },
+        new Set(),
+        new Map([['tar', 'empty']]),
+        {
+          actionSourceTarget: 'caster',
+          actionOwnerTarget: 'caster',
+          actionTargetTarget: 'enemy',
+          staticEnemyTargetGroupKeys: new Set(['tar']),
+        },
+      );
+    if (alwaysNext) expect(project()).toEqual([]);
+    else expect(project).toThrow('empty-target damage short-circuit');
+  });
+
   it('施加 Buff 的 Context 接收者保留查询身份，与来源分别解析', () => {
     const node = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[1]!;
     if (node.body.kind !== 'leaf' || node.body.value.family !== 'buffApplication')

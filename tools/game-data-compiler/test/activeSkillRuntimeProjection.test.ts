@@ -243,6 +243,60 @@ function tangtangTargetPostProcessor(
 }
 
 describe('主动技能正式时间轴投影', () => {
+  it.each(['Target', 'Owner'])('后处理覆盖前序动作的目标证明（排除%s）', excluded => {
+    const source = activeWithActions([
+      meta('MergeTargetAction', { targets: [targetFixture('Target')], targetGroupKey: 'tar' }),
+      tangtangTargetPostProcessor({
+        targetGroupKey: 'tar',
+        centerPos: targetFixture('Target'),
+        postProcessorData: [
+          {
+            $type: 'Beyond.Gameplay.Core.Selector+ExcludeTarget+Data, Gameplay.Beyond',
+            excludedTargetSettings: targetFixture(excluded),
+            processTargetType: 'Targets',
+          },
+        ],
+      }),
+      {
+        $type: 'Beyond.Gameplay.Core.Conditions.CheckEntityNum+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 2,
+        checkTarget: targetFixture('Context', undefined, 'tar'),
+        minNum: 1,
+        containsHittableTarget: false,
+        compareType: 'GE',
+        excludeDeadEntity: false,
+        storeKey: '',
+      },
+      meta('GainBreakingAttackAtb', {
+        source: targetFixture('Source'),
+        target: targetFixture('Target'),
+        factor: scalarFixture(1),
+      }),
+    ]);
+    const project = () =>
+      compileActiveSkillRuntimeProjectionSource({
+        value: source,
+        sourcePath: 'fixture.overwritten-target',
+        patch: null,
+        context: ACTIVE_CONTEXT,
+      });
+    if (excluded === 'Owner') {
+      expect(project).toThrow('unsupported target postprocessor exclusion');
+      return;
+    }
+    expect(project().scheduledSequences.at(-1)!.sequence.steps).toMatchObject([
+      {
+        kind: 'mergeContextTargets',
+        parameters: { saveToContextKey: 'tar', sources: [{ kind: 'target', target: 'enemy' }] },
+      },
+      { kind: 'mergeContextTargets', parameters: { saveToContextKey: 'tar', sources: [] } },
+      { kind: 'conditional', parameters: { condition: { left: { kind: 'constant', value: 0 } } } },
+    ]);
+  });
+
   it('用户放置主动技能只执行 main-character 序列并跳过 guard 序列', () => {
     expect(() =>
       compileActiveSkillRuntimeProjectionSource({

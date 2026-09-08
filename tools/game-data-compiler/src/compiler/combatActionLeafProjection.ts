@@ -912,6 +912,15 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'damage') {
     const damageAction = node.body.value.action;
+    if (
+      damageAction.target.targetSource === 'Context' &&
+      partyTargetGroups.get(damageAction.target.targetGroupKey) === 'empty'
+    ) {
+      // No target receives damage; only an explicitly always-next action can be elided.
+      if (!damageAction.alwaysNext)
+        throw new Error(`${node.sourcePath}: empty-target damage short-circuit is unsupported`);
+      return [];
+    }
     if (damageAction.units.length === 0 && damageAction.hitEnvironment && damageAction.alwaysNext) {
       // 来源层已确认 hitEnvData 只描述环境命中特效。没有 DamageUnit 且始终继续的动作
       // 不会修改唯一木桩的数值或控制后续流程，Next 无场景交互后端时可安全省略。

@@ -1383,6 +1383,50 @@ export function compileBuffLeafNode(
     const write = node.body.value.action;
     if (context.presentationOnlyTargetGroupKeys?.has(write.targetGroupKey))
       return { steps: [], state: partyTargetGroups };
+    // A prior proof that a Context contains the enemy cannot erase a later exclusion write.
+    if (
+      write.producerType === 'TargetPostProcessorAction' &&
+      write.postProcessorTypes.includes('ExcludeTarget')
+    ) {
+      const input = write.inputTargets[0];
+      const detail = write.targetPostProcessor;
+      if (
+        detail === undefined ||
+        !isPlainTargetGroupInput(detail.source, 'Source') ||
+        !isPlainTargetGroupInput(detail.center, 'Target') ||
+        context.actionSourceTarget !== 'caster' ||
+        detail.direction.directionType !== 'SourceForward' ||
+        detail.direction.customSourceAndTarget ||
+        write.inputTargets.length !== 1 ||
+        input === undefined ||
+        !isPlainTargetGroupInput(input, 'Context') ||
+        !(
+          partyTargetGroups.get(input.targetGroupKey) === 'enemy' ||
+          (!partyTargetGroups.has(input.targetGroupKey) &&
+            context.staticEnemyTargetGroupKeys?.has(input.targetGroupKey))
+        ) ||
+        context.actionTargetTarget !== 'enemy' ||
+        !write.excludesCurrentTarget ||
+        write.excludeTargets?.length !== 1 ||
+        write.validatorTypes.length !== 0 ||
+        write.postProcessorTypes.length !== 1 ||
+        write.priorityFilters.length !== 0 ||
+        write.shuffleTargets.length !== 0 ||
+        write.distanceValidators.length !== 0
+      )
+        throw new Error(`${node.sourcePath}: unsupported target postprocessor exclusion`);
+      const nextGroups = new Map(partyTargetGroups);
+      nextGroups.set(write.targetGroupKey, 'empty');
+      return {
+        steps: [
+          {
+            kind: 'mergeContextTargets',
+            parameters: { saveToContextKey: write.targetGroupKey, sources: [] },
+          },
+        ],
+        state: nextGroups,
+      };
+    }
     if (
       context.unconsumedTargetGroupKeys?.has(write.targetGroupKey) === true &&
       write.producerType === 'FindTargetAction' &&
@@ -2384,14 +2428,15 @@ function isPlainInputTarget(target: TargetReferenceSource): boolean {
 }
 
 function isPlainTargetGroupInput(
-  target: TargetGroupActionSource['inputTargets'][number],
-  targetSource: 'Context' | 'Owner' | 'Target',
+  target: TargetGroupActionSource['inputTargets'][number] | TargetReferenceSource,
+  targetSource: 'Context' | 'Owner' | 'Target' | 'Source',
 ): boolean {
   return (
     target.targetSource === targetSource &&
     (targetSource !== 'Context' || target.targetGroupKey !== '') &&
     (targetSource !== 'Owner' || target.targetGroupKey === '') &&
     (targetSource !== 'Target' || target.targetGroupKey === '') &&
+    (targetSource !== 'Source' || target.targetGroupKey === '') &&
     target.finderType === null &&
     target.validatorTypes.length === 0 &&
     target.postProcessorTypes.length === 0 &&
