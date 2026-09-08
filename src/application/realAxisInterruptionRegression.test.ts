@@ -5,6 +5,7 @@ import { gameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
 import { ScenarioSimulationService } from './scenarioSimulationService';
 import { createEditorSimulationService } from './editorSimulationService';
+import { spDisplayPoints } from '../ui/timeline/spDisplayPoints';
 
 const resources = {
   sharedSpGain: { baseGainEfficiency: 1 },
@@ -25,6 +26,17 @@ it('正式编辑器装配从导出SkillSetting读取技力恢复暂停', async (
   );
   // Fifteen full paused ticks after the cast; the following frame resumes recovery.
   expect(firstRecovery?.frame).toBe(19);
+  const facts = result.resourceCurves.sp.points;
+  const originalFacts = JSON.stringify(facts);
+  const drawing = spDisplayPoints(facts, -scenario.battle.prepFrames, 80);
+  const deducted = facts.find(p => p.frame === 3 && p.source !== 'autoRecovery');
+  expect(deducted).toBeDefined();
+  expect(drawing).toContainEqual({ frame: 18, value: deducted!.value });
+  expect(drawing.filter(p => p.frame > 3 && p.frame < 19)).toEqual([
+    { frame: 18, value: deducted!.value },
+  ]);
+  expect(facts.find(p => p.frame === 19)).toMatchObject({ source: 'autoRecovery' });
+  expect(JSON.stringify(facts)).toBe(originalFacts);
 });
 
 it('艾尔黛拉非主控连携的投射物命中仍回复终结技能量', async () => {
