@@ -753,6 +753,33 @@ tmp/public-last-rite-final/project.json；SHA256
 原生命中与后续效果是否正确保留，再顺着附着检查四人的连携开窗。
 这只是调查入口，不是已确认根因；不移动技能、不放宽门禁、不直接按旧总伤害补倍率。
 
+# 2026-09-09 补充：公开原轴技力分类账与暂停来源边界
+
+输入仍为`tmp/public-resource-old.log`和`tmp/public-resource-gate-fixed.json`，不修改
+主控或技能时刻。按旧SP_CHANGE.actualChange、新SpChanged.actualValue分类：
+
+| 项目                 |          旧 |   新 |
+| -------------------- | ----------: | ---: |
+| 六次战技实际扣费合计 |        -600 | -600 |
+| 三次别礼战技返还合计 |          90 |   90 |
+| 其他命中回技力合计   | 210（7×30） |    0 |
+
+旧七笔分别在真实3.716667、9.15、14.183、21、25.567、32.483、36.517秒，均为别礼
+重击。当前原轴别礼非主控，正式技能技力动作仍受主控守卫，不应与已修复的UltimateSp错误
+守卫混淆：combat-spec ObtainCostAction.ObtainAtb确有此限制。整段差210并非战技多扣费。
+返还时序仍有旧命中偏移与新版非主控跳转同帧执行的差别，见此前资源首差记录。
+
+自然恢复尚不能直接宣称相符。旧ActionStartHandler.getSpFreezeDuration战技固定0.5秒，
+终结技/连携使用freezeDuration（缺省1.5）；日志共19次SP_REGEN_PAUSE。新版
+src/application/editorSimulationService.ts将spRecoveryPauseDuration固定为1.5，运行时
+按扣费暂停。combat-spec docs/atb-gain.md已证明原生CostAtb使用SkillSetting.atbRecoverInterval，
+但本次未找到当前导出配置的这个实际值，不能用页面装配常量证明当前游戏就是1.5。
+后续需追该字段来源及统一SkillSetting导出范围，而不是为贴旧轴把暂停硬改0.5。
+
+新版全部自然恢复实际合计约610，初始200−600+90+610=300；2526帧最后一笔恢复至300。
+该恒等式只证明当前回执账本自洽，不证明暂停间隔/恢复时钟正确。旧日志不逐帧记录自然恢复，
+尚未补齐同口径整条曲线，不从最后一笔旧SP_CHANGE反推旧最终技力。本轮无生产修改/新测试。
+
 # 2026-09-09 补充：公开原轴终结技能量整账（请求与实际分开）
 
 脚本`tmp/audit-ultimate-ledger.mjs`、报告`tmp/public-ultimate-ledger.json`，输入为原始
