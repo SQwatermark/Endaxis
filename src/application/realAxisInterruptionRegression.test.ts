@@ -12,6 +12,29 @@ const resources = {
   normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
 };
 
+it('艾尔黛拉非主控连携的投射物命中仍回复终结技能量', async () => {
+  const scenario = createEmptyScenario('ardelia-combo-energy', '非主控连携回能');
+  scenario.tracks[0] = track('arcane', []);
+  scenario.tracks[1] = track('ardelia', [['comboSkill', 'comboSkill', 10]]);
+  const before = JSON.stringify(scenario);
+  const result = await new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources,
+  }).simulate(scenario, 150);
+  expect(JSON.stringify(scenario)).toBe(before);
+  expect(result.executionDiagnostics).toEqual([]);
+  const gains = result.receiptEntries.filter(
+    e => e.event === 'UltimateEnergyChanged' && e.targetId === 'ardelia',
+  );
+  expect(gains).toEqual([
+    expect.objectContaining({
+      sourceId: 'ardelia',
+      data: expect.objectContaining({ baseValue: 10, actualValue: 10, applied: true }),
+    }),
+  ]);
+});
+
 it('卡缪基础被动在蝠翼实体结束时清理持续时间图标', async () => {
   const scenario = createEmptyScenario('camille-passive-finish', '蝠翼实体清理');
   scenario.tracks[0] = track('arcane', []);

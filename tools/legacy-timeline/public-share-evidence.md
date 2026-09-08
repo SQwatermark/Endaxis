@@ -753,6 +753,26 @@ tmp/public-last-rite-final/project.json；SHA256
 原生命中与后续效果是否正确保留，再顺着附着检查四人的连携开窗。
 这只是调查入口，不是已确认根因；不移动技能、不放宽门禁、不直接按旧总伤害补倍率。
 
+# 2026-09-09 补充：公开原轴连携资源漏项与零值区分
+
+以`tmp/public-resource-gate-fixed.json`为修复后正式原轴：
+
+- 艾尔黛拉原先没有两次连携回能，确认为公共ObtainCostAction投影缺陷。原始
+  `chr_0025_ardelia_combo_skill_projhit.json`的UltimateSp载荷有atbOnlyMainChar=true，
+  但combat-spec `Actions/ObtainCostAction.cs`仅在ObtainAtb中检查它；公共投影此前错误
+  地对两种资源都加主控条件。4475e1bb修正并全31名重生成，只有艾尔黛拉、阿列什、萤石
+  有内容差分。152/891帧现在请求14.45714282989502，第二笔受上限裁剪，终结技前76.5。
+- 别礼517/1372帧则有回能动作，但baseValue=15、requestedValue=0，不能和上述漏项混淆。
+  正式定义63本地帧先读CrystInflict层数并累计infliction_num_total，再按min(层数,4)回能。
+  原轴全程只有5次ElementalInflictionApplied：150热1，310寒冷与热1反应清空；886热1，
+  950热爆发后热2，1133寒冷与热2反应清空。两次连携结算均无寒冷层，因此15×0成立。
+  旧额外回能两次60不能直接补入。此前“主控身份解释开场旁路”章节已证明旧全局重击
+  触发器缺主控约束，而新版原生幻影链有该约束；此处仅补齐资源下游，不改变原始切控输入。
+
+补充生产回归：非主控艾尔黛拉P0、无装备，仅10帧连携，150帧内唯一自身回能10，输入不变、
+执行诊断0。realAxisInterruptionRegression.test.ts全部18项通过，无跳过/预期失败。
+本节没有声称整个资源账本或所有状态展示已经验证完毕。
+
 # 2026-09-09 补充：公开原轴回能效率快照差异
 
 公开轴6a8db78895147370855b45ed，原始解码存档
