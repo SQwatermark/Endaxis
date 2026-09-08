@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-08 晚间：combat-spec 失衡承伤固定根生命周期完成
+
+C# 已按唯一原生依据 `combat-spec/docs/poise-break-buff.md` 接入固定根：BattleResources 显式注入
+原始 BuffData，实际归零时未注入即报错；按 Modifier.Source 在 OnPoiseZero 之前 AddBuff，
+保存实例并在 ResetPoise / OnPoiseRecover 前结束，不等额外标签窗口，不按 ID 批量删其他实例。
+相关 123 项通过；真实源 JSON 经 BuffDataAdapter 解析注入后完成事件前乘区和恢复清理验证。
+C# 全仓 1762/1789 通过，27 项均为本机 artifacts 样本/路径缺失；不是全仓通过。
+Endaxis 本批只更新交接，没有接运行时、没有发布生成数据，真实轴伤害基线保持不变。
+
+发现本机 `tmp/game-data-sources-hybrid-20260905/ProjectileData/projectile_chr_0034_typhoea_archery_attack_05.json`
+具有 `entityBlackboard: []`，SHA256 `8f8f6ae0e5ba812d0272a36e85bec56b1649e85a092881cdcaed9226c9552649`，
+与同目录 provenance 的 VFS 来源记录一致，说明不是下载后随手补字段；但这不证明导出语义正确。
+该记录 version=null、fallbackReason=not-in-akedb-index，仍需从原始模板/导出证据确认空板，
+不能据此认定白天缺口已解决或发布完整公共目录。
+
 ## 2026-09-08 晚间台式机恢复：真实轴基线已复现，截止口径更正
 
 已从 `C:/Users/Admin/Downloads/Endaxis_Timeline_2026-08-31.json` 用正式映射重新转换至
