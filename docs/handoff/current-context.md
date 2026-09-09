@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：消费保护范围核对与事件黑板补证
+
+ExtendBuffAction → holdBuffsById 是已有实例的禁止结束，不等于 PreventBuffConsumeAction。
+后者按 ID/Tag 注册消费保护，命中后只触发 fake-consume，不结束或禁用 Buff；不能把
+现有 finishable=false 当作消费保护实现。混合来源快照全目录仅命中
+BuffData/buff_eny_0114_jzmking_hdg024.json，当前正式数据与生成配置未引用它。
+因此不为事件收束新增敌人能力；未来接入该原始动作须独立实现并验证，不静默降级。
+
+继续补证已用的事件黑板：GetTargetBuffBBAdvanced Context 分支确实解引用事件内 Buff，
+直接读其 Blackboard，不读取发布时快照。Endaxis 当前仅消费/吸收的 blackboardValues
+快照可能漏掉较早同步响应的修改，且未覆盖已证明的结束实例读取。
+复刻库新增 docs/event-buff-blackboard-instance.md 记录同快照 RVA 和边界。
+下一步将已证明的 Buff 实例身份接到共用读取；泛型 helper 所接受的其他子类仍需确认。
+本轮没有改模拟行为，没有重跑测试；这不是全部事件系统收束完成。
+
 ## 2026-09-09 晚间续：Environment 结束来源已贯通
 
 finishCurrentBuff 必填 finishSource（actionSource/actionOwner），生成器保留已有准入的
