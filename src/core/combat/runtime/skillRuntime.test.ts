@@ -501,6 +501,53 @@ describe('SkillRuntime', () => {
     },
   );
 
+  it.each(['natural', 'interrupt'] as const)(
+    'snapshots attached Buffs before %s timeline cleanup',
+    mode => {
+      const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+        key: 'attachment-snapshot',
+        timelineBlockFrames: 10,
+        naturalDurationFrames: 1,
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            endFrame: 10,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'active', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        ],
+      });
+      const addedDuringEnd = { finish: vi.fn(() => true) };
+      const addedDuringBuffFinish = { finish: vi.fn(() => true) };
+      const original = {
+        finish: vi.fn(() => {
+          fixture.runtime.attachInheritedBuff(addedDuringBuffFinish);
+          return true;
+        }),
+      };
+      fixture.operations.end = vi.fn(() => fixture.runtime.attachInheritedBuff(addedDuringEnd));
+      fixture.runtime.tryStart();
+      fixture.runtime.attachInheritedBuff(original);
+      if (mode === 'natural') fixture.runtime.advanceFrame();
+      else fixture.runtime.interrupt('castNextSkill');
+      expect(original.finish).toHaveBeenCalledExactlyOnceWith('other', null);
+      expect(addedDuringEnd.finish).not.toHaveBeenCalled();
+      expect(addedDuringBuffFinish.finish).not.toHaveBeenCalled();
+      // 新增实例仍在宿主列表中，不被 clear() 丢失；下一次结束快照会包含它们。
+      fixture.runtime.tryStart();
+      fixture.runtime.end();
+      expect(addedDuringEnd.finish).toHaveBeenCalledOnce();
+      expect(addedDuringBuffFinish.finish).toHaveBeenCalledOnce();
+      expect(original.finish).toHaveBeenCalledOnce();
+    },
+  );
+
   it('does not infer a CastSkillContext for the paid-cost event from its source identity', () => {
     const onCost = vi.fn((event: import('../events/combatAbilityEvent').AbilitySkillPayload) => {
       expect(event.attachBuffToCurrentSkill).toBeUndefined();

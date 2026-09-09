@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：按原生 CastEnd 快照结束附属 Buff
+
+当前镜像 Skill.CastEnd 在时间轴 End 之前复制附属 Buff 列表，结束后仅从原跟踪表
+移除快照成员。两仓原先在时间轴 End 后取快照并整表清空，会误结束或丢失清理期间
+新增的附属 Buff。现改为提前快照及成员移除；完成、中断及后续再次清理都有回归。
+具体 RVA 证据在 combat-spec/docs/skill-time-fields.md。
+
+Endaxis 战斗测试 117 文件 1408 项通过；C# 1829/1835 通过，仍是既有六项
+资源缺失/资源版本计数不符失败，SkillEnd 专题 18 项全部通过。
+四条真实轴完整结果与上一基线相同，临时报告为
+tmp/event-unification-candidates-mz38x5/skill-end-attachment-snapshot-axes.json。
+此次仅收束宿主结束语义，没有新增玩法、UI 或生成数据。
+事件系统整体仍未完成：完整投射物回调技能宿主、无回调对象引用生命周期、
+SkillAffix 请求引用和宿主 Disable/dispose 顺序仍需继续闭合，不能交付为最终验收。
+
 ## 2026-09-10：技能宿主统一处理跳转下界
 
 读取当前镜像RIP常量确认JumpTo下界容差为1e-5秒。新增skillTimelineJump共享判断，

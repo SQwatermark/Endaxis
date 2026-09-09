@@ -582,8 +582,9 @@ export class SkillRuntime {
 
   end(): void {
     if (this.#state !== 'casting') return;
+    const attachedAtEnd = [...this.#attachedBuffs];
     this.#timeline?.end(this.#passedFrames, this.#context);
-    this.#finishAttachedBuffs();
+    this.#finishAttachedBuffs(attachedAtEnd);
     if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
     this.#state = 'ended';
     this.record('SkillEnded');
@@ -593,9 +594,10 @@ export class SkillRuntime {
   interrupt(reason: RuntimeSkillInterruptReason, transition?: RuntimeSkillTransition): void {
     if (this.#state !== 'casting') return;
     this.#pendingTransition = transition ?? null;
+    const attachedAtEnd = [...this.#attachedBuffs];
     try {
       this.#timeline?.end(this.#passedFrames, this.#context);
-      this.#finishAttachedBuffs();
+      this.#finishAttachedBuffs(attachedAtEnd);
       if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
       this.#state = 'ended';
       this.record('SkillInterrupted', { reason });
@@ -739,10 +741,11 @@ export class SkillRuntime {
     this.#dependencies.emitSkillEnd?.(this.#skillEventPayload());
   }
 
-  #finishAttachedBuffs(): void {
+  #finishAttachedBuffs(attachedAtEnd: readonly BuffApplicationHandle[]): void {
     // CastEnd 在 OnSkillEnd 之前正序 MarkFinish(Other)，不传入结束来源/施法信息。
-    for (const buff of [...this.#attachedBuffs]) buff.finish('other', null);
-    this.#attachedBuffs.clear();
+    for (const buff of attachedAtEnd) buff.finish('other', null);
+    // CastEnd 在时间轴清理前取快照；清理中新增的实例不属于本次移除集合。
+    for (const buff of attachedAtEnd) this.#attachedBuffs.delete(buff);
   }
 
   #skillEventPayload(): AbilitySkillPayload {
