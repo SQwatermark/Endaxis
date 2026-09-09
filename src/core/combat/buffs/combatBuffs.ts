@@ -224,7 +224,17 @@ export interface CombatBuffAddOptions {
 }
 
 /** 一个实体上某项 Buff 的独立运行时实例。 */
+/** 由宿主精确持有的实例结束端口；null 是已知空施法，省略仍表示未核实。 */
+export interface BuffApplicationHandle {
+  finish(reason: BuffFinishReason, finishSkillCastInfo?: CombatSkillCastInfo | null): boolean;
+}
+
 export class CombatBuff<Key extends string> {
+  readonly #childBuffs = new Set<BuffApplicationHandle>();
+
+  attachChildBuff(child: BuffApplicationHandle): void {
+    this.#childBuffs.add(child);
+  }
   readonly damageModifiers: readonly DamageModifier[];
   readonly healModifiers: readonly HealModifier[];
   readonly poiseModifiers: readonly PoiseModifier[];
@@ -551,9 +561,13 @@ export class CombatBuff<Key extends string> {
     this.#finishing = true;
     this.#finishReason = reason;
     this.definition.actions?.finish?.(this);
+    this.endDuringEnableAction();
     const hadRegisteredModifiers = this.#enabled;
     this.#enabled = false;
     this.#finished = true;
+    // MarkFinish: OnFinish → finished/disabled → _RemoveAllChildrenBuff → stacking/modifiers.
+    for (const child of this.#childBuffs) child.finish('other', null);
+    this.#childBuffs.clear();
     this.removeExtendTags();
     this.#stackingGroup?.refreshAfterFinish();
     if (hadRegisteredModifiers) {
@@ -566,7 +580,6 @@ export class CombatBuff<Key extends string> {
       this.removeAttributeModifiers();
       this.unregisterSharedSpGainModifiers();
     }
-    this.endDuringEnableAction();
     this.#finishing = false;
     this.owner.handleBuffFinished(this, reason, finishSkillCastInfo);
     return true;

@@ -229,7 +229,6 @@ export function attachBuffLifecycleSequences<Key extends string>(
 
   const runtimes = new WeakMap<CombatBuff<Key>, CombatActionSequenceRuntime>();
   const eventRegistrations = new WeakMap<CombatBuff<Key>, AbilityEventRegistration[]>();
-  const childBuffs = new WeakMap<CombatBuff<Key>, { finish(reason: 'other'): boolean }[]>();
   const activeEnableSequences = new WeakMap<CombatBuff<Key>, ActionSequence>();
   const triggerSequences = new WeakMap<CombatBuff<Key>, ActionSequence>();
   const runtimeFor = (buff: CombatBuff<Key>): CombatActionSequenceRuntime => {
@@ -269,11 +268,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       getCurrentBuffRemainingDuration: () => buff.remainingDuration,
       setCurrentBuffRemainingDuration: duration => buff.rawSetRemainingDuration(duration),
       refreshCurrentBuffAttributeModifiers: () => buff.refreshAttributeModifierValues(),
-      addCurrentBuffChild: child => {
-        const children = childBuffs.get(buff);
-        if (children === undefined) childBuffs.set(buff, [child]);
-        else children.push(child);
-      },
+      addCurrentBuffChild: child => buff.attachChildBuff(child),
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
     };
     const defaultOperations = resolveOperations(buff);
@@ -556,11 +551,9 @@ export function attachBuffLifecycleSequences<Key extends string>(
       ? {}
       : {
           finish: buff => {
-            disposeEventResponses(buff);
-            endEnableSequence(buff);
-            for (const child of childBuffs.get(buff) ?? []) child.finish('other');
-            childBuffs.delete(buff);
             execute(sequences.finish, buff);
+            endEnableSequence(buff);
+            disposeEventResponses(buff);
           },
         }),
   };

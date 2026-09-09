@@ -14,6 +14,81 @@ import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it('父结束动作先执行并可新增子实例，标记父已结束后再以空施法清理全部子实例', () => {
+    const seen: unknown[] = [];
+    let parent: import('../buffs/combatBuffs').CombatBuff<never>;
+    const container = new CombatBuffContainer<never>(
+      'owner',
+      new CombatAttributeSet<never>(),
+      undefined,
+      null,
+      undefined,
+      (buff, _reason, source) => seen.push([buff.definition.id, parent.isFinished, source]),
+    );
+    const cast = {
+      skillCastId: 7,
+      originSkillId: 'origin',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 100,
+    };
+    const children: import('../buffs/combatBuffs').CombatBuff<never>[] = [];
+    const createChild = (context: CombatOperationContext, id: string) => {
+      const child = container.add({ id, stackingType: 'unlimited' }, 'caster', {
+        skillCastInfo: cast,
+      })!;
+      children.push(child);
+      context.addCurrentBuffChild!(child);
+    };
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'parent', stackingType: 'unlimited' },
+      {
+        enable: {
+          steps: [
+            {
+              kind: 'setContextFlag',
+              parameters: { flag: 'start', value: true, target: 'caster' },
+            },
+          ],
+        },
+        finish: {
+          steps: [
+            {
+              kind: 'setContextFlag',
+              parameters: { flag: 'finish', value: true, target: 'caster' },
+            },
+          ],
+        },
+      },
+      () => ({
+        execute: (step, context) => {
+          if (step.kind !== 'setContextFlag') return false;
+          if (step.parameters.flag === 'start') createChild(context!, 'initial-child');
+          else {
+            seen.push(['finish-action', parent.isFinished, children[0]!.isFinished]);
+            createChild(context!, 'finish-child');
+          }
+          return true;
+        },
+        end: step => {
+          if (step.kind === 'setContextFlag' && step.parameters.flag === 'start')
+            seen.push(['enable-end', parent.isFinished]);
+        },
+        evaluate: () => false,
+      }),
+    );
+    parent = container.add(definition, 'caster', { skillCastInfo: cast })!;
+    parent.finish('other', cast);
+    expect(seen).toEqual([
+      ['finish-action', false, false],
+      ['enable-end', false],
+      ['initial-child', true, null],
+      ['finish-child', true, null],
+      ['parent', true, cast],
+    ]);
+    expect(children.every(child => child.isFinished)).toBe(true);
+    expect(parent.finish('other')).toBe(false);
+    expect(seen).toHaveLength(5);
+  });
   it.each([false, true])(
     '倒地兼容响应复用目标/来源作用域，不给手工标记补原生信息：native=%s',
     native => {

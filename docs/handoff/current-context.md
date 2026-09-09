@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-10：父子 Buff 结束顺序归位
+
+子 Buff 持有从生命周期适配器 WeakMap 移到 CombatBuff 本体，不再在父结束动作前清理。
+原生边界为：父结束动作 → 持续动作退出 → 父标记已结束 → 子实例清理 → 修正卸载/通知。
+BuffApplicationHandle 统一定义在 Buff 层，动作端口重导出；结束支持显式 null 来源。
+父清理子实例传 null，其他宿主的未审计结束调用不改默认值。结束动作新增子 Buff 也会清理。
+复刻库同步提前 EndDuringEnableActions；证据及地址见 buff-automatic-finish-source.md。
+新增集成测试覆盖父/子状态、退出顺序、结束时新增子实例、来源和幂等性。
+1193项 Endaxis 运行时/Buff测试、68项复刻库生命周期测试通过。
+完整应用类型检查通过。核心 duringEnable 时间轴退出也移到标记结束前，退出时仍能读到
+尚未卸载的属性修正；对应测试从旧错误100改为原生顺序下125。
+
+四条真实轴：两条完全一致；sc_zpm5ozw 在72s、default_sc 在51.6667s 各有三条回执换序。
+arcane 的结束动作重置UI/扣999能量，enable中restrictUltimateEnergyRecovery的退出清能量
+现在后执行。四条轴完整回执集合（除序号）、数值和所有诊断一致，只有上述同帧顺序变化。
+此外 sc_zpm5ozw 的70.5667s有四条回执换序：技能槽恢复先于子Buff结束通知，符合
+CastEnd先于_RemoveAllChildrenBuff。最终差异位置分别为0/0/7/3，并非只有最初的3/3。
+这次不能写“完整回执顺序无回归”，也没有覆盖旧基线；原生正确性优先于旧错误顺序。
+
 ## 2026-09-10：自动结束的空来源核实
 
 补审 OnTick、SetFinishable 和 StackBuff 满层替换的原生调用点，均构造空的结束施法。

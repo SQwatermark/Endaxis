@@ -626,8 +626,8 @@ describe('CombatBuffContainer', () => {
       'during-execute:125',
       'during-tick:0.75',
       'finish',
-      'during-end:100',
-      'during-reset:100',
+      'during-end:125',
+      'during-reset:125',
     ]);
   });
 

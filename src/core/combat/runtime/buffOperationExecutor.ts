@@ -12,7 +12,7 @@ import {
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operatorDefinition';
-import type { BuffFinishReason } from '../buffs/combatBuffs';
+import type { BuffApplicationHandle, BuffFinishReason } from '../buffs/combatBuffs';
 import type { GameplayTag, GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -158,9 +158,7 @@ export interface BuffConsumedEvent {
 }
 
 /** 由有状态动作精确持有的 Buff 实例，不按 ID 误删其他来源实例。 */
-export interface BuffApplicationHandle {
-  finish(reason: BuffFinishReason): boolean;
-}
+export type { BuffApplicationHandle } from '../buffs/combatBuffs';
 
 /** 定义身份与本次施加覆盖值已经分离求值后的运行时请求。 */
 export interface BuffApplicationRequest {
