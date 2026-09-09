@@ -44,10 +44,13 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
    Ability本体清子Buff也已核实空来源，配装dispose已接；配装宿主退出/注销的相对顺序
    未由这一调用推断。GlobalBuff子清理已核实固定Other+空来源，父Early不传给子；
    两仓均已修正，完整宿主退出顺序仍待核实。仍需核实能力实体子Buff、容器finishAll、
-   护盾耗尽、SkillAffix绑定技能结束等入口。
+   SkillAffix绑定技能结束等入口。护盾耗尽移除已核实Other+空来源，TS数值/次数耗尽
+   均验证；这不等于完整ShieldBlockDamage事件已验收。
    现有未知来源不能一律改成null，也不能一律继承宿主施法。
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、
    globalBuffRuntime、combatBuffs、buffLifecycleSequenceRuntime。
+   当前容器finishAll唯一正式调用来自combatRuntimeAssembly的能力实体finished回调，
+   经buffDefinitionOperationTarget转发；应与能力实体销毁一起核实，不另造一套事件规则。
 2. **额外通知的最终分类。** [现有分类表](../next/damage-event-boundaries.md)
    已记录生产类型，但尚未完整证明每项的原生身份与消费者边界。
    只解决当前模型已有路径；不得为清单打钩扩展敌人主动行为或关卡脚本能力。

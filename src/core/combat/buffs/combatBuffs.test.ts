@@ -24,7 +24,7 @@ import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 type Attribute = 'attack';
 
-it.each(['expiry', 'release', 'replacement'] as const)(
+it.each(['expiry', 'release', 'replacement', 'shieldValue', 'shieldCount'] as const)(
   '%s 结束传递已知空来源，不继承施加技能',
   path => {
     const observations: unknown[] = [];
@@ -50,11 +50,26 @@ it.each(['expiry', 'release', 'replacement'] as const)(
       stackingType: 'stack',
       maxStackCount: 1,
       durationSeconds: 1,
+      shields: [
+        {
+          infinityValue: path === 'shieldCount',
+          value: 10,
+          absorbCount: path === 'shieldCount' ? 1 : -1,
+          absorbAllDamageWhenConsumed: false,
+          removeBuffWhenConsumed: true,
+          priority: 'normal',
+          replaceHitEffect: false,
+          damageAbsorptions: [],
+        },
+      ],
     };
     const buff = requireAddedBuff(container.add(definition, 'caster', { skillCastInfo: cast }));
     if (path === 'replacement')
       container.add(definition, 'other', { skillCastInfo: { ...cast, skillCastId: 13 } });
-    else {
+    else if (path === 'shieldValue' || path === 'shieldCount') {
+      container.absorbDamage('physical', 10);
+      expect(buff.finishReason).toBe('other');
+    } else {
       if (path === 'release') buff.setFinishable(false);
       buff.tick(2);
       if (path === 'release') {

@@ -1,5 +1,12 @@
 # 当前任务快照
 
+## 2026-09-10：护盾耗尽的结束来源
+
+ShieldInst.TryAbsorbDamage当前镜像已核实：移除Buff以Other、空SkillCastInfo调用
+MarkFinish，证据补在复刻库buff-automatic-finish-source.md。Endaxis显式传null；
+C#既有默认空来源无需改动。数值耗尽/次数耗尽两条路径检查结束和减层回执为空来源，
+CombatBuff测试95项通过。不将护盾吸收伤害混同Buff Absorbed事件，也不扩展玩家受击模型。
+
 ## 2026-09-10：GlobalBuff 不转发父结束原因
 
 当前原生 MarkFinish → OnFinish → _FinishBuffs 链路核实：子 Buff 固定 Other、空

@@ -901,7 +901,7 @@ export class CombatShield<Key extends string> {
       remaining = inputValue - configuredBlocked;
     }
     remaining = Math.max(0, remaining);
-    if (this.consumed && this.definition.removeBuffWhenConsumed) this.buff.finish('other');
+    if (this.consumed && this.definition.removeBuffWhenConsumed) this.buff.finish('other', null);
     return remaining;
   }
 
