@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：Endaxis 结束/减层来源接入
+
+按 combat-spec/buff-enhance-event-context 与 finish-buff-advanced 的证据，
+finishBuffsById/Tag（全结束和限层）现在把动作环境的 skillCastInfo 沿目标适配器、
+容器、Buff 回调传入 buffEnhanceChanged；无动作来源显式 null，不回退 eventSkillCastInfo
+或 Buff 最初施加技能。层数载荷保留实际 Buff 引用、标签与来源，没有补造 targetId。
+层数事件纳入共用 Buff 分类，ID/标签/来源条件复用现有执行器；删除响应解析器重复分支。
+
+新增 ID/Tag × 全结束/减层 × 不同来源/明确空来源的贯通回归，验证实例结束后仍可读。
+1170 项运行时/Buff 测试通过；四条既有真实轴完整回执和全部诊断与基线一致。
+完整应用类型检查、代码格式检查与 git diff --check 通过。
+本轮没有变更公共存档协议、生成数据或 UI，也没有声称新增游戏机制。
+
+剩余边界：正向增强来源尚未确认，保持 undefined；其他直接 finish 调用者（含
+finishCurrentBuff、元素消费）还需逐项核对原生来源，缺省保留 undefined 而非猜测 null，不能将本轮四条动作路径当成
+全部结束来源已闭环。finishedBuff/消费事件自己的来源与事件 Buff 黑板读取仍需审查，
+本轮未把 readEventBuffBlackboard 的已验证消费切片擅自扩到所有事件。
+继续收束来源和共享读取，再审查护盾 Target 当前值；不扩展新内容。
+
 ## 2026-09-09 晚间续：复刻库层数事件来源已修正
 
 减层机器码已确认读取 FinishBuffOption 的独立 finishCastInfo，详见 combat-spec 的

@@ -63,12 +63,18 @@ export interface BuffOperationTarget {
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   /** InheritBuffAction 需要稳定实例身份；普通查询端口不能代替。 */
   findFirstHandleByIds?(ids: readonly string[]): BuffApplicationHandle | undefined;
-  finishByIds(ids: readonly string[], reason: BuffFinishReason, sourceId?: string): number;
+  finishByIds(
+    ids: readonly string[],
+    reason: BuffFinishReason,
+    sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): number;
   finishCountByIds?(
     ids: readonly string[],
     count: number,
     reason: BuffFinishReason,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number;
   ignite?(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number;
   holdByIds(ids: readonly string[]): { release(): void };
@@ -112,6 +118,7 @@ export interface BuffOperationTarget {
     reason: BuffFinishReason,
     exact?: boolean,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number;
   finishCountByTags?(
     tags: readonly GameplayTag[],
@@ -120,6 +127,7 @@ export interface BuffOperationTarget {
     reason: BuffFinishReason,
     exact?: boolean,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number;
 }
 
@@ -692,6 +700,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           step.parameters.reason,
           false,
           finishSourceId,
+          context?.skillCastInfo ?? null,
         );
       } else {
         if (context === undefined) {
@@ -708,6 +717,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           step.parameters.reason,
           false,
           finishSourceId,
+          context.skillCastInfo ?? null,
         );
       }
       return true;
@@ -719,7 +729,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId;
       for (const target of targets) {
         if (step.parameters.count === undefined) {
-          target.finishByIds(step.parameters.buffIds, step.parameters.reason, finishSourceId);
+          target.finishByIds(
+            step.parameters.buffIds,
+            step.parameters.reason,
+            finishSourceId,
+            context?.skillCastInfo ?? null,
+          );
         } else {
           if (context === undefined) {
             throw new Error('finishBuffsById runtime count requires a combat operation context');
@@ -733,6 +748,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
             count,
             step.parameters.reason,
             finishSourceId,
+            context.skillCastInfo ?? null,
           );
         }
       }

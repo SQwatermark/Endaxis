@@ -319,8 +319,13 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.findFirstByIds(ids);
   }
 
-  finishByIds(ids: readonly string[], reason: BuffFinishReason, sourceId?: string): number {
-    return this.container.finishByIds(ids, reason, sourceId);
+  finishByIds(
+    ids: readonly string[],
+    reason: BuffFinishReason,
+    sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): number {
+    return this.container.finishByIds(ids, reason, sourceId, finishSkillCastInfo);
   }
 
   finishCountByIds(
@@ -328,8 +333,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
     count: number,
     reason: BuffFinishReason,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number {
-    return this.container.finishCountByIds(ids, count, reason, sourceId);
+    return this.container.finishCountByIds(ids, count, reason, sourceId, finishSkillCastInfo);
   }
 
   ignite(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number {
@@ -395,8 +401,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
     reason: BuffFinishReason,
     exact?: boolean,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number {
-    return this.container.finishByTags(tags, type, reason, exact, sourceId);
+    return this.container.finishByTags(tags, type, reason, exact, sourceId, finishSkillCastInfo);
   }
 
   finishCountByTags(
@@ -406,7 +413,16 @@ export class BuffDefinitionOperationTarget<Key extends string>
     reason: BuffFinishReason,
     exact?: boolean,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number {
-    return this.container.finishCountByTags(tags, type, count, reason, exact, sourceId);
+    return this.container.finishCountByTags(
+      tags,
+      type,
+      count,
+      reason,
+      exact,
+      sourceId,
+      finishSkillCastInfo,
+    );
   }
 }

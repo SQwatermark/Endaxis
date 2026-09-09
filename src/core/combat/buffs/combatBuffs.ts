@@ -538,7 +538,11 @@ export class CombatBuff<Key extends string> {
     this.#enabled = false;
   }
 
-  finish(reason: BuffFinishReason = 'other'): boolean {
+  /** 未迁移调用者保持未知来源；已核实无来源的动作显式传 null。 */
+  finish(
+    reason: BuffFinishReason = 'other',
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): boolean {
     if (this.#finished || this.#finishing) return false;
     if (!this.#finishable) {
       this.addExtendTags();
@@ -564,7 +568,7 @@ export class CombatBuff<Key extends string> {
     }
     this.endDuringEnableAction();
     this.#finishing = false;
-    this.owner.handleBuffFinished(this, reason);
+    this.owner.handleBuffFinished(this, reason, finishSkillCastInfo);
     return true;
   }
 
@@ -665,14 +669,18 @@ export class CombatBuff<Key extends string> {
   }
 
   /** 原生 DecreaseEnhanceCnt：增强型 Buff 扣层，扣尽时结束整个实例。 */
-  decreaseEnhanceCount(count: number, reason: BuffFinishReason): boolean {
+  decreaseEnhanceCount(
+    count: number,
+    reason: BuffFinishReason,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): boolean {
     if (this.#finished || count <= 0) return false;
-    if (this.#enhanceCount <= count) return this.finish(reason);
+    if (this.#enhanceCount <= count) return this.finish(reason, finishSkillCastInfo);
     this.#enhanceCount -= count;
     this.definition.actions?.enhanceChanged?.(this, this.sourceId);
     this.replaceAttributeModifiers(this.createAttributeModifiers());
     this.#stackingGroup?.refreshAfterEnhanceDecrease();
-    this.owner.handleBuffEnhanced(this, -count);
+    this.owner.handleBuffEnhanced(this, -count, reason, finishSkillCastInfo);
     return true;
   }
 
@@ -919,6 +927,7 @@ export class CombatBuffContainer<Key extends string> {
       buff: CombatBuff<Key>,
       layerCount: number,
       reason?: BuffFinishReason,
+      finishSkillCastInfo?: CombatSkillCastInfo | null,
     ) => void,
     /** Main/Sub/All 只能由拥有角色面板身份的实体容器延迟解析。 */
     readonly resolveAttributeSelector?: (selector: {
@@ -934,15 +943,24 @@ export class CombatBuffContainer<Key extends string> {
   ) {}
 
   /** Buff 结束成功时由实例调用；调用方不应在回调里修改容器。 */
-  handleBuffFinished(buff: CombatBuff<Key>, reason: BuffFinishReason): void {
+  handleBuffFinished(
+    buff: CombatBuff<Key>,
+    reason: BuffFinishReason,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): void {
     this.onBuffFinished?.(buff, reason);
     if (isEnhanceChangedStackingType(buff.definition.stackingType)) {
-      this.onBuffEnhanceChanged?.(buff, -buff.enhanceCount, reason);
+      this.onBuffEnhanceChanged?.(buff, -buff.enhanceCount, reason, finishSkillCastInfo);
     }
   }
 
-  handleBuffEnhanced(buff: CombatBuff<Key>, layerCount: number): void {
-    this.onBuffEnhanceChanged?.(buff, layerCount);
+  handleBuffEnhanced(
+    buff: CombatBuff<Key>,
+    layerCount: number,
+    reason?: BuffFinishReason,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): void {
+    this.onBuffEnhanceChanged?.(buff, layerCount, reason, finishSkillCastInfo);
   }
 
   configureConsumedObserver(
@@ -1069,12 +1087,17 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 按容器插入顺序结束所有 ID 命中任一候选项的 Buff。 */
-  finishByIds(ids: readonly string[], reason: BuffFinishReason, sourceId?: string): number {
+  finishByIds(
+    ids: readonly string[],
+    reason: BuffFinishReason,
+    sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): number {
     const accepted = new Set(ids);
     let count = 0;
     for (const buff of this.#buffs) {
       if (!buff.isFinished && accepted.has(buff.definition.id)) {
-        if (this.#finishWithSource(buff, reason, sourceId)) {
+        if (this.#finishWithSource(buff, reason, sourceId, finishSkillCastInfo)) {
           count += 1;
         }
       }
@@ -1083,16 +1106,26 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 按已解析实例结束，避免重新按 ID 查询而误消费另一实例。 */
-  finishInstance(buff: CombatBuff<Key>, reason: BuffFinishReason, sourceId: string): boolean {
+  finishInstance(
+    buff: CombatBuff<Key>,
+    reason: BuffFinishReason,
+    sourceId: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): boolean {
     if (buff.owner !== this || !this.#buffs.includes(buff))
       throw new Error('Buff instance does not belong to this container');
-    return this.#finishWithSource(buff, reason, sourceId);
+    return this.#finishWithSource(buff, reason, sourceId, finishSkillCastInfo);
   }
 
   /** 原生 Ignite/Early 结束向 finishSource 发布消费；普通结束与吸收不冒充消费。 */
-  #finishWithSource(buff: CombatBuff<Key>, reason: BuffFinishReason, sourceId?: string): boolean {
+  #finishWithSource(
+    buff: CombatBuff<Key>,
+    reason: BuffFinishReason,
+    sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
+  ): boolean {
     const layers = buff.enhanceCount;
-    if (!buff.finish(reason)) return false;
+    if (!buff.finish(reason, finishSkillCastInfo)) return false;
     if (sourceId !== undefined) {
       if (reason === 'early' || reason === 'ignite') this.#onBuffConsumed?.(buff, sourceId, layers);
       else if (reason === 'absorbed') this.#onBuffAbsorbed?.(buff, sourceId, layers);
@@ -1106,6 +1139,7 @@ export class CombatBuffContainer<Key extends string> {
     count: number,
     reason: BuffFinishReason,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number {
     if (!Number.isFinite(count) || count < 0) {
       throw new RangeError('Buff finish count must be a finite non-negative number');
@@ -1125,7 +1159,7 @@ export class CombatBuffContainer<Key extends string> {
         if (
           !buff.isFinished &&
           accepted.has(buff.definition.id) &&
-          buff.decreaseEnhanceCount(count, reason)
+          buff.decreaseEnhanceCount(count, reason, finishSkillCastInfo)
         ) {
           changed += 1;
         }
@@ -1137,7 +1171,7 @@ export class CombatBuffContainer<Key extends string> {
       if (finished >= count) break;
       if (!buff.isFinished && accepted.has(buff.definition.id)) {
         const layers = buff.enhanceCount;
-        if (buff.finish(reason)) {
+        if (buff.finish(reason, finishSkillCastInfo)) {
           finished += 1;
           if (reason === 'absorbed' && sourceId !== undefined)
             this.#onBuffAbsorbed?.(buff, sourceId, layers);
@@ -1297,13 +1331,14 @@ export class CombatBuffContainer<Key extends string> {
     reason: BuffFinishReason,
     exact = false,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number {
     let count = 0;
     for (const buff of this.#buffs) {
       if (
         !buff.isFinished &&
         this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact) &&
-        this.#finishWithSource(buff, reason, sourceId)
+        this.#finishWithSource(buff, reason, sourceId, finishSkillCastInfo)
       ) {
         count += 1;
       }
@@ -1319,6 +1354,7 @@ export class CombatBuffContainer<Key extends string> {
     reason: BuffFinishReason,
     exact = false,
     sourceId?: string,
+    finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number {
     if (!Number.isFinite(count) || count < 0) {
       throw new RangeError('Buff finish count must be a finite non-negative number');
@@ -1331,7 +1367,8 @@ export class CombatBuffContainer<Key extends string> {
       )
       .map(buff => buff.definition.id);
     let changed = 0;
-    for (const id of matchingIds) changed += this.finishCountByIds([id], count, reason, sourceId);
+    for (const id of matchingIds)
+      changed += this.finishCountByIds([id], count, reason, sourceId, finishSkillCastInfo);
     return changed;
   }
 

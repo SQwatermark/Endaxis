@@ -38,6 +38,94 @@ it('过程事件载荷覆盖全部广播键，复用生产端类型且不含 unk
 });
 import { buffEnhanceAbilityEvent } from '../events/combatAbilityEvent';
 
+it.each([
+  [false, false],
+  [false, true],
+  [true, false],
+  [true, true],
+])('结束/减层事件保留实际 Buff 与独立来源，无来源=%s，按标签=%s', (noSource, byTags) => {
+  for (const count of [undefined, 1]) {
+    const environment = createEnvironment();
+    environment.runtimeOptions.createOperationExecutor(createContext());
+    const target = environment.runtimeOptions.enemyBuffRuntime;
+    if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+    const original = {
+      skillCastId: 1,
+      originSkillId: 'original',
+      originSkillType: 'basicAttack' as const,
+      nonReturnedSpCost: 0,
+    };
+    const finishSource = noSource
+      ? null
+      : {
+          ...original,
+          skillCastId: 2,
+          originSkillId: 'finisher',
+          originSkillType: 'comboSkill' as const,
+        };
+    const definition = {
+      id: 'layer-source',
+      stackingType: 'enhanceAndRefresh' as const,
+      maxStackCount: 3,
+    };
+    const buff = target.container.add(definition, 'operator', { skillCastInfo: original })!;
+    target.container.add(definition, 'operator', { skillCastInfo: original });
+    const received: AbilityEventPayloadMap['buffEnhanceChanged'][] = [];
+    environment.eventsFor('enemy').registerCallback('buffEnhanceChanged', event => {
+      received.push(event.payload);
+      expect(event.payload.buff).toBe(buff);
+      expect(event.payload.skillCastInfo).toBe(finishSource);
+      expect(event.payload.buff.isFinished).toBe(count === undefined);
+      expect(event.payload).not.toHaveProperty('targetId');
+      const conditions = new EventContextConditionExecutor({
+        execute: () => false,
+        evaluate: () => false,
+      });
+      const context = { blackboard: new ActionBlackboard(), event, skillCastInfo: original };
+      expect(
+        conditions.evaluate({ kind: 'eventBuffIdMatch', buffIds: [definition.id] }, context),
+      ).toBe(true);
+      expect(
+        conditions.evaluate({ kind: 'eventBuffTagsMatch', buffTags: [], match: 'hasAll' }, context),
+      ).toBe(true);
+      expect(
+        conditions.evaluate({ kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] }, context),
+      ).toBe(!noSource);
+      expect(
+        conditions.evaluate({ kind: 'originSkillTypeIn', skillTypes: ['basicAttack'] }, context),
+      ).toBe(false);
+    });
+    const operations = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+    const common = {
+      target: 'enemy' as const,
+      reason: 'other' as const,
+      ...(count === undefined ? {} : { count: { kind: 'constant' as const, value: count } }),
+    };
+    operations.execute(
+      byTags
+        ? {
+            kind: 'finishBuffsByTag',
+            parameters: { ...common, buffTags: [], tagQueryType: 'hasAll' },
+          }
+        : { kind: 'finishBuffsById', parameters: { ...common, buffIds: [definition.id] } },
+      {
+        blackboard: new ActionBlackboard(),
+        ...(finishSource === null ? {} : { skillCastInfo: finishSource }),
+        eventSkillCastInfo: original,
+      },
+    );
+    expect(received).toHaveLength(1);
+    expect(received[0]).toMatchObject({
+      reason: 'other',
+      layerCount: count === undefined ? -2 : -1,
+    });
+  }
+});
+
 it('Buff 层数变化在 owner 发布，载荷不伪造目标且消费同一原始对象', () => {
   const environment = createEnvironment();
   const target = environment.runtimeOptions.enemyBuffRuntime;

@@ -298,7 +298,8 @@ export class StandardPlayerDamageEnvironment {
       null,
       undefined,
       (buff, reason) => this.#recordBuffFinished(buff, reason),
-      (buff, layerCount, reason) => this.#emitBuffEnhanceChanged('enemy', buff, layerCount, reason),
+      (buff, layerCount, reason, skillCastInfo) =>
+        this.#emitBuffEnhanceChanged('enemy', buff, layerCount, reason, skillCastInfo),
       undefined,
       (gainedValue, currentValue) =>
         this.#emit('enemy', 'afterAddedShield', {
@@ -407,8 +408,8 @@ export class StandardPlayerDamageEnvironment {
           null,
           entityBlackboard,
           (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
-          (buff, layerCount, reason) =>
-            this.#emitBuffEnhanceChanged(entityId, buff, layerCount, reason),
+          (buff, layerCount, reason, skillCastInfo) =>
+            this.#emitBuffEnhanceChanged(entityId, buff, layerCount, reason, skillCastInfo),
           undefined,
           (gainedValue, currentValue) =>
             this.#emit(entityId, 'afterAddedShield', {
@@ -965,8 +966,8 @@ export class StandardPlayerDamageEnvironment {
         null,
         undefined,
         (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),
-        (buff, layerCount, reason) =>
-          this.#emitBuffEnhanceChanged(operatorId, buff, layerCount, reason),
+        (buff, layerCount, reason, skillCastInfo) =>
+          this.#emitBuffEnhanceChanged(operatorId, buff, layerCount, reason, skillCastInfo),
         selector => {
           if (panel === undefined) {
             throw new Error(
@@ -1616,12 +1617,16 @@ export class StandardPlayerDamageEnvironment {
     buff: CombatBuff<string>,
     layerCount: number,
     reason?: BuffFinishReason,
+    skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo | null,
   ): void {
     this.#emit(ownerId, 'buffEnhanceChanged', {
       // DoesEventHaveTarget(209)=false：只保留发布者，不补造自身目标。
       sourceId: ownerId,
+      buff,
       buffId: buff.definition.id,
+      buffTags: buff.definition.applyTags ?? [],
       layerCount,
+      ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
       ...(reason === undefined ? {} : { reason }),
     });
   }

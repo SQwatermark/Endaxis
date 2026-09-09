@@ -8,6 +8,7 @@ import type {
 } from '../../game-data/operatorDefinition';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
+import type { CombatBuff } from '../buffs/combatBuffs';
 import type { BuffApplicationHandle, BuffAppliedEvent } from '../runtime/buffOperationExecutor';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import type { AbilityEventFromMap } from './abilityEventDispatcher';
@@ -281,7 +282,12 @@ export interface AbilityConsumedBuffPayload extends AbilityOriginPayload {
 /** OnBuffEnhanceChanged 在 Buff owner 上广播，不具有动作目标。 */
 export interface AbilityBuffEnhancePayload {
   readonly sourceId: string;
+  /** 原生 BuffContext 保留实际实例，结束后仍可读取，不能重新查询活动 Buff。 */
+  readonly buff: CombatBuff<string>;
   readonly buffId: string;
+  readonly buffTags: readonly GameplayTag[];
+  /** 结束/减层的独立来源；正向增强尚未确认时保持 undefined。 */
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly layerCount: number;
   readonly reason?: BuffFinishReason;
 }
@@ -410,7 +416,9 @@ export function buffApplicationEvent(
 /** Buff 通知共用身份与数据读取；结束与消耗的不同字段仍由事件名判别。 */
 export type BuffAbilityEvent =
   | BuffApplicationAbilityEvent
-  | (CombatAbilityEvent<'finishedBuff' | 'buffEndsEarly' | 'buffConsumed' | 'buffAbsorbed'> & {
+  | (CombatAbilityEvent<
+      'finishedBuff' | 'buffEndsEarly' | 'buffConsumed' | 'buffAbsorbed' | 'buffEnhanceChanged'
+    > & {
       readonly kind?: never;
     });
 
@@ -420,6 +428,7 @@ export function buffAbilityEvent(event: CombatAbilityEvent): BuffAbilityEvent | 
     case 'buffEndsEarly':
     case 'buffConsumed':
     case 'buffAbsorbed':
+    case 'buffEnhanceChanged':
       return event;
     default:
       return buffApplicationEvent(event);

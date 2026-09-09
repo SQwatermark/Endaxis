@@ -14,6 +14,33 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it.each([false, true])('结束动作传递自身施法而非事件施法，存在来源=%s', hasSource => {
+    const target = new CombatBuffContainer<string>('caster', new CombatAttributeSet());
+    const finish = vi.spyOn(target, 'finishByIds');
+    const executor = new BuffOperationExecutor({
+      sourceId: 'caster',
+      resolveTarget: () => target,
+      delegate,
+    });
+    const source = {
+      skillCastId: 1,
+      originSkillId: 'host',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 100,
+    };
+    executor.execute(
+      {
+        kind: 'finishBuffsById',
+        parameters: { target: 'caster', buffIds: ['buff'], reason: 'other' },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        ...(hasSource ? { skillCastInfo: source } : {}),
+        eventSkillCastInfo: { ...source, skillCastId: 2, originSkillId: 'event' },
+      },
+    );
+    expect(finish).toHaveBeenCalledWith(['buff'], 'other', 'caster', hasSource ? source : null);
+  });
   it.each([false, true])('CreateBuff继承动作环境而非触发事件，宿主来源存在=%s', hasHost => {
     const apply = vi.fn((_request: unknown) => true);
     const target = Object.assign(new CombatBuffContainer('caster', new CombatAttributeSet()), {
@@ -142,7 +169,7 @@ describe('BuffOperationExecutor', () => {
       { blackboard: new ActionBlackboard(), currentTarget, buffSourceId: 'original' },
     );
     expect(resolve).toHaveBeenCalledWith(expectedId);
-    expect(finish).toHaveBeenCalledWith(['buff.fixture'], 'other', 'original');
+    expect(finish).toHaveBeenCalledWith(['buff.fixture'], 'other', 'original', null);
   });
   it('Context 来源使用已查询身份，不取原 Buff 来源或受益干员', () => {
     const apply = vi.fn(() => true);

@@ -462,8 +462,12 @@ skillCastInfo，不替代当前施法的 skillId/skillType/skillCastId；扣费�
 buffEnhanceChanged 直接消费实体总线原始事件，删除 abilityBuffEnhanceChanged 副本。
 事件在 Buff owner 上发布且无动作目标，不再写入 targetId=owner；不改变 layerCount
 变化量、reason 或发布时点。依据 consume-buff-single.md、finish-buff-advanced.md，
-该通知与 Buff 的 after-try-enhance、附着通知不是一回事。当前载荷仍未补齐原生 Buff
-实例与由其读取的来源信息，本轮不能据此声称完全复刻所有条件上下文。
+该通知与 Buff 的 after-try-enhance、附着通知不是一回事。2026-09-09 后续已保留
+实际 Buff 引用、标签及独立事件 skillCastInfo，并纳入共用 Buff 条件读取。
+buff-enhance-event-context.md 证明结束/减层来源来自 finishCastInfo，不能从 Buff
+原始施加技能读取。ID/Tag 全结束/限层动作已贯通；未知的正向增强或未迁移直接
+结束调用者保持 undefined，已确认无来源才传 null，不回退监听宿主或外层事件。
+其他结束/消费通知与 Buff 黑板动作的来源/准入仍需审查，不声称全量上下文已完备。
 普通实体与能力实体的 Buff 生命周期接线统一由 CombatRuntimeAssembly.#configureBuffLifecycle
 维护：生命周期操作、消费/吸收发布和击倒兼容订阅不再各复制一份。能力实体仍在首次
 创建 Buff 运行时后接线并缓存，普通实体仍在开局动作前接线；不改变注册时点或事件身份。

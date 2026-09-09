@@ -1,4 +1,6 @@
 import { createKillEvent } from '../events/killEventTestFixture';
+import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { abilityEventSourceId, abilityEventTargetId } from '../events/combatAbilityEvent';
 import { expect, it } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
@@ -168,11 +170,17 @@ it.each(['poiseZero', 'poiseKnotBreak', 'afterAddedShield'] as const)(
 );
 
 it('Buff 层数变化直接消费原对象，不生成自身目标或继承外层施法来源', () => {
+  const buff = new CombatBuffContainer<string>('owner', new CombatAttributeSet()).add(
+    { id: 'buff', stackingType: 'enhance' },
+    'source',
+  )!;
   const published = Object.freeze({
     event: 'buffEnhanceChanged' as const,
     payload: Object.freeze({
       sourceId: 'owner',
       buffId: 'buff',
+      buff,
+      buffTags: [],
       layerCount: -2,
       reason: 'ignite' as const,
     }),

@@ -325,7 +325,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
         this.matchBuffTags === undefined
           ? matchValues(event.buffTags ?? [], condition.buffTags, condition.match)
           : this.matchBuffTags(
-              event.targetId,
+              'targetId' in event ? event.targetId : event.buff.owner.ownerId,
               event.buffTags ?? [],
               condition.buffTags,
               condition.match,

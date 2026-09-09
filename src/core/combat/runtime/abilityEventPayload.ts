@@ -7,7 +7,6 @@ import {
   customAbilityEvent,
   poiseAbilityEvent,
   shieldAbilityEvent,
-  buffEnhanceAbilityEvent,
   inflictionAbilityEvent,
   spGainAbilityEvent,
   killAbilityEvent,
@@ -43,7 +42,6 @@ export function resolveAbilityEventContext(
     customAbilityEvent(published) ??
     poiseAbilityEvent(published) ??
     shieldAbilityEvent(published) ??
-    buffEnhanceAbilityEvent(published) ??
     inflictionAbilityEvent(published) ??
     spGainAbilityEvent(published) ??
     killAbilityEvent(published) ??
