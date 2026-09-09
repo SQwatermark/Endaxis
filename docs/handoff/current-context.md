@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：Buff.Release 剩余调用与资产范围
+
+继续核实Release门禁：owner有效才执行释放动作/移除修正/退出channeling；时间轴活跃
+才CastEnd。之后03D749E4→03738EE0的owner回调身份未确认（内部调用03739220），
+不能声称Release没有外部通知。下一轮从此具体调用继续，详见复刻库证据文档末节。
+本地BuffData快照2873个JSON递归查buffEvent=11或OnBuffReleased均为0；编译器不接受
+该事件，也没有误映射到普通结束。暂不扩展公共协议；先确认运行时释放回调。
+此轮只更新证据和范围，没有修改运行时代码或重复声称测试已验收。
+
 ## 2026-09-10：能力实体释放审计发现非等价清理（未修）
 
 当前镜像已追到AbilitySystem._DoShallowRelease→Buff容器Release/Clear→Buff.Release，
