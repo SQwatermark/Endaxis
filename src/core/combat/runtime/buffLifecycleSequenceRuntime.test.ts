@@ -1042,6 +1042,7 @@ describe('attachBuffLifecycleSequences', () => {
       {
         event: 'finishedBuff',
         payload: {
+          buff,
           sourceId: 'operator',
           targetId: 'operator',
           buffId: 'resume-marker',

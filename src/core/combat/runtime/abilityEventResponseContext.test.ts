@@ -303,6 +303,7 @@ it.each(['finishedBuff', 'buffEndsEarly', 'buffConsumed', 'buffAbsorbed'] as con
         reason: 'early' as const,
         layers: 3,
         blackboardValues: Object.freeze({ count: 7 }),
+        buff: createEventBuff({ count: 7 }),
         skillCastInfo: null,
       }),
     });
@@ -497,3 +498,4 @@ it.each(['beforeOutputKnockDown', 'afterOutputKnockDown'] as const)(
     );
   },
 );
+import { createEventBuff } from '../events/buffEventTestFixture';

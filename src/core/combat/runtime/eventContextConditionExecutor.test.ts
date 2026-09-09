@@ -639,6 +639,7 @@ describe('EventContextConditionExecutor', () => {
           event: {
             event: 'finishedBuff' as const,
             payload: {
+              buff: createEventBuff(),
               targetId: 'enemy',
               buffId: 'seal',
               sourceId: 'operator',
@@ -664,6 +665,7 @@ describe('EventContextConditionExecutor', () => {
         event: {
           event: 'finishedBuff' as const,
           payload: {
+            buff: createEventBuff(),
             sourceId: 'enemy',
             targetId: 'enemy',
             buffId: 'spell-status',
@@ -824,6 +826,7 @@ describe('EventContextConditionExecutor', () => {
           event: {
             event: 'buffConsumed' as const,
             payload: {
+              buff: createEventBuff(),
               sourceId: 'operator',
               targetId: 'enemy',
               buffId: 'buff:conduct',
@@ -883,6 +886,7 @@ describe('EventContextConditionExecutor', () => {
       event: {
         event: 'buffConsumed' as const,
         payload: {
+          buff: createEventBuff(),
           buffTags: [],
           sourceId: 'operator',
           targetId: 'enemy',
@@ -929,3 +933,4 @@ describe('EventContextConditionExecutor', () => {
     ).toBe(true);
   });
 });
+import { createEventBuff } from '../events/buffEventTestFixture';

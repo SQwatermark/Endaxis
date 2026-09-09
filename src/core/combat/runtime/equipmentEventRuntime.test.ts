@@ -43,6 +43,7 @@ describe('EquipmentEventRuntime', () => {
     {
       event: 'buffConsumed',
       payload: {
+        buff: createEventBuff(),
         sourceId: 'operator:a',
         targetId: 'enemy',
         buffId: 'consumed',
@@ -721,3 +722,4 @@ describe('EquipmentEventRuntime', () => {
     ]);
   });
 });
+import { createEventBuff } from '../events/buffEventTestFixture';

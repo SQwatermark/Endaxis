@@ -145,6 +145,7 @@ export interface BuffAppliedEvent {
 }
 
 export interface BuffConsumedEvent {
+  readonly buff: import('../events/combatAbilityEvent').EventBuffInstance;
   readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly sourceOperatorId: string;
   readonly targetId: string;
@@ -560,16 +561,20 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'readEventBuffBlackboard') {
-      const event = context?.event;
+      if (context === undefined)
+        throw new Error('readEventBuffBlackboard requires an action context');
+      const event = context.event;
       if (
-        context === undefined ||
         event === undefined ||
         !('payload' in event) ||
-        (event.event !== 'buffConsumed' && event.event !== 'buffAbsorbed')
+        (event.event !== 'buffConsumed' &&
+          event.event !== 'buffAbsorbed' &&
+          event.event !== 'finishedBuff' &&
+          event.event !== 'buffEndsEarly')
       ) {
-        throw new Error('readEventBuffBlackboard requires a consumed Buff event');
+        return false;
       }
-      const value = event.payload.blackboardValues?.[step.parameters.desiredKey];
+      const value = event.payload.buff.blackboard.getNumber(step.parameters.desiredKey);
       context.blackboard.assignDynamic(
         step.parameters.outputKey,
         typeof value === 'number' ? value : 0,

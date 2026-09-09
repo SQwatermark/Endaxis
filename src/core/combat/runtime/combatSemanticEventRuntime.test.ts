@@ -147,6 +147,7 @@ describe('CombatSemanticEventRuntime', () => {
     const published = {
       event: 'buffConsumed' as const,
       payload: {
+        buff: createEventBuff(),
         sourceId: 'consumer',
         targetId: 'enemy',
         buffId: 'custom-id',
@@ -310,6 +311,7 @@ describe('CombatSemanticEventRuntime', () => {
     });
     const payload = {
       sourceId: 'operator:a',
+      buff: createEventBuff(),
       targetId: 'enemy',
       buffId: 'test',
       buffTags: [],
@@ -341,6 +343,7 @@ describe('CombatSemanticEventRuntime', () => {
     });
 
     emitConsumedBuff({
+      buff: createEventBuff(),
       buffTags: [],
       sourceId: 'operator:b',
       targetId: 'enemy',
@@ -348,6 +351,7 @@ describe('CombatSemanticEventRuntime', () => {
       layers: 1,
     });
     emitConsumedBuff({
+      buff: createEventBuff(),
       buffTags: [],
       sourceId: 'operator:a',
       targetId: 'enemy',
@@ -355,6 +359,7 @@ describe('CombatSemanticEventRuntime', () => {
       layers: 1,
     });
     emitConsumedBuff({
+      buff: createEventBuff(),
       buffTags: [],
       sourceId: 'operator:a',
       targetId: 'enemy',
@@ -950,6 +955,7 @@ describe('CombatSemanticEventRuntime', () => {
     });
 
     emitConsumedBuff({
+      buff: createEventBuff(),
       sourceId: 'operator:other',
       targetId: 'enemy',
       buffId: 'attachment:cryo',
@@ -957,6 +963,7 @@ describe('CombatSemanticEventRuntime', () => {
       layers: 2,
     });
     emitConsumedBuff({
+      buff: createEventBuff(),
       sourceId: 'operator:last-rite',
       targetId: 'enemy',
       buffId: 'attachment:cryo',
@@ -1054,3 +1061,4 @@ it('技能命中按明确执行组匹配，不从继承来源或技能 ID 推断
   expect(received).toHaveLength(1);
   expect(received[0]).toBe(published);
 });
+import { createEventBuff } from '../events/buffEventTestFixture';

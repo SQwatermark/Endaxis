@@ -1793,7 +1793,7 @@ describe('BuffOperationExecutor', () => {
     ]);
   });
 
-  it('reads a numeric value from the consumed Buff event snapshot', () => {
+  it('reads a numeric value from the consumed Buff instance', () => {
     const target = {
       ownerId: 'operator',
       getCountByIds: () => 0,
@@ -1823,6 +1823,7 @@ describe('BuffOperationExecutor', () => {
           event: {
             event: 'buffConsumed' as const,
             payload: {
+              buff: createEventBuff({ count: 3 }),
               sourceId: 'operator',
               targetId: 'enemy',
               buffId: 'buff:conduct',
@@ -2522,3 +2523,4 @@ describe('BuffOperationExecutor', () => {
     expect(buff.isFinishable).toBe(true);
   });
 });
+import { createEventBuff } from '../events/buffEventTestFixture';

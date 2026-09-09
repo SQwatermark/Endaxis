@@ -1592,6 +1592,7 @@ export class StandardPlayerDamageEnvironment {
       });
     }
     this.#emit(ownerId, 'finishedBuff', {
+      buff,
       ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
       sourceId: ownerId,
       targetId: ownerId,
@@ -1603,6 +1604,7 @@ export class StandardPlayerDamageEnvironment {
       // combat-spec/consume-buff-single：提前消费在 OnFinishedBuff 之后同步广播
       // OnBuffEndsEarly，并携带同一 FinishBuffEventData。
       this.#emit(ownerId, 'buffEndsEarly', {
+        buff,
         ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
         sourceId: ownerId,
         targetId: ownerId,

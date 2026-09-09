@@ -137,6 +137,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   configureBuffConsumedObserver(observer: (event: BuffConsumedEvent) => void): void {
     this.container.configureConsumedObserver((buff, sourceOperatorId, layers, skillCastInfo) =>
       observer({
+        buff,
         sourceOperatorId,
         ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
         targetId: this.container.ownerId,
@@ -151,6 +152,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   configureBuffAbsorbedObserver(observer: (event: BuffConsumedEvent) => void): void {
     this.container.configureAbsorbedObserver((buff, sourceOperatorId, layers, skillCastInfo) =>
       observer({
+        buff,
         sourceOperatorId,
         ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
         targetId: this.container.ownerId,

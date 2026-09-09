@@ -100,6 +100,7 @@ describe('OperatorUpgradeEventRuntime', () => {
 
     emitConsumedBuff({
       sourceId: 'operator:last-rite',
+      buff: createEventBuff(),
       targetId: 'enemy',
       buffId: 'attachment:heat',
       buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
@@ -139,6 +140,7 @@ describe('OperatorUpgradeEventRuntime', () => {
 
     emitConsumedBuff({
       buffTags: [],
+      buff: createEventBuff(),
       sourceId: 'operator:dapan',
       targetId: 'enemy',
       buffId: 'buff_physical_no_guard',
@@ -148,3 +150,4 @@ describe('OperatorUpgradeEventRuntime', () => {
     expect(consumedLayers).toBe(4);
   });
 });
+import { createEventBuff } from '../events/buffEventTestFixture';

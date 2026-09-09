@@ -266,13 +266,21 @@ export interface AbilitySpellBurstPayload extends AbilityOriginPayload {
   readonly burstType: string;
 }
 
+/** 运行时实例的事件读取端口；仍传同一对象，不复制黑板或携带容器操作权限。 */
+export type EventBuffInstance = Pick<
+  CombatBuff<string>,
+  'instanceId' | 'blackboard' | 'isFinished'
+>;
+
 export interface AbilityFinishedBuffPayload extends AbilityOriginPayload {
+  readonly buff: EventBuffInstance;
   readonly buffId: string;
   readonly buffTags: readonly GameplayTag[];
   readonly reason: BuffFinishReason;
 }
 
 export interface AbilityConsumedBuffPayload extends AbilityOriginPayload {
+  readonly buff: EventBuffInstance;
   readonly buffId: string;
   readonly buffTags: readonly GameplayTag[];
   readonly layers: number;

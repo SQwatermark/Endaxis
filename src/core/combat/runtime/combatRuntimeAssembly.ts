@@ -357,14 +357,7 @@ export interface CombatRuntimeAssemblyOptions {
   /** Buff 消费/吸收的原生 AbilityEvent 阶段；语义事件仍由装配根并行发布给配装与养成。 */
   readonly emitBuffLifecycleAbilityEvent?: (
     event: 'buffConsumed' | 'buffAbsorbed',
-    payload: {
-      readonly sourceId: string;
-      readonly targetId: string;
-      readonly buffId: string;
-      readonly layers: number;
-      readonly buffTags: readonly import('../tags/gameplayTags').GameplayTag[];
-      readonly blackboardValues: Readonly<Record<string, string | number | null>>;
-    },
+    payload: import('../events/combatAbilityEvent').AbilityConsumedBuffPayload,
   ) => void;
   /** 仅在存在配装事件处理器时需要；不得通过伪造技能程序复用技能末端执行器。 */
   readonly createEquipmentEventOperationExecutor?: (
