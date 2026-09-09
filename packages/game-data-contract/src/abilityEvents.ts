@@ -11,8 +11,6 @@ import type { ActionSequenceDefinition } from './actions.ts';
 export interface AbilityEventResponse<Event extends AbilityEvent = AbilityEvent> {
   event: Event;
   priority: number;
-  /** 只有已证明同优先级可交换的响应才提供此标识。 */
-  samePriorityKey?: string;
   sequence: ActionSequenceDefinition;
 }
 

@@ -45,7 +45,6 @@ export type RegisterBuffAbilityEventAction = (
     published: CombatAbilityEvent<AbilityResponseEventName>,
     actionContext?: AbilityEventRuntimeActionContext,
   ) => void,
-  samePriorityKey?: string,
 ) => AbilityEventRegistration;
 
 export type RegisterBuffSemanticEventAction = (
@@ -369,7 +368,6 @@ export function attachBuffLifecycleSequences<Key extends string>(
         {
           readonly event: ResolvedSkillBuffAbilityEventResponse['event'];
           readonly priority: number;
-          readonly samePriorityKey?: string;
           readonly responses: ResolvedSkillBuffAbilityEventResponse[];
         }
       >();
@@ -380,9 +378,6 @@ export function attachBuffLifecycleSequences<Key extends string>(
           responseGroups.set(key, {
             event: response.event,
             priority: response.priority,
-            ...(response.samePriorityKey === undefined
-              ? {}
-              : { samePriorityKey: response.samePriorityKey }),
             responses: [response],
           });
         } else {
@@ -409,30 +404,19 @@ export function attachBuffLifecycleSequences<Key extends string>(
           continue;
         }
         registrations.push(
-          registerAbilityEventAction!(
-            group.event,
-            group.priority,
-            (published, actionContext) => {
-              const runtime = runtimeFor(buff);
-              for (const response of group.responses) {
-                const context = {
-                  ...runtime.context,
-                  actionOwnerId: buff.owner.ownerId,
-                  actionSourceId: buff.sourceId,
-                };
-                withAbilityEventResponseContext(context, published, actionContext, () =>
-                  runtime.createSequence(response.sequence, context).executeInstant({}),
-                );
-              }
-            },
-            group.responses.every(response => isCommutativeCurrentBuffTimeResponse(response))
-              ? 'current-buff-time-pause'
-              : group.responses.every(
-                    response => response.samePriorityKey === group.samePriorityKey,
-                  )
-                ? group.samePriorityKey
-                : undefined,
-          ),
+          registerAbilityEventAction!(group.event, group.priority, (published, actionContext) => {
+            const runtime = runtimeFor(buff);
+            for (const response of group.responses) {
+              const context = {
+                ...runtime.context,
+                actionOwnerId: buff.owner.ownerId,
+                actionSourceId: buff.sourceId,
+              };
+              withAbilityEventResponseContext(context, published, actionContext, () =>
+                runtime.createSequence(response.sequence, context).executeInstant({}),
+              );
+            }
+          }),
         );
       }
     } catch (error) {
@@ -583,39 +567,4 @@ export function attachBuffLifecycleSequences<Key extends string>(
     };
   });
   return { ...definition, ...(damageModifiers === undefined ? {} : { damageModifiers }), actions };
-}
-
-function isCommutativeCurrentBuffTimeResponse(
-  response: ResolvedSkillBuffAbilityEventResponse,
-): boolean {
-  let found = false;
-  const conditionKinds = (
-    condition: import('../../game-data/operatorDefinition').CombatCondition,
-  ): Set<string> => {
-    if (condition.kind === 'all' || condition.kind === 'any') {
-      return new Set(condition.conditions.flatMap(item => [...conditionKinds(item)]));
-    }
-    if (condition.kind === 'not') return conditionKinds(condition.condition);
-    return new Set([condition.kind]);
-  };
-  const visit = (current: ResolvedActionSequence, guards: ReadonlySet<string>): boolean =>
-    current.steps.every(step => {
-      if (step.kind === 'setCurrentBuffTimePaused') {
-        found = true;
-        return response.event === 'beforeCastSkill'
-          ? guards.has('eventSkillIdIn')
-          : response.event === 'finishedBuff' && guards.has('eventBuffIdMatch');
-      }
-      if (step.kind === 'modifyActionValue') {
-        found = true;
-        return response.event === 'beforeCastSkill' && guards.has('eventSkillTypeIn');
-      }
-      if (step.kind !== 'conditional') return false;
-      const nestedGuards = new Set([...guards, ...conditionKinds(step.parameters.condition)]);
-      return (
-        visit(step.whenTrue, nestedGuards) &&
-        (step.whenFalse === undefined || visit(step.whenFalse, nestedGuards))
-      );
-    });
-  return visit(response.sequence, new Set()) && found;
 }

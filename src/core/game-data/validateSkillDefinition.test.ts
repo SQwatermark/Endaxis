@@ -789,6 +789,11 @@ describe('validateSkillDefinition', () => {
         abilityEventResponses: Array<Record<string, unknown>>;
       }
     ).abilityEventResponses[0]!;
+    response.samePriorityKey = 'obsolete-ordering-hint';
+    expect(
+      validateSkillDefinition(skill).some(issue => issue.path.endsWith('.samePriorityKey')),
+    ).toBe(true);
+    delete response.samePriorityKey;
     response.event = 'unknownEvent';
     response.priority = 0.5;
     response.unknown = true;

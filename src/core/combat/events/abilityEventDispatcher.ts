@@ -41,7 +41,6 @@ export interface AbilityEventRegistration {
 interface RegisteredAction<Event extends PropertyKey, Payloads extends Record<Event, unknown>> {
   readonly priority: number;
   readonly registrationOrder: number;
-  readonly samePriorityKey?: string;
   readonly execute: AbilityEventHandler<Event, Payloads>;
 }
 
@@ -77,7 +76,6 @@ export class AbilityEventDispatcher<
     event: Name,
     priority: number,
     execute: AbilityEventHandler<Name, Payloads>,
-    samePriorityKey?: string,
   ): AbilityEventRegistration {
     if (!Number.isInteger(priority)) {
       throw new TypeError('ability event action priority must be an integer');
@@ -87,7 +85,6 @@ export class AbilityEventDispatcher<
       priority,
       registrationOrder: this.#nextActionRegistrationOrder++,
       execute: execute as AbilityEventHandler<Event, Payloads>,
-      ...(samePriorityKey === undefined ? {} : { samePriorityKey }),
     };
     if (actions === undefined) {
       this.#actions.set(event, [action]);

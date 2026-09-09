@@ -254,10 +254,7 @@ export interface OperatorPassiveSkillDefinition {
   /** 原生被动 Skill.Enable 时执行的有序行为。 */
   enableSequence: ActionSequenceDefinition;
   /** 被动 Skill 的原生事件响应；与启用程序共享被动黑板。 */
-  abilityEventResponses?: readonly Omit<
-    AbilityEventResponse<OperatorPassiveAbilityEvent>,
-    'samePriorityKey'
-  >[];
+  abilityEventResponses?: readonly AbilityEventResponse<OperatorPassiveAbilityEvent>[];
 }
 
 export interface OperatorUpgradeDefinition {

@@ -1014,15 +1014,10 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #buffAbilityEventRegistrar(entityId: string): RegisterBuffAbilityEventAction {
-    return (event, priority: number, handle, samePriorityKey?: string) =>
-      this.eventsFor(entityId).registerAction(
-        event,
-        priority,
-        context => {
-          handle(context, this.#resolveAbilityEventRuntimeActionContext(context));
-        },
-        samePriorityKey,
-      );
+    return (event, priority: number, handle) =>
+      this.eventsFor(entityId).registerAction(event, priority, context => {
+        handle(context, this.#resolveAbilityEventRuntimeActionContext(context));
+      });
   }
 
   #resolveAbilityEventRuntimeActionContext(
