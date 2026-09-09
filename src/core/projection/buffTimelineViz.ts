@@ -195,7 +195,10 @@ export function projectBuffTimelineViz(
 
   for (const entry of entries) {
     const isApplied = entry.event === 'BuffApplied' || entry.event === 'BuffPresentationStarted';
-    const isFinished = entry.event === 'BuffFinished' || entry.event === 'BuffPresentationFinished';
+    const isFinished =
+      entry.event === 'BuffFinished' ||
+      entry.event === 'BuffReleased' ||
+      entry.event === 'BuffPresentationFinished';
     if (!isApplied && !isFinished) continue;
     if (entry.targetId === undefined) {
       throw new Error(`receipt ${entry.sequence} '${entry.event}' has no targetId`);

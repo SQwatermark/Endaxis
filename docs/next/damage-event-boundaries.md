@@ -12,7 +12,11 @@ Buff.Release的owner回调已核实为onBuffIconChange及UI总线0x1C4，参数�
 applied=false、Other。它不是AbilityEvent的Buff结束/减层通知。未来独立释放接口
 需要让表现层移除状态，但不能复用战斗结束发布器来达到该效果。
 证据见combat-spec/docs/ability-entity-event-origin.md末节：owner+3F0字段、
-带符号OnBuffIconChange与调用版本的共同参数/订阅器/总线编号。当前尚未修改运行时。
+带符号OnBuffIconChange与调用版本的共同参数/订阅器/总线编号。
+
+后续已接：实体Buff容器释放使用独立BuffReleased回执，所有Buff状态投影接受其
+终止语义；普通结束仍记录BuffFinished。两者都能结束显示，不意味着都发布
+finishedBuff或209减层。#recordBuffRemoval与#emitBuffFinished已分离。
 
 ## 标准环境已有额外通知
 

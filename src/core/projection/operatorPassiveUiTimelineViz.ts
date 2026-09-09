@@ -163,7 +163,7 @@ function projectBuffProgressSegments(
         instanceId,
       };
     } else if (
-      entry.event === 'BuffFinished' &&
+      (entry.event === 'BuffFinished' || entry.event === 'BuffReleased') &&
       open?.buffId === buffId &&
       open.instanceId === instanceId
     ) {
@@ -228,7 +228,10 @@ function projectBuffCounterSegments(
     if (field === null) continue;
     const maximum =
       field === 'points' ? source.definition.maximumPoints : source.definition.maximumArrows;
-    const nextValue = entry.event === 'BuffFinished' ? 0 : counterValue(entry, maximum);
+    const nextValue =
+      entry.event === 'BuffFinished' || entry.event === 'BuffReleased'
+        ? 0
+        : counterValue(entry, maximum);
     if (nextValue === undefined || state[field] === nextValue) continue;
     close(entry.frame);
     state = { ...state, [field]: nextValue };

@@ -103,7 +103,6 @@ import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEnt
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
-import type { BuffFinishReason } from '../buffs/combatBuffs';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import {
   ExternalCombatEventRuntime,
@@ -180,7 +179,7 @@ export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {
 /** 动态能力实体独占的 Buff 所有者；生命周期使用该实体的四路时间增量。 */
 export interface AbilityEntityBuffRuntime extends BuffOperationTarget {
   advanceWithDeltas(deltas: AbilityTickDeltas): void;
-  finishAll(reason?: BuffFinishReason): number;
+  releaseAll(): void;
 }
 
 /** 项目敌人进入运行时的静态输入；所有字段均来自项目实例而非定义回查。 */
@@ -584,7 +583,7 @@ export class CombatRuntimeAssembly {
           }
           const buffRuntime = this.#abilityEntityBuffs.get(entity.instanceId);
           if (buffRuntime !== undefined) {
-            buffRuntime.finishAll('other');
+            buffRuntime.releaseAll();
             this.#abilityEntityBuffs.delete(entity.instanceId);
           }
           this.receipt.record({

@@ -307,8 +307,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
     this.#advancedObserver = observer;
   }
 
-  finishAll(reason: BuffFinishReason = 'other'): number {
-    return this.container.finishAll(reason);
+  releaseAll(): void {
+    for (const buff of this.container.buffs) buff.release();
   }
 
   getCountByIds(ids: readonly string[]): number {

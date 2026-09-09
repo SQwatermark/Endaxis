@@ -46,6 +46,15 @@ function finished(
 }
 
 describe('projectBuffTimelineViz', () => {
+  it('closes the same visual segment for release without requiring a finish fact', () => {
+    const end = finished(1, 50, 'entity:test', 1);
+    expect(
+      projectBuffTimelineViz(
+        [applied(0, 10, 'entity:test', 1, 1), { ...end, event: 'BuffReleased' }],
+        90,
+      ),
+    ).toEqual(projectBuffTimelineViz([applied(0, 10, 'entity:test', 1, 1), end], 90));
+  });
   it('projects apply, enhance, and finish boundaries by instance identity', () => {
     expect(
       projectBuffTimelineViz(

@@ -2732,6 +2732,29 @@ describe('StandardPlayerDamageEnvironment', () => {
     }).toThrow('requires SkillSetting data');
   });
 
+  it('records entity buff release without publishing finish or layer events', () => {
+    const context = createContext();
+    const environment = createEnvironment();
+    environment.runtimeOptions.createOperationExecutor(context);
+    const runtime = environment.runtimeOptions.createAbilityEntityBuffRuntime!(
+      'entity:test',
+      new ActionBlackboard(),
+      { kind: 'abilityEntity', instanceId: 1 },
+      [],
+    );
+    if (!(runtime instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+    const events: string[] = [];
+    for (const name of ['finishedBuff', 'buffEndsEarly', 'buffEnhanceChanged'] as const)
+      environment.eventsFor('entity:test').registerCallback(name, () => events.push(name));
+    runtime.container.add({ id: 'release-test', stackingType: 'unlimited' }, 'operator');
+    runtime.releaseAll();
+    runtime.releaseAll();
+    expect(events).toEqual([]);
+    const entries = (context.receipt as CombatReceiptCollector).entries;
+    expect(entries.filter(entry => entry.event === 'BuffReleased')).toHaveLength(1);
+    expect(entries.filter(entry => entry.event === 'BuffFinished')).toHaveLength(0);
+  });
+
   it('records attachment expiry as a BuffFinished fact for effect segments', () => {
     const context = createContext();
     const receipt = context.receipt as CombatReceiptCollector;

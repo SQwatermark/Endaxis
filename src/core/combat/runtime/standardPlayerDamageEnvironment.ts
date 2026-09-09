@@ -416,6 +416,8 @@ export class StandardPlayerDamageEnvironment {
               gainedValue,
               currentValue,
             }),
+          undefined,
+          buff => this.#recordBuffRemoval(entityId, buff, 'other', 'BuffReleased'),
         );
         container.addEntityTags(bornTags);
         return new BuffDefinitionOperationTarget(
@@ -1544,6 +1546,17 @@ export class StandardPlayerDamageEnvironment {
     reason: BuffFinishReason,
     skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo | null,
   ): void {
+    this.#recordBuffRemoval(ownerId, buff, reason);
+    this.#emitBuffFinished(ownerId, buff, reason, skillCastInfo);
+  }
+
+  /** 表现/回执投影与 AbilityEvent 发布分开，释放不可复用后者。 */
+  #recordBuffRemoval(
+    ownerId: string,
+    buff: CombatBuff<string>,
+    reason: BuffFinishReason,
+    event: 'BuffFinished' | 'BuffReleased' = 'BuffFinished',
+  ): void {
     if (this.#clock === null || this.#receipt === null) {
       throw new Error(`Buff on '${ownerId}' finished before the environment was bound to a battle`);
     }
@@ -1553,7 +1566,7 @@ export class StandardPlayerDamageEnvironment {
     this.#receipt.record({
       frame: this.#clock.frame,
       time: this.#clock.time,
-      event: 'BuffFinished',
+      event,
       targetId: ownerId,
       data: {
         buffId: buff.definition.id,
@@ -1577,6 +1590,14 @@ export class StandardPlayerDamageEnvironment {
         },
       });
     }
+  }
+
+  #emitBuffFinished(
+    ownerId: string,
+    buff: CombatBuff<string>,
+    reason: BuffFinishReason,
+    skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo | null,
+  ): void {
     this.#emit(ownerId, 'finishedBuff', {
       buff,
       ...(skillCastInfo === undefined ? {} : { skillCastInfo }),

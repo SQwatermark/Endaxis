@@ -265,7 +265,9 @@ function mainCharacterHpProgressAtFrame(
     const applied =
       currentEntry.event === 'BuffApplied' || currentEntry.event === 'BuffPresentationStarted';
     const finished =
-      currentEntry.event === 'BuffFinished' || currentEntry.event === 'BuffPresentationFinished';
+      currentEntry.event === 'BuffFinished' ||
+      currentEntry.event === 'BuffReleased' ||
+      currentEntry.event === 'BuffPresentationFinished';
     if (!applied && !finished) continue;
     const buffId = stringData(currentEntry.data, 'buffId');
     const instanceId = numberData(currentEntry.data, 'instanceId');
@@ -319,7 +321,10 @@ function skillProgressPointersAtFrame(
     if (entry.frame > frame) break;
     if (entry.targetId === undefined) continue;
     const applied = entry.event === 'BuffApplied' || entry.event === 'BuffPresentationStarted';
-    const finished = entry.event === 'BuffFinished' || entry.event === 'BuffPresentationFinished';
+    const finished =
+      entry.event === 'BuffFinished' ||
+      entry.event === 'BuffReleased' ||
+      entry.event === 'BuffPresentationFinished';
     if (!applied && !finished) continue;
     const buffId = stringData(entry.data, 'buffId');
     const instanceId = numberData(entry.data, 'instanceId');
@@ -544,7 +549,8 @@ function passiveUiSnapshotsAtFrame(
         if (buffId === undefined || !counts.has(buffId)) continue;
         if (entry.event === 'BuffApplied') {
           counts.set(buffId, Math.max(0, Math.round(numberData(entry.data, 'layers') ?? 1)));
-        } else if (entry.event === 'BuffFinished') counts.set(buffId, 0);
+        } else if (entry.event === 'BuffFinished' || entry.event === 'BuffReleased')
+          counts.set(buffId, 0);
       }
       result.set(operatorId, {
         kind: 'buffCounters',
@@ -582,7 +588,7 @@ function passiveUiSnapshotsAtFrame(
       if (mode === null || instanceId === undefined) continue;
       if (entry.event === 'BuffApplied') pointer = { mode, buffId, instanceId };
       else if (
-        entry.event === 'BuffFinished' &&
+        (entry.event === 'BuffFinished' || entry.event === 'BuffReleased') &&
         pointer?.buffId === buffId &&
         pointer.instanceId === instanceId
       )

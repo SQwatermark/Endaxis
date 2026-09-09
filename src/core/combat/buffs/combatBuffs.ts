@@ -570,6 +570,7 @@ export class CombatBuff<Key extends string> {
     // 现有 isFinished 是目录/执行器的终止门禁；finishReason 不因此改变。
     this.#finished = true;
     this.#childBuffs.clear();
+    this.owner.onBuffReleased?.(this);
     return true;
   }
 
@@ -994,6 +995,7 @@ export class CombatBuffContainer<Key extends string> {
       sourceId: string,
       blackboard: ActionBlackboard,
     ) => void,
+    readonly onBuffReleased?: (buff: CombatBuff<Key>) => void,
   ) {}
 
   /** Buff 结束成功时由实例调用；调用方不应在回调里修改容器。 */
@@ -1258,15 +1260,6 @@ export class CombatBuffContainer<Key extends string> {
       if (buff.definition.actions?.ignite?.(buff, igniteType, sourceId, skillCastInfo)) {
         count += 1;
       }
-    }
-    return count;
-  }
-
-  /** 按插入顺序结束所属实体上的全部活动 Buff。 */
-  finishAll(reason: BuffFinishReason = 'other'): number {
-    let count = 0;
-    for (const buff of this.#buffs) {
-      if (!buff.isFinished && buff.finish(reason)) count += 1;
     }
     return count;
   }

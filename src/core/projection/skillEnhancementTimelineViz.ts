@@ -62,14 +62,19 @@ export function projectSkillEnhancementTimelineViz(
   const closed: SkillEnhancementTimelineSegment[] = [];
 
   for (const entry of entries) {
-    if (entry.event !== 'BuffApplied' && entry.event !== 'BuffFinished') continue;
+    if (
+      entry.event !== 'BuffApplied' &&
+      entry.event !== 'BuffFinished' &&
+      entry.event !== 'BuffReleased'
+    )
+      continue;
     const targetId = entry.targetId;
     const buffId = stringData(entry.data, 'buffId');
     const instanceId = instanceIdData(entry.data);
     if (targetId === undefined || buffId === undefined || instanceId === undefined) continue;
     const instance = instanceKey(targetId, buffId, instanceId);
 
-    if (entry.event === 'BuffFinished') {
+    if (entry.event === 'BuffFinished' || entry.event === 'BuffReleased') {
       const active = open.get(instance);
       if (active === undefined) continue;
       open.delete(instance);

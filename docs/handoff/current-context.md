@@ -1,5 +1,22 @@
 # 当前任务快照
 
+## 2026-09-10：实体Buff容器接入Release及独立表现回执
+
+standardPlayerDamageEnvironment拆开表现记录和AbilityEvent发布。实体Buff释放记录
+BuffReleased（仍以Other描述原生图标移除），不发finishedBuff/buffEndsEarly/减层。
+Buff/HUD/被动UI/强化技能投影接受此回执关闭状态，子表现仍用BuffPresentationFinished。
+实体finished回调改为releaseAll，删除无其他调用者的旧finishAll入口；子技能和
+Ability所有权childBuff清理未由此改变。C# ReleaseOwnerEntity也接入自身Buff释放，
+生命周期70项通过；扩大到实体资产测试的93项运行有17项失败，至少已复核的剑替换
+用例因缺少buff_chr_0030_zhuangfy_passive_check_sword.json而失败，不能记为全绿。
+新增测试覆盖实体释放无战斗通知、幂等、释放回执关闭同一持续段。108文件1333项通过。
+应用类型检查通过（清掉旧接口残留导入后重跑）。
+四轴本轮：sc_0nz7ti7和sc_yh34je7各用1条Released替换Finished；sc_zpm5ozw减少12条
+Finished、增加34条Released；default_sc减少4条Finished、增加5条Released。
+额外Released来自早已结束、最终随宿主释放的实例。除Finished/Released外，回执集合
+去序号后完全一致；诊断按receiptSequences解析到实际回执后完全一致（不能写原始序号相等）。
+旧基线未更新。完整释放顺序/所有权和统一总验收仍未完成。
+
 ## 2026-09-10：复刻库补同一独立释放清理切片
 
 C# Buff.Release新增对应清理，IsReleased幂等，普通结束原因保持未设置；禁止结束
