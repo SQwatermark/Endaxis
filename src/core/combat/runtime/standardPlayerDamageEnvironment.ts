@@ -1,5 +1,4 @@
 import type { CombatAbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
-import type { ActionContextBoundAbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 /**
  * 标准战斗环境：一场模拟里敌人的元素附着、反应和 Buff 都由它管；
  * 敌人生命与失衡账本由场景装配层创建并以明确依赖注入，本环境只持有同一实例。
@@ -1658,10 +1657,15 @@ export class StandardPlayerDamageEnvironment {
     payload: ElementalInflictionEventPayload,
   ): void {
     this.eventsFor(entityId).dispatch({ event, payload }, [], {
-      onAbilityEvent: context =>
-        this.comboConditions.onAbilityEvent(
-          context as CombatAbilityEvent<ActionContextBoundAbilityEvent>,
-        ),
+      onAbilityEvent: context => {
+        switch (context.event) {
+          case 'beforeOutputInfliction':
+          case 'beforeTakeInfliction':
+          case 'afterOutputInfliction':
+          case 'afterTakeInfliction':
+            this.comboConditions.onAbilityEvent(context);
+        }
+      },
     });
   }
 
@@ -1694,27 +1698,28 @@ export class StandardPlayerDamageEnvironment {
       [],
       // battle 是 GlobalBuff 的归因身份，不是具有输入/触发目标的 AbilitySystem。
       // 战斗级子 Buff 仍向接收者发布 AddedBuff，但不能伪造角色 OutputBuff 连携事件。
-      entityId !== 'battle' &&
-        (event === 'afterTakePhysicalInfliction' ||
-          event === 'beforeAddedBuff' ||
-          event === 'addedBuff' ||
-          event === 'outputBuff' ||
-          event === 'buffEndsEarly' ||
-          event === 'beforeTakeDamage' ||
-          event === 'beforeOutputDamage' ||
-          event === 'takeDamage' ||
-          event === 'outputDamage' ||
-          event === 'poiseZero' ||
-          event === 'buffConsumed' ||
-          event === 'buffAbsorbed' ||
-          event === 'weaknessSet')
+      entityId !== 'battle'
         ? {
-            // 直接转交分发器当前事件，不为连携重建载荷或按事件名重复组装。
-            // 上方连携准入门禁保留，不因分发器接入载荷映射就开放额外事件。
-            onAbilityEvent: context =>
-              this.comboConditions.onAbilityEvent(
-                context as CombatAbilityEvent<ActionContextBoundAbilityEvent>,
-              ),
+            // 当前发布路径的已审计准入，不等同于公共动作目标绑定表。
+            // 在收到完整事件后收窄，保留名称/载荷关联，不重建或断言上下文。
+            onAbilityEvent: context => {
+              switch (context.event) {
+                case 'afterTakePhysicalInfliction':
+                case 'beforeAddedBuff':
+                case 'addedBuff':
+                case 'outputBuff':
+                case 'buffEndsEarly':
+                case 'beforeTakeDamage':
+                case 'beforeOutputDamage':
+                case 'takeDamage':
+                case 'outputDamage':
+                case 'poiseZero':
+                case 'buffConsumed':
+                case 'buffAbsorbed':
+                case 'weaknessSet':
+                  this.comboConditions.onAbilityEvent(context);
+              }
+            },
           }
         : undefined,
     );

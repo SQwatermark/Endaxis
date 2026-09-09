@@ -1,5 +1,17 @@
 # 当前任务快照
 
+## 2026-09-10：连携转交改为在完整事件上收窄
+
+删除 standardPlayerDamageEnvironment 的两处 CombatAbilityEvent<ActionContextBoundAbilityEvent>
+强制转换。#emitInfliction 的四个附着阶段、#publish 的原13项准入分别保留；判断移到
+分发器回调的完整事件上，直接转交原对象，不重新组装payload。battle过滤不变。
+未将公共动作目标绑定表当成连携发布白名单：前者描述InputTarget/Trigger，后者还受
+当前发布路径取证范围限制。证据沿用combat-spec的combo-event-gates-and-pending及
+combo-skill-lifecycle；这次不声称所有原生事件均已接通连携，也不扩大准入。
+1212项运行时/Buff/事件测试和应用类型检查通过；新测试确认增强、普通结束事件正常
+发布但不进入当前连携入口。真实轴仍仅有此前解释的同帧换序，未更新旧基线。
+剩余#emit断言是重载事件名/载荷的单一构造边界，不是消费者类型擦除；暂不为零断言复制协议。
+
 ## 2026-09-10：动作目标绑定贯通完整事件
 
 resolveAbilityEventActionContextBinding 改为只接收完整 CombatAbilityEvent；从公共绑定表

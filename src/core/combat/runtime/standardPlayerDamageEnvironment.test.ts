@@ -281,6 +281,31 @@ it('正式发布链向连携转交同一事件对象，不重新投影或包装'
   expect(combo).toHaveBeenCalledOnce();
   expect(combo.mock.calls[0]![0]).toBe(published);
 });
+
+it('发布链的连携准入不因完整事件收窄而放开增强/普通结束通知', () => {
+  const environment = createEnvironment();
+  environment.runtimeOptions.createOperationExecutor(createContext());
+  const target = environment.runtimeOptions.enemyBuffRuntime;
+  if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const notifications: string[] = [];
+  environment
+    .eventsFor('enemy')
+    .registerCallback('buffEnhanceChanged', () => notifications.push('enhance'));
+  environment
+    .eventsFor('enemy')
+    .registerCallback('finishedBuff', () => notifications.push('finish'));
+  const combo = vi.spyOn(environment.comboConditions, 'onAbilityEvent');
+  const definition = { id: 'admission', stackingType: 'enhance' as const, maxStackCount: 2 };
+  const buff = target.container.add(definition, 'operator')!;
+  target.container.add(definition, 'operator');
+  buff.finish('other', null);
+  expect(notifications).toEqual(['enhance', 'finish', 'enhance']);
+  expect(
+    combo.mock.calls.some(([event]) =>
+      ['buffEnhanceChanged', 'finishedBuff'].includes(event.event),
+    ),
+  ).toBe(false);
+});
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatBuffDefinitionsDocument } from '../buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../infliction/skillSettings';
