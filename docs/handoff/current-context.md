@@ -1,5 +1,18 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：点燃收尾统一到实例结束入口
+
+同版本反编译确认原生外层 IgniteBuff 只遍历并累计成功，不按结束状态补发消费；
+OnIgnite 累计 finishAfterIgnited，遍历完成再 ConsumeBuff。之前逐映射立即结束
+会错误跳过后续匹配映射。复刻库和 Endaxis 已修正；来源使用本次点燃的动作环境。
+证据见 combat-spec/docs/ignite-finish-dispatch.md，覆盖了旧 buff-lifecycle 的相关描述。
+
+Endaxis 删除外层消费补发，映射普通结束不伪造消费，内部提前消费保留实际来源且
+不重复通知。finishCurrentBuff 来源字段及路由仍待接，消费保护 fake-consume 边界
+仍须核对，不能把本次点燃收尾修正理解为所有结束调用者均完成。
+验证：1174 项运行时/Buff 测试、完整应用类型检查通过，四条真实轴回执与告警一致；
+复刻库86项生命周期/消费测试通过。本轮没有修改生成定义或原始资源。
+
 ## 2026-09-09 晚间续：移除响应入口重复识别链
 
 新增可读架构入口 docs/next/event-system-guide.md，区分当前实现、证据和未完成项。

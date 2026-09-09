@@ -2296,7 +2296,8 @@ describe('CombatBuffContainer', () => {
     expect(container.ignite('EndminUlt', 'operator')).toBe(1);
     expect(container.ignite('EndminUlt', 'operator')).toBe(0);
     expect(reached).toEqual([`${matching.instanceId}:operator`]);
-    expect(consumed).toEqual(['frozen:operator:1:3']);
+    // 点燃映射中的普通结束不是消费；遍历器不能根据 isFinished 补造事件。
+    expect(consumed).toEqual([]);
   });
 
   it('absorbs damage with native shield ratio, scale, priority, and depletion semantics', () => {

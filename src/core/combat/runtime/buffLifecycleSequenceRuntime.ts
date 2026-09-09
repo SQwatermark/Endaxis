@@ -529,6 +529,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
             );
             if (responses.length === 0) return false;
             const runtime = runtimeFor(buff);
+            let finishAfterIgnited = false;
             for (const response of responses) {
               if (buff.isFinished) break;
               runtime
@@ -539,8 +540,11 @@ export function attachBuffLifecycleSequences<Key extends string>(
                   buffSourceId: sourceId,
                 })
                 .executeInstant({});
-              if (response.finishAfterIgnited) buff.finish('ignite');
+              finishAfterIgnited ||= response.finishAfterIgnited;
             }
+            // 原生 OnIgnite 遍历映射后统一 ConsumeBuff；普通动作提前结束不会补造消费。
+            if (finishAfterIgnited)
+              buff.owner.finishInstance(buff, 'ignite', sourceId, skillCastInfo ?? null);
             return true;
           },
         }),

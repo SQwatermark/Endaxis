@@ -1215,10 +1215,8 @@ export class CombatBuffContainer<Key extends string> {
     let count = 0;
     for (const buff of active) {
       if (buff.isFinished) continue;
-      const layers = buff.enhanceCount;
       if (buff.definition.actions?.ignite?.(buff, igniteType, sourceId, skillCastInfo)) {
         count += 1;
-        if (buff.isFinished) this.#onBuffConsumed?.(buff, sourceId, layers);
       }
     }
     return count;

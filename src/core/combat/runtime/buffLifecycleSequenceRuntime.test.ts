@@ -1161,71 +1161,92 @@ describe('attachBuffLifecycleSequences', () => {
     expect(buff.sourceId).toBe('creator');
   });
 
-  it('executes a matching ignite response with the ignite source and then finishes the Buff', () => {
-    const reached: string[] = [];
-    const cast = {
-      skillCastId: 52,
-      originSkillId: 'ignite-skill',
-      originSkillType: 'battleSkill' as const,
-      nonReturnedSpCost: 0,
-    };
-    const terminal: CombatOperationExecutor = {
-      execute: (_step, context) => {
-        reached.push(context?.buffSourceId ?? '<missing>');
-        expect(context?.skillCastInfo).toEqual(cast);
-        expect(context?.actionSourceId).toBe('operator');
-        return true;
-      },
-      evaluate: condition => {
-        throw new Error(`unexpected condition '${condition.kind}'`);
-      },
-    };
-    const definition = attachBuffLifecycleSequences<never>(
-      { id: 'frozen', stackingType: 'unique' },
-      {},
-      () => terminal,
-      undefined,
-      [],
-      undefined,
-      [],
-      [
-        {
-          igniteType: 'EndminUlt',
-          finishAfterIgnited: true,
-          sequence: {
-            steps: [
-              {
-                kind: 'setContextFlag',
-                parameters: { flag: 'reached', value: true, target: 'caster' },
-              },
-            ],
-          },
+  it.each(['deferred', 'other', 'early'] as const)(
+    '点燃结束只由实际结束入口通知：%s',
+    finishMode => {
+      const reached: string[] = [];
+      const cast = {
+        skillCastId: 52,
+        originSkillId: 'ignite-skill',
+        originSkillType: 'battleSkill' as const,
+        nonReturnedSpCost: 0,
+      };
+      const terminal: CombatOperationExecutor = {
+        execute: (_step, context) => {
+          reached.push(context?.buffSourceId ?? '<missing>');
+          expect(context?.skillCastInfo).toEqual(cast);
+          expect(context?.actionSourceId).toBe('operator');
+          if (finishMode !== 'deferred')
+            container.finishInstance(buff, finishMode, 'nested-source', cast);
+          return true;
         },
-        {
-          igniteType: 'EndminUlt',
-          finishAfterIgnited: false,
-          sequence: {
-            steps: [
-              {
-                kind: 'setContextFlag',
-                parameters: { flag: 'must-not-run', value: true, target: 'caster' },
-              },
-            ],
-          },
+        evaluate: condition => {
+          throw new Error(`unexpected condition '${condition.kind}'`);
         },
-      ],
-    );
-    const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
-    const originalCast = { ...cast, skillCastId: 12, originSkillId: 'original-skill' };
-    const buff = container.add(definition, 'original-source', { skillCastInfo: originalCast })!;
+      };
+      const definition = attachBuffLifecycleSequences<never>(
+        { id: 'frozen', stackingType: 'unique' },
+        {},
+        () => terminal,
+        undefined,
+        [],
+        undefined,
+        [],
+        [
+          {
+            igniteType: 'EndminUlt',
+            finishAfterIgnited: true,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'reached', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+          {
+            igniteType: 'EndminUlt',
+            finishAfterIgnited: false,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'second-map', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        ],
+      );
+      const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
+      const originalCast = { ...cast, skillCastId: 12, originSkillId: 'original-skill' };
+      const buff = container.add(definition, 'original-source', { skillCastInfo: originalCast })!;
+      const consumed: unknown[] = [];
+      container.configureConsumedObserver((instance, sourceId, layers, finishCast) => {
+        consumed.push({ instance, sourceId, layers, finishCast });
+      });
 
-    expect(container.ignite('PhysicalStatus', 'operator')).toBe(0);
-    expect(container.ignite('EndminUlt', 'operator', cast)).toBe(1);
-    expect(reached).toEqual(['operator']);
-    expect(buff.finishReason).toBe('ignite');
-    expect(buff.skillCastInfo).toEqual(originalCast);
-    expect(buff.sourceId).toBe('original-source');
-  });
+      expect(container.ignite('PhysicalStatus', 'operator')).toBe(0);
+      expect(container.ignite('EndminUlt', 'operator', cast)).toBe(1);
+      expect(reached).toEqual(finishMode === 'deferred' ? ['operator', 'operator'] : ['operator']);
+      expect(consumed).toEqual(
+        finishMode === 'other'
+          ? []
+          : [
+              {
+                instance: buff,
+                sourceId: finishMode === 'early' ? 'nested-source' : 'operator',
+                layers: 1,
+                finishCast: cast,
+              },
+            ],
+      );
+      expect(buff.finishReason).toBe(finishMode === 'deferred' ? 'ignite' : finishMode);
+      expect(buff.skillCastInfo).toEqual(originalCast);
+      expect(buff.sourceId).toBe('original-source');
+    },
+  );
 });
 
 it('物理后置 Buff 监听使用原始注册口并随启停注销，保留挂载端口', () => {
