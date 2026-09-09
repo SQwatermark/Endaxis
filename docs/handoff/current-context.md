@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：SkillAffix注销与引用释放职责分离
+
+核实OnEnd完整主干：移除实体onResetAction回调并清列表，再移除Buff.onRecycleAction
+回调并清列表；不结束被跟踪对象，也不通过_DecreaseRefCount做注销。Buff.OnRecycle
+先调用onRecycleAction，再清回调字段与内部资源。Release只在recycle=true分支进入
+静态Buff.Recycle，后者池调用031B9A90的调度时点尚需核实，不能默认所有Release立即
+等同Recycle。证据已追加复刻库专题。本轮仅取证，无运行时变更或新增测试通过声明。
+接入设计须分开dispose（仅注销）和releaseReference（减计数）；不新增公共战斗事件。
+
 ## 2026-09-10：SkillAffix保留引用的事件归属已核实
 
 子实体出生后订阅的是AbilitySystem.onResetAction，输出Buff订阅的是onRecycleAction；
