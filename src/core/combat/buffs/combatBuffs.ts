@@ -604,7 +604,7 @@ export class CombatBuff<Key extends string> {
     }
     if (this.#remainingDuration === null) return;
     this.#remainingDuration -= elapsed;
-    if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime');
+    if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime', null);
   }
 
   /** PauseBuffTime 只冻结当前 Buff 的生命周期、周期触发与挂载时间轴。 */
@@ -616,7 +616,7 @@ export class CombatBuff<Key extends string> {
   setFinishable(finishable: boolean): void {
     this.#finishable = finishable;
     if (finishable && this.#remainingDuration !== null && this.#remainingDuration < 0) {
-      this.finish('lifetime');
+      this.finish('lifetime', null);
     }
   }
 
@@ -1708,7 +1708,7 @@ class BuffStackingGroup<Key extends string> {
     buff.attachStackingGroup(this);
     if (initialMaxStackCount !== undefined) this.#maxStackCount = initialMaxStackCount;
     if (this.#maxStackCount > 0 && this.#currentStackCount >= this.#maxStackCount) {
-      this.getLastUnfinishedBuff()?.finish('other');
+      this.getLastUnfinishedBuff()?.finish('other', null);
     }
 
     this.#buffs.push(buff);

@@ -24,6 +24,49 @@ import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 type Attribute = 'attack';
 
+it.each(['expiry', 'release', 'replacement'] as const)(
+  '%s 结束传递已知空来源，不继承施加技能',
+  path => {
+    const observations: unknown[] = [];
+    const container = new CombatBuffContainer(
+      'owner',
+      new CombatAttributeSet<Attribute>(),
+      undefined,
+      null,
+      undefined,
+      (_buff, _reason, source) => observations.push(source),
+      (_buff, layers, _reason, source) => {
+        if (layers < 0) observations.push(source);
+      },
+    );
+    const cast = {
+      skillCastId: 12,
+      originSkillId: 'original',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 100,
+    };
+    const definition: CombatBuffDefinition<Attribute> = {
+      id: 'native-finish',
+      stackingType: 'stack',
+      maxStackCount: 1,
+      durationSeconds: 1,
+    };
+    const buff = requireAddedBuff(container.add(definition, 'caster', { skillCastInfo: cast }));
+    if (path === 'replacement')
+      container.add(definition, 'other', { skillCastInfo: { ...cast, skillCastId: 13 } });
+    else {
+      if (path === 'release') buff.setFinishable(false);
+      buff.tick(2);
+      if (path === 'release') {
+        expect(observations).toEqual([]);
+        buff.setFinishable(true);
+      }
+    }
+    expect(buff.isFinished).toBe(true);
+    expect(observations).toEqual([null, null]);
+  },
+);
+
 it.each([false, true])('增强内部动作先看新层数旧属性，再刷新；定时=%s', timed => {
   const attributes = new CombatAttributeSet<Attribute>();
   attributes.define('attack', 100, {});

@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：自动结束的空来源核实
+
+补审 OnTick、SetFinishable 和 StackBuff 满层替换的原生调用点，均构造空的结束施法。
+证据见 combat-spec/docs/buff-automatic-finish-source.md，包含调用地址、寄存器/栈偏移和哈希。
+Endaxis 三处从未知来源改为显式 null；原始施加技能和替换的新技能均不作为结束来源。
+三项回归同时检查结束通知与209负层数通知；未泛化到子 Buff/拥有者清理等其他入口。
+复刻库通知入口将缺省 nullable 来源规范为空结构体，符合证据，本项仅补文档，无运行时改动。
+1192项运行时/Buff回归、完整应用类型检查及四条真实轴完整比较通过。
+下一具体入口已取得证据：父 Buff 清理子 Buff 也传空施法，但 BuffApplicationHandle.finish
+目前只接受 reason，须贯通端口后再接；不要借此全局修改所有句柄的默认来源。
+
 ## 2026-09-10：Endaxis 护盾值读取贯通
 
 依据 SaveShieldValueToBB.ExecuteInternal 0x0601EC40（哈希及逐地址证据见复刻库
