@@ -29,7 +29,7 @@ import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type { KnockDownOutputEvent } from './combatSemanticEventRuntime';
 import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
-import { type AbilityResponseEventName } from './abilityEventPayload';
+import { type AbilityResponseEventName } from '../events/combatAbilityEvent';
 import {
   withAbilityEventResponseContext,
   withCombatEventResponseContext,

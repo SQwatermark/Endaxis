@@ -394,6 +394,13 @@ export type CombatAbilityEvent<Event extends AbilityEvent = AbilityEvent> = Abil
   AbilityEventPayloadMap
 >;
 
+/** 原生响应端口；旧 outputKnockDown 标记不是原生事件，不在此边界内。 */
+export type AbilityResponseEventName = Exclude<AbilityEvent, 'outputKnockDown'>;
+/** 保留统一事件与载荷的关联；kind 仅用于和手工语义标记进行类型判别。 */
+export type AbilityResponseEvent = CombatAbilityEvent<AbilityResponseEventName> & {
+  readonly kind?: never;
+};
+
 /** 四个施加阶段共用 AddBuffContext 数据，但必须保留各自的事件身份。 */
 export type BuffApplicationAbilityEvent = CombatAbilityEvent<
   'beforeOutputBuff' | 'beforeAddedBuff' | 'addedBuff' | 'outputBuff'

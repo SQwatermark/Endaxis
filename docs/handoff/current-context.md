@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：移除响应入口重复识别链
+
+新增可读架构入口 docs/next/event-system-guide.md，区分当前实现、证据和未完成项。
+运行时上下文改用统一 AbilityResponseEvent 映射，不再手工枚举一串事件分类；
+删除 resolveAbilityEventContext，Buff/配装/连携响应直接持有原始事件对象。
+这不是扩大可订阅范围：原有编译准入与 outputKnockDown 兼容边界不变。
+
+内部响应入口不再充当任意 JSON 的分类校验器；倒地字段检查仍由分类条件使用，
+来源读取的损坏值检查、undefined/null 区别及嵌套恢复仍保留。
+abilityEventPayload.ts 尚未删除，目前仅剩来源读取与校验，后续须完成其类型边界整理。
+1172 项运行时/Buff 测试通过，四条真实轴完整回执与诊断一致。
+
+整体收束未完成；当前 Buff 结束/点燃消费通知归属、正向增强来源、事件 Buff 黑板、
+护盾显式 Target 当前值及兼容边界仍按清单推进。不要提前转入新功能或宣布可最终验收。
+
 ## 2026-09-09 晚间续：Environment 原始适配已接，应用须统一点燃收尾
 
 复刻库 BuffDataAdapter 接受 Environment 空 ID/Tag 形状，保留完整目标与来源配置；

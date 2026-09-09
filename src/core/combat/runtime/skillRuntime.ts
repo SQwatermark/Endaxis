@@ -1,19 +1,4 @@
-import type {
-  BuffEnhanceAbilityEvent,
-  SpellBurstAbilityEvent,
-  CharacterInflictionAbilityEvent,
-  SkillAbilityEvent,
-  AbilitySkillPayload,
-  LifecycleAbilityEvent,
-  WeaknessAbilityEvent,
-  CustomAbilityEvent,
-  PoiseAbilityEvent,
-  ShieldAbilityEvent,
-  HealAbilityEvent,
-  DamageAbilityEvent,
-  PhysicalAbilityEvent,
-  KnockDownAbilityEvent,
-} from '../events/combatAbilityEvent';
+import type { AbilityResponseEvent, AbilitySkillPayload } from '../events/combatAbilityEvent';
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。
  * 每个放置块独立持有调度游标和黑板；同一技能的冷却由装配层显式共享。
@@ -93,21 +78,7 @@ export interface CombatOperationContext {
    */
   readonly eventSkillCastInfo?: CombatSkillCastInfo | null;
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
-  readonly event?:
-    | CombatSemanticEvent
-    | DamageAbilityEvent
-    | PhysicalAbilityEvent
-    | KnockDownAbilityEvent
-    | CharacterInflictionAbilityEvent
-    | SpellBurstAbilityEvent
-    | PoiseAbilityEvent
-    | HealAbilityEvent
-    | ShieldAbilityEvent
-    | SkillAbilityEvent
-    | LifecycleAbilityEvent
-    | BuffEnhanceAbilityEvent
-    | WeaknessAbilityEvent
-    | CustomAbilityEvent;
+  readonly event?: CombatSemanticEvent | AbilityResponseEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */

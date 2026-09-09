@@ -18,7 +18,7 @@ import {
   hasAbilityEventActionContextBinding,
   resolveAbilityEventActionContextBinding,
 } from '../events/abilityEventActionContext';
-import { resolveAbilityEventContext, readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { readSkillCastInfoFromPayload } from './abilityEventPayload';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
 
@@ -133,7 +133,7 @@ export class ComboSkillConditionRuntime {
         actionInputTarget: inputTarget,
         actionOwnerId: options.ownerId,
         actionSourceId: options.sourceId,
-        event: resolveAbilityEventContext(event),
+        event,
         ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
       });
       let passed: boolean;

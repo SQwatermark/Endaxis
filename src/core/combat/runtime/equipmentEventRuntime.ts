@@ -18,7 +18,7 @@ import {
   CombatSemanticEventRuntime,
   type CombatSemanticEventContext,
 } from './combatSemanticEventRuntime';
-import { resolveAbilityEventContext } from './abilityEventPayload';
+import type { AbilityResponseEvent } from '../events/combatAbilityEvent';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import {
   withAbilityEventResponseContext,
@@ -41,8 +41,7 @@ export interface EquipmentEventExecutionContext {
   readonly operatorId: string;
   readonly source: EquipmentContributionSource;
   readonly handlerKey: string;
-  readonly event:
-    CombatSemanticEventContext['event'] | ReturnType<typeof resolveAbilityEventContext>;
+  readonly event: CombatSemanticEventContext['event'] | AbilityResponseEvent;
 }
 
 export type CreateEquipmentEventOperationExecutor = (
@@ -92,7 +91,7 @@ export class EquipmentEventRuntime {
                 handler.priority ?? 0,
                 (published, actionContext) => {
                   if (this.#disposed || !this.#enabled.has(contributionIndex)) return;
-                  const event = resolveAbilityEventContext(published);
+                  const event = published;
                   executeResponse(
                     createExecutor({
                       operatorId,

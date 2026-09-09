@@ -1,4 +1,4 @@
-import { resolveAbilityEventContext } from './abilityEventPayload';
+import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import { describe, expect, it } from 'vitest';
 import { createKillEvent } from '../events/killEventTestFixture';
@@ -7,7 +7,8 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
 import { readSkillCastInfoFromPayload } from './abilityEventPayload';
 import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import { ActionBlackboard } from './actionBlackboard';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
@@ -304,7 +305,11 @@ describe('attachBuffLifecycleSequences', () => {
         eventParam: 0,
       },
     };
-    expect(resolveAbilityEventContext(published)).toBe(published);
+    const context: CombatOperationContext = { blackboard: new ActionBlackboard() };
+    withAbilityEventResponseContext(context, published, undefined, () => {
+      expect(context.event).toBe(published);
+      expect(context.eventSkillCastInfo).toBeUndefined();
+    });
   });
 
   it('护盾事件保留原始对象和独立数值', () => {
@@ -317,7 +322,11 @@ describe('attachBuffLifecycleSequences', () => {
         currentValue: 350,
       },
     };
-    expect(resolveAbilityEventContext(published)).toBe(published);
+    const context: CombatOperationContext = { blackboard: new ActionBlackboard() };
+    withAbilityEventResponseContext(context, published, undefined, () => {
+      expect(context.event).toBe(published);
+      expect(context.eventSkillCastInfo).toBeUndefined();
+    });
   });
 
   it('区分空来源与遗漏来源，接受处决类型且不从其他字段覆盖显式空来源', () => {

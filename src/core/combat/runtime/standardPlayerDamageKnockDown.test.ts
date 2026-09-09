@@ -14,7 +14,7 @@ import {
   attributeModifierValues,
 } from '../attributes/combatAttributes';
 import type { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
-import { resolveAbilityEventContext } from './abilityEventPayload';
+import { knockDownAbilityEvent } from '../events/combatAbilityEvent';
 
 const DOWN_TAG = 'Status/Immobilized/KnockDown';
 const enemy: CombatEnemyProgram = {
@@ -334,20 +334,13 @@ describe('标准战斗环境的普通倒地显式装配', () => {
   it.each(['beforeOutputKnockDown', 'afterOutputKnockDown'] as const)(
     '%s 载荷必须明确声明是否由浮空转入',
     event => {
-      expect(() =>
-        // @ts-expect-error Intentionally malformed external input also fails the runtime guard.
-        resolveAbilityEventContext({ event, payload: { sourceId: 'operator', targetId: 'enemy' } }),
-      ).toThrow('fromAirborne');
-      expect(
-        resolveAbilityEventContext({
-          event,
-          payload: {
-            sourceId: 'operator',
-            targetId: 'enemy',
-            fromAirborne: false,
-          },
-        }),
-      ).toEqual({
+      const missing = { event, payload: { sourceId: 'operator', targetId: 'enemy' } };
+      const valid = {
+        event,
+        payload: { sourceId: 'operator', targetId: 'enemy', fromAirborne: false },
+      };
+      expect(() => knockDownAbilityEvent(missing)).toThrow('fromAirborne');
+      expect(knockDownAbilityEvent(valid)).toEqual({
         event,
         payload: { sourceId: 'operator', targetId: 'enemy', fromAirborne: false },
       });

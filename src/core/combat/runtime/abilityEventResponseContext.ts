@@ -1,17 +1,14 @@
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import type { CombatOperationContext } from './skillRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
-import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
+import type { CombatAbilityEvent, AbilityResponseEventName } from '../events/combatAbilityEvent';
 import type { CombatSemanticEventContext } from './combatSemanticEventRuntime';
-import {
-  resolveAbilityEventContext,
-  readSkillCastInfoFromPayload,
-  type AbilityResponseEventName,
-} from './abilityEventPayload';
+import { readSkillCastInfoFromPayload } from './abilityEventPayload';
 
 /**
  * 同步事件响应唯一的临时上下文边界；宿主仍拥有黑板、序列和注册生命周期。
  * 嵌套通知和异常均恢复外层事件与 Trigger，不清空宿主保存的其他目标组。
+ * 此处接收内部生产的强类型事件，不是 JSON 输入校验器，也不重新识别事件类别。
  */
 export function withAbilityEventResponseContext<T>(
   context: { -readonly [Key in keyof CombatOperationContext]: CombatOperationContext[Key] },
@@ -19,7 +16,7 @@ export function withAbilityEventResponseContext<T>(
   targets: AbilityEventRuntimeActionContext | undefined,
   execute: () => T,
 ): T {
-  return withEventContext(context, resolveAbilityEventContext(published), targets, execute);
+  return withEventContext(context, published, targets, execute);
 }
 
 /** 旧定义仅保留触发器筛选；原生响应仍进入同一上下文边界，手工标记不补造目标绑定。 */

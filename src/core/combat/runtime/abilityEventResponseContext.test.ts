@@ -377,20 +377,20 @@ it('无 Trigger 的事件不会读到上次触发目标，退出后恢复宿主�
   expect(targetContext.get('trigger')).toEqual([target]);
 });
 
-it('非法载荷不改动宿主上下文', () => {
+it('来源载荷损坏时不改动宿主上下文', () => {
   const context: CombatOperationContext = { blackboard: new ActionBlackboard({}) };
   const before = { ...context };
   expect(() =>
     withAbilityEventResponseContext(
       context,
       // @ts-expect-error Verify runtime rejection as well as the compile-time payload boundary.
-      { event: 'abilityEntityFinished', payload: {} },
+      { event: 'abilityEntityFinished', payload: { ...payload, skillCastInfo: false } },
       undefined,
       () => {
         throw new Error('must not execute');
       },
     ),
-  ).toThrow('identities');
+  ).toThrow('invalid skill cast identity');
   expect(context).toEqual(before);
 });
 
