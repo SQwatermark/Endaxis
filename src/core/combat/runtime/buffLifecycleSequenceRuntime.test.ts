@@ -191,6 +191,13 @@ describe('attachBuffLifecycleSequences', () => {
     'SkillAffix独立编号 processing=$processing hasSource=$hasSource',
     ({ processing, hasSource }) => {
       const container = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+      const dispatcher = new AbilityEventDispatcher<
+        AbilityResponseEventName,
+        AbilityEventPayloadMap
+      >();
+      const observedInActionPhase: boolean[] = [];
+      // 先注册动作，仍必须在后来注册的原生回调之后执行。
+      dispatcher.registerAction('skillEnd', 0, () => observedInActionPhase.push(buff.isFinished));
       const callbacks = new Set<
         Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
       >();
@@ -209,12 +216,22 @@ describe('attachBuffLifecycleSequences', () => {
           }),
         undefined,
         [],
-        (event, _priority, callback) => {
+        () => {
+          throw new Error('SkillAffix must not register a sequence action');
+        },
+        [],
+        [],
+        [],
+        undefined,
+        [],
+        (event, callback) => {
           expect(event).toBe('skillEnd');
           callbacks.add(callback);
+          const registration = dispatcher.registerCallback(event, callback);
           return {
             dispose: () => {
               callbacks.delete(callback);
+              registration.dispose();
             },
           };
         },
@@ -235,8 +252,8 @@ describe('attachBuffLifecycleSequences', () => {
       expect(callbacks.size).toBe(processing === undefined ? 0 : 1);
       const finish = vi.spyOn(buff, 'finish');
       const emit = (sourceId: string, skillCastId: number) => {
-        for (const callback of [...callbacks])
-          callback({
+        dispatcher.dispatch(
+          {
             event: 'skillEnd',
             payload: {
               sourceId,
@@ -245,13 +262,16 @@ describe('attachBuffLifecycleSequences', () => {
               skillType: 'battleSkill',
               skillCastId,
             },
-          });
+          },
+          [],
+        );
       };
       emit('other', 42);
       emit('owner', 999);
       expect(buff.isFinished).toBe(false);
       emit('owner', 42);
       expect(buff.isFinished).toBe(processing !== undefined);
+      expect(observedInActionPhase).toEqual([false, false, processing !== undefined]);
       if (processing !== undefined) expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
       else expect(finish).not.toHaveBeenCalled();
       buff.finish('other');

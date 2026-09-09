@@ -53,6 +53,12 @@ export type RegisterBuffSemanticEventAction = (
   handle: (event: KnockDownOutputEvent, actionContext?: AbilityEventRuntimeActionContext) => void,
 ) => AbilityEventRegistration;
 
+/** 原生 RegisterEvent 回调阶段；不进入 SequenceAction 优先级队列。 */
+export type RegisterBuffAbilityEventCallback = (
+  event: AbilityResponseEventName,
+  handle: (published: CombatAbilityEvent<AbilityResponseEventName>) => void,
+) => AbilityEventRegistration;
+
 class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnableAction<Key> {
   readonly #context: CombatExecutionContext = {};
   readonly #actions: readonly CompiledTimelineAction[];
@@ -219,6 +225,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   skillSlotReplacements: readonly SkillBuffSlotReplacement[] = [],
   registerSemanticEventAction?: RegisterBuffSemanticEventAction,
   damageModifierConditionPrograms: readonly (ResolvedActionSequence | undefined)[] = [],
+  registerAbilityEventCallback?: RegisterBuffAbilityEventCallback,
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -244,10 +251,10 @@ export function attachBuffLifecycleSequences<Key extends string>(
       finishCurrentBuff: (reason, sourceId, skillCastInfo) =>
         buff.owner.finishInstance(buff, reason, sourceId, skillCastInfo),
       bindCurrentBuffSkillAffix: skillCastId => {
-        if (registerAbilityEventAction === undefined)
+        if (registerAbilityEventCallback === undefined)
           throw new Error('SkillAffix requires Buff ability-event registration');
         buff.recordBuffAffixSkillCastId(skillCastId);
-        const registration = registerAbilityEventAction('skillEnd', 0, published => {
+        const registration = registerAbilityEventCallback('skillEnd', published => {
           const event = skillAbilityEvent(published);
           if (
             event === undefined ||

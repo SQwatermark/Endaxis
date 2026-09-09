@@ -25,6 +25,7 @@ import type { FrameRuntime } from './combatSimulation';
 import {
   attachBuffLifecycleSequences,
   type RegisterBuffAbilityEventAction,
+  type RegisterBuffAbilityEventCallback,
   type RegisterBuffSemanticEventAction,
 } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -57,6 +58,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly onBeforeBuffApplied?: (event: BuffAppliedEvent) => void,
     readonly onOutputBuff?: (event: BuffAppliedEvent) => void,
     readonly onBeforeBuffAdded?: (event: BuffAppliedEvent) => void,
+    readonly registerAbilityEventCallback?: RegisterBuffAbilityEventCallback,
   ) {}
 
   get ownerId(): string {
@@ -286,6 +288,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
             skillSlotReplacements,
             this.#registerSemanticEventAction ?? undefined,
             damageModifierConditionPrograms,
+            this.registerAbilityEventCallback,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;

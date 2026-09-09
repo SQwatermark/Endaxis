@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：SkillAffix回到原生回调阶段
+
+当前反编译确认SkillAffix的五个事件订阅均调用AbilitySystem.RegisterEvent，另有一个
+onPostSkillTryCastRequest对象委托；不是六个优先级动作。具体地址及事件编号补入
+combat-spec/docs/skill-affix-identity-2026-09-04.md。C#直接技能子集原本已用callback；
+Endaxis错误地用priority=0的action，现经独立回调端口接共享dispatcher.callback阶段。
+敌人、干员、逻辑实体的Buff端口均接入；未配置该端口不能静默退回动作队列。
+测试先注册普通skillEnd动作，再安装affix，确认动作看到的Buff已由回调结束；
+独立施法编号、空来源与注销断言仍保留。85文件1218项及应用类型检查通过，四轴没有新增差异。
+本轮修正阶段顺序，不代表SkillAffix对象引用保留或完整生命周期已完成。
+
 ## 2026-09-10：Buff分发快照的结束有效性
 
 Buff每个事件响应执行前检查isFinished；同次分发中前一响应结束宿主后，快照中的

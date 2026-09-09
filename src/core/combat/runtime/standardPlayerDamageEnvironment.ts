@@ -336,6 +336,7 @@ export class StandardPlayerDamageEnvironment {
       event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
       event => this.#emit(event.sourceId, 'outputBuff', event),
       event => this.#emit('enemy', 'beforeAddedBuff', event),
+      (event, handle) => this.eventsFor('enemy').registerCallback(event, handle),
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
@@ -423,6 +424,7 @@ export class StandardPlayerDamageEnvironment {
           event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
           event => this.#emit(event.sourceId, 'outputBuff', event),
           event => this.#emit(entityId, 'beforeAddedBuff', event),
+          (event, handle) => this.eventsFor(entityId).registerCallback(event, handle),
         );
       },
       createOperationExecutor: context => this.#createOperationExecutor(context),
@@ -995,6 +997,7 @@ export class StandardPlayerDamageEnvironment {
         event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
         event => this.#emit(event.sourceId, 'outputBuff', event),
         event => this.#emit(operatorId, 'beforeAddedBuff', event),
+        (event, handle) => this.eventsFor(operatorId).registerCallback(event, handle),
       );
       runtime.configureAdvancedObserver(() =>
         this.#buffProgress.sample(operatorId, container.buffs, this.#requireClock().frame),
