@@ -113,7 +113,8 @@ export class ComboSkillConditionRuntime {
       )
         continue;
 
-      const binding = resolveAbilityEventActionContextBinding(event.event, event.payload);
+      const binding = resolveAbilityEventActionContextBinding(event);
+      if (binding === undefined) throw new Error(`unaudited action context for '${event.event}'`);
       // battle 是 GlobalBuff 的归因身份，不是可进入原生动作上下文的 AbilitySystem。
       // 这类镜像 Buff 事件不能产生角色连携候选；其他未知实体仍由 resolver 严格报错。
       if (binding.inputTargetId === 'battle' || binding.triggerTargetId === 'battle') continue;

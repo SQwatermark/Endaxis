@@ -5,6 +5,11 @@ import {
   type ActionContextBoundAbilityEvent,
 } from '../../../../packages/game-data-contract/src/abilityEvents';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import {
+  abilityEventSourceId,
+  abilityEventTargetId,
+  type CombatAbilityEvent,
+} from './combatAbilityEvent';
 
 export { ACTION_CONTEXT_BOUND_ABILITY_EVENTS };
 
@@ -25,15 +30,16 @@ export function hasAbilityEventActionContextBinding(
  * 输出 Buff/附着事件发布在施加方上，其余已审计事件发布在承受者上。
  */
 export function resolveAbilityEventActionContextBinding(
-  event: ActionContextBoundAbilityEvent,
-  payload: { readonly sourceId?: unknown; readonly targetId?: unknown },
-): { readonly inputTargetId: string; readonly triggerTargetId: string | null } {
-  const binding = ABILITY_EVENT_ACTION_CONTEXT_BINDINGS[event];
+  event: CombatAbilityEvent,
+): { readonly inputTargetId: string; readonly triggerTargetId: string | null } | undefined {
+  if (!hasAbilityEventActionContextBinding(event.event)) return undefined;
+  const binding = ABILITY_EVENT_ACTION_CONTEXT_BINDINGS[event.event];
   // 只要求绑定实际读取的端点；无目标事件不应为了满足通用接口伪造 targetId。
   const endpoint = (name: 'eventSource' | 'eventTarget'): string => {
-    const value = name === 'eventSource' ? payload.sourceId : payload.targetId;
-    if (typeof value !== 'string')
-      throw new TypeError(`${event} requires ${name} for action context`);
+    const value =
+      name === 'eventSource' ? abilityEventSourceId(event) : abilityEventTargetId(event);
+    if (value === undefined)
+      throw new Error(`${event.event} has no ${name} required by action-context metadata`);
     return value;
   };
   return {

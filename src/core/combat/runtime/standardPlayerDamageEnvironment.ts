@@ -86,10 +86,7 @@ import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationE
 import { compareCombatNumbers } from './numericComparison';
 import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import {
-  hasAbilityEventActionContextBinding,
-  resolveAbilityEventActionContextBinding,
-} from '../events/abilityEventActionContext';
+import { resolveAbilityEventActionContextBinding } from '../events/abilityEventActionContext';
 import type { CombatResources } from './combatResources';
 import { BuffProgressRecorder, type BuffProgressCurve } from './buffProgressRecorder';
 import type { HealModifierSide } from '../heal/healModifiers';
@@ -373,7 +370,7 @@ export class StandardPlayerDamageEnvironment {
         const registrations = owners.map(id => {
           const dispatcher = this.eventsFor(id);
           const receive = (event: CombatAbilityEvent<typeof name>) =>
-            handle(event, this.#resolveAbilityEventRuntimeActionContext(name, event.payload));
+            handle(event, this.#resolveAbilityEventRuntimeActionContext(event));
           if (phase === 'callback') return dispatcher.registerCallback(name, receive);
           if (phase === 'dataAction') return dispatcher.registerAction(name, priority, receive);
           return dispatcher.registerListener(name, phase, receive);
@@ -463,11 +460,11 @@ export class StandardPlayerDamageEnvironment {
       createEquipmentEventOperationExecutor: context => this.#createOperationExecutor(context),
       registerEquipmentAbilityEventAction: (operatorId, event, priority, handle) =>
         this.eventsFor(operatorId).registerAction(event, priority, context =>
-          handle(context, this.#resolveAbilityEventRuntimeActionContext(event, context.payload)),
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(context)),
         ),
       registerPassiveAbilityEventAction: (operatorId, event, priority, handle) =>
         this.eventsFor(operatorId).registerAction(event, priority, context =>
-          handle(context, this.#resolveAbilityEventRuntimeActionContext(event, context.payload)),
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(context)),
         ),
       registerComboSkillCondition: registration =>
         this.comboConditions.registerPendingCondition(registration),
@@ -1021,27 +1018,17 @@ export class StandardPlayerDamageEnvironment {
         event,
         priority,
         context => {
-          const payload = context.payload;
-          handle(context, this.#resolveAbilityEventRuntimeActionContext(event, payload));
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(context));
         },
         samePriorityKey,
       );
   }
 
   #resolveAbilityEventRuntimeActionContext(
-    event: import('../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent,
-    payload: unknown,
+    event: CombatAbilityEvent,
   ): import('../events/abilityEventActionContext').AbilityEventRuntimeActionContext | undefined {
-    if (
-      !hasAbilityEventActionContextBinding(event) ||
-      typeof payload !== 'object' ||
-      payload === null
-    )
-      return undefined;
-    const ids = resolveAbilityEventActionContextBinding(
-      event,
-      payload as { sourceId: string; targetId: string },
-    );
+    const ids = resolveAbilityEventActionContextBinding(event);
+    if (ids === undefined) return undefined;
     return {
       inputTarget: this.#runtimeTargetFromEntityId(ids.inputTargetId),
       triggerTarget:

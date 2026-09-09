@@ -3,59 +3,86 @@ import {
   hasAbilityEventActionContextBinding,
   resolveAbilityEventActionContextBinding,
 } from './abilityEventActionContext';
+import type { CombatAbilityEvent } from './combatAbilityEvent';
+import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
+import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
 
 describe('AbilityEvent action context binding', () => {
-  it('binds output Buff receiver as InputTarget and publisher as trigger', () => {
-    for (const event of [
-      'beforeOutputBuff',
-      'outputBuff',
-      'beforeOutputPhysicalInfliction',
-      'outputHeal',
-    ] as const) {
-      expect(hasAbilityEventActionContextBinding(event)).toBe(true);
-      expect(
-        resolveAbilityEventActionContextBinding(event, {
-          sourceId: 'operator',
-          targetId: 'enemy',
-        }),
-      ).toEqual({ inputTargetId: 'enemy', triggerTargetId: 'operator' });
+  it('泛型订阅保持名称与载荷关联，可以直接交给统一绑定入口', () => {
+    const bind = <Name extends AbilityEvent>(event: CombatAbilityEvent<Name>) =>
+      resolveAbilityEventActionContextBinding(event);
+    expect(bind({ event: 'weaknessSet', payload: { sourceId: 'enemy' } })).toEqual({
+      inputTargetId: 'enemy',
+      triggerTargetId: null,
+    });
+  });
+  const pair = { sourceId: 'operator', targetId: 'enemy' };
+  const buffPayload = { ...pair, buffId: 'buff', buffTags: [] };
+  it('输出阶段以接收者为InputTarget，以发布者为Trigger', () => {
+    const events: CombatAbilityEvent[] = [
+      { event: 'beforeOutputBuff', payload: buffPayload },
+      { event: 'outputBuff', payload: buffPayload },
+      { event: 'beforeOutputPhysicalInfliction', payload: { ...pair, type: 'fracture' } },
+      {
+        event: 'outputHeal',
+        payload: { ...pair, requestedHealing: 10, actualHealing: 0, overhealing: 10, tags: [] },
+      },
+    ];
+    for (const event of events) {
+      expect(hasAbilityEventActionContextBinding(event.event)).toBe(true);
+      expect(resolveAbilityEventActionContextBinding(event)).toEqual({
+        inputTargetId: 'enemy',
+        triggerTargetId: 'operator',
+      });
     }
   });
-
-  it('binds receiving-side event source as InputTarget and publisher as trigger', () => {
-    for (const event of ['beforeAddedBuff', 'addedBuff', 'poiseZero', 'poiseKnotBreak'] as const) {
-      expect(
-        resolveAbilityEventActionContextBinding(event, {
-          sourceId: 'operator',
-          targetId: 'enemy',
-        }),
-      ).toEqual({ inputTargetId: 'operator', triggerTargetId: 'enemy' });
-    }
+  it('接收阶段以来源为InputTarget，以承受者为Trigger', () => {
+    const events: CombatAbilityEvent[] = [
+      { event: 'beforeAddedBuff', payload: buffPayload },
+      { event: 'addedBuff', payload: buffPayload },
+      { event: 'poiseZero', payload: pair },
+      { event: 'poiseKnotBreak', payload: pair },
+    ];
+    for (const event of events)
+      expect(resolveAbilityEventActionContextBinding(event)).toEqual({
+        inputTargetId: 'operator',
+        triggerTargetId: 'enemy',
+      });
   });
-
-  it('binds Buff consumer as publisher and removed Buff owner as InputTarget', () => {
+  it('消费与吸收绑定真实Buff所属者，不借监听者', () => {
+    const container = new CombatBuffContainer('enemy', new CombatAttributeSet());
+    const buff = container.add({ id: 'buff', stackingType: 'unlimited' }, 'operator')!;
     for (const event of ['buffConsumed', 'buffAbsorbed'] as const) {
       expect(
-        resolveAbilityEventActionContextBinding(event, {
-          sourceId: 'camille',
-          targetId: 'enemy',
+        resolveAbilityEventActionContextBinding({
+          event,
+          payload: { ...buffPayload, buff, layers: 1, sourceId: 'camille' },
         }),
       ).toEqual({ inputTargetId: 'enemy', triggerTargetId: 'camille' });
     }
   });
-
-  it('preserves native no-target weakness-set context without inventing trigger', () => {
+  it('无目标弱点设置不补Trigger，未审计事件不补绑定', () => {
     expect(
-      resolveAbilityEventActionContextBinding('weaknessSet', {
-        sourceId: 'enemy',
+      resolveAbilityEventActionContextBinding({
+        event: 'weaknessSet',
+        payload: { sourceId: 'enemy' },
       }),
     ).toEqual({ inputTargetId: 'enemy', triggerTargetId: null });
-  });
-
-  it('仅校验绑定用到的字段，有目标事件仍拒绝缺失目标', () => {
-    expect(() =>
-      resolveAbilityEventActionContextBinding('outputBuff', { sourceId: 'operator' }),
-    ).toThrow('eventTarget');
-    expect(() => resolveAbilityEventActionContextBinding('weaknessSet', {})).toThrow('eventSource');
+    expect(
+      resolveAbilityEventActionContextBinding({
+        event: 'afterAddedShield',
+        payload: { ...pair, gainedValue: 10, currentValue: 10 },
+      }),
+    ).toBeUndefined();
+    if (false) {
+      // @ts-expect-error 事件名和载荷不可拆开传递。
+      resolveAbilityEventActionContextBinding('outputBuff', buffPayload);
+      // @ts-expect-error 缺少目标的Buff事件不是合法的内部事件。
+      resolveAbilityEventActionContextBinding({
+        event: 'outputBuff',
+        payload: { sourceId: 'operator', buffId: 'buff', buffTags: [] },
+      });
+    }
   });
 });

@@ -8,12 +8,12 @@ export interface AbilityEventContext<Event, Payload = unknown> {
   readonly payload: Payload;
 }
 
-/** 保留事件名和载荷的关联，不能把两个独立联合做笛卡尔积。 */
+/** 先构造完整映射再取订阅子集，泛型订阅也能保留名称与载荷关联。 */
 export type AbilityEventFromMap<
   Event extends PropertyKey,
   Payloads extends Record<Event, unknown>,
 > = {
-  [Name in Event]: AbilityEventContext<Name, Payloads[Name]>;
+  [Name in keyof Payloads]: AbilityEventContext<Name, Payloads[Name]>;
 }[Event];
 
 /** 技能或 Buff 等有身份对象通过此接口接收 Ability 事件。 */
