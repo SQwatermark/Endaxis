@@ -107,6 +107,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "mainattr": [
+          17,
+          30,
+          44,
+          57,
+          71,
+          85,
+          98,
+          112,
+          132
+        ]
       }
     },
     {
@@ -128,7 +141,21 @@ const definition = {
             78
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "atk": 0,
+        "physpell": [
+          10,
+          18,
+          26,
+          34,
+          42,
+          50,
+          58,
+          66,
+          78
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -156,52 +183,6 @@ const definition = {
           "key": "skill3:event:0:sequence:0",
           "abilityEvent": "beforeOutputSpellBurst",
           "priority": 0,
-          "blackboard": {
-            "duration": [
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15
-            ],
-            "lv": [
-              1,
-              2,
-              3,
-              4,
-              5,
-              6,
-              7,
-              8,
-              9
-            ],
-            "second_attr_up": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
-            ],
-            "spell_damage_taken_up": [
-              0.09,
-              0.108,
-              0.126,
-              0.144,
-              0.162,
-              0.18,
-              0.198,
-              0.216,
-              0.252
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -229,7 +210,53 @@ const definition = {
             ]
           }
         }
-      ]
+      ],
+      "blackboard": {
+        "duration": [
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "lv": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9
+        ],
+        "second_attr_up": [
+          0.1,
+          0.12,
+          0.14,
+          0.16,
+          0.18,
+          0.2,
+          0.22,
+          0.24,
+          0.28
+        ],
+        "spell_damage_taken_up": [
+          0.09,
+          0.108,
+          0.126,
+          0.144,
+          0.162,
+          0.18,
+          0.198,
+          0.216,
+          0.252
+        ]
+      }
     }
   ],
   "assetSlug": "wpn_artsunit_0010",

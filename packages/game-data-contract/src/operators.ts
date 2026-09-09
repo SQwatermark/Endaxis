@@ -25,6 +25,8 @@ export const OPERATOR_PASSIVE_ABILITY_EVENTS = [
   'abilityEntitySpawned',
   'abilityEntityFinished',
   'addedBuff',
+  'skillSpGained',
+  'receiveHeal',
 ] as const;
 export type OperatorPassiveAbilityEvent = (typeof OPERATOR_PASSIVE_ABILITY_EVENTS)[number];
 export function isOperatorPassiveAbilityEvent(

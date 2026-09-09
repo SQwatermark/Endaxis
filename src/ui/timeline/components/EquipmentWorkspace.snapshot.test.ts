@@ -6,7 +6,7 @@ import GearWorkspace from './GearDefinitionWorkspaceDialog.vue';
 import GearSetWorkspace from './GearSetDefinitionWorkspaceDialog.vue';
 
 const contribution = {
-  initializationBlackboard: { custom: 1 },
+  blackboard: { custom: 1 },
   initializationSequence: { steps: [] },
 };
 const trait = { key: 'trait', levelCount: 1, ...contribution };
@@ -100,7 +100,7 @@ it.each(cases)(
       const owned = () => (name === 'set' ? panel.draft.value : panel.draft.value.traits[0]);
       update({});
       expect(owned()).not.toHaveProperty('initializationSequence');
-      expect(owned()).not.toHaveProperty('initializationBlackboard');
+      expect(owned()).not.toHaveProperty('blackboard');
       expect(panel.isDirty.value).toBe(true);
       expect(JSON.stringify(definition)).toBe(before);
       update(contribution); // Undo snapshot from the graph.
@@ -111,7 +111,7 @@ it.each(cases)(
       expect(saved).toHaveLength(1);
       const savedOwned = name === 'set' ? saved[0] : saved[0].traits[0];
       expect(savedOwned).not.toHaveProperty('initializationSequence');
-      expect(savedOwned).not.toHaveProperty('initializationBlackboard');
+      expect(savedOwned).not.toHaveProperty('blackboard');
       expect(saved[0].slug).toBe(definition.slug);
       await nextTick();
       visible.value = true;

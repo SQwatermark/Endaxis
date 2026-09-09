@@ -123,6 +123,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "will": [
+          20,
+          36,
+          52,
+          68,
+          84,
+          100,
+          116,
+          132,
+          156
+        ]
       }
     },
     {
@@ -144,7 +157,20 @@ const definition = {
             0.39
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "atk": [
+          0.05,
+          0.09,
+          0.13,
+          0.17,
+          0.21,
+          0.25,
+          0.29,
+          0.33,
+          0.39
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -170,68 +196,8 @@ const definition = {
       "eventHandlers": [
         {
           "key": "skill3:event:0:sequence:0",
-          "event": {
-            "kind": "spGained"
-          },
+          "abilityEvent": "skillSpGained",
           "priority": 0,
-          "blackboard": {
-            "cd": 0.1,
-            "duration": [
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30
-            ],
-            "max_stack": [
-              5,
-              5,
-              5,
-              5,
-              5,
-              5,
-              5,
-              5,
-              5
-            ],
-            "phy_dmg_up": [
-              0.16,
-              0.192,
-              0.224,
-              0.256,
-              0.288,
-              0.32,
-              0.352,
-              0.384,
-              0.448
-            ],
-            "phy_dmg_up2": [
-              0.05,
-              0.06,
-              0.07,
-              0.08,
-              0.09,
-              0.1,
-              0.11,
-              0.12,
-              0.14
-            ],
-            "phy_dmg_up3": [
-              0.025,
-              0.03,
-              0.035,
-              0.04,
-              0.045,
-              0.05,
-              0.055,
-              0.06,
-              0.07
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -331,7 +297,63 @@ const definition = {
           }
         }
       ],
-      "initializationBlackboard": {
+      "blackboard": {
+        "cd": 0.1,
+        "duration": [
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30
+        ],
+        "max_stack": [
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5,
+          5
+        ],
+        "phy_dmg_up": [
+          0.16,
+          0.192,
+          0.224,
+          0.256,
+          0.288,
+          0.32,
+          0.352,
+          0.384,
+          0.448
+        ],
+        "phy_dmg_up2": [
+          0.05,
+          0.06,
+          0.07,
+          0.08,
+          0.09,
+          0.1,
+          0.11,
+          0.12,
+          0.14
+        ],
+        "phy_dmg_up3": [
+          0.025,
+          0.03,
+          0.035,
+          0.04,
+          0.045,
+          0.05,
+          0.055,
+          0.06,
+          0.07
+        ],
         "install_0_phy_dmg_up": [
           0.16,
           0.192,
@@ -344,7 +366,7 @@ const definition = {
           0.448
         ]
       },
-      "initializationSequence": {
+      "enableSequence": {
         "steps": [
           {
             "kind": "applyBuff",

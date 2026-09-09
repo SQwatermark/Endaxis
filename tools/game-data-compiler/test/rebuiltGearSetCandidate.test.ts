@@ -181,7 +181,12 @@ if (reportPath) {
         slug === set.slug
           ? runtime
             ? set
-            : { ...set, initializationSequence: undefined, buffDefinitions: undefined }
+            : {
+                ...set,
+                enableSequence: undefined,
+                initializationSequence: undefined,
+                buffDefinitions: undefined,
+              }
           : null,
       getCommonBuffDefinitions: () => commonBuffDefinitions,
     };

@@ -45,15 +45,16 @@ interface RuntimeGear {
   readonly traits: readonly { readonly levelCount: number }[];
 }
 
-interface RuntimeGearSet {
-  readonly slug: string;
-  readonly initializationSequence?: {
-    readonly steps: readonly {
-      readonly kind: string;
-      readonly parameters?: { readonly buffId?: string };
-    }[];
-  };
-  readonly buffDefinitions?: unknown;
+type RuntimeGearSet = Pick<
+  import('../../../packages/game-data-contract/src/equipment.ts').GearSetDefinition,
+  'slug' | 'enableSequence' | 'initializationSequence' | 'buffDefinitions'
+>;
+
+function installationSteps(gearSet: RuntimeGearSet) {
+  return [
+    ...(gearSet.enableSequence?.steps ?? []),
+    ...(gearSet.initializationSequence?.steps ?? []),
+  ];
 }
 
 type RuntimeScenario = Record<string, any>;
@@ -297,6 +298,7 @@ export async function auditCandidateEquipment(args: AuditArguments) {
               const {
                 buffDefinitions: _buffDefinitions,
                 initializationSequence: _initializationSequence,
+                enableSequence: _enableSequence,
                 ...staticOnly
               } = gearSet;
               return staticOnly;
@@ -328,9 +330,7 @@ export async function auditCandidateEquipment(args: AuditArguments) {
       accessorySecondSlotCaseCount: accessories.length,
       accessoryPairCaseCount: accessories.length,
       gearSetCount: gearSets.length,
-      runtimeGearSetCount: gearSets.filter(
-        gearSet => (gearSet.initializationSequence?.steps.length ?? 0) > 0,
-      ).length,
+      runtimeGearSetCount: gearSets.filter(gearSet => installationSteps(gearSet).length > 0).length,
       endFrame: args.endFrame,
     };
   } finally {
@@ -451,7 +451,7 @@ async function auditGearSetCase(input: {
     ) {
       throw new Error('three-piece build has no observable difference from the setless baseline');
     }
-    if ((input.gearSet.initializationSequence?.steps.length ?? 0) > 0) {
+    if (installationSteps(input.gearSet).length > 0) {
       const staticOnly = await input
         .createService(
           input.createRepositoryWithoutGearSetRuntime(input.gearSet.slug),
@@ -482,7 +482,7 @@ function observableEquipmentResult(result: any) {
 
 function observableGearSetRuntimeResult(result: any, gearSet: RuntimeGearSet) {
   const rootBuffIds = new Set(
-    (gearSet.initializationSequence?.steps ?? []).flatMap(step =>
+    installationSteps(gearSet).flatMap(step =>
       step.kind === 'applyBuff' && typeof step.parameters?.buffId === 'string'
         ? [step.parameters.buffId]
         : [],

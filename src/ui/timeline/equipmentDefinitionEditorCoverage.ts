@@ -47,7 +47,8 @@ export const GEAR_SET_DEFINITION_EDITOR_COVERAGE = {
   modifiers: 'structureEditable',
   eventHandlers: 'structureEditable',
   buffDefinitions: 'structureEditable',
-  initializationBlackboard: 'editable',
+  blackboard: 'editable',
+  enableSequence: 'structureEditable',
   initializationSequence: 'structureEditable',
 } as const satisfies Readonly<Record<keyof GearSetDefinition, EquipmentEditorCoverage>>;
 
@@ -55,7 +56,8 @@ export const EQUIPMENT_CONTRIBUTION_EDITOR_COVERAGE = {
   modifiers: 'structureEditable',
   eventHandlers: 'structureEditable',
   buffDefinitions: 'structureEditable',
-  initializationBlackboard: 'editable',
+  blackboard: 'editable',
+  enableSequence: 'structureEditable',
   initializationSequence: 'structureEditable',
 } as const satisfies Readonly<
   Record<keyof EquipmentContributionDefinition, EquipmentEditorCoverage>
@@ -87,7 +89,6 @@ export const EQUIPMENT_EVENT_HANDLER_EDITOR_COVERAGE = {
   key: 'editable',
   priority: 'editable',
   condition: 'structureEditable',
-  blackboard: 'editable',
   sequence: 'structureEditable',
   event: 'editable',
   abilityEvent: 'editable',

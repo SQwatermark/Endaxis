@@ -219,6 +219,9 @@ function validateContribution(
   levelCount: number,
   issues: EquipmentDefinitionValidationIssue[],
 ): void {
+  if (Object.hasOwn(record, 'initializationBlackboard')) {
+    push(issues, `${path}.initializationBlackboard`, 'use the shared contribution blackboard');
+  }
   if (record.modifiers !== undefined) {
     if (!Array.isArray(record.modifiers)) {
       push(issues, `${path}.modifiers`, 'expected an array');
@@ -255,6 +258,11 @@ function validateContribution(
     }
   }
 
+  if (record.enableSequence !== undefined) {
+    issues.push(
+      ...validateActionSequenceDefinition(record.enableSequence, `${path}.enableSequence`),
+    );
+  }
   if (record.initializationSequence !== undefined) {
     issues.push(
       ...validateActionSequenceDefinition(
@@ -264,24 +272,15 @@ function validateContribution(
     );
   }
 
-  if (record.initializationBlackboard !== undefined) {
-    const blackboard = asRecord(
-      record.initializationBlackboard,
-      `${path}.initializationBlackboard`,
-      issues,
-    );
+  if (record.blackboard !== undefined) {
+    const blackboard = asRecord(record.blackboard, `${path}.blackboard`, issues);
     if (blackboard !== null) {
       for (const [blackboardKey, value] of Object.entries(blackboard)) {
-        issues.push(
-          ...validateLevelValuesDefinition(
-            value,
-            `${path}.initializationBlackboard.${blackboardKey}`,
-          ),
-        );
+        issues.push(...validateLevelValuesDefinition(value, `${path}.blackboard.${blackboardKey}`));
         if (Array.isArray(value) && value.length !== levelCount) {
           push(
             issues,
-            `${path}.initializationBlackboard.${blackboardKey}`,
+            `${path}.blackboard.${blackboardKey}`,
             `expected ${levelCount} level values`,
           );
         }
@@ -321,21 +320,11 @@ function validateContribution(
       );
     }
     if (handlerRecord.blackboard !== undefined) {
-      const blackboard = asRecord(handlerRecord.blackboard, `${handlerPath}.blackboard`, issues);
-      if (blackboard !== null) {
-        for (const [blackboardKey, value] of Object.entries(blackboard)) {
-          issues.push(
-            ...validateLevelValuesDefinition(value, `${handlerPath}.blackboard.${blackboardKey}`),
-          );
-          if (Array.isArray(value) && value.length !== levelCount) {
-            push(
-              issues,
-              `${handlerPath}.blackboard.${blackboardKey}`,
-              `expected ${levelCount} level values`,
-            );
-          }
-        }
-      }
+      push(
+        issues,
+        `${handlerPath}.blackboard`,
+        'blackboard belongs to the equipment contribution, not its event handler',
+      );
     }
     issues.push(
       ...validateActionSequenceDefinition(handlerRecord.sequence, `${handlerPath}.sequence`),

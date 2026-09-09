@@ -6,6 +6,38 @@ import {
 } from './equipmentDefinitionValidation';
 
 describe('equipmentDefinitionValidation', () => {
+  it.each(['enableSequence', 'initializationSequence'] as const)(
+    '用公共动作校验 %s 而非忽略损坏的程序',
+    field => {
+      expect(validateGearSetDefinition({ slug: 'fixture', [field]: { steps: [] } })).toEqual([]);
+      expect(
+        validateGearSetDefinition({
+          slug: 'fixture',
+          [field]: { steps: [{ kind: 'not-an-action' }] },
+        }),
+      ).not.toEqual([]);
+    },
+  );
+  it('rejects obsolete initialization and handler blackboards instead of silently losing values', () => {
+    expect(validateGearSetDefinition({ slug: 'fixture', blackboard: { value: 1 } })).toEqual([]);
+    expect(
+      validateGearSetDefinition({ slug: 'fixture', initializationBlackboard: { value: 1 } }),
+    ).not.toEqual([]);
+    expect(
+      validateGearSetDefinition({
+        slug: 'fixture',
+        eventHandlers: [
+          {
+            key: 'a',
+            abilityEvent: 'enterFight',
+            blackboard: { value: 1 },
+            sequence: { steps: [] },
+          },
+        ],
+      }),
+    ).not.toEqual([]);
+  });
+
   it('accepts valid static and event-driven equipment definitions', () => {
     expect(
       validateWeaponDefinition({

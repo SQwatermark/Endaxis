@@ -354,14 +354,18 @@ async function nodeAction(
   await selectPath(result.itemPath);
 }
 
-function createInitializationSequence(): void {
-  if (props.contribution.initializationSequence !== undefined) return;
-  commit({ ...props.contribution, initializationSequence: { steps: [] } });
+function createInitializationSequence(
+  field: 'enableSequence' | 'initializationSequence' = 'initializationSequence',
+): void {
+  if (props.contribution[field] !== undefined) return;
+  commit({ ...props.contribution, [field]: { steps: [] } });
 }
 
-async function removeInitializationSequence(): Promise<void> {
-  if (props.contribution.initializationSequence === undefined) return;
-  commit(deleteStructureValueAtPath(props.contribution, 'initializationSequence'));
+async function removeInitializationSequence(
+  field: 'enableSequence' | 'initializationSequence' = 'initializationSequence',
+): Promise<void> {
+  if (props.contribution[field] === undefined) return;
+  commit(deleteStructureValueAtPath(props.contribution, field));
   await selectPath('');
 }
 </script>
@@ -473,8 +477,8 @@ async function removeInitializationSequence(): Promise<void> {
           </button>
         </section>
         <section class="root-section">
-          <header><strong>帧 0 初始化黑板</strong><span>按词条等级解析</span></header>
-          <p class="hint">这些值在构筑编译完成后写入初始化动作黑板，不属于技能的初始黑板。</p>
+          <header><strong>能力初始黑板</strong><span>按词条等级解析</span></header>
+          <p class="hint">初始化和所有事件响应共用这份能力黑板，不属于主动技能的初始黑板。</p>
           <InspectorFields
             :value="contribution"
             :binding="editing.context.root"
@@ -483,16 +487,34 @@ async function removeInitializationSequence(): Promise<void> {
           />
         </section>
         <section class="root-section">
-          <header><strong>帧 0 初始化序列</strong><span>每场战斗一次</span></header>
-          <p class="hint">构筑满足后在战斗第 0 帧执行，典型用途是安装装备或套装的根 Buff。</p>
+          <header><strong>启用前安装</strong><span>每场战斗一次</span></header>
+          <p class="hint">安装普通启动 Buff；此阶段自身事件监听尚未启用，黑板与后续响应共享。</p>
+          <button
+            v-if="contribution.enableSequence === undefined"
+            class="section-action"
+            @click="createInitializationSequence('enableSequence')"
+          >
+            ＋ 创建启用前序列
+          </button>
+          <button
+            v-else
+            class="section-action danger"
+            @click="removeInitializationSequence('enableSequence')"
+          >
+            删除启用前序列
+          </button>
+        </section>
+        <section class="root-section">
+          <header><strong>启用后初始化</strong><span>每场战斗一次</span></header>
+          <p class="hint">自身监听已启用后执行，例如 Toggle 初次安装和固定构筑属性刷新。</p>
           <button
             v-if="contribution.initializationSequence === undefined"
             class="section-action"
-            @click="createInitializationSequence"
+            @click="createInitializationSequence()"
           >
             ＋ 创建初始化序列
           </button>
-          <button v-else class="section-action danger" @click="removeInitializationSequence">
+          <button v-else class="section-action danger" @click="removeInitializationSequence()">
             删除初始化序列
           </button>
         </section>

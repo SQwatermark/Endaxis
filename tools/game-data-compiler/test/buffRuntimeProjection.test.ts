@@ -2796,7 +2796,7 @@ describe('公共 Buff 运行时投影', () => {
       expectedTarget: 'partyExceptCaster' as const,
     },
   ])(
-    '把 Skill/Gain 技力事件和队伍查询融合为 $expectedTarget Buff 响应',
+    '把显式技力筛选和队伍查询编译为 $expectedTarget Buff 响应',
     ({ validatorTypes, postProcessorTypes, excludesOwner, expectedTarget }) => {
       const source = sourceFixture();
       const sequence = source.graph.abilityEvents[0]!.actions[0]!;
@@ -2912,6 +2912,34 @@ describe('公共 Buff 运行时投影', () => {
       ]);
     },
   );
+
+  it('技力 Buff 响应允许无类型筛选的动作序列', () => {
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const definition = compileBuffRuntimeDefinitionSource({
+      ...source,
+      graph: {
+        ...source.graph,
+        abilityEvents: [
+          {
+            event: 'OnObtainAtb',
+            actions: [
+              {
+                ...sequence,
+                actions: [sequence.actions[1]!],
+              },
+            ],
+          },
+        ],
+      },
+    });
+    expect(definition.abilityEventResponses).toMatchObject([
+      {
+        event: 'skillSpGained',
+        sequence: { steps: [{ kind: 'applyBuff' }] },
+      },
+    ]);
+  });
 
   it('把无条件普通乘区增伤投影为 Buff 伤害修正', () => {
     const source = sourceFixture();

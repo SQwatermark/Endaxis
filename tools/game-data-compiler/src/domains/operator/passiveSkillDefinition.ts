@@ -12,10 +12,7 @@ import {
   resolvePassiveSkillDefinitionBlackboard,
 } from '../../compiler/passiveSkillInstallation.ts';
 import { isPresentationOnlyActionSequence } from '../../compiler/skillPresentationTargets.ts';
-import {
-  compileCombatActionSequenceSource,
-  compileSkillSpGainActionSequenceSource,
-} from '../../compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../../compiler/buffRuntimeProjection.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
 import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
 import { isOperatorPassiveAbilityEvent } from '../../../../../packages/game-data-contract/src/operators.ts';
@@ -44,20 +41,6 @@ interface PlannedPassiveSkill {
   /** 构筑加载后只需执行一次的原生被动响应；战斗中构筑快照不再变化。 */
   readonly initializationSequences: readonly CompiledBuffSequenceSource[];
   readonly reactionProjection?: CollectedBuffReactionProjection;
-  readonly eventResponses: readonly {
-    readonly key: string;
-    readonly event:
-      | { readonly kind: 'buffApplied' }
-      | {
-          readonly kind: 'spGained';
-          readonly source: 'skill';
-          readonly gainKind: 'gain';
-        }
-      | { readonly kind: 'operatorHealed'; readonly role: 'target' };
-    readonly phase: 'dataAction';
-    readonly priority: 0;
-    readonly sequence: CompiledBuffSequenceSource;
-  }[];
 }
 
 export interface CompiledOperatorUpgradePassiveSkillsSource {
@@ -76,7 +59,7 @@ export interface CompiledOperatorUpgradePassiveSkillsSource {
 /**
  * 把同一天赋/潜能各等级的 AddPassiveSkill 请求合并成一个等级化安装定义。
  * 接受 AddBuff 形态及已审计的被动事件；不接受有效时间轴、Toggle 或卡面修正。
- * 公共事件直接输出 abilityEventResponses，尚未迁移的筛选暂留旧监听程序。
+ * 已准入事件统一输出 abilityEventResponses，不再在启用程序中安装第二套监听。
  */
 export function compileOperatorUpgradePassiveSkills(
   effectIds: readonly string[],
@@ -100,7 +83,6 @@ export function compileOperatorUpgradePassiveSkills(
         passive.buffs.map(buff => [buff.buffId, Object.keys(buff.assignments).sort()]),
         passive.initializationSequences,
         passive.reactionProjection,
-        passive.eventResponses,
         passive.abilityEventResponses,
       ]),
     ),
@@ -150,12 +132,6 @@ export function compileOperatorUpgradePassiveSkills(
           },
         };
       });
-    if (passive.eventResponses.length > 0) {
-      steps.push({
-        kind: 'listenForCombatEvents' as const,
-        parameters: { responses: passive.eventResponses },
-      });
-    }
     for (const sequence of passive.initializationSequences) {
       if (projectEntityBlackboardInitializer(sequence) === null) steps.push(...sequence.steps);
     }
@@ -333,94 +309,51 @@ function planPassiveSkill(
   const abilityEventResponses: NonNullable<
     OperatorPassiveSkillDefinition['abilityEventResponses']
   >[number][] = [];
-  const eventResponses = skill.actionGraph.actionGroup.passiveEvents.flatMap(
-    (event, eventIndex) => {
-      if (
-        event.abilityEvent === 'OnAbilityEntityFinished' ||
-        event.abilityEvent === 'OnAbilityEntitySpawned' ||
-        // 原生响应先于 enableSequence 注册；含启动 Buff 时暂保留旧注册位置，
-        // 避免在尚未核实 Enable 时序前新增对自身启动 Buff 的响应。
-        (event.abilityEvent === 'OnAddedBuff' && skill.startupBuffs.length === 0)
-      ) {
-        const projected = projectAbilityEvent(event.abilityEvent, request.sourcePath);
-        if (!isOperatorPassiveAbilityEvent(projected))
-          throw new Error(`${request.sourcePath}: unsupported passive ability event mapping`);
-        for (const sequence of event.actions) {
-          for (const node of collectNativeActionNodes(sequence)) {
-            if (
-              node.metadata.enabled &&
-              (node.metadata.priorityLevel !== 'Default' || node.metadata.priorityOffset !== 0)
-            )
-              throw new Error(`${node.sourcePath}: unsupported operator passive event priority`);
-          }
-          abilityEventResponses.push({
-            event: projected,
-            priority: 0,
-            sequence: compileCombatActionSequenceSource(sequence, {
-              ...passiveEventContext,
-              actionTargetTarget: projected === 'addedBuff' ? 'eventSource' : 'eventTarget',
-            }),
-          });
-        }
-        return [];
-      }
-      // 固定战斗模拟不会退出战斗；该清理只重置角色累计黑板，对本场结果没有可见影响。
-      if (event.abilityEvent === 'OnTrulyExitFight') return [];
-      // 构筑属性在场景编译前已冻结；原生通知只负责刷新派生角色黑板，因此上方把该响应
-      // 放入 enableSequence 执行一次，不创建战斗中永远不会发生的伪事件。
-      if (event.abilityEvent === 'OnCharDeckAttrChanged') return [];
-      // 固定战斗不会遣返队伍；该分支只清理被动生成实体，不影响本场继续计算。
-      if (event.abilityEvent === 'OnSquadRepatriate') return [];
-      // Endaxis 的唯一敌人是无主动行为木桩，当前管线也不制造干员受击事件。
-      // 庄方宜这类受击前免伤/治疗被动因此在模型内完整无触发机会；保留技能与等级黑板，
-      // 但不伪造一个受击入口。若外部事件系统以后支持受击标记，应重新开启该事件并审计载荷。
-      if (event.abilityEvent === 'OnBeforeTakeDamage') return [];
-      if (
-        event.abilityEvent !== 'OnObtainAtb' &&
-        event.abilityEvent !== 'OnReceiveHeal' &&
-        event.abilityEvent !== 'OnAddedBuff'
-      ) {
-        throw new Error(
-          `${request.sourcePath}: unsupported operator passive event ${JSON.stringify(event.abilityEvent)}`,
-        );
-      }
-      return event.actions.map((sequence, sequenceIndex) => {
+  skill.actionGraph.actionGroup.passiveEvents.forEach(event => {
+    if (
+      event.abilityEvent === 'OnAbilityEntityFinished' ||
+      event.abilityEvent === 'OnAbilityEntitySpawned' ||
+      event.abilityEvent === 'OnAddedBuff' ||
+      event.abilityEvent === 'OnObtainAtb' ||
+      event.abilityEvent === 'OnReceiveHeal'
+    ) {
+      const projected = projectAbilityEvent(event.abilityEvent, request.sourcePath);
+      if (!isOperatorPassiveAbilityEvent(projected))
+        throw new Error(`${request.sourcePath}: unsupported passive ability event mapping`);
+      for (const sequence of event.actions) {
         for (const node of collectNativeActionNodes(sequence)) {
           if (
             node.metadata.enabled &&
             (node.metadata.priorityLevel !== 'Default' || node.metadata.priorityOffset !== 0)
-          ) {
+          )
             throw new Error(`${node.sourcePath}: unsupported operator passive event priority`);
-          }
         }
-        const isReceiveHeal = event.abilityEvent === 'OnReceiveHeal';
-        const isAddedBuff = event.abilityEvent === 'OnAddedBuff';
-        const eventContext = {
-          ...passiveEventContext,
-          actionOwnerTarget: 'caster' as const,
-          actionTargetTarget: isAddedBuff ? ('eventSource' as const) : ('eventTarget' as const),
-        };
-        return {
-          key: `native-event-${eventIndex}-${sequenceIndex}`,
-          event: isAddedBuff
-            ? { kind: 'buffApplied' as const }
-            : isReceiveHeal
-              ? { kind: 'operatorHealed' as const, role: 'target' as const }
-              : {
-                  kind: 'spGained' as const,
-                  source: 'skill' as const,
-                  gainKind: 'gain' as const,
-                },
-          phase: 'dataAction' as const,
-          priority: 0 as const,
-          sequence:
-            event.abilityEvent === 'OnObtainAtb'
-              ? compileSkillSpGainActionSequenceSource(sequence, eventContext)
-              : compileCombatActionSequenceSource(sequence, eventContext),
-        };
-      });
-    },
-  );
+        abilityEventResponses.push({
+          event: projected,
+          priority: 0,
+          sequence: compileCombatActionSequenceSource(sequence, {
+            ...passiveEventContext,
+            actionTargetTarget: projected === 'addedBuff' ? 'eventSource' : 'eventTarget',
+          }),
+        });
+      }
+      return [];
+    }
+    // 固定战斗模拟不会退出战斗；该清理只重置角色累计黑板，对本场结果没有可见影响。
+    if (event.abilityEvent === 'OnTrulyExitFight') return [];
+    // 构筑属性在场景编译前已冻结；原生通知只负责刷新派生角色黑板，因此上方把该响应
+    // 放入 enableSequence 执行一次，不创建战斗中永远不会发生的伪事件。
+    if (event.abilityEvent === 'OnCharDeckAttrChanged') return [];
+    // 固定战斗不会遣返队伍；该分支只清理被动生成实体，不影响本场继续计算。
+    if (event.abilityEvent === 'OnSquadRepatriate') return [];
+    // Endaxis 的唯一敌人是无主动行为木桩，当前管线也不制造干员受击事件。
+    // 庄方宜这类受击前免伤/治疗被动因此在模型内完整无触发机会；保留技能与等级黑板，
+    // 但不伪造一个受击入口。若外部事件系统以后支持受击标记，应重新开启该事件并审计载荷。
+    if (event.abilityEvent === 'OnBeforeTakeDamage') return [];
+    throw new Error(
+      `${request.sourcePath}: unsupported operator passive event ${JSON.stringify(event.abilityEvent)}`,
+    );
+  });
   return {
     key: request.skillId,
     ...(request.levelSource.kind === 'operatorSkillGroup'
@@ -445,7 +378,6 @@ function planPassiveSkill(
       }
       return { buffId: materialized.buffId, assignments };
     }),
-    eventResponses,
     abilityEventResponses,
   };
 }

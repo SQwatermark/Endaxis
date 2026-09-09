@@ -15,6 +15,7 @@ import {
 } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { gameplayTagId } from './nativeGameplayTags.ts';
+import { projectSpGainKind, projectSpGainSource } from './spGainEnums.ts';
 
 export interface ResourceGainActionSource {
   readonly kind: 'resourceGain';
@@ -99,7 +100,9 @@ export function parseResourceGainActionSource(
       'ignoreUspGainScalar',
       'atbSourceType',
       'atbGainMethod',
-      ...('useAtbGainTag' in action || 'atbGainTag' in action ? ['useAtbGainTag', 'atbGainTag'] : []),
+      ...('useAtbGainTag' in action || 'atbGainTag' in action
+        ? ['useAtbGainTag', 'atbGainTag']
+        : []),
       'playObtainAtbEffect',
       'playObtainAtbAudio',
       'costValue',
@@ -117,30 +120,15 @@ export function parseResourceGainActionSource(
     const tag = requireRecord(action.atbGainTag, `${path}.atbGainTag`);
     requireExactFields(tag, new Set(['tagId']), `${path}.atbGainTag`);
     gameplayTagId(requireInteger(tag.tagId, `${path}.atbGainTag.tagId`));
-    if (enabled) throw new Error(`${path}.useAtbGainTag: tagged SP gain requires native consumer projection`);
+    if (enabled)
+      throw new Error(`${path}.useAtbGainTag: tagged SP gain requires native consumer projection`);
   }
   const resource = { UltimateSp: 'ultimateEnergy', Atb: 'sp' }[String(action.costType)] as
     'ultimateEnergy' | 'sp' | undefined;
   if (!resource)
     throw new Error(`${path}.costType: unsupported value ${JSON.stringify(action.costType)}`);
-  const spGainSource = {
-    Default: 'default',
-    NormalAttack: 'normalAttack',
-    PowerAttack: 'powerAttack',
-    Skill: 'skill',
-  }[String(action.atbSourceType)] as ResourceGainActionSource['spGainSource'] | undefined;
-  if (!spGainSource) {
-    throw new Error(
-      `${path}.atbSourceType: unsupported value ${JSON.stringify(action.atbSourceType)}`,
-    );
-  }
-  const spGainKind = { Gain: 'gain', Return: 'refund' }[String(action.atbGainMethod)] as
-    'gain' | 'refund' | undefined;
-  if (!spGainKind) {
-    throw new Error(
-      `${path}.atbGainMethod: unsupported value ${JSON.stringify(action.atbGainMethod)}`,
-    );
-  }
+  const spGainSource = projectSpGainSource(action.atbSourceType, `${path}.atbSourceType`);
+  const spGainKind = projectSpGainKind(action.atbGainMethod, `${path}.atbGainMethod`);
   const recoveryTag = requireRecord(action.uspRecoverTag, `${path}.uspRecoverTag`);
   requireExactFields(recoveryTag, new Set(['tagId']), `${path}.uspRecoverTag`);
   return {

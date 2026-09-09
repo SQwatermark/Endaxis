@@ -200,7 +200,7 @@ describe('独立游戏数据契约边界', () => {
         'baseAttackAtLevelNodes',
       ],
       CompiledWeaponTraitStaticDefinitionSource: ['key', 'levelCount'],
-      CompiledWeaponRuntimeDefinitionSource: ['assetSlug', 'iconPath', 'initializationBlackboard'],
+      CompiledWeaponRuntimeDefinitionSource: ['assetSlug', 'iconPath', 'blackboard'],
       CompiledWeaponEventHandlerSource: ['key', 'priority', 'blackboard'],
       CompiledGearDefinitionSource: [
         'slug',

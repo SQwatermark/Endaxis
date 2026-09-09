@@ -117,6 +117,19 @@ const definition = {
             }
           }
         }
+      },
+      "blackboard": {
+        "agi": [
+          20,
+          36,
+          52,
+          68,
+          84,
+          100,
+          116,
+          132,
+          156
+        ]
       }
     },
     {
@@ -138,7 +151,20 @@ const definition = {
             0.39
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "atk": [
+          0.05,
+          0.09,
+          0.13,
+          0.17,
+          0.21,
+          0.25,
+          0.29,
+          0.33,
+          0.39
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -165,41 +191,6 @@ const definition = {
           "key": "skill3:event:0:sequence:0",
           "abilityEvent": "beforeOutputBuff",
           "priority": 0,
-          "blackboard": {
-            "duration": [
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20
-            ],
-            "phy_dmg_up": [
-              0.36,
-              0.432,
-              0.504,
-              0.576,
-              0.648,
-              0.72,
-              0.792,
-              0.864,
-              1.008
-            ],
-            "phy_spell_up": [
-              30,
-              36,
-              42,
-              48,
-              54,
-              60,
-              66,
-              72,
-              84
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -239,41 +230,6 @@ const definition = {
           "key": "skill3:event:0:sequence:1",
           "abilityEvent": "beforeOutputBuff",
           "priority": 0,
-          "blackboard": {
-            "duration": [
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20
-            ],
-            "phy_dmg_up": [
-              0.36,
-              0.432,
-              0.504,
-              0.576,
-              0.648,
-              0.72,
-              0.792,
-              0.864,
-              1.008
-            ],
-            "phy_spell_up": [
-              30,
-              36,
-              42,
-              48,
-              54,
-              60,
-              66,
-              72,
-              84
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -314,41 +270,6 @@ const definition = {
           "key": "skill3:event:1:sequence:0",
           "abilityEvent": "beforeCastSkill",
           "priority": 0,
-          "blackboard": {
-            "duration": [
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20
-            ],
-            "phy_dmg_up": [
-              0.36,
-              0.432,
-              0.504,
-              0.576,
-              0.648,
-              0.72,
-              0.792,
-              0.864,
-              1.008
-            ],
-            "phy_spell_up": [
-              30,
-              36,
-              42,
-              48,
-              54,
-              60,
-              66,
-              72,
-              84
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -406,7 +327,42 @@ const definition = {
             ]
           }
         }
-      ]
+      ],
+      "blackboard": {
+        "duration": [
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20
+        ],
+        "phy_dmg_up": [
+          0.36,
+          0.432,
+          0.504,
+          0.576,
+          0.648,
+          0.72,
+          0.792,
+          0.864,
+          1.008
+        ],
+        "phy_spell_up": [
+          30,
+          36,
+          42,
+          48,
+          54,
+          60,
+          66,
+          72,
+          84
+        ]
+      }
     }
   ],
   "assetSlug": "wpn_sword_0021",

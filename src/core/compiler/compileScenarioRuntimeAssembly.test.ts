@@ -622,6 +622,11 @@ describe('compileScenarioRuntimeAssembly', () => {
     const gearSet: GearSetDefinition = {
       slug: 'runtime-set',
       buffDefinitions: { 'buff.runtime-set': { stackingType: 'unique' } },
+      enableSequence: {
+        steps: [
+          { kind: 'changeResource', parameters: { resource: 'sp', amount: 2, recipient: 'team' } },
+        ],
+      },
       initializationSequence: {
         steps: [
           { kind: 'applyBuff', parameters: { buffId: 'buff.runtime-set', target: 'caster' } },
@@ -652,6 +657,11 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(compiled.operators[0]!.initializationPrograms?.at(-1)).toMatchObject({
       key: 'gear-set:runtime-set',
       equipmentContributionIndex: compiled.operators[0]!.equipmentContributions!.length - 1,
+      enableSequence: {
+        steps: [
+          { kind: 'changeResource', parameters: { resource: 'sp', amount: 2, recipient: 'team' } },
+        ],
+      },
       sequence: {
         steps: [{ kind: 'applyBuff', parameters: { buffId: 'buff.runtime-set' } }],
       },

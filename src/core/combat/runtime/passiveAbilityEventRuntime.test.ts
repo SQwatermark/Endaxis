@@ -3,6 +3,7 @@ import type { AbilityEvent } from '../../../../packages/game-data-contract/src/a
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { lifecycleAbilityEvent } from '../events/combatAbilityEvent';
 import { ActionBlackboard } from './actionBlackboard';
+import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { PassiveAbilityEventRuntime } from './passiveAbilityEventRuntime';
 import type { CombatOperationContext } from './skillRuntime';
 
@@ -20,6 +21,113 @@ const responses = [
     },
   },
 ];
+
+it('技力与治疗原生响应写入各自的请求量和实际量，不合并或继承上一事件', () => {
+  const dispatcher = new AbilityEventDispatcher<AbilityEvent>();
+  const blackboard = new ActionBlackboard();
+  const host = new PassiveAbilityEventRuntime(
+    new ActionBlackboardOperationExecutor({ execute: () => false, evaluate: () => false }),
+    { blackboard },
+    [
+      {
+        event: 'skillSpGained',
+        priority: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'storeEventSpGainAmount',
+              parameters: { outputKey: 'sp', realDeltaOutputKey: 'spActual' },
+            },
+          ],
+        },
+      },
+      {
+        event: 'receiveHeal',
+        priority: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'storeEventHealValues',
+              parameters: { finalHealOutputKey: 'heal', realHealOutputKey: 'healActual' },
+            },
+          ],
+        },
+      },
+    ],
+    (event, priority, handle) => dispatcher.registerAction(event, priority, handle),
+  );
+  host.enable();
+  dispatcher.dispatch(
+    {
+      event: 'skillSpGained',
+      payload: {
+        sourceOperatorId: 'operator',
+        source: 'powerAttack',
+        gainKind: 'refund',
+        requestedAmount: 30,
+        amount: 0,
+      },
+    },
+    [],
+  );
+  dispatcher.dispatch(
+    {
+      event: 'receiveHeal',
+      payload: {
+        sourceId: 'healer',
+        targetId: 'operator',
+        requestedHealing: 50,
+        actualHealing: 0,
+      },
+    },
+    [],
+  );
+  expect(blackboard.getNumber('sp')).toBe(30);
+  expect(blackboard.getNumber('spActual')).toBe(0);
+  expect(blackboard.getNumber('heal')).toBe(50);
+  expect(blackboard.getNumber('healActual')).toBe(0);
+  host.dispose();
+});
+
+it('初始化只屏蔽当前未启用宿主，不改变已启用监听者及同优先级注册顺序', () => {
+  const dispatcher = new AbilityEventDispatcher<AbilityEvent>();
+  const seen: string[] = [];
+  const create = (id: string) =>
+    new PassiveAbilityEventRuntime(
+      {
+        evaluate: () => true,
+        execute: () => {
+          seen.push(id);
+          return true;
+        },
+      },
+      { blackboard: new ActionBlackboard() },
+      responses,
+      (event, priority, handle) => dispatcher.registerAction(event, priority, handle),
+    );
+  const fire = () =>
+    dispatcher.dispatch(
+      {
+        event: 'abilityEntityFinished',
+        payload: { sourceId: 'owner', targetId: 'entity' },
+      },
+      [],
+    );
+  const first = create('first');
+  fire();
+  expect(seen).toEqual([]);
+  first.enable();
+  const second = create('second');
+  fire();
+  expect(seen).toEqual(['first']);
+  second.enable();
+  fire();
+  expect(seen).toEqual(['first', 'first', 'second']);
+  first.dispose();
+  second.dispose();
+  fire();
+  expect(seen).toHaveLength(3);
+});
 
 it('添加 Buff 的被动响应保留原事件、来源与目标，并在被动释放时注销', () => {
   const dispatcher = new AbilityEventDispatcher<AbilityEvent>();
@@ -57,6 +165,9 @@ it('添加 Buff 的被动响应保留原事件、来源与目标，并在被动�
       skillCastInfo: null,
     },
   };
+  dispatcher.dispatch(published, []);
+  expect(seen).toEqual([]);
+  runtime.enable();
   dispatcher.dispatch(published, []);
   expect(seen).toEqual([
     { event: published, input: { kind: 'operator', operatorId: 'source' }, source: null },
@@ -100,6 +211,9 @@ it('复用被动黑板与所有权，事件目标独立，并在注销后停止�
       [],
     );
   fire();
+  expect(blackboard.getNumber('count')).toBe(0);
+  runtime.enable();
+  fire();
   fire();
   expect(blackboard.getNumber('count')).toBe(2);
   expect(seen[0]).toMatchObject({
@@ -113,6 +227,7 @@ it('复用被动黑板与所有权，事件目标独立，并在注销后停止�
   expect(owner).not.toHaveProperty('event');
   runtime.dispose();
   runtime.dispose();
+  expect(() => runtime.enable()).toThrow('disposed passive event host');
   fire();
   expect(seen).toHaveLength(2);
 });
@@ -166,6 +281,7 @@ it('同步重入后恢复外层事件目标，不污染下一次事件', () => {
       return { dispose() {} };
     },
   );
+  runtime.enable();
   callbacks[0]!({
     event: 'abilityEntityFinished',
     payload: { sourceId: 'owner', targetId: 'outer' },

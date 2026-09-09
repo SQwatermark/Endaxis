@@ -12,6 +12,7 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 export class PassiveAbilityEventRuntime {
   readonly #registrations: AbilityEventRegistration[] = [];
   #disposed = false;
+  #enabled = false;
 
   constructor(
     operations: CombatOperationExecutor,
@@ -38,7 +39,7 @@ export class PassiveAbilityEventRuntime {
         sequence.reset({});
         this.#registrations.push(
           register(response.event, response.priority, (published, targets) => {
-            if (this.#disposed) return;
+            if (this.#disposed || !this.#enabled) return;
             withAbilityEventResponseContext(context, published, targets, () => {
               sequence.executeInstant({});
             });
@@ -49,6 +50,12 @@ export class PassiveAbilityEventRuntime {
       this.dispose();
       throw error;
     }
+  }
+
+  /** 注册早于初始化，但原生 Ability 在启动 Buff 安装完成后才允许执行响应。 */
+  enable(): void {
+    if (this.#disposed) throw new Error('cannot enable a disposed passive event host');
+    this.#enabled = true;
   }
 
   dispose(): void {

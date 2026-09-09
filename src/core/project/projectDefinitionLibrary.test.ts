@@ -345,7 +345,7 @@ describe('projectDefinitionLibrary', () => {
     expect(() =>
       replaceProjectGearSetTemplateDefinition(gearSetProject, customGearSet.slug, {
         ...customGearSet,
-        initializationBlackboard: { invalid: [] },
+        blackboard: { invalid: [] },
       }),
     ).toThrow(/invalid project gear set definition/);
   });

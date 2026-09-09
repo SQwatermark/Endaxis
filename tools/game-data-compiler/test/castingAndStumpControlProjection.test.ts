@@ -1098,15 +1098,21 @@ describe('施法输入限制与木桩物理控制投影', () => {
   });
 
   it('无 DamageUnit 且始终继续的环境命中特效不进入木桩数值模拟', () => {
-    const action = {
-      family: 'damage',
-      action: {
-        kind: 'damage',
+    const action = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.DamageAction+Data, Gameplay.Beyond',
         alwaysNext: true,
+        attacker: 'ActionSource',
+        targetSettings: targetFixture('Target'),
+        effectSource: targetFixture('Owner'),
         hitEnvironment: true,
-        units: [],
+        hitEnvData: {},
+        damageUnits: [],
       },
-    } as unknown as ReturnType<typeof parseKnownNativeActionLeafSource>;
+      'fixture.environmentHit',
+      {},
+    );
     expect(compileBuffLeafNode(node(action), new Set(), new Map(), ACTIVE_SKILL_CONTEXT)).toEqual({
       steps: [],
       state: new Map(),

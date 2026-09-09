@@ -98,6 +98,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "str": [
+          16,
+          28,
+          41,
+          54,
+          67,
+          80,
+          92,
+          105,
+          124
+        ]
       }
     },
     {
@@ -119,7 +132,20 @@ const definition = {
             0.624
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "hp": [
+          0.08,
+          0.144,
+          0.208,
+          0.272,
+          0.336,
+          0.4,
+          0.464,
+          0.528,
+          0.624
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -142,7 +168,29 @@ const definition = {
           ]
         }
       ],
-      "initializationBlackboard": {
+      "blackboard": {
+        "heal_up": [
+          0.2,
+          0.24,
+          0.28,
+          0.32,
+          0.36,
+          0.4,
+          0.44,
+          0.48,
+          0.56
+        ],
+        "second_attr_up": [
+          0.05,
+          0.06,
+          0.07,
+          0.08,
+          0.09,
+          0.1,
+          0.11,
+          0.12,
+          0.14
+        ],
         "install_0_heal_up": [
           0.2,
           0.24,
@@ -155,7 +203,7 @@ const definition = {
           0.56
         ]
       },
-      "initializationSequence": {
+      "enableSequence": {
         "steps": [
           {
             "kind": "applyBuff",

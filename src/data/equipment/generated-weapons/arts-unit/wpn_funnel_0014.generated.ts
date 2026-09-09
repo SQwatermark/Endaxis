@@ -98,6 +98,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "wisd": [
+          16,
+          28,
+          41,
+          54,
+          67,
+          80,
+          92,
+          105,
+          124
+        ]
       }
     },
     {
@@ -119,7 +132,21 @@ const definition = {
             62
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "atk": 0,
+        "physpell": [
+          8,
+          14,
+          20,
+          27,
+          33,
+          40,
+          46,
+          52,
+          62
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -146,42 +173,6 @@ const definition = {
           "key": "skill3:event:0:sequence:0",
           "abilityEvent": "beforeOutputSpellBurst",
           "priority": 0,
-          "blackboard": {
-            "dmg_up": [
-              0.08,
-              0.096,
-              0.112,
-              0.128,
-              0.144,
-              0.16,
-              0.176,
-              0.192,
-              0.224
-            ],
-            "duration": [
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15
-            ],
-            "hp_up": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
-            ],
-            "lv": 1
-          },
           "sequence": {
             "steps": [
               {
@@ -229,42 +220,6 @@ const definition = {
           "key": "skill3:event:1:sequence:0",
           "abilityEvent": "beforeOutputPhysicalInfliction",
           "priority": 0,
-          "blackboard": {
-            "dmg_up": [
-              0.08,
-              0.096,
-              0.112,
-              0.128,
-              0.144,
-              0.16,
-              0.176,
-              0.192,
-              0.224
-            ],
-            "duration": [
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15,
-              15
-            ],
-            "hp_up": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
-            ],
-            "lv": 1
-          },
           "sequence": {
             "steps": [
               {
@@ -308,7 +263,43 @@ const definition = {
             ]
           }
         }
-      ]
+      ],
+      "blackboard": {
+        "dmg_up": [
+          0.08,
+          0.096,
+          0.112,
+          0.128,
+          0.144,
+          0.16,
+          0.176,
+          0.192,
+          0.224
+        ],
+        "duration": [
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15,
+          15
+        ],
+        "hp_up": [
+          0.1,
+          0.12,
+          0.14,
+          0.16,
+          0.18,
+          0.2,
+          0.22,
+          0.24,
+          0.28
+        ],
+        "lv": 1
+      }
     }
   ],
   "assetSlug": "wpn_artsunit_0014",

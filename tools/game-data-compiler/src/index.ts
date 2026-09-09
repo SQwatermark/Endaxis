@@ -469,7 +469,6 @@ export {
   compileBuffRuntimeDefinitionSource,
   compileCombatActionSequenceSource,
   compileCombatConditionSequenceSource,
-  compileSkillSpGainActionSequenceSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
   isPresentationOnlyBuffStackEffect,
   type CompiledBuffAttributeModifierSource,

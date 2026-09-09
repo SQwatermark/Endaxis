@@ -1,10 +1,38 @@
 # 事件响应：公共机制与宿主边界
 
+2026-09-09 晚间续：PassiveAbilityEventRuntime 的注册与启用状态已分离。
+装配先创建监听，运行本宿主 enableSequence，成功后才 enable；宿主释放后不可重新启用。
+因此含启动 Buff 的 OnAddedBuff 不再需要生成器单独走旧 listener。事件上下文/优先级
+仍由公共链路负责，门禁只属于宿主生命周期；不等到整队初始化完成才统一启用。
+依据 combat-spec/ability-enable-event-order.md 的未补丁主干；不宣称 IFix 已穷举。
+后文初始“三事件＋启动 Buff 保护”是此前状态，OnObtainAtb/OnReceiveHeal 已迁移。
+
 当前工作进度见 [独立已办/待办清单](../handoff/2026-09-09-event-unification-checklist.md)。
-干员被动准入现由契约 OPERATOR_PASSIVE_ABILITY_EVENTS 统一维护三种事件：
-abilityEntitySpawned、abilityEntityFinished、addedBuff。OnAddedBuff 仅在没有
-启动 Buff 时迁移到原生响应；有启动 Buff 时保留旧注册位置，避免未经原生 Enable
-时序核查就改变初始化响应。下文早期“两种生命周期事件”描述是迁移历史。
+干员被动准入由契约 OPERATOR_PASSIVE_ABILITY_EVENTS 统一维护五种事件：
+abilityEntitySpawned、abilityEntityFinished、addedBuff、skillSpGained、receiveHeal。
+武器 OnObtainAtb 也直接映射 skillSpGained，宿主准入检查不再使用强制断言。
+下文早期“两种生命周期事件”及启动 Buff 兼容注册描述是迁移历史。
+
+### 配装响应的序列身份
+
+EquipmentEventRuntime 每个注册处理器持有一个 CombatActionSequenceRuntime/ActionSequence，
+与原生 ActionContainer 持有 SequenceAction 的语义一致。响应执行器仍按当前事件产生，
+通过栈式绑定供固定序列调用；嵌套结束后恢复外层执行器、事件上下文与局部黑板。
+不得通过每次重建序列清空已执行前缀，也不得用全局 busy 标志替代原生状态机。
+依据 combat-spec 的 ability-event-action-ordering / sequence-execute-policy。
+
+配装黑板已归到 EquipmentContributionDefinition.blackboard：原始能力值按词条等级
+解析一次，初始化与所有响应共用同一 ActionBlackboard。事件处理器不再持有 blackboard，
+初始化程序也不再复制配装初始板。不同贡献实例按装配索引隔离，不按 slug 合并。
+旧 initializationBlackboard 和 handler.blackboard 明确校验失败，不猜测冲突值或做迁移。
+依据 combat-spec/ability-blackboard-ownership.md 的原生 Init/getter/动作环境证据；
+配装能力没有主动施放流程，事件结束不执行 BeforeCast 的动态值恢复。
+能力启用/销毁、其他重置边界仍须继续收束，不能由共享板已实现推定全部生命周期完成。
+
+注册失败必须对称注销：单个配装宿主失败清理自身此前注册；装配失败清理此前已成功
+安装的配装宿主。dispose 在注销前标记终止，失效回调不能重新进入执行器。
+启用与构筑刷新尚需拆分：当前生成 initializationSequence 同时含启动 Buff 安装与
+OnCharDeckAttrChanged 的固定模型折叠计算，不能把两者一起套进 Ability.Enable 门禁。
 
 ## 当前状态（2026-09-09：移除载荷包装）
 
@@ -105,16 +133,16 @@ ManualKnockDownOutputEvent），不再使用涵盖前置通知的 KnockDownAbili
 等专题；这里仅说明 Endaxis 消费架构，不另立游戏规则。
 公共事件响应不是全局无归属总线。发布者实体、监听所有者、施加来源必须各自保留。
 
-| 链路 | 现有入口 | 整改边界 |
-| --- | --- | --- |
-| 事件身份与 Input/Trigger 绑定 | 契约 abilityEvents.ts、abilityEventActionContext | 已有公共定义，继续复用 |
-| 原始事件名称投影 | abilityEventProjection.ts | 已公共；宿主转换仍有独立白名单和特殊分支 |
-| 响应结构 | AbilityEventResponse | Buff 与被动引用同一结构，不内联重定义 |
-| 同步发布/注册 | AbilityEventDispatcher | 已共享；不重造总线 |
-| 载荷与施法身份解释 | abilityEventPayload.ts | 从 Buff 生命周期模块移出，Buff/被动/装备/连携直接依赖 |
-| 临时动作环境 | abilityEventResponseContext.ts | Buff 与被动共用，嵌套/异常恢复事件、Input 和 Trigger |
-| 条件与动作 | CombatActionSequenceRuntime 与公共执行器 | 已共享，保留序列 once/重入状态 |
-| 注册与实例生命 | Buff、PassiveAbilityEventRuntime 等宿主 | 保留必要差异，不将 Buff 结束等价于技能卸载 |
+| 链路                          | 现有入口                                         | 整改边界                                              |
+| ----------------------------- | ------------------------------------------------ | ----------------------------------------------------- |
+| 事件身份与 Input/Trigger 绑定 | 契约 abilityEvents.ts、abilityEventActionContext | 已有公共定义，继续复用                                |
+| 原始事件名称投影              | abilityEventProjection.ts                        | 已公共；宿主转换仍有独立白名单和特殊分支              |
+| 响应结构                      | AbilityEventResponse                             | Buff 与被动引用同一结构，不内联重定义                 |
+| 同步发布/注册                 | AbilityEventDispatcher                           | 已共享；不重造总线                                    |
+| 载荷与施法身份解释            | abilityEventPayload.ts                           | 从 Buff 生命周期模块移出，Buff/被动/装备/连携直接依赖 |
+| 临时动作环境                  | abilityEventResponseContext.ts                   | Buff 与被动共用，嵌套/异常恢复事件、Input 和 Trigger  |
+| 条件与动作                    | CombatActionSequenceRuntime 与公共执行器         | 已共享，保留序列 once/重入状态                        |
+| 注册与实例生命                | Buff、PassiveAbilityEventRuntime 等宿主          | 保留必要差异，不将 Buff 结束等价于技能卸载            |
 
 ## 2026-09-09 第一批整改
 
@@ -450,3 +478,13 @@ buffEnhanceChanged 直接消费实体总线原始事件，删除 abilityBuffEnha
 
 下一批先审查转换/消费通道与能力门禁，再实现公共订阅宿主接口。不能只删 Extract 或
 吞掉不支持事件，也不能在各宿主里继续复制新的事件适配分支。
+
+## 配装生命周期续接（2026-09-09 晚间）
+
+EquipmentContributionDefinition 的 `enableSequence` 在本能力监听关闭时执行普通
+启动安装，成功后打开本贡献响应，再执行 `initializationSequence`。后者保留 Toggle
+首次安装及其后的固定构筑 Deck 刷新；不意味着二者是同一种原生通知。
+纯监听能力也必须具有运行编译产生的启用入口，不能因为没有步骤而跳过启用。
+两阶段与事件共用贡献黑板和子 Buff 所有权；黑板是否需序列化取决于引用证据，
+并不要求所有能力保存全量原始板。兼容条件必须在同一启用门禁及上下文内求值。
+原生依据见 combat-spec/ability-enable-event-order.md，静态主干/IFix 边界仍保留。

@@ -104,6 +104,40 @@ const xiranflowArmor: GearDefinition = {
 const attributes = { main: 'intellect', secondary: 'will' } as const;
 
 describe('compile equipment contributions', () => {
+  it('启用前后两个程序按同一词条等级编译', () => {
+    const sequence = {
+      steps: [
+        {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: [2, 5],
+            recipient: 'team',
+          },
+        },
+      ],
+    } as const;
+    const [result] = compileWeaponContributions(
+      {
+        ...loneBarge,
+        traits: [
+          {
+            key: 'fixture',
+            levelCount: 2,
+            enableSequence: sequence,
+            initializationSequence: sequence,
+          },
+        ],
+      },
+      [2],
+      attributes,
+    );
+    for (const field of ['enableSequence', 'initializationSequence'] as const)
+      expect(result?.[field]?.steps[0]).toMatchObject({
+        kind: 'changeResource',
+        parameters: { amount: 5 },
+      });
+  });
   it('resolves each weapon trait with its independently selected level', () => {
     const compiled = compileWeaponContributions(loneBarge, [9, 1, 4], attributes);
 
@@ -211,11 +245,11 @@ describe('compile equipment contributions', () => {
           key: 'healing',
           levelCount: 2,
           modifiers: [{ kind: 'staticHealingIncrease', target: 'output', value: [0.1, 0.2] }],
+          blackboard: { rate: [0.05, 0.1] },
           eventHandlers: [
             {
               key: 'heal-output',
               event: { kind: 'operatorHealed', role: 'source' },
-              blackboard: { rate: [0.05, 0.1] },
               sequence: { steps: [] },
             },
           ],
@@ -227,7 +261,7 @@ describe('compile equipment contributions', () => {
     expect(compiled!.modifiers).toEqual([
       { kind: 'staticHealingIncrease', target: 'output', value: 0.2 },
     ]);
-    expect(compiled!.eventHandlers[0]!.blackboard).toEqual({ rate: 0.1 });
+    expect(compiled!.blackboard).toEqual({ rate: 0.1 });
   });
 
   it('resolves the initialization blackboard at the selected trait level', () => {
@@ -240,14 +274,14 @@ describe('compile equipment contributions', () => {
         {
           key: 'runtime',
           levelCount: 3,
-          initializationBlackboard: { duration: 10, attack_up: [0.1, 0.2, 0.3] },
+          blackboard: { duration: 10, attack_up: [0.1, 0.2, 0.3] },
           initializationSequence: { steps: [] },
         },
       ],
     };
 
     expect(compileWeaponContributions(definition, [2], attributes)[0]).toMatchObject({
-      initializationBlackboard: { duration: 10, attack_up: 0.2 },
+      blackboard: { duration: 10, attack_up: 0.2 },
       initializationSequence: { steps: [] },
     });
   });

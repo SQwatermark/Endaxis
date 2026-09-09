@@ -16,10 +16,10 @@ describe('equipment definition editor coverage', () => {
   it('定义、贡献、词条和实例分别拥有契约穷尽账本', () => {
     expect(Object.keys(WEAPON_DEFINITION_EDITOR_COVERAGE)).toHaveLength(8);
     expect(Object.keys(GEAR_DEFINITION_EDITOR_COVERAGE)).toHaveLength(9);
-    expect(Object.keys(GEAR_SET_DEFINITION_EDITOR_COVERAGE)).toHaveLength(7);
-    expect(Object.keys(EQUIPMENT_CONTRIBUTION_EDITOR_COVERAGE)).toHaveLength(5);
-    expect(Object.keys(WEAPON_TRAIT_EDITOR_COVERAGE)).toHaveLength(7);
-    expect(Object.keys(GEAR_TRAIT_EDITOR_COVERAGE)).toHaveLength(8);
+    expect(Object.keys(GEAR_SET_DEFINITION_EDITOR_COVERAGE)).toHaveLength(8);
+    expect(Object.keys(EQUIPMENT_CONTRIBUTION_EDITOR_COVERAGE)).toHaveLength(6);
+    expect(Object.keys(WEAPON_TRAIT_EDITOR_COVERAGE)).toHaveLength(8);
+    expect(Object.keys(GEAR_TRAIT_EDITOR_COVERAGE)).toHaveLength(9);
     expect(Object.keys(WEAPON_INSTANCE_EDITOR_COVERAGE)).toHaveLength(5);
     expect(Object.keys(GEAR_INSTANCE_EDITOR_COVERAGE)).toHaveLength(2);
   });
@@ -35,9 +35,9 @@ describe('equipment definition editor coverage', () => {
     ]);
   });
 
-  it('事件响应不会遗漏原生优先级、逐级黑板或两类事件身份', () => {
+  it('事件响应保留优先级和事件身份，黑板只在能力根编辑', () => {
     expect(EQUIPMENT_EVENT_HANDLER_EDITOR_COVERAGE.priority).toBe('editable');
-    expect(EQUIPMENT_EVENT_HANDLER_EDITOR_COVERAGE.blackboard).toBe('editable');
+    expect(EQUIPMENT_EVENT_HANDLER_EDITOR_COVERAGE).not.toHaveProperty('blackboard');
     expect(EQUIPMENT_EVENT_HANDLER_EDITOR_COVERAGE.event).toBe('editable');
     expect(EQUIPMENT_EVENT_HANDLER_EDITOR_COVERAGE.abilityEvent).toBe('editable');
     expect(EQUIPMENT_EVENT_HANDLER_EDITOR_COVERAGE.sequence).toBe('structureEditable');

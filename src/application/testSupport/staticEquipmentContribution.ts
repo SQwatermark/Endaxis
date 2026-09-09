@@ -6,7 +6,7 @@ export function staticEquipmentContribution<T extends EquipmentContributionDefin
 ) {
   const {
     initializationSequence: _initializationSequence,
-    initializationBlackboard: _initializationBlackboard,
+    blackboard: _blackboard,
     eventHandlers: _eventHandlers,
     buffDefinitions: _buffDefinitions,
     ...staticOnly

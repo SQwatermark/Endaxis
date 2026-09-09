@@ -27,15 +27,8 @@ function blackboardField<T extends object>(
 }
 
 export const contributionBlackboardFields = [
-  blackboardField<EquipmentContributionDefinition>(
-    'initializationBlackboard',
-    contributionStructure.initializationBlackboard,
-  ),
+  blackboardField<EquipmentContributionDefinition>('blackboard', contributionStructure.blackboard),
 ];
-const handlerBlackboard = blackboardField<EquipmentEventHandlerDefinition>(
-  'blackboard',
-  handlerStructure.blackboard,
-);
 
 /** 条件/序列由图拥有；事件触发器仍用专用控件，不把两个互斥事件族铺成可选字段。 */
 export function handlerInspectorFields(value: EquipmentEventHandlerDefinition) {
@@ -53,6 +46,5 @@ export function handlerInspectorFields(value: EquipmentEventHandlerDefinition) {
         helpKey: `timeline.skillEditing.contributionFields.${key}Help`,
       };
     }),
-    handlerBlackboard,
   ];
 }

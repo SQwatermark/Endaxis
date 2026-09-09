@@ -36,7 +36,7 @@ describe('套装安装的契约边界', () => {
     }
     expect(result.diagnostics).toEqual([]);
     const definition: GearSetDefinition = result.definitions[0]!;
-    expect(definition.initializationSequence?.steps[0]).toMatchObject({
+    expect(definition.enableSequence?.steps[0]).toMatchObject({
       kind: 'applyBuff',
       parameters: {
         blackboardAssignments: {

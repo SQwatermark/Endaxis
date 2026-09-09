@@ -133,14 +133,17 @@ describe('weapon runtime definitions', () => {
     });
   });
 
-  it('fails closed instead of guessing an unsupported passive AbilityEvent', () => {
+  it.each([
+    ['OnProjectileLaunched', 'unsupported ability event "OnProjectileLaunched"'],
+    ['OnReceiveHeal', 'unsupported equipment ability event "receiveHeal"'],
+  ])('fails closed for an unsupported weapon event %s', (nativeEvent, reason) => {
     const withPassiveEvent: CompiledWeaponTraitRuntimeDependencySource = {
       ...dependency,
       actionGraph: {
         ...dependency.actionGraph,
         actionGroup: {
           timelineActions: [],
-          passiveEvents: [{ abilityEvent: 'OnProjectileLaunched', actions: [] }],
+          passiveEvents: [{ abilityEvent: nativeEvent, actions: [] }],
         },
       },
     };
@@ -157,84 +160,90 @@ describe('weapon runtime definitions', () => {
       status: 'blocked',
       sourcePath: `${definition.slug}.skill1.actionGraph`,
       reason:
-        `${definition.slug}.skill1.actionGraph.passiveEventActions[0].abilityEvent: ` +
-        'unsupported ability event "OnProjectileLaunched"',
+        `${definition.slug}.skill1.actionGraph.passiveEventActions[0].abilityEvent: ` + reason,
     });
   });
 
-  it('把费用成功事件投影到公共技能 AbilityEvent，而不改写触发时机', () => {
-    const amount = Object.freeze([10, 20]);
-    const withPassiveEvent: CompiledWeaponTraitRuntimeDependencySource = {
-      ...dependency,
-      blackboard: { amount, constant: 7 },
-      actionGraph: {
-        ...dependency.actionGraph,
-        actionGroup: {
-          timelineActions: [],
-          passiveEvents: [
-            {
-              abilityEvent: 'OnAfterSkillApplyCost',
-              actions: [
-                {
-                  onlyExecuteWhenSourceIsMainCharacter: false,
-                  onlyExecuteWhenSourceIsGuard: false,
-                  actions: [
-                    {
-                      sourcePath: 'SkillData.sk_wpn_test_0001.mutation',
-                      metadata: {
-                        nativeType: 'Game.ModifyActionValue',
-                        nativeName: 'ModifyActionValue',
-                        enabled: true,
-                        priorityLevel: 'Default',
-                        priorityOffset: 0,
-                        serverActionIndex: 0,
-                      },
-                      body: {
-                        kind: 'leaf',
-                        value: {
-                          family: 'blackboardMutation',
-                          action: {
-                            kind: 'blackboardMutation',
-                            key: 'counter',
-                            operation: 'Assign',
-                            value: { value: 1, blackboardKey: null, levelValues: null },
-                            directValue: true,
-                            calculationTarget: { targetSource: 'Owner' } as never,
-                            calculationType: 'HpRatio',
+  it.each([
+    ['OnAfterSkillApplyCost', 'afterSkillApplyCost'],
+    ['OnObtainAtb', 'skillSpGained'],
+  ] as const)(
+    '把 %s 投影到公共 AbilityEvent，不生成另一份语义事件',
+    (nativeEvent, abilityEvent) => {
+      const amount = Object.freeze([10, 20]);
+      const withPassiveEvent: CompiledWeaponTraitRuntimeDependencySource = {
+        ...dependency,
+        blackboard: { amount, constant: 7 },
+        actionGraph: {
+          ...dependency.actionGraph,
+          actionGroup: {
+            timelineActions: [],
+            passiveEvents: [
+              {
+                abilityEvent: nativeEvent,
+                actions: [
+                  {
+                    onlyExecuteWhenSourceIsMainCharacter: false,
+                    onlyExecuteWhenSourceIsGuard: false,
+                    actions: [
+                      {
+                        sourcePath: 'SkillData.sk_wpn_test_0001.mutation',
+                        metadata: {
+                          nativeType: 'Game.ModifyActionValue',
+                          nativeName: 'ModifyActionValue',
+                          enabled: true,
+                          priorityLevel: 'Default',
+                          priorityOffset: 0,
+                          serverActionIndex: 0,
+                        },
+                        body: {
+                          kind: 'leaf',
+                          value: {
+                            family: 'blackboardMutation',
+                            action: {
+                              kind: 'blackboardMutation',
+                              key: 'counter',
+                              operation: 'Assign',
+                              value: { value: 1, blackboardKey: null, levelValues: null },
+                              directValue: true,
+                              calculationTarget: { targetSource: 'Owner' } as never,
+                              calculationType: 'HpRatio',
+                            },
                           },
                         },
                       },
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
+                    ],
+                  },
+                ],
+              },
+            ],
+          },
         },
-      },
-    };
+      };
 
-    const result = compileWeaponRuntimeDefinitionBatchSource(
-      [definition],
-      [withPassiveEvent],
-      {},
-      fixtureGameplayTagRegistry,
-    );
+      const result = compileWeaponRuntimeDefinitionBatchSource(
+        [definition],
+        [withPassiveEvent],
+        {},
+        fixtureGameplayTagRegistry,
+      );
 
-    expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]?.blackboard.amount).toBe(amount);
-    expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]?.blackboard.constant).toBe(7);
-    expect(result.diagnostics).toEqual([]);
-    expect(result.definitions[0]?.traits[0]?.eventHandlers).toMatchObject([
-      {
-        key: 'skill1:event:0:sequence:0',
-        abilityEvent: 'afterSkillApplyCost',
-        priority: 0,
-        sequence: {
-          steps: [{ kind: 'modifyActionValue', parameters: { key: 'counter' } }],
+      expect(result.definitions[0]?.traits[0]?.blackboard?.amount).toBe(amount);
+      expect(result.definitions[0]?.traits[0]?.blackboard?.constant).toBe(7);
+      expect(result.definitions[0]?.traits[0]?.eventHandlers?.[0]).not.toHaveProperty('blackboard');
+      expect(result.diagnostics).toEqual([]);
+      expect(result.definitions[0]?.traits[0]?.eventHandlers).toMatchObject([
+        {
+          key: 'skill1:event:0:sequence:0',
+          abilityEvent,
+          priority: 0,
+          sequence: {
+            steps: [{ kind: 'modifyActionValue', parameters: { key: 'counter' } }],
+          },
         },
-      },
-    ]);
-  });
+      ]);
+    },
+  );
 
   it('把构筑期 Deck 属性变化响应折叠为单次配装初始化程序', () => {
     const withDeckEvent: CompiledWeaponTraitRuntimeDependencySource = {

@@ -71,8 +71,6 @@ interface CompiledEquipmentEventHandlerBase {
   /** 编译器始终写入；可选只为兼容外部测试/装配端口的旧记录。 */
   readonly priority?: number;
   readonly condition?: CombatCondition;
-  /** 编译器始终写入；可选只为兼容外部测试/装配端口的空黑板记录。 */
-  readonly blackboard?: Readonly<Record<string, number>>;
   readonly sequence: ResolvedActionSequence;
 }
 
@@ -89,7 +87,8 @@ export interface CompiledEquipmentContribution {
   readonly modifiers: readonly ResolvedEquipmentModifier[];
   readonly eventHandlers: readonly CompiledEquipmentEventHandler[];
   readonly buffDefinitions?: Readonly<Record<string, ResolvedSkillBuffDefinition>>;
-  readonly initializationBlackboard?: Readonly<Record<string, number>>;
+  readonly blackboard?: Readonly<Record<string, number>>;
+  readonly enableSequence?: ResolvedActionSequence;
   readonly initializationSequence?: ResolvedActionSequence;
 }
 
@@ -165,12 +164,6 @@ function compileEventHandler(
       : { event: handler.event }),
     priority,
     ...(handler.condition === undefined ? {} : { condition: handler.condition }),
-    blackboard: Object.fromEntries(
-      Object.entries(handler.blackboard ?? {}).map(([key, value]) => [
-        key,
-        resolveLevelValue(value, level, `${path}.blackboard.${key}`),
-      ]),
-    ),
     sequence: compileActionSequence(handler.sequence, level, `${path}.sequence`),
   };
 }
@@ -203,14 +196,23 @@ function compileContribution(
       compileEventHandler(handler, selectedLevel, `${path}.eventHandlers[${index}]`),
     ),
     buffDefinitions: resources.buffDefinitions,
-    ...(definition.initializationBlackboard === undefined
+    ...(definition.blackboard === undefined
       ? {}
       : {
-          initializationBlackboard: Object.fromEntries(
-            Object.entries(definition.initializationBlackboard).map(([key, value]) => [
+          blackboard: Object.fromEntries(
+            Object.entries(definition.blackboard).map(([key, value]) => [
               key,
-              resolveLevelValue(value, selectedLevel, `${path}.initializationBlackboard.${key}`),
+              resolveLevelValue(value, selectedLevel, `${path}.blackboard.${key}`),
             ]),
+          ),
+        }),
+    ...(definition.enableSequence === undefined
+      ? {}
+      : {
+          enableSequence: compileActionSequence(
+            definition.enableSequence,
+            selectedLevel,
+            `${path}.enableSequence`,
           ),
         }),
     ...(definition.initializationSequence === undefined

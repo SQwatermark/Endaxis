@@ -14,7 +14,8 @@ const contribution = {
   modifiers: [],
   eventHandlers: [],
   buffDefinitions: {},
-  initializationBlackboard: { custom: 1 },
+  blackboard: { custom: 1 },
+  enableSequence: { steps: [] },
   initializationSequence: { steps: [] },
 } satisfies Required<EquipmentContributionDefinition>;
 
@@ -40,10 +41,10 @@ it('treats explicitly undefined values as absence but retains present empty valu
   expect(
     replaceEquipmentContribution(contribution, {
       initializationSequence: undefined,
-      initializationBlackboard: {},
+      blackboard: {},
       modifiers: [],
     }),
-  ).toEqual({ initializationBlackboard: {}, modifiers: [] });
+  ).toEqual({ blackboard: {}, modifiers: [] });
 });
 
 it('persists deletion through project save/reload and one project undo/redo transaction', () => {

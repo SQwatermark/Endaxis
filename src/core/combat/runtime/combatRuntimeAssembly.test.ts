@@ -1878,6 +1878,18 @@ describe('CombatRuntimeAssembly', () => {
 
   it('installs equipment event handlers and executes their resource sequence', () => {
     const nativeEvents = createNativeEventFixture();
+    const initialize = {
+      steps: [
+        {
+          kind: 'modifyActionValue',
+          parameters: {
+            key: 'gain',
+            operation: 'assign',
+            value: { kind: 'constant', value: 10 },
+          },
+        },
+      ],
+    } as const;
     const assembly = new CombatRuntimeAssembly({
       ...nativeEventRuntimeOptions(),
       registerCombatAbilityEvent: nativeEvents.register,
@@ -1918,14 +1930,23 @@ describe('CombatRuntimeAssembly', () => {
                   sequence: {
                     steps: [
                       {
-                        kind: 'changeResource',
-                        parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+                        kind: 'changeResourceByActionValue',
+                        parameters: {
+                          resource: 'sp',
+                          amount: { kind: 'blackboard', key: 'gain' },
+                          recipient: 'team',
+                        },
                       },
                     ],
                   },
                 },
               ],
+              blackboard: { gain: 1 },
+              initializationSequence: initialize,
             },
+          ],
+          initializationPrograms: [
+            { key: 'equipment-fixture', equipmentContributionIndex: 0, sequence: initialize },
           ],
         },
       ],
@@ -1948,6 +1969,155 @@ describe('CombatRuntimeAssembly', () => {
       },
     });
   });
+
+  it('配装逐能力启用：自身启动不响应，已启用能力及启用后安装正常响应', () => {
+    const native = createNativeEventFixture();
+    const observed: string[] = [];
+    const sequence = {
+      steps: [
+        {
+          kind: 'changeResource',
+          parameters: {
+            resource: 'sp',
+            amount: 1,
+            recipient: 'team',
+          },
+        },
+      ],
+    } as const;
+    new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
+      emitAbilityEvent: (_owner, event, payload) =>
+        native.dispatcher.dispatch(
+          { event, payload } as import('../events/combatAbilityEvent').CombatAbilityEvent,
+          [],
+        ),
+      registerEquipmentAbilityEventAction: (_owner, event, priority, handle) =>
+        native.dispatcher.registerAction(event, priority, handle),
+      enemy: testEnemy,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      resources: {
+        sp: 0,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: false,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [],
+      },
+      operators: [
+        {
+          operatorId: 'operator',
+          skills: [],
+          equipmentContributions: ['first', 'second'].map(key => ({
+            source: { kind: 'weaponTrait', slug: 'fixture', traitKey: key },
+            selectedLevel: 1,
+            modifiers: [],
+            enableSequence: sequence,
+            initializationSequence: sequence,
+            eventHandlers: [{ key, abilityEvent: 'skillSpGained', sequence: { steps: [] } }],
+          })),
+          initializationPrograms: ['first', 'second'].map((key, equipmentContributionIndex) => ({
+            key,
+            equipmentContributionIndex,
+            enableSequence: sequence,
+            sequence,
+          })),
+        },
+      ],
+      createOperationExecutor: () => rejectingExecutor,
+      createEquipmentEventOperationExecutor: context => {
+        observed.push(context.handlerKey);
+        return rejectingExecutor;
+      },
+    });
+    expect(observed).toEqual(['first', 'first', 'first', 'second']);
+  });
+
+  it.each(['registration', 'initialization', 'enable'] as const)(
+    '配装 %s 失败清理之前所有干员的监听',
+    failure => {
+      const disposals: string[] = [];
+      const eventHandler = {
+        key: 'gain',
+        abilityEvent: 'skillSpGained',
+        sequence: { steps: [] },
+      } as const;
+      expect(
+        () =>
+          new CombatRuntimeAssembly({
+            ...nativeEventRuntimeOptions(),
+            enemy: testEnemy,
+            resources: {
+              sp: 0,
+              maxSp: 300,
+              returnedSp: 0,
+              sharedSpGain: { baseGainEfficiency: 1 },
+              spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+              ultimateEnergySystemUnlocked: false,
+              normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+              squad: [],
+            },
+            enemyBuffRuntime: emptyEnemyBuffRuntime,
+            operators: ['first', 'second'].map(operatorId => ({
+              operatorId,
+              skills: [],
+              equipmentContributions: [
+                {
+                  source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'skill' },
+                  selectedLevel: 1,
+                  modifiers: [],
+                  eventHandlers: [eventHandler],
+                },
+              ],
+              initializationPrograms: [
+                {
+                  key: operatorId,
+                  equipmentContributionIndex:
+                    failure === 'initialization' && operatorId === 'second' ? 99 : 0,
+                  ...(failure === 'enable' && operatorId === 'second'
+                    ? {
+                        enableSequence: {
+                          steps: [
+                            {
+                              kind: 'modifyActionValue' as const,
+                              parameters: {
+                                key: 'result',
+                                operation: 'assign' as const,
+                                value: { kind: 'blackboard' as const, key: 'missing-enable-value' },
+                              },
+                            },
+                          ],
+                        },
+                      }
+                    : {}),
+                  sequence: { steps: [] },
+                },
+              ],
+            })),
+            createOperationExecutor: () => rejectingExecutor,
+            createEquipmentEventOperationExecutor: () => rejectingExecutor,
+            registerEquipmentAbilityEventAction: operatorId => {
+              if (operatorId === 'second' && failure === 'registration')
+                throw new Error('registration failed');
+              return {
+                dispose: () => {
+                  disposals.push(operatorId);
+                },
+              };
+            },
+          }),
+      ).toThrow(
+        failure === 'registration'
+          ? 'registration failed'
+          : failure === 'enable'
+            ? /missing-enable-value/
+            : "equipment Ability '99' is not active",
+      );
+      expect(disposals).toEqual(failure === 'registration' ? ['first'] : ['first', 'second']);
+    },
+  );
 
   it('requires an explicit terminal executor when equipment events are present', () => {
     expect(

@@ -88,6 +88,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "will": [
+          12,
+          21,
+          31,
+          40,
+          50,
+          60,
+          69,
+          79,
+          93
+        ]
       }
     },
     {
@@ -109,7 +122,20 @@ const definition = {
             0.468
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "hp": [
+          0.06,
+          0.108,
+          0.156,
+          0.204,
+          0.252,
+          0.3,
+          0.348,
+          0.396,
+          0.468
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -120,30 +146,6 @@ const definition = {
           "key": "skill3:event:0:sequence:0",
           "abilityEvent": "beforeOutputDamage",
           "priority": 0,
-          "blackboard": {
-            "atk_up": [
-              0.12,
-              0.144,
-              0.168,
-              0.192,
-              0.216,
-              0.24,
-              0.264,
-              0.288,
-              0.336
-            ],
-            "duration": [
-              10,
-              10,
-              10,
-              10,
-              10,
-              10,
-              10,
-              10,
-              10
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -184,7 +186,31 @@ const definition = {
             ]
           }
         }
-      ]
+      ],
+      "blackboard": {
+        "atk_up": [
+          0.12,
+          0.144,
+          0.168,
+          0.192,
+          0.216,
+          0.24,
+          0.264,
+          0.288,
+          0.336
+        ],
+        "duration": [
+          10,
+          10,
+          10,
+          10,
+          10,
+          10,
+          10,
+          10,
+          10
+        ]
+      }
     }
   ],
   "assetSlug": "wpn_greatsword_0009",

@@ -108,6 +108,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "mainattr": [
+          17,
+          30,
+          44,
+          57,
+          71,
+          85,
+          98,
+          112,
+          132
+        ]
       }
     },
     {
@@ -129,7 +142,20 @@ const definition = {
             0.39
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "atk": [
+          0.05,
+          0.09,
+          0.13,
+          0.17,
+          0.21,
+          0.25,
+          0.29,
+          0.33,
+          0.39
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -157,53 +183,6 @@ const definition = {
           "key": "skill3:event:0:sequence:0",
           "abilityEvent": "beforeOutputDamage",
           "priority": 0,
-          "blackboard": {
-            "cd_duraton": 0.1,
-            "duration": [
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30,
-              30
-            ],
-            "max_stack": [
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3
-            ],
-            "phy_damage_up": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
-            ],
-            "phy_damage_up2": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -284,7 +263,54 @@ const definition = {
             ]
           }
         }
-      ]
+      ],
+      "blackboard": {
+        "cd_duraton": 0.1,
+        "duration": [
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30,
+          30
+        ],
+        "max_stack": [
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3,
+          3
+        ],
+        "phy_damage_up": [
+          0.1,
+          0.12,
+          0.14,
+          0.16,
+          0.18,
+          0.2,
+          0.22,
+          0.24,
+          0.28
+        ],
+        "phy_damage_up2": [
+          0.1,
+          0.12,
+          0.14,
+          0.16,
+          0.18,
+          0.2,
+          0.22,
+          0.24,
+          0.28
+        ]
+      }
     }
   ],
   "assetSlug": "wpn_greatsword_0004",

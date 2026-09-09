@@ -26,6 +26,7 @@ import { standardStumpBuffAbilityEventOmissionReason } from '../../compiler/stan
 export interface CompiledEquipmentSuitRuntimeBatchSource {
   readonly definitions: readonly (CompiledGearSetStaticDefinitionSource & {
     readonly buffDefinitions?: Readonly<Record<string, CompiledBuffDefinitionSource>>;
+    readonly enableSequence?: CompiledBuffSequenceSource;
     readonly initializationSequence?: CompiledBuffSequenceSource;
   })[];
   readonly diagnostics: readonly EquipmentDefinitionDiagnosticSource[];
@@ -171,7 +172,8 @@ export function compileEquipmentSuitRuntimeBatchSource(
     }
     if (blocked) continue;
     const initializationSteps: CompiledBuffStepSource[] = [];
-    for (const installation of installations) {
+    const enableSteps: CompiledBuffStepSource[] = [];
+    for (const [installationIndex, installation] of installations.entries()) {
       if (visualOnlyIds.has(installation.buffId)) continue;
       const rootSource = sources.get(installation.buffId);
       if (rootSource === undefined) {
@@ -214,7 +216,9 @@ export function compileEquipmentSuitRuntimeBatchSource(
         }
         assignments[targetKey] = { kind: 'constant', value };
       }
-      initializationSteps.push({
+      const steps =
+        installationIndex < startupInstallations.length ? enableSteps : initializationSteps;
+      steps.push({
         kind: 'applyBuff',
         parameters: {
           buffId: installation.buffId,
@@ -229,9 +233,10 @@ export function compileEquipmentSuitRuntimeBatchSource(
       buffDefinitions: Object.fromEntries(
         Object.entries(buffDefinitions).sort(([left], [right]) => left.localeCompare(right)),
       ),
-      initializationSequence: {
-        steps: initializationSteps,
-      },
+      ...(enableSteps.length === 0 ? {} : { enableSequence: { steps: enableSteps } }),
+      ...(initializationSteps.length === 0
+        ? {}
+        : { initializationSequence: { steps: initializationSteps } }),
     });
   }
   return { definitions: output, diagnostics };

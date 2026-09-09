@@ -323,14 +323,18 @@ export function compileScenarioRuntimeAssembly(
       );
       const equipmentInitializationPrograms = equipmentContributions.flatMap(
         (contribution, contributionIndex) =>
-          contribution.initializationSequence === undefined
+          contribution.initializationSequence === undefined &&
+          contribution.enableSequence === undefined &&
+          contribution.eventHandlers.length === 0
             ? []
             : [
                 {
                   key: equipmentContributionKey(contribution),
                   equipmentContributionIndex: contributionIndex,
-                  initialBlackboard: contribution.initializationBlackboard,
-                  sequence: contribution.initializationSequence,
+                  ...(contribution.enableSequence === undefined
+                    ? {}
+                    : { enableSequence: contribution.enableSequence }),
+                  sequence: contribution.initializationSequence ?? { steps: [] },
                 },
               ],
       );

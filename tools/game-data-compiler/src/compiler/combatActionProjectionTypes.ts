@@ -92,10 +92,7 @@ export type CompiledBuffConditionSource =
         'caster' | 'controlledOperator' | 'contextTarget' | 'currentTarget' | 'enemy';
     })
   | Condition<'eventDamageTagsMatch' | 'eventDamageGameplayTagsMatch' | 'eventDamageFeaturesMatch'>
-  | (Condition<'eventSpGainMatch'> & {
-      readonly sources?: readonly ['skill'];
-      readonly gainKinds?: readonly ['gain'];
-    })
+  | Condition<'eventSpGainMatch'>
   | (Condition<'eventSkillTypeIn'> & {
       readonly skillTypes: readonly (
         'basicAttack' | 'plungingAttack' | 'battleSkill' | 'comboSkill' | 'ultimate'

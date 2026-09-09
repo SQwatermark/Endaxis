@@ -2719,35 +2719,30 @@ export default {
         {
           key: 'chr_0030_zhuangfy_talent1',
           blackboard: { base_rate: [0.09, 0.18], duration: [5, 5], enhance_rate: [0.01, 0.02] },
-          enableSequence: sequence(
-            step('listenForCombatEvents', {
-              responses: [
-                {
-                  key: 'native-event-0-0',
-                  event: { kind: 'buffApplied' },
-                  phase: 'dataAction',
-                  priority: 0,
-                  sequence: sequence(
-                    branch(
-                      { kind: 'eventBuffIdMatch', buffIds: ['buff_chr_0030_zhuangfy_talent1'] },
-                      sequence(
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0030_zhuangfy_talent1_base',
-                          target: 'caster',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            duration: { kind: 'blackboard', key: 'duration' },
-                            base_rate: { kind: 'blackboard', key: 'base_rate' },
-                            enhance_rate: { kind: 'blackboard', key: 'enhance_rate' },
-                          },
-                        }),
-                      ),
-                    ),
+          enableSequence: sequence(),
+          abilityEventResponses: [
+            {
+              event: 'addedBuff',
+              priority: 0,
+              sequence: sequence(
+                branch(
+                  { kind: 'eventBuffIdMatch', buffIds: ['buff_chr_0030_zhuangfy_talent1'] },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0030_zhuangfy_talent1_base',
+                      target: 'caster',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        duration: { kind: 'blackboard', key: 'duration' },
+                        base_rate: { kind: 'blackboard', key: 'base_rate' },
+                        enhance_rate: { kind: 'blackboard', key: 'enhance_rate' },
+                      },
+                    }),
                   ),
-                },
-              ],
-            }),
-          ),
+                ),
+              ),
+            },
+          ],
         },
       ],
     },

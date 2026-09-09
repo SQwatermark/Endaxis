@@ -700,10 +700,8 @@
         "priority": "原生优先级",
         "priorityHelp": "省略时使用运行时默认优先级；同级按定义中的注册顺序执行。",
         "abilityEvent": "AbilitySystem 事件",
-        "blackboard": "事件动作黑板",
-        "blackboardHelp": "按词条等级解析，每次事件响应复制到独立动作黑板。",
-        "initializationBlackboard": "帧 0 初始化黑板",
-        "initializationBlackboardHelp": "按词条等级解析，写入帧 0 初始化动作黑板。删除最后一项会省略此字段。"
+        "blackboard": "能力初始黑板",
+        "blackboardHelp": "按词条等级解析，初始化和所有事件响应共享。删除最后一项会省略此字段。"
       },
       "modifierFields": {
         "damageTypes": "伤害类型（至少一项）",

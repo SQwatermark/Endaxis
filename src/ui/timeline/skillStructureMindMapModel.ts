@@ -1022,6 +1022,21 @@ export function buildEquipmentContributionMindMap(
         }),
         relationToParent: 'port',
       },
+      ...(contribution.enableSequence === undefined
+        ? []
+        : [
+            {
+              ...sequenceNode(
+                contribution.enableSequence,
+                'equipment:enable-sequence',
+                '启用前安装',
+                'enableSequence',
+                `${contribution.enableSequence.steps.length} 个直属步骤`,
+                0,
+              ),
+              relationToParent: 'port' as const,
+            },
+          ]),
       ...(initializationSequence === undefined
         ? []
         : [
@@ -1029,7 +1044,7 @@ export function buildEquipmentContributionMindMap(
               ...sequenceNode(
                 initializationSequence,
                 'equipment:initialization-sequence',
-                '帧 0 初始化序列',
+                '启用后初始化',
                 'initializationSequence',
                 `${initializationSequence.steps.length} 个直属步骤`,
                 0,

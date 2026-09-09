@@ -405,6 +405,8 @@ export interface CompiledOperatorInitializationProgram {
   readonly key: string;
   /** 本干员 equipmentContributions 内的实例索引（同定义装备也隔离）；直接养成初始化无此所有者。 */
   readonly equipmentContributionIndex?: number;
+  /** 配装能力启用前程序；与 sequence 共用同一能力黑板，中间开放事件响应。 */
+  readonly enableSequence?: ResolvedActionSequence;
   readonly initialBlackboard?: Readonly<Record<string, number>>;
   readonly sequence: ResolvedActionSequence;
 }

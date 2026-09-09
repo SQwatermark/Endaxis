@@ -128,7 +128,7 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
     expect(contributionEditorSource).toContain(':fields="contributionBlackboardFields"');
     expect(contributionEditorSource).toContain('createInitializationSequence');
     expect(contributionEditorSource).toContain('EquipmentBuffDefinitionsDialog');
-    expect(contributionEditorSource).toContain('不属于技能的初始黑板');
+    expect(contributionEditorSource).toContain('初始化和所有事件响应共用这份能力黑板');
     expect(contributionEditorSource).toContain('每场战斗一次');
     expect(contributionEditorSource).not.toContain('<textarea');
     expect(equipmentBuffDialogSource).toContain('BuffDefinitionGraphEditor');
@@ -164,7 +164,9 @@ describe('GearDefinitionWorkspaceDialog structure', () => {
   });
 
   it('edits every modifier variant in the layer-local inspector', () => {
-    expect(contributionEditorSource).toContain(':fields="modifierInspectorFields(selectedModifier)"');
+    expect(contributionEditorSource).toContain(
+      ':fields="modifierInspectorFields(selectedModifier)"',
+    );
     expect(contributionEditorSource).toContain(':binding="editing.property.value"');
     expect(contributionEditorSource).not.toContain('function toggleDamageType');
     expect(contributionEditorSource).not.toContain('function toggleSkillType');

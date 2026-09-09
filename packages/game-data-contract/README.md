@@ -147,10 +147,17 @@ Buff 实例的独立 SkillAffix 身份槽，供明确要求该身份的条件读
 
 ## 数值与引用约定
 
+配装贡献的 `enableSequence` 在能力响应启用前执行普通启动 Buff 安装；随后开启
+本贡献的事件响应，再执行 `initializationSequence`（Toggle 初次安装及固定构筑刷新）。
+省略任一程序表示该阶段无动作，不表示省略能力启用。两者与事件响应共享 `blackboard`。
+已证明没有引用的初始黑板值无需输出；引用分析不完整时可保守保留，不按宿主重复保存。
+事件条件和动作必须共同服从启用门禁，条件不得在未启用时先行求值。
+
 `OperatorPassiveSkillDefinition.abilityEventResponses` 保存被动 Skill 的同步原生事件程序，
 与 `enableSequence` 共用该被动的 direct 黑板，并回退到所属角色 EntityBB；事件来源施法
-不覆盖被动普通来源。当前只准入已接入来源/实体目标生命周期的 `abilityEntitySpawned` /
-`abilityEntityFinished`，身份仍来自公共 AbilityEvent，不引入新的语义事件别名。
+不覆盖被动普通来源。当前准入由 `OPERATOR_PASSIVE_ABILITY_EVENTS` 唯一列出：
+`abilityEntitySpawned`、`abilityEntityFinished`、`addedBuff`、`skillSpGained`、`receiveHeal`。
+身份仍来自公共 AbilityEvent，不引入新的语义事件别名；这不是原生被动的完整事件范围。
 响应序列按被动所属等级编译，注册与释放归被动宿主，不伪装成武器或 Buff。
 
 - `LevelValues = number | readonly number[]`：单值与等级无关；数组在具体定义的等级轴上按 1 基等级取下标。

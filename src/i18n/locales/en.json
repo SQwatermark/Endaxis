@@ -700,10 +700,8 @@
         "priority": "Native priority",
         "priorityHelp": "When omitted, uses runtime default priority; ties follow registration order.",
         "abilityEvent": "AbilitySystem event",
-        "blackboard": "Event action blackboard",
-        "blackboardHelp": "Resolved at trait level and copied into each event response's action blackboard.",
-        "initializationBlackboard": "Frame 0 blackboard",
-        "initializationBlackboardHelp": "Resolved at trait level for frame 0 initialization. Removing the last entry omits this field."
+        "blackboard": "Initial ability blackboard",
+        "blackboardHelp": "Resolved at trait level and shared by initialization and all event responses. Removing the last entry omits this field."
       },
       "modifierFields": {
         "damageTypes": "Damage types (at least one)",

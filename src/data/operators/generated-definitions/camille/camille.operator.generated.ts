@@ -2626,31 +2626,49 @@ export default {
         {
           key: 'chr_0033_camille_passive_talent1',
           blackboard: { atk_up: [0.02, 0.04], duration: [40, 40], teammate_rate: [0.25, 0.25] },
-          enableSequence: sequence(
-            step('listenForCombatEvents', {
-              responses: [
-                {
-                  key: 'native-event-0-0',
-                  event: { kind: 'operatorHealed', role: 'target' },
-                  phase: 'dataAction',
-                  priority: 0,
-                  sequence: sequence(
-                    step('calculateActionValue', {
-                      key: 'atk_up_teammate',
-                      operation: 'multiply',
-                      left: { kind: 'blackboard', key: 'atk_up' },
-                      right: { kind: 'blackboard', key: 'teammate_rate' },
+          enableSequence: sequence(),
+          abilityEventResponses: [
+            {
+              event: 'receiveHeal',
+              priority: 0,
+              sequence: sequence(
+                step('calculateActionValue', {
+                  key: 'atk_up_teammate',
+                  operation: 'multiply',
+                  left: { kind: 'blackboard', key: 'atk_up' },
+                  right: { kind: 'blackboard', key: 'teammate_rate' },
+                }),
+                branch(
+                  {
+                    kind: 'eventHealTagsMatch',
+                    match: 'hasAny',
+                    tags: [
+                      'Skill/Character/Common/Heal/NormalSkillHeal',
+                      'Skill/Character/Common/Heal/ComboSkillHeal',
+                      'Skill/Character/Common/Heal/UltimateSkillHeal',
+                    ],
+                  },
+                  sequence(
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0033_camille_talent1_atkup',
+                      target: 'caster',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        atk_up: { kind: 'blackboard', key: 'atk_up' },
+                        duration: { kind: 'blackboard', key: 'duration' },
+                      },
+                    }),
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0033_camille_talent1_atkup',
+                      target: 'partyExceptCaster',
+                      inheritSourceSkillCastInfo: true,
+                      blackboardAssignments: {
+                        atk_up: { kind: 'blackboard', key: 'atk_up_teammate' },
+                        duration: { kind: 'blackboard', key: 'duration' },
+                      },
                     }),
                     branch(
-                      {
-                        kind: 'eventHealTagsMatch',
-                        match: 'hasAny',
-                        tags: [
-                          'Skill/Character/Common/Heal/NormalSkillHeal',
-                          'Skill/Character/Common/Heal/ComboSkillHeal',
-                          'Skill/Character/Common/Heal/UltimateSkillHeal',
-                        ],
-                      },
+                      { kind: 'eventOverheal' },
                       sequence(
                         step('applyBuff', {
                           buffId: 'buff_chr_0033_camille_talent1_atkup',
@@ -2670,36 +2688,13 @@ export default {
                             duration: { kind: 'blackboard', key: 'duration' },
                           },
                         }),
-                        branch(
-                          { kind: 'eventOverheal' },
-                          sequence(
-                            step('applyBuff', {
-                              buffId: 'buff_chr_0033_camille_talent1_atkup',
-                              target: 'caster',
-                              inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                atk_up: { kind: 'blackboard', key: 'atk_up' },
-                                duration: { kind: 'blackboard', key: 'duration' },
-                              },
-                            }),
-                            step('applyBuff', {
-                              buffId: 'buff_chr_0033_camille_talent1_atkup',
-                              target: 'partyExceptCaster',
-                              inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                atk_up: { kind: 'blackboard', key: 'atk_up_teammate' },
-                                duration: { kind: 'blackboard', key: 'duration' },
-                              },
-                            }),
-                          ),
-                        ),
                       ),
                     ),
                   ),
-                },
-              ],
-            }),
-          ),
+                ),
+              ),
+            },
+          ],
         },
       ],
     },

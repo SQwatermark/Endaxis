@@ -8,6 +8,50 @@ import {
 } from '../src/index.ts';
 
 describe('公共被动技能批量编译', () => {
+  it.each([
+    ['OnObtainAtb', 'skillSpGained'],
+    ['OnReceiveHeal', 'receiveHeal'],
+  ])('%s 使用公共被动事件程序，不嵌入旧监听步骤', (nativeEvent, event) => {
+    const req: PassiveSkillCompileRequestSource = {
+      originKind: 'operatorProgression',
+      originId: 'effect',
+      sourcePath: 'fixture',
+      skillId: 'passive_fixture',
+      levelSource: { kind: 'nativeDefault' },
+      inputBlackboard: {},
+    };
+    const raw = {
+      ...passiveFixture(req.skillId),
+      actionGroupData: {
+        timelineActions: [],
+        passiveEventActions: [
+          {
+            abilityEvent: nativeEvent,
+            actions: [
+              {
+                actionData: [],
+                onlyExecuteWhenSourceIsMainChar: false,
+                onlyExecuteWhenSourceIsGuard: false,
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const batch = compilePassiveSkillRequestBatch([req], { [req.skillId]: raw }, {});
+    const result = compileOperatorUpgradePassiveSkills(['effect'], [req], batch.definitions);
+    const listener = result.definitions[0]?.enableSequence.steps.find(
+      step => step.kind === 'listenForCombatEvents',
+    );
+    expect(listener).toBeUndefined();
+    expect(result.definitions[0]?.abilityEventResponses).toEqual([
+      { event, priority: 0, sequence: { steps: [] } },
+    ]);
+    expect(
+      compileOperatorPassivePrograms([], result.definitions)[0]?.abilityEventResponses?.[0]?.event,
+    ).toBe(event);
+  });
+
   it('OnAddedBuff 经公共被动编译后直达原生响应，不再生成旧触发器监听', () => {
     const req: PassiveSkillCompileRequestSource = {
       originKind: 'operatorProgression',
@@ -57,10 +101,11 @@ describe('公共被动技能批量编译', () => {
       [req],
       startupBatch.definitions,
     );
-    expect(preserved.definitions[0]?.abilityEventResponses ?? []).toEqual([]);
+    expect(preserved.definitions[0]?.abilityEventResponses).toEqual([
+      { event: 'addedBuff', priority: 0, sequence: { steps: [] } },
+    ]);
     expect(preserved.definitions[0]?.enableSequence?.steps.map(step => step.kind)).toEqual([
       'applyBuff',
-      'listenForCombatEvents',
     ]);
   });
 

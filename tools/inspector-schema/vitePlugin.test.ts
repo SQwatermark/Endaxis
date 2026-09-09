@@ -15,7 +15,7 @@ function fixture() {
   mkdirSync(resolve(root, 'src/ui/timeline'), { recursive: true });
   writeFileSync(
     resolve(root, 'packages/game-data-contract/src/equipment.ts'),
-    "export type EquipmentModifierDefinition = { kind: 'attribute'; value: number } | { kind: 'panelStat'; value: number }; export interface EquipmentEventHandlerDefinition { key: string }; export interface EquipmentContributionDefinition { initializationBlackboard?: Readonly<Record<string, number>> };",
+    "export type EquipmentModifierDefinition = { kind: 'attribute'; value: number } | { kind: 'panelStat'; value: number }; export interface EquipmentEventHandlerDefinition { key: string }; export interface EquipmentContributionDefinition { blackboard?: Readonly<Record<string, number>> };",
   );
   writeFileSync(
     resolve(root, 'packages/game-data-contract/src/conditions.ts'),

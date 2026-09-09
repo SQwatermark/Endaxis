@@ -6,7 +6,8 @@ const contributionFields = {
   modifiers: true,
   eventHandlers: true,
   buffDefinitions: true,
-  initializationBlackboard: true,
+  blackboard: true,
+  enableSequence: true,
   initializationSequence: true,
 } satisfies Record<keyof EquipmentContributionDefinition, true>;
 

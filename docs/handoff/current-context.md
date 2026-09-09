@@ -1,5 +1,238 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：配装启用门禁贯通正式数据
+
+公共贡献新增 enableSequence 表达响应启用前的普通启动安装；原 initializationSequence
+明确为启用后程序。武器和套装生成器按来源拆分普通启动与 Toggle，武器 Deck 固定构筑
+刷新仍保留在后者之后，不伪称原生 Enable 内步骤，不扩展动态换装/动态 Toggle。
+两个程序及事件响应共享同一贡献黑板，参数列与原有操作顺序保持。
+
+运行编译为所有带程序或事件的贡献生成安装入口，包括没有安装动作的纯监听能力。
+装配按入口顺序执行 enableSequence、开启本贡献响应、再执行 initializationSequence；
+缺少启用入口明确失败，不允许静默留下永久禁用的监听。仅监听能力不产生虚构的
+OperatorUpgradeInitialized 回执。已有构造失败清理覆盖本轮新增启用路径。
+兼容事件的条件求值也移入共享响应作用域和门禁之后，不再在启用前调用条件执行器。
+
+编辑图提供启用前/后两个结构端口，根检查器提供对应创建删除动作；字段替换、
+校验、等级编译、历史恢复、契约覆盖账本已同步。新增入口未做浏览器视觉验收。
+临时结构复核证明79武器/24套装除阶段拆分外，合并后的步骤、参数及其他字段均一致；
+候选已落正式目录。候选配装审计79武器、258装备、24套装通过；四条真实轴完整
+序列化回执及告警与改造前一致（2915/1610/5499/4310），不只比较最终伤害。
+报告 tmp/event-unification-candidates-LFXpY3/equipment-enable-regression.json。
+
+完整生成器160文件1736项通过，1文件2项跳过；最终扩大战斗/编辑回归120文件1387项
+通过，随后增加启用失败清理用例后装配72项通过。完整应用类型检查通过。整体事件统一仍未
+完成：消耗 Buff/物理异常旧入口、技能临时监听、优先级与上下文边界仍待收束。
+
+## 2026-09-09 晚间续：武器安装规划保留阶段身份
+
+compileTraitPlans 现在在编译期保留 beforeEnable（普通启动）/afterEnable（Toggle）
+身份，等级间结构一致性比较包含阶段，不再仅按 Buff ID/参数键判断相同安装。
+来源对象不变；目前输出仍沿用原 initializationSequence，尚未启用新的运行时门禁。
+新增同一 Buff 同时来自普通启动与 Toggle 的回归，验证两次有序安装、独立参数和
+跨等级选择，不因结构相同去重。武器两文件23项及生产编译类型检查通过。
+
+下一步迁移必须原子覆盖公共定义、校验、生成、运行编译、装配和编辑图：
+普通启动序列在能力响应关闭时执行，成功后开启本能力，随后执行 Toggle 初次安装。
+Deck 仍是固定构筑下的独立刷新程序，不声称是原生 Enable 内步骤；不扩展动态换装。
+没有启动步骤的事件能力也要在其安装顺序位置启用，不能漏启用或整队统一提前启用。
+必须验证自身启动事件不响应、已启用其他能力正常响应、Toggle 事件可响应、失败清理，
+再重生成候选比较四条真实轴。此项尚未贯通，不得把本次规划层变更记为生命周期完成。
+
+## 2026-09-09 晚间续：Toggle 启用边界与黑板省略原则
+
+本轮继续以收束事件技术债为限，不扩展新机制。补查 Skill.Enable 和
+ToggleBuffPassiveSkill.DoEnable：Ability.Enable 返回后才虚派发 DoEnable，
+Toggle 的初次条件检查/安装位于后者。普通启动 Buff 则在 Ability.enabled 写入前。
+精确调用点、槽号依据及 IFix 限制已记录到 combat-spec/ability-enable-event-order.md。
+因此生成器当前合并 startup/toggle/Deck 的初始化序列不能整体施加启用前门禁；
+后续需保留三个来源阶段，贯通生成/编译/装配，而非按武器名称打补丁。
+本轮尚未修改这些生产阶段。
+
+用户明确：武器技能若没有引用黑板值，则不应生成初始黑板；无法可靠判断引用时
+暂时保留。共享能力黑板的运行时归属并不要求每个定义都序列化全量初始值。
+当前79武器保留原始数值板是保守状态，不是永久全量输出契约。后续省略必须覆盖
+初始化、事件条件与动作、嵌套程序以及参数传递的引用；未知路径不能当作无引用。
+不在本轮凭顶层搜索直接删值，也不扩展成新的通用优化项目。
+
+## 2026-09-09 晚间续：配装注册失败的对称清理
+
+EquipmentEventRuntime 构造注册失败现在 dispose 已安装的监听；先标记 disposed，
+失效原生回调不再创建执行器或执行动作。CombatRuntimeAssembly 的失败保护范围
+前移到配装宿主安装之前，后一个干员失败或初始化失败时也清理之前干员的配装监听。
+新增单宿主部分注册、跨干员注册失败、初始化失败测试；相关两文件86项通过。
+最终完整应用类型检查通过，未提交。
+
+启用门禁不能直接包住当前 initializationSequence：武器生成器把原生启动 Buff 安装
+和折叠后的 OnCharDeckAttrChanged 程序串在一起。前者属于 Ability.Enable 中未启用
+阶段，后者是独立 Deck 刷新通知，不能未经分析就都视为启动步骤。
+依据 combat-spec/weapon-card-skills.md、character-deck-attributes.md 及
+ability-enable-event-order.md。下一步先拆开源端两种阶段，保留同一能力黑板和子 Buff
+所有权，再明确 enable 门禁插入点；不要为避免测试变化而保留混合阶段或加整队开关。
+
+## 2026-09-09 晚间续：配装共享能力黑板贯通
+
+公共配装贡献统一为 blackboard，删除 handler.blackboard；原 initializationBlackboard
+改名并扩大到正确的能力所有权。编译只按贡献等级解析一次，装配初始化及全部响应
+使用 EquipmentEventRuntime.blackboardFor(index) 的同一实例。不同贡献索引隔离；
+不按定义 slug 合并。旧两个字段明确校验失败，不静默丢值或猜测迁移。
+
+武器生成器直接从原始 dependency 提供能力板，删除事件/Deck 重复板；合成安装键
+会避开原始键名。固定来源重生成79武器，经临时结构比较核对所有原有板值保持、
+其他行为字段完全一致后落位。所有武器都有新增/移动的能力板，因此本轮产物差异较大，
+不是79把武器效果被重写。装备/套装生成入口及已有产物字段也已统一。
+
+编辑器只在贡献根提供能力初始黑板，事件 Inspector 删除板编辑，更新统一句柄、
+历史测试与中英俄字段说明。没有新开页面，也未进行浏览器视觉验收。
+
+验证：完整生成器160文件1735项通过，1文件2项跳过；战斗/装配与编辑器相关120文件
+1410项通过；另有实际初始化写入→事件资源操作读取、跨事件共享、重复累计、跨能力
+隔离测试。候选79武器/258装备/24套装审计通过，四条真实轴完整回执及告警与之前一致。
+最终完整应用类型检查通过。未提交。
+
+下一步：配装启用门禁/初始化顺序仍与干员被动有差异，须继续核对；实体黑板回退、
+消耗 Buff/物理异常旧入口、优先级及内部通知分类仍待收束。
+
+## 2026-09-09 晚间续：施放动态板重置与复刻库归属对齐
+
+同批反编译确认 Ability.BeforeCast 0x035E5010 先 RemoveAllDynamic，再从+0x38
+初始动态板 AssignDynamic，最后另行 Context.Reset；不是每次事件响应清空整个板。
+具体调用点和版本边界已补入 combat-spec/ability-blackboard-ownership.md。
+
+C# 的 ActionBlackboard 及初始动态快照已移到 Ability，Skill.Blackboard 仅转发。
+来源重新赋值、数据刷新、施放入口的原有顺序不变；没有在事件结束引入重置。
+新增能力板身份/隔离测试，SkillBlackboardTests 6 项通过。全量 1790 项中1763通过、
+27失败；已读取 TRX，全部为 DirectoryNotFound/FileNotFound（缺 artifacts/skill-data-cdn
+或庄方宜/伊冯等真实夹具，部分定位器因缺目录报告找不到仓库根），不能宣称全量通过。
+结果在 combat-spec/tmp/blackboard-ownership-tests/blackboard-ownership.trx，不提交。
+
+Endaxis 配装共享板改造仍待进行；本轮先把证据和复刻库归属落地，不能跳过公共定义
+与生成器的 handler/initialization 板去重而直接运行时取最后一个值。尚未提交。
+
+## 2026-09-09 晚间续：黑板归属取得直接证据
+
+新增 combat-spec `docs/ability-blackboard-ownership.md`：同批静态声明和机器码确认
+Ability 自身持有 ActionBlackboard，动作 getter 从 actionEnvironment 取板；
+时间轴动作与事件序列都以同一 Ability 作为 environment。已记录 Init 的写字段、
+Assign 与初始动态板保存调用点。未排除 IFix，也未闭合所有 Reset/BeforeCast/Disable
+对动态板的清理，不能把对象归属等同于永不清理。
+
+下一步不应仅把事件 handler 的板缓存起来：要把配装贡献的初始化程序、初始板、
+事件响应和子 Buff 纳入同一能力实例，贯穿公共定义→生成→编译→装配，并核对编辑入口。
+不得合并 handler 同名黑板后取最后值掩盖冲突。必须新增初始化到事件、跨事件共享、
+重复事件累计与跨能力隔离测试。本次没有以不完整清理证据直接修改生产黑板策略。
+
+## 2026-09-09 晚间续：配装序列复用与同步重入
+
+EquipmentEventRuntime 已从每次响应新建序列改为每个注册处理器持有一个序列。
+执行器仍依当前事件创建，通过临时绑定供序列执行，finally 恢复外层绑定及局部板；
+原生与兼容入口共用此实现。依据 combat-spec ability-event-action-ordering、
+sequence-execute-policy；复刻库后者已记录接入边界。
+
+回归覆盖有已执行前缀时截断同步重入、无前缀时允许重入、外层事件/执行器恢复及
+后续独立事件继续执行，不添加全局重入锁。战斗扩大回归 115 文件 1374 项通过，
+随后新增无前缀用例后该宿主 14 项通过；完整应用类型检查通过。
+与本轮前保存的回执对比，四条真实轴完整回执/告警一致，报告保留于
+`tmp/event-unification-candidates-LFXpY3/equipment-sequence-regression.json`。
+
+仍需核实：配装局部板每次重建是原有策略，不是已确认原生规则；初始化与响应之间
+以及多个响应间的黑板共享关系应单独取证。不要把序列身份已修复等同于整个宿主
+生命周期已经闭合。消耗 Buff、物理异常旧入口及优先级等仍待办，尚未提交。
+
+## 2026-09-09 晚间续：武器技力事件退出语义转换入口
+
+依据 combat-spec `atb-gain.md` 的来源 AbilitySystem 发布 OnObtainAtb 规则，武器
+生成器也直接生成公共 skillSpGained，不再转成 spGained；配装契约准入同步扩展。
+武器投影删除 `as EquipmentAbilityEvent`，实际检查公共准入表，未知身份与已知但
+未支持身份均明确阻断。消耗 Buff / 物理异常仍保留旧入口，尚未迁移。
+
+同一固定来源生成 79 武器 / 80 文件，仅 wpn_lance_0015、wpn_sword_0012、
+wpn_sword_0016、wpn_sword_0019 四份监听字段变化，动作无变化；审阅后已落位。
+候选配装审计通过：79 武器、258 装备（516 档位用例）、111 第二饰品槽与111 双饰品
+用例、24 套装（19 有运行效果）。装备/套装和共享资源使用正式基线，没有重新生成。
+四条真实轴的完整回执与诊断继续一致。新增武器编译和配装响应测试，验证原始载荷
+引用保留，powerAttack/refund/实际量 0 不被隐式过滤。最终相关 4 文件 45 项通过，
+生成器生产及完整应用类型检查通过（新增测试先前漏做联合身份收窄，已修正并复验）。
+
+进一步发现 EquipmentEventRuntime.#execute 每次新建序列和黑板，与已修正的干员
+被动持有序列策略不一致。需按原生 SequenceAction 生命周期/重入证据继续核实，
+不能仅因当前武器样本通过而宣称跨宿主生命周期已统一。未提交。
+
+## 2026-09-09 晚间续：被动事件迁移正式产物闭环
+
+固定来源 `tmp/game-data-sources-hybrid-20260905` 全量生成 31 位干员候选，
+仅 Camille、Pogranichnik、庄方宜发生差异。忽略排版核对后，动作、条件与黑板主体未变，
+只迁移 receiveHeal / skillSpGained / addedBuff 的监听安装结构；显式技力筛选仍保留。
+三份审阅后的生成文件已更新正式目录。共享 Buff、目录与 SkillSetting 沿用正式基线，
+本次不是共享资源重新生成审计。
+
+候选潜能 0 和 5 各通过 325 个技能、198 个技能库放置项（38 个多段）、31 条组合轴。
+另外保持原输入，对三条私有轴及公开“别赛羊诀”轴比较正式旧产物与候选的完整回执和
+availability/execution/combo 诊断，四条均一致（2915/1610/5499/4310 条回执）。
+这是当前运行时下的产物迁移回归，不证明旧运行时与本轮启用门禁完全等价，也不代表
+覆盖了全部真实轴。落位后被动生成、宿主与真实轴中断 3 文件 55 项通过。
+
+候选与比较报告保留于 `tmp/event-unification-candidates-LFXpY3`，不得提交。
+下一步审计武器/装备和技能临时监听剩余路由；正式干员仍有 listenForCombatEvents，
+不能将被动迁移完成误称为全系统兼容路径已删除。非默认优先级、上下文语义缺口仍待办。
+本轮及此前相关修改尚未提交。
+
+## 2026-09-09 晚间续：干员被动技力/治疗注册统一
+
+OnObtainAtb 与 OnReceiveHeal 已转换成公共 abilityEventResponses，契约的单一准入表
+增加 skillSpGained / receiveHeal。删除干员转换器 eventResponses 中间结构和
+enableSequence 中的 listenForCombatEvents 生成分支；初始化、注册顺序由宿主统一管理。
+保持既有事件目标解析边界，没有为尚未取证的 Input/Trigger 绑定补造身份。
+新增公共原生响应写黑板回归，验证返还技力/满血治疗的请求量与实增量独立。
+证据沿用 combat-spec 的 atb-gain、save-atb-obtain-value、heal-action、save-heal-value。
+
+119 文件 1494 项回归通过，含 combat、被动编译、校验及真实轴中断回归；生产编译
+及公共契约、完整应用类型检查通过。尚未全量再生成；其他事件准入、优先级、
+手工事件兼容端口和真实分享轴数值回归仍须继续。尚未提交。
+
+## 2026-09-09 晚间续：被动宿主启用门禁与 OnAddedBuff 收束
+
+PassiveAbilityEventRuntime 构造只注册，enable 后才响应。CombatRuntimeAssembly 在
+本被动 enableSequence 成功后启用，原有构造失败清理负责注销。已启用的其他宿主
+不受影响，同优先级注册顺序不变。生成器删除“含启动 Buff 的 OnAddedBuff 走旧监听”
+分支，两种情况共用原生 addedBuff 响应。依据为 combat-spec 已记录的未补丁 Enable
+与 SequenceAction.isValid 主干；未扩大为 IFix 或所有运行版本均已验证。
+
+扩大回归 115 文件 1367 项通过，含 combat、被动批量编译和真实轴中断回归。
+生产编译及完整应用类型检查通过。未重生成正式资产；OnObtainAtb、
+OnReceiveHeal 的旧注册路径、其他优先级与完整真实轴审计仍待办。尚未提交。
+
+## 2026-09-09 晚间续：技力条件全域与验证夹具
+
+进一步发现公共条件投影与 CompiledBuffConditionSource 仍只接受 Skill/Gain，已一并
+移除固定元组。生产技力动作与监听条件现在共用 source/spGainEnums.ts，严格映射
+四种来源及 Gain/Return；未知启用枚举报错，关闭的筛选不消费残留枚举。
+新增源端解析→公共投影→运行条件的矩阵回归，覆盖多选、空集合、关闭筛选和实增为零。
+编译生产、公共契约与完整应用类型检查通过；完整生成器回归 160 文件、1732 项通过，
+另有 1 文件/2 项跳过。下节失败记录为修正前历史，不代表当前验证结果。
+
+上轮唯一失败的空 DamageUnit 夹具是手写不完整对象并强制断言，现改为经正式来源解析器
+构造完整动作，不放松生产端 target 要求、不改变模拟；该测试文件 61 项已通过。
+宿主启用门禁、旧 listener 迁移、全量生成和真实轴回归仍未完成。
+
+## 2026-09-09 晚间：技力事件移除样本特化编译入口
+
+按 combat-spec `atb-gain.md` / `save-atb-obtain-value.md`，删除
+compileSkillSpGainActionSequenceSource 及其私有实现。干员、武器、Buff 的 OnObtainAtb
+现在共用普通动作/条件编译，不再要求首条为 CheckObtainAtbType，也不再强制只接受
+Skill/Gain。干员旧 listener 删除额外 source/gainKind 筛选；原始显式条件仍保留。
+这不是所有被动已迁到 abilityEventResponses：注册入口/启用门禁仍待收束，未重新生成正式数据。
+
+验证：定向 4 文件 149 项通过，生成器生产类型检查通过。全生成器 160 文件回归：
+158 通过、1 失败、1 跳过；1729 项通过、1 失败、2 跳过。失败为
+castingAndStumpControlProjection.test.ts 的空伤害单元夹具缺 target，
+combatActionLeafProjection.ts:916 访问 targetSource 抛错；该夹具及直接执行模块
+与 HEAD 无差异，本轮未顺带修改。不能宣称全生成器绿灯，仍须单独复核该问题。
+
+本机 Enable 证据在 combat-spec `ability-enable-event-order.md`：监听注册先于 startup
+Buff，enabled 最后写入，序列执行前另查 isValid。转储 RVA 与旧 1.4.4 不同，
+不可混用；类型快路径/IFix 边界仍待核查。源码和研究文档均尚未提交。
+
 ## 2026-09-09：事件统一收束交接
 
 当前详细状态统一见 [已办与待办清单](2026-09-09-event-unification-checklist.md)。

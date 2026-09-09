@@ -2610,63 +2610,59 @@ export default {
                 physpell_up: { kind: 'blackboard', key: 'physpell_up' },
               },
             }),
-            step('listenForCombatEvents', {
-              responses: [
-                {
-                  key: 'native-event-1-0',
-                  event: { kind: 'spGained', source: 'skill', gainKind: 'gain' },
-                  phase: 'dataAction',
-                  priority: 0,
-                  sequence: sequence(
+          ),
+          abilityEventResponses: [
+            {
+              event: 'skillSpGained',
+              priority: 0,
+              sequence: sequence(
+                branch(
+                  { kind: 'eventSpGainMatch', sources: ['skill'], gainKinds: ['gain'] },
+                  sequence(
+                    step('storeEventSpGainAmount', { outputKey: 'atb_contain_temp' }),
+                    step('modifyActionValue', {
+                      key: 'EntityBB_atb_contain',
+                      operation: 'add',
+                      value: { kind: 'blackboard', key: 'atb_contain_temp' },
+                    }),
                     branch(
-                      { kind: 'eventSpGainMatch', sources: ['skill'], gainKinds: ['gain'] },
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'EntityBB_atb_contain', fallback: 0 },
+                        operator: 'greaterOrEqual',
+                        right: { kind: 'blackboard', key: 'atb_gain', fallback: 0 },
+                      },
                       sequence(
-                        step('storeEventSpGainAmount', { outputKey: 'atb_contain_temp' }),
+                        step('calculateActionValue', {
+                          key: 'atb_gain_minus',
+                          operation: 'multiply',
+                          left: { kind: 'blackboard', key: 'atb_gain' },
+                          right: { kind: 'constant', value: -1 },
+                        }),
                         step('modifyActionValue', {
                           key: 'EntityBB_atb_contain',
                           operation: 'add',
-                          value: { kind: 'blackboard', key: 'atb_contain_temp' },
+                          value: { kind: 'blackboard', key: 'atb_gain_minus' },
                         }),
-                        branch(
-                          {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'EntityBB_atb_contain', fallback: 0 },
-                            operator: 'greaterOrEqual',
-                            right: { kind: 'blackboard', key: 'atb_gain', fallback: 0 },
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0029_pograni_talent1',
+                          target: 'caster',
+                          inheritSourceSkillCastInfo: true,
+                          asChildBuff: true,
+                          blackboardAssignments: {
+                            duration: { kind: 'blackboard', key: 'duration' },
+                            atk_up: { kind: 'blackboard', key: 'atk_up' },
+                            physpell_up: { kind: 'blackboard', key: 'physpell_up' },
+                            max_stack: { kind: 'blackboard', key: 'max_stack_owner' },
                           },
-                          sequence(
-                            step('calculateActionValue', {
-                              key: 'atb_gain_minus',
-                              operation: 'multiply',
-                              left: { kind: 'blackboard', key: 'atb_gain' },
-                              right: { kind: 'constant', value: -1 },
-                            }),
-                            step('modifyActionValue', {
-                              key: 'EntityBB_atb_contain',
-                              operation: 'add',
-                              value: { kind: 'blackboard', key: 'atb_gain_minus' },
-                            }),
-                            step('applyBuff', {
-                              buffId: 'buff_chr_0029_pograni_talent1',
-                              target: 'caster',
-                              inheritSourceSkillCastInfo: true,
-                              asChildBuff: true,
-                              blackboardAssignments: {
-                                duration: { kind: 'blackboard', key: 'duration' },
-                                atk_up: { kind: 'blackboard', key: 'atk_up' },
-                                physpell_up: { kind: 'blackboard', key: 'physpell_up' },
-                                max_stack: { kind: 'blackboard', key: 'max_stack_owner' },
-                              },
-                            }),
-                          ),
-                        ),
+                        }),
                       ),
                     ),
                   ),
-                },
-              ],
-            }),
-          ),
+                ),
+              ),
+            },
+          ],
         },
       ],
     },

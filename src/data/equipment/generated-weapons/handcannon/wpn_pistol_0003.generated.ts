@@ -88,6 +88,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "str": [
+          12,
+          21,
+          31,
+          40,
+          50,
+          60,
+          69,
+          79,
+          93
+        ]
       }
     },
     {
@@ -174,7 +187,20 @@ const definition = {
             0.26
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "spelldam": [
+          0.033333335,
+          0.06,
+          0.086666666,
+          0.11333334,
+          0.14,
+          0.16666667,
+          0.19333333,
+          0.22,
+          0.26
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -185,30 +211,6 @@ const definition = {
           "key": "skill3:event:0:sequence:0",
           "abilityEvent": "beforeCastSkill",
           "priority": 0,
-          "blackboard": {
-            "atk_up": [
-              0.12,
-              0.144,
-              0.168,
-              0.192,
-              0.216,
-              0.24,
-              0.264,
-              0.288,
-              0.336
-            ],
-            "duration": [
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20,
-              20
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -248,7 +250,31 @@ const definition = {
             ]
           }
         }
-      ]
+      ],
+      "blackboard": {
+        "atk_up": [
+          0.12,
+          0.144,
+          0.168,
+          0.192,
+          0.216,
+          0.24,
+          0.264,
+          0.288,
+          0.336
+        ],
+        "duration": [
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20,
+          20
+        ]
+      }
     }
   ],
   "assetSlug": "wpn_handcannon_0003",

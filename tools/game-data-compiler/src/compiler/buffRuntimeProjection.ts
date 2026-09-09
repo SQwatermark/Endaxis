@@ -633,52 +633,45 @@ export function compileBuffRuntimeDefinitionSource(
       mapEvent: (event, sourcePath) =>
         projectBuffAbilityEvent(event, sourcePath, contextOverrides.fixedBuffOwnerTarget),
       compileSequence: (sequence, _sequencePath, abilityEvent) =>
-        abilityEvent === 'OnObtainAtb'
-          ? compileSkillSpGainSequence(
-              sequence,
-              visualOnlyIds,
-              { ...BUFF_ACTION_CONTEXT, ...abilityEventProjectionContext },
-              extensions,
-            )
-          : compileLinearSequence(
-              omitFixedExternalOperatorHitEnemyGuard(
-                sequence,
-                abilityEvent,
-                contextOverrides.fixedBuffOwnerTarget,
-              ),
-              visualOnlyIds,
-              abilityEvent === 'OnBeforeAddedBuff'
+        compileLinearSequence(
+          omitFixedExternalOperatorHitEnemyGuard(
+            sequence,
+            abilityEvent,
+            contextOverrides.fixedBuffOwnerTarget,
+          ),
+          visualOnlyIds,
+          abilityEvent === 'OnBeforeAddedBuff'
+            ? {
+                ...BUFF_BEFORE_ADDED_CONTEXT,
+                abilityEntityQueries,
+                ...abilityEventProjectionContext,
+              }
+            : abilityEvent === 'OnBeforeTakeDamage'
+              ? {
+                  ...BUFF_BEFORE_TAKE_DAMAGE_CONTEXT,
+                  abilityEntityQueries,
+                  ...abilityEventProjectionContext,
+                }
+              : (abilityEvent === 'OnOutputDamage' ||
+                    abilityEvent === 'OnBeforeOutputDamage' ||
+                    abilityEvent === 'OnBeforeDamageAction') &&
+                  contextOverrides.fixedBuffOwnerTarget === 'caster'
                 ? {
-                    ...BUFF_BEFORE_ADDED_CONTEXT,
+                    ...BUFF_ACTION_CONTEXT,
+                    // 固定木桩场景中干员输出伤害的受击目标只能是唯一敌人。保留事件
+                    // 条件与动态标签筛选，但无需把已知身份降级成不可投影的 eventTarget。
+                    actionTargetTarget: 'enemy' as const,
                     abilityEntityQueries,
                     ...abilityEventProjectionContext,
                   }
-                : abilityEvent === 'OnBeforeTakeDamage'
-                  ? {
-                      ...BUFF_BEFORE_TAKE_DAMAGE_CONTEXT,
-                      abilityEntityQueries,
-                      ...abilityEventProjectionContext,
-                    }
-                  : (abilityEvent === 'OnOutputDamage' ||
-                        abilityEvent === 'OnBeforeOutputDamage' ||
-                        abilityEvent === 'OnBeforeDamageAction') &&
-                      contextOverrides.fixedBuffOwnerTarget === 'caster'
-                    ? {
-                        ...BUFF_ACTION_CONTEXT,
-                        // 固定木桩场景中干员输出伤害的受击目标只能是唯一敌人。保留事件
-                        // 条件与动态标签筛选，但无需把已知身份降级成不可投影的 eventTarget。
-                        actionTargetTarget: 'enemy' as const,
-                        abilityEntityQueries,
-                        ...abilityEventProjectionContext,
-                      }
-                    : {
-                        ...BUFF_ACTION_CONTEXT,
-                        abilityEntityQueries,
-                        ...abilityEventProjectionContext,
-                        nativeAbilityEvent: abilityEvent,
-                      },
-              extensions,
-            ),
+                : {
+                    ...BUFF_ACTION_CONTEXT,
+                    abilityEntityQueries,
+                    ...abilityEventProjectionContext,
+                    nativeAbilityEvent: abilityEvent,
+                  },
+          extensions,
+        ),
       isEmptySequence: sequence => sequence.steps.length === 0,
     },
   ).map(({ event, priority, sequence }) => ({ event, priority, sequence }));
@@ -1387,36 +1380,6 @@ function assertSynchronousDamageModifierConditionProgram(
   }
 }
 
-function compileSkillSpGainSequence(
-  source: NativeSequenceSource<KnownNativeActionLeafSource>,
-  visualOnlyIds: ReadonlySet<string>,
-  context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
-  extensions: CombatActionProjectionExtensionsSource = {},
-): CompiledBuffSequenceSource {
-  if (source.onlyExecuteWhenSourceIsMainCharacter || source.onlyExecuteWhenSourceIsGuard) {
-    throw new Error('OnObtainAtb sequence owner/guard root filters are unsupported');
-  }
-  const nodes = source.actions.filter(node => node.metadata.enabled);
-  const [filter] = nodes;
-  if (
-    filter?.body.kind !== 'leaf' ||
-    filter.body.value.family !== 'condition' ||
-    filter.body.value.action.kind !== 'obtainAtbType'
-  ) {
-    throw new Error('OnObtainAtb response must begin with CheckObtainAtbType');
-  }
-  const condition = filter.body.value.action;
-  if (
-    (condition.checkObtainType &&
-      (condition.obtainTypes.length !== 1 || condition.obtainTypes[0] !== 'Skill')) ||
-    (condition.checkObtainMethod &&
-      (condition.obtainMethods.length !== 1 || condition.obtainMethods[0] !== 'Gain'))
-  ) {
-    throw new Error(`${filter.sourcePath}: unsupported CheckObtainAtbType filter`);
-  }
-  return compileLinearSequence(source, visualOnlyIds, context, extensions);
-}
-
 /** 主动命中切片、被动技能、Buff、武器与装备共享的 Action/Condition 序列投影入口。 */
 export function compileCombatActionSequenceSource(
   source: NativeSequenceSource<KnownNativeActionLeafSource>,
@@ -1437,15 +1400,6 @@ export function compileCombatConditionSequenceSource(
     ...createBuffSequenceProjection(visualOnlyIds, context),
     resultIsConsumed: true,
   });
-}
-
-/** OnObtainAtb 在公共事件映射前先严格融合 Skill + Gain 前缀条件。 */
-export function compileSkillSpGainActionSequenceSource(
-  source: NativeSequenceSource<KnownNativeActionLeafSource>,
-  context: CombatActionProjectionContextSource,
-  visualOnlyIds: ReadonlySet<string> = new Set(),
-): CompiledBuffSequenceSource {
-  return compileSkillSpGainSequence(source, visualOnlyIds, context);
 }
 
 function compileLinearSequence(

@@ -887,60 +887,64 @@ export class CombatRuntimeAssembly {
       );
     }
 
-    for (const operator of options.operators) {
-      const contributions = operator.equipmentContributions ?? [];
-      const hasEvents = contributions.some(contribution => contribution.eventHandlers.length > 0);
-      if (
-        !hasEvents &&
-        !contributions.some(contribution => contribution.initializationSequence !== undefined)
-      )
-        continue;
-      if (hasEvents && options.createEquipmentEventOperationExecutor === undefined) {
-        throw new Error(
-          `operator '${operator.operatorId}' has equipment event handlers but no equipment event executor`,
+    try {
+      for (const operator of options.operators) {
+        const contributions = operator.equipmentContributions ?? [];
+        const hasEvents = contributions.some(contribution => contribution.eventHandlers.length > 0);
+        if (
+          !hasEvents &&
+          !contributions.some(
+            contribution =>
+              contribution.initializationSequence !== undefined ||
+              contribution.enableSequence !== undefined,
+          )
+        )
+          continue;
+        if (hasEvents && options.createEquipmentEventOperationExecutor === undefined) {
+          throw new Error(
+            `operator '${operator.operatorId}' has equipment event handlers but no equipment event executor`,
+          );
+        }
+        this.#equipmentEventRuntimes.set(
+          operator.operatorId,
+          new EquipmentEventRuntime(
+            this.semanticEvents,
+            operator.operatorId,
+            contributions,
+            context => this.#createEquipmentEventOperationChain(operator, context, options),
+            options.registerEquipmentAbilityEventAction,
+          ),
         );
       }
-      this.#equipmentEventRuntimes.set(
-        operator.operatorId,
-        new EquipmentEventRuntime(
-          this.semanticEvents,
-          operator.operatorId,
-          contributions,
-          context => this.#createEquipmentEventOperationChain(operator, context, options),
-          options.registerEquipmentAbilityEventAction,
-        ),
-      );
-    }
 
-    for (const operator of options.operators) {
-      const programs = operator.upgradeEventPrograms ?? [];
-      if (programs.length === 0) continue;
-      this.#operatorUpgradeEventRuntimes.push(
-        new OperatorUpgradeEventRuntime(
-          this.semanticEvents,
-          operator.operatorId,
-          programs,
-          context =>
-            this.#createReactiveOperationChain(
-              operator,
-              `upgrade-event:${context.programKey}`,
-              this.#createReactiveTerminal(
+      for (const operator of options.operators) {
+        const programs = operator.upgradeEventPrograms ?? [];
+        if (programs.length === 0) continue;
+        this.#operatorUpgradeEventRuntimes.push(
+          new OperatorUpgradeEventRuntime(
+            this.semanticEvents,
+            operator.operatorId,
+            programs,
+            context =>
+              this.#createReactiveOperationChain(
                 operator,
                 `upgrade-event:${context.programKey}`,
+                this.#createReactiveTerminal(
+                  operator,
+                  `upgrade-event:${context.programKey}`,
+                  options,
+                ),
                 options,
               ),
-              options,
-            ),
-        ),
-      );
-    }
+          ),
+        );
+      }
 
-    this.#configureBuffLifecycle(this.#enemyBuffRuntime, options);
-    for (const target of this.#operatorBuffs.values())
-      this.#configureBuffLifecycle(target, options);
+      this.#configureBuffLifecycle(this.#enemyBuffRuntime, options);
+      for (const target of this.#operatorBuffs.values())
+        this.#configureBuffLifecycle(target, options);
 
-    // 所有角色/槽位/操作链就绪后、任何开局动作前注册；构造失败不可遗留外部事件监听。
-    try {
+      // 所有角色/槽位/操作链就绪后、任何开局动作前注册；构造失败不可遗留外部事件监听。
       this.#installComboSkillConditions();
       // 养成直接附着 Buff 与原生被动都必须晚于实体和 Buff 生命周期装配。
       for (const operator of options.operators) {
@@ -958,7 +962,12 @@ export class CombatRuntimeAssembly {
           const runtime = new CombatActionSequenceRuntime(
             operations,
             {
-              blackboard: new ActionBlackboard(initialization.initialBlackboard),
+              blackboard:
+                initialization.equipmentContributionIndex === undefined
+                  ? new ActionBlackboard(initialization.initialBlackboard)
+                  : this.#equipmentEventRuntimes
+                      .get(operator.operatorId)!
+                      .blackboardFor(initialization.equipmentContributionIndex),
               actionOwnerId: operator.operatorId,
               ...(initialization.equipmentContributionIndex === undefined
                 ? {}
@@ -978,6 +987,27 @@ export class CombatRuntimeAssembly {
             this.semanticEvents,
             operator.operatorId,
           );
+          if (initialization.enableSequence !== undefined) {
+            if (initialization.equipmentContributionIndex === undefined)
+              throw new Error(`initialization '${initialization.key}' has no equipment Ability`);
+            const enableSequence = runtime.createSequence(initialization.enableSequence);
+            this.#passiveSequences.push(enableSequence);
+            if (!enableSequence.tryExecute({}))
+              throw new Error(`equipment '${initialization.key}' enable sequence returned false`);
+          }
+          if (initialization.equipmentContributionIndex !== undefined)
+            this.#equipmentEventRuntimes
+              .get(operator.operatorId)!
+              .enable(initialization.equipmentContributionIndex);
+          // 仅有监听的能力也需要走启用位置，但没有初始化动作，不伪造养成初始化回执。
+          if (
+            initialization.equipmentContributionIndex !== undefined &&
+            initialization.enableSequence === undefined &&
+            operator.equipmentContributions?.[initialization.equipmentContributionIndex]
+              ?.initializationSequence === undefined &&
+            initialization.sequence.steps.length === 0
+          )
+            continue;
           const sequence = runtime.createSequence(initialization.sequence);
           sequence.executeInstant({});
           this.#passiveSequences.push(sequence);
@@ -989,6 +1019,7 @@ export class CombatRuntimeAssembly {
             data: { key: initialization.key },
           });
         }
+        this.#equipmentEventRuntimes.get(operator.operatorId)?.assertAllEnabled();
         for (const passive of operator.passivePrograms ?? []) {
           const blackboard = new ActionBlackboard(
             passive.initialBlackboard,
@@ -1011,27 +1042,28 @@ export class CombatRuntimeAssembly {
             operator.operatorId,
           );
           const sequence = runtime.createSequence(passive.enableSequence);
+          let eventHost: PassiveAbilityEventRuntime | undefined;
           if (passive.abilityEventResponses?.length) {
             const register = options.registerPassiveAbilityEventAction;
             if (register === undefined)
               throw new Error(`passive '${passive.key}' requires ability event registration`);
-            this.#passiveAbilityEvents.push(
-              new PassiveAbilityEventRuntime(
-                operations,
-                {
-                  blackboard,
-                  actionOwnerId: operator.operatorId,
-                  actionSourceId: operator.operatorId,
-                  addAbilityChildBuff: child => this.#passiveAbilityChildBuffs.push(child),
-                },
-                passive.abilityEventResponses,
-                (event, priority, handle) => register(operator.operatorId, event, priority, handle),
-              ),
+            eventHost = new PassiveAbilityEventRuntime(
+              operations,
+              {
+                blackboard,
+                actionOwnerId: operator.operatorId,
+                actionSourceId: operator.operatorId,
+                addAbilityChildBuff: child => this.#passiveAbilityChildBuffs.push(child),
+              },
+              passive.abilityEventResponses,
+              (event, priority, handle) => register(operator.operatorId, event, priority, handle),
             );
+            this.#passiveAbilityEvents.push(eventHost);
           }
           if (!sequence.tryExecute({})) {
             throw new Error(`passive skill '${passive.key}' enable sequence returned false`);
           }
+          eventHost?.enable();
           this.#passiveSequences.push(sequence);
           this.receipt.record({
             frame: this.clock.frame,
@@ -1248,6 +1280,7 @@ export class CombatRuntimeAssembly {
       inputRuntime.applyCurrentFrame();
       externalEvents.applyCurrentFrame();
     } catch (error) {
+      this.disposeEquipmentEvents();
       this.disposePassiveAbilityEvents();
       this.disposeComboSkillConditions();
       throw error;
@@ -1695,6 +1728,11 @@ export class CombatRuntimeAssembly {
 
   disposePassiveAbilityEvents(): void {
     for (const runtime of this.#passiveAbilityEvents.splice(0)) runtime.dispose();
+  }
+
+  disposeEquipmentEvents(): void {
+    for (const runtime of this.#equipmentEventRuntimes.values()) runtime.dispose();
+    this.#equipmentEventRuntimes.clear();
   }
 
   #installComboSkillConditions(): void {

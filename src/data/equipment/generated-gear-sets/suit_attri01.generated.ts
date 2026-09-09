@@ -235,7 +235,7 @@ const definition = {
       },
     },
   },
-  initializationSequence: {
+  enableSequence: {
     steps: [
       {
         kind: 'applyBuff',

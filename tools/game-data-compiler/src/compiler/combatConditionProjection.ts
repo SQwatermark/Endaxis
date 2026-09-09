@@ -1,4 +1,5 @@
 import { projectGameplayTags } from './combatProjectionCommon.ts';
+import { projectSpGainKind, projectSpGainSource } from '../source/spGainEnums.ts';
 import { projectGlobalCooldownTarget } from './globalCooldownProjection.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
@@ -646,18 +647,22 @@ function compileConditionLeaf(
     };
   }
   if (condition.kind === 'obtainAtbType') {
-    if (
-      (condition.checkObtainType &&
-        (condition.obtainTypes.length !== 1 || condition.obtainTypes[0] !== 'Skill')) ||
-      (condition.checkObtainMethod &&
-        (condition.obtainMethods.length !== 1 || condition.obtainMethods[0] !== 'Gain'))
-    ) {
-      throw new Error(`${sourcePath}: unsupported ObtainAtb event filter`);
-    }
     return {
       kind: 'eventSpGainMatch',
-      ...(condition.checkObtainType ? { sources: ['skill'] as const } : {}),
-      ...(condition.checkObtainMethod ? { gainKinds: ['gain'] as const } : {}),
+      ...(condition.checkObtainType
+        ? {
+            sources: condition.obtainTypes.map((value, index) =>
+              projectSpGainSource(value, `${sourcePath}.obtainTypes[${index}]`),
+            ),
+          }
+        : {}),
+      ...(condition.checkObtainMethod
+        ? {
+            gainKinds: condition.obtainMethods.map((value, index) =>
+              projectSpGainKind(value, `${sourcePath}.obtainMethods[${index}]`),
+            ),
+          }
+        : {}),
     };
   }
   if (condition.kind === 'skillType') {

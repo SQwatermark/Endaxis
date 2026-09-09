@@ -45,6 +45,16 @@ it('keeps history across label changes and discards it when the host changes edi
   app.provide(ssrContextKey, { modules: new Set() });
   app.mount({});
   try {
+    panel.createInitializationSequence('enableSequence');
+    await nextTick();
+    expect(contribution.value.enableSequence).toEqual({ steps: [] });
+    await panel.selectPath('enableSequence');
+    await panel.removeInitializationSequence('enableSequence');
+    expect(contribution.value).not.toHaveProperty('enableSequence');
+    await panel.restoreHistory('undo');
+    expect(contribution.value.enableSequence).toEqual({ steps: [] });
+    await panel.restoreHistory('redo');
+    expect(contribution.value).not.toHaveProperty('enableSequence');
     await panel.removeInitializationSequence();
     expect(contribution.value).not.toHaveProperty('initializationSequence');
     label.value = 'renamed';
@@ -53,12 +63,16 @@ it('keeps history across label changes and discards it when the host changes edi
     await panel.restoreHistory('undo');
     expect(contribution.value.initializationSequence).toEqual({ steps: [] });
     // 属性句柄与结构操作共用宿主历史；字段定位不需要逐层转发事件。
-    panel.editing.context.root.child('initializationSequence').child('steps').update(() => [
-      { kind: 'storeCurrentTimelineFrame', parameters: { outputKey: 'before' } },
-    ]);
+    panel.editing.context.root
+      .child('initializationSequence')
+      .child('steps')
+      .update(() => [{ kind: 'storeCurrentTimelineFrame', parameters: { outputKey: 'before' } }]);
     await nextTick();
     await panel.selectPath('initializationSequence.steps[0]');
-    panel.editing.property.value.child('parameters').child('outputKey').update(() => 'after');
+    panel.editing.property.value
+      .child('parameters')
+      .child('outputKey')
+      .update(() => 'after');
     await nextTick();
     expect(contribution.value.initializationSequence.steps[0].parameters.outputKey).toBe('after');
     await panel.selectPath('');
@@ -75,11 +89,11 @@ it('keeps history across label changes and discards it when the host changes edi
     await panel.removeInitializationSequence();
     expect(contribution.value).not.toHaveProperty('initializationSequence');
     context.value = '0:1'; // A different trait, same display label.
-    contribution.value = { initializationBlackboard: { other: 2 } };
+    contribution.value = { blackboard: { other: 2 } };
     await nextTick();
     expect(panel.history.canUndo.value).toBe(false);
     await panel.restoreHistory('undo');
-    expect(contribution.value).toEqual({ initializationBlackboard: { other: 2 } });
+    expect(contribution.value).toEqual({ blackboard: { other: 2 } });
     panel.createInitializationSequence();
     await nextTick();
     context.value = '1:1'; // Deletion replaces the selected trait at the same index.

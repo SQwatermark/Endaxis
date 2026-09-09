@@ -7,16 +7,14 @@ import type {
   WeaponDefinition,
   WeaponTraitDefinition,
 } from '../../../../../packages/game-data-contract/src/equipment.ts';
+import { EQUIPMENT_ABILITY_EVENTS } from '../../../../../packages/game-data-contract/src/equipment.ts';
 import { buffRuntimeReadsBlackboardKey } from '../../compiler/buffRuntimeProjection.ts';
 import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
 import type {
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
 } from '../../compiler/combatActionProjectionTypes.ts';
-import {
-  compileCombatActionSequenceSource,
-  compileSkillSpGainActionSequenceSource,
-} from '../../compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../../compiler/buffRuntimeProjection.ts';
 import { compileAbilityEventPrograms } from '../../compiler/abilityEventProgram.ts';
 import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
 import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
@@ -40,23 +38,24 @@ export type CompiledWeaponRuntimeDefinitionSource = Omit<
 > &
   Readonly<Pick<WeaponDefinition, 'assetSlug' | 'iconPath'>> & {
     readonly traits: readonly (CompiledWeaponStaticDefinitionSource['traits'][number] &
-      Readonly<Pick<WeaponTraitDefinition, 'initializationBlackboard'>> & {
+      Readonly<Pick<WeaponTraitDefinition, 'blackboard'>> & {
         readonly buffDefinitions?: Readonly<Record<string, CompiledBuffDefinitionSource>>;
+        readonly enableSequence?: CompiledBuffSequenceSource;
         readonly initializationSequence?: CompiledBuffSequenceSource;
         readonly eventHandlers?: readonly CompiledWeaponEventHandlerSource[];
       })[];
   };
 
-// 已接入的语义事件子集：前两类尚不生成筛选字段，物理异常固定为四类且仅监听装备者。
+// 尚未迁移的语义事件：消耗 Buff 不生成筛选字段，物理异常固定为四类且仅监听装备者。
 type CompiledWeaponSemanticEventSource =
-  | Readonly<Pick<Extract<CombatEventTrigger, { kind: 'buffConsumed' | 'spGained' }>, 'kind'>>
+  | Readonly<Pick<Extract<CombatEventTrigger, { kind: 'buffConsumed' }>, 'kind'>>
   | (Readonly<Extract<CombatEventTrigger, { kind: 'physicalInflictionApplied' }>> & {
       readonly types: readonly ['airborne', 'knockDown', 'fracture', 'crush'];
       readonly scope: 'operator';
     });
 
 export type CompiledWeaponEventHandlerSource = Readonly<
-  Required<Pick<EquipmentEventHandlerDefinition, 'key' | 'priority' | 'blackboard'>>
+  Required<Pick<EquipmentEventHandlerDefinition, 'key' | 'priority'>>
 > & {
   readonly sequence: CompiledBuffSequenceSource;
 } & (
@@ -123,7 +122,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
           sourcePath: `${dependency.weaponId}.${dependency.traitKey}.actionGraph`,
           reason: error instanceof Error ? error.message : String(error),
         });
-        return { blackboard: {}, steps: [] };
+        return { steps: [] };
       }
     });
     const plans = typedDependencies.map(dependency => compileTraitPlans(dependency, diagnostics));
@@ -167,12 +166,13 @@ export function compileWeaponRuntimeDefinitionBatchSource(
         });
         return trait;
       }
-      const initializationBlackboard: Record<string, LevelValues> = {};
+      const blackboard = compileWeaponAbilityBlackboard(typedDependencies[traitIndex]!);
       const steps: CompiledBuffStepSource[] = (activePlans[0] ?? []).map(
         (installation, installationIndex) => {
           const assignments: Record<string, { kind: 'blackboard'; key: string }> = {};
           for (const targetKey of Object.keys(installation.blackboardAssignments).sort()) {
-            const key = `install_${installationIndex}_${targetKey}`;
+            let key = `install_${installationIndex}_${targetKey}`;
+            while (Object.hasOwn(blackboard, key)) key = `_${key}`;
             const values = selectInstallationValues(activePlans, installationIndex, targetKey);
             if (values === null) {
               const source = closure.sources.get(installation.buffId)!;
@@ -194,7 +194,7 @@ export function compileWeaponRuntimeDefinitionBatchSource(
               }
               continue;
             }
-            initializationBlackboard[key] = values;
+            blackboard[key] = values;
             assignments[targetKey] = { kind: 'blackboard', key };
           }
           return {
@@ -209,8 +209,13 @@ export function compileWeaponRuntimeDefinitionBatchSource(
           };
         },
       );
-      Object.assign(initializationBlackboard, deckInitializations[traitIndex]!.blackboard);
-      steps.push(...deckInitializations[traitIndex]!.steps);
+      const enableSteps = steps.filter(
+        (_step, index) => activePlans[0]![index]!.phase === 'beforeEnable',
+      );
+      const initializationSteps = [
+        ...steps.filter((_step, index) => activePlans[0]![index]!.phase === 'afterEnable'),
+        ...deckInitializations[traitIndex]!.steps,
+      ];
       return {
         ...trait,
         ...(eventHandlers[traitIndex]!.length === 0
@@ -219,8 +224,11 @@ export function compileWeaponRuntimeDefinitionBatchSource(
         ...(traitIndex === 0 && Object.keys(closure.definitions).length > 0
           ? { buffDefinitions: closure.definitions }
           : {}),
-        ...(Object.keys(initializationBlackboard).length === 0 ? {} : { initializationBlackboard }),
-        ...(steps.length === 0 ? {} : { initializationSequence: { steps } }),
+        ...(Object.keys(blackboard).length === 0 ? {} : { blackboard }),
+        ...(enableSteps.length === 0 ? {} : { enableSequence: { steps: enableSteps } }),
+        ...(initializationSteps.length === 0
+          ? {}
+          : { initializationSequence: { steps: initializationSteps } }),
       };
     });
     if (
@@ -240,7 +248,6 @@ function compileWeaponEventHandlers(
   diagnostics: BuildDefinitionDiagnosticSource[],
   gameplayTagRegistry?: GameplayTagRegistry,
 ): CompiledWeaponEventHandlerSource[] {
-  const blackboard = compileWeaponEventBlackboard(dependency);
   const events = dependency.actionGraph.actionGroup.passiveEvents;
   const omittedEvents = new Set<string | number>();
   if (events.some(event => event.abilityEvent === 'OnCharDeckAttrChanged')) {
@@ -259,27 +266,19 @@ function compileWeaponEventHandlers(
     sourcePath: `${dependency.weaponId}.${dependency.traitKey}.actionGraph.passiveEventActions`,
     omitEvent: event => omittedEvents.has(event),
     mapEvent: projectWeaponAbilityEvent,
-    compileSequence: (sequence, _sourcePath, event) =>
-      event === 'OnObtainAtb'
-        ? compileSkillSpGainActionSequenceSource(sequence, {
-            gameplayTagRegistry,
-            actionOwnerTarget: 'caster',
-            actionSourceTarget: 'caster',
-            actionTargetTarget: 'eventTarget',
-          })
-        : compileCombatActionSequenceSource(sequence, {
-            gameplayTagRegistry,
-            actionOwnerTarget: 'caster',
-            actionSourceTarget: 'caster',
-            actionTargetTarget: 'eventTarget',
-          }),
+    compileSequence: sequence =>
+      compileCombatActionSequenceSource(sequence, {
+        gameplayTagRegistry,
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'eventTarget',
+      }),
     isEmptySequence: sequence => sequence.steps.length === 0,
   });
   return programs.map(program => ({
     key: `${dependency.traitKey}:event:${program.sourceEventIndex}:sequence:${program.sourceSequenceIndex}`,
     ...program.event,
     priority: program.priority,
-    blackboard,
     sequence: program.sequence,
   }));
 }
@@ -292,7 +291,6 @@ function compileWeaponDeckInitialization(
   dependency: CompiledWeaponTraitRuntimeDependencySource,
   gameplayTagRegistry?: GameplayTagRegistry,
 ): {
-  readonly blackboard: Readonly<Record<string, LevelValues>>;
   readonly steps: CompiledBuffStepSource[];
 } {
   const events = dependency.actionGraph.actionGroup.passiveEvents;
@@ -309,9 +307,7 @@ function compileWeaponDeckInitialization(
       }),
     isEmptySequence: sequence => sequence.steps.length === 0,
   });
-  if (programs.length === 0) return { blackboard: {}, steps: [] };
   return {
-    blackboard: compileWeaponEventBlackboard(dependency),
     steps: programs.flatMap(program => program.sequence.steps),
   };
 }
@@ -326,9 +322,6 @@ function projectWeaponAbilityEvent(
     throw new Error(`${sourcePath}: unnamed numeric weapon AbilityEvent is unsupported`);
   }
   if (event === 'OnConsumeBuff') return { event: { kind: 'buffConsumed' } };
-  if (event === 'OnObtainAtb') {
-    return { event: { kind: 'spGained' } };
-  }
   if (event === 'OnAfterOutputPhysicalInfliction') {
     return {
       event: {
@@ -338,10 +331,17 @@ function projectWeaponAbilityEvent(
       },
     };
   }
-  return { abilityEvent: projectAbilityEvent(event, sourcePath) as EquipmentAbilityEvent };
+  const projected = projectAbilityEvent(event, sourcePath);
+  const supported = EQUIPMENT_ABILITY_EVENTS.find(candidate => candidate === projected);
+  if (supported === undefined) {
+    throw new Error(
+      `${sourcePath}: unsupported equipment ability event ${JSON.stringify(projected)}`,
+    );
+  }
+  return { abilityEvent: supported };
 }
 
-function compileWeaponEventBlackboard(
+function compileWeaponAbilityBlackboard(
   dependency: CompiledWeaponTraitRuntimeDependencySource,
 ): Record<string, LevelValues> {
   return Object.fromEntries(
@@ -351,7 +351,7 @@ function compileWeaponEventBlackboard(
         const values = dependency.blackboard[key];
         if (!isNumericLevelValues(values, dependency.levels.length)) {
           throw new Error(
-            `weapon event blackboard ${JSON.stringify(key)} is not numeric at every level`,
+            `weapon ability blackboard ${JSON.stringify(key)} is not numeric at every level`,
           );
         }
         return [key, values];
@@ -359,7 +359,12 @@ function compileWeaponEventBlackboard(
   );
 }
 
-type PlannedBuffInstallation = MaterializedPassiveBuffInstallationSource<LevelValues>;
+// 编译期身份：相同 Buff/赋值不代表相同安装阶段。Ability.Enable 的普通启动安装
+// 在响应启用前，Toggle.DoEnable 的首次安装在响应启用后；不可跨阶段合并。
+// 证据：combat-spec/docs/ability-enable-event-order.md。
+type PlannedBuffInstallation = MaterializedPassiveBuffInstallationSource<LevelValues> & {
+  readonly phase: 'beforeEnable' | 'afterEnable';
+};
 
 /**
  * 这里只按真实等级选择安装对象的引用，不复制安装参数或动作图。
@@ -388,13 +393,22 @@ function compileTraitPlans(
       }
       return results.every(Boolean) ? group.buffs : [];
     });
-    return [...dependency.startupBuffs, ...activeToggleBuffs];
+    return [
+      ...dependency.startupBuffs.map(installation => ({
+        ...installation,
+        phase: 'beforeEnable' as const,
+      })),
+      ...activeToggleBuffs.map(installation => ({
+        ...installation,
+        phase: 'afterEnable' as const,
+      })),
+    ];
   });
 }
 
 function planIdentity(plan: readonly PlannedBuffInstallation[]): string {
   return JSON.stringify(
-    plan.map(item => [item.buffId, Object.keys(item.blackboardAssignments).sort()]),
+    plan.map(item => [item.phase, item.buffId, Object.keys(item.blackboardAssignments).sort()]),
   );
 }
 

@@ -134,6 +134,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "str": [
+          20,
+          36,
+          52,
+          68,
+          84,
+          100,
+          116,
+          132,
+          156
+        ]
       }
     },
     {
@@ -155,7 +168,20 @@ const definition = {
             0.195
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "crirate": [
+          0.025,
+          0.045,
+          0.065,
+          0.085,
+          0.105,
+          0.125,
+          0.145,
+          0.165,
+          0.195
+        ]
+      }
     },
     {
       "key": "skill3",
@@ -166,42 +192,6 @@ const definition = {
           "key": "skill3:event:0:sequence:0",
           "abilityEvent": "beforeOutputDamage",
           "priority": 0,
-          "blackboard": {
-            "atk_up": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
-            ],
-            "duration": [
-              8,
-              8,
-              8,
-              8,
-              8,
-              8,
-              8,
-              8,
-              8
-            ],
-            "multi": 2,
-            "poise_up": [
-              0.12,
-              0.144,
-              0.168,
-              0.192,
-              0.216,
-              0.24,
-              0.264,
-              0.288,
-              0.336
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -261,42 +251,6 @@ const definition = {
           "key": "skill3:event:0:sequence:1",
           "abilityEvent": "beforeOutputDamage",
           "priority": 0,
-          "blackboard": {
-            "atk_up": [
-              0.1,
-              0.12,
-              0.14,
-              0.16,
-              0.18,
-              0.2,
-              0.22,
-              0.24,
-              0.28
-            ],
-            "duration": [
-              8,
-              8,
-              8,
-              8,
-              8,
-              8,
-              8,
-              8,
-              8
-            ],
-            "multi": 2,
-            "poise_up": [
-              0.12,
-              0.144,
-              0.168,
-              0.192,
-              0.216,
-              0.24,
-              0.264,
-              0.288,
-              0.336
-            ]
-          },
           "sequence": {
             "steps": [
               {
@@ -365,7 +319,41 @@ const definition = {
           }
         }
       ],
-      "initializationBlackboard": {
+      "blackboard": {
+        "atk_up": [
+          0.1,
+          0.12,
+          0.14,
+          0.16,
+          0.18,
+          0.2,
+          0.22,
+          0.24,
+          0.28
+        ],
+        "duration": [
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8,
+          8
+        ],
+        "multi": 2,
+        "poise_up": [
+          0.12,
+          0.144,
+          0.168,
+          0.192,
+          0.216,
+          0.24,
+          0.264,
+          0.288,
+          0.336
+        ],
         "install_0_poise_up": [
           0.12,
           0.144,
@@ -378,7 +366,7 @@ const definition = {
           0.336
         ]
       },
-      "initializationSequence": {
+      "enableSequence": {
         "steps": [
           {
             "kind": "applyBuff",

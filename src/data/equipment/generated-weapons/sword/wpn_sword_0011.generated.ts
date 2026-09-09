@@ -131,6 +131,19 @@ const definition = {
             }
           ]
         }
+      },
+      "blackboard": {
+        "mainattr": [
+          17,
+          30,
+          44,
+          57,
+          71,
+          85,
+          98,
+          112,
+          132
+        ]
       }
     },
     {
@@ -152,13 +165,48 @@ const definition = {
             0.195
           ]
         }
-      ]
+      ],
+      "blackboard": {
+        "crirate": [
+          0.025,
+          0.045,
+          0.065,
+          0.085,
+          0.105,
+          0.125,
+          0.145,
+          0.165,
+          0.195
+        ]
+      }
     },
     {
       "key": "skill3",
       "levelCount": 9,
       "modifiers": [],
-      "initializationBlackboard": {
+      "blackboard": {
+        "dmg_up": [
+          0.35,
+          0.42,
+          0.49,
+          0.56,
+          0.63,
+          0.7,
+          0.77,
+          0.84,
+          0.98
+        ],
+        "phy_dmg_up": [
+          0.15,
+          0.18,
+          0.21,
+          0.24,
+          0.27,
+          0.3,
+          0.33,
+          0.36,
+          0.42
+        ],
         "install_0_dmg_up": [
           0.35,
           0.42,
@@ -182,7 +230,7 @@ const definition = {
           0.42
         ]
       },
-      "initializationSequence": {
+      "enableSequence": {
         "steps": [
           {
             "kind": "applyBuff",

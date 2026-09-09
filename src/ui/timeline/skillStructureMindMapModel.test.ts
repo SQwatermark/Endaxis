@@ -604,7 +604,7 @@ describe('skillStructureMindMapModel', () => {
           sequence: { steps: [] },
         },
       ],
-      initializationBlackboard: { initial_rate: [1, 2] },
+      blackboard: { initial_rate: [1, 2] },
       initializationSequence: {
         steps: [
           {

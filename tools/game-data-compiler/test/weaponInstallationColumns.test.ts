@@ -88,6 +88,52 @@ function alternatingGroups(): CompiledWeaponToggleBuffGroupSource[] {
 }
 
 describe('武器安装结构与等级列', () => {
+  it('普通启动与 Toggle 安装同一 Buff 时仍保留两个有序安装及独立参数', () => {
+    const source = dependency({
+      startupBuffs: [installation(7)],
+      toggleBuffs: alternatingGroups(),
+    });
+    const result = compileWeaponRuntimeDefinitionBatchSource(
+      [definition],
+      [source],
+      buffs,
+      fixtureGameplayTagRegistry,
+    );
+    expect(result.diagnostics).toEqual([]);
+    const trait = result.definitions[0]!.traits[0]!;
+    expect(trait.enableSequence?.steps).toEqual([
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId,
+          target: 'caster',
+          blackboardAssignments: {
+            [parameter]: { kind: 'blackboard', key: `install_0_${parameter}` },
+          },
+        },
+      },
+    ]);
+    expect(trait.initializationSequence?.steps).toEqual([
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId,
+          target: 'caster',
+          blackboardAssignments: {
+            [parameter]: { kind: 'blackboard', key: `install_1_${parameter}` },
+          },
+        },
+      },
+    ]);
+    expect(trait.blackboard).toEqual({
+      [`install_0_${parameter}`]: 7,
+      [`install_1_${parameter}`]: [10, 40],
+    });
+    // 阶段标签只属于安装规划，不能修改共享来源对象或泄漏到正式步骤。
+    expect(source.startupBuffs[0]).not.toHaveProperty('phase');
+    expect(source.toggleBuffs[0]!.buffs[0]).not.toHaveProperty('phase');
+  });
+
   it('不变的列保持原引用，直接赋值保持单值，安装动作只生成一份', () => {
     const values = Object.freeze([10, 20]);
     const source = dependency({ startupBuffs: [installation(values), installation(7)] });
@@ -99,9 +145,10 @@ describe('武器安装结构与等级列', () => {
     );
     expect(result.diagnostics).toEqual([]);
     const trait = result.definitions[0]!.traits[0]!;
-    expect(trait.initializationBlackboard?.[`install_0_${parameter}`]).toBe(values);
-    expect(trait.initializationBlackboard?.[`install_1_${parameter}`]).toBe(7);
-    expect(trait.initializationSequence?.steps).toHaveLength(2);
+    expect(trait.blackboard?.[`install_0_${parameter}`]).toBe(values);
+    expect(trait.blackboard?.[`install_1_${parameter}`]).toBe(7);
+    expect(trait.enableSequence?.steps).toHaveLength(2);
+    expect(trait.initializationSequence).toBeUndefined();
     expect(source.startupBuffs[0]?.blackboardAssignments[parameter]).toBe(values);
   });
 
@@ -117,7 +164,7 @@ describe('武器安装结构与等级列', () => {
     const generated: WeaponDefinition = result.definitions[0]!;
     expect(validateWeaponDefinition(generated)).toEqual([]);
     const validated = generated;
-    expect(validated.traits[0]?.initializationBlackboard).toEqual({
+    expect(validated.traits[0]?.blackboard).toEqual({
       [`install_0_${parameter}`]: [10, 40],
     });
     expect(validated.traits[0]?.initializationSequence?.steps).toHaveLength(1);
@@ -130,7 +177,7 @@ describe('武器安装结构与等级列', () => {
         main: 'will',
         secondary: 'agility',
       });
-      expect(contributions[0]?.initializationBlackboard).toEqual({
+      expect(contributions[0]?.blackboard).toEqual({
         [`install_0_${parameter}`]: value,
       });
     }
@@ -167,7 +214,8 @@ describe('武器安装结构与等级列', () => {
       fixtureGameplayTagRegistry,
     );
     expect(result.diagnostics.map(item => item.status)).toEqual(['scenario-omitted']);
-    expect(result.definitions[0]?.traits[0]?.initializationSequence?.steps).toHaveLength(1);
+    expect(result.definitions[0]?.traits[0]?.enableSequence?.steps).toHaveLength(1);
+    expect(result.definitions[0]?.traits[0]?.initializationSequence).toBeUndefined();
   });
 
   it.each(['missing', 'differentId', 'differentKey', 'differentOrder'] as const)(
@@ -243,7 +291,7 @@ describe('武器安装结构与等级列', () => {
     expect(result.diagnostics).toContainEqual(
       expect.objectContaining({ status: 'scenario-omitted' }),
     );
-    expect(result.definitions[0]?.traits[0]?.initializationBlackboard).toBeUndefined();
+    expect(result.definitions[0]?.traits[0]?.blackboard).toBeUndefined();
   });
 
   it('缺失条件值按原生等级 ID 诊断，不能把非连续等级改为行号', () => {
