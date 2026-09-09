@@ -274,6 +274,50 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('publishes the launched projectile instance and preserves its source cast until reset', () => {
+    const emitAbilityEvent = vi.fn();
+    const assembly = createAssembly({
+      ...nativeEventRuntimeOptions(),
+      emitAbilityEvent,
+      programs: [
+        skill({
+          costs: [],
+          costFrame: undefined,
+          timelineActions: [
+            {
+              startFrame: 0,
+              endFrame: 0,
+              sequence: {
+                steps: [
+                  {
+                    kind: 'scheduleProjectileFinishCallback',
+                    parameters: { delaySeconds: 0.1, recycleDelaySeconds: 0 },
+                    body: { steps: [] },
+                  },
+                ],
+              },
+            },
+          ],
+        }),
+      ],
+    });
+    expect(emitAbilityEvent.mock.calls).toEqual([]);
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    const launch = emitAbilityEvent.mock.calls.find(call => call[1] === 'projectileLaunched');
+    const cast = emitAbilityEvent.mock.calls.find(call => call[1] === 'beforeCastSkill');
+    expect(launch?.[0]).toBe('operator');
+    expect(launch?.[2].sourceId).toBe('operator');
+    expect(launch?.[2].skillCastInfo.skillCastId).toBe(cast?.[2].skillCastId);
+    const reset = vi.fn();
+    launch?.[2].entity.onReset(reset);
+    expect(reset).not.toHaveBeenCalled();
+    for (let i = 0; i < 30; i++) assembly.advanceFrame();
+    expect(reset).toHaveBeenCalledTimes(1);
+    expect(
+      emitAbilityEvent.mock.calls.filter(call => call[1] === 'projectileLaunched'),
+    ).toHaveLength(1);
+  });
+
   it.each(['common', 'type'] as const)(
     'diagnoses current %s tags without rejecting an authored skill',
     kind => {

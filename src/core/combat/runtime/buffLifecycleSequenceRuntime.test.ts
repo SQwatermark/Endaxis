@@ -6,6 +6,7 @@ import type {
 } from '../events/combatAbilityEvent';
 import { describe, expect, it, vi } from 'vitest';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
@@ -226,9 +227,13 @@ describe('attachBuffLifecycleSequences', () => {
         undefined,
         [],
         (event, callback) => {
-          expect(['beforeCastSkill', 'skillEnd', 'outputBuff', 'abilityEntitySpawned']).toContain(
-            event,
-          );
+          expect([
+            'beforeCastSkill',
+            'skillEnd',
+            'outputBuff',
+            'abilityEntitySpawned',
+            'projectileLaunched',
+          ]).toContain(event);
           callbacks.add(callback);
           const registration = dispatcher.registerCallback(event, callback);
           return {
@@ -314,6 +319,25 @@ describe('attachBuffLifecycleSequences', () => {
         [],
       );
       emit('owner', 42, 'beforeCastSkill');
+      const projectiles = new ProjectileLifecycleRuntime();
+      const projectile = projectiles.launch({
+        finishDelaySeconds: 1,
+        recycleDelaySeconds: 0,
+        resolveTickDeltaSeconds: () => 1,
+        finish: () => {},
+        beforeReset: () => {},
+      });
+      dispatcher.dispatch(
+        {
+          event: 'projectileLaunched',
+          payload: {
+            sourceId: 'owner',
+            skillCastInfo: { ...ordinary, skillCastId: 42 },
+            entity: projectile,
+          },
+        },
+        [],
+      );
       emit('other', 42, 'beforeCastSkill');
       emit('owner', 999, 'beforeCastSkill');
       emit('owner', 42);
@@ -326,6 +350,12 @@ describe('attachBuffLifecycleSequences', () => {
       container.recycleFinishedBuffs();
       expect(buff.isFinished).toBe(false);
       entities.finish(entity);
+      expect(buff.isFinished).toBe(false);
+      projectiles.advanceFrame();
+      expect(buff.isFinished).toBe(false);
+      projectiles.advanceFrame();
+      expect(buff.isFinished).toBe(false);
+      projectiles.advanceFrame();
       expect(buff.isFinished).toBe(processing !== undefined);
       if (processing !== undefined) expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
       else expect(finish).not.toHaveBeenCalled();

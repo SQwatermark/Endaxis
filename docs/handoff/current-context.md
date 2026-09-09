@@ -1,5 +1,31 @@
 # 当前任务快照
 
+## 2026-09-10：163 发射发布与 SkillAffix reset 引用已接入
+
+duration-finish 正式装配现在发布 projectileLaunched，载荷保留发射动作快照中的
+skillCastInfo 与同一投射物实例的只读 reset 端口；不伪造能力实体 ID，不发布 reset 公共事件。
+AbilityEventPayloadMap 是唯一载荷定义，SkillAffix 在同一处理分支消费 abilityEntitySpawned
+和 projectileLaunched。两者共用 AbilityResetReference；计数在 finish/标记回收时不减少，
+只在实际 reset 时减少。C# 对应接 OnProjectileLaunched，并复用实体引用列表/回调。
+
+装配与 SkillAffix 定向 2 文件 / 108 项通过；C# SkillAffix 14 项通过。
+新增装配用例检查发射前无事件、发射一次、原始 cast id、对象 reset 一次；联合引用用例检查
+输出 Buff、实体和投射物逐个退出之后才结束 affix。事件相关 9 文件 / 80 项通过，
+应用 type-check、编译器独立 tsc 通过。四条真实轴结果保持上一节记录的差异。
+随后全编译器测试目录加事件/装配/引用专题：170 文件通过、1 文件跳过，
+1885 项通过、2 项跳过；不是应用全仓或全部原生行为验收。
+
+**仍不代表完整投射物支持**：只有已装配的 duration-finish 路径发布163；无回调及其他
+零距离投影尚未保留真实发射生命周期。未开放163的通用动作 Input/Trigger 绑定或来源转换，
+当前只消费有证据的 SkillAffix 对象/来源信息。回调技能内部时间轴、pending request 引用
+及全清单最终审计仍未完成。C#测试中的普通对象释放只验证reset消费，不冒充投射物回收顺序。
+
+下一步已定位：TimelineActionProcessor 已被 SkillRuntime 和 AbilityEntityChildSkillRuntime
+共同使用。不要再新建投射物专用的序列执行器。当前 compileImmediateProjectileCallbackSkillSource
+会合并所有 startFrame=0 的序列而丢失 endFrame；须从源端保留区间，再以共用时间轴调度。
+同时保留 SkillData.durationFrame 的独立自然结束条件（不能拿 timeline.isComplete 代替），
+并核对回调自身的附属 Buff / SkillEnd；不要通过把现有 body 一律拖到回收时刻来修。
+
 ## 2026-09-10：duration-finish 投射物正式接入生命周期（总体仍未收束）
 
 本节覆盖下方“尚未装配”的历史状态。正式装配现已使用 ProjectileLifecycleRuntime，
@@ -8,7 +34,7 @@
 公共动作的 recycleDelaySeconds 为必填，转换器从所有启用回调的 SkillData.durationFrame
 计算最大 duration，编译、校验及现有检查器同步接入；不手工配置干员数值。
 
-全 30 名干员用已有 hybrid 来源重建，只有汤汤一行变化：delaySeconds=3，
+全 31 名干员用已有 hybrid 来源重建，只有汤汤一行变化：delaySeconds=3，
 recycleDelaySeconds=30（chr_0027_tangtang_combo_skill_water_gene 的 durationFrame=900）。
 正式文件与候选逐字一致；候选、审计和真实轴比较仍只在忽略的 tmp 下。
 

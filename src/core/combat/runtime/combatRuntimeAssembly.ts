@@ -1643,14 +1643,20 @@ export class CombatRuntimeAssembly {
         recycleDelaySeconds,
         execute,
         beforeReset,
+        skillCastInfo,
       ) => {
-        this.projectileLifetimes.launch({
+        const entity = this.projectileLifetimes.launch({
           finishDelaySeconds: delaySeconds,
           recycleDelaySeconds,
           resolveTickDeltaSeconds: () =>
             COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
           finish: execute,
           beforeReset,
+        });
+        this.#options.emitAbilityEvent?.(operatorId, 'projectileLaunched', {
+          sourceId: operatorId,
+          ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
+          entity,
         });
       },
       ...cooldownBinding,

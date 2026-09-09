@@ -274,7 +274,10 @@ export function attachBuffLifecycleSequences<Key extends string>(
         };
         const handle = (published: CombatAbilityEvent<AbilityResponseEventName>) => {
           if (disposed) return;
-          if (published.event === 'abilityEntitySpawned') {
+          if (
+            published.event === 'abilityEntitySpawned' ||
+            published.event === 'projectileLaunched'
+          ) {
             if (
               published.payload.sourceId !== buff.owner.ownerId ||
               published.payload.skillCastInfo?.skillCastId !== skillCastId
@@ -323,6 +326,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
           registrations.push(registerAbilityEventCallback('skillEnd', handle));
           registrations.push(registerAbilityEventCallback('outputBuff', handle));
           registrations.push(registerAbilityEventCallback('abilityEntitySpawned', handle));
+          registrations.push(registerAbilityEventCallback('projectileLaunched', handle));
         } catch (error) {
           registration.dispose();
           throw error;

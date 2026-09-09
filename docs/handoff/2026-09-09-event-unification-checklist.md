@@ -50,7 +50,8 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
    位于技能更新后、宿主动作容器更新前，不以finishedBuff替代。动态能力实体正在
    对齐Buff→子技能→回收顺序；真实轴梨子诺连携收尾10个hit后移一帧，数值不变，
    已依据同组pending准入证据接受，去除了新实体Buff额外推进。宿主销毁回收、
-   实体reset和投射物引用仍未完成。
+   实体reset已接入实际对象端口；duration-finish投射物已接163发布并复用同一reset引用。
+   其他投射物投影、无回调发射、回调技能内部动作区间和pending request引用仍未完成。
    护盾耗尽移除已核实Other+空来源，TS数值/次数耗尽均验证；这不等于完整ShieldBlockDamage事件已验收。
    现有未知来源不能一律改成null，也不能一律继承宿主施法。
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、

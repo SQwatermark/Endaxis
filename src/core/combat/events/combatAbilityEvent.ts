@@ -172,11 +172,21 @@ export interface AbilityOriginPayload extends AbilityEntityPair {
   readonly skillCastInfo?: CombatSkillCastInfo | null;
 }
 
+/** 实际 AbilitySystem 的只读 reset 端口；不是另一个可配置事件。 */
+export interface AbilityResetReference {
+  onReset(callback: () => void): { dispose(): void };
+}
+
 /** 出生实例的只读生命周期端口；reset不是可配置的公共事件。 */
 export interface AbilityEntitySpawnedPayload extends AbilityOriginPayload {
-  readonly entity: {
-    onReset(callback: () => void): { dispose(): void };
-  };
+  readonly entity: AbilityResetReference;
+}
+
+/** 原生 163 的发射来源、原始施法信息和实际投射物对象；不伪造逻辑实体 ID。 */
+export interface ProjectileLaunchedPayload {
+  readonly sourceId: string;
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
+  readonly entity: AbilityResetReference;
 }
 
 export interface AbilityPhysicalInflictionPayload extends AbilityOriginPayload {
@@ -278,6 +288,7 @@ export function spGainAbilityEvent(event: AbilityEventCandidate): SpGainAbilityE
 
 /** 每个公共事件只在此关联一种载荷；不按 Buff/技能/装备重新定义范围。 */
 export interface AbilityEventPayloadMap {
+  projectileLaunched: ProjectileLaunchedPayload;
   enterFight: AbilityOriginPayload;
   ownerSwitchToCenter: AbilityOriginPayload;
   ownerSwitchToGuard: AbilityOriginPayload;

@@ -1,9 +1,8 @@
 import type { FrameRuntime } from './combatSimulation';
+import type { AbilityResetReference } from '../events/combatAbilityEvent';
 
 /** A specific projected projectile, not its source skill or a public battle event. */
-export interface ProjectileLifetimeReference {
-  onReset(callback: () => void): { dispose(): void };
-}
+export type ProjectileLifetimeReference = AbilityResetReference;
 
 interface ProjectileLifetime {
   phase: 'active' | 'finished' | 'marked' | 'reset';

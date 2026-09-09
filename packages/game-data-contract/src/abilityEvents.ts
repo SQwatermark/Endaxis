@@ -21,6 +21,7 @@ export const ABILITY_EVENTS = [
   'ownerHpZero',
   'abilityEntitySpawned',
   'abilityEntityFinished',
+  'projectileLaunched',
   'beforeTakeDamage',
   'beforeCalculateDamage',
   'beforeDamageAction',

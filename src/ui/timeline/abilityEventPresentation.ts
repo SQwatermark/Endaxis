@@ -8,6 +8,7 @@ export const abilityEventLabelsZh = {
   ownerHpZero: '持有者生命归零',
   abilityEntitySpawned: '能力实体生成',
   abilityEntityFinished: '能力实体结束',
+  projectileLaunched: '投射物发射',
   beforeTakeDamage: '受到伤害前',
   beforeCalculateDamage: '伤害计算前',
   beforeDamageAction: '伤害动作前',

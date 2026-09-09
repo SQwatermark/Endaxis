@@ -393,6 +393,7 @@ class ProjectileFinishCallbackStep extends CombatStep {
         sequence.executeInstant({});
       },
       () => callbackSequence?.end({}),
+      detachedContext.skillCastInfo,
     );
     return true;
   }
