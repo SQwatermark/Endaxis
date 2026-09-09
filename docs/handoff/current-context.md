@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：护盾值执行器先补复刻库
+
+重新反汇编SaveShieldValueToBB确认：两分支先解析显式目标；CurValue读实时目标有限护盾，
+GainedValue读当前147上下文；缺目标/对应事件成功返回且不写黑板，不是报错。
+原生黑板使用double写入，后面的float转换属于记录。证据地址与模块哈希见
+combat-spec/docs/save-shield-value-to-blackboard.md。
+复刻库此前只有解析器，现补BindRuntime/执行器与共享动态值写入的double重载，18项定向通过。
+Endaxis本轮尚未修改协议/运行时，current依赖事件快照的缺陷仍存在；下一步须贯通目标表达、
+转换、校验/编辑器、装配读取与真实轴回归。不要将规格库完成误写成Endaxis已修复。
+
 ## 2026-09-10：内部增强动作与属性刷新顺序修正
 
 按已记录_Enhance原生证据，enhance先增层、再执行内部enhanceChanged动作、最后刷新
