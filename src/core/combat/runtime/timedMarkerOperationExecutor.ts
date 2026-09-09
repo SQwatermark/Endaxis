@@ -1,3 +1,4 @@
+import { healAbilityEvent } from '../events/combatAbilityEvent';
 /**
  * 执行定时标记的创建、条件查询与动作结束清理。
  * 目标到实体容器的映射由装配层提供；动态时长只读取当前技能实例黑板。
@@ -166,12 +167,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
       throw new Error('eventTarget timed marker requires a combat operation context');
     }
     const event = context.event;
-    const targetId =
-      event?.kind === 'operatorHealed'
-        ? event.targetOperatorId
-        : event?.kind === 'abilityHeal'
-          ? event.targetId
-          : undefined;
+    const targetId = event === undefined ? undefined : healAbilityEvent(event)?.payload.targetId;
     if (targetId === undefined) {
       throw new Error('eventTarget timed marker requires a healing event target');
     }

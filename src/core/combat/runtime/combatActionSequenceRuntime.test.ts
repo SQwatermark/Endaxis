@@ -4,7 +4,7 @@ import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
-import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 
 function operation(flag: string): ResolvedCombatStep {
   return {
@@ -34,11 +34,10 @@ function createFixture(conditionResult = true) {
 
 describe('CombatActionSequenceRuntime', () => {
   it('监听复用原生守卫状态，阻止自身尾部事件重入，但仍响应后续事件', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitAddedBuff } = createNativeEventFixture();
     const calls: string[] = [];
     const emit = (buffId: string) =>
-      events.emit({
-        kind: 'buffApplied',
+      emitAddedBuff({
         sourceId: 'owner',
         targetId: 'owner',
         buffId,
@@ -48,13 +47,16 @@ describe('CombatActionSequenceRuntime', () => {
       {
         evaluate: (_condition, context) => {
           calls.push(
-            `check:${context?.event?.kind === 'buffApplied' ? context.event.buffId : 'missing'}`,
+            `check:${context?.event && 'payload' in context.event && context.event.event === 'addedBuff' ? context.event.payload.buffId : 'missing'}`,
           );
           return true;
         },
         execute: (step, context) => {
           if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
-          const id = context?.event?.kind === 'buffApplied' ? context.event.buffId : 'missing';
+          const id =
+            context?.event && 'payload' in context.event && context.event.event === 'addedBuff'
+              ? context.event.payload.buffId
+              : 'missing';
           calls.push(`${step.parameters.flag}:${id}`);
           if (step.parameters.flag === 'emit') {
             // Bound a broken implementation's recursion so the regression fails

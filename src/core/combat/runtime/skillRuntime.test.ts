@@ -9,7 +9,7 @@ import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
-import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { AbilitySystemRuntime } from './abilitySystemRuntime';
 
 function findPerlicaSkill(key: string): SkillDefinition {
@@ -51,7 +51,7 @@ function createBattleSkillRuntime(
     ],
   });
   const receipt = new CombatReceiptCollector();
-  const semanticEvents = new CombatSemanticEventRuntime();
+  const { semanticEvents, emitAddedBuff, emitOutputDamage } = createNativeEventFixture();
   const operations: CombatOperationExecutor = {
     execute: vi.fn(() => true),
     evaluate: vi.fn(() => true),
@@ -83,7 +83,17 @@ function createBattleSkillRuntime(
   });
   const simulation = new CombatSimulation(clock);
   simulation.add(runtime);
-  return { clock, resources, receipt, operations, runtime, semanticEvents, simulation };
+  return {
+    clock,
+    resources,
+    receipt,
+    operations,
+    runtime,
+    semanticEvents,
+    simulation,
+    emitAddedBuff,
+    emitOutputDamage,
+  };
 }
 
 describe('SkillRuntime', () => {
@@ -491,7 +501,7 @@ describe('SkillRuntime', () => {
   );
 
   it('does not infer a CastSkillContext for the paid-cost event from its source identity', () => {
-    const onCost = vi.fn((event: import('./skillRuntime').CombatAbilitySkillEvent) => {
+    const onCost = vi.fn((event: import('../events/combatAbilityEvent').AbilitySkillPayload) => {
       expect(event.attachBuffToCurrentSkill).toBeUndefined();
     });
     const { runtime } = createBattleSkillRuntime(300, 0, undefined, undefined, undefined, onCost);
@@ -511,9 +521,7 @@ describe('SkillRuntime', () => {
     naturalFixture.runtime.tryStart();
     naturalFixture.runtime.advanceFrame();
     expect(natural).toHaveBeenCalledOnce();
-    expect(natural).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'skillEnd', skillId: 'natural-end' }),
-    );
+    expect(natural).toHaveBeenCalledWith(expect.objectContaining({ skillId: 'natural-end' }));
 
     const interrupted = vi.fn();
     const interruptedFixture = createBattleSkillRuntime(
@@ -531,7 +539,7 @@ describe('SkillRuntime', () => {
     interruptedFixture.runtime.interrupt('castNextSkill');
     expect(interrupted).toHaveBeenCalledOnce();
     expect(interrupted).toHaveBeenCalledWith(
-      expect.objectContaining({ event: 'skillEnd', skillId: 'interrupted-end' }),
+      expect.objectContaining({ skillId: 'interrupted-end' }),
     );
   });
 
@@ -786,11 +794,16 @@ describe('SkillRuntime', () => {
       ],
     });
     const emit = () =>
-      fixture.semanticEvents.emit({
-        kind: 'damageTagHit',
-        sourceOperatorId: 'perlica',
+      fixture.emitOutputDamage({
+        sourceId: 'perlica',
         tags: ['normalSkill'],
       });
+    const evaluated: unknown[] = [];
+    vi.mocked(fixture.operations.evaluate).mockImplementation((condition, context) => {
+      // 公共响应退出后恢复同一草稿，须在调用中观察事件，不能检查 mock 保存的可变引用。
+      evaluated.push([condition, { ...context }]);
+      return true;
+    });
 
     fixture.runtime.tryStart();
     emit();
@@ -798,17 +811,16 @@ describe('SkillRuntime', () => {
 
     fixture.simulation.advanceFrames(1);
     emit();
-    expect(fixture.operations.evaluate).toHaveBeenCalledWith(
+    expect(evaluated).toContainEqual([
       { kind: 'combatActive' },
       expect.objectContaining({
         blackboard: fixture.runtime.operationContext.blackboard,
-        event: {
-          kind: 'damageTagHit',
-          sourceOperatorId: 'perlica',
-          tags: ['normalSkill'],
-        },
+        event: expect.objectContaining({
+          event: 'outputDamage',
+          payload: expect.objectContaining({ sourceId: 'perlica', tags: ['normalSkill'] }),
+        }),
       }),
-    );
+    ]);
     expect(vi.mocked(fixture.operations.execute).mock.calls.map(call => call[0])).toMatchObject([
       { kind: 'setContextFlag', parameters: { flag: 'first' } },
       { kind: 'setContextFlag', parameters: { flag: 'second' } },
@@ -870,8 +882,7 @@ describe('SkillRuntime', () => {
     fixture.runtime.tryStart();
     fixture.simulation.advanceFrames(1);
     vi.mocked(fixture.operations.evaluate).mockReturnValueOnce(false);
-    fixture.semanticEvents.emit({
-      kind: 'buffApplied',
+    fixture.emitAddedBuff({
       targetId: 'perlica',
       sourceId: 'enemy',
       buffId: 'buff.unrelated',
@@ -880,8 +891,7 @@ describe('SkillRuntime', () => {
     expect(fixture.runtime.passedFrames).toBe(1);
 
     vi.mocked(fixture.operations.evaluate).mockReturnValueOnce(true);
-    fixture.semanticEvents.emit({
-      kind: 'buffApplied',
+    fixture.emitAddedBuff({
       targetId: 'perlica',
       sourceId: 'perlica',
       buffId: 'buff.skill.end',
@@ -898,8 +908,7 @@ describe('SkillRuntime', () => {
 
     fixture.simulation.advanceFrames(2);
     const evaluationCount = vi.mocked(fixture.operations.evaluate).mock.calls.length;
-    fixture.semanticEvents.emit({
-      kind: 'buffApplied',
+    fixture.emitAddedBuff({
       targetId: 'perlica',
       sourceId: 'perlica',
       buffId: 'buff.skill.end',
@@ -1054,7 +1063,6 @@ describe('SkillRuntime', () => {
     expect(emitted).toHaveBeenCalledOnce();
     expect(emitted).toHaveBeenCalledWith(
       expect.objectContaining({
-        event: 'afterSkillApplyCost',
         skillId: 'cost-event-order',
         skillCastId: 1,
       }),

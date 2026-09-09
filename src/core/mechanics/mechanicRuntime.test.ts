@@ -54,7 +54,10 @@ describe('installMechanicContributions', () => {
         },
       ],
     };
-    const abilityEvents = new AbilityEventDispatcher<MechanicAbilityEvent, { damage: number }>();
+    const abilityEvents = new AbilityEventDispatcher<
+      MechanicAbilityEvent,
+      Record<MechanicAbilityEvent, { damage: number }>
+    >();
     const gameLevelEvents = new GameLevelEventDispatcher<
       'spellInflictionStarted',
       { stacks: number }

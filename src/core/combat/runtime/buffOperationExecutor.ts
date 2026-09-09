@@ -1,3 +1,9 @@
+import { skillAbilityEvent } from '../events/combatAbilityEvent';
+import { abilityEventTargetId, abilityEventSourceId } from '../events/combatAbilityEvent';
+import {
+  type AbilityPhysicalInflictionPayload,
+  physicalAbilityEvent,
+} from '../events/combatAbilityEvent';
 /**
  * 执行技能序列中面向施法者或敌方 Buff 容器的查询与结束操作。
  * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
@@ -46,7 +52,6 @@ export interface BuffOperationTarget {
     resolveOperations: (source: BuffLifecycleOperationSource) => CombatOperationExecutor,
   ): void;
   /** 场景装配根把成功施加事实接入全场语义事件中心。 */
-  configureBuffAppliedObserver?(observer: (event: BuffAppliedEvent) => void): void;
   configureBuffConsumedObserver?(observer: (event: BuffConsumedEvent) => void): void;
   configureBuffAbsorbedObserver?(observer: (event: BuffConsumedEvent) => void): void;
   /** 场景装配根把 Buff 存续期内的全场语义事件监听接入唯一事件中心。 */
@@ -184,20 +189,8 @@ export interface BuffOperationDependencies {
   readonly resolveEventTarget?: (targetId: string) => BuffOperationTarget;
   /** 从当前动作所属干员、原始技能等级对应的附属对象表解析定义。 */
   readonly resolveBuffDefinition?: (buffId: string) => ResolvedSkillBuffDefinition | undefined;
-  readonly onPhysicalInflictionApplied?: (event: {
-    readonly sourceOperatorId: string;
-    readonly targetId: string;
-    readonly type: 'airborne' | 'fracture' | 'crush';
-    readonly skillCastInfo: CombatSkillCastInfo;
-    readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
-  }) => void;
-  readonly onBeforeOutputPhysicalInfliction?: (event: {
-    readonly sourceId: string;
-    readonly targetId: string;
-    readonly type: 'airborne' | 'fracture' | 'crush';
-    readonly skillCastInfo: CombatSkillCastInfo;
-    readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
-  }) => void;
+  readonly onPhysicalInflictionApplied?: (event: AbilityPhysicalInflictionPayload) => void;
+  readonly onBeforeOutputPhysicalInfliction?: (event: AbilityPhysicalInflictionPayload) => void;
   readonly delegate: CombatOperationExecutor;
   readonly readProcessingSkillCastId?: (ownerId: string) => number | undefined;
 }
@@ -315,7 +308,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       const applied = target.apply(request);
       if (applied && entersPhysicalInfliction) {
         this.dependencies.onPhysicalInflictionApplied?.({
-          sourceOperatorId: this.dependencies.sourceId,
+          sourceId: this.dependencies.sourceId,
           targetId: target.ownerId,
           type: step.parameters.type,
           skillCastInfo: context.skillCastInfo,
@@ -343,9 +336,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('动态 Buff ID 不能使用内联定义或旧式覆盖');
       const attachToSkill = step.parameters.lifetimeOwner === 'currentCastSkill';
       const attachBuff =
-        context?.event !== undefined && 'attachBuffToCurrentSkill' in context.event
-          ? context.event.attachBuffToCurrentSkill
-          : undefined;
+        context?.event === undefined
+          ? undefined
+          : (physicalAbilityEvent(context.event)?.payload.attachBuffToCurrentSkill ??
+            skillAbilityEvent(context.event)?.payload.attachBuffToCurrentSkill);
       // 旧手写配置仍由原执行器解释；定义路径只接收原生身份和施加黑板覆盖值。
       if (
         step.parameters.durationSeconds !== undefined ||
@@ -557,10 +551,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'readEventBuffBlackboard') {
-      if (context?.event?.kind !== 'buffConsumed') {
+      const event = context?.event;
+      if (
+        context === undefined ||
+        event === undefined ||
+        !('payload' in event) ||
+        (event.event !== 'buffConsumed' && event.event !== 'buffAbsorbed')
+      ) {
         throw new Error('readEventBuffBlackboard requires a consumed Buff event');
       }
-      const value = context.event.blackboardValues?.[step.parameters.desiredKey];
+      const value = event.payload.blackboardValues?.[step.parameters.desiredKey];
       context.blackboard.assignDynamic(
         step.parameters.outputKey,
         typeof value === 'number' ? value : 0,
@@ -846,13 +846,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('eventTarget Buff application is not configured');
       }
       const eventTargetId =
-        'targetId' in context.event
-          ? context.event.targetId
-          : context.event.kind === 'operatorHealed'
-            ? context.event.targetOperatorId
-            : context.event.kind === 'operatorHit'
-              ? context.event.targetOperatorId
-              : undefined;
+        'payload' in context.event
+          ? abilityEventTargetId(context.event)
+          : 'targetId' in context.event
+            ? context.event.targetId
+            : undefined;
       if (eventTargetId === undefined) {
         throw new Error(`event '${context.event.kind}' does not expose a Buff target`);
       }
@@ -1076,14 +1074,22 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return target.matchesEntityTags(condition.tags, condition.tagQueryType);
     }
     if (condition.kind === 'eventTargetBuffCountCompare') {
-      if (context?.event === undefined || !('targetId' in context.event)) {
+      const event = context?.event;
+      if (
+        context === undefined ||
+        event === undefined ||
+        (!('targetId' in event) && !('payload' in event))
+      ) {
         throw new Error('eventTargetBuffCountCompare requires an event target identity');
       }
       const resolveTarget = this.dependencies.resolveEventTarget;
       if (resolveTarget === undefined) {
         throw new Error('eventTargetBuffCountCompare requires an event target resolver');
       }
-      const target = resolveTarget(context.event.targetId);
+      const targetId = 'payload' in event ? abilityEventTargetId(event) : event.targetId;
+      if (targetId === undefined)
+        throw new Error('eventTargetBuffCountCompare requires an event target identity');
+      const target = resolveTarget(targetId);
       if (target.getInstanceCountByTags === undefined) {
         throw new Error('eventTargetBuffCountCompare requires Buff instance counting');
       }
@@ -1248,13 +1254,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error('eventTarget Buff operation is not configured');
       }
       const eventTargetId =
-        'targetId' in context.event
-          ? context.event.targetId
-          : context.event.kind === 'operatorHealed'
-            ? context.event.targetOperatorId
-            : context.event.kind === 'operatorHit'
-              ? context.event.targetOperatorId
-              : undefined;
+        'payload' in context.event
+          ? abilityEventTargetId(context.event)
+          : 'targetId' in context.event
+            ? context.event.targetId
+            : undefined;
       if (eventTargetId === undefined) {
         throw new Error(`event '${context.event.kind}' does not expose a Buff target`);
       }
@@ -1290,6 +1294,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (context?.buffSourceId !== undefined) return context.buffSourceId;
       throw new Error('eventSource Buff operation requires an event or Buff source context');
     }
+    if ('payload' in event) return abilityEventSourceId(event);
     if ('sourceId' in event && typeof event.sourceId === 'string') return event.sourceId;
     if ('sourceOperatorId' in event && typeof event.sourceOperatorId === 'string') {
       return event.sourceOperatorId;

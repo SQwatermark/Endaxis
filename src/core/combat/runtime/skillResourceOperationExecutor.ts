@@ -6,9 +6,11 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
-import type { SpGainKind, SpGainSource } from '../../game-data/operatorDefinition';
+import type { SpGainSource } from '../../game-data/operatorDefinition';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
+
+import type { AbilitySpGainPayload } from '../events/combatAbilityEvent';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -23,13 +25,7 @@ export interface SkillResourceOperationDependencies {
   readonly getNonReturnedSpCost: () => number;
   /** 当前敌人的处决技力回复基础值；技能步骤只保存自身倍率。 */
   readonly finisherSpRecovery: number;
-  readonly onSpGained?: (event: {
-    readonly sourceOperatorId: string;
-    readonly source: SpGainSource;
-    readonly gainKind: SpGainKind;
-    readonly requestedAmount: number;
-    readonly amount: number;
-  }) => void;
+  readonly onSpGained?: (event: AbilitySpGainPayload) => void;
   readonly delegate: CombatOperationExecutor;
 }
 

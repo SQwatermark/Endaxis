@@ -1,3 +1,4 @@
+import { createKillEvent } from '../events/killEventTestFixture';
 import { describe, expect, it } from 'vitest';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
@@ -180,7 +181,10 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       operatorId: 'operator',
       source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'effect' },
       handlerKey: 'extra',
-      event: { kind: 'damageTagHit', sourceOperatorId: 'operator', tags: ['normalSkill'] },
+      event: {
+        event: 'outputDamage',
+        payload: { ...createKillEvent().payload, tags: ['normalSkill'] },
+      },
     };
     const attributes = createOperatorAttackAttributes(panel);
     const electric = resolveStaticPlayerDamageSnapshots(context, electricDamage, attributes);

@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import type {
   CompiledOperatorPassiveProgram,
   CompiledSkillProgram,
@@ -168,8 +169,30 @@ it('被动写入EntityBB由同角色主动技能读取，而非留在被动局�
   expect(assembly.resources.getUltimateEnergy('operator')).toBe(7);
 });
 
+function nativeEventRuntimeOptions() {
+  const native = createNativeEventFixture();
+  return {
+    registerCombatAbilityEvent: native.register,
+    emitAbilityEvent: ((_owner, event, payload) =>
+      native.dispatcher.dispatch(
+        { event, payload } as import('../events/combatAbilityEvent').CombatAbilityEvent,
+        [],
+      )) as NonNullable<ConstructorParameters<typeof CombatRuntimeAssembly>[0]['emitAbilityEvent']>,
+  };
+}
+
 function createAssembly(
-  programs: readonly CompiledSkillProgram[],
+  input:
+    | readonly CompiledSkillProgram[]
+    | {
+        programs: readonly CompiledSkillProgram[];
+        emitAbilityEvent?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['emitAbilityEvent'];
+        registerCombatAbilityEvent: NonNullable<
+          ConstructorParameters<typeof CombatRuntimeAssembly>[0]['registerCombatAbilityEvent']
+        >;
+      },
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,
   resolveVitals?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['resolveVitals'],
   enemyBuffRuntime: ConstructorParameters<
@@ -197,7 +220,15 @@ function createAssembly(
   >[0]['operators'][number]['playerActionRoutes'],
   skillAvailabilityTags?: GameplayTagPredefine,
 ): CombatRuntimeAssembly {
+  const programs = 'programs' in input ? input.programs : input;
   return new CombatRuntimeAssembly({
+    ...nativeEventRuntimeOptions(),
+    ...('programs' in input
+      ? { registerCombatAbilityEvent: input.registerCombatAbilityEvent }
+      : {}),
+    ...('programs' in input && input.emitAbilityEvent
+      ? { emitAbilityEvent: input.emitAbilityEvent }
+      : {}),
     ...(skillAvailabilityTags === undefined ? {} : { skillAvailabilityTags }),
     enemy,
     resources: {
@@ -622,6 +653,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -712,8 +744,6 @@ describe('CombatRuntimeAssembly', () => {
         'operator',
         'skillEnd',
         {
-          event: 'skillEnd',
-          kind: 'abilitySkill',
           sourceId: 'operator',
           targetId: 'operator',
           skillType: 'battleSkill',
@@ -1707,6 +1737,7 @@ describe('CombatRuntimeAssembly', () => {
     });
     const followUp = skill({ operatorId: 'other', skillId: 'follow-up' });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -1846,7 +1877,10 @@ describe('CombatRuntimeAssembly', () => {
   });
 
   it('installs equipment event handlers and executes their resource sequence', () => {
+    const nativeEvents = createNativeEventFixture();
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
+      registerCombatAbilityEvent: nativeEvents.register,
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -1899,9 +1933,8 @@ describe('CombatRuntimeAssembly', () => {
       createEquipmentEventOperationExecutor: () => rejectingExecutor,
     });
 
-    assembly.semanticEvents.emit({
-      kind: 'damageTagHit',
-      sourceOperatorId: 'operator',
+    nativeEvents.emitOutputDamage({
+      sourceId: 'operator',
       tags: ['normalSkill'],
     });
 
@@ -1920,6 +1953,7 @@ describe('CombatRuntimeAssembly', () => {
     expect(
       () =>
         new CombatRuntimeAssembly({
+          ...nativeEventRuntimeOptions(),
           enemy: testEnemy,
           resources: {
             sp: 0,
@@ -2026,11 +2060,18 @@ describe('CombatRuntimeAssembly', () => {
   });
 
   it('dispatches a successful Buff application to an active skill listener', () => {
+    const nativeEvents = createNativeEventFixture();
     const buffs = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
-    const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
-      get: () => undefined,
-      compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
-    });
+    const buffRuntime = new BuffDefinitionOperationTarget(
+      buffs,
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+      undefined,
+      undefined,
+      nativeEvents.emitAddedBuff,
+    );
     const program = skill({
       costFrame: undefined,
       costs: [],
@@ -2078,7 +2119,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = createAssembly(
-      [program],
+      { programs: [program], registerCombatAbilityEvent: nativeEvents.register },
       undefined,
       undefined,
       emptyEnemyBuffRuntime,
@@ -2207,10 +2248,22 @@ describe('CombatRuntimeAssembly', () => {
         },
       ],
     });
-    const assembly = createAssembly([program]);
+    const published: string[] = [];
+    const native = createNativeEventFixture();
+    const assembly = createAssembly({
+      programs: [program],
+      registerCombatAbilityEvent: native.register,
+      emitAbilityEvent: (_owner, event) => published.push(event),
+    });
 
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
     expect(assembly.resources.sp).toBe(110);
+    expect(published).toEqual([
+      'beforeCastSkill',
+      'skillSpGained',
+      'afterOutputPhysicalInfliction',
+      'skillSpGained',
+    ]);
     expect(
       assembly.receipt.entries
         .map(entry => entry.event)
@@ -2269,6 +2322,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -2345,6 +2399,7 @@ describe('CombatRuntimeAssembly', () => {
       } as const;
       const create = () =>
         new CombatRuntimeAssembly({
+          ...nativeEventRuntimeOptions(),
           enemy: testEnemy,
           resources: {
             sp: 0,
@@ -2427,6 +2482,7 @@ describe('CombatRuntimeAssembly', () => {
       compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -2544,7 +2600,8 @@ describe('CombatRuntimeAssembly', () => {
     );
   });
 
-  it('executes operator upgrade reaction events through the shared Buff runtime', () => {
+  it('executes operator upgrade events through the shared Buff runtime', () => {
+    const native = createNativeEventFixture();
     const attributes = new CombatAttributeSet<string>();
     attributes.define('Atk', 500, { minimum: 0, maximum: 10000 });
     const buffs = new CombatBuffContainer<string>('operator', attributes);
@@ -2555,7 +2612,9 @@ describe('CombatRuntimeAssembly', () => {
           emitElementalInflictionStarted: () => undefined,
         }).get(entry.id)!,
     });
-    const assembly = new CombatRuntimeAssembly({
+    new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
+      registerCombatAbilityEvent: native.register,
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -2583,8 +2642,8 @@ describe('CombatRuntimeAssembly', () => {
           buffRuntime,
           upgradeEventPrograms: [
             {
-              key: 'potential:attackAfterElectrification:0',
-              event: { kind: 'reactionApplied', reaction: 'electrification' },
+              key: 'potential:attackAfterSpGain:0',
+              event: { kind: 'spGained' },
               initialBlackboard: {},
               sequence: {
                 steps: [
@@ -2613,28 +2672,39 @@ describe('CombatRuntimeAssembly', () => {
     });
 
     const event = {
-      kind: 'reactionApplied' as const,
-      sourceOperatorId: 'operator',
-      reaction: 'electrification' as const,
+      event: 'skillSpGained' as const,
+      payload: {
+        sourceOperatorId: 'operator',
+        source: 'skill' as const,
+        gainKind: 'gain' as const,
+        requestedAmount: 1,
+        amount: 1,
+      },
     };
-    assembly.semanticEvents.emit(event);
+    native.dispatcher.dispatch(event, []);
     expect(attributes.get('Atk')).toBe(600);
-    assembly.semanticEvents.emit(event);
+    native.dispatcher.dispatch(event, []);
     expect(attributes.get('Atk')).toBe(700);
     expect(buffs.getCountByIds(['attack-up'])).toBe(2);
   });
 
   it('executes operator upgrade events only for actual skill-source SP gains', () => {
+    const native = createNativeEventFixture();
     const attributes = new CombatAttributeSet<string>();
     attributes.define('Atk', 500, { minimum: 0, maximum: 10000 });
     const buffs = new CombatBuffContainer<string>('operator', attributes);
-    const buffRuntime = new BuffDefinitionOperationTarget(buffs, {
-      get: () => undefined,
-      compile: entry =>
-        new CompiledCombatBuffDefinitions('test', [entry], {
-          emitElementalInflictionStarted: () => undefined,
-        }).get(entry.id)!,
-    });
+    const buffRuntime = new BuffDefinitionOperationTarget(
+      buffs,
+      {
+        get: () => undefined,
+        compile: entry =>
+          new CompiledCombatBuffDefinitions('test', [entry], {
+            emitElementalInflictionStarted: () => undefined,
+          }).get(entry.id)!,
+      },
+      undefined,
+      (event, priority, handle) => native.dispatcher.registerAction(event, priority, handle),
+    );
     const gainSkill = skill({
       skillId: 'sp-skill',
       costs: [],
@@ -2660,6 +2730,12 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      registerCombatAbilityEvent: native.register,
+      emitAbilityEvent: (_owner, event, payload) =>
+        native.dispatcher.dispatch(
+          { event, payload } as import('../events/combatAbilityEvent').CombatAbilityEvent,
+          [],
+        ),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -2986,6 +3062,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -3195,6 +3272,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -3267,6 +3345,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -3360,6 +3439,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -3433,6 +3513,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -3506,6 +3587,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -3618,6 +3700,7 @@ describe('CombatRuntimeAssembly', () => {
         ],
       });
       const assembly = new CombatRuntimeAssembly({
+        ...nativeEventRuntimeOptions(),
         enemy: testEnemy,
         resources: {
           sp: 0,
@@ -3696,6 +3779,7 @@ describe('CombatRuntimeAssembly', () => {
       ],
     });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 0,
@@ -3729,6 +3813,7 @@ describe('CombatRuntimeAssembly', () => {
   it('processes frame input after recovery and before the skill cost tick', () => {
     const program = skill({ costFrame: 0 });
     const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
         sp: 99,

@@ -18,19 +18,22 @@ import {
   CombatSemanticEventRuntime,
   type CombatSemanticEventContext,
 } from './combatSemanticEventRuntime';
-import {
-  normalizeAbilityEventPayload,
-  readEventSkillCastInfo,
-} from './buffLifecycleSequenceRuntime';
-import type { CombatSkillCastInfo } from './skillCastInfo';
+import { resolveAbilityEventContext } from './abilityEventPayload';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
-import { RuntimeTargetContext } from './runtimeTargetContext';
+import {
+  withAbilityEventResponseContext,
+  withCombatEventResponseContext,
+} from './abilityEventResponseContext';
+import type { AbilityEventContext } from '../events/abilityEventDispatcher';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
   event: EquipmentAbilityEvent,
   priority: number,
-  handle: (payload: unknown, actionContext?: AbilityEventRuntimeActionContext) => void,
+  handle: (
+    published: AbilityEventContext<EquipmentAbilityEvent>,
+    actionContext?: AbilityEventRuntimeActionContext,
+  ) => void,
 ) => AbilityEventRegistration;
 
 /** 配装操作执行器用于归因和选择实体状态的稳定上下文。 */
@@ -39,7 +42,7 @@ export interface EquipmentEventExecutionContext {
   readonly source: EquipmentContributionSource;
   readonly handlerKey: string;
   readonly event:
-    CombatSemanticEventContext['event'] | ReturnType<typeof normalizeAbilityEventPayload>;
+    CombatSemanticEventContext['event'] | ReturnType<typeof resolveAbilityEventContext>;
 }
 
 export type CreateEquipmentEventOperationExecutor = (
@@ -80,8 +83,8 @@ export class EquipmentEventRuntime {
               operatorId,
               handler.abilityEvent,
               handler.priority ?? 0,
-              (payload, actionContext) => {
-                const event = normalizeAbilityEventPayload(handler.abilityEvent!, payload);
+              (published, actionContext) => {
+                const event = resolveAbilityEventContext(published);
                 this.#execute(
                   contributionIndex,
                   handler,
@@ -92,7 +95,7 @@ export class EquipmentEventRuntime {
                     event,
                   }),
                   event,
-                  readEventSkillCastInfo(payload),
+                  published,
                   actionContext,
                 );
               },
@@ -120,7 +123,8 @@ export class EquipmentEventRuntime {
                 handler,
                 getOperations(),
                 context.event,
-                readEventSkillCastInfo(context.event),
+                undefined,
+                context.actionContext,
               ),
           }),
         );
@@ -149,28 +153,27 @@ export class EquipmentEventRuntime {
     handler: CompiledEquipmentEventHandler,
     operations: CombatOperationExecutor,
     event: EquipmentEventExecutionContext['event'],
-    eventSkillCastInfo?: CombatSkillCastInfo | null,
+    published?: AbilityEventContext<EquipmentAbilityEvent>,
     actionContext?: AbilityEventRuntimeActionContext,
   ): void {
     const blackboard = new ActionBlackboard(handler.blackboard ?? {});
-    const targetContext =
-      actionContext?.triggerTarget == null ? undefined : new RuntimeTargetContext();
-    if (actionContext?.triggerTarget != null)
-      targetContext!.setSingle('trigger', actionContext.triggerTarget);
     const operationContext: CombatOperationContext = {
       blackboard,
       event,
       actionOwnerId: this.#operatorId,
       actionSourceId: this.#operatorId,
-      ...(targetContext === undefined ? {} : { targetContext }),
-      ...(actionContext === undefined ? {} : { actionInputTarget: actionContext.inputTarget }),
-      ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
       addAbilityChildBuff: child => {
         this.addChildBuff(contributionIndex, child);
       },
     };
-    new CombatActionSequenceRuntime(operations, operationContext)
-      .createSequence(handler.sequence)
-      .executeInstant({});
+    const execute = () =>
+      new CombatActionSequenceRuntime(operations, operationContext)
+        .createSequence(handler.sequence)
+        .executeInstant({});
+    if (published === undefined) {
+      if ('event' in event)
+        withAbilityEventResponseContext(operationContext, event, actionContext, execute);
+      else withCombatEventResponseContext(operationContext, { event }, execute);
+    } else withAbilityEventResponseContext(operationContext, published, actionContext, execute);
   }
 }

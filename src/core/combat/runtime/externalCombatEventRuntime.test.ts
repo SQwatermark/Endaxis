@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
-import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { ExternalCombatEventRuntime } from './externalCombatEventRuntime';
 
 describe('ExternalCombatEventRuntime', () => {
   it('dispatches explicit operator hit facts without creating a damage result', () => {
     const clock = new CombatClock();
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, dispatcher } = createNativeEventFixture();
     const receipt = new CombatReceiptCollector();
     const received: string[] = [];
     const abilityEvents: unknown[] = [];
@@ -17,17 +17,18 @@ describe('ExternalCombatEventRuntime', () => {
         trigger: { kind: 'operatorHit' },
         phase: 'skill',
         handle: context => {
-          if (context.event.kind === 'operatorHit') {
-            received.push(`${operatorId}:${context.event.tags.join(',')}`);
+          if ('payload' in context.event && context.event.event === 'takeDamage') {
+            received.push(`${operatorId}:${context.event.payload.tags.join(',')}`);
           }
         },
       });
     }
     const runtime = new ExternalCombatEventRuntime({
       clock,
-      semanticEvents: events,
-      emitOperatorHitAbilityEvent: (operatorId, payload) =>
-        abilityEvents.push({ operatorId, payload }),
+      emitOperatorHitAbilityEvent: (operatorId, payload) => {
+        abilityEvents.push({ operatorId, payload });
+        dispatcher.dispatch({ event: 'takeDamage', payload }, []);
+      },
       receipt,
       events: [
         {
@@ -45,6 +46,7 @@ describe('ExternalCombatEventRuntime', () => {
       {
         operatorId: 'operator:b',
         payload: {
+          external: true,
           sourceId: 'enemy',
           targetId: 'operator:b',
           tags: ['normalSkill'],
@@ -67,7 +69,6 @@ describe('ExternalCombatEventRuntime', () => {
       () =>
         new ExternalCombatEventRuntime({
           clock: new CombatClock(),
-          semanticEvents: new CombatSemanticEventRuntime(),
           receipt: new CombatReceiptCollector(),
           events: [
             {
@@ -91,7 +92,6 @@ describe('ExternalCombatEventRuntime', () => {
     const received: string[] = [];
     const runtime = new ExternalCombatEventRuntime({
       clock,
-      semanticEvents: new CombatSemanticEventRuntime(),
       receipt,
       emitOperatorWeaknessTriggeredOutput: operatorId => received.push(operatorId),
       events: [
@@ -121,7 +121,6 @@ describe('ExternalCombatEventRuntime', () => {
     const received: string[] = [];
     const runtime = new ExternalCombatEventRuntime({
       clock,
-      semanticEvents: new CombatSemanticEventRuntime(),
       receipt,
       emitEnemyWeaknessSet: () => received.push('enemy'),
       events: [
@@ -144,4 +143,19 @@ describe('ExternalCombatEventRuntime', () => {
       }),
     );
   });
+});
+
+it('外部受击缺少原始发布入口时明确失败，不静默丢弃', () => {
+  const runtime = new ExternalCombatEventRuntime({
+    clock: new CombatClock(),
+    receipt: new CombatReceiptCollector(),
+    events: [
+      {
+        frame: 0,
+        targetOperatorIds: ['operator'],
+        event: { kind: 'operatorHit', tags: [], features: [] },
+      },
+    ],
+  });
+  expect(() => runtime.applyCurrentFrame()).toThrow('requires an ability event publisher');
 });

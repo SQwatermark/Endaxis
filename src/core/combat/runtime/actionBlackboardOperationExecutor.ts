@@ -1,3 +1,7 @@
+import { shieldAbilityEvent } from '../events/combatAbilityEvent';
+import { abilityEventTargetId } from '../events/combatAbilityEvent';
+import { spGainAbilityEvent } from '../events/combatAbilityEvent';
+import { healAbilityEvent } from '../events/combatAbilityEvent';
 /**
  * 处理依赖当前技能动作黑板的条件，并把其余操作继续交给运行时执行器链。
  * 该执行器必须位于技能运行时内部，因为动作黑板不能跨技能实例共享。
@@ -83,7 +87,9 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       return true;
     }
     if (step.kind === 'storeEventSpGainAmount') {
-      if (context?.event?.kind !== 'spGained') {
+      const event =
+        context?.event === undefined ? undefined : spGainAbilityEvent(context.event)?.payload;
+      if (event === undefined) {
         throw new Error('storeEventSpGainAmount requires an spGained event context');
       }
       const { outputKey, realDeltaOutputKey } = step.parameters;
@@ -91,36 +97,40 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         throw new Error('storeEventSpGainAmount requires at least one output key');
       }
       if (outputKey !== undefined) {
-        context.blackboard.assignDynamic(outputKey, context.event.requestedAmount);
+        context!.blackboard.assignDynamic(outputKey, event.requestedAmount);
       }
       if (realDeltaOutputKey !== undefined) {
-        context.blackboard.assignDynamic(realDeltaOutputKey, context.event.amount);
+        context!.blackboard.assignDynamic(realDeltaOutputKey, event.amount);
       }
       return true;
     }
     if (step.kind === 'storeEventHealValues') {
-      if (context?.event?.kind !== 'abilityHeal') {
-        throw new Error('storeEventHealValues requires an abilityHeal event context');
+      const heal = context?.event && healAbilityEvent(context.event);
+      if (context === undefined || heal === undefined) {
+        throw new Error('storeEventHealValues requires a native healing event context');
       }
       const { finalHealOutputKey, realHealOutputKey } = step.parameters;
       if (finalHealOutputKey === undefined && realHealOutputKey === undefined) {
         throw new Error('storeEventHealValues requires at least one output key');
       }
       if (finalHealOutputKey !== undefined) {
-        context.blackboard.assignDynamic(finalHealOutputKey, context.event.requestedHealing);
+        context.blackboard.assignDynamic(finalHealOutputKey, heal.payload.requestedHealing);
       }
       if (realHealOutputKey !== undefined) {
-        context.blackboard.assignDynamic(realHealOutputKey, context.event.actualHealing);
+        context.blackboard.assignDynamic(realHealOutputKey, heal.payload.actualHealing);
       }
       return true;
     }
     if (step.kind === 'storeShieldValue') {
-      if (context?.event?.kind !== 'abilityShield') {
-        throw new Error('storeShieldValue requires an abilityShield event context');
+      const shield = context?.event === undefined ? undefined : shieldAbilityEvent(context.event);
+      if (context === undefined || shield === undefined) {
+        throw new Error('storeShieldValue requires an afterAddedShield event context');
       }
       context.blackboard.assignDynamic(
         step.parameters.outputKey,
-        step.parameters.value === 'gained' ? context.event.gainedValue : context.event.currentValue,
+        step.parameters.value === 'gained'
+          ? shield.payload.gainedValue
+          : shield.payload.currentValue,
       );
       return true;
     }
@@ -301,11 +311,13 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
           ? this.operatorRoles?.sourceId
           : condition.target === 'buffOwner'
             ? context?.buffOwnerId
-            : context?.event !== undefined &&
-                'targetId' in context.event &&
-                typeof context.event.targetId === 'string'
-              ? context.event.targetId
-              : undefined;
+            : context?.event !== undefined && 'payload' in context.event
+              ? abilityEventTargetId(context.event)
+              : context?.event !== undefined &&
+                  'targetId' in context.event &&
+                  typeof context.event.targetId === 'string'
+                ? context.event.targetId
+                : undefined;
       if (entityId === undefined) {
         throw new Error(`operatorRoleIn target '${condition.target}' requires an entity identity`);
       }

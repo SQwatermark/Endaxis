@@ -1,3 +1,4 @@
+import { createKillEvent } from '../events/killEventTestFixture';
 import { describe, expect, it, vi } from 'vitest';
 import { parseKnownNativeActionSequenceSource } from '../../../../tools/game-data-compiler/src/source/actionLeaf.ts';
 import { compileCombatConditionSequenceSource } from '../../../../tools/game-data-compiler/src/compiler/buffRuntimeProjection.ts';
@@ -158,12 +159,14 @@ function fixture(
         buffSourceId: buff.sourceId,
         // 预先存在的外部事件不能泄漏到 Modifier 的同步上下文。
         event: {
-          kind: 'abilityDamage',
-          event: 'outputDamage',
-          sourceId: 'old',
-          targetId: 'old',
-          tags: ['ultimateSkill'],
-          features: [],
+          event: 'outputDamage' as const,
+          payload: {
+            ...createKillEvent().payload,
+            sourceId: 'old',
+            targetId: 'old',
+            tags: ['ultimateSkill'],
+            features: [],
+          },
         },
       },
     );
@@ -279,12 +282,14 @@ describe('Buff 同步伤害条件程序', () => {
       blackboard: new ActionBlackboard(),
       actionInputTarget: { kind: 'operator', operatorId: 'old' },
       event: {
-        kind: 'abilityDamage',
-        event: 'outputDamage',
-        sourceId: 'old',
-        targetId: 'old',
-        tags: [],
-        features: [],
+        event: 'outputDamage' as const,
+        payload: {
+          ...createKillEvent().payload,
+          sourceId: 'old',
+          targetId: 'old',
+          tags: [],
+          features: [],
+        },
       },
     };
     let observed: CombatOperationContext | undefined;
@@ -325,7 +330,7 @@ describe('Buff 同步伤害条件程序', () => {
     expect(observed?.actionInputTarget).toEqual({ kind: 'operator', operatorId: 'attacker' });
     expect(observed?.event).toBeUndefined();
     expect(original.actionInputTarget).toEqual({ kind: 'operator', operatorId: 'old' });
-    expect(original.event).toMatchObject({ sourceId: 'old' });
+    expect(original.event).toMatchObject({ payload: { sourceId: 'old' } });
     expect(original.beforeApplyDamageModifier).toBeUndefined();
   });
 

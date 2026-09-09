@@ -46,6 +46,37 @@ function createAdapter() {
 }
 
 describe('ElementalInflictionBuffAdapter', () => {
+  it('附着消费走公共实例结束入口，消费来源不是原始施加者，通知发生在结束之后', () => {
+    const { target } = createAdapter();
+    const producer = new ElementalInflictionBuffAdapter(target, 'producer', index);
+    const consumer = new ElementalInflictionBuffAdapter(target, 'consumer', index);
+    const identity = producer.apply({ kind: 'addAttachment', element: 'heat' });
+    producer.apply({ kind: 'addAttachment', element: 'heat' });
+    const observed: unknown[] = [];
+    target.configureConsumedObserver((buff, sourceId, layers) => {
+      expect(buff.isFinished).toBe(true);
+      expect(buff.isEnabled).toBe(false);
+      observed.push({
+        instanceId: buff.instanceId,
+        sourceId,
+        layers,
+        originalSource: buff.sourceId,
+      });
+    });
+    const existing = consumer.getExistingAttachment()!;
+    consumer.apply({ kind: 'consumeAttachment', attachment: existing });
+    expect(observed).toEqual([
+      {
+        instanceId: identity!.instanceId,
+        sourceId: 'consumer',
+        layers: 2,
+        originalSource: 'producer',
+      },
+    ]);
+    expect(() => consumer.apply({ kind: 'consumeAttachment', attachment: existing })).toThrow();
+    expect(observed).toHaveLength(1);
+  });
+
   it('returns the actual consumed and created identities without looking them up after callbacks', () => {
     const { adapter } = createAdapter();
     const applied = adapter.apply({ kind: 'addAttachment', element: 'heat' });

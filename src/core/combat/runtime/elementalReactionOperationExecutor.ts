@@ -30,7 +30,6 @@ export interface ElementalReactionOperationDependencies {
   readonly receipt: CombatReceiptSink;
   readonly container: ElementalReactionContainer;
   /** 仅在反应状态写入并记录完成后报告语义事实。 */
-  readonly emitReactionApplied?: (reaction: ApplyElementalReactionResult['reaction']) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -112,7 +111,6 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
         effectiveness: step.parameters.effectiveness,
       },
     });
-    this.dependencies.emitReactionApplied?.(result.reaction);
   }
 
   #consume(step: Extract<ReactionStep, { kind: 'consumeElementalReaction' }>): void {

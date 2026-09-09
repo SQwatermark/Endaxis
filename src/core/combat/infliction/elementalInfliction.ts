@@ -4,6 +4,12 @@
  */
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 
+/** 原生 INFLICTION_TAG_QUERY 查询此父标签；按标签层级匹配，不从 Buff ID 猜测。 */
+export function hasElementalAttachmentTag(tags: readonly string[]): boolean {
+  const parent = 'Skill/Character/Common/SpellInflict';
+  return tags.some(tag => tag === parent || tag.startsWith(`${parent}/`));
+}
+
 /** 原生 EnergyShardType；条件 savedKey 与复合状态载荷共用同一编号。 */
 export const NATIVE_ELEMENT_VALUES: Readonly<Record<InflictionElement, number>> = {
   heat: 0,

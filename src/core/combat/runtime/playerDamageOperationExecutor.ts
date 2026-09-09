@@ -71,6 +71,8 @@ export interface PlayerDamageOperationDependencies {
   /** 存档中的技能释放身份；伤害回执凭它与具体施放对应。单元测试程序可能缺失。 */
   readonly castId?: string;
   readonly skillId?: string;
+  /** 执行程序归属，与继承的 skillCastInfo 独立。 */
+  readonly executingSkillGroupKey?: string;
   /** 非主动技能的可审计来源，不用于生成轴上技能 castId。 */
   readonly sourceActionId?: string;
   /** 只用于把本次公式已经确定的技能分类写入伤害详情回执。 */
@@ -114,8 +116,6 @@ export interface PlayerDamageOperationDependencies {
   readonly emitPoiseSourceEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   readonly emitPoiseTargetEvent: (event: PoiseDamageEvent, modifier: PoiseDamageModifier) => void;
   readonly beforePoiseZero?: (modifier: PoiseDamageModifier) => void;
-  /** 生命伤害已经写入目标后，向统一语义事件层报告本次命中。 */
-  readonly emitSemanticHit?: (step: DamageStep) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -305,6 +305,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           : deriveHitId(this.dependencies.castId, step.key));
       executeHealthDamage({
         skillCastInfo: skillCastInfo ?? null,
+        executingSkillGroupKey: this.dependencies.executingSkillGroupKey,
         sourceId: this.dependencies.sourceOperatorId,
         targetId: this.dependencies.targetId,
         damageType: step.parameters.damageType,
@@ -367,7 +368,6 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           : { absorbDamage: this.dependencies.absorbHealthDamage }),
       });
       operationContext?.blackboard.assignDynamic(NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY, 1);
-      this.dependencies.emitSemanticHit?.(step);
 
       if (
         step.parameters.stagger !== undefined &&

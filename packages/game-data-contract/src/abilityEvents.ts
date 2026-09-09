@@ -5,6 +5,17 @@
  * 发明一套事件名称。具体事件是否会在简化战斗模型中产生、以及 Input/Trigger 的
  * 目标绑定是否已有证据，由运行时能力门禁负责。
  */
+import type { ActionSequenceDefinition } from './actions.ts';
+
+/** 同步事件响应的公共结构；宿主能力范围由编译/运行时门禁另行校验。 */
+export interface AbilityEventResponse<Event extends AbilityEvent = AbilityEvent> {
+  event: Event;
+  priority: number;
+  /** 只有已证明同优先级可交换的响应才提供此标识。 */
+  samePriorityKey?: string;
+  sequence: ActionSequenceDefinition;
+}
+
 export const ABILITY_EVENTS = [
   'enterFight',
   'ownerSwitchToCenter',

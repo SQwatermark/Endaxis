@@ -31,8 +31,5 @@ export function createCombatEventTriggerDraft(
       return { kind, skillGroupKey: 'skill', scope: 'operator' };
     case 'enemyDefeated':
       return { kind, scope: 'operator' };
-    case 'statusExpired':
-    case 'statusConsumed':
-      return { kind, statusKey: 'status', target: 'caster' };
   }
 }

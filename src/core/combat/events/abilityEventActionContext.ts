@@ -26,16 +26,18 @@ export function hasAbilityEventActionContextBinding(
  */
 export function resolveAbilityEventActionContextBinding(
   event: ActionContextBoundAbilityEvent,
-  payload: { readonly sourceId: string; readonly targetId: string },
+  payload: { readonly sourceId?: unknown; readonly targetId?: unknown },
 ): { readonly inputTargetId: string; readonly triggerTargetId: string | null } {
   const binding = ABILITY_EVENT_ACTION_CONTEXT_BINDINGS[event];
+  // 只要求绑定实际读取的端点；无目标事件不应为了满足通用接口伪造 targetId。
+  const endpoint = (name: 'eventSource' | 'eventTarget'): string => {
+    const value = name === 'eventSource' ? payload.sourceId : payload.targetId;
+    if (typeof value !== 'string')
+      throw new TypeError(`${event} requires ${name} for action context`);
+    return value;
+  };
   return {
-    inputTargetId: binding.inputTarget === 'eventSource' ? payload.sourceId : payload.targetId,
-    triggerTargetId:
-      binding.triggerTarget === null
-        ? null
-        : binding.triggerTarget === 'eventSource'
-          ? payload.sourceId
-          : payload.targetId,
+    inputTargetId: endpoint(binding.inputTarget),
+    triggerTargetId: binding.triggerTarget === null ? null : endpoint(binding.triggerTarget),
   };
 }

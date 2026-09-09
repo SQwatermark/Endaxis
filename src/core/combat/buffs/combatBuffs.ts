@@ -1082,12 +1082,19 @@ export class CombatBuffContainer<Key extends string> {
     return count;
   }
 
-  /** 全量 Early 结束向消费方发布事件；普通结束不伪造消费，吸收保持独立事件。 */
+  /** 按已解析实例结束，避免重新按 ID 查询而误消费另一实例。 */
+  finishInstance(buff: CombatBuff<Key>, reason: BuffFinishReason, sourceId: string): boolean {
+    if (buff.owner !== this || !this.#buffs.includes(buff))
+      throw new Error('Buff instance does not belong to this container');
+    return this.#finishWithSource(buff, reason, sourceId);
+  }
+
+  /** 原生 Ignite/Early 结束向 finishSource 发布消费；普通结束与吸收不冒充消费。 */
   #finishWithSource(buff: CombatBuff<Key>, reason: BuffFinishReason, sourceId?: string): boolean {
     const layers = buff.enhanceCount;
     if (!buff.finish(reason)) return false;
     if (sourceId !== undefined) {
-      if (reason === 'early') this.#onBuffConsumed?.(buff, sourceId, layers);
+      if (reason === 'early' || reason === 'ignite') this.#onBuffConsumed?.(buff, sourceId, layers);
       else if (reason === 'absorbed') this.#onBuffAbsorbed?.(buff, sourceId, layers);
     }
     return true;

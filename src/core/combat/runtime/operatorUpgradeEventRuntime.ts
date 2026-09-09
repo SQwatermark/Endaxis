@@ -2,6 +2,7 @@
 import type { CompiledOperatorUpgradeEventProgram } from '../../compiler/combatProgram';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import { ActionBlackboard } from './actionBlackboard';
+import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type {
   CombatSemanticEventContext,
@@ -36,8 +37,7 @@ export class OperatorUpgradeEventRuntime {
           phase: 'dataAction',
           createOperations: context =>
             createExecutor({ operatorId, programKey: program.key, event: context.event }),
-          handle: (context, getOperations) =>
-            this.#execute(program, getOperations(), context.event),
+          handle: (context, getOperations) => this.#execute(program, getOperations(), context),
         }),
       );
     }
@@ -50,19 +50,28 @@ export class OperatorUpgradeEventRuntime {
   #execute(
     program: CompiledOperatorUpgradeEventProgram,
     operations: CombatOperationExecutor,
-    event: CombatSemanticEventContext['event'],
+    response: CombatSemanticEventContext,
   ): void {
+    const event = response.event;
     const eventBlackboard = {
       ...program.initialBlackboard,
-      ...(event.kind === 'elementalAttachmentConsumed' ? { infliction_num: event.layers } : {}),
-      ...(event.kind === 'buffConsumed' ? { consumedLayer: event.layers } : {}),
+      ...('payload' in event &&
+      event.event === 'buffConsumed' &&
+      program.event.kind === 'elementalAttachmentConsumed'
+        ? { infliction_num: event.payload.layers }
+        : {}),
+      ...('payload' in event && event.event === 'buffConsumed'
+        ? { consumedLayer: event.payload.layers }
+        : {}),
     };
     const operationContext: CombatOperationContext = {
       blackboard: new ActionBlackboard(eventBlackboard),
       event,
     };
-    new CombatActionSequenceRuntime(operations, operationContext)
-      .createSequence(program.sequence)
-      .executeInstant({});
+    withCombatEventResponseContext(operationContext, response, () =>
+      new CombatActionSequenceRuntime(operations, operationContext)
+        .createSequence(program.sequence)
+        .executeInstant({}),
+    );
   }
 }

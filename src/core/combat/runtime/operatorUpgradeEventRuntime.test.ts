@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
+import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import type { CompiledOperatorUpgradeEventProgram } from '../../compiler/combatProgram';
-import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { OperatorUpgradeEventRuntime } from './operatorUpgradeEventRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const PROGRAM: CompiledOperatorUpgradeEventProgram = {
-  key: 'potential:attackAfterElectrification:0',
-  event: { kind: 'reactionApplied', reaction: 'electrification' },
+  key: 'potential:attackAfterSpGain:0',
+  event: { kind: 'spGained' },
   initialBlackboard: {},
   sequence: {
     steps: [
@@ -29,7 +29,7 @@ const PROGRAM: CompiledOperatorUpgradeEventProgram = {
 
 describe('OperatorUpgradeEventRuntime', () => {
   it('executes a matching upgrade event with event-local state and disposes symmetrically', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, dispatcher } = createNativeEventFixture();
     const executed: string[] = [];
     const operationContexts: unknown[] = [];
     const executor: CombatOperationExecutor = {
@@ -51,21 +51,26 @@ describe('OperatorUpgradeEventRuntime', () => {
     );
 
     const event = {
-      kind: 'reactionApplied' as const,
-      sourceOperatorId: 'operator:perlica',
-      reaction: 'electrification' as const,
+      event: 'skillSpGained' as const,
+      payload: {
+        sourceOperatorId: 'operator:perlica',
+        source: 'skill' as const,
+        gainKind: 'gain' as const,
+        requestedAmount: 1,
+        amount: 1,
+      },
     };
-    events.emit(event);
+    dispatcher.dispatch(event, []);
     expect(executed).toEqual(['applyBuff']);
     expect(operationContexts).toEqual([event]);
 
     runtime.dispose();
-    events.emit(event);
+    dispatcher.dispatch(event, []);
     expect(executed).toEqual(['applyBuff']);
   });
 
   it('seeds the native consumed-layer store key for attachment-consumption handlers', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitConsumedBuff } = createNativeEventFixture();
     let consumedLayers: number | undefined;
     const program: CompiledOperatorUpgradeEventProgram = {
       key: 'talent:consumed-infliction:0',
@@ -93,11 +98,11 @@ describe('OperatorUpgradeEventRuntime', () => {
       evaluate: () => false,
     }));
 
-    events.emit({
-      kind: 'elementalAttachmentConsumed',
-      sourceOperatorId: 'operator:last-rite',
+    emitConsumedBuff({
+      sourceId: 'operator:last-rite',
       targetId: 'enemy',
-      element: 'heat',
+      buffId: 'attachment:heat',
+      buffTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
       layers: 3,
     });
 
@@ -105,7 +110,7 @@ describe('OperatorUpgradeEventRuntime', () => {
   });
 
   it('seeds the declared consumed Buff layer key for OnConsumeBuff handlers', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitConsumedBuff } = createNativeEventFixture();
     let consumedLayers: number | undefined;
     const program: CompiledOperatorUpgradeEventProgram = {
       key: 'talent:no-guard-consumed:0',
@@ -132,9 +137,9 @@ describe('OperatorUpgradeEventRuntime', () => {
       evaluate: () => false,
     }));
 
-    events.emit({
-      kind: 'buffConsumed',
-      sourceOperatorId: 'operator:dapan',
+    emitConsumedBuff({
+      buffTags: [],
+      sourceId: 'operator:dapan',
       targetId: 'enemy',
       buffId: 'buff_physical_no_guard',
       layers: 4,

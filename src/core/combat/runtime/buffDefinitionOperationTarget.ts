@@ -46,7 +46,6 @@ export class BuffDefinitionOperationTarget<Key extends string>
   >();
   #resolveLifecycleOperations:
     ((source: BuffLifecycleOperationSource) => CombatOperationExecutor) | null = null;
-  #buffAppliedObserver: ((event: BuffAppliedEvent) => void) | null = null;
   #advancedObserver: (() => void) | null = null;
   #registerSemanticEventAction: RegisterBuffSemanticEventAction | null = null;
   constructor(
@@ -121,7 +120,6 @@ export class BuffDefinitionOperationTarget<Key extends string>
         () => {
           // 接收侧 Added → 来源侧 Output → 容器执行已有关键词增强。
           this.onBuffApplied?.(event);
-          this.#buffAppliedObserver?.(event);
           this.onOutputBuff?.(event);
         },
       );
@@ -134,13 +132,6 @@ export class BuffDefinitionOperationTarget<Key extends string>
         { cause: error },
       );
     }
-  }
-
-  configureBuffAppliedObserver(observer: (event: BuffAppliedEvent) => void): void {
-    if (this.#buffAppliedObserver !== null) {
-      throw new Error(`combat Buff runtime '${this.ownerId}' applied observer is configured`);
-    }
-    this.#buffAppliedObserver = observer;
   }
 
   configureBuffConsumedObserver(observer: (event: BuffConsumedEvent) => void): void {

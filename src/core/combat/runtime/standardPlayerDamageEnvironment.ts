@@ -1,3 +1,5 @@
+import type { CombatAbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { ActionContextBoundAbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 /**
  * 标准战斗环境：一场模拟里敌人的元素附着、反应和 Buff 都由它管；
  * 敌人生命与失衡账本由场景装配层创建并以明确依赖注入，本环境只持有同一实例。
@@ -55,7 +57,7 @@ import {
 import { ComboSkillConditionRuntime } from './comboSkillConditionRuntime';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { executeSpellBurst } from './spellBurstRuntime';
-import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
+import { AbilityEventDispatcher, type AbilityEventFromMap } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
@@ -132,6 +134,7 @@ type EnvironmentOptions = Pick<
   CombatRuntimeAssemblyOptions,
   | 'enemyBuffRuntime'
   | 'bindBattleRuntime'
+  | 'registerCombatAbilityEvent'
   | 'enemyVitalsRuntime'
   | 'createOperatorBuffRuntime'
   | 'createAbilityEntityBuffRuntime'
@@ -154,58 +157,24 @@ type EnvironmentOptions = Pick<
   | 'emitBuffLifecycleAbilityEvent'
 >;
 
+/** 公共广播沿用公共身份；附加名尚未纳入可配置契约，原生广播/内部钩子的分类需分别取证。 */
 export type StandardPlayerDamageEvent =
+  | import('../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent
   | KnockDownAbilityEvent
-  | 'enterFight'
-  | 'ownerSwitchToCenter'
-  | 'ownerSwitchToGuard'
-  | 'ownerHpZero'
-  | 'abilityEntitySpawned'
-  | 'abilityEntityFinished'
-  | 'beforeDamageAction'
-  | 'beforeCalculateDamage'
-  | 'beforeTakeDamage'
-  | 'beforeTakePhysicalInfliction'
-  | 'beforeOutputPhysicalInfliction'
-  | 'afterOutputPhysicalInfliction'
-  | 'beforeTakeSpellInfliction'
-  | 'beforeOutputDamage'
   | 'beforeKillEntity'
-  | 'afterKillEntity'
-  | 'takeDamage'
-  | 'takeCriticalDamage'
-  | 'outputDamage'
-  | 'outputCriticalDamage'
-  | 'outputHeal'
-  | 'receiveHeal'
-  | 'afterAddedShield'
   | 'beforeOutputPoiseDamage'
   | 'beforeTakePoiseDamage'
   | 'takePoiseDamage'
-  | 'poiseZero'
-  | 'beforeOutputInfliction'
-  | 'beforeOutputSpellBurst'
   | 'beforeTakeSpellBurst'
-  | 'beforeTakeInfliction'
-  | 'afterOutputInfliction'
-  | 'afterTakeInfliction'
   | 'elementalInflictionStarted'
-  | 'poiseRecovered'
-  | 'beforeCastSkill'
-  | 'afterSkillApplyCost'
-  | 'skillEnd'
-  | 'beforeOutputBuff'
-  | 'beforeAddedBuff'
-  | 'outputBuff'
-  | 'addedBuff'
-  | 'finishedBuff'
-  | 'buffEndsEarly'
-  | 'buffEnhanceChanged'
-  | 'buffConsumed'
-  | 'buffAbsorbed'
-  | 'afterOutputWeaknessTriggered'
-  | 'weaknessSet'
-  | 'customAbilityEvent';
+  | 'poiseRecovered';
+
+/** 公共键复用唯一载荷表；额外过程通知尚待分类，不能将 unknown 扩散回公共键。 */
+export interface StandardPlayerDamagePayloadMap
+  extends
+    AbilityEventPayloadMap,
+    // 明确取差集：仅未进入公共契约的通知可暂留 unknown，不能覆盖公共字段。
+    Record<Exclude<StandardPlayerDamageEvent, keyof AbilityEventPayloadMap>, unknown> {}
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
@@ -274,7 +243,10 @@ function panelAttackDetail(panel: ResolvedOperatorPanel) {
 }
 export class StandardPlayerDamageEnvironment {
   readonly runtimeOptions: EnvironmentOptions;
-  readonly #events = new Map<string, AbilityEventDispatcher<StandardPlayerDamageEvent, unknown>>();
+  readonly #events = new Map<
+    string,
+    AbilityEventDispatcher<StandardPlayerDamageEvent, StandardPlayerDamagePayloadMap>
+  >();
   readonly #enemyAttributes: CombatAttributeSet<string>;
   readonly #enemyBuffs: CombatBuffContainer<string>;
   readonly #enemyBuffRuntime: BuffDefinitionOperationTarget<string>;
@@ -380,6 +352,18 @@ export class StandardPlayerDamageEnvironment {
         ? {}
         : { probabilitySamples: options.probabilitySamples }),
       enemyBuffRuntime: this.#enemyBuffRuntime,
+      registerCombatAbilityEvent: (ownerId, scope, name, phase, priority, handle) => {
+        const owners = scope === 'team' ? [...this.#operatorBuffRuntimes.keys()] : [ownerId];
+        const registrations = owners.map(id => {
+          const dispatcher = this.eventsFor(id);
+          const receive = (event: CombatAbilityEvent<typeof name>) =>
+            handle(event, this.#resolveAbilityEventRuntimeActionContext(name, event.payload));
+          if (phase === 'callback') return dispatcher.registerCallback(name, receive);
+          if (phase === 'dataAction') return dispatcher.registerAction(name, priority, receive);
+          return dispatcher.registerListener(name, phase, receive);
+        });
+        return { dispose: () => registrations.forEach(registration => registration.dispose()) };
+      },
       bindBattleRuntime: context => {
         this.#bindBattleRuntime(context, true);
         return {
@@ -456,24 +440,17 @@ export class StandardPlayerDamageEnvironment {
       emitExternalEnemyWeaknessSet: () =>
         this.#emit('enemy', 'weaknessSet', {
           sourceId: 'enemy',
-          targetId: 'enemy',
         }),
       emitBuffLifecycleAbilityEvent: (event, payload) =>
         this.#emit(payload.sourceId, event, payload),
       createEquipmentEventOperationExecutor: context => this.#createOperationExecutor(context),
       registerEquipmentAbilityEventAction: (operatorId, event, priority, handle) =>
         this.eventsFor(operatorId).registerAction(event, priority, context =>
-          handle(
-            context.payload,
-            this.#resolveAbilityEventRuntimeActionContext(event, context.payload),
-          ),
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(event, context.payload)),
         ),
       registerPassiveAbilityEventAction: (operatorId, event, priority, handle) =>
         this.eventsFor(operatorId).registerAction(event, priority, context =>
-          handle(
-            context.payload,
-            this.#resolveAbilityEventRuntimeActionContext(event, context.payload),
-          ),
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(event, context.payload)),
         ),
       registerComboSkillCondition: registration =>
         this.comboConditions.registerPendingCondition(registration),
@@ -504,7 +481,9 @@ export class StandardPlayerDamageEnvironment {
   }
 
   /** 返回本场战斗内指定实体独占的事件中心，供后续 Buff、天赋和活动机制注册监听。 */
-  eventsFor(entityId: string): AbilityEventDispatcher<StandardPlayerDamageEvent, unknown> {
+  eventsFor(
+    entityId: string,
+  ): AbilityEventDispatcher<StandardPlayerDamageEvent, StandardPlayerDamagePayloadMap> {
     let dispatcher = this.#events.get(entityId);
     if (dispatcher === undefined) {
       dispatcher = new AbilityEventDispatcher();
@@ -582,6 +561,7 @@ export class StandardPlayerDamageEnvironment {
       sourceOperatorId: operatorId,
       castId: program?.castId,
       skillId: program?.skillId,
+      executingSkillGroupKey: program?.skillGroupKey || undefined,
       skillType: program?.skillType,
       ...('program' in context
         ? {}
@@ -623,15 +603,6 @@ export class StandardPlayerDamageEnvironment {
         return this.options.isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
       },
       emitHealthSourceEvent: (event, payload) => {
-        if (event === 'afterKillEntity') {
-          context.semanticEvents.emit({
-            kind: 'enemyDefeated',
-            sourceOperatorId: operatorId,
-            tags: payload.tags,
-            features: payload.features,
-          });
-          return;
-        }
         this.#emit(operatorId, event, payload);
       },
       emitHealthTargetEvent: (event, payload) => this.#emit('enemy', event, payload),
@@ -640,21 +611,6 @@ export class StandardPlayerDamageEnvironment {
       emitPoiseTargetEvent: (event, modifier) => this.#emit('enemy', event, modifier),
       beforePoiseZero: modifier =>
         this.#poiseBreakBuffs.begin(modifier.sourceId, poiseBreakDefinition),
-      emitSemanticHit: step => {
-        context.semanticEvents.emit({
-          kind: 'damageTagHit',
-          sourceOperatorId: operatorId,
-          tags: step.parameters.tags,
-          features: step.parameters.features ?? [],
-        });
-        if (program !== undefined && program.skillGroupKey.length > 0) {
-          context.semanticEvents.emit({
-            kind: 'skillHit',
-            sourceOperatorId: operatorId,
-            skillGroupKey: program.skillGroupKey,
-          });
-        }
-      },
       // 配装元素链仍需独立闭环，不能因 HP 伤害可用而自动开放。
       delegate: 'program' in context ? this.#createReactionExecutor(context) : strictTerminal,
     });
@@ -695,22 +651,6 @@ export class StandardPlayerDamageEnvironment {
           event === 'beforeOutputPhysicalInfliction' ||
           event === 'afterOutputPhysicalInfliction';
         this.#emit(output ? sourceId : 'enemy', event, payload);
-        // 旧语义消费者仍在专属来源事件发生的时点同步运行，不能延迟到整个根动作返回。
-        if (event === 'afterOutputKnockDown') {
-          context.semanticEvents.emit({
-            kind: 'knockDownOutput',
-            sourceOperatorId: sourceId,
-            targetId: 'enemy',
-          });
-        } else if (event === 'afterOutputPhysicalInfliction') {
-          context.semanticEvents.emit({
-            kind: 'physicalInflictionApplied',
-            sourceOperatorId: sourceId,
-            targetId: 'enemy',
-            type: 'knockDown',
-            skillCastInfo: payload.skillCastInfo,
-          });
-        }
       },
       onNoGuard: () => record('PhysicalNoGuardApplied'),
       // 木桩不安装敌人动作/动画控制回调，组件的 Buff、标签、计时和事件已经保留。
@@ -760,22 +700,10 @@ export class StandardPlayerDamageEnvironment {
           stage: 'finalNonConverted',
         }),
       emitSuccessfulHeal: event => {
-        if (event.event === 'outputHeal') {
-          this.#emit(event.sourceId, event.event, event);
-          return;
-        }
-        this.#emit(event.targetId, event.event, event);
-        if (event.targetId !== 'enemy') {
-          context.semanticEvents.emit({
-            kind: 'operatorHealed',
-            sourceOperatorId: event.sourceId,
-            targetOperatorId: event.targetId,
-            requestedHealing: event.requestedHealing,
-            actualHealing: event.actualHealing,
-            overhealing: event.overhealing,
-            tags: event.tags,
-          });
-        }
+        this.#publish(
+          event.event === 'outputHeal' ? event.payload.sourceId : event.payload.targetId,
+          event,
+        );
       },
       delegate,
     });
@@ -789,12 +717,6 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       container: this.#reactions,
-      emitReactionApplied: reaction =>
-        context.semanticEvents.emit({
-          kind: 'reactionApplied',
-          sourceOperatorId: context.program.operatorId,
-          reaction,
-        }),
       delegate: this.#createInflictionExecutor(context),
     });
   }
@@ -881,20 +803,6 @@ export class StandardPlayerDamageEnvironment {
         // 未迁移的定义继续走兼容目录；定义存在但无效时直接失败，不回退掩盖错误。
         return adapter.apply(operation, { skillCastInfo });
       },
-      emitSemanticAttachmentConsumed: attachment =>
-        context.semanticEvents.emit({
-          kind: 'elementalAttachmentConsumed',
-          sourceOperatorId: context.program.operatorId,
-          targetId: 'enemy',
-          element: attachment.element,
-          layers: attachment.layers,
-        }),
-      emitSemanticInfliction: element =>
-        context.semanticEvents.emit({
-          kind: 'elementalInflictionApplied',
-          sourceOperatorId: context.program.operatorId,
-          elements: [element],
-        }),
       // 原生 TriggerSpellBurstEventAction 只发布事件；后续 DamageAction 自己结算伤害。
       triggerSpellBurst: payload => this.#emitSpellBurstEvents(payload),
       emitSourceEvent: (event, payload) =>
@@ -1096,7 +1004,7 @@ export class StandardPlayerDamageEnvironment {
         priority,
         context => {
           const payload = context.payload;
-          handle(payload, this.#resolveAbilityEventRuntimeActionContext(event, payload));
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(event, payload));
         },
         samePriorityKey,
       );
@@ -1109,9 +1017,7 @@ export class StandardPlayerDamageEnvironment {
     if (
       !hasAbilityEventActionContextBinding(event) ||
       typeof payload !== 'object' ||
-      payload === null ||
-      typeof (payload as { sourceId?: unknown }).sourceId !== 'string' ||
-      typeof (payload as { targetId?: unknown }).targetId !== 'string'
+      payload === null
     )
       return undefined;
     const ids = resolveAbilityEventActionContextBinding(
@@ -1698,10 +1604,8 @@ export class StandardPlayerDamageEnvironment {
     reason?: BuffFinishReason,
   ): void {
     this.#emit(ownerId, 'buffEnhanceChanged', {
-      // DoesEventHaveTarget(209)=false；统一 payload 形状中的两端均写发布者，
-      // 但该事件不登记动作目标绑定，消费者不得据此推导目标关系。
+      // DoesEventHaveTarget(209)=false：只保留发布者，不补造自身目标。
       sourceId: ownerId,
-      targetId: ownerId,
       buffId: buff.definition.id,
       layerCount,
       ...(reason === undefined ? {} : { reason }),
@@ -1745,13 +1649,39 @@ export class StandardPlayerDamageEnvironment {
     payload: ElementalInflictionEventPayload,
   ): void {
     this.eventsFor(entityId).dispatch({ event, payload }, [], {
-      onAbilityEvent: () => this.comboConditions.onAbilityEvent({ event, payload }),
+      onAbilityEvent: context =>
+        this.comboConditions.onAbilityEvent(
+          context as CombatAbilityEvent<ActionContextBoundAbilityEvent>,
+        ),
     });
   }
 
+  #emit<Event extends keyof AbilityEventPayloadMap>(
+    entityId: string,
+    event: Event,
+    payload: AbilityEventPayloadMap[Event],
+  ): void;
+  #emit<Event extends StandardPlayerDamageEvent>(
+    entityId: string,
+    event: Event,
+    payload: StandardPlayerDamagePayloadMap[Event],
+  ): void;
   #emit(entityId: string, event: StandardPlayerDamageEvent, payload: unknown): void {
+    // 重载已校验事件名与载荷；实现签名只在此恢复两参数的键关联，不转换载荷。
+    const published = { event, payload } as AbilityEventFromMap<
+      StandardPlayerDamageEvent,
+      StandardPlayerDamagePayloadMap
+    >;
+    this.#publish(entityId, published);
+  }
+
+  #publish(
+    entityId: string,
+    published: AbilityEventFromMap<StandardPlayerDamageEvent, StandardPlayerDamagePayloadMap>,
+  ): void {
+    const { event, payload } = published;
     this.eventsFor(entityId).dispatch(
-      { event, payload },
+      published,
       [],
       // battle 是 GlobalBuff 的归因身份，不是具有输入/触发目标的 AbilitySystem。
       // 战斗级子 Buff 仍向接收者发布 AddedBuff，但不能伪造角色 OutputBuff 连携事件。
@@ -1770,56 +1700,11 @@ export class StandardPlayerDamageEnvironment {
           event === 'buffAbsorbed' ||
           event === 'weaknessSet')
         ? {
-            onAbilityEvent: () =>
+            // 直接转交分发器当前事件，不为连携重建载荷或按事件名重复组装。
+            // 上方连携准入门禁保留，不因分发器接入载荷映射就开放额外事件。
+            onAbilityEvent: context =>
               this.comboConditions.onAbilityEvent(
-                event === 'afterTakePhysicalInfliction'
-                  ? {
-                      event,
-                      payload:
-                        payload as import('./knockDownOperationExecutor').KnockDownEventPayload,
-                    }
-                  : event === 'beforeAddedBuff' || event === 'addedBuff' || event === 'outputBuff'
-                    ? {
-                        event,
-                        payload: payload as import('./buffOperationExecutor').BuffAppliedEvent,
-                      }
-                    : event === 'buffEndsEarly'
-                      ? {
-                          event,
-                          payload: payload as {
-                            readonly sourceId: string;
-                            readonly targetId: string;
-                            readonly buffId: string;
-                            readonly buffTags: readonly string[];
-                            readonly reason: 'ignite' | 'early';
-                          },
-                        }
-                      : event === 'poiseZero'
-                        ? {
-                            event,
-                            payload: payload as import('../damage/poiseDamage').PoiseDamageModifier,
-                          }
-                        : event === 'buffConsumed' || event === 'buffAbsorbed'
-                          ? {
-                              event,
-                              payload:
-                                payload as import('./buffOperationExecutor').BuffConsumedEvent & {
-                                  readonly sourceId: string;
-                                },
-                            }
-                          : event === 'weaknessSet'
-                            ? {
-                                event,
-                                payload: payload as {
-                                  readonly sourceId: string;
-                                  readonly targetId: string;
-                                },
-                              }
-                            : {
-                                event,
-                                payload:
-                                  payload as import('../damage/healthDamage').HealthDamageEventPayload,
-                              },
+                context as CombatAbilityEvent<ActionContextBoundAbilityEvent>,
               ),
           }
         : undefined,
@@ -1833,14 +1718,10 @@ export class StandardPlayerDamageEnvironment {
   }
 }
 
-function isCriticalDamagePayload(payload: unknown): boolean {
-  if (typeof payload !== 'object' || payload === null) return false;
-  const result = (payload as { readonly result?: unknown }).result;
-  return (
-    typeof result === 'object' &&
-    result !== null &&
-    (result as { readonly isCritical?: unknown }).isCritical === true
-  );
+function isCriticalDamagePayload(
+  payload: AbilityEventPayloadMap['takeDamage'],
+): payload is AbilityEventPayloadMap['takeCriticalDamage'] {
+  return 'result' in payload && payload.result?.isCritical === true;
 }
 
 function matchDamageProperties<T extends DamageTag | DamageFeature>(

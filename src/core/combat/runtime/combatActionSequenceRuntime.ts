@@ -3,6 +3,7 @@
  * 技能、Buff 等状态所有者应各自持有实例，避免共享 once 作用域或运行时黑板。
  */
 import { ActionSequence } from '../actions/actionSequence';
+import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import { CombatStep, type CombatExecutionContext } from '../actions/combatStep';
 import type {
   ResolvedActionSequence,
@@ -604,18 +605,11 @@ class CombatEventListenerStep extends CombatStep {
         trigger: response.event,
         ...(response.condition === undefined ? {} : { condition: response.condition }),
         createOperations: () => this.runtime.operations,
-        createOperationContext: (eventContext: CombatSemanticEventContext) => ({
-          ...this.operationContext,
-          event: eventContext.event,
-        }),
+        createOperationContext: () => operationContext,
         handle: (eventContext: CombatSemanticEventContext) => {
-          const previousEvent = operationContext.event;
-          operationContext.event = eventContext.event;
-          try {
+          withCombatEventResponseContext(operationContext, eventContext, () => {
             sequence.executeInstant({});
-          } finally {
-            operationContext.event = previousEvent;
-          }
+          });
         },
       };
       this.#registrations.push(

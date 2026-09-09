@@ -1,12 +1,11 @@
 import type { CompiledOperatorPassiveProgram } from '../../compiler/combatProgram';
-import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
+import type {
+  AbilityEventRegistration,
+  AbilityEventContext,
+} from '../events/abilityEventDispatcher';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
-import {
-  normalizeAbilityEventPayload,
-  readEventSkillCastInfo,
-} from './buffLifecycleSequenceRuntime';
+import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
 /** 原生被动 Skill 的事件序列宿主；黑板和子 Buff 所有权由被动实例提供。 */
@@ -21,7 +20,12 @@ export class PassiveAbilityEventRuntime {
     register: (
       event: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event'],
       priority: number,
-      handle: (payload: unknown, context?: AbilityEventRuntimeActionContext) => void,
+      handle: (
+        published: AbilityEventContext<
+          NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event']
+        >,
+        context?: AbilityEventRuntimeActionContext,
+      ) => void,
     ) => AbilityEventRegistration,
   ) {
     try {
@@ -33,26 +37,11 @@ export class PassiveAbilityEventRuntime {
         );
         sequence.reset({});
         this.#registrations.push(
-          register(response.event, response.priority, (payload, targets) => {
+          register(response.event, response.priority, (published, targets) => {
             if (this.#disposed) return;
-            const previous = {
-              event: context.event,
-              eventSkillCastInfo: context.eventSkillCastInfo,
-              targetContext: context.targetContext,
-              actionInputTarget: context.actionInputTarget,
-            };
-            try {
-              context.event = normalizeAbilityEventPayload(response.event, payload);
-              context.eventSkillCastInfo = readEventSkillCastInfo(payload);
-              context.actionInputTarget = targets?.inputTarget;
-              context.targetContext = new RuntimeTargetContext();
-              if (targets?.triggerTarget != null)
-                context.targetContext.setSingle('trigger', targets.triggerTarget);
+            withAbilityEventResponseContext(context, published, targets, () => {
               sequence.executeInstant({});
-            } finally {
-              // 同步嵌套通知之后恢复外层上下文，不覆盖普通来源 SkillCastInfo。
-              Object.assign(context, previous);
-            }
+            });
           }),
         );
       }

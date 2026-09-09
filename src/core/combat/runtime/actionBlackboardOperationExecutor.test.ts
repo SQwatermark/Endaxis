@@ -103,12 +103,14 @@ describe('ActionBlackboardOperationExecutor', () => {
         {
           blackboard,
           event: {
-            kind: 'spGained',
-            sourceOperatorId: 'pogranichnik',
-            source: 'skill',
-            gainKind: 'gain',
-            requestedAmount: 37,
-            amount: 0,
+            event: 'skillSpGained' as const,
+            payload: {
+              sourceOperatorId: 'pogranichnik',
+              source: 'skill',
+              gainKind: 'gain',
+              requestedAmount: 37,
+              amount: 0,
+            },
           },
         },
       ),
@@ -285,14 +287,15 @@ describe('ActionBlackboardOperationExecutor', () => {
       {
         blackboard,
         event: {
-          kind: 'abilityHeal',
-          event: 'receiveHeal',
-          sourceId: 'operator',
-          targetId: 'enemy',
-          requestedHealing: 100,
-          actualHealing: 25,
-          overhealing: 75,
-          tags: [],
+          event: 'receiveHeal' as const,
+          payload: {
+            sourceId: 'operator',
+            targetId: 'enemy',
+            requestedHealing: 100,
+            actualHealing: 25,
+            overhealing: 75,
+            tags: [],
+          },
         },
       },
     );
@@ -312,12 +315,13 @@ describe('ActionBlackboardOperationExecutor', () => {
         {
           blackboard,
           event: {
-            kind: 'abilityShield',
             event: 'afterAddedShield',
-            sourceId: 'operator',
-            targetId: 'operator',
-            gainedValue: 120,
-            currentValue: 350,
+            payload: {
+              sourceId: 'operator',
+              targetId: 'operator',
+              gainedValue: 120,
+              currentValue: 350,
+            },
           },
         },
       ),

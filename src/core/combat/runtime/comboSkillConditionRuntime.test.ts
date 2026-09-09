@@ -188,7 +188,7 @@ describe('原生连携条件注册环境', () => {
 
     runtime.onAbilityEvent({
       event: 'weaknessSet',
-      payload: { sourceId: 'enemy', targetId: 'enemy' },
+      payload: { sourceId: 'enemy' },
     });
 
     expect(pending).toHaveBeenCalledWith(
@@ -289,7 +289,8 @@ describe('原生连携条件注册环境', () => {
         },
       }),
     );
-    runtime.onAbilityEvent(event(type));
+    const published = event(type);
+    runtime.onAbilityEvent(published);
     const output = type.includes('Output');
     const inputTarget = output ? { kind: 'enemy' } : { kind: 'operator', operatorId: 'ally' };
     const triggerTarget = output ? { kind: 'operator', operatorId: 'ally' } : { kind: 'enemy' };
@@ -300,9 +301,10 @@ describe('原生连携条件注册环境', () => {
       actionOwnerId: 'owner',
       actionSourceId: 'source',
       actionInputTarget: inputTarget,
-      event: { sourceId: 'ally', targetId: 'enemy' },
+      event: { event: type, payload: { sourceId: 'ally', targetId: 'enemy' } },
       eventSkillCastInfo: null,
     });
+    expect(context?.event).toBe(published);
     expect(context?.targetContext?.getOptional('trigger')).toBeUndefined();
   });
 

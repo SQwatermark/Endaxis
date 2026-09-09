@@ -14,7 +14,7 @@ import {
   attributeModifierValues,
 } from '../attributes/combatAttributes';
 import type { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
-import { normalizeAbilityEventPayload } from './buffLifecycleSequenceRuntime';
+import { resolveAbilityEventContext } from './abilityEventPayload';
 
 const DOWN_TAG = 'Status/Immobilized/KnockDown';
 const enemy: CombatEnemyProgram = {
@@ -44,7 +44,10 @@ const enemy: CombatEnemyProgram = {
   },
 };
 
-function setup(requests = 2) {
+function setup(
+  requests = 2,
+  listenerEvent: 'afterOutputKnockDown' | 'outputKnockDown' = 'afterOutputKnockDown',
+) {
   const elapsed = vi.fn((control: OrdinaryKnockDownRuntime) => control.exit());
   const environment = new StandardPlayerDamageEnvironment({
     criticalSamples: { nextCriticalSample: () => 1 },
@@ -73,7 +76,7 @@ function setup(requests = 2) {
       stackingType: 'unique',
       abilityEventResponses: [
         {
-          event: 'afterOutputKnockDown',
+          event: listenerEvent,
           priority: 0,
           sequence: { steps: [apply('talent-result')] },
         },
@@ -177,6 +180,32 @@ function setup(requests = 2) {
 }
 
 describe('标准战斗环境的普通倒地显式装配', () => {
+  it.each(['afterOutputKnockDown', 'outputKnockDown'] as const)(
+    '%s Buff 在真实组件原始击倒通知上响应，旧筛选不二次发布',
+    listenerEvent => {
+      const s = setup(2, listenerEvent);
+      const raw: unknown[] = [];
+      const filtered: unknown[] = [];
+      s.environment
+        .eventsFor('operator')
+        .registerAction('afterOutputKnockDown', 1, event => raw.push(event));
+      s.assembly.semanticEvents.register({
+        ownerOperatorId: 'operator',
+        trigger: { kind: 'knockDownOutput' },
+        phase: 'dataAction',
+        priority: 0,
+        handle: context => filtered.push(context.event),
+      });
+      const emit = vi.spyOn(s.assembly.semanticEvents, 'emit');
+      s.start();
+      expect(raw).toHaveLength(1);
+      expect(filtered).toHaveLength(1);
+      expect(filtered[0]).toBe(raw[0]);
+      expect(s.operatorBuffs.getCountByIds(['talent-result'])).toBe(1);
+      expect(emit.mock.calls.some(([event]) => event.kind === 'knockDownOutput')).toBe(false);
+    },
+  );
+
   it('第一次只破防，不触发专属事件或天赋响应', () => {
     const s = setup(1);
     const after = vi.fn();
@@ -306,20 +335,20 @@ describe('标准战斗环境的普通倒地显式装配', () => {
     '%s 载荷必须明确声明是否由浮空转入',
     event => {
       expect(() =>
-        normalizeAbilityEventPayload(event, { sourceId: 'operator', targetId: 'enemy' }),
+        resolveAbilityEventContext({ event, payload: { sourceId: 'operator', targetId: 'enemy' } }),
       ).toThrow('fromAirborne');
       expect(
-        normalizeAbilityEventPayload(event, {
-          sourceId: 'operator',
-          targetId: 'enemy',
-          fromAirborne: false,
+        resolveAbilityEventContext({
+          event,
+          payload: {
+            sourceId: 'operator',
+            targetId: 'enemy',
+            fromAirborne: false,
+          },
         }),
       ).toEqual({
-        kind: 'abilityKnockDown',
         event,
-        sourceId: 'operator',
-        targetId: 'enemy',
-        fromAirborne: false,
+        payload: { sourceId: 'operator', targetId: 'enemy', fromAirborne: false },
       });
     },
   );

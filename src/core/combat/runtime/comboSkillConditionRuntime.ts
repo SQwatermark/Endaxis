@@ -4,86 +4,25 @@
  * 原生依据：combat-spec/docs/combo-condition-environment.md、combo-event-gates-and-pending.md。
  */
 import type { ResolvedActionSequence } from '../../compiler/combatProgram';
-import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type {
-  AbilityEventContext,
-  AbilityEventRegistration,
-} from '../events/abilityEventDispatcher';
+  AbilityEvent,
+  ActionContextBoundAbilityEvent,
+} from '../../../../packages/game-data-contract/src/abilityEvents';
+import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import { ActionBlackboard, type ActionBlackboardValue } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import {
-  type ElementalInflictionEvent,
-  type ElementalInflictionEventPayload,
-} from './elementalInflictionOperationExecutor';
-import type { KnockDownEventPayload } from './knockDownOperationExecutor';
-import type { BuffAppliedEvent } from './buffOperationExecutor';
-import type { HealthDamageEventPayload } from '../damage/healthDamage';
-import type { PoiseDamageModifier } from '../damage/poiseDamage';
-import {
   hasAbilityEventActionContextBinding,
   resolveAbilityEventActionContextBinding,
 } from '../events/abilityEventActionContext';
-import {
-  normalizeAbilityEventPayload,
-  readEventSkillCastInfo,
-} from './buffLifecycleSequenceRuntime';
+import { resolveAbilityEventContext, readSkillCastInfoFromPayload } from './abilityEventPayload';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
 
-type InflictionContext = AbilityEventContext<
-  ElementalInflictionEvent,
-  ElementalInflictionEventPayload
->;
-type PhysicalInflictionContext = AbilityEventContext<
-  'afterTakePhysicalInfliction',
-  KnockDownEventPayload
->;
-type AddedBuffContext = AbilityEventContext<'addedBuff', BuffAppliedEvent>;
-type BeforeAddedBuffContext = AbilityEventContext<'beforeAddedBuff', BuffAppliedEvent>;
-type OutputBuffContext = AbilityEventContext<'outputBuff', BuffAppliedEvent>;
-type BeforeTakeDamageContext = AbilityEventContext<'beforeTakeDamage', HealthDamageEventPayload>;
-type TakeDamageContext = AbilityEventContext<'takeDamage', HealthDamageEventPayload>;
-type OutputDamageContext = AbilityEventContext<
-  'beforeOutputDamage' | 'outputDamage',
-  HealthDamageEventPayload
->;
-type BuffEndsEarlyContext = AbilityEventContext<
-  'buffEndsEarly',
-  {
-    readonly sourceId: string;
-    readonly targetId: string;
-    readonly buffId: string;
-    readonly buffTags: readonly string[];
-    readonly reason: 'ignite' | 'early';
-  }
->;
-type PoiseContext = AbilityEventContext<'poiseZero' | 'poiseKnotBreak', PoiseDamageModifier>;
-type BuffRemovalContext = AbilityEventContext<
-  'buffConsumed' | 'buffAbsorbed',
-  BuffConsumedEventPayload
->;
-type WeaknessSetContext = AbilityEventContext<
-  'weaknessSet',
-  { readonly sourceId: string; readonly targetId: string }
->;
-type BuffConsumedEventPayload = import('./buffOperationExecutor').BuffConsumedEvent & {
-  readonly sourceId: string;
-};
-type ComboConditionEventContext =
-  | InflictionContext
-  | PhysicalInflictionContext
-  | BeforeAddedBuffContext
-  | AddedBuffContext
-  | OutputBuffContext
-  | BeforeTakeDamageContext
-  | TakeDamageContext
-  | OutputDamageContext
-  | BuffEndsEarlyContext
-  | PoiseContext
-  | BuffRemovalContext
-  | WeaknessSetContext;
+type ComboConditionEventContext = CombatAbilityEvent<ActionContextBoundAbilityEvent>;
 type BlackboardSnapshot = Readonly<Record<string, ActionBlackboardValue>>;
 
 export interface PendingComboCondition {
@@ -186,7 +125,7 @@ export class ComboSkillConditionRuntime {
           ? null
           : Object.freeze({ ...options.resolveTarget(binding.triggerTargetId) });
       if (triggerTarget !== null) targets.setSingle('trigger', triggerTarget);
-      const eventSkillCastInfo = readEventSkillCastInfo(event.payload);
+      const eventSkillCastInfo = readSkillCastInfoFromPayload(event.payload);
       // 每次检查重新建立动作状态，但绝不重置该注册的 direct/entity 黑板。
       const runtime = new CombatActionSequenceRuntime(options.operations, {
         blackboard,
@@ -194,7 +133,7 @@ export class ComboSkillConditionRuntime {
         actionInputTarget: inputTarget,
         actionOwnerId: options.ownerId,
         actionSourceId: options.sourceId,
-        event: normalizeAbilityEventPayload(event.event, event.payload),
+        event: resolveAbilityEventContext(event),
         ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
       });
       let passed: boolean;

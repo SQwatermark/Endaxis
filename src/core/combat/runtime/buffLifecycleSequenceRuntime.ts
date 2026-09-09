@@ -1,3 +1,4 @@
+import { skillAbilityEvent } from '../events/combatAbilityEvent';
 /**
  * 把编译后的有序步骤绑定到 Buff 的同步生命周期边界。
  * 每个 Buff 实例独占动作黑板和 once 状态；调用方仍需提供完整战斗操作链。
@@ -26,86 +27,31 @@ import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { createDamageModifierConditionProgram } from './damageModifierSequenceRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
-import type {
-  CombatAbilityDamageEvent,
-  CombatAbilityPhysicalInflictionEvent,
-  CombatAbilityKnockDownEvent,
-  CombatAbilitySpellInflictionEvent,
-  CombatAbilityHealEvent,
-  CombatAbilityShieldEvent,
-  CombatAbilityPoiseEvent,
-  CombatAbilityLifecycleEvent,
-  CombatAbilitySkillEvent,
-  CombatAbilityWeaknessTriggeredEvent,
-  CombatAbilityCustomEvent,
-  CombatAbilitySpellBurstEvent,
-  CombatAbilityBuffEnhanceChangedEvent,
-} from './skillRuntime';
-import type { CombatSemanticEvent } from './combatSemanticEventRuntime';
-import { DAMAGE_TYPES, type SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
+import type { KnockDownOutputEvent } from './combatSemanticEventRuntime';
+import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
+import { type AbilityResponseEventName } from './abilityEventPayload';
+import {
+  withAbilityEventResponseContext,
+  withCombatEventResponseContext,
+} from './abilityEventResponseContext';
 import type { CombatSkillCastInfo } from './skillCastInfo';
-import type { EquipmentAbilityEvent } from '../../game-data/equipmentDefinition';
-
-/**
- * 条件执行器可接收的 AbilitySystem 事件名。Buff 定义目前只订阅其中一部分；
- * 连携条件仍必须复用同一负载规范化入口，不能因此另建事件投影。
- */
-export type NormalizedAbilityEventName =
-  | Exclude<
-      ResolvedSkillBuffAbilityEventResponse['event'],
-      | 'afterKillEntity'
-      | 'outputKnockDown'
-      | 'afterOutputPhysicalInfliction'
-      | 'skillSpGained'
-      | 'buffConsumed'
-    >
-  | EquipmentAbilityEvent
-  | 'afterOutputInfliction'
-  | 'afterTakeInfliction'
-  | 'afterTakePhysicalInfliction'
-  | 'poiseKnotBreak'
-  | 'buffConsumed'
-  | 'buffAbsorbed'
-  | 'weaknessSet';
+import type { AbilityEventContext } from '../events/abilityEventDispatcher';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
-  event: Exclude<
-    ResolvedSkillBuffAbilityEventResponse['event'],
-    | 'afterKillEntity'
-    | 'outputKnockDown'
-    | 'afterOutputPhysicalInfliction'
-    | 'skillSpGained'
-    | 'buffConsumed'
-  >,
+  event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'outputKnockDown'>,
   priority: number,
-  handle: (payload: unknown, actionContext?: AbilityEventRuntimeActionContext) => void,
+  handle: (
+    published: AbilityEventContext<AbilityResponseEventName>,
+    actionContext?: AbilityEventRuntimeActionContext,
+  ) => void,
   samePriorityKey?: string,
 ) => AbilityEventRegistration;
 
 export type RegisterBuffSemanticEventAction = (
-  event: Extract<
-    ResolvedSkillBuffAbilityEventResponse['event'],
-    | 'afterKillEntity'
-    | 'outputKnockDown'
-    | 'afterOutputPhysicalInfliction'
-    | 'skillSpGained'
-    | 'buffConsumed'
-  >,
+  event: 'outputKnockDown',
   priority: number,
-  handle: (
-    event: Extract<
-      CombatSemanticEvent,
-      {
-        readonly kind:
-          | 'enemyDefeated'
-          | 'knockDownOutput'
-          | 'physicalInflictionApplied'
-          | 'spGained'
-          | 'buffConsumed';
-      }
-    >,
-  ) => void,
+  handle: (event: KnockDownOutputEvent, actionContext?: AbilityEventRuntimeActionContext) => void,
 ) => AbilityEventRegistration;
 
 class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnableAction<Key> {
@@ -302,12 +248,12 @@ export function attachBuffLifecycleSequences<Key extends string>(
         if (registerAbilityEventAction === undefined)
           throw new Error('SkillAffix requires Buff ability-event registration');
         buff.recordBuffAffixSkillCastId(skillCastId);
-        const registration = registerAbilityEventAction('skillEnd', 0, payload => {
-          const event = normalizeAbilityEventPayload('skillEnd', payload);
+        const registration = registerAbilityEventAction('skillEnd', 0, published => {
+          const event = skillAbilityEvent(published);
           if (
-            event.kind !== 'abilitySkill' ||
-            event.sourceId !== buff.owner.ownerId ||
-            event.skillCastId !== skillCastId
+            event === undefined ||
+            event.payload.sourceId !== buff.owner.ownerId ||
+            event.payload.skillCastId !== skillCastId
           )
             return;
           buff.finish('other');
@@ -405,27 +351,13 @@ export function attachBuffLifecycleSequences<Key extends string>(
   const registerEventResponses = (buff: CombatBuff<Key>): void => {
     if (abilityEventResponses.length === 0) return;
     if (
-      abilityEventResponses.some(
-        response =>
-          response.event !== 'afterKillEntity' &&
-          response.event !== 'outputKnockDown' &&
-          response.event !== 'afterOutputPhysicalInfliction' &&
-          response.event !== 'skillSpGained' &&
-          response.event !== 'buffConsumed',
-      ) &&
+      abilityEventResponses.some(response => response.event !== 'outputKnockDown') &&
       registerAbilityEventAction === undefined
     ) {
       throw new Error(`buff '${definition.id}' has ability event responses, but no event runtime`);
     }
     if (
-      abilityEventResponses.some(
-        response =>
-          response.event === 'afterKillEntity' ||
-          response.event === 'outputKnockDown' ||
-          response.event === 'afterOutputPhysicalInfliction' ||
-          response.event === 'skillSpGained' ||
-          response.event === 'buffConsumed',
-      ) &&
+      abilityEventResponses.some(response => response.event === 'outputKnockDown') &&
       registerSemanticEventAction === undefined
     ) {
       throw new Error(`buff '${definition.id}' has semantic event responses, but no event runtime`);
@@ -461,28 +393,19 @@ export function attachBuffLifecycleSequences<Key extends string>(
         }
       }
       for (const group of responseGroups.values()) {
-        if (
-          group.event === 'afterKillEntity' ||
-          group.event === 'outputKnockDown' ||
-          group.event === 'afterOutputPhysicalInfliction' ||
-          group.event === 'skillSpGained' ||
-          group.event === 'buffConsumed'
-        ) {
+        if (group.event === 'outputKnockDown') {
           registrations.push(
-            registerSemanticEventAction!(group.event, group.priority, event => {
+            registerSemanticEventAction!(group.event, group.priority, (event, actionContext) => {
               const runtime = runtimeFor(buff);
               for (const response of group.responses) {
-                runtime
-                  .createSequence(response.sequence, {
-                    ...runtime.context,
-                    event,
-                    ...(event.kind === 'physicalInflictionApplied'
-                      ? event.skillCastInfo === undefined
-                        ? {}
-                        : { eventSkillCastInfo: event.skillCastInfo }
-                      : {}),
-                  })
-                  .executeInstant({});
+                const context = {
+                  ...runtime.context,
+                  actionOwnerId: buff.owner.ownerId,
+                  actionSourceId: buff.sourceId,
+                };
+                withCombatEventResponseContext(context, { event, actionContext }, () =>
+                  runtime.createSequence(response.sequence, context).executeInstant({}),
+                );
               }
             }),
           );
@@ -492,39 +415,17 @@ export function attachBuffLifecycleSequences<Key extends string>(
           registerAbilityEventAction!(
             group.event,
             group.priority,
-            (payload, actionContext) => {
+            (published, actionContext) => {
               const runtime = runtimeFor(buff);
-              const callbackTargets = runtime.context.targetContext;
-              if (callbackTargets === undefined)
-                throw new Error('Buff ability response requires a combat target context');
-              if (actionContext?.triggerTarget != null)
-                callbackTargets.setSingle('trigger', actionContext.triggerTarget);
               for (const response of group.responses) {
-                const event = normalizeAbilityEventPayload(
-                  response.event as Exclude<
-                    ResolvedSkillBuffAbilityEventResponse['event'],
-                    | 'afterKillEntity'
-                    | 'outputKnockDown'
-                    | 'afterOutputPhysicalInfliction'
-                    | 'skillSpGained'
-                    | 'buffConsumed'
-                  >,
-                  payload,
+                const context = {
+                  ...runtime.context,
+                  actionOwnerId: buff.owner.ownerId,
+                  actionSourceId: buff.sourceId,
+                };
+                withAbilityEventResponseContext(context, published, actionContext, () =>
+                  runtime.createSequence(response.sequence, context).executeInstant({}),
                 );
-                const eventSkillCastInfo = readEventSkillCastInfo(payload);
-                runtime
-                  .createSequence(response.sequence, {
-                    ...runtime.context,
-                    targetContext: callbackTargets,
-                    ...(actionContext === undefined
-                      ? {}
-                      : { actionInputTarget: actionContext.inputTarget }),
-                    actionOwnerId: buff.owner.ownerId,
-                    actionSourceId: buff.sourceId,
-                    event,
-                    ...(eventSkillCastInfo === undefined ? {} : { eventSkillCastInfo }),
-                  })
-                  .executeInstant({});
               }
             },
             group.responses.every(response => isCommutativeCurrentBuffTimeResponse(response))
@@ -714,398 +615,4 @@ function isCommutativeCurrentBuffTimeResponse(
       );
     });
   return visit(response.sequence, new Set()) && found;
-}
-
-export function readEventSkillCastInfo(payload: unknown): CombatSkillCastInfo | null | undefined {
-  if (typeof payload !== 'object' || payload === null) return undefined;
-  const value = (payload as Record<string, unknown>).skillCastInfo;
-  if (value === null) return null;
-  const payloadRecord = payload as Record<string, unknown>;
-  const nested = typeof value === 'object' && value !== null;
-  const source = nested
-    ? (value as Record<string, unknown>)
-    : typeof payloadRecord.skillCastId === 'number'
-      ? {
-          skillCastId: payloadRecord.skillCastId,
-          originSkillId: payloadRecord.skillId,
-          originSkillType: payloadRecord.skillType,
-          nonReturnedSpCost: 0,
-        }
-      : null;
-  if (source === null) return undefined;
-  if (
-    typeof source.skillCastId !== 'number' ||
-    typeof source.originSkillId !== 'string' ||
-    (source.originSkillType !== 'basicAttack' &&
-      source.originSkillType !== 'plungingAttack' &&
-      source.originSkillType !== 'finisher' &&
-      source.originSkillType !== 'battleSkill' &&
-      source.originSkillType !== 'comboSkill' &&
-      source.originSkillType !== 'ultimate') ||
-    typeof source.nonReturnedSpCost !== 'number'
-  ) {
-    if (!nested) return undefined;
-    throw new TypeError('Ability event payload has invalid skill cast identity');
-  }
-  return source as unknown as CombatSkillCastInfo;
-}
-
-/** 把 AbilitySystem 原始负载转换成 Action/Condition 执行器共享的事件上下文。 */
-export function normalizeAbilityEventPayload(
-  event: NormalizedAbilityEventName,
-  payload: unknown,
-):
-  | CombatSemanticEvent
-  | CombatAbilityDamageEvent
-  | CombatAbilityPhysicalInflictionEvent
-  | CombatAbilityKnockDownEvent
-  | CombatAbilitySpellInflictionEvent
-  | CombatAbilitySpellBurstEvent
-  | CombatAbilityPoiseEvent
-  | CombatAbilityHealEvent
-  | CombatAbilityShieldEvent
-  | CombatAbilitySkillEvent
-  | CombatAbilityLifecycleEvent
-  | CombatAbilityBuffEnhanceChangedEvent
-  | CombatAbilityWeaknessTriggeredEvent
-  | import('./skillRuntime').CombatAbilityWeaknessSetEvent
-  | CombatAbilityCustomEvent {
-  if (typeof payload !== 'object' || payload === null) {
-    throw new TypeError(`Ability event '${event}' payload must be an object`);
-  }
-  const source = payload as Record<string, unknown>;
-  if (typeof source.sourceId !== 'string' || typeof source.targetId !== 'string') {
-    throw new TypeError(`Ability event '${event}' payload has invalid entity identities`);
-  }
-  if (
-    event === 'enterFight' ||
-    event === 'ownerSwitchToCenter' ||
-    event === 'ownerSwitchToGuard' ||
-    event === 'ownerHpZero' ||
-    event === 'abilityEntitySpawned' ||
-    event === 'abilityEntityFinished'
-  ) {
-    return {
-      kind: 'abilityLifecycle',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-    };
-  }
-  if (event === 'customAbilityEvent') {
-    if (typeof source.eventName !== 'string' || typeof source.eventParam !== 'number') {
-      throw new TypeError(`Ability event '${event}' payload has invalid custom event values`);
-    }
-    return {
-      kind: 'abilityCustom',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      eventName: source.eventName,
-      eventParam: source.eventParam,
-    };
-  }
-  if (event === 'afterOutputWeaknessTriggered') {
-    return {
-      kind: 'abilityWeaknessTriggered',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-    };
-  }
-  if (event === 'weaknessSet') {
-    return {
-      kind: 'abilityWeaknessSet',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-    };
-  }
-  if (event === 'beforeOutputKnockDown' || event === 'afterOutputKnockDown') {
-    if (typeof source.fromAirborne !== 'boolean') {
-      throw new TypeError(`Ability event '${event}' payload has invalid fromAirborne`);
-    }
-    return {
-      kind: 'abilityKnockDown',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      fromAirborne: source.fromAirborne,
-    };
-  }
-  if (
-    event === 'beforeTakePhysicalInfliction' ||
-    event === 'beforeOutputPhysicalInfliction' ||
-    event === 'afterTakePhysicalInfliction'
-  ) {
-    return {
-      kind: 'abilityPhysicalInfliction',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      ...(source.type === undefined
-        ? {}
-        : { type: source.type as CombatAbilityPhysicalInflictionEvent['type'] }),
-      ...(typeof source.attachBuffToCurrentSkill === 'function'
-        ? {
-            attachBuffToCurrentSkill: source.attachBuffToCurrentSkill as NonNullable<
-              CombatAbilityPhysicalInflictionEvent['attachBuffToCurrentSkill']
-            >,
-          }
-        : {}),
-    };
-  }
-  if (event === 'beforeDamageAction' || event === 'beforeCalculateDamage') {
-    if (
-      !Array.isArray(source.tags) ||
-      !source.tags.every(value => typeof value === 'string') ||
-      (source.gameplayTags !== undefined &&
-        (!Array.isArray(source.gameplayTags) ||
-          !source.gameplayTags.every(value => typeof value === 'string'))) ||
-      !Array.isArray(source.features) ||
-      !source.features.every(value => typeof value === 'string')
-    ) {
-      throw new TypeError(`Ability event '${event}' payload has invalid damage properties`);
-    }
-    return {
-      kind: 'abilityDamage',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      ...(source.damageType === undefined
-        ? {}
-        : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
-      tags: source.tags as CombatAbilityDamageEvent['tags'],
-      gameplayTags: (source.gameplayTags ?? []) as CombatAbilityDamageEvent['gameplayTags'],
-      features: source.features as CombatAbilityDamageEvent['features'],
-    };
-  }
-  if (
-    event === 'beforeTakeSpellInfliction' ||
-    event === 'beforeTakeInfliction' ||
-    event === 'beforeOutputInfliction' ||
-    event === 'afterTakeInfliction' ||
-    event === 'afterOutputInfliction'
-  ) {
-    if (
-      source.element !== undefined &&
-      source.element !== 'heat' &&
-      source.element !== 'electric' &&
-      source.element !== 'cryo' &&
-      source.element !== 'nature'
-    ) {
-      throw new TypeError(`Ability event '${event}' payload has invalid element`);
-    }
-    return {
-      kind: 'abilitySpellInfliction',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      ...(source.element === undefined ? {} : { element: source.element }),
-    };
-  }
-  if (event === 'beforeOutputSpellBurst') {
-    if (typeof source.burstType !== 'string') {
-      throw new TypeError(`Ability event '${event}' payload has invalid burst type`);
-    }
-    return {
-      kind: 'abilitySpellBurst',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      burstType: source.burstType,
-    };
-  }
-  if (
-    event === 'beforeOutputBuff' ||
-    event === 'beforeAddedBuff' ||
-    event === 'outputBuff' ||
-    event === 'addedBuff'
-  ) {
-    if (
-      typeof source.buffId !== 'string' ||
-      !Array.isArray(source.buffTags) ||
-      !source.buffTags.every(value => typeof value === 'string')
-    ) {
-      throw new TypeError(`Ability event '${event}' payload has invalid Buff identity`);
-    }
-    return {
-      kind: 'buffApplied',
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      buffId: source.buffId,
-      buffTags: source.buffTags as string[],
-    };
-  }
-  if (event === 'finishedBuff' || event === 'buffEndsEarly') {
-    if (
-      typeof source.buffId !== 'string' ||
-      !Array.isArray(source.buffTags) ||
-      !source.buffTags.every(value => typeof value === 'string') ||
-      (source.reason !== 'lifetime' &&
-        source.reason !== 'ignite' &&
-        source.reason !== 'early' &&
-        source.reason !== 'dispelled' &&
-        source.reason !== 'absorbed' &&
-        source.reason !== 'other')
-    ) {
-      throw new TypeError(`Ability event '${event}' payload has invalid Buff identity`);
-    }
-    return {
-      kind: 'buffFinished',
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      buffId: source.buffId,
-      buffTags: source.buffTags as string[],
-      reason: source.reason,
-    };
-  }
-  if (event === 'buffEnhanceChanged') {
-    if (typeof source.buffId !== 'string' || !Number.isInteger(source.layerCount)) {
-      throw new TypeError(`Ability event '${event}' payload has invalid Buff layer change`);
-    }
-    return {
-      kind: 'abilityBuffEnhanceChanged',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      buffId: source.buffId,
-      layerCount: source.layerCount as number,
-      ...(source.reason === undefined
-        ? {}
-        : { reason: source.reason as CombatAbilityBuffEnhanceChangedEvent['reason'] }),
-    };
-  }
-  if (event === 'buffConsumed' || event === 'buffAbsorbed') {
-    if (
-      typeof source.buffId !== 'string' ||
-      typeof source.layers !== 'number' ||
-      !Array.isArray(source.buffTags) ||
-      !source.buffTags.every(value => typeof value === 'string')
-    ) {
-      throw new TypeError(`Ability event '${event}' payload has invalid Buff identity`);
-    }
-    return {
-      kind: 'buffConsumed',
-      sourceOperatorId: source.sourceId,
-      targetId: source.targetId,
-      buffId: source.buffId,
-      layers: source.layers,
-      buffTags: source.buffTags as string[],
-      ...(typeof source.blackboardValues === 'object' && source.blackboardValues !== null
-        ? {
-            blackboardValues: source.blackboardValues as Readonly<
-              Record<string, string | number | null>
-            >,
-          }
-        : {}),
-    };
-  }
-  if (event === 'beforeCastSkill' || event === 'afterSkillApplyCost' || event === 'skillEnd') {
-    if (
-      source.skillType !== 'basicAttack' &&
-      source.skillType !== 'battleSkill' &&
-      source.skillType !== 'comboSkill' &&
-      source.skillType !== 'ultimate' &&
-      source.skillType !== 'finisher' &&
-      source.skillType !== 'plungingAttack'
-    ) {
-      throw new TypeError(`Ability event '${event}' payload has invalid skill type`);
-    }
-    if (!Number.isSafeInteger(source.skillCastId) || (source.skillCastId as number) <= 0) {
-      throw new TypeError(`Ability event '${event}' payload has invalid skill cast id`);
-    }
-    return {
-      kind: 'abilitySkill',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      skillType: source.skillType,
-      skillId:
-        typeof source.skillId === 'string'
-          ? source.skillId
-          : (() => {
-              throw new TypeError(`Ability event '${event}' payload has invalid skill identity`);
-            })(),
-      skillCastId: source.skillCastId as number,
-      ...(typeof source.attachBuffToCurrentSkill === 'function'
-        ? {
-            attachBuffToCurrentSkill: source.attachBuffToCurrentSkill as NonNullable<
-              CombatAbilitySkillEvent['attachBuffToCurrentSkill']
-            >,
-          }
-        : {}),
-    };
-  }
-  if (event === 'poiseZero' || event === 'poiseKnotBreak') {
-    return {
-      kind: 'abilityPoise',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-    };
-  }
-  if (event === 'outputHeal' || event === 'receiveHeal') {
-    if (
-      typeof source.requestedHealing !== 'number' ||
-      typeof source.actualHealing !== 'number' ||
-      typeof source.overhealing !== 'number' ||
-      !Array.isArray(source.tags) ||
-      !source.tags.every(value => typeof value === 'string')
-    ) {
-      throw new TypeError(`Ability event '${event}' payload has invalid healing values`);
-    }
-    return {
-      kind: 'abilityHeal',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      requestedHealing: source.requestedHealing,
-      actualHealing: source.actualHealing,
-      overhealing: source.overhealing,
-      tags: source.tags,
-    };
-  }
-  if (event === 'afterAddedShield') {
-    if (typeof source.gainedValue !== 'number' || typeof source.currentValue !== 'number') {
-      throw new TypeError(`Ability event '${event}' payload has invalid shield values`);
-    }
-    return {
-      kind: 'abilityShield',
-      event,
-      sourceId: source.sourceId,
-      targetId: source.targetId,
-      gainedValue: source.gainedValue,
-      currentValue: source.currentValue,
-    };
-  }
-  if (
-    !Array.isArray(source.tags) ||
-    !source.tags.every(value => typeof value === 'string') ||
-    (source.gameplayTags !== undefined &&
-      (!Array.isArray(source.gameplayTags) ||
-        !source.gameplayTags.every(value => typeof value === 'string'))) ||
-    !Array.isArray(source.features) ||
-    !source.features.every(value => typeof value === 'string')
-  ) {
-    throw new TypeError(`Ability event '${event}' payload has invalid damage properties`);
-  }
-  if (
-    source.damageType !== undefined &&
-    !DAMAGE_TYPES.includes(source.damageType as (typeof DAMAGE_TYPES)[number])
-  ) {
-    throw new TypeError(`Ability event '${event}' payload has invalid damage type`);
-  }
-  return {
-    kind: 'abilityDamage',
-    event,
-    sourceId: source.sourceId,
-    targetId: source.targetId,
-    ...(source.damageType === undefined
-      ? {}
-      : { damageType: source.damageType as CombatAbilityDamageEvent['damageType'] }),
-    tags: source.tags as CombatAbilityDamageEvent['tags'],
-    gameplayTags: (source.gameplayTags ?? []) as CombatAbilityDamageEvent['gameplayTags'],
-    features: source.features as CombatAbilityDamageEvent['features'],
-  };
 }

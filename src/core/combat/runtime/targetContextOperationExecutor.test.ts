@@ -270,11 +270,14 @@ describe('TargetContextOperationExecutor', () => {
       blackboard: new ActionBlackboard(),
       targetContext,
       event: {
-        kind: 'abilitySpellInfliction' as const,
         event: 'beforeTakeInfliction' as const,
-        sourceId: 'operator',
-        targetId: 'enemy',
-        element: 'nature' as const,
+        payload: {
+          skillId: 'skill',
+          isExtra: false,
+          sourceId: 'operator',
+          targetId: 'enemy',
+          element: 'nature' as const,
+        },
       },
     };
 

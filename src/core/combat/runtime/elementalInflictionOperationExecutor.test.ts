@@ -170,8 +170,6 @@ describe('ElementalInflictionOperationExecutor', () => {
         applied.push(operation);
         if (operation.kind === 'consumeAttachment') attachment = null;
       },
-      emitSemanticAttachmentConsumed: consumed =>
-        order.push(`semantic:consumed:${consumed.element}:${consumed.layers}`),
       emitSourceEvent: event => order.push(`source:${event}`),
       emitTargetEvent: event => {
         order.push(`target:${event}`);
@@ -192,7 +190,6 @@ describe('ElementalInflictionOperationExecutor', () => {
       'target:beforeTakeInfliction',
       'query',
       'apply:consumeAttachment',
-      'semantic:consumed:heat:2',
       'apply:createCompoundStatus',
       'source:afterOutputInfliction',
       'target:afterTakeInfliction',

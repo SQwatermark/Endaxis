@@ -6,7 +6,7 @@ import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatClock } from './combatClock';
 import type { CombatVitals } from './combatVitals';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
-import type { CombatAbilityHealEvent } from './skillRuntime';
+import type { HealAbilityEvent } from '../events/combatAbilityEvent';
 import {
   HealCalculationContext,
   type HealModifierSide,
@@ -46,7 +46,7 @@ export interface HealOperationDependencies {
   ) => void;
   readonly resolveHealingIncrease?: (side: HealModifierSide, operatorId: string) => number;
   /** 原生 Modifier 成功后固定先 output、再 receive；满血治疗也必须调用。 */
-  readonly emitSuccessfulHeal?: (event: CombatAbilityHealEvent) => void;
+  readonly emitSuccessfulHeal?: (event: HealAbilityEvent) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -132,7 +132,6 @@ export class HealOperationExecutor implements CombatOperationExecutor {
       },
     });
     const eventBase = {
-      kind: 'abilityHeal' as const,
       sourceId: sourceOperatorId,
       targetId: target.operatorId,
       requestedHealing: result.requestedHealing,
@@ -140,8 +139,9 @@ export class HealOperationExecutor implements CombatOperationExecutor {
       overhealing: result.overhealing,
       tags: step.parameters.tags,
     };
-    this.dependencies.emitSuccessfulHeal?.({ ...eventBase, event: 'outputHeal' });
-    this.dependencies.emitSuccessfulHeal?.({ ...eventBase, event: 'receiveHeal' });
+    // 原生分别构造两侧 HealContext；每次通知内部原样传递，不共用可被监听器修改的载荷对象。
+    this.dependencies.emitSuccessfulHeal?.({ payload: { ...eventBase }, event: 'outputHeal' });
+    this.dependencies.emitSuccessfulHeal?.({ payload: { ...eventBase }, event: 'receiveHeal' });
     return true;
   }
 

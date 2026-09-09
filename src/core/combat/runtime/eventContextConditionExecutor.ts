@@ -1,4 +1,19 @@
+import {
+  spellBurstAbilityEvent,
+  characterInflictionAbilityEvent,
+} from '../events/combatAbilityEvent';
+import { skillAbilityEvent } from '../events/combatAbilityEvent';
+import { customAbilityEvent } from '../events/combatAbilityEvent';
+import { poiseAbilityEvent } from '../events/combatAbilityEvent';
+import { inflictionAbilityEvent } from '../events/combatAbilityEvent';
+import { abilityEventTargetId, abilityEventSourceId } from '../events/combatAbilityEvent';
+import { spGainAbilityEvent } from '../events/combatAbilityEvent';
+import { physicalAbilityEvent } from '../events/combatAbilityEvent';
+import { readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { damageAbilityEvent } from '../events/combatAbilityEvent';
+import { healAbilityEvent } from '../events/combatAbilityEvent';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
+import { buffApplicationEvent, buffAbilityEvent } from '../events/combatAbilityEvent';
 /**
  * 求值依赖当前事件负载的条件。
  *
@@ -119,21 +134,21 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       // combat-spec/origin-skill-event-context.md：按当前事件类型取来源；不回退到条件宿主。
       const carriesOrigin =
         event !== undefined &&
-        (event.kind === 'buffApplied' ||
-          event.kind === 'buffFinished' ||
-          event.kind === 'buffConsumed' ||
-          event.kind === 'abilityPhysicalInfliction' ||
-          event.kind === 'physicalInflictionApplied' ||
-          event.kind === 'abilitySpellBurst' ||
-          (event.kind === 'abilitySpellInfliction' &&
-            event.event !== 'beforeTakeSpellInfliction') ||
-          (event.kind === 'abilityDamage' &&
+        (('payload' in event && buffAbilityEvent(event) !== undefined) ||
+          physicalAbilityEvent(event) !== undefined ||
+          inflictionAbilityEvent(event) !== undefined ||
+          spellBurstAbilityEvent(event) !== undefined ||
+          (damageAbilityEvent(event) !== undefined &&
+            'event' in event &&
             (event.event === 'beforeDamageAction' ||
               event.event === 'beforeOutputDamage' ||
               event.event === 'outputDamage' ||
               event.event === 'outputCriticalDamage')));
       if (!carriesOrigin) return false;
-      const skillCastInfo = context?.eventSkillCastInfo;
+      const skillCastInfo =
+        context?.event !== undefined && 'payload' in context.event
+          ? readSkillCastInfoFromPayload(context.event.payload)
+          : context?.eventSkillCastInfo;
       if (skillCastInfo === undefined) {
         throw new Error('originSkillTypeIn requires an event source skill cast identity');
       }
@@ -143,15 +158,15 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     if (context?.event === undefined) {
       throw new Error(`${condition.kind} requires a combat event context`);
     }
+    const damage = damageAbilityEvent(context.event);
     if (condition.kind === 'eventSourceMatchesBuffSource') {
       if (context.buffSourceId === undefined) {
         throw new Error('eventSourceMatchesBuffSource requires a Buff source identity');
       }
-      return context.event.kind === 'abilityDamage' ||
-        context.event.kind === 'abilityPhysicalInfliction' ||
-        context.event.kind === 'buffApplied'
-        ? context.event.sourceId === context.buffSourceId
-        : false;
+      if ('payload' in context.event && buffApplicationEvent(context.event) !== undefined)
+        return abilityEventSourceId(context.event) === context.buffSourceId;
+      if (damage !== undefined) return damage.payload.sourceId === context.buffSourceId;
+      return physicalAbilityEvent(context.event)?.payload.sourceId === context.buffSourceId;
     }
     if (condition.kind === 'eventSourceMatchesBuffSourceEntitySource') {
       if (context.buffSourceId === undefined) {
@@ -160,20 +175,19 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       if (this.resolveEntitySourceId === undefined) {
         throw new Error('eventSourceMatchesBuffSourceEntitySource requires entity provenance');
       }
-      return context.event.kind === 'abilityDamage' ||
-        context.event.kind === 'abilityPhysicalInfliction'
-        ? context.event.sourceId === this.resolveEntitySourceId(context.buffSourceId)
-        : false;
+      const source = this.resolveEntitySourceId(context.buffSourceId);
+      if (damage !== undefined) return damage.payload.sourceId === source;
+      return physicalAbilityEvent(context.event)?.payload.sourceId === source;
     }
     if (condition.kind === 'eventSourceControlled') {
       if (this.isOperatorControlled === undefined) {
         throw new Error('eventSourceControlled requires control state');
       }
-      return context.event.kind === 'abilityDamage' ||
-        context.event.kind === 'abilityPoise' ||
-        context.event.kind === 'abilityHeal'
-        ? this.isOperatorControlled(context.event.sourceId)
-        : false;
+      const heal = healAbilityEvent(context.event);
+      if (heal !== undefined) return this.isOperatorControlled(heal.payload.sourceId);
+      if (damage !== undefined) return this.isOperatorControlled(damage.payload.sourceId);
+      const poise = poiseAbilityEvent(context.event);
+      return poise !== undefined && this.isOperatorControlled(poise.payload.sourceId);
     }
     if (condition.kind === 'actionInputTargetObjectTypeMatch') {
       const target = context.actionInputTarget;
@@ -218,32 +232,27 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return condition.operator === 'equal' ? matches : !matches;
     }
     if (condition.kind === 'eventSkillTypeIn') {
-      return (
-        context.event.kind === 'abilitySkill' &&
-        condition.skillTypes.includes(context.event.skillType)
-      );
+      const skill = skillAbilityEvent(context.event);
+      return skill !== undefined && condition.skillTypes.includes(skill.payload.skillType);
     }
     if (condition.kind === 'eventCustomAbilityNameMatch') {
-      if (
-        context.event.kind !== 'abilityCustom' ||
-        context.event.eventName !== condition.eventName
-      ) {
+      const custom = customAbilityEvent(context.event);
+      if (custom === undefined || custom.payload.eventName !== condition.eventName) {
         return false;
       }
       if (condition.outputKey !== undefined && condition.outputKey !== '') {
-        context.blackboard.assignDynamic(condition.outputKey, context.event.eventParam);
+        context.blackboard.assignDynamic(condition.outputKey, custom.payload.eventParam);
         context.refreshCurrentBuffAttributeModifiers?.();
       }
       return true;
     }
     if (condition.kind === 'eventInflictionElementIn') {
       const event = context.event;
+      const burst = spellBurstAbilityEvent(event);
       const element =
-        event.kind === 'abilitySpellInfliction'
-          ? event.element
-          : event.kind === 'abilitySpellBurst'
-            ? spellBurstElement(event.burstType)
-            : undefined;
+        inflictionAbilityEvent(event)?.payload.element ??
+        characterInflictionAbilityEvent(event)?.payload.element ??
+        (burst === undefined ? undefined : spellBurstElement(burst.payload.burstType));
       if (element === undefined || !condition.elements.includes(element)) return false;
       if (condition.outputKey !== undefined && condition.outputKey !== '') {
         // CheckSpellInflictionType 先严格 GetFloat，再比较 float32 epsilon，最后 AssignDynamic。
@@ -263,12 +272,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return true;
     }
     if (condition.kind === 'eventPhysicalInflictionTypeIn') {
-      const type =
-        context.event.kind === 'abilityPhysicalInfliction'
-          ? context.event.type
-          : context.event.kind === 'physicalInflictionApplied'
-            ? context.event.type
-            : undefined;
+      const type = physicalAbilityEvent(context.event)?.payload.type;
       const matched = type !== undefined && condition.types.includes(type);
       if (matched && condition.outputKey !== undefined) {
         const values = { airborne: 0, knockDown: 1, fracture: 2, crush: 3 } as const;
@@ -287,24 +291,21 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return matched;
     }
     if (condition.kind === 'eventSkillIdIn') {
-      return (
-        context.event.kind === 'abilitySkill' && condition.skillIds.includes(context.event.skillId)
-      );
+      const skill = skillAbilityEvent(context.event);
+      return skill !== undefined && condition.skillIds.includes(skill.payload.skillId);
     }
     if (condition.kind === 'eventSkillCastMatchesBuffSource') {
       return (
         context?.skillCastInfo !== undefined &&
-        context.eventSkillCastInfo != null &&
-        context.eventSkillCastInfo.skillCastId === context.skillCastInfo.skillCastId
+        ('payload' in context.event
+          ? readSkillCastInfoFromPayload(context.event.payload)
+          : context.eventSkillCastInfo
+        )?.skillCastId === context.skillCastInfo.skillCastId
       );
     }
     if (condition.kind === 'eventBuffIdMatch') {
-      const event = context.event;
-      const matched =
-        (event.kind === 'buffApplied' ||
-          event.kind === 'buffFinished' ||
-          event.kind === 'buffConsumed') &&
-        condition.buffIds.includes(event.buffId);
+      const event = eventBuffData(context.event);
+      const matched = event !== undefined && condition.buffIds.includes(event.buffId);
       if (matched && condition.buffIdOutputKey !== undefined) {
         context.blackboard.assign({ [condition.buffIdOutputKey]: event.buffId });
       }
@@ -312,18 +313,14 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (condition.kind === 'eventBuffEndedEarly') {
       return (
-        context.event.kind === 'buffFinished' &&
-        (context.event.reason === 'ignite' || context.event.reason === 'early')
+        'payload' in context.event &&
+        (context.event.event === 'finishedBuff' || context.event.event === 'buffEndsEarly') &&
+        (context.event.payload.reason === 'ignite' || context.event.payload.reason === 'early')
       );
     }
     if (condition.kind === 'eventBuffTagsMatch') {
-      const event = context.event;
-      if (
-        event.kind !== 'buffApplied' &&
-        event.kind !== 'buffFinished' &&
-        event.kind !== 'buffConsumed'
-      )
-        return false;
+      const event = eventBuffData(context.event);
+      if (event === undefined) return false;
       const matched =
         this.matchBuffTags === undefined
           ? matchValues(event.buffTags ?? [], condition.buffTags, condition.match)
@@ -340,26 +337,29 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (condition.kind === 'eventHealTagsMatch') {
       const event = context.event;
-      const tags =
-        event.kind === 'abilityHeal' || event.kind === 'operatorHealed' ? event.tags : null;
+      const tags = healAbilityEvent(event)?.payload.tags ?? null;
       return tags !== null && matchValues(tags, condition.tags, condition.match);
     }
     if (condition.kind === 'eventSpGainMatch') {
-      const event = context.event;
+      const event = spGainAbilityEvent(context.event)?.payload;
       return (
-        event.kind === 'spGained' &&
+        event !== undefined &&
         (condition.sources === undefined || condition.sources.includes(event.source)) &&
         (condition.gainKinds === undefined || condition.gainKinds.includes(event.gainKind))
       );
     }
     if (condition.kind === 'eventConsumedBuffLayerCompare') {
       const event = context.event;
-      if (event.kind !== 'buffConsumed') return false;
+      if (
+        !('payload' in event) ||
+        (event.event !== 'buffConsumed' && event.event !== 'buffAbsorbed')
+      )
+        return false;
       if (condition.outputKey !== undefined) {
-        context.blackboard.assignDynamic(condition.outputKey, event.layers);
+        context.blackboard.assignDynamic(condition.outputKey, event.payload.layers);
       }
       return compareCombatNumbers(
-        event.layers,
+        event.payload.layers,
         resolveActionValueOperand(condition.value, context.blackboard),
         condition.operator,
       );
@@ -367,8 +367,10 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     if (condition.kind === 'eventSourceTargetMatch') {
       const event = context.event;
       const equal =
-        event.kind === 'operatorHealed'
-          ? event.sourceOperatorId === event.targetOperatorId
+        'payload' in event
+          ? abilityEventTargetId(event) === undefined
+            ? null
+            : abilityEventSourceId(event) === abilityEventTargetId(event)
           : 'sourceId' in event &&
               typeof event.sourceId === 'string' &&
               'targetId' in event &&
@@ -385,18 +387,18 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       }
       const event = context.event;
       const targetId =
-        'targetId' in event && typeof event.targetId === 'string'
-          ? event.targetId
-          : event.kind === 'operatorHealed'
-            ? event.targetOperatorId
+        'payload' in event
+          ? abilityEventTargetId(event)
+          : 'targetId' in event && typeof event.targetId === 'string'
+            ? event.targetId
             : null;
-      if (targetId === null) return false;
+      if (targetId == null) return false;
       const equal = ownerId === targetId;
       return condition.operator === 'equal' ? equal : !equal;
     }
     if (condition.kind === 'eventOverheal') {
-      const event = context.event;
-      if (event.kind !== 'abilityHeal' && event.kind !== 'operatorHealed') return false;
+      const event = healAbilityEvent(context.event)?.payload;
+      if (event === undefined) return false;
       if (condition.overHealKey) {
         context.blackboard.assignDynamic(condition.overHealKey, event.overhealing);
       }
@@ -438,33 +440,22 @@ function matchDamageCondition(
     : matchValues(damage.features, condition.features, condition.match);
 }
 
+/** 只读取现有事件中的 Buff 数据，不重建或规范化通知对象。 */
+function eventBuffData(event: NonNullable<CombatOperationContext['event']>) {
+  if ('payload' in event) return buffAbilityEvent(event)?.payload;
+  return undefined;
+}
+
 function eventDamageProperties(event: NonNullable<CombatOperationContext['event']>): {
   readonly tags: readonly DamageTag[];
   readonly gameplayTags?: readonly GameplayTag[];
   readonly features: readonly DamageFeature[];
   readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
 } | null {
-  switch (event.kind) {
-    case 'operatorHit':
-      return {
-        tags: event.tags,
-        gameplayTags: [],
-        features: event.features,
-        damageType: event.damageType,
-      };
-    case 'abilityDamage':
-      return {
-        tags: event.tags,
-        gameplayTags: event.gameplayTags,
-        features: event.features,
-        damageType: event.damageType,
-      };
-    case 'damageTagHit':
-    case 'enemyDefeated':
-      return { tags: event.tags, gameplayTags: [], features: event.features ?? [] };
-    default:
-      return null;
-  }
+  if ('event' in event && event.event === 'afterKillEntity') return event.payload;
+  const damage = damageAbilityEvent(event);
+  if (damage !== undefined) return damage.payload;
+  return null;
 }
 
 function matchValues<T>(

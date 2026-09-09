@@ -45,7 +45,7 @@ describe('HealOperationExecutor', () => {
         return { operatorId: 'enemy', vitals: enemy };
       },
       emitSuccessfulHeal: event =>
-        events.push({ sourceId: event.sourceId, targetId: event.targetId }),
+        events.push({ sourceId: event.payload.sourceId, targetId: event.payload.targetId }),
       delegate: terminal,
     });
     const blackboard = new ActionBlackboard({ eny_heal_ratio: 0.05 });
@@ -204,7 +204,7 @@ describe('HealOperationExecutor', () => {
       resolveTarget: () => ({ operatorId: 'operator:target', vitals: target }),
       emitSuccessfulHeal: event => {
         events.push(
-          `${event.event}:${event.sourceId}->${event.targetId}:${event.requestedHealing}:${event.actualHealing}`,
+          `${event.event}:${event.payload.sourceId}->${event.payload.targetId}:${event.payload.requestedHealing}:${event.payload.actualHealing}`,
         );
       },
       delegate: terminal,

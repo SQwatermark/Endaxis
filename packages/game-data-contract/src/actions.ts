@@ -1073,9 +1073,7 @@ export type CombatEventTrigger =
       scope: SkillTriggerScope;
     }
   | { kind: 'skillHit'; skillGroupKey: string; scope: SkillTriggerScope }
-  | { kind: 'enemyDefeated'; scope: SkillTriggerScope }
-  | { kind: 'statusExpired'; statusKey: string; target: CombatTarget }
-  | { kind: 'statusConsumed'; statusKey: string; target: CombatTarget };
+  | { kind: 'enemyDefeated'; scope: SkillTriggerScope };
 
 /** 技能、Buff 与配装事件监听共用的语义触发器词表。 */
 export const COMBAT_EVENT_TRIGGER_KINDS = [
@@ -1092,8 +1090,6 @@ export const COMBAT_EVENT_TRIGGER_KINDS = [
   'physicalInflictionApplied',
   'skillHit',
   'enemyDefeated',
-  'statusExpired',
-  'statusConsumed',
 ] as const satisfies readonly CombatEventTrigger['kind'][];
 
 /** 一个技能在战斗事件发生后调度的条件化行为。 */

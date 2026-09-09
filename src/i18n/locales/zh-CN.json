@@ -800,9 +800,7 @@
         "elementalInflictionApplied": "施加元素附着",
         "physicalInflictionApplied": "施加物理附着",
         "skillHit": "指定技能命中",
-        "enemyDefeated": "击败敌人",
-        "statusExpired": "状态自然结束",
-        "statusConsumed": "状态被消耗"
+        "enemyDefeated": "击败敌人"
       },
       "triggerScope": "事件来源范围",
       "triggerScopes": { "operator": "当前干员", "team": "全队" },

@@ -1,6 +1,5 @@
 import { describe, expect, it } from 'vitest';
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
-import type { ElementalReaction } from '../../game-data/operatorDefinition';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { ElementalReactionContainer } from '../infliction/elementalReactionState';
@@ -8,7 +7,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { ActionBlackboard } from './actionBlackboard';
 
-function createExecutor(emitReactionApplied?: (reaction: ElementalReaction) => void) {
+function createExecutor() {
   const clock = new CombatClock();
   const receipt = new CombatReceiptCollector();
   const container = new ElementalReactionContainer();
@@ -29,7 +28,6 @@ function createExecutor(emitReactionApplied?: (reaction: ElementalReaction) => v
     clock,
     receipt,
     container,
-    ...(emitReactionApplied === undefined ? {} : { emitReactionApplied }),
     delegate,
   });
   return { clock, receipt, container, executor, delegated };
@@ -82,32 +80,6 @@ describe('ElementalReactionOperationExecutor', () => {
       event: 'ElementalReactionApplied',
       data: { durationSeconds: 6 },
     });
-  });
-
-  it('只在反应状态与回执写入后报告施加事实', () => {
-    const observed: string[] = [];
-    const runtime = createExecutor(reaction => {
-      expect(runtime.container.isActive(reaction, 1, runtime.clock.time)).toBe(true);
-      expect(runtime.receipt.entries.at(-1)?.event).toBe('ElementalReactionApplied');
-      observed.push(reaction);
-    });
-    const apply: Extract<ResolvedCombatStep, { kind: 'applyElementalReaction' }> = {
-      kind: 'applyElementalReaction',
-      parameters: {
-        reaction: 'electrification',
-        target: 'enemy',
-        durationSeconds: 5,
-        effectiveness: 1,
-      },
-    };
-    const consume: Extract<ResolvedCombatStep, { kind: 'consumeElementalReaction' }> = {
-      kind: 'consumeElementalReaction',
-      parameters: { reaction: 'electrification', target: 'enemy' },
-    };
-
-    runtime.executor.execute(apply);
-    runtime.executor.execute(consume);
-    expect(observed).toEqual(['electrification']);
   });
 
   it('消费反应并记录回执，其余步骤交给后继执行器', () => {

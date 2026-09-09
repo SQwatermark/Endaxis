@@ -1,5 +1,66 @@
+import { withAbilityEventResponseContext } from './abilityEventResponseContext';
+import { expectTypeOf } from 'vitest';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { StandardPlayerDamagePayloadMap } from './standardPlayerDamageEnvironment';
+
+it('标准环境公共事件载荷复用权威映射，不被过程通知的 unknown 放宽', () => {
+  expectTypeOf<StandardPlayerDamagePayloadMap['addedBuff']>().toEqualTypeOf<
+    AbilityEventPayloadMap['addedBuff']
+  >();
+  expectTypeOf<StandardPlayerDamagePayloadMap['weaknessSet']>().toEqualTypeOf<
+    AbilityEventPayloadMap['weaknessSet']
+  >();
+  expectTypeOf<StandardPlayerDamagePayloadMap['beforeOutputDamage']>().toEqualTypeOf<
+    AbilityEventPayloadMap['beforeOutputDamage']
+  >();
+});
+import { buffEnhanceAbilityEvent } from '../events/combatAbilityEvent';
+
+it('Buff 层数变化在 owner 发布，载荷不伪造目标且消费同一原始对象', () => {
+  const environment = createEnvironment();
+  const target = environment.runtimeOptions.enemyBuffRuntime;
+  if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const received: number[] = [];
+  environment.eventsFor('enemy').registerCallback('buffEnhanceChanged', event => {
+    const published = buffEnhanceAbilityEvent(event);
+    if (published === undefined) throw new Error('fixture event');
+    expect(published).toBe(event);
+    expect(published.payload.sourceId).toBe('enemy');
+    expect('targetId' in published.payload).toBe(false);
+    const context: import('./skillRuntime').CombatOperationContext = {
+      blackboard: new ActionBlackboard(),
+    };
+    withAbilityEventResponseContext(context, event, undefined, () => {
+      expect(context.event).toBe(event);
+    });
+    received.push(published.payload.layerCount);
+  });
+  const definition = {
+    id: 'layer-test',
+    stackingType: 'enhanceAndRefresh' as const,
+    maxStackCount: 3,
+  };
+  target.container.add(definition, 'operator');
+  target.container.add(definition, 'operator');
+  expect(received).toContain(1);
+});
+
 import { fixtureGameplayTagRegistry } from '../../../../tools/game-data-compiler/test/gameplayTagFixtures.ts';
 import { describe, expect, it, vi } from 'vitest';
+
+it('正式发布链向连携转交同一事件对象，不重新投影或包装', () => {
+  const environment = createEnvironment();
+  let published: unknown;
+  environment.eventsFor('enemy').registerCallback('weaknessSet', event => {
+    expect(event.payload).toEqual({ sourceId: 'enemy' });
+    published = event;
+  });
+  const combo = vi.spyOn(environment.comboConditions, 'onAbilityEvent');
+  environment.runtimeOptions.emitExternalEnemyWeaknessSet?.();
+  expect(published).toBeDefined();
+  expect(combo).toHaveBeenCalledOnce();
+  expect(combo.mock.calls[0]![0]).toBe(published);
+});
 import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type { CombatBuffDefinitionsDocument } from '../buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../infliction/skillSettings';
@@ -233,10 +294,12 @@ function createEquipmentContext(): EquipmentEventOperationExecutorContext {
     source: { kind: 'weaponTrait', slug: 'fixture', traitKey: 'effect' },
     handlerKey: 'additional-hit',
     event: {
-      kind: 'physicalInflictionApplied',
-      sourceOperatorId: 'operator',
-      targetId: 'enemy',
-      type: 'airborne',
+      event: 'afterOutputPhysicalInfliction',
+      payload: {
+        sourceId: 'operator',
+        targetId: 'enemy',
+        type: 'airborne',
+      },
     },
   };
 }
@@ -786,8 +849,13 @@ it('技能编译保留即时 Atk 修正，只影响当前命中且每次读取�
 });
 
 it('装备末端从真实配装上下文结算伤害，不继承触发技能或发送伪技能命中', () => {
-  const context = createEquipmentContext();
   const environment = createEnvironment();
+  const context = {
+    ...createEquipmentContext(),
+    semanticEvents: new CombatSemanticEventRuntime(
+      environment.runtimeOptions.registerCombatAbilityEvent,
+    ),
+  };
   const events: unknown[] = [];
   environment
     .eventsFor('operator')
@@ -885,6 +953,7 @@ function createInflictionEnvironment(): StandardPlayerDamageEnvironment {
     buffs: [
       {
         id: 'attachment.electric',
+        applyTags: ['Skill/Character/Common/SpellInflict/PulseInflict'],
         stackingType: 'enhanceAndRefresh',
         stackingKey: 'attachment.electric',
         maxStackCount: 4,
@@ -899,6 +968,7 @@ function createInflictionEnvironment(): StandardPlayerDamageEnvironment {
       },
       {
         id: 'attachment.heat',
+        applyTags: ['Skill/Character/Common/SpellInflict/FireInflict'],
         stackingType: 'enhanceAndRefresh',
         stackingKey: 'attachment.heat',
         maxStackCount: 4,
@@ -1779,7 +1849,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     });
   });
 
-  it('publishes successful heals to both ability sides before the receiver semantic event', () => {
+  it('completes healer subscriptions before receiver publication and shares each original event', () => {
     const environment = new StandardPlayerDamageEnvironment({
       criticalSamples: { nextCriticalSample: () => 1 },
       resolveNonRandomRuntimeSnapshot: () => ({
@@ -1791,7 +1861,9 @@ describe('StandardPlayerDamageEnvironment', () => {
       isOperatorControlled: operatorId => operatorId === 'operator:receiver',
     });
     const order: string[] = [];
+    let outputPayload: unknown;
     environment.eventsFor('operator:healer').registerAction('outputHeal', 0, ({ payload }) => {
+      outputPayload = payload;
       expect(payload).toMatchObject({
         sourceId: 'operator:healer',
         targetId: 'operator:receiver',
@@ -1799,20 +1871,36 @@ describe('StandardPlayerDamageEnvironment', () => {
       });
       order.push('output');
     });
-    environment.eventsFor('operator:receiver').registerAction('receiveHeal', 0, () => {
+    let receivedEvent: unknown;
+    environment.eventsFor('operator:receiver').registerAction('receiveHeal', 0, event => {
+      expect(event.payload).not.toBe(outputPayload);
+      expect(event.payload).toEqual(outputPayload);
+      receivedEvent = event;
       order.push('receive');
     });
 
     const context = createContext();
-    const semanticEvents = context.semanticEvents;
+    const semanticEvents = new CombatSemanticEventRuntime(
+      environment.runtimeOptions.registerCombatAbilityEvent,
+    );
     semanticEvents.register({
       ownerOperatorId: 'operator:receiver',
       trigger: { kind: 'operatorHealed' },
       phase: 'skill',
-      handle: () => order.push('semantic'),
+      handle: ({ event }) => {
+        expect(event).toBe(receivedEvent);
+        order.push('receiverSkill');
+      },
+    });
+    semanticEvents.register({
+      ownerOperatorId: 'operator:healer',
+      trigger: { kind: 'operatorHealed', role: 'source' },
+      phase: 'skill',
+      handle: () => order.push('healerSkill'),
     });
     const executor = environment.runtimeOptions.createOperationExecutor({
       ...context,
+      semanticEvents,
       program: { ...context.program, operatorId: 'operator:healer' },
       panel: {
         ...context.panel!,
@@ -1839,7 +1927,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         },
       }),
     ).toBe(true);
-    expect(order).toEqual(['output', 'receive', 'semantic']);
+    expect(order).toEqual(['output', 'healerSkill', 'receive', 'receiverSkill']);
   });
 
   it('evaluates health conditions against the shared post-damage vitals', () => {
@@ -1868,8 +1956,13 @@ describe('StandardPlayerDamageEnvironment', () => {
   });
 
   it('executes the strict standard life-damage subset with compiled panel and enemy inputs', () => {
-    const context = createContext();
     const environment = createEnvironment();
+    const context = {
+      ...createContext(),
+      semanticEvents: new CombatSemanticEventRuntime(
+        environment.runtimeOptions.registerCombatAbilityEvent,
+      ),
+    };
     const events: string[] = [];
     context.semanticEvents.register({
       ownerOperatorId: 'operator',
@@ -1915,12 +2008,22 @@ describe('StandardPlayerDamageEnvironment', () => {
     ]);
   });
 
-  it('bridges a lethal health write to the unified enemy-defeated event', () => {
+  it('击杀定义监听与原生监听按优先级共享同一事件', () => {
     const baseContext = createContext();
     const lowHealthEnemy = { ...testEnemy, health: 100 };
-    const context: CombatOperationExecutorContext = { ...baseContext, enemy: lowHealthEnemy };
     const environment = createEnvironment(lowHealthEnemy);
+    const context: CombatOperationExecutorContext = {
+      ...baseContext,
+      enemy: lowHealthEnemy,
+      semanticEvents: new CombatSemanticEventRuntime(
+        environment.runtimeOptions.registerCombatAbilityEvent,
+      ),
+    };
     const events: string[] = [];
+    let original: unknown;
+    environment.eventsFor('operator').registerCallback('afterKillEntity', event => {
+      original = event;
+    });
     environment
       .eventsFor('operator')
       .registerAction('afterKillEntity', 10, () => events.push('internal:afterKillEntity'));
@@ -1929,9 +2032,10 @@ describe('StandardPlayerDamageEnvironment', () => {
       trigger: { kind: 'enemyDefeated', scope: 'operator' },
       phase: 'dataAction',
       handle: ({ event }) => {
-        expect(event.kind).toBe('enemyDefeated');
-        if (event.kind === 'enemyDefeated') {
-          expect(event.features).toEqual(['canBreakWeakness']);
+        expect(event).toBe(original);
+        expect('event' in event && event.event).toBe('afterKillEntity');
+        if ('event' in event && event.event === 'afterKillEntity') {
+          expect(event.payload.features).toEqual(['canBreakWeakness']);
         }
         events.push(`defeated:${environment.enemyVitals.health}`);
       },
@@ -1945,7 +2049,7 @@ describe('StandardPlayerDamageEnvironment', () => {
       }),
     ).toBe(true);
 
-    expect(events).toEqual(['defeated:0']);
+    expect(events).toEqual(['internal:afterKillEntity', 'defeated:0']);
   });
 
   it('applies poise damage and recovers after the break duration', () => {
@@ -2067,19 +2171,31 @@ describe('StandardPlayerDamageEnvironment', () => {
   });
 
   it('publishes the actual attachment layers consumed by a different incoming element', () => {
-    const context = createContext();
+    const environment = createInflictionEnvironment();
+    const context = {
+      ...createContext(),
+      semanticEvents: new CombatSemanticEventRuntime(
+        environment.runtimeOptions.registerCombatAbilityEvent,
+      ),
+    };
+    environment.runtimeOptions.enemyBuffRuntime.configureBuffConsumedObserver!(event =>
+      environment.runtimeOptions.emitBuffLifecycleAbilityEvent!('buffConsumed', {
+        ...event,
+        sourceId: event.sourceOperatorId,
+      }),
+    );
     const consumed: number[] = [];
     context.semanticEvents.register({
       ownerOperatorId: 'operator',
       trigger: { kind: 'elementalAttachmentConsumed' },
       phase: 'dataAction',
       handle: event => {
-        if (event.event.kind === 'elementalAttachmentConsumed') {
-          consumed.push(event.event.layers);
+        if ('payload' in event.event && event.event.event === 'buffConsumed') {
+          consumed.push(event.event.payload.layers);
         }
       },
     });
-    const executor = createInflictionEnvironment().runtimeOptions.createOperationExecutor(context);
+    const executor = environment.runtimeOptions.createOperationExecutor(context);
 
     expect(
       executor.execute({
@@ -2729,4 +2845,46 @@ describe('StandardPlayerDamageEnvironment', () => {
       }),
     ).toThrow("does not support 'applyBuff'");
   });
+});
+
+it.each(['beforeDamageAction', 'beforeCalculateDamage'] as const)(
+  '%s 响应沿用真实可变伤害包，不转换成字段副本',
+  event => {
+    const environment = createEnvironment();
+    const operationContext = { blackboard: new ActionBlackboard() };
+    let calls = 0;
+    environment.eventsFor('operator').registerAction(event, 0, published => {
+      withAbilityEventResponseContext(operationContext, published, undefined, () => {
+        expect(operationContext).toHaveProperty('event', published);
+        // toHaveProperty 是深相等；此处另验证原始对象身份。
+        expect(Reflect.get(operationContext, 'event')).toBe(published);
+        calls++;
+      });
+    });
+    environment.runtimeOptions.createOperationExecutor(createContext()).execute(damageStep);
+    expect(calls).toBe(1);
+  },
+);
+
+it('执行程序使用自定义组键时原样随输出传递，承伤方不携带此归属', () => {
+  const environment = createEnvironment();
+  const context = createContext();
+  const outputs: unknown[] = [];
+  const targets: unknown[] = [];
+  environment
+    .eventsFor('operator')
+    .registerAction('outputDamage', 0, event => outputs.push(event.payload));
+  environment
+    .eventsFor('enemy')
+    .registerAction('takeDamage', 0, event => targets.push(event.payload));
+  environment.runtimeOptions
+    .createOperationExecutor({
+      ...context,
+      program: { ...context.program, skillId: 'unrelated-id', skillGroupKey: 'custom-group' },
+    })
+    .execute(damageStep);
+  expect(outputs).toHaveLength(1);
+  expect(outputs[0]).toHaveProperty('executingSkillGroupKey', 'custom-group');
+  expect(targets).toHaveLength(1);
+  expect(targets[0]).not.toHaveProperty('executingSkillGroupKey');
 });

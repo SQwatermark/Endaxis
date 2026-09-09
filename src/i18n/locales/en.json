@@ -806,9 +806,7 @@
         "elementalInflictionApplied": "Elemental infliction applied",
         "physicalInflictionApplied": "Physical infliction applied",
         "skillHit": "Specified skill hit",
-        "enemyDefeated": "Enemy defeated",
-        "statusExpired": "Status expired",
-        "statusConsumed": "Status consumed"
+        "enemyDefeated": "Enemy defeated"
       },
       "triggerScope": "Event source scope",
       "triggerScopes": { "operator": "Current operator", "team": "Team" },

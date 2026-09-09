@@ -43,7 +43,10 @@ export interface MechanicSequenceExecutor<AbilityPayload = unknown, LevelPayload
 
 /** 安装机制贡献所需的事件总线和核心序列执行端口。 */
 export interface MechanicRuntimeDependencies<AbilityPayload = unknown, LevelPayload = unknown> {
-  readonly abilityEvents: AbilityEventDispatcher<MechanicAbilityEvent, AbilityPayload>;
+  readonly abilityEvents: AbilityEventDispatcher<
+    MechanicAbilityEvent,
+    Record<MechanicAbilityEvent, AbilityPayload>
+  >;
   readonly gameLevelEvents: GameLevelEventDispatcher<MechanicGameLevelEvent['kind'], LevelPayload>;
   readonly sequenceExecutor: MechanicSequenceExecutor<AbilityPayload, LevelPayload>;
 }

@@ -762,9 +762,7 @@
         "elementalInflictionApplied": "Наложение элемента",
         "physicalInflictionApplied": "Физическое наложение",
         "skillHit": "Попадание указанного навыка",
-        "enemyDefeated": "Победа над противником",
-        "statusExpired": "Состояние истекло",
-        "statusConsumed": "Состояние израсходовано"
+        "enemyDefeated": "Победа над противником"
       },
       "triggerScope": "Источник события",
       "triggerScopes": { "operator": "Текущий оператор", "team": "Отряд" },

@@ -8,15 +8,27 @@ export interface AbilityEventContext<Event, Payload = unknown> {
   readonly payload: Payload;
 }
 
+/** 保留事件名和载荷的关联，不能把两个独立联合做笛卡尔积。 */
+export type AbilityEventFromMap<
+  Event extends PropertyKey,
+  Payloads extends Record<Event, unknown>,
+> = {
+  [Name in Event]: AbilityEventContext<Name, Payloads[Name]>;
+}[Event];
+
 /** 技能或 Buff 等有身份对象通过此接口接收 Ability 事件。 */
-export interface AbilityEventListener<Event, Payload = unknown> {
-  onAbilityEvent(context: AbilityEventContext<Event, Payload>): void;
+export interface AbilityEventListener<
+  Event extends PropertyKey,
+  Payloads extends Record<Event, unknown> = Record<Event, unknown>,
+> {
+  onAbilityEvent(context: AbilityEventFromMap<Event, Payloads>): void;
 }
 
 /** 不持有监听者身份的轻量 Ability 事件处理函数。 */
-export type AbilityEventHandler<Event, Payload = unknown> = (
-  context: AbilityEventContext<Event, Payload>,
-) => void;
+export type AbilityEventHandler<
+  Event extends PropertyKey,
+  Payloads extends Record<Event, unknown> = Record<Event, unknown>,
+> = (context: AbilityEventFromMap<Event, Payloads>) => void;
 
 /**
  * 一组已注册事件行为的生命周期句柄。
@@ -26,38 +38,45 @@ export interface AbilityEventRegistration {
   dispose(): void;
 }
 
-interface RegisteredAction<Event, Payload> {
+interface RegisteredAction<Event extends PropertyKey, Payloads extends Record<Event, unknown>> {
   readonly priority: number;
   readonly registrationOrder: number;
   readonly samePriorityKey?: string;
-  readonly execute: AbilityEventHandler<Event, Payload>;
+  readonly execute: AbilityEventHandler<Event, Payloads>;
 }
 
 /**
  * 复现已确认的原生分发阶段。数据行为按优先级降序执行，同优先级先注册者先执行。
  */
-export class AbilityEventDispatcher<Event, Payload = unknown> {
-  readonly #callbacks = new Map<Event, AbilityEventHandler<Event, Payload>[]>();
-  readonly #actions = new Map<Event, RegisteredAction<Event, Payload>[]>();
+export class AbilityEventDispatcher<
+  Event extends PropertyKey,
+  Payloads extends Record<Event, unknown> = Record<Event, unknown>,
+> {
+  readonly #callbacks = new Map<Event, AbilityEventHandler<Event, Payloads>[]>();
+  readonly #actions = new Map<Event, RegisteredAction<Event, Payloads>[]>();
+  readonly #skillListeners = new Map<Event, AbilityEventHandler<Event, Payloads>[]>();
+  readonly #comboListeners = new Map<Event, AbilityEventHandler<Event, Payloads>[]>();
   #nextActionRegistrationOrder = 0;
 
-  registerCallback(
-    event: Event,
-    callback: AbilityEventHandler<Event, Payload>,
+  registerCallback<Name extends Event>(
+    event: Name,
+    callback: AbilityEventHandler<Name, Payloads>,
   ): AbilityEventRegistration {
+    // 注册表按事件键隔离；这里只擦除键关联，不包装事件或替换回调身份。
+    const registered = callback as AbilityEventHandler<Event, Payloads>;
     const callbacks = this.#callbacks.get(event);
     if (callbacks === undefined) {
-      this.#callbacks.set(event, [callback]);
+      this.#callbacks.set(event, [registered]);
     } else {
-      callbacks.push(callback);
+      callbacks.push(registered);
     }
-    return this.#createRegistration(this.#callbacks, event, callback);
+    return this.#createRegistration(this.#callbacks, event, registered);
   }
 
-  registerAction(
-    event: Event,
+  registerAction<Name extends Event>(
+    event: Name,
     priority: number,
-    execute: AbilityEventHandler<Event, Payload>,
+    execute: AbilityEventHandler<Name, Payloads>,
     samePriorityKey?: string,
   ): AbilityEventRegistration {
     if (!Number.isInteger(priority)) {
@@ -67,7 +86,7 @@ export class AbilityEventDispatcher<Event, Payload = unknown> {
     const action = {
       priority,
       registrationOrder: this.#nextActionRegistrationOrder++,
-      execute,
+      execute: execute as AbilityEventHandler<Event, Payloads>,
       ...(samePriorityKey === undefined ? {} : { samePriorityKey }),
     };
     if (actions === undefined) {
@@ -82,14 +101,33 @@ export class AbilityEventDispatcher<Event, Payload = unknown> {
     return this.#createRegistration(this.#actions, event, action);
   }
 
+  /** 持续监听器也进入同一次分发的原生阶段，不另开一轮事件循环。 */
+  registerListener<Name extends Event>(
+    event: Name,
+    phase: 'skill' | 'combo',
+    callback: AbilityEventHandler<Name, Payloads>,
+  ): AbilityEventRegistration {
+    const registry = phase === 'skill' ? this.#skillListeners : this.#comboListeners;
+    // 与回调注册相同：存储时擦除键关联，分发时始终按同一事件键读取。
+    const registered = callback as AbilityEventHandler<Event, Payloads>;
+    const entries = registry.get(event);
+    if (entries === undefined) registry.set(event, [registered]);
+    else entries.push(registered);
+    return this.#createRegistration(registry, event, registered);
+  }
+
   dispatch(
-    context: AbilityEventContext<Event, Payload>,
-    skillListeners: readonly AbilityEventListener<Event, Payload>[],
-    comboListener?: AbilityEventListener<Event, Payload>,
+    context: AbilityEventFromMap<Event, Payloads>,
+    skillListeners: readonly AbilityEventListener<Event, Payloads>[],
+    comboListener?: AbilityEventListener<Event, Payloads>,
   ): void {
     for (const callback of this.#callbacks.get(context.event)?.slice() ?? []) callback(context);
     for (const action of this.#actions.get(context.event)?.slice() ?? []) action.execute(context);
+    for (const listener of this.#skillListeners.get(context.event)?.slice() ?? [])
+      listener(context);
     for (const listener of skillListeners.slice()) listener.onAbilityEvent(context);
+    for (const listener of this.#comboListeners.get(context.event)?.slice() ?? [])
+      listener(context);
     comboListener?.onAbilityEvent(context);
   }
 

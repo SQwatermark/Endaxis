@@ -18,7 +18,20 @@ import {
   type SkillGroupDefinition,
 } from './skills.ts';
 import { type OperatorBuffDefinitions } from './buffs.ts';
-import { type AbilityEvent } from './abilityEvents.ts';
+import { type AbilityEvent, type AbilityEventResponse } from './abilityEvents.ts';
+
+/** 当前被动响应的可执行范围，不代表原生被动只有这些事件；各层共用同一准入边界。 */
+export const OPERATOR_PASSIVE_ABILITY_EVENTS = [
+  'abilityEntitySpawned',
+  'abilityEntityFinished',
+  'addedBuff',
+] as const;
+export type OperatorPassiveAbilityEvent = (typeof OPERATOR_PASSIVE_ABILITY_EVENTS)[number];
+export function isOperatorPassiveAbilityEvent(
+  event: unknown,
+): event is OperatorPassiveAbilityEvent {
+  return (OPERATOR_PASSIVE_ABILITY_EVENTS as readonly unknown[]).includes(event);
+}
 
 /** 干员各等级四维、基础攻击与基础生命的成长定义表。 */
 export type AttributeGrowthDefinition = Record<OperatorAttribute, readonly number[]> & {
@@ -213,7 +226,6 @@ export const UPGRADE_MODIFIER_KINDS = [
 export type UpgradeModifierKind = (typeof UPGRADE_MODIFIER_KINDS)[number];
 
 export type UpgradeEvent =
-  | { kind: 'reactionApplied'; reaction: ElementalReaction }
   | Extract<CombatEventTrigger, { kind: 'spGained' }>
   | { kind: 'elementalAttachmentConsumed' }
   /** 原生 OnConsumeBuff：只匹配由当前干员作为 finish source 消费的明确 Buff 身份。 */
@@ -239,12 +251,11 @@ export interface OperatorPassiveSkillDefinition {
   blackboard?: Readonly<Record<string, LevelValues>>;
   /** 原生被动 Skill.Enable 时执行的有序行为。 */
   enableSequence: ActionSequenceDefinition;
-  /** 被动 Skill 注册的原生能力实体生命周期事件；与启用程序共享被动黑板。 */
-  abilityEventResponses?: readonly {
-    event: Extract<AbilityEvent, 'abilityEntitySpawned' | 'abilityEntityFinished'>;
-    priority: number;
-    sequence: ActionSequenceDefinition;
-  }[];
+  /** 被动 Skill 的原生事件响应；与启用程序共享被动黑板。 */
+  abilityEventResponses?: readonly Omit<
+    AbilityEventResponse<OperatorPassiveAbilityEvent>,
+    'samePriorityKey'
+  >[];
 }
 
 export interface OperatorUpgradeDefinition {

@@ -2,9 +2,37 @@ import { describe, expect, it } from 'vitest';
 import { AbilityEventDispatcher } from './abilityEventDispatcher';
 
 describe('AbilityEventDispatcher', () => {
+  it('持久订阅与临时监听共享阶段，并在阶段开始时取得快照', () => {
+    const dispatcher = new AbilityEventDispatcher<'hit', { hit: number }>();
+    const calls: string[] = [];
+    const event = { event: 'hit' as const, payload: 1 };
+    dispatcher.registerCallback('hit', context => {
+      expect(context).toBe(event);
+      calls.push('callback');
+      dispatcher.registerListener('hit', 'skill', current => {
+        expect(current).toBe(event);
+        calls.push('skill-late');
+      });
+    });
+    dispatcher.registerAction('hit', 20, () => calls.push('action'));
+    const skill = dispatcher.registerListener('hit', 'skill', () => calls.push('skill'));
+    const combo = dispatcher.registerListener('hit', 'combo', current => {
+      expect(current).toBe(event);
+      calls.push('combo');
+    });
+    dispatcher.dispatch(event, []);
+    expect(calls).toEqual(['callback', 'action', 'skill', 'skill-late', 'combo']);
+    skill.dispose();
+    combo.dispose();
+    skill.dispose();
+    calls.length = 0;
+    dispatcher.dispatch(event, []);
+    expect(calls).toEqual(['callback', 'action', 'skill-late', 'skill-late']);
+  });
+
   it('uses the confirmed callback, data-action, skill, and combo phase order', () => {
     const events: string[] = [];
-    const dispatcher = new AbilityEventDispatcher<'hit', number>();
+    const dispatcher = new AbilityEventDispatcher<'hit', { hit: number }>();
     dispatcher.registerCallback('hit', () => events.push('callback'));
     dispatcher.registerAction('hit', 10, () => events.push('action-low'));
     dispatcher.registerAction('hit', 20, () => events.push('action-high'));

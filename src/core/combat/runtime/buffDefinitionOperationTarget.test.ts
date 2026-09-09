@@ -394,7 +394,7 @@ describe('BuffDefinitionOperationTarget', () => {
     expect(countsBeforeAttempt).toEqual([0, 1]);
   });
 
-  it('publishes the exact successful Buff application to the scene observer', () => {
+  it('publishes the exact successful Buff application through the native added callback', () => {
     const observer = vi.fn();
     const target = new BuffDefinitionOperationTarget(
       new CombatBuffContainer('operator', new CombatAttributeSet()),
@@ -402,8 +402,10 @@ describe('BuffDefinitionOperationTarget', () => {
         get: () => undefined,
         compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
       },
+      undefined,
+      undefined,
+      observer,
     );
-    target.configureBuffAppliedObserver(observer);
 
     expect(
       target.apply({
@@ -421,11 +423,13 @@ describe('BuffDefinitionOperationTarget', () => {
       skillCastInfo: null,
       isExtra: false,
     });
-    expect(() => target.configureBuffAppliedObserver(observer)).toThrow('observer is configured');
+    expect(observer).toHaveBeenCalledOnce();
   });
 
   it('registers an added-Buff response before publishing the successful application', () => {
-    let handleAdded: ((payload: unknown) => void) | undefined;
+    let handleAdded:
+      | Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
+      | undefined;
     const execute = vi.fn(() => true);
     const target = new BuffDefinitionOperationTarget(
       new CombatBuffContainer('operator', new CombatAttributeSet()),
@@ -439,7 +443,7 @@ describe('BuffDefinitionOperationTarget', () => {
         handleAdded = handle;
         return { dispose: vi.fn() };
       },
-      event => handleAdded?.(event),
+      payload => handleAdded?.({ event: 'addedBuff', payload }),
     );
     target.configureLifecycleOperations(() => ({ execute, evaluate: () => true }));
 
@@ -471,8 +475,17 @@ describe('BuffDefinitionOperationTarget', () => {
   });
 
   it('preserves the dormant character-side spell-infliction response as its own event', () => {
-    let handleInfliction: ((payload: unknown) => void) | undefined;
-    const execute = vi.fn(() => true);
+    let handleInfliction:
+      | Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
+      | undefined;
+    const observed: unknown[] = [];
+    // 响应结束会恢复上下文，必须在执行期间观察事件，不能检查 spy 保存的可变上下文引用。
+    const execute = vi.fn(
+      (_step: unknown, context?: import('./skillRuntime').CombatOperationContext) => {
+        observed.push(context?.event);
+        return true;
+      },
+    );
     const target = new BuffDefinitionOperationTarget(
       new CombatBuffContainer('operator', new CombatAttributeSet()),
       {
@@ -513,18 +526,17 @@ describe('BuffDefinitionOperationTarget', () => {
       }),
     ).toBe(true);
 
-    handleInfliction?.({ sourceId: 'enemy', targetId: 'operator' });
-    expect(execute).toHaveBeenCalledWith(
-      expect.objectContaining({ kind: 'setContextFlag' }),
-      expect.objectContaining({
-        event: {
-          kind: 'abilitySpellInfliction',
-          event: 'beforeTakeSpellInfliction',
-          sourceId: 'enemy',
-          targetId: 'operator',
-        },
-      }),
-    );
+    handleInfliction?.({
+      event: 'beforeTakeSpellInfliction',
+      payload: { sourceId: 'enemy', targetId: 'operator' },
+    });
+    expect(execute).toHaveBeenCalledOnce();
+    expect(observed).toEqual([
+      {
+        event: 'beforeTakeSpellInfliction',
+        payload: { sourceId: 'enemy', targetId: 'operator' },
+      },
+    ]);
   });
 
   it('rejects configuring lifecycle operations more than once', () => {

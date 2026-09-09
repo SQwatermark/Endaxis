@@ -97,13 +97,15 @@ describe('TimedMarkerOperationExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'operatorHealed' as const,
-        sourceOperatorId: 'operator:healer',
-        targetOperatorId: 'operator:receiver',
-        requestedHealing: 100,
-        actualHealing: 0,
-        overhealing: 100,
-        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+        event: 'receiveHeal' as const,
+        payload: {
+          sourceId: 'operator:healer',
+          targetId: 'operator:receiver',
+          requestedHealing: 100,
+          actualHealing: 0,
+          overhealing: 100,
+          tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+        },
       },
     };
     const step: ResolvedCombatOperationStep = {

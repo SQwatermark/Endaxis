@@ -17,7 +17,6 @@ import {
   duplicateSkillEditorDetachedStep,
 } from '../skillDefinitionEditorViewModel';
 import {
-  ELEMENTAL_REACTIONS,
   SKILL_LEVEL_SOURCES,
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,
@@ -122,14 +121,12 @@ function addModifier(kind: UpgradeModifierDefinition['kind']) {
   menu.value = undefined;
 }
 function eventDefault(kind: UpgradeEvent['kind']): UpgradeEvent {
-  if (kind === 'reactionApplied') return { kind, reaction: 'electrification' };
   if (kind === 'buffConsumed') return { kind, buffIds: [] };
   if (kind === 'skillHit')
     return { kind, skillGroupKey: props.skillGroupKeys[0] ?? '', scope: 'operator' };
   return { kind };
 }
 const events = {
-  reactionApplied: '元素反应生效',
   spGained: '获得技力',
   elementalAttachmentConsumed: '元素附着被消耗',
   buffConsumed: '消费 Buff',
@@ -263,16 +260,6 @@ function setTalentLevels(event: Event) {
                   <option v-for="(label, key) in events" :key="key" :value="key">
                     {{ label }}
                   </option>
-                </select></label
-              >
-              <label
-                v-if="event.kind === 'reactionApplied'"
-                :data-property-path="JSON.stringify(['reaction'])"
-                >反应<select
-                  :value="event.reaction"
-                  @change="patch(node.sourcePath, value, 'reaction', text($event))"
-                >
-                  <option v-for="r in ELEMENTAL_REACTIONS" :key="r" :value="r">{{ r }}</option>
                 </select></label
               >
               <template v-if="event.kind === 'spGained'">

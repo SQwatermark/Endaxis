@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { createKillEvent } from '../events/killEventTestFixture';
 import { ActionBlackboard } from './actionBlackboard';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
@@ -15,13 +16,15 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'abilityDamage' as const,
         event: 'outputDamage' as const,
-        sourceId: 'old',
-        targetId: 'old',
-        damageType: 'heat' as const,
-        tags: ['ultimateSkill'] as const,
-        features: [],
+        payload: {
+          ...createKillEvent().payload,
+          sourceId: 'old',
+          targetId: 'old',
+          damageType: 'heat' as const,
+          tags: ['ultimateSkill'] as const,
+          features: [],
+        },
       },
       beforeApplyDamageModifier: {
         side: 'attacker' as const,
@@ -87,12 +90,14 @@ describe('EventContextConditionExecutor', () => {
       actionSourceId: 'listener',
       actionOwnerId: 'listener',
       event: {
-        kind: 'abilityDamage' as const,
         event: 'takeDamage' as const,
-        sourceId: 'controlled',
-        targetId: 'listener',
-        tags: [] as const,
-        features: [] as const,
+        payload: {
+          ...createKillEvent().payload,
+          sourceId: 'controlled',
+          targetId: 'listener',
+          tags: [] as const,
+          features: [] as const,
+        },
       },
     };
     expect(
@@ -125,12 +130,13 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'abilityCustom' as const,
         event: 'customAbilityEvent' as const,
-        sourceId: 'liino',
-        targetId: 'liino',
-        eventName: 'liino_comboskill_end',
-        eventParam: 0,
+        payload: {
+          sourceId: 'liino',
+          targetId: 'liino',
+          eventName: 'liino_comboskill_end',
+          eventParam: 0,
+        },
       },
     };
     expect(
@@ -145,6 +151,25 @@ describe('EventContextConditionExecutor', () => {
         context,
       ),
     ).toBe(false);
+    expect(
+      executor.evaluate(
+        { kind: 'eventCustomAbilityNameMatch', eventName: 'wrong', outputKey: 'saved' },
+        context,
+      ),
+    ).toBe(false);
+    expect(context.blackboard.getNumber('saved')).toBeUndefined();
+    const published = { ...context.event, payload: { ...context.event.payload, eventParam: 2.5 } };
+    expect(
+      executor.evaluate(
+        {
+          kind: 'eventCustomAbilityNameMatch',
+          eventName: 'liino_comboskill_end',
+          outputKey: 'saved',
+        },
+        { ...context, event: published },
+      ),
+    ).toBe(true);
+    expect(context.blackboard.getNumber('saved')).toBe(2.5);
   });
 
   it('queries the current AbilitySystem skill without requiring an event payload', () => {
@@ -180,18 +205,23 @@ describe('EventContextConditionExecutor', () => {
       buffSourceId: 'holder',
       buffOwnerId: 'enemy',
       event: {
-        kind: 'buffApplied' as const,
-        sourceId: 'holder',
-        targetId: 'enemy',
-        buffId: 'freeze',
-        buffTags: [],
+        event: 'addedBuff' as const,
+        payload: {
+          sourceId: 'holder',
+          targetId: 'enemy',
+          buffId: 'freeze',
+          buffTags: [],
+        },
       },
     };
     expect(executor.evaluate({ kind: 'eventSourceMatchesBuffSource' }, context)).toBe(true);
     expect(
       executor.evaluate(
         { kind: 'eventSourceMatchesBuffSource' },
-        { ...context, event: { ...context.event, sourceId: 'teammate' } },
+        {
+          ...context,
+          event: { ...context.event, payload: { ...context.event.payload, sourceId: 'teammate' } },
+        },
       ),
     ).toBe(false);
     expect(() =>
@@ -222,12 +252,20 @@ describe('EventContextConditionExecutor', () => {
         nonReturnedSpCost: 0,
       },
       event: {
-        kind: 'abilityDamage' as const,
         event: 'beforeOutputDamage' as const,
-        sourceId: 'operator',
-        targetId: 'enemy',
-        tags: ['normalSkill'] as const,
-        features: [],
+        payload: {
+          ...createKillEvent().payload,
+          skillCastInfo: {
+            skillCastId: 4,
+            originSkillId: 'current-combo',
+            originSkillType: 'comboSkill' as const,
+            nonReturnedSpCost: 0,
+          },
+          sourceId: 'operator',
+          targetId: 'enemy',
+          tags: ['normalSkill'] as const,
+          features: [],
+        },
       },
     };
 
@@ -242,7 +280,7 @@ describe('EventContextConditionExecutor', () => {
         { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
         {
           ...context,
-          eventSkillCastInfo: null,
+          event: { ...context.event, payload: { ...context.event.payload, skillCastInfo: null } },
         },
       ),
     ).toBe(false);
@@ -251,7 +289,10 @@ describe('EventContextConditionExecutor', () => {
         { kind: 'originSkillTypeIn', skillTypes: ['comboSkill'] },
         {
           ...context,
-          eventSkillCastInfo: undefined,
+          event: {
+            ...context.event,
+            payload: { ...context.event.payload, skillCastInfo: undefined },
+          },
         },
       ),
     ).toThrow('requires an event source skill cast identity');
@@ -270,13 +311,14 @@ describe('EventContextConditionExecutor', () => {
         {
           ...context,
           event: {
-            kind: 'abilitySkill',
             event: 'beforeCastSkill',
-            sourceId: 'operator',
-            targetId: 'enemy',
-            skillId: 'current-combo',
-            skillType: 'comboSkill',
-            skillCastId: 4,
+            payload: {
+              sourceId: 'operator',
+              targetId: 'enemy',
+              skillId: 'current-combo',
+              skillType: 'comboSkill',
+              skillCastId: 4,
+            },
           },
         },
       ),
@@ -297,11 +339,12 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'abilityPhysicalInfliction' as const,
         event: 'beforeOutputPhysicalInfliction' as const,
-        sourceId: 'operator',
-        targetId: 'enemy',
-        type: 'fracture' as const,
+        payload: {
+          sourceId: 'operator',
+          targetId: 'enemy',
+          type: 'fracture' as const,
+        },
       },
     };
 
@@ -322,11 +365,12 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard,
       event: {
-        kind: 'abilityPhysicalInfliction' as const,
         event: 'afterTakePhysicalInfliction' as const,
-        sourceId: 'operator',
-        targetId: 'enemy',
-        type: 'fracture' as const,
+        payload: {
+          sourceId: 'operator',
+          targetId: 'enemy',
+          type: 'fracture' as const,
+        },
       },
     };
     expect(
@@ -365,11 +409,8 @@ describe('EventContextConditionExecutor', () => {
       const executor = new EventContextConditionExecutor(terminal);
       const blackboard = new ActionBlackboard({ saved: -1 });
       const event = {
-        kind: 'abilitySpellBurst' as const,
         event: 'beforeOutputSpellBurst' as const,
-        sourceId: 'source',
-        targetId: 'enemy',
-        burstType,
+        payload: { sourceId: 'source', targetId: 'enemy', burstType },
       };
       const condition = {
         kind: 'eventInflictionElementIn' as const,
@@ -398,11 +439,14 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'abilitySpellInfliction' as const,
         event: 'beforeTakeInfliction' as const,
-        sourceId: 'fluorite',
-        targetId: 'enemy',
-        element: 'nature' as const,
+        payload: {
+          skillId: 'skill',
+          isExtra: false,
+          sourceId: 'fluorite',
+          targetId: 'enemy',
+          element: 'nature' as const,
+        },
       },
     };
 
@@ -410,7 +454,10 @@ describe('EventContextConditionExecutor', () => {
     expect(
       executor.evaluate(condition, {
         ...context,
-        event: { ...context.event, element: 'electric' as const },
+        event: {
+          ...context.event,
+          payload: { ...context.event.payload, element: 'electric' as const },
+        },
       }),
     ).toBe(false);
   });
@@ -423,11 +470,15 @@ describe('EventContextConditionExecutor', () => {
       executor.evaluate(condition, {
         blackboard: new ActionBlackboard(),
         event: {
-          kind: 'operatorHit',
-          targetOperatorId: 'operator',
-          damageType: 'heat',
-          tags: [],
-          features: [],
+          event: 'takeDamage',
+          payload: {
+            external: true,
+            sourceId: 'enemy',
+            targetId: 'operator',
+            damageType: 'heat',
+            tags: [],
+            features: [],
+          },
         },
       }),
     ).toBe(true);
@@ -435,10 +486,14 @@ describe('EventContextConditionExecutor', () => {
       executor.evaluate(condition, {
         blackboard: new ActionBlackboard(),
         event: {
-          kind: 'operatorHit',
-          targetOperatorId: 'operator',
-          tags: [],
-          features: [],
+          event: 'takeDamage',
+          payload: {
+            external: true,
+            sourceId: 'enemy',
+            targetId: 'operator',
+            tags: [],
+            features: [],
+          },
         },
       }),
     ).toBe(false);
@@ -451,12 +506,14 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'abilityDamage' as const,
         event: 'beforeTakeDamage' as const,
-        sourceId: 'operator:controlled',
-        targetId: 'enemy',
-        tags: [] as const,
-        features: [] as const,
+        payload: {
+          ...createKillEvent().payload,
+          sourceId: 'operator:controlled',
+          targetId: 'enemy',
+          tags: [] as const,
+          features: [] as const,
+        },
       },
     };
 
@@ -464,7 +521,13 @@ describe('EventContextConditionExecutor', () => {
     expect(
       executor.evaluate(
         { kind: 'eventSourceControlled' },
-        { ...context, event: { ...context.event, sourceId: 'operator:other' } },
+        {
+          ...context,
+          event: {
+            ...context.event,
+            payload: { ...context.event.payload, sourceId: 'operator:other' },
+          },
+        },
       ),
     ).toBe(false);
   });
@@ -478,10 +541,11 @@ describe('EventContextConditionExecutor', () => {
       blackboard: new ActionBlackboard(),
       buffSourceId: 'ability-entity:7',
       event: {
-        kind: 'abilityPhysicalInfliction' as const,
         event: 'beforeTakePhysicalInfliction' as const,
-        sourceId: 'pogranichnik',
-        targetId: 'ability-entity:7',
+        payload: {
+          sourceId: 'pogranichnik',
+          targetId: 'ability-entity:7',
+        },
       },
     };
 
@@ -489,7 +553,10 @@ describe('EventContextConditionExecutor', () => {
     expect(
       executor.evaluate(condition, {
         ...context,
-        event: { ...context.event, sourceId: 'another-operator' },
+        event: {
+          ...context.event,
+          payload: { ...context.event.payload, sourceId: 'another-operator' },
+        },
       }),
     ).toBe(false);
   });
@@ -499,11 +566,13 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'buffApplied' as const,
-        targetId: 'operator',
-        buffId: 'buff:matched',
-        sourceId: 'enemy',
-        buffTags: ['Test/Tag101', 'Test/Tag202'],
+        event: 'addedBuff' as const,
+        payload: {
+          targetId: 'operator',
+          buffId: 'buff:matched',
+          sourceId: 'enemy',
+          buffTags: ['Test/Tag101', 'Test/Tag202'],
+        },
       },
     };
 
@@ -542,11 +611,13 @@ describe('EventContextConditionExecutor', () => {
         {
           blackboard: new ActionBlackboard(),
           event: {
-            kind: 'buffApplied',
-            targetId: 'enemy',
-            sourceId: 'operator',
-            buffId: 'buff_physical_do_fracture',
-            buffTags: [childPath],
+            event: 'addedBuff' as const,
+            payload: {
+              targetId: 'enemy',
+              sourceId: 'operator',
+              buffId: 'buff_physical_do_fracture',
+              buffTags: [childPath],
+            },
           },
         },
       ),
@@ -566,12 +637,14 @@ describe('EventContextConditionExecutor', () => {
         {
           blackboard: new ActionBlackboard(),
           event: {
-            kind: 'buffFinished',
-            targetId: 'enemy',
-            buffId: 'seal',
-            sourceId: 'operator',
-            buffTags: [],
-            reason,
+            event: 'finishedBuff' as const,
+            payload: {
+              targetId: 'enemy',
+              buffId: 'seal',
+              sourceId: 'operator',
+              buffTags: [],
+              reason,
+            },
           },
         },
       ),
@@ -589,12 +662,14 @@ describe('EventContextConditionExecutor', () => {
       executor.evaluate(condition, {
         blackboard: new ActionBlackboard(),
         event: {
-          kind: 'buffFinished',
-          sourceId: 'enemy',
-          targetId: 'enemy',
-          buffId: 'spell-status',
-          buffTags: ['Skill/Character/Common/SpellStatus'],
-          reason: 'early',
+          event: 'finishedBuff' as const,
+          payload: {
+            sourceId: 'enemy',
+            targetId: 'enemy',
+            buffId: 'spell-status',
+            buffTags: ['Skill/Character/Common/SpellStatus'],
+            reason: 'early',
+          },
         },
       }),
     ).toBe(true);
@@ -614,11 +689,7 @@ describe('EventContextConditionExecutor', () => {
         { kind: 'eventDamageTagsMatch', match, tags },
         {
           blackboard: new ActionBlackboard(),
-          event: {
-            kind: 'enemyDefeated',
-            sourceOperatorId: 'operator',
-            tags: ['comboSkill'],
-          },
+          event: createKillEvent(),
         },
       ),
     ).toBe(expected);
@@ -637,7 +708,16 @@ describe('EventContextConditionExecutor', () => {
     expect(
       executor.evaluate(condition, {
         blackboard: new ActionBlackboard(),
-        event: { kind: 'statusExpired', targetId: 'enemy', statusKey: 'status' },
+        event: {
+          event: 'skillSpGained',
+          payload: {
+            sourceOperatorId: 'operator',
+            source: 'skill',
+            gainKind: 'gain',
+            requestedAmount: 1,
+            amount: 1,
+          },
+        },
       }),
     ).toBe(false);
   });
@@ -654,10 +734,14 @@ describe('EventContextConditionExecutor', () => {
         {
           blackboard: new ActionBlackboard(),
           event: {
-            kind: 'operatorHit',
-            targetOperatorId: 'operator',
-            tags: ['ultimateSkill'],
-            features: ['airborne', 'canBreakWeakness'],
+            event: 'takeDamage',
+            payload: {
+              external: true,
+              sourceId: 'enemy',
+              targetId: 'operator',
+              tags: ['ultimateSkill'],
+              features: ['airborne', 'canBreakWeakness'],
+            },
           },
         },
       ),
@@ -670,14 +754,15 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard,
       event: {
-        kind: 'abilityHeal' as const,
         event: 'receiveHeal' as const,
-        sourceId: 'operator:healer',
-        targetId: 'operator:receiver',
-        requestedHealing: 216,
-        actualHealing: 0,
-        overhealing: 216,
-        tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+        payload: {
+          sourceId: 'operator:healer',
+          targetId: 'operator:receiver',
+          requestedHealing: 216,
+          actualHealing: 0,
+          overhealing: 216,
+          tags: ['Skill/Character/Common/Heal/NormalSkillHeal'],
+        },
       },
     };
 
@@ -709,7 +794,13 @@ describe('EventContextConditionExecutor', () => {
     expect(
       executor.evaluate(
         { kind: 'eventSourceTargetMatch', operator: 'equal' },
-        { ...context, event: { ...context.event, targetId: 'operator:healer' } },
+        {
+          ...context,
+          event: {
+            ...context.event,
+            payload: { ...context.event.payload, targetId: 'operator:healer' },
+          },
+        },
       ),
     ).toBe(true);
   });
@@ -731,13 +822,15 @@ describe('EventContextConditionExecutor', () => {
         {
           blackboard,
           event: {
-            kind: 'buffConsumed',
-            sourceOperatorId: 'operator',
-            targetId: 'enemy',
-            buffId: 'buff:conduct',
-            layers: 3,
-            buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
-            blackboardValues: { count: 3 },
+            event: 'buffConsumed' as const,
+            payload: {
+              sourceId: 'operator',
+              targetId: 'enemy',
+              buffId: 'buff:conduct',
+              layers: 3,
+              buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
+              blackboardValues: { count: 3 },
+            },
           },
         },
       ),
@@ -750,12 +843,14 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard(),
       event: {
-        kind: 'spGained' as const,
-        sourceOperatorId: 'operator',
-        source: 'skill' as const,
-        gainKind: 'gain' as const,
-        requestedAmount: 10,
-        amount: 10,
+        event: 'skillSpGained' as const,
+        payload: {
+          sourceOperatorId: 'operator',
+          source: 'skill' as const,
+          gainKind: 'gain' as const,
+          requestedAmount: 10,
+          amount: 10,
+        },
       },
     };
 
@@ -769,6 +864,15 @@ describe('EventContextConditionExecutor', () => {
       false,
     );
     expect(executor.evaluate({ kind: 'eventSpGainMatch' }, context)).toBe(true);
+    for (const operator of ['equal', 'notEqual'] as const) {
+      expect(executor.evaluate({ kind: 'eventSourceTargetMatch', operator }, context)).toBe(false);
+      expect(
+        executor.evaluate(
+          { kind: 'eventActionOwnerTargetMatch', operator },
+          { ...context, actionOwnerId: 'operator' },
+        ),
+      ).toBe(false);
+    }
   });
 
   it('compares the consumed layer snapshot and writes the configured output key', () => {
@@ -777,11 +881,14 @@ describe('EventContextConditionExecutor', () => {
     const context = {
       blackboard,
       event: {
-        kind: 'buffConsumed' as const,
-        sourceOperatorId: 'operator',
-        targetId: 'enemy',
-        buffId: 'buff:test',
-        layers: 3,
+        event: 'buffConsumed' as const,
+        payload: {
+          buffTags: [],
+          sourceId: 'operator',
+          targetId: 'enemy',
+          buffId: 'buff:test',
+          layers: 3,
+        },
       },
     };
 
@@ -805,14 +912,15 @@ describe('EventContextConditionExecutor', () => {
       blackboard: new ActionBlackboard(),
       actionOwnerId: 'operator:owner',
       event: {
-        kind: 'abilityHeal' as const,
         event: 'outputHeal' as const,
-        sourceId: 'operator:healer',
-        targetId: 'operator:owner',
-        requestedHealing: 10,
-        actualHealing: 10,
-        overhealing: 0,
-        tags: [],
+        payload: {
+          sourceId: 'operator:healer',
+          targetId: 'operator:owner',
+          requestedHealing: 10,
+          actualHealing: 10,
+          overhealing: 0,
+          tags: [],
+        },
       },
     };
 

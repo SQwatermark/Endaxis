@@ -11,6 +11,7 @@ import {
 import { listOperatorSkillDefinitionBindings } from './operatorSkillDefinitions';
 import { validateComboSkillConditions } from './validateComboSkillConditions';
 import { OPERATOR_PROGRESSION_SLOTS } from './operatorProgressionSlots';
+import { isOperatorPassiveAbilityEvent } from '../../../packages/game-data-contract/src/operators';
 import {
   validateAbilityEntityDefinition,
   validateActionSequenceDefinition,
@@ -48,7 +49,7 @@ function validatePassiveSkill(
           push(issues, responsePath, 'expected an object');
           return;
         }
-        if (!['abilityEntitySpawned', 'abilityEntityFinished'].includes(response.event))
+        if (!isOperatorPassiveAbilityEvent(response.event))
           push(issues, `${responsePath}.event`, 'unsupported passive ability event');
         if (!Number.isInteger(response.priority))
           push(issues, `${responsePath}.priority`, 'expected an integer');

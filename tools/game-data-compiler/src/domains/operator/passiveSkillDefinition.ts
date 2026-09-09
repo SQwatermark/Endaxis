@@ -18,6 +18,7 @@ import {
 } from '../../compiler/buffRuntimeProjection.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
 import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
+import { isOperatorPassiveAbilityEvent } from '../../../../../packages/game-data-contract/src/operators.ts';
 import type { CompiledBuffSequenceSource } from '../../compiler/combatActionProjectionTypes.ts';
 import { collectCompiledBuffIds } from '../../compiler/compiledBuffReferences.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
@@ -46,12 +47,12 @@ interface PlannedPassiveSkill {
   readonly eventResponses: readonly {
     readonly key: string;
     readonly event:
+      | { readonly kind: 'buffApplied' }
       | {
           readonly kind: 'spGained';
           readonly source: 'skill';
           readonly gainKind: 'gain';
         }
-      | { readonly kind: 'buffApplied' }
       | { readonly kind: 'operatorHealed'; readonly role: 'target' };
     readonly phase: 'dataAction';
     readonly priority: 0;
@@ -74,7 +75,8 @@ export interface CompiledOperatorUpgradePassiveSkillsSource {
 
 /**
  * 把同一天赋/潜能各等级的 AddPassiveSkill 请求合并成一个等级化安装定义。
- * 这里只接受无事件、无时间轴、无 Toggle、无卡面修正的 AddBuff 形态；其余机制必须先独立取证。
+ * 接受 AddBuff 形态及已审计的被动事件；不接受有效时间轴、Toggle 或卡面修正。
+ * 公共事件直接输出 abilityEventResponses，尚未迁移的筛选暂留旧监听程序。
  */
 export function compileOperatorUpgradePassiveSkills(
   effectIds: readonly string[],
@@ -335,11 +337,14 @@ function planPassiveSkill(
     (event, eventIndex) => {
       if (
         event.abilityEvent === 'OnAbilityEntityFinished' ||
-        event.abilityEvent === 'OnAbilityEntitySpawned'
+        event.abilityEvent === 'OnAbilityEntitySpawned' ||
+        // 原生响应先于 enableSequence 注册；含启动 Buff 时暂保留旧注册位置，
+        // 避免在尚未核实 Enable 时序前新增对自身启动 Buff 的响应。
+        (event.abilityEvent === 'OnAddedBuff' && skill.startupBuffs.length === 0)
       ) {
         const projected = projectAbilityEvent(event.abilityEvent, request.sourcePath);
-        if (projected !== 'abilityEntityFinished' && projected !== 'abilityEntitySpawned')
-          throw new Error(`${request.sourcePath}: unexpected lifecycle event mapping`);
+        if (!isOperatorPassiveAbilityEvent(projected))
+          throw new Error(`${request.sourcePath}: unsupported passive ability event mapping`);
         for (const sequence of event.actions) {
           for (const node of collectNativeActionNodes(sequence)) {
             if (
@@ -351,7 +356,10 @@ function planPassiveSkill(
           abilityEventResponses.push({
             event: projected,
             priority: 0,
-            sequence: compileCombatActionSequenceSource(sequence, passiveEventContext),
+            sequence: compileCombatActionSequenceSource(sequence, {
+              ...passiveEventContext,
+              actionTargetTarget: projected === 'addedBuff' ? 'eventSource' : 'eventTarget',
+            }),
           });
         }
         return [];
@@ -369,8 +377,8 @@ function planPassiveSkill(
       if (event.abilityEvent === 'OnBeforeTakeDamage') return [];
       if (
         event.abilityEvent !== 'OnObtainAtb' &&
-        event.abilityEvent !== 'OnAddedBuff' &&
-        event.abilityEvent !== 'OnReceiveHeal'
+        event.abilityEvent !== 'OnReceiveHeal' &&
+        event.abilityEvent !== 'OnAddedBuff'
       ) {
         throw new Error(
           `${request.sourcePath}: unsupported operator passive event ${JSON.stringify(event.abilityEvent)}`,
@@ -385,8 +393,8 @@ function planPassiveSkill(
             throw new Error(`${node.sourcePath}: unsupported operator passive event priority`);
           }
         }
-        const isAddedBuff = event.abilityEvent === 'OnAddedBuff';
         const isReceiveHeal = event.abilityEvent === 'OnReceiveHeal';
+        const isAddedBuff = event.abilityEvent === 'OnAddedBuff';
         const eventContext = {
           ...passiveEventContext,
           actionOwnerTarget: 'caster' as const,

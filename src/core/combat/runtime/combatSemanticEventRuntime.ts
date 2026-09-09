@@ -1,147 +1,93 @@
-import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 /**
  * 战斗语义事件的同步分发中心。
  *
  * 伤害、附着和状态运行时只负责报告已经发生的事实；连携、配装和养成能力在这里按
  * `CombatEventTrigger` 订阅。它不执行条件和动作，也不依赖 UI 或项目存档。
  */
+import { hasElementalAttachmentTag } from '../infliction/elementalInfliction';
 import type {
   CombatCondition,
   CombatEventTrigger,
-  DamageFeature,
-  DamageElement,
-  DamageTag,
-  InflictionElement,
-  SpGainKind,
-  SpGainSource,
   SkillTriggerScope,
   UpgradeEvent,
 } from '../../game-data/operatorDefinition';
-import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
-import type { BuffFinishReason } from '../buffs/combatBuffs';
+import {
+  AbilityEventDispatcher,
+  type AbilityEventFromMap,
+  type AbilityEventRegistration,
+} from '../events/abilityEventDispatcher';
 import { ActionBlackboard } from './actionBlackboard';
+import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
+import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
-import type { CombatSkillCastInfo } from './skillCastInfo';
-import type { BuffApplicationHandle } from './buffOperationExecutor';
+import type {
+  CombatAbilityEvent,
+  BuffAbilityEvent,
+  HealAbilityEvent,
+  DamageAbilityEvent,
+  PhysicalAbilityEvent,
+  NativeKillEvent,
+  InflictionAbilityEvent,
+  SpGainAbilityEvent,
+  KnockDownAbilityEvent,
+} from '../events/combatAbilityEvent';
+
+/** 迁移中的原生事件没有旧 kind 字段；此约束仅供旧联合判别，不向对象注入字段。 */
+type MigratedAbilityEvent =
+  | InflictionAbilityEvent
+  | SpGainAbilityEvent
+  | NativeKillEvent
+  | BuffAbilityEvent
+  | HealAbilityEvent
+  | DamageAbilityEvent
+  | PhysicalAbilityEvent
+  | KnockDownAbilityEvent;
+
+/** 订阅安装到发布实体原有的分发器，不通过另一次 emit 转发。 */
+export type RegisterCombatAbilityEvent = <
+  Name extends import('../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent,
+>(
+  ownerId: string,
+  scope: SkillTriggerScope,
+  event: Name,
+  phase: CombatEventPhase,
+  priority: number,
+  handle: (
+    event: CombatAbilityEvent<Name>,
+    actionContext?: AbilityEventRuntimeActionContext,
+  ) => void,
+) => AbilityEventRegistration;
+
+/** 手工动作的兼容标记，不是原生组件通知，不携带 fromAirborne 或施法来源。 */
+export interface ManualAirborneOutputEvent {
+  readonly kind: 'airborneOutput';
+  readonly sourceOperatorId: string;
+  readonly targetId: string;
+}
+
+export interface ManualKnockDownOutputEvent {
+  readonly kind: 'knockDownOutput';
+  readonly sourceOperatorId: string;
+  readonly targetId: string;
+}
 
 export type CombatSemanticEvent =
-  | {
-      readonly kind: 'operatorHit';
-      readonly targetOperatorId: string;
-      readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
-      readonly tags: readonly DamageTag[];
-      readonly features: readonly DamageFeature[];
-    }
-  | {
-      readonly kind: 'operatorHealed';
-      readonly sourceOperatorId: string;
-      readonly targetOperatorId: string;
-      readonly requestedHealing: number;
-      readonly actualHealing: number;
-      readonly overhealing: number;
-      readonly tags: readonly GameplayTag[];
-    }
-  | {
-      readonly kind: 'buffApplied';
-      readonly targetId: string;
-      readonly buffId: string;
-      readonly sourceId: string;
-      readonly buffTags: readonly GameplayTag[];
-    }
-  | {
-      readonly kind: 'buffOutput';
-      readonly targetId: string;
-      readonly buffId: string;
-      readonly sourceId: string;
-      readonly buffTags: readonly GameplayTag[];
-    }
-  | {
-      readonly kind: 'buffFinished';
-      readonly targetId: string;
-      readonly buffId: string;
-      readonly sourceId: string;
-      readonly reason: BuffFinishReason;
-      readonly buffTags: readonly GameplayTag[];
-    }
-  | {
-      readonly kind: 'airborneOutput';
-      readonly sourceOperatorId: string;
-      readonly targetId: string;
-    }
-  | {
-      readonly kind: 'knockDownOutput';
-      readonly sourceOperatorId: string;
-      readonly targetId: string;
-    }
-  | {
-      readonly kind: 'damageTagHit';
-      readonly sourceOperatorId: string;
-      readonly tags: readonly DamageTag[];
-      readonly features?: readonly DamageFeature[];
-    }
-  | {
-      readonly kind: 'elementalInflictionApplied';
-      readonly sourceOperatorId: string;
-      readonly elements: readonly DamageElement[];
-    }
-  | {
-      readonly kind: 'physicalInflictionApplied';
-      readonly sourceOperatorId: string;
-      readonly targetId: string;
-      readonly type: import('../../game-data/operatorDefinition').PhysicalInflictionType;
-      readonly skillCastInfo?: CombatSkillCastInfo;
-      readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
-    }
-  | {
-      readonly kind: 'elementalAttachmentConsumed';
-      readonly sourceOperatorId: string;
-      readonly targetId: string;
-      readonly element: InflictionElement;
-      readonly layers: number;
-    }
-  | {
-      readonly kind: 'buffConsumed';
-      readonly sourceOperatorId: string;
-      readonly targetId: string;
-      readonly buffId: string;
-      readonly layers: number;
-      readonly buffTags?: readonly GameplayTag[];
-      readonly blackboardValues?: Readonly<Record<string, string | number | null>>;
-    }
-  | {
-      readonly kind: 'reactionApplied';
-      readonly sourceOperatorId: string;
-      readonly reaction: import('../../game-data/operatorDefinition').ElementalReaction;
-    }
-  | {
-      readonly kind: 'skillHit';
-      readonly sourceOperatorId: string;
-      readonly skillGroupKey: string;
-    }
-  | {
-      readonly kind: 'spGained';
-      readonly sourceOperatorId: string;
-      readonly source: SpGainSource;
-      readonly gainKind: SpGainKind;
-      /** 原生 OnObtainAtb.Value：效率结算后、容量截断前。 */
-      readonly requestedAmount: number;
-      /** 原生 OnObtainAtb.RealDelta：共享技力实际入账量。 */
-      readonly amount: number;
-    }
-  | {
-      readonly kind: 'enemyDefeated';
-      readonly sourceOperatorId: string;
-      readonly tags: readonly DamageTag[];
-      readonly features?: readonly DamageFeature[];
-    }
-  | {
-      readonly kind: 'statusExpired' | 'statusConsumed';
-      readonly targetId: string;
-      readonly statusKey: string;
-    };
+  ManualAirborneOutputEvent | ManualKnockDownOutputEvent | MigratedAbilityEvent;
+
+/** 旧倒地触发器接收后置通知或手工标记；前置通知不在此端口内。 */
+export type KnockDownOutputEvent =
+  | (CombatAbilityEvent<'afterOutputKnockDown'> & { readonly kind?: never })
+  | ManualKnockDownOutputEvent;
+
+export function isKnockDownOutputEvent(event: CombatSemanticEvent): event is KnockDownOutputEvent {
+  return (
+    event.kind === 'knockDownOutput' || ('event' in event && event.event === 'afterOutputKnockDown')
+  );
+}
 
 export interface CombatSemanticEventContext {
   readonly event: CombatSemanticEvent;
+  readonly actionContext?: AbilityEventRuntimeActionContext;
 }
 
 export type CombatSemanticEventHandler = (context: CombatSemanticEventContext) => void;
@@ -180,12 +126,6 @@ export type CombatEventHandlerRegistration = CombatEventHandlerRegistrationBase 
       }
   );
 
-interface Registration extends CombatEventHandlerRegistrationBase {
-  readonly phase: CombatEventPhase;
-  readonly priority: number;
-  readonly order: number;
-}
-
 function includesValue<T>(filter: T | readonly T[], value: T): boolean {
   return Array.isArray(filter) ? filter.includes(value) : filter === value;
 }
@@ -198,92 +138,124 @@ function matchesScope(
   return scope === 'team' || ownerOperatorId === sourceOperatorId;
 }
 
-function matches(registration: Registration, event: CombatSemanticEvent): boolean {
+function matches(
+  registration: CombatEventHandlerRegistrationBase,
+  event: CombatSemanticEvent,
+): boolean {
   const { ownerOperatorId, trigger } = registration;
+  if (trigger.kind === 'buffConsumed') {
+    return (
+      'event' in event &&
+      event.event === 'buffConsumed' &&
+      event.payload.sourceId === ownerOperatorId &&
+      (trigger.buffIds === undefined || trigger.buffIds.includes(event.payload.buffId))
+    );
+  }
+  if (trigger.kind === 'buffApplied') {
+    return (
+      'event' in event && event.event === 'addedBuff' && event.payload.targetId === ownerOperatorId
+    );
+  }
+  if (trigger.kind === 'buffOutput') {
+    return (
+      'event' in event && event.event === 'outputBuff' && event.payload.sourceId === ownerOperatorId
+    );
+  }
+  if (trigger.kind === 'enemyDefeated') {
+    return (
+      'event' in event &&
+      event.event === 'afterKillEntity' &&
+      matchesScope(trigger.scope, ownerOperatorId, event.payload.sourceId)
+    );
+  }
+  if (trigger.kind === 'operatorHealed') {
+    return (
+      'payload' in event &&
+      (trigger.role === 'source'
+        ? event.event === 'outputHeal' && event.payload.sourceId === ownerOperatorId
+        : event.event === 'receiveHeal' && event.payload.targetId === ownerOperatorId)
+    );
+  }
+  if (trigger.kind === 'damageTagHit') {
+    return (
+      'payload' in event &&
+      event.event === 'outputDamage' &&
+      matchesScope(trigger.scope, ownerOperatorId, event.payload.sourceId) &&
+      event.payload.tags.includes(trigger.tag)
+    );
+  }
+  if (trigger.kind === 'operatorHit') {
+    return (
+      'payload' in event &&
+      event.event === 'takeDamage' &&
+      event.payload.targetId === ownerOperatorId
+    );
+  }
+  if (trigger.kind === 'skillHit') {
+    return (
+      'payload' in event &&
+      event.event === 'outputDamage' &&
+      matchesScope(trigger.scope, ownerOperatorId, event.payload.sourceId) &&
+      event.payload.executingSkillGroupKey === trigger.skillGroupKey
+    );
+  }
+  if (trigger.kind === 'physicalInflictionApplied') {
+    return (
+      'payload' in event &&
+      event.event === 'afterOutputPhysicalInfliction' &&
+      matchesScope(trigger.scope, ownerOperatorId, event.payload.sourceId) &&
+      event.payload.type !== undefined &&
+      includesValue(trigger.types, event.payload.type)
+    );
+  }
+  if (trigger.kind === 'knockDownOutput' && 'payload' in event) {
+    return event.event === 'afterOutputKnockDown' && event.payload.sourceId === ownerOperatorId;
+  }
+  if (trigger.kind === 'spGained') {
+    return (
+      'payload' in event &&
+      event.event === 'skillSpGained' &&
+      event.payload.sourceOperatorId === ownerOperatorId &&
+      (trigger.source === undefined || trigger.source === event.payload.source) &&
+      (trigger.gainKind === undefined || trigger.gainKind === event.payload.gainKind)
+    );
+  }
+  if (trigger.kind === 'elementalInflictionApplied') {
+    return (
+      'payload' in event &&
+      event.event === 'afterOutputInfliction' &&
+      matchesScope(trigger.scope, ownerOperatorId, event.payload.sourceId) &&
+      includesValue(trigger.elements, event.payload.element)
+    );
+  }
+  if (trigger.kind === 'elementalAttachmentConsumed') {
+    return (
+      'payload' in event &&
+      event.event === 'buffConsumed' &&
+      event.payload.sourceId === ownerOperatorId &&
+      hasElementalAttachmentTag(event.payload.buffTags)
+    );
+  }
   if (trigger.kind !== event.kind) return false;
   switch (trigger.kind) {
-    case 'operatorHit':
-      return event.kind === 'operatorHit' && event.targetOperatorId === ownerOperatorId;
-    case 'operatorHealed':
-      return (
-        event.kind === 'operatorHealed' &&
-        (trigger.role === 'source'
-          ? event.sourceOperatorId === ownerOperatorId
-          : event.targetOperatorId === ownerOperatorId)
-      );
-    case 'buffApplied':
-      return event.kind === 'buffApplied' && event.targetId === ownerOperatorId;
-    case 'buffOutput':
-      return event.kind === 'buffOutput' && event.sourceId === ownerOperatorId;
     case 'airborneOutput':
       return event.kind === 'airborneOutput' && event.sourceOperatorId === ownerOperatorId;
     case 'knockDownOutput':
       return event.kind === 'knockDownOutput' && event.sourceOperatorId === ownerOperatorId;
-    case 'damageTagHit':
-      return (
-        event.kind === 'damageTagHit' &&
-        matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
-        event.tags.includes(trigger.tag)
-      );
-    case 'elementalInflictionApplied':
-      return (
-        event.kind === 'elementalInflictionApplied' &&
-        matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
-        event.elements.some(element => includesValue(trigger.elements, element))
-      );
-    case 'physicalInflictionApplied':
-      return (
-        event.kind === 'physicalInflictionApplied' &&
-        matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
-        includesValue(trigger.types, event.type)
-      );
-    case 'reactionApplied':
-      return (
-        event.kind === 'reactionApplied' &&
-        event.sourceOperatorId === ownerOperatorId &&
-        event.reaction === trigger.reaction
-      );
-    case 'elementalAttachmentConsumed':
-      return (
-        event.kind === 'elementalAttachmentConsumed' && event.sourceOperatorId === ownerOperatorId
-      );
-    case 'buffConsumed':
-      return (
-        event.kind === 'buffConsumed' &&
-        event.sourceOperatorId === ownerOperatorId &&
-        (trigger.buffIds === undefined || trigger.buffIds.includes(event.buffId))
-      );
-    case 'skillHit':
-      return (
-        event.kind === 'skillHit' &&
-        matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId) &&
-        event.skillGroupKey === trigger.skillGroupKey
-      );
-    case 'spGained':
-      return (
-        event.kind === 'spGained' &&
-        event.sourceOperatorId === ownerOperatorId &&
-        (trigger.source === undefined || event.source === trigger.source) &&
-        (trigger.gainKind === undefined || event.gainKind === trigger.gainKind)
-      );
-    case 'enemyDefeated':
-      return (
-        event.kind === 'enemyDefeated' &&
-        matchesScope(trigger.scope, ownerOperatorId, event.sourceOperatorId)
-      );
-    case 'statusExpired':
-    case 'statusConsumed': {
-      if (event.kind !== trigger.kind || event.statusKey !== trigger.statusKey) return false;
-      const targetId = trigger.target === 'enemy' ? 'enemy' : ownerOperatorId;
-      return event.targetId === targetId;
-    }
   }
 }
 
-/** 注册顺序就是执行顺序；一轮分发使用快照，回调中的增删不影响当前事件。 */
+/**
+ * 定义侧触发器的订阅层。阶段、优先级、注册顺序与释放统一由 AbilityEventDispatcher 管理。
+ * 语义事件名与原生事件名的迁移尚未完成；本层不再自行实现第二套阶段循环。
+ */
 export class CombatSemanticEventRuntime {
-  readonly #registrations: Registration[] = [];
-  #nextRegistrationOrder = 0;
+  constructor(private readonly registerAbilityEvent?: RegisterCombatAbilityEvent) {}
+
+  readonly #dispatcher = new AbilityEventDispatcher<
+    NonNullable<CombatSemanticEvent['kind']>,
+    Record<NonNullable<CombatSemanticEvent['kind']>, CombatSemanticEventContext>
+  >();
 
   register(registration: CombatEventHandlerRegistration): AbilityEventRegistration {
     if (registration.ownerOperatorId.length === 0) {
@@ -292,61 +264,154 @@ export class CombatSemanticEventRuntime {
     if (registration.condition !== undefined && registration.createOperations === undefined) {
       throw new TypeError('conditional semantic event handler requires an operation executor');
     }
-    const stored: Registration = {
-      ownerOperatorId: registration.ownerOperatorId,
-      trigger: registration.trigger,
-      phase: registration.phase,
-      priority: registration.phase === 'dataAction' ? (registration.priority ?? 0) : 0,
-      ...(registration.condition === undefined ? {} : { condition: registration.condition }),
-      ...(registration.createOperations === undefined
-        ? {}
-        : { createOperations: registration.createOperations }),
-      ...(registration.createOperationContext === undefined
-        ? {}
-        : { createOperationContext: registration.createOperationContext }),
-      handle: registration.handle,
-      order: this.#nextRegistrationOrder++,
+    const stored = { ...registration };
+    const execute = ({
+      payload: context,
+    }: {
+      readonly payload: CombatSemanticEventContext;
+    }): void => {
+      if (!matches(stored, context.event)) return;
+      let operations: CombatOperationExecutor | undefined;
+      const getOperations = (): CombatOperationExecutor => {
+        if (operations !== undefined) return operations;
+        if (stored.createOperations === undefined) {
+          throw new Error('semantic event handler has no operation executor');
+        }
+        operations = stored.createOperations(context);
+        return operations;
+      };
+      if (stored.condition !== undefined) {
+        const operationContext = stored.createOperationContext?.(context) ?? {
+          blackboard: new ActionBlackboard(),
+          event: context.event,
+        };
+        const condition = stored.condition;
+        if (
+          !withCombatEventResponseContext(operationContext, context, () =>
+            getOperations().evaluate(condition, operationContext),
+          )
+        )
+          return;
+      }
+      stored.handle(context, getOperations);
     };
-    this.#registrations.push(stored);
-    let disposed = false;
-    return {
-      dispose: () => {
-        if (disposed) return;
-        disposed = true;
-        const index = this.#registrations.indexOf(stored);
-        if (index >= 0) this.#registrations.splice(index, 1);
-      },
-    };
+    const event = stored.trigger.kind;
+    const native = eventSubscription(stored.trigger);
+    if (native.kind === 'entity') {
+      if (this.registerAbilityEvent === undefined)
+        throw new Error(`${event} requires the native ability event subscription port`);
+      const registration = this.registerAbilityEvent(
+        stored.ownerOperatorId,
+        native.scope,
+        native.event,
+        stored.phase,
+        stored.priority ?? 0,
+        (event, actionContext) => execute({ payload: { event, actionContext } }),
+      );
+      if (native.legacyEvent === undefined) return registration;
+      // 旧定义还接收手工输出标记；订阅两种身份，不把组件事件复制成标记。
+      try {
+        const legacy = this.#registerLegacy(native.legacyEvent, stored, execute);
+        return {
+          dispose: () => {
+            registration.dispose();
+            legacy.dispose();
+          },
+        };
+      } catch (error) {
+        registration.dispose();
+        throw error;
+      }
+    }
+    return this.#registerLegacy(native.event, stored, execute);
+  }
+
+  #registerLegacy(
+    event: NonNullable<CombatSemanticEvent['kind']>,
+    stored: CombatEventHandlerRegistration,
+    execute: (event: { readonly payload: CombatSemanticEventContext }) => void,
+  ): AbilityEventRegistration {
+    switch (stored.phase) {
+      case 'callback':
+        return this.#dispatcher.registerCallback(event, execute);
+      case 'dataAction':
+        return this.#dispatcher.registerAction(event, stored.priority ?? 0, execute);
+      case 'skill':
+      case 'combo':
+        return this.#dispatcher.registerListener(event, stored.phase, execute);
+    }
   }
 
   emit(event: CombatSemanticEvent): void {
-    const context = { event };
-    // 每个阶段单独取快照：当前阶段内的增删不影响本阶段，前一阶段产生的监听器可参与后一阶段。
-    for (const phase of COMBAT_EVENT_PHASES) {
-      const registrations = this.#registrations
-        .filter(registration => registration.phase === phase && matches(registration, event))
-        .sort(
-          (left, right) => (right.priority ?? 0) - (left.priority ?? 0) || left.order - right.order,
-        );
-      for (const registration of registrations) {
-        let operations: CombatOperationExecutor | undefined;
-        const getOperations = (): CombatOperationExecutor => {
-          if (operations !== undefined) return operations;
-          if (registration.createOperations === undefined) {
-            throw new Error('semantic event handler has no operation executor');
-          }
-          operations = registration.createOperations(context);
-          return operations;
-        };
-        if (registration.condition !== undefined) {
-          const operationContext = registration.createOperationContext?.(context) ?? {
-            blackboard: new ActionBlackboard(),
-            event,
-          };
-          if (!getOperations().evaluate(registration.condition, operationContext)) continue;
-        }
-        registration.handle(context, getOperations);
-      }
+    if ('event' in event)
+      throw new Error('entity events must be published by their entity dispatcher');
+    // 当前仍有旧语义生产者；迁移为原生事件后删除此发布端，订阅层不能重建原生载荷。
+    this.#dispatcher.dispatch(
+      { event: event.kind, payload: { event } } as AbilityEventFromMap<
+        NonNullable<CombatSemanticEvent['kind']>,
+        Record<NonNullable<CombatSemanticEvent['kind']>, CombatSemanticEventContext>
+      >,
+      [],
+    );
+  }
+}
+
+/** 定义筛选只决定订阅哪个原始事件，不在这里构造另一份通知。 */
+function eventSubscription(trigger: CombatEventTrigger | UpgradeEvent):
+  | {
+      readonly kind: 'entity';
+      readonly event:
+        | 'afterOutputInfliction'
+        | 'skillSpGained'
+        | 'afterKillEntity'
+        | 'afterOutputKnockDown'
+        | 'takeDamage'
+        | 'afterOutputPhysicalInfliction'
+        | 'outputDamage'
+        | 'outputBuff'
+        | 'addedBuff'
+        | 'buffConsumed'
+        | 'outputHeal'
+        | 'receiveHeal';
+      readonly scope: SkillTriggerScope;
+      readonly legacyEvent?: 'knockDownOutput';
     }
+  | { readonly kind: 'legacy'; readonly event: NonNullable<CombatSemanticEvent['kind']> } {
+  switch (trigger.kind) {
+    case 'elementalInflictionApplied':
+      return { kind: 'entity', event: 'afterOutputInfliction', scope: trigger.scope };
+    case 'spGained':
+      return { kind: 'entity', event: 'skillSpGained', scope: 'operator' };
+    case 'knockDownOutput':
+      return {
+        kind: 'entity',
+        event: 'afterOutputKnockDown',
+        scope: 'operator',
+        legacyEvent: 'knockDownOutput',
+      };
+    case 'physicalInflictionApplied':
+      return { kind: 'entity', event: 'afterOutputPhysicalInfliction', scope: trigger.scope };
+    case 'operatorHit':
+      return { kind: 'entity', event: 'takeDamage', scope: 'operator' };
+    case 'enemyDefeated':
+      return { kind: 'entity', event: 'afterKillEntity', scope: trigger.scope };
+    case 'skillHit':
+    case 'damageTagHit':
+      return { kind: 'entity', event: 'outputDamage', scope: trigger.scope };
+    case 'buffOutput':
+      return { kind: 'entity', event: 'outputBuff', scope: 'operator' };
+    case 'buffApplied':
+      return { kind: 'entity', event: 'addedBuff', scope: 'operator' };
+    case 'elementalAttachmentConsumed':
+    case 'buffConsumed':
+      return { kind: 'entity', event: 'buffConsumed', scope: 'operator' };
+    case 'operatorHealed':
+      return {
+        kind: 'entity',
+        event: trigger.role === 'source' ? 'outputHeal' : 'receiveHeal',
+        scope: 'operator',
+      };
+    default:
+      return { kind: 'legacy', event: trigger.kind };
   }
 }

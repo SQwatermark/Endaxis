@@ -1,18 +1,107 @@
+import { resolveAbilityEventContext } from './abilityEventPayload';
 import { describe, expect, it } from 'vitest';
+import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
-import {
-  attachBuffLifecycleSequences,
-  normalizeAbilityEventPayload,
-  readEventSkillCastInfo,
-} from './buffLifecycleSequenceRuntime';
+import { readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it.each([false, true])(
+    '倒地兼容响应复用目标/来源作用域，不给手工标记补原生信息：native=%s',
+    native => {
+      const container = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+      let receive!: Parameters<
+        import('./buffLifecycleSequenceRuntime').RegisterBuffSemanticEventAction
+      >[2];
+      let disposed = false;
+      const contexts: import('./skillRuntime').CombatOperationContext[] = [];
+      const snapshots: unknown[] = [];
+      const definition = attachBuffLifecycleSequences<never>(
+        { id: 'knock-response', stackingType: 'unique' },
+        {},
+        () => ({
+          execute: (_step, context) => {
+            contexts.push(context!);
+            snapshots.push({
+              event: context?.event,
+              source: context?.eventSkillCastInfo,
+              owner: context?.actionOwnerId,
+              actionSource: context?.actionSourceId,
+              input: context?.actionInputTarget,
+              trigger: context?.targetContext?.getOptional('trigger'),
+            });
+            return true;
+          },
+          evaluate: () => true,
+        }),
+        undefined,
+        [
+          {
+            event: 'outputKnockDown',
+            priority: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'seen', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        ],
+        undefined,
+        [],
+        [],
+        [],
+        (_event, _priority, handle) => {
+          receive = handle;
+          return {
+            dispose: () => {
+              disposed = true;
+            },
+          };
+        },
+      );
+      const buff = container.add(definition, 'buff-source')!;
+      const published = native
+        ? {
+            event: 'afterOutputKnockDown' as const,
+            payload: {
+              sourceId: 'owner',
+              targetId: 'enemy',
+              fromAirborne: true,
+              skillCastInfo: null,
+            },
+          }
+        : { kind: 'knockDownOutput' as const, sourceOperatorId: 'owner', targetId: 'enemy' };
+      const targets = {
+        inputTarget: { kind: 'enemy' as const },
+        triggerTarget: { kind: 'operator' as const, operatorId: 'owner' },
+      };
+      receive(published, native ? targets : undefined);
+      expect(snapshots).toEqual([
+        {
+          event: published,
+          source: native ? null : undefined,
+          owner: 'owner',
+          actionSource: 'buff-source',
+          input: native ? targets.inputTarget : undefined,
+          trigger: native ? [targets.triggerTarget] : undefined,
+        },
+      ]);
+      expect(contexts[0]?.event).toBeUndefined();
+      expect(contexts[0]?.targetContext?.getOptional('trigger')).toBeUndefined();
+      buff.finish('other');
+      expect(disposed).toBe(true);
+    },
+  );
+
   it.each(
     [undefined, 42].flatMap(processing =>
       [false, true].map(hasSource => ({ processing, hasSource })),
@@ -21,7 +110,9 @@ describe('attachBuffLifecycleSequences', () => {
     'SkillAffix独立编号 processing=$processing hasSource=$hasSource',
     ({ processing, hasSource }) => {
       const container = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
-      const callbacks = new Set<(payload: unknown) => void>();
+      const callbacks = new Set<
+        Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
+      >();
       const definition = attachBuffLifecycleSequences<never>(
         { id: 'affix', stackingType: 'unique' },
         { enable: { steps: [{ kind: 'skillAffix', parameters: {} }] } },
@@ -64,11 +155,14 @@ describe('attachBuffLifecycleSequences', () => {
       const emit = (sourceId: string, skillCastId: number) => {
         for (const callback of [...callbacks])
           callback({
-            sourceId,
-            targetId: sourceId,
-            skillId: 'skill',
-            skillType: 'battleSkill',
-            skillCastId,
+            event: 'skillEnd',
+            payload: {
+              sourceId,
+              targetId: sourceId,
+              skillId: 'skill',
+              skillType: 'battleSkill',
+              skillCastId,
+            },
           });
       };
       emit('other', 42);
@@ -123,7 +217,9 @@ describe('attachBuffLifecycleSequences', () => {
     matching.recordBuffAffixSkillCastId(99);
     container.add(seal, 'operator', { skillCastInfo: cast(99) })!.recordBuffAffixSkillCastId(42);
     container.add(seal, 'operator', { skillCastInfo: cast(42) })!.finish('other');
-    let handle: ((payload: unknown) => void) | undefined;
+    let handle:
+      | Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
+      | undefined;
     let reached = 0;
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'listener', stackingType: 'unique' },
@@ -190,62 +286,57 @@ describe('attachBuffLifecycleSequences', () => {
       skillId: 'later-skill',
       skillCastId: 99,
     };
-    handle!(event);
+    handle!({ event: 'beforeCastSkill', payload: event });
     expect(reached).toBe(1);
     matching.finish('other');
-    handle!(event);
+    handle!({ event: 'beforeCastSkill', payload: event });
     expect(reached).toBe(1);
   });
 
-  it('normalizes a custom AbilitySystem event without inventing skill provenance', () => {
-    expect(
-      normalizeAbilityEventPayload('customAbilityEvent', {
+  it('自定义事件保留原始对象，不虚构施法来源', () => {
+    const published = {
+      event: 'customAbilityEvent' as const,
+      payload: {
         sourceId: 'liino',
         targetId: 'liino',
         eventName: 'liino_comboskill_end',
         eventParam: 0,
-      }),
-    ).toEqual({
-      kind: 'abilityCustom',
-      event: 'customAbilityEvent',
-      sourceId: 'liino',
-      targetId: 'liino',
-      eventName: 'liino_comboskill_end',
-      eventParam: 0,
-    });
+      },
+    };
+    expect(resolveAbilityEventContext(published)).toBe(published);
   });
 
-  it('normalizes the add-shield event with independent gained and current values', () => {
-    expect(
-      normalizeAbilityEventPayload('afterAddedShield', {
+  it('护盾事件保留原始对象和独立数值', () => {
+    const published = {
+      event: 'afterAddedShield' as const,
+      payload: {
         sourceId: 'operator',
         targetId: 'operator',
         gainedValue: 120,
         currentValue: 350,
-      }),
-    ).toEqual({
-      kind: 'abilityShield',
-      event: 'afterAddedShield',
-      sourceId: 'operator',
-      targetId: 'operator',
-      gainedValue: 120,
-      currentValue: 350,
-    });
+      },
+    };
+    expect(resolveAbilityEventContext(published)).toBe(published);
   });
 
   it('区分空来源与遗漏来源，接受处决类型且不从其他字段覆盖显式空来源', () => {
     const cast = { skillCastId: 3, skillId: 'finisher', skillType: 'finisher' };
-    expect(readEventSkillCastInfo(cast)).toEqual({
+    expect(readSkillCastInfoFromPayload(cast)).toBeUndefined();
+    const explicit = {
       skillCastId: 3,
       originSkillId: 'finisher',
       originSkillType: 'finisher',
       nonReturnedSpCost: 0,
-    });
-    expect(readEventSkillCastInfo({ ...cast, skillCastInfo: null })).toBeNull();
-    expect(readEventSkillCastInfo({})).toBeUndefined();
-    expect(() => readEventSkillCastInfo({ skillCastInfo: { originSkillType: 'unknown' } })).toThrow(
-      'invalid skill cast identity',
+    };
+    expect(readSkillCastInfoFromPayload({ ...cast, skillCastInfo: explicit })).toBe(explicit);
+    expect(readSkillCastInfoFromPayload({ ...cast, skillCastInfo: null })).toBeNull();
+    expect(readSkillCastInfoFromPayload({})).toBeUndefined();
+    expect(() => readSkillCastInfoFromPayload({ event: 'skillEnd', payload: cast })).toThrow(
+      'Expected ability event payload',
     );
+    expect(() =>
+      readSkillCastInfoFromPayload({ skillCastInfo: { originSkillType: 'unknown' } }),
+    ).toThrow('invalid skill cast identity');
   });
 
   it('把技能槽替换绑定到 Buff 启用边界并在结束时还原', () => {
@@ -525,14 +616,14 @@ describe('attachBuffLifecycleSequences', () => {
     const reached: string[] = [];
     const terminal: CombatOperationExecutor = {
       execute: (_step, context) => {
-        reached.push(context!.event!.kind);
+        reached.push(context!.event!.kind ?? 'native');
         return true;
       },
       evaluate: condition => {
         throw new Error(`unexpected terminal condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage', unknown>();
+    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage'>();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'damage-listener', stackingType: 'unique' },
       {},
@@ -576,7 +667,7 @@ describe('attachBuffLifecycleSequences', () => {
       ],
       (event, priority, handle) => {
         if (event !== 'beforeTakeDamage') throw new Error(`unexpected event '${event}'`);
-        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+        return dispatcher.registerAction(event, priority, context => handle(context));
       },
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
@@ -605,21 +696,21 @@ describe('attachBuffLifecycleSequences', () => {
     buff.finish();
     dispatch(['normalSkill']);
 
-    expect(reached).toEqual(['abilityDamage', 'abilityDamage']);
+    expect(reached).toEqual(['native', 'native']);
   });
 
   it('把失衡归零事件保留为带来源身份的 Ability 事件', () => {
     const reached: string[] = [];
     const terminal: CombatOperationExecutor = {
       execute: (_step, context) => {
-        reached.push(context!.event!.kind);
+        reached.push(context!.event!.kind ?? 'native');
         return true;
       },
       evaluate: condition => {
         throw new Error(`unexpected terminal condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'poiseZero', unknown>();
+    const dispatcher = new AbilityEventDispatcher<'poiseZero'>();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'poise-listener', stackingType: 'unique' },
       {},
@@ -649,7 +740,7 @@ describe('attachBuffLifecycleSequences', () => {
       ],
       (event, priority, handle) => {
         if (event !== 'poiseZero') throw new Error(`unexpected event '${event}'`);
-        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+        return dispatcher.registerAction(event, priority, context => handle(context));
       },
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
@@ -670,24 +761,22 @@ describe('attachBuffLifecycleSequences', () => {
       [],
     );
 
-    expect(reached).toEqual(['abilityPoise']);
+    expect(reached).toEqual(['native']);
   });
 
-  it('只在 Buff 启用期间订阅击杀语义事件', () => {
+  it('只在 Buff 启用期间订阅原生击杀事件', () => {
     const reached: string[] = [];
+    const received: unknown[] = [];
     let handler:
-      | ((event: {
-          readonly kind: 'enemyDefeated';
-          readonly sourceOperatorId: string;
-          readonly tags: readonly ['normalSkill'];
-        }) => void)
-      | undefined;
+      ((event: import('../events/combatAbilityEvent').NativeKillEvent) => void) | undefined;
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'kill-listener', stackingType: 'unique' },
       {},
       () => ({
         execute: (_step, context) => {
-          reached.push(context!.event!.kind);
+          const event = context!.event!;
+          received.push(event);
+          reached.push('payload' in event ? event.event : event.kind);
           return true;
         },
         evaluate: () => true,
@@ -707,22 +796,14 @@ describe('attachBuffLifecycleSequences', () => {
           },
         },
       ],
-      undefined,
-      [],
-      [],
-      [],
       (_event, _priority, callback) => {
-        handler = callback as typeof handler;
+        handler = callback;
         return { dispose: () => (handler = undefined) };
       },
     );
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
     const buff = container.add(definition, 'operator')!;
-    const event = {
-      kind: 'enemyDefeated',
-      sourceOperatorId: 'operator',
-      tags: ['normalSkill'],
-    } as const;
+    const event = createKillEvent();
 
     handler!(event);
     buff.disable();
@@ -731,27 +812,26 @@ describe('attachBuffLifecycleSequences', () => {
     handler!(event);
     buff.finish();
     expect(handler).toBeUndefined();
-    expect(reached).toEqual(['enemyDefeated', 'enemyDefeated']);
+    expect(reached).toEqual(['afterKillEntity', 'afterKillEntity']);
+    expect(received).toHaveLength(2);
+    expect(received[0]).toBe(event);
+    expect(received[1]).toBe(event);
   });
 
-  it('把编译后的 Skill/Gain 技力事实作为 Buff 语义事件上下文', () => {
+  it.each([
+    ['skill', 'gain'],
+    ['normalAttack', 'gain'],
+    ['skill', 'refund'],
+  ] as const)('Buff OnObtainAtb 不提前过滤 %s/%s', (source, gainKind) => {
     const reached: string[] = [];
     let handler:
-      | ((event: {
-          readonly kind: 'spGained';
-          readonly sourceOperatorId: string;
-          readonly source: 'skill';
-          readonly gainKind: 'gain';
-          readonly requestedAmount: number;
-          readonly amount: number;
-        }) => void)
-      | undefined;
+      ((event: import('../events/combatAbilityEvent').SpGainAbilityEvent) => void) | undefined;
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'skill-sp-listener', stackingType: 'unique' },
       {},
       () => ({
         execute: (_step, context) => {
-          reached.push(context!.event!.kind);
+          reached.push(context!.event!.kind ?? 'native');
           return true;
         },
         evaluate: () => true,
@@ -771,12 +851,8 @@ describe('attachBuffLifecycleSequences', () => {
           },
         },
       ],
-      undefined,
-      [],
-      [],
-      [],
       (_event, _priority, callback) => {
-        handler = callback as typeof handler;
+        handler = callback;
         return { dispose: () => (handler = undefined) };
       },
     );
@@ -784,14 +860,16 @@ describe('attachBuffLifecycleSequences', () => {
     container.add(definition, 'operator')!;
 
     handler!({
-      kind: 'spGained',
-      sourceOperatorId: 'operator',
-      source: 'skill',
-      gainKind: 'gain',
-      requestedAmount: 20,
-      amount: 20,
+      event: 'skillSpGained',
+      payload: {
+        sourceOperatorId: 'operator',
+        source,
+        gainKind,
+        requestedAmount: 20,
+        amount: 0,
+      },
     });
-    expect(reached).toEqual(['spGained']);
+    expect(reached).toEqual(['native']);
   });
 
   it('事件响应可以结束正在执行响应的 Buff 并立即注销自身订阅', () => {
@@ -808,7 +886,7 @@ describe('attachBuffLifecycleSequences', () => {
         throw new Error(`unexpected condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage', unknown>();
+    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage'>();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'self-finishing-listener', stackingType: 'unique' },
       {},
@@ -825,7 +903,7 @@ describe('attachBuffLifecycleSequences', () => {
       ],
       (event, priority, handle) => {
         if (event !== 'beforeTakeDamage') throw new Error(`unexpected event '${event}'`);
-        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+        return dispatcher.registerAction(event, priority, context => handle(context));
       },
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
@@ -864,7 +942,7 @@ describe('attachBuffLifecycleSequences', () => {
         throw new Error(`unexpected condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'beforeCastSkill' | 'finishedBuff', unknown>();
+    const dispatcher = new AbilityEventDispatcher<'beforeCastSkill' | 'finishedBuff'>();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'combo-timer', stackingType: 'unique', durationSeconds: 1 },
       {},
@@ -910,7 +988,7 @@ describe('attachBuffLifecycleSequences', () => {
         if (event !== 'beforeCastSkill' && event !== 'finishedBuff') {
           throw new Error(`unexpected event '${event}'`);
         }
-        return dispatcher.registerAction(event, priority, context => handle(context.payload));
+        return dispatcher.registerAction(event, priority, context => handle(context));
       },
     );
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
@@ -951,7 +1029,9 @@ describe('attachBuffLifecycleSequences', () => {
 
   it('把同事件同优先级响应注册为一个回调并保持各序列独立短路', () => {
     let registered = 0;
-    let handleAdded: ((payload: unknown) => void) | undefined;
+    let handleAdded:
+      | Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
+      | undefined;
     let reached = 0;
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'same-priority', stackingType: 'unique' },
@@ -1008,10 +1088,13 @@ describe('attachBuffLifecycleSequences', () => {
 
     container.add(definition, 'source');
     handleAdded?.({
-      sourceId: 'source',
-      targetId: 'operator',
-      buffId: 'added',
-      buffTags: [],
+      event: 'addedBuff',
+      payload: {
+        sourceId: 'source',
+        targetId: 'operator',
+        buffId: 'added',
+        buffTags: [],
+      },
     });
 
     expect(registered).toBe(1);
@@ -1129,4 +1212,61 @@ describe('attachBuffLifecycleSequences', () => {
     expect(buff.skillCastInfo).toEqual(originalCast);
     expect(buff.sourceId).toBe('original-source');
   });
+});
+
+it('物理后置 Buff 监听使用原始注册口并随启停注销，保留挂载端口', () => {
+  const dispatcher = new AbilityEventDispatcher<
+    'afterOutputPhysicalInfliction',
+    import('../events/combatAbilityEvent').AbilityEventPayloadMap
+  >();
+  const received: unknown[] = [];
+  const definition = attachBuffLifecycleSequences<never>(
+    { id: 'physical-listener', stackingType: 'unique' },
+    {},
+    () => ({
+      execute: (_step, context) => {
+        received.push(context!.event);
+        return true;
+      },
+      evaluate: () => true,
+    }),
+    undefined,
+    [
+      {
+        event: 'afterOutputPhysicalInfliction',
+        priority: 3,
+        sequence: {
+          steps: [
+            { kind: 'setContextFlag', parameters: { flag: 'seen', value: true, target: 'caster' } },
+          ],
+        },
+      },
+    ],
+    (event, priority, handle) => {
+      if (event !== 'afterOutputPhysicalInfliction') throw new Error('unexpected event');
+      return dispatcher.registerAction(event, priority, published => handle(published));
+    },
+  );
+  const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+  const buff = container.add(definition, 'operator')!;
+  const published = {
+    event: 'afterOutputPhysicalInfliction' as const,
+    payload: {
+      sourceId: 'operator',
+      targetId: 'enemy',
+      type: 'fracture' as const,
+      skillCastInfo: null,
+      attachBuffToCurrentSkill: () => {},
+    },
+  };
+  dispatcher.dispatch(published, []);
+  buff.disable();
+  dispatcher.dispatch(published, []);
+  buff.enable();
+  dispatcher.dispatch(published, []);
+  buff.finish();
+  dispatcher.dispatch(published, []);
+  expect(received).toHaveLength(2);
+  expect(received[0]).toBe(published);
+  expect(received[1]).toBe(published);
 });

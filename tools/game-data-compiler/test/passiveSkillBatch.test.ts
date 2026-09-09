@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { compileOperatorUpgradePassiveSkills } from '../src/domains/operator/passiveSkillDefinition.ts';
+import { compileOperatorPassivePrograms } from '../../../src/core/compiler/compileOperatorUpgrades';
 
 import {
   compilePassiveSkillRequestBatch,
@@ -6,6 +8,62 @@ import {
 } from '../src/index.ts';
 
 describe('公共被动技能批量编译', () => {
+  it('OnAddedBuff 经公共被动编译后直达原生响应，不再生成旧触发器监听', () => {
+    const req: PassiveSkillCompileRequestSource = {
+      originKind: 'operatorProgression',
+      originId: 'effect',
+      sourcePath: 'fixture',
+      skillId: 'passive_fixture',
+      levelSource: { kind: 'nativeDefault' },
+      inputBlackboard: {},
+    };
+    const raw = {
+      ...passiveFixture(req.skillId),
+      actionGroupData: {
+        timelineActions: [],
+        passiveEventActions: [
+          {
+            abilityEvent: 'OnAddedBuff',
+            actions: [
+              {
+                actionData: [],
+                onlyExecuteWhenSourceIsMainChar: false,
+                onlyExecuteWhenSourceIsGuard: false,
+              },
+            ],
+          },
+        ],
+      },
+    };
+    const batch = compilePassiveSkillRequestBatch([req], { [req.skillId]: raw }, {});
+    const compiled = compileOperatorUpgradePassiveSkills(['effect'], [req], batch.definitions);
+    expect(compiled.definitions[0]?.abilityEventResponses).toEqual([
+      { event: 'addedBuff', priority: 0, sequence: { steps: [] } },
+    ]);
+    expect(JSON.stringify(compiled.definitions[0]?.enableSequence)).not.toContain(
+      'listenForCombatEvents',
+    );
+    expect(
+      compileOperatorPassivePrograms([], compiled.definitions)[0]?.abilityEventResponses?.[0]
+        ?.event,
+    ).toBe('addedBuff');
+    const withStartup = {
+      ...raw,
+      buffs: [{ buffId: 'startup', assignBlackboard: false, assignItems: [] }],
+    };
+    const startupBatch = compilePassiveSkillRequestBatch([req], { [req.skillId]: withStartup }, {});
+    const preserved = compileOperatorUpgradePassiveSkills(
+      ['effect'],
+      [req],
+      startupBatch.definitions,
+    );
+    expect(preserved.definitions[0]?.abilityEventResponses ?? []).toEqual([]);
+    expect(preserved.definitions[0]?.enableSequence?.steps.map(step => step.kind)).toEqual([
+      'applyBuff',
+      'listenForCombatEvents',
+    ]);
+  });
+
   it('保留全部领域请求，但相同 SkillData 只编译一次', () => {
     const requests: PassiveSkillCompileRequestSource[] = [
       request('weapon', 'weapon_a', 'passive_fixture'),

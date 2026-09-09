@@ -3577,10 +3577,6 @@ function validateEventTrigger(
     case 'enemyDefeated':
       requireEnum(record, 'scope', TRIGGER_SCOPES_SET, path, out);
       break;
-    case 'statusExpired':
-    case 'statusConsumed':
-      requireString(record, 'statusKey', path, out);
-      requireEnum(record, 'target', COMBAT_TARGETS_SET, path, out);
       break;
     default:
       push(out, `${path}.kind`, 'unknown event trigger kind');

@@ -1,4 +1,19 @@
-import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
+import type {
+  BuffEnhanceAbilityEvent,
+  SpellBurstAbilityEvent,
+  CharacterInflictionAbilityEvent,
+  SkillAbilityEvent,
+  AbilitySkillPayload,
+  LifecycleAbilityEvent,
+  WeaknessAbilityEvent,
+  CustomAbilityEvent,
+  PoiseAbilityEvent,
+  ShieldAbilityEvent,
+  HealAbilityEvent,
+  DamageAbilityEvent,
+  PhysicalAbilityEvent,
+  KnockDownAbilityEvent,
+} from '../events/combatAbilityEvent';
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。
  * 每个放置块独立持有调度游标和黑板；同一技能的冷却由装配层显式共享。
@@ -21,11 +36,6 @@ import type { CombatSkillCastInfo } from './skillCastInfo';
 import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
-import type {
-  DamageFeature,
-  DamageTag,
-  PhysicalInflictionType,
-} from '../../game-data/operatorDefinition';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
@@ -39,167 +49,6 @@ export type RuntimeSkillInterruptReason = 'castNextSkill';
 export interface RuntimeSkillTransition {
   readonly nextSkillId: string;
   readonly attachBuffToNextSkill: (buff: BuffApplicationHandle) => void;
-}
-
-/** Ability 承伤事件进入通用条件执行器前的只读归一化负载。 */
-export interface CombatAbilityDamageEvent {
-  readonly kind: 'abilityDamage';
-  readonly event:
-    | 'beforeDamageAction'
-    | 'beforeCalculateDamage'
-    | 'beforeOutputDamage'
-    | 'beforeTakeDamage'
-    | 'takeDamage'
-    | 'takeCriticalDamage'
-    | 'outputDamage'
-    | 'outputCriticalDamage';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
-  readonly tags: readonly DamageTag[];
-  readonly gameplayTags?: readonly GameplayTag[];
-  readonly features: readonly DamageFeature[];
-}
-
-/** AbilitySystem 即将承受物理异常时的同步事件；来源是施加该异常的实体。 */
-export interface CombatAbilityPhysicalInflictionEvent {
-  readonly kind: 'abilityPhysicalInfliction';
-  readonly event:
-    | 'beforeTakePhysicalInfliction'
-    | 'beforeOutputPhysicalInfliction'
-    | 'afterOutputPhysicalInfliction'
-    | 'afterTakePhysicalInfliction';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly type?: PhysicalInflictionType;
-  /** 物理异常由当前技能动作同步输出时保留其原生 CastSkillContext 附着端口。 */
-  readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
-}
-
-/** 控制组件在来源 AbilitySystem 上发布的专属事件；保留浮空转入标识，不与通用物理异常混用。 */
-export interface CombatAbilityKnockDownEvent {
-  readonly kind: 'abilityKnockDown';
-  readonly event: 'beforeOutputKnockDown' | 'afterOutputKnockDown';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly fromAirborne: boolean;
-}
-
-/** AbilitySystem 元素附着前后同步事件；当前木桩模型不会自行产生角色承术事件。 */
-export interface CombatAbilitySpellInflictionEvent {
-  readonly kind: 'abilitySpellInfliction';
-  readonly event:
-    | 'beforeTakeSpellInfliction'
-    | import('./elementalInflictionOperationExecutor').ElementalInflictionEvent;
-  readonly sourceId: string;
-  readonly targetId: string;
-  /** 角色受术旧事件不一定提供元素；敌人承受元素附着事件始终提供。 */
-  readonly element?: import('../../game-data/operatorDefinition').InflictionElement;
-}
-
-/** AbilitySystem 即将输出一次元素爆发；爆发来源施法身份由事件上下文单独携带。 */
-export interface CombatAbilitySpellBurstEvent {
-  readonly kind: 'abilitySpellBurst';
-  readonly event: 'beforeOutputSpellBurst';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly burstType: string;
-}
-
-/** AbilitySystem 的失衡归零同步事件；保留本次失衡来源与目标身份。 */
-export interface CombatAbilityPoiseEvent {
-  readonly kind: 'abilityPoise';
-  readonly event: 'poiseZero' | 'poiseKnotBreak';
-  readonly sourceId: string;
-  readonly targetId: string;
-}
-
-/** AbilitySystem 成功治疗事件；actualHealing 为零时仍是有效事件。 */
-export interface CombatAbilityHealEvent {
-  readonly kind: 'abilityHeal';
-  readonly event: 'outputHeal' | 'receiveHeal';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly requestedHealing: number;
-  readonly actualHealing: number;
-  readonly overhealing: number;
-  readonly tags: readonly GameplayTag[];
-}
-
-/** AbilitySystem 完成一组护盾添加后的同步事件。 */
-export interface CombatAbilityShieldEvent {
-  readonly kind: 'abilityShield';
-  readonly event: 'afterAddedShield';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly gainedValue: number;
-  readonly currentValue: number;
-}
-
-/** AbilitySystem 在技能正式启动前发出的施放事件。 */
-export interface CombatAbilitySkillEvent {
-  readonly kind: 'abilitySkill';
-  readonly event: 'beforeCastSkill' | 'afterSkillApplyCost' | 'skillEnd';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly skillType: import('../../game-data/operatorDefinition').SkillType;
-  readonly skillId: string;
-  readonly skillCastId: number;
-  /** 当前 CastSkillContext 的技能对象端口；不能用来源施法信息或动作宿主替代。 */
-  readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
-}
-
-/** 本场固定战斗在装配完成后向已注册 Buff 发布的一次实体入战事件。 */
-export interface CombatAbilityLifecycleEvent {
-  readonly kind: 'abilityLifecycle';
-  readonly event:
-    | 'enterFight'
-    | 'ownerSwitchToCenter'
-    | 'ownerSwitchToGuard'
-    | 'ownerHpZero'
-    | 'abilityEntitySpawned'
-    | 'abilityEntityFinished';
-  readonly sourceId: string;
-  readonly targetId: string;
-}
-
-/** 叠层型 Buff 的有效层数发生变化后，在 Buff owner 上发布的无目标同步事件。 */
-export interface CombatAbilityBuffEnhanceChangedEvent {
-  readonly kind: 'abilityBuffEnhanceChanged';
-  readonly event: 'buffEnhanceChanged';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly buffId: string;
-  /** 本次变化量：成功增强为正，实例结束或扣层为负。 */
-  readonly layerCount: number;
-  readonly reason?: BuffFinishReason;
-}
-
-/** 敌方弱点窗口确认触发后，在攻击者 AbilitySystem 上发布的同步事件。 */
-export interface CombatAbilityWeaknessTriggeredEvent {
-  readonly kind: 'abilityWeaknessTriggered';
-  readonly event: 'afterOutputWeaknessTriggered';
-  readonly sourceId: string;
-  readonly targetId: string;
-}
-
-/** SetWeaknessAction 在弱点所属实体上发布的无目标同步事件。 */
-export interface CombatAbilityWeaknessSetEvent {
-  readonly kind: 'abilityWeaknessSet';
-  readonly event: 'weaknessSet';
-  /** 无目标事件仍保留统一载荷形状；两者均为发布者。 */
-  readonly sourceId: string;
-  readonly targetId: string;
-}
-
-/** TriggerCustomAbilityEvent 在发布者 AbilitySystem 上同步派发的命名载荷。 */
-export interface CombatAbilityCustomEvent {
-  readonly kind: 'abilityCustom';
-  readonly event: 'customAbilityEvent';
-  readonly sourceId: string;
-  readonly targetId: string;
-  readonly eventName: string;
-  readonly eventParam: number;
 }
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
@@ -246,20 +95,19 @@ export interface CombatOperationContext {
   /** 仅在同步事件响应期间存在；普通技能步骤不得假设它可用。 */
   readonly event?:
     | CombatSemanticEvent
-    | CombatAbilityDamageEvent
-    | CombatAbilityPhysicalInflictionEvent
-    | CombatAbilityKnockDownEvent
-    | CombatAbilitySpellInflictionEvent
-    | CombatAbilitySpellBurstEvent
-    | CombatAbilityPoiseEvent
-    | CombatAbilityHealEvent
-    | CombatAbilityShieldEvent
-    | CombatAbilitySkillEvent
-    | CombatAbilityLifecycleEvent
-    | CombatAbilityBuffEnhanceChangedEvent
-    | CombatAbilityWeaknessTriggeredEvent
-    | CombatAbilityWeaknessSetEvent
-    | CombatAbilityCustomEvent;
+    | DamageAbilityEvent
+    | PhysicalAbilityEvent
+    | KnockDownAbilityEvent
+    | CharacterInflictionAbilityEvent
+    | SpellBurstAbilityEvent
+    | PoiseAbilityEvent
+    | HealAbilityEvent
+    | ShieldAbilityEvent
+    | SkillAbilityEvent
+    | LifecycleAbilityEvent
+    | BuffEnhanceAbilityEvent
+    | WeaknessAbilityEvent
+    | CustomAbilityEvent;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionSource 身份。 */
   readonly buffSourceId?: string;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */
@@ -329,9 +177,9 @@ interface SkillRuntimeDependencies {
   /** 共享账本只能由一个运行实例逐帧推进。 */
   readonly advancesCooldown?: boolean;
   /** 原生 CastEnd 清理完成后向所有者 AbilitySystem 同步发布 OnSkillEnd。 */
-  readonly emitSkillEnd?: (payload: CombatAbilitySkillEvent) => void;
+  readonly emitSkillEnd?: (payload: AbilitySkillPayload) => void;
   /** 原生费用实际应用成功后、同帧时间轴动作前同步发布 OnAfterSkillApplyCost。 */
-  readonly emitAfterSkillApplyCost?: (payload: CombatAbilitySkillEvent) => void;
+  readonly emitAfterSkillApplyCost?: (payload: AbilitySkillPayload) => void;
   readonly scheduleProjectileFinishCallback?: (delaySeconds: number, execute: () => void) => void;
 }
 
@@ -877,8 +725,7 @@ export class SkillRuntime {
         this.#program.operatorId,
       ),
     });
-    if (emitSkillEvent)
-      this.#dependencies.emitAfterSkillApplyCost?.(this.#skillEventPayload('afterSkillApplyCost'));
+    if (emitSkillEvent) this.#dependencies.emitAfterSkillApplyCost?.(this.#skillEventPayload());
     return true;
   }
 
@@ -903,7 +750,7 @@ export class SkillRuntime {
   }
 
   #emitSkillEnd(): void {
-    this.#dependencies.emitSkillEnd?.(this.#skillEventPayload('skillEnd'));
+    this.#dependencies.emitSkillEnd?.(this.#skillEventPayload());
   }
 
   #finishAttachedBuffs(): void {
@@ -912,10 +759,8 @@ export class SkillRuntime {
     this.#attachedBuffs.clear();
   }
 
-  #skillEventPayload(event: CombatAbilitySkillEvent['event']): CombatAbilitySkillEvent {
+  #skillEventPayload(): AbilitySkillPayload {
     return {
-      kind: 'abilitySkill',
-      event,
       sourceId: this.#program.operatorId,
       targetId: this.#program.operatorId,
       skillType: this.#program.skillType,

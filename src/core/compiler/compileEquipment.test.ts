@@ -56,8 +56,8 @@ const loneBarge: WeaponDefinition = {
       ],
       eventHandlers: [
         {
-          key: 'after-electrification-consumed',
-          event: { kind: 'statusConsumed', statusKey: 'electrification', target: 'enemy' },
+          key: 'after-buff-consumed',
+          event: { kind: 'buffConsumed' },
           priority: 4,
           sequence: {
             steps: [

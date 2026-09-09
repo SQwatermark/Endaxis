@@ -20,6 +20,7 @@ import type {
 import type { OperatorInstanceDocument } from '../project/schema';
 import { compileActionSequence } from './compileSkill';
 import { compareCombatNumbers } from '../combat/runtime/numericComparison';
+import { isOperatorPassiveAbilityEvent } from '../../../packages/game-data-contract/src/operators';
 
 export interface ActiveOperatorUpgrade {
   readonly source: 'talent' | 'potential';
@@ -166,10 +167,7 @@ function compilePassiveAbilityResponses(
   if (passive.abilityEventResponses === undefined) return {};
   return {
     abilityEventResponses: passive.abilityEventResponses.map((response, index) => {
-      if (
-        !['abilityEntitySpawned', 'abilityEntityFinished'].includes(response.event) ||
-        !Number.isInteger(response.priority)
-      )
+      if (!isOperatorPassiveAbilityEvent(response.event) || !Number.isInteger(response.priority))
         throw new Error(`${path}.abilityEventResponses[${index}]: invalid event or priority`);
       return {
         ...response,

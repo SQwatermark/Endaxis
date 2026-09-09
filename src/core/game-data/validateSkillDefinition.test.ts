@@ -906,24 +906,27 @@ describe('validateSkillDefinition', () => {
     );
   });
 
-  it('rejects an invalid event trigger kind', () => {
-    const skill = baseSkill();
-    skill.eventHandlers = [
-      {
-        key: 'handler:1',
-        event: { kind: 'unknownTrigger' },
-        scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
-      },
-    ];
-    const issues = validateSkillDefinition(skill);
-    expect(
-      issues.some(
-        issue =>
-          issue.path === '$.eventHandlers[0].event.kind' &&
-          issue.message.includes('unknown event trigger'),
-      ),
-    ).toBe(true);
-  });
+  it.each(['unknownTrigger', 'statusExpired', 'statusConsumed'])(
+    'rejects an unsupported event trigger kind: %s',
+    kind => {
+      const skill = baseSkill();
+      skill.eventHandlers = [
+        {
+          key: 'handler:1',
+          event: { kind, statusKey: 'status', target: 'enemy' },
+          scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+        },
+      ];
+      const issues = validateSkillDefinition(skill);
+      expect(
+        issues.some(
+          issue =>
+            issue.path === '$.eventHandlers[0].event.kind' &&
+            issue.message.includes('unknown event trigger'),
+        ),
+      ).toBe(true);
+    },
+  );
 
   it('requires an explicit end frame for nested combat event listeners', () => {
     const skill = baseSkill();

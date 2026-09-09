@@ -105,7 +105,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
         ) {
           throw new Error('projected elemental attachment no longer matches the target');
         }
-        if (!projected.finish('ignite')) {
+        if (!this.target.finishInstance(projected, 'ignite', this.sourceId)) {
           throw new Error('projected elemental attachment could not be consumed');
         }
         this.#projectedAttachment = null;

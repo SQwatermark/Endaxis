@@ -1,3 +1,4 @@
+import { abilityEventTargetId } from '../events/combatAbilityEvent';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
@@ -233,6 +234,12 @@ function targetId(target: RuntimeTargetRef): string | undefined {
 
 function eventTargetId(context: CombatOperationContext): string {
   const event = context.event;
+  if (event !== undefined && 'payload' in event) {
+    const target = abilityEventTargetId(event);
+    if (target === undefined)
+      throw new Error('eventTarget requires a combat event with target identity');
+    return target;
+  }
   if (event === undefined || !('targetId' in event)) {
     throw new Error('eventTarget requires a combat event with target identity');
   }

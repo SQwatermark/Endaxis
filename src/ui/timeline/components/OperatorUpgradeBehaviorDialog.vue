@@ -9,7 +9,6 @@ import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortc
 import DefinitionHistoryControls from './DefinitionHistoryControls.vue';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
 import {
-  ELEMENTAL_REACTIONS,
   SKILL_LEVEL_SOURCES,
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,
@@ -127,7 +126,6 @@ function replacePassives(value: readonly OperatorPassiveSkillDefinition[]): void
   draft.value = { ...draft.value, passiveSkills: value.length === 0 ? undefined : value };
 }
 function defaultEvent(kind: UpgradeEvent['kind']): UpgradeEvent {
-  if (kind === 'reactionApplied') return { kind, reaction: ELEMENTAL_REACTIONS[0] };
   if (kind === 'spGained') return { kind, source: 'skill', gainKind: 'gain' };
   if (kind === 'buffConsumed') return { kind, buffIds: [] };
   if (kind === 'skillHit')
@@ -357,21 +355,10 @@ function save(): void {
           <section v-if="selectedHandler" class="fields">
             <label
               >事件类型<select :value="selectedHandler.event.kind" @change="updateEventKind">
-                <option value="reactionApplied">元素反应生效</option>
                 <option value="spGained">获得技力</option>
                 <option value="elementalAttachmentConsumed">元素附着被消耗</option>
                 <option value="buffConsumed">消费 Buff</option>
                 <option value="skillHit">技能命中</option>
-              </select></label
-            >
-            <label v-if="selectedHandler.event.kind === 'reactionApplied'"
-              >反应<select
-                :value="selectedHandler.event.reaction"
-                @change="patchEvent({ reaction: ($event.target as HTMLSelectElement).value })"
-              >
-                <option v-for="value in ELEMENTAL_REACTIONS" :key="value" :value="value">
-                  {{ value }}
-                </option>
               </select></label
             >
             <template v-if="selectedHandler.event.kind === 'spGained'"

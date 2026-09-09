@@ -10,31 +10,37 @@ import type {
 } from './abilityEventDispatcher';
 
 /** 一条事件身份、原生优先级与执行行为的已解析映射。 */
-export interface AbilityEventActionMap<Event, Payload = unknown> {
+export interface AbilityEventActionMap<
+  Event extends PropertyKey,
+  Payloads extends Record<Event, unknown> = Record<Event, unknown>,
+> {
   readonly event: Event;
   readonly priority: number;
-  readonly execute: AbilityEventHandler<Event, Payload>;
+  readonly execute: AbilityEventHandler<Event, Payloads>;
 }
 
 /**
  * 对应原生 EventListenerAction 的运行时作用域。
  * 同一实例不能重复启动；需要并行运行时必须通过 createRuntimeInstance 创建独立状态。
  */
-export class AbilityEventListenerStep<Event, Payload = unknown> extends CombatStep {
-  readonly #dispatcher: AbilityEventDispatcher<Event, Payload>;
-  readonly #actionMaps: readonly AbilityEventActionMap<Event, Payload>[];
+export class AbilityEventListenerStep<
+  Event extends PropertyKey,
+  Payloads extends Record<Event, unknown> = Record<Event, unknown>,
+> extends CombatStep {
+  readonly #dispatcher: AbilityEventDispatcher<Event, Payloads>;
+  readonly #actionMaps: readonly AbilityEventActionMap<Event, Payloads>[];
   #registrations: AbilityEventRegistration[] = [];
 
   constructor(
-    dispatcher: AbilityEventDispatcher<Event, Payload>,
-    actionMaps: readonly AbilityEventActionMap<Event, Payload>[],
+    dispatcher: AbilityEventDispatcher<Event, Payloads>,
+    actionMaps: readonly AbilityEventActionMap<Event, Payloads>[],
   ) {
     super();
     this.#dispatcher = dispatcher;
     this.#actionMaps = actionMaps.slice();
   }
 
-  override createRuntimeInstance(): AbilityEventListenerStep<Event, Payload> {
+  override createRuntimeInstance(): AbilityEventListenerStep<Event, Payloads> {
     return new AbilityEventListenerStep(this.#dispatcher, this.#actionMaps);
   }
 

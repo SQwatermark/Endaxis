@@ -16,7 +16,7 @@ import {
   type PoiseModifierDefinition,
 } from './modifiers.ts';
 import { type ActionValueOperand } from './conditions.ts';
-import { type AbilityEvent } from './abilityEvents.ts';
+import { type AbilityEvent, type AbilityEventResponse } from './abilityEvents.ts';
 
 /** 当前公共 Buff 生命周期已经能够注册和归一化的 AbilitySystem 事件。 */
 export const BUFF_ABILITY_EVENTS = [
@@ -96,15 +96,7 @@ export interface SkillBuffLifecycleSequences {
 }
 
 /** Buff 启用期间注册在其所有者 AbilitySystem 上的一条同步事件响应。 */
-export interface SkillBuffAbilityEventResponse {
-  /** 已接入实体 AbilitySystem 事件中心的同步事件。 */
-  event: BuffAbilityEvent;
-  /** 原生数据动作优先级；同一事件同优先级的顺序未证明时运行时会拒绝注册。 */
-  priority: number;
-  /** 已证明同优先级、同 key 的实例响应可交换时允许并列注册。 */
-  samePriorityKey?: string;
-  sequence: ActionSequenceDefinition;
-}
+export type SkillBuffAbilityEventResponse = AbilityEventResponse<BuffAbilityEvent>;
 
 /** Buff 实例对原生 IgniteAction 类型的同步响应。 */
 export interface SkillBuffIgniteEventResponse {

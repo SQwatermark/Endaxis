@@ -82,11 +82,14 @@ function runtime(
       return new CombatActionSequenceRuntime(operations, {
         blackboard: direct,
         event: {
-          kind: 'abilitySpellInfliction',
-          event: 'beforeTakeInfliction',
-          sourceId: 'ally',
-          targetId: 'enemy',
-          element,
+          event: 'beforeTakeInfliction' as const,
+          payload: {
+            skillId: 'skill',
+            isExtra: false,
+            sourceId: 'ally',
+            targetId: 'enemy',
+            element,
+          },
         },
       })
         .createSequence(resolved)
@@ -176,9 +179,6 @@ describe('原生元素条件从公共编译到运行写回', () => {
           phases.push('write');
         }
       },
-      emitSemanticInfliction: () => {
-        phases.push('semantic-after');
-      },
       delegate: { execute: () => false, evaluate: () => false },
     });
     expect(
@@ -194,7 +194,11 @@ describe('原生元素条件从公共编译到运行写回', () => {
       'read',
       'apply',
     ]);
-    expect(phases.at(-1)).toBe('semantic-after');
+    expect(phases).toContain('afterOutputInfliction');
+    expect(phases).toContain('afterTakeInfliction');
+    expect(phases.indexOf('afterOutputInfliction')).toBeLessThan(
+      phases.indexOf('afterTakeInfliction'),
+    );
     // 本测试显式选中并调用条件，不冒充自动注册、冷却门禁及 Pending 链已接通。
   });
 
@@ -204,7 +208,7 @@ describe('原生元素条件从公共编译到运行写回', () => {
     expect(entity.snapshot()[key]).toBe(value);
   });
 
-  it('只在对应载荷匹配时读取黑板，缺失元素或其他事件不写值', () => {
+  it('缺失元素或其他事件不写黑板', () => {
     const executor = new EventContextConditionExecutor({
       execute: () => false,
       evaluate: () => false,
@@ -219,10 +223,8 @@ describe('原生元素条件从公共编译到运行写回', () => {
       executor.evaluate(condition, {
         blackboard,
         event: {
-          kind: 'abilitySpellInfliction',
-          event: 'beforeTakeInfliction',
-          sourceId: 'ally',
-          targetId: 'enemy',
+          event: 'beforeTakeSpellInfliction',
+          payload: { sourceId: 'ally', targetId: 'enemy' },
         },
       }),
     ).toBe(false);
@@ -230,9 +232,8 @@ describe('原生元素条件从公共编译到运行写回', () => {
       executor.evaluate(condition, {
         blackboard,
         event: {
-          kind: 'elementalInflictionApplied',
-          sourceOperatorId: 'ally',
-          elements: ['nature'],
+          event: 'weaknessSet',
+          payload: { sourceId: 'ally' },
         },
       }),
     ).toBe(false);
@@ -256,11 +257,14 @@ describe('原生元素条件从公共编译到运行写回', () => {
       blackboard,
       refreshCurrentBuffAttributeModifiers: refresh,
       event: {
-        kind: 'abilitySpellInfliction',
         event: 'beforeTakeInfliction',
-        sourceId: 'ally',
-        targetId: 'enemy',
-        element: 'nature',
+        payload: {
+          skillId: 'skill',
+          isExtra: false,
+          sourceId: 'ally',
+          targetId: 'enemy',
+          element: 'nature',
+        },
       },
     } as const;
     executor.evaluate(condition, context);

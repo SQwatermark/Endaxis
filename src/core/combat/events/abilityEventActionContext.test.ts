@@ -48,8 +48,14 @@ describe('AbilityEvent action context binding', () => {
     expect(
       resolveAbilityEventActionContextBinding('weaknessSet', {
         sourceId: 'enemy',
-        targetId: 'enemy',
       }),
     ).toEqual({ inputTargetId: 'enemy', triggerTargetId: null });
+  });
+
+  it('仅校验绑定用到的字段，有目标事件仍拒绝缺失目标', () => {
+    expect(() =>
+      resolveAbilityEventActionContextBinding('outputBuff', { sourceId: 'operator' }),
+    ).toThrow('eventTarget');
+    expect(() => resolveAbilityEventActionContextBinding('weaknessSet', {})).toThrow('eventSource');
   });
 });

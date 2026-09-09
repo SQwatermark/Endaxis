@@ -1,3 +1,5 @@
+import { abilityEventSourceId } from '../events/combatAbilityEvent';
+import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
 /**
  * 将已解析资源和已编译技能组装成一次可执行的战斗运行时。
  * 这里只负责依赖接线与原生阶段顺序，不解析存档，也不为还没做通的战斗操作提供默认行为。
@@ -24,7 +26,6 @@ import type {
   CombatStepParameters,
   CombatTarget,
   DamageElement,
-  SkillType,
 } from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
@@ -46,7 +47,6 @@ import { CombatSimulation, type FrameRuntime } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import {
   SkillRuntime,
-  type CombatAbilitySkillEvent,
   type CombatOperationContext,
   type CombatOperationExecutor,
 } from './skillRuntime';
@@ -68,7 +68,11 @@ import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { ComboWindowRuntime } from './comboWindowRuntime';
 import { prepareComboCast } from './comboCastPreparation';
 import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
-import { CombatSemanticEventRuntime, type CombatSemanticEvent } from './combatSemanticEventRuntime';
+import {
+  CombatSemanticEventRuntime,
+  isKnockDownOutputEvent,
+  type RegisterCombatAbilityEvent,
+} from './combatSemanticEventRuntime';
 import {
   EquipmentEventRuntime,
   type RegisterEquipmentAbilityEventAction,
@@ -266,6 +270,7 @@ export interface CombatRuntimeAssemblyOptions {
   readonly bindBattleRuntime?: (
     context: CombatBattleRuntimeContext,
   ) => BoundCombatBattleRuntimes | void;
+  readonly registerCombatAbilityEvent?: RegisterCombatAbilityEvent;
   /** 当前单敌人模型中的目标 Buff 查询端口。 */
   readonly enemyBuffRuntime: EnemyBuffRuntime;
   /** 缺省表示场景不启用时间膨胀；存在相关技能步骤时必须配置。 */
@@ -330,54 +335,20 @@ export interface CombatRuntimeAssemblyOptions {
   readonly createOperationExecutor: (
     context: CombatOperationExecutorContext,
   ) => CombatOperationExecutor;
-  /** 已闭环的 AbilitySystem 同步事件。 */
-  readonly emitAbilityEvent?: (
+  /** 发布端使用公共事件载荷；具体生产能力由安装的运行时端口决定。 */
+  readonly emitAbilityEvent?: <
+    Event extends import('../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent,
+  >(
     entityId: string,
-    event:
-      | 'beforeCastSkill'
-      | 'afterSkillApplyCost'
-      | 'skillEnd'
-      | 'ownerHpZero'
-      | 'abilityEntitySpawned'
-      | 'abilityEntityFinished'
-      | 'ownerSwitchToCenter'
-      | 'ownerSwitchToGuard'
-      | 'beforeOutputPhysicalInfliction'
-      | 'afterOutputPhysicalInfliction'
-      | 'customAbilityEvent',
-    payload:
-      | {
-          readonly sourceId: string;
-          readonly targetId: string;
-          readonly skillType: SkillType;
-          readonly skillId: string;
-          readonly skillCastId: number;
-          readonly skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo;
-          readonly attachBuffToCurrentSkill?: CombatAbilitySkillEvent['attachBuffToCurrentSkill'];
-        }
-      | {
-          readonly sourceId: string;
-          readonly targetId: string;
-          readonly eventName: string;
-          readonly eventParam: number;
-        }
-      | {
-          readonly sourceId: string;
-          readonly targetId: string;
-        },
+    event: Event,
+    payload: import('../events/combatAbilityEvent').AbilityEventPayloadMap[Event],
   ) => void;
   /** 所有开局附着 Buff 注册完成后，为每名干员发布一次本场入战事实。 */
   readonly emitOperatorEnterFight?: (operatorId: string) => void;
   /** 外部受击标记只向 Ability 监听器陈述事实，不执行敌方行为或生命变化。 */
   readonly emitExternalOperatorHit?: (
     operatorId: string,
-    payload: {
-      readonly sourceId: 'enemy';
-      readonly targetId: string;
-      readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
-      readonly tags: readonly import('../../game-data/operatorDefinition').DamageTag[];
-      readonly features: readonly import('../../game-data/operatorDefinition').DamageFeature[];
-    },
+    payload: ExternalOperatorHitPayload,
   ) => void;
   /** 显式补入敌方弱点窗口回投给攻击者的事件，不创建敌方弱点状态。 */
   readonly emitExternalOperatorWeaknessTriggeredOutput?: (operatorId: string) => void;
@@ -460,7 +431,7 @@ export class CombatRuntimeAssembly {
   /** 全场唯一的连携窗口队列；诊断和投影应读取它，不得自行重算窗口顺序。 */
   readonly comboWindows: ComboWindowRuntime;
   /** 配装、连携和养成监听器共用的语义事件中心。 */
-  readonly semanticEvents = new CombatSemanticEventRuntime();
+  readonly semanticEvents: CombatSemanticEventRuntime;
   readonly timeDilation: TimeDilationRuntime | null;
   /** 按实际战斗帧驱动各个运行时；每个对象自行消费对应的局部 delta。 */
   readonly simulation = new CombatSimulation(this.clock);
@@ -530,6 +501,7 @@ export class CombatRuntimeAssembly {
   >();
 
   constructor(options: CombatRuntimeAssemblyOptions) {
+    this.semanticEvents = new CombatSemanticEventRuntime(options.registerCombatAbilityEvent);
     this.#options = options;
     this.clock.initializeFrame(options.initialFrame ?? 0);
     this.resources = new CombatResources(options.resources, {
@@ -963,76 +935,9 @@ export class CombatRuntimeAssembly {
       );
     }
 
-    const configureBuffLifecycle = (target: BuffOperationTarget): void => {
-      target.configureLifecycleOperations?.(source =>
-        this.#createBuffLifecycleOperationChain(source, options),
-      );
-      target.configureBuffAppliedObserver?.(event => {
-        this.semanticEvents.emit({ kind: 'buffApplied', ...event });
-        this.semanticEvents.emit({ kind: 'buffOutput', ...event });
-      });
-      target.configureBuffConsumedObserver?.(event => {
-        this.semanticEvents.emit({ kind: 'buffConsumed', ...event });
-        options.emitBuffLifecycleAbilityEvent?.('buffConsumed', {
-          ...event,
-          sourceId: event.sourceOperatorId,
-        });
-      });
-      target.configureBuffAbsorbedObserver?.(event => {
-        options.emitBuffLifecycleAbilityEvent?.('buffAbsorbed', {
-          ...event,
-          sourceId: event.sourceOperatorId,
-        });
-      });
-      target.configureSemanticEventAction?.((event, priority, handle) =>
-        this.semanticEvents.register({
-          ownerOperatorId: target.ownerId,
-          trigger:
-            event === 'afterKillEntity'
-              ? { kind: 'enemyDefeated', scope: 'operator' }
-              : event === 'outputKnockDown'
-                ? { kind: 'knockDownOutput' }
-                : event === 'afterOutputPhysicalInfliction'
-                  ? {
-                      kind: 'physicalInflictionApplied',
-                      types: ['airborne', 'knockDown', 'fracture', 'crush'],
-                      scope: 'operator',
-                    }
-                  : event === 'skillSpGained'
-                    ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
-                    : { kind: 'buffConsumed' },
-          phase: 'dataAction',
-          priority,
-          handle: context => {
-            if (
-              (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
-              (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
-              (event === 'afterOutputPhysicalInfliction' &&
-                context.event.kind !== 'physicalInflictionApplied') ||
-              (event === 'skillSpGained' && context.event.kind !== 'spGained') ||
-              (event === 'buffConsumed' && context.event.kind !== 'buffConsumed')
-            ) {
-              throw new Error(`${event} Buff listener received an invalid event`);
-            }
-            handle(
-              context.event as Extract<
-                CombatSemanticEvent,
-                {
-                  readonly kind:
-                    | 'enemyDefeated'
-                    | 'knockDownOutput'
-                    | 'physicalInflictionApplied'
-                    | 'spGained'
-                    | 'buffConsumed';
-                }
-              >,
-            );
-          },
-        }),
-      );
-    };
-    configureBuffLifecycle(this.#enemyBuffRuntime);
-    for (const target of this.#operatorBuffs.values()) configureBuffLifecycle(target);
+    this.#configureBuffLifecycle(this.#enemyBuffRuntime, options);
+    for (const target of this.#operatorBuffs.values())
+      this.#configureBuffLifecycle(target, options);
 
     // 所有角色/槽位/操作链就绪后、任何开局动作前注册；构造失败不可遗留外部事件监听。
     try {
@@ -1333,7 +1238,6 @@ export class CombatRuntimeAssembly {
             });
           }
         },
-        semanticEvents: this.semanticEvents,
         emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
         emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
         emitEnemyWeaknessSet: options.emitExternalEnemyWeaknessSet,
@@ -1500,6 +1404,15 @@ export class CombatRuntimeAssembly {
     if (!ability.canStartSkill(expectedSkillId, castId, false)) return false;
     this.#prepareSkillStart(operatorId, expectedSkillId, castId, undefined, false);
     return ability.tryStartTimelineSkill(expectedSkillId, castId);
+  }
+
+  /** 统一输出方物理后置通知；不再通过另一套语义总线转发。 */
+  #publishPhysicalInfliction(
+    payload: import('../events/combatAbilityEvent').AbilityPhysicalInflictionPayload,
+  ): void {
+    if (this.#options.emitAbilityEvent === undefined)
+      throw new Error('physical infliction requires an ability event publisher');
+    this.#options.emitAbilityEvent(payload.sourceId, 'afterOutputPhysicalInfliction', payload);
   }
 
   #prepareSkillStart(
@@ -2224,6 +2137,7 @@ export class CombatRuntimeAssembly {
       sourceOperatorId: operatorId,
       resolveTargetId: target => (target === 'enemy' ? 'enemy' : operatorId),
       semanticEvents: this.semanticEvents,
+      emitPhysicalInfliction: payload => this.#publishPhysicalInfliction(payload),
       clock: this.clock,
       receipt: this.receipt,
       delegate: terminalDelegate,
@@ -2330,8 +2244,7 @@ export class CombatRuntimeAssembly {
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => definitionOperator.buffDefinitions?.[buffId],
-      onPhysicalInflictionApplied: event =>
-        this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
+      onPhysicalInflictionApplied: event => this.#publishPhysicalInfliction(event),
       onBeforeOutputPhysicalInfliction: payload =>
         this.#options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
       delegate: timeDilationOperations,
@@ -2494,7 +2407,11 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       getNonReturnedSpCost,
       finisherSpRecovery: enemy.stagger.finisherSpRecovery,
-      onSpGained: event => this.semanticEvents.emit({ kind: 'spGained', ...event }),
+      onSpGained: event => {
+        if (this.#options.emitAbilityEvent === undefined)
+          throw new Error('SP gain requires an ability event publisher');
+        this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
+      },
       delegate,
     });
     rootOperations = withTerminalPreparation(operationChain, terminalDelegate);
@@ -2536,6 +2453,7 @@ export class CombatRuntimeAssembly {
       sourceOperatorId: operatorId,
       resolveTargetId: target => (target === 'enemy' ? 'enemy' : operatorId),
       semanticEvents: this.semanticEvents,
+      emitPhysicalInfliction: payload => this.#publishPhysicalInfliction(payload),
       clock: this.clock,
       receipt: this.receipt,
       delegate: terminal,
@@ -2639,8 +2557,7 @@ export class CombatRuntimeAssembly {
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
-      onPhysicalInflictionApplied: event =>
-        this.semanticEvents.emit({ kind: 'physicalInflictionApplied', ...event }),
+      onPhysicalInflictionApplied: event => this.#publishPhysicalInfliction(event),
       onBeforeOutputPhysicalInfliction: payload =>
         options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
       delegate: timeDilationOperations,
@@ -2798,7 +2715,11 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       getNonReturnedSpCost: () => 0,
       finisherSpRecovery: options.enemy.stagger.finisherSpRecovery,
-      onSpGained: event => this.semanticEvents.emit({ kind: 'spGained', ...event }),
+      onSpGained: event => {
+        if (this.#options.emitAbilityEvent === undefined)
+          throw new Error('SP gain requires an ability event publisher');
+        this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
+      },
       delegate: blackboardOperations,
     });
     reactiveOperations = withTerminalPreparation(operationChain, terminal);
@@ -3012,6 +2933,7 @@ export class CombatRuntimeAssembly {
     if (source === 'eventSource') {
       if (context?.event === undefined)
         throw new Error('eventSource GlobalBuff source requires an event context');
+      if ('payload' in context.event) return abilityEventSourceId(context.event);
       if ('sourceId' in context.event && typeof context.event.sourceId === 'string') {
         return context.event.sourceId;
       }
@@ -3062,6 +2984,42 @@ export class CombatRuntimeAssembly {
     return source;
   }
 
+  /** 普通实体与能力实体共用 Buff 生命周期接线，发布与兼容订阅只能维护一份。 */
+  #configureBuffLifecycle(
+    target: BuffOperationTarget,
+    options: CombatRuntimeAssemblyOptions,
+  ): void {
+    target.configureLifecycleOperations?.(source =>
+      this.#createBuffLifecycleOperationChain(source, options),
+    );
+    target.configureBuffConsumedObserver?.(event => {
+      options.emitBuffLifecycleAbilityEvent?.('buffConsumed', {
+        ...event,
+        sourceId: event.sourceOperatorId,
+      });
+    });
+    target.configureBuffAbsorbedObserver?.(event => {
+      options.emitBuffLifecycleAbilityEvent?.('buffAbsorbed', {
+        ...event,
+        sourceId: event.sourceOperatorId,
+      });
+    });
+    target.configureSemanticEventAction?.((event, priority, handle) =>
+      this.semanticEvents.register({
+        ownerOperatorId: target.ownerId,
+        trigger: { kind: 'knockDownOutput' },
+        phase: 'dataAction',
+        priority,
+        handle: context => {
+          if (!isKnockDownOutputEvent(context.event)) {
+            throw new Error(`${event} Buff listener received an invalid event`);
+          }
+          handle(context.event, context.actionContext);
+        },
+      }),
+    );
+  }
+
   #resolveAbilityEntityBuffTarget(
     target: RuntimeTargetRef,
     options: CombatRuntimeAssemblyOptions,
@@ -3086,72 +3044,7 @@ export class CombatRuntimeAssembly {
         `AbilityEntity Buff owner '${runtime.ownerId}' does not match instance '${target.instanceId}'`,
       );
     }
-    runtime.configureLifecycleOperations?.(source =>
-      this.#createBuffLifecycleOperationChain(source, options),
-    );
-    runtime.configureBuffAppliedObserver?.(event => {
-      this.semanticEvents.emit({ kind: 'buffApplied', ...event });
-      this.semanticEvents.emit({ kind: 'buffOutput', ...event });
-    });
-    runtime.configureBuffConsumedObserver?.(event => {
-      this.semanticEvents.emit({ kind: 'buffConsumed', ...event });
-      options.emitBuffLifecycleAbilityEvent?.('buffConsumed', {
-        ...event,
-        sourceId: event.sourceOperatorId,
-      });
-    });
-    runtime.configureBuffAbsorbedObserver?.(event => {
-      options.emitBuffLifecycleAbilityEvent?.('buffAbsorbed', {
-        ...event,
-        sourceId: event.sourceOperatorId,
-      });
-    });
-    runtime.configureSemanticEventAction?.((event, priority, handle) =>
-      this.semanticEvents.register({
-        ownerOperatorId: runtime!.ownerId,
-        trigger:
-          event === 'afterKillEntity'
-            ? { kind: 'enemyDefeated', scope: 'operator' }
-            : event === 'outputKnockDown'
-              ? { kind: 'knockDownOutput' }
-              : event === 'afterOutputPhysicalInfliction'
-                ? {
-                    kind: 'physicalInflictionApplied',
-                    types: ['airborne', 'knockDown', 'fracture', 'crush'],
-                    scope: 'operator',
-                  }
-                : event === 'skillSpGained'
-                  ? { kind: 'spGained', source: 'skill', gainKind: 'gain' }
-                  : { kind: 'buffConsumed' },
-        phase: 'dataAction',
-        priority,
-        handle: context => {
-          if (
-            (event === 'afterKillEntity' && context.event.kind !== 'enemyDefeated') ||
-            (event === 'outputKnockDown' && context.event.kind !== 'knockDownOutput') ||
-            (event === 'afterOutputPhysicalInfliction' &&
-              context.event.kind !== 'physicalInflictionApplied') ||
-            (event === 'skillSpGained' && context.event.kind !== 'spGained') ||
-            (event === 'buffConsumed' && context.event.kind !== 'buffConsumed')
-          ) {
-            throw new Error(`${event} Buff listener received an invalid event`);
-          }
-          handle(
-            context.event as Extract<
-              CombatSemanticEvent,
-              {
-                readonly kind:
-                  | 'enemyDefeated'
-                  | 'knockDownOutput'
-                  | 'physicalInflictionApplied'
-                  | 'spGained'
-                  | 'buffConsumed';
-              }
-            >,
-          );
-        },
-      }),
-    );
+    this.#configureBuffLifecycle(runtime, options);
     this.#abilityEntityBuffs.set(target.instanceId, runtime);
     return runtime;
   }

@@ -434,11 +434,13 @@ describe('BuffOperationExecutor', () => {
         buffOwnerId: owner.ownerId,
         buffSourceId: source.ownerId,
         event: {
-          kind: 'buffApplied' as const,
-          sourceId: 'teammate',
-          targetId: 'enemy',
-          buffId: 'corrosion',
-          buffTags: [],
+          event: 'addedBuff' as const,
+          payload: {
+            sourceId: 'teammate',
+            targetId: 'enemy',
+            buffId: 'corrosion',
+            buffTags: [],
+          },
         },
       };
       expect(executor.execute(step, context)).toBe(true);
@@ -499,11 +501,13 @@ describe('BuffOperationExecutor', () => {
     const context = {
       blackboard: new ActionBlackboard({ required: 2 }),
       event: {
-        kind: 'buffApplied' as const,
-        targetId: 'enemy',
-        sourceId: 'operator',
-        buffId: 'latest',
-        buffTags: [tag],
+        event: 'addedBuff' as const,
+        payload: {
+          targetId: 'enemy',
+          sourceId: 'operator',
+          buffId: 'latest',
+          buffTags: [tag],
+        },
       },
     };
 
@@ -537,7 +541,9 @@ describe('BuffOperationExecutor', () => {
   it('applies the first no-guard layer before executing the fracture Buff chain', () => {
     let noGuardCount = 0;
     const applied: string[] = [];
-    const beforeOutput: Array<{ sourceId: string; targetId: string; type: string }> = [];
+    const beforeOutput: Array<
+      import('../events/combatAbilityEvent').AbilityPhysicalInflictionPayload
+    > = [];
     const target = {
       ownerId: 'enemy',
       apply: (request: { buffId: string }) => {
@@ -605,7 +611,7 @@ describe('BuffOperationExecutor', () => {
   it('applies Airborne through its force/no-guard gate without pretending stump control success', () => {
     let noGuardCount = 0;
     const applied: string[] = [];
-    const beforeOutput: string[] = [];
+    const beforeOutput: Array<string | undefined> = [];
     const target = {
       ownerId: 'enemy',
       apply: (request: { buffId: string }) => {
@@ -961,25 +967,27 @@ describe('BuffOperationExecutor', () => {
             : owner === 'castSkill'
               ? {
                   event: {
-                    kind: 'abilitySkill' as const,
                     event: 'beforeCastSkill' as const,
-                    sourceId: 'operator',
-                    targetId: 'operator',
-                    skillId: 'current',
-                    skillType: 'battleSkill' as const,
-                    skillCastId: 7,
-                    attachBuffToCurrentSkill: addCurrentBuffChild,
+                    payload: {
+                      sourceId: 'operator',
+                      targetId: 'operator',
+                      skillId: 'current',
+                      skillType: 'battleSkill' as const,
+                      skillCastId: 7,
+                      attachBuffToCurrentSkill: addCurrentBuffChild,
+                    },
                   },
                 }
               : owner === 'physicalCastSkill'
                 ? {
                     event: {
-                      kind: 'abilityPhysicalInfliction' as const,
                       event: 'beforeOutputPhysicalInfliction' as const,
-                      sourceId: 'operator',
-                      targetId: 'enemy',
-                      type: 'airborne' as const,
-                      attachBuffToCurrentSkill: addCurrentBuffChild,
+                      payload: {
+                        sourceId: 'operator',
+                        targetId: 'enemy',
+                        type: 'airborne' as const,
+                        attachBuffToCurrentSkill: addCurrentBuffChild,
+                      },
                     },
                   }
                 : owner === 'buff'
@@ -1612,13 +1620,15 @@ describe('BuffOperationExecutor', () => {
         {
           blackboard: new ActionBlackboard(),
           event: {
-            kind: 'operatorHealed',
-            sourceOperatorId: 'operator-a',
-            targetOperatorId: 'operator-b',
-            requestedHealing: 100,
-            actualHealing: 0,
-            overhealing: 100,
-            tags: ['Test/Tag1'],
+            event: 'receiveHeal' as const,
+            payload: {
+              sourceId: 'operator-a',
+              targetId: 'operator-b',
+              requestedHealing: 100,
+              actualHealing: 0,
+              overhealing: 100,
+              tags: ['Test/Tag1'],
+            },
           },
         },
       ),
@@ -1674,12 +1684,13 @@ describe('BuffOperationExecutor', () => {
               ? {
                   event: {
                     event: 'beforeCastSkill' as const,
-                    kind: 'abilitySkill' as const,
-                    sourceId: 'operator-b',
-                    targetId: 'operator-b',
-                    skillType: 'battleSkill' as const,
-                    skillId: 'skill',
-                    skillCastId: 7,
+                    payload: {
+                      sourceId: 'operator-b',
+                      targetId: 'operator-b',
+                      skillType: 'battleSkill' as const,
+                      skillId: 'skill',
+                      skillCastId: 7,
+                    },
                   },
                 }
               : {}),
@@ -1767,13 +1778,15 @@ describe('BuffOperationExecutor', () => {
         {
           blackboard,
           event: {
-            kind: 'buffConsumed',
-            sourceOperatorId: 'operator',
-            targetId: 'enemy',
-            buffId: 'buff:conduct',
-            layers: 3,
-            buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
-            blackboardValues: { count: 3 },
+            event: 'buffConsumed' as const,
+            payload: {
+              sourceId: 'operator',
+              targetId: 'enemy',
+              buffId: 'buff:conduct',
+              layers: 3,
+              buffTags: ['Skill/Character/Common/SpellStatus/Conduct'],
+              blackboardValues: { count: 3 },
+            },
           },
         },
       ),

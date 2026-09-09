@@ -1,3 +1,4 @@
+import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { describe, expect, it, vi } from 'vitest';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -26,8 +27,58 @@ const contribution: CompiledEquipmentContribution = {
 };
 
 describe('EquipmentEventRuntime', () => {
+  it.each(['present', 'null', 'missing'] as const)('击倒装备响应保留事件来源：%s', state => {
+    const { semanticEvents, dispatcher } = createNativeEventFixture();
+    const cast = {
+      skillCastId: 7,
+      originSkillId: 'original',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 0,
+    };
+    const skillCastInfo = state === 'present' ? cast : state === 'null' ? null : undefined;
+    const published = {
+      event: 'afterOutputKnockDown' as const,
+      payload: {
+        sourceId: 'operator:a',
+        targetId: 'enemy',
+        fromAirborne: true,
+        skillCastInfo,
+      },
+    };
+    const received: unknown[] = [];
+    const runtime = new EquipmentEventRuntime(
+      semanticEvents,
+      'operator:a',
+      [
+        {
+          ...contribution,
+          eventHandlers: [
+            {
+              key: 'knockdown',
+              event: { kind: 'knockDownOutput' },
+              sequence: contribution.eventHandlers[0]!.sequence,
+            },
+          ],
+        },
+      ],
+      () => ({
+        execute: (_step, context) => {
+          expect(context?.event).toBe(published);
+          received.push(context?.eventSkillCastInfo);
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    );
+    dispatcher.dispatch(published, []);
+    expect(received).toHaveLength(1);
+    expect(received[0]).toBe(skillCastInfo);
+    runtime.dispose();
+    dispatcher.dispatch(published, []);
+    expect(received).toHaveLength(1);
+  });
   it('shares initialization and event children with the exact contribution and accepts initialization-only Abilities', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const finished: string[] = [];
     const child = (id: string) => ({
       finish: () => {
@@ -58,7 +109,7 @@ describe('EquipmentEventRuntime', () => {
     // 同定义的两个装备实例保持独立所有权，不能按 slug 合并。
     runtime.addChildBuff(4, child('duplicate-definition'));
     runtime.addChildBuff(1, child('other'));
-    events.emit({ kind: 'damageTagHit', sourceOperatorId: 'operator:a', tags: ['normalSkill'] });
+    emitOutputDamage({ sourceId: 'operator:a', tags: ['normalSkill'] });
     expect(finished).toEqual([]);
     expect(() => runtime.addChildBuff(99, child('invalid'))).toThrow('not active');
     runtime.dispose();
@@ -69,7 +120,7 @@ describe('EquipmentEventRuntime', () => {
   });
 
   it('keeps passive Ability children until disposal and cleans them in creation order', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const finished: number[] = [];
     let nextChild = 0;
     const runtime = new EquipmentEventRuntime(events, 'operator:a', [contribution], () => ({
@@ -86,7 +137,7 @@ describe('EquipmentEventRuntime', () => {
       evaluate: () => true,
     }));
     for (let count = 0; count < 2; count += 1) {
-      events.emit({ kind: 'damageTagHit', sourceOperatorId: 'operator:a', tags: ['normalSkill'] });
+      emitOutputDamage({ sourceId: 'operator:a', tags: ['normalSkill'] });
     }
     expect(finished).toEqual([]);
     runtime.dispose();
@@ -95,7 +146,7 @@ describe('EquipmentEventRuntime', () => {
     expect(finished).toEqual([1, 2]);
   });
   it('executes a matching handler once with explicit equipment source identity', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const executed: string[] = [];
     const createExecutor = vi.fn(context => {
       const executor: CombatOperationExecutor = {
@@ -109,15 +160,14 @@ describe('EquipmentEventRuntime', () => {
         operatorId: 'operator:a',
         source: { kind: 'weaponTrait', slug: 'fixture-weapon', traitKey: 'skill' },
         handlerKey: 'gain-sp',
-        event: { kind: 'damageTagHit', sourceOperatorId: 'operator:a' },
+        event: { event: 'outputDamage', payload: { sourceId: 'operator:a' } },
       });
       return executor;
     });
     new EquipmentEventRuntime(events, 'operator:a', [contribution], createExecutor);
 
-    events.emit({
-      kind: 'damageTagHit',
-      sourceOperatorId: 'operator:a',
+    emitOutputDamage({
+      sourceId: 'operator:a',
       tags: ['normalSkill'],
     });
 
@@ -126,23 +176,22 @@ describe('EquipmentEventRuntime', () => {
   });
 
   it('does not execute steps when the condition fails', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const execute = vi.fn(() => true);
     new EquipmentEventRuntime(events, 'operator:a', [contribution], () => ({
       execute,
       evaluate: () => false,
     }));
 
-    events.emit({
-      kind: 'damageTagHit',
-      sourceOperatorId: 'operator:a',
+    emitOutputDamage({
+      sourceId: 'operator:a',
       tags: ['normalSkill'],
     });
     expect(execute).not.toHaveBeenCalled();
   });
 
   it('stops receiving events after disposal', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const createExecutor = vi.fn<() => CombatOperationExecutor>(() => ({
       execute: () => true,
       evaluate: () => true,
@@ -150,16 +199,15 @@ describe('EquipmentEventRuntime', () => {
     const runtime = new EquipmentEventRuntime(events, 'operator:a', [contribution], createExecutor);
     runtime.dispose();
 
-    events.emit({
-      kind: 'damageTagHit',
-      sourceOperatorId: 'operator:a',
+    emitOutputDamage({
+      sourceId: 'operator:a',
       tags: ['normalSkill'],
     });
     expect(createExecutor).not.toHaveBeenCalled();
   });
 
   it('按原生数据动作优先级降序、同级注册顺序执行', () => {
-    const events = new CombatSemanticEventRuntime();
+    const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const executed: string[] = [];
     const handlers = [
       { ...contribution.eventHandlers[0]!, key: 'same-first', priority: 2 },
@@ -179,18 +227,23 @@ describe('EquipmentEventRuntime', () => {
       }),
     );
 
-    events.emit({
-      kind: 'damageTagHit',
-      sourceOperatorId: 'operator:a',
+    emitOutputDamage({
+      sourceId: 'operator:a',
       tags: ['normalSkill'],
     });
     expect(executed).toEqual(['high', 'same-first', 'same-second']);
   });
 
-  it('通过独立端口注册原生 AbilitySystem 事件并归一化负载', () => {
+  it('配装原样消费技能事件，不从当前技能字段补造遗漏的来源', () => {
     const events = new CombatSemanticEventRuntime();
-    let registered: ((payload: unknown) => void) | undefined;
-    const execute = vi.fn(() => true);
+    let registered:
+      | Parameters<import('./equipmentEventRuntime').RegisterEquipmentAbilityEventAction>[3]
+      | undefined;
+    let observed: unknown;
+    const execute = vi.fn<CombatOperationExecutor['execute']>((_step, context) => {
+      observed = context?.eventSkillCastInfo;
+      return true;
+    });
     const createExecutor = vi.fn(
       () =>
         ({
@@ -227,45 +280,46 @@ describe('EquipmentEventRuntime', () => {
     );
 
     registered?.({
-      sourceId: 'operator:a',
-      targetId: 'enemy',
-      skillType: 'battleSkill',
-      skillId: 'skill:a',
-      skillCastId: 7,
+      event: 'beforeCastSkill',
+      payload: {
+        sourceId: 'operator:a',
+        targetId: 'enemy',
+        skillType: 'battleSkill',
+        skillId: 'skill:a',
+        skillCastId: 7,
+      },
     });
     expect(createExecutor).toHaveBeenCalledWith(
       expect.objectContaining({
         event: expect.objectContaining({
-          kind: 'abilitySkill',
           event: 'beforeCastSkill',
-          skillCastId: 7,
+          payload: expect.objectContaining({ skillCastId: 7 }),
         }),
       }),
     );
-    expect(execute).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        eventSkillCastInfo: expect.objectContaining({
-          skillCastId: 7,
-          originSkillId: 'skill:a',
-          originSkillType: 'battleSkill',
-        }),
-      }),
-    );
+    expect(execute).toHaveBeenCalledOnce();
+    expect(observed).toBeUndefined();
+    expect(execute.mock.calls[0]?.[1]?.eventSkillCastInfo).toBeUndefined();
   });
 
   it('把公共 AbilityEvent 的 InputTarget 传入配装动作上下文', () => {
     const events = new CombatSemanticEventRuntime();
     let registered:
       | ((
-          payload: unknown,
+          published: import('../events/abilityEventDispatcher').AbilityEventContext<'outputBuff'>,
           actionContext?: {
             readonly inputTarget: { readonly kind: 'enemy' };
             readonly triggerTarget: { readonly kind: 'operator'; readonly operatorId: string };
           },
         ) => void)
       | undefined;
-    const execute: ReturnType<typeof vi.fn<CombatOperationExecutor['execute']>> = vi.fn(() => true);
+    let observed: unknown;
+    let trigger: unknown;
+    const execute = vi.fn<CombatOperationExecutor['execute']>((_step, context) => {
+      observed = { ...context };
+      trigger = context?.targetContext?.get('trigger');
+      return true;
+    });
     new EquipmentEventRuntime(
       events,
       'operator:a',
@@ -290,10 +344,13 @@ describe('EquipmentEventRuntime', () => {
 
     registered?.(
       {
-        sourceId: 'operator:a',
-        targetId: 'enemy',
-        buffId: 'fixture',
-        buffTags: [],
+        event: 'outputBuff',
+        payload: {
+          sourceId: 'operator:a',
+          targetId: 'enemy',
+          buffId: 'fixture',
+          buffTags: [],
+        },
       },
       {
         inputTarget: { kind: 'enemy' },
@@ -301,17 +358,15 @@ describe('EquipmentEventRuntime', () => {
       },
     );
 
-    expect(execute).toHaveBeenCalledWith(
-      expect.anything(),
-      expect.objectContaining({
-        actionOwnerId: 'operator:a',
-        actionSourceId: 'operator:a',
-        actionInputTarget: { kind: 'enemy' },
-        targetContext: expect.objectContaining({}),
-      }),
-    );
-    const operationContext = execute.mock.calls[0]?.[1];
-    expect(operationContext?.targetContext?.get('trigger')).toEqual([
+    expect(execute).toHaveBeenCalledOnce();
+    expect(observed).toMatchObject({
+      actionOwnerId: 'operator:a',
+      actionSourceId: 'operator:a',
+      actionInputTarget: { kind: 'enemy' },
+    });
+    expect(execute.mock.calls[0]?.[1]?.actionInputTarget).toBeUndefined();
+    expect(execute.mock.calls[0]?.[1]?.targetContext).toBeUndefined();
+    expect(trigger).toEqual([
       {
         kind: 'operator',
         operatorId: 'operator:a',

@@ -52,10 +52,6 @@ export interface ElementalInflictionOperationDependencies {
     operation: ElementalInflictionOperation,
     skillCastInfo: CombatSkillCastInfo | undefined,
   ) => ElementalInflictionBuffIdentity | void;
-  /** 原生 OnConsumeBuff 对应事实：附着层已从目标容器中实际移除后同步报告。 */
-  readonly emitSemanticAttachmentConsumed?: (attachment: ExistingElementalAttachment) => void;
-  /** 附着状态已经写入目标后，向统一语义事件层报告实际施加的元素。 */
-  readonly emitSemanticInfliction?: (element: InflictionStep['parameters']['element']) => void;
   readonly triggerSpellBurst?: (payload: {
     readonly burstType: 'Fire' | 'Pulse' | 'Cryst' | 'Natural';
     readonly sourceId: string;
@@ -128,7 +124,6 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
       if (operation.kind === 'consumeAttachment') consumedInstance = instance;
       if (operation.kind === 'createCompoundStatus') outputInstance = instance;
       if (operation.kind === 'consumeAttachment') {
-        this.dependencies.emitSemanticAttachmentConsumed?.(operation.attachment);
       }
     }
     if (consumedInstance && outputInstance) {
@@ -183,7 +178,6 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
         operationKinds: operations.map(operation => operation.kind).join(','),
       },
     });
-    this.dependencies.emitSemanticInfliction?.(step.parameters.element);
     return true;
   }
 

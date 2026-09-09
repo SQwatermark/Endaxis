@@ -1,3 +1,4 @@
+import type { AbilityPhysicalInflictionPayload } from '../events/combatAbilityEvent';
 /** 将主动技能动作产生的语义事实同步发布到同一战斗事件总线。 */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
@@ -11,6 +12,7 @@ export interface CombatSemanticOutputOperationExecutorOptions {
   readonly sourceOperatorId: string;
   readonly resolveTargetId: (target: CombatTarget) => string;
   readonly semanticEvents: CombatSemanticEventRuntime;
+  readonly emitPhysicalInfliction?: (payload: AbilityPhysicalInflictionPayload) => void;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
   readonly delegate: CombatOperationExecutor;
@@ -42,6 +44,8 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
         ? this.options.delegate.execute(step)
         : this.options.delegate.execute(step, context);
     }
+    if (this.options.emitPhysicalInfliction === undefined)
+      throw new Error('physical output requires an ability event publisher');
     const targetId = this.options.resolveTargetId(step.parameters.target);
     const isAirborne = step.kind === 'outputAirborne';
     this.options.receipt.record({
@@ -56,9 +60,8 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
       sourceOperatorId: this.options.sourceOperatorId,
       targetId,
     });
-    this.options.semanticEvents.emit({
-      kind: 'physicalInflictionApplied',
-      sourceOperatorId: this.options.sourceOperatorId,
+    this.options.emitPhysicalInfliction({
+      sourceId: this.options.sourceOperatorId,
       targetId,
       type: isAirborne ? 'airborne' : 'knockDown',
       ...(context?.skillCastInfo === undefined ? {} : { skillCastInfo: context.skillCastInfo }),
