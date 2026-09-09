@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：Buff事件程序不再按同级合并
+
+删除buffLifecycleSequenceRuntime按event+priority合成回调的中间层，每个原生序列独立
+注册和持有注销句柄，排序由共享dispatcher负责。来源依据为复刻库
+ability-event-action-ordering的SequenceAction注册边界；不是新增事件分类。
+测试改为检查两个独立注册、独立短路、全部注销且不重复注销；新增第二次注册失败时
+回滚第一句柄，34项专项通过。应用类型检查通过。
+扩大测试发现3个正式套装测试还读取旧initializationSequence，但正式定义均为
+enableSequence（suit_usp02/atk01/combo_cd01），已更新入口且新增旧入口必须缺省的
+断言，数值与效果断言不变。运行时/Buff/事件/投影/装备回归110文件1358项通过。
+
 ## 2026-09-10：删除无效samePriorityKey协议与推导
 
 从公共AbilityEventResponse、被动定义、校验/编译、Buff注册端口到分发器删除

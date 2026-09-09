@@ -363,33 +363,15 @@ export function attachBuffLifecycleSequences<Key extends string>(
     }
     const registrations: AbilityEventRegistration[] = [];
     try {
-      const responseGroups = new Map<
-        string,
-        {
-          readonly event: ResolvedSkillBuffAbilityEventResponse['event'];
-          readonly priority: number;
-          readonly responses: ResolvedSkillBuffAbilityEventResponse[];
-        }
-      >();
+      // Each native SequenceAction owns its registration; equal priority does not merge programs.
       for (const response of abilityEventResponses) {
-        const key = `${response.event}\u0000${response.priority}`;
-        const group = responseGroups.get(key);
-        if (group === undefined) {
-          responseGroups.set(key, {
-            event: response.event,
-            priority: response.priority,
-            responses: [response],
-          });
-        } else {
-          group.responses.push(response);
-        }
-      }
-      for (const group of responseGroups.values()) {
-        if (group.event === 'outputKnockDown') {
+        if (response.event === 'outputKnockDown') {
           registrations.push(
-            registerSemanticEventAction!(group.event, group.priority, (event, actionContext) => {
-              const runtime = runtimeFor(buff);
-              for (const response of group.responses) {
+            registerSemanticEventAction!(
+              response.event,
+              response.priority,
+              (event, actionContext) => {
+                const runtime = runtimeFor(buff);
                 const context = {
                   ...runtime.context,
                   actionOwnerId: buff.owner.ownerId,
@@ -398,15 +380,17 @@ export function attachBuffLifecycleSequences<Key extends string>(
                 withCombatEventResponseContext(context, { event, actionContext }, () =>
                   runtime.createSequence(response.sequence, context).executeInstant({}),
                 );
-              }
-            }),
+              },
+            ),
           );
           continue;
         }
         registrations.push(
-          registerAbilityEventAction!(group.event, group.priority, (published, actionContext) => {
-            const runtime = runtimeFor(buff);
-            for (const response of group.responses) {
+          registerAbilityEventAction!(
+            response.event,
+            response.priority,
+            (published, actionContext) => {
+              const runtime = runtimeFor(buff);
               const context = {
                 ...runtime.context,
                 actionOwnerId: buff.owner.ownerId,
@@ -415,8 +399,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
               withAbilityEventResponseContext(context, published, actionContext, () =>
                 runtime.createSequence(response.sequence, context).executeInstant({}),
               );
-            }
-          }),
+            },
+          ),
         );
       }
     } catch (error) {

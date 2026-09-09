@@ -14,7 +14,8 @@ describe('生成套装正式定义', () => {
     });
 
     expect(compiled.modifiers).toEqual([{ kind: 'panelStat', stat: 'healthFlat', value: 1000 }]);
-    expect(compiled.initializationSequence).toMatchObject({
+    expect(compiled.initializationSequence).toBeUndefined();
+    expect(compiled.enableSequence).toMatchObject({
       steps: [
         {
           parameters: {
@@ -434,7 +435,8 @@ describe('生成套装正式定义', () => {
       { kind: 'damageScale', target: 'comboSkill', slot: 'baseAddition', value: 0.24 },
       { kind: 'damageScale', target: 'ultimate', slot: 'baseAddition', value: 0.24 },
     ]);
-    expect(compiled.initializationSequence).toMatchObject({
+    expect(compiled.initializationSequence).toBeUndefined();
+    expect(compiled.enableSequence).toMatchObject({
       steps: [
         {
           kind: 'applyBuff',
@@ -482,7 +484,8 @@ describe('生成套装正式定义', () => {
     expect(compiled.modifiers).toEqual([
       { kind: 'skillCooldownMultiplier', skillTypes: 'comboSkill', value: 0.85 },
     ]);
-    expect(compiled.initializationSequence?.steps[0]).toMatchObject({
+    expect(compiled.initializationSequence).toBeUndefined();
+    expect(compiled.enableSequence?.steps[0]).toMatchObject({
       kind: 'applyBuff',
       parameters: {
         buffId: 'buff_equipsuit_combo_cd01',

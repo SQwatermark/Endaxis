@@ -1143,11 +1143,12 @@ describe('attachBuffLifecycleSequences', () => {
     expect(buff.isFinished).toBe(true);
   });
 
-  it('把同事件同优先级响应注册为一个回调并保持各序列独立短路', () => {
+  it.each([false, true])('同级序列独立注册、注销和失败回滚 failSecond=%s', failSecond => {
     let registered = 0;
-    let handleAdded:
-      | Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
-      | undefined;
+    let disposed = 0;
+    const handles: Array<
+      Parameters<import('./buffLifecycleSequenceRuntime').RegisterBuffAbilityEventAction>[2]
+    > = [];
     let reached = 0;
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'same-priority', stackingType: 'unique' },
@@ -1196,25 +1197,42 @@ describe('attachBuffLifecycleSequences', () => {
       ],
       (_event, _priority, handle) => {
         registered += 1;
-        handleAdded = handle;
-        return { dispose: () => undefined };
+        if (failSecond && registered === 2) throw new Error('second registration failed');
+        handles.push(handle);
+        return {
+          dispose: () => {
+            disposed += 1;
+          },
+        };
       },
     );
     const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
 
-    container.add(definition, 'source');
-    handleAdded?.({
-      event: 'addedBuff',
-      payload: {
-        sourceId: 'source',
-        targetId: 'operator',
-        buffId: 'added',
-        buffTags: [],
-      },
-    });
+    if (failSecond) {
+      expect(() => container.add(definition, 'source')).toThrow('second registration failed');
+      expect(registered).toBe(2);
+      expect(disposed).toBe(1);
+      expect(reached).toBe(0);
+      return;
+    }
+    const buff = container.add(definition, 'source')!;
+    for (const handle of handles)
+      handle({
+        event: 'addedBuff',
+        payload: {
+          sourceId: 'source',
+          targetId: 'operator',
+          buffId: 'added',
+          buffTags: [],
+        },
+      });
 
-    expect(registered).toBe(1);
+    expect(registered).toBe(2);
     expect(reached).toBe(1);
+    buff.finish('other', null);
+    expect(disposed).toBe(2);
+    buff.release();
+    expect(disposed).toBe(2);
   });
 
   it('叠层回调使用本次来源，满层仍回调，且不重置实例 once 状态', () => {
