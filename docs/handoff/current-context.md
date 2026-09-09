@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：复刻库已接 Environment 单实例结束
+
+继续反汇编确认 AbilitySystem.FinishBuff → 容器单实例入口：Early/Ignite 走
+ConsumeBuff（保留保护），其他原因 MarkFinish。复刻库新增公共 FinishBuffInstance，
+Environment 分支选 ExecutingBuff 并检查 owner，再复用该入口，来源来自动作环境。
+6例新增身份/来源/空环境/不匹配回归，18项高级结束测试通过（排除缺资产遍历测试）。
+
+Endaxis 尚未改该调用。下一步先补复刻库原始数据适配器 Environment 准入，并检查
+Endaxis finishCurrentBuff 仅存 reason 是否丢弃 finishSource 的表达，不能任取
+buff.sourceId/owner 补齐消费来源。证据在 combat-spec/finish-buff-environment-source。
+
 ## 2026-09-09 晚间续：当前 Buff 结束不能只补来源参数
 
 新反编译证据见 combat-spec/docs/finish-buff-environment-source.md，二进制哈希已重验。
