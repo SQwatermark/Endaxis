@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：技能宿主统一处理跳转下界
+
+读取当前镜像RIP常量确认JumpTo下界容差为1e-5秒。新增skillTimelineJump共享判断，
+普通SkillRuntime和AbilityEntityChildSkillRuntime都先处理原生向后目标忽略规则，
+再交给只负责向前调度的TimelineActionProcessor；容差内微小回拨不重放动作。
+不修改通用调度器的反向拒绝约束，不伪造一次实际未发生的跳转回执。
+相关4文件65项测试及应用类型检查通过，覆盖明显反向、容差、自然结束及真实实体子技能来源链路。
+四真实轴完整结果与上一生命周期基线一致，报告为
+tmp/event-unification-candidates-mz38x5/skill-jump-lower-bound-axes.json。
+自然时长上界的CastEnd顺序和完整回调宿主仍未完成。
+
 ## 2026-09-10：回调宿主跳转与自然结束的证据边界
 
 核实当前原生Skill.JumpTo：有效目标先改durationTimer剩余/已过时间，再跳Ability时间轴。

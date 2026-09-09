@@ -12,6 +12,7 @@ import {
 import type { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import { ActionBlackboard } from './actionBlackboard';
+import { isSkillTimelineJumpBeforeCurrent } from './skillTimelineJump';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
@@ -103,7 +104,12 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
     if (!this.#started || this.#finished) {
       throw new Error('AbilityEntity child skill cannot jump outside an active timeline');
     }
-    this.#timeline.jumpTo(destinationFrame, this.#passedFrames, this.#context);
+    if (isSkillTimelineJumpBeforeCurrent(destinationFrame, this.#passedFrames)) return;
+    this.#timeline.jumpTo(
+      destinationFrame,
+      Math.min(destinationFrame, this.#passedFrames),
+      this.#context,
+    );
     this.#passedFrames = destinationFrame;
   }
 

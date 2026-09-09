@@ -64,7 +64,8 @@ SkillRuntime 已有原生自然结束判断；AbilityEntityChildSkillRuntime 目
 跳转不是只改动作游标：当前镜像 Skill.JumpTo 先把 durationTimer 的剩余时间设为
 period-target，再调用 Ability.JumpTo。自然结束与动作进度分别持有，但有效跳转共同更新。
 越过自然时长走 CastEnd，向后越界则忽略；详见 combat-spec/skill-time-fields.md 的
-2026-09-10 续证。当前 Endaxis 越界/反向分支尚未全部对齐，迁移时不能沿用为原生规则。
+2026-09-10 续证。普通技能与实体子技能已共用下界判断，反向越界忽略；
+自然时长上界的结束顺序尚未对齐，迁移时不能沿用当前行为作为原生规则。
 
 ProjectileLifecycleRuntime 只管投射物阶段与对象 reset；回收前结束当前技能。
 其时钟输入由装配层提供，不为此开放尚未闭合的 syncTimeScale=true 路径。

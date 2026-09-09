@@ -761,6 +761,30 @@ describe('SkillRuntime', () => {
     expect(fixture.operations.end).toHaveBeenCalledTimes(1);
   });
 
+  it.each([
+    { current: 6, destination: 5, expected: 6, jumped: false },
+    { current: 5.0001, destination: 5, expected: 5, jumped: true },
+  ])(
+    '跳转下界由技能宿主管理：$current → $destination',
+    ({ current, destination, expected, jumped }) => {
+      const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+        key: 'jump-lower-bound',
+        timelineBlockFrames: 20,
+        naturalDurationFrames: 20,
+        scheduledSequences: [],
+      });
+      fixture.runtime.tryStart();
+      fixture.runtime.advance(current / 30, 0);
+      expect(() =>
+        fixture.runtime.operationContext.requestTimelineJump!(destination),
+      ).not.toThrow();
+      expect(fixture.runtime.passedFrames).toBeCloseTo(expected, 9);
+      expect(fixture.receipt.entries.some(entry => entry.event === 'SkillTimelineJumped')).toBe(
+        jumped,
+      );
+    },
+  );
+
   it('时间轴自终止丢弃未来调度且不改写局部帧', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'timeline-finish-fixture',
