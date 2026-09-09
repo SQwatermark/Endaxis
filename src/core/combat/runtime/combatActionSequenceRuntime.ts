@@ -590,35 +590,41 @@ class CombatEventListenerStep extends CombatStep {
     if (semanticEvents === undefined || ownerOperatorId === undefined) {
       throw new Error('combat event listener requires a semantic event runtime and owner');
     }
-    for (const response of this.step.parameters.responses) {
-      // Native EventListenerAction registers one runtime SequenceAction, not
-      // a factory. Its completed guard entries must remain visible to nested
-      // synchronous events until ExecuteInstant performs End/Reset.
-      const operationContext = {
-        ...this.operationContext,
-        event: this.operationContext.event,
-      };
-      const sequence = this.runtime.createSequence(response.sequence, operationContext);
-      sequence.reset({});
-      const registration = {
-        ownerOperatorId,
-        trigger: response.event,
-        ...(response.condition === undefined ? {} : { condition: response.condition }),
-        createOperations: () => this.runtime.operations,
-        createOperationContext: () => operationContext,
-        handle: (eventContext: CombatSemanticEventContext) => {
-          withCombatEventResponseContext(operationContext, eventContext, () => {
-            sequence.executeInstant({});
-          });
-        },
-      };
-      this.#registrations.push(
-        semanticEvents.register(
-          response.phase === 'dataAction'
-            ? { ...registration, phase: 'dataAction', priority: response.priority }
-            : { ...registration, phase: 'skill' },
-        ),
-      );
+    try {
+      for (const response of this.step.parameters.responses) {
+        // Native EventListenerAction registers one runtime SequenceAction, not
+        // a factory. Its completed guard entries must remain visible to nested
+        // synchronous events until ExecuteInstant performs End/Reset.
+        const operationContext = {
+          ...this.operationContext,
+          event: this.operationContext.event,
+        };
+        const sequence = this.runtime.createSequence(response.sequence, operationContext);
+        sequence.reset({});
+        const registration = {
+          ownerOperatorId,
+          trigger: response.event,
+          ...(response.condition === undefined ? {} : { condition: response.condition }),
+          createOperations: () => this.runtime.operations,
+          createOperationContext: () => operationContext,
+          handle: (eventContext: CombatSemanticEventContext) => {
+            withCombatEventResponseContext(operationContext, eventContext, () => {
+              sequence.executeInstant({});
+            });
+          },
+        };
+        this.#registrations.push(
+          semanticEvents.register(
+            response.phase === 'dataAction'
+              ? { ...registration, phase: 'dataAction', priority: response.priority }
+              : { ...registration, phase: 'skill' },
+          ),
+        );
+      }
+    } catch (error) {
+      // A failed installation must not leave an earlier response active.
+      this.#dispose();
+      throw error;
     }
   }
 

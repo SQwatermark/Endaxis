@@ -33,6 +33,45 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('临时监听部分注册失败时立即释放已安装响应', () => {
+    const { dispatcher, semanticEvents, emitAddedBuff } = createNativeEventFixture();
+    const persistent = vi.fn();
+    dispatcher.registerAction('addedBuff', 0, persistent);
+    const execute = vi.fn(() => true);
+    const register = semanticEvents.register.bind(semanticEvents);
+    vi.spyOn(semanticEvents, 'register')
+      .mockImplementationOnce(register)
+      .mockImplementationOnce(() => {
+        throw new Error('registration failed');
+      });
+    const runtime = new CombatActionSequenceRuntime(
+      { evaluate: () => true, execute },
+      { blackboard: new ActionBlackboard() },
+      {},
+      semanticEvents,
+      'owner',
+    );
+    const listener = runtime.createSequence(
+      sequence({
+        kind: 'listenForCombatEvents',
+        parameters: {
+          responses: ['first', 'second'].map(key => ({
+            key,
+            event: { kind: 'buffApplied' as const },
+            phase: 'dataAction' as const,
+            priority: 0,
+            sequence: sequence(operation(key)),
+          })),
+        },
+      }),
+    );
+    expect(() => listener.execute({})).toThrow('registration failed');
+    emitAddedBuff({ sourceId: 'owner', targetId: 'owner', buffId: 'signal', buffTags: [] });
+    expect(execute).not.toHaveBeenCalled();
+    expect(persistent).toHaveBeenCalledTimes(1);
+    expect(() => listener.end({})).not.toThrow();
+  });
+
   it('临时原生动作与常驻动作同阶段执行，结束后仅移除自身注册', () => {
     const { dispatcher, semanticEvents, emitAddedBuff } = createNativeEventFixture();
     const calls: string[] = [];

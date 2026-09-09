@@ -1,5 +1,9 @@
 # 事件响应：公共机制与宿主边界
 
+临时监听的安装也须具备异常安全：一组响应注册中途失败，释放本组此前的注册再
+抛出错误，其他宿主不受影响。该保证属于 Endaxis 安装过程的工程约束，不冒充游戏
+原生异常处理规则；正常注册与结束释放的依据见 event-listener-registration 专题。
+
 2026-09-09 晚间续：PassiveAbilityEventRuntime 的注册与启用状态已分离。
 装配先创建监听，运行本宿主 enableSequence，成功后才 enable；宿主释放后不可重新启用。
 因此含启动 Buff 的 OnAddedBuff 不再需要生成器单独走旧 listener。事件上下文/优先级
