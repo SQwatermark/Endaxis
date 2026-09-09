@@ -312,7 +312,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   releaseAll(): void {
-    for (const buff of this.container.buffs) buff.release();
+    this.container.releaseAll();
   }
 
   recycleFinishedBuffs(): void {

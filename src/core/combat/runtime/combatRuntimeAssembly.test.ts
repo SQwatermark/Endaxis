@@ -1177,16 +1177,15 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.tryStartSkill('operator', 'skill', 'entity-buff-cast')).toBe(true);
     expect(createAbilityEntityBuffRuntime).toHaveBeenCalledOnce();
     expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual(['entity-monitor']);
+    const monitor = entityBuffs?.buffs[0];
     expect(assembly.abilityEntities.activeCount).toBe(1);
     assembly.advanceFrames(1);
     expect(assembly.abilityEntities.activeCount).toBe(1);
     assembly.advanceFrames(1);
     expect(assembly.abilityEntities.activeCount).toBe(0);
-    expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);
-    expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual([
-      'entity-monitor',
-      'entity-trigger-result',
-    ]);
+    expect(monitor?.isFinished).toBe(true);
+    expect(monitor?.isRecycled).toBe(true);
+    expect(entityBuffs?.buffs).toEqual([]);
     expect(ownerHpZeroCleanupStates).toEqual([false]);
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({
@@ -1278,13 +1277,16 @@ describe('CombatRuntimeAssembly', () => {
     expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual([
       'buff_chr_0013_aglina_normal_skill_monitor',
     ]);
+    const monitor = entityBuffs?.buffs[0];
     expect(
       assembly.abilityEntities.notifySourceDied({ kind: 'operator', operatorId: 'operator' }),
     ).toBe(0);
     assembly.advanceFrames(6);
 
     expect(assembly.abilityEntities.activeCount).toBe(0);
-    expect(entityBuffs?.buffs[0]?.isFinished).toBe(true);
+    expect(monitor?.isFinished).toBe(true);
+    expect(monitor?.isRecycled).toBe(true);
+    expect(entityBuffs?.buffs).toEqual([]);
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({
         event: 'AbilityEntityFinished',

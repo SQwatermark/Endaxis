@@ -5,6 +5,33 @@ import { BuffProgressRecorder } from '../runtime/buffProgressRecorder';
 import { AbilitySystemRuntime } from '../runtime/abilitySystemRuntime';
 
 describe('Buff instance recycling', () => {
+  it('宿主释放逐个回收，即便Buff不可结束，也不发布普通结束通知', () => {
+    let finished = 0;
+    const owner = new CombatBuffContainer<string>(
+      'owner',
+      new CombatAttributeSet<string>(),
+      undefined,
+      null,
+      undefined,
+      () => finished++,
+    );
+    const first = owner.add({ id: 'first', stackingType: 'unique' }, 'owner')!;
+    const second = owner.add({ id: 'second', stackingType: 'unique' }, 'owner')!;
+    first.setFinishable(false);
+    const observed: string[] = [];
+    first.onRecycled(() => {
+      observed.push('first');
+      expect(second.isRecycled).toBe(false);
+      owner.releaseAll(); // 回调重入不重复清理正在退出的容器。
+    });
+    second.onRecycled(() => observed.push('second'));
+    owner.releaseAll();
+    expect(observed).toEqual(['first', 'second']);
+    expect(owner.buffs).toHaveLength(0);
+    expect(finished).toBe(0);
+    owner.releaseAll();
+    expect(observed).toEqual(['first', 'second']);
+  });
   it('宿主自动回收先于动作容器，动作中新结束的实例留到下次宿主推进', () => {
     const owner = new CombatBuffContainer<string>('owner', new CombatAttributeSet<string>());
     const original = owner.add({ id: 'original', stackingType: 'unique' }, 'owner')!;

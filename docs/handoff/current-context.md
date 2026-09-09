@@ -1,5 +1,26 @@
 # 当前任务快照
 
+## 2026-09-10：两仓宿主释放回收验证完成
+
+Endaxis容器releaseAll逐个Release→回收，C# ReleaseOwnerEntity同步；不伪造FinishReason，
+不可结束的Buff也会被宿主释放。Endaxis91文件1253项通过、type-check通过；四轴原始
+比较回执数量不变，仍保留上一检查点已接受差异，未改基线。C#1821项中1815通过，
+失败仍为此前6个资源/适配器测试名，未出现新失败；专项回收/affix/实体39项通过。
+下一项是SkillAffix的实体reset引用端口及宿主对象回调，不能以abilityEntityFinished
+直接替代。当前测试覆盖释放触发回收及普通输出回收计数，跨宿主输出引用的组合回归
+仍值得补充；不得宣称SkillAffix所有对象引用已完成。
+
+## 2026-09-10：宿主释放实例回收（进行中）
+
+核实BuffContainer.Release→Clear，Clear对枚举到的Buff以recycle=true调用Release
+（03D745D2/D4）。Endaxis此前releaseAll只释放不回收，宿主停更后输出Buff引用无法归还。
+当前工作树将此入口转交container.releaseAll，逐实例释放并回收，不发布普通结束事件。
+加入保护中Buff、顺序、幂等和回调重入测试；尚需全事件回归、真实轴检查及C#同步，
+未提交。这不等于实体reset引用已经接通。
+扩大回归初跑1253项中1251通过、2个旧断言失败（实体释放后仍要求Buff留在容器）；
+现已改为保存实际实例，断言isFinished/isRecycled且容器为空，原实体结束回执检查保留。
+修正后装配与回收专项79项通过；尚未重跑全套/类型检查或真实轴，不能报全绿。
+
 ## 2026-09-10：动态实体更新准入差异已验收
 
 反编译确认TimeManager按组类型取TickRoot，再按枚举取m_groups中的TickGroup，

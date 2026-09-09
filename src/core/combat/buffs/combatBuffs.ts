@@ -977,6 +977,7 @@ export class CombatShield<Key extends string> {
 /** 按实体隔离的 Buff 存储与活动伤害修正注册表。 */
 export class CombatBuffContainer<Key extends string> {
   readonly #buffs: CombatBuff<Key>[] = [];
+  #releasing = false;
   readonly #damageModifiers: DamageModifier[] = [];
   readonly #healModifiers: HealModifier[] = [];
   readonly #poiseModifiers: PoiseModifier[] = [];
@@ -1517,6 +1518,23 @@ export class CombatBuffContainer<Key extends string> {
       if (!buff.isFinished) continue;
       this.#buffs.splice(index, 1);
       buff.recycleFinished();
+    }
+  }
+
+  /** 宿主释放：逐实例Release后回收，不等待已停止的宿主再次tick。 */
+  releaseAll(): void {
+    if (this.#releasing) return;
+    this.#releasing = true;
+    try {
+      for (const buff of [...this.#buffs]) {
+        if (buff.isRecycled) continue;
+        buff.release();
+        const index = this.#buffs.indexOf(buff);
+        if (index >= 0) this.#buffs.splice(index, 1);
+        buff.recycleFinished();
+      }
+    } finally {
+      this.#releasing = false;
     }
   }
 
