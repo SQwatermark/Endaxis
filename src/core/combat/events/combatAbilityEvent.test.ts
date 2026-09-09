@@ -1,6 +1,61 @@
 import { expect, it } from 'vitest';
 import { AbilityEventDispatcher } from './abilityEventDispatcher';
 import type { AbilityEventPayloadMap, CombatAbilityEvent } from './combatAbilityEvent';
+import {
+  spellBurstAbilityEvent,
+  characterInflictionAbilityEvent,
+  skillAbilityEvent,
+  lifecycleAbilityEvent,
+  weaknessAbilityEvent,
+  customAbilityEvent,
+  poiseAbilityEvent,
+  shieldAbilityEvent,
+  killAbilityEvent,
+  inflictionAbilityEvent,
+  spGainAbilityEvent,
+  healAbilityEvent,
+  damageAbilityEvent,
+  physicalAbilityEvent,
+  knockDownAbilityEvent,
+  buffEnhanceAbilityEvent,
+} from './combatAbilityEvent';
+
+it('分类器只收窄统一事件，不读取或重新解释载荷，手工标记不冒充原生事件', () => {
+  const published: CombatAbilityEvent<'afterAddedShield'> = {
+    event: 'afterAddedShield',
+    get payload(): AbilityEventPayloadMap['afterAddedShield'] {
+      throw new Error('classification must not parse payload');
+    },
+  };
+  const classifiers = [
+    spellBurstAbilityEvent,
+    characterInflictionAbilityEvent,
+    skillAbilityEvent,
+    lifecycleAbilityEvent,
+    weaknessAbilityEvent,
+    customAbilityEvent,
+    poiseAbilityEvent,
+    shieldAbilityEvent,
+    killAbilityEvent,
+    inflictionAbilityEvent,
+    spGainAbilityEvent,
+    healAbilityEvent,
+    damageAbilityEvent,
+    physicalAbilityEvent,
+    knockDownAbilityEvent,
+    buffEnhanceAbilityEvent,
+  ];
+  for (const classify of classifiers) {
+    expect(classify(published)).toBe(classify === shieldAbilityEvent ? published : undefined);
+    expect(classify({ kind: 'knockDownOutput' })).toBeUndefined();
+  }
+  if (false) {
+    // @ts-expect-error 仅有名称不构成合法原生事件。
+    shieldAbilityEvent({ event: 'afterAddedShield' });
+    // @ts-expect-error 不能经 kind 标记偷偷携带一个未校验的原生事件名。
+    shieldAbilityEvent({ kind: 'marker', event: 'afterAddedShield', payload: {} });
+  }
+});
 
 it('发布、数据动作、技能与连携共享同一事件和原始操作端口', () => {
   const calls: string[] = [];

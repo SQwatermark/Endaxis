@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：事件分类读取器不再重新解析内部载荷
+
+combatAbilityEvent.ts 的16个旧分类函数统一接受完整 CombatAbilityEvent 或无原生event字段
+的手工kind标记；按事件名收窄后原样返回，不再降为unknown、做零散字段检查再as恢复。
+保留分类所需的原生事件集合，不扩展支持范围、不改变发布/监听顺序和可变载荷引用。
+这落实既有原生“同步共享同一事件上下文”架构，不是新事件机制。
+新增测试用不可读取payload验证分类器不解析载荷；缺fromAirborne等伪造事件由类型边界拒绝。
+1211项运行时/Buff/事件测试和完整应用类型检查通过。真实轴仍为前轮已解释的0/0/7/3个
+同帧换序，未更新旧基线。
+
+下一个明确类型擦除入口：standardPlayerDamageEnvironment 的
+#resolveAbilityEventRuntimeActionContext(event,payload:unknown) 仍拆分事件名与载荷，随后as恢复。
+abilityEventActionContext 的端点读取也接受unknown。应让动作目标绑定消费同一强类型事件，
+同时保留weaknessSet无目标特例、未绑定事件的明确行为和真正外部输入的校验。
+
 ## 2026-09-10：父子 Buff 结束顺序归位
 
 子 Buff 持有从生命周期适配器 WeakMap 移到 CombatBuff 本体，不再在父结束动作前清理。

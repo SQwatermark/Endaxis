@@ -339,7 +339,10 @@ describe('标准战斗环境的普通倒地显式装配', () => {
         event,
         payload: { sourceId: 'operator', targetId: 'enemy', fromAirborne: false },
       };
-      expect(() => knockDownAbilityEvent(missing)).toThrow('fromAirborne');
+      if (false) {
+        // @ts-expect-error 分类读取器不接收缺失 fromAirborne 的伪造事件。
+        knockDownAbilityEvent(missing);
+      }
       expect(knockDownAbilityEvent(valid)).toEqual({
         event,
         payload: { sourceId: 'operator', targetId: 'enemy', fromAirborne: false },

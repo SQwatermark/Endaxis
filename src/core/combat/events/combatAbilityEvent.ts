@@ -16,6 +16,9 @@ import type { HealthDamageEventPayload } from '../damage/healthDamage';
 import type { PlayerDamageContext } from '../damage/playerDamageContext';
 import type { ElementalInflictionEventPayload } from '../runtime/elementalInflictionOperationExecutor';
 
+/** 已发布的强类型事件，或仅供兼容路由识别的手工语义标记；不是外部数据解析器。 */
+type AbilityEventCandidate = CombatAbilityEvent | { readonly kind: string; readonly event?: never };
+
 export type SpellBurstAbilityEvent = CombatAbilityEvent<'beforeOutputSpellBurst'> & {
   readonly kind?: never;
 };
@@ -23,41 +26,24 @@ export type CharacterInflictionAbilityEvent = CombatAbilityEvent<'beforeTakeSpel
   readonly kind?: never;
 };
 export function spellBurstAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): SpellBurstAbilityEvent | undefined {
   if (!('event' in event) || event.event !== 'beforeOutputSpellBurst') return undefined;
-  const published = event as SpellBurstAbilityEvent;
-  if (
-    typeof published.payload?.sourceId !== 'string' ||
-    typeof published.payload.targetId !== 'string' ||
-    typeof published.payload.burstType !== 'string'
-  )
-    throw new TypeError('Spell burst event has invalid payload');
-  return published;
+  return event;
 }
 /** 角色承术与敌人附着四阶段分开；允许原载荷未提供元素。 */
 export function characterInflictionAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): CharacterInflictionAbilityEvent | undefined {
   if (!('event' in event) || event.event !== 'beforeTakeSpellInfliction') return undefined;
-  const published = event as CharacterInflictionAbilityEvent;
-  if (
-    typeof published.payload?.sourceId !== 'string' ||
-    typeof published.payload.targetId !== 'string' ||
-    (published.payload.element !== undefined &&
-      !['heat', 'electric', 'cryo', 'nature'].includes(published.payload.element))
-  )
-    throw new TypeError('Character infliction event has invalid payload');
-  return published;
+  return event;
 }
 
 export type SkillAbilityEvent = CombatAbilityEvent<
   'beforeCastSkill' | 'afterSkillApplyCost' | 'skillEnd'
 > & { readonly kind?: never };
 /** 当前施法身份和继承来源相互独立；保留原始挂载端口，不重建技能对象。 */
-export function skillAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): SkillAbilityEvent | undefined {
+export function skillAbilityEvent(event: AbilityEventCandidate): SkillAbilityEvent | undefined {
   if (
     !('event' in event) ||
     (event.event !== 'beforeCastSkill' &&
@@ -65,25 +51,7 @@ export function skillAbilityEvent(
       event.event !== 'skillEnd')
   )
     return undefined;
-  const published = event as SkillAbilityEvent;
-  const payload = published.payload;
-  if (
-    typeof payload?.sourceId !== 'string' ||
-    typeof payload.targetId !== 'string' ||
-    typeof payload.skillId !== 'string' ||
-    !Number.isSafeInteger(payload.skillCastId) ||
-    payload.skillCastId <= 0 ||
-    ![
-      'basicAttack',
-      'battleSkill',
-      'comboSkill',
-      'ultimate',
-      'finisher',
-      'plungingAttack',
-    ].includes(payload.skillType)
-  )
-    throw new TypeError('Skill event has invalid skill identity');
-  return published;
+  return event;
 }
 
 export type LifecycleAbilityEvent = CombatAbilityEvent<
@@ -96,7 +64,7 @@ export type LifecycleAbilityEvent = CombatAbilityEvent<
 > & { readonly kind?: never };
 /** 生命周期只识别原始发布身份，不合并事件或重建出生/结束时的实体关系。 */
 export function lifecycleAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): LifecycleAbilityEvent | undefined {
   if (!('event' in event)) return undefined;
   switch (event.event) {
@@ -106,13 +74,7 @@ export function lifecycleAbilityEvent(
     case 'ownerHpZero':
     case 'abilityEntitySpawned':
     case 'abilityEntityFinished': {
-      const published = event as LifecycleAbilityEvent;
-      if (
-        typeof published.payload?.sourceId !== 'string' ||
-        typeof published.payload.targetId !== 'string'
-      )
-        throw new TypeError('Lifecycle event has invalid entity identities');
-      return published;
+      return event;
     }
     default:
       return undefined;
@@ -127,36 +89,19 @@ export type CustomAbilityEvent = CombatAbilityEvent<'customAbilityEvent'> & {
 };
 /** 设置与触发是两个原生事件；此处仅识别，不互相转换。 */
 export function weaknessAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): WeaknessAbilityEvent | undefined {
   if (
     !('event' in event) ||
     (event.event !== 'weaknessSet' && event.event !== 'afterOutputWeaknessTriggered')
   )
     return undefined;
-  const published = event as WeaknessAbilityEvent;
-  if (
-    typeof published.payload?.sourceId !== 'string' ||
-    (published.event === 'afterOutputWeaknessTriggered' &&
-      typeof published.payload.targetId !== 'string')
-  )
-    throw new TypeError('Weakness event has invalid entity identities');
-  return published;
+  return event;
 }
 /** 自定义事件的名称和参数保持原值，不推测名称语义。 */
-export function customAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): CustomAbilityEvent | undefined {
+export function customAbilityEvent(event: AbilityEventCandidate): CustomAbilityEvent | undefined {
   if (!('event' in event) || event.event !== 'customAbilityEvent') return undefined;
-  const published = event as CustomAbilityEvent;
-  if (
-    typeof published.payload?.sourceId !== 'string' ||
-    typeof published.payload.targetId !== 'string' ||
-    typeof published.payload.eventName !== 'string' ||
-    typeof published.payload.eventParam !== 'number'
-  )
-    throw new TypeError('Custom ability event has invalid values');
-  return published;
+  return event;
 }
 
 export type PoiseAbilityEvent = CombatAbilityEvent<'poiseZero' | 'poiseKnotBreak'> & {
@@ -164,33 +109,15 @@ export type PoiseAbilityEvent = CombatAbilityEvent<'poiseZero' | 'poiseKnotBreak
 };
 export type ShieldAbilityEvent = CombatAbilityEvent<'afterAddedShield'> & { readonly kind?: never };
 /** 失衡事件保留发布端载荷，不压平来源、目标或施法信息。 */
-export function poiseAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): PoiseAbilityEvent | undefined {
+export function poiseAbilityEvent(event: AbilityEventCandidate): PoiseAbilityEvent | undefined {
   if (!('event' in event) || (event.event !== 'poiseZero' && event.event !== 'poiseKnotBreak'))
     return undefined;
-  const published = event as PoiseAbilityEvent;
-  if (
-    typeof published.payload?.sourceId !== 'string' ||
-    typeof published.payload.targetId !== 'string'
-  )
-    throw new TypeError('Poise event has invalid entity identities');
-  return published;
+  return event;
 }
 /** 护盾新增量与当前值保持独立；识别事件不重新计算或复制它们。 */
-export function shieldAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): ShieldAbilityEvent | undefined {
+export function shieldAbilityEvent(event: AbilityEventCandidate): ShieldAbilityEvent | undefined {
   if (!('event' in event) || event.event !== 'afterAddedShield') return undefined;
-  const published = event as ShieldAbilityEvent;
-  if (
-    typeof published.payload?.sourceId !== 'string' ||
-    typeof published.payload.targetId !== 'string' ||
-    typeof published.payload.gainedValue !== 'number' ||
-    typeof published.payload.currentValue !== 'number'
-  )
-    throw new TypeError('Shield event has invalid shield values');
-  return published;
+  return event;
 }
 
 /**
@@ -201,12 +128,8 @@ export function shieldAbilityEvent(
 export type NativeKillEvent = CombatAbilityEvent<'afterKillEntity'> & { readonly kind?: never };
 
 /** 击杀沿用结算载荷与发布对象，不经 Buff 专用事件适配。 */
-export function killAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): NativeKillEvent | undefined {
-  return 'event' in event && event.event === 'afterKillEntity'
-    ? (event as NativeKillEvent)
-    : undefined;
+export function killAbilityEvent(event: AbilityEventCandidate): NativeKillEvent | undefined {
+  return 'event' in event && event.event === 'afterKillEntity' ? event : undefined;
 }
 
 export interface AbilityEntityPair {
@@ -222,7 +145,7 @@ export type InflictionAbilityEvent = CombatAbilityEvent<
   | 'afterTakeInfliction'
 > & { readonly kind?: never };
 export function inflictionAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): InflictionAbilityEvent | undefined {
   if (!('event' in event)) return undefined;
   switch (event.event) {
@@ -230,7 +153,7 @@ export function inflictionAbilityEvent(
     case 'beforeTakeInfliction':
     case 'afterOutputInfliction':
     case 'afterTakeInfliction':
-      return event as InflictionAbilityEvent;
+      return event;
     default:
       return undefined;
   }
@@ -334,12 +257,8 @@ export interface AbilitySpGainPayload {
 }
 
 export type SpGainAbilityEvent = CombatAbilityEvent<'skillSpGained'> & { readonly kind?: never };
-export function spGainAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): SpGainAbilityEvent | undefined {
-  return 'event' in event && event.event === 'skillSpGained'
-    ? (event as SpGainAbilityEvent)
-    : undefined;
+export function spGainAbilityEvent(event: AbilityEventCandidate): SpGainAbilityEvent | undefined {
+  return 'event' in event && event.event === 'skillSpGained' ? event : undefined;
 }
 
 /** 每个公共事件只在此关联一种载荷；不按 Buff/技能/装备重新定义范围。 */
@@ -461,11 +380,9 @@ export function buffAbilityEvent(event: CombatAbilityEvent): BuffAbilityEvent | 
 export type HealAbilityEvent = CombatAbilityEvent<'outputHeal' | 'receiveHeal'> & {
   readonly kind?: never;
 };
-export function healAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): HealAbilityEvent | undefined {
+export function healAbilityEvent(event: AbilityEventCandidate): HealAbilityEvent | undefined {
   return 'event' in event && (event.event === 'outputHeal' || event.event === 'receiveHeal')
-    ? (event as HealAbilityEvent)
+    ? event
     : undefined;
 }
 
@@ -480,9 +397,7 @@ export type DamageAbilityEvent = CombatAbilityEvent<
   | 'outputDamage'
   | 'outputCriticalDamage'
 > & { readonly kind?: never };
-export function damageAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
-): DamageAbilityEvent | undefined {
+export function damageAbilityEvent(event: AbilityEventCandidate): DamageAbilityEvent | undefined {
   if (!('event' in event)) return undefined;
   switch (event.event) {
     case 'beforeDamageAction':
@@ -493,7 +408,7 @@ export function damageAbilityEvent(
     case 'takeCriticalDamage':
     case 'outputDamage':
     case 'outputCriticalDamage':
-      return event as DamageAbilityEvent;
+      return event;
     default:
       return undefined;
   }
@@ -522,7 +437,7 @@ export type KnockDownAbilityEvent = CombatAbilityEvent<
   'beforeOutputKnockDown' | 'afterOutputKnockDown'
 > & { readonly kind?: never };
 export function physicalAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): PhysicalAbilityEvent | undefined {
   if (!('event' in event)) return undefined;
   switch (event.event) {
@@ -530,23 +445,20 @@ export function physicalAbilityEvent(
     case 'beforeOutputPhysicalInfliction':
     case 'afterTakePhysicalInfliction':
     case 'afterOutputPhysicalInfliction':
-      return event as PhysicalAbilityEvent;
+      return event;
     default:
       return undefined;
   }
 }
 export function knockDownAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): KnockDownAbilityEvent | undefined {
   if (
     !('event' in event) ||
     (event.event !== 'beforeOutputKnockDown' && event.event !== 'afterOutputKnockDown')
   )
     return undefined;
-  const published = event as KnockDownAbilityEvent;
-  if (typeof published.payload?.fromAirborne !== 'boolean')
-    throw new TypeError('KnockDown event requires explicit fromAirborne');
-  return published;
+  return event;
 }
 
 /** 正向增强尝试固定+1（包括满层），结束/减层为负数；不是当前总层数或统一的实际层差。 */
@@ -554,15 +466,8 @@ export type BuffEnhanceAbilityEvent = CombatAbilityEvent<'buffEnhanceChanged'> &
   readonly kind?: never;
 };
 export function buffEnhanceAbilityEvent(
-  event: { readonly event?: unknown } | { readonly kind: unknown },
+  event: AbilityEventCandidate,
 ): BuffEnhanceAbilityEvent | undefined {
   if (!('event' in event) || event.event !== 'buffEnhanceChanged') return undefined;
-  const published = event as BuffEnhanceAbilityEvent;
-  if (
-    typeof published.payload?.sourceId !== 'string' ||
-    typeof published.payload.buffId !== 'string' ||
-    !Number.isInteger(published.payload.layerCount)
-  )
-    throw new TypeError('Buff enhance event has invalid layer change');
-  return published;
+  return event;
 }
