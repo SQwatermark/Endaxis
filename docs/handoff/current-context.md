@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：事件优先级源数据边界复核
+
+当前hybrid-20260905：SkillData2621文件/79755动作元数据，启用78643项中11项非零
+偏移（+1两项、+205九项），均在timelineActions及嵌套succeedActions，不在事件程序；
+BuffData2873文件/11277元数据，启用10954项全部Default+0。不能再泛称所有动作零优先级。
+原生当前镜像确认priorityLevel+priorityOffset相加，SequenceAction取首个启用动作
+的优先级。具体泛型getter及非零枚举未据此开放。事件转换继续保留Default+0严格门禁，
+当前样本没有被该门禁漏掉的非零事件程序。本轮只读审计并记录证据，不扩展时间轴排序。
+详见复刻库ability-event-action-ordering新增章节。
+
 ## 2026-09-10：Buff事件程序不再按同级合并
 
 删除buffLifecycleSequenceRuntime按event+priority合成回调的中间层，每个原生序列独立
