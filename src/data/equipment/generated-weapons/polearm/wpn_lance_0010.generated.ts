@@ -107,16 +107,7 @@ const definition = {
       "eventHandlers": [
         {
           "key": "skill3:event:0:sequence:0",
-          "event": {
-            "kind": "physicalInflictionApplied",
-            "types": [
-              "airborne",
-              "knockDown",
-              "fracture",
-              "crush"
-            ],
-            "scope": "operator"
-          },
+          "abilityEvent": "afterOutputPhysicalInfliction",
           "priority": 0,
           "sequence": {
             "steps": [

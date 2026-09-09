@@ -167,6 +167,8 @@ describe('weapon runtime definitions', () => {
   it.each([
     ['OnAfterSkillApplyCost', 'afterSkillApplyCost'],
     ['OnObtainAtb', 'skillSpGained'],
+    ['OnConsumeBuff', 'buffConsumed'],
+    ['OnAfterOutputPhysicalInfliction', 'afterOutputPhysicalInfliction'],
   ] as const)(
     '把 %s 投影到公共 AbilityEvent，不生成另一份语义事件',
     (nativeEvent, abilityEvent) => {

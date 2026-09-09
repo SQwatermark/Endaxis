@@ -1,6 +1,5 @@
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import type { LevelValues } from '../../../../../packages/game-data-contract/src/index.ts';
-import type { CombatEventTrigger } from '../../../../../packages/game-data-contract/src/actions.ts';
 import type {
   EquipmentAbilityEvent,
   EquipmentEventHandlerDefinition,
@@ -46,22 +45,11 @@ export type CompiledWeaponRuntimeDefinitionSource = Omit<
       })[];
   };
 
-// 尚未迁移的语义事件：消耗 Buff 不生成筛选字段，物理异常固定为四类且仅监听装备者。
-type CompiledWeaponSemanticEventSource =
-  | Readonly<Pick<Extract<CombatEventTrigger, { kind: 'buffConsumed' }>, 'kind'>>
-  | (Readonly<Extract<CombatEventTrigger, { kind: 'physicalInflictionApplied' }>> & {
-      readonly types: readonly ['airborne', 'knockDown', 'fracture', 'crush'];
-      readonly scope: 'operator';
-    });
-
 export type CompiledWeaponEventHandlerSource = Readonly<
-  Required<Pick<EquipmentEventHandlerDefinition, 'key' | 'priority'>>
+  Required<Pick<EquipmentEventHandlerDefinition, 'key' | 'priority' | 'abilityEvent'>>
 > & {
   readonly sequence: CompiledBuffSequenceSource;
-} & (
-    | { readonly event: CompiledWeaponSemanticEventSource; readonly abilityEvent?: never }
-    | { readonly event?: never; readonly abilityEvent: EquipmentAbilityEvent }
-  );
+};
 
 /**
  * 从一份安装结构与等级参数列装配武器贡献；Buff 蓝图只编译一次。
@@ -315,21 +303,9 @@ function compileWeaponDeckInitialization(
 function projectWeaponAbilityEvent(
   event: string | number,
   sourcePath: string,
-):
-  | { readonly event: CompiledWeaponSemanticEventSource }
-  | { readonly abilityEvent: EquipmentAbilityEvent } {
+): { readonly abilityEvent: EquipmentAbilityEvent } {
   if (typeof event !== 'string') {
     throw new Error(`${sourcePath}: unnamed numeric weapon AbilityEvent is unsupported`);
-  }
-  if (event === 'OnConsumeBuff') return { event: { kind: 'buffConsumed' } };
-  if (event === 'OnAfterOutputPhysicalInfliction') {
-    return {
-      event: {
-        kind: 'physicalInflictionApplied',
-        types: ['airborne', 'knockDown', 'fracture', 'crush'],
-        scope: 'operator',
-      },
-    };
   }
   const projected = projectAbilityEvent(event, sourcePath);
   const supported = EQUIPMENT_ABILITY_EVENTS.find(candidate => candidate === projected);

@@ -511,9 +511,7 @@ const definition = {
       "eventHandlers": [
         {
           "key": "skill3:event:0:sequence:0",
-          "event": {
-            "kind": "buffConsumed"
-          },
+          "abilityEvent": "buffConsumed",
           "priority": 0,
           "sequence": {
             "steps": [
@@ -602,9 +600,7 @@ const definition = {
         },
         {
           "key": "skill3:event:1:sequence:0",
-          "event": {
-            "kind": "buffConsumed"
-          },
+          "abilityEvent": "buffConsumed",
           "priority": 0,
           "sequence": {
             "steps": [
@@ -693,9 +689,7 @@ const definition = {
         },
         {
           "key": "skill3:event:2:sequence:0",
-          "event": {
-            "kind": "buffConsumed"
-          },
+          "abilityEvent": "buffConsumed",
           "priority": 0,
           "sequence": {
             "steps": [
@@ -784,9 +778,7 @@ const definition = {
         },
         {
           "key": "skill3:event:3:sequence:0",
-          "event": {
-            "kind": "buffConsumed"
-          },
+          "abilityEvent": "buffConsumed",
           "priority": 0,
           "sequence": {
             "steps": [

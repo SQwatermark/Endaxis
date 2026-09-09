@@ -1,5 +1,26 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：武器退出旧语义事件生成
+
+OnConsumeBuff / OnAfterOutputPhysicalInfliction 现在经公共 projectAbilityEvent 生成
+buffConsumed / afterOutputPhysicalInfliction。删除武器专用语义类型与两条映射分支，
+当前武器生成器不再输出 event: CombatEventTrigger；自定义定义兼容端口仍保留。
+公共配装准入新增的是原有两种事件，不是新增游戏机制。原生依据为 combat-spec 的
+consume-buff-single、check-consume-buff-layer、physical-infliction-actions 及
+passive-direct-damage：在消耗/异常来源发布，原始载荷保留；不查询剩余 Buff 层数，
+也不把武器追加伤害伪装成触发技能伤害。版本/IFix 范围以这些既有专题为准。
+
+固定来源79武器重生成，仅10份变化；逐对象验证只有两种允许的事件入口变化，
+条件、动作、黑板及其他字段不变，已落位。34项定向测试及生产类型检查通过；
+候选配装79武器/258装备/24套装通过，四条真实轴完整回执与告警仍一致。
+新增运行时用例验证原始载荷引用、显式空施法来源、零层数不被宿主偷偷筛除。
+完整应用类型检查通过。
+
+下一项：compileEventListenerNode 仍手写 OnAddedBuff/OnOutputBuff 的语义映射及序列
+遍历，且没有复用 compileAbilityEventPrograms 的优先级校验。应统一公共注册/上下文，
+但 OnBeforeTakeDamage→operatorHit 是木桩外部标记桥接，不能直接替换成敌人伤害事件。
+OnSkillEnd 纯空回调的既有省略也须保留，不借迁移扩展新事件范围。
+
 ## 2026-09-09 晚间续：配装启用门禁贯通正式数据
 
 公共贡献新增 enableSequence 表达响应启用前的普通启动安装；原 initializationSequence

@@ -39,6 +39,62 @@ const contribution: CompiledEquipmentContribution = {
 };
 
 describe('EquipmentEventRuntime', () => {
+  it.each([
+    {
+      event: 'buffConsumed',
+      payload: {
+        sourceId: 'operator:a',
+        targetId: 'enemy',
+        buffId: 'consumed',
+        buffTags: [],
+        layers: 0,
+        blackboardValues: { original: 3 },
+        skillCastInfo: null,
+      },
+    },
+    {
+      event: 'afterOutputPhysicalInfliction',
+      payload: {
+        sourceId: 'operator:a',
+        targetId: 'enemy',
+        type: 'fracture',
+        skillCastInfo: null,
+      },
+    },
+  ] as const)('原生 $event 响应保留事件载荷，不再经过武器特有语义筛选', published => {
+    const native = createNativeEventFixture();
+    const execute = vi.fn<CombatOperationExecutor['execute']>((_step, context) => {
+      expect(context?.event).toMatchObject({ event: published.event });
+      expect(context?.event && 'payload' in context.event ? context.event.payload : undefined).toBe(
+        published.payload,
+      );
+      expect(context?.eventSkillCastInfo).toBeNull();
+      return true;
+    });
+    const runtime = createEnabledEquipmentRuntime(
+      native.semanticEvents,
+      'operator:a',
+      [
+        {
+          ...contribution,
+          eventHandlers: [
+            {
+              key: 'native',
+              abilityEvent: published.event,
+              sequence: contribution.eventHandlers[0]!.sequence,
+            },
+          ],
+        },
+      ],
+      () => ({ execute, evaluate: () => true }),
+      (_operator, event, priority, handle) =>
+        native.dispatcher.registerAction(event, priority, handle),
+    );
+    native.dispatcher.dispatch(published, []);
+    expect(execute).toHaveBeenCalledOnce();
+    runtime.dispose();
+  });
+
   it.each(['native', 'compatibility'] as const)(
     '注册不启用，%s 条件与动作只在本能力启用后执行',
     mode => {

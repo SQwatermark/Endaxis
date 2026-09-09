@@ -183,9 +183,7 @@ const definition = {
       "eventHandlers": [
         {
           "key": "skill3:event:0:sequence:0",
-          "event": {
-            "kind": "buffConsumed"
-          },
+          "abilityEvent": "buffConsumed",
           "priority": 0,
           "sequence": {
             "steps": [

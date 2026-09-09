@@ -130,12 +130,14 @@ export const EQUIPMENT_ABILITY_EVENTS = [
   'beforeCastSkill',
   'afterSkillApplyCost',
   'beforeOutputPhysicalInfliction',
+  'afterOutputPhysicalInfliction',
   'beforeOutputInfliction',
   'beforeOutputSpellBurst',
   'beforeOutputBuff',
   'outputBuff',
   'addedBuff',
   'buffEnhanceChanged',
+  'buffConsumed',
   'skillSpGained',
 ] as const satisfies readonly AbilityEvent[];
 
