@@ -1,3 +1,4 @@
+import { DIRECT_COMBAT_EVENT_TRIGGER_EVENTS } from '../../../packages/game-data-contract/src/actions';
 import {
   assertGameplayTag,
   GAMEPLAY_TAG_MATCH_TYPES,
@@ -3518,6 +3519,9 @@ function validateEventTrigger(
   if (kind === null) return;
   switch (kind) {
     case 'operatorHit':
+      break;
+    case 'abilityEvent':
+      requireEnum(record, 'event', new Set(DIRECT_COMBAT_EVENT_TRIGGER_EVENTS), path, out);
       break;
     case 'operatorHealed':
       if (record.role !== undefined) {

@@ -2665,13 +2665,11 @@ function compileEventListenerNode(
       : [
           {
             key: program.sequence.key,
-            // 旧定义输出适配；原始名称解析和程序上下文不再依赖这些别名。
+            // 原生事件直达公共订阅；受击事实仍是木桩模型的显式输入桥接。
             event:
-              program.event === 'addedBuff'
-                ? { kind: 'buffApplied' as const }
-                : program.event === 'outputBuff'
-                  ? { kind: 'buffOutput' as const }
-                  : { kind: 'operatorHit' as const },
+              program.event === 'beforeTakeDamage'
+                ? { kind: 'operatorHit' as const }
+                : { kind: 'abilityEvent' as const, event: program.event },
             phase: 'dataAction' as const,
             priority: program.priority,
             sequence: program.sequence.sequence,

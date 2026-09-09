@@ -17,6 +17,13 @@ import CombatEventTriggerEditor from './components/CombatEventTriggerEditor.vue'
 import { createDefinitionEditContext } from './definitionEditContext';
 import { inspectorEditorRegistryKey, extendInspectorEditors } from './inspectorEditors';
 
+it('原生事件检查器提供契约候选并原位修改事件身份', () => {
+  const value = createCombatEventTriggerDraft('abilityEvent');
+  const field = eventInspectorFields(value).find(field => field.key === 'event');
+  expect([...(field?.options ?? [])].sort()).toEqual(['addedBuff', 'outputBuff']);
+  expect(field?.write(value, 'outputBuff')).toEqual({ kind: 'abilityEvent', event: 'outputBuff' });
+});
+
 it.each([false, true])('公共响应面板直接提交事件路径，保留图结构（调度=%s）', async scheduled => {
   type Owner = CombatEventResponseDefinition | CombatEventHandlerDefinition;
   let response: Owner = scheduled

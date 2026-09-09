@@ -98,7 +98,7 @@ describe('CombatActionSequenceRuntime', () => {
           responses: [
             {
               key: 'temporary',
-              event: { kind: 'buffApplied' },
+              event: { kind: 'abilityEvent', event: 'addedBuff' },
               phase: 'dataAction',
               priority: 0,
               sequence: sequence(operation('temporary')),
@@ -169,7 +169,7 @@ describe('CombatActionSequenceRuntime', () => {
           responses: [
             {
               key: 'reentry',
-              event: { kind: 'buffApplied' },
+              event: { kind: 'abilityEvent', event: 'addedBuff' },
               sequence: sequence({
                 kind: 'conditional',
                 parameters: {

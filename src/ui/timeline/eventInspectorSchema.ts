@@ -33,6 +33,7 @@ const kindField = createInspectorField<CombatEventTrigger>('kind', {
 });
 /** 注解仅补展示语义；字段、可选性与候选值从公共 CombatEventTrigger 契约提取。 */
 const labels: Record<string, string> = {
+  event: 'nativeTriggerEvent',
   scope: 'triggerScope',
   role: 'eventRole',
   source: 'spGainSource',
@@ -42,6 +43,7 @@ const labels: Record<string, string> = {
   types: 'physicalInflictionType',
 };
 const options: Record<string, string> = {
+  event: 'nativeTriggerEvents',
   scope: 'triggerScopes',
   role: 'eventRoles',
   source: 'spGainSources',

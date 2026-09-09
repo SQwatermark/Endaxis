@@ -786,6 +786,7 @@
       "addActivationRule": "添加开启规则",
       "triggerKind": "触发事件",
       "triggerKinds": {
+        "abilityEvent": "原生能力事件",
         "operatorHit": "干员受到命中",
         "operatorHealed": "干员受到治疗",
         "buffApplied": "施加 Buff",
@@ -800,6 +801,8 @@
         "skillHit": "指定技能命中",
         "enemyDefeated": "击败敌人"
       },
+      "nativeTriggerEvent": "原生事件",
+      "nativeTriggerEvents": { "addedBuff": "收到 Buff", "outputBuff": "输出 Buff" },
       "triggerScope": "事件来源范围",
       "triggerScopes": { "operator": "当前干员", "team": "全队" },
       "eventRole": "事件角色",

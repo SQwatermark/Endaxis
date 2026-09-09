@@ -652,7 +652,7 @@ describe('公共 Buff 运行时投影', () => {
                 key: 'SkillData.listener.abilityActionMap[0].actions[0]',
                 phase: 'dataAction',
                 priority: 0,
-                event: { kind: 'buffApplied' },
+                event: { kind: 'abilityEvent', event: 'addedBuff' },
                 sequence: {
                   steps: [
                     {

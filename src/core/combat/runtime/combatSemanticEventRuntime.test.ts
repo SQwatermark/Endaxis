@@ -10,6 +10,54 @@ import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 
 describe('CombatSemanticEventRuntime', () => {
+  it.each(['addedBuff', 'outputBuff'] as const)(
+    '直接订阅 %s 保留载荷、条件和原生实体归属',
+    event => {
+      const owner = new AbilityEventDispatcher<
+        keyof AbilityEventPayloadMap,
+        AbilityEventPayloadMap
+      >();
+      const other = new AbilityEventDispatcher<
+        keyof AbilityEventPayloadMap,
+        AbilityEventPayloadMap
+      >();
+      const runtime = new CombatSemanticEventRuntime((id, scope, name, phase, priority, handle) => {
+        expect(scope).toBe('operator');
+        expect(phase).toBe('dataAction');
+        return (id === 'owner' ? owner : other).registerAction(name, priority, handle);
+      });
+      const payload = {
+        sourceId: 'owner',
+        targetId: 'owner',
+        buffId: 'signal',
+        buffTags: [],
+        skillCastInfo: null,
+      };
+      const native = { event, payload };
+      let count = 0;
+      const registration = runtime.register({
+        ownerOperatorId: 'owner',
+        trigger: { kind: 'abilityEvent', event },
+        phase: 'dataAction',
+        condition: { kind: 'eventBuffIdMatch', buffIds: ['signal'] },
+        createOperations: () =>
+          new EventContextConditionExecutor({ execute: () => false, evaluate: () => false }),
+        handle: context => {
+          expect(context.event).toBe(native);
+          expect('payload' in context.event && context.event.payload).toBe(payload);
+          count++;
+        },
+      });
+      other.dispatch(native, []);
+      expect(count).toBe(0);
+      owner.dispatch(native, []);
+      expect(count).toBe(1);
+      registration.dispose();
+      owner.dispatch(native, []);
+      expect(count).toBe(1);
+    },
+  );
+
   it('倒地旧触发器端口仅接受后置通知或手工标记，不接受前置及通用物理异常', () => {
     const payload = { sourceId: 'operator', targetId: 'enemy', fromAirborne: true };
     expect(isKnockDownOutputEvent({ event: 'beforeOutputKnockDown', payload })).toBe(false);

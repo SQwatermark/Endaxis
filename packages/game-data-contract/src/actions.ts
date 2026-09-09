@@ -1,4 +1,5 @@
 import type { GameplayTag, GameplayTagQueryType } from './gameplayTags.ts';
+import type { AbilityEvent } from './abilityEvents.ts';
 import {
   type BuffApplicationSource,
   type BuffApplicationTarget,
@@ -1052,7 +1053,14 @@ export interface CombatEventResponseDefinition {
  * 技能和养成效果可以监听的语义战斗事件。
  * 事件身份不包含复杂筛选逻辑，额外限制应由条件树表达。
  */
+/** 已迁入直接原生订阅的身份；能力机制由公共分发器实现，此处只维护迁移准入。 */
+export const DIRECT_COMBAT_EVENT_TRIGGER_EVENTS = [
+  'addedBuff',
+  'outputBuff',
+] as const satisfies readonly AbilityEvent[];
+
 export type CombatEventTrigger =
+  | { kind: 'abilityEvent'; event: (typeof DIRECT_COMBAT_EVENT_TRIGGER_EVENTS)[number] }
   | { kind: 'operatorHit' }
   | { kind: 'operatorHealed'; role?: 'source' | 'target' }
   | { kind: 'buffApplied' }
@@ -1077,6 +1085,7 @@ export type CombatEventTrigger =
 
 /** 技能、Buff 与配装事件监听共用的语义触发器词表。 */
 export const COMBAT_EVENT_TRIGGER_KINDS = [
+  'abilityEvent',
   'operatorHit',
   'operatorHealed',
   'buffApplied',

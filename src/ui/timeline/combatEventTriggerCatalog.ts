@@ -12,6 +12,8 @@ export function createCombatEventTriggerDraft(
   kind: EditableCombatEventTriggerKind,
 ): CombatEventTrigger {
   switch (kind) {
+    case 'abilityEvent':
+      return { kind, event: 'addedBuff' };
     case 'operatorHit':
     case 'buffApplied':
     case 'buffOutput':

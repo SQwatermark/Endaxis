@@ -143,6 +143,11 @@ function matches(
   event: CombatSemanticEvent,
 ): boolean {
   const { ownerOperatorId, trigger } = registration;
+  if (trigger.kind === 'abilityEvent') {
+    // Owner routing is enforced by the native entity subscription, not a second
+    // source/target interpretation of the payload in each listener host.
+    return 'event' in event && event.event === trigger.event;
+  }
   if (trigger.kind === 'buffConsumed') {
     return (
       'event' in event &&
@@ -378,6 +383,8 @@ function eventSubscription(trigger: CombatEventTrigger | UpgradeEvent):
     }
   | { readonly kind: 'legacy'; readonly event: NonNullable<CombatSemanticEvent['kind']> } {
   switch (trigger.kind) {
+    case 'abilityEvent':
+      return { kind: 'entity', event: trigger.event, scope: 'operator' };
     case 'elementalInflictionApplied':
       return { kind: 'entity', event: 'afterOutputInfliction', scope: trigger.scope };
     case 'spGained':

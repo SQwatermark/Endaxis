@@ -23,6 +23,22 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('原生事件触发器使用公共迁移准入，拒绝缺失及未支持身份', () => {
+    const skill = (event: unknown) => ({
+      ...baseSkill(),
+      eventHandlers: [
+        {
+          key: 'native',
+          event: { kind: 'abilityEvent', event },
+          scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
+        },
+      ],
+    });
+    expect(validateSkillDefinition(skill('addedBuff'))).toEqual([]);
+    expect(validateSkillDefinition(skill('outputBuff'))).toEqual([]);
+    expect(validateSkillDefinition(skill('unknown'))).not.toEqual([]);
+    expect(validateSkillDefinition(skill(undefined))).not.toEqual([]);
+  });
   it('requires a positive native natural duration when present', () => {
     expect(validateSkillDefinition({ ...baseSkill(), naturalDurationFrames: 1 })).toEqual([]);
     expect(validateSkillDefinition({ ...baseSkill(), naturalDurationFrames: 0 })).toEqual(

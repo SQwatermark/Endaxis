@@ -1,5 +1,25 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：临时 Buff 监听原生身份贯通
+
+CombatEventTrigger 新增 abilityEvent 入口，迁移准入由公共
+DIRECT_COMBAT_EVENT_TRIGGER_EVENTS 维护 addedBuff/outputBuff。这是公共事件身份的
+直接订阅，不另造载荷或宿主事件算法；实体归属由原生注册端口负责，条件仍走公共
+动作条件执行器。旧手写 buffApplied/buffOutput 暂保留兼容，不再由生成器输出。
+OnBeforeTakeDamage 仍桥接 operatorHit，不因本次迁移扩展敌人主动伤害。
+
+校验、草稿工厂、契约生成检查器和三语标签同步；原始事件引用、实体路由、条件、
+优先级顺序、重入、注销均有测试。编辑器通过结构/交互测试，未做浏览器视觉验收。
+283项定向、103文件1447项扩展回归、完整应用类型检查通过。
+31干员重生成，仅 catcher/tangtang/snowshine/liino 的8处入口变化；逐文件替换归一
+后与正式旧产物完全一致，已落位。正式干员数据已无两个旧别名。
+潜能0/5各325技能、198技能库放置、31组合轴通过；四条真实轴完整回执/告警一致。
+候选 tmp/event-unification-candidates-ZWWJ7Y；完整审计沿用 LFXpY3 候选资源基线。
+
+原生依据沿用 combat-spec/event-listener-registration，无新增游戏行为假设。
+本项迁移已闭环；下一步按事件统一清单收束其余优先级、上下文和兼容端口边界，
+不要重复迁移临时监听的这两种原生事件。整体技术债仍未全部完成。
+
 ## 2026-09-09 晚间续：临时监听内部使用公共身份
 
 临时监听现在通过唯一 projectAbilityEvent 解析原始名称，公共程序编译器将同一次

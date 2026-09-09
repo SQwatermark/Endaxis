@@ -748,6 +748,7 @@
       "addActivationRule": "Добавить правило открытия",
       "triggerKind": "Событие-триггер",
       "triggerKinds": {
+        "abilityEvent": "Событие способности",
         "operatorHit": "Оператор получает попадание",
         "operatorHealed": "Лечение оператора",
         "buffApplied": "Наложение усиления",
@@ -762,6 +763,8 @@
         "skillHit": "Попадание указанного навыка",
         "enemyDefeated": "Победа над противником"
       },
+      "nativeTriggerEvent": "Событие",
+      "nativeTriggerEvents": { "addedBuff": "Получение усиления", "outputBuff": "Вывод усиления" },
       "triggerScope": "Источник события",
       "triggerScopes": { "operator": "Текущий оператор", "team": "Отряд" },
       "eventRole": "Роль события",

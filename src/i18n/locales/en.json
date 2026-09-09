@@ -792,6 +792,7 @@
       "addActivationRule": "Add opening rule",
       "triggerKind": "Trigger event",
       "triggerKinds": {
+        "abilityEvent": "Native ability event",
         "operatorHit": "Operator receives hit",
         "operatorHealed": "Operator healed",
         "buffApplied": "Buff applied",
@@ -806,6 +807,8 @@
         "skillHit": "Specified skill hit",
         "enemyDefeated": "Enemy defeated"
       },
+      "nativeTriggerEvent": "Native event",
+      "nativeTriggerEvents": { "addedBuff": "Buff received", "outputBuff": "Buff output" },
       "triggerScope": "Event source scope",
       "triggerScopes": { "operator": "Current operator", "team": "Team" },
       "eventRole": "Event role",

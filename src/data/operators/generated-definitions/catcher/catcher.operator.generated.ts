@@ -609,7 +609,7 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
               },
               {
                 key: 'SkillData.chr_0020_meurs_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[0].abilityActionMap[1].actions[0]',
-                event: { kind: 'buffApplied' },
+                event: { kind: 'abilityEvent', event: 'addedBuff' },
                 phase: 'dataAction',
                 priority: 0,
                 sequence: sequence(
