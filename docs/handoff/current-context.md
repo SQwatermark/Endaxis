@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：当前验收清单重整
+
+重写2026-09-09-event-unification-checklist.md，去掉将历史检查点与当前待办混写的结构。
+逐项复查事件分类/目标绑定、共享事件程序调用点、宿主启用门禁及正式临时监听引用；
+正式干员8处addedBuff/outputBuff使用统一abilityEvent，3处operatorHit保留木桩外部事实语义。
+旧函数readSkillCastInfoFromPayload已删除，不再在“已完成”里要求调用它。
+本轮只完成审计和文档，不宣称重新生成或执行新一轮全仓测试。
+未完成项按执行顺序集中列出：其他宿主结束来源、额外通知身份、优先级取证、泛型上下文
+边界、兼容入口归属、最终综合验收；具体范围/完成证据见重整后的清单。
+
 ## 2026-09-10：连携转交改为在完整事件上收窄
 
 删除 standardPlayerDamageEnvironment 的两处 CombatAbilityEvent<ActionContextBoundAbilityEvent>
