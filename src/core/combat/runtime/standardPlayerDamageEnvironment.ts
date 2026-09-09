@@ -297,7 +297,8 @@ export class StandardPlayerDamageEnvironment {
       options.tagRegistry,
       null,
       undefined,
-      (buff, reason) => this.#recordBuffFinished(buff, reason),
+      (buff, reason, skillCastInfo) =>
+        this.#recordOwnedBuffFinished('enemy', buff, reason, skillCastInfo),
       (buff, layerCount, reason, skillCastInfo) =>
         this.#emitBuffEnhanceChanged('enemy', buff, layerCount, reason, skillCastInfo),
       undefined,
@@ -407,7 +408,8 @@ export class StandardPlayerDamageEnvironment {
           options.tagRegistry,
           null,
           entityBlackboard,
-          (buff, reason) => this.#recordOwnedBuffFinished(entityId, buff, reason),
+          (buff, reason, skillCastInfo) =>
+            this.#recordOwnedBuffFinished(entityId, buff, reason, skillCastInfo),
           (buff, layerCount, reason, skillCastInfo) =>
             this.#emitBuffEnhanceChanged(entityId, buff, layerCount, reason, skillCastInfo),
           undefined,
@@ -965,7 +967,8 @@ export class StandardPlayerDamageEnvironment {
         this.options.tagRegistry,
         null,
         undefined,
-        (buff, reason) => this.#recordOwnedBuffFinished(operatorId, buff, reason),
+        (buff, reason, skillCastInfo) =>
+          this.#recordOwnedBuffFinished(operatorId, buff, reason, skillCastInfo),
         (buff, layerCount, reason, skillCastInfo) =>
           this.#emitBuffEnhanceChanged(operatorId, buff, layerCount, reason, skillCastInfo),
         selector => {
@@ -1419,11 +1422,6 @@ export class StandardPlayerDamageEnvironment {
     return receipt;
   }
 
-  /** 敌人 Buff 结束（到期、消费、驱散等）时记录结束事实，供效果投影画段。 */
-  #recordBuffFinished(buff: CombatBuff<string>, reason: BuffFinishReason): void {
-    this.#recordOwnedBuffFinished('enemy', buff, reason);
-  }
-
   /** Buff 施加成功后记录实例身份与原生展示数据，供时间轴还原生命周期和图标。 */
   #recordOwnedBuffApplied(
     ownerId: string,
@@ -1558,6 +1556,7 @@ export class StandardPlayerDamageEnvironment {
     ownerId: string,
     buff: CombatBuff<string>,
     reason: BuffFinishReason,
+    skillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo | null,
   ): void {
     if (this.#clock === null || this.#receipt === null) {
       throw new Error(`Buff on '${ownerId}' finished before the environment was bound to a battle`);
@@ -1593,6 +1592,7 @@ export class StandardPlayerDamageEnvironment {
       });
     }
     this.#emit(ownerId, 'finishedBuff', {
+      ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
       sourceId: ownerId,
       targetId: ownerId,
       buffId: buff.definition.id,
@@ -1603,6 +1603,7 @@ export class StandardPlayerDamageEnvironment {
       // combat-spec/consume-buff-single：提前消费在 OnFinishedBuff 之后同步广播
       // OnBuffEndsEarly，并携带同一 FinishBuffEventData。
       this.#emit(ownerId, 'buffEndsEarly', {
+        ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
         sourceId: ownerId,
         targetId: ownerId,
         buffId: buff.definition.id,

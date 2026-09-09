@@ -145,6 +145,7 @@ export interface BuffAppliedEvent {
 }
 
 export interface BuffConsumedEvent {
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly sourceOperatorId: string;
   readonly targetId: string;
   readonly buffId: string;

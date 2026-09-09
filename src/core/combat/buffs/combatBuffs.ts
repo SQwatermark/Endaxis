@@ -909,8 +909,18 @@ export class CombatBuffContainer<Key extends string> {
   readonly #sustainedProtections = new Map<CombatBuff<Key>, readonly [number, number]>();
   readonly #addingCooldowns = new Map<string, number[]>();
   #nextInstanceId = 1;
-  #onBuffConsumed?: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void;
-  #onBuffAbsorbed?: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void;
+  #onBuffConsumed?: (
+    buff: CombatBuff<Key>,
+    sourceId: string,
+    layers: number,
+    skillCastInfo?: CombatSkillCastInfo | null,
+  ) => void;
+  #onBuffAbsorbed?: (
+    buff: CombatBuff<Key>,
+    sourceId: string,
+    layers: number,
+    skillCastInfo?: CombatSkillCastInfo | null,
+  ) => void;
 
   constructor(
     readonly ownerId: string,
@@ -921,7 +931,11 @@ export class CombatBuffContainer<Key extends string> {
     /** 该实体的技能与 Buff 共同回退读写的持久运行时黑板。 */
     readonly entityBlackboard = new ActionBlackboard(),
     /** Buff 结束（到期、消费、驱散等）时通知，供回执记录结束事实。 */
-    readonly onBuffFinished?: (buff: CombatBuff<Key>, reason: BuffFinishReason) => void,
+    readonly onBuffFinished?: (
+      buff: CombatBuff<Key>,
+      reason: BuffFinishReason,
+      skillCastInfo?: CombatSkillCastInfo | null,
+    ) => void,
     /** 叠层变化完成后的 owner 侧原生同步事件。 */
     readonly onBuffEnhanceChanged?: (
       buff: CombatBuff<Key>,
@@ -948,7 +962,7 @@ export class CombatBuffContainer<Key extends string> {
     reason: BuffFinishReason,
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): void {
-    this.onBuffFinished?.(buff, reason);
+    this.onBuffFinished?.(buff, reason, finishSkillCastInfo);
     if (isEnhanceChangedStackingType(buff.definition.stackingType)) {
       this.onBuffEnhanceChanged?.(buff, -buff.enhanceCount, reason, finishSkillCastInfo);
     }
@@ -964,7 +978,12 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   configureConsumedObserver(
-    observer: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void,
+    observer: (
+      buff: CombatBuff<Key>,
+      sourceId: string,
+      layers: number,
+      skillCastInfo?: CombatSkillCastInfo | null,
+    ) => void,
   ): void {
     if (this.#onBuffConsumed !== undefined) {
       throw new Error(`Buff container '${this.ownerId}' consumed observer is already configured`);
@@ -973,7 +992,12 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   configureAbsorbedObserver(
-    observer: (buff: CombatBuff<Key>, sourceId: string, layers: number) => void,
+    observer: (
+      buff: CombatBuff<Key>,
+      sourceId: string,
+      layers: number,
+      skillCastInfo?: CombatSkillCastInfo | null,
+    ) => void,
   ): void {
     if (this.#onBuffAbsorbed !== undefined) {
       throw new Error(`Buff container '${this.ownerId}' absorbed observer is already configured`);
@@ -1127,8 +1151,10 @@ export class CombatBuffContainer<Key extends string> {
     const layers = buff.enhanceCount;
     if (!buff.finish(reason, finishSkillCastInfo)) return false;
     if (sourceId !== undefined) {
-      if (reason === 'early' || reason === 'ignite') this.#onBuffConsumed?.(buff, sourceId, layers);
-      else if (reason === 'absorbed') this.#onBuffAbsorbed?.(buff, sourceId, layers);
+      if (reason === 'early' || reason === 'ignite')
+        this.#onBuffConsumed?.(buff, sourceId, layers, finishSkillCastInfo);
+      else if (reason === 'absorbed')
+        this.#onBuffAbsorbed?.(buff, sourceId, layers, finishSkillCastInfo);
     }
     return true;
   }
@@ -1174,7 +1200,7 @@ export class CombatBuffContainer<Key extends string> {
         if (buff.finish(reason, finishSkillCastInfo)) {
           finished += 1;
           if (reason === 'absorbed' && sourceId !== undefined)
-            this.#onBuffAbsorbed?.(buff, sourceId, layers);
+            this.#onBuffAbsorbed?.(buff, sourceId, layers, finishSkillCastInfo);
         }
       }
     }

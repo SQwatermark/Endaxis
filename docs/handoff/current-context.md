@@ -1,5 +1,22 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：结束与消费通知不再丢失来源
+
+沿用 combat-spec/consume-buff-single、finish-buff-advanced 和 Buffs.TriggerConsumeEvents
+已验证的独立结束来源，Endaxis 将同一 finishSkillCastInfo 继续传到 finishedBuff、
+buffEndsEarly 以及消费/吸收适配器。实体归属与发布次序未变，未核实调用者仍保留
+undefined，显式 null 不回退 Buff 初始施法。顺带删除敌人结束记录的单层包装。
+
+新增 Early/Absorbed × 未知/空/不同来源回归，检查 owner 通知与来源回调的顺序、
+同一来源和结束后黑板快照；1172 项运行时/Buff 测试及四条真实轴全回执/诊断通过。
+完整应用类型检查通过。
+原生 OnBuffAbsorbed(210) 与来源侧 OnAbsorbBuff(211) 仍须区分：本轮没有把现有
+buffAbsorbed（来源侧）冒充 owner 侧通知，也未新增 210 订阅能力。
+
+下一步仍是核对直接 finish/ignite 调用者（finishCurrentBuff、元素消费等）的实际
+来源，以及正向增强；不能把参数贯通当作所有调用点都已恢复来源。事件 Buff 黑板
+读取、护盾显式 Target 当前值等清单项仍未完成，不扩展无关功能。
+
 ## 2026-09-09 晚间续：Endaxis 结束/减层来源接入
 
 按 combat-spec/buff-enhance-event-context 与 finish-buff-advanced 的证据，

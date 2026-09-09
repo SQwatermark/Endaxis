@@ -38,6 +38,62 @@ it('过程事件载荷覆盖全部广播键，复用生产端类型且不含 unk
 });
 import { buffEnhanceAbilityEvent } from '../events/combatAbilityEvent';
 
+it.each(['early', 'absorbed'] as const)('结束通知和%s回调保持同一独立来源', reason => {
+  const original = {
+    skillCastId: 1,
+    originSkillId: 'original',
+    originSkillType: 'basicAttack' as const,
+    nonReturnedSpCost: 0,
+  };
+  for (const source of [
+    undefined,
+    null,
+    {
+      ...original,
+      skillCastId: 2,
+      originSkillId: 'finish',
+      originSkillType: 'comboSkill' as const,
+    },
+  ]) {
+    const environment = createEnvironment();
+    environment.runtimeOptions.createOperationExecutor(createContext());
+    const target = environment.runtimeOptions.enemyBuffRuntime;
+    if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+    const buff = target.container.add(
+      { id: 'finish-source', stackingType: 'enhance', blackboard: { value: 7 } },
+      'operator',
+      { skillCastInfo: original },
+    )!;
+    const order: string[] = [];
+    for (const eventName of ['finishedBuff', 'buffEndsEarly', 'buffEnhanceChanged'] as const) {
+      environment.eventsFor('enemy').registerCallback(eventName, event => {
+        order.push(event.event);
+        expect(event.payload.skillCastInfo).toBe(source);
+      });
+    }
+    const observer = (event: import('./buffOperationExecutor').BuffConsumedEvent) => {
+      order.push('source-notification');
+      expect(event.skillCastInfo).toBe(source);
+      expect(event).toMatchObject({
+        sourceOperatorId: 'operator',
+        targetId: 'enemy',
+        buffId: buff.definition.id,
+        layers: 1,
+        blackboardValues: { value: 7 },
+      });
+      expect(buff.isFinished).toBe(true);
+    };
+    if (reason === 'early') target.configureBuffConsumedObserver(observer);
+    else target.configureBuffAbsorbedObserver(observer);
+    target.finishByIds([buff.definition.id], reason, 'operator', source);
+    expect(order).toEqual(
+      reason === 'early'
+        ? ['finishedBuff', 'buffEndsEarly', 'buffEnhanceChanged', 'source-notification']
+        : ['finishedBuff', 'buffEnhanceChanged', 'source-notification'],
+    );
+  }
+});
+
 it.each([
   [false, false],
   [false, true],

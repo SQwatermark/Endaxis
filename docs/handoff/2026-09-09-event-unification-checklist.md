@@ -6,6 +6,10 @@
 
 ## 目标与当前结论
 
+结束来源续接：finishedBuff/buffEndsEarly 与消费/吸收适配器现已保留调用方传入的
+同一 finishSkillCastInfo；未知与空保持区别。1172 项运行时/Buff 测试及四条真实轴
+完整比较通过。直接结束调用者、正向增强及 owner 侧吸收通知边界仍需审查。
+
 当前上下文修复：复刻库已依据 MarkFinish/DecreaseEnhanceCnt 反汇编修正层数事件
 来源；Endaxis 的 ID/Tag 全结束及限层四条动作路径已贯通同一来源，层数载荷保留
 实际 Buff 实例并接共用 Buff 条件读取。正向增强、其他直接结束调用者及消费/结束
