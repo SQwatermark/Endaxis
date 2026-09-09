@@ -1090,6 +1090,29 @@ describe('主动技能正式时间轴投影', () => {
     expect(compile('OnSkillEnd').scheduledSequences).toEqual([]);
     expect(() => compile('OnBeforeOutputDamage')).toThrow('combat-visible EventListenerAction');
   });
+  it('临时监听共用程序遍历，省略空结束回调但保留后续来源下标和独立序列', () => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([
+        meta('EventListenerAction', {
+          abilityActionMap: [
+            { abilityEvent: 'OnSkillEnd', actions: [seq([])] },
+            { abilityEvent: 'OnBeforeTakeDamage', actions: [seq([]), seq([])] },
+          ],
+        }),
+      ]),
+      sourcePath: 'fixture',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+    const step = result.scheduledSequences[0]?.sequence.steps[0];
+    expect(step?.kind).toBe('listenForCombatEvents');
+    if (step?.kind !== 'listenForCombatEvents') throw new Error('missing listener');
+    expect(step.parameters.responses.map(response => response.key)).toEqual([
+      'fixture.actionGroupData.timelineActions[0]._sequenceActionData.actionData[0].abilityActionMap[1].actions[0]',
+      'fixture.actionGroupData.timelineActions[0]._sequenceActionData.actionData[0].abilityActionMap[1].actions[1]',
+    ]);
+  });
+
   it.each([
     ['High', 0],
     ['Default', 1],

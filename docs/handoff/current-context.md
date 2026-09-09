@@ -1,5 +1,18 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：临时监听共用程序遍历
+
+compileEventListenerNode 已改用 compileAbilityEventPrograms，移除自身事件/序列双层
+遍历与单独优先级调用。公共入口统一保留来源顺序、独立 SequenceAction、优先级校验。
+空 OnSkillEnd 仍先编译验证再省略；支持事件的空监听仍保留。新增混合事件回归确认
+省略结束回调后后续来源下标不变，同事件多个序列不合并。
+
+151项定向测试及生成器生产类型检查通过；固定来源31干员重新生成，全部与正式产物
+一致（tmp/event-unification-candidates-6NnqLP）。因此本次无生成文件修改。
+依据沿用 event-listener-registration 的共同注册入口，不新增原生行为假设。
+下一步仍是 OnAddedBuff/OnOutputBuff 的语义身份适配；OnBeforeTakeDamage 继续保留
+显式外部受击标记，不将其误转换成木桩主动造成伤害。整体事件统一尚未完成。
+
 ## 2026-09-09 晚间续：临时监听修正原生执行阶段
 
 反编译确认 EventListenerAction.ExecuteInternal 经 AbilitySystem.RegisterAction 调用

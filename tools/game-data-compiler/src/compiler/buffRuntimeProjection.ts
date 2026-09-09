@@ -33,10 +33,7 @@ import type {
   CompiledBuffStepSource,
 } from './combatActionProjectionTypes.ts';
 import { projectTimelineJump } from './timelineControlProjection.ts';
-import {
-  compileAbilityEventPrograms,
-  compileAuditedDefaultPriority,
-} from './abilityEventProgram.ts';
+import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
 import { projectAbilityEvent } from './abilityEventProjection.ts';
 import {
   compileActionSequenceProgram,
@@ -2623,10 +2620,18 @@ function compileEventListenerNode(
     // 目前只接主动技能或能力实体子技能时间轴上的临时监听器；Buff 宿主不能借用。
     throw new Error(`${node.sourcePath}: unsupported EventListenerAction owner`);
   }
-  const responses = node.body.value.action.events.flatMap((event, eventIndex) => {
-    const compiledSequences = event.actions.map((sequence, sequenceIndex) => ({
-      key: `${node.sourcePath}.abilityActionMap[${eventIndex}].actions[${sequenceIndex}]`,
-      sequence: compileActionSequenceProgram(sequence, {
+  const programs = compileAbilityEventPrograms(node.body.value.action.events, {
+    sourcePath: `${node.sourcePath}.abilityActionMap`,
+    mapEvent: (event, sourcePath) => {
+      if (event === 'OnAddedBuff') return { kind: 'buffApplied' } as const;
+      if (event === 'OnOutputBuff') return { kind: 'buffOutput' } as const;
+      if (event === 'OnBeforeTakeDamage') return { kind: 'operatorHit' } as const;
+      // 只允许编译后为空的结束回调省略，不能按事件名提前跳过动作检查。
+      if (event === 'OnSkillEnd') return null;
+      throw new Error(`${sourcePath}: unsupported ability event ${JSON.stringify(event)}`);
+    },
+    compileSequence: (source, sourcePath, event) => {
+      const sequence = compileActionSequenceProgram(source, {
         ...createBuffSequenceProjection(
           visualOnlyIds,
           {
@@ -2634,45 +2639,39 @@ function compileEventListenerNode(
             // Added/BeforeTakeDamage 在接收者发布且 Target 是来源；Output 在来源发布且
             // Target 是接收者。外部 operatorHit 只陈述受击事实，不制造敌方伤害或扣血。
             actionTargetTarget:
-              event.abilityEvent === 'OnBeforeTakeDamage'
+              event === 'OnBeforeTakeDamage'
                 ? 'enemy'
-                : event.abilityEvent === 'OnOutputBuff'
+                : event === 'OnOutputBuff'
                   ? 'eventTarget'
-                  : event.abilityEvent === 'OnAddedBuff'
+                  : event === 'OnAddedBuff'
                     ? 'eventSource'
                     : context.actionTargetTarget,
           },
           extensions,
         ),
         initialState: () => targetGroups,
-      }),
-    }));
-    const trigger =
-      event.abilityEvent === 'OnAddedBuff'
-        ? ({ kind: 'buffApplied' } as const)
-        : event.abilityEvent === 'OnOutputBuff'
-          ? ({ kind: 'buffOutput' } as const)
-          : event.abilityEvent === 'OnBeforeTakeDamage'
-            ? ({ kind: 'operatorHit' } as const)
-            : null;
-    if (trigger === null) {
-      if (
-        event.abilityEvent === 'OnSkillEnd' &&
-        compiledSequences.every(item => item.sequence.steps.length === 0)
-      )
-        return [];
-      throw new Error(
-        `${node.sourcePath}.abilityActionMap[${eventIndex}]: unsupported ability event ${JSON.stringify(event.abilityEvent)}`,
-      );
-    }
-    return compiledSequences.map((item, sequenceIndex) => ({
-      key: item.key,
-      event: trigger,
-      phase: 'dataAction' as const,
-      priority: compileAuditedDefaultPriority(event.actions[sequenceIndex]!, item.key),
-      sequence: item.sequence,
-    }));
+      });
+      if (event === 'OnSkillEnd' && sequence.steps.length !== 0) {
+        throw new Error(`${sourcePath}: unsupported ability event "OnSkillEnd"`);
+      }
+      return { key: sourcePath, sequence, omit: event === 'OnSkillEnd' };
+    },
+    // 已支持事件即使动作为空也保留注册；只省略上方验证过的结束回调。
+    isEmptySequence: compiled => compiled.omit,
   });
+  const responses = programs.flatMap(program =>
+    program.event === null
+      ? []
+      : [
+          {
+            key: program.sequence.key,
+            event: program.event,
+            phase: 'dataAction' as const,
+            priority: program.priority,
+            sequence: program.sequence.sequence,
+          },
+        ],
+  );
   return {
     steps:
       responses.length === 0 ? [] : [{ kind: 'listenForCombatEvents', parameters: { responses } }],
