@@ -1,5 +1,25 @@
 # 当前任务快照
 
+## 2026-09-10：完整回调来源与共用时间轴创建入口
+
+转换层新增 ProjectileCallbackSkillSource / compileProjectileCallbackSkillSource，保留
+naturalDurationFrames=max(1,durationFrame)、同一个declaredBlackboard和每条原始区间，
+包括投影为空的序列。旧compileImmediate入口现在只做过渡投影，不再重复编译动作；
+延后序列读黑板的限制仅留在旧适配层，不污染共享黑板的完整回调程序。
+被动回调仍按原边界拒绝，没有因此开放新机制。
+
+运行时 CombatActionSequenceRuntime.createTimeline 统一创建独立区间实例，普通技能与
+能力实体子技能已切到这一入口。测试覆盖区间分别End、共享宿主黑板、不同时间轴实例不共享
+执行状态；没有另造时间轴算法，也未改自然结束或Tick准入规则。
+转换专题4文件108项、运行时3文件143项通过；编译器独立tsc通过。
+修正新增测试的联合类型收窄后，应用type-check通过；合并回归5文件228项通过。
+31名干员全量候选重生成均与正式文件一致，报告在
+tmp/event-unification-candidates-5rzeL9/report.json。
+
+**仍需继续**：正式投射物公共动作仍携带body并走旧即时适配层；本轮不声称其动作区间已执行。
+下一步将完整回调程序纳入公共定义/编译程序并装配到共用时间轴，同时保留回调技能自身的
+附属Buff和结束通知。不能以本轮转换测试代替这一步的宿主集成。
+
 ## 2026-09-10：回调宿主不能用单一动作结束帧修补
 
 继续审计原始回调结构：727 个角色技能文件引用123个回调，95个有正长度区间、

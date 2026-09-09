@@ -9,7 +9,7 @@ import {
   logicalAbilityEntityRuntimeId,
   type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
+import type { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
@@ -71,13 +71,7 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       dependencies.semanticEvents,
       logicalAbilityEntityRuntimeId(dependencies.entity.instanceId),
     );
-    this.#timeline = new TimelineActionProcessor(
-      program.timelineActions.map(action => ({
-        startFrame: action.startFrame,
-        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
-        sequence: this.#sequenceRuntime.createSequence(action.sequence),
-      })),
-    );
+    this.#timeline = this.#sequenceRuntime.createTimeline(program.timelineActions);
   }
 
   start(): void {

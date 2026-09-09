@@ -26,6 +26,18 @@ import {
   isPresentationOnlyActionSequence,
 } from './skillPresentationTargets.ts';
 
+/** A callback skill before any zero-distance/immediate execution optimization. */
+export interface ProjectileCallbackSkillSource {
+  readonly skillId: string;
+  readonly declaredBlackboard: readonly DeclaredBlackboardValueSource[];
+  readonly naturalDurationFrames: number;
+  readonly timelineActions: readonly {
+    readonly startFrame: number;
+    readonly endFrame: number;
+    readonly sequence: CompiledBuffSequenceSource;
+  }[];
+}
+
 export interface ZeroDistanceProjectileCallbackSource {
   readonly skillId: string;
   readonly declaredBlackboard: readonly DeclaredBlackboardValueSource[];
@@ -580,15 +592,13 @@ export function compileZeroDistanceFirstTickBlockProjectileSource(input: {
   });
 }
 
-/** 将立即执行的回调 SkillData 动作图完整编译为一次回调，不抽取手选动作切片。 */
-export function compileImmediateProjectileCallbackSkillSource(input: {
+/** Preserve native skill duration and every independent action interval. */
+export function compileProjectileCallbackSkillSource(input: {
   readonly graph: SkillActionGraphSource<KnownNativeActionLeafSource>;
   readonly context: CombatActionProjectionContextSource;
   readonly visualOnlyIds?: ReadonlySet<string>;
   readonly extensions?: CombatActionProjectionExtensionsSource;
-  /** 仅供宿主随后按帧重建独立 callback direct scope 的已验证形状。 */
-  readonly allowIndependentDelayedBlackboardReads?: boolean;
-}): ZeroDistanceProjectileCallbackSource {
+}): ProjectileCallbackSkillSource {
   const { graph, context, visualOnlyIds = new Set(), extensions = {} } = input;
   if (graph.actionGroup.passiveEvents.length > 0)
     throw new Error(`${graph.skillId}: projectile callback passive events are unsupported`);
@@ -613,32 +623,56 @@ export function compileImmediateProjectileCallbackSkillSource(input: {
       ...discoveredEnemyGroups,
     ]),
   };
-  let delayedSequencesNeedFreshScope = false;
-  const timelines = graph.actionGroup.timelineActions.map((timeline, index) => {
+  if (!Number.isInteger(graph.durationFrame) || graph.durationFrame < 0)
+    throw new Error(`${graph.skillId}: invalid callback durationFrame`);
+  const timelineActions = graph.actionGroup.timelineActions.map(timeline => {
     const sequence = compileCombatActionSequenceSource(
       timeline.sequence,
       callbackContext,
       visualOnlyIds,
       extensions,
     );
-    if (timeline.startFrame !== 0) {
-      const readsBlackboard = sequenceReadsActionBlackboard(sequence);
-      if (readsBlackboard && !input.allowIndependentDelayedBlackboardReads)
-        throw new Error(
-          `${graph.skillId}.timelineActions[${index}]: delayed projectile callback reads action blackboard`,
-        );
-      delayedSequencesNeedFreshScope ||= readsBlackboard;
-    }
     return { startFrame: timeline.startFrame, endFrame: timeline.endFrame, sequence };
   });
   return {
     skillId: graph.skillId,
     declaredBlackboard: graph.declaredBlackboard,
+    naturalDurationFrames: Math.max(1, graph.durationFrame),
+    timelineActions,
+  };
+}
+
+/**
+ * Transitional projection for existing zero-distance consumers, not a complete skill host.
+ * The full source above owns compilation; only this adapter merges immediate intervals.
+ */
+export function compileImmediateProjectileCallbackSkillSource(
+  input: Parameters<typeof compileProjectileCallbackSkillSource>[0] & {
+    /** 仅供旧宿主随后按帧重建独立 callback direct scope 的已验证形状。 */
+    readonly allowIndependentDelayedBlackboardReads?: boolean;
+  },
+): ZeroDistanceProjectileCallbackSource {
+  const callback = compileProjectileCallbackSkillSource(input);
+  const timelines = callback.timelineActions;
+  let delayedSequencesNeedFreshScope = false;
+  timelines.forEach((timeline, index) => {
+    if (timeline.startFrame !== 0) {
+      const readsBlackboard = sequenceReadsActionBlackboard(timeline.sequence);
+      if (readsBlackboard && !input.allowIndependentDelayedBlackboardReads)
+        throw new Error(
+          `${callback.skillId}.timelineActions[${index}]: delayed projectile callback reads action blackboard`,
+        );
+      delayedSequencesNeedFreshScope ||= readsBlackboard;
+    }
+  });
+  return {
+    skillId: callback.skillId,
+    declaredBlackboard: callback.declaredBlackboard,
     sequence: mergeIndependentActionSequencesSource(
       timelines
         .filter(timeline => timeline.startFrame === 0 && timeline.sequence.steps.length > 0)
         .map(timeline => timeline.sequence),
-      `${graph.skillId}:immediate-timeline`,
+      `${callback.skillId}:immediate-timeline`,
     ),
     delayedSequences: timelines.filter(
       timeline => timeline.startFrame !== 0 && timeline.sequence.steps.length > 0,

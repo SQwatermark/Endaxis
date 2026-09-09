@@ -15,7 +15,7 @@ export type ScheduleProjectileFinishCallback = (
 import type { ActionSequence } from '../actions/actionSequence';
 import type { CombatExecutionContext } from '../actions/combatStep';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
-import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
+import type { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import type {
   CompiledSkillProgram,
   ResolvedActionSequence,
@@ -496,23 +496,16 @@ export class SkillRuntime {
       this.record('SkillCostUnavailableAtStart');
     }
 
-    this.#timeline = new TimelineActionProcessor(
-      this.#program.timelineActions.map(action => ({
-        startFrame: action.startFrame,
-        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
-        sequence: this.createSequence(action.sequence),
-      })),
-      {
-        started: action =>
-          this.record('TimelineActionStarted', {
-            startFrame: action.startFrame,
-          }),
-        ended: action =>
-          this.record('TimelineActionEnded', {
-            startFrame: action.startFrame,
-          }),
-      },
-    );
+    this.#timeline = this.#sequenceRuntime.createTimeline(this.#program.timelineActions, {
+      started: action =>
+        this.record('TimelineActionStarted', {
+          startFrame: action.startFrame,
+        }),
+      ended: action =>
+        this.record('TimelineActionEnded', {
+          startFrame: action.startFrame,
+        }),
+    });
     this.#blackboard.restore(this.#program.initialBlackboard);
     this.#targetContext.clear();
     this.#blackboard.assign(this.#preparedStartBlackboard);

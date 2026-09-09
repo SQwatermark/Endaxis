@@ -33,6 +33,48 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('creates independent interval lifetimes sharing only their host context', () => {
+    const trace: string[] = [];
+    const context = { blackboard: new ActionBlackboard() };
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (step, current) => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected test action');
+          expect(current).toBe(context);
+          const flag = step.parameters.flag;
+          if (flag === 'first') current!.blackboard.assignDynamic('shared', 7);
+          else expect(current!.blackboard.getNumber('shared')).toBe(7);
+          trace.push(`start:${flag}`);
+          return true;
+        },
+        end: step => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected test action');
+          trace.push(`end:${step.parameters.flag}`);
+        },
+        evaluate: () => true,
+      },
+      context,
+    );
+    const actions = [
+      { startFrame: 0, endFrame: 1, sequence: sequence(operation('first')) },
+      { startFrame: 0, endFrame: 3, sequence: sequence(operation('second')) },
+    ];
+    const timeline = runtime.createTimeline(actions);
+    const other = runtime.createTimeline(actions);
+    timeline.reset({});
+    timeline.tick(0, 0, {});
+    expect(trace).toEqual(['start:first', 'start:second']);
+    timeline.tick(1, 1 / 30, {});
+    expect(trace).toEqual(['start:first', 'start:second', 'end:first']);
+    timeline.tick(3, 2 / 30, {});
+    expect(trace.at(-1)).toBe('end:second');
+    expect(timeline.isComplete).toBe(true);
+    expect(other.isComplete).toBe(false);
+    other.reset({});
+    other.tick(0, 0, {});
+    expect(trace.slice(-2)).toEqual(['start:first', 'start:second']);
+  });
+
   it('临时监听部分注册失败时立即释放已安装响应', () => {
     const { dispatcher, semanticEvents, emitAddedBuff } = createNativeEventFixture();
     const persistent = vi.fn();

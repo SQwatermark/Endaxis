@@ -7,6 +7,7 @@ import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/s
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import {
   compileImmediateProjectileCallbackSkillSource,
+  compileProjectileCallbackSkillSource,
   compileZeroDistanceFirstTickBlockProjectileSource,
   compileZeroDistanceFirstTickHitProjectileSource,
   compileZeroDistanceFirstTickReachProjectileSource,
@@ -476,6 +477,19 @@ describe('公共回调伤害投影', () => {
         extensions: { resolveTimeDilationPriority: () => 10 },
       }),
     ).toThrow('delayed projectile callback reads action blackboard');
+    // The complete callback host shares its board across intervals; the old adapter's
+    // delayed-board restriction must not leak into compilation of the native skill.
+    const completeCallback = compileProjectileCallbackSkillSource({
+      graph,
+      context: returnProjectionContext,
+      extensions: { resolveTimeDilationPriority: () => 10 },
+    });
+    expect(completeCallback.naturalDurationFrames).toBe(15);
+    expect(completeCallback.timelineActions[0]).toMatchObject({
+      startFrame: 1,
+      endFrame: 15,
+      sequence: { steps: [{ kind: 'startTimeDilation' }] },
+    });
     const scheduled: { startFrame: number; endFrame: number; sequence: unknown }[] = [];
     const runtime = parseProjectileRuntimeSource(
       {

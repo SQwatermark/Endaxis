@@ -3,12 +3,17 @@
  * 技能、Buff 等状态所有者应各自持有实例，避免共享 once 作用域或运行时黑板。
  */
 import { ActionSequence } from '../actions/actionSequence';
+import {
+  TimelineActionProcessor,
+  type TimelineActionLifecycleSink,
+} from '../timeline/timelineActionProcessor';
 import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import { CombatStep, type CombatExecutionContext } from '../actions/combatStep';
 import type {
   ResolvedActionSequence,
   ResolvedCombatOperationStep,
   ResolvedCombatStep,
+  CompiledTimelineAction,
 } from '../../compiler/combatProgram';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
@@ -669,6 +674,21 @@ export class CombatActionSequenceRuntime {
     operationContext: CombatOperationContext = this.context,
   ): ActionSequence {
     return new ActionSequence(this.#createSteps(sequence, operationContext));
+  }
+
+  /** Independent interval state, but one host context/blackboard across all intervals. */
+  createTimeline(
+    actions: readonly CompiledTimelineAction[],
+    lifecycle: TimelineActionLifecycleSink = {},
+  ): TimelineActionProcessor {
+    return new TimelineActionProcessor(
+      actions.map(action => ({
+        startFrame: action.startFrame,
+        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
+        sequence: this.createSequence(action.sequence),
+      })),
+      lifecycle,
+    );
   }
 
   #createSteps(
