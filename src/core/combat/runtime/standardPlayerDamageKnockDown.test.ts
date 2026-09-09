@@ -335,6 +335,7 @@ describe('标准战斗环境的普通倒地显式装配', () => {
     '%s 载荷必须明确声明是否由浮空转入',
     event => {
       expect(() =>
+        // @ts-expect-error Intentionally malformed external input also fails the runtime guard.
         resolveAbilityEventContext({ event, payload: { sourceId: 'operator', targetId: 'enemy' } }),
       ).toThrow('fromAirborne');
       expect(

@@ -1993,7 +1993,7 @@ describe('CombatRuntimeAssembly', () => {
           [],
         ),
       registerEquipmentAbilityEventAction: (_owner, event, priority, handle) =>
-        native.dispatcher.registerAction(event, priority, handle),
+        native.dispatcher.registerAction(event, priority, published => handle(published)),
       enemy: testEnemy,
       enemyBuffRuntime: emptyEnemyBuffRuntime,
       resources: {
@@ -2873,7 +2873,8 @@ describe('CombatRuntimeAssembly', () => {
           }).get(entry.id)!,
       },
       undefined,
-      (event, priority, handle) => native.dispatcher.registerAction(event, priority, handle),
+      (event, priority, handle) =>
+        native.dispatcher.registerAction(event, priority, published => handle(published)),
     );
     const gainSkill = skill({
       skillId: 'sp-skill',

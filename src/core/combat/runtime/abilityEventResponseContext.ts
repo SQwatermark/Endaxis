@@ -1,7 +1,7 @@
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import type { CombatOperationContext } from './skillRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
-import type { AbilityEventContext } from '../events/abilityEventDispatcher';
+import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
 import type { CombatSemanticEventContext } from './combatSemanticEventRuntime';
 import {
   resolveAbilityEventContext,
@@ -15,7 +15,7 @@ import {
  */
 export function withAbilityEventResponseContext<T>(
   context: { -readonly [Key in keyof CombatOperationContext]: CombatOperationContext[Key] },
-  published: AbilityEventContext<AbilityResponseEventName>,
+  published: CombatAbilityEvent<AbilityResponseEventName>,
   targets: AbilityEventRuntimeActionContext | undefined,
   execute: () => T,
 ): T {

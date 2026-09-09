@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：响应端口保留公共载荷类型
+
+resolveAbilityEventContext、withAbilityEventResponseContext 以及 Buff/配装/被动宿主
+注册回调改用公共 CombatAbilityEvent 映射联合，不再用载荷为 unknown 的
+AbilityEventContext 擦除已知事件类型。移除解析入口的 as CombatAbilityEvent。
+未复制事件，也未改动响应顺序、条件或载荷；原有运行时 guard 仍保留。
+两条故意非法输入的回归增加 ts-expect-error，同时验证编译期拒绝和运行期失败。
+测试分发器也接公共映射，修正过去 unknown 掩盖的不完整伤害/治疗夹具，以及
+poiseZero 夹具混入的过程字段；不是给生产事件补造数据。七文件223项通过。
+本轮仅类型边界收束，不需要重生成游戏数据。
+完整战斗运行时77文件1051项、完整应用类型检查通过。
+
+P2 仍未全完：解析 guard 链、组件内部通知分类与 #emit 构造边界还需分别审查，
+不能因为删除一处断言就宣称未知载荷路径已清空。不扩展游戏事件或其他功能。
+
 ## 2026-09-09 晚间续：临时 Buff 监听原生身份贯通
 
 CombatEventTrigger 新增 abilityEvent 入口，迁移准入由公共

@@ -35,14 +35,14 @@ import {
   withCombatEventResponseContext,
 } from './abilityEventResponseContext';
 import type { CombatSkillCastInfo } from './skillCastInfo';
-import type { AbilityEventContext } from '../events/abilityEventDispatcher';
+import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
   event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'outputKnockDown'>,
   priority: number,
   handle: (
-    published: AbilityEventContext<AbilityResponseEventName>,
+    published: CombatAbilityEvent<AbilityResponseEventName>,
     actionContext?: AbilityEventRuntimeActionContext,
   ) => void,
   samePriorityKey?: string,

@@ -88,7 +88,7 @@ describe('EquipmentEventRuntime', () => {
       ],
       () => ({ execute, evaluate: () => true }),
       (_operator, event, priority, handle) =>
-        native.dispatcher.registerAction(event, priority, handle),
+        native.dispatcher.registerAction(event, priority, published => handle(published)),
     );
     native.dispatcher.dispatch(published, []);
     expect(execute).toHaveBeenCalledOnce();
@@ -121,7 +121,7 @@ describe('EquipmentEventRuntime', () => {
         [item, item],
         createExecutor,
         (_owner, event, priority, handle) =>
-          native.dispatcher.registerAction(event, priority, handle),
+          native.dispatcher.registerAction(event, priority, published => handle(published)),
       );
       const publish = () => {
         if (mode === 'native')
@@ -653,7 +653,7 @@ describe('EquipmentEventRuntime', () => {
     const events = new CombatSemanticEventRuntime();
     let registered:
       | ((
-          published: import('../events/abilityEventDispatcher').AbilityEventContext<'outputBuff'>,
+          published: import('../events/combatAbilityEvent').CombatAbilityEvent<'outputBuff'>,
           actionContext?: {
             readonly inputTarget: { readonly kind: 'enemy' };
             readonly triggerTarget: { readonly kind: 'operator'; readonly operatorId: string };

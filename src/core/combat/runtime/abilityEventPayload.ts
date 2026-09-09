@@ -1,6 +1,5 @@
 import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import type { CombatSkillCastInfo } from './skillCastInfo';
-import type { AbilityEventContext } from '../events/abilityEventDispatcher';
 import {
   skillAbilityEvent,
   lifecycleAbilityEvent,
@@ -31,9 +30,9 @@ export type AbilityResponseEventName = Exclude<AbilityEvent, 'outputKnockDown'>;
 
 /** 仅识别原始事件；不压平、不复制载荷，不补造第二份上下文。 */
 export function resolveAbilityEventContext(
-  published: AbilityEventContext<AbilityResponseEventName>,
+  published: CombatAbilityEvent<AbilityResponseEventName>,
 ) {
-  const buff = buffAbilityEvent(published as CombatAbilityEvent);
+  const buff = buffAbilityEvent(published);
   const resolved =
     buff ??
     spellBurstAbilityEvent(published) ??

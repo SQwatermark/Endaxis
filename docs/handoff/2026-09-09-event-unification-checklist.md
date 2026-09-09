@@ -130,6 +130,8 @@ Toggle/固定构筑初始化；条件也服从相同门禁。79武器/24套装�
       及倒地组件内部通知。区分原生能力事件、组件事件、模拟器内部流程通知。
 - [ ] 已知内部事件不应在每个消费者处退回 unknown 再做完整 guard；继续收束
       resolveAbilityEventContext 的类型擦除，但保留真正外部输入的校验边界。
+      已将响应入口及 Buff/配装/被动回调接到 CombatAbilityEvent 映射联合，去掉入口
+      强制断言；完整 guard 链尚保留，不将类型端口收紧当作整个项目已完成。
 - [ ] #emit 当前有一次恢复事件名/载荷关联的构造断言，记录其边界；
       不把它误认为运行时校验，也不为了零断言重新复制 payload。
 - [ ] 按 [Extract/Exclude 整改计划](../next/extract-exclude-remediation-plan.md)

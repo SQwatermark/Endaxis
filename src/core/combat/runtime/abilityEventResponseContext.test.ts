@@ -375,6 +375,7 @@ it('非法载荷不改动宿主上下文', () => {
   expect(() =>
     withAbilityEventResponseContext(
       context,
+      // @ts-expect-error Verify runtime rejection as well as the compile-time payload boundary.
       { event: 'abilityEntityFinished', payload: {} },
       undefined,
       () => {

@@ -1,7 +1,7 @@
 import { expect, it, vi } from 'vitest';
 import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
-import { lifecycleAbilityEvent } from '../events/combatAbilityEvent';
+import { lifecycleAbilityEvent, type AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import { ActionBlackboard } from './actionBlackboard';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { PassiveAbilityEventRuntime } from './passiveAbilityEventRuntime';
@@ -23,7 +23,7 @@ const responses = [
 ];
 
 it('技力与治疗原生响应写入各自的请求量和实际量，不合并或继承上一事件', () => {
-  const dispatcher = new AbilityEventDispatcher<AbilityEvent>();
+  const dispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>();
   const blackboard = new ActionBlackboard();
   const host = new PassiveAbilityEventRuntime(
     new ActionBlackboardOperationExecutor({ execute: () => false, evaluate: () => false }),
@@ -54,7 +54,8 @@ it('技力与治疗原生响应写入各自的请求量和实际量，不合并�
         },
       },
     ],
-    (event, priority, handle) => dispatcher.registerAction(event, priority, handle),
+    (event, priority, handle) =>
+      dispatcher.registerAction(event, priority, published => handle(published)),
   );
   host.enable();
   dispatcher.dispatch(
@@ -78,6 +79,8 @@ it('技力与治疗原生响应写入各自的请求量和实际量，不合并�
         targetId: 'operator',
         requestedHealing: 50,
         actualHealing: 0,
+        overhealing: 50,
+        tags: [],
       },
     },
     [],
@@ -90,7 +93,7 @@ it('技力与治疗原生响应写入各自的请求量和实际量，不合并�
 });
 
 it('初始化只屏蔽当前未启用宿主，不改变已启用监听者及同优先级注册顺序', () => {
-  const dispatcher = new AbilityEventDispatcher<AbilityEvent>();
+  const dispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>();
   const seen: string[] = [];
   const create = (id: string) =>
     new PassiveAbilityEventRuntime(
@@ -103,7 +106,8 @@ it('初始化只屏蔽当前未启用宿主，不改变已启用监听者及同�
       },
       { blackboard: new ActionBlackboard() },
       responses,
-      (event, priority, handle) => dispatcher.registerAction(event, priority, handle),
+      (event, priority, handle) =>
+        dispatcher.registerAction(event, priority, published => handle(published)),
     );
   const fire = () =>
     dispatcher.dispatch(
@@ -130,7 +134,7 @@ it('初始化只屏蔽当前未启用宿主，不改变已启用监听者及同�
 });
 
 it('添加 Buff 的被动响应保留原事件、来源与目标，并在被动释放时注销', () => {
-  const dispatcher = new AbilityEventDispatcher<AbilityEvent>();
+  const dispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>();
   const seen: unknown[] = [];
   const owner: CombatOperationContext = { blackboard: new ActionBlackboard() };
   const runtime = new PassiveAbilityEventRuntime(
@@ -179,7 +183,7 @@ it('添加 Buff 的被动响应保留原事件、来源与目标，并在被动�
 });
 
 it('复用被动黑板与所有权，事件目标独立，并在注销后停止响应', () => {
-  const dispatcher = new AbilityEventDispatcher<AbilityEvent>();
+  const dispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>();
   const blackboard = new ActionBlackboard({ count: 0 });
   const owner = { blackboard, actionOwnerId: 'owner', actionSourceId: 'owner' };
   const seen: CombatOperationContext[] = [];

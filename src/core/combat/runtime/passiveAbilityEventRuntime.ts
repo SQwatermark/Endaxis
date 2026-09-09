@@ -1,8 +1,6 @@
 import type { CompiledOperatorPassiveProgram } from '../../compiler/combatProgram';
-import type {
-  AbilityEventRegistration,
-  AbilityEventContext,
-} from '../events/abilityEventDispatcher';
+import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
+import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
@@ -22,7 +20,7 @@ export class PassiveAbilityEventRuntime {
       event: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event'],
       priority: number,
       handle: (
-        published: AbilityEventContext<
+        published: CombatAbilityEvent<
           NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event']
         >,
         context?: AbilityEventRuntimeActionContext,

@@ -1,4 +1,5 @@
 import { resolveAbilityEventContext } from './abilityEventPayload';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import { describe, expect, it } from 'vitest';
 import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
@@ -282,7 +283,7 @@ describe('attachBuffLifecycleSequences', () => {
     const event = {
       sourceId: 'operator',
       targetId: 'operator',
-      skillType: 'battleSkill',
+      skillType: 'battleSkill' as const,
       skillId: 'later-skill',
       skillCastId: 99,
     };
@@ -623,7 +624,7 @@ describe('attachBuffLifecycleSequences', () => {
         throw new Error(`unexpected terminal condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage'>();
+    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage', AbilityEventPayloadMap>();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'damage-listener', stackingType: 'unique' },
       {},
@@ -672,11 +673,15 @@ describe('attachBuffLifecycleSequences', () => {
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
     const buff = container.add(definition, 'seal')!;
-    const dispatch = (tags: readonly string[], sourceId = 'seal') =>
+    const dispatch = (
+      tags: readonly import('../../game-data/operatorDefinition').DamageTag[],
+      sourceId = 'seal',
+    ) =>
       dispatcher.dispatch(
         {
           event: 'beforeTakeDamage',
           payload: {
+            ...createKillEvent(sourceId).payload,
             sourceId,
             targetId: 'enemy',
             tags,
@@ -710,7 +715,7 @@ describe('attachBuffLifecycleSequences', () => {
         throw new Error(`unexpected terminal condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'poiseZero'>();
+    const dispatcher = new AbilityEventDispatcher<'poiseZero', AbilityEventPayloadMap>();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'poise-listener', stackingType: 'unique' },
       {},
@@ -752,10 +757,6 @@ describe('attachBuffLifecycleSequences', () => {
         payload: {
           sourceId: 'operator',
           targetId: 'enemy',
-          finalDelta: -10,
-          actualDelta: -10,
-          ignorePoiseImmune: false,
-          cancelled: false,
         },
       },
       [],
@@ -886,7 +887,7 @@ describe('attachBuffLifecycleSequences', () => {
         throw new Error(`unexpected condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage'>();
+    const dispatcher = new AbilityEventDispatcher<'beforeTakeDamage', AbilityEventPayloadMap>();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'self-finishing-listener', stackingType: 'unique' },
       {},
@@ -913,6 +914,7 @@ describe('attachBuffLifecycleSequences', () => {
         {
           event: 'beforeTakeDamage',
           payload: {
+            ...createKillEvent('seal').payload,
             sourceId: 'seal',
             targetId: 'enemy',
             tags: ['normalSkill'],
@@ -942,7 +944,10 @@ describe('attachBuffLifecycleSequences', () => {
         throw new Error(`unexpected condition '${condition.kind}'`);
       },
     };
-    const dispatcher = new AbilityEventDispatcher<'beforeCastSkill' | 'finishedBuff'>();
+    const dispatcher = new AbilityEventDispatcher<
+      'beforeCastSkill' | 'finishedBuff',
+      AbilityEventPayloadMap
+    >();
     const definition = attachBuffLifecycleSequences<never>(
       { id: 'combo-timer', stackingType: 'unique', durationSeconds: 1 },
       {},

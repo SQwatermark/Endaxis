@@ -24,14 +24,14 @@ import {
   withAbilityEventResponseContext,
   withCombatEventResponseContext,
 } from './abilityEventResponseContext';
-import type { AbilityEventContext } from '../events/abilityEventDispatcher';
+import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
   event: EquipmentAbilityEvent,
   priority: number,
   handle: (
-    published: AbilityEventContext<EquipmentAbilityEvent>,
+    published: CombatAbilityEvent<EquipmentAbilityEvent>,
     actionContext?: AbilityEventRuntimeActionContext,
   ) => void,
 ) => AbilityEventRegistration;
@@ -203,7 +203,7 @@ export class EquipmentEventRuntime {
     return (
       executor: CombatOperationExecutor,
       event: EquipmentEventExecutionContext['event'],
-      published?: AbilityEventContext<EquipmentAbilityEvent>,
+      published?: CombatAbilityEvent<EquipmentAbilityEvent>,
       actionContext?: AbilityEventRuntimeActionContext,
     ): void => {
       if (this.#disposed || !this.#enabled.has(contributionIndex)) return;
