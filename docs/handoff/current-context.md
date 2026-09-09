@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：Ability子Buff与施法附属Buff发现边界疑点
+
+反编译确认Ability.CastEnd只结束时间轴，Ability.Disable才注销响应/清被动/清子Buff；
+Skill.Disable则先清施法附属列表再Disable Ability。C# Skill.End却直接清Ability子Buff，
+相关测试也固定旧行为，不能反过来当原生证据。需继续核实Skill.CastEnd间接路径，
+确定是否应把清理移到Disable，暂未改生命周期。
+Endaxis实体childBuffs来自addAbilityChildBuff，和实体自身Buff容器不同；后者的
+releaseAll改造不能代替前者的所有权审计。具体RVA和测试位置见复刻库证据文档末节。
+
 ## 2026-09-10：补齐实体释放资产验收，93项通过
 
 上一轮资产测试失败不是资源不存在，而是测试固定读取combat-spec/artifacts/SkillData、
