@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：SkillAffix保留引用的事件归属已核实
+
+子实体出生后订阅的是AbilitySystem.onResetAction，输出Buff订阅的是onRecycleAction；
+两者不是abilityEntityFinished/finishedBuff。_DoShallowRelease在释放自身Buff容器和
+动作容器之后才调用onResetAction，再清订阅。不能直接拿现有“结束事件”替代这一步。
+具体字段、调用点已补入复刻库skill-affix-identity-2026-09-04.md。正式生成产物中确有
+skillAffix（装备、武器及干员定义均有），因此不是可按无消费者忽略的历史边界。
+下一步核实Buff回收回调与OnEnd注销顺序，再以宿主生命周期句柄补引用计数；公共协议
+不增加伪造的回收战斗事件。本轮为取证与设计边界修正，没有修改运行时或宣称测试新通过。
+
 ## 2026-09-10：SkillAffix引用耗尽明确空结束来源
 
 当前镜像_DecreaseRefCount 04299D30核实归零分支以Other和清零的施法/实体上下文调用
