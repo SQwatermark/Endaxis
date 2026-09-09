@@ -26,7 +26,7 @@ finishedBuff或209减层。#recordBuffRemoval与#emitBuffFinished已分离。
 | beforeOutputPoiseDamage / beforeTakePoiseDamage / takePoiseDamage | poiseDamage：同一可变 PoiseDamageModifier                         | combat-spec/damage-formula 已记录原生失衡通知顺序；不得复制修正器而破坏同步修改         |
 | beforeTakeSpellBurst                                              | 标准环境的爆发发布入口，与来源通知复用同一对象                    | combat-spec/buff-data-adapter 记录 OnEnemyBeforeTakeSpellBurst(128)；未开放额外订阅配置 |
 | elementalInflictionStarted                                        | elementalInflictionBuffAdapter：ElementalInflictionStartedPayload | 关卡通知投影；不能将关卡脚本系统等同于实体 AbilityEvent，亦不能整体认定无效             |
-| poiseRecovered                                                    | CombatVitalsRuntime：无额外载荷，标准环境发布空对象               | 恢复计时适配；本轮不推定原生事件枚举或引入新的消费者                                    |
+| poiseRecovered                                                    | CombatVitalsRuntime：无额外载荷，标准环境发布空对象               | damage-formula 已记录 OnPoiseRecover=22；初始化不发，计时恢复后发，不新增配置消费者     |
 | KnockDownAbilityEvent 中非公共键                                  | KnockDownOperationExecutor：KnockDownEventPayload                 | 普通倒地调用及组件通知；原生依据/限制见 combat-spec/knockdown-action                    |
 
 `game-level-event-consumers` 的反编译证据表明关卡事件可以执行脚本，不能仅因当前
@@ -36,6 +36,12 @@ combat-spec 专题为准，本轮未重新穷举或验证包体。
 新增类型回归要求广播键集合与载荷表键集合完全一致、总载荷联合不含 unknown，且
 关键通知直接复用生产类型。现有 `#emit` 仍在一个构造边界恢复事件名/载荷关联；
 该断言不是运行时验证，本轮没有通过包装或复制对象来隐藏它。
+
+2026-09-10复核：StandardPlayerDamageEvent已直接从载荷表的键派生，不再分别维护
+两份键清单。公共载荷仍引用AbilityEventPayloadMap；额外键保持各自生产者类型。
+当前源码中上述额外键没有独立的正式配置订阅入口；保留生产钩子不等于开放新事件。
+尤其poiseRecovered已有原生身份依据，不能继续记为“尚不推定枚举”，也不能仅凭
+暂未配置就把原生恢复事件删除。此结论是当前源码消费者审计，不证明全部游戏资源无消费者。
 
 仍未完成的工作：依据证据决定哪些原生通知应纳入统一可配置契约、收束各消费者
 的重复 guard，以及 Buff/护盾上下文的独立语义缺口。类型齐全不等于这些机制已完成。

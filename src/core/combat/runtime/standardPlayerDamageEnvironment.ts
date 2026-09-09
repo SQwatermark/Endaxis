@@ -157,17 +157,8 @@ type EnvironmentOptions = Pick<
   | 'emitBuffLifecycleAbilityEvent'
 >;
 
-/** 公共广播沿用公共身份；附加名尚未纳入可配置契约，原生广播/内部钩子的分类需分别取证。 */
-export type StandardPlayerDamageEvent =
-  | import('../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent
-  | KnockDownAbilityEvent
-  | 'beforeKillEntity'
-  | 'beforeOutputPoiseDamage'
-  | 'beforeTakePoiseDamage'
-  | 'takePoiseDamage'
-  | 'beforeTakeSpellBurst'
-  | 'elementalInflictionStarted'
-  | 'poiseRecovered';
+/** 名称从载荷表派生，不另维护可能漂移的广播键清单；不等于公共可配置事件集合。 */
+export type StandardPlayerDamageEvent = keyof StandardPlayerDamagePayloadMap;
 
 /**
  * 公共键沿用唯一载荷表；组件/流程通知直接复用生产端类型。
