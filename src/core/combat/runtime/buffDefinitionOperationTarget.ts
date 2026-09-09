@@ -315,6 +315,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
     for (const buff of this.container.buffs) buff.release();
   }
 
+  recycleFinishedBuffs(): void {
+    this.container.recycleFinishedBuffs();
+  }
+
   getCountByIds(ids: readonly string[]): number {
     return this.container.getCountByIds(ids);
   }

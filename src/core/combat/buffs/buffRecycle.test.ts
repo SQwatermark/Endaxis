@@ -2,8 +2,35 @@ import { describe, expect, it } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from './combatBuffs';
 import { BuffProgressRecorder } from '../runtime/buffProgressRecorder';
+import { AbilitySystemRuntime } from '../runtime/abilitySystemRuntime';
 
 describe('Buff instance recycling', () => {
+  it('宿主自动回收先于动作容器，动作中新结束的实例留到下次宿主推进', () => {
+    const owner = new CombatBuffContainer<string>('owner', new CombatAttributeSet<string>());
+    const original = owner.add({ id: 'original', stackingType: 'unique' }, 'owner')!;
+    original.finish('other');
+    let created = original;
+    const ability = new AbilitySystemRuntime({
+      skills: [],
+      buffRuntime: {
+        advanceFrame: () => owner.tick(0),
+        recycleFinishedBuffs: () => owner.recycleFinishedBuffs(),
+      },
+      actionRuntime: {
+        advanceFrame: () => {
+          expect(created.isRecycled).toBe(true);
+          created = owner.add({ id: 'next', stackingType: 'unique' }, 'owner')!;
+          created.finish('other');
+        },
+      },
+    });
+    ability.advanceFrame();
+    const previous = created;
+    expect(previous.isRecycled).toBe(false);
+    ability.advanceFrame();
+    expect(previous.isRecycled).toBe(true);
+    expect(created.isRecycled).toBe(false);
+  });
   it('退出容器不删除已经完成的进度历史', () => {
     const recorder = new BuffProgressRecorder();
     const owner = new CombatBuffContainer<string>(

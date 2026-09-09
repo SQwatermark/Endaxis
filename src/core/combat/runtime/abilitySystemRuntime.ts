@@ -74,6 +74,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
 /** Buff 运行时按定义为每个实例选择默认、全局或实体时钟。 */
 export interface AbilityBuffRuntime extends FrameRuntime {
   advanceWithDeltas?(deltas: AbilityTickDeltas): void;
+  recycleFinishedBuffs?(): void;
 }
 
 /** 同一技能多次放置时用 (skillId, castId) 唯一寻址；单元测试程序缺省为空。 */
@@ -815,6 +816,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     }
     if (this.#currentSkill?.state !== 'casting') this.#currentSkill = null;
     this.#flushPostSkillCastRequest();
+    this.#buffRuntime?.recycleFinishedBuffs?.();
     this.#actionRuntime?.advanceFrame();
   }
 

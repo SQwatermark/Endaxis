@@ -174,6 +174,7 @@ export interface CombatOperatorProgram {
 /** 敌方 Buff 既是技能查询目标，也是必须随战斗时钟推进的实体运行时。 */
 export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {
   advanceWithDeltas?(deltas: AbilityTickDeltas): void;
+  recycleFinishedBuffs?(): void;
 }
 
 /** 动态能力实体独占的 Buff 所有者；生命周期使用该实体的四路时间增量。 */
@@ -1166,6 +1167,7 @@ export class CombatRuntimeAssembly {
       }
       // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
       if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
+      this.simulation.add({ advanceFrame: () => this.#enemyBuffRuntime.recycleFinishedBuffs?.() });
       for (const operator of options.operators) {
         const statusRuntime = this.#operatorStatuses.get(operator.operatorId);
         if (statusRuntime !== undefined) this.simulation.add(statusRuntime);

@@ -85,7 +85,10 @@ describe('AbilitySystemRuntime', () => {
         new FixtureRuntime('first', events, 'battleSkill', 'a'),
         new FixtureRuntime('first', events, 'battleSkill', 'b'),
       ],
-      buffRuntime: { advanceFrame: () => events.push('buff') },
+      buffRuntime: {
+        advanceFrame: () => events.push('buff'),
+        recycleFinishedBuffs: () => events.push('recycle'),
+      },
       actionRuntime: { advanceFrame: () => events.push('action') },
       skillTickPlan: ['first', 'unplaced', 'second'].map(skillId => ({
         skillId,
@@ -104,6 +107,7 @@ describe('AbilitySystemRuntime', () => {
       'cooldown:unplaced',
       'cooldown:second',
       'tick:second',
+      'recycle',
       'action',
     ]);
   });
