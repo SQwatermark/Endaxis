@@ -1,5 +1,18 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：复刻库层数事件来源已修正
+
+减层机器码已确认读取 FinishBuffOption 的独立 finishCastInfo，详见 combat-spec 的
+buff-enhance-event-context.md（明确装箱/未装箱偏移）。复刻库现在为层数变化载荷
+保存 Reason/SkillCastInfo，修正结束与部分消费发布，并补普通减层原先漏发的209；
+来源条件不再从 Buff 原始施加技能取值。
+四例新回归覆盖全结束/减层、不同技能/明确空来源。45项定向及12项高级结束测试通过；一个旧资产遍历
+测试因本地缺 artifacts/skill-data-cdn 而失败，不能将整库测试说成全部通过。
+
+下一步接 Endaxis：沿结束/消费/减层调用链传递事件来源，不从当前技能或 Buff 初始
+来源补造。还需将实际 Buff 引用纳入层数事件条件读取，并验证实例结束后仍能读取。
+Endaxis 生产逻辑本轮尚未改变，不能将复刻库修复当成应用侧已修复。
+
 ## 2026-09-09 晚间续：层数事件来源发现实质偏差
 
 新反汇编证据见 combat-spec/docs/buff-enhance-event-context.md。BuffEnhanceChangedContext
