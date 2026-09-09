@@ -30,7 +30,11 @@ export class PassiveAbilityEventRuntime {
     try {
       for (const response of responses) {
         // 一个原生监听持有一个 SequenceAction；不能每次通知重新创建并丢失重入状态。
-        const context = { ...ownerContext };
+        const context: CombatOperationContext = {
+          ...ownerContext,
+          canExecuteAction: () =>
+            !this.#disposed && this.#enabled && ownerContext.canExecuteAction?.() !== false,
+        };
         const sequence = new CombatActionSequenceRuntime(operations, context).createSequence(
           response.sequence,
         );

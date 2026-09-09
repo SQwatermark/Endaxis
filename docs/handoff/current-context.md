@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：被动与配装响应补齐逐动作宿主许可
+
+依据 combat-spec/ability-enable-event-order 的 AbilityAction.Execute→canExecuteAction
+及 Ability.enabled 证据，PassiveAbilityEventRuntime、EquipmentEventRuntime 向公共
+序列提供实时许可。此前两者仅检查响应入口，响应过程中释放宿主后同序列后续动作
+仍可能执行；现与 Buff 共用执行器门禁，已开始动作仍正常 End，不修改分发器快照。
+被动还保留 ownerContext 已有的许可约束，不用新门禁覆盖旧约束。
+
+新增四项回归覆盖被动释放、外部宿主许可关闭，以及配装原生/兼容两种响应释放。
+117 文件 1412 项战斗测试通过；四真实轴完整结果一致，临时报告
+tmp/event-unification-candidates-mz38x5/ability-response-permission-axes.json。
+本轮不改变 C# 行为、不生成新数据、不推断完整 Disable/dispose 原生调用顺序。
+投射物设计补记零距离范围：不建模路径，只保留有模拟消费者的时序、回调与引用。
+事件整体仍未验收完成，后续重点仍是完整回调技能宿主与引用生命周期。
+
 ## 2026-09-10：按原生 CastEnd 快照结束附属 Buff
 
 当前镜像 Skill.CastEnd 在时间轴 End 之前复制附属 Buff 列表，结束后仅从原跟踪表

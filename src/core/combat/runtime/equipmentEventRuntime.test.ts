@@ -39,6 +39,58 @@ const contribution: CompiledEquipmentContribution = {
 };
 
 describe('EquipmentEventRuntime', () => {
+  it.each(['native', 'compatibility'] as const)(
+    '%s 响应中释放配装宿主会阻止后续动作并清理已开始动作',
+    mode => {
+      const native = createNativeEventFixture();
+      const execute = vi.fn(() => {
+        runtime.dispose();
+        return true;
+      });
+      const end = vi.fn();
+      const original = contribution.eventHandlers[0]!;
+      const step = original.sequence.steps[0]!;
+      const runtime = createEnabledEquipmentRuntime(
+        native.semanticEvents,
+        'operator:a',
+        [
+          {
+            ...contribution,
+            eventHandlers: [
+              {
+                ...original,
+                ...(mode === 'native'
+                  ? { event: undefined, abilityEvent: 'skillSpGained' as const }
+                  : {}),
+                sequence: { steps: [step, step] },
+              },
+            ],
+          },
+        ],
+        () => ({ execute, end, evaluate: () => true }),
+        (_owner, event, priority, handle) =>
+          native.dispatcher.registerAction(event, priority, published => handle(published)),
+      );
+      if (mode === 'native')
+        native.dispatcher.dispatch(
+          {
+            event: 'skillSpGained',
+            payload: {
+              sourceOperatorId: 'operator:a',
+              source: 'skill',
+              gainKind: 'gain',
+              requestedAmount: 1,
+              amount: 1,
+            },
+          },
+          [],
+        );
+      else native.emitOutputDamage({ sourceId: 'operator:a', tags: ['normalSkill'] });
+      expect(execute).toHaveBeenCalledOnce();
+      expect(end).toHaveBeenCalledOnce();
+    },
+  );
+
   it.each([
     {
       event: 'buffConsumed',

@@ -184,6 +184,7 @@ export class EquipmentEventRuntime {
     };
     const operationContext = {
       blackboard: this.blackboardFor(contributionIndex),
+      canExecuteAction: () => !this.#disposed && this.#enabled.has(contributionIndex),
       actionOwnerId: this.#operatorId,
       actionSourceId: this.#operatorId,
       addAbilityChildBuff: (child: BuffApplicationHandle) => {

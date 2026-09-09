@@ -22,6 +22,39 @@ const responses = [
   },
 ];
 
+it.each(['dispose', 'ownerPermission'] as const)(
+  '%s 会阻止被动响应后续动作，但仍清理已开始的动作',
+  mode => {
+    const dispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>();
+    let ownerPermitted = true;
+    const execute = vi.fn(() => {
+      if (mode === 'dispose') host.dispose();
+      else ownerPermitted = false;
+      return true;
+    });
+    const end = vi.fn();
+    const step = responses[0]!.sequence.steps[0]!;
+    const host = new PassiveAbilityEventRuntime(
+      { execute, end, evaluate: () => true },
+      { blackboard: new ActionBlackboard(), canExecuteAction: () => ownerPermitted },
+      [{ ...responses[0]!, sequence: { steps: [step, step] } }],
+      (event, priority, handle) =>
+        dispatcher.registerAction(event, priority, published => handle(published)),
+    );
+    host.enable();
+    dispatcher.dispatch(
+      {
+        event: 'abilityEntityFinished',
+        payload: { sourceId: 'owner', targetId: 'entity' },
+      },
+      [],
+    );
+    expect(execute).toHaveBeenCalledOnce();
+    expect(end).toHaveBeenCalledOnce();
+    host.dispose();
+  },
+);
+
 it('技力与治疗原生响应写入各自的请求量和实际量，不合并或继承上一事件', () => {
   const dispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>();
   const blackboard = new ActionBlackboard();
