@@ -77,6 +77,9 @@ export interface LogicalAbilityEntitySnapshot {
 }
 
 export interface LogicalAbilityEntityRuntimeHooks {
+  /** 宿主阶段：Buff → 子技能时间轴 → 普通Buff回收。不是公共能力事件。 */
+  tickBuffs?(snapshot: LogicalAbilityEntitySnapshot): void;
+  recycleBuffs?(snapshot: LogicalAbilityEntitySnapshot): void;
   spawned?(snapshot: LogicalAbilityEntitySnapshot): void;
   childSkillRequested?(snapshot: LogicalAbilityEntitySnapshot, skillId: string): void;
   killed?(snapshot: LogicalAbilityEntitySnapshot, reason: LogicalAbilityEntityFinishReason): void;
@@ -365,6 +368,8 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
 
   advanceFrame(): void {
     for (const instance of [...this.#instances.values()]) {
+      // 前一个宿主的Buff/技能回调可能已释放此实例；快照不延长宿主生命期。
+      if (!this.#instances.has(instance.instanceId)) continue;
       if (instance.pendingRelease) {
         instance.pendingReleaseElapsedSeconds += requireDuration(
           this.#resolveDeltaSeconds(this.#snapshot(instance)),
@@ -397,7 +402,11 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
           continue;
         }
       }
+      this.#hooks.tickBuffs?.(this.#snapshot(instance));
+      if (!this.#instances.has(instance.instanceId) || instance.pendingRelease) continue;
       for (const runtime of instance.childRuntimes) runtime.advance(delta);
+      if (this.#instances.has(instance.instanceId) && !instance.pendingRelease)
+        this.#hooks.recycleBuffs?.(this.#snapshot(instance));
     }
   }
 

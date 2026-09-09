@@ -180,6 +180,7 @@ export interface EnemyBuffRuntime extends FrameRuntime, BuffOperationTarget {
 /** 动态能力实体独占的 Buff 所有者；生命周期使用该实体的四路时间增量。 */
 export interface AbilityEntityBuffRuntime extends BuffOperationTarget {
   advanceWithDeltas(deltas: AbilityTickDeltas): void;
+  recycleFinishedBuffs?(): void;
   releaseAll(): void;
 }
 
@@ -540,6 +541,25 @@ export class CombatRuntimeAssembly {
         COMBAT_FRAME_INTERVAL *
         (this.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
       hooks: {
+        tickBuffs: entity => {
+          const runtime = this.#abilityEntityBuffs.get(entity.instanceId);
+          if (runtime === undefined) return;
+          runtime.advanceWithDeltas(
+            this.timeDilation === null
+              ? {
+                  defaultDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                  globalScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                  selfScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                  skillCooldownDeltaSeconds: COMBAT_FRAME_INTERVAL,
+                }
+              : this.timeDilation.getAbilityTickDeltas(
+                  logicalAbilityEntityRuntimeId(entity.instanceId),
+                  COMBAT_FRAME_INTERVAL,
+                ),
+          );
+        },
+        recycleBuffs: entity =>
+          this.#abilityEntityBuffs.get(entity.instanceId)?.recycleFinishedBuffs?.(),
         spawned: entity => {
           const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
           this.receipt.record({
@@ -1115,25 +1135,6 @@ export class CombatRuntimeAssembly {
       this.simulation.add(this.globalBuffs);
       // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
       this.simulation.add(this.abilityEntities);
-      this.simulation.add({
-        advanceFrame: () => {
-          for (const [instanceId, runtime] of this.#abilityEntityBuffs) {
-            const target = { kind: 'abilityEntity' as const, instanceId };
-            if (!this.abilityEntities.isActive(target)) continue;
-            const entityId = logicalAbilityEntityRuntimeId(instanceId);
-            runtime.advanceWithDeltas(
-              this.timeDilation === null
-                ? {
-                    defaultDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                    globalScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                    selfScaledDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                    skillCooldownDeltaSeconds: COMBAT_FRAME_INTERVAL,
-                  }
-                : this.timeDilation.getAbilityTickDeltas(entityId, COMBAT_FRAME_INTERVAL),
-            );
-          }
-        },
-      });
       // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
       this.simulation.add({
         advanceFrame: () => {

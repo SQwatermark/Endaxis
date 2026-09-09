@@ -1,5 +1,47 @@
 # 当前任务快照
 
+## 2026-09-10：动态实体更新准入差异已验收
+
+反编译确认TimeManager按组类型取TickRoot，再按枚举取m_groups中的TickGroup，
+将它写入TickFunction；不是按实体分配更新组。结合组件注册链与组开头Flush规则，
+同组更新中新生成death实体不会在本轮再获得正时间增量。因此接受sc_zpm5ozw中
+seal_finisher_wisd的10次hit后移一帧；伤害次数/数值和全部三类诊断未变，基线不覆盖。
+新实体初始化仍立即执行。修复限定为动态宿主Buff/子技能共用准入边界与普通回收，
+不据此宣称跨组时序或完整实体销毁已完成。证据详见复刻库SkillAffix专题末新增段。
+下面“尚待”小节保留调查过程，此处为当前结论。
+最终验证：91文件1252项通过，type-check通过。四轴分别210/194/265/77次伤害，
+次数和逐次值均与保留基线相同；仅第三轴10个hit后移一帧。原始比较脚本仍退出1，
+表示含已接受时序差异及既有BuffFinished/BuffReleased区别，不将它报告为零差异。
+
+## 2026-09-10：动态实体宿主阶段调整（尚待真实轴差异验收）
+
+当前工作树将动态实体的跨实体批量Buff更新，改为每个实体Buff更新→子技能时间轴→
+普通Buff回收。子运行时advance只推进TimelineActionProcessor，不是宿主ActionContainer。
+依据仍为combat-spec skill-affix-identity专题中的PreLateTick阶段证据；未宣称完整
+AbilityEntityController销毁顺序已核实。新增测试验证逐实体顺序及Buff更新结束实体后
+不继续推进子技能/普通回收。91文件1250项通过，type-check通过。
+
+四轴回归：三轴排除既有Finished/Released差异后保持一致；sc_zpm5ozw不一致。
+该轴265次DamageApplied数量与逐次伤害值均不变，梨子诺连携seal_finisher_wisd
+两组共10次伤害后移一帧，另有4条TimeDilationStarted和4条TimeDilationEnded变化。
+availability/execution/combo诊断四轴均不变。比较脚本退出1，不能称真实轴全部通过，
+未改基线。下一步针对子技能施加Buff当帧是否推进其时间轴建立专项证据/测试，
+再决定接受此差异或修正阶段实现；不要跳过此项直接扩展实体reset/投射物功能。
+
+后续定位：不是仅在同一实体上新加Buff。arcane生成定义约5560行在子技能中生成death
+实体，再对该实体施加seal_finisher_wisd。旧实体子技能遍历快照，后置Buff却遍历实时Map，
+使新实体Buff当帧额外推进。已加新生实体start立即执行、Buff/子技能下一轮一起推进的
+测试（logicalAbilityEntityRuntime共11项通过）。原生TickGroup有pendingAdd队列，
+Tick开头Flush，随后才TickFunctions；证据RVA已写入combat-spec SkillAffix专题。
+仍需绑定到AbilitySystem实际调度入口，不能从通用TickGroup直接推断实体所在组。
+目前改动仍未最终验收、未提交；旧真实轴基线保留。
+
+再核对组件注册链：AbilitySystem继承TickComponent，PreLateTick函数登记到组件列表，
+统一Start最终进入TickGroup.StartTickFunction的pending队列；AbilitySystem的组枚举
+getter返回1，基类返回0，不能混同。共享TimeManager注册入口031C68F0的枚举到组查找
+尚需核实，具体调用地址见复刻库专题。另修复实体更新快照的失效宿主检查：前一个实体
+回调释放后一个实体后，不再推进已释放实体。新增测试后实体/装配共84项通过。
+
 ## 2026-09-10：干员与木桩敌人自动回收阶段
 
 原生PreLateTick先02F159A1 RecycleBuff，再02F15B0D ActionContainer.OnTick(03102940)，

@@ -8,6 +8,134 @@ function createRuntime() {
 }
 
 describe('LogicalAbilityEntityRuntime', () => {
+  it('前一个宿主回调释放后一个实体后，快照不再推进已释放实体', () => {
+    const observed: string[] = [];
+    let releaseNext = () => {};
+    const runtime = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 0.1,
+      hooks: {
+        tickBuffs: entity => {
+          observed.push(entity.abilityEntityId);
+          if (entity.abilityEntityId === 'first') releaseNext();
+        },
+      },
+    });
+    for (const id of ['first', 'second']) {
+      const target = runtime.spawn({
+        abilityEntityId: id,
+        ownerId: 'owner',
+        source: { kind: 'operator', operatorId: 'owner' },
+        definition: { lifetime: { kind: 'infinite' } },
+      });
+      if (id === 'second')
+        releaseNext = () => {
+          runtime.finish(target, 'explicit');
+        };
+    }
+    runtime.advanceFrame();
+    expect(observed).toEqual(['first']);
+  });
+  it('更新中生成的实体立即start，但Buff和技能的时间增量均从下一轮开始', () => {
+    const observed: string[] = [];
+    let spawned = false;
+    const runtime = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 0.1,
+      hooks: {
+        tickBuffs: entity => observed.push(`${entity.abilityEntityId}:buff`),
+        recycleBuffs: entity => observed.push(`${entity.abilityEntityId}:recycle`),
+      },
+    });
+    runtime.spawn({
+      abilityEntityId: 'parent',
+      ownerId: 'owner',
+      source: { kind: 'operator', operatorId: 'owner' },
+      definition: { lifetime: { kind: 'infinite' } },
+      createChildRuntime: () => ({
+        start: () => {},
+        finish: () => {},
+        advance: () => {
+          if (spawned) return;
+          spawned = true;
+          runtime.spawn({
+            abilityEntityId: 'child',
+            ownerId: 'owner',
+            source: { kind: 'operator', operatorId: 'owner' },
+            definition: { lifetime: { kind: 'infinite' } },
+            createChildRuntime: () => ({
+              start: () => observed.push('child:start'),
+              finish: () => {},
+              advance: () => observed.push('child:skill'),
+            }),
+          });
+        },
+      }),
+    });
+    runtime.advanceFrame();
+    expect(observed).toEqual(['parent:buff', 'child:start', 'parent:recycle']);
+    observed.length = 0;
+    runtime.advanceFrame();
+    expect(observed).toEqual([
+      'parent:buff',
+      'parent:recycle',
+      'child:buff',
+      'child:skill',
+      'child:recycle',
+    ]);
+  });
+  it('每个实体依次推进Buff、技能和回收，不跨实体批处理', () => {
+    const observed: string[] = [];
+    const runtime = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 0.1,
+      hooks: {
+        tickBuffs: entity => observed.push(`${entity.abilityEntityId}:buff`),
+        recycleBuffs: entity => observed.push(`${entity.abilityEntityId}:recycle`),
+      },
+    });
+    for (const id of ['first', 'second'])
+      runtime.spawn({
+        abilityEntityId: id,
+        ownerId: 'owner',
+        source: { kind: 'operator', operatorId: 'owner' },
+        definition: { lifetime: { kind: 'infinite' } },
+        createChildRuntime: () => ({
+          start: () => {},
+          finish: () => {},
+          advance: () => observed.push(`${id}:skill`),
+        }),
+      });
+    runtime.advanceFrame();
+    expect(observed).toEqual([
+      'first:buff',
+      'first:skill',
+      'first:recycle',
+      'second:buff',
+      'second:skill',
+      'second:recycle',
+    ]);
+  });
+
+  it('Buff更新结束实体后不再执行其技能或普通回收阶段', () => {
+    const skill = vi.fn();
+    const recycle = vi.fn();
+    const runtime = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 0.1,
+      hooks: {
+        tickBuffs: entity =>
+          runtime.finish({ kind: 'abilityEntity', instanceId: entity.instanceId }, 'explicit'),
+        recycleBuffs: recycle,
+      },
+    });
+    runtime.spawn({
+      abilityEntityId: 'test',
+      ownerId: 'owner',
+      source: { kind: 'operator', operatorId: 'owner' },
+      definition: { lifetime: { kind: 'infinite' } },
+      createChildRuntime: () => ({ start: () => {}, finish: () => {}, advance: skill }),
+    });
+    runtime.advanceFrame();
+    expect(skill).not.toHaveBeenCalled();
+    expect(recycle).not.toHaveBeenCalled();
+  });
   it.each(['explicit', 'durationExpired'] as const)(
     '出生及 %s 结束保留同一份完整来源，出生先于子技能',
     reason => {

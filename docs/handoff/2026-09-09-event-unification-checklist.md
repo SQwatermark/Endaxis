@@ -46,8 +46,11 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
    两仓均已修正，完整宿主退出顺序仍待核实。仍需核实能力实体的Ability所有权子Buff、
    SkillAffix完整引用保留等入口。其引用耗尽结束已核实Other+空来源，直接技能回调
    已修正；不能由此宣称子实体/投射物/输出Buff引用计数已实现。
-   输出Buff引用还依赖普通回收阶段：原生PreLateTick调用RecycleBuff，两仓普通tick目前
-   没有这一阶段。先核对候选条件和阶段顺序，再补实例回收通知，不以finishedBuff替代。
+   输出Buff引用已接实际实例及独立回收通知；两仓普通宿主tick已接回收阶段，
+   位于技能更新后、宿主动作容器更新前，不以finishedBuff替代。动态能力实体正在
+   对齐Buff→子技能→回收顺序；真实轴梨子诺连携收尾10个hit后移一帧，数值不变，
+   已依据同组pending准入证据接受，去除了新实体Buff额外推进。宿主销毁回收、
+   实体reset和投射物引用仍未完成。
    护盾耗尽移除已核实Other+空来源，TS数值/次数耗尽均验证；这不等于完整ShieldBlockDamage事件已验收。
    现有未知来源不能一律改成null，也不能一律继承宿主施法。
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、
