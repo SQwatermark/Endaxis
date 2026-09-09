@@ -125,6 +125,10 @@ Toggle/固定构筑初始化；条件也服从相同门禁。79武器/24套装�
 
 ### P2：额外通知分类与类型边界
 
+额外广播载荷已引用生产端类型，StandardPlayerDamagePayloadMap 不再保留 unknown
+兜底；新增键覆盖与类型关联回归。见 ../next/damage-event-boundaries.md 的分类表。
+这不代表所有通知的原生身份/消费者已完成审计，下列相关项仍按证据继续。
+
 - [ ] 分类 StandardPlayerDamageEvent 中公共映射外的通知，例如 beforeKillEntity、
       失衡伤害过程、beforeTakeSpellBurst、elementalInflictionStarted、poiseRecovered
       及倒地组件内部通知。区分原生能力事件、组件事件、模拟器内部流程通知。

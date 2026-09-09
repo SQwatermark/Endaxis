@@ -1,5 +1,18 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：额外通知不再使用 unknown 兜底
+
+StandardPlayerDamagePayloadMap 的额外键改为引用生命伤害、失衡修正、倒地调用、
+附着开始等生产端类型，失衡恢复明确无额外载荷；公共键保持原公共映射。
+不改变发布对象或派发顺序，不把内部通知加入可配置 AbilityEvent。
+新增类型回归检查键集合完整覆盖、载荷总联合无 unknown、关键类型与生产端一致。
+标准环境与倒地81项测试及应用类型检查通过。
+随后完整运行时77文件1052项通过。
+
+分类与证据边界见 docs/next/damage-event-boundaries.md。特别注意未进入公共契约
+不等于非原生：失衡/爆发已有反编译依据；关卡事件也不能按类认定为无效。
+本轮没有新增原生枚举映射、关卡脚本执行或敌人主动行为。
+
 ## 2026-09-09 晚间续：响应端口保留公共载荷类型
 
 resolveAbilityEventContext、withAbilityEventResponseContext 以及 Buff/配装/被动宿主

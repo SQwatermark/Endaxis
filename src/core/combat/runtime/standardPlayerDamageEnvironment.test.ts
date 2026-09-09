@@ -1,7 +1,13 @@
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { expectTypeOf } from 'vitest';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
-import type { StandardPlayerDamagePayloadMap } from './standardPlayerDamageEnvironment';
+import type {
+  StandardPlayerDamagePayloadMap,
+  StandardPlayerDamageEvent,
+} from './standardPlayerDamageEnvironment';
+import type { PoiseDamageModifier } from '../damage/poiseDamage';
+import type { HealthDamageEventPayload } from '../damage/healthDamage';
+import type { KnockDownEventPayload } from './knockDownOperationExecutor';
 
 it('标准环境公共事件载荷复用权威映射，不被过程通知的 unknown 放宽', () => {
   expectTypeOf<StandardPlayerDamagePayloadMap['addedBuff']>().toEqualTypeOf<
@@ -12,6 +18,22 @@ it('标准环境公共事件载荷复用权威映射，不被过程通知的 unk
   >();
   expectTypeOf<StandardPlayerDamagePayloadMap['beforeOutputDamage']>().toEqualTypeOf<
     AbilityEventPayloadMap['beforeOutputDamage']
+  >();
+});
+it('过程事件载荷覆盖全部广播键，复用生产端类型且不含 unknown 兜底', () => {
+  expectTypeOf<keyof StandardPlayerDamagePayloadMap>().toEqualTypeOf<StandardPlayerDamageEvent>();
+  expectTypeOf<StandardPlayerDamagePayloadMap[StandardPlayerDamageEvent]>().not.toBeUnknown();
+  expectTypeOf<
+    StandardPlayerDamagePayloadMap['beforeKillEntity']
+  >().toEqualTypeOf<HealthDamageEventPayload>();
+  expectTypeOf<
+    StandardPlayerDamagePayloadMap['beforeTakePoiseDamage']
+  >().toEqualTypeOf<PoiseDamageModifier>();
+  expectTypeOf<
+    StandardPlayerDamagePayloadMap['beforeTakeKnockDown']
+  >().toEqualTypeOf<KnockDownEventPayload>();
+  expectTypeOf<StandardPlayerDamagePayloadMap['beforeTakeSpellBurst']>().toEqualTypeOf<
+    AbilityEventPayloadMap['beforeOutputSpellBurst']
   >();
 });
 import { buffEnhanceAbilityEvent } from '../events/combatAbilityEvent';

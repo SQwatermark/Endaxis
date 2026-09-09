@@ -98,7 +98,11 @@ import { OrdinaryKnockDownRuntime } from './ordinaryKnockDownRuntime';
 import {
   KnockDownOperationExecutor,
   type KnockDownAbilityEvent,
+  type KnockDownEventPayload,
 } from './knockDownOperationExecutor';
+import type { HealthDamageEventPayload } from '../damage/healthDamage';
+import type { PoiseDamageModifier } from '../damage/poiseDamage';
+import type { ElementalInflictionStartedPayload } from '../infliction/elementalInflictionBuffAdapter';
 
 type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
 
@@ -169,12 +173,22 @@ export type StandardPlayerDamageEvent =
   | 'elementalInflictionStarted'
   | 'poiseRecovered';
 
-/** 公共键复用唯一载荷表；额外过程通知尚待分类，不能将 unknown 扩散回公共键。 */
+/**
+ * 公共键沿用唯一载荷表；组件/流程通知直接复用生产端类型。
+ * 这些额外键不是新增的可配置 AbilityEvent，不借内部通知类型化扩大游戏机制范围。
+ */
 export interface StandardPlayerDamagePayloadMap
   extends
     AbilityEventPayloadMap,
-    // 明确取差集：仅未进入公共契约的通知可暂留 unknown，不能覆盖公共字段。
-    Record<Exclude<StandardPlayerDamageEvent, keyof AbilityEventPayloadMap>, unknown> {}
+    Record<Exclude<KnockDownAbilityEvent, keyof AbilityEventPayloadMap>, KnockDownEventPayload> {
+  beforeKillEntity: HealthDamageEventPayload;
+  beforeOutputPoiseDamage: PoiseDamageModifier;
+  beforeTakePoiseDamage: PoiseDamageModifier;
+  takePoiseDamage: PoiseDamageModifier;
+  beforeTakeSpellBurst: AbilityEventPayloadMap['beforeOutputSpellBurst'];
+  elementalInflictionStarted: ElementalInflictionStartedPayload;
+  poiseRecovered: Readonly<Record<string, never>>;
+}
 
 export interface StandardPlayerDamageEnvironmentOptions {
   /** 暴击样本和命中特殊倍率必须由具有证据的上层策略提供。 */
