@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：Buff事件宿主持有固定序列实例
+
+Buff原生响应此前每次通知临时createSequence，与被动/临时监听宿主不一致。现移到
+注册时创建并reset，每个响应持有一个序列和上下文；事件仍由公共作用域绑定/恢复。
+原生依据为ability-enable-event-order和ability-event-action-ordering中容器持有并执行
+已注册SequenceAction的调用链，不新增事件能力。测试检查注册时创建两个序列、
+派发不再创建序列，并保留独立短路、失败回滚和注销幂等。85文件1217项通过。
+四轴重跑仍为2915/1610/5521/4311条回执；去掉Finished/Released后的回执集合与旧基线
+一致，三类诊断按实际回执解析后也一致。旧基线不更新；应用类型检查通过。
+
 ## 2026-09-10：标准环境广播名称从载荷表派生
 
 删除StandardPlayerDamageEvent手写联合，改由keyof StandardPlayerDamagePayloadMap派生。

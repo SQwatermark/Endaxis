@@ -365,20 +365,22 @@ export function attachBuffLifecycleSequences<Key extends string>(
     try {
       // Each native SequenceAction owns its registration; equal priority does not merge programs.
       for (const response of abilityEventResponses) {
+        const runtime = runtimeFor(buff);
+        const context = {
+          ...runtime.context,
+          actionOwnerId: buff.owner.ownerId,
+          actionSourceId: buff.sourceId,
+        };
+        const sequence = runtime.createSequence(response.sequence, context);
+        sequence.reset({});
         if (response.event === 'outputKnockDown') {
           registrations.push(
             registerSemanticEventAction!(
               response.event,
               response.priority,
               (event, actionContext) => {
-                const runtime = runtimeFor(buff);
-                const context = {
-                  ...runtime.context,
-                  actionOwnerId: buff.owner.ownerId,
-                  actionSourceId: buff.sourceId,
-                };
                 withCombatEventResponseContext(context, { event, actionContext }, () =>
-                  runtime.createSequence(response.sequence, context).executeInstant({}),
+                  sequence.executeInstant({}),
                 );
               },
             ),
@@ -390,14 +392,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
             response.event,
             response.priority,
             (published, actionContext) => {
-              const runtime = runtimeFor(buff);
-              const context = {
-                ...runtime.context,
-                actionOwnerId: buff.owner.ownerId,
-                actionSourceId: buff.sourceId,
-              };
               withAbilityEventResponseContext(context, published, actionContext, () =>
-                runtime.createSequence(response.sequence, context).executeInstant({}),
+                sequence.executeInstant({}),
               );
             },
           ),

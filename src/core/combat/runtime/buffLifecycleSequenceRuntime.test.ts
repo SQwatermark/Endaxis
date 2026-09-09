@@ -1,4 +1,5 @@
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
+import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import { describe, expect, it, vi } from 'vitest';
 import { createKillEvent } from '../events/killEventTestFixture';
@@ -1144,6 +1145,7 @@ describe('attachBuffLifecycleSequences', () => {
   });
 
   it.each([false, true])('同级序列独立注册、注销和失败回滚 failSecond=%s', failSecond => {
+    const createSequence = vi.spyOn(CombatActionSequenceRuntime.prototype, 'createSequence');
     let registered = 0;
     let disposed = 0;
     const handles: Array<
@@ -1210,12 +1212,14 @@ describe('attachBuffLifecycleSequences', () => {
 
     if (failSecond) {
       expect(() => container.add(definition, 'source')).toThrow('second registration failed');
+      createSequence.mockRestore();
       expect(registered).toBe(2);
       expect(disposed).toBe(1);
       expect(reached).toBe(0);
       return;
     }
     const buff = container.add(definition, 'source')!;
+    const createdAtRegistration = createSequence.mock.calls.length;
     for (const handle of handles)
       handle({
         event: 'addedBuff',
@@ -1227,6 +1231,10 @@ describe('attachBuffLifecycleSequences', () => {
         },
       });
 
+    const createdAfterEvent = createSequence.mock.calls.length;
+    createSequence.mockRestore();
+    expect(createdAtRegistration).toBe(2);
+    expect(createdAfterEvent).toBe(createdAtRegistration);
     expect(registered).toBe(2);
     expect(reached).toBe(1);
     buff.finish('other', null);
