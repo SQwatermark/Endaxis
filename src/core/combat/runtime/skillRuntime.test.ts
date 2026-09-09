@@ -452,11 +452,11 @@ describe('SkillRuntime', () => {
     next.prepareSkillCastId(11);
     next.attachBuffToCast(11, newBuff);
     previous.interrupt('castNextSkill');
-    expect(oldBuff.finish).toHaveBeenCalledExactlyOnceWith('other');
+    expect(oldBuff.finish).toHaveBeenCalledExactlyOnceWith('other', null);
     expect(newBuff.finish).not.toHaveBeenCalled();
     next.tryStart();
     next.end();
-    expect(newBuff.finish).toHaveBeenCalledExactlyOnceWith('other');
+    expect(newBuff.finish).toHaveBeenCalledExactlyOnceWith('other', null);
   });
   it.each(['natural', 'interrupt'] as const)(
     'ends attached Buffs once, in order, before the %s skill-end event',
@@ -489,7 +489,8 @@ describe('SkillRuntime', () => {
       if (mode === 'natural') fixture.runtime.advanceFrame();
       else fixture.runtime.interrupt('castNextSkill');
       expect(order).toEqual(['first', 'second', 'skillEnd']);
-      expect(first.finish).toHaveBeenCalledExactlyOnceWith('other');
+      expect(first.finish).toHaveBeenCalledExactlyOnceWith('other', null);
+      expect(alreadyFinished.finish).toHaveBeenCalledExactlyOnceWith('other', null);
       fixture.runtime.end();
       fixture.runtime.prepareSkillCastId(11);
       expect(() => fixture.runtime.attachBuffToCast(10, first)).toThrow('stale skill cast context');

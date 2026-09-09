@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：技能附属Buff结束来源复核
+
+当前Skill.CastEnd经_FinishBuffs辅助方法调用MarkFinish，已核实传入空ObjectPtr和
+空SkillCastInfo，详见combat-spec/docs/create-buff-attaching-skill.md新增当前镜像证据。
+Endaxis #finishAttachedBuffs 显式传null，不借技能/初始Buff来源；自然结束、中断、
+重复结束与换技能实例的既有测试同步检查参数。1212项运行时/Buff/事件回归通过。
+复刻库既有通知默认空结构体符合本次证据，本轮只补证据文档。
+未据此改动Ability本体子Buff、能力实体、配装或GlobalBuff的其他清理路径。
+
 ## 2026-09-10：当前验收清单重整
 
 重写2026-09-09-event-unification-checklist.md，去掉将历史检查点与当前待办混写的结构。

@@ -730,7 +730,7 @@ export class SkillRuntime {
 
   #finishAttachedBuffs(): void {
     // CastEnd 在 OnSkillEnd 之前正序 MarkFinish(Other)，不传入结束来源/施法信息。
-    for (const buff of [...this.#attachedBuffs]) buff.finish('other');
+    for (const buff of [...this.#attachedBuffs]) buff.finish('other', null);
     this.#attachedBuffs.clear();
   }
 

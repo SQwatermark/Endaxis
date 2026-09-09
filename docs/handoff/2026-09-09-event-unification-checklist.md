@@ -40,7 +40,8 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
 
 ## 尚未完成：下一阶段应按此顺序执行
 
-1. **直接结束调用者的来源/顺序。** 仍需核实技能附属Buff、能力实体子Buff、
+1. **直接结束调用者的来源/顺序。** 技能附属Buff已通过当前_FinishBuffs调用核实空来源；
+   仍需核实能力实体子Buff、
    配装/GlobalBuff清理、容器finishAll、护盾耗尽、SkillAffix绑定技能结束等入口。
    现有未知来源不能一律改成null，也不能一律继承宿主施法。
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、
