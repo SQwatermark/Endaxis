@@ -1,5 +1,13 @@
 # 当前任务快照
 
+## 2026-09-10：释放后owner回调已识别为图标通知
+
+03738EE0与带符号OnBuffIconChange交叉确认：owner+3F0订阅器、Buff/applied/reason
+参数及UI总线0x1C4一致。释放传false/Other；不是AbilityEvent结束或减层通知。
+证据写入复刻库ability-entity-event-origin.md，分类写入damage-event-boundaries.md。
+下一步仍需核实_ClearStackEffects虚槽与释放剩余回收，运行时独立释放接口应保留
+表现移除且不冒充普通结束。本轮没有改运行时，也未重新运行测试。
+
 ## 2026-09-10：Buff.Release 剩余调用与资产范围
 
 继续核实Release门禁：owner有效才执行释放动作/移除修正/退出channeling；时间轴活跃
