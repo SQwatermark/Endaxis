@@ -1,5 +1,13 @@
 # 当前任务快照
 
+## 2026-09-10：复刻库补同一独立释放清理切片
+
+C# Buff.Release新增对应清理，IsReleased幂等，普通结束原因保持未设置；禁止结束
+仍可释放，持续动作只退出一次，不执行Finish/Disable动作。生命周期69项测试通过。
+尚未接C# ReleaseOwnerEntity或Endaxis正式实体销毁，也未接配置内部事件11。
+下一个明确改造点：standardPlayerDamageEnvironment.#recordOwnedBuffFinished同时
+记录表现结束和发布finishedBuff/buffEndsEarly，须分离后再接release回调，不得直接复用。
+
 ## 2026-09-10：独立 Buff 释放入口开始实现（尚未接实体销毁）
 
 确认_ClearStackEffects遍历+38的EffectInstance列表，不是+50的Buff队列，故不再
