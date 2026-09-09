@@ -673,7 +673,10 @@ export class CombatActionSequenceRuntime {
     sequence: ResolvedActionSequence,
     operationContext: CombatOperationContext = this.context,
   ): ActionSequence {
-    return new ActionSequence(this.#createSteps(sequence, operationContext));
+    return new ActionSequence(
+      this.#createSteps(sequence, operationContext),
+      operationContext.canExecuteAction,
+    );
   }
 
   /** Independent interval state, but one host context/blackboard across all intervals. */

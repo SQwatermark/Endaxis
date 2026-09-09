@@ -57,8 +57,9 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、
    globalBuffRuntime、combatBuffs、buffLifecycleSequenceRuntime。
    Buff分发快照已补结束有效性：前序响应结束宿主后后续响应跳过；原生isActionValid
-   仅检查!isFinished，canExecuteAction另加isEnabled。C#注册谓词的启用条件及完整
-   启用/禁用相对顺序仍须核对，不能将两个原生属性混为一谈。
+   仅检查!isFinished，canExecuteAction另加isEnabled。现已沿AbilityAction.Execute
+   证实逐动作还有canExecuteAction门禁；两仓公共序列执行器已接Buff实时许可，
+   C#注册谓词保留。完整启用/禁用相对顺序仍须核对，不能将两个原生属性混为一谈。
    实体自身Buff容器已改releaseAll，旧finishAll已删；BuffReleased仅作为表现回执，
    不发布普通结束/减层事件。C#也接自身Buff释放。完整组件顺序与子技能清理仍未验收。
    本地资产目录链接恢复后，C#生命周期/实体生成/剑替换93项通过；旧41成功+16拒绝

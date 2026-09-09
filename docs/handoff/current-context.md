@@ -1,5 +1,23 @@
 # 当前任务快照
 
+## 2026-09-10：补齐逐动作宿主执行门禁
+
+本轮沿事件宿主调用链查明：SequenceAction.isValid 只是一层检查；
+AbilityAction.Execute 还在每个动作执行前调用 IActionEnvironment.canExecuteAction。
+当前镜像 Buff 路径明确是 !isFinished && isEnabled。所以不能删除 C# 原有的启用谓词；
+也不能把 Endaxis 事件响应入口的 !isFinished 当作完整门禁。具体 RVA/普通冷分支/接口槽
+证据见 combat-spec/docs/ability-enable-event-order.md 的逐动作续证。
+
+两仓公共 SequenceAction 已接逐动作实时准入，Buff 提供自身状态；Endaxis 的嵌套序列
+通过同一个 CombatOperationContext 继承许可。不影响没有提供许可的原有宿主。
+拒绝执行返回失败并保留反转结果规则，但不 Tick/End 未进入的动作；已经进入的动作
+仍可 End，不以禁用状态跳过清理。C# 现有事件注册谓词保留。
+
+Endaxis 战斗模块116文件1399项、应用类型检查通过；四轴完整回执与诊断与上一轮一致，报告在
+tmp/event-unification-candidates-mz38x5/buff-action-gate-axes.json。
+C# 全库1827/1833通过，6项仍为此前记录的skill-data-cdn路径缺失、曲线适配和过期数量断言；
+不能记为全库通过。完整Buff Enable/Disable顺序、其他宿主与投射物回调集成仍未完成。
+
 ## 2026-09-10：投射物实体赋值恢复为发射时求值
 
 当前镜像 `_Launch` 的普通冷分支已确认：发射阶段遍历 assignPairs，用动作黑板

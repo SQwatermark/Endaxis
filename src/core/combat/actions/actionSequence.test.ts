@@ -34,6 +34,36 @@ class ProbeStep extends CombatStep {
 }
 
 describe('ActionSequence', () => {
+  it('checks the live host gate per action and still cleans up actions already entered', () => {
+    const calls: string[] = [];
+    let enabled = true;
+    class DisableStep extends ProbeStep {
+      override tryExecute(): boolean {
+        enabled = false;
+        return super.tryExecute();
+      }
+    }
+    const sequence = new ActionSequence(
+      [new DisableStep('disable', calls), new ProbeStep('later', calls)],
+      () => enabled,
+    );
+    expect(sequence.tryExecute({})).toBe(false);
+    sequence.end({});
+    expect(calls).toEqual(['execute:disable', 'end:disable']);
+  });
+
+  it('preserves result inversion on denied actions without ticking or ending their bodies', () => {
+    const calls: string[] = [];
+    const sequence = new ActionSequence([new ProbeStep('denied', calls)], () => false);
+    const context = { sequence: { resultMode: STEP_RESULT_MODE.invertNextResult } };
+    expect(sequence.tryExecute(context)).toBe(true);
+    sequence.tick(1, context);
+    sequence.end(context);
+    expect(calls).toEqual([]);
+    expect(context.sequence.resultMode).toBe(STEP_RESULT_MODE.normal);
+    expect(sequence.createRuntimeInstance().tryExecute({})).toBe(false);
+  });
+
   it('executes synchronously in configured order and stops at the first failure', () => {
     const calls: string[] = [];
     const sequence = new ActionSequence([

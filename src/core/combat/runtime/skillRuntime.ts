@@ -122,6 +122,8 @@ export interface CombatOperationContext {
   readonly refreshCurrentBuffAttributeModifiers?: () => void;
   /** 仅由宿主技能/能力实体子技能提供；普通操作不得缓存或跨宿主调用。 */
   readonly requestTimelineJump?: (destinationFrame: number) => void;
+  /** 宿主的实时动作执行许可；与序列有效性、Tick/End 的清理许可不同。 */
+  readonly canExecuteAction?: () => boolean;
   /** 仅由技能时间轴宿主提供；结束当前技能且不改写局部帧。 */
   readonly requestTimelineFinish?: () => void;
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */

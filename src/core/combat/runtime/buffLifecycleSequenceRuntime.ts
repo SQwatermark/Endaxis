@@ -242,6 +242,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
     if (runtime !== undefined) return runtime;
     const context: CombatOperationContext = {
       blackboard: buff.blackboard,
+      canExecuteAction: () => buff.isEnabled && !buff.isFinished,
       damageCalculationSnapshots: new Map(),
       targetContext: new RuntimeTargetContext(),
       ...(currentTarget === undefined ? {} : { currentTarget }),

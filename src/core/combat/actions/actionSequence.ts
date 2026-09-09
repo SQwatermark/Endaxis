@@ -18,18 +18,23 @@ interface StepEntry {
   step: CombatStep;
   state: CombatStepState;
   executeResult: boolean;
+  executionPermitted: boolean;
 }
 
 /** 按配置数组的顺序同步执行战斗步骤。 */
 export class ActionSequence extends CombatStep {
   readonly #entries: StepEntry[];
 
-  constructor(steps: readonly CombatStep[]) {
+  constructor(
+    steps: readonly CombatStep[],
+    readonly canExecuteAction?: () => boolean,
+  ) {
     super();
     this.#entries = steps.map(step => ({
       step,
       state: COMBAT_STEP_STATE.pending,
       executeResult: false,
+      executionPermitted: false,
     }));
   }
 
@@ -38,7 +43,10 @@ export class ActionSequence extends CombatStep {
   }
 
   override createRuntimeInstance(): ActionSequence {
-    return new ActionSequence(this.#entries.map(entry => entry.step.createRuntimeInstance()));
+    return new ActionSequence(
+      this.#entries.map(entry => entry.step.createRuntimeInstance()),
+      this.canExecuteAction,
+    );
   }
 
   execute(context: CombatExecutionContext): void {
@@ -50,8 +58,11 @@ export class ActionSequence extends CombatStep {
       if (entry.state === COMBAT_STEP_STATE.ended) continue;
       if (entry.state !== COMBAT_STEP_STATE.pending) return false;
 
+      // 原生 AbilityAction.Execute 在进入动作前检查宿主 canExecuteAction。
+      // 必须逐项读实时状态；不能只在事件订阅入口检查一次，也不能阻止已开始项 End。
       const resultMode = context.sequence?.resultMode ?? STEP_RESULT_MODE.normal;
-      let result = entry.step.tryExecute(context);
+      entry.executionPermitted = this.canExecuteAction?.() !== false;
+      let result = entry.executionPermitted ? entry.step.tryExecute(context) : false;
       if (resultMode === STEP_RESULT_MODE.invertNextResult) {
         context.sequence!.resultMode = STEP_RESULT_MODE.normal;
         result = !result;
@@ -76,6 +87,7 @@ export class ActionSequence extends CombatStep {
       entry.step.reset(context);
       entry.state = COMBAT_STEP_STATE.pending;
       entry.executeResult = false;
+      entry.executionPermitted = false;
     }
   }
 
@@ -84,7 +96,7 @@ export class ActionSequence extends CombatStep {
       if (entry.state !== COMBAT_STEP_STATE.started && entry.state !== COMBAT_STEP_STATE.ticking) {
         continue;
       }
-      if (!entry.executeResult) continue;
+      if (!entry.executeResult || !entry.executionPermitted) continue;
 
       entry.step.tick(deltaTime, context);
       entry.state = COMBAT_STEP_STATE.ticking;
@@ -97,7 +109,7 @@ export class ActionSequence extends CombatStep {
         continue;
       }
 
-      entry.step.end(context);
+      if (entry.executionPermitted) entry.step.end(context);
       entry.state = COMBAT_STEP_STATE.ended;
     }
   }
