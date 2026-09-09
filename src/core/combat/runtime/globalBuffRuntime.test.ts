@@ -31,7 +31,8 @@ function target(ownerId: string) {
     applyScoped(request: BuffApplicationRequest) {
       requests.push(request);
       return {
-        finish(reason: 'early' | 'absorbed' | 'other') {
+        finish(reason: 'early' | 'absorbed' | 'other', source: unknown) {
+          expect(source).toBeNull();
           finished.push(reason);
           return true;
         },
@@ -61,8 +62,8 @@ describe('GlobalBuffRuntime', () => {
     });
     expect(second.requests[0]).toMatchObject({ blackboardValues: { imbue: 0.3 } });
     expect(first.requests[0]!.finishParentGlobalBuff?.('early')).toBe(true);
-    expect(first.finished).toEqual(['early']);
-    expect(second.finished).toEqual(['early']);
+    expect(first.finished).toEqual(['other']);
+    expect(second.finished).toEqual(['other']);
     expect(second.requests[0]!.finishParentGlobalBuff?.('early')).toBe(false);
   });
 
@@ -140,7 +141,7 @@ describe('GlobalBuffRuntime', () => {
     expect(member.finished).toEqual(['other', 'other']);
     expect(runtime.finishAllByIds(['first'], 'other')).toBe(false);
     expect(runtime.finishAllByIds(['second'], 'early')).toBe(true);
-    expect(member.finished).toEqual(['other', 'other', 'early']);
+    expect(member.finished).toEqual(['other', 'other', 'other']);
   });
 
   it('routes battle-owned create and named finish steps through the same runtime directory', () => {

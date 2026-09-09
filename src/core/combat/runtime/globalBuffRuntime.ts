@@ -108,12 +108,13 @@ export class GlobalBuffRuntime {
       sharedSpRecoveryModifiers: recoveryModifiers,
       remainingDuration: duration,
       finished: false,
-      finish(reason) {
+      finish(_reason) {
         if (this.finished) return false;
         this.finished = true;
         for (const modifier of this.sharedSpGainModifiers) gainSet?.remove(modifier);
         for (const modifier of this.sharedSpRecoveryModifiers) recoverySet?.remove(modifier);
-        for (const child of [...this.children]) child.finish(reason);
+        // GlobalBuff._FinishBuffs does not forward the parent's finish reason or cast.
+        for (const child of [...this.children]) child.finish('other', null);
         this.children.length = 0;
         return true;
       },

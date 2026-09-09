@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：GlobalBuff 不转发父结束原因
+
+当前原生 MarkFinish → OnFinish → _FinishBuffs 链路核实：子 Buff 固定 Other、空
+SkillCastInfo；父 Early 不转成子 Buff Early。两个仓库原来都转发父原因，现已修正。
+Endaxis显式传null；C#保留父FinishReason，并用Default/Early/Server验证只执行普通
+结束动作，不执行提前结束动作，重复结束不重复执行。证据见复刻库global-buff-lifecycle.md
+顶部当前镜像章节，下方1.4.4记录是历史切片，不是当前完成清单。
+TS运行时/Buff/事件1212项、C# GlobalBuff/Buff生命周期78项通过；四条真实轴无新增差异，
+仍为既有0/0/7/3处同帧顺序变化，回执集合（除序号）及诊断一致。
+GlobalBuff退出/禁用修正/标记finished的完整顺序仍未验收，不因此关闭整个宿主项。
+
 ## 2026-09-10：Ability 子 Buff 清理来源
 
 核实当前镜像 Ability._RemoveAllChildrenBuff 的冷区调用：Other、空 ObjectPtr、
