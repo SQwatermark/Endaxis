@@ -170,6 +170,7 @@ describe('projectile callback action lifecycle', () => {
 
   it('samples direct and entity assignment inputs at launch and isolates repeated projectiles', () => {
     const scheduler = new ProjectileLifecycleRuntime();
+    let sourceEnabled = true;
     const observed: number[][] = [];
     const operations: CombatOperationExecutor = {
       execute: (_step, context) => {
@@ -189,6 +190,7 @@ describe('projectile callback action lifecycle', () => {
     const blackboard = new ActionBlackboard({ launchValue: 7 }, entityBlackboard);
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard,
+      canExecuteAction: () => sourceEnabled,
       scheduleProjectileFinishCallback: (
         delaySeconds,
         recycleDelaySeconds,
@@ -211,6 +213,8 @@ describe('projectile callback action lifecycle', () => {
     runtime.createSequence(delayedProbe()).executeInstant({});
     blackboard.assignDynamic('launchValue', 100);
     blackboard.assignDynamic('EntityBB_source', 33);
+    // 回调动作宿主是投射物，不继承发射动作宿主的启用状态。
+    sourceEnabled = false;
     for (let frame = 0; frame < 91; frame += 1) scheduler.advanceFrame();
     expect(observed).toEqual([
       [7, 2, 4, 7, 11],

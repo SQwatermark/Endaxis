@@ -291,6 +291,8 @@ export class CombatSemanticEventRuntime {
           event: context.event,
         };
         const condition = stored.condition;
+        // 投影出的前置条件与响应动作使用同一宿主许可；不能在禁用后仍求值黑板。
+        if (operationContext.canExecuteAction?.() === false) return;
         if (
           !withCombatEventResponseContext(operationContext, context, () =>
             getOperations().evaluate(condition, operationContext),

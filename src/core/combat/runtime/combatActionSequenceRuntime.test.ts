@@ -33,6 +33,54 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('temporary listener conditions and bodies share the live host permission', () => {
+    const { semanticEvents, emitAddedBuff } = createNativeEventFixture();
+    let enabled = true;
+    const evaluate = vi.fn(() => true);
+    const execute = vi.fn(() => true);
+    const runtime = new CombatActionSequenceRuntime(
+      { evaluate, execute },
+      { blackboard: new ActionBlackboard(), canExecuteAction: () => enabled },
+      {},
+      semanticEvents,
+      'owner',
+    );
+    const listener = runtime.createSequence(
+      sequence({
+        kind: 'listenForCombatEvents',
+        parameters: {
+          responses: [
+            {
+              key: 'gated',
+              event: { kind: 'abilityEvent', event: 'addedBuff' },
+              phase: 'dataAction',
+              priority: 0,
+              condition: { kind: 'probability', probability: { kind: 'constant', value: 1 } },
+              sequence: sequence(operation('response')),
+            },
+          ],
+        },
+      }),
+    );
+    const emit = () =>
+      emitAddedBuff({ sourceId: 'owner', targetId: 'owner', buffId: 'signal', buffTags: [] });
+    listener.execute({});
+    enabled = false;
+    emit();
+    expect(evaluate).not.toHaveBeenCalled();
+    expect(execute).not.toHaveBeenCalled();
+    enabled = true;
+    emit();
+    expect(evaluate).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenCalledTimes(1);
+    enabled = false;
+    listener.end({});
+    enabled = true;
+    emit();
+    expect(evaluate).toHaveBeenCalledTimes(1);
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
   it('creates independent interval lifetimes sharing only their host context', () => {
     const trace: string[] = [];
     const context = { blackboard: new ActionBlackboard() };
