@@ -1,5 +1,17 @@
 # 当前任务快照
 
+## 2026-09-10：复刻库输出Buff引用与独立回收入口
+
+C#新增显式RecycleFinishedBuffs，逆序实时检查，退出容器/堆叠组后调用实例Recycled；
+MarkFinish与TickBuffs不隐式回收，不重复发布结束事件。测试验证回调影响未访问实例、
+已访问实例留待下轮、重复回收幂等、同定义可正常重新添加。
+OnOutputBuff载荷从错误的BuffData改为实际Buff，生产入口、条件读取和测试一起调整。
+SkillAffix据实际Buff的普通castId与affixId筛选输出实例，保留到Recycled才减引用；
+自身End只注销跟踪，不结束输出Buff。直接结束通知只减引用，MarkFinish受保护失败时
+不再无条件手工注销。相关45项测试通过。
+重要边界：C#回收入口尚未自动装入宿主Tick；Endaxis尚未接回收与输出引用。仍需按已
+核实的阶段约束装配，并审计普通回收、宿主释放、实体reset之间的连接，不可宣称全链完成。
+
 ## 2026-09-10：回收候选与逆序遍历已核实
 
 RecycleBuff未补丁分支直接检查Buff.m_isFinished(+B1)，true进入回收；false另走宿主
