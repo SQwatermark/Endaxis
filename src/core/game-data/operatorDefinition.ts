@@ -114,6 +114,7 @@ export {
   COMBO_SKILL_PRIORITIES,
   type ComboSkillPriority,
   type SkillDefinition,
+  type SkillActionProgramDefinition,
   type SkillGroupDefinition,
   type SkillGroupVariantDefinition,
   type RoutedSkillReplacementDefinition,

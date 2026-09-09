@@ -84,11 +84,15 @@ export type ResolvedSkillBuffDefinition = Omit<
   readonly igniteEventResponses?: readonly ResolvedSkillBuffIgniteEventResponse[];
 };
 
-/** 等级已经展开、由单个能力实体实例按局部时钟执行的子技能。 */
-export interface CompiledAbilityEntityChildSkillProgram {
-  readonly skillId: string;
+/** 各宿主共用、等级已经展开的动作数据，不附带施法或对象身份。 */
+export interface CompiledSkillActionProgram {
   readonly initialBlackboard: Readonly<Record<string, number>>;
   readonly timelineActions: readonly CompiledTimelineAction[];
+}
+
+/** 等级已经展开、由单个能力实体实例按局部时钟执行的子技能。 */
+export interface CompiledAbilityEntityChildSkillProgram extends CompiledSkillActionProgram {
+  readonly skillId: string;
 }
 
 /** 已按引用技能等级展开、可供逻辑能力实体运行时创建实例的蓝图。 */
@@ -439,7 +443,7 @@ export interface CompiledSkillStatModifiers {
 }
 
 /** 供运行时技能实例使用的完整单等级程序。 */
-export interface CompiledSkillProgram {
+export interface CompiledSkillProgram extends CompiledSkillActionProgram {
   readonly operatorId: string;
   /** 文档中对应的技能释放身份；缺失时表示不是从场景时间轴编译的单元测试程序。 */
   readonly castId?: string;
@@ -457,8 +461,6 @@ export interface CompiledSkillProgram {
   /** 原生技能实例的初始可变分类；不同于伤害/养成使用的 Endaxis skillType。 */
   readonly nativeSkillType?: import('../game-data/operatorDefinition').NativeSkillType;
   readonly skillLevel: number;
-  /** 已按技能等级解析；每次释放复制到该运行实例的动作黑板。 */
-  readonly initialBlackboard: Readonly<Record<string, number>>;
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames: number;
@@ -478,7 +480,6 @@ export interface CompiledSkillProgram {
     readonly sequence: ResolvedActionSequence;
   };
   readonly statModifiers?: CompiledSkillStatModifiers;
-  readonly timelineActions: readonly CompiledTimelineAction[];
   /** 当前技能等级下实际引用到的能力实体闭包；支持子技能递归生成同一蓝图。 */
   readonly abilityEntityDefinitions?: Readonly<Record<string, ResolvedAbilityEntityDefinition>>;
 }

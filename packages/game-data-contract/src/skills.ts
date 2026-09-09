@@ -16,11 +16,16 @@ export type AbilityEntityTargetQuery =
     }
   | { readonly kind: 'context'; readonly contextKey: string };
 
+/** 各技能宿主共用的动作数据；不包含玩家操作、费用或宿主生命周期。 */
+export interface SkillActionProgramDefinition {
+  /** 创建时按技能等级解析的动作黑板默认值。 */
+  blackboard?: Readonly<Record<string, LevelValues>>;
+  scheduledSequences: readonly ScheduledSequenceDefinition[];
+}
+
 /** 由一个逻辑能力实体独占、按该实体局部时钟执行的无施法子技能。 */
-export interface AbilityEntityChildSkillDefinition {
+export interface AbilityEntityChildSkillDefinition extends Readonly<SkillActionProgramDefinition> {
   readonly skillId: string;
-  readonly blackboard?: Readonly<Record<string, LevelValues>>;
-  readonly scheduledSequences: readonly ScheduledSequenceDefinition[];
 }
 
 /** 能力实体模板数值；原生可在生成时用实体黑板覆盖模板默认值。 */
@@ -154,7 +159,7 @@ export type ComboSkillPriority = (typeof COMBO_SKILL_PRIORITIES)[number];
  * 一个可独立释放或触发的技能定义。
  * 它描述战斗身份和时序，不承载翻译后的名称或编辑器布局。
  */
-export interface SkillDefinition {
+export interface SkillDefinition extends SkillActionProgramDefinition {
   key: string;
   /**
    * 此技能执行体参与战斗事件与中断优先级判断时使用的分类。
@@ -173,8 +178,6 @@ export interface SkillDefinition {
    * 省略表示没有已取证的强化状态，不能把任意自身 Buff 猜成强化条。
    */
   enhancementStateBuffId?: string;
-  /** 技能实例创建时按当前技能等级解析、每次释放前恢复的原生动作黑板。 */
-  blackboard?: Readonly<Record<string, LevelValues>>;
   /** 零距离木桩下 StoreSmartTarget 的归约结果；省略表示原技能不执行智能目标存储。 */
   smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
@@ -217,7 +220,6 @@ export interface SkillDefinition {
     readonly asSkillCast?: boolean;
     readonly sequence: import('./actions.ts').ActionSequenceDefinition;
   };
-  scheduledSequences: readonly ScheduledSequenceDefinition[];
   eventHandlers?: readonly CombatEventHandlerDefinition[];
 }
 

@@ -1,5 +1,21 @@
 # 当前任务快照
 
+## 2026-09-10：公共技能动作协议与等级编译去重
+
+SkillActionProgramDefinition 现在唯一声明blackboard与scheduledSequences；SkillDefinition
+和只读AbilityEntityChildSkillDefinition复用它。CompiledSkillActionProgram同样统一
+initialBlackboard与timelineActions。没有合并玩家操作、技能身份、费用或自然结束规则，
+也没有改变子技能定义原有的只读约束。
+
+compileSkillBlackboard / compileSkillTimelineActions被普通技能和子技能两条编译路径共用；
+仍使用各自来源路径报错，并保留能力实体闭包上下文。新增同一程序双宿主编译一致性测试，
+覆盖等级化数值与0/3/10帧的独立结束区间。编译/检查器结构/契约3文件43项通过，
+应用与编译器独立类型检查均通过。检查器对子技能沿用专用节点与Inspector，生成器中的
+unsupported是原有显式排除，不是继承字段丢失。
+
+本轮只去重真实相同的动作数据，不将无施法实体子技能冒充完整原生施法宿主。
+正式投射物定义仍待改用完整回调程序；该迁移尚未完成。
+
 ## 2026-09-10：完整回调来源与共用时间轴创建入口
 
 转换层新增 ProjectileCallbackSkillSource / compileProjectileCallbackSkillSource，保留

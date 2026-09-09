@@ -8,6 +8,7 @@ import type {
   CombatStepDefinition,
   LevelValues,
   SkillDefinition,
+  SkillActionProgramDefinition,
   SkillBuffDefinition,
   SkillType,
   StatusModifierDefinition,
@@ -16,6 +17,7 @@ import type {
   OperatorAbilityEntityDefinitions,
 } from '../game-data/operatorDefinition';
 import type {
+  CompiledTimelineAction,
   CompiledAbilityEntityChildSkillProgram,
   CompiledSkillProgram,
   ResolvedActionSequence,
@@ -1117,6 +1119,37 @@ function compileReferencedAbilityEntity(
   }
 }
 
+function compileSkillBlackboard(
+  blackboard: SkillActionProgramDefinition['blackboard'],
+  skillLevel: number,
+  path: string,
+): Readonly<Record<string, number>> {
+  return Object.fromEntries(
+    Object.entries(blackboard ?? {}).map(([key, value]) => [
+      key,
+      resolveLevelValue(value, skillLevel, `${path}.${key}`),
+    ]),
+  );
+}
+
+function compileSkillTimelineActions(
+  sequences: SkillActionProgramDefinition['scheduledSequences'],
+  skillLevel: number,
+  path: string,
+  abilityEntities?: AbilityEntityCompileContext,
+): readonly CompiledTimelineAction[] {
+  return sequences.map((scheduled, index) => ({
+    startFrame: scheduled.startFrame,
+    ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),
+    sequence: compileActionSequence(
+      scheduled.sequence,
+      skillLevel,
+      `${path}[${index}].sequence`,
+      abilityEntities,
+    ),
+  }));
+}
+
 function compileAbilityEntityChildSkill(
   childSkill: AbilityEntityChildSkillDefinition,
   skillLevel: number,
@@ -1125,22 +1158,17 @@ function compileAbilityEntityChildSkill(
 ): CompiledAbilityEntityChildSkillProgram {
   return {
     skillId: childSkill.skillId,
-    initialBlackboard: Object.fromEntries(
-      Object.entries(childSkill.blackboard ?? {}).map(([key, value]) => [
-        key,
-        resolveLevelValue(value, skillLevel, `${path}.blackboard.${key}`),
-      ]),
+    initialBlackboard: compileSkillBlackboard(
+      childSkill.blackboard,
+      skillLevel,
+      `${path}.blackboard`,
     ),
-    timelineActions: childSkill.scheduledSequences.map((scheduled, index) => ({
-      startFrame: scheduled.startFrame,
-      ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),
-      sequence: compileActionSequence(
-        scheduled.sequence,
-        skillLevel,
-        `${path}.scheduledSequences[${index}].sequence`,
-        abilityEntities,
-      ),
-    })),
+    timelineActions: compileSkillTimelineActions(
+      childSkill.scheduledSequences,
+      skillLevel,
+      `${path}.scheduledSequences`,
+      abilityEntities,
+    ),
   };
 }
 
@@ -1170,11 +1198,10 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     resource: cost.resource,
     value: resolveLevelValue(cost.value, input.skillLevel, `costs[${index}].value`),
   }));
-  const initialBlackboard = Object.fromEntries(
-    Object.entries(input.skill.blackboard ?? {}).map(([key, value]) => [
-      key,
-      resolveLevelValue(value, input.skillLevel, `blackboard.${key}`),
-    ]),
+  const initialBlackboard = compileSkillBlackboard(
+    input.skill.blackboard,
+    input.skillLevel,
+    'blackboard',
   );
   if (
     input.skill.smartTarget !== undefined &&
@@ -1274,16 +1301,12 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
             ),
           },
         }),
-    timelineActions: input.skill.scheduledSequences.map((scheduled, index) => ({
-      startFrame: scheduled.startFrame,
-      ...(scheduled.endFrame === undefined ? {} : { endFrame: scheduled.endFrame }),
-      sequence: compileActionSequence(
-        scheduled.sequence,
-        input.skillLevel,
-        `scheduledSequences[${index}].sequence`,
-        abilityEntities,
-      ),
-    })),
+    timelineActions: compileSkillTimelineActions(
+      input.skill.scheduledSequences,
+      input.skillLevel,
+      'scheduledSequences',
+      abilityEntities,
+    ),
   };
   return abilityEntities === undefined || Object.keys(abilityEntities.compiled).length === 0
     ? program

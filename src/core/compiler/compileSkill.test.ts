@@ -1,6 +1,7 @@
 import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
 import { describe, expect, it } from 'vitest';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
+import type { SkillActionProgramDefinition } from '../../../packages/game-data-contract/src/skills';
 import { perlica } from '../../data/operators/perlica';
 import {
   compileOperatorBuffDefinitions,
@@ -19,6 +20,51 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('compiles the same action program identically for operator and child skill hosts', () => {
+    const actions: SkillActionProgramDefinition = {
+      blackboard: { coefficient: [1, 2] },
+      scheduledSequences: [0, 3, 10].map(endFrame => ({
+        startFrame: 0,
+        endFrame,
+        sequence: {
+          steps: [
+            {
+              kind: 'dealDamage',
+              parameters: {
+                damageType: 'physical',
+                attackScale: [1, 2],
+                tags: [],
+              },
+            },
+          ],
+        },
+      })),
+    };
+    const operator = compileSkill({
+      operatorId: 'owner',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 2,
+      skill: { ...actions, key: 'skill', timelineBlockFrames: 10 },
+    });
+    const childStep = compileActionSequence(
+      {
+        steps: [
+          {
+            kind: 'startCurrentAbilityEntityChildSkill',
+            parameters: { childSkill: { ...actions, skillId: 'child' } },
+          },
+        ],
+      },
+      2,
+    ).steps[0]!;
+    if (childStep.kind !== 'startCurrentAbilityEntityChildSkill') throw new Error('wrong step');
+    expect(childStep.parameters.childSkill.initialBlackboard).toEqual(operator.initialBlackboard);
+    expect(operator.initialBlackboard).toEqual({ coefficient: 2 });
+    expect(childStep.parameters.childSkill.timelineActions).toEqual(operator.timelineActions);
+    expect(operator.timelineActions.map(action => action.endFrame)).toEqual([0, 3, 10]);
+  });
+
   it('标签原数组直接穿过运行编译，不包装或再次解析路径', () => {
     const tags = Object.freeze(['Custom/Buff/Child']);
     const compiled = compileActionSequence(
