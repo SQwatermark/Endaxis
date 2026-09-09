@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：输出Buff引用缺少的不是结束监听，而是回收阶段
+
+原生PreLateTick(02F13A90)内02F159A1对m_buffContainer(+3E0)调用RecycleBuff(03105270)。
+RecycleBuff中031056C9检查isFinished：已结束则跳过Release(false)，但仍在031056F9
+调用BuffPool.Recycle。不是MarkFinish同步发布另一结束通知；具体证据写入复刻库
+skill-affix-identity专题。直接调用扫描有限范围，不宣称没有其他间接调用。
+现两仓普通Buff tick仅保留并跳过已结束实例，没有普通回收阶段；只有宿主销毁释放。
+下一步必须先核对回收候选条件及帧内阶段，补实例回收边界，再接SkillAffix的实例回调。
+不能监听finishedBuff替代，也不能只等宿主销毁。无需新公共事件或复刻实际内存池。
+本轮为反编译/运行时差距审计，没有修改模拟或重新运行测试。
+
 ## 2026-09-10：SkillAffix即时施法引用计数
 
 两仓不再遇到首个匹配skillEnd就直接结束affix：初始引用1，匹配beforeCastSkill加1，
