@@ -402,6 +402,13 @@ export type CombatAbilityEvent<Event extends AbilityEvent = AbilityEvent> = Abil
   AbilityEventPayloadMap
 >;
 
+/** 内部强类型事件的来源读取；不解析任意对象，不回退动作宿主或外层事件。 */
+export function abilityEventSkillCastInfo(
+  event: CombatAbilityEvent,
+): CombatSkillCastInfo | null | undefined {
+  return 'skillCastInfo' in event.payload ? event.payload.skillCastInfo : undefined;
+}
+
 /** 原生响应端口；旧 outputKnockDown 标记不是原生事件，不在此边界内。 */
 export type AbilityResponseEventName = Exclude<AbilityEvent, 'outputKnockDown'>;
 /** 保留统一事件与载荷的关联；kind 仅用于和手工语义标记进行类型判别。 */

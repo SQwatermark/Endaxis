@@ -7,7 +7,7 @@ import { ActionBlackboard } from './actionBlackboard';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationContext } from './skillRuntime';
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
-import { readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 
 const payload = { sourceId: 'owner', targetId: 'entity' };
 
@@ -35,15 +35,17 @@ it.each(['beforeCastSkill', 'afterSkillApplyCost', 'skillEnd'] as const)(
   },
 );
 
-it.each([0, 'invalid', false])('显式损坏的来源不得回退到当前技能：%s', skillCastInfo => {
-  expect(() =>
-    readSkillCastInfoFromPayload({
-      skillCastId: 9,
-      skillId: 'current',
-      skillType: 'battleSkill',
-      skillCastInfo,
-    }),
-  ).toThrow('invalid skill cast identity');
+it('来源读取端口只接受强类型事件，不接受裸载荷或损坏来源', () => {
+  if (false) {
+    // @ts-expect-error 裸载荷不是事件；内部端口不再承担任意 JSON 解析。
+    abilityEventSkillCastInfo({ sourceId: 'owner', targetId: 'enemy' });
+    abilityEventSkillCastInfo({
+      event: 'abilityEntityFinished',
+      // @ts-expect-error 来源类型由统一载荷映射约束。
+      payload: { ...payload, skillCastInfo: false },
+    });
+  }
+  expect(abilityEventSkillCastInfo({ event: 'abilityEntityFinished', payload })).toBeUndefined();
 });
 
 it.each(['beforeOutputSpellBurst', 'beforeTakeSpellInfliction'] as const)(
@@ -57,7 +59,7 @@ it.each(['beforeOutputSpellBurst', 'beforeTakeSpellInfliction'] as const)(
     withAbilityEventResponseContext(context, published, undefined, () => {
       expect(context.event).toBe(published);
       expect(context.eventSkillCastInfo).toBeNull();
-      expect(readSkillCastInfoFromPayload(published.payload)).toBeNull();
+      expect(abilityEventSkillCastInfo(published)).toBeNull();
       expect('element' in published.payload).toBe(false);
     });
     expect(context.event).toBeUndefined();
@@ -89,7 +91,7 @@ it.each(['beforeCastSkill', 'afterSkillApplyCost', 'skillEnd'] as const)(
     withAbilityEventResponseContext(context, published, undefined, () => {
       expect(context.event).toBe(published);
       expect(context.eventSkillCastInfo).toBe(origin);
-      expect(readSkillCastInfoFromPayload(published.payload)).toBe(origin);
+      expect(abilityEventSkillCastInfo(published)).toBe(origin);
       expect(published.payload.attachBuffToCurrentSkill).toBe(
         event === 'beforeCastSkill' ? attachBuffToCurrentSkill : undefined,
       );
@@ -211,7 +213,7 @@ it.each(['beforeOutputKnockDown', 'afterOutputKnockDown'] as const)(
     };
     for (const skillCastInfo of [cast, null, undefined]) {
       const published = { event, payload: { ...payload, fromAirborne: true, skillCastInfo } };
-      expect(readSkillCastInfoFromPayload(published.payload)).toBe(skillCastInfo);
+      expect(abilityEventSkillCastInfo(published)).toBe(skillCastInfo);
     }
   },
 );
@@ -237,7 +239,7 @@ it.each([
   withAbilityEventResponseContext(context, published, undefined, () => {
     expect(context.event).toBe(published);
     expect(context.eventSkillCastInfo).toBeNull();
-    expect(readSkillCastInfoFromPayload(published.payload)).toBeNull();
+    expect(abilityEventSkillCastInfo(published)).toBeNull();
   });
 });
 
@@ -280,7 +282,7 @@ it.each(['beforeOutputBuff', 'beforeAddedBuff', 'addedBuff', 'outputBuff'] as co
       }),
     });
     const context: CombatOperationContext = { blackboard: new ActionBlackboard() };
-    expect(readSkillCastInfoFromPayload(published.payload)).toBeNull();
+    expect(abilityEventSkillCastInfo(published)).toBeNull();
     withAbilityEventResponseContext(context, published, undefined, () => {
       expect(context.event).toBe(published);
       expect('kind' in context.event!).toBe(false);
@@ -378,20 +380,27 @@ it('无 Trigger 的事件不会读到上次触发目标，退出后恢复宿主�
   expect(targetContext.get('trigger')).toEqual([target]);
 });
 
-it('来源载荷损坏时不改动宿主上下文', () => {
+it('读取来源抛错时不改动宿主上下文', () => {
   const context: CombatOperationContext = { blackboard: new ActionBlackboard({}) };
   const before = { ...context };
   expect(() =>
     withAbilityEventResponseContext(
       context,
-      // @ts-expect-error Verify runtime rejection as well as the compile-time payload boundary.
-      { event: 'abilityEntityFinished', payload: { ...payload, skillCastInfo: false } },
+      {
+        event: 'abilityEntityFinished',
+        payload: {
+          ...payload,
+          get skillCastInfo(): never {
+            throw new Error('source read failed');
+          },
+        },
+      },
       undefined,
       () => {
         throw new Error('must not execute');
       },
     ),
-  ).toThrow('invalid skill cast identity');
+  ).toThrow('source read failed');
   expect(context).toEqual(before);
 });
 

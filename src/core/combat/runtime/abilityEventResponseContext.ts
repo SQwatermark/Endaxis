@@ -3,7 +3,7 @@ import type { CombatOperationContext } from './skillRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatAbilityEvent, AbilityResponseEventName } from '../events/combatAbilityEvent';
 import type { CombatSemanticEventContext } from './combatSemanticEventRuntime';
-import { readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 
 /**
  * 同步事件响应唯一的临时上下文边界；宿主仍拥有黑板、序列和注册生命周期。
@@ -41,8 +41,7 @@ function withEventContext<T>(
   targets: AbilityEventRuntimeActionContext | undefined,
   execute: () => T,
 ): T {
-  const skillCastInfo =
-    'payload' in event ? readSkillCastInfoFromPayload(event.payload) : undefined;
+  const skillCastInfo = 'payload' in event ? abilityEventSkillCastInfo(event) : undefined;
   const previous = {
     event: context.event,
     eventSkillCastInfo: context.eventSkillCastInfo,

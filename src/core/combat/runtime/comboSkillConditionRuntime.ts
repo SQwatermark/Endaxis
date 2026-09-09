@@ -18,7 +18,7 @@ import {
   hasAbilityEventActionContextBinding,
   resolveAbilityEventActionContextBinding,
 } from '../events/abilityEventActionContext';
-import { readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
 
@@ -125,7 +125,7 @@ export class ComboSkillConditionRuntime {
           ? null
           : Object.freeze({ ...options.resolveTarget(binding.triggerTargetId) });
       if (triggerTarget !== null) targets.setSingle('trigger', triggerTarget);
-      const eventSkillCastInfo = readSkillCastInfoFromPayload(event.payload);
+      const eventSkillCastInfo = abilityEventSkillCastInfo(event);
       // 每次检查重新建立动作状态，但绝不重置该注册的 direct/entity 黑板。
       const runtime = new CombatActionSequenceRuntime(options.operations, {
         blackboard,

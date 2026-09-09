@@ -5,7 +5,7 @@ import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
-import { readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 import { attachBuffLifecycleSequences } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { ActionBlackboard } from './actionBlackboard';
@@ -330,23 +330,32 @@ describe('attachBuffLifecycleSequences', () => {
   });
 
   it('区分空来源与遗漏来源，接受处决类型且不从其他字段覆盖显式空来源', () => {
-    const cast = { skillCastId: 3, skillId: 'finisher', skillType: 'finisher' };
-    expect(readSkillCastInfoFromPayload(cast)).toBeUndefined();
+    const cast = {
+      sourceId: 'owner',
+      targetId: 'owner',
+      skillCastId: 3,
+      skillId: 'finisher',
+      skillType: 'finisher' as const,
+    };
+    expect(abilityEventSkillCastInfo({ event: 'skillEnd', payload: cast })).toBeUndefined();
     const explicit = {
       skillCastId: 3,
       originSkillId: 'finisher',
-      originSkillType: 'finisher',
+      originSkillType: 'finisher' as const,
       nonReturnedSpCost: 0,
     };
-    expect(readSkillCastInfoFromPayload({ ...cast, skillCastInfo: explicit })).toBe(explicit);
-    expect(readSkillCastInfoFromPayload({ ...cast, skillCastInfo: null })).toBeNull();
-    expect(readSkillCastInfoFromPayload({})).toBeUndefined();
-    expect(() => readSkillCastInfoFromPayload({ event: 'skillEnd', payload: cast })).toThrow(
-      'Expected ability event payload',
-    );
-    expect(() =>
-      readSkillCastInfoFromPayload({ skillCastInfo: { originSkillType: 'unknown' } }),
-    ).toThrow('invalid skill cast identity');
+    expect(
+      abilityEventSkillCastInfo({
+        event: 'abilityEntityFinished',
+        payload: { ...cast, skillCastInfo: explicit },
+      }),
+    ).toBe(explicit);
+    expect(
+      abilityEventSkillCastInfo({
+        event: 'abilityEntityFinished',
+        payload: { ...cast, skillCastInfo: null },
+      }),
+    ).toBeNull();
   });
 
   it('把技能槽替换绑定到 Buff 启用边界并在结束时还原', () => {

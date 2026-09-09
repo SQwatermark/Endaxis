@@ -9,7 +9,7 @@ import { inflictionAbilityEvent } from '../events/combatAbilityEvent';
 import { abilityEventTargetId, abilityEventSourceId } from '../events/combatAbilityEvent';
 import { spGainAbilityEvent } from '../events/combatAbilityEvent';
 import { physicalAbilityEvent } from '../events/combatAbilityEvent';
-import { readSkillCastInfoFromPayload } from './abilityEventPayload';
+import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 import { damageAbilityEvent } from '../events/combatAbilityEvent';
 import { healAbilityEvent } from '../events/combatAbilityEvent';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
@@ -147,7 +147,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       if (!carriesOrigin) return false;
       const skillCastInfo =
         context?.event !== undefined && 'payload' in context.event
-          ? readSkillCastInfoFromPayload(context.event.payload)
+          ? abilityEventSkillCastInfo(context.event)
           : context?.eventSkillCastInfo;
       if (skillCastInfo === undefined) {
         throw new Error('originSkillTypeIn requires an event source skill cast identity');
@@ -298,7 +298,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return (
         context?.skillCastInfo !== undefined &&
         ('payload' in context.event
-          ? readSkillCastInfoFromPayload(context.event.payload)
+          ? abilityEventSkillCastInfo(context.event)
           : context.eventSkillCastInfo
         )?.skillCastId === context.skillCastInfo.skillCastId
       );

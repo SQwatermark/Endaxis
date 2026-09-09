@@ -1,5 +1,27 @@
 # 当前任务快照
 
+## 2026-09-10：能力实体事件来源链仍未闭环
+
+来源条件审计发现：combat-spec 的 CheckOriginSkillType 接受 AbilityEntitySkillEventData，
+但 AbilityEntityRuntime 的 261/262 实际发布 SpawnedAbilityEntity，并非该载荷；Endaxis
+combatRuntimeAssembly 对应发布仅含 sourceId/targetId，originSkillTypeIn 白名单也未接入它们。
+这是生产与消费之间的缺口，不能只扩大白名单或用 sourceSkillCastId 猜造完整来源。
+origin-skill-event-context.md 已证明原生条件读取 AbilityEntityContext；下一步须核对
+261/262 的原生上下文构造与来源填充，再同时修改复刻库生产端、Endaxis 和回归。
+本轮未改变这些事件行为，也不宣称已有实体生命周期测试覆盖来源条件。
+
+## 2026-09-10：删除 abilityEventPayload 遗留适配
+
+所有来源读取调用者已持有 CombatAbilityEvent；新增统一事件模块的 abilityEventSkillCastInfo，
+直接读取映射载荷的来源字段。不再降为 unknown、猜测裸载荷/事件封装、再次断言来源结构。
+abilityEventPayload.ts 已删除，无代码引用。来源 undefined/null/对象引用不变，仍不回退宿主。
+
+内部来源读取端口不接受任意 JSON；原三个损坏值运行时解析用例改为一个编译期拒绝用例，
+事件裸载荷与错误来源均须类型失败。来源 getter 抛错仍验证宿主上下文不受改动，嵌套恢复
+和各类来源语义回归保留。外部项目/游戏数据校验未删除，不通过类型断言放行原始输入。
+1180项运行时/Buff测试、完整应用类型检查通过，四条真实轴回执与告警一致；数量变化来自上述3→1替换。
+此项完成不代表全部事件架构收束：剩余分类识别、原生来源/优先级等仍按清单继续。
+
 ## 2026-09-10：通用事件查询保留证据边界
 
 已追 GetTargetBuffBBAdvanced 调用的0x0334E9A0泛型查询，确有方法信息驱动的类型检查，
