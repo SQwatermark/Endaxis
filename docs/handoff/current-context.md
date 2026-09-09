@@ -1,5 +1,19 @@
 # 当前任务快照
 
+## 2026-09-10：延迟施法请求的原生对象通知端口
+
+核实当前 TryCastSkillDuringAction：先写请求槽，再通知 onPostSkillTryCastRequest，
+传输入 SkillCastInfo 的值副本。SkillAffix 对匹配且未 pending 的请求保留一次引用；
+不同编号请求本身不释放旧 pending，需在 BeforeCast 路径转交/释放。
+证据补入 combat-spec/docs/cast-skill-action.md。
+
+AbilitySystemRuntime 已补 onPostSkillCastRequest 端口及请求来源快照，专题25项通过，
+新增回归验证通知中重入覆盖请求但不递归施法、来源编号不被外部修改污染。
+尚未接正式装配中的 SkillAffix 订阅，不得宣称 pending 引用已完成；下一步把同一
+AbilitySystem 对象委托接入 Buff 的绑定端口，按原生规则消费 pending，不能造新 AbilityEvent。
+战斗测试117文件1415项及应用类型检查通过，四真实轴完整结果一致，临时报告为
+tmp/event-unification-candidates-mz38x5/post-skill-request-source-axes.json。
+
 ## 2026-09-10：正式投射物回调范围与嵌套结束语义
 
 31 份候选生成文件逐一与当前正式文件比较一致后，反查到 109 个回调 ID，涉及 19

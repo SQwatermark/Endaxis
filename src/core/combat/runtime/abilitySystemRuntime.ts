@@ -126,6 +126,8 @@ export interface PostSkillCastRequest {
 }
 
 export interface AbilitySystemRuntimeOptions {
+  /** 原生 onPostSkillTryCastRequest 对象委托：写入延迟槽之后通知，不是 AbilityEvent。 */
+  readonly onPostSkillCastRequest?: (skillCastInfo: CombatSkillCastInfo | null) => void;
   readonly buffRuntime?: AbilityBuffRuntime;
   /** 保持普通攻击、主动、被动、通用技能的原生构造顺序。 */
   readonly skills: readonly AbilitySkillRuntime[];
@@ -197,6 +199,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
   #processingSkill: AbilitySkillRuntime | null = null;
   readonly #beforeCastStarts = new Map<AbilitySkillRuntime, () => void>();
   #postSkillCastRequest: PostSkillCastRequest | null = null;
+  readonly #onPostSkillCastRequest?: AbilitySystemRuntimeOptions['onPostSkillCastRequest'];
 
   constructor(options: AbilitySystemRuntimeOptions) {
     this.#buffRuntime = options.buffRuntime;
@@ -216,6 +219,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
       }
     }
     this.#beforePostSkillCastStart = options.beforePostSkillCastStart;
+    this.#onPostSkillCastRequest = options.onPostSkillCastRequest;
     if (
       (options.resolveActualFrame === undefined) !==
       (options.onSkillOperableBoundaryReached === undefined)
@@ -767,7 +771,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
   /** 同一帧多次写入会覆盖旧值；消费前先清槽，使消费期间的新请求留到下一帧。 */
   requestPostSkillCast(request: PostSkillCastRequest): void {
     this.#requireSkill(request.skillId, request.castId, request.resolveSkillSlot !== false);
-    this.#postSkillCastRequest = { ...request };
+    const inheritedSkillCastInfo =
+      request.inheritedSkillCastInfo === undefined
+        ? undefined
+        : Object.freeze({ ...request.inheritedSkillCastInfo });
+    this.#postSkillCastRequest = { ...request, inheritedSkillCastInfo };
+    this.#onPostSkillCastRequest?.(inheritedSkillCastInfo ?? null);
   }
 
   advanceFrame(): void {

@@ -45,6 +45,46 @@ class FixtureRuntime implements AbilitySkillRuntime {
 }
 
 describe('AbilitySystemRuntime', () => {
+  it('延迟请求先写槽再通知，通知中重入的请求按后写覆盖且不递归施法', () => {
+    const events: string[] = [];
+    let requests = 0;
+    const ability = new AbilitySystemRuntime({
+      skills: [new FixtureRuntime('first', events), new FixtureRuntime('second', events)],
+      onPostSkillCastRequest: info => {
+        expect(info).toBeNull();
+        expect(events).toEqual([]);
+        if (++requests === 1) ability.requestPostSkillCast({ skillId: 'second' });
+      },
+    });
+    ability.requestPostSkillCast({ skillId: 'first' });
+    expect(requests).toBe(2);
+    ability.advanceFrame();
+    expect(events).toContain('start:second');
+    expect(events).not.toContain('start:first');
+  });
+
+  it('请求委托收到的是传入来源身份的值快照，而不是新技能的预分配编号', () => {
+    const inherited = {
+      skillCastId: 42,
+      originSkillId: 'source',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 10,
+    };
+    const notices: unknown[] = [];
+    const consumed: unknown[] = [];
+    const ability = new AbilitySystemRuntime({
+      skills: [new FixtureRuntime('next', [])],
+      onPostSkillCastRequest: info => notices.push(info),
+      beforePostSkillCastStart: request => consumed.push(request.inheritedSkillCastInfo),
+    });
+    ability.requestPostSkillCast({ skillId: 'next', inheritedSkillCastInfo: inherited });
+    inherited.skillCastId = 99;
+    ability.advanceFrame();
+    expect(notices).toEqual([{ ...inherited, skillCastId: 42 }]);
+    expect(consumed).toEqual(notices);
+    expect(notices[0]).not.toBe(inherited);
+  });
+
   it('施放当帧两路增量归零，共享冷却只归零该技能，仍调用动作更新', () => {
     const events: string[] = [];
     const current = Object.assign(new FixtureRuntime('current', events), {
