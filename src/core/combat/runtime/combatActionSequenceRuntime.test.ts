@@ -33,6 +33,58 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('回调的 Channeling 子序列即时清理，不把 finishByAction 延长到回调时间轴结束', () => {
+    // 洛茜 projhit3 的形状：maxCountPerTarget=1，子动作含 finishByAction Buff。
+    // Channeling.actionOnTick 原生走 ExecuteInstant；与外层技能的寿命不同。
+    const seen: string[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: () => {
+          seen.push('apply');
+          return true;
+        },
+        end: () => {
+          seen.push('finish');
+        },
+        evaluate: () => true,
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+    const timeline = runtime.createTimeline([
+      {
+        startFrame: 0,
+        endFrame: 30,
+        sequence: sequence({
+          kind: 'repeatEachTick',
+          parameters: {
+            nativeChanneling: {
+              executeEachFrame: true,
+              triggerIntervalSeconds: 0.033,
+              maxCountPerTarget: 1,
+              targetTriggerIntervalSeconds: 0.033,
+            },
+          },
+          body: sequence({
+            kind: 'applyBuff',
+            parameters: {
+              buffId: 'fixture',
+              target: 'caster',
+              finishByAction: true,
+            },
+          }),
+        }),
+      },
+    ]);
+    timeline.reset({});
+    timeline.tick(0, 0, {});
+    expect(seen).toEqual(['apply', 'finish']);
+    expect(timeline.isComplete).toBe(false);
+    for (let frame = 1; frame <= 30; frame++) timeline.tick(frame, 1 / 30, {});
+    timeline.end(30, {});
+    expect(timeline.isComplete).toBe(true);
+    expect(seen).toEqual(['apply', 'finish']);
+  });
+
   it('temporary listener conditions and bodies share the live host permission', () => {
     const { semanticEvents, emitAddedBuff } = createNativeEventFixture();
     let enabled = true;

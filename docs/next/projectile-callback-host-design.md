@@ -89,3 +89,29 @@ ProjectileLifecycleRuntime 只管投射物阶段与对象 reset；回收前结�
 - 正式干员重生成、实际轴逐 hit 差分；变化必须能追溯到上述游戏规则。
 
 本设计不授权新增空间飞行、碰撞模拟、敌方主动行为或未知事件类型。
+
+## 2026-09-10：从正式产物反查回调范围
+
+对候选 mz38x5 的 31 份生成定义逐文件比较当前正式文件（仅归一换行，全部相同），
+再从其未排版 operator.json 中按 withActionBlackboardScope.scopeKey 对应原生回调 ID：
+找到 109 个回调技能，涉及 19 名干员。这是静态产物出现范围，不是实际战斗可达证明，
+也不是所有投射物引用路径的穷举；不能拿这份统计关闭无回调对象的引用债务。
+可复现脚本/完整报告位于忽略目录 tmp/audit-reachable-projectile-callbacks.mjs、
+tmp/reachable-projectile-callbacks.json；源为 hybrid-20260905，来源结构统计见前文。
+
+重要的生命周期边界：
+
+- 洛茜 normal_skill_projhit2/3/4/5 产物含 repeatEachTick，均设置
+  nativeChanneling.maxCountPerTarget=1。不能仅凭动作名称推断会持续重复伤害。
+- projhit3 子序列施加 buff_chr_0028_wulfa_tut_normalskill_success，finishByAction=true。
+  不能按名称中的 tut 推断它无效：原始 BuffData 及正式定义包含延后伤害动作。
+  但它位于 Channeling 的 actionOnTick 内；combat-spec/docs/channeling-action.md
+  已证明该子序列走 ExecuteInstant，进入态动作本次即 End/Reset。
+  因而新回调宿主不能为了保留技能寿命，把该 Buff 延长到回调技能结束。
+- 本次所见 startTimeDilation 均 finishByAction=false，不能一概在回调 End 时结束。
+- 当前匹配范围未见 listenForCombatEvents，不代表游戏其他回调无监听；不能为未来
+  假想监听去扩展资源准入，也不能因此删除公共区间宿主的清理能力。
+
+新增公共运行时回归验证 Channeling 即时清理与更长外层区间独立，唯一目标次数上限
+阻止重复触发，外层 End 不重复结束子动作。它验证现有语义，未修复即时投射物适配层，
+更不构成完整回调技能宿主的验收。剩余改造须同时保留这条嵌套生命周期规则。

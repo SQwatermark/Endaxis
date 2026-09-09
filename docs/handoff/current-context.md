@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：正式投射物回调范围与嵌套结束语义
+
+31 份候选生成文件逐一与当前正式文件比较一致后，反查到 109 个回调 ID，涉及 19
+名干员；是静态出现范围，不是动态可达证明。报告/脚本在 tmp，详见回调宿主设计末节。
+定位洛茜 Channeling 子序列中的 finishByAction Buff：它并非因名称 tut 就可忽略，
+但原生 Channeling 每次调用 ExecuteInstant 已负责 End/Reset，不能延长到回调自然结束。
+新增公共序列回归固定这一边界，专题 33 项通过。本轮只补证据与回归，不改模拟算法，
+不把源中所有正长度区间都当成新增机制，也不宣称完整回调宿主已接通。
+
 ## 2026-09-10：被动与配装响应补齐逐动作宿主许可
 
 依据 combat-spec/ability-enable-event-order 的 AbilityAction.Execute→canExecuteAction
