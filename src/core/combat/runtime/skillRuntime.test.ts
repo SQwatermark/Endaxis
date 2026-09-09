@@ -721,6 +721,46 @@ describe('SkillRuntime', () => {
     );
   });
 
+  it('有效跳转推进自然结束计时，技能到期清理尚未到结束帧的动作', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'jump-natural-end',
+      timelineBlockFrames: 10,
+      naturalDurationFrames: 6,
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          endFrame: 10,
+          sequence: {
+            steps: [
+              {
+                kind: 'setContextFlag',
+                parameters: {
+                  flag: 'active',
+                  value: true,
+                  target: 'caster',
+                },
+              },
+            ],
+          },
+        },
+        {
+          startFrame: 1,
+          endFrame: 2,
+          sequence: { steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 5 } }] },
+        },
+      ],
+    });
+    fixture.operations.end = vi.fn();
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(1);
+    expect(fixture.runtime.passedFrames).toBe(5);
+    expect(fixture.receipt.entries.some(entry => entry.event === 'SkillEnded')).toBe(false);
+    fixture.simulation.advanceFrames(1);
+    expect(fixture.runtime.passedFrames).toBe(6);
+    expect(fixture.receipt.entries.filter(entry => entry.event === 'SkillEnded')).toHaveLength(1);
+    expect(fixture.operations.end).toHaveBeenCalledTimes(1);
+  });
+
   it('时间轴自终止丢弃未来调度且不改写局部帧', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'timeline-finish-fixture',
