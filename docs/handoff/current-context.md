@@ -1,5 +1,17 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：当前 Buff 结束不能只补来源参数
+
+新反编译证据见 combat-spec/docs/finish-buff-environment-source.md，二进制哈希已重验。
+finishCurrentBuff 来自 FinishBuffAdvanced 的 Environment 分支，不是普通 FinishBuffAction。
+原生选取动作环境的实际 Buff、检查 owner，再调用统一 AbilitySystem.FinishBuff，
+显式带上动作环境来源；不会只调用实例 MarkFinish。
+
+Endaxis 当前 buffLifecycleSequenceRuntime 直接 buff.finish(reason)，绕过容器的
+消费/吸收通知且丢失来源。C# FinishBuffAdvancedAction 也尚未实现 Environment。
+因此下一步先在复刻库恢复该分支并测试实例身份/owner 不匹配/来源，再接应用；
+不能仅加 buff.skillCastInfo 参数后宣称闭环。本轮仅补证，没有修改模拟行为。
+
 ## 2026-09-09 晚间续：结束与消费通知不再丢失来源
 
 沿用 combat-spec/consume-buff-single、finish-buff-advanced 和 Buffs.TriggerConsumeEvents
