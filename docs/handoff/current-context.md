@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：SkillAffix即时施法引用计数
+
+两仓不再遇到首个匹配skillEnd就直接结束affix：初始引用1，匹配beforeCastSkill加1，
+匹配skillEnd减1，耗尽才以Other+空来源结束。不同宿主/施法不影响计数，注销不消耗引用。
+原生_IsTrackingSkill比较castId而非Skill对象；匹配BeforeCast冷分支在无pending时加1，
+有pending时只清标记。地址及限制补入复刻库skill-affix-identity专题。
+当前未接pending对象委托，也未接实体/投射物/输出Buff引用，不宣称完整SkillAffix。
+C#专项9项、扩大技能/实体相关33项通过；Endaxis运行时/Buff/事件1218项及类型检查通过，
+真实轴没有新增差异。
+
 ## 2026-09-10：SkillAffix回到原生回调阶段
 
 当前反编译确认SkillAffix的五个事件订阅均调用AbilitySystem.RegisterEvent，另有一个

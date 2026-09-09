@@ -225,7 +225,7 @@ describe('attachBuffLifecycleSequences', () => {
         undefined,
         [],
         (event, callback) => {
-          expect(event).toBe('skillEnd');
+          expect(['beforeCastSkill', 'skillEnd']).toContain(event);
           callbacks.add(callback);
           const registration = dispatcher.registerCallback(event, callback);
           return {
@@ -251,10 +251,14 @@ describe('attachBuffLifecycleSequences', () => {
       expect(buff.skillCastInfo).toEqual(hasSource ? ordinary : null);
       expect(callbacks.size).toBe(processing === undefined ? 0 : 1);
       const finish = vi.spyOn(buff, 'finish');
-      const emit = (sourceId: string, skillCastId: number) => {
+      const emit = (
+        sourceId: string,
+        skillCastId: number,
+        event: 'skillEnd' | 'beforeCastSkill' = 'skillEnd',
+      ) => {
         dispatcher.dispatch(
           {
-            event: 'skillEnd',
+            event,
             payload: {
               sourceId,
               targetId: sourceId,
@@ -269,9 +273,14 @@ describe('attachBuffLifecycleSequences', () => {
       emit('other', 42);
       emit('owner', 999);
       expect(buff.isFinished).toBe(false);
+      emit('owner', 42, 'beforeCastSkill');
+      emit('other', 42, 'beforeCastSkill');
+      emit('owner', 999, 'beforeCastSkill');
+      emit('owner', 42);
+      expect(buff.isFinished).toBe(false);
       emit('owner', 42);
       expect(buff.isFinished).toBe(processing !== undefined);
-      expect(observedInActionPhase).toEqual([false, false, processing !== undefined]);
+      expect(observedInActionPhase).toEqual([false, false, false, processing !== undefined]);
       if (processing !== undefined) expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
       else expect(finish).not.toHaveBeenCalled();
       buff.finish('other');

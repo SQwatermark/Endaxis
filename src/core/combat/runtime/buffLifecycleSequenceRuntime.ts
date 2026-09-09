@@ -254,7 +254,18 @@ export function attachBuffLifecycleSequences<Key extends string>(
         if (registerAbilityEventCallback === undefined)
           throw new Error('SkillAffix requires Buff ability-event registration');
         buff.recordBuffAffixSkillCastId(skillCastId);
-        const registration = registerAbilityEventCallback('skillEnd', published => {
+        let references = 1;
+        let disposed = false;
+        const registrations: AbilityEventRegistration[] = [];
+        const registration = {
+          dispose: () => {
+            if (disposed) return;
+            disposed = true;
+            for (const handle of registrations) handle.dispose();
+          },
+        };
+        const handle = (published: CombatAbilityEvent<AbilityResponseEventName>) => {
+          if (disposed) return;
           const event = skillAbilityEvent(published);
           if (
             event === undefined ||
@@ -262,10 +273,23 @@ export function attachBuffLifecycleSequences<Key extends string>(
             event.payload.skillCastId !== skillCastId
           )
             return;
+          if (event.event === 'beforeCastSkill') {
+            // 即时施法路径；原生 pending-request 引用由另一对象委托维护。
+            references++;
+            return;
+          }
+          if (event.event !== 'skillEnd' || --references > 0) return;
           // Native SkillAffix._DecreaseRefCount ends with Other and an empty cast context.
           buff.finish('other', null);
           registration.dispose();
-        });
+        };
+        try {
+          registrations.push(registerAbilityEventCallback('beforeCastSkill', handle));
+          registrations.push(registerAbilityEventCallback('skillEnd', handle));
+        } catch (error) {
+          registration.dispose();
+          throw error;
+        }
         return registration;
       },
       ...(buff.finishParentGlobalBuff === null
