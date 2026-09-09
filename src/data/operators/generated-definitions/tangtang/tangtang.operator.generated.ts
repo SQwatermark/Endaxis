@@ -233,25 +233,22 @@ const sharedActionSequence4: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence3: ActionSequenceDefinition = sequence(
+const sharedActionSequence3: ActionSequenceDefinition = sequence({
+  kind: 'scheduleProjectileFinishCallback',
+  parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
+  body: instantiateActionSequence(sharedActionSequence4, ['\u0000endaxis-generated-identity:0']),
+});
+
+const sharedActionSequence2: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     {},
     true,
-    instantiateActionSequence(sharedActionSequence4, ['\u0000endaxis-generated-identity:1']),
+    instantiateActionSequence(sharedActionSequence3, ['\u0000endaxis-generated-identity:1']),
     {},
     { lifetime: 'execution' },
   ),
 );
-
-const sharedActionSequence2: ActionSequenceDefinition = sequence({
-  kind: 'scheduleProjectileFinishCallback',
-  parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
-  body: instantiateActionSequence(sharedActionSequence3, [
-    '\u0000endaxis-generated-identity:0',
-    '\u0000endaxis-generated-identity:1',
-  ]),
-});
 
 const sharedActionSequence1: ActionSequenceDefinition = sequence(
   branch(

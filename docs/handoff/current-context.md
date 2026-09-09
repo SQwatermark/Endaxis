@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-10：投射物实体赋值恢复为发射时求值
+
+当前镜像 `_Launch` 的普通冷分支已确认：发射阶段遍历 assignPairs，用动作黑板
+调用 ActionBlackboardExtensions.CreateAssignDataPair，随后才逐目标创建投射物。
+证据地址与指纹已写入 combat-spec/docs/launch-projectile-skill-routing.md。
+
+duration-finish 投影原先把投射物实体 scope 放在延迟 body 中，导致 EntityBB 输入可能
+读到回调时的新值。现改为实体 scope 包住调度动作，回调技能 direct scope 仍留在回调中。
+不修改通用 detachedSnapshot 或其他实体共享规则，不新增协议字段或第二套解释器。
+回归覆盖两次发射各自采样 direct/EntityBB，之后修改来源值，以及回调写入互不串板。
+
+31 名干员候选重生成仅汤汤的 scope 嵌套变化，正式文件已同步；
+tmp/event-unification-candidates-mz38x5/report.json 可核对。
+同目录 projectile-lifecycle-axes.json 的四轴完整回执与诊断均与前一生命周期基线一致。
+六文件197项测试通过，应用与编译器独立类型检查通过。
+
+这不是事件系统收束完成：完整回调技能区间/自然结束/实际附属Buff宿主仍待集成，
+无回调投射物仍缺实际对象引用，其他待验收项见事件收束清单。
+
 ## 2026-09-10：公共技能动作协议与等级编译去重
 
 SkillActionProgramDefinition 现在唯一声明blackboard与scheduledSequences；SkillDefinition

@@ -253,16 +253,25 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       });
       return [
         {
-          kind: 'scheduleProjectileFinishCallback',
-          parameters: {
-            delaySeconds: runtime.finishDuration,
-            recycleDelaySeconds: resolveProjectileRecycleDelaySource(
-              launch,
-              input.catalog.callbackGraphs,
-              sourcePath,
-            ),
+          ...callbackScope,
+          // 原生 _Launch 先求值 assignPairs，再创建投射物；不能到结束回调时
+          // 才读取发射者 EntityBB。回调技能自己的 direct scope 留在延迟 body 内。
+          body: {
+            steps: [
+              {
+                kind: 'scheduleProjectileFinishCallback',
+                parameters: {
+                  delaySeconds: runtime.finishDuration,
+                  recycleDelaySeconds: resolveProjectileRecycleDelaySource(
+                    launch,
+                    input.catalog.callbackGraphs,
+                    sourcePath,
+                  ),
+                },
+                body: callbackScope.body,
+              },
+            ],
           },
-          body: { steps: [callbackScope] },
         },
       ];
     }

@@ -68,6 +68,60 @@ const extension = createZeroDistanceProjectileProjectionExtensionSource({
 });
 
 describe('LaunchProjectile 原生新增目标控制', () => {
+  it('duration finish 在发射处初始化实体板，回调 direct 板留在延迟程序内', () => {
+    const callbackId = 'fixture.finish';
+    const launch = {
+      ...parse(),
+      syncTimeScale: false,
+      callbacks: [
+        { event: 'block' as const, enabled: true, skillId: callbackId },
+        { event: 'finish' as const, enabled: true, skillId: callbackId },
+      ],
+    };
+    const compile = createZeroDistanceProjectileProjectionExtensionSource({
+      catalog: {
+        runtimes: new Map([
+          [
+            runtime.projectileId,
+            {
+              ...runtime,
+              blockLayerDef: { value: 1, name: 'WallAndGround' },
+              finishDuration: 3,
+              finishDistance: { ...runtime.finishDistance, value: 0, blackboardKey: null },
+              finishOnReach: false,
+              hitOnReach: false,
+            },
+          ],
+        ]),
+        templates: new Map([[template.projectileId, template]]),
+        callbackGraphs: new Map([[callbackId, { ...graph(callbackId), durationFrame: 900 }]]),
+      },
+      callbackContext: returnProjectionContext,
+    });
+    expect(compile(launch, 'fixture.launch', returnProjectionContext)).toMatchObject([
+      {
+        kind: 'withActionBlackboardScope',
+        parameters: { scopeKey: `fixture.launch:${launch.projectileId}`, lifetime: 'execution' },
+        body: {
+          steps: [
+            {
+              kind: 'scheduleProjectileFinishCallback',
+              parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
+              body: {
+                steps: [
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: { scopeKey: `fixture.launch:${callbackId}` },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    ]);
+  });
+
   it('旧结构明确没有过滤配置，当前关闭结构保留完整目标设置', () => {
     expect(parse()).toMatchObject({
       targetFilterMode: 'None',

@@ -15,23 +15,37 @@ function delayedProbe(): ResolvedActionSequence {
   return {
     steps: [
       {
-        kind: 'scheduleProjectileFinishCallback',
-        parameters: { delaySeconds: 3, recycleDelaySeconds: 0 },
+        kind: 'withActionBlackboardScope',
+        parameters: {
+          scopeKey: 'projectile',
+          lifetime: 'execution',
+          initialValues: {},
+          inheritParent: true,
+          entityInitialValues: { EntityBB_seed: 4 },
+          entityAssignments: {
+            EntityBB_snapshot: { kind: 'blackboard', key: 'launchValue' },
+            EntityBB_sourceSnapshot: { kind: 'blackboard', key: 'EntityBB_source', fallback: 0 },
+          },
+        },
         body: {
           steps: [
             {
-              kind: 'withActionBlackboardScope',
-              parameters: {
-                scopeKey: 'projectile',
-                lifetime: 'execution',
-                initialValues: { local: 2 },
-                inheritParent: true,
-                entityInitialValues: { EntityBB_seed: 4 },
-                entityAssignments: {
-                  EntityBB_snapshot: { kind: 'blackboard', key: 'launchValue' },
-                },
+              kind: 'scheduleProjectileFinishCallback',
+              parameters: { delaySeconds: 3, recycleDelaySeconds: 0 },
+              body: {
+                steps: [
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'callback',
+                      lifetime: 'execution',
+                      initialValues: { local: 2 },
+                      inheritParent: true,
+                    },
+                    body: { steps: [probe] },
+                  },
+                ],
               },
-              body: { steps: [probe] },
             },
           ],
         },
@@ -154,7 +168,7 @@ describe('projectile callback action lifecycle', () => {
     expect(scheduler.activeCount).toBe(0);
   });
 
-  it('freezes launch direct values and creates the projectile entity scope at callback time', () => {
+  it('samples direct and entity assignment inputs at launch and isolates repeated projectiles', () => {
     const scheduler = new ProjectileLifecycleRuntime();
     const observed: number[][] = [];
     const operations: CombatOperationExecutor = {
@@ -164,12 +178,15 @@ describe('projectile callback action lifecycle', () => {
           context!.blackboard.getNumber('local')!,
           context!.blackboard.getNumber('EntityBB_seed')!,
           context!.blackboard.getNumber('EntityBB_snapshot')!,
+          context!.blackboard.getNumber('EntityBB_sourceSnapshot')!,
         ]);
+        context!.blackboard.assignDynamic('EntityBB_seed', 500);
         return true;
       },
       evaluate: () => true,
     };
-    const blackboard = new ActionBlackboard({ launchValue: 7 });
+    const entityBlackboard = new ActionBlackboard({ EntityBB_source: 11 });
+    const blackboard = new ActionBlackboard({ launchValue: 7 }, entityBlackboard);
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard,
       scheduleProjectileFinishCallback: (
@@ -190,7 +207,16 @@ describe('projectile callback action lifecycle', () => {
 
     runtime.createSequence(delayedProbe()).executeInstant({});
     blackboard.assignDynamic('launchValue', 99);
+    blackboard.assignDynamic('EntityBB_source', 22);
+    runtime.createSequence(delayedProbe()).executeInstant({});
+    blackboard.assignDynamic('launchValue', 100);
+    blackboard.assignDynamic('EntityBB_source', 33);
     for (let frame = 0; frame < 91; frame += 1) scheduler.advanceFrame();
-    expect(observed).toEqual([[7, 2, 4, 7]]);
+    expect(observed).toEqual([
+      [7, 2, 4, 7, 11],
+      [99, 2, 4, 99, 22],
+    ]);
+    expect(entityBlackboard.getNumber('EntityBB_seed')).toBeUndefined();
+    expect(entityBlackboard.getNumber('EntityBB_source')).toBe(33);
   });
 });
