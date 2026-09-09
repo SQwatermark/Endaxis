@@ -20,6 +20,79 @@ import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
 
 describe('attachBuffLifecycleSequences', () => {
+  it.each(['matching', 'other'] as const)(
+    'SkillAffix 将唯一请求引用在 %s 施法时转交或释放',
+    mode => {
+      const dispatcher = new AbilityEventDispatcher<
+        AbilityResponseEventName,
+        AbilityEventPayloadMap
+      >();
+      const container = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+      let request:
+        ((info: import('./skillCastInfo').CombatSkillCastInfo | null) => void) | undefined;
+      const dispose = vi.fn();
+      const definition = attachBuffLifecycleSequences<never>(
+        { id: 'affix', stackingType: 'unique' },
+        { enable: { steps: [{ kind: 'skillAffix', parameters: {} }] } },
+        () =>
+          new BuffOperationExecutor({
+            sourceId: 'owner',
+            resolveTarget: () => container,
+            readProcessingSkillCastId: () => 42,
+            delegate: { execute: () => false, evaluate: () => false },
+          }),
+        undefined,
+        [],
+        undefined,
+        [],
+        [],
+        [],
+        undefined,
+        [],
+        (event, callback) => dispatcher.registerCallback(event, callback),
+        callback => {
+          request = callback;
+          return { dispose };
+        },
+      );
+      const buff = container.add(definition, 'owner')!;
+      const info = {
+        skillCastId: 42,
+        originSkillId: 'skill',
+        originSkillType: 'battleSkill' as const,
+        nonReturnedSpCost: 0,
+      };
+      const emit = (event: 'beforeCastSkill' | 'skillEnd', skillCastId: number) =>
+        dispatcher.dispatch(
+          {
+            event,
+            payload: {
+              sourceId: 'owner',
+              targetId: 'owner',
+              skillId: 'skill',
+              skillType: 'battleSkill',
+              skillCastId,
+            },
+          },
+          [],
+        );
+      request!(info);
+      request!(info); // 重复匹配只保留一次；不匹配请求本身也不释放旧 pending。
+      request!({ ...info, skillCastId: 99 });
+      emit('skillEnd', 42);
+      expect(buff.isFinished).toBe(false);
+      emit('beforeCastSkill', mode === 'matching' ? 42 : 99);
+      if (mode === 'matching') {
+        expect(buff.isFinished).toBe(false);
+        emit('skillEnd', 42);
+      }
+      expect(buff.isFinished).toBe(true);
+      expect(dispose).toHaveBeenCalledOnce();
+      request!(info); // 分发快照残留回调不能重新取得引用。
+      expect(dispose).toHaveBeenCalledOnce();
+    },
+  );
+
   it('父结束动作先执行并可新增子实例，标记父已结束后再以空施法清理全部子实例', () => {
     const seen: unknown[] = [];
     let parent: import('../buffs/combatBuffs').CombatBuff<never>;

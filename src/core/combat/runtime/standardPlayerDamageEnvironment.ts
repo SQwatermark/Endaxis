@@ -141,6 +141,7 @@ type EnvironmentOptions = Pick<
   | 'resolveUltimateEnergyGainMultiplier'
   | 'createOperationExecutor'
   | 'emitAbilityEvent'
+  | 'onPostSkillCastRequest'
   | 'createEquipmentEventOperationExecutor'
   | 'registerEquipmentAbilityEventAction'
   | 'registerPassiveAbilityEventAction'
@@ -253,6 +254,10 @@ export class StandardPlayerDamageEnvironment {
   readonly #enemyBuffRuntime: BuffDefinitionOperationTarget<string>;
   readonly #enemyKnockDown: OrdinaryKnockDownRuntime | null;
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
+  readonly #postSkillRequestListeners = new Map<
+    string,
+    Set<(info: import('./skillCastInfo').CombatSkillCastInfo | null) => void>
+  >();
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactionModifiers = new Map<
     string,
@@ -337,6 +342,7 @@ export class StandardPlayerDamageEnvironment {
       event => this.#emit(event.sourceId, 'outputBuff', event),
       event => this.#emit('enemy', 'beforeAddedBuff', event),
       (event, handle) => this.eventsFor('enemy').registerCallback(event, handle),
+      handle => this.#registerPostSkillRequest('enemy', handle),
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
@@ -425,12 +431,17 @@ export class StandardPlayerDamageEnvironment {
           event => this.#emit(event.sourceId, 'outputBuff', event),
           event => this.#emit(entityId, 'beforeAddedBuff', event),
           (event, handle) => this.eventsFor(entityId).registerCallback(event, handle),
+          handle => this.#registerPostSkillRequest(entityId, handle),
         );
       },
       createOperationExecutor: context => this.#createOperationExecutor(context),
       readSourceAttributeValue: (sourceId, request) =>
         this.#readSourceAttributeValue(sourceId, request),
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
+      onPostSkillCastRequest: (ownerId, info) => {
+        for (const handle of [...(this.#postSkillRequestListeners.get(ownerId) ?? [])])
+          handle(info);
+      },
       emitOperatorEnterFight: operatorId =>
         this.#emit(operatorId, 'enterFight', {
           sourceId: operatorId,
@@ -489,6 +500,26 @@ export class StandardPlayerDamageEnvironment {
   }
 
   /** 返回本场战斗内指定实体独占的事件中心，供后续 Buff、天赋和活动机制注册监听。 */
+  #registerPostSkillRequest(
+    ownerId: string,
+    handle: (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void,
+  ): { dispose(): void } {
+    let listeners = this.#postSkillRequestListeners.get(ownerId);
+    if (listeners === undefined) {
+      listeners = new Set();
+      this.#postSkillRequestListeners.set(ownerId, listeners);
+    }
+    const entry = (info: import('./skillCastInfo').CombatSkillCastInfo | null) => handle(info);
+    listeners.add(entry);
+    return {
+      dispose: () => {
+        listeners.delete(entry);
+        if (listeners.size === 0 && this.#postSkillRequestListeners.get(ownerId) === listeners)
+          this.#postSkillRequestListeners.delete(ownerId);
+      },
+    };
+  }
+
   eventsFor(
     entityId: string,
   ): AbilityEventDispatcher<StandardPlayerDamageEvent, StandardPlayerDamagePayloadMap> {
@@ -998,6 +1029,7 @@ export class StandardPlayerDamageEnvironment {
         event => this.#emit(event.sourceId, 'outputBuff', event),
         event => this.#emit(operatorId, 'beforeAddedBuff', event),
         (event, handle) => this.eventsFor(operatorId).registerCallback(event, handle),
+        handle => this.#registerPostSkillRequest(operatorId, handle),
       );
       runtime.configureAdvancedObserver(() =>
         this.#buffProgress.sample(operatorId, container.buffs, this.#requireClock().frame),

@@ -208,6 +208,10 @@ class CompositeBuffDuringEnableAction<Key extends string> implements BuffDuringE
   }
 }
 
+export type RegisterPostSkillCastRequest = (handle: (info: CombatSkillCastInfo | null) => void) => {
+  dispose(): void;
+};
+
 /** 为一份已编译 Buff 定义安装同步生命周期序列。 */
 export function attachBuffLifecycleSequences<Key extends string>(
   definition: CombatBuffDefinition<Key>,
@@ -226,6 +230,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   registerSemanticEventAction?: RegisterBuffSemanticEventAction,
   damageModifierConditionPrograms: readonly (ResolvedActionSequence | undefined)[] = [],
   registerAbilityEventCallback?: RegisterBuffAbilityEventCallback,
+  registerPostSkillCastRequest?: RegisterPostSkillCastRequest,
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -256,6 +261,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
           throw new Error('SkillAffix requires Buff ability-event registration');
         buff.recordBuffAffixSkillCastId(skillCastId);
         let references = 1;
+        let pendingRequest = false;
         let disposed = false;
         const registrations: AbilityEventRegistration[] = [];
         const objectReferences = new Set<{ dispose(): void }>();
@@ -263,6 +269,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
           dispose: () => {
             if (disposed) return;
             disposed = true;
+            pendingRequest = false;
             for (const handle of registrations) handle.dispose();
             for (const handle of objectReferences) handle.dispose();
             objectReferences.clear();
@@ -309,20 +316,29 @@ export function attachBuffLifecycleSequences<Key extends string>(
             return;
           }
           const event = skillAbilityEvent(published);
-          if (
-            event === undefined ||
-            event.payload.sourceId !== buff.owner.ownerId ||
-            event.payload.skillCastId !== skillCastId
-          )
-            return;
+          if (event === undefined || event.payload.sourceId !== buff.owner.ownerId) return;
           if (event.event === 'beforeCastSkill') {
-            // 即时施法路径；原生 pending-request 引用由另一对象委托维护。
-            references++;
+            if (event.payload.skillCastId === skillCastId) {
+              if (pendingRequest) pendingRequest = false;
+              else references++;
+            } else if (pendingRequest) {
+              pendingRequest = false;
+              decreaseReference();
+            }
             return;
           }
-          if (event.event === 'skillEnd') decreaseReference();
+          if (event.event === 'skillEnd' && event.payload.skillCastId === skillCastId)
+            decreaseReference();
         };
         try {
+          if (registerPostSkillCastRequest !== undefined)
+            registrations.push(
+              registerPostSkillCastRequest(info => {
+                if (disposed || pendingRequest || info?.skillCastId !== skillCastId) return;
+                references++;
+                pendingRequest = true;
+              }),
+            );
           registrations.push(registerAbilityEventCallback('beforeCastSkill', handle));
           registrations.push(registerAbilityEventCallback('skillEnd', handle));
           registrations.push(registerAbilityEventCallback('outputBuff', handle));

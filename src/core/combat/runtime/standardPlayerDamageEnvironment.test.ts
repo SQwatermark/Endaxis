@@ -1,4 +1,5 @@
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
+import { AbilitySystemRuntime } from './abilitySystemRuntime';
 import { expectTypeOf } from 'vitest';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import type {
@@ -8,6 +9,43 @@ import type {
 import type { PoiseDamageModifier } from '../damage/poiseDamage';
 import type { HealthDamageEventPayload } from '../damage/healthDamage';
 import type { KnockDownEventPayload } from './knockDownOperationExecutor';
+
+it('延迟请求对象通知接到对应 Buff 宿主，注销不影响之后的新订阅', () => {
+  const environment = createEnvironment();
+  const target = environment.runtimeOptions.enemyBuffRuntime;
+  if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const received: unknown[] = [];
+  const register = target.registerPostSkillCastRequest!;
+  const first = register(info => received.push(info));
+  environment.runtimeOptions.onPostSkillCastRequest?.('operator', null);
+  expect(received).toEqual([]);
+  const create = () =>
+    new AbilitySystemRuntime({
+      skills: [
+        {
+          skillId: 'next',
+          skillType: 'battleSkill',
+          state: 'ready',
+          canStart: () => true,
+          tryStart: () => true,
+          interrupt: () => {},
+          advanceFrame: () => {},
+        },
+      ],
+      onPostSkillCastRequest: info =>
+        environment.runtimeOptions.onPostSkillCastRequest?.('enemy', info),
+    });
+  create().requestPostSkillCast({ skillId: 'next' });
+  expect(received).toEqual([null]);
+  first.dispose();
+  const second = register(info => received.push(info));
+  first.dispose();
+  create().requestPostSkillCast({ skillId: 'next' });
+  expect(received).toEqual([null, null]);
+  second.dispose();
+  create().requestPostSkillCast({ skillId: 'next' });
+  expect(received).toHaveLength(2);
+});
 
 it.each([
   'enhance',

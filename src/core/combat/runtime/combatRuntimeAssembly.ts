@@ -337,6 +337,10 @@ export interface CombatRuntimeAssemblyOptions {
     context: CombatOperationExecutorContext,
   ) => CombatOperationExecutor;
   /** 发布端使用公共事件载荷；具体生产能力由安装的运行时端口决定。 */
+  readonly onPostSkillCastRequest?: (
+    ownerId: string,
+    info: import('./skillCastInfo').CombatSkillCastInfo | null,
+  ) => void;
   readonly emitAbilityEvent?: <
     Event extends import('../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent,
   >(
@@ -829,6 +833,8 @@ export class CombatRuntimeAssembly {
       this.#abilitySystems.set(
         operator.operatorId,
         new AbilitySystemRuntime({
+          onPostSkillCastRequest: info =>
+            options.onPostSkillCastRequest?.(operator.operatorId, info),
           buffRuntime,
           skills,
           skillTickPlan: [...cooldownPrograms.keys()].map(skillId => ({

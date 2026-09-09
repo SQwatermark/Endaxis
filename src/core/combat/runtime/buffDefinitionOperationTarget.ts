@@ -27,6 +27,7 @@ import {
   type RegisterBuffAbilityEventAction,
   type RegisterBuffAbilityEventCallback,
   type RegisterBuffSemanticEventAction,
+  type RegisterPostSkillCastRequest,
 } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
@@ -60,6 +61,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly onOutputBuff?: (event: AbilityOutputBuffPayload) => void,
     readonly onBeforeBuffAdded?: (event: BuffAppliedEvent) => void,
     readonly registerAbilityEventCallback?: RegisterBuffAbilityEventCallback,
+    readonly registerPostSkillCastRequest?: RegisterPostSkillCastRequest,
   ) {}
 
   get ownerId(): string {
@@ -290,6 +292,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
             this.#registerSemanticEventAction ?? undefined,
             damageModifierConditionPrograms,
             this.registerAbilityEventCallback,
+            this.registerPostSkillCastRequest,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;

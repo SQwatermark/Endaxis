@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：SkillAffix 消费正式延迟请求通知
+
+CombatRuntimeAssembly→StandardPlayerDamageEnvironment→BuffDefinitionOperationTarget
+已把 onPostSkillCastRequest 接入同宿主 SkillAffix，不经 AbilityEvent 枚举/动作优先级。
+匹配且未 pending 的请求引用+1；重复匹配不重复增加，不匹配请求本身不释放；
+匹配 BeforeCast 消耗 pending 但不再加引用，其他 BeforeCast 先清 pending 再减引用。
+普通即时施法仍保持原有加引用，SkillEnd 只减匹配来源；解绑释放对象委托订阅。
+证据沿用 combat-spec/cast-skill-action、skill-affix-identity-2026-09-04。
+
+新增3项回归覆盖计数转交/释放和标准环境宿主隔离/重复注销，117文件1418项通过；
+类型检查及最终122项专题复跑通过。
+四真实轴完整结果一致，报告 tmp/event-unification-candidates-mz38x5/skill-affix-pending-request-axes.json。
+这闭合 Endaxis 现有延迟请求消费路径，不代表 C# 已有完整延迟请求宿主，也不覆盖
+尚未接入完整技能宿主的投射物/能力实体请求。事件整体仍未验收完成。
+
 ## 2026-09-10：延迟施法请求的原生对象通知端口
 
 核实当前 TryCastSkillDuringAction：先写请求槽，再通知 onPostSkillTryCastRequest，
