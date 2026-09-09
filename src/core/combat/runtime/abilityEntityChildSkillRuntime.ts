@@ -18,6 +18,7 @@ import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { LogicalAbilityEntityChildRuntime } from './logicalAbilityEntityRuntime';
+import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 
 export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChildRuntime {
   readonly #context: CombatExecutionContext = {};
@@ -37,7 +38,7 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       readonly ownerOperatorId: string;
       readonly semanticEvents?: CombatSemanticEventRuntime;
       readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
-      readonly addAbilityChildBuff?: (child: { finish(reason: 'other'): boolean }) => void;
+      readonly addAbilityChildBuff?: (child: BuffApplicationHandle) => void;
     },
   ) {
     // 原生实体技能先有自身 SkillData 默认值，再由 SpawnAbilityEntity.assignBlackboard

@@ -380,7 +380,9 @@ describe('EquipmentEventRuntime', () => {
     const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const finished: string[] = [];
     const child = (id: string) => ({
-      finish: () => {
+      finish: (reason: unknown, source: unknown) => {
+        expect(reason).toBe('other');
+        expect(source).toBeNull();
         finished.push(id);
         return true;
       },

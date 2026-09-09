@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：Ability 子 Buff 清理来源
+
+核实当前镜像 Ability._RemoveAllChildrenBuff 的冷区调用：Other、空 ObjectPtr、
+空 SkillCastInfo，详见 combat-spec/docs/buff-automatic-finish-source.md。
+配装 Ability dispose 显式传 null；初始化/事件产生的子实例测试检查空来源与顺序。
+Ability 子句柄统一使用 BuffApplicationHandle，删掉配装、能力实体及动作上下文中
+重复的窄 finish 签名。能力实体只改类型，尚未改变其清理来源与顺序；GlobalBuff 也未改。
+1212项运行时/Buff/事件回归通过。四条真实轴无新增差异，仍为既有0/0/7/3处顺序变化，
+回执集合（除序号）和诊断一致。事件统一尚未总验收。
+
 ## 2026-09-10：技能附属Buff结束来源复核
 
 当前Skill.CastEnd经_FinishBuffs辅助方法调用MarkFinish，已核实传入空ObjectPtr和

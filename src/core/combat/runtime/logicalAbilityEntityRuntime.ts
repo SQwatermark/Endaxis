@@ -18,6 +18,7 @@ import {
 } from './timedMarkers';
 import type { GameplayTag } from '../tags/gameplayTags';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied' | 'stackingLimit';
@@ -103,7 +104,7 @@ interface LogicalAbilityEntityInstance {
   pendingReleaseElapsedSeconds: number;
   pendingReleaseReason?: LogicalAbilityEntityFinishReason;
   readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
-  readonly childBuffs: { finish(reason: 'other'): boolean }[];
+  readonly childBuffs: BuffApplicationHandle[];
 }
 
 function requireDuration(value: number, name: string): number {
@@ -250,7 +251,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   }
 
   /** 原生 asChildBuff：子 Buff 的寿命归当前能力实体所有。 */
-  addChildBuff(entity: RuntimeTargetRef, child: { finish(reason: 'other'): boolean }): void {
+  addChildBuff(entity: RuntimeTargetRef, child: BuffApplicationHandle): void {
     this.#requireInstance(entity).childBuffs.push(child);
   }
 

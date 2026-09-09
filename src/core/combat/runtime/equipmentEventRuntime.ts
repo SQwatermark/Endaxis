@@ -25,6 +25,7 @@ import {
   withCombatEventResponseContext,
 } from './abilityEventResponseContext';
 import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
+import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
@@ -56,7 +57,7 @@ export class EquipmentEventRuntime {
   readonly #enabled = new Set<number>();
   #disposed = false;
   // 固定配装的被动 Ability 存活到本运行实例释放；不能把子 Buff 挂到触发它的主动技能。
-  readonly #children = new Map<number, { finish(reason: 'other'): boolean }[]>();
+  readonly #children = new Map<number, BuffApplicationHandle[]>();
 
   constructor(
     semanticEvents: CombatSemanticEventRuntime,
@@ -140,7 +141,7 @@ export class EquipmentEventRuntime {
     this.#disposed = true;
     for (const registration of this.#registrations.splice(0)) registration.dispose();
     for (const children of this.#children.values()) {
-      for (const child of children.splice(0)) child.finish('other');
+      for (const child of children.splice(0)) child.finish('other', null);
     }
     this.#children.clear();
     this.#blackboards.clear();
@@ -168,7 +169,7 @@ export class EquipmentEventRuntime {
   }
 
   /** 初始化和事件动作共享被动 Ability 的所有权，不随单次初始化序列结束。 */
-  addChildBuff(contributionIndex: number, child: { finish(reason: 'other'): boolean }): void {
+  addChildBuff(contributionIndex: number, child: BuffApplicationHandle): void {
     const children = this.#children.get(contributionIndex);
     if (children === undefined)
       throw new Error(`equipment Ability '${contributionIndex}' is not active`);
@@ -185,7 +186,7 @@ export class EquipmentEventRuntime {
       blackboard: this.blackboardFor(contributionIndex),
       actionOwnerId: this.#operatorId,
       actionSourceId: this.#operatorId,
-      addAbilityChildBuff: (child: { finish(reason: 'other'): boolean }) => {
+      addAbilityChildBuff: (child: BuffApplicationHandle) => {
         this.addChildBuff(contributionIndex, child);
       },
     } satisfies CombatOperationContext;
