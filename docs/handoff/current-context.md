@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：事件黑板读取补齐输入目标检查
+
+现有转换只准入 GetTargetBuffBBAdvanced(Target, Context)。按复刻库已确认顺序，
+readEventBuffBlackboard 先要求 actionInputTarget 存在；没有输入目标时返回 false，
+不读取事件 Buff，也不改输出黑板。不能用事件 payload.targetId 或 Buff owner 补目标。
+契约注释同步修正为实时实例读取；测试明确区分事件目标与动作输入目标。
+这不新增目标种类，也不放行尚未核实的 BuffContext 子类。
+验证：1182项运行时/Buff测试和完整应用类型检查通过，四条真实轴回执/告警不变。
+
 ## 2026-09-10：结束/消费事件保留可读实例
 
 finishedBuff、buffEndsEarly、buffConsumed、buffAbsorbed 载荷必填原始 Buff 实例读取端口，

@@ -511,7 +511,7 @@ export interface CombatStepParameters {
     desiredKey: string;
     outputKey: string;
   };
-  /** 从 OnConsumeBuff/OnFinishedBuff 事件携带的运行时 Buff 快照读取黑板。 */
+  /** 原生 Target + Context 查询：先要求动作输入目标存在，再读取事件 Buff 的实时黑板。 */
   readEventBuffBlackboard: {
     desiredKey: string;
     outputKey: string;

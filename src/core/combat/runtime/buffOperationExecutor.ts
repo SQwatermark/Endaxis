@@ -563,6 +563,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'readEventBuffBlackboard') {
       if (context === undefined)
         throw new Error('readEventBuffBlackboard requires an action context');
+      // 当前转换仅准入 GetTargetBuffBBAdvanced(Target, Context)。不能以事件 targetId
+      // 替代 Sequence 传入的 TargetHandle；目标为空时原生先返回失败。
+      if (context.actionInputTarget === undefined) return false;
       const event = context.event;
       if (
         event === undefined ||

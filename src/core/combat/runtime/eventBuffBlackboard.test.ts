@@ -7,6 +7,43 @@ import { BuffOperationExecutor } from './buffOperationExecutor';
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import type { CombatOperationContext } from './skillRuntime';
 
+it('事件目标和 Buff 存在，也不能代替缺失的动作输入目标', () => {
+  const blackboard = new ActionBlackboard({ result: 9 });
+  const buff = createEventBuff({ count: 3 });
+  const executor = new BuffOperationExecutor({
+    sourceId: 'owner',
+    resolveTarget: () => {
+      throw new Error('must not query another Buff');
+    },
+    delegate: { execute: () => false, evaluate: () => false },
+  });
+  const succeeded = executor.execute(
+    {
+      kind: 'readEventBuffBlackboard',
+      parameters: {
+        desiredKey: 'count',
+        outputKey: 'result',
+      },
+    },
+    {
+      blackboard,
+      event: {
+        event: 'buffConsumed',
+        payload: {
+          buff,
+          sourceId: 'owner',
+          targetId: 'enemy',
+          buffId: 'buff:test',
+          buffTags: [],
+          layers: 1,
+        },
+      },
+    },
+  );
+  expect(succeeded).toBe(false);
+  expect(blackboard.getNumber('result')).toBe(9);
+});
+
 it.each([
   undefined,
   {
@@ -31,7 +68,7 @@ it.each([
           outputKey: 'result',
         },
       },
-      { blackboard, event },
+      { blackboard, event, actionInputTarget: { kind: 'enemy' } },
     ),
   ).toBe(false);
   expect(blackboard.getNumber('result')).toBe(9);
@@ -68,18 +105,23 @@ it.each(['finishedBuff', 'buffEndsEarly', 'buffConsumed', 'buffAbsorbed'] as con
       published.payload.buff.blackboard.assignDynamic('count', 7);
     });
     dispatcher.registerAction(event, 0, published => {
-      withAbilityEventResponseContext(context, published, undefined, () => {
-        executor.execute(
-          {
-            kind: 'readEventBuffBlackboard',
-            parameters: {
-              desiredKey: 'count',
-              outputKey: 'result',
+      withAbilityEventResponseContext(
+        context,
+        published,
+        { inputTarget: { kind: 'enemy' }, triggerTarget: null },
+        () => {
+          executor.execute(
+            {
+              kind: 'readEventBuffBlackboard',
+              parameters: {
+                desiredKey: 'count',
+                outputKey: 'result',
+              },
             },
-          },
-          context,
-        );
-      });
+            context,
+          );
+        },
+      );
     });
     dispatcher.dispatch({ event, payload }, []);
     expect(output.getNumber('result')).toBe(7);

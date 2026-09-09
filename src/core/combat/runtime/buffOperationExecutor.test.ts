@@ -1820,6 +1820,7 @@ describe('BuffOperationExecutor', () => {
         },
         {
           blackboard,
+          actionInputTarget: { kind: 'enemy' },
           event: {
             event: 'buffConsumed' as const,
             payload: {
