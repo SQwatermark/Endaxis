@@ -40,6 +40,7 @@ const stepAnnotations = {
   },
   finishCurrentBuff: {
     reason: display('buffFinishReason', 'buffFinishReasons', 'buffRuntimeContextHelp'),
+    finishSource: display('buffSource', 'actionContextIdentities', 'buffRuntimeContextHelp'),
   },
   setCurrentBuffTimePaused: {
     paused: display('buffTimePaused', undefined, 'buffRuntimeContextHelp'),

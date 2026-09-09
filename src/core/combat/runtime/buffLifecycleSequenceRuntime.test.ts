@@ -890,7 +890,11 @@ describe('attachBuffLifecycleSequences', () => {
           throw new Error(`unexpected operation '${step.kind}'`);
         }
         executions += 1;
-        return context!.finishCurrentBuff!(step.parameters.reason);
+        return context!.finishCurrentBuff!(
+          step.parameters.reason,
+          context!.buffSourceId!,
+          context!.skillCastInfo ?? null,
+        );
       },
       evaluate: condition => {
         throw new Error(`unexpected condition '${condition.kind}'`);
@@ -907,7 +911,12 @@ describe('attachBuffLifecycleSequences', () => {
           event: 'beforeTakeDamage',
           priority: 0,
           sequence: {
-            steps: [{ kind: 'finishCurrentBuff', parameters: { reason: 'early' } }],
+            steps: [
+              {
+                kind: 'finishCurrentBuff',
+                parameters: { reason: 'early', finishSource: 'actionSource' },
+              },
+            ],
           },
         },
       ],
@@ -933,11 +942,16 @@ describe('attachBuffLifecycleSequences', () => {
         [],
       );
 
+    const consumed: unknown[] = [];
+    container.configureConsumedObserver((instance, sourceId, layers, cast) => {
+      consumed.push({ instance, sourceId, layers, cast });
+    });
     dispatch();
     dispatch();
 
     expect(executions).toBe(1);
     expect(buff.isFinished).toBe(true);
+    expect(consumed).toEqual([{ instance: buff, sourceId: 'seal', layers: 1, cast: null }]);
   });
 
   it('按原始技能与结束 Buff 身份暂停并恢复当前 Buff 计时', () => {

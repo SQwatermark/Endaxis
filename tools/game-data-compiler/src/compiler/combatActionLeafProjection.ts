@@ -802,6 +802,8 @@ export function compileActionNode(
           kind: 'finishCurrentBuff',
           parameters: {
             reason: action.isFinishedEarly ? 'early' : action.isAbsorbed ? 'absorbed' : 'other',
+            finishSource:
+              action.finishSource.targetSource === 'Owner' ? 'actionOwner' : 'actionSource',
           },
         },
       ];

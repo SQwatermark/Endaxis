@@ -17,6 +17,52 @@ import { buffHasNoAffixIdentityWriter } from '../src/compiler/buffCastIdentityPr
 import { compileActionNode } from '../src/compiler/combatActionLeafProjection.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it.each(['Source', 'Owner'])('当前实例结束保留原生来源：%s', finishSource => {
+    const metadata = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[0]!.metadata;
+    const steps = compileActionNode(
+      {
+        sourcePath: 'fixture.finishEnvironment',
+        metadata,
+        body: {
+          kind: 'leaf',
+          value: {
+            family: 'buffFinish',
+            action: {
+              kind: 'buffFinishByQuery',
+              owner: fixedTarget('Owner'),
+              settings: {
+                checkType: 'Environment',
+                buffIds: [],
+                tagQuery: { queryType: 'hasAny', tagIds: [] },
+              },
+              finishAll: true,
+              finishLayerCount: { value: 1, blackboardKey: null, levelValues: null },
+              limitSource: false,
+              buffSource: fixedTarget('Source'),
+              isFinishedEarly: true,
+              finishSource: fixedTarget(finishSource),
+            },
+          },
+        },
+      },
+      new Set(),
+      new Map(),
+      {
+        actionOwnerTarget: 'buffOwner',
+        fixedBuffOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+      },
+    );
+    expect(steps).toEqual([
+      {
+        kind: 'finishCurrentBuff',
+        parameters: {
+          reason: 'early',
+          finishSource: finishSource === 'Owner' ? 'actionOwner' : 'actionSource',
+        },
+      },
+    ]);
+  });
   it.each([true, false])('空目标伤害覆盖旧的静态敌人证明（alwaysNext=%s）', alwaysNext => {
     const node = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[1]!;
     const project = () =>

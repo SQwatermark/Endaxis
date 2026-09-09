@@ -828,7 +828,7 @@ export function createSkillEditorStep(
     case 'skillAffix':
       return { kind, parameters: {} };
     case 'finishCurrentBuff':
-      return { kind, parameters: { reason: 'early' } };
+      return { kind, parameters: { reason: 'early', finishSource: 'actionSource' } };
     case 'setCurrentBuffTimePaused':
       return { kind, parameters: { paused: true } };
     case 'createGlobalBuff':

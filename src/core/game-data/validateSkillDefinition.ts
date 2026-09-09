@@ -2693,6 +2693,13 @@ function validateCombatStep(
       break;
     case 'finishCurrentBuff':
       requireEnum(parameters, 'reason', BUFF_FINISH_REASONS_SET, `${path}.parameters`, out);
+      requireEnum(
+        parameters,
+        'finishSource',
+        new Set(['actionSource', 'actionOwner']),
+        `${path}.parameters`,
+        out,
+      );
       break;
     case 'setCurrentBuffTimePaused':
       requireBoolean(parameters, 'paused', `${path}.parameters`, out);

@@ -1442,7 +1442,9 @@ export default {
           sequence: sequence(
             branch(
               { kind: 'eventSkillIdIn', skillIds: ['chr_0009_azrila_normal_skill'] },
-              sequence(step('finishCurrentBuff', { reason: 'other' })),
+              sequence(
+                step('finishCurrentBuff', { reason: 'other', finishSource: 'actionSource' }),
+              ),
             ),
           ),
         },

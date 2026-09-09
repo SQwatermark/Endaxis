@@ -29,7 +29,10 @@ describe('参数集合保留原始数据形态', () => {
     }
     expect(operation.write(original, 'invalid')).toBe(original);
     const reason = stepInspectorFields('finishCurrentBuff')![0]!;
-    expect(reason.write({ reason: 'early' }, 'absorbed')).toEqual({ reason: 'absorbed' });
+    expect(reason.write({ reason: 'early', finishSource: 'actionOwner' }, 'absorbed')).toEqual({
+      reason: 'absorbed',
+      finishSource: 'actionOwner',
+    });
     expect(
       stepInspectorFields('setCurrentBuffTimePaused')![0]!.write({ paused: true }, false),
     ).toEqual({ paused: false });

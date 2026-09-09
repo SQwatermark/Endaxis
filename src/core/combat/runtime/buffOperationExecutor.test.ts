@@ -1037,31 +1037,47 @@ describe('BuffOperationExecutor', () => {
     expect(child.finish).not.toHaveBeenCalled();
   });
 
-  it('finishes the Buff instance supplied by its lifecycle event context', () => {
-    const blackboard = new ActionBlackboard();
-    const reasons: string[] = [];
-    const executor = new BuffOperationExecutor({
-      sourceId: 'operator',
-      resolveTarget: () => {
-        throw new Error('finishCurrentBuff must not resolve an entity Buff container');
-      },
-      delegate,
-    });
-
-    expect(
-      executor.execute(
-        { kind: 'finishCurrentBuff', parameters: { reason: 'early' } },
-        {
-          blackboard,
-          finishCurrentBuff: reason => {
-            reasons.push(reason);
-            return true;
-          },
+  it.each(['actionSource', 'actionOwner'] as const)(
+    '当前实例结束来源独立于触发事件：%s',
+    finishSource => {
+      const blackboard = new ActionBlackboard();
+      const reasons: string[] = [];
+      const executor = new BuffOperationExecutor({
+        sourceId: 'operator',
+        resolveTarget: () => {
+          throw new Error('finishCurrentBuff must not resolve an entity Buff container');
         },
-      ),
-    ).toBe(true);
-    expect(reasons).toEqual(['early']);
-  });
+        delegate,
+      });
+
+      expect(
+        executor.execute(
+          { kind: 'finishCurrentBuff', parameters: { reason: 'early', finishSource } },
+          {
+            blackboard,
+            buffSourceId: 'operator',
+            actionSourceId: 'action-source',
+            buffOwnerId: 'buff-owner',
+            eventSkillCastInfo: {
+              skillCastId: 99,
+              originSkillId: 'event',
+              originSkillType: 'comboSkill',
+              nonReturnedSpCost: 10,
+            },
+            finishCurrentBuff: (reason, sourceId, cast) => {
+              expect(sourceId).toBe(
+                finishSource === 'actionSource' ? 'action-source' : 'buff-owner',
+              );
+              expect(cast).toBeNull();
+              reasons.push(reason);
+              return true;
+            },
+          },
+        ),
+      ).toBe(true);
+      expect(reasons).toEqual(['early']);
+    },
+  );
 
   it('finishes Buffs on the current ability entity without aliasing it to the caster', () => {
     const finished: string[][] = [];

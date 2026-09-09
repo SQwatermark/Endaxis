@@ -575,6 +575,8 @@ export interface CombatStepParameters {
   /** 结束当前正在执行生命周期或事件响应的 Buff 实例。 */
   finishCurrentBuff: {
     reason: 'early' | 'absorbed' | 'other';
+    /** 原生 FinishSource；不使用事件来源替代动作来源。 */
+    finishSource: 'actionSource' | 'actionOwner';
   };
   /** 设置当前正在执行事件响应的 Buff 实例是否暂停计时。 */
   setCurrentBuffTimePaused: {

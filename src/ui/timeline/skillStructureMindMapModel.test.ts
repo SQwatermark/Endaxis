@@ -72,7 +72,7 @@ describe('skillStructureMindMapModel', () => {
     expect(findSkillStructureNodeForPath(root, responsePath).payloadKind).toBe('eventResponse');
     const changed = appendCombatStepInStructure(definition, path, {
       kind: 'finishCurrentBuff',
-      parameters: { reason: 'early' },
+      parameters: { reason: 'early', finishSource: 'actionSource' },
     });
     expect((resolveStructureValue(changed.root, path) as { steps: unknown[] }).steps).toHaveLength(
       2,

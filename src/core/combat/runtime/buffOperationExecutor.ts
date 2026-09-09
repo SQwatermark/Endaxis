@@ -760,7 +760,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       if (context?.finishCurrentBuff === undefined) {
         throw new Error('finishCurrentBuff requires a Buff operation context');
       }
-      context.finishCurrentBuff(step.parameters.reason);
+      const sourceId =
+        step.parameters.finishSource === 'actionOwner'
+          ? (context.actionOwnerId ?? context.buffOwnerId)
+          : (context.actionSourceId ?? context.buffSourceId);
+      if (sourceId === undefined)
+        throw new Error(`finishCurrentBuff requires ${step.parameters.finishSource} identity`);
+      context.finishCurrentBuff(step.parameters.reason, sourceId, context.skillCastInfo ?? null);
       return true;
     }
 

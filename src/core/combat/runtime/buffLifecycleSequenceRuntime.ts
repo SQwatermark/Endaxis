@@ -243,7 +243,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
       buffSourceId: buff.sourceId,
       buffOwnerId: buff.owner.ownerId,
-      finishCurrentBuff: reason => buff.finish(reason),
+      finishCurrentBuff: (reason, sourceId, skillCastInfo) =>
+        buff.owner.finishInstance(buff, reason, sourceId, skillCastInfo),
       bindCurrentBuffSkillAffix: skillCastId => {
         if (registerAbilityEventAction === undefined)
           throw new Error('SkillAffix requires Buff ability-event registration');

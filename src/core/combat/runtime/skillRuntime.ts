@@ -88,7 +88,11 @@ export interface CombatOperationContext {
   /** 已证明的动作来源；用于折叠为初始化后不再拥有事件载荷的 Ability 程序。 */
   readonly actionSourceId?: string;
   /** 仅由 Buff 生命周期与事件响应提供；Environment 查询精确指向当前实例。 */
-  readonly finishCurrentBuff?: (reason: BuffFinishReason) => boolean;
+  readonly finishCurrentBuff?: (
+    reason: BuffFinishReason,
+    sourceId: string,
+    skillCastInfo: CombatSkillCastInfo | null,
+  ) => boolean;
   /** 仅 Buff 环境提供；动作结束解除监听，不清除已记录的 affix 编号。 */
   readonly bindCurrentBuffSkillAffix?: (skillCastId: number) => { dispose(): void };
   /** 只由 GlobalBuff 投影出的子 Buff 提供；不得按 ID 猜测父层。 */
