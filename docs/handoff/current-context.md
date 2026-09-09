@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：修正复刻库CastEnd错误清理Ability子Buff
+
+完整检查Skill.CastEnd 030F5A60至030F73B9：时间轴结束内联于本方法，最后清本次
+施法附属列表，没有无条件Disable Ability或清Ability子Buff。C# Skill.End移除后者，
+回归明确CastEnd后子Buff存活、显式所有权清理后才结束；不新增未经核实的生命周期接口。
+同时更正证据文档：03D75CA0是ActionContainer.Release，不是SkillController.Release。
+118项相关测试通过；全库1808/1814通过，6失败来自旧资源目录缺失（3）、曲线缺wrap
+模式（1）、源数据计数断言不符（2）。未放宽解析器，未称全库通过。
+本轮Endaxis仅同步文档；实体Ability子Buff完整销毁顺序、SkillAffix等余项仍未闭合。
+本节取代下节“暂未改生命周期”的待办状态。原生地址及限制见复刻库同名证据专题。
+
 ## 2026-09-10：Ability子Buff与施法附属Buff发现边界疑点
 
 反编译确认Ability.CastEnd只结束时间轴，Ability.Disable才注销响应/清被动/清子Buff；
