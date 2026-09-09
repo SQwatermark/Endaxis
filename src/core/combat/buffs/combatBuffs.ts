@@ -661,7 +661,6 @@ export class CombatBuff<Key extends string> {
     // 强化层等价于重复注册同一组属性修正；重复对象可保留八槽中加法与乘法槽各自的聚合公式。
     this.replaceAttributeModifiers(this.createAttributeModifiers());
     this.definition.actions?.enhanceChanged?.(this, sourceId);
-    this.owner.handleBuffEnhanced(this, 1);
   }
 
   resetTimedGrowthPeriod(): void {
@@ -684,8 +683,10 @@ export class CombatBuff<Key extends string> {
     return true;
   }
 
-  executeAfterEnhance(sourceId: string): void {
+  executeAfterEnhance(sourceId: string, skillCastInfo?: CombatSkillCastInfo | null): void {
     this.definition.actions?.afterEnhance?.(this, sourceId);
+    // _OnAfterTryEnhanced：通知一次增强尝试，满层仍发布；定时自然增长不经过这里。
+    this.owner.handleBuffEnhanced(this, 1, 'lifetime', skillCastInfo);
   }
 
   /** 原生 Modify 只合并输入黑板，并据旧定义重建已注册的属性修正。 */
@@ -936,7 +937,7 @@ export class CombatBuffContainer<Key extends string> {
       reason: BuffFinishReason,
       skillCastInfo?: CombatSkillCastInfo | null,
     ) => void,
-    /** 叠层变化完成后的 owner 侧原生同步事件。 */
+    /** owner 侧原生209：外部增强尝试为+1（包括满层），减层/结束为实际负层数。 */
     readonly onBuffEnhanceChanged?: (
       buff: CombatBuff<Key>,
       layerCount: number,
@@ -1764,7 +1765,7 @@ class BuffStackingGroup<Key extends string> {
     existing.executeBeforeEnhance(sourceId);
     this.enhanceWithinLimit(existing, sourceId);
     existing.refreshDuration(resolveIncomingDuration(definition, options));
-    existing.executeAfterEnhance(sourceId);
+    existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
     return existing;
   }
 
@@ -1780,7 +1781,7 @@ class BuffStackingGroup<Key extends string> {
     existing.executeBeforeEnhance(sourceId);
     this.enhanceWithinLimit(existing, sourceId);
     existing.overwriteDuration(incomingDuration);
-    existing.executeAfterEnhance(sourceId);
+    existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
     return existing;
   }
 
@@ -1794,7 +1795,7 @@ class BuffStackingGroup<Key extends string> {
 
     existing.executeBeforeEnhance(sourceId);
     this.enhanceWithinLimit(existing, sourceId);
-    existing.executeAfterEnhance(sourceId);
+    existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
     return existing;
   }
 
@@ -1849,7 +1850,7 @@ class BuffStackingGroup<Key extends string> {
     ) {
       existing.resetTimedGrowthPeriod();
     }
-    existing.executeAfterEnhance(sourceId);
+    existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
     return existing;
   }
 

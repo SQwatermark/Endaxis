@@ -9,6 +9,60 @@ import type { PoiseDamageModifier } from '../damage/poiseDamage';
 import type { HealthDamageEventPayload } from '../damage/healthDamage';
 import type { KnockDownEventPayload } from './knockDownOperationExecutor';
 
+it.each([
+  'enhance',
+  'enhanceAndRefresh',
+  'enhanceAndOverwriteDuration',
+  'timedGrowingEnhance',
+] as const)('%s 增强尝试在后置动作后发布本次来源，满层仍发布', stackingType => {
+  const environment = createEnvironment();
+  environment.runtimeOptions.createOperationExecutor(createContext());
+  const target = environment.runtimeOptions.enemyBuffRuntime;
+  if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const original = {
+    skillCastId: 1,
+    originSkillId: 'old',
+    originSkillType: 'basicAttack' as const,
+    nonReturnedSpCost: 0,
+  };
+  const incoming = {
+    ...original,
+    skillCastId: 2,
+    originSkillId: 'incoming',
+    originSkillType: 'comboSkill' as const,
+  };
+  let afterCount = 0;
+  const definition = {
+    id: 'enhance-attempt',
+    stackingType,
+    maxStackCount: 2,
+    durationSeconds: 1,
+    actions: {
+      afterEnhance: () => {
+        afterCount += 1;
+      },
+    },
+  };
+  const buff = target.container.add(definition, 'operator', { skillCastInfo: original })!;
+  const seen: AbilityEventPayloadMap['buffEnhanceChanged'][] = [];
+  environment.eventsFor('enemy').registerCallback('buffEnhanceChanged', event => {
+    expect(afterCount).toBe(seen.length + 1);
+    expect(event.payload.buff).toBe(buff);
+    expect(event.payload.layerCount).toBe(1);
+    expect(event.payload.reason).toBe('lifetime');
+    seen.push(event.payload);
+  });
+  if (stackingType === 'timedGrowingEnhance') {
+    target.container.tick(1);
+    expect(buff.enhanceCount).toBe(2);
+    expect(seen).toEqual([]);
+  }
+  target.container.add(definition, 'operator', { skillCastInfo: incoming });
+  target.container.add(definition, 'operator');
+  expect(buff.enhanceCount).toBe(2);
+  expect(seen.map(event => event.skillCastInfo)).toEqual([incoming, null]);
+});
+
 it('标准环境公共事件载荷复用权威映射，不被过程通知的 unknown 放宽', () => {
   expectTypeOf<StandardPlayerDamagePayloadMap['addedBuff']>().toEqualTypeOf<
     AbilityEventPayloadMap['addedBuff']

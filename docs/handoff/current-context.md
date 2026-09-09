@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：正向 Buff 增强事件归位
+
+反编译确认209正向通知由_OnAfterTryEnhanced在后置动作之后发布，本次来源、reason=0、
+layerCount=1；满层尝试也发布，定时自然增长不发布。它不是实际层差通知。
+复刻库补生产端；Endaxis把发布从实际enhance移到executeAfterEnhance，四种堆叠都传
+本次AddOptions来源，不借Buff初始来源。内部enhanceChanged动作仍只在实际增层时执行。
+证据地址、满层跳转及定时路径在 combat-spec/docs/buff-enhance-event-context.md 文末。
+回归：Endaxis运行时/Buff1188项、四条真实轴全回执/告警比较通过；复刻库112项通过。
+完整应用类型检查通过。未扩大事件支持范围，也未修改生成数据。
+
+下一项审计线索：同次_Enhance反编译显示先内部事件6再属性/护盾刷新；复刻库Enhance
+也是先EnhanceChangedActions再RefreshAttributeModifierValues，而Endaxis当前enhance先替换
+属性修正再执行enhanceChanged。此内部动作观察时机仍需补定向回归并修正，不能把本轮
+209发布/来源修复概括成所有增强内部顺序均已验收。
+
 ## 2026-09-10：能力实体事件来源生产/消费接通
 
 已确认原生 OnSpawn 的261复制输入完整来源，OnFinish的262复制控制器保存来源；出生通知

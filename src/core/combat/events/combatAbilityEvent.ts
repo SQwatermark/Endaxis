@@ -294,7 +294,7 @@ export interface AbilityBuffEnhancePayload {
   readonly buff: CombatBuff<string>;
   readonly buffId: string;
   readonly buffTags: readonly GameplayTag[];
-  /** 结束/减层的独立来源；正向增强尚未确认时保持 undefined。 */
+  /** 正向为本次施加来源，负向为结束/减层来源；不回退 Buff 初始来源。 */
   readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly layerCount: number;
   readonly reason?: BuffFinishReason;
@@ -549,7 +549,7 @@ export function knockDownAbilityEvent(
   return published;
 }
 
-/** 层数变化使用同一发布对象，变化量可以为负，不是变化后的总层数。 */
+/** 正向增强尝试固定+1（包括满层），结束/减层为负数；不是当前总层数或统一的实际层差。 */
 export type BuffEnhanceAbilityEvent = CombatAbilityEvent<'buffEnhanceChanged'> & {
   readonly kind?: never;
 };
