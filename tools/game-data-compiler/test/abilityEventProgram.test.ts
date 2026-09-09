@@ -28,6 +28,29 @@ function sequence(
 }
 
 describe('公共 AbilityEvent 程序投影', () => {
+  it('序列编译接收同一次映射的公共事件身份，不必再次解析原始名称', () => {
+    const identity = { event: 'addedBuff' };
+    const seen: unknown[] = [];
+    const result = compileAbilityEventPrograms(
+      [{ abilityEvent: 'OnAddedBuff', actions: [sequence('a0'), sequence('a1')] }],
+      {
+        sourcePath: 'events',
+        mapEvent: () => identity,
+        compileSequence: (_sequence, path, native, projected) => {
+          seen.push([path, native, projected]);
+          return ['step'];
+        },
+        isEmptySequence: () => false,
+      },
+    );
+    expect(seen).toEqual([
+      ['events[0].actions[0]', 'OnAddedBuff', identity],
+      ['events[0].actions[1]', 'OnAddedBuff', identity],
+    ]);
+    expect(result[0]?.event).toBe(identity);
+    expect((seen[1] as unknown[])[2]).toBe(identity);
+  });
+
   it('保留事件和同事件多条 SequenceAction 的来源注册顺序', () => {
     const compiled = compileAbilityEventPrograms(
       [

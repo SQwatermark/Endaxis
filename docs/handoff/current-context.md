@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：临时监听内部使用公共身份
+
+临时监听现在通过唯一 projectAbilityEvent 解析原始名称，公共程序编译器将同一次
+映射结果传入 compileSequence，目标绑定和结束回调判断均使用公共身份，不再自行
+解释 OnAddedBuff/OnOutputBuff 等名称。新增测试验证映射结果原样传给各个独立序列。
+152项定向测试、生成器生产类型检查通过。
+固定来源31干员重生成全部与正式产物一致，候选目录为
+tmp/event-unification-candidates-kD0JWN，本轮无正式生成文件变化。
+
+输出边界仍适配 CombatEventResponseDefinition 的 buffApplied/buffOutput/operatorHit。
+因此本轮消除的是转换内部的重复身份解析，并非已经删除公共定义的兼容入口。
+下一阶段需要原子修改响应定义、验证/等级编译、图编辑器和临时监听注册，接入原生
+事件身份，不能只改生成器字段。BeforeTakeDamage 的木桩受击事实桥接仍独立保留。
+原生依据沿用 event-listener-registration 的共同注册链，不增加新事件支持。
+
 ## 2026-09-09 晚间续：临时监听安装失败清理
 
 临时监听一组响应中途注册失败时，现在立即释放本组此前已安装的响应，并重新抛出

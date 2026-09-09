@@ -28,6 +28,8 @@ export interface CompileAbilityEventProgramOptions<TLeaf, TEvent, TSequence> {
     sequence: NativeSequenceSource<TLeaf>,
     sourcePath: string,
     abilityEvent: string | number,
+    /** 同一次 mapEvent 的结果；序列上下文不应另行解释原始身份。 */
+    projectedEvent: TEvent,
   ) => TSequence;
   readonly isEmptySequence: (sequence: TSequence) => boolean;
 }
@@ -64,7 +66,12 @@ export function compileAbilityEventPrograms<TLeaf, TEvent, TSequence>(
     const event = options.mapEvent(source.abilityEvent, `${eventPath}.abilityEvent`);
     for (const [sequenceIndex, nativeSequence] of source.actions.entries()) {
       const sequencePath = `${eventPath}.actions[${sequenceIndex}]`;
-      const sequence = options.compileSequence(nativeSequence, sequencePath, source.abilityEvent);
+      const sequence = options.compileSequence(
+        nativeSequence,
+        sequencePath,
+        source.abilityEvent,
+        event,
+      );
       if (options.isEmptySequence(sequence)) continue;
       result.push({
         event,

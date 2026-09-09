@@ -2622,15 +2622,15 @@ function compileEventListenerNode(
   }
   const programs = compileAbilityEventPrograms(node.body.value.action.events, {
     sourcePath: `${node.sourcePath}.abilityActionMap`,
-    mapEvent: (event, sourcePath) => {
-      if (event === 'OnAddedBuff') return { kind: 'buffApplied' } as const;
-      if (event === 'OnOutputBuff') return { kind: 'buffOutput' } as const;
-      if (event === 'OnBeforeTakeDamage') return { kind: 'operatorHit' } as const;
+    mapEvent: (nativeEvent, sourcePath) => {
+      const event = projectAbilityEvent(nativeEvent, sourcePath);
+      if (event === 'addedBuff' || event === 'outputBuff' || event === 'beforeTakeDamage')
+        return event;
       // 只允许编译后为空的结束回调省略，不能按事件名提前跳过动作检查。
-      if (event === 'OnSkillEnd') return null;
-      throw new Error(`${sourcePath}: unsupported ability event ${JSON.stringify(event)}`);
+      if (event === 'skillEnd') return event;
+      throw new Error(`${sourcePath}: unsupported ability event ${JSON.stringify(nativeEvent)}`);
     },
-    compileSequence: (source, sourcePath, event) => {
+    compileSequence: (source, sourcePath, _nativeEvent, event) => {
       const sequence = compileActionSequenceProgram(source, {
         ...createBuffSequenceProjection(
           visualOnlyIds,
@@ -2639,11 +2639,11 @@ function compileEventListenerNode(
             // Added/BeforeTakeDamage 在接收者发布且 Target 是来源；Output 在来源发布且
             // Target 是接收者。外部 operatorHit 只陈述受击事实，不制造敌方伤害或扣血。
             actionTargetTarget:
-              event === 'OnBeforeTakeDamage'
+              event === 'beforeTakeDamage'
                 ? 'enemy'
-                : event === 'OnOutputBuff'
+                : event === 'outputBuff'
                   ? 'eventTarget'
-                  : event === 'OnAddedBuff'
+                  : event === 'addedBuff'
                     ? 'eventSource'
                     : context.actionTargetTarget,
           },
@@ -2651,21 +2651,27 @@ function compileEventListenerNode(
         ),
         initialState: () => targetGroups,
       });
-      if (event === 'OnSkillEnd' && sequence.steps.length !== 0) {
+      if (event === 'skillEnd' && sequence.steps.length !== 0) {
         throw new Error(`${sourcePath}: unsupported ability event "OnSkillEnd"`);
       }
-      return { key: sourcePath, sequence, omit: event === 'OnSkillEnd' };
+      return { key: sourcePath, sequence, omit: event === 'skillEnd' };
     },
     // 已支持事件即使动作为空也保留注册；只省略上方验证过的结束回调。
     isEmptySequence: compiled => compiled.omit,
   });
   const responses = programs.flatMap(program =>
-    program.event === null
+    program.event === 'skillEnd'
       ? []
       : [
           {
             key: program.sequence.key,
-            event: program.event,
+            // 旧定义输出适配；原始名称解析和程序上下文不再依赖这些别名。
+            event:
+              program.event === 'addedBuff'
+                ? { kind: 'buffApplied' as const }
+                : program.event === 'outputBuff'
+                  ? { kind: 'buffOutput' as const }
+                  : { kind: 'operatorHit' as const },
             phase: 'dataAction' as const,
             priority: program.priority,
             sequence: program.sequence.sequence,
