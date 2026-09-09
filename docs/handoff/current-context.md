@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：补齐实体释放资产验收，93项通过
+
+上一轮资产测试失败不是资源不存在，而是测试固定读取combat-spec/artifacts/SkillData、
+BuffData。两目录原本不存在，现以本地junction指向Endaxis/tmp/game-data-sources-hybrid-20260905
+的同名目录；均被git忽略，没有复制/提交资源。换机器需重新配置本地资源路径。
+重跑剩一个旧断言：预期41成功+16 finderData拒绝，当前共享TargetSettings适配器已使
+57项全部成功。总数仍57，改为直接解析全部、任何异常直接失败，不改解析器。
+C# BuffLifecycle/SpawnAbilityEntity/ZhuangfySwordReplacement共93项通过。
+当前验收清单同步移除已删除finishAll的旧待办、更新真实轴差异说明；总体仍未完成。
+
 ## 2026-09-10：实体Buff容器接入Release及独立表现回执
 
 standardPlayerDamageEnvironment拆开表现记录和AbilityEvent发布。实体Buff释放记录

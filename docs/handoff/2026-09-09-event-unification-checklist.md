@@ -43,14 +43,16 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
 1. **直接结束调用者的来源/顺序。** 技能附属Buff已通过当前_FinishBuffs调用核实空来源；
    Ability本体清子Buff也已核实空来源，配装dispose已接；配装宿主退出/注销的相对顺序
    未由这一调用推断。GlobalBuff子清理已核实固定Other+空来源，父Early不传给子；
-   两仓均已修正，完整宿主退出顺序仍待核实。仍需核实能力实体子Buff、容器finishAll、
+   两仓均已修正，完整宿主退出顺序仍待核实。仍需核实能力实体的Ability所有权子Buff、
    SkillAffix绑定技能结束等入口。护盾耗尽移除已核实Other+空来源，TS数值/次数耗尽
    均验证；这不等于完整ShieldBlockDamage事件已验收。
    现有未知来源不能一律改成null，也不能一律继承宿主施法。
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、
    globalBuffRuntime、combatBuffs、buffLifecycleSequenceRuntime。
-   当前容器finishAll唯一正式调用来自combatRuntimeAssembly的能力实体finished回调，
-   经buffDefinitionOperationTarget转发；应与能力实体销毁一起核实，不另造一套事件规则。
+   实体自身Buff容器已改releaseAll，旧finishAll已删；BuffReleased仅作为表现回执，
+   不发布普通结束/减层事件。C#也接自身Buff释放。完整组件顺序与子技能清理仍未验收。
+   本地资产目录链接恢复后，C#生命周期/实体生成/剑替换93项通过；旧41成功+16拒绝
+   的过期断言改为同一总数57项全部解析，不捕获吞掉解析失败。
 2. **额外通知的最终分类。** [现有分类表](../next/damage-event-boundaries.md)
    已记录生产类型，但尚未完整证明每项的原生身份与消费者边界。
    只解决当前模型已有路径；不得为清单打钩扩展敌人主动行为或关卡脚本能力。
@@ -70,10 +72,11 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
 
 ## 测试与产物证据分级
 
-- 最近运行时/Buff/事件回归：85文件1212项通过；应用类型检查通过。
+- 最近运行时/Buff/事件及投影回归：108文件1333项通过；应用类型检查通过。
   这不是全仓测试或所有资产的穷举。
-- 最近四条真实轴相对旧基线差异为0/0/7/3个回执位置：后两条仅有已解释的同帧结束顺序变化。
-  完整回执集合（除序号）、数值及诊断一致；不能写成“顺序完全一致”。详情见current-context。
+- 最近四条真实轴额外出现BuffReleased替换/追加，不能再沿用0/0/7/3回执差异计数。
+  除Finished/Released外的回执集合去序号一致；诊断引用解析回实际回执后内容一致。
+  数量及额外释放原因见current-context的实体容器接入章节，旧基线没有覆盖更新。
 - 31干员、79武器、24套装的重生成/落位属于此前检查点记录；
   本轮只检查正式事件引用，并未重新执行全量生成，不借旧数量证明当前源快照全量通过。
 - 临时产物/审计/下载数据继续放被忽略的tmp，不提交。
