@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：独立 Buff 释放入口开始实现（尚未接实体销毁）
+
+确认_ClearStackEffects遍历+38的EffectInstance列表，不是+50的Buff队列，故不再
+追表现特效虚槽。证据补在复刻库ability-entity-event-origin.md。
+CombatBuff.release清理修正、局部执行器与监听，不执行普通结束/禁用动作，不发布
+结束/减层通知，不受finishable限制；重复释放幂等，finishReason不伪造为Other。
+现有isFinished作为运行时终止门禁，释放后为true，但没有普通结束事实。
+生命周期适配器增加独立清理回调。129项定向测试通过。
+未替换正式实体销毁finishAll；仍需接表现移除回执、C#释放实现及端到端回归，
+本条不是“能力实体释放已完成”。
+
 ## 2026-09-10：释放后owner回调已识别为图标通知
 
 03738EE0与带符号OnBuffIconChange交叉确认：owner+3F0订阅器、Buff/applied/reason

@@ -555,6 +555,10 @@ export function attachBuffLifecycleSequences<Key extends string>(
             endEnableSequence(buff);
             disposeEventResponses(buff);
           },
+          release: buff => {
+            endEnableSequence(buff);
+            disposeEventResponses(buff);
+          },
         }),
   };
   if (

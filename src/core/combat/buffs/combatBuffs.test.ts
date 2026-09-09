@@ -24,6 +24,41 @@ import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 type Attribute = 'attack';
 
+it('宿主释放清理实例，但不执行普通结束动作或发布结束/减层通知', () => {
+  const seen: string[] = [];
+  const attributes = new CombatAttributeSet<Attribute>();
+  const container = new CombatBuffContainer(
+    'owner',
+    attributes,
+    undefined,
+    null,
+    undefined,
+    () => seen.push('finished'),
+    () => seen.push('layers'),
+  );
+  const buff = requireAddedBuff(
+    container.add(
+      {
+        id: 'release-only',
+        stackingType: 'unlimited',
+        actions: {
+          finish: () => seen.push('finish-action'),
+          disable: () => seen.push('disable-action'),
+          release: () => seen.push('release-cleanup'),
+        },
+      },
+      'caster',
+    ),
+  );
+  buff.setFinishable(false);
+  expect(buff.release()).toBe(true);
+  expect(buff.isFinished).toBe(true);
+  expect(buff.finishReason).toBeNull();
+  expect(buff.release()).toBe(false);
+  expect(buff.finish('other')).toBe(false);
+  expect(seen).toEqual(['release-cleanup']);
+});
+
 it.each(['expiry', 'release', 'replacement', 'shieldValue', 'shieldCount'] as const)(
   '%s 结束传递已知空来源，不继承施加技能',
   path => {

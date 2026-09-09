@@ -151,6 +151,8 @@ export interface BuffLifecycleActions<Key extends string> {
   readonly enable?: (buff: CombatBuff<Key>) => void;
   readonly disable?: (buff: CombatBuff<Key>) => void;
   readonly finish?: (buff: CombatBuff<Key>) => void;
+  /** 宿主释放时清理局部执行器；不是普通结束动作或对外结束事件。 */
+  readonly release?: (buff: CombatBuff<Key>) => void;
   readonly beforeEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly enhanceChanged?: (buff: CombatBuff<Key>, sourceId: string) => void;
   readonly afterEnhance?: (buff: CombatBuff<Key>, sourceId: string) => void;
@@ -273,6 +275,7 @@ export class CombatBuff<Key extends string> {
   #appliedTags = false;
   #appliedExtendTags = false;
   #finishReason: BuffFinishReason | null = null;
+  #released = false;
   #enhanceCount = 1;
   #stackingGroup: BuffStackingGroup<Key> | null = null;
   #triggerInterval: number | null = null;
@@ -546,6 +549,28 @@ export class CombatBuff<Key extends string> {
     this.removeAttributeModifiers();
     this.unregisterSharedSpGainModifiers();
     this.#enabled = false;
+  }
+
+  /** 宿主释放与 MarkFinish 不同：不受 finishable 限制，不伪造结束原因/减层通知。 */
+  release(): boolean {
+    if (this.#released) return false;
+    this.#released = true;
+    this.owner.unregisterDamageModifiers(this.damageModifiers);
+    this.owner.unregisterHealModifiers(this.healModifiers);
+    this.owner.unregisterPoiseModifiers(this.poiseModifiers);
+    this.owner.unregisterShields(this.shields);
+    this.owner.unregisterSustainedProtection(this);
+    this.removeApplyTags();
+    this.removeAttributeModifiers();
+    this.unregisterSharedSpGainModifiers();
+    this.removeExtendTags();
+    if (!this.#finished) this.endDuringEnableAction();
+    this.definition.actions?.release?.(this);
+    this.#enabled = false;
+    // 现有 isFinished 是目录/执行器的终止门禁；finishReason 不因此改变。
+    this.#finished = true;
+    this.#childBuffs.clear();
+    return true;
   }
 
   /** 未迁移调用者保持未知来源；已核实无来源的动作显式传 null。 */
