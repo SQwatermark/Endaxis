@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：回收候选与逆序遍历已核实
+
+RecycleBuff未补丁分支直接检查Buff.m_isFinished(+B1)，true进入回收；false另走宿主
+状态分支，该分支未据此开放。循环从count-1向0检查，不是预先筛好finished快照后正序处理。
+回收回调若结束较早索引实例，该实例在本轮后续检查时可被回收；已访问索引不会重访。
+PreLateTick在02F1421B通过虚槽6调用BuffContainer.OnTick，后在02F159A1调用RecycleBuff；
+中间还有宿主工作，因此不能把回收直接塞在Buff.tick末尾。槽映射为静态声明/派发证据，
+未验证运行中IFix。全部地址补入combat-spec的skill-affix-identity专题。
+下一实现应提供独立回收入口、幂等实例回调及逆序实时条件检查，再按宿主阶段装配；
+UI历史回执不因实例退出容器而删除。本轮没有改运行时，未重新跑测试。
+
 ## 2026-09-10：输出Buff引用缺少的不是结束监听，而是回收阶段
 
 原生PreLateTick(02F13A90)内02F159A1对m_buffContainer(+3E0)调用RecycleBuff(03105270)。
