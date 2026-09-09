@@ -1,5 +1,17 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：层数事件来源发现实质偏差
+
+新反汇编证据见 combat-spec/docs/buff-enhance-event-context.md。BuffEnhanceChangedContext
+继承 BuffContext；MarkFinish 的事件显式写入实际 Buff 引用和独立 finishCastInfo 参数，
+而不是 Buff 原始施加技能。复刻库当前 BuffEnhanceChangedEventData 缺来源字段，
+DamageConditions 又读取 Buff.SkillCastInfo，结束路径因此有误。
+本轮新增了原始字段/调用点/栈参数证据并重新核验二进制哈希，未猜测填充运行时字段。
+
+下一步优先检查当前 DecreaseEnhanceCnt（0x0604212C）的同类上下文赋值，统一修复
+复刻库两处发布和来源读取后再接 Endaxis。必须测试原始技能≠结束技能以及明确空来源。
+这是事件上下文技术债，不扩展新机制；不要直接把 Buff 原始施加技能补到该事件上。
+
 ## 2026-09-09 晚间续：额外通知不再使用 unknown 兜底
 
 StandardPlayerDamagePayloadMap 的额外键改为引用生命伤害、失衡修正、倒地调用、
