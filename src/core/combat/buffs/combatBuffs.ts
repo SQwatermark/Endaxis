@@ -658,9 +658,10 @@ export class CombatBuff<Key extends string> {
 
   enhance(sourceId: string): void {
     this.#enhanceCount += 1;
+    // 原生 _Enhance：先执行内部事件6，再刷新属性；动作看见新层数、刷新前属性。
+    this.definition.actions?.enhanceChanged?.(this, sourceId);
     // 强化层等价于重复注册同一组属性修正；重复对象可保留八槽中加法与乘法槽各自的聚合公式。
     this.replaceAttributeModifiers(this.createAttributeModifiers());
-    this.definition.actions?.enhanceChanged?.(this, sourceId);
   }
 
   resetTimedGrowthPeriod(): void {

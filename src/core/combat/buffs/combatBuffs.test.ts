@@ -24,6 +24,34 @@ import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 type Attribute = 'attack';
 
+it.each([false, true])('增强内部动作先看新层数旧属性，再刷新；定时=%s', timed => {
+  const attributes = new CombatAttributeSet<Attribute>();
+  attributes.define('attack', 100, {});
+  const observations: string[] = [];
+  const container = new CombatBuffContainer('owner', attributes);
+  const definition: CombatBuffDefinition<Attribute> = {
+    id: 'enhance-order',
+    stackingType: timed ? 'timedGrowingEnhance' : 'enhance',
+    durationSeconds: 1,
+    maxStackCount: 2,
+    attributeModifiers: [
+      { attribute: 'attack', timing: 'runtime', values: attributeModifierValues('addition', 10) },
+    ],
+    actions: {
+      enhanceChanged: buff =>
+        observations.push(`changed:${buff.enhanceCount}:${attributes.get('attack')}`),
+      afterEnhance: buff =>
+        observations.push(`after:${buff.enhanceCount}:${attributes.get('attack')}`),
+    },
+  };
+  container.add(definition, 'source');
+  expect(attributes.get('attack')).toBe(110);
+  if (timed) container.tick(1);
+  else container.add(definition, 'source');
+  expect(observations).toEqual(timed ? ['changed:2:110'] : ['changed:2:110', 'after:2:120']);
+  expect(attributes.get('attack')).toBe(120);
+});
+
 it.each(['id', 'tag'] as const)('全量 %s 提前消费同步发布来源和原层数，结束/吸收不混用', query => {
   const tag = 'Skill/Fire';
   const container = new CombatBuffContainer(
