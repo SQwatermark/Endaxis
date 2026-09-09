@@ -276,6 +276,8 @@ export class CombatBuff<Key extends string> {
   #appliedExtendTags = false;
   #finishReason: BuffFinishReason | null = null;
   #released = false;
+  #recycled = false;
+  readonly #recycleCallbacks: { callback: () => void }[] = [];
   #enhanceCount = 1;
   #stackingGroup: BuffStackingGroup<Key> | null = null;
   #triggerInterval: number | null = null;
@@ -405,6 +407,40 @@ export class CombatBuff<Key extends string> {
 
   get isFinished(): boolean {
     return this.#finished;
+  }
+
+  get isRecycled(): boolean {
+    return this.#recycled;
+  }
+
+  /** 实例生命周期回调，不向能力事件总线发布新事件。 */
+  onRecycled(callback: (buff: CombatBuff<Key>) => void): { dispose(): void } {
+    if (this.#recycled) throw new Error('Cannot subscribe to a recycled Buff');
+    const entry = { callback: () => callback(this) };
+    this.#recycleCallbacks.push(entry);
+    let disposed = false;
+    return {
+      dispose: () => {
+        if (disposed) return;
+        disposed = true;
+        const index = this.#recycleCallbacks.indexOf(entry);
+        if (index >= 0) this.#recycleCallbacks.splice(index, 1);
+      },
+    };
+  }
+
+  /** 仅供容器独立回收阶段使用；结束不隐式调用此方法。 */
+  recycleFinished(): void {
+    if (this.#recycled) return;
+    if (!this.#finished) throw new Error('Cannot recycle an active Buff');
+    this.#recycled = true;
+    this.#stackingGroup?.removeRecycled(this);
+    this.#stackingGroup = null;
+    try {
+      for (const entry of this.#recycleCallbacks.slice()) entry.callback();
+    } finally {
+      this.#recycleCallbacks.length = 0;
+    }
   }
 
   get finishReason(): BuffFinishReason | null {
@@ -1474,6 +1510,16 @@ export class CombatBuffContainer<Key extends string> {
     for (const buff of this.#buffs) buff.tick(deltaTime);
   }
 
+  /** 原生回收独立于 tick；逆序逐项检查当前结束状态。 */
+  recycleFinishedBuffs(): void {
+    for (let index = this.#buffs.length - 1; index >= 0; index--) {
+      const buff = this.#buffs[index]!;
+      if (!buff.isFinished) continue;
+      this.#buffs.splice(index, 1);
+      buff.recycleFinished();
+    }
+  }
+
   registerDamageModifiers(modifiers: readonly DamageModifier[]): void {
     this.#damageModifiers.push(...modifiers);
   }
@@ -1700,6 +1746,11 @@ class BuffStackingGroup<Key extends string> {
       default:
         throw new Error(`buff stacking type '${this.stackingType}' is not implemented`);
     }
+  }
+
+  removeRecycled(buff: CombatBuff<Key>): void {
+    const index = this.#buffs.indexOf(buff);
+    if (index >= 0) this.#buffs.splice(index, 1);
   }
 
   refreshAfterFinish(): void {

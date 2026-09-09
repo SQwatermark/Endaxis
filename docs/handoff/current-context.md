@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-10：Endaxis独立Buff回收入口
+
+CombatBuffContainer新增recycleFinishedBuffs：按逆序逐项检查当前isFinished，先移出
+容器与堆叠组，再执行实例onRecycled回调。回收幂等，不发布第二次结束事件，tick及finish
+不隐式回收。注销句柄以注册对象而非函数身份区分，避免同函数重复订阅时删错次序。
+专项覆盖结束/tick不回收、逆序即时资格、重复回收、独立注销以及完成后进度历史不丢失。
+BuffProgressRecorder持有独立曲线，finish关闭采样索引，不依赖已结束实例留在容器。
+尚未自动装配宿主阶段，输出Buff载荷及SkillAffix引用在Endaxis也仍待接；本轮不是全链完成。
+运行时/Buff/事件86文件1223项通过，应用类型检查通过。历史记录测试使用正式string属性
+容器，未以断言放宽Buff实例类型。
+
 ## 2026-09-10：复刻库输出Buff引用与独立回收入口
 
 C#新增显式RecycleFinishedBuffs，逆序实时检查，退出容器/堆叠组后调用实例Recycled；
