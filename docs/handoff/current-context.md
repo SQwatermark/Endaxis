@@ -1,5 +1,16 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：Environment 原始适配已接，应用须统一点燃收尾
+
+复刻库 BuffDataAdapter 接受 Environment 空 ID/Tag 形状，保留完整目标与来源配置；
+Context 仍拒绝。适配器101项通过，1项真实资产测试因本地根目录定位失败未通过。
+
+Endaxis finishSource 并非无门禁丢弃：公共前置校验只接受 Source 或固定 caster 的
+Owner 切片。下一步需将这两者语义保留到当前实例结束，不能任选 source/owner。
+同时 container.ignite 会在内部动作结束 Buff 后补发消费通知；直接把当前实例
+结束切到容器会有重复派发风险，必须一起调整来源与发布归属并覆盖点燃嵌套回归。
+本轮未改 Endaxis 模拟行为。证据与接入状态见复刻库 finish-buff-environment-source。
+
 ## 2026-09-09 晚间续：复刻库已接 Environment 单实例结束
 
 继续反汇编确认 AbilitySystem.FinishBuff → 容器单实例入口：Early/Ignite 走
