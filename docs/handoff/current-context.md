@@ -1,5 +1,33 @@
 # 当前任务快照
 
+## 2026-09-10：实体引用已接入现有事件载荷（当前工作树）
+
+abilityEntitySpawned现在必含entity.onReset只读端口，装配层绑定实际实例；SkillAffix
+按来源owner/cast匹配取得引用，复用对象订阅句柄集合，在reset时归还。输出Buff与实体
+引用独立保留，组合测试确认技能结束、输出回收之后仍等待实体reset。没有新增公共事件。
+Endaxis91文件1254项通过；类型检查修正事件联合夹具后通过。C#1824项中1818通过，
+失败仍是原来6个资源/适配器测试名。四条真实轴回执数量与上次检查相同，未覆盖基线。
+仍待：投射物引用、pending请求内部委托、完整宿主退出边界及最终统一审计。
+下方未接入描述是推进过程，以本节为准。
+
+## 2026-09-10：实体reset端口与边界测试（未提交）
+
+C#实体/affix/回收专项扩到42项：补多实体独立引用、错误owner/cast不取得引用，以及
+Affix提前结束不释放被跟踪实体。Endaxis LogicalAbilityEntityRuntime新增onReset订阅，
+在子技能、宿主finished清理、移出目录后调用并清空；每次订阅独立句柄，重复函数不合并。
+运行时/装配85项通过。注意这仅是内部端口：尚未接到abilityEntitySpawned载荷和
+Buff的SkillAffix绑定器，因此TS实体引用仍不能宣称贯通。下一步沿现有payload map接入，
+不新增公共事件名，不让消费端从ID反查可变目录；然后跑全回归和真实轴。
+
+## 2026-09-10：C#实体reset引用（进行中，未提交）
+
+复刻库SkillAffix新增已存在的261订阅，按事件来源owner/cast匹配取得实体引用；
+释放通过内部ResetCompleted对象回调，不使用AbilityEntityFinished公共事件替代。
+回调在当前模拟宿主清理后调用并清空，Affix.End逐个注销，不结束所跟踪实体。
+专项40项通过，新增测试断言实体Buff回收期间affix仍存活，reset后才结束。
+证据见skill-affix-identity专题。Endaxis还没接此端口，C#全量还没跑；当前实现只覆盖
+已建模的宿主清理，不宣称原生全部组件退出顺序已复刻。下一步补注销/多引用测试及TS接入。
+
 ## 2026-09-10：两仓宿主释放回收验证完成
 
 Endaxis容器releaseAll逐个Release→回收，C# ReleaseOwnerEntity同步；不伪造FinishReason，

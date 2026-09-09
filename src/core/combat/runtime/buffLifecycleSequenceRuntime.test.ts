@@ -5,6 +5,7 @@ import type {
   AbilityResponseEventName,
 } from '../events/combatAbilityEvent';
 import { describe, expect, it, vi } from 'vitest';
+import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
@@ -225,7 +226,9 @@ describe('attachBuffLifecycleSequences', () => {
         undefined,
         [],
         (event, callback) => {
-          expect(['beforeCastSkill', 'skillEnd', 'outputBuff']).toContain(event);
+          expect(['beforeCastSkill', 'skillEnd', 'outputBuff', 'abilityEntitySpawned']).toContain(
+            event,
+          );
           callbacks.add(callback);
           const registration = dispatcher.registerCallback(event, callback);
           return {
@@ -291,6 +294,25 @@ describe('attachBuffLifecycleSequences', () => {
         [],
       );
       expect(output.affixSkillCastId).toBe(0);
+      const entities = new LogicalAbilityEntityRuntime({ resolveDeltaSeconds: () => 0.1 });
+      const entity = entities.spawn({
+        abilityEntityId: 'affix-child',
+        ownerId: 'owner',
+        source: { kind: 'operator', operatorId: 'owner' },
+        definition: { lifetime: { kind: 'infinite' } },
+      });
+      dispatcher.dispatch(
+        {
+          event: 'abilityEntitySpawned',
+          payload: {
+            sourceId: 'owner',
+            targetId: 'entity',
+            skillCastInfo: { ...ordinary, skillCastId: 42 },
+            entity: { onReset: callback => entities.onReset(entity, callback) },
+          },
+        },
+        [],
+      );
       emit('owner', 42, 'beforeCastSkill');
       emit('other', 42, 'beforeCastSkill');
       emit('owner', 999, 'beforeCastSkill');
@@ -302,6 +324,8 @@ describe('attachBuffLifecycleSequences', () => {
       output.finish('other');
       expect(buff.isFinished).toBe(false);
       container.recycleFinishedBuffs();
+      expect(buff.isFinished).toBe(false);
+      entities.finish(entity);
       expect(buff.isFinished).toBe(processing !== undefined);
       if (processing !== undefined) expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
       else expect(finish).not.toHaveBeenCalled();

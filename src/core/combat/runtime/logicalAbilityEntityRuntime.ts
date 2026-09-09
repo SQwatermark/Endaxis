@@ -108,6 +108,7 @@ interface LogicalAbilityEntityInstance {
   pendingReleaseReason?: LogicalAbilityEntityFinishReason;
   readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
   readonly childBuffs: BuffApplicationHandle[];
+  readonly resetCallbacks: Set<() => void>;
 }
 
 function requireDuration(value: number, name: string): number {
@@ -219,6 +220,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       pendingReleaseElapsedSeconds: 0,
       childRuntimes: [],
       childBuffs: [],
+      resetCallbacks: new Set(),
     };
     this.#instances.set(instance.instanceId, instance);
     const snapshot = this.#snapshot(instance);
@@ -328,6 +330,24 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     instance.timedMarkers.finishAll();
     this.#hooks.finished?.(this.#snapshot(instance), reason);
     this.#instances.delete(instance.instanceId);
+    try {
+      for (const callback of [...instance.resetCallbacks]) callback();
+    } finally {
+      instance.resetCallbacks.clear();
+    }
+  }
+
+  /** 原生onResetAction对应的对象端口；在宿主清理后通知，不是公共战斗事件。 */
+  onReset(entity: RuntimeTargetRef, callback: () => void): { dispose(): void } {
+    const instance = this.#requireInstance(entity);
+    // 每次订阅保留独立身份，重复传入同一个函数也可分别注销。
+    const entry = () => callback();
+    instance.resetCallbacks.add(entry);
+    return {
+      dispose: () => {
+        instance.resetCallbacks.delete(entry);
+      },
+    };
   }
 
   /**

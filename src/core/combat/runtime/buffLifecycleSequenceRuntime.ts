@@ -257,14 +257,14 @@ export function attachBuffLifecycleSequences<Key extends string>(
         let references = 1;
         let disposed = false;
         const registrations: AbilityEventRegistration[] = [];
-        const outputReferences = new Set<{ dispose(): void }>();
+        const objectReferences = new Set<{ dispose(): void }>();
         const registration = {
           dispose: () => {
             if (disposed) return;
             disposed = true;
             for (const handle of registrations) handle.dispose();
-            for (const handle of outputReferences) handle.dispose();
-            outputReferences.clear();
+            for (const handle of objectReferences) handle.dispose();
+            objectReferences.clear();
           },
         };
         const decreaseReference = () => {
@@ -274,6 +274,20 @@ export function attachBuffLifecycleSequences<Key extends string>(
         };
         const handle = (published: CombatAbilityEvent<AbilityResponseEventName>) => {
           if (disposed) return;
+          if (published.event === 'abilityEntitySpawned') {
+            if (
+              published.payload.sourceId !== buff.owner.ownerId ||
+              published.payload.skillCastInfo?.skillCastId !== skillCastId
+            )
+              return;
+            const reference = published.payload.entity.onReset(() => {
+              objectReferences.delete(reference);
+              decreaseReference();
+            });
+            objectReferences.add(reference);
+            references++;
+            return;
+          }
           if (published.event === 'outputBuff') {
             const output = published.payload.buff;
             if (
@@ -283,10 +297,10 @@ export function attachBuffLifecycleSequences<Key extends string>(
             )
               return;
             const reference = output.onRecycled(() => {
-              outputReferences.delete(reference);
+              objectReferences.delete(reference);
               decreaseReference();
             });
-            outputReferences.add(reference);
+            objectReferences.add(reference);
             references++;
             return;
           }
@@ -308,6 +322,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
           registrations.push(registerAbilityEventCallback('beforeCastSkill', handle));
           registrations.push(registerAbilityEventCallback('skillEnd', handle));
           registrations.push(registerAbilityEventCallback('outputBuff', handle));
+          registrations.push(registerAbilityEventCallback('abilityEntitySpawned', handle));
         } catch (error) {
           registration.dispose();
           throw error;

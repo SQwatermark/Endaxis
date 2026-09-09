@@ -8,6 +8,32 @@ function createRuntime() {
 }
 
 describe('LogicalAbilityEntityRuntime', () => {
+  it('reset订阅在子技能和宿主清理后执行，重复函数按句柄独立注销', () => {
+    const observed: string[] = [];
+    const runtime = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 0.1,
+      hooks: { finished: () => observed.push('owner-cleanup') },
+    });
+    const entity = runtime.spawn({
+      abilityEntityId: 'entity',
+      ownerId: 'owner',
+      source: { kind: 'operator', operatorId: 'owner' },
+      definition: { lifetime: { kind: 'infinite' } },
+      createChildRuntime: () => ({
+        start: () => {},
+        advance: () => {},
+        finish: () => observed.push('skill-cleanup'),
+      }),
+    });
+    const callback = () => {
+      expect(runtime.isActive(entity)).toBe(false);
+      observed.push('reset');
+    };
+    runtime.onReset(entity, callback).dispose();
+    runtime.onReset(entity, callback);
+    runtime.finish(entity);
+    expect(observed).toEqual(['skill-cleanup', 'owner-cleanup', 'reset']);
+  });
   it('前一个宿主回调释放后一个实体后，快照不再推进已释放实体', () => {
     const observed: string[] = [];
     let releaseNext = () => {};

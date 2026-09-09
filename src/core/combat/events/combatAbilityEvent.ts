@@ -172,6 +172,13 @@ export interface AbilityOriginPayload extends AbilityEntityPair {
   readonly skillCastInfo?: CombatSkillCastInfo | null;
 }
 
+/** 出生实例的只读生命周期端口；reset不是可配置的公共事件。 */
+export interface AbilityEntitySpawnedPayload extends AbilityOriginPayload {
+  readonly entity: {
+    onReset(callback: () => void): { dispose(): void };
+  };
+}
+
 export interface AbilityPhysicalInflictionPayload extends AbilityOriginPayload {
   readonly type?: PhysicalInflictionType;
   readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
@@ -275,7 +282,7 @@ export interface AbilityEventPayloadMap {
   ownerSwitchToCenter: AbilityOriginPayload;
   ownerSwitchToGuard: AbilityOriginPayload;
   ownerHpZero: AbilityOriginPayload;
-  abilityEntitySpawned: AbilityOriginPayload;
+  abilityEntitySpawned: AbilityEntitySpawnedPayload;
   abilityEntityFinished: AbilityOriginPayload;
   // 准备阶段传递可变伤害包，结算阶段传递结算结果；不能裁成相似的只读字段集合。
   beforeTakeDamage: HealthDamageEventPayload | ExternalOperatorHitPayload;

@@ -9,7 +9,15 @@ import type { CombatOperationContext } from './skillRuntime';
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 
-const payload = { sourceId: 'owner', targetId: 'entity' };
+const payload = {
+  sourceId: 'owner',
+  targetId: 'entity',
+  entity: {
+    onReset: () => {
+      throw new Error('context projection must not subscribe to reset');
+    },
+  },
+};
 
 it.each(['beforeCastSkill', 'afterSkillApplyCost', 'skillEnd'] as const)(
   '%s 当前技能字段不能补造事件来源或零费用',

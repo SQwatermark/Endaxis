@@ -575,6 +575,13 @@ export class CombatRuntimeAssembly {
             },
           });
           this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntitySpawned', {
+            entity: {
+              onReset: callback =>
+                this.abilityEntities.onReset(
+                  { kind: 'abilityEntity', instanceId: entity.instanceId },
+                  callback,
+                ),
+            },
             ...(entity.skillCastInfo === undefined ? {} : { skillCastInfo: entity.skillCastInfo }),
             sourceId: entity.ownerId,
             targetId: entityId,

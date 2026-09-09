@@ -27,13 +27,20 @@ describe('EventContextConditionExecutor', () => {
       };
       const condition = { kind: 'originSkillTypeIn' as const, skillTypes: ['comboSkill' as const] };
       for (const origin of [skillCastInfo, null, undefined]) {
+        const payload = {
+          sourceId: 'owner',
+          targetId: 'entity',
+          skillCastInfo: origin,
+          entity: {
+            onReset: () => {
+              throw new Error('condition must not subscribe to reset');
+            },
+          },
+        };
         const evaluate = () =>
           executor.evaluate(condition, {
             ...context,
-            event: {
-              event,
-              payload: { sourceId: 'owner', targetId: 'entity', skillCastInfo: origin },
-            },
+            event: event === 'abilityEntitySpawned' ? { event, payload } : { event, payload },
           });
         if (origin === undefined)
           expect(evaluate).toThrow('requires an event source skill cast identity');
