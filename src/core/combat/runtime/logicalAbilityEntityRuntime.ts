@@ -17,6 +17,7 @@ import {
   type TimedMarkerSnapshot,
 } from './timedMarkers';
 import type { GameplayTag } from '../tags/gameplayTags';
+import type { CombatSkillCastInfo } from './skillCastInfo';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied' | 'stackingLimit';
@@ -32,6 +33,8 @@ export interface LogicalAbilityEntityDefinition {
 }
 
 export interface LogicalAbilityEntitySpawnRequest {
+  /** 出生时传入控制器的完整来源；null 为明确不继承，undefined 为未提供。 */
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly abilityEntityId: string;
   readonly definition: LogicalAbilityEntityDefinition;
   readonly ownerId: string;
@@ -55,6 +58,7 @@ export interface LogicalAbilityEntityChildRuntime {
 }
 
 export interface LogicalAbilityEntitySnapshot {
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly instanceId: number;
   readonly abilityEntityId: string;
   readonly bornTags: readonly GameplayTag[];
@@ -81,6 +85,7 @@ export interface LogicalAbilityEntityRuntimeHooks {
 }
 
 interface LogicalAbilityEntityInstance {
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly instanceId: number;
   readonly abilityEntityId: string;
   readonly definition: LogicalAbilityEntityDefinition;
@@ -179,6 +184,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     const instanceId = this.#nextInstanceId++;
     let instance!: LogicalAbilityEntityInstance;
     instance = {
+      ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
       instanceId,
       abilityEntityId: request.abilityEntityId,
       definition: request.definition,
@@ -412,6 +418,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       bornTags: instance.definition.bornTags ?? [],
       ownerId: instance.ownerId,
       source: instance.source,
+      ...(instance.skillCastInfo === undefined ? {} : { skillCastInfo: instance.skillCastInfo }),
       ...(instance.sourceSkillCastId === undefined
         ? {}
         : { sourceSkillCastId: instance.sourceSkillCastId }),

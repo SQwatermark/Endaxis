@@ -134,7 +134,10 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       // combat-spec/origin-skill-event-context.md：按当前事件类型取来源；不回退到条件宿主。
       const carriesOrigin =
         event !== undefined &&
-        (('payload' in event && buffAbilityEvent(event) !== undefined) ||
+        (('payload' in event &&
+          (event.event === 'abilityEntitySpawned' ||
+            event.event === 'abilityEntityFinished' ||
+            buffAbilityEvent(event) !== undefined)) ||
           physicalAbilityEvent(event) !== undefined ||
           inflictionAbilityEvent(event) !== undefined ||
           spellBurstAbilityEvent(event) !== undefined ||

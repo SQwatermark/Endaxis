@@ -1,5 +1,18 @@
 # 当前任务快照
 
+## 2026-09-10：能力实体事件来源生产/消费接通
+
+已确认原生 OnSpawn 的261复制输入完整来源，OnFinish的262复制控制器保存来源；出生通知
+先于子技能施放。证据在 combat-spec/docs/ability-entity-event-origin.md，含模块哈希及调用地址。
+复刻库生产端改用已有 AbilityEntitySkillEventData，修正出生顺序；Endaxis 在逻辑实体保存
+完整来源，装配层两个事件原样传递，originSkillTypeIn 接受这两个事件，不开放其他生命周期事件。
+明确不继承=null，未提供=undefined，后者仍在来源条件读取时报错；不使用结束动作或宿主补来源。
+
+运行时/Buff 1184项及四条真实轴比较通过；补充装配测试单跑72项通过，最终完整应用类型检查通过。
+复刻库选中两组39项中25项通过、14项资产读取失败；已核对失败用例根因是缺少
+artifacts/SkillData 导致 FindRepositoryRoot 失败，不宣称全套通过；来源/事件专项21项全通过。
+尚未审计完整死亡/释放与OnFinish的精确调度关系，本次不因此扩大模拟范围。
+
 ## 2026-09-10：能力实体事件来源链仍未闭环
 
 来源条件审计发现：combat-spec 的 CheckOriginSkillType 接受 AbilityEntitySkillEventData，

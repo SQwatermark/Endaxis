@@ -882,6 +882,7 @@ describe('CombatRuntimeAssembly', () => {
   });
 
   it('runs logical AbilityEntity spawn steps through the shared scene directory', () => {
+    const emitAbilityEvent = vi.fn();
     const program = skill({
       costs: [],
       costFrame: undefined,
@@ -913,17 +914,22 @@ describe('CombatRuntimeAssembly', () => {
         },
       ],
     });
-    const assembly = createAssembly(
-      [program],
-      undefined,
-      undefined,
-      emptyEnemyBuffRuntime,
-      undefined,
-      testEnemy,
-    );
+    const assembly = createAssembly({
+      ...nativeEventRuntimeOptions(),
+      programs: [program],
+      emitAbilityEvent,
+    });
 
     expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
     expect(assembly.abilityEntities.activeCount).toBe(1);
+    const [entity] = assembly.abilityEntities.findAll();
+    const origin = assembly.abilityEntities.snapshot(entity!).skillCastInfo;
+    expect(origin).toMatchObject({ originSkillId: 'skill', originSkillType: 'battleSkill' });
+    assembly.abilityEntities.finish(entity!, 'explicit');
+    for (const event of ['abilityEntitySpawned', 'abilityEntityFinished']) {
+      const published = emitAbilityEvent.mock.calls.find(call => call[1] === event);
+      expect(published?.[2].skillCastInfo).toBe(origin);
+    }
     expect(assembly.receipt.entries).toEqual(
       expect.arrayContaining([
         expect.objectContaining({

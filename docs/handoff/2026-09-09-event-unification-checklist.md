@@ -1,5 +1,10 @@
 # 实体能力系统事件统一：已办与待办
 
+2026-09-10 补充：`abilityEventPayload.ts` 已删除，内部来源读取不再降为 unknown。
+能力实体261/262的完整来源生产、保存、事件发布和来源条件已贯通；原生出生先于子技能
+的顺序已在复刻库修正（Endaxis原顺序正确）。证据见 combat-spec/docs/ability-entity-event-origin.md。
+这不代表完整死亡/释放调度或全部来源事件已验收，其他未完项仍保留。
+
 本文件是 2026-09-09 收束时的工作清单。接续时先读本文件，再读
 [事件响应架构](../next/event-response-architecture.md)。架构规则由后者维护，
 本文件只维护交付状态、遗留风险和执行顺序；current-context 中逐轮记录是历史快照。

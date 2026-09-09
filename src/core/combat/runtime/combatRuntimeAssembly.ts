@@ -555,6 +555,7 @@ export class CombatRuntimeAssembly {
             },
           });
           this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntitySpawned', {
+            ...(entity.skillCastInfo === undefined ? {} : { skillCastInfo: entity.skillCastInfo }),
             sourceId: entity.ownerId,
             targetId: entityId,
           });
@@ -571,6 +572,7 @@ export class CombatRuntimeAssembly {
         finished: (entity, reason) => {
           const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
           this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntityFinished', {
+            ...(entity.skillCastInfo === undefined ? {} : { skillCastInfo: entity.skillCastInfo }),
             sourceId: entity.ownerId,
             targetId: entityId,
           });

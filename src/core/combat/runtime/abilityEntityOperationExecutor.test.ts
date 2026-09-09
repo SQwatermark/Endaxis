@@ -66,6 +66,7 @@ describe('AbilityEntityOperationExecutor', () => {
     const [entity] = entities.findOwnerSpawned({ ownerId: 'typhoeus' });
     expect(entity).toBeDefined();
     expect(entities.snapshot(entity!).sourceSkillCastId).toBeUndefined();
+    expect(entities.snapshot(entity!).skillCastInfo).toBeNull();
   });
 
   it('resolves template duration and stacking limit from spawn entity-blackboard assignments', () => {

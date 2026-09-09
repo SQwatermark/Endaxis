@@ -8,6 +8,51 @@ function createRuntime() {
 }
 
 describe('LogicalAbilityEntityRuntime', () => {
+  it.each(['explicit', 'durationExpired'] as const)(
+    '出生及 %s 结束保留同一份完整来源，出生先于子技能',
+    reason => {
+      const observed: string[] = [];
+      const skillCastInfo = {
+        skillCastId: 42,
+        originSkillId: 'origin',
+        originSkillType: 'comboSkill' as const,
+        nonReturnedSpCost: 17,
+      };
+      const runtime = new LogicalAbilityEntityRuntime({
+        resolveDeltaSeconds: () => 1,
+        hooks: {
+          spawned: snapshot => {
+            expect(snapshot.skillCastInfo).toBe(skillCastInfo);
+            observed.push('spawned');
+          },
+          finished: snapshot => {
+            expect(snapshot.skillCastInfo).toBe(skillCastInfo);
+            observed.push('finished');
+          },
+        },
+      });
+      const entity = runtime.spawn({
+        abilityEntityId: 'test',
+        definition: { lifetime: { kind: 'limited', durationSeconds: 1 } },
+        ownerId: 'owner',
+        source: { kind: 'operator', operatorId: 'owner' },
+        skillCastInfo,
+        createChildRuntime: () => ({
+          start: () => {
+            observed.push('child');
+          },
+          advance: () => {},
+          finish: () => {},
+        }),
+      });
+      if (reason === 'explicit') runtime.finish(entity, reason);
+      else {
+        runtime.advanceFrame();
+        runtime.advanceFrame();
+      }
+      expect(observed).toEqual(['spawned', 'child', 'finished']);
+    },
+  );
   it('uses one instance set for zero-space range and owner/entity-id lookup', () => {
     const runtime = createRuntime();
     const a = runtime.spawn({

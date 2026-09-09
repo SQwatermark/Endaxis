@@ -11,6 +11,36 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it.each(['abilityEntitySpawned', 'abilityEntityFinished'] as const)(
+    '%s 来源条件读取控制器保存的来源，不回退宿主',
+    event => {
+      const executor = new EventContextConditionExecutor(terminal);
+      const skillCastInfo = {
+        skillCastId: 42,
+        originSkillId: 'origin',
+        originSkillType: 'comboSkill' as const,
+        nonReturnedSpCost: 17,
+      };
+      const context = {
+        blackboard: new ActionBlackboard(),
+        skillCastInfo: { ...skillCastInfo, originSkillType: 'battleSkill' as const },
+      };
+      const condition = { kind: 'originSkillTypeIn' as const, skillTypes: ['comboSkill' as const] };
+      for (const origin of [skillCastInfo, null, undefined]) {
+        const evaluate = () =>
+          executor.evaluate(condition, {
+            ...context,
+            event: {
+              event,
+              payload: { sourceId: 'owner', targetId: 'entity', skillCastInfo: origin },
+            },
+          });
+        if (origin === undefined)
+          expect(evaluate).toThrow('requires an event source skill cast identity');
+        else expect(evaluate()).toBe(origin !== null);
+      }
+    },
+  );
   it('同步伤害条件读取临时包，不借环境中残留的 AbilitySystem 事件', () => {
     const executor = new EventContextConditionExecutor(terminal);
     const context = {
