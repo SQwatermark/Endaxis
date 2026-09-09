@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：Buff分发快照的结束有效性
+
+Buff每个事件响应执行前检查isFinished；同次分发中前一响应结束宿主后，快照中的
+后一响应不再执行。不是在公共dispatcher中统一丢弃已注销回调，也没有套用Ability
+启用规则。反编译确认Buff.isActionValid仅为!isFinished，而canExecuteAction还要求
+isEnabled；完整证据补入combat-spec/docs/ability-enable-event-order.md。
+运行时/Buff/事件85文件1218项通过，应用类型检查通过。四轴回执仍2915/1610/5521/4311；除旧基线已知
+Finished/Released差异外，其他回执集合及解析后的三类诊断一致，没有更新基线。
+C#注册谓词的启用条件及Buff完整启用/禁用顺序仍需核对，不能宣称生命周期已全部收束。
+
 ## 2026-09-10：Buff事件宿主持有固定序列实例
 
 Buff原生响应此前每次通知临时createSequence，与被动/临时监听宿主不一致。现移到

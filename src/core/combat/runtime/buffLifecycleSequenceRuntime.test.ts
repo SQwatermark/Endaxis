@@ -1,6 +1,9 @@
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type {
+  AbilityEventPayloadMap,
+  AbilityResponseEventName,
+} from '../events/combatAbilityEvent';
 import { describe, expect, it, vi } from 'vitest';
 import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
@@ -1241,6 +1244,62 @@ describe('attachBuffLifecycleSequences', () => {
     expect(disposed).toBe(2);
     buff.release();
     expect(disposed).toBe(2);
+  });
+
+  it('同次分发前序结束Buff后，快照中后续序列检查宿主有效性', () => {
+    const dispatcher = new AbilityEventDispatcher<
+      AbilityResponseEventName,
+      AbilityEventPayloadMap
+    >();
+    const reached: string[] = [];
+    let finishOwner = () => {};
+    const definition = attachBuffLifecycleSequences<never>(
+      { id: 'finish-during-dispatch', stackingType: 'unique' },
+      {},
+      () => ({
+        execute: step => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected step');
+          reached.push(step.parameters.flag);
+          finishOwner();
+          return true;
+        },
+        evaluate: () => true,
+      }),
+      undefined,
+      ['first', 'second'].map(flag => ({
+        event: 'addedBuff' as const,
+        priority: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'setContextFlag' as const,
+              parameters: { flag, value: true, target: 'caster' as const },
+            },
+          ],
+        },
+      })),
+      (event, priority, handle) =>
+        dispatcher.registerAction(event, priority, published => handle(published)),
+    );
+    const container = new CombatBuffContainer<never>('operator', new CombatAttributeSet<never>());
+    const buff = container.add(definition, 'source')!;
+    finishOwner = () => {
+      buff.finish('other', null);
+    };
+    dispatcher.dispatch(
+      {
+        event: 'addedBuff',
+        payload: {
+          sourceId: 'source',
+          targetId: 'operator',
+          buffId: 'incoming',
+          buffTags: [],
+        },
+      },
+      [],
+    );
+    expect(reached).toEqual(['first']);
+    expect(buff.isFinished).toBe(true);
   });
 
   it('叠层回调使用本次来源，满层仍回调，且不重置实例 once 状态', () => {

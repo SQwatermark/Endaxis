@@ -379,6 +379,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
               response.event,
               response.priority,
               (event, actionContext) => {
+                if (buff.isFinished) return;
                 withCombatEventResponseContext(context, { event, actionContext }, () =>
                   sequence.executeInstant({}),
                 );
@@ -392,6 +393,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
             response.event,
             response.priority,
             (published, actionContext) => {
+              // SequenceAction.isValid delegates to Buff.isActionValid (!isFinished).
+              if (buff.isFinished) return;
               withAbilityEventResponseContext(context, published, actionContext, () =>
                 sequence.executeInstant({}),
               );
