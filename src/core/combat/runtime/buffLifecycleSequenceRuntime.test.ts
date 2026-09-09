@@ -1,6 +1,6 @@
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
@@ -229,6 +229,7 @@ describe('attachBuffLifecycleSequences', () => {
       expect(buff.affixSkillCastId).toBe(processing ?? 0);
       expect(buff.skillCastInfo).toEqual(hasSource ? ordinary : null);
       expect(callbacks.size).toBe(processing === undefined ? 0 : 1);
+      const finish = vi.spyOn(buff, 'finish');
       const emit = (sourceId: string, skillCastId: number) => {
         for (const callback of [...callbacks])
           callback({
@@ -247,6 +248,8 @@ describe('attachBuffLifecycleSequences', () => {
       expect(buff.isFinished).toBe(false);
       emit('owner', 42);
       expect(buff.isFinished).toBe(processing !== undefined);
+      if (processing !== undefined) expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
+      else expect(finish).not.toHaveBeenCalled();
       buff.finish('other');
       expect(callbacks.size).toBe(0);
       expect(buff.affixSkillCastId).toBe(processing ?? 0);

@@ -1,5 +1,15 @@
 # 当前任务快照
 
+## 2026-09-10：SkillAffix引用耗尽明确空结束来源
+
+当前镜像_DecreaseRefCount 04299D30核实归零分支以Other和清零的施法/实体上下文调用
+Buff.MarkFinish（04299E3C）。Endaxis现有直接技能结束回调改为finish('other', null)，
+不把绑定技能或原始创建技能投影为结束来源。C#已使用空默认来源，无需重复修改。
+注意这不是完整SkillAffix引用计数实现：子实体、投射物、输出Buff的保留仍未闭合。
+证据追加在combat-spec/docs/skill-affix-identity-2026-09-04.md。
+定向2文件116项、运行时/Buff/事件/投影108文件1333项通过；含无处理技能不监听、
+其他持有者/编号不触发，以及有无原始来源两种情况下都明确空结束来源的断言。
+
 ## 2026-09-10：修正复刻库CastEnd错误清理Ability子Buff
 
 完整检查Skill.CastEnd 030F5A60至030F73B9：时间轴结束内联于本方法，最后清本次

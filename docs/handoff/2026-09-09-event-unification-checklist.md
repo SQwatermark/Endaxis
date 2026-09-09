@@ -44,7 +44,8 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
    Ability本体清子Buff也已核实空来源，配装dispose已接；配装宿主退出/注销的相对顺序
    未由这一调用推断。GlobalBuff子清理已核实固定Other+空来源，父Early不传给子；
    两仓均已修正，完整宿主退出顺序仍待核实。仍需核实能力实体的Ability所有权子Buff、
-   SkillAffix绑定技能结束等入口。护盾耗尽移除已核实Other+空来源，TS数值/次数耗尽
+   SkillAffix完整引用保留等入口。其引用耗尽结束已核实Other+空来源，直接技能回调
+   已修正；不能由此宣称子实体/投射物/输出Buff引用计数已实现。护盾耗尽移除已核实Other+空来源，TS数值/次数耗尽
    均验证；这不等于完整ShieldBlockDamage事件已验收。
    现有未知来源不能一律改成null，也不能一律继承宿主施法。
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、

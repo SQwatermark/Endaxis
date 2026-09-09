@@ -256,7 +256,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
             event.payload.skillCastId !== skillCastId
           )
             return;
-          buff.finish('other');
+          // Native SkillAffix._DecreaseRefCount ends with Other and an empty cast context.
+          buff.finish('other', null);
           registration.dispose();
         });
         return registration;
