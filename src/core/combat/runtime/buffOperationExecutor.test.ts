@@ -5,6 +5,7 @@ import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { ActionBlackboard } from './actionBlackboard';
 import { BuffOperationExecutor } from './buffOperationExecutor';
+import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
 
@@ -14,6 +15,50 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('护盾当前值读取动作目标实时容器，而新增值读取事件且保留双精度', () => {
+    let liveValue = 90.123456789;
+    const container = new CombatBuffContainer('owner', new CombatAttributeSet());
+    const target = new BuffDefinitionOperationTarget(container, { get: () => undefined });
+    // Preserve the container methods while overriding only the live reader.
+    Object.defineProperty(container, 'currentFiniteShieldValue', { get: () => liveValue });
+    const executor = new BuffOperationExecutor({
+      sourceId: 'source',
+      resolveTarget: () => target,
+      resolveEventTarget: id => {
+        expect(id).toBe('owner');
+        return target;
+      },
+      delegate,
+    });
+    const blackboard = new ActionBlackboard({ shield: 7 });
+    const context = {
+      blackboard,
+      actionOwnerId: 'owner',
+      event: {
+        event: 'afterAddedShield' as const,
+        payload: {
+          sourceId: 'other',
+          targetId: 'other',
+          gainedValue: 33.123456789,
+          currentValue: 999,
+        },
+      },
+    };
+    const step = (value: 'gained' | 'current') => ({
+      kind: 'storeShieldValue' as const,
+      parameters: { target: 'actionOwner' as const, value, outputKey: 'shield' },
+    });
+    expect(executor.execute(step('current'), context)).toBe(true);
+    expect(blackboard.getNumber('shield')).toBe(liveValue);
+    liveValue = 80.123456789;
+    executor.execute(step('current'), { blackboard, actionOwnerId: 'owner' });
+    expect(blackboard.getNumber('shield')).toBe(liveValue);
+    executor.execute(step('gained'), context);
+    expect(blackboard.getNumber('shield')).toBe(33.123456789);
+    expect(executor.execute(step('gained'), { blackboard, actionOwnerId: 'owner' })).toBe(true);
+    expect(executor.execute(step('gained'), { blackboard, event: context.event })).toBe(true);
+    expect(blackboard.getNumber('shield')).toBe(33.123456789);
+  });
   it.each([false, true])('结束动作传递自身施法而非事件施法，存在来源=%s', hasSource => {
     const target = new CombatBuffContainer<string>('caster', new CombatAttributeSet());
     const finish = vi.spyOn(target, 'finishByIds');

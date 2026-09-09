@@ -1,4 +1,5 @@
 import { skillAbilityEvent } from '../events/combatAbilityEvent';
+import { shieldAbilityEvent } from '../events/combatAbilityEvent';
 import { abilityEventTargetId, abilityEventSourceId } from '../events/combatAbilityEvent';
 import {
   type AbilityPhysicalInflictionPayload,
@@ -43,6 +44,7 @@ export interface BuffLifecycleOperationSource {
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
+  readonly currentFiniteShieldValue?: number;
   /** 此端口所属的稳定战斗实体身份，用于原生动作显式指定 Buff 来源时传递来源。 */
   readonly ownerId: string;
   /** 只读原生属性值；技能费用等非 Buff 操作不得反向持有具体容器。 */
@@ -216,6 +218,28 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     step: RuntimeOperation,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'storeShieldValue') {
+      if (context === undefined)
+        throw new Error('storeShieldValue requires a combat operation context');
+      const ownerId = context.actionOwnerId ?? context.buffOwnerId;
+      if (ownerId === undefined) return true;
+      const resolve = this.dependencies.resolveEventTarget;
+      if (resolve === undefined)
+        throw new Error('storeShieldValue requires an entity target resolver');
+      const target = resolve(ownerId);
+      let value: number;
+      if (step.parameters.value === 'current') {
+        const current = target.currentFiniteShieldValue;
+        if (current === undefined) throw new Error('storeShieldValue target has no shield reader');
+        value = current;
+      } else {
+        const shield = context.event === undefined ? undefined : shieldAbilityEvent(context.event);
+        if (shield === undefined) return true;
+        value = shield.payload.gainedValue;
+      }
+      context.blackboard.assignDynamic(step.parameters.outputKey, value);
+      return true;
+    }
     if (step.kind === 'skillAffix') {
       if (this.#skillAffixes.has(step)) throw new Error('SkillAffix action is already active');
       if (context?.bindCurrentBuffSkillAffix === undefined || context.buffOwnerId === undefined)

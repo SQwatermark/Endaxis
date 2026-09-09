@@ -432,7 +432,7 @@ describe('公共 Action 叶子分派', () => {
       steps: [
         {
           kind: 'storeShieldValue',
-          parameters: { value: 'gained', outputKey: 'heal' },
+          parameters: { target: 'actionOwner', value: 'gained', outputKey: 'heal' },
         },
       ],
     });

@@ -1430,7 +1430,7 @@
         "storeCurrentTimelineFrame": "Stores the host skill or ability entity child skill's current local execute frame in the action blackboard.",
         "storeEventSpGainAmount": "Stores the actual SP amount carried by the current SP-gained event in the action blackboard.",
         "storeEventHealValues": "Stores the raw, actual, and overheal values carried by the current healing event in the action blackboard.",
-        "storeShieldValue": "Stores the shield gained by the current event or the target's current total shield in the action blackboard.",
+        "storeShieldValue": "Resolves the action owner, then stores either the current event's shield gain or the target's live finite shield total. Leaves the blackboard unchanged if the target or required event is absent.",
         "storeEntityPropertyValue": "Reads a target's current health, maximum health, or stagger value into the action blackboard.",
         "setHealthFloor": "Registers a health floor owned by the current action lifecycle and removes it when the action ends.",
         "modifyActionValue": "Modifies a value in the current skill cast's action blackboard.",

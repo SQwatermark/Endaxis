@@ -3801,6 +3801,7 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                   {
                     kind: 'storeShieldValue',
                     parameters: {
+                      target: 'actionOwner',
                       value: 'gained',
                       outputKey: 'heal',
                     },
@@ -5098,9 +5099,18 @@ export const contingencyContractInitializationPlans = Object.freeze([
   },
 ]) as readonly { readonly tagId: number; readonly sequence: ActionSequenceDefinition }[];
 export const contingencyContractEnemyMaxHealthPlans = Object.freeze([
-  { tagId: 900101, multiplier: 1.5 },
-  { tagId: 900102, multiplier: 2 },
-  { tagId: 900103, multiplier: 3 },
+  {
+    tagId: 900101,
+    multiplier: 1.5,
+  },
+  {
+    tagId: 900102,
+    multiplier: 2,
+  },
+  {
+    tagId: 900103,
+    multiplier: 3,
+  },
 ]) as readonly { readonly tagId: number; readonly multiplier: number }[];
 export const contingencyContractBlockedTagReasons = Object.freeze({}) as Readonly<
   Record<number, string>

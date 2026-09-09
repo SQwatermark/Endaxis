@@ -2941,6 +2941,7 @@ function validateCombatStep(
       }
       break;
     case 'storeShieldValue':
+      requireEnum(parameters, 'target', new Set(['actionOwner']), `${path}.parameters`, out);
       requireEnum(parameters, 'value', new Set(['gained', 'current']), `${path}.parameters`, out);
       requireString(parameters, 'outputKey', `${path}.parameters`, out);
       break;

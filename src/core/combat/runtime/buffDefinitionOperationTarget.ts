@@ -63,6 +63,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.ownerId;
   }
 
+  get currentFiniteShieldValue(): number {
+    return this.container.currentFiniteShieldValue;
+  }
+
   get entityBlackboard() {
     return this.container.entityBlackboard;
   }

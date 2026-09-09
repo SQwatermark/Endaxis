@@ -978,7 +978,10 @@ export function createSkillEditorStep(
     case 'storeEventHealValues':
       return { kind, parameters: { realHealOutputKey: 'custom-real-heal-value' } };
     case 'storeShieldValue':
-      return { kind, parameters: { value: 'gained', outputKey: 'custom-shield-value' } };
+      return {
+        kind,
+        parameters: { target: 'actionOwner', value: 'gained', outputKey: 'custom-shield-value' },
+      };
     case 'changeResource':
       return { kind, parameters: { resource: 'sp', amount: 0, recipient: 'caster' } };
     case 'changeResourceByActionValue':

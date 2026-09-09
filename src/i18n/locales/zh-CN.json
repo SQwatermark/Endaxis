@@ -1416,7 +1416,7 @@
         "storeCurrentTimelineFrame": "把宿主技能或能力实体子技能的当前局部整数执行帧写入动作黑板，不是现实时间轴帧。",
         "storeEventSpGainAmount": "至少启用一个写入键。Value 是效率结算后、共享技力上限截断前的值；RealDelta 是最终实际变化量。",
         "storeEventHealValues": "至少启用一个写入键。分别保存修正后治疗量与生命实际增加量；实际增加量受最大生命截断，满血时可以为 0。",
-        "storeShieldValue": "把当前护盾事件携带的新增护盾量或目标护盾总量写入动作黑板。",
+        "storeShieldValue": "先解析动作所属目标，再将本次护盾事件的新增量或目标实时有限护盾总量写入动作黑板；缺少目标或所需事件时不写入。",
         "storeEntityPropertyValue": "读取目标当前生命、生命上限或失衡值，并写入动作黑板。",
         "setHealthFloor": "注册由当前动作生命周期持有的生命下限，动作结束时自动撤销。",
         "modifyActionValue": "修改当前技能释放实例的一个动作黑板值。",

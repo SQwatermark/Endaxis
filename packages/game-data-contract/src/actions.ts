@@ -698,8 +698,9 @@ export interface CombatStepParameters {
     finalHealOutputKey?: string;
     realHealOutputKey?: string;
   };
-  /** 从护盾添加事件保存本次新增护盾，或读取动作宿主当前有限护盾总量。 */
+  /** 先解析目标；新增值读取147事件，当前值读取目标实时有限护盾。缺目标/事件成功不写。 */
   storeShieldValue: {
+    target: 'actionOwner';
     value: 'gained' | 'current';
     outputKey: string;
   };

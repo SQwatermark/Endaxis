@@ -84,7 +84,10 @@ const stepAnnotations = {
     value: display('healthFloorValue', undefined, 'healthFloorHelp'),
   },
   storeEventSpGainAmount: { outputKey: display('spValueOutputKey') },
-  storeShieldValue: { value: display('capturedShieldValue', 'shieldCaptureValues') },
+  storeShieldValue: {
+    target: display('target', 'actionContextIdentities'),
+    value: display('capturedShieldValue', 'shieldCaptureValues'),
+  },
 } satisfies StepAnnotations;
 
 /** 完整参数联合整体替换；子序列和定义不进入参数表单。 */

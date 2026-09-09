@@ -304,32 +304,6 @@ describe('ActionBlackboardOperationExecutor', () => {
   });
 
   it.each([
-    ['gained', 120],
-    ['current', 350],
-  ] as const)('stores the native %s shield value from the add-shield event', (value, expected) => {
-    const blackboard = new ActionBlackboard();
-    const executor = new ActionBlackboardOperationExecutor(delegate);
-    expect(
-      executor.execute(
-        { kind: 'storeShieldValue', parameters: { value, outputKey: 'shield' } },
-        {
-          blackboard,
-          event: {
-            event: 'afterAddedShield',
-            payload: {
-              sourceId: 'operator',
-              targetId: 'operator',
-              gainedValue: 120,
-              currentValue: 350,
-            },
-          },
-        },
-      ),
-    ).toBe(true);
-    expect(blackboard.getNumber('shield')).toBe(expected);
-  });
-
-  it.each([
     ['assign', 9, 3, 3],
     ['add', 9, 3, 12],
     ['multiply', 9, 3, 27],

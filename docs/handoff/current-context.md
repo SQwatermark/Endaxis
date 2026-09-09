@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-10：Endaxis 护盾值读取贯通
+
+依据 SaveShieldValueToBB.ExecuteInternal 0x0601EC40（哈希及逐地址证据见复刻库
+docs/save-shield-value-to-blackboard.md），公共步骤现在显式保存 actionOwner 目标。
+转换仍严格只接受已审计 Owner；校验、默认编辑值和字段显示同步更新。
+BuffOperationExecutor 复用实体目标解析，当前值经 BuffDefinitionOperationTarget 读取实时
+有限护盾；新增值只读当前147事件。缺目标或缺所需事件成功不写，不借事件目标/来源。
+ActionBlackboardOperationExecutor 删除旧的快照读取分支，动态写入保持 double 精度。
+合约定义由生成器重生成（并修正其旧 src/next 层级遗留导入路径），未人工编写 Buff 定义。
+1189项运行时/Buff测试及四条真实轴完整回执/诊断对比通过；两项旧快照测试替换为实时语义回归。
+编译叶节点/检查器/目标端口170项定向测试、公共协议/生成器生产代码/完整应用类型检查通过。
+本项不代表系统整体验收：下一步仍需审计直接 finish 调用来源、分类条件重复边界，最后清理
+检查清单中的历史待办与已完成状态，让用户可以完整审阅。
+
+重生成合约使用 tmp/contingency-contract-tables-20260905/TableCfg-current、
+tmp/game-data-sources-hybrid-20260905/BuffData 和
+tmp/global-buff-contingency-closure-current-schema.json；主 global-buff 目录不含全部合约闭包。
+generateContingencyContractDefinitions 的 --output 是目录 src/data/mechanics/generated，不是文件路径。
+
 ## 2026-09-10：护盾值执行器先补复刻库
 
 重新反汇编SaveShieldValueToBB确认：两分支先解析显式目标；CurValue读实时目标有限护盾，

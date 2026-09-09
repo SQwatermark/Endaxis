@@ -1,4 +1,3 @@
-import { shieldAbilityEvent } from '../events/combatAbilityEvent';
 import { abilityEventTargetId } from '../events/combatAbilityEvent';
 import { spGainAbilityEvent } from '../events/combatAbilityEvent';
 import { healAbilityEvent } from '../events/combatAbilityEvent';
@@ -119,19 +118,6 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       if (realHealOutputKey !== undefined) {
         context.blackboard.assignDynamic(realHealOutputKey, heal.payload.actualHealing);
       }
-      return true;
-    }
-    if (step.kind === 'storeShieldValue') {
-      const shield = context?.event === undefined ? undefined : shieldAbilityEvent(context.event);
-      if (context === undefined || shield === undefined) {
-        throw new Error('storeShieldValue requires an afterAddedShield event context');
-      }
-      context.blackboard.assignDynamic(
-        step.parameters.outputKey,
-        step.parameters.value === 'gained'
-          ? shield.payload.gainedValue
-          : shield.payload.currentValue,
-      );
       return true;
     }
     if (step.kind === 'modifyActionValue') {

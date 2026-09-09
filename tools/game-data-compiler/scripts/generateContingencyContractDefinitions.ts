@@ -246,7 +246,7 @@ export async function generateContingencyContractDefinitions(args: Arguments) {
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(
     `/** 由危机合约原生词条、GlobalBuff 与 BuffData 闭包生成；不要手工编辑。 */
-import type { ActionSequenceDefinition, OperatorBuffDefinitions } from '../../../../../packages/game-data-contract/src/index.ts';
+import type { ActionSequenceDefinition, OperatorBuffDefinitions } from '../../../../packages/game-data-contract/src/index.ts';
 
 export const contingencyContractBuffDefinitions = Object.freeze(${JSON.stringify(definitions, null, 2)}) as OperatorBuffDefinitions;
 export const contingencyContractInitializationPlans = Object.freeze(${JSON.stringify(plans, null, 2)}) as readonly { readonly tagId: number; readonly sequence: ActionSequenceDefinition }[];

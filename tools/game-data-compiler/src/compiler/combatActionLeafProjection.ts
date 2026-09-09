@@ -273,6 +273,7 @@ export function compileActionNode(
         {
           kind: 'storeShieldValue',
           parameters: {
+            target: 'actionOwner',
             value: action.valueType === 'GainedValue' ? 'gained' : 'current',
             outputKey: action.outputKey,
           },
