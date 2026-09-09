@@ -1078,6 +1078,8 @@ describe('主动技能正式时间轴投影', () => {
             {
               key: 'fixture.actionGroupData.timelineActions[0]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
               event: { kind: 'operatorHit' },
+              phase: 'dataAction',
+              priority: 0,
               sequence: { steps: [] },
             },
           ],
@@ -1088,6 +1090,40 @@ describe('主动技能正式时间轴投影', () => {
     expect(compile('OnSkillEnd').scheduledSequences).toEqual([]);
     expect(() => compile('OnBeforeOutputDamage')).toThrow('combat-visible EventListenerAction');
   });
+  it.each([
+    ['High', 0],
+    ['Default', 1],
+  ] as const)(
+    '临时监听复用公共优先级边界：%s + %s 不静默降为零',
+    (priorityLevel, priorityOffset) => {
+      const listener = meta('EventListenerAction', {
+        abilityActionMap: [
+          {
+            abilityEvent: 'OnAddedBuff',
+            actions: [
+              seq([
+                meta('JumpToAction', {
+                  conditionAction: seq([]),
+                  destFrame: 107,
+                  priorityLevel,
+                  priorityOffset,
+                }),
+              ]),
+            ],
+          },
+        ],
+      });
+      expect(() =>
+        compileActiveSkillRuntimeProjectionSource({
+          value: activeWithActions([listener]),
+          sourcePath: 'fixture',
+          patch: null,
+          context: ACTIVE_CONTEXT,
+        }),
+      ).toThrow('unsupported native action priority');
+    },
+  );
+
   it('把受击监听的持续伤害与残留区域排除掩码保留为事件特征条件', () => {
     const listener = meta('EventListenerAction', {
       abilityActionMap: [

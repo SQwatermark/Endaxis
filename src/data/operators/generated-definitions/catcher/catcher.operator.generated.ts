@@ -594,6 +594,8 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0020_meurs_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                 event: { kind: 'operatorHit' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     {
@@ -608,6 +610,8 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0020_meurs_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[0].abilityActionMap[1].actions[0]',
                 event: { kind: 'buffApplied' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     { kind: 'eventBuffIdMatch', buffIds: ['buff_eny_0018_lbtough_pre_catch'] },

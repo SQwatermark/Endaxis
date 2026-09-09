@@ -3005,6 +3005,8 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0035_liino_normal_skill.actionGroupData.timelineActions[14]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                 event: { kind: 'buffApplied' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     {
@@ -3051,6 +3053,8 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0035_liino_normal_skill.actionGroupData.timelineActions[15]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                 event: { kind: 'buffApplied' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     { kind: 'eventBuffIdMatch', buffIds: ['buff_chr_0035_liino_normalskill_end'] },
@@ -3439,6 +3443,8 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0035_liino_normal_skill_combo.actionGroupData.timelineActions[6]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                 event: { kind: 'buffApplied' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     {
@@ -3485,6 +3491,8 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0035_liino_normal_skill_combo.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                 event: { kind: 'buffApplied' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     { kind: 'eventBuffIdMatch', buffIds: ['buff_chr_0035_liino_normalskill_end'] },
@@ -4084,6 +4092,8 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0035_liino_ultimate_skill.actionGroupData.timelineActions[18]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                 event: { kind: 'buffApplied' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     {

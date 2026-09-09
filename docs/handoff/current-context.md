@@ -1,5 +1,25 @@
 # 当前任务快照
 
+## 2026-09-09 晚间续：临时监听修正原生执行阶段
+
+反编译确认 EventListenerAction.ExecuteInternal 经 AbilitySystem.RegisterAction 调用
+与 Ability.Enable 相同的公共动作容器，OnEnd 释放句柄；详见 combat-spec 的
+event-listener-registration.md（含 RVA、token、快照哈希和 IFix 证据边界）。
+临时与常驻的差别是监听生命周期，不应把临时动作放到 skill 通知阶段。
+
+转换器现在显式生成 dataAction/0，复用公共 compileAuditedDefaultPriority；非默认
+优先级明确阻断，不再静默忽略。手写旧定义的缺省阶段未擅自变更。
+新增运行时回归验证常驻/临时动作先于 skill 通知、同优先级注册顺序及结束注销。
+三个定向文件176项通过；31干员潜能0/5各通过325技能、198技能库放置、31组合轴。
+全量候选仅 catcher/ember/liino/snowshine/tangtang 五份变化，除 phase/priority
+字段外无变化，已落正式数据。四条真实轴完整回执和诊断仍与基线一致。
+生产生成器与完整应用类型检查通过。
+
+尚未完成：临时监听 OnAddedBuff/OnOutputBuff 仍有语义入口适配，序列遍历也尚未
+完全共用 compileAbilityEventPrograms。下一步迁移必须保留 OnSkillEnd 空回调省略，
+以及 OnBeforeTakeDamage→operatorHit 的显式木桩外部标记边界；不能制造敌人伤害。
+本次是阶段错误修复，不代表全部事件身份、上下文及优先级技术债已经收完。
+
 ## 2026-09-09 晚间续：武器退出旧语义事件生成
 
 OnConsumeBuff / OnAfterOutputPhysicalInfliction 现在经公共 projectAbilityEvent 生成

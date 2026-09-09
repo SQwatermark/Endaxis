@@ -3475,6 +3475,8 @@ export default {
                   {
                     key: 'SkillData.chr_0027_tangtang_ultimate_skill_1.actionGroupData.timelineActions[12]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                     event: { kind: 'buffOutput' },
+                    phase: 'dataAction',
+                    priority: 0,
                     sequence: sequence(
                       branch(
                         {

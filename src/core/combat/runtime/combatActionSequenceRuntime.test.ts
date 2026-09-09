@@ -33,6 +33,57 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('临时原生动作与常驻动作同阶段执行，结束后仅移除自身注册', () => {
+    const { dispatcher, semanticEvents, emitAddedBuff } = createNativeEventFixture();
+    const calls: string[] = [];
+    dispatcher.registerListener('addedBuff', 'skill', () => calls.push('skill'));
+    dispatcher.registerAction('addedBuff', 0, () => calls.push('persistent'));
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        evaluate: () => true,
+        execute: step => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected operation');
+          calls.push(step.parameters.flag as string);
+          return true;
+        },
+      },
+      { blackboard: new ActionBlackboard() },
+      {},
+      semanticEvents,
+      'owner',
+    );
+    const listener = runtime.createSequence(
+      sequence({
+        kind: 'listenForCombatEvents',
+        parameters: {
+          responses: [
+            {
+              key: 'temporary',
+              event: { kind: 'buffApplied' },
+              phase: 'dataAction',
+              priority: 0,
+              sequence: sequence(operation('temporary')),
+            },
+          ],
+        },
+      }),
+    );
+    const emit = () =>
+      emitAddedBuff({
+        sourceId: 'owner',
+        targetId: 'owner',
+        buffId: 'signal',
+        buffTags: [],
+      });
+    listener.execute({});
+    emit();
+    expect(calls).toEqual(['persistent', 'temporary', 'skill']);
+    listener.end({});
+    calls.length = 0;
+    emit();
+    expect(calls).toEqual(['persistent', 'skill']);
+  });
+
   it('监听复用原生守卫状态，阻止自身尾部事件重入，但仍响应后续事件', () => {
     const { semanticEvents: events, emitAddedBuff } = createNativeEventFixture();
     const calls: string[] = [];

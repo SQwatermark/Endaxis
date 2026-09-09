@@ -33,7 +33,10 @@ import type {
   CompiledBuffStepSource,
 } from './combatActionProjectionTypes.ts';
 import { projectTimelineJump } from './timelineControlProjection.ts';
-import { compileAbilityEventPrograms } from './abilityEventProgram.ts';
+import {
+  compileAbilityEventPrograms,
+  compileAuditedDefaultPriority,
+} from './abilityEventProgram.ts';
 import { projectAbilityEvent } from './abilityEventProjection.ts';
 import {
   compileActionSequenceProgram,
@@ -2662,9 +2665,11 @@ function compileEventListenerNode(
         `${node.sourcePath}.abilityActionMap[${eventIndex}]: unsupported ability event ${JSON.stringify(event.abilityEvent)}`,
       );
     }
-    return compiledSequences.map(item => ({
+    return compiledSequences.map((item, sequenceIndex) => ({
       key: item.key,
       event: trigger,
+      phase: 'dataAction' as const,
+      priority: compileAuditedDefaultPriority(event.actions[sequenceIndex]!, item.key),
       sequence: item.sequence,
     }));
   });

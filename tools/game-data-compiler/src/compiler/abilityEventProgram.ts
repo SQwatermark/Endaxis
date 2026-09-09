@@ -36,7 +36,7 @@ export interface CompileAbilityEventProgramOptions<TLeaf, TEvent, TSequence> {
  * 当前已审计资产的事件序列均为 Default + 0。优先级枚举到整数的完整映射尚未由
  * combat-spec 固化，因此新形态必须显式失败，不能在生成器里猜一个数值。
  */
-function compileAuditedDefaultPriority<TLeaf>(
+export function compileAuditedDefaultPriority<TLeaf>(
   sequence: NativeSequenceSource<TLeaf>,
   sourcePath: string,
 ): number {

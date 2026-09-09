@@ -528,6 +528,8 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
               {
                 key: 'SkillData.chr_0009_azrila_normal_skill.actionGroupData.timelineActions[2]._sequenceActionData.actionData[0].abilityActionMap[0].actions[0]',
                 event: { kind: 'operatorHit' },
+                phase: 'dataAction',
+                priority: 0,
                 sequence: sequence(
                   branch(
                     {
