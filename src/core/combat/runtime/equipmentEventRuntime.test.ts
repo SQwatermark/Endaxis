@@ -696,6 +696,7 @@ describe('EquipmentEventRuntime', () => {
       {
         event: 'outputBuff',
         payload: {
+          buff: createEventBuff(),
           sourceId: 'operator:a',
           targetId: 'enemy',
           buffId: 'fixture',

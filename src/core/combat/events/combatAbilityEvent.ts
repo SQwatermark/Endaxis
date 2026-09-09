@@ -195,6 +195,14 @@ export type EventBuffInstance = Pick<
   'instanceId' | 'blackboard' | 'isFinished'
 >;
 
+/** 输出后携带实际实例；跟踪者只取得身份读取与回收订阅权限。 */
+export interface AbilityOutputBuffPayload extends BuffAppliedEvent {
+  readonly buff: EventBuffInstance &
+    Pick<CombatBuff<string>, 'affixSkillCastId' | 'skillCastInfo'> & {
+      onRecycled(callback: () => void): { dispose(): void };
+    };
+}
+
 export interface AbilityFinishedBuffPayload extends AbilityOriginPayload {
   readonly buff: EventBuffInstance;
   readonly buffId: string;
@@ -301,7 +309,7 @@ export interface AbilityEventPayloadMap {
   skillEnd: AbilitySkillPayload;
   beforeOutputBuff: BuffAppliedEvent;
   beforeAddedBuff: BuffAppliedEvent;
-  outputBuff: BuffAppliedEvent;
+  outputBuff: AbilityOutputBuffPayload;
   addedBuff: BuffAppliedEvent;
   finishedBuff: AbilityFinishedBuffPayload;
   buffEndsEarly: AbilityFinishedBuffPayload;

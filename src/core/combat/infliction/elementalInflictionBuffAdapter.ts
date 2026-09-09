@@ -17,6 +17,7 @@ import type {
 import type { InflictionElement } from '../../game-data/operatorDefinition';
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 import { NATIVE_ELEMENT_VALUES } from './elementalInfliction';
+import type { AbilityOutputBuffPayload } from '../events/combatAbilityEvent';
 
 /** 附着适配器读取 Buff 定义和复合状态工厂的定义端口。 */
 export interface ElementalInflictionBuffIndex<Key extends string> {
@@ -78,7 +79,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     readonly onBuffApplied?: (event: ElementalBuffAppliedPayload) => void,
     readonly resolveCompoundStatusBlackboard?: ResolveCompoundStatusBlackboard,
     readonly onBeforeOutputBuff?: (event: ElementalBuffAppliedPayload) => void,
-    readonly onOutputBuff?: (event: ElementalBuffAppliedPayload) => void,
+    readonly onOutputBuff?: (event: AbilityOutputBuffPayload) => void,
     readonly onBeforeAddedBuff?: (event: ElementalBuffAppliedPayload) => void,
   ) {}
 
@@ -152,7 +153,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     const added = this.target.add(definition, this.sourceId, options);
     if (added === null) return;
     this.onBuffApplied?.(event);
-    this.onOutputBuff?.(event);
+    this.onOutputBuff?.({ ...event, buff: added });
     return { buffId: added.definition.id, instanceId: added.instanceId };
   }
 

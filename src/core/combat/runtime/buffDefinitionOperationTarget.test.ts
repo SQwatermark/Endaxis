@@ -37,8 +37,9 @@ describe('BuffDefinitionOperationTarget', () => {
         undefined,
         () => events.push('added'),
         () => events.push('before-output'),
-        () => {
+        event => {
           events.push('output');
+          expect(event.buff).toBe(container.findFirstByIds(['trigger']));
           rates.push(keyword.blackboard.getNumber('rate')!);
         },
         () => events.push('before-added'),

@@ -7,6 +7,7 @@ import type { CombatAbilityEvent } from './combatAbilityEvent';
 import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
+import { createEventBuff } from './buffEventTestFixture';
 
 describe('AbilityEvent action context binding', () => {
   it('泛型订阅保持名称与载荷关联，可以直接交给统一绑定入口', () => {
@@ -22,7 +23,7 @@ describe('AbilityEvent action context binding', () => {
   it('输出阶段以接收者为InputTarget，以发布者为Trigger', () => {
     const events: CombatAbilityEvent[] = [
       { event: 'beforeOutputBuff', payload: buffPayload },
-      { event: 'outputBuff', payload: buffPayload },
+      { event: 'outputBuff', payload: { ...buffPayload, buff: createEventBuff() } },
       { event: 'beforeOutputPhysicalInfliction', payload: { ...pair, type: 'fracture' } },
       {
         event: 'outputHeal',

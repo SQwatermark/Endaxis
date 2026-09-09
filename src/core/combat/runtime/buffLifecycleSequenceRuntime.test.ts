@@ -225,7 +225,7 @@ describe('attachBuffLifecycleSequences', () => {
         undefined,
         [],
         (event, callback) => {
-          expect(['beforeCastSkill', 'skillEnd']).toContain(event);
+          expect(['beforeCastSkill', 'skillEnd', 'outputBuff']).toContain(event);
           callbacks.add(callback);
           const registration = dispatcher.registerCallback(event, callback);
           return {
@@ -273,14 +273,36 @@ describe('attachBuffLifecycleSequences', () => {
       emit('other', 42);
       emit('owner', 999);
       expect(buff.isFinished).toBe(false);
+      const output = container.add({ id: 'output', stackingType: 'unique' }, 'owner', {
+        skillCastInfo: { ...ordinary, skillCastId: 42 },
+      })!;
+      dispatcher.dispatch(
+        {
+          event: 'outputBuff',
+          payload: {
+            sourceId: 'owner',
+            targetId: 'owner',
+            buffId: 'output',
+            buffTags: [],
+            buff: output,
+            skillCastInfo: ordinary,
+          },
+        },
+        [],
+      );
+      expect(output.affixSkillCastId).toBe(0);
       emit('owner', 42, 'beforeCastSkill');
       emit('other', 42, 'beforeCastSkill');
       emit('owner', 999, 'beforeCastSkill');
       emit('owner', 42);
       expect(buff.isFinished).toBe(false);
       emit('owner', 42);
+      expect(buff.isFinished).toBe(false);
+      expect(observedInActionPhase).toEqual([false, false, false, false]);
+      output.finish('other');
+      expect(buff.isFinished).toBe(false);
+      container.recycleFinishedBuffs();
       expect(buff.isFinished).toBe(processing !== undefined);
-      expect(observedInActionPhase).toEqual([false, false, false, processing !== undefined]);
       if (processing !== undefined) expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
       else expect(finish).not.toHaveBeenCalled();
       buff.finish('other');

@@ -279,6 +279,7 @@ it.each(['beforeOutputBuff', 'beforeAddedBuff', 'addedBuff', 'outputBuff'] as co
         buffTags: [],
         skillCastInfo: null,
         isExtra: true,
+        buff: createEventBuff(),
       }),
     });
     const context: CombatOperationContext = { blackboard: new ActionBlackboard() };

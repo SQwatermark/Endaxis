@@ -30,6 +30,7 @@ describe('CombatSemanticEventRuntime', () => {
         sourceId: 'owner',
         targetId: 'owner',
         buffId: 'signal',
+        buff: createEventBuff(),
         buffTags: [],
         skillCastInfo: null,
       };
@@ -717,6 +718,7 @@ describe('CombatSemanticEventRuntime', () => {
     const event = {
       event: 'outputBuff' as const,
       payload: {
+        buff: createEventBuff(),
         sourceId: 'operator',
         targetId: 'enemy',
         buffId: 'buff:test',

@@ -1,5 +1,17 @@
 # 当前任务快照
 
+## 2026-09-10：Endaxis输出Buff实际实例与affix跟踪接通
+
+outputBuff从通用施加请求载荷拆为必含实际buff的载荷；创建前事件不改。实例端口只暴露
+身份/黑板读取、普通施法与affix编号、回收订阅，不开放容器修改权限。普通Buff及元素
+适配器均传容器实际返回对象，刷新不按ID重新查找；测试核对返回实例身份。
+SkillAffix订阅输出实例回收：普通castId匹配且affixId为0才增加引用；不以本次事件来源
+施法覆盖实例的原始施法，不把affix编号写给输出Buff。输出finish不减引用，recycle才减；
+End注销全部对象句柄，不结束输出实例；结束受保护拒绝时不再强制注销。
+91文件1247项通过，类型检查通过，四轴除既有Finished/Released差异外无新增差异。
+尚未完成：两仓自动宿主回收阶段。当前输出引用需显式recycle调用才释放，不能视作
+完整正式链路已修复。下一步优先装配此阶段，不能跳去其他效果；实体/投射物引用仍未接。
+
 ## 2026-09-10：Endaxis独立Buff回收入口
 
 CombatBuffContainer新增recycleFinishedBuffs：按逆序逐项检查当前isFinished，先移出

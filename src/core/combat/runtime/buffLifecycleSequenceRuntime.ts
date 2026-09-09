@@ -257,15 +257,39 @@ export function attachBuffLifecycleSequences<Key extends string>(
         let references = 1;
         let disposed = false;
         const registrations: AbilityEventRegistration[] = [];
+        const outputReferences = new Set<{ dispose(): void }>();
         const registration = {
           dispose: () => {
             if (disposed) return;
             disposed = true;
             for (const handle of registrations) handle.dispose();
+            for (const handle of outputReferences) handle.dispose();
+            outputReferences.clear();
           },
+        };
+        const decreaseReference = () => {
+          if (disposed || --references > 0) return;
+          // Native SkillAffix._DecreaseRefCount ends with Other and an empty cast context.
+          if (buff.finish('other', null)) registration.dispose();
         };
         const handle = (published: CombatAbilityEvent<AbilityResponseEventName>) => {
           if (disposed) return;
+          if (published.event === 'outputBuff') {
+            const output = published.payload.buff;
+            if (
+              published.payload.sourceId !== buff.owner.ownerId ||
+              output.affixSkillCastId !== 0 ||
+              output.skillCastInfo?.skillCastId !== skillCastId
+            )
+              return;
+            const reference = output.onRecycled(() => {
+              outputReferences.delete(reference);
+              decreaseReference();
+            });
+            outputReferences.add(reference);
+            references++;
+            return;
+          }
           const event = skillAbilityEvent(published);
           if (
             event === undefined ||
@@ -278,14 +302,12 @@ export function attachBuffLifecycleSequences<Key extends string>(
             references++;
             return;
           }
-          if (event.event !== 'skillEnd' || --references > 0) return;
-          // Native SkillAffix._DecreaseRefCount ends with Other and an empty cast context.
-          buff.finish('other', null);
-          registration.dispose();
+          if (event.event === 'skillEnd') decreaseReference();
         };
         try {
           registrations.push(registerAbilityEventCallback('beforeCastSkill', handle));
           registrations.push(registerAbilityEventCallback('skillEnd', handle));
+          registrations.push(registerAbilityEventCallback('outputBuff', handle));
         } catch (error) {
           registration.dispose();
           throw error;

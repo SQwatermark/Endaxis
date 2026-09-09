@@ -32,6 +32,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import type { AbilityOutputBuffPayload } from '../events/combatAbilityEvent';
 
 export interface CombatBuffDefinitionResolver<Key extends string> {
   get(id: string): CombatBuffDefinition<Key> | undefined;
@@ -56,7 +57,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly registerAbilityEventAction?: RegisterBuffAbilityEventAction,
     readonly onBuffApplied?: (event: BuffAppliedEvent) => void,
     readonly onBeforeBuffApplied?: (event: BuffAppliedEvent) => void,
-    readonly onOutputBuff?: (event: BuffAppliedEvent) => void,
+    readonly onOutputBuff?: (event: AbilityOutputBuffPayload) => void,
     readonly onBeforeBuffAdded?: (event: BuffAppliedEvent) => void,
     readonly registerAbilityEventCallback?: RegisterBuffAbilityEventCallback,
   ) {}
@@ -123,10 +124,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
             ? {}
             : { getSourceAttributeValue: request.getSourceAttributeValue }),
         },
-        () => {
+        buff => {
           // 接收侧 Added → 来源侧 Output → 容器执行已有关键词增强。
           this.onBuffApplied?.(event);
-          this.onOutputBuff?.(event);
+          this.onOutputBuff?.({ ...event, buff });
         },
       );
     } catch (error) {
