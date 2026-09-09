@@ -1,5 +1,36 @@
 # 当前任务快照
 
+## 2026-09-10：投射物引用证据及现有投影核对
+
+原生_OnProjectileLaunched匹配cast后进入04DA2D28冷块，订阅的仍是onResetAction，
+追加到与能力实体相同的reset列表并加引用；证据已记录在复刻库专题。
+Endaxis没有163发布入口，投射物目前投影为withActionBlackboardScope或独立的
+scheduleProjectileFinishCallback队列，后者正式汤汤定义确实使用，独立于父技能结束。
+所以不能以零距离为理由删除此引用，也不能只加没有发布者的监听器。下一步应沿已有
+投影补生命周期端口并核对finish回调与reset顺序，不引入空间飞行模型。本轮未改模拟代码。
+
+后续核对已确认：当前原生 ProjectileComponent 在 finish 后先 tick 独立的
+delayRecycleTimer，到期仅 markToRecycle，后续 Tick 才调用 ProjectileManager.Recycle。
+后者进入 AbilitySystem.OnProjectileRecycle，结束当前技能后调用 onResetAction；
+ClearSource 在 reset 之后，不能直接复用普通实体释放的完整清理顺序。
+证据见 combat-spec 的 `docs/launch-projectile-skill-routing.md` 2026-09-10 节。
+后续已闭合 delayRecycleTimer 初值：发射时取四种已启用回调技能的
+SkillData.duration 最大值（从投射物自身 activeSkillMap 查找），不是仅 finish 回调。
+复刻库现有 ProjectileSkillRoutes 已补 ResolveRecycleDelay，定向 21 项通过。
+剩余时钟及消费端生命周期接入仍未完成；当前 finish 回调队列不得冒充 reset。
+Endaxis 本轮未新增事件或修改投射物模拟，不能宣称事件系统已全部收束。
+
+复刻库后续补 ProjectileRecycleDelay，复用已有 PeriodicTimer，明确到期仅标记、
+后续获准 Tick 才请求回收；定向回归现为 24 项通过。当前镜像 TickFunction 已确认
+使用 TickOwnerInfo 的 group finalTimeScale × additionalTimeScale × delta，
+不能默认投射物继承发射者时钟。尚需核对具体投射物组绑定/覆盖，随后接消费端。
+
+现已定位 ProjectileRootComponent.Launch 的 syncTimeScale 真分支：会继承并订阅
+来源组时间缩放通知，并非单次常量复制；现有 duration-finish 转换拒绝该形状。
+还发现无回调投射物的裁剪边界：它仍可经 OnProjectileLaunched 延长 SkillAffix，
+因此生命周期接入必须处理 `enabled.length === 0`，不能以无伤害回调证明无影响。
+已纠正转换器注释，未擅自改生成结果；完整来源通知更新/解绑及消费者仍待接通。
+
 ## 2026-09-10：实体引用已接入现有事件载荷（当前工作树）
 
 abilityEntitySpawned现在必含entity.onReset只读端口，装配层绑定实际实例；SkillAffix

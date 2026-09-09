@@ -83,7 +83,9 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
     if (!runtime) throw new Error(`${sourcePath}: missing ProjectileData ${launch.projectileId}`);
     const template = input.catalog.templates.get(launch.projectileId) ?? null;
     const enabled = launch.callbacks.filter(callback => callback.enabled);
-    // 没有任何启用回调的投射物只承载空间与表现；关闭槽位中的 skillId 是序列化残留。
+    // 当前仅投影回调程序；关闭槽位中的 skillId 是序列化残留。
+    // 无回调不等于无生命周期影响：原生 OnProjectileLaunched 仍可增加 SkillAffix 引用。
+    // 接入投射物生命周期时必须保留该发射，不能把此回调程序裁剪当作整对象不可见证明。
     if (enabled.length === 0) return [];
     const callback = (event: 'block' | 'finish' | 'hit' | 'reach') => {
       const routes = enabled.filter(item => item.event === event);
