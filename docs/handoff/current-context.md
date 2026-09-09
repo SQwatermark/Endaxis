@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：能力实体释放审计发现非等价清理（未修）
+
+当前镜像已追到AbilitySystem._DoShallowRelease→Buff容器Release/Clear→Buff.Release，
+其中执行一次内部释放动作11，而非简单逐个MarkFinish。Endaxis实体finished回调的
+finishAll('other')尚不能认为原生等价；C#实体释放也只实现来源关系切片。本轮不猜测修复。
+证据、RVA、尚待解析虚槽与下一步写在combat-spec/docs/ability-entity-event-origin.md。
+同时更正该文OnFinish token：6010514，6010513实际为OnStart；RVA原来正确。
+下一步核实Release余下调用和虚槽、正式数据事件11使用，再实现独立释放边界。
+
 ## 2026-09-10：护盾耗尽的结束来源
 
 ShieldInst.TryAbsorbDamage当前镜像已核实：移除Buff以Other、空SkillCastInfo调用
