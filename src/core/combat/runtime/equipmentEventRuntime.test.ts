@@ -56,15 +56,17 @@ describe('EquipmentEventRuntime', () => {
         [
           {
             ...contribution,
-            eventHandlers: [
-              {
-                ...original,
-                ...(mode === 'native'
-                  ? { event: undefined, abilityEvent: 'skillSpGained' as const }
-                  : {}),
-                sequence: { steps: [step, step] },
-              },
-            ],
+            eventHandlers:
+              mode === 'native'
+                ? [
+                    {
+                      ...original,
+                      event: undefined,
+                      abilityEvent: 'skillSpGained',
+                      sequence: { steps: [step, step] },
+                    },
+                  ]
+                : [{ ...original, sequence: { steps: [step, step] } }],
           },
         ],
         () => ({ execute, end, evaluate: () => true }),
