@@ -3,7 +3,7 @@ import type { ResolvedActionSequence } from '../../compiler/combatProgram';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
-import { ProjectileFinishCallbackRuntime } from './projectileFinishCallbackRuntime';
+import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 const probe = {
@@ -16,7 +16,7 @@ function delayedProbe(): ResolvedActionSequence {
     steps: [
       {
         kind: 'scheduleProjectileFinishCallback',
-        parameters: { delaySeconds: 3 },
+        parameters: { delaySeconds: 3, recycleDelaySeconds: 0 },
         body: {
           steps: [
             {
@@ -40,9 +40,63 @@ function delayedProbe(): ResolvedActionSequence {
   };
 }
 
-describe('ProjectileFinishCallbackRuntime', () => {
+describe('projectile callback action lifecycle', () => {
+  it('keeps projectile reset separate from the existing instant callback action lifetime', () => {
+    const scheduler = new ProjectileLifecycleRuntime();
+    const trace: string[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: () => {
+          trace.push('callback');
+          return true;
+        },
+        end: () => trace.push('end-callback'),
+        evaluate: () => true,
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        scheduleProjectileFinishCallback: (
+          delaySeconds,
+          recycleDelaySeconds,
+          execute,
+          beforeReset,
+        ) => {
+          const instance = scheduler.launch({
+            finishDelaySeconds: delaySeconds,
+            recycleDelaySeconds,
+            resolveTickDeltaSeconds: () => 1,
+            finish: execute,
+            beforeReset,
+          });
+          instance.onReset(() => trace.push('reset'));
+        },
+      },
+    );
+    const parent = runtime.createSequence({
+      steps: [
+        {
+          kind: 'scheduleProjectileFinishCallback',
+          parameters: { delaySeconds: 1, recycleDelaySeconds: 1 },
+          body: { steps: [probe] },
+        },
+      ],
+    });
+    parent.executeInstant({});
+    parent.end({});
+    expect(trace).toEqual([]);
+    scheduler.advanceFrame();
+    expect(trace).toEqual(['callback', 'end-callback']);
+    parent.end({});
+    scheduler.advanceFrame();
+    expect(trace).toEqual(['callback', 'end-callback']);
+    scheduler.advanceFrame();
+    expect(trace).toEqual(['callback', 'end-callback', 'reset']);
+    scheduler.advanceFrame();
+    expect(trace).toHaveLength(3);
+  });
+
   it('registers only when the containing branch executes and survives its parent sequence end', () => {
-    const scheduler = new ProjectileFinishCallbackRuntime();
+    const scheduler = new ProjectileLifecycleRuntime();
     let passed = false;
     let executions = 0;
     const operations: CombatOperationExecutor = {
@@ -55,12 +109,20 @@ describe('ProjectileFinishCallbackRuntime', () => {
     const blackboard = new ActionBlackboard({ launchValue: 7 });
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard,
-      scheduleProjectileFinishCallback: (delaySeconds, execute) =>
-        scheduler.schedule({
-          delaySeconds,
-          resolveDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
-          execute,
-        }),
+      scheduleProjectileFinishCallback: (
+        delaySeconds,
+        recycleDelaySeconds,
+        execute,
+        beforeReset,
+      ) => {
+        scheduler.launch({
+          finishDelaySeconds: delaySeconds,
+          recycleDelaySeconds,
+          resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
+          finish: execute,
+          beforeReset,
+        });
+      },
     });
     const branched: ResolvedActionSequence = {
       steps: [
@@ -75,22 +137,25 @@ describe('ProjectileFinishCallbackRuntime', () => {
     };
 
     runtime.createSequence(branched).executeInstant({});
-    expect(scheduler.pendingCount).toBe(0);
+    expect(scheduler.activeCount).toBe(0);
 
     passed = true;
     const parent = runtime.createSequence(branched);
     parent.executeInstant({});
     parent.end({});
-    expect(scheduler.pendingCount).toBe(1);
+    expect(scheduler.activeCount).toBe(1);
     scheduler.advanceFrame();
     expect(executions).toBe(0);
-    for (let frame = 1; frame < 90; frame += 1) scheduler.advanceFrame();
+    for (let frame = 1; frame < 91; frame += 1) scheduler.advanceFrame();
     expect(executions).toBe(1);
-    expect(scheduler.pendingCount).toBe(0);
+    expect(scheduler.activeCount).toBe(1);
+    scheduler.advanceFrame();
+    scheduler.advanceFrame();
+    expect(scheduler.activeCount).toBe(0);
   });
 
   it('freezes launch direct values and creates the projectile entity scope at callback time', () => {
-    const scheduler = new ProjectileFinishCallbackRuntime();
+    const scheduler = new ProjectileLifecycleRuntime();
     const observed: number[][] = [];
     const operations: CombatOperationExecutor = {
       execute: (_step, context) => {
@@ -107,17 +172,25 @@ describe('ProjectileFinishCallbackRuntime', () => {
     const blackboard = new ActionBlackboard({ launchValue: 7 });
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard,
-      scheduleProjectileFinishCallback: (delaySeconds, execute) =>
-        scheduler.schedule({
-          delaySeconds,
-          resolveDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
-          execute,
-        }),
+      scheduleProjectileFinishCallback: (
+        delaySeconds,
+        recycleDelaySeconds,
+        execute,
+        beforeReset,
+      ) => {
+        scheduler.launch({
+          finishDelaySeconds: delaySeconds,
+          recycleDelaySeconds,
+          resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
+          finish: execute,
+          beforeReset,
+        });
+      },
     });
 
     runtime.createSequence(delayedProbe()).executeInstant({});
     blackboard.assignDynamic('launchValue', 99);
-    for (let frame = 0; frame < 90; frame += 1) scheduler.advanceFrame();
+    for (let frame = 0; frame < 91; frame += 1) scheduler.advanceFrame();
     expect(observed).toEqual([[7, 2, 4, 7]]);
   });
 });

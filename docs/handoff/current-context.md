@@ -1,5 +1,66 @@
 # 当前任务快照
 
+## 2026-09-10：duration-finish 投射物正式接入生命周期（总体仍未收束）
+
+本节覆盖下方“尚未装配”的历史状态。正式装配现已使用 ProjectileLifecycleRuntime，
+删除旧 projectileFinishCallbackRuntime.ts；发射后保持 active → finished → marked → reset，
+计时按原生 float32 减法，不使用提前到期 epsilon。不同阶段不能在同一次 Tick 合并。
+公共动作的 recycleDelaySeconds 为必填，转换器从所有启用回调的 SkillData.durationFrame
+计算最大 duration，编译、校验及现有检查器同步接入；不手工配置干员数值。
+
+全 30 名干员用已有 hybrid 来源重建，只有汤汤一行变化：delaySeconds=3，
+recycleDelaySeconds=30（chr_0027_tangtang_combo_skill_water_gene 的 durationFrame=900）。
+正式文件与候选逐字一致；候选、审计和真实轴比较仍只在忽略的 tmp 下。
+
+验证：定向 9 文件 / 212 项、事件相关 10 文件 / 81 项通过（有交集，不相加）；
+应用 type-check、编译器独立 tsc 通过；combat-spec 投射物专题 25 项通过。
+四个真实轴相对本轮前 equipment-enable 回执：三轴完全相同，sc_zpm5ozw 总回执仍为
+5501；汤汤一次 finish 回调由 1232 到 1233 帧，来自 3 秒 float32 逐 Tick 边界。
+该轴 265 条 DamageApplied、2 条 BuffDamageApplied 的有序内容和帧均未变化。
+比较文件：tmp/event-unification-candidates-8J83h6/projectile-lifecycle-axes.json。
+
+**下一步及证据边界**：
+
+- OnProjectileLaunched(163) 发布及 SkillAffix 实例 reset 引用仍未接通，不能宣布完成。
+- 当前投影 body 仍按 executeInstant 执行；这会立即 End/Reset 动作，不等同于完整回调技能。
+  原始汤汤回调 timeline 为 0～1 帧、技能总长 900 帧，不能把动作一律延长到回收时。
+  beforeReset 端口已存在，但当前实例未持有完整 callback SkillRuntime；其清理不能冒充已经实现。
+- 下一步应复用技能时间轴宿主表达上述区别，再将实际 projectile reset 端口接到共同引用处理。
+- 无回调发射被裁剪、其他零距离回调形状、pending request 引用仍需评估与收束。
+  syncTimeScale=true 的 duration-finish 仍明确拒绝，不凭不完整时钟证据开放。
+
+## 2026-09-10：投射物生命周期运行时已实现，尚未装配
+
+新增 `projectileLifecycleRuntime.ts`，明确 active → finished → marked → reset；
+复用 FrameRuntime 调度契约，调用方提供获准 Tick 的缩放 delta，null 表示本轮不 Tick。
+结束回调不释放引用，回收先清当前回调技能再通知 reset；只读 onReset 端口的每次注册
+独立，dispose 仅解绑，不释放投射物。未新增公共事件或空间模拟。
+定向新旧投射物运行时 **2 文件 / 7 项通过**，覆盖零延迟分阶段、跳过 Tick、
+重复注册解绑、回调内新发射准入、无 epsilon 提前到期。`npm run type-check` 通过。
+
+**接入未完成**：旧 ProjectileFinishCallbackRuntime 仍为正式消费路径，新运行时目前
+只有测试调用；不能以新类通过测试宣称 SkillAffix 投射物引用已贯通。下一步必须让
+转换结果保留发射实例与 recycleDelay（四路回调时长最大值），由装配层发布实际实例的
+OnProjectileLaunched，然后让 SkillAffix 共用实体 reset 引用处理；旧队列迁完删除。
+同步时钟持续投射物保持拒绝，无回调发射的生命周期裁剪问题不能漏掉。
+
+接入前复核又补 float32 边界：新运行时将计时初值、输入 delta 和每次减法按
+Math.fround 对齐原生单精度，不使用 isReady epsilon。0.3f 连减三次 0.1f 仍为正，
+双精度则已到期；TS 与 C# 均加对应回归。新旧 TS 队列 **2 文件 / 8 项通过**，
+C# 投射物专题 **25 项通过**。这不是正式汤汤轴已改时序的声明，旧队列仍未替换。
+
+转换层已增加 resolveProjectileRecycleDelaySource：按所有启用路由的原始
+durationFrame 求最大值并按原生 float32 转秒；不取已裁剪回调步骤的长度，
+不忽略木桩未执行的 block 回调，也不为缺失 SkillData 填零。来源定向 2 项通过。
+该求值函数尚未写入正式动作参数，公共契约与生成产物尚未迁移；因此仍未贯通。
+
+编译器独立 tsc 暴露旧契约测试：仍要求武器生成包含 semantic event 分支和监听器
+blackboard，已按当前原生事件生成协议修正为不存在这些字段，并保留完整公共契约
+兼容入口的互斥检查；不使用结构类型额外字段作为“禁止字段”的错误证明。
+另补 BuffFinishByQuery 测试夹具必填 isAbsorbed=false 和显式 actionTargetTarget。
+补齐非法回调时长门禁后，相关转换/新旧投射物运行时 **5 文件 / 111 项通过**。
+编译器独立 `tsc --noEmit -p tools/game-data-compiler/tsconfig.json` 已通过。
+
 ## 2026-09-10：投射物引用证据及现有投影核对
 
 原生_OnProjectileLaunched匹配cast后进入04DA2D28冷块，订阅的仍是onResetAction，
@@ -30,6 +91,18 @@ Endaxis 本轮未新增事件或修改投射物模拟，不能宣称事件系统
 还发现无回调投射物的裁剪边界：它仍可经 OnProjectileLaunched 延长 SkillAffix，
 因此生命周期接入必须处理 `enabled.length === 0`，不能以无伤害回调证明无影响。
 已纠正转换器注释，未擅自改生成结果；完整来源通知更新/解绑及消费者仍待接通。
+
+后续已核对来源通知更新/解绑：更新先移除旧句柄，再核对 source/group 身份，
+读取来源 group.selfTimeScale（不是直接用通知的 final 值）；回收按清句柄、
+解除来源订阅、清继承标记排列。AbilitySystem reset 先于 RootComponent 时钟解绑。
+初次继承读取值与通知更新读取值存在区别，尚需检查注册同步回调和 ignore-global
+路径，不得简单乘两次 globalScale。证据已补复刻库投射物专题；未改消费者行为。
+
+注册路径已核对：OnAttach 仅保存 group，不立即触发数值缩放更新；ignore-global
+通过另一通知原样传给投射物实体。同步时钟持续投射物目前明确拒绝，本阶段保持门禁，
+不为事件统一扩展该分支。下一步应回到已支持形状的发射身份和 reset 引用接入，
+避免继续在未支持时钟形状上扩展研究。回调图已有 durationFrame，可用于回收延迟；
+无回调发射也须保留生命周期，不能由现有空回调程序推出不存在发射。
 
 ## 2026-09-10：实体引用已接入现有事件载荷（当前工作树）
 

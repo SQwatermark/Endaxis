@@ -142,7 +142,7 @@ describe('技能顶层结构默认值', () => {
             steps: [
               {
                 ...step,
-                parameters: { delaySeconds: -1 },
+                parameters: { delaySeconds: -1, recycleDelaySeconds: 0 },
                 body: {
                   steps: [{ kind: 'jumpTimeline' as const, parameters: { destinationFrame: -1 } }],
                 },

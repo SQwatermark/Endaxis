@@ -375,18 +375,25 @@ class ProjectileFinishCallbackStep extends CombatStep {
     const operations = this.runtime.operations;
     const semanticEvents = this.runtime.semanticEvents;
     const ownerOperatorId = this.runtime.ownerOperatorId;
-    schedule(this.step.parameters.delaySeconds, () => {
-      const detached = new CombatActionSequenceRuntime(
-        operations,
-        detachedContext,
-        this.runtime.hooks,
-        semanticEvents,
-        ownerOperatorId,
-      );
-      const sequence = detached.createSequence(body);
-      sequence.reset({});
-      sequence.executeInstant({});
-    });
+    let callbackSequence: ActionSequence | undefined;
+    schedule(
+      this.step.parameters.delaySeconds,
+      this.step.parameters.recycleDelaySeconds,
+      () => {
+        const detached = new CombatActionSequenceRuntime(
+          operations,
+          detachedContext,
+          this.runtime.hooks,
+          semanticEvents,
+          ownerOperatorId,
+        );
+        const sequence = detached.createSequence(body);
+        callbackSequence = sequence;
+        sequence.reset({});
+        sequence.executeInstant({});
+      },
+      () => callbackSequence?.end({}),
+    );
     return true;
   }
 }

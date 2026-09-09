@@ -3248,8 +3248,17 @@ function validateCombatStep(
       break;
     case 'scheduleProjectileFinishCallback': {
       const delay = requireFiniteNumber(parameters, 'delaySeconds', `${path}.parameters`, out);
-      if (delay !== null && delay < 0) {
-        push(out, `${path}.parameters.delaySeconds`, 'expected a non-negative number');
+      if (delay !== null && delay <= 0) {
+        push(out, `${path}.parameters.delaySeconds`, 'expected a positive number');
+      }
+      const recycleDelay = requireFiniteNumber(
+        parameters,
+        'recycleDelaySeconds',
+        `${path}.parameters`,
+        out,
+      );
+      if (recycleDelay !== null && recycleDelay < 0) {
+        push(out, `${path}.parameters.recycleDelaySeconds`, 'expected a non-negative number');
       }
       break;
     }

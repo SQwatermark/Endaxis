@@ -112,7 +112,7 @@ import type { ProbabilitySampleSource } from '../random/probabilitySampleSource'
 import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRuntime';
 import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
 import { SkillCastOperationExecutor } from './skillCastOperationExecutor';
-import { ProjectileFinishCallbackRuntime } from './projectileFinishCallbackRuntime';
+import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import {
   BasicAttackSkillCastInheritanceRegistry,
   SkillCastInheritanceOperationExecutor,
@@ -432,7 +432,7 @@ export class CombatRuntimeAssembly {
   /** 全场唯一的零空间能力实体实例目录。 */
   readonly abilityEntities: LogicalAbilityEntityRuntime;
   /** syncTimeScale=false 的投射物 duration-finish 使用全局战斗时间，且不归技能寿命所有。 */
-  readonly projectileFinishCallbacks = new ProjectileFinishCallbackRuntime();
+  readonly projectileLifetimes = new ProjectileLifecycleRuntime();
   /** 战斗级父实例与队员子 Buff 镜像的唯一目录。 */
   readonly globalBuffs: GlobalBuffRuntime;
   /** 实际运行时干员；Buff 生命周期按宿主切换执行身份时复用其构筑与面板。 */
@@ -1182,7 +1182,7 @@ export class CombatRuntimeAssembly {
       }
       // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
       this.simulation.add(this.comboWindows);
-      this.simulation.add(this.projectileFinishCallbacks);
+      this.simulation.add(this.projectileLifetimes);
       const inputRuntime = new CombatInputRuntime({
         clock: this.clock,
         inputs: options.inputs ?? [],
@@ -1638,13 +1638,21 @@ export class CombatRuntimeAssembly {
       emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
       emitAfterSkillApplyCost: payload =>
         this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
-      scheduleProjectileFinishCallback: (delaySeconds, execute) =>
-        this.projectileFinishCallbacks.schedule({
-          delaySeconds,
-          resolveDeltaSeconds: () =>
+      scheduleProjectileFinishCallback: (
+        delaySeconds,
+        recycleDelaySeconds,
+        execute,
+        beforeReset,
+      ) => {
+        this.projectileLifetimes.launch({
+          finishDelaySeconds: delaySeconds,
+          recycleDelaySeconds,
+          resolveTickDeltaSeconds: () =>
             COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
-          execute,
-        }),
+          finish: execute,
+          beforeReset,
+        });
+      },
       ...cooldownBinding,
     });
     return runtime;

@@ -153,7 +153,25 @@ function setShareParent(event: Event): void {
             emit('update', {
               ...step,
               parameters: {
+                ...step.parameters,
                 delaySeconds: Math.max(0, Number(($event.target as HTMLInputElement).value)),
+              },
+            })
+          "
+      /></label>
+      <label
+        ><span>结束后回收等待（秒）</span
+        ><input
+          type="number"
+          min="0"
+          step="0.01"
+          :value="step.parameters.recycleDelaySeconds"
+          @input="
+            emit('update', {
+              ...step,
+              parameters: {
+                ...step.parameters,
+                recycleDelaySeconds: Math.max(0, Number(($event.target as HTMLInputElement).value)),
               },
             })
           "

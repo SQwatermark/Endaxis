@@ -846,7 +846,11 @@ export interface CombatStepParameters {
    * 原生 ProjectileComponent 的正数 finishDuration 到期回调。
    * 注册发生在发射动作实际执行时，且回调寿命独立于发射技能；不得用于普通技能延迟动作。
    */
-  scheduleProjectileFinishCallback: { delaySeconds: number };
+  scheduleProjectileFinishCallback: {
+    delaySeconds: number;
+    /** 原生所有启用回调的 SkillData.duration 最大值；与结束倒计时相互独立。 */
+    recycleDelaySeconds: number;
+  };
   setContextFlag: {
     flag: string;
     value: boolean | number | string;

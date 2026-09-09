@@ -218,7 +218,7 @@ describe('skillStructureMindMapModel', () => {
                     },
                     {
                       kind: 'scheduleProjectileFinishCallback',
-                      parameters: { delaySeconds: 1 },
+                      parameters: { delaySeconds: 1, recycleDelaySeconds: 0 },
                       body: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
                     },
                   ],

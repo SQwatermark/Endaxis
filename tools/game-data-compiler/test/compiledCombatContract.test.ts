@@ -193,7 +193,7 @@ it('武器与装备阶段输出直接使用契约身份，兼容旧类型导出�
   expectTypeOf<Extract<keyof CompiledWeaponStaticDefinitionSource, 'displayName'>>().toBeNever();
 });
 
-it('武器事件复用契约但不放宽当前语义事件、必填项和物理异常范围', () => {
+it('武器生成只走原生事件入口，监听器不重复声明能力黑板', () => {
   type SemanticEvent = Extract<CompiledWeaponEventHandlerSource, { event: unknown }>['event'];
   type AbilityEvent = Extract<
     CompiledWeaponEventHandlerSource,
@@ -201,26 +201,13 @@ it('武器事件复用契约但不放宽当前语义事件、必填项和物理�
   >['abilityEvent'];
   expectTypeOf<CompiledWeaponEventHandlerSource>().toExtend<EquipmentEventHandlerDefinition>();
   expectTypeOf<AbilityEvent>().toEqualTypeOf<EquipmentAbilityEvent>();
-  expectTypeOf<SemanticEvent['kind']>().toEqualTypeOf<
-    'buffConsumed' | 'spGained' | 'physicalInflictionApplied'
-  >();
+  expectTypeOf<SemanticEvent>().toBeNever();
   expectTypeOf<
-    Extract<SemanticEvent, { kind: 'physicalInflictionApplied' }>['scope']
-  >().toEqualTypeOf<'operator'>();
-  expectTypeOf<{
-    kind: 'physicalInflictionApplied';
-    types: readonly ['airborne'];
-    scope: 'operator';
-  }>().not.toExtend<SemanticEvent>();
-  expectTypeOf<
-    Extract<
-      keyof Extract<SemanticEvent, { kind: 'buffConsumed' | 'spGained' }>,
-      'buffIds' | 'source' | 'gainKind'
-    >
+    Extract<keyof CompiledWeaponEventHandlerSource, 'event' | 'blackboard'>
   >().toBeNever();
   expectTypeOf<{}>().not.toExtend<Pick<CompiledWeaponEventHandlerSource, 'priority'>>();
-  expectTypeOf<{}>().not.toExtend<Pick<CompiledWeaponEventHandlerSource, 'blackboard'>>();
-  // 正式契约要求两种触发入口互斥；不能让旧的宽松联合容许同时声明两者。
+  expectTypeOf<{}>().not.toExtend<Pick<CompiledWeaponEventHandlerSource, 'abilityEvent'>>();
+  // 完整公共契约仍保留兼容入口的互斥约束；生成器不再生成该入口。
   expectTypeOf<{
     key: string;
     priority: number;
@@ -228,7 +215,7 @@ it('武器事件复用契约但不放宽当前语义事件、必填项和物理�
     sequence: CompiledBuffSequenceSource;
     event: { kind: 'buffConsumed' };
     abilityEvent: 'enterFight';
-  }>().not.toExtend<CompiledWeaponEventHandlerSource>();
+  }>().not.toExtend<EquipmentEventHandlerDefinition>();
 });
 
 it('契约派生仍保留条件种类、目标和递归子树的支持边界', () => {

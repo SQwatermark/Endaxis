@@ -1,4 +1,12 @@
 import type { AbilityResponseEvent, AbilitySkillPayload } from '../events/combatAbilityEvent';
+
+/** A detached projectile owns both its callback execution and eventual cleanup. */
+export type ScheduleProjectileFinishCallback = (
+  delaySeconds: number,
+  recycleDelaySeconds: number,
+  execute: () => void,
+  beforeReset: () => void,
+) => void;
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。
  * 每个放置块独立持有调度游标和黑板；同一技能的冷却由装配层显式共享。
@@ -118,7 +126,7 @@ export interface CombatOperationContext {
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
   readonly getCurrentTimelineFrame?: () => number;
   /** 已发射投射物的 duration-finish 注册端口；注册项不归当前技能寿命所有。 */
-  readonly scheduleProjectileFinishCallback?: (delaySeconds: number, execute: () => void) => void;
+  readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
 }
 
 export interface CombatOperationExecutor {
@@ -155,7 +163,7 @@ interface SkillRuntimeDependencies {
   readonly emitSkillEnd?: (payload: AbilitySkillPayload) => void;
   /** 原生费用实际应用成功后、同帧时间轴动作前同步发布 OnAfterSkillApplyCost。 */
   readonly emitAfterSkillApplyCost?: (payload: AbilitySkillPayload) => void;
-  readonly scheduleProjectileFinishCallback?: (delaySeconds: number, execute: () => void) => void;
+  readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
 }
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */

@@ -38,6 +38,29 @@ export interface ZeroDistanceProjectileCallbackSource {
   readonly delayedSequencesNeedFreshScope?: boolean;
 }
 
+/** Native Launch looks up every enabled route, including routes not invoked by this projection. */
+export function resolveProjectileRecycleDelaySource(
+  launch: Pick<ProjectileLaunchActionSource, 'callbacks'>,
+  callbackGraphs: ReadonlyMap<string, Pick<SkillActionGraphSource<unknown>, 'durationFrame'>>,
+  sourcePath: string,
+): number {
+  let maxDurationFrame = 0;
+  for (const route of launch.callbacks) {
+    if (!route.enabled) continue;
+    const graph = callbackGraphs.get(route.skillId);
+    if (graph === undefined)
+      throw new Error(`${sourcePath}: missing projectile callback SkillData ${route.skillId}`);
+    if (!Number.isInteger(graph.durationFrame) || graph.durationFrame < 0)
+      throw new Error(`${sourcePath}: invalid callback durationFrame for ${route.skillId}`);
+    maxDurationFrame = Math.max(maxDurationFrame, Math.max(1, graph.durationFrame));
+  }
+  // Native SkillData.duration is max(durationFrame, 1) / 30, not callback action bounds.
+  const delay = Math.fround(Math.fround(maxDurationFrame) / 30);
+  if (!Number.isFinite(delay))
+    throw new Error(`${sourcePath}: projectile callback duration exceeds native float range`);
+  return delay;
+}
+
 export interface ZeroDistanceProjectileProjectionCatalogSource {
   readonly runtimes: ReadonlyMap<string, ProjectileRuntimeSource>;
   readonly templates: ReadonlyMap<
@@ -219,7 +242,14 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       return [
         {
           kind: 'scheduleProjectileFinishCallback',
-          parameters: { delaySeconds: runtime.finishDuration },
+          parameters: {
+            delaySeconds: runtime.finishDuration,
+            recycleDelaySeconds: resolveProjectileRecycleDelaySource(
+              launch,
+              input.catalog.callbackGraphs,
+              sourcePath,
+            ),
+          },
           body: { steps: [callbackScope] },
         },
       ];

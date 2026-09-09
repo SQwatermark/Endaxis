@@ -40,6 +40,7 @@ describe('公共 Buff 运行时投影', () => {
               limitSource: false,
               buffSource: fixedTarget('Source'),
               isFinishedEarly: true,
+              isAbsorbed: false,
               finishSource: fixedTarget(finishSource),
             },
           },
@@ -51,6 +52,7 @@ describe('公共 Buff 运行时投影', () => {
         actionOwnerTarget: 'buffOwner',
         fixedBuffOwnerTarget: 'caster',
         actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
       },
     );
     expect(steps).toEqual([

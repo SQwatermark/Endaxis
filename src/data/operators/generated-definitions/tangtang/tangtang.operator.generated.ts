@@ -246,7 +246,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
 
 const sharedActionSequence2: ActionSequenceDefinition = sequence({
   kind: 'scheduleProjectileFinishCallback',
-  parameters: { delaySeconds: 3 },
+  parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
   body: instantiateActionSequence(sharedActionSequence3, [
     '\u0000endaxis-generated-identity:0',
     '\u0000endaxis-generated-identity:1',

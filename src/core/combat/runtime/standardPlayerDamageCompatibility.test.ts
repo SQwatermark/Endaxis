@@ -820,7 +820,7 @@ describe('standardPlayerDamageCompatibility', () => {
           steps: [
             {
               kind: 'scheduleProjectileFinishCallback',
-              parameters: { delaySeconds: 0.1 },
+              parameters: { delaySeconds: 0.1, recycleDelaySeconds: 0 },
               body: {
                 steps: [
                   {

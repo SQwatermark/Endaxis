@@ -172,6 +172,14 @@ function resolveStep(
       if (!Number.isFinite(step.parameters.delaySeconds) || step.parameters.delaySeconds <= 0) {
         throw new RangeError(`${path}.parameters.delaySeconds must be a positive finite number`);
       }
+      if (
+        !Number.isFinite(step.parameters.recycleDelaySeconds) ||
+        step.parameters.recycleDelaySeconds < 0
+      ) {
+        throw new RangeError(
+          `${path}.parameters.recycleDelaySeconds must be a non-negative finite number`,
+        );
+      }
       return {
         ...keyed,
         kind: step.kind,

@@ -651,7 +651,7 @@ export function createSkillEditorStep(
         body: { steps: [] },
       };
     case 'scheduleProjectileFinishCallback':
-      return { kind, parameters: { delaySeconds: 1 }, body: { steps: [] } };
+      return { kind, parameters: { delaySeconds: 1, recycleDelaySeconds: 0 }, body: { steps: [] } };
     case 'startTimeDilation':
       return {
         kind,
