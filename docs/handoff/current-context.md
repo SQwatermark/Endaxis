@@ -1,5 +1,13 @@
 # 当前任务快照
 
+## 2026-09-10：复刻库补齐请求引用状态机对照
+
+combat-spec SkillAffixAction 已接内部 PostSkillTryCastRequest 对象委托，复现请求引用
+去重、BeforeCast 转交/释放和 End 解绑。NotifyPostSkillTryCastRequest 是隔离通知端口，
+不冒充完整延迟调度器：C# 请求存储/消费仍未实现，测试显式通知验证引用状态机。
+SkillAffix专题16项通过，全库1831/1837通过，仍为原有六项资源相关失败。
+本轮没有改 Endaxis 模拟或正式数据，下一主项仍是完整回调宿主接入，整体未验收完成。
+
 ## 2026-09-10：显式延迟技能的事件准备不经过替换槽
 
 追踪请求引用端到端发现：消费请求时已遵守 resolveSkillSlot=false，装配层的
