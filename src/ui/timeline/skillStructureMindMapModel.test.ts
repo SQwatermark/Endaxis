@@ -221,6 +221,7 @@ describe('skillStructureMindMapModel', () => {
                       parameters: { delaySeconds: 1, recycleDelaySeconds: 0 },
                       callback: {
                         skillId: 'callback',
+                        nativeSkillType: 'normalSkill',
                         naturalDurationFrames: 1,
                         blackboard: {},
                         scheduledSequences: [

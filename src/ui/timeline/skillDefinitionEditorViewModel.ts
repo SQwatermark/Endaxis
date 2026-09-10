@@ -656,6 +656,7 @@ export function createSkillEditorStep(
         parameters: { delaySeconds: 1, recycleDelaySeconds: 0 },
         callback: {
           skillId: 'callback',
+          nativeSkillType: 'normalSkill',
           naturalDurationFrames: 1,
           blackboard: {},
           scheduledSequences: [{ startFrame: 0, endFrame: 1, sequence: { steps: [] } }],

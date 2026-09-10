@@ -92,6 +92,7 @@ export interface CompiledSkillActionProgram {
 
 export interface CompiledProjectileCallbackSkillProgram extends CompiledSkillActionProgram {
   readonly skillId: string;
+  readonly nativeSkillType: import('../game-data/operatorDefinition').NativeSkillType;
   readonly naturalDurationFrames: number;
 }
 

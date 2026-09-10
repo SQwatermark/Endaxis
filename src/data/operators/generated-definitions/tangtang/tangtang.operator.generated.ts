@@ -227,6 +227,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence({
   parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
   callback: {
     skillId: 'chr_0027_tangtang_combo_skill_water_gene',
+    nativeSkillType: 'normalSkill',
     naturalDurationFrames: 900,
     blackboard: { duration_water: 30, potential1: 0, radius: 4 },
     scheduledSequences: [scheduled(0, sharedActionSequence4, 1)],

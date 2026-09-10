@@ -1,5 +1,21 @@
 # 当前任务快照
 
+## 2026-09-10：回调自身类型贯通公共定义与编译程序
+
+ProjectileCallbackSkillDefinition / CompiledProjectileCallbackSkillProgram 新增必填
+nativeSkillType，表示实际回调类型，不是继承的 SkillCastInfo.originSkillType。
+duration-finish 转换从 runtime.activeSkills 的自身注册查找，缺项明确报错；不按技能名
+或外层来源回退。汤汤定义使用上一节新快照重新生成，仅增加 normalSkill 身份字段。
+旧来源若没有该前缀，不能再用于这条完整回调程序转换。编辑默认值、校验与配置控件同步适配。
+
+验证：121文件1517项战斗/编辑模型/转换回归通过；后加必填字段回归，相关2文件62项通过。
+编译器及应用类型检查通过，新来源31干员 --check 通过。四真实轴完整回执与诊断均不变。
+UI仅字段适配，不宣称视觉验收。缺少自身注册、缺少定义字段均有回归，临时产物未入Git。
+
+严格边界：自身身份已进入正式数据与编译结果，但 ProjectileCallbackActionRuntime 尚不消费
+它发布自身事件；下一步必须复用公共 SkillRuntime/AbilitySystem，不能把新增字段当作宿主
+已经接入，更不能把同一份继承 cast id 当成来源与回调是同一个技能对象。
+
 ## 2026-09-10：回调自身身份所需来源已进入独立完整快照
 
 接续使用 tmp/event-source-callback-owner，snapshotSha256 为

@@ -357,6 +357,7 @@ describe('CombatRuntimeAssembly', () => {
                     parameters: { delaySeconds: 0.1, recycleDelaySeconds: 0 },
                     callback: {
                       skillId: 'callback',
+                      nativeSkillType: 'normalSkill',
                       naturalDurationFrames: 1,
                       initialBlackboard: {},
                       timelineActions: [{ startFrame: 0, endFrame: 0, sequence: { steps: [] } }],

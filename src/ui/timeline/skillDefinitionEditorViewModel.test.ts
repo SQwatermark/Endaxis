@@ -171,6 +171,20 @@ describe('技能顶层结构默认值', () => {
     );
   });
 
+  it('回调必须声明自身原生类型，不从外层技能补全', () => {
+    const template = templateDefinition();
+    const step = createSkillEditorStep(template, 'scheduleProjectileFinishCallback');
+    if (step.kind !== 'scheduleProjectileFinishCallback') throw new Error('expected callback');
+    Reflect.deleteProperty(step.callback, 'nativeSkillType');
+    const issues = validateSkillDefinition({
+      ...template,
+      scheduledSequences: [{ startFrame: 0, sequence: { steps: [step] } }],
+    });
+    expect(issues.map(issue => issue.path)).toContain(
+      '$.scheduledSequences[0].sequence.steps[0].callback.nativeSkillType',
+    );
+  });
+
   it('Buff 继承白名单允许正式数据使用的空列表', () => {
     const template = templateDefinition();
     const step = createSkillEditorStep(template, 'inheritBuffById');

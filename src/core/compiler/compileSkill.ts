@@ -199,6 +199,7 @@ function resolveStep(
             abilityEntities,
           ),
           naturalDurationFrames: step.callback.naturalDurationFrames,
+          nativeSkillType: step.callback.nativeSkillType,
         },
       };
     case 'spawnAbilityEntity': {

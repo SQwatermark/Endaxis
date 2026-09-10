@@ -350,6 +350,7 @@ export type CompiledBuffStepSource =
   | (Step<'scheduleProjectileFinishCallback'> & {
       readonly callback: {
         readonly skillId: string;
+        readonly nativeSkillType: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
         readonly naturalDurationFrames: number;
         readonly blackboard: Readonly<Record<string, number>>;
         readonly scheduledSequences: readonly {

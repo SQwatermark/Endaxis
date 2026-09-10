@@ -26,6 +26,8 @@ export interface SkillActionProgramDefinition {
 /** Projectile callback action program; its lifetime is independent from object recycling. */
 export interface ProjectileCallbackSkillDefinition extends Readonly<SkillActionProgramDefinition> {
   readonly skillId: string;
+  /** Actual callback identity; never inferred from inherited SkillCastInfo. */
+  readonly nativeSkillType: NativeSkillType;
   readonly naturalDurationFrames: number;
 }
 

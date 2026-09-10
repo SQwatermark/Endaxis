@@ -36,6 +36,7 @@ function delayedProbe(): ResolvedActionSequence {
               parameters: { delaySeconds: 3, recycleDelaySeconds: 0 },
               callback: {
                 skillId: 'callback',
+                nativeSkillType: 'normalSkill',
                 naturalDurationFrames: 1,
                 initialBlackboard: {},
                 timelineActions: [
@@ -87,6 +88,7 @@ describe('projectile callback action lifecycle', () => {
     const callback = new ProjectileCallbackActionRuntime(
       {
         skillId: 'callback',
+        nativeSkillType: 'normalSkill',
         naturalDurationFrames: 100,
         initialBlackboard: {},
         timelineActions: [
@@ -171,6 +173,7 @@ describe('projectile callback action lifecycle', () => {
               parameters: { delaySeconds: 1, recycleDelaySeconds: 100 },
               callback: {
                 skillId: 'callback',
+                nativeSkillType: 'normalSkill',
                 naturalDurationFrames: 3,
                 blackboard: { value: 1 },
                 scheduledSequences: [
@@ -268,6 +271,7 @@ describe('projectile callback action lifecycle', () => {
           parameters: { delaySeconds: 1, recycleDelaySeconds: 1 },
           callback: {
             skillId: 'callback',
+            nativeSkillType: 'normalSkill',
             naturalDurationFrames: 1,
             initialBlackboard: {},
             timelineActions: [{ startFrame: 0, endFrame: 0, sequence: { steps: [probe] } }],

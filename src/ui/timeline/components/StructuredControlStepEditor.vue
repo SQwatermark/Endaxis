@@ -7,6 +7,10 @@ import type {
 import ActionValueAssignmentMapEditor from './ActionValueAssignmentMapEditor.vue';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import SkillBlackboardEditor from './SkillBlackboardEditor.vue';
+import {
+  NATIVE_SKILL_TYPES,
+  type NativeSkillType,
+} from '../../../core/game-data/operatorDefinition';
 
 type Step = Extract<
   CombatStepDefinition,
@@ -142,6 +146,24 @@ function setShareParent(event: Event): void {
       <p>在左侧循环节点上添加动作，直接选择其下的动作编辑；每轮创建新的子步骤实例。</p>
     </template>
     <template v-else-if="step.kind === 'scheduleProjectileFinishCallback'">
+      <label
+        ><span>回调自身原生 SkillType</span>
+        <select
+          :value="step.callback.nativeSkillType"
+          @change="
+            emit('update', {
+              ...step,
+              callback: {
+                ...step.callback,
+                nativeSkillType: ($event.target as HTMLSelectElement).value as NativeSkillType,
+              },
+            })
+          "
+        >
+          <option v-for="type in NATIVE_SKILL_TYPES" :key="type" :value="type">{{ type }}</option>
+        </select>
+      </label>
+      <p>这是回调技能自身的类型，不是继承的伤害来源技能类型。</p>
       <label
         ><span>投射物结束延迟（秒）</span
         ><input

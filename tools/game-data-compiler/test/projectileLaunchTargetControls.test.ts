@@ -70,6 +70,10 @@ const extension = createZeroDistanceProjectileProjectionExtensionSource({
 describe('LaunchProjectile 原生新增目标控制', () => {
   it('duration finish 在发射处初始化实体板，回调 direct 板留在延迟程序内', () => {
     const callbackId = 'fixture.finish';
+    const activeSkills = {
+      skillIds: [callbackId],
+      initialNativeSkillTypeById: { [callbackId]: 'normalSkill' as const },
+    };
     const launch = {
       ...parse(),
       syncTimeScale: false,
@@ -87,6 +91,7 @@ describe('LaunchProjectile 原生新增目标控制', () => {
               ...runtime,
               blockLayerDef: { value: 1, name: 'WallAndGround' },
               finishDuration: 3,
+              activeSkills,
               finishDistance: { ...runtime.finishDistance, value: 0, blackboardKey: null },
               finishOnReach: false,
               hitOnReach: false,
@@ -139,6 +144,7 @@ describe('LaunchProjectile 原生新增目标控制', () => {
               parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
               callback: {
                 skillId: callbackId,
+                nativeSkillType: 'normalSkill',
                 naturalDurationFrames: 900,
                 blackboard: { value: 2 },
                 scheduledSequences: [
@@ -151,6 +157,10 @@ describe('LaunchProjectile 原生新增目标控制', () => {
         },
       },
     ]);
+    Reflect.deleteProperty(activeSkills.initialNativeSkillTypeById, callbackId);
+    expect(() => compile(launch, 'fixture.launch', returnProjectionContext)).toThrow(
+      'requires its owning AbilitySystem skill registration',
+    );
   });
 
   it('旧结构明确没有过滤配置，当前关闭结构保留完整目标设置', () => {

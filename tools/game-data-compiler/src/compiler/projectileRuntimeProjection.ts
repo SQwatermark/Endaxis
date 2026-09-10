@@ -242,6 +242,11 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
         visualOnlyIds: input.visualOnlyIds,
         extensions: input.callbackExtensions,
       });
+      const nativeSkillType = runtime.activeSkills?.initialNativeSkillTypeById[finish.skillId];
+      if (nativeSkillType === undefined)
+        throw new Error(
+          `${sourcePath}: projectile callback ${finish.skillId} requires its owning AbilitySystem skill registration`,
+        );
       const callbackScope = compileSynchronousProjectileCallbackScopesSource({
         sourcePath,
         launch,
@@ -277,6 +282,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
                 },
                 callback: {
                   skillId: finish.skillId,
+                  nativeSkillType,
                   naturalDurationFrames: finish.naturalDurationFrames,
                   blackboard: numericInitialValues(finish.declaredBlackboard, sourcePath),
                   scheduledSequences: finish.timelineActions,

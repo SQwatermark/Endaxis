@@ -3449,6 +3449,7 @@ function validateActionSequence(
       validateAbilityEntityChildSkill(recordStep.callback, callbackPath, out);
       const callback = asRecord(recordStep.callback, callbackPath, out);
       if (callback !== null) {
+        requireEnum(callback, 'nativeSkillType', NATIVE_SKILL_TYPES_SET, callbackPath, out);
         const duration = requireFiniteNumber(callback, 'naturalDurationFrames', callbackPath, out);
         if (duration !== null && (!Number.isInteger(duration) || duration < 1))
           push(out, `${callbackPath}.naturalDurationFrames`, 'expected a positive integer');

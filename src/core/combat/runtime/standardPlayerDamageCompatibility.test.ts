@@ -823,6 +823,7 @@ describe('standardPlayerDamageCompatibility', () => {
               parameters: { delaySeconds: 0.1, recycleDelaySeconds: 0 },
               callback: {
                 skillId: 'callback',
+                nativeSkillType: 'normalSkill',
                 naturalDurationFrames: 1,
                 initialBlackboard: {},
                 timelineActions: [
