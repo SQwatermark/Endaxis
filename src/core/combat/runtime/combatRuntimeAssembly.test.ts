@@ -2827,6 +2827,7 @@ describe('CombatRuntimeAssembly', () => {
                     parameters: {
                       buffId: 'talent-aura',
                       target: 'caster',
+                      asChildBuff: true,
                       definition: {
                         stackingType: 'unique',
                         lifecycleSequences: {
@@ -2883,6 +2884,10 @@ describe('CombatRuntimeAssembly', () => {
         data: { passiveKey: 'talent-aura' },
       }),
     );
+    assembly.disposePassiveAbilityEvents();
+    expect(buffs.buffs[1]?.isFinished).toBe(true);
+    expect(buffs.buffs[0]?.isFinished).toBe(false);
+    assembly.disposePassiveAbilityEvents();
   });
 
   it('executes operator upgrade events through the shared Buff runtime', () => {

@@ -39,6 +39,30 @@ const contribution: CompiledEquipmentContribution = {
 };
 
 describe('EquipmentEventRuntime', () => {
+  it('releases each Ability independently so another live contribution still observes cleanup', () => {
+    const native = createNativeEventFixture();
+    const observed: string[] = [];
+    const runtime = createEnabledEquipmentRuntime(
+      native.semanticEvents,
+      'operator:a',
+      [contribution, { ...contribution, source: { ...contribution.source, slug: 'second' } }],
+      context => ({
+        execute: () => {
+          observed.push(context.source.slug);
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    );
+    runtime.addChildBuff(0, {
+      finish: () => {
+        native.emitOutputDamage({ sourceId: 'operator:a', tags: ['normalSkill'] });
+        return true;
+      },
+    });
+    runtime.dispose();
+    expect(observed).toEqual(['second']);
+  });
   it.each(['native', 'compatibility'] as const)(
     '%s 响应中释放配装宿主会阻止后续动作并清理已开始动作',
     mode => {

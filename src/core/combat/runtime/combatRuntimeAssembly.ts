@@ -94,7 +94,6 @@ import {
 } from './timeDilationRuntime';
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import type { ActionSequence } from '../actions/actionSequence';
 import { SkillCooldown } from './skillCooldown';
 import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
 import { SkillCooldownOperationExecutor } from './skillCooldownOperationExecutor';
@@ -474,10 +473,8 @@ export class CombatRuntimeAssembly {
   readonly #operatorUpgradeEventRuntimes: OperatorUpgradeEventRuntime[] = [];
   readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
-  readonly #passiveSequences: ActionSequence[] = [];
   readonly #passiveAbilityEvents: PassiveAbilityEventRuntime[] = [];
   /** 原生被动 Ability 持有的 asChildBuff；被动在整场固定战斗中常驻。 */
-  readonly #passiveAbilityChildBuffs: BuffApplicationHandle[] = [];
   /** 只复用解释链的构造上下文；每个 Buff 实例必须独占有状态的动作执行器。 */
   readonly #reactiveOperationBindings = new Map<string, () => CombatOperationExecutor>();
   readonly #castOperationBindings = new Map<
@@ -1021,7 +1018,9 @@ export class CombatRuntimeAssembly {
             if (initialization.equipmentContributionIndex === undefined)
               throw new Error(`initialization '${initialization.key}' has no equipment Ability`);
             const enableSequence = runtime.createSequence(initialization.enableSequence);
-            this.#passiveSequences.push(enableSequence);
+            this.#equipmentEventRuntimes
+              .get(operator.operatorId)!
+              .onDisable(initialization.equipmentContributionIndex, () => enableSequence.end({}));
             if (!enableSequence.tryExecute({}))
               throw new Error(`equipment '${initialization.key}' enable sequence returned false`);
           }
@@ -1040,7 +1039,6 @@ export class CombatRuntimeAssembly {
             continue;
           const sequence = runtime.createSequence(initialization.sequence);
           sequence.executeInstant({});
-          this.#passiveSequences.push(sequence);
           this.receipt.record({
             frame: this.clock.frame,
             time: this.clock.time,
@@ -1061,40 +1059,38 @@ export class CombatRuntimeAssembly {
             this.#createReactiveTerminal(operator, `passive:${passive.key}`, options),
             options,
           );
+          const eventHost = new PassiveAbilityEventRuntime(
+            operations,
+            {
+              blackboard,
+              actionOwnerId: operator.operatorId,
+              actionSourceId: operator.operatorId,
+            },
+            passive.abilityEventResponses ?? [],
+            (event, priority, handle) => {
+              const register = options.registerPassiveAbilityEventAction;
+              if (register === undefined)
+                throw new Error(`passive '${passive.key}' requires ability event registration`);
+              return register(operator.operatorId, event, priority, handle);
+            },
+          );
+          this.#passiveAbilityEvents.push(eventHost);
           const runtime = new CombatActionSequenceRuntime(
             operations,
             {
               blackboard,
-              addAbilityChildBuff: child => this.#passiveAbilityChildBuffs.push(child),
+              addAbilityChildBuff: child => eventHost.addChildBuff(child),
             },
             {},
             this.semanticEvents,
             operator.operatorId,
           );
           const sequence = runtime.createSequence(passive.enableSequence);
-          let eventHost: PassiveAbilityEventRuntime | undefined;
-          if (passive.abilityEventResponses?.length) {
-            const register = options.registerPassiveAbilityEventAction;
-            if (register === undefined)
-              throw new Error(`passive '${passive.key}' requires ability event registration`);
-            eventHost = new PassiveAbilityEventRuntime(
-              operations,
-              {
-                blackboard,
-                actionOwnerId: operator.operatorId,
-                actionSourceId: operator.operatorId,
-                addAbilityChildBuff: child => this.#passiveAbilityChildBuffs.push(child),
-              },
-              passive.abilityEventResponses,
-              (event, priority, handle) => register(operator.operatorId, event, priority, handle),
-            );
-            this.#passiveAbilityEvents.push(eventHost);
-          }
+          eventHost.onDisable(() => sequence.end({}));
           if (!sequence.tryExecute({})) {
             throw new Error(`passive skill '${passive.key}' enable sequence returned false`);
           }
-          eventHost?.enable();
-          this.#passiveSequences.push(sequence);
+          eventHost.enable();
           this.receipt.record({
             frame: this.clock.frame,
             time: this.clock.time,

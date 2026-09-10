@@ -5,12 +5,13 @@ import type { AbilityEventRuntimeActionContext } from '../events/abilityEventAct
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import { AbilityEventHostLifecycle } from './abilityEventHostLifecycle';
+import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 
 /** 原生被动 Skill 的事件序列宿主；黑板和子 Buff 所有权由被动实例提供。 */
 export class PassiveAbilityEventRuntime {
-  readonly #registrations: AbilityEventRegistration[] = [];
+  readonly #lifecycle = new AbilityEventHostLifecycle();
   #disposed = false;
-  #enabled = false;
 
   constructor(
     operations: CombatOperationExecutor,
@@ -33,15 +34,16 @@ export class PassiveAbilityEventRuntime {
         const context: CombatOperationContext = {
           ...ownerContext,
           canExecuteAction: () =>
-            !this.#disposed && this.#enabled && ownerContext.canExecuteAction?.() !== false,
+            this.#lifecycle.canExecuteAction && ownerContext.canExecuteAction?.() !== false,
+          addAbilityChildBuff: child => this.addChildBuff(child),
         };
         const sequence = new CombatActionSequenceRuntime(operations, context).createSequence(
           response.sequence,
         );
         sequence.reset({});
-        this.#registrations.push(
+        this.#lifecycle.register(
           register(response.event, response.priority, (published, targets) => {
-            if (this.#disposed || !this.#enabled) return;
+            if (!this.#lifecycle.acceptsEvents) return;
             withAbilityEventResponseContext(context, published, targets, () => {
               sequence.executeInstant({});
             });
@@ -57,12 +59,20 @@ export class PassiveAbilityEventRuntime {
   /** 注册早于初始化，但原生 Ability 在启动 Buff 安装完成后才允许执行响应。 */
   enable(): void {
     if (this.#disposed) throw new Error('cannot enable a disposed passive event host');
-    this.#enabled = true;
+    this.#lifecycle.enable();
+  }
+
+  addChildBuff(child: BuffApplicationHandle): void {
+    this.#lifecycle.addChildBuff(child);
+  }
+
+  onDisable(cleanup: () => void): void {
+    this.#lifecycle.onDisable(cleanup);
   }
 
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
-    for (const registration of this.#registrations.splice(0)) registration.dispose();
+    this.#lifecycle.dispose();
   }
 }

@@ -22,6 +22,23 @@ const responses = [
   },
 ];
 
+it('owns children even when the passive has no event responses', () => {
+  const host = new PassiveAbilityEventRuntime(
+    { execute: () => true, evaluate: () => true },
+    { blackboard: new ActionBlackboard() },
+    [],
+    () => {
+      throw new Error('no response should register');
+    },
+  );
+  const finish = vi.fn(() => true);
+  host.addChildBuff({ finish });
+  host.enable();
+  host.dispose();
+  host.dispose();
+  expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
+});
+
 it.each(['dispose', 'ownerPermission'] as const)(
   '%s 会阻止被动响应后续动作，但仍清理已开始的动作',
   mode => {

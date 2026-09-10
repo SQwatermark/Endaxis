@@ -1,5 +1,19 @@
 # 当前任务快照
 
+## 2026-09-10：被动/配装共用 Ability 退出所有权
+
+新增 AbilityEventHostLifecycle，按当前 Ability.Disable 原生顺序统一注册、启用、
+启动清理、子Buff和退出：注销→启动清理→实时子列表清理→关闭执行许可。
+被动子Buff不再进入无清理消费者的公共数组，无监听被动也保留实际所有权宿主；
+配装按贡献独立退出，其他尚存活贡献可以响应前一个贡献的清理事件。
+持久enableSequence绑定宿主End，删除只写不读的passiveSequences公共保存数组。
+证据：combat-spec/docs/ability-enable-event-order 最新节；不泛化为完整实体销毁。
+
+118文件1423项战斗测试、应用类型检查通过；四真实轴完整结果相同，报告
+tmp/event-unification-candidates-mz38x5/ability-host-disposal-axes.json。
+新增4项专题及装配层实际Buff回归。完整投射物回调宿主、实体完整组件顺序、
+所有投射物引用路径仍未完成；没有新增事件或修改正式游戏数据。
+
 ## 2026-09-10：条件延迟请求移除重复可用性检查
 
 复查当前原生 TryCastSkill，forceInterruptCurSkill 跳过普通中断检查，但仍先做一次

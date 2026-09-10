@@ -50,8 +50,9 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
 ## 尚未完成：下一阶段应按此顺序执行
 
 1. **直接结束调用者的来源/顺序。** 技能附属Buff已通过当前_FinishBuffs调用核实空来源；
-   Ability本体清子Buff也已核实空来源，配装dispose已接；配装宿主退出/注销的相对顺序
-   未由这一调用推断。GlobalBuff子清理已核实固定Other+空来源，父Early不传给子；
+   Ability本体清子Buff也已核实空来源；被动/配装现共用AbilityEventHostLifecycle，
+   退出按注销→启动清理→实时子Buff列表→关闭许可，逐贡献所有权已接。完整实体
+   组件顺序仍未验收。GlobalBuff子清理已核实固定Other+空来源，父Early不传给子；
    两仓均已修正，完整宿主退出顺序仍待核实。仍需核实能力实体的Ability所有权子Buff、
    SkillAffix完整引用保留等入口。其引用耗尽结束已核实Other+空来源，直接技能回调
    已修正；不能由此宣称子实体/投射物/输出Buff引用计数已实现。
@@ -60,7 +61,8 @@ buff-automatic-finish-source、consume-buff-single 等专题。具体 RVA、哈�
    对齐Buff→子技能→回收顺序；真实轴梨子诺连携收尾10个hit后移一帧，数值不变，
    已依据同组pending准入证据接受，去除了新实体Buff额外推进。宿主销毁回收、
    实体reset已接入实际对象端口；duration-finish投射物已接163发布并复用同一reset引用。
-   其他投射物投影、无回调发射、回调技能内部动作区间和pending request引用仍未完成。
+   其他投射物投影、无回调发射、回调技能内部动作区间仍未完成。普通宿主的pending
+   request引用已接实际通知及BeforeCast转交，不能据此关闭投射物完整回调宿主。
    护盾耗尽移除已核实Other+空来源，TS数值/次数耗尽均验证；这不等于完整ShieldBlockDamage事件已验收。
    现有未知来源不能一律改成null，也不能一律继承宿主施法。
    代码入口：skillRuntime、logicalAbilityEntityRuntime、equipmentEventRuntime、

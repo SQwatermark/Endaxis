@@ -26,6 +26,7 @@ import {
 } from './abilityEventResponseContext';
 import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
+import { AbilityEventHostLifecycle } from './abilityEventHostLifecycle';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
@@ -51,13 +52,11 @@ export type CreateEquipmentEventOperationExecutor = (
 
 /** 一名干员的全部配装事件监听生命周期；模拟结束后可统一释放。 */
 export class EquipmentEventRuntime {
-  readonly #registrations: AbilityEventRegistration[] = [];
   readonly #operatorId: string;
   readonly #blackboards = new Map<number, ActionBlackboard>();
-  readonly #enabled = new Set<number>();
   #disposed = false;
   // 固定配装的被动 Ability 存活到本运行实例释放；不能把子 Buff 挂到触发它的主动技能。
-  readonly #children = new Map<number, BuffApplicationHandle[]>();
+  readonly #hosts = new Map<number, AbilityEventHostLifecycle>();
 
   constructor(
     semanticEvents: CombatSemanticEventRuntime,
@@ -75,7 +74,8 @@ export class EquipmentEventRuntime {
           contribution.enableSequence === undefined
         )
           continue;
-        this.#children.set(contributionIndex, []);
+        const host = new AbilityEventHostLifecycle();
+        this.#hosts.set(contributionIndex, host);
         this.#blackboards.set(contributionIndex, new ActionBlackboard(contribution.blackboard));
         for (const handler of contribution.eventHandlers) {
           const executeResponse = this.#createResponse(contributionIndex, handler);
@@ -85,13 +85,13 @@ export class EquipmentEventRuntime {
                 `equipment handler '${handler.key}' requires an AbilityEvent registration port`,
               );
             }
-            this.#registrations.push(
+            host.register(
               registerAbilityEventAction(
                 operatorId,
                 handler.abilityEvent,
                 handler.priority ?? 0,
                 (published, actionContext) => {
-                  if (this.#disposed || !this.#enabled.has(contributionIndex)) return;
+                  if (!host.acceptsEvents) return;
                   const event = published;
                   executeResponse(
                     createExecutor({
@@ -109,7 +109,7 @@ export class EquipmentEventRuntime {
             );
             continue;
           }
-          this.#registrations.push(
+          host.register(
             semanticEvents.register({
               ownerOperatorId: operatorId,
               trigger: handler.event,
@@ -123,7 +123,7 @@ export class EquipmentEventRuntime {
                   event: context.event,
                 }),
               handle: (context, getOperations) => {
-                if (this.#disposed || !this.#enabled.has(contributionIndex)) return;
+                if (!host.acceptsEvents) return;
                 executeResponse(getOperations(), context.event, undefined, context.actionContext);
               },
             }),
@@ -139,24 +139,20 @@ export class EquipmentEventRuntime {
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
-    for (const registration of this.#registrations.splice(0)) registration.dispose();
-    for (const children of this.#children.values()) {
-      for (const child of children.splice(0)) child.finish('other', null);
-    }
-    this.#children.clear();
+    for (const host of this.#hosts.values()) host.dispose();
+    this.#hosts.clear();
     this.#blackboards.clear();
-    this.#enabled.clear();
   }
 
   /** 原生 Ability.Enable 成功后开放本能力，不提前开放整名干员或整队。 */
   enable(contributionIndex: number): void {
     this.blackboardFor(contributionIndex);
-    this.#enabled.add(contributionIndex);
+    this.#hosts.get(contributionIndex)!.enable();
   }
 
   assertAllEnabled(): void {
     for (const index of this.#blackboards.keys()) {
-      if (!this.#enabled.has(index))
+      if (!this.#hosts.get(index)!.acceptsEvents)
         throw new Error(`equipment Ability '${index}' has no completed initialization program`);
     }
   }
@@ -170,10 +166,15 @@ export class EquipmentEventRuntime {
 
   /** 初始化和事件动作共享被动 Ability 的所有权，不随单次初始化序列结束。 */
   addChildBuff(contributionIndex: number, child: BuffApplicationHandle): void {
-    const children = this.#children.get(contributionIndex);
-    if (children === undefined)
+    const host = this.#hosts.get(contributionIndex);
+    if (host === undefined)
       throw new Error(`equipment Ability '${contributionIndex}' is not active`);
-    children.push(child);
+    host.addChildBuff(child);
+  }
+
+  onDisable(contributionIndex: number, cleanup: () => void): void {
+    this.blackboardFor(contributionIndex);
+    this.#hosts.get(contributionIndex)!.onDisable(cleanup);
   }
 
   #createResponse(contributionIndex: number, handler: CompiledEquipmentEventHandler) {
@@ -184,7 +185,7 @@ export class EquipmentEventRuntime {
     };
     const operationContext = {
       blackboard: this.blackboardFor(contributionIndex),
-      canExecuteAction: () => !this.#disposed && this.#enabled.has(contributionIndex),
+      canExecuteAction: () => this.#hosts.get(contributionIndex)?.canExecuteAction === true,
       actionOwnerId: this.#operatorId,
       actionSourceId: this.#operatorId,
       addAbilityChildBuff: (child: BuffApplicationHandle) => {
@@ -207,7 +208,7 @@ export class EquipmentEventRuntime {
       published?: CombatAbilityEvent<EquipmentAbilityEvent>,
       actionContext?: AbilityEventRuntimeActionContext,
     ): void => {
-      if (this.#disposed || !this.#enabled.has(contributionIndex)) return;
+      if (!this.#hosts.get(contributionIndex)?.acceptsEvents) return;
       const previousOperations = activeOperations;
       activeOperations = executor;
       const execute = () => {
