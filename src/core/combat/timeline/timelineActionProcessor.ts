@@ -184,6 +184,8 @@ export class TimelineActionProcessor {
     if (this.#starting !== null) {
       this.#startingCrossedByJump = true;
       this.#startingJumpDestination = currentFrame;
+      // CastEnd 与 JumpTo 不同：原生同步 End 所有序列，包括当前进入中的序列。
+      this.#starting.action.sequence.end(context);
     }
     for (const indexedAction of this.#active.splice(0)) {
       this.#end(indexedAction, currentFrame, context);

@@ -330,7 +330,7 @@ it('注册中途失败会注销之前已安装的监听', () => {
   expect(dispose).toHaveBeenCalledOnce();
 });
 
-it('同步重入后恢复外层事件目标，不污染下一次事件', () => {
+it('当前响应步骤已进入时不重启本序列，仍恢复外层事件目标', () => {
   const callbacks: Parameters<ConstructorParameters<typeof PassiveAbilityEventRuntime>[3]>[2][] =
     [];
   const seen: string[] = [];
@@ -370,6 +370,6 @@ it('同步重入后恢复外层事件目标，不污染下一次事件', () => {
     event: 'abilityEntityFinished',
     payload: { sourceId: 'owner', targetId: 'next' },
   });
-  expect(seen).toEqual(['outer', 'inner', 'next']);
+  expect(seen).toEqual(['outer', 'next']);
   runtime.dispose();
 });

@@ -420,7 +420,7 @@ describe('EquipmentEventRuntime', () => {
     expect(calls).toEqual(
       prefix
         ? ['prefix:1', 'emit:1', 'tail:1', 'prefix:2', 'emit:2', 'tail:2']
-        : ['emit:1', 'emit:99', 'tail:99', 'tail:1', 'emit:2', 'emit:99', 'tail:99', 'tail:2'],
+        : ['emit:1', 'tail:1', 'emit:2', 'tail:2'],
     );
     runtime.dispose();
   });

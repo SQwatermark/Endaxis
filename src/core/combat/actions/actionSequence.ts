@@ -62,6 +62,8 @@ export class ActionSequence extends CombatStep {
       // 必须逐项读实时状态；不能只在事件订阅入口检查一次，也不能阻止已开始项 End。
       const resultMode = context.sequence?.resultMode ?? STEP_RESULT_MODE.normal;
       entry.executionPermitted = this.canExecuteAction?.() !== false;
+      // 原生在进入 OnExecute 前写入状态 1；同步事件可在动作尚未返回时 End。
+      entry.state = COMBAT_STEP_STATE.started;
       let result = entry.executionPermitted ? entry.step.tryExecute(context) : false;
       if (resultMode === STEP_RESULT_MODE.invertNextResult) {
         context.sequence!.resultMode = STEP_RESULT_MODE.normal;
@@ -69,7 +71,6 @@ export class ActionSequence extends CombatStep {
       }
 
       entry.executeResult = result;
-      entry.state = COMBAT_STEP_STATE.started;
       if (!result) return false;
     }
     return true;
@@ -98,18 +99,19 @@ export class ActionSequence extends CombatStep {
       }
       if (!entry.executeResult || !entry.executionPermitted) continue;
 
-      entry.step.tick(deltaTime, context);
       entry.state = COMBAT_STEP_STATE.ticking;
+      entry.step.tick(deltaTime, context);
     }
   }
 
   override end(context: CombatExecutionContext): void {
     for (const entry of this.#entries) {
-      if (entry.state !== COMBAT_STEP_STATE.started && entry.state !== COMBAT_STEP_STATE.ticking) {
-        continue;
-      }
-
-      if (entry.executionPermitted) entry.step.end(context);
+      if (
+        (entry.state === COMBAT_STEP_STATE.started || entry.state === COMBAT_STEP_STATE.ticking) &&
+        entry.executionPermitted
+      )
+        entry.step.end(context);
+      // 尚未开始的动作不调用 End，但也必须封闭，直到 Reset。
       entry.state = COMBAT_STEP_STATE.ended;
     }
   }

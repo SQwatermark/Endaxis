@@ -58,6 +58,32 @@ function rangedTimelineAction(
 describe('TimelineActionProcessor', () => {
   const context: CombatExecutionContext = {};
 
+  it('host CastEnd synchronously closes the current sequence before its next step', () => {
+    const calls: string[] = [];
+    let processor: TimelineActionProcessor;
+    class EndHostStep extends RecordingStep {
+      override execute(): void {
+        super.execute();
+        processor.end(0, context);
+        calls.push('returned');
+      }
+    }
+    processor = new TimelineActionProcessor([
+      {
+        startFrame: 0,
+        endFrame: 10,
+        sequence: new ActionSequence([
+          new EndHostStep('first', calls),
+          new RecordingStep('tail', calls),
+        ]),
+      },
+    ]);
+    processor.reset(context);
+    processor.tick(0, 0, context);
+    processor.tick(1, 1, context);
+    expect(calls).toEqual(['first:execute', 'first:end', 'returned']);
+  });
+
   it('does not restart pending timelines after host CastEnd until reset', () => {
     const events: string[] = [];
     const processor = new TimelineActionProcessor([timelineAction(2, 'later', events)]);

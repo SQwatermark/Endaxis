@@ -4,7 +4,8 @@
 
 公共时间轴现已补上 CastEnd 终态门禁：同步结束后不启动后续 timeline，
 待执行项取消，Reset 才重用。证据见复刻库 skill-time-fields 最新节。
-这不等于完整回调程序已落位，也不证明同一序列内部 End 的重入先后已经完全一致。
+同日续证已补上同序列同步 End，见复刻库 sequence-execute-policy；这不等于完整
+回调程序已落位，也不宣称任意生命周期重入组合完全一致。
 
 可执行对照已增加：combat-spec/Runtime/ProjectileCallbackSkillHost，依据当前
 ProjectileComponent._CastSkill(032508D0)。它先对投射物自身当前技能执行

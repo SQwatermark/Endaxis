@@ -34,6 +34,51 @@ class ProbeStep extends CombatStep {
 }
 
 describe('ActionSequence', () => {
+  it('ends synchronously inside an action without executing or resurrecting later steps', () => {
+    const calls: string[] = [];
+    let sequence: ActionSequence;
+    class EndingStep extends ProbeStep {
+      override execute(): void {
+        super.execute();
+        sequence.end({});
+        calls.push('returned');
+      }
+    }
+    sequence = new ActionSequence([new EndingStep('first', calls), new ProbeStep('later', calls)]);
+    sequence.tryExecute({});
+    sequence.tick(1, {});
+    sequence.tryExecute({});
+    sequence.end({});
+    expect(calls).toEqual(['execute:first', 'end:first', 'returned']);
+  });
+
+  it('marks pending steps ended without running their End bodies', () => {
+    const calls: string[] = [];
+    const sequence = new ActionSequence([new ProbeStep('pending', calls)]);
+    sequence.end({});
+    sequence.tryExecute({});
+    expect(calls).toEqual([]);
+    sequence.reset({});
+    sequence.tryExecute({});
+    expect(calls).toEqual(['reset:pending', 'execute:pending']);
+  });
+
+  it('does not revive a step that ends the sequence during Tick', () => {
+    const calls: string[] = [];
+    let sequence: ActionSequence;
+    class EndingTick extends ProbeStep {
+      override tick(): void {
+        super.tick();
+        sequence.end({});
+      }
+    }
+    sequence = new ActionSequence([new EndingTick('first', calls), new ProbeStep('tail', calls)]);
+    sequence.tryExecute({});
+    sequence.tick(1, {});
+    sequence.tick(1, {});
+    sequence.end({});
+    expect(calls).toEqual(['execute:first', 'execute:tail', 'tick:first', 'end:first', 'end:tail']);
+  });
   it('checks the live host gate per action and still cleans up actions already entered', () => {
     const calls: string[] = [];
     let enabled = true;
