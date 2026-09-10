@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：补回 VFS 已解码但未导出的投射物技能表
+
+核实 VFS ProjectileComponentDecoder：已有 AbilitySystemDataPrefixDecoder 严格读取
+同对象的技能表、模式和黑板，但正式导出只复制 entityBlackboard。现补回 abilitySystem
+前缀，并以 abilitySystemBoundary 标明 partial 与精确偏移；没有新增解析器或扫描规则。
+尚未刷新正式来源快照，也未据此修改回调运行时；接下来需要当前版本原始投射物样本验证。
+
+本地旧样本 projectile-tangtang-raw 的 AbilitySystem 前缀单独解码通过，技能表仅含
+chr_0027_tangtang_attack5_projhit，固定身份及类型覆盖为空。它不是当前 water 样本，
+不能推导汤汤到期回调的当前类型。整份组件测试在 hitOnReach 遇非法 bool32，庄方宜
+缓存样本的组件测试也失败；这些失败发生在新导出字段之前，不能宣称端到端已通过。
+旧样本仍可证明相应前缀布局，但不作为当前版本完整投射物的发布证据。
+VFS worker 常规51项测试通过；未启动服务、未覆盖正式生成数据。VFS 仓库其他大量
+未跟踪文件保持原样，本轮只涉及解码导出、对应样本审计与说明文档。
+
 ## 2026-09-10：核对回调身份时修正原生类型初始化优先级
 
 复核当前镜像 AbilitySystem._InitSkills：先按 curNormalSkill / curUltimateSkill /
