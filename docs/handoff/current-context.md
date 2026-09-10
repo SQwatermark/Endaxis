@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：投射物回调原生启动入口可执行对照
+
+combat-spec新增ProjectileCallbackSkillHost，依据当前_CastSkill：先中断投射物自身
+当前技能（Default/空context），再TryCast回调，忽略距离/角度并保留多输入目标；
+继承保存的SkillCastInfo但不改变实际Skill宿主。复用现有Skill区间/自然结束/事件，
+未新建解释器或空间模型。五项新增回归通过，全库1848/1854，六项原有资源失败不变。
+证据在launch-projectile-skill-routing，Endaxis回调设计已同步具体入口语义。
+本轮Endaxis仅改文档：正式即时回调body迁移、所有发射/reset引用仍未完成。
+
 ## 2026-09-10：宿主异常退出仍清理其余监听与子Buff
 
 共用AbilityEventHostLifecycle原先在注销/清理抛错后跳过剩余释放，现统一收集错误、

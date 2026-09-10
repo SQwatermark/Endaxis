@@ -2,6 +2,14 @@
 
 核对日期：2026-09-10。此文是未完成实现的约束，不是完成声明。
 
+可执行对照已增加：combat-spec/Runtime/ProjectileCallbackSkillHost，依据当前
+ProjectileComponent._CastSkill(032508D0)。它先对投射物自身当前技能执行
+Interrupt(Default,空上下文)，然后TryCast回调；不是CastNextSkill，也不是先检查
+后结束。三个选项为ignoreDistance/ignoreAngle/allowMultiInputTarget=true。
+来源使用投射物保存的完整SkillCastInfo；实际动作宿主、direct黑板和附属Buff仍归
+回调Skill。详见复刻库launch-projectile-skill-routing最新节与五项回归。
+迁移时应按此入口重用公共Skill执行职责，不能直接复用绑定干员费用/放置身份的外壳。
+
 当前实施进度：完整来源程序已经保留自然时长和逐条区间；普通技能/能力实体子技能已经
 共用createTimeline构造入口。正式投射物仍经旧即时适配层，公共定义及回调宿主迁移未完成。
 
