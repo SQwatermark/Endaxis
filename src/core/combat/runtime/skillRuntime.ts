@@ -27,7 +27,7 @@ import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
-import { isSkillTimelineJumpBeforeCurrent } from './skillTimelineJump';
+import { SkillTimelineJumpGate } from './skillTimelineJump';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
@@ -185,6 +185,7 @@ export class SkillRuntime {
   #timeline: TimelineActionProcessor | null = null;
   #state: RuntimeSkillState = 'ready';
   #passedFrames = 0;
+  readonly #timelineJump = new SkillTimelineJumpGate();
   #castStartFrame: number | undefined;
   #appliedCost = false;
   #attemptedCost = false;
@@ -713,19 +714,27 @@ export class SkillRuntime {
   }
 
   #requestTimelineJump(destinationFrame: number): void {
+    if (this.#timelineJump.isExecuting) return;
     const timeline = this.#timeline;
     if (timeline === null || this.#state !== 'casting') {
       throw new Error(`skill '${this.#program.skillId}' cannot jump outside an active cast`);
     }
-    if (isSkillTimelineJumpBeforeCurrent(destinationFrame, this.#passedFrames)) return;
-    // 原生允许 epsilon 内的微小回拨；它不会重新执行已过的调度项。
-    timeline.jumpTo(
+    this.#timelineJump.execute(
       destinationFrame,
-      Math.min(destinationFrame, this.#passedFrames),
-      this.#context,
+      this.#passedFrames,
+      this.#program.naturalDurationFrames,
+      () => {
+        // 原生允许 epsilon 内的微小回拨；它不会重新执行已过的调度项。
+        timeline.jumpTo(
+          destinationFrame,
+          Math.min(destinationFrame, this.#passedFrames),
+          this.#context,
+        );
+        this.#passedFrames = destinationFrame;
+        this.record('SkillTimelineJumped', { destinationFrame });
+      },
+      () => this.end(),
     );
-    this.#passedFrames = destinationFrame;
-    this.record('SkillTimelineJumped', { destinationFrame });
   }
 
   #requestTimelineFinish(): void {

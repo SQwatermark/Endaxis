@@ -4,7 +4,7 @@ import type { BuffApplicationHandle } from './buffOperationExecutor';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatOperationContext } from './skillRuntime';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
-import { isSkillTimelineJumpBeforeCurrent } from './skillTimelineJump';
+import { SkillTimelineJumpGate } from './skillTimelineJump';
 
 /**
  * Persistent action-program part of a detached callback. The projectile scheduler
@@ -16,6 +16,7 @@ export class ProjectileCallbackActionRuntime {
   readonly #sequenceRuntime: CombatActionSequenceRuntime;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
   #passedFrames = 0;
+  readonly #timelineJump = new SkillTimelineJumpGate();
   #started = false;
   #ended = false;
   #castFrameTick = false;
@@ -87,8 +88,15 @@ export class ProjectileCallbackActionRuntime {
   }
 
   #jump(frame: number): void {
-    if (isSkillTimelineJumpBeforeCurrent(frame, this.#passedFrames)) return;
-    this.#timeline.jumpTo(frame, Math.min(frame, this.#passedFrames), {});
-    this.#passedFrames = frame;
+    this.#timelineJump.execute(
+      frame,
+      this.#passedFrames,
+      this.program.naturalDurationFrames,
+      () => {
+        this.#timeline.jumpTo(frame, Math.min(frame, this.#passedFrames), {});
+        this.#passedFrames = frame;
+      },
+      () => this.end(),
+    );
   }
 }

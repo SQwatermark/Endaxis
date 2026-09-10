@@ -69,6 +69,52 @@ function delayedProbe(): ResolvedActionSequence {
 }
 
 describe('projectile callback action lifecycle', () => {
+  it('uses the same synchronous out-of-duration jump cleanup as an ordinary skill', () => {
+    const trace: string[] = [];
+    const context = { blackboard: new ActionBlackboard() };
+    const execution = new CombatActionSequenceRuntime(
+      {
+        evaluate: () => true,
+        execute: () => {
+          trace.push('start');
+          return true;
+        },
+        end: (_step, context) => {
+          trace.push('end');
+          context!.requestTimelineJump!(2);
+        },
+      },
+      context,
+    );
+    const callback = new ProjectileCallbackActionRuntime(
+      {
+        skillId: 'callback',
+        nativeSkillType: 'normalSkill',
+        naturalDurationFrames: 5,
+        initialBlackboard: {},
+        timelineActions: [
+          { startFrame: 0, endFrame: 20, sequence: { steps: [probe] } },
+          {
+            startFrame: 1,
+            endFrame: 2,
+            sequence: {
+              steps: [{ kind: 'jumpTimeline', parameters: { destinationFrame: 6 } }, probe],
+            },
+          },
+        ],
+      },
+      context,
+      execution,
+    );
+    callback.start();
+    callback.advance(COMBAT_FRAME_INTERVAL);
+    callback.advance(COMBAT_FRAME_INTERVAL);
+    expect(trace).toEqual(['start', 'end']);
+    callback.advance(10);
+    callback.end();
+    expect(trace).toEqual(['start', 'end']);
+  });
+
   it('ends active intervals once and never starts pending intervals after reset cleanup', () => {
     const trace: string[] = [];
     const context = { blackboard: new ActionBlackboard() };

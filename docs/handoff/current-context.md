@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-10：共享技能跳转门禁补齐同步结束与重入保护
+
+复核当前镜像 Skill.JumpTo 03E5C890：目标严格超过 periodTime + float32 1e-5
+走 04F2B521 同步 CastEnd，不先改写计时器或动作时间轴；+AC 防止清理中的嵌套跳转。
+复刻库 skill-time-fields 记录具体指令，SkillTimelineJumpGate 规格6项通过。
+Endaxis 普通技能与临时回调共用 SkillTimelineJumpGate，越界立即结束、剩余动作不执行，
+清理期间重入忽略；缺少 naturalDurationFrames 的旧自定义程序不猜上界。
+这不是投射物路径建模，也不是回调宿主完成。
+
+验证：118文件1455项战斗测试通过，4真实轴完整回执及诊断与既定基线一致。
+定向测试覆盖同步 SkillEnd 仅一次、清理仅一次、清理中嵌套跳转、终点等值与 float32 容差。
+临时回调仍不发布自身技能事件，不能将此轮事件结束时机修正当作独立宿主接入。
+
+接续仍是移除 ProjectileCallbackActionRuntime：先明确公共运行程序与时间轴编辑元数据
+的边界，不为复用 CompiledSkillProgram 伪造 skillGroupKey/skillLevel/费用。
+当前 callback 已有自身 nativeSkillType，但尚无完整原生费用/冷却启动数据；不能将来源
+SkillCastInfo.originSkillType 用作自身类型。实际 owner、事件发布者与继承来源必须分开，
+沿公共 AbilitySystem 的同步启动及 SkillRuntime 生命周期接入。
+
 ## 2026-09-10：回调自身类型贯通公共定义与编译程序
 
 ProjectileCallbackSkillDefinition / CompiledProjectileCallbackSkillProgram 新增必填

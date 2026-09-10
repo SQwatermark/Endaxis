@@ -918,6 +918,62 @@ describe('SkillRuntime', () => {
     },
   );
 
+  it('越过自然时长同步清理并发布结束，不移动时间轴或执行跳转后的步骤', () => {
+    const ended = vi.fn();
+    const fixture = createBattleSkillRuntime(
+      300,
+      undefined,
+      undefined,
+      {
+        key: 'jump-past-end',
+        timelineBlockFrames: 20,
+        naturalDurationFrames: 5,
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            endFrame: 20,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'active', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+          {
+            startFrame: 1,
+            endFrame: 2,
+            sequence: {
+              steps: [
+                { kind: 'jumpTimeline', parameters: { destinationFrame: 6 } },
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'unreachable', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      ended,
+    );
+    fixture.operations.end = vi.fn(() => fixture.runtime.operationContext.requestTimelineJump!(3));
+    ended.mockImplementation(() => fixture.runtime.operationContext.requestTimelineJump!(4));
+    fixture.runtime.tryStart();
+    fixture.simulation.advanceFrames(1);
+    expect(fixture.runtime.state).toBe('ended');
+    expect(fixture.runtime.passedFrames).toBe(1);
+    expect(ended).toHaveBeenCalledTimes(1);
+    expect(fixture.operations.end).toHaveBeenCalledTimes(1);
+    expect(fixture.operations.execute).toHaveBeenCalledTimes(1);
+    expect(fixture.receipt.entries.some(entry => entry.event === 'SkillTimelineJumped')).toBe(
+      false,
+    );
+    fixture.simulation.advanceFrames(2);
+    expect(ended).toHaveBeenCalledTimes(1);
+  });
+
   it('时间轴自终止丢弃未来调度且不改写局部帧', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'timeline-finish-fixture',
