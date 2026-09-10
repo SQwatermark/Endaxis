@@ -980,7 +980,7 @@ export default {
                   {
                     kind: 'contextTargetObjectTypeMatch',
                     contextKey: 'trigger',
-                    objectTypeMask: 16,
+                    objectTypes: ['enemy'],
                   },
                   sequence(),
                 ),

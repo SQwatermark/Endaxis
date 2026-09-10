@@ -1,3 +1,7 @@
+import {
+  COMBAT_OBJECT_TYPES,
+  type CombatObjectTypeSelection,
+} from '../../../../packages/game-data-contract/src/primitives.ts';
 /** 1.4.4 ObjectType 身份；证据：combat-spec Runtime/CombatEntity.cs、CheckObjectTypeMatchAction.cs。 */
 const OBJECT_TYPES: Readonly<Record<string, number>> = {
   All: -1,
@@ -17,6 +21,27 @@ const OBJECT_TYPES: Readonly<Record<string, number>> = {
   EnemyAll: 16400,
   SocialBuilding: 32768,
 };
+
+/** 出来源边界后只传可读集合。未知位必须阻断，不能静默丢弃。 */
+export function projectObjectTypeSelection(
+  value: unknown,
+  path: string,
+): CombatObjectTypeSelection {
+  const mask = parseObjectTypeMask(value, path);
+  if (mask === -1) return 'all';
+  const entries = Object.entries(OBJECT_TYPES).filter(
+    ([name]) => name !== 'All' && name !== 'EnemyAll',
+  );
+  const knownMask = entries.reduce((result, [, bit]) => result | bit, 0);
+  if ((mask & ~knownMask) !== 0) throw new Error(`${path}: unknown ObjectType mask bits`);
+  return entries.flatMap(([name, bit]) => {
+    if ((mask & bit) !== bit) return [];
+    const readable = name[0]!.toLowerCase() + name.slice(1);
+    const type = COMBAT_OBJECT_TYPES.find(candidate => candidate === readable);
+    if (type === undefined) throw new Error(`${path}: missing readable ObjectType '${name}'`);
+    return [type];
+  });
+}
 
 export function parseObjectTypeMask(value: unknown, path: string): number {
   if (typeof value === 'number') {

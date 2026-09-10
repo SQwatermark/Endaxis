@@ -6,6 +6,15 @@
 
 ## 推荐阅读顺序
 
+**新会话先明确机器，再选择工作树：**
+
+- [笔记本环境：本机目录、接续prompt与远程连接能力](2026-09-10-local-workspace.md)
+- [台式机环境：路径与远程历史记录](desktop-environment.md)
+
+2026-09-10当前会话在笔记本，主工作树是`Endaxis-game-data-refactor`。
+先读对应环境文档、current-context顶部与[投射物回调宿主设计](../next/projectile-callback-host-design.md)，
+下面的历史检查点不覆盖当前状态。
+
 希望先理解事件系统而非追溯迁移过程，请读
 [事件系统：从游戏行为到程序结构](../next/event-system-guide.md)；面向熟悉游戏与基本编程的读者，
 区分当前架构、原生语义和未完成项。
@@ -94,11 +103,11 @@ flowchart LR
 - `docs/architecture`：专题设计、历史决策和迁移方案。
 - `docs/research`：具体干员、原生 Action、Buff、装备和生成覆盖率的证据记录。
 - `vfs-index-browser/docs`：本地游戏资源、格式、模型、音频、Shader 和战斗逆向研究。
-- `vfs-index-browser/combat-spec/docs`：C# 原生行为复刻的模块说明和证据边界。
+- 当前combat-spec工作树的`docs`：C#原生行为规格与证据边界，路径按机器环境文档选择。
 
 ## 重要警告
 
-- 旧版 Endaxis 已从当前工作树删除；需要核对其 UI 行为时，只读参照 `D:\Projects\Endaxis-upstream-main` 的代码。旧配置与旧实现不是游戏事实来源。
+- 旧版Endaxis已从当前主线删除；只读参考目录按机器环境文档选择。旧配置与旧实现不是游戏事实来源。
 - AKEDB 提供了大量结构化数据，但并不保证包含每个技能的根 `SkillData`、帧时序或运行时硬编码。
 - C# Combat Spec 追求按证据 1:1 表达原生行为；Endaxis Next 追求在单敌人排轴场景下行为一致、结构清晰，不要求复制游戏内部类名和所有与排轴无关的系统。
 - 未证实的信息必须保持 `unknown` 或生成失败，不能用看似合理的默认值掩盖缺口。

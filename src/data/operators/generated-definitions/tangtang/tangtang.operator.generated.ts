@@ -229,6 +229,12 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence({
     skillId: 'chr_0027_tangtang_combo_skill_water_gene',
     nativeSkillType: 'normalSkill',
     naturalDurationFrames: 900,
+    castResource: {
+      costFrame: 0,
+      cooldownSeconds: 0,
+      maxChargeTime: 1,
+      cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+    },
     blackboard: { duration_water: 30, potential1: 0, radius: 4 },
     scheduledSequences: [scheduled(0, sharedActionSequence4, 1)],
   },
@@ -1861,7 +1867,7 @@ export default {
           },
           sequence(
             branch(
-              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: ['enemy'] },
               sequence(),
             ),
           ),

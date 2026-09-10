@@ -1651,7 +1651,7 @@ export default {
                   },
                   sequence(
                     branch(
-                      { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+                      { kind: 'actionInputTargetObjectTypeMatch', objectTypes: ['enemy'] },
                       sequence(),
                     ),
                   ),

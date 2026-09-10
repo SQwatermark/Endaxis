@@ -27,7 +27,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly inputWindows?: SkillDefinition['inputWindows'];
   /** 文档中的技能释放身份；同技能多次放置时用于唯一寻址。 */
   readonly castId?: string;
-  readonly skillType: SkillType;
+  /** 玩家语义分类；实体内部技能只需 nativeSkillType，可以没有此字段。 */
+  readonly skillType?: SkillType;
   readonly nativeSkillType?: NativeSkillType;
   /** 场景技能块在宿主局部时钟中的可操作宽度；非场景测试运行时可省略。 */
   readonly timelineBlockFrames?: number;
@@ -55,7 +56,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   attachInheritedBuff?(buff: BuffApplicationHandle): void;
   trySwitchToBuffCast?(
     currentSkill?: {
-      readonly skillType: SkillType;
+      readonly skillType: SkillType | undefined;
       readonly skillCastInfo: CombatSkillCastInfo;
       readonly canInterrupt: boolean;
     },
@@ -241,7 +242,13 @@ export class AbilitySystemRuntime implements FrameRuntime {
         throw new Error(`duplicate ability skill '${key}'`);
       }
       this.#skillsById.set(key, skill);
-      const nativeSkillType = skill.nativeSkillType ?? fallbackNativeSkillType(skill.skillType);
+      const nativeSkillType =
+        skill.nativeSkillType ??
+        (skill.skillType === undefined
+          ? (() => {
+              throw new Error(`ability skill '${skill.skillId}' has no native or player type`);
+            })()
+          : fallbackNativeSkillType(skill.skillType));
       const previousNativeSkillType = this.#nativeSkillTypeBySkillId.get(skill.skillId);
       if (previousNativeSkillType !== undefined && previousNativeSkillType !== nativeSkillType) {
         throw new Error(`ability skill '${skill.skillId}' has inconsistent native SkillType`);
@@ -278,15 +285,21 @@ export class AbilitySystemRuntime implements FrameRuntime {
         group.input ??
         (baseSkill === undefined
           ? 'battleSkill'
-          : baseSkill.skillType === 'basicAttack' ||
-              baseSkill.skillType === 'finisher' ||
-              baseSkill.skillType === 'plungingAttack'
-            ? 'basicAttack'
-            : baseSkill.skillType === 'battleSkill'
-              ? 'battleSkill'
-              : baseSkill.skillType === 'comboSkill'
-                ? 'comboSkill'
-                : 'ultimate');
+          : baseSkill.skillType === undefined
+            ? (() => {
+                throw new Error(
+                  `ability skill slot '${group.skillGroupKey}' references a skill without player type`,
+                );
+              })()
+            : baseSkill.skillType === 'basicAttack' ||
+                baseSkill.skillType === 'finisher' ||
+                baseSkill.skillType === 'plungingAttack'
+              ? 'basicAttack'
+              : baseSkill.skillType === 'battleSkill'
+                ? 'battleSkill'
+                : baseSkill.skillType === 'comboSkill'
+                  ? 'comboSkill'
+                  : 'ultimate');
       // 基础命令映射必须来自原生 SkillDataBundle.defaultCmdMapping / ModeData，
       // 不能由 Endaxis 的技能库分组反推。旧调用方未提供证据时不登记默认槽。
       const defaultForInput = group.defaultForInput ?? false;

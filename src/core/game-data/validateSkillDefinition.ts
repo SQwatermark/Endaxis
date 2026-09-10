@@ -652,24 +652,15 @@ function validateCombatCondition(
       if (record.outputKey !== undefined) requireString(record, 'outputKey', path, out);
       break;
     case 'contextTargetObjectTypeMatch':
-      requireString(record, 'contextKey', path, out);
-      if (
-        !Number.isInteger(record.objectTypeMask) ||
-        typeof record.objectTypeMask !== 'number' ||
-        record.objectTypeMask < -2147483648 ||
-        record.objectTypeMask > 2147483647
-      ) {
-        push(out, `${path}.objectTypeMask`, 'expected signed int32 mask');
-      }
-      break;
     case 'actionInputTargetObjectTypeMatch':
+      if (record.kind === 'contextTargetObjectTypeMatch')
+        requireString(record, 'contextKey', path, out);
       if (
-        !Number.isInteger(record.objectTypeMask) ||
-        typeof record.objectTypeMask !== 'number' ||
-        record.objectTypeMask < -2147483648 ||
-        record.objectTypeMask > 2147483647
+        record.objectTypes !== 'all' &&
+        (!Array.isArray(record.objectTypes) ||
+          !record.objectTypes.every(value => COMBAT_OBJECT_TYPES.some(type => type === value)))
       ) {
-        push(out, `${path}.objectTypeMask`, 'expected signed int32 mask');
+        push(out, `${path}.objectTypes`, 'expected readable object types or all');
       }
       break;
     case 'actionInputTargetIdentityMatch':
@@ -3453,6 +3444,24 @@ function validateActionSequence(
         const duration = requireFiniteNumber(callback, 'naturalDurationFrames', callbackPath, out);
         if (duration !== null && (!Number.isInteger(duration) || duration < 1))
           push(out, `${callbackPath}.naturalDurationFrames`, 'expected a positive integer');
+        const castPath = `${callbackPath}.castResource`;
+        const cast = asRecord(callback.castResource, castPath, out);
+        if (cast !== null) {
+          requireNonNegativeInteger(cast, 'costFrame', castPath, out);
+          requireFiniteNumber(cast, 'cooldownSeconds', castPath, out);
+          requireInteger(cast, 'maxChargeTime', castPath, out);
+          const costPath = `${castPath}.cost`;
+          const cost = asRecord(cast.cost, costPath, out);
+          if (cost !== null) {
+            requireEnum(cost, 'resource', COMBAT_RESOURCES_SET, costPath, out);
+            validateLevelValues(cost.value, `${costPath}.value`, out);
+            validateLevelValues(
+              cost.availabilityThreshold,
+              `${costPath}.availabilityThreshold`,
+              out,
+            );
+          }
+        }
       }
     } else if (
       stepKind === 'once' ||
@@ -3900,3 +3909,4 @@ function validateGameplayTags(
   }
   value.forEach((tag, index) => validateGameplayTag(tag, path + '[' + index + ']', out));
 }
+import { COMBAT_OBJECT_TYPES } from '../../../packages/game-data-contract/src/primitives';

@@ -1,7 +1,51 @@
 import { describe, expect, it } from 'vitest';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
+import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
+import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 
 describe('ProjectileLifecycleRuntime', () => {
+  it('来源在结束技能与 reset 通知期间可查，实际回收完成后释放', () => {
+    const runtime = new ProjectileLifecycleRuntime();
+    const source = { kind: 'abilityEntity' as const, instanceId: 99 };
+    const seen: unknown[] = [];
+    const projectile = runtime.launch({
+      source,
+      finishDelaySeconds: 1,
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 1,
+      finish: () => seen.push(runtime.findSource(projectile.target.instanceId)),
+      beforeReset: () => seen.push(runtime.findSource(projectile.target.instanceId)),
+    });
+    projectile.onReset(() => seen.push(runtime.findSource(projectile.target.instanceId)));
+    runtime.advanceFrame();
+    runtime.advanceFrame();
+    expect(runtime.isActive(projectile.target)).toBe(true);
+    runtime.advanceFrame();
+    expect(seen).toEqual([source, source, source]);
+    expect(runtime.isActive(projectile.target)).toBe(false);
+    expect(runtime.findSource(projectile.target.instanceId)).toBeUndefined();
+  });
+  it('与普通能力实体共享全场唯一的实例身份空间', () => {
+    const ids = new AbilityEntityInstanceIdAllocator();
+    const projectiles = new ProjectileLifecycleRuntime(() => ids.allocate());
+    const entities = new LogicalAbilityEntityRuntime({ allocateInstanceId: () => ids.allocate() });
+    const projectile = projectiles.launch({
+      finishDelaySeconds: 1,
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 1,
+      finish: () => {},
+      beforeReset: () => {},
+    });
+    const entity = entities.spawn({
+      abilityEntityId: 'fixture',
+      definition: { lifetime: { kind: 'infinite' } },
+      ownerId: 'operator',
+      source: { kind: 'operator', operatorId: 'operator' },
+    });
+    expect(projectile.target).toEqual({ kind: 'abilityEntity', instanceId: 1 });
+    expect(entity).toEqual({ kind: 'abilityEntity', instanceId: 2 });
+  });
+
   it('admits Default-group launches but defers launches made inside the Battle group', () => {
     const runtime = new ProjectileLifecycleRuntime();
     const calls: string[] = [];

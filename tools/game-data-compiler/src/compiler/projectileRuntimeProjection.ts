@@ -26,6 +26,7 @@ import {
   collectPresentationOnlyBlackboardKeys,
   isPresentationOnlyActionSequence,
 } from './skillPresentationTargets.ts';
+import type { SkillCastResourceDefinition } from '../../../../packages/game-data-contract/src/index.ts';
 
 /** A callback skill before any zero-distance/immediate execution optimization. */
 export interface ProjectileCallbackSkillSource {
@@ -37,6 +38,7 @@ export interface ProjectileCallbackSkillSource {
     readonly endFrame: number;
     readonly sequence: CompiledBuffSequenceSource;
   }[];
+  readonly castResource?: SkillCastResourceDefinition;
 }
 
 export interface ZeroDistanceProjectileCallbackSource {
@@ -84,6 +86,7 @@ export interface ZeroDistanceProjectileProjectionCatalogSource {
     }
   >;
   readonly callbackGraphs: ReadonlyMap<string, SkillActionGraphSource<KnownNativeActionLeafSource>>;
+  readonly callbackCastResources?: ReadonlyMap<string, SkillCastResourceDefinition>;
 }
 
 /**
@@ -238,10 +241,13 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       }
       const finish = compileProjectileCallbackSkillSource({
         graph: callback('finish'),
+        castResource: input.catalog.callbackCastResources?.get(callback('finish').skillId),
         context: callbackContext,
         visualOnlyIds: input.visualOnlyIds,
         extensions: input.callbackExtensions,
       });
+      if (finish.castResource === undefined)
+        throw new Error(`${sourcePath}: missing cast resource metadata for ${finish.skillId}`);
       const nativeSkillType = runtime.activeSkills?.initialNativeSkillTypeById[finish.skillId];
       if (nativeSkillType === undefined)
         throw new Error(
@@ -284,6 +290,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
                   skillId: finish.skillId,
                   nativeSkillType,
                   naturalDurationFrames: finish.naturalDurationFrames,
+                  castResource: finish.castResource,
                   blackboard: numericInitialValues(finish.declaredBlackboard, sourcePath),
                   scheduledSequences: finish.timelineActions,
                 },
@@ -625,8 +632,9 @@ export function compileProjectileCallbackSkillSource(input: {
   readonly context: CombatActionProjectionContextSource;
   readonly visualOnlyIds?: ReadonlySet<string>;
   readonly extensions?: CombatActionProjectionExtensionsSource;
+  readonly castResource?: SkillCastResourceDefinition;
 }): ProjectileCallbackSkillSource {
-  const { graph, context, visualOnlyIds = new Set(), extensions = {} } = input;
+  const { graph, context, visualOnlyIds = new Set(), extensions = {}, castResource } = input;
   if (graph.actionGroup.passiveEvents.length > 0)
     throw new Error(`${graph.skillId}: projectile callback passive events are unsupported`);
   const discoveredEnemyGroups = graph.actionGroup.timelineActions.flatMap(timeline =>
@@ -666,6 +674,7 @@ export function compileProjectileCallbackSkillSource(input: {
     declaredBlackboard: graph.declaredBlackboard,
     naturalDurationFrames: Math.max(1, graph.durationFrame),
     timelineActions,
+    ...(castResource === undefined ? {} : { castResource }),
   };
 }
 

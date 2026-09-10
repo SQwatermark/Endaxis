@@ -111,6 +111,16 @@ Buff 实例的独立 SkillAffix 身份槽，供明确要求该身份的条件读
 
 ## 类型归属与中间表示
 
+### 对象类型的可读边界（2026-09-10）
+
+对象类型唯一使用 primitives.ts 的 CombatObjectType。两种对象筛选条件的 objectTypes
+是名称集合或 `all`，空集合不匹配任何实体；enemy 同时接受 enemyPart，不反向包含。
+原生数值掩码仅由转换器 source/objectType.ts 解码，未知位阻断。契约、生成定义、
+Inspector 与运行时不保存 objectTypeMask，也不把字符串在运行中转回整数。
+共享 RuntimeTargetRef 句柄的 projectile 与 abilityEntity 必须通过实际实例目录区分，
+没有目录时不能默认归类。旧数字条件不是合法正式定义，应重新生成或由导入工具迁移，
+不得在运行时增设数字兼容解释器。
+
 新增类型默认复用已有唯一声明；不能因为经过不同函数、不同阶段或不同领域，就复制一套同形定义。
 这里的“基础定义”是按语义分模块的独立契约，不是把所有类型集中到 `primitives.ts`。
 

@@ -1,4 +1,5 @@
 import type { AbilityResponseEvent, AbilitySkillPayload } from '../events/combatAbilityEvent';
+import type { ProjectileLifetimeReference } from './projectileLifecycleRuntime';
 
 /** A detached projectile owns both its callback execution and eventual cleanup. */
 export type ScheduleProjectileFinishCallback = (
@@ -8,7 +9,8 @@ export type ScheduleProjectileFinishCallback = (
   beforeReset: () => void,
   skillCastInfo?: CombatSkillCastInfo,
   advanceCallback?: (deltaSeconds: number) => void,
-) => void;
+  sourceId?: string,
+) => ProjectileLifetimeReference;
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。
  * 每个放置块独立持有调度游标和黑板；同一技能的冷却由装配层显式共享。
@@ -25,7 +27,7 @@ import type {
 } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
-import type { CombatResources } from './combatResources';
+import type { CombatResources, SkillResourceAccount } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
 import { SkillTimelineJumpGate } from './skillTimelineJump';
 import type { CombatSkillCastInfo } from './skillCastInfo';
@@ -147,9 +149,26 @@ export interface CombatOperationExecutor {
 /** Start 恢复局部板及目标组之后、执行第零帧之前；不得用于改写实体初始化。 */
 export type AfterSkillCastStart = (context: CombatOperationContext) => void;
 
-interface SkillRuntimeDependencies {
+/**
+ * 技能程序不携带运行时对象身份。普通干员技能默认仍由 program.operatorId 承担这些职责；
+ * 能力实体技能必须显式提供自身身份，不能把发射者或继承的 SkillCastInfo 冒充为 Owner。
+ */
+export interface SkillRuntimeHostIdentity {
+  /** 仅用于绑定既有干员账本；显式 resourceAccount 路径不得同时填写。 */
+  readonly resourceOperatorId?: string;
+  /** 动作树中 Owner/Source 的真实 AbilitySystem 实体身份。 */
+  readonly actionOwnerId: string;
+  readonly actionSourceId: string;
+  /** 能力实体宿主的稳定句柄；普通干员技能不提供。 */
+  readonly actionOwnerAbilityEntity?: Extract<RuntimeTargetRef, { kind: 'abilityEntity' }>;
+  /** 回执与技能生命周期事件的发布主体。 */
+  readonly eventSourceId: string;
+  /** 语义事件注册仍只接受干员；非干员宿主在契约扩展前不得伪造一个。 */
+  readonly semanticEventOwnerOperatorId?: string;
+}
+
+type SkillRuntimeDependencies = {
   readonly clock: CombatClock;
-  readonly resources: CombatResources;
   /** 原生费用属性在开始门禁和实际扣费时分别重新求值。 */
   readonly resolveCosts?: (
     costs: readonly CompiledSkillExecutionProgram['costs'][number][],
@@ -169,12 +188,17 @@ interface SkillRuntimeDependencies {
   /** 原生费用实际应用成功后、同帧时间轴动作前同步发布 OnAfterSkillApplyCost。 */
   readonly emitAfterSkillApplyCost?: (payload: AbilitySkillPayload) => void;
   readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
-}
+  readonly hostIdentity?: SkillRuntimeHostIdentity;
+} & (
+  | { readonly resources: CombatResources; readonly resourceAccount?: never }
+  | { readonly resourceAccount: SkillResourceAccount; readonly resources?: never }
+);
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
 export class SkillRuntime {
   readonly #program: CompiledSkillExecutionProgram;
   readonly #dependencies: SkillRuntimeDependencies;
+  readonly #resourceAccount: SkillResourceAccount;
   readonly #context: CombatExecutionContext = {};
   readonly #blackboard: ActionBlackboard;
   readonly #targetContext = new RuntimeTargetContext();
@@ -200,6 +224,7 @@ export class SkillRuntime {
   #preparationCast = false;
   #timelineFinishRequested = false;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
+  readonly #hostIdentity: SkillRuntimeHostIdentity;
   #pendingTransition: RuntimeSkillTransition | null = null;
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
   #afterCastStart: AfterSkillCastStart | undefined;
@@ -207,7 +232,33 @@ export class SkillRuntime {
   constructor(program: CompiledSkillExecutionProgram, dependencies: SkillRuntimeDependencies) {
     this.#program = program;
     this.#dependencies = dependencies;
+    this.#hostIdentity =
+      dependencies.hostIdentity ??
+      Object.freeze({
+        resourceOperatorId: program.operatorId,
+        actionOwnerId: program.operatorId,
+        actionSourceId: program.operatorId,
+        eventSourceId: program.operatorId,
+        semanticEventOwnerOperatorId: program.operatorId,
+      });
     this.#blackboard = new ActionBlackboard(undefined, dependencies.entityBlackboard);
+    if (dependencies.resourceAccount !== undefined) {
+      if (
+        this.#hostIdentity.resourceOperatorId !== undefined &&
+        dependencies.hostIdentity !== undefined
+      ) {
+        throw new Error('explicit skill resource account must not also select an operator account');
+      }
+      this.#resourceAccount = dependencies.resourceAccount;
+    } else {
+      if (this.#hostIdentity.actionOwnerAbilityEntity !== undefined) {
+        throw new Error('ability entity skill host requires its own explicit resource account');
+      }
+      const operatorId = this.#hostIdentity.resourceOperatorId;
+      if (operatorId === undefined)
+        throw new Error('skill host requires an explicit resource account');
+      this.#resourceAccount = dependencies.resources.bindSkillAccount(operatorId);
+    }
     this.#cooldown =
       dependencies.cooldown ?? new SkillCooldown(program.cooldownFrames, program.costFrame);
     this.#advancesCooldown = dependencies.advancesCooldown ?? true;
@@ -216,6 +267,11 @@ export class SkillRuntime {
       blackboard: this.#blackboard,
       damageCalculationSnapshots: new Map(),
       targetContext: this.#targetContext,
+      actionOwnerId: this.#hostIdentity.actionOwnerId,
+      actionSourceId: this.#hostIdentity.actionSourceId,
+      ...(this.#hostIdentity.actionOwnerAbilityEntity === undefined
+        ? {}
+        : { actionOwnerAbilityEntity: this.#hostIdentity.actionOwnerAbilityEntity }),
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       requestTimelineFinish: () => this.#requestTimelineFinish(),
       getCurrentTimelineFrame: () => roundToEven(this.#passedFrames),
@@ -245,7 +301,7 @@ export class SkillRuntime {
           this.record('CombatConditionEvaluated', { kind: condition.kind, passed }),
       },
       dependencies.semanticEvents,
-      program.operatorId,
+      this.#hostIdentity.semanticEventOwnerOperatorId,
     );
   }
 
@@ -321,10 +377,15 @@ export class SkillRuntime {
     if (this.#skillCastId === 0)
       throw new Error(`skill '${this.#program.skillId}' has not started`);
     const origin = this.#inheritedSkillCastInfo;
+    if (origin === undefined && this.#program.skillType === undefined) {
+      throw new Error(
+        `native-only skill '${this.#program.skillId}' requires inherited SkillCastInfo`,
+      );
+    }
     return {
       skillCastId: this.#skillCastId,
       originSkillId: origin?.originSkillId ?? this.#program.skillId,
-      originSkillType: origin?.originSkillType ?? this.#program.skillType,
+      originSkillType: origin?.originSkillType ?? this.#program.skillType!,
       ...(origin?.originCastId !== undefined
         ? { originCastId: origin.originCastId }
         : this.#program.castId === undefined
@@ -422,9 +483,19 @@ export class SkillRuntime {
   ): boolean {
     const route = this.#program.switchToBuffCast;
     if (
+      route?.currentSkillTypes !== undefined &&
+      currentSkill !== undefined &&
+      currentSkill.skillType === undefined
+    ) {
+      throw new Error(
+        'SwitchToBuffCast player-type condition requires the current skill player type',
+      );
+    }
+    if (
       route === undefined ||
       (route.currentSkillTypes !== undefined &&
         (currentSkill === undefined ||
+          currentSkill.skillType === undefined ||
           !route.currentSkillTypes.includes(currentSkill.skillType))) ||
       (route.requiresCurrentSkillNotInterruptible === true &&
         (currentSkill === undefined || currentSkill.canInterrupt))
@@ -494,10 +565,7 @@ export class SkillRuntime {
         remainingFrames: this.#cooldown.snapshot.remainingFrames,
       });
     }
-    if (
-      !this.#preparedSkipApplyCost &&
-      !this.#dependencies.resources.canPay(this.#program.operatorId, this.#resolvedCosts())
-    ) {
+    if (!this.#preparedSkipApplyCost && !this.#resourceAccount.canPay(this.#resolvedCosts())) {
       this.record('SkillCostUnavailableAtStart');
     }
 
@@ -634,7 +702,7 @@ export class SkillRuntime {
       frame: this.#dependencies.clock.frame,
       time: this.#dependencies.clock.time,
       event,
-      sourceId: this.#program.operatorId,
+      sourceId: this.#hostIdentity.eventSourceId,
       ...(targetId === undefined ? {} : { targetId }),
       data: {
         skillId: this.#program.skillId,
@@ -665,11 +733,9 @@ export class SkillRuntime {
   }
 
   #applyCost(emitSkillEvent: boolean): boolean {
-    const payment = this.#dependencies.resources.pay(
-      this.#program.operatorId,
-      this.#resolvedCosts(this.#preparationCast),
-      { forceTimelinePayment: this.#forceTimelinePayment },
-    );
+    const payment = this.#resourceAccount.pay(this.#resolvedCosts(this.#preparationCast), {
+      forceTimelinePayment: this.#forceTimelinePayment,
+    });
     if (!payment.paid) {
       this.record('SkillCostRejected');
       return false;
@@ -704,10 +770,8 @@ export class SkillRuntime {
     }
     this.record('SkillCostApplied', {
       nonReturnedSpCost: payment.nonReturnedSpCost,
-      remainingSp: this.#dependencies.resources.sp,
-      remainingUltimateEnergy: this.#dependencies.resources.getUltimateEnergy(
-        this.#program.operatorId,
-      ),
+      remainingSp: this.#resourceAccount.sp,
+      remainingUltimateEnergy: this.#resourceAccount.ultimateEnergy,
     });
     if (emitSkillEvent) this.#dependencies.emitAfterSkillApplyCost?.(this.#skillEventPayload());
     return true;
@@ -760,8 +824,8 @@ export class SkillRuntime {
 
   #skillEventPayload(): AbilitySkillPayload {
     return {
-      sourceId: this.#program.operatorId,
-      targetId: this.#program.operatorId,
+      sourceId: this.#hostIdentity.eventSourceId,
+      targetId: this.#hostIdentity.eventSourceId,
       skillType: this.#program.skillType,
       skillId: this.#program.sourceSkillId ?? this.#program.skillId,
       skillCastId: this.#skillCastId,

@@ -94,6 +94,12 @@ export interface CompiledProjectileCallbackSkillProgram extends CompiledSkillAct
   readonly skillId: string;
   readonly nativeSkillType: import('../game-data/operatorDefinition').NativeSkillType;
   readonly naturalDurationFrames: number;
+  readonly castResource: {
+    readonly costFrame: number;
+    readonly cooldownSeconds: number;
+    readonly maxChargeTime: number;
+    readonly cost: CompiledSkillCost & { readonly availabilityThreshold: number };
+  };
 }
 
 /** 等级已经展开、由单个能力实体实例按局部时钟执行的子技能。 */
@@ -462,7 +468,8 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
   readonly executionSkillGroupKey?: string;
   readonly executionSkillId?: string;
   readonly sourceSkillId?: string;
-  readonly skillType: SkillType;
+  /** 只有玩家操作、伤害分类或对应事件确实需要时才存在；原生实体技能不得伪造。 */
+  readonly skillType?: SkillType;
   /** 原生技能实例的初始可变分类；不同于伤害/养成使用的 Endaxis skillType。 */
   readonly nativeSkillType?: import('../game-data/operatorDefinition').NativeSkillType;
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
@@ -492,6 +499,7 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
 export interface CompiledSkillProgram extends CompiledSkillExecutionProgram {
   readonly skillGroupKey: string;
   readonly skillLevel: number;
+  readonly skillType: SkillType;
   readonly timelineBlockFrames: number;
 }
 

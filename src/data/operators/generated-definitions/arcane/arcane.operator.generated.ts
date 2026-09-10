@@ -2537,7 +2537,7 @@ export default {
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
-          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: ['enemy'] },
           sequence(branch({ kind: 'eventInflictionElementIn', elements: ['nature'] }, sequence())),
         ),
       ),
@@ -2550,7 +2550,7 @@ export default {
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
-          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: ['enemy'] },
           sequence(
             branch(
               { kind: 'eventInflictionElementIn', elements: ['heat'] },
@@ -2580,7 +2580,7 @@ export default {
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
-          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: ['enemy'] },
           sequence(
             branch(
               { kind: 'eventInflictionElementIn', elements: ['electric'] },
@@ -2610,7 +2610,7 @@ export default {
       initialValues: { consumed_layer: 0, consumed_type: 0 },
       sequence: sequence(
         branch(
-          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+          { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: ['enemy'] },
           sequence(
             branch(
               { kind: 'eventInflictionElementIn', elements: ['cryo'] },

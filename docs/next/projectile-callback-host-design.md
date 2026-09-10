@@ -2,6 +2,44 @@
 
 核对日期：2026-09-10。此文是未完成实现的约束，不是完成声明。
 
+最新进度：完整回调定义已携带 `SkillCastResourceDefinition`，包括扣费帧、原生冷却秒值、
+尚未解释的 maxChargeTime、可读资源费用和独立可用门槛；生成器与编译器均已贯通。
+这一步没有让临时动作宿主自行解释负冷却，也没有把来源技能类型写成回调自身类型。
+当前已拆出公共 SkillRuntime 的显式宿主身份，并允许 native-only 执行程序省略玩家分类。
+删除适配层仍须接通实体资源策略：SkillRuntime 现已消费绑定宿主的 SkillResourceAccount，
+普通干员通过 CombatResources.bindSkillAccount 转接原账本，不复制支付算法。
+资源依赖以互斥类型要求选择现有战斗账本或显式账户；实体路径不需要 resourceOperatorId。
+实体真实账户、非零费用回执和释放准入仍待接入，测试账户不代表实体账本实现完成。
+已核对复刻库 Skill.CheckCost：atbValueThreshold 始终检查共享 ATB，UltimateSp 费用
+读取实际 owner；不得将阈值误解为终结技能量门槛或默认读取发射干员。
+公共 AbilitySkillPayload 的玩家 skillType 已改为可选；实体技能复用原事件通道，
+不为发布生命周期事件虚构玩家分类，也不复制继承来源的分类。
+依据复刻库 Runtime/Skill.cs 的 CastEnd 与 ApplyCost，以及 docs/skill-end.md：
+这些公共事件不以玩家技能库分类为发布前提。eventSkillTypeIn 实际消费缺失分类时
+仍明确报错，不能用来源分类补值，也不能静默当作不匹配。
+
+同日继续收束了第一层宿主边界：`SkillRuntimeHostIdentity` 已把资源账本干员、动作
+Owner/Source、回执/生命周期事件发布主体，以及只适用于干员的语义事件注册主体拆开。
+普通干员装配显式传入五者相同的身份；能力实体路径可以不提供语义事件干员，不能再靠
+静态程序的 `operatorId` 暗中冒充。投射物与普通能力实体现在共用一场战斗唯一的实例编号
+分配器，投射物内部持有稳定 `RuntimeTargetRef`；公开 `projectileLaunched` 仍只暴露原生
+reset 端口，没有向公共事件载荷添加虚构 ID。旧动作适配器已使用该投射物身份填充回调
+动作 Owner/Source 和 `actionOwnerAbilityEntity`，不再把发射干员当成回调动作宿主。
+
+复查补齐了上一轮遗漏的来源解析：实例编号唯一并不意味着普通能力实体目录包含投射物。
+ProjectileLifecycleRuntime 现在保存投射物的一层 source，装配根的 SourceFinder 和递归
+属性归因共同查询这条关系；SourceFinder(ActionOwner) 优先读取动作 Owner，之后才回退
+Buff Owner。嵌套发射携带当前动作 Source，第二颗投射物指向第一颗，不能直接压成干员。
+来源关系在 beforeReset 与全部 reset 通知期间保留，随后释放；依据复刻库
+launch-projectile-skill-routing 的 OnProjectileRecycle → reset 委托 → ClearSource 顺序。
+这只闭合当前生命周期目录的来源读取，不表示投射物 Buff 容器和所有事件监听已装配。
+
+这仍不是完整宿主迁移：回调尚未由独立 `AbilitySystemRuntime + SkillRuntime` 执行，资源门槛、
+当前技能中断和生命周期事件仍未进入正式生产路径。公共执行程序和 AbilitySystem 技能端口
+现已允许 native-only 技能不提供玩家 `skillType`；只有玩家槽位、玩家切换分支、来源缺失的
+SkillCastInfo 和玩家分类条件会明确要求它。下一步可在不把原生 NormalSkill 伪造成玩家
+`battleSkill` 的前提下创建投射物独立 SkillRuntime，并接入既有回调施放入口。
+
 公共施放入口已合流：tryStartProjectileCallbackSkill 在当前宿主先Default中断，
 再查明确ID/可用性，以 prepareCastInput 准备继承来源，复用普通同步启动的processing
 上下文与前置钩子。不经过槽位解析或post request，不创建另一套事件/动作解释器。
@@ -52,6 +90,25 @@ assignPairs 在发射时求值；回调技能 direct scope 仍在启动回调时
 来替代宿主边界；普通干员的 EntityBB 仍须在同一实体内共享。
 
 ## 为什么不能继续补一个延迟字段
+
+### 实体账户接入前的明确边界（2026-09-10）
+
+- 装配门禁：有 actionOwnerAbilityEntity 的 SkillRuntime 必须提供显式 resourceAccount，
+  不能填写发射者 resourceOperatorId 后接 CombatResources。回归验证拒绝这种误接。
+- 原生零终结技能量费用并非不调用支付：combat-spec Runtime/AbilitySystem.cs 的
+  CostUltimateSp 始终调用 SetUltimateSp；后者先检查系统解锁，再读取 MaxUltimateSp，
+  最后钳制并比较 epsilon。依据 docs/normal-skill-ultimate-sp.md，不能假定属性默认零。
+- 仍需查清投射物实例属性容器中 MaxUltimateSp 的初始化/来源及初始 UltimateSp。
+  后续历史快照取证已确认 attributePatch 为空时走 CreateDefault，并由属性元数据提供
+  默认值；本地两份 AttributeMetaTable 的 MaxUltimateSp 默认值是10，不是0。
+  证据版本与地址以 combat-spec/launch-projectile-skill-routing 对应节为唯一依据。
+  尚不能证明当前水弹无补丁，也不能据此确认当前能量初值。
+  显式测试账户不提供这部分游戏证据，不允许据此删除临时适配器。
+- 当前 SkillPaymentChange 的终结技能量变化仍引用干员 UltimateEnergyChange；
+  resourceChangePoints 也严格要求 recipient=operator。实体非零变化必须先分清通用
+  资源事实与干员资源曲线消费者，不能把实体字符串塞进 operatorId 或显示到发射者轨道。
+- 接入次序：确认实体属性初始化 → 复用已确认的支付数值规则 → 区分资源事实消费者 →
+  接实际准入与独立 AbilitySystem。不得建立一套“投射物专用免费支付”来绕过上述边界。
 
 ### 零距离模型的范围约束
 
@@ -132,6 +189,17 @@ tryStartProjectileCallbackSkill，也未闭合 callback owner 的 beforeCast/Ski
 事件。不能把继承的 SkillCastInfo 当成宿主身份，不能向发射者伪造这些事件。
 后续应复用公共技能宿主收掉这层生命周期适配，避免长期保留平行技能实现。
 自然时长上界跳转、所有发射对象的引用、其余即时投影与完整 Disable 顺序仍是待办。
+
+## 实体账户初始化的证据边界
+
+权威取证记录位于 combat-spec 的 `docs/launch-projectile-skill-routing.md`，本处只记消费约束，
+不复制地址和原生编码。当前确认的历史公共属性路径中，投射物不走普通能力实体的专属属性表；
+复制属性初始化中的终结技能量写入只属于角色路径。不能从这两条事实推导投射物初始能量为零，
+更不能继承发射者账户。首次创建、池化复用以及当前包实际属性补丁仍需闭合。
+
+剩余实施顺序：先证明宿主资源初值及上限来源，再接公共账本及明确主体的支付回执，最后替换
+`ProjectileCallbackActionRuntime`。已有显式账户接口不等于真实实体账户已完成；不得用临时
+零费用账户越过`CostUltimateSp`的Setter语义。取证不扩大到空间运动或敌方主动行为。
 
 ## 必须覆盖的验收用例
 

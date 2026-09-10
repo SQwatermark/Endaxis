@@ -130,6 +130,17 @@ describe('LaunchProjectile 原生新增目标控制', () => {
             },
           ],
         ]),
+        callbackCastResources: new Map([
+          [
+            callbackId,
+            {
+              costFrame: 0,
+              cooldownSeconds: 0,
+              maxChargeTime: 1,
+              cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+            },
+          ],
+        ]),
       },
       callbackContext: returnProjectionContext,
     });
@@ -146,6 +157,12 @@ describe('LaunchProjectile 原生新增目标控制', () => {
                 skillId: callbackId,
                 nativeSkillType: 'normalSkill',
                 naturalDurationFrames: 900,
+                castResource: {
+                  costFrame: 0,
+                  cooldownSeconds: 0,
+                  maxChargeTime: 1,
+                  cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+                },
                 blackboard: { value: 2 },
                 scheduledSequences: [
                   { startFrame: 0, endFrame: 1, sequence: { steps: [] } },

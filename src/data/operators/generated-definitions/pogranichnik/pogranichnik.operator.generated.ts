@@ -2500,7 +2500,7 @@ export default {
                   {
                     kind: 'contextTargetObjectTypeMatch',
                     contextKey: 'trigger',
-                    objectTypeMask: 16400,
+                    objectTypes: ['enemy', 'enemyPart'],
                   },
                   sequence(
                     step('readBuffStackCount', {

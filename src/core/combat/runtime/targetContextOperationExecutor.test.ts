@@ -23,6 +23,34 @@ function vitals(health: number): CombatVitals {
 }
 
 describe('TargetContextOperationExecutor', () => {
+  it('技能动作 Owner 优先于外层 Buff Owner 查询一层来源', () => {
+    const query = vi.fn(() => ({ kind: 'operator' as const, operatorId: 'launcher' }));
+    const executor = new TargetContextOperationExecutor(
+      'definition-owner',
+      terminal,
+      id => id,
+      undefined,
+      query,
+    );
+    const targetContext = new RuntimeTargetContext();
+    executor.execute(
+      {
+        kind: 'mergeContextTargets',
+        parameters: {
+          saveToContextKey: 'source',
+          sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
+        },
+      },
+      {
+        blackboard: new ActionBlackboard(),
+        targetContext,
+        actionOwnerId: 'ability-entity:2',
+        buffOwnerId: 'outer-buff-owner',
+      },
+    );
+    expect(query).toHaveBeenCalledExactlyOnceWith('ability-entity:2');
+    expect(targetContext.get('source')).toEqual([{ kind: 'operator', operatorId: 'launcher' }]);
+  });
   it('SourceFinder 区分动作宿主与来源，只查一层并保留能力实体身份', () => {
     const recursive = vi.fn(() => 'operator:root');
     const query = vi.fn((id: string) =>

@@ -7,6 +7,8 @@ import { customAbilityEvent } from '../events/combatAbilityEvent';
 import { poiseAbilityEvent } from '../events/combatAbilityEvent';
 import { inflictionAbilityEvent } from '../events/combatAbilityEvent';
 import { abilityEventTargetId, abilityEventSourceId } from '../events/combatAbilityEvent';
+import type { CombatObjectType } from '../../../../packages/game-data-contract/src/primitives';
+import { matchesCombatObjectType, resolveCombatObjectType } from './combatObjectType';
 import { spGainAbilityEvent } from '../events/combatAbilityEvent';
 import { physicalAbilityEvent } from '../events/combatAbilityEvent';
 import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
@@ -45,6 +47,7 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       target: 'caster' | 'buffOwner',
       context?: CombatOperationContext,
     ) => import('../../game-data/operatorDefinition').SkillType | undefined,
+    readonly resolveAbilityEntityObjectType?: (instanceId: number) => CombatObjectType,
   ) {}
 
   execute(
@@ -197,17 +200,11 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       if (target === undefined) {
         throw new Error('actionInputTargetObjectTypeMatch requires an action InputTarget');
       }
-      const mask =
-        condition.objectTypeMask & 16 ? condition.objectTypeMask | 16384 : condition.objectTypeMask;
-      const objectType =
-        target.kind === 'enemy'
-          ? 16
-          : target.kind === 'operator'
-            ? 8
-            : target.kind === 'abilityEntity'
-              ? 512
-              : 0;
-      return objectType !== 0 && (mask & objectType) === objectType;
+      if (target.kind === 'spatialPoint') return false;
+      return matchesCombatObjectType(
+        condition.objectTypes,
+        resolveCombatObjectType(target, this.resolveAbilityEntityObjectType),
+      );
     }
     if (condition.kind === 'actionInputTargetIdentityMatch') {
       const target = context.actionInputTarget;
@@ -236,7 +233,11 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (condition.kind === 'eventSkillTypeIn') {
       const skill = skillAbilityEvent(context.event);
-      return skill !== undefined && condition.skillTypes.includes(skill.payload.skillType);
+      if (skill === undefined) return false;
+      if (skill.payload.skillType === undefined) {
+        throw new Error('eventSkillTypeIn requires the current skill player type');
+      }
+      return condition.skillTypes.includes(skill.payload.skillType);
     }
     if (condition.kind === 'eventCustomAbilityNameMatch') {
       const custom = customAbilityEvent(context.event);

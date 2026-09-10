@@ -1,6 +1,7 @@
 import type { GameplayTag, GameplayTagMatchType, GameplayTagQueryType } from './gameplayTags.ts';
 import {
   type BuffSingleTarget,
+  type CombatObjectTypeSelection,
   type CombatTarget,
   type ComparisonOperator,
   type DamageElement,
@@ -128,15 +129,15 @@ export type CombatCondition =
       outputKey?: string;
     }
   | {
-      /** 原生 CheckObjectTypeMatch：命名组中任一对象的类型被 mask 完整包含。 */
+      /** 命名组中任一对象匹配可读类型集合；enemy 同时接受 enemyPart。 */
       kind: 'contextTargetObjectTypeMatch';
       contextKey: string;
-      objectTypeMask: number;
+      objectTypes: CombatObjectTypeSelection;
     }
   | {
       /** 原生事件动作的 InputTarget 对象类型；与物理 eventTarget 方向可能相反。 */
       kind: 'actionInputTargetObjectTypeMatch';
-      objectTypeMask: number;
+      objectTypes: CombatObjectTypeSelection;
     }
   | {
       /** 比较原生事件动作 InputTarget 与 ActionSource/ActionOwner/当前主控身份。 */

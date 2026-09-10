@@ -16,6 +16,7 @@ import type {
   CompiledTimelineAction,
 } from '../../compiler/combatProgram';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type {
   CombatSemanticEventContext,
@@ -378,13 +379,22 @@ class ProjectileFinishCallbackStep extends CombatStep {
       scheduleProjectileFinishCallback: schedule,
     };
     let callback: ProjectileCallbackActionRuntime | undefined;
-    schedule(
+    let callbackEntity: Extract<RuntimeTargetRef, { kind: 'abilityEntity' }> | undefined;
+    const projectile = schedule(
       this.step.parameters.delaySeconds,
       this.step.parameters.recycleDelaySeconds,
       () => {
+        if (callbackEntity === undefined) {
+          throw new Error('projectile callback started before its host identity was assigned');
+        }
         callback = new ProjectileCallbackActionRuntime(
           this.step.callback,
-          detachedContext,
+          {
+            ...detachedContext,
+            actionOwnerId: `ability-entity:${callbackEntity.instanceId}`,
+            actionSourceId: `ability-entity:${callbackEntity.instanceId}`,
+            actionOwnerAbilityEntity: callbackEntity,
+          },
           this.runtime,
         );
         callback.start();
@@ -392,7 +402,9 @@ class ProjectileFinishCallbackStep extends CombatStep {
       () => callback?.end(),
       detachedContext.skillCastInfo,
       delta => callback?.advance(delta),
+      parent.actionSourceId ?? parent.buffSourceId ?? this.runtime.ownerOperatorId,
     );
+    callbackEntity = projectile.target;
     return true;
   }
 }

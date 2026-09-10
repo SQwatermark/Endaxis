@@ -223,6 +223,16 @@ describe('skillStructureMindMapModel', () => {
                         skillId: 'callback',
                         nativeSkillType: 'normalSkill',
                         naturalDurationFrames: 1,
+                        castResource: {
+                          costFrame: 0,
+                          cooldownSeconds: 0,
+                          maxChargeTime: 1,
+                          cost: {
+                            resource: 'ultimateEnergy',
+                            value: 0,
+                            availabilityThreshold: 0,
+                          },
+                        },
                         blackboard: {},
                         scheduledSequences: [
                           {

@@ -381,7 +381,7 @@ describe('Unity RID 条件适配', () => {
             condition: {
               kind: 'contextTargetObjectTypeMatch',
               contextKey: 'trigger',
-              objectTypeMask: 16,
+              objectTypes: ['enemy'],
             },
           },
         },

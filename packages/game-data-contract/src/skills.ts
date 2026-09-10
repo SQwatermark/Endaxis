@@ -23,12 +23,27 @@ export interface SkillActionProgramDefinition {
   scheduledSequences: readonly ScheduledSequenceDefinition[];
 }
 
+/** 原生 Skill CastData 中与动作图独立的施放资源配置。 */
+export interface SkillCastResourceDefinition {
+  /** 从施放开始计数，达到该帧时确认扣费与冷却。 */
+  readonly costFrame: number;
+  /** 保留原生秒值；负值在消费者语义查明前不得改写。 */
+  readonly cooldownSeconds: number;
+  /** 原生字段名尚未完成消费者语义核实，当前只保留其整数值。 */
+  readonly maxChargeTime: number;
+  readonly cost: Readonly<SkillCostDefinition> & {
+    /** ATB 可释放门槛，独立于实际 cost.value。 */
+    readonly availabilityThreshold: LevelValues;
+  };
+}
+
 /** Projectile callback action program; its lifetime is independent from object recycling. */
 export interface ProjectileCallbackSkillDefinition extends Readonly<SkillActionProgramDefinition> {
   readonly skillId: string;
   /** Actual callback identity; never inferred from inherited SkillCastInfo. */
   readonly nativeSkillType: NativeSkillType;
   readonly naturalDurationFrames: number;
+  readonly castResource: SkillCastResourceDefinition;
 }
 
 /** 由一个逻辑能力实体独占、按该实体局部时钟执行的无施法子技能。 */

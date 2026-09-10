@@ -155,7 +155,7 @@ describe('公共连携条件来源与 Pending 编译', () => {
         steps: [
           {
             parameters: {
-              condition: { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+              condition: { kind: 'actionInputTargetObjectTypeMatch', objectTypes: ['enemy'] },
             },
           },
         ],

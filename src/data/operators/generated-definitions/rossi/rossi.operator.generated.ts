@@ -5733,7 +5733,7 @@ export default {
           { kind: 'eventBuffIdMatch', buffIds: ['buff_physical_no_guard'] },
           sequence(
             branch(
-              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: ['enemy'] },
               sequence(
                 branch(
                   {

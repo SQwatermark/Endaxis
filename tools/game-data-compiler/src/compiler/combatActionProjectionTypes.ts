@@ -352,6 +352,7 @@ export type CompiledBuffStepSource =
         readonly skillId: string;
         readonly nativeSkillType: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
         readonly naturalDurationFrames: number;
+        readonly castResource: import('../../../../packages/game-data-contract/src/index.ts').SkillCastResourceDefinition;
         readonly blackboard: Readonly<Record<string, number>>;
         readonly scheduledSequences: readonly {
           readonly startFrame: number;

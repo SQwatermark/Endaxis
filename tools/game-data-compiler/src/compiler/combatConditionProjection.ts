@@ -4,7 +4,7 @@ import { projectGlobalCooldownTarget } from './globalCooldownProjection.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
-import { parseObjectTypeMask } from '../source/objectType.ts';
+import { projectObjectTypeSelection } from '../source/objectType.ts';
 import type { CompiledBuffConditionSource } from './combatActionProjectionTypes.ts';
 import {
   type ProjectedTargetGroup,
@@ -1036,9 +1036,11 @@ function compileConditionLeaf(
       condition.target.targetSource === 'Owner' &&
       condition.target.targetGroupKey === ''
     ) {
-      const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
-      // 闭包来源已证明 Buff owner 是队伍干员；原生 Character 位为 0x08。
-      return { kind: 'constant', value: (mask & 0x08) === 0x08 };
+      const types = projectObjectTypeSelection(
+        condition.objectTypeMask,
+        `${sourcePath}.objectTypeMask`,
+      );
+      return { kind: 'constant', value: types === 'all' || types.includes('character') };
     }
     if (
       (context.actionTargetTarget === 'eventSource' ||
@@ -1047,7 +1049,7 @@ function compileConditionLeaf(
     ) {
       return {
         kind: 'actionInputTargetObjectTypeMatch',
-        objectTypeMask: parseObjectTypeMask(
+        objectTypes: projectObjectTypeSelection(
           condition.objectTypeMask,
           `${sourcePath}.objectTypeMask`,
         ),
@@ -1057,15 +1059,19 @@ function compileConditionLeaf(
       context.actionTargetTarget === 'currentOperator' &&
       condition.target.targetSource === 'Target'
     ) {
-      const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
-      return { kind: 'constant', value: (mask & 0x08) === 0x08 };
+      const types = projectObjectTypeSelection(
+        condition.objectTypeMask,
+        `${sourcePath}.objectTypeMask`,
+      );
+      return { kind: 'constant', value: types === 'all' || types.includes('character') };
     }
     if (context.actionTargetTarget === 'enemy' && condition.target.targetSource === 'Target') {
-      const mask = parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`);
-      // Endaxis 的唯一木桩是原生 ObjectType.Enemy (0x10)。原生查询在 mask
-      // 含 Enemy 时额外加入 EnemyPart，但这不会改变对 Enemy 本体的完整包含判断。
-      // 静态真假使用公共 constant 条件；all/any 必须保留至少一个真实子条件。
-      return { kind: 'constant', value: (mask & 0x10) === 0x10 };
+      const types = projectObjectTypeSelection(
+        condition.objectTypeMask,
+        `${sourcePath}.objectTypeMask`,
+      );
+      // 唯一木桩是 enemy，enemyPart 不反向包含 enemy。
+      return { kind: 'constant', value: types === 'all' || types.includes('enemy') };
     }
     if (condition.target.targetSource !== 'Context' || condition.target.targetGroupKey === '') {
       throw new Error(
@@ -1075,7 +1081,10 @@ function compileConditionLeaf(
     return {
       kind: 'contextTargetObjectTypeMatch',
       contextKey: condition.target.targetGroupKey,
-      objectTypeMask: parseObjectTypeMask(condition.objectTypeMask, `${sourcePath}.objectTypeMask`),
+      objectTypes: projectObjectTypeSelection(
+        condition.objectTypeMask,
+        `${sourcePath}.objectTypeMask`,
+      ),
     };
   }
   if (condition.kind === 'targetIdentity') {

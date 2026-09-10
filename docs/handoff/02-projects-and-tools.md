@@ -1,12 +1,16 @@
 # 项目与工具总览
 
-本文说明整个工作区里每个项目的职责、输入输出和边界。当前台式机工作区以 `D:\Projects` 为基准；
-历史笔记本路径 `C:\Users\sqwat\Projects\zmd` 只用于辨认旧日志，不能直接复制进命令。
+本文只说明各项目的职责、输入输出和边界，不决定当前会话运行在哪台机器。
+机器路径、分支、未提交状态与可用文件分开维护：
+
+- [笔记本环境（2026-09-10本机核验）](2026-09-10-local-workspace.md)
+- [台式机环境（远程历史记录，待核验）](desktop-environment.md)
+
+启动新会话时使用对应环境文档末尾的prompt明确机器；不得把同步来的台式机记录当笔记本状态。
 
 ## 1. Endaxis
 
-- 主仓库：`D:\Projects\Endaxis`
-- 当前工作树与编译器主线：`D:\Projects\Endaxis`，分支 `refactor/common-game-data`
+- 开发工作树与分支：按对应机器的环境文档选择，不能仅凭目录名Endaxis选择。
 - 主要远端：`https://github.com/SQwatermark/Endaxis.git`
 - 上游远端：`https://github.com/Lieyuan621/Endaxis.git`
 - 当前任务：开发 `src` 中的新项目模型、编译器、战斗运行时、投影和并行 UI。
@@ -16,7 +20,7 @@ Endaxis 是最终面向用户的应用。它不负责直接解密游戏文件，
 主要目录：
 
 - `src/core`：框架无关的领域模型、编译器、模拟器和投影；
-- `src/data`：新 DSL、目录和旧数据适配；
+- `src/data`：正式定义、生成目录与数据仓库；不恢复旧版适配器；
 - `src/application`：打开项目、运行场景等用例；
 - `src/ui`：Vue 页面、组件、ViewModel、快捷键和主题；
 - `tools/game-data-compiler`：统一 TypeScript 编译器的唯一新实现入口；公共来源 IR、
@@ -28,10 +32,10 @@ Endaxis 是最终面向用户的应用。它不负责直接解密游戏文件，
 
 ## 2. AKEDatabase 与 AKEDB CDN
 
-- 本地参考前端：`C:\Users\sqwat\Projects\zmd\AKEDatabase`
+- 本地参考前端：AKEDatabase目录，具体路径见环境文档。
 - 仓库：`https://github.com/NagiYume/AKEDatabase.git`
 - CDN：`https://data.akedata.wiki`
-- 当前本地参考版本：`31c3b875`，README 标注含 Baker 模块。
+- 本地版本按环境文档和git日志核对；不要把历史提交号当最新版本。
 
 AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用于当前导出的结构化数据已迁移到 CDN。克隆仓库主要用于研究：
 
@@ -56,10 +60,7 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 
 ## 3. vfs-index-browser
 
-- 路径：`D:\Projects\vfs-index-browser`
-- 当前分支：`master`
-- 2026-08-28 核对提交：`21b88d1 fix(projectile): decode native block layer values`
-- 远程服务历史端口：`8765`
+- 路径、分支与服务状态：见对应环境文档；历史端口不等于当前已运行。
 
 这是独立的本地游戏文件浏览与研究平台，不属于 Endaxis 页面。它的核心目标是：只要机器安装了游戏，就能按逻辑路径浏览、按需提取、预览和下载资源，而不依赖远程 CDN。
 
@@ -86,9 +87,7 @@ AKEDatabase 是一个浏览和解释终末地数据的前端项目；真正用�
 
 ## 4. AnimeStudio
 
-- 路径：`D:\Projects\AnimeStudio`
-- 当前分支：`feature/endfield-animation-acl`
-- 当前提交：`8cdec96 feat: resolve shader resource bindings`
+- 路径、分支与远端：见对应环境文档；注意本机origin曾指向临时bundle。
 
 AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中，它不是一次性第三方命令，而是经过修改、需要版本管理和测试的底层组件。
 
@@ -110,10 +109,9 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 5. IL2CPP-Dumper
 
-- 路径：`D:\Projects\IL2CPP-Dumper`
+- 路径：见对应环境文档。
 - 仓库：`https://github.com/DeftSolutions-dev/IL2CPP-Dumper.git`
-- 当前分支：`feature/comprehensive-runtime-dump`
-- 当前提交：`64685c3 Add safe IFix patch probes`
+- 分支、提交与个人远端：见对应环境文档，不自动向上游推送。
 
 该工具用于从终末地 IL2CPP 客户端获取静态与运行时证据。当前分支增加了面向战斗系统的批量方法探针、IFix 热更新分支和更完整的 dump 能力。
 
@@ -129,8 +127,7 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 6. combat-runtime-dumps
 
-- 笔记本历史路径：`C:\Users\sqwat\Projects\zmd\combat-runtime-dumps`；台式机若未同步该目录，不得假定存在
-- 当前主要版本目录：`1.4.4`
+- 各机器实际快照、版本、路径和哈希见对应环境文档；不可假定已跨机器同步。
 
 这里保存已经从远程主机拉回本地的运行时证据，包括：
 
@@ -143,8 +140,8 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 7. Endfield Combat Spec
 
-- 路径：`D:\Projects\combat-spec`
-- 独立仓库：`https://github.com/SQwatermark/combat-spec.git`，分支 `main`；必须单独提交和同步
+- 工作树和分支：见对应环境文档；不要默认选择main或VFS内部的旧工作树。
+- 独立仓库：`https://github.com/SQwatermark/combat-spec.git`；必须单独提交和同步。
 - 解决方案：`EndfieldCombatSpec.sln`
 
 这是独立的 C# 可执行战斗规格，目标是根据反编译、运行时探针和原始配置，尽可能 1:1 复刻客户端后端战斗行为。它不是“把旧 Endaxis 翻译成 C#”，也不是为 UI 定制的简化模拟器。
@@ -161,8 +158,7 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 8. vfs-index-browser-audio 与 audio-dialog 工作区
 
-- `C:\Users\sqwat\Projects\zmd\vfs-index-browser-audio`
-- `C:\Users\sqwat\Projects\zmd\vfs-index-browser-audio-dialog`
+- 工作树名为vfs-index-browser-audio、vfs-index-browser-audio-dialog，路径和脏状态见环境文档。
 
 这两个是从 VFS 浏览器分出的专题工作区，用于并行研究而避免主线冲突：
 
@@ -177,7 +173,7 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ### Variante/endfield_research_kit
 
-- 本地浅克隆：`C:\Users\sqwat\Projects\zmd\.tmp-endfield-research-kit`
+- 本地参考克隆：`.tmp-endfield-research-kit`，存在性见环境文档。
 - 仓库：`https://github.com/Variante/endfield_research_kit.git`
 
 用于参考终末地资源格式、故事恢复、角色模型和动画工具链。它是参考资料，不是当前服务运行依赖。
@@ -196,18 +192,8 @@ AnimeStudio 是 C# 编写的 Unity 资源解析和导出工具。在本项目中
 
 ## 10. 远程 Windows 主机与游戏
 
-游戏和完整资源位于远程 Windows 台式机。历史地址包括：
-
-- 家庭局域网：`192.168.199.183`；
-- DHCP 变化后：`192.168.149.17`；
-- Tailscale：`100.64.0.64`；
-- OpenSSH 用户：`Admin`。
-
-游戏可执行文件历史路径为：
-
-`D:\Hypergryph Launcher\games\Endfield Game\Endfield.exe`
-
-远程研究项目历史上位于 `D:\Projects`，包括 `combat-probe`、AnimeStudio 构建产物和 VFS 服务。地址和服务是否可达不能靠历史记录推断，应先测试 SSH 和端口。服务一般运行在 `8765`，Endaxis 本地开发常用 `5173`。
+台式机历史连接、游戏和服务路径只维护于[台式机环境](desktop-environment.md)。
+当前机器由会话prompt明确，地址和服务是否可达须实际核验；不在公共项目总览维护第二份状态。
 
 ## 11. 临时目录与搁置内容
 

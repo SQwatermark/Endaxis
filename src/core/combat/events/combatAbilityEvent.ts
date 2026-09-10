@@ -249,7 +249,8 @@ export interface AbilityBuffEnhancePayload {
 }
 
 export interface AbilitySkillPayload extends AbilityOriginPayload {
-  readonly skillType: SkillType;
+  /** 玩家技能库分类；实体内部技能没有此分类，不沿用继承来源的分类。 */
+  readonly skillType?: SkillType;
   readonly skillId: string;
   readonly skillCastId: number;
   readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;

@@ -15,6 +15,7 @@ const fieldLabels: Record<string, string> = {
   valueType: 'healthValueType',
   returnValueIfMissing: 'returnValueIfPoiseMissing',
   contextKey: 'conditionContextKey',
+  objectTypes: 'objectTypeSelection',
   flag: 'contextFlag',
   skillTypes: 'cooldownSkillType',
   skillType: 'cooldownSkillType',

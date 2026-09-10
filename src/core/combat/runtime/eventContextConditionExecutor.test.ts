@@ -11,6 +11,32 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('实体技能事件不能借来源分类参与玩家技能类型判断', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    expect(() =>
+      executor.evaluate(
+        { kind: 'eventSkillTypeIn', skillTypes: ['comboSkill'] },
+        {
+          blackboard: new ActionBlackboard(),
+          skillCastInfo: {
+            skillCastId: 42,
+            originSkillId: 'origin',
+            originSkillType: 'comboSkill',
+            nonReturnedSpCost: 0,
+          },
+          event: {
+            event: 'skillEnd',
+            payload: {
+              sourceId: 'ability-entity:1',
+              targetId: 'ability-entity:1',
+              skillId: 'callback',
+              skillCastId: 42,
+            },
+          },
+        },
+      ),
+    ).toThrow('eventSkillTypeIn requires the current skill player type');
+  });
   it.each(['abilityEntitySpawned', 'abilityEntityFinished'] as const)(
     '%s 来源条件读取控制器保存的来源，不回退宿主',
     event => {
@@ -138,7 +164,7 @@ describe('EventContextConditionExecutor', () => {
       },
     };
     expect(
-      executor.evaluate({ kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 8 }, context),
+      executor.evaluate({ kind: 'actionInputTargetObjectTypeMatch', objectTypes: ['character'] }, context),
     ).toBe(true);
     expect(
       executor.evaluate(

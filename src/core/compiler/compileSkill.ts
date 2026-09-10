@@ -200,6 +200,24 @@ function resolveStep(
           ),
           naturalDurationFrames: step.callback.naturalDurationFrames,
           nativeSkillType: step.callback.nativeSkillType,
+          castResource: {
+            costFrame: step.callback.castResource.costFrame,
+            cooldownSeconds: step.callback.castResource.cooldownSeconds,
+            maxChargeTime: step.callback.castResource.maxChargeTime,
+            cost: {
+              resource: step.callback.castResource.cost.resource,
+              value: resolveLevelValue(
+                step.callback.castResource.cost.value,
+                skillLevel,
+                `${path}.callback.castResource.cost.value`,
+              ),
+              availabilityThreshold: resolveLevelValue(
+                step.callback.castResource.cost.availabilityThreshold,
+                skillLevel,
+                `${path}.callback.castResource.cost.availabilityThreshold`,
+              ),
+            },
+          },
         },
       };
     case 'spawnAbilityEntity': {

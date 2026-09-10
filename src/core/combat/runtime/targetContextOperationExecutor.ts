@@ -1,4 +1,6 @@
 import { abilityEventTargetId } from '../events/combatAbilityEvent';
+import type { CombatObjectType } from '../../../../packages/game-data-contract/src/primitives';
+import { matchesCombatObjectType, resolveCombatObjectType } from './combatObjectType';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
@@ -21,6 +23,8 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     readonly characterTeam?: CharacterTeamTargetQueryDependencies,
     /** 单层原生来源查询，不能传入递归追溯到干员的旧解析端口。 */
     readonly findAbilitySystemSource?: (ownerId: string) => RuntimeTargetRef,
+    /** 共用实体句柄不代表共用原生类型；正式装配从实例目录查询。 */
+    readonly resolveAbilityEntityObjectType?: (instanceId: number) => CombatObjectType,
   ) {}
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
@@ -78,7 +82,7 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     }
     const ownerId =
       owner === 'actionOwner'
-        ? context.buffOwnerId
+        ? (context.actionOwnerId ?? context.buffOwnerId)
         : (context.actionSourceId ?? context.buffSourceId);
     // 本轮只接入带明确身份的 Buff/动作回调；定义所属干员不等于实体子技能的动作宿主。
     if (ownerId === undefined) throw new Error(`SourceFinder ${owner} identity is unavailable`);
@@ -164,12 +168,11 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
     if (condition.kind === 'contextTargetObjectTypeMatch') {
       if (context?.targetContext === undefined)
         throw new Error('object type check requires a combat target context');
-      // combat-spec CheckObjectTypeMatchAction：Enemy 同时接受 EnemyPart；不是简单的任一位相交。
-      const mask =
-        condition.objectTypeMask & 16 ? condition.objectTypeMask | 16384 : condition.objectTypeMask;
       return (context.targetContext.getOptional(condition.contextKey) ?? []).some(target => {
-        const objectType = target.kind === 'enemy' ? 16 : target.kind === 'operator' ? 8 : 512;
-        return (mask & objectType) === objectType;
+        return matchesCombatObjectType(
+          condition.objectTypes,
+          resolveCombatObjectType(target, this.resolveAbilityEntityObjectType),
+        );
       });
     }
     if (condition.kind === 'contextTargetIdentityMatch') {

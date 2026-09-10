@@ -61,6 +61,17 @@ export interface SkillPaymentResult {
   readonly changes: readonly SkillPaymentChange[];
 }
 
+/** 已绑定实际技能宿主的资源端口；执行器不负责把实体身份映射成干员。 */
+export interface SkillResourceAccount {
+  readonly sp: number;
+  readonly ultimateEnergy: number;
+  canPay(costs: readonly CompiledSkillCost[]): boolean;
+  pay(
+    costs: readonly CompiledSkillCost[],
+    options?: { readonly forceTimelinePayment?: boolean },
+  ): SkillPaymentResult;
+}
+
 /** 技能支付直接产生的资源变化；运行时凭它记录事实，不再次读取或计算账本。 */
 export type SkillPaymentChange =
   | {
@@ -358,6 +369,21 @@ export class CombatResources {
         cost.resource === 'sp' ? this.#sp : this.#requireOperator(operatorId).ultimateEnergy;
       return available + RESOURCE_EPSILON >= cost.value;
     });
+  }
+
+  /** 只绑定寻址，不复制状态或支付算法；读取始终返回当前账本值。 */
+  bindSkillAccount(operatorId: string): SkillResourceAccount {
+    const resources = this;
+    return {
+      get sp() {
+        return resources.sp;
+      },
+      get ultimateEnergy() {
+        return resources.getUltimateEnergy(operatorId);
+      },
+      canPay: costs => resources.canPay(operatorId, costs),
+      pay: (costs, options) => resources.pay(operatorId, costs, options),
+    };
   }
 
   pay(

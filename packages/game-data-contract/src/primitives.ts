@@ -4,6 +4,27 @@
  */
 export const OPERATOR_ATTRIBUTES = ['strength', 'agility', 'intellect', 'will'] as const;
 
+/** 可读的战斗对象身份；原生整数/位掩码只属于转换器来源层。 */
+export const COMBAT_OBJECT_TYPES = [
+  'invalid',
+  'character',
+  'enemy',
+  'interactive',
+  'projectile',
+  'factoryRegion',
+  'npc',
+  'abilityEntity',
+  'cinematicEntity',
+  'remoteFactoryEntity',
+  'creature',
+  'godEntity',
+  'enemyPart',
+  'socialBuilding',
+] as const;
+export type CombatObjectType = (typeof COMBAT_OBJECT_TYPES)[number];
+/** 空集合不匹配任何对象，all 匹配全部；enemy 查询同时接受 enemyPart。 */
+export type CombatObjectTypeSelection = readonly CombatObjectType[] | 'all';
+
 /** 干员养成、面板和条件判断共同使用的四维属性身份。 */
 export type OperatorAttribute = (typeof OPERATOR_ATTRIBUTES)[number];
 

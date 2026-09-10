@@ -1684,7 +1684,7 @@ export default {
           },
           sequence(
             branch(
-              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: 16 },
+              { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: ['enemy'] },
               sequence(),
             ),
           ),

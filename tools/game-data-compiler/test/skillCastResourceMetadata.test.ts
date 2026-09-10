@@ -1,6 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { parseSkillCastResourceMetadataSource } from '../src/source/activeSkill.ts';
-import { parseSkillCostSource } from '../src/source/skillCost.ts';
+import {
+  parseSkillCostSource,
+  projectSkillCastResourceDefinitionSource,
+} from '../src/source/skillCost.ts';
 
 const costData = { costType: 'UltimateSp', costValue: 0, atbValueThreshold: 0 };
 const castData = { startCdFrame: 9, cooldownTime: -1, maxChargeTime: 1, costData };
@@ -12,6 +15,27 @@ describe('native skill cast resource metadata', () => {
   it('uses the same CostData reader as damage costs', () => {
     const result = parseSkillCastResourceMetadataSource({ castData }, 'callback');
     expect(result.costData).toEqual(parseSkillCostSource(costData, 'damage.costDataList[0]'));
+  });
+  it('projects readable resources while preserving threshold and uninterpreted native values', () => {
+    expect(
+      projectSkillCastResourceDefinitionSource(
+        parseSkillCastResourceMetadataSource({ castData }, 'callback'),
+        'callback.castData',
+      ),
+    ).toEqual({
+      costFrame: 9,
+      cooldownSeconds: -1,
+      maxChargeTime: 1,
+      cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+    });
+  });
+  it('rejects unknown resource names instead of passing native strings into the contract', () => {
+    expect(() =>
+      projectSkillCastResourceDefinitionSource(
+        { ...castData, costData: { ...costData, costType: 'Unknown' } },
+        'callback.castData',
+      ),
+    ).toThrow("unsupported value 'Unknown'");
   });
   it.each(['startCdFrame', 'cooldownTime', 'maxChargeTime', 'costData'])(
     'rejects missing %s',

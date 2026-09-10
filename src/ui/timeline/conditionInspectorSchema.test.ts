@@ -9,6 +9,21 @@ import { validateComparisonInspector } from './combatInspectorFields';
 import { initialInspectorValue, matchesInspectorValue } from './inspectorFields';
 
 describe('契约驱动条件 Inspector', () => {
+  it.each(['contextTargetObjectTypeMatch', 'actionInputTargetObjectTypeMatch'] as const)(
+    '%s 从契约生成可读类型集合与全部对象选项',
+    kind => {
+      const field = conditionInspectorFields(kind)!.find(field => field.key === 'objectTypes')!;
+      expect(field.editor).toBe('union');
+      const variants = field.variants!;
+      expect(
+        variants.find(shape => matchesInspectorValue(shape, ['projectile', 'abilityEntity']))?.type,
+      ).toBe('enumList');
+      expect(variants.find(shape => matchesInspectorValue(shape, 'all'))?.type).toBe('enum');
+      for (const value of [64, 512, '64', ['512']]) {
+        expect(variants.some(shape => matchesInspectorValue(shape, value))).toBe(false);
+      }
+    },
+  );
   it('原生混合联合保留值形式，显示不把字符串、数值和布尔值互转', () => {
     const field = conditionInspectorFields('contextFlagEquals')!.find(
       field => field.key === 'value',

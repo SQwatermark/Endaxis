@@ -1625,7 +1625,7 @@ export default {
       initialValues: null,
       sequence: sequence(
         branch(
-          { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+          { kind: 'actionInputTargetObjectTypeMatch', objectTypes: ['enemy'] },
           sequence(
             branch(
               {
@@ -1647,7 +1647,7 @@ export default {
       initialValues: null,
       sequence: sequence(
         branch(
-          { kind: 'actionInputTargetObjectTypeMatch', objectTypeMask: 16 },
+          { kind: 'actionInputTargetObjectTypeMatch', objectTypes: ['enemy'] },
           sequence(
             branch(
               { kind: 'eventBuffIdMatch', buffIds: ['buff_common_originum_frozen'] },

@@ -31,6 +31,27 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
+  it('技能账户只绑定宿主，持续读取和修改同一战斗账本', () => {
+    const resources = createResources();
+    const account = resources.bindSkillAccount('source');
+    const other = resources.bindSkillAccount('other');
+    resources.changeUltimateEnergy('source', 20);
+    expect(account.ultimateEnergy).toBe(30);
+    expect(other.ultimateEnergy).toBe(0);
+    expect(account.canPay([{ resource: 'ultimateEnergy', value: 10 }])).toBe(true);
+    expect(other.canPay([{ resource: 'ultimateEnergy', value: 10 }])).toBe(false);
+    expect(
+      account.pay([
+        { resource: 'sp', value: 20 },
+        { resource: 'ultimateEnergy', value: 10 },
+      ]).paid,
+    ).toBe(true);
+    expect(account.sp).toBe(80);
+    expect(other.sp).toBe(80);
+    expect(account.ultimateEnergy).toBe(20);
+    expect(resources.getUltimateEnergy('source')).toBe(20);
+    expect(other.ultimateEnergy).toBe(0);
+  });
   it('每次正向回能都重新读取运行时 UltimateSpGainScalar', () => {
     let multiplier = 1;
     const resources = new CombatResources(createResources().snapshot(), {

@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import type {
   CompiledOperatorPassiveProgram,
+  ResolvedCombatStep,
   CompiledSkillProgram,
   CompiledSkillSlotGroup,
 } from '../../compiler/combatProgram';
@@ -274,6 +275,96 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('嵌套投射物的正式来源查询保留一层实体关系，发射事件归实际发射者', () => {
+    const emitAbilityEvent = vi.fn();
+    const callbackStep = (steps: readonly ResolvedCombatStep[]): ResolvedCombatStep => ({
+      kind: 'scheduleProjectileFinishCallback',
+      parameters: { delaySeconds: 0.01, recycleDelaySeconds: 10 },
+      callback: {
+        skillId: 'callback',
+        nativeSkillType: 'normalSkill',
+        naturalDurationFrames: 3,
+        initialBlackboard: {},
+        castResource: {
+          costFrame: 0,
+          cooldownSeconds: 0,
+          maxChargeTime: 1,
+          cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+        },
+        timelineActions: [{ startFrame: 0, endFrame: 0, sequence: { steps } }],
+      },
+    });
+    const sourceProbe = (
+      objectType: import('../../../../packages/game-data-contract/src/primitives').CombatObjectType,
+      name: string,
+    ): ResolvedCombatStep[] => [
+      {
+        kind: 'mergeContextTargets',
+        parameters: {
+          saveToContextKey: 'source',
+          sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
+        },
+      },
+      {
+        kind: 'conditional',
+        parameters: {
+          condition: {
+            kind: 'contextTargetObjectTypeMatch',
+            contextKey: 'source',
+            objectTypes: [objectType],
+          },
+        },
+        whenTrue: {
+          steps: [
+            {
+              kind: 'triggerCustomAbilityEvent',
+              parameters: {
+                target: 'caster',
+                source: 'currentAbilityEntity',
+                eventName: name,
+                eventParam: 1,
+              },
+            },
+          ],
+        },
+      },
+    ];
+    const assembly = createAssembly({
+      ...nativeEventRuntimeOptions(),
+      emitAbilityEvent,
+      programs: [
+        skill({
+          costs: [],
+          costFrame: undefined,
+          timelineActions: [
+            {
+              startFrame: 0,
+              sequence: {
+                steps: [
+                  callbackStep([
+                    ...sourceProbe('character', 'source-is-operator'),
+                    callbackStep([
+                      ...sourceProbe('projectile', 'source-is-projectile'),
+                      ...sourceProbe('abilityEntity', 'incorrect-ability-entity-match'),
+                    ]),
+                  ]),
+                ],
+              },
+            },
+          ],
+        }),
+      ],
+    });
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    assembly.advanceFrames(2);
+    const launches = emitAbilityEvent.mock.calls.filter(call => call[1] === 'projectileLaunched');
+    expect(launches.map(call => call[0])).toEqual(['operator', 'ability-entity:1']);
+    expect(
+      emitAbilityEvent.mock.calls
+        .filter(call => call[1] === 'customAbilityEvent')
+        .map(call => call[2].eventName),
+    ).toEqual(['source-is-operator', 'source-is-projectile']);
+  });
   it('显式延迟 Skill ID 的来源身份与 BeforeCast 不被当前技能槽改写', () => {
     const emitAbilityEvent = vi.fn();
     const base = skill({
@@ -359,6 +450,16 @@ describe('CombatRuntimeAssembly', () => {
                       skillId: 'callback',
                       nativeSkillType: 'normalSkill',
                       naturalDurationFrames: 1,
+                      castResource: {
+                        costFrame: 0,
+                        cooldownSeconds: 0,
+                        maxChargeTime: 1,
+                        cost: {
+                          resource: 'ultimateEnergy',
+                          value: 0,
+                          availabilityThreshold: 0,
+                        },
+                      },
                       initialBlackboard: {},
                       timelineActions: [{ startFrame: 0, endFrame: 0, sequence: { steps: [] } }],
                     },
@@ -376,6 +477,7 @@ describe('CombatRuntimeAssembly', () => {
     const cast = emitAbilityEvent.mock.calls.find(call => call[1] === 'beforeCastSkill');
     expect(launch?.[0]).toBe('operator');
     expect(launch?.[2].sourceId).toBe('operator');
+    expect(launch?.[2].entity).not.toHaveProperty('target');
     expect(launch?.[2].skillCastInfo.skillCastId).toBe(cast?.[2].skillCastId);
     const reset = vi.fn();
     launch?.[2].entity.onReset(reset);

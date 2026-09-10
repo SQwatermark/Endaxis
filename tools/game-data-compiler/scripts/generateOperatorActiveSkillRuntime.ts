@@ -17,6 +17,8 @@ import {
   type ProjectileRuntimeSource,
 } from '../src/source/projectileRuntime.ts';
 import { parseSkillPatchSource } from '../src/source/skillPatch.ts';
+import { parseSkillCastResourceMetadataSource } from '../src/source/activeSkill.ts';
+import { projectSkillCastResourceDefinitionSource } from '../src/source/skillCost.ts';
 import { parseKnownSkillActionGraphSource } from '../src/source/skillActionGraph.ts';
 import {
   prepareSkillDefinitionInputSource,
@@ -126,9 +128,17 @@ function loadProjectileCallbackClosure(
 ): {
   readonly launches: readonly ProjectileLaunchActionSource[];
   readonly callbackGraphs: ReadonlyMap<string, ReturnType<typeof parseKnownSkillActionGraphSource>>;
+  readonly callbackCastResources: ReadonlyMap<
+    string,
+    ReturnType<typeof projectSkillCastResourceDefinitionSource>
+  >;
 } {
   const launches = [...initialLaunches];
   const callbackGraphs = new Map<string, ReturnType<typeof parseKnownSkillActionGraphSource>>();
+  const callbackCastResources = new Map<
+    string,
+    ReturnType<typeof projectSkillCastResourceDefinitionSource>
+  >();
   for (let index = 0; index < launches.length; index += 1) {
     for (const callback of launches[index]!.callbacks) {
       if (!callback.enabled || callbackGraphs.has(callback.skillId)) continue;
@@ -139,10 +149,17 @@ function loadProjectileCallbackClosure(
       const prepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
       const graph = parseKnownSkillActionGraphSource(value, id, prepared.blackboard.values);
       callbackGraphs.set(id, graph);
+      callbackCastResources.set(
+        id,
+        projectSkillCastResourceDefinitionSource(
+          parseSkillCastResourceMetadataSource(value, `SkillData.${id}`),
+          `SkillData.${id}.castData`,
+        ),
+      );
       launches.push(...collectProjectileLaunches(graph));
     }
   }
-  return { launches, callbackGraphs };
+  return { launches, callbackGraphs, callbackCastResources };
 }
 
 type ProjectileBlackboardTemplate = {
@@ -254,7 +271,12 @@ export function prepareProjectileProjection(
     CombatActionProjectionExtensionsSource['compileProjectileLaunch']
   >;
   compileProjectileLaunch = createZeroDistanceProjectileProjectionExtensionSource({
-    catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
+    catalog: {
+      runtimes: runtimeCatalog,
+      templates: templateCatalog,
+      callbackGraphs,
+      callbackCastResources: closure.callbackCastResources,
+    },
     callbackContext,
     callbackExtensions: {
       resolveTimeDilationPriority,
@@ -509,7 +531,12 @@ export function planOperatorActiveSkillRuntime(
   );
   let projectile: NonNullable<CombatActionProjectionExtensionsSource['compileProjectileLaunch']>;
   projectile = createZeroDistanceProjectileProjectionExtensionSource({
-    catalog: { runtimes: runtimeCatalog, templates: templateCatalog, callbackGraphs },
+    catalog: {
+      runtimes: runtimeCatalog,
+      templates: templateCatalog,
+      callbackGraphs,
+      callbackCastResources: projectileClosure.callbackCastResources,
+    },
     callbackContext: {
       gameplayTagRegistry: registry,
       actionOwnerTarget: 'unavailable',

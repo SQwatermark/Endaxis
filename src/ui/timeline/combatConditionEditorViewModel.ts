@@ -79,9 +79,9 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
     case 'contextTargetCountCompare':
       return { kind, contextKey: 'custom-targets', operator: 'greaterOrEqual', value: 1 };
     case 'contextTargetObjectTypeMatch':
-      return { kind, contextKey: 'custom-targets', objectTypeMask: 16 };
+      return { kind, contextKey: 'custom-targets', objectTypes: ['enemy'] };
     case 'actionInputTargetObjectTypeMatch':
-      return { kind, objectTypeMask: 16 };
+      return { kind, objectTypes: ['enemy'] };
     case 'actionInputTargetIdentityMatch':
       return { kind, other: 'controlledOperator', operator: 'equal' };
     case 'contextTargetIdentityMatch':

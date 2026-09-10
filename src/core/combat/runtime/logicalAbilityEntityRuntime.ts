@@ -19,6 +19,7 @@ import {
 import type { GameplayTag } from '../tags/gameplayTags';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
+import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied' | 'stackingLimit';
@@ -124,15 +125,18 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   readonly #deadSources: RuntimeTargetRef[] = [];
   readonly #hooks: LogicalAbilityEntityRuntimeHooks;
   readonly #resolveDeltaSeconds: (snapshot: LogicalAbilityEntitySnapshot) => number;
-  #nextInstanceId = 1;
+  readonly #allocateInstanceId: () => number;
 
   constructor(options: {
     readonly hooks?: LogicalAbilityEntityRuntimeHooks;
     /** 后续时间膨胀接线点；省略时使用一帧的普通实体时间。 */
     readonly resolveDeltaSeconds?: (snapshot: LogicalAbilityEntitySnapshot) => number;
+    readonly allocateInstanceId?: () => number;
   }) {
     this.#hooks = options.hooks ?? {};
     this.#resolveDeltaSeconds = options.resolveDeltaSeconds ?? (() => COMBAT_FRAME_INTERVAL);
+    const instanceIds = new AbilityEntityInstanceIdAllocator();
+    this.#allocateInstanceId = options.allocateInstanceId ?? (() => instanceIds.allocate());
   }
 
   get activeCount(): number {
@@ -186,7 +190,13 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
           ? request.definition.lifetime.durationSeconds
           : null
         : requireDuration(request.overrideDurationSeconds, 'override duration');
-    const instanceId = this.#nextInstanceId++;
+    const instanceId = this.#allocateInstanceId();
+    if (!Number.isSafeInteger(instanceId) || instanceId <= 0) {
+      throw new RangeError('AbilityEntity instance id must be a positive safe integer');
+    }
+    if (this.#instances.has(instanceId)) {
+      throw new Error(`duplicate AbilityEntity instance id '${instanceId}'`);
+    }
     let instance!: LogicalAbilityEntityInstance;
     instance = {
       ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),

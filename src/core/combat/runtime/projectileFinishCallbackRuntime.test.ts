@@ -8,6 +8,13 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { compileActionSequence } from '../../compiler/compileSkill';
 import { ProjectileCallbackActionRuntime } from './projectileCallbackActionRuntime';
 
+const zeroCastResource = {
+  costFrame: 0,
+  cooldownSeconds: 0,
+  maxChargeTime: 1,
+  cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+} as const;
+
 const probe = {
   kind: 'setContextFlag',
   parameters: { flag: 'probe', value: true, target: 'caster' },
@@ -38,6 +45,7 @@ function delayedProbe(): ResolvedActionSequence {
                 skillId: 'callback',
                 nativeSkillType: 'normalSkill',
                 naturalDurationFrames: 1,
+                castResource: zeroCastResource,
                 initialBlackboard: {},
                 timelineActions: [
                   {
@@ -91,6 +99,7 @@ describe('projectile callback action lifecycle', () => {
         skillId: 'callback',
         nativeSkillType: 'normalSkill',
         naturalDurationFrames: 5,
+        castResource: zeroCastResource,
         initialBlackboard: {},
         timelineActions: [
           { startFrame: 0, endFrame: 20, sequence: { steps: [probe] } },
@@ -136,6 +145,7 @@ describe('projectile callback action lifecycle', () => {
         skillId: 'callback',
         nativeSkillType: 'normalSkill',
         naturalDurationFrames: 100,
+        castResource: zeroCastResource,
         initialBlackboard: {},
         timelineActions: [
           { startFrame: 0, endFrame: 10, sequence: { steps: [probe] } },
@@ -173,6 +183,12 @@ describe('projectile callback action lifecycle', () => {
           );
           expect(context!.blackboard.getNumber('seed')).toBe(7);
           expect(context!.skillCastInfo?.skillCastId).toBe(42);
+          expect(context!.actionOwnerId).toBe('ability-entity:1');
+          expect(context!.actionSourceId).toBe('ability-entity:1');
+          expect(context!.actionOwnerAbilityEntity).toEqual({
+            kind: 'abilityEntity',
+            instanceId: 1,
+          });
           if (step.parameters.flag === 'write') {
             context!.blackboard.assignDynamic('value', 2);
             context!.attachBuffToCurrentSkill!({
@@ -207,6 +223,7 @@ describe('projectile callback action lifecycle', () => {
             abilityRuntime: { advanceFrame: () => advance!(COMBAT_FRAME_INTERVAL) },
           });
           projectile.onReset(() => trace.push(`${frame}:reset`));
+          return projectile;
         },
       },
     );
@@ -221,6 +238,12 @@ describe('projectile callback action lifecycle', () => {
                 skillId: 'callback',
                 nativeSkillType: 'normalSkill',
                 naturalDurationFrames: 3,
+                castResource: {
+                  costFrame: 0,
+                  cooldownSeconds: 0,
+                  maxChargeTime: 1,
+                  cost: { resource: 'ultimateEnergy', value: 0, availabilityThreshold: 0 },
+                },
                 blackboard: { value: 1 },
                 scheduledSequences: [
                   {
@@ -307,6 +330,7 @@ describe('projectile callback action lifecycle', () => {
             beforeReset,
           });
           instance.onReset(() => trace.push('reset'));
+          return instance;
         },
       },
     );
@@ -319,6 +343,7 @@ describe('projectile callback action lifecycle', () => {
             skillId: 'callback',
             nativeSkillType: 'normalSkill',
             naturalDurationFrames: 1,
+            castResource: zeroCastResource,
             initialBlackboard: {},
             timelineActions: [{ startFrame: 0, endFrame: 0, sequence: { steps: [probe] } }],
           },
@@ -359,7 +384,7 @@ describe('projectile callback action lifecycle', () => {
         execute,
         beforeReset,
       ) => {
-        scheduler.launch({
+        return scheduler.launch({
           finishDelaySeconds: delaySeconds,
           recycleDelaySeconds,
           resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
@@ -427,7 +452,7 @@ describe('projectile callback action lifecycle', () => {
         execute,
         beforeReset,
       ) => {
-        scheduler.launch({
+        return scheduler.launch({
           finishDelaySeconds: delaySeconds,
           recycleDelaySeconds,
           resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,

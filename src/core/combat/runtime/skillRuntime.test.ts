@@ -97,6 +97,36 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('能力实体宿主不能借发射干员的资源账本通过装配', () => {
+    const fixture = createBattleSkillRuntime(300);
+    expect(
+      () =>
+        new SkillRuntime(
+          {
+            operatorId: 'perlica',
+            skillId: 'callback',
+            nativeSkillType: 'normalSkill',
+            initialBlackboard: {},
+            timelineActions: [],
+            costs: [],
+          },
+          {
+            clock: fixture.clock,
+            resources: fixture.resources,
+            receipt: fixture.receipt,
+            operations: fixture.operations,
+            allocateSkillCastId: () => 1,
+            hostIdentity: {
+              resourceOperatorId: 'perlica',
+              actionOwnerId: 'ability-entity:1',
+              actionSourceId: 'ability-entity:1',
+              eventSourceId: 'ability-entity:1',
+              actionOwnerAbilityEntity: { kind: 'abilityEntity', instanceId: 1 },
+            },
+          },
+        ),
+    ).toThrow('ability entity skill host requires its own explicit resource account');
+  });
   it('公共宿主接受无技能库分组、等级和技能块的执行程序', () => {
     const fixture = createBattleSkillRuntime(300);
     const ended = vi.fn();
@@ -139,6 +169,87 @@ describe('SkillRuntime', () => {
       }),
     );
     expect(runtime.skillCastInfo.originSkillType).toBe('comboSkill');
+  });
+
+  it('运行宿主身份与静态定义归属、继承施法来源彼此独立', () => {
+    const fixture = createBattleSkillRuntime(300);
+    const ended = vi.fn();
+    const paid = vi.fn();
+    const resourceAccount = {
+      sp: 23,
+      ultimateEnergy: 7,
+      canPay: vi.fn(() => true),
+      pay: vi.fn(() => ({ paid: true, nonReturnedSpCost: 0, changes: [] })),
+    };
+    const entity = { kind: 'abilityEntity' as const, instanceId: 17 };
+    const runtime = new SkillRuntime(
+      {
+        operatorId: 'definition-owner',
+        skillId: 'entity-callback',
+        nativeSkillType: 'normalSkill',
+        costFrame: 0,
+        naturalDurationFrames: 1,
+        initialBlackboard: {},
+        timelineActions: [],
+        costs: [],
+      },
+      {
+        clock: fixture.clock,
+        resourceAccount,
+        receipt: fixture.receipt,
+        operations: fixture.operations,
+        allocateSkillCastId: () => 1,
+        emitSkillEnd: ended,
+        emitAfterSkillApplyCost: paid,
+        hostIdentity: {
+          actionOwnerId: 'ability-entity:17',
+          actionSourceId: 'ability-entity:17',
+          actionOwnerAbilityEntity: entity,
+          eventSourceId: 'ability-entity:17',
+        },
+      },
+    );
+
+    const ability = new AbilitySystemRuntime({ skills: [runtime] });
+    expect(
+      ability.tryStartProjectileCallbackSkill('entity-callback', {
+        skillCastId: 77,
+        originSkillId: 'source-combo',
+        originSkillType: 'comboSkill',
+        nonReturnedSpCost: 0,
+      }),
+    ).toBe(true);
+    expect(runtime.operationContext).toMatchObject({
+      actionOwnerId: 'ability-entity:17',
+      actionSourceId: 'ability-entity:17',
+      actionOwnerAbilityEntity: entity,
+    });
+    expect(runtime.skillCastInfo).toMatchObject({
+      skillCastId: 77,
+      originSkillId: 'source-combo',
+      originSkillType: 'comboSkill',
+    });
+    expect(fixture.receipt.entries.find(entry => entry.event === 'SkillStarted')).toMatchObject({
+      event: 'SkillStarted',
+      sourceId: 'ability-entity:17',
+    });
+    runtime.advance(1 / 30, 1 / 30);
+    const payload = {
+      sourceId: 'ability-entity:17',
+      targetId: 'ability-entity:17',
+      skillId: 'entity-callback',
+      skillCastId: 77,
+      skillType: undefined,
+    };
+    expect(paid).toHaveBeenCalledExactlyOnceWith(payload);
+    expect(ended).toHaveBeenCalledExactlyOnceWith(payload);
+    expect(resourceAccount.pay).toHaveBeenCalledOnce();
+    expect(fixture.resources.sp).toBe(300);
+    expect(fixture.receipt.entries.find(entry => entry.event === 'SkillCostApplied')).toMatchObject(
+      {
+        data: { remainingSp: 23, remainingUltimateEnergy: 7 },
+      },
+    );
   });
 
   it('callback entry reuses a persistent skill timeline and preserves inherited source separately', () => {
@@ -522,8 +633,32 @@ describe('SkillRuntime', () => {
     });
 
     expect(ending.runtime.trySwitchToBuffCast(input())).toBe(true);
+    expect(() => ending.runtime.trySwitchToBuffCast({ ...input(), skillType: undefined })).toThrow(
+      'SwitchToBuffCast player-type condition requires the current skill player type',
+    );
     current.simulation.advanceFrames(11);
     expect(ending.runtime.trySwitchToBuffCast(input())).toBe(false);
+  });
+
+  it('未比较玩家分类的旁路保留原生技能的不可打断判断', () => {
+    const current = createBattleSkillRuntime(300);
+    const ending = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'ending',
+      timelineBlockFrames: 1,
+      switchToBuffCast: {
+        requiresCurrentSkillNotInterruptible: true,
+        sequence: { steps: [] },
+      },
+      scheduledSequences: [],
+    });
+    expect(current.runtime.tryStart()).toBe(true);
+    const input = {
+      skillType: undefined,
+      skillCastInfo: current.runtime.skillCastInfo!,
+      canInterrupt: false,
+    };
+    expect(ending.runtime.trySwitchToBuffCast(input)).toBe(true);
+    expect(ending.runtime.trySwitchToBuffCast({ ...input, canInterrupt: true })).toBe(false);
   });
 
   it('afterCastStart 在初值恢复和 SkillStarted 后、费用及第零帧动作前，只消费一次', () => {

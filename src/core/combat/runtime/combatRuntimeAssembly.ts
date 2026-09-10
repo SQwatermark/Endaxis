@@ -113,6 +113,7 @@ import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRunt
 import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
 import { SkillCastOperationExecutor } from './skillCastOperationExecutor';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
+import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
 import {
   BasicAttackSkillCastInheritanceRegistry,
   SkillCastInheritanceOperationExecutor,
@@ -436,7 +437,10 @@ export class CombatRuntimeAssembly {
   /** 全场唯一的零空间能力实体实例目录。 */
   readonly abilityEntities: LogicalAbilityEntityRuntime;
   /** syncTimeScale=false 的投射物 duration-finish 使用全局战斗时间，且不归技能寿命所有。 */
-  readonly projectileLifetimes = new ProjectileLifecycleRuntime();
+  readonly #abilityEntityInstanceIds = new AbilityEntityInstanceIdAllocator();
+  readonly projectileLifetimes = new ProjectileLifecycleRuntime(() =>
+    this.#abilityEntityInstanceIds.allocate(),
+  );
   /** 战斗级父实例与队员子 Buff 镜像的唯一目录。 */
   readonly globalBuffs: GlobalBuffRuntime;
   /** 实际运行时干员；Buff 生命周期按宿主切换执行身份时复用其构筑与面板。 */
@@ -539,6 +543,7 @@ export class CombatRuntimeAssembly {
               this.#recordTimeDilation('TimeDilationEnded', kind, instance, entityId, reason),
           });
     this.abilityEntities = new LogicalAbilityEntityRuntime({
+      allocateInstanceId: () => this.#abilityEntityInstanceIds.allocate(),
       resolveDeltaSeconds: entity =>
         COMBAT_FRAME_INTERVAL *
         (this.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
@@ -1645,6 +1650,13 @@ export class CombatRuntimeAssembly {
       allocateSkillCastId: () => this.#skillCastIds.allocate(),
       semanticEvents: this.semanticEvents,
       entityBlackboard,
+      hostIdentity: {
+        resourceOperatorId: operatorId,
+        actionOwnerId: operatorId,
+        actionSourceId: operatorId,
+        eventSourceId: operatorId,
+        semanticEventOwnerOperatorId: operatorId,
+      },
       emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
       emitAfterSkillApplyCost: payload =>
         this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
@@ -1655,8 +1667,10 @@ export class CombatRuntimeAssembly {
         beforeReset,
         skillCastInfo,
         advanceCallback,
+        sourceId = operatorId,
       ) => {
         const entity = this.projectileLifetimes.launch({
+          source: this.#resolveRuntimeTarget(sourceId),
           finishDelaySeconds: delaySeconds,
           recycleDelaySeconds,
           resolveTickDeltaSeconds: () =>
@@ -1674,11 +1688,13 @@ export class CombatRuntimeAssembly {
                 },
               }),
         });
-        this.#options.emitAbilityEvent?.(operatorId, 'projectileLaunched', {
-          sourceId: operatorId,
+        this.#options.emitAbilityEvent?.(sourceId, 'projectileLaunched', {
+          sourceId,
           ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
-          entity,
+          // 公共原生事件只暴露 reset 端口；Endaxis 内部宿主 target 不泄漏到事件协议。
+          entity: { onReset: callback => entity.onReset(callback) },
         });
+        return entity;
       },
       ...cooldownBinding,
     });
@@ -1885,7 +1901,8 @@ export class CombatRuntimeAssembly {
     const match = /^ability-entity:([1-9]\d*)$/.exec(entityId);
     if (match !== null) {
       const target = { kind: 'abilityEntity' as const, instanceId: Number(match[1]) };
-      if (this.abilityEntities.isActive(target)) return target;
+      if (this.abilityEntities.isActive(target) || this.projectileLifetimes.isActive(target))
+        return target;
     }
     throw new Error(`combo condition references unknown or inactive entity '${entityId}'`);
   }
@@ -2286,6 +2303,7 @@ export class CombatRuntimeAssembly {
         },
       },
       id => this.#findAbilitySystemSource(id),
+      id => this.#resolveAbilityEntityObjectType(id),
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
@@ -2427,6 +2445,7 @@ export class CombatRuntimeAssembly {
           ? undefined
           : this.#abilitySystems.get(targetId)?.currentSkillType;
       },
+      id => this.#resolveAbilityEntityObjectType(id),
     );
     const skillCastInheritance = new SkillCastInheritanceOperationExecutor(
       definitionOperator.operatorId,
@@ -2602,6 +2621,7 @@ export class CombatRuntimeAssembly {
         },
       },
       id => this.#findAbilitySystemSource(id),
+      id => this.#resolveAbilityEntityObjectType(id),
     );
     const abilityEntityOperations = new AbilityEntityOperationExecutor(
       operatorId,
@@ -2736,6 +2756,7 @@ export class CombatRuntimeAssembly {
           ? undefined
           : this.#abilitySystems.get(targetId)?.currentSkillType;
       },
+      id => this.#resolveAbilityEntityObjectType(id),
     );
     const blackboardOperations = new ActionBlackboardOperationExecutor(
       eventConditions,
@@ -3044,10 +3065,7 @@ export class CombatRuntimeAssembly {
   #resolveAbilitySystemSourceId(entityId: string): string {
     const match = /^ability-entity:(\d+)$/.exec(entityId);
     if (match === null) return entityId;
-    const source = this.abilityEntities.snapshot({
-      kind: 'abilityEntity',
-      instanceId: Number(match[1]),
-    }).source;
+    const source = this.#findAbilitySystemSource(entityId);
     if (source.kind === 'operator') return source.operatorId;
     if (source.kind === 'enemy') return 'enemy';
     if (source.kind === 'abilityEntity') {
@@ -3057,14 +3075,25 @@ export class CombatRuntimeAssembly {
   }
 
   /** SourceFinder 读取一层 source；能力实体来源仍是实体时保留身份，不递归追祖先。 */
+  #resolveAbilityEntityObjectType(
+    instanceId: number,
+  ): import('../../../../packages/game-data-contract/src/primitives').CombatObjectType {
+    // 共享实例编号不改变对象自身的语义类型。
+    if (this.projectileLifetimes.findSource(instanceId) !== undefined) return 'projectile';
+    this.abilityEntities.snapshot({ kind: 'abilityEntity', instanceId });
+    return 'abilityEntity';
+  }
+
   #findAbilitySystemSource(ownerId: string): RuntimeTargetRef {
     const match = /^ability-entity:(\d+)$/.exec(ownerId);
     if (match === null)
       return ownerId === 'enemy' ? { kind: 'enemy' } : { kind: 'operator', operatorId: ownerId };
-    const source = this.abilityEntities.snapshot({
-      kind: 'abilityEntity',
-      instanceId: Number(match[1]),
-    }).source;
+    const source =
+      this.projectileLifetimes.findSource(Number(match[1])) ??
+      this.abilityEntities.snapshot({
+        kind: 'abilityEntity',
+        instanceId: Number(match[1]),
+      }).source;
     if (source.kind === 'spatialPoint')
       throw new Error('spatial points cannot be AbilitySystem sources');
     return source;

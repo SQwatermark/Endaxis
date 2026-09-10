@@ -87,12 +87,12 @@ describe('Context 条件查询', () => {
   });
 
   it.each([
-    [16, { kind: 'enemy' }, true],
-    [16, { kind: 'operator', operatorId: 'ally' }, false],
-    [8, { kind: 'operator', operatorId: 'ally' }, true],
-    [512, { kind: 'abilityEntity', instanceId: 1 }, true],
-    [0, { kind: 'enemy' }, false],
-    [-1, { kind: 'enemy' }, true],
+    [['enemy'], { kind: 'enemy' }, true],
+    [['enemy'], { kind: 'operator', operatorId: 'ally' }, false],
+    [['character'], { kind: 'operator', operatorId: 'ally' }, true],
+    [['abilityEntity'], { kind: 'abilityEntity', instanceId: 1 }, true],
+    [[], { kind: 'enemy' }, false],
+    ['all', { kind: 'enemy' }, true],
   ] as const)('mask=%s 查询 %j → %s', (mask, target, expected) => {
     const context = {
       blackboard: new ActionBlackboard(),
@@ -100,8 +100,15 @@ describe('Context 条件查询', () => {
     };
     context.targetContext.setSingle('trigger', target as RuntimeTargetRef);
     expect(
-      new TargetContextOperationExecutor('owner', terminal).evaluate(
-        { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypeMask: mask },
+      new TargetContextOperationExecutor(
+        'owner',
+        terminal,
+        undefined,
+        undefined,
+        undefined,
+        () => 'abilityEntity',
+      ).evaluate(
+        { kind: 'contextTargetObjectTypeMatch', contextKey: 'trigger', objectTypes: mask },
         context,
       ),
     ).toBe(expected);
@@ -115,7 +122,7 @@ describe('Context 条件查询', () => {
     const condition = {
       kind: 'contextTargetObjectTypeMatch' as const,
       contextKey: 'trigger',
-      objectTypeMask: 16,
+      objectTypes: ['enemy'] as const,
     };
     expect(executor.evaluate(condition, context)).toBe(false);
     context.targetContext.set('trigger', []);
@@ -212,7 +219,7 @@ describe('Context 条件查询', () => {
       ),
     ).toBe(true);
   });
-  it.each([-2147483649, 2147483648, 0.5, '16'])('正式定义拒绝非法 mask %j', objectTypeMask => {
+  it.each([16, '16', ['64'], ['unknown'], null])('正式定义拒绝非法 mask %j', objectTypes => {
     expect(
       validateSkillDefinition({
         key: 'test',
@@ -228,7 +235,7 @@ describe('Context 条件查询', () => {
                     condition: {
                       kind: 'contextTargetObjectTypeMatch',
                       contextKey: 'trigger',
-                      objectTypeMask,
+                      objectTypes,
                     },
                   },
                   whenTrue: { steps: [] },

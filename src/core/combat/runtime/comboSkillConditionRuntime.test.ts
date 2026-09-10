@@ -232,7 +232,7 @@ describe('原生连携条件注册环境', () => {
                 parameters: {
                   condition: {
                     kind: 'actionInputTargetObjectTypeMatch',
-                    objectTypeMask: 16,
+                    objectTypes: ['enemy'],
                   },
                 },
                 whenTrue: {

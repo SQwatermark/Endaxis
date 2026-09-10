@@ -1,10 +1,17 @@
 import type { FrameRuntime } from './combatSimulation';
 import type { AbilityResetReference } from '../events/combatAbilityEvent';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
 
 /** A specific projected projectile, not its source skill or a public battle event. */
-export type ProjectileLifetimeReference = AbilityResetReference;
+export type ProjectileLifetimeReference = AbilityResetReference & {
+  /** Endaxis 内部动作宿主身份；公开原生事件仍只暴露 AbilityResetReference。 */
+  readonly target: Extract<RuntimeTargetRef, { readonly kind: 'abilityEntity' }>;
+};
 
 interface ProjectileLifetime {
+  readonly instanceId: number;
+  readonly source?: RuntimeTargetRef;
   phase: 'active' | 'finished' | 'marked' | 'reset';
   remainingSeconds: number;
   readonly recycleDelaySeconds: number;
@@ -22,14 +29,31 @@ interface ProjectileLifetime {
  * No spatial behavior, source-skill cancellation, or synthetic public event is implied.
  */
 export class ProjectileLifecycleRuntime implements FrameRuntime {
-  readonly #instances = new Set<ProjectileLifetime>();
+  readonly #instances = new Map<number, ProjectileLifetime>();
   #admittedAbilities: readonly ProjectileLifetime[] | null = null;
+  readonly #allocateInstanceId: () => number;
+
+  constructor(allocateInstanceId?: () => number) {
+    const instanceIds = new AbilityEntityInstanceIdAllocator();
+    this.#allocateInstanceId = allocateInstanceId ?? (() => instanceIds.allocate());
+  }
+
+  /** SourceFinder 保留一层来源；reset 通知完成后来源关系才释放。 */
+  findSource(instanceId: number): RuntimeTargetRef | undefined {
+    return this.#instances.get(instanceId)?.source;
+  }
+
+  isActive(target: RuntimeTargetRef): boolean {
+    if (target.kind !== 'abilityEntity') return false;
+    const instance = this.#instances.get(target.instanceId);
+    return instance !== undefined && instance.phase !== 'reset';
+  }
 
   /** Capture at Battle-group entry, not after operator actions have spawned new objects. */
   beginAbilityFrame(): void {
     if (this.#admittedAbilities !== null)
       throw new Error('projectile ability phase has not finished');
-    this.#admittedAbilities = [...this.#instances];
+    this.#admittedAbilities = [...this.#instances.values()];
   }
 
   /** The ability host owns its clock and cast-frame zero delta; component delta is not reused. */
@@ -46,6 +70,7 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
   }
 
   launch(request: {
+    readonly source?: RuntimeTargetRef;
     readonly finishDelaySeconds: number;
     readonly recycleDelaySeconds: number;
     readonly resolveTickDeltaSeconds: () => number | null;
@@ -61,7 +86,14 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
       throw new RangeError('projectile finish delay must be positive and finite');
     if (!Number.isFinite(recycleDelay) || request.recycleDelaySeconds < 0)
       throw new RangeError('projectile recycle delay must be non-negative and finite');
+    const instanceId = this.#allocateInstanceId();
+    if (!Number.isSafeInteger(instanceId) || instanceId <= 0)
+      throw new RangeError('projectile AbilityEntity instance id must be a positive safe integer');
+    if (this.#instances.has(instanceId))
+      throw new Error(`duplicate projectile AbilityEntity instance id '${instanceId}'`);
     const instance: ProjectileLifetime = {
+      instanceId,
+      ...(request.source === undefined ? {} : { source: request.source }),
       phase: 'active',
       remainingSeconds: finishDelay,
       recycleDelaySeconds: recycleDelay,
@@ -71,8 +103,9 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
       beforeReset: request.beforeReset,
       ...(request.abilityRuntime === undefined ? {} : { abilityRuntime: request.abilityRuntime }),
     };
-    this.#instances.add(instance);
+    this.#instances.set(instanceId, instance);
     return {
+      target: { kind: 'abilityEntity', instanceId },
       onReset: callback => {
         if (instance.phase === 'reset')
           throw new Error('cannot retain an already reset projectile');
@@ -86,7 +119,7 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
 
   advanceFrame(): void {
     // Callbacks may launch another projectile; it must not gain a Tick in this pass.
-    for (const instance of [...this.#instances]) {
+    for (const instance of [...this.#instances.values()]) {
       const delta = instance.resolveTickDeltaSeconds();
       if (delta === null) continue;
       const nativeDelta = Math.fround(delta);
@@ -95,11 +128,11 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
       if (instance.phase === 'marked') {
         instance.beforeReset();
         instance.phase = 'reset';
-        this.#instances.delete(instance);
         try {
           for (const callback of [...instance.resetCallbacks]) callback();
         } finally {
           instance.resetCallbacks.clear();
+          this.#instances.delete(instance.instanceId);
         }
         continue;
       }

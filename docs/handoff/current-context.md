@@ -1,5 +1,162 @@
 # 当前任务快照
 
+## 2026-09-10：本机新会话交接入口
+
+当前是Windows笔记本，不是台式机。先读[笔记本环境](2026-09-10-local-workspace.md)：
+本机工作树/分支/未提交内容、证据目录、缺失输入、验证记录、prompt及远程连接能力均在其中。
+台式机另记于[台式机环境](desktop-environment.md)，公共总览不再决定当前机器。
+本轮SSH验证Admin@100.64.0.64成功，hostname为DESKTOP-ICRC4FK；未检查远端仓库或服务。
+新会话在Endaxis-game-data-refactor与combat-spec-operator-completion继续，不使用旧主工作树。
+本机缺少历史hybrid-20260905、mz38x5和artifacts链接，不代表台式机也缺失。
+本轮仅文档更新与只读核验，未提交、推送、拉取、清理或修改运行代码。
+
+## 2026-09-10：核查资源写入者，禁止从角色专用初始化推导资源专有
+
+历史原生 ultimateSp Setter 在写入后才区分角色专用后处理，不限制投射物持有资源。
+已扩展检查到AbilitySystem方法内的字段写入和Setter直接调用候选；仍未获得投射物
+初始值/复用重置的正面证据。扫描范围、遗漏风险与候选入口记录于combat-spec的
+launch-projectile-skill-routing.md；禁止将未发现写入当成零值证明。
+本轮仅补证据文档，没有推进真实账户或删除回调适配器；未运行代码测试，未提交。
+后续不要重复扫描已查过的历史入口，应补实际对象分配/复用链及当前包实现；资源回执
+仍绑定operator的独立整改可继续，但不能宣称它解决了初值问题。
+
+## 2026-09-10：确认专用投射物回收的通知顺序
+
+同批历史符号与机器码已定位 OnProjectileAllocate/OnProjectileRecycle，不再以公共Reset
+猜测池化入口。后者内部先中断当前技能，再通知reset监听，之后ClearSource；与现有
+ProjectileLifecycleRuntime的结束技能、通知、删除来源顺序一致。地址与边界只维护于
+combat-spec的launch-projectile-skill-routing.md。此证据没有证明整个对象池调用链、
+资源初值或资源清零；正式独立账户仍待接，未新增零能量假设或修改运行算法。
+生命周期与finish回调2文件17项测试通过，包含reset通知期间来源可读和清理顺序。
+本轮只补证据文档，未提交或推送。
+
+## 2026-09-10：收窄投射物资源初始化的取证范围
+
+本轮核对同批历史机器码与符号：公共 GetAttributeData 的投射物分支使用默认属性，
+不是普通能力实体专属表；_SetReplicatedAttributes 中终结技能量的写入只在角色分支，
+非角色可见路径只写生命值。完整地址与复现范围集中于 combat-spec 的
+launch-projectile-skill-routing.md，不在 Endaxis 重建一份原生规则。
+仍未证明首次创建/池化复用的能量初值及当前包补丁；不能把“该方法没有写入”当作零值证明。
+下一步围绕实际创建与回收调用链补证，再接公共账户及支付回执；正式回调适配器尚未替换。
+本轮只修改证据与消费边界文档，未改变运行逻辑，未运行代码测试，未提交或推送。
+
+## 2026-09-10：对象类型条件改为可读集合
+
+契约新增唯一 CombatObjectType/CombatObjectTypeSelection，两种类型条件改用 objectTypes。
+source/objectType.ts 单向解析原生掩码并拒绝未知位；正式定义、Inspector默认值、校验与
+运行时不再保存数值掩码。现有生成文件按相同规则机械迁移，不改变技能行为树。
+运行时两种条件共用 combatObjectType，正式实例目录区分 projectile/abilityEntity；
+修正上一轮把嵌套投射物按能力实体类型判断的错误测试。EnemyPart 扩展及空/all有回归。
+src/data 下未被消费的旧投射物原生过滤样本移至转换器 test/fixtures，未删除证据。
+应用类型检查通过；运行时/事件及来源类型转换88文件1185项通过。全量转换器测试结果
+另见后续验证记录，不能把本节的定向通过当作全量通过。旧数字条件需要重新生成/导入迁移，
+当前不提供运行时数字兼容解释器。
+
+收尾验证：Inspector 契约提取确认 objectTypes 是枚举列表/all 联合，不接受数字及数字串；
+字段名、类型选项与帮助文字已接入三种UI语言，不复制字段结构。
+UI/本地化定向3文件21项通过；源类型与Inspector补充4文件25项通过。
+应用、独立契约、转换器生产配置及完整转换器类型检查全部退出0。
+转换器全量首次1780项通过、5项失败、2项跳过：4项超时降低并发后重跑对应3文件24项
+全部通过；剩余1项是 gameDataCandidatePublisher 的 Windows symlink EPERM（测试建立
+链接阶段失败），未通过跳过或修改权限掩盖。不能宣称全量无失败。
+src及契约源码扫描无 objectTypeMask；diff空白检查通过。未提交或推送。
+
+## 2026-09-10：取得属性默认值初始化的历史机器码证据
+
+已定位本机1.4.4快照7E7377…，核对 AbilitySystem._DoInit 的 attributePatch 空值回退，
+实际调用 AttributesData.CreateDefault；maxUltimateSp getter读取宿主自身属性容器的22。
+CreateDefault 从属性元数据读取默认值及上下限，不是统一清零。
+本地旧版本表和hybrid表的属性22默认值均为10；不能据此硬编码实际投射物最终上限。
+完整地址、哈希、数据路径和复现命令已写入 combat-spec 的 launch-projectile-skill-routing。
+此快照不同于前轮A7D3…当前包快照，不宣称当前包机器码已验证。
+下一步核对当前投射物属性补丁、初始UltimateSp及回收重置，随后复用公共属性来源接账户。
+本轮为只读取证与文档同步，没有修改运行算法，也没有运行代码测试。
+
+## 2026-09-10：禁止实体宿主误接干员账户，复核零费用边界
+
+新增构造门禁：actionOwnerAbilityEntity 存在时必须提供显式 resourceAccount，不能借
+发射干员资源账户。技能、资源与正式装配3文件148项通过。
+核对复刻库 CostUltimateSp/SetUltimateSp 后确认：零费用也经过 Setter，仍依赖解锁状态
+和实际宿主 MaxUltimateSp，不能用“实体费用零”猜测一套免费账户。
+剩余工作与资源回执消费者的边界已集中记录于 projectile-callback-host-design.md。
+本轮未更改费用算法、普通干员释放规则或正式回调宿主，未声称完整迁移已完成。
+
+## 2026-09-10：技能执行器资源寻址从干员账本中拆开
+
+SkillRuntime 的费用检查、支付与回执读取统一消费 SkillResourceAccount。
+普通干员由 CombatResources.bindSkillAccount 绑定既有账本，状态及支付算法仍只有一份；
+显式账户和战斗账本依赖互斥，显式账户不允许同时指定 resourceOperatorId。
+实体宿主测试不再借佩丽卡账户，验证显式账户被调用且原干员资源不变。
+绑定账户回归覆盖共享 SP、宿主独立终结技能量和支付后的实时读取。
+运行时/事件目录86文件1170项通过；应用完整类型检查退出0；diff空白检查通过。
+这不是实体真实资源实现：非零实体费用回执和完整准入仍未闭合，正式回调仍使用适配器。
+原生证据：combat-spec Runtime/Skill.cs CheckCost/ApplyCost，阈值检查共享 ATB，
+UltimateSp 查实际 owner；不能把同一个阈值按费用类型改解释成另一种资源。
+
+## 2026-09-10：公共技能事件解除玩家分类的发布限制
+
+AbilitySkillPayload 的 skillType 只表示可选的玩家技能库分类。SkillRuntime 的扣费后和
+结束事件允许实体技能发布，保留实际事件宿主、回调技能 ID 与施放编号；不复用来源
+连携的玩家分类。依据复刻库 skill-end 与 Runtime/Skill.cs 的公共发布路径。
+eventSkillTypeIn 在确实消费缺失分类时仍报错，不猜测映射或静默忽略条件。
+独立宿主回归覆盖事件与继承来源分离。运行时/事件目录86文件1169项测试通过，
+应用完整类型检查退出0。正式路径仍是临时回调适配器，下一步解决实体资源与准入端口。
+
+## 2026-09-10：复查前两轮，补齐投射物身份的来源查询
+
+前两轮完成回调资源元数据贯通，以及显式宿主身份、唯一实例编号、可选玩家分类；
+完整回调仍使用 ProjectileCallbackActionRuntime。复查发现上一轮只赋予投射物 ID，
+但来源解析仍只查询普通能力实体目录，会在实际 SourceFinder/递归归因时出现未知实体。
+本轮已补投射物 source 目录并接入共同解析入口，ActionOwner 查询优先读 actionOwnerId。
+嵌套投射物来源保留一层父实体，发射事件在实际发射者发布；reset 通知期间保留 source，
+通知完成后释放。两类实体单独测试时也复用唯一分配器实现，不各写一份自增逻辑。
+
+验证：正式操作链嵌套发射与来源查询、reset 期间来源可用性及 SourceFinder Owner 优先级
+回归及技能旁路边界在内的5文件176项通过；汤汤水流/清波/时间域与投射物应用测试
+5文件81项通过。应用完整 type-check 已重新执行并退出0。
+SwitchToBuffCast 不再因当前技能缺少玩家分类而丢弃其施放信息及可打断状态；
+只有实际比较玩家分类的分支才明确拒绝缺失分类。新增两侧行为回归。
+完整宿主接入仍需解决：实体费用不能擅自扣发射干员资源；普通 SkillRuntime 的 canStart
+也未表达完整原生可用性。事件玩家分类发布限制已由上方后续进度解除。
+下一步应先收束这些公共端口，再用独立 AbilitySystem + SkillRuntime 替换临时适配器。
+不能把 native-only 测试成功启动等同于费用、事件和正式来源操作链已全部验收。
+
+## 2026-09-10：投射物回调宿主身份开始从静态技能归属中拆出
+
+延续 duration-finish 完整回调迁移，`SkillRuntime` 新增显式 `SkillRuntimeHostIdentity`：
+资源账本仍以干员 ID 寻址，但动作 Owner/Source、回执/技能事件主体、语义事件注册干员已
+成为彼此独立的运行时职责。普通干员装配显式把这些职责绑定到同一 operator；实体技能
+不得继续依靠 `program.operatorId` 或继承 `SkillCastInfo` 冒充宿主。
+
+新增全场 `AbilityEntityInstanceIdAllocator`，正式装配中的普通逻辑能力实体和投射物共用
+编号空间。`ProjectileLifetimeReference` 内部带稳定 abilityEntity target，公开
+`projectileLaunched` 仍按原生边界只提供 reset 引用。当前旧回调动作适配器已经把这个
+target 写入 `actionOwnerId/actionSourceId/actionOwnerAbilityEntity`，因此回调动作不再把
+发射干员误当 Owner；定向 154 项回归通过。此前记录的完整 type-check 通过有误：
+复查发现 SwitchToBuffCast 仍强制当前技能具有玩家分类，本轮已修正并重新验证。
+
+尚未完成：`ProjectileCallbackActionRuntime` 仍未删除。公共执行程序和 AbilitySystem 技能
+端口现已允许 native-only 技能省略玩家 `skillType`；玩家槽位、玩家切换判断、无继承来源的
+SkillCastInfo 以及玩家技能事件仍会在实际消费点明确拒绝缺失分类。下一步以投射物独立
+AbilitySystem 接入既有 `tryStartProjectileCallbackSkill`，不临时把水弹 NormalSkill 写成
+玩家战技，也不在资源门槛未闭合前解释非零回调费用。
+
+## 2026-09-10：投射物回调施放资源元数据进入正式契约
+
+新增唯一 `SkillCastResourceDefinition`，正式 duration-finish 回调现在保留
+costFrame、原生 cooldownSeconds、尚未解释的 maxChargeTime，以及已转换为可读
+sp/ultimateEnergy 的费用和独立 availabilityThreshold。生成器从完整回调 SkillData
+严格读取并投影；未知 costType 拒绝，不把数字或原生字符串带入运行契约。编译阶段
+按技能等级解析费用与门槛，严格校验器和编辑器新建默认值同步。汤汤现有生成定义已按
+同一源值更新：0帧、0秒、1、UltimateSp 0、门槛0；没有改变本次模拟结果。
+
+验证：相关转换、编译、运行、严格校验和编辑模型10文件286项通过；契约、生产转换器和
+应用类型检查通过。当前仍未删除 ProjectileCallbackActionRuntime：公共 SkillRuntime 的
+`operatorId` 与 `skillType` 仍把宿主限定为干员/玩家技能，而回调 Owner 是投射物能力实体，
+只能由自身 nativeSkillType 决定当前类型，不能沿用来源连携/战技身份。下一步先拆出公共
+技能宿主所需的实体 Owner 与玩家放置身份，再让独立 AbilitySystem 消费上述资源配置。
+Typhoeus cooldownSeconds=-1 原样可表示，运行语义仍须取证，不按0处理。
+
 ## 2026-09-10：施法资源来源结构去重与本轮收尾
 
 反编译声明确认 Skill CastData.costData 与 DamageUnit.costDataList 的成员都是同一个
