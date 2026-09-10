@@ -14,8 +14,11 @@ import {
 } from './tagQuery.ts';
 import { parseScalarSource, type ScalarSource } from './scalar.ts';
 import { parseBlackboardDataPairs, type DeclaredBlackboardValueSource } from './blackboard.ts';
+import { parseActiveSkillTypesSource } from './activeSkillTypes.ts';
 
 export interface ProjectileRuntimeSource {
+  /** Missing means the source exporter did not preserve the owning AbilitySystem bundle. */
+  readonly activeSkills?: ReturnType<typeof parseActiveSkillTypesSource>;
   readonly projectileId: string;
   readonly decodeStatus: 'partial' | 'complete';
   /** 新版 VFS 严格解码直接恢复的 Projectile AbilitySystem 实体黑板；缺少表示尚未解出。 */
@@ -136,6 +139,14 @@ export function parseProjectileRuntimeSource(
   const moveModeTypes = parseProjectileMoveModeTypes(root.tail, `${path}.tail`);
   return {
     projectileId: requireNonEmptyString(root.id, `${path}.id`),
+    ...(root.abilitySystem === undefined
+      ? {}
+      : {
+          activeSkills: parseActiveSkillTypesSource(
+            requireRecord(root.abilitySystem, `${path}.abilitySystem`).skillDataBundle,
+            `${path}.abilitySystem.skillDataBundle`,
+          ),
+        }),
     decodeStatus: root.decodeStatus,
     ...(root.entityBlackboard === undefined
       ? {}

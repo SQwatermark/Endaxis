@@ -11,6 +11,7 @@ import {
   requireRecord,
   requireString,
 } from './primitives.ts';
+import { parseActiveSkillTypesSource } from './activeSkillTypes.ts';
 import { parseAbilitySystemBlackboardsSource } from './abilitySystemBlackboards.ts';
 import { parseUnityComboSkillConditionsSource } from './unityComboSkillConditions.ts';
 
@@ -86,18 +87,6 @@ function parseComboSkillPriority(value: unknown, path: string): ComboSkillPriori
   return priority;
 }
 
-const nativeSkillTypes = new Map<number, NativeSkillType>([
-  [-1, 'passiveSkill'],
-  [0, 'attack'],
-  [1, 'breakingAttack'],
-  [2, 'normalSkill'],
-  [3, 'attachSkill'],
-  [5, 'dodge'],
-  [6, 'comboSkill'],
-  [7, 'ultimateSkill'],
-  [8, 'extraActiveSkill'],
-]);
-
 const playerInputByBattleCommand = new Map<number, PlayerSkillInput>([
   [0, 'basicAttack'],
   [3, 'battleSkill'],
@@ -137,13 +126,6 @@ function parseCommandMapping(value: unknown, path: string) {
   return result;
 }
 
-function parseNativeSkillType(value: unknown, path: string): NativeSkillType {
-  const numeric = requireInteger(value, path);
-  const result = nativeSkillTypes.get(numeric);
-  if (result === undefined) throw new Error(`${path}: unsupported native SkillType ${numeric}`);
-  return result;
-}
-
 function parsePlayerActionSource(
   ability: Record<string, unknown>,
   bundle: Record<string, unknown>,
@@ -154,7 +136,8 @@ function parsePlayerActionSource(
     bundle.allNormalAttackId,
     `${path}.allNormalAttackId`,
   );
-  const allActiveSkillIds = parseStringArray(bundle.allActiveSkillId, `${path}.allActiveSkillId`);
+  const { skillIds: allActiveSkillIds, initialNativeSkillTypeById: activeTypes } =
+    parseActiveSkillTypesSource(bundle, path);
   const allPassiveSkillIds = parseStringArray(
     bundle.allPassiveSkillId,
     `${path}.allPassiveSkillId`,
@@ -165,7 +148,7 @@ function parsePlayerActionSource(
   const normalSkillId = requireNonEmptyString(bundle.normalSkillId, `${path}.normalSkillId`);
   const comboSkillId = requireNonEmptyString(bundle.comboSkillId, `${path}.comboSkillId`);
   const ultimateSkillId = requireNonEmptyString(bundle.ultimateSkillId, `${path}.ultimateSkillId`);
-  const dodgeSkillId = requireNonEmptyString(bundle.dodgeSkillId, `${path}.dodgeSkillId`);
+  requireNonEmptyString(bundle.dodgeSkillId, `${path}.dodgeSkillId`);
   const initialNativeSkillTypeById: Record<string, NativeSkillType> = {};
   const register = (skillId: string, type: NativeSkillType) => {
     const previous = initialNativeSkillTypeById[skillId];
@@ -177,37 +160,7 @@ function parsePlayerActionSource(
   for (const skillId of allNormalAttackIds) {
     register(skillId, enabledBreakingNormalAttacks.has(skillId) ? 'breakingAttack' : 'attack');
   }
-  const overrides = new Map<string, NativeSkillType>();
-  for (const [index, item] of parseParallelDictionary(
-    bundle.activeSkillTypeOverrides,
-    `${path}.activeSkillTypeOverrides`,
-  ).entries()) {
-    const skillId = requireNonEmptyString(
-      item.key,
-      `${path}.activeSkillTypeOverrides.keys[${index}]`,
-    );
-    if (overrides.has(skillId))
-      throw new Error(`${path}.activeSkillTypeOverrides: duplicate skill`);
-    overrides.set(
-      skillId,
-      parseNativeSkillType(item.value, `${path}.activeSkillTypeOverrides.values[${index}]`),
-    );
-  }
-  for (const skillId of allActiveSkillIds) {
-    register(
-      skillId,
-      // AbilitySystem._InitSkills 0344871F..034487F6: fixed identities precede overrides.
-      skillId === normalSkillId
-        ? 'normalSkill'
-        : skillId === ultimateSkillId
-          ? 'ultimateSkill'
-          : skillId === comboSkillId
-            ? 'comboSkill'
-            : skillId === dodgeSkillId
-              ? 'dodge'
-              : (overrides.get(skillId) ?? 'normalSkill'),
-    );
-  }
+  for (const [skillId, type] of Object.entries(activeTypes)) register(skillId, type);
   for (const skillId of allPassiveSkillIds) register(skillId, 'passiveSkill');
 
   const modeConfig = requireRecord(ability.modeConfig, `${rootPath}.abilitySystem.modeConfig`);
