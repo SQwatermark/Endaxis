@@ -98,6 +98,7 @@ export class ActionSequence extends CombatStep {
         continue;
       }
       if (!entry.executeResult || !entry.executionPermitted) continue;
+      if (this.canExecuteAction?.() === false) continue;
 
       entry.state = COMBAT_STEP_STATE.ticking;
       entry.step.tick(deltaTime, context);

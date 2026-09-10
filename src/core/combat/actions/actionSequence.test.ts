@@ -34,6 +34,25 @@ class ProbeStep extends CombatStep {
 }
 
 describe('ActionSequence', () => {
+  it('rechecks host permission per Tick step without blocking End cleanup', () => {
+    const calls: string[] = [];
+    let enabled = true;
+    class DisablingTick extends ProbeStep {
+      override tick(): void {
+        super.tick();
+        enabled = false;
+      }
+    }
+    const sequence = new ActionSequence(
+      [new DisablingTick('first', calls), new ProbeStep('tail', calls)],
+      () => enabled,
+    );
+    sequence.tryExecute({});
+    sequence.tick(1, {});
+    sequence.tick(1, {});
+    sequence.end({});
+    expect(calls).toEqual(['execute:first', 'execute:tail', 'tick:first', 'end:first', 'end:tail']);
+  });
   it('ends synchronously inside an action without executing or resurrecting later steps', () => {
     const calls: string[] = [];
     let sequence: ActionSequence;
