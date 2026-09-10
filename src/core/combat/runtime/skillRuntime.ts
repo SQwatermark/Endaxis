@@ -18,7 +18,7 @@ import type { CombatExecutionContext } from '../actions/combatStep';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import type {
-  CompiledSkillProgram,
+  CompiledSkillExecutionProgram,
   ResolvedActionSequence,
   ResolvedCombatOperationStep,
   ResolvedCombatStep,
@@ -152,8 +152,8 @@ interface SkillRuntimeDependencies {
   readonly resources: CombatResources;
   /** 原生费用属性在开始门禁和实际扣费时分别重新求值。 */
   readonly resolveCosts?: (
-    costs: readonly CompiledSkillProgram['costs'][number][],
-  ) => readonly CompiledSkillProgram['costs'][number][];
+    costs: readonly CompiledSkillExecutionProgram['costs'][number][],
+  ) => readonly CompiledSkillExecutionProgram['costs'][number][];
   readonly receipt: CombatReceiptSink;
   readonly operations: CombatOperationExecutor;
   readonly allocateSkillCastId: () => number;
@@ -173,7 +173,7 @@ interface SkillRuntimeDependencies {
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
 export class SkillRuntime {
-  readonly #program: CompiledSkillProgram;
+  readonly #program: CompiledSkillExecutionProgram;
   readonly #dependencies: SkillRuntimeDependencies;
   readonly #context: CombatExecutionContext = {};
   readonly #blackboard: ActionBlackboard;
@@ -204,7 +204,7 @@ export class SkillRuntime {
   #preparedStartBlackboard: Readonly<Record<string, number>> = {};
   #afterCastStart: AfterSkillCastStart | undefined;
 
-  constructor(program: CompiledSkillProgram, dependencies: SkillRuntimeDependencies) {
+  constructor(program: CompiledSkillExecutionProgram, dependencies: SkillRuntimeDependencies) {
     this.#program = program;
     this.#dependencies = dependencies;
     this.#blackboard = new ActionBlackboard(undefined, dependencies.entityBlackboard);
@@ -267,15 +267,15 @@ export class SkillRuntime {
     return this.#program.castId;
   }
 
-  get skillType(): CompiledSkillProgram['skillType'] {
+  get skillType(): CompiledSkillExecutionProgram['skillType'] {
     return this.#program.skillType;
   }
 
-  get nativeSkillType(): CompiledSkillProgram['nativeSkillType'] {
+  get nativeSkillType(): CompiledSkillExecutionProgram['nativeSkillType'] {
     return this.#program.nativeSkillType;
   }
 
-  get timelineBlockFrames(): number {
+  get timelineBlockFrames(): number | undefined {
     return this.#program.timelineBlockFrames;
   }
 
@@ -297,7 +297,7 @@ export class SkillRuntime {
     return this.#passedFrames > this.#program.exclusiveFrame + 0.0003;
   }
 
-  get inputWindows(): CompiledSkillProgram['inputWindows'] {
+  get inputWindows(): CompiledSkillExecutionProgram['inputWindows'] {
     return this.#program.inputWindows;
   }
 
@@ -413,7 +413,7 @@ export class SkillRuntime {
 
   trySwitchToBuffCast(
     currentSkill?: {
-      readonly skillType: CompiledSkillProgram['skillType'];
+      readonly skillType: CompiledSkillExecutionProgram['skillType'];
       readonly skillCastInfo: CombatSkillCastInfo;
       readonly canInterrupt: boolean;
     },
@@ -658,7 +658,7 @@ export class SkillRuntime {
 
   #resolvedCosts(
     preparation = this.#dependencies.clock.frame < 0,
-  ): readonly CompiledSkillProgram['costs'][number][] {
+  ): readonly CompiledSkillExecutionProgram['costs'][number][] {
     const costs = this.#dependencies.resolveCosts?.(this.#program.costs) ?? this.#program.costs;
     // Endaxis 准备期技能免技力费用；终结技能量与技能自身资源效果仍按定义执行。
     return preparation ? costs.filter(cost => cost.resource !== 'sp') : costs;

@@ -1,5 +1,26 @@
 # 当前任务快照
 
+## 2026-09-10：公共技能执行程序不再强制依赖时间轴编辑身份
+
+新增 CompiledSkillExecutionProgram，SkillRuntime 只消费执行程序；原 CompiledSkillProgram
+继承它并继续强制要求 skillGroupKey、skillLevel、timelineBlockFrames。非时间轴宿主无需
+伪造这三个字段；块宽缺失时沿 AbilitySystem 已有的非场景分支，不自动补零。
+新增无分组/等级/块宽程序经公共 AbilitySystem 回调启动、结束与来源继承的回归。
+118文件1456项战斗回归、应用类型检查通过。正式编译产物和生成器未改动。
+
+来源核查：tmp/audit-callback-cast-metadata.mjs 在已验证的 event-source-callback-owner
+完整快照上，使用现有 parseProjectileLaunchActionSource 扫 SkillData/BuffData，去重后
+得到131个启用的 chr_ 回调引用，源 SkillData 缺失0。全部 costType=UltimateSp、costValue=0、
+atbValueThreshold=0、maxChargeTime=1、buffs/toggleBuffs为空；startCdFrame有0和9。
+130个 cooldownTime=0，chr_0034_typhoea_archery_projectile_bounce_projhit 为-1。
+这是静态引用范围，不是正式可达/已转换数，不能与旧109样本数字混同。
+脚本最初手写路由漏读hit，已改为公共原生解析器后才得到本结果，未将不完整计数作为结论。
+
+汤汤 water 来源明确 cooldownTime=0、startCdFrame=0、零UltimateSp费用，源数据本身不缺；
+缺口在于当前 callback 动作图切片未把这些字段交给完整技能运行程序。下一步应共用施法
+元数据解析并保留字段，不能凭本次样本统计默认所有回调零确认帧，也不解释-1为普通零冷却。
+此轮未接入正式独立回调owner，未删除临时宿主；仍须沿既定主线完成它，不能将类型拆分当作完成。
+
 ## 2026-09-10：共享技能跳转门禁补齐同步结束与重入保护
 
 复核当前镜像 Skill.JumpTo 03E5C890：目标严格超过 periodTime + float32 1e-5

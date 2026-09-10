@@ -97,6 +97,50 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('公共宿主接受无技能库分组、等级和技能块的执行程序', () => {
+    const fixture = createBattleSkillRuntime(300);
+    const ended = vi.fn();
+    const runtime = new SkillRuntime(
+      {
+        operatorId: 'perlica',
+        skillId: 'non-timeline-callback',
+        skillType: 'battleSkill',
+        nativeSkillType: 'normalSkill',
+        naturalDurationFrames: 1,
+        initialBlackboard: {},
+        timelineActions: [],
+        costs: [],
+      },
+      {
+        clock: fixture.clock,
+        resources: fixture.resources,
+        receipt: fixture.receipt,
+        operations: fixture.operations,
+        allocateSkillCastId: () => 1,
+        emitSkillEnd: ended,
+      },
+    );
+    const ability = new AbilitySystemRuntime({ skills: [runtime] });
+    expect(runtime.timelineBlockFrames).toBeUndefined();
+    expect(
+      ability.tryStartProjectileCallbackSkill('non-timeline-callback', {
+        skillCastId: 77,
+        originSkillId: 'source',
+        originSkillType: 'comboSkill',
+        nonReturnedSpCost: 0,
+      }),
+    ).toBe(true);
+    runtime.advance(1 / 30, 0);
+    expect(ended).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        skillId: 'non-timeline-callback',
+        skillCastId: 77,
+        skillType: 'battleSkill',
+      }),
+    );
+    expect(runtime.skillCastInfo.originSkillType).toBe('comboSkill');
+  });
+
   it('callback entry reuses a persistent skill timeline and preserves inherited source separately', () => {
     const ended = vi.fn();
     const callback = createBattleSkillRuntime(

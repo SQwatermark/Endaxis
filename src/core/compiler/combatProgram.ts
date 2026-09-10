@@ -448,8 +448,8 @@ export interface CompiledSkillStatModifiers {
   readonly damageToStaggeredEnemyIncrease?: number;
 }
 
-/** 供运行时技能实例使用的完整单等级程序。 */
-export interface CompiledSkillProgram extends CompiledSkillActionProgram {
+/** 已解析等级的执行程序；非时间轴宿主不需要伪造分组、养成等级或块宽。 */
+export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgram {
   readonly operatorId: string;
   /** 文档中对应的技能释放身份；缺失时表示不是从场景时间轴编译的单元测试程序。 */
   readonly castId?: string;
@@ -457,7 +457,6 @@ export interface CompiledSkillProgram extends CompiledSkillActionProgram {
     readonly cameraToTargetSignedAngleDegrees?: number;
     readonly forcedCriticalStepKeys?: readonly string[];
   };
-  readonly skillGroupKey: string;
   readonly skillId: string;
   /** 路由包装器的行为养成补丁按真实执行体身份匹配；费用和冷却仍使用槽位身份。 */
   readonly executionSkillGroupKey?: string;
@@ -466,10 +465,9 @@ export interface CompiledSkillProgram extends CompiledSkillActionProgram {
   readonly skillType: SkillType;
   /** 原生技能实例的初始可变分类；不同于伤害/养成使用的 Endaxis skillType。 */
   readonly nativeSkillType?: import('../game-data/operatorDefinition').NativeSkillType;
-  readonly skillLevel: number;
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
-  readonly timelineBlockFrames: number;
+  readonly timelineBlockFrames?: number;
   /** 原生技能实例的自然结束周期；与块宽、可中断边界彼此独立。 */
   readonly naturalDurationFrames?: number;
   readonly exclusiveFrame?: number;
@@ -488,6 +486,13 @@ export interface CompiledSkillProgram extends CompiledSkillActionProgram {
   readonly statModifiers?: CompiledSkillStatModifiers;
   /** 当前技能等级下实际引用到的能力实体闭包；支持子技能递归生成同一蓝图。 */
   readonly abilityEntityDefinitions?: Readonly<Record<string, ResolvedAbilityEntityDefinition>>;
+}
+
+/** 时间轴编译产物保留完整编辑身份；运行实例仅消费其执行程序部分。 */
+export interface CompiledSkillProgram extends CompiledSkillExecutionProgram {
+  readonly skillGroupKey: string;
+  readonly skillLevel: number;
+  readonly timelineBlockFrames: number;
 }
 
 /** 与放置实例无关的单等级冷却配置；不携带动作、命中或施放身份。 */
