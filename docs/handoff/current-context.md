@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-10：施法资源来源结构去重与本轮收尾
+
+反编译声明确认 Skill CastData.costData 与 DamageUnit.costDataList 的成员都是同一个
+CastData.CostData（costType、costValue、atbValueThreshold），但二者消费语义仍分开。
+转换器新增唯一 parseSkillCostSource；伤害费用和技能施法元数据共同使用它。
+parseSkillCastResourceMetadataSource 一次严格读取 startCdFrame、cooldownTime、maxChargeTime
+及 costData，能力实体子技能不再自行拆读同一结构。负 cooldownTime 原样保存，不在来源层
+解释成零。具体 TypeToken、字段偏移和证据边界已写入 combat-spec skill-time-fields。
+
+新增7项来源回归，连同能力实体子技能和伤害解析共43项通过；转换器全量为164文件1772项
+通过、1文件2项按既有条件跳过。应用与转换器类型检查通过。新回调来源31干员 --check
+全部完成且0错误；汤汤定向 --check 退出0，正式生成文件无变化。
+
+严格边界：这里只统一原生结构读取，并为公共回调宿主消除重复协议，不表示正式 duration-finish
+回调已经携带这些施法字段。下一步仍需把 callback SkillData 的已解析资源元数据传入正式定义和
+CompiledSkillExecutionProgram，再由独立 owner 的 AbilitySystem/SkillRuntime 消费；完成后才能
+删除 ProjectileCallbackActionRuntime。Typhoeus 的 cooldownTime=-1 仍未解释，不能顺手归零。
+本轮未扩展投射物路径、碰撞、敌人主动行为或新内容。
+
 ## 2026-09-10：公共技能执行程序不再强制依赖时间轴编辑身份
 
 新增 CompiledSkillExecutionProgram，SkillRuntime 只消费执行程序；原 CompiledSkillProgram

@@ -3,7 +3,14 @@ import {
   type DefinitionReferenceSource,
   type ReferenceAwareActionLeafSource,
 } from './referenceGraph.ts';
-import { requireNonEmptyString, requireNonNegativeInteger, requireRecord } from './primitives.ts';
+import {
+  requireInteger,
+  requireNumber,
+  requireNonEmptyString,
+  requireNonNegativeInteger,
+  requireRecord,
+} from './primitives.ts';
+import { parseSkillCostSource } from './skillCost.ts';
 import type { BlackboardLevelValues } from './scalar.ts';
 import type { SkillActionGraphSource } from './skillActionGraph.ts';
 import { readSkillCastType } from './skillDispatch.ts';
@@ -22,16 +29,27 @@ export interface NativeActiveSkillSource {
 }
 
 /** 已证实的施法元数据切片，不冒充完整 SkillData/动作图读取。 */
-export function parseSkillCastMetadataSource(value: unknown, sourcePath: string) {
+export function parseSkillCastResourceMetadataSource(value: unknown, sourcePath: string) {
   const root = requireRecord(value, sourcePath);
   const castData = requireRecord(root.castData, `${sourcePath}.castData`);
   return {
-    sourcePath,
-    skillId: requireNonEmptyString(root.skillId, `${sourcePath}.skillId`),
     startCdFrame: requireNonNegativeInteger(
       castData.startCdFrame,
       `${sourcePath}.castData.startCdFrame`,
     ),
+    // Preserve native values (including -1); interpretation belongs to the projection/runtime.
+    cooldownTime: requireNumber(castData.cooldownTime, `${sourcePath}.castData.cooldownTime`),
+    maxChargeTime: requireInteger(castData.maxChargeTime, `${sourcePath}.castData.maxChargeTime`),
+    costData: parseSkillCostSource(castData.costData, `${sourcePath}.castData.costData`),
+  };
+}
+
+export function parseSkillCastMetadataSource(value: unknown, sourcePath: string) {
+  const root = requireRecord(value, sourcePath);
+  return {
+    sourcePath,
+    skillId: requireNonEmptyString(root.skillId, `${sourcePath}.skillId`),
+    ...parseSkillCastResourceMetadataSource(value, sourcePath),
     targetSelection: parseSkillTargetSelectionHeaderSource(value, sourcePath),
   };
 }

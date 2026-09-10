@@ -1,6 +1,7 @@
 import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import type { AbilityEntityChildSkillDefinition } from '../../../../packages/game-data-contract/src/index.ts';
-import { requireArray, requireNonNegativeInteger, requireRecord } from '../source/primitives.ts';
+import { requireArray, requireRecord } from '../source/primitives.ts';
+import { parseSkillCastResourceMetadataSource } from '../source/activeSkill.ts';
 import { compileActiveSkillRuntimeProjectionSource } from './activeSkillRuntimeProjection.ts';
 import type {
   CombatActionProjectionContextSource,
@@ -21,9 +22,8 @@ export function compileAbilityEntityChildSkillSource(
   nativeMissingBlackboardZeroKeys: ReadonlySet<string> = new Set(),
 ): AbilityEntityChildSkillDefinition {
   const root = requireRecord(value, sourcePath);
-  const cast = requireRecord(root.castData, `${sourcePath}.castData`);
-  const cost = requireRecord(cast.costData, `${sourcePath}.castData.costData`);
-  requireNonNegativeInteger(cast.startCdFrame, `${sourcePath}.castData.startCdFrame`);
+  const cast = parseSkillCastResourceMetadataSource(value, sourcePath);
+  const cost = cast.costData;
   // 当前实体局部程序没有费用/冷却端口，只接入已证明不需要这些端口的无消耗子技能。
   // startCdFrame 只决定原生扣费/冷却确认时点；在费用与冷却均为零、实体生成后仅施放一次的
   // 子技能上没有可观察结果，因此仍严格读取但不要求它等于零。

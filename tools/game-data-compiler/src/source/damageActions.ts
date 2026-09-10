@@ -19,6 +19,7 @@ import {
 import { parseScalarSource, type BlackboardLevelValues, type ScalarSource } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 import { parseTagIdsSource } from './tagQuery.ts';
+import { parseSkillCostSource, type SkillCostSource } from './skillCost.ts';
 
 const ACTION_META_FIELDS = [
   '$type',
@@ -60,11 +61,7 @@ const DAMAGE_UNIT_BASE_FIELDS = [
   'updatePositionOnCoalition',
 ];
 
-export interface DamageCostSource {
-  readonly costType: string;
-  readonly costValue: number;
-  readonly atbValueThreshold: number;
-}
+export type DamageCostSource = SkillCostSource;
 
 export type DamageProcessorSource =
   | {
@@ -287,16 +284,9 @@ export function parseDamageUnitSource(
 }
 
 function parseDamageCosts(value: unknown, path: string): DamageCostSource[] {
-  return requireArray(value, path).map((rawCost, index) => {
-    const costPath = `${path}[${index}]`;
-    const cost = requireRecord(rawCost, costPath);
-    requireExactFields(cost, new Set(['costType', 'costValue', 'atbValueThreshold']), costPath);
-    return {
-      costType: requireNonEmptyString(cost.costType, `${costPath}.costType`),
-      costValue: requireNumber(cost.costValue, `${costPath}.costValue`),
-      atbValueThreshold: requireNumber(cost.atbValueThreshold, `${costPath}.atbValueThreshold`),
-    };
-  });
+  return requireArray(value, path).map((rawCost, index) =>
+    parseSkillCostSource(rawCost, `${path}[${index}]`),
+  );
 }
 
 export function parseDamageProcessors(
