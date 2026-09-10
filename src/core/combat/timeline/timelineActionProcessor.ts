@@ -35,6 +35,7 @@ export class TimelineActionProcessor {
   #starting: IndexedTimelineAction | null = null;
   #startingCrossedByJump = false;
   #startingJumpDestination: number | null = null;
+  #ended = false;
 
   constructor(actions: readonly TimelineAction[], lifecycle: TimelineActionLifecycleSink = {}) {
     actions.forEach((action, index) => {
@@ -64,6 +65,7 @@ export class TimelineActionProcessor {
   }
 
   reset(context: CombatExecutionContext): void {
+    this.#ended = false;
     this.#nextPendingIndex = 0;
     this.#active.length = 0;
     this.#starting = null;
@@ -73,12 +75,14 @@ export class TimelineActionProcessor {
   }
 
   tick(currentFrame: number, deltaTime: number, context: CombatExecutionContext): void {
+    if (this.#ended) return;
     // 已开始的区间行为在后续帧继续推进；本帧新开始的行为由下方分支推进一次。
     for (const indexedAction of this.#active) {
       indexedAction.action.sequence.tick(deltaTime, context);
     }
 
     while (
+      !this.#ended &&
       this.#nextPendingIndex < this.#actions.length &&
       this.#actions[this.#nextPendingIndex]!.action.startFrame <= currentFrame
     ) {
@@ -89,10 +93,13 @@ export class TimelineActionProcessor {
       this.#startingJumpDestination = null;
       this.#lifecycle.started?.(indexedAction.action, indexedAction.sourceIndex, currentFrame);
       indexedAction.action.sequence.execute(context);
+      if (!this.#startingCrossedByJump) {
+        indexedAction.action.sequence.tick(deltaTime, context);
+      }
+      // Execute 或首次 Tick 均可通过同步事件结束宿主。两者返回后都要清理，
+      // 不能把已经结束的区间重新放回 active。
       if (this.#startingCrossedByJump) {
         this.#end(indexedAction, this.#startingJumpDestination!, context);
-      } else {
-        indexedAction.action.sequence.tick(deltaTime, context);
       }
       this.#starting = null;
       this.#startingJumpDestination = null;
@@ -169,8 +176,18 @@ export class TimelineActionProcessor {
   }
 
   end(currentFrame: number, context: CombatExecutionContext): void {
-    for (const indexedAction of this.#active) this.#end(indexedAction, currentFrame, context);
-    this.#active.length = 0;
+    if (this.#ended) return;
+    // 原生 CastEnd 清理后关闭 isCasting；下一条 timeline 每次检查该状态。
+    // 先封闭调度入口，避免 End 的同步回调重入，Reset 才允许再次启动。
+    this.#ended = true;
+    this.#nextPendingIndex = this.#actions.length;
+    if (this.#starting !== null) {
+      this.#startingCrossedByJump = true;
+      this.#startingJumpDestination = currentFrame;
+    }
+    for (const indexedAction of this.#active.splice(0)) {
+      this.#end(indexedAction, currentFrame, context);
+    }
   }
 
   #end(

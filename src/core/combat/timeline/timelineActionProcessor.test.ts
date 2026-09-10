@@ -58,6 +58,56 @@ function rangedTimelineAction(
 describe('TimelineActionProcessor', () => {
   const context: CombatExecutionContext = {};
 
+  it('does not restart pending timelines after host CastEnd until reset', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([timelineAction(2, 'later', events)]);
+    processor.reset(context);
+    processor.end(0, context);
+    processor.tick(2, 0, context);
+    expect(events).toEqual([]);
+    expect(processor.isComplete).toBe(true);
+    processor.reset(context);
+    processor.tick(2, 0, context);
+    expect(events).toEqual(['later:execute', 'later:tick', 'later:end']);
+  });
+
+  it.each(['execute', 'tick'] as const)(
+    'stops later timelines when %s synchronously ends the host',
+    phase => {
+      const events: string[] = [];
+      let processor: TimelineActionProcessor;
+      class EndingStep extends RecordingStep {
+        override execute(): void {
+          super.execute();
+          if (phase === 'execute') processor.end(0, context);
+        }
+        override tick(): void {
+          super.tick();
+          if (phase === 'tick') processor.end(0, context);
+        }
+      }
+      processor = new TimelineActionProcessor([
+        {
+          startFrame: 0,
+          endFrame: 10,
+          sequence: new ActionSequence([new EndingStep('first', events)]),
+        },
+        timelineAction(0, 'same-frame', events),
+        timelineAction(2, 'future', events),
+      ]);
+      processor.reset(context);
+      processor.tick(0, 0, context);
+      processor.tick(20, 1, context);
+      processor.end(20, context);
+      expect(events).toEqual(
+        phase === 'execute'
+          ? ['first:execute', 'first:end']
+          : ['first:execute', 'first:tick', 'first:end'],
+      );
+      expect(processor.isComplete).toBe(true);
+    },
+  );
+
   it('executes and ends an action at its scheduled frame', () => {
     const events: string[] = [];
     const processor = new TimelineActionProcessor([timelineAction(2, 'action', events)]);
@@ -122,7 +172,7 @@ describe('TimelineActionProcessor', () => {
     expect(events).toEqual(['action:execute', 'action:tick', 'action:end']);
     expect(lifecycle.started).toHaveBeenCalledTimes(1);
     expect(lifecycle.ended).toHaveBeenCalledTimes(1);
-    expect(processor.isComplete).toBe(false);
+    expect(processor.isComplete).toBe(true);
   });
 
   it('finishes the timeline by discarding pending actions', () => {
