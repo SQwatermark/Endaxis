@@ -12,6 +12,7 @@ interface ProjectileLifetime {
   readonly resolveTickDeltaSeconds: () => number | null;
   readonly finish: () => void;
   readonly beforeReset: () => void;
+  readonly abilityRuntime?: FrameRuntime;
 }
 
 /**
@@ -22,6 +23,27 @@ interface ProjectileLifetime {
  */
 export class ProjectileLifecycleRuntime implements FrameRuntime {
   readonly #instances = new Set<ProjectileLifetime>();
+  #admittedAbilities: readonly ProjectileLifetime[] | null = null;
+
+  /** Capture at Battle-group entry, not after operator actions have spawned new objects. */
+  beginAbilityFrame(): void {
+    if (this.#admittedAbilities !== null)
+      throw new Error('projectile ability phase has not finished');
+    this.#admittedAbilities = [...this.#instances];
+  }
+
+  /** The ability host owns its clock and cast-frame zero delta; component delta is not reused. */
+  advanceAbilityFrame(): void {
+    const admitted = this.#admittedAbilities;
+    if (admitted === null) throw new Error('projectile ability phase must be captured first');
+    try {
+      for (const instance of admitted) {
+        if (instance.phase !== 'reset') instance.abilityRuntime?.advanceFrame();
+      }
+    } finally {
+      this.#admittedAbilities = null;
+    }
+  }
 
   launch(request: {
     readonly finishDelaySeconds: number;
@@ -30,6 +52,8 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
     readonly finish: () => void;
     /** End this projectile's current callback skill before notifying retained references. */
     readonly beforeReset: () => void;
+    /** Actual callback AbilitySystem host; no skill interpreter or timer is created here. */
+    readonly abilityRuntime?: FrameRuntime;
   }): ProjectileLifetimeReference {
     const finishDelay = Math.fround(request.finishDelaySeconds);
     const recycleDelay = Math.fround(request.recycleDelaySeconds);
@@ -45,6 +69,7 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
       resolveTickDeltaSeconds: request.resolveTickDeltaSeconds,
       finish: request.finish,
       beforeReset: request.beforeReset,
+      ...(request.abilityRuntime === undefined ? {} : { abilityRuntime: request.abilityRuntime }),
     };
     this.#instances.add(instance);
     return {

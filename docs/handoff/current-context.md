@@ -1,5 +1,21 @@
 # 当前任务快照
 
+## 2026-09-10：完整回调宿主的两阶段接入口
+
+ProjectileLifecycleRuntime 新增独立 Ability 阶段准入/推进入口，正式装配在 Battle
+开始前捕获实例、在干员 AbilitySystem 更新后消费宿主 FrameRuntime。组件与技能
+不复用 delta 或 Tick 暂停状态。3项新增单测及扩充装配顺序回归覆盖跨组新建准入、
+组内新建延后、标记回收仍存活/实际回收后不 Tick、独立许可与阶段调用约束。
+依据为复刻库 launch-projectile-skill-routing 的组排序、skill-affix-identity 中
+TickGroup pending 准入及 skill-cast-frame 的当帧零增量行为。
+
+注意：正式回调 body 仍未迁移，当前生产路径尚不传 abilityRuntime；不能将这些
+调度回归宣称为完整回调机制或生产回调已经通过。下一步需要把完整程序交给真实
+技能宿主，保留自身身份与继承来源的区别，并复核动态宿主的跨类型注册顺序。
+战斗回归118文件1439项通过；四真实轴与已接受的跨组修正基线完全一致。
+应用类型检查通过。
+本轮未修改复刻库运行时，不新增空间路径/游戏内容。
+
 ## 2026-09-10：投射物组件与技能宿主的跨组顺序
 
 重新核实 TickRoot 构造时 Enum.GetValues→Array.Sort→建组，以及 DoTick 按列表

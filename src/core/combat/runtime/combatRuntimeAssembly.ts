@@ -1150,6 +1150,7 @@ export class CombatRuntimeAssembly {
       // ProjectileComponent 属于 PreLateTick Default(0)，AbilitySystem 属于
       // Battle(1)。结束回调与 reset 必须先于敌方/干员的 Buff 和技能更新。
       this.simulation.add(this.projectileLifetimes);
+      this.simulation.add({ advanceFrame: () => this.projectileLifetimes.beginAbilityFrame() });
       // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
       this.simulation.add({
         advanceFrame: () => {
@@ -1250,6 +1251,7 @@ export class CombatRuntimeAssembly {
       for (const operator of options.operators) {
         this.simulation.add(this.#requireAbilitySystem(operator.operatorId));
       }
+      this.simulation.add({ advanceFrame: () => this.projectileLifetimes.advanceAbilityFrame() });
       const externalEvents = new ExternalCombatEventRuntime({
         clock: this.clock,
         events: options.externalEvents ?? [],

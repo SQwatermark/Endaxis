@@ -394,13 +394,14 @@ describe('CombatRuntimeAssembly', () => {
       resolveTickDeltaSeconds: () => 1 / 30,
       finish: () => calls.push('finish-callback'),
       beforeReset: () => calls.push('end-callback'),
+      abilityRuntime: { advanceFrame: () => calls.push('ability') },
     });
     projectile.onReset(() => calls.push('reset'));
     assembly.advanceFrame();
-    expect(calls).toEqual(['finish-callback', 'enemy-buffs']);
+    expect(calls).toEqual(['finish-callback', 'enemy-buffs', 'ability']);
     calls.length = 0;
     assembly.advanceFrame();
-    expect(calls).toEqual(['enemy-buffs']);
+    expect(calls).toEqual(['enemy-buffs', 'ability']);
     calls.length = 0;
     assembly.advanceFrame();
     expect(calls).toEqual(['end-callback', 'reset', 'enemy-buffs']);

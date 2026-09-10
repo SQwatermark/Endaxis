@@ -2,6 +2,15 @@
 
 核对日期：2026-09-10。此文是未完成实现的约束，不是完成声明。
 
+两阶段调度接入口已落位：ProjectileLifecycleRuntime 的组件更新仍在 Default；
+beginAbilityFrame 在 Battle 入口捕获准入实例，advanceAbilityFrame 只推进其实际
+abilityRuntime（FrameRuntime）。组件的 delta/暂停不冒充技能的 delta/暂停。
+Default 中的新建可准入本帧 Battle，Battle 内新建不准入本轮；marked 尚未 reset
+时仍可推进，实际 reset 后不能再调用。零增量施放当帧保护由真实技能宿主负责。
+正式 scheduleProjectileFinishCallback 尚未提供 abilityRuntime，仍为即时 body；
+这个接入口是迁移基础，不是完整回调已接通。动态实体与投射物全部宿主的统一
+注册排序仍需在消费完整回调程序时复核，不能把固定分区本身称作原生注册顺序。
+
 时钟阶段新证据：ProjectileComponent 使用 PreLateTick Default(0)，AbilitySystem
 使用 Battle(1)，TickRoot 按排序后的枚举顺序执行。正式 duration-finish 队列已移到
 敌方 Buff 更新之前。完整宿主须把组件寿命与技能更新分阶段，不能在每个投射物内
