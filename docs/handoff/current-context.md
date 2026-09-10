@@ -1,5 +1,14 @@
 # 当前任务快照
 
+## 2026-09-10：实体子Buff结束来源与实时列表对照
+
+Endaxis实体所有权清理现显式Other+null，避免省略结束身份；回归同时固定清理中
+追加子Buff仍同次处理、最后才通知reset。C# Ability.FinishChildrenBuff的foreach
+改为原生实时Count索引循环，消除结束动作追加子Buff时的集合修改异常。
+证据见复刻库ability-enable-event-order；不据此宣称完整实体组件顺序已恢复。
+118文件1424项TS战斗测试通过，四真实轴完整结果一致（ability-host-disposal-axes.json）；
+C#1843/1849，原有六项资源失败不变。整体未完成，完整投射物回调宿主仍是主要余项。
+
 ## 2026-09-10：被动/配装共用 Ability 退出所有权
 
 新增 AbilityEventHostLifecycle，按当前 Ability.Disable 原生顺序统一注册、启用、

@@ -326,7 +326,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   finish(entity: RuntimeTargetRef, reason: LogicalAbilityEntityFinishReason = 'explicit'): void {
     const instance = this.#requireInstance(entity);
     for (const runtime of instance.childRuntimes) runtime.finish();
-    for (const child of instance.childBuffs) child.finish('other');
+    for (const child of instance.childBuffs) child.finish('other', null);
     instance.timedMarkers.finishAll();
     this.#hooks.finished?.(this.#snapshot(instance), reason);
     this.#instances.delete(instance.instanceId);

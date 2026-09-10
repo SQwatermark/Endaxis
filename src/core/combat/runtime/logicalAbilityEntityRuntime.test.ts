@@ -8,6 +8,31 @@ function createRuntime() {
 }
 
 describe('LogicalAbilityEntityRuntime', () => {
+  it('所有权子Buff以空来源结束，包括清理中追加的子Buff，并先于reset通知', () => {
+    const order: string[] = [];
+    const runtime = createRuntime();
+    const entity = runtime.spawn({
+      abilityEntityId: 'entity',
+      ownerId: 'owner',
+      source: { kind: 'operator', operatorId: 'owner' },
+      definition: { lifetime: { kind: 'infinite' } },
+    });
+    const lateFinish = vi.fn(() => {
+      order.push('late');
+      return true;
+    });
+    const firstFinish = vi.fn(() => {
+      order.push('first');
+      runtime.addChildBuff(entity, { finish: lateFinish });
+      return true;
+    });
+    runtime.addChildBuff(entity, { finish: firstFinish });
+    runtime.onReset(entity, () => order.push('reset'));
+    runtime.finish(entity);
+    expect(firstFinish).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(lateFinish).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(order).toEqual(['first', 'late', 'reset']);
+  });
   it('reset订阅在子技能和宿主清理后执行，重复函数按句柄独立注销', () => {
     const observed: string[] = [];
     const runtime = new LogicalAbilityEntityRuntime({
