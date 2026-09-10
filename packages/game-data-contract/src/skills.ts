@@ -23,6 +23,12 @@ export interface SkillActionProgramDefinition {
   scheduledSequences: readonly ScheduledSequenceDefinition[];
 }
 
+/** Projectile callback action program; its lifetime is independent from object recycling. */
+export interface ProjectileCallbackSkillDefinition extends Readonly<SkillActionProgramDefinition> {
+  readonly skillId: string;
+  readonly naturalDurationFrames: number;
+}
+
 /** 由一个逻辑能力实体独占、按该实体局部时钟执行的无施法子技能。 */
 export interface AbilityEntityChildSkillDefinition extends Readonly<SkillActionProgramDefinition> {
   readonly skillId: string;

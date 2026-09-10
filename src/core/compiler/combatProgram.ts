@@ -90,6 +90,11 @@ export interface CompiledSkillActionProgram {
   readonly timelineActions: readonly CompiledTimelineAction[];
 }
 
+export interface CompiledProjectileCallbackSkillProgram extends CompiledSkillActionProgram {
+  readonly skillId: string;
+  readonly naturalDurationFrames: number;
+}
+
 /** 等级已经展开、由单个能力实体实例按局部时钟执行的子技能。 */
 export interface CompiledAbilityEntityChildSkillProgram extends CompiledSkillActionProgram {
   readonly skillId: string;
@@ -358,7 +363,7 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
           : K extends 'repeatByActionValue'
             ? { readonly body: ResolvedActionSequence }
             : K extends 'scheduleProjectileFinishCallback'
-              ? { readonly body: ResolvedActionSequence }
+              ? { readonly callback: CompiledProjectileCallbackSkillProgram }
               : K extends 'forEachContextTarget'
                 ? { readonly body: ResolvedActionSequence }
                 : {});

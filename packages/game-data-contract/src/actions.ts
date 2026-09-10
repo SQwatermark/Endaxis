@@ -40,6 +40,7 @@ import {
   type AbilityEntityDefinition,
   type AbilityEntityTargetQuery,
   type SkillTriggerScope,
+  type ProjectileCallbackSkillDefinition,
 } from './skills.ts';
 import { type SkillBuffDefinition, type SkillGlobalBuffDefinition } from './buffs.ts';
 import type {
@@ -1015,7 +1016,7 @@ type CombatStepForKind<K extends CombatStepKind> = {
           : K extends 'repeatByActionValue'
             ? { body: ActionSequenceDefinition }
             : K extends 'scheduleProjectileFinishCallback'
-              ? { body: ActionSequenceDefinition }
+              ? { callback: ProjectileCallbackSkillDefinition }
               : K extends 'forEachContextTarget'
                 ? { body: ActionSequenceDefinition }
                 : {});

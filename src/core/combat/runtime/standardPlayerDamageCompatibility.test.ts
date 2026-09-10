@@ -821,15 +821,26 @@ describe('standardPlayerDamageCompatibility', () => {
             {
               kind: 'scheduleProjectileFinishCallback',
               parameters: { delaySeconds: 0.1, recycleDelaySeconds: 0 },
-              body: {
-                steps: [
+              callback: {
+                skillId: 'callback',
+                naturalDurationFrames: 1,
+                initialBlackboard: {},
+                timelineActions: [
                   {
-                    kind: 'changeResource',
-                    parameters: {
-                      resource: 'sp',
-                      amount: 1,
-                      recipient: 'team',
-                      spGainKind: 'gain',
+                    startFrame: 0,
+                    endFrame: 0,
+                    sequence: {
+                      steps: [
+                        {
+                          kind: 'changeResource',
+                          parameters: {
+                            resource: 'sp',
+                            amount: 1,
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                          },
+                        },
+                      ],
                     },
                   },
                 ],

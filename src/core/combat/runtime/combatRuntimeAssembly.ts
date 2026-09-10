@@ -1654,6 +1654,7 @@ export class CombatRuntimeAssembly {
         execute,
         beforeReset,
         skillCastInfo,
+        advanceCallback,
       ) => {
         const entity = this.projectileLifetimes.launch({
           finishDelaySeconds: delaySeconds,
@@ -1662,6 +1663,16 @@ export class CombatRuntimeAssembly {
             COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
           finish: execute,
           beforeReset,
+          ...(advanceCallback === undefined
+            ? {}
+            : {
+                abilityRuntime: {
+                  advanceFrame: () =>
+                    advanceCallback(
+                      COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
+                    ),
+                },
+              }),
         });
         this.#options.emitAbilityEvent?.(operatorId, 'projectileLaunched', {
           sourceId: operatorId,

@@ -119,6 +119,20 @@ ProjectileLifecycleRuntime 只管投射物阶段与对象 reset；回收前结�
 其时钟输入由装配层提供，不为此开放尚未闭合的 syncTimeScale=true 路径。
 无回调的发射仍可能保留 SkillAffix，不能因没有动作序列就删掉对象。
 
+## 2026-09-10：动作程序层已接入正式 duration-finish 路径
+
+正式 scheduleProjectileFinishCallback 已使用必填 callback 完整程序，替代即时 body。
+编译器保留技能 ID、原生自然时长、初始黑板与所有区间；汤汤已重新生成。
+ProjectileCallbackActionRuntime 复用公共序列解释器和 TimelineActionProcessor，
+由现有组件 Default / 技能 Battle 两阶段推进，区间共享 direct 黑板，自然结束与对象
+reset 独立。父动作结束不取消回调，回调结束清理自身附属 Buff。
+
+该类当前只是动作程序适配层，不是完整独立 AbilitySystem：尚未消费已存在的
+tryStartProjectileCallbackSkill，也未闭合 callback owner 的 beforeCast/SkillEnd 等
+事件。不能把继承的 SkillCastInfo 当成宿主身份，不能向发射者伪造这些事件。
+后续应复用公共技能宿主收掉这层生命周期适配，避免长期保留平行技能实现。
+自然时长上界跳转、所有发射对象的引用、其余即时投影与完整 Disable 顺序仍是待办。
+
 ## 必须覆盖的验收用例
 
 - 同起点不同终点的动作分别 End，direct/entity 黑板不分裂。

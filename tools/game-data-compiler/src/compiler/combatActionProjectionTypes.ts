@@ -348,7 +348,16 @@ export type CompiledBuffStepSource =
   | (Step<'repeatEachTick'> & { readonly body: CompiledBuffSequenceSource })
   | (Step<'repeatByActionValue'> & { readonly body: CompiledBuffSequenceSource })
   | (Step<'scheduleProjectileFinishCallback'> & {
-      readonly body: CompiledBuffSequenceSource;
+      readonly callback: {
+        readonly skillId: string;
+        readonly naturalDurationFrames: number;
+        readonly blackboard: Readonly<Record<string, number>>;
+        readonly scheduledSequences: readonly {
+          readonly startFrame: number;
+          readonly endFrame: number;
+          readonly sequence: CompiledBuffSequenceSource;
+        }[];
+      };
     })
   | (Step<'once'> & { readonly body: CompiledBuffSequenceSource })
   | (Step<'switch'> & {

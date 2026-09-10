@@ -219,7 +219,18 @@ describe('skillStructureMindMapModel', () => {
                     {
                       kind: 'scheduleProjectileFinishCallback',
                       parameters: { delaySeconds: 1, recycleDelaySeconds: 0 },
-                      body: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+                      callback: {
+                        skillId: 'callback',
+                        naturalDurationFrames: 1,
+                        blackboard: {},
+                        scheduledSequences: [
+                          {
+                            startFrame: 0,
+                            endFrame: 0,
+                            sequence: { steps: [{ kind: 'finishTimeline', parameters: {} }] },
+                          },
+                        ],
+                      },
                     },
                   ],
                 },
@@ -232,7 +243,9 @@ describe('skillStructureMindMapModel', () => {
     const nodes = [...indexSkillStructureNodes(buildSkillStructureMindMap(skill)).values()];
     const childSkill = nodes.find(node => node.payloadKind === 'childSkill');
     const callbackBody = nodes.find(
-      node => node.sourcePath === 'scheduledSequences[0].sequence.steps[0].body.steps[1].body',
+      node =>
+        node.sourcePath ===
+        'scheduledSequences[0].sequence.steps[0].body.steps[1].callback.scheduledSequences',
     );
     expect(childSkill).toMatchObject({
       relationToParent: 'port',
@@ -245,7 +258,7 @@ describe('skillStructureMindMapModel', () => {
     expect(childSkill?.children[0]?.sourcePath).toBe(
       'scheduledSequences[0].sequence.steps[0].body.steps[0].parameters.childSkill.scheduledSequences[0]',
     );
-    expect(callbackBody).toMatchObject({ canAddChild: 'step', relationToParent: 'port' });
+    expect(callbackBody).toMatchObject({ canAddChild: 'sequence', relationToParent: 'port' });
   });
 
   it('Switch 候选是可添加步骤的序列端口，重复标签仍有独立路径', () => {

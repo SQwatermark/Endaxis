@@ -176,7 +176,27 @@ function setShareParent(event: Event): void {
             })
           "
       /></label>
-      <p>在左侧回调节点上添加动作，直接选择其下的动作编辑；其寿命独立于发射技能。</p>
+      <label
+        ><span>回调技能自然时长（帧）</span
+        ><input
+          type="number"
+          min="1"
+          step="1"
+          :value="step.callback.naturalDurationFrames"
+          @input="
+            emit('update', {
+              ...step,
+              callback: {
+                ...step.callback,
+                naturalDurationFrames: Math.max(
+                  1,
+                  Math.round(Number(($event.target as HTMLInputElement).value)),
+                ),
+              },
+            })
+          "
+      /></label>
+      <p>回调技能内按独立时间轴编辑动作；自然时长和对象回收等待互相独立。</p>
     </template>
     <template v-else>
       <label

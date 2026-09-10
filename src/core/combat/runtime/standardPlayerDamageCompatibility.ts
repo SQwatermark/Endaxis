@@ -472,7 +472,15 @@ function inspectSequence(
       case 'finishTimeline':
         return;
       case 'scheduleProjectileFinishCallback':
-        inspectSequence(step.body, `${stepPath}.body`, collect, flags, source);
+        step.callback.timelineActions.forEach((action, index) =>
+          inspectSequence(
+            action.sequence,
+            `${stepPath}.callback.timelineActions[${index}].sequence`,
+            collect,
+            flags,
+            source,
+          ),
+        );
         return;
       case 'changeResource':
       case 'changeResourceByActionValue': {

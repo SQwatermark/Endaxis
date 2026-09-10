@@ -23,6 +23,7 @@ import type {
 } from './combatSemanticEventRuntime';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 import { RuntimeTargetContext } from './runtimeTargetContext';
+import { ProjectileCallbackActionRuntime } from './projectileCallbackActionRuntime';
 
 export interface CombatActionSequenceRuntimeHooks {
   readonly stepReached?: (step: ResolvedCombatStep) => void;
@@ -376,29 +377,21 @@ class ProjectileFinishCallbackStep extends CombatStep {
       ...(parent.actionSourceId === undefined ? {} : { actionSourceId: parent.actionSourceId }),
       scheduleProjectileFinishCallback: schedule,
     };
-    const body = this.step.body;
-    const operations = this.runtime.operations;
-    const semanticEvents = this.runtime.semanticEvents;
-    const ownerOperatorId = this.runtime.ownerOperatorId;
-    let callbackSequence: ActionSequence | undefined;
+    let callback: ProjectileCallbackActionRuntime | undefined;
     schedule(
       this.step.parameters.delaySeconds,
       this.step.parameters.recycleDelaySeconds,
       () => {
-        const detached = new CombatActionSequenceRuntime(
-          operations,
+        callback = new ProjectileCallbackActionRuntime(
+          this.step.callback,
           detachedContext,
-          this.runtime.hooks,
-          semanticEvents,
-          ownerOperatorId,
+          this.runtime,
         );
-        const sequence = detached.createSequence(body);
-        callbackSequence = sequence;
-        sequence.reset({});
-        sequence.executeInstant({});
+        callback.start();
       },
-      () => callbackSequence?.end({}),
+      () => callback?.end(),
       detachedContext.skillCastInfo,
+      delta => callback?.advance(delta),
     );
     return true;
   }

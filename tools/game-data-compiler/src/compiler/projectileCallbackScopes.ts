@@ -246,7 +246,7 @@ function projectEntityAssignments(
   return Object.fromEntries(entries);
 }
 
-function numericInitialValues(
+export function numericInitialValues(
   values: readonly DeclaredBlackboardValueSource[],
   sourcePath: string,
   entity = false,

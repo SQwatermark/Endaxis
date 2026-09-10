@@ -524,13 +524,22 @@ function stepNode(
         ),
       ),
     );
+  } else if (step.kind === 'scheduleProjectileFinishCallback') {
+    children.push({
+      ...inlineAbilityEntityChildSkillNode(
+        step.callback,
+        `${id}:callback`,
+        `${sourcePath}.callback`,
+        editorSection,
+      ),
+      kind: '内联投射物回调技能',
+    });
   } else if (
     step.kind === 'once' ||
     step.kind === 'withActionBlackboardScope' ||
     step.kind === 'repeatEachTick' ||
     step.kind === 'forEachContextTarget' ||
-    step.kind === 'repeatByActionValue' ||
-    step.kind === 'scheduleProjectileFinishCallback'
+    step.kind === 'repeatByActionValue'
   ) {
     children.push(
       sequenceNode(

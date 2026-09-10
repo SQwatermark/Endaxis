@@ -94,7 +94,37 @@ describe('LaunchProjectile 原生新增目标控制', () => {
           ],
         ]),
         templates: new Map([[template.projectileId, template]]),
-        callbackGraphs: new Map([[callbackId, { ...graph(callbackId), durationFrame: 900 }]]),
+        callbackGraphs: new Map([
+          [
+            callbackId,
+            {
+              ...graph(callbackId),
+              durationFrame: 900,
+              declaredBlackboard: [{ key: 'value', value: 2, isDynamic: true }],
+              actionGroup: {
+                passiveEvents: [],
+                timelineActions: [
+                  [0, 1],
+                  [2, 5],
+                ].map(([startFrame, endFrame]) => ({
+                  startFrame: startFrame!,
+                  endFrame: endFrame!,
+                  forceSyncAnimation: {
+                    forceSync: false,
+                    montageName: '',
+                    targetFrame: 0,
+                    playbackSpeed: 1,
+                  },
+                  sequence: {
+                    onlyExecuteWhenSourceIsMainCharacter: false,
+                    onlyExecuteWhenSourceIsGuard: false,
+                    actions: [],
+                  },
+                })),
+              },
+            },
+          ],
+        ]),
       },
       callbackContext: returnProjectionContext,
     });
@@ -107,12 +137,13 @@ describe('LaunchProjectile 原生新增目标控制', () => {
             {
               kind: 'scheduleProjectileFinishCallback',
               parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
-              body: {
-                steps: [
-                  {
-                    kind: 'withActionBlackboardScope',
-                    parameters: { scopeKey: `fixture.launch:${callbackId}` },
-                  },
+              callback: {
+                skillId: callbackId,
+                naturalDurationFrames: 900,
+                blackboard: { value: 2 },
+                scheduledSequences: [
+                  { startFrame: 0, endFrame: 1, sequence: { steps: [] } },
+                  { startFrame: 2, endFrame: 5, sequence: { steps: [] } },
                 ],
               },
             },

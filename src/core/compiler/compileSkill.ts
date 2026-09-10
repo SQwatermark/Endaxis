@@ -182,11 +182,24 @@ function resolveStep(
           `${path}.parameters.recycleDelaySeconds must be a non-negative finite number`,
         );
       }
+      if (
+        !Number.isInteger(step.callback.naturalDurationFrames) ||
+        step.callback.naturalDurationFrames < 1
+      )
+        throw new RangeError(`${path}.callback.naturalDurationFrames must be a positive integer`);
       return {
         ...keyed,
         kind: step.kind,
         parameters: step.parameters,
-        body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
+        callback: {
+          ...compileAbilityEntityChildSkill(
+            step.callback,
+            skillLevel,
+            `${path}.callback`,
+            abilityEntities,
+          ),
+          naturalDurationFrames: step.callback.naturalDurationFrames,
+        },
       };
     case 'spawnAbilityEntity': {
       const { definition: inlineDefinition, ...parameters } = step.parameters;

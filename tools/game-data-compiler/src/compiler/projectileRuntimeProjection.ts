@@ -17,6 +17,7 @@ import type {
 } from './combatActionProjectionTypes.ts';
 import {
   compileSynchronousProjectileCallbackScopesSource,
+  numericInitialValues,
   type CompiledActionBlackboardScopeSource,
   type ProjectileCallbackInvocationSource,
 } from './projectileCallbackScopes.ts';
@@ -235,20 +236,26 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       ) {
         throw new Error(`${sourcePath}: unsupported duration-finish ProjectileData shape`);
       }
-      const finish = compileImmediateProjectileCallbackSkillSource({
+      const finish = compileProjectileCallbackSkillSource({
         graph: callback('finish'),
         context: callbackContext,
         visualOnlyIds: input.visualOnlyIds,
         extensions: input.callbackExtensions,
       });
-      if (finish.delayedSequences.length > 0) {
-        throw new Error(`${sourcePath}: duration-finish callback has its own delayed timeline`);
-      }
       const callbackScope = compileSynchronousProjectileCallbackScopesSource({
         sourcePath,
         launch,
         template,
-        invocations: [{ event: 'finish', ...finish }],
+        invocations: [
+          {
+            event: 'finish',
+            ...finish,
+            // Only used to discover entity-board dependencies; execution retains intervals below.
+            sequence: {
+              steps: finish.timelineActions.flatMap(timeline => timeline.sequence.steps),
+            },
+          },
+        ],
         allowMissingEntityBlackboardEvidence: true,
       });
       return [
@@ -268,7 +275,12 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
                     sourcePath,
                   ),
                 },
-                body: callbackScope.body,
+                callback: {
+                  skillId: finish.skillId,
+                  naturalDurationFrames: finish.naturalDurationFrames,
+                  blackboard: numericInitialValues(finish.declaredBlackboard, sourcePath),
+                  scheduledSequences: finish.timelineActions,
+                },
               },
             ],
           },

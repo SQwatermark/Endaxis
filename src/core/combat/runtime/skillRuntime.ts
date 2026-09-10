@@ -7,6 +7,7 @@ export type ScheduleProjectileFinishCallback = (
   execute: () => void,
   beforeReset: () => void,
   skillCastInfo?: CombatSkillCastInfo,
+  advanceCallback?: (deltaSeconds: number) => void,
 ) => void;
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。

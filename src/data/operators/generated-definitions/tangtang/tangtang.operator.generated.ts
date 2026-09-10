@@ -17,7 +17,7 @@ import {
   withSkillBlackboard,
 } from '../../definitionHelpers';
 
-const sharedActionSequence8: ActionSequenceDefinition = sequence(
+const sharedActionSequence7: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -78,7 +78,7 @@ const sharedActionSequence8: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence6: ActionSequenceDefinition = sequence(
+const sharedActionSequence5: ActionSequenceDefinition = sequence(
   step('spawnAbilityEntity', {
     abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
     childSkillId: 'chr_0027_tangtang_combo_skill_water',
@@ -155,7 +155,7 @@ const sharedActionSequence6: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence7: ActionSequenceDefinition = sequence(
+const sharedActionSequence6: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -163,7 +163,7 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
       operator: 'greater',
       right: { kind: 'constant', value: 0 },
     },
-    sharedActionSequence8,
+    sharedActionSequence7,
     sequence(
       step('spawnAbilityEntity', {
         abilityEntityId: 'abilityentity_chr_0027_tangtang_normal_skill',
@@ -182,7 +182,7 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
+const sharedActionSequence4: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'buffIdStackCompare',
@@ -191,7 +191,7 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
       operator: 'greater',
       value: { kind: 'constant', value: 0 },
     },
-    sharedActionSequence6,
+    sharedActionSequence5,
     sequence(
       step('spawnAbilityEntity', {
         abilityEntityId: 'abilityentity_chr_0027_tangtang_comboskill_water',
@@ -222,21 +222,15 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence4: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    { duration_water: 30, potential1: 0, radius: 4 },
-    true,
-    sharedActionSequence5,
-    undefined,
-    { lifetime: 'execution', alwaysNext: true },
-  ),
-);
-
 const sharedActionSequence3: ActionSequenceDefinition = sequence({
   kind: 'scheduleProjectileFinishCallback',
   parameters: { delaySeconds: 3, recycleDelaySeconds: 30 },
-  body: instantiateActionSequence(sharedActionSequence4, ['\u0000endaxis-generated-identity:0']),
+  callback: {
+    skillId: 'chr_0027_tangtang_combo_skill_water_gene',
+    naturalDurationFrames: 900,
+    blackboard: { duration_water: 30, potential1: 0, radius: 4 },
+    scheduledSequences: [scheduled(0, sharedActionSequence4, 1)],
+  },
 });
 
 const sharedActionSequence2: ActionSequenceDefinition = sequence(
@@ -244,7 +238,7 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
     '\u0000endaxis-generated-identity:0',
     {},
     true,
-    instantiateActionSequence(sharedActionSequence3, ['\u0000endaxis-generated-identity:1']),
+    sharedActionSequence3,
     {},
     { lifetime: 'execution' },
   ),
@@ -257,14 +251,8 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
       contextKey: 'water_group',
       markerId: 'tangtang_waterabilityentity02',
     },
-    instantiateActionSequence(sharedActionSequence2, [
-      '\u0000endaxis-generated-identity:0',
-      '\u0000endaxis-generated-identity:1',
-    ]),
-    instantiateActionSequence(sharedActionSequence2, [
-      '\u0000endaxis-generated-identity:2',
-      '\u0000endaxis-generated-identity:3',
-    ]),
+    instantiateActionSequence(sharedActionSequence2, ['\u0000endaxis-generated-identity:0']),
+    instantiateActionSequence(sharedActionSequence2, ['\u0000endaxis-generated-identity:1']),
     { alwaysNext: true },
   ),
 );
@@ -1622,22 +1610,17 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
                         },
                         instantiateActionSequence(sharedActionSequence1, [
                           'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0027_tangtang_combo_skill_water_gene',
                           'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].failActions.actionData[0]:chr_0027_tangtang_combo_skill_water_gene',
                         ]),
                         instantiateActionSequence(sharedActionSequence1, [
                           'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].succeedActions.actionData[0]:chr_0027_tangtang_combo_skill_water_gene',
                           'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].failActions.actionData[0]:chr_0027_tangtang_combo_skill_water_gene',
                         ]),
                         { alwaysNext: true },
                       ),
                     ),
                     instantiateActionSequence(sharedActionSequence2, [
                       'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                      'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].failActions.actionData[0]:chr_0027_tangtang_combo_skill_water_gene',
                     ]),
                     { alwaysNext: true },
                   ),
@@ -2989,7 +2972,7 @@ export default {
             water_cnt: 0,
           },
           scheduledSequences: [
-            scheduled(12, sharedActionSequence7, 12),
+            scheduled(12, sharedActionSequence6, 12),
             scheduled(298, sequence(step('finishActionOwnerAbilityEntity', {})), 298),
             scheduled(
               0,
@@ -3020,7 +3003,7 @@ export default {
             water_cnt: 0,
           },
           scheduledSequences: [
-            scheduled(18, sharedActionSequence7, 18),
+            scheduled(18, sharedActionSequence6, 18),
             scheduled(150, sequence(step('finishActionOwnerAbilityEntity', {})), 150),
           ],
         },

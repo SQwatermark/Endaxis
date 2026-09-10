@@ -3444,12 +3444,20 @@ function validateActionSequence(
           currentTargetAvailable,
         );
       });
+    } else if (stepKind === 'scheduleProjectileFinishCallback') {
+      const callbackPath = `${path}.steps[${index}].callback`;
+      validateAbilityEntityChildSkill(recordStep.callback, callbackPath, out);
+      const callback = asRecord(recordStep.callback, callbackPath, out);
+      if (callback !== null) {
+        const duration = requireFiniteNumber(callback, 'naturalDurationFrames', callbackPath, out);
+        if (duration !== null && (!Number.isInteger(duration) || duration < 1))
+          push(out, `${callbackPath}.naturalDurationFrames`, 'expected a positive integer');
+      }
     } else if (
       stepKind === 'once' ||
       stepKind === 'withActionBlackboardScope' ||
       stepKind === 'repeatEachTick' ||
-      stepKind === 'repeatByActionValue' ||
-      stepKind === 'scheduleProjectileFinishCallback'
+      stepKind === 'repeatByActionValue'
     ) {
       validateActionSequence(
         recordStep.body,
@@ -3466,6 +3474,18 @@ function validateActionSequence(
 function containsCombatEventListener(value: unknown): boolean {
   if (typeof value !== 'object' || value === null) return false;
   const record = value as Record<string, unknown>;
+  if (record.kind === 'scheduleProjectileFinishCallback') {
+    const callback = record.callback as Record<string, unknown> | undefined;
+    return (
+      Array.isArray(callback?.scheduledSequences) &&
+      callback.scheduledSequences.some(
+        item =>
+          typeof item === 'object' &&
+          item !== null &&
+          containsCombatEventListener((item as Record<string, unknown>).sequence),
+      )
+    );
+  }
   if (record.kind === 'listenForCombatEvents') return true;
   if (record.kind === 'switch' && Array.isArray(record.options)) {
     return record.options.some(
@@ -3485,7 +3505,6 @@ function containsCombatEventListener(value: unknown): boolean {
     record.kind === 'withActionBlackboardScope' ||
     record.kind === 'repeatEachTick' ||
     record.kind === 'repeatByActionValue' ||
-    record.kind === 'scheduleProjectileFinishCallback' ||
     record.kind === 'forEachContextTarget'
   ) {
     return containsCombatEventListener(record.body);

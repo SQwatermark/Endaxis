@@ -1,5 +1,31 @@
 # 当前任务快照
 
+## 2026-09-10：正式 duration-finish 回调保留完整动作程序
+
+scheduleProjectileFinishCallback 的即时 body 已替换为必填 callback：原生 skillId、
+naturalDurationFrames、blackboard 和 scheduledSequences。转换器保留全部区间，不再
+合并成一次即时执行；汤汤正式定义由来源重新生成，校验、编译、导图遍历同步更新。
+旧 body 不设兼容回退。这一节覆盖下方历史检查点中的“正式端仍使用即时 body”。
+
+ProjectileCallbackActionRuntime 复用 CombatActionSequenceRuntime 与 TimelineActionProcessor，
+保存整次回调共享的 direct 黑板，按已核实的 Default/Battle 分组推进，启动当帧零增量
+Tick；自然结束清理区间与附属 Buff，对象实际 reset 仍是另一阶段。回归覆盖多个区间、
+共享写入、发射时来源快照、提前自然结束清理和回收不重复结束。不新增路径、碰撞或内容。
+
+**不是完整事件宿主统一完成。** 当前是动作程序层落地，尚未接入独立投射物 AbilitySystem
+的 tryStartProjectileCallbackSkill，不发布冒充发射者的 SkillEnd。实际 callback owner、
+继承来源、所有发射（含无回调）的 SkillAffix/reset 引用，以及完整 Disable 顺序仍待收束。
+其他即时回调适配路径未在本轮全迁移；不能以汤汤通过推断全部投射物路径已完成。
+依据沿用 combat-spec 的 launch-projectile-skill-routing、skill-cast-frame 与技能结束证据；
+本轮没有新增反编译结论或复刻库修改。当前作用域仅接已准入的 duration-finish 路径。
+
+验证：31干员重新生成 --check 通过；战斗及相关编辑模型120文件1498项通过，随后新增
+提前 reset 不启动后续区间回归，该文件5项通过。编译器全套1759项通过、2跳过，唯一
+失败是架构类型扫描120秒超时；单独重跑该文件7项全部通过（约108秒），未调高超时。
+应用与编译器类型检查通过。四真实轴完整回执和三类诊断与已接受基线逐项一致：
+sc_0nz7ti7=2915、sc_yh34je7=1610、sc_zpm5ozw=5501、default_sc=4311。
+本轮 UI 仅协议遍历及表单字段适配、通过模型回归；未宣称视觉验收。临时日志均在 tmp。
+
 ## 2026-09-10：回调施放入口复用公共技能启动
 
 AbilitySystemRuntime 新增 tryStartProjectileCallbackSkill：先对自身当前技能

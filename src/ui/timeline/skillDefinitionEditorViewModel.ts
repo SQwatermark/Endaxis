@@ -651,7 +651,16 @@ export function createSkillEditorStep(
         body: { steps: [] },
       };
     case 'scheduleProjectileFinishCallback':
-      return { kind, parameters: { delaySeconds: 1, recycleDelaySeconds: 0 }, body: { steps: [] } };
+      return {
+        kind,
+        parameters: { delaySeconds: 1, recycleDelaySeconds: 0 },
+        callback: {
+          skillId: 'callback',
+          naturalDurationFrames: 1,
+          blackboard: {},
+          scheduledSequences: [{ startFrame: 0, endFrame: 1, sequence: { steps: [] } }],
+        },
+      };
     case 'startTimeDilation':
       return {
         kind,

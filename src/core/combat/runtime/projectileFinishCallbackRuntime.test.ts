@@ -5,6 +5,8 @@ import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { compileActionSequence } from '../../compiler/compileSkill';
+import { ProjectileCallbackActionRuntime } from './projectileCallbackActionRuntime';
 
 const probe = {
   kind: 'setContextFlag',
@@ -32,17 +34,28 @@ function delayedProbe(): ResolvedActionSequence {
             {
               kind: 'scheduleProjectileFinishCallback',
               parameters: { delaySeconds: 3, recycleDelaySeconds: 0 },
-              body: {
-                steps: [
+              callback: {
+                skillId: 'callback',
+                naturalDurationFrames: 1,
+                initialBlackboard: {},
+                timelineActions: [
                   {
-                    kind: 'withActionBlackboardScope',
-                    parameters: {
-                      scopeKey: 'callback',
-                      lifetime: 'execution',
-                      initialValues: { local: 2 },
-                      inheritParent: true,
+                    startFrame: 0,
+                    endFrame: 0,
+                    sequence: {
+                      steps: [
+                        {
+                          kind: 'withActionBlackboardScope',
+                          parameters: {
+                            scopeKey: 'callback',
+                            lifetime: 'execution',
+                            initialValues: { local: 2 },
+                            inheritParent: true,
+                          },
+                          body: { steps: [probe] },
+                        },
+                      ],
                     },
-                    body: { steps: [probe] },
                   },
                 ],
               },
@@ -55,7 +68,169 @@ function delayedProbe(): ResolvedActionSequence {
 }
 
 describe('projectile callback action lifecycle', () => {
-  it('keeps projectile reset separate from the existing instant callback action lifetime', () => {
+  it('ends active intervals once and never starts pending intervals after reset cleanup', () => {
+    const trace: string[] = [];
+    const context = { blackboard: new ActionBlackboard() };
+    const execution = new CombatActionSequenceRuntime(
+      {
+        evaluate: () => true,
+        execute: step => {
+          if (step.kind === 'setContextFlag') trace.push(`start:${step.parameters.flag}`);
+          return true;
+        },
+        end: step => {
+          if (step.kind === 'setContextFlag') trace.push(`end:${step.parameters.flag}`);
+        },
+      },
+      context,
+    );
+    const callback = new ProjectileCallbackActionRuntime(
+      {
+        skillId: 'callback',
+        naturalDurationFrames: 100,
+        initialBlackboard: {},
+        timelineActions: [
+          { startFrame: 0, endFrame: 10, sequence: { steps: [probe] } },
+          {
+            startFrame: 5,
+            endFrame: 10,
+            sequence: { steps: [{ ...probe, parameters: { ...probe.parameters, flag: 'late' } }] },
+          },
+        ],
+      },
+      context,
+      execution,
+    );
+    callback.start();
+    callback.advance(COMBAT_FRAME_INTERVAL);
+    callback.end();
+    callback.advance(10);
+    callback.end();
+    expect(trace).toEqual(['start:probe', 'end:probe']);
+  });
+
+  it('compiles and runs independent callback intervals on one detached direct board until natural end', () => {
+    const scheduler = new ProjectileLifecycleRuntime();
+    const trace: string[] = [];
+    let frame = 0;
+    let componentDelta = 1;
+    const source = new ActionBlackboard({ seed: 7 });
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        evaluate: () => true,
+        execute: (step, context) => {
+          if (step.kind !== 'setContextFlag') throw new Error('unexpected fixture step');
+          trace.push(
+            `${frame}:start:${step.parameters.flag}:${context!.blackboard.getNumber('value')}`,
+          );
+          expect(context!.blackboard.getNumber('seed')).toBe(7);
+          expect(context!.skillCastInfo?.skillCastId).toBe(42);
+          if (step.parameters.flag === 'write') {
+            context!.blackboard.assignDynamic('value', 2);
+            context!.attachBuffToCurrentSkill!({
+              finish: (reason, source) => {
+                expect([reason, source]).toEqual(['other', null]);
+                trace.push(`${frame}:attached-end`);
+                return true;
+              },
+            });
+          }
+          return true;
+        },
+        end: step => {
+          if (step.kind === 'setContextFlag') trace.push(`${frame}:end:${step.parameters.flag}`);
+        },
+      },
+      {
+        blackboard: source,
+        skillCastInfo: {
+          skillCastId: 42,
+          originSkillId: 'source',
+          originSkillType: 'comboSkill',
+          nonReturnedSpCost: 0,
+        },
+        scheduleProjectileFinishCallback: (delay, recycle, finish, beforeReset, _info, advance) => {
+          const projectile = scheduler.launch({
+            finishDelaySeconds: delay,
+            recycleDelaySeconds: recycle,
+            resolveTickDeltaSeconds: () => componentDelta,
+            finish,
+            beforeReset,
+            abilityRuntime: { advanceFrame: () => advance!(COMBAT_FRAME_INTERVAL) },
+          });
+          projectile.onReset(() => trace.push(`${frame}:reset`));
+        },
+      },
+    );
+    const parent = runtime.createSequence(
+      compileActionSequence(
+        {
+          steps: [
+            {
+              kind: 'scheduleProjectileFinishCallback',
+              parameters: { delaySeconds: 1, recycleDelaySeconds: 100 },
+              callback: {
+                skillId: 'callback',
+                naturalDurationFrames: 3,
+                blackboard: { value: 1 },
+                scheduledSequences: [
+                  {
+                    startFrame: 0,
+                    endFrame: 1,
+                    sequence: {
+                      steps: [{ ...probe, parameters: { ...probe.parameters, flag: 'write' } }],
+                    },
+                  },
+                  {
+                    startFrame: 0,
+                    endFrame: 3,
+                    sequence: {
+                      steps: [{ ...probe, parameters: { ...probe.parameters, flag: 'long' } }],
+                    },
+                  },
+                  {
+                    startFrame: 2,
+                    endFrame: 4,
+                    sequence: {
+                      steps: [{ ...probe, parameters: { ...probe.parameters, flag: 'read' } }],
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        1,
+        'fixture',
+      ),
+    );
+    parent.executeInstant({});
+    source.assignDynamic('seed', 99);
+    const tick = () => {
+      frame++;
+      scheduler.advanceFrame();
+      scheduler.beginAbilityFrame();
+      scheduler.advanceAbilityFrame();
+    };
+    for (let i = 0; i < 4; i++) tick();
+    expect(trace).toEqual([
+      '1:start:write:1',
+      '1:start:long:2',
+      '2:end:write',
+      '3:start:read:2',
+      '4:end:long',
+      '4:end:read',
+      '4:attached-end',
+    ]);
+    expect(scheduler.activeCount).toBe(1);
+    componentDelta = 100;
+    tick();
+    tick();
+    expect(trace.at(-1)).toBe('6:reset');
+    expect(trace.filter(item => item.includes('attached-end'))).toHaveLength(1);
+  });
+
+  it('keeps zero-length callback intervals separate from projectile reset', () => {
     const scheduler = new ProjectileLifecycleRuntime();
     const trace: string[] = [];
     const runtime = new CombatActionSequenceRuntime(
@@ -91,7 +266,12 @@ describe('projectile callback action lifecycle', () => {
         {
           kind: 'scheduleProjectileFinishCallback',
           parameters: { delaySeconds: 1, recycleDelaySeconds: 1 },
-          body: { steps: [probe] },
+          callback: {
+            skillId: 'callback',
+            naturalDurationFrames: 1,
+            initialBlackboard: {},
+            timelineActions: [{ startFrame: 0, endFrame: 0, sequence: { steps: [probe] } }],
+          },
         },
       ],
     });

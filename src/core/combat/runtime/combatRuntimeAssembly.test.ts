@@ -355,7 +355,12 @@ describe('CombatRuntimeAssembly', () => {
                   {
                     kind: 'scheduleProjectileFinishCallback',
                     parameters: { delaySeconds: 0.1, recycleDelaySeconds: 0 },
-                    body: { steps: [] },
+                    callback: {
+                      skillId: 'callback',
+                      naturalDurationFrames: 1,
+                      initialBlackboard: {},
+                      timelineActions: [{ startFrame: 0, endFrame: 0, sequence: { steps: [] } }],
+                    },
                   },
                 ],
               },
