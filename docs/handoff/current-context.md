@@ -1,5 +1,23 @@
 # 当前任务快照
 
+## 2026-09-10：回调自身身份所需来源已进入独立完整快照
+
+接续使用 tmp/event-source-callback-owner，snapshotSha256 为
+cf5b0a0351553b345c8b2c92bd55974d1f51a392c708ba6e3a51e70f3348673c。
+它复制已验证的 hybrid-20260905，仅从 VFS 重取
+ProjectileData/projectile_chr_0027_tangtang_water.json；原组件字段逐键必须完全一致，
+仅允许新增 abilitySystem/abilitySystemBoundary。原目录未改写。derivedFrom 记录基线
+snapshotSha256、被替换文件旧哈希和原因；新字节/长度/哈希及总摘要均重新计算。
+保留该基线原本的 VFS fallbackReason（not-in-akedb-index），不宣称重新查询了 AKEDB。
+VFS versionVerified 仍为 false。现有 verifyGameDataSnapshot 对整个新目录校验通过。
+
+来源生成脚本在忽略目录 tmp/prepare-callback-owner-source.mjs；创建阶段最初漏写
+fallbackReason 被校验器拒绝，补回原提供方选择依据后才通过，没有放宽校验器。
+汤汤正式生成流程使用新目录 --check 通过（10技能、2天赋、5潜能、9实体），产物无变化；
+说明来源已可供下一步回调编译迁移，**不表示自身身份已经进入公共契约/模拟事件**。
+可执行：node --experimental-strip-types tmp/regenerate-projectile-callbacks.mjs
+--callback-owner-source --tangtang-only --check。临时快照不提交 Git，其他正式输入不刷新。
+
 ## 2026-09-10：主动技能自身类型解析跨宿主复用
 
 原生 SkillType 数值映射和主动技能初始化优先级移至 source/activeSkillTypes.ts，
