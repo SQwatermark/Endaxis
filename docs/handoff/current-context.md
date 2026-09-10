@@ -1,5 +1,19 @@
 # 当前任务快照
 
+## 2026-09-10：当前安装包水弹技能表与自身类型验证通过
+
+VFS 在127.0.0.1:8765启动，索引 current、1137 chunks、缺失0。Release worker 构建成功；
+导出缓存版本从2升3，避免新字段被旧缓存掩盖。重新导出的汤汤 water projectile 已含自身
+AbilitySystem 技能表；只有 chr_0027_tangtang_combo_skill_water_gene，固定ID/覆盖为空。
+根据反编译初始化规则，自身 nativeSkillType=normalSkill，继承来源仍可能是comboSkill。
+12项C#规格/宿主回归、3项缓存版本测试通过；此前旧raw布局失败不影响这次当前资源API验证。
+
+原有组件字段与 hybrid-20260905 快照逐键相同，仅增加两个前缀字段。未改写冻结来源目录或
+正式生成定义，未据此宣称游戏版本全验证。完整路径/PathID/hash/partial边界见复刻库
+launch-projectile-skill-routing 最新节；临时完整响应在 tmp/event-current-water-projectile.json。
+下一步不再被“水弹自身类型未知”挡住：将源端自身技能身份与继承来源分别传入公共宿主，
+并替换临时 ProjectileCallbackActionRuntime；其他样本不能直接套水弹的类型结论。
+
 ## 2026-09-10：补回 VFS 已解码但未导出的投射物技能表
 
 核实 VFS ProjectileComponentDecoder：已有 AbilitySystemDataPrefixDecoder 严格读取
