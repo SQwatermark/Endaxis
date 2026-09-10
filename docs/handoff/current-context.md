@@ -1,5 +1,18 @@
 # 当前任务快照
 
+## 2026-09-10：复刻库延迟请求进入实际施法链路
+
+combat-spec 已保存 CastSkill 单槽请求，并在技能更新返回后消费；先清槽再运行
+结束/施法回调，回调中新请求留到下一次消费。目标句柄复制、完整来源身份、费用跳过
+及对象通知保留。依据当前 PreLateTick 02F14C1C..34、02F14E0D、02F15705，详见
+combat-spec/docs/cast-skill-action.md 的最新节及边界说明。
+
+SkillAffix 不再仅靠手动通知验证：新增真实请求→旧技能End→新技能BeforeCast→End
+回归，含匹配转交和不匹配释放。新增8项通过，全库1839/1845，原有六项资源失败不变。
+这只是固定宿主请求调度投影：玩家分支选项、SwitchToAddBuff顺序、完整对象阶段尚未
+全面闭合，不能称 C# 原生调度器完全实现。本轮未改 Endaxis 模拟/协议/正式数据。
+完整投射物回调宿主、所有投射物引用路径和 Disable/销毁顺序仍未完成；整体未验收。
+
 ## 2026-09-10：复刻库补齐请求引用状态机对照
 
 combat-spec SkillAffixAction 已接内部 PostSkillTryCastRequest 对象委托，复现请求引用
