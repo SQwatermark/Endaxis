@@ -1,5 +1,23 @@
 # 当前任务快照
 
+## 2026-09-10：投射物组件与技能宿主的跨组顺序
+
+重新核实 TickRoot 构造时 Enum.GetValues→Array.Sort→建组，以及 DoTick 按列表
+推进，确认 ProjectileComponent 的 Default(0) 在 AbilitySystem 的 Battle(1) 之前。
+正式装配将 projectileLifetimes 移到敌方 Buff 更新前；测试覆盖回调及 reset 顺序。
+不能把完整回调的技能 Tick 直接加进同一个投射物循环：组件与技能属于不同阶段。
+启动当帧是零增量 Tick，不是跳过。证据详见 combat-spec/launch-projectile-skill-routing。
+
+真实轴三条完全一致，sc_zpm5ozw 总5501条回执不变：去掉sequence后只有4条到期帧
+改变，instance83为2477→2476，instance105/106/107为3138→3137；全部是汤汤
+回调新加敌方 Buff 本帧即可更新导致。伤害回执与三类诊断不变，其余是同帧排序。
+按原生跨组顺序接受，不回退错误顺序迎合旧基线。前后结果保存在忽略目录
+tmp/event-unification-candidates-mz38x5/projectile-prelate-group-axes.json。
+后续比较应以该文件 candidate 为基线；旧 projectile-lifecycle-axes.json 保留追溯。
+完整回调程序、全部投射物引用和完整组件清理仍未完成，不新增内容或空间模型。
+验证：118文件1436项战斗测试、应用类型检查通过；按已审查的新基线复跑四轴均一致。
+本轮 combat-spec 仅补反编译文档，没有变更 C# 运行时代码。
+
 ## 2026-09-10：Tick 复用公共宿主许可
 
 根据当前 SequenceAction.Tick 的03103AD2..03103AD8，公共序列每个 Tick 步骤

@@ -1147,6 +1147,9 @@ export class CombatRuntimeAssembly {
       this.simulation.add(this.globalBuffs);
       // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
       this.simulation.add(this.abilityEntities);
+      // ProjectileComponent 属于 PreLateTick Default(0)，AbilitySystem 属于
+      // Battle(1)。结束回调与 reset 必须先于敌方/干员的 Buff 和技能更新。
+      this.simulation.add(this.projectileLifetimes);
       // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
       this.simulation.add({
         advanceFrame: () => {
@@ -1187,7 +1190,6 @@ export class CombatRuntimeAssembly {
       }
       // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
       this.simulation.add(this.comboWindows);
-      this.simulation.add(this.projectileLifetimes);
       const inputRuntime = new CombatInputRuntime({
         clock: this.clock,
         inputs: options.inputs ?? [],

@@ -381,6 +381,31 @@ describe('CombatRuntimeAssembly', () => {
     ).toHaveLength(1);
   });
 
+  it('runs projectile finish and reset before the enemy AbilitySystem buff pass', () => {
+    const calls: string[] = [];
+    const assembly = createAssembly([], undefined, undefined, {
+      ...emptyEnemyBuffRuntime,
+      advanceFrame: () => calls.push('enemy-buffs'),
+    });
+    calls.length = 0;
+    const projectile = assembly.projectileLifetimes.launch({
+      finishDelaySeconds: 0.01,
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 1 / 30,
+      finish: () => calls.push('finish-callback'),
+      beforeReset: () => calls.push('end-callback'),
+    });
+    projectile.onReset(() => calls.push('reset'));
+    assembly.advanceFrame();
+    expect(calls).toEqual(['finish-callback', 'enemy-buffs']);
+    calls.length = 0;
+    assembly.advanceFrame();
+    expect(calls).toEqual(['enemy-buffs']);
+    calls.length = 0;
+    assembly.advanceFrame();
+    expect(calls).toEqual(['end-callback', 'reset', 'enemy-buffs']);
+  });
+
   it.each(['common', 'type'] as const)(
     'diagnoses current %s tags without rejecting an authored skill',
     kind => {

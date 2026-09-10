@@ -2,6 +2,13 @@
 
 核对日期：2026-09-10。此文是未完成实现的约束，不是完成声明。
 
+时钟阶段新证据：ProjectileComponent 使用 PreLateTick Default(0)，AbilitySystem
+使用 Battle(1)，TickRoot 按排序后的枚举顺序执行。正式 duration-finish 队列已移到
+敌方 Buff 更新之前。完整宿主须把组件寿命与技能更新分阶段，不能在每个投射物内
+就地连续跑两者；启动当帧的技能更新为零增量而不是省略，实际 reset 后不得再 Tick。
+详见复刻库 launch-projectile-skill-routing 最新节。原同组 pending 结论不能直接
+泛化到 Default 中创建、随后进入 Battle 的对象。
+
 公共时间轴现已补上 CastEnd 终态门禁：同步结束后不启动后续 timeline，
 待执行项取消，Reset 才重用。证据见复刻库 skill-time-fields 最新节。
 同日续证已补上同序列同步 End，见复刻库 sequence-execute-policy；这不等于完整
