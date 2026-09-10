@@ -878,7 +878,7 @@ export class CombatRuntimeAssembly {
               request.inheritedSkillCastInfo,
               request.resolveSkillSlot !== false,
             );
-            this.#requireAbilitySystem(operator.operatorId).prepareDeferredCast(
+            this.#requireAbilitySystem(operator.operatorId).prepareCastInput(
               request.skillId,
               request.castId,
               {

@@ -2,6 +2,13 @@
 
 核对日期：2026-09-10。此文是未完成实现的约束，不是完成声明。
 
+公共施放入口已合流：tryStartProjectileCallbackSkill 在当前宿主先Default中断，
+再查明确ID/可用性，以 prepareCastInput 准备继承来源，复用普通同步启动的processing
+上下文与前置钩子。不经过槽位解析或post request，不创建另一套事件/动作解释器。
+真实SkillRuntime回归已覆盖跨区间共享direct板、自然结束、来源快照及同回调重启。
+正式生产端仍未调用该入口；独立owner和完整程序装配尚未完成，不能将这些用例当作
+完整ProjectileComponent/目标选择已验收。此处仍不要求建立空间路径模型。
+
 正式消费者边界见 [投射物事件消费者审计](../research/projectile-event-consumers-2026-09-10.md)：
 8种 SkillAffix Buff 分布在干员、公共附魔、武器和套装；原始3种延后区间不能当作
 3种延后伤害。旧即时适配层已补“即时写入→延后读取”的有损转换门禁，完整程序仍

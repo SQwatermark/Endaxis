@@ -45,7 +45,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   prepareAfterCastStart?(callback: AfterSkillCastStart): void;
   /** 装配层在施放前事件之前预分配的原生技能释放序号。 */
   prepareSkillCastId?(skillCastId: number): void;
-  prepareDeferredCast?(input: {
+  /** Prepare synchronous cast input only; queuing belongs to requestPostSkillCast. */
+  prepareCastInput?(input: {
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
   }): void;
@@ -657,7 +658,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     skill.prepareSkillCastId(skillCastId);
   }
 
-  prepareDeferredCast(
+  prepareCastInput(
     skillId: string,
     castId: string | undefined,
     input: {
@@ -667,10 +668,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
     resolveSkillSlot = true,
   ): void {
     const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
-    if (skill.prepareDeferredCast === undefined) {
-      throw new Error(`skill '${skillId}' cannot receive a deferred cast request`);
+    if (skill.prepareCastInput === undefined) {
+      throw new Error(`skill '${skillId}' cannot receive cast input`);
     }
-    skill.prepareDeferredCast(input);
+    skill.prepareCastInput(input);
   }
 
   prepareAfterSkillCastStart(
@@ -717,6 +718,29 @@ export class AbilitySystemRuntime implements FrameRuntime {
     return this.#tryStartSkill(skillId, castId, false, true);
   }
 
+  /**
+   * ProjectileComponent._CastSkill: interrupt this host first, then look up and cast
+   * the explicit callback ID. This is neither a player slot input nor a post request.
+   * Native evidence: launch-projectile-skill-routing, 032508D0 / 04D4ABF0 / 03250AB0.
+   */
+  tryStartProjectileCallbackSkill(
+    skillId: string,
+    inheritedSkillCastInfo: CombatSkillCastInfo,
+  ): boolean {
+    const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
+    current?.interrupt('default');
+    const skill = this.#skillsById.get(abilitySkillKey({ skillId }));
+    if (skill === undefined || !skill.canStart()) return false;
+    if (skill.prepareCastInput === undefined)
+      throw new Error(`skill '${skillId}' cannot receive inherited callback cast information`);
+    // This preparation port stores cast input; it does not enqueue a deferred request.
+    skill.prepareCastInput({
+      skipApplyCost: false,
+      inheritedSkillCastInfo: Object.freeze({ ...inheritedSkillCastInfo }),
+    });
+    return this.#startAvailableSkill(skill, false);
+  }
+
   #tryStartSkill(
     skillId: string,
     castId: string | undefined,
@@ -725,6 +749,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
   ): boolean {
     const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
     if (!skill.canStart()) return false;
+    return this.#startAvailableSkill(skill, forceTimelinePayment);
+  }
+
+  /** All immediate entrances share processing context, before-cast hooks and startup. */
+  #startAvailableSkill(skill: AbilitySkillRuntime, forceTimelinePayment: boolean): boolean {
+    const skillId = skill.skillId;
     if (forceTimelinePayment) {
       if (skill.prepareForcedTimelineCast === undefined) {
         throw new Error(`skill '${skillId}' cannot receive a forced timeline cast`);

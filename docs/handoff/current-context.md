@@ -1,5 +1,24 @@
 # 当前任务快照
 
+## 2026-09-10：回调施放入口复用公共技能启动
+
+AbilitySystemRuntime 新增 tryStartProjectileCallbackSkill：先对自身当前技能
+Interrupt(Default)，再查找/检查明确的回调ID，保存继承来源并进入与普通施放相同的
+同步启动方法。不走玩家槽位替换，不写 post request，不提供 CastNextSkill 的
+附属Buff转交上下文。依据为 combat-spec/launch-projectile-skill-routing 中
+032508D0、04D4ABF0、03250AB0；没有新增反编译结论或空间模型。
+
+原 prepareDeferredCast 实际只是准备输入，已统一改名 prepareCastInput，包括普通
+延迟请求的消费处；排队行为仍只有 requestPostSkillCast，不增加玩家输入缓存。
+新增6项测试覆盖可用/不可用/不存在的回调、槽位替换不重定向、公共processing钩子、
+真实SkillRuntime跨区间共享黑板/自然结束/来源快照/重复回调恢复，以及Default结束
+附属Buff。118文件1445项战斗测试、应用类型检查通过，四真实轴完整结果一致。
+
+严格边界：这是执行入口合流，不是正式投射物迁移完成。scheduleProjectileFinishCallback
+生产端仍使用即时body；公共回调定义、独立owner装配及全部发射引用仍待接入。
+上述真实SkillRuntime用例检验共享执行机制，不证明投射物对象已进入正式实体目录，
+也不证明完整原生目标选择/空间选项。未修改复刻库或生成数据，未重新执行C#测试。
+
 ## 2026-09-10：投射物事件消费者边界与延后黑板门禁
 
 正式定义按 Buff ID 去重发现8种 SkillAffix 消费者，涵盖干员、公共附魔、两套装备

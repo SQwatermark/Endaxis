@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { AbilitySystemRuntime, type AbilitySkillRuntime } from './abilitySystemRuntime';
 import type {
   RuntimeSkillInterruptReason,
@@ -45,6 +45,94 @@ class FixtureRuntime implements AbilitySkillRuntime {
 }
 
 describe('AbilitySystemRuntime', () => {
+  it.each(['available', 'unavailable', 'missing'] as const)(
+    'projectile callback interrupts before lookup/availability (%s), without a next-skill transition',
+    mode => {
+      const events: string[] = [];
+      const previous = new FixtureRuntime('previous', events);
+      const next = new FixtureRuntime('callback', events);
+      const prepare = vi.fn();
+      const ability = new AbilitySystemRuntime({
+        skills: [
+          previous,
+          Object.assign(next, {
+            canStart: () => {
+              events.push('check:callback');
+              return mode !== 'unavailable';
+            },
+            prepareCastInput: prepare,
+          }),
+        ],
+        onPostSkillCastRequest: () => {
+          throw new Error('callback must not enqueue');
+        },
+      });
+      expect(ability.tryStartSkill('previous')).toBe(true);
+      events.length = 0;
+      const source = {
+        skillCastId: 42,
+        originSkillId: 'source',
+        originSkillType: 'comboSkill' as const,
+        nonReturnedSpCost: 10,
+      };
+      expect(
+        ability.tryStartProjectileCallbackSkill(
+          mode === 'missing' ? 'missing' : 'callback',
+          source,
+        ),
+      ).toBe(mode === 'available');
+      expect(events).toEqual([
+        'interrupt:previous:default',
+        ...(mode === 'missing' ? [] : ['check:callback']),
+        ...(mode === 'available' ? ['start:callback'] : []),
+      ]);
+      expect(previous.lastTransition).toBeUndefined();
+      expect(prepare).toHaveBeenCalledTimes(mode === 'available' ? 1 : 0);
+      if (mode === 'available') {
+        expect(prepare).toHaveBeenCalledWith({
+          skipApplyCost: false,
+          inheritedSkillCastInfo: source,
+        });
+        expect(prepare.mock.calls[0]![0].inheritedSkillCastInfo).not.toBe(source);
+      }
+    },
+  );
+
+  it('projectile callbacks cast the explicit ID and reuse ordinary synchronous processing hooks', () => {
+    const events: string[] = [];
+    const base = Object.assign(new FixtureRuntime('base', events), {
+      prepareCastInput: vi.fn(),
+      processingSkillCastId: 42,
+    });
+    const replacement = new FixtureRuntime('replacement', events);
+    const ability = new AbilitySystemRuntime({
+      skills: [base, replacement],
+      skillSlotGroups: [
+        { skillGroupKey: 'slot', baseSkillKey: 'base', replacementSkillKeys: ['replacement'] },
+      ],
+    });
+    ability.changeSkillSlot('slot', 'replacement');
+    ability.prepareBeforeSkillCastStart(
+      'base',
+      undefined,
+      () => {
+        events.push('before');
+        expect(ability.currentProcessingSkillCastId).toBe(42);
+      },
+      false,
+    );
+    expect(
+      ability.tryStartProjectileCallbackSkill('base', {
+        skillCastId: 42,
+        originSkillId: 'source',
+        originSkillType: 'comboSkill',
+        nonReturnedSpCost: 0,
+      }),
+    ).toBe(true);
+    expect(events).toEqual(['before', 'start:base']);
+    expect(replacement.state).toBe('ready');
+  });
+
   it('延迟请求先写槽再通知，通知中重入的请求按后写覆盖且不递归施法', () => {
     const events: string[] = [];
     let requests = 0;

@@ -38,7 +38,7 @@ import type { BuffApplicationHandle } from './buffOperationExecutor';
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
 /** 当前已闭环、会改变技能结束事实的中断来源。 */
-export type RuntimeSkillInterruptReason = 'castNextSkill';
+export type RuntimeSkillInterruptReason = 'default' | 'castNextSkill';
 
 /** CastEnd 在结束时间轴动作期间暴露的唯一技能转场输入。 */
 export interface RuntimeSkillTransition {
@@ -370,7 +370,7 @@ export class SkillRuntime {
     this.#preparedSkillCastId = skillCastId;
   }
 
-  prepareDeferredCast(input: {
+  prepareCastInput(input: {
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
   }): void {

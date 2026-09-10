@@ -97,6 +97,92 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('callback entry reuses a persistent skill timeline and preserves inherited source separately', () => {
+    const ended = vi.fn();
+    const callback = createBattleSkillRuntime(
+      300,
+      undefined,
+      undefined,
+      {
+        key: 'callback',
+        timelineBlockFrames: 0,
+        naturalDurationFrames: 4,
+        blackboard: { value: 1 },
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            endFrame: 1,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'write', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+          {
+            startFrame: 2,
+            endFrame: 3,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'read', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        ],
+      },
+      ended,
+    );
+    const seen: number[] = [];
+    const contexts: unknown[] = [];
+    callback.operations.execute = (_step, context) => {
+      contexts.push(context);
+      seen.push(context!.blackboard.getNumber('value')!);
+      context!.blackboard.assignDynamic('value', 2);
+      return true;
+    };
+    const source = {
+      skillCastId: 77,
+      originSkillId: 'launch-skill',
+      originSkillType: 'comboSkill' as const,
+      nonReturnedSpCost: 12,
+    };
+    const ability = new AbilitySystemRuntime({ skills: [callback.runtime] });
+    expect(ability.tryStartProjectileCallbackSkill('callback', source)).toBe(true);
+    const attached = { finish: vi.fn(() => true) };
+    callback.runtime.attachBuffToCast(77, attached);
+    source.nonReturnedSpCost = 99;
+    callback.simulation.advanceFrames(2);
+    expect(seen).toEqual([1, 2]);
+    expect(contexts[0]).toBe(contexts[1]);
+    expect(callback.runtime.skillCastInfo).toEqual({ ...source, nonReturnedSpCost: 12 });
+    expect(ended).not.toHaveBeenCalled();
+    callback.simulation.advanceFrames(2);
+    expect(attached.finish).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(ended).toHaveBeenCalledExactlyOnceWith(
+      expect.objectContaining({
+        skillId: 'callback',
+        skillCastId: 77,
+      }),
+    );
+    expect(
+      ability.tryStartProjectileCallbackSkill('callback', { ...source, skillCastId: 88 }),
+    ).toBe(true);
+    expect(seen).toEqual([1, 2, 1]);
+    expect(callback.runtime.skillCastInfo?.skillCastId).toBe(88);
+    // Replacing the same callback is a fresh cast on the same Skill object, not
+    // the source skill's CastNextSkill transition or reuse of its direct values.
+    expect(
+      ability.tryStartProjectileCallbackSkill('callback', { ...source, skillCastId: 89 }),
+    ).toBe(true);
+    expect(seen).toEqual([1, 2, 1, 1]);
+    expect(callback.runtime.skillCastInfo?.skillCastId).toBe(89);
+    expect(ended).toHaveBeenLastCalledWith(expect.objectContaining({ skillCastId: 88 }));
+  });
   it.each([false, true])(
     'Buff旁路processing身份独立且覆盖到结束事件：asSkillCast=%s',
     asSkillCast => {
@@ -458,7 +544,7 @@ describe('SkillRuntime', () => {
     next.end();
     expect(newBuff.finish).toHaveBeenCalledExactlyOnceWith('other', null);
   });
-  it.each(['natural', 'interrupt'] as const)(
+  it.each(['natural', 'interrupt', 'default'] as const)(
     'ends attached Buffs once, in order, before the %s skill-end event',
     mode => {
       const order: string[] = [];
@@ -487,7 +573,7 @@ describe('SkillRuntime', () => {
       fixture.runtime.tryStart();
       fixture.runtime.attachBuffToCast(10, alreadyFinished);
       if (mode === 'natural') fixture.runtime.advanceFrame();
-      else fixture.runtime.interrupt('castNextSkill');
+      else fixture.runtime.interrupt(mode === 'default' ? 'default' : 'castNextSkill');
       expect(order).toEqual(['first', 'second', 'skillEnd']);
       expect(first.finish).toHaveBeenCalledExactlyOnceWith('other', null);
       expect(alreadyFinished.finish).toHaveBeenCalledExactlyOnceWith('other', null);
@@ -1120,7 +1206,7 @@ describe('SkillRuntime', () => {
       nonReturnedSpCost: 73,
     };
 
-    fixture.runtime.prepareDeferredCast({
+    fixture.runtime.prepareCastInput({
       skipApplyCost: true,
       inheritedSkillCastInfo: inherited,
     });
