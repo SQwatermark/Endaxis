@@ -274,6 +274,69 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('显式延迟 Skill ID 的来源身份与 BeforeCast 不被当前技能槽改写', () => {
+    const emitAbilityEvent = vi.fn();
+    const base = skill({
+      skillId: 'base',
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          endFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeSkillSlot',
+                parameters: { skillGroupKey: 'battleSkill', targetSkillKey: 'replacement' },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const followup = skill({ skillId: 'followup', costs: [], costFrame: undefined });
+    const replacement = skill({ skillId: 'replacement', costs: [], costFrame: undefined });
+    const args: Parameters<typeof createAssembly> = [[base, followup, replacement]];
+    args[9] = [
+      {
+        skillGroupKey: 'battleSkill',
+        baseSkillKey: 'base',
+        stableInputSkillKeys: ['base', 'followup'],
+        replacementSkillKeys: ['replacement'],
+      },
+    ];
+    args[10] = emitAbilityEvent;
+    const assembly = createAssembly(...args);
+    expect(assembly.tryStartSkill('operator', 'base')).toBe(true);
+    emitAbilityEvent.mockClear();
+    const inherited = {
+      skillCastId: 42,
+      originSkillId: 'origin',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 10,
+    };
+    assembly.requestPostSkillCast('operator', {
+      skillId: 'followup',
+      resolveSkillSlot: false,
+      inheritedSkillCastInfo: inherited,
+    });
+    assembly.advanceFrame();
+    const before = emitAbilityEvent.mock.calls.filter(call => call[1] === 'beforeCastSkill');
+    expect(before).toHaveLength(1);
+    expect(before[0]![2]).toMatchObject({
+      skillId: 'followup',
+      skillCastId: 42,
+      skillCastInfo: inherited,
+    });
+    assembly.advanceFrame();
+    const end = emitAbilityEvent.mock.calls.filter(
+      call => call[1] === 'skillEnd' && call[2].skillId === 'followup',
+    );
+    expect(end).toHaveLength(1);
+    expect(end[0]![2]).toMatchObject({ skillId: 'followup', skillCastId: 42 });
+  });
+
   it('publishes the launched projectile instance and preserves its source cast until reset', () => {
     const emitAbilityEvent = vi.fn();
     const assembly = createAssembly({

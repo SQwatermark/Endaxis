@@ -1,5 +1,19 @@
 # 当前任务快照
 
+## 2026-09-10：显式延迟技能的事件准备不经过替换槽
+
+追踪请求引用端到端发现：消费请求时已遵守 resolveSkillSlot=false，装配层的
+prepareSkillStart/prepareDeferredCast 却默认重新解析技能槽。替换状态下会把来源编号
+和 BeforeCast 回调准备到错误技能，真正目标启动时漏发 BeforeCast 并丢失编号继承。
+现把请求的解析策略传入两处准备阶段，不改变玩家技能槽选择或显式 CastSkill 的含义。
+依据 combat-spec/cast-skill-action 的原生显式 skillId 与完整来源身份传递。
+
+装配层回归先通过真实 changeSkillSlot 动作切入替换，再请求显式后续技能，验证
+BeforeCast/SkillEnd 编号均为继承值42；撤回修复时因 BeforeCast 缺失而失败，恢复后通过。
+没有新增事件种类或补发伪事件；这是 pending 引用转交正常工作的必要条件。
+117文件1419项战斗测试及类型检查通过；四真实轴完整结果一致，报告为
+tmp/event-unification-candidates-mz38x5/explicit-request-event-identity-axes.json。
+
 ## 2026-09-10：SkillAffix 消费正式延迟请求通知
 
 CombatRuntimeAssembly→StandardPlayerDamageEnvironment→BuffDefinitionOperationTarget
