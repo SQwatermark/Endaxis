@@ -39,6 +39,27 @@ const contribution: CompiledEquipmentContribution = {
 };
 
 describe('EquipmentEventRuntime', () => {
+  it('a failing contribution cleanup does not strand later Ability children', () => {
+    const native = createNativeEventFixture();
+    const runtime = createEnabledEquipmentRuntime(
+      native.semanticEvents,
+      'operator:a',
+      [contribution, contribution],
+      () => ({ execute: () => true, evaluate: () => true }),
+    );
+    const error = new Error('first child cleanup');
+    const second = vi.fn(() => true);
+    runtime.addChildBuff(0, {
+      finish: () => {
+        throw error;
+      },
+    });
+    runtime.addChildBuff(1, { finish: second });
+    expect(() => runtime.dispose()).toThrow(error);
+    expect(second).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(() => runtime.blackboardFor(1)).toThrow('not active');
+    expect(() => runtime.dispose()).not.toThrow();
+  });
   it('releases each Ability independently so another live contribution still observes cleanup', () => {
     const native = createNativeEventFixture();
     const observed: string[] = [];

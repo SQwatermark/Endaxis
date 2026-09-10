@@ -22,6 +22,32 @@ const responses = [
   },
 ];
 
+it('retains both registration failure and cleanup failure for diagnosis', () => {
+  const original = new Error('register');
+  const cleanup = new Error('unregister');
+  let count = 0;
+  let caught: unknown;
+  try {
+    new PassiveAbilityEventRuntime(
+      { execute: () => true, evaluate: () => true },
+      { blackboard: new ActionBlackboard() },
+      [responses[0]!, responses[0]!],
+      () => {
+        if (++count === 2) throw original;
+        return {
+          dispose: () => {
+            throw cleanup;
+          },
+        };
+      },
+    );
+  } catch (error) {
+    caught = error;
+  }
+  expect(caught).toBeInstanceOf(AggregateError);
+  expect((caught as AggregateError).errors).toEqual([original, cleanup]);
+});
+
 it('owns children even when the passive has no event responses', () => {
   const host = new PassiveAbilityEventRuntime(
     { execute: () => true, evaluate: () => true },

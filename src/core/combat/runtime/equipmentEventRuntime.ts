@@ -26,7 +26,11 @@ import {
 } from './abilityEventResponseContext';
 import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
-import { AbilityEventHostLifecycle } from './abilityEventHostLifecycle';
+import {
+  AbilityEventHostLifecycle,
+  runAbilityHostCleanup,
+  failAfterAbilityHostCleanup,
+} from './abilityEventHostLifecycle';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
@@ -131,17 +135,19 @@ export class EquipmentEventRuntime {
         }
       }
     } catch (error) {
-      this.dispose();
-      throw error;
+      failAfterAbilityHostCleanup(error, [() => this.dispose()]);
     }
   }
 
   dispose(): void {
     if (this.#disposed) return;
     this.#disposed = true;
-    for (const host of this.#hosts.values()) host.dispose();
-    this.#hosts.clear();
-    this.#blackboards.clear();
+    try {
+      runAbilityHostCleanup([...this.#hosts.values()].map(host => () => host.dispose()));
+    } finally {
+      this.#hosts.clear();
+      this.#blackboards.clear();
+    }
   }
 
   /** 原生 Ability.Enable 成功后开放本能力，不提前开放整名干员或整队。 */

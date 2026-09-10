@@ -5,7 +5,10 @@ import type { AbilityEventRuntimeActionContext } from '../events/abilityEventAct
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
-import { AbilityEventHostLifecycle } from './abilityEventHostLifecycle';
+import {
+  AbilityEventHostLifecycle,
+  failAfterAbilityHostCleanup,
+} from './abilityEventHostLifecycle';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 
 /** 原生被动 Skill 的事件序列宿主；黑板和子 Buff 所有权由被动实例提供。 */
@@ -51,8 +54,7 @@ export class PassiveAbilityEventRuntime {
         );
       }
     } catch (error) {
-      this.dispose();
-      throw error;
+      failAfterAbilityHostCleanup(error, [() => this.dispose()]);
     }
   }
 

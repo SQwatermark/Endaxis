@@ -6,6 +6,7 @@ import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
  */
 import { UltimatePresentationRuntime } from './ultimatePresentationRuntime';
 import { PassiveAbilityEventRuntime } from './passiveAbilityEventRuntime';
+import { runAbilityHostCleanup, failAfterAbilityHostCleanup } from './abilityEventHostLifecycle';
 import { HideUiOperationExecutor } from './hideUiOperationExecutor';
 import type {
   CompiledComboSkillConditionProgram,
@@ -1288,10 +1289,11 @@ export class CombatRuntimeAssembly {
       inputRuntime.applyCurrentFrame();
       externalEvents.applyCurrentFrame();
     } catch (error) {
-      this.disposeEquipmentEvents();
-      this.disposePassiveAbilityEvents();
-      this.disposeComboSkillConditions();
-      throw error;
+      failAfterAbilityHostCleanup(error, [
+        () => this.disposeEquipmentEvents(),
+        () => this.disposePassiveAbilityEvents(),
+        () => this.disposeComboSkillConditions(),
+      ]);
     }
   }
 
@@ -1745,16 +1747,25 @@ export class CombatRuntimeAssembly {
 
   /** 对称注销本 assembly 的原生常驻条件；不会清除同一事件中心里其他所有者的注册。 */
   disposeComboSkillConditions(): void {
-    for (const registration of this.#comboConditionRegistrations.splice(0)) registration.dispose();
+    runAbilityHostCleanup(
+      this.#comboConditionRegistrations.splice(0).map(registration => () => registration.dispose()),
+    );
   }
 
   disposePassiveAbilityEvents(): void {
-    for (const runtime of this.#passiveAbilityEvents.splice(0)) runtime.dispose();
+    runAbilityHostCleanup(
+      this.#passiveAbilityEvents.splice(0).map(runtime => () => runtime.dispose()),
+    );
   }
 
   disposeEquipmentEvents(): void {
-    for (const runtime of this.#equipmentEventRuntimes.values()) runtime.dispose();
-    this.#equipmentEventRuntimes.clear();
+    try {
+      runAbilityHostCleanup(
+        [...this.#equipmentEventRuntimes.values()].map(runtime => () => runtime.dispose()),
+      );
+    } finally {
+      this.#equipmentEventRuntimes.clear();
+    }
   }
 
   #installComboSkillConditions(): void {

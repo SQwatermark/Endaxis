@@ -1,6 +1,49 @@
 import { expect, it, vi } from 'vitest';
 import { AbilityEventHostLifecycle } from './abilityEventHostLifecycle';
 
+it('reports failures only after attempting all remaining unregister and child cleanup', () => {
+  const host = new AbilityEventHostLifecycle();
+  const first = new Error('unregister');
+  const second = new Error('child');
+  const order: string[] = [];
+  host.register({
+    dispose: () => {
+      throw first;
+    },
+  });
+  host.register({
+    dispose: () => {
+      order.push('unregister');
+    },
+  });
+  host.onDisable(() => {
+    order.push('cleanup');
+  });
+  host.addChildBuff({
+    finish: () => {
+      host.addChildBuff({
+        finish: () => {
+          order.push('late');
+          return true;
+        },
+      });
+      throw second;
+    },
+  });
+  host.enable();
+  let caught: unknown;
+  try {
+    host.dispose();
+  } catch (error) {
+    caught = error;
+  }
+  expect(caught).toBeInstanceOf(AggregateError);
+  expect((caught as AggregateError).errors).toEqual([first, second]);
+  expect(order).toEqual(['unregister', 'cleanup', 'late']);
+  expect(host.canExecuteAction).toBe(false);
+  expect(() => host.dispose()).not.toThrow();
+});
+
 it('unregisters then cleans the enabled host, including children created by cleanup', () => {
   const host = new AbilityEventHostLifecycle();
   const order: string[] = [];
