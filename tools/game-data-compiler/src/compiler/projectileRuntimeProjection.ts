@@ -674,6 +674,16 @@ export function compileImmediateProjectileCallbackSkillSource(
       delayedSequencesNeedFreshScope ||= readsBlackboard;
     }
   });
+  // The transitional delayed scopes restore defaults, not the callback's live direct
+  // board. A write in the immediate interval is just as observable as a delayed write.
+  // Do not silently accept that dataflow until a persistent callback host consumes it.
+  if (
+    delayedSequencesNeedFreshScope &&
+    timelines.some(timeline => callbackMutatesActionState(timeline.sequence))
+  )
+    throw new Error(
+      `${callback.skillId}: delayed projectile callback mutates persistent action state`,
+    );
   return {
     skillId: callback.skillId,
     declaredBlackboard: callback.declaredBlackboard,
@@ -701,6 +711,34 @@ function sequenceReadsActionBlackboard(sequence: CompiledBuffSequenceSource): bo
   return visit(sequence);
 }
 
+function callbackMutatesActionState(value: unknown): boolean {
+  if (Array.isArray(value)) return value.some(callbackMutatesActionState);
+  if (value === null || typeof value !== 'object') return false;
+  const record = value as Readonly<Record<string, unknown>>;
+  if (
+    typeof record.kind === 'string' &&
+    [
+      'modifyActionValue',
+      'storeSourceAttributeValue',
+      'storeEntityPropertyValue',
+      'storeEventHealValues',
+      'storeShieldValue',
+      'setHealthFloor',
+      'calculateActionValue',
+      'readCurrentBuffRemainingDuration',
+      'readBuffRemainingDuration',
+      'readBuffStackCount',
+      'readEventBuffBlackboard',
+      'readBuffBlackboard',
+      'storeEventSpGainAmount',
+      'storeCurrentTimelineFrame',
+      'readSkillSettingData',
+    ].includes(record.kind)
+  )
+    return true;
+  return Object.values(record).some(callbackMutatesActionState);
+}
+
 function scheduleDelayedProjectileCallbackSource(
   callback: ZeroDistanceProjectileCallbackSource,
   context: CombatActionProjectionContextSource,
@@ -722,33 +760,6 @@ function scheduleDelayedProjectileCallbackSource(
   ) {
     throw new Error(`${sourcePath}: delayed projectile callback requires persistent entity state`);
   }
-  const unsafeWriterKinds = new Set([
-    'modifyActionValue',
-    'storeSourceAttributeValue',
-    'storeEntityPropertyValue',
-    'storeEventHealValues',
-    'storeShieldValue',
-    'setHealthFloor',
-    'calculateActionValue',
-    'readCurrentBuffRemainingDuration',
-    'readBuffRemainingDuration',
-    'readBuffStackCount',
-    'readEventBuffBlackboard',
-    'readBuffBlackboard',
-    'storeEventSpGainAmount',
-    'storeCurrentTimelineFrame',
-    'readSkillSettingData',
-  ]);
-  const containsUnsafeWriter = (value: unknown): boolean => {
-    if (Array.isArray(value)) return value.some(containsUnsafeWriter);
-    if (value === null || typeof value !== 'object') return false;
-    const record = value as Readonly<Record<string, unknown>>;
-    if (typeof record.kind === 'string' && unsafeWriterKinds.has(record.kind)) return true;
-    return Object.values(record).some(containsUnsafeWriter);
-  };
-  if (callback.delayedSequences.some(item => containsUnsafeWriter(item.sequence)))
-    throw new Error(`${sourcePath}: delayed projectile callback mutates persistent action state`);
-
   const initialValues = Object.fromEntries(
     callback.declaredBlackboard.map(value => {
       if (typeof value.value !== 'number' || !Number.isFinite(value.value))

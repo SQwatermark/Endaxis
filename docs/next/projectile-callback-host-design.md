@@ -2,6 +2,11 @@
 
 核对日期：2026-09-10。此文是未完成实现的约束，不是完成声明。
 
+正式消费者边界见 [投射物事件消费者审计](../research/projectile-event-consumers-2026-09-10.md)：
+8种 SkillAffix Buff 分布在干员、公共附魔、武器和套装；原始3种延后区间不能当作
+3种延后伤害。旧即时适配层已补“即时写入→延后读取”的有损转换门禁，完整程序仍
+可表示此形状。这不是持久回调宿主的实现，不能以门禁代替最终接入。
+
 两阶段调度接入口已落位：ProjectileLifecycleRuntime 的组件更新仍在 Default；
 beginAbilityFrame 在 Battle 入口捕获准入实例，advanceAbilityFrame 只推进其实际
 abilityRuntime（FrameRuntime）。组件的 delta/暂停不冒充技能的 delta/暂停。
