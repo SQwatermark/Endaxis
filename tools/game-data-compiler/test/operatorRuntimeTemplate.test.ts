@@ -93,6 +93,30 @@ function runtimeTemplate() {
 }
 
 describe('角色运行模板来源', () => {
+  it('原生固定技能身份优先于 activeSkillTypeOverrides，额外技能仍使用覆盖', () => {
+    const source = runtimeTemplate();
+    source.abilitySystem.skillDataBundle.activeSkillTypeOverrides = {
+      keys: [
+        'normal_skill',
+        'ultimate_skill',
+        'chr_0032_lizhiyan_combo_skill',
+        'dodge_skill',
+        'extra_skill',
+      ],
+      values: [8, 8, 8, 8, 8],
+    };
+    expect(
+      parseOperatorRuntimeTemplateSource(source, 'fixture').playerActionSource
+        .initialNativeSkillTypeById,
+    ).toMatchObject({
+      normal_skill: 'normalSkill',
+      ultimate_skill: 'ultimateSkill',
+      chr_0032_lizhiyan_combo_skill: 'comboSkill',
+      dodge_skill: 'dodge',
+      extra_skill: 'extraActiveSkill',
+    });
+  });
+
   it('刷新尝试所有当前模板；变化 pin、未配置身份及单项失败独立列出且不改配置', () => {
     const existing = runtimeTemplate();
     const fresh = runtimeTemplate();

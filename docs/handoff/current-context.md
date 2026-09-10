@@ -1,5 +1,20 @@
 # 当前任务快照
 
+## 2026-09-10：核对回调身份时修正原生类型初始化优先级
+
+复核当前镜像 AbilitySystem._InitSkills：先按 curNormalSkill / curUltimateSkill /
+curComboSkill / dodgeSkill 确定类型，只有其余 active ID 才查 activeSkillTypeOverrides。
+角色模板转换之前 overrides 优先，与原生不符，现已修正。复刻库新增
+ActiveSkillInitialType 可执行规格6项通过，TS模板回归4项通过；不改变玩家操作分组。
+证据与RVA见 combat-spec/docs/launch-projectile-skill-routing 最新节。
+31干员重新生成 --check 通过、正式产物无差异；本轮未修改模拟器，不重报历史战斗测试数。
+
+完整回调 owner 暂未硬接：当前汤汤 ProjectileData 组件前缀没有自身技能表，不能把
+继承的 originSkillType 当作回调自身 nativeSkillType，也不能默认所有回调都是战技。
+原生 Launch 从自身 activeSkillMap 取启用回调，_InitSkillIfNot 不创建不存在的技能。
+下一步应补查投射物 AbilitySystem 技能注册/原始模板，再复用公共技能宿主，删除上一轮
+临时动作程序适配。当前不是事件系统全部完成，也不是新增投射物路径功能。
+
 ## 2026-09-10：正式 duration-finish 回调保留完整动作程序
 
 scheduleProjectileFinishCallback 的即时 body 已替换为必填 callback：原生 skillId、

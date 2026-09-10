@@ -196,14 +196,16 @@ function parsePlayerActionSource(
   for (const skillId of allActiveSkillIds) {
     register(
       skillId,
-      overrides.get(skillId) ??
-        (skillId === ultimateSkillId
+      // AbilitySystem._InitSkills 0344871F..034487F6: fixed identities precede overrides.
+      skillId === normalSkillId
+        ? 'normalSkill'
+        : skillId === ultimateSkillId
           ? 'ultimateSkill'
           : skillId === comboSkillId
             ? 'comboSkill'
             : skillId === dodgeSkillId
               ? 'dodge'
-              : 'normalSkill'),
+              : (overrides.get(skillId) ?? 'normalSkill'),
     );
   }
   for (const skillId of allPassiveSkillIds) register(skillId, 'passiveSkill');
