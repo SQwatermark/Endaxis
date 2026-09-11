@@ -23,6 +23,13 @@ it('public sample weapon asset identities do not assume matching native ID suffi
   ] as const) {
     expect(gameDataRepository.getWeapon(mappings.weapons[slug])?.assetSlug).toBe(assetSlug);
   }
+  expect(gameDataRepository.getWeapon(mappings.weapons['delivery-guaranteed'])?.assetSlug).toBe(
+    'wpn_artsunit_0011',
+  );
+  expect(gameDataRepository.getWeapon(mappings.weapons['rapid-ascent'])?.assetSlug).toBe(
+    'wpn_sword_0011',
+  );
+  expect(mappings.gears['mi-security-gloves-t1']).toBe('item_equip_t4_suit_criti01_hand_04');
 });
 it('keeps each reviewed skill mapping unique and points to an existing group member', () => {
   for (const [slug, rules] of Object.entries(mappings.skills)) {

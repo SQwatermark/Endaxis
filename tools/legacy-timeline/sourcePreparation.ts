@@ -203,11 +203,6 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
           issues.push({ path, message: candidates.length ? '技能映射不唯一' : '缺少显式技能映射' });
           unresolvedSkills.push({ path, operator: oldOperator, source: identity });
         }
-        if (action.startTime !== action.logicalStartTime && action.logicalStartTime != null)
-          issues.push({
-            path: prefix + '.tracks[' + ti + '].actions[' + ai + ']',
-            message: '显示/逻辑起点不同，需先核实旧时间编译语义',
-          });
       }
     }
     for (const op of d.operators ?? []) {

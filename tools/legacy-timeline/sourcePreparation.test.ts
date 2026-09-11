@@ -74,13 +74,18 @@ it('supports audited per-action overrides and blocks nonempty unsupported user s
   Object.assign(value.scenarioList[0]!.data, { characterOverrides: { old: { hp: 1 } } });
   expect(prepareLegacySource(value, mappings).issues[0]?.path).toContain('characterOverrides');
 });
-it('rejects unknown time units and reports differing logical/display times', () => {
+it('rejects unknown time units and preserves differing authored/resolved times', () => {
   const value = input();
   value.fps = 0;
   expect(() => prepareLegacySource(value)).toThrow('fps');
   value.fps = 60;
   value.scenarioList[0]!.data.tracks[0]!.actions[0]!.logicalStartTime = 600;
-  expect(prepareLegacySource(value, mappings).issues[0]?.message).toContain('起点不同');
+  const result = prepareLegacySource(value, mappings);
+  expect(result.issues).toEqual([]);
+  expect(result.source.scenarioList[0].data.tracks[0].actions[0]).toMatchObject({
+    startTime: 312,
+    logicalStartTime: 300,
+  });
 });
 
 it('rebases absolute times before rounding and leaves durations unchanged', () => {

@@ -29,7 +29,9 @@
     "arcane": "arcane",
     "tangtang": "tangtang",
     "ardelia": "ardelia",
-    "last-rite": "last-rite"
+    "last-rite": "last-rite",
+    "gilberta": "gilberta",
+    "chen-qianyu": "chen-qianyu"
   },
   "weapons": {
     "dreams-of-the-starry-beach": "wpn_funnel_0013",
@@ -45,7 +47,9 @@
     "type-42-solemn-phalanx": "wpn_funnel_0016",
     "stanza-of-memorials": "wpn_funnel_0005",
     "jiminy-12": "wpn_funnel_0002",
-    "fluorescent-roc": "wpn_funnel_0003"
+    "fluorescent-roc": "wpn_funnel_0003",
+    "delivery-guaranteed": "wpn_funnel_0011",
+    "rapid-ascent": "wpn_sword_0011"
   },
   "gears": {
     "eternal-xiranite-light-armor": "item_equip_t4_suit_usp02_body_03",
@@ -86,9 +90,62 @@
     "qingbo-gloves": "item_equip_t4_suit_combo_cd01_hand_02",
     "qingbo-cask": "item_equip_t4_suit_combo_cd01_edc_03",
     "aic-light-armor": "item_equip_t1_suit_wisdwill01_body_01",
+    "mi-security-gloves-t1": "item_equip_t4_suit_criti01_hand_04",
     "eternal-xiranite-power-core": "item_equip_t4_suit_usp02_edc_01"
   },
   "skills": {
+    "gilberta": [
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      }
+    ],
+    "chen-qianyu": [
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      }
+    ],
     "ardelia": [
       {
         "source": {
@@ -218,6 +275,18 @@
       }
     ],
     "rossi": [
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      },
       {
         "source": {
           "skillId": "comboSkill",
