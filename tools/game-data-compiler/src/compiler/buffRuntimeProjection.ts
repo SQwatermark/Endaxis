@@ -110,10 +110,10 @@ const BUFF_BEFORE_ADDED_CONTEXT: CombatActionProjectionContextSource = {
   restrictEventSourceTargetProjection: true,
 };
 
-// DamagePack 的受击侧事件把本次伤害来源作为动作 InputTarget；监听 Buff 自身的
-// ActionSource 仍是创建者。波格兰尼奇据此用 SourceFinder(ActionSource) 与 Target
-// 比较，只接受由该来源链发出的伤害。
-const BUFF_BEFORE_TAKE_DAMAGE_CONTEXT: CombatActionProjectionContextSource = {
+// 伤害与物理异常的受击侧事件都把本次来源作为动作 InputTarget；监听 Buff 自身的
+// ActionSource 仍是创建者。波格兰尼奇据此把终结技附加增益施加给异常来源，并在
+// 连携伤害分支用 SourceFinder(ActionSource) 与 Target 比较来源链。
+const BUFF_BEFORE_TAKE_CONTEXT: CombatActionProjectionContextSource = {
   actionOwnerTarget: 'buffOwner',
   actionSourceTarget: 'buffSource',
   actionTargetTarget: 'eventSource',
@@ -647,9 +647,10 @@ export function compileBuffRuntimeDefinitionSource(
                 abilityEntityQueries,
                 ...abilityEventProjectionContext,
               }
-            : abilityEvent === 'OnBeforeTakeDamage'
+            : abilityEvent === 'OnBeforeTakeDamage' ||
+                abilityEvent === 'OnBeforeTakePhysicalInfliction'
               ? {
-                  ...BUFF_BEFORE_TAKE_DAMAGE_CONTEXT,
+                  ...BUFF_BEFORE_TAKE_CONTEXT,
                   abilityEntityQueries,
                   ...abilityEventProjectionContext,
                 }

@@ -1467,13 +1467,33 @@ export class CombatRuntimeAssembly {
     return ability.tryStartTimelineSkill(expectedSkillId, castId);
   }
 
-  /** 统一输出方物理后置通知；不再通过另一套语义总线转发。 */
+  /** 物理异常前置事件按原生顺序同步通知输出方与承受方。 */
+  #publishBeforePhysicalInfliction(
+    payload: import('../events/combatAbilityEvent').AbilityPhysicalInflictionPayload,
+  ): void {
+    if (this.#options.emitAbilityEvent === undefined)
+      throw new Error('physical infliction requires an ability event publisher');
+    this.#options.emitAbilityEvent(payload.sourceId, 'beforeOutputPhysicalInfliction', payload);
+    this.#options.emitAbilityEvent(payload.targetId, 'beforeTakePhysicalInfliction', payload);
+  }
+
+  /** 只声明输出事实的动作没有目标施加结果，因此仅发布输出方后置事件。 */
   #publishPhysicalInfliction(
     payload: import('../events/combatAbilityEvent').AbilityPhysicalInflictionPayload,
   ): void {
     if (this.#options.emitAbilityEvent === undefined)
       throw new Error('physical infliction requires an ability event publisher');
     this.#options.emitAbilityEvent(payload.sourceId, 'afterOutputPhysicalInfliction', payload);
+  }
+
+  /** 物理异常后置事件按原生顺序同步通知输出方与承受方。 */
+  #publishAfterPhysicalInfliction(
+    payload: import('../events/combatAbilityEvent').AbilityPhysicalInflictionPayload,
+  ): void {
+    if (this.#options.emitAbilityEvent === undefined)
+      throw new Error('physical infliction requires an ability event publisher');
+    this.#options.emitAbilityEvent(payload.sourceId, 'afterOutputPhysicalInfliction', payload);
+    this.#options.emitAbilityEvent(payload.targetId, 'afterTakePhysicalInfliction', payload);
   }
 
   #prepareSkillStart(
@@ -2487,9 +2507,8 @@ export class CombatRuntimeAssembly {
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => definitionOperator.buffDefinitions?.[buffId],
-      onPhysicalInflictionApplied: event => this.#publishPhysicalInfliction(event),
-      onBeforeOutputPhysicalInfliction: payload =>
-        this.#options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
+      onPhysicalInflictionApplied: event => this.#publishAfterPhysicalInfliction(event),
+      onBeforeOutputPhysicalInfliction: payload => this.#publishBeforePhysicalInfliction(payload),
       delegate: timeDilationOperations,
     });
     const globalBuffOperations = new GlobalBuffOperationExecutor({
@@ -2807,9 +2826,8 @@ export class CombatRuntimeAssembly {
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
-      onPhysicalInflictionApplied: event => this.#publishPhysicalInfliction(event),
-      onBeforeOutputPhysicalInfliction: payload =>
-        options.emitAbilityEvent?.(operatorId, 'beforeOutputPhysicalInfliction', payload),
+      onPhysicalInflictionApplied: event => this.#publishAfterPhysicalInfliction(event),
+      onBeforeOutputPhysicalInfliction: payload => this.#publishBeforePhysicalInfliction(payload),
       delegate: timeDilationOperations,
     });
     const globalBuffOperations = new GlobalBuffOperationExecutor({

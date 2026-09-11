@@ -42,6 +42,8 @@ describe('AbilityEvent action context binding', () => {
     const events: CombatAbilityEvent[] = [
       { event: 'beforeAddedBuff', payload: buffPayload },
       { event: 'addedBuff', payload: buffPayload },
+      { event: 'beforeTakePhysicalInfliction', payload: { ...pair, type: 'fracture' } },
+      { event: 'afterTakePhysicalInfliction', payload: { ...pair, type: 'fracture' } },
       { event: 'poiseZero', payload: pair },
       { event: 'poiseKnotBreak', payload: pair },
     ];

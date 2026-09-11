@@ -112,31 +112,31 @@ const sharedActionSequence4: ActionSequenceDefinition = sequence(
 
 const sharedActionSequence3: ActionSequenceDefinition = sequence(
   step('readBuffBlackboard', {
-    target: 'caster',
+    target: 'buffSource',
     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
     desiredKey: 'duration',
     outputKey: 'duration_temp',
   }),
   step('readBuffBlackboard', {
-    target: 'caster',
+    target: 'buffSource',
     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
     desiredKey: 'atk_up',
     outputKey: 'atk_up_temp',
   }),
   step('readBuffBlackboard', {
-    target: 'caster',
+    target: 'buffSource',
     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
     desiredKey: 'physpell_up',
     outputKey: 'physpell_up_temp',
   }),
   step('readBuffBlackboard', {
-    target: 'caster',
+    target: 'buffSource',
     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
     desiredKey: 'max_stack_owner',
     outputKey: 'max_stack_owner_temp',
   }),
   step('readBuffBlackboard', {
-    target: 'caster',
+    target: 'buffSource',
     query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
     desiredKey: 'max_stack_team',
     outputKey: 'max_stack_team_temp',
@@ -146,7 +146,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
     sequence(
       step('applyBuff', {
         buffId: 'buff_chr_0029_pograni_talent1',
-        target: 'eventTarget',
+        target: 'eventSource',
         source: 'buffSource',
         inheritSourceSkillCastInfo: true,
         blackboardAssignments: {
@@ -160,7 +160,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
     sequence(
       step('applyBuff', {
         buffId: 'buff_chr_0029_pograni_talent1',
-        target: 'eventTarget',
+        target: 'eventSource',
         source: 'buffSource',
         inheritSourceSkillCastInfo: true,
         blackboardAssignments: {
@@ -179,7 +179,7 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'buffIdStackCompare',
-      target: 'caster',
+      target: 'buffSource',
       buffIds: ['buff_chr_0029_pograni_talent1_exist'],
       operator: 'greaterOrEqual',
       value: { kind: 'constant', value: 1 },
@@ -2937,7 +2937,7 @@ export const pogranichnik: OperatorDefinition = {
                 kind: 'not',
                 condition: {
                   kind: 'timedMarkerPresent',
-                  target: 'caster',
+                  target: 'buffSource',
                   markerId: 'chr_0029_pograni_soldier_attacked',
                 },
               },
@@ -2945,7 +2945,7 @@ export const pogranichnik: OperatorDefinition = {
                 branch(
                   {
                     kind: 'buffIdStackCompare',
-                    target: 'caster',
+                    target: 'buffSource',
                     buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
                     operator: 'equal',
                     value: { kind: 'constant', value: 1 },
@@ -2969,7 +2969,7 @@ export const pogranichnik: OperatorDefinition = {
                       },
                     }),
                     step('createTimedMarker', {
-                      target: 'caster',
+                      target: 'buffSource',
                       markerId: 'chr_0029_pograni_soldier_attacked',
                       durationSeconds: { kind: 'blackboard', key: 'interval' },
                       autoFinishByAction: false,
@@ -2977,7 +2977,7 @@ export const pogranichnik: OperatorDefinition = {
                     branch(
                       {
                         kind: 'buffIdStackCompare',
-                        target: 'caster',
+                        target: 'buffSource',
                         buffIds: ['buff_chr_0029_pograni_talent2'],
                         operator: 'greaterOrEqual',
                         value: { kind: 'constant', value: 1 },
@@ -2999,7 +2999,7 @@ export const pogranichnik: OperatorDefinition = {
                 kind: 'not',
                 condition: {
                   kind: 'timedMarkerPresent',
-                  target: 'caster',
+                  target: 'buffSource',
                   markerId: 'chr_0029_pograni_soldier_attacked',
                 },
               },
@@ -3007,7 +3007,7 @@ export const pogranichnik: OperatorDefinition = {
                 branch(
                   {
                     kind: 'buffIdStackCompare',
-                    target: 'caster',
+                    target: 'buffSource',
                     buffIds: ['buff_chr_0029_pograni_ultimate_skill_count'],
                     operator: 'greater',
                     value: { kind: 'constant', value: 1 },
@@ -3027,7 +3027,7 @@ export const pogranichnik: OperatorDefinition = {
                       count: { kind: 'constant', value: 1 },
                     }),
                     step('createTimedMarker', {
-                      target: 'caster',
+                      target: 'buffSource',
                       markerId: 'chr_0029_pograni_soldier_attacked',
                       durationSeconds: { kind: 'blackboard', key: 'interval' },
                       autoFinishByAction: false,
@@ -3035,7 +3035,7 @@ export const pogranichnik: OperatorDefinition = {
                     branch(
                       {
                         kind: 'buffIdStackCompare',
-                        target: 'caster',
+                        target: 'buffSource',
                         buffIds: ['buff_chr_0029_pograni_talent2'],
                         operator: 'greaterOrEqual',
                         value: { kind: 'constant', value: 1 },

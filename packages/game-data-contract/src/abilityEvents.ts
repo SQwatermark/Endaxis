@@ -94,6 +94,10 @@ export const ABILITY_EVENT_ACTION_CONTEXT_BINDINGS = {
     inputTarget: 'eventTarget',
     triggerTarget: 'eventSource',
   },
+  beforeTakePhysicalInfliction: {
+    inputTarget: 'eventSource',
+    triggerTarget: 'eventTarget',
+  },
   beforeTakeInfliction: { inputTarget: 'eventSource', triggerTarget: 'eventTarget' },
   afterOutputInfliction: { inputTarget: 'eventTarget', triggerTarget: 'eventSource' },
   afterTakeInfliction: { inputTarget: 'eventSource', triggerTarget: 'eventTarget' },

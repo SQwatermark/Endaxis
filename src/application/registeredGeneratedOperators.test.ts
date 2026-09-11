@@ -1859,12 +1859,20 @@ describe('registered generated operators', () => {
         startFrame: 120,
         ids,
       }).scenario;
-      const combo = placeSkillGroup({
+      const secondBattle = placeSkillGroup({
         scenario: battle,
         trackIndex: 0,
         operator: pogranichnik,
-        skillGroupKey: 'comboSkill',
+        skillGroupKey: 'battleSkill',
         startFrame: 180,
+        ids,
+      }).scenario;
+      const combo = placeSkillGroup({
+        scenario: secondBattle,
+        trackIndex: 0,
+        operator: pogranichnik,
+        skillGroupKey: 'comboSkill',
+        startFrame: 250,
         ids,
       }).scenario;
       const placed = placeSkillGroup({
@@ -1872,7 +1880,7 @@ describe('registered generated operators', () => {
         trackIndex: 0,
         operator: pogranichnik,
         skillGroupKey: 'basicAttack',
-        startFrame: 260,
+        startFrame: 330,
         ids,
       }).scenario;
 
@@ -1909,25 +1917,18 @@ describe('registered generated operators', () => {
     expect(basicDamage(withoutTalent)).toBeTypeOf('number');
     expect(basicDamage(withTalent)).toBeTypeOf('number');
     expect(Number(basicDamage(withTalent))).toBeGreaterThan(Number(basicDamage(withoutTalent)));
-    // 该战技只施加一次物理异常；目标原先没有无防备时，这次只叠无防备，不会产生骨折窗口。
-    expect(withTalent.receiptEntries).not.toContainEqual(
-      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:pogranichnik' }),
-    );
+    // 首次战技只叠无防备；第二次战技进入骨折链，并按原生 BeforeTake 事件打开连携窗口。
     expect(withTalent.receiptEntries).toContainEqual(
-      expect.objectContaining({
-        event: 'ComboWindowUnavailableAtStart',
-        sourceId: 'track:pogranichnik',
-        data: expect.objectContaining({ reason: 'windowMissing' }),
-      }),
+      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:pogranichnik' }),
     );
     const soldiers = withTalent.receiptEntries.filter(
       entry =>
         entry.event === 'AbilityEntitySpawned' &&
         entry.data?.abilityEntityId === 'abilityentity_chr_0029_pograni_ultimate_skill',
     );
-    // 原生终结技先生成四名常驻士兵；本场景只触发一次物理异常，因此再生成一名
-    // attack2 士兵。旧手写定义把最终冲锋提前硬编码为四次生成，统一转换不保留该近似。
-    expect(soldiers).toHaveLength(5);
+    // 原生终结技先生成四名常驻士兵；第二次战技在已有无防备时施加物理异常，
+    // 承受方 Before 事件召出一名 attack2，随后连携命中再召出一名。
+    expect(soldiers).toHaveLength(6);
     expect(
       soldiers.filter(entry => String(entry.data?.childSkillId).endsWith('_finish4')),
     ).toHaveLength(0);
@@ -1938,7 +1939,7 @@ describe('registered generated operators', () => {
     ).toHaveLength(4);
     expect(
       soldiers.filter(entry => String(entry.data?.childSkillId).endsWith('_attack2')),
-    ).toHaveLength(1);
+    ).toHaveLength(2);
     expect(
       withTalent.receiptEntries.some(
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:pogranichnik',
