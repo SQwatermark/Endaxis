@@ -413,7 +413,7 @@ function maxOut(): void {
                       :skill-type-name="skillTypeName(source)"
                     />
                   </template>
-                  <div class="skill-icon-frame">
+                  <div class="skill-icon-frame" :style="{ borderColor: elementColor }">
                     <img :src="skillIcon(source)" alt="" class="skill-icon" />
                   </div>
                 </el-tooltip>

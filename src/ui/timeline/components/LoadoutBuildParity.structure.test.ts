@@ -147,6 +147,9 @@ describe('旧版构筑编辑行为兼容结构', () => {
 
   it('干员实例面板的技能图标以可交互光标提示 tooltip', () => {
     expect(operatorBuildSource).toMatch(/\.skill-icon-frame\s*\{[\s\S]*?cursor:\s*pointer;/);
+    expect(operatorBuildSource).toContain(
+      'class="skill-icon-frame" :style="{ borderColor: elementColor }"',
+    );
   });
 
   it('四类构筑弹窗共用窄视口外壳，不让固定桌面宽度截断内容', () => {
