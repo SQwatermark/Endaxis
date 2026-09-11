@@ -5,10 +5,13 @@ import { computed } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useI18n } from 'vue-i18n';
 import './armoryDialog.css';
+import './armoryDialogTheme.css';
 import type { GearInstanceViewModel } from '../loadoutBuildViewModel';
-import { isEquipmentArtificable } from '../../progression';
+import { getEquipmentQualityTier, isEquipmentArtificable } from '../../progression';
 import { getGearDefinitionInstanceAffixRows } from '../gearAffixPresentation';
 import { DEFAULT_GAME_ICON_PATH } from '../../gameAssetPaths';
+import { getGameQualityName } from '../../gameText';
+import { qualityColors } from '../../../utils/theme';
 
 const props = defineProps<{
   visible: boolean;
@@ -24,7 +27,11 @@ const emit = defineEmits<{
   update: [artificingLevels: readonly number[]];
 }>();
 
-const { t } = useI18n({ useScope: 'global' });
+const { t, locale } = useI18n({ useScope: 'global' });
+
+const quality = computed(() => getEquipmentQualityTier(props.gear?.definition.levelRequirement));
+const qualityName = computed(() => getGameQualityName(quality.value, locale.value));
+const qualityColor = computed(() => qualityColors[quality.value] ?? props.levelColor);
 
 const isArtificable = computed(
   () => props.gear !== null && isEquipmentArtificable(props.gear.definition.levelRequirement),
@@ -81,7 +88,7 @@ function maxOut(): void {
       <template v-if="gear">
         <div class="layout">
           <div class="header">
-            <div class="portrait-frame" :style="{ borderColor: levelColor }">
+            <div class="portrait-frame" :style="{ borderColor: qualityColor }">
               <img
                 :src="gear.definition.iconPath || DEFAULT_GAME_ICON_PATH"
                 :alt="name"
@@ -91,8 +98,8 @@ function maxOut(): void {
             <div class="header-info">
               <div class="name">{{ name }}</div>
               <div class="tags">
-                <span class="tag" :style="{ color: levelColor, borderColor: levelColor }">
-                  Lv{{ gear.definition.levelRequirement }}
+                <span class="tag" :style="{ color: qualityColor, borderColor: qualityColor }">
+                  {{ qualityName }}
                 </span>
                 <span class="tag">{{ slotTypeName }}</span>
                 <span v-if="setName" class="tag">{{ setName }}</span>
@@ -108,10 +115,10 @@ function maxOut(): void {
             <div class="section-title">{{ t('armory.common.artificing') }}</div>
             <div v-for="slot in traitSlots" :key="slot.traitIndex" class="stat-row">
               <div class="stat-info">
-                <div v-for="row in slot.rows" :key="row.key" class="stat-line">
-                  <span class="stat-name">{{ row.label }}</span>
-                  <strong class="stat-value">{{ row.valueText }}</strong>
-                </div>
+                <span v-for="row in slot.rows" :key="row.key" class="stat-name">
+                  {{ row.label }}
+                  <span class="stat-value-inline">{{ row.valueText }}</span>
+                </span>
               </div>
               <div v-if="isArtificable" class="stat-bar-area">
                 <div class="stat-slots">
@@ -235,7 +242,6 @@ function maxOut(): void {
 .stat-row {
   display: flex;
   align-items: center;
-  min-height: 40px;
   padding: 8px 0;
   border-bottom: 1px solid var(--ea-border-soft, rgba(255, 255, 255, 0.04));
 }
@@ -249,28 +255,21 @@ function maxOut(): void {
   flex-direction: column;
   gap: 4px;
 }
-.stat-line {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 8px;
-}
 .stat-name {
   color: var(--ea-fg, #e0e0e0);
   font-size: 13px;
   font-weight: 600;
 }
-.stat-value {
-  color: var(--ea-gold);
-  font-family: 'Roboto Mono', monospace;
-  font-size: 12px;
+.stat-value-inline {
+  margin-left: 6px;
+  color: var(--ea-fg-muted, #aaa);
+  font-weight: 400;
 }
 .stat-bar-area {
   display: flex;
   flex-shrink: 0;
   align-items: center;
   gap: 8px;
-  margin-left: 12px;
 }
 .stat-slots {
   display: flex;
@@ -284,7 +283,7 @@ function maxOut(): void {
   color: inherit;
 }
 .stat-level {
-  min-width: 34px;
+  min-width: 24px;
   color: var(--ea-fg-secondary, #ccc);
   font-family: 'Roboto Mono', monospace;
   font-size: 13px;
@@ -294,11 +293,5 @@ function maxOut(): void {
 .stat-locked {
   color: var(--ea-dialog-hint, #777);
   font-size: 12px;
-}
-.footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-  width: 100%;
 }
 </style>

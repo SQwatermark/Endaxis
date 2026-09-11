@@ -3,6 +3,7 @@ export {
   getGameAttributeName,
   getGameClassName,
   getGameElementName,
+  getGameQualityName,
   getGameSlotTypeName,
   getGameWeaponTypeName,
   getEnemyGameName,

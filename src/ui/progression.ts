@@ -80,6 +80,19 @@ export function getEquipmentLevelColor(level: number | string | null | undefined
   return colors[Number(level)] ?? '#888888';
 }
 
+export type EquipmentQualityTier = 'green' | 'blue' | 'purple' | 'gold';
+
+/** 装备等级门槛对应的游戏品质；构筑界面用它显示与旧版一致的品质名称。 */
+export function getEquipmentQualityTier(
+  level: number | string | null | undefined,
+): EquipmentQualityTier {
+  const requirement = Number(level);
+  if (requirement >= 60) return 'gold';
+  if (requirement >= 40) return 'purple';
+  if (requirement >= 20) return 'blue';
+  return 'green';
+}
+
 export function isEquipmentArtificable(level: number | string | null | undefined): boolean {
   return Number(level) >= 60;
 }

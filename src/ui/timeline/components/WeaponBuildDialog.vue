@@ -254,7 +254,7 @@ function maxOut(): void {
                 <span class="section-label">{{ t('armory.common.baseAtk') }}</span>
                 <span class="value">{{ baseAttack }}</span>
               </div>
-              <div class="row">
+              <div class="row row-actions">
                 <EaButton
                   size="sm"
                   :disabled="!canTune"
@@ -262,6 +262,13 @@ function maxOut(): void {
                   @click="toggleTuning"
                 >
                   {{ tuningLabel() }}
+                </EaButton>
+                <EaButton size="sm" type="button" @click="emit('edit-definition')">
+                  {{
+                    customDefinition === undefined
+                      ? t('timeline.customDefinition.customizeWeapon')
+                      : t('timeline.customDefinition.editWeapon')
+                  }}
                 </EaButton>
               </div>
               <div class="row">
@@ -344,13 +351,6 @@ function maxOut(): void {
 
       <template #footer>
         <EaDialogActions>
-          <EaButton size="sm" :disabled="weapon === null" @click="emit('edit-definition')">
-            {{
-              customDefinition === undefined
-                ? t('timeline.customDefinition.customizeWeapon')
-                : t('timeline.customDefinition.editWeapon')
-            }}
-          </EaButton>
           <EaButton variant="primary" size="sm" :disabled="weapon === null" @click="maxOut">
             {{ t('common.max') }}
           </EaButton>
@@ -373,6 +373,9 @@ function maxOut(): void {
   display: flex;
   gap: 20px;
   align-items: flex-start;
+}
+.row-actions {
+  flex-wrap: wrap;
 }
 .portrait-frame {
   --armory-pad: var(--ea-keycap-bg, #1a1a1e);

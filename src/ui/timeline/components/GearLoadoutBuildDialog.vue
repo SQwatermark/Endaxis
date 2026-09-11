@@ -366,7 +366,7 @@ const activeSetBonuses = computed(() => {
 }
 
 .gear-slot-card {
-  min-height: 190px;
+  min-height: 230px;
   display: flex;
   flex-direction: column;
   gap: 12px;

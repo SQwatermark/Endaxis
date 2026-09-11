@@ -70,6 +70,43 @@ describe('旧版构筑编辑行为兼容结构', () => {
     expect(operatorBuildSource).not.toContain('>\n            自定义干员\n');
   });
 
+  it('干员与武器的自定义入口跟随旧版放在突破操作旁', () => {
+    const operatorPromotion = operatorBuildSource.indexOf('{{ promotionLabel() }}');
+    const operatorDefinition = operatorBuildSource.indexOf(
+      "t('timeline.customDefinition.customizeOperator')",
+    );
+    const operatorPotential = operatorBuildSource.indexOf('v-if="potentialCount > 0"');
+    expect(operatorPromotion).toBeGreaterThan(-1);
+    expect(operatorDefinition).toBeGreaterThan(operatorPromotion);
+    expect(operatorDefinition).toBeLessThan(operatorPotential);
+
+    const weaponTuning = weaponBuildSource.indexOf('{{ tuningLabel() }}');
+    const weaponDefinition = weaponBuildSource.indexOf(
+      "t('timeline.customDefinition.customizeWeapon')",
+    );
+    const weaponPotential = weaponBuildSource.indexOf("t('armory.common.potential')");
+    const weaponFooter = weaponBuildSource.indexOf('<template #footer>');
+    expect(weaponTuning).toBeGreaterThan(-1);
+    expect(weaponDefinition).toBeGreaterThan(weaponTuning);
+    expect(weaponDefinition).toBeLessThan(weaponPotential);
+    expect(weaponDefinition).toBeLessThan(weaponFooter);
+  });
+
+  it('装备构筑与实例编辑保留旧版卡片尺寸和品质文案', () => {
+    expect(gearBuildSource).toMatch(/\.gear-slot-card\s*\{[\s\S]*?min-height:\s*230px;/);
+    expect(gearInstanceSource).toContain('getEquipmentQualityTier(');
+    expect(gearInstanceSource).toContain('getGameQualityName(quality.value, locale.value)');
+    expect(gearInstanceSource).not.toContain('Lv{{ gear.definition.levelRequirement }}');
+    expect(gearInstanceSource).toContain('class="stat-value-inline"');
+  });
+
+  it('干员构筑面板恢复旧版元素标签的语义色', () => {
+    expect(operatorBuildSource).toContain("elementColors[definition.value?.element ?? '']");
+    expect(operatorBuildSource).toContain(
+      ':style="{ color: elementColor, borderColor: elementColor }"',
+    );
+  });
+
   it('富文本 tooltip 使用正式数据定义并保留既有排版类名', () => {
     expect(presentationSource).toContain('GameRichTextRenderer');
     expect(operatorTooltipSource).toContain('listOperatorSkillDefinitionBindings');

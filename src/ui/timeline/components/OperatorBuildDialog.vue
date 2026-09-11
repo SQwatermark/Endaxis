@@ -53,6 +53,7 @@ import {
   getOperatorTalentIconPath,
   getWeaponActionIconPath,
 } from '../../gameAssetPaths';
+import { elementColors } from '../../../utils/theme';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly OperatorLevel[];
 const SKILL_ORDER = PLAYER_SKILL_INPUTS;
@@ -78,6 +79,7 @@ const rarityColor = computed(() => {
   if (rarity === 4) return '#d8b4fe';
   return '#888';
 });
+const elementColor = computed(() => elementColors[definition.value?.element ?? ''] ?? '#888');
 const potentialColor = computed(() => {
   const rarity = definition.value?.rarity ?? 0;
   if (rarity === 6) return '#ff4500';
@@ -285,18 +287,6 @@ function maxOut(): void {
       <template v-if="operator && definition">
         <div class="layout">
           <div class="header">
-            <EaButton
-              size="sm"
-              type="button"
-              class="definition-entry"
-              @click="emit('edit-definition')"
-            >
-              {{
-                customDefinition === undefined
-                  ? t('timeline.customDefinition.customizeOperator')
-                  : t('timeline.customDefinition.editOperator')
-              }}
-            </EaButton>
             <div
               class="portrait-frame"
               :class="`rarity-${definition.rarity}-style`"
@@ -324,7 +314,9 @@ function maxOut(): void {
                 >
               </div>
               <div class="tags">
-                <span class="tag">{{ getGameElementName(definition.element, locale) }}</span>
+                <span class="tag" :style="{ color: elementColor, borderColor: elementColor }">{{
+                  getGameElementName(definition.element, locale)
+                }}</span>
                 <span class="tag">{{ getGameClassName(definition.role, locale) }}</span>
                 <span class="tag">{{ getGameWeaponTypeName(definition.weaponType, locale) }}</span>
               </div>
@@ -332,7 +324,7 @@ function maxOut(): void {
                 <span class="level-num">{{ operator.level }}</span>
                 <span class="level-text">{{ t('armory.common.level') }}</span>
               </div>
-              <div class="row">
+              <div class="row row-actions">
                 <EaButton
                   size="sm"
                   type="button"
@@ -341,6 +333,13 @@ function maxOut(): void {
                   @click="togglePromotion"
                 >
                   {{ promotionLabel() }}
+                </EaButton>
+                <EaButton size="sm" type="button" @click="emit('edit-definition')">
+                  {{
+                    customDefinition === undefined
+                      ? t('timeline.customDefinition.customizeOperator')
+                      : t('timeline.customDefinition.editOperator')
+                  }}
                 </EaButton>
               </div>
               <div v-if="potentialCount > 0" class="row">
@@ -582,16 +581,12 @@ function maxOut(): void {
   gap: 20px;
 }
 .header {
-  position: relative;
   display: flex;
   gap: 20px;
   align-items: flex-start;
 }
-.definition-entry {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 1;
+.row-actions {
+  flex-wrap: wrap;
 }
 .portrait-frame {
   --armory-pad: var(--ea-keycap-bg, #1a1a1e);
@@ -612,6 +607,7 @@ function maxOut(): void {
   background:
     linear-gradient(var(--armory-pad), var(--armory-pad)) padding-box,
     linear-gradient(135deg, var(--ea-gold), #ff8c00, #ff4500) border-box;
+  box-shadow: 0 4px 12px rgba(255, 140, 0, 0.2);
 }
 .header-info {
   flex: 1;
@@ -640,12 +636,12 @@ function maxOut(): void {
   font-size: 14px;
   letter-spacing: 1px;
 }
-.header-rarity-6 {
+.header-rarity-6.stars {
   background: linear-gradient(45deg, var(--ea-gold), #ff8c00, #ff4500);
   background-clip: text;
+  -webkit-background-clip: text;
   color: transparent !important;
 }
-.tags,
 .diamonds,
 .level-selector,
 .skills-row,
@@ -653,13 +649,22 @@ function maxOut(): void {
   display: flex;
   gap: 8px;
 }
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
 .tag {
+  display: inline-flex;
+  align-items: center;
   padding: 2px 10px;
   border: 1px solid var(--ea-border-strong, #555);
+  background: var(--ea-fill-soft, rgba(255, 255, 255, 0.04));
   color: var(--ea-fg-secondary, #bbb);
   font-size: 11px;
 }
 .level-display {
+  align-items: baseline;
   gap: 6px;
   margin-top: 4px;
 }
@@ -669,8 +674,18 @@ function maxOut(): void {
   font-weight: 700;
   line-height: 1;
 }
-.level-text,
-.section-label,
+.level-text {
+  color: var(--ea-dialog-hint, #888);
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.section-label {
+  color: var(--ea-dialog-hint, #888);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
 .section-title,
 .talent-sub {
   color: var(--ea-dialog-hint, #888);
@@ -737,7 +752,9 @@ function maxOut(): void {
   object-fit: contain;
 }
 .skill-name {
+  display: flex;
   min-height: 2.6em;
+  align-items: center;
   color: var(--ea-fg-secondary, #ccc);
   font-size: 12px;
   text-align: center;
