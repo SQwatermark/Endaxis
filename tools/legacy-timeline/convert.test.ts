@@ -160,6 +160,24 @@ it('preserves the stored full ultimate energy without recompiling conditional ta
   expect(result.report.issues).toEqual([]);
   expect(result.project?.scenarios[0]?.tracks[0]?.initialState.ultimateEnergy).toBe(100);
 });
+it('blocks a stored initial ultimate energy above the current compiled maximum', () => {
+  const input = fixture();
+  const data = input.scenarioList[0]!.data;
+  data.initialGaugeMode = 'custom';
+  data.tracks[0]!.initialGauge = 101;
+  data.tracks[0]!.actions = [];
+
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+  });
+
+  expect(result.status).toBe('blocked');
+  expect(result.project).toBeNull();
+  expect(result.report.issues).toContainEqual({
+    path: 'scenarioList[0].data.tracks[0].initialGauge',
+    message: '初始终结技能量 101 超过当前原生上限 80',
+  });
+});
 it('does not publish a project after missing mapping', () => {
   const result = convertLegacyTimeline(fixture(), gameDataRepository);
   expect(result.status).toBe('blocked');

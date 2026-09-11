@@ -2,6 +2,44 @@ import { prepareLegacySource, type ConversionMappings } from './sourcePreparatio
 import { createLegacyProjectImporter } from './projectConversion';
 import { parseProjectDocument } from '../../src/core/project/serialization';
 import type { GameDataRepository } from '../../src/core/game-data/gameDataRepository';
+import { resolveScenarioBuilds } from '../../src/core/compiler/resolveScenarioBuilds';
+import { resolveScenarioOperatorPanels } from '../../src/core/compiler/resolveOperatorPanel';
+import { compileOperatorDefinitionSkills } from '../../src/core/compiler/compileScenarioTimeline';
+import { resolveScenarioOperatorResourceRules } from '../../src/core/compiler/resolveScenarioResourceRules';
+import type { EndaxisProjectDocument } from '../../src/core/project/schema';
+
+function validateInitialUltimateEnergy(
+  project: EndaxisProjectDocument,
+  repository: GameDataRepository,
+) {
+  const issues: { path: string; message: string }[] = [];
+  for (const [scenarioIndex, scenario] of project.scenarios.entries()) {
+    const builds = resolveScenarioBuilds(scenario, repository);
+    const panels = resolveScenarioOperatorPanels(builds, scenario.globalConfig);
+    const programs = builds.map(build => ({
+      operatorId: build.track.id,
+      skills: compileOperatorDefinitionSkills(
+        build.track.id,
+        build.operatorInstance,
+        build.operator,
+        repository.getCommonAbilityEntityDefinitions?.(),
+        panels.find(panel => panel.operatorId === build.track.id)?.attributes,
+      ),
+    }));
+    const rules = resolveScenarioOperatorResourceRules(programs, panels);
+    scenario.tracks.forEach((track, trackIndex) => {
+      if (track === null) return;
+      const maximum = rules.get(track.id)?.maxUltimateEnergy;
+      if (maximum !== undefined && track.initialState.ultimateEnergy > maximum) {
+        issues.push({
+          path: `scenarioList[${scenarioIndex}].data.tracks[${trackIndex}].initialGauge`,
+          message: `初始终结技能量 ${track.initialState.ultimateEnergy} 超过当前原生上限 ${maximum}`,
+        });
+      }
+    });
+  }
+  return issues;
+}
 
 /** 离线工具的唯一转换入口；有遗漏或目标校验失败时不返回可用项目。 */
 export function convertLegacyTimeline(
@@ -17,6 +55,7 @@ export function convertLegacyTimeline(
   if (result.ok) {
     const checked = parseProjectDocument(result.value, { gameDataRepository: repository });
     if (!checked.ok) issues.push({ path: '', message: JSON.stringify(checked) });
+    else issues.push(...validateInitialUltimateEnergy(checked.value, repository));
   }
   return {
     status: issues.length ? 'blocked' : 'converted',
