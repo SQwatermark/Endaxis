@@ -144,6 +144,22 @@ it('produces a current reloadable document only after explicit skill mapping and
     true,
   );
 });
+it('preserves the stored full ultimate energy without recompiling conditional talents', () => {
+  const input = fixture();
+  const data = input.scenarioList[0]!.data;
+  data.initialGaugeMode = 'full';
+  data.operators[0]!.operatorSlug = 'arcane';
+  data.operators[0]!.talentStates = { 0: 1, 1: 1 };
+  data.tracks[0]!.id = 'arcane';
+  data.tracks[0]!.initialGauge = 100;
+  data.tracks[0]!.actions = [];
+
+  const result = convertLegacyTimeline(input, gameDataRepository);
+
+  expect(result.status).toBe('converted');
+  expect(result.report.issues).toEqual([]);
+  expect(result.project?.scenarios[0]?.tracks[0]?.initialState.ultimateEnergy).toBe(100);
+});
 it('does not publish a project after missing mapping', () => {
   const result = convertLegacyTimeline(fixture(), gameDataRepository);
   expect(result.status).toBe('blocked');

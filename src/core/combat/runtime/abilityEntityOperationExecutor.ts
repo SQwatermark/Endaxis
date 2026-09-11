@@ -8,9 +8,14 @@ import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import type { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
-import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type {
+  CombatOperationContext,
+  CombatOperationExecutor,
+  ScheduleProjectileFinishCallback,
+} from './skillRuntime';
 import { AbilityEntityChildSkillRuntime } from './abilityEntityChildSkillRuntime';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import type { CallbackSkillHostFactory } from './callbackSkillHost';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -22,6 +27,8 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
   readonly #childRuntimeDependencies?: {
     readonly resolveOperations: () => CombatOperationExecutor;
     readonly semanticEvents?: CombatSemanticEventRuntime;
+    readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
+    readonly createCallbackSkillHost?: CallbackSkillHostFactory;
   };
   readonly #resolveDefinition?: (
     abilityEntityId: string,
@@ -35,6 +42,8 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     childRuntimeDependencies?: {
       readonly resolveOperations: () => CombatOperationExecutor;
       readonly semanticEvents?: CombatSemanticEventRuntime;
+      readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
+      readonly createCallbackSkillHost?: CallbackSkillHostFactory;
     },
     resolveDefinition?: (abilityEntityId: string) => ResolvedAbilityEntityDefinition | undefined,
   ) {
@@ -463,6 +472,15 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       ...(this.#childRuntimeDependencies.semanticEvents === undefined
         ? {}
         : { semanticEvents: this.#childRuntimeDependencies.semanticEvents }),
+      ...(this.#childRuntimeDependencies.scheduleProjectileFinishCallback === undefined
+        ? {}
+        : {
+            scheduleProjectileFinishCallback:
+              this.#childRuntimeDependencies.scheduleProjectileFinishCallback,
+          }),
+      ...(this.#childRuntimeDependencies.createCallbackSkillHost === undefined
+        ? {}
+        : { createCallbackSkillHost: this.#childRuntimeDependencies.createCallbackSkillHost }),
       ...(!inheritSourceSkillCastInfo || context.skillCastInfo === undefined
         ? {}
         : { inheritedSkillCastInfo: context.skillCastInfo }),

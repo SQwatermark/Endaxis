@@ -1401,6 +1401,56 @@ describe('CombatRuntimeAssembly', () => {
     ).toBe(true);
   });
 
+  it('lets an AbilityEntity child skill launch a projectile through the battle scheduler', () => {
+    const program = skill({
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  abilityEntityId: 'projectile-child-host',
+                  dieWhenSourceDies: false,
+                  definition: {
+                    lifetime: { kind: 'limited', durationSeconds: 10 },
+                    childSkill: {
+                      skillId: 'projectile-child',
+                      initialBlackboard: {},
+                      timelineActions: [
+                        {
+                          startFrame: 1,
+                          sequence: {
+                            steps: [
+                              {
+                                kind: 'launchProjectileLifetime',
+                                parameters: { finish: 'firstTickReach' },
+                              },
+                            ],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly([program]);
+
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    expect(() => assembly.advanceFrame()).not.toThrow();
+    expect(assembly.projectileLifetimes.activeCount).toBe(1);
+    assembly.advanceFrames(3);
+    expect(assembly.projectileLifetimes.activeCount).toBe(0);
+  });
+
   it('lets an AbilityEntity Buff lifecycle finish its owning entity through the shared chain', () => {
     let entityBuffs: CombatBuffContainer<string> | undefined;
     const ownerHpZeroCleanupStates: boolean[] = [];

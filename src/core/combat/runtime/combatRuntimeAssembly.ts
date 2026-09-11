@@ -1,5 +1,5 @@
 import type { RegisterPassiveAbilityEventAction } from './passiveAbilityEventRuntime';
-import { createCallbackSkillHostFactory } from './callbackSkillHost';
+import { createCallbackSkillHostFactory, type CallbackSkillHostFactory } from './callbackSkillHost';
 import { abilityEventSourceId } from '../events/combatAbilityEvent';
 import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
 /**
@@ -52,6 +52,7 @@ import {
   SkillRuntime,
   type CombatOperationContext,
   type CombatOperationExecutor,
+  type ScheduleProjectileFinishCallback,
 } from './skillRuntime';
 import { SkillCastIdAllocator } from './skillCastInfo';
 import { OperatorControlConditionExecutor } from './operatorControlConditionExecutor';
@@ -1606,6 +1607,58 @@ export class CombatRuntimeAssembly {
     this.simulation.advanceFrames(count);
   }
 
+  #projectileRuntimeDependencies(operatorId: string): {
+    readonly scheduleProjectileFinishCallback: ScheduleProjectileFinishCallback;
+    readonly createCallbackSkillHost: CallbackSkillHostFactory;
+  } {
+    return {
+      createCallbackSkillHost: createCallbackSkillHostFactory({
+        clock: this.clock,
+        receipt: this.receipt,
+        definitionOperatorId: operatorId,
+        allocateSkillCastId: () => this.#skillCastIds.allocate(),
+        emitEvent: (ownerId, event, payload) =>
+          this.#options.emitAbilityEvent?.(ownerId, event, payload),
+      }),
+      scheduleProjectileFinishCallback: (
+        delaySeconds,
+        recycleDelaySeconds,
+        execute,
+        beforeReset,
+        skillCastInfo,
+        advanceCallback,
+        sourceId = operatorId,
+      ) => {
+        const entity = this.projectileLifetimes.launch({
+          source: this.#resolveRuntimeTarget(sourceId),
+          finishDelaySeconds: delaySeconds,
+          recycleDelaySeconds,
+          resolveTickDeltaSeconds: () =>
+            COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
+          finish: execute,
+          beforeReset,
+          ...(advanceCallback === undefined
+            ? {}
+            : {
+                abilityRuntime: {
+                  advanceFrame: () =>
+                    advanceCallback(
+                      COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
+                    ),
+                },
+              }),
+        });
+        this.#options.emitAbilityEvent?.(sourceId, 'projectileLaunched', {
+          sourceId,
+          ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
+          // 公共原生事件只暴露 reset 端口；Endaxis 内部宿主 target 不泄漏到事件协议。
+          entity: { onReset: callback => entity.onReset(callback) },
+        });
+        return entity;
+      },
+    };
+  }
+
   #createSkillRuntime(
     operator: CombatOperatorProgram,
     program: CompiledSkillProgram,
@@ -1670,50 +1723,7 @@ export class CombatRuntimeAssembly {
       emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
       emitAfterSkillApplyCost: payload =>
         this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
-      createCallbackSkillHost: createCallbackSkillHostFactory({
-        clock: this.clock,
-        receipt: this.receipt,
-        definitionOperatorId: operatorId,
-        allocateSkillCastId: () => this.#skillCastIds.allocate(),
-        emitEvent: (ownerId, event, payload) =>
-          this.#options.emitAbilityEvent?.(ownerId, event, payload),
-      }),
-      scheduleProjectileFinishCallback: (
-        delaySeconds,
-        recycleDelaySeconds,
-        execute,
-        beforeReset,
-        skillCastInfo,
-        advanceCallback,
-        sourceId = operatorId,
-      ) => {
-        const entity = this.projectileLifetimes.launch({
-          source: this.#resolveRuntimeTarget(sourceId),
-          finishDelaySeconds: delaySeconds,
-          recycleDelaySeconds,
-          resolveTickDeltaSeconds: () =>
-            COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
-          finish: execute,
-          beforeReset,
-          ...(advanceCallback === undefined
-            ? {}
-            : {
-                abilityRuntime: {
-                  advanceFrame: () =>
-                    advanceCallback(
-                      COMBAT_FRAME_INTERVAL * (this.timeDilation?.currentGlobalScale ?? 1),
-                    ),
-                },
-              }),
-        });
-        this.#options.emitAbilityEvent?.(sourceId, 'projectileLaunched', {
-          sourceId,
-          ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
-          // 公共原生事件只暴露 reset 端口；Endaxis 内部宿主 target 不泄漏到事件协议。
-          entity: { onReset: callback => entity.onReset(callback) },
-        });
-        return entity;
-      },
+      ...this.#projectileRuntimeDependencies(operatorId),
       ...cooldownBinding,
     });
     return runtime;
@@ -2337,6 +2347,7 @@ export class CombatRuntimeAssembly {
           return rootOperations;
         },
         semanticEvents: this.semanticEvents,
+        ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId =>
         program.abilityEntityDefinitions?.[abilityEntityId] ??
@@ -2657,6 +2668,7 @@ export class CombatRuntimeAssembly {
           return reactiveOperations;
         },
         semanticEvents: this.semanticEvents,
+        ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId => operator.abilityEntityDefinitions?.[abilityEntityId],
     );

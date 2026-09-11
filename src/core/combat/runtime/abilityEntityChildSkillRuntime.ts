@@ -16,10 +16,15 @@ import { isSkillTimelineJumpBeforeCurrent } from './skillTimelineJump';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
-import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type {
+  CombatOperationContext,
+  CombatOperationExecutor,
+  ScheduleProjectileFinishCallback,
+} from './skillRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { LogicalAbilityEntityChildRuntime } from './logicalAbilityEntityRuntime';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
+import type { CallbackSkillHostFactory } from './callbackSkillHost';
 
 export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChildRuntime {
   readonly #context: CombatExecutionContext = {};
@@ -40,6 +45,8 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       readonly semanticEvents?: CombatSemanticEventRuntime;
       readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
       readonly addAbilityChildBuff?: (child: BuffApplicationHandle) => void;
+      readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
+      readonly createCallbackSkillHost?: CallbackSkillHostFactory;
     },
   ) {
     // 原生实体技能先有自身 SkillData 默认值，再由 SpawnAbilityEntity.assignBlackboard
@@ -64,6 +71,12 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       ...(dependencies.inheritedSkillCastInfo === undefined
         ? {}
         : { skillCastInfo: dependencies.inheritedSkillCastInfo }),
+      ...(dependencies.scheduleProjectileFinishCallback === undefined
+        ? {}
+        : { scheduleProjectileFinishCallback: dependencies.scheduleProjectileFinishCallback }),
+      ...(dependencies.createCallbackSkillHost === undefined
+        ? {}
+        : { createCallbackSkillHost: dependencies.createCallbackSkillHost }),
     };
     this.#sequenceRuntime = new CombatActionSequenceRuntime(
       dependencies.operations,

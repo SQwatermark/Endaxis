@@ -11,7 +11,6 @@ export type LegacyMigrationResult =
 interface LegacyProjectImporter {
   migrate(input: unknown): LegacyMigrationResult;
 }
-import { compileOperatorDefinitionSkills } from '../../src/core/compiler/compileScenarioTimeline';
 import {
   ENEMY_EDITABLE_FIELDS,
   PROJECT_FPS,
@@ -92,27 +91,6 @@ function migrateOperator(source: UnknownRecord, operatorSlug: string): OperatorI
     skillLevels: numericRecord(source.skillLevels),
     talentStates: numericRecord(source.talentStates),
   };
-}
-
-function resolveFullUltimateEnergy(
-  repository: GameDataRepository,
-  operator: OperatorInstanceDocument,
-): number | null {
-  const definition = repository.getOperator(operator.operatorSlug);
-  if (definition === null) return null;
-  const costs = new Set(
-    compileOperatorDefinitionSkills(
-      `legacy-migration:${operator.operatorSlug}`,
-      operator,
-      definition,
-      repository.getCommonAbilityEntityDefinitions?.(),
-    ).flatMap(skill =>
-      skill.skillType === 'ultimate'
-        ? skill.costs.filter(cost => cost.resource === 'ultimateEnergy').map(cost => cost.value)
-        : [],
-    ),
-  );
-  return costs.size === 1 ? costs.values().next().value! : null;
 }
 
 function migrateWeapon(
@@ -223,12 +201,9 @@ function migrateTrack(
 
   const operator = migrateOperator(operatorSource, operatorSlug);
   const storedInitialEnergy = number(source.initialGauge) ?? 0;
-  const initialUltimateEnergy =
-    initialGaugeMode === 'full'
-      ? (resolveFullUltimateEnergy(repository, operator) ?? storedInitialEnergy)
-      : initialGaugeMode === 'empty'
-        ? 0
-        : storedInitialEnergy;
+  // 旧存档已把“满能量”解析成每条轨道的 initialGauge。迁移器应保留这项用户输入；
+  // 重新编译当前技能会依赖装备后的最终属性，也会把当前数据误当成旧存档事实。
+  const initialUltimateEnergy = initialGaugeMode === 'empty' ? 0 : storedInitialEnergy;
 
   return {
     id: `legacy:${scenarioId}:track:${trackIndex}:${operatorSlug}`,
