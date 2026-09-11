@@ -29,7 +29,7 @@ import {
   type RegisterBuffSemanticEventAction,
   type RegisterPostSkillCastRequest,
 } from './buffLifecycleSequenceRuntime';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationExecutor, ProjectileRuntimeDependencies } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
@@ -62,6 +62,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly onBeforeBuffAdded?: (event: BuffAppliedEvent) => void,
     readonly registerAbilityEventCallback?: RegisterBuffAbilityEventCallback,
     readonly registerPostSkillCastRequest?: RegisterPostSkillCastRequest,
+    readonly resolveProjectileRuntimeDependencies?: (
+      definitionOwnerId: string,
+    ) => ProjectileRuntimeDependencies,
   ) {}
 
   get ownerId(): string {
@@ -293,6 +296,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
             damageModifierConditionPrograms,
             this.registerAbilityEventCallback,
             this.registerPostSkillCastRequest,
+            this.resolveProjectileRuntimeDependencies,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;

@@ -1,5 +1,5 @@
 import type { RegisterPassiveAbilityEventAction } from './passiveAbilityEventRuntime';
-import { createCallbackSkillHostFactory, type CallbackSkillHostFactory } from './callbackSkillHost';
+import { createCallbackSkillHostFactory } from './callbackSkillHost';
 import { abilityEventSourceId } from '../events/combatAbilityEvent';
 import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
 /**
@@ -52,7 +52,7 @@ import {
   SkillRuntime,
   type CombatOperationContext,
   type CombatOperationExecutor,
-  type ScheduleProjectileFinishCallback,
+  type ProjectileRuntimeDependencies,
 } from './skillRuntime';
 import { SkillCastIdAllocator } from './skillCastInfo';
 import { OperatorControlConditionExecutor } from './operatorControlConditionExecutor';
@@ -233,6 +233,9 @@ export interface CombatBattleRuntimeContext {
   readonly clock: CombatClock;
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptSink;
+  readonly resolveProjectileRuntimeDependencies: (
+    definitionOperatorId: string,
+  ) => ProjectileRuntimeDependencies;
 }
 
 /** 外部环境完成绑定后才可创建、需要由装配根逐帧推进的运行时。 */
@@ -538,6 +541,8 @@ export class CombatRuntimeAssembly {
         clock: this.clock,
         resources: this.resources,
         receipt: this.receipt,
+        resolveProjectileRuntimeDependencies: definitionOperatorId =>
+          this.#projectileRuntimeDependencies(definitionOperatorId),
       }) ?? {};
     this.timeDilation =
       options.timeDilation === undefined
@@ -1630,10 +1635,7 @@ export class CombatRuntimeAssembly {
     this.simulation.advanceFrames(count);
   }
 
-  #projectileRuntimeDependencies(operatorId: string): {
-    readonly scheduleProjectileFinishCallback: ScheduleProjectileFinishCallback;
-    readonly createCallbackSkillHost: CallbackSkillHostFactory;
-  } {
+  #projectileRuntimeDependencies(operatorId: string): ProjectileRuntimeDependencies {
     return {
       createCallbackSkillHost: createCallbackSkillHostFactory({
         clock: this.clock,

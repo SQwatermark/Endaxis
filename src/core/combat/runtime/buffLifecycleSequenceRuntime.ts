@@ -21,7 +21,11 @@ import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
-import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import type {
+  CombatOperationContext,
+  CombatOperationExecutor,
+  ProjectileRuntimeDependencies,
+} from './skillRuntime';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { createDamageModifierConditionProgram } from './damageModifierSequenceRuntime';
@@ -231,6 +235,9 @@ export function attachBuffLifecycleSequences<Key extends string>(
   damageModifierConditionPrograms: readonly (ResolvedActionSequence | undefined)[] = [],
   registerAbilityEventCallback?: RegisterBuffAbilityEventCallback,
   registerPostSkillCastRequest?: RegisterPostSkillCastRequest,
+  resolveProjectileRuntimeDependencies?: (
+    definitionOwnerId: string,
+  ) => ProjectileRuntimeDependencies,
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -259,6 +266,9 @@ export function attachBuffLifecycleSequences<Key extends string>(
         buffOwnerId: buff.owner.ownerId,
         buffInstanceId: buff.instanceId,
       },
+      ...(resolveProjectileRuntimeDependencies === undefined
+        ? {}
+        : resolveProjectileRuntimeDependencies(buff.definitionOwnerId)),
       finishCurrentBuff: (reason, sourceId, skillCastInfo) =>
         buff.owner.finishInstance(buff, reason, sourceId, skillCastInfo),
       bindCurrentBuffSkillAffix: skillCastId => {

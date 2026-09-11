@@ -16,6 +16,11 @@ export type ScheduleProjectileFinishCallback = (
   advanceCallback?: (deltaSeconds: number) => void,
   sourceId?: string,
 ) => ProjectileLifetimeReference;
+
+export interface ProjectileRuntimeDependencies {
+  readonly scheduleProjectileFinishCallback: ScheduleProjectileFinishCallback;
+  readonly createCallbackSkillHost: CallbackSkillHostFactory;
+}
 /**
  * 编译后技能程序在一次战斗中的有状态执行实例。
  * 每个放置块独立持有调度游标和黑板；同一技能的冷却由装配层显式共享。

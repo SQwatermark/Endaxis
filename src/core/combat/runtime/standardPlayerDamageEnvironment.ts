@@ -74,7 +74,7 @@ import {
   PlayerDamageOperationExecutor,
   type PlayerDamageOperationDependencies,
 } from './playerDamageOperationExecutor';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationExecutor, ProjectileRuntimeDependencies } from './skillRuntime';
 import type { FrameRuntime } from './combatSimulation';
 import {
   initializeEnemyCombatAttributes,
@@ -157,6 +157,12 @@ type EnvironmentOptions = Pick<
   | 'emitExternalEnemyWeaknessSet'
   | 'emitBuffLifecycleAbilityEvent'
 >;
+
+type BindableCombatRuntimeContext = Omit<
+  CombatBattleRuntimeContext,
+  'resolveProjectileRuntimeDependencies'
+> &
+  Partial<Pick<CombatBattleRuntimeContext, 'resolveProjectileRuntimeDependencies'>>;
 
 /** 名称从载荷表派生，不另维护可能漂移的广播键清单；不等于公共可配置事件集合。 */
 export type StandardPlayerDamageEvent = keyof StandardPlayerDamagePayloadMap;
@@ -264,6 +270,8 @@ export class StandardPlayerDamageEnvironment {
     NonNullable<import('./combatRuntimeAssembly').CombatOperatorProgram['reactionModifiers']>
   >();
   #resolveAbilitySystemSourceId: (entityId: string) => string = entityId => entityId;
+  #resolveProjectileRuntimeDependencies:
+    ((definitionOperatorId: string) => ProjectileRuntimeDependencies) | null = null;
   readonly #reactions = new ElementalReactionContainer();
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
   readonly #operatorVitals = new Map<string, CombatVitals>();
@@ -343,6 +351,7 @@ export class StandardPlayerDamageEnvironment {
       event => this.#emit('enemy', 'beforeAddedBuff', event),
       (event, handle) => this.eventsFor('enemy').registerCallback(event, handle),
       handle => this.#registerPostSkillRequest('enemy', handle),
+      definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
     this.#enemyVitals = options.enemyVitals;
@@ -432,6 +441,7 @@ export class StandardPlayerDamageEnvironment {
           event => this.#emit(entityId, 'beforeAddedBuff', event),
           (event, handle) => this.eventsFor(entityId).registerCallback(event, handle),
           handle => this.#registerPostSkillRequest(entityId, handle),
+          definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
         );
       },
       createOperationExecutor: context => this.#createOperationExecutor(context),
@@ -851,7 +861,7 @@ export class StandardPlayerDamageEnvironment {
     });
   }
 
-  #bindBattleRuntime(context: CombatBattleRuntimeContext, byAssembly = false): void {
+  #bindBattleRuntime(context: BindableCombatRuntimeContext, byAssembly = false): void {
     if (this.#boundByAssembly && this.#clock !== context.clock) {
       throw new Error('standard player damage environment cannot be shared across battle clocks');
     }
@@ -870,6 +880,9 @@ export class StandardPlayerDamageEnvironment {
     this.#receipt = context.receipt;
     this.#resources = context.resources;
     this.#enemyIdentity = context.enemy;
+    if (context.resolveProjectileRuntimeDependencies !== undefined) {
+      this.#resolveProjectileRuntimeDependencies = context.resolveProjectileRuntimeDependencies;
+    }
     if (byAssembly) this.#boundByAssembly = true;
     if (!this.#enemyAttributes.has('FireResistance')) {
       initializeEnemyCombatAttributes(this.#enemyAttributes, context.enemy.defenderAttributes);
@@ -1030,6 +1043,7 @@ export class StandardPlayerDamageEnvironment {
         event => this.#emit(operatorId, 'beforeAddedBuff', event),
         (event, handle) => this.eventsFor(operatorId).registerCallback(event, handle),
         handle => this.#registerPostSkillRequest(operatorId, handle),
+        definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
       );
       runtime.configureAdvancedObserver(() =>
         this.#buffProgress.sample(operatorId, container.buffs, this.#requireClock().frame),
@@ -1044,6 +1058,15 @@ export class StandardPlayerDamageEnvironment {
       this.eventsFor(entityId).registerAction(event, priority, context => {
         handle(context, this.#resolveAbilityEventRuntimeActionContext(context));
       });
+  }
+
+  #requireProjectileRuntimeDependencies(
+    definitionOperatorId: string,
+  ): ProjectileRuntimeDependencies {
+    if (this.#resolveProjectileRuntimeDependencies === null) {
+      throw new Error('Buff projectile runtime requires a bound battle runtime');
+    }
+    return this.#resolveProjectileRuntimeDependencies(definitionOperatorId);
   }
 
   #resolveAbilityEventRuntimeActionContext(
