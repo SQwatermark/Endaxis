@@ -1,3 +1,4 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { SkillGlobalBuffDefinition } from '../../game-data/operatorDefinition';
 import type {
   ResolvedCombatOperationStep,
@@ -15,7 +16,7 @@ import {
   type SharedSpRecoveryModifierSet,
 } from '../resources/sharedSpGainModifiers';
 
-type CreateStep = Extract<ResolvedCombatOperationStep, { kind: 'createGlobalBuff' }>;
+type CreateStep = ResolvedCombatStepForKind<'createGlobalBuff'>;
 
 interface GlobalBuffInstance {
   readonly id: string;

@@ -1,5 +1,5 @@
 import type {
-  EquipmentModifierDefinition,
+  BuildModifierDefinitionMap,
   LevelValues,
 } from '../../../../packages/game-data-contract/src/index.ts';
 
@@ -15,14 +15,9 @@ export interface BuildDefinitionDiagnosticSource {
  * 类型可表示不等于已获准转换；具体目标与公式槽仍由公共投影严格判定。
  */
 type BuildModifierContract =
-  | Extract<EquipmentModifierDefinition, { kind: 'attribute' | 'panelStat' }>
-  | Required<Extract<EquipmentModifierDefinition, { kind: 'damageScale' }>>
-  | (Extract<EquipmentModifierDefinition, { kind: 'staticHealingIncrease' }> & {
-      readonly target: 'output';
-    })
-  | (Extract<EquipmentModifierDefinition, { kind: 'skillCooldownMultiplier' }> & {
-      readonly skillTypes: 'comboSkill';
-    });
+  | BuildModifierDefinitionMap['attribute' | 'panelStat']
+  | Required<BuildModifierDefinitionMap['damageScale']>
+  | BuildModifierDefinitionMap['staticHealingIncrease' | 'skillCooldownMultiplier'];
 
 /** 一份修正结构携带单值或等级列；泛型只保留调用方已知的数值形态。 */
 export type CompiledBuildModifierDefinitionSource<Value extends LevelValues = LevelValues> =

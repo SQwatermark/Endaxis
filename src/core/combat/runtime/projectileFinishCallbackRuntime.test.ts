@@ -6,7 +6,44 @@ import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { compileActionSequence } from '../../compiler/compileSkill';
-import { ProjectileCallbackActionRuntime } from './projectileCallbackActionRuntime';
+import { createCallbackSkillHostFactory, type CallbackSkillHostFactory } from './callbackSkillHost';
+import { CombatClock } from './combatClock';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
+
+// Each isolated fixture advances its clock after the Battle pass, as CombatSimulation does.
+const createTestHost: CallbackSkillHostFactory = (program, context, operations) => {
+  const clock = new CombatClock();
+  const create = createCallbackSkillHostFactory({
+    clock,
+    receipt: new CombatReceiptCollector(),
+    definitionOperatorId: 'source',
+    allocateSkillCastId: () => 1,
+  });
+  const host = create(
+    program,
+    {
+      ...context,
+      actionOwnerAbilityEntity: context.actionOwnerAbilityEntity ?? {
+        kind: 'abilityEntity',
+        instanceId: 1,
+      },
+      skillCastInfo: context.skillCastInfo ?? {
+        skillCastId: 42,
+        originSkillId: 'source',
+        originSkillType: 'comboSkill',
+        nonReturnedSpCost: 0,
+      },
+    },
+    operations,
+  );
+  return {
+    ...host,
+    advance: delta => {
+      host.advance(delta);
+      clock.advanceFrame();
+    },
+  };
+};
 
 const zeroCastResource = {
   costFrame: 0,
@@ -94,7 +131,7 @@ describe('projectile callback action lifecycle', () => {
       },
       context,
     );
-    const callback = new ProjectileCallbackActionRuntime(
+    const callback = createTestHost(
       {
         skillId: 'callback',
         nativeSkillType: 'normalSkill',
@@ -113,7 +150,7 @@ describe('projectile callback action lifecycle', () => {
         ],
       },
       context,
-      execution,
+      execution.operations,
     );
     callback.start();
     callback.advance(COMBAT_FRAME_INTERVAL);
@@ -140,7 +177,7 @@ describe('projectile callback action lifecycle', () => {
       },
       context,
     );
-    const callback = new ProjectileCallbackActionRuntime(
+    const callback = createTestHost(
       {
         skillId: 'callback',
         nativeSkillType: 'normalSkill',
@@ -157,7 +194,7 @@ describe('projectile callback action lifecycle', () => {
         ],
       },
       context,
-      execution,
+      execution.operations,
     );
     callback.start();
     callback.advance(COMBAT_FRAME_INTERVAL);
@@ -213,6 +250,7 @@ describe('projectile callback action lifecycle', () => {
           originSkillType: 'comboSkill',
           nonReturnedSpCost: 0,
         },
+        createCallbackSkillHost: createTestHost,
         scheduleProjectileFinishCallback: (delay, recycle, finish, beforeReset, _info, advance) => {
           const projectile = scheduler.launch({
             finishDelaySeconds: delay,
@@ -316,6 +354,7 @@ describe('projectile callback action lifecycle', () => {
       },
       {
         blackboard: new ActionBlackboard(),
+        createCallbackSkillHost: createTestHost,
         scheduleProjectileFinishCallback: (
           delaySeconds,
           recycleDelaySeconds,
@@ -378,6 +417,7 @@ describe('projectile callback action lifecycle', () => {
     const blackboard = new ActionBlackboard({ launchValue: 7 });
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard,
+      createCallbackSkillHost: createTestHost,
       scheduleProjectileFinishCallback: (
         delaySeconds,
         recycleDelaySeconds,
@@ -446,6 +486,7 @@ describe('projectile callback action lifecycle', () => {
     const runtime = new CombatActionSequenceRuntime(operations, {
       blackboard,
       canExecuteAction: () => sourceEnabled,
+      createCallbackSkillHost: createTestHost,
       scheduleProjectileFinishCallback: (
         delaySeconds,
         recycleDelaySeconds,

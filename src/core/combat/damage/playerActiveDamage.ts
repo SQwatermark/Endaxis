@@ -4,6 +4,26 @@
  */
 import type { DamageType } from '../../game-data/operatorDefinition';
 
+/** 抗性公式准入；新增伤害类型必须明确归属，不自动套用现有抗性公式。 */
+const DAMAGE_TYPE_USES_RESISTANCE = {
+  physical: true,
+  heat: true,
+  electric: true,
+  cryo: true,
+  nature: true,
+  ether: true,
+  true: false,
+  lifeDrain: false,
+} as const satisfies Record<DamageType, boolean>;
+
+export type ResistibleDamageType = {
+  [K in DamageType]: (typeof DAMAGE_TYPE_USES_RESISTANCE)[K] extends true ? K : never;
+}[DamageType];
+
+export function usesDamageResistance(damageType: DamageType): damageType is ResistibleDamageType {
+  return DAMAGE_TYPE_USES_RESISTANCE[damageType];
+}
+
 const DEFAULT_DEFENSE_EFFICIENCY = 0.01;
 const CRITICAL_PROBABILITY_TOLERANCE = 0.00001;
 
@@ -106,6 +126,6 @@ export function getResistanceMultiplier(
   resistancePercent: number,
   damageTakenMultiplier: number,
 ): number {
-  if (damageType === 'true' || damageType === 'lifeDrain') return 1;
+  if (!usesDamageResistance(damageType)) return 1;
   return Math.max(0, (1 - resistancePercent / 100) * damageTakenMultiplier);
 }

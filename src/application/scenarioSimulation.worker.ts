@@ -25,6 +25,7 @@ self.onmessage = async (event: MessageEvent<SimulationWorkerRequest>) => {
           request.endFrame,
           undefined,
           request.plan.mode,
+          request.plan.extension,
         )
       : await service.simulate(request.scenario, request.endFrame);
     response = { id: request.id, ok: true, result, samples };

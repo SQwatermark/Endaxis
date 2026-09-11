@@ -294,39 +294,43 @@ export interface OperatorEntityBlackboardInitializerDefinition {
 }
 
 /** 原生角色专属 HUD 的可读外观身份；纹理路径和动画参数仍由 UI 资产层维护。 */
-export type OperatorPassiveUiAppearance =
-  | 'tangtangDroplets'
-  | 'laevatainCounter'
-  | 'zhuangFangyiThunder'
-  | 'arcaneSigils'
-  | 'liinoMusic'
-  | 'typhoeaArrows';
+export type OperatorPassiveUiAppearance = OperatorPassiveUiDefinition['appearance'];
 
 /** 原生角色专属 HUD 的稳定状态源与原生 prefab 外观身份。 */
+export interface OperatorPassiveUiDefinitionMap {
+  numeric: {
+    /** 保留已有箭矢数值展示兼容；原生Typhoea prefab投影使用buffCounters。 */
+    readonly kind: 'numeric';
+    readonly appearance:
+      | 'tangtangDroplets'
+      | 'laevatainCounter'
+      | 'zhuangFangyiThunder'
+      | 'arcaneSigils'
+      | 'typhoeaArrows';
+    readonly maximum: number;
+    /** 达到该值时原生节点进入满层/强化状态；没有独立满层态时省略。 */
+    readonly activeAt?: number;
+  };
+  buffProgress: {
+    readonly kind: 'buffProgress';
+    readonly appearance: 'liinoMusic';
+    readonly normalBuffId: string;
+    readonly ultimateBuffId: string;
+  };
+  buffCounters: {
+    /** Typhoea 原生 HUD 同时观察三种 Buff 层数；不复制为独立战斗状态。 */
+    readonly kind: 'buffCounters';
+    readonly appearance: 'typhoeaArrows';
+    readonly reserveArrowBuffId: string;
+    readonly battleArrowBuffId: string;
+    readonly pointBuffId: string;
+    readonly maximumArrows: number;
+    readonly maximumPoints: number;
+  };
+}
+
 export type OperatorPassiveUiDefinition =
-  | {
-      readonly kind: 'numeric';
-      readonly appearance: Exclude<OperatorPassiveUiAppearance, 'liinoMusic'>;
-      readonly maximum: number;
-      /** 达到该值时原生节点进入满层/强化状态；没有独立满层态时省略。 */
-      readonly activeAt?: number;
-    }
-  | {
-      readonly kind: 'buffProgress';
-      readonly appearance: Extract<OperatorPassiveUiAppearance, 'liinoMusic'>;
-      readonly normalBuffId: string;
-      readonly ultimateBuffId: string;
-    }
-  | {
-      /** Typhoea 原生 HUD 同时观察三种 Buff 层数；不复制为独立战斗状态。 */
-      readonly kind: 'buffCounters';
-      readonly appearance: Extract<OperatorPassiveUiAppearance, 'typhoeaArrows'>;
-      readonly reserveArrowBuffId: string;
-      readonly battleArrowBuffId: string;
-      readonly pointBuffId: string;
-      readonly maximumArrows: number;
-      readonly maximumPoints: number;
-    };
+  OperatorPassiveUiDefinitionMap[keyof OperatorPassiveUiDefinitionMap];
 
 /** 原生角色常驻条件；独立于技能块，也不复用旧手写语义连携规则。 */
 export interface ComboSkillConditionDefinition {

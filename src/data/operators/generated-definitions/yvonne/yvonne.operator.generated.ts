@@ -4374,6 +4374,13 @@ export default {
         {
           key: 'enhancedBasicAttack',
           levelSource: 'ultimate',
+          placementPolicy: {
+            kind: 'recursiveInput',
+            firstSkillKey: 'ultimateAttack1',
+            terminalSkillKey: 'ultimateAttackEnd',
+            maxSegments: 24,
+            fallback: 'sequence',
+          },
           libraryPresentation: 'enhanced',
           skills: [
             yvonneUltimateAttack1,
@@ -5899,6 +5906,11 @@ export default {
       extendTags: [],
       blackboard: { dmg_up: 0.5 },
       attributeModifiers: [],
+      lifecycleSequences: {
+        enable: sequence(
+          step('overrideBasicAttackMapping', { sourceSkillId: 'chr_0017_yvonne_attack5' }),
+        ),
+      },
       abilityEventResponses: [
         {
           event: 'beforeCastSkill',
@@ -6219,11 +6231,40 @@ export default {
           },
         ),
         enable: sequence(
-          step('restrictUltimateEnergyRecovery', {
-            target: 'caster',
-            allowedRecoveryTags: ['Skill/Character/chr_0017_yvonne/UltimateEndUsp'],
-            clearUltimateEnergyOnEnd: false,
-          }),
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:0',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
+              step('overrideBasicAttackMapping', {
+                sourceSkillId: 'chr_0017_yvonne_ult_attack_end',
+              }),
+            ),
+          },
+          {
+            kind: 'withActionBlackboardScope',
+            parameters: {
+              scopeKey: 'native-buff-callback:1',
+              lifetime: 'execution',
+              alwaysNext: true,
+              shareParentBlackboard: true,
+              initialValues: {},
+              inheritParent: true,
+            },
+            body: sequence(
+              step('restrictUltimateEnergyRecovery', {
+                target: 'caster',
+                allowedRecoveryTags: ['Skill/Character/chr_0017_yvonne/UltimateEndUsp'],
+                clearUltimateEnergyOnEnd: false,
+              }),
+            ),
+          },
         ),
         finish: sequence(
           {

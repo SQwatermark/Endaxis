@@ -1,9 +1,11 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
+import type { CallbackSkillHostFactory } from './callbackSkillHost';
 import type { AbilityResponseEvent, AbilitySkillPayload } from '../events/combatAbilityEvent';
 import type { ProjectileLifetimeReference } from './projectileLifecycleRuntime';
 
 /** A detached projectile owns both its callback execution and eventual cleanup. */
 export type ScheduleProjectileFinishCallback = (
-  delaySeconds: number,
+  delaySeconds: number | 'firstTickReach',
   recycleDelaySeconds: number,
   execute: () => void,
   beforeReset: () => void,
@@ -23,14 +25,13 @@ import type {
   CompiledSkillExecutionProgram,
   ResolvedActionSequence,
   ResolvedCombatOperationStep,
-  ResolvedCombatStep,
 } from '../../compiler/combatProgram';
-import {
-  logicalAbilityEntityRuntimeId,
-  type RuntimeTargetRef,
+import type {
+  AbilityEntityTargetRef,
+  RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
-import type { CombatResources, SkillResourceAccount } from './combatResources';
+import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
 import { SkillTimelineJumpGate } from './skillTimelineJump';
 import type { CombatSkillCastInfo } from './skillCastInfo';
@@ -77,7 +78,7 @@ export interface CombatOperationContext {
   /** 只在 forEachContextTarget 的 body 内存在。 */
   readonly currentTarget?: RuntimeTargetRef;
   /** 能力实体子技能的稳定 ActionOwner；内层 forEach 不得覆盖。 */
-  readonly actionOwnerAbilityEntity?: Extract<RuntimeTargetRef, { kind: 'abilityEntity' }>;
+  readonly actionOwnerAbilityEntity?: AbilityEntityTargetRef;
   /** 执行到当前步骤时的施法信息；扣费前后的未返还技力可能不同。 */
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** 当前技能时间轴动作可把原生 AttachingSkill Buff 绑定到本次施法。 */
@@ -137,6 +138,7 @@ export interface CombatOperationContext {
   readonly getCurrentTimelineFrame?: () => number;
   /** 已发射投射物的 duration-finish 注册端口；注册项不归当前技能寿命所有。 */
   readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
+  readonly createCallbackSkillHost?: CallbackSkillHostFactory;
 }
 
 export interface CombatOperationExecutor {
@@ -144,7 +146,7 @@ export interface CombatOperationExecutor {
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean;
   end?(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void;
   evaluate(
-    condition: Extract<ResolvedCombatStep, { kind: 'conditional' }>['parameters']['condition'],
+    condition: ResolvedCombatStepForKind<'conditional'>['parameters']['condition'],
     context?: CombatOperationContext,
   ): boolean;
 }
@@ -157,13 +159,11 @@ export type AfterSkillCastStart = (context: CombatOperationContext) => void;
  * 能力实体技能必须显式提供自身身份，不能把发射者或继承的 SkillCastInfo 冒充为 Owner。
  */
 export interface SkillRuntimeHostIdentity {
-  /** 仅用于绑定既有干员账本；显式 resourceAccount 路径不得同时填写。 */
-  readonly resourceOperatorId?: string;
   /** 动作树中 Owner/Source 的真实 AbilitySystem 实体身份。 */
   readonly actionOwnerId: string;
   readonly actionSourceId: string;
   /** 能力实体宿主的稳定句柄；普通干员技能不提供。 */
-  readonly actionOwnerAbilityEntity?: Extract<RuntimeTargetRef, { kind: 'abilityEntity' }>;
+  readonly actionOwnerAbilityEntity?: AbilityEntityTargetRef;
   /** 回执与技能生命周期事件的发布主体。 */
   readonly eventSourceId: string;
   /** 语义事件注册仍只接受干员；非干员宿主在契约扩展前不得伪造一个。 */
@@ -182,6 +182,7 @@ type SkillRuntimeDependencies = {
   readonly semanticEvents?: CombatSemanticEventRuntime;
   /** 干员实体级黑板由同一能力系统下的所有技能共享，技能 direct blackboard 仅回退读取它。 */
   readonly entityBlackboard?: ActionBlackboard;
+  readonly actionBlackboard?: ActionBlackboard;
   /** 同一干员同一技能的多个时间轴块共用冷却账本。 */
   readonly cooldown?: SkillCooldown;
   /** 共享账本只能由一个运行实例逐帧推进。 */
@@ -191,19 +192,19 @@ type SkillRuntimeDependencies = {
   /** 原生费用实际应用成功后、同帧时间轴动作前同步发布 OnAfterSkillApplyCost。 */
   readonly emitAfterSkillApplyCost?: (payload: AbilitySkillPayload) => void;
   readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
+  readonly createCallbackSkillHost?: CallbackSkillHostFactory;
   readonly hostIdentity?: SkillRuntimeHostIdentity;
-} & (
-  | { readonly resources: CombatResources; readonly resourceAccount?: never }
-  | { readonly resourceAccount: SkillResourceAccount; readonly resources?: never }
-);
+  /** 干员技能使用战斗账本；零费用实体技能传null，不拥有资源状态。 */
+  readonly resources: CombatResources | null;
+};
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
 export class SkillRuntime {
   readonly #program: CompiledSkillExecutionProgram;
   readonly #dependencies: SkillRuntimeDependencies;
-  readonly #resourceAccount: SkillResourceAccount;
   readonly #context: CombatExecutionContext = {};
   readonly #blackboard: ActionBlackboard;
+  readonly #initialBlackboard: ReturnType<ActionBlackboard['snapshot']>;
   readonly #targetContext = new RuntimeTargetContext();
   readonly #operationContext: CombatOperationContext;
   readonly #sequenceRuntime: CombatActionSequenceRuntime;
@@ -238,30 +239,21 @@ export class SkillRuntime {
     this.#hostIdentity =
       dependencies.hostIdentity ??
       Object.freeze({
-        resourceOperatorId: program.operatorId,
         actionOwnerId: program.operatorId,
         actionSourceId: program.operatorId,
         eventSourceId: program.operatorId,
         semanticEventOwnerOperatorId: program.operatorId,
       });
-    this.#blackboard = new ActionBlackboard(undefined, dependencies.entityBlackboard);
-    if (dependencies.resourceAccount !== undefined) {
-      if (
-        this.#hostIdentity.resourceOperatorId !== undefined &&
-        dependencies.hostIdentity !== undefined
-      ) {
-        throw new Error('explicit skill resource account must not also select an operator account');
-      }
-      this.#resourceAccount = dependencies.resourceAccount;
-    } else {
-      if (this.#hostIdentity.actionOwnerAbilityEntity !== undefined) {
-        throw new Error('ability entity skill host requires its own explicit resource account');
-      }
-      const operatorId = this.#hostIdentity.resourceOperatorId;
-      if (operatorId === undefined)
-        throw new Error('skill host requires an explicit resource account');
-      this.#resourceAccount = dependencies.resources.bindSkillAccount(operatorId);
-    }
+    this.#blackboard =
+      dependencies.actionBlackboard ??
+      new ActionBlackboard(undefined, dependencies.entityBlackboard);
+    this.#initialBlackboard = { ...program.initialBlackboard, ...this.#blackboard.snapshot() };
+    if (
+      dependencies.resources !== null &&
+      this.#hostIdentity.actionOwnerAbilityEntity !== undefined
+    )
+      throw new Error('ability entity skill cannot own an operator resource ledger');
+    if (dependencies.resources === null) this.#requireNoResourceCost(program.costs);
     this.#cooldown =
       dependencies.cooldown ?? new SkillCooldown(program.cooldownFrames, program.costFrame);
     this.#advancesCooldown = dependencies.advancesCooldown ?? true;
@@ -275,6 +267,9 @@ export class SkillRuntime {
       ...(this.#hostIdentity.actionOwnerAbilityEntity === undefined
         ? {}
         : { actionOwnerAbilityEntity: this.#hostIdentity.actionOwnerAbilityEntity }),
+      ...(dependencies.createCallbackSkillHost === undefined
+        ? {}
+        : { createCallbackSkillHost: dependencies.createCallbackSkillHost }),
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       requestTimelineFinish: () => this.#requestTimelineFinish(),
       getCurrentTimelineFrame: () => roundToEven(this.#passedFrames),
@@ -505,7 +500,7 @@ export class SkillRuntime {
     ) {
       return false;
     }
-    this.#blackboard.restore(this.#program.initialBlackboard);
+    this.#blackboard.restore(this.#initialBlackboard);
     this.#blackboard.assign(this.#preparedStartBlackboard);
     this.#targetContext.clear();
     this.#sequenceRuntime.reset();
@@ -568,7 +563,7 @@ export class SkillRuntime {
         remainingFrames: this.#cooldown.snapshot.remainingFrames,
       });
     }
-    if (!this.#preparedSkipApplyCost && !this.#resourceAccount.canPay(this.#resolvedCosts())) {
+    if (!this.#preparedSkipApplyCost && !this.#canPay(this.#resolvedCosts())) {
       this.record('SkillCostUnavailableAtStart');
     }
 
@@ -582,7 +577,7 @@ export class SkillRuntime {
           startFrame: action.startFrame,
         }),
     });
-    this.#blackboard.restore(this.#program.initialBlackboard);
+    this.#blackboard.restore(this.#initialBlackboard);
     this.#targetContext.clear();
     this.#blackboard.assign(this.#preparedStartBlackboard);
     this.#preparedStartBlackboard = {};
@@ -735,10 +730,27 @@ export class SkillRuntime {
     return preparation ? costs.filter(cost => cost.resource !== 'sp') : costs;
   }
 
+  #requireNoResourceCost(costs: CompiledSkillExecutionProgram['costs']): void {
+    if (costs.some(cost => cost.value !== 0))
+      throw new Error(`skill '${this.skillId}' has a nonzero cost but no resource account`);
+  }
+
+  #canPay(costs: CompiledSkillExecutionProgram['costs']): boolean {
+    if (this.#dependencies.resources !== null)
+      return this.#dependencies.resources.canPay(this.#hostIdentity.actionOwnerId, costs);
+    this.#requireNoResourceCost(costs);
+    return true;
+  }
+
   #applyCost(emitSkillEvent: boolean): boolean {
-    const payment = this.#resourceAccount.pay(this.#resolvedCosts(this.#preparationCast), {
-      forceTimelinePayment: this.#forceTimelinePayment,
-    });
+    const costs = this.#resolvedCosts(this.#preparationCast);
+    if (this.#dependencies.resources === null) this.#requireNoResourceCost(costs);
+    const payment =
+      this.#dependencies.resources === null
+        ? { paid: true, nonReturnedSpCost: 0, changes: [] }
+        : this.#dependencies.resources.pay(this.#hostIdentity.actionOwnerId, costs, {
+            forceTimelinePayment: this.#forceTimelinePayment,
+          });
     if (!payment.paid) {
       this.record('SkillCostRejected');
       return false;
@@ -759,7 +771,7 @@ export class SkillRuntime {
         this.record(
           'UltimateEnergyChanged',
           {
-            recipient: change.target.kind,
+            recipient: 'operator',
             baseValue: change.baseValue,
             requestedValue: change.requestedValue,
             applied: change.applied,
@@ -767,16 +779,20 @@ export class SkillRuntime {
             previousValue: change.previousValue,
             currentValue: change.currentValue,
           },
-          change.target.kind === 'operator'
-            ? change.target.operatorId
-            : logicalAbilityEntityRuntimeId(change.target.instanceId),
+          change.operatorId,
         );
       }
     }
     this.record('SkillCostApplied', {
       nonReturnedSpCost: payment.nonReturnedSpCost,
-      remainingSp: this.#resourceAccount.sp,
-      remainingUltimateEnergy: this.#resourceAccount.ultimateEnergy,
+      ...(this.#dependencies.resources === null
+        ? {}
+        : {
+            remainingSp: this.#dependencies.resources.sp,
+            remainingUltimateEnergy: this.#dependencies.resources.getUltimateEnergy(
+              this.#hostIdentity.actionOwnerId,
+            ),
+          }),
     });
     if (emitSkillEvent) this.#dependencies.emitAfterSkillApplyCost?.(this.#skillEventPayload());
     return true;

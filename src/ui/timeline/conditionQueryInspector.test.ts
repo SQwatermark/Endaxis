@@ -11,8 +11,7 @@ import {
 import { validateComparisonInspector } from './combatInspectorFields';
 import { useDefinitionDraftHistory } from './useDefinitionDraftHistory';
 
-type QueryCondition = Extract<CombatCondition, { kind: 'buffBlackboardValueCompare' }>;
-const original: QueryCondition = {
+const original: CombatCondition = {
   kind: 'buffBlackboardValueCompare',
   target: 'enemy',
   query: { kind: 'id', buffIds: ['buff/a', 'buff/b'] },

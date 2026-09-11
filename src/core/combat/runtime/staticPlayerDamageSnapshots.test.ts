@@ -1,6 +1,6 @@
 import { createKillEvent } from '../events/killEventTestFixture';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import { CombatClock } from './combatClock';
 import { CombatResources } from './combatResources';
@@ -110,7 +110,7 @@ function createContext(overrides: Partial<CombatOperationExecutorContext> = {}) 
   } satisfies CombatOperationExecutorContext;
 }
 
-const electricDamage: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
+const electricDamage: ResolvedCombatStepForKind<'dealDamage'> = {
   kind: 'dealDamage',
   parameters: { damageType: 'electric', attackScale: 1, tags: ['normalSkill'] },
 };

@@ -26,6 +26,7 @@ export class SkillPlacementTransaction {
   ): Promise<{
     readonly scenario: ScenarioDocument;
     readonly incomplete: boolean;
+    readonly skillCastIds?: readonly string[];
     readonly error?: unknown;
     readonly plannedStartFrames?: ReadonlyMap<string, number>;
   } | null> {
@@ -37,19 +38,30 @@ export class SkillPlacementTransaction {
     const isCurrent = () =>
       !controller.signal.aborted && request === this.#request && revision === this.getRevision();
     try {
-      if (placed.skillCastIds.length < 2) return { scenario: placed.scenario, incomplete: false };
+      if (placed.skillCastIds.length < 2 && placed.extension === undefined)
+        return { scenario: placed.scenario, incomplete: false };
       const result = await this.service.planSkillChain(
         placed.scenario,
         placed.skillCastIds,
         placed.scenario.battle.durationFrames,
         controller.signal,
         mode,
+        placed.extension,
       );
       if (!isCurrent()) return null;
       return result.status === 'planned'
-        ? { scenario: result.scenario, incomplete: false }
+        ? {
+            scenario: result.scenario,
+            incomplete: false,
+            ...(result.skillCastIds ? { skillCastIds: result.skillCastIds } : {}),
+          }
         : {
-            scenario: placed.scenario,
+            scenario: placed.fallback?.scenario ?? result.scenario ?? placed.scenario,
+            ...(placed.fallback
+              ? { skillCastIds: placed.fallback.skillCastIds }
+              : result.skillCastIds
+                ? { skillCastIds: result.skillCastIds }
+                : {}),
             incomplete: true,
             ...(result.plannedStartFrames === undefined
               ? {}
@@ -60,7 +72,12 @@ export class SkillPlacementTransaction {
     } catch (error) {
       if (!isCurrent()) return null;
       // 规划只是编辑建议。失败保留作者布局及原始错误，不能成为编辑门禁。
-      return { scenario: placed.scenario, incomplete: true, error };
+      return {
+        scenario: placed.fallback?.scenario ?? placed.scenario,
+        ...(placed.fallback ? { skillCastIds: placed.fallback.skillCastIds } : {}),
+        incomplete: true,
+        error,
+      };
     } finally {
       if (request === this.#request) this.#controller = null;
     }

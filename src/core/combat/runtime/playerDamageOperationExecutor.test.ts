@@ -1,5 +1,5 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { describe, expect, it, vi } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,
@@ -13,7 +13,7 @@ import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { deriveHitId } from '../timeline/deriveHitId';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions';
 
-const DAMAGE_STEP: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
+const DAMAGE_STEP: ResolvedCombatStepForKind<'dealDamage'> = {
   kind: 'dealDamage',
   parameters: {
     damageType: 'electric',
@@ -853,7 +853,7 @@ describe('PlayerDamageOperationExecutor', () => {
       emitPoiseTargetEvent: () => undefined,
       delegate,
     });
-    const step: Exclude<ResolvedCombatStep, { kind: 'conditional' }> = {
+    const step: ResolvedCombatStepForKind<'applyElementalInfliction'> = {
       kind: 'applyElementalInfliction',
       parameters: { element: 'electric', isExtra: false },
     };

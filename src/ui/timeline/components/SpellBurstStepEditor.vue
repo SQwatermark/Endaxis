@@ -1,10 +1,11 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /** 编辑原生术法爆发事件身份；这里只选择已进入统一契约的四种身份。 */
 import { useI18n } from 'vue-i18n';
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 
-type SpellBurstStep = Extract<CombatStepDefinition, { kind: 'triggerSpellBurst' }>;
+type SpellBurstStep = CombatStepForKind<'triggerSpellBurst'>;
 type SpellBurstType = SpellBurstStep['parameters']['burstType'];
 
 const SPELL_BURST_TYPES = [

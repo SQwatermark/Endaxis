@@ -1,10 +1,10 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /**
  * 把场景编译得到的干员面板和敌人静态输入冻结为单次玩家伤害快照。
  *
  * 这里只安装当前构筑已经解析的静态数值；Buff、即时修正、目标状态和随机暴击仍由命中生命周期
  * 在对应阶段提供。调用方必须按具体伤害步骤重新解析，避免带筛选条件的配装加成污染其他命中。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type {
   DamageType,
   UpgradeStaticDamageIncreaseTarget,
@@ -20,7 +20,7 @@ import type { CombatDamageExecutorContext } from './combatRuntimeAssembly';
 import { CombatAttributeSet, attributeModifierValues } from '../attributes/combatAttributes';
 import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
 
-type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
+type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
 const ENEMY_RESISTANCE_ATTRIBUTES = {
   physical: 'PhysicalResistance',

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 条件分支、单次作用域与逐 Tick 步骤的递归容器。
  *
@@ -18,10 +19,7 @@ import type { InspectorPropertyPath } from '../inspectorProperty';
 import StepTypePicker from './StepTypePicker.vue';
 
 const RecursiveStepEditor = defineAsyncComponent(() => import('./CombatStepEditor.vue'));
-type BranchStep = Extract<
-  CombatStepDefinition,
-  { kind: 'conditional' | 'once' | 'repeatEachTick' }
->;
+type BranchStep = CombatStepForKind<'conditional' | 'once' | 'repeatEachTick'>;
 type BranchName = 'whenTrue' | 'whenFalse' | 'body';
 
 const props = defineProps<{

@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import scopeFixtures from './fixtures/avywenna-return-blackboard.json';
 import runtimeFixtures from './fixtures/avywenna-return-projectile-runtime.json';
+import lifetimeFixture from './fixtures/liino-no-callback-lifetime-current.ts';
+import type { ProjectileRuntimeSource } from '../src/source/projectileRuntime.ts';
 import { parseProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
 import { parseProjectileRuntimeSource } from '../src/source/projectileRuntime.ts';
 import { parseBlackboardDataPairs } from '../src/source/blackboard.ts';
@@ -68,6 +70,41 @@ const extension = createZeroDistanceProjectileProjectionExtensionSource({
 });
 
 describe('LaunchProjectile 原生新增目标控制', () => {
+  it('当前黎风无回调发射保留同点到达寿命，不要求回调SkillData或虚构技能', () => {
+    const launch = lifetimeFixture.launch;
+    const data: ProjectileRuntimeSource = {
+      ...lifetimeFixture.runtime,
+      moveModeTypes: new Map(lifetimeFixture.runtime.moveModeTypes),
+    };
+    const compile = createZeroDistanceProjectileProjectionExtensionSource({
+      catalog: {
+        runtimes: new Map([[data.projectileId, data]]),
+        templates: new Map(),
+        callbackGraphs: new Map(),
+      },
+      callbackContext: returnProjectionContext,
+    });
+    expect(compile(launch, 'liino.current', returnProjectionContext)).toEqual([
+      { kind: 'launchProjectileLifetime', parameters: { finish: 'firstTickReach' } },
+    ]);
+    expect(() =>
+      compile({ ...launch, syncTimeScale: true }, 'liino.sync', returnProjectionContext),
+    ).toThrow('launch/reset lifetime is not projected');
+  });
+  it('无启用回调仍须保留发射寿命，不能以空动作成功转换', () => {
+    const launch = parse();
+    expect(() =>
+      extension(
+        {
+          ...launch,
+          callbacks: launch.callbacks.map(callback => ({ ...callback, enabled: false })),
+        },
+        'no-callback-launch',
+        returnProjectionContext,
+      ),
+    ).toThrow('no enabled callbacks, but launch/reset lifetime is not projected');
+  });
+
   it('duration finish 在发射处初始化实体板，回调 direct 板留在延迟程序内', () => {
     const callbackId = 'fixture.finish';
     const activeSkills = {
@@ -245,7 +282,7 @@ describe('LaunchProjectile 原生新增目标控制', () => {
     );
   });
 
-  it('没有启用回调的投射物先按无实际行为剔除，不要求建模其过滤条件', () => {
+  it('没有启用回调也不能绕过发射寿命门禁并丢弃过滤条件', () => {
     const launch = parse({
       ...controls,
       targetFilterMode: 'OnlyHit',
@@ -253,6 +290,8 @@ describe('LaunchProjectile 原生新增目标控制', () => {
       castSkillOnHit: false,
       castSkillOnReach: false,
     });
-    expect(extension(launch, 'fixture.launch', returnProjectionContext)).toEqual([]);
+    expect(() => extension(launch, 'fixture.launch', returnProjectionContext)).toThrow(
+      'targetFilterMode',
+    );
   });
 });

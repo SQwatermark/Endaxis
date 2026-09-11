@@ -3,7 +3,6 @@
  * 技能费用和回复都应通过这里结算，投影层不得另算一份资源曲线作为合法性依据。
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
 import type { GameplayTag } from '../tags/gameplayTags';
 import {
@@ -13,7 +12,7 @@ import {
 } from '../resources/sharedSpGainModifiers';
 
 const RESOURCE_EPSILON = 0.0001;
-const ULTIMATE_ENERGY_EPSILON = 0.00001;
+const ULTIMATE_ENERGY_EPSILON = Math.fround(0.00001);
 
 /** 单个队员终结技能量及其回复限制的可重建快照。 */
 export interface OperatorResourceSnapshot {
@@ -62,17 +61,6 @@ export interface SkillPaymentResult {
   readonly changes: readonly SkillPaymentChange[];
 }
 
-/** 已绑定实际技能宿主的资源端口；执行器不负责把实体身份映射成干员。 */
-export interface SkillResourceAccount {
-  readonly sp: number;
-  readonly ultimateEnergy: number;
-  canPay(costs: readonly CompiledSkillCost[]): boolean;
-  pay(
-    costs: readonly CompiledSkillCost[],
-    options?: { readonly forceTimelinePayment?: boolean },
-  ): SkillPaymentResult;
-}
-
 /** 技能支付直接产生的资源变化；运行时凭它记录事实，不再次读取或计算账本。 */
 export type SkillPaymentChange =
   | {
@@ -83,11 +71,7 @@ export type SkillPaymentChange =
       readonly previousValue: number;
       readonly currentValue: number;
     }
-  | ({
-      readonly resource: 'ultimateEnergy';
-      /** 账户实际接收者，与技能事件来源及最终归因干员无关。 */
-      readonly target: Extract<RuntimeTargetRef, { kind: 'operator' | 'abilityEntity' }>;
-    } & Omit<UltimateEnergyChange, 'operatorId'>);
+  | ({ readonly resource: 'ultimateEnergy' } & UltimateEnergyChange);
 
 /** 一次共享技力增加的请求值、实际值与前后账本状态。 */
 export interface SpChange {
@@ -99,7 +83,7 @@ export interface SpChange {
   readonly gainKind: SpGainKind;
 }
 
-/** 一次终结技能量变化的请求值、实际值和前后状态。 */
+/** 干员终结技能量变化。 */
 export interface UltimateEnergyChange {
   readonly operatorId: string;
   readonly baseValue: number;
@@ -216,6 +200,7 @@ export class CombatResources {
       }
       const runtime = {
         ...member,
+        ultimateEnergy: Math.fround(member.ultimateEnergy),
         allowedUltimateEnergyRecoveryTags:
           member.allowedUltimateEnergyRecoveryTags === null
             ? null
@@ -376,21 +361,6 @@ export class CombatResources {
     });
   }
 
-  /** 只绑定寻址，不复制状态或支付算法；读取始终返回当前账本值。 */
-  bindSkillAccount(operatorId: string): SkillResourceAccount {
-    const resources = this;
-    return {
-      get sp() {
-        return resources.sp;
-      },
-      get ultimateEnergy() {
-        return resources.getUltimateEnergy(operatorId);
-      },
-      canPay: costs => resources.canPay(operatorId, costs),
-      pay: (costs, options) => resources.pay(operatorId, costs, options),
-    };
-  }
-
   pay(
     operatorId: string,
     costs: readonly CompiledSkillCost[],
@@ -426,12 +396,12 @@ export class CombatResources {
         // 原生 `Skill.ApplyCost` 会忽略终结技能量 Setter 的返回值。
         const applied = this.#trySetUltimateEnergy(
           this.#requireOperator(operatorId),
-          previousValue - cost.value,
+          previousValue - Math.fround(cost.value),
         );
         const currentValue = this.getUltimateEnergy(operatorId);
         changes.push({
           resource: 'ultimateEnergy',
-          target: { kind: 'operator', operatorId },
+          operatorId,
           baseValue: -cost.value,
           requestedValue: -cost.value,
           applied,
@@ -521,8 +491,14 @@ export class CombatResources {
     ) {
       return false;
     }
-    const clamped = Math.min(operator.maxUltimateEnergy, Math.max(0, value));
-    if (Math.abs(clamped - operator.ultimateEnergy) <= ULTIMATE_ENERGY_EPSILON) return false;
+    // 原生余额和Setter入参为float，上限从double属性转float，差值也以float比较。
+    // 保留双精度加减会让靠近容差的小额支付产生原生没有的写入与applied回执。
+    const clamped = Math.min(
+      Math.fround(operator.maxUltimateEnergy),
+      Math.max(0, Math.fround(value)),
+    );
+    const difference = Math.fround(clamped - operator.ultimateEnergy);
+    if (Math.abs(difference) <= ULTIMATE_ENERGY_EPSILON) return false;
     operator.ultimateEnergy = clamped;
     return true;
   }

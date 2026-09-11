@@ -1,12 +1,15 @@
 import type { FrameRuntime } from './combatSimulation';
 import type { AbilityResetReference } from '../events/combatAbilityEvent';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import type {
+  AbilityEntityTargetRef,
+  RuntimeTargetRef,
+} from '../../game-data/logicalAbilityEntity';
 import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
 
 /** A specific projected projectile, not its source skill or a public battle event. */
 export type ProjectileLifetimeReference = AbilityResetReference & {
   /** Endaxis 内部动作宿主身份；公开原生事件仍只暴露 AbilityResetReference。 */
-  readonly target: Extract<RuntimeTargetRef, { readonly kind: 'abilityEntity' }>;
+  readonly target: AbilityEntityTargetRef;
 };
 
 interface ProjectileLifetime {
@@ -71,7 +74,7 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
 
   launch(request: {
     readonly source?: RuntimeTargetRef;
-    readonly finishDelaySeconds: number;
+    readonly finishDelaySeconds: number | 'firstTickReach';
     readonly recycleDelaySeconds: number;
     readonly resolveTickDeltaSeconds: () => number | null;
     readonly finish: () => void;
@@ -80,9 +83,11 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
     /** Actual callback AbilitySystem host; no skill interpreter or timer is created here. */
     readonly abilityRuntime?: FrameRuntime;
   }): ProjectileLifetimeReference {
-    const finishDelay = Math.fround(request.finishDelaySeconds);
+    const finishOnFirstTick = request.finishDelaySeconds === 'firstTickReach';
+    const finishDelay =
+      typeof request.finishDelaySeconds === 'number' ? Math.fround(request.finishDelaySeconds) : 0;
     const recycleDelay = Math.fround(request.recycleDelaySeconds);
-    if (!Number.isFinite(finishDelay) || finishDelay <= 0)
+    if (!finishOnFirstTick && (!Number.isFinite(finishDelay) || finishDelay <= 0))
       throw new RangeError('projectile finish delay must be positive and finite');
     if (!Number.isFinite(recycleDelay) || request.recycleDelaySeconds < 0)
       throw new RangeError('projectile recycle delay must be non-negative and finite');

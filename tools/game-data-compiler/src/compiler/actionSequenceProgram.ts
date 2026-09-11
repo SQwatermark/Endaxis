@@ -1,4 +1,8 @@
-import type { NativeActionNodeSource, NativeSequenceSource } from '../source/controlFlow.ts';
+import type {
+  NativeActionBodySourceMap,
+  NativeActionNodeSource,
+  NativeSequenceSource,
+} from '../source/controlFlow.ts';
 
 export interface CompiledActionSequenceProgram<TStep> {
   readonly steps: readonly TStep[];
@@ -15,7 +19,7 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   /** 先投影回调，再决定持有动作是否仍有效；不默认回调发生，也不泄漏其局部编译状态。 */
   readonly compileActionWithCallback?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'actionWithCallback' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['actionWithCallback'];
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState>;
@@ -53,7 +57,7 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   /** 条件成立/失败可为对应分支增加编译期事实；分支写入仍不会反向污染外层。 */
   readonly refineIfElseBranchState?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['ifElse'];
     },
     state: TState,
     branch: 'whenTrue' | 'whenFalse',
@@ -61,55 +65,55 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   /** 领域可在语义等价时把原生逐目标循环折叠为集合操作；未提供或拒绝时严格失败。 */
   readonly compileForEach?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'forEach' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['forEach'];
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 物理查询只有在宿主证明其全部输出不可见时才可省略；否则必须保持严格阻断。 */
   readonly compilePhysicsCast?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'physicsCast' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['physicsCast'];
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 领域可在固定目标模型下把有界 Channeling 精确折叠为等价次数的子序列。 */
   readonly compileChanneling?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'channeling' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['channeling'];
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 宿主须证明执行一次的状态寿命及子序列生命周期可表示；未接入的调用方保持阻断。 */
   readonly compileOnce?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'once' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['once'];
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 领域可在宿主调度区间内保留旧版 TickIntervalAction 的原生周期语义。 */
   readonly compileTickInterval?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'tickInterval' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['tickInterval'];
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 多分支保留有序标签、独立实例和返回值；由公共领域投影决定正式表示。 */
   readonly compileSwitch?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'switch' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['switch'];
     },
     state: TState,
   ) => CompiledActionNodeProgram<TStep, TState> | null;
   /** 领域已证明整个条件节点及两分支都不可见时，可整体省略，避免为纯表现控制流伪造输入。 */
   readonly canOmitIfElse?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['ifElse'];
     },
   ) => boolean;
   /** 固定场景已证明分支真值时，只编译可达分支；未证明必须返回 undefined。 */
   readonly selectIfElseBranch?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['ifElse'];
     },
     state: TState,
   ) => boolean | undefined;
@@ -121,7 +125,7 @@ export interface CompileActionSequenceProgramOptions<TLeaf, TCondition, TStep, T
   /** 领域证明条件与子动作均不进入其可见模型时，允许省略整个原生动态开关。 */
   readonly canOmitTogglable?: (
     node: NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'togglable' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['togglable'];
     },
   ) => boolean;
   readonly createConditionalStep: (input: {
@@ -255,7 +259,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   }
   if (first!.body.kind === 'ifElse') {
     const branchNode = first as NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'ifElse' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['ifElse'];
     };
     if (options.canOmitIfElse?.(branchNode) === true) {
       return compileActionNodePrograms(rest, options, state);
@@ -365,7 +369,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'forEach' && options.compileForEach !== undefined) {
     const compiled = options.compileForEach(
       first as NativeActionNodeSource<TLeaf> & {
-        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'forEach' }>;
+        readonly body: NativeActionBodySourceMap<TLeaf>['forEach'];
       },
       state,
     );
@@ -376,7 +380,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'physicsCast' && options.compilePhysicsCast !== undefined) {
     const compiled = options.compilePhysicsCast(
       first as NativeActionNodeSource<TLeaf> & {
-        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'physicsCast' }>;
+        readonly body: NativeActionBodySourceMap<TLeaf>['physicsCast'];
       },
       state,
     );
@@ -387,7 +391,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'channeling' && options.compileChanneling !== undefined) {
     const compiled = options.compileChanneling(
       first as NativeActionNodeSource<TLeaf> & {
-        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'channeling' }>;
+        readonly body: NativeActionBodySourceMap<TLeaf>['channeling'];
       },
       state,
     );
@@ -398,7 +402,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'once' && options.compileOnce !== undefined) {
     const compiled = options.compileOnce(
       first as NativeActionNodeSource<TLeaf> & {
-        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'once' }>;
+        readonly body: NativeActionBodySourceMap<TLeaf>['once'];
       },
       state,
     );
@@ -409,7 +413,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'tickInterval' && options.compileTickInterval !== undefined) {
     const compiled = options.compileTickInterval(
       first as NativeActionNodeSource<TLeaf> & {
-        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'tickInterval' }>;
+        readonly body: NativeActionBodySourceMap<TLeaf>['tickInterval'];
       },
       state,
     );
@@ -420,7 +424,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'switch' && options.compileSwitch !== undefined) {
     const compiled = options.compileSwitch(
       first as NativeActionNodeSource<TLeaf> & {
-        readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'switch' }>;
+        readonly body: NativeActionBodySourceMap<TLeaf>['switch'];
       },
       state,
     );
@@ -430,7 +434,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   }
   if (first!.body.kind === 'togglable') {
     const togglable = first as NativeActionNodeSource<TLeaf> & {
-      readonly body: Extract<NativeActionNodeSource<TLeaf>['body'], { kind: 'togglable' }>;
+      readonly body: NativeActionBodySourceMap<TLeaf>['togglable'];
     };
     if (options.canOmitTogglable?.(togglable) === true) {
       return compileActionNodePrograms(rest, options, state);
@@ -439,10 +443,7 @@ export function compileActionNodePrograms<TLeaf, TCondition, TStep, TState>(
   if (first!.body.kind === 'actionWithCallback' && options.compileActionWithCallback) {
     const compiled = options.compileActionWithCallback(
       first as NativeActionNodeSource<TLeaf> & {
-        readonly body: Extract<
-          NativeActionNodeSource<TLeaf>['body'],
-          { kind: 'actionWithCallback' }
-        >;
+        readonly body: NativeActionBodySourceMap<TLeaf>['actionWithCallback'];
       },
       state,
     );

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 元素反应步骤的参数编辑器。
  *
@@ -14,10 +15,7 @@ import {
 } from '../../../core/game-data/operatorDefinition';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 
-type ReactionStep = Extract<
-  CombatStepDefinition,
-  { kind: 'applyElementalReaction' | 'consumeElementalReaction' }
->;
+type ReactionStep = CombatStepForKind<'applyElementalReaction' | 'consumeElementalReaction'>;
 
 const props = defineProps<{ step: ReactionStep }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();

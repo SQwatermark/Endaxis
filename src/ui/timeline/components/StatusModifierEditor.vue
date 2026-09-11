@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { StatusModifierDefinitionMap } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 编辑语义状态附带的修正列表。
  * 每种修正都使用合法的最小默认值创建；逐等级字段只改当前技能等级，避免编辑状态时破坏其他等级。
@@ -79,7 +80,7 @@ function currentLevelValue(value: number | readonly number[]): number {
 
 function setLevelValue(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'attackPercent' | 'susceptibility' }>,
+  modifier: StatusModifierDefinitionMap['attackPercent' | 'susceptibility'],
   event: Event,
 ): void {
   const value = finiteNumber(event);
@@ -92,7 +93,7 @@ function setLevelValue(
 
 function setCap(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'susceptibility' }>,
+  modifier: StatusModifierDefinitionMap['susceptibility'],
   event: Event,
 ): void {
   const value = finiteNumber(event);
@@ -105,10 +106,7 @@ function setCap(
 
 function setResource(
   index: number,
-  modifier: Extract<
-    StatusModifierDefinition,
-    { kind: 'blockResourceGain' | 'resourceCostMultiplier' }
-  >,
+  modifier: StatusModifierDefinitionMap['blockResourceGain' | 'resourceCostMultiplier'],
   event: Event,
 ): void {
   const resource = (event.target as HTMLSelectElement).value as CombatResource;
@@ -118,10 +116,7 @@ function setResource(
 
 function setMultiplier(
   index: number,
-  modifier: Extract<
-    StatusModifierDefinition,
-    { kind: 'resourceCostMultiplier' | 'skillCooldownMultiplier' }
-  >,
+  modifier: StatusModifierDefinitionMap['resourceCostMultiplier' | 'skillCooldownMultiplier'],
   event: Event,
 ): void {
   const value = finiteNumber(event);
@@ -131,7 +126,7 @@ function setMultiplier(
 
 function setSkillGroupKey(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'skillCooldownMultiplier' }>,
+  modifier: StatusModifierDefinitionMap['skillCooldownMultiplier'],
   event: Event,
 ): void {
   replaceModifier(index, { ...modifier, skillGroupKey: (event.target as HTMLInputElement).value });
@@ -139,7 +134,7 @@ function setSkillGroupKey(
 
 function toggleDamageType(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'susceptibility' }>,
+  modifier: StatusModifierDefinitionMap['susceptibility'],
   damageType: DamageType,
 ): void {
   const damageTypes = modifier.damageTypes.includes(damageType)
@@ -151,7 +146,7 @@ function toggleDamageType(
 
 function toggleAttributeScaling(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'susceptibility' }>,
+  modifier: StatusModifierDefinitionMap['susceptibility'],
   enabled: boolean,
 ): void {
   const next = { ...modifier };
@@ -162,7 +157,7 @@ function toggleAttributeScaling(
 
 function setScalingAttribute(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'susceptibility' }>,
+  modifier: StatusModifierDefinitionMap['susceptibility'],
   event: Event,
 ): void {
   if (modifier.attributeScaling === undefined) return;
@@ -176,7 +171,7 @@ function setScalingAttribute(
 
 function setScalingCoefficient(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'susceptibility' }>,
+  modifier: StatusModifierDefinitionMap['susceptibility'],
   event: Event,
 ): void {
   if (modifier.attributeScaling === undefined) return;
@@ -197,7 +192,7 @@ function setScalingCoefficient(
 
 function toggleCap(
   index: number,
-  modifier: Extract<StatusModifierDefinition, { kind: 'susceptibility' }>,
+  modifier: StatusModifierDefinitionMap['susceptibility'],
   enabled: boolean,
 ): void {
   const next = { ...modifier };

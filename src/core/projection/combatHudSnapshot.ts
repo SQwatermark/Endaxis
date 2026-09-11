@@ -1,3 +1,4 @@
+import type { OperatorPassiveUiDefinitionMap } from '../../../packages/game-data-contract/src/operators';
 /**
  * 把已经完成的战斗投影采样为某一帧的 HUD 快照。
  *
@@ -50,17 +51,14 @@ export interface OperatorCombatHudSnapshot {
 export type CombatHudPassiveUiSnapshot =
   | {
       readonly kind: 'numeric';
-      readonly appearance: Extract<OperatorPassiveUiDefinition, { kind: 'numeric' }>['appearance'];
+      readonly appearance: OperatorPassiveUiDefinitionMap['numeric']['appearance'];
       readonly value: number;
       readonly maximum: number;
       readonly active: boolean;
     }
   | {
       readonly kind: 'buffProgress';
-      readonly appearance: Extract<
-        OperatorPassiveUiDefinition,
-        { kind: 'buffProgress' }
-      >['appearance'];
+      readonly appearance: OperatorPassiveUiDefinitionMap['buffProgress']['appearance'];
       readonly mode: 'normal' | 'ultimate';
       readonly buffId: string;
       readonly instanceId: number;
@@ -68,10 +66,7 @@ export type CombatHudPassiveUiSnapshot =
     }
   | {
       readonly kind: 'buffCounters';
-      readonly appearance: Extract<
-        OperatorPassiveUiDefinition,
-        { kind: 'buffCounters' }
-      >['appearance'];
+      readonly appearance: OperatorPassiveUiDefinitionMap['buffCounters']['appearance'];
       readonly reserveArrows: number;
       readonly battleArrows: number;
       readonly points: number;

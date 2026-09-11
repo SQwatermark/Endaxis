@@ -122,10 +122,24 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
     if (!runtime) throw new Error(`${sourcePath}: missing ProjectileData ${launch.projectileId}`);
     const template = input.catalog.templates.get(launch.projectileId) ?? null;
     const enabled = launch.callbacks.filter(callback => callback.enabled);
-    // 当前仅投影回调程序；关闭槽位中的 skillId 是序列化残留。
-    // 无回调不等于无生命周期影响：原生 OnProjectileLaunched 仍可增加 SkillAffix 引用。
-    // 接入投射物生命周期时必须保留该发射，不能把此回调程序裁剪当作整对象不可见证明。
-    if (enabled.length === 0) return [];
+    // 关闭槽位中的 skillId 不参与调用，但发射/reset 仍能被 SkillAffix 观察。
+    // 未投影对象寿命前必须报告缺口，不能把“没有回调程序”当作“没有发射”。
+    if (enabled.length === 0) {
+      assertSupportedLaunchTargetControls(launch, sourcePath, projectionContext);
+      if (
+        launch.syncTimeScale ||
+        launch.projectileSource.targetSource !== 'Source' ||
+        launch.projectileSource.targetGroupKey !== '' ||
+        runtime.moveModeTypes.get('Default') !== 0 ||
+        !runtime.finishOnReach ||
+        !isPlainZeroSpaceFixedPoint(launch.target, projectionContext, sourcePath)
+      )
+        throw new Error(
+          `${sourcePath}: projectile ${launch.projectileId} has no enabled callbacks, but launch/reset lifetime is not projected`,
+        );
+      assertSupportedFirstTickReachShape(runtime, sourcePath, true);
+      return [{ kind: 'launchProjectileLifetime', parameters: { finish: 'firstTickReach' } }];
+    }
     const callback = (event: 'block' | 'finish' | 'hit' | 'reach') => {
       const routes = enabled.filter(item => item.event === event);
       if (routes.length !== 1 || !routes[0]!.skillId)
@@ -142,9 +156,10 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       enabled[0]!.event === 'hit' &&
       isPresentationOnlyProjectileCallback(callback('hit'))
     ) {
-      // 唯一回调的完整 SkillData 只有表现动作；投射物实体板只控制其移动/特效，
-      // 没有第二条回调或外部消费者。Next 不渲染这些原生特效，整次发射可安全省略。
-      return [];
+      // 回调只含表现动作，并不能证明发射者没有 SkillAffix 等外部观察者。
+      throw new Error(
+        `${sourcePath}: projectile ${launch.projectileId} has a presentation-only callback, but launch/reset lifetime is not projected`,
+      );
     }
     assertSupportedLaunchTargetControls(launch, sourcePath, projectionContext);
     if (enabled.length === 1 && enabled[0]!.event === 'block') {

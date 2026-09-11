@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 
 /** 编辑普通治疗公式；目标选择仍由场景中的控制时间线与干员生命账本解析。 */
@@ -19,7 +20,7 @@ import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
-type HealStep = Extract<CombatStepDefinition, { kind: 'heal' }>;
+type HealStep = CombatStepForKind<'heal'>;
 type FormulaField = 'multiplier' | 'addition';
 type HealParameters = HealStep['parameters'];
 

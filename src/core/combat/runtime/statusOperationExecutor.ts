@@ -3,6 +3,7 @@
  * 本适配器不定义叠层、刷新或到期规则；这些规则必须由目标状态所有者实现。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatStepParameters } from '../../compiler/combatProgram';
 import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatStatusChangeReason, CombatStatusTransition } from '../status/combatStatuses';
@@ -13,7 +14,7 @@ type RuntimeOperation = ResolvedCombatOperationStep;
 export interface StatusActionRequest<K extends 'applyStatus' | 'consumeStatus'> {
   readonly sourceId: string;
   readonly skillId: string;
-  readonly parameters: Extract<RuntimeOperation, { kind: K }>['parameters'];
+  readonly parameters: Readonly<ResolvedCombatStepParameters[K]>;
 }
 
 /**

@@ -1,5 +1,6 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { describe, expect, it } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { ElementalReactionContainer } from '../infliction/elementalReactionState';
@@ -37,7 +38,7 @@ describe('ElementalReactionOperationExecutor', () => {
   it('按步骤位置施加反应并记录回执', () => {
     const { clock, receipt, executor, container } = createExecutor();
     for (let frame = 0; frame < 24; frame += 1) clock.advanceFrame();
-    const step: Extract<ResolvedCombatStep, { kind: 'applyElementalReaction' }> = {
+    const step: ResolvedCombatStepForKind<'applyElementalReaction'> = {
       kind: 'applyElementalReaction',
       parameters: {
         reaction: 'electrification',
@@ -60,7 +61,7 @@ describe('ElementalReactionOperationExecutor', () => {
 
   it('从动作黑板读取反应寿命并在运行时应用倍率', () => {
     const { receipt, executor, container } = createExecutor();
-    const step: Extract<ResolvedCombatStep, { kind: 'applyElementalReaction' }> = {
+    const step: ResolvedCombatStepForKind<'applyElementalReaction'> = {
       kind: 'applyElementalReaction',
       parameters: {
         reaction: 'electrification',
@@ -90,7 +91,7 @@ describe('ElementalReactionOperationExecutor', () => {
       sourceId: 'perlica',
       time: 0,
     });
-    const consume: Extract<ResolvedCombatStep, { kind: 'consumeElementalReaction' }> = {
+    const consume: ResolvedCombatStepForKind<'consumeElementalReaction'> = {
       kind: 'consumeElementalReaction',
       parameters: { reaction: 'electrification', target: 'enemy' },
     };

@@ -5,6 +5,7 @@
  * 反应状态只描述事实，不在这里附加任何未证实的伤害规则。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -15,10 +16,6 @@ import {
 } from '../infliction/elementalReactionState';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
-type ReactionStep = Extract<
-  RuntimeOperation,
-  { kind: 'applyElementalReaction' | 'consumeElementalReaction' }
->;
 
 /** 反应步骤执行所需的端口。 */
 export interface ElementalReactionOperationDependencies {
@@ -78,7 +75,7 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
   }
 
   #apply(
-    step: Extract<ReactionStep, { kind: 'applyElementalReaction' }>,
+    step: ResolvedCombatStepForKind<'applyElementalReaction'>,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): void {
     const baseDurationSeconds =
@@ -113,7 +110,7 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
     });
   }
 
-  #consume(step: Extract<ReactionStep, { kind: 'consumeElementalReaction' }>): void {
+  #consume(step: ResolvedCombatStepForKind<'consumeElementalReaction'>): void {
     const consumed = this.dependencies.container.consume(
       step.parameters.reaction,
       this.dependencies.clock.time,

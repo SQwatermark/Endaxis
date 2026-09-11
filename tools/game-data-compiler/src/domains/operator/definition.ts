@@ -720,6 +720,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       key: group.key,
       skillType: group.skillType,
       levelSource: group.levelSource,
+      ...(group.placementPolicy === undefined ? {} : { placementPolicy: group.placementPolicy }),
       ...(group.libraryPresentation === undefined
         ? {}
         : { libraryPresentation: group.libraryPresentation }),
@@ -762,6 +763,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
             variants: group.variants.map(variant => ({
               key: variant.key,
               levelSource: variant.levelSource,
+              ...(variant.placementPolicy === undefined
+                ? {}
+                : { placementPolicy: variant.placementPolicy }),
               ...(variant.libraryPresentation === undefined
                 ? {}
                 : { libraryPresentation: variant.libraryPresentation }),

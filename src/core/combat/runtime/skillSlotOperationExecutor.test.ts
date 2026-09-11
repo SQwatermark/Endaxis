@@ -3,6 +3,26 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
 
 describe('SkillSlotOperationExecutor', () => {
+  it('结束普攻映射动作只撤销自己的句柄，重复结束无副作用', () => {
+    const finish = vi.fn();
+    const register = vi.fn(() => ({ finish }));
+    const delegate = { execute: vi.fn(() => false), evaluate: vi.fn(() => false) };
+    const executor = new SkillSlotOperationExecutor({
+      changeSkillSlot: vi.fn(),
+      overrideBasicAttackMapping: register,
+      delegate,
+    });
+    const step: ResolvedCombatOperationStep = {
+      kind: 'overrideBasicAttackMapping',
+      parameters: { sourceSkillId: 'native.heavy' },
+    };
+    executor.execute(step);
+    expect(register).toHaveBeenCalledWith('native.heavy');
+    executor.end(step);
+    executor.end(step);
+    expect(finish).toHaveBeenCalledOnce();
+    expect(delegate.execute).not.toHaveBeenCalled();
+  });
   it('changes future slot resolution without delegating the operation', () => {
     const changeSkillSlot = vi.fn();
     const delegate = {

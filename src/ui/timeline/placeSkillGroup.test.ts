@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
-import { avywenna, laevatain, mifu, perlica, zhuangFangyi } from '../../data/operators';
-import { placeSkillGroup, type TimelineDocumentIdAllocator } from './placeSkillGroup';
+import { avywenna, laevatain, mifu, perlica, zhuangFangyi, yvonne } from '../../data/operators';
+import {
+  placeSkillGroup,
+  placeLibrarySkillGroup,
+  type TimelineDocumentIdAllocator,
+} from './placeSkillGroup';
+import { listSkillGroupLibraryPlacements } from './skillGroupPlacement';
 
 function createIds(): TimelineDocumentIdAllocator {
   let next = 0;
@@ -31,6 +36,86 @@ function createPerlicaScenario() {
 }
 
 describe('placeSkillGroup', () => {
+  it('普通干员技能组也通过元数据启用递归策略，不依赖干员或技能名字', () => {
+    const operator = structuredClone(perlica);
+    const group = operator.skillGroups.find(group => group.key === 'basicAttack')!;
+    group.placementPolicy = {
+      kind: 'recursiveInput',
+      firstSkillKey: 'basicAttack1',
+      terminalSkillKey: 'basicAttack4',
+      maxSegments: 8,
+      fallback: 'sequence',
+    };
+    const placed = placeLibrarySkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator,
+      skillGroupKey: 'basicAttack',
+      startFrame: 30,
+      ids: createIds(),
+    });
+    expect(placed.skillCastIds).toHaveLength(1);
+    expect(placed.extension?.reservedCastIds).toHaveLength(7);
+    expect(placed.extension?.terminalSkillKey).toBe('basicAttack4');
+    expect(placed.fallback?.skillCastIds).toHaveLength(4);
+    delete group.placementPolicy;
+    const ordinary = placeLibrarySkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator,
+      skillGroupKey: 'basicAttack',
+      startFrame: 30,
+      ids: createIds(),
+    });
+    expect(ordinary.extension).toBeUndefined();
+    expect(ordinary.skillCastIds).toHaveLength(4);
+  });
+  it('伊冯卡片仍展示六段，整组只播种A1，单段重击不递归', () => {
+    const scenario = createPerlicaScenario();
+    scenario.tracks[0]!.operator!.operatorSlug = yvonne.slug;
+    const input = {
+      scenario,
+      trackIndex: 0 as const,
+      operator: yvonne,
+      skillGroupKey: 'basicAttack',
+      variantKey: 'enhancedBasicAttack',
+      startFrame: 90,
+      ids: createIds(),
+    };
+    const group = yvonne.skillGroups.find(group => group.key === 'basicAttack')!;
+    const entry = listSkillGroupLibraryPlacements(group).find(
+      entry => entry.variantKey === 'enhancedBasicAttack',
+    )!;
+    expect(entry.skills.map(skill => skill.key)).toEqual([
+      'ultimateAttack1',
+      'ultimateAttack2A',
+      'ultimateAttack2B',
+      'ultimateAttack3A',
+      'ultimateAttack3B',
+      'ultimateAttackEnd',
+    ]);
+    const placed = placeLibrarySkillGroup(input);
+    expect(placed.scenario.tracks[0]!.skillCasts).toHaveLength(1);
+    expect(placed.scenario.tracks[0]!.skillCasts[0]!.source).toMatchObject({
+      skillKey: 'ultimateAttack1',
+    });
+    expect(placed.extension?.reservedCastIds).toHaveLength(23);
+    const fallback = placed.fallback!;
+    expect(
+      fallback.scenario.tracks[0]!.skillCasts.map(cast =>
+        cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
+      ),
+    ).toEqual(entry.skills.map(skill => skill.key));
+    expect(fallback.skillCastIds).toHaveLength(6);
+    expect(fallback.skillCastIds[0]).toBe(placed.skillCastIds[0]);
+    expect(fallback.scenario.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(90);
+    const single = placeLibrarySkillGroup({ ...input, skillKey: 'ultimateAttackEnd' });
+    expect(single.extension).toBeUndefined();
+    expect(single.scenario.tracks[0]!.skillCasts).toHaveLength(1);
+    expect(single.scenario.tracks[0]!.skillCasts[0]!.source).toMatchObject({
+      skillKey: 'ultimateAttackEnd',
+    });
+  });
   it('stores the semantic action from explicit native routing on new casts', () => {
     const scenario = createPerlicaScenario();
     scenario.tracks[0]!.operator!.operatorSlug = avywenna.slug;

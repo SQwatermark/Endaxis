@@ -344,7 +344,7 @@ it('发布链的连携准入不因完整事件收窄而放开增强/普通结束
     ),
   ).toBe(false);
 });
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { CombatBuffDefinitionsDocument } from '../buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../infliction/skillSettings';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
@@ -388,7 +388,7 @@ import {
   attributeModifierValues,
 } from '../attributes/combatAttributes';
 
-const damageStep: Extract<ResolvedCombatStep, { kind: 'dealDamage' }> = {
+const damageStep: ResolvedCombatStepForKind<'dealDamage'> = {
   kind: 'dealDamage',
   parameters: { damageType: 'electric', attackScale: 1, tags: ['normalSkill'] },
 };

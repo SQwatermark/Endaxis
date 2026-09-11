@@ -1,4 +1,5 @@
 import type { ProjectDefinitionLibraryDocument, ScenarioDocument } from '../core/project/schema';
+import type { RecursiveSkillChain } from './recursiveSkillChain';
 import type {
   ScenarioSimulationRun,
   ScenarioSimulationPerformanceSubscriber,
@@ -63,8 +64,13 @@ export class WorkerScenarioSimulationService {
     endFrame: number,
     signal?: AbortSignal,
     mode: 'continuation' | 'compact' = 'continuation',
+    extension?: RecursiveSkillChain,
   ): Promise<SimulationPlan> {
-    return this.enqueue(scenario, endFrame, signal, { castIds, mode }) as Promise<SimulationPlan>;
+    return this.enqueue(scenario, endFrame, signal, {
+      castIds,
+      mode,
+      ...(extension ? { extension } : {}),
+    }) as Promise<SimulationPlan>;
   }
   clearCache() {
     this.revision++;

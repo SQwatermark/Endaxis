@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
 import {
@@ -89,7 +90,7 @@ type Section =
 // This workspace edits the definition, not one instance's selected build level.
 provide(definitionAllLevelsKey, true);
 const { locale } = useI18n();
-type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
+type BuffStep = CombatStepForKind<'applyBuff'>;
 const ATTRIBUTE_LABELS: Readonly<Record<keyof OperatorDefinition['attributes'], string>> = {
   strength: '力量',
   agility: '敏捷',

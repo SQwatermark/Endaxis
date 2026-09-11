@@ -6,6 +6,7 @@ import type { OperatorDefinition } from '../../core/game-data/operatorDefinition
 import type { ScenarioDocument, SkillCastDocument, TrackIndex } from '../../core/project/schema';
 import { resolveUniquePlayerActionForSkill } from '../../core/game-data/resolvePlayerActionRoute';
 import { layoutSkillGroupPlacement, resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
+import type { RecursiveSkillChain } from '../../application/recursiveSkillChain';
 
 /** 放置命令生成稳定文档身份所需的端口。 */
 export type TimelineDocumentIdKind =
@@ -36,9 +37,52 @@ export interface PlaceSkillGroupInput {
 }
 
 /** 放置后的新场景及本次创建的技能块身份。 */
-export interface PlaceSkillGroupResult {
+export interface SkillPlacement {
   readonly scenario: ScenarioDocument;
   readonly skillCastIds: readonly string[];
+}
+
+export interface PlaceSkillGroupResult extends SkillPlacement {
+  readonly extension?: RecursiveSkillChain;
+  readonly fallback?: SkillPlacement;
+}
+
+/** 按技能组声明的策略续段；展示仍由完整技能列表决定。单段放置不扩展。 */
+export function placeLibrarySkillGroup(input: PlaceSkillGroupInput): PlaceSkillGroupResult {
+  const group = input.operator.skillGroups.find(group => group.key === input.skillGroupKey);
+  if (!group || input.skillKey !== undefined) return placeSkillGroup(input);
+  const policy =
+    input.variantKey === undefined
+      ? group.placementPolicy
+      : group.variants?.find(variant => variant.key === input.variantKey)?.placementPolicy;
+  if (!policy) return placeSkillGroup(input);
+  const skills = resolveSkillGroupPlacementSkills(group, input.variantKey);
+  const first = skills.find(skill => skill.key === policy.firstSkillKey);
+  if (!first) throw new Error('placement policy has no first skill');
+  const terminal = policy.terminalSkillKey;
+  if (!skills.some(skill => skill.key === terminal))
+    throw new Error('placement policy has no terminal skill');
+  if (!Number.isSafeInteger(policy.maxSegments) || policy.maxSegments < skills.length)
+    throw new Error('placement policy limit must cover the fallback sequence');
+  const seed = placeSkillGroup({ ...input, skillKey: first.key });
+  const reservedCastIds = Array.from({ length: policy.maxSegments - 1 }, () =>
+    input.ids.allocate('skillCast'),
+  );
+  const fallbackIds = [...seed.skillCastIds, ...reservedCastIds];
+  let fallbackIndex = 0;
+  const fallback = placeSkillGroup({
+    ...input,
+    ids: { allocate: () => fallbackIds[fallbackIndex++]! },
+  });
+  return {
+    ...seed,
+    fallback,
+    extension: {
+      allowedSkillKeys: skills.map(skill => skill.key),
+      terminalSkillKey: terminal,
+      reservedCastIds,
+    },
+  };
 }
 
 /**

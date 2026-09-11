@@ -1334,7 +1334,7 @@ describe('公共回调伤害投影', () => {
     ]);
   });
 
-  it('唯一回调为空时连同目录外标签过滤一起省略纯表现投射物', () => {
+  it('唯一回调为空不能证明发射无外部消费者，保留生命周期缺口诊断', () => {
     const raw = scopeFixtures[0]!;
     const launch = parseProjectileLaunchActionSource(
       {
@@ -1382,7 +1382,9 @@ describe('公共回调伤害投影', () => {
       callbackContext: returnProjectionContext,
     });
 
-    expect(compile(launch, 'unregistered-exclusion-tag', returnProjectionContext)).toEqual([]);
+    expect(() => compile(launch, 'unregistered-exclusion-tag', returnProjectionContext)).toThrow(
+      'presentation-only callback, but launch/reset lifetime is not projected',
+    );
   });
 
   it('首碰撞以 maxHitCount=1 回收时不读取其后的多段移动形状', () => {

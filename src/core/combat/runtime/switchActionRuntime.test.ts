@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatStep, ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { ActionBlackboard } from './actionBlackboard';
@@ -15,7 +15,7 @@ const select = (
   choice: ActionValueOperand,
   values: readonly ActionValueOperand[],
   alwaysNext = false,
-): Extract<ResolvedCombatStep, { kind: 'switch' }> => ({
+): ResolvedCombatStepForKind<'switch'> => ({
   kind: 'switch',
   parameters: { choice, alwaysNext },
   options: values.map((value, index) => ({ value, sequence: { steps: [effect(String(index))] } })),

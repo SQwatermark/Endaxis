@@ -1,3 +1,4 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { CombatAbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 /**
  * 标准战斗环境：一场模拟里敌人的元素附着、反应和 Buff 都由它管；
@@ -6,7 +7,6 @@ import type { CombatAbilityEvent, AbilityEventPayloadMap } from '../events/comba
  * 能做的就做，做不了的（Buff、瞬时属性、没确认的随机等）直接报错，
  * 绝不用假数据糊弄。调用方必须把命中时需要的数值显式传进来。
  */
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
 import type {
   DamageFeature,
   DamageTag,
@@ -100,7 +100,7 @@ import type { HealthDamageEventPayload } from '../damage/healthDamage';
 import type { PoiseDamageModifier } from '../damage/poiseDamage';
 import type { ElementalInflictionStartedPayload } from '../infliction/elementalInflictionBuffAdapter';
 
-type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
+type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
 const MULTIPLICATIVE_ATTRIBUTE_SLOTS = new Set(['finalMultiplier', 'baseFinalMultiplier']);
 

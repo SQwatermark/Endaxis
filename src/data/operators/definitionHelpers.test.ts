@@ -1,4 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import type {
+  CombatStepForKind,
+  CombatStepDefinition,
+} from '../../../packages/game-data-contract/src/actions';
 import {
   basicAttackOfType,
   damageOfType,
@@ -14,6 +18,44 @@ import {
 } from './definitionHelpers';
 
 describe('operator definition helpers', () => {
+  it('公共成员入口保留多kind的结构关联', () => {
+    type BranchOrOnce = CombatStepForKind<'conditional' | 'once'>;
+    expectTypeOf<BranchOrOnce>().not.toBeNever();
+    expectTypeOf<BranchOrOnce>().toEqualTypeOf<
+      Extract<CombatStepDefinition, { kind: 'conditional' | 'once' }>
+    >();
+    const once: BranchOrOnce = {
+      kind: 'once',
+      parameters: { scopeKey: 'once' },
+      body: { steps: [] },
+    };
+    expect(once.body.steps).toEqual([]);
+    const invalid: BranchOrOnce = {
+      kind: 'once',
+      parameters: { scopeKey: 'once' },
+      // @ts-expect-error once不能以条件分支字段代替body。
+      whenTrue: { steps: [] },
+    };
+    void invalid;
+  });
+  it('只接受不需要额外必填结构的步骤，并保留具体节点类型', () => {
+    expectTypeOf<Parameters<typeof step>[0]>()
+      .exclude<
+        | 'scheduleProjectileFinishCallback'
+        | 'conditional'
+        | 'switch'
+        | 'once'
+        | 'repeatEachTick'
+        | 'repeatByActionValue'
+        | 'forEachContextTarget'
+        | 'withActionBlackboardScope'
+      >()
+      .toEqualTypeOf<Parameters<typeof step>[0]>();
+    const node = step('finishTimeline', {}, 'finish');
+    expectTypeOf(node.kind).toEqualTypeOf<'finishTimeline'>();
+    expect(node).toEqual({ kind: 'finishTimeline', parameters: {}, key: 'finish' });
+  });
+
   it('附加初始黑板时不修改原技能定义', () => {
     const skill = basicAttackOfType('electric')('basicAttack1', 10, 5, 0.2);
     const wrapped = withSkillBlackboard(skill, { attackScale: [0.2, 0.3] });

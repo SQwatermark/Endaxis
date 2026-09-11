@@ -1,6 +1,6 @@
+import type { CombatStepForKind } from '../../packages/game-data-contract/src/actions';
 import { describe, expect, it } from 'vitest';
 import type {
-  CombatStepDefinition,
   OperatorDefinition,
   ScheduledSequenceDefinition,
   SkillType,
@@ -126,10 +126,10 @@ function createCrushProbe() {
 
 function findPhysicalInfliction(
   value: unknown,
-): Extract<CombatStepDefinition, { kind: 'applyPhysicalInfliction' }> | null {
+): CombatStepForKind<'applyPhysicalInfliction'> | null {
   if (value === null || typeof value !== 'object') return null;
   if ('kind' in value && value.kind === 'applyPhysicalInfliction' && 'parameters' in value) {
-    return value as Extract<CombatStepDefinition, { kind: 'applyPhysicalInfliction' }>;
+    return value as CombatStepForKind<'applyPhysicalInfliction'>;
   }
   for (const child of Array.isArray(value) ? value : Object.values(value)) {
     const result = findPhysicalInfliction(child);

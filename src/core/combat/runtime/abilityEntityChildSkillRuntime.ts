@@ -7,7 +7,7 @@ import type { CombatExecutionContext } from '../actions/combatStep';
 import type { CompiledAbilityEntityChildSkillProgram } from '../../compiler/combatProgram';
 import {
   logicalAbilityEntityRuntimeId,
-  type RuntimeTargetRef,
+  type AbilityEntityTargetRef,
 } from '../../game-data/logicalAbilityEntity';
 import type { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
@@ -33,7 +33,7 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
   constructor(
     program: CompiledAbilityEntityChildSkillProgram,
     dependencies: {
-      readonly entity: Extract<RuntimeTargetRef, { readonly kind: 'abilityEntity' }>;
+      readonly entity: AbilityEntityTargetRef;
       readonly entityBlackboard: ActionBlackboard;
       readonly operations: CombatOperationExecutor;
       readonly ownerOperatorId: string;

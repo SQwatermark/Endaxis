@@ -1,8 +1,9 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
-type TriggerStep = Extract<ResolvedCombatOperationStep, { kind: 'triggerCustomAbilityEvent' }>;
+type TriggerStep = ResolvedCombatStepForKind<'triggerCustomAbilityEvent'>;
 
 export interface CustomAbilityEventOperationExecutorDependencies {
   readonly sourceId: string;

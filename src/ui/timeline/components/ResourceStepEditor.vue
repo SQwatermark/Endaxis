@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 
 /**
@@ -29,10 +30,7 @@ import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
-type ResourceStep = Extract<
-  CombatStepDefinition,
-  { kind: 'changeResource' | 'changeResourceByActionValue' }
->;
+type ResourceStep = CombatStepForKind<'changeResource' | 'changeResourceByActionValue'>;
 
 const props = defineProps<{ step: ResourceStep; skillLevel: number }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();

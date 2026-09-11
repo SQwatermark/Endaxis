@@ -1,5 +1,14 @@
 # Endaxis 游戏数据编译器
 
+## 技能组递归放置配置
+
+`config/operators.json` 的技能组及其 `variants` 可声明 `placementPolicy`：
+`kind: recursiveInput`、`firstSkillKey`、`terminalSkillKey`、`maxSegments`、
+`fallback: sequence`。起止技能必须属于该组 `skillKeys`，预算必须容纳回退序列。
+转换器将策略写入公共技能组定义，编辑器按正式输入路由递归推测到终止段；
+失败则按该组声明顺序放置。省略策略沿用普通整组放置，手动单段不递归。
+伊冯强化普攻在配置中指定从 A1 到重击、最多24段；编辑器不按干员名称分支。
+
 ## 待优化：干员养成配置去人工化（2026-09-07）
 
 - `config/operators.json` 的天赋 `index` 对固定两个槽位是冗余配置，后续应从有证据的

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import {
   isBuffGraphPayload,
   isBuffGraphClipboard,
@@ -120,7 +121,7 @@ const editing = useDefinitionGraphEditing({
   selectPath,
 });
 const selectedNode = computed(() => nodeIndex.value.get(selectedId.value));
-const inlineBuff = computed<Extract<CombatStepDefinition, { kind: 'applyBuff' }> | undefined>(() =>
+const inlineBuff = computed<CombatStepForKind<'applyBuff'> | undefined>(() =>
   selectedNode.value?.kind === '内联 Buff 定义'
     ? {
         kind: 'applyBuff',

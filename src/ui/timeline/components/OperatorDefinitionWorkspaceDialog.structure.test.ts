@@ -92,7 +92,9 @@ describe('OperatorDefinitionWorkspaceDialog structure', () => {
     expect(upgradeBehaviorSource).toContain('启用养成时执行一次');
     expect(upgradeBehaviorSource).toContain('事件条件命中后执行');
     expect(upgradeBehaviorSource).toContain('附属被动启用时执行');
-    expect(upgradeBehaviorSource).toContain('元素反应生效');
+    expect(upgradeBehaviorSource).toContain(
+      '<option value="elementalAttachmentConsumed">元素附着被消耗</option>',
+    );
     expect(upgradeBehaviorSource).toContain('获得技力');
     expect(upgradeBehaviorSource).toContain('消费 Buff');
     expect(upgradeBehaviorSource).toContain('SkillBlackboardEditor');

@@ -2,6 +2,7 @@
  * 干员定义与核心类型之间的声明式辅助层。这里只消除机械重复，
  * 调用方仍须显式表达伤害类型、倍率、标签和时序，不能在辅助函数中隐藏角色特例。
  */
+import type { CombatStepForKind } from '../../../packages/game-data-contract/src/actions';
 import type {
   ActionSequenceDefinition,
   ActionValueOperand,
@@ -18,27 +19,29 @@ import type {
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
 
-type ImmediateStepKind = Exclude<
-  CombatStepKind,
-  | 'conditional'
-  | 'switch'
-  | 'once'
-  | 'repeatEachTick'
-  | 'repeatByActionValue'
-  | 'forEachContextTarget'
-  | 'withActionBlackboardScope'
->;
+/** 只有基础字段已满足完整契约的节点才能由 step() 构造。 */
+type ParameterOnlyStepKind = {
+  [K in CombatStepKind]: {
+    kind: K;
+    parameters: CombatStepParameters[K];
+    key?: string;
+  } extends CombatStepForKind<K>
+    ? K
+    : never;
+}[CombatStepKind];
 
 /** 创建一个立即执行的操作，同时保留其可辨识联合类型。 */
-export function step<K extends ImmediateStepKind>(
+export function step<K extends ParameterOnlyStepKind>(
   kind: K,
   parameters: CombatStepParameters[K],
   key?: string,
-): Extract<CombatStepDefinition, { kind: K }> {
-  return { kind, parameters, ...(key ? { key } : {}) } as Extract<
-    CombatStepDefinition,
-    { kind: K }
-  >;
+): CombatStepForKind<K>;
+export function step(
+  kind: ParameterOnlyStepKind,
+  parameters: CombatStepParameters[ParameterOnlyStepKind],
+  key?: string,
+): CombatStepDefinition {
+  return { kind, parameters, ...(key ? { key } : {}) } as CombatStepDefinition;
 }
 
 export function sequence(
@@ -128,7 +131,7 @@ export function branch(
   whenTrue: ActionSequenceDefinition,
   whenFalse?: ActionSequenceDefinition,
   options?: { readonly alwaysNext?: boolean },
-): Extract<CombatStepDefinition, { kind: 'conditional' }> {
+): CombatStepForKind<'conditional'> {
   return {
     kind: 'conditional',
     parameters: {
@@ -141,10 +144,7 @@ export function branch(
 }
 
 /** 创建一个在单次技能释放内最多执行一次的动作序列。 */
-export function once(
-  scopeKey: string,
-  body: ActionSequenceDefinition,
-): Extract<CombatStepDefinition, { kind: 'once' }> {
+export function once(scopeKey: string, body: ActionSequenceDefinition): CombatStepForKind<'once'> {
   return { kind: 'once', parameters: { scopeKey }, body };
 }
 
@@ -160,7 +160,7 @@ export function withActionBlackboardScope(
     readonly alwaysNext?: boolean;
     readonly entityAssignments?: Readonly<Record<string, ActionValueOperand>>;
   },
-): Extract<CombatStepDefinition, { kind: 'withActionBlackboardScope' }> {
+): CombatStepForKind<'withActionBlackboardScope'> {
   return {
     kind: 'withActionBlackboardScope',
     parameters: {
@@ -183,8 +183,8 @@ export function withActionBlackboardScope(
 /** 在调度区间内按宿主技能的每次 Tick 重复执行同一个同步序列。 */
 export function repeatEachTick(
   body: ActionSequenceDefinition,
-  parameters: Extract<CombatStepDefinition, { kind: 'repeatEachTick' }>['parameters'] = {},
-): Extract<CombatStepDefinition, { kind: 'repeatEachTick' }> {
+  parameters: Readonly<CombatStepParameters['repeatEachTick']> = {},
+): CombatStepForKind<'repeatEachTick'> {
   return { kind: 'repeatEachTick', parameters, body };
 }
 
@@ -192,7 +192,7 @@ export function repeatEachTick(
 export function repeatByActionValue(
   count: ActionValueOperand,
   body: ActionSequenceDefinition,
-): Extract<CombatStepDefinition, { kind: 'repeatByActionValue' }> {
+): CombatStepForKind<'repeatByActionValue'> {
   return { kind: 'repeatByActionValue', parameters: { count }, body };
 }
 
@@ -200,7 +200,7 @@ export function repeatByActionValue(
 export function forEachContextTarget(
   contextKey: string,
   body: ActionSequenceDefinition,
-): Extract<CombatStepDefinition, { kind: 'forEachContextTarget' }> {
+): CombatStepForKind<'forEachContextTarget'> {
   return { kind: 'forEachContextTarget', parameters: { contextKey }, body };
 }
 
@@ -208,7 +208,7 @@ export function forEachContextTarget(
 export function forEachTarget(
   target: 'enemy' | 'caster',
   body: ActionSequenceDefinition,
-): Extract<CombatStepDefinition, { kind: 'forEachContextTarget' }> {
+): CombatStepForKind<'forEachContextTarget'> {
   return { kind: 'forEachContextTarget', parameters: { target }, body };
 }
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -29,7 +29,7 @@ describe('TimeDilationOperationExecutor', () => {
       sourceActionId: 'skill',
       delegate,
     });
-    const step: Extract<ResolvedCombatStep, { kind: 'startTimeDilation' }> = {
+    const step: ResolvedCombatStepForKind<'startTimeDilation'> = {
       kind: 'startTimeDilation',
       parameters: {
         scope: 'global',
@@ -63,7 +63,7 @@ describe('TimeDilationOperationExecutor', () => {
       sourceActionId: 'skill',
       delegate,
     });
-    const step: Extract<ResolvedCombatStep, { kind: 'startTimeDilation' }> = {
+    const step: ResolvedCombatStepForKind<'startTimeDilation'> = {
       kind: 'startTimeDilation',
       parameters: {
         scope: 'global',
@@ -92,7 +92,7 @@ describe('TimeDilationOperationExecutor', () => {
       sourceActionId: 'skill',
       delegate,
     });
-    const step: Extract<ResolvedCombatStep, { kind: 'startTimeDilation' }> = {
+    const step: ResolvedCombatStepForKind<'startTimeDilation'> = {
       kind: 'startTimeDilation',
       parameters: {
         scope: 'entity',
@@ -137,7 +137,7 @@ describe('TimeDilationOperationExecutor', () => {
       sourceActionId: 'buff-lifecycle',
       delegate,
     });
-    const step: Extract<ResolvedCombatStep, { kind: 'startTimeDilation' }> = {
+    const step: ResolvedCombatStepForKind<'startTimeDilation'> = {
       kind: 'startTimeDilation',
       parameters: {
         scope: 'entity',
@@ -264,7 +264,7 @@ describe('TimeDilationOperationExecutor', () => {
     });
     const targetContext = new RuntimeTargetContext();
     targetContext.setSingle('soldier', { kind: 'abilityEntity', instanceId: 9 });
-    const step: Extract<ResolvedCombatStep, { kind: 'setIgnoreGlobalTimeScale' }> = {
+    const step: ResolvedCombatStepForKind<'setIgnoreGlobalTimeScale'> = {
       kind: 'setIgnoreGlobalTimeScale',
       parameters: {
         abilityEntityTargets: [{ kind: 'context', contextKey: 'soldier' }],
@@ -319,7 +319,7 @@ describe('TimeDilationOperationExecutor', () => {
       sourceActionId: 'skill',
       delegate,
     });
-    const step: Extract<ResolvedCombatStep, { kind: 'startUltimateTimeDilation' }> = {
+    const step: ResolvedCombatStepForKind<'startUltimateTimeDilation'> = {
       kind: 'startUltimateTimeDilation',
       parameters: {
         priority: PRIORITY,

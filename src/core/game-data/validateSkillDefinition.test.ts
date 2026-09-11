@@ -23,6 +23,40 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it.each(['party', 'partyExceptCaster', 'controlledOperator', 'unknown'])(
+    '标签结束仍拒绝不属于单对象绑定的目标 %s',
+    target => {
+      const issues = validateSkillDefinition({
+        ...baseSkill(),
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'finishBuffsByTag',
+                  parameters: {
+                    target,
+                    tagQueryType: 'hasAny',
+                    buffTags: ['Test/Tag'],
+                    reason: 'early',
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      });
+      expect(issues).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({
+            path: '$.scheduledSequences[0].sequence.steps[0].parameters.target',
+          }),
+        ]),
+      );
+    },
+  );
+
   it('原生事件触发器使用公共迁移准入，拒绝缺失及未支持身份', () => {
     const skill = (event: unknown) => ({
       ...baseSkill(),

@@ -59,7 +59,7 @@ export function normalizeDurationBarColorPrefs(value: unknown): DurationBarColor
 /** Classify emitted provenance, never translated labels or guessed buff names. */
 export function durationColorSource(
   sourceActionId: string | undefined,
-): Exclude<DurationColorSource, 'anomaly'> {
+): 'weapon' | 'gearSet' | 'operator' {
   const kind = /^(?:equipment:|upgrade-initialization:)([^:]+):/.exec(sourceActionId ?? '')?.[1];
   if (kind === 'weaponTrait' || kind === 'weapon-trait') return 'weapon';
   if (kind === 'gearTrait' || kind === 'gear-trait' || kind === 'gearSet' || kind === 'gear-set')

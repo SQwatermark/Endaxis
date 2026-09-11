@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import { computed, ref, watch } from 'vue';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import {
@@ -15,7 +16,7 @@ import type {
 } from '../../../core/game-data/operatorDefinition';
 import BuffDefinitionGraphEditor from './BuffDefinitionGraphEditor.vue';
 
-type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
+type BuffStep = CombatStepForKind<'applyBuff'>;
 const props = defineProps<{
   visible: boolean;
   contribution: EquipmentContributionDefinition;

@@ -6,6 +6,30 @@ import {
 } from '../src/index.ts';
 
 describe('干员天赋与潜能效果来源', () => {
+  it.each([0, 1, 2, 3])('两种活动修正共用有效操作检查：%s', modifyType => {
+    const raw = [
+      entry(2, {
+        skillParamModifier: { modifyType, paramType: 2, paramValue: 0.8, skillId: 'skill' },
+      }),
+      entry(3, {
+        skillBbModifier: {
+          modifyType,
+          bbKey: 'rate',
+          floatValue: 1,
+          skillId: 'skill',
+          stringValue: '',
+        },
+      }),
+    ];
+    if (modifyType === 0) {
+      for (const item of raw) expect(() => parse([item])).toThrow('incomplete active payload');
+    } else {
+      const compiled = compileOperatorProgressionEffectBundles(parse(raw));
+      const operation = ['none', 'add', 'multiply', 'overwrite'][modifyType];
+      expect(compiled[0]!.entries).toMatchObject([{ operation }, { operation }]);
+    }
+  });
+
   it('由同一来源解析器保留六类联合载荷', () => {
     const entries = [
       entry(0),

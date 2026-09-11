@@ -1,3 +1,4 @@
+import type { OperatorPassiveUiDefinitionMap } from '../../../packages/game-data-contract/src/operators';
 /**
  * 把干员专属 UI 的离散回执投影成时间轴持续段。
  *
@@ -15,7 +16,7 @@ export interface OperatorPassiveUiTimelineSource {
 export type OperatorPassiveUiTimelineSegment =
   | {
       readonly kind: 'numeric';
-      readonly appearance: Extract<OperatorPassiveUiDefinition, { kind: 'numeric' }>['appearance'];
+      readonly appearance: OperatorPassiveUiDefinitionMap['numeric']['appearance'];
       readonly operatorId: string;
       readonly startFrame: number;
       readonly endFrame: number;
@@ -25,10 +26,7 @@ export type OperatorPassiveUiTimelineSegment =
     }
   | {
       readonly kind: 'buffProgress';
-      readonly appearance: Extract<
-        OperatorPassiveUiDefinition,
-        { kind: 'buffProgress' }
-      >['appearance'];
+      readonly appearance: OperatorPassiveUiDefinitionMap['buffProgress']['appearance'];
       readonly operatorId: string;
       readonly startFrame: number;
       readonly endFrame: number;
@@ -38,10 +36,7 @@ export type OperatorPassiveUiTimelineSegment =
     }
   | {
       readonly kind: 'buffCounters';
-      readonly appearance: Extract<
-        OperatorPassiveUiDefinition,
-        { kind: 'buffCounters' }
-      >['appearance'];
+      readonly appearance: OperatorPassiveUiDefinitionMap['buffCounters']['appearance'];
       readonly operatorId: string;
       readonly startFrame: number;
       readonly endFrame: number;
@@ -80,7 +75,7 @@ function projectNumericSegments(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
   source: OperatorPassiveUiTimelineSource & {
-    readonly definition: Extract<OperatorPassiveUiDefinition, { readonly kind: 'numeric' }>;
+    readonly definition: OperatorPassiveUiDefinitionMap['numeric'];
   },
 ): readonly OperatorPassiveUiTimelineSegment[] {
   const segments: OperatorPassiveUiTimelineSegment[] = [];
@@ -125,7 +120,7 @@ function projectBuffProgressSegments(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
   source: OperatorPassiveUiTimelineSource & {
-    readonly definition: Extract<OperatorPassiveUiDefinition, { readonly kind: 'buffProgress' }>;
+    readonly definition: OperatorPassiveUiDefinitionMap['buffProgress'];
   },
 ): readonly OperatorPassiveUiTimelineSegment[] {
   type OpenSegment = Extract<OperatorPassiveUiTimelineSegment, { readonly kind: 'buffProgress' }>;
@@ -189,7 +184,7 @@ function projectBuffCounterSegments(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
   source: OperatorPassiveUiTimelineSource & {
-    readonly definition: Extract<OperatorPassiveUiDefinition, { readonly kind: 'buffCounters' }>;
+    readonly definition: OperatorPassiveUiDefinitionMap['buffCounters'];
   },
 ): readonly OperatorPassiveUiTimelineSegment[] {
   const segments: OperatorPassiveUiTimelineSegment[] = [];

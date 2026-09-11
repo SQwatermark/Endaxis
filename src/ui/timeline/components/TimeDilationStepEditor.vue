@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 编辑普通时间膨胀与终结技专用时间膨胀。
  *
@@ -30,11 +31,8 @@ import {
   timeDilationNamedCurveKeys,
 } from '../../../data/combat/timeDilationCatalog';
 
-type TimeDilationStep = Extract<
-  CombatStepDefinition,
-  { kind: 'startTimeDilation' | 'startUltimateTimeDilation' }
->;
-type OrdinaryStep = Extract<TimeDilationStep, { kind: 'startTimeDilation' }>;
+type TimeDilationStep = CombatStepForKind<'startTimeDilation' | 'startUltimateTimeDilation'>;
+type OrdinaryStep = CombatStepForKind<'startTimeDilation'>;
 
 const props = defineProps<{ step: TimeDilationStep }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
@@ -314,7 +312,10 @@ function replaceCurveKey(index: number, key: TimeScaleCurveKeyDefinition): void 
 
 function setCurveKeyNumber(
   index: number,
-  field: Exclude<keyof TimeScaleCurveKeyDefinition, 'weightedMode'>,
+  field: keyof Pick<
+    TimeScaleCurveKeyDefinition,
+    'time' | 'value' | 'inTangent' | 'outTangent' | 'inWeight' | 'outWeight'
+  >,
   event: Event,
 ): void {
   const step = ordinary.value;

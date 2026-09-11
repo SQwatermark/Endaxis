@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /** SkillSetting 专用四列与增强公式编辑；普通属性读取已由公共字段负责。 */
 import type {
   ActionValueOperand,
@@ -6,7 +7,7 @@ import type {
 } from '../../../core/game-data/operatorDefinition';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 
-type SettingStep = Extract<CombatStepDefinition, { kind: 'readSkillSettingData' }>;
+type SettingStep = CombatStepForKind<'readSkillSettingData'>;
 
 type SettingItem = SettingStep['parameters']['items'][number];
 

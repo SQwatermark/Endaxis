@@ -1965,8 +1965,25 @@ export function compileActionNode(
     // 动画事件只触发严格证明为纯表现的回调时，不进入木桩战斗时间线。
     return [];
   }
-  // 现实时间轴直接给出施法操作，不经过客户端输入缓存窗口。
-  if (node.body.value.family === 'inputControl') return [];
+  if (node.body.value.family === 'inputControl') {
+    const action = node.body.value.action;
+    // 主动技能已有 inputWindows；Buff 映射必须随动作注册，不能静默丢弃。
+    if (action.kind !== 'comboCache' || context.actionOwnerTarget !== 'buffOwner') return [];
+    const mappings = action.mappings.filter(mapping => mapping.commandType === 'Attack');
+    if (mappings.length === 0) return [];
+    if (context.fixedBuffOwnerTarget !== 'caster') {
+      throw new Error(`${node.sourcePath}: Buff command mapping requires an operator owner`);
+    }
+    if (mappings.some(mapping => !mapping.cacheEndByAction || mapping.skillId.length === 0)) {
+      throw new Error(
+        `${node.sourcePath}: unsupported Buff command mapping lifetime or empty target`,
+      );
+    }
+    return mappings.map(mapping => ({
+      kind: 'overrideBasicAttackMapping',
+      parameters: { sourceSkillId: mapping.skillId },
+    }));
+  }
   if (node.body.value.family === 'comboPending') {
     const action = node.body.value.action;
     const ownerIsFixedCaster =
@@ -2118,6 +2135,34 @@ function isProvenSpatialMeasurementEndpoint(
   return false;
 }
 
+/** 命名组到施加目标的显式归属；新增组必须决定是否可直接作为 Buff 接收者。 */
+function projectBuffApplicationTargetGroup(
+  group: ProjectedTargetGroup,
+): BuffApplicationTarget | null {
+  switch (group) {
+    case 'party':
+    case 'partyExceptCaster':
+    case 'controlledOperator':
+    case 'casterAndControlledOperator':
+    case 'casterAndLowestHealthRatioOperatorExceptCaster':
+    case 'enemy':
+      return group;
+    case 'abilityEntity':
+      return 'currentAbilityEntity';
+    case 'sourceFinderResult':
+      return 'currentTarget';
+    case 'contextOperator':
+    case 'lowestHealthRatioOperatorExceptCaster':
+    case 'empty':
+    case 'spatialPoint':
+      return null;
+    default: {
+      const exhaustive: never = group;
+      throw new Error(`unclassified Buff target group ${exhaustive}`);
+    }
+  }
+}
+
 function compileBuffApplication(
   action: BuffApplicationActionSource,
   visualOnlyIds: ReadonlySet<string>,
@@ -2126,12 +2171,13 @@ function compileBuffApplication(
   context: CombatActionProjectionContextSource = BUFF_ACTION_CONTEXT,
 ): CompiledBuffStepSource[] {
   const contextTargetGroupKey = action.target.targetGroupKey ?? '';
+  const contextTargetGroup = partyTargetGroups.get(contextTargetGroupKey);
+  const projectedContextTarget =
+    contextTargetGroup === undefined ? null : projectBuffApplicationTargetGroup(contextTargetGroup);
   const targetsAbilityEntityGroup =
-    action.target.targetSource === 'Context' &&
-    partyTargetGroups.get(contextTargetGroupKey) === 'abilityEntity';
+    action.target.targetSource === 'Context' && contextTargetGroup === 'abilityEntity';
   const targetsQueriedSource =
-    action.target.targetSource === 'Context' &&
-    partyTargetGroups.get(contextTargetGroupKey) === 'sourceFinderResult';
+    action.target.targetSource === 'Context' && contextTargetGroup === 'sourceFinderResult';
   for (const entry of action.buffs) {
     if (entry.readIdFromBlackboard ? entry.buffIdKey.length === 0 : entry.buffId.length === 0)
       throw new Error(`${sourcePath}: Buff identity or blackboard key is empty`);
@@ -2214,24 +2260,8 @@ function compileBuffApplication(
             ? context.actionTargetTarget === 'currentOperator'
               ? ('currentTarget' as const)
               : context.actionTargetTarget
-            : action.target.targetSource === 'Context' &&
-                partyTargetGroups.has(action.target.targetGroupKey ?? '') &&
-                partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'spatialPoint' &&
-                partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'contextOperator' &&
-                partyTargetGroups.get(action.target.targetGroupKey ?? '') !==
-                  'lowestHealthRatioOperatorExceptCaster' &&
-                partyTargetGroups.get(action.target.targetGroupKey ?? '') !== 'empty'
-              ? targetsAbilityEntityGroup
-                ? ('currentAbilityEntity' as const)
-                : (partyTargetGroups.get(action.target.targetGroupKey ?? '')! as Exclude<
-                    ProjectedTargetGroup,
-                    | 'spatialPoint'
-                    | 'sourceFinderResult'
-                    | 'abilityEntity'
-                    | 'contextOperator'
-                    | 'lowestHealthRatioOperatorExceptCaster'
-                    | 'empty'
-                  >)
+            : action.target.targetSource === 'Context' && projectedContextTarget !== null
+              ? projectedContextTarget
               : action.target.targetSource === 'Context' &&
                   context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey ?? '') ===
                     true

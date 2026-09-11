@@ -1,3 +1,4 @@
+import { createCallbackSkillHostFactory } from './callbackSkillHost';
 import { abilityEventSourceId } from '../events/combatAbilityEvent';
 import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
 /**
@@ -22,7 +23,6 @@ import type {
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type {
-  BuffApplicationTarget,
   BuffApplicationSource,
   CombatStepParameters,
   CombatTarget,
@@ -39,6 +39,7 @@ import {
   type BuffApplicationHandle,
   type BuffLifecycleOperationSource,
   type BuffOperationTarget,
+  type BuffOperationDependencies,
 } from './buffOperationExecutor';
 import { CombatClock, COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
@@ -59,6 +60,7 @@ import { CombatStatusRuntime } from './combatStatusRuntime';
 import type { CombatVitals } from './combatVitals';
 import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
 import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
+import type { CombatVitalsConditionDependencies } from './combatVitalsConditionExecutor';
 import { EnemyRankConditionExecutor } from './enemyRankConditionExecutor';
 import { EnemySuperArmorConditionExecutor } from './enemySuperArmorConditionExecutor';
 import { CameraTargetAngleConditionExecutor } from './cameraTargetAngleConditionExecutor';
@@ -253,12 +255,29 @@ export interface EquipmentEventOperationExecutorContext extends EquipmentEventEx
 export type CombatDamageExecutorContext =
   CombatOperationExecutorContext | EquipmentEventOperationExecutorContext;
 
-export interface CombatRuntimeAssemblyOptions {
+/** 场景编译器拥有的战斗输入，不属于外部运行环境。 */
+export interface CombatRuntimeScenarioOptions {
+  readonly resources: CombatResourceSnapshot;
+  /** 由场景敌人实例编译得到，操作执行器不得另行读取定义默认值。 */
+  readonly enemy: CombatEnemyProgram;
+  /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
+  readonly operators: readonly CombatOperatorProgram[];
+  readonly inputs?: readonly ScheduledSkillInput[];
+  /** 时间轴显式输入的受击事实；不执行敌方伤害或生命扣减。 */
+  readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
+  /** 场景编译层依据控制切换时间线提供查询；装配层不猜测初始主控。 */
+  readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
+}
+
+export interface CombatRuntimeAssemblyOptions
+  extends CombatRuntimeScenarioOptions, CombatRuntimeEnvironmentOptions {}
+
+/** 应用装配层提供的运行时端口与模拟选项；新增字段在此显式确定归属。 */
+export interface CombatRuntimeEnvironmentOptions {
   /** 游戏预定义标签查询；仅诊断作者输入，不阻止时间轴强制释放。 */
   readonly skillAvailabilityTags?: import('../tags/gameplayTagPredefine').GameplayTagPredefine;
   /** 准备期从负帧开始；省略时保持独立运行时原有的第 0 帧起点。 */
   readonly initialFrame?: number;
-  readonly resources: CombatResourceSnapshot;
   /** RandomUtil.Dice 使用的独立样本源；只有实际执行概率条件时才要求存在。 */
   readonly probabilitySamples?: ProbabilitySampleSource;
   /** StoreAttributeValue 的动态来源属性读取端口；只有技能实际使用时才要求提供。 */
@@ -266,8 +285,6 @@ export interface CombatRuntimeAssemblyOptions {
     sourceId: string,
     request: CombatStepParameters['storeSourceAttributeValue'],
   ) => number;
-  /** 由场景敌人实例编译得到，操作执行器不得另行读取定义默认值。 */
-  readonly enemy: CombatEnemyProgram;
   /** 必须先于养成初始化和常驻被动执行，使帧 0 行为拥有同一时钟、回执和资源账本。 */
   readonly bindBattleRuntime?: (
     context: CombatBattleRuntimeContext,
@@ -303,28 +320,15 @@ export interface CombatRuntimeAssemblyOptions {
     bornTags: readonly import('../tags/gameplayTags').GameplayTag[],
   ) => AbilityEntityBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
-  /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
-  readonly operators: readonly CombatOperatorProgram[];
-  readonly inputs?: readonly ScheduledSkillInput[];
   /** 仅临时放置规划启用；正式存档模拟始终使用显式输入帧。 */
   readonly continuationPlanCastIds?: readonly string[];
   readonly continuationPlanMode?: 'continuation' | 'compact';
-  /** 时间轴显式输入的受击事实；不执行敌方伤害或生命扣减。 */
-  readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
-  /**
-   * 按模拟帧查询干员是否为当前主控。仅在技能实际包含主控条件时才会调用；
-   * 项目编译层必须依据控制切换时间线提供实现，装配层不会猜测初始主控。
-   */
-  readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
   /**
    * 返回本次模拟中的生命账本。只有技能包含生命条件时才会调用；
    * `operatorId` 用于解析 caster，enemy 则指向当前单敌人。
    */
   readonly resolveVitals?: (
-    target: Extract<
-      import('../../game-data/operatorDefinition').CombatCondition,
-      { kind: 'healthCompare' }
-    >['target'],
+    target: Parameters<CombatVitalsConditionDependencies['resolveTarget']>[0],
     operatorId: string,
     buffSourceId?: string,
   ) => CombatVitals;
@@ -1651,7 +1655,6 @@ export class CombatRuntimeAssembly {
       semanticEvents: this.semanticEvents,
       entityBlackboard,
       hostIdentity: {
-        resourceOperatorId: operatorId,
         actionOwnerId: operatorId,
         actionSourceId: operatorId,
         eventSourceId: operatorId,
@@ -1660,6 +1663,14 @@ export class CombatRuntimeAssembly {
       emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
       emitAfterSkillApplyCost: payload =>
         this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
+      createCallbackSkillHost: createCallbackSkillHostFactory({
+        clock: this.clock,
+        receipt: this.receipt,
+        definitionOperatorId: operatorId,
+        allocateSkillCastId: () => this.#skillCastIds.allocate(),
+        emitEvent: (ownerId, event, payload) =>
+          this.#options.emitAbilityEvent?.(ownerId, event, payload),
+      }),
       scheduleProjectileFinishCallback: (
         delaySeconds,
         recycleDelaySeconds,
@@ -2262,6 +2273,8 @@ export class CombatRuntimeAssembly {
       replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
       activatePlayerActionMode: modeId =>
         this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId),
+      overrideBasicAttackMapping: sourceSkillId =>
+        this.#requireAbilitySystem(operatorId).overrideBasicAttackMapping(sourceSkillId),
       changeNativeSkillType: (skillKey, nativeSkillType) =>
         this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
       delegate: cooldownDelegate,
@@ -2580,6 +2593,8 @@ export class CombatRuntimeAssembly {
       replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
       activatePlayerActionMode: modeId =>
         this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId),
+      overrideBasicAttackMapping: sourceSkillId =>
+        this.#requireAbilitySystem(operatorId).overrideBasicAttackMapping(sourceSkillId),
       changeNativeSkillType: (skillKey, nativeSkillType) =>
         this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
       delegate: cooldownOperations,
@@ -3179,7 +3194,7 @@ export class CombatRuntimeAssembly {
   }
 
   #resolveBuffApplicationTargets(
-    target: Exclude<BuffApplicationTarget, 'currentAbilityEntity'>,
+    target: Parameters<NonNullable<BuffOperationDependencies['resolveApplicationTargets']>>[0],
     casterId: string,
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],

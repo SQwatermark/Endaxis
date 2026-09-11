@@ -1,3 +1,5 @@
+import type { ResolvedCombatStepForKind } from '../core/compiler/combatProgram';
+import { planRecursiveSkillChain, type RecursiveSkillChain } from './recursiveSkillChain';
 /**
  * 给页面提供"跑一次模拟"的入口。
  *
@@ -5,7 +7,6 @@
  * 这次结果就作废。跑完会把资源曲线、敌人生命、失衡、技能警告都算好再返回，
  * 页面拿来直接用，不用自己再算一遍。
  */
-import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CombatDamageExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
 import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
@@ -40,7 +41,7 @@ import {
 import { MechanicAdapterRegistry } from '../core/mechanics/mechanicCompiler';
 import { contingencyContractMechanicAdapter } from '../data/mechanics/contingencyContractAdapter';
 
-type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
+type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
 /** 命中时需要的几个运行时数值的默认值；这些是中性基线，不假装是游戏原版规则。 */
 export function defaultNonRandomRuntimeSnapshot(): PlayerDamageNonRandomRuntimeSnapshot {
@@ -198,10 +199,13 @@ export class ScenarioSimulationService {
     endFrame: number,
     signal?: AbortSignal,
     mode: 'continuation' | 'compact' = 'continuation',
+    extension?: RecursiveSkillChain,
   ): Promise<
     | {
         readonly status: 'incomplete';
         readonly unresolvedCastIds: readonly string[];
+        readonly scenario?: ScenarioDocument;
+        readonly skillCastIds?: readonly string[];
         /** 紧凑排列已确认的前缀；其余技能仍由编辑器按块宽完成，不代表模拟合法。 */
         readonly plannedStartFrames?: ReadonlyMap<string, number>;
       }
@@ -209,9 +213,37 @@ export class ScenarioSimulationService {
         readonly status: 'planned';
         readonly scenario: ScenarioDocument;
         readonly run: ScenarioSimulationRun;
+        readonly skillCastIds?: readonly string[];
       }
   > {
     assertNotAborted(signal);
+    if (extension !== undefined) {
+      if (mode !== 'continuation' || castIds.length !== 1)
+        throw new Error('recursive placement requires one seed');
+      const planned = planRecursiveSkillChain({
+        scenario,
+        seedCastId: castIds[0]!,
+        extension,
+        endFrame,
+        run: (candidate, frame) => this.#runSimulation(candidate, frame),
+        checkCancelled: () => assertNotAborted(signal),
+      });
+      assertNotAborted(signal);
+      if (!planned.complete)
+        return {
+          status: 'incomplete',
+          scenario: planned.scenario,
+          skillCastIds: planned.skillCastIds,
+          unresolvedCastIds: [],
+        };
+      const run = await this.simulate(planned.scenario, endFrame, signal);
+      return {
+        status: 'planned',
+        scenario: planned.scenario,
+        skillCastIds: planned.skillCastIds,
+        run,
+      };
+    }
     const candidate = structuredClone(scenario);
     const result = this.#runSimulation(candidate, endFrame, castIds, mode);
     assertNotAborted(signal);

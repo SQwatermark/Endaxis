@@ -5,16 +5,16 @@ import {
 import type { AttributeTypeSource } from './attributeModifier.ts';
 
 import type {
-  EquipmentAttribute,
-  EquipmentDamageScaleTarget,
-  EquipmentPanelStat,
+  BuildAttribute,
+  BuildDamageScaleTarget,
+  BuildPanelStat,
   LevelValues,
 } from '../../../../packages/game-data-contract/src/index.ts';
 import type { CompiledBuildModifierDefinitionSource } from './formalBuildDefinition.ts';
 
-export type ProjectedBuildAttribute = EquipmentAttribute;
-export type ProjectedBuildPanelStat = EquipmentPanelStat | 'baseDefense';
-export type ProjectedBuildDamageScale = EquipmentDamageScaleTarget;
+export type ProjectedBuildAttribute = BuildAttribute;
+export type ProjectedBuildPanelStat = BuildPanelStat | 'baseDefense';
+export type ProjectedBuildDamageScale = BuildDamageScaleTarget;
 
 /**
  * 正式贡献直接使用契约；唯一额外结果是装备顶层的基础防御，不能混入词条修正。

@@ -5257,7 +5257,14 @@
                 "ultimateAttack3A",
                 "ultimateAttack3B",
                 "ultimateAttackEnd"
-              ]
+              ],
+              "placementPolicy": {
+                "kind": "recursiveInput",
+                "firstSkillKey": "ultimateAttack1",
+                "terminalSkillKey": "ultimateAttackEnd",
+                "maxSegments": 24,
+                "fallback": "sequence"
+              }
             }
           ]
         },

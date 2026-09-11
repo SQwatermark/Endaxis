@@ -8,6 +8,9 @@ import { BuffOperationExecutor } from './buffOperationExecutor';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { compileActionSequence } from '../../compiler/compileSkill';
+import { validateSkillDefinition } from '../../game-data/validateSkillDefinition';
+import type { ActionSequenceDefinition } from '../../../../packages/game-data-contract/src/actions';
 
 const delegate: CombatOperationExecutor = {
   execute: () => false,
@@ -15,6 +18,59 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it.each(['buffOwner', 'buffSource', 'currentTarget'] as const)(
+    '标签结束目标 %s 通过定义校验、编译并结束绑定对象的 Buff',
+    target => {
+      const container = new CombatBuffContainer('recipient', new CombatAttributeSet());
+      const applied = container.add(
+        { id: 'tagged', stackingType: 'unlimited', applyTags: ['Test/Tag'] },
+        'source',
+      );
+      const unrelated = container.add(
+        { id: 'unrelated', stackingType: 'unlimited', applyTags: ['Test/Other'] },
+        'source',
+      );
+      const sequence: ActionSequenceDefinition = {
+        steps: [
+          {
+            kind: 'finishBuffsByTag',
+            parameters: { target, buffTags: ['Test/Tag'], tagQueryType: 'hasAny', reason: 'early' },
+          },
+        ],
+      };
+      expect(
+        validateSkillDefinition({
+          key: 'finish',
+          timelineBlockFrames: 1,
+          scheduledSequences: [{ startFrame: 0, sequence }],
+        }),
+      ).toEqual([]);
+      const step = compileActionSequence(sequence, 1).steps[0]!;
+      if (step.kind !== 'finishBuffsByTag') throw new Error('unexpected compiled step');
+      const executor = new BuffOperationExecutor({
+        sourceId: 'caster',
+        delegate,
+        resolveTarget: () => {
+          throw new Error('must use bound identity');
+        },
+        resolveEventTarget: id => {
+          expect(id).toBe('recipient');
+          return container;
+        },
+      });
+      expect(
+        executor.execute(step, {
+          blackboard: new ActionBlackboard(),
+          buffOwnerId: 'recipient',
+          buffSourceId: 'recipient',
+          currentTarget: { kind: 'operator', operatorId: 'recipient' },
+        }),
+      ).toBe(true);
+      expect(applied?.finishReason).toBe('early');
+      expect(unrelated?.isFinished).toBe(false);
+    },
+  );
+
   it('护盾当前值读取动作目标实时容器，而新增值读取事件且保留双精度', () => {
     let liveValue = 90.123456789;
     const container = new CombatBuffContainer('owner', new CombatAttributeSet());

@@ -8,6 +8,7 @@
 import type {
   CombatOperatorProgram,
   CombatRuntimeAssemblyOptions,
+  CombatRuntimeEnvironmentOptions,
 } from '../combat/runtime/combatRuntimeAssembly';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { ScenarioDocument } from '../project/schema';
@@ -53,16 +54,7 @@ export type CombatOperatorRuntimeBindings = Pick<
   'buffRuntime' | 'statusContainer' | 'actionRuntime'
 >;
 
-type EnvironmentOptionKey = Exclude<
-  keyof CombatRuntimeAssemblyOptions,
-  'resources' | 'enemy' | 'operators' | 'inputs' | 'externalEvents' | 'isOperatorControlled'
->;
-
-/** 场景无法持久化、必须由应用装配层提供的战斗环境。 */
-export type CombatRuntimeEnvironmentOptions = Pick<
-  CombatRuntimeAssemblyOptions,
-  EnvironmentOptionKey
->;
+export type { CombatRuntimeEnvironmentOptions } from '../combat/runtime/combatRuntimeAssembly';
 
 /** 编译完整运行时装配参数所需的显式依赖。 */
 export interface CompileScenarioRuntimeAssemblyOptions {

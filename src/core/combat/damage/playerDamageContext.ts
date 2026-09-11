@@ -33,6 +33,7 @@ import type {
   PlayerDamageDefenderSnapshot,
 } from './playerActiveDamageInput';
 import type { GameplayTag } from '../tags/gameplayTags';
+import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 
 /** 单次伤害包冻结的来源方与目标方属性快照。 */
 export interface PlayerDamageAttributeSnapshots {
@@ -71,6 +72,7 @@ interface PlayerDamageContextInput {
   readonly gameplayTags?: readonly GameplayTag[];
   readonly features?: readonly DamageFeature[];
   readonly skillCastId?: number;
+  readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly skillId?: string;
   readonly skillType?: SkillType;
   readonly ports: PlayerDamageContextPorts;
@@ -86,6 +88,7 @@ export class PlayerDamageContext {
   readonly gameplayTags: readonly GameplayTag[];
   readonly features: readonly DamageFeature[];
   readonly skillCastId: number | null;
+  readonly skillCastInfo: CombatSkillCastInfo | null | undefined;
   readonly skillId?: string;
   readonly skillType?: SkillType;
   readonly damageScales = new DamageScaleAccumulator();
@@ -107,6 +110,7 @@ export class PlayerDamageContext {
     this.gameplayTags = input.gameplayTags ?? [];
     this.features = input.features ?? [];
     this.skillCastId = input.skillCastId ?? null;
+    this.skillCastInfo = input.skillCastInfo;
     this.skillId = input.skillId;
     this.skillType = input.skillType;
     this.#ports = input.ports;

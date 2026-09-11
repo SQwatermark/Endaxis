@@ -1,4 +1,7 @@
-import { DIRECT_COMBAT_EVENT_TRIGGER_EVENTS } from '../../../packages/game-data-contract/src/actions';
+import {
+  BUFF_TAG_FINISH_TARGETS,
+  DIRECT_COMBAT_EVENT_TRIGGER_EVENTS,
+} from '../../../packages/game-data-contract/src/actions';
 import {
   assertGameplayTag,
   GAMEPLAY_TAG_MATCH_TYPES,
@@ -2649,7 +2652,7 @@ function validateCombatStep(
       requireEnum(
         parameters,
         'target',
-        new Set(['caster', 'enemy', 'currentAbilityEntity']),
+        new Set(BUFF_TAG_FINISH_TARGETS),
         `${path}.parameters`,
         out,
       );
@@ -3237,6 +3240,10 @@ function validateCombatStep(
     case 'repeatByActionValue':
       validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       break;
+    case 'launchProjectileLifetime':
+      if (parameters.finish !== 'firstTickReach')
+        push(out, `${path}.parameters.finish`, "expected 'firstTickReach'");
+      break;
     case 'scheduleProjectileFinishCallback': {
       const delay = requireFiniteNumber(parameters, 'delaySeconds', `${path}.parameters`, out);
       if (delay !== null && delay <= 0) {
@@ -3321,6 +3328,9 @@ function validateCombatStep(
           );
         }
       }
+      break;
+    case 'overrideBasicAttackMapping':
+      requireString(parameters, 'sourceSkillId', `${path}.parameters`, out);
       break;
     case 'changePlayerActionMode':
       requireString(parameters, 'modeId', `${path}.parameters`, out);

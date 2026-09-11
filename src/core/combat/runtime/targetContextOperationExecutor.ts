@@ -1,3 +1,4 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { abilityEventTargetId } from '../events/combatAbilityEvent';
 import type { CombatObjectType } from '../../../../packages/game-data-contract/src/primitives';
 import { matchesCombatObjectType, resolveCombatObjectType } from './combatObjectType';
@@ -90,7 +91,7 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
   }
 
   #findCharacterTeamTargets(
-    step: Extract<ResolvedCombatOperationStep, { kind: 'findCharacterTeamTargets' }>,
+    step: ResolvedCombatStepForKind<'findCharacterTeamTargets'>,
     context: CombatOperationContext | undefined,
   ): void {
     if (context?.targetContext === undefined) {
@@ -121,10 +122,7 @@ export class TargetContextOperationExecutor implements CombatOperationExecutor {
         const excludedIds = new Set(
           context.targetContext
             .get(selection.excludedContextKey)
-            .filter(
-              (target): target is Extract<RuntimeTargetRef, { kind: 'operator' }> =>
-                target.kind === 'operator',
-            )
+            .filter(target => target.kind === 'operator')
             .map(target => target.operatorId),
         );
         operatorIds = operatorIds.filter(operatorId => !excludedIds.has(operatorId));

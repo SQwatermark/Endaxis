@@ -146,21 +146,25 @@ export type DamageProcessorDefinition =
       readonly targetHealthTypes: readonly DamageTargetHealthType[];
       readonly scale: number;
     }
-  | {
-      readonly kind: 'damageScale';
-      readonly side: DamageScaleSide;
-      readonly zone: DamageScaleZone;
-      readonly addition: DamageModifierNumber;
-    }
-  | {
-      readonly kind: 'instantAttribute';
-      readonly targetSide: DamageModifierSide;
-      readonly attribute: string;
-      readonly values:
-        | AttributeModifierValues
-        | { readonly slot: AttributeModifierSlot; readonly value: DamageModifierNumber };
-      readonly attributeTiming: AttributeModifierTiming;
-    };
+  | DamageScaleProcessorDefinition
+  | InstantAttributeProcessorDefinition;
+
+export interface DamageScaleProcessorDefinition {
+  readonly kind: 'damageScale';
+  readonly side: DamageScaleSide;
+  readonly zone: DamageScaleZone;
+  readonly addition: DamageModifierNumber;
+}
+
+export interface InstantAttributeProcessorDefinition {
+  readonly kind: 'instantAttribute';
+  readonly targetSide: DamageModifierSide;
+  readonly attribute: string;
+  readonly values:
+    | AttributeModifierValues
+    | { readonly slot: AttributeModifierSlot; readonly value: DamageModifierNumber };
+  readonly attributeTiming: AttributeModifierTiming;
+}
 
 /** 一个 Buff 在伤害生命周期中注册的全部处理器。 */
 export interface DamageModifierDefinition {

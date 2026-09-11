@@ -5,7 +5,6 @@ import type {
   CombatBuffPresentation,
   CombatBuffDefinitionAttributeModifier,
   CombatBuffDefinitionDamageModifier,
-  CombatBuffDefinitionDamageProcessor,
   SkillBuffAbilityEventResponse,
   SkillBuffIgniteEventResponse,
   SkillBuffDefinition,
@@ -15,7 +14,6 @@ import type {
   DamageModifierCondition,
   HealModifierCondition,
   HealModifierDefinition,
-  PoiseModifierCondition,
   PoiseModifierDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
@@ -40,10 +38,7 @@ export interface CompiledBuffDamageModifierSource extends Pick<
 > {
   readonly condition?: DamageModifierCondition;
   readonly conditionProgram?: CompiledBuffSequenceSource;
-  readonly processors: readonly Extract<
-    CombatBuffDefinitionDamageProcessor,
-    { readonly kind: 'damageScale' | 'instantAttribute' }
-  >[];
+  readonly processors: CombatBuffDefinitionDamageModifier['processors'];
 }
 
 export interface CompiledBuffHealModifierSource extends Pick<
@@ -51,28 +46,11 @@ export interface CompiledBuffHealModifierSource extends Pick<
   'enabledSide'
 > {
   readonly condition?: HealModifierCondition;
-  readonly processors: readonly Extract<
-    HealModifierDefinition['processors'][number],
-    { readonly kind: 'modifyHealingIncrease' | 'modifyCalculationResult' }
-  >[];
+  readonly processors: HealModifierDefinition['processors'];
 }
 
-type CompiledBuffPoiseConditionLeaf =
-  | Extract<PoiseModifierCondition, { readonly kind: 'casterControlled' }>
-  | (Extract<PoiseModifierCondition, { readonly kind: 'eventDamageTagsMatch' }> & {
-      readonly tags: readonly ['normalAttackLastCombo'];
-    });
-
-export interface CompiledBuffPoiseModifierSource extends Pick<
-  PoiseModifierDefinition,
-  'enabledSide' | 'processors'
-> {
-  readonly condition?:
-    | CompiledBuffPoiseConditionLeaf
-    | (Extract<PoiseModifierCondition, { readonly kind: 'all' }> & {
-        readonly conditions: readonly CompiledBuffPoiseConditionLeaf[];
-      });
-}
+/** 条件已是正式契约结构；原生条件准入由 compilePoiseModifierCondition 校验。 */
+export type CompiledBuffPoiseModifierSource = PoiseModifierDefinition;
 
 /** 根字段和生命周期字段均来自契约，只保留当前公共投影能够产生的部分。 */
 export type CompiledBuffDefinitionSource = Pick<
@@ -86,9 +64,8 @@ export type CompiledBuffDefinitionSource = Pick<
   | 'affixSkillCastIdentity'
 > &
   Required<Pick<SkillBuffDefinition, 'maxStackCount' | 'applyTags' | 'extendTags'>> & {
-    readonly priority:
-      | CompiledBuffNumberSource
-      | (Extract<BuffPriority, { readonly blackboardKey: string }> & { readonly negate: true });
+    readonly priority: BuffPriority;
+    /** 默认时钟由省略字段表达；开启时间膨胀时才输出 global/self。 */
     readonly timeClock?: Extract<SkillBuffDefinition['timeClock'], 'global' | 'self'>;
     readonly presentation?: CompiledBuffPresentationSource;
     readonly blackboard: Readonly<Record<string, number | string>>;
@@ -122,48 +99,10 @@ export type CompiledBuffDefinitionSource = Pick<
         >
       >
     >;
-    readonly abilityEventResponses?: readonly (Pick<SkillBuffAbilityEventResponse, 'priority'> & {
-      readonly event: Extract<
-        SkillBuffAbilityEventResponse['event'],
-        | 'beforeCastSkill'
-        | 'afterSkillApplyCost'
-        | 'skillEnd'
-        | 'beforeCalculateDamage'
-        | 'beforeDamageAction'
-        | 'beforeTakeDamage'
-        | 'beforeTakePhysicalInfliction'
-        | 'takeDamage'
-        | 'takeCriticalDamage'
-        | 'beforeTakeInfliction'
-        | 'outputBuff'
-        | 'beforeOutputBuff'
-        | 'beforeAddedBuff'
-        | 'addedBuff'
-        | 'beforeOutputPhysicalInfliction'
-        | 'beforeOutputKnockDown'
-        | 'afterOutputKnockDown'
-        | 'afterOutputPhysicalInfliction'
-        | 'afterOutputWeaknessTriggered'
-        | 'customAbilityEvent'
-        | 'outputDamage'
-        | 'beforeOutputInfliction'
-        | 'beforeOutputSpellBurst'
-        | 'outputCriticalDamage'
-        | 'outputHeal'
-        | 'receiveHeal'
-        | 'poiseZero'
-        | 'skillEnd'
-        | 'finishedBuff'
-        | 'buffEndsEarly'
-        | 'afterKillEntity'
-        | 'buffConsumed'
-        | 'enterFight'
-        | 'ownerSwitchToCenter'
-        | 'ownerSwitchToGuard'
-        | 'abilityEntitySpawned'
-        | 'abilityEntityFinished'
-        | 'skillSpGained'
-      >;
+    readonly abilityEventResponses?: readonly (Pick<
+      SkillBuffAbilityEventResponse,
+      'event' | 'priority'
+    > & {
       readonly sequence: CompiledBuffSequenceSource;
     })[];
     readonly igniteEventResponses?: readonly (Pick<

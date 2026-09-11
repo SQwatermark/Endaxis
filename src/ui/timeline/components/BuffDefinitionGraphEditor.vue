@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import {
   isBuffGraphPayload,
   isBuffGraphClipboard,
@@ -178,7 +179,7 @@ const selectedIgniteResponse = computed(() =>
     ? (resolveStructureValue(props.definition, selectedPath.value) as SkillBuffIgniteEventResponse)
     : undefined,
 );
-const editingStep = computed<Extract<CombatStepDefinition, { kind: 'applyBuff' }>>(() => ({
+const editingStep = computed<CombatStepForKind<'applyBuff'>>(() => ({
   kind: 'applyBuff',
   parameters: {
     buffId: props.buffId,

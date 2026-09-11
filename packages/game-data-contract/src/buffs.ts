@@ -10,8 +10,8 @@ import {
   type AttributeModifierSlot,
   type DamageModifierCondition,
   type DamageModifierDefinition,
-  type DamageModifierNumber,
-  type DamageProcessorDefinition,
+  type DamageScaleProcessorDefinition,
+  type InstantAttributeProcessorDefinition,
   type HealModifierDefinition,
   type PoiseModifierDefinition,
 } from './modifiers.ts';
@@ -205,16 +205,17 @@ export interface BuffShieldDamageAbsorptionDefinition {
   readonly scale: BuffDuration;
 }
 
+/** 从Buff持有者或来源属性计算护盾值，运行时与编辑定义共用。 */
+export interface BuffShieldAttributeValue {
+  readonly attributeSource?: 'buffOwner' | 'buffSource';
+  readonly attribute: string;
+  readonly multiplier: BuffDuration;
+  readonly addition: BuffDuration;
+}
+
 export interface BuffShieldDefinition {
   readonly infinityValue: boolean;
-  readonly value:
-    | BuffDuration
-    | {
-        readonly attributeSource?: 'buffOwner' | 'buffSource';
-        readonly attribute: string;
-        readonly multiplier: BuffDuration;
-        readonly addition: BuffDuration;
-      };
+  readonly value: BuffDuration | BuffShieldAttributeValue;
   readonly damageAbsorptions: readonly BuffShieldDamageAbsorptionDefinition[];
   readonly absorbCount: BuffTriggerCount;
   readonly absorbAllDamageWhenConsumed: boolean;
@@ -390,25 +391,10 @@ export interface CombatBuffDefinitionAttributeModifier {
 
 /** 外部和内联 Buff 定义中可序列化的伤害处理器。 */
 export type CombatBuffDefinitionDamageProcessor =
-  | {
-      readonly kind: 'damageScale';
-      readonly side: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['side'];
-      readonly zone: Extract<DamageProcessorDefinition, { readonly kind: 'damageScale' }>['zone'];
-      readonly addition: DamageModifierNumber;
-    }
-  | {
-      readonly kind: 'instantAttribute';
-      readonly targetSide: Extract<
-        DamageProcessorDefinition,
-        { readonly kind: 'instantAttribute' }
-      >['targetSide'];
-      readonly attribute: string;
-      readonly values: Extract<
-        DamageProcessorDefinition,
-        { readonly kind: 'instantAttribute' }
-      >['values'];
+  | DamageScaleProcessorDefinition
+  | (Pick<InstantAttributeProcessorDefinition, 'kind' | 'targetSide' | 'attribute' | 'values'> & {
       readonly attributeTiming: 'runtime';
-    };
+    });
 
 /** Buff 激活期间向伤害生命周期注册的一项纯数据修正。 */
 export interface CombatBuffDefinitionDamageModifier {

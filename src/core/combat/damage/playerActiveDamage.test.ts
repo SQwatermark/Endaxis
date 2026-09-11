@@ -1,5 +1,22 @@
 import { describe, expect, it } from 'vitest';
-import { calculatePlayerActiveDamage, type PlayerActiveDamageInput } from './playerActiveDamage';
+import {
+  calculatePlayerActiveDamage,
+  getResistanceMultiplier,
+  type PlayerActiveDamageInput,
+} from './playerActiveDamage';
+
+it.each([
+  ['physical', 1],
+  ['heat', 1],
+  ['electric', 1],
+  ['cryo', 1],
+  ['nature', 1],
+  ['ether', 1],
+  ['true', 0],
+  ['lifeDrain', 0],
+] as const)('抗性公式保留 %s 的既有分类', (damageType, applies) => {
+  expect(getResistanceMultiplier(damageType, 50, 0.5)).toBe(applies ? 0.25 : 1);
+});
 
 function createInput(): PlayerActiveDamageInput {
   return {

@@ -1,13 +1,16 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /** 编辑原生玩家操作路由状态；这些字段不参与技能库分组。 */
 import {
   NATIVE_SKILL_TYPES,
   type CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 
-type SkillRoutingStep = Extract<
-  CombatStepDefinition,
-  { kind: 'changeSkillSlot' | 'changePlayerActionMode' | 'changeNativeSkillType' }
+type SkillRoutingStep = CombatStepForKind<
+  | 'changeSkillSlot'
+  | 'changePlayerActionMode'
+  | 'changeNativeSkillType'
+  | 'overrideBasicAttackMapping'
 >;
 
 const props = defineProps<{ step: SkillRoutingStep }>();
@@ -97,6 +100,12 @@ function setSlotLifetime(event: Event): void {
       </label>
     </template>
 
+    <template v-else-if="step.kind === 'overrideBasicAttackMapping'">
+      <label>
+        <span>普攻目标原生技能 ID（随动作结束撤销）</span>
+        <input :value="step.parameters.sourceSkillId" @input="setString('sourceSkillId', $event)" />
+      </label>
+    </template>
     <template v-else-if="step.kind === 'changePlayerActionMode'">
       <label>
         <span>原生操作模式 ID</span>

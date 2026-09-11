@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 编辑技能时间线中的临时事件监听步骤。
  * 监听起止时间由外层调度项决定；这里仅维护事件匹配、条件和同步响应顺序。
@@ -21,7 +22,7 @@ import ActionSequenceEditor from './ActionSequenceEditor.vue';
 import CombatConditionEditor from './CombatConditionEditor.vue';
 import CombatEventTriggerEditor from './CombatEventTriggerEditor.vue';
 
-type ListenerStep = Extract<CombatStepDefinition, { kind: 'listenForCombatEvents' }>;
+type ListenerStep = CombatStepForKind<'listenForCombatEvents'>;
 
 const props = defineProps<{
   step: ListenerStep;

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 import { GAMEPLAY_TAG_QUERY_TYPES } from '../../../../packages/game-data-contract/src/gameplayTags';
 
@@ -18,20 +19,16 @@ import {
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
-type BuffManagementStep = Extract<
-  CombatStepDefinition,
-  {
-    kind:
-      | 'readBuffBlackboard'
-      | 'readBuffStackCount'
-      | 'finishBuffsByTag'
-      | 'finishBuffsById'
-      | 'holdBuffsById';
-  }
+type BuffManagementStep = CombatStepForKind<
+  | 'readBuffBlackboard'
+  | 'readBuffStackCount'
+  | 'finishBuffsByTag'
+  | 'finishBuffsById'
+  | 'holdBuffsById'
 >;
 type QueryType = (typeof GAMEPLAY_TAG_QUERY_TYPES)[number];
 type FinishReason = 'early' | 'absorbed' | 'other';
-type ReadStep = Extract<BuffManagementStep, { kind: 'readBuffBlackboard' | 'readBuffStackCount' }>;
+type ReadStep = CombatStepForKind<'readBuffBlackboard' | 'readBuffStackCount'>;
 
 const TAG_QUERY_TYPES = GAMEPLAY_TAG_QUERY_TYPES satisfies readonly QueryType[];
 const FINISH_REASONS = ['early', 'absorbed', 'other'] as const satisfies readonly FinishReason[];

@@ -1,10 +1,4 @@
-import {
-  type DamageType,
-  type LevelValues,
-  type OperatorAttribute,
-  type OperatorWeaponType,
-  type SkillType,
-} from './primitives.ts';
+import { type LevelValues, type OperatorWeaponType } from './primitives.ts';
 import { type CombatCondition } from './conditions.ts';
 import { type ActionSequenceDefinition, type CombatEventTrigger } from './actions.ts';
 import { type OperatorBuffDefinitions } from './buffs.ts';
@@ -15,86 +9,17 @@ export const WEAPON_RARITIES = [3, 4, 5, 6] as const;
 /** 武器定义中已经存在的星级范围。 */
 export type WeaponRarity = (typeof WEAPON_RARITIES)[number];
 
-export const EQUIPMENT_PANEL_STATS = [
-  'attackFlat',
-  'attackPercent',
-  'healthFlat',
-  'healthPercent',
-  'defenseFlat',
-  'defensePercent',
-  'criticalRate',
-  'criticalDamage',
-  'artsIntensity',
-  'ultimateEnergyGainEfficiency',
-  'skillCooldownReduction',
-  'staggerDamagePercent',
-] as const;
+/** 兼容既有配装入口；公共构筑结构只在 buildModifiers 中定义。 */
+export {
+  BUILD_PANEL_STATS as EQUIPMENT_PANEL_STATS,
+  BUILD_DAMAGE_SCALE_TARGETS as EQUIPMENT_DAMAGE_SCALE_TARGETS,
+  type BuildPanelStat as EquipmentPanelStat,
+  type BuildAttribute as EquipmentAttribute,
+  type BuildDamageScaleTarget as EquipmentDamageScaleTarget,
+} from './buildModifiers.ts';
+import type { BuildModifierDefinition } from './buildModifiers.ts';
 
-/** 不需要按伤害类型或技能类型筛选的配装面板属性。 */
-export type EquipmentPanelStat = (typeof EQUIPMENT_PANEL_STATS)[number];
-
-/** 固定四维或相对当前装备者的主、副属性。相对身份由 Build Resolver 解析。 */
-export type EquipmentAttribute = OperatorAttribute | 'main' | 'secondary';
-
-export const EQUIPMENT_DAMAGE_SCALE_TARGETS = [
-  'normalAttack',
-  'battleSkill',
-  'comboSkill',
-  'ultimate',
-  'physical',
-  'heat',
-  'electric',
-  'cryo',
-  'nature',
-  'ether',
-  'staggeredEnemy',
-] as const;
-
-/** 原生常驻伤害倍率属性；运行时按命中分类、元素或目标失衡状态选择。 */
-export type EquipmentDamageScaleTarget = (typeof EQUIPMENT_DAMAGE_SCALE_TARGETS)[number];
-
-/**
- * 一项常驻配装修正。百分比统一使用小数，例如 5% 写作 0.05。
- * `damageBonus` 独立建模，是为了禁止把筛选条件挂到不支持筛选的普通面板属性上。
- */
-export type EquipmentModifierDefinition =
-  | {
-      readonly kind: 'attribute';
-      readonly attribute: EquipmentAttribute;
-      readonly operation: 'flat' | 'percent';
-      readonly value: LevelValues;
-    }
-  | {
-      readonly kind: 'panelStat';
-      readonly stat: EquipmentPanelStat;
-      readonly value: LevelValues;
-    }
-  | {
-      readonly kind: 'damageBonus';
-      readonly damageTypes: DamageType | readonly DamageType[];
-      readonly skillTypes?: SkillType | readonly SkillType[];
-      readonly value: LevelValues;
-    }
-  | {
-      /** 直接保留原生 AttributeType 的伤害倍率身份，避免转写成不等价的筛选条件。 */
-      readonly kind: 'damageScale';
-      readonly target: EquipmentDamageScaleTarget;
-      /** 原生属性公式槽；旧定义省略时按既有 BaseAddition 解释。 */
-      readonly slot?: 'baseAddition' | 'addition';
-      readonly value: LevelValues;
-    }
-  | {
-      /** 原生 HealOutputIncrease / HealTakenIncrease 的构筑期基础加算。 */
-      readonly kind: 'staticHealingIncrease';
-      readonly target: 'output' | 'taken';
-      readonly value: LevelValues;
-    }
-  | {
-      /** 原生技能冷却时长倍率；保留乘区，禁止改写成不等价的“缩减百分比”。 */
-      readonly kind: 'skillCooldownMultiplier';
-      readonly skillTypes: SkillType | readonly SkillType[];
-      readonly value: LevelValues;
-    };
+export type EquipmentModifierDefinition = BuildModifierDefinition;
 
 export const EQUIPMENT_TRAIT_DISPLAY_COMPOSITES = [
   'cryoAndElectricDamageIncrease',

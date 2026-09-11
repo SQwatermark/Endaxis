@@ -1,22 +1,19 @@
 <script setup lang="ts">
+import type {
+  CombatStepForKind,
+  CombatStepParameters,
+} from '../../../../packages/game-data-contract/src/actions';
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 
-type TargetContextStep = Extract<
-  CombatStepDefinition,
-  {
-    kind:
-      | 'mergeContextTargets'
-      | 'findCharacterTeamTargets'
-      | 'findOwnerSpawnedAbilityEntities'
-      | 'pickContextTarget';
-  }
+type TargetContextStep = CombatStepForKind<
+  | 'mergeContextTargets'
+  | 'findCharacterTeamTargets'
+  | 'findOwnerSpawnedAbilityEntities'
+  | 'pickContextTarget'
 >;
 const props = defineProps<{ step: TargetContextStep }>();
-type MergeSourceKind = Extract<
-  TargetContextStep,
-  { kind: 'mergeContextTargets' }
->['parameters']['sources'][number]['kind'];
+type MergeSourceKind = CombatStepParameters['mergeContextTargets']['sources'][number]['kind'];
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const operandLabels = {
   constant: '常量',

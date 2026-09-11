@@ -1,5 +1,4 @@
 import type {
-  CombatStepDefinition,
   CombatStepKind,
   CombatStepParameters,
   ActionSwitchOptionDefinition,
@@ -21,10 +20,8 @@ export type CompiledActionValueOperandSource = Readonly<ActionValueOperand>;
 
 type Condition<K extends CombatCondition['kind']> = Readonly<Extract<CombatCondition, { kind: K }>>;
 type Parameters<K extends CombatStepKind> = Readonly<CombatStepParameters[K]>;
-type Step<
-  K extends CombatStepKind,
-  P extends CombatStepParameters[K] = CombatStepParameters[K],
-> = Readonly<Pick<Extract<CombatStepDefinition, { kind: K }>, 'kind'>> & {
+type Step<K extends CombatStepKind, P extends CombatStepParameters[K] = CombatStepParameters[K]> = {
+  readonly kind: K;
   readonly parameters: Readonly<P>;
 };
 
@@ -136,7 +133,7 @@ type GlobalTimeDilation = Omit<
   Extract<Parameters<'startTimeDilation'>, { scope: 'global' }>,
   'influenceSkillCooldownSeconds' | 'curve' | 'ignoredTargets' | 'ignoredAbilityEntityTargets'
 > & {
-  readonly curve: Extract<TimeScaleCurveDefinition, { kind: 'inline' | 'named' }>;
+  readonly curve: TimeScaleCurveDefinition;
   readonly ignoredTargets: readonly ('controlled' | 'caster')[];
   readonly ignoredAbilityEntityTargets?: readonly [{ readonly kind: 'ownerSpawned' }];
 };
@@ -144,7 +141,7 @@ type EntityTimeDilation = Omit<
   Extract<Parameters<'startTimeDilation'>, { scope: 'entity' }>,
   'abilityEntityTargets' | 'ignoreSlotCheck' | 'curve' | 'targets'
 > & {
-  readonly curve: Extract<TimeScaleCurveDefinition, { kind: 'inline' | 'named' }>;
+  readonly curve: TimeScaleCurveDefinition;
   readonly targets: readonly ('enemy' | 'caster' | 'controlled')[];
   readonly abilityEntityTargets?: readonly AbilityEntityTargetQuery[];
 };
@@ -189,11 +186,6 @@ type DamageParameters = Pick<
   | 'instantAttributeModifiers'
   | 'instantDamageScaleModifiers'
 > & {
-  // 这是伤害协议的已支持子集，不是角色元素身份；值集合恰好一致也不能混用概念。
-  readonly damageType: Extract<
-    Parameters<'dealDamage'>['damageType'],
-    'physical' | 'heat' | 'electric' | 'cryo' | 'nature'
-  >;
   readonly attackScale: CompiledActionValueOperandSource;
   readonly calculation?: 'breakingAttack' | 'attribute';
   readonly calculationMultiplier?: number;
@@ -261,6 +253,7 @@ type HealParameters = (
   );
 
 export type CompiledBuffStepSource =
+  | Step<'launchProjectileLifetime'>
   | Step<'applyKnockDown'>
   | Step<'applyPhysicalInfliction'>
   | Step<'findCharacterTeamTargets'>
@@ -272,6 +265,7 @@ export type CompiledBuffStepSource =
   | Step<'openComboWindow'>
   | Step<'castSkillDuringAction'>
   | Step<'changeSkillSlot'>
+  | Step<'overrideBasicAttackMapping'>
   | Step<'changePlayerActionMode'>
   | Step<'changeNativeSkillType'>
   | Step<'setCharacterPassiveUiValue'>
@@ -411,14 +405,7 @@ export type CompiledBuffStepSource =
           'assign' | 'add' | 'multiply' | 'divide' | 'floor' | 'ceil' | 'roundToInt';
       }
     >
-  | Step<
-      'storeSourceAttributeValue',
-      Parameters<'storeSourceAttributeValue'> & {
-        readonly attribute:
-          | Extract<Parameters<'storeSourceAttributeValue'>['attribute'], { kind: 'specific' }>
-          | { readonly kind: 'secondary' };
-      }
-    >
+  | Step<'storeSourceAttributeValue'>
   | Step<'storeEntityPropertyValue'>
   | Step<'setHealthFloor'>
   | Step<'storeEventHealValues'>

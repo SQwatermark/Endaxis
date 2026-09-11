@@ -1,11 +1,12 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type {
   ActionValueOperand,
   CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 
-type KnockDownStep = Extract<CombatStepDefinition, { kind: 'applyKnockDown' }>;
+type KnockDownStep = CombatStepForKind<'applyKnockDown'>;
 const props = defineProps<{ step: KnockDownStep }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const labels = {

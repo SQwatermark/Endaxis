@@ -1,5 +1,38 @@
 # 投射物回调宿主：事件收束设计
 
+## 2026-09-11：正式duration-finish回调迁移到公共技能宿主
+
+正式发射装配通过createCallbackSkillHostFactory构建独立AbilitySystemRuntime + SkillRuntime，
+使用tryStartProjectileCallbackSkill继承施法信息。ProjectileCallbackActionRuntime已删除，
+不再单独实现Timeline、Jump、Finish或附属Buff清理。组件仍在Default更新，能力在Battle
+更新；公共AbilitySystem处理施放当帧零增量，回收前Default中断当前技能，reset期间来源
+仍可读取，随后ClearSource。回调不创建资源账户，零费用由公共SkillRuntime处理。
+
+beforeCastSkill/afterSkillApplyCost/skillEnd以投射物自身ID发布，保留来源skillCastId；
+beforeCast提供附属Buff挂载端口，不冒充干员玩家技能分类。发射时已建立的实体黑板与
+来源参数快照传给公共SkillRuntime，direct板各区间共享，重置从同一初始快照恢复。
+生产装配测试覆盖三事件顺序、自身/来源身份分离、reset前SkillEnd和通知期间来源可读；
+原六项投射物生命周期测试已改为使用真实SkillRuntime，保留跨区间/跳转/Buff清理覆盖。
+
+本机串行验证：战斗/投影142文件1588项通过，随后npm run type-check通过。
+恢复三条真实旧轴，固定同一project.json和当前其他代码，仅在只读Vite模块视图中换回
+HEAD的旧回调动作解释器和序列装配作为迁移前对照，不改工作树文件。三条轴逐hit数量
+分别210/194/264，完整伤害记录（含帧、来源、目标、data）与资源变化记录均一致。
+第三条轴包含汤汤，真实启动新回调宿主5次；前两条0次，不能将其当作回调消费者覆盖。
+此为本次宿主迁移等价性验证，不代表所有历史旧版模拟差异已消除，也不新增空间模拟。
+临时对照脚本、回执及JSON报告保留tmp，不提交。未跑转换器全量，未提交或推送。
+
+## 2026-09-11：当前设计边界（取代下方历史账户方案）
+
+Endaxis模拟游戏机制，不复刻通用引擎的全部功能。SP归全队，终结技能量归干员；
+投射物不处理因复用AbilitySystem而存在的能量字段，不装配资源账户。
+129个已查干员投射物回调全部零费用/零ATB门槛，不以实体余额初始化或池化作为迁移阻塞。
+SkillRuntime使用CombatResources或null：前者服务干员技能，后者执行零费用技能，
+仍保留费用阶段事件及技能结束，但不创建余额回执；非零费用不得进入无资源路径。
+已删除SkillResourceAccount和独立资源宿主寻址，终结技能量回执只接受operatorId。
+后续正式迁移集中于回调时间轴、来源、Buff引用寿命和结束/回收顺序。
+下方账户取证和抽象设计保留为历史记录，不再作为实施要求。
+
 核对日期：2026-09-10。此文是未完成实现的约束，不是完成声明。
 
 最新进度：完整回调定义已携带 `SkillCastResourceDefinition`，包括扣费帧、原生冷却秒值、

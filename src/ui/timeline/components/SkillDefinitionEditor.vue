@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
 import InspectorFields from './InspectorFields.vue';
 import LevelValuesEditor from './LevelValuesEditor.vue';
@@ -262,9 +263,7 @@ const selectedCombatCondition = computed(() =>
     ? (resolveStructureValue(draft.value, selectedStructureSourcePath.value) as CombatCondition)
     : undefined,
 );
-const selectedInlineBuff = computed<
-  Extract<CombatStepDefinition, { kind: 'applyBuff' }> | undefined
->(() =>
+const selectedInlineBuff = computed<CombatStepForKind<'applyBuff'> | undefined>(() =>
   selectedStructureNode.value?.kind === '内联 Buff 定义'
     ? {
         kind: 'applyBuff',

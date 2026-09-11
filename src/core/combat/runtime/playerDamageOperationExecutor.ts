@@ -1,3 +1,4 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /**
  * 生命伤害与独立失衡步骤进入玩家主动伤害生命周期的装配点。
  * 调用方必须提供同一命中的属性快照和事件端口；此处顺序具有战斗语义，不能随意拆分或并行。
@@ -44,8 +45,8 @@ import { deriveHitId } from '../timeline/deriveHitId';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
-type DamageStep = Extract<RuntimeOperation, { kind: 'dealDamage' | 'dealFixedDamage' }>;
-type StaggerStep = Extract<RuntimeOperation, { kind: 'dealStagger' }>;
+type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
+type StaggerStep = ResolvedCombatStepForKind<'dealStagger'>;
 type PoiseStep = DamageStep | StaggerStep;
 type OperationContext = Parameters<CombatOperationExecutor['execute']>[1];
 
@@ -185,6 +186,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       gameplayTags: step.kind === 'dealDamage' ? (step.parameters.gameplayTags ?? []) : [],
       features: step.parameters.features ?? [],
       ...(skillCastInfo === undefined ? {} : { skillCastId: skillCastInfo.skillCastId }),
+      skillCastInfo: skillCastInfo ?? null,
       ...(this.dependencies.skillId === undefined ? {} : { skillId: this.dependencies.skillId }),
       ...(this.dependencies.skillType === undefined
         ? {}

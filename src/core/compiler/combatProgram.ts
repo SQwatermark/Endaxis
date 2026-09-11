@@ -28,7 +28,10 @@ import type {
   StatusModifierDefinition,
   UpgradeEvent,
 } from '../game-data/operatorDefinition';
-import type { ActionSwitchOptionDefinition } from '../../../packages/game-data-contract/src/actions.ts';
+import type {
+  ActionSwitchOptionDefinition,
+  HealTargetBinding,
+} from '../../../packages/game-data-contract/src/actions.ts';
 import type { GameplayTag } from '../combat/tags/gameplayTags';
 
 /** 等级数值已经展开、可供运行时直接应用的状态修正。 */
@@ -204,16 +207,7 @@ export interface ResolvedCombatStepParameters {
     valueMultiplier?: number | ActionValueOperand;
     features?: readonly DamageFeature[];
   };
-  heal: (
-    | {
-        target: 'contextTarget';
-        contextKey: string;
-      }
-    | {
-        target: Exclude<CombatStepParameters['heal']['target'], 'contextTarget'>;
-        contextKey?: never;
-      }
-  ) & {
+  heal: HealTargetBinding & {
     source?: CombatStepParameters['heal']['source'];
     alwaysNext?: boolean;
     tags: readonly GameplayTag[];
@@ -314,9 +308,11 @@ export interface ResolvedCombatStepParameters {
   once: CombatStepParameters['once'];
   repeatEachTick: CombatStepParameters['repeatEachTick'];
   scheduleProjectileFinishCallback: CombatStepParameters['scheduleProjectileFinishCallback'];
+  launchProjectileLifetime: CombatStepParameters['launchProjectileLifetime'];
   setContextFlag: CombatStepParameters['setContextFlag'];
   openComboWindow: CombatStepParameters['openComboWindow'];
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
+  overrideBasicAttackMapping: CombatStepParameters['overrideBasicAttackMapping'];
   changePlayerActionMode: CombatStepParameters['changePlayerActionMode'];
   changeNativeSkillType: CombatStepParameters['changeNativeSkillType'];
   setCharacterPassiveUiValue: CombatStepParameters['setCharacterPassiveUiValue'];
@@ -344,7 +340,7 @@ export interface ResolvedCombatStepParameters {
   };
 }
 
-type ResolvedCombatStepForKind<K extends CombatStepKind> = {
+type ResolvedCombatStepNode<K extends CombatStepKind> = {
   readonly key?: string;
   /** 存档中的命中身份（放置时分配）；伤害回执凭它把伤害对应到具体命中点。 */
   readonly hitId?: string;
@@ -375,28 +371,123 @@ type ResolvedCombatStepForKind<K extends CombatStepKind> = {
                 ? { readonly body: ResolvedActionSequence }
                 : {});
 
+/** 按成员逐一构造，联合kind仍保留parameters与子序列字段的判别关联。 */
+export type ResolvedCombatStepForKind<K extends CombatStepKind> = {
+  [Kind in K]: ResolvedCombatStepNode<Kind>;
+}[K];
+
 /** 运行时可直接执行、按 kind 区分类型的单个步骤。 */
-export type ResolvedCombatStep = {
-  [K in CombatStepKind]: ResolvedCombatStepForKind<K>;
+export type ResolvedCombatStep = ResolvedCombatStepForKind<CombatStepKind>;
+
+/** 每种节点必须明确执行归属；新增 kind 不得自动落入操作链。 */
+export const COMBAT_STEP_EXECUTION_ROUTES = {
+  mergeContextTargets: 'operation',
+  findCharacterTeamTargets: 'operation',
+  createSpatialPointTargets: 'operation',
+  findOwnerSpawnedAbilityEntities: 'operation',
+  pickContextTarget: 'operation',
+  forEachContextTarget: 'sequence',
+  readAbilityEntityRemainingDuration: 'operation',
+  setAbilityEntityRemainingDuration: 'operation',
+  finishCurrentAbilityEntity: 'operation',
+  finishActionOwnerAbilityEntity: 'operation',
+  finishCurrentAbilityEntityWhenSourceDies: 'operation',
+  startCurrentAbilityEntityChildSkill: 'operation',
+  startCurrentAbilityEntityChildSkillById: 'operation',
+  spawnAbilityEntity: 'operation',
+  applyElementalInfliction: 'operation',
+  triggerSpellBurst: 'operation',
+  triggerCustomAbilityEvent: 'operation',
+  castSkillDuringAction: 'operation',
+  applyPhysicalInfliction: 'operation',
+  applyKnockDown: 'operation',
+  applyElementalReaction: 'operation',
+  consumeElementalReaction: 'operation',
+  outputAirborne: 'operation',
+  outputKnockDown: 'operation',
+  dealDamage: 'operation',
+  dealFixedDamage: 'operation',
+  dealStagger: 'operation',
+  heal: 'operation',
+  applyBuff: 'operation',
+  createGlobalBuff: 'operation',
+  finishParentGlobalBuff: 'operation',
+  finishGlobalBuffsById: 'operation',
+  readSkillSettingData: 'operation',
+  readBuffBlackboard: 'operation',
+  readEventBuffBlackboard: 'operation',
+  readCurrentBuffRemainingDuration: 'operation',
+  readBuffRemainingDuration: 'operation',
+  setCurrentBuffRemainingDuration: 'operation',
+  refreshCurrentBuffAttributeModifiers: 'operation',
+  skillAffix: 'operation',
+  readBuffStackCount: 'operation',
+  finishBuffsByTag: 'operation',
+  finishBuffsById: 'operation',
+  finishCurrentBuff: 'operation',
+  setCurrentBuffTimePaused: 'operation',
+  igniteBuffs: 'operation',
+  adjustSkillCooldown: 'operation',
+  holdBuffsById: 'operation',
+  inheritBuffById: 'operation',
+  restrictUltimateEnergyRecovery: 'operation',
+  createTimedMarker: 'operation',
+  setGlobalCooldown: 'operation',
+  createAbilityEntityTimedMarker: 'operation',
+  startTimeDilation: 'operation',
+  startUltimateTimeDilation: 'operation',
+  hideUi: 'operation',
+  setIgnoreGlobalTimeScale: 'operation',
+  storeCurrentTimelineFrame: 'operation',
+  storeEventSpGainAmount: 'operation',
+  storeEventHealValues: 'operation',
+  storeShieldValue: 'operation',
+  modifyActionValue: 'operation',
+  calculateActionValue: 'operation',
+  storeSourceAttributeValue: 'operation',
+  storeEntityPropertyValue: 'operation',
+  setHealthFloor: 'operation',
+  changeResource: 'operation',
+  changeResourceByActionValue: 'operation',
+  gainSquadUltimateEnergyFromSkillCost: 'operation',
+  gainFinisherSp: 'operation',
+  applyStatus: 'operation',
+  consumeStatus: 'operation',
+  jumpTimeline: 'sequence',
+  finishTimeline: 'sequence',
+  conditional: 'sequence',
+  switch: 'sequence',
+  once: 'sequence',
+  withActionBlackboardScope: 'sequence',
+  repeatEachTick: 'sequence',
+  repeatByActionValue: 'sequence',
+  scheduleProjectileFinishCallback: 'sequence',
+  launchProjectileLifetime: 'sequence',
+  setContextFlag: 'operation',
+  openComboWindow: 'operation',
+  changeSkillSlot: 'operation',
+  overrideBasicAttackMapping: 'operation',
+  changePlayerActionMode: 'operation',
+  changeNativeSkillType: 'operation',
+  setCharacterPassiveUiValue: 'operation',
+  inheritSkillCastInfoForBasicAttack: 'operation',
+  listenForCombatEvents: 'sequence',
+} as const satisfies Record<CombatStepKind, 'sequence' | 'operation'>;
+
+type CombatOperationKind = {
+  [K in CombatStepKind]: (typeof COMBAT_STEP_EXECUTION_ROUTES)[K] extends 'operation' ? K : never;
 }[CombatStepKind];
 
-/** 条件、once 与 Context 迭代由序列运行时解释，其余步骤交给操作链。 */
-export type ResolvedCombatOperationStep = Exclude<
-  ResolvedCombatStep,
-  {
-    kind:
-      | 'conditional'
-      | 'switch'
-      | 'once'
-      | 'withActionBlackboardScope'
-      | 'repeatEachTick'
-      | 'repeatByActionValue'
-      | 'scheduleProjectileFinishCallback'
-      | 'forEachContextTarget'
-      | 'jumpTimeline'
-      | 'finishTimeline';
-  }
->;
+/** 仅交给操作链的节点；监听器与控制流程由序列运行时持有生命周期。 */
+export type ResolvedCombatOperationStep = {
+  [K in CombatOperationKind]: ResolvedCombatStepForKind<K>;
+}[CombatOperationKind];
+
+export function isCombatOperationStep(
+  step: ResolvedCombatStep,
+): step is ResolvedCombatOperationStep {
+  return COMBAT_STEP_EXECUTION_ROUTES[step.kind] === 'operation';
+}
 
 /** 已解析且严格保持声明顺序的同步操作序列。 */
 export interface ResolvedActionSequence {

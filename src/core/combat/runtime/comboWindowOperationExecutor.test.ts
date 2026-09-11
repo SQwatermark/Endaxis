@@ -1,5 +1,6 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { describe, expect, it, vi } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
 import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
@@ -73,7 +74,7 @@ describe('ComboWindowOperationExecutor', () => {
     };
     const windows = new ComboWindowRuntime(new CombatClock(), new CombatReceiptCollector());
     const executor = new ComboWindowOperationExecutor('rossi', windows, delegate);
-    const step: Extract<ResolvedCombatStep, { kind: 'openComboWindow' }> = {
+    const step: ResolvedCombatStepForKind<'openComboWindow'> = {
       kind: 'openComboWindow',
       parameters: { nextSkillKey: 'comboSkillStage2' },
     };
@@ -99,7 +100,7 @@ describe('ComboWindowOperationExecutor', () => {
       delegate,
       resolveCurrentSkillKey,
     );
-    const step: Extract<ResolvedCombatStep, { kind: 'openComboWindow' }> = {
+    const step: ResolvedCombatStepForKind<'openComboWindow'> = {
       kind: 'openComboWindow',
       parameters: { nextSkillKeyFromSlot: 'comboSkill' },
     };

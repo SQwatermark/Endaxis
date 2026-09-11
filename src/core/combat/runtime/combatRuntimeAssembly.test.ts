@@ -479,14 +479,86 @@ describe('CombatRuntimeAssembly', () => {
     expect(launch?.[2].sourceId).toBe('operator');
     expect(launch?.[2].entity).not.toHaveProperty('target');
     expect(launch?.[2].skillCastInfo.skillCastId).toBe(cast?.[2].skillCastId);
-    const reset = vi.fn();
+    const reset = vi.fn(() => {
+      expect(assembly.projectileLifetimes.findSource(1)).toEqual({
+        kind: 'operator',
+        operatorId: 'operator',
+      });
+      expect(
+        emitAbilityEvent.mock.calls
+          .filter(call => call[0] === 'ability-entity:1')
+          .map(call => call[1]),
+      ).toEqual(['beforeCastSkill', 'afterSkillApplyCost', 'skillEnd']);
+    });
     launch?.[2].entity.onReset(reset);
     expect(reset).not.toHaveBeenCalled();
     for (let i = 0; i < 30; i++) assembly.advanceFrame();
     expect(reset).toHaveBeenCalledTimes(1);
+    expect(assembly.projectileLifetimes.findSource(1)).toBeUndefined();
+    const callbackEvents = emitAbilityEvent.mock.calls.filter(
+      call => call[0] === 'ability-entity:1',
+    );
+    for (const [, , payload] of callbackEvents) {
+      expect(payload).toMatchObject({
+        sourceId: 'ability-entity:1',
+        targetId: 'ability-entity:1',
+        skillId: 'callback',
+        skillCastId: cast?.[2].skillCastId,
+      });
+      expect(payload.skillType).toBeUndefined();
+    }
     expect(
       emitAbilityEvent.mock.calls.filter(call => call[1] === 'projectileLaunched'),
     ).toHaveLength(1);
+  });
+
+  it('无回调发射不创建技能，动作区间结束后仍在独立 reset 阶段通知', () => {
+    const emitAbilityEvent = vi.fn();
+    const assembly = createAssembly({
+      ...nativeEventRuntimeOptions(),
+      emitAbilityEvent,
+      programs: [
+        skill({
+          costs: [],
+          costFrame: undefined,
+          timelineActions: [
+            {
+              startFrame: 0,
+              endFrame: 0,
+              sequence: {
+                steps: [
+                  {
+                    kind: 'launchProjectileLifetime',
+                    parameters: { finish: 'firstTickReach' },
+                  },
+                  { kind: 'finishTimeline', parameters: {} },
+                ],
+              },
+            },
+          ],
+        }),
+      ],
+    });
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    const launch = emitAbilityEvent.mock.calls.find(call => call[1] === 'projectileLaunched');
+    expect(launch).toBeDefined();
+    const reset = vi.fn(() =>
+      expect(assembly.projectileLifetimes.findSource(1)).toEqual({
+        kind: 'operator',
+        operatorId: 'operator',
+      }),
+    );
+    launch![2].entity.onReset(reset);
+    // 动作结束不持有此对象的释放句柄。
+    assembly.advanceFrame();
+    expect(assembly.receipt.entries.some(entry => entry.event === 'SkillEnded')).toBe(true);
+    expect(reset).not.toHaveBeenCalled();
+    assembly.projectileLifetimes.advanceFrame();
+    expect(reset).not.toHaveBeenCalled();
+    assembly.projectileLifetimes.advanceFrame();
+    expect(reset).toHaveBeenCalledOnce();
+    expect(assembly.projectileLifetimes.findSource(1)).toBeUndefined();
+    expect(emitAbilityEvent.mock.calls.filter(call => call[0] === 'ability-entity:1')).toEqual([]);
   });
 
   it('runs projectile finish and reset before the enemy AbilitySystem buff pass', () => {

@@ -21,6 +21,7 @@ export interface ComboCacheActionSource {
   readonly mappings: readonly {
     readonly commandType: string;
     readonly skillId: string;
+    readonly cacheEndByAction: boolean;
     readonly cacheTime: ScalarSource;
   }[];
 }
@@ -94,7 +95,6 @@ export function parseComboCacheActionSource(
         ]),
         rowPath,
       );
-      requireBoolean(row.cacheEndByAction, `${rowPath}.cacheEndByAction`);
       requireBoolean(row.clearOffsetTargetSkillIdOnEnd, `${rowPath}.clearOffsetTargetSkillIdOnEnd`);
       requireBoolean(row.overrideCacheTime, `${rowPath}.overrideCacheTime`);
       return {
@@ -102,6 +102,7 @@ export function parseComboCacheActionSource(
         // 原生 ComboCache 映射允许用空串表示该命令没有直接技能路由；
         // Endaxis 不执行客户端输入缓存，但来源层仍须保留这个占位事实。
         skillId: requireString(row.skillId, `${rowPath}.skillId`),
+        cacheEndByAction: requireBoolean(row.cacheEndByAction, `${rowPath}.cacheEndByAction`),
         cacheTime: parseScalarSource(row.cacheTime, `${rowPath}.cacheTime`, inheritedBlackboard),
       };
     }),

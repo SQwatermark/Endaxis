@@ -1,10 +1,11 @@
 import { i18n } from '@/i18n';
 import { normalizeLocale } from '../i18n/elementPlusLocale';
 import { gameLocaleRegistry } from '../i18n/gameLocaleRegistry';
-import type { GameTextFamily } from '../i18n/localeResourceLoaders';
 import { weaponPresentationSlugByAsset } from './weaponPresentationSlugs';
 
 type LocaleTable = Record<string, any>;
+/** 以slug直接索引条目的语言表；装备与术语有各自的嵌套结构。 */
+type EntryGameTextFamily = 'operators' | 'weapons' | 'enemies';
 
 type GameEnumGroup =
   | 'element'
@@ -26,21 +27,14 @@ function humanizeIdentifier(value: string | null | undefined) {
     .replace(/\b\w/g, char => char.toUpperCase());
 }
 
-function getFamilySource(
-  family: Exclude<GameTextFamily, 'gears' | 'terms'>,
-  locale?: string | null,
-) {
+function getFamilySource(family: EntryGameTextFamily, locale?: string | null) {
   return gameLocaleRegistry.getFamily(
     normalizeLocale(locale ?? i18n.global.locale.value),
     family,
   ) as LocaleTable;
 }
 
-function getEntry(
-  family: Exclude<GameTextFamily, 'gears' | 'terms'>,
-  slug: string,
-  locale?: string | null,
-) {
+function getEntry(family: EntryGameTextFamily, slug: string, locale?: string | null) {
   const source = getFamilySource(family, locale);
   return source?.[slug] || null;
 }

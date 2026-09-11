@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 定时标记、特殊回能、连携窗口和上下文标记的参数编辑器。
  *
@@ -21,20 +22,16 @@ import {
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 
-type MechanicStep = Extract<
-  CombatStepDefinition,
-  {
-    kind:
-      | 'createTimedMarker'
-      | 'setGlobalCooldown'
-      | 'outputAirborne'
-      | 'outputKnockDown'
-      | 'gainSquadUltimateEnergyFromSkillCost'
-      | 'gainFinisherSp'
-      | 'setContextFlag'
-      | 'setCharacterPassiveUiValue'
-      | 'openComboWindow';
-  }
+type MechanicStep = CombatStepForKind<
+  | 'createTimedMarker'
+  | 'setGlobalCooldown'
+  | 'outputAirborne'
+  | 'outputKnockDown'
+  | 'gainSquadUltimateEnergyFromSkillCost'
+  | 'gainFinisherSp'
+  | 'setContextFlag'
+  | 'setCharacterPassiveUiValue'
+  | 'openComboWindow'
 >;
 type ContextValueKind = 'boolean' | 'number' | 'string';
 

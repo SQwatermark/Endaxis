@@ -1,3 +1,4 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /**
  * 把编译后的同步动作序列绑定到操作执行器和动作黑板。
  * 技能、Buff 等状态所有者应各自持有实例，避免共享 once 作用域或运行时黑板。
@@ -15,8 +16,9 @@ import type {
   ResolvedCombatStep,
   CompiledTimelineAction,
 } from '../../compiler/combatProgram';
+import { isCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import type { AbilityEntityTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type {
   CombatSemanticEventContext,
@@ -24,14 +26,39 @@ import type {
 } from './combatSemanticEventRuntime';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 import { RuntimeTargetContext } from './runtimeTargetContext';
-import { ProjectileCallbackActionRuntime } from './projectileCallbackActionRuntime';
+import type { CallbackSkillHost } from './callbackSkillHost';
 
 export interface CombatActionSequenceRuntimeHooks {
   readonly stepReached?: (step: ResolvedCombatStep) => void;
   readonly conditionEvaluated?: (
-    condition: Extract<ResolvedCombatStep, { kind: 'conditional' }>['parameters']['condition'],
+    condition: ResolvedCombatStepForKind<'conditional'>['parameters']['condition'],
     passed: boolean,
   ) => void;
+}
+
+/** 无回调发射只保留对象寿命；不绑定技能、黑板或资源账户。 */
+class ProjectileLifetimeStep extends CombatStep {
+  constructor(
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(): void {
+    const context = this.operationContext;
+    const launch = context.scheduleProjectileFinishCallback;
+    if (launch === undefined) throw new Error('projectile lifetime requires a launch scheduler');
+    launch(
+      'firstTickReach',
+      0,
+      () => {},
+      () => {},
+      context.skillCastInfo,
+      undefined,
+      context.actionSourceId ?? context.buffSourceId ?? this.runtime.ownerOperatorId,
+    );
+  }
 }
 
 class OperationStep extends CombatStep {
@@ -63,7 +90,7 @@ class OperationStep extends CombatStep {
 
 class OnceStep extends CombatStep {
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'once' }>,
+    readonly step: ResolvedCombatStepForKind<'once'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -88,7 +115,7 @@ class ActionBlackboardScopeStep extends CombatStep {
   #body?: ActionSequence;
 
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'withActionBlackboardScope' }>,
+    readonly step: ResolvedCombatStepForKind<'withActionBlackboardScope'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -148,7 +175,7 @@ class RepeatEachTickStep extends CombatStep {
   #lastTargetTriggerSeconds = 0;
 
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'repeatEachTick' }>,
+    readonly step: ResolvedCombatStepForKind<'repeatEachTick'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -253,7 +280,7 @@ class ForEachContextTargetStep extends CombatStep {
   readonly #activeBodies: ActionSequence[] = [];
 
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'forEachContextTarget' }>,
+    readonly step: ResolvedCombatStepForKind<'forEachContextTarget'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -319,7 +346,7 @@ class ForEachContextTargetStep extends CombatStep {
 
 class RepeatByActionValueStep extends CombatStep {
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'repeatByActionValue' }>,
+    readonly step: ResolvedCombatStepForKind<'repeatByActionValue'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -350,7 +377,7 @@ class RepeatByActionValueStep extends CombatStep {
 
 class ProjectileFinishCallbackStep extends CombatStep {
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'scheduleProjectileFinishCallback' }>,
+    readonly step: ResolvedCombatStepForKind<'scheduleProjectileFinishCallback'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -377,9 +404,13 @@ class ProjectileFinishCallbackStep extends CombatStep {
       ...(parent.actionOwnerId === undefined ? {} : { actionOwnerId: parent.actionOwnerId }),
       ...(parent.actionSourceId === undefined ? {} : { actionSourceId: parent.actionSourceId }),
       scheduleProjectileFinishCallback: schedule,
+      createCallbackSkillHost: parent.createCallbackSkillHost,
     };
-    let callback: ProjectileCallbackActionRuntime | undefined;
-    let callbackEntity: Extract<RuntimeTargetRef, { kind: 'abilityEntity' }> | undefined;
+    const createHost = parent.createCallbackSkillHost;
+    if (createHost === undefined)
+      throw new Error('projectile callback requires a skill host factory');
+    let callback: CallbackSkillHost | undefined;
+    let callbackEntity: AbilityEntityTargetRef | undefined;
     const projectile = schedule(
       this.step.parameters.delaySeconds,
       this.step.parameters.recycleDelaySeconds,
@@ -387,7 +418,7 @@ class ProjectileFinishCallbackStep extends CombatStep {
         if (callbackEntity === undefined) {
           throw new Error('projectile callback started before its host identity was assigned');
         }
-        callback = new ProjectileCallbackActionRuntime(
+        callback = createHost(
           this.step.callback,
           {
             ...detachedContext,
@@ -395,7 +426,7 @@ class ProjectileFinishCallbackStep extends CombatStep {
             actionSourceId: `ability-entity:${callbackEntity.instanceId}`,
             actionOwnerAbilityEntity: callbackEntity,
           },
-          this.runtime,
+          this.runtime.operations,
         );
         callback.start();
       },
@@ -415,7 +446,7 @@ class SwitchStep extends CombatStep {
   #activeBranch?: ActionSequence;
 
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'switch' }>,
+    readonly step: ResolvedCombatStepForKind<'switch'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -461,7 +492,7 @@ class SwitchStep extends CombatStep {
 /** A stopping one-sided conditional is the DSL's sequential guard. */
 class ConditionGuardStep extends CombatStep {
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'conditional' }>,
+    readonly step: ResolvedCombatStepForKind<'conditional'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -485,7 +516,7 @@ class ConditionalStep extends CombatStep {
   readonly #whenFalse?: ActionSequence;
   #activeBranch?: ActionSequence;
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'conditional' }>,
+    readonly step: ResolvedCombatStepForKind<'conditional'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -532,7 +563,7 @@ class TimelineJumpStep extends CombatStep {
   #skipInitialTick = false;
 
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'jumpTimeline' }>,
+    readonly step: ResolvedCombatStepForKind<'jumpTimeline'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -575,7 +606,7 @@ class TimelineJumpStep extends CombatStep {
 
 class TimelineFinishStep extends CombatStep {
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'finishTimeline' }>,
+    readonly step: ResolvedCombatStepForKind<'finishTimeline'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -594,7 +625,7 @@ class CombatEventListenerStep extends CombatStep {
   readonly #registrations: AbilityEventRegistration[] = [];
 
   constructor(
-    readonly step: Extract<ResolvedCombatStep, { kind: 'listenForCombatEvents' }>,
+    readonly step: ResolvedCombatStepForKind<'listenForCombatEvents'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -704,6 +735,12 @@ export class CombatActionSequenceRuntime {
     operationContext: CombatOperationContext,
   ): CombatStep[] {
     return sequence.steps.flatMap<CombatStep>(step => {
+      if (step.kind === 'launchProjectileLifetime') {
+        return new ProjectileLifetimeStep(this, operationContext);
+      }
+      if (isCombatOperationStep(step)) {
+        return new OperationStep(step, this, operationContext);
+      }
       // Preserve the public/editor condition tree, but restore the native
       // sequential Check -> body boundary in the runtime. A real IfElse with
       // an else branch or alwaysNext keeps its own branch lifecycle.
@@ -744,7 +781,8 @@ export class CombatActionSequenceRuntime {
       if (step.kind === 'listenForCombatEvents') {
         return new CombatEventListenerStep(step, this, operationContext);
       }
-      return new OperationStep(step, this, operationContext);
+      const unhandled: never = step;
+      throw new Error(`unhandled combat sequence step: ${JSON.stringify(unhandled)}`);
     });
   }
 
@@ -754,7 +792,7 @@ export class CombatActionSequenceRuntime {
   }
 
   getActionBlackboardScope(
-    step: Extract<ResolvedCombatStep, { kind: 'withActionBlackboardScope' }>,
+    step: ResolvedCombatStepForKind<'withActionBlackboardScope'>,
     parent: ActionBlackboard,
   ): ActionBlackboard {
     if (step.parameters.shareParentBlackboard === true) return parent;

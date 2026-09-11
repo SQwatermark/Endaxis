@@ -4,6 +4,25 @@ import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAlloc
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 
 describe('ProjectileLifecycleRuntime', () => {
+  it('首Tick到达以实际准入为准，不把无回调发射压成同步回收', () => {
+    const runtime = new ProjectileLifecycleRuntime();
+    let delta: number | null = null;
+    const calls: string[] = [];
+    const projectile = runtime.launch({ finishDelaySeconds: 'firstTickReach', recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => delta, finish: () => calls.push('finish'), beforeReset: () => calls.push('beforeReset') });
+    projectile.onReset(() => calls.push('reset'));
+    runtime.advanceFrame();
+    expect(calls).toEqual([]);
+    delta = 0;
+    runtime.advanceFrame();
+    expect(calls).toEqual(['finish']);
+    runtime.advanceFrame();
+    expect(calls).toEqual(['finish']);
+    runtime.advanceFrame();
+    expect(calls).toEqual(['finish', 'beforeReset', 'reset']);
+    expect(runtime.activeCount).toBe(0);
+  });
+
   it('来源在结束技能与 reset 通知期间可查，实际回收完成后释放', () => {
     const runtime = new ProjectileLifecycleRuntime();
     const source = { kind: 'abilityEntity' as const, instanceId: 99 };

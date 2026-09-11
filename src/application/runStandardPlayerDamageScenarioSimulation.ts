@@ -1,8 +1,8 @@
+import type { ResolvedCombatStepForKind } from '../core/compiler/combatProgram';
 /**
  * 一条现成的模拟入口：编译场景 → 跑标准战斗环境 → 返回结果。
  * 随机样本等输入由调用方给；环境不支持的东西在跑之前就报错。
  */
-import type { ResolvedCombatStep } from '../core/compiler/combatProgram';
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
 import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatBuffDefinitions';
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
@@ -38,7 +38,7 @@ import { resolveControlTimeline } from '../core/project/resolveControlTimeline';
 import { isOperatorControlledAt } from '../core/combat/runtime/operatorControlTimeline';
 import type { BuffProgressCurve } from '../core/combat/runtime/buffProgressRecorder';
 
-type DamageStep = Extract<ResolvedCombatStep, { kind: 'dealDamage' | 'dealFixedDamage' }>;
+type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
 export interface RunStandardPlayerDamageScenarioInput {
   readonly scenario: ScenarioDocument;

@@ -1,4 +1,5 @@
 <script setup lang="ts" generic="T extends object = ActionSequenceDefinition">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import { computed, nextTick, onScopeDispose, ref, shallowRef, watch } from 'vue';
 import {
   isBuffGraphPayload,
@@ -123,7 +124,7 @@ const step = computed(() =>
 const condition = computed(() =>
   selected.value.payloadKind === 'combatCondition' ? (value.value as CombatCondition) : undefined,
 );
-const inlineBuff = computed<Extract<CombatStepDefinition, { kind: 'applyBuff' }> | undefined>(() =>
+const inlineBuff = computed<CombatStepForKind<'applyBuff'> | undefined>(() =>
   selected.value.kind === '内联 Buff 定义'
     ? {
         kind: 'applyBuff',

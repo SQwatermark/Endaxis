@@ -475,6 +475,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
           ? { status: 'matched', actualSkillKey }
           : { status: 'mismatched', actualSkillKey };
       }
+      const buffMapped = this.#resolveBuffBasicAttackMapping(expectedSkillKey);
+      if (buffMapped !== null) return buffMapped;
       const mapped = this.#resolveCurrentBasicAttackMapping(expectedSkillKey);
       if (mapped !== null) return mapped;
       const modeMapped = this.#resolveActiveModeBasicAttackMapping(expectedSkillKey);
@@ -503,6 +505,42 @@ export class AbilitySystemRuntime implements FrameRuntime {
       status: 'unknown',
       reason: 'operator has no imported player action routes',
     };
+  }
+
+  readonly #buffBasicAttackMappings = new Map<object, string>();
+
+  /** Buff 映射高于 Skill/Mode；按注册身份撤销，不恢复已失效的快照。 */
+  overrideBasicAttackMapping(sourceSkillId: string): { finish(): void } {
+    const token = {};
+    this.#buffBasicAttackMappings.set(token, sourceSkillId);
+    return {
+      finish: () => {
+        this.#buffBasicAttackMappings.delete(token);
+      },
+    };
+  }
+
+  #resolveBuffBasicAttackMapping(expectedSkillKey: string) {
+    if (this.#buffBasicAttackMappings.size === 0) return null;
+    const targets = new Set(this.#buffBasicAttackMappings.values());
+    if (targets.size !== 1) {
+      return {
+        status: 'unknown' as const,
+        reason: 'multiple Buff command mappings have unresolved priority',
+      };
+    }
+    const sourceSkillId = [...targets][0]!;
+    const keys = this.#skillKeysByTransitionSkillId.get(sourceSkillId);
+    if (keys === undefined || keys.size !== 1) {
+      return {
+        status: 'unknown' as const,
+        reason: `Buff command mapping target '${sourceSkillId}' is not unique`,
+      };
+    }
+    const actualSkillKey = [...keys][0]!;
+    return actualSkillKey === expectedSkillKey
+      ? { status: 'matched' as const, actualSkillKey }
+      : { status: 'mismatched' as const, actualSkillKey };
   }
 
   #resolveCurrentBasicAttackMapping(

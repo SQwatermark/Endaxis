@@ -356,6 +356,7 @@ function forward(step: CombatStepDefinition, propertyPath?: InspectorPropertyPat
       <template
         v-else-if="
           step.kind === 'changeSkillSlot' ||
+          step.kind === 'overrideBasicAttackMapping' ||
           step.kind === 'changePlayerActionMode' ||
           step.kind === 'changeNativeSkillType'
         "

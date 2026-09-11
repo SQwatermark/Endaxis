@@ -4,6 +4,7 @@ import type {
   ScenarioSimulationPerformanceSample,
 } from './scenarioSimulationService';
 import type { ScenarioDocument, ProjectDefinitionLibraryDocument } from '../core/project/schema';
+import type { RecursiveSkillChain } from './recursiveSkillChain';
 
 export type SimulationPlan = Awaited<ReturnType<ScenarioSimulationService['planSkillChain']>>;
 export interface SimulationWorkerRequest {
@@ -15,6 +16,7 @@ export interface SimulationWorkerRequest {
   readonly plan?: {
     readonly castIds: readonly string[];
     readonly mode: 'continuation' | 'compact';
+    readonly extension?: RecursiveSkillChain;
   };
 }
 export type SimulationWorkerResponse = {

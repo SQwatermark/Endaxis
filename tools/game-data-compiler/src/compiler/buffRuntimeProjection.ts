@@ -9,6 +9,7 @@ import {
 } from './attributeModifier.ts';
 import {
   collectNativeActionNodes,
+  type NativeActionBodySourceMap,
   type NativeActionNodeSource,
   type NativeSequenceSource,
 } from '../source/controlFlow.ts';
@@ -2139,6 +2140,7 @@ function createBuffSequenceProjection(
         child => child.metadata.enabled,
       );
       if (
+        !enabledChildren.some(isBuffAttackMapping) &&
         enabledChildren.every(
           child =>
             child.body.kind === 'leaf' &&
@@ -2313,10 +2315,7 @@ function createBuffSequenceProjection(
  */
 function isAbsentInterruptHenshinExitSuppressionCheck(
   node: NativeActionNodeSource<KnownNativeActionLeafSource> & {
-    readonly body: Extract<
-      NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
-      { kind: 'ifElse' }
-    >;
+    readonly body: NativeActionBodySourceMap<KnownNativeActionLeafSource>['ifElse'];
   },
   context: CombatActionProjectionContextSource,
 ): boolean {
@@ -2571,10 +2570,7 @@ function isCombatInvisiblePresentationLeaf(
  */
 function isAlwaysAliveCasterSourceCheck(
   node: NativeActionNodeSource<KnownNativeActionLeafSource> & {
-    readonly body: Extract<
-      NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
-      { kind: 'ifElse' }
-    >;
+    readonly body: NativeActionBodySourceMap<KnownNativeActionLeafSource>['ifElse'];
   },
   context: CombatActionProjectionContextSource,
 ): boolean {
@@ -2685,10 +2681,7 @@ function compileEventListenerNode(
 
 function isCombatInvisibleTogglable(
   node: NativeActionNodeSource<KnownNativeActionLeafSource> & {
-    readonly body: Extract<
-      NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
-      { kind: 'togglable' }
-    >;
+    readonly body: NativeActionBodySourceMap<KnownNativeActionLeafSource>['togglable'];
   },
 ): boolean {
   const conditionNodes = collectNativeActionNodes(node.body.condition).filter(
@@ -2726,7 +2719,7 @@ function isCombatInvisibleTogglable(
     actionNodes.every(
       child =>
         child.body.kind === 'leaf' &&
-        (child.body.value.family === 'inputControl' ||
+        ((child.body.value.family === 'inputControl' && !isBuffAttackMapping(child)) ||
           child.body.value.family === 'presentation' ||
           (onlyReadsMoveInput &&
             ['spatial', 'presentationCalculation', 'selfDefense'].includes(
@@ -2736,14 +2729,19 @@ function isCombatInvisibleTogglable(
   );
 }
 
+function isBuffAttackMapping(node: NativeActionNodeSource<KnownNativeActionLeafSource>): boolean {
+  return (
+    node.metadata.enabled &&
+    node.body.kind === 'leaf' &&
+    node.body.value.family === 'inputControl' &&
+    node.body.value.action.kind === 'comboCache' &&
+    node.body.value.action.mappings.some(mapping => mapping.commandType === 'Attack')
+  );
+}
+
 function isCombatInvisibleIfElse(
   node: NativeActionNodeSource<KnownNativeActionLeafSource> & {
-    readonly body: Extract<
-      NativeActionNodeSource<KnownNativeActionLeafSource>['body'],
-      {
-        kind: 'ifElse';
-      }
-    >;
+    readonly body: NativeActionBodySourceMap<KnownNativeActionLeafSource>['ifElse'];
   },
   context: CombatActionProjectionContextSource,
 ): boolean {
@@ -2762,6 +2760,7 @@ function isCombatInvisibleIfElse(
     'inputControl',
     'targetGroup',
   ]);
+  if (nodes.some(isBuffAttackMapping)) return false;
   return nodes.every(child => {
     if (child.body.kind !== 'leaf') return child.body.kind === 'ifElse' && child.body.alwaysNext;
     const leaf = child.body.value;

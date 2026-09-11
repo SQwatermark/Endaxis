@@ -1,3 +1,4 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /**
  * 元素附着步骤与目标 Buff 容器、关卡事件之间的装配点。
  * 必须在操作序列给定的位置同步执行，不能由投影层根据伤害结果事后补算。
@@ -16,7 +17,7 @@ import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { ElementalInflictionBuffIdentity } from '../infliction/elementalInflictionBuffAdapter';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
-type InflictionStep = Extract<RuntimeOperation, { kind: 'applyElementalInfliction' }>;
+type InflictionStep = ResolvedCombatStepForKind<'applyElementalInfliction'>;
 
 export const ELEMENTAL_INFLICTION_EVENTS = [
   'beforeOutputInfliction',

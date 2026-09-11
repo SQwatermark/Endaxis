@@ -15,8 +15,118 @@ import type { NativeSequenceSource } from '../src/source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { buffHasNoAffixIdentityWriter } from '../src/compiler/buffCastIdentityProof.ts';
 import { compileActionNode } from '../src/compiler/combatActionLeafProjection.ts';
+import { parseComboCacheActionSource } from '../src/source/inputControlActions.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it('当前伊冯 DuringBuffEnable 的 Attack 映射进入可撤销动作，不被表现过滤吞掉', () => {
+    // hybrid-20260905 / AKEDB 1.5.3@9913107-5，结束 Buff 的首个启用回调。
+    const action = parseComboCacheActionSource(
+      {
+        $type: 'Beyond.Gameplay.Core.ComboCacheAction+Data, Gameplay.Beyond',
+        isEnable: true,
+        priorityLevel: 'Default',
+        priorityOffset: 0,
+        serverActionIndex: 0,
+        mappingDataList: [
+          {
+            cmdType: 'Attack',
+            skillId: 'chr_0017_yvonne_ult_attack_end',
+            cacheEndByAction: true,
+            clearOffsetTargetSkillIdOnEnd: true,
+            overrideCacheTime: true,
+            cacheTime: { useBlackboardKey: false, value: 0.5, blackboardKey: '' },
+          },
+        ],
+      },
+      'BuffData.buff_chr_0017_yvonne_ultimate_skill_end.buffEventAction[0].actions[0]',
+      {},
+    );
+    const source = sourceFixture();
+    const sequence = source.graph.abilityEvents[0]!.actions[0]!;
+    const template = sequence.actions[0]!;
+    const definition = compileBuffRuntimeDefinitionSource(
+      {
+        ...source,
+        graph: {
+          ...source.graph,
+          abilityEvents: [],
+          buffEvents: [
+            {
+              event: 'DuringBuffEnable',
+              actions: [
+                {
+                  ...sequence,
+                  actions: [
+                    {
+                      ...template,
+                      body: {
+                        kind: 'leaf',
+                        value: { family: 'inputControl', action },
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      },
+      new Set(),
+      new Set(),
+      {},
+      undefined,
+      { fixedBuffOwnerTarget: 'caster' },
+    );
+    expect(definition.lifecycleSequences?.enable).toEqual({
+      steps: [
+        {
+          kind: 'overrideBasicAttackMapping',
+          parameters: { sourceSkillId: 'chr_0017_yvonne_ult_attack_end' },
+        },
+      ],
+    });
+    const node = {
+      ...template,
+      body: {
+        kind: 'leaf' as const,
+        value: {
+          family: 'inputControl' as const,
+          action: {
+            ...action,
+            mappings: action.mappings.map(mapping => ({ ...mapping, cacheEndByAction: false })),
+          },
+        },
+      },
+    };
+    expect(() =>
+      compileActionNode(node, new Set(), new Map(), {
+        actionOwnerTarget: 'buffOwner',
+        fixedBuffOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toThrow('unsupported Buff command mapping lifetime');
+  });
+  it.each(['spatialPoint', 'contextOperator', 'lowestHealthRatioOperatorExceptCaster'] as const)(
+    'CreateBuff 不把未解析的目标组 %s 断言成可施加目标',
+    group => {
+      const node = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[1]!;
+      if (node.body.kind !== 'leaf' || node.body.value.family !== 'buffApplication')
+        throw new Error('missing Buff application fixture');
+      const action = {
+        ...node.body.value.action,
+        target: { ...fixedTarget('Context'), targetGroupKey: 'recipient' },
+      };
+      expect(() =>
+        compileActionNode(
+          { ...node, body: { kind: 'leaf', value: { family: 'buffApplication', action } } },
+          new Set(),
+          new Map([['recipient', group]]),
+        ),
+      ).toThrow('unsupported Buff target/source');
+    },
+  );
+
   it.each(['Source', 'Owner'])('当前实例结束保留原生来源：%s', finishSource => {
     const metadata = sourceFixture().graph.abilityEvents[0]!.actions[0]!.actions[0]!.metadata;
     const steps = compileActionNode(
@@ -2480,72 +2590,74 @@ describe('公共 Buff 运行时投影', () => {
   it('把主控普攻末段的即时失衡属性修正投影到公共失衡修正', () => {
     const source = sourceFixture();
     const template = source.graph.abilityEvents[0]!.actions[0]!.actions[0]!;
-    const definition = compileBuffRuntimeDefinitionSource(
-      {
-        ...source,
-        poiseModifiers: [
-          {
-            enabledSide: 'Attacker',
-            condition: {
-              onlyExecuteWhenSourceIsMainCharacter: false,
-              onlyExecuteWhenSourceIsGuard: false,
-              actions: [
-                {
-                  ...template,
-                  body: {
-                    kind: 'leaf',
-                    value: {
-                      family: 'condition',
-                      action: {
-                        kind: 'damageDecorateMask',
-                        sourceType: 'CheckDamageDecorateMask',
-                        checkType: 'HasAll',
-                        mask: 2097152,
+    const project = (mask: number) =>
+      compileBuffRuntimeDefinitionSource(
+        {
+          ...source,
+          poiseModifiers: [
+            {
+              enabledSide: 'Attacker',
+              condition: {
+                onlyExecuteWhenSourceIsMainCharacter: false,
+                onlyExecuteWhenSourceIsGuard: false,
+                actions: [
+                  {
+                    ...template,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'condition',
+                        action: {
+                          kind: 'damageDecorateMask',
+                          sourceType: 'CheckDamageDecorateMask',
+                          checkType: 'HasAll',
+                          mask,
+                        },
                       },
                     },
                   },
-                },
-                {
-                  ...template,
-                  sourcePath: `${template.sourcePath}.main`,
-                  body: {
-                    kind: 'leaf',
-                    value: {
-                      family: 'condition',
-                      action: {
-                        kind: 'mainOperator',
-                        sourceType: 'CheckMainCharacterCondition',
-                        targetSource: 'Source',
-                        targetGroupKey: '',
+                  {
+                    ...template,
+                    sourcePath: `${template.sourcePath}.main`,
+                    body: {
+                      kind: 'leaf',
+                      value: {
+                        family: 'condition',
+                        action: {
+                          kind: 'mainOperator',
+                          sourceType: 'CheckMainCharacterCondition',
+                          targetSource: 'Source',
+                          targetGroupKey: '',
+                        },
                       },
                     },
+                  },
+                ],
+              },
+              processors: [
+                {
+                  kind: 'instantAttribute',
+                  modifyTargetSide: 'Attacker',
+                  modifier: {
+                    modifyAttributeType: 'Specific',
+                    attributeType: 'PoiseDamageOutputScalar',
+                    formulaItem: 'BaseAddition',
+                    parameter: { value: 0, blackboardKey: 'poise_up', levelValues: [0.3] },
                   },
                 },
               ],
             },
-            processors: [
-              {
-                kind: 'instantAttribute',
-                modifyTargetSide: 'Attacker',
-                modifier: {
-                  modifyAttributeType: 'Specific',
-                  attributeType: 'PoiseDamageOutputScalar',
-                  formulaItem: 'BaseAddition',
-                  parameter: { value: 0, blackboardKey: 'poise_up', levelValues: [0.3] },
-                },
-              },
-            ],
-          },
-        ],
-      },
-      undefined,
-      undefined,
-      undefined,
-      undefined,
-      { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
-    );
+          ],
+        },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { gameplayTagRegistry: fixtureGameplayTagRegistry, ...{} },
+      );
 
-    expect(definition.poiseModifiers).toEqual([
+    expect(() => project(128)).toThrow('unsupported poise decorate mask 128');
+    expect(project(2097152).poiseModifiers).toEqual([
       {
         enabledSide: 'attacker',
         condition: {

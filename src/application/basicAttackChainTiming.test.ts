@@ -5,7 +5,7 @@ import { lifeng, perlica } from '../data/operators';
 import * as operators from '../data/operators';
 import { gameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
-import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
+import { placeSkillGroup, placeLibrarySkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
 import { resolveCompactSkillSelection } from '../ui/timeline/compactSkillSelection';
 import { SkillPlacementTransaction } from '../ui/timeline/skillPlacementTransaction';
@@ -54,6 +54,103 @@ function createChain(operator: OperatorDefinition) {
 }
 
 describe('generated basic attack chain input timing', () => {
+  it('伊冯未开启强化时回退为12345重击六段，原场景不留下推测前缀', async () => {
+    const scenario = createChain(operators.yvonne);
+    scenario.battle.durationFrames = 650;
+    scenario.tracks[0]!.skillCasts = [];
+    let nextId = 0;
+    const placed = placeLibrarySkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: operators.yvonne,
+      skillGroupKey: 'basicAttack',
+      variantKey: 'enhancedBasicAttack',
+      startFrame: 1,
+      ids: { allocate: () => `fallback:${nextId++}` },
+    });
+    const transaction = new SkillPlacementTransaction(service, () => 0);
+    const result = await transaction.resolve(placed);
+    expect(result?.incomplete).toBe(true);
+    expect(result?.skillCastIds).toHaveLength(6);
+    expect(
+      result?.scenario.tracks[0]!.skillCasts.map(cast =>
+        cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
+      ),
+    ).toEqual([
+      'ultimateAttack1',
+      'ultimateAttack2A',
+      'ultimateAttack2B',
+      'ultimateAttack3A',
+      'ultimateAttack3B',
+      'ultimateAttackEnd',
+    ]);
+    expect(result?.scenario).toEqual(placed.fallback?.scenario);
+    expect(scenario.tracks[0]!.skillCasts).toHaveLength(0);
+  });
+  it.each([66, 96])(
+    '伊冯强化整组从A1按实际块尾递归续段，重复A5直到重击（起始%s帧）',
+    async startFrame => {
+      let scenario = createChain(operators.yvonne);
+      scenario.battle.durationFrames = 650;
+      scenario.tracks[0]!.skillCasts = [];
+      scenario.tracks[0]!.initialState.ultimateEnergy = 200;
+      scenario = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: operators.yvonne,
+        skillGroupKey: 'ultimate',
+        startFrame: 1,
+        ids: { allocate: () => 'ultimate' },
+      }).scenario;
+      let nextId = 0;
+      const placed = placeLibrarySkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: operators.yvonne,
+        skillGroupKey: 'basicAttack',
+        variantKey: 'enhancedBasicAttack',
+        startFrame,
+        ids: { allocate: () => `enhanced:${nextId++}` },
+      });
+      expect(placed.skillCastIds).toHaveLength(1);
+      const result = await service.planSkillChain(
+        placed.scenario,
+        placed.skillCastIds,
+        650,
+        undefined,
+        'continuation',
+        placed.extension,
+      );
+      expect(result.status).toBe('planned');
+      if (result.status !== 'planned') return;
+      const casts = result.scenario.tracks[0]!.skillCasts.filter(cast => cast.id !== 'ultimate');
+      const keys = casts.map(cast =>
+        cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
+      );
+      expect(keys.slice(0, 5)).toEqual([
+        'ultimateAttack1',
+        'ultimateAttack2A',
+        'ultimateAttack2B',
+        'ultimateAttack3A',
+        'ultimateAttack3B',
+      ]);
+      expect(keys.filter(key => key === 'ultimateAttack3B').length).toBeGreaterThan(1);
+      expect(keys.at(-1)).toBe('ultimateAttackEnd');
+      expect(casts.length).toBeLessThanOrEqual(24);
+      expect(casts[0]!.placement.startFrame).toBe(startFrame);
+      for (let i = 1; i < casts.length; i++)
+        expect(casts[i]!.placement.startFrame).toBeGreaterThan(casts[i - 1]!.placement.startFrame);
+      expect(placed.scenario.tracks[0]!.skillCasts).toHaveLength(2);
+      expect(
+        result.run.receiptEntries.filter(
+          entry =>
+            result.skillCastIds?.includes(String(entry.data?.castId)) &&
+            entry.event.startsWith('SkillInput') &&
+            entry.event !== 'SkillInputProcessed',
+        ),
+      ).toEqual([]);
+    },
+  );
   it.each(
     Object.values(operators).flatMap(operator =>
       [-60, 0, 1].map(startFrame => ({ operator, startFrame })),

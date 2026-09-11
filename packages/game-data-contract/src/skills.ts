@@ -246,11 +246,22 @@ export interface SkillDefinition extends SkillActionProgramDefinition {
   eventHandlers?: readonly CombatEventHandlerDefinition[];
 }
 
+/** 编辑器整组放置策略；技能执行与单段放置不读取此元数据。 */
+export interface SkillGroupPlacementPolicy {
+  kind: 'recursiveInput';
+  firstSkillKey: string;
+  terminalSkillKey: string;
+  maxSegments: number;
+  /** 推测失败时按技能组声明顺序放置。 */
+  fallback: 'sequence';
+}
+
 /**
  * 编辑器技能库中的稳定放置单元。
  * `skills` 为数组时表示一次放置所包含的有序技能链，而不是 UI 变体。
  */
 export interface SkillGroupDefinition {
+  placementPolicy?: SkillGroupPlacementPolicy;
   key: string;
   /** @deprecated 迁移期展示元数据；模拟不得读取，最终由卡片展示语义替代。 */
   skillType: SkillType;
@@ -292,6 +303,7 @@ export interface SkillGroupDefinition {
 }
 
 export interface SkillGroupVariantDefinition {
+  placementPolicy?: SkillGroupPlacementPolicy;
   key: string;
   levelSource: SkillLevelSource;
   /** 具名形态在技能库中的语义强调；不能从 variant 结构或 key 名称推断。 */

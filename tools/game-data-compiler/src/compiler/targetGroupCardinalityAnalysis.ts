@@ -1,7 +1,7 @@
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { NativeSequenceSource } from '../source/controlFlow.ts';
 
-type TargetGroupAction = Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'];
+import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 
 export function compareKnownNumbers(
   left: number,
@@ -33,7 +33,7 @@ export function compareKnownNumbers(
 }
 
 /** 固定木桩模型中不依赖运行时几何、每次严格产生一个零空间点的写入。 */
-export function isStaticZeroSpacePointWrite(write: TargetGroupAction): boolean {
+export function isStaticZeroSpacePointWrite(write: TargetGroupActionSource): boolean {
   return (
     (write.producerType === 'FindTargetAction' ||
       write.producerType === 'ConvertToTargetContext') &&
@@ -44,7 +44,7 @@ export function isStaticZeroSpacePointWrite(write: TargetGroupAction): boolean {
 }
 
 /** 当前主控干员在战斗中严格唯一；这里仅验收完整的原生主控查询形状。 */
-export function isStaticControlledOperatorWrite(write: TargetGroupAction): boolean {
+export function isStaticControlledOperatorWrite(write: TargetGroupActionSource): boolean {
   return (
     write.producerType === 'FindTargetAction' &&
     write.finderType === 'CharacterTeamFinder' &&
@@ -65,7 +65,7 @@ export interface GuaranteedSingletonZeroSpaceAnalysisOptions {
     right: number,
   ) => boolean | undefined;
   readonly writeProducesSingleton: (
-    write: TargetGroupAction,
+    write: TargetGroupActionSource,
     state: ReadonlySet<string>,
   ) => boolean;
 }

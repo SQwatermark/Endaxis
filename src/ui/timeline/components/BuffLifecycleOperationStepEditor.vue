@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /** Buff 点燃、跨技能继承与终结技能量回复限制的本层参数编辑器。 */
 import {
   BUFF_SINGLE_TARGETS,
@@ -6,9 +7,8 @@ import {
   type CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 
-type BuffLifecycleOperationStep = Extract<
-  CombatStepDefinition,
-  { kind: 'igniteBuffs' | 'inheritBuffById' | 'restrictUltimateEnergyRecovery' }
+type BuffLifecycleOperationStep = CombatStepForKind<
+  'igniteBuffs' | 'inheritBuffById' | 'restrictUltimateEnergyRecovery'
 >;
 
 const props = defineProps<{ step: BuffLifecycleOperationStep }>();

@@ -3,6 +3,29 @@ import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 import { projectResourceChangePoints } from './resourceChangePoints';
 
 describe('projectResourceChangePoints', () => {
+  it('拒绝能力实体作为终结技能量回执接收者', () => {
+    expect(() =>
+      projectResourceChangePoints([
+        {
+          sequence: 1,
+          frame: 0,
+          time: 0,
+          event: 'UltimateEnergyChanged',
+          targetId: 'ability-entity:17',
+          data: {
+            recipient: 'abilityEntity',
+            baseValue: -3,
+            requestedValue: -3,
+            actualValue: -3,
+            previousValue: 7,
+            currentValue: 4,
+            applied: true,
+          },
+        },
+      ]),
+    ).toThrow('invalid recipient');
+  });
+
   it('保留共享技力变化回执已经给出的字段', () => {
     const entries: CombatReceiptEntry[] = [
       {

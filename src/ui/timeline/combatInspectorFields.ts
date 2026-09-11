@@ -2,7 +2,7 @@ import {
   BUFF_APPLICATION_TARGETS,
   COMBAT_TARGETS,
   type CombatCondition,
-  type CombatStepDefinition,
+  type CombatStepParameters,
 } from '../../core/game-data/operatorDefinition';
 import {
   validateActionSequenceDefinition,
@@ -10,10 +10,7 @@ import {
 } from '../../core/game-data/validateSkillDefinition';
 import { inspectorField } from './inspectorFields';
 
-export type ApplyBuffParameters = Extract<
-  CombatStepDefinition,
-  { kind: 'applyBuff' }
->['parameters'];
+export type ApplyBuffParameters = Readonly<CombatStepParameters['applyBuff']>;
 export type ActionValueComparison = Extract<CombatCondition, { kind: 'actionValueCompare' }>;
 const buff = inspectorField<ApplyBuffParameters>();
 const prefix = 'timeline.skillEditing.';

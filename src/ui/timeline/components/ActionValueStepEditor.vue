@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 动作黑板运算步骤的专用参数编辑器。
  *
@@ -10,15 +11,11 @@ import {
   ACTION_VALUE_CALCULATION_OPERATIONS,
   ACTION_VALUE_OPERATIONS,
   type ActionValueOperand,
-  type CombatStepDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 
-type ActionValueStep = Extract<
-  CombatStepDefinition,
-  { kind: 'modifyActionValue' | 'calculateActionValue' }
->;
+type ActionValueStep = CombatStepForKind<'modifyActionValue' | 'calculateActionValue'>;
 
 const props = defineProps<{ step: ActionValueStep; skillLevel: number }>();
 const emit = defineEmits<{ update: [step: ActionValueStep] }>();

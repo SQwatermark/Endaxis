@@ -1,5 +1,61 @@
 # 投射物回调：事件统一需要保留什么
 
+## 2026-09-11：有限无回调支持更新
+
+后续已接launchProjectileLifetime：Source来源、已有零空间同点目标、Default直线Reach
+形状复用ProjectileLifecycleRuntime，保留发射/reset而不创建技能。首个获准tick到达，
+后续标记/reset保持独立阶段。规范化黎风当前来源夹具和正式装配路径已有回归。
+尚未更新正式生成定义，不代表所有无回调投射物已支持。单敌人模型忽略挂点偏移，
+不将此简化当成原生实际飞行时间证据。狼卫前方固定点不在该形状内，且尚未证明
+真实轴影响，因此不作为前置阻塞。下节为此前全阻断阶段的审计记录。
+
+## 2026-09-11：无回调发射门禁的历史检查点
+
+下文资源账户、实体能量回执、临时回调宿主描述是历史记录，已被current-context替代：
+SP固定属于全队，终结技能量属于干员；duration-finish使用公共AbilitySystemRuntime +
+SkillRuntime，ProjectileCallbackActionRuntime已删除。不能重新引入投射物资源账户。
+
+本轮检查发现两个仍在执行的静默省略：enabled.length===0，以及唯一hit回调仅含表现动作。
+公共转换入口没有当前施法的完整外部观察者集合，不能证明没有SkillAffix，因此两处改成
+包含sourcePath/projectileId的寿命未投影错误。关闭槽位内残留skillId仍不读取或执行。
+这仅关闭“静默成功”的错误边界，没有接通无回调对象寿命，也没有修改既有生成定义。
+重新生成命中这些形状会失败，不能宣称31干员全量重建通过。
+
+本轮台式机SSH实际成功。按来源目录game-data-sources-hybrid-20260905逐文件只读扫描
+SkillData/BuffData/AbilityEntityData/CharacterData：92个无启用回调LaunchProjectile节点，
+包含敌人和未证明可达的分支；检查了沿父链isEnable，但未求值条件、循环次数、引用可达性。
+其中狼卫chr_0006_wolfgd_ultimate_skill包含6处，均isEnable=true，回调四开关均false；
+不能由此推导SkillAffix在某条具体轴上实际延寿多久。
+目录对应此前报告的来源快照e5944e88357583d2e4ebf6775decaf2b23afa2813b879c67688ee3c261a395df，
+AKEDB标记1.5.3@9913107-5，VFS补缺版本仍未独立验证；本轮未重做全目录哈希。
+临时脚本/结果在tmp/audit-no-callback-launches.py与tmp/no-callback-launch-audit-20260911.json，
+未读历史1.4.4转储、未加载进程转储、未提交来源文件。
+
+下一步需按实际无回调发射形状核对finish/reset触发，复用现有ProjectileLifecycleRuntime
+保留对象引用。不能为套用回调宿主而虚构空Skill，也不能默认同帧回收或猜测寿命。
+
+### 狼卫无回调形状复核（2026-09-11）
+
+已通过scp按需读取上述当前来源目录的projectile_chr_0006_wolfgd_UltimateWolf.json，
+并实际调用parseProjectileRuntimeSource，未借用历史1.4.4夹具。解析结果为partial：
+finishDuration=5、finishDistance=300、finishOnReach=true、hitOnReach=true、
+maxHitCount=1、allowHitSameTarget=false；colliderShape.shapeType=0（无碰撞体），
+blockLayerDef=Nothing；默认直线LaunchPoint→TargetPoint、keepMoveOnReach=false。
+六个启用发射的四回调开关均false，hit槽位保留旧skillId但不应执行。
+
+源技能第一个对应区间在第45帧开始，前序FindTarget写targetpoint，FixedPointFinder
+positionOffset.z=10，随后LaunchProjectile使用该Context目标。此目标不是现有
+isPlainZeroSpaceFixedPoint可证明的同点目标。因此：
+
+- 5秒是独立结束上界，不能直接用作对象确切寿命。
+- maxHitCount=1不能单独证明首帧回收，当前形状没有碰撞体。
+- 不能将零敌我距离自动扩大为所有预设偏移点均重合。
+- 当前ProjectileLifecycleRuntime只接受已知正数结束延迟，尚无首个Reach通知入口；
+  现有零距离回调投影也没有保留此对象生命周期。
+
+本轮未改运行时或生成定义。余项是非伤害发射的寿命投影与接入，不是资源、技能费用
+或再寻找一个投射物账户；禁止以未经确认的5秒/首帧常量完成接口接通。
+
 本次只审计已有转换的消费者，不新增投射物路径、敌人行为或技能内容。
 **完整回调宿主尚未接入；本报告不是其验收通过声明。**
 

@@ -4,6 +4,7 @@ import type { InspectorPropertyPath } from '../inspectorProperty';
 import type {
   BuffDuration,
   BuffShieldDefinition,
+  BuffShieldAttributeValue,
 } from '../../../../packages/game-data-contract/src/buffs';
 import BuffDefinitionScalarEditor from './BuffDefinitionScalarEditor.vue';
 import BuffShieldAbsorptionInspector from './BuffShieldAbsorptionInspector.vue';
@@ -59,7 +60,7 @@ function setValueKind(index: number, shield: BuffShieldDefinition, event: Event)
 function updateAttributeValue(
   index: number,
   shield: BuffShieldDefinition,
-  patch: Partial<Extract<BuffShieldDefinition['value'], { readonly attribute: string }>>,
+  patch: Partial<BuffShieldAttributeValue>,
 ): void {
   if (!(typeof shield.value === 'object' && 'attribute' in shield.value)) return;
   replace(index, { ...shield, value: { ...shield.value, ...patch } });

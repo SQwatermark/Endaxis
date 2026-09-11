@@ -2,8 +2,14 @@
 export type RuntimeTargetRef =
   | { readonly kind: 'operator'; readonly operatorId: string }
   | { readonly kind: 'enemy' }
-  | { readonly kind: 'abilityEntity'; readonly instanceId: number }
+  | AbilityEntityTargetRef
   | { readonly kind: 'spatialPoint'; readonly pointId: number };
+
+/** 普通能力实体与投射物技能宿主共用的实例句柄。 */
+export interface AbilityEntityTargetRef {
+  readonly kind: 'abilityEntity';
+  readonly instanceId: number;
+}
 
 /** Context 目标组只保存稳定句柄；距离与形状不会进入组身份。 */
 export type RuntimeTargetGroup = readonly RuntimeTargetRef[];

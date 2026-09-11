@@ -1,3 +1,4 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /** 把普通治疗步骤写入干员生命账本；目标选择和面板来源由场景环境提供。 */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { HealCalculationAttribute, HealTarget } from '../../game-data/operatorDefinition';
@@ -13,7 +14,7 @@ import {
   type HealProcessTiming,
 } from '../heal/healModifiers';
 
-type HealStep = Extract<ResolvedCombatOperationStep, { kind: 'heal' }>;
+type HealStep = ResolvedCombatStepForKind<'heal'>;
 
 export interface ResolvedHealTarget {
   readonly operatorId: string;

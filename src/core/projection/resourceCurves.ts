@@ -113,8 +113,7 @@ export function projectResourceCurves(
       currentSp = appendPoint(spPoints, change, currentSp, 'sp');
       continue;
     }
-    // 变化点保留所有账户事实；队伍曲线只消费干员账户，不按来源归因实体费用。
-    if (change.recipient !== 'operator') continue;
+    // 终结技能量只属于已配置干员，接收者不能由事件来源替代。
     const operator = ultimateByOperator.get(change.targetId);
     if (operator === undefined) {
       throw new Error(

@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import type {
+  CombatStepForKind,
+  CombatStepParameters,
+} from '../../../../packages/game-data-contract/src/actions';
+import type {
   ActionValueOperand,
   CombatStepDefinition,
   LevelValues,
@@ -12,17 +16,13 @@ import {
   type NativeSkillType,
 } from '../../../core/game-data/operatorDefinition';
 
-type Step = Extract<
-  CombatStepDefinition,
-  {
-    kind:
-      | 'createSpatialPointTargets'
-      | 'jumpTimeline'
-      | 'finishTimeline'
-      | 'withActionBlackboardScope'
-      | 'repeatByActionValue'
-      | 'scheduleProjectileFinishCallback';
-  }
+type Step = CombatStepForKind<
+  | 'createSpatialPointTargets'
+  | 'jumpTimeline'
+  | 'finishTimeline'
+  | 'withActionBlackboardScope'
+  | 'repeatByActionValue'
+  | 'scheduleProjectileFinishCallback'
 >;
 const props = defineProps<{ step: Step; skillLevel: number }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
@@ -34,7 +34,7 @@ const labels = {
 };
 
 function setScopeParameters(
-  parameters: Extract<Step, { kind: 'withActionBlackboardScope' }>['parameters'],
+  parameters: Readonly<CombatStepParameters['withActionBlackboardScope']>,
 ): void {
   if (props.step.kind === 'withActionBlackboardScope')
     emit('update', { ...props.step, parameters });

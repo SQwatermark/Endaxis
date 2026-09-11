@@ -1,6 +1,7 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
-type Step = Extract<CombatStepDefinition, { kind: 'forEachContextTarget' }>;
+type Step = CombatStepForKind<'forEachContextTarget'>;
 const props = defineProps<{ step: Step }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 function setMode(event: Event): void {

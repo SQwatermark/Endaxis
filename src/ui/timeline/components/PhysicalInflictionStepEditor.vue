@@ -1,8 +1,9 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /** Inspector for evidence-locked physical infliction entries. */
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
 
-type PhysicalInflictionStep = Extract<CombatStepDefinition, { kind: 'applyPhysicalInfliction' }>;
+type PhysicalInflictionStep = CombatStepForKind<'applyPhysicalInfliction'>;
 
 const props = defineProps<{ step: PhysicalInflictionStep }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();

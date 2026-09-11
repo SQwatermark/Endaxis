@@ -4,6 +4,7 @@ import { projectGlobalCooldownTarget } from './globalCooldownProjection.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions.ts';
 import type { NativeActionNodeSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
+import type { NativeConditionSource } from '../source/condition.ts';
 import { projectObjectTypeSelection } from '../source/objectType.ts';
 import type { CompiledBuffConditionSource } from './combatActionProjectionTypes.ts';
 import {
@@ -92,7 +93,7 @@ export function conditionWritesBlackboard(condition: CompiledBuffConditionSource
 }
 
 function compileConditionLeaf(
-  condition: Extract<KnownNativeActionLeafSource, { family: 'condition' }>['action'],
+  condition: NativeConditionSource,
   sourcePath: string,
   context: CombatActionProjectionContextSource,
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),

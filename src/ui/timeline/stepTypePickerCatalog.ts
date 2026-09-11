@@ -116,6 +116,7 @@ export const STEP_TYPE_GROUPS: readonly StepTypeGroup[] = [
       'outputKnockDown',
       'openComboWindow',
       'changeSkillSlot',
+      'overrideBasicAttackMapping',
       'changePlayerActionMode',
       'changeNativeSkillType',
       'listenForCombatEvents',

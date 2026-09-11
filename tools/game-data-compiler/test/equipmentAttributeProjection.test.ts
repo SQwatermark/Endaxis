@@ -174,6 +174,10 @@ describe('单件装备属性投影', () => {
   });
 
   it('does not reuse a mapping when the native target or formula slot changes', () => {
+    // 公共契约允许受治疗增幅，不意味着当前构筑转换已经支持该原生属性。
+    expect(
+      projectEquipmentAttributeModifier(fixture('specific', 'HealTakenIncrease', 'baseAddition')),
+    ).toMatchObject({ status: 'blocked' });
     expect(
       projectEquipmentAttributeModifier(fixture('specific', 'Atk', 'baseAddition')),
     ).toMatchObject({ status: 'blocked' });

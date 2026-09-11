@@ -10,6 +10,7 @@ import {
  * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatStepParameters } from '../../compiler/combatProgram';
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffApplicationHandle, BuffFinishReason } from '../buffs/combatBuffs';
@@ -965,7 +966,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   }
 
   #resolveApplicationSource(
-    source: NonNullable<Extract<RuntimeOperation, { kind: 'applyBuff' }>['parameters']['source']>,
+    source: NonNullable<ResolvedCombatStepParameters['applyBuff']['source']>,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): BuffOperationTarget {
     if (source === 'buffSource' || source === 'buffOwner') {

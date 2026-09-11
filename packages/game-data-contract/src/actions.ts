@@ -1,5 +1,6 @@
 import type { GameplayTag, GameplayTagQueryType } from './gameplayTags.ts';
 import type { AbilityEvent } from './abilityEvents.ts';
+
 import {
   type BuffApplicationSource,
   type BuffApplicationTarget,
@@ -50,6 +51,24 @@ import type {
   DamageScaleSide,
   DamageScaleZone,
 } from './modifiers.ts';
+
+/** 治疗目标绑定；Context 使用查询阶段保存的实例，其他目标不得携带查询键。 */
+export type HealTargetBinding =
+  | { target: 'contextTarget'; contextKey: string }
+  | { target: Exclude<HealTarget, 'contextTarget'>; contextKey?: never };
+
+/** 标签结束使用单个已绑定对象；集合与主控选择器不在此动作的目标范围内。 */
+export const BUFF_TAG_FINISH_TARGETS = [
+  'caster',
+  'enemy',
+  'currentAbilityEntity',
+  'eventTarget',
+  'eventSource',
+  'buffOwner',
+  'buffSource',
+  'currentTarget',
+] as const satisfies readonly BuffSingleTarget[];
+export type BuffTagFinishTarget = (typeof BUFF_TAG_FINISH_TARGETS)[number];
 
 /** 一次伤害步骤的完整声明；倍率使用小数，失衡与生命伤害同属该命中。 */
 export interface DealDamageParameters {
@@ -120,19 +139,31 @@ export interface DealFixedDamageParameters {
  * 语义战斗状态每层能够贡献的修正。
  * 这些定义由编译器展开，不能携带运行时回调或直接引用 UI 状态。
  */
+export interface StatusModifierDefinitionMap {
+  attackPercent: { kind: 'attackPercent'; value: LevelValues };
+  susceptibility: {
+    kind: 'susceptibility';
+    damageTypes: readonly DamageType[];
+    value: LevelValues;
+    attributeScaling?: { attribute: OperatorAttribute; coefficient: LevelValues };
+    cap?: LevelValues;
+  };
+  slowed: { kind: 'slowed' };
+  blockResourceGain: { kind: 'blockResourceGain'; resource: CombatResource };
+  resourceCostMultiplier: {
+    kind: 'resourceCostMultiplier';
+    resource: CombatResource;
+    value: number;
+  };
+  skillCooldownMultiplier: {
+    kind: 'skillCooldownMultiplier';
+    skillGroupKey: string;
+    value: number;
+  };
+}
+
 export type StatusModifierDefinition =
-  | { kind: 'attackPercent'; value: LevelValues }
-  | {
-      kind: 'susceptibility';
-      damageTypes: readonly DamageType[];
-      value: LevelValues;
-      attributeScaling?: { attribute: OperatorAttribute; coefficient: LevelValues };
-      cap?: LevelValues;
-    }
-  | { kind: 'slowed' }
-  | { kind: 'blockResourceGain'; resource: CombatResource }
-  | { kind: 'resourceCostMultiplier'; resource: CombatResource; value: number }
-  | { kind: 'skillCooldownMultiplier'; skillGroupKey: string; value: number };
+  StatusModifierDefinitionMap[keyof StatusModifierDefinitionMap];
 
 export const STATUS_MODIFIER_KINDS = [
   'attackPercent',
@@ -362,17 +393,7 @@ export interface CombatStepParameters {
     features?: readonly DamageFeature[];
   };
   /** 按施法者属性计算，并写入干员生命账本的普通治疗。 */
-  heal: (
-    | {
-        target: 'contextTarget';
-        /** 读取查询阶段已经保存的实例；治疗阶段不得重新选人。 */
-        contextKey: string;
-      }
-    | {
-        target: Exclude<HealTarget, 'contextTarget'>;
-        contextKey?: never;
-      }
-  ) & {
+  heal: HealTargetBinding & {
     /** 原生 Healer=ActionOwner 且动作位于 Buff 生命周期时，治疗来源是 Buff 宿主。 */
     source?: 'buffOwner';
     /** 原生 AbilityAction.alwaysNext；false 时保留治疗应用失败的序列短路。 */
@@ -552,15 +573,7 @@ export interface CombatStepParameters {
   };
   /** 按原生标签查询结束目标身上的匹配 Buff；count 缺省时结束全部。 */
   finishBuffsByTag: {
-    target: Exclude<
-      BuffApplicationTarget,
-      | 'controlledOperator'
-      | 'party'
-      | 'partyExceptCaster'
-      | 'partyExceptCasterAndSameCharacterType'
-      | 'casterAndControlledOperator'
-      | 'casterAndLowestHealthRatioOperatorExceptCaster'
-    >;
+    target: BuffTagFinishTarget;
     tagQueryType: GameplayTagQueryType;
     buffTags: readonly GameplayTag[];
     reason: 'early' | 'absorbed' | 'other';
@@ -843,6 +856,8 @@ export interface CombatStepParameters {
   };
   /** 按动作黑板或常量次数同步执行独立 body；每次都创建新的子步骤实例。 */
   repeatByActionValue: { count: ActionValueOperand };
+  /** 无启用回调、已证明同点到达的发射；仍保留发射与 reset 引用，不创建技能。 */
+  launchProjectileLifetime: { finish: 'firstTickReach' };
   /**
    * 原生 ProjectileComponent 的正数 finishDuration 到期回调。
    * 注册发生在发射动作实际执行时，且回调寿命独立于发射技能；不得用于普通技能延迟动作。
@@ -877,6 +892,8 @@ export interface CombatStepParameters {
     /** 原生指定还原技能；省略时由运行时快照替换前槽位。 */
     revertedSkillKey?: string;
   };
+  /** Buff 动作有效期间覆盖普攻命令；结束时只移除本次注册。 */
+  overrideBasicAttackMapping: { sourceSkillId: string };
   /** SwitchModeAction：只改变后续玩家操作的原生路由，结束时恢复同层上一模式。 */
   changePlayerActionMode: {
     modeId: string;
@@ -985,9 +1002,11 @@ export const COMBAT_STEP_KINDS = [
   'repeatEachTick',
   'repeatByActionValue',
   'scheduleProjectileFinishCallback',
+  'launchProjectileLifetime',
   'setContextFlag',
   'openComboWindow',
   'changeSkillSlot',
+  'overrideBasicAttackMapping',
   'changePlayerActionMode',
   'changeNativeSkillType',
   'setCharacterPassiveUiValue',
@@ -998,7 +1017,7 @@ export const COMBAT_STEP_KINDS = [
 /** 步骤按 kind 区分类型，编译和执行靠它精确分支。 */
 export type CombatStepKind = (typeof COMBAT_STEP_KINDS)[number];
 
-type CombatStepForKind<K extends CombatStepKind> = {
+type CombatStepNode<K extends CombatStepKind> = {
   /** 仅当其他定义需要引用此步骤时提供。 */
   key?: string;
   kind: K;
@@ -1022,9 +1041,12 @@ type CombatStepForKind<K extends CombatStepKind> = {
                 : {});
 
 /** 干员定义中可执行、按 `kind` 精确区分的一项步骤。 */
-export type CombatStepDefinition = {
-  [K in CombatStepKind]: CombatStepForKind<K>;
-}[CombatStepKind];
+export type CombatStepDefinition = CombatStepForKind<CombatStepKind>;
+
+/** 按成员逐一构造，多个kind仍保持参数及子节点字段的对应关系。 */
+export type CombatStepForKind<K extends CombatStepKind> = {
+  [Kind in K]: CombatStepNode<Kind>;
+}[K];
 
 /** 同一时点严格按数组顺序同步执行的步骤集合。 */
 export interface ActionSequenceDefinition {

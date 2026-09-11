@@ -11,7 +11,10 @@ import type {
   ScenarioDocument,
 } from '../../core/project/schema';
 
-export type EnemyBasicEditableField = Exclude<keyof EnemyEditableValues, 'resistances' | 'stagger'>;
+export type EnemyBasicEditableField = keyof Pick<
+  EnemyEditableValues,
+  'hp' | 'defense' | 'superArmor' | 'finisherMultiplier'
+>;
 export type EnemyStaggerEditableField = keyof EnemyStaggerEditableValues;
 
 function addEditedField(

@@ -13,6 +13,9 @@ import type {
   SkillValueModifyTypeSource,
 } from '../../source/operatorProgressionEffects.ts';
 
+/** 已通过原生有效操作检查的养成运算；None 仅允许作为无效果条目。 */
+export type CompiledSkillValueOperationSource = 'add' | 'multiply' | 'overwrite';
+
 interface CompiledProgressionEntryBaseSource {
   readonly sourcePath: string;
   /** 构筑期条件；null 表示原生条件数组过滤空字符串后为空。 */
@@ -35,14 +38,14 @@ export type CompiledOperatorProgressionEntrySource =
       readonly kind: 'skillParameterModifier';
       readonly skillId: string;
       readonly parameter: ModifiableSkillParameterSource;
-      readonly operation: Exclude<SkillValueModifyTypeSource, 'none'>;
+      readonly operation: CompiledSkillValueOperationSource;
       readonly value: number;
     })
   | (CompiledProgressionEntryBaseSource & {
       readonly kind: 'skillBlackboardModifier';
       readonly skillId: string;
       readonly blackboardKey: string;
-      readonly operation: Exclude<SkillValueModifyTypeSource, 'none'>;
+      readonly operation: CompiledSkillValueOperationSource;
       readonly numberValue: number;
       readonly stringValue: string;
     })
@@ -140,7 +143,17 @@ export function compileOperatorProgressionEffectBundles(
 function requireOperation(
   value: SkillValueModifyTypeSource,
   path: string,
-): Exclude<SkillValueModifyTypeSource, 'none'> {
-  if (value === 'none') throw new Error(`${path}: active modifier cannot use None`);
-  return value;
+): CompiledSkillValueOperationSource {
+  switch (value) {
+    case 'none':
+      throw new Error(`${path}: active modifier cannot use None`);
+    case 'add':
+    case 'multiply':
+    case 'overwrite':
+      return value;
+    default: {
+      const exhaustive: never = value;
+      throw new Error(`${path}: unclassified modifier operation ${exhaustive}`);
+    }
+  }
 }

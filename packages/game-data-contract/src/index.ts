@@ -8,4 +8,5 @@ export * from './skills.ts';
 export * from './buffs.ts';
 export * from './operators.ts';
 export * from './equipment.ts';
+export * from './buildModifiers.ts';
 export * from './modifiers.ts';

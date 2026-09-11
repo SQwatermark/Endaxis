@@ -400,12 +400,14 @@ function inspectSequence(
       case 'restrictUltimateEnergyRecovery':
       case 'openComboWindow':
       case 'changeSkillSlot':
+      case 'overrideBasicAttackMapping':
       case 'changePlayerActionMode':
       case 'changeNativeSkillType':
       case 'adjustSkillCooldown':
       case 'startTimeDilation':
       case 'startUltimateTimeDilation':
       case 'hideUi':
+      case 'launchProjectileLifetime':
       case 'setIgnoreGlobalTimeScale':
         return;
       case 'listenForCombatEvents':

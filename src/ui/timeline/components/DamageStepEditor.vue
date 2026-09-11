@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 伤害与失衡步骤的专用参数编辑器。
  *
@@ -29,9 +30,8 @@ import {
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 
-type DamageStep = Extract<
-  CombatStepDefinition,
-  { kind: 'dealDamage' | 'dealFixedDamage' | 'dealStagger' | 'applyElementalInfliction' }
+type DamageStep = CombatStepForKind<
+  'dealDamage' | 'dealFixedDamage' | 'dealStagger' | 'applyElementalInfliction'
 >;
 
 const props = defineProps<{ step: DamageStep; skillLevel: number }>();

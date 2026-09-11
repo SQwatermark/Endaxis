@@ -1,5 +1,14 @@
 import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, expectTypeOf, it } from 'vitest';
+import type {
+  CombatStepParameters,
+  HealTargetBinding,
+} from '../../../packages/game-data-contract/src/actions';
+import type {
+  ResolvedCombatStep,
+  ResolvedCombatStepForKind,
+  ResolvedCombatStepParameters,
+} from './combatProgram';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
 import type { SkillActionProgramDefinition } from '../../../packages/game-data-contract/src/skills';
 import { perlica } from '../../data/operators/perlica';
@@ -9,6 +18,31 @@ import {
   compileSkill,
   compileActionSequence,
 } from './compileSkill';
+
+it('keeps step kind, parameters and sequence fields correlated through the public member type', () => {
+  type Selected = ResolvedCombatStepForKind<
+    'conditional' | 'once' | 'dealDamage' | 'dealFixedDamage'
+  >;
+  expectTypeOf<Selected>().toEqualTypeOf<
+    Extract<ResolvedCombatStep, { kind: 'conditional' | 'once' | 'dealDamage' | 'dealFixedDamage' }>
+  >();
+  expectTypeOf<ResolvedCombatStepForKind<'once'>>().not.toBeNever();
+  const once: ResolvedCombatStepForKind<'once'> = {
+    kind: 'once',
+    parameters: { scopeKey: 'test' },
+    body: { steps: [] },
+  };
+  expect(once.body.steps).toEqual([]);
+  // @ts-expect-error once requires its child sequence.
+  const missingBody: ResolvedCombatStepForKind<'once'> = {
+    kind: 'once',
+    parameters: { scopeKey: 'test' },
+  };
+  void missingBody;
+  // @ts-expect-error unknown kinds cannot silently resolve to never.
+  type UnknownStep = ResolvedCombatStepForKind<'unknownStep'>;
+  expectTypeOf<UnknownStep>();
+});
 
 function findPerlicaSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -20,6 +54,17 @@ function findPerlicaSkill(key: string): SkillDefinition {
 }
 
 describe('compileSkill', () => {
+  it('keeps the same heal target binding before and after compilation', () => {
+    type TargetBinding<T> = T extends HealTargetBinding ? Pick<T, 'target' | 'contextKey'> : never;
+    expectTypeOf<TargetBinding<CombatStepParameters['heal']>>().toEqualTypeOf<HealTargetBinding>();
+    expectTypeOf<
+      TargetBinding<ResolvedCombatStepParameters['heal']>
+    >().toEqualTypeOf<HealTargetBinding>();
+    expectTypeOf<{ target: 'contextTarget' }>().not.toExtend<HealTargetBinding>();
+    expectTypeOf<{ target: 'caster'; contextKey: string }>().not.toExtend<HealTargetBinding>();
+    expectTypeOf<{ target: 'contextTarget'; contextKey: string }>().toExtend<HealTargetBinding>();
+  });
+
   it('compiles the same action program identically for operator and child skill hosts', () => {
     const actions: SkillActionProgramDefinition = {
       blackboard: { coefficient: [1, 2] },

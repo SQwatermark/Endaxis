@@ -1,5 +1,11 @@
 import { expectTypeOf, it } from 'vitest';
 import type {
+  BuildModifierDefinition,
+  BuildModifierDefinitionMap,
+  EquipmentModifierDefinition,
+} from '../../../packages/game-data-contract/src/index.ts';
+import type { CompiledBuildModifierDefinitionSource } from '../src/compiler/formalBuildDefinition.ts';
+import type {
   GameplayTag,
   ActionSequenceDefinition,
   CombatCondition,
@@ -76,13 +82,74 @@ import type { ProjectedDamageElementSource } from '../src/source/damageElement.t
 import type { CompiledOperatorProgressionEntrySource } from '../src/domains/operator/progressionEffects.ts';
 
 type IncompatibleParameters = {
-  [K in CompiledBuffStepSource['kind']]: Extract<
-    CompiledBuffStepSource,
-    { kind: K }
-  >['parameters'] extends CombatStepParameters[K]
-    ? never
-    : K;
+  [K in CompiledBuffStepSource['kind']]: [ProjectedParameters<K>] extends [never]
+    ? K
+    : ProjectedParameters<K> extends CombatStepParameters[K]
+      ? never
+      : K;
 }[CompiledBuffStepSource['kind']];
+
+it('构筑修正独立于配装入口，编译输出保留显式公式槽', () => {
+  expectTypeOf<EquipmentModifierDefinition>().toEqualTypeOf<BuildModifierDefinition>();
+  expectTypeOf<CompiledBuildModifierDefinitionSource>().toExtend<BuildModifierDefinition>();
+  expectTypeOf<
+    BuildModifierDefinitionMap['staticHealingIncrease']
+  >().toExtend<CompiledBuildModifierDefinitionSource>();
+  expectTypeOf<
+    BuildModifierDefinitionMap['skillCooldownMultiplier']
+  >().toExtend<CompiledBuildModifierDefinitionSource>();
+  expectTypeOf<{
+    kind: 'damageScale';
+    target: 'heat';
+    value: number;
+  }>().not.toExtend<CompiledBuildModifierDefinitionSource>();
+  expectTypeOf<{
+    kind: 'damageScale';
+    target: 'heat';
+    slot: 'addition';
+    value: number;
+  }>().toExtend<CompiledBuildModifierDefinitionSource>();
+});
+
+it('Buff 失衡修正与优先级直接使用正式契约，默认时钟仍由省略表达', () => {
+  expectTypeOf<CompiledBuffPoiseModifierSource>().toEqualTypeOf<PoiseModifierDefinition>();
+  expectTypeOf<CompiledBuffDefinitionSource['priority']>().toEqualTypeOf<
+    NonNullable<SkillBuffDefinition['priority']>
+  >();
+  expectTypeOf<CompiledBuffDefinitionSource['timeClock']>().toEqualTypeOf<
+    'global' | 'self' | undefined
+  >();
+});
+
+it('动作输出的伤害类型、属性选择器与曲线复用正式契约', () => {
+  expectTypeOf<ProjectedParameters<'dealDamage'>['damageType']>().toEqualTypeOf<
+    CombatStepParameters['dealDamage']['damageType']
+  >();
+  expectTypeOf<ProjectedParameters<'storeSourceAttributeValue'>['attribute']>().toEqualTypeOf<
+    CombatStepParameters['storeSourceAttributeValue']['attribute']
+  >();
+  type ContractCurve =
+    import('../../../packages/game-data-contract/src/conditions.ts').TimeScaleCurveDefinition;
+  expectTypeOf<ProjectedParameters<'startTimeDilation'>['curve']>().toEqualTypeOf<ContractCurve>();
+});
+
+it('Buff 编译输出直接复用契约的事件范围和优先级', () => {
+  type CompiledResponse = NonNullable<
+    CompiledBuffDefinitionSource['abilityEventResponses']
+  >[number];
+  type ContractResponse = NonNullable<SkillBuffDefinition['abilityEventResponses']>[number];
+  expectTypeOf<CompiledResponse['event']>().toEqualTypeOf<ContractResponse['event']>();
+  expectTypeOf<CompiledResponse['priority']>().toEqualTypeOf<ContractResponse['priority']>();
+});
+
+it('Buff 伤害与治疗处理器直接复用正式契约，不维护第二份种类名单', () => {
+  expectTypeOf<CompiledBuffDamageModifierSource['processors']>().toEqualTypeOf<
+    CombatBuffDefinitionDamageModifier['processors']
+  >();
+  expectTypeOf<CompiledBuffHealModifierSource['processors']>().toEqualTypeOf<
+    HealModifierDefinition['processors']
+  >();
+});
 
 it('GameplayTag 是 string 的语义别名，不要求运行时转换', () => {
   expectTypeOf<GameplayTag>().toEqualTypeOf<string>();
@@ -102,6 +169,11 @@ it('技能身份、等级来源与元素复用契约，但链接计划和养成 
     CompiledOperatorProgressionEntrySource,
     { kind: 'skillBlackboardModifier' }
   >;
+  expectTypeOf<BlackboardPatch>().not.toBeNever();
+  expectTypeOf<Omit<BlackboardPatch, 'operation'>>().not.toExtend<BlackboardPatch>();
+  expectTypeOf<
+    Omit<BlackboardPatch, 'operation'> & { operation: 'none' }
+  >().not.toExtend<BlackboardPatch>();
   expectTypeOf<BlackboardPatch['operation']>().toEqualTypeOf<'add' | 'multiply' | 'overwrite'>();
   expectTypeOf<BlackboardPatch['stringValue']>().toEqualTypeOf<string>();
   expectTypeOf<BlackboardPatch['sourcePath']>().toEqualTypeOf<string>();
@@ -161,6 +233,7 @@ it('主动技能及实体共用调度子集，结束帧和技能来源信息保�
 // 由 type-check:game-data 真正检查，Vitest 执行本身不能替代类型门禁。
 // 方向必须是“所有公共投影输出均能交给契约”，不只是某份 JSON 恰巧通过 validator。
 it('公共 Buff、动作与武器装配输出是独立契约的子集', () => {
+  expectTypeOf<CompiledBuffStepSource>().not.toBeNever();
   expectTypeOf<IncompatibleParameters>().toEqualTypeOf<never>();
   expectTypeOf<CompiledBuffPresentationSource>().toExtend<CombatBuffPresentation>();
   expectTypeOf<CompiledBuffAttributeModifierSource>().toExtend<CombatBuffDefinitionAttributeModifier>();
@@ -178,6 +251,14 @@ type ProjectedParameters<K extends CompiledBuffStepSource['kind']> = Extract<
   CompiledBuffStepSource,
   { kind: K }
 >['parameters'];
+
+it('投影成员检查拒绝未知kind，并保留真实输出的必填字段', () => {
+  expectTypeOf<ProjectedParameters<'heal'>>().not.toBeNever();
+  expectTypeOf<{}>().not.toExtend<ProjectedParameters<'heal'>>();
+  // @ts-expect-error 拼错的kind必须报错，不能筛成never后冒充验收通过。
+  type UnknownProjection = ProjectedParameters<'unknownProjection'>;
+  expectTypeOf<UnknownProjection>();
+});
 
 it('武器与装备阶段输出直接使用契约身份，兼容旧类型导出且保留必需字段', () => {
   expectTypeOf<CompiledWeaponStaticDefinitionSource['rarity']>().toEqualTypeOf<WeaponRarity>();
@@ -201,6 +282,7 @@ it('武器生成只走原生事件入口，监听器不重复声明能力黑板'
   >['abilityEvent'];
   expectTypeOf<CompiledWeaponEventHandlerSource>().toExtend<EquipmentEventHandlerDefinition>();
   expectTypeOf<AbilityEvent>().toEqualTypeOf<EquipmentAbilityEvent>();
+  expectTypeOf<AbilityEvent>().not.toBeNever();
   expectTypeOf<SemanticEvent>().toBeNever();
   expectTypeOf<
     Extract<keyof CompiledWeaponEventHandlerSource, 'event' | 'blackboard'>

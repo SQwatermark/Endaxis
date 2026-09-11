@@ -14,7 +14,10 @@ import { physicalAbilityEvent } from '../events/combatAbilityEvent';
 import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 import { damageAbilityEvent } from '../events/combatAbilityEvent';
 import { healAbilityEvent } from '../events/combatAbilityEvent';
-import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
+import type {
+  GameplayTag,
+  GameplayTagMatchType,
+} from '../../../../packages/game-data-contract/src/gameplayTags';
 import { buffApplicationEvent, buffAbilityEvent } from '../events/combatAbilityEvent';
 /**
  * 求值依赖当前事件负载的条件。
@@ -28,9 +31,6 @@ import type { GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import { NATIVE_ELEMENT_VALUES, spellBurstElement } from '../infliction/elementalInfliction';
-
-type EventDamageTagsCondition = Extract<CombatCondition, { kind: 'eventDamageTagsMatch' }>;
-type EventDamageFeaturesCondition = Extract<CombatCondition, { kind: 'eventDamageFeaturesMatch' }>;
 
 export class EventContextConditionExecutor implements CombatOperationExecutor {
   constructor(
@@ -465,7 +465,7 @@ function eventDamageProperties(event: NonNullable<CombatOperationContext['event'
 function matchValues<T>(
   actualValues: readonly T[],
   expectedValues: readonly T[],
-  match: EventDamageTagsCondition['match'] | EventDamageFeaturesCondition['match'],
+  match: GameplayTagMatchType,
 ): boolean {
   const actual = new Set(actualValues);
   const expected = new Set(expectedValues);

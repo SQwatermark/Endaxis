@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import type {
+  CombatStepForKind,
+  CombatStepParameters,
+} from '../../../../packages/game-data-contract/src/actions';
 /**
  * 语义状态步骤的专用参数编辑器。
  *
@@ -6,11 +10,7 @@
  * 并保留 parameters 中未展示的字段（如状态修正 modifiers）。
  */
 import { useI18n } from 'vue-i18n';
-import {
-  COMBAT_TARGETS,
-  type CombatStepDefinition,
-  type CombatTarget,
-} from '../../../core/game-data/operatorDefinition';
+import { COMBAT_TARGETS, type CombatTarget } from '../../../core/game-data/operatorDefinition';
 import {
   replaceLevelValueForEditor,
   resolveLevelValueForEditor,
@@ -18,7 +18,7 @@ import {
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import StatusModifierEditor from './StatusModifierEditor.vue';
 
-type StatusStep = Extract<CombatStepDefinition, { kind: 'applyStatus' | 'consumeStatus' }>;
+type StatusStep = CombatStepForKind<'applyStatus' | 'consumeStatus'>;
 
 const props = defineProps<{ step: StatusStep; skillLevel: number }>();
 const emit = defineEmits<{ update: [step: StatusStep] }>();
@@ -91,7 +91,7 @@ function setMaxStacks(event: Event): void {
 }
 
 function setModifiers(
-  modifiers: NonNullable<Extract<StatusStep, { kind: 'applyStatus' }>['parameters']['modifiers']>,
+  modifiers: NonNullable<CombatStepParameters['applyStatus']['modifiers']>,
 ): void {
   if (props.step.kind !== 'applyStatus') return;
   const parameters = { ...props.step.parameters };

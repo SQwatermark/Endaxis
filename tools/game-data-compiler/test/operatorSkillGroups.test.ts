@@ -20,6 +20,44 @@ const SKILLS: readonly OperatorSkillIdentitySource[] = (
 ).map(([key, skillId, skillType]) => ({ key, skillId, skillType }));
 
 describe('干员技能等级组', () => {
+  it('读取基础组与变体的通用递归放置策略，并校验端点和回退预算', () => {
+    const placementPolicy = {
+      kind: 'recursiveInput',
+      firstSkillKey: 'basicAttack1',
+      terminalSkillKey: 'basicAttack2',
+      maxSegments: 8,
+      fallback: 'sequence',
+    };
+    const source = {
+      ...group('basicAttack', 'basicAttack', 'basicAttack', 0, ['basicAttack1', 'basicAttack2']),
+      placementPolicy,
+      variants: [
+        {
+          key: 'alternate',
+          levelSource: 'ultimate',
+          nativeGroupType: 2,
+          libraryPresentation: 'enhanced',
+          skillKeys: ['basicAttack1', 'basicAttack2'],
+          placementPolicy,
+        },
+      ],
+    };
+    const parsed = parseOperatorSkillGroupSources([source], 'groups')[0]!;
+    expect(parsed.placementPolicy).toEqual(placementPolicy);
+    expect(parsed.variants[0]!.placementPolicy).toEqual(placementPolicy);
+    expect(() =>
+      parseOperatorSkillGroupSources(
+        [{ ...source, placementPolicy: { ...placementPolicy, terminalSkillKey: 'missing' } }],
+        'groups',
+      ),
+    ).toThrow('endpoints');
+    expect(() =>
+      parseOperatorSkillGroupSources(
+        [{ ...source, placementPolicy: { ...placementPolicy, maxSegments: 1 } }],
+        'groups',
+      ),
+    ).toThrow('fallback sequence');
+  });
   it.each([
     ['skillType', 'passive'],
     ['levelSource', 'finisher'],

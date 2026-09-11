@@ -16,6 +16,7 @@ export {
   type BuffKeywordEnhancementDefinition,
 } from '../../../../packages/game-data-contract/src/buffs.ts';
 import {
+  type BuffShieldAttributeValue,
   type BuffDuration,
   type BuffKeywordEnhancementDefinition,
   type BuffMaxStackCount,
@@ -1637,7 +1638,7 @@ function resolveBuffNumber<Key extends string>(
 
 function resolveShieldAttributeValue<Key extends string>(
   buff: CombatBuff<Key>,
-  calculation: Extract<BuffShieldDefinition['value'], { readonly attribute: string }>,
+  calculation: BuffShieldAttributeValue,
 ): number {
   const useSource = calculation.attributeSource === 'buffSource';
   if (useSource && buff.sourceId !== buff.owner.ownerId) {

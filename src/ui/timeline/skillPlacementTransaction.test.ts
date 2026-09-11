@@ -23,6 +23,56 @@ function setup() {
 }
 
 describe('SkillPlacementTransaction', () => {
+  it.each(['incomplete', 'error'] as const)(
+    '递归%s时替换为完整默认连段，不追加到推测前缀',
+    async status => {
+      const { transaction, pending, failures, placed } = setup();
+      const fallback = {
+        scenario: { ...placed.scenario, id: 'fallback' },
+        skillCastIds: ['a', 'b', 'c', 'd', 'e', 'heavy'],
+      };
+      const result = transaction.resolve({
+        ...placed,
+        skillCastIds: ['a'],
+        fallback,
+        extension: {
+          allowedSkillKeys: ['first', 'heavy'],
+          terminalSkillKey: 'heavy',
+          reservedCastIds: ['b'],
+        },
+      });
+      if (status === 'error') failures[0]!(new Error('simulation failed'));
+      else
+        pending[0]!({
+          status: 'incomplete',
+          scenario: placed.scenario,
+          skillCastIds: ['a', 'b', 'loop'],
+          unresolvedCastIds: [],
+        });
+      expect(await result).toMatchObject({ ...fallback, incomplete: true });
+    },
+  );
+  it('递归种子也进入规划，并返回前缀身份供一次提交与选择', async () => {
+    const { transaction, pending, placed } = setup();
+    const prefix = structuredClone(placed.scenario);
+    const result = transaction.resolve({
+      ...placed,
+      skillCastIds: ['a'],
+      extension: {
+        allowedSkillKeys: ['first', 'heavy'],
+        terminalSkillKey: 'heavy',
+        reservedCastIds: ['b'],
+      },
+    });
+    expect(pending).toHaveLength(1);
+    pending[0]!({
+      status: 'incomplete',
+      scenario: prefix,
+      skillCastIds: ['a', 'b'],
+      unresolvedCastIds: [],
+    });
+    expect(await result).toEqual({ scenario: prefix, skillCastIds: ['a', 'b'], incomplete: true });
+  });
   it('passes partial compact timing through without committing partial document changes', async () => {
     const { transaction, pending, placed } = setup();
     const result = transaction.resolve(placed, 'compact');

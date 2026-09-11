@@ -30,10 +30,10 @@ export interface SpChangePoint extends ResourceChangePointBase {
   readonly source?: ResourceChangeSource;
 }
 
-/** 实际账户的终结技能量变化；实体账户不属于干员资源曲线。 */
+/** 干员终结技能量变化。 */
 export interface UltimateEnergyChangePoint extends ResourceChangePointBase {
   readonly resource: 'ultimateEnergy';
-  readonly recipient: 'operator' | 'abilityEntity';
+  readonly recipient: 'operator';
   readonly targetId: string;
   readonly applied: boolean;
 }
@@ -120,7 +120,7 @@ function readSpPoint(entry: CombatReceiptEntry): SpChangePoint {
 
 function readUltimateEnergyPoint(entry: CombatReceiptEntry): UltimateEnergyChangePoint {
   const { data, point } = readBase(entry);
-  if (data.recipient !== 'operator' && data.recipient !== 'abilityEntity') {
+  if (data.recipient !== 'operator') {
     throw new Error(`receipt ${entry.sequence} 'UltimateEnergyChanged' has invalid recipient`);
   }
   if (entry.targetId === undefined || entry.targetId.length === 0) {

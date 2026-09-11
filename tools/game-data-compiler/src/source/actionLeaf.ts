@@ -147,6 +147,7 @@ import {
   parseTyphoeaHudHintActionSource,
   type DebugPrintActionSource,
   type CameraPresentationActionSource,
+  type HideUiActionSource,
   type EffectActionSource,
   type PlayAnimationActionSource,
   type PlaySoundActionSource,
@@ -581,7 +582,7 @@ export type KnownNativeActionLeafSource =
     }
   | {
       readonly family: 'uiVisibility';
-      readonly action: Extract<CameraPresentationActionSource, { kind: 'hideUi' }>;
+      readonly action: HideUiActionSource;
     }
   | { readonly family: 'damage'; readonly action: DamageActionSource }
   | {

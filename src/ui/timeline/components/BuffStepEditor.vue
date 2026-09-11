@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 import type {
   HealModifierDefinition,
@@ -75,7 +76,7 @@ import BuffAdvancedPropertiesEditor from './BuffAdvancedPropertiesEditor.vue';
 import EditorFieldLabel from './EditorFieldLabel.vue';
 import GameplayTagsEditor from './GameplayTagsEditor.vue';
 
-type BuffStep = Extract<CombatStepDefinition, { kind: 'applyBuff' }>;
+type BuffStep = CombatStepForKind<'applyBuff'>;
 const BUFF_LIFECYCLE_KEYS = [
   'start',
   'enable',

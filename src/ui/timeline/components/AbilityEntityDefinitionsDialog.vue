@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import { computed, markRaw, nextTick, provide, ref, useId, watch } from 'vue';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useI18n } from 'vue-i18n';
@@ -22,10 +23,7 @@ import {
   type DefinitionDraftHistory,
 } from '../useDefinitionDraftHistory';
 
-type SpawnAbilityEntityStep = Extract<
-  CombatStepDefinition,
-  { readonly kind: 'spawnAbilityEntity' }
->;
+type SpawnAbilityEntityStep = CombatStepForKind<'spawnAbilityEntity'>;
 
 const props = defineProps<{
   visible: boolean;

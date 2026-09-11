@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /**
  * 编辑 spawnAbilityEntity 的自包含定义与生成参数。
  *
@@ -28,7 +29,7 @@ const RecursiveScheduledSequenceEditor = defineAsyncComponent(
   () => import('./ScheduledSequenceEditor.vue'),
 );
 
-type AbilityEntityStep = Extract<CombatStepDefinition, { kind: 'spawnAbilityEntity' }>;
+type AbilityEntityStep = CombatStepForKind<'spawnAbilityEntity'>;
 
 const props = defineProps<{
   step: AbilityEntityStep;

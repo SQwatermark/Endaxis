@@ -31,27 +31,39 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
-  it('技能账户只绑定宿主，持续读取和修改同一战斗账本', () => {
+  it('按单精度余额差值判定小额费用，支付成功不代表Setter发生写入', () => {
     const resources = createResources();
-    const account = resources.bindSkillAccount('source');
-    const other = resources.bindSkillAccount('other');
-    resources.changeUltimateEnergy('source', 20);
-    expect(account.ultimateEnergy).toBe(30);
-    expect(other.ultimateEnergy).toBe(0);
-    expect(account.canPay([{ resource: 'ultimateEnergy', value: 10 }])).toBe(true);
-    expect(other.canPay([{ resource: 'ultimateEnergy', value: 10 }])).toBe(false);
-    expect(
-      account.pay([
-        { resource: 'sp', value: 20 },
-        { resource: 'ultimateEnergy', value: 10 },
-      ]).paid,
-    ).toBe(true);
-    expect(account.sp).toBe(80);
-    expect(other.sp).toBe(80);
-    expect(account.ultimateEnergy).toBe(20);
-    expect(resources.getUltimateEnergy('source')).toBe(20);
-    expect(other.ultimateEnergy).toBe(0);
+    resources.changeUltimateEnergy('source', 16, { ignoreGainMultiplier: true });
+    const result = resources.pay('source', [{ resource: 'ultimateEnergy', value: 0.00001001 }]);
+
+    // float32(16 - float32(0.00001001))与16的差是0.0000095367431640625，未超过容差。
+    expect(result.paid).toBe(true);
+    expect(result.changes).toEqual([
+      {
+        resource: 'ultimateEnergy',
+        operatorId: 'source',
+        baseValue: -0.00001001,
+        requestedValue: -0.00001001,
+        applied: false,
+        actualValue: 0,
+        previousValue: 16,
+        currentValue: 16,
+      },
+    ]);
   });
+
+  it('能量上限在Setter中转为单精度，属性快照仍保留原始精度', () => {
+    const snapshot = createResources().snapshot();
+    const resources = new CombatResources({
+      ...snapshot,
+      squad: snapshot.squad.map(member => ({ ...member, maxUltimateEnergy: 10.0000001 })),
+    });
+    const change = resources.changeUltimateEnergy('source', 20);
+
+    expect(change).toMatchObject({ applied: true, currentValue: 10, actualValue: 10 });
+    expect(resources.getMaxUltimateEnergy('source')).toBe(10.0000001);
+  });
+
   it('每次正向回能都重新读取运行时 UltimateSpGainScalar', () => {
     let multiplier = 1;
     const resources = new CombatResources(createResources().snapshot(), {
@@ -448,7 +460,7 @@ describe('CombatResources', () => {
       changes: [
         {
           resource: 'ultimateEnergy',
-          target: { kind: 'operator', operatorId: 'source' },
+          operatorId: 'source',
           baseValue: -80,
           requestedValue: -80,
           applied: false,

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /** 多分支选择的参数与候选顺序；分支内容继续使用公共序列编辑器。 */
 import { computed, defineAsyncComponent } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -12,7 +13,7 @@ import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 import type { InspectorPropertyPath } from '../inspectorProperty';
 
 const SequenceEditor = defineAsyncComponent(() => import('./ActionSequenceEditor.vue'));
-type SwitchStep = Extract<CombatStepDefinition, { kind: 'switch' }>;
+type SwitchStep = CombatStepForKind<'switch'>;
 const props = defineProps<{
   step: SwitchStep;
   skillLevel: number;

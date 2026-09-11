@@ -4,10 +4,10 @@ import { createI18n } from 'vue-i18n';
 import Editor from './EventListenerStepEditor.vue';
 import { createDefinitionEditContext } from '../definitionEditContext';
 import { useDefinitionDraftHistory } from '../useDefinitionDraftHistory';
-import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 
 it.each([true, false])('监听完整表单共用参数句柄，不创建独立历史（绑定=%s）', async bound => {
-  type Listener = Extract<CombatStepDefinition, { kind: 'listenForCombatEvents' }>;
+  type Listener = CombatStepForKind<'listenForCombatEvents'>;
   const initial: Listener = {
     kind: 'listenForCombatEvents',
     parameters: {

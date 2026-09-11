@@ -1,4 +1,7 @@
-import { describe, expect, it, vi } from 'vitest';
+import { describe, expect, expectTypeOf, it, vi } from 'vitest';
+import { COMBAT_STEP_EXECUTION_ROUTES, isCombatOperationStep } from '../../compiler/combatProgram';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
+import { COMBAT_STEP_KINDS } from '../../game-data/operatorDefinition';
 import type { ResolvedActionSequence, ResolvedCombatStep } from '../../compiler/combatProgram';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
@@ -33,6 +36,17 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('每种步骤必须声明执行归属，监听器不能进入操作链', () => {
+    expect(Object.keys(COMBAT_STEP_EXECUTION_ROUTES).sort()).toEqual([...COMBAT_STEP_KINDS].sort());
+    expect(isCombatOperationStep(operation('ordinary'))).toBe(true);
+    expect(
+      isCombatOperationStep({ kind: 'listenForCombatEvents', parameters: { responses: [] } }),
+    ).toBe(false);
+    expectTypeOf<ResolvedCombatOperationStep['kind']>()
+      .exclude<'listenForCombatEvents'>()
+      .toEqualTypeOf<ResolvedCombatOperationStep['kind']>();
+  });
+
   it('回调的 Channeling 子序列即时清理，不把 finishByAction 延长到回调时间轴结束', () => {
     // 洛茜 projhit3 的形状：maxCountPerTarget=1，子动作含 finishByAction Buff。
     // Channeling.actionOnTick 原生走 ExecuteInstant；与外层技能的寿命不同。

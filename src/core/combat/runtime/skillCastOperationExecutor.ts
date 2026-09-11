@@ -1,8 +1,9 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
-type CastStep = Extract<ResolvedCombatOperationStep, { kind: 'castSkillDuringAction' }>;
+type CastStep = ResolvedCombatStepForKind<'castSkillDuringAction'>;
 
 export interface SkillCastOperationExecutorDependencies {
   readonly request: (request: {

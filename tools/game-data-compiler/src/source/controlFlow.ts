@@ -44,80 +44,84 @@ export interface NativeSwitchOptionSource<TLeaf> {
 
 export type NativeTickIntervalModeSource = 'EachFrame' | 'Interval' | 'FixedCount';
 
+export interface NativeActionBodySourceMap<TLeaf> {
+  readonly leaf: { readonly kind: 'leaf'; readonly value: TLeaf };
+  readonly actionWithCallback: {
+    /** 动作持有的条件回调不是同步后继；保留子树供公共投影由内向外分析。 */
+    readonly kind: 'actionWithCallback';
+    readonly value: TLeaf;
+    readonly trigger: 'targetPointInvalid';
+    readonly callback: NativeSequenceSource<TLeaf>;
+  };
+  readonly once: { readonly kind: 'once'; readonly action: NativeSequenceSource<TLeaf> };
+  readonly ifElse: {
+    readonly kind: 'ifElse';
+    readonly condition: NativeSequenceSource<TLeaf>;
+    readonly whenTrue: NativeSequenceSource<TLeaf>;
+    readonly whenFalse: NativeSequenceSource<TLeaf>;
+    readonly alwaysNext: boolean;
+  };
+  readonly switch: {
+    readonly kind: 'switch';
+    readonly choice: ScalarSource;
+    readonly options: readonly NativeSwitchOptionSource<TLeaf>[];
+    readonly alwaysNext: boolean;
+  };
+  readonly forEach: {
+    readonly kind: 'forEach';
+    readonly target: TargetReferenceSource;
+    readonly action: NativeSequenceSource<TLeaf>;
+  };
+  readonly physicsCast: {
+    readonly kind: 'physicsCast';
+    readonly value: PhysicsCastActionSource;
+    readonly whenHit: NativeSequenceSource<TLeaf>;
+    readonly whenMiss: NativeSequenceSource<TLeaf>;
+  };
+  readonly channeling: {
+    readonly kind: 'channeling';
+    readonly target: TargetReferenceSource;
+    readonly executeEachFrame: boolean;
+    readonly triggerIntervalSeconds: number;
+    readonly maxCountPerTarget: number;
+    readonly targetTriggerIntervalSeconds: number;
+    readonly actionOnTick: NativeSequenceSource<TLeaf>;
+  };
+  readonly timelineJump: {
+    readonly kind: 'timelineJump';
+    readonly destinationFrame: number;
+    readonly condition: NativeSequenceSource<TLeaf>;
+  };
+  readonly tickInterval: {
+    readonly kind: 'tickInterval';
+    readonly executeEachFrame: boolean;
+    readonly intervalSeconds: number;
+    readonly useIntervalBlackboardKey: boolean;
+    /** 未启用时仍保留序列化残留；投影层只在开关为真时读取。 */
+    readonly intervalBlackboardKey: string;
+    readonly actionOnTick: NativeSequenceSource<TLeaf>;
+  };
+  readonly tickIntervalV2: {
+    readonly kind: 'tickIntervalV2';
+    readonly tickMode: NativeTickIntervalModeSource;
+    readonly tickInterval: ScalarSource;
+    /** 原生类型是 BlackboardInt，因此直接值必须是整数。 */
+    readonly fixedTickCount: ScalarSource;
+    readonly totalTickCount: number;
+    readonly totalDurationSeconds: number;
+    readonly actionOnTick: NativeSequenceSource<TLeaf>;
+  };
+  readonly togglable: {
+    /** 条件每 Tick 重算；false→true 启动 child，true 时 Tick，true→false 结束。 */
+    readonly kind: 'togglable';
+    readonly condition: NativeSequenceSource<TLeaf>;
+    readonly action: NativeSequenceSource<TLeaf>;
+  };
+  readonly negateNextResult: { readonly kind: 'negateNextResult' };
+}
+
 export type NativeActionBodySource<TLeaf> =
-  | { readonly kind: 'leaf'; readonly value: TLeaf }
-  | {
-      /** 动作持有的条件回调不是同步后继；保留子树供公共投影由内向外分析。 */
-      readonly kind: 'actionWithCallback';
-      readonly value: TLeaf;
-      readonly trigger: 'targetPointInvalid';
-      readonly callback: NativeSequenceSource<TLeaf>;
-    }
-  | { readonly kind: 'once'; readonly action: NativeSequenceSource<TLeaf> }
-  | {
-      readonly kind: 'ifElse';
-      readonly condition: NativeSequenceSource<TLeaf>;
-      readonly whenTrue: NativeSequenceSource<TLeaf>;
-      readonly whenFalse: NativeSequenceSource<TLeaf>;
-      readonly alwaysNext: boolean;
-    }
-  | {
-      readonly kind: 'switch';
-      readonly choice: ScalarSource;
-      readonly options: readonly NativeSwitchOptionSource<TLeaf>[];
-      readonly alwaysNext: boolean;
-    }
-  | {
-      readonly kind: 'forEach';
-      readonly target: TargetReferenceSource;
-      readonly action: NativeSequenceSource<TLeaf>;
-    }
-  | {
-      readonly kind: 'physicsCast';
-      readonly value: PhysicsCastActionSource;
-      readonly whenHit: NativeSequenceSource<TLeaf>;
-      readonly whenMiss: NativeSequenceSource<TLeaf>;
-    }
-  | {
-      readonly kind: 'channeling';
-      readonly target: TargetReferenceSource;
-      readonly executeEachFrame: boolean;
-      readonly triggerIntervalSeconds: number;
-      readonly maxCountPerTarget: number;
-      readonly targetTriggerIntervalSeconds: number;
-      readonly actionOnTick: NativeSequenceSource<TLeaf>;
-    }
-  | {
-      readonly kind: 'timelineJump';
-      readonly destinationFrame: number;
-      readonly condition: NativeSequenceSource<TLeaf>;
-    }
-  | {
-      readonly kind: 'tickInterval';
-      readonly executeEachFrame: boolean;
-      readonly intervalSeconds: number;
-      readonly useIntervalBlackboardKey: boolean;
-      /** 未启用时仍保留序列化残留；投影层只在开关为真时读取。 */
-      readonly intervalBlackboardKey: string;
-      readonly actionOnTick: NativeSequenceSource<TLeaf>;
-    }
-  | {
-      readonly kind: 'tickIntervalV2';
-      readonly tickMode: NativeTickIntervalModeSource;
-      readonly tickInterval: ScalarSource;
-      /** 原生类型是 BlackboardInt，因此直接值必须是整数。 */
-      readonly fixedTickCount: ScalarSource;
-      readonly totalTickCount: number;
-      readonly totalDurationSeconds: number;
-      readonly actionOnTick: NativeSequenceSource<TLeaf>;
-    }
-  | {
-      /** 条件每 Tick 重算；false→true 启动 child，true 时 Tick，true→false 结束。 */
-      readonly kind: 'togglable';
-      readonly condition: NativeSequenceSource<TLeaf>;
-      readonly action: NativeSequenceSource<TLeaf>;
-    }
-  | { readonly kind: 'negateNextResult' };
+  NativeActionBodySourceMap<TLeaf>[keyof NativeActionBodySourceMap<TLeaf>];
 
 export interface NativeActionNodeSource<TLeaf> {
   readonly sourcePath: string;

@@ -39,7 +39,7 @@ import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
 
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
-  event: Exclude<ResolvedSkillBuffAbilityEventResponse['event'], 'outputKnockDown'>,
+  event: AbilityResponseEventName,
   priority: number,
   handle: (
     published: CombatAbilityEvent<AbilityResponseEventName>,

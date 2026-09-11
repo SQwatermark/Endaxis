@@ -45,6 +45,46 @@ class FixtureRuntime implements AbilitySkillRuntime {
 }
 
 describe('AbilitySystemRuntime', () => {
+  it('Buff 普攻映射覆盖当前技能，重复注册与乱序撤销不复活旧映射', () => {
+    const first = Object.assign(new FixtureRuntime('attack', [], 'basicAttack'), {
+      currentTimelineFrame: 1,
+      inputWindows: {
+        commandMappings: [
+          {
+            startFrame: 0,
+            endFrame: 20,
+            input: 'basicAttack' as const,
+            targetSourceSkillId: 'attack',
+          },
+        ],
+      },
+    });
+    const ability = new AbilitySystemRuntime({
+      skills: [first, new FixtureRuntime('heavy', [], 'basicAttack')],
+      playerActionRoutes: {
+        basicAttack: {
+          kind: 'basicAttack',
+          skillKeys: ['attack', 'heavy'],
+          defaultSkillKey: 'attack',
+        },
+      },
+    });
+    ability.tryStartSkill('attack');
+    const a = ability.overrideBasicAttackMapping('heavy');
+    const b = ability.overrideBasicAttackMapping('heavy');
+    expect(ability.resolvePlayerInputSkill('heavy')).toMatchObject({ status: 'matched' });
+    a.finish();
+    a.finish();
+    expect(ability.resolvePlayerInputSkill('heavy')).toMatchObject({ status: 'matched' });
+    const conflict = ability.overrideBasicAttackMapping('attack');
+    expect(ability.resolvePlayerInputSkill('heavy')).toMatchObject({ status: 'unknown' });
+    conflict.finish();
+    b.finish();
+    expect(ability.resolvePlayerInputSkill('heavy')).toEqual({
+      status: 'mismatched',
+      actualSkillKey: 'attack',
+    });
+  });
   it.each(['available', 'unavailable', 'missing'] as const)(
     'projectile callback interrupts before lookup/availability (%s), without a next-skill transition',
     mode => {

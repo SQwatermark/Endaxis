@@ -486,6 +486,7 @@ export const EDITABLE_COMBAT_STEP_KINDS = [
   'inheritSkillCastInfoForBasicAttack',
   'openComboWindow',
   'changeSkillSlot',
+  'overrideBasicAttackMapping',
   'changePlayerActionMode',
   'changeNativeSkillType',
   'listenForCombatEvents',
@@ -1071,6 +1072,8 @@ export function createSkillEditorStep(
           revertedSkillKey: 'custom-origin-skill',
         },
       };
+    case 'overrideBasicAttackMapping':
+      return { kind, parameters: { sourceSkillId: 'custom-native-skill' } };
     case 'changePlayerActionMode':
       return { kind, parameters: { modeId: 'custom-mode', lifetime: 'finishByAction' } };
     case 'changeNativeSkillType':

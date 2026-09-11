@@ -1,7 +1,8 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { describe, expect, it } from 'vitest';
 import { perlica } from '../../../data/operators/perlica';
 import { compileSkill } from '../../compiler/compileSkill';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
 import { calculatePlayerActiveDamage } from './playerActiveDamage';
 import {
@@ -31,7 +32,7 @@ function findPerlicaBattleSkill(): SkillDefinition {
   return group.skills;
 }
 
-function findDamageStep(): Extract<ResolvedCombatStep, { kind: 'dealDamage' }> {
+function findDamageStep(): ResolvedCombatStepForKind<'dealDamage'> {
   const program = compileSkill({
     operatorId: 'perlica',
     skillGroupKey: 'battleSkill',

@@ -1,11 +1,9 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 /** 编辑会同步派发原生能力事件或请求另一技能施放的步骤。 */
 import type { CombatStepDefinition } from '../../../core/game-data/operatorDefinition';
 
-type ActionDispatchStep = Extract<
-  CombatStepDefinition,
-  { kind: 'triggerCustomAbilityEvent' | 'castSkillDuringAction' }
->;
+type ActionDispatchStep = CombatStepForKind<'triggerCustomAbilityEvent' | 'castSkillDuringAction'>;
 
 const props = defineProps<{ step: ActionDispatchStep }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();

@@ -15,6 +15,32 @@ function harness() {
     worker.onmessage({ data: { id, ok: true, result: { frame: id }, samples: [] } });
   return { worker, service, reply };
 }
+it('后台规划携带递归停止条件与预留身份，原场景不预先展开', async () => {
+  const { worker, service, reply } = harness();
+  const scenario = createEmptyScenario('recursive', 'recursive');
+  const extension = {
+    allowedSkillKeys: ['first', 'heavy'],
+    terminalSkillKey: 'heavy',
+    reservedCastIds: ['next'],
+  };
+  const planned = service.planSkillChain(
+    scenario,
+    ['seed'],
+    100,
+    undefined,
+    'continuation',
+    extension,
+  );
+  expect(worker.postMessage.mock.calls[0]![0].plan).toEqual({
+    castIds: ['seed'],
+    mode: 'continuation',
+    extension,
+  });
+  expect(worker.postMessage.mock.calls[0]![0].scenario).toEqual(scenario);
+  reply(1);
+  await planned;
+  service.dispose();
+});
 it('只发送一个在途与最新待算位置，完整结果返回后才继续', async () => {
   const { worker, service, reply } = harness();
   const scenario = createEmptyScenario('qa', 'qa');

@@ -1,5 +1,6 @@
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { describe, expect, it, vi } from 'vitest';
-import type { ResolvedCombatStep } from '../../compiler/combatProgram';
+
 import type {
   ElementalInflictionOperation,
   ExistingElementalAttachment,
@@ -9,7 +10,7 @@ import { CombatClock } from './combatClock';
 import { ElementalInflictionOperationExecutor } from './elementalInflictionOperationExecutor';
 import { ActionBlackboard } from './actionBlackboard';
 
-const STEP: Extract<ResolvedCombatStep, { kind: 'applyElementalInfliction' }> = {
+const STEP: ResolvedCombatStepForKind<'applyElementalInfliction'> = {
   kind: 'applyElementalInfliction',
   parameters: { element: 'electric', isExtra: false },
 };

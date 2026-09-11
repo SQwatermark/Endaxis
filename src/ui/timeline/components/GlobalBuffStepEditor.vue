@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type {
   ActionValueOperand,
   BuffApplicationSource,
@@ -8,9 +9,9 @@ import { BUFF_APPLICATION_SOURCES } from '../../../core/game-data/operatorDefini
 import ActionValueAssignmentMapEditor from './ActionValueAssignmentMapEditor.vue';
 import ActionValueOperandEditor from './ActionValueOperandEditor.vue';
 
-type CreateStep = Extract<CombatStepDefinition, { kind: 'createGlobalBuff' }>;
-type FinishStep = Extract<CombatStepDefinition, { kind: 'finishParentGlobalBuff' }>;
-type FinishByIdStep = Extract<CombatStepDefinition, { kind: 'finishGlobalBuffsById' }>;
+type CreateStep = CombatStepForKind<'createGlobalBuff'>;
+type FinishStep = CombatStepForKind<'finishParentGlobalBuff'>;
+type FinishByIdStep = CombatStepForKind<'finishGlobalBuffsById'>;
 const props = defineProps<{ step: CreateStep | FinishStep | FinishByIdStep }>();
 const emit = defineEmits<{ update: [step: CombatStepDefinition] }>();
 const operandLabels = {

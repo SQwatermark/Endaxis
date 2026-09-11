@@ -17,6 +17,7 @@ import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
+import type { ResolvedCombatStepParameters } from '../../compiler/combatProgram';
 
 const PROBABILITY_TOLERANCE = 0.00001;
 
@@ -29,10 +30,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       readonly sourceId: string;
       readonly read: (
         sourceId: string,
-        request: Extract<
-          Parameters<CombatOperationExecutor['execute']>[0],
-          { kind: 'storeSourceAttributeValue' }
-        >['parameters'],
+        request: Readonly<ResolvedCombatStepParameters['storeSourceAttributeValue']>,
       ) => number;
     },
     /** Buff 内的 StoreCurSkillExecuteFrame 从 Owner AbilitySystem 读取当前技能，而非 Buff 时间。 */

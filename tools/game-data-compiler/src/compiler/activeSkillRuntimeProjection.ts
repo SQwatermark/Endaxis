@@ -6,6 +6,7 @@ import type { SkillPatchSource } from '../source/skillPatch.ts';
 import { parseKnownSkillActionGraphSource } from '../source/skillActionGraph.ts';
 import { collectNativeActionNodes, type NativeSequenceSource } from '../source/controlFlow.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
+import type { TargetGroupActionSource } from '../source/targetGroup.ts';
 import type { TargetReferenceSource } from '../source/target.ts';
 import {
   compileCombatActionSequenceSource,
@@ -353,8 +354,8 @@ function evaluateStaticStumpConditionSequence(
 function collectReachableTargetGroupActions(
   sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
   staticEnemyTargetGroupKeys: ReadonlySet<string>,
-): Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'][] {
-  const result: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'][] = [];
+): TargetGroupActionSource[] {
+  const result: TargetGroupActionSource[] = [];
   const visit = (current: NativeSequenceSource<KnownNativeActionLeafSource>): void => {
     for (const node of current.actions) {
       if (!node.metadata.enabled) continue;
@@ -407,7 +408,7 @@ function collectReachableTargetGroupActions(
 }
 
 function isPlainStaticEnemyMerge(
-  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+  write: TargetGroupActionSource,
   staticEnemyTargetGroupKeys: ReadonlySet<string>,
 ): boolean {
   if (write.producerType !== 'MergeTargetAction' || write.inputTargets.length === 0) return false;
@@ -453,7 +454,7 @@ function isPlainStaticEnemyMerge(
 }
 
 function isAtMostSingleEnemyMerge(
-  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+  write: TargetGroupActionSource,
   singleEnemyTargetGroupKeys: ReadonlySet<string>,
 ): boolean {
   if (write.producerType !== 'MergeTargetAction' || write.inputTargets.length === 0) return false;
@@ -489,7 +490,7 @@ function isAtMostSingleEnemyMerge(
 }
 
 function isAtMostSingleEnemyConversion(
-  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+  write: TargetGroupActionSource,
   singleEnemyTargetGroupKeys: ReadonlySet<string>,
 ): boolean {
   const input = write.inputTargets[0];
@@ -511,9 +512,7 @@ function isAtMostSingleEnemyConversion(
   );
 }
 
-function isAtMostSingleEnemyFilteredFind(
-  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
-): boolean {
+function isAtMostSingleEnemyFilteredFind(write: TargetGroupActionSource): boolean {
   return (
     write.producerType === 'FindTargetAction' &&
     write.finderType === 'HitBoxFinder' &&
@@ -655,7 +654,7 @@ function unwrapSyntheticComboQtePrototypeGuard(
  * 唯一木桩输入经空 validator、空 Buff 过滤和最多保留一个后，成员身份及非空性均不变。
  */
 function isStaticSingleEnemyTargetPostProcessor(
-  write: Extract<KnownNativeActionLeafSource, { family: 'targetGroup' }>['action'],
+  write: TargetGroupActionSource,
   staticEnemyTargetGroupKeys: ReadonlySet<string>,
 ): boolean {
   if (write.producerType !== 'TargetPostProcessorAction') return false;

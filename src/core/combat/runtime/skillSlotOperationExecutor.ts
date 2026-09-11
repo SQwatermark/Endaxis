@@ -16,11 +16,13 @@ export interface SkillSlotOperationExecutorOptions {
     readonly inheritOriginSkillCooldownProgress: boolean;
   }) => { finish(): void };
   readonly activatePlayerActionMode?: (modeId: string) => { finish(): void };
+  readonly overrideBasicAttackMapping?: (sourceSkillId: string) => { finish(): void };
   readonly changeNativeSkillType?: (skillKey: string, nativeSkillType: NativeSkillType) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
 export class SkillSlotOperationExecutor implements CombatOperationExecutor {
+  readonly #mappingHandles = new WeakMap<ResolvedCombatOperationStep, { finish(): void }>();
   readonly #replacementHandles = new WeakMap<ResolvedCombatOperationStep, { finish(): void }>();
   readonly #modeHandles = new WeakMap<ResolvedCombatOperationStep, { finish(): void }>();
 
@@ -30,6 +32,13 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
     step: ResolvedCombatOperationStep,
     context?: Parameters<CombatOperationExecutor['execute']>[1],
   ): boolean {
+    if (step.kind === 'overrideBasicAttackMapping') {
+      const register = this.options.overrideBasicAttackMapping;
+      if (register === undefined) throw new Error('Buff basic-attack mapping requires a handle');
+      this.#mappingHandles.get(step)?.finish();
+      this.#mappingHandles.set(step, register(step.parameters.sourceSkillId));
+      return true;
+    }
     if (step.kind === 'changePlayerActionMode') {
       const activate = this.options.activatePlayerActionMode;
       if (activate === undefined) throw new Error('native player-action mode requires a handle');
@@ -79,6 +88,11 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
     step: ResolvedCombatOperationStep,
     context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
   ): void {
+    if (step.kind === 'overrideBasicAttackMapping') {
+      this.#mappingHandles.get(step)?.finish();
+      this.#mappingHandles.delete(step);
+      return;
+    }
     if (step.kind === 'changeSkillSlot') {
       if (step.parameters.lifetime === 'finishByAction') {
         this.#replacementHandles.get(step)?.finish();

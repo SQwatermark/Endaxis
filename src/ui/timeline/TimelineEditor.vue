@@ -182,7 +182,7 @@ import {
   getOperatorSkillIconPath,
   getWeaponActionIconPath,
 } from '../gameAssetPaths';
-import { placeSkillGroup } from './placeSkillGroup';
+import { placeLibrarySkillGroup } from './placeSkillGroup';
 import { SkillPlacementTransaction } from './skillPlacementTransaction';
 import {
   resolveCompactSkillSelection,
@@ -3676,7 +3676,7 @@ async function placeGroup(
   const operator =
     operatorSlug === null ? null : editorGameDataRepository.getOperator(operatorSlug);
   if (operator === null) return;
-  const result = placeSkillGroup({
+  const result = placeLibrarySkillGroup({
     scenario: scenario.value,
     trackIndex,
     operator,
@@ -3687,11 +3687,20 @@ async function placeGroup(
     ids,
   });
   let placedScenario = result.scenario;
-  if (result.skillCastIds.length > 1) {
+  let placedIds = result.skillCastIds;
+  if (result.skillCastIds.length > 1 || result.extension !== undefined) {
     const planned = await skillPlacementTransaction.resolve(result);
     if (planned === null) return;
     placedScenario = planned.scenario;
-    if (planned.incomplete) ElMessage.warning(t('timeline.chainPlacementIncomplete'));
+    placedIds = planned.skillCastIds ?? placedIds;
+    if (planned.incomplete)
+      ElMessage.warning(
+        t(
+          result.extension
+            ? 'timeline.recursiveChainPlacementIncomplete'
+            : 'timeline.chainPlacementIncomplete',
+        ),
+      );
     if ('error' in planned)
       ElMessage.error(
         planned.error instanceof Error ? planned.error.message : t('timeline.chainPlacementFailed'),
@@ -3700,16 +3709,16 @@ async function placeGroup(
     skillPlacementTransaction.cancel();
   }
   commitScenario('placeSkillGroup', () => placedScenario);
-  const lastPlacedId = result.skillCastIds.at(-1);
+  const lastPlacedId = placedIds.at(-1);
   if (lastPlacedId === undefined) clearTimelineSelection();
   else applyActionSelection(selectTimelineAction(actionSelection.value, lastPlacedId, false));
   const placed = placedScenario.tracks[trackIndex]?.skillCasts ?? [];
-  const last = placed.at(-1);
+  const last = placed.find(cast => cast.id === lastPlacedId);
   if (last !== undefined) {
     const lastSkillDuration = resolvePlacedSkillDurationFrames(
       operator,
       skillGroupKey,
-      skillKey,
+      last.source.kind === 'operatorSkill' ? last.source.skillKey : skillKey,
       variantKey,
     );
     cursorFrame.value = last.placement.startFrame + lastSkillDuration;

@@ -7,7 +7,7 @@ import type {
   CompiledOperatorPassiveProgram,
   CompiledOperatorUpgradeEventProgram,
   CompiledSkillProgram,
-  ResolvedCombatStep,
+  ResolvedCombatStepForKind,
 } from './combatProgram';
 import type {
   LevelValues,
@@ -21,6 +21,7 @@ import type { OperatorInstanceDocument } from '../project/schema';
 import { compileActionSequence } from './compileSkill';
 import { compareCombatNumbers } from '../combat/runtime/numericComparison';
 import { isOperatorPassiveAbilityEvent } from '../../../packages/game-data-contract/src/operators';
+import type { BuildCondition } from '../../../packages/game-data-contract/src/conditions';
 
 export interface ActiveOperatorUpgrade {
   readonly source: 'talent' | 'potential';
@@ -140,7 +141,7 @@ function resolveUpgradeLevelValue(value: LevelValues, upgradeLevel: number, path
 }
 
 function matchesBuildCondition(
-  condition: Extract<UpgradeModifierDefinition, { kind: 'patchSkillBlackboard' }>['condition'],
+  condition: BuildCondition | undefined,
   attributes: Readonly<Record<OperatorAttribute, number>> | undefined,
   path: string,
 ): boolean {
@@ -404,7 +405,7 @@ function addSkillCooldownFrames(
   );
 }
 
-type CompiledReactionStep = Extract<ResolvedCombatStep, { kind: 'applyElementalReaction' }>;
+type CompiledReactionStep = ResolvedCombatStepForKind<'applyElementalReaction'>;
 
 function patchKeyedReactionStep(
   programs: readonly CompiledSkillProgram[],

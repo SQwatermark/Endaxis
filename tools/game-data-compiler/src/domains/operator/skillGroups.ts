@@ -4,6 +4,7 @@ import {
 } from '../../../../../packages/game-data-contract/src/primitives.ts';
 import type {
   SkillGroupDefinition,
+  SkillGroupPlacementPolicy,
   SkillGroupVariantDefinition,
 } from '../../../../../packages/game-data-contract/src/skills.ts';
 import {
@@ -69,14 +70,17 @@ export type OperatorSkillIdentitySource = Readonly<
 
 /** 配置中的链接计划，装配前保留原生等级组和有序技能键，不提前内联技能定义。 */
 export type OperatorSkillGroupVariantSource = Readonly<
-  Pick<SkillGroupVariantDefinition, 'key' | 'levelSource' | 'libraryPresentation'>
+  Pick<
+    SkillGroupVariantDefinition,
+    'key' | 'levelSource' | 'libraryPresentation' | 'placementPolicy'
+  >
 > & {
   readonly nativeGroupType: number;
   readonly skillKeys: readonly string[];
 };
 
 export type OperatorSkillGroupSource = Readonly<
-  Pick<SkillGroupDefinition, 'key' | 'skillType' | 'levelSource'>
+  Pick<SkillGroupDefinition, 'key' | 'skillType' | 'levelSource' | 'placementPolicy'>
 > & {
   readonly nativeGroupType: number;
   readonly skillKeys: readonly string[];
@@ -170,6 +174,7 @@ export function parseOperatorSkillGroupSources(
     const groupPath = `${path}[${index}]`;
     const group = requireRecord(raw, groupPath);
     const expectedFields = new Set(GROUP_REQUIRED_FIELDS);
+    if (group.placementPolicy !== undefined) expectedFields.add('placementPolicy');
     if (group.variants !== undefined) expectedFields.add('variants');
     if (group.libraryPresentation !== undefined) expectedFields.add('libraryPresentation');
     if (group.replacementPlacements !== undefined) expectedFields.add('replacementPlacements');
@@ -180,8 +185,11 @@ export function parseOperatorSkillGroupSources(
         : requireArray(group.variants, `${groupPath}.variants`).map((item, variantIndex) => {
             const variantPath = `${groupPath}.variants[${variantIndex}]`;
             const variant = requireRecord(item, variantPath);
-            requireExactFields(variant, VARIANT_FIELDS, variantPath);
+            const fields = new Set(VARIANT_FIELDS);
+            if (variant.placementPolicy !== undefined) fields.add('placementPolicy');
+            requireExactFields(variant, fields, variantPath);
             return {
+              ...readPlacementPolicy(variant, variantPath),
               key: requireNonEmptyString(variant.key, `${variantPath}.key`),
               levelSource: requireGroupIdentity(
                 variant.levelSource,
@@ -219,6 +227,7 @@ export function parseOperatorSkillGroupSources(
     );
     return {
       key: requireNonEmptyString(group.key, `${groupPath}.key`),
+      ...readPlacementPolicy(group, groupPath),
       skillType: requireGroupIdentity(group.skillType, SKILL_TYPES, `${groupPath}.skillType`),
       levelSource: requireGroupIdentity(
         group.levelSource,
@@ -243,6 +252,44 @@ export function parseOperatorSkillGroupSources(
       variants,
     };
   });
+}
+
+function readPlacementPolicy(
+  row: Record<string, unknown>,
+  path: string,
+): { placementPolicy?: SkillGroupPlacementPolicy } {
+  if (row.placementPolicy === undefined) return {};
+  const policyPath = `${path}.placementPolicy`;
+  const policy = requireRecord(row.placementPolicy, policyPath);
+  requireExactFields(
+    policy,
+    new Set(['kind', 'firstSkillKey', 'terminalSkillKey', 'maxSegments', 'fallback']),
+    policyPath,
+  );
+  const keys = distinctStrings(row.skillKeys, `${path}.skillKeys`);
+  const firstSkillKey = requireNonEmptyString(policy.firstSkillKey, `${policyPath}.firstSkillKey`);
+  const terminalSkillKey = requireNonEmptyString(
+    policy.terminalSkillKey,
+    `${policyPath}.terminalSkillKey`,
+  );
+  if (!keys.includes(firstSkillKey) || !keys.includes(terminalSkillKey))
+    throw new Error(`${policyPath}: endpoints must belong to skillKeys`);
+  const maxSegments = requireNonNegativeInteger(policy.maxSegments, `${policyPath}.maxSegments`);
+  if (maxSegments < keys.length || maxSegments < 1)
+    throw new Error(`${policyPath}.maxSegments: must cover the fallback sequence`);
+  return {
+    placementPolicy: {
+      kind: requireGroupIdentity(policy.kind, ['recursiveInput'] as const, `${policyPath}.kind`),
+      firstSkillKey,
+      terminalSkillKey,
+      maxSegments,
+      fallback: requireGroupIdentity(
+        policy.fallback,
+        ['sequence'] as const,
+        `${policyPath}.fallback`,
+      ),
+    },
+  };
 }
 
 /**
