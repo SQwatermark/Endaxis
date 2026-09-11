@@ -1909,6 +1909,17 @@ describe('registered generated operators', () => {
     expect(basicDamage(withoutTalent)).toBeTypeOf('number');
     expect(basicDamage(withTalent)).toBeTypeOf('number');
     expect(Number(basicDamage(withTalent))).toBeGreaterThan(Number(basicDamage(withoutTalent)));
+    // 该战技只施加一次物理异常；目标原先没有无防备时，这次只叠无防备，不会产生骨折窗口。
+    expect(withTalent.receiptEntries).not.toContainEqual(
+      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:pogranichnik' }),
+    );
+    expect(withTalent.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboWindowUnavailableAtStart',
+        sourceId: 'track:pogranichnik',
+        data: expect.objectContaining({ reason: 'windowMissing' }),
+      }),
+    );
     const soldiers = withTalent.receiptEntries.filter(
       entry =>
         entry.event === 'AbilityEntitySpawned' &&

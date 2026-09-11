@@ -2022,6 +2022,18 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         data: expect.objectContaining({ skillId: 'battleSkill2' }),
       }),
     );
+    // 原生终结技第 98 帧明确配置 0 倍率 DamageAction；它仍执行命中与停帧动作。
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        sourceId: 'track:mifu',
+        data: expect.objectContaining({
+          stepKey:
+            'chr_0031_mifu_ultimate_skill:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0',
+          expectedDamage: 0,
+        }),
+      }),
+    );
   });
 
   it('runs all three generated Mifu battle-skill forms with stable hit identities', () => {

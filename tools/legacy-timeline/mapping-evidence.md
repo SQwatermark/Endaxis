@@ -87,6 +87,23 @@ M.I.警用手套·壹型分别由旧资源路径对应到 `wpn_funnel_0011`、`w
 `5F4FD399709482DA776B38FC0885C7E5CDE40CE709A9344C83D07A4302DBA868`。这里不按旧版把
 首段七次伤害压成一次。
 
+弭弗 69/70 的一条差异是零伤害动作，不是新版多算一次正常伤害。原生
+`chr_0031_mifu_ultimate_skill.json` 第 98 本地帧明确包含启用的 `DamageAction`，其
+`atkScale.useBlackboardKey=false`、`value=0`，后面紧接 0.15 秒实体 HitStop。当前回执保留
+这条 `expectedDamage=0` 的动作，旧版伤害日志未记录它。源文件 SHA-256 为
+`7EC76BBC1AD9BF0376E54D4A020067DFCCB445F6EC2588FEED11AB0BB90E2152`。正式回归按原生动作
+路径固定零伤害回执，不能为了让旧新命中数相同而删掉它。
+
+骏卫差异不能按总条数直接裁决。旧版手写连携条件是消费脆弱；当前原生角色模板明确使用
+事件 205（`OnBeforeAddedBuff`），并检查骨折/击溃标签、目标已有
+`buff_physical_no_guard` 及其层数。公开轴 514 帧战技的第一段在 542 帧触发 caster/enemy
+实体 HitStop，555 帧强制连携时物理异常动作尚未执行，因此没有原生窗口并中断战技。旧版
+固定现实偏移仍发出后续动作，不代表当前漏击。即使不被中断，这次物理异常面对没有无防备
+的目标也只会添加 `buff_physical_no_guard`；它不是骨折/击溃 Buff，仍不会打开骏卫窗口。
+模板哈希为 `30790C71753AF46659C436AFA7DE83C5CFA6FEFCB90259E28D708DFC9AC75BC7`，战技源文件
+哈希为 `389BD22B2D609ED47A0916DD1DEC893D64CCE570913506695D4878D40C45FF48`。正式回归固定了
+单次战技后强制连携必须报告 `windowMissing`，没有把旧版条件带回新版。
+
 ## 2026-09-08：27项中断诊断的九类归并
 
 以每条SkillInputCannotInterruptCurrentSkill的currentSkillTimelineFrame为准，
