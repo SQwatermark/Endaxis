@@ -59,6 +59,38 @@ HitStop。文件 SHA-256 为
 `7EC76BBC1AD9BF0376E54D4A020067DFCCB445F6EC2588FEED11AB0BB90E2152`。旧版伤害日志没有
 记录这条零伤害动作；新版保留它，不能只为把命中数改成 69 而过滤原生动作。
 
+弭弗战技的伤害差异也已用当前客户端资源和 IL2CPP 路径核对，不按旧版数值追平。旧版把
+二段战技的 200% 显示倍率平均拆成三笔 `66.666...%`，当前 12 级
+`SkillPatchTable` 则明确给出 `atk_scale=0.61`、`atk_scale2=0.79`；原生动作顺序对应
+`61% / 61% / 79%`。二段末尾的 `CrushAction` 排在 `79%` 的 `DamageAction` 前，并且
+`damageMultiplier=1`。公开轴 989 帧执行到这里时，敌人已有 3 层
+`buff_physical_no_guard`；当前先按原生顺序读取并消费这 3 层，再执行 79% 直接伤害。
+旧版把触发动作也计入本次消费，按 4 层手写成 750% 猛击，顺序与原始动作图不符。
+
+原生 `buff_physical_crushed` 按消费层数读取 `[3, 4.5, 6, 7.5]`，然后使用
+`ReadSkillSettingData` 的“弭弗特殊猛击”配置乘以
+`1 + 0.01 × PhysicalAndSpellInflictionEnhance`。该轴弭弗的增强属性为 146.67，所以
+3 层猛击倍率是 `6 × 2.4667 = 14.8002`，与当前回执的 `1480.02%` 完全一致。
+三段战技的原始 12 级倍率为 600%；失衡条件下原生动作再乘天赋的 1.2，故当前回执为
+`6 × 2.4667 × 1.2 = 17.76024`，也与动作图一致。
+
+旧版还会把所有标成 `treatAsReaction: crush` 的命中统一乘入
+`1 + (角色等级 - 1) / 392`。当前 1.4.4 的 `ReadSkillSettingData` 只读取配置列和上述
+增强属性；普通玩家伤害公式也没有自动等级系数。因此不能把旧版的等级系数补进当前伤害。
+这里证明的是当前已恢复的原生回退路径；以后若获得目标 IFix 修改该公式的运行时证据，再按
+新证据修订。当前不改生产代码。
+
+本次核对的源文件 SHA-256：
+
+- `chr_0031_mifu_normalskill_2.json`：
+  `E2DF5A866854FD81AF93BF76EBBCF2CE14DFB8B66D30996D33DB010041BEF4C4`；
+- `chr_0031_mifu_normalskill_3.json`：
+  `06FBDB5D4F9E26777381060A5C5E8E85D14ABEC423B0C116A753F3DA95146B7A`；
+- `buff_physical_crushed.json`：
+  `D69F23C1185F1C085D87ACEBC77B72CF1A1866D05AC2F2F8BCBDFC7E48FD8D5B`；
+- `SkillPatchTable.json`：
+  `7005A81C09E8D61065A624679F3EE52E3113C0809F600B86B555BA35210C78A4`。
+
 骏卫的首个战技到连携边界也已定位。旧版手写定义用“敌方脆弱被消费”打开骏卫连携；当前
 原生角色模板的 `comboSkillEvent=205`，IL2CPP 枚举和 combat-spec 都确认 205 是
 `OnBeforeAddedBuff`。条件动作继续要求将要添加的 Buff 带骨折或击溃标签、触发目标已有
