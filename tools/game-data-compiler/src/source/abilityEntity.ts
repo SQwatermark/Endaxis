@@ -17,6 +17,7 @@ import {
 } from './scalar.ts';
 export type { IntegerScalarSource } from './scalar.ts';
 import { gameplayTagId } from './nativeGameplayTags.ts';
+import { parseBlackboardDataPairs, type DeclaredBlackboardValueSource } from './blackboard.ts';
 
 const ABILITY_ENTITY_TEMPLATE_FIELDS = new Set([
   'gameId',
@@ -37,6 +38,14 @@ const ABILITY_ENTITY_TEMPLATE_FIELDS = new Set([
   'managedReferenceCount',
   'rootRid',
 ]);
+
+const ABILITY_ENTITY_TEMPLATE_OPTIONAL_FIELDS = new Set(['skillDataBundle', 'entityBlackboard']);
+
+export interface AbilityEntitySkillDataBundleSource {
+  readonly allActiveSkillIds: readonly string[];
+  readonly allPassiveSkillIds: readonly string[];
+  readonly enabledPassiveSkillIds: readonly string[];
+}
 
 /**
  * VFS 从 AbilityEntityTemplateData 解出的严格逻辑前缀。
@@ -60,12 +69,16 @@ export interface NativeAbilityEntityTemplateSource {
   readonly componentCount: number;
   readonly managedReferenceCount: number;
   readonly rootRid: number;
+  readonly skillDataBundle?: AbilityEntitySkillDataBundleSource;
+  readonly entityBlackboard?: readonly DeclaredBlackboardValueSource[];
 }
 /** 旧模板证据容器还带资产索引和引用审计；在进入严格原生模板解析前剥离这些容器字段。 */
 export function selectNativeAbilityEntityTemplateFields(value: unknown): Record<string, unknown> {
   const record = requireRecord(value, 'AbilityEntityTemplateEvidence');
   return Object.fromEntries(
-    [...ABILITY_ENTITY_TEMPLATE_FIELDS].map(field => [field, record[field]]),
+    [...ABILITY_ENTITY_TEMPLATE_FIELDS, ...ABILITY_ENTITY_TEMPLATE_OPTIONAL_FIELDS].flatMap(
+      field => (field in record ? [[field, record[field]]] : []),
+    ),
   );
 }
 
@@ -76,7 +89,11 @@ export function parseNativeAbilityEntityTemplateSource(
   const root = requireRecord(value, sourcePath);
   requireExactFields(
     root,
-    new Set([...ABILITY_ENTITY_TEMPLATE_FIELDS, ...('name' in root ? ['name'] : [])]),
+    new Set([
+      ...ABILITY_ENTITY_TEMPLATE_FIELDS,
+      ...[...ABILITY_ENTITY_TEMPLATE_OPTIONAL_FIELDS].filter(field => field in root),
+      ...('name' in root ? ['name'] : []),
+    ]),
     sourcePath,
   );
   // BaseTemplateData.name 是可重复的模板标签，GameDataWithId.id 才是稳定资产身份。
@@ -134,7 +151,50 @@ export function parseNativeAbilityEntityTemplateSource(
     ),
     // Unity RID 超过 JS 安全整数范围；这里只保留 JSON 解码器给出的不透明数值，不参与身份计算。
     rootRid: requireNumber(root.rootRid, `${sourcePath}.rootRid`),
+    ...('skillDataBundle' in root
+      ? {
+          skillDataBundle: parseSkillDataBundle(
+            root.skillDataBundle,
+            `${sourcePath}.skillDataBundle`,
+          ),
+        }
+      : {}),
+    ...('entityBlackboard' in root
+      ? {
+          entityBlackboard: parseBlackboardDataPairs(
+            root.entityBlackboard,
+            `${sourcePath}.entityBlackboard`,
+          ),
+        }
+      : {}),
   };
+}
+
+function parseSkillDataBundle(
+  value: unknown,
+  sourcePath: string,
+): AbilityEntitySkillDataBundleSource {
+  const bundle = requireRecord(value, sourcePath);
+  requireExactFields(
+    bundle,
+    new Set(['allActiveSkillIds', 'allPassiveSkillIds', 'enabledPassiveSkillIds']),
+    sourcePath,
+  );
+  const readIds = (field: string) =>
+    requireArray(bundle[field], `${sourcePath}.${field}`).map((id, index) =>
+      requireNonEmptyString(id, `${sourcePath}.${field}[${index}]`),
+    );
+  const allActiveSkillIds = readIds('allActiveSkillIds');
+  const allPassiveSkillIds = readIds('allPassiveSkillIds');
+  const enabledPassiveSkillIds = readIds('enabledPassiveSkillIds');
+  for (const id of enabledPassiveSkillIds) {
+    if (!allPassiveSkillIds.includes(id)) {
+      throw new Error(
+        `${sourcePath}.enabledPassiveSkillIds: ${JSON.stringify(id)} is not declared`,
+      );
+    }
+  }
+  return { allActiveSkillIds, allPassiveSkillIds, enabledPassiveSkillIds };
 }
 
 function requireNonNegativeNumber(value: unknown, sourcePath: string): number {

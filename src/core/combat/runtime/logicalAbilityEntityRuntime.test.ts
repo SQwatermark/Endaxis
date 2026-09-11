@@ -8,6 +8,24 @@ function createRuntime() {
 }
 
 describe('LogicalAbilityEntityRuntime', () => {
+  it('用生成动作赋值覆盖实体模板黑板，并保留未覆盖默认值', () => {
+    const runtime = createRuntime();
+    const entity = runtime.spawn({
+      abilityEntityId: 'entity',
+      ownerId: 'owner',
+      source: { kind: 'operator', operatorId: 'owner' },
+      definition: {
+        lifetime: { kind: 'infinite' },
+        blackboard: { EntityBB_damage: 0, EntityBB_label: 'bat' },
+      },
+      blackboardAssignments: { EntityBB_damage: 5.5 },
+    });
+    expect(runtime.entityBlackboard(entity).snapshot()).toEqual({
+      EntityBB_damage: 5.5,
+      EntityBB_label: 'bat',
+    });
+  });
+
   it('所有权子Buff以空来源结束，包括清理中追加的子Buff，并先于reset通知', () => {
     const order: string[] = [];
     const runtime = createRuntime();

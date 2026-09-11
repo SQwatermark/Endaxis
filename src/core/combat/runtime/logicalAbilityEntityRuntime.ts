@@ -27,6 +27,7 @@ export type LogicalAbilityEntityFinishReason =
 /** 编译后生成步骤携带的自包含蓝图；运行时只依赖子技能身份。 */
 export interface LogicalAbilityEntityDefinition {
   readonly bornTags?: readonly GameplayTag[];
+  readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
   readonly lifetime:
     { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
   readonly deathReleaseDelaySeconds?: number;
@@ -210,7 +211,10 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
         : { sourceSkillCastId: request.sourceSkillCastId }),
       ...(request.target === undefined ? {} : { target: request.target }),
       dieWhenSourceDies: request.dieWhenSourceDies ?? false,
-      blackboard: new ActionBlackboard(request.blackboardAssignments),
+      blackboard: new ActionBlackboard({
+        ...request.definition.blackboard,
+        ...request.blackboardAssignments,
+      }),
       timedMarkers: new TimedMarkerContainer(
         `abilityEntity:${instanceId}`,
         {

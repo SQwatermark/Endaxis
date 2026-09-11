@@ -1578,7 +1578,14 @@ export function compileBuffLeafNode(
       // hitEnvironment 空 DamageUnit 路径会自行省略，其他消费者因找不到该组仍会严格失败。
       return { steps: [], state: partyTargetGroups };
     }
-    if (context.actionTargetTarget === 'enemy' && isDynamicSingleEnemyTagTargetGroup(write)) {
+    if (
+      (context.actionTargetTarget === 'enemy' ||
+        (context.actionTargetTarget === 'eventSource' &&
+          context.actionOwnerTarget === 'currentAbilityEntity')) &&
+      isDynamicSingleEnemyTagTargetGroup(write)
+    ) {
+      // 实体被动的接收侧事件 Target/Source 都是事件身份；InFightEnemyFinder 仍从战斗目录
+      // 独立筛选敌人。固定木桩模型保留标签动态判定，不能把事件发送者冒充为敌人。
       const rawQuery = write.validatorTagQueries[0]!;
       const queryType = projectNativeTagQueryType(
         rawQuery[0],
@@ -1595,6 +1602,9 @@ export function compileBuffLeafNode(
         kind: 'mergeContextTargets' as const,
         parameters: { saveToContextKey: write.targetGroupKey, sources: [] },
       };
+      const nextGroups = new Map(partyTargetGroups);
+      // enemy 表示该 Context 的成员种类；条件仍在运行时保留零个或一个成员的动态结果。
+      nextGroups.set(write.targetGroupKey, 'enemy');
       return {
         steps: [
           {
@@ -1611,7 +1621,7 @@ export function compileBuffLeafNode(
             whenFalse: { steps: [clearGroup] },
           },
         ],
-        state: partyTargetGroups,
+        state: nextGroups,
       };
     }
     if (context.actionTargetTarget === 'enemy' && isDynamicSingleEnemySmartTargetGroup(write)) {

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { validateSkillDefinition } from './validateSkillDefinition';
+import {
+  validateAbilityEntityDefinition,
+  validateSkillDefinition,
+} from './validateSkillDefinition';
 
 function baseSkill(): Record<string, unknown> {
   return {
@@ -23,6 +26,37 @@ function damageStep(key?: string): Record<string, unknown> {
 }
 
 describe('validateSkillDefinition', () => {
+  it('allows an AbilityEntity passive to address its host entity directly', () => {
+    const applyToHost = {
+      kind: 'applyBuff' as const,
+      parameters: {
+        buffId: 'entity-monitor',
+        target: 'currentAbilityEntity' as const,
+        source: 'currentAbilityEntity' as const,
+        definition: { stackingType: 'unique' as const },
+      },
+    };
+
+    expect(
+      validateAbilityEntityDefinition({
+        lifetime: { kind: 'infinite' },
+        passiveSkills: [
+          {
+            key: 'entity-passive',
+            enableSequence: { steps: [applyToHost] },
+            abilityEventResponses: [
+              {
+                event: 'addedBuff',
+                priority: 0,
+                sequence: { steps: [applyToHost] },
+              },
+            ],
+          },
+        ],
+      }),
+    ).toEqual([]);
+  });
+
   it.each(['party', 'partyExceptCaster', 'controlledOperator', 'unknown'])(
     '标签结束仍拒绝不属于单对象绑定的目标 %s',
     target => {

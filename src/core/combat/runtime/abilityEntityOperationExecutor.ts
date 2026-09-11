@@ -29,6 +29,10 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     readonly semanticEvents?: CombatSemanticEventRuntime;
     readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
     readonly createCallbackSkillHost?: CallbackSkillHostFactory;
+    readonly installPassiveSkills?: (
+      entity: RuntimeTargetRef,
+      definition: ResolvedAbilityEntityDefinition,
+    ) => void;
   };
   readonly #resolveDefinition?: (
     abilityEntityId: string,
@@ -44,6 +48,10 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       readonly semanticEvents?: CombatSemanticEventRuntime;
       readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
       readonly createCallbackSkillHost?: CallbackSkillHostFactory;
+      readonly installPassiveSkills?: (
+        entity: RuntimeTargetRef,
+        definition: ResolvedAbilityEntityDefinition,
+      ) => void;
     },
     resolveDefinition?: (abilityEntityId: string) => ResolvedAbilityEntityDefinition | undefined,
   ) {
@@ -305,6 +313,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       abilityEntityId: parameters.abilityEntityId,
       definition: {
         ...(definition.bornTags === undefined ? {} : { bornTags: definition.bornTags }),
+        ...(definition.blackboard === undefined ? {} : { blackboard: definition.blackboard }),
         lifetime:
           definition.lifetime.kind === 'infinite'
             ? definition.lifetime
@@ -349,6 +358,19 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
               ),
           }),
     });
+    try {
+      this.#childRuntimeDependencies?.installPassiveSkills?.(entity, definition);
+    } catch (error) {
+      try {
+        if (this.#entities.isActive(entity)) this.#entities.finish(entity, 'explicit');
+      } catch (cleanupError) {
+        throw new AggregateError(
+          [error, cleanupError],
+          `AbilityEntity '${parameters.abilityEntityId}' passive installation and cleanup failed`,
+        );
+      }
+      throw error;
+    }
     if (parameters.saveToContextKey !== undefined) {
       if (context.targetContext === undefined) {
         throw new Error('spawnAbilityEntity context output requires a target context');

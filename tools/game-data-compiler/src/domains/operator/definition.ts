@@ -297,6 +297,16 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
         Object.fromEntries([...bindings.keys()].map(id => [id, input.loadAbilityEntity!(id)])),
       );
     }
+    for (const [id, skillIds] of bindings) {
+      const template = entityCatalog.byId.get(id);
+      if (!template) throw new Error(`missing AbilityEntity ${id}`);
+      for (const skillId of template.skillDataBundle?.allActiveSkillIds ?? []) {
+        if (!skillIds.has(skillId)) {
+          skillIds.add(skillId);
+          changed = true;
+        }
+      }
+    }
     preliminaryAbilityEntityDefinitions = Object.fromEntries(
       [...bindings].map(([id, skillIds]) => {
         const template = entityCatalog.byId.get(id);

@@ -1051,6 +1051,42 @@ function validateAbilityEntityChildSkill(
   }
 }
 
+function validateAbilityEntityPassiveSkill(
+  value: unknown,
+  path: string,
+  out: SkillDefinitionValidationIssue[],
+): void {
+  const passive = asRecord(value, path, out);
+  if (passive === null) return;
+  requireString(passive, 'key', path, out);
+  if (passive.blackboard !== undefined) {
+    const blackboard = asRecord(passive.blackboard, `${path}.blackboard`, out);
+    if (blackboard !== null) {
+      for (const [key, item] of Object.entries(blackboard)) {
+        if (key.length === 0) push(out, `${path}.blackboard`, 'contains an empty key');
+        validateLevelValues(item, `${path}.blackboard.${JSON.stringify(key)}`, out);
+      }
+    }
+  }
+  // 能力实体被动以宿主实体作为 currentTarget；无需额外的 Context 迭代。
+  validateActionSequence(passive.enableSequence, `${path}.enableSequence`, out, true);
+  if (passive.abilityEventResponses === undefined) return;
+  if (!Array.isArray(passive.abilityEventResponses)) {
+    push(out, `${path}.abilityEventResponses`, 'expected an array');
+    return;
+  }
+  passive.abilityEventResponses.forEach((value, index) => {
+    const responsePath = `${path}.abilityEventResponses[${index}]`;
+    const response = asRecord(value, responsePath, out);
+    if (response === null) return;
+    if (response.event !== 'addedBuff') {
+      push(out, `${responsePath}.event`, "expected 'addedBuff'");
+    }
+    requireInteger(response, 'priority', responsePath, out);
+    validateActionSequence(response.sequence, `${responsePath}.sequence`, out, true);
+  });
+}
+
 /** 校验实体局部子技能；宿主实体上下文始终可用，区别于独立干员动作序列。 */
 export function validateAbilityEntityChildSkillDefinition(
   value: unknown,
@@ -1069,6 +1105,21 @@ export function validateAbilityEntityDefinition(
   const out: SkillDefinitionValidationIssue[] = [];
   const definition = asRecord(value, path, out);
   if (definition === null) return out;
+  if (definition.blackboard !== undefined) {
+    const blackboard = asRecord(definition.blackboard, `${path}.blackboard`, out);
+    if (blackboard !== null) {
+      for (const [key, item] of Object.entries(blackboard)) {
+        if (key.length === 0) push(out, `${path}.blackboard`, 'contains an empty key');
+        if ((typeof item !== 'number' || !Number.isFinite(item)) && typeof item !== 'string') {
+          push(
+            out,
+            `${path}.blackboard.${JSON.stringify(key)}`,
+            'expected a finite number or string',
+          );
+        }
+      }
+    }
+  }
   const lifetimePath = `${path}.lifetime`;
   const lifetime = asRecord(definition.lifetime, lifetimePath, out);
   if (lifetime !== null) {
@@ -1115,6 +1166,21 @@ export function validateAbilityEntityDefinition(
   }
   if (definition.childSkill !== undefined && definition.childSkills !== undefined) {
     push(out, path, 'cannot define both childSkill and childSkills');
+  }
+  if (definition.passiveSkills !== undefined) {
+    if (!Array.isArray(definition.passiveSkills)) {
+      push(out, `${path}.passiveSkills`, 'expected an array');
+    } else {
+      const keys = new Set<string>();
+      definition.passiveSkills.forEach((passive, index) => {
+        const passivePath = `${path}.passiveSkills[${index}]`;
+        validateAbilityEntityPassiveSkill(passive, passivePath, out);
+        const record = asRecord(passive, passivePath, []);
+        if (record === null || typeof record.key !== 'string') return;
+        if (keys.has(record.key)) push(out, `${passivePath}.key`, `duplicate key '${record.key}'`);
+        keys.add(record.key);
+      });
+    }
   }
   if (definition.deathReleaseDelaySeconds !== undefined) {
     const delay = requireFiniteNumber(definition, 'deathReleaseDelaySeconds', path, out);

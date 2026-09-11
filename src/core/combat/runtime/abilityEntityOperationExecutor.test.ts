@@ -33,6 +33,36 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entities.findOwnerSpawned({ ownerId: 'arclight' })).toHaveLength(1);
   });
 
+  it('removes a spawned entity when its passive installation fails', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const executor = new AbilityEntityOperationExecutor(
+      'camille',
+      entities,
+      { execute: () => false, evaluate: () => false },
+      {
+        resolveOperations: () => ({ execute: () => false, evaluate: () => false }),
+        installPassiveSkills: () => {
+          throw new Error('passive install failed');
+        },
+      },
+      () => ({
+        lifetime: { kind: 'limited', durationSeconds: 5 },
+        passiveSkills: [],
+      }),
+    );
+
+    expect(() =>
+      executor.execute(
+        {
+          kind: 'spawnAbilityEntity',
+          parameters: { abilityEntityId: 'bat', dieWhenSourceDies: false },
+        },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toThrow('passive install failed');
+    expect(entities.activeCount).toBe(0);
+  });
+
   it('does not retain the source cast identity when the native spawn disables inheritance', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor(

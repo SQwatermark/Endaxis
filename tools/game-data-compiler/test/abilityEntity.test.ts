@@ -41,6 +41,58 @@ describe('AbilityEntityTemplateData 来源', () => {
     });
   });
 
+  it('保留能力系统声明的活动技能和已启用被动技能', () => {
+    const parsed = parseNativeAbilityEntityTemplateSource(
+      {
+        ...abilityEntityFixture(),
+        skillDataBundle: {
+          allActiveSkillIds: ['active_a', 'active_b'],
+          allPassiveSkillIds: ['passive_a'],
+          enabledPassiveSkillIds: ['passive_a'],
+        },
+      },
+      'AbilityEntityData.fixture',
+    );
+    expect(parsed.skillDataBundle).toEqual({
+      allActiveSkillIds: ['active_a', 'active_b'],
+      allPassiveSkillIds: ['passive_a'],
+      enabledPassiveSkillIds: ['passive_a'],
+    });
+  });
+
+  it('保留能力系统实体黑板的数值、字符串和动态声明', () => {
+    const parsed = parseNativeAbilityEntityTemplateSource(
+      {
+        ...abilityEntityFixture(),
+        entityBlackboard: [
+          { key: 'EntityBB_damage', valueDouble: 5.5, valueStr: '', isDynamic: true },
+          { key: 'EntityBB_label', valueDouble: 0, valueStr: 'bat', isDynamic: false },
+        ],
+      },
+      'AbilityEntityData.fixture',
+    );
+    expect(parsed.entityBlackboard).toEqual([
+      { key: 'EntityBB_damage', value: 5.5, isDynamic: true },
+      { key: 'EntityBB_label', value: 'bat', isDynamic: false },
+    ]);
+  });
+
+  it('拒绝启用未在全部被动列表中声明的技能', () => {
+    expect(() =>
+      parseNativeAbilityEntityTemplateSource(
+        {
+          ...abilityEntityFixture(),
+          skillDataBundle: {
+            allActiveSkillIds: [],
+            allPassiveSkillIds: [],
+            enabledPassiveSkillIds: ['passive_a'],
+          },
+        },
+        'AbilityEntityData.fixture',
+      ),
+    ).toThrow(/is not declared/);
+  });
+
   it('新增模板字段会失败关闭，避免旧来源层静默丢行为', () => {
     expect(() =>
       parseNativeAbilityEntityTemplateSource(

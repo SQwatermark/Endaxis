@@ -66,14 +66,38 @@ M.I.警用手套·壹型分别由旧资源路径对应到 `wpn_funnel_0011`、`w
 `frontiers-comm` → `item_equip_t4_suit_atb01_edc_01`，`lynx-slab` →
 `item_equip_t4_suit_heal01_edc_03`。转换后 67 个动作全部保留，问题列表为空。
 
-当前版本在配置截止 2139 帧得到 504 条伤害、`3234025.679136203`；跑满 3600 帧得到
-609 条、`3397425.1423854693`。诊断为可用性 32、连携 6、执行 0。两个口径的差额全部
-来自截止线后的洛茜伤害，暂不据此调整截止线、Buff 生命周期或命中归属。
+当前版本接入卡蜜拉蝙蝠实体的原生被动后，在配置截止 2139 帧得到 508 条伤害、
+`3253189.7648606286`。卡蜜拉由 34 条增至 38 条，新增命中位于 353、830、1428、1934 帧。
+完整 3600 帧重跑为 613 条、`3416589.228109895`，末次伤害仍在 2761 帧；相对接入前
+只增加同样四条追击。
 
 旧版对照工作树 `a56d77e8` 用自身正式存档入口重放后，配置截止为 392 条、`5826083`，
 完整时长为 414 条、`5874555`；67 个动作全部启动。逐来源条数旧/新分别为：弭弗 69/70、
-洛茜 264/387、卡蜜拉 32/34、骏卫 27/13。该差异分布不能归结为一个统一倍率或统一漏击，
+洛茜 264/387、卡蜜拉 32/38、骏卫 27/13。该差异分布不能归结为一个统一倍率或统一漏击，
 也不能据此判当前错误。后续逐动作定位后仍须以 AKEDB、IL2CPP 或游戏实测裁决。
+
+### 卡蜜拉蝙蝠实体被动
+
+当前 VFS 原始能力实体文件为
+`D:\Projects\vfs-index-browser\data\internal-cache\226295\manifest-assets\208602\monobehaviour-raw\runs\monobehaviour-raw-208602-1789130168214139300-33d6b0295ca64865a1a052ea635f595f\exported\objects\0000-p6A221C90AAAB132A.dat`，
+SHA-256 为 `445543131D0A6137DA1D3AE58C3847DE48CE148A21A2727BA68781AF50C90D60`。
+其 `AbilitySystemData.skillDataBundle` 列出两个主动子技能，并启用
+`chr_0033_camille_passive_normal_skill_ability_entity`；实体黑板还明确保存
+`EntityBB_bat_duration=60` 等 8 项值。IL2CPP 中 `AbilitySystemData.entityBlackboard`
+字段偏移为 `0x88`，元素结构 `Beyond.Blackboard.DataPair` 由 key、double、string 和动态标记组成。
+
+原生动作链为：卡蜜拉普通战技末段给蝙蝠实体添加
+`buff_chr_0033_camille_normal_skill_bateffect`；实体被动监听 `OnAddedBuff`，层数达到 2 后按
+原生标签寻找敌人，由实体来源查回卡蜜拉，再施加
+`buff_chr_0033_camille_normal_skill_delay_damage`。该 Buff 在 0.4 秒后结束并造成追击伤害。
+三个相关源文件 SHA-256 依次为：连携技能
+`5FB103EA58D9AB996DA910DD1EA03A49901D9C3E79BE268EFB62844C8962106D`、bateffect Buff
+`BCD4E0B21E6C198783354F7824AF77B896A17541FE5F6CD556A6AE659B009A91`、实体被动
+`F354C4D741BDC3D24C5B1DB5E9E7815E8CE24AC6401AAB0690A3628E1248DB78`。
+
+实现按模板通用编译和安装实体被动，没有写卡蜜拉 ID 特判。新出现的 4 条伤害均归属于
+delay_damage Buff，并继承生成蝙蝠时的卡蜜拉技能来源。旧版只有 32 条卡蜜拉伤害，
+所以这项修复会扩大旧新条数差；这恰好说明旧版只能用来发现问题，不能作为目标答案。
 
 已先闭合洛茜终结技这一项：旧版每次把 27 个时刻各记两条，共 54 条；当前原生动作图
 由固定段 12..36 的 25 条和 channeling 段 4、5 的两条组成，每条只执行一次。原始

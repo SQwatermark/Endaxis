@@ -113,12 +113,14 @@ export interface CompiledAbilityEntityChildSkillProgram extends CompiledSkillAct
 /** 已按引用技能等级展开、可供逻辑能力实体运行时创建实例的蓝图。 */
 export interface ResolvedAbilityEntityDefinition {
   readonly bornTags?: AbilityEntityDefinition['bornTags'];
+  readonly blackboard?: AbilityEntityDefinition['blackboard'];
   readonly lifetime: AbilityEntityDefinition['lifetime'];
   readonly deathReleaseDelaySeconds?: number;
   readonly maxStackingCount?: AbilityEntityDefinition['maxStackingCount'];
   readonly childSkill?: CompiledAbilityEntityChildSkillProgram;
   /** 同一实体模板由不同 Spawn 动作选择的具名子技能。 */
   readonly childSkills?: Readonly<Record<string, CompiledAbilityEntityChildSkillProgram>>;
+  readonly passiveSkills?: readonly CompiledOperatorPassiveProgram[];
 }
 
 export interface ResolvedCombatStepParameters {

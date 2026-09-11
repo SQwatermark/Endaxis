@@ -1112,6 +1112,7 @@ function compileAbilityEntityDefinition(
 ): ResolvedAbilityEntityDefinition {
   return {
     ...(definition.bornTags === undefined ? {} : { bornTags: definition.bornTags }),
+    ...(definition.blackboard === undefined ? {} : { blackboard: definition.blackboard }),
     lifetime: definition.lifetime,
     ...(definition.deathReleaseDelaySeconds === undefined
       ? {}
@@ -1143,6 +1144,39 @@ function compileAbilityEntityDefinition(
               ),
             ]),
           ),
+        }),
+    ...(definition.passiveSkills === undefined
+      ? {}
+      : {
+          passiveSkills: definition.passiveSkills.map((passive, index) => ({
+            key: passive.key,
+            initialBlackboard: compileSkillBlackboard(
+              passive.blackboard,
+              skillLevel,
+              `${path}.passiveSkills[${index}].blackboard`,
+            ),
+            enableSequence: resolveActionSequence(
+              passive.enableSequence,
+              skillLevel,
+              `${path}.passiveSkills[${index}].enableSequence`,
+              abilityEntities,
+            ),
+            ...(passive.abilityEventResponses === undefined
+              ? {}
+              : {
+                  abilityEventResponses: passive.abilityEventResponses.map(
+                    (response, responseIndex) => ({
+                      ...response,
+                      sequence: resolveActionSequence(
+                        response.sequence,
+                        skillLevel,
+                        `${path}.passiveSkills[${index}].abilityEventResponses[${responseIndex}].sequence`,
+                        abilityEntities,
+                      ),
+                    }),
+                  ),
+                }),
+          })),
         }),
   };
 }

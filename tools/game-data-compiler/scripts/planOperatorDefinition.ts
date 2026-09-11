@@ -32,6 +32,7 @@ import {
   writeGeneratedDefinitionFiles,
 } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
+import { compilePassiveSkillSource } from '../src/compiler/passiveSkillDefinition.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 import { prepareSkillDefinitionInputSource } from '../src/compiler/skillDefinitionInput.ts';
@@ -143,11 +144,35 @@ export function planOperatorDefinition(
       compileSkillTypeMutation,
     }),
   );
+  const spawned = [
+    ...new Set(
+      preliminaryActiveSkills.flatMap(skill =>
+        skill.abilityEntitySpawns.map(spawn => spawn.abilityEntityId),
+      ),
+    ),
+  ];
+  const entityCatalog = compileAbilityEntityTemplateCatalogSource(
+    Object.fromEntries(
+      spawned.map(id => [id, read(path.join(args.sourceRoot, 'AbilityEntityData', `${id}.json`))]),
+    ),
+  );
+  const entityPassiveSkills = [...entityCatalog.byId.values()].flatMap(template =>
+    (template.skillDataBundle?.enabledPassiveSkillIds ?? []).map(skillId =>
+      compilePassiveSkillSource(
+        read(path.join(args.sourceRoot, 'SkillData', `${skillId}.json`)),
+        `SkillData.${skillId}`,
+        null,
+      ),
+    ),
+  );
   const crossSkillObservedBuffIds = [
     ...new Set([
       ...preliminaryActiveSkills.flatMap(skill => skill.abilityEntityObservedBuffIds),
       ...passiveSkills.definitions.flatMap(definition =>
         collectObservedBuffIdsFromPassiveSkill(definition.definition.skill.actionGraph),
+      ),
+      ...entityPassiveSkills.flatMap(definition =>
+        collectObservedBuffIdsFromPassiveSkill(definition.skill.actionGraph),
       ),
     ]),
   ];
@@ -180,16 +205,6 @@ export function planOperatorDefinition(
     foundation.skillLibrary.skillGroups,
     skills,
     args.slug,
-  );
-  const spawned = [
-    ...new Set(
-      activeSkills.flatMap(skill => skill.abilityEntitySpawns.map(spawn => spawn.abilityEntityId)),
-    ),
-  ];
-  const entityCatalog = compileAbilityEntityTemplateCatalogSource(
-    Object.fromEntries(
-      spawned.map(id => [id, read(path.join(args.sourceRoot, 'AbilityEntityData', `${id}.json`))]),
-    ),
   );
   const timeDilationPriorities = readTimeDilationPriorities(args.timeDilationCatalog);
   const gameplayTagRegistry = new GameplayTagRegistry(

@@ -6,6 +6,7 @@ import type {
 } from '../../core/game-data/operatorDefinition';
 import {
   branch,
+  forEachContextTarget,
   instantiateActionSequence,
   once,
   repeatEachTick,
@@ -84,6 +85,16 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
         saveToContextKey: 'Camille_Bat',
         abilityEntityIds: ['abilityentity_chr_0033_camille_normal_skill'],
       }),
+      forEachContextTarget(
+        'Camille_Bat',
+        sequence(
+          step('applyBuff', {
+            buffId: 'buff_chr_0033_camille_normal_skill_bateffect',
+            target: 'currentAbilityEntity',
+            inheritSourceSkillCastInfo: true,
+          }),
+        ),
+      ),
     ),
     undefined,
     { alwaysNext: true },
@@ -1430,6 +1441,16 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
                         operation: 'assign',
                         value: { kind: 'constant', value: 1 },
                       }),
+                      forEachContextTarget(
+                        'Camille_Bat',
+                        sequence(
+                          step('applyBuff', {
+                            buffId: 'buff_chr_0033_camille_normal_skill_bateffect',
+                            target: 'currentAbilityEntity',
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                        ),
+                      ),
                       step('startTimeDilation', {
                         scope: 'entity',
                         durationSeconds: { kind: 'constant', value: 0.15 },
@@ -1812,6 +1833,16 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                     saveToContextKey: 'Camille_Bat',
                     abilityEntityIds: ['abilityentity_chr_0033_camille_normal_skill'],
                   }),
+                  forEachContextTarget(
+                    'Camille_Bat',
+                    sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0033_camille_normal_skill_bateffect',
+                        target: 'currentAbilityEntity',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                  ),
                 ),
                 undefined,
                 { alwaysNext: true },
@@ -2936,6 +2967,44 @@ export const camille: OperatorDefinition = {
         ),
       },
     },
+    buff_chr_0033_camille_normal_skill_bat_checktarget: {
+      stackingType: 'unique',
+      priority: 0,
+      maxStackCount: 1,
+      triggerIntervalSeconds: 0.5,
+      waitFirstTriggerInterval: true,
+      maxTriggerCount: -1,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+      lifecycleSequences: {
+        trigger: sequence(
+          branch(
+            {
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'constant', value: 1 },
+                  operator: 'lessOrEqual',
+                  right: { kind: 'constant', value: 0 },
+                },
+                {
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'EntityBB_retargeting', fallback: 0 },
+                  operator: 'lessOrEqual',
+                  right: { kind: 'constant', value: 0 },
+                },
+              ],
+            },
+            sequence(step('finishCurrentAbilityEntity', {})),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+      },
+    },
     buff_chr_0033_camille_normal_skill_bat_duration_icon: {
       stackingType: 'unique',
       priority: 0,
@@ -2967,6 +3036,38 @@ export const camille: OperatorDefinition = {
       extendTags: [],
       blackboard: { bat_duration: 30 },
       attributeModifiers: [],
+    },
+    buff_chr_0033_camille_normal_skill_bateffect: {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 3,
+      applyTags: [],
+      extendTags: [],
+      blackboard: {},
+      attributeModifiers: [],
+    },
+    buff_chr_0033_camille_normal_skill_delay_damage: {
+      stackingType: 'unlimited',
+      priority: 0,
+      maxStackCount: 99,
+      durationSeconds: 0.4,
+      applyTags: [],
+      extendTags: [],
+      blackboard: { bat_atk_scale: 5, combo_duration: 20 },
+      attributeModifiers: [],
+      lifecycleSequences: {
+        finish: sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'heat',
+              attackScale: { kind: 'blackboard', key: 'bat_atk_scale' },
+              tags: ['normalSkill'],
+            },
+            'buff_chr_0033_camille_normal_skill_delay_damage:/lifecycleSequences/finish/steps/0',
+          ),
+        ),
+      },
     },
     buff_chr_0033_camille_normal_skill_listen_target_dead: {
       stackingType: 'stack',
@@ -3198,95 +3299,252 @@ export const camille: OperatorDefinition = {
         'SelectCategory/UnSkillAutoSelectable',
         'Skill/Character/chr_0033_camille/NormalSkillBat',
       ],
+      blackboard: {
+        EntityBB_atk_scale: 0,
+        EntityBB_bat_atk_scale: 0,
+        EntityBB_bat_duration: 60,
+        EntityBB_combo_duration: 0,
+        EntityBB_poise: 0,
+        EntityBB_retargeting: 0,
+        EntityBB_vulnerable_scale: 0,
+        EntityBB_weak_scale: 0,
+      },
       lifetime: {
         kind: 'limited',
         durationSeconds: { blackboardKey: 'EntityBB_bat_duration', fallback: 30 },
       },
       maxStackingCount: 1,
-      childSkill: {
-        skillId: 'chr_0033_camille_normal_skill_abilityrange_first',
-        blackboard: { atk_scale: 0.1, obtain_count: 0, poise: 10, weak_scale: 0.2 },
-        scheduledSequences: [
-          scheduled(
-            0,
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_common_full_immune',
-                target: 'currentAbilityEntity',
-                source: 'currentAbilityEntity',
-                inheritSourceSkillCastInfo: true,
-              }),
-            ),
-            36,
-          ),
-          scheduled(
-            0,
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0033_camille_normal_skill_weak',
-                target: 'enemy',
-                inheritSourceSkillCastInfo: true,
-                iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
-                finishByAction: true,
-                asChildBuff: true,
-                blackboardAssignments: {
-                  weak_scale: { kind: 'blackboard', key: 'EntityBB_weak_scale' },
-                  vulnerable_scale: { kind: 'blackboard', key: 'EntityBB_vulnerable_scale' },
-                  duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
-                },
-              }),
-            ),
-            2000,
-          ),
-          scheduled(
-            0,
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0033_camille_normal_skill_listen_target_dead',
-                target: 'enemy',
-                source: 'currentAbilityEntity',
-                inheritSourceSkillCastInfo: true,
-                finishByAction: true,
-                asChildBuff: true,
-              }),
-            ),
-            2000,
-          ),
-          scheduled(
-            3,
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0033_camille_normal_skill_bat_duration_icon',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-                iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
-                blackboardAssignments: {
-                  bat_duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
-                },
-              }),
-            ),
-            6,
-          ),
-          scheduled(
-            0,
-            sequence(
-              step('applyElementalInfliction', { element: 'heat', isExtra: false }),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'heat',
-                  attackScale: { kind: 'blackboard', key: 'EntityBB_atk_scale' },
-                  tags: ['normalSkill'],
-                  features: ['canBreakWeakness'],
-                  stagger: { kind: 'blackboard', key: 'EntityBB_poise' },
-                },
-                'abilityentity_chr_0033_camille_normal_skill:chr_0033_camille_normal_skill_abilityrange_first:/childSkill/scheduledSequences/4/sequence/steps/1',
+      childSkills: {
+        chr_0033_camille_normal_skill_abilityrange_first: {
+          skillId: 'chr_0033_camille_normal_skill_abilityrange_first',
+          blackboard: { atk_scale: 0.1, obtain_count: 0, poise: 10, weak_scale: 0.2 },
+          scheduledSequences: [
+            scheduled(
+              0,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_common_full_immune',
+                  target: 'currentAbilityEntity',
+                  source: 'currentAbilityEntity',
+                  inheritSourceSkillCastInfo: true,
+                }),
               ),
+              36,
             ),
-            1,
-          ),
-        ],
+            scheduled(
+              0,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0033_camille_normal_skill_weak',
+                  target: 'enemy',
+                  inheritSourceSkillCastInfo: true,
+                  iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
+                  finishByAction: true,
+                  asChildBuff: true,
+                  blackboardAssignments: {
+                    weak_scale: { kind: 'blackboard', key: 'EntityBB_weak_scale' },
+                    vulnerable_scale: { kind: 'blackboard', key: 'EntityBB_vulnerable_scale' },
+                    duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
+                  },
+                }),
+              ),
+              2000,
+            ),
+            scheduled(
+              0,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0033_camille_normal_skill_listen_target_dead',
+                  target: 'enemy',
+                  source: 'currentAbilityEntity',
+                  inheritSourceSkillCastInfo: true,
+                  finishByAction: true,
+                  asChildBuff: true,
+                }),
+              ),
+              2000,
+            ),
+            scheduled(
+              3,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0033_camille_normal_skill_bat_duration_icon',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                  iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
+                  blackboardAssignments: {
+                    bat_duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
+                  },
+                }),
+              ),
+              6,
+            ),
+            scheduled(
+              0,
+              sequence(
+                step('applyElementalInfliction', { element: 'heat', isExtra: false }),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'EntityBB_atk_scale' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'EntityBB_poise' },
+                  },
+                  'abilityentity_chr_0033_camille_normal_skill:chr_0033_camille_normal_skill_abilityrange_first|chr_0033_camille_normal_skill_abilityrange:/childSkills/chr_0033_camille_normal_skill_abilityrange_first/scheduledSequences/4/sequence/steps/1',
+                ),
+              ),
+              1,
+            ),
+          ],
+        },
+        chr_0033_camille_normal_skill_abilityrange: {
+          skillId: 'chr_0033_camille_normal_skill_abilityrange',
+          blackboard: { atk_scale: 0.1, obtain_count: 0, poise: 10, weak_scale: 0.2 },
+          scheduledSequences: [
+            scheduled(
+              0,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_common_full_immune',
+                  target: 'currentAbilityEntity',
+                  source: 'currentAbilityEntity',
+                  inheritSourceSkillCastInfo: true,
+                }),
+              ),
+              36,
+            ),
+            scheduled(
+              0,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0033_camille_normal_skill_weak',
+                  target: 'enemy',
+                  inheritSourceSkillCastInfo: true,
+                  iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
+                  finishByAction: true,
+                  asChildBuff: true,
+                  blackboardAssignments: {
+                    weak_scale: { kind: 'blackboard', key: 'EntityBB_weak_scale' },
+                    vulnerable_scale: { kind: 'blackboard', key: 'EntityBB_vulnerable_scale' },
+                    duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
+                  },
+                }),
+              ),
+              2000,
+            ),
+            scheduled(
+              0,
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0033_camille_normal_skill_listen_target_dead',
+                  target: 'enemy',
+                  source: 'currentAbilityEntity',
+                  inheritSourceSkillCastInfo: true,
+                  finishByAction: true,
+                  asChildBuff: true,
+                }),
+              ),
+              2000,
+            ),
+            scheduled(
+              0,
+              sequence(step('applyElementalInfliction', { element: 'heat', isExtra: false })),
+              3,
+            ),
+            scheduled(
+              0,
+              sequence(
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'EntityBB_atk_scale' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'EntityBB_poise' },
+                  },
+                  'abilityentity_chr_0033_camille_normal_skill:chr_0033_camille_normal_skill_abilityrange_first|chr_0033_camille_normal_skill_abilityrange:/childSkills/chr_0033_camille_normal_skill_abilityrange/scheduledSequences/4/sequence/steps/0',
+                ),
+              ),
+              3,
+            ),
+          ],
+        },
       },
+      passiveSkills: [
+        {
+          key: 'chr_0033_camille_passive_normal_skill_ability_entity',
+          blackboard: { atb: 15 },
+          enableSequence: sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0033_camille_normal_skill_bat_checktarget',
+              target: 'currentAbilityEntity',
+              source: 'currentAbilityEntity',
+              inheritSourceSkillCastInfo: false,
+            }),
+          ),
+          abilityEventResponses: [
+            {
+              event: 'addedBuff',
+              priority: 0,
+              sequence: sequence(
+                branch(
+                  {
+                    kind: 'eventBuffIdMatch',
+                    buffIds: ['buff_chr_0033_camille_normal_skill_bateffect'],
+                  },
+                  sequence(
+                    branch(
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'currentAbilityEntity',
+                        buffIds: ['buff_chr_0033_camille_normal_skill_bateffect'],
+                        operator: 'greaterOrEqual',
+                        value: { kind: 'constant', value: 2 },
+                      },
+                      sequence(
+                        branch(
+                          {
+                            kind: 'entityTagMatch',
+                            target: 'enemy',
+                            tagQueryType: 'hasAny',
+                            tags: ['Skill/Character/chr_0033_camille/NormalSkillBatTarget'],
+                          },
+                          sequence(
+                            step('mergeContextTargets', {
+                              saveToContextKey: 'tar',
+                              sources: [{ kind: 'target', target: 'enemy' }],
+                            }),
+                          ),
+                          sequence(
+                            step('mergeContextTargets', { saveToContextKey: 'tar', sources: [] }),
+                          ),
+                        ),
+                        step('mergeContextTargets', {
+                          saveToContextKey: 'src',
+                          sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
+                        }),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0033_camille_normal_skill_delay_damage',
+                          target: 'enemy',
+                          sourceContextKey: 'src',
+                          inheritSourceSkillCastInfo: true,
+                          blackboardAssignments: {
+                            bat_atk_scale: { kind: 'blackboard', key: 'EntityBB_bat_atk_scale' },
+                            combo_duration: { kind: 'blackboard', key: 'EntityBB_combo_duration' },
+                          },
+                        }),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            },
+          ],
+        },
+      ],
     },
   },
   conversionSupport: { completeness: 'complete', missingCapabilities: [] },

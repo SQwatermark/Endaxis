@@ -181,6 +181,24 @@ function bindProgramHitIds(program: CompiledSkillProgram, castId: string): Compi
                         ]),
                       ),
                     }),
+                ...(definition.passiveSkills === undefined
+                  ? {}
+                  : {
+                      passiveSkills: definition.passiveSkills.map(passive => ({
+                        ...passive,
+                        enableSequence: bindSequenceHitIds(passive.enableSequence, castId),
+                        ...(passive.abilityEventResponses === undefined
+                          ? {}
+                          : {
+                              abilityEventResponses: passive.abilityEventResponses.map(
+                                response => ({
+                                  ...response,
+                                  sequence: bindSequenceHitIds(response.sequence, castId),
+                                }),
+                              ),
+                            }),
+                      })),
+                    }),
               },
             ]),
           ),

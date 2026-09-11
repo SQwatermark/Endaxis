@@ -193,6 +193,9 @@ function createAssembly(
         registerCombatAbilityEvent: NonNullable<
           ConstructorParameters<typeof CombatRuntimeAssembly>[0]['registerCombatAbilityEvent']
         >;
+        registerPassiveAbilityEventAction?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['registerPassiveAbilityEventAction'];
       },
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,
   resolveVitals?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['resolveVitals'],
@@ -229,6 +232,9 @@ function createAssembly(
       : {}),
     ...('programs' in input && input.emitAbilityEvent
       ? { emitAbilityEvent: input.emitAbilityEvent }
+      : {}),
+    ...('programs' in input && input.registerPassiveAbilityEventAction
+      ? { registerPassiveAbilityEventAction: input.registerPassiveAbilityEventAction }
       : {}),
     ...(skillAvailabilityTags === undefined ? {} : { skillAvailabilityTags }),
     enemy,
@@ -1321,6 +1327,80 @@ describe('CombatRuntimeAssembly', () => {
     const snapshot = assembly.abilityEntities.snapshot(entity);
     expect(snapshot.remainingDurationSeconds).toBeCloseTo(0.5);
     expect(snapshot.elapsedDurationSeconds).toBeCloseTo(0.5);
+  });
+
+  it('installs each AbilityEntity passive on spawn and unregisters it when the entity finishes', () => {
+    const native = createNativeEventFixture();
+    const program = skill({
+      costs: [],
+      costFrame: undefined,
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  abilityEntityId: 'passive-host',
+                  dieWhenSourceDies: false,
+                  definition: {
+                    lifetime: { kind: 'infinite' },
+                    blackboard: { EntityBB_seed: 7 },
+                    passiveSkills: [
+                      {
+                        key: 'entity-passive',
+                        initialBlackboard: {},
+                        enableSequence: { steps: [] },
+                        abilityEventResponses: [
+                          {
+                            event: 'addedBuff',
+                            priority: 0,
+                            sequence: {
+                              steps: [
+                                {
+                                  kind: 'changeResource',
+                                  parameters: { resource: 'sp', amount: 10, recipient: 'team' },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const assembly = createAssembly({
+      programs: [program],
+      registerCombatAbilityEvent: native.register,
+      registerPassiveAbilityEventAction: (_entityId, event, priority, handle) =>
+        native.dispatcher.registerAction(event, priority, published => handle(published)),
+    });
+    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+    const [entity] = assembly.abilityEntities.findAll();
+    expect(entity).toBeDefined();
+    expect(assembly.abilityEntities.entityBlackboard(entity!).getNumber('EntityBB_seed')).toBe(7);
+    native.emitAddedBuff({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      buffId: 'signal',
+      buffTags: [],
+    });
+    expect(assembly.resources.sp).toBe(110);
+    assembly.abilityEntities.finish(entity!);
+    native.emitAddedBuff({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      buffId: 'signal',
+      buffTags: [],
+    });
+    expect(assembly.resources.sp).toBe(110);
   });
 
   it('runs an AbilityEntity child timeline on the same entity time scale', () => {

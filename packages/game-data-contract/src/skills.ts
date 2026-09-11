@@ -5,6 +5,7 @@ import {
   type SkillType,
 } from './primitives.ts';
 import { type CombatEventHandlerDefinition, type ScheduledSequenceDefinition } from './actions.ts';
+import { type AbilityEventResponse } from './abilityEvents.ts';
 import { type BuildCondition, type CombatCondition } from './conditions.ts';
 
 /** 生成期已从原生 born-tag 证据解析出的可执行能力实体查询。 */
@@ -51,6 +52,14 @@ export interface AbilityEntityChildSkillDefinition extends Readonly<SkillActionP
   readonly skillId: string;
 }
 
+/** 随能力实体 AbilitySystem 启用，并在该实体结束时销毁的原生被动技能。 */
+export interface AbilityEntityPassiveSkillDefinition {
+  readonly key: string;
+  readonly blackboard?: Readonly<Record<string, LevelValues>>;
+  readonly enableSequence: import('./actions.ts').ActionSequenceDefinition;
+  readonly abilityEventResponses?: readonly AbilityEventResponse<'addedBuff'>[];
+}
+
 /** 能力实体模板数值；原生可在生成时用实体黑板覆盖模板默认值。 */
 export type AbilityEntityDefinitionNumber =
   number | { readonly blackboardKey: string; readonly fallback: number };
@@ -59,6 +68,8 @@ export type AbilityEntityDefinitionNumber =
 export interface AbilityEntityDefinition {
   /** AbilityEntityTemplateData.bornTags；实体创建时立即成为其 AbilitySystem 自身标签。 */
   readonly bornTags?: readonly import('./gameplayTags.ts').GameplayTag[];
+  /** AbilitySystemData.entityBlackboard 的模板初值；生成动作的显式赋值可覆盖同名键。 */
+  readonly blackboard?: Readonly<Record<string, number | string>>;
   readonly lifetime:
     | {
         readonly kind: 'limited';
@@ -72,6 +83,7 @@ export interface AbilityEntityDefinition {
   readonly childSkill?: AbilityEntityChildSkillDefinition;
   /** 同一原生实体模板可由不同 Spawn 动作绑定不同子技能；键为原生技能 ID。 */
   readonly childSkills?: Readonly<Record<string, AbilityEntityChildSkillDefinition>>;
+  readonly passiveSkills?: readonly AbilityEntityPassiveSkillDefinition[];
 }
 
 /** 干员级能力实体蓝图；技能只引用身份并提供本次生成参数。 */

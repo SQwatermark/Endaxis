@@ -485,6 +485,8 @@ export class CombatRuntimeAssembly {
   readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveAbilityEvents: PassiveAbilityEventRuntime[] = [];
+  /** 每个能力实体实例独占自身的原生被动 Ability；实体结束时立即对称注销。 */
+  readonly #abilityEntityPassiveEvents = new Map<number, PassiveAbilityEventRuntime[]>();
   /** 原生被动 Ability 持有的 asChildBuff；被动在整场固定战斗中常驻。 */
   /** 只复用解释链的构造上下文；每个 Buff 实例必须独占有状态的动作执行器。 */
   readonly #reactiveOperationBindings = new Map<string, () => CombatOperationExecutor>();
@@ -622,6 +624,7 @@ export class CombatRuntimeAssembly {
               targetId: entityId,
             });
           }
+          this.#disposeAbilityEntityPassiveSkills(entity.instanceId);
           const buffRuntime = this.#abilityEntityBuffs.get(entity.instanceId);
           if (buffRuntime !== undefined) {
             buffRuntime.releaseAll();
@@ -1812,9 +1815,112 @@ export class CombatRuntimeAssembly {
   }
 
   disposePassiveAbilityEvents(): void {
-    runAbilityHostCleanup(
-      this.#passiveAbilityEvents.splice(0).map(runtime => () => runtime.dispose()),
-    );
+    const entityRuntimes = [...this.#abilityEntityPassiveEvents.values()].flat();
+    this.#abilityEntityPassiveEvents.clear();
+    runAbilityHostCleanup([
+      ...this.#passiveAbilityEvents.splice(0).map(runtime => () => runtime.dispose()),
+      ...entityRuntimes.map(runtime => () => runtime.dispose()),
+    ]);
+  }
+
+  #installAbilityEntityPassiveSkills(
+    target: import('../../game-data/logicalAbilityEntity').RuntimeTargetRef,
+    definition: ResolvedAbilityEntityDefinition,
+  ): void {
+    if (target.kind !== 'abilityEntity') {
+      throw new Error('AbilityEntity passive installation requires an AbilityEntity target');
+    }
+    const entity = this.abilityEntities.snapshot(target);
+    const operator = this.#operators.get(entity.ownerId);
+    const passiveSkills = definition.passiveSkills;
+    if (passiveSkills === undefined || passiveSkills.length === 0) return;
+    if (operator === undefined) {
+      throw new Error(
+        `AbilityEntity '${entity.abilityEntityId}' passive owner '${entity.ownerId}' does not exist`,
+      );
+    }
+    if (this.#abilityEntityPassiveEvents.has(entity.instanceId)) {
+      throw new Error(`AbilityEntity '${entity.instanceId}' passive skills are already installed`);
+    }
+    const register = this.#options.registerPassiveAbilityEventAction;
+    if (register === undefined) {
+      throw new Error(
+        `AbilityEntity '${entity.abilityEntityId}' passive skills require ability event registration`,
+      );
+    }
+    const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
+    const installed: PassiveAbilityEventRuntime[] = [];
+    try {
+      for (const passive of passiveSkills) {
+        const sourceActionId = `ability-entity:${entity.instanceId}:passive:${passive.key}`;
+        const blackboard = new ActionBlackboard(
+          passive.initialBlackboard,
+          this.abilityEntities.entityBlackboard(target),
+        );
+        const operations = this.#createReactiveOperationChain(
+          operator,
+          sourceActionId,
+          this.#createReactiveTerminal(operator, sourceActionId, this.#options),
+          this.#options,
+        );
+        const eventHost = new PassiveAbilityEventRuntime(
+          operations,
+          {
+            blackboard,
+            actionOwnerId: entityId,
+            actionSourceId: entityId,
+            actionOwnerAbilityEntity: target,
+            currentTarget: target,
+            ...(entity.skillCastInfo === undefined || entity.skillCastInfo === null
+              ? {}
+              : { skillCastInfo: entity.skillCastInfo }),
+          },
+          passive.abilityEventResponses ?? [],
+          (event, priority, handle) => register(entityId, event, priority, handle),
+        );
+        installed.push(eventHost);
+        const runtime = new CombatActionSequenceRuntime(
+          operations,
+          {
+            blackboard,
+            actionOwnerId: entityId,
+            actionSourceId: entityId,
+            actionOwnerAbilityEntity: target,
+            currentTarget: target,
+            addAbilityChildBuff: child => eventHost.addChildBuff(child),
+          },
+          {},
+          this.semanticEvents,
+          entityId,
+        );
+        const sequence = runtime.createSequence(passive.enableSequence);
+        eventHost.onDisable(() => sequence.end({}));
+        if (!sequence.tryExecute({})) {
+          throw new Error(
+            `AbilityEntity '${entity.abilityEntityId}' passive skill '${passive.key}' enable sequence returned false`,
+          );
+        }
+        eventHost.enable();
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'PassiveSkillEnabled',
+          sourceId: entityId,
+          data: { passiveKey: passive.key, abilityEntityId: entity.abilityEntityId },
+        });
+      }
+      this.#abilityEntityPassiveEvents.set(entity.instanceId, installed);
+    } catch (error) {
+      runAbilityHostCleanup(installed.map(runtime => () => runtime.dispose()));
+      throw error;
+    }
+  }
+
+  #disposeAbilityEntityPassiveSkills(instanceId: number): void {
+    const runtimes = this.#abilityEntityPassiveEvents.get(instanceId);
+    if (runtimes === undefined) return;
+    this.#abilityEntityPassiveEvents.delete(instanceId);
+    runAbilityHostCleanup(runtimes.map(runtime => () => runtime.dispose()));
   }
 
   disposeEquipmentEvents(): void {
@@ -2347,6 +2453,8 @@ export class CombatRuntimeAssembly {
           return rootOperations;
         },
         semanticEvents: this.semanticEvents,
+        installPassiveSkills: (entity, definition) =>
+          this.#installAbilityEntityPassiveSkills(entity, definition),
         ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId =>
@@ -2668,6 +2776,8 @@ export class CombatRuntimeAssembly {
           return reactiveOperations;
         },
         semanticEvents: this.semanticEvents,
+        installPassiveSkills: (entity, definition) =>
+          this.#installAbilityEntityPassiveSkills(entity, definition),
         ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId => operator.abilityEntityDefinitions?.[abilityEntityId],
