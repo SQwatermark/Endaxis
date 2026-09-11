@@ -67,6 +67,14 @@ HitStop。文件 SHA-256 为
 `buff_physical_no_guard`；当前先按原生顺序读取并消费这 3 层，再执行 79% 直接伤害。
 旧版把触发动作也计入本次消费，按 4 层手写成 750% 猛击，顺序与原始动作图不符。
 
+公开轴第一次二段战技也能按同一原生链解释。洛茜在 282 帧添加两层无防备，356 帧再添加
+一层；`buff_physical_no_guard` 的原始配置是 `EnhanceAndRefresh`、最多 4 层、持续 20 秒，
+所以 662 帧执行弭弗 `CrushAction` 时这 3 层仍然存在。当前回执确实先结束 3 层，再产生
+`1192.02%` 的 `buff_physical_crushed` 伤害。旧版同一动作只有三笔直接伤害，完全没有这笔
+猛击；原生层数、持续时间和动作门禁都支持当前结果，不能因旧版少一笔而删除。无防备 Buff
+文件 SHA-256 为
+`D6F00AB3A66BAA450352F518B1A8B5CDDEBB761989A81256CB34539936C29449`。
+
 原生 `buff_physical_crushed` 按消费层数读取 `[3, 4.5, 6, 7.5]`，然后使用
 `ReadSkillSettingData` 的“弭弗特殊猛击”配置乘以
 `1 + 0.01 × PhysicalAndSpellInflictionEnhance`。该轴弭弗的增强属性为 146.67，所以
