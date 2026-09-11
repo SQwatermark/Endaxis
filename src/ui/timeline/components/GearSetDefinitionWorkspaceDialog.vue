@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton, EaDialog, EaDialogActions, EaInput } from '@/design-system';
 import './definitionWorkspaceLayout.css';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
@@ -48,8 +49,8 @@ watch(
   { immediate: true },
 );
 
-function updateDisplayName(event: Event): void {
-  draft.value = { ...draft.value, displayName: (event.target as HTMLInputElement).value };
+function updateDisplayName(value: string): void {
+  draft.value = { ...draft.value, displayName: value };
 }
 
 function updateContribution(contribution: EquipmentContributionDefinition): void {
@@ -65,7 +66,7 @@ function save(): void {
 
 <template>
   <InputRegionBoundary label="gear-set-definition-workspace" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="min(1600px, calc(100vw - 32px))"
       top="16px"
@@ -85,9 +86,12 @@ function save(): void {
             <strong>套装模板</strong><span>来源 {{ baseDefinition.slug }}</span>
           </header>
           <div class="fields">
-            <label>模板 ID<input :value="draft.slug" disabled /></label>
+            <label>模板 ID<EaInput size="sm" :model-value="draft.slug" disabled /></label>
             <label
-              >展示名称<input :value="draft.displayName ?? ''" @change="updateDisplayName"
+              >展示名称<EaInput
+                size="sm"
+                :model-value="draft.displayName ?? ''"
+                @change="updateDisplayName"
             /></label>
           </div>
         </section>
@@ -107,7 +111,7 @@ function save(): void {
         </section>
       </div>
       <template #footer>
-        <div class="footer">
+        <EaDialogActions align="start">
           <DefinitionHistoryControls :history="history" />
           <details v-if="issues.length" class="issues">
             <summary>{{ issues.length }} 个结构问题</summary>
@@ -116,26 +120,20 @@ function save(): void {
             >
           </details>
           <span v-else class="valid">✓ 定义结构有效</span>
-          <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
-            恢复游戏定义
-          </button>
+          <EaButton size="sm" @click="emit('reset')"> 恢复游戏定义 </EaButton>
           <span class="spacer" />
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            @click="emit('update:visible', false)"
-          >
-            取消
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+          <EaButton size="sm" @click="emit('update:visible', false)"> 取消 </EaButton>
+          <EaButton
+            variant="primary"
+            size="sm"
             :disabled="!isDirty || issues.length > 0"
             @click="save"
           >
             保存套装定义
-          </button>
-        </div>
+          </EaButton>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 
@@ -194,21 +192,6 @@ label {
   gap: 6px;
   color: var(--ea-fg-muted);
   font-size: 11px;
-}
-input {
-  width: 100%;
-  min-width: 0;
-  height: 32px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input);
-  color: var(--ea-fg);
-}
-.footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 .spacer {
   flex: 1;

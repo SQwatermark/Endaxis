@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, ref, shallowRef, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { EaButton, EaFilterChip, EaInput, EaSelect, type EaSelectValue } from '@/design-system';
 import type {
   CombatReceiptEntry,
   CombatReceiptValue,
@@ -38,6 +39,10 @@ const dirty = computed(() => props.log !== snapshot.value);
 const keyword = ref('');
 const selectedEvents = ref<ReadonlySet<string>>(new Set());
 const limit = ref<200 | 500 | 'all'>(200);
+
+function setLimit(value: EaSelectValue | EaSelectValue[]): void {
+  if (value === 'all' || value === 200 || value === 500) limit.value = value;
+}
 const openGroupKey = ref<string | null>(null);
 const groupElements = new Map<string, HTMLElement>();
 
@@ -263,9 +268,9 @@ function locateEntry(group: TimelineBattleLogGroup, entry: CombatReceiptEntry): 
         </div>
         <div class="header-actions">
           <span v-if="dirty" class="simlog-dirty">{{ $t('battleLog.dirtyHint') }}</span>
-          <button type="button" class="log-button log-button--refresh" @click="refresh">
+          <EaButton size="sm" type="button" @click="refresh">
             {{ $t('battleLog.refresh') }}
-          </button>
+          </EaButton>
         </div>
       </div>
       <div class="header-divider" />
@@ -277,58 +282,60 @@ function locateEntry(group: TimelineBattleLogGroup, entry: CombatReceiptEntry): 
           {{ $t('battleLog.ui.filtered') }} {{ filteredEntries.length }} /
           {{ $t('battleLog.ui.actionGroups') }} {{ groupedEntries.length }}
         </span>
-        <button type="button" class="log-button log-button--tool" @click="clearEvents">
+        <EaButton size="sm" type="button" @click="clearEvents">
           {{ $t('battleLog.ui.clear') }}
-        </button>
+        </EaButton>
       </div>
 
       <div class="simlog-presets">
         <span class="simlog-filter-label">{{ $t('battleLog.presets.label') }}</span>
         <div class="simlog-presets__list">
-          <button
+          <EaFilterChip
             v-for="preset in TIMELINE_BATTLE_LOG_PRESETS"
             :key="preset.id"
-            type="button"
-            class="log-button log-button--preset"
-            :class="{ 'is-active': activePreset === preset.id }"
+            accent="#7dd3fc"
+            :selected="activePreset === preset.id"
             @click="applyPreset(preset.id)"
           >
             {{ $t(preset.i18nKey) }}
-          </button>
+          </EaFilterChip>
         </div>
       </div>
 
       <div class="simlog-types-row">
         <span class="simlog-filter-label">{{ $t('battleLog.ui.types') }}</span>
         <div class="simlog-types">
-          <button
+          <EaFilterChip
             v-for="event in availableEvents"
             :key="event"
-            type="button"
-            class="log-button log-button--chip"
-            :class="{ 'is-active': selectedEvents.has(event) }"
+            :selected="selectedEvents.has(event)"
             :title="event"
             @click="toggleEvent(event)"
           >
             {{ eventLabel(event) }}
-          </button>
+          </EaFilterChip>
         </div>
       </div>
 
       <div class="simlog-filter-bottom">
-        <input
+        <EaInput
           v-model="keyword"
           class="simlog-search"
-          type="search"
+          size="sm"
           :placeholder="$t('battleLog.searchPlaceholder')"
         />
         <label class="simlog-limit">
           <span class="simlog-filter-label">{{ $t('battleLog.limit') }}</span>
-          <select v-model="limit">
-            <option value="all">{{ $t('battleLog.ui.allResults') }}</option>
-            <option :value="200">200</option>
-            <option :value="500">500</option>
-          </select>
+          <EaSelect
+            size="sm"
+            :model-value="limit"
+            :options="[
+              { value: 'all', label: $t('battleLog.ui.allResults') },
+              { value: 200, label: '200' },
+              { value: 500, label: '500' },
+            ]"
+            @change="setLimit"
+          />
         </label>
       </div>
     </div>
@@ -397,7 +404,9 @@ function locateEntry(group: TimelineBattleLogGroup, entry: CombatReceiptEntry): 
                 <span class="group-section__count">{{ section.entries.length }}</span>
               </div>
               <div class="group-section__list">
-                <button
+                <EaButton
+                  variant="ghost"
+                  size="sm"
                   v-for="entry in section.entries"
                   :key="entry.sequence"
                   type="button"
@@ -415,7 +424,7 @@ function locateEntry(group: TimelineBattleLogGroup, entry: CombatReceiptEntry): 
                   <span v-if="entry.sourceId" class="event-muted" :title="entry.sourceId">
                     {{ sourceLabel(entry) }}
                   </span>
-                </button>
+                </EaButton>
               </div>
             </section>
           </div>
@@ -529,49 +538,9 @@ function locateEntry(group: TimelineBattleLogGroup, entry: CombatReceiptEntry): 
   gap: 6px;
   min-width: 0;
 }
-.log-button,
-.simlog-search,
-.simlog-limit select {
-  border: 1px solid var(--ea-border-strong, rgba(255, 255, 255, 0.12));
-  border-radius: 0;
-  background: var(--ea-fill-input, rgba(0, 0, 0, 0.18));
-  color: var(--ea-fg-secondary, #ccc);
-}
-.log-button {
-  min-height: 24px;
-  padding: 4px 10px;
-  font-size: 10px;
-  cursor: pointer;
-}
-.log-button:hover {
-  border-color: color-mix(in srgb, var(--ea-gold) 42%, transparent);
-  color: var(--ea-fg, #fff);
-}
-.log-button--preset {
-  border-color: rgba(56, 189, 248, 0.28);
-  background: rgba(56, 189, 248, 0.1);
-  color: #7dd3fc;
-}
-.log-button--preset.is-active {
-  border-color: rgba(56, 189, 248, 0.55);
-  background: rgba(56, 189, 248, 0.2);
-}
-.log-button--chip.is-active {
-  border-color: color-mix(in srgb, var(--ea-gold) 42%, transparent);
-  background: color-mix(in srgb, var(--ea-gold) 12%, transparent);
-  color: var(--ea-gold);
-}
 .simlog-search {
   flex: 1;
   min-width: 0;
-  height: 30px;
-  padding: 0 12px;
-  outline: none;
-  font-family: 'Roboto Mono', Consolas, monospace;
-}
-.simlog-search:focus {
-  border-color: color-mix(in srgb, var(--ea-gold) 45%, transparent);
-  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ea-gold) 16%, transparent) inset;
 }
 .simlog-limit {
   display: flex;

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { EaButton } from '@/design-system';
 import type { OperatorSkillDefinitionBinding } from '../../../core/game-data/operatorSkillDefinitions';
 import type { SkillGroupDefinition } from '../../../core/game-data/operatorDefinition';
 import {
@@ -26,30 +27,26 @@ function change(operation: 'copy' | 'up' | 'down') {
 </script>
 <template>
   <div class="member-actions">
-    <button
-      class="ea-btn ea-btn--sm"
-      title="在同一容器内上移"
-      :disabled="index <= 0"
-      @click="change('up')"
-    >
+    <EaButton size="sm" title="在同一容器内上移" :disabled="index <= 0" @click="change('up')">
       ↑
-    </button>
-    <button
-      class="ea-btn ea-btn--sm"
+    </EaButton>
+    <EaButton
+      size="sm"
       title="在同一容器内下移"
       :disabled="index < 0 || index === siblings.length - 1"
       @click="change('down')"
     >
       ↓
-    </button>
-    <button class="ea-btn ea-btn--sm" @click="change('copy')">复制</button>
-    <button
-      class="ea-btn ea-btn--sm"
+    </EaButton>
+    <EaButton size="sm" @click="change('copy')">复制</EaButton>
+    <EaButton
+      variant="danger"
+      size="sm"
       @click="emit('update', removeOperatorLibrarySkill(binding.group, binding))"
     >
       删除
-    </button>
-    <button class="ea-btn ea-btn--sm" @click="emit('edit', binding)">编辑技能 ›</button>
+    </EaButton>
+    <EaButton variant="primary" size="sm" @click="emit('edit', binding)">编辑技能 ›</EaButton>
   </div>
 </template>
 <style scoped>

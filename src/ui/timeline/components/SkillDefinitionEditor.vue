@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton } from '@/design-system';
 import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';
 import InspectorFields from './InspectorFields.vue';
@@ -1150,14 +1151,15 @@ function reset(): void {
       <div class="skill-editor__status">
         <span v-if="customized">{{ labels.customized }}</span>
         <span>{{ t('timeline.skillEditing.diffCount', { count: view.diffCount }) }}</span>
-        <button
+        <EaButton
           v-if="backLabel"
           type="button"
-          class="definition-focused-back ea-btn ea-btn--sm"
+          class="definition-focused-back"
+          size="sm"
           @click="cancel"
         >
           ← {{ backLabel }}
-        </button>
+        </EaButton>
       </div>
     </header>
 

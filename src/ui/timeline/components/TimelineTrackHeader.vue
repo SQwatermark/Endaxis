@@ -9,6 +9,7 @@ import OperatorSupportNotice from './OperatorSupportNotice.vue';
 import { getOperatorAvatarPath } from '../../gameAssetPaths';
 import CustomNumberInput from '../../components/CustomNumberInput.vue';
 import OperatorAvatar from '../../components/OperatorAvatar.vue';
+import { EaButton } from '@/design-system';
 
 const props = defineProps<{
   track: TimelineTrackViewModel;
@@ -95,7 +96,10 @@ function startReorder(event: DragEvent): void {
     @drop.prevent.stop="$emit('reorderDrop', $event)"
   >
     <span class="reorder-column">
-      <button
+      <EaButton
+        variant="ghost"
+        size="sm"
+        icon-only
         type="button"
         class="reorder-button"
         :disabled="!canMoveUp"
@@ -104,7 +108,7 @@ function startReorder(event: DragEvent): void {
         @click.stop="$emit('moveUp')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="18 15 12 9 6 15" /></svg>
-      </button>
+      </EaButton>
       <span
         class="drag-handle"
         draggable="true"
@@ -121,7 +125,10 @@ function startReorder(event: DragEvent): void {
           <circle cx="16" cy="20" r="2" />
         </svg>
       </span>
-      <button
+      <EaButton
+        variant="ghost"
+        size="sm"
+        icon-only
         type="button"
         class="reorder-button"
         :disabled="!canMoveDown"
@@ -130,7 +137,7 @@ function startReorder(event: DragEvent): void {
         @click.stop="$emit('moveDown')"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9" /></svg>
-      </button>
+      </EaButton>
     </span>
     <span class="identity-body">
       <div v-if="track.operatorSlug" class="initial-gauge-control" @click.stop>
@@ -150,7 +157,9 @@ function startReorder(event: DragEvent): void {
         <span class="initial-gauge-max">/{{ track.maxUltimateEnergy ?? '?' }}</span>
       </div>
       <span class="operator-row">
-        <button
+        <EaButton
+          variant="ghost"
+          icon-only
           v-if="track.operatorSlug"
           type="button"
           class="avatar-shell avatar-trigger"
@@ -170,8 +179,10 @@ function startReorder(event: DragEvent): void {
               <path d="M2.5 16A10 10 0 0 0 21 16" />
             </svg>
           </span>
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          icon-only
           v-else
           type="button"
           class="avatar-shell avatar-trigger"
@@ -180,7 +191,7 @@ function startReorder(event: DragEvent): void {
           @click.stop="$emit('operator')"
         >
           <span class="empty-avatar" aria-hidden="true"></span>
-        </button>
+        </EaButton>
         <span
           class="operator-name-row"
           :class="{ 'has-support-notice': track.operatorSupport?.completeness === 'partial' }"
@@ -194,7 +205,9 @@ function startReorder(event: DragEvent): void {
           />
         </span>
       </span>
-      <button
+      <EaButton
+        variant="ghost"
+        size="sm"
         v-if="track.operatorSlug"
         type="button"
         class="stat-detail-button"
@@ -207,9 +220,12 @@ function startReorder(event: DragEvent): void {
         @click.stop="$emit('stats')"
       >
         {{ $t('statDetail.button') }}
-      </button>
+      </EaButton>
       <span v-if="track.operatorSlug" class="loadout-row">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           class="weapon-slot"
           :class="{ empty: weaponIcon === null }"
@@ -219,8 +235,11 @@ function startReorder(event: DragEvent): void {
         >
           <img v-if="weaponIcon" :src="weaponIcon" alt="" />
           <span v-else class="weapon-placeholder" aria-hidden="true"></span>
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           v-for="slot in ['armor', 'gloves', 'accessory1', 'accessory2'] as const"
           :key="slot"
           type="button"
@@ -232,7 +251,7 @@ function startReorder(event: DragEvent): void {
         >
           <img v-if="gearIcons[slot]" :src="gearIcons[slot]!" alt="" />
           <span v-else class="gear-placeholder" aria-hidden="true"></span>
-        </button>
+        </EaButton>
       </span>
       <span class="gear-hint-row">
         <span class="set-bonus-hint" :class="{ 'is-hidden': activeGearSetLabel === '' }">
@@ -436,6 +455,9 @@ function startReorder(event: DragEvent): void {
 }
 
 .avatar-trigger {
+  width: 44px;
+  min-width: 44px;
+  height: 44px;
   padding: 0;
   border: 0;
   border-radius: 50%;

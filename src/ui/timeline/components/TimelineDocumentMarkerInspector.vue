@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /** 循环线、切入标记与模拟区间端点的实例级 Inspector。 */
 import { useI18n } from 'vue-i18n';
+import { EaButton, EaNumberInput, EaSelect, type EaSelectValue } from '@/design-system';
 import type { TrackIndex } from '../../../core/project/schema';
 
 export type TimelineDocumentMarkerKind =
@@ -23,15 +24,15 @@ const emit = defineEmits<{
 
 const { t } = useI18n({ useScope: 'global' });
 
-function commitFrame(event: Event): void {
-  const frame = Number((event.target as HTMLInputElement).value);
+function commitFrame(value: number | undefined): void {
+  const frame = Number(value);
   if (Number.isInteger(frame) && frame >= 0 && frame <= props.maximumFrame) {
     emit('setFrame', frame);
   }
 }
 
-function commitTrackIndex(event: Event): void {
-  const trackIndex = Number((event.target as HTMLSelectElement).value);
+function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
+  const trackIndex = Number(value);
   if (
     Number.isInteger(trackIndex) &&
     props.trackOptions.some(option => option.trackIndex === trackIndex)
@@ -60,12 +61,13 @@ function commitTrackIndex(event: Event): void {
           </div>
           <label class="form-group">
             <span>{{ t('timeline.inspector.labels.startFrame') }}</span>
-            <input
-              type="number"
-              min="0"
+            <EaNumberInput
+              size="sm"
+              :controls="false"
+              :min="0"
               :max="maximumFrame"
-              step="1"
-              :value="frame"
+              :step="1"
+              :model-value="frame"
               @change="commitFrame"
             />
           </label>
@@ -75,15 +77,14 @@ function commitTrackIndex(event: Event): void {
           </div>
           <label v-if="kind === 'controlSwitch'" class="form-group attribute-grid__wide">
             <span>{{ t('timeline.documentMarkerInspector.targetTrack') }}</span>
-            <select :value="trackIndex" @change="commitTrackIndex">
-              <option
-                v-for="option in trackOptions"
-                :key="option.trackIndex"
-                :value="option.trackIndex"
-              >
-                {{ option.label }}
-              </option>
-            </select>
+            <EaSelect
+              size="sm"
+              :model-value="trackIndex"
+              :options="
+                trackOptions.map(option => ({ label: option.label, value: option.trackIndex }))
+              "
+              @change="commitTrackIndex"
+            />
           </label>
         </div>
         <small class="field-help">
@@ -92,9 +93,15 @@ function commitTrackIndex(event: Event): void {
       </section>
 
       <section class="section-container danger-section">
-        <button type="button" class="delete-button" @click="$emit('remove')">
+        <EaButton
+          variant="danger"
+          size="sm"
+          type="button"
+          class="delete-button"
+          @click="$emit('remove')"
+        >
           {{ t('timeline.markerContext.deleteMarker') }}
-        </button>
+        </EaButton>
       </section>
     </div>
   </section>
@@ -172,18 +179,6 @@ function commitTrackIndex(event: Event): void {
   font-size: 12px;
 }
 
-.form-group input,
-.form-group select {
-  min-width: 0;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border, #3a4047);
-  border-radius: 3px;
-  padding: 6px 8px;
-  background: var(--ea-input-bg, #111316);
-  color: inherit;
-}
-
 .readonly-field {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -206,10 +201,5 @@ function commitTrackIndex(event: Event): void {
 
 .delete-button {
   width: 100%;
-  border: 1px solid #8f3838;
-  border-radius: 3px;
-  padding: 7px 10px;
-  background: rgb(143 56 56 / 16%);
-  color: #ff9a9a;
 }
 </style>

@@ -46,8 +46,8 @@ describe('TimelineHeaderToolbar structure', () => {
     expect(source).toContain('class="tech-scenario-bar"');
     expect(source).toContain('class="ts-header-group"');
     expect(source).toContain('class="header-controls"');
-    expect(source).toContain('ea-btn--hover-green');
-    expect(source).toContain('ea-btn--hover-orange');
+    expect(source).toContain('<EaButton');
+    expect(source).not.toContain('ea-btn');
     expect(source).toContain('width: 260px');
   });
 

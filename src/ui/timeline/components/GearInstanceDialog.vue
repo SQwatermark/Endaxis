@@ -1,5 +1,6 @@
 <script setup lang="ts">
 /** Current-definition gear instance editor. Template editing remains a separate project-library action. */
+import { EaButton, EaDialog, EaDialogActions } from '@/design-system';
 import { computed } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useI18n } from 'vue-i18n';
@@ -70,7 +71,7 @@ function maxOut(): void {
 
 <template>
   <InputRegionBoundary label="gear-instance" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="560px"
       append-to-body
@@ -114,17 +115,19 @@ function maxOut(): void {
               </div>
               <div v-if="isArtificable" class="stat-bar-area">
                 <div class="stat-slots">
-                  <button
+                  <EaButton
+                    size="sm"
+                    icon-only
                     v-for="level in slot.maximum"
                     :key="level"
                     type="button"
-                    class="ea-btn ea-btn--icon ea-btn--icon-22 ea-btn--glass-rect ea-btn--accent-gold art-slot"
+                    class="art-slot"
                     :class="{ 'is-active': level <= slot.current }"
                     @click="setArtificingLevel(slot.traitIndex, level)"
                   >
                     <template v-if="level <= slot.current">/</template>
                     <template v-else>&nbsp;</template>
-                  </button>
+                  </EaButton>
                 </div>
                 <span class="stat-level">{{ slot.current }}/{{ slot.maximum }}</span>
               </div>
@@ -135,25 +138,16 @@ function maxOut(): void {
       </template>
 
       <template #footer>
-        <div class="footer">
-          <button
-            v-if="isArtificable"
-            type="button"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
-            @click="maxOut"
-          >
+        <EaDialogActions>
+          <EaButton v-if="isArtificable" variant="primary" size="sm" type="button" @click="maxOut">
             {{ t('common.max') }}
-          </button>
-          <button
-            type="button"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            @click="emit('update:visible', false)"
-          >
+          </EaButton>
+          <EaButton size="sm" type="button" @click="emit('update:visible', false)">
             {{ t('common.close') }}
-          </button>
-        </div>
+          </EaButton>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

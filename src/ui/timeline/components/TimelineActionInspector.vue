@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
 import { RefreshLeft } from '@element-plus/icons-vue';
+import {
+  EaButton,
+  EaCheckbox,
+  EaInput,
+  EaNumberInput,
+  EaSelect,
+  type EaSelectValue,
+} from '@/design-system';
 import type { SkillType, SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import type { EditableBarDocument, SkillCastDocument } from '../../../core/project/schema';
 import type { TimelineConnectionPort } from '../timelineConnections';
@@ -54,8 +62,8 @@ const emit = defineEmits<{
 const { t } = useI18n({ useScope: 'global' });
 const connectionPorts: readonly TimelineConnectionPort[] = ['top', 'right', 'bottom', 'left'];
 
-function connectionPort(event: Event): TimelineConnectionPort {
-  return (event.target as HTMLSelectElement).value as TimelineConnectionPort;
+function connectionPort(value: EaSelectValue | EaSelectValue[]): TimelineConnectionPort {
+  return String(value) as TimelineConnectionPort;
 }
 
 function connectionPortLabel(port: TimelineConnectionPort): string {
@@ -78,20 +86,19 @@ function skillTypeLabel(type: SkillType): string {
   return t(`skillType.${key[type]}`);
 }
 
-function commitCameraTargetAngle(event: Event): void {
-  const raw = (event.target as HTMLInputElement).value.trim();
-  if (raw.length === 0) {
+function commitCameraTargetAngle(value: number | undefined): void {
+  if (value === undefined) {
     emit('setCameraTargetAngle', null);
     return;
   }
-  const angle = Number(raw);
+  const angle = Number(value);
   if (Number.isFinite(angle) && angle >= -180 && angle <= 180) {
     emit('setCameraTargetAngle', angle);
   }
 }
 
-function commitStartFrame(event: Event): void {
-  const frame = Number((event.target as HTMLInputElement).value);
+function commitStartFrame(value: number | undefined): void {
+  const frame = Number(value);
   if (Number.isInteger(frame) && frame >= props.minimumFrame && frame <= props.maximumFrame) {
     emit('setStartFrame', frame);
   }
@@ -113,10 +120,11 @@ function updateCustomBar(
 function updateCustomBarFrame(
   bar: EditableBarDocument,
   field: 'offsetFrames' | 'durationFrames',
-  event: Event,
+  value: number | undefined,
 ): void {
-  const value = Number((event.target as HTMLInputElement).value);
-  if (Number.isInteger(value) && value >= 0) updateCustomBar(bar.id, { [field]: value });
+  if (value !== undefined && Number.isInteger(value) && value >= 0) {
+    updateCustomBar(bar.id, { [field]: value });
+  }
 }
 
 function removeCustomBar(barId: string): void {
@@ -153,13 +161,14 @@ function removeCustomBar(barId: string): void {
           </div>
           <label class="form-group">
             <span>{{ t('timeline.inspector.labels.startFrame') }}</span>
-            <input
+            <EaNumberInput
               class="number-field"
-              type="number"
               :min="minimumFrame"
               :max="maximumFrame"
-              step="1"
-              :value="cast.placement.startFrame"
+              :step="1"
+              :controls="false"
+              size="sm"
+              :model-value="cast.placement.startFrame"
               @change="commitStartFrame"
             />
           </label>
@@ -171,13 +180,13 @@ function removeCustomBar(barId: string): void {
         <div class="attribute-grid">
           <label class="form-group attribute-grid__wide">
             <span>{{ t('timeline.inspector.labels.cameraTargetAngle') }}</span>
-            <input
+            <EaNumberInput
               class="number-field"
-              type="number"
-              min="-180"
-              max="180"
-              step="any"
-              :value="cast.simulationInputs?.cameraToTargetSignedAngleDegrees ?? ''"
+              :min="-180"
+              :max="180"
+              :controls="false"
+              size="sm"
+              :model-value="cast.simulationInputs?.cameraToTargetSignedAngleDegrees"
               :placeholder="t('timeline.inspector.labels.unset')"
               @change="commitCameraTargetAngle"
             />
@@ -203,10 +212,17 @@ function removeCustomBar(barId: string): void {
             t('timeline.skillEditing.diffCount', { count: diffCount })
           }}</span>
           <div class="definition-actions">
-            <button type="button" class="definition-edit" @click="$emit('editDefinition')">
+            <EaButton
+              variant="primary"
+              size="sm"
+              type="button"
+              class="definition-edit"
+              @click="$emit('editDefinition')"
+            >
               {{ t('timeline.skillEditing.edit') }}
-            </button>
-            <button
+            </EaButton>
+            <EaButton
+              size="sm"
               v-if="edited"
               type="button"
               class="definition-reset"
@@ -214,7 +230,7 @@ function removeCustomBar(barId: string): void {
             >
               <RefreshLeft />
               <span>{{ t('timeline.skillEditing.reset') }}</span>
-            </button>
+            </EaButton>
           </div>
         </div>
       </section>
@@ -223,7 +239,8 @@ function removeCustomBar(barId: string): void {
         <div class="panel-tag-mini">{{ t('timeline.skillEditing.section') }}</div>
         <div class="definition-status">
           <span>{{ t('timeline.skillEditing.diffCount', { count: diffCount }) }}</span>
-          <button
+          <EaButton
+            size="sm"
             type="button"
             class="definition-reset"
             :title="t('timeline.skillEditing.reset')"
@@ -231,29 +248,27 @@ function removeCustomBar(barId: string): void {
           >
             <RefreshLeft />
             <span>{{ t('timeline.skillEditing.reset') }}</span>
-          </button>
+          </EaButton>
         </div>
       </section>
 
       <section class="section-container">
         <div class="panel-tag-mini">{{ t('timeline.inspector.sections.presentation') }}</div>
         <div class="attribute-grid">
-          <label class="form-group toggle-field">
+          <div class="form-group toggle-field">
             <span>{{ t('timeline.inspector.labels.locked') }}</span>
-            <input
-              type="checkbox"
-              :checked="cast.presentation?.locked ?? false"
-              @change="$emit('setLocked', ($event.target as HTMLInputElement).checked)"
+            <EaCheckbox
+              :model-value="cast.presentation?.locked ?? false"
+              @change="$emit('setLocked', $event)"
             />
-          </label>
-          <label class="form-group toggle-field">
+          </div>
+          <div class="form-group toggle-field">
             <span>{{ t('timeline.inspector.labels.disabled') }}</span>
-            <input
-              type="checkbox"
-              :checked="cast.presentation?.disabled ?? false"
-              @change="$emit('setDisabled', ($event.target as HTMLInputElement).checked)"
+            <EaCheckbox
+              :model-value="cast.presentation?.disabled ?? false"
+              @change="$emit('setDisabled', $event)"
             />
-          </label>
+          </div>
           <label class="form-group attribute-grid__wide">
             <span>{{ t('timeline.inspector.labels.color') }}</span>
             <div class="color-editor">
@@ -263,9 +278,9 @@ function removeCustomBar(barId: string): void {
                 @change="$emit('setColor', ($event.target as HTMLInputElement).value)"
               />
               <code>{{ cast.presentation?.color ?? '—' }}</code>
-              <button type="button" @click="$emit('setColor', null)">
+              <EaButton size="sm" type="button" @click="$emit('setColor', null)">
                 {{ t('battleLog.ui.clear') }}
-              </button>
+              </EaButton>
             </div>
           </label>
         </div>
@@ -275,7 +290,15 @@ function removeCustomBar(barId: string): void {
         <div class="panel-tag-mini">
           {{ t('propertiesPanel.bars.title') }} ({{ cast.presentation?.customBars?.length ?? 0 }})
         </div>
-        <button type="button" class="section-add" @click="$emit('addCustomBar')">＋</button>
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
+          type="button"
+          class="section-add"
+          @click="$emit('addCustomBar')"
+          >＋</EaButton
+        >
         <div v-if="(cast.presentation?.customBars?.length ?? 0) === 0" class="empty-hint">
           {{ t('propertiesPanel.bars.empty') }}
         </div>
@@ -286,39 +309,46 @@ function removeCustomBar(barId: string): void {
             class="bar-card"
           >
             <div class="bar-card__header">
-              <input
+              <EaInput
                 class="text-field"
-                type="text"
-                :value="bar.text"
+                size="sm"
+                :model-value="bar.text"
                 :placeholder="t('propertiesPanel.bars.namePlaceholder')"
-                @change="
-                  updateCustomBar(bar.id, { text: ($event.target as HTMLInputElement).value })
-                "
+                @change="updateCustomBar(bar.id, { text: $event })"
               />
-              <button type="button" class="remove-button" @click="removeCustomBar(bar.id)">
+              <EaButton
+                variant="danger"
+                size="sm"
+                icon-only
+                type="button"
+                class="remove-button"
+                @click="removeCustomBar(bar.id)"
+              >
                 ×
-              </button>
+              </EaButton>
             </div>
             <div class="attribute-grid">
               <label class="form-group">
                 <span>{{ t('timeline.inspector.labels.customBarOffsetFrames') }}</span>
-                <input
+                <EaNumberInput
                   class="number-field"
-                  type="number"
-                  min="0"
-                  step="1"
-                  :value="bar.offsetFrames"
+                  size="sm"
+                  :controls="false"
+                  :min="0"
+                  :step="1"
+                  :model-value="bar.offsetFrames"
                   @change="updateCustomBarFrame(bar, 'offsetFrames', $event)"
                 />
               </label>
               <label class="form-group">
                 <span>{{ t('timeline.inspector.labels.customBarDurationFrames') }}</span>
-                <input
+                <EaNumberInput
                   class="number-field"
-                  type="number"
-                  min="0"
-                  step="1"
-                  :value="bar.durationFrames"
+                  size="sm"
+                  :controls="false"
+                  :min="0"
+                  :step="1"
+                  :model-value="bar.durationFrames"
                   @change="updateCustomBarFrame(bar, 'durationFrames', $event)"
                 />
               </label>
@@ -333,9 +363,13 @@ function removeCustomBar(barId: string): void {
                 "
               />
               <code>{{ bar.color ?? '#69c0ff' }}</code>
-              <button type="button" @click="updateCustomBar(bar.id, { color: undefined })">
+              <EaButton
+                size="sm"
+                type="button"
+                @click="updateCustomBar(bar.id, { color: undefined })"
+              >
                 {{ t('battleLog.ui.clear') }}
-              </button>
+              </EaButton>
             </div>
           </article>
         </div>
@@ -347,13 +381,19 @@ function removeCustomBar(barId: string): void {
           <span>
             {{ t('propertiesPanel.connections.currentCount') }}: {{ connections.length }}
           </span>
-          <button type="button" class="connection-add" @click="$emit('beginConnection')">
+          <EaButton
+            variant="primary"
+            size="sm"
+            type="button"
+            class="connection-add"
+            @click="$emit('beginConnection')"
+          >
             {{
               connectionToolEnabled
                 ? t('propertiesPanel.connections.chooseTarget')
                 : t('propertiesPanel.connections.new')
             }}
-          </button>
+          </EaButton>
         </div>
         <small v-if="connectionToolEnabled" class="field-help">
           {{ t('timeline.inspector.connectionDragHelp') }}
@@ -372,13 +412,16 @@ function removeCustomBar(barId: string): void {
               <span>{{ connection.outgoing ? label : connection.otherLabel }}</span>
               <b>→</b>
               <span>{{ connection.outgoing ? connection.otherLabel : label }}</span>
-              <button
+              <EaButton
+                variant="danger"
+                size="sm"
+                icon-only
                 type="button"
                 class="remove-button"
                 @click="$emit('removeConnection', connection.id)"
               >
                 ×
-              </button>
+              </EaButton>
             </div>
             <div v-if="connection.targetKind === 'damageHit'" class="connection-hit">
               HIT · {{ connection.targetStepKey }}
@@ -386,47 +429,37 @@ function removeCustomBar(barId: string): void {
             <div class="connection-ports">
               <label>
                 <span>{{ t('propertiesPanel.connections.outPort') }}</span>
-                <select
-                  :value="connection.fromPort"
-                  @change="
-                    $emit('updateConnection', connection.id, {
-                      fromPort: connectionPort($event),
-                    })
+                <EaSelect
+                  size="sm"
+                  :model-value="connection.fromPort"
+                  :options="
+                    connectionPorts.map(port => ({ value: port, label: connectionPortLabel(port) }))
                   "
-                >
-                  <option v-for="port in connectionPorts" :key="port" :value="port">
-                    {{ connectionPortLabel(port) }}
-                  </option>
-                </select>
+                  @change="
+                    $emit('updateConnection', connection.id, { fromPort: connectionPort($event) })
+                  "
+                />
               </label>
               <label v-if="connection.targetKind === 'skillCast'">
                 <span>{{ t('propertiesPanel.connections.inPort') }}</span>
-                <select
-                  :value="connection.toPort"
-                  @change="
-                    $emit('updateConnection', connection.id, {
-                      toPort: connectionPort($event),
-                    })
+                <EaSelect
+                  size="sm"
+                  :model-value="connection.toPort"
+                  :options="
+                    connectionPorts.map(port => ({ value: port, label: connectionPortLabel(port) }))
                   "
-                >
-                  <option v-for="port in connectionPorts" :key="port" :value="port">
-                    {{ connectionPortLabel(port) }}
-                  </option>
-                </select>
+                  @change="
+                    $emit('updateConnection', connection.id, { toPort: connectionPort($event) })
+                  "
+                />
               </label>
             </div>
-            <label class="connection-consumption">
-              <input
-                type="checkbox"
-                :checked="connection.consumption"
-                @change="
-                  $emit('updateConnection', connection.id, {
-                    consumption: ($event.target as HTMLInputElement).checked,
-                  })
-                "
-              />
-              <span>{{ t('propertiesPanel.connections.consume') }}</span>
-            </label>
+            <EaCheckbox
+              class="connection-consumption"
+              :model-value="connection.consumption"
+              @change="$emit('updateConnection', connection.id, { consumption: $event })"
+              >{{ t('propertiesPanel.connections.consume') }}</EaCheckbox
+            >
           </article>
         </div>
       </section>
@@ -552,29 +585,8 @@ function removeCustomBar(barId: string): void {
   text-overflow: ellipsis;
 }
 
-.bar-color-editor button {
-  border: 1px solid var(--ea-border-soft);
-  background: transparent;
-  color: var(--ea-fg);
-  cursor: pointer;
-}
-
-.text-field {
-  min-width: 0;
-  flex: 1;
-  box-sizing: border-box;
-  padding: 6px 7px;
-  border: 1px solid var(--ea-border-strong);
-  background: var(--ea-workbench-panel);
-  color: var(--ea-fg);
-}
-
 .remove-button {
   flex: 0 0 auto;
-  border: 1px solid color-mix(in srgb, #ff5a5f 55%, var(--ea-border-soft));
-  background: transparent;
-  color: #ff8a8e;
-  cursor: pointer;
 }
 
 .connection-summary,
@@ -591,13 +603,6 @@ function removeCustomBar(barId: string): void {
   justify-content: space-between;
   color: var(--ea-fg-muted);
   font-size: 11px;
-}
-
-.connection-add {
-  border: 1px solid color-mix(in srgb, var(--ea-gold) 65%, var(--ea-border-soft));
-  background: color-mix(in srgb, var(--ea-gold) 8%, transparent);
-  color: var(--ea-gold);
-  cursor: pointer;
 }
 
 .connections-list {
@@ -654,26 +659,10 @@ function removeCustomBar(barId: string): void {
   font-size: 10px;
 }
 
-.connection-ports select {
-  min-width: 0;
-  border: 1px solid var(--ea-border-strong);
-  background: var(--ea-fill-input);
-  color: var(--ea-fg);
-}
-
 .connection-consumption {
   margin-top: 8px;
   color: var(--ea-fg-muted);
   font-size: 10px;
-}
-
-.number-field {
-  width: 100%;
-  box-sizing: border-box;
-  padding: 7px 8px;
-  border: 1px solid var(--ea-border-strong);
-  background: var(--ea-workbench-panel);
-  color: var(--ea-fg);
 }
 
 .field-help {
@@ -752,10 +741,6 @@ function removeCustomBar(barId: string): void {
   background: var(--ea-fill-input, #16161a);
 }
 
-.toggle-field input {
-  accent-color: var(--ea-gold);
-}
-
 .color-editor {
   min-width: 0;
   display: grid;
@@ -777,14 +762,6 @@ function removeCustomBar(barId: string): void {
   overflow: hidden;
   color: var(--ea-fg-secondary);
   text-overflow: ellipsis;
-}
-
-.color-editor button {
-  height: 28px;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input);
-  color: var(--ea-fg);
-  cursor: pointer;
 }
 
 .definition-status {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaDialog } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 /**
  * 展示 Next Build Resolver 生成的静态面板及来源回执。
@@ -144,7 +145,7 @@ const statRows = computed<readonly StatRow[]>(() => {
 
 <template>
   <InputRegionBoundary label="OperatorPanelDialog" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       :title="t('statDetail.title', { name: operatorName })"
       width="420px"
@@ -213,7 +214,7 @@ const statRows = computed<readonly StatRow[]>(() => {
           </table>
         </section>
       </div>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

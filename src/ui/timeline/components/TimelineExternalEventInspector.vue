@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /** 外部事实标记的实例级 Inspector；只编辑已有 schema 字段，不扩张外部事件种类。 */
 import { useI18n } from 'vue-i18n';
+import { EaButton, EaCheckbox, EaNumberInput, EaSelect, type EaSelectValue } from '@/design-system';
 import {
   DAMAGE_FEATURES,
   DAMAGE_TAGS,
@@ -28,8 +29,8 @@ const emit = defineEmits<{
 
 const { t } = useI18n({ useScope: 'global' });
 
-function commitFrame(event: Event): void {
-  const frame = Number((event.target as HTMLInputElement).value);
+function commitFrame(value: number | undefined): void {
+  const frame = Number(value);
   if (Number.isInteger(frame) && frame >= 0 && frame <= props.maximumFrame) {
     emit('setFrame', frame);
   }
@@ -42,8 +43,8 @@ function updateHit(
   emit('setEvent', { ...props.marker.event, ...patch });
 }
 
-function setDamageType(event: Event): void {
-  const value = (event.target as HTMLSelectElement).value;
+function setDamageType(selected: EaSelectValue | EaSelectValue[]): void {
+  const value = String(selected);
   if (value === '') {
     const hit = props.marker.event;
     if (hit.kind !== 'operatorHit') return;
@@ -101,12 +102,13 @@ function toggleFeature(feature: DamageFeature): void {
           </div>
           <label class="form-group">
             <span>{{ t('timeline.inspector.labels.startFrame') }}</span>
-            <input
-              type="number"
-              min="0"
+            <EaNumberInput
+              size="sm"
+              :controls="false"
+              :min="0"
               :max="maximumFrame"
-              step="1"
-              :value="marker.frame"
+              :step="1"
+              :model-value="marker.frame"
               @change="commitFrame"
             />
           </label>
@@ -129,48 +131,60 @@ function toggleFeature(feature: DamageFeature): void {
           <div class="panel-tag-mini">{{ t('timeline.markerInspector.hitContext') }}</div>
           <label class="form-group">
             <span>{{ t('timeline.skillEditing.damageType') }}</span>
-            <select :value="marker.event.damageType ?? ''" @change="setDamageType">
-              <option value="">{{ t('timeline.markerInspector.unknownDamageType') }}</option>
-              <option v-for="item in DAMAGE_TYPES" :key="item" :value="item">
-                {{ t(`timeline.skillEditing.damageTypes.${item}`) }}
-              </option>
-            </select>
+            <EaSelect
+              size="sm"
+              :model-value="marker.event.damageType ?? ''"
+              :options="[
+                { value: '', label: t('timeline.markerInspector.unknownDamageType') },
+                ...DAMAGE_TYPES.map(item => ({
+                  value: item,
+                  label: t(`timeline.skillEditing.damageTypes.${item}`),
+                })),
+              ]"
+              @change="setDamageType"
+            />
           </label>
         </section>
 
         <section class="section-container">
           <div class="panel-tag-mini">{{ t('timeline.skillEditing.damageTags') }}</div>
           <div class="option-grid">
-            <label v-for="tag in DAMAGE_TAGS" :key="tag" class="check-field">
-              <input
-                type="checkbox"
-                :checked="marker.event.tags.includes(tag)"
-                @change="toggleTag(tag)"
-              />
-              <span>{{ t(`timeline.skillEditing.damageTagNames.${tag}`) }}</span>
-            </label>
+            <EaCheckbox
+              v-for="tag in DAMAGE_TAGS"
+              :key="tag"
+              class="check-field"
+              :model-value="marker.event.tags.includes(tag)"
+              @change="toggleTag(tag)"
+              >{{ t(`timeline.skillEditing.damageTagNames.${tag}`) }}</EaCheckbox
+            >
           </div>
         </section>
 
         <section class="section-container">
           <div class="panel-tag-mini">{{ t('timeline.skillEditing.damageFeatures') }}</div>
           <div class="option-grid">
-            <label v-for="feature in DAMAGE_FEATURES" :key="feature" class="check-field">
-              <input
-                type="checkbox"
-                :checked="marker.event.features.includes(feature)"
-                @change="toggleFeature(feature)"
-              />
-              <span>{{ t(`timeline.skillEditing.damageFeatureNames.${feature}`) }}</span>
-            </label>
+            <EaCheckbox
+              v-for="feature in DAMAGE_FEATURES"
+              :key="feature"
+              class="check-field"
+              :model-value="marker.event.features.includes(feature)"
+              @change="toggleFeature(feature)"
+              >{{ t(`timeline.skillEditing.damageFeatureNames.${feature}`) }}</EaCheckbox
+            >
           </div>
         </section>
       </template>
 
       <section class="section-container danger-section">
-        <button type="button" class="delete-button" @click="$emit('remove')">
+        <EaButton
+          variant="danger"
+          size="sm"
+          type="button"
+          class="delete-button"
+          @click="$emit('remove')"
+        >
           {{ t('timeline.markerContext.deleteMarker') }}
-        </button>
+        </EaButton>
       </section>
     </div>
   </section>
@@ -248,18 +262,6 @@ function toggleFeature(feature: DamageFeature): void {
   font-size: 12px;
 }
 
-.form-group input,
-.form-group select {
-  min-width: 0;
-  width: 100%;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border, #3a4047);
-  border-radius: 3px;
-  padding: 6px 8px;
-  background: var(--ea-input-bg, #111316);
-  color: inherit;
-}
-
 .readonly-field {
   min-width: 0;
   overflow-wrap: anywhere;
@@ -295,26 +297,11 @@ function toggleFeature(feature: DamageFeature): void {
   line-height: 1.35;
 }
 
-.check-field input {
-  flex: 0 0 auto;
-  margin-top: 2px;
-}
-
-.check-field span {
-  min-width: 0;
-  overflow-wrap: anywhere;
-}
-
 .danger-section {
   border-bottom: 0;
 }
 
 .delete-button {
   width: 100%;
-  border: 1px solid #8f3838;
-  border-radius: 3px;
-  padding: 7px 10px;
-  background: rgb(143 56 56 / 16%);
-  color: #ff9a9a;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaDialog } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed } from 'vue';
 import type { BuffDetailTarget } from '../buffDetail';
@@ -36,7 +37,7 @@ function seconds(frames: number): string {
 
 <template>
   <InputRegionBoundary label="TimelineBuffDetailDialog" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       :title="labels.title"
       width="440px"
@@ -77,7 +78,7 @@ function seconds(frames: number): string {
           </dd>
         </dl>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

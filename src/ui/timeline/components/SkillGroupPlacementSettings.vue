@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { EaButton } from '@/design-system';
 import SearchableOptionPicker from './SearchableOptionPicker.vue';
 import type { SkillGroupDefinition } from '../../../core/game-data/operatorDefinition';
 import {
@@ -81,8 +82,8 @@ function replacement(key: string, event: Event) {
   <section class="placement-settings">
     <header>
       <h4>基础放置顺序</h4>
-      <button
-        class="ea-btn ea-btn--sm"
+      <EaButton
+        size="sm"
         @click="
           sequence(
             group.placementSequenceSkillKeys === undefined
@@ -92,7 +93,7 @@ function replacement(key: string, event: Event) {
         "
       >
         {{ group.placementSequenceSkillKeys === undefined ? '自定义顺序' : '恢复基础成员顺序' }}
-      </button>
+      </EaButton>
     </header>
     <p v-if="group.placementSequenceSkillKeys === undefined">
       沿用基础成员顺序。需要把替换技能接入同一连段时，可显式指定顺序。
@@ -115,25 +116,26 @@ function replacement(key: string, event: Event) {
             )
           "
         />
-        <button class="ea-btn ea-btn--sm" title="选择技能引用" @click="pick($event, index)">
-          选择
-        </button>
-        <button class="ea-btn ea-btn--sm" :disabled="index === 0" @click="move(index, -1)">↑</button
-        ><button
-          class="ea-btn ea-btn--sm"
+        <EaButton size="sm" title="选择技能引用" @click="pick($event, index)"> 选择 </EaButton>
+        <EaButton size="sm" icon-only :disabled="index === 0" @click="move(index, -1)">↑</EaButton
+        ><EaButton
+          size="sm"
+          icon-only
           :disabled="index === group.placementSequenceSkillKeys.length - 1"
           @click="move(index, 1)"
         >
-          ↓</button
-        ><button
-          class="ea-btn ea-btn--sm"
+          ↓</EaButton
+        ><EaButton
+          variant="danger"
+          size="sm"
+          icon-only
           title="从放置顺序移除，不删除技能定义"
           @click="sequence(group.placementSequenceSkillKeys!.filter((_, i) => i !== index))"
         >
           ×
-        </button>
+        </EaButton>
       </div>
-      <button class="ea-btn ea-btn--sm" @click="pick($event)">＋ 添加技能引用</button>
+      <EaButton size="sm" @click="pick($event)">＋ 添加技能引用</EaButton>
     </template>
     <template v-if="replacementKeys.length">
       <h4>替换技能放置方式</h4>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { nextTick, ref } from 'vue';
+import { EaButton, EaNumberInput } from '@/design-system';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import {
@@ -42,8 +43,8 @@ const emit = defineEmits<{
 }>();
 
 const gaugeEditorOpen = ref(false);
-const gaugeDraft = ref('100');
-const gaugeInput = ref<HTMLInputElement | null>(null);
+const gaugeDraft = ref(100);
+const gaugeInput = ref<{ select: () => void } | null>(null);
 usePopoverInteractionBoundary(
   useInteractionSession(),
   () => gaugeEditorOpen.value,
@@ -70,7 +71,9 @@ function applyGaugeDraft(): void {
   <div class="corner-controls">
     <div class="corner-button-row">
       <div class="initial-gauge-tool">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
           type="button"
           class="mini-tool-button"
           :class="{
@@ -101,25 +104,28 @@ function applyGaugeDraft(): void {
             <path d="M7 10v4M11 10v4M15 10v4" stroke-width="1.75" />
           </svg>
           <span class="gauge-tool-value">{{ initialGaugeDisplayValue }}</span>
-        </button>
+        </EaButton>
         <form
           v-if="gaugeEditorOpen"
           id="timeline-initial-gauge-editor"
           class="gauge-popover"
           @submit.prevent="applyGaugeDraft"
         >
-          <input
+          <EaNumberInput
             ref="gaugeInput"
             v-model="gaugeDraft"
-            type="number"
-            min="0"
-            step="1"
+            size="sm"
+            :controls="false"
+            :min="0"
+            :step="1"
             :aria-label="labels.initialGauge"
             @blur="applyGaugeDraft"
           />
         </form>
       </div>
-      <button
+      <EaButton
+        variant="ghost"
+        size="sm"
         type="button"
         class="mini-tool-button mini-tool-button--text"
         :title="labels.snapPrecision"
@@ -127,7 +133,7 @@ function applyGaugeDraft(): void {
         @click="$emit('toggleSnapPrecision')"
       >
         <span class="snap-tool-value">{{ snapLabel }}</span>
-      </button>
+      </EaButton>
     </div>
 
     <div class="zoom-row" :title="labels.zoom">
@@ -135,7 +141,10 @@ function applyGaugeDraft(): void {
         <span>SCALE</span><strong>{{ zoomPercent }}%</strong>
       </div>
       <div class="zoom-slider-row">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           class="zoom-step"
           :aria-label="`${labels.zoom} -`"
@@ -144,7 +153,7 @@ function applyGaugeDraft(): void {
           <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M19 13H5v-2h14v2z" />
           </svg>
-        </button>
+        </EaButton>
         <input
           :value="zoomPercent"
           type="range"
@@ -154,7 +163,10 @@ function applyGaugeDraft(): void {
           :aria-label="labels.zoom"
           @input="emit('setZoomPercent', Number(($event.target as HTMLInputElement).value))"
         />
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           class="zoom-step"
           :aria-label="`${labels.zoom} +`"
@@ -163,7 +175,7 @@ function applyGaugeDraft(): void {
           <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
             <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
           </svg>
-        </button>
+        </EaButton>
       </div>
     </div>
   </div>
@@ -216,6 +228,7 @@ function applyGaugeDraft(): void {
   border-color: var(--ea-gold);
   background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
   color: var(--ea-gold);
+  box-shadow: none;
 }
 
 .initial-gauge-tool {
@@ -253,22 +266,8 @@ function applyGaugeDraft(): void {
   transform: translateY(-50%);
 }
 
-.gauge-popover input {
+.gauge-popover :deep(.ea-number-input) {
   width: 72px;
-  height: 22px;
-  padding: 0 6px;
-  border: 1px solid var(--ea-border-strong);
-  outline: none;
-  background: var(--ea-fill-soft);
-  color: var(--ea-fg);
-  font:
-    12px 'Roboto Mono',
-    Consolas,
-    monospace;
-}
-
-.gauge-popover input:focus {
-  border-color: color-mix(in srgb, var(--ea-gold) 70%, transparent);
 }
 
 .gauge-tool-value {
@@ -324,6 +323,12 @@ function applyGaugeDraft(): void {
   font: inherit;
   cursor: pointer;
   transition: color 0.2s;
+}
+
+.zoom-step.ea-button.ea-button--icon-only {
+  width: 10px;
+  min-width: 10px;
+  height: 10px;
 }
 
 .zoom-info {

@@ -6,6 +6,7 @@
  * 它不读取存档或旧 store，也不直接写入持久化数据。词条名称、当前数值和逐词条实例编辑均从
  * 当前 GearDefinition 投影；项目级模板编辑保持为另一个明确入口。
  */
+import { EaButton, EaDialog, EaDialogActions } from '@/design-system';
 import { computed, ref, watch } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useI18n } from 'vue-i18n';
@@ -205,7 +206,7 @@ const activeSetBonuses = computed(() => {
 
 <template>
   <InputRegionBoundary label="gear-build" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="980px"
       append-to-body
@@ -264,11 +265,12 @@ const activeSetBonuses = computed(() => {
                 {{ slot.levels.join('/') }}
               </span>
               <div v-if="slot.isArtificable" class="refine-buttons">
-                <button
+                <EaButton
+                  size="sm"
                   v-for="level in refineLevels(slot.build)"
                   :key="`${slot.slot}-${level}`"
                   type="button"
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold refine-btn"
+                  class="refine-btn"
                   :class="{ 'is-active': isUniformLevel(slot.build, level) }"
                   @click="setUniformLevel(slot.build, level)"
                 >
@@ -277,31 +279,23 @@ const activeSetBonuses = computed(() => {
                       ? translate('timelineGrid.equipmentDialog.refineBase', 'Base')
                       : level
                   }}
-                </button>
+                </EaButton>
               </div>
               <span v-else class="refine-locked">
                 {{ t('actionLibrary.hints.noRefineNonGold') }}
               </span>
             </div>
             <div class="slot-actions">
-              <button
-                type="button"
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                @click="editingSlot = slot.slot"
-              >
+              <EaButton size="sm" type="button" @click="editingSlot = slot.slot">
                 {{ t('actionLibrary.buttons.editItem') }}
-              </button>
-              <button
-                type="button"
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                @click="emit('edit-definition', slot.slot)"
-              >
+              </EaButton>
+              <EaButton size="sm" type="button" @click="emit('edit-definition', slot.slot)">
                 {{
                   customDefinitionSlugs.includes(slot.build.gearSlug)
                     ? t('timeline.customDefinition.editGear')
                     : t('timeline.customDefinition.customizeGear')
                 }}
-              </button>
+              </EaButton>
             </div>
           </template>
 
@@ -351,22 +345,16 @@ const activeSetBonuses = computed(() => {
       />
 
       <template #footer>
-        <div class="footer">
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
-            @click="maxOut"
-          >
+        <EaDialogActions>
+          <EaButton variant="primary" size="sm" @click="maxOut">
             {{ t('common.max') }}
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            @click="emit('update:visible', false)"
-          >
+          </EaButton>
+          <EaButton size="sm" @click="emit('update:visible', false)">
             {{ t('common.close') }}
-          </button>
-        </div>
+          </EaButton>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

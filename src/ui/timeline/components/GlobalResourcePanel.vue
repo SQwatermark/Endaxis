@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton, EaDialog, EaDialogActions, EaNumberInput } from '@/design-system';
 /**
  * 编辑存档中由用户维护的全局技力基线。组件只收发数值，不持有项目副本，也不推导尚未接入的
  * 原生运行时规则；撤销、校验和持久化均由外层命令与会话负责。
@@ -90,11 +91,10 @@ function addModifier(choice: ModifierChoice): void {
   ]);
 }
 
-function updateModifierValue(modifierId: string, event: Event): void {
+function updateModifierValue(modifierId: string, displayValue: number | undefined): void {
   const modifier = props.modifiers.find(candidate => candidate.id === modifierId);
-  if (modifier === undefined) return;
-  const displayValue = Number((event.target as HTMLInputElement).value);
-  if (!Number.isFinite(displayValue)) return;
+  if (modifier === undefined || displayValue === undefined || !Number.isFinite(displayValue))
+    return;
   const choice = choiceFor(modifier);
   const value = choice.percentage ? displayValue / 100 : displayValue;
   if (modifier.modifier === 'skillCooldownReduction' && value >= 1) return;
@@ -113,9 +113,8 @@ function removeModifier(modifierId: string): void {
   );
 }
 
-function emitNumber(field: EditableBattleResourceRule, event: Event): void {
-  const value = Number((event.target as HTMLInputElement).value);
-  if (Number.isFinite(value)) emit('update', field, value);
+function emitNumber(field: EditableBattleResourceRule, value: number | undefined): void {
+  if (value !== undefined && Number.isFinite(value)) emit('update', field, value);
 }
 </script>
 
@@ -128,36 +127,36 @@ function emitNumber(field: EditableBattleResourceRule, event: Event): void {
     <div v-if="props.mode !== 'modifiers'" class="resource-fields">
       <label>
         <span>{{ labels.maximum }}</span>
-        <input
-          type="number"
-          min="0"
-          step="1"
-          :value="rules.maxSp"
+        <EaNumberInput
+          size="sm"
+          :controls="false"
+          :min="0"
+          :step="1"
+          :model-value="rules.maxSp"
           @change="emitNumber('maxSp', $event)"
-          @blur="emitNumber('maxSp', $event)"
         />
       </label>
       <label>
         <span>{{ labels.initial }}</span>
-        <input
-          type="number"
-          min="0"
+        <EaNumberInput
+          size="sm"
+          :controls="false"
+          :min="0"
           :max="rules.maxSp"
-          step="1"
-          :value="rules.initialSp"
+          :step="1"
+          :model-value="rules.initialSp"
           @change="emitNumber('initialSp', $event)"
-          @blur="emitNumber('initialSp', $event)"
         />
       </label>
       <label>
         <span>{{ labels.recovery }}</span>
-        <input
-          type="number"
-          min="0"
-          step="0.1"
-          :value="rules.spRecoveryPerSecond"
+        <EaNumberInput
+          size="sm"
+          :controls="false"
+          :min="0"
+          :step="0.1"
+          :model-value="rules.spRecoveryPerSecond"
           @change="emitNumber('spRecoveryPerSecond', $event)"
-          @blur="emitNumber('spRecoveryPerSecond', $event)"
         />
       </label>
     </div>
@@ -166,12 +165,12 @@ function emitNumber(field: EditableBattleResourceRule, event: Event): void {
         <strong>{{ t('timeline.globalModifiers.title') }}</strong>
         <span>{{ summary }}</span>
       </div>
-      <button type="button" @click="editorVisible = true">
+      <EaButton size="sm" type="button" @click="editorVisible = true">
         {{ t('timeline.globalModifiers.edit') }}
-      </button>
+      </EaButton>
     </section>
     <InputRegionBoundary label="global-modifiers" :active="editorVisible" modal>
-      <el-dialog
+      <EaDialog
         v-model="editorVisible"
         append-to-body
         width="520px"
@@ -185,31 +184,49 @@ function emitNumber(field: EditableBattleResourceRule, event: Event): void {
               <small v-if="choice.skillType === 'comboSkill'">
                 {{ t('timeline.globalModifiers.comboOnly') }}
               </small>
-              <button type="button" @click="addModifier(choice)">＋</button>
+              <EaButton
+                variant="ghost"
+                size="sm"
+                icon-only
+                type="button"
+                @click="addModifier(choice)"
+                >＋</EaButton
+              >
             </header>
             <div
               v-for="modifier in modifiers.filter(item => item.modifier === choice.modifier)"
               :key="modifier.id"
               class="modifier-entry"
             >
-              <input
-                type="number"
+              <EaNumberInput
+                class="modifier-value"
+                size="sm"
+                :controls="false"
                 :max="choice.modifier === 'skillCooldownReduction' ? 99.999 : undefined"
                 :step="choice.percentage ? 0.1 : 1"
-                :value="choice.percentage ? modifier.value * 100 : modifier.value"
+                :model-value="choice.percentage ? modifier.value * 100 : modifier.value"
                 @change="updateModifierValue(modifier.id, $event)"
               />
               <span>{{ choice.percentage ? '%' : '' }}</span>
-              <button type="button" @click="removeModifier(modifier.id)">
+              <EaButton
+                variant="danger"
+                size="sm"
+                type="button"
+                @click="removeModifier(modifier.id)"
+              >
                 {{ t('common.delete') }}
-              </button>
+              </EaButton>
             </div>
           </section>
         </div>
         <template #footer>
-          <button type="button" @click="editorVisible = false">{{ t('common.close') }}</button>
+          <EaDialogActions>
+            <EaButton size="sm" type="button" @click="editorVisible = false">{{
+              t('common.close')
+            }}</EaButton>
+          </EaDialogActions>
         </template>
-      </el-dialog>
+      </EaDialog>
     </InputRegionBoundary>
   </section>
 </template>
@@ -241,7 +258,7 @@ function emitNumber(field: EditableBattleResourceRule, event: Event): void {
   white-space: normal;
 }
 
-.global-resource-panel--modifiers .modifier-summary button {
+.global-resource-panel--modifiers .modifier-summary .ea-button {
   min-height: 28px;
 }
 
@@ -283,14 +300,6 @@ header {
   white-space: nowrap;
 }
 
-.modifier-summary button,
-.modifier-editor button {
-  border: 1px solid var(--ea-border, rgb(255 255 255 / 14%));
-  background: var(--ea-input-background, #222428);
-  color: var(--ea-text-primary, rgb(255 255 255 / 88%));
-  cursor: pointer;
-}
-
 .modifier-editor {
   display: grid;
   gap: 8px;
@@ -321,13 +330,12 @@ header {
   margin-top: 7px;
 }
 
-.modifier-entry input {
+.modifier-entry .modifier-value {
   max-width: 180px;
 }
 
-.modifier-entry button {
+.modifier-entry .ea-button {
   margin-left: auto;
-  color: #ff8a8e;
 }
 
 label {
@@ -335,24 +343,5 @@ label {
   gap: 6px;
   color: var(--ea-text-secondary, rgb(255 255 255 / 62%));
   font-size: 11px;
-}
-
-input {
-  width: 100%;
-  height: 28px;
-  padding: 0 8px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border, rgb(255 255 255 / 14%));
-  border-radius: 2px;
-  color: var(--ea-text-primary, rgb(255 255 255 / 88%));
-  background: var(--ea-input-background, #222428);
-  font:
-    12px/1 Consolas,
-    monospace;
-}
-
-input:focus {
-  border-color: var(--ea-accent, #f0d400);
-  outline: none;
 }
 </style>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton, EaDeleteIcon } from '@/design-system';
 import { computed } from 'vue';
 import {
   contingencyContractTags,
@@ -287,7 +288,7 @@ function description(tag: ContingencyContractTagPresentation): string {
                   </div>
                 </div>
               </template>
-              <button
+              <EaButton
                 type="button"
                 class="cc-tag"
                 :class="{
@@ -305,7 +306,7 @@ function description(tag: ContingencyContractTagPresentation): string {
                 }}</span>
                 <span class="cc-tag-score">+{{ cell.tag.score }}</span
                 ><span v-if="cell.tag.support === 'blocked'" class="cc-tag-lock">!</span>
-              </button>
+              </EaButton>
             </el-tooltip>
           </div>
         </div>
@@ -317,14 +318,15 @@ function description(tag: ContingencyContractTagPresentation): string {
               selectedScore
             }}</strong>
           </div>
-          <button
+          <EaButton
+            size="sm"
             type="button"
-            class="ea-btn ea-btn--sm ea-btn--lift ea-btn--outline-muted cc-clear-btn"
+            class="cc-clear-btn"
             :disabled="selectedTags.length === 0"
             @click="emit('setSelectedTagIds', [])"
           >
             {{ copy.reset }}
-          </button>
+          </EaButton>
         </div>
         <div v-if="selectedTags.length" class="cc-selected-list">
           <div v-for="tag in selectedTags" :key="tag.tagId" class="cc-selected-row">
@@ -336,14 +338,18 @@ function description(tag: ContingencyContractTagPresentation): string {
               </div>
               <div class="cc-selected-desc">{{ description(tag) }}</div>
             </div>
-            <button
+            <EaButton
+              variant="danger"
+              size="sm"
+              icon-only
               type="button"
               class="cc-selected-remove"
               :title="copy.remove"
+              :aria-label="copy.remove"
               @click="remove(tag.tagId)"
             >
-              ×
-            </button>
+              <EaDeleteIcon />
+            </EaButton>
           </div>
         </div>
         <div v-else class="cc-detail-empty">{{ copy.pickHint }}</div>
@@ -528,8 +534,6 @@ function description(tag: ContingencyContractTagPresentation): string {
 }
 .cc-clear-btn {
   height: 22px;
-  --ea-btn-py: 0;
-  --ea-btn-px: 9px;
   font-size: 10px;
 }
 .cc-selected-list {

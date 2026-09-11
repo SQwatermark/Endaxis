@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaDialog } from '@/design-system';
 /**
  * 技能逻辑编辑的独立工作区。属性面板只负责打开它；草稿、保存和取消均在弹窗边界内完成。
  * 弹窗关闭不会写场景，只有 save 事件会把完整定义交给编辑器命令层校验。
@@ -83,7 +84,7 @@ const labels = () => ({
     @reset="emit('reset')"
     @reference="emit('reference', $event)"
   />
-  <el-dialog
+  <EaDialog
     v-else
     :model-value="visible"
     :title="`${t('timeline.skillEditing.section')} · ${title}`"
@@ -112,5 +113,5 @@ const labels = () => ({
         @reference="emit('reference', $event)"
       />
     </InputRegionBoundary>
-  </el-dialog>
+  </EaDialog>
 </template>

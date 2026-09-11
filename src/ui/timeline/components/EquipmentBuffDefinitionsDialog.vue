@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
+import { EaButton } from '@/design-system';
 import { computed, ref, watch } from 'vue';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import {
@@ -155,12 +156,9 @@ function updateBuffStep(step: CombatStepDefinition): void {
         <strong>附属 Buff 定义</strong>
         <small>这些蓝图属于当前装备贡献；行为步骤只通过稳定 Buff ID 引用。</small>
       </div>
-      <button
-        class="definition-focused-back ea-btn ea-btn--sm"
-        @click="emit('update:visible', false)"
-      >
+      <EaButton class="definition-focused-back" size="sm" @click="emit('update:visible', false)">
         ← 返回所属效果
-      </button>
+      </EaButton>
     </div>
     <div class="workspace">
       <aside>

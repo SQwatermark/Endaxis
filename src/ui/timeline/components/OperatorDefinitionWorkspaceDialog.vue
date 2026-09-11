@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton, EaDialog, EaDialogActions } from '@/design-system';
 import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
@@ -1238,7 +1239,7 @@ function returnToReferenceOrigin(): void {
 
 <template>
   <InputRegionBoundary label="operator-definition-workspace" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="min(1600px, calc(100vw - 32px))"
       top="16px"
@@ -1416,12 +1417,9 @@ function returnToReferenceOrigin(): void {
                   <h3>信赖属性节点</h3>
                   <p>四个信赖节点提供的属性值；未自定义时使用全局主属性规则 10、15、15、20。</p>
                 </div>
-                <button
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  @click="setTrustMode(draft.trustAttributeBonus === undefined)"
-                >
+                <EaButton size="sm" @click="setTrustMode(draft.trustAttributeBonus === undefined)">
                   {{ draft.trustAttributeBonus === undefined ? '改为自定义规则' : '恢复全局规则' }}
-                </button>
+                </EaButton>
               </header>
               <p v-if="draft.trustAttributeBonus && !draft.trustAttributeBonus.attributes.length">
                 未选择属性：这些节点不会增加任何属性。可重新选择，或恢复全局规则。
@@ -1625,12 +1623,7 @@ function returnToReferenceOrigin(): void {
                   <h3>角色实体黑板</h3>
                   <p>角色实例跨技能共享的字面初值；与每次技能释放重置的技能黑板不同。</p>
                 </div>
-                <button
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
-                  @click="addEntityBlackboardEntry"
-                >
-                  ＋ 添加初值
-                </button>
+                <EaButton size="sm" @click="addEntityBlackboardEntry"> ＋ 添加初值 </EaButton>
               </header>
               <div v-if="runtimePage === 'blackboard'" class="entity-blackboard">
                 <table v-if="entityBlackboardEntries.length">
@@ -1784,28 +1777,30 @@ function returnToReferenceOrigin(): void {
 
       <template #footer>
         <div v-if="showProblems && draftIssues.length" class="workspace-problems">
-          <button
+          <EaButton
+            variant="ghost"
+            size="sm"
             v-for="issue in draftIssues"
             :key="`${issue.path}:${issue.message}`"
             @click="revealIssue(issue)"
           >
             <code>{{ issue.path }}</code
             ><span>{{ issue.message }}</span>
-          </button>
+          </EaButton>
         </div>
-        <div class="workspace-footer">
-          <button
+        <EaDialogActions class="workspace-footer" align="start">
+          <EaButton
+            variant="ghost"
+            size="sm"
             class="problem-summary"
             :class="{ invalid: draftIssues.length > 0 }"
             @click="showProblems = !showProblems"
           >
             {{ draftIssues.length > 0 ? `● ${draftIssues.length} 个问题` : '✓ 定义结构有效' }}
-          </button>
-          <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
-            恢复游戏定义
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+          </EaButton>
+          <EaButton size="sm" @click="emit('reset')"> 恢复游戏定义 </EaButton>
+          <EaButton
+            size="sm"
             :disabled="!history.canUndo.value"
             :title="
               history.canUndo.value
@@ -1815,9 +1810,9 @@ function returnToReferenceOrigin(): void {
             @click="history.restore('undo')"
           >
             撤销
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
+          </EaButton>
+          <EaButton
+            size="sm"
             :disabled="!history.canRedo.value"
             :title="
               history.canRedo.value
@@ -1827,7 +1822,7 @@ function returnToReferenceOrigin(): void {
             @click="history.restore('redo')"
           >
             重做
-          </button>
+          </EaButton>
           <span
             class="history-description"
             :title="describeDefinitionHistory(history.undoLocation?.value)"
@@ -1838,22 +1833,18 @@ function returnToReferenceOrigin(): void {
                 : ''
             }}
           </span>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            @click="emit('update:visible', false)"
-          >
-            取消
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+          <EaButton size="sm" @click="emit('update:visible', false)"> 取消 </EaButton>
+          <EaButton
+            variant="primary"
+            size="sm"
             :disabled="!isDirty || draftIssues.length > 0"
             @click="save"
           >
             保存干员定义
-          </button>
-        </div>
+          </EaButton>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 
@@ -2133,7 +2124,7 @@ function returnToReferenceOrigin(): void {
   flex-wrap: wrap;
 }
 .object-toolbar button,
-.skill-actions > button:not(.ea-btn) {
+.skill-actions > button {
   min-height: 30px;
   border: 1px solid #444;
   background: #1d1d20;

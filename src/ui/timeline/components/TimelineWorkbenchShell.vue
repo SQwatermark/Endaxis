@@ -4,6 +4,7 @@
  * 内容区只通过插槽接入；本组件不读取项目、时间轴或战斗状态。
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
+import { EaButton } from '@/design-system';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import {
   resolveWorkbenchBottomHeight,
@@ -256,7 +257,9 @@ watch(
   >
     <aside class="activity-bar">
       <div class="activity-group">
-        <button
+        <EaButton
+          variant="ghost"
+          icon-only
           type="button"
           class="activity-button activity-button--library"
           :class="{ 'is-active': !leftCollapsed }"
@@ -266,10 +269,12 @@ watch(
           @click="toggleLeft"
         >
           <img src="/icons/btn_character.webp" alt="" />
-        </button>
+        </EaButton>
       </div>
       <div class="activity-group activity-group--bottom">
-        <button
+        <EaButton
+          variant="ghost"
+          icon-only
           type="button"
           class="activity-button activity-button--global"
           :class="{ 'is-active': !bottomCollapsed && bottomTool === 'global' }"
@@ -279,8 +284,10 @@ watch(
           @click="selectBottom('global')"
         >
           <img src="/icons/setting_tab_setting.webp" alt="" />
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          icon-only
           type="button"
           class="activity-button activity-button--contract"
           :class="{ 'is-active': !bottomCollapsed && bottomTool === 'contract' }"
@@ -290,8 +297,10 @@ watch(
           @click="selectBottom('contract')"
         >
           <img src="/contingency_contract/deco_contract_028.webp" alt="" />
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          icon-only
           type="button"
           class="activity-button activity-button--enemy"
           :class="{ 'is-active': !bottomCollapsed && bottomTool === 'enemy' }"
@@ -317,13 +326,16 @@ watch(
             </defs>
             <rect width="288" height="288" fill="currentColor" mask="url(#next-enemy-panel-mask)" />
           </svg>
-        </button>
+        </EaButton>
       </div>
     </aside>
 
     <aside v-show="!leftCollapsed" class="workbench-panel left-panel" :style="leftStackStyle">
       <div class="panel-chrome panel-chrome--left">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           class="panel-chrome__button"
           :title="props.labels.resetPanel"
@@ -334,8 +346,11 @@ watch(
             <path d="M3 12a9 9 0 1 0 3-6.7" />
             <path d="M3 3v5h5" />
           </svg>
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           class="panel-chrome__button"
           :title="props.labels.collapsePanel"
@@ -343,7 +358,7 @@ watch(
           @click="toggleLeft"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-        </button>
+        </EaButton>
       </div>
       <div class="left-main">
         <slot name="left" :reset-panel="() => resetPanelSize('left')" />
@@ -371,7 +386,10 @@ watch(
         @dblclick="resetPanelSize('bottom')"
       ></div>
       <section v-show="!bottomCollapsed" class="bottom-panel">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           v-if="bottomTool !== 'enemy'"
           type="button"
           class="bottom-panel-collapse"
@@ -380,9 +398,12 @@ watch(
           @click="collapseBottom"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
-        </button>
+        </EaButton>
         <div class="panel-chrome panel-chrome--bottom">
-          <button
+          <EaButton
+            variant="ghost"
+            size="sm"
+            icon-only
             type="button"
             class="panel-chrome__button"
             :title="props.labels.resetPanel"
@@ -393,7 +414,7 @@ watch(
               <path d="M3 12a9 9 0 1 0 3-6.7" />
               <path d="M3 3v5h5" />
             </svg>
-          </button>
+          </EaButton>
         </div>
         <slot
           name="bottom"
@@ -412,7 +433,10 @@ watch(
     ></div>
     <aside v-show="!rightCollapsed" class="workbench-panel right-panel">
       <div class="panel-chrome panel-chrome--right">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           class="panel-chrome__button"
           :title="props.labels.resetPanel"
@@ -423,8 +447,11 @@ watch(
             <path d="M3 12a9 9 0 1 0 3-6.7" />
             <path d="M3 3v5h5" />
           </svg>
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           class="panel-chrome__button"
           :title="props.labels.collapsePanel"
@@ -432,14 +459,16 @@ watch(
           @click="rightCollapsed = true"
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
-        </button>
+        </EaButton>
       </div>
       <slot name="right" :tool="rightTool" />
     </aside>
 
     <aside class="activity-bar activity-bar--right">
       <div class="activity-group">
-        <button
+        <EaButton
+          variant="ghost"
+          icon-only
           type="button"
           class="activity-button activity-button--inspector"
           :class="{ 'is-active': !rightCollapsed && rightTool === 'inspector' }"
@@ -449,8 +478,10 @@ watch(
           @click="selectRight('inspector')"
         >
           <img src="/icons/btn_week_raid.webp" alt="" />
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          icon-only
           type="button"
           class="activity-button activity-button--performance"
           :class="{ 'is-active': !rightCollapsed && rightTool === 'performance' }"
@@ -464,8 +495,10 @@ watch(
             <path d="m12 14 4-4" />
             <path d="M7 18h10" />
           </svg>
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          icon-only
           type="button"
           class="activity-button activity-button--battle-log"
           :class="{ 'is-active': !rightCollapsed && rightTool === 'battleLog' }"
@@ -475,7 +508,7 @@ watch(
           @click="selectRight('battleLog')"
         >
           <img src="/icons/btn_manual.webp" alt="" />
-        </button>
+        </EaButton>
       </div>
     </aside>
   </div>
@@ -557,6 +590,13 @@ watch(
   color: var(--ea-icon-muted);
   cursor: pointer;
   padding: 0;
+}
+
+.activity-button.ea-button[aria-pressed='true'] {
+  border: 0;
+  background: transparent;
+  color: var(--ea-icon-muted);
+  box-shadow: none;
 }
 
 .activity-button::before {
@@ -731,6 +771,12 @@ watch(
   cursor: pointer;
 }
 
+.panel-chrome__button.ea-button.ea-button--icon-only {
+  width: 20px;
+  min-width: 20px;
+  height: 20px;
+}
+
 .panel-chrome__button:hover,
 .panel-chrome__button:focus-visible {
   background: var(--ea-hover-fill);
@@ -852,6 +898,12 @@ watch(
   color: var(--ea-fg-secondary);
   cursor: pointer;
   transform: translate(-50%, -50%);
+}
+
+.bottom-panel-collapse.ea-button.ea-button--icon-only {
+  width: 28px;
+  min-width: 28px;
+  height: 16px;
 }
 
 .bottom-panel-collapse:hover,

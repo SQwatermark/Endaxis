@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { EaButton } from '@/design-system';
 import { cloneStructureValue } from '../skillStructureEditorCommands';
 import {
   SKILL_LEVEL_SOURCES,
@@ -243,12 +244,9 @@ function save(): void {
     :class="{ 'fill-available': fillAvailable }"
   >
     <div v-if="!sharedHistory" class="embedded-header">
-      <button
-        class="definition-focused-back ea-btn ea-btn--sm"
-        @click="emit('update:visible', false)"
-      >
+      <EaButton class="definition-focused-back" size="sm" @click="emit('update:visible', false)">
         ← 返回角色级运行数据
-      </button>
+      </EaButton>
       <div class="title">
         <strong>角色级行为</strong
         ><small>这些行为随角色进入战斗安装，不属于任何时间轴技能块。</small>
@@ -349,11 +347,8 @@ function save(): void {
     </div>
     <div v-if="!sharedHistory" class="embedded-footer">
       <DefinitionHistoryControls :history="history" />
-      <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-        取消</button
-      ><button class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill" @click="save">
-        保存角色级行为
-      </button>
+      <EaButton size="sm" @click="emit('update:visible', false)"> 取消</EaButton
+      ><EaButton variant="primary" size="sm" @click="save"> 保存角色级行为 </EaButton>
     </div>
   </section>
 </template>

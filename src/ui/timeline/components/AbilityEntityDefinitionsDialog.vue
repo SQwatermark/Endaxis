@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { CombatStepForKind } from '../../../../packages/game-data-contract/src/actions';
+import { EaButton } from '@/design-system';
 import { computed, markRaw, nextTick, provide, ref, useId, watch } from 'vue';
 import { useEditorHistoryShortcuts } from '../../keyboard/useEditorHistoryShortcuts';
 import { useI18n } from 'vue-i18n';
@@ -305,26 +306,27 @@ function save(): void {
         <strong>{{ t('timeline.skillEditing.abilityEntityObjects') }}</strong>
         <span>选择定义只切换当前画布，不会打开新的面板。</span>
       </div>
-      <button
+      <EaButton
         type="button"
-        class="definition-focused-back ea-btn ea-btn--sm"
+        class="definition-focused-back"
+        size="sm"
         @click="emit('update:visible', false)"
       >
         ← 返回能力实体概览
-      </button>
+      </EaButton>
     </header>
     <div class="entity-workspace" :class="{ 'entity-workspace--paged': paged }">
       <aside v-if="!paged || !detailOpen" class="entity-workspace__sidebar">
         <div class="entity-workspace__create">
-          <button
+          <EaButton
             v-if="!creating"
             ref="createButton"
             type="button"
-            class="ea-btn ea-btn--sm"
+            size="sm"
             @click="beginCreate"
           >
             ＋ 新增能力实体
-          </button>
+          </EaButton>
           <div v-else class="entity-create-form" @keydown.esc.stop.prevent="cancelCreate">
             <label
               >定义 ID<input
@@ -339,15 +341,16 @@ function save(): void {
               {{ createError || '用于技能引用，与图标和显示名称无关。创建后进入定义图编辑。' }}
             </p>
             <div class="entity-create-actions">
-              <button
+              <EaButton
                 type="button"
-                class="ea-btn ea-btn--sm"
+                variant="primary"
+                size="sm"
                 :disabled="!canAdd"
                 @click="addDefinition"
               >
                 创建并编辑
-              </button>
-              <button type="button" class="ea-btn ea-btn--sm" @click="cancelCreate">取消</button>
+              </EaButton>
+              <EaButton type="button" size="sm" @click="cancelCreate">取消</EaButton>
             </div>
           </div>
         </div>
@@ -401,26 +404,27 @@ function save(): void {
       <main v-if="!paged || detailOpen" class="entity-workspace__editor">
         <template v-if="editingStep">
           <div class="entity-workspace__toolbar">
-            <button
+            <EaButton
               v-if="paged && !parentNavigation"
               type="button"
-              class="ea-btn ea-btn--sm"
+              size="sm"
               @click="detailOpen = false"
             >
               ← 返回能力实体列表
-            </button>
+            </EaButton>
             <strong v-if="!parentNavigation">{{ selectedId }}</strong>
             <span v-else class="entity-workspace__kind">能力实体定义</span>
             <span v-if="selectedIsBase && !selectedIsOverride" class="entity-workspace__source">
               {{ t('timeline.skillEditing.abilityEntityGenerated') }}
             </span>
-            <button type="button" class="ea-btn ea-btn--sm" @click="duplicateDefinition">
+            <EaButton type="button" size="sm" @click="duplicateDefinition">
               {{ t('timeline.skillEditing.duplicateAbilityEntityObject') }}
-            </button>
-            <button
+            </EaButton>
+            <EaButton
               v-if="selectedIsOverride"
               type="button"
-              class="ea-btn ea-btn--sm"
+              variant="danger"
+              size="sm"
               :title="
                 !selectedIsBase && selectedReferences.length > 0
                   ? `删除后保留 ${selectedReferences.length} 处引用，由定义检查报告缺失；可撤销`
@@ -433,7 +437,7 @@ function save(): void {
                   ? t('timeline.skillEditing.resetAbilityEntityObject')
                   : t('timeline.skillEditing.deleteAbilityEntityObject')
               }}
-            </button>
+            </EaButton>
           </div>
           <DefinitionReferenceList
             :key="selectedId"
@@ -470,29 +474,29 @@ function save(): void {
       <span v-if="validationIssues.length" class="entity-workspace__error">
         {{ t('timeline.skillEditing.validationIssueCount', { count: validationIssues.length }) }}
       </span>
-      <button
+      <EaButton
         type="button"
-        class="ea-btn ea-btn--sm"
+        size="sm"
         :disabled="!history.canUndo.value"
         @click="history.restore('undo')"
       >
         撤销
-      </button>
-      <button
+      </EaButton>
+      <EaButton
         type="button"
-        class="ea-btn ea-btn--sm"
+        size="sm"
         :disabled="!history.canRedo.value"
         @click="history.restore('redo')"
       >
         重做
-      </button>
+      </EaButton>
       <span class="entity-workspace__footer-spacer" />
-      <button type="button" class="ea-btn ea-btn--sm" @click="emit('update:visible', false)">
+      <EaButton type="button" size="sm" @click="emit('update:visible', false)">
         {{ t('timeline.skillEditing.cancel') }}
-      </button>
-      <button type="button" class="ea-btn ea-btn--sm" @click="save">
+      </EaButton>
+      <EaButton variant="primary" type="button" size="sm" @click="save">
         {{ t('timeline.skillEditing.saveAbilityEntityObjects') }}
-      </button>
+      </EaButton>
     </div>
   </section>
 </template>

@@ -22,6 +22,7 @@ import { isInsideTimelineDropRegion } from './timelineDropRegion';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElMessage, ElMessageBox } from 'element-plus';
+import { EaButton } from '@/design-system';
 import { useAppearance } from '../../composables/useAppearance';
 import { formatTimeWithFrames } from '../../utils/time';
 import { ALL_GAME_TEXT_FAMILIES, setLocale } from '../../i18n';
@@ -4813,10 +4814,10 @@ function setPanelDialogVisible(visible: boolean): void {
       <section class="skill-sidebar">
         <div class="library-header">
           <div class="library-header__main">
-            <button class="operator-heading" type="button" @click="openOperatorDialog()">
+            <h3 class="operator-heading">
               <span class="operator-heading__mark"></span>
-              <strong>{{ operatorName(selectedTrackModel.operatorSlug) }}</strong>
-            </button>
+              <span>{{ operatorName(selectedTrackModel.operatorSlug) }}</span>
+            </h3>
           </div>
           <div class="library-header__divider"></div>
           <div class="library-section-title library-section-title--status">
@@ -4824,27 +4825,30 @@ function setPanelDialogVisible(visible: boolean): void {
             <span>{{ t('actionLibrary.hints.adjustOperatorStatus') }}</span>
           </div>
           <div class="sidebar-tabs" role="group">
-            <button
+            <EaButton
+              variant="ghost"
               type="button"
               :disabled="selectedLoadoutModel.operator === null"
               @click="showOperatorBuildDialog = true"
             >
               {{ t('timeline.operatorTab') }}
-            </button>
-            <button
+            </EaButton>
+            <EaButton
+              variant="ghost"
               type="button"
               :disabled="selectedLoadoutModel.weapon === null"
               @click="showWeaponBuildDialog = true"
             >
               {{ t('timeline.weaponTab') }}
-            </button>
-            <button
+            </EaButton>
+            <EaButton
+              variant="ghost"
               type="button"
               :disabled="!Object.values(selectedLoadoutModel.gears).some(Boolean)"
               @click="showGearBuildDialog = true"
             >
               {{ t('timeline.gearTab') }}
-            </button>
+            </EaButton>
           </div>
         </div>
         <div class="skill-section">
@@ -5107,13 +5111,16 @@ function setPanelDialogVisible(visible: boolean): void {
             :style="{ left: `${TIMELINE_TRACK_HEADER_WIDTH}px` }"
           >
             <span>{{ t('timelineGrid.prep.title') }}</span>
-            <button
+            <EaButton
+              variant="ghost"
+              size="sm"
+              icon-only
               type="button"
               :title="t('timelineGrid.prep.expand')"
               @click.stop="setPrepExpanded(true)"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="8 6 16 12 8 18" /></svg>
-            </button>
+            </EaButton>
             <span>{{ t('timelineGrid.prep.expand') }}</span>
           </div>
           <div
@@ -5123,7 +5130,10 @@ function setPanelDialogVisible(visible: boolean): void {
               left: `${TIMELINE_TRACK_HEADER_WIDTH + Math.max(0, timelineFramePx(0) - 18)}px`,
             }"
           >
-            <button
+            <EaButton
+              variant="ghost"
+              size="sm"
+              icon-only
               type="button"
               :title="t('timelineGrid.prep.collapseTitle')"
               @click.stop="setPrepExpanded(false)"
@@ -5131,7 +5141,7 @@ function setPanelDialogVisible(visible: boolean): void {
               <svg viewBox="0 0 24 24" aria-hidden="true">
                 <polyline points="16 6 8 12 16 18" />
               </svg>
-            </button>
+            </EaButton>
           </div>
           <TimelineConnectionLayer
             v-if="timelineViewLayers.effectLinks || connectionDrag !== null"
@@ -6317,6 +6327,7 @@ button:disabled {
 }
 
 .operator-heading {
+  margin: 0;
   width: 100%;
   height: auto;
   display: flex;
@@ -6325,7 +6336,10 @@ button:disabled {
   padding: 0;
   border: 0;
   background: transparent;
+  color: var(--ea-fg);
   font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 1px;
   text-align: left;
 }
 

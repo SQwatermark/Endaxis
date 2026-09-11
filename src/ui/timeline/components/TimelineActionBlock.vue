@@ -7,6 +7,7 @@
  */
 import { computed, ref } from 'vue';
 import { EditPen } from '@element-plus/icons-vue';
+import { EaButton } from '@/design-system';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
 import { PROJECT_FPS, type EditableBarDocument } from '../../../core/project/schema';
 import type { TimelineConnectionPort } from '../timelineConnections';
@@ -143,7 +144,8 @@ function formatDurationFrames(frames: number): string {
 </script>
 
 <template>
-  <button
+  <EaButton
+    variant="ghost"
     type="button"
     class="timeline-action-block"
     :data-timeline-action-id="actionId"
@@ -313,7 +315,7 @@ function formatDurationFrames(frames: number): string {
       :data-connection-port="port"
       @pointerdown.stop.prevent="$emit('connectionPointerDown', $event, port)"
     ></span>
-  </button>
+  </EaButton>
 </template>
 
 <style scoped>

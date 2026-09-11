@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton, EaDialog, EaDialogActions } from '@/design-system';
 import './definitionWorkspaceLayout.css';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { editorDefinitionsEqual } from '../../editorDefinitionsEqual';
@@ -170,7 +171,7 @@ function editGearSet(): void {
 
 <template>
   <InputRegionBoundary label="gear-definition-workspace" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="min(1600px, calc(100vw - 32px))"
       top="16px"
@@ -190,12 +191,19 @@ function editGearSet(): void {
 
       <div ref="editorRoot" class="gear-workspace">
         <aside class="gear-outliner">
-          <button :class="{ active: selectedSection === 'base' }" @click="selectedSection = 'base'">
+          <EaButton
+            variant="ghost"
+            :class="{ active: selectedSection === 'base' }"
+            @click="selectedSection = 'base'"
+          >
             <strong>基础定义</strong><small>{{ baseDefinition.slug }}</small>
-          </button>
+          </EaButton>
           <div class="outliner-caption">词条</div>
-          <button class="add-entry" type="button" @click="addTrait">＋ 新增词条</button>
-          <button
+          <EaButton class="add-entry" variant="ghost" size="sm" type="button" @click="addTrait"
+            >＋ 新增词条</EaButton
+          >
+          <EaButton
+            variant="ghost"
             v-for="(trait, index) in draft.traits"
             :key="`${trait.key}:${index}`"
             :class="{ active: selectedSection === index }"
@@ -203,7 +211,7 @@ function editGearSet(): void {
           >
             <strong>{{ trait.key }}</strong
             ><small>{{ trait.levelCount }} 档</small>
-          </button>
+          </EaButton>
         </aside>
 
         <main class="gear-inspector" :class="{ 'trait-inspector': selectedTrait !== undefined }">
@@ -262,8 +270,8 @@ function editGearSet(): void {
               >
             </div>
             <div class="nested-action">
-              <button
-                class="ea-btn ea-btn--sm ea-btn--glass-rect"
+              <EaButton
+                size="sm"
                 :disabled="draft.gearSetSlug === undefined || issues.length > 0"
                 @click="editGearSet"
               >
@@ -272,7 +280,7 @@ function editGearSet(): void {
                     ? '编辑套装定义'
                     : '自定义当前套装'
                 }}
-              </button>
+              </EaButton>
               <small>进入套装模板前会先保存当前装备草稿。</small>
             </div>
           </section>
@@ -282,15 +290,20 @@ function editGearSet(): void {
               <strong>当前词条</strong><span>第 {{ (selectedTraitIndex ?? 0) + 1 }} 条</span>
             </header>
             <div class="object-actions">
-              <button :disabled="selectedTraitIndex === 0" @click="moveTrait(-1)">上移</button>
-              <button
+              <EaButton size="sm" :disabled="selectedTraitIndex === 0" @click="moveTrait(-1)"
+                >上移</EaButton
+              >
+              <EaButton
+                size="sm"
                 :disabled="selectedTraitIndex === draft.traits.length - 1"
                 @click="moveTrait(1)"
               >
                 下移
-              </button>
+              </EaButton>
               <span />
-              <button class="danger" @click="removeTrait">删除词条</button>
+              <EaButton class="danger" variant="danger" size="sm" @click="removeTrait"
+                >删除词条</EaButton
+              >
             </div>
             <div class="field-grid">
               <label
@@ -319,7 +332,7 @@ function editGearSet(): void {
       </div>
 
       <template #footer>
-        <div class="workspace-footer">
+        <EaDialogActions align="start">
           <DefinitionHistoryControls :history="history" />
           <details v-if="issues.length" class="issues">
             <summary>{{ issues.length }} 个结构问题</summary>
@@ -328,26 +341,20 @@ function editGearSet(): void {
             >
           </details>
           <span v-else class="valid">✓ 定义结构有效</span>
-          <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('reset')">
-            恢复游戏定义
-          </button>
+          <EaButton size="sm" @click="emit('reset')"> 恢复游戏定义 </EaButton>
           <span class="spacer" />
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            @click="emit('update:visible', false)"
-          >
-            取消
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill"
+          <EaButton size="sm" @click="emit('update:visible', false)"> 取消 </EaButton>
+          <EaButton
+            variant="primary"
+            size="sm"
             :disabled="!isDirty || issues.length > 0"
             @click="save"
           >
             保存装备定义
-          </button>
-        </div>
+          </EaButton>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 
@@ -496,12 +503,6 @@ select {
 }
 .nested-action small {
   color: var(--ea-fg-muted);
-}
-.workspace-footer {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
 }
 .spacer {
   flex: 1;

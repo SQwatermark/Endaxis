@@ -3,6 +3,7 @@
  * Next 时间轴的单槽装备选择器。父层决定正在编辑的轨道和槽位，并负责把选择、卸下及精锻档位写回项目；
  * 本组件只复刻旧版装备选择弹窗的定义浏览流程，不读取旧 store，也不把适配状态写入存档。
  */
+import { EaButton, EaDeleteIcon, EaDialog, EaFilterChip, EaInput } from '@/design-system';
 import { computed, ref, watch } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { Search } from '@element-plus/icons-vue';
@@ -225,7 +226,7 @@ function clearGear(): void {
 
 <template>
   <InputRegionBoundary label="gear-selection" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       :title="labels.title"
       width="600px"
@@ -236,94 +237,77 @@ function clearGear(): void {
     >
       <div class="selector-header">
         <div class="header-left-group">
-          <el-input
+          <EaInput
             v-model="searchQuery"
             :placeholder="labels.searchPlaceholder"
             :prefix-icon="Search"
             clearable
             style="width: 180px"
           />
-          <button
+          <EaButton
+            variant="danger"
             type="button"
-            class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
             :disabled="selectedSlug === null"
             :title="labels.unequip"
             @click="clearGear"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="14"
-              height="14"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path d="M3 6h18" />
-              <path
-                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-              />
-            </svg>
+            <EaDeleteIcon />
             {{ labels.unequip }}
-          </button>
+          </EaButton>
           <div class="equipment-tier-picker">
             <span class="tier-label">{{ t('timelineGrid.equipmentDialog.refine') }}</span>
             <div class="equipment-refine-buttons">
-              <button
+              <EaButton
+                size="sm"
                 v-for="tier in refineTiers"
                 :key="tier"
                 type="button"
-                class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold equipment-refine-btn"
+                class="equipment-refine-btn"
                 :class="{ 'is-active': refineTier === tier }"
                 @click="setRefineTier(tier)"
               >
                 {{ tier === 0 ? t('timelineGrid.equipmentDialog.refineBase') : tier }}
-              </button>
+              </EaButton>
             </div>
           </div>
         </div>
         <div class="element-filters">
-          <button
+          <EaFilterChip
             type="button"
-            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-            :class="{ 'is-active': gearSetFilter === 'ALL' }"
-            :style="{ '--ea-btn-accent': '#2dd4bf' }"
+            :selected="gearSetFilter === 'ALL'"
+            accent="#2dd4bf"
             @click="gearSetFilter = 'ALL'"
           >
             {{ t('timelineGrid.equipmentDialog.allCategories') }}
-          </button>
-          <button
+          </EaFilterChip>
+          <EaFilterChip
             type="button"
-            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-            :class="{ 'is-active': gearSetFilter === NO_SET_FILTER }"
-            :style="{ '--ea-btn-accent': '#888' }"
+            :selected="gearSetFilter === NO_SET_FILTER"
+            accent="#888"
             @click="gearSetFilter = NO_SET_FILTER"
           >
             {{ labels.noSet }}
-          </button>
-          <button
+          </EaFilterChip>
+          <EaFilterChip
             v-for="gearSet in gearSets"
             :key="gearSet.slug"
-            type="button"
-            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-            :class="{ 'is-active': gearSetFilter === gearSet.slug }"
-            :style="{ '--ea-btn-accent': '#2dd4bf' }"
+            :selected="gearSetFilter === gearSet.slug"
+            accent="#2dd4bf"
             @click="gearSetFilter = gearSet.slug"
           >
             {{ gearSet.name }}
-          </button>
+          </EaFilterChip>
         </div>
         <div class="equipment-affix-filter-section">
           <div class="equipment-affix-filter-strip">
-            <button
+            <EaFilterChip
               type="button"
-              class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-              :class="{ 'is-active': affixFilter === 'ALL' }"
-              :style="{ '--ea-btn-accent': '#2dd4bf' }"
+              :selected="affixFilter === 'ALL'"
+              accent="#2dd4bf"
               @click="affixFilter = 'ALL'"
             >
               {{ t('timelineGrid.equipmentDialog.allAffixes') }}
-            </button>
+            </EaFilterChip>
             <template
               v-for="(group, groupIndex) in affixFilterGroups"
               :key="`next_gear_affix_group_${group.key}`"
@@ -333,41 +317,36 @@ function clearGear(): void {
                 class="equipment-affix-filter-divider"
                 aria-hidden="true"
               />
-              <button
+              <EaFilterChip
                 v-for="option in group.items"
                 :key="`next_gear_affix_filter_${option.value}`"
-                type="button"
-                class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-                :class="{ 'is-active': affixFilter === option.value }"
-                :style="{ '--ea-btn-accent': option.accent }"
+                :selected="affixFilter === option.value"
+                :accent="option.accent"
                 @click="affixFilter = option.value"
               >
                 {{ option.label }}
-              </button>
+              </EaFilterChip>
             </template>
           </div>
         </div>
         <div class="element-filters">
-          <button
+          <EaFilterChip
             type="button"
-            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-            :class="{ 'is-active': levelFilter === 'ALL' }"
-            :style="{ '--ea-btn-accent': '#2dd4bf' }"
+            :selected="levelFilter === 'ALL'"
+            accent="#2dd4bf"
             @click="levelFilter = 'ALL'"
           >
             {{ t('timelineGrid.equipmentDialog.allLevels') }}
-          </button>
-          <button
+          </EaFilterChip>
+          <EaFilterChip
             v-for="level in levels"
             :key="level"
-            type="button"
-            class="ea-btn ea-btn--glass-cut equipment-filter-chip"
-            :class="{ 'is-active': levelFilter === level }"
-            :style="{ '--ea-btn-accent': getEquipmentLevelColor(level) }"
+            :selected="levelFilter === level"
+            :accent="getEquipmentLevelColor(level)"
             @click="levelFilter = level"
           >
             Lv{{ level }}
-          </button>
+          </EaFilterChip>
         </div>
       </div>
 
@@ -480,7 +459,7 @@ function clearGear(): void {
         </template>
         <div v-if="groups.length === 0" class="empty-roster">{{ labels.empty }}</div>
       </div>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

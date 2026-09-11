@@ -3,6 +3,7 @@
  * Next 时间轴的武器定义选择器。界面与旧时间轴保持一致，但只读取 Next 定义并返回稳定 slug；
  * 武器 Build 的创建和持久化仍由父层负责，组件内不依赖旧 store。
  */
+import { EaButton, EaDeleteIcon, EaDialog, EaInput } from '@/design-system';
 import { computed, ref, watch } from 'vue';
 import {
   useKeyboardInputRegion,
@@ -139,7 +140,7 @@ function handleDialogVisibility(value: boolean): void {
 </script>
 
 <template>
-  <el-dialog
+  <EaDialog
     :model-value="visible"
     :title="labels.title"
     width="600px"
@@ -150,34 +151,22 @@ function handleDialogVisibility(value: boolean): void {
   >
     <div class="selector-header">
       <div class="header-left-group">
-        <el-input
+        <EaInput
           v-model="searchQuery"
           :placeholder="labels.searchPlaceholder"
           :prefix-icon="Search"
           clearable
           style="width: 180px"
         />
-        <button
-          class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
+        <EaButton
+          variant="danger"
           :disabled="selectedSlug === null"
           :title="labels.unequip"
           @click="clear"
         >
-          <svg
-            viewBox="0 0 24 24"
-            width="14"
-            height="14"
-            stroke="currentColor"
-            stroke-width="2"
-            fill="none"
-          >
-            <path d="M3 6h18" />
-            <path
-              d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-            />
-          </svg>
+          <EaDeleteIcon />
           {{ labels.unequip }}
-        </button>
+        </EaButton>
       </div>
     </div>
 
@@ -241,5 +230,5 @@ function handleDialogVisibility(value: boolean): void {
         {{ labels.empty }}
       </div>
     </div>
-  </el-dialog>
+  </EaDialog>
 </template>

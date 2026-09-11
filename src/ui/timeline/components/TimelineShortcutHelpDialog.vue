@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaDialog } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -67,7 +68,7 @@ const sections = computed(() => [
 
 <template>
   <InputRegionBoundary label="TimelineShortcutHelpDialog" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       :title="t('timeline.shortcuts.dialogTitle')"
       width="min(720px, 90vw)"
@@ -84,7 +85,7 @@ const sections = computed(() => [
           </div>
         </section>
       </div>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

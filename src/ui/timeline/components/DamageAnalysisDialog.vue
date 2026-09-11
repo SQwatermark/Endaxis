@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaDialog } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed } from 'vue';
 import type { TimelineDamageAnalysis } from '../timelineDamageAnalysis';
@@ -36,7 +37,7 @@ function formatNumber(value: number): string {
 
 <template>
   <InputRegionBoundary label="DamageAnalysisDialog" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="min(1180px, 92vw)"
       top="5vh"
@@ -100,7 +101,7 @@ function formatNumber(value: number): string {
           </div>
         </div>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

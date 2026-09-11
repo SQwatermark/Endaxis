@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import { EaButton } from '@/design-system';
 import OperatorLibraryMemberActions from './OperatorLibraryMemberActions.vue';
 import SearchableOptionPicker from './SearchableOptionPicker.vue';
 import {
@@ -74,9 +75,9 @@ function updateVariant(index: number, field: 'key' | 'libraryPresentation', valu
         <p>管理定义归属与放置组织。分组不决定技能等级或操作选择；跨组执行来源另行标注。</p>
       </div>
       <nav>
-        <button class="ea-btn ea-btn--sm" :disabled="first" @click="emit('move', -1)">上移组</button
-        ><button class="ea-btn ea-btn--sm" :disabled="last" @click="emit('move', 1)">下移组</button
-        ><button class="ea-btn ea-btn--sm" @click="emit('remove')">删除组</button>
+        <EaButton size="sm" :disabled="first" @click="emit('move', -1)">上移组</EaButton
+        ><EaButton size="sm" :disabled="last" @click="emit('move', 1)">下移组</EaButton
+        ><EaButton variant="danger" size="sm" @click="emit('remove')">删除组</EaButton>
       </nav>
     </header>
     <div class="settings">
@@ -104,7 +105,7 @@ function updateVariant(index: number, field: 'key' | 'libraryPresentation', valu
     <h4>
       包含的技能
       <small>实际放置条目见下方预览；此处按定义归属列出</small>
-      <button class="ea-btn ea-btn--sm" @click="beginCreate">＋ 新建技能</button>
+      <EaButton size="sm" @click="beginCreate">＋ 新建技能</EaButton>
     </h4>
     <div
       v-for="(binding, index) in bindings.filter(item => item.origin !== 'variant')"
@@ -163,9 +164,9 @@ function updateVariant(index: number, field: 'key' | 'libraryPresentation', valu
     <p v-if="!bindings.length">此组没有技能。空组保留在草稿中，由定义检查报告问题。</p>
     <h4>
       具名形态
-      <button class="ea-btn ea-btn--sm" @click="emit('update', appendEmptyOperatorVariant(group))">
+      <EaButton size="sm" @click="emit('update', appendEmptyOperatorVariant(group))">
         ＋ 新建形态
-      </button>
+      </EaButton>
     </h4>
     <section
       v-for="(variant, variantIndex) in group.variants"
@@ -195,11 +196,12 @@ function updateVariant(index: number, field: 'key' | 'libraryPresentation', valu
         >
       </div>
       <div class="actions variant-actions">
-        <button class="ea-btn ea-btn--sm" @click="emit('add-skill', { variant: variantIndex })">
+        <EaButton size="sm" @click="emit('add-skill', { variant: variantIndex })">
           ＋ 新建形态内技能
-        </button>
-        <button
-          class="ea-btn ea-btn--sm"
+        </EaButton>
+        <EaButton
+          variant="danger"
+          size="sm"
           @click="
             emit('update', {
               ...group,
@@ -208,7 +210,7 @@ function updateVariant(index: number, field: 'key' | 'libraryPresentation', valu
           "
         >
           删除形态及其技能
-        </button>
+        </EaButton>
       </div>
       <div
         v-for="binding in bindings.filter(item => item.variant === variant)"

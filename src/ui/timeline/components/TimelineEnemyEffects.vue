@@ -5,6 +5,7 @@
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
 import { computed, watch, useId } from 'vue';
+import { EaButton } from '@/design-system';
 import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
 import { useDurationBarColor } from '../durationBarColorContext';
 import { resolveDurationBarColor } from '../durationBarColor';
@@ -294,7 +295,10 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       :labels="hudLabels"
     >
       <span v-if="visibleLastHitBuffs.length > 0" class="last-hit-buffs">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           v-for="buff in visibleLastHitBuffs"
           :key="buff.buffId"
           type="button"
@@ -305,13 +309,16 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
           <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
           <span v-else class="buff-fallback">+</span>
           <span class="anomaly-stacks">{{ Math.max(1, buff.layers) }}</span>
-        </button>
+        </EaButton>
         <strong v-if="lastHitBuffOverflow > 0" class="last-hit-buff-more">
           +{{ lastHitBuffOverflow }}
         </strong>
       </span>
     </EnemyCombatHudSnapshot>
-    <button
+    <EaButton
+      variant="ghost"
+      size="sm"
+      icon-only
       v-for="hit in damageHits"
       :key="`damage:${hit.sequence}`"
       class="enemy-damage-hit"
@@ -323,7 +330,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       @keydown.space.stop.prevent="emit('open-damage-detail', hit.sequence)"
     >
       <span class="enemy-damage-diamond"></span>
-    </button>
+    </EaButton>
     <span
       v-for="marker in markers"
       :key="marker.key"

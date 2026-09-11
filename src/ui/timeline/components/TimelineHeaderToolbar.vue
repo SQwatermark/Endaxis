@@ -1,5 +1,6 @@
 <script setup lang="ts">
 /** 时间轴顶部方案栏。DOM 分区与视觉契约以旧版 TimelineEditor 为准。 */
+import { EaButton, EaInput } from '@/design-system';
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TimelineDurationBarColorControls from './TimelineDurationBarColorControls.vue';
@@ -77,7 +78,7 @@ const emit = defineEmits<{
 const renaming = ref(false);
 const { t } = useI18n({ useScope: 'global' });
 const renameDraft = ref('');
-const renameInput = ref<HTMLInputElement | null>(null);
+const renameInput = ref<{ focus: () => void; select: () => void } | null>(null);
 const moreMenuOpen = ref(false);
 const displayMenuOpen = ref(false);
 usePopoverInteractionBoundary(
@@ -156,9 +157,12 @@ onBeforeUnmount(() => {
   <div class="timeline-header-content" @click.self="$emit('clearSelection')">
     <div class="tech-scenario-bar" @click.self="$emit('clearSelection')">
       <div class="ts-header-group" @click.self="$emit('clearSelection')">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
-          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--ghost ea-btn--no-shrink"
+          class="toolbar-no-shrink"
           :title="labels.rename"
           :aria-label="labels.rename"
           @click="beginRename"
@@ -168,10 +172,13 @@ onBeforeUnmount(() => {
               d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
             />
           </svg>
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
-          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--ghost ea-btn--no-shrink"
+          class="toolbar-no-shrink"
           :title="labels.duplicate"
           :aria-label="labels.duplicate"
           @click="$emit('duplicate')"
@@ -180,12 +187,15 @@ onBeforeUnmount(() => {
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
           </svg>
-        </button>
+        </EaButton>
 
-        <button
+        <EaButton
           v-if="scenarios.length > 1"
+          variant="danger"
+          size="sm"
+          icon-only
           type="button"
-          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--ghost ea-btn--hover-danger ea-btn--no-shrink"
+          class="toolbar-no-shrink"
           :title="labels.delete"
           :aria-label="labels.delete"
           @click="$emit('delete')"
@@ -196,15 +206,17 @@ onBeforeUnmount(() => {
               d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
             />
           </svg>
-        </button>
+        </EaButton>
 
         <div class="ts-title-wrapper" :title="scenarioName">
           <span class="ts-deco-bracket">[</span>
-          <input
+          <EaInput
             v-if="renaming"
             ref="renameInput"
             v-model="renameDraft"
             class="ts-title-input"
+            variant="inline"
+            size="sm"
             @blur="finishRename"
             @keydown.enter.prevent="finishRename"
             @keydown.esc.prevent="cancelRename"
@@ -220,7 +232,7 @@ onBeforeUnmount(() => {
         :style="scenarioTabsMaskStyle"
         @scroll="updateScenarioTabsScrollMask"
       >
-        <button
+        <EaButton
           v-for="(scenario, index) in scenarios"
           :key="scenario.id"
           type="button"
@@ -232,44 +244,38 @@ onBeforeUnmount(() => {
           @click="$emit('select', scenario.id)"
         >
           {{ String(index + 1).padStart(2, '0') }}
-        </button>
-        <button
+        </EaButton>
+        <EaButton
           v-if="scenarios.length < maxScenarios"
+          size="sm"
+          icon-only
           type="button"
-          class="ea-btn ea-btn--icon ea-btn--icon-24 ea-btn--icon-plus ea-btn--no-shrink ts-add-btn"
+          class="toolbar-no-shrink ts-add-btn"
           :title="labels.add"
           :aria-label="labels.add"
           @click="$emit('add')"
         >
           +
-        </button>
+        </EaButton>
       </div>
     </div>
 
     <div class="header-controls" @click.self="$emit('clearSelection')">
-      <button
-        type="button"
-        class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-green command-button--analysis"
-        @click="$emit('analysis')"
-      >
+      <EaButton size="sm" type="button" class="command-button--analysis" @click="$emit('analysis')">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M21 12a9 9 0 1 1-9-9v9z" />
           <path d="M12 3a9 9 0 0 1 9 9h-9z" />
         </svg>
         {{ labels.analysis }}
-      </button>
-      <button
-        type="button"
-        class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-orange command-button--export"
-        @click="$emit('export')"
-      >
+      </EaButton>
+      <EaButton size="sm" type="button" class="command-button--export" @click="$emit('export')">
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M14 3h7v7" />
           <path d="M10 14L21 3" />
           <path d="M21 14v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h7" />
         </svg>
         {{ labels.export }}
-      </button>
+      </EaButton>
       <el-popover
         v-model:visible="displayMenuOpen"
         placement="bottom-end"
@@ -279,9 +285,9 @@ onBeforeUnmount(() => {
         popper-class="header-more-popper"
       >
         <template #reference>
-          <button
+          <EaButton
+            size="sm"
             type="button"
-            class="ea-btn ea-btn--sm ea-btn--lift"
             :class="{ 'is-active': displayMenuOpen }"
             :title="t('display.title')"
             :aria-label="t('display.title')"
@@ -293,10 +299,10 @@ onBeforeUnmount(() => {
               <circle cx="12" cy="12" r="2.5" />
             </svg>
             {{ t('display.title') }}
-          </button>
+          </EaButton>
         </template>
         <div class="timeline-display-menu" data-keyboard-shortcut-scope="overlay">
-          <button
+          <EaButton
             type="button"
             class="timeline-display-guide"
             :class="{ 'is-active': cursorGuideEnabled }"
@@ -336,7 +342,7 @@ onBeforeUnmount(() => {
               <rect x="1" y="1" width="14" height="14" rx="2" />
               <polyline v-if="cursorGuideEnabled" points="3,8 6.5,11.5 13,4.5" />
             </svg>
-          </button>
+          </EaButton>
           <div class="timeline-display-scroll">
             <section class="timeline-display-section">
               <h4 class="timeline-display-section__title">
@@ -345,7 +351,7 @@ onBeforeUnmount(() => {
               <div class="header-more-mode-row">
                 <span>{{ t('display.buffLayout') }}</span>
                 <div class="header-more-segment" role="group" :aria-label="t('display.buffLayout')">
-                  <button
+                  <EaButton
                     v-for="mode in ['compact', 'loose'] as const"
                     :key="mode"
                     type="button"
@@ -360,14 +366,14 @@ onBeforeUnmount(() => {
                           : 'timelineGrid.toolbar.buffLayoutLoose',
                       )
                     }}
-                  </button>
+                  </EaButton>
                 </div>
               </div>
             </section>
             <section class="timeline-display-section">
               <h4 class="timeline-display-section__title">{{ labels.view }}</h4>
               <div class="header-more-checklist header-more-checklist--grid">
-                <button
+                <EaButton
                   v-for="layerId in viewLayerIds"
                   :key="layerId"
                   type="button"
@@ -388,7 +394,7 @@ onBeforeUnmount(() => {
                     <polyline v-if="viewLayers[layerId]" points="3,8 6.5,11.5 13,4.5" />
                   </svg>
                   <span>{{ labels.viewLayers[layerId] }}</span>
-                </button>
+                </EaButton>
               </div>
             </section>
             <section class="timeline-display-section timeline-display-section--follow">
@@ -397,7 +403,7 @@ onBeforeUnmount(() => {
                 v-if="operatorEffects.length > 0"
                 class="header-more-checklist header-more-checklist--grid"
               >
-                <button
+                <EaButton
                   v-for="operator in operatorEffects"
                   :key="operator.trackIndex"
                   type="button"
@@ -418,7 +424,7 @@ onBeforeUnmount(() => {
                     <polyline v-if="operator.visible" points="3,8 6.5,11.5 13,4.5" />
                   </svg>
                   <span>{{ operator.name }}</span>
-                </button>
+                </EaButton>
               </div>
               <p v-else class="timeline-display-empty">{{ labels.viewOperatorsEmpty }}</p>
             </section>
@@ -435,9 +441,9 @@ onBeforeUnmount(() => {
         popper-class="header-more-popper"
       >
         <template #reference>
-          <button
+          <EaButton
+            size="sm"
             type="button"
-            class="ea-btn ea-btn--sm ea-btn--lift"
             :class="{ 'is-active': moreMenuOpen }"
             :title="labels.more"
             :aria-label="labels.more"
@@ -450,7 +456,7 @@ onBeforeUnmount(() => {
               <circle cx="12" cy="19" r="1.6" />
             </svg>
             {{ labels.more }}
-          </button>
+          </EaButton>
         </template>
         <div class="header-more-panel" data-keyboard-shortcut-scope="overlay">
           <section class="header-more-section">
@@ -458,7 +464,7 @@ onBeforeUnmount(() => {
               {{ t('timeline.header.sectionEditTools') }}
             </h4>
             <div class="header-more-checklist header-more-checklist--grid">
-              <button
+              <EaButton
                 type="button"
                 class="header-more-check-row header-more-tool-row"
                 :class="{ 'is-active': boxSelectEnabled }"
@@ -496,8 +502,8 @@ onBeforeUnmount(() => {
                   <rect x="1" y="1" width="14" height="14" rx="2" />
                   <polyline v-if="boxSelectEnabled" points="3,8 6.5,11.5 13,4.5" />
                 </svg>
-              </button>
-              <button
+              </EaButton>
+              <EaButton
                 type="button"
                 class="header-more-check-row header-more-tool-row"
                 :class="{ 'is-active': connectionToolEnabled }"
@@ -536,39 +542,33 @@ onBeforeUnmount(() => {
                   <rect x="1" y="1" width="14" height="14" rx="2" />
                   <polyline v-if="connectionToolEnabled" points="3,8 6.5,11.5 13,4.5" />
                 </svg>
-              </button>
+              </EaButton>
             </div>
           </section>
           <section class="header-more-section">
             <h4 class="header-more-section__title">{{ t('timeline.header.sectionProject') }}</h4>
             <div class="header-more-actions">
-              <button
-                type="button"
-                class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-blue header-more-action"
-                @click="$emit('open')"
-              >
+              <EaButton size="sm" type="button" class="header-more-action" @click="$emit('open')">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="7 10 12 15 17 10" />
                   <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
                 <span>{{ labels.open }}</span>
-              </button>
-              <button
-                type="button"
-                class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-blue header-more-action"
-                @click="$emit('export')"
-              >
+              </EaButton>
+              <EaButton size="sm" type="button" class="header-more-action" @click="$emit('export')">
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                   <polyline points="17 8 12 3 7 8" />
                   <line x1="12" y1="3" x2="12" y2="15" />
                 </svg>
                 <span>{{ labels.export }}</span>
-              </button>
-              <button
+              </EaButton>
+              <EaButton
+                variant="danger"
+                size="sm"
                 type="button"
-                class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-danger-dark header-more-action"
+                class="header-more-action"
                 @click="$emit('reset')"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -578,26 +578,29 @@ onBeforeUnmount(() => {
                   />
                 </svg>
                 <span>{{ labels.reset }}</span>
-              </button>
+              </EaButton>
             </div>
           </section>
           <section class="header-more-section">
             <h4 class="header-more-section__title">{{ labels.preferences }}</h4>
             <div class="header-more-pref-row">
               <div class="header-more-locale">
-                <button
+                <EaButton
+                  size="sm"
                   v-for="localeId in localeIds"
                   :key="localeId"
                   type="button"
-                  class="ea-btn ea-btn--sm ea-btn--lift ea-btn--hover-info header-more-locale__btn"
+                  class="header-more-locale__btn"
                   :class="{ 'is-active': locale === localeId }"
                   @click="$emit('setLocale', localeId)"
                 >
                   {{ localeLabel(localeId) }}
-                </button>
+                </EaButton>
               </div>
-              <button
-                class="ea-btn ea-btn--sm ea-btn--lift header-more-action header-more-action--icon"
+              <EaButton
+                size="sm"
+                icon-only
+                class="header-more-action header-more-action--icon"
                 type="button"
                 :title="labels.shortcuts"
                 :aria-label="labels.shortcuts"
@@ -615,14 +618,16 @@ onBeforeUnmount(() => {
                   <rect x="2" y="4" width="20" height="16" rx="2" />
                   <path d="M6 8h2m2 0h2m2 0h2m2 0h1M6 12h2m2 0h2m2 0h2M7 16h10" />
                 </svg>
-              </button>
+              </EaButton>
             </div>
             <div class="header-more-pref-row header-more-pref-row--appearance">
               <span class="header-more-appearance__label">{{ labels.appearance }}</span>
               <div class="header-more-appearance">
-                <button
+                <EaButton
+                  size="sm"
+                  icon-only
                   type="button"
-                  class="ea-btn ea-btn--sm ea-btn--lift header-more-appearance__btn"
+                  class="header-more-appearance__btn"
                   :class="{ 'is-active': appearance === 'light' }"
                   :title="labels.appearanceLight"
                   :aria-label="labels.appearanceLight"
@@ -645,10 +650,12 @@ onBeforeUnmount(() => {
                       d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
                     />
                   </svg>
-                </button>
-                <button
+                </EaButton>
+                <EaButton
+                  size="sm"
+                  icon-only
                   type="button"
-                  class="ea-btn ea-btn--sm ea-btn--lift header-more-appearance__btn"
+                  class="header-more-appearance__btn"
                   :class="{ 'is-active': appearance === 'dark' }"
                   :title="labels.appearanceDark"
                   :aria-label="labels.appearanceDark"
@@ -668,7 +675,7 @@ onBeforeUnmount(() => {
                   >
                     <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
                   </svg>
-                </button>
+                </EaButton>
               </div>
             </div>
           </section>
@@ -679,9 +686,8 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-button:not(.ea-btn) {
-  color: inherit;
-  font: inherit;
+.toolbar-no-shrink {
+  flex-shrink: 0;
 }
 
 .dirty-indicator {
@@ -781,12 +787,9 @@ button:not(.ea-btn) {
 }
 
 .ts-title-input {
+  --ea-control-border: var(--ea-gold);
+
   width: 120px;
-  padding: 0;
-  border: 0;
-  border-bottom: 1px solid var(--ea-gold);
-  outline: 0;
-  background: transparent;
   color: var(--ea-gold);
   font-size: 16px;
   font-weight: 700;
@@ -835,14 +838,14 @@ button:not(.ea-btn) {
   gap: 8px;
 }
 
-.header-controls .ea-btn.is-active {
+.header-controls .ea-button.is-active {
   background: var(--ea-active-fill);
   color: var(--ea-fg);
 }
 
-.ts-header-group .ea-btn svg,
-.header-controls .ea-btn svg,
-.header-more-actions .ea-btn svg {
+.ts-header-group .ea-button svg,
+.header-controls .ea-button svg,
+.header-more-actions .ea-button svg {
   width: 14px;
   height: 14px;
   flex-shrink: 0;
@@ -853,7 +856,7 @@ button:not(.ea-btn) {
   stroke-linejoin: round;
 }
 
-.ts-header-group .ea-btn .ts-rename-icon {
+.ts-header-group .ea-button .ts-rename-icon {
   fill: currentColor;
   stroke: none;
 }
@@ -898,16 +901,16 @@ button:not(.ea-btn) {
   gap: 6px;
 }
 
-.header-more-action.ea-btn {
+.header-more-action.ea-button {
   width: auto;
   flex: 0 0 auto;
   justify-content: flex-start;
-  --ea-btn-bg: var(--ea-fill-soft);
-  --ea-btn-border: var(--ea-border);
-  --ea-btn-color: var(--ea-fg-secondary);
-  --ea-btn-bg-hover: var(--ea-hover-fill);
-  --ea-btn-border-hover: var(--ea-border-strong);
-  --ea-btn-color-hover: var(--ea-fg);
+  --ea-control-bg: var(--ea-fill-soft);
+  --ea-control-border: var(--ea-border);
+  --ea-control-fg: var(--ea-fg-secondary);
+  --ea-control-bg-hover: var(--ea-hover-fill);
+  --ea-control-border-hover: var(--ea-border-strong);
+  --ea-control-fg-hover: var(--ea-fg);
   backdrop-filter: none;
 }
 
@@ -946,20 +949,19 @@ button:not(.ea-btn) {
   gap: 4px;
 }
 
-.header-more-locale__btn.ea-btn,
-.header-more-appearance__btn.ea-btn {
+.header-more-locale__btn.ea-button,
+.header-more-appearance__btn.ea-button {
   width: 100%;
   min-width: 0;
-  --ea-btn-px: 0;
-  --ea-btn-py: 5px;
-  --ea-btn-font-size: 11px;
-  --ea-btn-bg: var(--ea-fill-soft);
-  --ea-btn-border: var(--ea-border);
-  --ea-btn-color: var(--ea-fg-secondary);
+  padding: 5px 0;
+  font-size: 11px;
+  --ea-control-bg: var(--ea-fill-soft);
+  --ea-control-border: var(--ea-border);
+  --ea-control-fg: var(--ea-fg-secondary);
 }
 
-.header-more-appearance__btn.ea-btn,
-.header-more-action--icon.ea-btn {
+.header-more-appearance__btn.ea-button,
+.header-more-action--icon.ea-button {
   width: 28px;
   min-width: 28px;
   height: 28px;
@@ -967,8 +969,8 @@ button:not(.ea-btn) {
   justify-content: center;
 }
 
-.header-more-locale__btn.ea-btn.is-active,
-.header-more-appearance__btn.ea-btn.is-active {
+.header-more-locale__btn.ea-button.is-active,
+.header-more-appearance__btn.ea-button.is-active {
   border-color: color-mix(in srgb, var(--ea-gold) 50%, transparent);
   background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
   color: #ffe38a;

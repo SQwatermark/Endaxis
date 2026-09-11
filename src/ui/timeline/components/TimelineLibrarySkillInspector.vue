@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { EaButton } from '@/design-system';
 
 defineProps<{
   name: string;
@@ -68,7 +69,13 @@ const { t } = useI18n({ useScope: 'global' });
         </ol>
       </section>
 
-      <button class="definition-button" type="button" @click="$emit('editOperatorDefinition')">
+      <EaButton
+        variant="primary"
+        size="sm"
+        class="definition-button"
+        type="button"
+        @click="$emit('editOperatorDefinition')"
+      >
         {{
           t(
             customOperatorDefinition
@@ -76,7 +83,7 @@ const { t } = useI18n({ useScope: 'global' });
               : 'timeline.customDefinition.customizeOperator',
           )
         }}
-      </button>
+      </EaButton>
     </div>
   </section>
 </template>

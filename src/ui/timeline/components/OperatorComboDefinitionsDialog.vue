@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AbilityEventOptions from './AbilityEventOptions.vue';
+import { EaButton } from '@/design-system';
 import { computed, ref, watch } from 'vue';
 import {
   useDefinitionPageDraft,
@@ -196,12 +197,9 @@ function save(): void {
     :class="{ 'fill-available': fillAvailable }"
   >
     <div class="embedded-header title">
-      <button
-        class="definition-focused-back ea-btn ea-btn--sm"
-        @click="emit('update:visible', false)"
-      >
+      <EaButton class="definition-focused-back" size="sm" @click="emit('update:visible', false)">
         ← 返回角色级运行数据
-      </button>
+      </EaButton>
       <strong>角色原生连携条件</strong>
       <small>条件来自角色模板，统一使用战斗事件、上下文条件与动作序列。</small>
     </div>
@@ -320,12 +318,8 @@ function save(): void {
     </div>
     <div v-if="!sharedHistory" class="embedded-footer">
       <DefinitionHistoryControls :history="history" />
-      <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-        取消
-      </button>
-      <button class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill" @click="save">
-        保存连携条件
-      </button>
+      <EaButton size="sm" @click="emit('update:visible', false)"> 取消 </EaButton>
+      <EaButton variant="primary" size="sm" @click="save"> 保存连携条件 </EaButton>
     </div>
   </section>
 </template>

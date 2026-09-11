@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { EaButton } from '@/design-system';
 import {
   useDefinitionPageDraft,
   projectDefinitionHistory,
@@ -250,12 +251,9 @@ function save(): void {
     :class="{ 'fill-available': fillAvailable }"
   >
     <div class="embedded-header">
-      <button
-        class="definition-focused-back ea-btn ea-btn--sm"
-        @click="emit('update:visible', false)"
-      >
+      <EaButton class="definition-focused-back" size="sm" @click="emit('update:visible', false)">
         {{ progressionKind === 'potentials' ? '← 返回潜能' : '← 返回天赋' }}
-      </button>
+      </EaButton>
       <div class="title">
         <strong>{{ progressionKind === 'potentials' ? '潜能行为' : '天赋行为' }}</strong
         ><small>初始化、事件监听与附属被动具有不同安装和执行时机。</small>
@@ -465,11 +463,8 @@ function save(): void {
     </div>
     <div v-if="!sharedHistory" class="embedded-footer">
       <DefinitionHistoryControls :history="history" />
-      <button class="ea-btn ea-btn--sm ea-btn--glass-rect" @click="emit('update:visible', false)">
-        取消</button
-      ><button class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--hover-gold-fill" @click="save">
-        保存养成行为
-      </button>
+      <EaButton size="sm" @click="emit('update:visible', false)"> 取消</EaButton
+      ><EaButton variant="primary" size="sm" @click="save"> 保存养成行为 </EaButton>
     </div>
   </section>
 </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { EaButton } from '@/design-system';
 import { useDurationBarColor } from '../durationBarColorContext';
 import { DURATION_COLOR_SOURCES, DURATION_COLOR_SURFACES } from '../durationBarColor';
 
@@ -17,7 +18,9 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
       {{ t('timeline.header.sectionDurationBarColor') }}
     </h4>
     <div class="header-more-checklist">
-      <button
+      <EaButton
+        variant="ghost"
+        size="sm"
         type="button"
         class="header-more-check-row"
         :aria-pressed="prefs.enabled"
@@ -28,7 +31,7 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
           <polyline v-if="prefs.enabled" points="3,8 6.5,11.5 13,4.5" />
         </svg>
         <span>{{ t('timeline.header.coloredDurationBarsEnable') }}</span>
-      </button>
+      </EaButton>
     </div>
     <div v-if="prefs.enabled" class="timeline-display-color-controls">
       <label
@@ -61,7 +64,9 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
         {{ t('timeline.header.durationBarColorSources') }}
       </h4>
       <div class="header-more-checklist header-more-checklist--grid">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
           v-for="source in DURATION_COLOR_SOURCES"
           :key="source"
           type="button"
@@ -74,13 +79,15 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
             <polyline v-if="prefs.sources[source]" points="3,8 6.5,11.5 13,4.5" />
           </svg>
           <span>{{ t(`timeline.header.durationBarColorSource.${source}`) }}</span>
-        </button>
+        </EaButton>
       </div>
       <h4 class="timeline-display-section__title">
         {{ t('timeline.header.durationBarColorSurfaces') }}
       </h4>
       <div class="header-more-checklist header-more-checklist--grid">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
           v-for="surface in DURATION_COLOR_SURFACES"
           :key="surface"
           type="button"
@@ -93,7 +100,7 @@ function tune(field: 'saturation' | 'lightness', event: Event) {
             <polyline v-if="prefs.surfaces[surface]" points="3,8 6.5,11.5 13,4.5" />
           </svg>
           <span>{{ t(`timeline.header.durationBarColorSurface.${surface}`) }}</span>
-        </button>
+        </EaButton>
       </div>
     </div>
   </section>

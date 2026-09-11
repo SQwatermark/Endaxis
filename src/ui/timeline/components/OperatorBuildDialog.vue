@@ -5,6 +5,7 @@
  * 组件沿用旧版干员编辑器的布局与节点交互，但只读取 Next 的 Build 投影；所有修改都通过
  * `change` 事件交给父层持久化。这里不访问旧 Store，也不会为定义尚未提供的详情补造文本。
  */
+import { EaButton, EaDialog, EaDialogActions } from '@/design-system';
 import { computed } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import OperatorAvatar from '../../components/OperatorAvatar.vue';
@@ -274,7 +275,7 @@ function maxOut(): void {
 
 <template>
   <InputRegionBoundary label="operator-build" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="760px"
       append-to-body
@@ -284,9 +285,10 @@ function maxOut(): void {
       <template v-if="operator && definition">
         <div class="layout">
           <div class="header">
-            <button
+            <EaButton
+              size="sm"
               type="button"
-              class="ea-btn ea-btn--sm ea-btn--glass-rect definition-entry"
+              class="definition-entry"
               @click="emit('edit-definition')"
             >
               {{
@@ -294,7 +296,7 @@ function maxOut(): void {
                   ? t('timeline.customDefinition.customizeOperator')
                   : t('timeline.customDefinition.editOperator')
               }}
-            </button>
+            </EaButton>
             <div
               class="portrait-frame"
               :class="`rarity-${definition.rarity}-style`"
@@ -331,15 +333,15 @@ function maxOut(): void {
                 <span class="level-text">{{ t('armory.common.level') }}</span>
               </div>
               <div class="row">
-                <button
+                <EaButton
+                  size="sm"
                   type="button"
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
                   :disabled="!canPromote"
                   :style="operator.promoted ? { borderColor: rarityColor, color: rarityColor } : {}"
                   @click="togglePromotion"
                 >
                   {{ promotionLabel() }}
-                </button>
+                </EaButton>
               </div>
               <div v-if="potentialCount > 0" class="row">
                 <span class="section-label">{{ t('armory.common.potential') }}</span>
@@ -363,7 +365,7 @@ function maxOut(): void {
                         />
                       </div>
                     </template>
-                    <button
+                    <EaButton
                       type="button"
                       class="diamond"
                       :class="{ active: operator.potential >= level }"
@@ -377,18 +379,19 @@ function maxOut(): void {
           </div>
 
           <div class="level-selector">
-            <button
+            <EaButton
+              size="sm"
               v-for="level in LEVELS"
               :key="level"
               type="button"
-              class="ea-btn ea-btn--sm ea-btn--glass-rect level-btn"
+              class="level-btn"
               :style="
                 operator.level === level ? { borderColor: rarityColor, color: rarityColor } : {}
               "
               @click="handleLevelChange(level)"
             >
               Lv{{ level }}
-            </button>
+            </EaButton>
           </div>
 
           <div class="section">
@@ -417,25 +420,25 @@ function maxOut(): void {
                 </el-tooltip>
                 <div class="skill-name">{{ skillTypeName(source) }}</div>
                 <div class="skill-controls">
-                  <button
+                  <EaButton
+                    size="sm"
                     type="button"
-                    class="ea-btn ea-btn--sm ea-btn--glass-rect"
                     :disabled="(operator.skillLevels[source] ?? 1) <= 1"
                     @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) - 1)"
                   >
                     -
-                  </button>
+                  </EaButton>
                   <span class="skill-rank">{{
                     formatOperatorSkillLevel(operator.skillLevels[source] ?? 1)
                   }}</span>
-                  <button
+                  <EaButton
+                    size="sm"
                     type="button"
-                    class="ea-btn ea-btn--sm ea-btn--glass-rect"
                     :disabled="(operator.skillLevels[source] ?? 1) >= skillMax"
                     @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) + 1)"
                   >
                     +
-                  </button>
+                  </EaButton>
                 </div>
               </div>
             </div>
@@ -467,7 +470,7 @@ function maxOut(): void {
                       </div>
                     </template>
                     <span class="talent-node-tooltip-anchor">
-                      <button
+                      <EaButton
                         type="button"
                         class="talent-node"
                         :class="{
@@ -485,7 +488,7 @@ function maxOut(): void {
                           alt=""
                           class="talent-icon"
                         />
-                      </button>
+                      </EaButton>
                     </span>
                   </el-tooltip>
                 </template>
@@ -524,7 +527,7 @@ function maxOut(): void {
                       </div>
                     </template>
                     <span class="talent-node-tooltip-anchor">
-                      <button
+                      <EaButton
                         type="button"
                         class="talent-node"
                         :class="{
@@ -542,7 +545,7 @@ function maxOut(): void {
                           alt=""
                           class="talent-icon"
                         />
-                      </button>
+                      </EaButton>
                     </span>
                   </el-tooltip>
                 </template>
@@ -553,25 +556,22 @@ function maxOut(): void {
       </template>
 
       <template #footer>
-        <div class="footer">
-          <button
+        <EaDialogActions>
+          <EaButton
+            variant="primary"
+            size="sm"
             type="button"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
             :disabled="operator === null"
             @click="maxOut"
           >
             {{ t('common.max') }}
-          </button>
-          <button
-            type="button"
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            @click="emit('update:visible', false)"
-          >
+          </EaButton>
+          <EaButton size="sm" type="button" @click="emit('update:visible', false)">
             {{ t('common.close') }}
-          </button>
-        </div>
+          </EaButton>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

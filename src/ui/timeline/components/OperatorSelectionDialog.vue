@@ -5,6 +5,7 @@
  * 组件沿用旧版选择器的布局和交互，但只消费 Next 干员定义并通过事件返回选择结果；
  * 不读取项目状态，也不负责创建或修改 Build。
  */
+import { EaButton, EaDeleteIcon, EaDialog, EaFilterChip, EaInput } from '@/design-system';
 import { computed, ref, watch } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { Search } from '@element-plus/icons-vue';
@@ -130,7 +131,7 @@ function clear(): void {
 
 <template>
   <InputRegionBoundary label="operator-selection" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       :title="t('timelineGrid.operatorDialog.title')"
       width="600px"
@@ -141,60 +142,43 @@ function clear(): void {
     >
       <div class="selector-header">
         <div class="header-left-group">
-          <el-input
+          <EaInput
             v-model="searchQuery"
             :placeholder="t('timelineGrid.operatorDialog.searchPlaceholder')"
             :prefix-icon="Search"
             clearable
             style="width: 180px"
           />
-          <button
+          <EaButton
+            variant="danger"
             type="button"
-            class="ea-btn ea-btn--glass-cut ea-btn--glass-cut-danger ea-btn--cut-left ea-btn--lift"
             :title="t('timelineGrid.operatorDialog.clearTrack')"
             @click="clear"
           >
-            <svg
-              viewBox="0 0 24 24"
-              width="14"
-              height="14"
-              stroke="currentColor"
-              stroke-width="2"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path d="M3 6h18" />
-              <path
-                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-              />
-            </svg>
+            <EaDeleteIcon />
             {{ t('common.unequip') }}
-          </button>
+          </EaButton>
         </div>
         <div class="element-filters">
-          <button
+          <EaFilterChip
             v-for="element in elementFilters"
             :key="element.value"
-            type="button"
-            class="ea-btn ea-btn--glass-cut"
-            :class="{ 'is-active': elementFilter === element.value }"
-            :style="{ '--ea-btn-accent': element.color }"
+            :selected="elementFilter === element.value"
+            :accent="element.color"
             @click="elementFilter = element.value"
           >
             {{ element.label }}
-          </button>
+          </EaFilterChip>
         </div>
         <div class="class-filters">
-          <button
+          <EaFilterChip
             v-for="operatorClass in classFilters"
             :key="operatorClass.value"
-            type="button"
-            class="ea-btn ea-btn--glass-cut"
-            :class="{ 'is-active': classFilter === operatorClass.value }"
+            :selected="classFilter === operatorClass.value"
             @click="classFilter = operatorClass.value"
           >
             {{ operatorClass.label }}
-          </button>
+          </EaFilterChip>
         </div>
       </div>
 
@@ -245,7 +229,7 @@ function clear(): void {
           {{ t('timelineGrid.operatorDialog.empty') }}
         </div>
       </div>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaCheckbox, EaDialog, EaDialogActions } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 /** 结构与视觉以旧版 HitDamageDetailDialog 为规格；UI 只投影回执冻结值。 */
 import { computed, ref, watch } from 'vue';
@@ -322,7 +323,7 @@ function onClose(): void {
 
 <template>
   <InputRegionBoundary label="TimelineHitDetailDialog" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       :title="labels.dialogTitle"
       width="420px"
@@ -495,21 +496,17 @@ function onClose(): void {
       <div v-else class="hit-detail-empty">—</div>
 
       <template #footer>
-        <div class="dialog-footer">
-          <label
+        <EaDialogActions align="start">
+          <EaCheckbox
             v-if="canForceCritical && allowForceCritical !== false"
-            class="ea-check-rect ea-check-rect--sm force-crit-check"
+            class="force-crit-check"
+            :model-value="forceCritical"
+            @change="emit('toggleForceCritical', $event)"
+            >{{ labels.forceCrit }}</EaCheckbox
           >
-            <input
-              type="checkbox"
-              :checked="forceCritical"
-              @change="emit('toggleForceCritical', ($event.target as HTMLInputElement).checked)"
-            />
-            <span>{{ labels.forceCrit }}</span>
-          </label>
-        </div>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 
@@ -643,15 +640,6 @@ tr.is-sub {
 }
 .mult-value {
   color: #3b82c4;
-}
-.dialog-footer {
-  min-height: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: flex-start;
-}
-.force-crit-check {
-  margin-right: auto;
 }
 .hit-detail-empty {
   padding: 24px 0 18px;

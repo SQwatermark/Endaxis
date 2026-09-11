@@ -32,7 +32,8 @@ describe('legacy panel visual contracts', () => {
     expect(enemy).toContain('height: 64px');
     expect(enemy).toContain('width: 42px');
     expect(enemy).toContain('class="tier-strip"');
-    expect(enemy).toContain('ea-btn--glass-cut');
+    expect(enemy).toContain('<EaFilterChip');
+    expect(enemy).not.toContain('ea-btn');
     expect(enemy).toContain("t('resourceMonitor.enemy.desc'");
     expect(enemy).toContain('max: candidate.stagger.maximum');
     expect(enemy).toContain('nodes: candidate.stagger.knotThresholds.length');

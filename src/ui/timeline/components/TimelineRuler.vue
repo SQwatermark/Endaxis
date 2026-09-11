@@ -3,6 +3,7 @@
  * 时间轴的实际战斗时间标尺与准备区边界。
  */
 import { computed, nextTick, onScopeDispose, ref } from 'vue';
+import { EaButton, EaNumberInput } from '@/design-system';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import { useI18n } from 'vue-i18n';
@@ -46,10 +47,10 @@ usePopoverInteractionBoundary(
   () => durationEditorOpen.value,
   closeDurationEditor,
 );
-const prepDraft = ref('');
-const durationDraftSeconds = ref('');
-const prepInput = ref<HTMLInputElement | null>(null);
-const durationInput = ref<HTMLInputElement | null>(null);
+const prepDraft = ref<number>();
+const durationDraftSeconds = ref<number>();
+const prepInput = ref<{ focus: (options?: FocusOptions) => void } | null>(null);
+const durationInput = ref<{ focus: (options?: FocusOptions) => void } | null>(null);
 let stopResize: (() => void) | null = null;
 const activePrepFrames = computed(() => prepPreview.value ?? props.prepFrames);
 const activeDurationFrames = computed(() => durationPreview.value ?? props.durationFrames);
@@ -148,7 +149,7 @@ function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
 }
 
 function openPrepEditor(): void {
-  prepDraft.value = String(props.prepFrames);
+  prepDraft.value = props.prepFrames;
   prepEditorOpen.value = true;
   durationEditorOpen.value = false;
   void nextTick(() => prepInput.value?.focus({ preventScroll: true }));
@@ -162,12 +163,12 @@ function applyPrepDraft(): void {
 }
 
 function closePrepEditor(): void {
-  prepDraft.value = String(props.prepFrames);
+  prepDraft.value = props.prepFrames;
   prepEditorOpen.value = false;
 }
 
 function openDurationEditor(): void {
-  durationDraftSeconds.value = String(props.durationFrames / PROJECT_FPS);
+  durationDraftSeconds.value = props.durationFrames / PROJECT_FPS;
   durationEditorOpen.value = true;
   prepEditorOpen.value = false;
   void nextTick(() => durationInput.value?.focus({ preventScroll: true }));
@@ -182,7 +183,7 @@ function applyDurationDraft(): void {
 }
 
 function closeDurationEditor(): void {
-  durationDraftSeconds.value = String(props.durationFrames / PROJECT_FPS);
+  durationDraftSeconds.value = props.durationFrames / PROJECT_FPS;
   durationEditorOpen.value = false;
 }
 
@@ -240,7 +241,10 @@ function seek(event: MouseEvent): void {
         @pointerdown="beginResize('prep', $event)"
         @click.stop
       >
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           :title="t('timelineGrid.prep.setDurationTitle')"
           @pointerdown.stop
@@ -260,7 +264,7 @@ function seek(event: MouseEvent): void {
             <circle cx="12" cy="12" r="9"></circle>
             <path d="M12 7v6l4 2"></path>
           </svg>
-        </button>
+        </EaButton>
       </span>
       <span
         class="axis-boundary axis-boundary--end"
@@ -268,7 +272,10 @@ function seek(event: MouseEvent): void {
         @pointerdown="beginResize('duration', $event)"
         @click.stop
       >
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           type="button"
           :title="t('timelineGrid.battle.setDurationTitle')"
           @pointerdown.stop
@@ -288,7 +295,7 @@ function seek(event: MouseEvent): void {
             <circle cx="12" cy="12" r="9"></circle>
             <path d="M12 7v6l4 2"></path>
           </svg>
-        </button>
+        </EaButton>
         <b>{{ Math.round(activeDurationFrames / PROJECT_FPS) }}s</b>
       </span>
       <form
@@ -298,12 +305,13 @@ function seek(event: MouseEvent): void {
         @submit.prevent="applyPrepDraft"
         @pointerdown.stop
       >
-        <input
+        <EaNumberInput
           ref="prepInput"
           v-model="prepDraft"
-          type="number"
-          min="0"
-          step="1"
+          size="sm"
+          :controls="false"
+          :min="0"
+          :step="1"
           @blur="applyPrepDraft"
         />
         <span>f</span>
@@ -315,13 +323,14 @@ function seek(event: MouseEvent): void {
         @submit.prevent="applyDurationDraft"
         @pointerdown.stop
       >
-        <input
+        <EaNumberInput
           ref="durationInput"
           v-model="durationDraftSeconds"
-          type="number"
-          min="30"
-          max="600"
-          step="1"
+          size="sm"
+          :controls="false"
+          :min="30"
+          :max="600"
+          :step="1"
           @blur="applyDurationDraft"
         />
         <span>s</span>
@@ -604,22 +613,8 @@ function seek(event: MouseEvent): void {
   box-shadow: 0 10px 25px var(--ea-shadow-strong);
 }
 
-.axis-editor input {
+.axis-editor :deep(.ea-number-input) {
   width: 72px;
-  height: 22px;
-  border: 1px solid var(--ea-border-strong);
-  padding: 0 6px;
-  background: var(--ea-fill-soft);
-  color: var(--ea-fg);
-  outline: 0;
-  font:
-    12px 'Roboto Mono',
-    Consolas,
-    monospace;
-}
-
-.axis-editor input:focus {
-  border-color: color-mix(in srgb, var(--ea-gold) 70%, transparent);
 }
 
 .axis-editor span {

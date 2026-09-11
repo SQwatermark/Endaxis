@@ -6,6 +6,7 @@
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { CopyDocument } from '@element-plus/icons-vue';
+import { EaButton } from '@/design-system';
 import { useKeyboardShortcutScope } from '../../keyboard/keyboardShortcutRouter';
 
 const props = defineProps<{
@@ -97,12 +98,26 @@ onBeforeUnmount(() => {
       @wheel.stop
     >
       <div class="menu-header" :title="label">{{ label }}</div>
-      <button class="menu-item" type="button" role="menuitem" @click="$emit('copy')">
+      <EaButton
+        class="menu-item"
+        variant="ghost"
+        size="sm"
+        type="button"
+        role="menuitem"
+        @click="$emit('copy')"
+      >
         <el-icon><CopyDocument /></el-icon>
         <span>{{ t('common.copy') }}</span>
         <kbd>Ctrl+C</kbd>
-      </button>
-      <button class="menu-item delete-item" type="button" role="menuitem" @click="$emit('delete')">
+      </EaButton>
+      <EaButton
+        class="menu-item delete-item"
+        variant="ghost"
+        size="sm"
+        type="button"
+        role="menuitem"
+        @click="$emit('delete')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <polyline points="3 6 5 6 21 6"></polyline>
           <path
@@ -111,9 +126,11 @@ onBeforeUnmount(() => {
         </svg>
         <span>{{ t('common.delete') }}</span>
         <kbd>Delete</kbd>
-      </button>
+      </EaButton>
       <div class="divider"></div>
-      <button
+      <EaButton
+        variant="ghost"
+        size="sm"
         v-if="compactVisible"
         class="menu-item"
         type="button"
@@ -126,27 +143,44 @@ onBeforeUnmount(() => {
           <path d="M3 4v16M7 7h5v10H7zM15 7h6v10h-6z"></path>
         </svg>
         <span>{{ t('timeline.compactSelection.label') }}</span>
-      </button>
-      <button class="menu-item" type="button" role="menuitem" @click="$emit('toggleLock')">
+      </EaButton>
+      <EaButton
+        class="menu-item"
+        variant="ghost"
+        size="sm"
+        type="button"
+        role="menuitem"
+        @click="$emit('toggleLock')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
           <path v-if="locked" d="M7 11V7a5 5 0 0 1 9.9-1"></path>
           <path v-else d="M7 11V7a5 5 0 0 1 10 0v4"></path>
         </svg>
         <span>{{ t(locked ? 'contextMenu.unlockPosition' : 'contextMenu.lockPosition') }}</span>
-      </button>
-      <button class="menu-item" type="button" role="menuitem" @click="$emit('toggleDisabled')">
+      </EaButton>
+      <EaButton
+        class="menu-item"
+        variant="ghost"
+        size="sm"
+        type="button"
+        role="menuitem"
+        @click="$emit('toggleDisabled')"
+      >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="10"></circle>
           <path v-if="disabled" d="M9 12l2 2 4-4"></path>
           <line v-else x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
         </svg>
         <span>{{ t(disabled ? 'contextMenu.enableCalc' : 'contextMenu.disableCalc') }}</span>
-      </button>
+      </EaButton>
       <div class="divider"></div>
       <div class="menu-label">{{ t('contextMenu.color') }}</div>
       <div class="color-grid">
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
+          icon-only
           v-for="option in colors"
           :key="option.value ?? 'default'"
           type="button"
@@ -156,7 +190,7 @@ onBeforeUnmount(() => {
           :title="t(option.labelKey)"
           :aria-label="t(option.labelKey)"
           @click="$emit('setColor', option.value)"
-        ></button>
+        ></EaButton>
       </div>
     </div>
   </Teleport>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton } from '@/design-system';
 import type { DefinitionDraftHistory } from '../useDefinitionDraftHistory';
 
 defineProps<{
@@ -8,22 +9,22 @@ defineProps<{
 
 <template>
   <div class="definition-history-controls" aria-label="当前保存范围的历史记录">
-    <button
+    <EaButton
+      size="sm"
       type="button"
-      class="ea-btn ea-btn--sm"
       :disabled="!history.canUndo.value"
       @click="history.restore('undo')"
     >
       撤销
-    </button>
-    <button
+    </EaButton>
+    <EaButton
+      size="sm"
       type="button"
-      class="ea-btn ea-btn--sm"
       :disabled="!history.canRedo.value"
       @click="history.restore('redo')"
     >
       重做
-    </button>
+    </EaButton>
   </div>
 </template>
 

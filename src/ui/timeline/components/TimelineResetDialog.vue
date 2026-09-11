@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton } from '@/design-system';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ElFocusTrap from 'element-plus/es/components/focus-trap/index';
@@ -24,7 +25,9 @@ const emit = defineEmits<{
 const { t } = useI18n();
 const selectedMode = ref<TimelineResetMode>('currentKeepLoadout');
 const dialogElement = ref<HTMLElement>();
-const cancelButton = ref<HTMLButtonElement>();
+const cancelButton = computed(
+  () => dialogElement.value?.querySelector<HTMLElement>('[data-reset-cancel]') ?? undefined,
+);
 const session = useInteractionSession();
 const region = useKeyboardInputRegion({
   label: 'timeline-reset',
@@ -117,20 +120,21 @@ function confirm() {
           >
             <header class="timeline-reset-dialog__header">
               <h2 class="timeline-reset-dialog__title">{{ t('reset.title') }}</h2>
-              <button
+              <EaButton
                 type="button"
                 class="timeline-reset-dialog__close"
+                icon-only
                 :aria-label="t('common.close')"
                 @click="close"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <path d="M6 6l12 12M18 6 6 18" />
                 </svg>
-              </button>
+              </EaButton>
             </header>
 
             <div class="timeline-reset-options" role="radiogroup" :aria-label="t('reset.title')">
-              <button
+              <EaButton
                 v-for="option in options"
                 :key="option.mode"
                 type="button"
@@ -162,25 +166,16 @@ function confirm() {
                   <small>{{ option.description }}</small>
                 </span>
                 <span class="timeline-reset-option__radio" aria-hidden="true"></span>
-              </button>
+              </EaButton>
             </div>
 
             <footer class="timeline-reset-dialog__footer">
-              <button
-                ref="cancelButton"
-                type="button"
-                class="ea-btn ea-btn--glass-rect"
-                @click="close"
-              >
+              <EaButton data-reset-cancel type="button" @click="close">
                 {{ t('common.cancel') }}
-              </button>
-              <button
-                type="button"
-                class="ea-btn ea-btn--glass-rect ea-btn--accent-red"
-                @click="confirm"
-              >
+              </EaButton>
+              <EaButton type="button" variant="danger" @click="confirm">
                 {{ t('reset.confirmButton') }}
-              </button>
+              </EaButton>
             </footer>
           </section>
         </ElFocusTrap>

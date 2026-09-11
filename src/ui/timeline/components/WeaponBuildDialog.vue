@@ -3,6 +3,7 @@
  * Next 时间轴的武器养成编辑弹窗。界面沿用旧版武器编辑器，但只读取稳定的 Build 投影，
  * 所有用户修改均通过事件交给父层持久化；组件本身不访问旧 Store，也不补造定义中不存在的数据。
  */
+import { EaButton, EaDialog, EaDialogActions } from '@/design-system';
 import { computed } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { useI18n } from 'vue-i18n';
@@ -209,7 +210,7 @@ function maxOut(): void {
 
 <template>
   <InputRegionBoundary label="weapon-build" :active="visible" modal>
-    <el-dialog
+    <EaDialog
       :model-value="visible"
       width="700px"
       append-to-body
@@ -254,19 +255,19 @@ function maxOut(): void {
                 <span class="value">{{ baseAttack }}</span>
               </div>
               <div class="row">
-                <button
-                  class="ea-btn ea-btn--sm ea-btn--glass-rect"
+                <EaButton
+                  size="sm"
                   :disabled="!canTune"
                   :style="weapon.tuned ? { borderColor: rarityColor, color: rarityColor } : {}"
                   @click="toggleTuning"
                 >
                   {{ tuningLabel() }}
-                </button>
+                </EaButton>
               </div>
               <div class="row">
                 <span class="section-label">{{ t('armory.common.potential') }}</span>
                 <div class="diamonds">
-                  <button
+                  <EaButton
                     v-for="potential in 5"
                     :key="potential"
                     class="diamond"
@@ -280,10 +281,11 @@ function maxOut(): void {
           </div>
 
           <div class="level-selector">
-            <button
+            <EaButton
+              size="sm"
               v-for="level in LEVELS"
               :key="level"
-              class="ea-btn ea-btn--sm ea-btn--glass-rect level-btn"
+              class="level-btn"
               :style="
                 weapon.level === level
                   ? {
@@ -296,7 +298,7 @@ function maxOut(): void {
               @click="handleLevelChange(level)"
             >
               Lv{{ level }}
-            </button>
+            </EaButton>
           </div>
 
           <div class="section">
@@ -311,7 +313,7 @@ function maxOut(): void {
                 </div>
                 <div class="skill-bar-area">
                   <div class="skill-slots">
-                    <button
+                    <EaButton
                       v-for="level in traitDisplayLevels(key)"
                       :key="level"
                       class="skill-slot"
@@ -322,7 +324,7 @@ function maxOut(): void {
                       <template v-if="slotClass(key, level) === 'slot-locked'">&times;</template>
                       <template v-else-if="slotClass(key, level) === 'slot-empty'">&nbsp;</template>
                       <template v-else>/</template>
-                    </button>
+                    </EaButton>
                   </div>
                   <span class="skill-counter"
                     >{{ traitLevel(key) }}/{{ traitBounds(key).max }}</span
@@ -341,34 +343,23 @@ function maxOut(): void {
       </template>
 
       <template #footer>
-        <div class="footer">
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            :disabled="weapon === null"
-            @click="emit('edit-definition')"
-          >
+        <EaDialogActions>
+          <EaButton size="sm" :disabled="weapon === null" @click="emit('edit-definition')">
             {{
               customDefinition === undefined
                 ? t('timeline.customDefinition.customizeWeapon')
                 : t('timeline.customDefinition.editWeapon')
             }}
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--square ea-btn--hover-gold-fill"
-            :disabled="weapon === null"
-            @click="maxOut"
-          >
+          </EaButton>
+          <EaButton variant="primary" size="sm" :disabled="weapon === null" @click="maxOut">
             {{ t('common.max') }}
-          </button>
-          <button
-            class="ea-btn ea-btn--sm ea-btn--glass-rect"
-            @click="emit('update:visible', false)"
-          >
+          </EaButton>
+          <EaButton size="sm" @click="emit('update:visible', false)">
             {{ t('common.close') }}
-          </button>
-        </div>
+          </EaButton>
+        </EaDialogActions>
       </template>
-    </el-dialog>
+    </EaDialog>
   </InputRegionBoundary>
 </template>
 

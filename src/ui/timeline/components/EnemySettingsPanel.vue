@@ -3,8 +3,17 @@
  * 敌人实例的选择与属性编辑界面。
  * 组件复用旧版布局语言，但只处理草稿和展示；定义解析、默认值捕获与事务提交由外层协调器负责。
  */
+import {
+  EaButton,
+  EaDeleteIcon,
+  EaDialog,
+  EaDialogActions,
+  EaFilterChip,
+  EaInput,
+  EaNumberInput,
+} from '@/design-system';
 import { computed, reactive, ref, watch } from 'vue';
-import { Delete, Plus, Search } from '@element-plus/icons-vue';
+import { Plus, Search } from '@element-plus/icons-vue';
 import { elementColors } from '../../../utils/theme';
 import { useI18n } from 'vue-i18n';
 import type { EnemyDefinition, EnemyTier } from '../../../core/game-data/enemyDefinition';
@@ -127,17 +136,21 @@ function saveDraft(): void {
   statsVisible.value = false;
 }
 
-function setDraftNumber(target: Record<string, number>, key: string, event: Event): void {
-  const value = Number((event.target as HTMLInputElement).value);
-  if (Number.isFinite(value)) target[key] = value;
+function setDraftNumber(
+  target: Record<string, number>,
+  key: string,
+  value: number | undefined,
+): void {
+  if (value !== undefined && Number.isFinite(value)) target[key] = value;
 }
 
 function setDuration(
   field: 'knotBreakDurationFrames' | 'brokenDurationFrames',
-  event: Event,
+  seconds: number | undefined,
 ): void {
-  const seconds = Number((event.target as HTMLInputElement).value);
-  if (Number.isFinite(seconds)) draft.stagger[field] = Math.max(0, Math.round(seconds * props.fps));
+  if (seconds !== undefined && Number.isFinite(seconds)) {
+    draft.stagger[field] = Math.max(0, Math.round(seconds * props.fps));
+  }
 }
 
 function addKnotThreshold(): void {
@@ -153,7 +166,7 @@ function removeKnotThreshold(index: number): void {
 
 <template>
   <section class="enemy-settings-panel">
-    <button type="button" class="enemy-select-module" @click="selectorVisible = true">
+    <EaButton type="button" class="enemy-select-module" @click="selectorVisible = true">
       <span class="module-deco-line"></span>
       <span class="enemy-avatar-box">
         <img v-if="definition?.iconPath" :src="definition.iconPath" alt="" />
@@ -169,7 +182,7 @@ function removeKnotThreshold(index: number): void {
         </span>
         <span class="click-hint">{{ labels.clickToChange }}</span>
       </span>
-    </button>
+    </EaButton>
 
     <div class="stats-summary">
       <div class="summary-row">
@@ -193,17 +206,13 @@ function removeKnotThreshold(index: number): void {
           </template>
         </span>
       </div>
-      <button
-        type="button"
-        class="ea-btn ea-btn--sm ea-btn--glass-rect stats-edit-button"
-        @click="statsVisible = true"
-      >
+      <EaButton size="sm" type="button" class="stats-edit-button" @click="statsVisible = true">
         {{ labels.editStats }}
-      </button>
+      </EaButton>
     </div>
 
     <InputRegionBoundary label="enemy-selection" :active="selectorVisible" modal>
-      <el-dialog
+      <EaDialog
         v-model="selectorVisible"
         :title="labels.selectTitle"
         width="640px"
@@ -212,7 +221,7 @@ function removeKnotThreshold(index: number): void {
         class="char-selector-dialog next-enemy-selector"
       >
         <div class="selector-header">
-          <el-input
+          <EaInput
             v-model="searchQuery"
             :placeholder="labels.searchPlaceholder"
             :prefix-icon="Search"
@@ -220,39 +229,37 @@ function removeKnotThreshold(index: number): void {
           />
           <span class="level-label">{{ labels.level }}</span>
           <div class="level-buttons">
-            <button
+            <EaButton
+              size="sm"
               v-for="level in LEVELS"
               :key="level"
               type="button"
-              class="ea-btn ea-btn--sm ea-btn--glass-rect ea-btn--accent-gold"
               :class="{ 'is-active': selectedLevel === level }"
               @click="selectedLevel = level"
             >
               {{ level }}
-            </button>
+            </EaButton>
           </div>
         </div>
         <div class="tier-filters">
-          <button
+          <EaFilterChip
             type="button"
-            class="ea-btn ea-btn--glass-cut"
-            style="--ea-btn-accent: var(--ea-gold)"
-            :class="{ 'is-active': tierFilter === 'all' }"
+            :selected="tierFilter === 'all'"
+            accent="var(--ea-gold)"
             @click="tierFilter = 'all'"
           >
             {{ labels.all }}
-          </button>
-          <button
+          </EaFilterChip>
+          <EaFilterChip
             v-for="tier in TIERS"
             :key="tier.value"
             type="button"
-            class="ea-btn ea-btn--glass-cut"
-            :class="{ 'is-active': tierFilter === tier.value }"
-            :style="{ '--ea-btn-accent': tier.color }"
+            :selected="tierFilter === tier.value"
+            :accent="tier.color"
             @click="tierFilter = tier.value"
           >
             {{ labels.tier[tier.value] }}
-          </button>
+          </EaFilterChip>
         </div>
         <div class="enemy-grid">
           <template
@@ -265,7 +272,7 @@ function removeKnotThreshold(index: number): void {
             <div class="group-header">
               {{ t('resourceMonitor.enemy.specialGroup') }} <span>(1)</span>
             </div>
-            <button
+            <EaButton
               type="button"
               class="enemy-card enemy-card--custom"
               :class="{ selected: enemy.source.kind === 'custom' }"
@@ -276,14 +283,14 @@ function removeKnotThreshold(index: number): void {
                 ><strong>{{ labels.custom }}</strong
                 ><small>{{ labels.customDescription }}</small></span
               >
-            </button>
+            </EaButton>
             <div class="group-separator" aria-hidden="true"></div>
           </template>
           <div v-if="filteredEnemies.length > 0" class="group-header group-header--standard">
             {{ t('resourceMonitor.enemy.standardGroup') }}
             <span>({{ filteredEnemies.length }})</span>
           </div>
-          <button
+          <EaButton
             v-for="candidate in filteredEnemies"
             :key="candidate.id"
             type="button"
@@ -311,14 +318,14 @@ function removeKnotThreshold(index: number): void {
                 })
               }}</small>
             </span>
-          </button>
+          </EaButton>
           <div v-if="filteredEnemies.length === 0" class="empty-state">{{ labels.empty }}</div>
         </div>
-      </el-dialog>
+      </EaDialog>
     </InputRegionBoundary>
 
     <InputRegionBoundary label="enemy-stats" :active="statsVisible" modal>
-      <el-dialog
+      <EaDialog
         v-model="statsVisible"
         :title="labels.editStatsTitle"
         width="440px"
@@ -329,19 +336,24 @@ function removeKnotThreshold(index: number): void {
         <div class="stats-form">
           <label
             ><span>{{ labels.enemyHp }}</span
-            ><input v-model.number="draft.hp" type="number" min="1"
+            ><EaNumberInput v-model="draft.hp" size="sm" :controls="false" :min="1"
           /></label>
           <label
             ><span>{{ labels.defense }}</span
-            ><input v-model.number="draft.defense" type="number" min="0"
+            ><EaNumberInput v-model="draft.defense" size="sm" :controls="false" :min="0"
           /></label>
           <label
             ><span>{{ labels.finisherMultiplier }}</span
-            ><input v-model.number="draft.finisherMultiplier" type="number" min="0" step="0.05"
+            ><EaNumberInput
+              v-model="draft.finisherMultiplier"
+              size="sm"
+              :controls="false"
+              :min="0"
+              :step="0.05"
           /></label>
           <label
             ><span>{{ labels.maximumStagger }}</span
-            ><input v-model.number="draft.stagger.maximum" type="number" min="0"
+            ><EaNumberInput v-model="draft.stagger.maximum" size="sm" :controls="false" :min="0"
           /></label>
           <div class="knot-threshold-field">
             <span>{{ labels.staggerNodes }}</span>
@@ -351,18 +363,28 @@ function removeKnotThreshold(index: number): void {
                 :key="index"
                 class="knot-threshold-row"
               >
-                <input
-                  v-model.number="draft.stagger.knotThresholds[index]"
-                  type="number"
-                  min="0.01"
-                  max="0.99"
-                  step="0.01"
+                <EaNumberInput
+                  v-model="draft.stagger.knotThresholds[index]"
+                  size="sm"
+                  :controls="false"
+                  :min="0.01"
+                  :max="0.99"
+                  :step="0.01"
                 />
-                <button type="button" :title="labels.close" @click="removeKnotThreshold(index)">
-                  <el-icon><Delete /></el-icon>
-                </button>
+                <EaButton
+                  type="button"
+                  variant="danger"
+                  size="sm"
+                  icon-only
+                  :title="labels.close"
+                  :aria-label="labels.close"
+                  @click="removeKnotThreshold(index)"
+                >
+                  <EaDeleteIcon />
+                </EaButton>
               </div>
-              <button
+              <EaButton
+                size="sm"
                 type="button"
                 class="add-knot-button"
                 :disabled="!canAddKnotThreshold"
@@ -370,53 +392,62 @@ function removeKnotThreshold(index: number): void {
               >
                 <el-icon><Plus /></el-icon>
                 {{ labels.staggerNodes }}
-              </button>
+              </EaButton>
             </div>
           </div>
           <label
             ><span>{{ labels.nodeDuration }}</span
-            ><input
-              :value="draft.stagger.knotBreakDurationFrames / fps"
-              type="number"
-              min="0"
-              step="0.1"
-              @input="setDuration('knotBreakDurationFrames', $event)"
+            ><EaNumberInput
+              size="sm"
+              :controls="false"
+              :model-value="draft.stagger.knotBreakDurationFrames / fps"
+              :min="0"
+              :step="0.1"
+              @change="setDuration('knotBreakDurationFrames', $event)"
           /></label>
           <label
             ><span>{{ labels.brokenDuration }}</span
-            ><input
-              :value="draft.stagger.brokenDurationFrames / fps"
-              type="number"
-              min="0"
-              step="0.1"
-              @input="setDuration('brokenDurationFrames', $event)"
+            ><EaNumberInput
+              size="sm"
+              :controls="false"
+              :model-value="draft.stagger.brokenDurationFrames / fps"
+              :min="0"
+              :step="0.1"
+              @change="setDuration('brokenDurationFrames', $event)"
           /></label>
           <label
             ><span>{{ labels.finisherRecovery }}</span
-            ><input v-model.number="draft.stagger.finisherSpRecovery" type="number" min="0"
+            ><EaNumberInput
+              v-model="draft.stagger.finisherSpRecovery"
+              size="sm"
+              :controls="false"
+              :min="0"
           /></label>
           <label
             ><span>{{ labels.superArmor }}</span
-            ><input v-model.number="draft.superArmor" type="number" min="0"
+            ><EaNumberInput v-model="draft.superArmor" size="sm" :controls="false" :min="0"
           /></label>
           <div class="form-section-title">{{ labels.resistances }}</div>
           <label v-for="type in EDITABLE_RESISTANCE_DAMAGE_TYPES" :key="type">
             <span>{{ labels.resistance[type] }}</span>
-            <input
-              :value="draft.resistances[type] ?? 0"
-              type="number"
-              step="0.01"
-              @input="setDraftNumber(draft.resistances, type, $event)"
+            <EaNumberInput
+              size="sm"
+              :controls="false"
+              :model-value="draft.resistances[type] ?? 0"
+              :step="0.01"
+              @change="setDraftNumber(draft.resistances, type, $event)"
             />
           </label>
         </div>
         <template #footer>
-          <button type="button" @click="statsVisible = false">{{ labels.close }}</button>
-          <button type="button" class="primary-button" @click="saveDraft">
-            {{ labels.confirm }}
-          </button>
+          <EaDialogActions>
+            <EaButton type="button" @click="statsVisible = false">{{ labels.close }}</EaButton>
+            <EaButton type="button" variant="primary" @click="saveDraft">
+              {{ labels.confirm }}
+            </EaButton>
+          </EaDialogActions>
         </template>
-      </el-dialog>
+      </EaDialog>
     </InputRegionBoundary>
   </section>
 </template>
@@ -434,6 +465,7 @@ function removeKnotThreshold(index: number): void {
 .enemy-select-module {
   position: relative;
   width: 100%;
+  height: auto;
   padding: 8px 10px;
   display: flex;
   align-items: center;
@@ -625,7 +657,7 @@ function removeKnotThreshold(index: number): void {
   border-bottom: 1px solid color-mix(in srgb, var(--ea-gold) 20%, transparent);
   gap: 6px;
 }
-.tier-filters .ea-btn {
+.tier-filters .ea-filter-chip {
   height: auto;
   padding: 6px 16px;
   margin-bottom: 2px;
@@ -769,14 +801,8 @@ function removeKnotThreshold(index: number): void {
   color: var(--ea-fg-secondary);
   font-size: 12px;
 }
-.stats-form input {
+.stats-form :deep(.ea-number-input) {
   width: 92px;
-  height: 26px;
-  box-sizing: border-box;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input);
-  color: var(--ea-fg);
-  text-align: right;
 }
 .knot-threshold-field {
   padding: 7px 9px;
@@ -799,13 +825,8 @@ function removeKnotThreshold(index: number): void {
   display: flex;
   gap: 4px;
 }
-.knot-threshold-row button,
 .add-knot-button {
   min-width: 26px;
-  height: 26px;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-input);
-  color: var(--ea-fg-secondary);
 }
 .add-knot-button {
   padding: 0 7px;

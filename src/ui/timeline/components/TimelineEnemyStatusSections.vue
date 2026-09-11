@@ -4,6 +4,7 @@
  * 本组件只负责段落折叠、比例调整与持久化，不解释任何战斗数据。
  */
 import { computed, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue';
+import { EaButton } from '@/design-system';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import {
   MONITOR_SECTION_TOPBAR_HEIGHT,
@@ -227,7 +228,9 @@ watch(
         }"
       >
         <span v-if="collapsed[key]" class="section-summary">{{ props.labels[key] }}</span>
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
           type="button"
           class="section-toggle"
           :title="collapsed[key] ? props.expandLabel : props.collapseLabel"
@@ -237,7 +240,7 @@ watch(
         >
           <span class="section-toggle__chevron" aria-hidden="true"></span>
           <strong>{{ props.labels[key] }}</strong>
-        </button>
+        </EaButton>
         <div v-show="!collapsed[key]" class="section-content">
           <slot :name="key" />
         </div>

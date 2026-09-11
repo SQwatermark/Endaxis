@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaButton } from '@/design-system';
 import type { ComboSkillConditionDefinition } from '../../../core/game-data/operatorDefinition';
 const props = defineProps<{ value: ComboSkillConditionDefinition['initialValues'] }>();
 const emit = defineEmits<{
@@ -47,7 +48,7 @@ function remove(key: string) {
     >
     <template v-if="value !== null">
       <header>
-        <span>注册时的字面黑板</span><button class="ea-btn ea-btn--sm" @click="add">＋ 添加</button>
+        <span>注册时的字面黑板</span><EaButton size="sm" @click="add">＋ 添加</EaButton>
       </header>
       <div v-for="(item, key) in value" :key="key" class="entry">
         <input aria-label="黑板键" :value="key" @change="rename(key, $event)" />
@@ -79,7 +80,9 @@ function remove(key: string) {
             :disabled="item === null"
             @change="write(key, $event)"
         /></span>
-        <button class="ea-btn ea-btn--sm" title="删除黑板项" @click="remove(key)">×</button>
+        <EaButton variant="danger" size="sm" icon-only title="删除黑板项" @click="remove(key)"
+          >×</EaButton
+        >
       </div>
       <p v-if="!Object.keys(value).length">空黑板；此条件仍启用。</p>
     </template>

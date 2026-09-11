@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
+import { EaButton } from '@/design-system';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 const { t } = useI18n({ useScope: 'global' });
@@ -88,13 +89,15 @@ onBeforeUnmount(() => {
       <header>{{ labels.title }} · {{ frame }}f</header>
       <template v-if="existingLabel">
         <small>{{ existingLabel }}</small>
-        <button role="menuitem" class="danger" @click="$emit('delete')">
+        <EaButton variant="ghost" size="sm" role="menuitem" class="danger" @click="$emit('delete')">
           {{ labels.deleteMarker }}
-        </button>
+        </EaButton>
       </template>
       <template v-else>
         <small>{{ t('comboControl.title') }}</small>
-        <button
+        <EaButton
+          variant="ghost"
+          size="sm"
           role="menuitem"
           class="combo-control-entry"
           @click="$emit('controlComboCooldown', 'ready')"
@@ -104,8 +107,10 @@ onBeforeUnmount(() => {
             <path d="M20 4v7h-7" />
           </svg>
           {{ t('comboControl.ready') }}
-        </button>
-        <button
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          size="sm"
           role="menuitem"
           class="combo-control-entry"
           @click="$emit('controlComboCooldown', 'cooldown')"
@@ -115,30 +120,52 @@ onBeforeUnmount(() => {
             <path d="M12 7v5l3 2" />
           </svg>
           {{ t('comboControl.cooldown') }}
-        </button>
+        </EaButton>
         <div></div>
-        <button role="menuitem" @click="$emit('addCycle')">{{ labels.addCycle }}</button>
-        <button role="menuitem" @click="$emit('toggleSimulationStart')">
+        <EaButton variant="ghost" size="sm" role="menuitem" @click="$emit('addCycle')">{{
+          labels.addCycle
+        }}</EaButton>
+        <EaButton variant="ghost" size="sm" role="menuitem" @click="$emit('toggleSimulationStart')">
           {{ hasSimulationStart ? labels.removeSimulationStart : labels.addSimulationStart }}
-        </button>
-        <button role="menuitem" @click="$emit('toggleSimulationEnd')">
+        </EaButton>
+        <EaButton variant="ghost" size="sm" role="menuitem" @click="$emit('toggleSimulationEnd')">
           {{ hasSimulationEnd ? labels.removeSimulationEnd : labels.addSimulationEnd }}
-        </button>
-        <button role="menuitem" :disabled="!canTargetTrack" @click="$emit('addSwitch')">
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          size="sm"
+          role="menuitem"
+          :disabled="!canTargetTrack"
+          @click="$emit('addSwitch')"
+        >
           {{ labels.switchOperator }}
-        </button>
+        </EaButton>
         <div></div>
         <small>{{ labels.restrictedHint }}</small>
-        <button role="menuitem" :disabled="!canTargetTrack" @click="$emit('addOperatorHit')">
+        <EaButton
+          variant="ghost"
+          size="sm"
+          role="menuitem"
+          :disabled="!canTargetTrack"
+          @click="$emit('addOperatorHit')"
+        >
           {{ labels.operatorHit }}
-        </button>
-        <button role="menuitem" :disabled="!canTargetTrack" @click="$emit('addOperatorWeakness')">
+        </EaButton>
+        <EaButton
+          variant="ghost"
+          size="sm"
+          role="menuitem"
+          :disabled="!canTargetTrack"
+          @click="$emit('addOperatorWeakness')"
+        >
           {{ labels.operatorWeakness }}
-        </button>
-        <button role="menuitem" @click="$emit('addTeamHit')">{{ labels.teamHit }}</button>
-        <button role="menuitem" @click="$emit('addEnemyWeaknessSet')">
+        </EaButton>
+        <EaButton variant="ghost" size="sm" role="menuitem" @click="$emit('addTeamHit')">{{
+          labels.teamHit
+        }}</EaButton>
+        <EaButton variant="ghost" size="sm" role="menuitem" @click="$emit('addEnemyWeaknessSet')">
           {{ labels.enemyWeaknessSet }}
-        </button>
+        </EaButton>
       </template>
     </div>
   </Teleport>

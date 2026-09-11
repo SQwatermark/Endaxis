@@ -8,7 +8,8 @@ describe('reset dialog focus integration', () => {
     );
     expect(source).toContain(':focus-trap-el="dialogElement"');
     expect(source).toContain(':focus-start-el="cancelButton"');
-    expect(source).toContain('ref="cancelButton"');
+    expect(source).toContain("querySelector<HTMLElement>('[data-reset-cancel]')");
+    expect(source).toContain('data-reset-cancel');
     expect(source).toMatch(/<ElFocusTrap\s+:trapped="modelValue"\s+loop/);
     expect(source).toContain('tabindex="-1"');
   });
