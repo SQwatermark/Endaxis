@@ -129,7 +129,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
         <span>{{ labels.maximum }}</span>
         <EaNumberInput
           size="sm"
-          :controls="false"
+          controls-position="right"
           :min="0"
           :step="1"
           :model-value="rules.maxSp"
@@ -140,7 +140,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
         <span>{{ labels.initial }}</span>
         <EaNumberInput
           size="sm"
-          :controls="false"
+          controls-position="right"
           :min="0"
           :max="rules.maxSp"
           :step="1"
@@ -152,7 +152,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
         <span>{{ labels.recovery }}</span>
         <EaNumberInput
           size="sm"
-          :controls="false"
+          controls-position="right"
           :min="0"
           :step="0.1"
           :model-value="rules.spRecoveryPerSecond"
@@ -201,7 +201,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
               <EaNumberInput
                 class="modifier-value"
                 size="sm"
-                :controls="false"
+                controls-position="right"
                 :max="choice.modifier === 'skillCooldownReduction' ? 99.999 : undefined"
                 :step="choice.percentage ? 0.1 : 1"
                 :model-value="choice.percentage ? modifier.value * 100 : modifier.value"

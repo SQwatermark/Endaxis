@@ -115,7 +115,7 @@ function applyGaugeDraft(): void {
             ref="gaugeInput"
             v-model="gaugeDraft"
             size="sm"
-            :controls="false"
+            controls-position="right"
             :min="0"
             :step="1"
             :aria-label="labels.initialGauge"

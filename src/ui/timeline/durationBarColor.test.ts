@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import {
+  DURATION_COLOR_SOURCES,
   durationColorSource,
   normalizeDurationBarColorPrefs,
   resolveDurationBarColor,
@@ -10,6 +11,10 @@ import track from './components/TimelineBuffBands.vue?raw';
 import enemy from './components/TimelineEnemyEffects.vue?raw';
 
 describe('duration bar display preferences', () => {
+  it('keeps the legacy source-control order', () => {
+    expect(DURATION_COLOR_SOURCES).toEqual(['anomaly', 'weapon', 'gearSet', 'operator']);
+  });
+
   it('defaults to neutral buffs and colored anomaly bars in both surfaces', () => {
     const prefs = normalizeDurationBarColorPrefs(undefined);
     expect(prefs).toEqual({

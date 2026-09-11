@@ -268,6 +268,7 @@ function confirm() {
   background: transparent;
   color: inherit;
   text-align: left;
+  white-space: normal;
   cursor: pointer;
 }
 

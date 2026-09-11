@@ -880,4 +880,60 @@ function maxOut(): void {
   line-height: 1.45;
   white-space: pre-wrap;
 }
+
+@media (max-width: 768px) {
+  .layout,
+  .header {
+    gap: 12px;
+  }
+
+  .portrait-frame {
+    width: 92px;
+    min-width: 92px;
+    height: 92px;
+  }
+
+  .name {
+    font-size: 18px;
+  }
+
+  .level-num {
+    font-size: 22px;
+  }
+
+  .level-selector,
+  .talent-nodes {
+    overflow-x: auto;
+  }
+
+  .level-btn {
+    min-width: 42px;
+    flex: 0 0 auto;
+  }
+
+  .section {
+    padding: 12px;
+  }
+
+  .skills-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 8px;
+  }
+
+  .skill-card {
+    min-width: 0;
+  }
+
+  .talent-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .talent-nodes {
+    max-width: 100%;
+    margin-left: 0;
+  }
+}
 </style>

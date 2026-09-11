@@ -6,6 +6,7 @@ import operatorTooltipSource from './OperatorSkillTooltip.vue?raw';
 import gearDialogSource from './GearSelectionDialog.vue?raw';
 import gearBuildSource from './GearLoadoutBuildDialog.vue?raw';
 import gearInstanceSource from './GearInstanceDialog.vue?raw';
+import armoryDialogSource from './armoryDialog.css?raw';
 import operatorBuildSource from './OperatorBuildDialog.vue?raw';
 import weaponBuildSource from './WeaponBuildDialog.vue?raw';
 import weaponTooltipSource from './WeaponSelectionTooltip.vue?raw';
@@ -162,6 +163,24 @@ describe('旧版构筑编辑行为兼容结构', () => {
       expect(source).toContain('next-armory-dialog');
       expect(source).toContain("import './armoryDialog.css'");
     }
+    expect(armoryDialogSource).not.toContain('.next-armory-dialog .portrait-frame');
+    expect(armoryDialogSource).not.toContain('.next-armory-dialog .section');
+  });
+
+  it('窄视口下分别保留干员和武器构筑面板的旧版布局', () => {
+    expect(operatorBuildSource).toMatch(
+      /@media \(max-width: 768px\)[\s\S]*?\.portrait-frame\s*\{[\s\S]*?width:\s*92px;/,
+    );
+    expect(operatorBuildSource).toMatch(
+      /@media \(max-width: 768px\)[\s\S]*?\.skills-row\s*\{[\s\S]*?grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/,
+    );
+    expect(weaponBuildSource).toMatch(
+      /@media \(max-width: 768px\)[\s\S]*?\.portrait-frame\s*\{[\s\S]*?width:\s*82px;/,
+    );
+    expect(weaponBuildSource).toMatch(
+      /@media \(max-width: 768px\)[\s\S]*?\.skill-row-main\s*\{[\s\S]*?flex-direction:\s*column;/,
+    );
+    expect(gearInstanceSource).toMatch(/\.portrait-frame\s*\{[\s\S]*?width:\s*100px;/);
   });
 
   it('AKEDB 新武器也通过 i18n 提供展示名，不向定义写入中文名', () => {

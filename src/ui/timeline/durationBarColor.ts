@@ -1,6 +1,6 @@
 /** UI-only duration-bar preferences. No simulation or legacy store dependency. */
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
-export const DURATION_COLOR_SOURCES = ['weapon', 'gearSet', 'operator', 'anomaly'] as const;
+export const DURATION_COLOR_SOURCES = ['anomaly', 'weapon', 'gearSet', 'operator'] as const;
 export const DURATION_COLOR_SURFACES = ['track', 'enemy'] as const;
 export type DurationColorSource = (typeof DURATION_COLOR_SOURCES)[number];
 export type DurationColorSurface = (typeof DURATION_COLOR_SURFACES)[number];

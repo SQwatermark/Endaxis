@@ -2,8 +2,13 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
 import cornerToolbarSource from '../ui/timeline/components/TimelineCornerToolbar.vue?raw';
 import enemySettingsSource from '../ui/timeline/components/EnemySettingsPanel.vue?raw';
+import globalResourceSource from '../ui/timeline/components/GlobalResourcePanel.vue?raw';
 import timelineEditorSource from '../ui/timeline/TimelineEditor.vue?raw';
+import actionInspectorSource from '../ui/timeline/components/TimelineActionInspector.vue?raw';
+import documentMarkerInspectorSource from '../ui/timeline/components/TimelineDocumentMarkerInspector.vue?raw';
+import externalEventInspectorSource from '../ui/timeline/components/TimelineExternalEventInspector.vue?raw';
 import headerToolbarSource from '../ui/timeline/components/TimelineHeaderToolbar.vue?raw';
+import rulerSource from '../ui/timeline/components/TimelineRuler.vue?raw';
 import trackHeaderSource from '../ui/timeline/components/TimelineTrackHeader.vue?raw';
 import workbenchShellSource from '../ui/timeline/components/TimelineWorkbenchShell.vue?raw';
 
@@ -53,6 +58,21 @@ describe('design-system layout regressions', () => {
     expect(workbenchShellSource).toMatch(
       /\.activity-button\.ea-button\[aria-pressed='true'\]\s*\{[^}]*background:\s*transparent;[^}]*box-shadow:\s*none;/s,
     );
+  });
+
+  test('keeps compact numeric controls on the right edge like the legacy panels', () => {
+    for (const source of [
+      actionInspectorSource,
+      cornerToolbarSource,
+      documentMarkerInspectorSource,
+      enemySettingsSource,
+      externalEventInspectorSource,
+      globalResourceSource,
+      rulerSource,
+    ]) {
+      expect(source).not.toContain(':controls="false"');
+      expect(source).toContain('controls-position="right"');
+    }
   });
 
   test('keeps the current operator name as a heading and header commands on design-system type', () => {

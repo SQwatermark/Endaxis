@@ -336,24 +336,28 @@ function removeKnotThreshold(index: number): void {
         <div class="stats-form">
           <label
             ><span>{{ labels.enemyHp }}</span
-            ><EaNumberInput v-model="draft.hp" size="sm" :controls="false" :min="1"
+            ><EaNumberInput v-model="draft.hp" size="sm" controls-position="right" :min="1"
           /></label>
           <label
             ><span>{{ labels.defense }}</span
-            ><EaNumberInput v-model="draft.defense" size="sm" :controls="false" :min="0"
+            ><EaNumberInput v-model="draft.defense" size="sm" controls-position="right" :min="0"
           /></label>
           <label
             ><span>{{ labels.finisherMultiplier }}</span
             ><EaNumberInput
               v-model="draft.finisherMultiplier"
               size="sm"
-              :controls="false"
+              controls-position="right"
               :min="0"
               :step="0.05"
           /></label>
           <label
             ><span>{{ labels.maximumStagger }}</span
-            ><EaNumberInput v-model="draft.stagger.maximum" size="sm" :controls="false" :min="0"
+            ><EaNumberInput
+              v-model="draft.stagger.maximum"
+              size="sm"
+              controls-position="right"
+              :min="0"
           /></label>
           <div class="knot-threshold-field">
             <span>{{ labels.staggerNodes }}</span>
@@ -366,7 +370,7 @@ function removeKnotThreshold(index: number): void {
                 <EaNumberInput
                   v-model="draft.stagger.knotThresholds[index]"
                   size="sm"
-                  :controls="false"
+                  controls-position="right"
                   :min="0.01"
                   :max="0.99"
                   :step="0.01"
@@ -399,7 +403,7 @@ function removeKnotThreshold(index: number): void {
             ><span>{{ labels.nodeDuration }}</span
             ><EaNumberInput
               size="sm"
-              :controls="false"
+              controls-position="right"
               :model-value="draft.stagger.knotBreakDurationFrames / fps"
               :min="0"
               :step="0.1"
@@ -409,7 +413,7 @@ function removeKnotThreshold(index: number): void {
             ><span>{{ labels.brokenDuration }}</span
             ><EaNumberInput
               size="sm"
-              :controls="false"
+              controls-position="right"
               :model-value="draft.stagger.brokenDurationFrames / fps"
               :min="0"
               :step="0.1"
@@ -420,19 +424,19 @@ function removeKnotThreshold(index: number): void {
             ><EaNumberInput
               v-model="draft.stagger.finisherSpRecovery"
               size="sm"
-              :controls="false"
+              controls-position="right"
               :min="0"
           /></label>
           <label
             ><span>{{ labels.superArmor }}</span
-            ><EaNumberInput v-model="draft.superArmor" size="sm" :controls="false" :min="0"
+            ><EaNumberInput v-model="draft.superArmor" size="sm" controls-position="right" :min="0"
           /></label>
           <div class="form-section-title">{{ labels.resistances }}</div>
           <label v-for="type in EDITABLE_RESISTANCE_DAMAGE_TYPES" :key="type">
             <span>{{ labels.resistance[type] }}</span>
             <EaNumberInput
               size="sm"
-              :controls="false"
+              controls-position="right"
               :model-value="draft.resistances[type] ?? 0"
               :step="0.01"
               @change="setDraftNumber(draft.resistances, type, $event)"

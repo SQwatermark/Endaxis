@@ -1,8 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { TIMELINE_VIEW_LAYER_IDS } from '../timelineViewLayers';
 import source from './TimelineHeaderToolbar.vue?raw';
+import resetDialogSource from './TimelineResetDialog.vue?raw';
 
 describe('TimelineHeaderToolbar structure', () => {
+  it('allows long reset descriptions to wrap inside the option card', () => {
+    expect(resetDialogSource).toMatch(/\.timeline-reset-option\s*\{[\s\S]*?white-space:\s*normal;/);
+  });
+
   it('keeps the legacy scenario-management interaction instead of disabled placeholders', () => {
     expect(source).toContain('@click="beginRename"');
     expect(source).toContain('@click="$emit(\'duplicate\')"');

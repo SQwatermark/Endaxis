@@ -104,7 +104,7 @@ function toggleFeature(feature: DamageFeature): void {
             <span>{{ t('timeline.inspector.labels.startFrame') }}</span>
             <EaNumberInput
               size="sm"
-              :controls="false"
+              controls-position="right"
               :min="0"
               :max="maximumFrame"
               :step="1"
