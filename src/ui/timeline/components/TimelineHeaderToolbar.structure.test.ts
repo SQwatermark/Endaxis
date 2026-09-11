@@ -14,6 +14,15 @@ describe('TimelineHeaderToolbar structure', () => {
     expect(source).toContain('@keydown.esc.prevent="cancelRename"');
   });
 
+  it('始终在方案名左侧显示删除按钮，仅剩一个方案时禁用', () => {
+    const deleteButton = source.indexOf('@click="$emit(\'delete\')"');
+    const scenarioTitle = source.indexOf('class="ts-title-wrapper"');
+    expect(deleteButton).toBeGreaterThan(-1);
+    expect(deleteButton).toBeLessThan(scenarioTitle);
+    expect(source).toContain(':disabled="scenarios.length <= 1"');
+    expect(source).not.toContain('v-if="scenarios.length > 1"');
+  });
+
   it('renders every scenario as a numbered scrollable tab', () => {
     expect(source).toContain('v-for="(scenario, index) in scenarios"');
     expect(source).toContain("String(index + 1).padStart(2, '0')");

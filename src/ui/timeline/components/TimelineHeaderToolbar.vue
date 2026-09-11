@@ -190,12 +190,12 @@ onBeforeUnmount(() => {
         </EaButton>
 
         <EaButton
-          v-if="scenarios.length > 1"
           variant="danger"
           size="sm"
           icon-only
           type="button"
           class="toolbar-no-shrink"
+          :disabled="scenarios.length <= 1"
           :title="labels.delete"
           :aria-label="labels.delete"
           @click="$emit('delete')"
