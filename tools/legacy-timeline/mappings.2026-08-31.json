@@ -66,6 +66,7 @@
     "frontiers-protection-suit": "item_equip_t4_suit_atb01_body_05",
     "frontiers-fiber-gloves-t1": "item_equip_t4_suit_atb01_hand_03",
     "frontiers-extra-o2-tube": "item_equip_t4_suit_atb01_edc_04",
+    "frontiers-comm": "item_equip_t4_suit_atb01_edc_01",
     "redeemer-seal": "item_equip_t4_parts_wuling01_edc_03",
     "grizzled-edge-armor": "item_equip_t4_suit_crush_fracture_body_01",
     "grizzled-edge-gauntlets": "item_equip_t4_suit_crush_fracture_hand_01",
@@ -90,6 +91,7 @@
     "qingbo-gloves": "item_equip_t4_suit_combo_cd01_hand_02",
     "qingbo-cask": "item_equip_t4_suit_combo_cd01_edc_03",
     "aic-light-armor": "item_equip_t1_suit_wisdwill01_body_01",
+    "lynx-slab": "item_equip_t4_suit_heal01_edc_03",
     "mi-security-gloves-t1": "item_equip_t4_suit_criti01_hand_04",
     "eternal-xiranite-power-core": "item_equip_t4_suit_usp02_edc_01"
   },
@@ -414,6 +416,18 @@
           "kind": "operatorSkill",
           "skillGroupKey": "comboSkill",
           "skillKey": "comboSkill1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
         }
       }
     ],

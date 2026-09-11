@@ -30,6 +30,8 @@ it('public sample weapon asset identities do not assume matching native ID suffi
     'wpn_sword_0011',
   );
   expect(mappings.gears['mi-security-gloves-t1']).toBe('item_equip_t4_suit_criti01_hand_04');
+  expect(mappings.gears['frontiers-comm']).toBe('item_equip_t4_suit_atb01_edc_01');
+  expect(mappings.gears['lynx-slab']).toBe('item_equip_t4_suit_heal01_edc_03');
 });
 it('keeps each reviewed skill mapping unique and points to an existing group member', () => {
   for (const [slug, rules] of Object.entries(mappings.skills)) {
@@ -64,4 +66,7 @@ it('keeps each reviewed skill mapping unique and points to an existing group mem
       .filter(r => r.source.sourceSkillKey === 'basicAttack')
       .map(r => r.target.skillKey),
   ).toEqual(['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4']);
+  expect(mappings.skills.camille.find(r => r.source.sourceSkillKey === 'ultimate')?.target).toEqual(
+    { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+  );
 });

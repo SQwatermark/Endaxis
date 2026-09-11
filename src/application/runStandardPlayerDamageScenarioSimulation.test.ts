@@ -1508,11 +1508,15 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       },
     });
 
-    expect(
-      result.receiptEntries.some(
-        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:rossi',
-      ),
-    ).toBe(true);
+    const directHits = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        entry.sourceId === 'track:rossi' &&
+        String(entry.data?.stepKey).startsWith('chr_0028_wulfa_ultimate_skill:'),
+    );
+    // 原生固定段 12..36 各一次，两个 channeling 段各一次；条件分支只走一侧。
+    expect(directHits).toHaveLength(27);
+    expect(new Set(directHits.map(entry => entry.data?.stepKey)).size).toBe(27);
   });
 
   it('keeps Rossi follow-up available for the native combo window after the precise-link timer', () => {
