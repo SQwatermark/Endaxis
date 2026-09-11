@@ -81,6 +81,12 @@ M.I.警用手套·壹型分别由旧资源路径对应到 `wpn_funnel_0011`、`w
 `E3E2655039EA774D2B76E34BCDA7AE42F9CA8E86B1708A9863C441F0CFE129F0`。因此这里是旧版
 重复结算，不能把当前改成 54 条；隔离回归已锁定 27 个不同原生步骤。
 
+卡蜜拉终结技也已闭合。旧版每次只有 3 条；原生三个 channeling 段的单目标上限依次为
+7、1、1，当前隔离运行得到 9 条并确认首段 7 条。原始
+`chr_0033_camille_ultimate_skill.json` 哈希为
+`5F4FD399709482DA776B38FC0885C7E5CDE40CE709A9344C83D07A4302DBA868`。这里不按旧版把
+首段七次伤害压成一次。
+
 ## 2026-09-08：27项中断诊断的九类归并
 
 以每条SkillInputCannotInterruptCurrentSkill的currentSkillTimelineFrame为准，

@@ -10,6 +10,7 @@ import { lastRite as lastRiteGeneratedOperator } from '../data/operators/last-ri
 import { tangtang as tangtangGeneratedOperator } from '../data/operators/tangtang';
 import { gilberta as gilbertaGeneratedOperator } from '../data/operators/gilberta';
 import { rossi as rossiGeneratedOperator } from '../data/operators/rossi';
+import { camille as camilleGeneratedOperator } from '../data/operators/camille';
 import { chenQianyu as chenQianyuGeneratedOperator } from '../data/operators/chen-qianyu';
 import { estella as estellaGeneratedOperator, estellaBattleSkill } from '../data/operators/estella';
 import { mifu as mifuGeneratedOperator } from '../data/operators/mifu';
@@ -1517,6 +1518,69 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     // 原生固定段 12..36 各一次，两个 channeling 段各一次；条件分支只走一侧。
     expect(directHits).toHaveLength(27);
     expect(new Set(directHits.map(entry => entry.data?.stepKey)).size).toBe(27);
+  });
+
+  it('runs Camille ultimate with the native channel hit limits', () => {
+    const scenario = createEmptyScenario('scenario:generated-camille-ultimate', '卡蜜拉终结技');
+    scenario.battle.durationFrames = 300;
+    scenario.tracks[0] = {
+      id: 'track:camille',
+      operator: {
+        operatorSlug: camilleGeneratedOperator.slug,
+        level: 90,
+        promoted: true,
+        potential: 0,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 130 },
+      skillCasts: [],
+    };
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: camilleGeneratedOperator,
+      skillGroupKey: 'ultimate',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:camille-ultimate` },
+    }).scenario;
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario: placed,
+      endFrame: 260,
+      criticalSamples: new ExplicitCriticalSampleSource(Array(100).fill(0)),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      elementalInflictionDocument: elementalAttachments,
+      options: {
+        ...standardOptions(),
+        index: {
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
+          getOperator: slug =>
+            slug === camilleGeneratedOperator.slug ? camilleGeneratedOperator : null,
+          getWeapon: () => null,
+          getGear: () => null,
+          getGearSet: () => null,
+        },
+      },
+    });
+
+    const directHits = result.receiptEntries.filter(
+      entry =>
+        entry.event === 'DamageApplied' &&
+        entry.sourceId === 'track:camille' &&
+        String(entry.data?.stepKey).startsWith('chr_0033_camille_ultimate_skill:'),
+    );
+    expect(directHits).toHaveLength(9);
+    expect(
+      directHits.filter(entry => String(entry.data?.stepKey).includes('/scheduledSequences/3/')),
+    ).toHaveLength(7);
   });
 
   it('keeps Rossi follow-up available for the native combo window after the precise-link timer', () => {
