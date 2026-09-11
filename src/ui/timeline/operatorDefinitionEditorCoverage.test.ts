@@ -17,6 +17,7 @@ describe('operatorDefinitionEditorCoverage', () => {
       'playerActionRoutes',
       'playerActionModes',
       'skillAliases',
+      'buffDisplayNameKeys',
       'comboSkillPriority',
       'passiveUi',
       'conversionSupport',
@@ -28,7 +29,7 @@ describe('operatorDefinitionEditorCoverage', () => {
       identityReadOnly: 2,
       editable: 13,
       structureEditable: 8,
-      preservedOnly: 7,
+      preservedOnly: 8,
     });
   });
 });

@@ -1,3 +1,4 @@
+import { buildActionSequenceMindMap } from '../skillStructureMindMapModel';
 import { createRenderer, h, nextTick, shallowRef, ssrContextKey } from 'vue';
 import { expect, it, vi } from 'vitest';
 import Graph from './ActionSequenceGraphEditor.vue';
@@ -41,6 +42,8 @@ it('edits, copies, moves into a branch, and restores the sequence through actual
     render: () =>
       h(component, {
         sequence: sequence.value,
+        buildRoot: buildActionSequenceMindMap,
+        initialOverview: false,
         skillLevel: 1,
         createStep: () => step,
         duplicateStep: (value: unknown) => structuredClone(value),

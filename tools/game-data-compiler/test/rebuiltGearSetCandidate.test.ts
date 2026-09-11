@@ -21,7 +21,7 @@ import { createCombatCondition } from '../../../src/ui/timeline/combatConditionE
 import { createEmptyScenario } from '../../../src/core/project/createProject';
 import { compileScenarioEquipment } from '../../../src/core/compiler/compileScenarioEquipment';
 import { perlica } from '../../../src/data/operators/perlica';
-import { perlicaBattleSkill } from '../../../src/data/operators/generated-definitions/perlica/perlica.operator.generated';
+import { perlicaBattleSkill } from '../../../src/data/operators/perlica';
 import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
 import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';

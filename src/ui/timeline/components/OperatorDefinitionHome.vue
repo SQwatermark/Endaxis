@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
+import OperatorAvatar from '../../components/OperatorAvatar.vue';
 import {
   DEFAULT_TRUST_ATTRIBUTE_BONUS,
   type OperatorDefinition,
@@ -97,7 +98,7 @@ function skillLabel(binding: OperatorSkillDefinitionBinding): string {
   <div class="definition-home">
     <div class="profile">
       <section class="identity">
-        <img class="portrait" :src="getOperatorAvatarPath(source)" :alt="name" />
+        <OperatorAvatar class="portrait" :src="getOperatorAvatarPath(source)" :alt="name" />
         <div class="bio" :data-property-path="JSON.stringify(['displayName'])">
           <div class="rarity">{{ '★'.repeat(definition.rarity) }}</div>
           <input
@@ -271,8 +272,6 @@ function skillLabel(binding: OperatorSkillDefinitionBinding): string {
 .portrait {
   width: 140px;
   height: 164px;
-  object-fit: cover;
-  object-position: top center;
   border: 1px solid #555;
   border-bottom: 3px solid #c2ad56;
 }

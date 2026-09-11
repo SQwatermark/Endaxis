@@ -11,6 +11,7 @@ import {
   projectHitReactionReceipts,
 } from '../../core/projection/hitEffectProjection';
 import type { ScenarioDocument } from '../../core/project/schema';
+import { isBuffDamageReceipt } from '../../core/projection/enemyEffectViz';
 import type { TimelineHitMarker } from './timelineHitProjection';
 
 /** 一个命中点上发生的伤害（保持日志顺序）。 */
@@ -99,6 +100,7 @@ export function projectTimelineHitDetailEntries(
   const firstFrame = entries.find(
     entry =>
       entry.event === 'DamageApplied' &&
+      !isBuffDamageReceipt(entry) &&
       entry.data?.castId === castId &&
       entry.data?.hitId === hitId,
   )?.frame;
@@ -108,6 +110,7 @@ export function projectTimelineHitDetailEntries(
     !entries.some(
       entry =>
         entry.event === 'DamageApplied' &&
+        !isBuffDamageReceipt(entry) &&
         entry.frame === frame &&
         entry.data?.castId === castId &&
         entry.data.hitId === hitId,
@@ -116,7 +119,8 @@ export function projectTimelineHitDetailEntries(
     return [];
   return entries.filter(entry => {
     if (entry.frame !== frame || entry.data?.castId !== castId) return false;
-    if (entry.event === 'DamageApplied') return entry.data.hitId === hitId;
+    if (entry.event === 'DamageApplied')
+      return !isBuffDamageReceipt(entry) && entry.data.hitId === hitId;
     return (
       entry.event === 'ElementalInflictionApplied' ||
       entry.event === 'ElementalReactionApplied' ||
@@ -130,7 +134,9 @@ export function projectTimelineHitActualFrames(
   entries: readonly CombatReceiptEntry[],
 ): ReadonlyMap<string, number> {
   const result = new Map<string, number>();
-  for (const receipt of projectHitDamageReceipts(entries)) {
+  for (const receipt of projectHitDamageReceipts(
+    entries.filter(entry => !isBuffDamageReceipt(entry)),
+  )) {
     if (receipt.castId === undefined || receipt.hitId === undefined || result.has(receipt.hitId)) {
       continue;
     }
@@ -142,7 +148,7 @@ export function projectTimelineHitActualFrames(
 /** 把一次释放的命中标记与回执事实归因；键为 `hitId`。 */
 export function projectTimelineHitReceipts(entries: readonly CombatReceiptEntry[]) {
   return {
-    damages: projectHitDamageReceipts(entries),
+    damages: projectHitDamageReceipts(entries.filter(entry => !isBuffDamageReceipt(entry))),
     inflictions: projectHitInflictionReceipts(entries),
     reactions: projectHitReactionReceipts(entries),
   };

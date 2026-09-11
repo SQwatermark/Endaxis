@@ -20,6 +20,13 @@ describe('gameAssetPaths', () => {
     );
     expect(getOperatorTalentIconPath('perlica', 2)).toBe('/operators/perlica/talent 2.webp');
     expect(getIconAssetPath('icon_battle_buff_atk_up')).toBe('/icons/icon_battle_buff_atk_up.webp');
+    expect(getIconAssetPath('icon_energy_fusion_fire')).toBe('/icons/icon_energy_fusion_fire.webp');
+    expect(getIconAssetPath('icon_energy_fusion_pulse')).toBe(
+      '/icons/icon_energy_fusion_pulse.webp',
+    );
+    expect(getIconAssetPath('icon_energy_fusion_cryst')).toBe(
+      '/icons/icon_energy_fusion_cryst.webp',
+    );
     expect(getIconAssetPath('icon_infliction_nature')).toBe(
       '/icons/icon_energy_fusion_nature.webp',
     );

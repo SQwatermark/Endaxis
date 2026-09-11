@@ -1,3 +1,4 @@
+import type { CombatOperationContext } from './skillRuntime';
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -15,10 +16,7 @@ export class EnemyRankConditionExecutor implements CombatOperationExecutor {
   end: NonNullable<CombatOperationExecutor['end']> = (step, context) =>
     this.delegate.end?.(step, context);
 
-  evaluate(
-    condition: CombatCondition,
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'enemyRankIn') return condition.ranks.includes(this.rank);
     return this.delegate.evaluate(condition, context);
   }

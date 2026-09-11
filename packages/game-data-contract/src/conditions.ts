@@ -237,6 +237,10 @@ export type CombatCondition =
       kind: 'casterComboPending';
     }
   | {
+      /** 当前 beforeCastSkill 对应的连携输入命中了 ShowComboRingQte 有效阶段。 */
+      kind: 'eventComboRingQteSucceeded';
+    }
+  | {
       /** 检查目标能力系统中是否存在仍有效的原生定时标记。 */
       kind: 'timedMarkerPresent';
       target: TimedMarkerTarget;
@@ -452,6 +456,7 @@ export const COMBAT_CONDITION_KINDS = [
   'timedMarkerPresent',
   'globalCooldownPresent',
   'casterComboPending',
+  'eventComboRingQteSucceeded',
   'abilityEntityTimedMarkerPresent',
   'eventDamageTagsMatch',
   'eventDamageGameplayTagsMatch',

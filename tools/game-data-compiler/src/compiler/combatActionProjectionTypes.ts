@@ -43,6 +43,7 @@ export type CompiledBuffConditionSource =
   | Condition<'constant'>
   | Condition<'globalCooldownPresent'>
   | Condition<'casterComboPending'>
+  | Condition<'eventComboRingQteSucceeded'>
   | Condition<
       | 'casterControlled'
       | 'characterTypeIn'
@@ -263,6 +264,7 @@ export type CompiledBuffStepSource =
   | Step<'triggerSpellBurst'>
   | Step<'triggerCustomAbilityEvent'>
   | Step<'openComboWindow'>
+  | Step<'showComboRingQte'>
   | Step<'castSkillDuringAction'>
   | Step<'changeSkillSlot'>
   | Step<'overrideBasicAttackMapping'>

@@ -64,6 +64,8 @@ function showDetails(path: string): void {
     <ActionSequenceGraphEditor
       v-if="view === 'graph'"
       :sequence="sequence"
+      :build-root="buildActionSequenceMindMap"
+      :initial-overview="false"
       :skill-level="skillLevel"
       :create-step="createStep"
       :duplicate-step="duplicateStep"

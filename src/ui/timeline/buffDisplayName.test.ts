@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { resolveBuffDisplayName } from './buffDisplayName';
 import { compoundStatusFactories } from '../../data/buffs/compoundStatusFactories';
+import zh from '../../i18n/locales/zh-CN.json';
+import en from '../../i18n/locales/en.json';
 
 const messages: Readonly<Record<string, string>> = {
   'effects.name.susceptibility:physical': '物理脆弱',
@@ -16,6 +18,19 @@ const i18n = {
 };
 
 describe('Buff display name', () => {
+  it.each([zh, en])('translates Razor Clawmark before falling back to its source', messages => {
+    expect(
+      resolveBuffDisplayName(
+        'buff_chr_0028_wulfa_normal_bleed',
+        {
+          te: key => key === 'effects.name.razorClawmark',
+          t: () => messages.effects.name.razorClawmark,
+        },
+        undefined,
+        '洛茜',
+      ),
+    ).toBe(messages.effects.name.razorClawmark);
+  });
   it('names every exported compound factory and its output by reaction direction', () => {
     const names = { heat: '燃烧', electric: '导电', cryo: '冻结', nature: '腐蚀' };
     expect(compoundStatusFactories.factories).toHaveLength(12);

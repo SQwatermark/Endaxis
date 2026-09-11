@@ -523,6 +523,7 @@ function validateCombatCondition(
     case 'singleEnemyPresent':
     case 'casterControlled':
     case 'casterComboPending':
+    case 'eventComboRingQteSucceeded':
     case 'eventSourceMatchesBuffSource':
     case 'eventSourceMatchesBuffSourceEntitySource':
     case 'eventSourceControlled':
@@ -3241,8 +3242,47 @@ function validateCombatStep(
       validateActionValueOperand(parameters.count, `${path}.parameters.count`, out);
       break;
     case 'launchProjectileLifetime':
-      if (parameters.finish !== 'firstTickReach')
-        push(out, `${path}.parameters.finish`, "expected 'firstTickReach'");
+      if (parameters.finish !== 'firstTickReach') {
+        if (
+          typeof parameters.finish !== 'object' ||
+          parameters.finish === null ||
+          Array.isArray(parameters.finish)
+        ) {
+          push(out, `${path}.parameters.finish`, 'expected firstTickReach or reach timing');
+        } else {
+          const timing = parameters.finish as Record<string, unknown>;
+          const ticks = requireFiniteNumber(
+            timing,
+            'reachAfterTicks',
+            `${path}.parameters.finish`,
+            out,
+          );
+          const duration = requireFiniteNumber(
+            timing,
+            'maxDurationSeconds',
+            `${path}.parameters.finish`,
+            out,
+          );
+          if (ticks !== null && (!Number.isSafeInteger(ticks) || ticks < 1))
+            push(
+              out,
+              `${path}.parameters.finish.reachAfterTicks`,
+              'expected a positive safe integer',
+            );
+          if (duration !== null && duration <= 0)
+            push(out, `${path}.parameters.finish.maxDurationSeconds`, 'expected a positive number');
+        }
+      }
+      if (parameters.recycleDelaySeconds !== undefined) {
+        const delay = requireFiniteNumber(
+          parameters,
+          'recycleDelaySeconds',
+          `${path}.parameters`,
+          out,
+        );
+        if (delay !== null && delay < 0)
+          push(out, `${path}.parameters.recycleDelaySeconds`, 'expected a non-negative number');
+      }
       break;
     case 'scheduleProjectileFinishCallback': {
       const delay = requireFiniteNumber(parameters, 'delaySeconds', `${path}.parameters`, out);
@@ -3281,6 +3321,18 @@ function validateCombatStep(
         if (parameters.nextSkillKeyFromSlot !== undefined)
           push(out, `${path}.parameters.nextSkillKeyFromSlot`, "expected 'comboSkill'");
       }
+      break;
+    case 'showComboRingQte':
+      validateActionValueOperand(
+        parameters.earlyDurationSeconds,
+        `${path}.parameters.earlyDurationSeconds`,
+        out,
+      );
+      validateActionValueOperand(
+        parameters.activeDurationSeconds,
+        `${path}.parameters.activeDurationSeconds`,
+        out,
+      );
       break;
     case 'triggerCustomAbilityEvent':
       requireString(parameters, 'eventName', `${path}.parameters`, out);

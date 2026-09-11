@@ -1,3 +1,5 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type { CombatOperationContext } from './skillRuntime';
 /**
  * 把语义状态动作接到具体状态所有者，并在状态所有者完成结算后记录前后快照。
  * 本适配器不定义叠层、刷新或到期规则；这些规则必须由目标状态所有者实现。
@@ -42,10 +44,7 @@ export interface StatusOperationDependencies {
 export class StatusOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: StatusOperationDependencies) {}
 
-  execute(
-    step: RuntimeOperation,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'applyStatus') {
       const target = this.dependencies.resolveTarget(step.parameters.target);
       const transition = target.applyStatus({
@@ -93,17 +92,11 @@ export class StatusOperationExecutor implements CombatOperationExecutor {
       : this.dependencies.delegate.execute(step, context);
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'statusActive') {
       const stacks = this.dependencies
         .resolveTarget(condition.target)

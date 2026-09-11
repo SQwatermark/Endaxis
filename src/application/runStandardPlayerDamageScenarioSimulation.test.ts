@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { ExplicitCriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import { createEmptyScenario } from '../core/project/createProject';
 import { perlica, perlica as perlicaFormalOperator } from '../data/operators/perlica';
-import perlicaGeneratedOperator from '../data/operators/generated-definitions/perlica/perlica.operator.generated';
+import perlicaGeneratedOperator from '../data/operators/perlica';
 import { arclight as arclightGeneratedOperator } from '../data/operators/arclight';
 import { lifeng as lifengGeneratedOperator } from '../data/operators/lifeng';
 import { endministrator as endministratorGeneratedOperator } from '../data/operators/endministrator';
@@ -23,6 +23,8 @@ import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDa
 import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
 import { MechanicAdapterRegistry } from '../core/mechanics/mechanicCompiler';
 import { projectBuffTimelineViz } from '../core/projection/buffTimelineViz';
+import { findBuffDamageSegment } from '../ui/timeline/enemyBuffDamageHits';
+import { projectTimelineHitOccurrences } from '../ui/timeline/timelineHitEffects';
 import { gameDataRepository } from '../data/gameDataRepository';
 import {
   CONTINGENCY_CONTRACT_MECHANIC_PREFIX,
@@ -1201,6 +1203,14 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           ),
       );
       expect(hits.filter(entry => entry.frame < 200)).toEqual([]);
+      const segments = projectBuffTimelineViz(entries, 1100);
+      const skillHits = [...projectTimelineHitOccurrences(entries).values()].flat();
+      for (const hit of hits) {
+        expect(hit.sourceId).toBe('track:rossi');
+        expect(hit.data?.buffId).toBe('buff_chr_0028_wulfa_normal_bleed');
+        expect(findBuffDamageSegment(hit, segments)).toBeDefined();
+        expect(skillHits.some(item => item.hitId === hit.data?.hitId)).toBe(false);
+      }
       return hits;
     };
     const level1 = bleedDamage(1);
@@ -1571,9 +1581,42 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       });
     };
 
-    // 正式产物保留命中停帧；QTE 有效 Buff 的现实时间窗口为 60..75 帧。
+    // 正式产物保留命中停帧；原生 QTE 以连携剩余时间差判定，不以帧号邻接或计时 Buff 存在性猜测。
     const inside = simulate(65);
     const outside = simulate(82);
+
+    expect(inside.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboRingQtePressed',
+        data: expect.objectContaining({
+          succeeded: true,
+          sourceActionId: 'skillCast:rossi-qte-second-65',
+        }),
+      }),
+    );
+    expect(outside.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ComboRingQtePressed',
+        data: expect.objectContaining({
+          succeeded: false,
+          sourceActionId: 'skillCast:rossi-qte-second-82',
+        }),
+      }),
+    );
+    expect(
+      inside.receiptEntries.some(
+        entry =>
+          entry.event === 'BuffApplied' &&
+          entry.data?.buffId === 'buff_chr_0028_wulfa_tut_comboskill_success',
+      ),
+    ).toBe(true);
+    expect(
+      outside.receiptEntries.some(
+        entry =>
+          entry.event === 'BuffApplied' &&
+          entry.data?.buffId === 'buff_chr_0028_wulfa_tut_comboskill_success',
+      ),
+    ).toBe(false);
 
     expect(
       inside.receiptEntries.some(

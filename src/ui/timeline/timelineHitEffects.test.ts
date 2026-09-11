@@ -28,6 +28,40 @@ function baseDamage(): Record<string, number | boolean | string | null> {
   };
 }
 
+it('keeps Buff receipts out of skill markers and details while retaining direct hits', () => {
+  const direct: CombatReceiptEntry = {
+    sequence: 1,
+    frame: 30,
+    time: 1,
+    event: 'DamageApplied',
+    sourceId: 'rossi',
+    targetId: 'enemy',
+    data: { ...baseDamage(), castId: 'cast', hitId: 'direct', stepKey: 'direct' },
+  };
+  const buff: CombatReceiptEntry = {
+    ...direct,
+    sequence: 2,
+    data: {
+      ...direct.data,
+      hitId: 'bleed',
+      stepKey: 'bleed',
+      buffId: 'bleed',
+      buffOwnerId: 'enemy',
+      buffInstanceId: 1,
+    },
+  };
+  const entries = [direct, buff];
+  expect(projectTimelineHitActualFrames(entries)).toEqual(new Map([['direct', 30]]));
+  expect(
+    projectTimelineHitOccurrences(entries)
+      .get('cast')
+      ?.map(hit => hit.hitId),
+  ).toEqual(['direct']);
+  expect(projectTimelineHitDetailEntries(entries, 'cast', 'bleed')).toEqual([]);
+  expect(projectTimelineHitDetailEntries(entries, 'cast', 'bleed', 30)).toEqual([]);
+  expect(projectTimelineHitDetailEntries(entries, 'cast', 'direct')).toEqual([direct]);
+});
+
 function scenarioWithCast(): ScenarioDocument {
   return {
     id: 'scenario:hit-effects',

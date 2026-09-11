@@ -171,8 +171,24 @@ function resolveStep(
         body: resolveActionSequence(step.body, skillLevel, `${path}.body`, abilityEntities),
       };
     case 'launchProjectileLifetime':
-      if (step.parameters.finish !== 'firstTickReach')
-        throw new Error(`${path}: unsupported projectile lifetime finish`);
+      if (step.parameters.finish !== 'firstTickReach') {
+        const timing = step.parameters.finish;
+        if (
+          !Number.isSafeInteger(timing.reachAfterTicks) ||
+          timing.reachAfterTicks < 1 ||
+          !Number.isFinite(timing.maxDurationSeconds) ||
+          timing.maxDurationSeconds <= 0
+        )
+          throw new Error(`${path}: invalid projectile reach timing`);
+      }
+      if (
+        step.parameters.recycleDelaySeconds !== undefined &&
+        (!Number.isFinite(step.parameters.recycleDelaySeconds) ||
+          step.parameters.recycleDelaySeconds < 0)
+      )
+        throw new RangeError(
+          `${path}.parameters.recycleDelaySeconds must be non-negative and finite`,
+        );
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'scheduleProjectileFinishCallback':
       if (!Number.isFinite(step.parameters.delaySeconds) || step.parameters.delaySeconds <= 0) {
@@ -870,6 +886,7 @@ function resolveStep(
     case 'consumeStatus':
     case 'setContextFlag':
     case 'openComboWindow':
+    case 'showComboRingQte':
     case 'changeSkillSlot':
     case 'overrideBasicAttackMapping':
     case 'changePlayerActionMode':

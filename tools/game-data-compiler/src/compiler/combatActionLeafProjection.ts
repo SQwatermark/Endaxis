@@ -305,9 +305,15 @@ export function compileActionNode(
     return [];
   }
   if (node.body.value.family === 'comboQte') {
-    // ShowComboRingQte 的提示本身不执行战斗步骤；Buff 投影层会把已严格关联的有效
-    // 计时窗口编译为 beforeCastSkill 响应。不能在这里把“显示提示”当成自动成功。
-    return [];
+    return [
+      {
+        kind: 'showComboRingQte',
+        parameters: {
+          earlyDurationSeconds: actionValueOperand(node.body.value.action.earlyDuration),
+          activeDurationSeconds: actionValueOperand(node.body.value.action.activeDuration),
+        },
+      },
+    ];
   }
   if (node.body.value.family === 'buffIgnite') {
     return [projectBuffIgniteAction(node.body.value.action, node.sourcePath, context)];

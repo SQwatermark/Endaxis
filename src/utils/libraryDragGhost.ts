@@ -8,10 +8,15 @@ const DEFAULT_DRAG_OFFSET_Y = 25;
 /** Delay before showing the cancel-hint bubble while a skill sticks to the cursor. */
 export const LIBRARY_PLACE_CANCEL_HINT_DELAY_MS = 5000;
 
-type SkillThemeColorResolver = (skill: Record<string, unknown>) => string;
+export interface LibraryDragGhostSkill {
+  readonly name: string;
+  readonly duration: number;
+}
+
+type SkillThemeColorResolver = (skill: LibraryDragGhostSkill) => string;
 
 export function createLibraryDragGhost(
-  skill: Record<string, unknown>,
+  skill: LibraryDragGhostSkill,
   timeBlockWidth: number,
   getThemeColor: SkillThemeColorResolver,
 ): HTMLDivElement {

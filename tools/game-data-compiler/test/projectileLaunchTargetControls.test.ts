@@ -70,7 +70,123 @@ const extension = createZeroDistanceProjectileProjectionExtensionSource({
 });
 
 describe('LaunchProjectile 原生新增目标控制', () => {
+  it('无回调直线分段按移动Tick数到达，拒绝可能由命中或阻挡提前结束的形状', () => {
+    const launch = lifetimeFixture.launch;
+    const data: ProjectileRuntimeSource = {
+      ...lifetimeFixture.runtime,
+      moveModeTypes: new Map([
+        ['one', 0],
+        ['two', 0],
+      ]),
+      useSegmentMove: true,
+      moveSegments: [
+        {
+          startPointKey: 'LaunchPoint',
+          endPointKey: 'TargetPoint',
+          moveModeId: 'one',
+          earlyNextByDuration: true,
+          segmentDuration: 0.3,
+          skipHitAndBlockDetection: false,
+        },
+        {
+          startPointKey: 'TargetPoint',
+          endPointKey: 'TargetPoint',
+          moveModeId: 'two',
+          earlyNextByDuration: false,
+          segmentDuration: 0,
+          skipHitAndBlockDetection: false,
+        },
+      ],
+      blockLayerDef: { value: 0, name: 'Nothing' },
+      maxHitCount: -1,
+      finishDistance: { value: 50, blackboardKey: null, levelValues: null },
+      finishDuration: 2,
+    };
+    const compile = (changes: Partial<ProjectileRuntimeSource> = {}) =>
+      createZeroDistanceProjectileProjectionExtensionSource({
+        catalog: {
+          runtimes: new Map([[data.projectileId, { ...data, ...changes }]]),
+          templates: new Map(),
+          callbackGraphs: new Map(),
+        },
+        callbackContext: returnProjectionContext,
+      })(launch, 'segments', returnProjectionContext);
+    expect(compile()).toEqual([
+      {
+        kind: 'launchProjectileLifetime',
+        parameters: {
+          finish: { reachAfterTicks: 2, maxDurationSeconds: 2 },
+        },
+      },
+    ]);
+    expect(() => compile({ maxHitCount: 1 })).toThrow('launch/reset lifetime');
+    expect(() => compile({ blockLayerDef: { value: 1, name: 'WallAndGround' } })).toThrow(
+      'launch/reset lifetime',
+    );
+    expect(() =>
+      compile({
+        moveModeTypes: new Map([
+          ['one', 1],
+          ['two', 0],
+        ]),
+      }),
+    ).toThrow('launch/reset lifetime');
+  });
+  it('表现回调保留发射和按原生技能时长计算的回收延迟，支持首Tick先阻挡结束', () => {
+    const launch = {
+      ...lifetimeFixture.launch,
+      callbacks: [{ event: 'hit' as const, enabled: true, skillId: 'presentation' }],
+    };
+    const data: ProjectileRuntimeSource = {
+      ...lifetimeFixture.runtime,
+      moveModeTypes: new Map(lifetimeFixture.runtime.moveModeTypes),
+      blockLayerDef: { value: -1, name: 'Custom' },
+      finishOnBlock: true,
+    };
+    const compile = (
+      changes: Partial<ProjectileRuntimeSource> = {},
+      durationFrame = 45,
+      target = launch.target,
+    ) =>
+      createZeroDistanceProjectileProjectionExtensionSource({
+        catalog: {
+          runtimes: new Map([[data.projectileId, { ...data, ...changes }]]),
+          templates: new Map(),
+          callbackGraphs: new Map([['presentation', { ...graph('presentation'), durationFrame }]]),
+        },
+        callbackContext: returnProjectionContext,
+      })({ ...launch, target }, 'presentation.launch', returnProjectionContext);
+    expect(compile()).toEqual([
+      {
+        kind: 'launchProjectileLifetime',
+        parameters: { finish: 'firstTickReach', recycleDelaySeconds: 1.5 },
+      },
+    ]);
+    expect(compile({}, 0)).toMatchObject([
+      {
+        parameters: { recycleDelaySeconds: Math.fround(1 / 30) },
+      },
+    ]);
+    expect(() => compile({ finishOnReach: false })).toThrow('launch/reset lifetime');
+    expect(() => compile({ finishOnBlock: false })).toThrow('reach shape');
+    expect(() => compile({}, -1)).toThrow('invalid callback durationFrame');
+    expect(
+      compile({ finishOnReach: false, hitOnReach: true, maxHitCount: 1 }, 45, {
+        ...launch.target,
+        targetSource: 'Target',
+        targetGroupKey: '',
+      }),
+    ).toMatchObject([{ parameters: { finish: 'firstTickReach', recycleDelaySeconds: 1.5 } }]);
+    expect(() =>
+      compile({ finishOnReach: false, hitOnReach: true, maxHitCount: 2 }, 45, {
+        ...launch.target,
+        targetSource: 'Target',
+        targetGroupKey: '',
+      }),
+    ).toThrow('launch/reset lifetime');
+  });
   it('当前黎风无回调发射保留同点到达寿命，不要求回调SkillData或虚构技能', () => {
+    // 旧的无回调定义不需要显式写入零回收延迟。
     const launch = lifetimeFixture.launch;
     const data: ProjectileRuntimeSource = {
       ...lifetimeFixture.runtime,

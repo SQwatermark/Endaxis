@@ -9,6 +9,22 @@ export interface RenderedDefinitionFileSource {
   readonly content: string;
 }
 
+/** 混合目录只替换指定生成文件，保留相邻的手写入口、helper和测试。 */
+export async function writeGeneratedDefinitionFile(
+  outputDirectory: string,
+  file: RenderedDefinitionFileSource,
+): Promise<void> {
+  const destination = resolveGeneratedPath(resolve(outputDirectory), file.relativePath);
+  await mkdir(dirname(destination), { recursive: true });
+  const temporary = `${destination}.tmp-${randomBytes(6).toString('hex')}`;
+  try {
+    await writeFile(temporary, file.content, { encoding: 'utf8', flag: 'wx' });
+    await renameWithRetry(temporary, destination);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
 /**
  * 只读核对完整生成目录。除 CRLF/LF 外不忽略任何内容差异，也会报告多余或缺失文件。
  */

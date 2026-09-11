@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import { skillAbilityEvent } from '../events/combatAbilityEvent';
 import { shieldAbilityEvent } from '../events/combatAbilityEvent';
 import { abilityEventTargetId, abilityEventSourceId } from '../events/combatAbilityEvent';
@@ -16,7 +17,7 @@ import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operat
 import type { BuffApplicationHandle, BuffFinishReason } from '../buffs/combatBuffs';
 import type { GameplayTag, GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackboard';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { compareCombatNumbers } from './numericComparison';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
@@ -213,10 +214,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
   readonly #inheritedBuffs = new WeakMap<RuntimeOperation, BuffApplicationHandle>();
   constructor(readonly dependencies: BuffOperationDependencies) {}
 
-  execute(
-    step: RuntimeOperation,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'storeShieldValue') {
       if (context === undefined)
         throw new Error('storeShieldValue requires a combat operation context');
@@ -862,7 +860,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
 
   #resolveApplicationTargets(
     target: BuffApplicationTarget,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
+    context?: CombatOperationContext,
   ): readonly BuffOperationTarget[] {
     if (target === 'eventSource') {
       const resolve = this.dependencies.resolveEventTarget;
@@ -938,10 +936,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     return [this.dependencies.resolveTarget(target)];
   }
 
-  #resolveContextSource(
-    key: string,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): BuffOperationTarget {
+  #resolveContextSource(key: string, context?: CombatOperationContext): BuffOperationTarget {
     const targets = context?.targetContext?.get(key);
     if (targets?.length !== 1)
       throw new Error(`Buff source Context '${key}' requires exactly one target`);
@@ -967,7 +962,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
 
   #resolveApplicationSource(
     source: NonNullable<ResolvedCombatStepParameters['applyBuff']['source']>,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
+    context?: CombatOperationContext,
   ): BuffOperationTarget {
     if (source === 'buffSource' || source === 'buffOwner') {
       const id = source === 'buffSource' ? context?.buffSourceId : context?.buffOwnerId;
@@ -995,10 +990,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     return resolve(context.currentTarget);
   }
 
-  end(
-    step: RuntimeOperation,
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: RuntimeOperation, context?: CombatOperationContext): void {
     if (step.kind === 'skillAffix') {
       this.#skillAffixes.get(step)?.dispose();
       this.#skillAffixes.delete(step);
@@ -1061,10 +1053,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'contextTargetBuffStackCompare') {
       if (context?.targetContext === undefined)
         throw new Error('context Buff count requires a combat target context');
@@ -1253,7 +1242,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       | 'buffOwner'
       | 'buffSource'
       | 'currentTarget',
-    context: Parameters<CombatOperationExecutor['execute']>[1],
+    context: CombatOperationContext | undefined,
   ): BuffOperationTarget {
     if (target === 'actionInputTarget') {
       const inputTarget = context?.actionInputTarget;
@@ -1341,7 +1330,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     return resolve(context.currentTarget);
   }
 
-  #requireEventSourceId(context: Parameters<CombatOperationExecutor['execute']>[1]): string {
+  #requireEventSourceId(context: CombatOperationContext | undefined): string {
     const event = context?.event;
     if (event === undefined) {
       if (context?.actionSourceId !== undefined) return context.actionSourceId;
@@ -1356,10 +1345,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     throw new Error(`event '${event.kind}' does not expose a Buff source`);
   }
 
-  #requireSkillCastId(
-    context: Parameters<CombatOperationExecutor['execute']>[1],
-    operation: string,
-  ): number {
+  #requireSkillCastId(context: CombatOperationContext | undefined, operation: string): number {
     const skillCastId = context?.skillCastInfo?.skillCastId;
     if (skillCastId === undefined) {
       throw new Error(`${operation} same-source query requires skill cast info`);

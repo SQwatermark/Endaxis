@@ -27,7 +27,10 @@ import {
   type OperatorActiveSkillRuntimeArguments,
   type PlannedOperatorActiveSkillRuntime,
 } from './generateOperatorActiveSkillRuntime.ts';
-import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+import {
+  writeGeneratedDefinitionFile,
+  writeGeneratedDefinitionFiles,
+} from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
@@ -170,7 +173,14 @@ export function planOperatorDefinition(
           },
         };
   });
-  const routedSkills = planRoutedSkills(row, entries, activeSkills, foundation, skills, args.slug);
+  const routedSkills = planRoutedSkills(
+    row,
+    entries,
+    activeSkills,
+    foundation.skillLibrary.skillGroups,
+    skills,
+    args.slug,
+  );
   const spawned = [
     ...new Set(
       activeSkills.flatMap(skill => skill.abilityEntitySpawns.map(spawn => spawn.abilityEntityId)),
@@ -802,11 +812,11 @@ const ROUTED_SKILL_CONFIG_FIELDS = new Set([
 ]);
 
 /** 把旧 Python 已取证的跨组路由语义收进 TS 整名主干；这里只接受完全同构的包装器。 */
-function planRoutedSkills(
+export function planRoutedSkills(
   row: Record<string, unknown>,
   entries: readonly OperatorActiveSkillEntrySource[],
-  activeSkills: readonly PlannedOperatorActiveSkillRuntime[],
-  foundation: ReturnType<typeof compileOperatorFoundationSource>,
+  activeSkills: readonly Pick<PlannedOperatorActiveSkillRuntime, 'definition'>[],
+  skillGroups: readonly { readonly key: string; readonly skillKeys: readonly string[] }[],
   skillDataBySourceFile: Readonly<Record<string, unknown>>,
   slug: string,
 ) {
@@ -823,7 +833,15 @@ function planRoutedSkills(
     }
     const path = `${entry.sourcePath}.compile`;
     const config = entry.projectionConfig;
-    requireExactFields(config, ROUTED_SKILL_CONFIG_FIELDS, path);
+    requireExactFields(
+      config,
+      new Set([
+        'kind',
+        'targetSkillKey',
+        ...[...ROUTED_SKILL_CONFIG_FIELDS].filter(field => config[field] !== undefined),
+      ]),
+      path,
+    );
     if (config.kind !== 'routedSkill') throw new Error(`${path}.kind: expected routedSkill`);
     const targetSkillKey = requireNonEmptyString(config.targetSkillKey, `${path}.targetSkillKey`);
     const targetEntry = entryByKey.get(targetSkillKey);
@@ -832,31 +850,43 @@ function planRoutedSkills(
       throw new Error(`${path}.targetSkillKey: unknown skill ${JSON.stringify(targetSkillKey)}`);
     }
     const executionSkillType = requireNonEmptyString(
-      config.executionSkillType,
+      config.executionSkillType === undefined ? targetEntry.skillType : config.executionSkillType,
       `${path}.executionSkillType`,
     );
     if (executionSkillType !== targetEntry.skillType) {
       throw new Error(`${path}.executionSkillType: expected ${targetEntry.skillType}`);
     }
     const executionLevelSource = requireNonEmptyString(
-      config.executionLevelSource,
+      config.executionLevelSource === undefined
+        ? targetEntry.levelSource
+        : config.executionLevelSource,
       `${path}.executionLevelSource`,
     );
-    const targetGroups = foundation.skillLibrary.skillGroups.filter(group =>
-      group.skillKeys.includes(targetSkillKey),
-    );
+    const targetGroups = skillGroups.filter(group => group.skillKeys.includes(targetSkillKey));
     if (targetGroups.length !== 1 || targetEntry.levelSource !== executionLevelSource) {
       throw new Error(`${path}: target placement group or per-skill level source does not match`);
     }
-    const activationBuffId = requireNonEmptyString(
-      config.activationBuffId,
-      `${path}.activationBuffId`,
-    );
-    const routingBuffId = requireNonEmptyString(config.routingBuffId, `${path}.routingBuffId`);
-    if (config.costResource !== 'sp') throw new Error(`${path}.costResource: expected sp`);
     const route = wrapper.switchToBuffCast;
     const condition = route?.condition;
     const routeStep = route?.sequence.steps[0];
+    const activationBuffId = requireNonEmptyString(
+      config.activationBuffId === undefined
+        ? condition?.kind === 'buffIdStackCompare'
+          ? condition.buffIds[0]
+          : undefined
+        : config.activationBuffId,
+      `${path}.activationBuffId`,
+    );
+    const routingBuffId = requireNonEmptyString(
+      config.routingBuffId === undefined
+        ? routeStep?.kind === 'applyBuff'
+          ? routeStep.parameters.buffId
+          : undefined
+        : config.routingBuffId,
+      `${path}.routingBuffId`,
+    );
+    if (config.costResource !== undefined && config.costResource !== 'sp')
+      throw new Error(`${path}.costResource: expected sp`);
     if (
       route?.asSkillCast !== false ||
       route.sequence.steps.length !== 1 ||
@@ -919,20 +949,16 @@ export async function generateOperatorDefinition(
   args: Parameters<typeof planOperatorDefinition>[0] & { readonly check: boolean },
 ) {
   for (const [directory, parent] of [
-    [args.output, 'src/data/operators/generated-definitions'],
+    [args.output, 'src/data/operators'],
     [args.auditOutput, 'tmp/game-data-audit/operator-definitions'],
   ]) {
     const target = path.resolve(directory!);
-    if (path.dirname(target) !== path.resolve(parent!) || path.basename(target) !== args.slug)
-      throw new Error(`complete operator output must be ${parent}/${args.slug}`);
+    const expected =
+      parent === 'src/data/operators' ? path.resolve(parent) : path.resolve(parent!, args.slug);
+    if (target !== expected) throw new Error(`complete operator output must be ${expected}`);
   }
   const rendered = await renderOperatorDefinition(args);
   const { plan, file, auditFile } = rendered;
-  if (
-    fs.existsSync(args.output) &&
-    JSON.stringify(fs.readdirSync(args.output)) !== JSON.stringify([file.relativePath])
-  )
-    throw new Error('complete operator directory contains unexpected files');
   if (args.check) {
     const target = path.join(args.output, file.relativePath);
     if (
@@ -942,7 +968,7 @@ export async function generateOperatorDefinition(
       throw new Error(`complete operator definition is stale: ${target}`);
   } else {
     await writeGeneratedDefinitionFiles(args.auditOutput, [auditFile]);
-    await writeGeneratedDefinitionFiles(args.output, [file]);
+    await writeGeneratedDefinitionFile(args.output, file);
   }
   return {
     slug: args.slug,
@@ -972,7 +998,7 @@ export async function renderOperatorDefinition(args: Parameters<typeof planOpera
     { ...prettierConfig, parser: 'typescript' },
   );
   const file = {
-    relativePath: `${args.slug}.operator.generated.ts`,
+    relativePath: `${args.slug}.ts`,
     content,
   };
   return {

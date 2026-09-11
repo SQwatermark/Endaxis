@@ -330,7 +330,7 @@ export function parseInterruptHenshinTagListenerActionSource(
     action.predefinedQuery === 'None' &&
     requireBoolean(action.executeOnMatch, `${path}.executeOnMatch`)
   ) {
-    return parseCutsceneCleanupTagListener(action, path, inheritedBlackboard);
+    return parseArcaneCutsceneCleanupTagListener(action, path, inheritedBlackboard);
   }
   const predefinedQuery = requireString(action.predefinedQuery, `${path}.predefinedQuery`);
   if (
@@ -395,10 +395,11 @@ export function parseInterruptHenshinTagListenerActionSource(
 }
 
 /**
- * Arcane 的常驻被动在过场/过场切换标签出现时清理连携封印与分身。固定木桩模拟不产生
+ * 过场/过场切换标签出现时清理 Buff 与召唤物。固定木桩模拟不产生
  * GlobalState/Performance/Cutscene 标签；完整验证清理目标后省略该不可达外部表现生命周期。
  */
-function parseCutsceneCleanupTagListener(
+// 目前只验证过 Arcane 的清理序列；不能仅凭结构相似扩大省略范围。
+function parseArcaneCutsceneCleanupTagListener(
   action: Record<string, unknown>,
   path: string,
   inheritedBlackboard: BlackboardLevelValues,

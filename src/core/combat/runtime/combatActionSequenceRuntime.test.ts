@@ -360,6 +360,60 @@ describe('CombatActionSequenceRuntime', () => {
     expect(calls).toHaveLength(6);
   });
 
+  it.each([0, 2])('投射物寿命发射按实际%s个Context目标执行并传递分段与回收时长', count => {
+    const targetContext = new RuntimeTargetContext();
+    targetContext.set(
+      'items',
+      Array.from({ length: count }, (_, index) => ({
+        kind: 'abilityEntity' as const,
+        instanceId: index + 1,
+      })),
+    );
+    const schedule = vi.fn(() => {
+      // 发射过程中后续查询覆盖同名组，不应改变本次已取得的目标快照。
+      targetContext.set('items', []);
+      return {
+        target: { kind: 'abilityEntity' as const, instanceId: 100 },
+        onReset: () => ({ dispose: () => {} }),
+      };
+    });
+    const runtime = new CombatActionSequenceRuntime(
+      { execute: () => true, evaluate: () => true },
+      {
+        blackboard: new ActionBlackboard(),
+        targetContext,
+        actionSourceId: 'operator',
+        scheduleProjectileFinishCallback: schedule,
+      },
+    );
+    const finish = { reachAfterTicks: 2, maxDurationSeconds: 2 };
+    const launches = runtime.createSequence(
+      sequence({
+        kind: 'forEachContextTarget',
+        parameters: { contextKey: 'items' },
+        body: sequence({
+          kind: 'launchProjectileLifetime',
+          parameters: { finish, recycleDelaySeconds: 1.5 },
+        }),
+      }),
+    );
+    launches.executeInstant({});
+    expect(schedule).toHaveBeenCalledTimes(count);
+    // 下一次执行读取已清空的组，不重复发射上一批目标。
+    launches.executeInstant({});
+    expect(schedule).toHaveBeenCalledTimes(count);
+    if (count > 0)
+      expect(schedule).toHaveBeenCalledWith(
+        finish,
+        1.5,
+        expect.any(Function),
+        expect.any(Function),
+        undefined,
+        undefined,
+        'operator',
+      );
+  });
+
   it('唯一目标 ForEach 仍隔离内部失败并让外层后继继续', () => {
     const seen: unknown[] = [];
     const runtime = new CombatActionSequenceRuntime(

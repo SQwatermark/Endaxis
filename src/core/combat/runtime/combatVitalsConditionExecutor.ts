@@ -1,3 +1,4 @@
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 /**
  * 求值依赖实体生命账本的战斗条件，并把其他操作交给执行器链。
  * 调用方必须按目标身份提供同一场模拟中的 `CombatVitals`，不得用面板快照代替运行时生命。
@@ -25,19 +26,13 @@ export interface CombatVitalsConditionDependencies {
 export class CombatVitalsConditionExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: CombatVitalsConditionDependencies) {}
 
-  execute(
-    step: Parameters<CombatOperationExecutor['execute']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.dependencies.delegate.execute(step)
       : this.dependencies.delegate.execute(step, context);
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: CombatOperationContext,
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.dependencies.delegate.end?.(step, context);
   }
 

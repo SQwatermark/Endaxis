@@ -1,3 +1,4 @@
+import type { CombatCondition, SpGainSource } from '../../game-data/operatorDefinition';
 /**
  * 技能操作执行链中的资源职责节点。
  * 只消费已闭环的资源步骤，其他步骤必须显式委托；未知步骤不能被吞掉或视作成功。
@@ -5,9 +6,8 @@
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatClock } from './combatClock';
-import type { CombatResources } from './combatResources';
-import type { SpGainSource } from '../../game-data/operatorDefinition';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatResources, SpChange, UltimateEnergyChange } from './combatResources';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
 import type { AbilitySpGainPayload } from '../events/combatAbilityEvent';
@@ -34,10 +34,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
   readonly #ultimateRecoveryRestrictionHandles = new WeakMap<RuntimeOperation, number>();
   constructor(readonly dependencies: SkillResourceOperationDependencies) {}
 
-  execute(
-    step: RuntimeOperation,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'restrictUltimateEnergyRecovery') {
       const handle = this.dependencies.resources.requestUltimateEnergyRecoveryRestriction(
         this.dependencies.sourceOperatorId,
@@ -127,10 +124,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     return true;
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     if (step.kind === 'restrictUltimateEnergyRecovery') {
       const handle = this.#ultimateRecoveryRestrictionHandles.get(step);
       if (handle !== undefined) {
@@ -146,16 +140,13 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);
   }
 
-  #recordSpChange(change: ReturnType<CombatResources['gainSp']>, source: SpGainSource): void {
+  #recordSpChange(change: SpChange, source: SpGainSource): void {
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,
@@ -186,7 +177,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     }
   }
 
-  #recordUltimateEnergyChange(change: ReturnType<CombatResources['changeUltimateEnergy']>): void {
+  #recordUltimateEnergyChange(change: UltimateEnergyChange): void {
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,

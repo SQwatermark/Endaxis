@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { inspectorValueWrapper } from '../inspectorValueWrapper';
 import type { InspectorPropertyPath } from '../inspectorProperty';
 import { editPropertyValue, type DefinitionProperty } from '../definitionEditContext';
 import { computed, defineAsyncComponent } from 'vue';
@@ -70,7 +71,7 @@ function append() {
       </div>
       <Fields
         :binding="binding?.child(key)"
-        value-wrapper
+        :value-adapter="inspectorValueWrapper"
         :property-path="[...(propertyPath ?? []), key]"
         hide-headings
         :value="{ value: item }"

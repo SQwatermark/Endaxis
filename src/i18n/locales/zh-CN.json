@@ -1113,6 +1113,7 @@
         "timedMarkerPresent": "存在定时标记",
         "globalCooldownPresent": "全局冷却尚未结束",
         "casterComboPending": "施放者存在待释放连携候选（不检查能否释放）",
+        "eventComboRingQteSucceeded": "本次连携输入命中精准窗口",
         "eventDamageTagsMatch": "事件伤害标签匹配",
         "eventDamageFeaturesMatch": "事件伤害特征匹配",
         "elementalInflictionPresent": "存在元素附着",
@@ -1457,6 +1458,7 @@
         "repeatEachTick": "在调度区间开始时以及之后每个宿主 Tick 重复执行内部动作。",
         "setContextFlag": "设置施法者上下文标记，供其他机制读取。",
         "openComboWindow": "把下一段连携加入场景级窗口队列。窗口固定持续 5 秒，且必须按队列顺序释放。",
+        "showComboRingQte": "按原生提示时长和有效时长登记精准连携输入窗口。",
         "changeSkillSlot": "切换该稳定技能组下一次释放使用的形态；已经开始的当前释放保持原形态。",
         "changePlayerActionMode": "切换指定玩家语义操作的原生命令模式；结束时可恢复进入步骤前的模式。",
         "overrideBasicAttackMapping": "在 Buff 动作有效期间将普攻输入指向指定原生技能，优先于技能和模式映射；动作结束时撤销。",
@@ -1604,6 +1606,7 @@
         "repeatEachTick": "每 Tick 重复",
         "setContextFlag": "设置上下文标记",
         "openComboWindow": "开启下一段连携窗口",
+        "showComboRingQte": "显示精准连携窗口",
         "listenForCombatEvents": "监听战斗事件"
       }
     },
@@ -2049,6 +2052,7 @@
       "comboWindow": "连携窗口",
       "nature_burst": "自然爆发",
       "corrosion": "腐蚀",
+      "razorClawmark": "爪印斫痕",
       "default": "默认图标",
       "vulnerability": "破防",
       "breach": "碎甲",

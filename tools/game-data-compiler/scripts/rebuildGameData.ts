@@ -38,6 +38,7 @@ import { generateEnemyDefinitions } from './generateEnemyDefinitions.ts';
 import { auditCandidateEnemyDefinitions } from './auditCandidateEnemyDefinitions.ts';
 import { exportReferencedGameIcons } from './exportReferencedGameIcons.ts';
 import { publishGameDataCandidate } from '../src/compiler/gameDataCandidatePublisher.ts';
+import { OPERATOR_DEFINITION_OUTPUTS } from './operatorDefinitionOutputs.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
 const runFile = promisify(execFile);
@@ -63,7 +64,6 @@ export interface RebuildArguments {
 export const GAME_DATA_CANDIDATE_TSCONFIG = 'tsconfig.app.json';
 
 const GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS = [
-  'src/data/operators/generated-definitions',
   'src/data/buffs/generated',
   'src/data/equipment/generated',
   'src/data/equipment/generated-weapons',
@@ -73,13 +73,14 @@ const GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS = [
   // These roots contain referenced game-derived WebP files plus the four explicitly audited
   // project defaults. Replacing the roots removes stale, no-longer-referenced game icons.
   'public/equipment',
-  'public/Icon_Enemy',
+  'public/enemies',
   'public/icons',
   'public/operators',
   'public/weapons',
 ] as const;
 
 const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
+  ...OPERATOR_DEFINITION_OUTPUTS,
   'src/data/combat/gameplayTagCatalog.generated.ts',
   'src/data/combat/gameplayTagPredefine.generated.ts',
   'src/data/combat/hitStopCurveCatalog.generated.ts',
@@ -95,7 +96,7 @@ const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
 export const GAME_DATA_REBUILD_BOUNDARIES = [
   {
     id: 'operators',
-    outputs: ['src/data/operators/generated-definitions'],
+    outputs: OPERATOR_DEFINITION_OUTPUTS,
     blocker:
       '同批 31 名/328 技能候选、虚拟落位类型检查、325 个可放置技能单放、198 张技能库卡片整链、31 条全卡片组合轴、单文件 1 MiB 源码上限及可回滚发布已接入；仍需机制定向组合和数值回归。不得复用正式派生目录。',
   },
@@ -517,7 +518,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           await stage('operator-candidates', async () => {
             const input = {
               ...operatorCandidateInput,
-              outputRoot: path.join(candidateRoot, 'src/data/operators/generated-definitions'),
+              outputRoot: path.join(candidateRoot, 'src/data/operators'),
               auditRoot: path.join(runRoot, 'audit', 'operator-definitions'),
               check: false,
             };
@@ -662,6 +663,10 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             gameDataSourceRoot: sourceRoot,
             outputRoot: path.join(candidateRoot, 'public'),
             additionalReferenceRoots: [path.join(candidateRoot, 'src')],
+            contingencyContractCatalog: path.join(
+              candidateRoot,
+              'src/data/mechanics/contingency-contract-catalog.generated.json',
+            ),
             auditOutput: path.join(runRoot, 'audit', 'referenced-game-icons.json'),
           })),
           note: '扫描正式运行源码与同批候选，向隔离 public 根只补缺漏；游戏图经 AKEDB 优先/VFS 补缺导出，项目占位图只复制并标记 kept-local。',

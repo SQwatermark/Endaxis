@@ -1,5 +1,6 @@
 <script setup lang="ts" generic="T extends object">
 import { computed, inject } from 'vue';
+import type { InspectorValueAdapter } from '../inspectorValueWrapper';
 import { useI18n } from 'vue-i18n';
 import { type InspectorField } from '../inspectorFields';
 import { defaultInspectorEditors, inspectorEditorRegistryKey } from '../inspectorEditors';
@@ -22,7 +23,7 @@ const props = defineProps<{
   currentLevel?: number;
   propertyPath?: InspectorPropertyPath;
   /** 内部 { value } 包装不是真实数据层级。 */
-  valueWrapper?: boolean;
+  valueAdapter?: InspectorValueAdapter<T>;
   /** 联合控件已经显示外层字段标题；内层仅渲染所选形式，不再重复标题。 */
   hideHeadings?: boolean;
   validate?: (value: T) => readonly { path: string; message: string }[];
@@ -31,29 +32,27 @@ const emit = defineEmits<{ update: [value: T, path?: InspectorPropertyPath] }>()
 const { t, te } = useI18n({ useScope: 'global' });
 const issues = computed(() => props.validate?.(props.value) ?? []);
 const editors = inject(inspectorEditorRegistryKey, defaultInspectorEditors);
+// 未包装的动态绑定仍在既有schema边界恢复T；包装模式由具名适配器构造T。
+function readBindingValue(value: unknown): T {
+  return props.valueAdapter ? props.valueAdapter.read(value) : (value as T);
+}
+function writeBindingValue(value: T): unknown {
+  return props.valueAdapter ? props.valueAdapter.write(value) : value;
+}
 const properties = computed(() =>
   props.fields.map(field =>
     inspectorProperty(
       {
-        read: () =>
-          props.binding
-            ? props.valueWrapper
-              ? ({ value: props.binding.read() } as unknown as T)
-              : (props.binding.read() as T)
-            : props.value,
+        read: () => (props.binding ? readBindingValue(props.binding.read()) : props.value),
         issues: () => issues.value,
         path: props.binding?.path ?? props.propertyPath,
         commit: (next, path) => {
-          if (props.binding)
-            props.binding.update(
-              () => (props.valueWrapper ? (next as { value: unknown }).value : next),
-              path,
-            );
+          if (props.binding) props.binding.update(() => writeBindingValue(next), path);
           else emit('update', next, path);
         },
       },
       field,
-      props.valueWrapper ? [] : undefined,
+      props.valueAdapter ? [] : undefined,
     ),
   ),
 );
@@ -65,14 +64,11 @@ function editorProps(property: InspectorPropertyHandle<T>) {
       ? guardDefinitionProperty(
           projectDefinitionProperty(
             props.binding,
-            props.valueWrapper || field.key === '' ? [] : [field.key],
-            current => field.read((props.valueWrapper ? { value: current } : current) as T),
+            props.valueAdapter || field.key === '' ? [] : [field.key],
+            current => field.read(readBindingValue(current)),
             (current, input) => {
-              const next = field.write(
-                (props.valueWrapper ? { value: current } : current) as T,
-                input,
-              );
-              return props.valueWrapper ? (next as { value: unknown }).value : next;
+              const next = field.write(readBindingValue(current), input);
+              return writeBindingValue(next);
             },
           ),
           () => !property.disabled,

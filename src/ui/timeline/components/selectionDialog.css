@@ -199,16 +199,16 @@
   background: var(--ea-keycap-bg, #111);
 }
 
+.card-avatar-wrapper > .operator-avatar-crop {
+  width: 100%;
+  height: 100%;
+}
+
 .card-avatar-wrapper > img {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-}
-
-/* 游戏圆头像比旧版卡片使用的面部裁片留白更多；只在干员卡片内收紧构图。 */
-.operator-roster-card .card-avatar-wrapper > img {
-  transform: scale(1.22);
-  transform-origin: 50% 52%;
+  object-fit: contain;
+  object-position: center;
 }
 
 .equipment-roster-card .card-avatar-wrapper.is-ability-match-both {

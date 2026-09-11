@@ -7,6 +7,7 @@ import sharp from 'sharp';
 import { runConcurrent } from './downloadGameDataSources.ts';
 import { AkedbSnapshot, DEFAULT_CDN, isMissingResource } from './gameDataProviders.ts';
 import { readGameIconReferences } from '../src/compiler/gameIconReferences.ts';
+import { requireRecord, requireNonEmptyString } from '../src/source/primitives.ts';
 
 type Candidate = {
   readonly assetIndex: number;
@@ -41,10 +42,6 @@ const PUBLIC_ICON_SOURCE_ALIASES = new Map<
   string,
   { readonly sourceName: string; readonly preferredPathSegment: string }
 >([
-  [
-    '/icons/buff_wpn_sword_0019.webp',
-    { sourceName: 'icon_battle_buff_atk_up.png', preferredPathSegment: '/bufficon/' },
-  ],
   [
     '/icons/icon_battle_affix_combo.webp',
     { sourceName: 'icon_term_ba_combo.png', preferredPathSegment: '/termicon/' },
@@ -133,30 +130,6 @@ const PUBLIC_ICON_SOURCE_ALIASES = new Map<
     '/icons/setting_tab_setting.webp',
     { sourceName: 'setting_tab_setting.png', preferredPathSegment: '/gamesetting/' },
   ],
-  [
-    '/operators/laevatain/magma_1.webp',
-    { sourceName: 'icon_laevat_energy_1.png', preferredPathSegment: '/bufficon/' },
-  ],
-  [
-    '/operators/laevatain/magma_2.webp',
-    { sourceName: 'icon_laevat_energy_2.png', preferredPathSegment: '/bufficon/' },
-  ],
-  [
-    '/operators/laevatain/magma_3.webp',
-    { sourceName: 'icon_laevat_energy_3.png', preferredPathSegment: '/bufficon/' },
-  ],
-  [
-    '/operators/laevatain/magma_4.webp',
-    { sourceName: 'icon_laevat_energy_4.png', preferredPathSegment: '/bufficon/' },
-  ],
-  [
-    '/operators/laevatain/ultimate_skill.webp',
-    { sourceName: 'icon_ultimate_skill_laevat_01.png', preferredPathSegment: '/skillicon/' },
-  ],
-  [
-    '/operators/tangtang/icon_battle_tangtang_droplet.webp',
-    { sourceName: 'icon_battle_tangtang_comboskillwater.png', preferredPathSegment: '/bufficon/' },
-  ],
 ]);
 
 export type ExportGameIconsArguments = {
@@ -172,6 +145,7 @@ export type ExportGameIconsArguments = {
   readonly outputRoot: string;
   /** 额外扫描尚未发布的候选定义；不改变正式 src 的默认闭包。 */
   readonly additionalReferenceRoots: readonly string[];
+  readonly contingencyContractCatalog?: string;
   readonly auditOutput?: string;
 };
 
@@ -292,14 +266,13 @@ async function collectLiteralReferences(
 
 async function addContingencyContractImpliedReferences(
   references: Map<string, Set<string>>,
-): Promise<void> {
-  const catalogPath = path.join(
+  catalogPath = path.join(
     SOURCE_ROOT,
-    'next',
     'data',
     'mechanics',
     'contingency-contract-catalog.generated.json',
-  );
+  ),
+): Promise<void> {
   const value: unknown = JSON.parse(await readFile(catalogPath, 'utf8'));
   if (value === null || typeof value !== 'object' || Array.isArray(value)) {
     throw new Error(`${catalogPath}: expected an object`);
@@ -358,22 +331,17 @@ async function findTableDirectory(sourceRoot: string): Promise<string> {
   return result;
 }
 
-async function addOperatorImpliedReferences(
+export async function addOperatorImpliedReferences(
   references: Map<string, Set<string>>,
   sourceRoot: string,
+  configPath = path.join(PROJECT_ROOT, 'tools/game-data-compiler/config/operators.json'),
 ): Promise<Map<string, { sourceNames: string[]; preferredPathSegments: string[] }>> {
   const overrides = new Map<string, { sourceNames: string[]; preferredPathSegments: string[] }>();
-  const configPath = path.join(
-    PROJECT_ROOT,
-    'tools',
-    'game-data-compiler',
-    'config',
-    'operators.json',
-  );
   const config = JSON.parse(await readFile(configPath, 'utf8')) as {
     operators: Array<{
       slug: string;
       charId: string;
+      assets?: unknown;
       skills: Array<{ key: string; source: string }>;
       skillGroups: Array<{ skillType: string }>;
     }>;
@@ -396,8 +364,18 @@ async function addOperatorImpliedReferences(
   }
 
   for (const operator of config.operators) {
-    const owner = 'tools/game-data-compiler/config/operators.json';
+    const owner = path.relative(PROJECT_ROOT, configPath).replaceAll('\\', '/');
+    const assetPath = `${owner}:${operator.slug}.assets`;
+    const assets = operator.assets === undefined ? {} : requireRecord(operator.assets, assetPath);
     const add = (fileName: string, sourceName: string, preferredPathSegment: string): void => {
+      const validOutputName =
+        /^[a-zA-Z0-9_-]+$/.test(fileName) || /^talent [1-9][0-9]*$/.test(fileName);
+      if (!validOutputName || !/^[a-zA-Z0-9_-]+$/.test(sourceName)) {
+        throw new Error(`${assetPath}: icon output and source must be plain file names`);
+      }
+      if (!/^\/[a-zA-Z0-9_/-]+\/$/.test(preferredPathSegment)) {
+        throw new Error(`${assetPath}: invalid preferred icon directory`);
+      }
       const publicPath = `/operators/${operator.slug}/${fileName}.webp`;
       const owners = references.get(publicPath) ?? new Set<string>();
       owners.add(owner);
@@ -408,7 +386,9 @@ async function addOperatorImpliedReferences(
       });
     };
     const assetCharacterId =
-      operator.slug === 'endministrator' ? 'chr_0003_endminf' : operator.charId;
+      assets.portraitCharacterId === undefined
+        ? operator.charId
+        : requireNonEmptyString(assets.portraitCharacterId, `${assetPath}.portraitCharacterId`);
     add('avatar', `icon_round_${assetCharacterId}`, '/charroundicon/');
     add('portrait', `icon_${assetCharacterId}`, '/charicon/');
     for (const [skillKey, outputName] of [
@@ -417,10 +397,7 @@ async function addOperatorImpliedReferences(
       ['ultimate', 'ultimate'],
     ] as const) {
       if (!operator.skillGroups.some(group => group.skillType === skillKey)) continue;
-      const nativeCharacterName =
-        operator.slug === 'endministrator'
-          ? 'endmin'
-          : operator.charId.split('_').slice(2).join('_');
+      const nativeCharacterName = operator.charId.split('_').slice(2).join('_');
       const conventionalIconId =
         skillKey === 'comboSkill'
           ? `icon_combo_skill_${nativeCharacterName}_01`
@@ -430,6 +407,19 @@ async function addOperatorImpliedReferences(
       add(outputName, conventionalIconId, '/skillicon/');
     }
     const talentIcons = new Map<number, string>();
+    const icons =
+      assets.icons === undefined ? {} : requireRecord(assets.icons, `${assetPath}.icons`);
+    for (const [fileName, value] of Object.entries(icons)) {
+      const icon = requireRecord(value, `${assetPath}.icons.${fileName}`);
+      add(
+        fileName,
+        requireNonEmptyString(icon.sourceName, `${assetPath}.icons.${fileName}.sourceName`),
+        requireNonEmptyString(
+          icon.preferredPathSegment,
+          `${assetPath}.icons.${fileName}.preferredPathSegment`,
+        ),
+      );
+    }
     for (const node of Object.values(growthTable[operator.charId]?.talentNodeMap ?? {})) {
       const passive = node.passiveSkillNodeInfo;
       if (!passive?.iconId || passive.level !== 1 || passive.index === undefined) continue;
@@ -449,16 +439,56 @@ function reverseWeaponIdentity(outputStem: string): string {
   return outputStem;
 }
 
+export async function addEquipmentConfiguredReferences(
+  references: Map<string, Set<string>>,
+  configPath = path.join(PROJECT_ROOT, 'tools/game-data-compiler/config/equipmentAssets.json'),
+): Promise<Map<string, { sourceNames: string[]; preferredPathSegments: string[] }>> {
+  const config = requireRecord(JSON.parse(await readFile(configPath, 'utf8')), configPath);
+  const result = new Map<string, { sourceNames: string[]; preferredPathSegments: string[] }>();
+  for (const category of ['weapons', 'gears', 'gearSets']) {
+    for (const [id, value] of Object.entries(
+      requireRecord(config[category], `${configPath}.${category}`),
+    )) {
+      const owner = `${path.relative(PROJECT_ROOT, configPath).replaceAll('\\', '/')}:${category}.${id}`;
+      for (const [publicPath, raw] of Object.entries(requireRecord(value, owner))) {
+        const icon = requireRecord(raw, `${owner}.${publicPath}`);
+        const sourceName = requireNonEmptyString(icon.sourceName, `${owner}.sourceName`);
+        const segment = requireNonEmptyString(
+          icon.preferredPathSegment,
+          `${owner}.preferredPathSegment`,
+        );
+        if (
+          !/^\/(?:icons|weapons|equipment)\/[a-zA-Z0-9_/-]+\.webp$/.test(publicPath) ||
+          !/^[a-zA-Z0-9_-]+\.png$/.test(sourceName) ||
+          !/^\/[a-zA-Z0-9_/-]+\/$/.test(segment)
+        ) {
+          throw new Error(`${owner}: invalid configured icon path`);
+        }
+        const reference = references.get(publicPath);
+        if (reference === undefined) continue;
+        const planned = { sourceNames: [sourceName], preferredPathSegments: [segment] };
+        const previous = result.get(publicPath);
+        if (previous !== undefined && JSON.stringify(previous) !== JSON.stringify(planned)) {
+          throw new Error(`${owner}: conflicting icon sources for ${publicPath}`);
+        }
+        result.set(publicPath, planned);
+        reference.add(owner);
+      }
+    }
+  }
+  return result;
+}
+
 function sourcePlanForReference(
   publicPath: string,
   richTextSources: RichTextSourceManifest,
-  operatorOverrides: ReadonlyMap<
+  configuredOverrides: ReadonlyMap<
     string,
     { sourceNames: string[]; preferredPathSegments: string[] }
   >,
 ): Pick<IconReference, 'sourceNames' | 'preferredPathSegments' | 'localOnly'> {
-  const operatorOverride = operatorOverrides.get(publicPath);
-  if (operatorOverride) return operatorOverride;
+  const configuredOverride = configuredOverrides.get(publicPath);
+  if (configuredOverride) return configuredOverride;
   const alias = PUBLIC_ICON_SOURCE_ALIASES.get(publicPath);
   if (alias) {
     return {
@@ -486,7 +516,7 @@ function sourcePlanForReference(
   if (publicPath.startsWith('/equipment/')) {
     return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/itemicon/'] };
   }
-  if (publicPath.startsWith('/Icon_Enemy/')) {
+  if (publicPath.startsWith('/enemies/')) {
     return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/monstericon/'] };
   }
   if (publicPath.startsWith('/operators/')) {
@@ -505,17 +535,22 @@ async function buildReferenceClosure(
   arguments_: ExportGameIconsArguments,
 ): Promise<readonly IconReference[]> {
   const references = await collectLiteralReferences(arguments_.additionalReferenceRoots);
-  await addContingencyContractImpliedReferences(references);
-  const operatorOverrides = await addOperatorImpliedReferences(
+  await addContingencyContractImpliedReferences(references, arguments_.contingencyContractCatalog);
+  const configuredOverrides = await addOperatorImpliedReferences(
     references,
     arguments_.gameDataSourceRoot,
   );
+  for (const [publicPath, source] of await addEquipmentConfiguredReferences(references)) {
+    if (configuredOverrides.has(publicPath))
+      throw new Error(`conflicting product icon source: ${publicPath}`);
+    configuredOverrides.set(publicPath, source);
+  }
   const richTextSources = await readRichTextSourceManifest();
   return [...references]
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([publicPath, owners]) => ({
       publicPath,
-      ...sourcePlanForReference(publicPath, richTextSources, operatorOverrides),
+      ...sourcePlanForReference(publicPath, richTextSources, configuredOverrides),
       referencedBy: [...owners].sort(),
     }));
 }
@@ -661,7 +696,7 @@ async function pruneUnreferencedAssets(
     'operators',
     'weapons',
     'equipment',
-    'Icon_Enemy',
+    'enemies',
     'contingency_contract',
   ].map(name => path.join(outputRoot, name));
   const files = (await Promise.all(managedRoots.map(listFiles))).flat();

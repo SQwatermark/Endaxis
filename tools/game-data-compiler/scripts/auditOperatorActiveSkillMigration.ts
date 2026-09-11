@@ -102,13 +102,7 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
       declaredSkillCount: skillEntries.length,
       compiledSkillCount,
       // 这里只计新版完整产物是否存在；注册、对象校验和实际模拟由整名回归门禁证明。
-      completeDefinitionPresent: fs.existsSync(
-        path.resolve(
-          'src/data/operators/generated-definitions',
-          slug,
-          `${slug}.operator.generated.ts`,
-        ),
-      ),
+      completeDefinitionPresent: fs.existsSync(path.resolve('src/data/operators', `${slug}.ts`)),
       skills: skillEntries,
     };
   });

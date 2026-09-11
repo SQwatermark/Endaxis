@@ -31,7 +31,7 @@ export const OPERATOR_ACTIVE_SKILL_TYPES = [
   'ultimate',
 ] as const satisfies readonly SkillType[];
 
-/** operators.json 中的领域身份；compile 暂时只保留，不由新主干解释旧 Python 策略。 */
+/** operators.json 中的领域身份；普通技能按原始动作图编译，compile 仅保留路由及旧配置兼容信息。 */
 export type OperatorActiveSkillEntrySource = Readonly<
   Pick<SkillGroupDefinition, 'key' | 'skillType' | 'levelSource'>
 > & {

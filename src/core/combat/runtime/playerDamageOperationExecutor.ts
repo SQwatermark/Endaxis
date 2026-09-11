@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /**
  * 生命伤害与独立失衡步骤进入玩家主动伤害生命周期的装配点。
@@ -48,7 +49,6 @@ type RuntimeOperation = ResolvedCombatOperationStep;
 type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 type StaggerStep = ResolvedCombatStepForKind<'dealStagger'>;
 type PoiseStep = DamageStep | StaggerStep;
-type OperationContext = Parameters<CombatOperationExecutor['execute']>[1];
 
 export const PLAYER_DAMAGE_PREPARATION_EVENTS = [
   'beforeDamageAction',
@@ -144,7 +144,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     });
   }
 
-  execute(step: RuntimeOperation, operationContext?: OperationContext): boolean {
+  execute(step: RuntimeOperation, operationContext?: CombatOperationContext): boolean {
     const skillCastInfo = operationContext?.skillCastInfo ?? this.dependencies.skillCastInfo;
     if (step.kind === 'dealStagger') {
       const value = this.#resolveActionValue(
@@ -316,6 +316,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         features: step.parameters.features ?? [],
         result: damageResult,
         detail: {
+          ...operationContext?.executingBuff,
           ...(this.dependencies.sourceActionId === undefined
             ? {}
             : { sourceActionId: this.dependencies.sourceActionId }),
@@ -403,7 +404,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
   #resolveCalculationResult(
     step: DamageStep,
     context: PlayerDamageContext,
-    operationContext: OperationContext | undefined,
+    operationContext: CombatOperationContext | undefined,
   ): number {
     if (step.kind === 'dealFixedDamage') {
       return this.#resolveActionValue(
@@ -479,7 +480,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
 
   #resolveActionValue(
     value: number | ActionValueOperand,
-    operationContext: OperationContext | undefined,
+    operationContext: CombatOperationContext | undefined,
     missingContextMessage: string,
   ): number {
     if (typeof value === 'number') return value;
@@ -488,17 +489,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     return resolveActionValueOperand(value, operationContext.blackboard);
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);

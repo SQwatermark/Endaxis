@@ -26,10 +26,8 @@ export type TimelineSkillDiagnosticReason =
 export interface UseScenarioSimulationOptions {
   readonly scenario: Ref<ScenarioDocument>;
   readonly service: Pick<ScenarioSimulationService, 'simulate' | 'subscribePerformance'>;
-  /** 编辑停止后的触发延迟；默认 150ms。 */
+  /** 可选的启动延迟；实时编辑默认立即开始。 */
   readonly debounceMs?: number;
-  /** 后台连续计算时发布完整中间快照，仍标记 stale，不冒充最新落点。 */
-  readonly publishIntermediateResults?: boolean;
 }
 
 /** 一次成功模拟的完整发布单元；后台计算完成前不会改变。 */
@@ -59,7 +57,7 @@ export interface UseScenarioSimulationResult {
   readonly resetPublication: () => void;
 }
 
-const DEFAULT_DEBOUNCE_MS = 150;
+const DEFAULT_DEBOUNCE_MS = 0;
 
 export function useScenarioSimulation(
   options: UseScenarioSimulationOptions,
@@ -77,6 +75,9 @@ export function useScenarioSimulation(
   let publicationEpoch = 0;
   let scenarioId = options.scenario.value.id;
   let pendingTimer: ReturnType<typeof setTimeout> | null = null;
+  let rerunRequested = false;
+  let activeRunCount = 0;
+  const queuedResolvers: Array<(published: boolean) => void> = [];
   const unsubscribePerformance =
     options.service.subscribePerformance?.(sample => {
       performanceSamples.value = appendSimulationPerformanceSample(
@@ -93,6 +94,7 @@ export function useScenarioSimulation(
     const scenario = options.scenario.value;
     const runId = ++latestRunId;
     const epoch = publicationEpoch;
+    activeRunCount += 1;
     running.value = true;
     stale.value = true;
     error.value = null;
@@ -101,18 +103,17 @@ export function useScenarioSimulation(
         scenario,
         scenario.battle.simulationRange?.endFrame ?? scenario.battle.durationFrames,
       );
-      // 跑完才发现有更新的任务或场景已经变了，这次结果就不要了。
+      // 同一方案拖动期间允许发布已经完整算完的旧落点；它仍是一份完整快照。
+      // 项目切换、重置或更晚结果已发布时，旧任务不能再覆盖界面。
       const isCurrent = runId === latestRunId && options.scenario.value === scenario;
-      if (
-        !isCurrent &&
-        !(
-          options.publishIntermediateResults &&
-          epoch === publicationEpoch &&
-          scenario.id === options.scenario.value.id &&
-          runId > lastPublishedRunId
-        )
-      )
-        return false;
+      const returnedToPublishedScenario =
+        !isCurrent && publishedState.value?.scenario === options.scenario.value;
+      const canPublish =
+        epoch === publicationEpoch &&
+        scenario.id === options.scenario.value.id &&
+        runId > lastPublishedRunId &&
+        !returnedToPublishedScenario;
+      if (!canPublish) return false;
       publishedState.value = Object.freeze({ scenario, run: result });
       lastPublishedRunId = runId;
       stale.value = !isCurrent;
@@ -124,19 +125,24 @@ export function useScenarioSimulation(
       stale.value = publishedState.value !== null && publishedState.value.scenario !== scenario;
       return false;
     } finally {
-      if (runId === latestRunId) running.value = false;
+      activeRunCount -= 1;
+      running.value = activeRunCount > 0;
+      if (activeRunCount === 0 && rerunRequested) {
+        rerunRequested = false;
+        const resolvers = queuedResolvers.splice(0);
+        void runSimulation().then(published => {
+          for (const resolve of resolvers) resolve(published);
+        });
+      }
     }
   }
 
   function scheduleSimulation(): void {
     if (scenarioId !== options.scenario.value.id) {
       scenarioId = options.scenario.value.id;
-      publicationEpoch++;
+      publicationEpoch += 1;
     }
     if (pendingTimer !== null) clearTimeout(pendingTimer);
-    // 编辑即作废正在计算的版本，包含 A→B→撤销回 A 的情况；不能只比较对象引用。
-    latestRunId += 1;
-    running.value = false;
     error.value = null;
     // 保留旧结果仅适用于同一方案的编辑，不能跨方案展示另一条轴的曲线。
     if (publishedState.value?.scenario.id !== options.scenario.value.id) {
@@ -145,6 +151,17 @@ export function useScenarioSimulation(
     // 场景一变化立即标脏，使诊断不再冒充当前结果；展示层仍可保留上一份投影，
     // 等新模拟完成后原子替换，避免时间映射和效果层在等待期间闪回默认状态。
     stale.value = true;
+    if (activeRunCount > 0) {
+      // 已开始的计算继续跑完；尚未开始的请求只保留最新场景。
+      rerunRequested = true;
+      return;
+    }
+    // 覆盖仍在防抖等待中的旧请求。
+    latestRunId += 1;
+    if (debounceMs === 0) {
+      void runSimulation();
+      return;
+    }
     pendingTimer = setTimeout(() => {
       pendingTimer = null;
       void runSimulation();
@@ -152,16 +169,26 @@ export function useScenarioSimulation(
   }
 
   function simulateNow(): Promise<boolean> {
+    if (pendingTimer !== null) {
+      clearTimeout(pendingTimer);
+      pendingTimer = null;
+    }
+    if (activeRunCount > 0) {
+      rerunRequested = true;
+      return new Promise(resolve => queuedResolvers.push(resolve));
+    }
     return runSimulation();
   }
 
   function resetPublication(): void {
-    publicationEpoch++;
+    publicationEpoch += 1;
     latestRunId += 1;
     if (pendingTimer !== null) clearTimeout(pendingTimer);
     pendingTimer = null;
+    rerunRequested = false;
+    for (const resolve of queuedResolvers.splice(0)) resolve(false);
     publishedState.value = null;
-    running.value = false;
+    running.value = activeRunCount > 0;
     error.value = null;
     stale.value = true;
   }
@@ -173,10 +200,12 @@ export function useScenarioSimulation(
   );
 
   onScopeDispose(() => {
-    publicationEpoch++;
+    publicationEpoch += 1;
     stopWatch();
     if (pendingTimer !== null) clearTimeout(pendingTimer);
     latestRunId += 1;
+    rerunRequested = false;
+    for (const resolve of queuedResolvers.splice(0)) resolve(false);
     unsubscribePerformance();
   });
 
@@ -184,7 +213,7 @@ export function useScenarioSimulation(
     ReadonlyMap<string, readonly TimelineSkillDiagnosticReason[]>
   >(() => {
     const snapshot = publishedState.value;
-    if (snapshot === null || stale.value) return new Map();
+    if (snapshot === null) return new Map();
     const current = snapshot.run;
     const scenario = snapshot.scenario;
 

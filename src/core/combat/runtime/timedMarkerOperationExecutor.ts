@@ -1,3 +1,5 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type { CombatOperationContext } from './skillRuntime';
 import { healAbilityEvent } from '../events/combatAbilityEvent';
 /**
  * 执行定时标记的创建、条件查询与动作结束清理。
@@ -23,7 +25,7 @@ export interface TimedMarkerOperationDependencies {
   readonly globalCooldowns?: GlobalCooldowns;
   readonly resolveCooldownCharacter?: (
     target: GlobalCooldownTarget,
-    context: Parameters<CombatOperationExecutor['execute']>[1],
+    context: CombatOperationContext | undefined,
   ) => string;
   readonly delegate: CombatOperationExecutor;
 }
@@ -33,10 +35,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
 
   constructor(readonly dependencies: TimedMarkerOperationDependencies) {}
 
-  execute(
-    step: RuntimeOperation,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'setGlobalCooldown') {
       if (context === undefined)
         throw new Error('setGlobalCooldown requires a combat operation context');
@@ -78,10 +77,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     return true;
   }
 
-  end(
-    step: RuntimeOperation,
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: RuntimeOperation, context?: CombatOperationContext): void {
     if (step.kind === 'setGlobalCooldown') return;
     if (step.kind === 'createTimedMarker' || step.kind === 'createAbilityEntityTimedMarker') {
       for (const handle of this.#handles.get(step) ?? []) handle.remove();
@@ -91,10 +87,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'globalCooldownPresent') {
       const { cooldowns, characterId } = this.#resolveCooldown(condition.target, context);
       return cooldowns.has(characterId, condition.markerId);
@@ -129,10 +122,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
       : this.dependencies.delegate.evaluate(condition, context);
   }
 
-  #resolveCooldown(
-    target: GlobalCooldownTarget,
-    context: Parameters<CombatOperationExecutor['execute']>[1],
-  ) {
+  #resolveCooldown(target: GlobalCooldownTarget, context: CombatOperationContext | undefined) {
     const cooldowns = this.dependencies.globalCooldowns;
     const resolve = this.dependencies.resolveCooldownCharacter;
     if (cooldowns === undefined || resolve === undefined)
@@ -153,7 +143,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
 
   #resolveTarget(
     target: TimedMarkerTarget,
-    context: Parameters<CombatOperationExecutor['execute']>[1] | undefined,
+    context: CombatOperationContext | undefined,
   ): TimedMarkerContainer {
     if (target === 'buffOwner' || target === 'buffSource') {
       const id = target === 'buffOwner' ? context?.buffOwnerId : context?.buffSourceId;
@@ -195,7 +185,7 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
 
 function resolveMarkerId(
   operand: string | { readonly blackboardKey: string },
-  context: Parameters<CombatOperationExecutor['execute']>[1] | undefined,
+  context: CombatOperationContext | undefined,
 ): string {
   if (typeof operand === 'string') return operand;
   const value = context?.blackboard.getString(operand.blackboardKey);

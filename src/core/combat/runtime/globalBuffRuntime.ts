@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { SkillGlobalBuffDefinition } from '../../game-data/operatorDefinition';
 import type {
@@ -272,10 +273,7 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return this.dependencies.delegate.evaluate(condition, context);
   }
 }

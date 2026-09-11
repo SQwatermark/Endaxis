@@ -17,6 +17,7 @@ import type {
 } from '../../../core/game-data/operatorDefinition';
 import { projectOperatorSupport } from '../operatorSupportViewModel';
 import OperatorSupportNotice from './OperatorSupportNotice.vue';
+import OperatorAvatar from '../../components/OperatorAvatar.vue';
 import { getElementIconPath, getOperatorAvatarPath } from '../../gameAssetPaths';
 import { matchesLocalizedNameSearch } from '../localizedNameSearch';
 
@@ -223,7 +224,7 @@ function clear(): void {
                 :style="operator.rarity === 6 ? {} : { borderColor: rarityColor(operator.rarity) }"
               >
                 <OperatorSupportNotice :support="operator.support" compact />
-                <img :src="operator.avatar" alt="" loading="lazy" />
+                <OperatorAvatar :src="operator.avatar" loading="lazy" />
                 <div
                   class="element-badge"
                   :class="{ 'is-physical': operator.element === 'physical' }"

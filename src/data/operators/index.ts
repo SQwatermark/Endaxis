@@ -32,4 +32,4 @@ export { avywenna } from './avywenna';
 export { catcher } from './catcher';
 export { ardelia } from './ardelia';
 export { liino } from './liino';
-export { default as typhoeus } from './generated-definitions/typhoeus/typhoeus.operator.generated';
+export { default as typhoeus } from './typhoeus';

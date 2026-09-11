@@ -117,13 +117,15 @@ import type {
 ${sharedSequenceDeclarations.length > 0 ? '  ActionSequenceDefinition,\n' : ''}
   OperatorDefinition,
   SkillDefinition,
-} from '../../../../core/game-data/operatorDefinition';
-${helperImport ? `import { ${helperImport} } from '../../definitionHelpers';\n` : ''}
+} from '../../core/game-data/operatorDefinition';
+${helperImport ? `import { ${helperImport} } from './definitionHelpers';\n` : ''}
 ${sharedSequenceDeclarations.join('\n\n')}
 ${sharedSequenceDeclarations.length > 0 ? '\n' : ''}
 ${skillDeclarations.join('\n\n')}
 
-export default ${renderedOperator} as const satisfies OperatorDefinition;
+export const ${toIdentifier(requireString(operator.slug, 'operator.slug'))}: OperatorDefinition = ${renderedOperator} as const satisfies OperatorDefinition;
+
+export default ${toIdentifier(requireString(operator.slug, 'operator.slug'))};
 `;
 }
 

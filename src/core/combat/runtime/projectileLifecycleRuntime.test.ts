@@ -4,12 +4,58 @@ import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAlloc
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 
 describe('ProjectileLifecycleRuntime', () => {
+  it.each([0, 0.001, 0.5])(
+    '分段到达按实际Tick推进，delta=%s不改变段数，回收仍分阶段',
+    deltaSeconds => {
+      const runtime = new ProjectileLifecycleRuntime();
+      let delta: number | null = null;
+      const calls: string[] = [];
+      const entity = runtime.launch({
+        finishDelaySeconds: { reachAfterTicks: 2, maxDurationSeconds: 2 },
+        recycleDelaySeconds: 0,
+        resolveTickDeltaSeconds: () => delta,
+        finish: () => calls.push('finish'),
+        beforeReset: () => calls.push('beforeReset'),
+      });
+      entity.onReset(() => calls.push('reset'));
+      runtime.advanceFrame();
+      delta = deltaSeconds;
+      runtime.advanceFrame();
+      expect(calls).toEqual([]);
+      runtime.advanceFrame();
+      expect(calls).toEqual(['finish']);
+      runtime.advanceFrame();
+      expect(calls).toEqual(['finish']);
+      runtime.advanceFrame();
+      expect(calls).toEqual(['finish', 'beforeReset', 'reset']);
+    },
+  );
+  it('分段到达前先到持续时间上限时结束', () => {
+    const runtime = new ProjectileLifecycleRuntime();
+    let finished = false;
+    runtime.launch({
+      finishDelaySeconds: { reachAfterTicks: 4, maxDurationSeconds: 0.5 },
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 0.5,
+      finish: () => {
+        finished = true;
+      },
+      beforeReset: () => {},
+    });
+    runtime.advanceFrame();
+    expect(finished).toBe(true);
+  });
   it('首Tick到达以实际准入为准，不把无回调发射压成同步回收', () => {
     const runtime = new ProjectileLifecycleRuntime();
     let delta: number | null = null;
     const calls: string[] = [];
-    const projectile = runtime.launch({ finishDelaySeconds: 'firstTickReach', recycleDelaySeconds: 0,
-      resolveTickDeltaSeconds: () => delta, finish: () => calls.push('finish'), beforeReset: () => calls.push('beforeReset') });
+    const projectile = runtime.launch({
+      finishDelaySeconds: 'firstTickReach',
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => delta,
+      finish: () => calls.push('finish'),
+      beforeReset: () => calls.push('beforeReset'),
+    });
     projectile.onReset(() => calls.push('reset'));
     runtime.advanceFrame();
     expect(calls).toEqual([]);

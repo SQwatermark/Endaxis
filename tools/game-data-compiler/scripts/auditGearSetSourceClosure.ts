@@ -161,10 +161,10 @@ function parseArguments(values: readonly string[]): Arguments {
     buffDataDirectory: resolve(entries['--buffs']!),
     clientVersion: entries['--client-version']!,
     jsonOutput: resolve(
-      entries['--json-output'] ?? 'docs/research/equipment-suit-source-closure.json',
+      entries['--json-output'] ?? 'docs/research/equipment/equipment-suit-source-closure.json',
     ),
     markdownOutput: resolve(
-      entries['--markdown-output'] ?? 'docs/research/equipment-suit-source-closure.md',
+      entries['--markdown-output'] ?? 'docs/research/equipment/equipment-suit-source-closure.md',
     ),
   };
 }

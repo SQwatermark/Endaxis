@@ -22,6 +22,7 @@ export const OPERATOR_WORKSPACE_FIELDS = {
   playerActionModes: { area: 'actionRouting', access: 'editable' },
   skillAliases: { area: 'provenance', access: 'readonly' },
   buffDefinitions: { area: 'buffs', access: 'editable' },
+  buffDisplayNameKeys: { area: 'provenance', access: 'readonly' },
   abilityEntityDefinitions: { area: 'entities', access: 'editable' },
   comboSkillConditions: { area: 'combo', access: 'editable' },
   comboSkillPriority: { area: 'combo', access: 'editable' },

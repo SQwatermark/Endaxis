@@ -6,7 +6,7 @@ import { chenQianyu as chenQianyuGeneratedOperator } from '../../data/operators/
 import { daPan as daPanGeneratedOperator } from '../../data/operators/da-pan';
 import { endministrator as endministratorGeneratedOperator } from '../../data/operators/endministrator';
 import { lifeng as lifengGeneratedOperator } from '../../data/operators/lifeng';
-import fluoriteGeneratedOperator from '../../data/operators/generated-definitions/fluorite/fluorite.operator.generated';
+import fluoriteGeneratedOperator from '../../data/operators/fluorite';
 import { gilberta as gilbertaGeneratedOperator } from '../../data/operators/gilberta';
 import { lastRite as lastRiteGeneratedOperator } from '../../data/operators/last-rite';
 import { estella as estellaGeneratedOperator } from '../../data/operators/estella';

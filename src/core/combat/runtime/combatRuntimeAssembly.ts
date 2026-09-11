@@ -1,3 +1,4 @@
+import type { RegisterPassiveAbilityEventAction } from './passiveAbilityEventRuntime';
 import { createCallbackSkillHostFactory } from './callbackSkillHost';
 import { abilityEventSourceId } from '../events/combatAbilityEvent';
 import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
@@ -377,7 +378,7 @@ export interface CombatRuntimeEnvironmentOptions {
   readonly registerEquipmentAbilityEventAction?: RegisterEquipmentAbilityEventAction;
   readonly registerPassiveAbilityEventAction?: (
     operatorId: string,
-    ...args: Parameters<ConstructorParameters<typeof PassiveAbilityEventRuntime>[3]>
+    ...args: Parameters<RegisterPassiveAbilityEventAction>
   ) => import('../events/abilityEventDispatcher').AbilityEventRegistration;
   /** 原生立即连携入口；普通窗口连携不依赖此端口。 */
   readonly castComboSkillImmediately?: (operatorId: string, skillKey: string) => void;
@@ -1492,7 +1493,13 @@ export class CombatRuntimeAssembly {
       effectiveInheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
     ability.prepareSkillCastId(skillId, castId, skillCastId, resolveSkillSlot);
     if (program?.skillType === 'comboSkill') {
-      const result = this.comboWindows.consume(operatorId, resolvedSkillId, program.skillGroupKey);
+      const result = this.comboWindows.consume(
+        operatorId,
+        resolvedSkillId,
+        program.skillGroupKey,
+        skillCastId,
+        castId,
+      );
       if (result.consumed) {
         if (result.window.nativeCondition !== undefined) {
           ability.prepareAfterSkillCastStart(
@@ -2988,7 +2995,7 @@ export class CombatRuntimeAssembly {
   #requireCooldownCharacter(
     target: GlobalCooldownTarget,
     operatorId: string,
-    context: Parameters<CombatOperationExecutor['execute']>[1],
+    context: CombatOperationContext | undefined,
   ): string {
     const id =
       target === 'caster'

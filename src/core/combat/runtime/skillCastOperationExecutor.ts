@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatSkillCastInfo } from './skillCastInfo';
@@ -32,10 +33,7 @@ export class SkillCastOperationExecutor implements CombatOperationExecutor {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return this.dependencies.delegate.evaluate(condition, context);
   }
 

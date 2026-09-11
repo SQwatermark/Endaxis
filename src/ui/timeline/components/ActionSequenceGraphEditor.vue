@@ -22,7 +22,6 @@ import type {
   ScheduledSequenceDefinition,
 } from '../../../core/game-data/operatorDefinition';
 import {
-  buildActionSequenceMindMap,
   indexSkillStructureNodes,
   findSkillStructureNodeForPath,
   locateStructureProperty,
@@ -72,7 +71,9 @@ import ScheduledSequenceEditor from './ScheduledSequenceEditor.vue';
 
 const props = defineProps<{
   sequence: T;
-  buildRoot?: (document: T) => SkillStructureNode;
+  /** 每种文档显式提供匹配T的投影，避免将任意对象强转为序列。 */
+  buildRoot: (document: T) => SkillStructureNode;
+  initialOverview?: boolean;
   customInspector?: (node: SkillStructureNode) => boolean;
   showDetails?: boolean;
   selectedPath?: string;
@@ -98,12 +99,7 @@ const history =
     value => emit('update', value),
   );
 useEditorHistoryShortcuts(shell, history.restore);
-const root = computed(() => {
-  if (props.buildRoot) return props.buildRoot(props.sequence);
-  if (!('steps' in props.sequence) || !Array.isArray(props.sequence.steps))
-    throw new Error('A non-sequence document requires a structure projection');
-  return buildActionSequenceMindMap(props.sequence as unknown as ActionSequenceDefinition);
-});
+const root = computed(() => props.buildRoot(props.sequence));
 const nodes = computed(() => indexSkillStructureNodes(root.value));
 const selectedId = ref(root.value.id);
 const selected = computed(() => nodes.value.get(selectedId.value) ?? root.value);
@@ -414,7 +410,7 @@ async function moveNode(operation: {
     <SkillStructureMindMap
       ref="map"
       :root="root"
-      :initial-overview="!!buildRoot"
+      :initial-overview="initialOverview ?? true"
       :selected-id="selectedId"
       :show-reference-pins="false"
       :can-undo="history.canUndo.value"

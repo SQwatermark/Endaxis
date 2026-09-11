@@ -6,7 +6,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0007-mimicw',
     gameId: 'eny_0007_mimicw',
-    iconPath: '/Icon_Enemy/eny_0007_mimicw.webp',
+    iconPath: '/enemies/eny_0007_mimicw.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -432,7 +432,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0018-lbtough',
     gameId: 'eny_0018_lbtough',
-    iconPath: '/Icon_Enemy/eny_0018_lbtough.webp',
+    iconPath: '/enemies/eny_0018_lbtough.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -858,7 +858,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0021-agmelee',
     gameId: 'eny_0021_agmelee',
-    iconPath: '/Icon_Enemy/eny_0021_agmelee.webp',
+    iconPath: '/enemies/eny_0021_agmelee.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -1284,7 +1284,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0023-aghornb',
     gameId: 'eny_0023_aghornb',
-    iconPath: '/Icon_Enemy/eny_0023_aghornb.webp',
+    iconPath: '/enemies/eny_0023_aghornb.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -1710,7 +1710,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0025-agrange',
     gameId: 'eny_0025_agrange',
-    iconPath: '/Icon_Enemy/eny_0025_agrange.webp',
+    iconPath: '/enemies/eny_0025_agrange.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -2136,7 +2136,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0027-agscorp',
     gameId: 'eny_0027_agscorp',
-    iconPath: '/Icon_Enemy/eny_0027_agscorp.webp',
+    iconPath: '/enemies/eny_0027_agscorp.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -2562,7 +2562,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0029-lbmob',
     gameId: 'eny_0029_lbmob',
-    iconPath: '/Icon_Enemy/eny_0029_lbmob.webp',
+    iconPath: '/enemies/eny_0029_lbmob.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -2988,7 +2988,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0033-lbhunt',
     gameId: 'eny_0033_lbhunt',
-    iconPath: '/Icon_Enemy/eny_0033_lbhunt.webp',
+    iconPath: '/enemies/eny_0033_lbhunt.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -3414,7 +3414,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0039-agcanno',
     gameId: 'eny_0039_agcanno',
-    iconPath: '/Icon_Enemy/eny_0039_agcanno.webp',
+    iconPath: '/enemies/eny_0039_agcanno.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -3840,7 +3840,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0045-agtrinit',
     gameId: 'eny_0045_agtrinit',
-    iconPath: '/Icon_Enemy/eny_0045_agtrinit.webp',
+    iconPath: '/enemies/eny_0045_agtrinit.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -4266,7 +4266,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0046-lbshamman',
     gameId: 'eny_0046_lbshamman',
-    iconPath: '/Icon_Enemy/eny_0046_lbshamman.webp',
+    iconPath: '/enemies/eny_0046_lbshamman.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -4692,7 +4692,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0047-firebat',
     gameId: 'eny_0047_firebat',
-    iconPath: '/Icon_Enemy/eny_0047_firebat.webp',
+    iconPath: '/enemies/eny_0047_firebat.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -5118,7 +5118,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0048-hvybow',
     gameId: 'eny_0048_hvybow',
-    iconPath: '/Icon_Enemy/eny_0048_hvybow.webp',
+    iconPath: '/enemies/eny_0048_hvybow.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -5544,7 +5544,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0049-rogue',
     gameId: 'eny_0049_rogue',
-    iconPath: '/Icon_Enemy/eny_0049_rogue.webp',
+    iconPath: '/enemies/eny_0049_rogue.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -5970,7 +5970,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0050-hound',
     gameId: 'eny_0050_hound',
-    iconPath: '/Icon_Enemy/eny_0050_hound.webp',
+    iconPath: '/enemies/eny_0050_hound.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -6396,7 +6396,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0051-rodin',
     gameId: 'eny_0051_rodin',
-    iconPath: '/Icon_Enemy/eny_0051_rodin.webp',
+    iconPath: '/enemies/eny_0051_rodin.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -6822,7 +6822,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0052-palesent',
     gameId: 'eny_0052_palesent',
-    iconPath: '/Icon_Enemy/eny_0052_palesent.webp',
+    iconPath: '/enemies/eny_0052_palesent.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -7248,7 +7248,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0053-hsmob',
     gameId: 'eny_0053_hsmob',
-    iconPath: '/Icon_Enemy/eny_0053_hsmob.webp',
+    iconPath: '/enemies/eny_0053_hsmob.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -7674,7 +7674,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0054-hsmino',
     gameId: 'eny_0054_hsmino',
-    iconPath: '/Icon_Enemy/eny_0054_hsmino.webp',
+    iconPath: '/enemies/eny_0054_hsmino.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -8100,7 +8100,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0055-hscrane',
     gameId: 'eny_0055_hscrane',
-    iconPath: '/Icon_Enemy/eny_0055_hscrane.webp',
+    iconPath: '/enemies/eny_0055_hscrane.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -8951,7 +8951,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0058-agdisk',
     gameId: 'eny_0058_agdisk',
-    iconPath: '/Icon_Enemy/eny_0058_agdisk.webp',
+    iconPath: '/enemies/eny_0058_agdisk.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -9377,7 +9377,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0059-erhound',
     gameId: 'eny_0059_erhound',
-    iconPath: '/Icon_Enemy/eny_0059_erhound.webp',
+    iconPath: '/enemies/eny_0059_erhound.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -9803,7 +9803,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0060-lbmad',
     gameId: 'eny_0060_lbmad',
-    iconPath: '/Icon_Enemy/eny_0060_lbmad.webp',
+    iconPath: '/enemies/eny_0060_lbmad.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -10229,7 +10229,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0061-palecore',
     gameId: 'eny_0061_palecore',
-    iconPath: '/Icon_Enemy/eny_0061_palecore.webp',
+    iconPath: '/enemies/eny_0061_palecore.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -10655,7 +10655,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0062-paletent',
     gameId: 'eny_0062_paletent',
-    iconPath: '/Icon_Enemy/eny_0062_paletent.webp',
+    iconPath: '/enemies/eny_0062_paletent.webp',
     tier: 'leader',
     rank: 'elite',
     levelHp: [
@@ -11081,7 +11081,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0063-agmelee2',
     gameId: 'eny_0063_agmelee2',
-    iconPath: '/Icon_Enemy/eny_0063_agmelee2.webp',
+    iconPath: '/enemies/eny_0063_agmelee2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -11507,7 +11507,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0064-agrange2',
     gameId: 'eny_0064_agrange2',
-    iconPath: '/Icon_Enemy/eny_0064_agrange2.webp',
+    iconPath: '/enemies/eny_0064_agrange2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -11933,7 +11933,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0065-lbmob2',
     gameId: 'eny_0065_lbmob2',
-    iconPath: '/Icon_Enemy/eny_0065_lbmob2.webp',
+    iconPath: '/enemies/eny_0065_lbmob2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -12359,7 +12359,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0066-lbhunt2',
     gameId: 'eny_0066_lbhunt2',
-    iconPath: '/Icon_Enemy/eny_0066_lbhunt2.webp',
+    iconPath: '/enemies/eny_0066_lbhunt2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -12785,7 +12785,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0067-hound2',
     gameId: 'eny_0067_hound2',
-    iconPath: '/Icon_Enemy/eny_0067_hound2.webp',
+    iconPath: '/enemies/eny_0067_hound2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -13211,7 +13211,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0068-lbtough2',
     gameId: 'eny_0068_lbtough2',
-    iconPath: '/Icon_Enemy/eny_0068_lbtough2.webp',
+    iconPath: '/enemies/eny_0068_lbtough2.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -13637,7 +13637,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0069-aghornb2',
     gameId: 'eny_0069_aghornb2',
-    iconPath: '/Icon_Enemy/eny_0069_aghornb2.webp',
+    iconPath: '/enemies/eny_0069_aghornb2.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -14063,7 +14063,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0070-agscorp2',
     gameId: 'eny_0070_agscorp2',
-    iconPath: '/Icon_Enemy/eny_0070_agscorp2.webp',
+    iconPath: '/enemies/eny_0070_agscorp2.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -14489,7 +14489,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0071-sandb',
     gameId: 'eny_0071_sandb',
-    iconPath: '/Icon_Enemy/eny_0071_sandb.webp',
+    iconPath: '/enemies/eny_0071_sandb.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -14915,7 +14915,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0072-slimeml',
     gameId: 'eny_0072_slimeml',
-    iconPath: '/Icon_Enemy/eny_0072_slimeml.webp',
+    iconPath: '/enemies/eny_0072_slimeml.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -15341,7 +15341,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0073-slimerg',
     gameId: 'eny_0073_slimerg',
-    iconPath: '/Icon_Enemy/eny_0073_slimerg.webp',
+    iconPath: '/enemies/eny_0073_slimerg.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -15767,7 +15767,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0074-lbshield',
     gameId: 'eny_0074_lbshield',
-    iconPath: '/Icon_Enemy/eny_0074_lbshield.webp',
+    iconPath: '/enemies/eny_0074_lbshield.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -16193,7 +16193,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0075-lbroshan',
     gameId: 'eny_0075_lbroshan',
-    iconPath: '/Icon_Enemy/eny_0075_lbroshan.webp',
+    iconPath: '/enemies/eny_0075_lbroshan.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -16619,7 +16619,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0076-agfly',
     gameId: 'eny_0076_agfly',
-    iconPath: '/Icon_Enemy/eny_0076_agfly.webp',
+    iconPath: '/enemies/eny_0076_agfly.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -17045,7 +17045,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0077-agshield',
     gameId: 'eny_0077_agshield',
-    iconPath: '/Icon_Enemy/eny_0077_agshield.webp',
+    iconPath: '/enemies/eny_0077_agshield.webp',
     tier: 'boss',
     rank: 'boss',
     levelHp: [
@@ -17471,7 +17471,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0078-nefarp1',
     gameId: 'eny_0078_nefarp1',
-    iconPath: '/Icon_Enemy/eny_0078_nefarp1.webp',
+    iconPath: '/enemies/eny_0078_nefarp1.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -17897,7 +17897,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0079-nefarp2',
     gameId: 'eny_0079_nefarp2',
-    iconPath: '/Icon_Enemy/eny_0079_nefarp2.webp',
+    iconPath: '/enemies/eny_0079_nefarp2.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -18323,7 +18323,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0080-reaper',
     gameId: 'eny_0080_reaper',
-    iconPath: '/Icon_Enemy/eny_0080_reaper.webp',
+    iconPath: '/enemies/eny_0080_reaper.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -18749,7 +18749,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0081-ruanyi',
     gameId: 'eny_0081_ruanyi',
-    iconPath: '/Icon_Enemy/eny_0081_ruanyi.webp',
+    iconPath: '/enemies/eny_0081_ruanyi.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -19175,7 +19175,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0082-hsbear',
     gameId: 'eny_0082_hsbear',
-    iconPath: '/Icon_Enemy/eny_0082_hsbear.webp',
+    iconPath: '/enemies/eny_0082_hsbear.webp',
     tier: 'boss',
     rank: 'boss',
     levelHp: [
@@ -19601,7 +19601,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0083-hstiger',
     gameId: 'eny_0083_hstiger',
-    iconPath: '/Icon_Enemy/eny_0083_hstiger.webp',
+    iconPath: '/enemies/eny_0083_hstiger.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -20027,7 +20027,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0084-hshunt',
     gameId: 'eny_0084_hshunt',
-    iconPath: '/Icon_Enemy/eny_0084_hshunt.webp',
+    iconPath: '/enemies/eny_0084_hshunt.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -20453,7 +20453,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0085-hsrogue',
     gameId: 'eny_0085_hsrogue',
-    iconPath: '/Icon_Enemy/eny_0085_hsrogue.webp',
+    iconPath: '/enemies/eny_0085_hsrogue.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -20879,7 +20879,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0087-wgslime',
     gameId: 'eny_0087_wgslime',
-    iconPath: '/Icon_Enemy/eny_0087_wgslime.webp',
+    iconPath: '/enemies/eny_0087_wgslime.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -21305,7 +21305,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0088-wgthorns',
     gameId: 'eny_0088_wgthorns',
-    iconPath: '/Icon_Enemy/eny_0088_wgthorns.webp',
+    iconPath: '/enemies/eny_0088_wgthorns.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -21731,7 +21731,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0089-wgreflec',
     gameId: 'eny_0089_wgreflec',
-    iconPath: '/Icon_Enemy/eny_0089_wgreflec.webp',
+    iconPath: '/enemies/eny_0089_wgreflec.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -22157,7 +22157,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0090-wgabyss',
     gameId: 'eny_0090_wgabyss',
-    iconPath: '/Icon_Enemy/eny_0090_wgabyss.webp',
+    iconPath: '/enemies/eny_0090_wgabyss.webp',
     tier: 'boss',
     rank: 'boss',
     levelHp: [
@@ -22583,7 +22583,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0091-wgshoal',
     gameId: 'eny_0091_wgshoal',
-    iconPath: '/Icon_Enemy/eny_0091_wgshoal.webp',
+    iconPath: '/enemies/eny_0091_wgshoal.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -23009,7 +23009,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0092-slbomb',
     gameId: 'eny_0092_slbomb',
-    iconPath: '/Icon_Enemy/eny_0092_slbomb.webp',
+    iconPath: '/enemies/eny_0092_slbomb.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -23435,7 +23435,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0093-hshog',
     gameId: 'eny_0093_hshog',
-    iconPath: '/Icon_Enemy/eny_0093_hshog.webp',
+    iconPath: '/enemies/eny_0093_hshog.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -23861,7 +23861,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0094-hsfly',
     gameId: 'eny_0094_hsfly',
-    iconPath: '/Icon_Enemy/eny_0094_hsfly.webp',
+    iconPath: '/enemies/eny_0094_hsfly.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -24287,7 +24287,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0095-ethillu',
     gameId: 'eny_0095_ethillu',
-    iconPath: '/Icon_Enemy/eny_0095_ethillu.webp',
+    iconPath: '/enemies/eny_0095_ethillu.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -24713,7 +24713,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0096-hsmob2',
     gameId: 'eny_0096_hsmob2',
-    iconPath: '/Icon_Enemy/eny_0096_hsmob2.webp',
+    iconPath: '/enemies/eny_0096_hsmob2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -25139,7 +25139,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0097-hsmino2',
     gameId: 'eny_0097_hsmino2',
-    iconPath: '/Icon_Enemy/eny_0097_hsmino2.webp',
+    iconPath: '/enemies/eny_0097_hsmino2.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -25565,7 +25565,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0098-sandb2',
     gameId: 'eny_0098_sandb2',
-    iconPath: '/Icon_Enemy/eny_0098_sandb2.webp',
+    iconPath: '/enemies/eny_0098_sandb2.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -25991,7 +25991,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0099-slimeml2',
     gameId: 'eny_0099_slimeml2',
-    iconPath: '/Icon_Enemy/eny_0099_slimeml2.webp',
+    iconPath: '/enemies/eny_0099_slimeml2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -26417,7 +26417,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0100-slimerg2',
     gameId: 'eny_0100_slimerg2',
-    iconPath: '/Icon_Enemy/eny_0100_slimerg2.webp',
+    iconPath: '/enemies/eny_0100_slimerg2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -26843,7 +26843,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0101-agfly2',
     gameId: 'eny_0101_agfly2',
-    iconPath: '/Icon_Enemy/eny_0101_agfly2.webp',
+    iconPath: '/enemies/eny_0101_agfly2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -27269,7 +27269,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0102-hstiger2',
     gameId: 'eny_0102_hstiger2',
-    iconPath: '/Icon_Enemy/eny_0102_hstiger2.webp',
+    iconPath: '/enemies/eny_0102_hstiger2.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -27695,7 +27695,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0103-hshunt2',
     gameId: 'eny_0103_hshunt2',
-    iconPath: '/Icon_Enemy/eny_0103_hshunt2.webp',
+    iconPath: '/enemies/eny_0103_hshunt2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -28121,7 +28121,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0104-hsrogue2',
     gameId: 'eny_0104_hsrogue2',
-    iconPath: '/Icon_Enemy/eny_0104_hsrogue2.webp',
+    iconPath: '/enemies/eny_0104_hsrogue2.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -28547,7 +28547,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0105-wgslime2',
     gameId: 'eny_0105_wgslime2',
-    iconPath: '/Icon_Enemy/eny_0105_wgslime2.webp',
+    iconPath: '/enemies/eny_0105_wgslime2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -28973,7 +28973,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0106-wgthorns2',
     gameId: 'eny_0106_wgthorns2',
-    iconPath: '/Icon_Enemy/eny_0106_wgthorns2.webp',
+    iconPath: '/enemies/eny_0106_wgthorns2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -29399,7 +29399,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0107-wgshoal2',
     gameId: 'eny_0107_wgshoal2',
-    iconPath: '/Icon_Enemy/eny_0107_wgshoal2.webp',
+    iconPath: '/enemies/eny_0107_wgshoal2.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -29825,7 +29825,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0108-slbomb2',
     gameId: 'eny_0108_slbomb2',
-    iconPath: '/Icon_Enemy/eny_0108_slbomb2.webp',
+    iconPath: '/enemies/eny_0108_slbomb2.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -30251,7 +30251,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0109-hshog2',
     gameId: 'eny_0109_hshog2',
-    iconPath: '/Icon_Enemy/eny_0109_hshog2.webp',
+    iconPath: '/enemies/eny_0109_hshog2.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -30677,7 +30677,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0112-jzmonk',
     gameId: 'eny_0112_jzmonk',
-    iconPath: '/Icon_Enemy/eny_0112_jzmonk.webp',
+    iconPath: '/enemies/eny_0112_jzmonk.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -31103,7 +31103,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0113-jzogre',
     gameId: 'eny_0113_jzogre',
-    iconPath: '/Icon_Enemy/eny_0113_jzogre.webp',
+    iconPath: '/enemies/eny_0113_jzogre.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -31529,7 +31529,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0114-jzmking',
     gameId: 'eny_0114_jzmking',
-    iconPath: '/Icon_Enemy/eny_0114_jzmking.webp',
+    iconPath: '/enemies/eny_0114_jzmking.webp',
     tier: 'boss',
     rank: 'boss',
     levelHp: [
@@ -31955,7 +31955,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0117-klhound',
     gameId: 'eny_0117_klhound',
-    iconPath: '/Icon_Enemy/eny_0117_klhound.webp',
+    iconPath: '/enemies/eny_0117_klhound.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -32381,7 +32381,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0118-klhog',
     gameId: 'eny_0118_klhog',
-    iconPath: '/Icon_Enemy/eny_0118_klhog.webp',
+    iconPath: '/enemies/eny_0118_klhog.webp',
     tier: 'advanced',
     rank: 'elite',
     levelHp: [
@@ -32807,7 +32807,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0119-kltiger',
     gameId: 'eny_0119_kltiger',
-    iconPath: '/Icon_Enemy/eny_0119_kltiger.webp',
+    iconPath: '/enemies/eny_0119_kltiger.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -33233,7 +33233,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0120-klbear',
     gameId: 'eny_0120_klbear',
-    iconPath: '/Icon_Enemy/eny_0120_klbear.webp',
+    iconPath: '/enemies/eny_0120_klbear.webp',
     tier: 'boss',
     rank: 'boss',
     levelHp: [
@@ -33659,7 +33659,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0121-klbud',
     gameId: 'eny_0121_klbud',
-    iconPath: '/Icon_Enemy/eny_0121_klbud.webp',
+    iconPath: '/enemies/eny_0121_klbud.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -34085,7 +34085,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0122-kltdbud',
     gameId: 'eny_0122_kltdbud',
-    iconPath: '/Icon_Enemy/eny_0122_kltdbud.webp',
+    iconPath: '/enemies/eny_0122_kltdbud.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [
@@ -34511,7 +34511,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0123-klcap',
     gameId: 'eny_0123_klcap',
-    iconPath: '/Icon_Enemy/eny_0123_klcap.webp',
+    iconPath: '/enemies/eny_0123_klcap.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -34937,7 +34937,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0124-kltdcap',
     gameId: 'eny_0124_kltdcap',
-    iconPath: '/Icon_Enemy/eny_0124_kltdcap.webp',
+    iconPath: '/enemies/eny_0124_kltdcap.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -35363,7 +35363,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0125-fdcentur',
     gameId: 'eny_0125_fdcentur',
-    iconPath: '/Icon_Enemy/eny_0125_fdcentur.webp',
+    iconPath: '/enemies/eny_0125_fdcentur.webp',
     tier: 'leader',
     rank: 'boss',
     levelHp: [
@@ -35789,7 +35789,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0127-bigents',
     gameId: 'eny_0127_bigents',
-    iconPath: '/Icon_Enemy/eny_0127_bigents.webp',
+    iconPath: '/enemies/eny_0127_bigents.webp',
     tier: 'boss',
     rank: 'boss',
     levelHp: [
@@ -36215,7 +36215,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0128-babyents',
     gameId: 'eny_0128_babyents',
-    iconPath: '/Icon_Enemy/eny_0128_babyents.webp',
+    iconPath: '/enemies/eny_0128_babyents.webp',
     tier: 'elite',
     rank: 'elite',
     levelHp: [
@@ -36641,7 +36641,7 @@ export const generatedEnemyDefinitions = [
   {
     id: 'eny-0129-slwood',
     gameId: 'eny_0129_slwood',
-    iconPath: '/Icon_Enemy/eny_0129_slwood.webp',
+    iconPath: '/enemies/eny_0129_slwood.webp',
     tier: 'normal',
     rank: 'mob',
     levelHp: [

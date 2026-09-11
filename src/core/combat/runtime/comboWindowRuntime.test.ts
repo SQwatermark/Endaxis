@@ -92,4 +92,47 @@ describe('ComboWindowRuntime', () => {
     expect(runtime.tryConsume('rossi', 'comboSkillStage2')).toBe(true);
     expect(runtime.pending).toHaveLength(0);
   });
+
+  it.each([
+    [14, false],
+    [15, true],
+    [30, true],
+    [31, false],
+  ] as const)('uses the native inclusive QTE interval at frame %s', (elapsedFrames, succeeded) => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const runtime = new ComboWindowRuntime(clock, receipt);
+    runtime.open('rossi', 'comboSkillStage2');
+    runtime.registerRingQte('rossi', 15, 15);
+    advance(clock, runtime, elapsedFrames);
+
+    expect(
+      runtime.consume('rossi', 'comboSkillStage2', undefined, 42, 'cast:stage2').consumed,
+    ).toBe(true);
+    expect(runtime.wasRingQteSuccessful(42)).toBe(succeeded);
+    expect(
+      receipt.entries.findLast(entry => entry.event === 'ComboRingQtePressed')?.data,
+    ).toMatchObject({
+      elapsedFrames,
+      succeeded,
+      skillCastId: 42,
+      sourceActionId: 'cast:stage2',
+    });
+  });
+
+  it('freezes the QTE clock with the underlying combo remaining time', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const runtime = new ComboWindowRuntime(clock, receipt);
+    runtime.open('rossi', 'comboSkillStage2');
+    runtime.registerRingQte('rossi', 15, 15);
+    advance(clock, runtime, 10);
+    runtime.setOperatorPaused('rossi', true);
+    advance(clock, runtime, 30);
+    runtime.setOperatorPaused('rossi', false);
+    advance(clock, runtime, 5);
+
+    runtime.consume('rossi', 'comboSkillStage2', undefined, 42);
+    expect(runtime.wasRingQteSuccessful(42)).toBe(true);
+  });
 });

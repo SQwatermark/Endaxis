@@ -91,7 +91,7 @@ export interface ZeroDistanceProjectileProjectionCatalogSource {
 
 /**
  * 把版本化 ProjectileData、实体模板与回调 SkillData 目录接成公共动作扩展。
- * 这里只接受已证明的首帧零距离形状；目录缺边、重复路由或其他事件均在来源路径上失败。
+ * 按结束条件和固定零空间模型选择已支持的生命周期；未知形状在来源路径上报错。
  */
 export function createZeroDistanceProjectileProjectionExtensionSource(input: {
   readonly catalog: ZeroDistanceProjectileProjectionCatalogSource;
@@ -127,6 +127,47 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
     if (enabled.length === 0) {
       assertSupportedLaunchTargetControls(launch, sourcePath, projectionContext);
       if (
+        !launch.syncTimeScale &&
+        launch.projectileSource.targetSource === 'Source' &&
+        launch.projectileSource.targetGroupKey === '' &&
+        isPlainZeroSpaceFixedPoint(launch.target, projectionContext, sourcePath) &&
+        launch.presetPoints.length === 0 &&
+        runtime.useSegmentMove &&
+        runtime.moveSegments.length > 1 &&
+        runtime.presetPointKeys.length === 2 &&
+        runtime.presetPointKeys.includes('LaunchPoint') &&
+        runtime.presetPointKeys.includes('TargetPoint') &&
+        runtime.moveSegments.every(
+          segment =>
+            runtime.presetPointKeys.includes(segment.startPointKey) &&
+            runtime.presetPointKeys.includes(segment.endPointKey) &&
+            runtime.moveModeTypes.get(segment.moveModeId) === 0,
+        ) &&
+        runtime.finishOnReach &&
+        !runtime.keepMoveOnReach &&
+        !runtime.canTraceTargetAfterReach &&
+        runtime.blockLayerDef?.value === 0 &&
+        runtime.maxHitCount <= 0 &&
+        runtime.finishDistance.blackboardKey === null &&
+        runtime.finishDistance.value >= 0 &&
+        Number.isFinite(runtime.finishDuration) &&
+        runtime.finishDuration > 0
+      ) {
+        // 原生每个移动Tick只推进一段；earlyNextByDuration在已reach分支读取，
+        // 不构成每段的最短停留时间。零空间不累计行进距离，也不因无回调命中结束。
+        return [
+          {
+            kind: 'launchProjectileLifetime',
+            parameters: {
+              finish: {
+                reachAfterTicks: runtime.moveSegments.length,
+                maxDurationSeconds: runtime.finishDuration,
+              },
+            },
+          },
+        ];
+      }
+      if (
         launch.syncTimeScale ||
         launch.projectileSource.targetSource !== 'Source' ||
         launch.projectileSource.targetGroupKey !== '' ||
@@ -156,10 +197,53 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       enabled[0]!.event === 'hit' &&
       isPresentationOnlyProjectileCallback(callback('hit'))
     ) {
-      // 回调只含表现动作，并不能证明发射者没有 SkillAffix 等外部观察者。
-      throw new Error(
-        `${sourcePath}: projectile ${launch.projectileId} has a presentation-only callback, but launch/reset lifetime is not projected`,
-      );
+      assertSupportedLaunchTargetControls(launch, sourcePath, projectionContext);
+      // hitOnReach直接命中发射目标，不经碰撞过滤；已知唯一敌人且maxHitCount=1
+      // 时，在首Tick到达后即因命中次数结束，即使finishOnReach本身关闭。
+      const finishByReachHit =
+        runtime.hitOnReach &&
+        runtime.maxHitCount === 1 &&
+        targetReferenceSelectsUniqueEnemy(launch.target, projectionContext);
+      if (
+        launch.syncTimeScale ||
+        launch.projectileSource.targetSource !== 'Source' ||
+        launch.projectileSource.targetGroupKey !== '' ||
+        runtime.moveModeTypes.get('Default') !== 0 ||
+        (!runtime.finishOnReach && !finishByReachHit) ||
+        !isPlainZeroSpaceFixedPoint(launch.target, projectionContext, sourcePath)
+      )
+        throw new Error(
+          `${sourcePath}: projectile ${launch.projectileId} has a presentation-only callback, but launch/reset lifetime is not projected ` +
+            JSON.stringify({
+              syncTimeScale: launch.syncTimeScale,
+              source: launch.projectileSource.targetSource,
+              sourceGroup: launch.projectileSource.targetGroupKey,
+              moveType: runtime.moveModeTypes.get('Default'),
+              finishOnReach: runtime.finishOnReach,
+              finishByReachHit,
+              zeroSpaceTarget: isPlainZeroSpaceFixedPoint(
+                launch.target,
+                projectionContext,
+                sourcePath,
+              ),
+            }),
+        );
+      // 固定零空间中首个移动Tick到达。即使先碰撞并结束，也发生在同一Tick；
+      // 不执行表现回调，但保留发射通知及所有启用路由参与求值的回收延迟。
+      assertSupportedFirstTickReachShape(runtime, sourcePath, true, runtime.finishOnBlock === true);
+      return [
+        {
+          kind: 'launchProjectileLifetime',
+          parameters: {
+            finish: 'firstTickReach',
+            recycleDelaySeconds: resolveProjectileRecycleDelaySource(
+              launch,
+              input.catalog.callbackGraphs,
+              sourcePath,
+            ),
+          },
+        },
+      ];
     }
     assertSupportedLaunchTargetControls(launch, sourcePath, projectionContext);
     if (enabled.length === 1 && enabled[0]!.event === 'block') {
@@ -921,7 +1005,7 @@ export function compileZeroDistanceFirstTickProjectileSource(input: {
 /**
  * 新增目标控制会改变命中资格或发射数量，不能由“零距离”自动推出无影响。
  * combat-spec 已证明 OnlyHit 是白名单：仅当过滤集合静态包含唯一敌人时可消去。
- * 公共扩展先剔除已证明完全无战斗回调的发射，再调用此守卫。
+ * 即使没有战斗回调，发射仍须通过此守卫并保留对象寿命。
  */
 function assertSupportedLaunchTargetControls(
   launch: ProjectileLaunchActionSource,
@@ -1171,6 +1255,7 @@ function assertSupportedFirstTickReachShape(
   runtime: ProjectileRuntimeSource,
   path: string,
   allowHitOnReachWithoutRoute = false,
+  allowInertFirstTickBlock = false,
 ): void {
   const segment = runtime.moveSegments[0];
   const hasDefaultPointToPointRoute =
@@ -1192,7 +1277,9 @@ function assertSupportedFirstTickReachShape(
     runtime.canTraceTargetAfterReach ||
     // 标准木桩场景没有墙体或地面阻挡实例；Nothing(0) 与
     // WallAndGround(1) 都无法在同点 reach 前产生可见回调差异。
-    (runtime.blockLayerDef?.value !== 0 && runtime.blockLayerDef?.value !== 1) ||
+    (!allowInertFirstTickBlock &&
+      runtime.blockLayerDef?.value !== 0 &&
+      runtime.blockLayerDef?.value !== 1) ||
     !hasDefaultPointToPointRoute
   ) {
     throw new Error(`${path}: ProjectileData is outside the proven zero-distance reach shape`);

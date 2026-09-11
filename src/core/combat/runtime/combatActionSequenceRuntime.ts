@@ -36,9 +36,10 @@ export interface CombatActionSequenceRuntimeHooks {
   ) => void;
 }
 
-/** 无回调发射只保留对象寿命；不绑定技能、黑板或资源账户。 */
+/** 无战斗回调的发射保留对象寿命；不创建虚构的技能或资源账户。 */
 class ProjectileLifetimeStep extends CombatStep {
   constructor(
+    readonly step: ResolvedCombatStepForKind<'launchProjectileLifetime'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
@@ -50,8 +51,8 @@ class ProjectileLifetimeStep extends CombatStep {
     const launch = context.scheduleProjectileFinishCallback;
     if (launch === undefined) throw new Error('projectile lifetime requires a launch scheduler');
     launch(
-      'firstTickReach',
-      0,
+      this.step.parameters.finish,
+      this.step.parameters.recycleDelaySeconds ?? 0,
       () => {},
       () => {},
       context.skillCastInfo,
@@ -736,7 +737,7 @@ export class CombatActionSequenceRuntime {
   ): CombatStep[] {
     return sequence.steps.flatMap<CombatStep>(step => {
       if (step.kind === 'launchProjectileLifetime') {
-        return new ProjectileLifetimeStep(this, operationContext);
+        return new ProjectileLifetimeStep(step, this, operationContext);
       }
       if (isCombatOperationStep(step)) {
         return new OperationStep(step, this, operationContext);

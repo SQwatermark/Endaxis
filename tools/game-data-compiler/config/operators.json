@@ -7,31 +7,8 @@
       "exportName": "perlicaGeneratedSource",
       "gameId": "PERLICA",
       "charId": "chr_0004_pelica",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "targetStaggeredDamage"
-        },
-        {
-          "index": 1,
-          "compile": "simulationNoEffectUniqueEnemy"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "multiplyReactionDuration"
-        },
-        {},
-        {
-          "compile": "attackAfterReaction"
-        },
-        {
-          "compile": "setReactionEffectiveness"
-        },
-        {
-          "compile": "addUltimateCriticalRate"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -81,94 +58,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0004_pelica_attack1.json",
-          "compile": {
-            "kind": "basicAttack"
-          }
+          "source": "chr_0004_pelica_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0004_pelica_attack2.json",
-          "compile": {
-            "kind": "basicAttack"
-          }
+          "source": "chr_0004_pelica_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0004_pelica_attack3.json",
-          "compile": {
-            "kind": "basicAttack"
-          }
+          "source": "chr_0004_pelica_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0004_pelica_attack4.json",
-          "compile": {
-            "kind": "basicAttack",
-            "final": true,
-            "spRecoveryBlackboardKey": "atb"
-          }
+          "source": "chr_0004_pelica_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0004_pelica_power_attack.json",
-          "compile": {
-            "kind": "directDamage",
-            "tags": ["normalAttack", "powerAttack"],
-            "availability": "targetStaggered",
-            "afterDamage": "gainFinisherSp"
-          }
+          "source": "chr_0004_pelica_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0004_pelica_plunging_attack_end.json",
-          "compile": {
-            "kind": "directDamage",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0004_pelica_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0004_pelica_normal_skill.json",
-          "compile": {
-            "kind": "directDamage",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0004_pelica_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0004_pelica_combo_skill.json",
-          "compile": {
-            "kind": "projectileDamage",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0004_pelica_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0004_pelica_ultimate_skill.json",
-          "compile": {
-            "kind": "directDamage",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true
-          }
+          "source": "chr_0004_pelica_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -184,33 +122,8 @@
       "gameId": "EMBER",
       "charId": "chr_0009_azrila",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "attachedPassive"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -260,91 +173,55 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0009_azrila_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0009_azrila_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0009_azrila_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0009_azrila_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0009_azrila_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0009_azrila_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0009_azrila_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0009_azrila_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0009_azrila_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0009_azrila_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0009_azrila_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0009_azrila_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0009_azrila_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0009_azrila_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0009_azrila_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0009_azrila_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0009_azrila_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0009_azrila_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -360,33 +237,8 @@
       "gameId": "WULFGARD",
       "charId": "chr_0006_wolfgd",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -436,91 +288,55 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0006_wolfgd_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0006_wolfgd_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0006_wolfgd_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0006_wolfgd_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0006_wolfgd_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0006_wolfgd_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0006_wolfgd_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0006_wolfgd_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0006_wolfgd_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0006_wolfgd_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0006_wolfgd_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0006_wolfgd_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0006_wolfgd_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0006_wolfgd_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0006_wolfgd_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0006_wolfgd_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0006_wolfgd_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0006_wolfgd_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -536,33 +352,8 @@
       "gameId": "ANTAL",
       "charId": "chr_0023_antal",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "attachedBuff"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -612,91 +403,55 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0023_antal_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0023_antal_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0023_antal_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0023_antal_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0023_antal_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0023_antal_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0023_antal_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0023_antal_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0023_antal_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0023_antal_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0023_antal_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0023_antal_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0023_antal_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0023_antal_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0023_antal_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0023_antal_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0023_antal_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0023_antal_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -712,33 +467,8 @@
       "gameId": "ALESH",
       "charId": "chr_0024_deepfin",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -794,101 +524,61 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0024_deepfin_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0024_deepfin_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0024_deepfin_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0024_deepfin_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0024_deepfin_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0024_deepfin_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0024_deepfin_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0024_deepfin_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0024_deepfin_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0024_deepfin_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0024_deepfin_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0024_deepfin_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0024_deepfin_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0024_deepfin_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0024_deepfin_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0024_deepfin_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0024_deepfin_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0024_deepfin_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0024_deepfin_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0024_deepfin_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -904,33 +594,8 @@
       "gameId": "XAIHI",
       "charId": "chr_0011_seraph",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -986,101 +651,61 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0011_seraph_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0011_seraph_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0011_seraph_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0011_seraph_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0011_seraph_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0011_seraph_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0011_seraph_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0011_seraph_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0011_seraph_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0011_seraph_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0011_seraph_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0011_seraph_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0011_seraph_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0011_seraph_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0011_seraph_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0011_seraph_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0011_seraph_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0011_seraph_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0011_seraph_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0011_seraph_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -1096,33 +721,8 @@
       "gameId": "AVYWENNA",
       "charId": "chr_0012_avywen",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatchAndAttachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -1178,101 +778,61 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0012_avywen_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0012_avywen_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0012_avywen_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0012_avywen_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0012_avywen_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0012_avywen_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0012_avywen_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0012_avywen_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0012_avywen_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0012_avywen_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0012_avywen_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0012_avywen_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0012_avywen_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0012_avywen_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0012_avywen_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0012_avywen_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0012_avywen_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0012_avywen_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0012_avywen_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0012_avywen_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -1288,33 +848,8 @@
       "gameId": "CATCHER",
       "charId": "chr_0020_meurs",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "attachedBuff"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -1364,91 +899,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0020_meurs_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0020_meurs_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0020_meurs_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0020_meurs_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0020_meurs_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0020_meurs_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0020_meurs_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0020_meurs_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0020_meurs_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0020_meurs_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0020_meurs_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0020_meurs_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0020_meurs_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0020_meurs_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0020_meurs_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0020_meurs_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0020_meurs_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0020_meurs_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -1464,33 +963,8 @@
       "gameId": "ARDELIA",
       "charId": "chr_0025_ardelia",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -1540,91 +1014,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0025_ardelia_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0025_ardelia_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0025_ardelia_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0025_ardelia_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0025_ardelia_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0025_ardelia_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0025_ardelia_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0025_ardelia_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0025_ardelia_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0025_ardelia_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0025_ardelia_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0025_ardelia_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0025_ardelia_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0025_ardelia_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0025_ardelia_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0025_ardelia_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0025_ardelia_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0025_ardelia_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -1639,31 +1077,8 @@
       "exportName": "chenQianyuGeneratedSource",
       "gameId": "CHENQIANYU",
       "charId": "chr_0005_chen",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "attachedBuff"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "attachedBuff"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -1719,106 +1134,61 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0005_chen_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0005_chen_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0005_chen_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0005_chen_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0005_chen_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0005_chen_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0005_chen_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0005_chen_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0005_chen_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0005_chen_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0005_chen_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0005_chen_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0005_chen_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0005_chen_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0005_chen_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0005_chen_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0005_chen_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0005_chen_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0005_chen_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0005_chen_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -1830,35 +1200,15 @@
     },
     {
       "slug": "rossi",
+      "buffDisplayNameKeys": {
+        "buff_chr_0028_wulfa_normal_bleed": "effects.name.razorClawmark"
+      },
       "runtimeReplacementSkillKeys": ["comboSkill3"],
       "exportName": "rossiGeneratedSource",
       "gameId": "ROSSI",
       "charId": "chr_0028_wulfa",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -1899,9 +1249,7 @@
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
-          "replacementPlacements": {
-            "comboSkill3": "standard"
-          },
+          "replacementPlacements": { "comboSkill3": "sequence" },
           "skillKeys": ["comboSkill2", "comboSkill3"]
         },
         {
@@ -1917,126 +1265,67 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0028_wulfa_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0028_wulfa_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0028_wulfa_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0028_wulfa_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0028_wulfa_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0028_wulfa_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0028_wulfa_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0028_wulfa_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0028_wulfa_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0028_wulfa_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0028_wulfa_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"],
-            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
-          }
+          "source": "chr_0028_wulfa_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0028_wulfa_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0028_wulfa_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0028_wulfa_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp",
-            "unmodeledBuffIds": []
-          }
+          "source": "chr_0028_wulfa_normal_skill.json"
         },
         {
           "key": "comboSkill2",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0028_wulfa_combo_2_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true,
-            "unmodeledBuffIds": []
-          }
+          "source": "chr_0028_wulfa_combo_2_skill.json"
         },
         {
           "key": "comboSkill3",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0028_wulfa_combo_3_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "unmodeledBuffIds": []
-          }
+          "source": "chr_0028_wulfa_combo_3_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0028_wulfa_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": [
-              "buff_common_damage_immune_ult_skill",
-              "buff_chr_0028_wulfa_ult_addtional_battleshape",
-              "buff_chr_0028_wulfa_ult_stopenemy_elite"
-            ],
-            "unmodeledBuffIds": [],
-            "skipBuffDefinitionResolutionIds": ["buff_chr_0028_wulfa_ult_stopenemy_elite"]
-          }
+          "source": "chr_0028_wulfa_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -2056,31 +1345,8 @@
       "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
       "routedSkillKeys": ["battleSkillDuringUltimate"],
       "routingOnlyNativeSkillIds": ["chr_0033_camille_normal_skill_2"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "attachedPassive"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "passiveBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -2114,9 +1380,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacements": {
-            "battleSkillDuringUltimate": "standard"
-          },
+          "replacementPlacements": { "battleSkillDuringUltimate": "standard" },
           "skillKeys": ["battleSkill", "battleSkillDuringUltimate"]
         },
         {
@@ -2139,146 +1403,74 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0033_camille_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0033_camille_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0033_camille_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0033_camille_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0033_camille_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0033_camille_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0033_camille_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0033_camille_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0033_camille_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0033_camille_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0033_camille_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"],
-            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
-          }
+          "source": "chr_0033_camille_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0033_camille_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0033_camille_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0033_camille_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp",
-            "ignoreBuffIds": ["buff_chr_0033_camille_normal_skill_bateffect"],
-            "simulationNoEffectBuffIds": [
-              "buff_chr_0033_camille_normal_skill_bat_duration_icon",
-              "buff_common_full_immune",
-              "buff_chr_0033_camille_normal_skill_listen_target_dead"
-            ],
-            "unmodeledBuffIds": ["buff_chr_0033_camille_normal_skill_weak"],
-            "skipBuffDefinitionResolutionIds": [
-              "buff_chr_0033_camille_normal_skill_listen_target_dead",
-              "buff_chr_0033_camille_normal_skill_weak"
-            ]
-          }
+          "source": "chr_0033_camille_normal_skill.json"
         },
         {
           "key": "comboSkill1",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0033_camille_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true,
-            "ignoreBuffIds": ["buff_chr_0033_camille_normal_skill_bateffect"]
-          }
+          "source": "chr_0033_camille_combo_skill.json"
         },
         {
           "key": "comboSkill2",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0033_camille_combo_skill_2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "ignoreBuffIds": ["buff_chr_0033_camille_normal_skill_bateffect"]
-          }
+          "source": "chr_0033_camille_combo_skill_2.json"
         },
         {
           "key": "battleSkillDuringUltimate",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "source": "chr_0033_camille_normal_skill_2.json",
-          "compile": {
-            "kind": "routedSkill",
-            "targetSkillKey": "comboSkill2",
-            "executionSkillType": "comboSkill",
-            "executionLevelSource": "comboSkill",
-            "activationBuffId": "buff_chr_0033_camille_ult_henshin_state",
-            "routingBuffId": "buff_chr_0033_camille_cast_combo2",
-            "costResource": "sp"
-          }
+          "compile": { "kind": "routedSkill", "targetSkillKey": "comboSkill2" }
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0033_camille_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "ignoreBuffIds": ["buff_chr_0033_camille_ult_effect"],
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0033_camille_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -2294,31 +1486,8 @@
       "gameId": "POGRANICHNK",
       "charId": "chr_0029_pograni",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedPassive"
-        },
-        {
-          "index": 1,
-          "compile": "attachedBuff"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "passiveBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -2374,101 +1543,61 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0029_pograni_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0029_pograni_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0029_pograni_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0029_pograni_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0029_pograni_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0029_pograni_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0029_pograni_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0029_pograni_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0029_pograni_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0029_pograni_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0029_pograni_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0029_pograni_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0029_pograni_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0029_pograni_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0029_pograni_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0029_pograni_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0029_pograni_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0029_pograni_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0029_pograni_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0029_pograni_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -2486,33 +1615,8 @@
       "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["enhancedBattleSkill", "enhancedComboSkill", "ultimateEnd"],
       "basePassiveSkillIds": ["chr_0030_zhuangfy_check_sword_passive"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedPassive"
-        },
-        {
-          "index": 1,
-          "compile": "attachedPassive"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatchAndAttachedBuff"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "attachedBuff"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -2546,9 +1650,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacements": {
-            "enhancedBattleSkill": "enhanced"
-          },
+          "replacementPlacements": { "enhancedBattleSkill": "enhanced" },
           "skillKeys": ["battleSkill", "enhancedBattleSkill"]
         },
         {
@@ -2556,9 +1658,7 @@
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
-          "replacementPlacements": {
-            "enhancedComboSkill": "enhanced"
-          },
+          "replacementPlacements": { "enhancedComboSkill": "enhanced" },
           "skillKeys": ["comboSkill", "enhancedComboSkill"]
         },
         {
@@ -2566,9 +1666,7 @@
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
-          "replacementPlacements": {
-            "ultimateEnd": "internal"
-          },
+          "replacementPlacements": { "ultimateEnd": "internal" },
           "skillKeys": ["ultimate", "ultimateEnd"]
         },
         {
@@ -2585,176 +1683,98 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack1.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0030_zhuangfy_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack2.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack"],
-            "collapseSingleEnemyAbilityEntityBranches": true
-          }
+          "source": "chr_0030_zhuangfy_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack3.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0030_zhuangfy_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack4.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack"],
-            "collapseSingleEnemyAbilityEntityBranches": true
-          }
+          "source": "chr_0030_zhuangfy_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0030_zhuangfy_attack5.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"],
-            "collapseSingleEnemyAbilityEntityBranches": true
-          }
+          "source": "chr_0030_zhuangfy_attack5.json"
         },
         {
           "key": "enhancedBasicAttack1",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0030_zhuangfy_attack1_ult.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack"],
-            "collapseSingleEnemyAbilityEntityBranches": true
-          }
+          "source": "chr_0030_zhuangfy_attack1_ult.json"
         },
         {
           "key": "enhancedBasicAttack2",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0030_zhuangfy_attack2_ult.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack"],
-            "collapseSingleEnemyAbilityEntityBranches": true
-          }
+          "source": "chr_0030_zhuangfy_attack2_ult.json"
         },
         {
           "key": "enhancedBasicAttack3",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0030_zhuangfy_attack3_ult.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"],
-            "collapseSingleEnemyAbilityEntityBranches": true
-          }
+          "source": "chr_0030_zhuangfy_attack3_ult.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0030_zhuangfy_power_attack.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack", "powerAttack"],
-            "availability": "targetStaggered",
-            "afterDamage": "gainFinisherSp",
-            "ignoreAuxiliaryClassifications": ["incomingDamageProtection", "inputLock"]
-          }
+          "source": "chr_0030_zhuangfy_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0030_zhuangfy_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0030_zhuangfy_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0030_zhuangfy_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0030_zhuangfy_normal_skill.json"
         },
         {
           "key": "enhancedBattleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0030_zhuangfy_normal_skill_ult.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0030_zhuangfy_normal_skill_ult.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0030_zhuangfy_combo_skill.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0030_zhuangfy_combo_skill.json"
         },
         {
           "key": "enhancedComboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0030_zhuangfy_combo_skill_ult.json",
-          "compile": {
-            "kind": "resolvedDamageSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0030_zhuangfy_combo_skill_ult.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "source": "chr_0030_zhuangfy_ultimate_skill.json",
-          "enhancementStateBuffId": "buff_chr_0030_zhuangfy_ult_base",
-          "compile": {
-            "kind": "resolvedSequence",
-            "ignoreAuxiliaryClassifications": ["incomingDamageProtection"],
-            "usePatchCooldown": true,
-            "costResource": "ultimateEnergy"
-          }
+          "enhancementStateBuffId": "buff_chr_0030_zhuangfy_ult_base"
         },
         {
           "key": "ultimateEnd",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0030_zhuangfy_ultimate_skill_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "ignoreAuxiliaryClassifications": ["incomingDamageProtection"]
-          }
+          "source": "chr_0030_zhuangfy_ultimate_skill_end.json"
         }
       ],
       "runtimeTemplate": {
@@ -2771,33 +1791,8 @@
       "charId": "chr_0032_lizhiyan",
       "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["arcana"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedPassiveWithConditionalCooldown"
-        },
-        {
-          "index": 1,
-          "compile": "attachedPassive"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "passiveBlackboardPatch"
-        },
-        {
-          "compile": "multiplyUltimateCost"
-        },
-        {
-          "compile": "skillAndPassiveBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -2845,9 +1840,7 @@
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "nativeGroupType": 2,
-          "replacementPlacements": {
-            "arcana": "standard"
-          },
+          "replacementPlacements": { "arcana": "standard" },
           "skillKeys": ["ultimate", "arcana"]
         }
       ],
@@ -2878,113 +1871,68 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0032_lizhiyan_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "simulationNoEffectBuffIds": ["buff_chr_0032_lizhiyan_combo_skill_precheck"]
-          }
+          "source": "chr_0032_lizhiyan_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0032_lizhiyan_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0032_lizhiyan_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0032_lizhiyan_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0032_lizhiyan_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0032_lizhiyan_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0032_lizhiyan_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0032_lizhiyan_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0032_lizhiyan_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0032_lizhiyan_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0032_lizhiyan_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0032_lizhiyan_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0032_lizhiyan_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0032_lizhiyan_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0032_lizhiyan_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0032_lizhiyan_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0032_lizhiyan_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "source": "chr_0032_lizhiyan_ultimate_skill.json",
-          "enhancementStateBuffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_owner",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "enhancementStateBuffId": "buff_chr_0032_lizhiyan_ultimate_skill_listener_owner"
         },
         {
           "key": "arcana",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0032_lizhiyan_ultimate_skill2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0032_lizhiyan_ultimate_skill2.json"
         }
       ]
     },
@@ -2993,31 +1941,8 @@
       "exportName": "arclightGeneratedSource",
       "gameId": "ARCLIGHT",
       "charId": "chr_0007_ikut",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "simulationNoEffectOnBeforeTakeSpellInfliction"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatchAndAttachedBuff"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -3073,103 +1998,61 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0007_ikut_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0007_ikut_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0007_ikut_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0007_ikut_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0007_ikut_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0007_ikut_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0007_ikut_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0007_ikut_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0007_ikut_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0007_ikut_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0007_ikut_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0007_ikut_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0007_ikut_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0007_ikut_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0007_ikut_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "ignoreBuffIds": ["buff_common_vfx_char_atk_up"]
-          }
+          "source": "chr_0007_ikut_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0007_ikut_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0007_ikut_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0007_ikut_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0007_ikut_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -3184,31 +2067,8 @@
       "exportName": "gilbertaGeneratedSource",
       "gameId": "GILBERTA",
       "charId": "chr_0013_aglina",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedPassive"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "passiveBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -3258,97 +2118,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0013_aglina_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0013_aglina_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0013_aglina_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0013_aglina_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0013_aglina_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0013_aglina_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0013_aglina_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0013_aglina_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0013_aglina_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"],
-            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
-          }
+          "source": "chr_0013_aglina_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0013_aglina_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0013_aglina_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0013_aglina_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0013_aglina_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0013_aglina_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0013_aglina_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0013_aglina_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0013_aglina_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -3365,31 +2183,8 @@
       "charId": "chr_0015_lifeng",
       "outputStage": "complete",
       "basePassiveSkillIds": ["chr_0015_lifeng_passive"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedPassive"
-        },
-        {
-          "index": 1,
-          "compile": "attachedBuff"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "passiveBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "attachedBuff"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -3439,96 +2234,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0015_lifeng_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0015_lifeng_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0015_lifeng_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0015_lifeng_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0015_lifeng_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0015_lifeng_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0015_lifeng_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0015_lifeng_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0015_lifeng_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0015_lifeng_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0015_lifeng_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0015_lifeng_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0015_lifeng_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0015_lifeng_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0015_lifeng_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0015_lifeng_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0015_lifeng_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0015_lifeng_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -3543,31 +2297,8 @@
       "exportName": "estellaGeneratedSource",
       "gameId": "ESTELLA",
       "charId": "chr_0021_whiten",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "attachedBuff"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "attachedBuff"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -3617,96 +2348,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0021_whiten_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0021_whiten_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0021_whiten_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0021_whiten_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0021_whiten_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0021_whiten_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0021_whiten_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0021_whiten_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0021_whiten_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0021_whiten_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0021_whiten_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0021_whiten_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0021_whiten_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0021_whiten_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0021_whiten_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0021_whiten_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0021_whiten_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0021_whiten_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -3721,31 +2411,8 @@
       "exportName": "daPanGeneratedSource",
       "gameId": "DAPAN",
       "charId": "chr_0018_dapan",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "consumedNoGuardPhysicalDamage"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -3795,99 +2462,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0018_dapan_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0018_dapan_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0018_dapan_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0018_dapan_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0018_dapan_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0018_dapan_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0018_dapan_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0018_dapan_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0018_dapan_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"],
-            "availability": "targetStaggered",
-            "afterDamage": "gainFinisherSp",
-            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
-          }
+          "source": "chr_0018_dapan_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0018_dapan_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0018_dapan_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0018_dapan_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0018_dapan_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0018_dapan_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0018_dapan_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0018_dapan_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0018_dapan_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -3902,31 +2525,8 @@
       "exportName": "akekuriGeneratedSource",
       "gameId": "AKEKURI",
       "charId": "chr_0019_karin",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "akekuriComboImbue"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillSpGainAttackStack"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "akekuriComboImbueExtension"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -3976,100 +2576,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0019_karin_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0019_karin_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0019_karin_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0019_karin_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0019_karin_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0019_karin_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0019_karin_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0019_karin_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0019_karin_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0019_karin_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0019_karin_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0019_karin_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0019_karin_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0019_karin_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0019_karin_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0019_karin_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0019_karin_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
-            "projectedBuffIds": [
-              "buff_chr_0019_karin_talent_2",
-              "buff_chr_0019_karin_talent_2_combo"
-            ]
-          }
+          "source": "chr_0019_karin_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -4081,39 +2636,22 @@
     },
     {
       "slug": "tangtang",
+      "assets": {
+        "icons": {
+          "icon_battle_tangtang_droplet": {
+            "sourceName": "icon_battle_tangtang_comboskillwater",
+            "preferredPathSegment": "/bufficon/"
+          }
+        }
+      },
       "exportName": "tangtangGeneratedSource",
       "gameId": "TANGTANG",
       "charId": "chr_0027_tangtang",
       "basePassiveSkillIds": ["chr_0027_tangtang_passive_0"],
-      "nativeMissingBlackboardZeroKeys": {
-        "chr_0027_tangtang_ultimate_skill_1": ["potential3"]
-      },
+      "nativeMissingBlackboardZeroKeys": { "chr_0027_tangtang_ultimate_skill_1": ["potential3"] },
       "presentationOnlyPassiveBuffIds": ["buff_chr_0027_tangtang_water_passiveui"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillAndPassiveBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -4169,113 +2707,61 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0027_tangtang_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0027_tangtang_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0027_tangtang_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0027_tangtang_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0027_tangtang_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0027_tangtang_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0027_tangtang_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0027_tangtang_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0027_tangtang_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0027_tangtang_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0027_tangtang_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"],
-            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
-          }
+          "source": "chr_0027_tangtang_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0027_tangtang_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0027_tangtang_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0027_tangtang_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp",
-            "simulationNoEffectBuffIds": [
-              "buff_chr_0027_tangtang_normalskill_abilityentity_1",
-              "buff_chr_0027_tangtang_normalskill_abilityentity_2"
-            ]
-          }
+          "source": "chr_0027_tangtang_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0027_tangtang_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill", "normalSkill"],
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_chr_0027_tangtang_comboskill_waterbuff_outaura"]
-          }
+          "source": "chr_0027_tangtang_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0027_tangtang_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"],
-            "unmodeledBuffIds": ["buff_chr_0027_tangtang_ultskill_debuff"]
-          }
+          "source": "chr_0027_tangtang_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -4290,31 +2776,8 @@
       "exportName": "fluoriteGeneratedSource",
       "gameId": "FLUORITE",
       "charId": "chr_0022_bounda",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedPassive"
-        },
-        {
-          "index": 1,
-          "compile": "attachedPassive"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "passiveBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "attachedBuff"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -4370,107 +2833,61 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0022_bounda_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0022_bounda_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0022_bounda_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0022_bounda_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0022_bounda_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0022_bounda_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0022_bounda_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0022_bounda_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0022_bounda_attack4_1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0022_bounda_attack4_1.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0022_bounda_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"],
-            "simulationNoEffectBuffIds": ["buff_common_full_immune_medium"]
-          }
+          "source": "chr_0022_bounda_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0022_bounda_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0022_bounda_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0022_bounda_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0022_bounda_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0022_bounda_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0022_bounda_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0022_bounda_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0022_bounda_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -4482,6 +2899,8 @@
     },
     {
       "slug": "endministrator",
+      "assets": { "portraitCharacterId": "chr_0003_endminf" },
+      "excludedLocaleCharIds": ["chr_0002_endminm", "chr_0003_endminf"],
       "exportName": "endministratorGeneratedSource",
       "gameId": "ENDMINISTRATOR",
       "charId": "chr_9000_endmin",
@@ -4499,26 +2918,11 @@
         "chr_0002_endminm_combo_skill"
       ],
       "skillAliases": [
-        {
-          "from": ["basicAttackMale", "basicAttackMale1"],
-          "to": ["basicAttack", "basicAttack1"]
-        },
-        {
-          "from": ["basicAttackMale", "basicAttackMale2"],
-          "to": ["basicAttack", "basicAttack2"]
-        },
-        {
-          "from": ["basicAttackMale", "basicAttackMale3"],
-          "to": ["basicAttack", "basicAttack3"]
-        },
-        {
-          "from": ["basicAttackMale", "basicAttackMale4"],
-          "to": ["basicAttack", "basicAttack4"]
-        },
-        {
-          "from": ["basicAttackMale", "basicAttackMale5"],
-          "to": ["basicAttack", "basicAttack5"]
-        },
+        { "from": ["basicAttackMale", "basicAttackMale1"], "to": ["basicAttack", "basicAttack1"] },
+        { "from": ["basicAttackMale", "basicAttackMale2"], "to": ["basicAttack", "basicAttack2"] },
+        { "from": ["basicAttackMale", "basicAttackMale3"], "to": ["basicAttack", "basicAttack3"] },
+        { "from": ["basicAttackMale", "basicAttackMale4"], "to": ["basicAttack", "basicAttack4"] },
+        { "from": ["basicAttackMale", "basicAttackMale5"], "to": ["basicAttack", "basicAttack5"] },
         {
           "from": ["basicAttackFemale", "basicAttackFemale1"],
           "to": ["basicAttack", "basicAttack1"]
@@ -4539,14 +2943,8 @@
           "from": ["basicAttackFemale", "basicAttackFemale5"],
           "to": ["basicAttack", "basicAttack5"]
         },
-        {
-          "from": ["finisherMale", "finisherMale"],
-          "to": ["finisher", "finisher"]
-        },
-        {
-          "from": ["finisherFemale", "finisherFemale"],
-          "to": ["finisher", "finisher"]
-        },
+        { "from": ["finisherMale", "finisherMale"], "to": ["finisher", "finisher"] },
+        { "from": ["finisherFemale", "finisherFemale"], "to": ["finisher", "finisher"] },
         {
           "from": ["plungingAttackMale", "plungingAttackMale"],
           "to": ["plungingAttack", "plungingAttack"]
@@ -4555,47 +2953,12 @@
           "from": ["plungingAttackFemale", "plungingAttackFemale"],
           "to": ["plungingAttack", "plungingAttack"]
         },
-        {
-          "from": ["battleSkill", "battleSkillFemale"],
-          "to": ["battleSkill", "battleSkill"]
-        },
-        {
-          "from": ["ultimate", "ultimateFemale"],
-          "to": ["ultimate", "ultimate"]
-        },
-        {
-          "from": ["comboSkill", "comboSkillFemale"],
-          "to": ["comboSkill", "comboSkill"]
-        }
+        { "from": ["battleSkill", "battleSkillFemale"], "to": ["battleSkill", "battleSkill"] },
+        { "from": ["ultimate", "ultimateFemale"], "to": ["ultimate", "ultimate"] },
+        { "from": ["comboSkill", "comboSkillFemale"], "to": ["comboSkill", "comboSkill"] }
       ],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "attachedPassive"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "attachedBuff"
-        },
-        {
-          "compile": "attachedBuff"
-        },
-        {
-          "compile": "attachedBuff"
-        },
-        {
-          "compile": "staticAttributes",
-          "simulationNoEffectAttributeTypes": [60]
-        },
-        {
-          "compile": "attachedBuff"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, { "simulationNoEffectAttributeTypes": [60] }, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -4651,106 +3014,61 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0003_endminf_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true
-          }
+          "source": "chr_0003_endminf_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0003_endminf_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0003_endminf_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0003_endminf_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0003_endminf_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0003_endminf_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0003_endminf_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0003_endminf_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0003_endminf_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0003_endminf_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0003_endminf_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0003_endminf_power_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0003_endminf_power_attack2.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0003_endminf_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0003_endminf_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0003_endminf_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0003_endminf_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0003_endminf_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0003_endminf_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -4766,31 +3084,8 @@
       "gameId": "LASTRITE",
       "charId": "chr_0026_lastrite",
       "basePassiveSkillIds": ["chr_0026_lastrite_passive"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "consumedInflictionVulnerability"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -4840,97 +3135,55 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0026_lastrite_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0026_lastrite_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0026_lastrite_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0026_lastrite_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0026_lastrite_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0026_lastrite_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0026_lastrite_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0026_lastrite_attack4.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0026_lastrite_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0026_lastrite_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0026_lastrite_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0026_lastrite_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0026_lastrite_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"],
-            "costResource": "sp"
-          }
+          "source": "chr_0026_lastrite_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0026_lastrite_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "usePatchCooldown": true,
-            "ignoreBuffIds": ["buff_chr_0026_lastrite_combo_skill_sound"]
-          }
+          "source": "chr_0026_lastrite_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0026_lastrite_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "costResource": "ultimateEnergy",
-            "usePatchCooldown": true,
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0026_lastrite_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -4942,35 +3195,24 @@
     },
     {
       "slug": "laevatain",
+      "assets": {
+        "icons": {
+          "magma_1": { "sourceName": "icon_laevat_energy_1", "preferredPathSegment": "/bufficon/" },
+          "magma_2": { "sourceName": "icon_laevat_energy_2", "preferredPathSegment": "/bufficon/" },
+          "magma_3": { "sourceName": "icon_laevat_energy_3", "preferredPathSegment": "/bufficon/" },
+          "magma_4": { "sourceName": "icon_laevat_energy_4", "preferredPathSegment": "/bufficon/" },
+          "ultimate_skill": {
+            "sourceName": "icon_ultimate_skill_laevat_01",
+            "preferredPathSegment": "/skillicon/"
+          }
+        }
+      },
       "exportName": "laevatainGeneratedSource",
       "gameId": "LAEVATAIN",
       "charId": "chr_0016_laevat",
       "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "simulationNoEffectOnTakeDamage"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatchAndAttachedBuff"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -5018,9 +3260,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacements": {
-            "battleSkillDuringUltimate": "enhanced"
-          },
+          "replacementPlacements": { "battleSkillDuringUltimate": "enhanced" },
           "skillKeys": ["battleSkill", "battleSkillDuringUltimate"]
         },
         {
@@ -5043,152 +3283,92 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0016_laevat_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0016_laevat_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0016_laevat_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0016_laevat_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0016_laevat_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0016_laevat_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0016_laevat_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0016_laevat_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0016_laevat_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0016_laevat_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0016_laevat_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0016_laevat_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0016_laevat_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0016_laevat_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0016_laevat_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0016_laevat_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0016_laevat_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0016_laevat_normal_skill.json"
         },
         {
           "key": "battleSkillDuringUltimate",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0016_laevat_normal_skill_during_ult.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0016_laevat_normal_skill_during_ult.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "source": "chr_0016_laevat_ultimate_skill.json",
-          "enhancementStateBuffId": "buff_chr_0016_laevat_show_weapon",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "enhancementStateBuffId": "buff_chr_0016_laevat_show_weapon"
         },
         {
           "key": "ultimateAttack1",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0016_laevat_ult_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0016_laevat_ult_attack1.json"
         },
         {
           "key": "ultimateAttack2",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0016_laevat_ult_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0016_laevat_ult_attack2.json"
         },
         {
           "key": "ultimateAttack3",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0016_laevat_ult_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0016_laevat_ult_attack3.json"
         },
         {
           "key": "ultimateAttack4",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0016_laevat_ult_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0016_laevat_ult_attack4.json"
         }
       ],
       "runtimeTemplate": {
@@ -5204,33 +3384,8 @@
       "gameId": "YVONNE",
       "charId": "chr_0017_yvonne",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedPassive"
-        },
-        {
-          "index": 1,
-          "compile": "attachedPassive"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "passiveBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -5309,163 +3464,98 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0017_yvonne_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"],
-            "ignoreAuxiliaryClassifications": ["tutorialMarker"]
-          }
+          "source": "chr_0017_yvonne_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0017_yvonne_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0017_yvonne_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0017_yvonne_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0017_yvonne_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0017_yvonne_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0017_yvonne_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0017_yvonne_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0017_yvonne_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0017_yvonne_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0017_yvonne_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0017_yvonne_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0017_yvonne_normal_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
           "source": "chr_0017_yvonne_ultimate_skill.json",
-          "enhancementStateBuffId": "buff_chr_0017_yvonne_ultimate_skill",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "enhancementStateBuffId": "buff_chr_0017_yvonne_ultimate_skill"
         },
         {
           "key": "ultimateAttack1",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0017_yvonne_ult_attack1_1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_ult_attack1_1.json"
         },
         {
           "key": "ultimateAttack2A",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0017_yvonne_ult_attack2_1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_ult_attack2_1.json"
         },
         {
           "key": "ultimateAttack2B",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0017_yvonne_ult_attack2_2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_ult_attack2_2.json"
         },
         {
           "key": "ultimateAttack3A",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0017_yvonne_ult_attack3_1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_ult_attack3_1.json"
         },
         {
           "key": "ultimateAttack3B",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0017_yvonne_ult_attack3_2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0017_yvonne_ult_attack3_2.json"
         },
         {
           "key": "ultimateAttackEnd",
           "skillType": "basicAttack",
           "levelSource": "ultimate",
-          "source": "chr_0017_yvonne_ult_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0017_yvonne_ult_attack_end.json"
         }
       ],
       "runtimeTemplate": {
@@ -5482,31 +3572,8 @@
       "charId": "chr_0031_mifu",
       "outputStage": "complete",
       "runtimeReplacementSkillKeys": ["battleSkill2", "battleSkill3"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -5534,10 +3601,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacements": {
-            "battleSkill2": "sequence",
-            "battleSkill3": "sequence"
-          },
+          "replacementPlacements": { "battleSkill2": "sequence", "battleSkill3": "sequence" },
           "skillKeys": ["battleSkill1", "battleSkill2", "battleSkill3"]
         },
         {
@@ -5560,112 +3624,67 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0031_mifu_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0031_mifu_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0031_mifu_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0031_mifu_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0031_mifu_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0031_mifu_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0031_mifu_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0031_mifu_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0031_mifu_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0031_mifu_attack4.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0031_mifu_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0031_mifu_plunging_attack_end.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0031_mifu_powerattack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0031_mifu_powerattack.json"
         },
         {
           "key": "battleSkill1",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0031_mifu_normalskill_1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0031_mifu_normalskill_1.json"
         },
         {
           "key": "battleSkill2",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0031_mifu_normalskill_2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0031_mifu_normalskill_2.json"
         },
         {
           "key": "battleSkill3",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0031_mifu_normalskill_3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0031_mifu_normalskill_3.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0031_mifu_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"],
-            "simulationNoEffectBuffIds": ["buff_common_damage_immune_ult_skill"]
-          }
+          "source": "chr_0031_mifu_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -5681,33 +3700,8 @@
       "gameId": "SNOWSHINE",
       "charId": "chr_0014_aurora",
       "outputStage": "complete",
-      "talents": [
-        {
-          "index": 0,
-          "compile": "attachedBuff"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "basicAttack",
@@ -5757,81 +3751,49 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0014_aurora_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0014_aurora_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0014_aurora_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0014_aurora_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0014_aurora_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0014_aurora_attack3.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0014_aurora_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0014_aurora_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0014_aurora_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0014_aurora_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0014_aurora_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0014_aurora_normal_skill.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0014_aurora_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0014_aurora_combo_skill.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0014_aurora_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0014_aurora_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -5847,31 +3809,8 @@
       "gameId": "LIINO",
       "charId": "chr_0035_liino",
       "runtimeReplacementSkillKeys": ["battleSkillEnd"],
-      "talents": [
-        {
-          "index": 0,
-          "compile": "skillBlackboardPatch"
-        },
-        {
-          "index": 1,
-          "compile": "skillBlackboardPatch"
-        }
-      ],
-      "potentials": [
-        {
-          "compile": "skillBlackboardPatchAndAttachedBuff"
-        },
-        {
-          "compile": "staticAttributes"
-        },
-        {
-          "compile": "skillCooldownAndBlackboardPatch"
-        },
-        {},
-        {
-          "compile": "skillBlackboardPatch"
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
+      "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
           "key": "comboSkill",
@@ -5912,9 +3851,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacements": {
-            "battleSkillEnd": "standard"
-          },
+          "replacementPlacements": { "battleSkillEnd": "standard" },
           "skillKeys": ["battleSkill", "battleSkillEnd", "battleSkillCombo"]
         },
         {
@@ -5930,121 +3867,73 @@
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0035_liino_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0035_liino_combo_skill.json"
         },
         {
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0035_liino_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0035_liino_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0035_liino_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0035_liino_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0035_liino_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0035_liino_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0035_liino_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0035_liino_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0035_liino_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0035_liino_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0035_liino_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0035_liino_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0035_liino_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0035_liino_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0035_liino_normal_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0035_liino_normal_skill.json"
         },
         {
           "key": "battleSkillEnd",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0035_liino_normal_skill_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0035_liino_normal_skill_end.json"
         },
         {
           "key": "battleSkillCombo",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0035_liino_normal_skill_combo.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0035_liino_normal_skill_combo.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0035_liino_ultimate_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0035_liino_ultimate_skill.json"
         }
       ],
       "runtimeTemplate": {
@@ -6064,14 +3953,7 @@
         "chr_0034_typhoea_passive_increase_attackrange"
       ],
       "runtimeReplacementSkillKeys": ["battleSkillLoop", "battleSkillEnd", "floatingComboSkill"],
-      "talents": [
-        {
-          "index": 0
-        },
-        {
-          "index": 1
-        }
-      ],
+      "talents": [{ "index": 0 }, { "index": 1 }],
       "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
         {
@@ -6121,10 +4003,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacements": {
-            "battleSkillLoop": "internal",
-            "battleSkillEnd": "internal"
-          },
+          "replacementPlacements": { "battleSkillLoop": "internal", "battleSkillEnd": "internal" },
           "skillKeys": ["battleSkill", "battleSkillLoop", "battleSkillEnd"]
         },
         {
@@ -6132,9 +4011,7 @@
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
-          "replacementPlacements": {
-            "floatingComboSkill": "enhanced"
-          },
+          "replacementPlacements": { "floatingComboSkill": "enhanced" },
           "skillKeys": ["comboSkill", "floatingComboSkill"]
         },
         {
@@ -6150,181 +4027,109 @@
           "key": "basicAttack1",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0034_typhoea_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_attack1.json"
         },
         {
           "key": "basicAttack2",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0034_typhoea_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_attack2.json"
         },
         {
           "key": "basicAttack3",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0034_typhoea_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_attack3.json"
         },
         {
           "key": "basicAttack4",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0034_typhoea_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_attack4.json"
         },
         {
           "key": "basicAttack5",
           "skillType": "basicAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0034_typhoea_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0034_typhoea_attack5.json"
         },
         {
           "key": "floatingAttack1",
           "skillType": "basicAttack",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_floating_attack1.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_floating_attack1.json"
         },
         {
           "key": "floatingAttack2",
           "skillType": "basicAttack",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_floating_attack2.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_floating_attack2.json"
         },
         {
           "key": "floatingAttack3",
           "skillType": "basicAttack",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_floating_attack3.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_floating_attack3.json"
         },
         {
           "key": "floatingAttack4",
           "skillType": "basicAttack",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_floating_attack4.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack"]
-          }
+          "source": "chr_0034_typhoea_floating_attack4.json"
         },
         {
           "key": "floatingAttack5",
           "skillType": "basicAttack",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_floating_attack5.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "normalAttackLastCombo"]
-          }
+          "source": "chr_0034_typhoea_floating_attack5.json"
         },
         {
           "key": "finisher",
           "skillType": "finisher",
           "levelSource": "basicAttack",
-          "source": "chr_0034_typhoea_power_attack.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "powerAttack"]
-          }
+          "source": "chr_0034_typhoea_power_attack.json"
         },
         {
           "key": "plungingAttack",
           "skillType": "plungingAttack",
           "levelSource": "basicAttack",
-          "source": "chr_0034_typhoea_plunging_attack_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalAttack", "plungingAttack"]
-          }
+          "source": "chr_0034_typhoea_plunging_attack_end.json"
         },
         {
           "key": "battleSkill",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_normal_skill_floating_start.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0034_typhoea_normal_skill_floating_start.json"
         },
         {
           "key": "battleSkillLoop",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_normal_skill_floating_loop.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0034_typhoea_normal_skill_floating_loop.json"
         },
         {
           "key": "battleSkillEnd",
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
-          "source": "chr_0034_typhoea_normal_skill_floating_end.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["normalSkill"]
-          }
+          "source": "chr_0034_typhoea_normal_skill_floating_end.json"
         },
         {
           "key": "comboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0034_typhoea_combo_skill.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0034_typhoea_combo_skill.json"
         },
         {
           "key": "floatingComboSkill",
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
-          "source": "chr_0034_typhoea_combo_skillfloating.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["comboSkill"]
-          }
+          "source": "chr_0034_typhoea_combo_skillfloating.json"
         },
         {
           "key": "ultimate",
           "skillType": "ultimate",
           "levelSource": "ultimate",
-          "source": "chr_0034_typhoea_ultimate_skillfloating.json",
-          "compile": {
-            "kind": "resolvedSequence",
-            "tags": ["ultimateSkill"]
-          }
+          "source": "chr_0034_typhoea_ultimate_skillfloating.json"
         }
       ],
       "runtimeTemplate": {

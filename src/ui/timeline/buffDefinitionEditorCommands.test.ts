@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import arcaneGeneratedOperatorDefinition from '../../data/operators/generated-definitions/arcane/arcane.operator.generated';
-import akekuriGeneratedOperatorDefinition from '../../data/operators/generated-definitions/akekuri/akekuri.operator.generated';
-import perlicaGeneratedOperatorDefinition from '../../data/operators/generated-definitions/perlica/perlica.operator.generated';
-import snowshineGeneratedOperatorDefinition from '../../data/operators/generated-definitions/snowshine/snowshine.operator.generated';
-import emberGeneratedOperatorDefinition from '../../data/operators/generated-definitions/ember/ember.operator.generated';
+import arcaneGeneratedOperatorDefinition from '../../data/operators/arcane';
+import akekuriGeneratedOperatorDefinition from '../../data/operators/akekuri';
+import perlicaGeneratedOperatorDefinition from '../../data/operators/perlica';
+import snowshineGeneratedOperatorDefinition from '../../data/operators/snowshine';
+import emberGeneratedOperatorDefinition from '../../data/operators/ember';
 import {
   setBuffDefinitionPresentationField,
   setBuffDefinitionPriority,

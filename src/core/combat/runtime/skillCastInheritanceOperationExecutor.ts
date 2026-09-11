@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
@@ -70,10 +71,7 @@ export class SkillCastInheritanceOperationExecutor implements CombatOperationExe
     this.#active.delete(step);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.delegate.evaluate(condition)
       : this.delegate.evaluate(condition, context);

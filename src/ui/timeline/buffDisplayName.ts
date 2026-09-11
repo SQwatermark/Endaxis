@@ -1,5 +1,6 @@
 import { commonBuffPresentationNameKeys } from '../../data/buffs/generated/commonBuffPresentationNames.generated';
 import { compoundStatusFactories } from '../../data/buffs/compoundStatusFactories';
+import { gameDataRepository } from '../../data/gameDataRepository';
 
 // 反应方向来自已解析配方，而不是拆分 Buff ID 猜测。
 const COMPOUND_NAME_KEYS = {
@@ -13,6 +14,12 @@ const compoundNameKeys: Readonly<Record<string, string>> = Object.fromEntries(
     [factory.id, COMPOUND_NAME_KEYS[factory.incomingElement]],
     [factory.createdBuff.buffId, COMPOUND_NAME_KEYS[factory.incomingElement]],
   ]),
+);
+
+const operatorBuffNameKeys: ReadonlyMap<string, string> = new Map(
+  gameDataRepository
+    .getOperators()
+    .flatMap(operator => Object.entries(operator.buffDisplayNameKeys ?? {})),
 );
 
 export interface BuffDisplayI18n {
@@ -112,6 +119,7 @@ export function resolveBuffDisplayName(
   // 公共 Buff 的产品配置是展示名的权威入口；运行时和投影只需提供稳定 Buff ID。
   const configuredNameKey =
     commonBuffPresentationNameKeys[buffId as keyof typeof commonBuffPresentationNameKeys] ??
+    operatorBuffNameKeys.get(buffId) ??
     compoundNameKeys[buffId];
   const key = configuredNameKey?.trim();
   if (key) {

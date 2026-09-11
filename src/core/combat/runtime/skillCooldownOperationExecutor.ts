@@ -1,4 +1,4 @@
-import type { CombatStepParameters } from '../../game-data/operatorDefinition';
+import type { CombatCondition, CombatStepParameters } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
@@ -58,10 +58,7 @@ export class SkillCooldownOperationExecutor implements CombatOperationExecutor {
     this.options.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.options.delegate.evaluate(condition)
       : this.options.delegate.evaluate(condition, context);

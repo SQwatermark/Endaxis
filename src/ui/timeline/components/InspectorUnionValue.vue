@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { inspectorValueWrapper } from '../inspectorValueWrapper';
 import type { InspectorPropertyPath } from '../inspectorProperty';
 import type { DefinitionProperty } from '../definitionEditContext';
 import { computed, defineAsyncComponent } from 'vue';
@@ -95,7 +96,7 @@ function switchVariant(event: Event) {
     <Fields
       :binding="binding"
       v-if="fields.length"
-      value-wrapper
+      :value-adapter="inspectorValueWrapper"
       :property-path="propertyPath"
       hide-headings
       :value="{ value }"

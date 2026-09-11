@@ -1,3 +1,4 @@
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { abilityEventTargetId } from '../events/combatAbilityEvent';
 import { spGainAbilityEvent } from '../events/combatAbilityEvent';
 import { healAbilityEvent } from '../events/combatAbilityEvent';
@@ -60,10 +61,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
     },
   ) {}
 
-  execute(
-    step: Parameters<CombatOperationExecutor['execute']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'storeCurrentTimelineFrame') {
       const hostFrame = context?.getCurrentTimelineFrame?.();
       const ownerFrame =
@@ -261,10 +259,7 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       : this.delegate.execute(step, context);
   }
 
-  end(
-    step: Parameters<CombatOperationExecutor['execute']>[0],
-    context?: CombatOperationContext,
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     const cleanup = this.#healthFloorCleanups.get(step);
     if (cleanup !== undefined) {
       cleanup();

@@ -1,3 +1,4 @@
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import {
   spellBurstAbilityEvent,
   characterInflictionAbilityEvent,
@@ -50,19 +51,13 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     readonly resolveAbilityEntityObjectType?: (instanceId: number) => CombatObjectType,
   ) {}
 
-  execute(
-    step: Parameters<CombatOperationExecutor['execute']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.delegate.execute(step)
       : this.delegate.execute(step, context);
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: CombatOperationContext,
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.delegate.end?.(step, context);
   }
 

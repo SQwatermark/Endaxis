@@ -857,7 +857,10 @@ export interface CombatStepParameters {
   /** 按动作黑板或常量次数同步执行独立 body；每次都创建新的子步骤实例。 */
   repeatByActionValue: { count: ActionValueOperand };
   /** 无启用回调、已证明同点到达的发射；仍保留发射与 reset 引用，不创建技能。 */
-  launchProjectileLifetime: { finish: 'firstTickReach' };
+  launchProjectileLifetime: {
+    finish: 'firstTickReach' | { reachAfterTicks: number; maxDurationSeconds: number };
+    recycleDelaySeconds?: number;
+  };
   /**
    * 原生 ProjectileComponent 的正数 finishDuration 到期回调。
    * 注册发生在发射动作实际执行时，且回调寿命独立于发射技能；不得用于普通技能延迟动作。
@@ -881,6 +884,11 @@ export interface CombatStepParameters {
         /** 原生 owner 为 Context 时取该组首个角色；省略时为当前执行干员。 */
         ownerContextKey?: string;
       };
+  /** 原生 ShowComboRingQte：在当前连携剩余时间上登记提示段与有效输入段。 */
+  showComboRingQte: {
+    earlyDurationSeconds: ActionValueOperand;
+    activeDurationSeconds: ActionValueOperand;
+  };
   /** 切换稳定技能组后续释放所使用的技能形态；当前已启动的释放不受影响。 */
   changeSkillSlot: {
     skillGroupKey: string;
@@ -1005,6 +1013,7 @@ export const COMBAT_STEP_KINDS = [
   'launchProjectileLifetime',
   'setContextFlag',
   'openComboWindow',
+  'showComboRingQte',
   'changeSkillSlot',
   'overrideBasicAttackMapping',
   'changePlayerActionMode',

@@ -61,10 +61,11 @@ describe('公共 Buff 独立所有权', () => {
   });
 
   it('正式干员生成文件不再导出公共 Buff', () => {
-    const root = path.resolve('src/data/operators/generated-definitions');
+    const root = path.resolve('src/data/operators');
     const offenders = fs
       .readdirSync(root)
-      .map(slug => path.join(root, slug, `${slug}.operator.generated.ts`))
+      .filter(file => file.endsWith('.ts') && !file.endsWith('.test.ts'))
+      .map(file => path.join(root, file))
       .filter(file => fs.existsSync(file))
       .filter(file => fs.readFileSync(file, 'utf8').includes('commonBuffDefinitions'));
     expect(offenders).toEqual([]);

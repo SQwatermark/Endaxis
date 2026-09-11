@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 /**
  * 执行技能步骤中的普通时间膨胀动作，并按动作生命周期清理实例。
  * 曲线存储方式不决定作用范围；目标解析由整场战斗的装配根提供。
@@ -31,10 +32,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
 
   constructor(readonly dependencies: TimeDilationOperationDependencies) {}
 
-  execute(
-    step: RuntimeOperation,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (
       step.kind !== 'startTimeDilation' &&
       step.kind !== 'startUltimateTimeDilation' &&
@@ -190,10 +188,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
     return result;
   }
 
-  end(
-    step: RuntimeOperation,
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: RuntimeOperation, context?: CombatOperationContext): void {
     if (step.kind === 'setIgnoreGlobalTimeScale') {
       for (const entityId of this.#ignoredEntityIds.get(step) ?? []) {
         this.dependencies.runtime.setIgnoreGlobalTimeScale(entityId, !step.parameters.ignore);
@@ -209,10 +204,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);

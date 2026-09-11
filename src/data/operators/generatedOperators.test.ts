@@ -2,15 +2,10 @@ import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import { gilbertaBattleSkill } from './generated-definitions/gilberta/gilberta.operator.generated';
-import { fluoriteBattleSkill } from './generated-definitions/fluorite/fluorite.operator.generated';
-import { lifengUltimate } from './generated-definitions/lifeng/lifeng.operator.generated';
-import {
-  rossiBattleSkill,
-  rossiComboSkill2,
-  rossiComboSkill3,
-  rossiUltimate,
-} from './generated-definitions/rossi/rossi.operator.generated';
+import { gilbertaBattleSkill } from './gilberta';
+import { fluoriteBattleSkill } from './fluorite';
+import { lifengUltimate } from './lifeng';
+import { rossiBattleSkill, rossiComboSkill2, rossiComboSkill3, rossiUltimate } from './rossi';
 import {
   alesh,
   antal,
@@ -309,7 +304,7 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('nativeTickInterval');
   });
 
-  it('Rossi 二段连携只在 QTE 有效计时 Buff 内写入精准衔接状态', () => {
+  it('Rossi 二段连携按原生 QTE 窗口执行完整成功动作', () => {
     const serialized = JSON.stringify([
       rossiComboSkill2,
       rossi.buffDefinitions?.buff_chr_0028_wulfa_combo_2_qte_timerlistening,
@@ -317,10 +312,20 @@ describe('新增的完整技能转换干员', () => {
     ]);
 
     expect(serialized).toContain('buff_chr_0028_wulfa_combo_2_qte_timerlistening');
-    expect(serialized).toContain('buff_chr_0028_wulfa_combo_2_qte_timer');
+    expect(serialized).toContain('"kind":"showComboRingQte"');
+    expect(serialized).toContain(
+      '"earlyDurationSeconds":{"kind":"blackboard","key":"time_warning"}',
+    );
+    expect(serialized).toContain(
+      '"activeDurationSeconds":{"kind":"blackboard","key":"time_succeed"}',
+    );
     expect(serialized).toContain('"event":"beforeCastSkill"');
     expect(serialized).toContain('"kind":"eventSkillTypeIn","skillTypes":["comboSkill"]');
+    expect(serialized).toContain('"kind":"eventComboRingQteSucceeded"');
     expect(serialized).toContain('"key":"EntityBB_Combo_QTE_Trigger"');
+    expect(serialized).not.toContain(
+      '"kind":"buffIdStackCompare","target":"caster","buffIds":["buff_chr_0028_wulfa_combo_2_qte_timer"]',
+    );
   });
 
   it('Rossi 三段连携保留 timing_success 成功条件和专用成功 Buff', () => {

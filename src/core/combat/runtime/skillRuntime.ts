@@ -1,11 +1,14 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { CallbackSkillHostFactory } from './callbackSkillHost';
 import type { AbilityResponseEvent, AbilitySkillPayload } from '../events/combatAbilityEvent';
-import type { ProjectileLifetimeReference } from './projectileLifecycleRuntime';
+import type {
+  ProjectileLifetimeReference,
+  ProjectileFinishTiming,
+} from './projectileLifecycleRuntime';
 
 /** A detached projectile owns both its callback execution and eventual cleanup. */
 export type ScheduleProjectileFinishCallback = (
-  delaySeconds: number | 'firstTickReach',
+  delaySeconds: ProjectileFinishTiming,
   recycleDelaySeconds: number,
   execute: () => void,
   beforeReset: () => void,
@@ -100,6 +103,12 @@ export interface CombatOperationContext {
   readonly buffSourceId?: string;
   /** 仅由 Buff 实例响应提供；用于保留原生 ActionOwner 身份。 */
   readonly buffOwnerId?: string;
+  /** 当前执行伤害的 Buff 实例；与攻击者和来源施法分开记录。 */
+  readonly executingBuff?: {
+    readonly buffId: string;
+    readonly buffOwnerId: string;
+    readonly buffInstanceId: number;
+  };
   /** 事件动作宿主；武器/装备是装备者，Buff 是当前 Buff owner。 */
   readonly actionOwnerId?: string;
   /** 已证明的动作来源；用于折叠为初始化后不再拥有事件载荷的 Ability 程序。 */

@@ -27,6 +27,7 @@ export interface ProjectileRuntimeSource {
   /** 保留 BlackboardDouble 身份；零空间投影可以忽略距离阈值，但审计不能丢掉来源键。 */
   readonly finishDistance: ScalarSource;
   readonly finishOnReach: boolean;
+  readonly finishOnBlock?: boolean;
   readonly hitOnReach: boolean;
   readonly allowHitSameTarget: boolean;
   readonly maxHitCount: number;
@@ -159,6 +160,9 @@ export function parseProjectileRuntimeSource(
     finishDuration: parseDirectBlackboardDouble(root.finishDuration, `${path}.finishDuration`),
     finishDistance: parseScalarSource(root.finishDistance, `${path}.finishDistance`, {}),
     finishOnReach: requireBoolean(root.finishOnReach, `${path}.finishOnReach`),
+    ...(root.finishOnBlock === undefined
+      ? {}
+      : { finishOnBlock: requireBoolean(root.finishOnBlock, `${path}.finishOnBlock`) }),
     hitOnReach: requireBoolean(root.hitOnReach, `${path}.hitOnReach`),
     allowHitSameTarget: requireBoolean(root.allowHitSameTarget, `${path}.allowHitSameTarget`),
     maxHitCount: requireInteger(

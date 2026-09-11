@@ -254,6 +254,11 @@ export function attachBuffLifecycleSequences<Key extends string>(
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
       buffSourceId: buff.sourceId,
       buffOwnerId: buff.owner.ownerId,
+      executingBuff: {
+        buffId: buff.definition.id,
+        buffOwnerId: buff.owner.ownerId,
+        buffInstanceId: buff.instanceId,
+      },
       finishCurrentBuff: (reason, sourceId, skillCastInfo) =>
         buff.owner.finishInstance(buff, reason, sourceId, skillCastInfo),
       bindCurrentBuffSkillAffix: skillCastId => {

@@ -1,4 +1,5 @@
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
+import lifetimeFixture from './fixtures/liino-no-callback-lifetime-current.ts';
 import { describe, expect, it } from 'vitest';
 import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
@@ -41,6 +42,62 @@ function fixedTarget(targetSource: string): TargetReferenceSource {
 }
 
 describe('原生查询 → Context → 逐能力实体动作的公共投影', () => {
+  it.each(['abilityEntity', 'enemy'])(
+    '无回调发射保留%s目标组基数，零空间证明只用于迭代体',
+    kind => {
+      const source = nodes();
+      const result = compileCombatActionSequenceSource(
+        {
+          ...source,
+          actions: [
+            {
+              sourcePath: 'projectile.context',
+              metadata: source.actions[0]!.metadata,
+              body: {
+                kind: 'leaf',
+                value: {
+                  family: 'projectile',
+                  action: {
+                    ...lifetimeFixture.launch,
+                    target: {
+                      ...lifetimeFixture.launch.target,
+                      targetSource: 'Context',
+                      targetGroupKey: 'entities',
+                    },
+                  },
+                },
+              },
+            },
+          ],
+        },
+        {
+          ...returnTargetContext,
+          ...(kind === 'abilityEntity'
+            ? { staticAbilityEntityTargetGroupKeys: new Set(['entities']) }
+            : { singleEnemyTargetGroupKeys: new Set(['entities']) }),
+        },
+        new Set(),
+        {
+          compileProjectileLaunch: (_launch, _path, context) => {
+            expect(context.staticZeroSpaceTargetGroupKeys?.has('entities')).toBe(true);
+            expect(context.staticEnemyTargetGroupKeys?.has('entities') === true).toBe(
+              kind === 'enemy',
+            );
+            return [{ kind: 'launchProjectileLifetime', parameters: { finish: 'firstTickReach' } }];
+          },
+        },
+      );
+      expect(result.steps).toEqual([
+        {
+          kind: 'forEachContextTarget',
+          parameters: { contextKey: 'entities' },
+          body: {
+            steps: [{ kind: 'launchProjectileLifetime', parameters: { finish: 'firstTickReach' } }],
+          },
+        },
+      ]);
+    },
+  );
   it('FinishOwner(All) 在同步投射物木桩模型中结束施法者全部逻辑能力实体', () => {
     const source = nodes();
     const metadata = source.actions[0]!.metadata;

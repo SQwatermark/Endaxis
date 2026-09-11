@@ -1,4 +1,5 @@
 import type { FrameRuntime } from './combatSimulation';
+import type { CombatStepParameters } from '../../game-data/operatorDefinition';
 import type { AbilityResetReference } from '../events/combatAbilityEvent';
 import type {
   AbilityEntityTargetRef,
@@ -12,11 +13,15 @@ export type ProjectileLifetimeReference = AbilityResetReference & {
   readonly target: AbilityEntityTargetRef;
 };
 
+export type ProjectileFinishTiming =
+  number | CombatStepParameters['launchProjectileLifetime']['finish'];
+
 interface ProjectileLifetime {
   readonly instanceId: number;
   readonly source?: RuntimeTargetRef;
   phase: 'active' | 'finished' | 'marked' | 'reset';
   remainingSeconds: number;
+  remainingReachTicks: number | null;
   readonly recycleDelaySeconds: number;
   readonly resetCallbacks: Set<() => void>;
   readonly resolveTickDeltaSeconds: () => number | null;
@@ -26,8 +31,8 @@ interface ProjectileLifetime {
 }
 
 /**
- * Duration-finish projection of ProjectileComponent's lifetime. The host supplies an
- * admitted, owner-scaled Tick delta (null means no Tick). Finishing, marking recycling,
+ * Duration or admitted zero-space reach projection of ProjectileComponent's lifetime.
+ * The host supplies an owner-scaled Tick delta (null means no Tick). Finishing, marking recycling,
  * and resetting occur in separate passes, even with a zero recycle delay.
  * No spatial behavior, source-skill cancellation, or synthetic public event is implied.
  */
@@ -74,7 +79,7 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
 
   launch(request: {
     readonly source?: RuntimeTargetRef;
-    readonly finishDelaySeconds: number | 'firstTickReach';
+    readonly finishDelaySeconds: ProjectileFinishTiming;
     readonly recycleDelaySeconds: number;
     readonly resolveTickDeltaSeconds: () => number | null;
     readonly finish: () => void;
@@ -84,8 +89,17 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
     readonly abilityRuntime?: FrameRuntime;
   }): ProjectileLifetimeReference {
     const finishOnFirstTick = request.finishDelaySeconds === 'firstTickReach';
-    const finishDelay =
-      typeof request.finishDelaySeconds === 'number' ? Math.fround(request.finishDelaySeconds) : 0;
+    const segmented =
+      typeof request.finishDelaySeconds === 'object' ? request.finishDelaySeconds : null;
+    if (
+      segmented !== null &&
+      (!Number.isSafeInteger(segmented.reachAfterTicks) || segmented.reachAfterTicks < 1)
+    )
+      throw new RangeError('projectile reach tick count must be a positive safe integer');
+    const finishDelay = Math.fround(
+      segmented?.maxDurationSeconds ??
+        (typeof request.finishDelaySeconds === 'number' ? request.finishDelaySeconds : 0),
+    );
     const recycleDelay = Math.fround(request.recycleDelaySeconds);
     if (!finishOnFirstTick && (!Number.isFinite(finishDelay) || finishDelay <= 0))
       throw new RangeError('projectile finish delay must be positive and finite');
@@ -101,6 +115,7 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
       ...(request.source === undefined ? {} : { source: request.source }),
       phase: 'active',
       remainingSeconds: finishDelay,
+      remainingReachTicks: segmented?.reachAfterTicks ?? null,
       recycleDelaySeconds: recycleDelay,
       resetCallbacks: new Set(),
       resolveTickDeltaSeconds: request.resolveTickDeltaSeconds,
@@ -143,9 +158,12 @@ export class ProjectileLifecycleRuntime implements FrameRuntime {
       }
       // Native PeriodicTimer.Update compares remaining <= 0, without isReady's epsilon.
       instance.remainingSeconds = Math.max(0, Math.fround(instance.remainingSeconds - nativeDelta));
-      if (instance.remainingSeconds > 0) continue;
+      if (instance.phase === 'active' && instance.remainingReachTicks !== null)
+        instance.remainingReachTicks--;
+      if (instance.remainingSeconds > 0 && instance.remainingReachTicks !== 0) continue;
       if (instance.phase === 'active') {
         instance.phase = 'finished';
+        instance.remainingReachTicks = null;
         instance.remainingSeconds = instance.recycleDelaySeconds;
         instance.finish();
       } else {

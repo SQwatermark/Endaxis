@@ -10,7 +10,7 @@ import { createEmptyScenario } from '../core/project/createProject';
 import { generatedWeaponDefinitions } from '../data/equipment/generated-weapons/index.generated';
 import { gameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
-import { daPanComboSkill } from '../data/operators/generated-definitions/da-pan/da-pan.operator.generated';
+import { daPanComboSkill } from '../data/operators/da-pan';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
 

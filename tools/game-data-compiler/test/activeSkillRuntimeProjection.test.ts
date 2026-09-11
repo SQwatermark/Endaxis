@@ -1002,7 +1002,7 @@ describe('主动技能正式时间轴投影', () => {
       patch: null,
       context: {
         ...ACTIVE_CONTEXT,
-        syntheticComboQteTriggerBlackboardKeys: new Set(['EntityBB_Combo_QTE_Trigger']),
+        comboQteTriggerBlackboardKeys: new Set(['EntityBB_Combo_QTE_Trigger']),
       },
     });
 

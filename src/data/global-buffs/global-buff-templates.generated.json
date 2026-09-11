@@ -1,8 +1,116 @@
 {
-  "version": "1.5.3@9913107-5",
+  "version": "1.5.3@10024360-6",
   "evidence": {
     "source": "vfs-index-browser",
     "assets": [
+      {
+        "id": "global_buff_cc_chr_atb_recoverspeed_down",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_atb_recoverspeed_down.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=240968",
+        "sourceSha256": "769453f1a1e8beb3ac33c577c42d661d6888849cd29256f33270360d9c1b5925"
+      },
+      {
+        "id": "global_buff_cc_chr_combo_skill_cryst_inflict",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_combo_skill_cryst_inflict.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=121307",
+        "sourceSha256": "e29d064a78df60131ec23208a8cf1c2c737db2d89f695e44d136db62de83f15b"
+      },
+      {
+        "id": "global_buff_cc_chr_combo_special_cc0",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_combo_special_cc0.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=132209",
+        "sourceSha256": "787cd8a5fae1412a5e643b7e13ae89ca1d61635ecb17227782bf9c28bb87263f"
+      },
+      {
+        "id": "global_buff_cc_chr_dmg_down_after_inflict",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_dmg_down_after_inflict.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=9689",
+        "sourceSha256": "a9952c21360e1072e0b306a72652dd49eb2243941b400cbf6aeeb2c002b1d984"
+      },
+      {
+        "id": "global_buff_cc_chr_dmg_reduce_maxhp",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_dmg_reduce_maxhp.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=148574",
+        "sourceSha256": "d5c7c1d14b4f843532f55cfc1fcb4ddab6a883e72741c3c0b2e5bde10b751b1f"
+      },
+      {
+        "id": "global_buff_cc_chr_fire_skill_clear_frozenonchar",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_fire_skill_clear_frozenonchar.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=33279",
+        "sourceSha256": "c2592fa863a30aa5c89549681803d964847f2339867737daecea1acde2c2526f"
+      },
+      {
+        "id": "global_buff_cc_chr_frozenonchar_extend",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_frozenonchar_extend.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=214342",
+        "sourceSha256": "8374310d7192049daad7a4388a0788b4a04bd7cfc7d55aa884de16b30b56c134"
+      },
+      {
+        "id": "global_buff_cc_chr_heal_reflect_to_eny",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_heal_reflect_to_eny.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=242080",
+        "sourceSha256": "05a485b90750fdf7c2b946c0f2eaf508d86fce80546e7e854efeddda669fa721"
+      },
+      {
+        "id": "global_buff_cc_chr_main_attribute_down",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_main_attribute_down.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=176474",
+        "sourceSha256": "045961b1700606e0e08d7ab6a78355f1c789347041de0bddac7741c584c5ea2a"
+      },
+      {
+        "id": "global_buff_cc_chr_main_dmg_taken_up",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_main_dmg_taken_up.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=21970",
+        "sourceSha256": "cb97cc76df31a90acd10590ca72ecccb53498ca499f82e82c6f77d272affccc7"
+      },
+      {
+        "id": "global_buff_cc_chr_natural_skill_clear_frozenonchar",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_natural_skill_clear_frozenonchar.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=192455",
+        "sourceSha256": "b675436f3641db1fbd665112b72ab120b750dcadf254033af1f05f4ac4a8b3e6"
+      },
+      {
+        "id": "global_buff_cc_chr_no_lastcombo_stop_atb_recover",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_no_lastcombo_stop_atb_recover.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=46589",
+        "sourceSha256": "1d61cefa847fe6822f7d104803b634f0698c56bec1c1e6c206306d6271a57fe0"
+      },
+      {
+        "id": "global_buff_cc_chr_normal_attack_dmg_down",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_normal_attack_dmg_down.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=279807",
+        "sourceSha256": "2bd217c31bb506efbf8971e3247fb5d985531152836b045f6f62aac859901ebc"
+      },
+      {
+        "id": "global_buff_cc_chr_normal_skill_cryst_inflict",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_normal_skill_cryst_inflict.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=117115",
+        "sourceSha256": "67830345f7696c2bc3e53c75f81449034f71f07e00c05bc7d1402c4301c3f330"
+      },
+      {
+        "id": "global_buff_cc_chr_phy_skill_clear_frozenonchar",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_phy_skill_clear_frozenonchar.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=81063",
+        "sourceSha256": "750c890c128751c9f1ab1d66b114c5de2503b01387d01e0a515745eadd4b3f4a"
+      },
+      {
+        "id": "global_buff_cc_chr_physical_and_inflict_enhance_special_cc0",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_physical_and_inflict_enhance_special_cc0.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=123413",
+        "sourceSha256": "fa5eb1082d97371ce1d3525d993c33082663c844b8744b5cfe09b932296e66d6"
+      },
+      {
+        "id": "global_buff_cc_chr_pulse_skill_clear_frozenonchar",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_pulse_skill_clear_frozenonchar.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=162033",
+        "sourceSha256": "b60a082e6f98f98cf20d3949462e423917bb2b06d7d8bce25f7c613e3c020dde"
+      },
+      {
+        "id": "global_buff_cc_chr_ult_dmg_down_gradual",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_ult_dmg_down_gradual.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=293733",
+        "sourceSha256": "24fff2d20985550af98d10016b0a4ca50b960566f8d5130acd4fab341b5d4d7d"
+      },
       {
         "id": "global_buff_combo_trigger",
         "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_combo_trigger.asset",
@@ -10,15 +118,1163 @@
         "sourceSha256": "ef3eead851b5605277d9dc99a6e49ad575d1d8f759cf2f1a7d25998c1249ac9a"
       },
       {
+        "id": "global_buff_dung_atb_recoverspeed_weekly",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_dung_atb_recoverspeed_weekly.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=58817",
+        "sourceSha256": "76d1716a8b5c0966718fa72012556ab6b5a823abf12cc5e71dbf017bac9be2c1"
+      },
+      {
+        "id": "global_buff_ether_cure_buff",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_ether_cure_buff.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=248929",
+        "sourceSha256": "ec21b1b410c22a482f4460332cf8076d466727248a27f9767fc6e32fa5a3e8e7"
+      },
+      {
+        "id": "global_buff_interact_fognest_specialvision",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_interact_fognest_specialvision.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=254180",
+        "sourceSha256": "10aee9723c06d2d45b5b4b4010dd76ee6eb9e5fb152899cb2d5b49b4736b6187"
+      },
+      {
+        "id": "global_buff_klcommon_exit_fight_listen",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_klcommon_exit_fight_listen.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=245025",
+        "sourceSha256": "008b0e979b21d5426a741c8a7bbeefa0d26a547208bf20f3a1132b1b8e3a04ce"
+      },
+      {
         "id": "global_buff_liino_combo_atb_return",
         "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_liino_combo_atb_return.asset",
         "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=34028",
         "sourceSha256": "f62ae685184a0714bf6d6664129a1b2b0035f0c5ba105771b6dd7fdafde035dc"
+      },
+      {
+        "id": "global_buff_tower_chr_art_intensity_up_add",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_tower_chr_art_intensity_up_add.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=237883",
+        "sourceSha256": "4429aa107feb60f8e97fd7865164b2193f14e300b8517ff46d9eacc1d933b4bf"
       }
     ],
-    "unsupportedAssets": []
+    "unsupportedAssets": [
+      {
+        "id": "global_buff_cc_chr_dash_recover_speed_down",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_chr_dash_recover_speed_down.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=297409",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=297409: unsupported GlobalBuff global modifier type 3"
+      },
+      {
+        "id": "global_buff_cc_level_elite_levelup",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_level_elite_levelup.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=30253",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=30253: non-empty GlobalBuff event behavior is unsupported"
+      },
+      {
+        "id": "global_buff_cc_level_elite_levelup_2",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_level_elite_levelup_2.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=161051",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=161051: non-empty GlobalBuff event behavior is unsupported"
+      },
+      {
+        "id": "global_buff_cc_level_mute_evade",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_level_mute_evade.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=165201",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=165201: non-empty GlobalBuff event behavior is unsupported"
+      },
+      {
+        "id": "global_buff_cc_level_mute_switch_player_pre",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_level_mute_switch_player_pre.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=58470",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=58470: non-empty GlobalBuff event behavior is unsupported"
+      },
+      {
+        "id": "global_buff_cc_level_reduce_heal_ball",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_level_reduce_heal_ball.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=56764",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=56764: non-empty GlobalBuff event behavior is unsupported"
+      },
+      {
+        "id": "global_buff_cc_level_reduce_heal_ball_2",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_cc_level_reduce_heal_ball_2.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=177117",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=177117: non-empty GlobalBuff event behavior is unsupported"
+      },
+      {
+        "id": "global_buff_ether_endurance_buff",
+        "path": "assets/beyond/dynamicassets/gameplay/globalbuff/global_buff_ether_endurance_buff.asset",
+        "sourceUrl": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=22709",
+        "reason": "http://127.0.0.1:8765/api/manifest-asset/preview?manifestId=456952&assetIndex=22709: unsupported GlobalBuff global modifier type 3"
+      }
+    ]
   },
   "templates": {
+    "global_buff_cc_chr_atb_recoverspeed_down": {
+      "id": "global_buff_cc_chr_atb_recoverspeed_down",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_atb_recoverspeed_down_icon",
+          "assignBlackboard": false,
+          "assignItems": []
+        }
+      ],
+      "globalModifierCount": 1,
+      "globalModifiers": [
+        {
+          "attribute": "spRecovery",
+          "operation": "multiplier",
+          "value": {
+            "useBlackboardKey": true,
+            "value": 0,
+            "blackboardKey": "ratio"
+          },
+          "applyToReturnSpGain": true
+        }
+      ],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "ratio",
+          "valueDouble": -0.1,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_combo_skill_cryst_inflict": {
+      "id": "global_buff_cc_chr_combo_skill_cryst_inflict",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_combo_skill_cryst_inflict",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "times",
+              "inputValueKey": "times",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "times",
+          "valueDouble": 2,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_combo_special_cc0": {
+      "id": "global_buff_cc_chr_combo_special_cc0",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_combo_special_cc0",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "cd_scale",
+              "inputValueKey": "cd_scale",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "cd_scale",
+          "valueDouble": 0.2,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_dmg_down_after_inflict": {
+      "id": "global_buff_cc_chr_dmg_down_after_inflict",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_dmg_down_after_inflict",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "dmg_scale",
+              "inputValueKey": "dmg_scale",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            },
+            {
+              "targetKey": "duration",
+              "inputValueKey": "duration",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "dmg_scale",
+          "valueDouble": -0.1,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "valueDouble": 10,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_dmg_reduce_maxhp": {
+      "id": "global_buff_cc_chr_dmg_reduce_maxhp",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_dmg_reduce_maxhp",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "hp_down_ratio",
+              "inputValueKey": "hp_down_ratio",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "hp_down_ratio",
+          "valueDouble": 0.5,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "hp_down_ratio_melee",
+          "valueDouble": 0.3,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_fire_skill_clear_frozenonchar": {
+      "id": "global_buff_cc_chr_fire_skill_clear_frozenonchar",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_fire_skill_clear_frozenonchar",
+          "assignBlackboard": false,
+          "assignItems": [
+            {
+              "targetKey": "layer",
+              "inputValueKey": "layer",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": []
+    },
+    "global_buff_cc_chr_frozenonchar_extend": {
+      "id": "global_buff_cc_chr_frozenonchar_extend",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_frozenonchar_extend",
+          "assignBlackboard": false,
+          "assignItems": [
+            {
+              "targetKey": "layer",
+              "inputValueKey": "layer",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "duration",
+          "valueDouble": 15,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_heal_reflect_to_eny": {
+      "id": "global_buff_cc_chr_heal_reflect_to_eny",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_heal_reflect_to_eny",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "chr_heal_ratio",
+              "inputValueKey": "chr_heal_ratio",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            },
+            {
+              "targetKey": "eny_heal_ratio",
+              "inputValueKey": "eny_heal_ratio",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            },
+            {
+              "targetKey": "chr_shield_ratio",
+              "inputValueKey": "chr_shield_ratio",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "chr_heal_ratio",
+          "valueDouble": 0.1,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "eny_heal_ratio",
+          "valueDouble": 0.05,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "chr_shield_ratio",
+          "valueDouble": 0.2,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_main_attribute_down": {
+      "id": "global_buff_cc_chr_main_attribute_down",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_main_attribute_down",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "attr",
+              "inputValueKey": "attr",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "attr",
+          "valueDouble": -200,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_main_dmg_taken_up": {
+      "id": "global_buff_cc_chr_main_dmg_taken_up",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_main_dmg_taken_up",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "dmg_scale",
+              "inputValueKey": "dmg_scale",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "dmg_scale",
+          "valueDouble": 0.1,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_natural_skill_clear_frozenonchar": {
+      "id": "global_buff_cc_chr_natural_skill_clear_frozenonchar",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_natural_skill_clear_frozenonchar",
+          "assignBlackboard": false,
+          "assignItems": [
+            {
+              "targetKey": "layer",
+              "inputValueKey": "layer",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": []
+    },
+    "global_buff_cc_chr_no_lastcombo_stop_atb_recover": {
+      "id": "global_buff_cc_chr_no_lastcombo_stop_atb_recover",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_no_lastcombo_stop_atb_recover_pre",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "ratio",
+              "inputValueKey": "ratio",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            },
+            {
+              "targetKey": "duration",
+              "inputValueKey": "duration",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "ratio",
+          "valueDouble": -1,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "duration",
+          "valueDouble": 12,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_normal_attack_dmg_down": {
+      "id": "global_buff_cc_chr_normal_attack_dmg_down",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_normal_attack_dmg_down",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "dmg_scale",
+              "inputValueKey": "dmg_scale",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "dmg_scale",
+          "valueDouble": -0.6,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_normal_skill_cryst_inflict": {
+      "id": "global_buff_cc_chr_normal_skill_cryst_inflict",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_normal_skill_cryst_inflict",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "times",
+              "inputValueKey": "times",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "times",
+          "valueDouble": 2,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_phy_skill_clear_frozenonchar": {
+      "id": "global_buff_cc_chr_phy_skill_clear_frozenonchar",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_phy_skill_clear_frozenonchar",
+          "assignBlackboard": false,
+          "assignItems": [
+            {
+              "targetKey": "layer",
+              "inputValueKey": "layer",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": []
+    },
+    "global_buff_cc_chr_physical_and_inflict_enhance_special_cc0": {
+      "id": "global_buff_cc_chr_physical_and_inflict_enhance_special_cc0",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_physical_and_inflict_enhance_special_cc0",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "dmg_up",
+              "inputValueKey": "dmg_up",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            },
+            {
+              "targetKey": "dmg_scale",
+              "inputValueKey": "dmg_scale",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "dmg_up",
+          "valueDouble": 2,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "dmg_scale",
+          "valueDouble": -0.6,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_cc_chr_pulse_skill_clear_frozenonchar": {
+      "id": "global_buff_cc_chr_pulse_skill_clear_frozenonchar",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_pulse_skill_clear_frozenonchar",
+          "assignBlackboard": false,
+          "assignItems": [
+            {
+              "targetKey": "layer",
+              "inputValueKey": "layer",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": []
+    },
+    "global_buff_cc_chr_ult_dmg_down_gradual": {
+      "id": "global_buff_cc_chr_ult_dmg_down_gradual",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_cc_chr_ult_dmg_down_gradual",
+          "assignBlackboard": false,
+          "assignItems": []
+        },
+        {
+          "buffId": "buff_cc_chr_ult_dmg_down_gradual_instance",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "dmg_scale_per_layer",
+              "inputValueKey": "dmg_scale_per_layer",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "dmg_scale",
+          "valueDouble": -0.5,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "dmg_scale_per_layer",
+          "valueDouble": -0.5,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
     "global_buff_combo_trigger": {
       "id": "global_buff_combo_trigger",
       "lifeType": "Limited",
@@ -80,6 +1336,215 @@
           "isDynamic": false
         }
       ]
+    },
+    "global_buff_dung_atb_recoverspeed_weekly": {
+      "id": "global_buff_dung_atb_recoverspeed_weekly",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "HighPriority",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [],
+      "globalModifierCount": 1,
+      "globalModifiers": [
+        {
+          "attribute": "spRecovery",
+          "operation": "multiplier",
+          "value": {
+            "useBlackboardKey": true,
+            "value": 0,
+            "blackboardKey": "ratio"
+          },
+          "applyToReturnSpGain": true
+        }
+      ],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "ratio",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_ether_cure_buff": {
+      "id": "global_buff_ether_cure_buff",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 30,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "StackAndRefresh",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 1,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_Ether_Cure_buff",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "hpper",
+              "inputValueKey": "hpper",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            },
+            {
+              "targetKey": "cure",
+              "inputValueKey": "cure",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "hpper",
+          "valueDouble": 5,
+          "valueStr": "",
+          "isDynamic": false
+        },
+        {
+          "key": "cure",
+          "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_interact_fognest_specialvision": {
+      "id": "global_buff_interact_fognest_specialvision",
+      "lifeType": "Limited",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 30,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Refresh",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 0,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_interact_fognest_specialvision",
+          "assignBlackboard": true,
+          "assignItems": []
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "duration",
+          "valueDouble": 30,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_klcommon_exit_fight_listen": {
+      "id": "global_buff_klcommon_exit_fight_listen",
+      "lifeType": "Limited",
+      "duration": {
+        "useBlackboardKey": false,
+        "value": 30,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 1,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_klcommon_mech_exit_fight_listener_char",
+          "assignBlackboard": false,
+          "assignItems": []
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": []
     },
     "global_buff_liino_combo_atb_return": {
       "id": "global_buff_liino_combo_atb_return",
@@ -146,6 +1611,62 @@
         {
           "key": "atb_return",
           "valueDouble": 0,
+          "valueStr": "",
+          "isDynamic": false
+        }
+      ]
+    },
+    "global_buff_tower_chr_art_intensity_up_add": {
+      "id": "global_buff_tower_chr_art_intensity_up_add",
+      "lifeType": "Infinity",
+      "duration": {
+        "useBlackboardKey": true,
+        "value": 0,
+        "blackboardKey": "duration"
+      },
+      "triggerInterval": {
+        "useBlackboardKey": false,
+        "value": 0,
+        "blackboardKey": ""
+      },
+      "waitFirstTriggerInterval": true,
+      "maxTriggerCount": {
+        "useBlackboardKey": false,
+        "value": 1,
+        "blackboardKey": ""
+      },
+      "stackingIdentifierType": "Id",
+      "stackingType": "Unlimited",
+      "stackingKey": "",
+      "usePriorityKey": false,
+      "priorityKey": "",
+      "negatePriority": false,
+      "priority": 0,
+      "maxStackCount": 1,
+      "applyIconDurationToBuffs": false,
+      "buffInputs": [
+        {
+          "buffId": "buff_tower_chr_art_intensity_up_add",
+          "assignBlackboard": true,
+          "assignItems": [
+            {
+              "targetKey": "value",
+              "inputValueKey": "value",
+              "useDirectValue": false,
+              "directValueType": "Numeric",
+              "numericValue": 0,
+              "stringValue": ""
+            }
+          ]
+        }
+      ],
+      "globalModifierCount": 0,
+      "globalModifiers": [],
+      "globalEventCount": 0,
+      "blackboard": [
+        {
+          "key": "value",
+          "valueDouble": 15,
           "valueStr": "",
           "isDynamic": false
         }

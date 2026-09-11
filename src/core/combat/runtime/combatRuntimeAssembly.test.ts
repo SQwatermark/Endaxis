@@ -27,7 +27,7 @@ import {
   logicalAbilityEntityRuntimeId,
   type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import { gilbertaBattleSkill } from '../../../data/operators/generated-definitions/gilberta/gilberta.operator.generated';
+import { gilbertaBattleSkill } from '../../../data/operators/gilberta';
 import { gilberta as gilbertaGeneratedOperator } from '../../../data/operators/gilberta';
 
 const emptyEnemyBuffRuntime = {
@@ -512,54 +512,82 @@ describe('CombatRuntimeAssembly', () => {
     ).toHaveLength(1);
   });
 
-  it('无回调发射不创建技能，动作区间结束后仍在独立 reset 阶段通知', () => {
-    const emitAbilityEvent = vi.fn();
-    const assembly = createAssembly({
-      ...nativeEventRuntimeOptions(),
-      emitAbilityEvent,
-      programs: [
-        skill({
-          costs: [],
-          costFrame: undefined,
-          timelineActions: [
-            {
-              startFrame: 0,
-              endFrame: 0,
-              sequence: {
-                steps: [
-                  {
-                    kind: 'launchProjectileLifetime',
-                    parameters: { finish: 'firstTickReach' },
+  it.each(
+    [0, 1.5].flatMap(recycleDelaySeconds =>
+      [1, 0.5].map(globalScale => ({ recycleDelaySeconds, globalScale })),
+    ),
+  )(
+    '无战斗回调发射按全局缩放$globalScale保留$recycleDelaySeconds秒回收延迟',
+    ({ recycleDelaySeconds, globalScale }) => {
+      const emitAbilityEvent = vi.fn();
+      const assembly = createAssembly(
+        {
+          ...nativeEventRuntimeOptions(),
+          emitAbilityEvent,
+          programs: [
+            skill({
+              costs: [],
+              costFrame: undefined,
+              timelineActions: [
+                {
+                  startFrame: 0,
+                  endFrame: 0,
+                  sequence: {
+                    steps: [
+                      {
+                        kind: 'launchProjectileLifetime',
+                        parameters: { finish: 'firstTickReach', recycleDelaySeconds },
+                      },
+                      { kind: 'finishTimeline', parameters: {} },
+                    ],
                   },
-                  { kind: 'finishTimeline', parameters: {} },
-                ],
-              },
-            },
+                },
+              ],
+            }),
           ],
+        },
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+        { config: {} },
+      );
+      assembly.timeDilation!.startGlobal({
+        durationSeconds: 10,
+        slot: 'Test/TimeSlot1',
+        priority: 1,
+        constantScale: globalScale,
+      });
+      expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
+      const launch = emitAbilityEvent.mock.calls.find(call => call[1] === 'projectileLaunched');
+      expect(launch).toBeDefined();
+      const reset = vi.fn(() =>
+        expect(assembly.projectileLifetimes.findSource(1)).toEqual({
+          kind: 'operator',
+          operatorId: 'operator',
         }),
-      ],
-    });
-    expect(assembly.tryStartSkill('operator', 'skill')).toBe(true);
-    const launch = emitAbilityEvent.mock.calls.find(call => call[1] === 'projectileLaunched');
-    expect(launch).toBeDefined();
-    const reset = vi.fn(() =>
-      expect(assembly.projectileLifetimes.findSource(1)).toEqual({
-        kind: 'operator',
-        operatorId: 'operator',
-      }),
-    );
-    launch![2].entity.onReset(reset);
-    // 动作结束不持有此对象的释放句柄。
-    assembly.advanceFrame();
-    expect(assembly.receipt.entries.some(entry => entry.event === 'SkillEnded')).toBe(true);
-    expect(reset).not.toHaveBeenCalled();
-    assembly.projectileLifetimes.advanceFrame();
-    expect(reset).not.toHaveBeenCalled();
-    assembly.projectileLifetimes.advanceFrame();
-    expect(reset).toHaveBeenCalledOnce();
-    expect(assembly.projectileLifetimes.findSource(1)).toBeUndefined();
-    expect(emitAbilityEvent.mock.calls.filter(call => call[0] === 'ability-entity:1')).toEqual([]);
-  });
+      );
+      launch![2].entity.onReset(reset);
+      // 动作结束不持有此对象的释放句柄。
+      assembly.advanceFrame();
+      expect(assembly.timeDilation!.currentGlobalScale).toBe(globalScale);
+      expect(assembly.receipt.entries.some(entry => entry.event === 'SkillEnded')).toBe(true);
+      expect(reset).not.toHaveBeenCalled();
+      for (let i = 0; i < Math.floor((recycleDelaySeconds * 30) / globalScale); i++) {
+        assembly.projectileLifetimes.advanceFrame();
+        expect(reset).not.toHaveBeenCalled();
+      }
+      assembly.projectileLifetimes.advanceFrame();
+      expect(reset).not.toHaveBeenCalled();
+      assembly.projectileLifetimes.advanceFrame();
+      expect(reset).toHaveBeenCalledOnce();
+      expect(assembly.projectileLifetimes.findSource(1)).toBeUndefined();
+      expect(emitAbilityEvent.mock.calls.filter(call => call[0] === 'ability-entity:1')).toEqual(
+        [],
+      );
+    },
+  );
 
   it('runs projectile finish and reset before the enemy AbilitySystem buff pass', () => {
     const calls: string[] = [];

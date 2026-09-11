@@ -26,7 +26,7 @@ beforeEach(() => {
       },
       commonBuffDefinitions: {},
     },
-    file: { relativePath: `${slug}.operator.generated.ts`, content: `export default '${slug}';\n` },
+    file: { relativePath: `${slug}.ts`, content: `export default '${slug}';\n` },
     auditFile: { relativePath: 'operator.audit.json', content: `{"slug":"${slug}"}\n` },
   }));
 });
@@ -59,6 +59,18 @@ const sourceArguments = {
 } as const;
 
 describe('整批干员候选写入', () => {
+  it('不允许整批目录替换覆盖正式干员混合目录', async () => {
+    const paths = await setup();
+    await expect(
+      generateOperatorDefinitionCandidates({
+        ...sourceArguments,
+        ...paths,
+        outputRoot: path.resolve('src/data/operators'),
+        check: false,
+      }),
+    ).rejects.toThrow('isolated directory');
+  });
+
   it('全部渲染成功后写完整目录，并能严格复验文件集合', async () => {
     const paths = await setup();
     const input = { ...sourceArguments, ...paths, check: false };
@@ -67,9 +79,9 @@ describe('整批干员候选写入', () => {
       skillCount: 2,
       operators: [{ slug: 'one' }, { slug: 'two' }],
     });
-    await expect(
-      fs.readFile(path.join(paths.outputRoot, 'two/two.operator.generated.ts'), 'utf8'),
-    ).resolves.toBe("export default 'two';\n");
+    await expect(fs.readFile(path.join(paths.outputRoot, 'two.ts'), 'utf8')).resolves.toBe(
+      "export default 'two';\n",
+    );
     await expect(
       generateOperatorDefinitionCandidates({ ...input, check: true }),
     ).resolves.toMatchObject({ operatorCount: 2 });

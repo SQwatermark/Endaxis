@@ -3,7 +3,12 @@ import os from 'node:os';
 import path from 'node:path';
 import sharp from 'sharp';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { exportReference, parseArguments } from '../scripts/exportReferencedGameIcons.ts';
+import {
+  addEquipmentConfiguredReferences,
+  addOperatorImpliedReferences,
+  exportReference,
+  parseArguments,
+} from '../scripts/exportReferencedGameIcons.ts';
 
 const temporaryRoots: string[] = [];
 afterEach(async () => {
@@ -27,6 +32,93 @@ const reference = {
 };
 
 describe('全量图片隔离导出', () => {
+  it('武器、装备和套装图标都读取各自配置，未引用资源不进入导出', async () => {
+    const { outputRoot } = await isolatedArguments();
+    const config = path.join(outputRoot, 'equipmentAssets.json');
+    const icon = { sourceName: 'configured.png', preferredPathSegment: '/bufficon/' };
+    await fs.writeFile(
+      config,
+      JSON.stringify({
+        weapons: { 'weapon:custom': { '/icons/shared.webp': icon } },
+        gears: { 'gear:custom': { '/icons/shared.webp': icon, '/icons/unused.webp': icon } },
+        gearSets: { 'set:custom': { '/icons/set.webp': icon } },
+      }),
+    );
+    const refs = new Map<string, Set<string>>([
+      ['/icons/shared.webp', new Set(['definition'])],
+      ['/icons/set.webp', new Set(['definition'])],
+    ]);
+    const result = await addEquipmentConfiguredReferences(refs, config);
+    expect([...result.keys()]).toEqual(['/icons/shared.webp', '/icons/set.webp']);
+    expect(result.get('/icons/shared.webp')?.sourceNames).toEqual(['configured.png']);
+    expect(refs.get('/icons/shared.webp')?.size).toBe(3);
+    await fs.writeFile(
+      config,
+      JSON.stringify({
+        weapons: {
+          first: { '/icons/shared.webp': icon },
+          second: {
+            '/icons/shared.webp': { ...icon, sourceName: 'different.png' },
+          },
+        },
+        gears: {},
+        gearSets: {},
+      }),
+    );
+    await expect(addEquipmentConfiguredReferences(refs, config)).rejects.toThrow(
+      'conflicting icon sources',
+    );
+  });
+  it('未知干员也按自己的配置选择头像和附加图标，技能名沿用原生身份', async () => {
+    const args = await isolatedArguments();
+    const root = args.outputRoot;
+    const tables = path.join(root, 'TableCfg-current');
+    await fs.mkdir(tables);
+    await fs.writeFile(
+      path.join(tables, 'CharGrowthTable.json'),
+      JSON.stringify({
+        chr_9000_sample: {
+          talentNodeMap: {
+            first: { passiveSkillNodeInfo: { iconId: 'talent_icon', index: 0, level: 1 } },
+          },
+        },
+      }),
+    );
+    const manifest = path.join(root, 'operators.json');
+    await fs.writeFile(
+      manifest,
+      JSON.stringify({
+        operators: [
+          {
+            slug: 'custom',
+            charId: 'chr_9000_sample',
+            skillGroups: [{ skillType: 'battleSkill' }],
+            assets: {
+              portraitCharacterId: 'chr_0001_portrait',
+              icons: {
+                charge: { sourceName: 'custom_charge', preferredPathSegment: '/bufficon/' },
+              },
+            },
+          },
+        ],
+      }),
+    );
+    const references = new Map<string, Set<string>>();
+    const overrides = await addOperatorImpliedReferences(references, root, manifest);
+    expect(overrides.get('/operators/custom/avatar.webp')?.sourceNames).toEqual([
+      'icon_round_chr_0001_portrait.png',
+    ]);
+    expect(overrides.get('/operators/custom/battle.webp')?.sourceNames).toEqual([
+      'icon_skill_sample_01.png',
+    ]);
+    expect(overrides.get('/operators/custom/charge.webp')?.sourceNames).toEqual([
+      'custom_charge.png',
+    ]);
+    expect(overrides.get('/operators/custom/talent 1.webp')?.sourceNames).toEqual([
+      'talent_icon.png',
+    ]);
+    expect(references.has('/operators/custom/charge.webp')).toBe(true);
+  });
   it('图片并发有界且只接受正整数', () => {
     expect(parseArguments([]).workers).toBe(6);
     expect(parseArguments(['--workers', '12']).workers).toBe(12);

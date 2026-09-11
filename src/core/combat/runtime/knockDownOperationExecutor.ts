@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type {
   ResolvedCombatOperationStep,
   ResolvedSkillBuffDefinition,
@@ -145,10 +146,7 @@ export class KnockDownOperationExecutor implements CombatOperationExecutor {
   end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.dependencies.delegate.end?.(step, context);
   }
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return this.dependencies.delegate.evaluate(condition, context);
   }
 }

@@ -334,11 +334,9 @@ describe('projectTimelineEditor', () => {
       skillType: 'battleSkill',
     });
     expect(project(rossi).filter(entry => entry.skillGroupKey === 'comboSkill')).toEqual([
-      expect.objectContaining({ enhanced: false, groupPlacementSkillKeys: ['comboSkill2'] }),
       expect.objectContaining({
         enhanced: false,
-        placementSkillKey: 'comboSkill3',
-        groupPlacementSkillKeys: ['comboSkill3'],
+        groupPlacementSkillKeys: ['comboSkill2', 'comboSkill3'],
       }),
     ]);
   });

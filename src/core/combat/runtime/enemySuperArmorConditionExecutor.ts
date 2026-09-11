@@ -1,3 +1,4 @@
+import type { CombatOperationContext } from './skillRuntime';
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { compareCombatNumbers } from './numericComparison';
@@ -16,10 +17,7 @@ export class EnemySuperArmorConditionExecutor implements CombatOperationExecutor
   end: NonNullable<CombatOperationExecutor['end']> = (step, context) =>
     this.delegate.end?.(step, context);
 
-  evaluate(
-    condition: CombatCondition,
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind !== 'enemySuperArmorCompare') {
       return this.delegate.evaluate(condition, context);
     }

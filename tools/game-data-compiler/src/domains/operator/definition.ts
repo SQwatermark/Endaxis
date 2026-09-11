@@ -868,6 +868,11 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     buffDefinitions: privateBuffs,
     abilityEntityDefinitions,
   };
+  for (const id of Object.keys(operator.buffDisplayNameKeys ?? {})) {
+    if (privateBuffs[id] === undefined) {
+      throw new Error(`operator '${operator.slug}' names unknown private Buff '${id}'`);
+    }
+  }
   return {
     operator,
     commonBuffDefinitions: commonBuffs,

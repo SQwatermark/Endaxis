@@ -1,4 +1,5 @@
 import fs from 'node:fs';
+import path from 'node:path';
 import {
   checkGeneratedDefinitionFiles,
   writeGeneratedDefinitionFiles,
@@ -25,6 +26,13 @@ export interface OperatorDefinitionCandidateArguments extends Omit<
 export async function generateOperatorDefinitionCandidates(
   args: OperatorDefinitionCandidateArguments,
 ) {
+  if (
+    path.resolve(args.outputRoot) ===
+    path.resolve(import.meta.dirname, '../../../src/data/operators')
+  )
+    throw new Error(
+      'operator candidates require an isolated directory; publish generated files individually',
+    );
   const manifest = requireRecord(JSON.parse(fs.readFileSync(args.manifest, 'utf8')), args.manifest);
   const rows = requireArray(manifest.operators, `${args.manifest}.operators`);
   const slugs = rows.map((value, index) =>
@@ -44,11 +52,11 @@ export async function generateOperatorDefinitionCandidates(
       ...args,
       slug,
       // 单技能规划仍用这两个路径生成稳定相对文件名；候选写入由本函数在整批成功后完成。
-      output: `${args.outputRoot}/${slug}`,
+      output: args.outputRoot,
       auditOutput: `${args.auditRoot}/${slug}`,
     });
     files.push({
-      relativePath: `${slug}/${rendered.file.relativePath}`,
+      relativePath: rendered.file.relativePath,
       content: rendered.file.content,
     });
     auditFiles.push({

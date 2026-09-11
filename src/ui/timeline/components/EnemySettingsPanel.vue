@@ -674,6 +674,12 @@ function removeKnotThreshold(index: number): void {
   background: var(--ea-keycap-bg);
   overflow: hidden;
 }
+.enemy-card .card-avatar > img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
 .enemy-card .tier-strip {
   position: absolute;
   left: 0;

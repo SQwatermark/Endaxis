@@ -1122,6 +1122,7 @@
         "timedMarkerPresent": "Timed marker present",
         "globalCooldownPresent": "Global cooldown active",
         "casterComboPending": "Caster has a pending combo candidate (not a castability check)",
+        "eventComboRingQteSucceeded": "This combo input hit the precise-link window",
         "eventDamageTagsMatch": "Event damage tags match",
         "eventDamageFeaturesMatch": "Event damage features match",
         "elementalInflictionPresent": "Elemental infliction present",
@@ -1471,6 +1472,7 @@
         "repeatEachTick": "Runs its body at interval start and on every subsequent host tick.",
         "setContextFlag": "Sets a caster context flag for other mechanics to read.",
         "openComboWindow": "Queues the next combo stage in the scene-level window runtime. The window lasts 5 seconds and follows queue order.",
+        "showComboRingQte": "Registers a precise-link input window using the native warning and active durations.",
         "changeSkillSlot": "Changes the variant used by the next release of this stable skill group; an ongoing release keeps its snapshotted variant.",
         "changePlayerActionMode": "Changes the native command mode for one semantic player action and may restore the mode that was active before the step.",
         "overrideBasicAttackMapping": "Maps basic attack to a native skill while the Buff action is active, ahead of skill and mode mappings. Removed when the action ends.",
@@ -1618,6 +1620,7 @@
         "repeatEachTick": "Repeat each tick",
         "setContextFlag": "Set context flag",
         "openComboWindow": "Open next combo window",
+        "showComboRingQte": "Show precise-link window",
         "listenForCombatEvents": "Listen for combat events"
       }
     },
@@ -2067,6 +2070,7 @@
       "comboWindow": "Combo Window",
       "nature_burst": "Nature Burst",
       "corrosion": "Corrosion",
+      "razorClawmark": "Razor Clawmark",
       "default": "Default Icon",
       "vulnerability": "Vulnerability",
       "breach": "Breach",

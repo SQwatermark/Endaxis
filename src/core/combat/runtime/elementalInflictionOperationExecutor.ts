@@ -1,3 +1,4 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 /**
  * 元素附着步骤与目标 Buff 容器、关卡事件之间的装配点。
@@ -77,10 +78,7 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     this.dependencies.delegate.prepare?.(step, context);
   }
 
-  execute(
-    step: RuntimeOperation,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'triggerSpellBurst') {
       if (this.dependencies.triggerSpellBurst === undefined)
         throw new Error(`spell burst '${step.parameters.burstType}' has no runtime port`);
@@ -182,17 +180,11 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     return true;
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.dependencies.delegate.evaluate(condition)
       : this.dependencies.delegate.evaluate(condition, context);

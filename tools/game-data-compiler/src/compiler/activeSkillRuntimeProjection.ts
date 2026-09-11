@@ -611,12 +611,11 @@ function sequenceReadsFloatBlackboard(
 }
 
 /**
- * ShowComboRingQte 与 AbilityEntity QTE 是同一输入机制的旧/新表现实现。Endaxis 已从
- * ShowComboRingQte 的 Buff 闭包合成输入窗口后，应执行共用的技能成功/失败逻辑，而不是
- * 再受原型选择黑板限制。这里只解包“单一 EQ 1 守卫、空 false 分支、true 分支读取已证明
- * QTE 触发键”的完整形状；其他黑板条件原样保留。
+ * ShowComboRingQte.triggeredAction 是已执行的成功入口；AbilityEntity 分支只选择另一套表现。
+ * 成功逻辑应读取原生触发键，不再受表现原型开关限制。这里只解包“单一 EQ 1 守卫、
+ * 空 false 分支、true 分支读取已证明 QTE 触发键”的完整形状；其他黑板条件原样保留。
  */
-function unwrapSyntheticComboQtePrototypeGuard(
+function unwrapComboQtePrototypeGuard(
   sequence: NativeSequenceSource<KnownNativeActionLeafSource>,
   triggerKeys: ReadonlySet<string> | undefined,
 ): NativeSequenceSource<KnownNativeActionLeafSource> {
@@ -1184,9 +1183,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     const activeMainCharacterSequence = timeline.sequence.onlyExecuteWhenSourceIsMainCharacter
       ? { ...timeline.sequence, onlyExecuteWhenSourceIsMainCharacter: false }
       : timeline.sequence;
-    const executableSequence = unwrapSyntheticComboQtePrototypeGuard(
+    const executableSequence = unwrapComboQtePrototypeGuard(
       activeMainCharacterSequence,
-      input.context.syntheticComboQteTriggerBlackboardKeys,
+      input.context.comboQteTriggerBlackboardKeys,
     );
     if (isPresentationOnlyActionSequence(executableSequence, presentationOnlyBlackboardKeys))
       continue;

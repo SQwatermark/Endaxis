@@ -311,6 +311,7 @@ export interface ResolvedCombatStepParameters {
   launchProjectileLifetime: CombatStepParameters['launchProjectileLifetime'];
   setContextFlag: CombatStepParameters['setContextFlag'];
   openComboWindow: CombatStepParameters['openComboWindow'];
+  showComboRingQte: CombatStepParameters['showComboRingQte'];
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
   overrideBasicAttackMapping: CombatStepParameters['overrideBasicAttackMapping'];
   changePlayerActionMode: CombatStepParameters['changePlayerActionMode'];
@@ -465,6 +466,7 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   launchProjectileLifetime: 'sequence',
   setContextFlag: 'operation',
   openComboWindow: 'operation',
+  showComboRingQte: 'operation',
   changeSkillSlot: 'operation',
   overrideBasicAttackMapping: 'operation',
   changePlayerActionMode: 'operation',

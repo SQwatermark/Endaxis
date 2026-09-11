@@ -138,35 +138,6 @@ export function compileStandardStumpBuffClosure(
       ),
     ),
   );
-  const comboQteTimerIds = new Set(
-    [...sources.values()].flatMap(source => {
-      const nodes = buffActionNodes(source);
-      const activeDurationKeys = new Set(
-        nodes.flatMap(node =>
-          node.metadata.enabled &&
-          node.body.kind === 'leaf' &&
-          node.body.value.family === 'comboQte' &&
-          node.body.value.action.activeDuration.blackboardKey !== null
-            ? [node.body.value.action.activeDuration.blackboardKey]
-            : [],
-        ),
-      );
-      return nodes.flatMap(node =>
-        node.metadata.enabled &&
-        node.body.kind === 'leaf' &&
-        node.body.value.family === 'buffApplication'
-          ? node.body.value.action.buffs.flatMap(buff =>
-              buff.assignments.some(
-                assignment =>
-                  !assignment.useDirectValue && activeDurationKeys.has(assignment.inputValueKey),
-              )
-                ? [buff.buffId]
-                : [],
-            )
-          : [],
-      );
-    }),
-  );
   const skillSettingCatalog =
     skillSettingCatalogValue === undefined
       ? undefined
@@ -182,7 +153,6 @@ export function compileStandardStumpBuffClosure(
       id =>
         !preserveBuffIds.has(id) &&
         !conditionObservedBuffIds.has(id) &&
-        !comboQteTimerIds.has(id) &&
         !keywordOverrideChildIds.has(id) &&
         !keywordEnhancementTriggerIds.has(id) &&
         (!rootBuffIdSet.has(id) || isPresentationOnlyBuffStackEffect(sources.get(id)!)),

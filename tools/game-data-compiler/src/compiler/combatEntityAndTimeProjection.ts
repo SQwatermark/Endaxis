@@ -291,7 +291,84 @@ export function compileBuffLeafNode(
     const compile = extensions.compileProjectileLaunch;
     if (compile === undefined)
       throw new Error(`${node.sourcePath}: projectile launch projection is unavailable`);
-    const compiled = compile(node.body.value.action, node.sourcePath, context);
+    if (
+      target.targetSource === 'Context' &&
+      target.targetGroupKey !== '' &&
+      context.singleEnemyTargetGroupKeys?.has(target.targetGroupKey) === true &&
+      context.staticEnemyTargetGroupKeys?.has(target.targetGroupKey) !== true
+    ) {
+      // 标签筛选后的组可能为空。只在实际迭代体中证明目标是唯一敌人，
+      // 不能把“至多一个敌人”升级成整条序列的“必有敌人”。
+      const compiled = compile(node.body.value.action, node.sourcePath, {
+        ...context,
+        staticEnemyTargetGroupKeys: new Set([
+          ...(context.staticEnemyTargetGroupKeys ?? []),
+          target.targetGroupKey,
+        ]),
+        staticZeroSpaceTargetGroupKeys: new Set([
+          ...(context.staticZeroSpaceTargetGroupKeys ?? []),
+          target.targetGroupKey,
+        ]),
+      });
+      return {
+        steps: [
+          {
+            kind: 'forEachContextTarget',
+            parameters: { contextKey: target.targetGroupKey },
+            body: { steps: compiled },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
+    if (
+      node.body.value.action.callbacks.every(callback => !callback.enabled) &&
+      target.targetSource === 'Context' &&
+      target.targetGroupKey !== '' &&
+      (partyTargetGroups.get(target.targetGroupKey) === 'abilityEntity' ||
+        context.staticAbilityEntityTargetGroupKeys?.has(target.targetGroupKey) === true)
+    ) {
+      // 能力实体实例也位于零空间，但不能把目标组当作恰好一个目标。
+      // 保留实际查询结果的基数：空组不发射，每个存活句柄各发射一次。
+      const compiled = compile(node.body.value.action, node.sourcePath, {
+        ...context,
+        staticZeroSpaceTargetGroupKeys: new Set([
+          ...(context.staticZeroSpaceTargetGroupKeys ?? []),
+          target.targetGroupKey,
+        ]),
+      });
+      return {
+        steps: [
+          {
+            kind: 'forEachContextTarget',
+            parameters: { contextKey: target.targetGroupKey },
+            body: { steps: compiled },
+          },
+        ],
+        state: partyTargetGroups,
+      };
+    }
+    const targetIsEnemy =
+      target.targetSource === 'Context' &&
+      target.targetGroupKey !== '' &&
+      partyTargetGroups.get(target.targetGroupKey) === 'enemy';
+    const compiled = compile(
+      node.body.value.action,
+      node.sourcePath,
+      targetIsEnemy
+        ? {
+            ...context,
+            staticEnemyTargetGroupKeys: new Set([
+              ...(context.staticEnemyTargetGroupKeys ?? []),
+              target.targetGroupKey,
+            ]),
+            staticZeroSpaceTargetGroupKeys: new Set([
+              ...(context.staticZeroSpaceTargetGroupKeys ?? []),
+              target.targetGroupKey,
+            ]),
+          }
+        : context,
+    );
     const repeatCount =
       target.targetSource === 'Context' && target.targetGroupKey !== ''
         ? context.dynamicSpatialPointCounts?.get(target.targetGroupKey)

@@ -378,6 +378,8 @@ export interface OperatorDefinition {
   }[];
   /** 干员级附属对象；编辑器后续可在干员层级创建和修改，技能不得复制其完整定义。 */
   buffDefinitions?: OperatorBuffDefinitions;
+  /** 此干员附属 Buff 的名称翻译键；仅用于展示，不进入战斗回执。 */
+  buffDisplayNameKeys?: Readonly<Record<string, string>>;
   /** 干员级能力实体蓝图；子技能按引用它的技能等级编译。 */
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
   /** 原生角色常驻连携条件；多段连携的后续窗口仍由技能序列中的步骤开启。 */

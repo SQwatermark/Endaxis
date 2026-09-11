@@ -7,6 +7,7 @@
  */
 import { computed } from 'vue';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import OperatorAvatar from '../../components/OperatorAvatar.vue';
 import { useI18n } from 'vue-i18n';
 import './armoryDialog.css';
 import {
@@ -299,9 +300,8 @@ function maxOut(): void {
               :class="`rarity-${definition.rarity}-style`"
               :style="definition.rarity === 6 ? {} : { borderColor: rarityColor }"
             >
-              <img
+              <OperatorAvatar
                 :src="getOperatorAvatarPath(operator.definition.assetSlug ?? operator.operatorSlug)"
-                alt=""
                 class="portrait"
               />
             </div>
@@ -606,8 +606,6 @@ function maxOut(): void {
 .portrait {
   width: 100%;
   height: 100%;
-  object-fit: cover;
-  object-position: top center;
 }
 .rarity-6-style.portrait-frame {
   border: 2px solid transparent;

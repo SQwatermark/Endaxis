@@ -46,7 +46,7 @@ BuffData/buff_wpn_funnel_0016_will_{icon,dmg,atk}.json均hasIcon=true且共用
 icon_battle_spell_taken_up，但只有icon的showInHeadBarCommon=true，dmg/atk
 的showInHeadBarCommon与showInHeadBarAttached都明确false。两者高优先级计算
 效果和可见聚合图标不是同一展示身份，不能因为有资源就全部画到敌人栏。
-原生分流依据docs/research/combat-hud-state-integration.md及combat-spec的
+原生分流依据docs/research/display/combat-hud-state-integration.md及combat-spec的
 combat-hud-buff-routing.md：GPUIBuffNode._IsBuffIconInThisNode RVA0x03AA2E90。
 
 修复只在TimelineEditor敌方排版入口使用isEnemyTimelineBuffVisible，两个头顶字段

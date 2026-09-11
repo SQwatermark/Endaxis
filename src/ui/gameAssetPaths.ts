@@ -10,6 +10,9 @@ export const DEFAULT_WEAPON_ICON_PATH = '/weapons/default.webp';
 
 /** Native sprite identities whose exported WebP keeps an established public filename. */
 const ICON_ASSET_PATH_ALIASES: Readonly<Record<string, string>> = Object.freeze({
+  icon_energy_fusion_fire: '/icons/icon_energy_fusion_fire.webp',
+  icon_energy_fusion_pulse: '/icons/icon_energy_fusion_pulse.webp',
+  icon_energy_fusion_cryst: '/icons/icon_energy_fusion_cryst.webp',
   icon_infliction_nature: '/icons/icon_energy_fusion_nature.webp',
 });
 

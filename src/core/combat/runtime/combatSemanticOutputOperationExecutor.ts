@@ -1,11 +1,11 @@
+import type { CombatCondition, CombatTarget } from '../../game-data/operatorDefinition';
 import type { AbilityPhysicalInflictionPayload } from '../events/combatAbilityEvent';
 /** 将主动技能动作产生的语义事实同步发布到同一战斗事件总线。 */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
-import type { CombatTarget } from '../../game-data/operatorDefinition';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CombatClock } from './combatClock';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 
 export interface CombatSemanticOutputOperationExecutorOptions {
@@ -21,10 +21,7 @@ export interface CombatSemanticOutputOperationExecutorOptions {
 export class CombatSemanticOutputOperationExecutor implements CombatOperationExecutor {
   constructor(readonly options: CombatSemanticOutputOperationExecutorOptions) {}
 
-  execute(
-    step: ResolvedCombatOperationStep,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'setCharacterPassiveUiValue') {
       if (context === undefined) {
         throw new Error('character passive UI value requires an action blackboard');
@@ -72,10 +69,7 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
     return true;
   }
 
-  end(
-    step: ResolvedCombatOperationStep,
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     if (
       step.kind === 'outputAirborne' ||
       step.kind === 'outputKnockDown' ||
@@ -85,10 +79,7 @@ export class CombatSemanticOutputOperationExecutor implements CombatOperationExe
     this.options.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.options.delegate.evaluate(condition)
       : this.options.delegate.evaluate(condition, context);

@@ -1,8 +1,16 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 /** 把技能调度中的开启连携窗口步骤接到场景级连携账本。 */
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { ComboWindowRuntime } from './comboWindowRuntime';
+import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
+import { resolveActionValueOperand } from './actionBlackboard';
 
 export class ComboWindowOperationExecutor implements CombatOperationExecutor {
+  readonly #qteRegistrations = new WeakMap<
+    ResolvedCombatOperationStep,
+    WeakMap<CombatOperationContext, number>
+  >();
   constructor(
     readonly operatorId: string,
     readonly windows: ComboWindowRuntime,
@@ -15,10 +23,7 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     },
   ) {}
 
-  execute(
-    step: Parameters<CombatOperationExecutor['execute']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'openComboWindow') {
       let ownerId = this.operatorId;
       if ('ownerContextKey' in step.parameters && step.parameters.ownerContextKey !== undefined) {
@@ -37,25 +42,56 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
       );
       return true;
     }
+    if (step.kind === 'showComboRingQte') {
+      if (context === undefined) throw new Error('combo ring QTE requires an operation context');
+      const earlyDurationSeconds = resolveActionValueOperand(
+        step.parameters.earlyDurationSeconds,
+        context.blackboard,
+      );
+      const activeDurationSeconds = resolveActionValueOperand(
+        step.parameters.activeDurationSeconds,
+        context.blackboard,
+      );
+      const registrations =
+        this.#qteRegistrations.get(step) ?? new WeakMap<CombatOperationContext, number>();
+      registrations.set(
+        context,
+        this.windows.registerRingQte(
+          this.operatorId,
+          Math.fround(earlyDurationSeconds) * COMBAT_FRAMES_PER_SECOND,
+          Math.fround(activeDurationSeconds) * COMBAT_FRAMES_PER_SECOND,
+        ),
+      );
+      this.#qteRegistrations.set(step, registrations);
+      return true;
+    }
     return context === undefined
       ? this.delegate.execute(step)
       : this.delegate.execute(step, context);
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: CombatOperationContext,
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     if (step.kind === 'openComboWindow') return;
+    if (step.kind === 'showComboRingQte') {
+      if (context === undefined) return;
+      const registrations = this.#qteRegistrations.get(step);
+      const registration = registrations?.get(context);
+      if (registration !== undefined) this.windows.unregisterRingQte(registration);
+      registrations?.delete(context);
+      return;
+    }
     if (context === undefined) this.delegate.end?.(step);
     else this.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     if (condition.kind === 'casterComboPending') return this.windows.hasPending(this.operatorId);
+    if (condition.kind === 'eventComboRingQteSucceeded') {
+      const skillCastId = context?.eventSkillCastInfo?.skillCastId;
+      if (skillCastId === undefined)
+        throw new Error('combo ring QTE success requires a skill cast event context');
+      return this.windows.wasRingQteSuccessful(skillCastId);
+    }
     return context === undefined
       ? this.delegate.evaluate(condition)
       : this.delegate.evaluate(condition, context);

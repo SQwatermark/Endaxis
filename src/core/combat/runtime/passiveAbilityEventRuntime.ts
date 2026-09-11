@@ -11,6 +11,17 @@ import {
 } from './abilityEventHostLifecycle';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 
+export type RegisterPassiveAbilityEventAction = (
+  event: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event'],
+  priority: number,
+  handle: (
+    published: CombatAbilityEvent<
+      NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event']
+    >,
+    context?: AbilityEventRuntimeActionContext,
+  ) => void,
+) => AbilityEventRegistration;
+
 /** 原生被动 Skill 的事件序列宿主；黑板和子 Buff 所有权由被动实例提供。 */
 export class PassiveAbilityEventRuntime {
   readonly #lifecycle = new AbilityEventHostLifecycle();
@@ -20,16 +31,7 @@ export class PassiveAbilityEventRuntime {
     operations: CombatOperationExecutor,
     ownerContext: CombatOperationContext,
     responses: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>,
-    register: (
-      event: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event'],
-      priority: number,
-      handle: (
-        published: CombatAbilityEvent<
-          NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event']
-        >,
-        context?: AbilityEventRuntimeActionContext,
-      ) => void,
-    ) => AbilityEventRegistration,
+    register: RegisterPassiveAbilityEventAction,
   ) {
     try {
       for (const response of responses) {

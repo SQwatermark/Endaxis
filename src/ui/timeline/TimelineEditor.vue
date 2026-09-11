@@ -67,9 +67,10 @@ import TimelineCursorGuide, {
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
+import OperatorAvatar from '../components/OperatorAvatar.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
 import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
-import TimelineSimulationStatus from './components/TimelineSimulationStatus.vue';
+import TimelineSimulationErrorNotice from './components/TimelineSimulationErrorNotice.vue';
 import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
 import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
@@ -101,6 +102,8 @@ import {
   ActiveScenarioEditorSession,
   ProjectEditorSession,
 } from '../../application/editor/projectEditorSession';
+import { AdaptiveTimelineSimulationService } from '../../application/adaptiveTimelineSimulationService';
+import { createEditorSimulationService } from '../../application/editorSimulationService';
 import { WorkerScenarioSimulationService } from '../../application/workerScenarioSimulationService';
 import { useScenarioSimulation } from './useScenarioSimulation';
 import { projectCombatHudSnapshot } from '../../core/projection/combatHudSnapshot';
@@ -315,7 +318,7 @@ import {
   wheelTimelineZoomPercent,
 } from './timelineZoom';
 import type { TimelineOperationMarkerInput } from './timelineOperationMarkers';
-import { projectPerfectComboCastIds } from './timelinePerfectComboEvidence';
+import { projectRossiComboSuccessCastIds } from '../operators/rossi/comboSuccessEvidence';
 import {
   canCreateSkillCastConnection,
   createSkillCastConnection,
@@ -375,9 +378,7 @@ const { t, te, locale } = useI18n({ useScope: 'global' });
 const { appearance, setAppearance } = useAppearance();
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const TIMELINE_RULER_HEIGHT = 60;
-/** 拖动投影以约 30Hz 更新；技能块本身仍逐 pointermove 跟手。 */
-const LIVE_SIMULATION_RATE_HZ = 30;
-const LIVE_SIMULATION_INTERVAL_MS = 1000 / LIVE_SIMULATION_RATE_HZ;
+const INTERACTIVE_SIMULATION_BUDGET_MS = 1000 / 60;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
 const showCursorGuide = ref(false);
@@ -604,7 +605,6 @@ interface TimelineCastMoveGesture {
 const castMoveGesture = shallowRef<TimelineCastMoveGesture | null>(null);
 let stopCastMoveGesture: (() => void) | null = null;
 let castMoveAutoScrollFrame: number | null = null;
-let lastCastMoveSimulationAt = 0;
 let suppressedCastClickId: string | null = null;
 const contextMenuTarget = ref<{
   x: number;
@@ -976,11 +976,14 @@ const publishedOperators = shallowRef<ReadonlyMap<string, PublishedOperatorMetad
 const publishedWeaponSources = shallowRef<ReturnType<typeof capturePublishedWeaponSources>>(
   new Map(),
 );
-const simulationService = new WorkerScenarioSimulationService(
-  new Worker(new URL('../../application/scenarioSimulation.worker.ts', import.meta.url), {
-    type: 'module',
-  }),
-  () => projectDefinitionLibrary.value,
+const simulationService = new AdaptiveTimelineSimulationService(
+  new WorkerScenarioSimulationService(
+    new Worker(new URL('../../application/scenarioSimulation.worker.ts', import.meta.url), {
+      type: 'module',
+    }),
+    () => projectDefinitionLibrary.value,
+  ),
+  () => createEditorSimulationService(projectDefinitionLibrary.value),
 );
 onScopeDispose(() => simulationService.dispose());
 const skillPlacementTransaction = new SkillPlacementTransaction(
@@ -991,8 +994,6 @@ onScopeDispose(() => skillPlacementTransaction.cancel());
 const {
   published: publishedSimulation,
   run: simulationRun,
-  running: simulationRunning,
-  stale: simulationStale,
   error: simulationError,
   performanceSamples: simulationPerformanceSamples,
   diagnosticsByCastId,
@@ -1001,7 +1002,6 @@ const {
 } = useScenarioSimulation({
   scenario,
   service: simulationService,
-  publishIntermediateResults: true,
 });
 watch(
   publishedSimulation,
@@ -1608,7 +1608,7 @@ const skillCastActualDurationFrames = computed(() =>
 const perfectComboCastIds = computed(() =>
   simulationRun.value === null
     ? new Set<string>()
-    : projectPerfectComboCastIds(simulationRun.value.receiptEntries),
+    : projectRossiComboSuccessCastIds(simulationRun.value.receiptEntries),
 );
 const rulerOperations = computed<TimelineOperationMarkerInput[]>(() => {
   const operations: TimelineOperationMarkerInput[] = [];
@@ -3944,8 +3944,7 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     dragStarted: false,
     moved: false,
   };
-  // 首次产生有效位移时立即模拟，不继承上一轮拖动的节流窗口。
-  lastCastMoveSimulationAt = performance.now() - LIVE_SIMULATION_INTERVAL_MS;
+  simulationService.beginInteractiveSession();
   // 捕获到稳定的滚动容器，避免模拟刷新替换技能块或跨控件悬停抢走手势。
   // 落点仍通过 elementFromPoint 解析，不依赖捕获后的 event.target。
   const captureTarget = timelineScroll.value;
@@ -3966,6 +3965,7 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   };
   const onCancel = () => cancelCastMove();
   stopCastMoveGesture = () => {
+    simulationService.endInteractiveSession();
     lease.release();
     window.removeEventListener('pointermove', onMove, true);
     window.removeEventListener('pointerup', onFinish, true);
@@ -4067,13 +4067,6 @@ function updateCastMoveAt(
     scenario.value = movedScenario;
   }
   cursorFrame.value = placedFrame;
-
-  // 连续拖动时节流而不是防抖：鼠标不停移动，模拟也会持续得到中间位置。
-  const now = performance.now();
-  if (now - lastCastMoveSimulationAt >= LIVE_SIMULATION_INTERVAL_MS) {
-    lastCastMoveSimulationAt = now;
-    void nextTick(simulateNow);
-  }
 }
 
 function updateCastMove(event: PointerEvent): void {
@@ -5581,10 +5574,9 @@ function setPanelDialogVisible(visible: boolean): void {
                     )
                   "
                 >
-                  <img
+                  <OperatorAvatar
                     v-if="track.operatorSlug"
                     :src="getOperatorAvatarPath(track.operatorAssetSlug ?? track.operatorSlug)"
-                    alt=""
                   />
                   <span>{{ displayedMarkerFrame('controlSwitch', marker.id, marker.frame) }}f</span>
                 </div>
@@ -5780,12 +5772,6 @@ function setPanelDialogVisible(visible: boolean): void {
         @set-modifiers="setGlobalModifiers"
       />
       <section v-else-if="tool === 'enemy'" class="simulation-panel">
-        <TimelineSimulationStatus
-          :running="simulationRunning"
-          :stale="simulationStale"
-          :error="simulationError"
-          :has-result="simulationRun !== null"
-        />
         <div v-if="simulationRun !== null" class="simulation-curves">
           <TimelineEnemyStatusSections
             @collapsed-count-change="collapsedMonitorSectionCount = $event"
@@ -5958,7 +5944,7 @@ function setPanelDialogVisible(visible: boolean): void {
       <SimulationPerformanceAudit
         v-else-if="tool === 'performance'"
         :samples="simulationPerformanceSamples"
-        :budget-ms="LIVE_SIMULATION_INTERVAL_MS"
+        :budget-ms="INTERACTIVE_SIMULATION_BUDGET_MS"
         :labels="{
           title: t('timeline.performance.title'),
           latest: t('timeline.performance.latest'),
@@ -5978,16 +5964,7 @@ function setPanelDialogVisible(visible: boolean): void {
         :damage-type-label="damageElementLabel"
         :selected-cast-id="selectedCastId"
         @locate="locateBattleLogEntry"
-      >
-        <template #status>
-          <TimelineSimulationStatus
-            :running="simulationRunning"
-            :stale="simulationStale"
-            :error="simulationError"
-            :has-result="simulationRun !== null"
-          />
-        </template>
-      </BattleLogPanel>
+      />
     </template>
   </TimelineWorkbenchShell>
   <TimelineActionContextMenu
@@ -6240,16 +6217,7 @@ function setPanelDialogVisible(visible: boolean): void {
       enemyDamageDetailSequence = null;
     "
     @toggle-force-critical="toggleHitDetailForceCritical"
-  >
-    <template #status>
-      <TimelineSimulationStatus
-        :running="simulationRunning"
-        :stale="simulationStale"
-        :error="simulationError"
-        :has-result="simulationRun !== null"
-      />
-    </template>
-  </TimelineHitDetailDialog>
+  />
   <TimelineBuffDetailDialog
     :visible="buffDetailTarget !== null"
     :target="buffDetailTarget"
@@ -6285,16 +6253,8 @@ function setPanelDialogVisible(visible: boolean): void {
       contributionUnavailable: t('timeline.analysis.contributionUnavailable'),
     }"
     @update:visible="showDamageAnalysis = $event"
-  >
-    <template #status>
-      <TimelineSimulationStatus
-        :running="simulationRunning"
-        :stale="simulationStale"
-        :error="simulationError"
-        :has-result="simulationRun !== null"
-      />
-    </template>
-  </DamageAnalysisDialog>
+  />
+  <TimelineSimulationErrorNotice :error="simulationError" />
   <TimelineShortcutHelpDialog
     :visible="showShortcutHelp"
     @update:visible="showShortcutHelp = $event"
@@ -6820,11 +6780,10 @@ button:disabled {
   border-left: 1px solid var(--ea-border-strong);
 }
 
-.track-switch-marker img {
+.track-switch-marker .operator-avatar-crop {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  object-fit: cover;
 }
 
 .operator-event-marker {

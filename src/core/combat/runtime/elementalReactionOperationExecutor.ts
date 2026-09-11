@@ -1,14 +1,17 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
 /**
  * 反应步骤与敌人反应状态容器之间的接线。
  *
  * 负责两件事：按步骤顺序读写反应状态并记录回执，以及求值"敌人当前是否带着反应"的条件。
  * 反应状态只描述事实，不在这里附加任何未证实的伤害规则。
  */
-import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
-import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
+import type {
+  ResolvedCombatOperationStep,
+  ResolvedCombatStepForKind,
+} from '../../compiler/combatProgram';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
-import type { CombatOperationExecutor } from './skillRuntime';
+import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveActionValueOperand } from './actionBlackboard';
 import {
   ElementalReactionContainer,
@@ -34,10 +37,7 @@ export interface ElementalReactionOperationDependencies {
 export class ElementalReactionOperationExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: ElementalReactionOperationDependencies) {}
 
-  execute(
-    step: RuntimeOperation,
-    operationContext?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: RuntimeOperation, operationContext?: CombatOperationContext): boolean {
     if (step.kind === 'applyElementalReaction') {
       this.#apply(step, operationContext);
       return true;
@@ -51,17 +51,11 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
       : this.dependencies.delegate.execute(step, operationContext);
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.dependencies.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    operationContext?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, operationContext?: CombatOperationContext): boolean {
     if (condition.kind === 'elementalReactionActive') {
       return this.dependencies.container.isActive(
         condition.reaction,
@@ -76,7 +70,7 @@ export class ElementalReactionOperationExecutor implements CombatOperationExecut
 
   #apply(
     step: ResolvedCombatStepForKind<'applyElementalReaction'>,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
+    context?: CombatOperationContext,
   ): void {
     const baseDurationSeconds =
       typeof step.parameters.durationSeconds === 'number'

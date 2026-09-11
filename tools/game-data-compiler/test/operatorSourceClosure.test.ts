@@ -21,6 +21,7 @@ describe('Operator 来源闭包', () => {
           gameId: 'LASTRITE',
           exportName: 'lastRiteGeneratedSource',
           charId: 'chr_0026_lastrite',
+          buffDisplayNameKeys: { 'buff:test': 'effects.name.test' },
         },
         'operators.json.operators[0]',
       ),
@@ -29,6 +30,7 @@ describe('Operator 来源闭包', () => {
       gameId: 'LASTRITE',
       exportName: 'lastRiteGeneratedSource',
       characterId: 'chr_0026_lastrite',
+      buffDisplayNameKeys: { 'buff:test': 'effects.name.test' },
     });
     expect(() =>
       parseOperatorProductIdentitySource(
@@ -51,6 +53,7 @@ describe('Operator 来源闭包', () => {
         gameId: 'FIXTURE',
         exportName: 'fixtureGeneratedSource',
         characterId: 'chr_test',
+        buffDisplayNameKeys: { 'buff:test': 'effects.name.test' },
       },
       manifestSkills: [
         {
@@ -134,6 +137,7 @@ describe('Operator 来源闭包', () => {
       slug: 'fixture',
       gameId: 'FIXTURE',
       sourceCharacterId: 'chr_test',
+      buffDisplayNameKeys: { 'buff:test': 'effects.name.test' },
       rarity: 6,
       weaponType: 'arts-unit',
       element: 'electric',

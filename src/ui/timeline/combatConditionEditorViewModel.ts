@@ -144,6 +144,7 @@ export function createCombatCondition(kind: CombatConditionKind): CombatConditio
     case 'globalCooldownPresent':
       return { kind, target: 'caster', markerId: 'custom-marker' };
     case 'casterComboPending':
+    case 'eventComboRingQteSucceeded':
       return { kind };
     case 'abilityEntityTimedMarkerPresent':
       return { kind, markerId: 'custom-marker' };

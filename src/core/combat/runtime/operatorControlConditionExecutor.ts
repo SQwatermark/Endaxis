@@ -1,3 +1,4 @@
+import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 /**
  * 求值依赖场景主控身份的技能条件，并把其余战斗操作继续交给执行器链。
  * 调用方必须提供当前帧查询函数；本层不读取存档，也不假定初始主控轨道。
@@ -13,19 +14,13 @@ interface OperatorControlConditionExecutorDependencies {
 export class OperatorControlConditionExecutor implements CombatOperationExecutor {
   constructor(readonly dependencies: OperatorControlConditionExecutorDependencies) {}
 
-  execute(
-    step: Parameters<CombatOperationExecutor['execute']>[0],
-    context?: CombatOperationContext,
-  ): boolean {
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.dependencies.delegate.execute(step)
       : this.dependencies.delegate.execute(step, context);
   }
 
-  end(
-    step: Parameters<NonNullable<CombatOperationExecutor['end']>>[0],
-    context?: CombatOperationContext,
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     this.dependencies.delegate.end?.(step, context);
   }
 

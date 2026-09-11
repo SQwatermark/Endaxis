@@ -1,3 +1,4 @@
+import { buildActionSequenceMindMap } from '../skillStructureMindMapModel';
 import { createRenderer, h, nextTick, ssrContextKey, shallowRef } from 'vue';
 import { readFileSync } from 'node:fs';
 import { expect, it, vi } from 'vitest';
@@ -47,6 +48,8 @@ it('routes inline Buff scalar history to its complete field path', async () => {
     render: () =>
       h(wrapped, {
         sequence: sequence.value,
+        buildRoot: buildActionSequenceMindMap,
+        initialOverview: false,
         skillLevel: 1,
         createStep: vi.fn(),
         duplicateStep: (value: unknown) => value,

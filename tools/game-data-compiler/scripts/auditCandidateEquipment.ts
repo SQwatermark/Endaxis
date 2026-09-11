@@ -1,4 +1,5 @@
 import fs from 'node:fs/promises';
+import { OPERATOR_DEFINITION_OUTPUTS } from './operatorDefinitionOutputs.ts';
 import { parseSkillSettingResources } from '../../../packages/game-data-contract/src/skillSettingResources.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -7,7 +8,7 @@ import { createCandidateRuntimeServer } from '../src/compiler/candidateRuntimeSe
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
 const REPLACEMENT_PATHS = [
-  'src/data/operators/generated-definitions',
+  ...OPERATOR_DEFINITION_OUTPUTS,
   'src/data/buffs/generated',
   'src/data/equipment/generated-weapons',
   'src/data/equipment/generated',
@@ -62,10 +63,7 @@ type RuntimeScenario = Record<string, any>;
 /** 在候选覆盖视图中逐项真实装配武器、单件装备和套装。 */
 export async function auditCandidateEquipment(args: AuditArguments) {
   const candidateRoot = await fs.realpath(path.resolve(args.candidateRoot));
-  const operatorRoot = path.join(candidateRoot, 'src/data/operators/generated-definitions');
-  const operatorFiles = (await walkFiles(operatorRoot)).filter(file =>
-    file.endsWith('.operator.generated.ts'),
-  );
+  const operatorFiles = OPERATOR_DEFINITION_OUTPUTS.map(file => path.join(candidateRoot, file));
   if (operatorFiles.length === 0) throw new Error('candidate contains no generated operators');
 
   const server = await createCandidateRuntimeServer({
@@ -77,7 +75,8 @@ export async function auditCandidateEquipment(args: AuditArguments) {
     const operators: RuntimeOperator[] = [];
     for (const file of operatorFiles.sort()) {
       const module = await server.ssrLoadModule(toViteFsId(file));
-      const definitions = Object.values(module).filter(isOperatorDefinition);
+      // 具名与default导出可以指向同一个干员；不同对象仍必须拒绝。
+      const definitions = [...new Set(Object.values(module).filter(isOperatorDefinition))];
       if (definitions.length !== 1) {
         throw new Error(
           `${path.relative(candidateRoot, file)} exports ${definitions.length} operator definitions`,
@@ -619,17 +618,6 @@ function isOperatorDefinition(value: unknown): value is RuntimeOperator {
 
 function toViteFsId(file: string): string {
   return `/@fs/${file.replaceAll('\\', '/')}`;
-}
-
-async function walkFiles(root: string): Promise<string[]> {
-  const result: string[] = [];
-  for (const entry of await fs.readdir(root, { withFileTypes: true })) {
-    const child = path.join(root, entry.name);
-    if (entry.isSymbolicLink()) throw new Error(`candidate directory contains a link: ${child}`);
-    if (entry.isDirectory()) result.push(...(await walkFiles(child)));
-    else if (entry.isFile()) result.push(child);
-  }
-  return result;
 }
 
 function parseArguments(argv: readonly string[]): AuditArguments {

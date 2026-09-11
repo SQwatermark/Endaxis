@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import akekuri from '../../../src/data/operators/generated-definitions/akekuri/akekuri.operator.generated';
-import avywenna from '../../../src/data/operators/generated-definitions/avywenna/avywenna.operator.generated';
-import wulfgard from '../../../src/data/operators/generated-definitions/wulfgard/wulfgard.operator.generated';
-import xaihi from '../../../src/data/operators/generated-definitions/xaihi/xaihi.operator.generated';
-import yvonne from '../../../src/data/operators/generated-definitions/yvonne/yvonne.operator.generated';
+import akekuri from '../../../src/data/operators/akekuri';
+import avywenna from '../../../src/data/operators/avywenna';
+import wulfgard from '../../../src/data/operators/wulfgard';
+import xaihi from '../../../src/data/operators/xaihi';
+import yvonne from '../../../src/data/operators/yvonne';
 import { standardStumpBuffAbilityEventOmissionReason } from '../src/compiler/standardStumpScenarioPolicy.ts';
 
 function visit(value: unknown, inspect: (row: Record<string, unknown>) => void) {

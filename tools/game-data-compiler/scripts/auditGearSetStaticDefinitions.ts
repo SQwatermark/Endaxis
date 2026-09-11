@@ -121,10 +121,11 @@ function parseArguments(values: readonly string[]) {
     skills: resolve(entries['--skills']!),
     clientVersion: entries['--client-version']!,
     jsonOutput: resolve(
-      entries['--json-output'] ?? 'docs/research/equipment-suit-static-definitions.json',
+      entries['--json-output'] ?? 'docs/research/equipment/equipment-suit-static-definitions.json',
     ),
     markdownOutput: resolve(
-      entries['--markdown-output'] ?? 'docs/research/equipment-suit-static-definitions.md',
+      entries['--markdown-output'] ??
+        'docs/research/equipment/equipment-suit-static-definitions.md',
     ),
   };
 }

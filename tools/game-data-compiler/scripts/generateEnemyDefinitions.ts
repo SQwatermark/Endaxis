@@ -152,7 +152,7 @@ export async function planEnemyDefinitions(
     return {
       id: gameId.replaceAll('_', '-'),
       gameId,
-      ...(iconAssetPath === undefined ? {} : { iconPath: `/Icon_Enemy/${gameId}.webp` }),
+      ...(iconAssetPath === undefined ? {} : { iconPath: `/enemies/${gameId}.webp` }),
       tier,
       rank,
       levelHp: levelHp.map(({ level, hp }) => ({ level, hp })),

@@ -31,6 +31,14 @@ interface PendingComboRecord {
   readonly candidates: PendingComboWindow[];
 }
 
+interface ComboRingQteRegistration {
+  readonly sequence: number;
+  readonly operatorId: string;
+  readonly startRemainingFrames: number;
+  readonly earlyDurationFrames: number;
+  readonly activeDurationFrames: number;
+}
+
 export type ComboWindowConsumeFailure =
   'windowMissing' | 'releaseOrderMismatch' | 'skillStageMismatch';
 
@@ -46,8 +54,11 @@ export class ComboWindowRuntime implements FrameRuntime {
   readonly #records = new Map<string, PendingComboRecord>();
   readonly #operatorOrder = new Map<string, number>();
   readonly #pausedOperators = new Set<string>();
+  readonly #ringQtes = new Map<number, ComboRingQteRegistration>();
+  readonly #successfulRingQteSkillCastIds = new Set<number>();
   #globallyPaused = false;
   #nextSequence = 0;
+  #nextRingQteSequence = 0;
 
   constructor(
     readonly clock: CombatClock,
@@ -65,6 +76,44 @@ export class ComboWindowRuntime implements FrameRuntime {
   /** 原生 HasPendingComboSkill：只看该角色记录的候选数，不执行释放门禁或检查队首。 */
   hasPending(operatorId: string): boolean {
     return (this.#records.get(operatorId)?.candidates.length ?? 0) > 0;
+  }
+
+  registerRingQte(
+    operatorId: string,
+    earlyDurationFrames: number,
+    activeDurationFrames: number,
+  ): number {
+    if (!Number.isFinite(earlyDurationFrames) || earlyDurationFrames < 0)
+      throw new Error('combo ring QTE early duration must be a non-negative finite number');
+    if (!Number.isFinite(activeDurationFrames) || activeDurationFrames < 0)
+      throw new Error('combo ring QTE active duration must be a non-negative finite number');
+    const sequence = this.#nextRingQteSequence++;
+    const currentRemaining =
+      this.#records.get(operatorId)?.candidates.at(-1)?.remainingFrames ??
+      COMBO_WINDOW_DURATION_FRAMES;
+    this.#ringQtes.set(sequence, {
+      sequence,
+      operatorId,
+      startRemainingFrames: currentRemaining,
+      earlyDurationFrames,
+      activeDurationFrames,
+    });
+    this.receipt.record({
+      frame: this.clock.frame,
+      time: this.clock.time,
+      event: 'ComboRingQteOpened',
+      sourceId: operatorId,
+      data: { sequence, earlyDurationFrames, activeDurationFrames },
+    });
+    return sequence;
+  }
+
+  unregisterRingQte(sequence: number): void {
+    this.#ringQtes.delete(sequence);
+  }
+
+  wasRingQteSuccessful(skillCastId: number): boolean {
+    return this.#successfulRingQteSkillCastIds.has(skillCastId);
   }
 
   /** 当前应最先处理的干员记录中的候选。 */
@@ -149,6 +198,8 @@ export class ComboWindowRuntime implements FrameRuntime {
     operatorId: string,
     skillKey: string,
     nativeSkillGroupKey?: string,
+    skillCastId?: number,
+    sourceActionId?: string,
   ): ComboWindowConsumeResult {
     const active = this.#orderedRecords()[0];
     const candidate = active?.candidates.at(-1);
@@ -165,6 +216,30 @@ export class ComboWindowRuntime implements FrameRuntime {
         : candidate.nativeCondition.skillGroupKey !== nativeSkillGroupKey
     ) {
       return { consumed: false, reason: 'skillStageMismatch', expected: candidate };
+    }
+    const qte = [...this.#ringQtes.values()]
+      .filter(registration => registration.operatorId === operatorId)
+      .sort((left, right) => right.sequence - left.sequence)[0];
+    if (qte !== undefined) {
+      const elapsedFrames = qte.startRemainingFrames - candidate.remainingFrames;
+      const succeeded =
+        elapsedFrames >= qte.earlyDurationFrames &&
+        elapsedFrames <= qte.earlyDurationFrames + qte.activeDurationFrames;
+      if (succeeded && skillCastId !== undefined)
+        this.#successfulRingQteSkillCastIds.add(skillCastId);
+      this.receipt.record({
+        frame: this.clock.frame,
+        time: this.clock.time,
+        event: 'ComboRingQtePressed',
+        sourceId: operatorId,
+        data: {
+          sequence: qte.sequence,
+          elapsedFrames,
+          succeeded,
+          ...(skillCastId === undefined ? {} : { skillCastId }),
+          ...(sourceActionId === undefined ? {} : { sourceActionId }),
+        },
+      });
     }
     this.#records.delete(operatorId);
     this.receipt.record({

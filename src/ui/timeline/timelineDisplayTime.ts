@@ -45,7 +45,7 @@ export function projectCastTimeDilationSegments(
   const castEndFrame = castStartFrame + castDurationFrames;
   return Object.freeze(
     bands.flatMap(band => {
-      if (band.sourceCastId !== castId) return [];
+      if (band.kind !== 'global' || band.sourceCastId !== castId) return [];
       const startFrame = Math.max(castStartFrame, band.startFrame);
       const endFrame = Math.min(castEndFrame, band.endFrame);
       if (endFrame <= startFrame) return [];
@@ -106,7 +106,11 @@ export function projectSkillCastActualDurationFrames(
   return result;
 }
 
-/** 把时间实例生命周期回执配对为实际帧区间，不解释倍率和槽位竞争。 */
+/**
+ * 把需要在整条时间轴上表达的时间实例配对为实际帧区间。
+ * 只有全局实例影响时间轴整体观感，才进入特殊显示和交互。终结技时间膨胀
+ * 由运行时记录为 global/ultimate，因此也会保留。实体实例仍参与模拟，但不在轴上装饰。
+ */
 export function projectTimelineTimeDilationBands(
   entries: readonly CombatReceiptEntry[],
   simulationEndFrame: number,
@@ -145,6 +149,7 @@ export function projectTimelineTimeDilationBands(
   }
   return Object.freeze(
     bands
+      .filter(band => band.kind === 'global')
       .sort(
         (left, right) => left.startFrame - right.startFrame || left.instanceId - right.instanceId,
       )

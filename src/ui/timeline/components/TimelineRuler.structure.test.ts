@@ -84,7 +84,7 @@ describe('timeline ruler editing structure', () => {
     expect(rulerSource).toContain('key-cap--switch');
     expect(rulerSource).toContain("operation.width === null ? 'auto'");
     expect(rulerSource).toContain('prefers-reduced-motion');
-    expect(editorSource).toContain('projectPerfectComboCastIds');
+    expect(editorSource).toContain('projectRossiComboSuccessCastIds');
     expect(editorSource).toContain('perfectComboCastIds.value.has(cast.id)');
   });
 

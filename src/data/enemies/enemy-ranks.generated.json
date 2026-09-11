@@ -12,7 +12,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0007_mimicw.asset",
       "assetIndex": 85674,
-      "rawSha256": "91173794ceab8e9c2aeebf1030e59b786a3163cda6925cab810f6dba489b35f8",
+      "rawSha256": "8341f9c0699ec36470077dbdbcbd29de69074a01ec123a31e362590c4530e469",
       "modelKey": "eny_0007_mimicw_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0007_mimicw.png"
@@ -22,7 +22,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0018_lbtough.asset",
       "assetIndex": 106408,
-      "rawSha256": "0a947f1e16adead769b5a80349b5987b59155ae7ab82dd9688e767a979fd323c",
+      "rawSha256": "b3068b84b0c36369cdeb1c658b5034c2af24efc6665d27fac8c90e9dd8447392",
       "modelKey": "eny_0018_lbtough_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0018_lbtough.png"
@@ -32,7 +32,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0021_agmelee.asset",
       "assetIndex": 25755,
-      "rawSha256": "27022ecfb20f9542ce9da3b509c1fe9ac04acddb00cd58d871ad9dff06d25472",
+      "rawSha256": "2888e3a89283e821e95b1946f7b8cd3ade3a69655a8470d58df27d5e9daa79eb",
       "modelKey": "eny_0021_agmelee_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0021_agmelee.png"
@@ -42,7 +42,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0023_aghornb.asset",
       "assetIndex": 103429,
-      "rawSha256": "26cb8b903eb0436a154f77343f5c241bde0f08fd3902f4f4dd768511074c2f09",
+      "rawSha256": "9c085c1e6efc1bf5e5388d8c91a576442efd01e8975c85b7a7006c763a9bcfac",
       "modelKey": "eny_0023_aghornb_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0023_aghornb.png"
@@ -52,7 +52,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0025_agrange.asset",
       "assetIndex": 283706,
-      "rawSha256": "057cfb7e12f1df75c4feda5e3c024eee59c4f35f15305b7156c2950a2f74b8f0",
+      "rawSha256": "456bf42eb354bbd212caf5ea0c7d82b3c6d6e4c27c3644bee9e8a6cacd1b8b74",
       "modelKey": "eny_0025_agrange_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0025_agrange.png"
@@ -62,7 +62,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0027_agscorp.asset",
       "assetIndex": 248873,
-      "rawSha256": "4f7fcf021d700d85007f14dc0ed13f01d71222ef339179a053efda7babf1f850",
+      "rawSha256": "9dd3a691394e4b7f3a53805402b3233d26b6a9c1899363521fb5155245281e1c",
       "modelKey": "eny_0027_agscorp_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0027_agscorp.png"
@@ -72,7 +72,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0029_lbmob.asset",
       "assetIndex": 7050,
-      "rawSha256": "219df67206c46ad8f5945982db70c1ea1e9d22fbab087cc362cb19d8176bdd66",
+      "rawSha256": "194a986792f8073092a8ceb9c4b6f3de92240de0287cb791b35bed6a2613a665",
       "modelKey": "eny_0029_lbmob_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0029_lbmob.png"
@@ -82,7 +82,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0033_lbhunt.asset",
       "assetIndex": 146998,
-      "rawSha256": "8d62f999ccbc9a1c781a7fae3e2a372c34d3103203e23914bc775a72db485a36",
+      "rawSha256": "4db8eb00018f9a873e6828a0628b007c9143ffab10c18e01ba388933bd0de9a7",
       "modelKey": "eny_0033_lbhunt_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0033_lbhunt.png"
@@ -92,7 +92,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0039_agcanno.asset",
       "assetIndex": 191796,
-      "rawSha256": "233fda3c641b7eb24ac00da675a53abf2e2d51510e9f4aa70f8c75b3bf8bfa1a",
+      "rawSha256": "170eb9ac7ea1ff7011d0c35ce5abc7756152e6a08cb41c6b79c17608b084b19e",
       "modelKey": "eny_0039_agcanno_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0039_agcanno.png"
@@ -102,7 +102,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0045_agtrinit.asset",
       "assetIndex": 125767,
-      "rawSha256": "ce118c1697e34f28a79e73c586962938e617f6e49aab9b337b10db764d41ae2b",
+      "rawSha256": "4ba75073129c9b219b32e313d0bec1f8ecc3014e0c5705d4896383e5df69e225",
       "modelKey": "eny_0045_agtrinit_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0045_agtrinit.png"
@@ -112,7 +112,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0046_lbshamman.asset",
       "assetIndex": 241979,
-      "rawSha256": "3f05e5503fbc307d259ae882cef97ee933fd28bbd11c0032e81af6a08296e052",
+      "rawSha256": "23cde2ebebee18b712674b8e93092374adfaa814681d35fbdd75502bdea1767c",
       "modelKey": "eny_0046_lbshamman_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0046_lbshamman.png"
@@ -122,7 +122,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0047_firebat.asset",
       "assetIndex": 68443,
-      "rawSha256": "8d28b9a9c26236103e0cbb599b39e22756d3b3ced52d1b2b8ad71b0f226cb232",
+      "rawSha256": "d3423c999525245218adbc661d10f0314df69fda4dcf8e2d62c356d5379da110",
       "modelKey": "eny_0047_firebat_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0047_firebat.png"
@@ -132,7 +132,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0048_hvybow.asset",
       "assetIndex": 149741,
-      "rawSha256": "163665a6fbd0a0e0e88b13af8e958a9c4b994407a771079a8454ef92664411e8",
+      "rawSha256": "ced92f9d8fcdbfac79394e5070961cb6365fbb2d136fcc8002742abd63be7e9c",
       "modelKey": "eny_0048_hvybow_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0048_hvybow.png"
@@ -142,7 +142,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0049_rogue.asset",
       "assetIndex": 70496,
-      "rawSha256": "83e25a4199d6a21387fb875e6585cba094a87a97a42fe49f4dae367e022ca6c9",
+      "rawSha256": "d6304ffd313880941bfb382840ea8eacce5d85be94793cffb362c3b2730d690b",
       "modelKey": "eny_0049_rogue_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0049_rogue.png"
@@ -152,7 +152,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0050_hound.asset",
       "assetIndex": 194536,
-      "rawSha256": "0c932dc8b36932524b56853fbba0baffa31b770749285ff34d528722cb94617c",
+      "rawSha256": "ff3f8f5885e352d7b0076a0ae84f79c2e871cc55c7de2f939cad7e07b4a9ba3f",
       "modelKey": "eny_0050_hound_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0050_hound.png"
@@ -162,7 +162,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0051_rodin.asset",
       "assetIndex": 102741,
-      "rawSha256": "27d791e38cda24afd8311a16c38002e91bc44472b70dfdcb461a55def67627c5",
+      "rawSha256": "aa51e18f96ab1f79a28ae36149152fff4cc3e2abf8ee8955897b06ccb2c3c761",
       "modelKey": "eny_0051_rodin_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0051_rodin.png"
@@ -172,7 +172,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0052_palesent.asset",
       "assetIndex": 226395,
-      "rawSha256": "2db43406321be2c978cea18034fcd1cd73e6f56653032c9422246f2485fb6c8c",
+      "rawSha256": "44a94dd4f0b2c7a6692d50c5c84b0cdd5a0407ded1f349d149da9ed594ff9e9f",
       "modelKey": "eny_0052_palesent_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0052_palesent.png"
@@ -182,7 +182,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0053_hsmob.asset",
       "assetIndex": 228952,
-      "rawSha256": "6248289bf8f6059f441164f8eabfebe842052ad836c785d074e25abbe29e5495",
+      "rawSha256": "ef40d8c98de8dbb0afa3c7c988c577a9150b2139736dfbf6f9017d4298b1053a",
       "modelKey": "eny_0053_hsmob_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0053_hsmob.png"
@@ -192,7 +192,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0054_hsmino.asset",
       "assetIndex": 25993,
-      "rawSha256": "9465b764bafa1c7af045d4c914ce740748600cf34ad680c36d08a1ca481ea80d",
+      "rawSha256": "b5b61d8f2ebc40bde3ec71fccba741c88cd540b65b78f077b37f9a5c4072c2f1",
       "modelKey": "eny_0054_hsmino_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0054_hsmino.png"
@@ -202,7 +202,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0055_hscrane.asset",
       "assetIndex": 54765,
-      "rawSha256": "a15a52d3acacd4e6b06587b2ff14cb928cecdbe57fc06ee5c11d1044a2a8b24e",
+      "rawSha256": "34da5832e216c05415077fa6134069f7a87dd856e4aec3b03364934ea2dd2a18",
       "modelKey": "eny_0055_hscrane_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0055_hscrane.png"
@@ -212,7 +212,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0057_dog.asset",
       "assetIndex": 262592,
-      "rawSha256": "00240e1107abb5d85ba84abad81d99481e4f9786f57ca1ffbdd94778dcd1b1b1",
+      "rawSha256": "303c17d3a74cf13033234e0f0185637d5325241777c48851b472d54239540123",
       "modelKey": "eny_0057_dog_postmodel",
       "componentCount": 18
     },
@@ -221,7 +221,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0058_agdisk.asset",
       "assetIndex": 103597,
-      "rawSha256": "6e00cc42529d291fd65cd0f18dfd049bfa1f34d642bfac4253e08509593bdf08",
+      "rawSha256": "9c76c82bed683844f49144cd29b07ddc06b01c65166e0f9a6787f048541cf6ea",
       "modelKey": "eny_0058_agdisk_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0058_agdisk.png"
@@ -231,7 +231,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0059_erhound.asset",
       "assetIndex": 163018,
-      "rawSha256": "4505d8ffdfa0d1af601e70eaa84a78c01b1e549bb1ea771acad3ca086c315e2f",
+      "rawSha256": "08777caf87c76b007ae621e29d7b4b47218c322dfc05a1271ffb1bb5e7b0e0a9",
       "modelKey": "eny_0059_erhound_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0059_erhound.png"
@@ -241,7 +241,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0060_lbmad.asset",
       "assetIndex": 61201,
-      "rawSha256": "e78ee127f11274cf189535e86d5c40858d9960a96c2d71d757f036a41bd468b9",
+      "rawSha256": "e4331e7ad6da68ce2263bdfa50d2845202d18d4972f425272ad0001ef7b5e277",
       "modelKey": "eny_0060_lbmad_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0060_lbmad.png"
@@ -251,7 +251,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0061_palecore.asset",
       "assetIndex": 204205,
-      "rawSha256": "738cd816cef17c0ff817550d985f2a360c4e94355f4becaaa9159086a427094f",
+      "rawSha256": "d51c5c4982172668a49d8813aad23d04da983fa8737cc821825e5fba06b0b2ea",
       "modelKey": "eny_0061_palecore_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0061_palecore.png"
@@ -261,7 +261,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0062_paletent.asset",
       "assetIndex": 235477,
-      "rawSha256": "383cd70624d9ab2667b63337eaaf91f54c7813e5a3c8b47005ab939808967a81",
+      "rawSha256": "d174ffd295bf1f0e7b6e4bad2ac9f1520aed9adfabe1dcf35761ce8ad5b046d5",
       "modelKey": "eny_0062_paletent_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0062_paletent.png"
@@ -271,7 +271,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0063_agmelee2.asset",
       "assetIndex": 258,
-      "rawSha256": "1dc3c013ae90cab242e9f6bd00bb9165fe4061222c4827f85b350b5ea14c3a42",
+      "rawSha256": "0b9aa84c136ab19c7efa856589ee1a12b9f2bf900ed276fb24f52d74acdfa306",
       "modelKey": "eny_0063_agmelee2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0063_agmelee2.png"
@@ -281,7 +281,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0064_agrange2.asset",
       "assetIndex": 200435,
-      "rawSha256": "857b973a23d517f12e55926ec7813a1f6aba9ebce560b1a3cf86c69c5d71c3da",
+      "rawSha256": "4f68253e65c7d21c390d963d5188d2599b9b6117f9e41c5068727893c7a0f216",
       "modelKey": "eny_0064_agrange2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0064_agrange2.png"
@@ -291,7 +291,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0065_lbmob2.asset",
       "assetIndex": 240005,
-      "rawSha256": "3bb4a65cd2e78b6b755f454b18c0e2560e9b1f781747e5cce4320994d8b98f9d",
+      "rawSha256": "36ff915cba8e16c35bfd92290238d4c78df0dcc49b4fb114ed3e73e3ff6dc79d",
       "modelKey": "eny_0065_lbmob2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0065_lbmob2.png"
@@ -301,7 +301,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0066_lbhunt2.asset",
       "assetIndex": 62067,
-      "rawSha256": "994c7f836ba3ea0b31e1d42edb1af20d38ce81e4410639843e969e6a16312693",
+      "rawSha256": "dc9e0bc9163cd2d86ffde9024e903508a0b10b717af5ee014e89414ac36c3ad9",
       "modelKey": "eny_0066_lbhunt2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0066_lbhunt2.png"
@@ -311,7 +311,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0067_hound2.asset",
       "assetIndex": 186800,
-      "rawSha256": "8c71916de3fe9690a39bae1a2bddaf73577357e8910eb71ed0765f77abdfe857",
+      "rawSha256": "812fefd9dca7c97570d5e7cba8cac4cc376e3c63c29493a26ebd957ffa613e6e",
       "modelKey": "eny_0067_hound2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0067_hound2.png"
@@ -321,7 +321,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0068_lbtough2.asset",
       "assetIndex": 52831,
-      "rawSha256": "64e2f06182c68d24537da6cfde69c351637c0a8aa01c4cb89b6f29b9f3404284",
+      "rawSha256": "cf671bd6fa259db353df302becfc3bc84c9641445036548c2ac4b485f9833699",
       "modelKey": "eny_0068_lbtough2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0068_lbtough2.png"
@@ -331,7 +331,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0069_aghornb2.asset",
       "assetIndex": 35495,
-      "rawSha256": "dddb810c3eaeb7e570ea5fa35369cc5b5c08b577064c6b8bbad7ff2534bc772c",
+      "rawSha256": "45d2447442f231dc658e0cf069470cf467ae10398d214a874eed726f27e5f7df",
       "modelKey": "eny_0069_aghornb2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0069_aghornb2.png"
@@ -341,7 +341,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0070_agscorp2.asset",
       "assetIndex": 188352,
-      "rawSha256": "a9f2e8b44eae554f15855ea9c7c1323256b66d7512d9c3dcbd85cdd961916230",
+      "rawSha256": "c385a994dbd98d8429d609a9f91aa19a5f23e5b9d7045c4c4e73b3cf592979f8",
       "modelKey": "eny_0070_agscorp2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0070_agscorp2.png"
@@ -351,7 +351,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0071_sandb.asset",
       "assetIndex": 12238,
-      "rawSha256": "7d257127485486f986bbc3a50f3ed5df9944971f2f8e48f1d527b6e3e9c55868",
+      "rawSha256": "b1bd2af9fdf2b90e60508693d23a87af75c0618c0f37e6db6871b4a80cb0ef49",
       "modelKey": "eny_0071_sandb_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0071_sandb.png"
@@ -361,7 +361,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0072_slimeml.asset",
       "assetIndex": 77126,
-      "rawSha256": "29e20932fc1476202cce3130383abf578377862d983f65bb5053255e42fd9db8",
+      "rawSha256": "82650be5a148477355f415553ff844f96e27627ea08b8dec55b7757857aaefa0",
       "modelKey": "eny_0072_slimeml_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0072_slimeml.png"
@@ -371,7 +371,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0073_slimerg.asset",
       "assetIndex": 48250,
-      "rawSha256": "e47282eb0b900d81db282c053a3b644a8973c8eca6a1a07ffaa4d601a1d33a92",
+      "rawSha256": "f6f16b97784eae218ef7db352a2332bb4b157c485525d4c95d88222da6f87868",
       "modelKey": "eny_0073_slimerg_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0073_slimerg.png"
@@ -381,7 +381,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0074_lbshield.asset",
       "assetIndex": 200694,
-      "rawSha256": "aba7e88e965ec194954f83c7666e5866de13c2fd82d7c5d4a56b4792419f644d",
+      "rawSha256": "e9a98b1adb903564a544565acfd27968e17ca684411c494528aec611c1bde0ab",
       "modelKey": "eny_0074_lbshield_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0074_lbshield.png"
@@ -391,7 +391,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0075_lbroshan.asset",
       "assetIndex": 250836,
-      "rawSha256": "5a1004f7f67075bb1182fbb5d183ffdc22d6d226acdce9c773cb0fbe12a007be",
+      "rawSha256": "7f1f68a5a53cd43c8b1633e562cd7ec73e5994e73b03318f8eb6752c36d0e3ce",
       "modelKey": "eny_0075_lbroshan_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0075_lbroshan.png"
@@ -401,7 +401,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0076_agfly.asset",
       "assetIndex": 285108,
-      "rawSha256": "8338339584730d72ec27196d82077d7b840a0cdab41fad6945b3b6bcf8612251",
+      "rawSha256": "1aeb99b4c2c805afd2b993224d66dfea60422c30f0d46fbf4050a6b1c70b74ca",
       "modelKey": "eny_0076_agfly_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0076_agfly.png"
@@ -411,7 +411,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0077_agshield.asset",
       "assetIndex": 295778,
-      "rawSha256": "1b59ee021f7725e548a63e8e0b1a4683cb06c18b26a3b846d61bed81ff6fb22d",
+      "rawSha256": "301426c11d12dee63effdf0ab77cd1a7e4d613f1f7f66d87f02d878bab4b0a59",
       "modelKey": "eny_0077_agshield_postmodel",
       "componentCount": 20,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0077_agshield.png"
@@ -421,7 +421,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0078_nefarp1.asset",
       "assetIndex": 41706,
-      "rawSha256": "1287e32787ea43497f4ca7c282c7820df1ea6ee71cd93be5b14e985b4faf4241",
+      "rawSha256": "3dcf735d08462773dd061495421bc931b0d3a72e120796d61cd8affa3aa2549f",
       "modelKey": "eny_0078_nefarp1_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0078_nefarp1.png"
@@ -431,7 +431,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0079_nefarp2.asset",
       "assetIndex": 258854,
-      "rawSha256": "0860a66d63ef1c60eb6e5cf656a28e2df208736f51c65698c1fe348c9df4f4ad",
+      "rawSha256": "5817769001429e837d066c2883dbe7f4d09b56ac41d679e5eb5aea3ab5a50e55",
       "modelKey": "eny_0079_nefarp2_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0079_nefarp2.png"
@@ -441,7 +441,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0080_reaper.asset",
       "assetIndex": 5165,
-      "rawSha256": "905ee911a8bba82bc0164ce594f26f5b35baa4b8035513e39e8f14b64054516f",
+      "rawSha256": "b703a3343888133255884e892a8a45aff91c4eb4ba0a7079bb74737936ee196e",
       "modelKey": "eny_0080_reaper_postmodel",
       "componentCount": 20,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0080_reaper.png"
@@ -451,7 +451,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0081_ruanyi.asset",
       "assetIndex": 23657,
-      "rawSha256": "e506097268323440134f5a70a61ba9a340ef5c9167e3a604521c7fb162fad1e4",
+      "rawSha256": "e247c9ed79267c18bd42fa63831b072ec646a7f737ec10cc69e247285ff362ba",
       "modelKey": "eny_0081_ruanyi_postmodel",
       "componentCount": 21,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0081_ruanyi.png"
@@ -461,7 +461,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0082_hsbear.asset",
       "assetIndex": 235524,
-      "rawSha256": "44a4950c6c602707c3b98527c0a9f23d96dfdce86ed5f4028161198033a773ce",
+      "rawSha256": "0048f80e5abcd9381940907e422790068e43b701d2e7114c95d40c7c2253f627",
       "modelKey": "eny_0082_hsbear_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0082_hsbear.png"
@@ -471,7 +471,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0083_hstiger.asset",
       "assetIndex": 45088,
-      "rawSha256": "0d1a16bd2badcf18dfeafeac5e64b39b0fff18c528665aa1a4de318dbd8b289a",
+      "rawSha256": "e3939cdf0591a935f2f78e6545b4413eab3613b8c8a509c413725b09e52b6cfd",
       "modelKey": "eny_0083_hstiger_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0083_hstiger.png"
@@ -481,7 +481,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0084_hshunt.asset",
       "assetIndex": 165465,
-      "rawSha256": "20dfaa762d741a10f9b1b00e2118f323077455b906a61205333a7fcecb9b67af",
+      "rawSha256": "4a76d53f354e2804b3a194ac27abcd03f220bcbb80251ba233e346166a5f9d58",
       "modelKey": "eny_0084_hshunt_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0084_hshunt.png"
@@ -491,7 +491,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0085_hsrogue.asset",
       "assetIndex": 218396,
-      "rawSha256": "032080cbdf61feba8703d2141d66aeda2a1a9cd925f4ecdf691c1f2de99ccc32",
+      "rawSha256": "ef7b0f8f6d2412446cbae7e5def34317730b79c9b6eaadf05440ef61b29a45c7",
       "modelKey": "eny_0085_hsrogue_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0085_hsrogue.png"
@@ -501,7 +501,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0087_wgslime.asset",
       "assetIndex": 64621,
-      "rawSha256": "83a8fcaaecb29e312ea4df737c46fdf1483020121f95b2cf55ecd6fff3ee150b",
+      "rawSha256": "8d9eb8a9728b677ca3170988441fc66c203772c8cdfa1e648bef2b3da69f9ea2",
       "modelKey": "eny_0087_wgslime_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0087_wgslime.png"
@@ -511,7 +511,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0088_wgthorns.asset",
       "assetIndex": 244770,
-      "rawSha256": "0b8f8b3ff0d1c1c4ba37cd4694284f6bad1a166d715c0269b118f5435945740a",
+      "rawSha256": "7ef49fd1d3570d385b235c58e6743545c07a3da159f00311b84fef1bbc310c9f",
       "modelKey": "eny_0088_wgthorns_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0088_wgthorns.png"
@@ -521,7 +521,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0089_wgreflec.asset",
       "assetIndex": 71368,
-      "rawSha256": "6425f6126fd27655f3beb7252f8c828aac609bf5cb56d88219f814bd06d3fbfc",
+      "rawSha256": "a39b4fe91d6c3fbe245684d014f62278cbd4141cac3db5e1c601b94d26a9ee8f",
       "modelKey": "eny_0089_wgreflec_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0089_wgreflec.png"
@@ -531,7 +531,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0090_wgabyss.asset",
       "assetIndex": 12122,
-      "rawSha256": "cc026f5142fb42ebc5c38258fb80c8687a8cc151d13bd60dc03a6b953983279a",
+      "rawSha256": "47a4b3e6e0e3a132d5ea46977696dc9c056599a21f25ee4dbdc9b215f6fb4468",
       "modelKey": "eny_0090_wgabyss_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0090_wgabyss.png"
@@ -541,7 +541,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0091_wgshoal.asset",
       "assetIndex": 190554,
-      "rawSha256": "ddd53a7d931de18fbf9f591bdbb044d44db432f895a4106561e8506dfac4648d",
+      "rawSha256": "5bfc8da0c5ebcbc09a37b16d691756b53d0b93d63dab199e6212d8e7c15f01f0",
       "modelKey": "eny_0091_wgshoal_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0091_wgshoal.png"
@@ -551,7 +551,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0092_slbomb.asset",
       "assetIndex": 34304,
-      "rawSha256": "6b3dab9800102417ca4492a52618a1c76ea8aa3a1cc7f1f0b87a51a7c3272de1",
+      "rawSha256": "88eddf46e90e4253afde9896950b244aaf85a936fc3178dc265490e3a4e949c3",
       "modelKey": "eny_0092_slbomb_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0092_slbomb.png"
@@ -561,7 +561,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0093_hshog.asset",
       "assetIndex": 163726,
-      "rawSha256": "57b41b95122e9760a64bd46493899e92f96c8f5efa269fdadce9be482abdfa9c",
+      "rawSha256": "09cf1abb7cf0be97b60d83458892f967045295656354858fdb383cc2d3108c95",
       "modelKey": "eny_0093_hshog_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0093_hshog.png"
@@ -571,7 +571,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0094_hsfly.asset",
       "assetIndex": 94282,
-      "rawSha256": "c54e17774b061de575a9ab7953362e89db3c8875d77f144d4087142cd17e5c35",
+      "rawSha256": "3870dfe61e01e7041f10b8d382916a52d7723833d86a32fcd15a73741dc6e9d2",
       "modelKey": "eny_0094_hsfly_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0094_hsfly.png"
@@ -581,7 +581,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0095_ethillu.asset",
       "assetIndex": 133904,
-      "rawSha256": "3825a9470fd0505c5814ea9122594f9cda043f8412ed31769986d954f20c0444",
+      "rawSha256": "38b604444c2839963939aa41146c134385cbb0509852649e2fcab63cf25c2a00",
       "modelKey": "eny_0095_ethillu_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0095_ethillu.png"
@@ -591,7 +591,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0096_hsmob2.asset",
       "assetIndex": 310559,
-      "rawSha256": "383ba226e4a62df5ae7e5c30f960ac815b0e4bb0c582b18ebf41ed4839bf80f4",
+      "rawSha256": "6ceff6c643c3c4a6eddb2df9917b56ab0c810b3f5f06768a4ebc76b420bc73d0",
       "modelKey": "eny_0096_hsmob2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0096_hsmob2.png"
@@ -601,7 +601,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0097_hsmino2.asset",
       "assetIndex": 286113,
-      "rawSha256": "146e709b7da7219282fb7dd9806c92476ae40d2778edab6e17d27b1f835b2bd4",
+      "rawSha256": "385e6dc35ea4afc799f6723d588cd78aa5465720ac9a5ae22d4ed0aacc2fcf3d",
       "modelKey": "eny_0097_hsmino2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0097_hsmino2.png"
@@ -611,7 +611,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0098_sandb2.asset",
       "assetIndex": 75875,
-      "rawSha256": "b55ee3154bf52e4adc05f5ed75baa5cd7b1113a82d64bc64d13eb9cd95fc8d6c",
+      "rawSha256": "3fa70525cfdc23a4d5e24236d10fb7f90aab690974410eb5b8a28b2a652b6b53",
       "modelKey": "eny_0098_sandb2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0098_sandb2.png"
@@ -621,7 +621,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0099_slimeml2.asset",
       "assetIndex": 166393,
-      "rawSha256": "2b031318cad2a964a25494c65144938134d220c792e70d9c61f83fe0a5b94dfa",
+      "rawSha256": "445953251137c9cb1b462f706dd49bd229887a29aaedcb61b4aae630c4e5db4b",
       "modelKey": "eny_0099_slimeml2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0099_slimeml2.png"
@@ -631,7 +631,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0100_slimerg2.asset",
       "assetIndex": 201796,
-      "rawSha256": "072fd25684b1d2f86eb474100d5e5cd7be6b0181f8a92255def1f81125070ec1",
+      "rawSha256": "b758262f66861223071fac7750a6bbdc901d8d59ded750ea3d3ffd8e3d6817da",
       "modelKey": "eny_0100_slimerg2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0100_slimerg2.png"
@@ -641,7 +641,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0101_agfly2.asset",
       "assetIndex": 213700,
-      "rawSha256": "7e5c7502953a3e54caa397552e2b584f930b4c29b7420fd7094773913e4de1ba",
+      "rawSha256": "c282d9ede39dfd49efa62e941527529e723d12ecc71e90c8ceb84c9ce01699e9",
       "modelKey": "eny_0101_agfly2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0101_agfly2.png"
@@ -651,7 +651,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0102_hstiger2.asset",
       "assetIndex": 158854,
-      "rawSha256": "bbe44567f60b978b761392f08d771ae04c73aa53d5bcce770ac71357d9e28c6f",
+      "rawSha256": "aeb5e08bc265eeab010632561832384d78b1ac746e9380733479499bca265441",
       "modelKey": "eny_0102_hstiger2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0102_hstiger2.png"
@@ -661,7 +661,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0103_hshunt2.asset",
       "assetIndex": 16842,
-      "rawSha256": "09a279ca7f0be5fae5a3747a8ecdd61019dc44bcb2fd235fe5fed0c3749cb5aa",
+      "rawSha256": "6eca0761c8b7a95b215235692c5f7f2ef5a906125f2f4b638c7809610fe5eb70",
       "modelKey": "eny_0103_hshunt2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0103_hshunt2.png"
@@ -671,7 +671,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0104_hsrogue2.asset",
       "assetIndex": 212509,
-      "rawSha256": "6eea997df0bc5d06a6b711f90c62ebda2753af6d5d2daca226c1cc6d606ef7e2",
+      "rawSha256": "8eaacb5cc075f0e0fb1635654d522815259b9a75bddfae7a10f41d2d2b06c441",
       "modelKey": "eny_0104_hsrogue2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0104_hsrogue2.png"
@@ -681,7 +681,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0105_wgslime2.asset",
       "assetIndex": 295025,
-      "rawSha256": "823671f18aaadc9a53eab8dd7dd645ac7c9f5ae921e4696aa60f06dd3eae7bde",
+      "rawSha256": "84b1042b704ecc343d38bc3d100c31c12a5ac4d41f0c736572ded9876b22646d",
       "modelKey": "eny_0105_wgslime2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0105_wgslime2.png"
@@ -691,7 +691,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0106_wgthorns2.asset",
       "assetIndex": 59767,
-      "rawSha256": "529b5a5692a5aac598539c666dc21b86927ea63db2584b0dc116bc049d2504f0",
+      "rawSha256": "7c86a1fa44c7a38f017997830fac25f0be21fd3c122d46d60f3ac833e155035d",
       "modelKey": "eny_0106_wgthorns2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0106_wgthorns2.png"
@@ -701,7 +701,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0107_wgshoal2.asset",
       "assetIndex": 237881,
-      "rawSha256": "dbccd8e91f839de95c57b361d1a0c413e82339d24cc0798973d7b010a76729f3",
+      "rawSha256": "e035d2fcf80ee228acb5305a6f69267e1e74ef534cf37aa04c403de5e9b3e9a9",
       "modelKey": "eny_0107_wgshoal2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0107_wgshoal2.png"
@@ -711,7 +711,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0108_slbomb2.asset",
       "assetIndex": 64695,
-      "rawSha256": "7d071fc0e5d043a231574f0a740a9746e9898a2314eea096ff9a1ff027ea986d",
+      "rawSha256": "2ca649241935c6d7b615bf6fa98503dfc8e73682a0b5ed39c7ea4bfc08ba636a",
       "modelKey": "eny_0108_slbomb2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0108_slbomb2.png"
@@ -721,7 +721,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0109_hshog2.asset",
       "assetIndex": 257589,
-      "rawSha256": "f521e7792402c88b9ae69c5d733704850630783b33b33c670288fe50d0d07a30",
+      "rawSha256": "f5d136493eabb5939e3a15eacef663d1c33baf065f71ac1afd7de78d6ef0a287",
       "modelKey": "eny_0109_hshog2_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0109_hshog2.png"
@@ -731,7 +731,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0112_jzmonk.asset",
       "assetIndex": 302480,
-      "rawSha256": "059a263f0e13612ab98f801a1dd8ed2c2da318bde103725e9001c9d0f66793b9",
+      "rawSha256": "9f1bd411603beb1da1d86bb487434f009237d4694e365f0d0cd4b40dc5a17506",
       "modelKey": "eny_0112_jzmonk_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0112_jzmonk.png"
@@ -741,7 +741,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0113_jzogre.asset",
       "assetIndex": 98905,
-      "rawSha256": "7db5e0b16282374634c3e03af045b2663710a29aeebf3aa754e97e4443f854da",
+      "rawSha256": "0d670fed08c1989ee8f7d96b10a280143d82872d61132062bdcf0c7cfd019079",
       "modelKey": "eny_0113_jzogre_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0113_jzogre.png"
@@ -751,7 +751,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0114_jzmking.asset",
       "assetIndex": 242198,
-      "rawSha256": "96513445d6bab277ceea94c711d49b84383ca9151be1881d8a46564c0b7b9de3",
+      "rawSha256": "6756b76947f0ee63caba1d484a5935af1757e93daaa73392bb409bbaade9d99f",
       "modelKey": "eny_0114_jzmking_postmodel",
       "componentCount": 20,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0114_jzmking.png"
@@ -761,7 +761,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0117_klhound.asset",
       "assetIndex": 121929,
-      "rawSha256": "0890ed32a59ccf6c00ca4bb14f0cb8b450d8f0235cd0625fe9569905565a3a8d",
+      "rawSha256": "d58ed17e4c4ba9c541aeb3781206cc1320f0e389d84e9be61be69bcf37e0f200",
       "modelKey": "eny_0117_klhound_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0117_klhound.png"
@@ -771,7 +771,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0118_klhog.asset",
       "assetIndex": 271302,
-      "rawSha256": "35ab79c113e67626d3427495b6c58b4962e580daf79a5e4241f0c4c520231d56",
+      "rawSha256": "49ce854eef61396a7105a84d113b6cd3ebfb0398926c9b3dbc85da8da08bfa65",
       "modelKey": "eny_0118_klhog_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0118_klhog.png"
@@ -781,7 +781,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0119_kltiger.asset",
       "assetIndex": 86975,
-      "rawSha256": "08d6c21b88bb59f74dbfa18ea0cdabb724f870481682613ad9d059f09d3d9aca",
+      "rawSha256": "160b37cc0822e1f86e9e53794fd6ff3c167f60e7971ff1480068be6b8adbc0fd",
       "modelKey": "eny_0119_kltiger_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0119_kltiger.png"
@@ -791,7 +791,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0120_klbear.asset",
       "assetIndex": 293699,
-      "rawSha256": "312ff02a978540fd428cd3818d2744fb3fb4833740133339c5dcddc13e6b5971",
+      "rawSha256": "b40e68a5e9bc02009f64083a5fe4cadf1f98d88dfbd8b6b353001a4ec5bb7b8c",
       "modelKey": "eny_0120_klbear_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0120_klbear.png"
@@ -801,7 +801,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0121_klbud.asset",
       "assetIndex": 31623,
-      "rawSha256": "b8e2776a87145c6a7acc2540294ade72c03c3d5ec8ead898f75ae5ec130cfb0a",
+      "rawSha256": "68bc36147a12e43e7b74f0241cba6e380caa6a207e506c92a119dcbc0d5ce046",
       "modelKey": "eny_0121_klbud_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0121_klbud.png"
@@ -811,7 +811,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0122_kltdbud.asset",
       "assetIndex": 146690,
-      "rawSha256": "13ca992ed875cc4b2560583347567c016b1876d36755efcfcc8d1b3c2ff72601",
+      "rawSha256": "676fc3ab281886c19c475b099b54cea32b790749faae8daaa5b574d90fa24a05",
       "modelKey": "eny_0122_kltdbud_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0122_kltdbud.png"
@@ -821,7 +821,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0123_klcap.asset",
       "assetIndex": 73111,
-      "rawSha256": "d6e316abd0bc2c457e9b03659b65f7bd65a270e6481d2db21437f92fdb332ccf",
+      "rawSha256": "f86c59a8070525eb65a151ad02ce3a0b331cc7ff81f572d95f5821e511b72b7f",
       "modelKey": "eny_0123_klcap_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0123_klcap.png"
@@ -831,7 +831,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0124_kltdcap.asset",
       "assetIndex": 72091,
-      "rawSha256": "e8a90f86f657d3a666e4a80f7914453d89414b3c3ff4de5b8c0972cdebe323fc",
+      "rawSha256": "2b789d48670c5053cb452cd6e209ad0992b5524434e8fb01c45658d972aecef7",
       "modelKey": "eny_0124_kltdcap_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0124_kltdcap.png"
@@ -841,7 +841,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0125_fdcentur.asset",
       "assetIndex": 18812,
-      "rawSha256": "56e758551b05c25281acc0ba47cbd6173af3e533781c3f9823eba355f868940e",
+      "rawSha256": "f66990c5fc21880b41dfed5203ba3a0c91e9366810d453c59d6679f4739cdff0",
       "modelKey": "eny_0125_fdcentur_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0125_fdcentur.png"
@@ -851,7 +851,7 @@
       "nativeValue": 1,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0127_bigents.asset",
       "assetIndex": 68777,
-      "rawSha256": "1a180f9dba8de19fa36e0ba5e027690ef1e6fae66e59cda6ee73722cd01b1a41",
+      "rawSha256": "be55e826192d3de6de5d483aec83bb1f2ec3dd74cf07ce7701f057e8cd4d78a4",
       "modelKey": "eny_0127_bigents_postmodel",
       "componentCount": 19,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0127_bigents.png"
@@ -861,7 +861,7 @@
       "nativeValue": 2,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0128_babyents.asset",
       "assetIndex": 53587,
-      "rawSha256": "a495a73a0658f6204f5efcb076f0ef567b22da38b4193e5190a67c2a74bdf820",
+      "rawSha256": "7bfec5cded8cdc4d18e4926ddd85431a8b4e7c9d2f8a7b6315b6b6290de01c2d",
       "modelKey": "eny_0128_babyents_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0128_babyents.png"
@@ -871,7 +871,7 @@
       "nativeValue": 0,
       "assetPath": "assets/beyond/dynamicassets/gamedata/enemydata/data_eny_0129_slwood.asset",
       "assetIndex": 310118,
-      "rawSha256": "6bd61c5b2033435777bc7c72df879f90d772c80fe7c069fb365a6bbe541e7fe7",
+      "rawSha256": "72e4efc619f7414c70e11570d8bd5d6374d4386998581f79c62e229adae0c466",
       "modelKey": "eny_0129_slwood_postmodel",
       "componentCount": 18,
       "iconAssetPath": "assets/beyond/dynamicassets/gameplay/ui/sprites/monstericon/eny_0129_slwood.png"

@@ -6,7 +6,10 @@ import type {
 } from '../events/combatAbilityEvent';
 import { describe, expect, it, vi } from 'vitest';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
-import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
+import {
+  ProjectileLifecycleRuntime,
+  type ProjectileFinishTiming,
+} from './projectileLifecycleRuntime';
 import { createKillEvent } from '../events/killEventTestFixture';
 import type { ResolvedSkillBuffLifecycleSequences } from '../../compiler/combatProgram';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
@@ -260,11 +263,37 @@ describe('attachBuffLifecycleSequences', () => {
 
   it.each(
     [undefined, 42].flatMap(processing =>
-      [false, true].map(hasSource => ({ processing, hasSource })),
+      [false, true].flatMap(hasSource =>
+        (
+          [
+            { name: 'duration', finish: 1, finishTicks: 8, recycleDelay: 0, recycleTicks: 1 },
+            {
+              name: 'presentation',
+              finish: 'firstTickReach',
+              finishTicks: 1,
+              recycleDelay: 0.25,
+              recycleTicks: 2,
+            },
+            {
+              name: 'segments',
+              finish: { reachAfterTicks: 2, maxDurationSeconds: 2 },
+              finishTicks: 2,
+              recycleDelay: 0.25,
+              recycleTicks: 2,
+            },
+          ] satisfies readonly {
+            name: string;
+            finish: ProjectileFinishTiming;
+            finishTicks: number;
+            recycleDelay: number;
+            recycleTicks: number;
+          }[]
+        ).map(lifetime => ({ processing, hasSource, ...lifetime })),
+      ),
     ),
   )(
-    'SkillAffix独立编号 processing=$processing hasSource=$hasSource',
-    ({ processing, hasSource }) => {
+    'SkillAffix独立编号与投射物引用 processing=$processing hasSource=$hasSource lifetime=$name',
+    ({ processing, hasSource, finish: finishTiming, finishTicks, recycleDelay, recycleTicks }) => {
       const container = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
       const dispatcher = new AbilityEventDispatcher<
         AbilityResponseEventName,
@@ -393,10 +422,11 @@ describe('attachBuffLifecycleSequences', () => {
       );
       emit('owner', 42, 'beforeCastSkill');
       const projectiles = new ProjectileLifecycleRuntime();
+      let projectileDelta: number | null = 0.125;
       const projectile = projectiles.launch({
-        finishDelaySeconds: 1,
-        recycleDelaySeconds: 0,
-        resolveTickDeltaSeconds: () => 1,
+        finishDelaySeconds: finishTiming,
+        recycleDelaySeconds: recycleDelay,
+        resolveTickDeltaSeconds: () => projectileDelta,
         finish: () => {},
         beforeReset: () => {},
       });
@@ -424,11 +454,28 @@ describe('attachBuffLifecycleSequences', () => {
       expect(buff.isFinished).toBe(false);
       entities.finish(entity);
       expect(buff.isFinished).toBe(false);
+      const assertPausedReference = () => {
+        projectileDelta = null;
+        for (let tick = 0; tick < 3; tick++) projectiles.advanceFrame();
+        expect(buff.isFinished).toBe(false);
+        expect(projectiles.isActive(projectile.target)).toBe(true);
+        projectileDelta = 0.125;
+      };
+      // 来源技能、输出Buff、普通子实体已经结束；只剩投射物引用。
+      assertPausedReference();
+      for (let tick = 0; tick < finishTicks; tick++) {
+        projectiles.advanceFrame();
+        expect(buff.isFinished).toBe(false);
+      }
+      // 结束后的回收计时和已标记回收阶段都必须等待实际Tick准入。
+      assertPausedReference();
+      for (let tick = 0; tick < recycleTicks; tick++) {
+        projectiles.advanceFrame();
+        expect(buff.isFinished).toBe(false);
+      }
+      assertPausedReference();
       projectiles.advanceFrame();
-      expect(buff.isFinished).toBe(false);
-      projectiles.advanceFrame();
-      expect(buff.isFinished).toBe(false);
-      projectiles.advanceFrame();
+      expect(projectiles.isActive(projectile.target)).toBe(false);
       expect(buff.isFinished).toBe(processing !== undefined);
       if (processing !== undefined) expect(finish).toHaveBeenCalledExactlyOnceWith('other', null);
       else expect(finish).not.toHaveBeenCalled();

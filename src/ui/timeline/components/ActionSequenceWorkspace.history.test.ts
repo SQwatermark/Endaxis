@@ -1,3 +1,4 @@
+import { buildActionSequenceMindMap } from '../skillStructureMindMapModel';
 import { createRenderer, h, nextTick, shallowRef, ssrContextKey } from 'vue';
 import { createI18n } from 'vue-i18n';
 import { expect, it, vi } from 'vitest';
@@ -34,6 +35,9 @@ it('retains one history across graph/form unmounts and does not replay into a re
     // Mount both real child setups; DOM/template layout is verified separately in browser.
     render: () =>
       h(workspace.view.value === 'graph' ? graph : form, {
+        ...(workspace.view.value === 'graph'
+          ? { buildRoot: buildActionSequenceMindMap, initialOverview: false }
+          : {}),
         sequence: sequence.value,
         skillLevel: 1,
         createStep,
@@ -73,7 +77,11 @@ it('retains one history across graph/form unmounts and does not replay into a re
     const history = workspace.history;
     child.selectNode({ id: 'action-sequence:step:0' });
     // 图中自动字段直接提交根句柄，不经步骤组件 update 转发。
-    child.editContext.root.child('steps').child(0).child('key').update(() => 'graph-edit');
+    child.editContext.root
+      .child('steps')
+      .child(0)
+      .child('key')
+      .update(() => 'graph-edit');
     await nextTick();
     workspace.showDetails('steps[0]');
     await nextTick();

@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import definition from './generated-definitions/zhuang-fangyi/zhuang-fangyi.operator.generated';
+import definition from './zhuang-fangyi';
 import { zhuangFangyi } from './zhuang-fangyi';
 
 function buildAtLevel(skillLevel: number): OperatorInstanceDocument {

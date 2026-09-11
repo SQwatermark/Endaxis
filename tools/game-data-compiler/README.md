@@ -1,6 +1,42 @@
 # Endaxis 游戏数据编译器
 
+## 干员文件输出
+
+完整干员直接生成到 `src/data/operators/<slug>.ts`，不再由手写文件转引嵌套生成文件。
+文件提供驼峰名称的具名导出及默认导出，技能的具名导出也保留。
+整批候选使用同样的相对路径，审计仍按干员单独保存。
+正式发布只替换清单中的干员文件，保留同目录的index、helper和测试；单干员输出目录为 `src/data/operators`。
+下方历史批次提到的 `generated-definitions` 与 `.operator.generated.ts` 是旧布局，不应继续使用。
+
+本文维护转换器命令与接口说明，并保留部分按日期记录的生成批次。历史批次中的覆盖数量、
+阻塞项和“下一步”仅代表当时检查；项目当前状态以 [交接](../../docs/handoff/current-context.md) 为准。
+总体开发方法见 [开发指南](../../docs/development/README.md)，游戏依据见 [研究分类](../../docs/research/README.md)。
+
 ## 技能组递归放置配置
+
+### 技能编译器选择
+
+普通主动技能不需要配置 `compile`。正式整名生成器根据原始SkillData动作图选择公共动作、
+条件、Buff和投射物转换路径；未知行为仍明确报错，不尝试其他编译器来绕过错误。
+旧的 `basicAttack`、`directDamage`、`projectileDamage`、`resolvedSequence` 等选择项不再用于正式编译。
+
+跨技能路由仍保留必要关联，例如：
+
+```json
+"compile": { "kind": "routedSkill", "targetSkillKey": "comboSkill2" }
+```
+
+路由目标的技能类型、等级来源和唯一技能组自动读取目标定义；激活Buff、路由Buff及费用冷却
+从包装器的SwitchToAddBuff和CastData读取。包装形状、目标技能组、资源类型不符合已支持规则时失败，
+不根据文件名猜目标。旧显式字段仍可提供，但必须与源数据一致。`routedSkillKeys` 仍用于技能组引用校验。
+
+本次移除327个普通技能的旧选择项，保留一个路由关联；技能身份、技能组、养成和其他配置未改。
+
+天赋和潜能也不需要 `compile`：天赋通过 `index` 绑定原生养成节点，潜能按数组顺序绑定原生等级，
+实际效果与被动技能由公共养成编译流程解析。配置已移除60个天赋和133个潜能的旧选择项；
+天赋索引、潜能槽位及其他配置保留，不用编译器名称代替原生行为证据。
+
+### 放置策略
 
 `config/operators.json` 的技能组及其 `variants` 可声明 `placementPolicy`：
 `kind: recursiveInput`、`firstSkillKey`、`terminalSkillKey`、`maxSegments`、
@@ -92,7 +128,7 @@ npm run rebuild:game-data -- --publish --unity-worker <VFS_UNITY_WORKER>
   口径为 31 名、325/325 个可摆放技能、198/198 张技能库卡片（38 张多技能链）和 31/31 条全卡片
   组合轴。
 
-  同一门禁默认要求每份 `*.operator.generated.ts` 不超过 **1 MiB**，避免结构投射回归重新制造数 MB
+  同一门禁默认要求每份干员 `<slug>.ts` 不超过 **1 MiB**，避免结构投射回归重新制造数 MB
   乃至数十 MB 的单文件并拖垮 TypeScript/Vite。可用 `--max-operator-source-bytes <正整数>` 显式调整，
   但统一重建使用默认发布口径。最新候选总计 3,963,484 bytes，最大为 Typhoeus 878,234 bytes。
 
@@ -172,7 +208,7 @@ rename 报 `EPERM`；真实 258 件单件装备重建和专门的深路径回归
 同日后续已补齐公共全局冷却协议及独立运行目录，并先修复复刻库、再修复 Endaxis 的爆发前元素
 条件漏接。24 个套装候选现在全部可生成；28 项实机兼容性测试通过，含新套装寒冷/自然触发、
 电磁不触发、同帧冷却、三个独立 20 秒实例及首个爆发伤害差分。正式目录未发布，完整重建入口
-仍等待同批标签等输入。证据与复跑命令见[新套装研究记录](../../docs/research/spellburst-gear-set-2026-09-03.md)。
+仍等待同批标签等输入。证据与复跑命令见[新套装研究记录](../../docs/research/equipment/spellburst-gear-set-2026-09-03.md)。
 
 ### 完整标签与套装自动重建（2026-09-03 后续）
 
@@ -185,7 +221,7 @@ npm run rebuild:game-data -- --source-root tmp/game-data-rebuild/run-dYAF19/sour
 所有输入/请求/审计均在本次 tmp 下。当前恢复 6956 条路径及 179/67/37 全局预定义，生成全部
 24 套套装；历史上的武器 `OnBuffEnhanceChanged` 阻塞已经贯通，当前 79 把武器候选可生成，仍不发布。
 无 worker 时明确阻塞，不隐式使用正式标签。前文保留的是阶段历史。
-来源、重复路径处理和证据边界见[新版标签重建](../../docs/research/gameplay-tag-refresh-2026-09-03.md)。
+来源、重复路径处理和证据边界见[新版标签重建](../../docs/research/generation/gameplay-tag-refresh-2026-09-03.md)。
 
 ### 新旧干员刷新门禁（2026-09-03）
 
@@ -200,7 +236,7 @@ CharGrowthTable。明细保存于本次 `audit/operator-refresh.json`，不读�
 与 Typhoeus，不应注册成两名新干员。30 名技能库中 29 名通过，庄方宜的 `ultimate_skill_end` 已
 不在当前等级组内，但仍在角色主动技能登记中，须核查内部结束技能路由，不能直接删除或改成强化终结技。
 新干员的 Pending 检查及 `trigger` 与主控角色身份比较均走公共条件解析与模拟，不做干员特例。
-研究、复验结果与当前网络阻塞见[干员刷新检查点](../../docs/research/operator-template-refresh-2026-09-03.md)。
+研究、复验结果与当前网络阻塞见[干员刷新检查点](../../docs/research/generation/operator-template-refresh-2026-09-03.md)。
 
 同日后续：庄方宜的内部结束技能原本已正确列入 `runtimeReplacementSkillKeys`，误报来自技能库
 审计漏读该字段。生成器、技能库/闭包/Unity 引用审计现共用领域读取器；正式干员配置未改，
@@ -299,7 +335,7 @@ npm run generate:game-data:operator-passive-ui -- --snapshot-root tmp/passive-ui
 
 本轮最新：标签已单向迁为可读路径，五名完整干员可以严格重建；没有增加完整干员数量。
 同版本 GameplayTagConfigSet 的 26 份配置已恢复为 6806 条唯一非空路径；全局预定义表
-175 标签 / 61 查询 / 36 条免疫规则现已全部严格生成。详见[完整配置集证据与复现](../../docs/research/gameplay-tag-config-set.md)。
+175 标签 / 61 查询 / 36 条免疫规则现已全部严格生成。详见[完整配置集证据与复现](../../docs/research/generation/gameplay-tag-config-set.md)。
 普通根 KnockDown 已有公共投影和标准入口消费者门禁；最新矩阵为 **172/309 / 5 名完整 / 余烬 8/9**。
 余烬战技主体、庇护四件 Buff 闭包及连续两次施放切片已通过；连携仍为潜能最低血量目标组。
 庇护复用公共 KeywordAction 管线，保留 Buff 分类标签/优先级/子对象，不因干员不受伤删除身份。
@@ -309,7 +345,7 @@ npm run generate:game-data:operator-passive-ui -- --snapshot-root tmp/passive-ui
 连携目标选择的原生链现已在 combat-spec 闭合：保存主控组 → 排除该快照 → 生命比例优先级筛选。
 来源层用 `CharacterTeamSelectionSource` 保留实际排除引用，不从 `Main` 组名或 Owner 名称猜身份。
 Next 查询快照操作与 Context 治疗接线仍待实现，不复用治疗时重选人的快捷枚举。
-数据流、并列选择边界与接入顺序见[队友目标快照](../../docs/research/character-team-target-snapshots.md)。
+数据流、并列选择边界与接入顺序见[队友目标快照](../../docs/research/combat/character-team-target-snapshots.md)。
 
 ### 无效分支必须自下而上删除
 
@@ -447,7 +483,7 @@ Assign 的目的键不算读取，但赋值保留；本轮没有启动通用黑�
 先核对保留闭包对倒地／起身标签（含父级）的读者及目标归属，仅恢复可观察数值和状态。
 当前五份完整定义没有敌方起身标签消费者；其他干员、装备和自定义闭包仍需独立审计。
 新增 `audit:game-data:tag-references` 是来源候选盘点，不替代可达性证明，不据零命中自动放行。
-命令、逐项证据与下一步见[控制状态边界](../../docs/research/control-state-observability.md)。
+命令、逐项证据与下一步见[控制状态边界](../../docs/research/display/control-state-observability.md)。
 根 KnockDown 使用独立公共叶子投影；不能用旧 outputKnockDown 标记或无条件 AddBuff 假装完成。
 
 本体已有唯一契约 `applyKnockDown` 与普通根执行切片，验证首次破防、Buff/控制两层免疫、
@@ -897,7 +933,7 @@ npm run generate:game-data:operator-active-skills -- --complete `
   --global-buff-catalog src/data/global-buffs/global-buff-templates.generated.json `
   --skill-setting-catalog src/data/combat/skill-setting.generated.json `
   --slug avywenna `
-  --output src/data/operators/generated-definitions/avywenna `
+  --output src/data/operators `
   --audit-output tmp/game-data-audit/operator-definitions/avywenna `
   --check
 ```
@@ -918,7 +954,7 @@ npm run generate:game-data:operator-active-skills -- --complete `
   已生成 TS。Arcane 当前约定路径为
   `CharacterData/chr_0032_lizhiyan.runtime-template.json`，源 SHA-256 为
   `33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc`。
-- 单干员命令一次原子写入一个 `<slug>.operator.generated.ts`，只包含干员定义、私有 `buff_chr_*`
+- 单干员命令一次原子写入一个 `<slug>.ts`，只包含干员定义、私有 `buff_chr_*`
   和对公共 Buff ID 的引用。它不得导出 `commonBuffDefinitions`，也不得反向决定公共资源内容。
 - 公共 Buff 使用独立 `generate:game-data:common-buffs` 命令扫描全部正式来源闭包，原子生成
   `src/data/buffs/generated/commonBuffDefinitions.generated.ts`。相同 ID 在多个闭包中出现时必须
@@ -1238,7 +1274,7 @@ Action、Buff 或 AbilityEntity 编译器。
 节点和完全相同/仅生成位置身份不同的重复子树；后者只用于定位，不能直接作为合并证明：
 
 ```bash
-npm run audit:game-data:generated-operator-structure -- --file <operator.generated.ts> --top 20
+npm run audit:game-data:generated-operator-structure -- --file src/data/operators/<slug>.ts --top 20
 ```
 
 - 根 SequenceAction 的释放条件不能作为运行时根守卫，使条件失败时整项技能消失；
@@ -1451,7 +1487,7 @@ ExcludeTarget/ShuffleTarget 已分别追踪当前镜像消费者，三者通过
 两类原战技标记切片经过公共编译、实体/Buff 联合测试和正式场景装配。新增 29 项，Next+统一
 编译器全量 305 文件/3643 项通过，两侧类型检查、武器 --check 77/78 通过。正式干员定义未变，
 原连续排轴仍缺键；JumpTo/FinishOwner/退出及投射物调度仍是下一项，不把标记成功冒充整技能修复。
-精确源路径、排除动作序号及测试边界见 `docs/research/avywenna-return-projectile-blackboard.md`。
+精确源路径、排除动作序号及测试边界见 `docs/research/operators/avywenna-return-projectile-blackboard.md`。
 
 ### 投射物回调黑板的有界公共投影
 
@@ -1467,13 +1503,13 @@ ExcludeTarget/ShuffleTarget 已分别追踪当前镜像消费者，三者通过
 不能代用发射者。这个窄入口不放行未覆盖的目标组、循环或事件条件。
 两类枪已验证真实伤害、潜能差分、Buff 守卫、资源账本和重复发射；仍未纳入整条回收/附着/时间
 膨胀链，测试提供的 hit/reach 顺序不是原生调度证据。正式技能尚未替换，
-详见 `docs/research/avywenna-return-projectile-blackboard.md`。不得修改旧 Python 或手补生成产物绕过边界。
+详见 `docs/research/operators/avywenna-return-projectile-blackboard.md`。不得修改旧 Python 或手补生成产物绕过边界。
 
 ### 已退役：角色模板常驻运行覆盖层
 
 早期 `operator-runtime` 入口只在旧 Python 角色产物上覆盖实体初值、连携条件及施法元数据。
 统一 TS 整名生成器现已直接生成这些字段，因此该中间产物、安装器和生成命令已删除。
-历史证据仍保留在 `docs/research/arcane-next-evidence.md`；当前正式入口是完整干员原子生成。
+历史证据仍保留在 `docs/research/operators/arcane-next-evidence.md`；当前正式入口是完整干员原子生成。
 
 已完成：
 
@@ -1661,19 +1697,20 @@ ExcludeTarget/ShuffleTarget 已分别追踪当前镜像消费者，三者通过
 `tmp/generated-next-weapons`，`--check` 不读取也不修改审计文件。生成目录已接入唯一最新仓库，
 revision 标记为 `endaxis-definitions-latest`。Next 尚未发布首个稳定数据版本，不保存旧武器定义，
 也不为每次生成差异建立迁移边；差异必须通过来源审计、生成 `--check`、聚焦模拟和代码评审证明。
-当前策略见 docs/next/weapon-data-migration.md。
+当前分层规则见 [装备说明](../../docs/architecture/equipment.md)；版本迁移决策的原始记录见
+[历史方案](../../docs/archive/next/weapon-data-migration.md)。
 
 此前第二轮审计修正两把反应光环的接收侧事件身份。`OnBeforeAddedBuff` 在监听 Buff 中的 Source 是监听器
 创建者，Owner 是接收敌人，Target 是当前施加者；依据 combat-spec 的 before-output-buff.md、
 check-targets-equal.md 和 Buff.BindAbilityEventEnvironment，不得混成物理事件 sourceId/targetId。
 公共投影保留 buffSource/buffOwner；当前 205 未审计动作/条件仍阻塞，不能顺手扩大其他事件。
 元素适配器已补同一前置事件，真实反应的正反分支、等级两端与伤害差分见
-docs/research/weapon-reaction-aura-branches.md。旧哈希只作为审计记录，不对应可运行历史目录。
+docs/research/equipment/weapon-reaction-aura-branches.md。旧哈希只作为审计记录，不对应可运行历史目录。
 
 随后一轮审计修正公共 BuffCount：按增强层数求和，Tag 条件显式保留 Source/Owner/Target，
 Save 不再输出 instance；ID 列表按项求和而非去重。旧显式实例数 DSL 保留历史语义。
 五把武器重新生成；证据与数值回归见
-docs/research/weapon-buff-count-r3.md。已有 966 交叉场景通过不等于全连续排轴通过：
+docs/research/equipment/weapon-buff-count-r3.md。已有 966 交叉场景通过不等于全连续排轴通过：
 艾维文娜三连携后战技回收枪的 EntityBB_talent0 传递仍缺失，是下一阶段完整干员迁移优先项。
 
 ```powershell

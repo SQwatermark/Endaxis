@@ -13,6 +13,7 @@ export type CompiledOperatorDefinitionHeaderSource = Readonly<
     OperatorDefinition,
     | 'slug'
     | 'gameId'
+    | 'buffDisplayNameKeys'
     | 'rarity'
     | 'weaponType'
     | 'element'
@@ -38,6 +39,9 @@ export function compileOperatorDefinitionHeaderSource(
   return {
     slug: closure.identity.slug,
     gameId: closure.identity.gameId,
+    ...(closure.identity.buffDisplayNameKeys === undefined
+      ? {}
+      : { buffDisplayNameKeys: closure.identity.buffDisplayNameKeys }),
     sourceCharacterId: character.characterId,
     rarity: character.projectedRarity,
     weaponType: character.weaponType,

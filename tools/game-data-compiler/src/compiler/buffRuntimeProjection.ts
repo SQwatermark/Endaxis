@@ -676,106 +676,9 @@ export function compileBuffRuntimeDefinitionSource(
       isEmptySequence: sequence => sequence.steps.length === 0,
     },
   ).map(({ event, priority, sequence }) => ({ event, priority, sequence }));
-  for (const [qteIndex, qte] of comboQteSources.entries()) {
-    const activeDurationKey = qte.activeDuration.blackboardKey;
-    if (activeDurationKey === null) {
-      throw new Error(
-        `BuffData.${source.graph.buffId}.comboQte[${qteIndex}]: activeDuration must read a blackboard key`,
-      );
-    }
-    const timerBuffIds = allSequences
-      .flatMap(sequence => collectNativeActionNodes(sequence))
-      .flatMap(node => {
-        if (
-          !node.metadata.enabled ||
-          node.body.kind !== 'leaf' ||
-          node.body.value.family !== 'buffApplication'
-        )
-          return [];
-        const application = node.body.value.action;
-        const target = application.target;
-        if (
-          target.targetSource !== 'Owner' ||
-          target.targetGroupKey !== '' ||
-          target.finderType !== null ||
-          target.validatorTypes.length !== 0 ||
-          target.postProcessorTypes.length !== 0 ||
-          target.priorityFilters.length !== 0 ||
-          target.shuffleTargets.length !== 0 ||
-          target.distanceValidators.length !== 0 ||
-          target.finderSpawnedObjectType !== null ||
-          target.validatorTagQueries.length !== 0
-        )
-          return [];
-        return application.buffs.flatMap(buff =>
-          buff.assignments.some(
-            assignment =>
-              !assignment.useDirectValue && assignment.inputValueKey === activeDurationKey,
-          )
-            ? [buff.buffId]
-            : [],
-        );
-      });
-    if (timerBuffIds.length !== 1 || timerBuffIds[0]!.length === 0) {
-      throw new Error(
-        `BuffData.${source.graph.buffId}.comboQte[${qteIndex}]: expected exactly one Owner timer Buff whose assignment reads activeDuration ${JSON.stringify(activeDurationKey)}`,
-      );
-    }
-    const timerApplications = source.graph.timelineActions.flatMap(timeline =>
-      collectNativeActionNodes(timeline.sequence).flatMap(node => {
-        if (
-          !node.metadata.enabled ||
-          node.body.kind !== 'leaf' ||
-          node.body.value.family !== 'buffApplication'
-        )
-          return [];
-        const matchingBuffs = node.body.value.action.buffs.filter(
-          buff =>
-            buff.buffId === timerBuffIds[0] &&
-            buff.assignments.some(
-              assignment =>
-                !assignment.useDirectValue && assignment.inputValueKey === activeDurationKey,
-            ),
-        );
-        return matchingBuffs.length === 1 ? [{ timeline, node }] : [];
-      }),
-    );
-    if (timerApplications.length !== 1) {
-      throw new Error(
-        `BuffData.${source.graph.buffId}.comboQte[${qteIndex}]: expected one native active-window timer application`,
-      );
-    }
-    const timerApplication = timerApplications[0]!;
-    const qteVisualOnlyIds = new Set(visualOnlyIds);
-    qteVisualOnlyIds.delete(timerBuffIds[0]!);
-    const timerSequence = compileLinearSequence(
-      {
-        onlyExecuteWhenSourceIsMainCharacter: false,
-        onlyExecuteWhenSourceIsGuard: false,
-        // ShowComboRingQte 的输入在 UI 层触发；其关联计时 Buff 在原生图中可能还受
-        // 原型表现分支保护。现实时间轴没有 UI 输入回调，因此把已严格配对的窗口
-        // 显式安装在原生开始帧，后续 beforeCastSkill 仍决定是否真正置位成功。
-        actions: [timerApplication.node],
-      },
-      qteVisualOnlyIds,
-      {
-        ...BUFF_LIFECYCLE_CONTEXT,
-        abilityEntityQueries,
-        ...projectionContextOverrides,
-      },
-      extensions,
-    );
-    scheduledSequences.push({
-      startFrame: timerApplication.timeline.startFrame,
-      endFrame: timerApplication.timeline.endFrame,
-      sequence: timerSequence,
-    });
-    const triggerMutation = compileLinearSequence(
-      {
-        onlyExecuteWhenSourceIsMainCharacter: false,
-        onlyExecuteWhenSourceIsGuard: false,
-        actions: [qte.triggerMutation],
-      },
+  for (const qte of comboQteSources) {
+    const triggeredAction = compileLinearSequence(
+      qte.triggeredAction,
       visualOnlyIds,
       { ...BUFF_ACTION_CONTEXT, abilityEntityQueries, ...projectionContextOverrides },
       extensions,
@@ -792,17 +695,11 @@ export function compileBuffRuntimeDefinitionSource(
                 kind: 'all',
                 conditions: [
                   { kind: 'eventSkillTypeIn', skillTypes: ['comboSkill'] },
-                  {
-                    kind: 'buffIdStackCompare',
-                    target: 'caster',
-                    buffIds: [timerBuffIds[0]!],
-                    operator: 'greaterOrEqual',
-                    value: { kind: 'constant', value: 1 },
-                  },
+                  { kind: 'eventComboRingQteSucceeded' },
                 ],
               },
             },
-            whenTrue: triggerMutation,
+            whenTrue: triggeredAction,
           },
         ],
       },

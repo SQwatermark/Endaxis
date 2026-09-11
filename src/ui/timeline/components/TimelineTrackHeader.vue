@@ -8,6 +8,7 @@ import type { LoadoutGearSlot } from '../loadoutBuildViewModel';
 import OperatorSupportNotice from './OperatorSupportNotice.vue';
 import { getOperatorAvatarPath } from '../../gameAssetPaths';
 import CustomNumberInput from '../../components/CustomNumberInput.vue';
+import OperatorAvatar from '../../components/OperatorAvatar.vue';
 
 const props = defineProps<{
   track: TimelineTrackViewModel;
@@ -157,10 +158,9 @@ function startReorder(event: DragEvent): void {
           :aria-label="labels.operator"
           @click.stop="$emit('operator')"
         >
-          <img
+          <OperatorAvatar
             class="avatar"
             :src="getOperatorAvatarPath(track.operatorAssetSlug ?? track.operatorSlug)"
-            alt=""
           />
           <span class="avatar-change-hint" aria-hidden="true">
             <svg viewBox="0 0 24 24">
@@ -450,7 +450,6 @@ function startReorder(event: DragEvent): void {
   height: 44px;
   border: 2px solid var(--ea-border-strong);
   border-radius: 50%;
-  object-fit: cover;
 }
 
 .empty-avatar {

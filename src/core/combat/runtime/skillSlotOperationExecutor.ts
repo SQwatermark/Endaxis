@@ -1,3 +1,5 @@
+import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type { CombatOperationContext } from './skillRuntime';
 /** 切换稳定技能组后续释放形态；当前释放已经持有的 SkillRuntime 引用不会改变。 */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -28,10 +30,7 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
 
   constructor(readonly options: SkillSlotOperationExecutorOptions) {}
 
-  execute(
-    step: ResolvedCombatOperationStep,
-    context?: Parameters<CombatOperationExecutor['execute']>[1],
-  ): boolean {
+  execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'overrideBasicAttackMapping') {
       const register = this.options.overrideBasicAttackMapping;
       if (register === undefined) throw new Error('Buff basic-attack mapping requires a handle');
@@ -84,10 +83,7 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
     return true;
   }
 
-  end(
-    step: ResolvedCombatOperationStep,
-    context?: Parameters<NonNullable<CombatOperationExecutor['end']>>[1],
-  ): void {
+  end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     if (step.kind === 'overrideBasicAttackMapping') {
       this.#mappingHandles.get(step)?.finish();
       this.#mappingHandles.delete(step);
@@ -108,10 +104,7 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
     this.options.delegate.end?.(step, context);
   }
 
-  evaluate(
-    condition: Parameters<CombatOperationExecutor['evaluate']>[0],
-    context?: Parameters<CombatOperationExecutor['evaluate']>[1],
-  ): boolean {
+  evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {
     return context === undefined
       ? this.options.delegate.evaluate(condition)
       : this.options.delegate.evaluate(condition, context);

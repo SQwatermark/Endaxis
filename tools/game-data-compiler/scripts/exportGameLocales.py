@@ -35,7 +35,6 @@ REMOTE_BASE = DEFAULT_CDN_BASE
 USE_FETCH_CACHE = True
 REFRESH_FETCH_CACHE = False
 BATTLE_RICH_TEXT_PREFIX = 'ba.'
-EXCLUDED_CHAR_IDS = {'chr_0002_endminm', 'chr_0003_endminf'}
 LOCALE_EXPORTS = [('CN', 'zh'), ('EN', 'en')]
 RICH_TEXT_TAG_RE = re.compile(r'<[^>]*>')
 RICH_TEXT_OPEN_TAG_RE = re.compile(r'<([@#])([A-Za-z0-9_.-]+)>')
@@ -840,7 +839,7 @@ def build_skill_form_descriptions(skill_group, base_description, values, context
     return forms, form_labels
 
 
-def export_operators(table_dir, locale='CN', old_slugs=None, char_slug_map=None):
+def export_operators(table_dir, locale='CN', old_slugs=None, char_slug_map=None, excluded_char_ids=()):
     load_text_table(table_dir, locale)
 
     char_table = load_json(os.path.join(table_dir, 'CharacterTable.json'))
@@ -859,7 +858,7 @@ def export_operators(table_dir, locale='CN', old_slugs=None, char_slug_map=None)
     char_items = [
         (char_id, char_data)
         for char_id, char_data in sorted(char_table.items())
-        if char_id.startswith('chr_') and char_id not in EXCLUDED_CHAR_IDS
+        if char_id.startswith('chr_') and char_id not in excluded_char_ids
     ]
 
     for index, (char_id, char_data) in enumerate(char_items, start=1):
@@ -1124,6 +1123,22 @@ def build_existing_weapon_slug_map(repo_root, item_table=None):
         weapon_slug_map.setdefault(icon_id, slug)
 
     return weapon_slug_map
+
+
+def read_operator_locale_exclusions(path):
+    manifest = load_json(os.path.abspath(path))
+    operators = manifest.get('operators') if isinstance(manifest, dict) else None
+    if not isinstance(operators, list) or any(not isinstance(entry, dict) for entry in operators):
+        data_error(f'operator manifest {path}', 'expected operators to be an object list')
+    result = set()
+    for entry in operators:
+        ids = entry.get('excludedLocaleCharIds', [])
+        if not isinstance(ids, list) or any(not isinstance(item, str) or not item for item in ids):
+            data_error(f'operator {entry.get("slug")}', 'expected excludedLocaleCharIds to be a string list')
+        result.update(ids)
+    if result.intersection(entry.get('charId') for entry in operators):
+        data_error(f'operator manifest {path}', 'cannot exclude a canonical operator charId')
+    return result
 
 
 def build_operator_slug_map_from_manifest(path):
@@ -1784,6 +1799,9 @@ def main():
         return
 
     output_base = os.path.abspath(args.output)
+    excluded_char_ids = read_operator_locale_exclusions(
+        args.operator_manifest or os.path.join(repo_root, 'tools/game-data-compiler/config/operators.json')
+    )
     local_mode = args.table_root is not None
     if local_mode:
         required = {
@@ -1856,6 +1874,7 @@ def main():
             locale=locale,
             old_slugs=old_slugs,
             char_slug_map=char_slug_map,
+            excluded_char_ids=excluded_char_ids,
         )
         operators = merge_old_order_and_forms(operators, old_data)
         order_combat_skills(operators)

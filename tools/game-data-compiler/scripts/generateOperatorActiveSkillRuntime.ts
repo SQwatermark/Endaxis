@@ -497,7 +497,7 @@ export function planOperatorActiveSkillRuntime(
       );
     }),
   ]);
-  const syntheticComboQteTriggerBlackboardKeys = new Set(
+  const comboQteTriggerBlackboardKeys = new Set(
     [...referencedClosureSources.values()].flatMap(buff =>
       [
         ...buff.graph.timelineActions.map(item => item.sequence),
@@ -512,11 +512,14 @@ export function planOperatorActiveSkillRuntime(
             node.body.value.family !== 'comboQte'
           )
             return [];
-          const mutation = node.body.value.action.triggerMutation;
-          return mutation.body.kind === 'leaf' &&
-            mutation.body.value.family === 'blackboardMutation'
-            ? [mutation.body.value.action.key]
-            : [];
+          return collectNativeActionNodes(node.body.value.action.triggeredAction).flatMap(
+            mutation =>
+              mutation.metadata.enabled &&
+              mutation.body.kind === 'leaf' &&
+              mutation.body.value.family === 'blackboardMutation'
+                ? [mutation.body.value.action.key]
+                : [],
+          );
         }),
       ),
     ),
@@ -567,7 +570,7 @@ export function planOperatorActiveSkillRuntime(
       actionTargetTarget: 'enemy',
       fixedHittableTargetCount: 0,
       abilityEntityQueries: { catalog: abilityCatalog, gameplayTagRegistry: registry },
-      syntheticComboQteTriggerBlackboardKeys,
+      comboQteTriggerBlackboardKeys,
     },
     extensions: {
       compileProjectileLaunch: projectile,

@@ -478,7 +478,7 @@ export type KnownNativeActionLeafSource =
         readonly kind: 'comboQte';
         readonly earlyDuration: ScalarSource;
         readonly activeDuration: ScalarSource;
-        readonly triggerMutation: NativeActionNodeSource<KnownNativeActionLeafSource>;
+        readonly triggeredAction: NativeSequenceSource<KnownNativeActionLeafSource>;
       };
     }
   | { readonly family: 'castingControl'; readonly action: ChannelingCastingActionSource }
@@ -783,7 +783,7 @@ export function tryParseKnownNativeActionLeafSource(
             `${path}.activeDuration`,
             inheritedBlackboard,
           ),
-          triggerMutation,
+          triggeredAction,
         },
       };
     }

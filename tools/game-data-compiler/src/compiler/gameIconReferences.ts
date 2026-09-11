@@ -3,7 +3,7 @@ const GAME_PUBLIC_PREFIXES = [
   '/operators/',
   '/weapons/',
   '/equipment/',
-  '/Icon_Enemy/',
+  '/enemies/',
   '/contingency_contract/',
 ] as const;
 

@@ -73,7 +73,7 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
-  it('后台拖动发布完整中间快照但标脏，重置后禁止旧快照复活', async () => {
+  it('连续编辑期间发布已经完整算完的快照，重置后禁止旧结果复活', async () => {
     const scenario = shallowRef(createPerlicaScenario());
     const requests: Array<(value: any) => void> = [];
     const fakeService = {
@@ -85,7 +85,6 @@ describe('useScenarioSimulation', () => {
         scenario,
         service: fakeService,
         debounceMs: 10000,
-        publishIntermediateResults: true,
       }),
     )!;
     const oldScenario = scenario.value;
@@ -140,58 +139,76 @@ describe('useScenarioSimulation', () => {
     }
   });
 
-  it.each(['resolve', 'reject'] as const)(
-    'invalidates an in-flight run immediately across edit and undo (%s)',
-    async completion => {
-      const initial = createPerlicaScenario();
-      const scenario = shallowRef(initial);
-      const run = {
-        availabilityDiagnostics: [],
-        executionDiagnostics: [],
-        comboWindowDiagnostics: [],
-      };
-      let resolve!: (value: typeof run) => void;
-      let reject!: (reason: Error) => void;
-      let calls = 0;
-      const fakeService = {
-        simulate: async () => {
-          if (++calls === 1) return run;
-          return new Promise<typeof run>((yes, no) => {
-            resolve = yes;
-            reject = no;
-          });
-        },
-      } as unknown as ScenarioSimulationService;
-      const scope = effectScope();
-      const result = scope.run(() =>
-        useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 }),
-      )!;
-      try {
-        await result.simulateNow();
-        const published = result.published.value;
-        const inFlight = result.simulateNow();
-        scenario.value = { ...initial, name: 'edited' };
-        scenario.value = initial;
-        expect(result.running.value).toBe(false);
-        expect(result.stale.value).toBe(true);
-        if (completion === 'resolve') resolve(run);
-        else reject(new Error('obsolete failure'));
-        expect(await inFlight).toBe(false);
-        expect(result.published.value).toBe(published);
-        expect(result.stale.value).toBe(true);
-        expect(result.error.value).toBeNull();
-        const beforeImport = result.simulateNow();
-        result.resetPublication();
-        if (completion === 'resolve') resolve(run);
-        else reject(new Error('previous project failed'));
-        expect(await beforeImport).toBe(false);
-        expect(result.published.value).toBeNull();
-        expect(result.error.value).toBeNull();
-      } finally {
-        scope.stop();
-      }
-    },
-  );
+  it('不中断已开始的计算，并把连续编辑合并成一次后续计算', async () => {
+    const initial = createPerlicaScenario();
+    const scenario = shallowRef(initial);
+    const run = {
+      availabilityDiagnostics: [],
+      executionDiagnostics: [],
+      comboWindowDiagnostics: [],
+    };
+    let resolveSecond!: (value: typeof run) => void;
+    let calls = 0;
+    const fakeService = {
+      simulate: async () => {
+        calls += 1;
+        if (calls === 1 || calls === 3) return run;
+        return new Promise<typeof run>(resolve => {
+          resolveSecond = resolve;
+        });
+      },
+    } as unknown as ScenarioSimulationService;
+    const scope = effectScope();
+    const result = scope.run(() =>
+      useScenarioSimulation({ scenario, service: fakeService, debounceMs: 10_000 }),
+    )!;
+    try {
+      await result.simulateNow();
+      const inFlight = result.simulateNow();
+      const finalScenario = { ...initial, name: 'edited twice' };
+      scenario.value = { ...initial, name: 'edited once' };
+      scenario.value = finalScenario;
+      expect(result.running.value).toBe(true);
+      expect(result.stale.value).toBe(true);
+      expect(calls).toBe(2);
+
+      resolveSecond(run);
+      expect(await inFlight).toBe(false);
+      await waitFor(() => calls === 3 && result.running.value === false);
+      expect(calls).toBe(3);
+      expect(result.published.value?.scenario).toBe(finalScenario);
+      expect(result.error.value).toBeNull();
+    } finally {
+      scope.stop();
+    }
+  });
+
+  it('空闲时立即计算新的拖动位置，不额外等待防抖时间', async () => {
+    const initial = createPerlicaScenario();
+    const scenario = shallowRef(initial);
+    let calls = 0;
+    const fakeService = {
+      simulate: async () => {
+        calls += 1;
+        return {
+          availabilityDiagnostics: [],
+          executionDiagnostics: [],
+          comboWindowDiagnostics: [],
+        };
+      },
+    } as unknown as ScenarioSimulationService;
+    const scope = effectScope();
+    const result = scope.run(() => useScenarioSimulation({ scenario, service: fakeService }))!;
+    try {
+      await waitFor(() => calls === 1 && result.running.value === false);
+      scenario.value = { ...initial, name: 'next drag position' };
+      expect(calls).toBe(2);
+      await waitFor(() => result.running.value === false);
+      expect(result.published.value?.scenario).toBe(scenario.value);
+    } finally {
+      scope.stop();
+    }
+  });
 
   it('clears the previous failure as soon as the user edits, without discarding the snapshot', async () => {
     const scenario = shallowRef(createPerlicaScenario());
@@ -403,10 +420,11 @@ describe('useScenarioSimulation', () => {
       const preview = result.simulateNow();
       scenario.value = initial;
       await nextTick();
-      expect(await result.simulateNow()).toBe(true);
-      const restored = result.published.value;
+      const restoredSimulation = result.simulateNow();
       resolvePreview(previewRun);
       expect(await preview).toBe(false);
+      expect(await restoredSimulation).toBe(true);
+      const restored = result.published.value;
       expect(result.published.value).toBe(restored);
       expect(result.published.value?.scenario).toBe(initial);
       expect(result.run.value).toBe(restoredRun);
@@ -615,7 +633,7 @@ describe('useScenarioSimulation', () => {
     }
   });
 
-  it('把诊断按稳定身份归约到具体技能块', async () => {
+  it('新模拟完成前保留上一份完整诊断，完成后再整体替换', async () => {
     const initial = createPerlicaScenario();
     const fakeRun = {
       availabilityDiagnostics: [
@@ -663,9 +681,9 @@ describe('useScenarioSimulation', () => {
       expect(result.diagnosticsByCastId.value.get(castId)).toEqual(['resourceUnavailable']);
       const previous = result.published.value;
       scenario.value = { ...scenario.value, name: 'edited' };
-      // 无需等待下一次渲染或模拟，旧警告立即退出当前编辑文档。
+      // 警告与其他模拟组件一起保留，避免等待期间消失后又出现。
       expect(result.stale.value).toBe(true);
-      expect(result.diagnosticsByCastId.value.size).toBe(0);
+      expect(result.diagnosticsByCastId.value.get(castId)).toEqual(['resourceUnavailable']);
       expect(result.published.value).toBe(previous);
     } finally {
       scope.stop();

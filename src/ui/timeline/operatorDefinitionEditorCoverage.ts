@@ -29,6 +29,7 @@ export const OPERATOR_DEFINITION_EDITOR_COVERAGE = {
   playerActionModes: 'preservedOnly',
   skillAliases: 'preservedOnly',
   buffDefinitions: 'structureEditable',
+  buffDisplayNameKeys: 'preservedOnly',
   abilityEntityDefinitions: 'structureEditable',
   comboSkillConditions: 'structureEditable',
   comboSkillPriority: 'preservedOnly',

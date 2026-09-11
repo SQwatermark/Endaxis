@@ -1,5 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
+import {
+  createPassiveUiDefinition,
+  numericPassiveUiAppearances as numericAppearances,
+} from '../../operators/passive-ui/registry';
 import { useInspectorPropertyReveal } from '../useInspectorPropertyReveal';
 import type { DefinitionHistoryLocation } from '../useDefinitionDraftHistory';
 import BuffIdReferenceField from './BuffIdReferenceField.vue';
@@ -37,28 +41,8 @@ function setBuff(
     emit('update', { ...props.value, [field]: value }, field);
 }
 const adding = ref(false);
-const numericAppearances = {
-  tangtangDroplets: '水滴',
-  laevatainCounter: '熔火计数',
-  zhuangFangyiThunder: '青霆计数',
-  arcaneSigils: '符印',
-  typhoeaArrows: '箭矢',
-} as const;
 function create(kind: OperatorPassiveUiDefinition['kind']) {
-  const value: OperatorPassiveUiDefinition =
-    kind === 'numeric'
-      ? { kind, appearance: 'tangtangDroplets', maximum: 1 }
-      : kind === 'buffProgress'
-        ? { kind, appearance: 'liinoMusic', normalBuffId: '', ultimateBuffId: '' }
-        : {
-            kind,
-            appearance: 'typhoeaArrows',
-            reserveArrowBuffId: '',
-            battleArrowBuffId: '',
-            pointBuffId: '',
-            maximumArrows: 1,
-            maximumPoints: 1,
-          };
+  const value = createPassiveUiDefinition(kind);
   emit('update', value);
   adding.value = false;
 }

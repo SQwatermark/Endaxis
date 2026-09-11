@@ -137,11 +137,10 @@ export interface CombatActionProjectionContextSource {
   /** 完整主动技能图中是否存在启用且非纯表现的动画事件监听器；未提供时不得假定倍率无战斗影响。 */
   readonly enabledAnimationEventListenerPresent?: boolean;
   /**
-   * 完整 Buff 闭包已把旧版 ShowComboRingQte 的输入窗口投影为定时 Buff，并保留了
-   * triggeredAction 写入的 Owner 动态黑板键。主动技能只能用这些键识别同一 QTE
-   * 判定；单技能/无闭包入口不得自行猜测原型选择开关。
+   * 完整 Buff 闭包中 ShowComboRingQte.triggeredAction 写入的 Owner 动态黑板键。
+   * 主动技能只能用这些来源键识别同一 QTE 判定；单技能/无闭包入口不得自行猜测。
    */
-  readonly syntheticComboQteTriggerBlackboardKeys?: ReadonlySet<string>;
+  readonly comboQteTriggerBlackboardKeys?: ReadonlySet<string>;
   /** 仅技能时间轴宿主提供；Buff 生命周期和即时回调不具有可跳转时间轴。 */
   readonly timelineRange?: { readonly startFrame: number; readonly endFrame: number };
   /** 当前场景额外提供的 IHittableObject 数量；未声明时不得假定为零。 */

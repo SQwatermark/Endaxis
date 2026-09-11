@@ -221,16 +221,13 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain('cancelAnimationFrame(castMoveAutoScrollFrame)');
   });
 
-  it('updates drag-dependent simulation projections at interactive frequency', () => {
+  it('lets the single-flight scheduler follow every authored drag position', () => {
     const movement = projectionSource('function beginCastMove', '\nasync function finishCastMove');
 
-    expect(source).toContain('const LIVE_SIMULATION_RATE_HZ = 30');
-    expect(source).toContain('const LIVE_SIMULATION_INTERVAL_MS = 1000 / LIVE_SIMULATION_RATE_HZ');
-    expect(movement).toContain(
-      'lastCastMoveSimulationAt = performance.now() - LIVE_SIMULATION_INTERVAL_MS',
-    );
-    expect(movement).toContain('now - lastCastMoveSimulationAt >= LIVE_SIMULATION_INTERVAL_MS');
-    expect(movement).toContain('void nextTick(simulateNow)');
+    expect(movement).toContain('scenario.value = movedScenario');
+    expect(movement).not.toContain('lastCastMoveSimulationAt');
+    expect(movement).not.toContain('void nextTick(simulateNow)');
+    expect(source).not.toContain('LIVE_SIMULATION_RATE_HZ');
   });
 
   it('shows time dilation on its source block and expands it only for hovered or selected casts', () => {

@@ -39,7 +39,7 @@ describe('complete operator definition source renderer', () => {
       },
     });
 
-    expect(source).toContain("from '../../definitionHelpers'");
+    expect(source).toContain("from './definitionHelpers'");
     expect(source).toContain('export const sampleOperatorBattleSkill: SkillDefinition');
     expect(source).toContain('withSkillBlackboard(');
     expect(source).toContain('scheduled(3, sequence(step(');

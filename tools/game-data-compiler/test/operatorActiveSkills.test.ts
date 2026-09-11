@@ -6,6 +6,22 @@ import { OPERATOR_ACTIVE_SKILL_TYPES } from '../src/domains/operator/activeSkill
 import { SKILL_TYPES } from '../../../packages/game-data-contract/src/primitives.ts';
 
 describe('Operator 主动技能入口', () => {
+  it('省略旧编译器选择仍按同一原始动作图生成技能', () => {
+    const identity = entry('attack', 'basicAttack', 'attack.json');
+    const files = { 'attack.json': activeSkillFixture('native_attack') };
+    const automatic = compileOperatorActiveSkills([identity], files, {}, 'fixture.skills');
+    for (const kind of ['basicAttack', 'resolvedSequence', 'resolvedDamageSequence']) {
+      const legacy = compileOperatorActiveSkills(
+        [{ ...identity, compile: { kind } }],
+        files,
+        {},
+        'fixture.skills',
+      );
+      expect(automatic.definitions).toEqual(legacy.definitions);
+    }
+    expect(automatic.entries[0]!.projectionConfig).toBeNull();
+  });
+
   it('兼容列表保留既有顺序，当前支持值域与契约一致', () => {
     expect(OPERATOR_ACTIVE_SKILL_TYPES).toEqual([
       'basicAttack',

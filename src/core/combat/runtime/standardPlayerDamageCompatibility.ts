@@ -100,6 +100,7 @@ function inspectCondition(
     case 'timedMarkerPresent':
     case 'globalCooldownPresent':
     case 'casterComboPending':
+    case 'eventComboRingQteSucceeded':
     case 'abilityEntityTimedMarkerPresent':
     case 'elementalReactionActive':
     case 'casterControlled':
@@ -399,6 +400,7 @@ function inspectSequence(
       case 'gainFinisherSp':
       case 'restrictUltimateEnergyRecovery':
       case 'openComboWindow':
+      case 'showComboRingQte':
       case 'changeSkillSlot':
       case 'overrideBasicAttackMapping':
       case 'changePlayerActionMode':

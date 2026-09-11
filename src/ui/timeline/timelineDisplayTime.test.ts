@@ -66,7 +66,7 @@ describe('timeline display time', () => {
     ]);
   });
 
-  it('pairs time-dilation lifecycle receipts and closes active instances at simulation end', () => {
+  it('projects global time dilation and omits entity-only instances from timeline effects', () => {
     const entries: CombatReceiptEntry[] = [
       {
         ...receipt(0, 10, 'TimeDilationStarted', {
@@ -79,7 +79,12 @@ describe('timeline display time', () => {
         ...receipt(1, 12, 'TimeDilationStarted', { instanceId: 2, kind: 'entity' }),
         targetId: 'track:1',
       },
-      receipt(2, 20, 'TimeDilationEnded', { instanceId: 1, kind: 'global' }),
+      receipt(2, 14, 'TimeDilationStarted', {
+        instanceId: 3,
+        kind: 'global',
+        sourceCastId: 'cast:global',
+      }),
+      receipt(3, 20, 'TimeDilationEnded', { instanceId: 1, kind: 'global' }),
     ];
     expect(projectTimelineTimeDilationBands(entries, 30)).toEqual([
       {
@@ -90,11 +95,11 @@ describe('timeline display time', () => {
         sourceCastId: 'cast:ultimate',
       },
       {
-        instanceId: 2,
-        kind: 'entity',
-        startFrame: 12,
+        instanceId: 3,
+        kind: 'global',
+        startFrame: 14,
         endFrame: 30,
-        targetId: 'track:1',
+        sourceCastId: 'cast:global',
       },
     ]);
   });
@@ -129,10 +134,7 @@ describe('timeline display time', () => {
         10,
         12,
       ),
-    ).toEqual([
-      { offsetFrames: 0, durationFrames: 4 },
-      { offsetFrames: 8, durationFrames: 4 },
-    ]);
+    ).toEqual([{ offsetFrames: 0, durationFrames: 4 }]);
   });
 
   it('rejects an end receipt without its matching start', () => {

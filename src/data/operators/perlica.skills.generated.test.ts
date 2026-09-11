@@ -12,7 +12,7 @@ import {
   perlicaFinisher,
   perlicaPlungingAttack,
   perlicaUltimate,
-} from './generated-definitions/perlica/perlica.operator.generated';
+} from './perlica';
 
 const basicAttacks = [
   perlicaBasicAttack1,
