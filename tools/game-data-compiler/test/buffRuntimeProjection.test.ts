@@ -18,6 +18,49 @@ import { compileActionNode } from '../src/compiler/combatActionLeafProjection.ts
 import { parseComboCacheActionSource } from '../src/source/inputControlActions.ts';
 
 describe('公共 Buff 运行时投影', () => {
+  it.each([
+    ['Unlimited', true],
+    ['HighPriority', false],
+    ['Stack', true],
+    ['Enhance', false],
+    ['Refresh', false],
+    ['Extend', false],
+    ['Modify', false],
+    ['Unique', true],
+    ['EnhanceAndRefresh', false],
+    ['OverwriteDuration', false],
+    ['EnhanceAndOverwriteDuration', false],
+    ['HighPriorityWithMaxStack', false],
+    ['TimedGrowingEnhance', false],
+  ] as const)('只按原生叠加类型门槛加载 Buff 时间线：%s', (stackingType, expected) => {
+    const fixture = sourceFixture();
+    const eventSequence = fixture.graph.abilityEvents[0]!.actions[0]!;
+    const source: BuffRuntimeSource = {
+      ...fixture,
+      graph: {
+        ...fixture.graph,
+        timelineActions: [
+          {
+            startFrame: 10,
+            endFrame: 20,
+            forceSyncAnimation: {
+              forceSync: false,
+              montageName: '',
+              targetFrame: 0,
+              playbackSpeed: 1,
+            },
+            sequence: { ...eventSequence, actions: [eventSequence.actions[1]!] },
+          },
+        ],
+      },
+      lifecycle: { ...fixture.lifecycle, stackingType },
+    };
+
+    const definition = compileBuffRuntimeDefinitionSource(source);
+
+    expect(definition.scheduledSequences !== undefined).toBe(expected);
+  });
+
   it('当前伊冯 DuringBuffEnable 的 Attack 映射进入可撤销动作，不被表现过滤吞掉', () => {
     // hybrid-20260905 / AKEDB 1.5.3@9913107-5，结束 Buff 的首个启用回调。
     const action = parseComboCacheActionSource(

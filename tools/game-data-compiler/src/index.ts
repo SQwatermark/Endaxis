@@ -112,6 +112,7 @@ export {
 } from './source/buffActionGraph.ts';
 export {
   BUFF_STACKING_TYPES,
+  buffShowsTimelineActions,
   parseBuffRuntimeSource,
   type BuffLifecycleSource,
   type BuffPresentationSource,

@@ -13,10 +13,11 @@ import {
   type NativeActionNodeSource,
   type NativeSequenceSource,
 } from '../source/controlFlow.ts';
-import type {
-  BuffPresentationSource,
-  BuffRuntimeSource,
-  BuffStackingTypeSource,
+import {
+  buffShowsTimelineActions,
+  type BuffPresentationSource,
+  type BuffRuntimeSource,
+  type BuffStackingTypeSource,
 } from '../source/buffRuntime.ts';
 import type { KnownNativeActionLeafSource } from '../source/actionLeaf.ts';
 import type { BuffStackingType } from '../../../../packages/game-data-contract/src/buffs.ts';
@@ -196,8 +197,9 @@ export function compileBuffRuntimeDefinitionSource(
   const enhanceChangedSequences: CompiledBuffSequenceSource[] = [];
   const afterEnhanceSequences: CompiledBuffSequenceSource[] = [];
   const finishSequences: CompiledBuffSequenceSource[] = [];
+  const timelineActions = buffShowsTimelineActions(source) ? source.graph.timelineActions : [];
   const allSequences = [
-    ...source.graph.timelineActions.map(item => item.sequence),
+    ...timelineActions.map(item => item.sequence),
     ...source.graph.buffEvents.flatMap(item => item.actions),
     ...source.graph.abilityEvents.flatMap(item => item.actions),
     ...source.graph.igniteEvents.flatMap(item => item.actions),
@@ -296,13 +298,13 @@ export function compileBuffRuntimeDefinitionSource(
       )
       .map(([key]) => key),
   ]);
-  const guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline = source.graph.timelineActions.map(
+  const guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline = timelineActions.map(
     () => new Set<string>(),
   );
   let guaranteedSingletonZeroSpaceTargetGroupKeys = new Set(
     contextOverrides.guaranteedSingletonZeroSpaceTargetGroupKeys ?? [],
   );
-  const orderedTimelineIndexes = source.graph.timelineActions
+  const orderedTimelineIndexes = timelineActions
     .map((timeline, timelineIndex) => ({ timeline, timelineIndex }))
     .sort(
       (left, right) =>
@@ -417,7 +419,7 @@ export function compileBuffRuntimeDefinitionSource(
       ? {}
       : { combatInvisiblePresentationBlackboardKeys }),
   };
-  const scheduledSequences = source.graph.timelineActions.flatMap((timeline, timelineIndex) => {
+  const scheduledSequences = timelineActions.flatMap((timeline, timelineIndex) => {
     const animationEndNodes: NativeActionNodeSource<KnownNativeActionLeafSource>[] = [];
     let animationEndFrame: number | null = null;
     const timelineActions = timeline.sequence.actions.map(node => {
@@ -2876,7 +2878,9 @@ export function collectBuffRuntimePresentationActionPaths(
   source: BuffRuntimeSource,
 ): readonly string[] {
   const sequences = [
-    ...source.graph.timelineActions.map(item => item.sequence),
+    ...(buffShowsTimelineActions(source)
+      ? source.graph.timelineActions.map(item => item.sequence)
+      : []),
     ...source.graph.buffEvents.flatMap(item => item.actions),
     ...source.graph.abilityEvents.flatMap(item => item.actions),
     ...source.graph.igniteEvents.flatMap(item => item.actions),
@@ -2897,7 +2901,9 @@ export function collectBuffRuntimeLevelEventActionPaths(
   source: BuffRuntimeSource,
 ): readonly string[] {
   const sequences = [
-    ...source.graph.timelineActions.map(item => item.sequence),
+    ...(buffShowsTimelineActions(source)
+      ? source.graph.timelineActions.map(item => item.sequence)
+      : []),
     ...source.graph.buffEvents.flatMap(item => item.actions),
     ...source.graph.abilityEvents.flatMap(item => item.actions),
     ...source.graph.igniteEvents.flatMap(item => item.actions),
@@ -2918,7 +2924,9 @@ export function collectBuffRuntimeCharacterStatusActionPaths(
   source: BuffRuntimeSource,
 ): readonly string[] {
   const sequences = [
-    ...source.graph.timelineActions.map(item => item.sequence),
+    ...(buffShowsTimelineActions(source)
+      ? source.graph.timelineActions.map(item => item.sequence)
+      : []),
     ...source.graph.buffEvents.flatMap(item => item.actions),
     ...source.graph.abilityEvents.flatMap(item => item.actions),
     ...source.graph.igniteEvents.flatMap(item => item.actions),
@@ -2948,7 +2956,7 @@ export function isPresentationOnlyBuffStackEffect(source: BuffRuntimeSource): bo
     source.applyTagIds.length === 0 &&
     source.extendTagIds.length === 0 &&
     source.unsupportedPayloads.length === 0 &&
-    source.graph.timelineActions.length === 0 &&
+    (!buffShowsTimelineActions(source) || source.graph.timelineActions.length === 0) &&
     source.graph.buffEvents.length === 0 &&
     source.graph.abilityEvents.length === 0 &&
     source.graph.igniteEvents.length === 0
@@ -2965,7 +2973,7 @@ export function isAfterEnemyDefeatedOnlyBuffRuntime(source: BuffRuntimeSource): 
     source.shields.length === 0 &&
     source.applyTagIds.length === 0 &&
     source.extendTagIds.length === 0 &&
-    source.graph.timelineActions.length === 0 &&
+    (!buffShowsTimelineActions(source) || source.graph.timelineActions.length === 0) &&
     source.graph.buffEvents.length === 0 &&
     source.graph.igniteEvents.length === 0 &&
     source.graph.abilityEvents.length > 0 &&

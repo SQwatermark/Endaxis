@@ -6033,30 +6033,6 @@ export const rossi: OperatorDefinition = {
         trigger_times: 3,
       },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_combo_2_damage:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
       lifecycleSequences: {
         trigger: sequence(
           step(
@@ -6457,30 +6433,6 @@ export const rossi: OperatorDefinition = {
           ],
         },
       ],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_normal_bleed:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
       lifecycleSequences: {
         trigger: sequence(
           step(
@@ -6722,30 +6674,6 @@ export const rossi: OperatorDefinition = {
         talent_2: 0,
       },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_normal_bleed_effect:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_normal_defup: {
       stackingType: 'refresh',
@@ -6783,30 +6711,6 @@ export const rossi: OperatorDefinition = {
           ],
         },
       ],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_normal_defup:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_normal_smarttarget: {
       stackingType: 'refresh',
@@ -6827,30 +6731,6 @@ export const rossi: OperatorDefinition = {
         talent_2: 0,
       },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_normal_smarttarget:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_normal_wolf_timer: {
       stackingType: 'refresh',
@@ -6891,30 +6771,6 @@ export const rossi: OperatorDefinition = {
       extendTags: [],
       blackboard: { atk_scale: 0.3, damage_interval: 1, duration: 1, poise: 0, posie: 0 },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_tut_comboskill_failure:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_tut_comboskill_finish: {
       stackingType: 'refresh',
@@ -6925,30 +6781,6 @@ export const rossi: OperatorDefinition = {
       extendTags: [],
       blackboard: { atk_scale: 0.3, damage_interval: 1, duration: 1, poise: 0, posie: 0 },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_tut_comboskill_finish:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_tut_comboskill_success: {
       stackingType: 'refresh',
@@ -6959,30 +6791,6 @@ export const rossi: OperatorDefinition = {
       extendTags: [],
       blackboard: { atk_scale: 0.3, damage_interval: 1, duration: 1, poise: 0, posie: 0 },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_tut_comboskill_success:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_tut_normalskill_failure: {
       stackingType: 'refresh',
@@ -6993,30 +6801,6 @@ export const rossi: OperatorDefinition = {
       extendTags: [],
       blackboard: { atk_scale: 0.3, damage_interval: 1, duration: 1, poise: 0, posie: 0 },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_tut_normalskill_failure:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_tut_normalskill_success: {
       stackingType: 'refresh',
@@ -7027,30 +6811,6 @@ export const rossi: OperatorDefinition = {
       extendTags: [],
       blackboard: { atk_scale: 0.3, damage_interval: 1, duration: 1, poise: 0, posie: 0 },
       attributeModifiers: [],
-      scheduledSequences: [
-        scheduled(
-          10,
-          sequence(
-            repeatEachTick(
-              sequence(
-                step(
-                  'dealDamage',
-                  {
-                    damageType: 'physical',
-                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                    tags: ['comboSkill'],
-                    features: ['canBreakWeakness'],
-                    stagger: { kind: 'blackboard', key: 'posie' },
-                  },
-                  'buff_chr_0028_wulfa_tut_normalskill_success:/scheduledSequences/0/sequence/steps/0/body/steps/0',
-                ),
-              ),
-              { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.1 } },
-            ),
-          ),
-          20,
-        ),
-      ],
     },
     buff_chr_0028_wulfa_ult_addtional_battleshape: {
       stackingType: 'refresh',

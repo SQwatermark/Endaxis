@@ -29,7 +29,7 @@ import type { PassiveSkillCompilationBatchSource } from '../../compiler/passiveS
 import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
 import { compileOperatorUpgradePassiveSkills } from './passiveSkillDefinition.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
-import type { BuffRuntimeSource } from '../../source/buffRuntime.ts';
+import { buffShowsTimelineActions, type BuffRuntimeSource } from '../../source/buffRuntime.ts';
 import type { CombatActionProjectionExtensionsSource } from '../../compiler/combatProjectionCommon.ts';
 import {
   collectCompiledAbilityEntitySpawns,
@@ -348,7 +348,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     );
     for (const source of sources.values()) {
       const sequences = [
-        ...source.graph.timelineActions.map(item => item.sequence),
+        ...(buffShowsTimelineActions(source)
+          ? source.graph.timelineActions.map(item => item.sequence)
+          : []),
         ...source.graph.buffEvents.flatMap(item => item.actions),
         ...source.graph.abilityEvents.flatMap(item => item.actions),
         ...source.graph.igniteEvents.flatMap(item => item.actions),

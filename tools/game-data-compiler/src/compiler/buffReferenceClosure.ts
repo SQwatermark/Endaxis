@@ -2,7 +2,11 @@ import {
   collectBuffActionReferences,
   parseReferenceAwareBuffActionGraphSource,
 } from '../source/buffActionGraph.ts';
-import { parseBuffRuntimeSource, type BuffRuntimeSource } from '../source/buffRuntime.ts';
+import {
+  buffShowsTimelineActions,
+  parseBuffRuntimeSource,
+  type BuffRuntimeSource,
+} from '../source/buffRuntime.ts';
 import { collectNativeActionNodes } from '../source/controlFlow.ts';
 import type { DefinitionReferenceSource } from '../source/referenceGraph.ts';
 import type { GlobalBuffTemplateCatalogSource } from '../source/globalBuffTemplate.ts';
@@ -31,11 +35,17 @@ export function collectBuffRuntimeClosure(
       if (source.graph.buffId !== id) throw new Error(`BuffData.${id}.id: identity mismatch`);
       result.set(id, source);
       const referenceGraph = parseReferenceAwareBuffActionGraphSource(value, `BuffData.${id}`, {});
+      const executableGraph = buffShowsTimelineActions(source)
+        ? source.graph
+        : { ...source.graph, timelineActions: [] };
+      const executableReferenceGraph = buffShowsTimelineActions(source)
+        ? referenceGraph
+        : { ...referenceGraph, timelineActions: [] };
       // 可执行图能识别测试/旧切片中的公共动作，引用专用图还能穿透表现动作中
       // 的嵌套结束子图；闭包取二者并集，不能用后者替换前者。
       const allRefs = [
-        ...collectBuffActionReferences(source.graph),
-        ...collectBuffActionReferences(referenceGraph),
+        ...collectBuffActionReferences(executableGraph),
+        ...collectBuffActionReferences(executableReferenceGraph),
       ].filter(ref => ref.state !== 'inactive');
       for (const ref of allRefs.filter(ref => ref.kind === 'globalBuff')) {
         if (ref.state === 'dynamic' || ref.id === null) {
@@ -87,7 +97,9 @@ function nodes(source: BuffRuntimeSource) {
     ...source.graph.buffEvents.flatMap(event => event.actions),
     ...source.graph.abilityEvents.flatMap(event => event.actions),
     ...source.graph.igniteEvents.flatMap(event => event.actions),
-    ...source.graph.timelineActions.map(timeline => timeline.sequence),
+    ...(buffShowsTimelineActions(source)
+      ? source.graph.timelineActions.map(timeline => timeline.sequence)
+      : []),
   ].flatMap(sequence => collectNativeActionNodes(sequence));
 }
 
@@ -117,7 +129,7 @@ function resolveKeywordChildCandidates(
     return fail();
   // 当前允许的载体只含创建子 Buff/表现动作，排除本地写入、条件副作用和共享板路径。
   if (
-    source.graph.timelineActions.length ||
+    (buffShowsTimelineActions(source) && source.graph.timelineActions.length > 0) ||
     source.graph.abilityEvents.length ||
     source.graph.igniteEvents.length
   )

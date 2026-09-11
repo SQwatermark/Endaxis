@@ -50,6 +50,21 @@ export const BUFF_STACKING_TYPES = [
 ] as const;
 export type BuffStackingTypeSource = (typeof BUFF_STACKING_TYPES)[number];
 
+const TIMELINE_AVAILABLE_BUFF_STACKING_TYPES: ReadonlySet<BuffStackingTypeSource> = new Set([
+  'Unlimited',
+  'Stack',
+  'Unique',
+]);
+
+/**
+ * 原生 BuffData.showTimelineActions 只对 BuffStackingSettings 静态数组中的
+ * Unlimited、Stack 和 Unique 返回 true；其他叠加类型不会把 timelineActions
+ * 交给 Buff 的 TimelineActionProcessor。
+ */
+export function buffShowsTimelineActions(source: BuffRuntimeSource): boolean {
+  return TIMELINE_AVAILABLE_BUFF_STACKING_TYPES.has(source.lifecycle.stackingType);
+}
+
 export interface BuffPresentationSource {
   readonly hasIcon: boolean;
   readonly spritePath: string;

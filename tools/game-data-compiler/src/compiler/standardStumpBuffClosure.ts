@@ -1,6 +1,6 @@
 import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import { requireRecord } from '../source/primitives.ts';
-import type { BuffRuntimeSource } from '../source/buffRuntime.ts';
+import { buffShowsTimelineActions, type BuffRuntimeSource } from '../source/buffRuntime.ts';
 import {
   collectBuffRuntimeClosure,
   collectBuffRuntimePresentationActionPaths,
@@ -309,7 +309,9 @@ function collectConditionBuffIds(value: unknown): string[] {
 
 function buffActionNodes(source: BuffRuntimeSource) {
   return [
-    ...source.graph.timelineActions.map(item => item.sequence),
+    ...(buffShowsTimelineActions(source)
+      ? source.graph.timelineActions.map(item => item.sequence)
+      : []),
     ...source.graph.buffEvents.flatMap(item => item.actions),
     ...source.graph.abilityEvents.flatMap(item => item.actions),
     ...source.graph.igniteEvents.flatMap(item => item.actions),
@@ -430,7 +432,9 @@ function propagateBuffTargets(
       const nodes = buffActionNodes(source);
       const lifecycleNodes = new Set(
         [
-          ...source.graph.timelineActions.map(item => item.sequence),
+          ...(buffShowsTimelineActions(source)
+            ? source.graph.timelineActions.map(item => item.sequence)
+            : []),
           ...source.graph.buffEvents.flatMap(item => item.actions),
         ].flatMap(sequence => collectNativeActionNodes(sequence)),
       );

@@ -1387,7 +1387,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(simulate(false)).toEqual([7, 10, 15, 17, 25]);
   });
 
-  it('runs Rossi delayed combo Buff trigger and local interval damage', () => {
+  it('runs Rossi delayed combo Buff trigger without the native-disabled Refresh timeline', () => {
     const scenario = createEmptyScenario(
       'scenario:generated-rossi-combo-delay',
       '洛茜连携延迟伤害',
@@ -1446,7 +1446,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         entry.event === 'DamageApplied' &&
         String(entry.data?.stepKey).includes('buff_chr_0028_wulfa_combo_2_damage'),
     );
-    expect(delayedDamage).toHaveLength(7);
+    expect(delayedDamage).toHaveLength(3);
     expect(delayedDamage.every(entry => entry.sourceId === 'track:rossi')).toBe(true);
     expect(
       delayedDamage.filter(entry =>
@@ -1455,7 +1455,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     ).toHaveLength(3);
     expect(
       delayedDamage.filter(entry => String(entry.data?.stepKey).includes('/scheduledSequences/')),
-    ).toHaveLength(4);
+    ).toHaveLength(0);
   });
 
   it('runs Rossi ultimate with its conditional critical-damage Buff', () => {
