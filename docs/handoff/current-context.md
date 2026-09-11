@@ -1,14 +1,115 @@
 # 当前任务快照
 
-## 2026-09-10：本机新会话交接入口
+## 2026-09-11：离线进程转储已就绪，提交交接检查点
 
-当前是Windows笔记本，不是台式机。先读[笔记本环境](2026-09-10-local-workspace.md)：
-本机工作树/分支/未提交内容、证据目录、缺失输入、验证记录、prompt及远程连接能力均在其中。
-台式机另记于[台式机环境](desktop-environment.md)，公共总览不再决定当前机器。
-本轮SSH验证Admin@100.64.0.64成功，hostname为DESKTOP-ICRC4FK；未检查远端仓库或服务。
-新会话在Endaxis-game-data-refactor与combat-spec-operator-completion继续，不使用旧主工作树。
-本机缺少历史hybrid-20260905、mz38x5和artifacts链接，不代表台式机也缺失。
-本轮仅文档更新与只读核验，未提交、推送、拉取、清理或修改运行代码。
+当前中期任务仍是事件系统收束与投射物独立技能宿主，尚未完成迁移。
+已完成实体资源支付回执及投影隔离；正式实体账户初值/复用规则未证实，
+不得硬编码当前能量为0或把属性22默认上限10当作当前余额。
+
+已成功导出城镇场景的可读进程内存：12,570,222,592字节，19,694段，
+其中2,548段不可读；索引complete=true且文件长度一致。它是非原子地址索引导出，
+不是Windows minidump，也不是所有游戏状态的历史记录。游戏已关闭以释放内存。
+**本机绝对路径、索引、符号文件和读取命令见私有`.local/handoff/process-memory-20260911.md`；
+先读该文件，不要因游戏未运行要求用户重新操作。** 转储和私有路径不进入Git。
+combat-spec的`tools/process_memory_reader.py`只加载索引，单次读取最多1 MiB。
+
+离线证据已解析IReusable接口、组件池_OnAllocate/_OnRecycle及AbilitySystem实际虚表：
+OnAllocate=03F865A0，OnRecycle=0436BA90；基类回收虚调用为ResetTickOwnerInfo。
+最近读取的AbilitySystem类+138=0x23、+8=0，因此原生26060分配入口应继续检查
+25BD0分支，不能将另一分支的memset当作该类初值证据。该结论仍不证明当前能量为零。
+
+接续顺序：补正面初值/复用证据及功能键12F、IFix边界；然后接入独立
+AbilitySystemRuntime + SkillRuntime与castResource账户；保持中断技能→reset通知
+（Source仍可读）→ClearSource；正式路径成立后移除临时ProjectileCallbackActionRuntime，
+继续检查技能、Buff、嵌套实体、支付、伤害及过滤消费者。既有dump可离线重复分析，
+只有缺少运行时变化时才启动游戏定点采集。
+
+验证沿用本轮已完成的战斗/投影142文件1587项通过、应用类型检查单独重试通过；
+首轮类型检查曾内存不足。Dumper已单进程Release构建并实际完成启动与导出；
+外部--full-dump在现场返回访问拒绝，产生的零字节.dmp无效，成功证据是.bin+.json。
+本次提交另复核reader边界测试与diff检查，不重复大型检查，遵守低内存要求。
+Dumper代码、取证规格/reader、Endaxis代码与公共交接分别提交到各自仓库；
+原有本地环境拆分改动一并保留，VFS研究工作区不属于本次提交范围。
+
+## 2026-09-10：已定位按类型管理的具体组件池
+
+当前安装字节对照确认ComponentContainer._AllocateFromPool使用按Type索引的组件池，
+其空池工厂通过Activator.CreateInstance创建对应类型，再绑定父实体；_RecycleToPool
+按实际类型归还组件。地址和哈希已加入combat-spec/launch-projectile-skill-routing。
+须区分该池与保留实体的ProjectilePool，不能每次专用投射物回收都重新构造资源账户。
+下一步继续具体组件构造及DeepRelease/OnRecycle关系；余额初值尚未证明。
+
+## 2026-09-10：当前能量写入边界已对照安装文件
+
+combat-spec新增当前_SetReplicatedAttributes与ultimateSp setter的逐字节对照。
+复制数据中的能量仅在角色分支写入；公共setter按自身属性22转float32限幅，
+变化绝对值严格大于float32约1e-5才写入，角色类型检查在写入之后。
+功能键12F的可用状态还控制前置返回，其名称仍需映射；不能给非角色账户固定拒付。
+这明确了未来实体账户的applied边界，但当前余额初值、组件池重置及热更仍未闭环。
+本轮未修改运行算法，未重复大型测试；下一步继续具体组件创建/重置和功能键映射。
+
+## 2026-09-10：当前安装属性表已直接校验
+
+直接解析 StreamingAssets、Persistent 的 Table blc（CRC通过），按原始目录记录
+读取并解密 AttributeMetaTable 单文件，MD5与目录记录一致；两份表字节一致，
+attr22.defaultValue均为10。具体blc、chunk和表哈希已写入combat-spec的
+launch-projectile-skill-routing。此结果不依赖本地SQLite索引是否过期。
+当前能量m_ultimateSp仍未由此证明，不能将属性默认上限当作当前余额，不能硬编码。
+组件池底层入口已追至039C64F0 → 031B8CB0：后者有取出池中末项和空池工厂分支，
+两分支汇合后执行可选分配回调。接下来须解析具体组件工厂和重置路径。
+本轮保持低内存串行取证，仅更新规格和交接，没有改变运行算法；独立回调宿主仍未完成。
+
+## 2026-09-10：属性缓存初始化不依赖下一帧
+
+combat-spec已补Attributes.Reset、AttributeDataCache.Reset、GetValue的当前安装字节
+对照。refreshImmediately=false仅跳过全量刷新；此前已写入原始属性、复制三个缓存并
+清除dirtyMask，普通GetValue可直接读取缓存，被标脏才重新计算。不能把该标志解释成
+上限尚未初始化，也不能把Reset名称解释成数值清零。
+当前属性输入、AbilitySystem当前能量初值和组件复用仍待证明；不据此硬编码0或10。
+下一步集中于当前表输入和实际组件池创建链，不再寻找假想的“下一帧属性初始化”。
+本轮只读取证及更新文档，没有改变运行算法或重复大型测试；中期目标仍未完成。
+
+## 2026-09-10：当前安装文件的属性路径已获得直接字节对照
+
+继续核对 F370DD6B… runtime 与实际安装 GameAssembly.dll（SHA256 c24495e5…）：
+PE时间戳和镜像大小相同，对象池、LoadEntity/AllocateObject、patch生成、属性初始化及
+maxUltimateSp getter共8个具体范围逐字节一致。完整范围、哈希和低内存复现命令仅维护
+于combat-spec/launch-projectile-skill-routing；不宣称整个快照或全部IFix一致。
+
+新证据明确：CreatePatchData本身调用GetAttributeData填充attributePatch；默认工厂
+不只在patch为空时才执行。0x40对象的Attributes.Create传refreshImmediately=false，
+后续刷新仍需追踪。上限getter读宿主自身属性22，不能直接借来源干员资源上限。
+下一步追踪组件分配/复用及Attributes延后刷新，继续确认m_ultimateSp初值与当前表输入。
+本轮为只读取证及文档更新，未改运行算法、未新增测试运行，整体宿主迁移仍未完成。
+
+## 2026-09-10：支付回执保留实体账户，对象池调用链补证
+
+SkillPaymentChange 的终结技能量变化改为显式 RuntimeTargetRef target；SkillRuntime
+依据账户回执记录 recipient/targetId，生命周期事件来源仍使用独立 hostIdentity。
+公共资源变化点保留实体事实，干员资源曲线只消费 operator 接收者；不把实体费用按
+来源归因给发射干员。显式非零账户回归覆盖 Setter applied=true/false、支付后事件、
+继承 SkillCastInfo 保留及干员账本/曲线不变，不是游戏资源初值的证据。
+
+combat-spec 的 launch-projectile-skill-routing 新增 F370DD6B… 快照对象池调用链：
+复用与新建分支汇合后调用 OnProjectileAllocate；Recycle 调用专用能力系统回收后入池。
+快照与此前引用哈希不同，与当前安装包版本对应尚未证明。LoadEntity 的属性初始化、
+实际补丁和资源复用策略仍未知；不能在每次发射时新建零值账户，临时回调宿主继续保留。
+
+环境拆分原有修改已保留；清单、操作手册和编译器入口残留的本机路径/服务端口改为
+占位符，删除环境文档的入口引用扫描无匹配。私有证据位置与实际 dirty 状态仅写入 .local/。
+
+验证：定向4文件84项通过；战斗与投影142文件1587项通过。应用类型检查首轮发生
+V8内存分配失败，单独重试退出0；不是确定性类型错误，也没有宣称全量应用或转换器测试通过。
+用户要求节制内存，后续大型验证串行、限制worker，不重复并跑检查或继续扩大堆。
+消费者复核见 projectile-event-consumers-2026-09-10；仍有未物化即时实体的来源回退，
+不把投射物目录修复推广为所有嵌套实体归因均完成。本轮未提交或推送。
+
+## 2026-09-10：新会话环境边界
+
+共享交接文档不再指定当前会话运行在哪台机器，也不保存绝对路径、工作树清单、SSH地址或
+服务状态。新会话必须先检查当前目录、`git status --short --branch`、`git log -10 --oneline`、
+`git worktree list`和实际证据目录；不得把另一台机器缺少或拥有的文件套用到本机。
+本地环境记录按[模板与边界](local-environment.example.md)放入被Git忽略的`.local/`。
 
 ## 2026-09-10：核查资源写入者，禁止从角色专用初始化推导资源专有
 

@@ -1,18 +1,19 @@
 # 操作与恢复手册
 
-> 当前统一 TS 编译器工作树为 `Endaxis-game-data-refactor` / `refactor/common-game-data`。
-> 优先按[2026-08-28 检查点](2026-08-28-sync-checkpoint.md)中的路径、跨仓库边界和命令恢复。
-> 下文以主仓库 `Endaxis` 为路径的命令需按实际工作树替换，不能擅自切换用户正在调试的主工作树。
+> 本手册只保存跨机器通用流程。先按[本地环境模板](local-environment.example.md)核对实际工作树，
+> 再把下文的`<ENDAXIS_WORKTREE>`、`<COMBAT_SPEC_WORKTREE>`等占位符替换成本机路径。
+> 历史检查点中的路径和分支只描述当时环境，不能用来决定当前工作树。
 
 ## 1. 新会话开始时
 
 按顺序执行：
 
 ```powershell
-Set-Location C:\Users\sqwat\Projects\zmd\Endaxis
+Set-Location <ENDAXIS_WORKTREE>
 git status --short
 git branch --show-current
 git log -10 --oneline
+git worktree list
 ```
 
 然后阅读：
@@ -29,15 +30,14 @@ git log -10 --oneline
 安装依赖后启动：
 
 ```powershell
-Set-Location C:\Users\sqwat\Projects\zmd\Endaxis
+Set-Location <ENDAXIS_WORKTREE>
 npm.cmd install
 npm.cmd run dev -- --host 0.0.0.0
 ```
 
 常用入口：
 
-- 旧版：`http://127.0.0.1:5173/timeline`
-- 时间轴：`http://127.0.0.1:5173/timeline`
+- 时间轴：以当前路由配置和开发服务器输出为准；不要从历史手册猜测入口。
 
 若端口被占用，Vite 会选择其他端口；应读取终端输出，不要假定仍是 5173。
 
@@ -54,12 +54,12 @@ npm.cmd run format:check
 
 ## 3. 游戏数据编译器
 
-目录：`C:\Users\sqwat\Projects\zmd\Endaxis\tools\game-data-compiler`
+目录：`<ENDAXIS_WORKTREE>\tools\game-data-compiler`
 
 先阅读该目录 README。正式生成与审计入口由根 `package.json` 统一暴露；通用验证方式：
 
 ```powershell
-Set-Location C:\Users\sqwat\Projects\zmd\Endaxis
+Set-Location <ENDAXIS_WORKTREE>
 npm.cmd run type-check:game-data
 npm.cmd run test:game-data
 ```
@@ -77,9 +77,9 @@ npm.cmd run test:game-data
 ## 4. Combat Spec
 
 ```powershell
-Set-Location C:\Users\sqwat\Projects\zmd\vfs-index-browser
-dotnet test combat-spec\EndfieldCombatSpec.sln
-dotnet run --project combat-spec\src\EndfieldCombatSpec.Cli
+Set-Location <COMBAT_SPEC_WORKTREE>
+dotnet test EndfieldCombatSpec.sln
+dotnet run --project src\EndfieldCombatSpec.Cli
 ```
 
 常用严格验证入口包括：
@@ -129,13 +129,11 @@ https://data.akedata.wiki/public/Json/BuffData/manifest.json
 
 ## 6. VFS 浏览器
 
-本地仓库：
+本地仓库：`<VFS_WORKTREE>`
 
-`C:\Users\sqwat\Projects\zmd\vfs-index-browser`
+先读 `README.md` 和 `docs/README.md`。服务参数以仓库 README 为准，实际地址和端口核验后记入 `.local/`：
 
-先读 `README.md` 和 `docs/README.md`。服务入口和参数以仓库 README 为准。历史上远程服务为：
-
-`http://<remote-host>:8765/`
+`http://<VFS_HOST>:<VFS_PORT>/`
 
 VFS 工作流：
 
@@ -150,15 +148,13 @@ VFS 工作流：
 
 ## 7. AnimeStudio
 
-仓库：
-
-`C:\Users\sqwat\Projects\zmd\AnimeStudio`
+仓库：`<ANIMESTUDIO_WORKTREE>`
 
 修改前必须检查分支和已有文档：
 
 ```powershell
-git -C C:\Users\sqwat\Projects\zmd\AnimeStudio status --short
-git -C C:\Users\sqwat\Projects\zmd\AnimeStudio log -5 --oneline
+git -C <ANIMESTUDIO_WORKTREE> status --short
+git -C <ANIMESTUDIO_WORKTREE> log -5 --oneline
 ```
 
 它是底层解析库，修改后至少应：
@@ -171,13 +167,8 @@ git -C C:\Users\sqwat\Projects\zmd\AnimeStudio log -5 --oneline
 
 ## 8. IL2CPP 运行时采集
 
-远程 Windows 常用游戏路径：
-
-`D:\Hypergryph Launcher\games\Endfield Game\Endfield.exe`
-
-历史探针项目：
-
-`D:\Projects\combat-probe`
+游戏路径和探针项目属于本机配置，分别以`<GAME_EXECUTABLE>`和`<COMBAT_PROBE_WORKTREE>`表示，
+实际值只记录于`.local/handoff/environment.md`。
 
 典型探针命令曾为：
 
@@ -199,19 +190,13 @@ python -m tools.probe_runtime_rvas docs\combat-runtime-probes.json --bytes 64 --
 
 ## 9. 远程主机连接
 
-历史地址：
-
-- `192.168.199.183`
-- `192.168.149.17`
-- `100.64.0.64`（Tailscale）
-
-用户：`Admin`。
+远程地址、用户和认证方式只记录于`.local/handoff/environment.md`，共享手册使用占位符。
 
 连接前先测试：
 
 ```powershell
-Test-NetConnection 100.64.0.64 -Port 22
-ssh Admin@100.64.0.64
+Test-NetConnection <REMOTE_HOST> -Port <SSH_PORT>
+ssh <REMOTE_USER>@<REMOTE_HOST>
 ```
 
 若不通，可能是：
@@ -222,7 +207,8 @@ ssh Admin@100.64.0.64
 - Windows OpenSSH 服务未启动；
 - 防火墙未放行。
 
-不要在文档里把某个历史 IP 写成永久目标。家庭路由器可通过 DHCP 静态租约为设备固定局域网 IP，但 Tailscale 地址是更适合跨网络访问的稳定入口。
+不要把一次连接成功、历史地址或历史服务端口写成永久状态。每次任务都应重新核验网络、认证、
+服务监听和所需文件的版本/哈希。
 
 ## 10. Git 工作方式
 

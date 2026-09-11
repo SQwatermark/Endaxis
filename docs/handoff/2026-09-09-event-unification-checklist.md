@@ -31,8 +31,8 @@
 依据复刻库原生证据收技术债，不新增敌人主动行为、未知关卡机制或编辑功能。
 不以统一为由合并不同原生事件，不以测试通过代替证据，不以删除全部兼容代码为目标。
 
-当前工作目录为 D:/Projects/Endaxis 与 D:/Projects/combat-spec；
-分支分别为 refactor/common-game-data、refactor/operator-completion。不是旧工作树路径。
+实际工作目录、分支和未提交状态按本机 `.local/handoff/environment.md` 核验，
+不从共享验收清单推断当前机器状态。
 
 ## 已复核的实现与仍需保留的边界
 

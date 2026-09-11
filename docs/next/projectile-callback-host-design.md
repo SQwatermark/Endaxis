@@ -104,9 +104,10 @@ assignPairs 在发射时求值；回调技能 direct scope 仍在启动回调时
   证据版本与地址以 combat-spec/launch-projectile-skill-routing 对应节为唯一依据。
   尚不能证明当前水弹无补丁，也不能据此确认当前能量初值。
   显式测试账户不提供这部分游戏证据，不允许据此删除临时适配器。
-- 当前 SkillPaymentChange 的终结技能量变化仍引用干员 UltimateEnergyChange；
-  resourceChangePoints 也严格要求 recipient=operator。实体非零变化必须先分清通用
-  资源事实与干员资源曲线消费者，不能把实体字符串塞进 operatorId 或显示到发射者轨道。
+- SkillPaymentChange 的终结技能量变化现已携带实际账户 target，不再要求 operatorId；
+  resourceChangePoints 保留 operator/abilityEntity 接收者，干员曲线仅消费前者。
+  非零实体支付及 Setter 未应用的回执已用显式账户验证，不写入发射者轨道。
+  这只闭合回执消费边界，不提供实体初始值、真实支付实现或正式回调准入。
 - 接入次序：确认实体属性初始化 → 复用已确认的支付数值规则 → 区分资源事实消费者 →
   接实际准入与独立 AbilitySystem。不得建立一套“投射物专用免费支付”来绕过上述边界。
 

@@ -3,6 +3,31 @@
 本次只审计已有转换的消费者，不新增投射物路径、敌人行为或技能内容。
 **完整回调宿主尚未接入；本报告不是其验收通过声明。**
 
+## 资源回执切片的消费者复核（2026-09-10）
+
+本节按实际调用端区分已闭合的回执改动与仍需正式宿主接入的部分。
+
+| 消费者              | 复核结果与边界                                                                                                                                                                                         |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| 普通技能            | SkillRuntime 共用 SkillResourceAccount；CombatResources.pay 以 operator target 返回原账本变化，数值算法未改。                                                                                          |
+| 费用和回执          | SkillPaymentChange 以实际 target 表达接收者，SkillRuntime 不再强制 recipient=operator；资源变化点保留实体事实，干员曲线跳过实体账户。                                                                  |
+| 费用事件            | afterSkillApplyCost 仍在支付及回执之后从 hostIdentity 发布；applied=false 不等于 paid=false，不依赖玩家 skillType。                                                                                    |
+| Buff 监听           | buffLifecycleSequenceRuntime 继续通过公共事件注册和 withAbilityEventResponseContext 响应；SkillAffix 保留 beforeCastSkill、skillEnd、outputBuff、abilityEntitySpawned、projectileLaunched 的独立注册。 |
+| 普通能力实体        | abilityEntityOperationExecutor 的 currentAbilityEntity 优先读动作实体；旧即时路径未物化实体时仍可能在 dieWhenSourceDies=false 下回退干员。这是尚存适配边界，不能据此声称全部嵌套 Source 已闭合。       |
+| 投射物回调          | 正式路径仍使用 ProjectileCallbackActionRuntime；AbilitySystemRuntime.tryStartProjectileCallbackSkill 的公共入口尚未在这里接通。新回执用例不替代正式路径验收。                                          |
+| reset/finish        | ProjectileLifecycleRuntime 先 beforeReset、再 resetCallbacks、后删除实例；来源读取在通知期间仍可用。回调技能自然结束与对象回收不合并。                                                                 |
+| 伤害来源            | 本切片不改 PlayerDamageContext 或 SkillCastInfo；支付 target 不参与伤害最终干员归因，仍须在正式回调接入时验证实际 Owner/Source。                                                                       |
+| Buff 施加及嵌套来源 | 本切片不改 Buff 来源、来源技能编号和投射物逐层来源目录；不得把回执接收者改动当作全链路归因验收。                                                                                                       |
+| 条件与过滤          | 继续共用公共响应上下文和条件求值；未新增费用专用事件、条件分支或监听解释器。缺少玩家分类仍按原有严格边界处理。                                                                                         |
+
+终结技能量回执的另外一个生产者 skillResourceOperationExecutor 只调用干员账本，仍明确
+记录 operator 接收者；不因支付接口可表达实体而放开该动作的目标范围。日志摘要和过滤器
+只消费通用事件名与数值，资源曲线是此次必须分离接收者的消费者。
+
+新增显式非零账户用例覆盖 applied=true/false，验证支付后事件顺序、原 SkillCastInfo
+保留、发射干员账本和曲线不变。该用例的初值是测试输入，不是投射物原生属性证据。
+实际资源初值、池化复用状态和当前包属性补丁继续依 combat-spec 取证，未删除兼容层。
+
 ## 依据和边界
 
 复刻库 `launch-projectile-skill-routing.md` 已核实当前静态镜像的

@@ -448,7 +448,7 @@ describe('CombatResources', () => {
       changes: [
         {
           resource: 'ultimateEnergy',
-          operatorId: 'source',
+          target: { kind: 'operator', operatorId: 'source' },
           baseValue: -80,
           requestedValue: -80,
           applied: false,

@@ -3,6 +3,7 @@
  * 技能费用和回复都应通过这里结算，投影层不得另算一份资源曲线作为合法性依据。
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
 import type { GameplayTag } from '../tags/gameplayTags';
 import {
@@ -82,7 +83,11 @@ export type SkillPaymentChange =
       readonly previousValue: number;
       readonly currentValue: number;
     }
-  | ({ readonly resource: 'ultimateEnergy' } & UltimateEnergyChange);
+  | ({
+      readonly resource: 'ultimateEnergy';
+      /** 账户实际接收者，与技能事件来源及最终归因干员无关。 */
+      readonly target: Extract<RuntimeTargetRef, { kind: 'operator' | 'abilityEntity' }>;
+    } & Omit<UltimateEnergyChange, 'operatorId'>);
 
 /** 一次共享技力增加的请求值、实际值与前后账本状态。 */
 export interface SpChange {
@@ -426,7 +431,7 @@ export class CombatResources {
         const currentValue = this.getUltimateEnergy(operatorId);
         changes.push({
           resource: 'ultimateEnergy',
-          operatorId,
+          target: { kind: 'operator', operatorId },
           baseValue: -cost.value,
           requestedValue: -cost.value,
           applied,

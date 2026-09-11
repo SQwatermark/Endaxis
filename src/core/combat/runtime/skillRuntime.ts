@@ -25,7 +25,10 @@ import type {
   ResolvedCombatOperationStep,
   ResolvedCombatStep,
 } from '../../compiler/combatProgram';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import {
+  logicalAbilityEntityRuntimeId,
+  type RuntimeTargetRef,
+} from '../../game-data/logicalAbilityEntity';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { CombatResources, SkillResourceAccount } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
@@ -756,7 +759,7 @@ export class SkillRuntime {
         this.record(
           'UltimateEnergyChanged',
           {
-            recipient: 'operator',
+            recipient: change.target.kind,
             baseValue: change.baseValue,
             requestedValue: change.requestedValue,
             applied: change.applied,
@@ -764,7 +767,9 @@ export class SkillRuntime {
             previousValue: change.previousValue,
             currentValue: change.currentValue,
           },
-          change.operatorId,
+          change.target.kind === 'operator'
+            ? change.target.operatorId
+            : logicalAbilityEntityRuntimeId(change.target.instanceId),
         );
       }
     }

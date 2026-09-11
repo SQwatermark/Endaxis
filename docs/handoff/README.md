@@ -6,14 +6,15 @@
 
 ## 推荐阅读顺序
 
-**新会话先明确机器，再选择工作树：**
+**新会话先核对实际机器和工作树，不从 Git 文档猜测本机环境。** 仓库只记录跨机器共享的
+项目事实、证据和设计；绝对路径、工作树清单、当前进程、地址与连接方式保存在被 Git 忽略的
+`.local/` 中。规则和模板见[本地环境文档边界](local-environment.example.md)。
 
-- [笔记本环境：本机目录、接续prompt与远程连接能力](2026-09-10-local-workspace.md)
-- [台式机环境：路径与远程历史记录](desktop-environment.md)
+2026-09-11 已取得可离线读取的进程转储；本机位置和读取命令见
+`.local/handoff/process-memory-20260911.md`（私有，不随Git同步）。
 
-2026-09-10当前会话在笔记本，主工作树是`Endaxis-game-data-refactor`。
-先读对应环境文档、current-context顶部与[投射物回调宿主设计](../next/projectile-callback-host-design.md)，
-下面的历史检查点不覆盖当前状态。
+接续当前主线时，先读 current-context 顶部与
+[投射物回调宿主设计](../next/projectile-callback-host-design.md)；下面的历史检查点不覆盖当前状态。
 
 希望先理解事件系统而非追溯迁移过程，请读
 [事件系统：从游戏行为到程序结构](../next/event-system-guide.md)；面向熟悉游戏与基本编程的读者，

@@ -36,9 +36,9 @@ npm run rebuild:game-data -- --tables-only
 # 离线重试也必须有下载器的 hybrid provenance，逐项校验，不搜索旧缓存。
 npm run rebuild:game-data -- --source-root tmp/rebuild-tables-20260903 --tables-only
 # 默认只生成并验证隔离候选，不覆盖正式数据；通过后仍以退出码 2 提醒“未发布”。
-npm run rebuild:game-data -- --unity-worker D:/Projects/vfs-index-browser/unity-worker/src/Vfs.UnityWorker/bin/Release/net9.0-windows/Vfs.UnityWorker.exe
+npm run rebuild:game-data -- --unity-worker <VFS_UNITY_WORKER>
 # 显式发布：同一命令从零取源、生成、验证、模拟，全部通过后才事务替换正式派生资源。
-npm run rebuild:game-data -- --publish --unity-worker D:/Projects/vfs-index-browser/unity-worker/src/Vfs.UnityWorker/bin/Release/net9.0-windows/Vfs.UnityWorker.exe
+npm run rebuild:game-data -- --publish --unity-worker <VFS_UNITY_WORKER>
 ```
 
 - `--tables-only` 仅表示表和单件装备切片通过；始终输出 `fullRebuild=false`、`published=false`。
@@ -132,7 +132,7 @@ python tools/game-data-compiler/scripts/exportGameLocales.py `
 单件装备兼容性可对隔离报告运行：
 
 ```powershell
-$env:ENDAXIS_GAME_DATA_REBUILD_REPORT = 'D:\Projects\Endaxis\tmp\game-data-rebuild\run-实际目录\report.json'
+$env:ENDAXIS_GAME_DATA_REBUILD_REPORT = '<ENDAXIS_WORKTREE>\tmp\game-data-rebuild\run-实际目录\report.json'
 npx vitest run tools/game-data-compiler/test/rebuiltGearCandidate.test.ts --maxWorkers=2
 Remove-Item Env:ENDAXIS_GAME_DATA_REBUILD_REPORT
 ```
@@ -168,7 +168,7 @@ rename 报 `EPERM`；真实 258 件单件装备重建和专门的深路径回归
 ### 完整标签与套装自动重建（2026-09-03 后续）
 
 ```powershell
-npm run rebuild:game-data -- --source-root tmp/game-data-rebuild/run-dYAF19/sources --unity-worker D:/Projects/vfs-index-browser/unity-worker/src/Vfs.UnityWorker/bin/Release/net9.0-windows/Vfs.UnityWorker.exe
+npm run rebuild:game-data -- --source-root tmp/game-data-rebuild/run-dYAF19/sources --unity-worker <VFS_UNITY_WORKER>
 ```
 
 显式 worker 路径支持 exe/dll。`exportGameplayTagConfigSet.ts` 只编排 VFS 通用导出能力，按

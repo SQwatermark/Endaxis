@@ -6,7 +6,9 @@ import type { SkillDefinition } from '../../game-data/operatorDefinition';
 import { compileSkill } from '../../compiler/compileSkill';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatClock } from './combatClock';
-import { CombatResources } from './combatResources';
+import { CombatResources, type SkillResourceAccount } from './combatResources';
+import { projectResourceChangePoints } from '../../projection/resourceChangePoints';
+import { projectResourceCurvesFromReceipt } from '../../projection/resourceCurves';
 import { CombatSimulation } from './combatSimulation';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 import { createNativeEventFixture } from '../events/nativeEventTestFixture';
@@ -97,6 +99,101 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it.each([true, false])('实体非零费用回执保留实际账户，Setter applied=%s', applied => {
+    const fixture = createBattleSkillRuntime(300);
+    const initial = fixture.resources.snapshot();
+    const target = { kind: 'abilityEntity' as const, instanceId: 17 };
+    let energy = 7;
+    const costs = [{ resource: 'ultimateEnergy' as const, value: 3 }];
+    // 注入账户回执以验证公共消费边界，不推定游戏实体的初值或 Setter 规则。
+    const pay = vi.fn<SkillResourceAccount['pay']>(() => {
+      energy = applied ? 4 : 7;
+      return {
+        paid: true,
+        nonReturnedSpCost: 0,
+        changes: [
+          {
+            resource: 'ultimateEnergy',
+            target,
+            baseValue: -3,
+            requestedValue: -3,
+            previousValue: 7,
+            currentValue: energy,
+            actualValue: energy - 7,
+            applied,
+          },
+        ],
+      };
+    });
+    const afterCost = vi.fn(() => {
+      expect(fixture.receipt.entries.at(-1)?.event).toBe('SkillCostApplied');
+      expect(energy).toBe(applied ? 4 : 7);
+    });
+    const runtime = new SkillRuntime(
+      {
+        operatorId: 'definition-owner',
+        skillId: 'entity-cost-callback',
+        nativeSkillType: 'normalSkill',
+        costFrame: 0,
+        naturalDurationFrames: 1,
+        initialBlackboard: {},
+        timelineActions: [],
+        costs,
+      },
+      {
+        clock: fixture.clock,
+        receipt: fixture.receipt,
+        operations: fixture.operations,
+        allocateSkillCastId: () => 1,
+        resourceAccount: {
+          sp: 300,
+          get ultimateEnergy() {
+            return energy;
+          },
+          canPay: () => true,
+          pay,
+        },
+        hostIdentity: {
+          actionOwnerId: 'ability-entity:17',
+          actionSourceId: 'ability-entity:17',
+          actionOwnerAbilityEntity: target,
+          eventSourceId: 'ability-entity:17',
+        },
+        emitAfterSkillApplyCost: afterCost,
+      },
+    );
+    const ability = new AbilitySystemRuntime({ skills: [runtime] });
+    expect(
+      ability.tryStartProjectileCallbackSkill('entity-cost-callback', {
+        skillCastId: 77,
+        originSkillId: 'source-combo',
+        originSkillType: 'comboSkill',
+        nonReturnedSpCost: 0,
+      }),
+    ).toBe(true);
+    runtime.advance(1 / 30, 1 / 30);
+    expect(pay).toHaveBeenCalledExactlyOnceWith(costs, { forceTimelinePayment: false });
+    expect(afterCost).toHaveBeenCalledOnce();
+    expect(fixture.resources.snapshot()).toEqual(initial);
+    expect(runtime.skillCastInfo.originSkillId).toBe('source-combo');
+    expect(projectResourceChangePoints(fixture.receipt.entries)).toEqual([
+      expect.objectContaining({
+        resource: 'ultimateEnergy',
+        recipient: 'abilityEntity',
+        targetId: 'ability-entity:17',
+        sourceId: 'ability-entity:17',
+        skillId: 'entity-cost-callback',
+        previousValue: 7,
+        currentValue: energy,
+        actualValue: energy - 7,
+        applied,
+      }),
+    ]);
+    expect(projectResourceCurvesFromReceipt(initial, fixture.receipt.entries)).toEqual(
+      projectResourceCurvesFromReceipt(initial, []),
+    );
+  });
+
   it('能力实体宿主不能借发射干员的资源账本通过装配', () => {
     const fixture = createBattleSkillRuntime(300);
     expect(
