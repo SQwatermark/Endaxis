@@ -6,14 +6,11 @@ import { gameplayTagIdFromPath } from '../source/nativeGameplayTags.ts';
  * 从生成模块的 TypeScript 语法树读取优先级目录。
  * 不执行生成代码，也不依赖 Prettier 的引号、缩进或换行；生成模块仍是运行时与转换器的唯一依据。
  */
-export function readGeneratedTimeDilationPriorities(file: string): Map<number, number> {
-  const source = ts.createSourceFile(
-    file,
-    fs.readFileSync(file, 'utf8'),
-    ts.ScriptTarget.Latest,
-    true,
-    ts.ScriptKind.TS,
-  );
+export function readGeneratedTimeDilationPriorities(
+  file: string,
+  text = fs.readFileSync(file, 'utf8'),
+): Map<number, number> {
+  const source = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
   let initializer: ts.Expression | undefined;
   source.forEachChild(node => {
     if (!ts.isVariableStatement(node)) return;

@@ -26,6 +26,11 @@ import {
   type SkillValueOptimizationReport,
 } from './skillValueOptimization.ts';
 import type { EquipmentValueOptimizationReport } from './equipmentValueOptimization.ts';
+import {
+  createEntityUsageContext,
+  type SharedEntityValueUsage,
+} from './definitionEntityUsageContext.ts';
+import type { DefinitionUsageContext } from './definitionUsageAnalysis.ts';
 
 export interface DefinitionProgramOptimizationReport {
   readonly mode: DefinitionOptimizationMode;
@@ -40,6 +45,7 @@ export interface DefinitionProgramOptimizationReport {
 export function createDefinitionProgramOptimizer(
   mode: DefinitionOptimizationMode,
   protectedKeys: ReadonlySet<string> = new Set(),
+  usageContext?: DefinitionUsageContext,
 ) {
   const programs: DefinitionOptimizationReport[] = [];
   const skillValues: SkillValueOptimizationReport[] = [];
@@ -89,7 +95,7 @@ export function createDefinitionProgramOptimizer(
           }),
     };
     if (mode === 'off') return optimized;
-    const pruned = pruneUnusedSkillValues(optimized, protectedKeys);
+    const pruned = pruneUnusedSkillValues(optimized, protectedKeys, usageContext);
     skillValues.push(pruned.report);
     return pruned.skill;
   };
@@ -297,6 +303,7 @@ export function createDefinitionProgramOptimizer(
 export function optimizeOperatorDefinitionPrograms(
   operator: OperatorDefinition,
   mode: DefinitionOptimizationMode,
+  sharedEntityUsage?: SharedEntityValueUsage,
 ): {
   readonly operator: OperatorDefinition;
   readonly report: DefinitionProgramOptimizationReport;
@@ -312,7 +319,11 @@ export function optimizeOperatorDefinitionPrograms(
         ) ?? [],
     ),
   );
-  const optimizer = createDefinitionProgramOptimizer(mode, protectedKeys);
+  const optimizer = createDefinitionProgramOptimizer(
+    mode,
+    protectedKeys,
+    createEntityUsageContext(operator.abilityEntityDefinitions, sharedEntityUsage),
+  );
   const { sequence, skill, skills, passive, upgrade, buff, entity } = optimizer;
   const result: OperatorDefinition = {
     ...operator,

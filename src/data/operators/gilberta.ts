@@ -919,20 +919,12 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale_explosion: [0.58, 0.63, 0.69, 0.75, 0.81, 0.86, 0.92, 0.98, 1.04, 1.11, 1.2, 1.3],
     atk_scale_pull: [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
-    cam_angle: 0,
-    cam_duration: 0,
     heal_const: 0,
     heal_scale: 0,
-    input_angle: 0,
-    maxChargeTime: 0,
     poise: 10,
     potential: 0,
     radius: 5.2,
     radiusadd_display: 0,
-    recovercost: 0,
-    display_atk_scale_pull: [
-      0.97, 1.07, 1.17, 1.26, 1.36, 1.46, 1.56, 1.65, 1.75, 1.87, 2.02, 2.19,
-    ],
   },
 );
 
@@ -1051,26 +1043,20 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
-    damage_scale: 0.5,
     duration: 5,
     final_resistance_scalar: 0,
     final_resistance_scalar_inair: 0,
     move_speed_scalar: 0.8,
     poise: 20,
-    potential_lv: 0,
     potential2: 0,
     potential2_onceadd: 0,
     radius: 5,
     resistance_scalar: 0,
     resistance_scalar_inair: 0,
-    select_radius: 10,
     spell_vulnerable_perstack: 0.1,
     spell_vulnerable_rate: [0.18, 0.18, 0.18, 0.22, 0.22, 0.22, 0.26, 0.26, 0.26, 0.3, 0.3, 0.3],
     wisd_increase: 0,
     wisd_increase_inair: 0,
-    spell_vulnerable_4stack: [
-      0.252, 0.252, 0.252, 0.308, 0.308, 0.308, 0.364, 0.364, 0.364, 0.42, 0.42, 0.42,
-    ],
   },
 );
 

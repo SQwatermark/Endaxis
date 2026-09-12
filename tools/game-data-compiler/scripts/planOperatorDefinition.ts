@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { OperatorPlanningSources } from './operatorPlanningSources.ts';
 import path from 'node:path';
 import { format, resolveConfig } from 'prettier';
 import { compileOperatorFoundationSource } from '../src/domains/operator/sourceClosure.ts';
@@ -24,15 +24,9 @@ import {
 import {
   planOperatorActiveSkillRuntime,
   prepareProjectileProjection,
-  readTimeDilationPriorities,
-  readGameplayTagPaths,
   type OperatorActiveSkillRuntimeArguments,
   type PlannedOperatorActiveSkillRuntime,
 } from './generateOperatorActiveSkillRuntime.ts';
-import {
-  writeGeneratedDefinitionFile,
-  writeGeneratedDefinitionFiles,
-} from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
 import { compilePassiveSkillSource } from '../src/compiler/passiveSkillDefinition.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
@@ -52,6 +46,7 @@ import type {
   OperatorSkillSlotDefinition,
   PlayerActionRouteDefinition,
   PlayerSkillInput,
+  OperatorDefinition,
 } from '../../../packages/game-data-contract/src/index.ts';
 
 /**
@@ -60,7 +55,7 @@ import type {
  * 此阶段用于对象差分和正式模拟门禁，不提供绕过门禁的零散写文件 CLI。
  */
 export function planOperatorDefinition(
-  args: Omit<
+  input: Omit<
     OperatorActiveSkillRuntimeArguments,
     'key' | 'skillType' | 'sourceFile' | 'supplementalBuffIds' | 'check'
   > & {
@@ -72,6 +67,8 @@ export function planOperatorDefinition(
     readonly optimization?: DefinitionOptimizationMode;
   },
 ) {
+  const args = { ...input, sources: input.sources ?? new OperatorPlanningSources(input) };
+  const read = args.sources.readJson;
   const manifest = requireRecord(read(args.manifest), args.manifest);
   const matches = requireArray(manifest.operators, 'manifest.operators')
     .map(value => requireRecord(value, 'operator'))
@@ -210,9 +207,9 @@ export function planOperatorDefinition(
     skills,
     args.slug,
   );
-  const timeDilationPriorities = readTimeDilationPriorities(args.timeDilationCatalog);
+  const timeDilationPriorities = args.sources.timeDilationPriorities(args.timeDilationCatalog);
   const gameplayTagRegistry = new GameplayTagRegistry(
-    readGameplayTagPaths(args.gameplayTagCatalog),
+    args.sources.gameplayTags(args.gameplayTagCatalog),
   );
   const runtimeTemplate = planOperatorRuntimeTemplate(
     row.runtimeTemplate,
@@ -226,6 +223,7 @@ export function planOperatorDefinition(
       skillKeys: group.skillKeys,
     })),
     gameplayTagRegistry,
+    args.sources,
   );
   const nativePlayerActionRouting =
     runtimeTemplate === undefined
@@ -381,6 +379,7 @@ function planOperatorRuntimeTemplate(
     readonly skillKeys: readonly string[];
   }[],
   gameplayTagRegistry: GameplayTagRegistry,
+  sources: OperatorPlanningSources,
 ) {
   if (value === undefined) return undefined;
   const sourcePath = `${slug}.runtimeTemplate`;
@@ -418,9 +417,13 @@ function planOperatorRuntimeTemplate(
   )
     throw new Error(`${sourcePath}.comboSkillGroupKey: expected a combo skill group`);
   const artifactPath = path.resolve(sourceRoot, sourceFile);
-  const template = parseOperatorRuntimeTemplateSource(read(artifactPath), artifactPath, {
-    parseComboConditions: skillGroupKey !== undefined,
-  });
+  const template = parseOperatorRuntimeTemplateSource(
+    sources.readJson(artifactPath),
+    artifactPath,
+    {
+      parseComboConditions: skillGroupKey !== undefined,
+    },
+  );
   if (template.sourceSha256.toLowerCase() !== expectedSourceSha256.toLowerCase()) {
     throw new Error(`${sourcePath}.sourceSha256: runtime template source identity changed`);
   }
@@ -968,73 +971,40 @@ export function planRoutedSkills(
   });
 }
 
-function read(file: string): unknown {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
-}
-
-/** 完整模式只写一个自洽资源包；共享 Buff 独立导出，不进入可编辑的 Operator 私有目录。 */
-export async function generateOperatorDefinition(
-  args: Parameters<typeof planOperatorDefinition>[0] & { readonly check: boolean },
-) {
-  for (const [directory, parent] of [
-    [args.output, 'src/data/operators'],
-    [args.auditOutput, 'tmp/game-data-audit/operator-definitions'],
-  ]) {
-    const target = path.resolve(directory!);
-    const expected =
-      parent === 'src/data/operators' ? path.resolve(parent) : path.resolve(parent!, args.slug);
-    if (target !== expected) throw new Error(`complete operator output must be ${expected}`);
-  }
-  const rendered = await renderOperatorDefinition(args);
-  const { plan, file, auditFile } = rendered;
-  if (args.check) {
-    const target = path.join(args.output, file.relativePath);
-    if (
-      !fs.existsSync(target) ||
-      fs.readFileSync(target, 'utf8').replaceAll('\r\n', '\n') !== file.content
-    )
-      throw new Error(`complete operator definition is stale: ${target}`);
-  } else {
-    await writeGeneratedDefinitionFiles(args.auditOutput, [auditFile]);
-    await writeGeneratedDefinitionFile(args.output, file);
-  }
-  return {
-    slug: args.slug,
-    skillCount: plan.activeSkills.length,
-    talentCount: plan.operator.talents.length,
-    potentialCount: plan.operator.potentials.length,
-    entityCount: Object.keys(plan.operator.abilityEntityDefinitions!).length,
-    privateBuffCount: Object.keys(plan.operator.buffDefinitions!).length,
-    commonBuffCount: Object.keys(plan.commonBuffDefinitions).length,
-  };
-}
-
 /**
- * 渲染一名干员的完整候选，但不写文件。整批重建用它先闭合全部对象，再一次性安装候选目录；
- * 这样第 N 名失败时不会留下前 N-1 名的新旧混合快照。
+ * 单名诊断用的保守渲染，不写文件，也不假定已收齐其他干员与装备的消费者。
+ * 正式单名生成与整批重建共用 renderOperatorDefinitionBatch，不能用这里的文本复验正式库。
  */
 export async function renderOperatorDefinition(args: Parameters<typeof planOperatorDefinition>[0]) {
   const plan = planOperatorDefinition(args);
+  return { plan, ...(await renderOperatorDefinitionFiles(args.slug, plan.operator, plan.audit)) };
+}
+
+/** 从已规划并优化的纯数据渲染文件；整批入口可先收齐跨干员用途，再进入此步骤。 */
+export async function renderOperatorDefinitionFiles(
+  slug: string,
+  operator: OperatorDefinition,
+  audit: unknown,
+) {
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(
     renderOperatorDefinitionSource({
       operator: {
-        ...plan.operator,
+        ...operator,
         conversionSupport: { completeness: 'complete', missingCapabilities: [] },
       },
     }),
     { ...prettierConfig, parser: 'typescript' },
   );
   const file = {
-    relativePath: `${args.slug}.ts`,
+    relativePath: `${slug}.ts`,
     content,
   };
   return {
-    plan,
     file,
     auditFile: {
       relativePath: 'operator.audit.json',
-      content: JSON.stringify(plan.audit, null, 2) + '\n',
+      content: JSON.stringify(audit, null, 2) + '\n',
     },
   };
 }

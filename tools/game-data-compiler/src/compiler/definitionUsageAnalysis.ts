@@ -5,6 +5,7 @@
 import type {
   ActionSequenceDefinition,
   CombatStepDefinition,
+  CombatStepForKind,
   CombatStepParameters,
 } from '../../../../packages/game-data-contract/src/actions.ts';
 import type {
@@ -60,6 +61,13 @@ export interface DefinitionValueUsage {
   readonly mayThrow: boolean;
   /** 随机流、事件、属性刷新等不由输出键是否有人读取来决定的影响。 */
   readonly observable: boolean;
+}
+
+/** 只有确认了实体板的全部接收者，调用方才提供继承用途；没有证明时继续整板保留。 */
+export interface DefinitionUsageContext {
+  readonly inheritedAbilityEntityUsage: (
+    step: CombatStepForKind<'spawnAbilityEntity'>,
+  ) => DefinitionValueUsage | undefined;
 }
 
 const EMPTY: DefinitionValueUsage = {
@@ -259,7 +267,10 @@ export function analyzeConditionUsage(condition: CombatCondition): DefinitionVal
  * 局部动作的黑板用途。Buff 上的算术写入会刷新属性，故不在这里标成可直接删除的纯动作。
  * 未细分的动作仍完整保留；后续按执行器证据逐项补充，不让类型新增静默扩大裁剪范围。
  */
-export function analyzeStepUsage(step: CombatStepDefinition): DefinitionValueUsage {
+export function analyzeStepUsage(
+  step: CombatStepDefinition,
+  context?: DefinitionUsageContext,
+): DefinitionValueUsage {
   const effect = (
     inputs: readonly (ActionValueOperand | LevelValues | undefined)[] = [],
     outputs: readonly (string | undefined)[] = [],
@@ -291,26 +302,26 @@ export function analyzeStepUsage(step: CombatStepDefinition): DefinitionValueUsa
     case 'conditional':
       return mergeDefinitionValueUsage([
         analyzeConditionUsage(step.parameters.condition),
-        analyzeSequenceUsage(step.whenTrue),
-        ...(step.whenFalse === undefined ? [] : [analyzeSequenceUsage(step.whenFalse)]),
+        analyzeSequenceUsage(step.whenTrue, context),
+        ...(step.whenFalse === undefined ? [] : [analyzeSequenceUsage(step.whenFalse, context)]),
       ]);
     case 'switch':
       return mergeDefinitionValueUsage([
         actionValueUsage(step.parameters.choice),
         ...step.options.flatMap(option => [
           actionValueUsage(option.value),
-          analyzeSequenceUsage(option.sequence),
+          analyzeSequenceUsage(option.sequence, context),
         ]),
       ]);
     case 'once':
     case 'repeatEachTick':
     case 'forEachContextTarget':
-      return { ...analyzeSequenceUsage(step.body), observable: true };
+      return { ...analyzeSequenceUsage(step.body, context), observable: true };
     case 'repeatByActionValue':
       return {
         ...mergeDefinitionValueUsage([
           actionValueUsage(step.parameters.count),
-          analyzeSequenceUsage(step.body),
+          analyzeSequenceUsage(step.body, context),
         ]),
         observable: true,
       };
@@ -320,7 +331,7 @@ export function analyzeStepUsage(step: CombatStepDefinition): DefinitionValueUsa
       // 入口中的同名键。子程序仍有未知访问或整板逃逸时，继续阻止父板裁剪。
       return {
         ...mergeDefinitionValueUsage([
-          analyzeSequenceUsage(step.body),
+          analyzeSequenceUsage(step.body, context),
           ...Object.values(step.parameters.entityAssignments ?? {}).map(actionValueUsage),
         ]),
         mayThrow: true,
@@ -330,7 +341,7 @@ export function analyzeStepUsage(step: CombatStepDefinition): DefinitionValueUsa
       return {
         ...mergeDefinitionValueUsage(
           step.parameters.responses.flatMap(response => [
-            analyzeSequenceUsage(response.sequence),
+            analyzeSequenceUsage(response.sequence, context),
             ...(response.condition === undefined
               ? []
               : [analyzeConditionUsage(response.condition)]),
@@ -489,14 +500,17 @@ export function analyzeStepUsage(step: CombatStepDefinition): DefinitionValueUsa
         step.parameters.count,
         ...Object.values(step.parameters.blackboardAssignments ?? {}),
       ]);
-    case 'spawnAbilityEntity':
-      return {
-        ...effect([
-          step.parameters.overrideDurationSeconds,
-          ...Object.values(step.parameters.blackboardAssignments ?? {}),
-        ]),
-        unknownAccess: step.parameters.inheritActionBlackboard === true,
-      };
+    case 'spawnAbilityEntity': {
+      const direct = effect([
+        step.parameters.overrideDurationSeconds,
+        ...Object.values(step.parameters.blackboardAssignments ?? {}),
+      ]);
+      if (step.parameters.inheritActionBlackboard !== true) return direct;
+      const inherited = context?.inheritedAbilityEntityUsage(step);
+      if (inherited === undefined) return { ...direct, unknownAccess: true };
+      // 不扣除显式覆盖键：首版只闭合接收方用途，保持赋值、缺键与旧值比较的保守语义。
+      return mergeDefinitionValueUsage([direct, inherited]);
+    }
     case 'jumpTimeline':
       return step.parameters.condition === undefined
         ? effect()
@@ -546,16 +560,25 @@ export function analyzeStepUsage(step: CombatStepDefinition): DefinitionValueUsa
     case 'inheritSkillCastInfoForBasicAttack':
       return effect();
     case 'scheduleProjectileFinishCallback':
-      // ProjectileFinishCallbackStep 复制整块父黑板；接收方未做逐键分析前全部保留。
-      return { ...effect(), unknownAccess: true };
+      // 回调保存父 direct 快照，并用它覆盖自身初值。汇总全部延时入口的读写，不能因回调
+      // 声明了同名默认值就减键；嵌套的实体传值或其他未知访问会继续向父板上传。
+      return mergeDefinitionValueUsage([
+        effect(),
+        ...step.callback.scheduledSequences.map(item =>
+          analyzeSequenceUsage(item.sequence, context),
+        ),
+      ]);
     default:
       // 外部未经检查的对象或新增类型都不能静默变成“没有读取”。
       return { ...EMPTY, unknownAccess: true, mayThrow: true, observable: true };
   }
 }
 
-export function analyzeSequenceUsage(sequence: ActionSequenceDefinition): DefinitionValueUsage {
-  return mergeDefinitionValueUsage(sequence.steps.map(analyzeStepUsage));
+export function analyzeSequenceUsage(
+  sequence: ActionSequenceDefinition,
+  context?: DefinitionUsageContext,
+): DefinitionValueUsage {
+  return mergeDefinitionValueUsage(sequence.steps.map(step => analyzeStepUsage(step, context)));
 }
 
 /**

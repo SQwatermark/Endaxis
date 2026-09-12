@@ -880,8 +880,6 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: 0.42,
-    cam_angle: 0,
-    cam_duration: 0,
     duration: 3,
     heal_scale: [0.22, 0.27, 0.31, 0.36, 0.38, 0.4, 0.43, 0.45, 0.47, 0.48, 0.49, 0.5],
     heal_scale_loop: [0.06, 0.07, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.12, 0.12, 0.13],
@@ -889,12 +887,8 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
       96, 115.2, 134.4, 153.6, 163.2, 172.8, 182.4, 192, 201.6, 206.4, 211.2, 216,
     ],
     heal_static_value_loop: [24, 28.8, 33.6, 38.4, 40.8, 43.2, 45.6, 48, 50.4, 51.6, 52.8, 54],
-    input_angle: 0,
     interval: 0.5,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     usp: 10,
-    trigger_hp_ratio: 0.6,
   },
 );
 
@@ -1013,13 +1007,11 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
     extra_duration: 0,
-    frozen_level: 1,
     poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
     potential_2: 0,
     potential_2_range: 0,
     atk_scale_loop: [0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.46, 0.49, 0.52, 0.55, 0.6, 0.65],
     duration: 5,
-    forst_allow_count: 2,
     interval: 0.5,
   },
 );

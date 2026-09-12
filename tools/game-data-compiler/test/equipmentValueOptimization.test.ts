@@ -203,7 +203,7 @@ describe('有运行入口的装备贡献按键裁剪初值', () => {
     );
   });
 
-  it('投射物回调整板快照即使包在隔离子作用域里，也继续阻止初值裁剪', () => {
+  it('投射物回调中仍有未解析实体传出时，即使包在隔离子作用域里也整板保留', () => {
     const callback: CombatStepDefinition = {
       kind: 'scheduleProjectileFinishCallback',
       parameters: { delaySeconds: 1, recycleDelaySeconds: 1 },
@@ -212,7 +212,19 @@ describe('有运行入口的装备贡献按键裁剪初值', () => {
         nativeSkillType: 'normalSkill',
         naturalDurationFrames: 0,
         blackboard: {},
-        scheduledSequences: [],
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: sequence({
+              kind: 'spawnAbilityEntity',
+              parameters: {
+                abilityEntityId: 'unresolved',
+                dieWhenSourceDies: false,
+                inheritActionBlackboard: true,
+              },
+            }),
+          },
+        ],
         castResource: {
           costFrame: 0,
           cooldownSeconds: 0,

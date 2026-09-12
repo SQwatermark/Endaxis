@@ -5,11 +5,11 @@ import { format, resolveConfig } from 'prettier';
 
 import {
   checkEquipmentDefinitionFiles,
-  compileEquipmentDefinitionBatchSource,
-  parseEquipmentItemSources,
-  renderEquipmentDefinitionFiles,
   writeEquipmentDefinitionFiles,
-} from '../src/index.ts';
+} from '../src/domains/equipment/writeFormalDefinitions.ts';
+import { compileEquipmentDefinitionBatchSource } from '../src/domains/equipment/formalDefinition.ts';
+import { parseEquipmentItemSources } from '../src/source/equipmentAttributeModifiers.ts';
+import { renderEquipmentDefinitionFiles } from '../src/domains/equipment/renderFormalDefinitions.ts';
 
 export interface GearGenerationArguments {
   readonly tablesDirectory: string;
@@ -37,8 +37,8 @@ export async function generateGearDefinitions(argumentsValue: GearGenerationArgu
   };
 }
 
-/** 只读规划供生成、确定性检查与应用层候选验证共用；不会导入现有装备定义。 */
-export async function planGearDefinitions(tablesDirectory: string) {
+/** 从同批两张原始表编译全部单件装备，不渲染或写盘，不读取现存生成定义。 */
+export async function compileGearDefinitionsFromFiles(tablesDirectory: string) {
   const equipTable = await readJson(resolve(tablesDirectory, 'EquipTable.json'));
   const itemTable = await readJson(resolve(tablesDirectory, 'ItemTable.json'));
   if (!isRecord(equipTable)) throw new Error('EquipTable.json: expected an object');
@@ -52,6 +52,18 @@ export async function planGearDefinitions(tablesDirectory: string) {
     'ItemTable',
   );
   const batch = compileEquipmentDefinitionBatchSource(equipment);
+  // 原入口在渲染时拒绝这类缺项批次；只取编译结果的调用方也必须经过相同门禁。
+  const blocked = batch.diagnostics.filter(diagnostic => diagnostic.status === 'blocked');
+  if (blocked.length > 0)
+    throw new Error(
+      `cannot render equipment definitions with ${blocked.length} blocked diagnostics`,
+    );
+  return batch;
+}
+
+/** 只读规划供生成、确定性检查与应用层候选验证共用；不会导入现有装备定义。 */
+export async function planGearDefinitions(tablesDirectory: string) {
+  const batch = await compileGearDefinitionsFromFiles(tablesDirectory);
   const prettierConfig = (await resolveConfig(resolve('.prettierrc.json'))) ?? {};
   const files = await Promise.all(
     renderEquipmentDefinitionFiles(batch).map(async file => ({

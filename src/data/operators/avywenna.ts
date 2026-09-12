@@ -1284,19 +1284,11 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [1.69, 1.86, 2.03, 2.19, 2.36, 2.53, 2.7, 2.87, 3.04, 3.25, 3.5, 3.8],
-    atk_scale_lance_back: 1,
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    poise_lance: 0,
     potential_2: 0,
     radius: 4,
     talent0_usp: 0,
     usp: 10,
-    lance_duration: 30,
   },
 );
 
@@ -1471,17 +1463,12 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [4.22, 4.64, 5.07, 5.49, 5.91, 6.33, 6.75, 7.18, 7.6, 8.13, 8.76, 9.5],
-    atk_scale_ulti_lance_back: 1,
     poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
-    poise_lance: 0,
     potential_2: 0,
     pulse_vul_duration: 0,
     pulse_vul_rate: 0,
     radius: 5,
     talent0_usp: 0,
-    lance_duration_ult: 30,
-    pulse_resist_down_duration: [5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8],
-    pulse_resist_down_rate: [0.3, 0.32, 0.32, 0.32, 0.32, 0.34, 0.34, 0.34, 0.34, 0.36, 0.38, 0.4],
   },
 );
 

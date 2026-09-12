@@ -4,31 +4,64 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { attachWeaponProductIdentities } from '../src/domains/weapon/productIdentity.ts';
+import { compileWeaponRuntimeDefinitionBatchSource } from '../src/domains/weapon/runtimeDefinition.ts';
 import {
-  attachWeaponProductIdentities,
-  compileWeaponRuntimeDefinitionBatchSource,
   compileWeaponStaticDefinitionBatchSource,
-  renderWeaponDefinitionFiles,
-  writeWeaponDefinitionFiles,
   type CompiledWeaponStaticDefinitionBatchSource,
+} from '../src/domains/weapon/staticDefinition.ts';
+import {
+  renderWeaponDefinitionFiles,
   type RenderedWeaponDefinitionFileSource,
-} from '../src/index.ts';
+} from '../src/domains/weapon/renderRuntimeDefinitions.ts';
+import { writeWeaponDefinitionFiles } from '../src/domains/weapon/writeRuntimeDefinitions.ts';
 import type { BuildDefinitionDiagnosticSource } from '../src/compiler/formalBuildDefinition.ts';
 import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
 import type { DefinitionProgramOptimizationReport } from '../src/compiler/definitionProgramOptimization.ts';
 import { optimizeWeaponDefinitionPrograms } from '../src/compiler/equipmentDefinitionOptimization.ts';
 
-interface Arguments {
+export interface WeaponDefinitionSourceArguments {
   readonly tables: string;
   readonly skillData: string;
   readonly buffData: string;
   /** 同版本路径目录；缺省不猜标签，遇到带标签行为时阻断。 */
   readonly gameplayTagCatalog?: string;
+}
+
+interface Arguments extends WeaponDefinitionSourceArguments {
   readonly output: string;
   readonly auditOutput?: string;
   readonly check: boolean;
   /** 默认应用已验证的优化；report 仅报告候选，off 用于生成对照。 */
   readonly optimization?: DefinitionOptimizationMode;
+}
+
+/** 从同批原始文件编译完整武器行为；不优化、渲染或写盘，来源阻断仍按生成入口报错。 */
+export function compileWeaponDefinitionsFromFiles(args: WeaponDefinitionSourceArguments) {
+  const weaponTable = readJson(path.join(args.tables, 'WeaponBasicTable.json'));
+  const upgradeTable = readJson(path.join(args.tables, 'WeaponUpgradeTemplateTable.json'));
+  const patchTable = readJson(path.join(args.tables, 'SkillPatchTable.json'));
+  const itemTable = readJson(path.join(args.tables, 'ItemTable.json'));
+  const skillData = readDefinitionDirectory(args.skillData, 'skillId');
+  const buffData = readDefinitionDirectory(args.buffData, 'id');
+  const staticBatch = compileWeaponStaticDefinitionsIndependently(
+    weaponTable,
+    upgradeTable,
+    skillData,
+    patchTable,
+  );
+  const identified = attachWeaponProductIdentities(staticBatch.definitions, itemTable);
+  const runtimeBatch = compileWeaponRuntimeDefinitionBatchSource(
+    identified,
+    staticBatch.runtimeDependencies,
+    buffData,
+    args.gameplayTagCatalog === undefined
+      ? undefined
+      : new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
+  );
+  const diagnostics = [...staticBatch.diagnostics, ...runtimeBatch.diagnostics];
+  assertNoBlockedDiagnostics(diagnostics);
+  return { definitions: runtimeBatch.definitions, diagnostics };
 }
 
 /**
@@ -85,35 +118,13 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
   readonly fileCount: number;
   readonly optimization: readonly DefinitionProgramOptimizationReport[];
 }> {
-  const weaponTable = readJson(path.join(args.tables, 'WeaponBasicTable.json'));
-  const upgradeTable = readJson(path.join(args.tables, 'WeaponUpgradeTemplateTable.json'));
-  const patchTable = readJson(path.join(args.tables, 'SkillPatchTable.json'));
-  const itemTable = readJson(path.join(args.tables, 'ItemTable.json'));
-  const skillData = readDefinitionDirectory(args.skillData, 'skillId');
-  const buffData = readDefinitionDirectory(args.buffData, 'id');
-  const staticBatch = compileWeaponStaticDefinitionsIndependently(
-    weaponTable,
-    upgradeTable,
-    skillData,
-    patchTable,
-  );
-  const identified = attachWeaponProductIdentities(staticBatch.definitions, itemTable);
-  const runtimeBatch = compileWeaponRuntimeDefinitionBatchSource(
-    identified,
-    staticBatch.runtimeDependencies,
-    buffData,
-    args.gameplayTagCatalog === undefined
-      ? undefined
-      : new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
-  );
-  const diagnostics = [...staticBatch.diagnostics, ...runtimeBatch.diagnostics];
-  assertNoBlockedDiagnostics(diagnostics);
-  const optimized = runtimeBatch.definitions.map(definition =>
+  const compiled = compileWeaponDefinitionsFromFiles(args);
+  const optimized = compiled.definitions.map(definition =>
     optimizeWeaponDefinitionPrograms(definition, args.optimization ?? 'apply'),
   );
   const batch = {
     definitions: optimized.map(result => result.definition),
-    diagnostics,
+    diagnostics: compiled.diagnostics,
     optimization: optimized.map(result => result.report),
   };
   const files = renderWeaponDefinitionFiles(batch);

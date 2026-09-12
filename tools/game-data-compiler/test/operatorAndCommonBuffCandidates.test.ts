@@ -1,6 +1,6 @@
 /**
  * 检查干员与公共 Buff 共用一次逐人规划后，仍独立复验全部文件。
- * 只替换干员规划与原始系统 Buff 编译；公共定义去重、优化、渲染和文件检查均执行真实代码。
+ * 替换原始规划和消费者编译；最终优化、用途汇总、公共定义渲染和文件检查均执行真实代码。
  */
 import fs from 'node:fs/promises';
 import os from 'node:os';
@@ -10,23 +10,35 @@ import type {
   OperatorBuffDefinitions,
   SkillBuffDefinition,
 } from '../../../packages/game-data-contract/src/buffs.ts';
+import type { OperatorDefinition } from '../../../packages/game-data-contract/src/operators.ts';
+import type { GearSetDefinition } from '../../../packages/game-data-contract/src/equipment.ts';
+import type { SkillDefinition } from '../../../packages/game-data-contract/src/skills.ts';
+import { avywenna } from '../../../src/data/operators/avywenna.ts';
 import { optimizeCommonBuffDefinitions } from '../src/compiler/equipmentDefinitionOptimization.ts';
+import type { OperatorPlanningSources } from '../scripts/operatorPlanningSources.ts';
 
-const { renderOperatorDefinition, planOperatorDefinition, compileStandardStumpBuffClosure } =
-  vi.hoisted(() => ({
-    renderOperatorDefinition: vi.fn(),
-    planOperatorDefinition: vi.fn(),
-    compileStandardStumpBuffClosure: vi.fn(),
-  }));
+const {
+  renderOperatorDefinitionFiles,
+  planOperatorDefinition,
+  compileStandardStumpBuffClosure,
+  compileEntityValueConsumers,
+} = vi.hoisted(() => ({
+  renderOperatorDefinitionFiles: vi.fn(),
+  planOperatorDefinition: vi.fn(),
+  compileStandardStumpBuffClosure: vi.fn(),
+  compileEntityValueConsumers: vi.fn(),
+}));
 vi.mock('../scripts/planOperatorDefinition.ts', () => ({
-  renderOperatorDefinition,
+  renderOperatorDefinitionFiles,
   planOperatorDefinition,
 }));
+vi.mock('../scripts/compileEntityValueConsumers.ts', () => ({ compileEntityValueConsumers }));
 vi.mock('../src/compiler/standardStumpBuffClosure.ts', () => ({
   compileStandardStumpBuffClosure,
 }));
 
 import { generateOperatorDefinitionCandidates } from '../scripts/generateOperatorDefinitionCandidates.ts';
+import { generateOperatorDefinition } from '../scripts/generateOperatorDefinition.ts';
 import {
   createCommonBuffCollector,
   readSystemBuffRoots,
@@ -62,28 +74,47 @@ const guardedBuff: SkillBuffDefinition = {
   },
 };
 
-function rendered(slug: string, definitions: OperatorBuffDefinitions = {}) {
+function planned(slug: string, definitions: OperatorBuffDefinitions = {}) {
   return {
-    plan: {
-      activeSkills: [{ key: `${slug}-skill` }],
-      operator: {
-        talents: [],
-        potentials: [],
-        abilityEntityDefinitions: {},
-        buffDefinitions: {},
-      },
-      commonBuffDefinitions: definitions,
-    },
-    file: { relativePath: `${slug}.ts`, content: `export default '${slug}';\n` },
-    auditFile: { relativePath: 'operator.audit.json', content: `{"slug":"${slug}"}\n` },
+    activeSkills: [{ key: `${slug}-skill` }],
+    operator: {
+      ...avywenna,
+      skillGroups: [],
+      talents: [],
+      potentials: [],
+      passiveSkills: [],
+      eventHandlers: [],
+      comboSkillConditions: [],
+      abilityEntityDefinitions: {},
+      buffDefinitions: {},
+    } satisfies OperatorDefinition,
+    commonBuffDefinitions: definitions,
+    audit: { slug },
   };
 }
 
 beforeEach(() => {
   vi.resetAllMocks();
-  renderOperatorDefinition.mockImplementation(async ({ slug }: { slug: string }) =>
-    rendered(slug, { buff_common_fixture: structuredClone(guardedBuff) }),
+  planOperatorDefinition.mockImplementation(({ slug }: { slug: string }) =>
+    planned(slug, { buff_common_fixture: structuredClone(guardedBuff) }),
   );
+  renderOperatorDefinitionFiles.mockImplementation(
+    async (slug: string, operator: OperatorDefinition, audit) => ({
+      file: {
+        relativePath: `${slug}.ts`,
+        content: `export default ${JSON.stringify(operator)};\n`,
+      },
+      auditFile: { relativePath: 'operator.audit.json', content: `${JSON.stringify(audit)}\n` },
+    }),
+  );
+  compileEntityValueConsumers.mockResolvedValue({
+    weapons: [],
+    gears: [],
+    gearSets: [],
+    commonAbilityEntityDefinitions: {},
+    mechanicBuffDefinitions: {},
+    mechanicSequences: [],
+  });
   compileStandardStumpBuffClosure.mockImplementation((ids: readonly string[]) => ({
     definitions: Object.fromEntries(ids.map(id => [id, { stackingType: 'unlimited' }])),
     diagnostics: [],
@@ -91,6 +122,7 @@ beforeEach(() => {
 });
 
 afterEach(async () => {
+  vi.restoreAllMocks();
   for (const root of roots.splice(0)) await fs.rm(root, { recursive: true, force: true });
 });
 
@@ -129,6 +161,110 @@ async function setup(slugs: readonly string[] = ['one', 'two']) {
 
 describe('干员与公共 Buff 共用规划', () => {
   it.each(['off', 'report', 'apply'] as const)(
+    '正式单人 %s 生成与联合候选文本相同，复验重新收齐闭包且只写目标',
+    async optimization => {
+      const input = { ...(await setup()), optimization };
+      const skill: SkillDefinition = {
+        key: 'spawn',
+        timelineBlockFrames: 10,
+        blackboard: { teammateValue: 7, unused: 99 },
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'spawnAbilityEntity',
+                  parameters: {
+                    abilityEntityId: 'fixture',
+                    dieWhenSourceDies: false,
+                    inheritActionBlackboard: true,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+      planOperatorDefinition.mockImplementation(({ slug }: { slug: string }) => {
+        const result = planned(slug);
+        const operator: OperatorDefinition =
+          slug === 'one'
+            ? {
+                ...result.operator,
+                abilityEntityDefinitions: { fixture: { lifetime: { kind: 'infinite' } } },
+                skillGroups: [
+                  {
+                    key: 'spawn',
+                    skillType: 'battleSkill',
+                    levelSource: 'battleSkill',
+                    skills: skill,
+                  },
+                ],
+              }
+            : {
+                ...result.operator,
+                buffDefinitions: {
+                  teammate: {
+                    stackingType: 'unlimited',
+                    durationSeconds: { blackboardKey: 'teammateValue' },
+                  },
+                },
+              };
+        return { ...result, operator };
+      });
+      await generateOperatorDefinitionCandidates(input);
+      const candidate = await fs.readFile(path.join(input.outputRoot, 'one.ts'), 'utf8');
+      expect(candidate.includes('"unused":99')).toBe(optimization !== 'apply');
+      expect(candidate).toContain('"teammateValue":7');
+      const candidateAudit = await fs.readFile(
+        path.join(input.auditRoot, 'one/operator.audit.json'),
+        'utf8',
+      );
+      const output = path.join(input.sourceRoot, 'src/data/operators');
+      const auditOutput = path.join(
+        input.sourceRoot,
+        'tmp/game-data-audit/operator-definitions/one',
+      );
+      const commonOutput = path.join(input.sourceRoot, 'src/data/buffs/generated');
+      await fs.mkdir(output, { recursive: true });
+      await fs.mkdir(commonOutput, { recursive: true });
+      await fs.writeFile(path.join(output, 'two.ts'), 'other operator');
+      await fs.writeFile(path.join(commonOutput, 'previous'), 'common snapshot');
+      vi.spyOn(process, 'cwd').mockReturnValue(input.sourceRoot);
+      const selected = { ...input, slug: 'one', output, auditOutput };
+      await expect(generateOperatorDefinition(selected)).resolves.toMatchObject({ slug: 'one' });
+      expect(await fs.readFile(path.join(output, 'one.ts'), 'utf8')).toBe(candidate);
+      expect(await fs.readFile(path.join(auditOutput, 'operator.audit.json'), 'utf8')).toBe(
+        candidateAudit,
+      );
+      await expect(generateOperatorDefinition({ ...selected, check: true })).resolves.toMatchObject(
+        { slug: 'one' },
+      );
+      expect(planOperatorDefinition.mock.calls.map(([args]) => args.slug)).toEqual([
+        'one',
+        'two',
+        'one',
+        'two',
+        'one',
+        'two',
+      ]);
+      expect(renderOperatorDefinitionFiles.mock.calls.map(([slug]) => slug)).toEqual([
+        'one',
+        'two',
+        'one',
+        'one',
+      ]);
+      expect(await fs.readFile(path.join(output, 'two.ts'), 'utf8')).toBe('other operator');
+      expect(await fs.readdir(commonOutput)).toEqual(['previous']);
+      expect(await fs.readFile(path.join(commonOutput, 'previous'), 'utf8')).toBe(
+        'common snapshot',
+      );
+      expect(await fs.readdir(path.dirname(auditOutput))).toEqual(['one']);
+    },
+  );
+
+  it.each(['off', 'report', 'apply'] as const)(
     '%s 模式的生成和复验各规划每人一次，公共定义与报告使用同一模式',
     async optimization => {
       const input = { ...(await setup()), optimization };
@@ -139,15 +275,16 @@ describe('干员与公共 Buff 共用规划', () => {
         buffCount: systemRoots.length + 1,
         optimization: { mode: optimization },
       });
-      expect(renderOperatorDefinition.mock.calls.map(([args]) => args.slug)).toEqual([
+      expect(planOperatorDefinition.mock.calls.map(([args]) => args.slug)).toEqual([
         'one',
         'two',
         'one',
         'two',
       ]);
-      for (const [args] of renderOperatorDefinition.mock.calls)
-        expect(args.optimization).toBe(optimization);
-      expect(planOperatorDefinition).not.toHaveBeenCalled();
+      for (const [args] of planOperatorDefinition.mock.calls) expect(args.optimization).toBe('off');
+      for (const [, , audit] of renderOperatorDefinitionFiles.mock.calls)
+        expect(audit.optimization.mode).toBe(optimization);
+      expect(compileEntityValueConsumers).toHaveBeenCalledTimes(optimization === 'off' ? 0 : 2);
       expect(compileStandardStumpBuffClosure).toHaveBeenCalledTimes(2);
       const changes = first.commonBuffs!.optimization.programs.flatMap(item => item.changes);
       expect(changes.length > 0).toBe(optimization !== 'off');
@@ -196,8 +333,8 @@ describe('干员与公共 Buff 共用规划', () => {
     expect(optimizeCommonBuffDefinitions({ common: first }, 'apply').definitions).toEqual(
       optimizeCommonBuffDefinitions({ common: second }, 'apply').definitions,
     );
-    renderOperatorDefinition.mockImplementation(async ({ slug }: { slug: string }) =>
-      rendered(slug, { common: slug === 'one' ? first : second }),
+    planOperatorDefinition.mockImplementation(({ slug }: { slug: string }) =>
+      planned(slug, { common: slug === 'one' ? first : second }),
     );
     await expect(generateOperatorDefinitionCandidates(input)).rejects.toThrow(
       "common Buff 'common' differs between 'one' and 'two'",
@@ -217,7 +354,7 @@ describe('干员与公共 Buff 共用规划', () => {
     await expect(generateOperatorDefinitionCandidates({ ...input, check: true })).resolves.toEqual(
       first,
     );
-    expect(renderOperatorDefinition).not.toHaveBeenCalled();
+    expect(planOperatorDefinition).not.toHaveBeenCalled();
     expect(compileStandardStumpBuffClosure).toHaveBeenCalledTimes(2);
     const content = await fs.readFile(
       path.join(input.commonBuffOutput, 'commonBuffDefinitions.generated.ts'),
@@ -229,7 +366,7 @@ describe('干员与公共 Buff 共用规划', () => {
   it('系统根和干员同 ID 定义冲突时明确指出两方来源', async () => {
     const input = await setup(['one']);
     const id = systemRoots[0]!;
-    renderOperatorDefinition.mockResolvedValue(rendered('one', { [id]: guardedBuff }));
+    planOperatorDefinition.mockReturnValue(planned('one', { [id]: guardedBuff }));
     await expect(generateOperatorDefinitionCandidates(input)).rejects.toThrow(
       `common Buff '${id}' differs between 'one' and '<system>'`,
     );
@@ -255,6 +392,118 @@ describe('干员与公共 Buff 共用规划', () => {
     }
   });
 
+  it('同批装备或机制编译失败时三个已有目录均保持原样', async () => {
+    const input = await setup();
+    const directories = [input.outputRoot, input.auditRoot, input.commonBuffOutput];
+    for (const directory of directories) {
+      await fs.mkdir(directory);
+      await fs.writeFile(path.join(directory, 'previous'), directory);
+    }
+    compileEntityValueConsumers.mockRejectedValueOnce(new Error('equipment or mechanic blocked'));
+    await expect(generateOperatorDefinitionCandidates(input)).rejects.toThrow(
+      'equipment or mechanic blocked',
+    );
+    expect(planOperatorDefinition).toHaveBeenCalledTimes(2);
+    expect(renderOperatorDefinitionFiles).not.toHaveBeenCalled();
+    for (const directory of directories) {
+      expect(await fs.readdir(directory)).toEqual(['previous']);
+      expect(await fs.readFile(path.join(directory, 'previous'), 'utf8')).toBe(directory);
+    }
+  });
+
+  it.each([true, false])(
+    '只有完整公共目录才按同批装备和机制消费用途裁剪传入实体的值：%s',
+    async withCommonBuffs => {
+      const base = await setup(['one']);
+      const input = {
+        ...base,
+        commonBuffOutput: withCommonBuffs ? base.commonBuffOutput : undefined,
+      };
+      const skill: SkillDefinition = {
+        key: 'spawn',
+        timelineBlockFrames: 10,
+        blackboard: { equipmentValue: 7, mechanicValue: 9, unused: 99 },
+        scheduledSequences: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'spawnAbilityEntity',
+                  parameters: {
+                    abilityEntityId: 'fixture',
+                    dieWhenSourceDies: false,
+                    inheritActionBlackboard: true,
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      };
+      const operator: OperatorDefinition = {
+        ...planned('one').operator,
+        abilityEntityDefinitions: { fixture: { lifetime: { kind: 'infinite' } } },
+        skillGroups: [
+          { key: 'spawn', skillType: 'battleSkill', levelSource: 'battleSkill', skills: skill },
+        ],
+      };
+      const gearSet: GearSetDefinition = {
+        slug: 'fixture',
+        buffDefinitions: {
+          equipped: {
+            stackingType: 'unlimited',
+            attributeModifiers: [
+              {
+                attribute: 'attack',
+                slot: 'addition',
+                value: { blackboardKey: 'equipmentValue' },
+              },
+            ],
+          },
+        },
+      };
+      const mechanicBuffDefinitions: OperatorBuffDefinitions = {
+        mechanic: {
+          stackingType: 'unlimited',
+          durationSeconds: { blackboardKey: 'mechanicValue' },
+        },
+      };
+      planOperatorDefinition.mockReturnValue({ ...planned('one'), operator });
+      compileEntityValueConsumers.mockResolvedValue({
+        weapons: [],
+        gears: [],
+        gearSets: [gearSet],
+        commonAbilityEntityDefinitions: {},
+        mechanicBuffDefinitions,
+        mechanicSequences: [],
+      });
+      const result = await generateOperatorDefinitionCandidates(input);
+      expect(compileEntityValueConsumers).toHaveBeenCalledTimes(withCommonBuffs ? 1 : 0);
+      if (withCommonBuffs)
+        expect(result.entityValueConsumers).toEqual({
+          reads: ['equipmentValue', 'mechanicValue'],
+          unknownAccess: false,
+        });
+      else expect(result.entityValueConsumers).toBeUndefined();
+      expect(renderOperatorDefinitionFiles).toHaveBeenCalledWith(
+        'one',
+        expect.objectContaining({
+          skillGroups: [
+            expect.objectContaining({
+              skills: expect.objectContaining({
+                blackboard: withCommonBuffs
+                  ? { equipmentValue: 7, mechanicValue: 9 }
+                  : skill.blackboard,
+              }),
+            }),
+          ],
+        }),
+        expect.objectContaining({ optimization: expect.objectContaining({ mode: 'apply' }) }),
+      );
+    },
+  );
+
   it.each(['operator', 'system'] as const)(
     '第二轮重新读取 %s 公共定义，变化不能被首轮缓存掩盖',
     async source => {
@@ -263,8 +512,8 @@ describe('干员与公共 Buff 共用规划', () => {
       const output = path.join(input.commonBuffOutput, 'commonBuffDefinitions.generated.ts');
       const before = await fs.readFile(output, 'utf8');
       if (source === 'operator') {
-        renderOperatorDefinition.mockImplementation(async ({ slug }: { slug: string }) =>
-          rendered(slug, {
+        planOperatorDefinition.mockImplementation(({ slug }: { slug: string }) =>
+          planned(slug, {
             buff_common_fixture: { stackingType: 'unlimited', blackboard: { changed: 7 } },
           }),
         );
@@ -279,7 +528,7 @@ describe('干员与公共 Buff 共用规划', () => {
       await expect(generateOperatorDefinitionCandidates({ ...input, check: true })).rejects.toThrow(
         'stale',
       );
-      expect(renderOperatorDefinition).toHaveBeenCalledTimes(4);
+      expect(planOperatorDefinition).toHaveBeenCalledTimes(4);
       expect(compileStandardStumpBuffClosure).toHaveBeenCalledTimes(2);
       expect(await fs.readFile(output, 'utf8')).toBe(before);
     },
@@ -298,6 +547,42 @@ describe('干员与公共 Buff 共用规划', () => {
       'stale',
     );
     expect(await fs.readFile(output, 'utf8')).toBe('changed after generation\n');
+  });
+
+  it('联合生成每轮新建读取上下文，复验不会复用首轮固定表快照', async () => {
+    const base = await setup();
+    const skillPatchTable = path.join(base.sourceRoot, 'patch.json');
+    const skillFile = path.join(base.sourceRoot, 'skill.json');
+    const input = { ...base, skillPatchTable };
+    await fs.writeFile(skillPatchTable, '{"value":1}');
+    await fs.writeFile(skillFile, '{"value":2}');
+    const contexts: OperatorPlanningSources[] = [];
+    planOperatorDefinition.mockImplementation(
+      ({ slug, sources }: { slug: string; sources: OperatorPlanningSources }) => {
+        contexts.push(sources);
+        // 前一名干员读取的技能原文必须在规划下一名前已经释放。
+        expect(sources.statistics().currentOperator.retainedSourceBytes).toBe(0);
+        const patch = sources.readJson(skillPatchTable);
+        sources.readJson(skillFile);
+        const result = planned(slug);
+        return {
+          ...result,
+          operator: { ...result.operator, displayName: JSON.stringify(patch) },
+        };
+      },
+    );
+    await generateOperatorDefinitionCandidates(input);
+    expect(contexts[0]).toBe(contexts[1]);
+    const output = path.join(input.outputRoot, 'one.ts');
+    const before = await fs.readFile(output, 'utf8');
+    await fs.writeFile(skillPatchTable, '{"value":3}');
+    await expect(generateOperatorDefinitionCandidates({ ...input, check: true })).rejects.toThrow(
+      'generated definition file is stale: one.ts',
+    );
+    expect(contexts).toHaveLength(4);
+    expect(contexts[2]).toBe(contexts[3]);
+    expect(contexts[2]).not.toBe(contexts[0]);
+    expect(await fs.readFile(output, 'utf8')).toBe(before);
   });
 });
 

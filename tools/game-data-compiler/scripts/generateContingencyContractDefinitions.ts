@@ -5,6 +5,7 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { format, resolveConfig } from 'prettier';
 import type { ActionSequenceDefinition } from '../../../packages/game-data-contract/src/actions.ts';
+import type { CompiledBuffDefinitionSource } from '../src/compiler/buffProjectionTypes.ts';
 import { compileGlobalBuffTemplate } from '../src/compiler/globalBuffProjection.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTemplate.ts';
@@ -24,18 +25,21 @@ import {
   checkGeneratedDefinitionFiles,
 } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 
-interface Arguments {
+export interface ContingencyContractDefinitionSourceArguments {
   readonly tableRoot: string;
   readonly buffDataRoot: string;
   readonly globalBuffCatalog: string;
   readonly skillSettingCatalog: string;
   readonly gameplayTagPaths: readonly string[];
   readonly scope: string;
+}
+
+interface Arguments extends ContingencyContractDefinitionSourceArguments {
   readonly output: string;
   readonly check: boolean;
 }
 
-interface Scope {
+export interface ContingencyContractSimulationScope {
   readonly supportedTagIds: ReadonlySet<number>;
   readonly enemyMaxHealthTagIds: ReadonlySet<number>;
   readonly blockedTagReasons: ReadonlyMap<number, string>;
@@ -56,7 +60,7 @@ function readJson(file: string): unknown {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
 
-function readScope(file: string): Scope {
+function readScope(file: string): ContingencyContractSimulationScope {
   const value = requireRecord(readJson(file), file);
   const supportedTagIds = new Set(
     requireArray(value.supportedTagIds, `${file}.supportedTagIds`).map((entry, index) =>
@@ -102,7 +106,10 @@ function readScope(file: string): Scope {
   return { supportedTagIds, enemyMaxHealthTagIds, blockedTagReasons, omittedTagReasons };
 }
 
-function validateScope(catalog: ContingencyContractCatalogSource, scope: Scope): void {
+function validateScope(
+  catalog: ContingencyContractCatalogSource,
+  scope: ContingencyContractSimulationScope,
+): void {
   const catalogIds = new Set(catalog.tags.map(tag => tag.tagId));
   for (const id of [
     ...scope.supportedTagIds,
@@ -124,8 +131,8 @@ function validateScope(catalog: ContingencyContractCatalogSource, scope: Scope):
 }
 
 function mergeDefinitions(
-  target: Record<string, unknown>,
-  definitions: Readonly<Record<string, unknown>>,
+  target: Record<string, CompiledBuffDefinitionSource>,
+  definitions: Readonly<Record<string, CompiledBuffDefinitionSource>>,
   owner: string,
 ): void {
   for (const [id, definition] of Object.entries(definitions)) {
@@ -145,7 +152,10 @@ function assignments(term: {
   );
 }
 
-export async function generateContingencyContractDefinitions(args: Arguments) {
+/** 同批来源编译入口；保留范围校验和闭包阻断，不渲染、写盘或读取现存生成定义。 */
+export function compileContingencyContractDefinitionsFromFiles(
+  args: ContingencyContractDefinitionSourceArguments,
+) {
   const catalog = parseContingencyContractCatalogSource(
     readJson(path.join(args.tableRoot, 'CcTagTable.json')),
     readJson(path.join(args.tableRoot, 'ContingencyContractTable.json')),
@@ -162,7 +172,7 @@ export async function generateContingencyContractDefinitions(args: Arguments) {
   const skillSettingCatalog = readJson(args.skillSettingCatalog);
   const gameplayTagRegistry = new GameplayTagRegistry(args.gameplayTagPaths);
   const loadBuff = (id: string) => readJson(path.join(args.buffDataRoot, `${id}.json`));
-  const definitions: Record<string, unknown> = {};
+  const definitions: Record<string, CompiledBuffDefinitionSource> = {};
   const plans: ContingencyContractInitializationPlan[] = [];
   const enemyMaxHealthPlans: ContingencyContractEnemyMaxHealthPlan[] = [];
 
@@ -243,6 +253,23 @@ export async function generateContingencyContractDefinitions(args: Arguments) {
     plans.push({ tagId: tag.tagId, sequence: { steps } });
   }
 
+  return {
+    buffDefinitions: definitions,
+    initializationPlans: plans,
+    enemyMaxHealthPlans,
+    scope,
+    revision,
+  };
+}
+
+export async function generateContingencyContractDefinitions(args: Arguments) {
+  const {
+    buffDefinitions: definitions,
+    initializationPlans: plans,
+    enemyMaxHealthPlans,
+    scope,
+    revision,
+  } = compileContingencyContractDefinitionsFromFiles(args);
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(
     `/** 由危机合约原生词条、GlobalBuff 与 BuffData 闭包生成；不要手工编辑。 */

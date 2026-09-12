@@ -862,7 +862,6 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
     atk_scale1: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
     atk_scale2: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
     isCombo: 0,
-    poise1: 0,
     poise2: 5,
     atk_scale3: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
     poise: 5,

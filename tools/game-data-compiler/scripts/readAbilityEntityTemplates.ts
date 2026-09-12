@@ -8,7 +8,10 @@ import { requireRecord } from '../src/source/primitives.ts';
  * 当前来源直接读取 AbilityEntityData；旧证据文件仅在调用方显式指定时读取。
  * 不从正式目录补缺，不写聚合中间产物，两种容器最终进入同一个严格模板解析器。
  */
-export function readAbilityEntityTemplates(input: string) {
+export function readAbilityEntityTemplates(
+  input: string,
+  readJson: (file: string) => unknown = file => JSON.parse(fs.readFileSync(file, 'utf8')),
+) {
   const stat = fs.lstatSync(input);
   if (stat.isSymbolicLink()) throw new Error(`ability entity source is a link: ${input}`);
   if (stat.isDirectory()) {
@@ -16,13 +19,11 @@ export function readAbilityEntityTemplates(input: string) {
     for (const entry of fs.readdirSync(input, { withFileTypes: true })) {
       if (!entry.isFile() || !/^[A-Za-z0-9_-]+\.json$/.test(entry.name))
         throw new Error(`unexpected ability entity source entry: ${entry.name}`);
-      records[entry.name.slice(0, -5)] = JSON.parse(
-        fs.readFileSync(path.join(input, entry.name), 'utf8'),
-      );
+      records[entry.name.slice(0, -5)] = readJson(path.join(input, entry.name));
     }
     return compileAbilityEntityTemplateCatalogSource(records, input);
   }
-  const evidence = requireRecord(JSON.parse(fs.readFileSync(input, 'utf8')), input);
+  const evidence = requireRecord(readJson(input), input);
   const lifeTypes = requireRecord(evidence.lifeTypeNativeValues, `${input}.lifeTypeNativeValues`);
   if (
     evidence.format !== 'EndaxisLogicalAbilityEntityTemplateEvidence' ||

@@ -2,11 +2,16 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import type { OperatorDefinition } from '../../../packages/game-data-contract/src/operators.ts';
+import { avywenna } from '../../../src/data/operators/avywenna.ts';
 
-const { renderOperatorDefinition } = vi.hoisted(() => ({ renderOperatorDefinition: vi.fn() }));
-vi.mock('../scripts/planOperatorDefinition.ts', () => ({
+const { planOperatorDefinition, renderOperatorDefinitionFiles } = vi.hoisted(() => ({
   planOperatorDefinition: vi.fn(),
-  renderOperatorDefinition,
+  renderOperatorDefinitionFiles: vi.fn(),
+}));
+vi.mock('../scripts/planOperatorDefinition.ts', () => ({
+  planOperatorDefinition,
+  renderOperatorDefinitionFiles,
 }));
 
 import { generateOperatorDefinitionCandidates } from '../scripts/generateOperatorDefinitionCandidates.ts';
@@ -14,20 +19,29 @@ import { generateOperatorDefinitionCandidates } from '../scripts/generateOperato
 const roots: string[] = [];
 
 beforeEach(() => {
-  renderOperatorDefinition.mockReset();
-  renderOperatorDefinition.mockImplementation(async ({ slug }: { slug: string }) => ({
-    plan: {
-      activeSkills: [{ key: `${slug}-skill` }],
-      operator: {
-        talents: [{ key: 'talent' }],
-        potentials: [{ key: 'potential' }],
-        abilityEntityDefinitions: {},
-        buffDefinitions: {},
-      },
-      commonBuffDefinitions: {},
-    },
+  vi.resetAllMocks();
+  planOperatorDefinition.mockImplementation(({ slug }: { slug: string }) => ({
+    activeSkills: [{ key: `${slug}-skill` }],
+    operator: {
+      ...avywenna,
+      skillGroups: [],
+      talents: [],
+      potentials: [],
+      passiveSkills: [],
+      eventHandlers: [],
+      comboSkillConditions: [],
+      abilityEntityDefinitions: {},
+      buffDefinitions: {},
+    } satisfies OperatorDefinition,
+    commonBuffDefinitions: {},
+    audit: { slug },
+  }));
+  renderOperatorDefinitionFiles.mockImplementation(async (slug: string, _operator, audit) => ({
     file: { relativePath: `${slug}.ts`, content: `export default '${slug}';\n` },
-    auditFile: { relativePath: 'operator.audit.json', content: `{"slug":"${slug}"}\n` },
+    auditFile: {
+      relativePath: 'operator.audit.json',
+      content: `${JSON.stringify(audit)}\n`,
+    },
   }));
 });
 
@@ -77,7 +91,7 @@ describe('整批干员候选写入', () => {
           check: false,
         }),
       ).rejects.toThrow('must not overlap');
-      expect(renderOperatorDefinition).not.toHaveBeenCalled();
+      expect(planOperatorDefinition).not.toHaveBeenCalled();
     },
   );
 
@@ -107,6 +121,12 @@ describe('整批干员候选写入', () => {
     await expect(
       generateOperatorDefinitionCandidates({ ...input, check: true }),
     ).resolves.toMatchObject({ operatorCount: 2 });
+    expect(planOperatorDefinition.mock.calls.map(([args]) => args.optimization)).toEqual([
+      'off',
+      'off',
+      'off',
+      'off',
+    ]);
   });
 
   it('中途渲染失败时不碰上一份候选或审计目录', async () => {
@@ -115,10 +135,10 @@ describe('整批干员候选写入', () => {
     await fs.mkdir(paths.auditRoot);
     await fs.writeFile(path.join(paths.outputRoot, 'previous'), 'operator snapshot');
     await fs.writeFile(path.join(paths.auditRoot, 'previous'), 'audit snapshot');
-    renderOperatorDefinition.mockImplementationOnce(
-      renderOperatorDefinition.getMockImplementation()!,
+    renderOperatorDefinitionFiles.mockImplementationOnce(
+      renderOperatorDefinitionFiles.getMockImplementation()!,
     );
-    renderOperatorDefinition.mockRejectedValueOnce(new Error('second operator blocked'));
+    renderOperatorDefinitionFiles.mockRejectedValueOnce(new Error('second operator blocked'));
 
     await expect(
       generateOperatorDefinitionCandidates({ ...sourceArguments, ...paths, check: false }),
@@ -140,6 +160,6 @@ describe('整批干员候选写入', () => {
     await expect(
       generateOperatorDefinitionCandidates({ ...sourceArguments, ...paths, check: false }),
     ).rejects.toThrow('duplicate slugs');
-    expect(renderOperatorDefinition).not.toHaveBeenCalled();
+    expect(planOperatorDefinition).not.toHaveBeenCalled();
   });
 });

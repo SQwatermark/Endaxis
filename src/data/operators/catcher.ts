@@ -1107,7 +1107,6 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
     talent_1: 0,
     weak_duration: 8,
     weak_scale: [0.2, 0.2, 0.2, 0.2, 0.2, 0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.3],
-    poise_display: 20,
   },
 );
 

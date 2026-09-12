@@ -10,6 +10,7 @@ import {
 import { renderCommonBuffDefinitionsSource } from '../src/domains/operator/definitionSourceRenderer.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { planOperatorDefinition } from './planOperatorDefinition.ts';
+import { OperatorPlanningSources } from './operatorPlanningSources.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './generateOperatorActiveSkillRuntime.ts';
@@ -46,7 +47,8 @@ const presentationNamesPath = path.resolve(
  * 干员只负责暴露“使用了哪些公共 ID”；重复 ID 必须得到完全一致的定义，不能靠导入顺序覆盖。
  */
 export async function generateCommonBuffDefinitions(args: Arguments) {
-  const manifest = requireRecord(read(args.manifest), args.manifest);
+  const sources = new OperatorPlanningSources(args);
+  const manifest = requireRecord(sources.readJson(args.manifest), args.manifest);
   const slugs = requireArray(manifest.operators, `${args.manifest}.operators`).map((value, index) =>
     requireNonEmptyString(
       requireRecord(value, `${args.manifest}.operators[${index}]`).slug,
@@ -60,19 +62,22 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
   for (const slug of slugs) {
     const plan = planOperatorDefinition({
       ...args,
+      sources,
       slug,
       output: path.join('tmp', 'game-data-generated', 'operator-definitions', slug),
       auditOutput: path.join('tmp', 'game-data-audit', 'operator-definitions', slug),
     });
     collector.add(slug, plan.commonBuffDefinitions);
+    sources.releaseOperator();
   }
-  const rendered = await renderCollectedCommonBuffDefinitions(args, collector);
+  const rendered = await renderCollectedCommonBuffDefinitions(args, collector, sources);
   if (args.check) checkGeneratedDefinitionFiles(args.output, rendered.files);
   else await writeGeneratedDefinitionFiles(args.output, rendered.files);
   return {
     operatorCount: slugs.length,
     buffCount: rendered.buffCount,
     optimization: rendered.optimization,
+    sourceReads: sources.statistics(),
   };
 }
 
@@ -87,7 +92,9 @@ export async function renderCollectedCommonBuffDefinitions(
     | 'optimization'
   >,
   collector: CommonBuffCollector<OperatorBuffDefinitions[string]>,
+  sources?: OperatorPlanningSources,
 ) {
+  const readSource = sources?.readJson ?? read;
   // 系统附着产生的 Buff 不一定被干员技能直接引用，仍须进入同一公共定义所有权。
   // 清单仅声明根身份；动作、倍率、标签和生命周期全部走公共原始 Buff 编译器。
   const systemRoots = readSystemBuffRoots(
@@ -95,14 +102,17 @@ export async function renderCollectedCommonBuffDefinitions(
   );
   const systemClosure = compileStandardStumpBuffClosure(
     systemRoots,
-    (id: string) => read(path.join(args.buffDataRoot, `${id}.json`)),
-    read(args.globalBuffCatalog),
-    read(args.skillSettingCatalog),
+    (id: string) => readSource(path.join(args.buffDataRoot, `${id}.json`)),
+    readSource(args.globalBuffCatalog),
+    readSource(args.skillSettingCatalog),
     undefined,
     undefined,
     new Map(systemRoots.map(id => [id, 'enemy' as const])),
     new Set(),
-    new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
+    new GameplayTagRegistry(
+      sources?.gameplayTags(args.gameplayTagCatalog) ??
+        readGameplayTagPaths(args.gameplayTagCatalog),
+    ),
     new Map(systemRoots.map(id => [id, 'caster' as const])),
   );
   const blocked = systemClosure.diagnostics.filter(item => item.status === 'blocked');

@@ -1039,7 +1039,6 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
   {
     atk_scale1: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
     atk_scale2: [2.44, 2.69, 2.93, 3.18, 3.42, 3.67, 3.91, 4.15, 4.4, 4.7, 5.07, 5.5],
-    isWall: 0,
     poise1: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
     poise2: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
     radius: 1,

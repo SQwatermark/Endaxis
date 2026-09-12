@@ -13,6 +13,7 @@ import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-d
 import {
   analyzeConditionUsage,
   analyzeStepUsage,
+  type DefinitionUsageContext,
   type DefinitionValueUsage,
 } from './definitionUsageAnalysis.ts';
 
@@ -31,6 +32,7 @@ export interface SkillValueOptimizationReport {
 export function pruneUnusedSkillValues(
   skill: SkillDefinition,
   protectedKeys: ReadonlySet<string> = new Set(),
+  usageContext?: DefinitionUsageContext,
 ): { readonly skill: SkillDefinition; readonly report: SkillValueOptimizationReport } {
   const live = new Set([...protectedKeys, NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY]);
   const candidates: {
@@ -50,7 +52,7 @@ export function pruneUnusedSkillValues(
     program.steps.forEach((step, index) => {
       const stepPath = `${path}.steps[${index}]`;
       if (step.kind === 'modifyActionValue' || step.kind === 'calculateActionValue') {
-        const usage = analyzeStepUsage(step);
+        const usage = analyzeStepUsage(step, usageContext);
         candidates.push({ step, path: stepPath, usage });
         const operands =
           step.kind === 'modifyActionValue'
@@ -81,10 +83,13 @@ export function pruneUnusedSkillValues(
           return;
         case 'switch':
           observe(
-            analyzeStepUsage({
-              ...step,
-              options: step.options.map(option => ({ ...option, sequence: { steps: [] } })),
-            }),
+            analyzeStepUsage(
+              {
+                ...step,
+                options: step.options.map(option => ({ ...option, sequence: { steps: [] } })),
+              },
+              usageContext,
+            ),
           );
           step.options.forEach((option, optionIndex) =>
             collect(option.sequence, `${stepPath}.options[${optionIndex}].sequence`),
@@ -94,7 +99,7 @@ export function pruneUnusedSkillValues(
         case 'repeatEachTick':
         case 'repeatByActionValue':
         case 'forEachContextTarget':
-          observe(analyzeStepUsage({ ...step, body: { steps: [] } }));
+          observe(analyzeStepUsage({ ...step, body: { steps: [] } }, usageContext));
           collect(step.body, `${stepPath}.body`);
           return;
         case 'listenForCombatEvents':
@@ -108,7 +113,7 @@ export function pruneUnusedSkillValues(
           });
           return;
         default:
-          observe(analyzeStepUsage(step));
+          observe(analyzeStepUsage(step, usageContext));
       }
     });
   };

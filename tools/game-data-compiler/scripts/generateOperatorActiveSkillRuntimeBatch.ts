@@ -4,7 +4,7 @@ import { fileURLToPath } from 'node:url';
 import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { parseOperatorActiveSkillEntries } from '../src/domains/operator/activeSkills.ts';
 import { requireArray, requireRecord } from '../src/source/primitives.ts';
-import { generateOperatorDefinition } from './planOperatorDefinition.ts';
+import { generateOperatorDefinition } from './generateOperatorDefinition.ts';
 import {
   planOperatorActiveSkillRuntime,
   type PlannedOperatorActiveSkillRuntime,

@@ -519,7 +519,6 @@ export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08],
     atk_scale_sword: [0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11],
     sword_dist: 0,
-    display_atk_scale: [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54],
   },
 );
 
@@ -653,10 +652,7 @@ export const zhuangFangyiBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atk_scale: [0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25],
-    display_atk_scale: [0.45, 0.5, 0.54, 0.59, 0.63, 0.68, 0.72, 0.77, 0.81, 0.87, 0.93, 1.01],
-  },
+  { atk_scale: [0.11, 0.12, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25] },
 );
 
 export const zhuangFangyiBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -1347,11 +1343,9 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
     atk_up_final: 0,
     atk_up_per_conduct: [0.03, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.07, 0.08, 0.09],
-    cam_angle: 0,
     conductCnt: 0,
     final_rate: 6,
     free_sword_limit: 3,
-    input_angle: 0,
     max_conduct_sword: 3,
     poise: 15,
     remain_sword_limit: 9,
@@ -1360,7 +1354,6 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
     sword_range: 50,
     swordTriggerInterval: 0,
     usp_extra: 6,
-    usp_extra_limit: 54,
   },
 );
 
@@ -1745,18 +1738,14 @@ export const zhuangFangyiEnhancedBattleSkill: SkillDefinition = withSkillBlackbo
     atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
     atk_up_final: 0,
     atk_up_per_conduct: [0.08, 0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18],
-    cam_angle: 0,
     conductCnt: 0,
     final_rate: 6,
     free_sword_limit: 3,
-    input_angle: 0,
     max_conduct_sword: 3,
     poise: 15,
     remain_sword_limit: 9,
     sword_duration: 36,
     sword_gene_num: 0,
-    sword_range: 50,
-    swordTriggerInterval: 0,
   },
 );
 
@@ -2146,7 +2135,7 @@ export const zhuangFangyiUltimate: SkillDefinition = withSkillBlackboard(
     levelSource: 'ultimate',
     nativeSkillType: 'ultimateSkill',
   },
-  { combo_cd_rate: 4, duration: 25, duration_extra: 1 },
+  { combo_cd_rate: 4, duration: 25 },
 );
 
 export const zhuangFangyiUltimateEnd: SkillDefinition = withSkillBlackboard(
@@ -2218,11 +2207,6 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
           }),
-          step('modifyActionValue', {
-            key: 'target_in_range',
-            operation: 'assign',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         13,
       ),
@@ -2273,12 +2257,7 @@ export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackb
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.67, 0.73, 0.8, 0.86, 0.93, 1, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5],
-    sword_dist: 0,
-    target_in_range: 0,
-  },
+  { atb: 0, atk_scale: [0.67, 0.73, 0.8, 0.86, 0.93, 1, 1.06, 1.13, 1.2, 1.28, 1.38, 1.5] },
 );
 
 export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -2314,11 +2293,6 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
             dieWhenSourceDies: false,
             target: 'enemy',
             stringBlackboardAssignments: { EntityBB_hitedMark: 'attack1UltHitMark' },
-          }),
-          step('modifyActionValue', {
-            key: 'target_in_range',
-            operation: 'assign',
-            value: { kind: 'constant', value: 1 },
           }),
         ),
         11,
@@ -2377,11 +2351,7 @@ export const zhuangFangyiEnhancedBasicAttack2: SkillDefinition = withSkillBlackb
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
   },
-  {
-    atk_scale: [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1],
-    sword_dist: 0,
-    target_in_range: 0,
-  },
+  { atk_scale: [0.94, 1.03, 1.12, 1.22, 1.31, 1.4, 1.5, 1.59, 1.68, 1.8, 1.94, 2.1] },
 );
 
 export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -2454,7 +2424,6 @@ export const zhuangFangyiEnhancedBasicAttack3: SkillDefinition = withSkillBlackb
     atb: 20,
     atk_scale: [1.34, 1.47, 1.6, 1.74, 1.87, 2, 2.14, 2.27, 2.4, 2.57, 2.77, 3],
     poise: 18,
-    thunderIndex: 0,
   },
 );
 

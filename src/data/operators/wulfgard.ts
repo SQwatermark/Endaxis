@@ -1158,14 +1158,8 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
-    cam_angle: 0,
-    cam_duration: 0,
     count: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    select_radius: 4,
     usp: 10,
   },
 );

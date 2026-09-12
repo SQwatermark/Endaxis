@@ -1,4 +1,4 @@
-import fs from 'node:fs';
+import { OperatorPlanningSources } from './operatorPlanningSources.ts';
 import path from 'node:path';
 import {
   checkGeneratedDefinitionFiles,
@@ -6,7 +6,10 @@ import {
   type RenderedDefinitionFileSource,
 } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
-import { planOperatorDefinition, renderOperatorDefinition } from './planOperatorDefinition.ts';
+import { planOperatorDefinition, renderOperatorDefinitionFiles } from './planOperatorDefinition.ts';
+import { optimizeOperatorDefinitionPrograms } from '../src/compiler/definitionProgramOptimization.ts';
+import { collectSharedEntityValueUsage } from '../src/compiler/definitionEntityUsageContext.ts';
+import { compileEntityValueConsumers } from './compileEntityValueConsumers.ts';
 import {
   createCommonBuffCollector,
   renderCollectedCommonBuffDefinitions,
@@ -16,7 +19,7 @@ type PlanArguments = Parameters<typeof planOperatorDefinition>[0];
 
 export interface OperatorDefinitionCandidateArguments extends Omit<
   PlanArguments,
-  'slug' | 'output' | 'auditOutput'
+  'slug' | 'output' | 'auditOutput' | 'sources'
 > {
   readonly outputRoot: string;
   readonly auditRoot: string;
@@ -47,7 +50,37 @@ export async function generateOperatorDefinitionCandidates(
         throw new Error('operator, audit and common Buff output directories must not overlap');
     }
   }
-  const manifest = requireRecord(JSON.parse(fs.readFileSync(args.manifest, 'utf8')), args.manifest);
+  const rendered = await renderOperatorDefinitionBatch({
+    ...args,
+    includeCommonBuffs: args.commonBuffOutput !== undefined,
+  });
+  if (args.check) {
+    checkGeneratedDefinitionFiles(args.outputRoot, rendered.files);
+    checkGeneratedDefinitionFiles(args.auditRoot, rendered.auditFiles);
+    if (rendered.commonBuffs && args.commonBuffOutput !== undefined)
+      checkGeneratedDefinitionFiles(args.commonBuffOutput, rendered.commonBuffs.files);
+  } else {
+    await writeGeneratedDefinitionFiles(args.auditRoot, rendered.auditFiles);
+    await writeGeneratedDefinitionFiles(args.outputRoot, rendered.files);
+    if (rendered.commonBuffs && args.commonBuffOutput !== undefined)
+      await writeGeneratedDefinitionFiles(args.commonBuffOutput, rendered.commonBuffs.files);
+  }
+  return rendered.summary;
+}
+
+/** 写入多少名干员与分析多少名干员分开：选中一人时仍从完整 manifest 收集消费者。 */
+export interface OperatorDefinitionBatchArguments extends Omit<
+  OperatorDefinitionCandidateArguments,
+  'check' | 'commonBuffOutput'
+> {
+  readonly includeCommonBuffs: boolean;
+  readonly selectedSlug?: string;
+}
+
+/** 正式单人入口和整批候选共用的无写入步骤，保证同来源、同模式得到相同文本。 */
+export async function renderOperatorDefinitionBatch(args: OperatorDefinitionBatchArguments) {
+  const sources = new OperatorPlanningSources(args);
+  const manifest = requireRecord(sources.readJson(args.manifest), args.manifest);
   const rows = requireArray(manifest.operators, `${args.manifest}.operators`);
   const slugs = rows.map((value, index) =>
     requireNonEmptyString(
@@ -57,66 +90,99 @@ export async function generateOperatorDefinitionCandidates(
   );
   if (new Set(slugs).size !== slugs.length)
     throw new Error('operator manifest contains duplicate slugs');
+  if (args.selectedSlug !== undefined && !slugs.includes(args.selectedSlug))
+    throw new Error(`operator manifest does not contain '${args.selectedSlug}'`);
 
   const files: RenderedDefinitionFileSource[] = [];
   const auditFiles: RenderedDefinitionFileSource[] = [];
   const summaries = [];
-  const commonBuffs = args.commonBuffOutput === undefined ? undefined : createCommonBuffCollector();
+  const prepared: {
+    readonly slug: string;
+    readonly operator: ReturnType<typeof planOperatorDefinition>['operator'];
+    readonly audit: string;
+  }[] = [];
+  const commonBuffs = args.includeCommonBuffs ? createCommonBuffCollector() : undefined;
   for (const slug of slugs) {
-    const rendered = await renderOperatorDefinition({
+    const plan = planOperatorDefinition({
       ...args,
+      sources,
       slug,
-      // 单技能规划仍用这两个路径生成稳定相对文件名；候选写入由本函数在整批成功后完成。
+      // 全部消费者收齐后再优化，只保留最终定义和审计文本，不保留原始动作图等完整计划。
+      optimization: 'off',
+      // 单技能规划仍用这两个路径生成稳定相对文件名；整批成功后由调用方选择写入目标。
       output: args.outputRoot,
       auditOutput: `${args.auditRoot}/${slug}`,
     });
-    commonBuffs?.add(slug, rendered.plan.commonBuffDefinitions);
-    files.push({
-      relativePath: rendered.file.relativePath,
-      content: rendered.file.content,
-    });
-    auditFiles.push({
-      relativePath: `${slug}/${rendered.auditFile.relativePath}`,
-      content: rendered.auditFile.content,
-    });
+    commonBuffs?.add(slug, plan.commonBuffDefinitions);
+    prepared.push({ slug, operator: plan.operator, audit: JSON.stringify(plan.audit) });
     summaries.push({
       slug,
-      skillCount: rendered.plan.activeSkills.length,
-      talentCount: rendered.plan.operator.talents.length,
-      potentialCount: rendered.plan.operator.potentials.length,
-      entityCount: Object.keys(rendered.plan.operator.abilityEntityDefinitions!).length,
-      privateBuffCount: Object.keys(rendered.plan.operator.buffDefinitions!).length,
-      commonBuffCount: Object.keys(rendered.plan.commonBuffDefinitions).length,
+      skillCount: plan.activeSkills.length,
+      talentCount: plan.operator.talents.length,
+      potentialCount: plan.operator.potentials.length,
+      entityCount: Object.keys(plan.operator.abilityEntityDefinitions!).length,
+      privateBuffCount: Object.keys(plan.operator.buffDefinitions!).length,
+      commonBuffCount: Object.keys(plan.commonBuffDefinitions).length,
     });
+    sources.releaseOperator();
   }
 
-  // 不保留整批计划对象。收集器只留下去重后的公共定义，每次生成或检查都重新创建。
+  // 系统根先补入原始公共定义。缺少完整公共目录时不宣称已经覆盖跨干员消费者。
   const renderedCommonBuffs = commonBuffs
-    ? await renderCollectedCommonBuffDefinitions(args, commonBuffs)
+    ? await renderCollectedCommonBuffDefinitions(args, commonBuffs, sources)
     : undefined;
-  if (args.check) {
-    checkGeneratedDefinitionFiles(args.outputRoot, files);
-    checkGeneratedDefinitionFiles(args.auditRoot, auditFiles);
-    if (renderedCommonBuffs && args.commonBuffOutput !== undefined)
-      checkGeneratedDefinitionFiles(args.commonBuffOutput, renderedCommonBuffs.files);
-  } else {
-    await writeGeneratedDefinitionFiles(args.auditRoot, auditFiles);
-    await writeGeneratedDefinitionFiles(args.outputRoot, files);
-    if (renderedCommonBuffs && args.commonBuffOutput !== undefined)
-      await writeGeneratedDefinitionFiles(args.commonBuffOutput, renderedCommonBuffs.files);
+  const sharedEntityUsage =
+    commonBuffs && args.optimization !== 'off'
+      ? collectSharedEntityValueUsage({
+          operators: prepared.map(item => item.operator),
+          commonBuffDefinitions: commonBuffs.definitions,
+          ...(await compileEntityValueConsumers({ ...args, sources })),
+        })
+      : undefined;
+  while (prepared.length > 0) {
+    const item = prepared.shift()!;
+    if (args.selectedSlug !== undefined && item.slug !== args.selectedSlug) continue;
+    const optimized = optimizeOperatorDefinitionPrograms(
+      item.operator,
+      args.optimization ?? 'apply',
+      sharedEntityUsage,
+    );
+    const rendered = await renderOperatorDefinitionFiles(item.slug, optimized.operator, {
+      ...requireRecord(JSON.parse(item.audit), `${item.slug}.audit`),
+      optimization: optimized.report,
+    });
+    files.push(rendered.file);
+    auditFiles.push({
+      relativePath: `${item.slug}/${rendered.auditFile.relativePath}`,
+      content: rendered.auditFile.content,
+    });
   }
   return {
-    operatorCount: summaries.length,
-    skillCount: summaries.reduce((sum, item) => sum + item.skillCount, 0),
-    operators: summaries,
-    ...(renderedCommonBuffs
-      ? {
-          commonBuffs: {
-            buffCount: renderedCommonBuffs.buffCount,
-            optimization: renderedCommonBuffs.optimization,
-          },
-        }
-      : {}),
+    files,
+    auditFiles,
+    commonBuffs: renderedCommonBuffs,
+    summary: {
+      operatorCount: summaries.length,
+      skillCount: summaries.reduce((sum, item) => sum + item.skillCount, 0),
+      operators: summaries,
+      sourceReads: sources.statistics(),
+      ...(sharedEntityUsage
+        ? {
+            entityValueConsumers: {
+              reads: [...sharedEntityUsage.reads].sort(),
+              unknownAccess: sharedEntityUsage.unknownAccess,
+            },
+          }
+        : {}),
+      ...(renderedCommonBuffs
+        ? {
+            commonBuffs: {
+              buffCount: renderedCommonBuffs.buffCount,
+              optimization: renderedCommonBuffs.optimization,
+            },
+          }
+        : {}),
+    },
   };
 }
 

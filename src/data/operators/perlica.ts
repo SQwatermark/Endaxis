@@ -903,7 +903,6 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     crit: 0,
     poise: 20,
     radius: 4,
-    select_radius: 10,
   },
 );
 

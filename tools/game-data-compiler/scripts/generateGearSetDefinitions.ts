@@ -11,25 +11,28 @@ import { optimizeGearSetDefinitionPrograms } from '../src/compiler/equipmentDefi
 
 import {
   checkEquipmentDefinitionFiles,
-  compileEquipmentSuitRuntimeBatchSource,
-  compileEquipmentSuitStaticDefinitionBatchSource,
-  renderEquipmentSuitDefinitionFiles,
   writeEquipmentDefinitionFiles,
-} from '../src/index.ts';
+} from '../src/domains/equipment/writeFormalDefinitions.ts';
+import { compileEquipmentSuitRuntimeBatchSource } from '../src/domains/equipment/suitRuntimeDefinition.ts';
+import { compileEquipmentSuitStaticDefinitionBatchSource } from '../src/domains/equipment/suitStaticDefinition.ts';
+import { renderEquipmentSuitDefinitionFiles } from '../src/domains/equipment/renderSuitDefinitions.ts';
 
-export interface GearSetGenerationArguments {
+export interface GearSetDefinitionSourceArguments {
   readonly tablesDirectory: string;
   readonly skillDataDirectory: string;
   readonly buffDataDirectory: string;
   readonly gameplayTagCatalog: string;
+}
+
+export interface GearSetGenerationArguments extends GearSetDefinitionSourceArguments {
   readonly outputDirectory: string;
   readonly check: boolean;
   /** 默认应用已验证的优化；report 仅报告候选，off 用于生成对照。 */
   readonly optimization?: DefinitionOptimizationMode;
 }
 
-/** 正式生成遍历来源表的全部身份，不再用历史发布名单截断新增内容。 */
-export async function generateGearSetDefinitions(input: GearSetGenerationArguments) {
+/** 只读取同批原始文件并编译全部套装；不优化或渲染，任何来源阻断仍完整报错。 */
+export async function compileGearSetDefinitionsFromFiles(input: GearSetDefinitionSourceArguments) {
   const table = async (name: string) =>
     JSON.parse(await readFile(resolve(input.tablesDirectory, `${name}.json`), 'utf8')) as unknown;
   const skillData = await readJsonDirectory(input.skillDataDirectory);
@@ -50,6 +53,12 @@ export async function generateGearSetDefinitions(input: GearSetGenerationArgumen
       `gear sets are not runtime-closed:\n${blocked.map(diagnostic => `${diagnostic.sourcePath}: ${diagnostic.reason}`).join('\n')}`,
     );
   }
+  return batch;
+}
+
+/** 正式生成遍历来源表的全部身份，不再用历史发布名单截断新增内容。 */
+export async function generateGearSetDefinitions(input: GearSetGenerationArguments) {
+  const batch = await compileGearSetDefinitionsFromFiles(input);
   const prettierConfig = (await resolveConfig(resolve('.prettierrc.json'))) ?? {};
   const optimized = batch.definitions.map(definition =>
     optimizeGearSetDefinitionPrograms(definition, input.optimization ?? 'apply'),

@@ -1,5 +1,5 @@
-import { readAbilityEntityTemplates } from './readAbilityEntityTemplates.ts';
-import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
+import { OperatorPlanningSources } from './operatorPlanningSources.ts';
+import { requireRecord } from '../src/source/primitives.ts';
 export { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -50,11 +50,12 @@ import type {
 } from '../src/compiler/combatProjectionCommon.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTemplate.ts';
 import { createGlobalBuffProjectionExtensions } from '../src/compiler/globalBuffProjection.ts';
-import { parseSkillSettingCatalogSource } from '../src/source/skillSettingCatalog.ts';
 import { createSkillSettingProjectionExtensions } from '../src/compiler/skillSettingProjection.ts';
 import { readGeneratedTimeDilationPriorities } from '../src/compiler/generatedTimeDilationCatalog.ts';
 
 export interface OperatorActiveSkillRuntimeArguments {
+  /** 整名或整批规划共用当轮来源；单技能入口省略时创建独立实例。 */
+  readonly sources?: OperatorPlanningSources;
   readonly sourceRoot: string;
   readonly sourceFile: string;
   readonly skillPatchTable: string;
@@ -125,6 +126,7 @@ function loadProjectileCallbackClosure(
   initialLaunches: readonly ProjectileLaunchActionSource[],
   sourceRoot: string,
   patchTable: Record<string, unknown>,
+  sources: OperatorPlanningSources,
 ): {
   readonly launches: readonly ProjectileLaunchActionSource[];
   readonly callbackGraphs: ReadonlyMap<string, ReturnType<typeof parseKnownSkillActionGraphSource>>;
@@ -143,7 +145,7 @@ function loadProjectileCallbackClosure(
     for (const callback of launches[index]!.callbacks) {
       if (!callback.enabled || callbackGraphs.has(callback.skillId)) continue;
       const id = callback.skillId;
-      const value = readJson(path.resolve(sourceRoot, 'SkillData', `${id}.json`));
+      const value = sources.readJson(path.resolve(sourceRoot, 'SkillData', `${id}.json`));
       assertNoUnprojectedSkillRootEffects(value, `SkillData.${id}`);
       const callbackPatch = id in patchTable ? parseSkillPatchSource(patchTable[id], id) : null;
       const prepared = prepareSkillDefinitionInputSource(value, id, callbackPatch);
@@ -186,9 +188,10 @@ function preferDecodedProjectileBlackboards(
 function readLegacyProjectileBlackboardTemplates(
   catalogPath: string | undefined,
   projectileIds: readonly string[],
+  sources: OperatorPlanningSources,
 ): Map<string, ProjectileBlackboardTemplate> {
   if (catalogPath === undefined) return new Map();
-  const evidence = readJson(catalogPath) as {
+  const evidence = sources.readJson(catalogPath) as {
     projectiles: readonly {
       projectileId: string;
       entityBlackboard: readonly { key: string; value: number; isDynamic: boolean }[];
@@ -222,7 +225,11 @@ function readLegacyProjectileBlackboardTemplates(
 export function prepareProjectileProjection(
   args: Pick<
     OperatorActiveSkillRuntimeArguments,
-    'sourceRoot' | 'skillPatchTable' | 'projectileBlackboardCatalog' | 'timeDilationCatalog'
+    | 'sourceRoot'
+    | 'skillPatchTable'
+    | 'projectileBlackboardCatalog'
+    | 'timeDilationCatalog'
+    | 'sources'
   >,
   launches: readonly ProjectileLaunchActionSource[],
   visualOnlyIds: ReadonlySet<string>,
@@ -235,8 +242,10 @@ export function prepareProjectileProjection(
   readonly projectileIds: readonly string[];
   readonly callbackIds: readonly string[];
 } {
+  const sources = args.sources ?? new OperatorPlanningSources(args);
+  const readJson = sources.readJson;
   const patchTable = readJson(args.skillPatchTable) as Record<string, unknown>;
-  const closure = loadProjectileCallbackClosure(launches, args.sourceRoot, patchTable);
+  const closure = loadProjectileCallbackClosure(launches, args.sourceRoot, patchTable, sources);
   const projectileIds = [...new Set(closure.launches.map(launch => launch.projectileId))].sort();
   const callbackGraphs = closure.callbackGraphs;
   const callbackIds = [...callbackGraphs.keys()].sort();
@@ -255,12 +264,13 @@ export function prepareProjectileProjection(
   const templateCatalog = readLegacyProjectileBlackboardTemplates(
     args.projectileBlackboardCatalog,
     projectileIds,
+    sources,
   );
   // 当前 VFS ProjectileData 已能在部分资源中直接恢复 AbilitySystem.entityBlackboard；
   // 它与本轮 ProjectileComponentData 同源，优先级高于旧版本独立证据目录。尚未解出该字段的
   // 资源继续使用版本化目录，不能把“字段缺失”解释成空黑板。
   preferDecodedProjectileBlackboards(runtimeCatalog, templateCatalog);
-  const priorities = readTimeDilationPriorities(args.timeDilationCatalog);
+  const priorities = sources.timeDilationPriorities(args.timeDilationCatalog);
   const resolveTimeDilationPriority = (tagId: number, actionPath: string) => {
     const value = priorities.get(tagId);
     if (value === undefined)
@@ -300,9 +310,12 @@ export function prepareProjectileProjection(
 export function planOperatorActiveSkillRuntime(
   args: Omit<OperatorActiveSkillRuntimeArguments, 'check'>,
 ): PlannedOperatorActiveSkillRuntime {
+  const sources = args.sources ?? new OperatorPlanningSources(args);
+  const readJson = sources.readJson;
   const sourcePath = path.resolve(args.sourceRoot, 'SkillData', args.sourceFile);
-  const sourceText = fs.readFileSync(sourcePath, 'utf8');
-  const source = JSON.parse(sourceText);
+  const document = sources.readJsonDocument(sourcePath);
+  const sourceText = document.text;
+  const source = requireRecord(document.json, sourcePath);
   const skillId = String(source.skillId ?? '');
   if (!skillId) throw new Error(`${sourcePath}.skillId: expected non-empty string`);
   const sourceIdentity = `SkillData.${skillId}`;
@@ -314,15 +327,13 @@ export function planOperatorActiveSkillRuntime(
   const globalBuffCatalogValue =
     args.globalBuffCatalog === undefined ? undefined : readJson(args.globalBuffCatalog);
   const globalBuffCatalog =
-    globalBuffCatalogValue === undefined
-      ? undefined
-      : parseGlobalBuffTemplateCatalogSource(globalBuffCatalogValue);
+    globalBuffCatalogValue === undefined ? undefined : sources.globalBuffs(args.globalBuffCatalog!);
   const skillSettingCatalogValue =
     args.skillSettingCatalog === undefined ? undefined : readJson(args.skillSettingCatalog);
   const skillSettingCatalog =
     skillSettingCatalogValue === undefined
       ? undefined
-      : parseSkillSettingCatalogSource(skillSettingCatalogValue);
+      : sources.skillSettings(args.skillSettingCatalog!);
   const graph = parseKnownSkillActionGraphSource(
     source,
     sourceIdentity,
@@ -333,6 +344,7 @@ export function planOperatorActiveSkillRuntime(
     rootLaunches,
     args.sourceRoot,
     patchTable,
+    sources,
   );
   const callbackGraphs = projectileClosure.callbackGraphs;
   const projectileIds = [
@@ -348,11 +360,12 @@ export function planOperatorActiveSkillRuntime(
   const templateCatalog = readLegacyProjectileBlackboardTemplates(
     args.projectileBlackboardCatalog,
     projectileIds,
+    sources,
   );
   preferDecodedProjectileBlackboards(runtimeCatalog, templateCatalog);
-  const abilityCatalog = readAbilityEntityTemplates(args.abilityEntityCatalog);
-  const registry = new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog));
-  const priorities = readTimeDilationPriorities(args.timeDilationCatalog);
+  const abilityCatalog = sources.abilityEntities(args.abilityEntityCatalog);
+  const registry = new GameplayTagRegistry(sources.gameplayTags(args.gameplayTagCatalog));
+  const priorities = sources.timeDilationPriorities(args.timeDilationCatalog);
   const resolveTimeDilationPriority = (tagId: number, actionPath: string) => {
     const value = priorities.get(tagId);
     if (value === undefined)
@@ -604,7 +617,12 @@ export function planOperatorActiveSkillRuntime(
     ]),
   ].sort();
   const switchToBuffIds = collectCompiledBuffIds(definition.switchToBuffCast);
-  const buffData = loadBuffClosureSources(buffClosureRoots, args.buffDataRoot, globalBuffCatalog);
+  const buffData = loadBuffClosureSources(
+    buffClosureRoots,
+    args.buffDataRoot,
+    sources,
+    globalBuffCatalog,
+  );
   const buffClosure = compileStandardStumpBuffClosure(
     buffClosureRoots,
     buffData,
@@ -728,13 +746,10 @@ function readOwnedSiblingFiles(
     }));
 }
 
-function readJson(file: string): unknown {
-  return JSON.parse(fs.readFileSync(file, 'utf8'));
-}
-
 function loadBuffClosureSources(
   rootIds: readonly string[],
   directory: string,
+  sources: OperatorPlanningSources,
   globalBuffCatalog?: ReturnType<typeof parseGlobalBuffTemplateCatalogSource>,
 ): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -742,7 +757,7 @@ function loadBuffClosureSources(
   collectBuffRuntimeClosure(
     rootIds,
     id => {
-      const value = readJson(path.resolve(directory, `${id}.json`));
+      const value = sources.readJson(path.resolve(directory, `${id}.json`));
       result[id] = value;
       return value;
     },
