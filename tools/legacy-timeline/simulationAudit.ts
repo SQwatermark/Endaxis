@@ -27,6 +27,10 @@ function damageEntries(entries: readonly CombatReceiptEntry[]) {
         castId: entry.data?.castId,
         sourceActionId: entry.data?.sourceActionId,
         stepKey: entry.data?.stepKey,
+        skillType: entry.data?.skillType,
+        spellBurstType: entry.data?.spellBurstType,
+        damageType: entry.data?.damageType,
+        buffId: entry.data?.buffId,
         expectedDamage,
       };
     });

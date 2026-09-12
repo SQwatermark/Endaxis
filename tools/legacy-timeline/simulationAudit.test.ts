@@ -186,6 +186,10 @@ it('按完整 castId 拆账并保留关联 Buff 步骤与无施法伤害', async
         castId: 'cast:a',
         sourceActionId: 'skill:a',
         stepKey: 'direct',
+        skillType: 'battleSkill',
+        spellBurstType: 'Pulse',
+        damageType: 'electric',
+        buffId: 'status:sample',
       },
     },
     {
@@ -204,6 +208,12 @@ it('按完整 castId 拆账并保留关联 Buff 步骤与无施法伤害', async
     { simulate: async () => ({ receiptEntries: entries }) },
     scenario,
   );
+  expect(report.configured.damageRecords[0]).toMatchObject({
+    skillType: 'battleSkill',
+    spellBurstType: 'Pulse',
+    damageType: 'electric',
+    buffId: 'status:sample',
+  });
   expect(report.configured.casts).toEqual([
     {
       castId: 'cast:a',

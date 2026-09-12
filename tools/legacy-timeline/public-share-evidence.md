@@ -1913,7 +1913,7 @@ delay_damage Buff。旧版仍只有 32 条，因此本项不追求新旧相等�
 人工 `waterspouts` DOT；实际伤害是 1 次技能命中和 11 次 DOT。旧版把 300% 总倍率均分成
 `27.2727% × 11`。当前为 1 次技能命中和 12 次能力实体命中，合计同为 13 条真实伤害。
 原始 `chr_0027_tangtang_normal_skill_water_projhit.json` 的 SHA-256 是
-`DD3E692A9844CE591B91CDFDEC7590AF013FA4A6339CCB71686B4597563A1947`；其中原生时间轴范围是
+`D5A0E33D3B2A759DBB17D1D5CB85F468439B2F313D8400EEC0A1D887EC9EAD56`；其中原生时间轴范围是
 0 到 90 帧，`ChannelingAction` 明确配置 `executeEachFrame=false`、`triggerInterval=0.26`、
 `maxCountPerTarget=-1`，每次 Tick 内执行伤害，90 帧结束时结束实体。当前命中帧为
 24、44、52、60、68、75、83、91、99、107、114、122，间隔按 30 FPS 累计 0.26 秒取整。
@@ -2019,3 +2019,82 @@ delay_damage Buff。旧版仍只有 32 条，因此本项不追求新旧相等�
 `buff_chr_0026_lastrite_normal_skill_tag.json` 的 SHA-256 分别为
 `3D0231412291D6CF95BD52AE5D30CC304E6A0EA6EF8E62810A7ABDB27326F599`、
 `5885C7CCA9E2168E886B47850E174707CB7400164E9D05331EE0296577671F82`。当前不重复补发幻影和爆发。
+
+### 诀连携末段原生有三次伤害
+
+末段诀连携没有当前门禁诊断，旧版为两条固定 160% 人工命中，当前为三条。原始
+`chr_0026_lastrite_combo_skill.json` 在第 13 帧有一条 `DamageAction`；第 63 帧的同一目标循环
+内先读取敌人的寒冷法术异常层数，计算 `atk_scale3 × infliction_num` 并造成伤害，再独立执行
+`atk_scale2` 的第二条伤害，最后才按标签清除这些异常。因此原生总数明确是 1 加 2，共 3 条，
+且第二条不能改成固定倍率。
+
+当前回执分别对应第 13 帧基础伤害，以及第 63 帧的动态层数伤害和固定收尾伤害。原始文件
+SHA-256 为 `48E943B3D8B28F33AF30102D212D6A12E3A45CD4043CB6B5BD54176E6BE9FB81`。
+旧版两条 160% 没有保留第 63 帧两个 `DamageAction` 的结构，当前不按旧版减少命中。
+
+### 汤汤后续战技受下一次无效施法污染
+
+汤汤第三次战技在旧版有 5 次本体伤害和 11 次人工 `waterspouts` 伤害，当前回执有 5 次本体
+伤害，以及两组各 7 次的能力实体伤害。单看该施法，它没有门禁告警；但紧接着的下一次战技同时
+出现 `resourceUnavailable` 和 `skillInterruptUnavailable`，编辑器为保留用户坐标仍强制执行，
+并再次生成相同的两个能力实体模板。这个后续无效输入会改变前一施法尚未结束的产物，因此前一
+施法也不能作为干净样本。
+
+原始 `chr_0027_tangtang_normal_skill.json` 按 `water_cnt` 分支：至少 2 层时生成 `_03`、
+`_03_02`、`_03_03` 三个模板；大于 0 层时生成 `_02`、`_02_02` 两个模板；否则生成基础模板。
+相应 `AbilityEntityData` 的 `maxStackingCount` 都是 1。IL2CPP 复刻证据中，
+`AbilityEntityManager.Group.Add`（RVA `0x03F52C30`）在同组达到上限时先对最早实体调用
+`Entity.Release`，再把新实体加入组尾，即按 FIFO 替换。当前下一次强制施法因此会回收第三次
+战技的同模板水流，不能把其最终命中总数拿来反推原生完整次数。
+
+汤汤之后使用基础模板的战技提供了另一份未被同模板替换的样本：当前是 1 次本体、12 次能力
+实体伤害和 1 次法术爆发。12 次能力实体命中与开场战技、原始 0.26 秒间隔和 90 帧范围一致；
+旧版仍是 1 次本体加 11 次等分人工伤害，并额外保留一条 `_noDamage` 状态载体。这个差异继续
+支持当前的 12 次原生 Tick，不支持把能力实体改成旧版 11 次人工 DOT。
+
+以上技能证据来自固定快照 `tmp/game-data-sources/skill-data-cdn`：主技能、基础能力实体技能和
+一层水分支能力实体技能的 SHA-256 分别为
+`8C1AE4F87DB51FB1A57A52FACA1525FAF7BFDFF088FBBE9CD37E427A80A2880D`、
+`D5A0E33D3B2A759DBB17D1D5CB85F468439B2F313D8400EEC0A1D887EC9EAD56`、
+`186BB6A158C044FF0A7AAC042216B2B258AFCB0064B02A25153A240DAB4700FE`。
+能力实体堆叠值来自同一快照的 `AbilityEntityData`，FIFO 行为记录于 combat-spec
+`docs/spawn-ability-entity.md`。`diagnostics.castIssues` 只标记门禁失败的施法本身；后续无效
+施法对既存能力实体的污染仍需按模板身份和生命周期继续核对。
+
+### 弧光战技的腐蚀伤害落在公共账
+
+弧光战技在旧版动作中显示 300% 本体和 400% `reaction:corrosion` 两条伤害；当前按 castId
+查看只有一条 300% 本体，但这不是模拟少结算。当前第 667 帧先结束敌人的四层寒冷附着，随后由
+`buff_common_natural_cryst_triggered_wrapper` 结算一条自然伤害，再记录
+`ElementalInflictionApplied` 的 `outcomeKind=compoundStatus`，最后结算战技本体。复合状态伤害的
+`DamageApplied` 保留弧光的 sourceId 和 wrapper 的 sourceActionId，但没有 castId，因此进入公共
+施法组；全轴伤害总账已经包含它。
+
+原始 `chr_0032_lizhiyan_normal_skill_abilityrange2.json` 在同一时间线先执行
+`SpellInfliction`，再按 `EntityBB_wisd_greater_will` 二选一执行一条 `DamageAction`，不存在第二条
+无条件战技伤害。对应技能文件和腐蚀 wrapper 的 SHA-256 分别为
+`20760C884F3D2AFAD3520DACBE5764F2E2D2F6A1D024749CE5F18391089775E7`、
+`D1DC1A7FD8444DA4E100F247AE893792C1ED3B859ECC7D9B296B32EC9179DB17`。旧版把腐蚀直接挂到
+动作账，当前把它保留为独立原生 Buff 伤害；审计器因此增加 `buffId`、`sourceActionId`、技能类型、
+伤害类型和爆发类型，避免再把归账差异误判为命中缺失。
+
+### 弧光非主控末段不触发终结技集束攻击
+
+旧版弧光第五段普攻动作包含 106% 本体和四条 45% 集束攻击；当前只有本体。该公开轴没有
+`switchEvents`，旧版和当前转换结果都以第一轨诀为全程主控，弧光在第三轨。当前第五段命中回执
+也明确给出 `casterControlled=false`。
+
+原始 `buff_chr_0032_lizhiyan_ultimate_skill_inaura.json` 的承伤事件分支先用
+`CheckTargetsEqual(Target, MainCharacter)` 检查伤害来源，再检查终结技能力实体和
+`normalAttackLastCombo` 标签，通过后才生成集束攻击实体。IL2CPP 证据已确认事件 101 发布在
+承伤方，动作 InputTarget 是伤害来源，所以这里要求攻击者为主控。因此非主控弧光的末段普攻
+不应触发这四条追击。当前没有隐式修改原轴主控，也不补旧版遗漏主控门禁产生的集束攻击。该
+Buff 和第五段普攻原始文件 SHA-256 分别为
+`7D8E96F65D8CCDD72B03A69637ECC934172C08F394CA56982AFAE7C15F68867D`、
+`A8792F1CDF178EB2E784D6BCFAE0F0C7529DC110FC91662DA7ED1264C2C86B65`。
+
+同一轮还发现旧版把弧光第四段普攻写成 4 次 20%，当前为 8 次 10%。原始
+`chr_0032_lizhiyan_attack4.json` 在第 2、5、8、11 帧各有两条独立 `DamageAction`，总计 8 条，
+与当前回执完全一致；文件 SHA-256 为
+`C77813EABA009FD2D3FC0BB657EFC325501EDF3F6A42F527F05DE9E8F233A66B`。两边总倍率同为 80%，
+但原生逐击结构是 8 次，不能按旧版合并为 4 次。
