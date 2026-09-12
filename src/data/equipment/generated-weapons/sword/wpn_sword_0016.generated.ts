@@ -271,6 +271,23 @@ const definition = {
           }
         }
       ],
+      "enableSequence": {
+        "steps": [
+          {
+            "kind": "applyBuff",
+            "parameters": {
+              "buffId": "buff_wpn_sword_0016",
+              "target": "caster",
+              "blackboardAssignments": {
+                "phy_dmg_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_phy_dmg_up"
+                }
+              }
+            }
+          }
+        ]
+      },
       "blackboard": {
         "cd": 0.1,
         "duration": [
@@ -294,17 +311,6 @@ const definition = {
           5,
           5,
           5
-        ],
-        "phy_dmg_up": [
-          0.16,
-          0.192,
-          0.224,
-          0.256,
-          0.288,
-          0.32,
-          0.352,
-          0.384,
-          0.448
         ],
         "phy_dmg_up2": [
           0.05,
@@ -338,23 +344,6 @@ const definition = {
           0.352,
           0.384,
           0.448
-        ]
-      },
-      "enableSequence": {
-        "steps": [
-          {
-            "kind": "applyBuff",
-            "parameters": {
-              "buffId": "buff_wpn_sword_0016",
-              "target": "caster",
-              "blackboardAssignments": {
-                "phy_dmg_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_phy_dmg_up"
-                }
-              }
-            }
-          }
         ]
       }
     }

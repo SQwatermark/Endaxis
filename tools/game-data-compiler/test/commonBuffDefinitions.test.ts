@@ -4,7 +4,7 @@ import os from 'node:os';
 import { describe, expect, it } from 'vitest';
 import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
 import {
-  mergeCommonBuffDefinitions,
+  createCommonBuffCollector,
   readPresentationNameKeys,
   renderCommonBuffPresentationNamesSource,
   readSystemBuffRoots,
@@ -30,18 +30,13 @@ describe('公共 Buff 独立所有权', () => {
   });
   it('相同 ID 的相同定义只保留一份，冲突定义严格失败', () => {
     const first = { stackingType: 'stack', priority: 0 };
-    expect(
-      mergeCommonBuffDefinitions([
-        { slug: 'a', definitions: { common: first } },
-        { slug: 'b', definitions: { common: { ...first } } },
-      ]),
-    ).toEqual({ common: first });
-    expect(() =>
-      mergeCommonBuffDefinitions([
-        { slug: 'a', definitions: { common: first } },
-        { slug: 'b', definitions: { common: { ...first, priority: 1 } } },
-      ]),
-    ).toThrow("common Buff 'common' differs between 'a' and 'b'");
+    const collector = createCommonBuffCollector<typeof first>();
+    collector.add('a', { common: first });
+    collector.add('b', { common: { ...first } });
+    expect(collector.definitions).toEqual({ common: first });
+    expect(() => collector.add('c', { common: { ...first, priority: 1 } })).toThrow(
+      "common Buff 'common' differs between 'a' and 'c'",
+    );
   });
 
   it.each([

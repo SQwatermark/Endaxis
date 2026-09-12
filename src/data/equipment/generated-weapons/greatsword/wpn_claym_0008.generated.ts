@@ -293,6 +293,23 @@ const definition = {
           }
         }
       ],
+      "enableSequence": {
+        "steps": [
+          {
+            "kind": "applyBuff",
+            "parameters": {
+              "buffId": "buff_wpn_claym_0008",
+              "target": "caster",
+              "blackboardAssignments": {
+                "poise_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_poise_up"
+                }
+              }
+            }
+          }
+        ]
+      },
       "blackboard": {
         "atk_up": [
           0.1,
@@ -317,17 +334,6 @@ const definition = {
           8
         ],
         "multi": 2,
-        "poise_up": [
-          0.12,
-          0.144,
-          0.168,
-          0.192,
-          0.216,
-          0.24,
-          0.264,
-          0.288,
-          0.336
-        ],
         "install_0_poise_up": [
           0.12,
           0.144,
@@ -338,23 +344,6 @@ const definition = {
           0.264,
           0.288,
           0.336
-        ]
-      },
-      "enableSequence": {
-        "steps": [
-          {
-            "kind": "applyBuff",
-            "parameters": {
-              "buffId": "buff_wpn_claym_0008",
-              "target": "caster",
-              "blackboardAssignments": {
-                "poise_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_poise_up"
-                }
-              }
-            }
-          }
         ]
       }
     }

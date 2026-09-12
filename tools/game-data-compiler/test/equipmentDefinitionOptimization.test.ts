@@ -14,7 +14,12 @@ import {
 } from '../src/compiler/equipmentDefinitionOptimization.ts';
 import { renderWeaponDefinitionFiles } from '../src/domains/weapon/renderRuntimeDefinitions.ts';
 import { renderEquipmentSuitDefinitionFiles } from '../src/domains/equipment/renderSuitDefinitions.ts';
-import { compileWeaponContributions } from '../../../src/core/compiler/compileEquipment.ts';
+import {
+  compileGearSetContribution,
+  compileWeaponContributions,
+} from '../../../src/core/compiler/compileEquipment.ts';
+import { EquipmentEventRuntime } from '../../../src/core/combat/runtime/equipmentEventRuntime.ts';
+import { CombatSemanticEventRuntime } from '../../../src/core/combat/runtime/combatSemanticEventRuntime.ts';
 
 const body: ActionSequenceDefinition = {
   steps: [
@@ -62,7 +67,7 @@ function expectContributionOptimized(result: EquipmentContributionDefinition) {
   expect(result.eventHandlers).toEqual([
     { key: 'event', priority: 3, abilityEvent: 'enterFight', sequence: body },
   ]);
-  expect(result.blackboard).toBe(contribution.blackboard);
+  expect(result.blackboard).toEqual({ output: 0 });
   expect(result.buffDefinitions?.buff_fixture?.blackboard).toBe(buff.blackboard);
   expect(result.buffDefinitions?.buff_fixture?.lifecycleSequences).toEqual({
     enable: body,
@@ -170,7 +175,7 @@ describe('公共 Buff 和装备定义的优化入口', () => {
     };
     const original = structuredClone(input);
     const result = optimizeWeaponDefinitionPrograms(input);
-    expect(result.definition.traits[0]?.blackboard).toBe(contribution.blackboard);
+    expect(result.definition.traits[0]?.blackboard).toEqual({ output: 0 });
     for (const trait of result.definition.traits.slice(1)) {
       expect(Object.hasOwn(trait, 'blackboard')).toBe(false);
       expect(trait.modifiers).toBe(staticContribution.modifiers);
@@ -180,8 +185,8 @@ describe('公共 Buff 和装备定义的优化入口', () => {
       {
         definitionId: 'wpn_fixture:runtime',
         path: 'traits[0]',
-        removedInitialKeys: [],
-        retainedReason: 'runtime-entry-present',
+        removedInitialKeys: ['externallyPatched'],
+        retainedReason: 'runtime-value-access',
       },
       ...['static_middle', 'static_last'].map((key, index) => ({
         definitionId: `wpn_fixture:${key}`,
@@ -238,7 +243,7 @@ describe('公共 Buff 和装备定义的优化入口', () => {
     expect(optimizeCommonBuffDefinitions({}).report.equipmentValues).toEqual([]);
   });
 
-  it('即使入口序列为空也保留运行时板，不用动作数量推断没有宿主', () => {
+  it('空入口的无用初值也删除，但仍创建装备宿主并保留注册行为', () => {
     const entryDefinitions: readonly EquipmentContributionDefinition[] = [
       { enableSequence: { steps: [] } },
       { initializationSequence: { steps: [] } },
@@ -255,11 +260,31 @@ describe('公共 Buff 和装备定义的优化入口', () => {
         blackboard: { possiblyRead: 7 },
       };
       const result = optimizeGearSetDefinitionPrograms(input);
-      expect(result.definition.blackboard).toBe(input.blackboard);
+      expect(Object.hasOwn(result.definition, 'blackboard')).toBe(false);
+      expect(result.definition.enableSequence).toEqual(input.enableSequence);
+      expect(result.definition.initializationSequence).toEqual(input.initializationSequence);
+      expect(result.definition.eventHandlers).toEqual(input.eventHandlers);
       expect(result.report.equipmentValues[0]).toMatchObject({
-        removedInitialKeys: [],
-        retainedReason: 'runtime-entry-present',
+        removedInitialKeys: ['possiblyRead'],
       });
+      const compiled = compileGearSetContribution(result.definition, {
+        main: 'agility',
+        secondary: 'intellect',
+      });
+      const runtime = new EquipmentEventRuntime(
+        new CombatSemanticEventRuntime(),
+        'operator_fixture',
+        [compiled],
+        () => ({ execute: () => true, evaluate: () => true }),
+        () => ({ dispose() {} }),
+      );
+      try {
+        expect(runtime.blackboardFor(0).snapshot()).toEqual({});
+        runtime.enable(0);
+        expect(() => runtime.assertAllEnabled()).not.toThrow();
+      } finally {
+        runtime.dispose();
+      }
     }
   });
 });

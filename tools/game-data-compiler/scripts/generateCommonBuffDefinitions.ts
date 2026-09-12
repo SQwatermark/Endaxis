@@ -56,7 +56,7 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
   if (new Set(slugs).size !== slugs.length)
     throw new Error('operator manifest has duplicate slugs');
 
-  const batches: { slug: string; definitions: OperatorBuffDefinitions }[] = [];
+  const collector = createCommonBuffCollector();
   for (const slug of slugs) {
     const plan = planOperatorDefinition({
       ...args,
@@ -64,8 +64,30 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
       output: path.join('tmp', 'game-data-generated', 'operator-definitions', slug),
       auditOutput: path.join('tmp', 'game-data-audit', 'operator-definitions', slug),
     });
-    batches.push({ slug, definitions: plan.commonBuffDefinitions });
+    collector.add(slug, plan.commonBuffDefinitions);
   }
+  const rendered = await renderCollectedCommonBuffDefinitions(args, collector);
+  if (args.check) checkGeneratedDefinitionFiles(args.output, rendered.files);
+  else await writeGeneratedDefinitionFiles(args.output, rendered.files);
+  return {
+    operatorCount: slugs.length,
+    buffCount: rendered.buffCount,
+    optimization: rendered.optimization,
+  };
+}
+
+/** 已有干员计划时直接收集其中的公共定义，再补系统根、优化并渲染；本函数不写文件。 */
+export async function renderCollectedCommonBuffDefinitions(
+  args: Pick<
+    Arguments,
+    | 'buffDataRoot'
+    | 'globalBuffCatalog'
+    | 'skillSettingCatalog'
+    | 'gameplayTagCatalog'
+    | 'optimization'
+  >,
+  collector: CommonBuffCollector<OperatorBuffDefinitions[string]>,
+) {
   // 系统附着产生的 Buff 不一定被干员技能直接引用，仍须进入同一公共定义所有权。
   // 清单仅声明根身份；动作、倍率、标签和生命周期全部走公共原始 Buff 编译器。
   const systemRoots = readSystemBuffRoots(
@@ -85,9 +107,9 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
   );
   const blocked = systemClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`system Buff roots are blocked: ${JSON.stringify(blocked)}`);
-  batches.push({ slug: '<system>', definitions: systemClosure.definitions });
+  collector.add('<system>', systemClosure.definitions);
   const optimized = optimizeCommonBuffDefinitions(
-    mergeCommonBuffDefinitions(batches),
+    collector.definitions,
     args.optimization ?? 'apply',
   );
   const definitions = optimized.definitions;
@@ -109,10 +131,8 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
       content: presentationNamesContent,
     },
   ];
-  if (args.check) checkGeneratedDefinitionFiles(args.output, files);
-  else await writeGeneratedDefinitionFiles(args.output, files);
   return {
-    operatorCount: slugs.length,
+    files,
     buffCount: Object.keys(definitions).length,
     optimization: optimized.report,
   };
@@ -150,28 +170,34 @@ export function renderCommonBuffPresentationNamesSource(
   );
 }
 
-/** 合并公共所有权闭包；相同 ID 只允许完全相同的不可变定义。 */
-export function mergeCommonBuffDefinitions<T>(
-  batches: readonly {
-    readonly slug: string;
-    readonly definitions: Readonly<Record<string, T>>;
-  }[],
-): Record<string, T> {
+export interface CommonBuffCollector<T> {
+  readonly definitions: Readonly<Record<string, T>>;
+  add(slug: string, definitions: Readonly<Record<string, T>>): void;
+}
+
+/** 逐人去重，只保留每个 ID 的一份原始定义；必须先检查冲突，再做优化。 */
+export function createCommonBuffCollector<
+  T = OperatorBuffDefinitions[string],
+>(): CommonBuffCollector<T> {
   const definitions: Record<string, T> = {};
   const ownerById = new Map<string, string>();
-  for (const batch of batches) {
-    for (const [id, definition] of Object.entries(batch.definitions)) {
-      const previous = definitions[id];
-      if (previous !== undefined && !isDeepStrictEqual(previous, definition)) {
-        throw new Error(
-          `common Buff '${id}' differs between '${ownerById.get(id)}' and '${batch.slug}'`,
-        );
+  return {
+    definitions,
+    add(slug, batch) {
+      for (const [id, definition] of Object.entries(batch)) {
+        if (ownerById.has(id)) {
+          if (!isDeepStrictEqual(definitions[id], definition)) {
+            throw new Error(
+              `common Buff '${id}' differs between '${ownerById.get(id)}' and '${slug}'`,
+            );
+          }
+          continue;
+        }
+        Object.defineProperty(definitions, id, { value: definition, enumerable: true });
+        ownerById.set(id, slug);
       }
-      definitions[id] = definition;
-      ownerById.set(id, ownerById.get(id) ?? batch.slug);
-    }
-  }
-  return definitions;
+    },
+  };
 }
 
 function read(file: string): unknown {

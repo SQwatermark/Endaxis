@@ -27,7 +27,6 @@ import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
 import { generateContingencyContractCatalog } from './generateContingencyContractCatalog.ts';
 import { generateContingencyContractDefinitions } from './generateContingencyContractDefinitions.ts';
 import { generateOperatorDefinitionCandidates } from './generateOperatorDefinitionCandidates.ts';
-import { generateCommonBuffDefinitions } from './generateCommonBuffDefinitions.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { typeCheckCandidateOverlay } from '../src/compiler/candidateTypeCheck.ts';
 import { checkCandidateGameAssets } from '../src/compiler/candidateAssetCheck.ts';
@@ -515,34 +514,24 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           skillSettingCatalog,
         };
         if (timeDilationOkay && hitStopOkay && skillSettingOkay && globalBuffsOkay) {
-          await stage('operator-candidates', async () => {
+          await stage('operators-and-common-buffs', async () => {
             const input = {
               ...operatorCandidateInput,
               outputRoot: path.join(candidateRoot, 'src/data/operators'),
               auditRoot: path.join(runRoot, 'audit', 'operator-definitions'),
+              commonBuffOutput: path.join(candidateRoot, 'src/data/buffs/generated'),
               check: false,
             };
             const generated = await generateOperatorDefinitionCandidates(input);
             await generateOperatorDefinitionCandidates({ ...input, check: true });
             return { ...generated, deterministicCheck: 'passed' };
           });
-          await stage('common-buffs', async () => {
-            const input = {
-              ...operatorCandidateInput,
-              output: path.join(candidateRoot, 'src/data/buffs/generated'),
-              check: false,
-            };
-            const generated = await generateCommonBuffDefinitions(input);
-            await generateCommonBuffDefinitions({ ...input, check: true });
-            return { ...generated, deterministicCheck: 'passed' };
-          });
         } else {
-          for (const id of ['operator-candidates', 'common-buffs'])
-            stages.push({
-              id,
-              status: 'blocked',
-              detail: '同次任务的 TimeDilation、HitStop、SkillSetting 或 GlobalBuff 候选未通过。',
-            });
+          stages.push({
+            id: 'operators-and-common-buffs',
+            status: 'blocked',
+            detail: '同次任务的 TimeDilation、HitStop、SkillSetting 或 GlobalBuff 候选未通过。',
+          });
         }
         await stage('operator-refresh', async () => {
           const detail = await inspectOperatorRefresh(sourceRoot, root, tags);
@@ -698,8 +687,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           'contingency-contract-catalog',
           'contingency-contract-definitions',
           'global-buffs',
-          'operator-candidates',
-          'common-buffs',
+          'operators-and-common-buffs',
           'gameplay-tag-predefine',
           'gear-sets',
           'weapons',

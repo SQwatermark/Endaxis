@@ -59,6 +59,28 @@ const sourceArguments = {
 } as const;
 
 describe('整批干员候选写入', () => {
+  it.each(['same', 'nested', 'parent'] as const)(
+    '拒绝公共输出与干员输出重叠：%s，避免目录替换覆盖另一份产物',
+    async relation => {
+      const paths = await setup();
+      const commonBuffOutput =
+        relation === 'same'
+          ? paths.outputRoot
+          : relation === 'nested'
+            ? path.join(paths.outputRoot, 'buffs')
+            : paths.root;
+      await expect(
+        generateOperatorDefinitionCandidates({
+          ...sourceArguments,
+          ...paths,
+          commonBuffOutput,
+          check: false,
+        }),
+      ).rejects.toThrow('must not overlap');
+      expect(renderOperatorDefinition).not.toHaveBeenCalled();
+    },
+  );
+
   it('不允许整批目录替换覆盖正式干员混合目录', async () => {
     const paths = await setup();
     await expect(

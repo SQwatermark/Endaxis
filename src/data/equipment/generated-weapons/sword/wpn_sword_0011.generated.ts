@@ -158,29 +158,28 @@ const definition = {
       "key": "skill3",
       "levelCount": 9,
       "modifiers": [],
+      "enableSequence": {
+        "steps": [
+          {
+            "kind": "applyBuff",
+            "parameters": {
+              "buffId": "buff_wpn_sword_0011",
+              "target": "caster",
+              "blackboardAssignments": {
+                "dmg_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_dmg_up"
+                },
+                "phy_dmg_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_phy_dmg_up"
+                }
+              }
+            }
+          }
+        ]
+      },
       "blackboard": {
-        "dmg_up": [
-          0.35,
-          0.42,
-          0.49,
-          0.56,
-          0.63,
-          0.7,
-          0.77,
-          0.84,
-          0.98
-        ],
-        "phy_dmg_up": [
-          0.15,
-          0.18,
-          0.21,
-          0.24,
-          0.27,
-          0.3,
-          0.33,
-          0.36,
-          0.42
-        ],
         "install_0_dmg_up": [
           0.35,
           0.42,
@@ -202,27 +201,6 @@ const definition = {
           0.33,
           0.36,
           0.42
-        ]
-      },
-      "enableSequence": {
-        "steps": [
-          {
-            "kind": "applyBuff",
-            "parameters": {
-              "buffId": "buff_wpn_sword_0011",
-              "target": "caster",
-              "blackboardAssignments": {
-                "dmg_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_dmg_up"
-                },
-                "phy_dmg_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_phy_dmg_up"
-                }
-              }
-            }
-          }
         ]
       }
     }

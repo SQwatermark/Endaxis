@@ -68,7 +68,7 @@ export function planOperatorDefinition(
     readonly tableRoot: string;
     readonly globalBuffCatalog: string;
     readonly skillSettingCatalog: string;
-    /** 候选验证期间显式选择新增优化，默认只报告，不改正式定义。 */
+    /** 默认应用已验证的优化；report 仅报告候选，off 用于生成对照。 */
     readonly optimization?: DefinitionOptimizationMode;
   },
 ) {

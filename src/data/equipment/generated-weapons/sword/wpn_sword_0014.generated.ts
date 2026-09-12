@@ -261,7 +261,6 @@ const definition = {
         }
       ],
       "blackboard": {
-        "PASI_enhance": 30,
         "duration": [
           15,
           15,
@@ -283,17 +282,6 @@ const definition = {
           55,
           60,
           70
-        ],
-        "spell_dmg_up": [
-          0.12,
-          0.144,
-          0.168,
-          0.192,
-          0.216,
-          0.24,
-          0.264,
-          0.288,
-          0.336
         ],
         "spell_dmg_up2": [
           0.12,

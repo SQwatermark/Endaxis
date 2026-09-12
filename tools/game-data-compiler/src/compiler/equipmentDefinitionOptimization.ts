@@ -2,7 +2,7 @@
  * 优化公共 Buff、武器词条和装备套装中的动作程序。
  *
  * 来源编译完成后才进入这里，输入和输出均为最终数据定义。公共序列优化器裁剪
- * 已证明无效的分支；没有运行入口的静态装备贡献另外删除不会创建实例的黑板。
+ * 已证明无效的分支，再依据全部运行入口删除装备贡献中没有用途的黑板初值。
  * 事件注册、Buff 身份、Buff 自身黑板和已编译属性修正保持原样。
  * report 模式收集完整候选报告，但把原对象交还生成入口，不改变正式生成内容。
  */
@@ -28,14 +28,8 @@ function optimizeContribution(
   mode: DefinitionOptimizationMode,
   equipmentValues: EquipmentValueOptimizationReport[],
 ): EquipmentContributionDefinition {
-  const pruned = pruneUnusedEquipmentContributionBlackboard(value, {
-    mode,
-    definitionId: id,
-    path,
-  });
-  equipmentValues.push(pruned.report);
-  return {
-    ...pruned.contribution,
+  const candidate: EquipmentContributionDefinition = {
+    ...value,
     ...(value.enableSequence === undefined
       ? {}
       : {
@@ -73,6 +67,14 @@ function optimizeContribution(
           ),
         }),
   };
+  // 分支裁剪后再查用途，否则已被删除的分支仍会把原本无用的初值保留下来。
+  const pruned = pruneUnusedEquipmentContributionBlackboard(candidate, {
+    mode,
+    definitionId: id,
+    path,
+  });
+  equipmentValues.push(pruned.report);
+  return pruned.contribution;
 }
 
 /** 公共 Buff 保留完整目录；这里不根据单名干员的使用情况删除公共身份或黑板值。 */

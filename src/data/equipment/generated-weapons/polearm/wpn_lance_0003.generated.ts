@@ -86,41 +86,6 @@ const definition = {
       "key": "skill3",
       "levelCount": 9,
       "modifiers": [],
-      "blackboard": {
-        "atk_up": [
-          0.15,
-          0.18,
-          0.21,
-          0.24,
-          0.27,
-          0.3,
-          0.33,
-          0.36,
-          0.42
-        ],
-        "hp_ratio_c": [
-          0.8,
-          0.8,
-          0.8,
-          0.8,
-          0.8,
-          0.8,
-          0.8,
-          0.8,
-          0.8
-        ],
-        "install_0_atk_up": [
-          0.15,
-          0.18,
-          0.21,
-          0.24,
-          0.27,
-          0.3,
-          0.33,
-          0.36,
-          0.42
-        ]
-      },
       "initializationSequence": {
         "steps": [
           {
@@ -136,6 +101,19 @@ const definition = {
               }
             }
           }
+        ]
+      },
+      "blackboard": {
+        "install_0_atk_up": [
+          0.15,
+          0.18,
+          0.21,
+          0.24,
+          0.27,
+          0.3,
+          0.33,
+          0.36,
+          0.42
         ]
       }
     }

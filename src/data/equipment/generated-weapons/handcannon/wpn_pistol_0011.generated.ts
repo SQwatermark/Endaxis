@@ -324,18 +324,6 @@ const definition = {
         }
       ],
       "blackboard": {
-        "cd": 0.1,
-        "cryst_dmg_up": [
-          0.16,
-          0.192,
-          0.224,
-          0.256,
-          0.288,
-          0.32,
-          0.352,
-          0.384,
-          0.448
-        ],
         "cryst_dmg_up2": [
           0.2,
           0.24,
@@ -379,8 +367,7 @@ const definition = {
           0.132,
           0.144,
           0.168
-        ],
-        "spell_dmg_taken_up": 0.12
+        ]
       }
     }
   ],

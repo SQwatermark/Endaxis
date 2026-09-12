@@ -283,51 +283,32 @@ const definition = {
           ]
         }
       ],
+      "enableSequence": {
+        "steps": [
+          {
+            "kind": "applyBuff",
+            "parameters": {
+              "buffId": "buff_wpn_sword_0010",
+              "target": "caster",
+              "blackboardAssignments": {
+                "dmg_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_dmg_up"
+                },
+                "duration": {
+                  "kind": "blackboard",
+                  "key": "install_0_duration"
+                },
+                "max_stack": {
+                  "kind": "blackboard",
+                  "key": "install_0_max_stack"
+                }
+              }
+            }
+          }
+        ]
+      },
       "blackboard": {
-        "atk_up": [
-          0.07,
-          0.084,
-          0.098,
-          0.112,
-          0.126,
-          0.14,
-          0.154,
-          0.168,
-          0.196
-        ],
-        "dmg_up": [
-          0.08,
-          0.096,
-          0.112,
-          0.128,
-          0.144,
-          0.16,
-          0.176,
-          0.192,
-          0.224
-        ],
-        "duration": [
-          20,
-          20,
-          20,
-          20,
-          20,
-          20,
-          20,
-          20,
-          20
-        ],
-        "max_stack": [
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2,
-          2
-        ],
         "install_0_dmg_up": [
           0.08,
           0.096,
@@ -360,31 +341,6 @@ const definition = {
           2,
           2,
           2
-        ]
-      },
-      "enableSequence": {
-        "steps": [
-          {
-            "kind": "applyBuff",
-            "parameters": {
-              "buffId": "buff_wpn_sword_0010",
-              "target": "caster",
-              "blackboardAssignments": {
-                "dmg_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_dmg_up"
-                },
-                "duration": {
-                  "kind": "blackboard",
-                  "key": "install_0_duration"
-                },
-                "max_stack": {
-                  "kind": "blackboard",
-                  "key": "install_0_max_stack"
-                }
-              }
-            }
-          }
         ]
       }
     }

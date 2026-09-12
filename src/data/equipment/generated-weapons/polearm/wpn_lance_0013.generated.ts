@@ -217,6 +217,23 @@ const definition = {
           }
         }
       ],
+      "enableSequence": {
+        "steps": [
+          {
+            "kind": "applyBuff",
+            "parameters": {
+              "buffId": "buff_wpn_lance_0013_damage01",
+              "target": "caster",
+              "blackboardAssignments": {
+                "dmg_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_dmg_up"
+                }
+              }
+            }
+          }
+        ]
+      },
       "blackboard": {
         "atk_up": [
           0.12,
@@ -228,17 +245,6 @@ const definition = {
           0.264,
           0.288,
           0.336
-        ],
-        "dmg_up": [
-          0.08,
-          0.096,
-          0.112,
-          0.128,
-          0.144,
-          0.16,
-          0.176,
-          0.192,
-          0.224
         ],
         "duration": [
           15,
@@ -261,23 +267,6 @@ const definition = {
           0.176,
           0.192,
           0.224
-        ]
-      },
-      "enableSequence": {
-        "steps": [
-          {
-            "kind": "applyBuff",
-            "parameters": {
-              "buffId": "buff_wpn_lance_0013_damage01",
-              "target": "caster",
-              "blackboardAssignments": {
-                "dmg_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_dmg_up"
-                }
-              }
-            }
-          }
         ]
       }
     }

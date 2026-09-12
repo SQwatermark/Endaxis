@@ -942,18 +942,150 @@ const definition = {
           }
         }
       ],
+      "enableSequence": {
+        "steps": [
+          {
+            "kind": "applyBuff",
+            "parameters": {
+              "buffId": "buff_wpn_funnel_0016",
+              "target": "caster",
+              "blackboardAssignments": {
+                "atk_up2": {
+                  "kind": "blackboard",
+                  "key": "install_0_atk_up2"
+                },
+                "duration": {
+                  "kind": "blackboard",
+                  "key": "install_0_duration"
+                },
+                "duration2": {
+                  "kind": "blackboard",
+                  "key": "install_0_duration2"
+                },
+                "duration3": {
+                  "kind": "blackboard",
+                  "key": "install_0_duration3"
+                },
+                "duration4": {
+                  "kind": "blackboard",
+                  "key": "install_0_duration4"
+                },
+                "spell_dmg_taken_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_spell_dmg_taken_up"
+                },
+                "spell_dmg_taken_up2": {
+                  "kind": "blackboard",
+                  "key": "install_0_spell_dmg_taken_up2"
+                },
+                "spell_dmg_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_spell_dmg_up"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "initializationSequence": {
+        "steps": [
+          {
+            "kind": "conditional",
+            "parameters": {
+              "condition": {
+                "kind": "deckAttributeCompare",
+                "left": "intellect",
+                "operator": "greaterOrEqual",
+                "right": "will"
+              },
+              "alwaysNext": true
+            },
+            "whenTrue": {
+              "steps": [
+                {
+                  "kind": "finishBuffsById",
+                  "parameters": {
+                    "target": "caster",
+                    "buffIds": [
+                      "buff_wpn_funnel_0016_will"
+                    ],
+                    "reason": "other"
+                  }
+                },
+                {
+                  "kind": "applyBuff",
+                  "parameters": {
+                    "buffId": "buff_wpn_funnel_0016_wisd",
+                    "target": "caster",
+                    "inheritSourceSkillCastInfo": true,
+                    "asChildBuff": true,
+                    "blackboardAssignments": {
+                      "spell_dmg_up": {
+                        "kind": "blackboard",
+                        "key": "spell_dmg_up"
+                      },
+                      "duration": {
+                        "kind": "blackboard",
+                        "key": "duration"
+                      },
+                      "atk_up2": {
+                        "kind": "blackboard",
+                        "key": "atk_up2"
+                      },
+                      "duration2": {
+                        "kind": "blackboard",
+                        "key": "duration2"
+                      }
+                    }
+                  }
+                }
+              ]
+            },
+            "whenFalse": {
+              "steps": [
+                {
+                  "kind": "finishBuffsById",
+                  "parameters": {
+                    "target": "caster",
+                    "buffIds": [
+                      "buff_wpn_funnel_0016_wisd"
+                    ],
+                    "reason": "other"
+                  }
+                },
+                {
+                  "kind": "applyBuff",
+                  "parameters": {
+                    "buffId": "buff_wpn_funnel_0016_will",
+                    "target": "caster",
+                    "inheritSourceSkillCastInfo": true,
+                    "asChildBuff": true,
+                    "blackboardAssignments": {
+                      "spell_dmg_taken_up": {
+                        "kind": "blackboard",
+                        "key": "spell_dmg_taken_up"
+                      },
+                      "duration3": {
+                        "kind": "blackboard",
+                        "key": "duration3"
+                      },
+                      "spell_dmg_taken_up2": {
+                        "kind": "blackboard",
+                        "key": "spell_dmg_taken_up2"
+                      },
+                      "duration4": {
+                        "kind": "blackboard",
+                        "key": "duration4"
+                      }
+                    }
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      },
       "blackboard": {
-        "atk_up": [
-          0.16,
-          0.192,
-          0.224,
-          0.256,
-          0.288,
-          0.32,
-          0.352,
-          0.384,
-          0.448
-        ],
         "atk_up2": [
           0.2,
           0.24,
@@ -1129,149 +1261,6 @@ const definition = {
           0.44,
           0.48,
           0.56
-        ]
-      },
-      "enableSequence": {
-        "steps": [
-          {
-            "kind": "applyBuff",
-            "parameters": {
-              "buffId": "buff_wpn_funnel_0016",
-              "target": "caster",
-              "blackboardAssignments": {
-                "atk_up2": {
-                  "kind": "blackboard",
-                  "key": "install_0_atk_up2"
-                },
-                "duration": {
-                  "kind": "blackboard",
-                  "key": "install_0_duration"
-                },
-                "duration2": {
-                  "kind": "blackboard",
-                  "key": "install_0_duration2"
-                },
-                "duration3": {
-                  "kind": "blackboard",
-                  "key": "install_0_duration3"
-                },
-                "duration4": {
-                  "kind": "blackboard",
-                  "key": "install_0_duration4"
-                },
-                "spell_dmg_taken_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_spell_dmg_taken_up"
-                },
-                "spell_dmg_taken_up2": {
-                  "kind": "blackboard",
-                  "key": "install_0_spell_dmg_taken_up2"
-                },
-                "spell_dmg_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_spell_dmg_up"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "initializationSequence": {
-        "steps": [
-          {
-            "kind": "conditional",
-            "parameters": {
-              "condition": {
-                "kind": "deckAttributeCompare",
-                "left": "intellect",
-                "operator": "greaterOrEqual",
-                "right": "will"
-              },
-              "alwaysNext": true
-            },
-            "whenTrue": {
-              "steps": [
-                {
-                  "kind": "finishBuffsById",
-                  "parameters": {
-                    "target": "caster",
-                    "buffIds": [
-                      "buff_wpn_funnel_0016_will"
-                    ],
-                    "reason": "other"
-                  }
-                },
-                {
-                  "kind": "applyBuff",
-                  "parameters": {
-                    "buffId": "buff_wpn_funnel_0016_wisd",
-                    "target": "caster",
-                    "inheritSourceSkillCastInfo": true,
-                    "asChildBuff": true,
-                    "blackboardAssignments": {
-                      "spell_dmg_up": {
-                        "kind": "blackboard",
-                        "key": "spell_dmg_up"
-                      },
-                      "duration": {
-                        "kind": "blackboard",
-                        "key": "duration"
-                      },
-                      "atk_up2": {
-                        "kind": "blackboard",
-                        "key": "atk_up2"
-                      },
-                      "duration2": {
-                        "kind": "blackboard",
-                        "key": "duration2"
-                      }
-                    }
-                  }
-                }
-              ]
-            },
-            "whenFalse": {
-              "steps": [
-                {
-                  "kind": "finishBuffsById",
-                  "parameters": {
-                    "target": "caster",
-                    "buffIds": [
-                      "buff_wpn_funnel_0016_wisd"
-                    ],
-                    "reason": "other"
-                  }
-                },
-                {
-                  "kind": "applyBuff",
-                  "parameters": {
-                    "buffId": "buff_wpn_funnel_0016_will",
-                    "target": "caster",
-                    "inheritSourceSkillCastInfo": true,
-                    "asChildBuff": true,
-                    "blackboardAssignments": {
-                      "spell_dmg_taken_up": {
-                        "kind": "blackboard",
-                        "key": "spell_dmg_taken_up"
-                      },
-                      "duration3": {
-                        "kind": "blackboard",
-                        "key": "duration3"
-                      },
-                      "spell_dmg_taken_up2": {
-                        "kind": "blackboard",
-                        "key": "spell_dmg_taken_up2"
-                      },
-                      "duration4": {
-                        "kind": "blackboard",
-                        "key": "duration4"
-                      }
-                    }
-                  }
-                }
-              ]
-            }
-          }
         ]
       }
     }

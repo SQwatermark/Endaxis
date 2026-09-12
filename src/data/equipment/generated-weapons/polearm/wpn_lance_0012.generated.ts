@@ -421,6 +421,23 @@ const definition = {
           }
         }
       ],
+      "enableSequence": {
+        "steps": [
+          {
+            "kind": "applyBuff",
+            "parameters": {
+              "buffId": "buff_wpn_lance_0012_noguard",
+              "target": "caster",
+              "blackboardAssignments": {
+                "dmg_up": {
+                  "kind": "blackboard",
+                  "key": "install_0_dmg_up"
+                }
+              }
+            }
+          }
+        ]
+      },
       "blackboard": {
         "all_attr_up": [
           0.08,
@@ -445,17 +462,6 @@ const definition = {
           0.224
         ],
         "cd": 0.1,
-        "dmg_up": [
-          0.2,
-          0.24,
-          0.28,
-          0.32,
-          0.36,
-          0.4,
-          0.44,
-          0.48,
-          0.56
-        ],
         "duration": [
           15,
           15,
@@ -477,23 +483,6 @@ const definition = {
           0.44,
           0.48,
           0.56
-        ]
-      },
-      "enableSequence": {
-        "steps": [
-          {
-            "kind": "applyBuff",
-            "parameters": {
-              "buffId": "buff_wpn_lance_0012_noguard",
-              "target": "caster",
-              "blackboardAssignments": {
-                "dmg_up": {
-                  "kind": "blackboard",
-                  "key": "install_0_dmg_up"
-                }
-              }
-            }
-          }
         ]
       }
     }
