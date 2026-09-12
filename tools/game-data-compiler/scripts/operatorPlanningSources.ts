@@ -63,9 +63,20 @@ export class OperatorPlanningSources {
   readonly readJsonDocument = (file: string) => this.cache(file).readJsonDocument(file);
   readonly readText = (file: string): string => this.cache(file).readText(file);
 
-  /** 完成一名干员的渲染后释放原始资源；已收集的公共定义不依赖此缓存继续存活。 */
+  /** 完成一名干员的规划后释放原始资源；已收集的定义不依赖此缓存继续存活。 */
   releaseOperator(): void {
     this.currentOperator.clear();
+  }
+
+  /** 全部来源编译完成后释放原文与解析目录，避免它们与后续优化、渲染同时驻留。 */
+  clear(): void {
+    this.shared.clear();
+    this.currentOperator.clear();
+    this.entities.clear();
+    this.globals.clear();
+    this.settings.clear();
+    this.tags.clear();
+    this.priorities.clear();
   }
 
   abilityEntities(file: string): CompiledAbilityEntityTemplateCatalogSource {

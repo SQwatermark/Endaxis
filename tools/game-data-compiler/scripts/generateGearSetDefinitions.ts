@@ -47,21 +47,28 @@ export async function compileGearSetDefinitionsFromFiles(input: GearSetDefinitio
     buffData,
     gameplayTagRegistry,
   );
-  const blocked = batch.diagnostics.filter(diagnostic => diagnostic.status === 'blocked');
-  if (blocked.length) {
-    throw new Error(
-      `gear sets are not runtime-closed:\n${blocked.map(diagnostic => `${diagnostic.sourcePath}: ${diagnostic.reason}`).join('\n')}`,
-    );
-  }
+  assertNoBlockedDiagnostics(batch);
   return batch;
 }
 
 /** 正式生成遍历来源表的全部身份，不再用历史发布名单截断新增内容。 */
 export async function generateGearSetDefinitions(input: GearSetGenerationArguments) {
   const batch = await compileGearSetDefinitionsFromFiles(input);
+  const rendered = await renderGearSetDefinitionsFromCompiled(batch, input.optimization);
+  if (input.check) checkEquipmentDefinitionFiles(input.outputDirectory, rendered.files);
+  else await writeEquipmentDefinitionFiles(input.outputDirectory, rendered.files);
+  return { outputDirectory: input.outputDirectory, ...rendered.summary };
+}
+
+/** 复用已编译套装并保留原格式化结果；调用方决定何时统一检查或写盘。 */
+export async function renderGearSetDefinitionsFromCompiled(
+  batch: CompiledEquipmentSuitRuntimeBatchSource,
+  optimization: DefinitionOptimizationMode = 'apply',
+) {
+  assertNoBlockedDiagnostics(batch);
   const prettierConfig = (await resolveConfig(resolve('.prettierrc.json'))) ?? {};
   const optimized = batch.definitions.map(definition =>
-    optimizeGearSetDefinitionPrograms(definition, input.optimization ?? 'apply'),
+    optimizeGearSetDefinitionPrograms(definition, optimization),
   );
   const files = await Promise.all(
     renderEquipmentSuitDefinitionFiles({
@@ -74,23 +81,29 @@ export async function generateGearSetDefinitions(input: GearSetGenerationArgumen
         : file.content,
     })),
   );
-  if (input.check) {
-    checkEquipmentDefinitionFiles(input.outputDirectory, files);
-  } else {
-    await writeEquipmentDefinitionFiles(input.outputDirectory, files);
-  }
   return {
-    outputDirectory: input.outputDirectory,
-    definitionCount: batch.definitions.length,
-    buffDefinitionCount: batch.definitions.reduce(
-      (count, definition) => count + Object.keys(definition.buffDefinitions ?? {}).length,
-      0,
-    ),
-    scenarioOmittedDiagnosticCount: batch.diagnostics.filter(
-      diagnostic => diagnostic.status === 'scenario-omitted',
-    ).length,
-    optimization: optimized.map(result => result.report),
+    files,
+    summary: {
+      definitionCount: batch.definitions.length,
+      buffDefinitionCount: batch.definitions.reduce(
+        (count, definition) => count + Object.keys(definition.buffDefinitions ?? {}).length,
+        0,
+      ),
+      scenarioOmittedDiagnosticCount: batch.diagnostics.filter(
+        diagnostic => diagnostic.status === 'scenario-omitted',
+      ).length,
+      optimization: optimized.map(result => result.report),
+    },
   };
+}
+
+function assertNoBlockedDiagnostics(batch: CompiledEquipmentSuitRuntimeBatchSource): void {
+  const blocked = batch.diagnostics.filter(diagnostic => diagnostic.status === 'blocked');
+  if (blocked.length) {
+    throw new Error(
+      `gear sets are not runtime-closed:\n${blocked.map(diagnostic => `${diagnostic.sourcePath}: ${diagnostic.reason}`).join('\n')}`,
+    );
+  }
 }
 
 /** 每个来源身份独立走同一公共静态/运行编译器；错误收齐后才允许渲染和写盘。 */

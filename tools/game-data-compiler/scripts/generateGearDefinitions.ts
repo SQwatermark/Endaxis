@@ -7,7 +7,10 @@ import {
   checkEquipmentDefinitionFiles,
   writeEquipmentDefinitionFiles,
 } from '../src/domains/equipment/writeFormalDefinitions.ts';
-import { compileEquipmentDefinitionBatchSource } from '../src/domains/equipment/formalDefinition.ts';
+import {
+  compileEquipmentDefinitionBatchSource,
+  type CompiledEquipmentDefinitionBatchSource,
+} from '../src/domains/equipment/formalDefinition.ts';
 import { parseEquipmentItemSources } from '../src/source/equipmentAttributeModifiers.ts';
 import { renderEquipmentDefinitionFiles } from '../src/domains/equipment/renderFormalDefinitions.ts';
 
@@ -19,21 +22,16 @@ export interface GearGenerationArguments {
 
 /** 单件装备的 CLI 与隔离重建共用同一个生成入口；不读取任何现存生成定义。 */
 export async function generateGearDefinitions(argumentsValue: GearGenerationArguments) {
-  const { batch, files } = await planGearDefinitions(argumentsValue.tablesDirectory);
+  const batch = await compileGearDefinitionsFromFiles(argumentsValue.tablesDirectory);
+  const rendered = await renderGearDefinitionsFromCompiled(batch);
   if (argumentsValue.check) {
-    checkEquipmentDefinitionFiles(argumentsValue.outputDirectory, files);
+    checkEquipmentDefinitionFiles(argumentsValue.outputDirectory, rendered.files);
   } else {
-    await writeEquipmentDefinitionFiles(argumentsValue.outputDirectory, files);
+    await writeEquipmentDefinitionFiles(argumentsValue.outputDirectory, rendered.files);
   }
-
-  const omitted = batch.diagnostics.filter(diagnostic => diagnostic.status === 'scenario-omitted');
   return {
     outputDirectory: argumentsValue.outputDirectory,
-    definitionCount: batch.definitions.length,
-    fileCount: files.length,
-    scenarioOmittedDiagnosticCount: omitted.length,
-    definitionIds: batch.definitions.map(definition => definition.slug),
-    diagnostics: batch.diagnostics,
+    ...rendered.summary,
   };
 }
 
@@ -64,16 +62,37 @@ export async function compileGearDefinitionsFromFiles(tablesDirectory: string) {
 /** 只读规划供生成、确定性检查与应用层候选验证共用；不会导入现有装备定义。 */
 export async function planGearDefinitions(tablesDirectory: string) {
   const batch = await compileGearDefinitionsFromFiles(tablesDirectory);
+  const { files } = await renderGearDefinitionsFromCompiled(batch);
+  return { batch, files };
+}
+
+/** 只把同批编译结果变成文件内容，来源目录不再参与本阶段。 */
+export async function renderGearDefinitionsFromCompiled(
+  batch: CompiledEquipmentDefinitionBatchSource,
+) {
+  // 渲染器保留 blocked 门禁，不能把缺项批次变成可发布文件。
+  const rendered = renderEquipmentDefinitionFiles(batch);
   const prettierConfig = (await resolveConfig(resolve('.prettierrc.json'))) ?? {};
   const files = await Promise.all(
-    renderEquipmentDefinitionFiles(batch).map(async file => ({
+    rendered.map(async file => ({
       ...file,
       content: file.relativePath.endsWith('.ts')
         ? await format(file.content, { ...prettierConfig, parser: 'typescript' })
         : file.content,
     })),
   );
-  return { batch, files };
+  return {
+    files,
+    summary: {
+      definitionCount: batch.definitions.length,
+      fileCount: files.length,
+      scenarioOmittedDiagnosticCount: batch.diagnostics.filter(
+        diagnostic => diagnostic.status === 'scenario-omitted',
+      ).length,
+      definitionIds: batch.definitions.map(definition => definition.slug),
+      diagnostics: batch.diagnostics,
+    },
+  };
 }
 
 function parseArguments(values: readonly string[]): GearGenerationArguments {

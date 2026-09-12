@@ -110,6 +110,18 @@ describe('整批干员候选写入', () => {
   it('全部渲染成功后写完整目录，并能严格复验文件集合', async () => {
     const paths = await setup();
     const input = { ...sourceArguments, ...paths, check: false };
+    const render = renderOperatorDefinitionFiles.getMockImplementation()!;
+    renderOperatorDefinitionFiles.mockImplementation(async (...args) => {
+      // 渲染阶段只保留最终定义，来源缓存此前已经释放，累计读取次数仍可供审计。
+      for (const [plan] of planOperatorDefinition.mock.calls) {
+        const statistics = plan.sources.statistics();
+        expect(statistics.shared.retainedSourceBytes).toBe(0);
+        expect(statistics.shared.fileReads).toBeGreaterThan(0);
+        expect(statistics.currentOperator.retainedSourceBytes).toBe(0);
+        expect(statistics.parsedCatalogs).toBe(0);
+      }
+      return render(...args);
+    });
     await expect(generateOperatorDefinitionCandidates(input)).resolves.toMatchObject({
       operatorCount: 2,
       skillCount: 2,

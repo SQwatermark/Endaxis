@@ -56,6 +56,15 @@ export interface ContingencyContractEnemyMaxHealthPlan {
   readonly multiplier: number;
 }
 
+/** 来源校验和行为闭包完成后的结果；可先收集黑板用途，再直接渲染这一批内容。 */
+export interface CompiledContingencyContractDefinitions {
+  readonly buffDefinitions: Readonly<Record<string, CompiledBuffDefinitionSource>>;
+  readonly initializationPlans: readonly ContingencyContractInitializationPlan[];
+  readonly enemyMaxHealthPlans: readonly ContingencyContractEnemyMaxHealthPlan[];
+  readonly scope: ContingencyContractSimulationScope;
+  readonly revision: string;
+}
+
 function readJson(file: string): unknown {
   return JSON.parse(fs.readFileSync(file, 'utf8'));
 }
@@ -155,7 +164,7 @@ function assignments(term: {
 /** 同批来源编译入口；保留范围校验和闭包阻断，不渲染、写盘或读取现存生成定义。 */
 export function compileContingencyContractDefinitionsFromFiles(
   args: ContingencyContractDefinitionSourceArguments,
-) {
+): CompiledContingencyContractDefinitions {
   const catalog = parseContingencyContractCatalogSource(
     readJson(path.join(args.tableRoot, 'CcTagTable.json')),
     readJson(path.join(args.tableRoot, 'ContingencyContractTable.json')),
@@ -263,13 +272,24 @@ export function compileContingencyContractDefinitionsFromFiles(
 }
 
 export async function generateContingencyContractDefinitions(args: Arguments) {
+  const compiled = compileContingencyContractDefinitionsFromFiles(args);
+  const rendered = await renderContingencyContractDefinitionsFromCompiled(compiled);
+  if (args.check) checkGeneratedDefinitionFiles(args.output, rendered.files);
+  else await writeGeneratedDefinitionFiles(args.output, rendered.files);
+  return rendered.summary;
+}
+
+/** 保留已验证的范围和版本，只渲染文件内容，不重新读取或编译机制来源。 */
+export async function renderContingencyContractDefinitionsFromCompiled(
+  compiled: CompiledContingencyContractDefinitions,
+) {
   const {
     buffDefinitions: definitions,
     initializationPlans: plans,
     enemyMaxHealthPlans,
     scope,
     revision,
-  } = compileContingencyContractDefinitionsFromFiles(args);
+  } = compiled;
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(
     `/** 由危机合约原生词条、GlobalBuff 与 BuffData 闭包生成；不要手工编辑。 */
@@ -285,13 +305,14 @@ export const contingencyContractDefinitionRevision = ${JSON.stringify(revision)}
     { ...prettierConfig, parser: 'typescript' },
   );
   const files = [{ relativePath: 'contingencyContractDefinitions.generated.ts', content }];
-  if (args.check) checkGeneratedDefinitionFiles(args.output, files);
-  else await writeGeneratedDefinitionFiles(args.output, files);
   return {
-    supportedTagCount: plans.length + enemyMaxHealthPlans.length,
-    blockedTagCount: scope.blockedTagReasons.size,
-    omittedTagCount: scope.omittedTagReasons.size,
-    buffDefinitionCount: Object.keys(definitions).length,
+    files,
+    summary: {
+      supportedTagCount: plans.length + enemyMaxHealthPlans.length,
+      blockedTagCount: scope.blockedTagReasons.size,
+      omittedTagCount: scope.omittedTagReasons.size,
+      buffDefinitionCount: Object.keys(definitions).length,
+    },
   };
 }
 

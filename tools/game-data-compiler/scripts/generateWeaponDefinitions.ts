@@ -5,7 +5,10 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { attachWeaponProductIdentities } from '../src/domains/weapon/productIdentity.ts';
-import { compileWeaponRuntimeDefinitionBatchSource } from '../src/domains/weapon/runtimeDefinition.ts';
+import {
+  compileWeaponRuntimeDefinitionBatchSource,
+  type CompiledWeaponRuntimeDefinitionBatchSource,
+} from '../src/domains/weapon/runtimeDefinition.ts';
 import {
   compileWeaponStaticDefinitionBatchSource,
   type CompiledWeaponStaticDefinitionBatchSource,
@@ -119,8 +122,26 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
   readonly optimization: readonly DefinitionProgramOptimizationReport[];
 }> {
   const compiled = compileWeaponDefinitionsFromFiles(args);
+  const rendered = renderWeaponDefinitionsFromCompiled(compiled, args.optimization);
+  if (args.check) checkGeneratedFiles(args.output, rendered.files);
+  else {
+    await writeWeaponDefinitionFiles(args.output, rendered.files);
+    await writeWeaponDefinitionFiles(
+      args.auditOutput ?? path.resolve('tmp/generated-next-weapons'),
+      rendered.auditFiles,
+    );
+  }
+  return rendered.summary;
+}
+
+/** 复用同批编译结果完成优化和渲染；不再读取来源，不检查或写入输出目录。 */
+export function renderWeaponDefinitionsFromCompiled(
+  compiled: CompiledWeaponRuntimeDefinitionBatchSource,
+  optimization: DefinitionOptimizationMode = 'apply',
+) {
+  assertNoBlockedDiagnostics(compiled.diagnostics);
   const optimized = compiled.definitions.map(definition =>
-    optimizeWeaponDefinitionPrograms(definition, args.optimization ?? 'apply'),
+    optimizeWeaponDefinitionPrograms(definition, optimization),
   );
   const batch = {
     definitions: optimized.map(result => result.definition),
@@ -129,18 +150,14 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
   };
   const files = renderWeaponDefinitionFiles(batch);
   const definitions = files.filter(file => !file.relativePath.endsWith('.audit.json'));
-  if (args.check) checkGeneratedFiles(args.output, definitions);
-  else {
-    await writeWeaponDefinitionFiles(args.output, definitions);
-    await writeWeaponDefinitionFiles(
-      args.auditOutput ?? path.resolve('tmp/generated-next-weapons'),
-      files.filter(file => file.relativePath.endsWith('.audit.json')),
-    );
-  }
   return {
-    definitionCount: batch.definitions.length,
-    fileCount: definitions.length,
-    optimization: batch.optimization,
+    files: definitions,
+    auditFiles: files.filter(file => file.relativePath.endsWith('.audit.json')),
+    summary: {
+      definitionCount: batch.definitions.length,
+      fileCount: definitions.length,
+      optimization: batch.optimization,
+    },
   };
 }
 

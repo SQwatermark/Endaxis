@@ -8,7 +8,10 @@ import {
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { planOperatorDefinition, renderOperatorDefinitionFiles } from './planOperatorDefinition.ts';
 import { optimizeOperatorDefinitionPrograms } from '../src/compiler/definitionProgramOptimization.ts';
-import { collectSharedEntityValueUsage } from '../src/compiler/definitionEntityUsageContext.ts';
+import {
+  createSharedEntityValueUsageCollector,
+  type SharedEntityValueUsage,
+} from '../src/compiler/definitionEntityUsageContext.ts';
 import { compileEntityValueConsumers } from './compileEntityValueConsumers.ts';
 import {
   createCommonBuffCollector,
@@ -78,7 +81,19 @@ export interface OperatorDefinitionBatchArguments extends Omit<
 }
 
 /** 正式单人入口和整批候选共用的无写入步骤，保证同来源、同模式得到相同文本。 */
-export async function renderOperatorDefinitionBatch(args: OperatorDefinitionBatchArguments) {
+export async function renderOperatorDefinitionBatch(
+  args: OperatorDefinitionBatchArguments,
+  equipmentUsage?: SharedEntityValueUsage,
+) {
+  // 先完成外部领域并释放其原始数据，再读干员来源，避免两个大批次同时驻留。
+  const externalUsage =
+    args.includeCommonBuffs && args.optimization !== 'off'
+      ? (equipmentUsage ?? (await compileEntityValueConsumers(args)))
+      : undefined;
+  const usage = externalUsage
+    ? createSharedEntityValueUsageCollector(externalUsage.commonAbilityEntityDefinitions)
+    : undefined;
+  if (externalUsage) usage!.addUsage(externalUsage);
   const sources = new OperatorPlanningSources(args);
   const manifest = requireRecord(sources.readJson(args.manifest), args.manifest);
   const rows = requireArray(manifest.operators, `${args.manifest}.operators`);
@@ -114,6 +129,7 @@ export async function renderOperatorDefinitionBatch(args: OperatorDefinitionBatc
       auditOutput: `${args.auditRoot}/${slug}`,
     });
     commonBuffs?.add(slug, plan.commonBuffDefinitions);
+    usage?.addOperator(plan.operator);
     prepared.push({ slug, operator: plan.operator, audit: JSON.stringify(plan.audit) });
     summaries.push({
       slug,
@@ -131,14 +147,11 @@ export async function renderOperatorDefinitionBatch(args: OperatorDefinitionBatc
   const renderedCommonBuffs = commonBuffs
     ? await renderCollectedCommonBuffDefinitions(args, commonBuffs, sources)
     : undefined;
-  const sharedEntityUsage =
-    commonBuffs && args.optimization !== 'off'
-      ? collectSharedEntityValueUsage({
-          operators: prepared.map(item => item.operator),
-          commonBuffDefinitions: commonBuffs.definitions,
-          ...(await compileEntityValueConsumers({ ...args, sources })),
-        })
-      : undefined;
+  if (commonBuffs) usage?.addBuffDefinitions(commonBuffs.definitions);
+  const sharedEntityUsage = usage?.finish();
+  // 保存来源编译结束时的统计；紧接着释放缓存，统计中的容量不代表渲染阶段仍持有这些对象。
+  const sourceReads = sources.statistics();
+  sources.clear();
   while (prepared.length > 0) {
     const item = prepared.shift()!;
     if (args.selectedSlug !== undefined && item.slug !== args.selectedSlug) continue;
@@ -165,7 +178,7 @@ export async function renderOperatorDefinitionBatch(args: OperatorDefinitionBatc
       operatorCount: summaries.length,
       skillCount: summaries.reduce((sum, item) => sum + item.skillCount, 0),
       operators: summaries,
-      sourceReads: sources.statistics(),
+      sourceReads,
       ...(sharedEntityUsage
         ? {
             entityValueConsumers: {

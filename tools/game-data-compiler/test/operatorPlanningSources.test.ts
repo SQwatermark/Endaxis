@@ -47,6 +47,82 @@ afterEach(() => {
 });
 
 describe('干员规划读取上下文', () => {
+  it('clear 释放两级原文缓存和全部解析目录，累计统计保留且重新读取反映磁盘变化', () => {
+    const { root, paths } = setup();
+    const skillFile = path.join(root, 'skill.json');
+    const entityDirectory = path.join(root, 'AbilityEntityData');
+    const tags = path.join(root, 'tags.ts');
+    const priorities = path.join(root, 'priorities.ts');
+    fs.mkdirSync(entityDirectory);
+    fs.writeFileSync(
+      path.join(entityDirectory, 'entity_fixture.json'),
+      JSON.stringify({ ...abilityEntityFixture(), gameId: 'entity_fixture' }),
+    );
+    fs.writeFileSync(skillFile, '{"value":1}');
+    fs.writeFileSync(
+      paths.globalBuffCatalog,
+      JSON.stringify({ version: 'fixture', evidence: {}, templates: {} }),
+    );
+    fs.writeFileSync(
+      paths.skillSettingCatalog,
+      JSON.stringify({
+        schemaVersion: 1,
+        revision: 'fixture',
+        data: [],
+        enhanceFormulas: [],
+        resources: {
+          atbRecoverInterval: 1,
+          atbGainEfficiency: 1,
+          atbConsumedDefaultUspGainSelf: 1,
+          atbConsumedDefaultUspGainOther: 1,
+        },
+      }),
+    );
+    fs.writeFileSync(
+      tags,
+      "export const GAMEPLAY_TAG_PATHS = Object.freeze([\n  'fixture',\n] as const);\n",
+    );
+    fs.writeFileSync(
+      priorities,
+      "export const TIME_DILATION_PRIORITY_DEFINITIONS = Object.freeze([{ tagPath: 'TimeDilation/Priority/Fixture', value: 1 }] as const);\n",
+    );
+    const sources = new OperatorPlanningSources(paths);
+    const catalogs = [
+      () => sources.abilityEntities(entityDirectory),
+      () => sources.globalBuffs(paths.globalBuffCatalog),
+      () => sources.skillSettings(paths.skillSettingCatalog),
+      () => sources.gameplayTags(tags),
+      () => sources.timeDilationPriorities(priorities),
+    ];
+    const originals = catalogs.map(read => read());
+    sources.readJson(paths.skillPatchTable);
+    sources.readJson(skillFile);
+    sources.readText(paths.skillPatchTable);
+    sources.readText(skillFile);
+    const before = sources.statistics();
+    expect(before.shared.retainedSourceBytes).toBeGreaterThan(0);
+    expect(before.currentOperator.retainedSourceBytes).toBeGreaterThan(0);
+    expect(before.shared.cacheHits).toBeGreaterThan(0);
+    expect(before.currentOperator.cacheHits).toBeGreaterThan(0);
+    expect(before.parsedCatalogs).toBe(5);
+    sources.clear();
+    expect(sources.statistics()).toEqual({
+      shared: { ...before.shared, retainedSourceBytes: 0 },
+      currentOperator: { ...before.currentOperator, retainedSourceBytes: 0 },
+      parsedCatalogs: 0,
+    });
+    fs.writeFileSync(paths.skillPatchTable, '{"value":2}');
+    fs.writeFileSync(skillFile, '{"value":3}');
+    expect(sources.readJson(paths.skillPatchTable)).toEqual({ value: 2 });
+    expect(sources.readJson(skillFile)).toEqual({ value: 3 });
+    for (const [index, read] of catalogs.entries()) expect(read()).not.toBe(originals[index]);
+    expect(sources.statistics().shared.fileReads).toBeGreaterThan(before.shared.fileReads);
+    expect(sources.statistics().currentOperator.fileReads).toBeGreaterThan(
+      before.currentOperator.fileReads,
+    );
+    expect(sources.statistics().parsedCatalogs).toBe(5);
+  });
+
   it('固定表与清单在逐人释放后继续复用同一份只读原文和 JSON', () => {
     const { paths, sharedFiles } = setup();
     const sources = new OperatorPlanningSources(paths);

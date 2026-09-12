@@ -60,6 +60,24 @@ export interface SharedEntityValueUsageInput {
   readonly mechanicSequences: readonly ActionSequenceDefinition[];
 }
 
+/**
+ * 分批编译后立即合并用途，使调用方可以释放装备、机制和干员的完整定义。
+ * finish 只表示收集结束；是否已覆盖完整来源仍由调用方保证，不能拿局部摘要开启精确裁剪。
+ */
+export interface SharedEntityValueUsageCollector {
+  addOperator(operator: OperatorDefinition): void;
+  /** 公共、私有和机制 Buff 均按相同规则处理。 */
+  addBuffDefinitions(definitions: OperatorBuffDefinitions): void;
+  addWeapon(weapon: WeaponDefinition): void;
+  addGear(gear: GearDefinition): void;
+  addGearSet(gearSet: GearSetDefinition): void;
+  addSequence(sequence: ActionSequenceDefinition): void;
+  /** 合并其他阶段的摘要，必须引用创建本收集器时的同一个公共实体目录对象。 */
+  addUsage(usage: SharedEntityValueUsage): void;
+  /** 返回最终摘要，之后拒绝新增用途，避免优化上下文漏掉迟来的读取或未知访问。 */
+  finish(): SharedEntityValueUsage;
+}
+
 const empty = () => mergeDefinitionValueUsage([]);
 
 /**
@@ -71,8 +89,30 @@ const fallbackContext: DefinitionUsageContext = { inheritedAbilityEntityUsage: e
 export function collectSharedEntityValueUsage(
   input: SharedEntityValueUsageInput,
 ): SharedEntityValueUsage {
+  const collector = createSharedEntityValueUsageCollector(input.commonAbilityEntityDefinitions);
+  input.operators.forEach(collector.addOperator);
+  collector.addBuffDefinitions(input.commonBuffDefinitions);
+  input.weapons.forEach(collector.addWeapon);
+  input.gears.forEach(collector.addGear);
+  input.gearSets.forEach(collector.addGearSet);
+  collector.addBuffDefinitions(input.mechanicBuffDefinitions);
+  input.mechanicSequences.forEach(collector.addSequence);
+  return collector.finish();
+}
+
+/**
+ * 只强引用读键和公共实体目录；用于去重的 WeakSet 不阻止调用方释放已经分析过的定义。
+ * 公共实体目录继续保留，供后续解析按 ID 生成的实体及其子技能。
+ */
+export function createSharedEntityValueUsageCollector(
+  commonAbilityEntityDefinitions: OperatorAbilityEntityDefinitions,
+): SharedEntityValueUsageCollector {
   const reads = new Set<string>();
   let unknownAccess = false;
+  let result: SharedEntityValueUsage | undefined;
+  const requireOpen = () => {
+    if (result !== undefined) throw new Error('entity value usage collection is already finished');
+  };
   const observedSequences = new WeakSet<ActionSequenceDefinition>();
   const observedBuffs = new WeakSet<SkillBuffDefinition>();
   const observedEntities = new WeakSet<AbilityEntityDefinition>();
@@ -184,34 +224,60 @@ export function collectSharedEntityValueUsage(
     });
     Object.values(value.buffDefinitions ?? {}).forEach(buff);
   };
-  for (const operator of input.operators) {
-    operator.skillGroups.forEach(group => {
+  const operator = (value: OperatorDefinition) => {
+    value.skillGroups.forEach(group => {
       skills(group.skills);
       group.variants?.forEach(variant => skills(variant.skills));
       group.replacementSkills?.forEach(skill);
       group.routedReplacementSkills?.forEach(route => skill(route.skill));
     });
-    operator.talents.forEach(upgrade);
-    operator.potentials.forEach(upgrade);
-    operator.passiveSkills?.forEach(passive);
-    operator.eventHandlers?.forEach(handler => {
+    value.talents.forEach(upgrade);
+    value.potentials.forEach(upgrade);
+    value.passiveSkills?.forEach(passive);
+    value.eventHandlers?.forEach(handler => {
       sequence(handler.sequence);
     });
-    operator.comboSkillConditions?.forEach(value => sequence(value.sequence));
-    Object.values(operator.buffDefinitions ?? {}).forEach(buff);
-    Object.values(operator.abilityEntityDefinitions ?? {}).forEach(entity);
-  }
-  Object.values(input.commonBuffDefinitions).forEach(buff);
-  Object.values(input.commonAbilityEntityDefinitions).forEach(entity);
-  input.weapons.forEach(weapon => weapon.traits.forEach(contribution));
-  input.gears.forEach(gear => gear.traits.forEach(contribution));
-  input.gearSets.forEach(contribution);
-  Object.values(input.mechanicBuffDefinitions).forEach(buff);
-  input.mechanicSequences.forEach(sequence);
+    value.comboSkillConditions?.forEach(value => sequence(value.sequence));
+    Object.values(value.buffDefinitions ?? {}).forEach(buff);
+    Object.values(value.abilityEntityDefinitions ?? {}).forEach(entity);
+  };
+  Object.values(commonAbilityEntityDefinitions).forEach(entity);
   return {
-    reads,
-    unknownAccess,
-    commonAbilityEntityDefinitions: input.commonAbilityEntityDefinitions,
+    addOperator(value) {
+      requireOpen();
+      operator(value);
+    },
+    addBuffDefinitions(definitions) {
+      requireOpen();
+      Object.values(definitions).forEach(buff);
+    },
+    addWeapon(weapon) {
+      requireOpen();
+      weapon.traits.forEach(contribution);
+    },
+    addGear(gear) {
+      requireOpen();
+      gear.traits.forEach(contribution);
+    },
+    addGearSet(gearSet) {
+      requireOpen();
+      contribution(gearSet);
+    },
+    addSequence(value) {
+      requireOpen();
+      sequence(value);
+    },
+    addUsage(usage) {
+      requireOpen();
+      if (usage.commonAbilityEntityDefinitions !== commonAbilityEntityDefinitions)
+        throw new Error('entity value usage summaries must share the same common entity catalog');
+      usage.reads.forEach(key => reads.add(key));
+      unknownAccess ||= usage.unknownAccess;
+    },
+    finish() {
+      result ??= { reads, unknownAccess, commonAbilityEntityDefinitions };
+      return result;
+    },
   };
 }
 

@@ -29,7 +29,9 @@ import { avywenna } from '../../../src/data/operators/avywenna.ts';
 import { analyzeBuffDefinitionUsage } from '../src/compiler/buffValueUsage.ts';
 import {
   collectSharedEntityValueUsage,
+  createSharedEntityValueUsageCollector,
   createEntityUsageContext,
+  type SharedEntityValueUsageCollector,
   type SharedEntityValueUsageInput,
 } from '../src/compiler/definitionEntityUsageContext.ts';
 import { pruneUnusedSkillValues } from '../src/compiler/skillValueOptimization.ts';
@@ -113,6 +115,148 @@ const fixtureOperator = (
   skillGroups: [
     { key: 'fixture', skillType: 'battleSkill', levelSource: 'battleSkill', skills: value },
   ],
+});
+
+/** 用查询所得能力实体上的排序键区分每个来源，避免只证明本板读写的重复合并。 */
+const queryEntityValue = (key: string): ActionSequenceDefinition =>
+  sequence({
+    kind: 'findOwnerSpawnedAbilityEntities',
+    parameters: {
+      saveToContextKey: 'found',
+      circularOrder: { indexBlackboardKey: key, desiredCount: 1, reverseFlag: 1 },
+    },
+  });
+
+describe('实体用途分阶段收集', () => {
+  it('按域合并摘要，再逐人收集，与一次性收集的全部用途一致', () => {
+    const source = input({
+      operators: [fixtureOperator(skill(queryEntityValue('operator'), {}), {})],
+      commonBuffDefinitions: {
+        common: { stackingType: 'unlimited', durationSeconds: { blackboardKey: 'commonBuff' } },
+      },
+      commonAbilityEntityDefinitions: {
+        shared: {
+          lifetime: { kind: 'infinite' },
+          childSkill: {
+            skillId: 'shared',
+            scheduledSequences: [{ startFrame: 0, sequence: queryEntityValue('commonEntity') }],
+          },
+        },
+      },
+      weapons: [
+        {
+          slug: 'weapon',
+          rarity: 3,
+          weaponType: 'sword',
+          baseAttackAtLevelNodes: [1],
+          traits: [
+            { key: 'trait', levelCount: 1, initializationSequence: queryEntityValue('weapon') },
+          ],
+        },
+      ],
+      gears: [
+        {
+          slug: 'gear',
+          slotType: 'armor',
+          levelRequirement: 1,
+          baseDefense: 1,
+          traits: [
+            {
+              key: 'trait',
+              levelCount: 1,
+              display: {
+                kind: 'modifier',
+                modifier: { kind: 'attribute', attribute: 'strength', operation: 'flat', value: 1 },
+              },
+              enableSequence: queryEntityValue('gear'),
+            },
+          ],
+        },
+      ],
+      gearSets: [{ slug: 'set', initializationSequence: queryEntityValue('gearSet') }],
+      mechanicBuffDefinitions: {
+        mechanic: { stackingType: 'unlimited', durationSeconds: { blackboardKey: 'mechanicBuff' } },
+      },
+      mechanicSequences: [queryEntityValue('mechanicSequence')],
+    });
+    const equipment = createSharedEntityValueUsageCollector(source.commonAbilityEntityDefinitions);
+    source.gears.forEach(equipment.addGear);
+    source.weapons.forEach(equipment.addWeapon);
+    source.gearSets.forEach(equipment.addGearSet);
+    const mechanics = createSharedEntityValueUsageCollector(source.commonAbilityEntityDefinitions);
+    source.mechanicSequences.forEach(mechanics.addSequence);
+    mechanics.addBuffDefinitions(source.mechanicBuffDefinitions);
+    const collector = createSharedEntityValueUsageCollector(source.commonAbilityEntityDefinitions);
+    collector.addUsage(equipment.finish());
+    source.operators.forEach(collector.addOperator);
+    collector.addUsage(mechanics.finish());
+    collector.addBuffDefinitions(source.commonBuffDefinitions);
+    const result = collector.finish();
+    expect(result).toEqual(collectSharedEntityValueUsage(source));
+    expect(result.reads).toEqual(
+      new Set([
+        'operator',
+        'commonBuff',
+        'commonEntity',
+        'weapon',
+        'gear',
+        'gearSet',
+        'mechanicBuff',
+        'mechanicSequence',
+      ]),
+    );
+    expect(result.unknownAccess).toBe(false);
+    expect(result.commonAbilityEntityDefinitions).toBe(source.commonAbilityEntityDefinitions);
+  });
+
+  it('后加入来源或摘要中的未知访问仍阻止裁剪，不能被前一阶段的已知摘要掩盖', () => {
+    // 模拟外部反序列化后尚未登记的新动作，走真实用途分析的保守分支。
+    const unknown: ActionSequenceDefinition = JSON.parse(
+      '{"steps":[{"kind":"unregisteredAction","parameters":{}}]}',
+    );
+    const catalog = {};
+    const known = createSharedEntityValueUsageCollector(catalog);
+    known.addSequence(queryEntityValue('known'));
+    const earlier = known.finish();
+    const late = createSharedEntityValueUsageCollector(catalog);
+    late.addSequence(unknown);
+    for (const addUnknown of [
+      (collector: SharedEntityValueUsageCollector) => collector.addSequence(unknown),
+      (collector: SharedEntityValueUsageCollector) => collector.addUsage(late.finish()),
+    ]) {
+      const collector = createSharedEntityValueUsageCollector(catalog);
+      collector.addUsage(earlier);
+      addUnknown(collector);
+      const result = collector.finish();
+      expect(result.unknownAccess).toBe(true);
+      expect(result.reads).toEqual(new Set(['known']));
+      const value = skill(sequence(spawn('entity', { lifetime: { kind: 'infinite' } })), {
+        known: 7,
+        unused: 99,
+      });
+      expect(
+        pruneUnusedSkillValues(value, new Set(), createEntityUsageContext({}, result)).report
+          .retainedReason,
+      ).toBe('unresolved-blackboard-access');
+    }
+    expect(earlier.unknownAccess).toBe(false);
+  });
+
+  it('拒绝合并不同公共实体目录，结束后也不能再增加用途', () => {
+    const catalog = {};
+    const collector = createSharedEntityValueUsageCollector(catalog);
+    expect(() => collector.addUsage(createSharedEntityValueUsageCollector({}).finish())).toThrow(
+      'same common entity catalog',
+    );
+    collector.addSequence(queryEntityValue('before'));
+    const result = collector.finish();
+    expect(collector.finish()).toBe(result);
+    expect(() => collector.addSequence(queryEntityValue('after'))).toThrow('already finished');
+    expect(() =>
+      collector.addUsage(createSharedEntityValueUsageCollector(catalog).finish()),
+    ).toThrow('already finished');
+    expect(result.reads).toEqual(new Set(['before']));
+  });
 });
 
 /** Spawn 和子技能均由正式执行器创建，终端只记录资源动作的数值。 */

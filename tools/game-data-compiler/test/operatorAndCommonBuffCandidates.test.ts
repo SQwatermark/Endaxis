@@ -15,6 +15,10 @@ import type { GearSetDefinition } from '../../../packages/game-data-contract/src
 import type { SkillDefinition } from '../../../packages/game-data-contract/src/skills.ts';
 import { avywenna } from '../../../src/data/operators/avywenna.ts';
 import { optimizeCommonBuffDefinitions } from '../src/compiler/equipmentDefinitionOptimization.ts';
+import {
+  collectSharedEntityValueUsage,
+  type SharedEntityValueUsageInput,
+} from '../src/compiler/definitionEntityUsageContext.ts';
 import type { OperatorPlanningSources } from '../scripts/operatorPlanningSources.ts';
 
 const {
@@ -37,7 +41,10 @@ vi.mock('../src/compiler/standardStumpBuffClosure.ts', () => ({
   compileStandardStumpBuffClosure,
 }));
 
-import { generateOperatorDefinitionCandidates } from '../scripts/generateOperatorDefinitionCandidates.ts';
+import {
+  generateOperatorDefinitionCandidates,
+  renderOperatorDefinitionBatch,
+} from '../scripts/generateOperatorDefinitionCandidates.ts';
 import { generateOperatorDefinition } from '../scripts/generateOperatorDefinition.ts';
 import {
   createCommonBuffCollector,
@@ -93,6 +100,20 @@ function planned(slug: string, definitions: OperatorBuffDefinitions = {}) {
   };
 }
 
+function consumerUsage(overrides: Partial<SharedEntityValueUsageInput> = {}) {
+  return collectSharedEntityValueUsage({
+    operators: [],
+    commonBuffDefinitions: {},
+    commonAbilityEntityDefinitions: {},
+    weapons: [],
+    gears: [],
+    gearSets: [],
+    mechanicBuffDefinitions: {},
+    mechanicSequences: [],
+    ...overrides,
+  });
+}
+
 beforeEach(() => {
   vi.resetAllMocks();
   planOperatorDefinition.mockImplementation(({ slug }: { slug: string }) =>
@@ -107,14 +128,7 @@ beforeEach(() => {
       auditFile: { relativePath: 'operator.audit.json', content: `${JSON.stringify(audit)}\n` },
     }),
   );
-  compileEntityValueConsumers.mockResolvedValue({
-    weapons: [],
-    gears: [],
-    gearSets: [],
-    commonAbilityEntityDefinitions: {},
-    mechanicBuffDefinitions: {},
-    mechanicSequences: [],
-  });
+  compileEntityValueConsumers.mockImplementation(async () => consumerUsage());
   compileStandardStumpBuffClosure.mockImplementation((ids: readonly string[]) => ({
     definitions: Object.fromEntries(ids.map(id => [id, { stackingType: 'unlimited' }])),
     diagnostics: [],
@@ -160,6 +174,66 @@ async function setup(slugs: readonly string[] = ['one', 'two']) {
 }
 
 describe('干员与公共 Buff 共用规划', () => {
+  it('复用完整外部摘要时不重编译且文本不变，未提供摘要的下一轮重新编译来源', async () => {
+    const args = { ...(await setup(['one'])), includeCommonBuffs: true };
+    const skill: SkillDefinition = {
+      key: 'spawn',
+      timelineBlockFrames: 10,
+      blackboard: { equipmentValue: 7, changed: 8, unused: 99 },
+      scheduledSequences: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'spawnAbilityEntity',
+                parameters: {
+                  abilityEntityId: 'fixture',
+                  dieWhenSourceDies: false,
+                  inheritActionBlackboard: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const operator: OperatorDefinition = {
+      ...planned('one').operator,
+      abilityEntityDefinitions: { fixture: { lifetime: { kind: 'infinite' } } },
+      skillGroups: [
+        { key: 'spawn', skillType: 'battleSkill', levelSource: 'battleSkill', skills: skill },
+      ],
+    };
+    planOperatorDefinition.mockReturnValue({ ...planned('one'), operator });
+    const equipment = (key: string) =>
+      consumerUsage({
+        gearSets: [
+          {
+            slug: 'equipment',
+            buffDefinitions: {
+              borrowed: { stackingType: 'unlimited', durationSeconds: { blackboardKey: key } },
+            },
+          },
+        ],
+      });
+    const original = equipment('equipmentValue');
+    compileEntityValueConsumers.mockResolvedValue(original);
+    const first = await renderOperatorDefinitionBatch(args);
+    expect(first.files[0]!.content).toContain('"equipmentValue":7');
+    expect(first.files[0]!.content).not.toContain('"unused":99');
+    expect(await renderOperatorDefinitionBatch(args, original)).toEqual(first);
+    expect(compileEntityValueConsumers).toHaveBeenCalledTimes(1);
+    compileEntityValueConsumers.mockImplementation(async () => equipment('changed'));
+    const next = await renderOperatorDefinitionBatch(args);
+    expect(compileEntityValueConsumers).toHaveBeenCalledTimes(2);
+    expect(next.files[0]!.content).toContain('"changed":8');
+    expect(next.files[0]!.content).not.toContain('"equipmentValue":7');
+    expect(planOperatorDefinition).toHaveBeenCalledTimes(3);
+    for (const result of [first, next])
+      expect(result.summary.entityValueConsumers?.unknownAccess).toBe(false);
+  });
+
   it.each(['off', 'report', 'apply'] as const)(
     '正式单人 %s 生成与联合候选文本相同，复验重新收齐闭包且只写目标',
     async optimization => {
@@ -403,7 +477,7 @@ describe('干员与公共 Buff 共用规划', () => {
     await expect(generateOperatorDefinitionCandidates(input)).rejects.toThrow(
       'equipment or mechanic blocked',
     );
-    expect(planOperatorDefinition).toHaveBeenCalledTimes(2);
+    expect(planOperatorDefinition).not.toHaveBeenCalled();
     expect(renderOperatorDefinitionFiles).not.toHaveBeenCalled();
     for (const directory of directories) {
       expect(await fs.readdir(directory)).toEqual(['previous']);
@@ -470,14 +544,12 @@ describe('干员与公共 Buff 共用规划', () => {
         },
       };
       planOperatorDefinition.mockReturnValue({ ...planned('one'), operator });
-      compileEntityValueConsumers.mockResolvedValue({
-        weapons: [],
-        gears: [],
-        gearSets: [gearSet],
-        commonAbilityEntityDefinitions: {},
-        mechanicBuffDefinitions,
-        mechanicSequences: [],
-      });
+      compileEntityValueConsumers.mockImplementation(async () =>
+        consumerUsage({
+          gearSets: [gearSet],
+          mechanicBuffDefinitions,
+        }),
+      );
       const result = await generateOperatorDefinitionCandidates(input);
       expect(compileEntityValueConsumers).toHaveBeenCalledTimes(withCommonBuffs ? 1 : 0);
       if (withCommonBuffs)
