@@ -18,110 +18,6 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-const sharedActionSequence4: ActionSequenceDefinition = sequence(
-  branch(
-    {
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
-      operator: 'greaterOrEqual',
-      right: { kind: 'constant', value: 1 },
-    },
-    sequence(
-      step('createSpatialPointTargets', {
-        saveToContextKey: 'SheepPoint',
-        count: { kind: 'blackboard', key: 'sheep_num' },
-      }),
-      repeatByActionValue(
-        { kind: 'blackboard', key: 'sheep_num' },
-        sequence(
-          withActionBlackboardScope(
-            '\u0000endaxis-generated-identity:0',
-            {},
-            true,
-            sequence(
-              withActionBlackboardScope(
-                '\u0000endaxis-generated-identity:1',
-                { atb: 0, atk_scale: 0, heal_scale: 0, heal_value: 0, potential2: 0 },
-                true,
-                sequence(
-                  step('spawnAbilityEntity', {
-                    abilityEntityId: 'abilityentity_chr_0025_ardelia_remain_loop',
-                    childSkillId: 'chr_0025_ardelia_remain_loop_sheep',
-                    inheritActionBlackboard: true,
-                    dieWhenSourceDies: false,
-                  }),
-                ),
-                undefined,
-                { lifetime: 'execution', alwaysNext: true },
-              ),
-            ),
-            {},
-            { lifetime: 'execution' },
-          ),
-        ),
-      ),
-    ),
-  ),
-);
-
-const sharedActionSequence3: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    { atb: 0, atk_scale: 0 },
-    true,
-    sequence(
-      step(
-        'dealDamage',
-        {
-          damageType: 'nature',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['normalAttack'],
-        },
-        '\u0000endaxis-generated-identity:1',
-      ),
-      branch(
-        { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
-        sequence(),
-        undefined,
-        { alwaysNext: true },
-      ),
-      branch(
-        {
-          kind: 'all',
-          conditions: [
-            { kind: 'casterControlled' },
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-          ],
-        },
-        sequence(
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
-            ),
-          ),
-        ),
-        undefined,
-        { alwaysNext: true },
-      ),
-    ),
-    undefined,
-    { lifetime: 'execution', alwaysNext: true },
-  ),
-);
-
 const sharedActionSequence1: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
@@ -143,18 +39,7 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
             '\u0000endaxis-generated-identity:2',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               branch(
                 { kind: 'casterControlled' },
@@ -183,7 +68,67 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
+const sharedActionSequence2: ActionSequenceDefinition = sequence(
+  step('createSpatialPointTargets', {
+    saveToContextKey: 'firePoint',
+    count: { kind: 'constant', value: 1 },
+  }),
+  withActionBlackboardScope(
+    '\u0000endaxis-generated-identity:0',
+    {},
+    true,
+    sequence(
+      withActionBlackboardScope(
+        '\u0000endaxis-generated-identity:1',
+        { atb: 0, atk_scale: 0 },
+        true,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+            },
+            '\u0000endaxis-generated-identity:2',
+          ),
+          branch(
+            { kind: 'probability', probability: { kind: 'constant', value: 0.3 } },
+            sequence(),
+            undefined,
+            { alwaysNext: true },
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        undefined,
+        { lifetime: 'execution', alwaysNext: true },
+      ),
+    ),
+    {},
+    { lifetime: 'execution' },
+  ),
+);
+
+const sharedActionSequence3: ActionSequenceDefinition = sequence(
   step('finishBuffsById', {
     target: 'caster',
     buffIds: ['buff_chr_0025_ardelia_normal_skill_kill_sheep'],
@@ -241,7 +186,7 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
   step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
 );
 
-const sharedActionSequence11: ActionSequenceDefinition = sequence(
+const sharedActionSequence9: ActionSequenceDefinition = sequence(
   step('mergeContextTargets', {
     saveToContextKey: 'healTar',
     sources: [{ kind: 'target', target: 'currentTarget' }],
@@ -295,25 +240,7 @@ const sharedActionSequence11: ActionSequenceDefinition = sequence(
   step('finishActionOwnerAbilityEntity', {}),
 );
 
-const sharedActionSequence2: ActionSequenceDefinition = sequence(
-  step('createSpatialPointTargets', {
-    saveToContextKey: 'firePoint',
-    count: { kind: 'constant', value: 1 },
-  }),
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    {},
-    true,
-    instantiateActionSequence(sharedActionSequence3, [
-      '\u0000endaxis-generated-identity:1',
-      '\u0000endaxis-generated-identity:2',
-    ]),
-    {},
-    { lifetime: 'execution' },
-  ),
-);
-
-const sharedActionSequence10: ActionSequenceDefinition = sequence(
+const sharedActionSequence8: ActionSequenceDefinition = sequence(
   {
     kind: 'withActionBlackboardScope',
     parameters: {
@@ -387,7 +314,7 @@ const sharedActionSequence10: ActionSequenceDefinition = sequence(
   },
 );
 
-const sharedActionSequence9: ActionSequenceDefinition = sequence(
+const sharedActionSequence7: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     {
@@ -402,18 +329,18 @@ const sharedActionSequence9: ActionSequenceDefinition = sequence(
       random_spe: 0,
     },
     true,
-    instantiateActionSequence(sharedActionSequence10, ['\u0000endaxis-generated-identity:1']),
+    instantiateActionSequence(sharedActionSequence8, ['\u0000endaxis-generated-identity:1']),
     undefined,
     { lifetime: 'execution', alwaysNext: true },
   ),
 );
 
-const sharedActionSequence8: ActionSequenceDefinition = sequence(
+const sharedActionSequence6: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     {},
     true,
-    instantiateActionSequence(sharedActionSequence9, [
+    instantiateActionSequence(sharedActionSequence7, [
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
@@ -422,14 +349,14 @@ const sharedActionSequence8: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence7: ActionSequenceDefinition = sequence(
+const sharedActionSequence5: ActionSequenceDefinition = sequence(
   step('createSpatialPointTargets', {
     saveToContextKey: 'ranPos',
     count: { kind: 'constant', value: 1 },
   }),
   repeatByActionValue(
     { kind: 'constant', value: 1 },
-    instantiateActionSequence(sharedActionSequence8, [
+    instantiateActionSequence(sharedActionSequence6, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -437,9 +364,9 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence6: ActionSequenceDefinition = sequence(
+const sharedActionSequence4: ActionSequenceDefinition = sequence(
   repeatEachTick(
-    instantiateActionSequence(sharedActionSequence7, [
+    instantiateActionSequence(sharedActionSequence5, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -539,11 +466,7 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
-    atk_scale_display: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
-  },
+  { atb: 0, atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
 );
 
 export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -708,11 +631,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08],
-    atk_scale_display: [0.53, 0.58, 0.63, 0.68, 0.74, 0.79, 0.84, 0.89, 0.95, 1.01, 1.09, 1.18],
-  },
+  { atb: 0, atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08] },
 );
 
 export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -1050,11 +969,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    atk_scale_loop: 0.1,
-    atk_scale_start: 0.5,
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const ardeliaPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -1153,12 +1068,7 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           step('jumpTimeline', {
             destinationFrame: 32,
-            condition: {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 0 },
-              operator: 'lessOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            condition: { kind: 'constant', value: true },
           }),
         ),
         31,
@@ -1169,21 +1079,10 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
           step('jumpTimeline', {
             destinationFrame: 221,
             condition: {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'contextTargetCountCompare',
-                  contextKey: 'other_cor_tar',
-                  operator: 'greater',
-                  value: 0,
-                },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 1.5 },
-                },
-              ],
+              kind: 'contextTargetCountCompare',
+              contextKey: 'other_cor_tar',
+              operator: 'greater',
+              value: 0,
             },
           }),
         ),
@@ -1191,30 +1090,92 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         32,
-        instantiateActionSequence(sharedActionSequence4, [
-          'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[2]:projectile_chr_0025_ardelia_normal_skill',
-          'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[2]:chr_0025_ardelia_normal_skill_gene_sheep',
-        ]),
+        sequence(
+          step('createSpatialPointTargets', {
+            saveToContextKey: 'SheepPoint',
+            count: { kind: 'blackboard', key: 'sheep_num' },
+          }),
+          repeatByActionValue(
+            { kind: 'blackboard', key: 'sheep_num' },
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[2]:projectile_chr_0025_ardelia_normal_skill',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[19]._sequenceActionData.actionData[2]:chr_0025_ardelia_normal_skill_gene_sheep',
+                    { atb: 0, atk_scale: 0, heal_scale: 0, heal_value: 0, potential2: 0 },
+                    true,
+                    sequence(
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0025_ardelia_remain_loop',
+                        childSkillId: 'chr_0025_ardelia_remain_loop_sheep',
+                        inheritActionBlackboard: true,
+                        dieWhenSourceDies: false,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                {},
+                { lifetime: 'execution' },
+              ),
+            ),
+          ),
+        ),
         35,
       ),
       scheduled(
         221,
-        instantiateActionSequence(sharedActionSequence4, [
-          'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[20]._sequenceActionData.actionData[2]:projectile_chr_0025_ardelia_normal_skill',
-          'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[20]._sequenceActionData.actionData[2]:chr_0025_ardelia_normal_skill_gene_sheep',
-        ]),
+        sequence(
+          step('createSpatialPointTargets', {
+            saveToContextKey: 'SheepPoint',
+            count: { kind: 'blackboard', key: 'sheep_num' },
+          }),
+          repeatByActionValue(
+            { kind: 'blackboard', key: 'sheep_num' },
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[20]._sequenceActionData.actionData[2]:projectile_chr_0025_ardelia_normal_skill',
+                {},
+                true,
+                sequence(
+                  withActionBlackboardScope(
+                    'SkillData.chr_0025_ardelia_normal_skill.actionGroupData.timelineActions[20]._sequenceActionData.actionData[2]:chr_0025_ardelia_normal_skill_gene_sheep',
+                    { atb: 0, atk_scale: 0, heal_scale: 0, heal_value: 0, potential2: 0 },
+                    true,
+                    sequence(
+                      step('spawnAbilityEntity', {
+                        abilityEntityId: 'abilityentity_chr_0025_ardelia_remain_loop',
+                        childSkillId: 'chr_0025_ardelia_remain_loop_sheep',
+                        inheritActionBlackboard: true,
+                        dieWhenSourceDies: false,
+                      }),
+                    ),
+                    undefined,
+                    { lifetime: 'execution', alwaysNext: true },
+                  ),
+                ),
+                {},
+                { lifetime: 'execution' },
+              ),
+            ),
+          ),
+        ),
         224,
       ),
       scheduled(
         32,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence3, [
           'chr_0025_ardelia_normal_skill:/scheduledSequences/5/sequence/steps/2',
         ]),
         33,
       ),
       scheduled(
         221,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence3, [
           'chr_0025_ardelia_normal_skill:/scheduledSequences/6/sequence/steps/2',
         ]),
         222,
@@ -1603,7 +1564,7 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         81,
-        instantiateActionSequence(sharedActionSequence6, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0025_ardelia_ultimate_skill.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].actionOnTick.actionData[1]:projectile_chr_0025_ardelia_ultimate_skill',
           'SkillData.chr_0025_ardelia_ultimate_skill.actionGroupData.timelineActions[7]._sequenceActionData.actionData[0].actionOnTick.actionData[1]:chr_0025_ardelia_ultimate_skill_sheep_projhit',
           'chr_0025_ardelia_ultimate_skill:/scheduledSequences/3/sequence/steps/0/body/steps/1/body/steps/0/body/steps/0/body/steps/1/body/steps/0/body/steps/0/whenTrue/steps/0',
@@ -1612,7 +1573,7 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         81,
-        instantiateActionSequence(sharedActionSequence6, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0025_ardelia_ultimate_skill.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].actionOnTick.actionData[1]:projectile_chr_0025_ardelia_ultimate_skill',
           'SkillData.chr_0025_ardelia_ultimate_skill.actionGroupData.timelineActions[8]._sequenceActionData.actionData[0].actionOnTick.actionData[1]:chr_0025_ardelia_ultimate_skill_sheep_projhit',
           'chr_0025_ardelia_ultimate_skill:/scheduledSequences/4/sequence/steps/0/body/steps/1/body/steps/0/body/steps/0/body/steps/1/body/steps/0/body/steps/0/whenTrue/steps/0',
@@ -2099,18 +2060,7 @@ export const ardelia: OperatorDefinition = {
                 'abilityentity_chr_0025_ardelia_attack4:chr_0025_ardelia_attack4_sheep:/childSkill/scheduledSequences/0/sequence/steps/0',
               ),
               branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    { kind: 'casterControlled' },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                  ],
-                },
+                { kind: 'casterControlled' },
                 sequence(
                   branch(
                     { kind: 'casterControlled' },
@@ -2181,18 +2131,7 @@ export const ardelia: OperatorDefinition = {
                 'abilityentity_chr_0025_ardelia_attack4_low:chr_0025_ardelia_attack4_sheep:/childSkill/scheduledSequences/0/sequence/steps/0',
               ),
               branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    { kind: 'casterControlled' },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                  ],
-                },
+                { kind: 'casterControlled' },
                 sequence(
                   branch(
                     { kind: 'casterControlled' },
@@ -2300,7 +2239,7 @@ export const ardelia: OperatorDefinition = {
                               operator: 'greaterOrEqual',
                               value: { kind: 'constant', value: 0.99 },
                             },
-                            sharedActionSequence11,
+                            sharedActionSequence9,
                             sequence(
                               branch(
                                 {
@@ -2356,11 +2295,11 @@ export const ardelia: OperatorDefinition = {
                             { alwaysNext: true },
                           ),
                         ),
-                        sharedActionSequence11,
+                        sharedActionSequence9,
                         { alwaysNext: true },
                       ),
                     ),
-                    sharedActionSequence11,
+                    sharedActionSequence9,
                     { alwaysNext: true },
                   ),
                 ),

@@ -813,7 +813,7 @@ describe('施法输入限制与木桩物理控制投影', () => {
           },
         },
       ],
-      state: new Map(),
+      state: new Map([['fire_inflicted', 'dynamicEnemy']]),
     });
   });
 

@@ -1603,8 +1603,8 @@ export function compileBuffLeafNode(
         parameters: { saveToContextKey: write.targetGroupKey, sources: [] },
       };
       const nextGroups = new Map(partyTargetGroups);
-      // enemy 表示该 Context 的成员种类；条件仍在运行时保留零个或一个成员的动态结果。
-      nextGroups.set(write.targetGroupKey, 'enemy');
+      // 标签不匹配时结果为空。成员身份和必有一个成员是两项不同的证明，不能写成 enemy。
+      nextGroups.set(write.targetGroupKey, 'dynamicEnemy');
       return {
         steps: [
           {
@@ -1877,7 +1877,21 @@ export function compileBuffLeafNode(
     ) {
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'spatialPoint');
-      return { steps: [], state: nextGroups };
+      return {
+        steps:
+          context.materializedTargetGroupKeys?.has(write.targetGroupKey) === true
+            ? [
+                {
+                  kind: 'createSpatialPointTargets',
+                  parameters: {
+                    saveToContextKey: write.targetGroupKey,
+                    count: { kind: 'constant', value: 1 },
+                  },
+                },
+              ]
+            : [],
+        state: nextGroups,
+      };
     }
     if (
       write.producerType === 'FindTargetAction' &&
@@ -2229,7 +2243,21 @@ export function compileBuffLeafNode(
     ) {
       const nextGroups = new Map(partyTargetGroups);
       nextGroups.set(write.targetGroupKey, 'enemy');
-      return { steps: [], state: nextGroups };
+      return {
+        steps:
+          context.materializedTargetGroupKeys?.has(write.targetGroupKey) === true
+            ? [
+                {
+                  kind: 'mergeContextTargets',
+                  parameters: {
+                    saveToContextKey: write.targetGroupKey,
+                    sources: [{ kind: 'target', target: 'enemy' }],
+                  },
+                },
+              ]
+            : [],
+        state: nextGroups,
+      };
     }
     if (context.actionTargetTarget === 'enemy' && isEmptyStaticEnemyExclusionTargetGroup(write)) {
       const nextGroups = new Map(partyTargetGroups);

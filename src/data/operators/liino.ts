@@ -551,7 +551,6 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
     time_duration: 0,
     time_ratio: 0,
     usp: 20,
-    display_atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
   },
 );
 
@@ -644,11 +643,7 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.094, 0.103, 0.112, 0.122, 0.131, 0.14, 0.15, 0.159, 0.168, 0.18, 0.194, 0.21],
-    display_atk_scale: [0.19, 0.21, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42],
-  },
+  { atk_scale: [0.094, 0.103, 0.112, 0.122, 0.131, 0.14, 0.15, 0.159, 0.168, 0.18, 0.194, 0.21] },
 );
 
 export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -705,11 +700,7 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.054, 0.059, 0.064, 0.07, 0.075, 0.08, 0.086, 0.091, 0.096, 0.103, 0.111, 0.12],
-    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.56, 0.6],
-  },
+  { atk_scale: [0.054, 0.059, 0.064, 0.07, 0.075, 0.08, 0.086, 0.091, 0.096, 0.103, 0.111, 0.12] },
 );
 
 export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -1105,7 +1096,6 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
     atk_scale_2: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.02, 0.02],
-    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.56, 0.6],
   },
 );
 
@@ -1652,11 +1642,7 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.036, 0.04, 0.043, 0.047, 0.05, 0.054, 0.058, 0.061, 0.065, 0.069, 0.075, 0.081],
-    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
-  },
+  { atk_scale: [0.036, 0.04, 0.043, 0.047, 0.05, 0.054, 0.058, 0.061, 0.065, 0.069, 0.075, 0.081] },
 );
 
 export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -2230,7 +2216,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -2449,10 +2435,8 @@ export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'attack',
   },
   {
-    atb: 0,
     atk_scale: [0.64, 0.7, 0.77, 0.83, 0.9, 0.96, 1.02, 1.09, 1.15, 1.23, 1.33, 1.44],
     atk_scale_2: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
-    display_atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
   },
 );
 
@@ -3383,34 +3367,20 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
     atk_scale_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_trigger: 10,
     atk_up: [0.06, 0.06, 0.06, 0.07, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.1],
-    cam_angle: 0,
-    cam_duration: 0.3,
-    finish_duration: 5,
     frame_radio: 30,
     heal_rate: [18, 21.6, 25.2, 28.8, 30.6, 32.4, 34.2, 36, 37.8, 38.7, 39.6, 40.5],
     heal_value: [0.04, 0.05, 0.06, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.09],
     healtaken_rate: 0,
-    hit_cnt: 1,
-    input_angle: 0,
-    music_atk_ratio: 0.5,
     music_duration: 60,
     music_loop: 0,
-    music_trigger: 3,
     normalskill_frame: 0,
     poise: 0.5,
     potential_atb_return: 0,
     set_cd: 3,
     shelter: 0,
     shelter_duration: 0,
-    shelter_teammate: 0,
-    spellenhance_rate: 0,
-    talent: 0,
     talent_a: 0,
     talent_b: 0,
-    teammate_rate: 0,
-    display_atk_scale: [1.07, 1.17, 1.28, 1.39, 1.49, 1.6, 1.7, 1.81, 1.92, 2.05, 2.21, 2.4],
-    display_atk_scale_2: [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
-    display_poise: 3,
   },
 );
 
@@ -3539,18 +3509,9 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          repeatEachTick(
-            sequence(
-              step('storeCurrentTimelineFrame', { outputKey: 'music_loop' }),
-              step('calculateActionValue', {
-                key: 'normalskill_frame',
-                operation: 'divide',
-                left: { kind: 'blackboard', key: 'music_loop' },
-                right: { kind: 'blackboard', key: 'frame_radio' },
-              }),
-            ),
-            { nativeTickInterval: { executeEachFrame: true, intervalSeconds: 0.1 } },
-          ),
+          repeatEachTick(sequence(step('storeCurrentTimelineFrame', { outputKey: 'music_loop' })), {
+            nativeTickInterval: { executeEachFrame: true, intervalSeconds: 0.1 },
+          }),
         ),
         1801,
       ),
@@ -3812,33 +3773,15 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.18, 0.2, 0.21, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.34, 0.37, 0.4],
     atk_scale_2: [0.09, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2],
     atk_scale_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
-    atk_trigger: 10,
     atk_up: 0.08,
-    cam_angle: 0,
-    cam_duration: 0.3,
-    frame_radio: 30,
     heal_rate: [18, 21.6, 25.2, 28.8, 30.6, 32.4, 34.2, 36, 37.8, 38.7, 39.6, 40.5],
     heal_value: [0.04, 0.05, 0.06, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.09, 0.09],
-    hit_cnt: 1,
-    input_angle: 0,
-    music_atk_ratio: 0.5,
-    music_duration: 60,
     music_loop: 0,
-    music_trigger: 3,
-    normalskill_frame: 0,
-    poise: 2,
     set_cd: 3,
     shelter: 0,
     shelter_duration: 0,
-    shelter_teammate: 0,
-    spellenhance_rate: 0,
-    talent: 0,
     talent_a: 0,
     talent_b: 0,
-    teammate_rate: 0,
-    display_atk_scale: [1.07, 1.17, 1.28, 1.39, 1.49, 1.6, 1.7, 1.81, 1.92, 2.05, 2.21, 2.4],
-    display_atk_scale_2: [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
-    display_poise: 12,
   },
 );
 
@@ -3866,19 +3809,7 @@ export const liinoBattleSkillEnd: SkillDefinition = withSkillBlackboard(
     levelSource: 'battleSkill',
     nativeSkillType: 'extraActiveSkill',
   },
-  {
-    atk_scale: 1,
-    atk_up: 0.5,
-    cam_angle: 0,
-    cam_duration: 0.3,
-    hit_cnt: 1,
-    input_angle: 0,
-    music_atk_ratio: 0.5,
-    music_duration: 30,
-    music_loop: 0,
-    poise: 0,
-    talent: 0,
-  },
+  { atk_scale: 1, atk_up: 0.5 },
 );
 
 export const liinoUltimate: SkillDefinition = withSkillBlackboard(
@@ -3946,25 +3877,15 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'casterControlled' },
+            sequence(),
             sequence(
-              branch(
-                { kind: 'casterControlled' },
-                sequence(),
-                sequence(
-                  step('findCharacterTeamTargets', {
-                    saveToContextKey: 'mainchar',
-                    selection: { kind: 'controlledOperator' },
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'mainchar',
+                selection: { kind: 'controlledOperator' },
+              }),
             ),
+            { alwaysNext: true },
           ),
         ),
         1,
@@ -5972,97 +5893,77 @@ export const liino: OperatorDefinition = {
         trigger: sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'not',
+              condition: {
+                kind: 'timedMarkerPresent',
+                target: 'buffOwner',
+                markerId: 'liino_normalskill_hit',
+              },
             },
             sequence(
+              step('createTimedMarker', {
+                target: 'buffOwner',
+                markerId: 'liino_normalskill_hit',
+                durationSeconds: { kind: 'blackboard', key: 'hit_duration' },
+                autoFinishByAction: false,
+              }),
+              step('storeCurrentTimelineFrame', { outputKey: 'music_loop' }),
+              step('calculateActionValue', {
+                key: 'music_frame',
+                operation: 'divide',
+                left: { kind: 'blackboard', key: 'music_loop' },
+                right: { kind: 'blackboard', key: 'frame_radio' },
+              }),
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 20 },
+                  left: { kind: 'blackboard', key: 'hit_check', fallback: 0 },
+                  operator: 'greater',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'not',
-                      condition: {
-                        kind: 'timedMarkerPresent',
-                        target: 'buffOwner',
-                        markerId: 'liino_normalskill_hit',
-                      },
+                  step('calculateActionValue', {
+                    key: 'hit_check',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'hit_check' },
+                    right: { kind: 'constant', value: -1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitl',
+                    target: 'buffSource',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                    asChildBuff: true,
+                    blackboardAssignments: {
+                      music_frame: { kind: 'blackboard', key: 'music_frame' },
+                      atk_scale_2: { kind: 'blackboard', key: 'atk_scale_2' },
+                      heal_rate: { kind: 'blackboard', key: 'heal_rate' },
+                      heal_value: { kind: 'blackboard', key: 'heal_value' },
                     },
-                    sequence(
-                      step('createTimedMarker', {
-                        target: 'buffOwner',
-                        markerId: 'liino_normalskill_hit',
-                        durationSeconds: { kind: 'blackboard', key: 'hit_duration' },
-                        autoFinishByAction: false,
-                      }),
-                      step('storeCurrentTimelineFrame', { outputKey: 'music_loop' }),
-                      step('calculateActionValue', {
-                        key: 'music_frame',
-                        operation: 'divide',
-                        left: { kind: 'blackboard', key: 'music_loop' },
-                        right: { kind: 'blackboard', key: 'frame_radio' },
-                      }),
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'hit_check', fallback: 0 },
-                          operator: 'greater',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                        sequence(
-                          step('calculateActionValue', {
-                            key: 'hit_check',
-                            operation: 'multiply',
-                            left: { kind: 'blackboard', key: 'hit_check' },
-                            right: { kind: 'constant', value: -1 },
-                          }),
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitl',
-                            target: 'buffSource',
-                            source: 'buffSource',
-                            inheritSourceSkillCastInfo: true,
-                            asChildBuff: true,
-                            blackboardAssignments: {
-                              music_frame: { kind: 'blackboard', key: 'music_frame' },
-                              atk_scale_2: { kind: 'blackboard', key: 'atk_scale_2' },
-                              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-                              heal_value: { kind: 'blackboard', key: 'heal_value' },
-                            },
-                          }),
-                        ),
-                        sequence(
-                          step('calculateActionValue', {
-                            key: 'hit_check',
-                            operation: 'multiply',
-                            left: { kind: 'blackboard', key: 'hit_check' },
-                            right: { kind: 'constant', value: -1 },
-                          }),
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitr',
-                            target: 'buffSource',
-                            source: 'buffSource',
-                            inheritSourceSkillCastInfo: true,
-                            asChildBuff: true,
-                            blackboardAssignments: {
-                              music_frame: { kind: 'blackboard', key: 'music_frame' },
-                              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-                              heal_value: { kind: 'blackboard', key: 'heal_value' },
-                              atk_scale_2: { kind: 'blackboard', key: 'atk_scale_2' },
-                            },
-                          }),
-                        ),
-                        { alwaysNext: true },
-                      ),
-                    ),
-                  ),
+                  }),
                 ),
+                sequence(
+                  step('calculateActionValue', {
+                    key: 'hit_check',
+                    operation: 'multiply',
+                    left: { kind: 'blackboard', key: 'hit_check' },
+                    right: { kind: 'constant', value: -1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0035_liino_normalskill_music_animation_hitr',
+                    target: 'buffSource',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                    asChildBuff: true,
+                    blackboardAssignments: {
+                      music_frame: { kind: 'blackboard', key: 'music_frame' },
+                      heal_rate: { kind: 'blackboard', key: 'heal_rate' },
+                      heal_value: { kind: 'blackboard', key: 'heal_value' },
+                      atk_scale_2: { kind: 'blackboard', key: 'atk_scale_2' },
+                    },
+                  }),
+                ),
+                { alwaysNext: true },
               ),
             ),
           ),

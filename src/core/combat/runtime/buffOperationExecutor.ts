@@ -18,7 +18,7 @@ import type { BuffApplicationHandle, BuffFinishReason } from '../buffs/combatBuf
 import type { GameplayTag, GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
-import { compareCombatNumbers } from './numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { RegisterBuffSemanticEventAction } from './buffLifecycleSequenceRuntime';

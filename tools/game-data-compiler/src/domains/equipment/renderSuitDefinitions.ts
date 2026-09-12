@@ -1,4 +1,5 @@
 import type { CompiledEquipmentSuitRuntimeBatchSource } from './suitRuntimeDefinition.ts';
+import type { GearSetDefinition } from '../../../../../packages/game-data-contract/src/equipment.ts';
 
 export interface RenderedEquipmentSuitDefinitionFileSource {
   readonly relativePath: string;
@@ -8,9 +9,10 @@ export interface RenderedEquipmentSuitDefinitionFileSource {
 const SAFE_IDENTITY = /^[A-Za-z0-9_-]+$/;
 
 /** 把已经闭合的套装运行时定义稳定渲染为 Next GearSetDefinition 模块。 */
-export function renderEquipmentSuitDefinitionFiles(
-  batch: CompiledEquipmentSuitRuntimeBatchSource,
-): readonly RenderedEquipmentSuitDefinitionFileSource[] {
+export function renderEquipmentSuitDefinitionFiles(batch: {
+  readonly definitions: readonly GearSetDefinition[];
+  readonly diagnostics: CompiledEquipmentSuitRuntimeBatchSource['diagnostics'];
+}): readonly RenderedEquipmentSuitDefinitionFileSource[] {
   const blocked = batch.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length > 0) {
     throw new Error(

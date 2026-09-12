@@ -34,20 +34,7 @@ const definition = {
             79
           ]
         }
-      ],
-      "blackboard": {
-        "mainattr": [
-          10,
-          18,
-          26,
-          34,
-          42,
-          51,
-          59,
-          67,
-          79
-        ]
-      }
+      ]
     },
     {
       "key": "skill3",
@@ -68,20 +55,7 @@ const definition = {
             33.6
           ]
         }
-      ],
-      "blackboard": {
-        "atk_up": [
-          12,
-          14.4,
-          16.8,
-          19.2,
-          21.6,
-          24,
-          26.4,
-          28.8,
-          33.6
-        ]
-      }
+      ]
     }
   ],
   "assetSlug": "wpn_artsunit_0002",

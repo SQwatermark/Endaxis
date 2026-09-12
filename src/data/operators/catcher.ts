@@ -93,11 +93,7 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79] },
 );
 
 export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -178,11 +174,7 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.39, 0.42, 0.46, 0.5, 0.54, 0.58, 0.62, 0.65, 0.69, 0.74, 0.8, 0.87],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.39, 0.42, 0.46, 0.5, 0.54, 0.58, 0.62, 0.65, 0.69, 0.74, 0.8, 0.87] },
 );
 
 export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -256,11 +248,7 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.54, 0.59, 0.65, 0.7, 0.76, 0.81, 0.86, 0.92, 0.97, 1.04, 1.12, 1.22],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.54, 0.59, 0.65, 0.7, 0.76, 0.81, 0.86, 0.92, 0.97, 1.04, 1.12, 1.22] },
 );
 
 export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -351,8 +339,6 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 25,
     atk_scale: [0.71, 0.78, 0.85, 0.92, 0.99, 1.07, 1.14, 1.21, 1.28, 1.37, 1.47, 1.6],
-    atk_scale2: 0.5,
-    env_dmg: 40,
     poise: 22,
   },
 );
@@ -500,11 +486,7 @@ export const catcherPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -612,17 +594,7 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
                 sequence: sequence(
                   branch(
                     { kind: 'eventBuffIdMatch', buffIds: ['buff_eny_0018_lbtough_pre_catch'] },
-                    sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 0 },
-                          operator: 'lessOrEqual',
-                          right: { kind: 'constant', value: 3 },
-                        },
-                        sequence(step('jumpTimeline', { destinationFrame: 60 })),
-                      ),
-                    ),
+                    sequence(step('jumpTimeline', { destinationFrame: 60 })),
                   ),
                 ),
               },
@@ -764,12 +736,9 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atb_return_base: 30,
     atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4],
-    is_cam: 1,
     poise: 20,
     potential5_atb: 0,
     taken_dmg: 0.9,
-    weak_duration: 8,
-    weak_scale: -0.2,
   },
 );
 
@@ -832,95 +801,75 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
             },
             'chr_0020_meurs_combo_skill:/scheduledSequences/1/sequence/steps/0',
           ),
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.2 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'meurs_comboskill2' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.2 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'meurs_comboskill2' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         21,
       ),
       scheduled(
         20,
         sequence(
+          step('modifyActionValue', {
+            key: 'shield_duration',
+            operation: 'add',
+            value: { kind: 'blackboard', key: 'potential3_duration' },
+          }),
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'casterControlled' },
             sequence(
-              step('modifyActionValue', {
-                key: 'shield_duration',
-                operation: 'add',
-                value: { kind: 'blackboard', key: 'potential3_duration' },
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'aMate',
+                selection: { kind: 'lowestHealthRatioOperator', excludeCaster: true },
               }),
-              branch(
-                { kind: 'casterControlled' },
-                sequence(
-                  step('findCharacterTeamTargets', {
-                    saveToContextKey: 'aMate',
-                    selection: { kind: 'lowestHealthRatioOperator', excludeCaster: true },
-                  }),
-                  step('mergeContextTargets', {
-                    saveToContextKey: 'shieldTar',
-                    sources: [
-                      { kind: 'context', contextKey: 'aMate' },
-                      { kind: 'target', target: 'caster' },
-                    ],
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0020_meurs_combo_skill_shield',
-                    target: 'casterAndLowestHealthRatioOperatorExceptCaster',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      shield_def_rate: { kind: 'blackboard', key: 'shield_def_rate' },
-                      shield_base: { kind: 'blackboard', key: 'shield_base' },
-                      duration: { kind: 'blackboard', key: 'shield_duration' },
-                    },
-                  }),
-                ),
-                sequence(
-                  step('findCharacterTeamTargets', {
-                    saveToContextKey: 'mainChar',
-                    selection: { kind: 'controlledOperator' },
-                  }),
-                  step('mergeContextTargets', {
-                    saveToContextKey: 'shieldTar',
-                    sources: [
-                      { kind: 'context', contextKey: 'mainChar' },
-                      { kind: 'target', target: 'caster' },
-                    ],
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0020_meurs_combo_skill_shield',
-                    target: 'casterAndControlledOperator',
-                    inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      shield_def_rate: { kind: 'blackboard', key: 'shield_def_rate' },
-                      shield_base: { kind: 'blackboard', key: 'shield_base' },
-                      duration: { kind: 'blackboard', key: 'shield_duration' },
-                    },
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('mergeContextTargets', {
+                saveToContextKey: 'shieldTar',
+                sources: [
+                  { kind: 'context', contextKey: 'aMate' },
+                  { kind: 'target', target: 'caster' },
+                ],
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0020_meurs_combo_skill_shield',
+                target: 'casterAndLowestHealthRatioOperatorExceptCaster',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  shield_def_rate: { kind: 'blackboard', key: 'shield_def_rate' },
+                  shield_base: { kind: 'blackboard', key: 'shield_base' },
+                  duration: { kind: 'blackboard', key: 'shield_duration' },
+                },
+              }),
             ),
+            sequence(
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'mainChar',
+                selection: { kind: 'controlledOperator' },
+              }),
+              step('mergeContextTargets', {
+                saveToContextKey: 'shieldTar',
+                sources: [
+                  { kind: 'context', contextKey: 'mainChar' },
+                  { kind: 'target', target: 'caster' },
+                ],
+              }),
+              step('applyBuff', {
+                buffId: 'buff_chr_0020_meurs_combo_skill_shield',
+                target: 'casterAndControlledOperator',
+                inheritSourceSkillCastInfo: true,
+                blackboardAssignments: {
+                  shield_def_rate: { kind: 'blackboard', key: 'shield_def_rate' },
+                  shield_base: { kind: 'blackboard', key: 'shield_base' },
+                  duration: { kind: 'blackboard', key: 'shield_duration' },
+                },
+              }),
+            ),
+            { alwaysNext: true },
           ),
         ),
         21,
@@ -951,18 +900,12 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [0.25, 0.27, 0.3, 0.32, 0.34, 0.37, 0.39, 0.42, 0.44, 0.47, 0.51, 0.55],
     atk_scale_1: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     potential3_duration: 0,
     shield_base: [360, 432, 504, 576, 612, 648, 684, 720, 756, 774, 792, 810],
     shield_def_rate: [2.25, 2.7, 3.15, 3.6, 3.825, 4.05, 4.275, 4.5, 4.725, 4.84, 4.95, 5.06],
     shield_duration: 10,
     usp: 10,
-    trigger_hp_ratio: 0.4,
   },
 );
 

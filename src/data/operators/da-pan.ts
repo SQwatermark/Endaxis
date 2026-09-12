@@ -244,11 +244,7 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.28, 0.31, 0.34, 0.37, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.63],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.28, 0.31, 0.34, 0.37, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.63] },
 );
 
 export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -317,11 +313,7 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75] },
 );
 
 export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -455,9 +447,6 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38],
     atk_scale_2: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
-    env_dmg: 5,
-    env_dmg2: 15,
-    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.97, 1.04, 1.13],
   },
 );
 
@@ -532,9 +521,7 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 21,
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.03, 1.09, 1.16, 1.25, 1.36],
-    env_dmg: 50,
     poise: 20,
-    talent_heal: 0,
   },
 );
 
@@ -638,7 +625,7 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -881,27 +868,17 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
                   },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_physical_no_guard',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('createTimedMarker', {
-                        target: 'caster',
-                        markerId: 'potential_5_interval',
-                        durationSeconds: { kind: 'blackboard', key: 'potential_5_interval' },
-                        autoFinishByAction: false,
-                      }),
-                    ),
-                  ),
+                  step('applyBuff', {
+                    buffId: 'buff_physical_no_guard',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('createTimedMarker', {
+                    target: 'caster',
+                    markerId: 'potential_5_interval',
+                    durationSeconds: { kind: 'blackboard', key: 'potential_5_interval' },
+                    autoFinishByAction: false,
+                  }),
                 ),
               ),
             ),
@@ -942,12 +919,8 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
     airborne_duration: 1.8,
     atk_scale: [1.15, 1.27, 1.38, 1.5, 1.61, 1.73, 1.84, 1.96, 2.07, 2.22, 2.39, 2.59],
     atk_scale_pre: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
     poise: 10,
     potential_5_interval: 0,
-    display_atk_scale: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
   },
 );
 
@@ -1260,7 +1233,6 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
     atk_scale_loop: [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
     potential_1_dmg_up: 0,
     potential_1_duration: 0,
-    select_radius: 4,
     talent_1: 0,
     talent_1_cd_reduce: 0,
     talent_1_duration: 0,
@@ -1285,350 +1257,332 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         23,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('applyPhysicalInfliction', {
-                type: 'crush',
-                target: 'enemy',
-                isExtra: false,
-                noGuardBuffId: 'buff_physical_no_guard',
-                noGuardDefinition: {
-                  stackingType: 'enhanceAndRefresh',
-                  priority: 100,
-                  maxStackCount: 4,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  presentation: {
-                    visible: true,
-                    iconId: 'icon_shadow_attribute_penetrate',
-                    iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
-                    showInHeadBarCommon: false,
-                    showInHeadBarAttached: true,
-                    showInSquadIcon: false,
-                    onlyShowForMainCharacter: false,
-                    blinkInMainCharHpBar: false,
-                    showProgressInHpBar: false,
-                    showProgressInNormalSkillButton: false,
-                    useWeakProgressInNormalSkillButton: false,
-                    showProgressInUltimateSkillButton: false,
-                    forceRaiseIconEvent: false,
-                    showWarningBackground: false,
-                    playStrongInAnimation: false,
-                    hasCharHpBarVfxType: false,
-                    charHpBarVfxType: 'Fire',
-                    iconStyleInSquad: 'Default',
-                    abnormalColorType: 'Physical',
-                    orderPriority: {
-                      useDirectoryValue: false,
-                      value: 0,
-                      category: 'CommonCharBuff',
+          step('applyPhysicalInfliction', {
+            type: 'crush',
+            target: 'enemy',
+            isExtra: false,
+            noGuardBuffId: 'buff_physical_no_guard',
+            noGuardDefinition: {
+              stackingType: 'enhanceAndRefresh',
+              priority: 100,
+              maxStackCount: 4,
+              durationSeconds: { blackboardKey: 'duration' },
+              presentation: {
+                visible: true,
+                iconId: 'icon_shadow_attribute_penetrate',
+                iconPath: '/icons/icon_shadow_attribute_penetrate.webp',
+                showInHeadBarCommon: false,
+                showInHeadBarAttached: true,
+                showInSquadIcon: false,
+                onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
+                iconStyleInSquad: 'Default',
+                abnormalColorType: 'Physical',
+                orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+              },
+              applyTags: ['Skill/Character/Common/NoGuard'],
+              extendTags: [],
+              blackboard: { atk_scale: 0, count: 0, duration: 20, skip_handle_cryst_break: 0 },
+              attributeModifiers: [],
+              lifecycleSequences: {
+                start: sequence(
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'skip_handle_cryst_break', fallback: 0 },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
                     },
-                  },
-                  applyTags: ['Skill/Character/Common/NoGuard'],
-                  extendTags: [],
-                  blackboard: { atk_scale: 0, count: 0, duration: 20, skip_handle_cryst_break: 0 },
-                  attributeModifiers: [],
-                  lifecycleSequences: {
-                    start: sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'skip_handle_cryst_break', fallback: 0 },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            target: 'buffOwner',
-                            source: 'buffSource',
-                            inheritSourceSkillCastInfo: true,
-                          }),
-                        ),
-                      ),
-                    ),
-                    finish: sequence(
+                    sequence(
                       step('applyBuff', {
-                        buffId: 'buff_physical_no_guard_fake',
+                        buffId: 'buff_physical_handle_cryst_break',
                         target: 'buffOwner',
                         source: 'buffSource',
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
-                    afterEnhance: sharedActionSequence1,
-                  },
-                },
-                crushedBuffId: 'buff_physical_crushed',
-                crushedDefinition: {
-                  stackingType: 'stack',
-                  stackingKey: 'physical',
-                  priority: 0,
-                  maxStackCount: 1,
-                  durationSeconds: { blackboardKey: 'duration' },
-                  triggerIntervalSeconds: 0,
-                  waitFirstTriggerInterval: true,
-                  maxTriggerCount: 1,
-                  presentation: {
-                    visible: true,
-                    iconId: 'knockback',
-                    iconPath: '/icons/knockback.webp',
-                    showInHeadBarCommon: false,
-                    showInHeadBarAttached: false,
-                    showInSquadIcon: false,
-                    onlyShowForMainCharacter: false,
-                    blinkInMainCharHpBar: false,
-                    showProgressInHpBar: false,
-                    showProgressInNormalSkillButton: false,
-                    useWeakProgressInNormalSkillButton: false,
-                    showProgressInUltimateSkillButton: false,
-                    forceRaiseIconEvent: false,
-                    showWarningBackground: false,
-                    playStrongInAnimation: false,
-                    hasCharHpBarVfxType: false,
-                    charHpBarVfxType: 'Fire',
-                    iconStyleInSquad: 'Default',
-                    abnormalColorType: 'Physical',
-                    orderPriority: {
-                      useDirectoryValue: false,
-                      value: 0,
-                      category: 'CommonCharBuff',
+                  ),
+                ),
+                finish: sequence(
+                  step('applyBuff', {
+                    buffId: 'buff_physical_no_guard_fake',
+                    target: 'buffOwner',
+                    source: 'buffSource',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                ),
+                afterEnhance: sharedActionSequence1,
+              },
+            },
+            crushedBuffId: 'buff_physical_crushed',
+            crushedDefinition: {
+              stackingType: 'stack',
+              stackingKey: 'physical',
+              priority: 0,
+              maxStackCount: 1,
+              durationSeconds: { blackboardKey: 'duration' },
+              triggerIntervalSeconds: 0,
+              waitFirstTriggerInterval: true,
+              maxTriggerCount: 1,
+              presentation: {
+                visible: true,
+                iconId: 'knockback',
+                iconPath: '/icons/knockback.webp',
+                showInHeadBarCommon: false,
+                showInHeadBarAttached: false,
+                showInSquadIcon: false,
+                onlyShowForMainCharacter: false,
+                blinkInMainCharHpBar: false,
+                showProgressInHpBar: false,
+                showProgressInNormalSkillButton: false,
+                useWeakProgressInNormalSkillButton: false,
+                showProgressInUltimateSkillButton: false,
+                forceRaiseIconEvent: false,
+                showWarningBackground: false,
+                playStrongInAnimation: false,
+                hasCharHpBarVfxType: false,
+                charHpBarVfxType: 'Fire',
+                iconStyleInSquad: 'Default',
+                abnormalColorType: 'Physical',
+                orderPriority: { useDirectoryValue: false, value: 0, category: 'CommonCharBuff' },
+              },
+              applyTags: ['Skill/Character/Common/PhysicalStatus/CrushStatus'],
+              extendTags: [],
+              blackboard: {
+                atk_scale: 1,
+                count: 0,
+                dmg_multiplier: 1,
+                duration: 3,
+                ignore_hit_effect: 0,
+              },
+              attributeModifiers: [],
+              lifecycleSequences: {
+                start: sequence(
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:0',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
                     },
-                  },
-                  applyTags: ['Skill/Character/Common/PhysicalStatus/CrushStatus'],
-                  extendTags: [],
-                  blackboard: {
-                    atk_scale: 1,
-                    count: 0,
-                    dmg_multiplier: 1,
-                    duration: 3,
-                    ignore_hit_effect: 0,
-                  },
-                  attributeModifiers: [],
-                  lifecycleSequences: {
-                    start: sequence(
-                      {
-                        kind: 'withActionBlackboardScope',
-                        parameters: {
-                          scopeKey: 'native-buff-callback:0',
-                          lifetime: 'execution',
-                          alwaysNext: true,
-                          shareParentBlackboard: true,
-                          initialValues: {},
-                          inheritParent: true,
-                        },
-                        body: sequence(
-                          step('readBuffStackCount', {
-                            target: 'buffOwner',
-                            outputKey: 'count',
-                            query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
-                          }),
-                          step('readSkillSettingData', {
-                            items: [
-                              {
-                                values: [3, 4.5, 6, 7.5],
-                                column: { kind: 'blackboard', key: 'count' },
-                                storeKey: 'atk_scale',
-                                enhance: {
-                                  target: 'caster',
-                                  formula: { kind: 'linear', paramA: 0.01 },
-                                },
-                              },
-                            ],
-                          }),
-                          step('modifyActionValue', {
-                            key: 'atk_scale',
-                            operation: 'multiply',
-                            value: { kind: 'blackboard', key: 'dmg_multiplier' },
-                          }),
-                          step('finishBuffsById', {
-                            target: 'buffOwner',
-                            buffIds: ['buff_physical_no_guard'],
-                            reason: 'early',
-                          }),
-                          step('dealDamage', {
-                            damageType: 'physical',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                            tags: [],
-                            features: ['physicalInfliction'],
-                          }),
-                        ),
-                      },
-                      {
-                        kind: 'withActionBlackboardScope',
-                        parameters: {
-                          scopeKey: 'native-buff-callback:1',
-                          lifetime: 'execution',
-                          alwaysNext: true,
-                          shareParentBlackboard: true,
-                          initialValues: {},
-                          inheritParent: true,
-                        },
-                        body: sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_physical_handle_cryst_break',
-                            target: 'buffOwner',
-                            source: 'buffSource',
-                            inheritSourceSkillCastInfo: true,
-                          }),
-                        ),
-                      },
-                      {
-                        kind: 'withActionBlackboardScope',
-                        parameters: {
-                          scopeKey: 'native-buff-callback:2',
-                          lifetime: 'execution',
-                          alwaysNext: true,
-                          shareParentBlackboard: true,
-                          initialValues: {},
-                          inheritParent: true,
-                        },
-                        body: sequence(
-                          step('igniteBuffs', {
-                            target: 'buffOwner',
-                            source: 'caster',
-                            igniteType: 'PhysicalStatus',
-                          }),
-                        ),
-                      },
-                      {
-                        kind: 'withActionBlackboardScope',
-                        parameters: {
-                          scopeKey: 'native-buff-callback:3',
-                          lifetime: 'execution',
-                          alwaysNext: true,
-                          shareParentBlackboard: true,
-                          initialValues: {},
-                          inheritParent: true,
-                        },
-                        body: sequence(
-                          branch(
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'ignore_hit_effect', fallback: 0 },
-                              operator: 'less',
-                              right: { kind: 'constant', value: 0.5 },
+                    body: sequence(
+                      step('readBuffStackCount', {
+                        target: 'buffOwner',
+                        outputKey: 'count',
+                        query: { kind: 'id', buffIds: ['buff_physical_no_guard'] },
+                      }),
+                      step('readSkillSettingData', {
+                        items: [
+                          {
+                            values: [3, 4.5, 6, 7.5],
+                            column: { kind: 'blackboard', key: 'count' },
+                            storeKey: 'atk_scale',
+                            enhance: {
+                              target: 'caster',
+                              formula: { kind: 'linear', paramA: 0.01 },
                             },
-                            sequence({
-                              kind: 'switch',
-                              parameters: {
-                                choice: { kind: 'blackboard', key: 'count' },
-                                alwaysNext: true,
-                              },
-                              options: [
-                                {
-                                  value: { kind: 'constant', value: 0 },
-                                  sequence: sequence(
-                                    step('startTimeDilation', {
-                                      scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.1 },
-                                      slot: 'TimeDilation/Layer/Entity/HitStop',
-                                      priority: 15,
-                                      curve: { kind: 'named', key: 'interrupt_weakness' },
-                                      finishByAction: false,
-                                      targets: ['enemy', 'caster'],
-                                    }),
-                                  ),
-                                },
-                                {
-                                  value: { kind: 'constant', value: 1 },
-                                  sequence: sequence(
-                                    step('startTimeDilation', {
-                                      scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.1 },
-                                      slot: 'TimeDilation/Layer/Entity/HitStop',
-                                      priority: 10,
-                                      curve: { kind: 'named', key: 'interrupt_weakness' },
-                                      finishByAction: false,
-                                      targets: ['enemy', 'caster'],
-                                    }),
-                                  ),
-                                },
-                                {
-                                  value: { kind: 'constant', value: 2 },
-                                  sequence: sequence(
-                                    step('startTimeDilation', {
-                                      scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.25 },
-                                      slot: 'TimeDilation/Layer/Entity/HitStop',
-                                      priority: 20,
-                                      curve: { kind: 'named', key: 'interrupt_weakness' },
-                                      finishByAction: false,
-                                      targets: ['enemy', 'caster'],
-                                    }),
-                                  ),
-                                },
-                                {
-                                  value: { kind: 'constant', value: 3 },
-                                  sequence: sequence(
-                                    step('startTimeDilation', {
-                                      scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.5 },
-                                      slot: 'TimeDilation/Layer/Entity/HitStop',
-                                      priority: 20,
-                                      curve: { kind: 'named', key: 'interrupt_weakness' },
-                                      finishByAction: false,
-                                      targets: ['enemy', 'caster'],
-                                    }),
-                                  ),
-                                },
-                                {
-                                  value: { kind: 'constant', value: 4 },
-                                  sequence: sequence(
-                                    step('startTimeDilation', {
-                                      scope: 'entity',
-                                      durationSeconds: { kind: 'constant', value: 0.65 },
-                                      slot: 'TimeDilation/Layer/Entity/HitStop',
-                                      priority: 20,
-                                      curve: { kind: 'named', key: 'interrupt_weakness' },
-                                      finishByAction: false,
-                                      targets: ['enemy', 'caster'],
-                                    }),
-                                  ),
-                                },
-                              ],
-                            }),
-                          ),
-                        ),
-                      },
+                          },
+                        ],
+                      }),
+                      step('modifyActionValue', {
+                        key: 'atk_scale',
+                        operation: 'multiply',
+                        value: { kind: 'blackboard', key: 'dmg_multiplier' },
+                      }),
+                      step('finishBuffsById', {
+                        target: 'buffOwner',
+                        buffIds: ['buff_physical_no_guard'],
+                        reason: 'early',
+                      }),
+                      step('dealDamage', {
+                        damageType: 'physical',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: [],
+                        features: ['physicalInfliction'],
+                      }),
                     ),
                   },
-                },
-                damageMultiplier: { kind: 'blackboard', key: 'crush_multi' },
-                ignoreHitEffect: false,
-              }),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'physical',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  tags: ['comboSkill'],
-                  features: ['canBreakWeakness'],
-                  stagger: { kind: 'blackboard', key: 'poise' },
-                },
-                'chr_0018_dapan_combo_skill:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/1',
-              ),
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 50,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-              step('changeResourceByActionValue', {
-                resource: 'ultimateEnergy',
-                amount: { kind: 'blackboard', key: 'usp' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'caster',
-              }),
-            ),
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:1',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
+                      step('applyBuff', {
+                        buffId: 'buff_physical_handle_cryst_break',
+                        target: 'buffOwner',
+                        source: 'buffSource',
+                        inheritSourceSkillCastInfo: true,
+                      }),
+                    ),
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:2',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
+                      step('igniteBuffs', {
+                        target: 'buffOwner',
+                        source: 'caster',
+                        igniteType: 'PhysicalStatus',
+                      }),
+                    ),
+                  },
+                  {
+                    kind: 'withActionBlackboardScope',
+                    parameters: {
+                      scopeKey: 'native-buff-callback:3',
+                      lifetime: 'execution',
+                      alwaysNext: true,
+                      shareParentBlackboard: true,
+                      initialValues: {},
+                      inheritParent: true,
+                    },
+                    body: sequence(
+                      branch(
+                        {
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'ignore_hit_effect', fallback: 0 },
+                          operator: 'less',
+                          right: { kind: 'constant', value: 0.5 },
+                        },
+                        sequence({
+                          kind: 'switch',
+                          parameters: {
+                            choice: { kind: 'blackboard', key: 'count' },
+                            alwaysNext: true,
+                          },
+                          options: [
+                            {
+                              value: { kind: 'constant', value: 0 },
+                              sequence: sequence(
+                                step('startTimeDilation', {
+                                  scope: 'entity',
+                                  durationSeconds: { kind: 'constant', value: 0.1 },
+                                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                                  priority: 15,
+                                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                                  finishByAction: false,
+                                  targets: ['enemy', 'caster'],
+                                }),
+                              ),
+                            },
+                            {
+                              value: { kind: 'constant', value: 1 },
+                              sequence: sequence(
+                                step('startTimeDilation', {
+                                  scope: 'entity',
+                                  durationSeconds: { kind: 'constant', value: 0.1 },
+                                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                                  priority: 10,
+                                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                                  finishByAction: false,
+                                  targets: ['enemy', 'caster'],
+                                }),
+                              ),
+                            },
+                            {
+                              value: { kind: 'constant', value: 2 },
+                              sequence: sequence(
+                                step('startTimeDilation', {
+                                  scope: 'entity',
+                                  durationSeconds: { kind: 'constant', value: 0.25 },
+                                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                                  priority: 20,
+                                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                                  finishByAction: false,
+                                  targets: ['enemy', 'caster'],
+                                }),
+                              ),
+                            },
+                            {
+                              value: { kind: 'constant', value: 3 },
+                              sequence: sequence(
+                                step('startTimeDilation', {
+                                  scope: 'entity',
+                                  durationSeconds: { kind: 'constant', value: 0.5 },
+                                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                                  priority: 20,
+                                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                                  finishByAction: false,
+                                  targets: ['enemy', 'caster'],
+                                }),
+                              ),
+                            },
+                            {
+                              value: { kind: 'constant', value: 4 },
+                              sequence: sequence(
+                                step('startTimeDilation', {
+                                  scope: 'entity',
+                                  durationSeconds: { kind: 'constant', value: 0.65 },
+                                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                                  priority: 20,
+                                  curve: { kind: 'named', key: 'interrupt_weakness' },
+                                  finishByAction: false,
+                                  targets: ['enemy', 'caster'],
+                                }),
+                              ),
+                            },
+                          ],
+                        }),
+                      ),
+                    ),
+                  },
+                ),
+              },
+            },
+            damageMultiplier: { kind: 'blackboard', key: 'crush_multi' },
+            ignoreHitEffect: false,
+          }),
+          step(
+            'dealDamage',
+            {
+              damageType: 'physical',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+            },
+            'chr_0018_dapan_combo_skill:/scheduledSequences/0/sequence/steps/0/whenTrue/steps/1',
           ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.4 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 50,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
+          step('changeResourceByActionValue', {
+            resource: 'ultimateEnergy',
+            amount: { kind: 'blackboard', key: 'usp' },
+            coefficient: { kind: 'constant', value: 1 },
+            recipient: 'caster',
+          }),
         ),
         26,
       ),
@@ -1657,14 +1611,8 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [2.89, 3.18, 3.47, 3.75, 4.04, 4.33, 4.62, 4.91, 5.2, 5.56, 5.99, 6.5],
-    cam_angle: 0,
-    cam_duration: 0,
     crush_multi: [1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.1, 1.15, 1.15, 1.15, 1.2],
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 15,
-    potential_1: 0,
     usp: 10,
   },
 );

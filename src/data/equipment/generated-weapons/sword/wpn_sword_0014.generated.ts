@@ -117,19 +117,6 @@ const definition = {
             }
           ]
         }
-      },
-      "blackboard": {
-        "mainattr": [
-          17,
-          30,
-          44,
-          57,
-          71,
-          85,
-          98,
-          112,
-          132
-        ]
       }
     },
     {
@@ -151,21 +138,7 @@ const definition = {
             78
           ]
         }
-      ],
-      "blackboard": {
-        "atk": 0,
-        "physpell": [
-          10,
-          18,
-          26,
-          34,
-          42,
-          50,
-          58,
-          66,
-          78
-        ]
-      }
+      ]
     },
     {
       "key": "skill3",

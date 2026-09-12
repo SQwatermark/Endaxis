@@ -146,11 +146,7 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
 );
 
 export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -258,12 +254,7 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
-    env_dmg: 12.5,
-    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
-  },
+  { atb: 0, atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62] },
 );
 
 export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -409,12 +400,7 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77],
-    env_dmg: 10,
-    display_atk_scale: [0.68, 0.75, 0.82, 0.88, 0.95, 1.02, 1.09, 1.16, 1.22, 1.31, 1.41, 1.53],
-  },
+  { atb: 0, atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77] },
 );
 
 export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -593,7 +579,6 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 30,
     atk_scale: [0.9, 0.99, 1.08, 1.17, 1.26, 1.35, 1.44, 1.53, 1.62, 1.73, 1.87, 2.03],
     atk_scale2: 0.2,
-    env_dmg: 35,
     isBuffed: 0,
     poise: 25,
   },
@@ -731,11 +716,7 @@ export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -913,17 +894,10 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atb: 30,
     atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
-    atk_scale_2: 0,
     atk_up: 0.2,
-    cam_angle: 0,
-    cam_duration: 0,
-    consume_cnt: 0,
     duration: 15,
-    gained_atb: 0,
-    input_angle: 0,
     poise: 5,
     potential_1: 0,
-    select_radius: 10,
     usp: 16,
   },
 );
@@ -1122,13 +1096,10 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
     atk_scale2: [3.56, 3.91, 4.27, 4.62, 4.98, 5.33, 5.69, 6.04, 6.4, 6.84, 7.38, 8],
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise1: 5,
     poise2: 10,
     rate: 0,
     talent_2: 0,
-    usp: 10,
   },
 );
 
@@ -1359,19 +1330,11 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.71, 0.78, 0.85, 0.92, 0.99, 1.07, 1.14, 1.21, 1.28, 1.37, 1.47, 1.6],
     atk_scale2: [0.71, 0.78, 0.85, 0.92, 0.99, 1.07, 1.14, 1.21, 1.28, 1.37, 1.47, 1.6],
     atk_scale3: [1.07, 1.17, 1.28, 1.39, 1.49, 1.6, 1.71, 1.81, 1.92, 2.05, 2.21, 2.4],
-    cam_angle: 0,
-    cam_duration: 0,
-    count: 3,
-    duration: 5,
     final_combo_atkscale: 0,
     infliction_num: 0,
     infliction_num_total: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 15,
     recover_usp: 0,
-    select_radius: 4,
     usp: 15,
     usp_base: 40,
   },

@@ -10,6 +10,8 @@ import {
 } from '../src/domains/operator/activeSkills.ts';
 import { assembleOperatorDefinition } from '../src/domains/operator/definition.ts';
 import { renderOperatorDefinitionSource } from '../src/domains/operator/definitionSourceRenderer.ts';
+import { optimizeOperatorDefinitionPrograms } from '../src/compiler/definitionProgramOptimization.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
 import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
 import {
   requireArray,
@@ -66,6 +68,8 @@ export function planOperatorDefinition(
     readonly tableRoot: string;
     readonly globalBuffCatalog: string;
     readonly skillSettingCatalog: string;
+    /** 候选验证期间显式选择新增优化，默认只报告，不改正式定义。 */
+    readonly optimization?: DefinitionOptimizationMode;
   },
 ) {
   const manifest = requireRecord(read(args.manifest), args.manifest);
@@ -346,7 +350,16 @@ export function planOperatorDefinition(
       };
     },
   });
-  return { ...candidate, activeSkills };
+  const optimized = optimizeOperatorDefinitionPrograms(
+    candidate.operator,
+    args.optimization ?? 'apply',
+  );
+  return {
+    ...candidate,
+    operator: optimized.operator,
+    audit: { ...candidate.audit, optimization: optimized.report },
+    activeSkills,
+  };
 }
 
 const RUNTIME_TEMPLATE_FIELDS = new Set([

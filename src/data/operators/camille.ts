@@ -323,7 +323,6 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.125, 0.138, 0.15, 0.163, 0.175, 0.188, 0.2, 0.213, 0.225, 0.241, 0.259, 0.281],
     atk_scale_2: [0.125, 0.138, 0.15, 0.163, 0.175, 0.188, 0.2, 0.213, 0.225, 0.241, 0.259, 0.281],
-    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
   },
 );
 
@@ -436,7 +435,6 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.193, 0.208, 0.225],
     atk_scale_2: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.193, 0.208, 0.225],
-    display_atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.385, 0.415, 0.45],
   },
 );
 
@@ -521,7 +519,6 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     atb: 0,
     atk_scale: [0.075, 0.083, 0.09, 0.098, 0.105, 0.113, 0.12, 0.128, 0.135, 0.144, 0.156, 0.169],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
 );
 
@@ -763,9 +760,6 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.385, 0.415, 0.45],
     atk_scale_2: [0.02, 0.022, 0.024, 0.026, 0.028, 0.03, 0.032, 0.034, 0.036, 0.039, 0.042, 0.045],
-    display_atk_scale: [
-      0.34, 0.374, 0.408, 0.442, 0.476, 0.51, 0.544, 0.578, 0.612, 0.655, 0.706, 0.765,
-    ],
   },
 );
 
@@ -1308,10 +1302,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    display_atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -1358,11 +1349,7 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    display_atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1409,60 +1396,47 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
                 },
                 true,
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
+                  step('spawnAbilityEntity', {
+                    abilityEntityId: 'abilityentity_chr_0033_camille_normal_skill',
+                    childSkillId: 'chr_0033_camille_normal_skill_abilityrange_first',
+                    inheritActionBlackboard: true,
+                    dieWhenSourceDies: false,
+                    target: 'enemy',
+                    saveToContextKey: 'Camille_Bat',
+                    blackboardAssignments: {
+                      EntityBB_bat_duration: { kind: 'blackboard', key: 'bat_duration' },
+                      EntityBB_bat_atk_scale: { kind: 'blackboard', key: 'bat_atk_scale' },
+                      EntityBB_atk_scale: { kind: 'blackboard', key: 'atk_scale' },
+                      EntityBB_poise: { kind: 'blackboard', key: 'poise' },
+                      EntityBB_weak_scale: { kind: 'blackboard', key: 'weak_scale' },
+                      EntityBB_vulnerable_scale: { kind: 'blackboard', key: 'vulnerable_scale' },
                     },
+                  }),
+                  step('modifyActionValue', {
+                    key: 'EntityBB_bat_spawned',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  forEachContextTarget(
+                    'Camille_Bat',
                     sequence(
-                      step('spawnAbilityEntity', {
-                        abilityEntityId: 'abilityentity_chr_0033_camille_normal_skill',
-                        childSkillId: 'chr_0033_camille_normal_skill_abilityrange_first',
-                        inheritActionBlackboard: true,
-                        dieWhenSourceDies: false,
-                        target: 'enemy',
-                        saveToContextKey: 'Camille_Bat',
-                        blackboardAssignments: {
-                          EntityBB_bat_duration: { kind: 'blackboard', key: 'bat_duration' },
-                          EntityBB_bat_atk_scale: { kind: 'blackboard', key: 'bat_atk_scale' },
-                          EntityBB_atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                          EntityBB_poise: { kind: 'blackboard', key: 'poise' },
-                          EntityBB_weak_scale: { kind: 'blackboard', key: 'weak_scale' },
-                          EntityBB_vulnerable_scale: {
-                            kind: 'blackboard',
-                            key: 'vulnerable_scale',
-                          },
-                        },
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0033_camille_normal_skill_bateffect',
+                        target: 'currentAbilityEntity',
+                        inheritSourceSkillCastInfo: true,
                       }),
-                      step('modifyActionValue', {
-                        key: 'EntityBB_bat_spawned',
-                        operation: 'assign',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      forEachContextTarget(
-                        'Camille_Bat',
-                        sequence(
-                          step('applyBuff', {
-                            buffId: 'buff_chr_0033_camille_normal_skill_bateffect',
-                            target: 'currentAbilityEntity',
-                            inheritSourceSkillCastInfo: true,
-                          }),
-                        ),
-                      ),
-                      step('startTimeDilation', {
-                        scope: 'entity',
-                        durationSeconds: { kind: 'constant', value: 0.15 },
-                        slot: 'TimeDilation/Layer/Entity/HitStop',
-                        priority: 10,
-                        curve: { kind: 'named', key: 'common' },
-                        finishByAction: false,
-                        targets: ['enemy', 'caster'],
-                      }),
-                      step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                     ),
                   ),
+                  step('startTimeDilation', {
+                    scope: 'entity',
+                    durationSeconds: { kind: 'constant', value: 0.15 },
+                    slot: 'TimeDilation/Layer/Entity/HitStop',
+                    priority: 10,
+                    curve: { kind: 'named', key: 'common' },
+                    finishByAction: false,
+                    targets: ['enemy', 'caster'],
+                  }),
+                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
                 ),
                 undefined,
                 { lifetime: 'execution', alwaysNext: true },
@@ -1675,22 +1649,14 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
     atk_scale_2_2: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_scale_2_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_scale_2_4: [1.42, 1.57, 1.71, 1.85, 1.99, 2.14, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
-    cam_angle: 0,
-    cam_duration: 0,
     combo_duration: 15,
     heal_base: 0,
     heal_sub_multi: 0,
-    input_angle: 0,
-    last_hit: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     poise_2: 10,
     talent_0: 0,
     usp: 10,
     usp_gained: 0,
-    display_atk_scale_2: [2.22, 2.44, 2.67, 2.89, 3.11, 3.33, 3.56, 3.78, 4, 4.28, 4.61, 5],
-    display_poise_ex: 20,
   },
 );
 
@@ -1970,21 +1936,13 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
     atk_scale_2_2: 0.1,
     atk_scale_2_3: 0.1,
     atk_scale_2_4: 0.1,
-    cam_angle: 0,
-    cam_duration: 0,
     combo_duration: 15,
     heal_base: 0,
     heal_sub_multi: 0,
-    input_angle: 0,
-    last_hit: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    poise_2: 15,
     talent_0: 0,
     usp: 10,
     usp_gained: 0,
-    display_atk_scale: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
   },
 );
 
@@ -2167,22 +2125,14 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
     atk_scale_2_2: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_scale_2_3: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_scale_2_4: [1.42, 1.57, 1.71, 1.85, 1.99, 2.14, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
-    cam_angle: 0,
-    cam_duration: 0,
     combo_duration: 15,
     heal_base: 0,
     heal_sub_multi: 0,
-    input_angle: 0,
-    last_hit: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     poise_2: 10,
     talent_0: 0,
     usp: 10,
     usp_gained: 0,
-    display_atk_scale_2: [2.22, 2.44, 2.67, 2.89, 3.11, 3.33, 3.56, 3.78, 4, 4.28, 4.61, 5],
-    display_poise_ex: 20,
   },
 );
 
@@ -2452,7 +2402,6 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
     ],
     duration: 15,
     poise: 15,
-    display_atk_scale: [2.667, 2.933, 3.2, 3.467, 3.733, 4, 4.267, 4.533, 4.8, 5.133, 5.533, 6],
   },
 );
 
@@ -2981,23 +2930,7 @@ export const camille: OperatorDefinition = {
       lifecycleSequences: {
         trigger: sequence(
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 0 },
-                },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'EntityBB_retargeting', fallback: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 0 },
-                },
-              ],
-            },
+            { kind: 'constant', value: false },
             sequence(step('finishCurrentAbilityEntity', {})),
             undefined,
             { alwaysNext: true },
@@ -3526,16 +3459,27 @@ export const camille: OperatorDefinition = {
                           saveToContextKey: 'src',
                           sources: [{ kind: 'abilitySystemSource', owner: 'actionOwner' }],
                         }),
-                        step('applyBuff', {
-                          buffId: 'buff_chr_0033_camille_normal_skill_delay_damage',
-                          target: 'enemy',
-                          sourceContextKey: 'src',
-                          inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            bat_atk_scale: { kind: 'blackboard', key: 'EntityBB_bat_atk_scale' },
-                            combo_duration: { kind: 'blackboard', key: 'EntityBB_combo_duration' },
-                          },
-                        }),
+                        forEachContextTarget(
+                          'tar',
+                          sequence(
+                            step('applyBuff', {
+                              buffId: 'buff_chr_0033_camille_normal_skill_delay_damage',
+                              target: 'enemy',
+                              sourceContextKey: 'src',
+                              inheritSourceSkillCastInfo: true,
+                              blackboardAssignments: {
+                                bat_atk_scale: {
+                                  kind: 'blackboard',
+                                  key: 'EntityBB_bat_atk_scale',
+                                },
+                                combo_duration: {
+                                  kind: 'blackboard',
+                                  key: 'EntityBB_combo_duration',
+                                },
+                              },
+                            }),
+                          ),
+                        ),
                       ),
                     ),
                   ),

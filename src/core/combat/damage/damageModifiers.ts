@@ -17,7 +17,7 @@ import {
  * Buff 定义与伤害包各处理阶段之间的声明式协议。
  * 修正必须明确所属阶段、作用方和条件；可保存定义不接受回调，已编译程序也只获得只读伤害视图。
  */
-import { compareCombatNumbers } from '../runtime/numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import { attributeModifierValues } from '../attributes/combatAttributes';
 import type {
   DamageModifierSide,

@@ -379,13 +379,7 @@ export const zhuangFangyiBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
-    atk_scale_sword: 0.2,
-    sword_dist: 0,
-    display_atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
-  },
+  { atk_scale: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18] },
 );
 
 export const zhuangFangyiBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -615,10 +609,8 @@ export const zhuangFangyiBasicAttack3: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'attack',
   },
   {
-    atb: 0,
     atk_scale_sword: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
     sword_dist: 0,
-    display_atk_scale: [0.32, 0.35, 0.39, 0.42, 0.45, 0.48, 0.52, 0.55, 0.58, 0.62, 0.67, 0.72],
   },
 );
 
@@ -1215,56 +1207,46 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.25 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: {
-                      kind: 'inline',
-                      keys: [
-                        {
-                          time: 0,
-                          value: 0.01,
-                          inTangent: 0,
-                          outTangent: 0,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 0.7704785,
-                          value: 0.01,
-                          inTangent: 0,
-                          outTangent: 0,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 1,
-                          value: 1,
-                          inTangent: 4.313321,
-                          outTangent: 4.313321,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                      ],
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.25 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: {
+                  kind: 'inline',
+                  keys: [
+                    {
+                      time: 0,
+                      value: 0.01,
+                      inTangent: 0,
+                      outTangent: 0,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
                     },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              ),
+                    {
+                      time: 0.7704785,
+                      value: 0.01,
+                      inTangent: 0,
+                      outTangent: 0,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 1,
+                      value: 1,
+                      inTangent: 4.313321,
+                      outTangent: 4.313321,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                  ],
+                },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
           ),
         ),
@@ -1287,56 +1269,46 @@ export const zhuangFangyiBattleSkill: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.25 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: {
-                      kind: 'inline',
-                      keys: [
-                        {
-                          time: 0,
-                          value: 0.01,
-                          inTangent: 0,
-                          outTangent: 0,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 0.7704785,
-                          value: 0.01,
-                          inTangent: 0,
-                          outTangent: 0,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 1,
-                          value: 1,
-                          inTangent: 4.313321,
-                          outTangent: 4.313321,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                      ],
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.25 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: {
+                  kind: 'inline',
+                  keys: [
+                    {
+                      time: 0,
+                      value: 0.01,
+                      inTangent: 0,
+                      outTangent: 0,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
                     },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              ),
+                    {
+                      time: 0.7704785,
+                      value: 0.01,
+                      inTangent: 0,
+                      outTangent: 0,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 1,
+                      value: 1,
+                      inTangent: 4.313321,
+                      outTangent: 4.313321,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                  ],
+                },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
           ),
         ),
@@ -1891,10 +1863,7 @@ export const zhuangFangyiComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
     conductCnt: 0,
-    consumedInflict: 0,
     inflictCnt: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     usp: 10,
     usp_extra: 10,
@@ -2046,10 +2015,7 @@ export const zhuangFangyiEnhancedComboSkill: SkillDefinition = withSkillBlackboa
   {
     atk_scale: [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
     conductCnt: 0,
-    consumedInflict: 0,
     inflictCnt: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
   },
 );
@@ -2208,7 +2174,7 @@ export const zhuangFangyiUltimateEnd: SkillDefinition = withSkillBlackboard(
     levelSource: 'ultimate',
     nativeSkillType: 'normalSkill',
   },
-  { atb: 0, atk_scale: 0.7 },
+  { atk_scale: 0.7 },
 );
 
 export const zhuangFangyiEnhancedBasicAttack1: SkillDefinition = withSkillBlackboard(
@@ -3378,89 +3344,79 @@ export const zhuangFangyi: OperatorDefinition = {
                 right: { kind: 'blackboard', key: 'swordCnt', fallback: 0 },
               },
               sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                  target: 'buffSource',
+                  source: 'buffSource',
+                  inheritSourceSkillCastInfo: true,
+                }),
                 branch(
                   {
                     kind: 'actionValueCompare',
-                    left: { kind: 'constant', value: 1 },
-                    operator: 'greaterOrEqual',
-                    right: { kind: 'constant', value: 1 },
+                    left: { kind: 'blackboard', key: 'swordIndex', fallback: 0 },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
                   },
                   sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
-                      target: 'buffSource',
-                      source: 'buffSource',
-                      inheritSourceSkillCastInfo: true,
-                    }),
+                    step(
+                      'dealDamage',
+                      {
+                        damageType: 'electric',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: ['normalSkill'],
+                        features: ['canBreakWeakness'],
+                      },
+                      'buff_chr_0030_zhuangfy_sword_triggerd:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/1/whenTrue/steps/0',
+                    ),
                     branch(
                       {
                         kind: 'actionValueCompare',
                         left: { kind: 'blackboard', key: 'swordIndex', fallback: 0 },
-                        operator: 'equal',
-                        right: { kind: 'constant', value: 0 },
+                        operator: 'less',
+                        right: { kind: 'blackboard', key: 'remain_sword_limit', fallback: 0 },
                       },
                       sequence(
-                        step(
-                          'dealDamage',
-                          {
-                            damageType: 'electric',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                            tags: ['normalSkill'],
-                            features: ['canBreakWeakness'],
-                          },
-                          'buff_chr_0030_zhuangfy_sword_triggerd:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/1/whenTrue/steps/0',
-                        ),
-                        branch(
-                          {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'swordIndex', fallback: 0 },
-                            operator: 'less',
-                            right: { kind: 'blackboard', key: 'remain_sword_limit', fallback: 0 },
-                          },
-                          sequence(
-                            step('changeResourceByActionValue', {
-                              resource: 'ultimateEnergy',
-                              amount: { kind: 'blackboard', key: 'usp_extra' },
-                              coefficient: { kind: 'constant', value: 1 },
-                              recipient: 'caster',
-                            }),
-                          ),
-                          undefined,
-                          { alwaysNext: true },
-                        ),
+                        step('changeResourceByActionValue', {
+                          resource: 'ultimateEnergy',
+                          amount: { kind: 'blackboard', key: 'usp_extra' },
+                          coefficient: { kind: 'constant', value: 1 },
+                          recipient: 'caster',
+                        }),
                       ),
-                      sequence(
-                        step(
-                          'dealDamage',
-                          {
-                            damageType: 'electric',
-                            attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                            tags: ['normalSkill'],
-                          },
-                          'buff_chr_0030_zhuangfy_sword_triggerd:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/1/whenFalse/steps/0',
-                        ),
-                        branch(
-                          {
-                            kind: 'actionValueCompare',
-                            left: { kind: 'blackboard', key: 'swordIndex', fallback: 0 },
-                            operator: 'less',
-                            right: { kind: 'blackboard', key: 'remain_sword_limit', fallback: 0 },
-                          },
-                          sequence(
-                            step('changeResourceByActionValue', {
-                              resource: 'ultimateEnergy',
-                              amount: { kind: 'blackboard', key: 'usp_extra' },
-                              coefficient: { kind: 'constant', value: 1 },
-                              recipient: 'caster',
-                            }),
-                          ),
-                          undefined,
-                          { alwaysNext: true },
-                        ),
-                      ),
+                      undefined,
                       { alwaysNext: true },
                     ),
                   ),
+                  sequence(
+                    step(
+                      'dealDamage',
+                      {
+                        damageType: 'electric',
+                        attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                        tags: ['normalSkill'],
+                      },
+                      'buff_chr_0030_zhuangfy_sword_triggerd:/scheduledSequences/3/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/1/whenFalse/steps/0',
+                    ),
+                    branch(
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'swordIndex', fallback: 0 },
+                        operator: 'less',
+                        right: { kind: 'blackboard', key: 'remain_sword_limit', fallback: 0 },
+                      },
+                      sequence(
+                        step('changeResourceByActionValue', {
+                          resource: 'ultimateEnergy',
+                          amount: { kind: 'blackboard', key: 'usp_extra' },
+                          coefficient: { kind: 'constant', value: 1 },
+                          recipient: 'caster',
+                        }),
+                      ),
+                      undefined,
+                      { alwaysNext: true },
+                    ),
+                  ),
+                  { alwaysNext: true },
                 ),
               ),
             ),
@@ -3478,76 +3434,62 @@ export const zhuangFangyi: OperatorDefinition = {
                 right: { kind: 'blackboard', key: 'swordCnt', fallback: 0 },
               },
               sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
+                  target: 'buffSource',
+                  source: 'buffSource',
+                  inheritSourceSkillCastInfo: true,
+                }),
+                step('calculateActionValue', {
+                  key: 'atk_scale_final',
+                  operation: 'multiply',
+                  left: { kind: 'blackboard', key: 'atk_scale' },
+                  right: { kind: 'blackboard', key: 'final_rate' },
+                }),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'electric',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise' },
+                  },
+                  'buff_chr_0030_zhuangfy_sword_triggerd:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/2',
+                ),
                 branch(
                   {
                     kind: 'actionValueCompare',
-                    left: { kind: 'constant', value: 1 },
-                    operator: 'greaterOrEqual',
-                    right: { kind: 'constant', value: 1 },
+                    left: { kind: 'blackboard', key: 'swordIndex', fallback: 0 },
+                    operator: 'less',
+                    right: { kind: 'blackboard', key: 'remain_sword_limit', fallback: 0 },
                   },
                   sequence(
-                    step('applyBuff', {
-                      buffId: 'buff_chr_0030_zhuangfy_talent1_mark',
-                      target: 'buffSource',
-                      source: 'buffSource',
-                      inheritSourceSkillCastInfo: true,
+                    step('changeResourceByActionValue', {
+                      resource: 'ultimateEnergy',
+                      amount: { kind: 'blackboard', key: 'usp_extra' },
+                      coefficient: { kind: 'constant', value: 1 },
+                      recipient: 'caster',
                     }),
-                    step('calculateActionValue', {
-                      key: 'atk_scale_final',
-                      operation: 'multiply',
-                      left: { kind: 'blackboard', key: 'atk_scale' },
-                      right: { kind: 'blackboard', key: 'final_rate' },
-                    }),
-                    step(
-                      'dealDamage',
-                      {
-                        damageType: 'electric',
-                        attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                        tags: ['normalSkill'],
-                        features: ['canBreakWeakness'],
-                        stagger: { kind: 'blackboard', key: 'poise' },
-                      },
-                      'buff_chr_0030_zhuangfy_sword_triggerd:/scheduledSequences/4/sequence/steps/0/whenTrue/steps/0/whenTrue/steps/2',
-                    ),
                     branch(
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'blackboard', key: 'swordIndex', fallback: 0 },
-                        operator: 'less',
-                        right: { kind: 'blackboard', key: 'remain_sword_limit', fallback: 0 },
-                      },
+                      { kind: 'currentSkillTypeIn', target: 'caster', skillTypes: ['battleSkill'] },
+                      sequence(),
                       sequence(
-                        step('changeResourceByActionValue', {
-                          resource: 'ultimateEnergy',
-                          amount: { kind: 'blackboard', key: 'usp_extra' },
-                          coefficient: { kind: 'constant', value: 1 },
-                          recipient: 'caster',
+                        step('startTimeDilation', {
+                          scope: 'entity',
+                          durationSeconds: { kind: 'constant', value: 0.4 },
+                          slot: 'TimeDilation/Layer/Entity/HitStop',
+                          priority: 10,
+                          curve: { kind: 'named', key: 'char_hard_stop' },
+                          finishByAction: false,
+                          targets: ['enemy', 'caster'],
                         }),
-                        branch(
-                          {
-                            kind: 'currentSkillTypeIn',
-                            target: 'caster',
-                            skillTypes: ['battleSkill'],
-                          },
-                          sequence(),
-                          sequence(
-                            step('startTimeDilation', {
-                              scope: 'entity',
-                              durationSeconds: { kind: 'constant', value: 0.4 },
-                              slot: 'TimeDilation/Layer/Entity/HitStop',
-                              priority: 10,
-                              curve: { kind: 'named', key: 'char_hard_stop' },
-                              finishByAction: false,
-                              targets: ['enemy', 'caster'],
-                            }),
-                          ),
-                          { alwaysNext: true },
-                        ),
                       ),
-                      undefined,
                       { alwaysNext: true },
                     ),
                   ),
+                  undefined,
+                  { alwaysNext: true },
                 ),
               ),
             ),
@@ -3879,39 +3821,29 @@ export const zhuangFangyi: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hasGainAtb', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
                   branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hasGainAtb', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
-                      branch(
-                        { kind: 'casterControlled' },
-                        sequence(
-                          step('changeResourceByActionValue', {
-                            resource: 'sp',
-                            amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
-                            spGainKind: 'gain',
-                            spGainSource: 'normalAttack',
-                          }),
-                        ),
-                      ),
-                      step('modifyActionValue', {
-                        key: 'hasGainAtb',
-                        operation: 'assign',
-                        value: { kind: 'constant', value: 1 },
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
                       }),
                     ),
                   ),
+                  step('modifyActionValue', {
+                    key: 'hasGainAtb',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
                 ),
               ),
             ),
@@ -3923,39 +3855,29 @@ export const zhuangFangyi: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hasGainAtb', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
                   branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hasGainAtb', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
-                      branch(
-                        { kind: 'casterControlled' },
-                        sequence(
-                          step('changeResourceByActionValue', {
-                            resource: 'sp',
-                            amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
-                            spGainKind: 'gain',
-                            spGainSource: 'normalAttack',
-                          }),
-                        ),
-                      ),
-                      step('modifyActionValue', {
-                        key: 'hasGainAtb',
-                        operation: 'assign',
-                        value: { kind: 'constant', value: 1 },
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
                       }),
                     ),
                   ),
+                  step('modifyActionValue', {
+                    key: 'hasGainAtb',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
                 ),
               ),
             ),
@@ -3967,39 +3889,29 @@ export const zhuangFangyi: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hasGainAtb', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
                   branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hasGainAtb', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
-                      branch(
-                        { kind: 'casterControlled' },
-                        sequence(
-                          step('changeResourceByActionValue', {
-                            resource: 'sp',
-                            amount: { kind: 'blackboard', key: 'atb' },
-                            coefficient: { kind: 'constant', value: 1 },
-                            recipient: 'team',
-                            spGainKind: 'gain',
-                            spGainSource: 'normalAttack',
-                          }),
-                        ),
-                      ),
-                      step('modifyActionValue', {
-                        key: 'hasGainAtb',
-                        operation: 'assign',
-                        value: { kind: 'constant', value: 1 },
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
                       }),
                     ),
                   ),
+                  step('modifyActionValue', {
+                    key: 'hasGainAtb',
+                    operation: 'assign',
+                    value: { kind: 'constant', value: 1 },
+                  }),
                 ),
               ),
             ),
@@ -4228,26 +4140,16 @@ export const zhuangFangyi: OperatorDefinition = {
                 },
               ),
               branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
+                { kind: 'casterControlled' },
                 sequence(
-                  branch(
-                    { kind: 'casterControlled' },
-                    sequence(
-                      step('changeResourceByActionValue', {
-                        resource: 'sp',
-                        amount: { kind: 'blackboard', key: 'atb' },
-                        coefficient: { kind: 'constant', value: 1 },
-                        recipient: 'team',
-                        spGainKind: 'gain',
-                        spGainSource: 'normalAttack',
-                      }),
-                    ),
-                  ),
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
                 ),
               ),
             ),
@@ -4391,44 +4293,34 @@ export const zhuangFangyi: OperatorDefinition = {
           scheduled(
             69,
             sequence(
-              branch(
+              step('calculateActionValue', {
+                key: 'atk_scale_final',
+                operation: 'multiply',
+                left: { kind: 'blackboard', key: 'atk_scale_final' },
+                right: { kind: 'blackboard', key: 'final_rate' },
+              }),
+              step('applyElementalInfliction', { element: 'electric', isExtra: false }),
+              step(
+                'dealDamage',
                 {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  damageType: 'electric',
+                  attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
+                  tags: ['normalSkill'],
+                  features: ['canBreakWeakness'],
+                  stagger: { kind: 'blackboard', key: 'poise' },
                 },
-                sequence(
-                  step('calculateActionValue', {
-                    key: 'atk_scale_final',
-                    operation: 'multiply',
-                    left: { kind: 'blackboard', key: 'atk_scale_final' },
-                    right: { kind: 'blackboard', key: 'final_rate' },
-                  }),
-                  step('applyElementalInfliction', { element: 'electric', isExtra: false }),
-                  step(
-                    'dealDamage',
-                    {
-                      damageType: 'electric',
-                      attackScale: { kind: 'blackboard', key: 'atk_scale_final' },
-                      tags: ['normalSkill'],
-                      features: ['canBreakWeakness'],
-                      stagger: { kind: 'blackboard', key: 'poise' },
-                    },
-                    'abilityentity_chr_0030_zhuangfy_normal_skill_ult:chr_0030_zhuangfy_normal_skill_ult_abilityrange:/childSkill/scheduledSequences/3/sequence/steps/0/whenTrue/steps/2',
-                  ),
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy'],
-                    abilityEntityTargets: [{ kind: 'current' }],
-                  }),
-                ),
+                'abilityentity_chr_0030_zhuangfy_normal_skill_ult:chr_0030_zhuangfy_normal_skill_ult_abilityrange:/childSkill/scheduledSequences/3/sequence/steps/0/whenTrue/steps/2',
               ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.4 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy'],
+                abilityEntityTargets: [{ kind: 'current' }],
+              }),
             ),
             70,
           ),

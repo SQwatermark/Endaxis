@@ -324,7 +324,7 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
+  { atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
 );
 
 export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -405,18 +405,7 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
                     'chr_0027_tangtang_attack2:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       branch(
                         { kind: 'casterControlled' },
@@ -455,7 +444,6 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
     atk_scale_2: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
   },
 );
 
@@ -646,10 +634,8 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'attack',
   },
   {
-    atb: 0,
     atk_scale_1: [0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11],
     atk_scale_2: [0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06],
-    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
   },
 );
 
@@ -742,10 +728,8 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'attack',
   },
   {
-    atb: 0,
     atk_scale_1: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
     atk_scale_2: [0.21, 0.23, 0.25, 0.27, 0.29, 0.31, 0.33, 0.35, 0.37, 0.39, 0.43, 0.46],
-    display_atk_scale: [0.37, 0.4, 0.44, 0.47, 0.51, 0.55, 0.58, 0.62, 0.66, 0.7, 0.76, 0.82],
   },
 );
 
@@ -794,18 +778,7 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
                     'chr_0027_tangtang_attack5:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       step('dealStagger', { value: { kind: 'blackboard', key: 'poise' } }),
                       branch(
@@ -854,7 +827,6 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     atb: 18,
     atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
-    cnt: 0,
     poise: 18,
   },
 );
@@ -990,7 +962,7 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  { atb: 0, atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -1016,11 +988,6 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
                 },
                 'chr_0027_tangtang_plunging_attack_end:/scheduledSequences/0/sequence/steps/0/body/steps/0',
               ),
-              step('modifyActionValue', {
-                key: 'hit_cnt',
-                operation: 'assign',
-                value: { kind: 'constant', value: 1 },
-              }),
             ),
             { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.07 } },
           ),
@@ -1032,16 +999,7 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
-    cd: 15,
-    dmg_scale: 2.5,
-    hit_cnt: 0,
-    poise: 5,
-    prob: 0.5,
-    display_atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-  },
+  { atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
 );
 
 export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1265,21 +1223,11 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
               forEachContextTarget(
                 'normalwater_move',
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 0 },
-                      operator: 'lessOrEqual',
-                      right: { kind: 'constant', value: 50 },
-                    },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2',
-                        target: 'currentAbilityEntity',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2',
+                    target: 'currentAbilityEntity',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -1386,25 +1334,15 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'casterControlled' },
+            sequence(),
             sequence(
-              branch(
-                { kind: 'casterControlled' },
-                sequence(),
-                sequence(
-                  step('findCharacterTeamTargets', {
-                    saveToContextKey: 'mainchar',
-                    selection: { kind: 'controlledOperator' },
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('findCharacterTeamTargets', {
+                saveToContextKey: 'mainchar',
+                selection: { kind: 'controlledOperator' },
+              }),
             ),
+            { alwaysNext: true },
           ),
         ),
         1,
@@ -1578,108 +1516,98 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
           branch(
             {
               kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              left: { kind: 'blackboard', key: 'combowater_cnt', fallback: 0 },
+              operator: 'lessOrEqual',
+              right: { kind: 'constant', value: 0 },
             },
             sequence(
+              step('modifyActionValue', {
+                key: 'combowater_cnt',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
+              }),
               branch(
                 {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'combowater_cnt', fallback: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 0 },
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0027_tangtang_water'],
+                  operator: 'greater',
+                  value: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  step('modifyActionValue', {
-                    key: 'combowater_cnt',
-                    operation: 'assign',
-                    value: { kind: 'constant', value: 1 },
+                  step('findOwnerSpawnedAbilityEntities', {
+                    saveToContextKey: 'water_group',
+                    abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'],
                   }),
                   branch(
                     {
-                      kind: 'buffIdStackCompare',
-                      target: 'caster',
-                      buffIds: ['buff_chr_0027_tangtang_water'],
-                      operator: 'greater',
-                      value: { kind: 'constant', value: 0 },
+                      kind: 'abilityEntityTimedMarkerPresent',
+                      contextKey: 'water_group',
+                      markerId: 'tangtang_waterabilityentity01',
                     },
-                    sequence(
-                      step('findOwnerSpawnedAbilityEntities', {
-                        saveToContextKey: 'water_group',
-                        abilityEntityIds: ['abilityentity_chr_0027_tangtang_comboskill_water'],
-                      }),
-                      branch(
-                        {
-                          kind: 'abilityEntityTimedMarkerPresent',
-                          contextKey: 'water_group',
-                          markerId: 'tangtang_waterabilityentity01',
-                        },
-                        instantiateActionSequence(sharedActionSequence1, [
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                        ]),
-                        instantiateActionSequence(sharedActionSequence1, [
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                          'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
-                        ]),
-                        { alwaysNext: true },
-                      ),
-                    ),
-                    instantiateActionSequence(sharedActionSequence2, [
-                      'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
+                    instantiateActionSequence(sharedActionSequence1, [
+                      'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_water',
+                      'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].succeedActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
+                    ]),
+                    instantiateActionSequence(sharedActionSequence1, [
+                      'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0027_tangtang_water',
+                      'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].succeedActions.actionData[1].failActions.actionData[0].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
                     ]),
                     { alwaysNext: true },
                   ),
                 ),
-                undefined,
+                instantiateActionSequence(sharedActionSequence2, [
+                  'SkillData.chr_0027_tangtang_combo_skill.actionGroupData.timelineActions[6]._sequenceActionData.actionData[1].succeedActions.actionData[2].failActions.actionData[0]:projectile_chr_0027_tangtang_water',
+                ]),
                 { alwaysNext: true },
               ),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'cryo',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  tags: ['comboSkill'],
-                  features: ['canBreakWeakness'],
-                },
-                'chr_0027_tangtang_combo_skill:/scheduledSequences/1/sequence/steps/0/whenTrue/steps/1',
-              ),
-              step('dealStagger', { value: { kind: 'blackboard', key: 'poise' } }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'tar_cnt', fallback: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'ultimateEnergy',
-                    amount: { kind: 'blackboard', key: 'usp' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'caster',
-                  }),
-                  step('modifyActionValue', {
-                    key: 'tar_cnt',
-                    operation: 'assign',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.1 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_normal_attack' },
-                finishByAction: false,
-                targets: ['caster'],
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+          step(
+            'dealDamage',
+            {
+              damageType: 'cryo',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['comboSkill'],
+              features: ['canBreakWeakness'],
+            },
+            'chr_0027_tangtang_combo_skill:/scheduledSequences/1/sequence/steps/0/whenTrue/steps/1',
+          ),
+          step('dealStagger', { value: { kind: 'blackboard', key: 'poise' } }),
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'tar_cnt', fallback: 0 },
+              operator: 'lessOrEqual',
+              right: { kind: 'constant', value: 0 },
+            },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'ultimateEnergy',
+                amount: { kind: 'blackboard', key: 'usp' },
+                coefficient: { kind: 'constant', value: 1 },
+                recipient: 'caster',
+              }),
+              step('modifyActionValue', {
+                key: 'tar_cnt',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
               }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.1 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_normal_attack' },
+            finishByAction: false,
+            targets: ['caster'],
+          }),
         ),
         29,
       ),
@@ -2480,22 +2408,12 @@ export const tangtang: OperatorDefinition = {
           forEachContextTarget(
             'water_move',
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 50 },
-                },
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2',
-                    target: 'currentAbilityEntity',
-                    source: 'buffSource',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-              ),
+              step('applyBuff', {
+                buffId: 'buff_chr_0027_tangtang_normalskill_abilityentity_2',
+                target: 'currentAbilityEntity',
+                source: 'buffSource',
+                inheritSourceSkillCastInfo: true,
+              }),
             ),
           ),
         ),
@@ -2800,25 +2718,15 @@ export const tangtang: OperatorDefinition = {
                 forEachContextTarget(
                   'ultwater_move',
                   sequence(
-                    branch(
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'constant', value: 0 },
-                        operator: 'lessOrEqual',
-                        right: { kind: 'constant', value: 50 },
-                      },
+                    forEachContextTarget(
+                      'ultwater_move',
                       sequence(
-                        forEachContextTarget(
-                          'ultwater_move',
-                          sequence(
-                            step('applyBuff', {
-                              buffId: 'buff_chr_0027_tangtang_ultskill_abilityentity_2',
-                              target: 'currentAbilityEntity',
-                              source: 'buffSource',
-                              inheritSourceSkillCastInfo: true,
-                            }),
-                          ),
-                        ),
+                        step('applyBuff', {
+                          buffId: 'buff_chr_0027_tangtang_ultskill_abilityentity_2',
+                          target: 'currentAbilityEntity',
+                          source: 'buffSource',
+                          inheritSourceSkillCastInfo: true,
+                        }),
                       ),
                     ),
                   ),
@@ -3132,21 +3040,10 @@ export const tangtang: OperatorDefinition = {
                   kind: 'all',
                   conditions: [
                     {
-                      kind: 'all',
-                      conditions: [
-                        {
-                          kind: 'contextTargetCountCompare',
-                          contextKey: 'ultskill_center_abilityentity',
-                          operator: 'greater',
-                          value: 0,
-                        },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 0 },
-                          operator: 'lessOrEqual',
-                          right: { kind: 'constant', value: 8 },
-                        },
-                      ],
+                      kind: 'contextTargetCountCompare',
+                      contextKey: 'ultskill_center_abilityentity',
+                      operator: 'greater',
+                      value: 0,
                     },
                     {
                       kind: 'contextTargetCountCompare',

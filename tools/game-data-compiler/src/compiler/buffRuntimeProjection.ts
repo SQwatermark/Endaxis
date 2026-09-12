@@ -1858,6 +1858,7 @@ function createBuffSequenceProjection(
       }
       if (
         node.body.target.targetSource === 'Context' &&
+        partyTargetGroups.get(node.body.target.targetGroupKey) !== 'dynamicEnemy' &&
         (context.staticEnemyTargetGroupKeys?.has(node.body.target.targetGroupKey) === true ||
           partyTargetGroups.get(node.body.target.targetGroupKey) === 'enemy') &&
         node.body.target.finderType === null &&
@@ -1883,7 +1884,8 @@ function createBuffSequenceProjection(
       }
       if (
         node.body.target.targetSource === 'Context' &&
-        context.singleEnemyTargetGroupKeys?.has(node.body.target.targetGroupKey) === true &&
+        (context.singleEnemyTargetGroupKeys?.has(node.body.target.targetGroupKey) === true ||
+          partyTargetGroups.get(node.body.target.targetGroupKey) === 'dynamicEnemy') &&
         node.body.target.finderType === null &&
         node.body.target.validatorTypes.length === 0 &&
         node.body.target.postProcessorTypes.length === 0 &&
@@ -2664,6 +2666,11 @@ function isCombatInvisibleIfElse(
   return nodes.every(child => {
     if (child.body.kind !== 'leaf') return child.body.kind === 'ifElse' && child.body.alwaysNext;
     const leaf = child.body.value;
+    if (
+      leaf.family === 'targetGroup' &&
+      context.materializedTargetGroupKeys?.has(leaf.action.targetGroupKey)
+    )
+      return false;
     if (leaf.family === 'presentation') return isCombatInvisiblePresentationLeaf(child);
     if (invisibleFamilies.has(leaf.family)) return true;
     if (leaf.family === 'condition' && leaf.action.kind === 'targetAngle') return true;

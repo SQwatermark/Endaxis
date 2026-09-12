@@ -78,3 +78,25 @@ SHA-256 依次为 `8CF8F85A999C74D9CBEA0BDAED41FD471995F1C07FF5E632742779466ECA0
 庇护 Buff，两个等级只把持续时间从 4 秒提升到 8 秒。来源行为已经明确，而固定木桩不会主动伤害干员，
 因此它以 `simulationNoEffect: enemyDoesNotDealDamage` 计为当前模型下的完整转换。该结论不是删除证据；
 如果未来引入敌方伤害标记或主动敌人模型，必须据此重新打开审计。
+
+## 2026-09-12：生成器误把动态目标组当成非空集合
+
+关闭新增编译优化后重新生成，发现天赋监听的 `ForEach(Context fire_inflicted)` 被改成了固定
+敌人循环。这是已有投影的回归，不能作为优化前后的有效基线。
+
+- 当前 `BuffData/buff_chr_0016_laevat_passive_teammate.json` 的 SHA-256 仍为上文记录的
+  `8CF8F85A999C74D9CBEA0BDAED41FD471995F1C07FF5E632742779466ECA086B`，该差异不是来源更新。
+- `FindTargetAction[6]` 先按 `TagValidator HasAny(-1558844517)` 筛选，再由
+  `ForEachAction[10]` 读取 `Context/fire_inflicted`。没有火焰附着时，循环应执行零次。
+- 现有反编译记录 `combat-spec/docs/selector-pipeline.md` 确认 TagValidator 删除不匹配的目标；
+  `combat-spec/docs/foreach-target-and-distance.md` 确认 ForEach 捕获目标列表后按实际数量执行。
+  这些记录来自 1.4.4 的静态方法体，不表示已对当前安装版本做动态轨迹验证。
+- `b7b0f8f75` 为能力实体被动补充目标状态时，把筛选结果记成了 `enemy`。下游把这一值解释为
+  “必有一个敌人”，而写入处只证明了“成员只能是敌人”。同一问题也使卡缪实体被动在查询为空时
+  仍直接向敌人施加延迟伤害 Buff；具体来源是 `chr_0033_camille_passive_normal_skill_ability_entity`
+  中写入 `tar` 的查询动作 `[2]` 与读取 `Context/tar` 的创建动作 `[4]`。
+
+修复用 `dynamicEnemy` 记录可能为空的敌人集合。ForEach 保留命名 Context；直接向该组创建 Buff
+也按实际成员执行。新增回归经过原生结构解析、投影、正式目标集合执行器和序列运行时，连续验证
+标签不匹配、匹配、再次不匹配，避免空查询复用上一次结果。测试同时覆盖普通动作与能力实体事件宿主，
+以及不同目标组名，不依赖干员 ID。

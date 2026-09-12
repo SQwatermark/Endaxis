@@ -362,11 +362,7 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.14, 0.15, 0.17, 0.18, 0.2, 0.21, 0.22, 0.24, 0.25, 0.27, 0.29, 0.32],
-    display_atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
-  },
+  { atb: 0, atk_scale: [0.14, 0.15, 0.17, 0.18, 0.2, 0.21, 0.22, 0.24, 0.25, 0.27, 0.29, 0.32] },
 );
 
 export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -482,7 +478,6 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
     poise: 0,
-    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
   },
 );
 
@@ -672,18 +667,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
         17,
         sequence(
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
@@ -782,7 +766,6 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.06, 0.07, 0.08, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14],
     poise: 0,
-    display_atk_scale: [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
   },
 );
 
@@ -998,25 +981,15 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.55 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.55 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
           ),
         ),
@@ -1535,10 +1508,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
     atb4: [30, 30, 30, 30, 30, 30, 30, 30, 30, 35, 35, 35],
     atk_scale: [0.86, 0.94, 1.03, 1.11, 1.2, 1.28, 1.37, 1.45, 1.54, 1.65, 1.77, 1.92],
     atk_scale2: [1.06, 1.16, 1.27, 1.37, 1.48, 1.58, 1.69, 1.8, 1.9, 2.03, 2.19, 2.38],
-    cam_angle: 0,
-    cam_duration: 0,
     has_potential1: 0,
-    input_angle: 0,
     num: 0,
     num_1: 0,
     poise: 5,
@@ -2191,14 +2161,9 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
     calc_atb2: 0,
     calc_atb3: 0,
     calc_atb4: 0,
-    duration: 4,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise1: 3,
-    poise2: 5,
     poise3: 4,
     poise4: 9,
-    select_radius: 7,
     usp: 10,
   },
 );
@@ -2230,20 +2195,10 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('findCharacterTeamTargets', {
-                saveToContextKey: 'mainchar',
-                selection: { kind: 'controlledOperator' },
-              }),
-            ),
-          ),
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
         ),
         1,
       ),

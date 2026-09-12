@@ -14,69 +14,53 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-const sharedActionSequence2: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    { atb: 0, atk_scale: 0, attack_poise: 20 },
-    true,
-    sequence(
-      step(
-        'dealDamage',
-        {
-          damageType: 'nature',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['normalAttack', 'normalAttackLastCombo'],
-          stagger: { kind: 'blackboard', key: 'attack_poise' },
-          staggerOnlyWhenCasterControlled: true,
-        },
-        '\u0000endaxis-generated-identity:1',
-      ),
-      branch(
-        {
-          kind: 'all',
-          conditions: [
-            { kind: 'casterControlled' },
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-          ],
-        },
-        sequence(
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
-            ),
-          ),
-        ),
-        undefined,
-        { alwaysNext: true },
-      ),
-    ),
-    undefined,
-    { lifetime: 'execution', alwaysNext: true },
-  ),
-);
-
 const sharedActionSequence1: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     {},
     true,
-    instantiateActionSequence(sharedActionSequence2, [
-      '\u0000endaxis-generated-identity:1',
-      '\u0000endaxis-generated-identity:2',
-    ]),
+    sequence(
+      withActionBlackboardScope(
+        '\u0000endaxis-generated-identity:1',
+        { atb: 0, atk_scale: 0, attack_poise: 20 },
+        true,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack', 'normalAttackLastCombo'],
+              stagger: { kind: 'blackboard', key: 'attack_poise' },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            '\u0000endaxis-generated-identity:2',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        undefined,
+        { lifetime: 'execution', alwaysNext: true },
+      ),
+    ),
     {},
     { lifetime: 'execution' },
   ),
@@ -142,7 +126,7 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
+  { atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
 );
 
 export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -205,11 +189,7 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73],
-    display_atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73],
-  },
+  { atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73] },
 );
 
 export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -264,18 +244,7 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0022_bounda_attack3:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       branch(
                         { kind: 'casterControlled' },
@@ -368,7 +337,6 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 15,
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
     attack_poise: 15,
-    display_atk_scale: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
   },
 );
 
@@ -427,7 +395,6 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 15,
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
     attack_poise: 15,
-    display_atk_scale: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
   },
 );
 
@@ -581,14 +548,7 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    cd: 15,
-    dmg_scale: 2.5,
-    poise: 5,
-    prob: 0.5,
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -969,10 +929,6 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
     atk_scale2: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
     atk_scale3: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
     atk_scale4: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
-    boom_up: 0.3,
-    duration: 12,
-    ex_usp_up: 0.3,
-    has_potential4: 0,
     poise: 5,
   },
 );
@@ -1066,25 +1022,15 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.33 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'bounda_power_attack' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.33 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'bounda_power_attack' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
           ),
         ),
@@ -1114,24 +1060,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atb: 10,
     atk_scale: [1.69, 1.86, 2.03, 2.2, 2.37, 2.54, 2.7, 2.87, 3.04, 3.25, 3.51, 3.8],
-    atk_scale_add: 1.5,
-    atk_scale_add_1: [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 1, 1.2, 1.2],
-    atk_scale_add_2: [0.8, 0.9, 1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 2, 2.4, 2.4],
-    atk_scale_add_3: [1.05, 1.2, 1.35, 1.5, 1.65, 1.8, 1.95, 2.1, 2.25, 2.6, 3.2, 3.2],
-    atk_scale_add_4: [1.33, 1.5, 1.67, 1.83, 2, 2.18, 2.35, 2.52, 2.69, 3.33, 4.15, 4.15],
-    atk_scale_potential5: 1.3,
-    cam_angle: 0,
-    cam_angle2: 0,
-    cam_duration: 0,
-    cam_duration2: 0,
-    duration: 3,
-    infliction_num: 0,
-    input_angle: 0,
-    input_angle2: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     potential_lv: 0,
     usp: 10,

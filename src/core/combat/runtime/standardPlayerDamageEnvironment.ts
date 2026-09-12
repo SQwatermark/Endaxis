@@ -82,7 +82,7 @@ import {
 } from './staticPlayerDamageSnapshots';
 import type { GameplayTagRegistry } from '../tags/gameplayTags';
 import { HealOperationExecutor, type ResolvedHealTarget } from './healOperationExecutor';
-import { compareCombatNumbers } from './numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import type { RegisterBuffAbilityEventAction } from './buffLifecycleSequenceRuntime';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { resolveAbilityEventActionContextBinding } from '../events/abilityEventActionContext';

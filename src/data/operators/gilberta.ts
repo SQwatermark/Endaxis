@@ -15,56 +15,6 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-const sharedActionSequence3: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    { atb: 0, atk_scale: 0, poise: 0 },
-    true,
-    sequence(
-      step(
-        'dealDamage',
-        {
-          damageType: 'nature',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['normalAttack'],
-          stagger: { kind: 'blackboard', key: 'poise' },
-          staggerMultiplier: { kind: 'constant', value: 0.33 },
-          staggerOnlyWhenCasterControlled: true,
-        },
-        '\u0000endaxis-generated-identity:1',
-      ),
-      branch(
-        {
-          kind: 'all',
-          conditions: [
-            { kind: 'casterControlled' },
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-          ],
-        },
-        sequence(
-          step('changeResourceByActionValue', {
-            resource: 'sp',
-            amount: { kind: 'blackboard', key: 'atb' },
-            coefficient: { kind: 'constant', value: 0.3334 },
-            recipient: 'team',
-            spGainKind: 'gain',
-            spGainSource: 'normalAttack',
-          }),
-        ),
-        undefined,
-        { alwaysNext: true },
-      ),
-    ),
-    undefined,
-    { lifetime: 'execution', alwaysNext: true },
-  ),
-);
-
 const sharedActionSequence1: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
@@ -86,18 +36,7 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
             '\u0000endaxis-generated-identity:2',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               branch(
                 { kind: 'casterControlled' },
@@ -131,10 +70,44 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
     '\u0000endaxis-generated-identity:0',
     {},
     true,
-    instantiateActionSequence(sharedActionSequence3, [
-      '\u0000endaxis-generated-identity:1',
-      '\u0000endaxis-generated-identity:2',
-    ]),
+    sequence(
+      withActionBlackboardScope(
+        '\u0000endaxis-generated-identity:1',
+        { atb: 0, atk_scale: 0, poise: 0 },
+        true,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'nature',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+              stagger: { kind: 'blackboard', key: 'poise' },
+              staggerMultiplier: { kind: 'constant', value: 0.33 },
+              staggerOnlyWhenCasterControlled: true,
+            },
+            '\u0000endaxis-generated-identity:2',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              step('changeResourceByActionValue', {
+                resource: 'sp',
+                amount: { kind: 'blackboard', key: 'atb' },
+                coefficient: { kind: 'constant', value: 0.3334 },
+                recipient: 'team',
+                spGainKind: 'gain',
+                spGainSource: 'normalAttack',
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        undefined,
+        { lifetime: 'execution', alwaysNext: true },
+      ),
+    ),
     {},
     { lifetime: 'execution' },
   ),
@@ -185,18 +158,7 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
                     'chr_0013_aglina_attack1:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       branch(
                         { kind: 'casterControlled' },
@@ -231,11 +193,7 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-  },
+  { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
 );
 
 export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -357,11 +315,7 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41],
-    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
-  },
+  { atb: 0, atk_scale: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41] },
 );
 
 export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -418,11 +372,7 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3],
-    display_atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
-  },
+  { atb: 0, atk_scale: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3] },
 );
 
 export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -473,18 +423,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
                     'chr_0013_aglina_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
@@ -535,7 +474,6 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 16,
     atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.37],
-    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.12],
     poise: 16,
   },
 );
@@ -707,13 +645,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
-    display_atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -909,12 +841,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
                   operator: 'greater',
                   right: { kind: 'constant', value: 0 },
                 },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 2 },
-                },
+                { kind: 'constant', value: false },
               ],
             },
             sequence(
@@ -1472,12 +1399,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
                   operator: 'greater',
                   right: { kind: 'constant', value: 0 },
                 },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 2 },
-                },
+                { kind: 'constant', value: false },
               ],
             },
             sequence(
@@ -1576,16 +1498,9 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [1.4, 1.54, 1.68, 1.82, 1.96, 2.1, 2.24, 2.38, 2.52, 2.7, 2.91, 3.15],
-    cam_angle: 0,
-    cam_duration: 0,
-    damage_taken_scale: 0,
     heal_const: 0,
     heal_scale: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 5,
-    potential_lv: 0,
     radius: 3,
     usp: 10,
   },

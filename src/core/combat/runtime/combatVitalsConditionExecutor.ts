@@ -7,7 +7,7 @@ import type { CombatCondition } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatVitals } from './combatVitals';
-import { compareCombatNumbers } from './numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 
 export interface CombatVitalsConditionDependencies {
   readonly resolveTarget: (

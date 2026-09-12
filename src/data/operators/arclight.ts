@@ -227,11 +227,7 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29],
-    display_atk_scale: [0.26, 0.29, 0.31, 0.34, 0.36, 0.39, 0.42, 0.44, 0.47, 0.5, 0.54, 0.59],
-  },
+  { atb: 0, atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29] },
 );
 
 export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -308,11 +304,7 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27],
-    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
-  },
+  { atb: 0, atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27] },
 );
 
 export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -924,16 +916,11 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
     atb: [30, 30, 30, 30, 30, 35, 35, 35, 35, 35, 35, 40],
     atk_scale: [0.45, 0.5, 0.54, 0.59, 0.63, 0.68, 0.72, 0.77, 0.81, 0.87, 0.93, 1.01],
     atk_scale2: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
-    cam_angle: 0,
-    cam_duration: 0,
     count: 0,
     duration: 0,
-    exist_p5: 0,
-    input_angle: 0,
     poise1: 5,
     poise2: 5,
     pulse_up: 0,
-    select_radius: 4,
     SpawnThird: 0,
     talent_1: 0,
     thirdhit: 0,
@@ -972,6 +959,39 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
           }),
         ),
         3,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('mergeContextTargets', {
+            saveToContextKey: 'tar1',
+            sources: [{ kind: 'target', target: 'enemy' }],
+          }),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              branch(
+                {
+                  kind: 'contextTargetCountCompare',
+                  contextKey: 'tar1',
+                  operator: 'greaterOrEqual',
+                  value: 1,
+                },
+                sequence(),
+                sequence(
+                  step('createSpatialPointTargets', {
+                    saveToContextKey: 'tar1',
+                    count: { kind: 'constant', value: 1 },
+                  }),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        0,
       ),
       scheduled(
         0,
@@ -1176,19 +1196,10 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atb: [8, 8, 8, 8, 8, 9, 9, 9, 9, 10, 10, 10],
     atk_scale: [0.52, 0.57, 0.62, 0.67, 0.73, 0.78, 0.83, 0.88, 0.93, 1, 1.07, 1.17],
-    atk_up: 0,
-    cam_angle: 0,
-    cam_duration: 0,
     count: 0,
     duration: 0,
-    exist_p5: 0,
-    exist_talent: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 5,
     usp: 5,
-    display_atk_scale: [1.55, 1.71, 1.86, 2.02, 2.18, 2.33, 2.49, 2.64, 2.8, 2.99, 3.22, 3.5],
   },
 );
 

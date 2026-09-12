@@ -28,21 +28,31 @@ export function createCandidateRuntimeOverlayPlugin(
   const replacements = collectReplacements(projectRoot, candidateRoot, args.replacementPaths);
   if (replacements.length === 0)
     throw new Error('candidate runtime overlay has no generated files');
+  let extensions: readonly string[] = [];
 
   return {
     name: 'endaxis-candidate-runtime-overlay',
     enforce: 'pre',
+    configResolved(config) {
+      extensions = config.resolve.extensions;
+    },
     resolveId(source, importer) {
       const requested = resolveImportPath(source, importer, projectRoot);
       if (requested === null) return null;
 
-      const candidate = mapFormalToCandidate(requested, replacements);
+      const candidate = mapFormalToCandidate(requested, replacements, extensions);
       if (candidate !== null) return candidate;
 
-      if (isWithin(candidateRoot, requested) && !fs.existsSync(requested)) {
+      if (isWithin(candidateRoot, requested)) {
+        // 相对导入常省略 .ts；先完整解析候选，不能因字面路径不存在而回退正式库。
+        const resolvedCandidate = resolveExistingModule(requested, extensions);
+        if (resolvedCandidate !== null) return resolvedCandidate;
         const fallback = path.join(projectRoot, path.relative(candidateRoot, requested));
+        // 缺少的候选若属于完整替换目录，必须失败；只有未替换的手写模块允许回退。
+        const mappedFallback = mapFormalToCandidate(fallback, replacements, extensions);
+        if (mappedFallback !== null) return mappedFallback;
         const resolvedFallback = isWithin(projectRoot, fallback)
-          ? resolveExistingModule(fallback)
+          ? resolveExistingModule(fallback, extensions)
           : null;
         if (resolvedFallback !== null) return resolvedFallback;
       }
@@ -89,7 +99,17 @@ function resolveImportPath(source: string, importer: string | undefined, project
 function mapFormalToCandidate(
   requested: string,
   replacements: readonly CandidateReplacement[],
+  extensions: readonly string[],
 ): string | null {
+  // 正式模块存在时沿用它的解析结果；首次生成的新文件则按同样的后缀顺序匹配候选清单。
+  const resolvedRequested =
+    resolveExistingModule(requested, extensions) ??
+    moduleCandidatePaths(requested, extensions).find(candidate =>
+      replacements.some(
+        replacement =>
+          !replacement.directory && normalize(candidate) === normalize(replacement.formalPath),
+      ),
+    );
   for (const replacement of replacements) {
     if (replacement.directory) {
       if (!isWithin(replacement.formalPath, requested)) continue;
@@ -98,27 +118,36 @@ function mapFormalToCandidate(
         path.relative(replacement.formalPath, requested),
       );
       // 目录替换具有完整替换语义；候选中没有的旧正式文件不能漏入运行视图。
-      return resolveExistingModule(candidate);
+      const resolved = resolveExistingModule(candidate, extensions);
+      if (resolved === null) {
+        throw new Error(`candidate runtime replacement is missing module: ${candidate}`);
+      }
+      return resolved;
     }
-    if (normalize(requested) === normalize(replacement.formalPath)) {
+    if (
+      normalize(requested) === normalize(replacement.formalPath) ||
+      (resolvedRequested !== undefined &&
+        normalize(resolvedRequested) === normalize(replacement.formalPath))
+    ) {
       return replacement.candidatePath;
     }
   }
   return null;
 }
 
-function resolveExistingModule(value: string): string | null {
-  for (const candidate of [
-    value,
-    `${value}.ts`,
-    `${value}.tsx`,
-    `${value}.mts`,
-    `${value}.json`,
-    path.join(value, 'index.ts'),
-  ]) {
+function resolveExistingModule(value: string, extensions: readonly string[]): string | null {
+  for (const candidate of moduleCandidatePaths(value, extensions)) {
     if (fs.existsSync(candidate) && fs.statSync(candidate).isFile()) return candidate;
   }
   return null;
+}
+
+function moduleCandidatePaths(value: string, extensions: readonly string[]): readonly string[] {
+  return [
+    value,
+    ...extensions.map(extension => `${value}${extension}`),
+    ...extensions.map(extension => path.join(value, `index${extension}`)),
+  ];
 }
 
 function isWithin(root: string, value: string): boolean {

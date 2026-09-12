@@ -316,11 +316,7 @@ export const endministratorBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51],
-    poise: 0,
-  },
+  { atb: 0, atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
 );
 
 export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -389,11 +385,7 @@ export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.27, 0.3, 0.32, 0.35, 0.38, 0.41, 0.43, 0.46, 0.49, 0.52, 0.56, 0.61],
-    poise: 0,
-  },
+  { atb: 0, atk_scale: [0.27, 0.3, 0.32, 0.35, 0.38, 0.41, 0.43, 0.46, 0.49, 0.52, 0.56, 0.61] },
 );
 
 export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -509,7 +501,6 @@ export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
     poise: 0,
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.63, 0.68],
   },
 );
 
@@ -696,12 +687,7 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19],
-    poise: 0,
-    display_atk_scale: [0.35, 0.38, 0.41, 0.45, 0.48, 0.52, 0.55, 0.59, 0.62, 0.67, 0.72, 0.78],
-  },
+  { atb: 0, atk_scale: [0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19] },
 );
 
 export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -893,25 +879,15 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.4 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
           ),
         ),
@@ -923,25 +899,15 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.12 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_normal_attack' },
-                    finishByAction: false,
-                    targets: ['caster'],
-                  }),
-                ),
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.12 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_normal_attack' },
+                finishByAction: false,
+                targets: ['caster'],
+              }),
             ),
           ),
         ),
@@ -1550,43 +1516,33 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0003_endminf_potential5'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0003_endminf_potential5_trigger'],
+                  operator: 'lessOrEqual',
+                  value: { kind: 'constant', value: 0 },
+                },
+              ],
             },
             sequence(
-              branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'caster',
-                      buffIds: ['buff_chr_0003_endminf_potential5'],
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'caster',
-                      buffIds: ['buff_chr_0003_endminf_potential5_trigger'],
-                      operator: 'lessOrEqual',
-                      value: { kind: 'constant', value: 0 },
-                    },
-                  ],
-                },
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0003_endminf_potential5_trigger',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_potential5_trigger',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
         14,
@@ -1600,14 +1556,8 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atb_return: 0,
     atk_scale: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
-    blow_off_distance: 2,
-    cam_angle: 0,
-    cam_duration: 0,
-    distance_random_range: 0.2,
     has_returned: 0,
-    input_angle: 0,
     poise: 10,
-    select_radius: 7,
     trigger: 0,
   },
 );
@@ -1639,20 +1589,10 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('findCharacterTeamTargets', {
-                saveToContextKey: 'mainchar',
-                selection: { kind: 'controlledOperator' },
-              }),
-            ),
-          ),
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
         ),
         1,
       ),
@@ -1710,43 +1650,33 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'all',
+              conditions: [
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0003_endminf_potential5'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0003_endminf_potential5_trigger'],
+                  operator: 'lessOrEqual',
+                  value: { kind: 'constant', value: 0 },
+                },
+              ],
             },
             sequence(
-              branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'caster',
-                      buffIds: ['buff_chr_0003_endminf_potential5'],
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'caster',
-                      buffIds: ['buff_chr_0003_endminf_potential5_trigger'],
-                      operator: 'lessOrEqual',
-                      value: { kind: 'constant', value: 0 },
-                    },
-                  ],
-                },
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0003_endminf_potential5_trigger',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
+              step('applyBuff', {
+                buffId: 'buff_chr_0003_endminf_potential5_trigger',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
             ),
+            undefined,
+            { alwaysNext: true },
           ),
         ),
         53,
@@ -1783,12 +1713,9 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    angle: 130,
     atk_scale: [3.56, 3.91, 4.27, 4.62, 4.98, 5.33, 5.69, 6.04, 6.4, 6.84, 7.38, 8],
-    height: 4,
     originum_ult_break_scale: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
     poise: 25,
-    radius: 5,
   },
 );
 
@@ -1948,14 +1875,8 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
     atk_scale_trigger: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.84, 3.02, 3.2, 3.42, 3.69, 4],
     duration: [4, 4, 4, 4, 4, 4, 4, 4, 4, 4.5, 4.5, 5],
-    main_distance: 0,
     originum_ult_break_scale: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    select_radius: 7,
-    smart_distance: 0,
-    str_ratio: 0,
     usp: 10,
   },
 );

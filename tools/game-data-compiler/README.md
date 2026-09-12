@@ -12,6 +12,39 @@
 阻塞项和“下一步”仅代表当时检查；项目当前状态以 [交接](../../docs/handoff/current-context.md) 为准。
 总体开发方法见 [开发指南](../../docs/development/README.md)，游戏依据见 [研究分类](../../docs/research/README.md)。
 
+## 生成后优化
+
+整名规划入口 `planOperatorDefinition` 在组装和步骤身份分配后裁剪无效程序与无人使用的技能黑板值。
+公共 Buff、武器和套装生成入口使用同一套分支规则。内部参数 `optimization` 支持
+`off`、`report`、`apply`；默认 `apply`，正常生成直接输出优化后的定义。
+`report` 只报告候选、返回原定义；`off` 关闭新增优化。这些参数不放入 `operators.json`。
+干员与武器既有审计中的 `optimization` 保存候选及保留原因；公共 Buff 和套装在生成函数返回值中提供报告。
+
+目前可简化字面量分支，删除技能中无人读取的算术写入和黑板初值。已明确的子作用域按读取键
+保守汇总：父值会覆盖子初值，同名子作用域还可能跨入口复用，因此不能凭子板已有默认值删除父值。
+整板传出或仍有未知访问时继续保留。Buff 和实体的黑板，以及所有定义身份暂不删除。
+报告分别记录当前板读写和其他实体/Buff 的读取目标，不把不同对象的同名键混作一个值。
+
+武器词条与套装如果没有启用、初始化和事件入口，运行时不会创建它们的动作黑板，
+因此直接删除这块黑板。静态属性的完整等级数值已经写入 `modifiers`，不再读取原黑板。
+该规则按实际入口判断，不按“武器前两个词条”判断；词条保存的共享 Buff 蓝图及 Buff 自身黑板不受影响。
+`equipmentValues` 记录这些删除和仍有运行入口的保留原因。空的初始化序列仍算入口，不能擅自删除。
+
+候选模拟对照由以下入口执行。两套目录必须来自同一批冻结来源，只改变新增优化模式。
+默认检查干员、公共 Buff、武器和套装；`--operators-only` 仅用于分阶段验证。
+
+```powershell
+node --max-old-space-size=2048 --experimental-strip-types tools/game-data-compiler/scripts/auditDefinitionOptimizationCandidates.ts --before-root tmp/game-data-optimization/second-pass/off/candidate --after-root tmp/game-data-optimization/second-pass/apply/candidate
+```
+
+两路串行加载，逐场只保存完整模拟事实的摘要，不把整批回执留在内存。对照包含等级/潜能、技能形态、
+混合队伍、全部武器的各词条等级和套装，并使用相同的变化随机样本、比较抽样次数。只排除编译树遍历记录，伤害、
+资源、状态、归属、诊断、曲线与回执引用仍参与比较。候选缺文件时失败，不允许回退正式旧文件冒充通过。
+这些场景是优化前后的差分检查，不证明全部游戏机制正确；实际执行数量与覆盖范围由报告说明。
+覆盖边界与后续工作见
+[当前交接](../../docs/handoff/current-context.md#未完成的开发工作)，规则见
+[生成器优化设计](../../docs/architecture/data-and-state.md#生成器的编译优化设计)。
+
 ## 技能组递归放置配置
 
 ### 技能编译器选择

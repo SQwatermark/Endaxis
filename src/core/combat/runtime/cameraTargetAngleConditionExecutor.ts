@@ -1,7 +1,7 @@
 import type { CombatOperationContext } from './skillRuntime';
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
-import { compareCombatNumbers } from './numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 /** 求值本次释放显式提供的镜头→目标有符号夹角；空间简化模型不会自行补造该值。 */

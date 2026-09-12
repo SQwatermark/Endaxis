@@ -428,7 +428,6 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
     atk_scale2: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
-    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
   },
 );
 
@@ -508,7 +507,6 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 19,
     atk_scale: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
-    atk_scale_2: 0,
     poise: 17,
   },
 );
@@ -826,16 +824,9 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atb: 0,
     atk_scale: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
-    blow_off_distance: 2,
-    cam_angle: 0,
-    cam_duration: 0,
     distance: 8,
-    distance_random_range: 0.2,
     dmg_up: 0,
-    input_angle: 0,
     poise: 10,
-    select_radius: 7,
-    trigger: 0,
   },
 );
 
@@ -1108,7 +1099,6 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
     dmg_up: 0.5,
     dmg_up_total: 0,
     poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
-    radius: 5,
   },
 );
 
@@ -1613,40 +1603,30 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
         19,
         sequence(
           branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
+            { kind: 'casterControlled' },
             sequence(
-              branch(
-                { kind: 'casterControlled' },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.4 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'whiten_combo' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.3 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'whiten_combo' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-                { alwaysNext: true },
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.4 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'whiten_combo' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
+            sequence(
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.3 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'whiten_combo' },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
+            ),
+            { alwaysNext: true },
           ),
         ),
         22,
@@ -1677,15 +1657,8 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
     atk_scale2: [2.8, 3.08, 3.36, 3.64, 3.92, 4.2, 4.48, 4.76, 5.04, 5.39, 5.81, 6.3],
-    cam_angle: 0,
-    cam_duration: 0,
-    cd_reduction: 0,
-    count: 0,
     duration: 6,
     has_potential1: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     rate: [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.15, 0.15, 0.15],
     rate_plus: -0.1,

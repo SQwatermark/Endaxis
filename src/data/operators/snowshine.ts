@@ -82,11 +82,7 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24] },
 );
 
 export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -155,11 +151,7 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.59, 0.64, 0.7, 0.76, 0.82, 0.88, 0.94, 0.99, 1.05, 1.13, 1.21, 1.32],
-    env_dmg: 25,
-  },
+  { atb: 0, atk_scale: [0.59, 0.64, 0.7, 0.76, 0.82, 0.88, 0.94, 0.99, 1.05, 1.13, 1.21, 1.32] },
 );
 
 export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -307,8 +299,6 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
     atk_scale: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
     atk_scale1: 0,
     atk_scale2: 0.8,
-    env_dmg: 25,
-    env_dmg2: 30,
     poise: 23,
   },
 );
@@ -439,11 +429,7 @@ export const snowshinePlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    env_dmg: 20,
-  },
+  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -588,17 +574,7 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
                 sequence: sequence(
                   branch(
                     { kind: 'eventBuffIdMatch', buffIds: ['buff_eny_0018_lbtough_pre_catch'] },
-                    sequence(
-                      branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 0 },
-                          operator: 'lessOrEqual',
-                          right: { kind: 'constant', value: 3 },
-                        },
-                        sequence(step('jumpTimeline', { destinationFrame: 107 })),
-                      ),
-                    ),
+                    sequence(step('jumpTimeline', { destinationFrame: 107 })),
                   ),
                 ),
               },
@@ -741,13 +717,11 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atb_return_base: 30,
     atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
-    is_cam: 1,
     poise: 20,
     potential_1: 0,
     potential_5_atb: 0,
     taken_dmg: 0.9,
     talent_2_sup: 0,
-    dmg_reduce: 0.9,
   },
 );
 

@@ -1,7 +1,7 @@
 import type { CombatOperationContext } from './skillRuntime';
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from './actionBlackboard';
-import { compareCombatNumbers } from './numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 /** 对运行时捕获的单敌人超级护甲值执行原生浮点容差比较。 */

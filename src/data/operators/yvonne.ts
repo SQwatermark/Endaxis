@@ -17,58 +17,6 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-const sharedActionSequence4: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    { atb: 0, atk_scale: 0 },
-    true,
-    sequence(
-      step(
-        'dealDamage',
-        {
-          damageType: 'cryo',
-          attackScale: { kind: 'blackboard', key: 'atk_scale' },
-          tags: ['normalAttack'],
-        },
-        '\u0000endaxis-generated-identity:1',
-      ),
-      branch(
-        {
-          kind: 'all',
-          conditions: [
-            { kind: 'casterControlled' },
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-          ],
-        },
-        sequence(
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 0.3333333 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
-            ),
-          ),
-        ),
-        undefined,
-        { alwaysNext: true },
-      ),
-    ),
-    undefined,
-    { lifetime: 'execution', alwaysNext: true },
-  ),
-);
-
 const sharedActionSequence1: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
@@ -90,18 +38,7 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
             '\u0000endaxis-generated-identity:2',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               branch(
                 { kind: 'casterControlled' },
@@ -151,18 +88,7 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
             '\u0000endaxis-generated-identity:2',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               branch(
                 { kind: 'casterControlled' },
@@ -196,16 +122,52 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
     '\u0000endaxis-generated-identity:0',
     {},
     true,
-    instantiateActionSequence(sharedActionSequence4, [
-      '\u0000endaxis-generated-identity:1',
-      '\u0000endaxis-generated-identity:2',
-    ]),
+    sequence(
+      withActionBlackboardScope(
+        '\u0000endaxis-generated-identity:1',
+        { atb: 0, atk_scale: 0 },
+        true,
+        sequence(
+          step(
+            'dealDamage',
+            {
+              damageType: 'cryo',
+              attackScale: { kind: 'blackboard', key: 'atk_scale' },
+              tags: ['normalAttack'],
+            },
+            '\u0000endaxis-generated-identity:2',
+          ),
+          branch(
+            { kind: 'casterControlled' },
+            sequence(
+              branch(
+                { kind: 'casterControlled' },
+                sequence(
+                  step('changeResourceByActionValue', {
+                    resource: 'sp',
+                    amount: { kind: 'blackboard', key: 'atb' },
+                    coefficient: { kind: 'constant', value: 0.3333333 },
+                    recipient: 'team',
+                    spGainKind: 'gain',
+                    spGainSource: 'normalAttack',
+                  }),
+                ),
+              ),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        undefined,
+        { lifetime: 'execution', alwaysNext: true },
+      ),
+    ),
     {},
     { lifetime: 'execution' },
   ),
 );
 
-const sharedActionSequence7: ActionSequenceDefinition = sequence(
+const sharedActionSequence6: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'buffIdStackCompare',
@@ -257,7 +219,7 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
+const sharedActionSequence4: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'healthCompare',
@@ -340,7 +302,7 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence6: ActionSequenceDefinition = sequence(
+const sharedActionSequence5: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'all',
@@ -384,7 +346,7 @@ const sharedActionSequence6: ActionSequenceDefinition = sequence(
         inheritToNextSkillIds: ['chr_0017_yvonne_ult_attack3_2'],
       }),
     ),
-    sharedActionSequence7,
+    sharedActionSequence6,
     { alwaysNext: true },
   ),
 );
@@ -475,11 +437,7 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28],
-    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
-  },
+  { atb: 0, atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28] },
 );
 
 export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -537,11 +495,7 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.24],
-    display_atk_scale: [0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.5, 0.54, 0.57, 0.61, 0.65, 0.71],
-  },
+  { atb: 0, atk_scale: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.24] },
 );
 
 export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -672,9 +626,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 17,
     atk_scale: [0.56, 0.62, 0.67, 0.73, 0.79, 0.84, 0.9, 0.96, 1.01, 1.08, 1.17, 1.26],
     cnt: 0,
-    dmg_up: 0,
     poise: 17,
-    display_atk_scale: [0.56, 0.62, 0.67, 0.73, 0.79, 0.84, 0.9, 0.96, 1.01, 1.08, 1.17, 1.26],
   },
 );
 
@@ -933,7 +885,6 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2],
     crit_rate_up: 0.06,
     normal_dmg_up: 0.03,
-    layer: 10,
   },
 );
 
@@ -1246,7 +1197,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         11,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[27]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
           'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/11/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -1258,7 +1209,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         14,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[28]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
           'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/12/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -1270,7 +1221,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         17,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack2',
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[29]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack2_projhit',
           'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/13/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -1282,7 +1233,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         21,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
           'SkillData.chr_0017_yvonne_ult_attack2_1.actionGroupData.timelineActions[30]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
           'chr_0017_yvonne_ult_attack2_1:/scheduledSequences/14/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -1520,7 +1471,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         1,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[23]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
           'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/7/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -1532,7 +1483,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         4,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[24]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
           'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/8/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -1544,7 +1495,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         7,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[25]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
           'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/9/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -1556,7 +1507,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         11,
-        instantiateActionSequence(sharedActionSequence5, [
+        instantiateActionSequence(sharedActionSequence4, [
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:projectile_chr_0017_yvonne_ult_attack1',
           'SkillData.chr_0017_yvonne_ult_attack2_2.actionGroupData.timelineActions[26]._sequenceActionData.actionData[0].succeedActions.actionData[0].succeedActions.actionData[0]:chr_0017_yvonne_ult_attack1_projhit',
           'chr_0017_yvonne_ult_attack2_2:/scheduledSequences/10/sequence/steps/0/whenTrue/steps/0/body/steps/0/body/steps/0',
@@ -2415,7 +2366,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
-      scheduled(12, sharedActionSequence6, 32),
+      scheduled(12, sharedActionSequence5, 32),
     ],
     skillType: 'basicAttack',
     levelSource: 'ultimate',
@@ -3159,7 +3110,7 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
         ),
         40,
       ),
-      scheduled(0, sharedActionSequence6, 18),
+      scheduled(0, sharedActionSequence5, 18),
     ],
     skillType: 'basicAttack',
     levelSource: 'ultimate',
@@ -3694,56 +3645,46 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.5 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: {
-                      kind: 'inline',
-                      keys: [
-                        {
-                          time: 0,
-                          value: 0.7,
-                          inTangent: -8.311591,
-                          outTangent: -8.311591,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 0.1,
-                          value: 0.04752808,
-                          inTangent: -0.01381588,
-                          outTangent: -0.01381588,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                        {
-                          time: 1,
-                          value: 1,
-                          inTangent: 2.675379,
-                          outTangent: 5.233175,
-                          weightedMode: 0,
-                          inWeight: 0,
-                          outWeight: 0,
-                        },
-                      ],
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.5 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: {
+                  kind: 'inline',
+                  keys: [
+                    {
+                      time: 0,
+                      value: 0.7,
+                      inTangent: -8.311591,
+                      outTangent: -8.311591,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
                     },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              ),
+                    {
+                      time: 0.1,
+                      value: 0.04752808,
+                      inTangent: -0.01381588,
+                      outTangent: -0.01381588,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                    {
+                      time: 1,
+                      value: 1,
+                      inTangent: 2.675379,
+                      outTangent: 5.233175,
+                      weightedMode: 0,
+                      inWeight: 0,
+                      outWeight: 0,
+                    },
+                  ],
+                },
+                finishByAction: false,
+                targets: ['enemy', 'caster'],
+              }),
             ),
           ),
         ),
@@ -4043,16 +3984,12 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
     atk_scale: [1.11, 1.22, 1.33, 1.44, 1.55, 1.67, 1.78, 1.89, 2, 2.14, 2.3, 2.5],
     atk_scale_layer: [0.89, 0.98, 1.07, 1.16, 1.24, 1.33, 1.42, 1.51, 1.6, 1.71, 1.85, 2],
     atk_scale2: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
-    cam_angle: 0,
-    cam_duration: 0,
     consume_cnt: 0,
     count: 0,
     crit_up: 0,
     gained_atb: 0,
     has_potential2: 0,
-    input_angle: 0,
     poise: 10,
-    select_radius: 10,
     usp_base: 10,
     usp_layer: 30,
   },
@@ -4110,20 +4047,10 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('findCharacterTeamTargets', {
-                saveToContextKey: 'mainchar',
-                selection: { kind: 'controlledOperator' },
-              }),
-            ),
-          ),
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
         ),
         1,
       ),
@@ -4790,21 +4717,10 @@ export const yvonne: OperatorDefinition = {
               ),
               branch(
                 {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'has_added_usp', fallback: 0 },
-                      operator: 'less',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                  ],
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'has_added_usp', fallback: 0 },
+                  operator: 'less',
+                  right: { kind: 'constant', value: 1 },
                 },
                 sequence(
                   step('modifyActionValue', {
@@ -4908,24 +4824,13 @@ export const yvonne: OperatorDefinition = {
           ),
           branch(
             {
-              kind: 'all',
-              conditions: [
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                {
-                  kind: 'not',
-                  condition: {
-                    kind: 'actionValueCompare',
-                    left: { kind: 'blackboard', key: 'had_added_usp', fallback: 0 },
-                    operator: 'equal',
-                    right: { kind: 'constant', value: 1 },
-                  },
-                },
-              ],
+              kind: 'not',
+              condition: {
+                kind: 'actionValueCompare',
+                left: { kind: 'blackboard', key: 'had_added_usp', fallback: 0 },
+                operator: 'equal',
+                right: { kind: 'constant', value: 1 },
+              },
             },
             sequence(
               step('changeResourceByActionValue', {
@@ -5065,21 +4970,10 @@ export const yvonne: OperatorDefinition = {
                     sequence(
                       branch(
                         {
-                          kind: 'all',
-                          conditions: [
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'blackboard', key: 'has_potential2', fallback: 0 },
-                              operator: 'greaterOrEqual',
-                              right: { kind: 'constant', value: 1 },
-                            },
-                            {
-                              kind: 'actionValueCompare',
-                              left: { kind: 'constant', value: 1 },
-                              operator: 'equal',
-                              right: { kind: 'constant', value: 1 },
-                            },
-                          ],
+                          kind: 'actionValueCompare',
+                          left: { kind: 'blackboard', key: 'has_potential2', fallback: 0 },
+                          operator: 'greaterOrEqual',
+                          right: { kind: 'constant', value: 1 },
                         },
                         sequence(
                           forEachTarget(
@@ -6124,15 +6018,7 @@ export const yvonne: OperatorDefinition = {
       lifecycleSequences: {
         trigger: sequence(
           branch(
-            {
-              kind: 'not',
-              condition: {
-                kind: 'actionValueCompare',
-                left: { kind: 'constant', value: 1 },
-                operator: 'equal',
-                right: { kind: 'constant', value: 1 },
-              },
-            },
+            { kind: 'constant', value: false },
             sequence(
               step('finishBuffsById', {
                 target: 'caster',

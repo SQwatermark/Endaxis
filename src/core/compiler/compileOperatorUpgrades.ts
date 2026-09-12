@@ -19,7 +19,7 @@ import type {
 } from '../game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../project/schema';
 import { compileActionSequence } from './compileSkill';
-import { compareCombatNumbers } from '../combat/runtime/numericComparison';
+import { compareCombatNumbers } from '../../shared/combatNumericComparison';
 import { isOperatorPassiveAbilityEvent } from '../../../packages/game-data-contract/src/operators';
 import type { BuildCondition } from '../../../packages/game-data-contract/src/conditions';
 

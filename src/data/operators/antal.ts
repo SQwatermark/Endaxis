@@ -14,7 +14,7 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-const sharedActionSequence1: ActionSequenceDefinition = sequence(
+const sharedActionSequence3: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     {},
@@ -30,23 +30,14 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
             {
               damageType: 'electric',
               attackScale: { kind: 'blackboard', key: 'atk_scale' },
-              tags: ['normalAttack'],
+              calculation: 'breakingAttack',
+              calculationMultiplier: 0.06,
+              tags: ['normalAttack', 'powerAttack'],
             },
             '\u0000endaxis-generated-identity:2',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               step('changeResourceByActionValue', {
                 resource: 'sp',
@@ -70,7 +61,7 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
+const sharedActionSequence4: ActionSequenceDefinition = sequence(
   {
     kind: 'withActionBlackboardScope',
     parameters: {
@@ -125,65 +116,7 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
   },
 );
 
-const sharedActionSequence4: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    {},
-    true,
-    sequence(
-      withActionBlackboardScope(
-        '\u0000endaxis-generated-identity:1',
-        { atb: 0, atk_scale: 0 },
-        true,
-        sequence(
-          step(
-            'dealDamage',
-            {
-              damageType: 'electric',
-              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-              calculation: 'breakingAttack',
-              calculationMultiplier: 0.06,
-              tags: ['normalAttack', 'powerAttack'],
-            },
-            '\u0000endaxis-generated-identity:2',
-          ),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        undefined,
-        { lifetime: 'execution', alwaysNext: true },
-      ),
-    ),
-    {},
-    { lifetime: 'execution' },
-  ),
-);
-
-const sharedActionSequence3: ActionSequenceDefinition = sequence(
+const sharedActionSequence2: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'not',
@@ -202,18 +135,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
         '\u0000endaxis-generated-identity:0',
       ),
       branch(
-        {
-          kind: 'all',
-          conditions: [
-            { kind: 'casterControlled' },
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-          ],
-        },
+        { kind: 'casterControlled' },
         sequence(
           step('changeResourceByActionValue', {
             resource: 'sp',
@@ -249,12 +171,12 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence2: ActionSequenceDefinition = sequence(
+const sharedActionSequence1: ActionSequenceDefinition = sequence(
   withActionBlackboardScope(
     '\u0000endaxis-generated-identity:0',
     { atb: 0, atk_scale: 0, poise: 0 },
     true,
-    instantiateActionSequence(sharedActionSequence3, [
+    instantiateActionSequence(sharedActionSequence2, [
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
@@ -287,11 +209,50 @@ export const antalBasicAttack1: SkillDefinition = withSkillBlackboard(
     scheduledSequences: [
       scheduled(
         8,
-        instantiateActionSequence(sharedActionSequence1, [
-          'SkillData.chr_0023_antal_attack1.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_normal_attack1',
-          'SkillData.chr_0023_antal_attack1.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:chr_0023_antal_attack1_projhit',
-          'chr_0023_antal_attack1:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
-        ]),
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0023_antal_attack1.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_normal_attack1',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0023_antal_attack1.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:chr_0023_antal_attack1_projhit',
+                { atb: 0, atk_scale: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'electric',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0023_antal_attack1:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
+            { lifetime: 'execution' },
+          ),
+        ),
         8,
       ),
     ],
@@ -326,11 +287,50 @@ export const antalBasicAttack2: SkillDefinition = withSkillBlackboard(
     scheduledSequences: [
       scheduled(
         12,
-        instantiateActionSequence(sharedActionSequence1, [
-          'SkillData.chr_0023_antal_attack2.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_normal_attack2',
-          'SkillData.chr_0023_antal_attack2.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:chr_0023_antal_attack2_projhit',
-          'chr_0023_antal_attack2:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
-        ]),
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0023_antal_attack2.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_normal_attack2',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0023_antal_attack2.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:chr_0023_antal_attack2_projhit',
+                { atb: 0, atk_scale: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'electric',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0023_antal_attack2:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
+            { lifetime: 'execution' },
+          ),
+        ),
         12,
       ),
     ],
@@ -338,11 +338,7 @@ export const antalBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
-    display_atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
-  },
+  { atb: 0, atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63] },
 );
 
 export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -395,18 +391,7 @@ export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
                     'chr_0023_antal_attack3:/scheduledSequences/0/sequence/steps/1/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
@@ -433,11 +418,50 @@ export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        instantiateActionSequence(sharedActionSequence1, [
-          'SkillData.chr_0023_antal_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_normal_attack3',
-          'SkillData.chr_0023_antal_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:chr_0023_antal_attack3_projhit',
-          'chr_0023_antal_attack3:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
-        ]),
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0023_antal_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_normal_attack3',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0023_antal_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:chr_0023_antal_attack3_projhit',
+                { atb: 0, atk_scale: 0 },
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'electric',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0023_antal_attack3:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
+            { lifetime: 'execution' },
+          ),
+        ),
         18,
       ),
     ],
@@ -482,7 +506,7 @@ export const antalBasicAttack4: SkillDefinition = withSkillBlackboard(
             'SkillData.chr_0023_antal_attack4.actionGroupData.timelineActions[3]._sequenceActionData.actionData[1]:projectile_chr_0023_antal_normal_attack4',
             {},
             true,
-            instantiateActionSequence(sharedActionSequence2, [
+            instantiateActionSequence(sharedActionSequence1, [
               'SkillData.chr_0023_antal_attack4.actionGroupData.timelineActions[3]._sequenceActionData.actionData[1]:chr_0023_antal_attack4_powerattack_projhit',
               'chr_0023_antal_attack4:/scheduledSequences/0/sequence/steps/1/body/steps/0/body/steps/0/whenTrue/steps/0',
               'chr_0023_antal_attack4:/scheduledSequences/0/sequence/steps/1/body/steps/0/body/steps/0/whenFalse/steps/0',
@@ -494,7 +518,7 @@ export const antalBasicAttack4: SkillDefinition = withSkillBlackboard(
             'SkillData.chr_0023_antal_attack4.actionGroupData.timelineActions[3]._sequenceActionData.actionData[2]:projectile_chr_0023_antal_normal_attack4',
             {},
             true,
-            instantiateActionSequence(sharedActionSequence2, [
+            instantiateActionSequence(sharedActionSequence1, [
               'SkillData.chr_0023_antal_attack4.actionGroupData.timelineActions[3]._sequenceActionData.actionData[2]:chr_0023_antal_attack4_powerattack_projhit',
               'chr_0023_antal_attack4:/scheduledSequences/0/sequence/steps/2/body/steps/0/body/steps/0/whenTrue/steps/0',
               'chr_0023_antal_attack4:/scheduledSequences/0/sequence/steps/2/body/steps/0/body/steps/0/whenFalse/steps/0',
@@ -537,7 +561,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
     scheduledSequences: [
       scheduled(
         10,
-        instantiateActionSequence(sharedActionSequence4, [
+        instantiateActionSequence(sharedActionSequence3, [
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[12]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_power_attack02',
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[12]._sequenceActionData.actionData[0]:chr_0023_antal_power_attack02_projhit',
           'chr_0023_antal_power_attack:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
@@ -546,7 +570,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         12,
-        instantiateActionSequence(sharedActionSequence4, [
+        instantiateActionSequence(sharedActionSequence3, [
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[13]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_power_attack02',
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[13]._sequenceActionData.actionData[0]:chr_0023_antal_power_attack02_projhit',
           'chr_0023_antal_power_attack:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
@@ -555,7 +579,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         14,
-        instantiateActionSequence(sharedActionSequence4, [
+        instantiateActionSequence(sharedActionSequence3, [
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[14]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_power_attack02',
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[14]._sequenceActionData.actionData[0]:chr_0023_antal_power_attack02_projhit',
           'chr_0023_antal_power_attack:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
@@ -564,7 +588,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         15,
-        instantiateActionSequence(sharedActionSequence4, [
+        instantiateActionSequence(sharedActionSequence3, [
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[15]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_power_attack02',
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[15]._sequenceActionData.actionData[0]:chr_0023_antal_power_attack02_projhit',
           'chr_0023_antal_power_attack:/scheduledSequences/3/sequence/steps/0/body/steps/0/body/steps/0',
@@ -573,7 +597,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         16,
-        instantiateActionSequence(sharedActionSequence4, [
+        instantiateActionSequence(sharedActionSequence3, [
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[16]._sequenceActionData.actionData[0]:projectile_chr_0023_antal_power_attack02',
           'SkillData.chr_0023_antal_power_attack.actionGroupData.timelineActions[16]._sequenceActionData.actionData[0]:chr_0023_antal_power_attack02_projhit',
           'chr_0023_antal_power_attack:/scheduledSequences/4/sequence/steps/0/body/steps/0/body/steps/0',
@@ -660,15 +684,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    addition_vertical: 0,
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
-    look_at_x: 0,
-    vertical: 0,
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const antalPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -796,21 +812,14 @@ export const antalBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [0.89, 0.98, 1.07, 1.16, 1.24, 1.33, 1.42, 1.51, 1.6, 1.71, 1.85, 2],
-    atk_scale_2: 0,
-    cam_angle: 0,
-    cam_duration: 0,
-    consume_cnt: 0,
     delay_time: 0,
     duration: 60,
-    gained_atb: 0,
-    input_angle: 0,
     poise: 0,
     potential_3: 0,
     potential_3_atb: 0,
     potential_5: 0,
     potential_5_rate: 0,
     rate: [0.05, 0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.08, 0.09, 0.09, 0.1],
-    select_radius: 10,
   },
 );
 
@@ -926,7 +935,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                   inheritSourceSkillCastInfo: true,
                                 }),
                               ),
-                              afterEnhance: sharedActionSequence5,
+                              afterEnhance: sharedActionSequence4,
                             },
                           },
                           fractureBuffId: 'buff_physical_fracture',
@@ -1052,7 +1061,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                   inheritSourceSkillCastInfo: true,
                                 }),
                               ),
-                              afterEnhance: sharedActionSequence5,
+                              afterEnhance: sharedActionSequence4,
                             },
                           },
                           airborneBuffId: 'buff_physical_airborne',
@@ -1302,7 +1311,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                   inheritSourceSkillCastInfo: true,
                                 }),
                               ),
-                              afterEnhance: sharedActionSequence5,
+                              afterEnhance: sharedActionSequence4,
                             },
                           },
                           crushedBuffId: 'buff_physical_crushed',
@@ -1650,17 +1659,8 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atb: 0,
     atk_scale: [1.51, 1.66, 1.81, 1.96, 2.11, 2.27, 2.42, 2.57, 2.72, 2.91, 3.13, 3.4],
-    cam_angle: 0,
-    cam_duration: 0,
-    count: 0,
-    duration: 5,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    select_radius: 4,
     usp: 10,
   },
 );
@@ -1766,18 +1766,7 @@ export const antalUltimate: SkillDefinition = withSkillBlackboard(
     levelSource: 'ultimate',
     nativeSkillType: 'ultimateSkill',
   },
-  {
-    atk_scale: 1.5,
-    atk_up: 0,
-    cd: 0,
-    duration: 12,
-    heal_value: 0,
-    healvalue: 500,
-    multiplier: 3,
-    radius: 1,
-    rate: [0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2],
-    talent_1: 0,
-  },
+  { duration: 12, rate: [0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2] },
 );
 
 export const antal: OperatorDefinition = {

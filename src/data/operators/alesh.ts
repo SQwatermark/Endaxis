@@ -142,25 +142,15 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
       scheduled(
         5,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.06 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.06 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         8,
       ),
@@ -197,25 +187,15 @@ export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
       scheduled(
         13,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.12 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-          ),
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.12 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 10,
+            curve: { kind: 'named', key: 'char_hard_stop' },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         14,
       ),
@@ -431,7 +411,6 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 19,
     atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
     poise: 17,
-    atk_scale_display: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
   },
 );
 
@@ -532,25 +511,15 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
           branch(
             { kind: 'casterControlled' },
             sequence(
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.12 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_hard_stop' },
-                    finishByAction: false,
-                    targets: ['caster'],
-                  }),
-                ),
-              ),
+              step('startTimeDilation', {
+                scope: 'entity',
+                durationSeconds: { kind: 'constant', value: 0.12 },
+                slot: 'TimeDilation/Layer/Entity/HitStop',
+                priority: 10,
+                curve: { kind: 'named', key: 'char_hard_stop' },
+                finishByAction: false,
+                targets: ['caster'],
+              }),
             ),
           ),
         ),
@@ -586,11 +555,8 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'breakingAttack',
   },
   {
-    atk_scale: 4,
     atk_scale1: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
     atk_scale2: [3.2, 3.52, 3.84, 4.16, 4.48, 4.8, 5.12, 5.44, 5.76, 6.16, 6.64, 7.2],
-    camera: 0,
-    atk_scale_display: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
   },
 );
 
@@ -983,18 +949,12 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
     atb_3: [30, 30, 30, 30, 30, 30, 30, 30, 30, 35, 35, 35],
     atb_4: [40, 40, 40, 40, 40, 40, 40, 40, 40, 45, 45, 45],
     atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
-    blow_off_distance: 2,
-    cam_angle: 0,
-    cam_duration: 0,
     count: 0,
-    distance_random_range: 0.2,
-    input_angle: 0,
     num: 0,
     num_1: 0,
     poise: 10,
     potential_1: 0,
     potential_1_atb: 0,
-    trigger: 0,
   },
 );
 
@@ -1289,13 +1249,8 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
     atk_scale_1ex: [0.53, 0.59, 0.64, 0.69, 0.75, 0.8, 0.85, 0.91, 0.96, 1.03, 1.11, 1.2],
     atk_scale_2: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
     atk_scale_2ex: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
-    atk_scale_trigger: 2,
     atk_up: 0.15,
-    camera: 0,
-    duration: 0,
     Duration: 10,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     potential_3: 0,
     prob: 0.1,
@@ -1303,8 +1258,6 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
     prob_max: 0,
     rate: 10,
     usp_normal: 10,
-    atk_scale_display: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
-    atk_scale_display_ex: [2.13, 2.35, 2.56, 2.77, 2.99, 3.2, 3.41, 3.63, 3.84, 4.11, 4.43, 4.8],
   },
 );
 
@@ -1522,20 +1475,15 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    angle: 0,
     atb: [20, 20, 20, 20, 20, 20, 20, 20, 20, 25, 25, 25],
     atb_max: 100,
     atb_up: [12, 12, 12, 12, 12, 12, 12, 12, 12, 15, 15, 15],
     atk_scale: [4.36, 4.79, 5.23, 5.66, 6.1, 6.53, 6.97, 7.41, 7.84, 8.39, 9.04, 9.8],
     atk_up: 1.5,
-    height: 4,
     hp_tar: 0.5,
     kill_num: 0,
-    originum_ult_break_scale: 4,
     poise: 20,
     potential_5: 0,
-    radius: 5,
-    ult_angle: 0,
   },
 );
 

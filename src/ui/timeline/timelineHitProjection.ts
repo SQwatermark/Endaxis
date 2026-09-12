@@ -15,7 +15,7 @@ import type {
 } from '../../core/game-data/operatorDefinition';
 import type { SkillCastDocument } from '../../core/project/schema';
 import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
-import { compareCombatNumbers } from '../../core/combat/runtime/numericComparison';
+import { compareCombatNumbers } from '../../shared/combatNumericComparison';
 
 /** 一个可渲染的命中点。 */
 export interface TimelineHitMarker {

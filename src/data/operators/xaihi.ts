@@ -36,18 +36,7 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
             '\u0000endaxis-generated-identity:2',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               branch(
                 { kind: 'casterControlled' },
@@ -97,18 +86,7 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
             '\u0000endaxis-generated-identity:2',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               branch(
                 { kind: 'casterControlled' },
@@ -336,11 +314,7 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-  },
+  { atb: 0, atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34] },
 );
 
 export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -379,11 +353,7 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
-    display_atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
-  },
+  { atb: 0, atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36] },
 );
 
 export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -422,11 +392,7 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
-    display_atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
-  },
+  { atb: 0, atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47] },
 );
 
 export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -474,11 +440,7 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
-    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
-  },
+  { atb: 0, atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37] },
 );
 
 export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -518,18 +480,7 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
             'chr_0011_seraph_attack5:/scheduledSequences/0/sequence/steps/0',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               step('changeResourceByActionValue', {
                 resource: 'sp',
@@ -555,7 +506,6 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 15,
     atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
     poise: 15,
-    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
   },
 );
 
@@ -646,12 +596,7 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -779,15 +724,8 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
     atk_scale: 0.1,
     atk_up: [0.09, 0.09, 0.09, 0.09, 0.09, 0.11, 0.11, 0.11, 0.13, 0.13, 0.13, 0.15],
     buff_duration: 25,
-    cam_angle: 0,
-    cam_duration: 0,
-    consume_cnt: 0,
     duration: 20,
     heal_value: [144, 172.8, 201.6, 230.4, 244.8, 259.2, 273.6, 288, 302.4, 309.6, 316.8, 324],
-    input_angle: 0,
-    potential_1: 0,
-    select_radius: 10,
-    usp: 0,
     will_up: [0.336, 0.4, 0.47, 0.54, 0.57, 0.6, 0.64, 0.67, 0.71, 0.72, 0.74, 0.76],
   },
 );
@@ -890,18 +828,11 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
-    cam_angle: 0,
-    cam_duration: 0,
-    count: 0,
     cryst_up: 0,
     duration: 0,
     exist_talent_1: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     potential_3: 0,
-    select_radius: 4,
     usp: 10,
   },
 );
@@ -998,12 +929,9 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_scale: 1.5,
     atk_up: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.24],
     duration: 12,
     exist_talent_2: 0,
-    heal_value: 0,
-    radius: 1,
     wisd_max: [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.36],
     wisd_up: [
       0.00014, 0.00015, 0.00016, 0.00018, 0.00019, 0.0002, 0.00022, 0.00023, 0.00024, 0.00026,

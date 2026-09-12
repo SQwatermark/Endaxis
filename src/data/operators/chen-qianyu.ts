@@ -252,11 +252,7 @@ export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
-    display_atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
-  },
+  { atb: 0, atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23] },
 );
 
 export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -411,11 +407,7 @@ export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.13, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28, 0.3],
-    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.38, 0.4, 0.43, 0.46, 0.48, 0.52, 0.56, 0.6],
-  },
+  { atb: 0, atk_scale: [0.13, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28, 0.3] },
 );
 
 export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -510,11 +502,7 @@ export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-  },
+  { atb: 0, atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34] },
 );
 
 export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -1082,11 +1070,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
     airborne_coefficient: 0,
     airborne_initial: [1, 1, 1, 1, 1, 1.5, 1.5, 1.5, 2, 2, 2, 2.5],
     atk_scale: [1.69, 1.86, 2.03, 2.19, 2.36, 2.53, 2.7, 2.87, 3.04, 3.25, 3.5, 3.8],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
     poise: 10,
-    select_radius: 4,
   },
 );
 
@@ -1296,17 +1280,8 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    alpha: 0,
     atk_scale: [1.2, 1.32, 1.44, 1.56, 1.68, 1.8, 1.92, 2.04, 2.16, 2.31, 2.49, 2.7],
-    cam_angle: 0,
-    cam_duration: 0,
-    cd_reduction: 0,
     count: 0,
-    distance: 0,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
-    posie: 0,
     usp: 10,
   },
 );
@@ -1523,12 +1498,10 @@ export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
   {
     atk_scale1: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
     atk_scale2: [4.55, 5, 5.45, 5.91, 6.36, 6.82, 7.27, 7.73, 8.18, 8.75, 9.43, 10.23],
-    extra_dmg: 1,
     phy_up: 0,
     poise_final: 20,
     poise_start: 15,
     potential5: 0,
-    select_radius: 4,
   },
 );
 

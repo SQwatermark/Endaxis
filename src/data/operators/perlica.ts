@@ -1,74 +1,13 @@
 /** 由 tools/game-data-compiler 整名生成；不要手工编辑。 */
-import type {
-  ActionSequenceDefinition,
-  OperatorDefinition,
-  SkillDefinition,
-} from '../../core/game-data/operatorDefinition';
+import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import {
   branch,
-  instantiateActionSequence,
   scheduled,
   sequence,
   step,
   withActionBlackboardScope,
   withSkillBlackboard,
 } from './definitionHelpers';
-
-const sharedActionSequence1: ActionSequenceDefinition = sequence(
-  withActionBlackboardScope(
-    '\u0000endaxis-generated-identity:0',
-    {},
-    true,
-    sequence(
-      withActionBlackboardScope(
-        '\u0000endaxis-generated-identity:1',
-        {},
-        true,
-        sequence(
-          step(
-            'dealDamage',
-            {
-              damageType: 'electric',
-              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-              tags: ['normalAttack'],
-            },
-            '\u0000endaxis-generated-identity:2',
-          ),
-          branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
-            ),
-            undefined,
-            { alwaysNext: true },
-          ),
-        ),
-        undefined,
-        { lifetime: 'execution', alwaysNext: true },
-      ),
-    ),
-    {},
-    { lifetime: 'execution' },
-  ),
-);
 
 export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
   {
@@ -115,18 +54,7 @@ export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
                     'chr_0004_pelica_attack1:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
@@ -282,11 +210,7 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-  },
+  { atb: 0, atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34] },
 );
 
 export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -313,29 +237,146 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
     scheduledSequences: [
       scheduled(
         16,
-        instantiateActionSequence(sharedActionSequence1, [
-          'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:projectile_chr_0004_pelica_normal_attack3',
-          'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:chr_0004_pelica_attack3_projhit',
-          'chr_0004_pelica_attack3:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
-        ]),
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:projectile_chr_0004_pelica_normal_attack3',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[3]._sequenceActionData.actionData[0]:chr_0004_pelica_attack3_projhit',
+                {},
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'electric',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0004_pelica_attack3:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
+            { lifetime: 'execution' },
+          ),
+        ),
         16,
       ),
       scheduled(
         19,
-        instantiateActionSequence(sharedActionSequence1, [
-          'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:projectile_chr_0004_pelica_normal_attack3',
-          'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:chr_0004_pelica_attack3_projhit',
-          'chr_0004_pelica_attack3:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
-        ]),
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:projectile_chr_0004_pelica_normal_attack3',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[4]._sequenceActionData.actionData[0]:chr_0004_pelica_attack3_projhit',
+                {},
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'electric',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0004_pelica_attack3:/scheduledSequences/1/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
+            { lifetime: 'execution' },
+          ),
+        ),
         19,
       ),
       scheduled(
         22,
-        instantiateActionSequence(sharedActionSequence1, [
-          'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[5]._sequenceActionData.actionData[0]:projectile_chr_0004_pelica_normal_attack3',
-          'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[5]._sequenceActionData.actionData[0]:chr_0004_pelica_attack3_projhit',
-          'chr_0004_pelica_attack3:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
-        ]),
+        sequence(
+          withActionBlackboardScope(
+            'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[5]._sequenceActionData.actionData[0]:projectile_chr_0004_pelica_normal_attack3',
+            {},
+            true,
+            sequence(
+              withActionBlackboardScope(
+                'SkillData.chr_0004_pelica_attack3.actionGroupData.timelineActions[5]._sequenceActionData.actionData[0]:chr_0004_pelica_attack3_projhit',
+                {},
+                true,
+                sequence(
+                  step(
+                    'dealDamage',
+                    {
+                      damageType: 'electric',
+                      attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                      tags: ['normalAttack'],
+                    },
+                    'chr_0004_pelica_attack3:/scheduledSequences/2/sequence/steps/0/body/steps/0/body/steps/0',
+                  ),
+                  branch(
+                    { kind: 'casterControlled' },
+                    sequence(
+                      step('changeResourceByActionValue', {
+                        resource: 'sp',
+                        amount: { kind: 'blackboard', key: 'atb' },
+                        coefficient: { kind: 'constant', value: 1 },
+                        recipient: 'team',
+                        spGainKind: 'gain',
+                        spGainSource: 'normalAttack',
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
+                  ),
+                ),
+                undefined,
+                { lifetime: 'execution', alwaysNext: true },
+              ),
+            ),
+            {},
+            { lifetime: 'execution' },
+          ),
+        ),
         22,
       ),
     ],
@@ -343,11 +384,7 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28],
-    display_atk_scale: [0.37, 0.41, 0.45, 0.48, 0.52, 0.56, 0.59, 0.63, 0.67, 0.71, 0.77, 0.84],
-  },
+  { atb: 0, atk_scale: [0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28] },
 );
 
 export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -397,18 +434,7 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
                     'chr_0004_pelica_attack4:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/0',
                   ),
                   branch(
-                    {
-                      kind: 'all',
-                      conditions: [
-                        { kind: 'casterControlled' },
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
-                          operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
-                        },
-                      ],
-                    },
+                    { kind: 'casterControlled' },
                     sequence(
                       step('changeResourceByActionValue', {
                         resource: 'sp',
@@ -547,15 +573,7 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    addition_vertical: 0,
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
-    look_at_x: 0,
-    vertical: 0,
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -674,17 +692,7 @@ export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
     levelSource: 'battleSkill',
     nativeSkillType: 'normalSkill',
   },
-  {
-    atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4],
-    atk_scale_2: 0,
-    cam_angle: 0,
-    cam_duration: 0,
-    consume_cnt: 0,
-    gained_atb: 0,
-    input_angle: 0,
-    poise: 10,
-    select_radius: 10,
-  },
+  { atk_scale: [1.78, 1.96, 2.13, 2.31, 2.49, 2.67, 2.85, 3.02, 3.2, 3.42, 3.69, 4], poise: 10 },
 );
 
 export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
@@ -743,22 +751,12 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
                     },
                     'chr_0004_pelica_combo_skill:/scheduledSequences/0/sequence/steps/0/body/steps/0/body/steps/1',
                   ),
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                    sequence(
-                      step('changeResourceByActionValue', {
-                        resource: 'ultimateEnergy',
-                        amount: { kind: 'blackboard', key: 'usp' },
-                        coefficient: { kind: 'constant', value: 1 },
-                        recipient: 'caster',
-                      }),
-                    ),
-                  ),
+                  step('changeResourceByActionValue', {
+                    resource: 'ultimateEnergy',
+                    amount: { kind: 'blackboard', key: 'usp' },
+                    coefficient: { kind: 'constant', value: 1 },
+                    recipient: 'caster',
+                  }),
                 ),
                 undefined,
                 { lifetime: 'execution', alwaysNext: true },
@@ -793,18 +791,10 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    atb: 0,
     atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    cam_angle: 0,
-    cam_duration: 0,
-    count: 0,
     duration: 5,
     extra_scaling: 1,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    select_radius: 4,
     talent2: 0,
     usp: 10,
   },

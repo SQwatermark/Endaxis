@@ -80,7 +80,7 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86] },
+  { atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86] },
 );
 
 export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -153,7 +153,7 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
+  { atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
 );
 
 export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -226,7 +226,7 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49] },
+  { atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49] },
 );
 
 export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -646,12 +646,6 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                 },
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                {
-                  kind: 'actionValueCompare',
                   left: { kind: 'blackboard', key: 'talent1', fallback: 0 },
                   operator: 'greater',
                   right: { kind: 'constant', value: 0 },
@@ -734,30 +728,16 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    angle: 120,
     atk_scale: [0.32, 0.36, 0.39, 0.42, 0.45, 0.49, 0.52, 0.55, 0.58, 0.62, 0.67, 0.73],
     atk_scale2: [1.41, 1.55, 1.69, 1.83, 1.97, 2.11, 2.26, 2.4, 2.54, 2.71, 2.92, 3.17],
-    buff_duration: 8,
-    cam_angle: 0,
-    cam_duration: 0,
-    defend_reduct: 0,
-    duration: 0,
     extrapoise: 10,
     extrashelter: 0,
     extratime: 0,
-    height: 4,
     input_angle: 0,
     poise: 10,
     potential_1: 0,
-    potential_lv: 0,
-    prob: 0,
-    radius: 4,
-    select_radius: 5,
     shelterrate: 0,
     talent1: 0,
-    display_atk_scale: [1.73, 1.91, 2.08, 2.25, 2.43, 2.6, 2.77, 2.95, 3.12, 3.34, 3.6, 3.9],
-    displayextrapoise: 10,
-    displaypoise: 10,
   },
 );
 
@@ -886,23 +866,14 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    atk_reduce_scale: -0.7,
     atk_scale: [2.89, 3.18, 3.47, 3.76, 4.04, 4.33, 4.62, 4.91, 5.2, 5.56, 5.99, 6.5],
-    damage_scalar: 0,
-    def_reduce_scale: -0.2,
-    def_up_scale: 0,
     duration: 10,
     extraattack: 0,
     extrashield: 0,
     FinalShield: 0,
-    heal_base: 0,
-    heal_scale: 2,
     hp_percent: [0.18, 0.18, 0.18, 0.2, 0.2, 0.2, 0.22, 0.22, 0.22, 0.25, 0.25, 0.25],
     poise: 25,
     potential_5: 0,
-    radius: 5,
-    shelter: 0,
-    will_additive: 0,
   },
 );
 
@@ -983,12 +954,6 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                   left: { kind: 'blackboard', key: 'talent1', fallback: 0 },
                   operator: 'greater',
                   right: { kind: 'constant', value: 0 },
-                },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
                 },
               ],
             },
@@ -1105,33 +1070,17 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    angle: 120,
-    atk_heal: 0,
     atk_scale: [1.02, 1.12, 1.22, 1.33, 1.43, 1.53, 1.63, 1.73, 1.84, 1.96, 2.12, 2.3],
-    buff_duration: 0,
-    cam_angle: 0,
-    cam_duration: 0,
-    defend_reduct: 0,
-    duration: 2,
     extracure: 0,
     extrashelter: 0,
     extratime: 0,
     heal_base: [300, 360, 420, 480, 510, 540, 570, 600, 630, 645, 660, 675],
-    height: 4,
-    input_angle: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
     potential_1: 0,
     potential_3: 0,
-    prob: 0,
-    radius: 5,
-    select_radius: 5,
     shelterrate: 0,
     talent1: 0,
     usp: 10,
-    usp_everyone: 0,
-    usp_self: 0,
     will_additive: [0.7, 0.84, 0.98, 1.12, 1.19, 1.26, 1.33, 1.4, 1.47, 1.51, 1.54, 1.58],
   },
 );

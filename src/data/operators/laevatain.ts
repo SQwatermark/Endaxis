@@ -172,11 +172,7 @@ export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27],
-    display_atk_scale: [0.24, 0.26, 0.29, 0.31, 0.34, 0.36, 0.38, 0.41, 0.43, 0.46, 0.5, 0.54],
-  },
+  { atb: 0, atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27] },
 );
 
 export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -385,11 +381,7 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29],
-    display_atk_scale: [0.39, 0.43, 0.47, 0.51, 0.55, 0.59, 0.62, 0.66, 0.7, 0.75, 0.81, 0.88],
-  },
+  { atb: 0, atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29] },
 );
 
 export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -459,21 +451,10 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
               ),
               branch(
                 {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                  ],
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
                   step('modifyActionValue', {
@@ -537,7 +518,6 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.27, 0.29, 0.32, 0.34, 0.37, 0.4, 0.42, 0.45, 0.48, 0.51, 0.55, 0.6],
     count: 0,
     poise: 18,
-    display_atk_scale: [0.53, 0.58, 0.64, 0.69, 0.74, 0.8, 0.85, 0.9, 0.95, 1.02, 1.1, 1.19],
   },
 );
 
@@ -592,46 +572,36 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
+                      left: { kind: 'blackboard', key: 'stopped', fallback: 0 },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
                     },
                     sequence(
+                      step('modifyActionValue', {
+                        key: 'stopped',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.05 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'char_normal_attack' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
                       branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'stopped', fallback: 0 },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
+                        { kind: 'casterControlled' },
                         sequence(
-                          step('modifyActionValue', {
-                            key: 'stopped',
-                            operation: 'add',
-                            value: { kind: 'constant', value: 1 },
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
                           }),
-                          step('startTimeDilation', {
-                            scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.05 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: { kind: 'named', key: 'char_normal_attack' },
-                            finishByAction: false,
-                            targets: ['enemy', 'caster'],
-                          }),
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'sp',
-                                amount: { kind: 'blackboard', key: 'atb' },
-                                coefficient: { kind: 'constant', value: 1 },
-                                recipient: 'team',
-                                spGainKind: 'gain',
-                                spGainSource: 'normalAttack',
-                              }),
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -717,46 +687,36 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
+                      left: { kind: 'blackboard', key: 'stopped1', fallback: 0 },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
                     },
                     sequence(
+                      step('modifyActionValue', {
+                        key: 'stopped1',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.05 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'char_normal_attack' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
                       branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'stopped1', fallback: 0 },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
+                        { kind: 'casterControlled' },
                         sequence(
-                          step('modifyActionValue', {
-                            key: 'stopped1',
-                            operation: 'add',
-                            value: { kind: 'constant', value: 1 },
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 0.5 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
                           }),
-                          step('startTimeDilation', {
-                            scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.05 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: { kind: 'named', key: 'char_normal_attack' },
-                            finishByAction: false,
-                            targets: ['enemy', 'caster'],
-                          }),
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'sp',
-                                amount: { kind: 'blackboard', key: 'atb' },
-                                coefficient: { kind: 'constant', value: 0.5 },
-                                recipient: 'team',
-                                spGainKind: 'gain',
-                                spGainSource: 'normalAttack',
-                              }),
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -798,46 +758,36 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
+                      left: { kind: 'blackboard', key: 'stopped2', fallback: 0 },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
                     },
                     sequence(
+                      step('modifyActionValue', {
+                        key: 'stopped2',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.05 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'char_normal_attack' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
                       branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'stopped2', fallback: 0 },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
+                        { kind: 'casterControlled' },
                         sequence(
-                          step('modifyActionValue', {
-                            key: 'stopped2',
-                            operation: 'add',
-                            value: { kind: 'constant', value: 1 },
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 0.5 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
                           }),
-                          step('startTimeDilation', {
-                            scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.05 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: { kind: 'named', key: 'char_normal_attack' },
-                            finishByAction: false,
-                            targets: ['enemy', 'caster'],
-                          }),
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'sp',
-                                amount: { kind: 'blackboard', key: 'atb' },
-                                coefficient: { kind: 'constant', value: 0.5 },
-                                recipient: 'team',
-                                spGainKind: 'gain',
-                                spGainSource: 'normalAttack',
-                              }),
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -870,7 +820,6 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
     ratio: 1,
     stopped1: 0,
     stopped2: 0,
-    display_atk_scale: [0.81, 0.89, 0.97, 1.05, 1.13, 1.22, 1.3, 1.38, 1.46, 1.56, 1.68, 1.82],
   },
 );
 
@@ -926,46 +875,36 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
+                      left: { kind: 'blackboard', key: 'stopped', fallback: 0 },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
                     },
                     sequence(
+                      step('modifyActionValue', {
+                        key: 'stopped',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.12 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'char_normal_attack' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
                       branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'stopped', fallback: 0 },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
+                        { kind: 'casterControlled' },
                         sequence(
-                          step('modifyActionValue', {
-                            key: 'stopped',
-                            operation: 'add',
-                            value: { kind: 'constant', value: 1 },
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
                           }),
-                          step('startTimeDilation', {
-                            scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.12 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: { kind: 'named', key: 'char_normal_attack' },
-                            finishByAction: false,
-                            targets: ['enemy', 'caster'],
-                          }),
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'sp',
-                                amount: { kind: 'blackboard', key: 'atb' },
-                                coefficient: { kind: 'constant', value: 1 },
-                                recipient: 'team',
-                                spGainKind: 'gain',
-                                spGainSource: 'normalAttack',
-                              }),
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -1076,21 +1015,10 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
               ),
               branch(
                 {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
-                    },
-                  ],
+                  kind: 'actionValueCompare',
+                  left: { kind: 'blackboard', key: 'hit', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
                   step('modifyActionValue', {
@@ -1108,46 +1036,36 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
                   branch(
                     {
                       kind: 'actionValueCompare',
-                      left: { kind: 'constant', value: 1 },
-                      operator: 'greaterOrEqual',
-                      right: { kind: 'constant', value: 1 },
+                      left: { kind: 'blackboard', key: 'stopped', fallback: 0 },
+                      operator: 'equal',
+                      right: { kind: 'constant', value: 0 },
                     },
                     sequence(
+                      step('modifyActionValue', {
+                        key: 'stopped',
+                        operation: 'add',
+                        value: { kind: 'constant', value: 1 },
+                      }),
+                      step('startTimeDilation', {
+                        scope: 'entity',
+                        durationSeconds: { kind: 'constant', value: 0.25 },
+                        slot: 'TimeDilation/Layer/Entity/HitStop',
+                        priority: 10,
+                        curve: { kind: 'named', key: 'char_normal_attack' },
+                        finishByAction: false,
+                        targets: ['enemy', 'caster'],
+                      }),
                       branch(
-                        {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'blackboard', key: 'stopped', fallback: 0 },
-                          operator: 'equal',
-                          right: { kind: 'constant', value: 0 },
-                        },
+                        { kind: 'casterControlled' },
                         sequence(
-                          step('modifyActionValue', {
-                            key: 'stopped',
-                            operation: 'add',
-                            value: { kind: 'constant', value: 1 },
+                          step('changeResourceByActionValue', {
+                            resource: 'sp',
+                            amount: { kind: 'blackboard', key: 'atb' },
+                            coefficient: { kind: 'constant', value: 1 },
+                            recipient: 'team',
+                            spGainKind: 'gain',
+                            spGainSource: 'normalAttack',
                           }),
-                          step('startTimeDilation', {
-                            scope: 'entity',
-                            durationSeconds: { kind: 'constant', value: 0.25 },
-                            slot: 'TimeDilation/Layer/Entity/HitStop',
-                            priority: 10,
-                            curve: { kind: 'named', key: 'char_normal_attack' },
-                            finishByAction: false,
-                            targets: ['enemy', 'caster'],
-                          }),
-                          branch(
-                            { kind: 'casterControlled' },
-                            sequence(
-                              step('changeResourceByActionValue', {
-                                resource: 'sp',
-                                amount: { kind: 'blackboard', key: 'atb' },
-                                coefficient: { kind: 'constant', value: 1 },
-                                recipient: 'team',
-                                spGainKind: 'gain',
-                                spGainSource: 'normalAttack',
-                              }),
-                            ),
-                          ),
                         ),
                       ),
                     ),
@@ -1181,7 +1099,6 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
     poise: 24,
     ratio: 1,
     stopped: 0,
-    display_atk_scale: [2.03, 2.23, 2.43, 2.63, 2.84, 3.04, 3.24, 3.44, 3.65, 3.9, 4.2, 4.56],
   },
 );
 
@@ -1345,14 +1262,7 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    cam_angle: 0,
-    cam_duration: 0,
-    extra_dmg: 1,
-    input_angle: 0,
-    potential_5_cd: 0,
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const laevatainPlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -1954,21 +1864,13 @@ export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlac
     atk_scale: [1.47, 1.61, 1.76, 1.91, 2.05, 2.2, 2.35, 2.49, 2.64, 2.82, 3.04, 3.3],
     atk_scale_2: [1.64, 1.81, 1.97, 2.14, 2.3, 2.47, 2.63, 2.79, 2.96, 3.16, 3.41, 3.7],
     atk_scale_3: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    cam_angle: 0,
-    cam_duration: 0,
-    consumed_fire_count: 0,
     duration: 5,
     entered: 0,
     extra_scaling: 1,
-    input_angle: 0,
-    level: 1,
-    max_consumed_fire_count: 0,
     poise: 10,
     ratio: 1,
     second_hit: 0,
     triggered_burning: 0,
-    count: 4,
-    poise_extra: 10,
   },
 );
 
@@ -2017,20 +1919,10 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
       scheduled(
         0,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('findCharacterTeamTargets', {
-                saveToContextKey: 'mainchar',
-                selection: { kind: 'controlledOperator' },
-              }),
-            ),
-          ),
+          step('findCharacterTeamTargets', {
+            saveToContextKey: 'mainchar',
+            selection: { kind: 'controlledOperator' },
+          }),
         ),
         1,
       ),
@@ -2077,14 +1969,7 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
     levelSource: 'ultimate',
     nativeSkillType: 'ultimateSkill',
   },
-  {
-    angle: 120,
-    atk_scale: [2.7, 2.97, 3.24, 3.51, 3.78, 4.05, 4.32, 4.59, 4.86, 5.2, 5.6, 6.08],
-    height: 4,
-    radius: 5,
-    count: 4,
-    duration: 15,
-  },
+  { duration: 15 },
 );
 
 export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
@@ -2111,6 +1996,22 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         20,
         sequence(
+          branch(
+            {
+              kind: 'contextTargetCountCompare',
+              contextKey: 'tar',
+              operator: 'greaterOrEqual',
+              value: 1,
+            },
+            sequence(),
+            sequence(
+              step('mergeContextTargets', {
+                saveToContextKey: 'tar',
+                sources: [{ kind: 'target', target: 'enemy' }],
+              }),
+            ),
+            { alwaysNext: true },
+          ),
           forEachContextTarget(
             'tar',
             sequence(
@@ -2368,22 +2269,11 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [2.4, 2.64, 2.88, 3.12, 3.36, 3.6, 3.84, 4.08, 4.32, 4.62, 4.98, 5.4],
-    cam_angle: 0,
-    cam_duration: 0,
     count: 0,
     duration: 10,
     index: 0,
-    input_angle: 0,
     limit: 5,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    resistance: 0.2,
-    select_radius: 7,
-    usp: 0,
-    usp_1_display: 25,
-    usp_2_display: 30,
-    usp_3_display: 35,
   },
 );
 
@@ -3999,27 +3889,17 @@ export const laevatain: OperatorDefinition = {
                   ),
                 ),
               ),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0016_laevat_energy',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                  step('modifyActionValue', {
-                    key: 'hit_count',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-              ),
+              step('applyBuff', {
+                buffId: 'buff_chr_0016_laevat_energy',
+                target: 'caster',
+                inheritSourceSkillCastInfo: true,
+              }),
+              step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+              step('modifyActionValue', {
+                key: 'hit_count',
+                operation: 'add',
+                value: { kind: 'constant', value: 1 },
+              }),
             ),
             18,
           ),
@@ -4038,36 +3918,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4088,36 +3958,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4138,36 +3998,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4188,36 +4038,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4238,36 +4078,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4288,36 +4118,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4338,36 +4158,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4388,36 +4198,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4438,36 +4238,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),
@@ -4488,36 +4278,26 @@ export const laevatain: OperatorDefinition = {
               branch(
                 {
                   kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
+                  left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
+                  operator: 'equal',
+                  right: { kind: 'constant', value: 0 },
                 },
                 sequence(
-                  branch(
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'hit_count', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                    sequence(
-                      step('modifyActionValue', {
-                        key: 'hit_count',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0016_laevat_energy',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                      step('applyBuff', {
-                        buffId: 'buff_common_obtain_ultimate_sp',
-                        target: 'caster',
-                        inheritSourceSkillCastInfo: true,
-                      }),
-                    ),
-                  ),
+                  step('modifyActionValue', {
+                    key: 'hit_count',
+                    operation: 'add',
+                    value: { kind: 'constant', value: 1 },
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0016_laevat_energy',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
+                    buffId: 'buff_common_obtain_ultimate_sp',
+                    target: 'caster',
+                    inheritSourceSkillCastInfo: true,
+                  }),
                 ),
               ),
             ),

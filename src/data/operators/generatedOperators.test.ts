@@ -273,7 +273,16 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('"enabledSide":"defender"');
     expect(serialized).toContain('"zone":"product"');
     expect(serialized).toContain('"blackboardKey":"defup"');
-    expect(serialized).toContain('nativeTickInterval');
+    expect(rossi.buffDefinitions?.buff_chr_0028_wulfa_normal_bleed).toMatchObject({
+      triggerIntervalSeconds: { blackboardKey: 'damage_interval' },
+      blackboard: { damage_interval: 1 },
+      maxTriggerCount: -1,
+      lifecycleSequences: {
+        trigger: {
+          steps: expect.arrayContaining([expect.objectContaining({ kind: 'dealDamage' })]),
+        },
+      },
+    });
   });
 
   it('Rossi ultimate preserves its ultimate-only critical-damage modifier', () => {
@@ -301,7 +310,12 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('"maxTriggerCount":{"blackboardKey":"trigger_times"}');
     expect(serialized).toContain('"target":"enemy"');
     expect(serialized).toContain('"lifecycleSequences":{"trigger"');
-    expect(serialized).toContain('nativeTickInterval');
+    expect(rossi.buffDefinitions?.buff_chr_0028_wulfa_combo_2_damage).toMatchObject({
+      triggerIntervalSeconds: { blackboardKey: 'damage_interval' },
+      blackboard: { damage_interval: 0.1 },
+      maxTriggerCount: { blackboardKey: 'trigger_times' },
+      waitFirstTriggerInterval: false,
+    });
   });
 
   it('Rossi 二段连携按原生 QTE 窗口执行完整成功动作', () => {

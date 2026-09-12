@@ -98,19 +98,6 @@ const definition = {
             }
           ]
         }
-      },
-      "blackboard": {
-        "wisd": [
-          16,
-          28,
-          41,
-          54,
-          67,
-          80,
-          92,
-          105,
-          124
-        ]
       }
     },
     {
@@ -132,21 +119,7 @@ const definition = {
             62
           ]
         }
-      ],
-      "blackboard": {
-        "atk": 0,
-        "physpell": [
-          8,
-          14,
-          20,
-          27,
-          33,
-          40,
-          46,
-          52,
-          62
-        ]
-      }
+      ]
     },
     {
       "key": "skill3",

@@ -29,6 +29,8 @@ export type ProjectedTargetGroup =
   | 'lowestHealthRatioOperatorExceptCaster'
   | 'casterAndControlledOperator'
   | 'casterAndLowestHealthRatioOperatorExceptCaster'
+  /** 标签筛选后的敌人集合，可能为空；不能直接替换成唯一敌人。 */
+  | 'dynamicEnemy'
   | 'enemy'
   | 'empty'
   | 'spatialPoint';
@@ -123,6 +125,8 @@ export interface CombatActionProjectionContextSource {
   readonly provenZeroSpaceProjectilePaths?: ReadonlySet<string>;
   /** RandomPointFinder 命名空间点组的原生 pointNum；只折叠几何，不折叠回调次数。 */
   readonly dynamicSpatialPointCounts?: ReadonlyMap<string, ActionValueOperand>;
+  /** 仍有运行时 Context 数量读取的组；静态查询也必须实际写入，不能只保存编译期事实。 */
+  readonly materializedTargetGroupKeys?: ReadonlySet<string>;
   /** 完整主动技能中仅由 SpawnAbilityEntity 写入的 Context；集合可为空，但成员身份固定。 */
   readonly staticAbilityEntityTargetGroupKeys?: ReadonlySet<string>;
   /** 完整技能内所有读取均为表现的查询；不能在单个序列内自行推断。 */

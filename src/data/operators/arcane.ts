@@ -199,11 +199,7 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.062, 0.069, 0.075, 0.081, 0.087, 0.094, 0.1, 0.106, 0.112, 0.12, 0.129, 0.14],
-    display_atk_scale: [0.19, 0.21, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42],
-  },
+  { atk_scale: [0.062, 0.069, 0.075, 0.081, 0.087, 0.094, 0.1, 0.106, 0.112, 0.12, 0.129, 0.14] },
 );
 
 export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -326,11 +322,6 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     atb: 0,
     atk_scale: [0.071, 0.078, 0.085, 0.092, 0.099, 0.107, 0.114, 0.121, 0.128, 0.137, 0.147, 0.16],
-    poise: 0,
-    rand_offset_x: 0,
-    rand_offset_y: 0,
-    rand_scale: 0,
-    display_atk_scale: [0.21, 0.23, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.41, 0.44, 0.48],
   },
 );
 
@@ -431,12 +422,7 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38],
-    poise: 0,
-    display_atk_scale: [0.33, 0.37, 0.4, 0.43, 0.47, 0.5, 0.53, 0.57, 0.6, 0.64, 0.69, 0.75],
-  },
+  { atb: 0, atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38] },
 );
 
 export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -626,12 +612,7 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.045, 0.049, 0.053, 0.058, 0.062, 0.067, 0.071, 0.076, 0.08, 0.086, 0.092, 0.1],
-    display_atk_scale: [0.36, 0.39, 0.43, 0.46, 0.5, 0.53, 0.57, 0.61, 0.64, 0.69, 0.74, 0.8],
-    poise: 0,
-  },
+  { atk_scale: [0.045, 0.049, 0.053, 0.058, 0.062, 0.067, 0.071, 0.076, 0.08, 0.086, 0.092, 0.1] },
 );
 
 export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -808,13 +789,8 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     atb: 17,
     atk_scale: [0.47, 0.52, 0.56, 0.61, 0.66, 0.71, 0.75, 0.8, 0.85, 0.9, 0.98, 1.06],
-    finish_angle1: 20,
-    finish_angle2: 160,
     isHitbyMain: 0,
     poise: 17,
-    start_angle1: 60,
-    start_angle2: 120,
-    display_atk_scale: [0.47, 0.52, 0.56, 0.61, 0.66, 0.71, 0.75, 0.8, 0.85, 0.9, 0.98, 1.06],
   },
 );
 
@@ -1024,13 +1000,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'breakingAttack',
   },
-  {
-    atb: 8,
-    atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    cnt: 0,
-    dmg_up: 0,
-    poise: 20,
-  },
+  { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
 export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
@@ -1263,102 +1233,80 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
       scheduled(
         9,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
+            childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            overrideDurationSeconds: { kind: 'constant', value: 40 },
+            saveToContextKey: 'bunshin1',
+            blackboardAssignments: {
+              EntityBB_wisd_greater_will: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
             },
+          }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
+            childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            overrideDurationSeconds: { kind: 'constant', value: 40 },
+            saveToContextKey: 'bunshin2',
+            blackboardAssignments: {
+              EntityBB_wisd_greater_will: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+            },
+          }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
+            childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            overrideDurationSeconds: { kind: 'constant', value: 40 },
+            saveToContextKey: 'bunshin3',
+            blackboardAssignments: {
+              EntityBB_wisd_greater_will: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+            },
+          }),
+          step('spawnAbilityEntity', {
+            abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
+            childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
+            inheritActionBlackboard: true,
+            dieWhenSourceDies: false,
+            overrideDurationSeconds: { kind: 'constant', value: 40 },
+            saveToContextKey: 'bunshin4',
+            blackboardAssignments: {
+              EntityBB_wisd_greater_will: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+            },
+          }),
+          forEachContextTarget(
+            'bunshin1',
             sequence(
-              step('spawnAbilityEntity', {
-                abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
-                childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
-                inheritActionBlackboard: true,
-                dieWhenSourceDies: false,
-                overrideDurationSeconds: { kind: 'constant', value: 40 },
-                saveToContextKey: 'bunshin1',
-                blackboardAssignments: {
-                  EntityBB_wisd_greater_will: {
-                    kind: 'blackboard',
-                    key: 'EntityBB_wisd_greater_will',
-                  },
-                },
+              step('setAbilityEntityRemainingDuration', {
+                value: { kind: 'constant', value: 0.5 },
               }),
-              step('spawnAbilityEntity', {
-                abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
-                childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
-                inheritActionBlackboard: true,
-                dieWhenSourceDies: false,
-                overrideDurationSeconds: { kind: 'constant', value: 40 },
-                saveToContextKey: 'bunshin2',
-                blackboardAssignments: {
-                  EntityBB_wisd_greater_will: {
-                    kind: 'blackboard',
-                    key: 'EntityBB_wisd_greater_will',
-                  },
-                },
+            ),
+          ),
+          forEachContextTarget(
+            'bunshin2',
+            sequence(
+              step('setAbilityEntityRemainingDuration', {
+                value: { kind: 'constant', value: 0.5 },
               }),
-              step('spawnAbilityEntity', {
-                abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
-                childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
-                inheritActionBlackboard: true,
-                dieWhenSourceDies: false,
-                overrideDurationSeconds: { kind: 'constant', value: 40 },
-                saveToContextKey: 'bunshin3',
-                blackboardAssignments: {
-                  EntityBB_wisd_greater_will: {
-                    kind: 'blackboard',
-                    key: 'EntityBB_wisd_greater_will',
-                  },
-                },
+            ),
+          ),
+          forEachContextTarget(
+            'bunshin3',
+            sequence(
+              step('setAbilityEntityRemainingDuration', {
+                value: { kind: 'constant', value: 0.5 },
               }),
-              step('spawnAbilityEntity', {
-                abilityEntityId: 'abilityentity_chr_0032_lizhiyan_combo_skill',
-                childSkillId: 'chr_032_lizhiyan_combo_skill_abilityentity_seal',
-                inheritActionBlackboard: true,
-                dieWhenSourceDies: false,
-                overrideDurationSeconds: { kind: 'constant', value: 40 },
-                saveToContextKey: 'bunshin4',
-                blackboardAssignments: {
-                  EntityBB_wisd_greater_will: {
-                    kind: 'blackboard',
-                    key: 'EntityBB_wisd_greater_will',
-                  },
-                },
+            ),
+          ),
+          forEachContextTarget(
+            'bunshin4',
+            sequence(
+              step('setAbilityEntityRemainingDuration', {
+                value: { kind: 'constant', value: 0.5 },
               }),
-              forEachContextTarget(
-                'bunshin1',
-                sequence(
-                  step('setAbilityEntityRemainingDuration', {
-                    value: { kind: 'constant', value: 0.5 },
-                  }),
-                ),
-              ),
-              forEachContextTarget(
-                'bunshin2',
-                sequence(
-                  step('setAbilityEntityRemainingDuration', {
-                    value: { kind: 'constant', value: 0.5 },
-                  }),
-                ),
-              ),
-              forEachContextTarget(
-                'bunshin3',
-                sequence(
-                  step('setAbilityEntityRemainingDuration', {
-                    value: { kind: 'constant', value: 0.5 },
-                  }),
-                ),
-              ),
-              forEachContextTarget(
-                'bunshin4',
-                sequence(
-                  step('setAbilityEntityRemainingDuration', {
-                    value: { kind: 'constant', value: 0.5 },
-                  }),
-                ),
-              ),
             ),
           ),
         ),
@@ -2283,65 +2231,55 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
       scheduled(
         60,
         sequence(
-          branch(
-            {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
-            },
-            sequence(
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.4 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 15,
-                curve: {
-                  kind: 'inline',
-                  keys: [
-                    {
-                      time: 0,
-                      value: 0.7,
-                      inTangent: -6.591719,
-                      outTangent: -6.591719,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.1,
-                      value: 0.015,
-                      inTangent: 0.03159265,
-                      outTangent: 0.03159265,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 0.7484403,
-                      value: 0.1815591,
-                      inTangent: 0.9312042,
-                      outTangent: 0.9312042,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                    {
-                      time: 1,
-                      value: 0.7,
-                      inTangent: 2.428422,
-                      outTangent: 2.428422,
-                      weightedMode: 0,
-                      inWeight: 0,
-                      outWeight: 0,
-                    },
-                  ],
+          step('startTimeDilation', {
+            scope: 'entity',
+            durationSeconds: { kind: 'constant', value: 0.4 },
+            slot: 'TimeDilation/Layer/Entity/HitStop',
+            priority: 15,
+            curve: {
+              kind: 'inline',
+              keys: [
+                {
+                  time: 0,
+                  value: 0.7,
+                  inTangent: -6.591719,
+                  outTangent: -6.591719,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
                 },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-            ),
-          ),
+                {
+                  time: 0.1,
+                  value: 0.015,
+                  inTangent: 0.03159265,
+                  outTangent: 0.03159265,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 0.7484403,
+                  value: 0.1815591,
+                  inTangent: 0.9312042,
+                  outTangent: 0.9312042,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+                {
+                  time: 1,
+                  value: 0.7,
+                  inTangent: 2.428422,
+                  outTangent: 2.428422,
+                  weightedMode: 0,
+                  inWeight: 0,
+                  outWeight: 0,
+                },
+              ],
+            },
+            finishByAction: false,
+            targets: ['enemy', 'caster'],
+          }),
         ),
         63,
       ),
@@ -2432,11 +2370,6 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     enhance_rate: 0,
     lv: 0,
     poise: 10,
-    radius: 5,
-    rand_x: 0,
-    rand_y: 0,
-    rand_z: 0,
-    select_radius: 13,
     spell_vul_rate: 0,
     spell_vul_rate_calc: 0,
     spell_vul_rate_per_will: 0,
@@ -4119,19 +4052,8 @@ export const arcane: OperatorDefinition = {
               sequence(
                 branch(
                   {
-                    kind: 'all',
-                    conditions: [
-                      {
-                        kind: 'ownerSpawnedAbilityEntityPresent',
-                        abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'],
-                      },
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'constant', value: 0 },
-                        operator: 'lessOrEqual',
-                        right: { kind: 'constant', value: 60 },
-                      },
-                    ],
+                    kind: 'ownerSpawnedAbilityEntityPresent',
+                    abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'],
                   },
                   sequence(
                     branch(
@@ -4184,19 +4106,8 @@ export const arcane: OperatorDefinition = {
               sequence(
                 branch(
                   {
-                    kind: 'all',
-                    conditions: [
-                      {
-                        kind: 'ownerSpawnedAbilityEntityPresent',
-                        abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'],
-                      },
-                      {
-                        kind: 'actionValueCompare',
-                        left: { kind: 'constant', value: 0 },
-                        operator: 'lessOrEqual',
-                        right: { kind: 'constant', value: 60 },
-                      },
-                    ],
+                    kind: 'ownerSpawnedAbilityEntityPresent',
+                    abilityEntityIds: ['abilityentity_chr_0032_lizhiyan_ultimate_skill'],
                   },
                   sequence(
                     branch(

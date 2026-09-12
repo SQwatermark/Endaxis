@@ -30,7 +30,7 @@ import type { CombatCondition, DamageFeature, DamageTag } from '../../game-data/
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand } from './actionBlackboard';
-import { compareCombatNumbers } from './numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import { NATIVE_ELEMENT_VALUES, spellBurstElement } from '../infliction/elementalInfliction';
 
 export class EventContextConditionExecutor implements CombatOperationExecutor {

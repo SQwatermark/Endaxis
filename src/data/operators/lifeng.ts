@@ -127,11 +127,7 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.12, 0.13, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.23, 0.25, 0.27],
-    display_atk_scale: [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
-  },
+  { atb: 0, atk_scale: [0.12, 0.13, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.23, 0.25, 0.27] },
 );
 
 export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -310,11 +306,7 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
-    display_atk_scale: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
-  },
+  { atb: 0, atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79] },
 );
 
 export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -379,18 +371,7 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
             'chr_0015_lifeng_attack5:/scheduledSequences/1/sequence/steps/1',
           ),
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               step('startTimeDilation', {
                 scope: 'entity',
@@ -466,7 +447,6 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.18, 0.19, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39],
     atk_scale2: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
     poise: 19,
-    display_atk_scale: [0.68, 0.74, 0.81, 0.88, 0.95, 1.01, 1.08, 1.15, 1.22, 1.3, 1.4, 1.52],
   },
 );
 
@@ -795,10 +775,7 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
     atk_scale2: [1.19, 1.31, 1.43, 1.55, 1.67, 1.78, 1.9, 2.02, 2.14, 2.29, 2.47, 2.68],
-    cam_angle: 0,
-    cam_duration: 0,
     duration: 12,
-    input_angle: 0,
     num: 0,
     phy_resist_down: [0.05, 0.05, 0.05, 0.05, 0.05, 0.07, 0.07, 0.07, 0.09, 0.1, 0.1, 0.12],
     poise: 10,
@@ -990,17 +967,8 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [0.47, 0.51, 0.56, 0.61, 0.65, 0.7, 0.75, 0.79, 0.84, 0.9, 0.97, 1.05],
     atk_scale2: [1.67, 1.83, 2, 2.17, 2.33, 2.5, 2.67, 2.83, 3, 3.21, 3.46, 3.75],
-    cam_angle: 0,
-    cam_duration: 0,
-    duration: 20,
-    ex_usp: 0,
-    exist_talent: 0,
-    input_angle: 0,
     main_near: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 10,
-    scale: 0.5,
     usp: 10,
   },
 );

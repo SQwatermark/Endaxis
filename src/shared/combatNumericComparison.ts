@@ -1,8 +1,8 @@
 /**
- * 集中实现原生浮点比较的容差语义，供动作黑板与 Buff 查询等条件复用。
- * 调用方应传入已经解析到当前技能等级的有限数值。
+ * 动作运行时和生成器共用的数值比较规则。
+ * 输入已经由调用方解析；这里不读取黑板，也不改变浮点精度或执行任何战斗行为。
  */
-import type { ComparisonOperator } from '../../game-data/operatorDefinition';
+import type { ComparisonOperator } from '../../packages/game-data-contract/src/primitives.ts';
 
 export const COMBAT_FLOAT_COMPARISON_TOLERANCE = 1e-5;
 

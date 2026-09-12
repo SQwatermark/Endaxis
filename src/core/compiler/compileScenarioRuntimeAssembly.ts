@@ -27,7 +27,7 @@ import { applyMechanicsToScenarioEnemy, compileScenarioEnemy } from './compileSc
 import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
 import { resolveControlTimeline } from '../project/resolveControlTimeline';
 import { isOperatorControlledAt } from '../combat/runtime/operatorControlTimeline';
-import { compareCombatNumbers } from '../combat/runtime/numericComparison';
+import { compareCombatNumbers } from '../../shared/combatNumericComparison';
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
 import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
 import type { ScheduledExternalCombatEventInput } from '../combat/runtime/externalCombatEventRuntime';

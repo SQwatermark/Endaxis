@@ -14,6 +14,9 @@ import {
   type RenderedWeaponDefinitionFileSource,
 } from '../src/index.ts';
 import type { BuildDefinitionDiagnosticSource } from '../src/compiler/formalBuildDefinition.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
+import type { DefinitionProgramOptimizationReport } from '../src/compiler/definitionProgramOptimization.ts';
+import { optimizeWeaponDefinitionPrograms } from '../src/compiler/equipmentDefinitionOptimization.ts';
 
 interface Arguments {
   readonly tables: string;
@@ -24,6 +27,8 @@ interface Arguments {
   readonly output: string;
   readonly auditOutput?: string;
   readonly check: boolean;
+  /** 默认应用已验证的优化；report 仅报告候选，off 用于生成对照。 */
+  readonly optimization?: DefinitionOptimizationMode;
 }
 
 /**
@@ -78,6 +83,7 @@ interface Arguments {
 export async function generateWeaponDefinitions(args: Arguments): Promise<{
   readonly definitionCount: number;
   readonly fileCount: number;
+  readonly optimization: readonly DefinitionProgramOptimizationReport[];
 }> {
   const weaponTable = readJson(path.join(args.tables, 'WeaponBasicTable.json'));
   const upgradeTable = readJson(path.join(args.tables, 'WeaponUpgradeTemplateTable.json'));
@@ -100,11 +106,16 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
       ? undefined
       : new GameplayTagRegistry(readGameplayTagPaths(args.gameplayTagCatalog)),
   );
+  const diagnostics = [...staticBatch.diagnostics, ...runtimeBatch.diagnostics];
+  assertNoBlockedDiagnostics(diagnostics);
+  const optimized = runtimeBatch.definitions.map(definition =>
+    optimizeWeaponDefinitionPrograms(definition, args.optimization ?? 'apply'),
+  );
   const batch = {
-    definitions: runtimeBatch.definitions,
-    diagnostics: [...staticBatch.diagnostics, ...runtimeBatch.diagnostics],
+    definitions: optimized.map(result => result.definition),
+    diagnostics,
+    optimization: optimized.map(result => result.report),
   };
-  assertNoBlockedDiagnostics(batch.diagnostics);
   const files = renderWeaponDefinitionFiles(batch);
   const definitions = files.filter(file => !file.relativePath.endsWith('.audit.json'));
   if (args.check) checkGeneratedFiles(args.output, definitions);
@@ -115,7 +126,11 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
       files.filter(file => file.relativePath.endsWith('.audit.json')),
     );
   }
-  return { definitionCount: batch.definitions.length, fileCount: definitions.length };
+  return {
+    definitionCount: batch.definitions.length,
+    fileCount: definitions.length,
+    optimization: batch.optimization,
+  };
 }
 
 /**

@@ -2157,6 +2157,10 @@ function projectBuffApplicationTargetGroup(
       return 'currentAbilityEntity';
     case 'sourceFinderResult':
       return 'currentTarget';
+    case 'dynamicEnemy':
+      // compileBuffApplication 在外面保留 Context 循环。进入循环后成员只能是 enemy，
+      // 因而下游 Buff 闭包可以推断宿主身份；这不代表该集合在运行时非空。
+      return 'enemy';
     case 'contextOperator':
     case 'lowestHealthRatioOperatorExceptCaster':
     case 'empty':
@@ -2184,6 +2188,8 @@ function compileBuffApplication(
     action.target.targetSource === 'Context' && contextTargetGroup === 'abilityEntity';
   const targetsQueriedSource =
     action.target.targetSource === 'Context' && contextTargetGroup === 'sourceFinderResult';
+  const targetsDynamicEnemyGroup =
+    action.target.targetSource === 'Context' && contextTargetGroup === 'dynamicEnemy';
   for (const entry of action.buffs) {
     if (entry.readIdFromBlackboard ? entry.buffIdKey.length === 0 : entry.buffId.length === 0)
       throw new Error(`${sourcePath}: Buff identity or blackboard key is empty`);
@@ -2398,7 +2404,8 @@ function compileBuffApplication(
       },
     ];
   });
-  if (!targetsAbilityEntityGroup && !targetsQueriedSource) return steps;
+  if (!targetsAbilityEntityGroup && !targetsQueriedSource && !targetsDynamicEnemyGroup)
+    return steps;
   return [
     {
       kind: 'forEachContextTarget',

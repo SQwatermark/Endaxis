@@ -6,6 +6,8 @@ import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import { requireRecord } from '../src/source/primitives.ts';
 import type { CompiledEquipmentSuitRuntimeBatchSource } from '../src/domains/equipment/suitRuntimeDefinition.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
+import { optimizeGearSetDefinitionPrograms } from '../src/compiler/equipmentDefinitionOptimization.ts';
 
 import {
   checkEquipmentDefinitionFiles,
@@ -22,6 +24,8 @@ export interface GearSetGenerationArguments {
   readonly gameplayTagCatalog: string;
   readonly outputDirectory: string;
   readonly check: boolean;
+  /** 默认应用已验证的优化；report 仅报告候选，off 用于生成对照。 */
+  readonly optimization?: DefinitionOptimizationMode;
 }
 
 /** 正式生成遍历来源表的全部身份，不再用历史发布名单截断新增内容。 */
@@ -47,8 +51,14 @@ export async function generateGearSetDefinitions(input: GearSetGenerationArgumen
     );
   }
   const prettierConfig = (await resolveConfig(resolve('.prettierrc.json'))) ?? {};
+  const optimized = batch.definitions.map(definition =>
+    optimizeGearSetDefinitionPrograms(definition, input.optimization ?? 'apply'),
+  );
   const files = await Promise.all(
-    renderEquipmentSuitDefinitionFiles(batch).map(async file => ({
+    renderEquipmentSuitDefinitionFiles({
+      definitions: optimized.map(result => result.definition),
+      diagnostics: batch.diagnostics,
+    }).map(async file => ({
       ...file,
       content: file.relativePath.endsWith('.ts')
         ? await format(file.content, { ...prettierConfig, parser: 'typescript' })
@@ -70,6 +80,7 @@ export async function generateGearSetDefinitions(input: GearSetGenerationArgumen
     scenarioOmittedDiagnosticCount: batch.diagnostics.filter(
       diagnostic => diagnostic.status === 'scenario-omitted',
     ).length,
+    optimization: optimized.map(result => result.report),
   };
 }
 

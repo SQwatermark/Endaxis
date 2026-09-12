@@ -13,6 +13,9 @@ import { planOperatorDefinition } from './planOperatorDefinition.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './generateOperatorActiveSkillRuntime.ts';
+import type { OperatorBuffDefinitions } from '../../../packages/game-data-contract/src/buffs.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
+import { optimizeCommonBuffDefinitions } from '../src/compiler/equipmentDefinitionOptimization.ts';
 
 interface Arguments {
   readonly manifest: string;
@@ -28,6 +31,8 @@ interface Arguments {
   readonly skillSettingCatalog: string;
   readonly output: string;
   readonly check: boolean;
+  /** 默认应用已验证的优化；report 仅报告候选，off 用于生成对照。 */
+  readonly optimization?: DefinitionOptimizationMode;
 }
 
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url));
@@ -51,7 +56,7 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
   if (new Set(slugs).size !== slugs.length)
     throw new Error('operator manifest has duplicate slugs');
 
-  const batches: { slug: string; definitions: Readonly<Record<string, unknown>> }[] = [];
+  const batches: { slug: string; definitions: OperatorBuffDefinitions }[] = [];
   for (const slug of slugs) {
     const plan = planOperatorDefinition({
       ...args,
@@ -81,7 +86,11 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
   const blocked = systemClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`system Buff roots are blocked: ${JSON.stringify(blocked)}`);
   batches.push({ slug: '<system>', definitions: systemClosure.definitions });
-  const definitions = mergeCommonBuffDefinitions(batches);
+  const optimized = optimizeCommonBuffDefinitions(
+    mergeCommonBuffDefinitions(batches),
+    args.optimization ?? 'apply',
+  );
+  const definitions = optimized.definitions;
   const presentationNameKeys = readPresentationNameKeys(presentationNamesPath);
 
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
@@ -102,7 +111,11 @@ export async function generateCommonBuffDefinitions(args: Arguments) {
   ];
   if (args.check) checkGeneratedDefinitionFiles(args.output, files);
   else await writeGeneratedDefinitionFiles(args.output, files);
-  return { operatorCount: slugs.length, buffCount: Object.keys(definitions).length };
+  return {
+    operatorCount: slugs.length,
+    buffCount: Object.keys(definitions).length,
+    optimization: optimized.report,
+  };
 }
 
 /** 当前清单只承载玩家向唯一敌人施加的系统 Buff；新增其他宿主时必须扩展明确的场景声明。 */
@@ -138,13 +151,13 @@ export function renderCommonBuffPresentationNamesSource(
 }
 
 /** 合并公共所有权闭包；相同 ID 只允许完全相同的不可变定义。 */
-export function mergeCommonBuffDefinitions(
+export function mergeCommonBuffDefinitions<T>(
   batches: readonly {
     readonly slug: string;
-    readonly definitions: Readonly<Record<string, unknown>>;
+    readonly definitions: Readonly<Record<string, T>>;
   }[],
-): Record<string, unknown> {
-  const definitions: Record<string, unknown> = {};
+): Record<string, T> {
+  const definitions: Record<string, T> = {};
   const ownerById = new Map<string, string>();
   for (const batch of batches) {
     for (const [id, definition] of Object.entries(batch.definitions)) {

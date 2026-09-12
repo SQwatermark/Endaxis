@@ -17,14 +17,8 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-const sharedActionSequence2: ActionSequenceDefinition = sequence(
-  branch(
-    {
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
-      operator: 'equal',
-      right: { kind: 'constant', value: 1 },
-    },
+const sharedActionSequence1: ActionSequenceDefinition = sequence(
+  repeatEachTick(
     sequence(
       step(
         'dealDamage',
@@ -62,10 +56,18 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
         { alwaysNext: true },
       ),
     ),
+    {
+      nativeChanneling: {
+        executeEachFrame: true,
+        triggerIntervalSeconds: 0.033,
+        maxCountPerTarget: 1,
+        targetTriggerIntervalSeconds: 0.033,
+      },
+    },
   ),
 );
 
-const sharedActionSequence13: ActionSequenceDefinition = sequence(
+const sharedActionSequence11: ActionSequenceDefinition = sequence(
   repeatEachTick(
     sequence(
       branch(
@@ -141,7 +143,7 @@ const sharedActionSequence13: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence3: ActionSequenceDefinition = sequence(
+const sharedActionSequence2: ActionSequenceDefinition = sequence(
   {
     kind: 'withActionBlackboardScope',
     parameters: {
@@ -196,7 +198,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
   },
 );
 
-const sharedActionSequence12: ActionSequenceDefinition = sequence(
+const sharedActionSequence10: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'buffIdStackCompare',
@@ -247,33 +249,7 @@ const sharedActionSequence12: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence1: ActionSequenceDefinition = sequence(
-  repeatEachTick(
-    instantiateActionSequence(sharedActionSequence2, ['\u0000endaxis-generated-identity:0']),
-    {
-      nativeChanneling: {
-        executeEachFrame: true,
-        triggerIntervalSeconds: 0.033,
-        maxCountPerTarget: 1,
-        targetTriggerIntervalSeconds: 0.033,
-      },
-    },
-  ),
-);
-
-const sharedActionSequence11: ActionSequenceDefinition = sequence(
-  branch(
-    {
-      kind: 'actionValueCompare',
-      left: { kind: 'constant', value: 1 },
-      operator: 'greaterOrEqual',
-      right: { kind: 'constant', value: 1 },
-    },
-    sharedActionSequence12,
-  ),
-);
-
-const sharedActionSequence4: ActionSequenceDefinition = sequence(
+const sharedActionSequence3: ActionSequenceDefinition = sequence(
   {
     kind: 'withActionBlackboardScope',
     parameters: {
@@ -365,7 +341,7 @@ const sharedActionSequence4: ActionSequenceDefinition = sequence(
   },
 );
 
-const sharedActionSequence9: ActionSequenceDefinition = sequence(
+const sharedActionSequence8: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -431,7 +407,7 @@ const sharedActionSequence9: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence8: ActionSequenceDefinition = sequence(
+const sharedActionSequence7: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -466,7 +442,7 @@ const sharedActionSequence8: ActionSequenceDefinition = sequence(
         '\u0000endaxis-generated-identity:0',
       ),
     ),
-    instantiateActionSequence(sharedActionSequence9, [
+    instantiateActionSequence(sharedActionSequence8, [
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
@@ -474,7 +450,7 @@ const sharedActionSequence8: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence10: ActionSequenceDefinition = sequence(
+const sharedActionSequence9: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -482,7 +458,7 @@ const sharedActionSequence10: ActionSequenceDefinition = sequence(
       operator: 'greater',
       right: { kind: 'constant', value: 0.5 },
     },
-    instantiateActionSequence(sharedActionSequence8, [
+    instantiateActionSequence(sharedActionSequence7, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -504,7 +480,7 @@ const sharedActionSequence10: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence7: ActionSequenceDefinition = sequence(
+const sharedActionSequence6: ActionSequenceDefinition = sequence(
   branch(
     {
       kind: 'actionValueCompare',
@@ -512,12 +488,12 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
       operator: 'greater',
       right: { kind: 'constant', value: 0.5 },
     },
-    instantiateActionSequence(sharedActionSequence8, [
+    instantiateActionSequence(sharedActionSequence7, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
     ]),
-    instantiateActionSequence(sharedActionSequence10, [
+    instantiateActionSequence(sharedActionSequence9, [
       '\u0000endaxis-generated-identity:3',
       '\u0000endaxis-generated-identity:4',
       '\u0000endaxis-generated-identity:5',
@@ -527,7 +503,7 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence6: ActionSequenceDefinition = sequence(
+const sharedActionSequence5: ActionSequenceDefinition = sequence(
   step('calculateActionValue', {
     key: 'atk_scale_once',
     operation: 'multiply',
@@ -560,7 +536,7 @@ const sharedActionSequence6: ActionSequenceDefinition = sequence(
         },
       ],
     },
-    instantiateActionSequence(sharedActionSequence7, [
+    instantiateActionSequence(sharedActionSequence6, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -586,9 +562,9 @@ const sharedActionSequence6: ActionSequenceDefinition = sequence(
   ),
 );
 
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
+const sharedActionSequence4: ActionSequenceDefinition = sequence(
   repeatEachTick(
-    instantiateActionSequence(sharedActionSequence6, [
+    instantiateActionSequence(sharedActionSequence5, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
       '\u0000endaxis-generated-identity:2',
@@ -773,11 +749,7 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.5, 0.54, 0.57, 0.61, 0.65, 0.71],
-    poise: 0,
-  },
+  { atk_scale: [0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.5, 0.54, 0.57, 0.61, 0.65, 0.71] },
 );
 
 export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -1253,11 +1225,7 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
-    poise: 0,
-  },
+  { atb: 0, atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91] },
 );
 
 export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -1286,18 +1254,7 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
         15,
         sequence(
           branch(
-            {
-              kind: 'all',
-              conditions: [
-                { kind: 'casterControlled' },
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'constant', value: 1 },
-                  operator: 'greaterOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-              ],
-            },
+            { kind: 'casterControlled' },
             sequence(
               step('changeResourceByActionValue', {
                 resource: 'sp',
@@ -1837,7 +1794,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
-                        afterEnhance: sharedActionSequence3,
+                        afterEnhance: sharedActionSequence2,
                       },
                     },
                     airborneBuffId: 'buff_physical_airborne',
@@ -1880,7 +1837,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       extendTags: [],
                       blackboard: { atk_scale: 0, duration: 3, poise: 10 },
                       attributeModifiers: [],
-                      lifecycleSequences: { start: sharedActionSequence4 },
+                      lifecycleSequences: { start: sharedActionSequence3 },
                     },
                     duration: { kind: 'constant', value: 1.2 },
                     height: { kind: 'constant', value: 1.5 },
@@ -2044,7 +2001,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                             inheritSourceSkillCastInfo: true,
                           }),
                         ),
-                        afterEnhance: sharedActionSequence3,
+                        afterEnhance: sharedActionSequence2,
                       },
                     },
                     airborneBuffId: 'buff_physical_airborne',
@@ -2087,7 +2044,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       extendTags: [],
                       blackboard: { atk_scale: 0, duration: 3, poise: 10 },
                       attributeModifiers: [],
-                      lifecycleSequences: { start: sharedActionSequence4 },
+                      lifecycleSequences: { start: sharedActionSequence3 },
                     },
                     duration: { kind: 'constant', value: 1.2 },
                     height: { kind: 'constant', value: 1.5 },
@@ -2245,7 +2202,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       initialValues: {},
                       inheritParent: true,
                     },
-                    body: instantiateActionSequence(sharedActionSequence5, [
+                    body: instantiateActionSequence(sharedActionSequence4, [
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/2/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
@@ -2266,7 +2223,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       initialValues: {},
                       inheritParent: true,
                     },
-                    body: sharedActionSequence11,
+                    body: sharedActionSequence10,
                   },
                 ),
                 undefined,
@@ -2360,7 +2317,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                                 },
                               ],
                             },
-                            instantiateActionSequence(sharedActionSequence7, [
+                            instantiateActionSequence(sharedActionSequence6, [
                               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
                               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
                               'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/3/body/steps/0/body/steps/0/body/steps/0/body/steps/3/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
@@ -2409,29 +2366,19 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                     body: sequence(
                       branch(
                         {
-                          kind: 'actionValueCompare',
-                          left: { kind: 'constant', value: 1 },
+                          kind: 'buffIdStackCompare',
+                          target: 'enemy',
+                          buffIds: ['buff_chr_0028_wulfa_normal_bleed'],
                           operator: 'greaterOrEqual',
-                          right: { kind: 'constant', value: 1 },
+                          value: { kind: 'constant', value: 1 },
                         },
                         sequence(
-                          branch(
-                            {
-                              kind: 'buffIdStackCompare',
-                              target: 'enemy',
-                              buffIds: ['buff_chr_0028_wulfa_normal_bleed'],
-                              operator: 'greaterOrEqual',
-                              value: { kind: 'constant', value: 1 },
-                            },
-                            sequence(
-                              step('calculateActionValue', {
-                                key: 'hit_bleed_num',
-                                operation: 'add',
-                                left: { kind: 'blackboard', key: 'hit_bleed_num' },
-                                right: { kind: 'constant', value: 1 },
-                              }),
-                            ),
-                          ),
+                          step('calculateActionValue', {
+                            key: 'hit_bleed_num',
+                            operation: 'add',
+                            left: { kind: 'blackboard', key: 'hit_bleed_num' },
+                            right: { kind: 'constant', value: 1 },
+                          }),
                         ),
                       ),
                     ),
@@ -2446,7 +2393,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       initialValues: {},
                       inheritParent: true,
                     },
-                    body: sharedActionSequence11,
+                    body: sharedActionSequence10,
                   },
                 ),
                 undefined,
@@ -2499,7 +2446,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       initialValues: {},
                       inheritParent: true,
                     },
-                    body: instantiateActionSequence(sharedActionSequence5, [
+                    body: instantiateActionSequence(sharedActionSequence4, [
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/4/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
@@ -2520,7 +2467,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       initialValues: {},
                       inheritParent: true,
                     },
-                    body: sharedActionSequence11,
+                    body: sharedActionSequence10,
                   },
                 ),
                 undefined,
@@ -2573,7 +2520,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       initialValues: {},
                       inheritParent: true,
                     },
-                    body: instantiateActionSequence(sharedActionSequence5, [
+                    body: instantiateActionSequence(sharedActionSequence4, [
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenTrue/steps/1',
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenTrue/steps/1',
                       'chr_0028_wulfa_normal_skill:/scheduledSequences/3/sequence/steps/5/body/steps/0/body/steps/0/body/steps/0/body/steps/2/whenTrue/steps/0/whenTrue/steps/0/whenFalse/steps/0/whenFalse/steps/1',
@@ -2594,7 +2541,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
                       initialValues: {},
                       inheritParent: true,
                     },
-                    body: sharedActionSequence11,
+                    body: sharedActionSequence10,
                   },
                 ),
                 undefined,
@@ -2724,28 +2671,18 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atb_return: 10,
     atk_scale_1: [0.85, 0.94, 1.02, 1.11, 1.19, 1.28, 1.37, 1.45, 1.54, 1.64, 1.77, 1.92],
-    atk_scale_2: 0.6,
     atk_scale_3: [1.28, 1.41, 1.53, 1.66, 1.79, 1.92, 2.04, 2.17, 2.3, 2.46, 2.65, 2.88],
     atk_scale_bleed: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
     atk_scale_once: 0,
     bleed_critical_damage_interval: 2,
     bleed_critical_damage_scale: 1,
-    blow_off_distance: 2,
-    cam_angle: 0,
-    cam_duration: 0,
-    cam_lookatoffset_X: 0,
-    cam_shoulderoffset_X: 0,
     damage_up: 0,
-    distance_random_range: 0.2,
     duration_bleed: 15,
-    fire_duration: 8,
     FollowAttackTrigger: 0,
     heal_scale: 0.2,
-    input_angle: 0,
     poise_1: 5,
     poise_2: [10, 10, 10, 10, 10, 10, 10, 10, 12, 12, 12, 15],
     potential_upgrade: 0,
-    select_radius: 7,
     skillimbue: 0,
     talent_1_1: 0,
     talent_1_2: 0,
@@ -2753,10 +2690,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     talent_2_2: 0,
     talent2_burning_damage_scale: 1.5,
     trigger: 0,
-    ups_1: 15,
     usp_2: 10,
-    display_atk_scale_1: [0.85, 0.94, 1.02, 1.11, 1.19, 1.28, 1.37, 1.45, 1.54, 1.64, 1.77, 1.92],
-    usp_1: 15,
   },
 );
 
@@ -2990,11 +2924,6 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
               right: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('modifyActionValue', {
-                key: 'timing_success',
-                operation: 'assign',
-                value: { kind: 'constant', value: 1 },
-              }),
               step('finishBuffsById', {
                 target: 'caster',
                 buffIds: ['buff_chr_0028_wulfa_combo_2_qte_timerlistening'],
@@ -3192,32 +3121,14 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'comboSkill',
   },
   {
-    alpha: 0,
     atk_scale: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
     atk_scale_once: 0.01,
-    cam_angle: 0,
-    cam_duration: 0,
-    cam_shoulderoffset_X: 0,
     can_trigger_combo: 0,
     count: 0,
-    distance: 0,
-    input_angle: 0,
-    obsorb_no_guard: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 0,
     poise_once: 0.01,
     time_succeed: 0.4,
-    timing_success: 0,
     usp: 10,
-    display_atk_scale_2_f: [0.67, 0.73, 0.8, 0.87, 0.93, 1, 1.07, 1.13, 1.2, 1.28, 1.38, 1.5],
-    display_atk_scale_2_s: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
-    display_crit_increase_duration: 15,
-    display_crit_increase_rate: 0.25,
-    display_poise_2_f: 5,
-    display_poise_2_s: 10,
-    display_usp_2_f: 0,
-    display_usp_2_s: 10,
   },
 );
 
@@ -3236,7 +3147,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
     },
     costFrame: 0,
     scheduledSequences: [
-      scheduled(225, sharedActionSequence13, 226),
+      scheduled(225, sharedActionSequence11, 226),
       scheduled(
         227,
         sequence(
@@ -3272,11 +3183,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
-                  step('modifyActionValue', {
-                    key: 'can_trigger_combo',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
                 ),
                 sequence(
                   branch(
@@ -3308,11 +3214,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                      }),
-                      step('modifyActionValue', {
-                        key: 'can_trigger_combo',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
                       }),
                     ),
                     sequence(
@@ -3346,11 +3247,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           }),
-                          step('modifyActionValue', {
-                            key: 'can_trigger_combo',
-                            operation: 'add',
-                            value: { kind: 'constant', value: 1 },
-                          }),
                         ),
                         sequence(
                           branch(
@@ -3383,18 +3279,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                                 target: 'enemy',
                                 inheritSourceSkillCastInfo: true,
                               }),
-                              step('modifyActionValue', {
-                                key: 'can_trigger_combo',
-                                operation: 'add',
-                                value: { kind: 'constant', value: 1 },
-                              }),
                             ),
                             sequence(
-                              step('modifyActionValue', {
-                                key: 'can_trigger_combo',
-                                operation: 'add',
-                                value: { kind: 'constant', value: 0 },
-                              }),
                               step('modifyActionValue', {
                                 key: 'spellinflict_stack_max',
                                 operation: 'assign',
@@ -3524,7 +3410,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                                 inheritSourceSkillCastInfo: true,
                               }),
                             ),
-                            afterEnhance: sharedActionSequence3,
+                            afterEnhance: sharedActionSequence2,
                           },
                         },
                         airborneBuffId: 'buff_physical_airborne',
@@ -3567,7 +3453,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           extendTags: [],
                           blackboard: { atk_scale: 0, duration: 3, poise: 10 },
                           attributeModifiers: [],
-                          lifecycleSequences: { start: sharedActionSequence4 },
+                          lifecycleSequences: { start: sharedActionSequence3 },
                         },
                         duration: { kind: 'constant', value: 1 },
                         height: { kind: 'constant', value: 20 },
@@ -3767,11 +3653,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
                   }),
-                  step('modifyActionValue', {
-                    key: 'can_trigger_combo',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
                 ),
                 sequence(
                   branch(
@@ -3803,11 +3684,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                      }),
-                      step('modifyActionValue', {
-                        key: 'can_trigger_combo',
-                        operation: 'add',
-                        value: { kind: 'constant', value: 1 },
                       }),
                     ),
                     sequence(
@@ -3841,11 +3717,6 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
                           }),
-                          step('modifyActionValue', {
-                            key: 'can_trigger_combo',
-                            operation: 'add',
-                            value: { kind: 'constant', value: 1 },
-                          }),
                         ),
                         sequence(
                           branch(
@@ -3878,18 +3749,8 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                                 target: 'enemy',
                                 inheritSourceSkillCastInfo: true,
                               }),
-                              step('modifyActionValue', {
-                                key: 'can_trigger_combo',
-                                operation: 'add',
-                                value: { kind: 'constant', value: 1 },
-                              }),
                             ),
                             sequence(
-                              step('modifyActionValue', {
-                                key: 'can_trigger_combo',
-                                operation: 'add',
-                                value: { kind: 'constant', value: 0 },
-                              }),
                               step('modifyActionValue', {
                                 key: 'buff_stack',
                                 operation: 'assign',
@@ -4024,7 +3885,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                                 inheritSourceSkillCastInfo: true,
                               }),
                             ),
-                            afterEnhance: sharedActionSequence3,
+                            afterEnhance: sharedActionSequence2,
                           },
                         },
                         airborneBuffId: 'buff_physical_airborne',
@@ -4067,7 +3928,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                           extendTags: [],
                           blackboard: { atk_scale: 0, duration: 3, poise: 10 },
                           attributeModifiers: [],
-                          lifecycleSequences: { start: sharedActionSequence4 },
+                          lifecycleSequences: { start: sharedActionSequence3 },
                         },
                         duration: { kind: 'constant', value: 1 },
                         height: { kind: 'constant', value: 20 },
@@ -4097,7 +3958,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
         ),
         30,
       ),
-      scheduled(27, sharedActionSequence13, 28),
+      scheduled(27, sharedActionSequence11, 28),
       scheduled(
         29,
         sequence(
@@ -4529,25 +4390,15 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
-    alpha: 0,
     atk_scale_f: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
     atk_scale_once: 0,
     atk_scale_s: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
     buff_stack: 0,
-    cam_angle: 0,
-    cam_duration: 0,
-    cam_shoulderoffset_X: 0,
-    can_trigger_combo: 0,
     count: 0,
     crit_damage_increase_rate: [0.3, 0.3, 0.3, 0.34, 0.34, 0.34, 0.38, 0.38, 0.42, 0.42, 0.46, 0.5],
     crit_increase_duration: 15,
     crit_increase_rate: [0.15, 0.15, 0.15, 0.17, 0.17, 0.17, 0.19, 0.19, 0.21, 0.21, 0.23, 0.25],
     damage_add: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    distance: 0,
-    input_angle: 0,
-    obsorb_no_guard: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise_f: 5,
     poise_once: 0,
     poise_s: 5,
@@ -4555,9 +4406,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
     potential_atk_multiply: 1,
     spellinflict_stack_max: 0,
     timing_success: 0,
-    usp_f: 10,
     usp_s: 10,
-    zoom_scale: 0,
   },
 );
 
@@ -4590,39 +4439,29 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'entityTagMatch',
+              target: 'enemy',
+              tagQueryType: 'hasAny',
+              tags: ['Immune/Damage', 'SelectCategory/Unmarkable'],
             },
+            sequence(),
             sequence(
               branch(
-                {
-                  kind: 'entityTagMatch',
-                  target: 'enemy',
-                  tagQueryType: 'hasAny',
-                  tags: ['Immune/Damage', 'SelectCategory/Unmarkable'],
-                },
-                sequence(),
+                { kind: 'enemyRankIn', ranks: ['elite'] },
                 sequence(
-                  branch(
-                    { kind: 'enemyRankIn', ranks: ['elite'] },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0028_wulfa_ult_stopenemy_elite',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: true,
-                        finishByAction: true,
-                        blackboardAssignments: { duration: { kind: 'constant', value: 3.099969 } },
-                      }),
-                    ),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0028_wulfa_ult_stopenemy_elite',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    finishByAction: true,
+                    blackboardAssignments: { duration: { kind: 'constant', value: 3.099969 } },
+                  }),
                 ),
+                undefined,
                 { alwaysNext: true },
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
         150,
@@ -4632,39 +4471,29 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           branch(
             {
-              kind: 'actionValueCompare',
-              left: { kind: 'constant', value: 1 },
-              operator: 'greaterOrEqual',
-              right: { kind: 'constant', value: 1 },
+              kind: 'entityTagMatch',
+              target: 'enemy',
+              tagQueryType: 'hasAny',
+              tags: ['Immune/Damage', 'SelectCategory/Unmarkable'],
             },
+            sequence(),
             sequence(
               branch(
-                {
-                  kind: 'entityTagMatch',
-                  target: 'enemy',
-                  tagQueryType: 'hasAny',
-                  tags: ['Immune/Damage', 'SelectCategory/Unmarkable'],
-                },
-                sequence(),
+                { kind: 'enemyRankIn', ranks: ['mob'] },
                 sequence(
-                  branch(
-                    { kind: 'enemyRankIn', ranks: ['mob'] },
-                    sequence(
-                      step('applyBuff', {
-                        buffId: 'buff_chr_0028_wulfa_ult_stopenemy',
-                        target: 'enemy',
-                        inheritSourceSkillCastInfo: true,
-                        finishByAction: true,
-                        blackboardAssignments: { duration: { kind: 'constant', value: 2.866664 } },
-                      }),
-                    ),
-                    undefined,
-                    { alwaysNext: true },
-                  ),
+                  step('applyBuff', {
+                    buffId: 'buff_chr_0028_wulfa_ult_stopenemy',
+                    target: 'enemy',
+                    inheritSourceSkillCastInfo: true,
+                    finishByAction: true,
+                    blackboardAssignments: { duration: { kind: 'constant', value: 2.866664 } },
+                  }),
                 ),
+                undefined,
                 { alwaysNext: true },
               ),
             ),
+            { alwaysNext: true },
           ),
         ),
         150,
@@ -4944,11 +4773,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/12/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         64,
       ),
@@ -4969,11 +4793,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/13/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         66,
       ),
@@ -4994,11 +4813,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/14/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         67,
       ),
@@ -5019,11 +4833,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/15/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         70,
       ),
@@ -5044,11 +4853,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/16/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         72,
       ),
@@ -5069,11 +4873,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/17/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         75,
       ),
@@ -5094,11 +4893,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/18/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         76,
       ),
@@ -5119,11 +4913,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/19/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         78,
       ),
@@ -5144,11 +4933,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/20/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         79,
       ),
@@ -5169,11 +4953,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/21/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         81,
       ),
@@ -5194,11 +4973,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/22/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         84,
       ),
@@ -5219,11 +4993,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/23/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         85,
       ),
@@ -5244,11 +5013,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/24/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         88,
       ),
@@ -5269,11 +5033,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/25/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         89,
       ),
@@ -5294,11 +5053,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/26/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         91,
       ),
@@ -5319,11 +5073,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/27/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         93,
       ),
@@ -5344,11 +5093,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/28/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         95,
       ),
@@ -5369,11 +5113,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/29/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         97,
       ),
@@ -5394,11 +5133,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/30/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         98,
       ),
@@ -5419,11 +5153,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/31/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         100,
       ),
@@ -5444,11 +5173,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/32/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         103,
       ),
@@ -5469,11 +5193,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/33/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         104,
       ),
@@ -5494,11 +5213,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/34/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         107,
       ),
@@ -5519,11 +5233,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/35/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         109,
       ),
@@ -5544,11 +5253,6 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             },
             'chr_0028_wulfa_ultimate_skill:/scheduledSequences/36/sequence/steps/1',
           ),
-          step('modifyActionValue', {
-            key: 'hit_times',
-            operation: 'add',
-            value: { kind: 'constant', value: 1 },
-          }),
         ),
         112,
       ),
@@ -5575,39 +5279,15 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    angle: 130,
-    AngleToTarget: 0,
-    AnimEventReciver: 0,
-    AnimScale: 1,
-    AnimScale_Gear_1: 0.7,
-    AnimScale_Gear_2: 0.75,
-    AnimScale_Gear_3: 0.8,
-    AnimScale_Gear_4: 1,
     atk_scale_1: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.22, 0.24],
     atk_scale_2: [1.11, 1.22, 1.33, 1.44, 1.56, 1.67, 1.78, 1.89, 2, 2.14, 2.31, 2.5],
     atk_scale_3: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
-    atk_scale_crit_fire: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3],
-    camera_blocked: 0,
-    CapeBuffStack: 0,
     crit_damage_up_to_bleed: 0.6,
-    float_temp: 1,
-    gear: 4,
-    height: 4,
     hit_num: 0,
-    hit_times: 0,
-    IsNotClick: 0,
-    originum_ult_break_scale: 0,
     poise: 25,
     potential_5: 0,
     potential_5_critical_damage: 0,
     potential_5_damage_scale: 1.2,
-    radius: 5,
-    random_hurtanimation: 0,
-    random_num: 0,
-    display_atk_scale_1_max: [2.75, 3, 3.25, 3.5, 3.75, 4, 4.25, 4.5, 4.75, 5.25, 5.5, 6],
-    display_atk_scale_1_min: [
-      1.28, 1.41, 1.54, 1.66, 1.79, 1.92, 2.05, 2.18, 2.3, 2.46, 2.66, 2.88,
-    ],
   },
 );
 

@@ -19,6 +19,7 @@
 - [队友目标查询与快照边界（2026-08-28）](combat/character-team-target-snapshots.md)
 - [CheckHp 条件的运行时语义](combat/check-hp-condition-runtime-semantics.md)
 - [条件分支中的投射物投影缺口](combat/conditional-projectile-projection-gaps.md)
+- [Context 数量读取必须保留对应写入](combat/context-target-write-preservation.md)
 - [Shatter damage decorate mask evidence](combat/damage-decorate-mask-shatter-evidence.md)
 - [DoOnceAction 原生运行时语义](combat/do-once-action-runtime-semantics.md)
 - [Enemy rank evidence](combat/enemy-rank-evidence.md)

@@ -60,7 +60,7 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
+  { atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
 );
 
 export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -163,7 +163,6 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28],
     atk_scale_2: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
   },
 );
 
@@ -354,7 +353,6 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 19,
     atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
     poise: 17,
-    display_atk_scale: [0.5, 0.54, 0.59, 0.64, 0.69, 0.74, 0.79, 0.84, 0.89, 0.95, 1.03, 1.11],
   },
 );
 
@@ -579,13 +577,7 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
     levelSource: 'battleSkill',
     nativeSkillType: 'normalSkill',
   },
-  {
-    atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
-    cam_angle: 0,
-    cam_duration: 0,
-    input_angle: 0,
-    poise: 10,
-  },
+  { atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2], poise: 10 },
 );
 
 export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
@@ -849,7 +841,6 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
     potential_3: 0,
     potential_5_duration: 0,
     sub_ratio: 0,
-    atb_display: [58, 60, 62, 64, 66, 68, 70, 72, 74, 76, 78, 80],
   },
 );
 
@@ -1064,13 +1055,8 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
     atb: 7.5,
     atb_up: 1,
     atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
-    cam_angle: 0,
-    cam_duration: 0,
     count: 0,
-    input_angle: 0,
     max_ratio: 0,
-    owner_mainchar_alpha: 0,
-    owner_mainchar_distance: 0,
     poise: 5,
     rate: 10,
     sub_ratio: 0,

@@ -16,7 +16,7 @@ import {
   type HealModifierSide,
   type HealProcessTiming,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
-import { compareCombatNumbers } from '../runtime/numericComparison';
+import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import type { CombatVitals } from '../runtime/combatVitals';
 
 export class HealCalculationContext {

@@ -1156,6 +1156,31 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
           ...(allowedNextSkills.length === 0 ? {} : { allowedNextSkills }),
           ...(hasConditionalInputActions ? { hasConditionalActions: true } : {}),
         };
+  // 静态查询可证明单次写入的结果，却不一定支配另一时间段的读取（例如只在非主控分支写入）。
+  // 数量条件仍需在运行时读取的组必须保留写入，不能留下一个从未创建的 Context 名称。
+  const materializedTargetGroupKeys = new Set(
+    graph.actionGroup.timelineActions.flatMap((timeline, timelineIndex) =>
+      collectNativeActionNodes(timeline.sequence).flatMap(node => {
+        if (
+          !node.metadata.enabled ||
+          node.body.kind !== 'leaf' ||
+          node.body.value.family !== 'condition'
+        )
+          return [];
+        const condition = node.body.value.action;
+        return condition.kind === 'entityCount' &&
+          condition.targetSource === 'Context' &&
+          !condition.containsHittableTarget &&
+          !condition.excludeDeadEntity &&
+          !staticEnemyTargetGroupKeys.has(condition.targetGroupKey) &&
+          !guaranteedSingletonZeroSpaceTargetGroupKeysByTimeline[timelineIndex]!.has(
+            condition.targetGroupKey,
+          )
+          ? [condition.targetGroupKey]
+          : [];
+      }),
+    ),
+  );
   const context = {
     ...input.context,
     staticEnemyTargetGroupKeys,
@@ -1165,6 +1190,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     provenOnlyHitProjectilePaths: guardedProjectilePaths.onlyHit,
     provenZeroSpaceProjectilePaths: guardedProjectilePaths.zeroSpace,
     dynamicSpatialPointCounts,
+    materializedTargetGroupKeys,
     staticAbilityEntityTargetGroupKeys,
     presentationOnlyTargetGroupKeys: collectPresentationOnlyTargetGroups(graph),
     unconsumedTargetGroupKeys: collectUnconsumedTargetGroups(graph),

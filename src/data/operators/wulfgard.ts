@@ -133,11 +133,7 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
-    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
-  },
+  { atb: 0, atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34] },
 );
 
 export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -263,11 +259,7 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.18, 0.19, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39],
-    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
-  },
+  { atb: 0, atk_scale: [0.18, 0.19, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39] },
 );
 
 export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -441,11 +433,7 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  {
-    atb: 0,
-    atk_scale: [0.19, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.31, 0.33, 0.36, 0.38, 0.42],
-    display_atk_scale: [0.56, 0.61, 0.67, 0.72, 0.78, 0.83, 0.89, 0.94, 1, 1.07, 1.15, 1.25],
-  },
+  { atb: 0, atk_scale: [0.19, 0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.31, 0.33, 0.36, 0.38, 0.42] },
 );
 
 export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -648,7 +636,7 @@ export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  { atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
 export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
@@ -1087,11 +1075,7 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77],
     atk_scale_plus: [3.78, 4.15, 4.53, 4.91, 5.29, 5.66, 6.04, 6.42, 6.8, 7.27, 7.84, 8.5],
     atk_scale_plus_fail: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
-    cam_angle: 0,
-    cam_duration: 0,
-    consume_cnt: 0,
     duration: 0,
-    input_angle: 0,
     poise_extra_bullet: 5,
     poise_extra_bullet_fail: 0,
     poise_first_bullet: 1.67,
@@ -1099,12 +1083,9 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
     potential_3: 0,
     potential_skillpower: 0,
     returnskillpower: 0,
-    select_radius: 10,
     SpellInflict: 0,
     talent2: 0,
     teammate_percent: 0,
-    display_atk_scale: [1.02, 1.12, 1.22, 1.33, 1.43, 1.53, 1.63, 1.74, 1.84, 1.96, 2.12, 2.3],
-    poise_first_bullet_display: 5,
   },
 );
 
@@ -1393,20 +1374,9 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
-    angle: 360,
-    atk_duration: 10,
     atk_scale: [0.32, 0.35, 0.38, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.66, 0.72],
-    atk_scale_plus: 0,
-    atk_up: 0,
-    CamAngle: 0,
-    dmg_increase: 0.3,
-    duration: 1,
     poise: 3,
     potential_5: 0,
-    potential_lv: 0,
-    radius: 5,
-    display_atk_scale: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
-    poise_display: 15,
   },
 );
 
