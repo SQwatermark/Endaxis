@@ -17,7 +17,8 @@
   },
   "enemies": {
     "eny_0051_rodin": "eny-0051-rodin",
-    "eny_0071_sandb": "eny-0071-sandb"
+    "eny_0071_sandb": "eny-0071-sandb",
+    "eny_0082_hsbear": "eny-0082-hsbear"
   },
   "operators": {
     "rossi": "rossi",
@@ -57,6 +58,7 @@
     "rift-trekker-gloves": "item_equip_t4_parts_wuling02_hand_01",
     "thertech-plating": "item_equip_t4_suit_poise01_body_01",
     "tide-surge-gauntlets": "item_equip_t4_suit_burst01_hand_01",
+    "tide-fall-light-armor": "item_equip_t4_suit_burst01_body_01",
     "hanging-river-o2-tube": "item_equip_t4_suit_burst01_edc_01",
     "frontiers-extra-o2-tube-t1": "item_equip_t4_suit_atb01_edc_06",
     "pulser-labs-calibrator": "item_equip_t4_suit_pulse_cryst01_edc_02",
@@ -79,6 +81,7 @@
     "hot-work-hands-ppe": "item_equip_t4_suit_fire_natr01_hand_04",
     "hot-work-insulation-slab": "item_equip_t4_suit_fire_natr01_edc_04",
     "bonekrusha-heavy-armor-t2": "item_equip_t4_suit_attri01_body_05",
+    "bonekrusha-wristband-t1": "item_equip_t4_suit_attri01_hand_02",
     "bonekrusha-mask-t2": "item_equip_t4_suit_attri01_edc_07",
     "mi-security-gloves": "item_equip_t4_suit_criti01_hand_01",
     "qingbo-heavy-armor": "item_equip_t4_suit_combo_cd01_body_01",
@@ -615,6 +618,18 @@
     "xaihi": [
       {
         "source": {
+          "skillId": "dive",
+          "sourceSkillKey": "dive",
+          "type": "dive"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "plungingAttack",
+          "skillKey": "plungingAttack"
+        }
+      },
+      {
+        "source": {
           "skillId": "battleSkill",
           "sourceSkillKey": "battleSkill",
           "type": "battleSkill"
@@ -766,6 +781,95 @@
       }
     ],
     "tangtang": [
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 4
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack4"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 5
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack5"
+        }
+      },
+      {
+        "source": {
+          "skillId": "finisher",
+          "sourceSkillKey": "finisher",
+          "type": "finisher"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "finisher",
+          "skillKey": "finisher"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      },
       {
         "source": {
           "skillId": "battleSkill",

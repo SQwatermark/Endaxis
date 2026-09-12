@@ -819,3 +819,24 @@ report.json 保留量化和身份改写，simulation.json 与各方案 receipts 
 下一步优先核对方案 6 诀第二次终结技的实际表现，再核对方案 4 的弭弗战技路由，
 并检查生成时长与当前源数据一致；缺 hit 等实质差异仍应区分冻屏模型与行为遗漏。
 保留输入位置，对差异分别记录版本差异、模型问题或证据不足，不以消除告警为目标。
+
+## 2026-09-12：公开轴 `6aa2e4c10185263def70513b` 补充映射
+
+本次只补能够由旧源码或当前原生 ID 直接确认的身份，不根据模拟告警猜技能：
+
+- 敌人 `eny_0082_hsbear` 映射为 `eny-0082-hsbear`。当前敌人定义的 `gameId` 完全相同。
+- `tide-fall-light-armor` 映射为 `item_equip_t4_suit_burst01_body_01`。旧版
+  `src/data/gearpieces/tide-surge/tide-fall-light-armor.ts` 的图标路径直接包含该 ID；当前定义的
+  智识、力量和终结技能量获取效率属性一致。
+- `bonekrusha-wristband-t1` 映射为 `item_equip_t4_suit_attri01_hand_02`。旧版
+  `src/data/gearpieces/bonekrusha/bonekrusha-wristband-t1.ts` 的图标路径直接包含该 ID；当前定义的
+  敏捷、力量、寒冷伤害和电磁伤害属性一致。
+- 汤汤旧普攻第 1 至 5 段映射当前 `basicAttack1` 至 `basicAttack5`；旧 `finisher`、
+  `ultimate` 映射当前同名组。当前源技能 ID 分别为 `chr_0027_tangtang_attack1` 至
+  `chr_0027_tangtang_attack5`、`chr_0027_tangtang_power_attack`、
+  `chr_0027_tangtang_ultimate_skill`。
+- 赛希旧 `dive` 映射当前 `plungingAttack`，其当前源技能 ID 为
+  `chr_0011_seraph_plunging_attack_end`。
+
+补齐后 67 个技能块全部转换，`issues=[]`。这些映射只恢复同一内容的身份，不表示旧版技能时长、
+命中、倍率或归因正确；运行差异仍按原生证据逐项判断。

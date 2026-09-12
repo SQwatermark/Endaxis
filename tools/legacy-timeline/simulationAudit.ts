@@ -73,6 +73,53 @@ function summarizeSources(entries: ReturnType<typeof damageEntries>) {
   return [...sources.values()];
 }
 
+/** 按完整施法身份拆账；无 castId 的公共伤害保留在 null 组，不能被遗漏。 */
+function summarizeCasts(entries: ReturnType<typeof damageEntries>) {
+  const casts = new Map<
+    string | null,
+    {
+      castId: string | null;
+      sourceId: string | null;
+      sourceActionIds: Set<string>;
+      stepKeys: Set<string>;
+      damageRecordCount: number;
+      expectedDamage: number;
+      firstDamageFrame: number;
+      lastDamageFrame: number;
+    }
+  >();
+  for (const entry of entries) {
+    const castId = typeof entry.castId === 'string' ? entry.castId : null;
+    let summary = casts.get(castId);
+    if (summary === undefined) {
+      summary = {
+        castId,
+        sourceId: entry.sourceId ?? null,
+        sourceActionIds: new Set<string>(),
+        stepKeys: new Set<string>(),
+        damageRecordCount: 0,
+        expectedDamage: 0,
+        firstDamageFrame: entry.frame,
+        lastDamageFrame: entry.frame,
+      };
+      casts.set(castId, summary);
+    } else if (summary.sourceId !== (entry.sourceId ?? null)) {
+      summary.sourceId = null;
+    }
+    if (typeof entry.sourceActionId === 'string') summary.sourceActionIds.add(entry.sourceActionId);
+    if (typeof entry.stepKey === 'string') summary.stepKeys.add(entry.stepKey);
+    summary.damageRecordCount++;
+    summary.expectedDamage += entry.expectedDamage;
+    summary.firstDamageFrame = Math.min(summary.firstDamageFrame, entry.frame);
+    summary.lastDamageFrame = Math.max(summary.lastDamageFrame, entry.frame);
+  }
+  return [...casts.values()].map(({ sourceActionIds, stepKeys, ...summary }) => ({
+    ...summary,
+    sourceActionIds: [...sourceActionIds],
+    stepKeys: [...stepKeys],
+  }));
+}
+
 /** 两种截止帧分别重算，不移动技能，不将完整轴尾部伤害算进存档结束线。 */
 export async function auditScenarioSimulation(
   service: SimulationReader,
@@ -93,7 +140,10 @@ export async function auditScenarioSimulation(
     damageRecordCount: entries.length,
     expectedDamage: entries.reduce((sum, entry) => sum + entry.expectedDamage, 0),
     lastDamageFrame: entries.at(-1)?.frame ?? null,
+    // 汇总值只用于定位差异；逐条回执才是核对帧、来源和施法身份的依据。
+    damageRecords: entries,
     sources: summarizeSources(entries),
+    casts: summarizeCasts(entries),
   });
   return {
     scenarioId: scenario.id,

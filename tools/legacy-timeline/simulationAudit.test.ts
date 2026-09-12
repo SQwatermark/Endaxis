@@ -3,13 +3,13 @@ import { createEmptyScenario } from '../../src/core/project/createProject';
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
 import { auditScenarioSimulation } from './simulationAudit';
 
-function hit(frame: number, damage: number): CombatReceiptEntry {
+function hit(frame: number, damage: number, castId?: string): CombatReceiptEntry {
   return {
     sequence: frame,
     frame,
     time: frame / 30,
     event: 'DamageApplied',
-    data: { expectedDamage: damage },
+    data: { expectedDamage: damage, ...(castId === undefined ? {} : { castId }) },
   };
 }
 
@@ -71,6 +71,10 @@ it('分别计算存档结束线与完整时长，保留尾部无 castId 的伤�
     damageRecordCount: 2,
     expectedDamage: 120,
   });
+  expect(report.configured.damageRecords).toEqual([
+    expect.objectContaining({ frame: 2218, expectedDamage: 100 }),
+    expect.objectContaining({ frame: 2231, expectedDamage: 20 }),
+  ]);
   expect(report.fullDuration).toMatchObject({
     endFrame: 3600,
     damageRecordCount: 3,
@@ -149,4 +153,58 @@ it('按完整来源身份拆账，零伤害、无施法和无来源的公共伤�
       horizon.damageRecordCount,
     );
   }
+});
+
+it('按完整 castId 拆账并保留关联 Buff 步骤与无施法伤害', async () => {
+  const scenario = createEmptyScenario('casts', '逐施法审计');
+  scenario.battle.durationFrames = 100;
+  const entries: CombatReceiptEntry[] = [
+    {
+      ...hit(10, 12, 'cast:a'),
+      sourceId: 'operator:a',
+      data: {
+        expectedDamage: 12,
+        castId: 'cast:a',
+        sourceActionId: 'skill:a',
+        stepKey: 'direct',
+      },
+    },
+    {
+      ...hit(20, 8, 'cast:a'),
+      sourceId: 'operator:a',
+      data: {
+        expectedDamage: 8,
+        castId: 'cast:a',
+        sourceActionId: 'buff:a',
+        stepKey: 'buff-hit',
+      },
+    },
+    hit(30, 5),
+  ];
+  const report = await auditScenarioSimulation(
+    { simulate: async () => ({ receiptEntries: entries }) },
+    scenario,
+  );
+  expect(report.configured.casts).toEqual([
+    {
+      castId: 'cast:a',
+      sourceId: 'operator:a',
+      sourceActionIds: ['skill:a', 'buff:a'],
+      stepKeys: ['direct', 'buff-hit'],
+      damageRecordCount: 2,
+      expectedDamage: 20,
+      firstDamageFrame: 10,
+      lastDamageFrame: 20,
+    },
+    {
+      castId: null,
+      sourceId: null,
+      sourceActionIds: [],
+      stepKeys: [],
+      damageRecordCount: 1,
+      expectedDamage: 5,
+      firstDamageFrame: 30,
+      lastDamageFrame: 30,
+    },
+  ]);
 });
