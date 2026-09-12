@@ -34,18 +34,31 @@ import {
 } from './scalar.ts';
 
 export const BUFF_STACKING_TYPES = [
+  /** 每次施加都创建并启用一个独立实例，不限制同时存在的数量。 */
   'Unlimited',
+  /** 保留所有实例，但同组仅启用优先级最高的一个；最高项结束后自动启用下一项。 */
   'HighPriority',
+  /** 每次施加创建一个独立层；达到最大层数后先结束组内最低优先项。 */
   'Stack',
+  /** 复用现有实例并增加强化层数，上限由 maxStackCount 决定，不改变剩余时长。 */
   'Enhance',
+  /** 复用现有实例，不加层；仅在新时长更长时更新剩余时长。 */
   'Refresh',
+  /** 复用现有实例，不加层；把新时长累加到当前剩余时长。 */
   'Extend',
+  /** 复用现有实例，不加层、不改时长；合并输入黑板并重算属性修正。 */
   'Modify',
+  /** 同组已有实例时拒绝本次施加，已有实例保持不变。 */
   'Unique',
+  /** 复用现有实例并增加强化层数，同时仅在新时长更长时更新剩余时长。 */
   'EnhanceAndRefresh',
+  /** 复用现有实例，不加层；用新时长直接替换当前剩余时长。 */
   'OverwriteDuration',
+  /** 复用现有实例并增加强化层数，同时用新时长直接替换当前剩余时长。 */
   'EnhanceAndOverwriteDuration',
+  /** 保留所有实例，并按优先级只启用 maxStackCount 个；超出的实例停用但不结束。 */
   'HighPriorityWithMaxStack',
+  /** 复用单个强化实例；配置时长作为自动加层周期，直至 maxStackCount。 */
   'TimedGrowingEnhance',
 ] as const;
 export type BuffStackingTypeSource = (typeof BUFF_STACKING_TYPES)[number];
