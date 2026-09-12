@@ -127,9 +127,10 @@ import { projectSkillEnhancementTimelineViz } from '../../core/projection/skillE
 import { resolveControlTimeline } from '../../core/project/resolveControlTimeline';
 import {
   layoutBuffTimelineSegments,
+  mergeOverlappingBuffTimelineSegments,
   projectBuffTimelineViz,
   type BuffTimelineSegment,
-  type PositionedBuffTimelineSegment,
+  type PositionedDisplayBuffTimelineSegment,
 } from '../../core/projection/buffTimelineViz';
 import {
   layoutOperatorPassiveUiTimelineSegments,
@@ -2205,18 +2206,19 @@ const positionedBuffsByTarget = computed(() => {
     list.push(segment);
     grouped.set(segment.targetId, list);
   }
-  const positioned = new Map<string, PositionedBuffTimelineSegment[]>();
+  const positioned = new Map<string, PositionedDisplayBuffTimelineSegment[]>();
   for (const [targetId, segments] of grouped) {
+    const displaySegments = mergeOverlappingBuffTimelineSegments(segments);
     positioned.set(
       targetId,
       targetId === SINGLE_ENEMY_TARGET_ID
-        ? [...layoutBuffTimelineSegments(segments)]
+        ? [...layoutBuffTimelineSegments(displaySegments)]
         : [
             ...layoutBuffTimelineSegments(
-              segments.filter(segment => segment.placement === 'upper'),
+              displaySegments.filter(segment => segment.placement === 'upper'),
             ),
             ...layoutBuffTimelineSegments(
-              segments.filter(segment => segment.placement === 'lower'),
+              displaySegments.filter(segment => segment.placement === 'lower'),
             ),
           ],
     );
@@ -2250,7 +2252,7 @@ const positionedOperatorPassiveUisByTarget = computed(() => {
 function buffSegmentsForTarget(
   targetId: string | null,
   placement?: BuffTimelineSegment['placement'],
-): readonly PositionedBuffTimelineSegment[] {
+): readonly PositionedDisplayBuffTimelineSegment[] {
   if (targetId === null) return [];
   const segments = positionedBuffsByTarget.value.get(targetId) ?? [];
   return placement === undefined

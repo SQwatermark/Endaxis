@@ -26,7 +26,7 @@ describe('Next timeline Buff visualization retention', () => {
   it('uses the shared status segment for icon, stack badge, hover, and duration stripes', () => {
     expect(buffBandsSource).toContain('TimelineStatusSegment');
     expect(buffBandsSource).toContain('interactive');
-    expect(buffBandsSource).toContain(':count="item.layers > 1 ? item.layers : null"');
+    expect(buffBandsSource).toContain(':count="item.layers"');
     expect(statusSegmentSource).toContain('timeline-status-segment__count');
     expect(statusSegmentSource).toContain(':role="interactive ? \'button\' : undefined"');
     expect(statusSegmentSource).toContain(

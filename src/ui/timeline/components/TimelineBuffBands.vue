@@ -4,7 +4,7 @@ import { computed } from 'vue';
 import { useDurationBarColor } from '../durationBarColorContext';
 import { resolveDurationBarColor } from '../durationBarColor';
 import { useI18n } from 'vue-i18n';
-import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
+import type { PositionedDisplayBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
 import { resolveBuffDisplayName } from '../buffDisplayName';
 import { resolveSimpleBuffModifierDisplayName } from '../buffDisplayName';
 import type { BuffDetailTarget } from '../buffDetail';
@@ -14,7 +14,7 @@ import { frameToTimelinePx } from '../timelineGeometry';
 import { timelineLowerBuffTop } from '../timelineTrackEffectLayout';
 
 const props = defineProps<{
-  segments: readonly PositionedBuffTimelineSegment[];
+  segments: readonly PositionedDisplayBuffTimelineSegment[];
   prepFrames: number;
   pxPerFrame: number;
   prepExpanded: boolean;
@@ -101,6 +101,27 @@ const items = computed(() =>
         layers: segment.layers,
         icon,
         ...(modifierSummary === undefined ? {} : { modifierSummary }),
+        instances: segment.windows.map(member => {
+          const memberSourceName = props.sourceName?.(member);
+          const memberModifierSummary = resolveSimpleBuffModifierDisplayName(
+            {
+              attribute: member.simpleModifierAttribute,
+              slot: member.simpleModifierSlot,
+              value: member.simpleModifierValue,
+            },
+            { t, te },
+          );
+          return {
+            ...(memberSourceName === undefined ? {} : { sourceName: memberSourceName }),
+            startFrame: member.startFrame,
+            endFrame: member.durationEndFrame ?? member.endFrame,
+            layers: member.layers,
+            icon: member.iconPath ?? getIconAssetPath(member.iconId),
+            ...(memberModifierSummary === undefined
+              ? {}
+              : { modifierSummary: memberModifierSummary }),
+          };
+        }),
       } satisfies BuffDetailTarget,
     };
   }),
@@ -117,7 +138,7 @@ const items = computed(() =>
       :width="item.width"
       :title="item.title"
       :duration-color="item.color"
-      :count="item.layers > 1 ? item.layers : null"
+      :count="item.layers"
       interactive
       @activate="emit('open-detail', item.detail)"
     >

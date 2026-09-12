@@ -100,7 +100,7 @@ describe('TimelineEnemyStatusSections legacy layout contract', () => {
 
   it('lays all enemy buffs together so source placement cannot create overlapping lanes', () => {
     expect(editorSource).toContain('targetId === SINGLE_ENEMY_TARGET_ID');
-    expect(editorSource).toContain('? [...layoutBuffTimelineSegments(segments)]');
+    expect(editorSource).toContain('? [...layoutBuffTimelineSegments(displaySegments)]');
   });
 
   it('keeps the 180px summary column aligned with the timeline content column', () => {

@@ -12,4 +12,14 @@ export interface BuffDetailTarget {
   readonly layers: number;
   readonly icon?: string | null;
   readonly modifierSummary?: string;
+  readonly instances?: readonly BuffDetailInstance[];
+}
+
+export interface BuffDetailInstance {
+  readonly sourceName?: string;
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly layers: number;
+  readonly icon?: string | null;
+  readonly modifierSummary?: string;
 }

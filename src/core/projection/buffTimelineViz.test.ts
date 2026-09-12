@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
-import { layoutBuffTimelineSegments, projectBuffTimelineViz } from './buffTimelineViz';
+import {
+  layoutBuffTimelineSegments,
+  mergeOverlappingBuffTimelineSegments,
+  projectBuffTimelineViz,
+} from './buffTimelineViz';
 
 function applied(
   sequence: number,
@@ -267,6 +271,96 @@ describe('projectBuffTimelineViz', () => {
       40,
     );
     expect(layoutBuffTimelineSegments(segments).map(segment => segment.lane)).toEqual([0, 1, 0]);
+  });
+
+  it('叠加同一目标上持续时间重合的同 ID Buff，并在每次层数变化处分段', () => {
+    const segments = projectBuffTimelineViz(
+      [
+        applied(0, 0, 'operator:1', 1, 1),
+        applied(1, 5, 'operator:1', 2, 2),
+        finished(2, 10, 'operator:1', 1),
+        finished(3, 15, 'operator:1', 2),
+      ],
+      20,
+    );
+
+    expect(
+      mergeOverlappingBuffTimelineSegments(segments).map(segment => ({
+        start: segment.startFrame,
+        end: segment.endFrame,
+        layers: segment.layers,
+        members: segment.members.map(member => member.instanceId),
+        windows: segment.windows.map(window => window.instanceId),
+      })),
+    ).toEqual([
+      { start: 0, end: 5, layers: 1, members: [1], windows: [1, 2] },
+      { start: 5, end: 10, layers: 3, members: [1, 2], windows: [1, 2] },
+      { start: 10, end: 15, layers: 2, members: [2], windows: [1, 2] },
+    ]);
+  });
+
+  it('保留有时间间隔或只在边界相接的同 ID Buff 为独立窗口', () => {
+    const segments = projectBuffTimelineViz(
+      [
+        applied(0, 0, 'operator:1', 1, 1),
+        finished(1, 10, 'operator:1', 1),
+        applied(2, 10, 'operator:1', 2, 2),
+        finished(3, 20, 'operator:1', 2),
+        applied(4, 25, 'operator:1', 3, 3),
+        finished(5, 30, 'operator:1', 3),
+      ],
+      40,
+    );
+
+    expect(
+      mergeOverlappingBuffTimelineSegments(segments).map(segment => [
+        segment.startFrame,
+        segment.endFrame,
+        segment.layers,
+        segment.members[0]!.instanceId,
+      ]),
+    ).toEqual([
+      [0, 10, 1, 1],
+      [10, 20, 2, 2],
+      [25, 30, 3, 3],
+    ]);
+  });
+
+  it('不合并不同目标或不同 ID 的重合 Buff', () => {
+    const first = projectBuffTimelineViz(
+      [applied(0, 0, 'operator:1', 1, 1), finished(1, 10, 'operator:1', 1)],
+      20,
+    )[0]!;
+    const otherTarget = { ...first, targetId: 'operator:2', instanceId: 2, layers: 2 };
+    const otherId = { ...first, buffId: 'buff:other', instanceId: 3, layers: 3 };
+
+    expect(
+      mergeOverlappingBuffTimelineSegments([first, otherTarget, otherId]).map(segment => [
+        segment.targetId,
+        segment.buffId,
+        segment.layers,
+        segment.members.length,
+      ]),
+    ).toEqual([
+      ['operator:1', 'buff:test', 1, 1],
+      ['operator:2', 'buff:test', 2, 1],
+      ['operator:1', 'buff:other', 3, 1],
+    ]);
+  });
+
+  it('层数归零时不生成展示段，并保留未合并 Buff 的原生持续条终点', () => {
+    const visible = {
+      ...projectBuffTimelineViz(
+        [applied(0, 0, 'operator:1', 1, 1), finished(1, 20, 'operator:1', 1)],
+        30,
+      )[0]!,
+      durationEndFrame: 12,
+    };
+    const zero = { ...visible, instanceId: 2, startFrame: 25, endFrame: 30, layers: 0 };
+
+    expect(mergeOverlappingBuffTimelineSegments([visible, zero])).toEqual([
+      { ...visible, members: [visible], windows: [visible] },
+    ]);
   });
 
   it('uses frozen equipment provenance for the legacy lower band', () => {

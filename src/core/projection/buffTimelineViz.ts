@@ -45,6 +45,124 @@ export interface PositionedBuffTimelineSegment extends BuffTimelineSegment {
   readonly lane: number;
 }
 
+/** 时间轴展示段。members 是该时段内实际生效的 Buff 实例切段。 */
+export interface DisplayBuffTimelineSegment extends BuffTimelineSegment {
+  /** 当前层数阶段内实际生效的实例切段。 */
+  readonly members: readonly BuffTimelineSegment[];
+  /** 本次重叠合并包含的全部原始窗口，供详情面板切换。 */
+  readonly windows: readonly BuffTimelineSegment[];
+}
+
+export interface PositionedDisplayBuffTimelineSegment extends DisplayBuffTimelineSegment {
+  readonly lane: number;
+}
+
+interface BuffInstanceRun {
+  readonly startFrame: number;
+  readonly endFrame: number;
+  readonly segments: readonly BuffTimelineSegment[];
+}
+
+function buildContinuousInstanceRuns(
+  segments: readonly BuffTimelineSegment[],
+): readonly BuffInstanceRun[] {
+  const byInstance = new Map<number, BuffTimelineSegment[]>();
+  for (const segment of segments) {
+    const values = byInstance.get(segment.instanceId) ?? [];
+    values.push(segment);
+    byInstance.set(segment.instanceId, values);
+  }
+
+  const runs: BuffInstanceRun[] = [];
+  for (const values of byInstance.values()) {
+    const sorted = [...values].sort((a, b) => a.startFrame - b.startFrame);
+    let current: BuffTimelineSegment[] = [];
+    let endFrame = -1;
+    const flush = () => {
+      if (current.length === 0) return;
+      runs.push({ startFrame: current[0]!.startFrame, endFrame, segments: current });
+    };
+    for (const segment of sorted) {
+      if (current.length > 0 && segment.startFrame > endFrame) {
+        flush();
+        current = [];
+      }
+      current.push(segment);
+      endFrame = Math.max(endFrame, segment.endFrame);
+    }
+    flush();
+  }
+  return runs.sort((a, b) => a.startFrame - b.startFrame || a.endFrame - b.endFrame);
+}
+
+/**
+ * 仅合并挂在同一目标上的同 ID Buff，且不同实例的连续生命周期必须真正重叠。
+ * 每个输出段对应一次层数变化，层数为该时段内所有实例层数之和；归零不产生段。
+ */
+export function mergeOverlappingBuffTimelineSegments(
+  segments: readonly BuffTimelineSegment[],
+): readonly DisplayBuffTimelineSegment[] {
+  const groups = new Map<string, BuffTimelineSegment[]>();
+  for (const segment of segments) {
+    const key = `${segment.targetId}\u0000${segment.buffId}`;
+    const values = groups.get(key) ?? [];
+    values.push(segment);
+    groups.set(key, values);
+  }
+
+  const result: DisplayBuffTimelineSegment[] = [];
+  for (const values of groups.values()) {
+    const components: BuffInstanceRun[][] = [];
+    for (const run of buildContinuousInstanceRuns(values)) {
+      const current = components.at(-1);
+      const componentEnd =
+        current === undefined ? -1 : Math.max(...current.map(item => item.endFrame));
+      if (current === undefined || run.startFrame >= componentEnd) components.push([run]);
+      else current.push(run);
+    }
+
+    for (const component of components) {
+      const componentSegments = component.flatMap(run => run.segments);
+      if (component.length === 1) {
+        result.push(
+          ...componentSegments
+            .filter(segment => segment.layers > 0)
+            .map(segment => ({ ...segment, members: [segment], windows: [segment] })),
+        );
+        continue;
+      }
+      const placement = componentSegments[0]!.placement;
+      const boundaries = [
+        ...new Set(componentSegments.flatMap(s => [s.startFrame, s.endFrame])),
+      ].sort((a, b) => a - b);
+      for (let index = 0; index < boundaries.length - 1; index++) {
+        const startFrame = boundaries[index]!;
+        const endFrame = boundaries[index + 1]!;
+        if (endFrame <= startFrame) continue;
+        const members = componentSegments.filter(
+          segment => segment.startFrame <= startFrame && segment.endFrame >= endFrame,
+        );
+        const layers = members.reduce((sum, segment) => sum + segment.layers, 0);
+        if (layers <= 0 || members.length === 0) continue;
+        const representative = members.at(-1)!;
+        result.push({
+          ...representative,
+          placement,
+          startFrame,
+          endFrame,
+          durationEndFrame: endFrame,
+          layers,
+          members,
+          windows: componentSegments,
+        });
+      }
+    }
+  }
+  return result.sort(
+    (left, right) => left.startFrame - right.startFrame || left.instanceId - right.instanceId,
+  );
+}
+
 /** 仅使用执行实例的可见段；末帧伤害可归属结束段，叠层边界优先使用新段。 */
 export function findBuffTimelineSegmentForDamage<T extends BuffTimelineSegment>(
   entry: CombatReceiptEntry,
@@ -58,15 +176,21 @@ export function findBuffTimelineSegmentForDamage<T extends BuffTimelineSegment>(
   )
     return undefined;
   return segments
-    .filter(
-      segment =>
-        segment.targetId === entry.targetId &&
-        segment.targetId === entry.data!.buffOwnerId &&
-        segment.buffId === entry.data!.buffId &&
-        segment.instanceId === entry.data!.buffInstanceId &&
-        segment.startFrame <= entry.frame &&
-        segment.endFrame >= entry.frame,
-    )
+    .filter(segment => {
+      const candidates =
+        'members' in segment && Array.isArray(segment.members)
+          ? (segment.members as readonly BuffTimelineSegment[])
+          : [segment];
+      return candidates.some(
+        candidate =>
+          candidate.targetId === entry.targetId &&
+          candidate.targetId === entry.data!.buffOwnerId &&
+          candidate.buffId === entry.data!.buffId &&
+          candidate.instanceId === entry.data!.buffInstanceId &&
+          candidate.startFrame <= entry.frame &&
+          candidate.endFrame >= entry.frame,
+      );
+    })
     .sort((a, b) => b.startFrame - a.startFrame)[0];
 }
 
@@ -329,9 +453,9 @@ function copyOptionalBoolean(
 }
 
 /** 复刻旧版的紧凑排布：同一行不重叠即可复用，避免无意义地撑高轨道。 */
-export function layoutBuffTimelineSegments(
-  segments: readonly BuffTimelineSegment[],
-): readonly PositionedBuffTimelineSegment[] {
+export function layoutBuffTimelineSegments<T extends BuffTimelineSegment>(
+  segments: readonly T[],
+): readonly (T & PositionedBuffTimelineSegment)[] {
   const laneEnds: number[] = [];
   return segments.map(segment => {
     let lane = laneEnds.findIndex(endFrame => endFrame <= segment.startFrame);

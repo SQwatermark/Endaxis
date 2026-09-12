@@ -11,7 +11,7 @@ import { useDurationBarColor } from '../durationBarColorContext';
 import { resolveDurationBarColor } from '../durationBarColor';
 import { useI18n } from 'vue-i18n';
 import type { EnemyEffectViz } from '../../../core/projection/enemyEffectViz';
-import type { PositionedBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
+import type { PositionedDisplayBuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
 import type { EnemyCombatHudSnapshot as EnemyCombatHudSnapshotModel } from '../../../core/projection/combatHudSnapshot';
 import EnemyCombatHudSnapshot from './EnemyCombatHudSnapshot.vue';
 import { resolveBuffDisplayName } from '../buffDisplayName';
@@ -39,7 +39,7 @@ const { t, te } = useI18n();
 
 const props = defineProps<{
   viz: EnemyEffectViz;
-  buffs: readonly PositionedBuffTimelineSegment[];
+  buffs: readonly PositionedDisplayBuffTimelineSegment[];
   attachmentBuffIds?: ReadonlySet<string>;
   timelineWidth: number;
   durationFrames: number;
@@ -245,6 +245,27 @@ const buffs = computed(() =>
         layers: buff.layers,
         icon,
         ...(modifierSummary === undefined ? {} : { modifierSummary }),
+        instances: buff.windows.map(member => {
+          const memberSourceName = props.sourceName?.(member);
+          const memberModifierSummary = resolveSimpleBuffModifierDisplayName(
+            {
+              attribute: member.simpleModifierAttribute,
+              slot: member.simpleModifierSlot,
+              value: member.simpleModifierValue,
+            },
+            { t, te },
+          );
+          return {
+            ...(memberSourceName === undefined ? {} : { sourceName: memberSourceName }),
+            startFrame: member.startFrame,
+            endFrame: member.durationEndFrame ?? member.endFrame,
+            layers: member.layers,
+            icon: member.iconPath ?? getIconAssetPath(member.iconId),
+            ...(memberModifierSummary === undefined
+              ? {}
+              : { modifierSummary: memberModifierSummary }),
+          };
+        }),
       } satisfies BuffDetailTarget,
     };
   }),

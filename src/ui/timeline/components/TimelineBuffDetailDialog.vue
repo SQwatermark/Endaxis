@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { EaDialog } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
-import { computed } from 'vue';
-import type { BuffDetailTarget } from '../buffDetail';
+import { computed, ref, watch } from 'vue';
+import type { BuffDetailInstance, BuffDetailTarget } from '../buffDetail';
 
 const props = defineProps<{
   visible: boolean;
@@ -25,8 +25,32 @@ const emit = defineEmits<{
   'update:visible': [visible: boolean];
 }>();
 
+const instanceIndex = ref(0);
+watch(
+  () => props.target,
+  () => {
+    instanceIndex.value = 0;
+  },
+);
+const activeInstance = computed<BuffDetailInstance | null>(() => {
+  if (props.target === null) return null;
+  return (
+    props.target.instances?.[instanceIndex.value] ?? {
+      ...(props.target.sourceName === undefined ? {} : { sourceName: props.target.sourceName }),
+      startFrame: props.target.startFrame,
+      endFrame: props.target.endFrame,
+      layers: props.target.layers,
+      icon: props.target.icon,
+      ...(props.target.modifierSummary === undefined
+        ? {}
+        : { modifierSummary: props.target.modifierSummary }),
+    }
+  );
+});
 const durationFrames = computed(() =>
-  props.target === null ? 0 : Math.max(0, props.target.endFrame - props.target.startFrame),
+  activeInstance.value === null
+    ? 0
+    : Math.max(0, activeInstance.value.endFrame - activeInstance.value.startFrame),
 );
 
 function seconds(frames: number): string {
@@ -45,31 +69,49 @@ function seconds(frames: number): string {
       :close-on-click-modal="true"
       @update:model-value="emit('update:visible', $event)"
     >
-      <template v-if="target !== null">
+      <template v-if="target !== null && activeInstance !== null">
         <header class="buff-detail__header">
           <span class="buff-detail__icon">
-            <img v-if="target.icon" :src="target.icon" alt="" />
+            <img v-if="activeInstance.icon" :src="activeInstance.icon" alt="" />
             <span v-else>+</span>
-            <span v-if="target.layers > 1" class="buff-detail__count">{{ target.layers }}</span>
+            <span class="buff-detail__count">{{ activeInstance.layers }}</span>
           </span>
           <strong>{{ target.title }}</strong>
+          <span v-if="(target.instances?.length ?? 0) > 1" class="buff-detail__pager">
+            <button type="button" :disabled="instanceIndex === 0" @click="instanceIndex--">
+              ‹
+            </button>
+            <span>{{ instanceIndex + 1 }} / {{ target.instances!.length }}</span>
+            <button
+              type="button"
+              :disabled="instanceIndex >= target.instances!.length - 1"
+              @click="instanceIndex++"
+            >
+              ›
+            </button>
+          </span>
         </header>
 
         <dl class="buff-detail__facts">
-          <template v-if="target.sourceName">
+          <template v-if="activeInstance.sourceName">
             <dt>{{ labels.source }}</dt>
-            <dd>{{ target.sourceName }}</dd>
+            <dd>{{ activeInstance.sourceName }}</dd>
           </template>
-          <template v-if="target.modifierSummary">
+          <template v-if="activeInstance.modifierSummary">
             <dt>{{ labels.effect }}</dt>
-            <dd>{{ target.modifierSummary }}</dd>
+            <dd>{{ activeInstance.modifierSummary }}</dd>
           </template>
           <dt>{{ labels.layers }}</dt>
-          <dd>{{ target.layers }}</dd>
+          <dd>{{ activeInstance.layers }}</dd>
           <dt>{{ labels.start }}</dt>
-          <dd>{{ seconds(target.startFrame) }} · {{ labels.frames(target.startFrame) }}</dd>
+          <dd>
+            {{ seconds(activeInstance.startFrame) }} ·
+            {{ labels.frames(activeInstance.startFrame) }}
+          </dd>
           <dt>{{ labels.end }}</dt>
-          <dd>{{ seconds(target.endFrame) }} · {{ labels.frames(target.endFrame) }}</dd>
+          <dd>
+            {{ seconds(activeInstance.endFrame) }} · {{ labels.frames(activeInstance.endFrame) }}
+          </dd>
           <dt>{{ labels.duration }}</dt>
           <dd>{{ seconds(durationFrames) }} · {{ labels.frames(durationFrames) }}</dd>
           <dt>{{ labels.buffId }}</dt>
@@ -90,6 +132,30 @@ function seconds(frames: number): string {
   min-width: 0;
   margin-bottom: 18px;
   font-size: 16px;
+}
+
+.buff-detail__pager {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--ea-fg-muted);
+  font-size: 12px;
+}
+
+.buff-detail__pager button {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--ea-border);
+  background: var(--ea-fill-soft);
+  color: var(--ea-fg);
+  cursor: pointer;
+}
+
+.buff-detail__pager button:disabled {
+  opacity: 0.35;
+  cursor: default;
 }
 
 .buff-detail__icon {
