@@ -59,6 +59,7 @@ import { executeSpellBurst } from './spellBurstRuntime';
 import { AbilityEventDispatcher, type AbilityEventFromMap } from '../events/abilityEventDispatcher';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
+import type { SimulationRandomMode } from '../random/simulationRandom';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import type {
   CombatBattleRuntimeContext,
@@ -189,6 +190,7 @@ export interface StandardPlayerDamageEnvironmentOptions {
   readonly criticalSamples: CriticalSampleSource;
   /** RandomUtil.Dice 的独立样本源，不与暴击随机流混用。 */
   readonly probabilitySamples?: ProbabilitySampleSource;
+  readonly randomMode?: SimulationRandomMode;
   readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatDamageExecutorContext,
     step: DamageStep,
@@ -634,9 +636,11 @@ export class StandardPlayerDamageEnvironment {
           this.#enemyAttributes,
         ),
       criticalSamples: this.options.criticalSamples,
-      isCriticalForced: step =>
-        step.key !== undefined &&
-        (program?.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),
+      randomMode: this.options.randomMode,
+      resolveCriticalOverride: step =>
+        step.key === undefined
+          ? undefined
+          : program?.simulationInputs?.criticalOverrides?.[step.key],
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
       ...this.#damagePreparationPorts(operatorId, operatorBuffs),
@@ -1314,7 +1318,11 @@ export class StandardPlayerDamageEnvironment {
       sourceOperatorId: sourceId,
       ...(skillCastInfo === undefined
         ? {}
-        : { skillCastInfo, sourceActionId: skillCastInfo.originCastId }),
+        : {
+            skillCastInfo,
+            sourceActionId: skillCastInfo.originCastId,
+            castId: skillCastInfo.originCastId,
+          }),
       targetId: 'enemy',
       targetVitals: this.enemyVitals,
       clock: this.#requireClock(),
@@ -1328,6 +1336,7 @@ export class StandardPlayerDamageEnvironment {
           this.#enemyAttributes,
         ),
       criticalSamples: this.options.criticalSamples,
+      randomMode: this.options.randomMode,
       resolveNonRandomRuntimeSnapshot: step => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: step.parameters.tags.includes('fireAbnormal'),

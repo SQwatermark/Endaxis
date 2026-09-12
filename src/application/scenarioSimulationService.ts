@@ -17,6 +17,10 @@ import {
   type CriticalSampleSource,
 } from '../core/combat/random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
+import {
+  SimulationRandomSource,
+  type SimulationRandomMode,
+} from '../core/combat/random/simulationRandom';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 import type { StandardPlayerDamageScenarioResult } from './runStandardPlayerDamageScenarioSimulation';
 import type { CompileScenarioResourcesOptions } from '../core/compiler/compileScenarioResources';
@@ -63,6 +67,25 @@ export function createDefaultCriticalSampleSource(): CriticalSampleSource {
 /** 编辑器默认采用不触发随机分支的确定性样本 1；概率为 100% 时仍必然成立。 */
 export function createDefaultProbabilitySampleSource(): ProbabilitySampleSource {
   return { nextProbabilitySample: () => 1 };
+}
+
+function resolveScenarioRandomSettings(scenario: ScenarioDocument): {
+  readonly mode: SimulationRandomMode;
+  readonly globalSeed: number;
+  readonly castSeeds: ReadonlyMap<string, number>;
+} {
+  const castSeeds = new Map<string, number>();
+  for (const track of scenario.tracks) {
+    for (const cast of track?.skillCasts ?? []) {
+      const seed = cast.simulationInputs?.randomSeed;
+      if (seed !== undefined) castSeeds.set(cast.id, seed);
+    }
+  }
+  return {
+    mode: scenario.battle.random?.mode ?? 'expected',
+    globalSeed: scenario.battle.random?.globalSeed ?? 0,
+    castSeeds,
+  };
 }
 
 export interface ScenarioSimulationServiceOptions {
@@ -170,7 +193,6 @@ export class ScenarioSimulationService {
     }
     this.#options = {
       ...options,
-      probabilitySamples: options.probabilitySamples ?? createDefaultProbabilitySampleSource(),
       resolveNonRandomRuntimeSnapshot:
         options.resolveNonRandomRuntimeSnapshot ?? defaultNonRandomRuntimeSnapshot,
       elementalInflictionDocument: options.elementalInflictionDocument ?? elementalAttachments,
@@ -310,14 +332,17 @@ export class ScenarioSimulationService {
     continuationPlanCastIds?: readonly string[],
     continuationPlanMode: 'continuation' | 'compact' = 'continuation',
   ): StandardPlayerDamageScenarioResult {
+    const randomSettings = resolveScenarioRandomSettings(scenario);
+    const randomSource = new SimulationRandomSource(randomSettings);
     return runStandardPlayerDamageScenarioSimulation({
       scenario,
       endFrame,
       ...(continuationPlanCastIds === undefined
         ? {}
         : { continuationPlanCastIds, continuationPlanMode }),
-      criticalSamples: this.#options.criticalSamples ?? createDefaultCriticalSampleSource(),
-      probabilitySamples: this.#options.probabilitySamples!,
+      criticalSamples: this.#options.criticalSamples ?? randomSource,
+      probabilitySamples: this.#options.probabilitySamples ?? randomSource,
+      randomMode: randomSettings.mode,
       resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
       elementalInflictionDocument: this.#options.elementalInflictionDocument,
       ...(this.#options.spellInflictionSettings === undefined

@@ -5,9 +5,11 @@
 const BATTLE_RANDOM_STATE_LENGTH = 56;
 const BATTLE_RANDOM_MAX_VALUE = 0x7fffffff;
 
+import type { RandomSampleRequest } from './simulationRandom';
+
 /** 一场战斗持有的有状态暴击样本来源。 */
 export interface CriticalSampleSource {
-  nextCriticalSample(): number;
+  nextCriticalSample(request?: RandomSampleRequest): number;
 }
 
 /**

@@ -58,11 +58,14 @@ export function createPlayerActiveOperationExecutor(
     sourceOperatorId: options.context.program.operatorId,
     skillId: options.context.program.skillId,
     skillType: options.context.program.skillType,
-    isCriticalForced: (
-      step: Parameters<NonNullable<PlayerDamageOperationDependencies['isCriticalForced']>>[0],
+    resolveCriticalOverride: (
+      step: Parameters<
+        NonNullable<PlayerDamageOperationDependencies['resolveCriticalOverride']>
+      >[0],
     ) =>
-      step.key !== undefined &&
-      (options.context.program.simulationInputs?.forcedCriticalStepKeys ?? []).includes(step.key),
+      step.key === undefined
+        ? undefined
+        : options.context.program.simulationInputs?.criticalOverrides?.[step.key],
     targetId: options.targetId,
     clock: options.context.clock,
     receipt: options.context.receipt,

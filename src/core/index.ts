@@ -9,6 +9,7 @@ export * from './combat/events/abilityEventListenerStep';
 export * from './combat/events/gameLevelEventDispatcher';
 export * from './combat/random/criticalSampleSource';
 export * from './combat/random/probabilitySampleSource';
+export * from './combat/random/simulationRandom';
 export * from './combat/receipt/combatReceipt';
 export * from './combat/status/combatStatuses';
 export * from './combat/runtime/combatClock';

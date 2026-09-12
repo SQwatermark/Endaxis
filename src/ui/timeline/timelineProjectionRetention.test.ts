@@ -88,7 +88,7 @@ describe('Next timeline simulation projection retention', () => {
     );
     expect(actionBlockSource).not.toMatch(/@click[^=]*="\$emit\('hitClick'/);
     expect(actionBlockSource).toMatch(/\.hit-marker\.is-forced-crit\s*\{[^}]*#ff6b6b/s);
-    expect(source).toContain('forcedCriticalStepKeys');
+    expect(source).toContain('criticalOverrides');
   });
 
   it('keeps legacy skill-type border rules and ultimate side bars without overriding state', () => {

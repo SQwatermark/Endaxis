@@ -14,8 +14,8 @@ export function projectPublishedHitDetail(
     return {
       track,
       cast,
-      forcedCritical: (cast.simulationInputs?.forcedCriticalStepKeys ?? []).some(
-        key => deriveHitId(cast.id, key) === target.hitId,
+      forcedCritical: Object.entries(cast.simulationInputs?.criticalOverrides ?? {}).some(
+        ([key, result]) => result && deriveHitId(cast.id, key) === target.hitId,
       ),
       entries: projectTimelineHitDetailEntries(
         published.run.receiptEntries,

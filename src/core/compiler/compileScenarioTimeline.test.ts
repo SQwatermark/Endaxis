@@ -103,7 +103,8 @@ describe('compileScenarioTimeline', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     scenario.tracks[0]!.skillCasts[0]!.simulationInputs = {
       cameraToTargetSignedAngleDegrees: 22.5,
-      forcedCriticalStepKeys: ['damage:1'],
+      randomSeed: 7,
+      criticalOverrides: { 'damage:1': true },
     };
 
     const compiled = compileScenarioTimeline(scenario, index());
@@ -112,12 +113,13 @@ describe('compileScenarioTimeline', () => {
       compiled.operators[0]?.skills.find(skill => skill.castId !== undefined)?.simulationInputs,
     ).toEqual({
       cameraToTargetSignedAngleDegrees: 22.5,
-      forcedCriticalStepKeys: ['damage:1'],
+      randomSeed: 7,
+      criticalOverrides: { 'damage:1': true },
     });
     expect(
       compiled.operators[0]?.skills.find(skill => skill.castId !== undefined)?.simulationInputs
-        ?.forcedCriticalStepKeys,
-    ).not.toBe(scenario.tracks[0]!.skillCasts[0]!.simulationInputs?.forcedCriticalStepKeys);
+        ?.criticalOverrides,
+    ).not.toBe(scenario.tracks[0]!.skillCasts[0]!.simulationInputs?.criticalOverrides);
   });
 
   it('combines read-only common Buffs with operator-owned Buffs without a skill level', () => {

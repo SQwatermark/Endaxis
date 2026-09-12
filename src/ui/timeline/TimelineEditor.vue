@@ -278,6 +278,7 @@ import {
   setSkillCastColor,
   setSkillCastCustomBars,
   setSkillCastCameraTargetAngle,
+  setSkillCastRandomSeed,
   setSkillCastForcedCritical,
   setSkillCastCustomDefinition,
   resetSkillCastToTemplate,
@@ -2741,7 +2742,7 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
       hitId: hit.hitId,
       executionFrame: hit.frame,
       leftPx: timelineFramePx(hit.frame) - timelineFramePx(publishedStartFrame),
-      forcedCritical: (cast.simulationInputs?.forcedCriticalStepKeys ?? []).includes(hit.stepKey),
+      forcedCritical: cast.simulationInputs?.criticalOverrides?.[hit.stepKey] === true,
       title: hitMarkerTitle(hit.label),
     }));
   }
@@ -2756,9 +2757,7 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
         timelineFramePx(
           hitActualFrames.value.get(marker.hitId) ?? publishedStartFrame + marker.frameOffset,
         ) - timelineFramePx(publishedStartFrame),
-      forcedCritical: (cast.simulationInputs?.forcedCriticalStepKeys ?? []).includes(
-        marker.stepKey,
-      ),
+      forcedCritical: cast.simulationInputs?.criticalOverrides?.[marker.stepKey] === true,
       ...(effects === undefined ? {} : { title: hitMarkerTitle(effects.get(marker.hitId)) }),
     }));
 }
@@ -2831,10 +2830,7 @@ const hitDetail = computed(() => {
 });
 const hitDetailForceCritical = computed(() => {
   const detail = hitDetail.value;
-  return (
-    detail !== null &&
-    (detail.cast.simulationInputs?.forcedCriticalStepKeys ?? []).includes(detail.marker.stepKey)
-  );
+  return detail?.cast.simulationInputs?.criticalOverrides?.[detail.marker.stepKey] === true;
 });
 const hitDetailOperatorPanel = computed(() => {
   const target = hitDetailTarget.value;
@@ -5098,6 +5094,42 @@ function setSelectedCastCameraTargetAngle(angleDegrees: number | null): void {
   );
 }
 
+function setSelectedCastRandomSeed(seed: number | null): void {
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  commitScenario('setSkillCastRandomSeed', current =>
+    setSkillCastRandomSeed(current, selected.trackIndex, selected.cast.id, seed),
+  );
+}
+
+function rollSelectedCastRandomSeed(): void {
+  setSelectedCastRandomSeed(globalThis.crypto.getRandomValues(new Uint32Array(1))[0]!);
+}
+
+function setScenarioRandomMode(mode: 'expected' | 'sampled'): void {
+  commitScenario('setScenarioRandomMode', current => ({
+    ...current,
+    battle: {
+      ...current.battle,
+      random: { mode, globalSeed: current.battle.random?.globalSeed ?? 0 },
+    },
+  }));
+}
+
+function setGlobalRandomSeed(globalSeed: number): void {
+  commitScenario('setGlobalRandomSeed', current => ({
+    ...current,
+    battle: {
+      ...current.battle,
+      random: { mode: current.battle.random?.mode ?? 'expected', globalSeed },
+    },
+  }));
+}
+
+function rollGlobalRandomSeed(): void {
+  setGlobalRandomSeed(globalThis.crypto.getRandomValues(new Uint32Array(1))[0]!);
+}
+
 function setSelectedCastStartFrame(frame: number): void {
   const selected = selectedCastModel.value;
   if (selected === null || selected.cast.placement.afterCastId !== undefined) return;
@@ -5378,6 +5410,8 @@ function setPanelDialogVisible(visible: boolean): void {
         :operator-effects="operatorEffectsOptions"
         :locale="locale"
         :appearance="appearance"
+        :random-mode="scenario.battle.random?.mode ?? 'expected'"
+        :global-random-seed="scenario.battle.random?.globalSeed ?? 0"
         :labels="{
           rename: t('timeline.scenario.renameTooltip'),
           duplicate: t('timeline.scenario.duplicateTooltip'),
@@ -5427,6 +5461,9 @@ function setPanelDialogVisible(visible: boolean): void {
         @toggle-operator-effects="toggleOperatorEffectsVisibility"
         @set-locale="selectTimelineLocale"
         @set-appearance="setAppearance"
+        @set-random-mode="setScenarioRandomMode"
+        @set-global-random-seed="setGlobalRandomSeed"
+        @roll-global-random-seed="rollGlobalRandomSeed"
         @clear-selection="clearTimelineSelection"
       />
     </template>
@@ -6375,6 +6412,8 @@ function setPanelDialogVisible(visible: boolean): void {
         @edit-definition="showSkillDefinitionEditor = true"
         @reset-definition="resetSelectedCastDefinition"
         @set-camera-target-angle="setSelectedCastCameraTargetAngle"
+        @set-random-seed="setSelectedCastRandomSeed"
+        @roll-random-seed="rollSelectedCastRandomSeed"
         @set-start-frame="setSelectedCastStartFrame"
         @set-locked="setSelectedCastLocked"
         @set-disabled="setSelectedCastDisabled"

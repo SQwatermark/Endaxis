@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /** 时间轴顶部方案栏。DOM 分区与视觉契约以旧版 TimelineEditor 为准。 */
-import { EaButton, EaDeleteIcon, EaInput } from '@/design-system';
+import { EaButton, EaDeleteIcon, EaDiceIcon, EaInput, EaNumberInput } from '@/design-system';
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import TimelineDurationBarColorControls from './TimelineDurationBarColorControls.vue';
@@ -30,6 +30,8 @@ const props = defineProps<{
   }[];
   locale: string;
   appearance: 'light' | 'dark';
+  randomMode: 'expected' | 'sampled';
+  globalRandomSeed: number;
   labels: {
     rename: string;
     duplicate: string;
@@ -74,6 +76,9 @@ const emit = defineEmits<{
   toggleOperatorEffects: [trackIndex: number];
   setLocale: [locale: 'zh-CN' | 'en' | 'ru'];
   setAppearance: [appearance: 'light' | 'dark'];
+  setRandomMode: [mode: 'expected' | 'sampled'];
+  setGlobalRandomSeed: [seed: number];
+  rollGlobalRandomSeed: [];
   clearSelection: [];
 }>();
 
@@ -132,6 +137,12 @@ const localeIds = ['zh-CN', 'en', 'ru'] as const;
 function localeLabel(id: (typeof localeIds)[number]): string {
   if (id === 'zh-CN') return props.labels.locales.zhCN;
   return props.labels.locales[id];
+}
+
+function commitGlobalRandomSeed(value: number | undefined): void {
+  if (value !== undefined && Number.isInteger(value) && value >= 0 && value <= 0xffffffff) {
+    emit('setGlobalRandomSeed', value);
+  }
 }
 
 watch(
@@ -568,6 +579,44 @@ onBeforeUnmount(() => {
           </section>
           <section class="header-more-section">
             <h4 class="header-more-section__title">{{ labels.preferences }}</h4>
+            <div class="header-more-mode-row">
+              <span>{{ t('timeline.random.mode') }}</span>
+              <div class="header-more-segment" role="group" :aria-label="t('timeline.random.mode')">
+                <EaButton
+                  v-for="mode in ['expected', 'sampled'] as const"
+                  :key="mode"
+                  type="button"
+                  :class="{ 'is-active': randomMode === mode }"
+                  :aria-pressed="randomMode === mode"
+                  @click="$emit('setRandomMode', mode)"
+                >
+                  {{ t(`timeline.random.${mode}`) }}
+                </EaButton>
+              </div>
+            </div>
+            <div v-if="randomMode === 'sampled'" class="header-more-pref-row">
+              <span>{{ t('timeline.random.globalSeed') }}</span>
+              <EaNumberInput
+                class="header-more-seed-input"
+                :min="0"
+                :max="0xffffffff"
+                :step="1"
+                size="sm"
+                controls-position="right"
+                :model-value="globalRandomSeed"
+                @change="commitGlobalRandomSeed"
+              />
+              <EaButton
+                size="sm"
+                icon-only
+                type="button"
+                :title="t('timeline.random.roll')"
+                :aria-label="t('timeline.random.roll')"
+                @click="$emit('rollGlobalRandomSeed')"
+              >
+                <EaDiceIcon />
+              </EaButton>
+            </div>
             <div class="header-more-pref-row">
               <div class="header-more-locale">
                 <EaButton
@@ -941,6 +990,10 @@ onBeforeUnmount(() => {
   justify-content: flex-start;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.header-more-seed-input {
+  width: 126px;
 }
 
 .header-more-locale {

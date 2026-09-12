@@ -300,6 +300,16 @@
     "zhCNShort": "中"
   },
   "timeline": {
+    "random": {
+      "mode": "随机计算",
+      "expected": "期望",
+      "sampled": "随机",
+      "globalSeed": "全局种子",
+      "roll": "重掷",
+      "castSeed": "技能块种子",
+      "useGlobalSeed": "使用全局种子",
+      "castSeedHelp": "设置后，这个技能块及其派生行为使用独立随机流。"
+    },
     "continuousGroup": {
       "create": "设为连续组",
       "dissolve": "解散连续组",

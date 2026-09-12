@@ -28,6 +28,7 @@ import {
   setSkillCastDisabled,
   setSkillCastForcedCritical,
   setSkillCastLocked,
+  setSkillCastRandomSeed,
   setSkillCastCustomDefinition,
   setUnifiedInitialUltimateEnergy,
   setGlobalOperatorStatModifiers,
@@ -681,13 +682,27 @@ describe('moveSkillCast', () => {
     const original = scenario();
     const forced = setSkillCastForcedCritical(original, 0, 'cast:1', 'damage:1', true);
 
-    expect(forced.tracks[0]!.skillCasts[0]!.simulationInputs?.forcedCriticalStepKeys).toEqual([
-      'damage:1',
-    ]);
+    expect(forced.tracks[0]!.skillCasts[0]!.simulationInputs?.criticalOverrides).toEqual({
+      'damage:1': true,
+    });
     expect(setSkillCastForcedCritical(forced, 0, 'cast:1', 'damage:1', true)).toBe(forced);
 
     const cleared = setSkillCastForcedCritical(forced, 0, 'cast:1', 'damage:1', false);
     expect(cleared.tracks[0]!.skillCasts[0]!.simulationInputs).toBeUndefined();
+  });
+
+  it('stores and clears a skill-block random seed without changing other simulation inputs', () => {
+    const angled = setSkillCastCameraTargetAngle(scenario(), 0, 'cast:1', 30);
+    const seeded = setSkillCastRandomSeed(angled, 0, 'cast:1', 123);
+    expect(seeded.tracks[0]!.skillCasts[0]!.simulationInputs).toEqual({
+      cameraToTargetSignedAngleDegrees: 30,
+      randomSeed: 123,
+    });
+
+    const cleared = setSkillCastRandomSeed(seeded, 0, 'cast:1', null);
+    expect(cleared.tracks[0]!.skillCasts[0]!.simulationInputs).toEqual({
+      cameraToTargetSignedAngleDegrees: 30,
+    });
   });
 
   it('stores an independent complete custom definition and can return to the template', () => {

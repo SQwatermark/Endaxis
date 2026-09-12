@@ -56,6 +56,86 @@ function createAttributeSnapshots(attack = 100, defense = 0, criticalRate = 0) {
 }
 
 describe('PlayerDamageOperationExecutor', () => {
+  function runCriticalPolicy(
+    randomMode: 'expected' | 'sampled',
+    override?: boolean,
+  ): { readonly damage: number; readonly isCritical: boolean; readonly samples: number } {
+    const targetVitals = new CombatVitals({
+      health: 2000,
+      maxHealth: 2000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const receipt = new CombatReceiptCollector();
+    let samples = 0;
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'operator',
+      castId: 'cast:1',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt,
+      captureAttributeSnapshots: () => createAttributeSnapshots(100, 0, 0.5),
+      criticalSamples: {
+        nextCriticalSample: () => {
+          samples += 1;
+          return 0;
+        },
+      },
+      randomMode,
+      ...(override === undefined ? {} : { resolveCriticalOverride: () => override }),
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+    executor.execute({ ...DAMAGE_STEP, key: 'damage:1' });
+    const damage = receipt.entries.find(entry => entry.event === 'DamageApplied')!;
+    return {
+      damage: Number(damage.data?.value),
+      isCritical: damage.data?.isCritical === true,
+      samples,
+    };
+  }
+
+  it('separates expected damage from sampled damage without changing critical event results', () => {
+    expect(runCriticalPolicy('expected')).toEqual({ damage: 500, isCritical: true, samples: 1 });
+    expect(runCriticalPolicy('sampled')).toEqual({ damage: 600, isCritical: true, samples: 1 });
+  });
+
+  it('lets an explicit hit result override sampling in either direction', () => {
+    expect(runCriticalPolicy('sampled', false)).toEqual({
+      damage: 400,
+      isCritical: false,
+      samples: 0,
+    });
+    expect(runCriticalPolicy('sampled', true)).toEqual({
+      damage: 600,
+      isCritical: true,
+      samples: 0,
+    });
+    expect(runCriticalPolicy('expected', true)).toEqual({
+      damage: 600,
+      isCritical: true,
+      samples: 0,
+    });
+  });
+
   it('在实际执行生命伤害后置位本次技能的原生命中状态', () => {
     const targetVitals = new CombatVitals({
       health: 1000,
@@ -133,7 +213,7 @@ describe('PlayerDamageOperationExecutor', () => {
         attributes: { strength: 10, agility: 20, intellect: 30, will: 40 },
         coefficients: { strength: 0, agility: 0, intellect: 0.001, will: 0.0005 },
       },
-      isCriticalForced: step => step.key === 'forced',
+      resolveCriticalOverride: step => (step.key === 'forced' ? true : undefined),
       resolveNonRandomRuntimeSnapshot: () => ({
         runtimeExtensionMultiplier: 1,
         appliesIgniteDamageMultiplier: false,

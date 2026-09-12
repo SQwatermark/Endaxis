@@ -605,7 +605,8 @@ describe('V2 project document', () => {
       placement: { startFrame: 0 },
       simulationInputs: {
         cameraToTargetSignedAngleDegrees: -45,
-        forcedCriticalStepKeys: ['damage:1'],
+        randomSeed: 7,
+        criticalOverrides: { 'damage:1': true },
       },
     });
     project.scenarios[0]!.tracks[0] = track;
@@ -622,17 +623,14 @@ describe('V2 project document', () => {
       });
     }
 
-    track.skillCasts[0]!.simulationInputs = {
-      forcedCriticalStepKeys: ['damage:1', 'damage:1'],
-    };
-    const duplicateKeys = validateProjectDocument(project);
-    expect(duplicateKeys.ok).toBe(false);
-    if (!duplicateKeys.ok) {
-      expect(duplicateKeys.issues).toContainEqual({
-        path: '$.scenarios[0].tracks[0].skillCasts[0].simulationInputs.forcedCriticalStepKeys',
-        message: 'expected unique non-empty step keys',
+    track.skillCasts[0]!.simulationInputs = { randomSeed: -1 };
+    const invalidSeed = validateProjectDocument(project);
+    expect(invalidSeed.ok).toBe(false);
+    if (!invalidSeed.ok)
+      expect(invalidSeed.issues).toContainEqual({
+        path: '$.scenarios[0].tracks[0].skillCasts[0].simulationInputs.randomSeed',
+        message: 'expected a 32-bit unsigned integer',
       });
-    }
   });
 
   it('accepts partial presentation fields and validates custom display bars', () => {

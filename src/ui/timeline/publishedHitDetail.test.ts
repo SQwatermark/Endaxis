@@ -65,7 +65,7 @@ it('resolves receipts and panel through stable cast identity, independently of e
   ).toEqual([]);
   const forcedScenario = structuredClone(scenario);
   forcedScenario.tracks[2]!.skillCasts[0]!.simulationInputs = {
-    forcedCriticalStepKeys: ['damage:1'],
+    criticalOverrides: { 'damage:1': true },
   };
   const forced = { ...published, scenario: forcedScenario };
   const target = { castId: 'cast', hitId: deriveHitId('cast', 'damage:1') };

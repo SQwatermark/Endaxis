@@ -300,6 +300,16 @@
     "zhCNShort": "中"
   },
   "timeline": {
+    "random": {
+      "mode": "Random calculation",
+      "expected": "Expected",
+      "sampled": "Random",
+      "globalSeed": "Global seed",
+      "roll": "Reroll",
+      "castSeed": "Skill block seed",
+      "useGlobalSeed": "Use global seed",
+      "castSeedHelp": "When set, this skill block and its derived behavior use an independent random stream."
+    },
     "continuousGroup": {
       "create": "Create continuous group",
       "dissolve": "Dissolve continuous group",

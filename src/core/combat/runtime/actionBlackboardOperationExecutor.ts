@@ -350,7 +350,11 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       if (this.probabilitySamples === undefined) {
         throw new Error('probability requires an explicit probability sample source');
       }
-      const sample = this.probabilitySamples.nextProbabilitySample();
+      const sample = this.probabilitySamples.nextProbabilitySample({
+        ...(context.skillCastInfo?.originCastId === undefined
+          ? {}
+          : { castId: context.skillCastInfo.originCastId }),
+      });
       if (!Number.isFinite(sample) || sample < 0 || sample > 1) {
         throw new RangeError('probability sample must be a finite value in [0, 1]');
       }

@@ -757,6 +757,38 @@ export function setSkillCastCameraTargetAngle(
   return { ...scenario, tracks };
 }
 
+/** 设置技能块独立随机种子；null 表示重新跟随场景全局种子。 */
+export function setSkillCastRandomSeed(
+  scenario: ScenarioDocument,
+  trackIndex: TrackIndex,
+  skillCastId: string,
+  seed: number | null,
+): ScenarioDocument {
+  if (seed !== null && (!Number.isInteger(seed) || seed < 0 || seed > 0xffffffff)) {
+    throw new RangeError('skill cast random seed must be a 32-bit unsigned integer');
+  }
+  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  if ((cast.simulationInputs?.randomSeed ?? null) === seed) return scenario;
+
+  const skillCasts = [...track.skillCasts];
+  if (seed === null) {
+    const { randomSeed: _removed, ...remainingInputs } = cast.simulationInputs ?? {};
+    const { simulationInputs: _oldInputs, ...castWithoutInputs } = cast;
+    skillCasts[castIndex] =
+      Object.keys(remainingInputs).length === 0
+        ? castWithoutInputs
+        : { ...castWithoutInputs, simulationInputs: remainingInputs };
+  } else {
+    skillCasts[castIndex] = {
+      ...cast,
+      simulationInputs: { ...cast.simulationInputs, randomSeed: seed },
+    };
+  }
+  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
+  tracks[trackIndex] = { ...track, skillCasts };
+  return { ...scenario, tracks };
+}
+
 /** 切换一次释放中某个稳定伤害步骤的强制暴击输入。 */
 export function setSkillCastForcedCritical(
   scenario: ScenarioDocument,
@@ -767,18 +799,16 @@ export function setSkillCastForcedCritical(
 ): ScenarioDocument {
   if (stepKey.length === 0) throw new TypeError('forced-critical step key must not be empty');
   const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  const current = cast.simulationInputs?.forcedCriticalStepKeys ?? [];
-  const hasStep = current.includes(stepKey);
-  if (hasStep === forced) return scenario;
-
-  const forcedCriticalStepKeys = forced
-    ? [...current, stepKey]
-    : current.filter(value => value !== stepKey);
+  const current = cast.simulationInputs?.criticalOverrides ?? {};
+  if ((current[stepKey] === true) === forced) return scenario;
+  const criticalOverrides = { ...current };
+  if (forced) criticalOverrides[stepKey] = true;
+  else delete criticalOverrides[stepKey];
   const remainingInputs = {
     ...cast.simulationInputs,
-    ...(forcedCriticalStepKeys.length === 0 ? {} : { forcedCriticalStepKeys }),
+    ...(Object.keys(criticalOverrides).length === 0 ? {} : { criticalOverrides }),
   };
-  if (forcedCriticalStepKeys.length === 0) delete remainingInputs.forcedCriticalStepKeys;
+  if (Object.keys(criticalOverrides).length === 0) delete remainingInputs.criticalOverrides;
   const skillCasts = [...track.skillCasts];
   const { simulationInputs: _oldInputs, ...castWithoutInputs } = cast;
   skillCasts[castIndex] =

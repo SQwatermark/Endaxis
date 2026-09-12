@@ -3,6 +3,7 @@ export { default as EaCheckbox } from './components/EaCheckbox/EaCheckbox.vue';
 export { default as EaDialog } from './components/EaDialog/EaDialog.vue';
 export { default as EaDialogActions } from './components/EaDialogActions/EaDialogActions.vue';
 export { default as EaDeleteIcon } from './components/EaDeleteIcon/EaDeleteIcon.vue';
+export { default as EaDiceIcon } from './components/EaDiceIcon/EaDiceIcon.vue';
 export { default as EaFilterChip } from './components/EaFilterChip/EaFilterChip.vue';
 export { default as EaFormField } from './components/EaFormField/EaFormField.vue';
 export { default as EaInput } from './components/EaInput/EaInput.vue';

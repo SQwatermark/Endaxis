@@ -10,6 +10,7 @@ import type { CompoundStatusFactoriesDocument } from '../core/combat/infliction/
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
+import type { SimulationRandomMode } from '../core/combat/random/simulationRandom';
 import {
   StandardPlayerDamageEnvironment,
   type StandardPlayerDamageEnvironmentOptions,
@@ -46,6 +47,7 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly endFrame: number;
   readonly criticalSamples: CriticalSampleSource;
   readonly probabilitySamples?: ProbabilitySampleSource;
+  readonly randomMode?: SimulationRandomMode;
   readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatDamageExecutorContext,
     step: DamageStep,
@@ -119,6 +121,7 @@ export function runStandardPlayerDamageScenarioSimulation(
 
   const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
     criticalSamples: input.criticalSamples,
+    randomMode: input.randomMode,
     ...(input.probabilitySamples === undefined
       ? {}
       : { probabilitySamples: input.probabilitySamples }),

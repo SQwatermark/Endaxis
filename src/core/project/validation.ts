@@ -299,16 +299,26 @@ function validateSkillCast(
           });
         }
       }
-      if (value.simulationInputs.forcedCriticalStepKeys !== undefined) {
-        const keys = value.simulationInputs.forcedCriticalStepKeys;
+      if (value.simulationInputs.randomSeed !== undefined) {
+        const seed = value.simulationInputs.randomSeed;
+        if (typeof seed !== 'number' || !Number.isInteger(seed) || seed < 0 || seed > 0xffffffff) {
+          issues.push({
+            path: `${inputPath}.randomSeed`,
+            message: 'expected a 32-bit unsigned integer',
+          });
+        }
+      }
+      if (value.simulationInputs.criticalOverrides !== undefined) {
+        const overrides = value.simulationInputs.criticalOverrides;
         if (
-          !Array.isArray(keys) ||
-          keys.some(key => typeof key !== 'string' || key.length === 0) ||
-          new Set(keys).size !== keys.length
+          !isObject(overrides) ||
+          Object.entries(overrides).some(
+            ([key, result]) => key.length === 0 || typeof result !== 'boolean',
+          )
         ) {
           issues.push({
-            path: `${inputPath}.forcedCriticalStepKeys`,
-            message: 'expected unique non-empty step keys',
+            path: `${inputPath}.criticalOverrides`,
+            message: 'expected non-empty step keys with boolean results',
           });
         }
       }

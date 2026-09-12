@@ -161,6 +161,24 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
   requireNonNegativeInteger(value.prepFrames, `${path}.prepFrames`, issues);
   requirePositiveInteger(value.durationFrames, `${path}.durationFrames`, issues);
 
+  if (value.random !== undefined) {
+    const randomPath = `${path}.random`;
+    if (!isObject(value.random)) {
+      issues.push({ path: randomPath, message: 'expected an object' });
+    } else {
+      if (value.random.mode !== 'expected' && value.random.mode !== 'sampled') {
+        issues.push({ path: `${randomPath}.mode`, message: 'expected expected or sampled' });
+      }
+      const seed = value.random.globalSeed;
+      if (!Number.isInteger(seed) || (seed as number) < 0 || (seed as number) > 0xffffffff) {
+        issues.push({
+          path: `${randomPath}.globalSeed`,
+          message: 'expected a 32-bit unsigned integer',
+        });
+      }
+    }
+  }
+
   if (value.simulationRange !== undefined) {
     const rangePath = `${path}.simulationRange`;
     if (!isObject(value.simulationRange)) {

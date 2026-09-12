@@ -300,11 +300,9 @@ function compileCastSkillPrograms(
             : {
                 simulationInputs: {
                   ...cast.simulationInputs,
-                  ...(cast.simulationInputs.forcedCriticalStepKeys === undefined
+                  ...(cast.simulationInputs.criticalOverrides === undefined
                     ? {}
-                    : {
-                        forcedCriticalStepKeys: [...cast.simulationInputs.forcedCriticalStepKeys],
-                      }),
+                    : { criticalOverrides: { ...cast.simulationInputs.criticalOverrides } }),
                 },
               }),
         },

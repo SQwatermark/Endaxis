@@ -1,6 +1,8 @@
+import type { RandomSampleRequest } from './simulationRandom';
+
 /** `RandomUtil.Dice(float)` 使用的独立随机样本端口。 */
 export interface ProbabilitySampleSource {
-  nextProbabilitySample(): number;
+  nextProbabilitySample(request?: RandomSampleRequest): number;
 }
 
 /** 用于录像对照和确定性测试的有限样本流。 */
