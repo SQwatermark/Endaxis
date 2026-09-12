@@ -37,14 +37,40 @@ function summarizeDiagnostics(entries: readonly CombatReceiptEntry[]) {
   const availability = projectSkillAvailabilityDiagnostics(entries);
   const comboWindow = projectComboWindowDiagnostics(entries);
   const execution = projectSkillExecutionDiagnostics(entries);
-  const sequences = new Set(
-    [...availability, ...comboWindow, ...execution].flatMap(d => d.receiptSequences),
-  );
+  const diagnostics = [...availability, ...comboWindow, ...execution];
+  const sequences = new Set(diagnostics.flatMap(d => d.receiptSequences));
+  const evidence = entries.filter(entry => sequences.has(entry.sequence));
+  const evidenceBySequence = new Map(evidence.map(entry => [entry.sequence, entry]));
+  const issuesByCast = new Map<
+    string,
+    { castId: string; reasons: Set<string>; receiptSequences: Set<number> }
+  >();
+  for (const diagnostic of diagnostics) {
+    const castIds = new Set(
+      diagnostic.receiptSequences
+        .map(sequence => evidenceBySequence.get(sequence)?.data?.castId)
+        .filter((castId): castId is string => typeof castId === 'string'),
+    );
+    for (const castId of castIds) {
+      let issue = issuesByCast.get(castId);
+      if (issue === undefined) {
+        issue = { castId, reasons: new Set<string>(), receiptSequences: new Set<number>() };
+        issuesByCast.set(castId, issue);
+      }
+      diagnostic.reasons.forEach(reason => issue.reasons.add(reason));
+      diagnostic.receiptSequences.forEach(sequence => issue.receiptSequences.add(sequence));
+    }
+  }
   return {
     availability,
     comboWindow,
     execution,
-    evidence: entries.filter(entry => sequences.has(entry.sequence)),
+    castIssues: [...issuesByCast.values()].map(({ castId, reasons, receiptSequences }) => ({
+      castId,
+      reasons: [...reasons],
+      receiptSequences: [...receiptSequences],
+    })),
+    evidence,
   };
 }
 

@@ -29,6 +29,8 @@ node --experimental-strip-types tools/legacy-timeline/auditSimulation.ts tmp/con
 
 分别重算存档结束线和完整时长，输出总期望伤害、完整 sourceId 分账及结束线后的命中。
 分账包含零伤害、无 castId 和无来源（null）的公共伤害，不把不同轨道或能力实体猜成同一来源。
+`diagnostics.castIssues` 按完整 `castId` 汇总当前原生门禁失败；比较旧新伤害前先排除这些施法，
+避免把编辑器为保留放置坐标而强制执行的无效输入误判成技能命中缺失。
 这些是当前模拟回执的账目，不是新旧命中已一一对应或游戏行为已经核实的证明。
 
 ## 映射配置

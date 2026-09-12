@@ -48,9 +48,28 @@ it('伤害审计同时保留强制执行的告警及原始证据，两种截止�
   expect(report.configured.diagnostics.availability).toHaveLength(2);
   expect(report.configured.diagnostics.comboWindow).toEqual([]);
   expect(report.configured.diagnostics.execution).toEqual([]);
+  expect(report.configured.diagnostics.castIssues).toEqual([
+    {
+      castId: 'requested',
+      reasons: ['resourceUnavailable', 'skillInterruptUnavailable'],
+      receiptSequences: [1, 2],
+    },
+  ]);
   expect(report.configured.diagnostics.evidence).toEqual(entries.slice(0, 2));
   expect(report.fullDuration.diagnostics.comboWindow[0]?.reasons).toEqual(['windowMissing']);
   expect(report.fullDuration.diagnostics.execution[0]?.reasons).toEqual(['costPaymentRejected']);
+  expect(report.fullDuration.diagnostics.castIssues).toEqual([
+    {
+      castId: 'requested',
+      reasons: [
+        'resourceUnavailable',
+        'skillInterruptUnavailable',
+        'windowMissing',
+        'costPaymentRejected',
+      ],
+      receiptSequences: [1, 2, 60, 61],
+    },
+  ]);
   expect(report.fullDuration.diagnostics.evidence.map(e => e.sequence)).toEqual([1, 2, 60, 61]);
   expect(report.configured.expectedDamage).toBe(10);
   expect(entries).toEqual(before);

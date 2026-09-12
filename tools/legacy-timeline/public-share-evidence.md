@@ -1926,3 +1926,96 @@ delay_damage Buff。旧版仍只有 32 条，因此本项不追求新旧相等�
 审计报告现在同时保留逐条 `damageRecords` 和按完整 `castId` 汇总的 `casts`。无 `castId`
 伤害单列为 null，不会从总账消失。这样可以先区分真实伤害、无伤害占位和关联 Buff/实体伤害，
 再讨论行为差异，避免用总条数驱动代码修改。
+
+## 同轴法术爆发与赛希下落攻击差异
+
+诀首个连携的寒冷爆发，旧版期望伤害 5824，当前为 `4357.197842644239`。双方攻击力都是
+3932，原生 SkillSetting 基础倍率都是 1.6，术强 107.64 对应增强系数 2.0764。旧版另外乘了
+`1+(90-1)/196=1.4540816326530612`；该等级系数来自旧
+`src/data/stats/computeReactionDamage.ts` 的人工公式。反编译确认的原生链是
+`ReadSkillSettingData → AtkScaleCalculation → DamagePackData`，这三段均不读取角色等级，当前不补
+旧版等级系数。
+
+本次爆发当前 `damageScaleMultiplier=1.301664`，正好等于 `1.092 × 1.192`。其中 1.192 是
+同一普通倍率区内两项 9.6% 承伤相加：较早存在的 `will_dmg`，以及爆发前事件刚施加的
+`will_atk`。原始爆发 Buff 的动作顺序是先 `TriggerSpellBurstEventAction`，再读 SkillSetting，
+最后执行 `DamageAction`；原始武器 Buff 监听爆发前事件并立即启用 `will_atk`。旧版先算伤害再派发
+状态，因此本次只计一项 9.6%。当前顺序符合原始动作数组和 IL2CPP 事件顺序，不向旧版回退。
+
+赛希来源旧版共 4 条 `DAMAGE_HIT`，其中战技和终结技各一条 `_noDamage=true`；实际伤害只有
+连携与下落攻击各一条。当前也正好是这两条，因此“4 对 2”不是缺两次命中。下落攻击倍率双方均为
+180%，旧版期望伤害 9239，当前为 `2167.27596043155`。旧版伤害明细仍包含骑士精神 14.4%、
+赛希终结技寒冷增幅 41.481%、多项敌方承伤与腐蚀减抗；当前命中时其中多项已经自然结束。
+
+当前回执显示骑士精神在 894 帧施加、1343 帧结束；赛希终结技增幅在 1219 帧施加、1579 帧
+结束；下落攻击在 1599 帧命中。对应原始 Buff `buff_wpn_funnel_0010_atk_up`、
+`buff_chr_0011_seraph_atk_buff`、`buff_common_affixes_enhance_crystal` 都明确配置
+`useTimeDilationDt=false`、`onlyUseSelfTimeDilation=false`，所以持续时间使用未缩放时间，不随全局
+时间膨胀延长。三份原始文件 SHA-256 依次为
+`4041D33B5C538FBBDAB43DD2FF67C692006BE23AFCF8CAEEE048AC712CA94497`、
+`F308E6B6C601E9760CDCCF7F289DD99E0612C328B2C5D89AD4E0E42B786CEDF9`、
+`FB23B2F3E17371C2BE459E40A2EC05DE51DCAE1DC92EF495759435CB108E3350`。
+旧编译器会把普通效果持续时间按冻屏统一延长，导致这些 Buff 在旧版下落攻击时仍被错误保留。
+当前按原生时间开关结束 Buff，因此不复制旧版的高伤害。
+
+旧编译器的具体路径位于旧工作树 `src/simulation/compiler/compileTimeline.ts`：除显式
+`ignoreTimeShift` 外，效果结束时间统一调用
+`timeContext.getShiftedEndTime(effectRealStartTime, baseDuration, item.id)`。这只能说明旧版为何
+保留已到期 Buff，不能反过来作为当前持续时间语义的依据。
+
+### 无效输入不能用于判定命中缺失
+
+诀第一次第三段普攻在旧版 `HITS` 中有两次伤害，当前只产生一次。原始
+`chr_0026_lastrite_attack3.json` 与当前生成定义都明确包含第 9、27 帧两次 `DamageAction`，因此
+生成器没有漏掉第二击。当前下一块第四段普攻输入发生时，第三段局部时间正好是第 27 帧；原始
+第三段只在第 36 至 48 帧允许接续第四段，`exclusiveFrame=47` 也尚未开放普通中断。运行时据此
+记录 `SkillInputCannotInterruptCurrentSkill`，证明确实未通过原生中断门禁。
+
+编辑器的既定规则是保留用户放置坐标：门禁失败后仍强制执行块中明示的技能，并把失败显示为块上
+警告。该强制切换在本帧技能动作推进前中断第三段，才使第 27 帧第二击没有执行。若按真实游戏
+`TryCastSkill`，第四段输入会失败，第三段则继续执行第二击；若按编辑器固定坐标，第二击被裁掉是
+无效轴输入的结果。两种结果都不能由旧版命中数裁决。后续伤害对比先排除存在
+`SkillInputCannotInterruptCurrentSkill`、费用失败或连携窗口失败的施法，不把这些差异当成技能实现
+缺口。
+
+### 诀战技是旧版合并命中
+
+诀第一次战技在旧版动作自身只有一条无伤害状态载体，稍后由人工状态产生一条 320% 寒冷伤害，
+再产生一条 160% 法术爆发；按动作分账时容易误读为“旧版 0、当前 3”。当前战技在普攻期间
+释放，原始路径施加 `buff_chr_0026_lastrite_normal_skill_phantom`。该 Buff 第 9 帧有两个并列的
+`DamageAction`，两者都读取同一个 `atk_scale`。战技先把 320% 的十二级黑板乘 0.5，因此原生
+结果是同帧两次 160%，不是一次 320%。随后触发的法术爆发是第三条伤害。
+
+当前回执也正好是幻影 Buff 同帧两条伤害加稍后一条爆发。原始
+`buff_chr_0026_lastrite_normal_skill_phantom.json` SHA-256 为
+`CBC471D54747173BA10EF35D18862E0233865B28CC61F966E16006B91BCF9DA5`。旧版把两条原生伤害
+预先相加为一条人工命中，当前保留两个 `DamageAction` 的独立结算，不能为匹配旧命中数而合并。
+
+### 汤汤第三段普攻是五次近战加四个投射物
+
+汤汤第三段普攻在旧版每次固定拆成 7 条等倍率人工命中，当前两次施放都产生 9 条。原始
+`chr_0027_tangtang_attack3.json` 的近战部分是第 5 至 13 帧的 `ChannelingAction`，配置
+`executeEachFrame=false`、`triggerInterval=0.06`、`maxCountPerTarget=-1`；按 30 FPS 累计器在
+第 5、7、9、11、13 帧触发，共 5 次。原始时间轴随后还在第 17、17、18、18 帧生成四个独立
+投射物命中，因此完整原生结构是 5 加 4，共 9 次。
+
+当前回执帧也分别呈现 5 次间隔两帧的 `atk_scale_1` 伤害和 4 次投射物 `atk_scale_2` 伤害。
+原始文件 SHA-256 为
+`1E53B600265D63365150A1FDA667D24944D360926C8F80E04D66FF4FABEE4167`。旧版 7 次等分没有
+对应原始 Channeling 与投射物结构，当前不按旧版减少命中。
+
+### 诀战技团队 Buff 只触发一次
+
+汤汤第二组重击在旧版动作账上有三条：一条汤汤重击本体，以及诀战技人工状态产生的 320%
+伤害和随后法术爆发。当前只有重击本体。原始 `buff_chr_0026_lastrite_normal_skill` 确实监听
+`beforeOutputDamage`，条件是伤害带 `normalAttackLastCombo` 标签；但触发幻影的同一序列还会立即
+给 Buff 来源添加 `buff_chr_0026_lastrite_normal_skill_tag`。后者的 `addedBuff` 响应会结束全队
+`buff_chr_0026_lastrite_normal_skill`，所以团队效果在第一次符合条件的最后一段普攻后就被消费，
+不是在 15 秒内反复触发。
+
+当前轴中，这个 Buff 已被更早的诀重击消费，汤汤后续重击时不再存在。旧版人工
+`hypothermic-perfusion` 状态仍在后续重击上重复触发，属于旧实现遗漏消费链。两份原始文件
+`buff_chr_0026_lastrite_normal_skill.json` 与
+`buff_chr_0026_lastrite_normal_skill_tag.json` 的 SHA-256 分别为
+`3D0231412291D6CF95BD52AE5D30CC304E6A0EA6EF8E62810A7ABDB27326F599`、
+`5885C7CCA9E2168E886B47850E174707CB7400164E9D05331EE0296577671F82`。当前不重复补发幻影和爆发。
