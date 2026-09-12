@@ -28,7 +28,7 @@ function baseDamage(): Record<string, number | boolean | string | null> {
   };
 }
 
-it('keeps Buff receipts out of skill markers and details while retaining direct hits', () => {
+it('keeps target-owned Buff receipts out of skill markers while retaining delegated Buff hits', () => {
   const direct: CombatReceiptEntry = {
     sequence: 1,
     frame: 30,
@@ -50,16 +50,37 @@ it('keeps Buff receipts out of skill markers and details while retaining direct 
       buffInstanceId: 1,
     },
   };
-  const entries = [direct, buff];
-  expect(projectTimelineHitActualFrames(entries)).toEqual(new Map([['direct', 30]]));
+  const buffApplied: CombatReceiptEntry = {
+    sequence: 0,
+    frame: 20,
+    time: 2 / 3,
+    event: 'BuffApplied',
+    sourceId: 'rossi',
+    targetId: 'enemy',
+    data: { buffId: 'bleed', instanceId: 1, layers: 1, visible: true },
+  };
+  const delegated = {
+    ...buff,
+    sequence: 3,
+    sourceId: 'rossi',
+    data: { ...buff.data, hitId: 'sword', stepKey: 'sword', buffOwnerId: 'ability-entity:2' },
+  };
+  const entries = [buffApplied, direct, buff, delegated];
+  expect(projectTimelineHitActualFrames(entries)).toEqual(
+    new Map([
+      ['direct', 30],
+      ['sword', 30],
+    ]),
+  );
   expect(
     projectTimelineHitOccurrences(entries)
       .get('cast')
       ?.map(hit => hit.hitId),
-  ).toEqual(['direct']);
+  ).toEqual(['direct', 'sword']);
   expect(projectTimelineHitDetailEntries(entries, 'cast', 'bleed')).toEqual([]);
   expect(projectTimelineHitDetailEntries(entries, 'cast', 'bleed', 30)).toEqual([]);
   expect(projectTimelineHitDetailEntries(entries, 'cast', 'direct')).toEqual([direct]);
+  expect(projectTimelineHitDetailEntries(entries, 'cast', 'sword')).toEqual([delegated]);
 });
 
 function scenarioWithCast(): ScenarioDocument {

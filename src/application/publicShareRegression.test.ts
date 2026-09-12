@@ -38,7 +38,8 @@ it('runs the public low-star action sequence with native definitions without rew
   const segments = projectBuffTimelineViz(run.receiptEntries, run.frame);
   const hits = projectEnemyEffectViz(run.receiptEntries, run.frame).damageHits ?? [];
   expect(hits.length).toBeGreaterThan(0);
-  for (const hit of hits) expect(findBuffDamageSegment(hit, segments)).toBeDefined();
+  for (const hit of hits)
+    expect(findBuffDamageSegment(hit, segments), JSON.stringify(hit)).toBeDefined();
   expect(segments.some(segment => segment.buffId === 'buff_common_cryst_fire_triggered')).toBe(
     true,
   );

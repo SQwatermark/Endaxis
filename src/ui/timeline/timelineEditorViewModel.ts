@@ -117,6 +117,7 @@ function projectSkillCast(
   resolved: ResolvedSkillDefinition | null,
   resolutionIssue: string | undefined,
   abilityEntityDefinitions?: OperatorDefinition['abilityEntityDefinitions'],
+  buffDefinitions?: OperatorDefinition['buffDefinitions'],
 ): TimelineSkillCastViewModel {
   const skillType = resolved?.definition.skillType ?? resolved?.group.skillType ?? null;
   return {
@@ -130,7 +131,12 @@ function projectSkillCast(
       : { enhancementStateBuffId: resolved.definition.enhancementStateBuffId }),
     hitMarkers:
       resolved !== null
-        ? projectCastHitMarkers(skillCast, resolved.definition, abilityEntityDefinitions)
+        ? projectCastHitMarkers(
+            skillCast,
+            resolved.definition,
+            abilityEntityDefinitions,
+            buffDefinitions,
+          )
         : [],
     disabled: skillCast.presentation?.disabled ?? false,
     locked: skillCast.presentation?.locked ?? false,
@@ -217,6 +223,7 @@ function projectTrack(
       resolved,
       resolutionIssue,
       operator?.abilityEntityDefinitions,
+      operator?.buffDefinitions,
     );
   });
 

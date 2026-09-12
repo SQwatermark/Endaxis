@@ -45,6 +45,31 @@ export interface PositionedBuffTimelineSegment extends BuffTimelineSegment {
   readonly lane: number;
 }
 
+/** 仅使用执行实例的可见段；末帧伤害可归属结束段，叠层边界优先使用新段。 */
+export function findBuffTimelineSegmentForDamage<T extends BuffTimelineSegment>(
+  entry: CombatReceiptEntry,
+  segments: readonly T[],
+): T | undefined {
+  if (
+    entry.event !== 'DamageApplied' ||
+    typeof entry.data?.buffId !== 'string' ||
+    typeof entry.data.buffOwnerId !== 'string' ||
+    !Number.isInteger(entry.data.buffInstanceId)
+  )
+    return undefined;
+  return segments
+    .filter(
+      segment =>
+        segment.targetId === entry.targetId &&
+        segment.targetId === entry.data!.buffOwnerId &&
+        segment.buffId === entry.data!.buffId &&
+        segment.instanceId === entry.data!.buffInstanceId &&
+        segment.startFrame <= entry.frame &&
+        segment.endFrame >= entry.frame,
+    )
+    .sort((a, b) => b.startFrame - a.startFrame)[0];
+}
+
 function requireData(entry: CombatReceiptEntry): Readonly<Record<string, CombatReceiptValue>> {
   if (entry.data === undefined)
     throw new Error(`receipt ${entry.sequence} '${entry.event}' has no data`);

@@ -234,13 +234,14 @@ describe('projectCastHitMarkers', () => {
     ]);
   });
 
-  it('keeps recursively applied Buff damage off the source cast', () => {
+  it('collects recursively applied Buff damage as a conditional source-cast hit', () => {
     const cast = createCast([
       {
         kind: 'applyBuff',
         parameters: {
           buffId: 'buff:root',
           target: 'caster',
+          inheritSourceSkillCastInfo: true,
           definition: {
             stackingType: 'unique',
             lifecycleSequences: {
@@ -251,6 +252,7 @@ describe('projectCastHitMarkers', () => {
                     parameters: {
                       buffId: 'buff:damage',
                       target: 'caster',
+                      inheritSourceSkillCastInfo: true,
                       definition: {
                         stackingType: 'unique',
                         lifecycleSequences: {
@@ -266,6 +268,67 @@ describe('projectCastHitMarkers', () => {
         },
       },
     ]);
+    expect(projectCastHitMarkers(cast, fixtureDef(cast))).toEqual([
+      {
+        hitId: deriveHitId('cast:1', 'buff-hit'),
+        frameOffset: 10,
+        stepKey: 'buff-hit',
+        conditional: true,
+      },
+    ]);
+  });
+
+  it('resolves an ID-only Buff applied to an ability entity and collects scheduled damage', () => {
+    const cast = createCast([
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff:sword',
+          target: 'currentAbilityEntity',
+          inheritSourceSkillCastInfo: true,
+        },
+      },
+    ]);
+
+    expect(
+      projectCastHitMarkers(cast, fixtureDef(cast), undefined, {
+        'buff:sword': {
+          stackingType: 'unlimited',
+          blackboard: {},
+          scheduledSequences: [
+            { startFrame: 6, sequence: { steps: [damageStep('sword-hit', 'sword-hit')] } },
+          ],
+        },
+      }),
+    ).toEqual([
+      {
+        hitId: deriveHitId('cast:1', 'sword-hit'),
+        frameOffset: 16,
+        stepKey: 'sword-hit',
+        conditional: true,
+      },
+    ]);
+  });
+
+  it('does not follow Buff work that explicitly drops the source cast identity', () => {
+    const cast = createCast([
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'buff:passive',
+          target: 'caster',
+          inheritSourceSkillCastInfo: false,
+          definition: {
+            stackingType: 'unique',
+            blackboard: {},
+            scheduledSequences: [
+              { startFrame: 6, sequence: { steps: [damageStep('passive-hit', 'passive-hit')] } },
+            ],
+          },
+        },
+      },
+    ]);
+
     expect(projectCastHitMarkers(cast, fixtureDef(cast))).toEqual([]);
   });
 });

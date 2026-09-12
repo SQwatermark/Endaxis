@@ -5,6 +5,7 @@
  * `ElementalInflictionApplied` / `ElementalReactionApplied` 是战斗语义事实，不是第二份 UI 状态。
  */
 import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/combatReceipt';
+import { findBuffTimelineSegmentForDamage, projectBuffTimelineViz } from './buffTimelineViz';
 
 export function isBuffDamageReceipt(entry: CombatReceiptEntry): boolean {
   return (
@@ -99,10 +100,14 @@ export function projectEnemyEffectViz(
   const markers: EnemyEffectMarker[] = [];
   const damageHits: CombatReceiptEntry[] = [];
   const attachmentConversions: AttachmentConversion[] = [];
+  const buffSegments = projectBuffTimelineViz(entries, endFrame);
   for (const entry of entries) {
+    const visibleBuffDamage =
+      isBuffDamageReceipt(entry) &&
+      findBuffTimelineSegmentForDamage(entry, buffSegments) !== undefined;
     if (
       (entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string') ||
-      isBuffDamageReceipt(entry)
+      visibleBuffDamage
     ) {
       damageHits.push(entry);
       if (typeof entry.data?.spellBurstType === 'string') {

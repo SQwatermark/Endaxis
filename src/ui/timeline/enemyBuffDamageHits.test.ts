@@ -26,16 +26,34 @@ const segment: BuffTimelineSegment = {
   layers: 1,
   placement: 'upper',
 };
+const applied: CombatReceiptEntry = {
+  sequence: 0,
+  event: 'BuffApplied',
+  frame: 0,
+  time: 0,
+  sourceId: 'operator',
+  targetId: 'enemy',
+  data: { buffId: 'status', instanceId: 2, layers: 1, visible: true },
+};
 
 it('retains actual damage only and opens each receipt without counting the audit twice', () => {
   const a = hit(),
     b = hit(2),
     audit = { ...hit(3), event: 'BuffDamageApplied' };
   const ordinary = { ...hit(4), data: { value: 9 } };
-  expect(projectEnemyEffectViz([a, b, audit, ordinary], 30).damageHits).toEqual([a, b]);
+  expect(projectEnemyEffectViz([applied, a, b, audit, ordinary], 30).damageHits).toEqual([a, b]);
   expect(groupEnemyBuffDamageHits([a, b, audit, ordinary])).toEqual([[a, b]]);
   expect(selectEnemyBuffDamageEntries([a, b], 2)).toEqual([a, b]);
   expect(selectEnemyBuffDamageEntries([a], null)).toEqual([]);
+});
+
+it('leaves ability-entity-owned Buff damage to the source skill timeline', () => {
+  const delegated = {
+    ...hit(),
+    data: { ...hit().data, buffOwnerId: 'ability-entity:2' },
+  };
+  expect(projectEnemyEffectViz([delegated], 30).damageHits).toBeUndefined();
+  expect(groupEnemyBuffDamageHits([delegated])).toEqual([]);
 });
 
 it('does not confuse instance, owner, target, frame or hidden helper identities', () => {
@@ -62,5 +80,5 @@ it('does not confuse instance, owner, target, frame or hidden helper identities'
     { ...hit(4), targetId: 'other' },
     { ...hit(5), data: { ...hit().data, buffOwnerId: 'operator' } },
   ];
-  expect(groupEnemyBuffDamageHits([hit(), ...others])).toHaveLength(5);
+  expect(groupEnemyBuffDamageHits([hit(), ...others])).toHaveLength(3);
 });

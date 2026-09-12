@@ -8,6 +8,8 @@
 import type {
   CombatCondition,
   OperatorAbilityEntityDefinitions,
+  OperatorBuffDefinitions,
+  SkillBuffDefinition,
   SkillDefinition,
   CombatStepDefinition,
 } from '../../core/game-data/operatorDefinition';
@@ -78,6 +80,8 @@ function collectDamageSteps(
   cast: SkillCastDocument,
   frameOffset: number,
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
+  buffDefinitions?: OperatorBuffDefinitions,
+  activeBuffIds: ReadonlySet<string> = new Set(),
 ): void {
   if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
     if (step.key === undefined || step.key.length === 0) {
@@ -96,7 +100,16 @@ function collectDamageSteps(
   if (step.kind === 'switch') {
     for (const option of step.options)
       for (const nested of option.sequence.steps) {
-        collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
+        collectDamageSteps(
+          nested,
+          true,
+          markers,
+          cast,
+          frameOffset,
+          abilityEntityDefinitions,
+          buffDefinitions,
+          activeBuffIds,
+        );
       }
     return;
   }
@@ -111,6 +124,8 @@ function collectDamageSteps(
           cast,
           frameOffset,
           abilityEntityDefinitions,
+          buffDefinitions,
+          activeBuffIds,
         );
       }
       return;
@@ -124,33 +139,87 @@ function collectDamageSteps(
         cast,
         frameOffset,
         abilityEntityDefinitions,
+        buffDefinitions,
+        activeBuffIds,
       );
     if (staticResult === true) return;
     for (const nested of step.whenFalse?.steps ?? []) {
-      collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
+      collectDamageSteps(
+        nested,
+        true,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        activeBuffIds,
+      );
     }
     return;
   }
   if (step.kind === 'once' || step.kind === 'withActionBlackboardScope') {
     for (const nested of step.body.steps)
-      collectDamageSteps(nested, conditional, markers, cast, frameOffset, abilityEntityDefinitions);
+      collectDamageSteps(
+        nested,
+        conditional,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        activeBuffIds,
+      );
     return;
   }
   if (step.kind === 'repeatEachTick' || step.kind === 'forEachContextTarget') {
     for (const nested of step.body.steps)
-      collectDamageSteps(nested, conditional, markers, cast, frameOffset, abilityEntityDefinitions);
+      collectDamageSteps(
+        nested,
+        conditional,
+        markers,
+        cast,
+        frameOffset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        activeBuffIds,
+      );
     return;
   }
   if (step.kind === 'listenForCombatEvents') {
     for (const response of step.parameters.responses) {
       for (const nested of response.sequence.steps) {
-        collectDamageSteps(nested, true, markers, cast, frameOffset, abilityEntityDefinitions);
+        collectDamageSteps(
+          nested,
+          true,
+          markers,
+          cast,
+          frameOffset,
+          abilityEntityDefinitions,
+          buffDefinitions,
+          activeBuffIds,
+        );
       }
     }
     return;
   }
-  // Buff 的伤害由实际 Buff 实例承载，不加入施加它的技能命中预览。
-  if (step.kind === 'applyBuff') return;
+  if (step.kind === 'applyBuff') {
+    if (step.parameters.inheritSourceSkillCastInfo === false) return;
+    if (typeof step.parameters.buffId !== 'string') return;
+    const buffId = step.parameters.buffId;
+    const definition = step.parameters.definition ?? buffDefinitions?.[buffId];
+    if (definition === undefined || activeBuffIds.has(buffId)) return;
+    const nextActiveBuffIds = new Set(activeBuffIds).add(buffId);
+    collectBuffDamageSteps(
+      definition,
+      markers,
+      cast,
+      frameOffset,
+      abilityEntityDefinitions,
+      buffDefinitions,
+      nextActiveBuffIds,
+    );
+    return;
+  }
   const childSkill =
     step.kind === 'spawnAbilityEntity'
       ? (() => {
@@ -182,9 +251,48 @@ function collectDamageSteps(
           cast,
           frameOffset + scheduled.startFrame,
           abilityEntityDefinitions,
+          buffDefinitions,
+          activeBuffIds,
         );
       }
     }
+  }
+}
+
+function collectBuffDamageSteps(
+  definition: SkillBuffDefinition,
+  markers: TimelineHitMarker[],
+  cast: SkillCastDocument,
+  frameOffset: number,
+  abilityEntityDefinitions: OperatorAbilityEntityDefinitions | undefined,
+  buffDefinitions: OperatorBuffDefinitions | undefined,
+  activeBuffIds: ReadonlySet<string>,
+): void {
+  const collectSequence = (steps: readonly CombatStepDefinition[], offset: number) => {
+    for (const step of steps) {
+      collectDamageSteps(
+        step,
+        true,
+        markers,
+        cast,
+        offset,
+        abilityEntityDefinitions,
+        buffDefinitions,
+        activeBuffIds,
+      );
+    }
+  };
+  for (const scheduled of definition.scheduledSequences ?? []) {
+    collectSequence(scheduled.sequence.steps, frameOffset + scheduled.startFrame);
+  }
+  for (const sequence of Object.values(definition.lifecycleSequences ?? {})) {
+    if (sequence !== undefined) collectSequence(sequence.steps, frameOffset);
+  }
+  for (const response of definition.abilityEventResponses ?? []) {
+    collectSequence(response.sequence.steps, frameOffset);
+  }
+  for (const response of definition.igniteEventResponses ?? []) {
+    collectSequence(response.sequence.steps, frameOffset);
   }
 }
 
@@ -196,6 +304,7 @@ export function projectCastHitMarkers(
   cast: SkillCastDocument,
   definition: SkillDefinition,
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
+  buffDefinitions?: OperatorBuffDefinitions,
 ): readonly TimelineHitMarker[] {
   const markers: TimelineHitMarker[] = [];
   for (const scheduled of definition.scheduledSequences) {
@@ -207,6 +316,7 @@ export function projectCastHitMarkers(
         cast,
         scheduled.startFrame,
         abilityEntityDefinitions,
+        buffDefinitions,
       );
     }
   }
@@ -219,9 +329,10 @@ export function findCastHitMarker(
   stepKey: string,
   definition: SkillDefinition,
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
+  buffDefinitions?: OperatorBuffDefinitions,
 ): TimelineHitMarker | null {
   return (
-    projectCastHitMarkers(cast, definition, abilityEntityDefinitions).find(
+    projectCastHitMarkers(cast, definition, abilityEntityDefinitions, buffDefinitions).find(
       marker => marker.stepKey === stepKey,
     ) ?? null
   );

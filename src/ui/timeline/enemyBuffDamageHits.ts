@@ -1,11 +1,19 @@
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
-import type { BuffTimelineSegment } from '../../core/projection/buffTimelineViz';
+import {
+  findBuffTimelineSegmentForDamage,
+  type BuffTimelineSegment,
+} from '../../core/projection/buffTimelineViz';
 import { isBuffDamageReceipt } from '../../core/projection/enemyEffectViz';
 
 export function groupEnemyBuffDamageHits(entries: readonly CombatReceiptEntry[]) {
   const groups = new Map<string, CombatReceiptEntry[]>();
   for (const entry of entries) {
-    if (!isBuffDamageReceipt(entry) || typeof entry.data?.spellBurstType === 'string') continue;
+    if (
+      !isBuffDamageReceipt(entry) ||
+      entry.targetId !== entry.data!.buffOwnerId ||
+      typeof entry.data?.spellBurstType === 'string'
+    )
+      continue;
     const key = JSON.stringify([
       entry.targetId,
       entry.frame,
@@ -25,18 +33,7 @@ export function findBuffDamageSegment<T extends BuffTimelineSegment>(
   entry: CombatReceiptEntry,
   segments: readonly T[],
 ): T | undefined {
-  if (!isBuffDamageReceipt(entry)) return undefined;
-  return segments
-    .filter(
-      segment =>
-        segment.targetId === entry.targetId &&
-        segment.targetId === entry.data!.buffOwnerId &&
-        segment.buffId === entry.data!.buffId &&
-        segment.instanceId === entry.data!.buffInstanceId &&
-        segment.startFrame <= entry.frame &&
-        segment.endFrame >= entry.frame,
-    )
-    .sort((a, b) => b.startFrame - a.startFrame)[0];
+  return findBuffTimelineSegmentForDamage(entry, segments);
 }
 
 export function selectEnemyBuffDamageEntries(

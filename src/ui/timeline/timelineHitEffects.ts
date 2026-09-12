@@ -11,7 +11,10 @@ import {
   projectHitReactionReceipts,
 } from '../../core/projection/hitEffectProjection';
 import type { ScenarioDocument } from '../../core/project/schema';
-import { isBuffDamageReceipt } from '../../core/projection/enemyEffectViz';
+import {
+  findBuffTimelineSegmentForDamage,
+  projectBuffTimelineViz,
+} from '../../core/projection/buffTimelineViz';
 import type { TimelineHitMarker } from './timelineHitProjection';
 
 /** 一个命中点上发生的伤害（保持日志顺序）。 */
@@ -41,6 +44,14 @@ export interface TimelineHitEffectLabel {
   readonly damage: readonly TimelineHitDamageEffect[];
   readonly infliction: readonly TimelineHitInflictionEffect[];
   readonly reactions: readonly TimelineHitReactionEffect[];
+}
+
+function excludeVisibleBuffTimelineDamage(
+  entries: readonly CombatReceiptEntry[],
+): readonly CombatReceiptEntry[] {
+  const endFrame = entries.reduce((maximum, entry) => Math.max(maximum, entry.frame), 0);
+  const segments = projectBuffTimelineViz(entries, endFrame);
+  return entries.filter(entry => findBuffTimelineSegmentForDamage(entry, segments) === undefined);
 }
 
 /** 定义hitId可重复执行；帧区分可视命中，同帧同身份伤害仍合并查看。 */
@@ -97,30 +108,28 @@ export function projectTimelineHitDetailEntries(
   hitId: string,
   executionFrame?: number,
 ): readonly CombatReceiptEntry[] {
-  const firstFrame = entries.find(
+  const skillEntries = excludeVisibleBuffTimelineDamage(entries);
+  const firstFrame = skillEntries.find(
     entry =>
       entry.event === 'DamageApplied' &&
-      !isBuffDamageReceipt(entry) &&
       entry.data?.castId === castId &&
       entry.data?.hitId === hitId,
   )?.frame;
   const frame = executionFrame ?? firstFrame;
   if (frame === undefined) return [];
   if (
-    !entries.some(
+    !skillEntries.some(
       entry =>
         entry.event === 'DamageApplied' &&
-        !isBuffDamageReceipt(entry) &&
         entry.frame === frame &&
         entry.data?.castId === castId &&
         entry.data.hitId === hitId,
     )
   )
     return [];
-  return entries.filter(entry => {
+  return skillEntries.filter(entry => {
     if (entry.frame !== frame || entry.data?.castId !== castId) return false;
-    if (entry.event === 'DamageApplied')
-      return !isBuffDamageReceipt(entry) && entry.data.hitId === hitId;
+    if (entry.event === 'DamageApplied') return entry.data.hitId === hitId;
     return (
       entry.event === 'ElementalInflictionApplied' ||
       entry.event === 'ElementalReactionApplied' ||
@@ -134,9 +143,7 @@ export function projectTimelineHitActualFrames(
   entries: readonly CombatReceiptEntry[],
 ): ReadonlyMap<string, number> {
   const result = new Map<string, number>();
-  for (const receipt of projectHitDamageReceipts(
-    entries.filter(entry => !isBuffDamageReceipt(entry)),
-  )) {
+  for (const receipt of projectHitDamageReceipts(excludeVisibleBuffTimelineDamage(entries))) {
     if (receipt.castId === undefined || receipt.hitId === undefined || result.has(receipt.hitId)) {
       continue;
     }
@@ -148,7 +155,7 @@ export function projectTimelineHitActualFrames(
 /** 把一次释放的命中标记与回执事实归因；键为 `hitId`。 */
 export function projectTimelineHitReceipts(entries: readonly CombatReceiptEntry[]) {
   return {
-    damages: projectHitDamageReceipts(entries.filter(entry => !isBuffDamageReceipt(entry))),
+    damages: projectHitDamageReceipts(excludeVisibleBuffTimelineDamage(entries)),
     inflictions: projectHitInflictionReceipts(entries),
     reactions: projectHitReactionReceipts(entries),
   };
