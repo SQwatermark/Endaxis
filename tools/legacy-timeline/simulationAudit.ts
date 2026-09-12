@@ -31,6 +31,17 @@ function damageEntries(entries: readonly CombatReceiptEntry[]) {
         spellBurstType: entry.data?.spellBurstType,
         damageType: entry.data?.damageType,
         buffId: entry.data?.buffId,
+        value: entry.data?.value,
+        actualDamage: entry.data?.actualDamage,
+        attack: entry.data?.attack,
+        baseDamage: entry.data?.baseDamage,
+        finalAttackValue: entry.data?.finalAttackValue,
+        standardCalculation: entry.data?.standardCalculation,
+        skillMultiplierPercent: entry.data?.skillMultiplierPercent,
+        calculationMultiplier: entry.data?.calculationMultiplier,
+        damageScaleMultiplier: entry.data?.damageScaleMultiplier,
+        resistanceMultiplier: entry.data?.resistanceMultiplier,
+        criticalExpectationMultiplier: entry.data?.criticalExpectationMultiplier,
         expectedDamage,
       };
     });
