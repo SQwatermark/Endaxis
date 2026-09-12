@@ -5,6 +5,7 @@ import type { PositionedOperatorPassiveUiTimelineSegment } from '../../../core/p
 import OperatorPassiveUiWidget from './OperatorPassiveUiWidget.vue';
 import TimelineStatusSegment from './TimelineStatusSegment.vue';
 import { frameToTimelinePx } from '../timelineGeometry';
+import { timelineUpperBuffTop } from '../timelineTrackEffectLayout';
 
 const props = defineProps<{
   segments: readonly PositionedOperatorPassiveUiTimelineSegment[];
@@ -16,8 +17,6 @@ const props = defineProps<{
 
 const ICON_SIZE = 18;
 const BAR_GAP = 2;
-const LANE_PITCH = 22;
-const UPPER_OFFSET_FROM_ACTION = 24;
 
 const items = computed(() =>
   props.segments.map(segment => {
@@ -49,7 +48,7 @@ const items = computed(() =>
             : `${segment.operatorId}:buffCounters:${segment.startFrame}`,
       title,
       left,
-      top: props.actionTop - UPPER_OFFSET_FROM_ACTION - segment.lane * LANE_PITCH,
+      top: timelineUpperBuffTop(segment.lane),
       width: Math.max(0, right - left - ICON_SIZE - BAR_GAP * 2),
     };
   }),
@@ -60,6 +59,7 @@ const items = computed(() =>
   <div
     v-if="items.length > 0"
     class="timeline-operator-passive-ui-bands"
+    :style="{ '--buff-action-top': `${actionTop}px` }"
     aria-label="Operator passive UI timeline"
   >
     <TimelineStatusSegment
@@ -107,5 +107,6 @@ const items = computed(() =>
   z-index: 8;
   overflow: hidden;
   pointer-events: none;
+  clip-path: inset(2px 0 calc(100% - var(--buff-action-top)) 0);
 }
 </style>

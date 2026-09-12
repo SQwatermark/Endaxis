@@ -75,6 +75,42 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
 const sharedActionSequence3: ActionSequenceDefinition = sequence(
   branch(
     {
+      kind: 'actionValueCompare',
+      left: { kind: 'blackboard', key: 'talent_0', fallback: 0 },
+      operator: 'greaterOrEqual',
+      right: { kind: 'constant', value: 1 },
+    },
+    sequence(
+      once(
+        '\u0000endaxis-generated-identity:0',
+        sequence(
+          step('createGlobalBuff', {
+            globalBuffId: 'global_buff_combo_trigger',
+            definition: {
+              stackingType: 'stack',
+              maxStackCount: 4,
+              durationSeconds: { blackboardKey: 'duration' },
+              blackboard: { duration: 0, imbue_scale: 0 },
+              children: [
+                {
+                  buffId: 'buff_common_affixes_combo_trigger',
+                  blackboardAssignments: {
+                    imbue_scale: { kind: 'blackboard', key: 'imbue_scale' },
+                  },
+                },
+              ],
+            },
+            source: 'caster',
+            blackboardAssignments: { duration: { kind: 'blackboard', key: 'combo_duration' } },
+          }),
+        ),
+      ),
+    ),
+    undefined,
+    { alwaysNext: true },
+  ),
+  branch(
+    {
       kind: 'entityTagMatch',
       target: 'enemy',
       tagQueryType: 'hasAny',
@@ -100,7 +136,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
     { alwaysNext: true },
   ),
   once(
-    '\u0000endaxis-generated-identity:0',
+    '\u0000endaxis-generated-identity:1',
     sequence(
       step('changeResourceByActionValue', {
         resource: 'sp',
@@ -121,7 +157,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
       features: ['canBreakWeakness'],
       stagger: { kind: 'blackboard', key: 'poise_2' },
     },
-    '\u0000endaxis-generated-identity:1',
+    '\u0000endaxis-generated-identity:2',
   ),
   branch(
     {
@@ -202,6 +238,7 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
     instantiateActionSequence(sharedActionSequence3, [
       '\u0000endaxis-generated-identity:0',
       '\u0000endaxis-generated-identity:1',
+      '\u0000endaxis-generated-identity:2',
     ]),
     {
       nativeChanneling: {
@@ -1623,8 +1660,9 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
       scheduled(
         70,
         instantiateActionSequence(sharedActionSequence2, [
+          'SkillData.chr_0033_camille_combo_skill_2.actionGroupData.timelineActions[42]._sequenceActionData.actionData[0].actionOnTick.actionData[1].succeedActions.actionData[0]',
           'SkillData.chr_0033_camille_combo_skill_2.actionGroupData.timelineActions[42]._sequenceActionData.actionData[0].actionOnTick.actionData[3]',
-          'chr_0033_camille_combo_skill_2:/scheduledSequences/6/sequence/steps/0/body/steps/2',
+          'chr_0033_camille_combo_skill_2:/scheduledSequences/6/sequence/steps/0/body/steps/3',
         ]),
         73,
       ),
@@ -1804,6 +1842,39 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
                         inheritSourceSkillCastInfo: true,
                       }),
                     ),
+                  ),
+                  branch(
+                    {
+                      kind: 'actionValueCompare',
+                      left: { kind: 'blackboard', key: 'talent_0', fallback: 0 },
+                      operator: 'greaterOrEqual',
+                      right: { kind: 'constant', value: 1 },
+                    },
+                    sequence(
+                      step('createGlobalBuff', {
+                        globalBuffId: 'global_buff_combo_trigger',
+                        definition: {
+                          stackingType: 'stack',
+                          maxStackCount: 4,
+                          durationSeconds: { blackboardKey: 'duration' },
+                          blackboard: { duration: 0, imbue_scale: 0 },
+                          children: [
+                            {
+                              buffId: 'buff_common_affixes_combo_trigger',
+                              blackboardAssignments: {
+                                imbue_scale: { kind: 'blackboard', key: 'imbue_scale' },
+                              },
+                            },
+                          ],
+                        },
+                        source: 'caster',
+                        blackboardAssignments: {
+                          duration: { kind: 'blackboard', key: 'combo_duration' },
+                        },
+                      }),
+                    ),
+                    undefined,
+                    { alwaysNext: true },
                   ),
                 ),
                 undefined,
@@ -2101,8 +2172,9 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
       scheduled(
         70,
         instantiateActionSequence(sharedActionSequence2, [
+          'SkillData.chr_0033_camille_combo_skill_2.actionGroupData.timelineActions[42]._sequenceActionData.actionData[0].actionOnTick.actionData[1].succeedActions.actionData[0]',
           'SkillData.chr_0033_camille_combo_skill_2.actionGroupData.timelineActions[42]._sequenceActionData.actionData[0].actionOnTick.actionData[3]',
-          'chr_0033_camille_combo_skill_2:/scheduledSequences/6/sequence/steps/0/body/steps/2',
+          'chr_0033_camille_combo_skill_2:/scheduledSequences/6/sequence/steps/0/body/steps/3',
         ]),
         73,
       ),

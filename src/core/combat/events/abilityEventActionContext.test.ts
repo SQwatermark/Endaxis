@@ -24,6 +24,7 @@ describe('AbilityEvent action context binding', () => {
     const events: CombatAbilityEvent[] = [
       { event: 'beforeOutputBuff', payload: buffPayload },
       { event: 'outputBuff', payload: { ...buffPayload, buff: createEventBuff() } },
+      { event: 'outputCriticalDamage', payload: createDamagePayload(pair) },
       { event: 'beforeOutputPhysicalInfliction', payload: { ...pair, type: 'fracture' } },
       {
         event: 'outputHeal',
@@ -42,6 +43,7 @@ describe('AbilityEvent action context binding', () => {
     const events: CombatAbilityEvent[] = [
       { event: 'beforeAddedBuff', payload: buffPayload },
       { event: 'addedBuff', payload: buffPayload },
+      { event: 'takeCriticalDamage', payload: createDamagePayload(pair) },
       { event: 'beforeTakePhysicalInfliction', payload: { ...pair, type: 'fracture' } },
       { event: 'afterTakePhysicalInfliction', payload: { ...pair, type: 'fracture' } },
       { event: 'poiseZero', payload: pair },
@@ -89,3 +91,23 @@ describe('AbilityEvent action context binding', () => {
     }
   });
 });
+
+function createDamagePayload(pair: { readonly sourceId: string; readonly targetId: string }) {
+  return {
+    ...pair,
+    damageType: 'physical' as const,
+    tags: [],
+    features: [],
+    result: {
+      value: 1,
+      isCritical: true,
+      criticalMultiplier: 1.5,
+      defenseMultiplier: 1,
+      resistanceMultiplier: 1,
+      weaknessShelterMultiplier: 1,
+      runtimeExtensionMultiplier: 1,
+      igniteMultiplier: 1,
+      physicalInflictionMultiplier: 1,
+    },
+  };
+}

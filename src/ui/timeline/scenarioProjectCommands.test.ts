@@ -36,7 +36,7 @@ describe('scenario project commands', () => {
     expect(switched.activeScenarioId).toBe(renamed.activeScenarioId);
   });
 
-  it('duplicates instance identities while preserving skill rule keys', () => {
+  it('复制方案只更换方案身份，内部身份不变且副本可以独立编辑', () => {
     const original = project();
     const source = original.scenarios[0]!;
     source.tracks[0] = {
@@ -62,28 +62,29 @@ describe('scenario project commands', () => {
       from: { kind: 'skillCast', skillCastId: 'cast:old' },
       to: { kind: 'damageHit', skillCastId: 'cast:old', stepKey: 'damage:key' },
     });
+    source.battle.cycleBoundaries.push({ id: 'cycle:old', frame: 30 });
+    source.battle.controlSwitches.push({ id: 'switch:old', frame: 10, trackIndex: 0 });
+    const before = structuredClone(original);
 
     const result = duplicateActiveScenario(original, '副本');
     const copy = result.scenarios[1]!;
     const copiedCast = copy.tracks[0]!.skillCasts[0]!;
     expect(copy.id).not.toBe(source.id);
-    expect(copy.tracks[0]!.id).not.toBe('track:old');
-    expect(copiedCast.id).not.toBe('cast:old');
-    expect(copiedCast.source).toEqual(source.tracks[0]!.skillCasts[0]!.source);
-    expect(copiedCast.presentation?.customBars?.[0]?.id).not.toBe('bar:old');
-    expect(copy.connections[0]?.from).toEqual({
-      kind: 'skillCast',
-      skillCastId: copiedCast.id,
-    });
-    expect(copy.connections[0]?.to).toEqual({
-      kind: 'damageHit',
-      skillCastId: copiedCast.id,
-      stepKey: 'damage:key',
-    });
+    expect(result.activeScenarioId).toBe(copy.id);
+    expect(copy).toEqual({ ...source, id: copy.id, name: `${source.name} (副本)` });
     expect(validateProjectDocument(result)).toEqual({ ok: true, value: result });
+
+    copiedCast.placement = { startFrame: 20 };
+    copiedCast.presentation!.customBars![0]!.text = '副本标记';
+    copy.connections[0]!.to.skillCastId = 'edited';
+    copy.tracks[0]!.initialState.ultimateEnergy = 50;
+    copy.battle.cycleBoundaries[0]!.frame = 60;
+    copy.battle.controlSwitches[0]!.frame = 20;
+    expect(result.scenarios[0]).toBe(source);
+    expect(original).toEqual(before);
   });
 
-  it('复制连续组时重映射全部前驱，声明顺序不影响关系，并支持存档和撤销', () => {
+  it('复制连续组保留前驱和连线引用，两个方案可一起存档，并支持撤销重做', () => {
     const original = project();
     const source = original.scenarios[0]!;
     source.tracks[0] = {
@@ -123,24 +124,13 @@ describe('scenario project commands', () => {
     ).toBe(true);
     const result = session.snapshot.project;
     const copy = result.scenarios[1]!;
-    const [third, second, first] = copy.tracks[0]!.skillCasts;
-    expect(copy.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
-      { afterCastId: second!.id },
-      { afterCastId: first!.id },
-      { startFrame: 10 },
-    ]);
+    expect(copy.tracks).toEqual(original.scenarios[0]!.tracks);
+    expect(copy.connections).toEqual(original.scenarios[0]!.connections);
     expect(
       getSkillCastPlacementChains(copy.tracks[0]!.skillCasts).map(chain =>
         chain.casts.map(cast => cast.id),
       ),
-    ).toEqual([[first!.id, second!.id, third!.id]]);
-    expect(copy.tracks[0]!.skillCasts.every(cast => !['a', 'b', 'c'].includes(cast.id))).toBe(true);
-    expect(copy.connections[0]!.from.skillCastId).toBe(first!.id);
-    expect(copy.connections[0]!.to).toEqual({
-      kind: 'damageHit',
-      skillCastId: third!.id,
-      stepKey: 'damage:key',
-    });
+    ).toEqual([['a', 'b', 'c']]);
     expect(result.scenarios[0]).toBe(original.scenarios[0]);
     expect(original).toEqual(before);
     expect(validateProjectDocument(result)).toEqual({ ok: true, value: result });

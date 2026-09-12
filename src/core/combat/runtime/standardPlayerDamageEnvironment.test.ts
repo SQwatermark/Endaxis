@@ -2,6 +2,7 @@ import { withAbilityEventResponseContext } from './abilityEventResponseContext';
 import { AbilitySystemRuntime } from './abilitySystemRuntime';
 import { expectTypeOf } from 'vitest';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import { resolveAbilityEventActionContextBinding } from '../events/abilityEventActionContext';
 import type {
   StandardPlayerDamagePayloadMap,
   StandardPlayerDamageEvent,
@@ -1198,7 +1199,7 @@ it('装备末端满血治疗仍按 output、receive 顺序发布事件，且不�
   expect(events).toEqual(['outputHeal', 'receiveHeal']);
 });
 
-it('publishes take/output critical events only for a critical health-damage result', () => {
+it('publishes critical events with the damage action target context only for a critical result', () => {
   const reached: string[] = [];
   const nonCritical = createEnvironment(testEnemy, 1);
   nonCritical
@@ -1212,14 +1213,24 @@ it('publishes take/output critical events only for a critical health-damage resu
   ).toBe(true);
 
   const critical = createEnvironment(testEnemy, 0);
-  critical.eventsFor('enemy').registerAction('takeCriticalDamage', 0, ({ payload }) => {
+  critical.eventsFor('enemy').registerAction('takeCriticalDamage', 0, event => {
+    const { payload } = event;
     const result = (payload as { result: { isCritical: boolean } }).result;
     expect(result.isCritical).toBe(true);
+    expect(resolveAbilityEventActionContextBinding(event)).toEqual({
+      inputTargetId: 'operator',
+      triggerTargetId: 'enemy',
+    });
     reached.push('critical');
   });
-  critical.eventsFor('operator').registerAction('outputCriticalDamage', 0, ({ payload }) => {
+  critical.eventsFor('operator').registerAction('outputCriticalDamage', 0, event => {
+    const { payload } = event;
     const result = (payload as { result: { isCritical: boolean } }).result;
     expect(result.isCritical).toBe(true);
+    expect(resolveAbilityEventActionContextBinding(event)).toEqual({
+      inputTargetId: 'enemy',
+      triggerTargetId: 'operator',
+    });
     reached.push('critical-output');
   });
   expect(critical.runtimeOptions.createOperationExecutor(createContext()).execute(damageStep)).toBe(

@@ -29,7 +29,10 @@ describe('TimelineCornerToolbar legacy behavior parity', () => {
     expect(header).toContain(':aria-pressed="connectionToolEnabled"');
     expect(source).toContain('@keydown.shift.enter.prevent.stop="toggleGaugeEditor"');
     expect(source).toContain(':aria-label="labels.zoom"');
-    expect(editorSource).toContain('const showCursorGuide = ref(false)');
+    expect(editorSource).toContain(
+      "const CURSOR_GUIDE_STORAGE_KEY = 'endaxis:timeline-cursor-guide:v1'",
+    );
+    expect(editorSource).toContain('window.localStorage.getItem(CURSOR_GUIDE_STORAGE_KEY)');
   });
 
   it('shows the legacy short gauge state or a shared custom value', () => {

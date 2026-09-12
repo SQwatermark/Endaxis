@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
+import { createEditorSimulationService } from '../../application/editorSimulationService';
 import { createEmptyScenario } from '../../core/project/createProject';
 import {
   projectTimelineDamageAnalysis,
@@ -7,8 +8,23 @@ import {
 } from './timelineDamageAnalysis';
 import { computed, shallowRef } from 'vue';
 import type { PublishedScenarioSimulation } from './useScenarioSimulation';
+import { createTimelineSampleScenario } from './timelineSampleScenario';
 
 describe('projectTimelineDamageAnalysis', () => {
+  it('projects real post-preparation simulation damage into chart data', async () => {
+    const scenario = createTimelineSampleScenario();
+    const cast = scenario.tracks[1]!.skillCasts[0]!;
+    cast.presentation = { ...cast.presentation, disabled: false };
+    const run = await createEditorSimulationService().simulate(
+      scenario,
+      scenario.battle.durationFrames,
+    );
+    const result = projectTimelineDamageAnalysis(run.receiptEntries, scenario, String, String);
+    expect(result.totalDamage).toBeGreaterThan(0);
+    expect(result.byOperator).toHaveLength(1);
+    expect(result.byDamageType).toHaveLength(1);
+  });
+
   it('keeps owner and analysis range paired with the published receipt across edits and publication', () => {
     const original = createEmptyScenario('snapshot', 'snapshot');
     original.battle.simulationRange = { startFrame: 0, endFrame: 300 };
@@ -101,21 +117,28 @@ describe('projectTimelineDamageAnalysis', () => {
       scenario,
       index => `干员 ${index + 1}`,
       type => type,
+      () => '#112233',
+      () => '#445566',
     );
     expect(result.totalDamage).toBe(300);
-    expect(result.rotationSeconds).toBe(2);
-    expect(result.dps).toBe(150);
+    expect(result.rotationSeconds).toBe(3);
+    expect(result.dps).toBe(100);
     expect(result.byOperator[0]).toMatchObject({ label: '干员 1', value: 300, ratio: 1 });
-    expect(result.byDamageType[0]).toMatchObject({ key: 'heat', value: 300 });
+    expect(result.byOperator[0]?.color).toBe('#112233');
+    expect(result.byDamageType[0]).toMatchObject({
+      key: 'heat',
+      value: 300,
+      color: '#445566',
+    });
   });
 
-  it('filters preparation damage and reports unattributed runtime sources explicitly', () => {
+  it('uses frame zero as the default analysis start and filters negative preparation damage', () => {
     const scenario = createEmptyScenario('scenario:1', 'test');
     scenario.battle.prepFrames = 30;
     const entries: CombatReceiptEntry[] = [
       {
-        frame: 10,
-        time: 1 / 3,
+        frame: -10,
+        time: -1 / 3,
         sequence: 1,
         event: 'DamageApplied',
         sourceId: 'unknown',
@@ -135,5 +158,34 @@ describe('projectTimelineDamageAnalysis', () => {
     const result = projectTimelineDamageAnalysis(entries, scenario, String, String);
     expect(result.totalDamage).toBe(80);
     expect(result.unattributedDamage).toBe(80);
+  });
+
+  it('honors an explicit negative simulation start inside the preparation range', () => {
+    const scenario = createEmptyScenario('scenario:1', 'test');
+    scenario.battle.prepFrames = 30;
+    scenario.battle.simulationRange = { startFrame: -15 };
+    const entries: CombatReceiptEntry[] = [
+      {
+        frame: -20,
+        time: -2 / 3,
+        sequence: 1,
+        event: 'DamageApplied',
+        sourceId: 'unknown',
+        targetId: 'enemy',
+        data: { value: 50, damageType: 'physical' },
+      },
+      {
+        frame: -10,
+        time: -1 / 3,
+        sequence: 2,
+        event: 'DamageApplied',
+        sourceId: 'unknown',
+        targetId: 'enemy',
+        data: { value: 80, damageType: 'physical' },
+      },
+    ];
+    const result = projectTimelineDamageAnalysis(entries, scenario, String, String);
+    expect(result.totalDamage).toBe(80);
+    expect(result.rotationSeconds).toBeCloseTo(5 / 30);
   });
 });

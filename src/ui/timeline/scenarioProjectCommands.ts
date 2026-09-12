@@ -1,10 +1,5 @@
 import { createEmptyScenario } from '../../core/project/createProject';
-import type {
-  EndaxisProjectDocument,
-  ScenarioDocument,
-  SkillCastDocument,
-  TrackDocument,
-} from '../../core/project/schema';
+import type { EndaxisProjectDocument, ScenarioDocument } from '../../core/project/schema';
 
 export const MAX_PROJECT_SCENARIOS = 14;
 
@@ -109,37 +104,9 @@ export function addProjectScenario(
   };
 }
 
-function duplicateTrack(
-  track: TrackDocument,
-  allocate: (kind: string) => string,
-  castIds: ReadonlyMap<string, string>,
-): TrackDocument {
-  const skillCasts: SkillCastDocument[] = track.skillCasts.map(cast => {
-    const previous = cast.placement.afterCastId;
-    return {
-      ...structuredClone(cast),
-      id: castIds.get(cast.id)!,
-      placement:
-        previous === undefined
-          ? { startFrame: cast.placement.startFrame! }
-          : { afterCastId: castIds.get(previous)! },
-      presentation:
-        cast.presentation === undefined
-          ? undefined
-          : {
-              ...structuredClone(cast.presentation),
-              customBars: cast.presentation.customBars?.map(bar => ({
-                ...bar,
-                id: allocate('customBar'),
-              })),
-            },
-    };
-  });
-  return { ...structuredClone(track), id: allocate('track'), skillCasts };
-}
-
 /**
- * 复制方案时必须重建所有文档身份。技能定义内部的 key 是规则身份，不属于文档实例，不能改写。
+ * 复制整个方案只分配新的方案 ID。内部 ID 和引用在各自方案内使用，直接保留；
+ * 深拷贝保证修改副本不会影响原方案，项目定义库的引用也保持不变。
  */
 export function duplicateActiveScenario(
   project: EndaxisProjectDocument,
@@ -149,58 +116,10 @@ export function duplicateActiveScenario(
   const source = project.scenarios.find(scenario => scenario.id === project.activeScenarioId);
   if (source === undefined) return project;
   const id = allocateScenarioId(project);
-  const counters = new Map<string, number>();
-  const allocate = (kind: string) => {
-    const next = (counters.get(kind) ?? 0) + 1;
-    counters.set(kind, next);
-    return `${kind}:${id}:${next}`;
-  };
-  const castIds = new Map<string, string>();
-  // 先分配全体技能身份，后续引用才能指向声明在自己后面的前驱。
-  for (const track of source.tracks) {
-    for (const cast of track?.skillCasts ?? []) castIds.set(cast.id, allocate('skillCast'));
-  }
-  const tracks = source.tracks.map(track =>
-    track === null ? null : duplicateTrack(track, allocate, castIds),
-  ) as ScenarioDocument['tracks'];
   const duplicate: ScenarioDocument = {
     ...structuredClone(source),
     id,
     name: `${source.name} (${copySuffix})`,
-    tracks,
-    connections: source.connections.map(connection => ({
-      ...structuredClone(connection),
-      id: allocate('connection'),
-      from: { ...connection.from, skillCastId: castIds.get(connection.from.skillCastId)! },
-      to: { ...connection.to, skillCastId: castIds.get(connection.to.skillCastId)! },
-    })),
-    battle: {
-      ...structuredClone(source.battle),
-      cycleBoundaries: source.battle.cycleBoundaries.map(boundary => ({
-        ...boundary,
-        id: allocate('cycleBoundary'),
-      })),
-      controlSwitches: source.battle.controlSwitches.map(controlSwitch => ({
-        ...controlSwitch,
-        id: allocate('controlSwitch'),
-      })),
-      externalEventMarkers: source.battle.externalEventMarkers?.map(marker => ({
-        ...structuredClone(marker),
-        id: allocate('externalEvent'),
-      })),
-    },
-    mechanics: {
-      selections: source.mechanics.selections.map(selection => ({
-        ...structuredClone(selection),
-        id: allocate('mechanic'),
-      })),
-    },
-    globalConfig: {
-      modifiers: source.globalConfig.modifiers.map(modifier => ({
-        ...modifier,
-        id: allocate('globalModifier'),
-      })),
-    },
   };
   return {
     ...project,

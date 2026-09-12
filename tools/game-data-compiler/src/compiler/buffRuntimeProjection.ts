@@ -2070,7 +2070,7 @@ function createBuffSequenceProjection(
         return { steps: [], state: partyTargetGroups };
       }
       // combat-spec/do-once-action：子序列即时执行，返回 false 也消耗此次机会。
-      // 技能实例内允许同步资源回复，以及“创建一次 Buff + 静态敌人控制”的直接叶子组合；
+      // 技能实例内允许同步资源回复、创建公共 GlobalBuff，以及“创建一次 Buff + 静态敌人控制”的直接叶子组合；
       // Buff 自己仍进入独立生命周期，不能把其持续动作偷换成 DoOnce 子序列生命周期。
       if (
         context.timelineRange === undefined ||
@@ -2078,7 +2078,7 @@ function createBuffSequenceProjection(
           child =>
             child.metadata.enabled &&
             (child.body.kind !== 'leaf' ||
-              !['condition', 'resource', 'buffApplication', 'interrupt'].includes(
+              !['condition', 'resource', 'buffApplication', 'globalBuff', 'interrupt'].includes(
                 child.body.value.family,
               )),
         )

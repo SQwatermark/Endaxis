@@ -38,7 +38,7 @@ describe('TimelineActionBlock legacy visual parity', () => {
     expect(editorSource).toContain('v-for="(cast, castIndex) in track.skillCasts"');
     expect(editorSource).toContain(':stack-order="castIndex"');
     expect(source).toContain(
-      'zIndex: `calc(${props.moving ? 20000 : props.selected ? 10000 : 2} + ${props.stackOrder ?? 0})`',
+      'zIndex: `calc(${props.moving ? 20000 : props.selected ? 10000 : 10} + ${props.stackOrder ?? 0})`',
     );
     expect(source).toContain('.timeline-action-block.is-selected');
     expect(source).toContain('border: 2px dashed var(--ea-action-selected, #fff)');

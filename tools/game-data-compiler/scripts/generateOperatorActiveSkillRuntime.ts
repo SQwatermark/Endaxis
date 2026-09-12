@@ -454,7 +454,13 @@ export function planOperatorActiveSkillRuntime(
           node.body.kind === 'leaf' &&
           node.body.value.family === 'condition'
             ? collectObservedBuffIds(node.body.value.action)
-            : [],
+            : node.metadata.enabled &&
+                node.body.kind === 'leaf' &&
+                node.body.value.family === 'buffQuery'
+              ? node.body.value.action.kind === 'buffStackRead'
+                ? [...node.body.value.action.buffIds]
+                : [...node.body.value.action.settings.buffIds]
+              : [],
         ),
       ),
     ),
@@ -472,7 +478,13 @@ export function planOperatorActiveSkillRuntime(
               node.body.kind === 'leaf' &&
               node.body.value.family === 'condition'
                 ? collectObservedBuffIds(node.body.value.action)
-                : [],
+                : node.metadata.enabled &&
+                    node.body.kind === 'leaf' &&
+                    node.body.value.family === 'buffQuery'
+                  ? node.body.value.action.kind === 'buffStackRead'
+                    ? [...node.body.value.action.buffIds]
+                    : [...node.body.value.action.settings.buffIds]
+                  : [],
             ),
           ),
     ),

@@ -24,8 +24,12 @@ describe('Next project I/O shell', () => {
 
   it('serializes the complete project instead of exporting a scenario projection', () => {
     expect(editorSource).toContain('serializeProjectDocument(project, true)');
-    expect(editorSource).toContain('downloadProjectJson(content,');
-    expect(editorSource).toContain('@export="exportProject"');
+    expect(editorSource).toContain('downloadProjectJson(');
+    expect(editorSource).toContain('@export="showExportDialog = true"');
+    expect(editorSource).toContain('@export-json="exportProject"');
+    expect(editorSource).toContain('@copy-code="copyProjectCode"');
+    expect(editorSource).toContain('@export-small-image="openSmallImageExport"');
+    expect(editorSource).toContain('@export-image="exportTimelineLongImage"');
     expect(toolbarSource).toContain('export: [];');
     expect(toolbarSource).toContain('open: [];');
     expect(toolbarSource).toContain('@click="$emit(\'export\')"');

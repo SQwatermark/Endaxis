@@ -122,7 +122,6 @@ export interface OtherCameraPresentationActionSource {
     | 'actorVisibility'
     | 'modelIntervalCheck'
     | 'operatorUiEvent'
-    | 'comboCounter'
     | 'specificLayerChangeNoop'
     | 'forceTargetInFightOmitted'
     | 'interruptHenshinListenerOmitted'
@@ -657,30 +656,6 @@ export function parseNotifyCharacterPassiveUiActionSource(
     target,
     value: scalar,
     ...(scalar.blackboardKey === null ? {} : { readBlackboardKeys: [scalar.blackboardKey] }),
-  };
-}
-
-/**
- * 1.4.4 ComboAction.ExecuteInternal（RVA 0x06CE89B8）只按 count 添加
- * COMMON_COMBO_GLOBAL_BUFF_ID，并把 duration 写入该 GlobalBuff。正式目录中的
- * global_buff_combo_trigger 只投射无图标、无数值修正的 VFX child Buff；在 Endaxis
- * 木桩伤害模型中属于连击计数 UI/表现，但仍严格保留其黑板读取依赖。
- */
-export function parseComboCounterActionSource(
-  value: unknown,
-  path: string,
-  inheritedBlackboard: BlackboardLevelValues,
-): CameraPresentationActionSource {
-  const action = requireRecord(value, path);
-  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'source', 'duration', 'count']), path);
-  parseTargetReferenceSource(action.source, `${path}.source`);
-  const duration = parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard);
-  const count = parseScalarSource(action.count, `${path}.count`, inheritedBlackboard);
-  return {
-    kind: 'comboCounter',
-    readBlackboardKeys: [duration.blackboardKey, count.blackboardKey].filter(
-      (key): key is string => key !== null,
-    ),
   };
 }
 

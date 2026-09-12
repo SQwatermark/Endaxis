@@ -48,6 +48,56 @@ function template(): GlobalBuffTemplateSource {
 }
 
 describe('GlobalBuff projection', () => {
+  it('projects ComboAction as a timed common combo GlobalBuff stack', () => {
+    const comboTemplate: GlobalBuffTemplateSource = {
+      ...template(),
+      id: 'global_buff_combo_trigger',
+      lifeType: 'Limited',
+      stackingType: 'Stack',
+      maxStackCount: 4,
+      globalModifierCount: 0,
+      globalModifiers: [],
+    };
+    const action: GlobalBuffActionSource = {
+      kind: 'createComboGlobalBuff',
+      source: {
+        targetSource: 'Source',
+        targetGroupKey: '',
+        finderType: null,
+        validatorTypes: [],
+        postProcessorTypes: [],
+      } as never,
+      duration: scalar(0, 'combo_duration'),
+      count: scalar(1),
+    };
+    const compile = createGlobalBuffProjectionExtensions({
+      version: 'fixture',
+      byId: new Map([[comboTemplate.id, comboTemplate]]),
+    }).compileGlobalBuffAction!;
+
+    expect(
+      compile(action, 'action.combo', {
+        actionSourceTarget: 'caster',
+      } as never),
+    ).toEqual([
+      {
+        kind: 'createGlobalBuff',
+        parameters: {
+          globalBuffId: 'global_buff_combo_trigger',
+          definition: expect.objectContaining({
+            stackingType: 'stack',
+            maxStackCount: 4,
+            durationSeconds: { blackboardKey: 'duration' },
+          }),
+          source: 'caster',
+          blackboardAssignments: {
+            duration: { kind: 'blackboard', key: 'combo_duration' },
+          },
+        },
+      },
+    ]);
+  });
+
   it('projects native shared-SP modifiers without flattening their blackboard reads', () => {
     expect(compileGlobalBuffTemplate(template(), 'global.fixture')).toMatchObject({
       sharedSpModifiers: [

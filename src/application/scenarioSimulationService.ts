@@ -12,7 +12,10 @@ import type { CombatBuffDefinitionsDocument } from '../core/combat/buffs/combatB
 import type { SkillSettingsDocument } from '../core/combat/infliction/skillSettings';
 import type { CompoundStatusFactoriesDocument } from '../core/combat/infliction/compoundStatusFactories';
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
-import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
+import {
+  EvenCriticalSampleSource,
+  type CriticalSampleSource,
+} from '../core/combat/random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 import type { StandardPlayerDamageScenarioResult } from './runStandardPlayerDamageScenarioSimulation';
@@ -52,9 +55,9 @@ export function defaultNonRandomRuntimeSnapshot(): PlayerDamageNonRandomRuntimeS
   };
 }
 
-/** 编辑器默认的确定性暴击策略：始终取样本 1，即本次模拟不产生暴击。 */
+/** 编辑器默认的确定性暴击策略；每次模拟重新创建，避免运行顺序改变结果。 */
 export function createDefaultCriticalSampleSource(): CriticalSampleSource {
-  return { nextCriticalSample: () => 1 };
+  return new EvenCriticalSampleSource();
 }
 
 /** 编辑器默认采用不触发随机分支的确定性样本 1；概率为 100% 时仍必然成立。 */
@@ -167,7 +170,6 @@ export class ScenarioSimulationService {
     }
     this.#options = {
       ...options,
-      criticalSamples: options.criticalSamples ?? createDefaultCriticalSampleSource(),
       probabilitySamples: options.probabilitySamples ?? createDefaultProbabilitySampleSource(),
       resolveNonRandomRuntimeSnapshot:
         options.resolveNonRandomRuntimeSnapshot ?? defaultNonRandomRuntimeSnapshot,
@@ -314,7 +316,7 @@ export class ScenarioSimulationService {
       ...(continuationPlanCastIds === undefined
         ? {}
         : { continuationPlanCastIds, continuationPlanMode }),
-      criticalSamples: this.#options.criticalSamples!,
+      criticalSamples: this.#options.criticalSamples ?? createDefaultCriticalSampleSource(),
       probabilitySamples: this.#options.probabilitySamples!,
       resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
       elementalInflictionDocument: this.#options.elementalInflictionDocument,

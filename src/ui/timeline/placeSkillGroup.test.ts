@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import { avywenna, laevatain, mifu, perlica, zhuangFangyi, yvonne } from '../../data/operators';
 import {
+  groupPlacedSkillSequence,
   placeSkillGroup,
   placeLibrarySkillGroup,
   type TimelineDocumentIdAllocator,
@@ -167,6 +168,14 @@ describe('placeSkillGroup', () => {
       skillKey: 'basicAttack1',
       action: 'basicAttack',
     });
+    const grouped = groupPlacedSkillSequence(result.scenario, result.skillCastIds);
+    expect(grouped.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
+      { startFrame: 30 },
+      { afterCastId: result.skillCastIds[0] },
+      { afterCastId: result.skillCastIds[1] },
+      { afterCastId: result.skillCastIds[2] },
+    ]);
+    expect(grouped.tracks[0]!.skillCasts.map(cast => cast.id)).toEqual(result.skillCastIds);
   });
 
   it('keeps a single skill as one cast and resolves its cost', () => {
@@ -233,6 +242,13 @@ describe('placeSkillGroup', () => {
       expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack2' }),
       expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack3' }),
       expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack4' }),
+    ]);
+    const grouped = groupPlacedSkillSequence(result.scenario, result.skillCastIds);
+    expect(grouped.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
+      { startFrame: 90 },
+      { afterCastId: result.skillCastIds[0] },
+      { afterCastId: result.skillCastIds[1] },
+      { afterCastId: result.skillCastIds[2] },
     ]);
   });
 

@@ -8,18 +8,26 @@ export interface TimelineCursorGaugeRow {
   readonly isFull: boolean;
 }
 
+export interface TimelineCursorEnemyEffect {
+  readonly buffId: string;
+  readonly title: string;
+  readonly icon: string | null;
+  readonly layers: number;
+}
+
 defineProps<{
   time: string;
   sp: string | null;
   poise: string | null;
   enemyHealth: string | null;
   gauges: readonly TimelineCursorGaugeRow[];
-  align: 'left' | 'right';
+  enemyEffects: readonly TimelineCursorEnemyEffect[];
+  enemyEffectOverflow: number;
 }>();
 </script>
 
 <template>
-  <div class="timeline-cursor-guide-panel" :class="`is-${align}`">
+  <div class="timeline-cursor-guide-panel">
     <div class="guide-time-label">{{ time }}</div>
     <div v-if="sp !== null" class="guide-sp-label">
       {{ $t('timelineGrid.cursor.sp') }}: {{ sp }}
@@ -47,6 +55,24 @@ defineProps<{
       </div>
     </div>
     <div v-if="enemyHealth !== null" class="guide-enemy-hp-label">HP: {{ enemyHealth }}</div>
+    <div
+      v-if="enemyEffects.length > 0 || enemyEffectOverflow > 0"
+      class="guide-enemy-effects"
+      @mousemove.stop
+    >
+      <div
+        v-for="effect in enemyEffects"
+        :key="effect.buffId"
+        class="guide-enemy-effect"
+        :title="effect.title"
+      >
+        <img v-if="effect.icon !== null" :src="effect.icon" alt="" />
+        <span>{{ effect.layers }}</span>
+      </div>
+      <span v-if="enemyEffectOverflow > 0" class="guide-enemy-effect-more">
+        +{{ enemyEffectOverflow }}
+      </span>
+    </div>
   </div>
 </template>
 
@@ -55,21 +81,19 @@ defineProps<{
   width: max-content;
 }
 
-.timeline-cursor-guide-panel.is-left {
-  transform: translateX(calc(-100% - 4px));
-}
-
 .guide-time-label,
 .guide-sp-label,
 .guide-stagger-label,
 .guide-enemy-hp-label,
-.guide-gauge-panel {
+.guide-gauge-panel,
+.guide-enemy-effects {
   width: fit-content;
   padding: 3px 6px;
   border: 1px solid var(--ea-border, rgb(255 255 255 / 10%));
   border-radius: 0;
   background: var(--ea-tooltip-bg, rgb(16 16 16 / 84%));
   backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
   box-shadow: 0 2px 8px var(--ea-shadow, rgb(0 0 0 / 40%));
   white-space: nowrap;
   font-family: monospace;
@@ -99,6 +123,47 @@ defineProps<{
 
 .guide-gauge-panel {
   margin-top: 2px;
+}
+
+.guide-enemy-effects {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-top: 2px;
+  pointer-events: auto;
+}
+
+.guide-enemy-effect {
+  position: relative;
+  width: 19px;
+  height: 19px;
+  flex: 0 0 19px;
+  box-sizing: border-box;
+  border: 1px solid var(--ea-keycap-skill-border, #999);
+  background: var(--ea-keycap-skill-bg, #333);
+}
+
+.guide-enemy-effect img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.guide-enemy-effect span {
+  position: absolute;
+  right: -2px;
+  bottom: -2px;
+  padding: 0 2px;
+  background: rgb(0 0 0 / 82%);
+  color: var(--ea-gold);
+  font-size: 8px;
+  line-height: 1;
+}
+
+.guide-enemy-effect-more {
+  color: var(--ea-fg-muted, rgb(255 255 255 / 55%));
+  font-size: 10px;
 }
 
 .guide-gauge-title {

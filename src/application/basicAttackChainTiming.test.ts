@@ -5,7 +5,11 @@ import { lifeng, perlica } from '../data/operators';
 import * as operators from '../data/operators';
 import { gameDataRepository } from '../data/gameDataRepository';
 import { skillSettings } from '../data/combat/skillSettings';
-import { placeSkillGroup, placeLibrarySkillGroup } from '../ui/timeline/placeSkillGroup';
+import {
+  groupPlacedSkillSequence,
+  placeSkillGroup,
+  placeLibrarySkillGroup,
+} from '../ui/timeline/placeSkillGroup';
 import { ScenarioSimulationService } from './scenarioSimulationService';
 import { resolveCompactSkillSelection } from '../ui/timeline/compactSkillSelection';
 import { SkillPlacementTransaction } from '../ui/timeline/skillPlacementTransaction';
@@ -140,6 +144,20 @@ describe('generated basic attack chain input timing', () => {
       expect(casts[0]!.placement.startFrame).toBe(startFrame);
       for (let i = 1; i < casts.length; i++)
         expect(casts[i]!.placement.startFrame).toBeGreaterThan(casts[i - 1]!.placement.startFrame!);
+      const groupedScenario = groupPlacedSkillSequence(result.scenario, result.skillCastIds!);
+      const groupedRun = await service.simulate(groupedScenario, 650);
+      const acceptedFrames = (entries: typeof result.run.receiptEntries) =>
+        entries
+          .filter(
+            entry =>
+              entry.event === 'SkillInputProcessed' &&
+              entry.data?.accepted === true &&
+              result.skillCastIds?.includes(String(entry.data.castId)),
+          )
+          .map(entry => [entry.data!.castId, entry.frame]);
+      expect(acceptedFrames(groupedRun.receiptEntries)).toEqual(
+        acceptedFrames(result.run.receiptEntries),
+      );
       expect(placed.scenario.tracks[0]!.skillCasts).toHaveLength(2);
       expect(
         result.run.receiptEntries.filter(

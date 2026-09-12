@@ -1,8 +1,20 @@
 <script setup lang="ts">
-import { EaDialog } from '@/design-system';
-import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+/** 旧版伤害分析面板的展示结构；所有数值只读取新版同一次正式模拟发布的回执汇总。 */
 import { computed } from 'vue';
-import type { TimelineDamageAnalysis } from '../timelineDamageAnalysis';
+import VChart from 'vue-echarts';
+import type { ComposeOption } from 'echarts/core';
+import type { PieSeriesOption } from 'echarts/charts';
+import type { LegendComponentOption, TooltipComponentOption } from 'echarts/components';
+import { EaDialog } from '@/design-system';
+import { useAppearance } from '../../../composables/useAppearance';
+import '../../../utils/echartsSetup';
+import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import type {
+  TimelineDamageAnalysis,
+  TimelineDamageAnalysisEntry,
+} from '../timelineDamageAnalysis';
+
+type ChartOption = ComposeOption<PieSeriesOption | TooltipComponentOption | LegendComponentOption>;
 
 const props = defineProps<{
   visible: boolean;
@@ -20,11 +32,14 @@ const props = defineProps<{
     dps: string;
     unattributedDamage: (value: string) => string;
     contributionUnavailable: string;
+    faqTitle: string;
+    faq: readonly (readonly [question: string, answer: string])[];
   };
 }>();
 
 defineEmits<{ 'update:visible': [visible: boolean] }>();
 
+const { appearance } = useAppearance();
 const hasData = computed(() => props.analysis.totalDamage > 0);
 const numberFormatter = computed(
   () => new Intl.NumberFormat(props.locale, { maximumFractionDigits: 0 }),
@@ -33,74 +48,136 @@ const numberFormatter = computed(
 function formatNumber(value: number): string {
   return numberFormatter.value.format(Math.round(value));
 }
+
+function chartData(entries: readonly TimelineDamageAnalysisEntry[]) {
+  return entries.map(entry => ({
+    name: entry.label,
+    value: Math.round(entry.value),
+    itemStyle: { color: entry.color ?? '#888888' },
+  }));
+}
+
+const chartPaint = computed(() => {
+  const light = appearance.value === 'light';
+  return {
+    tooltip: {
+      backgroundColor: light ? '#ffffff' : '#2a2a2a',
+      borderColor: light ? '#d8dbe0' : '#444444',
+      textStyle: { color: light ? '#1a1b1e' : '#f0f0f0', fontSize: 13 },
+    },
+    legendText: light ? '#3a3d44' : '#cccccc',
+    legendInactive: light ? '#9aa3b0' : '#565d66',
+    label: light ? '#3a3d44' : '#cccccc',
+    sliceBorder: light ? '#ffffff' : '#252528',
+  };
+});
+
+function pieOption(entries: readonly TimelineDamageAnalysisEntry[]): ChartOption {
+  const paint = chartPaint.value;
+  return {
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)', ...paint.tooltip },
+    legend: {
+      orient: 'vertical',
+      right: 10,
+      top: 'center',
+      inactiveColor: paint.legendInactive,
+      textStyle: { color: paint.legendText, fontSize: 12 },
+    },
+    series: [
+      {
+        type: 'pie',
+        radius: ['35%', '65%'],
+        center: ['40%', '50%'],
+        itemStyle: { borderColor: paint.sliceBorder, borderWidth: 2 },
+        label: { color: paint.label, formatter: '{b}\n{d}%', fontSize: 12 },
+        emphasis: {
+          itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' },
+        },
+        data: chartData(entries),
+      },
+    ],
+  };
+}
+
+const operatorChartOption = computed(() => pieOption(props.analysis.byOperator));
+const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageType));
 </script>
 
 <template>
   <InputRegionBoundary label="DamageAnalysisDialog" :active="visible" modal>
     <EaDialog
       :model-value="visible"
-      width="min(1180px, 92vw)"
-      top="5vh"
+      width="90vw"
+      top="3vh"
       append-to-body
       destroy-on-close
-      class="next-damage-analysis-dialog"
+      class="damage-analysis-dialog custom-dialog"
       @update:model-value="$emit('update:visible', $event)"
     >
       <template #header>
-        <strong class="analysis-title">{{ labels.title }}</strong>
+        <span class="analysis-title">{{ labels.title }}</span>
       </template>
 
-      <slot name="status" />
-      <div class="analysis-warning">{{ labels.warning }}</div>
-      <div v-if="!hasData" class="analysis-empty">{{ labels.noData }}</div>
-      <template v-else>
-        <div class="analysis-cards">
-          <section class="analysis-card">
-            <h3>{{ labels.damageByOperator }}</h3>
-            <div class="bar-list">
-              <div v-for="entry in analysis.byOperator" :key="entry.key" class="bar-row">
-                <span :title="entry.label">{{ entry.label }}</span>
-                <div><i :style="{ width: `${entry.ratio * 100}%` }"></i></div>
-                <b>{{ formatNumber(entry.value) }}</b>
-              </div>
-              <div v-if="analysis.unattributedDamage > 0" class="analysis-note">
+      <div class="analysis-content">
+        <slot name="status" />
+        <div class="warning-banner">
+          <span class="warning-text">{{ labels.warning }}</span>
+        </div>
+
+        <div v-if="!hasData" class="empty-state">
+          <p>{{ labels.noData }}</p>
+        </div>
+
+        <template v-else>
+          <div class="charts-row">
+            <section class="chart-card">
+              <h3 class="chart-title">{{ labels.damageByOperator }}</h3>
+              <VChart :option="operatorChartOption" autoresize class="chart" />
+              <p v-if="analysis.unattributedDamage > 0" class="analysis-note">
                 {{ labels.unattributedDamage(formatNumber(analysis.unattributedDamage)) }}
-              </div>
+              </p>
+            </section>
+            <section class="chart-card">
+              <h3 class="chart-title">{{ labels.contributionByOperator }}</h3>
+              <div class="chart contribution-unavailable">{{ labels.contributionUnavailable }}</div>
+            </section>
+            <section class="chart-card">
+              <h3 class="chart-title">{{ labels.damageByElement }}</h3>
+              <VChart :option="damageTypeChartOption" autoresize class="chart" />
+            </section>
+          </div>
+
+          <div class="summary-row">
+            <div class="summary-item">
+              <span class="summary-label">{{ labels.totalDamage }}</span>
+              <span class="summary-value">{{ formatNumber(analysis.totalDamage) }}</span>
             </div>
-          </section>
-
-          <section class="analysis-card analysis-card--muted">
-            <h3>{{ labels.contributionByOperator }}</h3>
-            <p>{{ labels.contributionUnavailable }}</p>
-          </section>
-
-          <section class="analysis-card">
-            <h3>{{ labels.damageByElement }}</h3>
-            <div class="bar-list">
-              <div v-for="entry in analysis.byDamageType" :key="entry.key" class="bar-row">
-                <span :title="entry.label">{{ entry.label }}</span>
-                <div><i :style="{ width: `${entry.ratio * 100}%` }"></i></div>
-                <b>{{ formatNumber(entry.value) }}</b>
-              </div>
+            <div class="summary-item">
+              <span class="summary-label">{{ labels.rotationTime }}</span>
+              <span class="summary-value">{{ analysis.rotationSeconds.toFixed(2) }}s</span>
             </div>
-          </section>
-        </div>
+            <div class="summary-item">
+              <span class="summary-label">{{ labels.dps }}</span>
+              <span class="summary-value">{{ formatNumber(analysis.dps) }}</span>
+            </div>
+          </div>
+        </template>
 
-        <div class="analysis-summary">
-          <div>
-            <span>{{ labels.totalDamage }}</span
-            ><strong>{{ formatNumber(analysis.totalDamage) }}</strong>
-          </div>
-          <div>
-            <span>{{ labels.rotationTime }}</span
-            ><strong>{{ analysis.rotationSeconds.toFixed(2) }}s</strong>
-          </div>
-          <div>
-            <span>{{ labels.dps }}</span
-            ><strong>{{ formatNumber(analysis.dps) }}</strong>
-          </div>
-        </div>
-      </template>
+        <section class="faq-section">
+          <h3 class="faq-title">{{ labels.faqTitle }}</h3>
+          <el-collapse class="faq-collapse">
+            <el-collapse-item
+              v-for="([question, answer], index) in labels.faq"
+              :key="index"
+              :title="question"
+              :name="String(index + 1)"
+            >
+              <p class="faq-answer">{{ answer }}</p>
+            </el-collapse-item>
+          </el-collapse>
+        </section>
+      </div>
     </EaDialog>
   </InputRegionBoundary>
 </template>
@@ -109,128 +186,173 @@ function formatNumber(value: number): string {
 .analysis-title {
   color: var(--ea-dialog-title);
   font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
 }
 
-.analysis-warning {
-  margin-bottom: 16px;
-  padding: 10px 12px;
-  border: 1px solid rgb(230 162 60 / 45%);
-  background: rgb(230 162 60 / 9%);
-  color: #e6a23c;
-  font-size: 12px;
+.analysis-content {
+  min-height: 400px;
 }
 
-.analysis-empty {
-  min-height: 260px;
-  display: grid;
-  place-items: center;
-  color: var(--ea-fg-muted);
+.warning-banner {
+  margin-bottom: 24px;
+  padding: 10px 16px;
+  border: 1px solid color-mix(in srgb, #ffab40 35%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, #ffab40 10%, transparent);
 }
 
-.analysis-cards {
+.warning-text {
+  color: #c47a10;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+:global(html[data-theme='dark']) .warning-text {
+  color: #ffab40;
+}
+
+.empty-state {
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ea-dialog-hint);
+  font-size: 14px;
+}
+
+.charts-row {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 12px;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
-.analysis-card {
+.chart-card,
+.summary-item {
+  border: 1px solid var(--ea-border);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ea-fg) 5%, var(--ea-dialog-bg));
+}
+
+.chart-card {
   min-width: 0;
-  min-height: 260px;
-  padding: 14px;
-  border: 1px solid var(--ea-border-soft);
-  background: var(--ea-fill-soft);
+  padding: 16px;
 }
 
-.analysis-card h3 {
-  margin: 0 0 16px;
-  color: var(--ea-fg);
-  font-size: 13px;
+.chart-title,
+.faq-title {
+  margin: 0;
+  color: var(--ea-dialog-body);
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.analysis-card--muted {
-  display: flex;
-  flex-direction: column;
+.chart {
+  width: 100%;
+  height: 260px;
 }
 
-.analysis-card--muted p,
-.analysis-note {
+.contribution-unavailable {
+  display: grid;
+  place-items: center;
+  box-sizing: border-box;
+  padding: 24px;
   color: var(--ea-fg-muted);
   font-size: 12px;
   line-height: 1.7;
+  text-align: center;
 }
 
-.bar-list {
+.analysis-note {
+  margin: 0;
+  color: var(--ea-fg-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.summary-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.summary-item {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-.bar-row {
-  display: grid;
-  grid-template-columns: minmax(64px, 0.7fr) minmax(70px, 1fr) auto;
   align-items: center;
-  gap: 8px;
-  font-size: 12px;
+  gap: 4px;
+  padding: 14px;
 }
 
-.bar-row > span {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+.summary-label {
+  color: var(--ea-dialog-hint);
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
 }
 
-.bar-row > div {
-  height: 7px;
-  overflow: hidden;
-  background: var(--ea-border-soft);
-}
-
-.bar-row i {
-  display: block;
-  height: 100%;
-  background: var(--ea-gold);
-}
-
-.bar-row b {
+.summary-value {
+  color: var(--ea-gold);
+  font-size: 24px;
+  font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
 
-.analysis-summary {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  margin-top: 14px;
-  border: 1px solid var(--ea-border-soft);
+.faq-section {
+  width: 100%;
+  margin-top: 24px;
 }
 
-.analysis-summary > div {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 14px;
-  border-right: 1px solid var(--ea-border-soft);
+.faq-title {
+  margin-bottom: 12px;
 }
 
-.analysis-summary > div:last-child {
-  border-right: 0;
+.faq-collapse {
+  --el-collapse-border-color: var(--ea-border);
+  --el-collapse-header-bg-color: color-mix(in srgb, var(--ea-fg) 5%, var(--ea-dialog-bg));
+  --el-collapse-content-bg-color: color-mix(in srgb, var(--ea-fg) 3%, var(--ea-dialog-bg));
+  --el-collapse-header-text-color: var(--ea-dialog-body);
+  --el-collapse-content-text-color: var(--ea-fg-muted);
+  --el-collapse-header-font-size: 13px;
+  --el-collapse-content-font-size: 13px;
+
+  overflow: hidden;
+  border-radius: 6px;
 }
 
-.analysis-summary span {
+.faq-collapse :deep(.el-collapse-item__header) {
+  padding-right: 16px;
+  padding-left: 16px;
+}
+
+.faq-collapse :deep(.el-collapse-item__content) {
+  padding: 0;
+}
+
+.faq-answer {
+  margin: 0;
+  padding: 12px 16px;
+  border-top: 1px solid var(--ea-border);
+  background: var(--ea-fill-muted);
   color: var(--ea-fg-muted);
-  font-size: 11px;
-}
-
-.analysis-summary strong {
-  color: var(--ea-gold);
-  font-size: 20px;
+  line-height: 1.6;
+  white-space: pre-line;
 }
 
 @media (max-width: 900px) {
-  .analysis-cards {
+  .charts-row {
     grid-template-columns: 1fr;
   }
-  .analysis-card {
-    min-height: 0;
+
+  .summary-row {
+    flex-direction: column;
+  }
+
+  .summary-item {
+    width: 100%;
+    box-sizing: border-box;
   }
 }
 </style>

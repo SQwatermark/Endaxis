@@ -357,13 +357,13 @@
       "contributionUnavailable": "Receipts do not yet freeze external Buff-provider contributions, so no speculative attribution is shown.",
       "faqTitle": "FAQ",
       "faq1Q": "Why is the damage different from the game?",
-      "faq1A": "The simulation strictly follows a \"Hit before Effect\" rule: damage does NOT benefit from effects it applies, but DOES benefit from effects even if it consumes them. This is not always how the game works - try testing with Chen Qianyu's Talent 1.\n\nAdditionally, in-game numbers are rounded while the underlying data is non-integer. The simulation rounds everything down.\n\nIt's just a simulation.",
+      "faq1A": "The analysis uses current game data and compiled combat rules. Missing mechanics, spatial simplifications, version differences, and UI rounding can all cause differences. Check native evidence and simulation diagnostics for the rule involved.",
       "faq2Q": "What are the limitations of the damage calculation?",
-      "faq2A": "There is no good way to implement \"On Crit\" effects in a static analysis. All \"On Crit\" triggers currently use \"On Hit\" instead, so calculated damage may be slightly higher than actual.",
+      "faq2A": "The analysis only counts damage receipts produced by the formal simulation. It does not invent uncompiled behavior or missing conditions such as distance and target count. Reported simulation diagnostics can prevent some skills from executing.",
       "faq3Q": "How is contribution calculated?",
-      "faq3A": "LMDI (Logarithmic Mean Divisia Index).\nSince Endfield's damage formula is entirely multiplicative, LMDI can decompose each hit's damage into per-operator contributions with zero residual.\nInstead of vague statements like \"this Support roughly boosts total damage by 10%\", it tells you directly: \"out of 120k total damage, the Support contributed 12k.\" This makes it highly practical for comparing team compositions.\nFor arts and physical reactions, their damage and effect are attributed by each operator's infliction and vulnerability stack contributions.\nFor stagger, the 30% stagger multiplier bonus is attributed by each operator's stagger contributions.",
-      "faq4Q": "Who is the most complicated operator?",
-      "faq4A": "Pogranichnik."
+      "faq3A": "The current analysis attributes direct damage to its damage source. The new receipts do not yet record enough facts to split each hit among external Buff providers, so the contribution chart stays unavailable instead of presenting an unverifiable estimate.",
+      "faq4Q": "How is the analysis range chosen?",
+      "faq4A": "Counting starts at the scenario's simulation start and ignores earlier preparation damage. Rotation time ends at the last valid damage event. DPS is zero when there is no valid damage."
     },
     "export": {
       "copyCode": "Copy Data Code",
@@ -402,6 +402,8 @@
       "sectionEditTools": "Editing tools",
       "sectionProject": "Project",
       "sectionPrefs": "Preferences",
+      "autoGroupBasicAttackSequences": "Auto-group basic attack sequences",
+      "autoGroupBasicAttackSequencesHint": "When a full basic or enhanced basic attack sequence is placed from the skill library, keep only the first start time and chain the remaining segments",
       "sectionViewLayers": "Layers",
       "sectionViewBehavior": "View behavior",
       "sectionViewOperators": "Operators",

@@ -8,6 +8,8 @@ export function projectPublishedTimelineDamageAnalysis(
   published: PublishedScenarioSimulation | null,
   operatorLabel: (slug: string | null) => string,
   damageTypeLabel: (damageType: DamageType) => string,
+  operatorColor?: (slug: string | null) => string,
+  damageTypeColor?: (damageType: DamageType) => string,
 ): TimelineDamageAnalysis {
   if (published === null)
     return {
@@ -23,6 +25,8 @@ export function projectPublishedTimelineDamageAnalysis(
     published.scenario,
     index => operatorLabel(published.scenario.tracks[index]?.operator?.operatorSlug ?? null),
     damageTypeLabel,
+    index => operatorColor?.(published.scenario.tracks[index]?.operator?.operatorSlug ?? null),
+    damageTypeColor,
   );
 }
 
@@ -31,6 +35,7 @@ export interface TimelineDamageAnalysisEntry {
   readonly label: string;
   readonly value: number;
   readonly ratio: number;
+  readonly color?: string;
 }
 
 export interface TimelineDamageAnalysis {
@@ -55,6 +60,8 @@ export function projectTimelineDamageAnalysis(
   scenario: ScenarioDocument,
   operatorLabel: (trackIndex: TrackIndex) => string,
   damageTypeLabel: (damageType: DamageType) => string,
+  operatorColor?: (trackIndex: TrackIndex) => string | undefined,
+  damageTypeColor?: (damageType: DamageType) => string | undefined,
 ): TimelineDamageAnalysis {
   const castToTrack = new Map<string, TrackIndex>();
   const sourceToTrack = new Map<string, TrackIndex>();
@@ -65,7 +72,9 @@ export function projectTimelineDamageAnalysis(
     for (const cast of track.skillCasts) castToTrack.set(cast.id, trackIndex);
   });
 
-  const startFrame = scenario.battle.simulationRange?.startFrame ?? scenario.battle.prepFrames;
+  // 新版时间轴以 0 帧作为正式战斗起点，准备阶段使用负帧。`prepFrames` 只是
+  // 可向前编辑的长度，不能当成统计起点，否则默认会漏掉 0 到 prepFrames 之间的伤害。
+  const startFrame = scenario.battle.simulationRange?.startFrame ?? 0;
   const operatorTotals = new Map<TrackIndex, number>();
   const typeTotals = new Map<DamageType, number>();
   let totalDamage = 0;
@@ -95,22 +104,27 @@ export function projectTimelineDamageAnalysis(
   const entries = <K extends string | number>(
     totals: ReadonlyMap<K, number>,
     label: (key: K) => string,
+    color?: (key: K) => string | undefined,
   ): TimelineDamageAnalysisEntry[] =>
     [...totals.entries()]
-      .map(([key, value]) => ({
-        key: String(key),
-        label: label(key),
-        value,
-        ratio: totalDamage <= 0 ? 0 : value / totalDamage,
-      }))
+      .map(([key, value]) => {
+        const entryColor = color?.(key);
+        return {
+          key: String(key),
+          label: label(key),
+          value,
+          ratio: totalDamage <= 0 ? 0 : value / totalDamage,
+          ...(entryColor === undefined ? {} : { color: entryColor }),
+        };
+      })
       .sort((left, right) => right.value - left.value);
   const rotationSeconds = Math.max(0, lastDamageFrame - startFrame) / 30;
   return {
     totalDamage,
     rotationSeconds,
     dps: rotationSeconds <= 0 ? 0 : totalDamage / rotationSeconds,
-    byOperator: entries(operatorTotals, operatorLabel),
-    byDamageType: entries(typeTotals, damageTypeLabel),
+    byOperator: entries(operatorTotals, operatorLabel, operatorColor),
+    byDamageType: entries(typeTotals, damageTypeLabel, damageTypeColor),
     unattributedDamage,
   };
 }

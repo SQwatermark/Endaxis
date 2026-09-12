@@ -21,10 +21,11 @@ import { useAsyncModalBoundary } from '../interaction/useAsyncModalBoundary';
 import { isInsideTimelineDropRegion } from './timelineDropRegion';
 import { normalizeDurationBarColorPrefs } from './durationBarColor';
 import { useI18n } from 'vue-i18n';
-import { ElMessage, ElMessageBox } from 'element-plus';
+import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
 import { EaButton } from '@/design-system';
 import { useAppearance } from '../../composables/useAppearance';
 import { formatTimeWithFrames } from '../../utils/time';
+import { ELEMENT_COLORS } from '../../utils/theme';
 import { ALL_GAME_TEXT_FAMILIES, setLocale } from '../../i18n';
 import {
   getEnemyGameName,
@@ -67,6 +68,9 @@ import TimelineCursorGuide, {
   type TimelineCursorGaugeRow,
 } from './components/TimelineCursorGuide.vue';
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
+import TimelineExportDialog from './components/TimelineExportDialog.vue';
+import TimelineSmallImageExportDialog from './components/TimelineSmallImageExportDialog.vue';
+import type { TimelineShareTrack } from './components/TimelineShareCard.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import OperatorAvatar from '../components/OperatorAvatar.vue';
@@ -173,6 +177,13 @@ import { createEmptyProject } from '../../core/project/createProject';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { openProject } from '../../application/openProject';
 import { downloadProjectJson } from './downloadProjectJson';
+import {
+  captureTimelineLongImage,
+  compressProjectCode,
+  downloadBlob,
+  imageFilename,
+  projectFilename,
+} from './timelineExport';
 import { createProjectFileReader } from './projectFileReader';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
 import { gameDataRepository } from '../../data/gameDataRepository';
@@ -189,11 +200,12 @@ import type {
   WeaponDefinition,
 } from '../../core/game-data/equipmentDefinition';
 import {
+  getIconAssetPath,
   getOperatorAvatarPath,
   getOperatorSkillIconPath,
   getWeaponActionIconPath,
 } from '../gameAssetPaths';
-import { placeLibrarySkillGroup } from './placeSkillGroup';
+import { groupPlacedSkillSequence, placeLibrarySkillGroup } from './placeSkillGroup';
 import { SkillPlacementTransaction } from './skillPlacementTransaction';
 import {
   resolveCompactSkillSelection,
@@ -210,6 +222,7 @@ import {
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
 import {
+  COLLAPSED_PREP_WIDTH_PX,
   frameToTimelinePx,
   resolveTimelineCursorGuidePosition,
   timelinePxToExactFrame,
@@ -398,15 +411,33 @@ const TIMELINE_RULER_HEIGHT = 60;
 const INTERACTIVE_SIMULATION_BUDGET_MS = 1000 / 60;
 const timelineZoomPercent = ref(100);
 const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
-const showCursorGuide = ref(false);
+const CURSOR_GUIDE_STORAGE_KEY = 'endaxis:timeline-cursor-guide:v1';
+const showCursorGuide = ref(window.localStorage.getItem(CURSOR_GUIDE_STORAGE_KEY) === 'true');
+watch(showCursorGuide, visible =>
+  window.localStorage.setItem(CURSOR_GUIDE_STORAGE_KEY, String(visible)),
+);
 const boxSelectEnabled = ref(false);
 const connectionToolEnabled = ref(false);
+const AUTO_GROUP_BASIC_ATTACK_STORAGE_KEY = 'endaxis:timeline-auto-group-basic-attack-sequences:v1';
+const autoGroupBasicAttackSequences = ref(
+  window.localStorage.getItem(AUTO_GROUP_BASIC_ATTACK_STORAGE_KEY) !== 'false',
+);
+watch(autoGroupBasicAttackSequences, enabled =>
+  window.localStorage.setItem(AUTO_GROUP_BASIC_ATTACK_STORAGE_KEY, String(enabled)),
+);
 const BUFF_LAYOUT_STORAGE_KEY = 'endaxis:timeline-buff-layout:v1';
 const TRACK_HEIGHTS_STORAGE_KEY = 'endaxis:timeline-compact-track-heights:v1';
 const buffLayoutMode = ref<'compact' | 'loose'>(
   window.localStorage.getItem(BUFF_LAYOUT_STORAGE_KEY) === 'loose' ? 'loose' : 'compact',
 );
-watch(buffLayoutMode, mode => window.localStorage.setItem(BUFF_LAYOUT_STORAGE_KEY, mode));
+watch(buffLayoutMode, mode => {
+  window.localStorage.setItem(BUFF_LAYOUT_STORAGE_KEY, mode);
+  if (mode !== 'compact') return;
+  void nextTick(() => {
+    if (timelineScroll.value !== null) timelineScroll.value.scrollTop = 0;
+    timelineScrollTop.value = 0;
+  });
+});
 const DURATION_COLOR_STORAGE_KEY = 'endaxis:timeline-duration-bar-color:v1';
 const durationBarColor = ref(
   normalizeDurationBarColorPrefs(
@@ -511,6 +542,9 @@ const actionSelection = computed(() => timelineSelection.value.actions);
 const selectedCastId = computed(() => actionSelection.value.primaryId);
 const showSkillDefinitionEditor = ref(false);
 const showDamageAnalysis = ref(false);
+const showExportDialog = ref(false);
+const showSmallImageExport = ref(false);
+const smallImageExportInitial = ref({ filename: '', duration: 60 });
 const showShortcutHelp = ref(false);
 const buffDetailTarget = ref<BuffDetailTarget | null>(null);
 const showOperatorDefinitionWorkspace = ref(false);
@@ -534,6 +568,7 @@ const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
 const timelineHorizontalScrollbar = ref<HTMLElement | null>(null);
 const timelineScrollLeft = ref(0);
+const timelineScrollTop = ref(0);
 const timelineViewportWidth = ref(1200);
 const timelineViewportHeight = ref(0);
 const displayedCompactTrackHeights = computed(() =>
@@ -692,6 +727,12 @@ const damageAnalysis = computed(() =>
     publishedSimulation.value,
     publishedOperatorName,
     damageElementLabel,
+    slug => {
+      const element = slug === null ? undefined : publishedOperators.value.get(slug)?.element;
+      return element === 'physical' ? '#c9c9c9' : (ELEMENT_COLORS[element ?? ''] ?? '#888888');
+    },
+    damageType =>
+      damageType === 'physical' ? '#c9c9c9' : (ELEMENT_COLORS[damageType] ?? '#888888'),
   ),
 );
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
@@ -708,6 +749,8 @@ let stopTimelinePrepResize: (() => void) | null = null;
 const canUndo = ref(scenarioSession.canUndo);
 const canRedo = ref(scenarioSession.canRedo);
 const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
+  // 复制方案可以保留内部ID；切换、撤销和重做都按方案身份清理，不能靠技能ID变化碰巧清空。
+  if (snapshot.scenario.id !== scenario.value.id) resetTransientScenarioUi();
   scenario.value = snapshot.scenario;
   canUndo.value = scenarioSession.canUndo;
   canRedo.value = scenarioSession.canRedo;
@@ -815,7 +858,7 @@ async function acceptOpenedProject(
   );
 }
 
-function exportProject(): void {
+function exportProject(filename?: string): void {
   try {
     const project = projectSession.snapshot.project;
     const content = serializeProjectDocument(project, true);
@@ -823,12 +866,77 @@ function exportProject(): void {
     const fileBase = (activeScenario?.name ?? project.activeScenarioId)
       .replace(/[^A-Za-z0-9._-]+/g, '-')
       .replace(/^-+|-+$/g, '');
-    downloadProjectJson(content, `${fileBase || 'endaxis-project'}.json`);
+    downloadProjectJson(
+      content,
+      filename === undefined ? `${fileBase || 'endaxis-project'}.json` : projectFilename(filename),
+    );
     savedProjectSnapshot.value = project;
     projectDirty.value = false;
-    ElMessage.success('项目 JSON 已导出');
+    showExportDialog.value = false;
+    ElMessage.success(t('timeline.export.exportJson'));
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '导出项目失败');
+    ElMessage.error(
+      t('timeline.export.failed', {
+        msg: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  }
+}
+
+async function copyProjectCode(): Promise<void> {
+  try {
+    const json = serializeProjectDocument(projectSession.snapshot.project);
+    await navigator.clipboard.writeText(await compressProjectCode(json));
+    ElMessage.success(t('timeline.share.copied'));
+  } catch (error) {
+    ElMessage.error(
+      t('timeline.share.copyFailed', {
+        msg: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  }
+}
+
+function openSmallImageExport(options: { filename: string; duration: number }): void {
+  smallImageExportInitial.value = options;
+  showExportDialog.value = false;
+  showSmallImageExport.value = true;
+}
+
+async function exportTimelineLongImage(options: {
+  filename: string;
+  duration: number;
+}): Promise<void> {
+  showExportDialog.value = false;
+  const loading = ElLoading.service({
+    lock: true,
+    text: t('timeline.export.rendering', { seconds: options.duration }),
+    background: 'rgba(0, 0, 0, 0.9)',
+  });
+  try {
+    await nextTick();
+    const timelineMain = document.querySelector<HTMLElement>('.timeline-main');
+    if (timelineMain === null) throw new Error('timeline workspace missing');
+    const prepWidth = scenario.value.editor.prepExpanded
+      ? scenario.value.battle.prepFrames * pxPerFrame.value
+      : COLLAPSED_PREP_WIDTH_PX;
+    const filename = imageFilename(options.filename);
+    const blob = await captureTimelineLongImage(timelineMain, {
+      durationSeconds: options.duration,
+      pxPerFrame: pxPerFrame.value,
+      prepWidth,
+      trackHeaderWidth: TIMELINE_TRACK_HEADER_WIDTH,
+    });
+    downloadBlob(blob, filename);
+    ElMessage.success(t('timeline.export.imageExported', { filename }));
+  } catch (error) {
+    ElMessage.error(
+      t('timeline.export.failed', {
+        msg: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  } finally {
+    loading.close();
   }
 }
 
@@ -920,6 +1028,29 @@ const viewModel = computed(() => {
   void operatorDefinitionRevision.value;
   return projectTimelineEditor(scenario.value, editorGameDataRepository);
 });
+const exportShareTracks = computed<readonly TimelineShareTrack[]>(() =>
+  viewModel.value.tracks
+    .filter(track => track.operatorInstanceId !== null)
+    .map(track => ({
+      id: track.operatorInstanceId!,
+      name: operatorName(track.operatorSlug),
+      avatar:
+        track.operatorAssetSlug === null ? null : getOperatorAvatarPath(track.operatorAssetSlug),
+      actions: track.skillCasts.map(cast => ({
+        id: cast.id,
+        label: timelineCastLabel(cast, track),
+        skillType: cast.skillType,
+        startFrame: cast.startFrame,
+        durationFrames: cast.durationFrames,
+        disabled: cast.disabled,
+        color: cast.color,
+        icon:
+          track.operatorAssetSlug === null || cast.skillType === null
+            ? null
+            : getOperatorSkillIconPath(track.operatorAssetSlug, cast.skillType),
+      })),
+    })),
+);
 const initialUltimateEnergyPresetMode = computed(() =>
   resolveInitialUltimateEnergyPresetMode(scenario.value),
 );
@@ -1220,7 +1351,7 @@ function openOperatorDefinitionWorkspace(): void {
     };
   });
   if (!changed) return;
-  simulationService.clearCache();
+  refreshSimulationAfterDefinitionChange();
   showOperatorDefinitionWorkspace.value = true;
 }
 
@@ -1285,7 +1416,7 @@ function openWeaponDefinitionWorkspace(): void {
     };
   });
   if (!changed) return;
-  simulationService.clearCache();
+  refreshSimulationAfterDefinitionChange();
   showWeaponDefinitionWorkspace.value = true;
 }
 
@@ -1348,7 +1479,7 @@ function openGearDefinitionWorkspace(slot: TrackGearSlot): void {
     };
   });
   if (!changed) return;
-  simulationService.clearCache();
+  refreshSimulationAfterDefinitionChange();
 }
 
 function saveGearDefinition(definition: GearDefinition): void {
@@ -1835,6 +1966,7 @@ function updateTimelineViewportMetrics(): void {
   const viewport = timelineScroll.value;
   if (viewport === null) return;
   timelineScrollLeft.value = viewport.scrollLeft;
+  timelineScrollTop.value = viewport.scrollTop;
   timelineViewportWidth.value = viewport.clientWidth;
   timelineViewportHeight.value = viewport.clientHeight;
   timelineVerticalScrollbarWidth.value = Math.max(0, viewport.offsetWidth - viewport.clientWidth);
@@ -2067,7 +2199,7 @@ function timelinePointerActualFrame(pointerPx: number): number {
 }
 function formatGuideNumber(value: number | null): string {
   if (value === null) return '--';
-  return String(Math.round(value * 100) / 100);
+  return String(Math.round(value * 1000) / 1000);
 }
 
 function castWarningTitle(castId: string): string {
@@ -2778,10 +2910,10 @@ const cursorGuideMetrics = computed(() => {
           operatorPassiveUis: combatHudOperatorPassiveUis.value,
         });
   if (current !== null && snapshot !== null) {
-    sp = formatGuideNumber(snapshot.sp.current);
-    enemyHealth = `${formatGuideNumber(snapshot.enemy.health.current)}/${formatGuideNumber(snapshot.enemy.health.maximum)}`;
+    sp = String(Math.floor(Number(snapshot.sp.current) || 0));
+    enemyHealth = `${Math.floor(Number(snapshot.enemy.health.current) || 0).toLocaleString()} / ${Math.floor(snapshot.enemy.health.maximum).toLocaleString()}`;
     if (snapshot.enemy.poise !== null) {
-      poise = `${formatGuideNumber(snapshot.enemy.poise.current)}/${formatGuideNumber(snapshot.enemy.poise.maximum)}`;
+      poise = `${Math.floor(Number(snapshot.enemy.poise.current) || 0)}/${Math.floor(snapshot.enemy.poise.maximum)}`;
     }
     for (const operator of snapshot.operators) {
       const trackIndex = viewModel.value.tracks.findIndex(
@@ -2804,11 +2936,29 @@ const cursorGuideMetrics = computed(() => {
   return { time: formatGuideFrame(frame), sp, poise, enemyHealth, gauges };
 });
 
-const cursorGuideLabelAlign = computed<'left' | 'right'>(() => {
-  const guide = cursorGuide.value;
-  if (guide === null) return 'right';
-  const viewportX = TIMELINE_TRACK_HEADER_WIDTH + guide.leftPx - timelineScrollLeft.value;
-  return viewportX > timelineViewportWidth.value - 190 && viewportX > 190 ? 'left' : 'right';
+const CURSOR_EFFECT_ICON_LIMIT = 10;
+const cursorEnemyEffects = computed(() => {
+  const frame = cursorGuide.value?.sampleFrame ?? 0;
+  const byBuffId = new Map<
+    string,
+    { buffId: string; title: string; icon: string | null; layers: number }
+  >();
+  for (const segment of buffSegmentsForTarget(SINGLE_ENEMY_TARGET_ID)) {
+    if (segment.startFrame > frame || segment.endFrame <= frame) continue;
+    const previous = byBuffId.get(segment.buffId);
+    if (previous !== undefined && previous.layers >= segment.layers) continue;
+    byBuffId.set(segment.buffId, {
+      buffId: segment.buffId,
+      title: buffDisplayName(segment) ?? resolveBuffDisplayName(segment.buffId, { t, te }),
+      icon: buffIcon(segment) ?? segment.iconPath ?? getIconAssetPath(segment.iconId) ?? null,
+      layers: segment.layers,
+    });
+  }
+  const all = [...byBuffId.values()].sort((left, right) => left.buffId.localeCompare(right.buffId));
+  return {
+    effects: all.slice(0, CURSOR_EFFECT_ICON_LIMIT),
+    overflow: Math.max(0, all.length - CURSOR_EFFECT_ICON_LIMIT),
+  };
 });
 
 function publishedOperatorName(slug: string | null): string {
@@ -2860,6 +3010,16 @@ function buffDisplayName(segment: BuffPresentationSource): string | undefined {
   return contingencyContractBuffName(segment);
 }
 
+function buffIcon(segment: BuffPresentationSource): string | undefined {
+  const source = resolvePublishedBuffSource(
+    segment,
+    publishedSimulation.value?.scenario,
+    publishedOperators.value,
+    publishedWeaponSources.value,
+  );
+  return source?.kind === 'weapon' ? source.iconPath : undefined;
+}
+
 function buffSourceName(segment: BuffPresentationSource): string | undefined {
   const contractTagName = contingencyContractBuffName(segment);
   if (contractTagName !== undefined) {
@@ -2891,7 +3051,7 @@ function buffSourceName(segment: BuffPresentationSource): string | undefined {
               : getOperatorCombatSkillName(source.slug, source.fallbackKey, locale.value),
           );
     case 'weapon':
-      return getWeaponGameName(source.slug, locale.value);
+      return source.name ?? getWeaponGameName(source.slug, locale.value);
     case 'gear':
       return getGearPieceGameName(source.slug, locale.value);
     case 'gearSet':
@@ -3828,6 +3988,10 @@ async function placeGroup(
   const operator =
     operatorSlug === null ? null : editorGameDataRepository.getOperator(operatorSlug);
   if (operator === null) return;
+  const shouldAutoGroup =
+    autoGroupBasicAttackSequences.value &&
+    skillKey === undefined &&
+    operator.skillGroups.find(group => group.key === skillGroupKey)?.skillType === 'basicAttack';
   const result = placeLibrarySkillGroup({
     scenario: scenario.value,
     trackIndex,
@@ -3859,6 +4023,9 @@ async function placeGroup(
       );
   } else {
     skillPlacementTransaction.cancel();
+  }
+  if (shouldAutoGroup && placedIds.length > 1) {
+    placedScenario = groupPlacedSkillSequence(placedScenario, placedIds);
   }
   commitScenario('placeSkillGroup', () => placedScenario);
   const lastPlacedId = placedIds.at(-1);
@@ -4383,17 +4550,40 @@ function resetScenario(mode: TimelineResetMode): void {
 }
 
 function resetTransientScenarioUi(): void {
+  // 丢弃旧方案的拖动预览，不能让取消回调把旧草稿写回已切换的方案。
+  castMoveGesture.value = null;
+  stopCastMoveGesture?.();
+  interactionSession.cancel();
+  suppressedCastClickId = null;
   selectedTrack.value = 0;
   clearTimelineSelection();
   cursorFrame.value = 30;
+  cursorGuide.value = null;
+  hoveredCastId.value = null;
+  alignmentGuide.value = null;
+  placementPointer.value = null;
   contextMenuTarget.value = null;
+  markerContextTarget.value = null;
   cancelLibraryPlacement();
   hitDetailTarget.value = null;
+  enemyDamageDetailSequence.value = null;
+  buffDetailTarget.value = null;
+  showDamageAnalysis.value = false;
+  showExportDialog.value = false;
+  showSmallImageExport.value = false;
   showSkillDefinitionEditor.value = false;
   showOperatorDefinitionWorkspace.value = false;
   showWeaponDefinitionWorkspace.value = false;
   gearDefinitionWorkspaceSlot.value = null;
   gearSetDefinitionWorkspaceId.value = null;
+  operatorDialogTrack.value = null;
+  weaponDialogTrack.value = null;
+  gearDialogTarget.value = null;
+  panelDialogTrack.value = null;
+  showOperatorBuildDialog.value = false;
+  showWeaponBuildDialog.value = false;
+  showGearBuildDialog.value = false;
+  resetDialogVisible.value = false;
 }
 
 function renameScenario(name: string): void {
@@ -4401,10 +4591,7 @@ function renameScenario(name: string): void {
 }
 
 function selectScenario(scenarioId: string): void {
-  const changed = projectSession.commit('switchScenario', project =>
-    switchProjectScenario(project, scenarioId),
-  );
-  if (changed) resetTransientScenarioUi();
+  projectSession.commit('switchScenario', project => switchProjectScenario(project, scenarioId));
 }
 
 function addScenario(): void {
@@ -4413,13 +4600,12 @@ function addScenario(): void {
     ElMessage.warning(t('timeline.scenario.limit', { max: MAX_PROJECT_SCENARIOS }));
     return;
   }
-  const changed = projectSession.commit('addScenario', current =>
+  projectSession.commit('addScenario', current =>
     addProjectScenario(
       current,
       t('timeline.scenario.defaultName', { index: current.scenarios.length + 1 }),
     ),
   );
-  if (changed) resetTransientScenarioUi();
 }
 
 function duplicateScenario(): void {
@@ -4432,7 +4618,6 @@ function duplicateScenario(): void {
     duplicateActiveScenario(current, t('timeline.scenario.copySuffix')),
   );
   if (!changed) return;
-  resetTransientScenarioUi();
   ElMessage.success(t('timeline.scenario.duplicated'));
 }
 
@@ -4462,7 +4647,6 @@ async function removeScenario(): Promise<void> {
   }
   const changed = projectSession.commit('deleteScenario', deleteActiveScenario);
   if (!changed) return;
-  resetTransientScenarioUi();
   ElMessage.success(t('timeline.scenario.deleted'));
 }
 
@@ -5182,8 +5366,10 @@ function setPanelDialogVisible(visible: boolean): void {
         :cursor-guide-enabled="showCursorGuide"
         :box-select-enabled="boxSelectEnabled"
         :connection-tool-enabled="connectionToolEnabled"
+        :auto-group-basic-attack-sequences="autoGroupBasicAttackSequences"
         @toggle-box-select="toggleBoxSelect"
         @toggle-connection-tool="toggleConnectionTool"
+        @set-auto-group-basic-attack-sequences="autoGroupBasicAttackSequences = $event"
         :buff-layout-mode="buffLayoutMode"
         @toggle-cursor-guide="toggleCursorGuide"
         @set-buff-layout="buffLayoutMode = $event"
@@ -5235,7 +5421,7 @@ function setPanelDialogVisible(visible: boolean): void {
         @add="addScenario"
         @select="selectScenario"
         @open="requestOpenProject"
-        @export="exportProject"
+        @export="showExportDialog = true"
         @reset="resetDialogVisible = true"
         @toggle-view-layer="toggleTimelineViewLayer"
         @toggle-operator-effects="toggleOperatorEffectsVisibility"
@@ -5249,7 +5435,10 @@ function setPanelDialogVisible(visible: boolean): void {
       <div
         ref="timelineScroll"
         class="timeline-scroll"
-        :class="{ 'is-panning': isPanning }"
+        :class="{
+          'is-panning': isPanning,
+          'is-compact-buff-layout': buffLayoutMode === 'compact',
+        }"
         @wheel="handleTimelineWheel"
         @scroll="updateTimelineViewportMetrics"
       >
@@ -5382,18 +5571,24 @@ function setPanelDialogVisible(visible: boolean): void {
             @remove="deleteTimelineConnection"
           />
           <div
-            v-if="showCursorGuide && cursorGuide !== null"
+            v-if="showCursorGuide && cursorGuide !== null && marqueeStyle === null"
             class="cursor-guide"
             :style="{ left: `${TIMELINE_TRACK_HEADER_WIDTH + cursorGuide.leftPx}px` }"
           >
-            <TimelineCursorGuide
-              :time="cursorGuideMetrics.time"
-              :sp="cursorGuideMetrics.sp"
-              :poise="cursorGuideMetrics.poise"
-              :enemy-health="cursorGuideMetrics.enemyHealth"
-              :gauges="cursorGuideMetrics.gauges"
-              :align="cursorGuideLabelAlign"
-            />
+            <div
+              class="cursor-guide__info"
+              :style="{ transform: `translate3d(0, ${timelineScrollTop + 4}px, 0)` }"
+            >
+              <TimelineCursorGuide
+                :time="cursorGuideMetrics.time"
+                :sp="cursorGuideMetrics.sp"
+                :poise="cursorGuideMetrics.poise"
+                :enemy-health="cursorGuideMetrics.enemyHealth"
+                :gauges="cursorGuideMetrics.gauges"
+                :enemy-effects="cursorEnemyEffects.effects"
+                :enemy-effect-overflow="cursorEnemyEffects.overflow"
+              />
+            </div>
           </div>
           <div
             v-if="alignmentGuide !== null"
@@ -5709,6 +5904,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :segments="buffSegmentsForTarget(track.operatorInstanceId, 'upper')"
                   :source-name="buffSourceName"
                   :display-name="buffDisplayName"
+                  :icon="buffIcon"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
                   :px-per-frame="pxPerFrame"
@@ -5735,6 +5931,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :segments="buffSegmentsForTarget(track.operatorInstanceId, 'lower')"
                   :source-name="buffSourceName"
                   :display-name="buffDisplayName"
+                  :icon="buffIcon"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
                   :px-per-frame="pxPerFrame"
@@ -6053,6 +6250,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :buffs="buffSegmentsForTarget('enemy')"
                 :source-name="buffSourceName"
                 :display-name="buffDisplayName"
+                :icon="buffIcon"
                 :timeline-width="timelineWidth"
                 :prep-frames="scenario.battle.prepFrames"
                 :prep-expanded="scenario.editor.prepExpanded"
@@ -6505,6 +6703,65 @@ function setPanelDialogVisible(visible: boolean): void {
     }"
     @update:visible="buffDetailTarget = $event ? buffDetailTarget : null"
   />
+  <TimelineExportDialog
+    :visible="showExportDialog"
+    :max-duration="Math.max(10, Math.round(scenario.battle.durationFrames / PROJECT_FPS))"
+    :labels="{
+      title: t('timeline.export.dialogTitle'),
+      filename: t('timeline.export.filenameLabel'),
+      filenamePlaceholder: t('timeline.export.filenamePlaceholder'),
+      duration: t('timeline.export.durationLabel'),
+      durationHint: t('timeline.export.durationHintMax', {
+        max: Math.max(10, Math.round(scenario.battle.durationFrames / PROJECT_FPS)),
+      }),
+      cancel: t('common.cancel'),
+      exportJson: t('timeline.export.exportJson'),
+      copyCode: t('timeline.export.copyCode'),
+      exportSmallImage: t('timeline.export.exportSmallImage'),
+      exportImage: t('timeline.export.exportImage'),
+    }"
+    @update:visible="showExportDialog = $event"
+    @export-json="exportProject"
+    @copy-code="copyProjectCode"
+    @export-small-image="openSmallImageExport"
+    @export-image="exportTimelineLongImage"
+  />
+  <TimelineSmallImageExportDialog
+    :visible="showSmallImageExport"
+    :initial-filename="smallImageExportInitial.filename"
+    :initial-duration="smallImageExportInitial.duration"
+    :max-duration="Math.max(10, Math.round(scenario.battle.durationFrames / PROJECT_FPS))"
+    :scenario-name="scenario.name"
+    :tracks="exportShareTracks"
+    :prep-frames="scenario.battle.prepFrames"
+    :editor-appearance="appearance"
+    :labels="{
+      title: t('timeline.export.smallPreviewTitle'),
+      filename: t('timeline.export.filenameLabel'),
+      filenamePlaceholder: t('timeline.export.filenamePlaceholder'),
+      duration: t('timeline.export.durationLabel'),
+      durationHint: `${t('timeline.export.durationHintMax', {
+        max: Math.max(10, Math.round(scenario.battle.durationFrames / PROJECT_FPS)),
+      })} · ${t('timeline.export.smallDurationHint')}`,
+      cardAppearance: t('timeline.export.cardAppearanceLabel'),
+      light: t('common.appearanceLight'),
+      dark: t('common.appearanceDark'),
+      cardWidth: t('timeline.export.cardWidthLabel'),
+      blockHeight: t('timeline.export.blockHeightLabel'),
+      timeScale: t('timeline.export.timeScaleLabel'),
+      showCombatIcons: t('timeline.export.showCombatIcons'),
+      showDurationBars: t('timeline.export.showDurationBars'),
+      showKeycaps: t('timeline.export.showKeycaps'),
+      showPrep: t('timeline.export.showPrep'),
+      showTimeTicks: t('timeline.export.showTimeTicks'),
+      cancel: t('common.cancel'),
+      save: t('timeline.export.saveSmallImage'),
+      rendering: t('timeline.export.smallRendering'),
+      exported: filename => t('timeline.export.smallImageExported', { filename }),
+      failed: msg => t('timeline.export.failed', { msg }),
+    }"
+    @update:visible="showSmallImageExport = $event"
+  />
   <DamageAnalysisDialog
     :visible="showDamageAnalysis"
     :analysis="damageAnalysis"
@@ -6521,6 +6778,13 @@ function setPanelDialogVisible(visible: boolean): void {
       dps: t('timeline.analysis.dps'),
       unattributedDamage: (value: string) => t('timeline.analysis.unattributedDamage', { value }),
       contributionUnavailable: t('timeline.analysis.contributionUnavailable'),
+      faqTitle: t('timeline.analysis.faqTitle'),
+      faq: [
+        [t('timeline.analysis.faq1Q'), t('timeline.analysis.faq1A')],
+        [t('timeline.analysis.faq2Q'), t('timeline.analysis.faq2A')],
+        [t('timeline.analysis.faq3Q'), t('timeline.analysis.faq3A')],
+        [t('timeline.analysis.faq4Q'), t('timeline.analysis.faq4A')],
+      ],
     }"
     @update:visible="showDamageAnalysis = $event"
   />
@@ -6705,6 +6969,10 @@ button:disabled {
   overflow-y: auto;
 }
 
+.timeline-scroll.is-compact-buff-layout {
+  overflow-y: hidden;
+}
+
 .timeline-horizontal-scrollbar {
   grid-row: 2;
   min-width: 0;
@@ -6882,8 +7150,13 @@ button:disabled {
   width: 1px;
   background: color-mix(in srgb, var(--ea-gold) 80%, transparent);
   box-shadow: 0 0 6px var(--ea-gold);
-  z-index: 9;
+  z-index: 3000;
   pointer-events: none;
+}
+
+.cursor-guide__info {
+  width: max-content;
+  will-change: transform;
 }
 
 .alignment-guide {

@@ -3,7 +3,12 @@
  * 本层只生成定义默认值和身份，不执行模拟；调用方必须提供可进入撤销历史的稳定 ID 分配器。
  */
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
-import type { ScenarioDocument, SkillCastDocument, TrackIndex } from '../../core/project/schema';
+import type {
+  ScenarioDocument,
+  SkillCastDocument,
+  TrackDocument,
+  TrackIndex,
+} from '../../core/project/schema';
 import { resolveUniquePlayerActionForSkill } from '../../core/game-data/resolvePlayerActionRoute';
 import { layoutSkillGroupPlacement, resolveSkillGroupPlacementSkills } from './skillGroupPlacement';
 import type { RecursiveSkillChain } from '../../application/recursiveSkillChain';
@@ -45,6 +50,57 @@ export interface SkillPlacement {
 export interface PlaceSkillGroupResult extends SkillPlacement {
   readonly extension?: RecursiveSkillChain;
   readonly fallback?: SkillPlacement;
+}
+
+/**
+ * 把一次技能库放置最终产生的多段技能按本次放置顺序连成连续组。
+ * 调用时规划已经结束，各段仍保存固定起点；这里只保留首段起点，不重建技能身份。
+ */
+export function groupPlacedSkillSequence(
+  scenario: ScenarioDocument,
+  skillCastIds: readonly string[],
+): ScenarioDocument {
+  if (skillCastIds.length < 2) return scenario;
+  if (new Set(skillCastIds).size !== skillCastIds.length) {
+    throw new Error('placed skill sequence contains duplicate cast IDs');
+  }
+  const selectedIds = new Set(skillCastIds);
+  const matchingTracks = scenario.tracks.filter(
+    (track): track is TrackDocument =>
+      track !== null && track.skillCasts.filter(cast => selectedIds.has(cast.id)).length > 0,
+  );
+  if (matchingTracks.length !== 1) {
+    throw new Error('placed skill sequence must belong to one track');
+  }
+  const track = matchingTracks[0]!;
+  const byId = new Map(track.skillCasts.map(cast => [cast.id, cast] as const));
+  if (skillCastIds.some(id => !byId.has(id))) {
+    throw new Error('placed skill sequence contains a missing cast ID');
+  }
+  const first = byId.get(skillCastIds[0]!)!;
+  if (first.placement.startFrame === undefined) {
+    throw new Error('placed skill sequence requires an absolute first cast');
+  }
+  const placements = new Map<string, SkillCastDocument['placement']>(
+    skillCastIds.map((id, index) => [
+      id,
+      index === 0
+        ? { startFrame: first.placement.startFrame! }
+        : { afterCastId: skillCastIds[index - 1]! },
+    ]),
+  );
+  const tracks = scenario.tracks.map(candidate =>
+    candidate !== track
+      ? candidate
+      : {
+          ...track,
+          skillCasts: track.skillCasts.map(cast => {
+            const placement = placements.get(cast.id);
+            return placement === undefined ? cast : { ...cast, placement };
+          }),
+        },
+  ) as ScenarioDocument['tracks'];
+  return { ...scenario, tracks };
 }
 
 /** 按技能组声明的策略续段；展示仍由完整技能列表决定。单段放置不扩展。 */

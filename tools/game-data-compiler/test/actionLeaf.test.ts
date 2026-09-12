@@ -438,7 +438,7 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
-  it('把 ComboAction 严格识别为只读黑板的连击计数表现动作', () => {
+  it('把 ComboAction 识别为创建公共连击 GlobalBuff 的战斗动作', () => {
     expect(
       parseKnownNativeActionLeafSource(
         {
@@ -452,8 +452,13 @@ describe('公共 Action 叶子分派', () => {
         { duration: [3] },
       ),
     ).toEqual({
-      family: 'presentation',
-      action: { kind: 'comboCounter', readBlackboardKeys: ['duration'] },
+      family: 'globalBuff',
+      action: {
+        kind: 'createComboGlobalBuff',
+        source: expect.objectContaining({ targetSource: 'Owner' }),
+        duration: expect.objectContaining({ blackboardKey: 'duration' }),
+        count: expect.objectContaining({ value: 1, blackboardKey: null }),
+      },
     });
   });
 

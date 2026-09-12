@@ -29,6 +29,13 @@ export type GlobalBuffActionSource =
       readonly autoFinishByAction: boolean;
     }
   | {
+      /** ComboAction 创建公共连击 GlobalBuff；原生动作只写入持续时间和创建次数。 */
+      readonly kind: 'createComboGlobalBuff';
+      readonly source: TargetReferenceSource;
+      readonly duration: ScalarSource;
+      readonly count: ScalarSource;
+    }
+  | {
       readonly kind: 'finishGlobalBuff';
       readonly finishParent: boolean;
       readonly globalBuffIds: readonly string[];
@@ -36,6 +43,28 @@ export type GlobalBuffActionSource =
       readonly finishCount: ScalarSource;
       readonly isFinishedEarly: boolean;
     };
+
+/**
+ * 读取原生 ComboAction。
+ *
+ * 该动作会创建 `global_buff_combo_trigger`，参与后续战技和终结技伤害计算，不能作为
+ * 纯界面动作删除。公共 GlobalBuff 的 ID 来自游戏代码中的 BuffConst，原始载荷只保存
+ * 来源、持续时间和创建次数。
+ */
+export function parseComboGlobalBuffActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): GlobalBuffActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set([...META, 'source', 'duration', 'count']), path);
+  return {
+    kind: 'createComboGlobalBuff',
+    source: parseTargetReferenceSource(action.source, `${path}.source`),
+    duration: parseScalarSource(action.duration, `${path}.duration`, inheritedBlackboard),
+    count: parseScalarSource(action.count, `${path}.count`, inheritedBlackboard),
+  };
+}
 
 export function parseCreateGlobalBuffActionSource(
   value: unknown,

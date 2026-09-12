@@ -48,8 +48,7 @@ export function createTimelineSampleScenario(): ScenarioDocument {
         id: ABILITY_ENTITY_SAMPLE_CAST_ID,
         source: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
         placement: { startFrame: 30 },
-        // 该生成技能可正常进入定义编辑器；模拟侧仍有已知的零倍率终结技时间停滞，
-        // 示例默认禁用执行，避免把既有运行时故障伪装成编辑器故障。
+        // 初始样例保留一个可直接启用的真实终结技，默认禁用以保持首次打开时的空轴状态。
         presentation: { disabled: true },
       },
     ],

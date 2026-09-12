@@ -102,8 +102,12 @@ export const ABILITY_EVENT_ACTION_CONTEXT_BINDINGS = {
   beforeOutputDamage: { inputTarget: 'eventTarget', triggerTarget: 'eventSource' },
   /** 伤害来源是输入目标，承伤者是事件来源和触发者。 */
   takeDamage: { inputTarget: 'eventSource', triggerTarget: 'eventTarget' },
+  /** 暴击承伤沿用产生它的 TakeDamageContext：伤害来源是输入目标，承伤者是触发者。 */
+  takeCriticalDamage: { inputTarget: 'eventSource', triggerTarget: 'eventTarget' },
   /** 伤害目标是输入目标，输出者是事件来源和触发者。 */
   outputDamage: { inputTarget: 'eventTarget', triggerTarget: 'eventSource' },
+  /** 暴击输出沿用产生它的 OutputDamageContext：伤害目标是输入目标，输出者是触发者。 */
+  outputCriticalDamage: { inputTarget: 'eventTarget', triggerTarget: 'eventSource' },
   /** 提前结束 Buff 的来源是输入目标，Buff 持有者是事件来源和触发者。 */
   buffEndsEarly: { inputTarget: 'eventSource', triggerTarget: 'eventTarget' },
   /** 异常目标是输入目标，输出者是事件来源和触发者。 */

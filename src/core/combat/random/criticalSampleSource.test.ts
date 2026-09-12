@@ -1,7 +1,19 @@
 import { describe, expect, it } from 'vitest';
-import { ExplicitCriticalSampleSource, SubtractiveBattleRandom } from './criticalSampleSource';
+import {
+  EvenCriticalSampleSource,
+  ExplicitCriticalSampleSource,
+  SubtractiveBattleRandom,
+} from './criticalSampleSource';
 
 describe('critical sample sources', () => {
+  it('evenly covers the unit interval with a stable short-prefix sequence', () => {
+    const source = new EvenCriticalSampleSource();
+
+    expect(Array.from({ length: 8 }, () => source.nextCriticalSample())).toEqual([
+      0.5, 0.25, 0.75, 0.125, 0.625, 0.375, 0.875, 0.0625,
+    ]);
+  });
+
   it('reproduces and restores the recovered subtractive random step', () => {
     const values = Array.from({ length: 56 }, (_, index) => index * 1000);
     const random = new SubtractiveBattleRandom({ currentIndex: 0, pairedIndex: 30, values });

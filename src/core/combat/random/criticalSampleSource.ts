@@ -10,6 +10,30 @@ export interface CriticalSampleSource {
   nextCriticalSample(): number;
 }
 
+/**
+ * 编辑器使用的确定性均匀样本流。
+ *
+ * 它按二进制 Van der Corput 序列依次返回 0.5、0.25、0.75、0.125……，让任意较短前缀也能
+ * 覆盖 0 到 1。该序列只用于原生随机状态未知时稳定地近似暴击事件，不代表游戏原生随机数。
+ * 每次完整模拟都必须新建实例，保证结果不受此前运行次数影响。
+ */
+export class EvenCriticalSampleSource implements CriticalSampleSource {
+  #index = 1;
+
+  nextCriticalSample(): number {
+    let index = this.#index;
+    let sample = 0;
+    let place = 0.5;
+    while (index > 0) {
+      sample += (index % 2) * place;
+      index = Math.floor(index / 2);
+      place *= 0.5;
+    }
+    this.#index += 1;
+    return sample;
+  }
+}
+
 /** 可完整恢复后续随机序列的原生减法随机状态。 */
 export interface BattleRandomState {
   readonly currentIndex: number;

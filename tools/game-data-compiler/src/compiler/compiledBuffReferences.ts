@@ -231,6 +231,10 @@ export function collectCompiledBuffCapturedTargetGroups(
 /** 收集已编译树中会观察 Buff 身份的静态条件；这种空 Buff 是逻辑标记，不能按纯表现裁剪。 */
 export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<string> {
   const ids = new Set<string>();
+  const addIds = (value: unknown): void => {
+    if (!Array.isArray(value)) return;
+    for (const id of value) if (typeof id === 'string' && id.length > 0) ids.add(id);
+  };
   const visit = (item: unknown): void => {
     if (Array.isArray(item)) {
       item.forEach(visit);
@@ -242,7 +246,23 @@ export function collectCompiledBuffIdentityReadIds(value: unknown): ReadonlySet<
       (record.kind === 'buffIdStackCompare' || record.kind === 'eventBuffIdMatch') &&
       Array.isArray(record.buffIds)
     ) {
-      for (const id of record.buffIds) if (typeof id === 'string' && id.length > 0) ids.add(id);
+      addIds(record.buffIds);
+    }
+    if (
+      record.kind === 'readBuffStackCount' ||
+      record.kind === 'readBuffBlackboard' ||
+      record.kind === 'readBuffRemainingDuration'
+    ) {
+      const parameters = record.parameters;
+      if (parameters !== null && typeof parameters === 'object') {
+        const parameterRecord = parameters as Record<string, unknown>;
+        addIds(parameterRecord.buffIds);
+        const query = parameterRecord.query;
+        if (query !== null && typeof query === 'object') {
+          const queryRecord = query as Record<string, unknown>;
+          if (queryRecord.kind === 'id') addIds(queryRecord.buffIds);
+        }
+      }
     }
     if (record.kind === 'applyBuff') {
       const parameters = record.parameters;

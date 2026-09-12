@@ -3,14 +3,22 @@ import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
 
 /** 冻结本次发布的武器显示身份；后续模板编辑不能改变旧结果的来源。 */
 export function capturePublishedWeaponSources(
-  weapons: readonly { slug: string; assetSlug?: string; displayName?: string }[],
+  weapons: readonly {
+    slug: string;
+    assetSlug?: string;
+    displayName?: string;
+    iconPath?: string;
+  }[],
 ): ReadonlyMap<string, PublishedBuffSource> {
   return new Map(
     weapons.map(weapon => [
       weapon.slug,
-      weapon.displayName
-        ? { kind: 'custom' as const, name: weapon.displayName }
-        : { kind: 'weapon' as const, slug: weapon.assetSlug ?? weapon.slug },
+      {
+        kind: 'weapon' as const,
+        slug: weapon.assetSlug ?? weapon.slug,
+        ...(weapon.displayName === undefined ? {} : { name: weapon.displayName }),
+        ...(weapon.iconPath === undefined ? {} : { iconPath: weapon.iconPath }),
+      },
     ]),
   );
 }
@@ -18,7 +26,8 @@ export function capturePublishedWeaponSources(
 export type PublishedBuffSource =
   | { kind: 'custom'; name: string }
   | { kind: 'skill'; slug: string | null; key: string; fallbackKey?: string }
-  | { kind: 'weapon' | 'gear' | 'gearSet'; slug: string }
+  | { kind: 'weapon'; slug: string; name?: string; iconPath?: string }
+  | { kind: 'gear' | 'gearSet'; slug: string }
   | { kind: 'talent' | 'potential'; slug: string; index: number };
 
 /** 仅解释已发布身份，返回可本地化的描述，不读取当前模板。合约另用发布的 selections。 */

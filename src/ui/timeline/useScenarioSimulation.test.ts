@@ -252,6 +252,46 @@ describe('useScenarioSimulation', () => {
     }
   });
 
+  it('缓存换代取消当前请求时不显示失败，并发布随后排队的新结果', async () => {
+    const initial = createPerlicaScenario();
+    const scenario = shallowRef(initial);
+    const run = {
+      availabilityDiagnostics: [],
+      executionDiagnostics: [],
+      comboWindowDiagnostics: [],
+    };
+    let rejectReplaced!: (error: Error) => void;
+    let calls = 0;
+    const fakeService = {
+      simulate: async () => {
+        calls += 1;
+        if (calls === 1 || calls === 3) return run;
+        return new Promise<typeof run>((_resolve, reject) => {
+          rejectReplaced = reject;
+        });
+      },
+    } as unknown as ScenarioSimulationService;
+    const scope = effectScope();
+    const result = scope.run(() => useScenarioSimulation({ scenario, service: fakeService }))!;
+    try {
+      await waitFor(() => calls === 1 && result.running.value === false);
+      const derivedScenario = { ...initial, name: '自定义干员场景' };
+      scenario.value = derivedScenario;
+      await waitFor(() => calls === 2);
+      const refreshed = result.simulateNow();
+      const replaced = new Error('模拟请求已被较新位置替代');
+      replaced.name = 'AbortError';
+      rejectReplaced(replaced);
+
+      expect(await refreshed).toBe(true);
+      expect(calls).toBe(3);
+      expect(result.error.value).toBeNull();
+      expect(result.published.value).toEqual({ scenario: derivedScenario, run });
+    } finally {
+      scope.stop();
+    }
+  });
+
   it('空闲时立即计算新的拖动位置，不额外等待防抖时间', async () => {
     const initial = createPerlicaScenario();
     const scenario = shallowRef(initial);

@@ -8,6 +8,7 @@ export interface PublishedOperatorMetadata {
   readonly slug: string;
   readonly assetSlug: string;
   readonly displayName: string | undefined;
+  readonly element: OperatorDefinition['element'];
   readonly talents: readonly PublishedUpgradeMetadata[];
   readonly potentials: readonly PublishedUpgradeMetadata[];
   readonly skillKeys: readonly string[];
@@ -34,6 +35,7 @@ export function capturePublishedOperatorMetadata(
       slug: definition.slug,
       assetSlug: definition.assetSlug ?? slug,
       displayName: definition.displayName,
+      element: definition.element,
       talents: definition.talents.map(({ levels, passiveSkills }) => ({
         levels,
         passiveKeys: (passiveSkills ?? []).map(skill => skill.key),

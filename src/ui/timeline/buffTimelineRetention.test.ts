@@ -41,5 +41,18 @@ describe('Next timeline Buff visualization retention', () => {
     expect(enemyEffectsSource).toContain('repeating-linear-gradient');
     expect(buffBandsSource).toContain('const ICON_SIZE = 18');
     expect(enemyEffectsSource).toContain('const ICON_SIZE = 20');
+    expect(buffBandsSource).toMatch(/\.timeline-buff-bands\s*\{[^}]*z-index: 8;/s);
+    expect(buffBandsSource).toContain('timelineUpperBuffTop(segment.lane)');
+    expect(buffBandsSource).toContain('.timeline-buff-bands.is-upper');
+    expect(buffBandsSource).toContain('.timeline-buff-bands.is-lower');
+    expect(buffBandsSource).toContain('clip-path: inset');
+  });
+
+  it('lets published equipment sources replace Buff icons on every status axis', () => {
+    expect(source.match(/:icon="buffIcon"/g)).toHaveLength(3);
+    expect(buffBandsSource).toContain('props.icon?.(segment) ?? segment.iconPath');
+    expect(buffBandsSource).toContain('props.icon?.(member) ?? member.iconPath');
+    expect(enemyEffectsSource).toContain('props.icon?.(buff) ?? buff.iconPath');
+    expect(enemyEffectsSource).toContain('props.icon?.(member) ?? member.iconPath');
   });
 });

@@ -88,7 +88,7 @@ const showConnectionPorts = computed(() => {
 const blockStyle = computed(() => ({
   left: `${props.left}px`,
   width: `${Math.max(2, props.width)}px`,
-  zIndex: `calc(${props.moving ? 20000 : props.selected ? 10000 : 2} + ${props.stackOrder ?? 0})`,
+  zIndex: `calc(${props.moving ? 20000 : props.selected ? 10000 : 10} + ${props.stackOrder ?? 0})`,
   ...(props.color ? { '--action-accent': props.color } : {}),
 }));
 
@@ -329,6 +329,8 @@ function formatDurationFrames(frames: number): string {
   --action-accent: #a5a5a8;
   --action-fill: color-mix(in srgb, var(--action-accent) 15%, transparent);
   position: absolute;
+  /* 与旧版 actions-container 一致：技能块盖住挤入技能区域的 Buff 效果条。 */
+  z-index: 10;
   top: var(--timeline-action-top, 55px);
   height: 50px;
   min-width: 0;

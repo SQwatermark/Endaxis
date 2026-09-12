@@ -389,9 +389,10 @@ describe('ScenarioSimulationService', () => {
     expect(service.findCached(secondScenario, 30)).toBe(second);
   });
 
-  it('默认暴击策略是确定性的非暴击样本', () => {
+  it('默认暴击策略为每次新建的确定性均匀样本流', () => {
     const samples = createDefaultCriticalSampleSource();
-    expect(samples.nextCriticalSample()).toBe(1);
-    expect(samples.nextCriticalSample()).toBe(1);
+    expect(samples.nextCriticalSample()).toBe(0.5);
+    expect(samples.nextCriticalSample()).toBe(0.25);
+    expect(createDefaultCriticalSampleSource().nextCriticalSample()).toBe(0.5);
   });
 });

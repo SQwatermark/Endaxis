@@ -298,6 +298,16 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('"blackboardKey":"critical_damage_up_to_bleed"');
   });
 
+  it('Rossi third combo keeps the invisible infliction counter read by its damage formula', () => {
+    expect(rossi.buffDefinitions?.buff_chr_0028_wulfa_combo_inflictnum).toMatchObject({
+      stackingType: 'stack',
+      maxStackCount: 4,
+    });
+    expect(JSON.stringify(rossi.skillGroups.find(group => group.key === 'comboSkill'))).toContain(
+      'buff_chr_0028_wulfa_combo_inflictnum',
+    );
+  });
+
   it('Rossi 二段连携在等待 Buff 到期后把动态触发次数传给伤害 Buff', () => {
     const serialized = JSON.stringify([
       rossiComboSkill2,

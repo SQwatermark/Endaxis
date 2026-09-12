@@ -16,15 +16,14 @@ export interface TimelineTrackEffectLayout {
 export const TIMELINE_TRACK_BASE_HEIGHT = 160;
 export const TIMELINE_ACTION_BASE_TOP = 55;
 export const TIMELINE_BUFF_LANE_PITCH = 22;
-/** 原布局的套装提示延伸至中心下方 79px，加边框后至少需要 160px。
- * 空轨也保留同一约束，避免选择干员后改变分隔线位置。
- */
-export const TIMELINE_TRACK_MIN_HEIGHT = TIMELINE_TRACK_BASE_HEIGHT;
+export const TIMELINE_UPPER_BUFF_LANE_PITCH = 24;
+/** 旧版紧凑轨道允许压到 50px 技能区上下各留 8px。 */
+export const TIMELINE_TRACK_MIN_HEIGHT = 66;
 
-const BUFF_LAYER_MARGIN = 8;
-/** 技能底边以下保留连携窗口/冷却线及其时长文字，Buff 不进入此区域。 */
-const TRACK_DECORATION_SPACE = 24;
+const BUFF_LAYER_MARGIN = 4;
 const BUFF_ICON_SIZE = 18;
+/** 旧版上层容器距轨道顶边 2px，18px 图标在 24px 行内再缩进 3px。 */
+const UPPER_BUFF_EDGE_INSET = 5;
 /** 旧版下方容器距边缘 2px，图标在 24px 行内另缩进 3px。 */
 const LOWER_BUFF_EDGE_INSET = 5;
 
@@ -41,7 +40,7 @@ export function resolveCompactTrackHeights(
 ): readonly number[] {
   if (weights.length === 0) return [];
   const total = Math.max(
-    weights.length * TIMELINE_TRACK_MIN_HEIGHT,
+    weights.length,
     Math.round(
       Number.isFinite(availableHeight) && availableHeight > 0
         ? availableHeight
@@ -49,33 +48,61 @@ export function resolveCompactTrackHeights(
     ),
   );
   const normalized = weights.map(value => (Number.isFinite(value) && value > 0 ? value : 1));
-  const sum = normalized.reduce((a, b) => a + b, 0);
+  const minimum =
+    total >= weights.length * TIMELINE_TRACK_MIN_HEIGHT ? TIMELINE_TRACK_MIN_HEIGHT : 1;
+  const heights = new Array<number>(weights.length).fill(minimum);
+  const pending = new Set(normalized.map((_, index) => index));
   let remaining = total;
-  return normalized.map((weight, index) => {
-    const height =
-      index === weights.length - 1
-        ? remaining
-        : Math.min(
-            remaining - (weights.length - index - 1) * TIMELINE_TRACK_MIN_HEIGHT,
-            Math.max(TIMELINE_TRACK_MIN_HEIGHT, Math.round((total * weight) / sum)),
-          );
-    remaining -= height;
-    return height;
+
+  while (pending.size > 0) {
+    const pendingWeight = [...pending].reduce((sum, index) => sum + (normalized[index] ?? 0), 0);
+    const clamped = [...pending].filter(
+      index => (remaining * (normalized[index] ?? 0)) / pendingWeight < minimum,
+    );
+    if (clamped.length === 0) break;
+    for (const index of clamped) {
+      heights[index] = minimum;
+      remaining -= minimum;
+      pending.delete(index);
+    }
+  }
+
+  const pendingIndexes = [...pending];
+  const pendingWeight = pendingIndexes.reduce((sum, index) => sum + (normalized[index] ?? 0), 0);
+  const allocations = pendingIndexes.map(index => {
+    const exact = (remaining * (normalized[index] ?? 0)) / pendingWeight;
+    return { index, height: Math.floor(exact), remainder: exact - Math.floor(exact) };
   });
+  let undistributed = remaining - allocations.reduce((sum, item) => sum + item.height, 0);
+  allocations.sort((left, right) => right.remainder - left.remainder || left.index - right.index);
+  for (const item of allocations) {
+    if (undistributed <= 0) break;
+    item.height += 1;
+    undistributed -= 1;
+  }
+  for (const item of allocations) {
+    heights[item.index] = item.height;
+  }
+  return heights;
+}
+
+/** 与旧版一致：上方状态从轨道外缘向下排列，空间不足时在技能区域边界被裁切。 */
+export function timelineUpperBuffTop(lane: number): number {
+  return UPPER_BUFF_EDGE_INSET + lane * TIMELINE_UPPER_BUFF_LANE_PITCH;
 }
 
 /**
- * 旧版松散 Buff 排版的 Next 几何投影。
+ * 计算旧版“紧凑 / 松散”Buff 布局使用的轨道高度。
  *
- * Buff 过量时两种排布模式都必须扩展轨道与整张画布，不能压缩、隐藏或裁切。
- * 模式只保留用户的排布偏好与紧凑高度基线；实际所需上下留白由当前最大 lane 数决定，
- * 并取两侧较大值作对称扩展，使 50px 动作 lane 和轨道身份始终垂直居中。
+ * 紧凑模式保持用户分配的轨道高度，超出轨道边界的 Buff 由轨道容器裁掉；这样四条轨道可以
+ * 继续填满固定视口，并允许拖动分隔线调整各轨道的可见空间。松散模式按当前 Buff 行数自动增高，
+ * 取上下两侧所需空间的较大值作对称留白，使 50px 技能区域始终位于轨道中央。
  */
 export function projectTimelineTrackEffectLayout(
   input: TimelineTrackEffectLayoutInput,
 ): TimelineTrackEffectLayout {
   const baselineHeight = Math.max(
-    TIMELINE_TRACK_MIN_HEIGHT,
+    input.mode === 'compact' ? 1 : TIMELINE_TRACK_BASE_HEIGHT,
     Math.round(
       input.mode === 'compact'
         ? (input.compactHeight ?? TIMELINE_TRACK_BASE_HEIGHT)
@@ -83,13 +110,16 @@ export function projectTimelineTrackEffectLayout(
     ),
   );
   const baselinePadding = (baselineHeight - 50) / 2;
+  if (input.mode === 'compact') {
+    return { height: baselineHeight, actionTop: baselinePadding };
+  }
   const upperNeed =
     input.upperLaneCount > 0
-      ? Math.floor(input.upperLaneCount) * TIMELINE_BUFF_LANE_PITCH + BUFF_LAYER_MARGIN
+      ? Math.floor(input.upperLaneCount) * TIMELINE_UPPER_BUFF_LANE_PITCH + BUFF_LAYER_MARGIN
       : 0;
   const lowerNeed =
     input.lowerLaneCount > 0
-      ? Math.floor(input.lowerLaneCount) * TIMELINE_BUFF_LANE_PITCH + TRACK_DECORATION_SPACE
+      ? Math.floor(input.lowerLaneCount) * TIMELINE_BUFF_LANE_PITCH + BUFF_LAYER_MARGIN
       : 0;
   const padding = Math.max(baselinePadding, upperNeed, lowerNeed);
 
@@ -107,11 +137,9 @@ export function resizeTimelineTrackPair(
   }
   const upper = heights[upperIndex] ?? TIMELINE_TRACK_BASE_HEIGHT;
   const lower = heights[upperIndex + 1] ?? TIMELINE_TRACK_BASE_HEIGHT;
-  const pairTotal = Math.max(TIMELINE_TRACK_MIN_HEIGHT * 2, upper + lower);
-  const nextUpper = Math.min(
-    pairTotal - TIMELINE_TRACK_MIN_HEIGHT,
-    Math.max(TIMELINE_TRACK_MIN_HEIGHT, Math.round(upper + delta)),
-  );
+  const pairTotal = Math.max(2, upper + lower);
+  const minimum = Math.min(TIMELINE_TRACK_MIN_HEIGHT, Math.max(1, Math.floor(pairTotal / 2)));
+  const nextUpper = Math.min(pairTotal - minimum, Math.max(minimum, Math.round(upper + delta)));
   const next = [...heights];
   next[upperIndex] = nextUpper;
   next[upperIndex + 1] = pairTotal - nextUpper;

@@ -1,13 +1,18 @@
 import { describe, expect, test } from 'vitest';
+import editorSource from '../TimelineEditor.vue?raw';
 import source from './TimelineCursorGuide.vue?raw';
 
 describe('TimelineCursorGuide old-editor behavior parity', () => {
-  test('keeps time, SP, stagger, per-operator gauges, and enemy HP as separate rows', () => {
+  test('keeps time, SP, stagger, per-operator gauges, enemy HP, and effects as separate rows', () => {
     expect(source).toContain('class="guide-time-label"');
     expect(source).toContain('class="guide-sp-label"');
     expect(source).toContain('class="guide-stagger-label"');
     expect(source).toContain('class="guide-gauge-panel"');
     expect(source).toContain('class="guide-enemy-hp-label"');
+    expect(source).toContain('class="guide-enemy-effects"');
+    expect(source).toContain('v-for="effect in enemyEffects"');
+    expect(source).toContain('{{ effect.layers }}');
+    expect(source).toContain('+{{ enemyEffectOverflow }}');
   });
 
   test('renders operator gauges as a colored two-column current/max table', () => {
@@ -25,9 +30,20 @@ describe('TimelineCursorGuide old-editor behavior parity', () => {
     expect(source).toContain('v-if="gauges.length > 0"');
   });
 
-  test('can flip the readout to the left of the guide near the viewport edge', () => {
-    expect(source).toContain(':class="`is-${align}`"');
-    expect(source).toContain('.timeline-cursor-guide-panel.is-left');
-    expect(source).toContain('translateX(calc(-100% - 4px))');
+  test('keeps the readout on the guide line like the old editor', () => {
+    expect(source).not.toContain('is-left');
+    expect(source).not.toContain('translateX(calc(-100% - 4px))');
+  });
+
+  test('keeps the guide above timeline overlays and its panel fixed below the visible ruler', () => {
+    expect(editorSource).toMatch(/\.cursor-guide\s*\{[^}]*z-index: 3000;/s);
+    expect(editorSource).toContain('translate3d(0, ${timelineScrollTop + 4}px, 0)');
+    expect(editorSource).toContain('marqueeStyle === null');
+  });
+
+  test('uses the old integer SP and formatted enemy health display', () => {
+    expect(editorSource).toContain('sp = String(Math.floor(Number(snapshot.sp.current) || 0))');
+    expect(editorSource).toContain('.toLocaleString()} / ${Math.floor');
+    expect(editorSource).toContain('Math.round(value * 1000) / 1000');
   });
 });

@@ -62,6 +62,10 @@ export interface UseScenarioSimulationResult {
 
 const DEFAULT_DEBOUNCE_MS = 0;
 
+function isExpectedSimulationAbort(error: unknown): boolean {
+  return error instanceof Error && error.name === 'AbortError';
+}
+
 export function useScenarioSimulation(
   options: UseScenarioSimulationOptions,
 ): UseScenarioSimulationResult {
@@ -123,6 +127,11 @@ export function useScenarioSimulation(
       return isCurrent;
     } catch (caught) {
       if (runId !== latestRunId || options.scenario.value !== scenario) return false;
+      // Worker 缓存换代和待算位置替换都会主动结束旧请求。这属于调度流程，不能显示成模拟失败。
+      if (isExpectedSimulationAbort(caught)) {
+        stale.value = publishedState.value?.scenario !== scenario;
+        return false;
+      }
       error.value = caught instanceof Error ? caught.message : String(caught);
       // 失败不发布半成品，也不拆掉上一份完整快照。
       stale.value = publishedState.value !== null && publishedState.value.scenario !== scenario;

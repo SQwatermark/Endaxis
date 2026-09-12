@@ -3179,6 +3179,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     reason: 'early',
                   }),
                   step('applyBuff', {
+                    buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                    target: 'enemy',
+                    count: { kind: 'blackboard', key: 'buff_stack' },
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
                     buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
@@ -3209,6 +3215,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         tagQueryType: 'hasAny',
                         buffTags: ['Skill/Character/Common/SpellInflict/NaturalInflict'],
                         reason: 'early',
+                      }),
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                        target: 'enemy',
+                        count: { kind: 'blackboard', key: 'buff_stack' },
+                        inheritSourceSkillCastInfo: true,
                       }),
                       step('applyBuff', {
                         buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
@@ -3243,6 +3255,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             reason: 'early',
                           }),
                           step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                            target: 'enemy',
+                            count: { kind: 'blackboard', key: 'buff_stack' },
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                          step('applyBuff', {
                             buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
@@ -3273,6 +3291,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                                 tagQueryType: 'hasAny',
                                 buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
                                 reason: 'early',
+                              }),
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                                target: 'enemy',
+                                count: { kind: 'blackboard', key: 'buff_stack' },
+                                inheritSourceSkillCastInfo: true,
                               }),
                               step('applyBuff', {
                                 buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
@@ -3649,6 +3673,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                     reason: 'early',
                   }),
                   step('applyBuff', {
+                    buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                    target: 'enemy',
+                    count: { kind: 'blackboard', key: 'buff_stack' },
+                    inheritSourceSkillCastInfo: true,
+                  }),
+                  step('applyBuff', {
                     buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
@@ -3679,6 +3709,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                         tagQueryType: 'hasAny',
                         buffTags: ['Skill/Character/Common/SpellInflict/NaturalInflict'],
                         reason: 'early',
+                      }),
+                      step('applyBuff', {
+                        buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                        target: 'enemy',
+                        count: { kind: 'blackboard', key: 'buff_stack' },
+                        inheritSourceSkillCastInfo: true,
                       }),
                       step('applyBuff', {
                         buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
@@ -3713,6 +3749,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                             reason: 'early',
                           }),
                           step('applyBuff', {
+                            buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                            target: 'enemy',
+                            count: { kind: 'blackboard', key: 'buff_stack' },
+                            inheritSourceSkillCastInfo: true,
+                          }),
+                          step('applyBuff', {
                             buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
@@ -3743,6 +3785,12 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
                                 tagQueryType: 'hasAny',
                                 buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
                                 reason: 'early',
+                              }),
+                              step('applyBuff', {
+                                buffId: 'buff_chr_0028_wulfa_combo_inflictnum',
+                                target: 'enemy',
+                                count: { kind: 'blackboard', key: 'buff_stack' },
+                                inheritSourceSkillCastInfo: true,
                               }),
                               step('applyBuff', {
                                 buffId: 'buff_chr_0028_wulfa_combo_hasinflict',
@@ -5964,6 +6012,16 @@ export const rossi: OperatorDefinition = {
       stackingType: 'refresh',
       priority: 0,
       maxStackCount: 3,
+      durationSeconds: { blackboardKey: 'duration' },
+      applyTags: [],
+      extendTags: [],
+      blackboard: { duration: 10 },
+      attributeModifiers: [],
+    },
+    buff_chr_0028_wulfa_combo_inflictnum: {
+      stackingType: 'stack',
+      priority: 0,
+      maxStackCount: 4,
       durationSeconds: { blackboardKey: 'duration' },
       applyTags: [],
       extendTags: [],

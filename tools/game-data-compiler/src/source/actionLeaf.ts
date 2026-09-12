@@ -58,6 +58,7 @@ import {
   type ChannelingCastingActionSource,
 } from './castingControlActions.ts';
 import {
+  parseComboGlobalBuffActionSource,
   parseCreateGlobalBuffActionSource,
   parseFinishGlobalBuffActionSource,
   type GlobalBuffActionSource,
@@ -132,7 +133,6 @@ import {
   parsePlayAnimationWithStepActionSource,
   parsePlaySoundActionSource,
   parseLiinoUiEventActionSource,
-  parseComboCounterActionSource,
   parseNoopSpecificLayerChangeActionSource,
   parseForceTargetInFightActionSource,
   parseInterruptHenshinTagListenerActionSource,
@@ -1511,8 +1511,8 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'ComboAction':
       return {
-        family: 'presentation',
-        action: parseComboCounterActionSource(value, path, inheritedBlackboard),
+        family: 'globalBuff',
+        action: parseComboGlobalBuffActionSource(value, path, inheritedBlackboard),
       };
     case 'AttackClickListenerAction': {
       requireExactFields(

@@ -73,6 +73,10 @@ const props = defineProps<{
     readonly sourceId?: string;
     readonly sourceActionId?: string;
   }) => string | undefined;
+  icon?: (source: {
+    readonly sourceId?: string;
+    readonly sourceActionId?: string;
+  }) => string | undefined;
 }>();
 const emit = defineEmits<{
   'open-damage-detail': [sequence: number];
@@ -214,7 +218,7 @@ const buffs = computed(() =>
         },
         sourceName,
       );
-    const icon = buff.iconPath ?? getIconAssetPath(buff.iconId);
+    const icon = props.icon?.(buff) ?? buff.iconPath ?? getIconAssetPath(buff.iconId);
     return {
       ...buff,
       continuedAttachment:
@@ -260,7 +264,7 @@ const buffs = computed(() =>
             startFrame: member.startFrame,
             endFrame: member.durationEndFrame ?? member.endFrame,
             layers: member.layers,
-            icon: member.iconPath ?? getIconAssetPath(member.iconId),
+            icon: props.icon?.(member) ?? member.iconPath ?? getIconAssetPath(member.iconId),
             ...(memberModifierSummary === undefined
               ? {}
               : { modifierSummary: memberModifierSummary }),

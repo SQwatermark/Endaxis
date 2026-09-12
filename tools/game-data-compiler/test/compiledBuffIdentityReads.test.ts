@@ -46,4 +46,23 @@ describe('observed Buff identities survive presentation pruning', () => {
       ]),
     ]).toEqual(['signal']);
   });
+
+  it('keeps empty marker Buffs whose stack, blackboard, or lifetime is read by a compiled step', () => {
+    expect([
+      ...collectCompiledBuffIdentityReadIds([
+        {
+          kind: 'readBuffStackCount',
+          parameters: { query: { kind: 'id', buffIds: ['stack-marker'] } },
+        },
+        {
+          kind: 'readBuffBlackboard',
+          parameters: { query: { kind: 'id', buffIds: ['value-marker'] } },
+        },
+        {
+          kind: 'readBuffRemainingDuration',
+          parameters: { buffIds: ['duration-marker'] },
+        },
+      ]),
+    ]).toEqual(['stack-marker', 'value-marker', 'duration-marker']);
+  });
 });

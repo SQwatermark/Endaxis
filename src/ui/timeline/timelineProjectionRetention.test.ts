@@ -154,6 +154,8 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain('timelineViewportHeight.value - TIMELINE_RULER_HEIGHT');
     expect(source).toContain('resizeTimelineTrackPair(');
     expect(source).toContain("buffLayoutMode === 'compact'");
+    expect(source).toContain("'is-compact-buff-layout': buffLayoutMode === 'compact'");
+    expect(source).toContain('.timeline-scroll.is-compact-buff-layout');
     expect(source).toContain('@pointerdown="beginCompactTrackResize($event, track.trackIndex)"');
     // 上游双击重置整组轨道权重，不是仅重置当前相邻两条。
     expect(source).toContain('@dblclick.stop="resetCompactTrackLayout()"');

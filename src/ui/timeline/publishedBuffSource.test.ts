@@ -6,7 +6,11 @@ import { arcane } from '../../data/operators/arcane';
 import { capturePublishedWeaponSources, resolvePublishedBuffSource } from './publishedBuffSource';
 
 it('captures native weapon presentation identity and custom names without retaining mutable definitions', () => {
-  const weapon = { slug: 'wpn_funnel_0016', assetSlug: 'wpn_artsunit_0016' };
+  const weapon = {
+    slug: 'wpn_funnel_0016',
+    assetSlug: 'wpn_artsunit_0016',
+    iconPath: '/icons/weapons/funnel.webp',
+  };
   const captured = capturePublishedWeaponSources([
     weapon,
     { slug: 'custom', displayName: '自定义武器' },
@@ -19,7 +23,11 @@ it('captures native weapon presentation identity and custom names without retain
       operators,
       captured,
     ),
-  ).toEqual({ kind: 'weapon', slug: 'wpn_artsunit_0016' });
+  ).toEqual({
+    kind: 'weapon',
+    slug: 'wpn_artsunit_0016',
+    iconPath: '/icons/weapons/funnel.webp',
+  });
   expect(
     resolvePublishedBuffSource(
       { sourceActionId: 'equipment:weaponTrait:custom:skill3' },
@@ -27,7 +35,7 @@ it('captures native weapon presentation identity and custom names without retain
       operators,
       captured,
     ),
-  ).toEqual({ kind: 'custom', name: '自定义武器' });
+  ).toEqual({ kind: 'weapon', slug: 'custom', name: '自定义武器' });
 });
 
 const scenario = createEmptyScenario('test', 'test');
@@ -57,6 +65,7 @@ const metadata: PublishedOperatorMetadata = {
   slug: 'custom',
   assetSlug: 'native',
   displayName: 'custom name',
+  element: 'electric',
   skillKeys: ['skill'],
   talents: [
     { levels: 2, passiveKeys: [] },

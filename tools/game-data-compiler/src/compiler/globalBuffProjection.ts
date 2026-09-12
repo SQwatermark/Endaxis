@@ -30,6 +30,27 @@ function compileGlobalBuffAction(
   context: CombatActionProjectionContextSource,
   catalog: GlobalBuffTemplateCatalogSource,
 ): readonly CompiledBuffStepSource[] {
+  if (action.kind === 'createComboGlobalBuff') {
+    const globalBuffId = 'global_buff_combo_trigger';
+    const template = catalog.byId.get(globalBuffId);
+    if (template === undefined) {
+      throw new Error(`${sourcePath}: missing GlobalBuff template ${JSON.stringify(globalBuffId)}`);
+    }
+    return [
+      {
+        kind: 'createGlobalBuff',
+        parameters: {
+          globalBuffId,
+          definition: compileGlobalBuffTemplate(template, sourcePath),
+          source: projectGlobalBuffSource(action.source, context, sourcePath),
+          ...(action.count.blackboardKey === null && action.count.value === 1
+            ? {}
+            : { count: actionValueOperand(action.count) }),
+          blackboardAssignments: { duration: actionValueOperand(action.duration) },
+        },
+      },
+    ];
+  }
   if (action.kind === 'finishGlobalBuff') {
     if (
       !action.finishAll ||

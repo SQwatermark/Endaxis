@@ -11,7 +11,7 @@ import type { BuffDetailTarget } from '../buffDetail';
 import TimelineStatusSegment from './TimelineStatusSegment.vue';
 import { getIconAssetPath } from '../../gameAssetPaths';
 import { frameToTimelinePx } from '../timelineGeometry';
-import { timelineLowerBuffTop } from '../timelineTrackEffectLayout';
+import { timelineLowerBuffTop, timelineUpperBuffTop } from '../timelineTrackEffectLayout';
 
 const props = defineProps<{
   segments: readonly PositionedDisplayBuffTimelineSegment[];
@@ -28,6 +28,10 @@ const props = defineProps<{
     readonly sourceId?: string;
     readonly sourceActionId?: string;
   }) => string | undefined;
+  icon?: (source: {
+    readonly sourceId?: string;
+    readonly sourceActionId?: string;
+  }) => string | undefined;
 }>();
 const { t, te } = useI18n({ useScope: 'global' });
 const emit = defineEmits<{
@@ -37,9 +41,7 @@ const emit = defineEmits<{
 const ICON_SIZE = 18;
 const durationBarColor = useDurationBarColor();
 const BAR_GAP = 2;
-const LANE_PITCH = 22;
 const ACTION_TOP_FALLBACK = 55;
-const UPPER_OFFSET_FROM_ACTION = 24;
 
 const items = computed(() =>
   props.segments.map(segment => {
@@ -76,7 +78,7 @@ const items = computed(() =>
         },
         sourceName,
       );
-    const icon = segment.iconPath ?? getIconAssetPath(segment.iconId);
+    const icon = props.icon?.(segment) ?? segment.iconPath ?? getIconAssetPath(segment.iconId);
     return {
       ...segment,
       title,
@@ -85,9 +87,7 @@ const items = computed(() =>
       left,
       top:
         props.placement === 'upper'
-          ? (props.actionTop ?? ACTION_TOP_FALLBACK) -
-            UPPER_OFFSET_FROM_ACTION -
-            segment.lane * LANE_PITCH
+          ? timelineUpperBuffTop(segment.lane)
           : timelineLowerBuffTop(props.actionTop ?? ACTION_TOP_FALLBACK, segment.lane),
       width: Math.max(0, right - left - ICON_SIZE - BAR_GAP * 2),
       icon,
@@ -116,7 +116,7 @@ const items = computed(() =>
             startFrame: member.startFrame,
             endFrame: member.durationEndFrame ?? member.endFrame,
             layers: member.layers,
-            icon: member.iconPath ?? getIconAssetPath(member.iconId),
+            icon: props.icon?.(member) ?? member.iconPath ?? getIconAssetPath(member.iconId),
             ...(memberModifierSummary === undefined
               ? {}
               : { modifierSummary: memberModifierSummary }),
@@ -129,7 +129,13 @@ const items = computed(() =>
 </script>
 
 <template>
-  <div v-if="items.length > 0" class="timeline-buff-bands" aria-label="Buff timeline">
+  <div
+    v-if="items.length > 0"
+    class="timeline-buff-bands"
+    :class="`is-${placement ?? 'lower'}`"
+    :style="{ '--buff-action-top': `${actionTop ?? ACTION_TOP_FALLBACK}px` }"
+    aria-label="Buff timeline"
+  >
     <TimelineStatusSegment
       v-for="item in items"
       :key="item.key"
@@ -157,6 +163,14 @@ const items = computed(() =>
   z-index: 8;
   overflow: hidden;
   pointer-events: none;
+}
+
+.timeline-buff-bands.is-upper {
+  clip-path: inset(2px 0 calc(100% - var(--buff-action-top)) 0);
+}
+
+.timeline-buff-bands.is-lower {
+  clip-path: inset(calc(var(--buff-action-top) + 50px) 0 2px 0);
 }
 
 .timeline-buff-icon {
