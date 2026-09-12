@@ -558,13 +558,14 @@ timelineActions[25] 检查 NoGuard BuffCount>=1，不是 PoiseBroken。夹具通
 - 前两次直接命中：旧 10609 / 15481，新 10609.211264 / 15481.639942，面板与倍率基本一致。
 - 这两次爆发在新回执中用 sourceActionId 保留原 cast 身份，期望 3772.164005 / 5504.583091；
   不属于漏执行。旧版分别 6773 / 9716，另含下文已经记录的等级系数和不同增益时序，不能直接补差。
-- 第三次直接命中：旧 42593，新 25560.916666。旧明细含失衡乘数 1.3；新同帧
+- 第三次直接命中：旧 42593，新 25560.916666。旧明细含失衡乘数 1.3；当时新同帧
   PoiseApplied 明确 hasPoiseBrokenTag=true、inPoiseRecovery=true，却未接入下述原生失衡承伤 Buff。
+  后续已按原生失衡生命周期接入并完成正式轴回归，见本文前面的“失衡承伤已接入”。
 - 第三次额外爆发：旧有 20018，新无；新第 2057 帧附着回执为 previousElement=null、
   previousLayers=0、attachmentOnly。后续应对照此前附着/冻结的消耗与到期，不能直接补发爆发，
   也不能用敌人死亡解释它（附着仍实际执行，死亡对全轴的早期隔离检查见交接历史）。
 
-### 原生失衡承伤 Buff：内容与挂接已闭合，尚未实现
+### 原生失衡承伤 Buff：当时已闭合证据，后续已实现
 
 本轮后续已从匹配元数据解出固定字符串，并重新分析恢复清理函数。
 唯一完整原生依据为 combat-spec `docs/poise-break-buff.md`：来源是 Modifier.source，
@@ -573,8 +574,8 @@ timelineActions[25] 检查 NoGuard BuffCount>=1，不是 PoiseBroken。夹具通
 
 本地同批原始 `BuffData/buff_common_poise_break_damage_taken_scale.json`：Infinity、
 默认黑板 dmg_up=0.3，Defender DamageScaleProcessor 将其加到 ProdCalcZone；没有可见图标。
-当前正式数据/运行时没有该 ID。它应走既有 Buff 伤害处理器，不应冒充
-攻击者 WeaknessDmgScalar，亦不能在最终伤害公式手加一个失衡专用常量。
+当时正式数据/运行时还没有该 ID。后续实现让它走既有 Buff 伤害处理器，没有冒充
+攻击者 WeaknessDmgScalar，也没有在最终伤害公式手加失衡专用常量。
 
 1.4.4 `runtime-1/poise-controller.analysis.json`（两方法均未截断）已有以下证据：
 
@@ -591,8 +592,8 @@ addition.blackboardKey=dmg_up、默认0.3；无新增伤害处理器。公共根
 完整31干员公共目录候选生成失败于 Typhoeus attack5 的
 projectile_chr_0034_typhoea_archery_attack_05：投射物文件存在，但缺少实体黑板字段。
 另两份本地 VFS 副本同样缺字段，不属于单纯没传目录；不能将缺失认作空黑板。
-正式目录未被替换，战斗运行时未改，三轴基线仍不变。下一项补齐这份源证据后发布完整目录，
-再接失衡生命周期；不跳过泰丰或用小范围目录覆盖全部公共 Buff。
+这段记录保留首次生成受阻时的边界。后续已补齐公共目录并接入失衡生命周期；当前状态和
+正式轴验证以本文前面的“失衡承伤已接入”为准。
 
 ## 2026-09-08 伤害对照：诀的终结技变体与后续伤害归属
 
