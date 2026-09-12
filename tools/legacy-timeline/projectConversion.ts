@@ -17,6 +17,7 @@ import {
   PROJECT_KIND,
   PROJECT_SCHEMA_VERSION,
   type EndaxisProjectDocument,
+  type ConnectionDocument,
   type GearInstanceDocument,
   type OperatorInstanceDocument,
   type ScenarioDocument,
@@ -225,6 +226,58 @@ function migrateTrack(
   };
 }
 
+/** 只搬运已在准备阶段验证过的技能块连接；旧派生 Hit 和效果身份不得在这里猜测。 */
+function migrateConnections(
+  source: UnknownRecord,
+  scenarioId: string,
+  tracks: TrackListDocument,
+  warnings: string[],
+): ConnectionDocument[] {
+  const castIdsByLegacyInstance = new Map<string, string>();
+  for (const [trackIndex, sourceTrack] of records(source.tracks).entries()) {
+    for (const [actionIndex, action] of records(sourceTrack.actions).entries()) {
+      const legacyInstanceId = string(action.instanceId);
+      const castId = `legacy:${scenarioId}:track:${trackIndex}:cast:${actionIndex}`;
+      if (
+        legacyInstanceId !== null &&
+        tracks[trackIndex]?.skillCasts.some(cast => cast.id === castId)
+      ) {
+        castIdsByLegacyInstance.set(legacyInstanceId, castId);
+      }
+    }
+  }
+  return records(source.connections).flatMap((connection, index) => {
+    const fromLegacyId = string(connection.fromNodeId) ?? string(connection.from);
+    const toLegacyId = string(connection.toNodeId) ?? string(connection.to);
+    const fromId = fromLegacyId === null ? undefined : castIdsByLegacyInstance.get(fromLegacyId);
+    const toId = toLegacyId === null ? undefined : castIdsByLegacyInstance.get(toLegacyId);
+    if (fromId === undefined || toId === undefined) {
+      warnings.push(`${scenarioId}: connection ${index + 1} refers to an omitted skill block`);
+      return [];
+    }
+    return [
+      {
+        id: string(connection.id) ?? `legacy:${scenarioId}:connection:${index}`,
+        consumption: boolean(connection.consumption) ?? false,
+        from: {
+          kind: 'skillCast',
+          skillCastId: fromId,
+          ...(string(connection.sourcePort) === null
+            ? {}
+            : { port: string(connection.sourcePort)! }),
+        },
+        to: {
+          kind: 'skillCast',
+          skillCastId: toId,
+          ...(string(connection.targetPort) === null
+            ? {}
+            : { port: string(connection.targetPort)! }),
+        },
+      },
+    ];
+  });
+}
+
 function migrateScenario(
   repository: GameDataRepository,
   wrapper: UnknownRecord,
@@ -272,17 +325,11 @@ function migrateScenario(
   const enemyLevel = integer(source.activeEnemyLevel) ?? 90;
   const customInitialGauges = numericRecord(source.customInitialGauges);
 
-  if (records(source.connections).length > 0) {
-    warnings.push(
-      `${scenarioId}: legacy connections were omitted because their hit identities are derived snapshots`,
-    );
-  }
-
   return {
     id: scenarioId,
     name: string(wrapper.name) ?? `Legacy scenario ${scenarioIndex + 1}`,
     tracks: tracks as TrackListDocument,
-    connections: [],
+    connections: migrateConnections(source, scenarioId, tracks as TrackListDocument, warnings),
     enemy: {
       source:
         enemyDefinition === null || enemyId === null

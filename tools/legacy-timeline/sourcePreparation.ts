@@ -107,7 +107,6 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
       'characterOverrides',
       'weaponOverrides',
       'equipmentCategoryOverrides',
-      'connections',
       'inheritedInitialEffects',
       'inheritedInitialEnemyState',
       'contingencyContractTags',
@@ -118,9 +117,62 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
           message: '存在尚不支持的用户配置，不生成完整项目',
         });
     }
+    const actionInstanceCounts = new Map<string, number>();
+    for (const track of Array.isArray(d.tracks) ? d.tracks : []) {
+      for (const action of track.actions ?? []) {
+        if (typeof action.instanceId !== 'string' || action.instanceId.length === 0) continue;
+        actionInstanceCounts.set(
+          action.instanceId,
+          (actionInstanceCounts.get(action.instanceId) ?? 0) + 1,
+        );
+      }
+    }
+    const connections = Array.isArray(d.connections) ? d.connections : [];
+    if (d.connections != null && !Array.isArray(d.connections)) {
+      issues.push({
+        path: `${prefix}.connections`,
+        message: '连接列表格式无效',
+      });
+    }
+    for (const [index, connection] of connections.entries()) {
+      object(connection);
+      const path = `${prefix}.connections[${index}]`;
+      const actionOnly =
+        connection.fromNodeType === 'action' &&
+        connection.toNodeType === 'action' &&
+        connection.fromEffectId == null &&
+        connection.toEffectId == null &&
+        connection.fromEffectIndex == null &&
+        connection.toEffectIndex == null;
+      if (!actionOnly) {
+        issues.push({
+          path,
+          message: '只支持技能块之间的连接；Hit 和效果端点没有可直接搬运的稳定身份',
+        });
+        continue;
+      }
+      for (const [endpoint, id] of [
+        ['from', connection.fromNodeId ?? connection.from],
+        ['to', connection.toNodeId ?? connection.to],
+      ] as const) {
+        if (typeof id !== 'string' || actionInstanceCounts.get(id) !== 1) {
+          issues.push({
+            path: `${path}.${endpoint}`,
+            message: `连接端点 '${String(id)}' 未唯一对应一个旧技能块`,
+          });
+        }
+      }
+    }
     if (d.globalConfig?.presetId || d.globalConfig?.customModifiers?.length)
       issues.push({ path: prefix + '.globalConfig', message: '全局配置尚未转换' });
-    const constants = object(d.systemConstants);
+    const constants = d.systemConstants == null ? {} : object(d.systemConstants);
+    if (d.systemConstants == null) {
+      issues.push({
+        path: `${prefix}.systemConstants`,
+        message: '缺少旧战斗常量，不能完整还原该方案',
+      });
+      d.systemConstants = constants;
+    }
     if (constants.linkCdReduction)
       issues.push({
         path: prefix + '.systemConstants.linkCdReduction',

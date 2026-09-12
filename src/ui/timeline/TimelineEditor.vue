@@ -736,6 +736,12 @@ const damageAnalysis = computed(() =>
       damageType === 'physical' ? '#c9c9c9' : (ELEMENT_COLORS[damageType] ?? '#888888'),
   ),
 );
+const publishedRandomMode = computed(
+  () => publishedSimulation.value?.scenario.battle.random?.mode ?? 'expected',
+);
+const publishedGlobalRandomSeed = computed(
+  () => publishedSimulation.value?.scenario.battle.random?.globalSeed ?? 0,
+);
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
 const savedProjectSnapshot = shallowRef(initialProject);
 const projectFileReader = createProjectFileReader(() => projectSession.snapshot.revision);
@@ -2697,7 +2703,7 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
   const parts: string[] = [];
   for (const damage of label.damage) {
     parts.push(
-      `${Math.round(damage.value)}${damage.isCritical ? '!' : ''} ${damageElementLabel(damage.damageType)}`,
+      `${Math.round(damage.value)}${publishedRandomMode.value === 'sampled' && damage.isCritical ? '!' : ''} ${damageElementLabel(damage.damageType)}`,
     );
   }
   for (const infliction of label.infliction) {
@@ -2742,6 +2748,7 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
       hitId: hit.hitId,
       executionFrame: hit.frame,
       leftPx: timelineFramePx(hit.frame) - timelineFramePx(publishedStartFrame),
+      critical: hit.label.damage.some(damage => damage.isCritical),
       forcedCritical: cast.simulationInputs?.criticalOverrides?.[hit.stepKey] === true,
       title: hitMarkerTitle(hit.label),
     }));
@@ -6671,6 +6678,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
+    :random-mode="publishedRandomMode"
     :operator-panel-for-entry="hitDetailTarget === null ? enemyDamageOperatorPanel : undefined"
     :source-label="t('timeline.buffDetail.source')"
     :source-description="hitDetailTarget === null ? enemyDamageSourceDescription : undefined"
@@ -6694,6 +6702,7 @@ function setPanelDialogVisible(visible: boolean): void {
       skillType: t('hitDetail.skillType'),
       element: t('hitDetail.element'),
       expectedDamage: t('hitDetail.expectedDamage'),
+      actualDamage: t('hitDetail.actualDamage'),
       forcedDamage: t('hitDetail.forcedDamage'),
       forceCrit: t('hitDetail.forceCrit'),
       criticalDamage: t('hitDetail.critDamage'),
@@ -6713,6 +6722,11 @@ function setPanelDialogVisible(visible: boolean): void {
       baseDamage: t('hitDetail.baseDamage'),
       damageBonus: t('hitDetail.dmgBonus'),
       criticalExpectation: t('hitDetail.critMult'),
+      criticalResult: t('hitDetail.criticalResult'),
+      criticalRate: t('hitDetail.rawCritRate'),
+      criticalHit: t('hitDetail.criticalHit'),
+      nonCriticalHit: t('hitDetail.nonCriticalHit'),
+      cannotCritical: t('hitDetail.cannotCritical'),
       directMultiplier: t('hitDetail.directMult'),
       damageTaken: t('hitDetail.dmgTaken'),
       defenseMultiplier: t('hitDetail.defMult'),
@@ -6805,6 +6819,8 @@ function setPanelDialogVisible(visible: boolean): void {
     :visible="showDamageAnalysis"
     :analysis="damageAnalysis"
     :locale="locale"
+    :random-mode="publishedRandomMode"
+    :global-random-seed="publishedGlobalRandomSeed"
     :labels="{
       title: t('timeline.analysis.dialogTitle'),
       warning: t('timeline.analysis.warning'),
@@ -6813,6 +6829,11 @@ function setPanelDialogVisible(visible: boolean): void {
       contributionByOperator: t('timeline.analysis.contributionByOperator'),
       damageByElement: t('timeline.analysis.damageByElement'),
       totalDamage: t('timeline.analysis.totalDamage'),
+      expectedTotalDamage: t('timeline.analysis.expectedTotalDamage'),
+      sampledTotalDamage: t('timeline.analysis.sampledTotalDamage'),
+      expectedModeDescription: t('timeline.analysis.expectedModeDescription'),
+      sampledModeDescription: (seed: string) =>
+        t('timeline.analysis.sampledModeDescription', { seed }),
       rotationTime: t('timeline.analysis.rotationTime'),
       dps: t('timeline.analysis.dps'),
       unattributedDamage: (value: string) => t('timeline.analysis.unattributedDamage', { value }),

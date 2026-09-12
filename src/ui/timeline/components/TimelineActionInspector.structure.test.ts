@@ -46,4 +46,17 @@ describe('TimelineActionInspector current-layer editing', () => {
     expect(source).toContain("t('battleLog.ui.clear')");
     expect(source).not.toContain("t('common.clear')");
   });
+
+  it('keeps the cast seed input, reroll button, and clear button on one row', () => {
+    const seedRow = source.slice(
+      source.indexOf('<div class="random-seed-row">'),
+      source.indexOf('<small class="field-help">{{ t(\'timeline.random.castSeedHelp\') }}'),
+    );
+    expect(seedRow).toContain('<EaNumberInput');
+    expect(seedRow).toContain('<EaDiceIcon />');
+    expect(seedRow).toContain("$emit('setRandomSeed', null)");
+    expect(source).toMatch(
+      /\.random-seed-row\s*\{[^}]*display:\s*flex;[^}]*align-items:\s*center;/s,
+    );
+  });
 });

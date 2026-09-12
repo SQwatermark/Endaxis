@@ -2568,7 +2568,7 @@ export class CombatRuntimeAssembly {
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
-      resolveEventTarget: targetId => this.#requireTimedMarkerContainer(targetId),
+      resolveEventTarget: targetId => this.#resolveTimedMarkerContainerById(targetId),
       globalClock: this.clock,
       globalScaledClock: this.timeDilation ?? this.clock,
       delegate: statusOperations,
@@ -2886,7 +2886,7 @@ export class CombatRuntimeAssembly {
           ? this.#enemyTimedMarkers
           : this.#requireTimedMarkerContainer(operatorId),
       resolveAbilityEntityTarget: target => this.abilityEntities.timedMarkers(target),
-      resolveEventTarget: targetId => this.#requireTimedMarkerContainer(targetId),
+      resolveEventTarget: targetId => this.#resolveTimedMarkerContainerById(targetId),
       globalClock: this.clock,
       globalScaledClock: this.timeDilation ?? this.clock,
       delegate: statusOperations,
@@ -3179,6 +3179,19 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat operator '${operatorId}' has no timed marker container`);
     }
     return container;
+  }
+
+  /** Buff 生命周期使用实际宿主身份；敌人和能力实体不能按干员 ID 查询。 */
+  #resolveTimedMarkerContainerById(targetId: string): TimedMarkerContainer {
+    if (targetId === 'enemy') return this.#enemyTimedMarkers;
+    const abilityEntity = /^ability-entity:(\d+)$/.exec(targetId);
+    if (abilityEntity !== null) {
+      return this.abilityEntities.timedMarkers({
+        kind: 'abilityEntity',
+        instanceId: Number(abilityEntity[1]),
+      });
+    }
+    return this.#requireTimedMarkerContainer(targetId);
   }
 
   #resolveBuffTarget(target: CombatTarget, operatorId: string): BuffOperationTarget {

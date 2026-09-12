@@ -3,6 +3,30 @@ import mappings from './mappings.2026-08-31.json';
 import { gameDataRepository } from '../../src/data/gameDataRepository';
 import { legacySkillIdentity } from './sourcePreparation';
 
+it('contains the complete one-time mapping catalog for the legacy data snapshot', () => {
+  expect(Object.keys(mappings.operators)).toHaveLength(30);
+  expect(Object.keys(mappings.weapons)).toHaveLength(77);
+  expect(Object.keys(mappings.gears)).toHaveLength(243);
+  expect(Object.keys(mappings.enemies)).toHaveLength(82);
+  expect(Object.values(mappings.skills).reduce((sum, rules) => sum + rules.length, 0)).toBe(299);
+
+  // 旧版把伊冯整套强化普攻保存成一个技能块；新版是可递归分叉的技能序列，不能映射到某一段。
+  expect(
+    mappings.skills.yvonne.some(rule => rule.source.sourceSkillKey === 'enhancedBasicAttack'),
+  ).toBe(false);
+  expect(
+    Object.values(mappings.skills).every(rules =>
+      rules
+        .filter(rule => rule.source.sourceSkillKey === 'dive')
+        .every(
+          rule =>
+            rule.target.skillGroupKey === 'plungingAttack' &&
+            rule.target.skillKey === 'plungingAttack',
+        ),
+    ),
+  ).toBe(true);
+});
+
 it('keeps reviewed weapon and gear identities resolvable in the current repository', () => {
   for (const [gameId, id] of Object.entries(mappings.enemies))
     expect(gameDataRepository.getEnemy(id)?.gameId).toBe(gameId);
@@ -44,6 +68,9 @@ it('keeps each reviewed skill mapping unique and points to an existing group mem
       const skills = [
         ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
         ...(group.replacementSkills ?? []),
+        ...(group.variants ?? []).flatMap(variant =>
+          Array.isArray(variant.skills) ? variant.skills : [variant.skills],
+        ),
       ];
       expect(
         skills.some(skill => skill.key === target.skillKey),

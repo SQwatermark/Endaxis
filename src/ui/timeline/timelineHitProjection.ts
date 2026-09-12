@@ -37,6 +37,8 @@ export interface TimelineHitMarkerView {
   /** 相对技能块左边缘的像素偏移。 */
   readonly leftPx: number;
   readonly title?: string;
+  /** 模拟回执确认该命中发生了暴击。 */
+  readonly critical?: boolean;
   /** 该命中是否被编辑器强制设为暴击；仅用于复刻旧版命中点反馈。 */
   readonly forcedCritical?: boolean;
 }

@@ -200,6 +200,10 @@ it('按完整 castId 拆账并保留关联 Buff 步骤与无施法伤害', async
         calculationMultiplier: 0.3,
         damageScaleMultiplier: 1.5,
         resistanceMultiplier: 0.8,
+        criticalRate: 0.25,
+        criticalDamageIncrease: 0.6,
+        isCritical: true,
+        criticalMultiplier: 1.6,
         criticalExpectationMultiplier: 1.025,
       },
     },
@@ -234,6 +238,10 @@ it('按完整 castId 拆账并保留关联 Buff 步骤与无施法伤害', async
     calculationMultiplier: 0.3,
     damageScaleMultiplier: 1.5,
     resistanceMultiplier: 0.8,
+    criticalRate: 0.25,
+    criticalDamageIncrease: 0.6,
+    isCritical: true,
+    criticalMultiplier: 1.6,
     criticalExpectationMultiplier: 1.025,
   });
   expect(report.configured.casts).toEqual([

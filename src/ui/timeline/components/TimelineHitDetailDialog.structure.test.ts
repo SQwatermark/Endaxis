@@ -8,8 +8,20 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain('<tr v-if="detail.canCritical" class="dim">');
     expect(source).toContain('resultForceCritical && detail.canForceCritical');
     expect(source).not.toContain('forceCritical && detail.canForceCritical');
-    expect(source).toContain(':checked="forceCritical"');
+    expect(source).toContain(':model-value="forceCritical"');
     expect(source).not.toContain('canCritical: criticalRate > 0');
+  });
+  it('uses the published simulation mode for the headline and keeps expectation as sampled reference', () => {
+    expect(source).toContain(
+      "headline: props.randomMode === 'expected' ? expectedDamage : actualValue",
+    );
+    expect(source).toContain("randomMode === 'expected'");
+    expect(source).toContain('labels.actualDamage');
+    expect(source).toContain("randomMode === 'sampled'");
+    expect(source).toContain('detail.expectedDamage');
+    expect(source).toContain('labels.criticalResult');
+    expect(source).toContain('props.labels.criticalRate');
+    expect(source).toContain('props.labels.cannotCritical');
   });
   it('resolves burst source names through the project template, not its icon asset identity', () => {
     const start = editorSource.indexOf('function enemyDamageSourceDescription(');
@@ -30,7 +42,7 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain("'is-multiple': damageDetails.length > 1");
   });
   it('follows the legacy context-result-base-multiplier hierarchy using receipt facts', () => {
-    expect(source).toContain('<el-dialog');
+    expect(source).toContain('<EaDialog');
     expect(source).toContain('class="hit-damage-detail-dialog"');
     expect(source).toContain('labels.dialogTitle');
     expect(source).toContain('labels.context');
@@ -71,7 +83,7 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain(':model-value="visible"');
     expect(source).toContain('width="420px"');
     expect(source).toContain('@update:model-value="onClose"');
-    expect(source).toContain(':checked="forceCritical"');
+    expect(source).toContain(':model-value="forceCritical"');
     expect(source).toContain("emit('toggleForceCritical'");
     expect(source).toContain('labels.forceCrit');
     expect(source).not.toContain('class="hit-detail-overlay"');

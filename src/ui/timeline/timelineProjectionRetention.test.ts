@@ -81,13 +81,17 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain('candidate.hitId === target.hitId');
   });
 
-  it('keeps legacy hit-marker press timing and forced-critical feedback', () => {
+  it('keeps legacy hit-marker press timing and highlights resolved or forced critical hits', () => {
+    expect(actionBlockSource).toContain("'is-critical': hit.critical");
     expect(actionBlockSource).toContain("'is-forced-crit': hit.forcedCritical");
     expect(actionBlockSource).toContain(
       '@mousedown.stop.prevent="$emit(\'hitClick\', hit.hitId, hit.executionFrame)"',
     );
     expect(actionBlockSource).not.toMatch(/@click[^=]*="\$emit\('hitClick'/);
-    expect(actionBlockSource).toMatch(/\.hit-marker\.is-forced-crit\s*\{[^}]*#ff6b6b/s);
+    expect(actionBlockSource).toMatch(
+      /\.hit-marker\.is-critical,\s*\.hit-marker\.is-forced-crit\s*\{[^}]*#ff6b6b/s,
+    );
+    expect(source).toContain('critical: hit.label.damage.some(damage => damage.isCritical)');
     expect(source).toContain('criticalOverrides');
   });
 

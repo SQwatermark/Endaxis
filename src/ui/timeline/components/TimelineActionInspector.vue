@@ -220,41 +220,43 @@ function removeCustomBar(barId: string): void {
             />
             <small class="field-help">{{ t('timeline.inspector.cameraTargetAngleHelp') }}</small>
           </label>
-          <label class="form-group attribute-grid__wide">
+          <div class="form-group attribute-grid__wide">
             <span>{{ t('timeline.random.castSeed') }}</span>
-            <EaNumberInput
-              class="number-field"
-              :min="0"
-              :max="0xffffffff"
-              :step="1"
-              controls-position="right"
-              size="sm"
-              :model-value="cast.simulationInputs?.randomSeed"
-              :placeholder="t('timeline.random.useGlobalSeed')"
-              @change="commitRandomSeed"
-            />
-            <div class="inline-actions">
-              <EaButton
+            <div class="random-seed-row">
+              <EaNumberInput
+                class="number-field"
+                :min="0"
+                :max="0xffffffff"
+                :step="1"
+                controls-position="right"
                 size="sm"
-                icon-only
-                type="button"
-                :title="t('timeline.random.roll')"
-                :aria-label="t('timeline.random.roll')"
-                @click="$emit('rollRandomSeed')"
-              >
-                <EaDiceIcon />
-              </EaButton>
-              <EaButton
-                v-if="cast.simulationInputs?.randomSeed !== undefined"
-                size="sm"
-                type="button"
-                @click="$emit('setRandomSeed', null)"
-              >
-                {{ t('battleLog.ui.clear') }}
-              </EaButton>
+                :model-value="cast.simulationInputs?.randomSeed"
+                :placeholder="t('timeline.random.useGlobalSeed')"
+                @change="commitRandomSeed"
+              />
+              <div class="inline-actions">
+                <EaButton
+                  size="sm"
+                  icon-only
+                  type="button"
+                  :title="t('timeline.random.roll')"
+                  :aria-label="t('timeline.random.roll')"
+                  @click="$emit('rollRandomSeed')"
+                >
+                  <EaDiceIcon />
+                </EaButton>
+                <EaButton
+                  v-if="cast.simulationInputs?.randomSeed !== undefined"
+                  size="sm"
+                  type="button"
+                  @click="$emit('setRandomSeed', null)"
+                >
+                  {{ t('battleLog.ui.clear') }}
+                </EaButton>
+              </div>
             </div>
             <small class="field-help">{{ t('timeline.random.castSeedHelp') }}</small>
-          </label>
+          </div>
         </div>
       </section>
 
@@ -736,7 +738,20 @@ function removeCustomBar(barId: string): void {
 
 .inline-actions {
   display: flex;
+  flex: 0 0 auto;
   gap: 6px;
+}
+
+.random-seed-row {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.random-seed-row > .number-field {
+  min-width: 0;
+  flex: 1 1 auto;
 }
 
 .panel-tag-mini {

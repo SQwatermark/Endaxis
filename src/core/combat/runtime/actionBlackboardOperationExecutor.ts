@@ -351,6 +351,9 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         throw new Error('probability requires an explicit probability sample source');
       }
       const sample = this.probabilitySamples.nextProbabilitySample({
+        ...((context.buffSourceId ?? this.sourceAttributes?.sourceId) === undefined
+          ? {}
+          : { expectedSequenceId: context.buffSourceId ?? this.sourceAttributes?.sourceId }),
         ...(context.skillCastInfo?.originCastId === undefined
           ? {}
           : { castId: context.skillCastInfo.originCastId }),

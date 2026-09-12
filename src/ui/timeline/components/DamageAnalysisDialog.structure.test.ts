@@ -15,6 +15,15 @@ describe('DamageAnalysisDialog structure', () => {
     expect(source).toContain('numberFormatter.value.format');
   });
 
+  it('identifies expected totals and seeded sampled totals separately', () => {
+    expect(source).toContain("randomMode: 'expected' | 'sampled'");
+    expect(source).toContain('globalRandomSeed: number');
+    expect(source).toContain('labels.expectedModeDescription');
+    expect(source).toContain('labels.sampledModeDescription(String(globalRandomSeed))');
+    expect(source).toContain('labels.expectedTotalDamage');
+    expect(source).toContain('labels.sampledTotalDamage');
+  });
+
   it('restores the legacy chart, summary, and FAQ layout', () => {
     expect(source).toContain("import VChart from 'vue-echarts'");
     expect(source.match(/<VChart/g)).toHaveLength(2);

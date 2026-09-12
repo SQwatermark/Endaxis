@@ -41,6 +41,10 @@ function damageEntries(entries: readonly CombatReceiptEntry[]) {
         calculationMultiplier: entry.data?.calculationMultiplier,
         damageScaleMultiplier: entry.data?.damageScaleMultiplier,
         resistanceMultiplier: entry.data?.resistanceMultiplier,
+        criticalRate: entry.data?.criticalRate,
+        criticalDamageIncrease: entry.data?.criticalDamageIncrease,
+        isCritical: entry.data?.isCritical,
+        criticalMultiplier: entry.data?.criticalMultiplier,
         criticalExpectationMultiplier: entry.data?.criticalExpectationMultiplier,
         expectedDamage,
       };

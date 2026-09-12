@@ -13,6 +13,8 @@ export type SimulationRandomMode = 'expected' | 'sampled';
 /** 一次随机取样的稳定归属；技能块种子只接管带有对应 castId 的取样。 */
 export interface RandomSampleRequest {
   readonly castId?: string;
+  /** 期望模式中独立安排离散结果的来源身份；避免无关来源互相挤占均匀序列。 */
+  readonly expectedSequenceId?: string;
 }
 
 export interface SimulationRandomSettings {
@@ -47,14 +49,17 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
   }
 
   #next(kind: 'critical' | 'probability', request: RandomSampleRequest | undefined): number {
+    if (this.#settings.mode === 'expected') {
+      const expectedScope =
+        request?.expectedSequenceId === undefined
+          ? 'global'
+          : `source:${request.expectedSequenceId}`;
+      return this.#nextEven(`${kind}:${expectedScope}`);
+    }
     const castId = request?.castId;
-    const castSeed =
-      this.#settings.mode !== 'sampled' || castId === undefined
-        ? undefined
-        : this.#settings.castSeeds?.get(castId);
+    const castSeed = castId === undefined ? undefined : this.#settings.castSeeds?.get(castId);
     const scope = castSeed === undefined ? 'global' : `cast:${castId}`;
     const streamKey = `${kind}:${scope}`;
-    if (this.#settings.mode === 'expected') return this.#nextEven(streamKey);
 
     let stream = this.#streams.get(streamKey);
     if (stream === undefined) {

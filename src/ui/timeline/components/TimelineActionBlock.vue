@@ -193,7 +193,10 @@ function formatDurationFrames(frames: number): string {
       v-for="hit in hits ?? []"
       :key="`${hit.hitId}:${hit.executionFrame ?? 'preview'}`"
       class="hit-marker"
-      :class="{ 'is-forced-crit': hit.forcedCritical }"
+      :class="{
+        'is-critical': hit.critical,
+        'is-forced-crit': hit.forcedCritical,
+      }"
       :style="markerStyle(hit)"
       :title="hit.title ?? ''"
       :data-connection-action-id="actionId"
@@ -791,6 +794,7 @@ function formatDurationFrames(frames: number): string {
   cursor: default;
 }
 
+.hit-marker.is-critical,
 .hit-marker.is-forced-crit {
   background-color: #ff6b6b;
   border-color: #ffd166;

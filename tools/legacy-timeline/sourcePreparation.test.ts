@@ -74,6 +74,48 @@ it('supports audited per-action overrides and blocks nonempty unsupported user s
   Object.assign(value.scenarioList[0]!.data, { characterOverrides: { old: { hp: 1 } } });
   expect(prepareLegacySource(value, mappings).issues[0]?.path).toContain('characterOverrides');
 });
+it('reports a missing system constants block instead of aborting conversion', () => {
+  const value = input();
+  Reflect.deleteProperty(value.scenarioList[0]!.data, 'systemConstants');
+
+  const result = prepareLegacySource(value, mappings);
+
+  expect(result.issues).toContainEqual({
+    path: 'scenarioList[0].data.systemConstants',
+    message: '缺少旧战斗常量，不能完整还原该方案',
+  });
+});
+it('accepts unambiguous skill-block connections and rejects derived endpoints', () => {
+  const value = input();
+  const first = value.scenarioList[0]!.data.tracks[0]!.actions[0]!;
+  Object.assign(first, { instanceId: 'cast-a' });
+  value.scenarioList[0]!.data.tracks[0]!.actions.push({
+    ...first,
+    startTime: 700,
+    logicalStartTime: 700,
+  });
+  Object.assign(value.scenarioList[0]!.data.tracks[0]!.actions[1]!, {
+    instanceId: 'cast-b',
+  });
+  const connections = [
+    {
+      id: 'connection',
+      fromNodeType: 'action',
+      toNodeType: 'action',
+      fromNodeId: 'cast-a',
+      toNodeId: 'cast-b',
+      sourcePort: 'right',
+      targetPort: 'left',
+    },
+  ];
+  Object.assign(value.scenarioList[0]!.data, {
+    connections,
+  });
+  expect(prepareLegacySource(value, mappings).issues).toEqual([]);
+
+  connections[0]!.toNodeType = 'hit';
+  expect(prepareLegacySource(value, mappings).issues[0]?.message).toContain('Hit');
+});
 it('rejects unknown time units and preserves differing authored/resolved times', () => {
   const value = input();
   value.fps = 0;

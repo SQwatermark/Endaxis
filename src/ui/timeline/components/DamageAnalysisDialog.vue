@@ -20,6 +20,8 @@ const props = defineProps<{
   visible: boolean;
   analysis: TimelineDamageAnalysis;
   locale: string;
+  randomMode: 'expected' | 'sampled';
+  globalRandomSeed: number;
   labels: {
     title: string;
     warning: string;
@@ -28,6 +30,10 @@ const props = defineProps<{
     contributionByOperator: string;
     damageByElement: string;
     totalDamage: string;
+    expectedTotalDamage: string;
+    sampledTotalDamage: string;
+    expectedModeDescription: string;
+    sampledModeDescription: (seed: string) => string;
     rotationTime: string;
     dps: string;
     unattributedDamage: (value: string) => string;
@@ -125,6 +131,14 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
           <span class="warning-text">{{ labels.warning }}</span>
         </div>
 
+        <div class="analysis-mode">
+          {{
+            randomMode === 'expected'
+              ? labels.expectedModeDescription
+              : labels.sampledModeDescription(String(globalRandomSeed))
+          }}
+        </div>
+
         <div v-if="!hasData" class="empty-state">
           <p>{{ labels.noData }}</p>
         </div>
@@ -150,7 +164,9 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
 
           <div class="summary-row">
             <div class="summary-item">
-              <span class="summary-label">{{ labels.totalDamage }}</span>
+              <span class="summary-label">{{
+                randomMode === 'expected' ? labels.expectedTotalDamage : labels.sampledTotalDamage
+              }}</span>
               <span class="summary-value">{{ formatNumber(analysis.totalDamage) }}</span>
             </div>
             <div class="summary-item">
@@ -204,6 +220,13 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
 
 .warning-text {
   color: #c47a10;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.analysis-mode {
+  margin: -12px 0 20px;
+  color: var(--ea-dialog-text);
   font-size: 13px;
   line-height: 1.5;
 }

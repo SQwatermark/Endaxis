@@ -264,6 +264,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           criticalSample:
             criticalOverride === undefined && context.attackerAttributes.criticalRate > 0.00001
               ? this.dependencies.criticalSamples.nextCriticalSample({
+                  expectedSequenceId: this.dependencies.sourceOperatorId,
                   ...(this.dependencies.castId === undefined
                     ? {}
                     : { castId: this.dependencies.castId }),

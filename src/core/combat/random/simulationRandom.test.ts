@@ -9,6 +9,15 @@ describe('SimulationRandomSource', () => {
     expect([source.nextProbabilitySample(), source.nextProbabilitySample()]).toEqual([0.5, 0.25]);
   });
 
+  it('keeps unrelated expected-mode sources on independent even sequences', () => {
+    const source = new SimulationRandomSource({ mode: 'expected', globalSeed: 99 });
+
+    expect(source.nextCriticalSample({ expectedSequenceId: 'operator-a' })).toBe(0.5);
+    expect(source.nextCriticalSample({ expectedSequenceId: 'operator-b' })).toBe(0.5);
+    expect(source.nextCriticalSample({ expectedSequenceId: 'operator-a' })).toBe(0.25);
+    expect(source.nextProbabilitySample({ expectedSequenceId: 'operator-a' })).toBe(0.5);
+  });
+
   it('replays sampled mode from the same seed and separates random categories', () => {
     const first = new SimulationRandomSource({ mode: 'sampled', globalSeed: 123 });
     const second = new SimulationRandomSource({ mode: 'sampled', globalSeed: 123 });

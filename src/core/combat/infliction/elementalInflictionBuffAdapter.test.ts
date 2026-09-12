@@ -186,6 +186,31 @@ describe('ElementalInflictionBuffAdapter', () => {
     ).toBeNull();
   });
 
+  it('attributes consumed attachments to the incoming skill cast', () => {
+    const target = new CombatBuffContainer<Attribute>('enemy', new CombatAttributeSet<Attribute>());
+    const consumed: unknown[] = [];
+    target.configureConsumedObserver((_buff, _sourceId, _layers, skillCastInfo) => {
+      consumed.push(skillCastInfo);
+    });
+    const cast = {
+      skillCastId: 7,
+      originSkillId: 'battle',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 100,
+    };
+    const adapter = new ElementalInflictionBuffAdapter(target, 'operator', index);
+    adapter.apply({ kind: 'addAttachment', element: 'heat' });
+
+    for (const operation of resolveElementalInfliction(
+      'electric',
+      adapter.getExistingAttachment(),
+    )) {
+      adapter.apply(operation, { skillCastInfo: cast });
+    }
+
+    expect(consumed).toEqual([cast]);
+  });
+
   it('adds and enhances same-type attachments after creating the burst', () => {
     const { target, adapter } = createAdapter();
     for (const operation of resolveElementalInfliction('heat', null)) adapter.apply(operation);

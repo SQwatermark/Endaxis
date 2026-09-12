@@ -13,6 +13,7 @@ import { projectAttackPercentContributionSources } from '../operatorPanelContrib
 
 const props = defineProps<{
   visible: boolean;
+  randomMode: 'expected' | 'sampled';
   forceCritical: boolean;
   /** 结果区使用发布快照；forceCritical 仅表示当前编辑中的复选框。 */
   resultForceCritical: boolean;
@@ -34,6 +35,7 @@ const props = defineProps<{
     skillType: string;
     element: string;
     expectedDamage: string;
+    actualDamage: string;
     forcedDamage: string;
     forceCrit: string;
     criticalDamage: string;
@@ -53,6 +55,11 @@ const props = defineProps<{
     baseDamage: string;
     damageBonus: string;
     criticalExpectation: string;
+    criticalResult: string;
+    criticalRate: string;
+    criticalHit: string;
+    nonCriticalHit: string;
+    cannotCritical: string;
     directMultiplier: string;
     damageTaken: string;
     defenseMultiplier: string;
@@ -72,6 +79,7 @@ interface DetailRow {
 interface DamageDetail {
   readonly key: number;
   readonly headline: number;
+  readonly expectedDamage: number;
   readonly criticalDamage: number;
   readonly nonCriticalDamage: number;
   readonly canCritical: boolean;
@@ -224,6 +232,8 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
     const criticalRate = finiteNumber(data.criticalRate);
     const criticalDamageIncrease = finiteNumber(data.criticalDamageIncrease);
     const criticalExpectation = finiteNumber(data.criticalExpectationMultiplier, 1);
+    const criticalMultiplier = finiteNumber(data.criticalMultiplier, 1);
+    const isCritical = data.isCritical === true;
     const directMultiplier = finiteNumber(data.directDamageMultiplier, 1);
     const damageTakenMultiplier = finiteNumber(data.damageTakenMultiplier, 1);
     const resistanceMultiplier = finiteNumber(data.resistancePercentMultiplier, 1);
@@ -257,11 +267,24 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         value: mult(damageScaleMultiplier),
       });
     }
-    if (differsFromOne(criticalExpectation)) {
+    if (props.randomMode === 'expected') {
       multiplierRows.push({
         label: props.labels.criticalExpectation,
-        detail: `${pct(criticalRate)} x ${pct(criticalDamageIncrease)}`,
+        detail: `${props.labels.criticalRate} ${pct(criticalRate)} × ${pct(criticalDamageIncrease)}`,
         value: mult(criticalExpectation),
+      });
+    }
+    if (props.randomMode === 'sampled') {
+      const criticalResult =
+        data.canCritical === false
+          ? props.labels.cannotCritical
+          : isCritical
+            ? props.labels.criticalHit
+            : props.labels.nonCriticalHit;
+      multiplierRows.push({
+        label: props.labels.criticalResult,
+        detail: `${props.labels.criticalRate} ${pct(criticalRate)} · ${criticalResult}`,
+        value: mult(criticalMultiplier),
       });
     }
     if (differsFromOne(directMultiplier)) {
@@ -292,7 +315,8 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
     return [
       {
         key: entry.sequence,
-        headline: expectedDamage,
+        headline: props.randomMode === 'expected' ? expectedDamage : actualValue,
+        expectedDamage,
         criticalDamage,
         nonCriticalDamage,
         canCritical: data.canCritical !== false,
@@ -357,7 +381,9 @@ function onClose(): void {
               <span class="damage-label">{{
                 resultForceCritical && detail.canForceCritical
                   ? labels.forcedDamage
-                  : labels.expectedDamage
+                  : randomMode === 'expected'
+                    ? labels.expectedDamage
+                    : labels.actualDamage
               }}</span>
               <span
                 class="damage-value"
@@ -376,6 +402,10 @@ function onClose(): void {
                 <tr v-if="detail.canCritical" class="dim">
                   <td class="label-cell">{{ labels.criticalDamage }}</td>
                   <td class="value-cell">{{ num(detail.criticalDamage) }}</td>
+                </tr>
+                <tr v-if="randomMode === 'sampled'" class="dim">
+                  <td class="label-cell">{{ labels.expectedDamage }}</td>
+                  <td class="value-cell">{{ num(detail.expectedDamage) }}</td>
                 </tr>
                 <tr class="dim">
                   <td class="label-cell">{{ labels.nonCriticalDamage }}</td>

@@ -144,6 +144,61 @@ it('produces a current reloadable document only after explicit skill mapping and
     true,
   );
 });
+it('preserves validated action-to-action connections with migrated cast identities', () => {
+  const input = fixture();
+  const first = input.scenarioList[0]!.data.tracks[0]!.actions[0]!;
+  Object.assign(first, { instanceId: 'old-cast-a' });
+  input.scenarioList[0]!.data.tracks[0]!.actions.push({
+    ...first,
+    startTime: 700,
+    logicalStartTime: 700,
+  });
+  Object.assign(input.scenarioList[0]!.data.tracks[0]!.actions[1]!, {
+    instanceId: 'old-cast-b',
+  });
+  Object.assign(input.scenarioList[0]!.data, {
+    connections: [
+      {
+        id: 'legacy-connection',
+        fromNodeType: 'action',
+        toNodeType: 'action',
+        fromNodeId: 'old-cast-a',
+        toNodeId: 'old-cast-b',
+        sourcePort: 'right',
+        targetPort: 'left',
+      },
+    ],
+  });
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+    skills: {
+      'old-perlica': [
+        {
+          source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        },
+      ],
+    },
+  });
+
+  expect(result.report.issues).toEqual([]);
+  expect(result.project?.scenarios[0]?.connections).toEqual([
+    {
+      id: 'legacy-connection',
+      consumption: false,
+      from: {
+        kind: 'skillCast',
+        skillCastId: 'legacy:test-axis:track:0:cast:0',
+        port: 'right',
+      },
+      to: {
+        kind: 'skillCast',
+        skillCastId: 'legacy:test-axis:track:0:cast:1',
+        port: 'left',
+      },
+    },
+  ]);
+});
 it('preserves the stored full ultimate energy without recompiling conditional talents', () => {
   const input = fixture();
   const data = input.scenarioList[0]!.data;
@@ -183,6 +238,32 @@ it('does not publish a project after missing mapping', () => {
   expect(result.status).toBe('blocked');
   expect(result.project).toBeNull();
   expect(result.report.unresolvedSkills).toHaveLength(1);
+});
+
+it('reports a connected omitted skill instead of aborting conversion', () => {
+  const input = fixture();
+  const action = input.scenarioList[0]!.data.tracks[0]!.actions[0]!;
+  Object.assign(action, { instanceId: 'unmapped-cast' });
+  Object.assign(input.scenarioList[0]!.data, {
+    connections: [
+      {
+        id: 'unmapped-connection',
+        fromNodeType: 'action',
+        toNodeType: 'action',
+        fromNodeId: 'unmapped-cast',
+        toNodeId: 'unmapped-cast',
+      },
+    ],
+  });
+
+  const result = convertLegacyTimeline(input, gameDataRepository);
+
+  expect(result.status).toBe('blocked');
+  expect(result.project).toBeNull();
+  expect(result.report.issues).toContainEqual({
+    path: '',
+    message: 'test-axis: connection 1 refers to an omitted skill block',
+  });
 });
 
 it('converts old characterId switch markers to the original track index before slug mapping', () => {
