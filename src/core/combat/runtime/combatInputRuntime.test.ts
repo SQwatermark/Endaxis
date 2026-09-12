@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { CombatClock } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { SkillInputGroupTiming } from './skillInputGroupTiming';
 
 describe('CombatInputRuntime', () => {
   it('preserves same-frame input order and records acceptance', () => {
@@ -233,5 +234,258 @@ describe('CombatInputRuntime', () => {
       failedCastId === 'a' ? ['a'] : ['a', 'b'],
     );
     expect(receipt.entries.at(-1)?.data?.accepted).toBe(false);
+  });
+});
+
+describe('持久连续组输入', () => {
+  function fixture(
+    inputs: readonly ScheduledSkillInput[],
+    groups: readonly (readonly string[])[],
+    rejected?: string,
+  ) {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const runtime = new CombatInputRuntime({
+      clock,
+      receipt,
+      inputs,
+      tryStartSkill: (_operatorId, _skillId, castId) => castId !== rejected,
+      skillInputGroups: {
+        groups: groups.map(castIds => ({ anchorCastId: castIds[0]!, castIds })),
+        canContinue: previous => clock.frame >= previous.frame + 2,
+      },
+    });
+    const advance = (frames: number) => {
+      runtime.applyCurrentFrame();
+      for (let index = 0; index < frames; index += 1) {
+        clock.advanceFrame();
+        runtime.applyCurrentFrame();
+        runtime.applyCurrentFrame();
+      }
+    };
+    return { receipt, advance };
+  }
+  const input = (castId: string, operatorId: string, declarationOrder: number, frame = 0) => ({
+    castId,
+    operatorId,
+    skillId: castId,
+    declarationOrder,
+    frame,
+  });
+  const processed = (receipt: CombatReceiptCollector) =>
+    receipt.entries
+      .filter(entry => entry.event === 'SkillInputProcessed')
+      .map(entry => [entry.data?.castId, entry.frame]);
+
+  it('不同轨道的多个组独立推进，并按原声明顺序与同帧固定输入合并', () => {
+    const { receipt, advance } = fixture(
+      [
+        input('a', 'one', 0),
+        input('b', 'one', 1),
+        input('c', 'one', 2),
+        input('x', 'two', 3),
+        input('y', 'two', 4),
+        input('fixed', 'three', 5, 2),
+      ],
+      [
+        ['a', 'b', 'c'],
+        ['x', 'y'],
+      ],
+    );
+    advance(4);
+    expect(processed(receipt)).toEqual([
+      ['a', 0],
+      ['x', 0],
+      ['b', 2],
+      ['y', 2],
+      ['fixed', 2],
+      ['c', 4],
+    ]);
+  });
+
+  it.each([true, false])('同帧固定输入声明在后段之前：%s，中断后停止旧组', fixedFirst => {
+    const { receipt, advance } = fixture(
+      [
+        input('a', 'one', 0),
+        input('b', 'one', fixedFirst ? 2 : 1),
+        input('c', 'one', 3),
+        input('fixed', 'one', fixedFirst ? 1 : 2, 2),
+      ],
+      [['a', 'b', 'c']],
+    );
+    advance(6);
+    expect(processed(receipt)).toEqual(
+      fixedFirst
+        ? [
+            ['a', 0],
+            ['fixed', 2],
+          ]
+        : [
+            ['a', 0],
+            ['b', 2],
+            ['fixed', 2],
+          ],
+    );
+    expect(receipt.entries.find(entry => entry.event === 'SkillInputGroupBlocked')?.data).toEqual({
+      anchorCastId: 'a',
+      castId: fixedFirst ? 'b' : 'c',
+      previousCastId: fixedFirst ? 'a' : 'b',
+      reason: 'interruptedByFixedInput',
+      interruptingCastId: 'fixed',
+    });
+  });
+
+  it('同轨下一组保持自己的固定锚点，旧组阻断不影响新组后段', () => {
+    const { receipt, advance } = fixture(
+      [
+        input('a', 'one', 0),
+        input('b', 'one', 1),
+        input('x', 'one', 2, 1),
+        input('y', 'one', 3, 1),
+      ],
+      [
+        ['a', 'b'],
+        ['x', 'y'],
+      ],
+    );
+    advance(5);
+    expect(processed(receipt)).toEqual([
+      ['a', 0],
+      ['x', 1],
+      ['y', 3],
+    ]);
+  });
+
+  it.each(['a', 'b'])('成员 %s 被拒绝后仅阻断未启动后缀，不伪造输入或开始事实', rejected => {
+    const { receipt, advance } = fixture(
+      [input('a', 'one', 0), input('b', 'one', 1), input('c', 'one', 2)],
+      [['a', 'b', 'c']],
+      rejected,
+    );
+    advance(6);
+    expect(processed(receipt)).toEqual(
+      rejected === 'a'
+        ? [['a', 0]]
+        : [
+            ['a', 0],
+            ['b', 2],
+          ],
+    );
+    expect(
+      receipt.entries.find(entry => entry.event === 'SkillInputGroupBlocked')?.data,
+    ).toMatchObject({
+      previousCastId: rejected,
+      castId: rejected === 'a' ? 'b' : 'c',
+      reason: 'inputRejected',
+    });
+  });
+
+  it('被拒绝的固定输入没有中断前段，不能阻断连续组', () => {
+    const { receipt, advance } = fixture(
+      [input('a', 'one', 0), input('b', 'one', 2), input('fixed', 'one', 1, 2)],
+      [['a', 'b']],
+      'fixed',
+    );
+    advance(4);
+    expect(processed(receipt)).toEqual([
+      ['a', 0],
+      ['fixed', 2],
+      ['b', 2],
+    ]);
+    expect(receipt.entries.some(entry => entry.event === 'SkillInputGroupBlocked')).toBe(false);
+  });
+
+  it('前段已自然结束也不能跨过同轨后来的固定操作补放旧组', () => {
+    const { receipt, advance } = fixture(
+      [input('a', 'one', 0), input('b', 'one', 2), input('fixed', 'one', 1, 2)],
+      [['a', 'b']],
+    );
+    advance(1);
+    receipt.record({ frame: 1, time: 1 / 30, event: 'SkillEnded', data: { castId: 'a' } });
+    advance(4);
+    expect(receipt.entries.some(entry => entry.event === 'SkillInterrupted')).toBe(false);
+    expect(processed(receipt)).toEqual([
+      ['a', 0],
+      ['fixed', 2],
+    ]);
+    expect(
+      receipt.entries.find(entry => entry.event === 'SkillInputGroupBlocked')?.data?.reason,
+    ).toBe('interruptedByFixedInput');
+  });
+
+  it.each([true, false])('临时紧凑规划的后段 accepted=%s 时才接管已启动的持久组', accepted => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const runtime = new CombatInputRuntime({
+      clock,
+      receipt,
+      inputs: [
+        input('x', 'one', 0),
+        input('a', 'one', 1, 1),
+        input('b', 'one', 2, 1),
+        input('y', 'one', 3, 10),
+      ],
+      tryStartSkill: (_operatorId, _skillId, castId) => castId !== 'y' || accepted,
+      skillInputGroups: {
+        groups: [{ anchorCastId: 'a', castIds: ['a', 'b'] }],
+        canContinue: () => false,
+      },
+      continuationPlan: {
+        castIds: ['x', 'y'],
+        ignoreInputFailures: true,
+        canContinue: () => clock.frame >= 2,
+      },
+    });
+    runtime.applyCurrentFrame();
+    for (let i = 0; i < 3; i += 1) {
+      clock.advanceFrame();
+      runtime.applyCurrentFrame();
+    }
+    expect(processed(receipt)).toEqual([
+      ['x', 0],
+      ['a', 1],
+      ['y', 2],
+    ]);
+    expect(receipt.entries.filter(entry => entry.event === 'SkillInputGroupBlocked')).toHaveLength(
+      accepted ? 1 : 0,
+    );
+  });
+
+  it('模拟截断保留未解析后段，不尝试它的占位帧', () => {
+    const { receipt, advance } = fixture(
+      [input('a', 'one', 0), input('b', 'one', 1), input('c', 'one', 2)],
+      [['a', 'b', 'c']],
+    );
+    advance(1);
+    expect(processed(receipt)).toEqual([['a', 0]]);
+    expect(receipt.entries.some(entry => entry.event === 'SkillInputGroupBlocked')).toBe(false);
+  });
+
+  it('边界索引忽略自然结束，等到块边界之后的输入帧；零宽也不在同帧接续', () => {
+    const receipt = new CombatReceiptCollector();
+    const timing = new SkillInputGroupTiming(receipt.entries, value =>
+      value.skillId === 'zero' ? 0 : 2,
+    );
+    const previous = input('a', 'one', 0);
+    receipt.record({ frame: 1, time: 1 / 30, event: 'SkillEnded', data: { castId: 'a' } });
+    expect(timing.canContinue(previous, 2)).toBe(false);
+    receipt.record({
+      frame: 4,
+      time: 4 / 30,
+      event: 'SkillOperableBoundaryReached',
+      data: { castId: 'a' },
+    });
+    expect(timing.canContinue(previous, 4)).toBe(false);
+    expect(timing.canContinue(previous, 5)).toBe(true);
+    expect(timing.canContinue({ ...previous, skillId: 'zero' }, 0)).toBe(false);
+    expect(timing.canContinue({ ...previous, skillId: 'zero' }, 1)).toBe(true);
+    receipt.record({
+      frame: 7,
+      time: 7 / 30,
+      event: 'SkillSwitchedToBuff',
+      data: { castId: 'instant' },
+    });
+    expect(timing.canContinue({ ...previous, castId: 'instant' }, 7)).toBe(false);
+    expect(timing.canContinue({ ...previous, castId: 'instant' }, 8)).toBe(true);
   });
 });

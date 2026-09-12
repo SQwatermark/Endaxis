@@ -134,15 +134,16 @@ export interface EditableBarDocument {
   color?: string;
 }
 
+/** 独立技能或手动组首保存作者帧，后续技能只保存前驱身份，计算出的起点不写回存档。 */
+export type SkillCastPlacementDocument =
+  { startFrame: number; afterCastId?: never } | { afterCastId: string; startFrame?: never };
+
 /** 用户放置在干员轨道上的一次技能释放。 */
 export interface SkillCastDocument {
   id: string;
   /** 用于找到游戏数据中的技能模板。 */
   source: SkillCastSource;
-  placement: {
-    /** 用户编辑的实际战斗帧；时间膨胀只改变各对象在该帧消费的局部增量。 */
-    startFrame: number;
-  };
+  placement: SkillCastPlacementDocument;
   /** 纯展示覆盖（颜色、锁定、自定义展示条等），不包含技能逻辑。 */
   presentation?: {
     locked?: boolean;

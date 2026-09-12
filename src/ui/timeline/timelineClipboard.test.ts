@@ -74,6 +74,54 @@ function scenario(): ScenarioDocument {
 }
 
 describe('timelineClipboard', () => {
+  it('完整组仅平移组首，并重映射内部前驱及手工命中端点', () => {
+    const original = scenario();
+    original.tracks[0]!.skillCasts[1]!.placement = { afterCastId: 'cast:1' };
+    const clipboard = copyTimelineActions(original, new Set(['cast:1', 'cast:2']))!;
+    expect(clipboard.casts.map(value => value.cast.placement)).toEqual([
+      { startFrame: 30 },
+      { afterCastId: 'cast:1' },
+    ]);
+    const pasted = pasteTimelineActions(original, clipboard, 100, ids());
+    expect(pasted.scenario.tracks[0]!.skillCasts.slice(-2).map(cast => cast.placement)).toEqual([
+      { startFrame: 100 },
+      { afterCastId: 'skillCast:new:1' },
+    ]);
+    expect(pasted.scenario.connections.at(-1)!.from).toEqual({
+      kind: 'damageHit',
+      skillCastId: 'skillCast:new:1',
+      stepKey: 'hit:cast:1',
+    });
+    expect(original.tracks[0]!.skillCasts[1]!.placement).toEqual({ afterCastId: 'cast:1' });
+  });
+
+  it('部分链从复制边界物化当前显示帧，内部剩余关系继续保留', () => {
+    const original = scenario();
+    original.tracks[0]!.skillCasts[1]!.placement = { afterCastId: 'cast:1' };
+    original.tracks[0]!.skillCasts[2]!.placement = { afterCastId: 'cast:2' };
+    const selected = new Set(['cast:2', 'cast:outside']);
+    expect(() => copyTimelineActions(original, selected)).toThrow('without its predecessor');
+    const clipboard = copyTimelineActions(
+      original,
+      selected,
+      new Map([
+        ['cast:2', 48],
+        ['cast:outside', 80],
+      ]),
+    )!;
+    expect(clipboard.originFrame).toBe(48);
+    expect(clipboard.casts.map(value => value.cast.placement)).toEqual([
+      { startFrame: 48 },
+      { afterCastId: 'cast:2' },
+    ]);
+    const pasted = pasteTimelineActions(original, clipboard, 200, ids());
+    expect(pasted.scenario.tracks[0]!.skillCasts.slice(-2).map(cast => cast.placement)).toEqual([
+      { startFrame: 200 },
+      { afterCastId: 'skillCast:new:1' },
+    ]);
+    expect(original.tracks[0]!.skillCasts[1]!.placement).toEqual({ afterCastId: 'cast:1' });
+  });
+
   it('rebuilds every persisted identity and only copies internal connections', () => {
     const original = scenario();
     const clipboard = copyTimelineActions(original, new Set(['cast:1', 'cast:2']))!;

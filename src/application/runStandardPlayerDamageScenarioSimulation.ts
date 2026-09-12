@@ -156,7 +156,8 @@ export function runStandardPlayerDamageScenarioSimulation(
   });
   assertStandardPlayerDamageCompatibility({
     operators: compiled.operators,
-    // 规划可能早于静态建议帧；预检不能按尚未确定的后续帧漏掉实际会执行的步骤。
+    // 持久组的全部成员由编译器携带锚点帧，预检因此不会漏掉可能提前执行的后段。
+    // 临时规划还可能早于静态建议帧，需额外从模拟起点检查这些输入。
     inputs:
       input.continuationPlanCastIds === undefined
         ? compiled.inputs

@@ -389,13 +389,14 @@ describe('generated gear production integration', () => {
 
 function runWithGear(gearSlug: string, damageTraitLevel: number) {
   const scenario = createScenarioWithGear(gearSlug, 'accessory', [0, 0, damageTraitLevel]);
+  let nextCastId = 0;
   const placed = placeSkillGroup({
     scenario,
     trackIndex: 0,
     operator: perlicaGeneratedOperator,
     skillGroupKey: 'basicAttack',
     startFrame: 1,
-    ids: { allocate: (kind: string) => `${kind}:generated-gear` },
+    ids: { allocate: (kind: string) => `${kind}:generated-gear:${++nextCastId}` },
   }).scenario;
 
   return runStandardPlayerDamageScenarioSimulation({

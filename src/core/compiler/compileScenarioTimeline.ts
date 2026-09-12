@@ -13,7 +13,8 @@ import type {
   CompiledSkillProgram,
   CompiledSkillSlotGroup,
 } from './combatProgram';
-import type { ScheduledSkillInput } from '../combat/runtime/combatInputRuntime';
+import type { ScheduledSkillInput, SkillInputGroup } from '../combat/runtime/combatInputRuntime';
+import { getSkillCastPlacementChains } from '../project/skillCastPlacement';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type {
   OperatorBuffDefinitions,
@@ -210,6 +211,7 @@ function bindProgramHitIds(program: CompiledSkillProgram, castId: string): Compi
 export interface CompiledScenarioTimeline {
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs: readonly ScheduledSkillInput[];
+  readonly skillInputGroups?: readonly SkillInputGroup[];
 }
 
 type OperatorIndex = Pick<GameDataRepository, 'getOperator'> &
@@ -420,6 +422,7 @@ function compileResolvedTimelineTracks(
 ): CompiledScenarioTimeline {
   const operators: CombatOperatorProgram[] = [];
   const pendingInputs: (ScheduledSkillInput & { readonly order: number })[] = [];
+  const skillInputGroups: SkillInputGroup[] = [];
   let order = 0;
   const compiledCommonBuffResources = compileOperatorBuffResources(
     commonBuffDefinitions,
@@ -442,7 +445,22 @@ function compileResolvedTimelineTracks(
     };
     const activeUpgrades = resolveActiveOperatorUpgrades(operatorInstance, operator);
     const skills: CompiledSkillProgram[] = [];
+    const anchorFrameByCastId = new Map<string, number>();
+    for (const chain of getSkillCastPlacementChains(track.skillCasts)) {
+      const anchorFrame = chain.anchor.placement.startFrame;
+      if (anchorFrame === undefined)
+        throw new Error(`skill input chain '${chain.anchor.id}' has no anchor frame`);
+      chain.casts.forEach(cast => anchorFrameByCastId.set(cast.id, anchorFrame));
+      const enabled = chain.casts.filter(cast => !cast.presentation?.disabled);
+      if (chain.casts.length > 1 && enabled.length > 0) {
+        skillInputGroups.push({
+          anchorCastId: chain.anchor.id,
+          castIds: enabled.map(cast => cast.id),
+        });
+      }
+    }
     for (const cast of track.skillCasts) {
+      const declarationOrder = order++;
       if (cast.presentation?.disabled) continue;
       if (cast.source.kind === 'custom') {
         throw new Error(
@@ -457,14 +475,14 @@ function compileResolvedTimelineTracks(
       const action =
         cast.source.action ?? resolveUniquePlayerActionForSkill(operator, resolved.definition.key);
       pendingInputs.push({
-        frame: cast.placement.startFrame,
+        // 后段此处仅保留最早可能开始的锚点帧，正式执行由连续组排程决定。
+        frame: anchorFrameByCastId.get(cast.id)!,
         operatorId: track.id,
         skillId: resolved.definition.key,
         ...(action === undefined ? {} : { action }),
         castId: cast.id,
-        order,
+        order: declarationOrder,
       });
-      order += 1;
     }
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
     const compiledSkills = applyOperatorUpgradeSkillPatches(skills, activeUpgrades, {
@@ -527,7 +545,11 @@ function compileResolvedTimelineTracks(
   pendingInputs.sort((left, right) => left.frame - right.frame || left.order - right.order);
   return {
     operators,
-    inputs: pendingInputs.map(({ order: _order, ...input }) => input),
+    inputs: pendingInputs.map(({ order, ...input }) => ({
+      ...input,
+      ...(skillInputGroups.length === 0 ? {} : { declarationOrder: order }),
+    })),
+    ...(skillInputGroups.length === 0 ? {} : { skillInputGroups }),
   };
 }
 

@@ -281,6 +281,125 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it.each([
+    { scope: 'global', scale: 0.5, blockFrames: 2, nextFrame: 5, instant: false, frozenFrames: 0 },
+    { scope: 'entity', scale: 0.5, blockFrames: 2, nextFrame: 5, instant: false, frozenFrames: 0 },
+    { scope: 'global', scale: 1, blockFrames: 0, nextFrame: 1, instant: false, frozenFrames: 0 },
+    { scope: 'global', scale: 1, blockFrames: 2, nextFrame: 1, instant: true, frozenFrames: 0 },
+    { scope: 'global', scale: 0, blockFrames: 2, nextFrame: 6, instant: false, frozenFrames: 3 },
+  ] as const)(
+    '持久组按 $scope 时钟的实际块边界接续，块宽 $blockFrames，旁路 $instant',
+    ({ scope, scale, blockFrames, nextFrame, instant, frozenFrames }) => {
+      const programs = ['a', 'b', 'c'].map(castId =>
+        skill({
+          skillId: castId,
+          castId,
+          costs: [],
+          costFrame: undefined,
+          timelineBlockFrames: blockFrames,
+          // 自然周期明显大于块宽，防止把自然结束误当成组内衔接点。
+          naturalDurationFrames: 300,
+          ...(instant ? { switchToBuffCast: { asSkillCast: true, sequence: { steps: [] } } } : {}),
+        }),
+      );
+      const assembly = new CombatRuntimeAssembly({
+        ...nativeEventRuntimeOptions(),
+        enemy: testEnemy,
+        enemyBuffRuntime: emptyEnemyBuffRuntime,
+        resources: {
+          sp: 100,
+          maxSp: 300,
+          returnedSp: 0,
+          sharedSpGain: { baseGainEfficiency: 1 },
+          spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+          ultimateEnergySystemUnlocked: true,
+          normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+          squad: [
+            {
+              operatorId: 'operator',
+              ultimateEnergy: 0,
+              maxUltimateEnergy: 100,
+              ultimateEnergyGainMultiplier: 1,
+              allowedUltimateEnergyRecoveryTags: null,
+            },
+          ],
+        },
+        operators: [{ operatorId: 'operator', skills: programs }],
+        inputs: programs.map((program, declarationOrder) => ({
+          frame: 0,
+          operatorId: 'operator',
+          skillId: program.skillId,
+          castId: program.castId!,
+          declarationOrder,
+        })),
+        skillInputGroups: [{ anchorCastId: 'a', castIds: ['a', 'b', 'c'] }],
+        timeDilation: { config: {} },
+        createOperationExecutor: () => rejectingExecutor,
+      });
+      const dilationId =
+        scope === 'global'
+          ? assembly.timeDilation!.startGlobal({
+              durationSeconds: 30,
+              slot: 'Test/TimeSlot1',
+              priority: 10,
+              constantScale: scale,
+            })
+          : assembly.timeDilation!.startEntity({
+              entityId: 'operator',
+              durationSeconds: 30,
+              slot: 'Test/TimeSlot1',
+              priority: 10,
+              curve: () => scale,
+            });
+      if (frozenFrames > 0) {
+        assembly.advanceFrames(frozenFrames);
+        expect(
+          assembly.receipt.entries.filter(entry => entry.event === 'SkillInputProcessed'),
+        ).toHaveLength(1);
+        assembly.timeDilation!.stop(dilationId);
+      }
+      assembly.advanceFrames(nextFrame - frozenFrames - 1);
+      expect(
+        assembly.receipt.entries
+          .filter(entry => entry.event === 'SkillInputProcessed')
+          .map(entry => [entry.data?.castId, entry.frame]),
+      ).toEqual([['a', 0]]);
+      assembly.advanceFrame();
+      expect(
+        assembly.receipt.entries
+          .filter(entry => entry.event === 'SkillInputProcessed')
+          .map(entry => [entry.data?.castId, entry.frame]),
+      ).toEqual([
+        ['a', 0],
+        ['b', nextFrame],
+      ]);
+      // 缺少玩家路由只产生告警，已经执行的组成员仍继续衔接。
+      expect(
+        assembly.receipt.entries.some(entry => entry.event === 'SkillInputResolutionUnknown'),
+      ).toBe(true);
+      expect(assembly.receipt.entries.some(entry => entry.event === 'SkillInputGroupBlocked')).toBe(
+        false,
+      );
+      if (instant) {
+        expect(assembly.receipt.entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
+        expect(
+          assembly.receipt.entries.filter(entry => entry.event === 'SkillSwitchedToBuff'),
+        ).toHaveLength(2);
+      }
+      const nextInterval = frozenFrames > 0 ? blockFrames + 1 : nextFrame;
+      assembly.advanceFrames(nextInterval);
+      expect(
+        assembly.receipt.entries
+          .filter(entry => entry.event === 'SkillInputProcessed')
+          .map(entry => [entry.data?.castId, entry.frame]),
+      ).toEqual([
+        ['a', 0],
+        ['b', nextFrame],
+        ['c', nextFrame + nextInterval],
+      ]);
+    },
+  );
+
   it('嵌套投射物的正式来源查询保留一层实体关系，发射事件归实际发射者', () => {
     const emitAbilityEvent = vi.fn();
     const callbackStep = (steps: readonly ResolvedCombatStep[]): ResolvedCombatStep => ({

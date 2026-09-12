@@ -2691,13 +2691,14 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
 
   it('applies a selected supported Contingency Contract tag to real skill damage', () => {
     const createScenario = (withContract: boolean) => {
+      let nextCastId = 0;
       const scenario = placeSkillGroup({
         scenario: createPerlicaScenario(),
         trackIndex: 0,
         operator: perlica,
         skillGroupKey: 'basicAttack',
         startFrame: 1,
-        ids: { allocate: kind => `${kind}:contract` },
+        ids: { allocate: kind => `${kind}:contract:${++nextCastId}` },
       }).scenario;
       if (withContract) {
         scenario.mechanics.selections.push({

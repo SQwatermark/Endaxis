@@ -15,6 +15,8 @@ import {
   removeExternalEventMarker,
   clearSimulationRangeBoundary,
   createSkillDefinitionDraft,
+  createSkillCastGroup,
+  dissolveSkillCastGroups,
   moveSkillCast,
   moveSkillCasts,
   removeSkillCast,
@@ -42,6 +44,7 @@ import {
   updateExternalEventMarker,
   updateTrackInitialUltimateEnergy,
 } from './timelineDocumentCommands';
+import { ScenarioEditorSession } from '../../application/editor/scenarioEditorSession';
 
 describe('battle axis commands', () => {
   it('changes the visual prep inset without shifting real battle frames', () => {
@@ -314,6 +317,164 @@ function scenario(locked = false) {
   };
   return value;
 }
+
+describe('手动技能组命令', () => {
+  const frames = new Map([
+    ['cast:1', 10],
+    ['cast:2', 20],
+    ['cast:3', 30],
+    ['cast:4', 50],
+  ]);
+  const members = new Set(['cast:1', 'cast:2', 'cast:3']);
+  function loose() {
+    const value = scenario();
+    value.tracks[0]!.skillCasts = [...frames].map(([id, startFrame]) => ({
+      ...cast(),
+      id,
+      placement: { startFrame },
+    }));
+    value.connections = [
+      {
+        id: 'manual-hit',
+        consumption: false,
+        from: { kind: 'skillCast', skillCastId: 'cast:1' },
+        to: { kind: 'damageHit', skillCastId: 'cast:3', stepKey: 'stable-hit' },
+      },
+    ];
+    return value;
+  }
+  const grouped = () => createSkillCastGroup(loose(), members, frames);
+
+  it('按实际顺序成组，仅组首保存帧，身份和手工命中连线保持原样', () => {
+    const original = loose();
+    const value = createSkillCastGroup(original, new Set(['cast:3', 'cast:1', 'cast:2']), frames);
+    expect(value.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
+      { startFrame: 10 },
+      { afterCastId: 'cast:1' },
+      { afterCastId: 'cast:2' },
+      { startFrame: 50 },
+    ]);
+    expect(value.connections).toBe(original.connections);
+    expect(value.tracks[0]!.skillCasts[1]!.source).toBe(original.tracks[0]!.skillCasts[1]!.source);
+    expect(original.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([
+      10, 20, 30, 50,
+    ]);
+    expect(createSkillCastGroup(value, members, frames)).toBe(value);
+  });
+
+  it('拒绝非连续、跨轨、旧组不完整和锁定选区，不产生空历史', () => {
+    const original = loose();
+    expect(createSkillCastGroup(original, new Set(['cast:1', 'cast:3']), frames)).toBe(original);
+    expect(createSkillCastGroup(original, new Set(['cast:1']), frames)).toBe(original);
+    const group = grouped();
+    expect(createSkillCastGroup(group, new Set(['cast:2', 'cast:3', 'cast:4']), frames)).toBe(
+      group,
+    );
+    original.tracks[0]!.skillCasts[1]!.presentation = { locked: true };
+    expect(createSkillCastGroup(original, members, frames)).toBe(original);
+    original.tracks[1] = {
+      ...original.tracks[0]!,
+      id: 'track:1',
+      skillCasts: [{ ...cast(), id: 'other' }],
+    };
+    expect(createSkillCastGroup(original, new Set(['cast:1', 'other']), frames)).toBe(original);
+  });
+
+  it('拖动一个成员或多选同组成员只平移一次组首，其他成员保持相对关系', () => {
+    const original = grouped();
+    const actual = new Map([...frames, ['cast:2', 22], ['cast:3', 40]]);
+    for (const moved of [
+      moveSkillCast(original, 0, 'cast:2', 32, actual),
+      moveSkillCasts(original, new Set(['cast:1', 'cast:2']), 0, 'cast:2', 32, actual),
+    ]) {
+      expect(moved.tracks[0]!.skillCasts[0]!.placement).toEqual({ startFrame: 20 });
+      expect(moved.tracks[0]!.skillCasts[1]).toBe(original.tracks[0]!.skillCasts[1]);
+      expect(moved.tracks[0]!.skillCasts[2]).toBe(original.tracks[0]!.skillCasts[2]);
+      expect(moved.tracks[0]!.skillCasts[3]).toBe(original.tracks[0]!.skillCasts[3]);
+    }
+    original.battle.durationFrames = 60;
+    const limited = moveSkillCasts(
+      original,
+      new Set(['cast:2', 'cast:4']),
+      0,
+      'cast:2',
+      100,
+      actual,
+    );
+    expect(limited.tracks[0]!.skillCasts[0]!.placement).toEqual({ startFrame: 20 });
+    expect(limited.tracks[0]!.skillCasts[3]!.placement).toEqual({ startFrame: 60 });
+    expect(() => moveSkillCast(original, 0, 'cast:2', 32)).toThrow('resolved integer start frame');
+  });
+
+  it('未选中的组员锁定也会阻止整组移动', () => {
+    const original = grouped();
+    original.tracks[0]!.skillCasts[2]!.presentation = { locked: true };
+    expect(moveSkillCast(original, 0, 'cast:2', 40, frames)).toBe(original);
+    expect(moveSkillCasts(original, new Set(['cast:2', 'cast:4']), 0, 'cast:2', 40, frames)).toBe(
+      original,
+    );
+  });
+
+  it('组尾超出模拟终点时仍只限制组首，拖动不会反向跳跃或卡死', () => {
+    const original = grouped();
+    original.battle.durationFrames = 60;
+    const pendingTail = new Map([...frames, ['cast:2', 100], ['cast:3', 200]]);
+    const moved = moveSkillCast(original, 0, 'cast:1', 20, pendingTail);
+    expect(moved.tracks[0]!.skillCasts[0]!.placement).toEqual({ startFrame: 20 });
+    expect(moved.tracks[0]!.skillCasts[2]).toBe(original.tracks[0]!.skillCasts[2]);
+    expect(moveSkillCast(original, 0, 'cast:1', 10, pendingTail)).toBe(original);
+  });
+
+  it('显式拆组保存当时显示位置，选中一项即解散整组且不影响独立项', () => {
+    const original = grouped();
+    const actual = new Map([...frames, ['cast:2', 27], ['cast:3', 51]]);
+    const value = dissolveSkillCastGroups(original, new Set(['cast:2']), actual);
+    expect(value.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
+      { startFrame: 10 },
+      { startFrame: 27 },
+      { startFrame: 51 },
+      { startFrame: 50 },
+    ]);
+    expect(value.tracks[0]!.skillCasts[3]).toBe(original.tracks[0]!.skillCasts[3]);
+    expect(value.connections).toBe(original.connections);
+    expect(dissolveSkillCastGroups(value, members, actual)).toBe(value);
+  });
+
+  it('删中间项重连，删组首交出原锚点，只移除真正消失的命中端点', () => {
+    const original = grouped();
+    const middle = removeSkillCast(original, 0, 'cast:2');
+    expect(middle.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
+      { startFrame: 10 },
+      { afterCastId: 'cast:1' },
+      { startFrame: 50 },
+    ]);
+    expect(middle.connections).toEqual(original.connections);
+    const head = removeSkillCast(original, 0, 'cast:1');
+    expect(head.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
+      { startFrame: 10 },
+      { afterCastId: 'cast:2' },
+      { startFrame: 50 },
+    ]);
+    expect(head.connections).toEqual([]);
+    expect(
+      removeSkillCasts(original, new Set(['cast:1', 'cast:2'])).tracks[0]!.skillCasts[0]!.placement,
+    ).toEqual({ startFrame: 10 });
+  });
+
+  it('成组和拆组分别作为一个命令撤销，重做不重新分配任何身份', () => {
+    const original = loose();
+    const session = new ScenarioEditorSession(original);
+    session.commit('group', current => createSkillCastGroup(current, members, frames));
+    const group = session.snapshot.scenario;
+    session.commit('dissolve', current => dissolveSkillCastGroups(current, members, frames));
+    expect(session.undo()).toBe(true);
+    expect(session.snapshot.scenario).toBe(group);
+    expect(session.undo()).toBe(true);
+    expect(session.snapshot.scenario).toBe(original);
+    expect(session.redo()).toBe(true);
+    expect(session.snapshot.scenario).toBe(group);
+  });
+});
 
 describe('moveSkillCast', () => {
   it('assigns an operator to an empty track', () => {

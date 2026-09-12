@@ -53,6 +53,12 @@ import {
 } from '../ui/timeline/timelineHitEffects';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 
+/** 每次放置独立计数；对照场景可复用相同前缀，但同一次多段放置不能共享释放身份。 */
+function numberedPlacementIds(prefix: string) {
+  let nextId = 0;
+  return { allocate: (kind: string) => `${kind}:${prefix}:${++nextId}` };
+}
+
 describe('registered generated operators', () => {
   it('applies Estella potential-3 DamageScaleProcessor only to the first battle-skill hit', () => {
     const run = (potential: 2 | 3) => {
@@ -971,7 +977,7 @@ describe('registered generated operators', () => {
       operator: chenQianyu,
       skillGroupKey: 'basicAttack',
       startFrame: 1,
-      ids: { allocate: kind => `${kind}:chen` },
+      ids: numberedPlacementIds('chen'),
     }).scenario;
 
     const result = runStandardPlayerDamageScenarioSimulation({
@@ -1278,7 +1284,7 @@ describe('registered generated operators', () => {
       operator: laevatain,
       skillGroupKey: 'basicAttack',
       startFrame: 1,
-      ids: { allocate: kind => `${kind}:laevatain` },
+      ids: numberedPlacementIds('laevatain'),
     }).scenario;
 
     const result = runStandardPlayerDamageScenarioSimulation({
@@ -1466,7 +1472,7 @@ describe('registered generated operators', () => {
       operator: yvonne,
       skillGroupKey: 'basicAttack',
       startFrame: 1,
-      ids: { allocate: kind => `${kind}:yvonne` },
+      ids: numberedPlacementIds('yvonne'),
     }).scenario;
     expect(placed.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([
       1, 18, 33, 54, 79,
@@ -1531,7 +1537,7 @@ describe('registered generated operators', () => {
       operator: ember,
       skillGroupKey: 'basicAttack',
       startFrame: 1,
-      ids: { allocate: kind => `${kind}:ember` },
+      ids: numberedPlacementIds('ember'),
     }).scenario;
     placed.battle.externalEventMarkers = [
       {
@@ -1612,7 +1618,7 @@ describe('registered generated operators', () => {
         operator: fluorite,
         skillGroupKey: 'basicAttack',
         startFrame: 1,
-        ids: { allocate: kind => `${kind}:fluorite:${potential}` },
+        ids: numberedPlacementIds(`fluorite:${potential}`),
       }).scenario;
       placed.battle.externalEventMarkers = [
         {
@@ -2134,7 +2140,7 @@ describe('registered generated operators', () => {
         operator: perlica,
         skillGroupKey: 'basicAttack',
         startFrame: 20,
-        ids: { allocate: kind => `${kind}:perlica:bedazzling` },
+        ids: numberedPlacementIds('perlica:bedazzling'),
       }).scenario;
 
       return runStandardPlayerDamageScenarioSimulation({
@@ -2941,7 +2947,7 @@ describe('registered generated operators', () => {
         operator: alesh,
         skillGroupKey,
         startFrame: 1,
-        ids: { allocate: kind => `${kind}:alesh:${skillGroupKey}` },
+        ids: numberedPlacementIds(`alesh:${skillGroupKey}`),
       }).scenario;
 
       const result = runStandardPlayerDamageScenarioSimulation({
@@ -3026,7 +3032,7 @@ describe('registered generated operators', () => {
         operator: perlica,
         skillGroupKey: 'basicAttack',
         startFrame: 1_280,
-        ids: { allocate: kind => `${kind}:perlica:${potential}` },
+        ids: numberedPlacementIds(`perlica:${potential}`),
       }).scenario;
       return runStandardPlayerDamageScenarioSimulation({
         scenario: placed,

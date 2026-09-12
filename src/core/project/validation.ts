@@ -225,6 +225,14 @@ function validateSkillCast(
 
   if (!isObject(value.placement)) {
     issues.push({ path: `${path}.placement`, message: 'expected an object' });
+  } else if (value.placement.afterCastId !== undefined) {
+    requireString(value.placement, 'afterCastId', `${path}.placement`, issues);
+    if (value.placement.startFrame !== undefined) {
+      issues.push({
+        path: `${path}.placement`,
+        message: 'startFrame and afterCastId are mutually exclusive',
+      });
+    }
   } else {
     requireInteger(value.placement.startFrame, `${path}.placement.startFrame`, issues);
   }
@@ -335,6 +343,47 @@ function validateSkillCast(
         );
       }
     }
+  }
+}
+
+/** 顺序链只允许同轨的一对一前后关系；结构校验不依赖技能时长或模拟是否成功。 */
+function validateTrackSkillCastPlacements(
+  casts: readonly unknown[],
+  path: string,
+  issues: ValidationIssue[],
+): void {
+  const entries = new Map<string, { previous?: string; path: string }>();
+  casts.forEach((cast, index) => {
+    if (!isObject(cast) || typeof cast.id !== 'string' || !isObject(cast.placement)) return;
+    entries.set(cast.id, {
+      ...(typeof cast.placement.afterCastId === 'string'
+        ? { previous: cast.placement.afterCastId }
+        : {}),
+      path: `${path}[${index}].placement.afterCastId`,
+    });
+  });
+  const successors = new Set<string>();
+  for (const entry of entries.values()) {
+    if (entry.previous === undefined) continue;
+    if (!entries.has(entry.previous))
+      issues.push({ path: entry.path, message: 'predecessor must exist on the same track' });
+    if (successors.has(entry.previous))
+      issues.push({ path: entry.path, message: 'predecessor already has a successor' });
+    successors.add(entry.previous);
+  }
+  const checked = new Set<string>();
+  for (const id of entries.keys()) {
+    const visiting = new Set<string>();
+    let current: string | undefined = id;
+    while (current !== undefined && entries.has(current) && !checked.has(current)) {
+      if (visiting.has(current)) {
+        issues.push({ path: entries.get(current)!.path, message: 'skill cast placement cycle' });
+        break;
+      }
+      visiting.add(current);
+      current = entries.get(current)!.previous;
+    }
+    visiting.forEach(value => checked.add(value));
   }
 }
 
@@ -527,6 +576,7 @@ export function validateProjectDocument(value: unknown): ValidationResult {
             issues,
           ),
         );
+        validateTrackSkillCastPlacements(track.skillCasts, `${trackPath}.skillCasts`, issues);
       });
 
       if (!Array.isArray(scenario.connections)) {

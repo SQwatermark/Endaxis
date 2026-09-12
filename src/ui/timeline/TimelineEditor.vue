@@ -54,6 +54,7 @@ import WeaponDefinitionWorkspaceDialog from './components/WeaponDefinitionWorksp
 import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
 import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
+import TimelineSkillCastGroupMarker from './components/TimelineSkillCastGroupMarker.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
 import TimelineActionInspector from './components/TimelineActionInspector.vue';
 import TimelineLibrarySkillInspector from './components/TimelineLibrarySkillInspector.vue';
@@ -125,6 +126,11 @@ import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCool
 import { projectTimelineComboCooldowns } from '../../core/projection/timelineComboCooldowns';
 import { projectSkillEnhancementTimelineViz } from '../../core/projection/skillEnhancementTimelineViz';
 import { resolveControlTimeline } from '../../core/project/resolveControlTimeline';
+import {
+  getSkillCastPlacementAnchor,
+  getSkillCastPlacementChains,
+  resolveSkillCastStartFrames,
+} from '../../core/project/skillCastPlacement';
 import {
   layoutBuffTimelineSegments,
   mergeOverlappingBuffTimelineSegments,
@@ -219,6 +225,14 @@ import {
 } from './timelineDisplayTime';
 import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
 import { timelineVisibleSkillEnds } from './timelineVisibleSkillEnds';
+import {
+  expandSkillCastGroupSelection,
+  matchingPublishedSkillCastIds,
+  projectCompatibleHitFrames,
+  projectMovingSkillCastStartFrames,
+  projectSkillCastInputFacts,
+  resolveSkillCastGroupSelection,
+} from './skillCastGroupInteraction';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 import {
   createEmptyTimelineActionSelection,
@@ -241,6 +255,8 @@ import {
   type TimelineActionClipboard,
 } from './timelineClipboard';
 import {
+  createSkillCastGroup,
+  dissolveSkillCastGroups,
   moveSkillCasts,
   moveSkillCast,
   swapTimelineTracks,
@@ -337,7 +353,6 @@ import {
 import {
   projectHitEffectsByCast,
   projectTimelineHitReceipts,
-  projectTimelineHitActualFrames,
   projectTimelineHitOccurrences,
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
@@ -588,14 +603,14 @@ interface TimelineCastMoveGesture {
   readonly pointerId: number;
   readonly trackIndex: TrackIndex;
   readonly skillCastId: string;
+  readonly pointerCastId: string;
   readonly skillCastIds: readonly string[];
+  readonly baseStartFrames: ReadonlyMap<string, number>;
   readonly pointerOffsetActualFrames: number;
   readonly initialPointerX: number;
   readonly initialPointerY: number;
   latestPointerX: number;
   latestPointerY: number;
-  /** 按下时已发布的实际开始帧，只用于平移该技能自己的时间膨胀预览。 */
-  readonly anchorActualFrame: number;
   readonly baseScenario: ScenarioDocument;
   previewFrame: number;
   previewActualFrame: number;
@@ -1597,20 +1612,121 @@ const selectedCastBuffIds = computed(() => {
       : editorGameDataRepository.getOperator(track.operator.operatorSlug);
   return Object.keys({ ...common, ...(operator?.buffDefinitions ?? {}) }).sort();
 });
-const skillCastActualStartFrames = computed(() =>
+const compatibleSkillCastReceiptIds = computed(() =>
+  matchingPublishedSkillCastIds(scenario.value, publishedSimulation.value?.scenario),
+);
+const publishedSkillCastActualStartFrames = computed(() =>
   simulationRun.value === null
     ? new Map<string, number>()
     : projectSkillCastActualStartFrames(simulationRun.value.receiptEntries),
 );
-const skillCastActualDurationFrames = computed(() =>
+const publishedSkillCastActualDurationFrames = computed(() =>
   simulationRun.value === null
     ? new Map<string, number>()
     : projectSkillCastActualDurationFrames(simulationRun.value.receiptEntries),
 );
-const perfectComboCastIds = computed(() =>
+const publishedSkillCastInputFacts = computed(() =>
+  projectSkillCastInputFacts(simulationRun.value?.receiptEntries ?? []),
+);
+const skillCastInputFrames = computed(
+  () =>
+    new Map(
+      [...publishedSkillCastInputFacts.value.frames].filter(([id]) =>
+        compatibleSkillCastReceiptIds.value.has(id),
+      ),
+    ),
+);
+const skillCastActualStartFrames = computed(
+  () =>
+    new Map(
+      [...publishedSkillCastActualStartFrames.value].filter(([id]) =>
+        compatibleSkillCastReceiptIds.value.has(id),
+      ),
+    ),
+);
+const skillCastActualDurationFrames = computed(
+  () =>
+    new Map(
+      [
+        ...publishedSkillCastActualDurationFrames.value,
+        ...[...publishedSkillCastInputFacts.value.switchedToBuff].map(id => [id, 1] as const),
+      ].filter(([id]) => compatibleSkillCastReceiptIds.value.has(id)),
+    ),
+);
+const skillCastPlacementActualFrames = computed(
+  () => new Map([...skillCastInputFrames.value, ...skillCastActualStartFrames.value]),
+);
+const skillCastDefinitionDurations = computed(
+  () =>
+    new Map(
+      viewModel.value.tracks.flatMap(track =>
+        track.skillCasts.map(
+          cast => [cast.id, skillPlacementDisplayFrames(cast.durationFrames)] as const,
+        ),
+      ),
+    ),
+);
+
+function resolveDisplayedSkillStarts(document: ScenarioDocument): ReadonlyMap<string, number> {
+  return new Map(
+    document.tracks.flatMap(track => [
+      ...resolveSkillCastStartFrames(
+        track?.skillCasts ?? [],
+        cast =>
+          skillCastActualDurationFrames.value.get(cast.id) ??
+          skillCastDefinitionDurations.value.get(cast.id) ??
+          0,
+        skillCastPlacementActualFrames.value,
+      ),
+    ]),
+  );
+}
+
+const resolvedSkillCastStartFrames = computed(() => resolveDisplayedSkillStarts(scenario.value));
+const displayedSkillCastStartFrames = computed(() => {
+  const gesture = castMoveGesture.value;
+  // 等待新回执时只平移上一版完整结果；新回执发布后，立即使用其中的组内间距。
+  const publishedStarts =
+    gesture === null
+      ? resolvedSkillCastStartFrames.value
+      : resolveDisplayedSkillStarts(gesture.baseScenario);
+  return projectMovingSkillCastStartFrames(
+    publishedStarts,
+    gesture === null
+      ? null
+      : {
+          anchorId: gesture.skillCastId,
+          castIds: gesture.skillCastIds,
+          baseStartFrames: gesture.baseStartFrames,
+          previewActualFrame: gesture.previewActualFrame,
+        },
+  );
+});
+const skillCastGroupsByTrack = computed(() =>
+  scenario.value.tracks.map(track =>
+    getSkillCastPlacementChains(track?.skillCasts ?? []).filter(chain => chain.casts.length > 1),
+  ),
+);
+const groupedSkillCastIds = computed(
+  () =>
+    new Set(
+      skillCastGroupsByTrack.value.flatMap(groups =>
+        groups.flatMap(group => group.casts.map(cast => cast.id)),
+      ),
+    ),
+);
+const publishedPerfectComboCastIds = computed(() =>
   simulationRun.value === null
     ? new Set<string>()
     : projectRossiComboSuccessCastIds(simulationRun.value.receiptEntries),
+);
+const perfectComboCastIds = computed(
+  () =>
+    new Set(
+      [...publishedPerfectComboCastIds.value].filter(id =>
+        compatibleSkillCastReceiptIds.value.has(id),
+      ),
+    ),
 );
 const rulerOperations = computed<TimelineOperationMarkerInput[]>(() => {
   const operations: TimelineOperationMarkerInput[] = [];
@@ -1647,27 +1763,37 @@ const rulerOperations = computed<TimelineOperationMarkerInput[]>(() => {
   }
   return operations;
 });
-const timeDilationBands = computed(() => {
+const publishedTimeDilationBands = computed(() => {
   if (simulationRun.value === null) return [];
-  const bands = projectTimelineTimeDilationBands(
+  return projectTimelineTimeDilationBands(
     simulationRun.value.receiptEntries,
     simulationRun.value.frame,
   );
+});
+const timeDilationBands = computed(() => {
+  const bands = publishedTimeDilationBands.value.filter(
+    band =>
+      band.sourceCastId === undefined || compatibleSkillCastReceiptIds.value.has(band.sourceCastId),
+  );
   const gesture = castMoveGesture.value;
   if (gesture === null) return bands;
-  const publishedActualFrame =
-    skillCastActualStartFrames.value.get(gesture.skillCastId) ?? gesture.anchorActualFrame;
-  const deltaFrames = gesture.previewActualFrame - publishedActualFrame;
-  if (deltaFrames === 0) return bands;
-  return bands.map(band =>
-    band.sourceCastId === gesture.skillCastId
-      ? Object.freeze({
+  return bands.map(band => {
+    if (band.sourceCastId === undefined || !gesture.skillCastIds.includes(band.sourceCastId))
+      return band;
+    const publishedFrame = skillCastActualStartFrames.value.get(band.sourceCastId);
+    const displayedFrame = displayedSkillCastStartFrames.value.get(band.sourceCastId);
+    const deltaFrames =
+      publishedFrame === undefined || displayedFrame === undefined
+        ? 0
+        : displayedFrame - publishedFrame;
+    return deltaFrames === 0
+      ? band
+      : Object.freeze({
           ...band,
           startFrame: band.startFrame + deltaFrames,
           endFrame: band.endFrame + deltaFrames,
-        })
-      : band,
-  );
+        });
+  });
 });
 const highlightedTimeDilationSourceIds = computed<ReadonlySet<string>>(() => {
   const visibleCastIds = new Set(
@@ -1744,6 +1870,7 @@ function castTimeDilationSegments(
   placementFrame: number,
   durationFrames: number,
 ): readonly { readonly left: number; readonly width: number }[] {
+  if (!compatibleSkillCastReceiptIds.value.has(castId)) return [];
   const castStartFrame = castActualStartFrame(castId, placementFrame);
   return projectCastTimeDilationSegments(
     timeDilationBands.value,
@@ -1867,7 +1994,13 @@ function alignSelectedCastToTarget(event: PointerEvent, targetCastId: string): b
     maximumFrame: scenario.value.battle.durationFrames,
   });
   const changed = commitScenario('alignSkillCast', current =>
-    moveSkillCast(current, source.trackIndex, sourceCastId, frame),
+    moveSkillCast(
+      current,
+      source.trackIndex,
+      sourceCastId,
+      frame,
+      displayedSkillCastStartFrames.value,
+    ),
   );
   alignmentGuide.value = null;
   if (changed) ElMessage.success(alignmentPresentation(mode).result);
@@ -1876,11 +2009,7 @@ function alignSelectedCastToTarget(event: PointerEvent, targetCastId: string): b
 }
 
 function castActualStartFrame(castId: string, placementFrame: number): number {
-  const gesture = castMoveGesture.value;
-  if (gesture?.skillCastId === castId) {
-    return gesture.previewActualFrame;
-  }
-  return skillCastActualStartFrames.value.get(castId) ?? placementFrame;
+  return displayedSkillCastStartFrames.value.get(castId) ?? placementFrame;
 }
 
 function castActualDurationFrame(castId: string, definitionDurationFrames: number): number {
@@ -1890,10 +2019,15 @@ function castActualDurationFrame(castId: string, definitionDurationFrames: numbe
   );
 }
 
+const publishedSkillCastInterruptionFrames = computed(() =>
+  projectSkillCastInterruptionFrames(simulationRun.value?.receiptEntries ?? []),
+);
 const visibleSkillEndFrames = computed(() => {
   const ends = new Map<string, number>();
-  const interruptions = projectSkillCastInterruptionFrames(
-    simulationRun.value?.receiptEntries ?? [],
+  const interruptions = new Map(
+    [...publishedSkillCastInterruptionFrames.value].filter(([id]) =>
+      compatibleSkillCastReceiptIds.value.has(id),
+    ),
   );
   for (const track of viewModel.value.tracks) {
     for (const [id, end] of timelineVisibleSkillEnds(
@@ -1937,6 +2071,7 @@ function formatGuideNumber(value: number | null): string {
 }
 
 function castWarningTitle(castId: string): string {
+  if (!compatibleSkillCastReceiptIds.value.has(castId)) return '';
   const reasons = diagnosticsByCastId.value.get(castId);
   if (reasons === undefined || reasons.length === 0) return '';
   return reasons
@@ -1944,6 +2079,8 @@ function castWarningTitle(castId: string): string {
       if (reason === 'resourceUnavailable') return '资源不足：时间轴仍会强制执行该技能';
       if (reason === 'cooldownUnavailable') return '技能尚在冷却：时间轴仍会强制执行该技能';
       if (reason === 'skillInputMismatch') return '该操作当前不会触发这个技能';
+      if (reason === 'skillGroupInputRejected') return t('timeline.continuousGroup.inputRejected');
+      if (reason === 'skillGroupInterrupted') return t('timeline.continuousGroup.interrupted');
       if (reason.startsWith('skillInputMismatch:')) {
         const mismatch = /^skillInputMismatch: expected '(.+)', actual '(.+)'$/.exec(reason);
         return mismatch === null
@@ -2006,6 +2143,7 @@ const castHitEffects = computed(() => {
   for (const track of scenario.value.tracks) {
     if (track === null) continue;
     for (const cast of track.skillCasts) {
+      if (!compatibleSkillCastReceiptIds.value.has(cast.id)) continue;
       const castModel = models.get(cast.id);
       byCastId.set(
         cast.id,
@@ -2022,9 +2160,7 @@ const castHitEffects = computed(() => {
   return byCastId;
 });
 const hitActualFrames = computed(() =>
-  simulationRun.value === null
-    ? new Map<string, number>()
-    : projectTimelineHitActualFrames(simulationRun.value.receiptEntries),
+  projectCompatibleHitFrames(hitReceipts.value.damages, compatibleSkillCastReceiptIds.value),
 );
 
 /** 敌人瞬时效果标记；附着和法术异常的持续展示统一由可见 Buff 生命周期负责。 */
@@ -2170,10 +2306,12 @@ const skillEnhancementSegments = computed(() => {
 });
 
 function cooldownBarsForCast(castId: string, castStartFrame: number) {
+  if (!compatibleSkillCastReceiptIds.value.has(castId)) return [];
+  const publishedStart = skillCastPlacementActualFrames.value.get(castId) ?? castStartFrame;
   return skillCooldownSegments.value
     .filter(segment => segment.castId === castId)
     .map(segment => ({
-      offsetFrames: segment.startFrame - castStartFrame,
+      offsetFrames: segment.startFrame - publishedStart,
       durationFrames: Math.max(0, segment.endFrame - segment.startFrame),
       completed: segment.completed,
     }))
@@ -2181,10 +2319,12 @@ function cooldownBarsForCast(castId: string, castStartFrame: number) {
 }
 
 function enhancementBarsForCast(castId: string, castStartFrame: number) {
+  if (!compatibleSkillCastReceiptIds.value.has(castId)) return [];
+  const publishedStart = skillCastPlacementActualFrames.value.get(castId) ?? castStartFrame;
   return skillEnhancementSegments.value
     .filter(segment => segment.castId === castId)
     .map(segment => ({
-      offsetFrames: segment.startFrame - castStartFrame,
+      offsetFrames: segment.startFrame - publishedStart,
       durationFrames: Math.max(0, segment.endFrame - segment.startFrame),
       completed: segment.completed,
     }))
@@ -2441,10 +2581,19 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
   return parts.join(' · ');
 }
 
-const hitOccurrences = computed(() =>
+const publishedHitOccurrences = computed(() =>
   projectTimelineHitOccurrences(simulationRun.value?.receiptEntries ?? []),
 );
+const hitOccurrences = computed(
+  () =>
+    new Map(
+      [...publishedHitOccurrences.value].filter(([id]) =>
+        compatibleSkillCastReceiptIds.value.has(id),
+      ),
+    ),
+);
 function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMarkerView[] {
+  if (simulationRun.value !== null && !compatibleSkillCastReceiptIds.value.has(castId)) return [];
   const castModel = viewModel.value.tracks[trackIndex]?.skillCasts.find(
     candidate => candidate.id === castId,
   );
@@ -3724,7 +3873,7 @@ async function placeGroup(
       last.source.kind === 'operatorSkill' ? last.source.skillKey : skillKey,
       variantKey,
     );
-    cursorFrame.value = last.placement.startFrame + lastSkillDuration;
+    cursorFrame.value = resolvedSkillCastStartFrames.value.get(last.id)! + lastSkillDuration;
   }
 }
 
@@ -3900,10 +4049,9 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   const selection = actionSelection.value.selectedIds.has(skillCastId)
     ? { ...actionSelection.value, primaryId: skillCastId }
     : selectTimelineAction(actionSelection.value, skillCastId, false);
+  const movingIds = expandSkillCastGroupSelection(scenario.value, selection.selectedIds);
   const selectedCasts = scenario.value.tracks.flatMap(track =>
-    track === null
-      ? []
-      : track.skillCasts.filter(candidate => selection.selectedIds.has(candidate.id)),
+    track === null ? [] : track.skillCasts.filter(candidate => movingIds.has(candidate.id)),
   );
   if (selectedCasts.some(candidate => candidate.presentation?.locked ?? false)) {
     event.preventDefault();
@@ -3916,10 +4064,17 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
     candidate => candidate.id === skillCastId,
   );
   if (cast === undefined) return;
-  const initialActualFrame =
-    skillCastActualStartFrames.value.get(skillCastId) ?? cast.placement.startFrame;
+  const anchor = getSkillCastPlacementAnchor(
+    scenario.value.tracks[trackIndex]!.skillCasts,
+    cast.id,
+  );
+  const baseStartFrames = resolvedSkillCastStartFrames.value;
+  const initialActualFrame = baseStartFrames.get(anchor.id)!;
+  const initialPlacementFrame = anchor.placement.startFrame!;
   const pointerTimelinePx =
-    timelineFramePx(initialActualFrame) + event.clientX - block.getBoundingClientRect().left;
+    timelineFramePx(baseStartFrames.get(cast.id)!) +
+    event.clientX -
+    block.getBoundingClientRect().left;
   const pointerOffsetActualFrames = Math.max(
     0,
     timelinePxToExactFrame(
@@ -3932,16 +4087,17 @@ function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId:
   castMoveGesture.value = {
     pointerId: event.pointerId,
     trackIndex,
-    skillCastId,
-    skillCastIds: [...selection.selectedIds],
+    skillCastId: anchor.id,
+    pointerCastId: skillCastId,
+    skillCastIds: [...movingIds],
+    baseStartFrames,
     pointerOffsetActualFrames,
     initialPointerX: event.clientX,
     initialPointerY: event.clientY,
     latestPointerX: event.clientX,
     latestPointerY: event.clientY,
-    anchorActualFrame: initialActualFrame,
     baseScenario: scenario.value,
-    previewFrame: cast.placement.startFrame,
+    previewFrame: initialPlacementFrame,
     previewActualFrame: initialActualFrame,
     committed: false,
     dragStarted: false,
@@ -4045,11 +4201,12 @@ function updateCastMoveAt(
     gesture.trackIndex,
     gesture.skillCastId,
     frame.placementFrame,
+    gesture.baseStartFrames,
   );
   // 多选按共享位移整体限位。预览必须使用命令实际采用的落点，不能让主块单独越界。
   const placedFrame = movedScenario.tracks[gesture.trackIndex]!.skillCasts.find(
     cast => cast.id === gesture.skillCastId,
-  )!.placement.startFrame;
+  )!.placement.startFrame!;
   const actualFrame = frame.actualFrame + placedFrame - frame.placementFrame;
   if (placedFrame === gesture.previewFrame && actualFrame === gesture.previewActualFrame) {
     return;
@@ -4058,7 +4215,7 @@ function updateCastMoveAt(
     gesture.moved = true;
     applyActionSelection({
       selectedIds: new Set(gesture.skillCastIds),
-      primaryId: gesture.skillCastId,
+      primaryId: gesture.pointerCastId,
     });
   }
   castMoveGesture.value = {
@@ -4120,9 +4277,9 @@ async function finishCastMove(event: PointerEvent): Promise<void> {
   }
   const settlingGesture = { ...gesture, committed: true };
   castMoveGesture.value = settlingGesture;
-  suppressedCastClickId = gesture.skillCastId;
+  suppressedCastClickId = gesture.pointerCastId;
   setTimeout(() => {
-    if (suppressedCastClickId === gesture.skillCastId) suppressedCastClickId = null;
+    if (suppressedCastClickId === gesture.pointerCastId) suppressedCastClickId = null;
   }, 0);
   commitScenario('moveSkillCasts', () => finalScenario);
   await nextTick();
@@ -4362,6 +4519,54 @@ function copyContextSelection(): void {
 const compactSelection = computed(() =>
   resolveCompactSkillSelection(scenario.value, actionSelection.value.selectedIds),
 );
+const continuousGroupSelection = computed(() =>
+  resolveSkillCastGroupSelection(
+    scenario.value,
+    actionSelection.value.selectedIds,
+    displayedSkillCastStartFrames.value,
+  ),
+);
+const selectionIncludesContinuousGroup = computed(() =>
+  skillCastGroupsByTrack.value.some(groups =>
+    groups.some(group => group.casts.some(cast => actionSelection.value.selectedIds.has(cast.id))),
+  ),
+);
+
+function createSelectedSkillCastGroup(): void {
+  const selection = continuousGroupSelection.value;
+  if (!selection.ok || selection.alreadyGrouped) return;
+  const starts = displayedSkillCastStartFrames.value;
+  commitScenario('createSkillCastGroup', current =>
+    createSkillCastGroup(current, selection.castIds, starts),
+  );
+  contextMenuTarget.value = null;
+}
+
+function dissolveSelectedSkillCastGroups(): void {
+  const starts = displayedSkillCastStartFrames.value;
+  const selectedIds = actionSelection.value.selectedIds;
+  commitScenario('dissolveSkillCastGroups', current =>
+    dissolveSkillCastGroups(current, selectedIds, starts),
+  );
+  contextMenuTarget.value = null;
+}
+
+function selectSkillCastGroup(castIds: readonly string[]): void {
+  applyActionSelection({ selectedIds: new Set(castIds), primaryId: castIds[0] ?? null });
+}
+
+function skillCastGroupEndFrame(castIds: readonly string[]): number {
+  return Math.max(
+    ...castIds.map(id => {
+      const start = displayedSkillCastStartFrames.value.get(id)!;
+      return Math.max(start, visibleSkillEndFrames.value.get(id) ?? start);
+    }),
+  );
+}
+
+function skillCastIsUnexecuted(castId: string): boolean {
+  return !skillCastInputFrames.value.has(castId);
+}
 
 async function compactSelectedSkills(): Promise<void> {
   const selection = compactSelection.value;
@@ -4424,7 +4629,11 @@ function pasteClipboardAtCursor(): void {
 
 function copySelectedActions(): boolean {
   if (actionSelection.value.selectedIds.size === 0) return false;
-  timelineClipboard.value = copyTimelineActions(scenario.value, actionSelection.value.selectedIds);
+  timelineClipboard.value = copyTimelineActions(
+    scenario.value,
+    actionSelection.value.selectedIds,
+    displayedSkillCastStartFrames.value,
+  );
   return timelineClipboard.value !== null;
 }
 
@@ -4470,8 +4679,9 @@ function nudgeSelectedActions(deltaFrames: -1 | 1): boolean {
         anchorSkillCastId,
         Math.max(
           -scenario.value.battle.prepFrames,
-          anchor.placement.startFrame + deltaFrames * snapFrames.value,
+          resolvedSkillCastStartFrames.value.get(anchor.id)! + deltaFrames * snapFrames.value,
         ),
+        resolvedSkillCastStartFrames.value,
       ),
     );
   }
@@ -4706,9 +4916,15 @@ function setSelectedCastCameraTargetAngle(angleDegrees: number | null): void {
 
 function setSelectedCastStartFrame(frame: number): void {
   const selected = selectedCastModel.value;
-  if (selected === null) return;
+  if (selected === null || selected.cast.placement.afterCastId !== undefined) return;
   commitScenario('moveSkillCast', current =>
-    moveSkillCast(current, selected.trackIndex, selected.cast.id, frame),
+    moveSkillCast(
+      current,
+      selected.trackIndex,
+      selected.cast.id,
+      frame,
+      displayedSkillCastStartFrames.value,
+    ),
   );
 }
 
@@ -5637,6 +5853,21 @@ function setPanelDialogVisible(visible: boolean): void {
                   }}</span>
                   <b>{{ displayedMarkerFrame('externalEvent', marker.id, marker.frame) }}f</b>
                 </div>
+                <TimelineSkillCastGroupMarker
+                  v-for="group in skillCastGroupsByTrack[track.trackIndex]"
+                  :key="group.anchor.id"
+                  :left="timelineFramePx(displayedSkillCastStartFrames.get(group.anchor.id)!)"
+                  :width="
+                    timelineFrameSpanPx(
+                      displayedSkillCastStartFrames.get(group.anchor.id)!,
+                      skillCastGroupEndFrame(group.casts.map(cast => cast.id)) -
+                        displayedSkillCastStartFrames.get(group.anchor.id)!,
+                    )
+                  "
+                  :label="t('timeline.continuousGroup.label', { count: group.casts.length })"
+                  :selected="group.casts.every(cast => actionSelection.selectedIds.has(cast.id))"
+                  @select="selectSkillCastGroup(group.casts.map(cast => cast.id))"
+                />
                 <TimelineActionBlock
                   v-for="(cast, castIndex) in track.skillCasts"
                   :key="cast.id"
@@ -5664,6 +5895,12 @@ function setPanelDialogVisible(visible: boolean): void {
                     castMoveGesture?.skillCastIds.includes(cast.id)
                   "
                   :disabled="cast.disabled"
+                  :unexecuted="
+                    !cast.disabled &&
+                    groupedSkillCastIds.has(cast.id) &&
+                    skillCastIsUnexecuted(cast.id)
+                  "
+                  :unexecuted-text="t('timeline.continuousGroup.unexecuted')"
                   :locked="cast.locked"
                   :edited="cast.edited"
                   :color="cast.color ?? skillAccentColor(cast.skillType, track.operatorSlug)"
@@ -5671,7 +5908,11 @@ function setPanelDialogVisible(visible: boolean): void {
                   :connection-dragging="connectionDrag !== null"
                   :connection-source-action-id="connectionDrag?.skillCastId ?? null"
                   :connection-target-valid="isConnectionTargetValid(cast.id)"
-                  :warning="diagnosticsByCastId.has(cast.id) || cast.resolutionIssue !== undefined"
+                  :warning="
+                    (compatibleSkillCastReceiptIds.has(cast.id) &&
+                      diagnosticsByCastId.has(cast.id)) ||
+                    cast.resolutionIssue !== undefined
+                  "
                   :warning-text="cast.resolutionIssue ?? castWarningTitle(cast.id)"
                   :warning-fallback-text="t('common.warning')"
                   :hits="
@@ -5928,6 +6169,11 @@ function setPanelDialogVisible(visible: boolean): void {
         :maximum-frame="scenario.battle.durationFrames"
         :connections="selectedCastConnections"
         :connection-tool-enabled="connectionToolEnabled"
+        :actual-start-frame="
+          selectedCastId === null ? undefined : skillCastPlacementActualFrames.get(selectedCastId)
+        "
+        :grouped="selectedCastId !== null && groupedSkillCastIds.has(selectedCastId)"
+        @dissolve-group="dissolveSelectedSkillCastGroups"
         @edit-definition="showSkillDefinitionEditor = true"
         @reset-definition="resetSelectedCastDefinition"
         @set-camera-target-angle="setSelectedCastCameraTargetAngle"
@@ -5988,10 +6234,22 @@ function setPanelDialogVisible(visible: boolean): void {
     :disabled="selectedCastModel?.cast.presentation?.disabled ?? false"
     :color="selectedCastModel?.cast.presentation?.color ?? null"
     :compact-visible="actionSelection.selectedIds.size > 1"
+    :create-group-visible="
+      actionSelection.selectedIds.size > 1 &&
+      !(continuousGroupSelection.ok && continuousGroupSelection.alreadyGrouped)
+    "
+    :create-group-disabled-reason="
+      continuousGroupSelection.ok
+        ? undefined
+        : t(`timeline.continuousGroup.${continuousGroupSelection.reason}`)
+    "
+    :dissolve-group-visible="selectionIncludesContinuousGroup"
     :compact-disabled-reason="
       compactSelection.ok ? undefined : t(`timeline.compactSelection.${compactSelection.reason}`)
     "
     @compact="compactSelectedSkills"
+    @create-group="createSelectedSkillCastGroup"
+    @dissolve-group="dissolveSelectedSkillCastGroups"
     @close="contextMenuTarget = null"
     @copy="copyContextSelection"
     @delete="deleteContextCast"

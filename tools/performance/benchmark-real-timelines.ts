@@ -33,8 +33,10 @@ try {
     const samples = [];
     for (let offset = 0; offset < 4; offset++) {
       const candidate = structuredClone(scenario);
-      const cast = candidate.tracks.flatMap(track => track.skillCasts)[0];
-      if (cast) cast.placement.startFrame += offset;
+      const cast = candidate.tracks
+        .flatMap(track => track?.skillCasts ?? [])
+        .find(cast => cast.placement.startFrame !== undefined);
+      if (cast?.placement.startFrame !== undefined) cast.placement.startFrame += offset;
       const result = await service.simulate(
         candidate,
         candidate.battle.simulationRange?.endFrame ?? candidate.battle.durationFrames,

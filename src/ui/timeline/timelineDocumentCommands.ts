@@ -16,7 +16,9 @@ import type {
   ExternalEventTargetDocument,
   EditableBarDocument,
   GlobalOperatorStatModifierDocument,
+  SkillCastDocument,
 } from '../../core/project/schema';
+import { getSkillCastPlacementChains } from '../../core/project/skillCastPlacement';
 import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
 import { validateSkillDefinition } from '../../core/game-data/validateSkillDefinition';
 
@@ -49,7 +51,11 @@ export function setTimelinePrepExpanded(
 function battleDurationContentFloor(scenario: ScenarioDocument): number {
   const timedFrames = [
     ...scenario.tracks.flatMap(track =>
-      track === null ? [] : track.skillCasts.map(cast => cast.placement.startFrame),
+      track === null
+        ? []
+        : track.skillCasts.flatMap(cast =>
+            cast.placement.startFrame === undefined ? [] : [cast.placement.startFrame],
+          ),
     ),
     ...scenario.battle.cycleBoundaries.map(marker => marker.frame),
     ...scenario.battle.controlSwitches.map(marker => marker.frame),
@@ -400,11 +406,24 @@ export function moveSkillCast(
   trackIndex: TrackIndex,
   skillCastId: string,
   startFrame: number,
+  resolvedStartFrames?: ReadonlyMap<string, number>,
 ): ScenarioDocument {
   if (!Number.isInteger(startFrame) || startFrame < -scenario.battle.prepFrames) {
     throw new RangeError('startFrame must be an integer within the visible timeline');
   }
   const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
+  const chain = getSkillCastPlacementChains(track.skillCasts).find(chain =>
+    chain.casts.some(member => member.id === skillCastId),
+  )!;
+  if (chain.casts.length > 1)
+    return moveSkillCasts(
+      scenario,
+      new Set([skillCastId]),
+      trackIndex,
+      skillCastId,
+      startFrame,
+      resolvedStartFrames,
+    );
   if (cast.presentation?.locked) return scenario;
   if (cast.placement.startFrame === startFrame) return scenario;
 
@@ -413,6 +432,16 @@ export function moveSkillCast(
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = { ...track, skillCasts };
   return { ...scenario, tracks };
+}
+
+function skillCastFrame(
+  cast: SkillCastDocument,
+  resolvedStartFrames?: ReadonlyMap<string, number>,
+): number {
+  const frame = resolvedStartFrames?.get(cast.id) ?? cast.placement.startFrame;
+  if (frame === undefined || !Number.isInteger(frame))
+    throw new Error(`resolved integer start frame is required for skill cast '${cast.id}'`);
+  return frame;
 }
 
 interface LocatedSkillCast {
@@ -438,7 +467,7 @@ function locateSkillCasts(
 
 /**
  * 让当前选择集按同一帧差整体移动，保持跨轨道动作之间的相对位置。
- * 选择中包含锁定动作时整组不移动；边界按动作起始帧统一收缩位移量，避免逐项截断后挤乱布局。
+ * 涉及的链含锁定动作时整组不移动；边界只约束组首作者帧，尚未执行的后项可以超出模拟终点。
  */
 export function moveSkillCasts(
   scenario: ScenarioDocument,
@@ -446,6 +475,7 @@ export function moveSkillCasts(
   anchorTrackIndex: TrackIndex,
   anchorSkillCastId: string,
   requestedAnchorStartFrame: number,
+  resolvedStartFrames?: ReadonlyMap<string, number>,
 ): ScenarioDocument {
   if (
     !Number.isInteger(requestedAnchorStartFrame) ||
@@ -464,40 +494,128 @@ export function moveSkillCasts(
   if (located.length !== skillCastIds.size) {
     throw new Error('selection contains a missing or duplicate skill cast identity');
   }
-  if (located.some(value => value.cast.presentation?.locked)) return scenario;
-
-  const requestedDelta = requestedAnchorStartFrame - anchor.placement.startFrame;
-  const minimumStartFrame = Math.min(...located.map(value => value.cast.placement.startFrame));
-  const maximumStartFrame = Math.max(...located.map(value => value.cast.placement.startFrame));
+  const affected = scenario.tracks.flatMap(track =>
+    track === null
+      ? []
+      : getSkillCastPlacementChains(track.skillCasts).filter(chain =>
+          chain.casts.some(cast => skillCastIds.has(cast.id)),
+        ),
+  );
+  const members = affected.flatMap(chain => chain.casts);
+  if (members.some(cast => cast.presentation?.locked)) return scenario;
+  const anchors = new Set(affected.map(chain => chain.anchor.id));
+  const requestedDelta = requestedAnchorStartFrame - skillCastFrame(anchor, resolvedStartFrames);
+  const frames = affected.map(chain => chain.anchor.placement.startFrame!);
+  const minimumStartFrame = Math.min(...frames);
+  const maximumStartFrame = Math.max(...frames);
   const delta = Math.max(
     -scenario.battle.prepFrames - minimumStartFrame,
     Math.min(scenario.battle.durationFrames - maximumStartFrame, requestedDelta),
   );
   if (delta === 0) return scenario;
 
-  const castIndexesByTrack = new Map<TrackIndex, Set<number>>();
-  for (const value of located) {
-    const castIndexes = castIndexesByTrack.get(value.trackIndex) ?? new Set();
-    castIndexes.add(value.castIndex);
-    castIndexesByTrack.set(value.trackIndex, castIndexes);
-  }
-  const tracks = scenario.tracks.map((track, trackIndex) => {
+  const tracks = scenario.tracks.map(track => {
     if (track === null) return null;
-    const castIndexes = castIndexesByTrack.get(trackIndex as TrackIndex);
-    if (castIndexes === undefined) return track;
+    if (!track.skillCasts.some(cast => anchors.has(cast.id))) return track;
     return {
       ...track,
-      skillCasts: track.skillCasts.map((cast, castIndex) =>
-        castIndexes.has(castIndex)
+      skillCasts: track.skillCasts.map(cast =>
+        anchors.has(cast.id)
           ? {
               ...cast,
-              placement: { startFrame: cast.placement.startFrame + delta },
+              placement: { startFrame: cast.placement.startFrame! + delta },
             }
           : cast,
       ),
     };
   }) as ScenarioDocument['tracks'];
   return { ...scenario, tracks };
+}
+
+/** 把同轨连续选区变成手动链；已有链必须完整选中，技能与命中连线身份均不重建。 */
+export function createSkillCastGroup(
+  scenario: ScenarioDocument,
+  castIds: ReadonlySet<string>,
+  resolvedStartFrames: ReadonlyMap<string, number>,
+): ScenarioDocument {
+  if (castIds.size < 2) return scenario;
+  const located = locateSkillCasts(scenario, castIds);
+  if (located.length !== castIds.size || new Set(located.map(item => item.trackIndex)).size !== 1)
+    return scenario;
+  if (located.some(item => item.cast.presentation?.locked)) return scenario;
+  const trackIndex = located[0]!.trackIndex;
+  const track = scenario.tracks[trackIndex]!;
+  const chains = getSkillCastPlacementChains(track.skillCasts);
+  if (
+    chains.some(
+      chain =>
+        chain.casts.some(cast => castIds.has(cast.id)) &&
+        chain.casts.some(cast => !castIds.has(cast.id)),
+    )
+  )
+    return scenario;
+  const ordered = chains
+    .flatMap(chain => chain.casts)
+    .sort(
+      (left, right) =>
+        skillCastFrame(left, resolvedStartFrames) - skillCastFrame(right, resolvedStartFrames),
+    );
+  const selected = ordered.filter(cast => castIds.has(cast.id));
+  const firstIndex = ordered.indexOf(selected[0]!);
+  if (ordered.slice(firstIndex, firstIndex + selected.length).some(cast => !castIds.has(cast.id)))
+    return scenario;
+  const placements = new Map<string, SkillCastDocument['placement']>(
+    selected.map((cast, index) => [
+      cast.id,
+      index === 0
+        ? { startFrame: cast.placement.startFrame ?? skillCastFrame(cast, resolvedStartFrames) }
+        : { afterCastId: selected[index - 1]!.id },
+    ]),
+  );
+  return replaceSkillCastPlacements(scenario, placements);
+}
+
+/** 显式解散涉及的完整链，以用户当前看到的起点变成独立块；后台重算不得调用此命令。 */
+export function dissolveSkillCastGroups(
+  scenario: ScenarioDocument,
+  castIds: ReadonlySet<string>,
+  resolvedStartFrames: ReadonlyMap<string, number>,
+): ScenarioDocument {
+  const placements = new Map<string, SkillCastDocument['placement']>();
+  for (const track of scenario.tracks) {
+    if (track === null) continue;
+    for (const chain of getSkillCastPlacementChains(track.skillCasts)) {
+      if (chain.casts.length < 2 || !chain.casts.some(cast => castIds.has(cast.id))) continue;
+      for (const cast of chain.casts)
+        placements.set(cast.id, { startFrame: skillCastFrame(cast, resolvedStartFrames) });
+    }
+  }
+  return replaceSkillCastPlacements(scenario, placements);
+}
+
+function replaceSkillCastPlacements(
+  scenario: ScenarioDocument,
+  placements: ReadonlyMap<string, SkillCastDocument['placement']>,
+): ScenarioDocument {
+  let changed = false;
+  const tracks = scenario.tracks.map(track => {
+    if (track === null) return null;
+    let trackChanged = false;
+    const skillCasts = track.skillCasts.map(cast => {
+      const placement = placements.get(cast.id);
+      if (
+        placement === undefined ||
+        (placement.startFrame === cast.placement.startFrame &&
+          placement.afterCastId === cast.placement.afterCastId)
+      )
+        return cast;
+      changed = true;
+      trackChanged = true;
+      return { ...cast, placement };
+    });
+    return trackChanged ? { ...track, skillCasts } : track;
+  }) as ScenarioDocument['tracks'];
+  return changed ? { ...scenario, tracks } : scenario;
 }
 
 /** 设置技能块的锁定状态（纯展示，不包含技能逻辑）。 */
@@ -752,7 +870,27 @@ export function removeSkillCasts(
   let changed = false;
   const tracks = scenario.tracks.map(track => {
     if (track === null) return null;
-    const remaining = track.skillCasts.filter(cast => !skillCastIds.has(cast.id));
+    const placements = new Map<string, SkillCastDocument['placement']>();
+    for (const chain of getSkillCastPlacementChains(track.skillCasts)) {
+      const survivors = chain.casts.filter(cast => !skillCastIds.has(cast.id));
+      survivors.forEach((cast, index) => {
+        placements.set(
+          cast.id,
+          index === 0
+            ? { startFrame: chain.anchor.placement.startFrame! }
+            : { afterCastId: survivors[index - 1]!.id },
+        );
+      });
+    }
+    const remaining = track.skillCasts
+      .filter(cast => !skillCastIds.has(cast.id))
+      .map(cast => {
+        const placement = placements.get(cast.id)!;
+        return placement.startFrame === cast.placement.startFrame &&
+          placement.afterCastId === cast.placement.afterCastId
+          ? cast
+          : { ...cast, placement };
+      });
     if (remaining.length === track.skillCasts.length) return track;
     changed = true;
     return { ...track, skillCasts: remaining };

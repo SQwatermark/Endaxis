@@ -29,6 +29,8 @@ export function planRecursiveSkillChain(input: {
   const seed = track?.skillCasts.find(cast => cast.id === input.seedCastId);
   if (!track || !seed || seed.source.kind !== 'operatorSkill')
     throw new Error('missing recursive chain seed');
+  const seedFrame = seed.placement.startFrame;
+  if (seedFrame === undefined) throw new Error('recursive placement requires an absolute seed');
   const castIds = [seed.id];
   const occupiedIds = new Set(
     scenario.tracks.flatMap(track => track?.skillCasts.map(cast => cast.id) ?? []),
@@ -39,9 +41,13 @@ export function planRecursiveSkillChain(input: {
   }
   const stopFrame = Math.min(
     input.endFrame,
-    ...track.skillCasts
-      .filter(cast => cast.id !== seed.id && cast.placement.startFrame >= seed.placement.startFrame)
-      .map(cast => cast.placement.startFrame - 1),
+    ...track.skillCasts.flatMap(cast =>
+      cast.id !== seed.id &&
+      cast.placement.startFrame !== undefined &&
+      cast.placement.startFrame >= seedFrame
+        ? [cast.placement.startFrame - 1]
+        : [],
+    ),
   );
   const finish = (complete: boolean) => ({ scenario, skillCastIds: castIds, complete });
   const diagnostics = (entries: readonly CombatReceiptEntry[], id: string) =>
@@ -54,7 +60,8 @@ export function planRecursiveSkillChain(input: {
   let last: SkillCastDocument = seed;
   for (let index = 0; ; index++) {
     input.checkCancelled();
-    if (last.placement.startFrame > stopFrame) return finish(false);
+    const lastFrame = last.placement.startFrame;
+    if (lastFrame === undefined || lastFrame > stopFrame) return finish(false);
     const run = input.run(scenario, Math.max(0, stopFrame));
     if (
       diagnostics(run.receiptEntries, last.id).length > 0 ||
@@ -80,7 +87,7 @@ export function planRecursiveSkillChain(input: {
     );
     if (!boundary) return finish(false);
     const frame = boundary.frame + 1;
-    if (frame <= last.placement.startFrame || frame > stopFrame) return finish(false);
+    if (frame <= lastFrame || frame > stopFrame) return finish(false);
     // 临时输入只用于读取正式路由诊断；其执行结果和回执不会发布或缓存。
     const probe: SkillCastDocument = {
       id,

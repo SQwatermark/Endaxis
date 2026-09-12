@@ -41,7 +41,7 @@ function movePreview(startFrame: number) {
 function castStartFrame(session: ActiveScenarioEditorSession): number {
   return session.snapshot.scenario.tracks[ABILITY_ENTITY_SAMPLE_TRACK_INDEX]!.skillCasts.find(
     cast => cast.id === ABILITY_ENTITY_SAMPLE_CAST_ID,
-  )!.placement.startFrame;
+  )!.placement.startFrame!;
 }
 
 describe('timeline cast move history boundary', () => {

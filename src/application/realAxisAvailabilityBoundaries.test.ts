@@ -163,7 +163,8 @@ it.each([-3, 1])('汤汤连携冷却就绪前后 %i 帧发生寒冷附着，不�
     )!.frame;
     if (actualTrigger - readyFrame === offset) break;
     const adjustment = offset - (actualTrigger - readyFrame);
-    scenario.tracks[1]!.skillCasts[0]!.placement.startFrame += adjustment;
+    const cast = scenario.tracks[1]!.skillCasts[0]!;
+    cast.placement = { startFrame: cast.placement.startFrame! + adjustment };
   }
   triggerFrame = readyFrame + offset;
   const castFrame = readyFrame + 10;

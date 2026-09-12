@@ -27,6 +27,21 @@ function fixture() {
 }
 
 describe('compact selection', () => {
+  it('不把连续组或被部分选中的连续组改成固定排程', () => {
+    const scenario = fixture();
+    scenario.tracks[0]!.skillCasts[0]!.placement = { afterCastId: 'first' };
+    for (const ids of [
+      ['first', 'late'],
+      ['first', 'tie'],
+      ['late', 'tie'],
+    ]) {
+      expect(resolveCompactSkillSelection(scenario, new Set(ids))).toEqual({
+        ok: false,
+        reason: 'grouped',
+      });
+      expect(compactSkillSelectionByWidths(scenario, ids, new Map())).toBe(scenario);
+    }
+  });
   it('keeps the known prefix and completes the unknown tail without moving the anchor', () => {
     const scenario = fixture();
     const result = compactSkillSelectionByWidths(

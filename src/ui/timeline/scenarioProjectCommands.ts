@@ -112,14 +112,17 @@ export function addProjectScenario(
 function duplicateTrack(
   track: TrackDocument,
   allocate: (kind: string) => string,
-  castIds: Map<string, string>,
+  castIds: ReadonlyMap<string, string>,
 ): TrackDocument {
   const skillCasts: SkillCastDocument[] = track.skillCasts.map(cast => {
-    const id = allocate('skillCast');
-    castIds.set(cast.id, id);
+    const previous = cast.placement.afterCastId;
     return {
       ...structuredClone(cast),
-      id,
+      id: castIds.get(cast.id)!,
+      placement:
+        previous === undefined
+          ? { startFrame: cast.placement.startFrame! }
+          : { afterCastId: castIds.get(previous)! },
       presentation:
         cast.presentation === undefined
           ? undefined
@@ -153,6 +156,10 @@ export function duplicateActiveScenario(
     return `${kind}:${id}:${next}`;
   };
   const castIds = new Map<string, string>();
+  // 先分配全体技能身份，后续引用才能指向声明在自己后面的前驱。
+  for (const track of source.tracks) {
+    for (const cast of track?.skillCasts ?? []) castIds.set(cast.id, allocate('skillCast'));
+  }
   const tracks = source.tracks.map(track =>
     track === null ? null : duplicateTrack(track, allocate, castIds),
   ) as ScenarioDocument['tracks'];

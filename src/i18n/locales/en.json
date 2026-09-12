@@ -300,10 +300,26 @@
     "zhCNShort": "中"
   },
   "timeline": {
+    "continuousGroup": {
+      "create": "Create continuous group",
+      "dissolve": "Dissolve continuous group",
+      "label": "Chain · {count}",
+      "followsPrevious": "Follows the previous skill",
+      "actualStartFrame": "Actual start: frame {frame}",
+      "unexecuted": "Not executed",
+      "count": "Select at least two skills",
+      "mixed": "Select skills on the same track",
+      "nonAdjacent": "Select adjacent skills without skipping any",
+      "locked": "Unlock the selected skills first",
+      "partialGroup": "Select every member of existing groups",
+      "inputRejected": "An earlier skill could not start; the remaining group members did not execute",
+      "interrupted": "An independent skill on this track interrupted the group; remaining members did not execute"
+    },
     "compactSelection": {
       "label": "Compact selected skills",
       "count": "Select at least two skills",
       "mixed": "Select only skills on one track",
+      "grouped": "Dissolve the selected continuous groups before compacting",
       "incomplete": "Simulation could not provide all boundaries. Unresolved skills were compacted using current block widths; simulation errors and warnings are preserved."
     },
     "chainPlacementIncomplete": "Could not determine the full chain timing. Default spacing was used; check the skill block diagnostics.",

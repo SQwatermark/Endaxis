@@ -19,12 +19,17 @@ const props = defineProps<{
   color: string | null;
   compactVisible?: boolean;
   compactDisabledReason?: string;
+  createGroupVisible?: boolean;
+  createGroupDisabledReason?: string;
+  dissolveGroupVisible?: boolean;
 }>();
 
 const emit = defineEmits<{
   close: [];
   copy: [];
   compact: [];
+  createGroup: [];
+  dissolveGroup: [];
   delete: [];
   toggleLock: [];
   toggleDisabled: [];
@@ -128,6 +133,40 @@ onBeforeUnmount(() => {
         <kbd>Delete</kbd>
       </EaButton>
       <div class="divider"></div>
+      <EaButton
+        v-if="createGroupVisible"
+        class="menu-item"
+        variant="ghost"
+        size="sm"
+        type="button"
+        role="menuitem"
+        :disabled="Boolean(createGroupDisabledReason)"
+        :title="createGroupDisabledReason"
+        @click="$emit('createGroup')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2"
+          ></path>
+        </svg>
+        <span>{{ t('timeline.continuousGroup.create') }}</span>
+      </EaButton>
+      <EaButton
+        v-if="dissolveGroupVisible"
+        class="menu-item"
+        variant="ghost"
+        size="sm"
+        type="button"
+        role="menuitem"
+        @click="$emit('dissolveGroup')"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path
+            d="m3 3 18 18M9 14l-1 1M15 9l1-1M7 8l-3 3a5 5 0 0 0 7 7l1-1M12 7l1-1a5 5 0 0 1 7 7l-3 3"
+          ></path>
+        </svg>
+        <span>{{ t('timeline.continuousGroup.dissolve') }}</span>
+      </EaButton>
       <EaButton
         variant="ghost"
         size="sm"

@@ -42,6 +42,9 @@ const props = defineProps<{
   maximumFrame: number;
   connections: readonly InspectorConnection[];
   connectionToolEnabled: boolean;
+  /** 后续成员仅展示已发布的实际输入帧，不允许写入独立开始帧。 */
+  actualStartFrame?: number;
+  grouped?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -57,6 +60,7 @@ const emit = defineEmits<{
   beginConnection: [];
   removeConnection: [connectionId: string];
   updateConnection: [connectionId: string, patch: InspectorConnectionPatch];
+  dissolveGroup: [];
 }>();
 
 const { t } = useI18n({ useScope: 'global' });
@@ -98,6 +102,7 @@ function commitCameraTargetAngle(value: number | undefined): void {
 }
 
 function commitStartFrame(value: number | undefined): void {
+  if (props.cast?.placement.afterCastId !== undefined) return;
   const frame = Number(value);
   if (Number.isInteger(frame) && frame >= props.minimumFrame && frame <= props.maximumFrame) {
     emit('setStartFrame', frame);
@@ -159,7 +164,16 @@ function removeCustomBar(barId: string): void {
             <span>{{ t('timeline.inspector.labels.skillType') }}</span>
             <div class="readonly-field">{{ skillTypeLabel(skillType) }}</div>
           </div>
-          <label class="form-group">
+          <div v-if="cast.placement.afterCastId !== undefined" class="form-group">
+            <span>{{ t('timeline.inspector.labels.startFrame') }}</span>
+            <div class="readonly-field">{{ t('timeline.continuousGroup.followsPrevious') }}</div>
+            <small class="field-help">{{
+              actualStartFrame === undefined
+                ? t('timeline.continuousGroup.unexecuted')
+                : t('timeline.continuousGroup.actualStartFrame', { frame: actualStartFrame })
+            }}</small>
+          </div>
+          <label v-else class="form-group">
             <span>{{ t('timeline.inspector.labels.startFrame') }}</span>
             <EaNumberInput
               class="number-field"
@@ -172,6 +186,9 @@ function removeCustomBar(barId: string): void {
               @change="commitStartFrame"
             />
           </label>
+          <EaButton v-if="grouped" variant="ghost" size="sm" @click="$emit('dissolveGroup')">
+            {{ t('timeline.continuousGroup.dissolve') }}
+          </EaButton>
         </div>
       </section>
 

@@ -206,13 +206,14 @@ function simulate(
     initialState: { ultimateEnergy: 1000, maxUltimateEnergyOverride: 1000 },
     skillCasts: [],
   };
+  let nextCastId = 0;
   const placed = placeSkillGroup({
     scenario,
     trackIndex: 0,
     operator,
     skillGroupKey: 'basicAttack',
     startFrame: 1,
-    ids: { allocate: kind => `${kind}:equipment-audit:${identity}` },
+    ids: { allocate: kind => `${kind}:equipment-audit:${identity}:${++nextCastId}` },
   }).scenario;
   const service = new ScenarioSimulationService({
     index: gameDataRepository,

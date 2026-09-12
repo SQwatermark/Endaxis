@@ -27,7 +27,13 @@ import {
 
 it('场景输入与环境端口互不重叠，完整装配选项由两者组成', () => {
   expectTypeOf<keyof CombatRuntimeScenarioOptions>().toEqualTypeOf<
-    'resources' | 'enemy' | 'operators' | 'inputs' | 'externalEvents' | 'isOperatorControlled'
+    | 'resources'
+    | 'enemy'
+    | 'operators'
+    | 'inputs'
+    | 'skillInputGroups'
+    | 'externalEvents'
+    | 'isOperatorControlled'
   >();
   expectTypeOf<
     keyof CombatRuntimeScenarioOptions & keyof CombatRuntimeEnvironmentOptions
@@ -114,6 +120,33 @@ function options(): CompileScenarioRuntimeAssemblyOptions {
 }
 
 describe('compileScenarioRuntimeAssembly', () => {
+  it('连续组进入正式装配，禁用原组头也只按该锚点启动准备期', () => {
+    const scenario = createScenario();
+    const placed = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'basicAttack',
+      startFrame: -12,
+      ids: {
+        allocate: (() => {
+          let next = 0;
+          return () => `cast:${++next}`;
+        })(),
+      },
+    }).scenario;
+    const casts = placed.tracks[0]!.skillCasts;
+    casts[0]!.presentation = { disabled: true };
+    for (let index = 1; index < casts.length; index += 1)
+      casts[index]!.placement = { afterCastId: casts[index - 1]!.id };
+    const compiled = compileScenarioRuntimeAssembly(placed, options());
+    expect(compiled.initialFrame).toBe(-12);
+    expect(compiled.skillInputGroups).toEqual([
+      { anchorCastId: casts[0]!.id, castIds: casts.slice(1).map(cast => cast.id) },
+    ]);
+    expect(compiled.inputs?.map(input => input.frame)).toEqual([-12, -12, -12]);
+  });
+
   it('空轴也编译静态连携槽位、冷却和内部技能，但不执行定义动作或虚构施法', () => {
     const settings = options();
     const execute = vi.fn(() => true);

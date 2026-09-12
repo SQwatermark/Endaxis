@@ -43,7 +43,12 @@ import {
   type BuffOperationDependencies,
 } from './buffOperationExecutor';
 import { CombatClock, COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
-import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
+import {
+  CombatInputRuntime,
+  type ScheduledSkillInput,
+  type SkillInputGroup,
+} from './combatInputRuntime';
+import { SkillInputGroupTiming } from './skillInputGroupTiming';
 import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatResources, type CombatResourceSnapshot } from './combatResources';
 import { CombatSimulation, type FrameRuntime } from './combatSimulation';
@@ -268,6 +273,8 @@ export interface CombatRuntimeScenarioOptions {
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
   readonly inputs?: readonly ScheduledSkillInput[];
+  /** 正式连续组由锚点启动，其余成员按实际块边界逐段开始。 */
+  readonly skillInputGroups?: readonly SkillInputGroup[];
   /** 时间轴显式输入的受击事实；不执行敌方伤害或生命扣减。 */
   readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
   /** 场景编译层依据控制切换时间线提供查询；装配层不猜测初始主控。 */
@@ -325,7 +332,7 @@ export interface CombatRuntimeEnvironmentOptions {
     bornTags: readonly import('../tags/gameplayTags').GameplayTag[],
   ) => AbilityEntityBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
-  /** 仅临时放置规划启用；正式存档模拟始终使用显式输入帧。 */
+  /** 仅临时放置规划启用，不修改项目中的持久连续组。 */
   readonly continuationPlanCastIds?: readonly string[];
   readonly continuationPlanMode?: 'continuation' | 'compact';
   /**
@@ -1210,9 +1217,24 @@ export class CombatRuntimeAssembly {
       }
       // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
       this.simulation.add(this.comboWindows);
+      const groupTiming = new SkillInputGroupTiming(this.receipt.entries, input => {
+        const program = this.#skillPrograms.get(
+          `${input.operatorId}\u0000${input.skillId}\u0000${input.castId ?? ''}`,
+        );
+        if (program === undefined) throw new Error(`missing group skill program '${input.castId}'`);
+        return program.timelineBlockFrames;
+      });
       const inputRuntime = new CombatInputRuntime({
         clock: this.clock,
         inputs: options.inputs ?? [],
+        ...(options.skillInputGroups === undefined
+          ? {}
+          : {
+              skillInputGroups: {
+                groups: options.skillInputGroups,
+                canContinue: previous => groupTiming.canContinue(previous, this.clock.frame),
+              },
+            }),
         ...(options.continuationPlanCastIds === undefined
           ? {}
           : {

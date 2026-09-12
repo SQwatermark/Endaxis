@@ -300,10 +300,26 @@
     "zhCNShort": "中"
   },
   "timeline": {
+    "continuousGroup": {
+      "create": "设为连续组",
+      "dissolve": "解散连续组",
+      "label": "连续 · {count}",
+      "followsPrevious": "接续上一技能",
+      "actualStartFrame": "实际开始：{frame} 帧",
+      "unexecuted": "尚未执行",
+      "count": "请选择至少两个技能",
+      "mixed": "请选择同一轨道上的技能",
+      "nonAdjacent": "请选择相邻技能，中间不能漏选",
+      "locked": "请先解除所选技能的位置锁定",
+      "partialGroup": "请完整选择已有连续组",
+      "inputRejected": "前面的技能未能开始，连续组后续技能未执行",
+      "interrupted": "连续组被同轨的独立技能打断，后续技能未执行"
+    },
     "compactSelection": {
       "label": "紧凑排列",
       "count": "请选择至少两个技能",
       "mixed": "仅支持同一轨道上的技能",
+      "grouped": "所选技能属于连续组，请先解散连续组",
       "incomplete": "模拟未能提供完整边界，未计算部分已按当前技能块宽度排列。模拟错误和告警仍保留。"
     },
     "chainPlacementIncomplete": "未能确定整条连段的接续时刻，已按默认间隔放置，请查看技能块诊断。",

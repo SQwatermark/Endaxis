@@ -1,8 +1,8 @@
 /**
  * 场景一变，就重新跑一遍模拟。
  *
- * 上一次的模拟还没跑完就被作废，只认最新一次的结果；技能块的警告标记也从
- * 这次模拟的结果里标出来。本文件只负责"什么时候跑、用哪次结果"，不算任何战斗数值。
+ * 已经开始的模拟会跑完，等待中的旧请求由新请求替换。完整结果发布后，技能位置和
+ * 警告一起更新；计算期间保留上次完整结果。本文件不计算战斗数值。
  */
 import { computed, onScopeDispose, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue';
 import type { ScenarioSimulationRun } from '../../application/scenarioSimulationService';
@@ -13,11 +13,14 @@ import type { SkillAvailabilityDiagnosticReason } from '../../core/projection/sk
 import type { SkillExecutionDiagnosticReason } from '../../core/projection/skillExecutionDiagnostics';
 import type { ComboWindowDiagnosticReason } from '../../core/projection/comboWindowDiagnostics';
 import { appendSimulationPerformanceSample } from './simulationPerformanceAudit';
+import { getSkillCastPlacementChains } from '../../core/project/skillCastPlacement';
 
 export type TimelineSkillDiagnosticReason =
   | SkillAvailabilityDiagnosticReason
   | SkillExecutionDiagnosticReason
   | ComboWindowDiagnosticReason
+  | 'skillGroupInputRejected'
+  | 'skillGroupInterrupted'
   | `skillInputMismatch: expected '${string}', actual '${string}'`
   | `skillInputUnknown: ${string}`
   | `skillInterruptUnavailable: current '${string}'`
@@ -219,6 +222,7 @@ export function useScenarioSimulation(
 
     const diagnostics = [
       ...current.availabilityDiagnostics.map(diagnostic => ({
+        receiptSequences: diagnostic.receiptSequences,
         frame: diagnostic.frame,
         sourceId: diagnostic.sourceId,
         skillId: diagnostic.skillId,
@@ -235,12 +239,14 @@ export function useScenarioSimulation(
         }),
       })),
       ...current.executionDiagnostics.map(diagnostic => ({
+        receiptSequences: diagnostic.receiptSequences,
         frame: diagnostic.frame,
         sourceId: diagnostic.sourceId,
         skillId: diagnostic.skillId,
         reason: diagnostic.reasons,
       })),
       ...current.comboWindowDiagnostics.map(diagnostic => ({
+        receiptSequences: diagnostic.receiptSequences,
         frame: diagnostic.frame,
         sourceId: diagnostic.sourceId,
         skillId: diagnostic.skillId,
@@ -248,19 +254,56 @@ export function useScenarioSimulation(
       })),
     ];
     const byCastId = new Map<string, TimelineSkillDiagnosticReason[]>();
+    const receipts = new Map(current.receiptEntries.map(entry => [entry.sequence, entry]));
+    const inputFrames = new Map<string, number>();
+    for (const entry of current.receiptEntries) {
+      if (entry.event === 'SkillInputProcessed' && typeof entry.data?.castId === 'string')
+        inputFrames.set(entry.data.castId, entry.frame);
+    }
+    const addReasons = (castId: string, reasons: readonly TimelineSkillDiagnosticReason[]) => {
+      byCastId.set(castId, [...new Set([...(byCastId.get(castId) ?? []), ...reasons])]);
+    };
     for (const diagnostic of diagnostics) {
+      // 接续成员没有保存开始帧；优先使用回执中的释放身份，不靠同技能、同时间猜身份。
+      const castIds = new Set(
+        diagnostic.receiptSequences.flatMap(sequence => {
+          const castId = receipts.get(sequence)?.data?.castId;
+          return typeof castId === 'string' ? [castId] : [];
+        }),
+      );
+      if (castIds.size > 0) {
+        for (const castId of castIds) addReasons(castId, diagnostic.reason);
+        continue;
+      }
       for (const track of scenario.tracks) {
         if (track === null || track.id !== diagnostic.sourceId) continue;
         for (const cast of track.skillCasts) {
           if (cast.source.kind !== 'operatorSkill') continue;
           if (
             cast.source.skillKey === diagnostic.skillId &&
-            cast.placement.startFrame === diagnostic.frame
+            (inputFrames.get(cast.id) ?? cast.placement.startFrame) === diagnostic.frame
           ) {
-            const existing = byCastId.get(cast.id) ?? [];
-            byCastId.set(cast.id, [...existing, ...diagnostic.reason]);
+            addReasons(cast.id, diagnostic.reason);
           }
         }
+      }
+    }
+    for (const entry of current.receiptEntries) {
+      if (entry.event !== 'SkillInputGroupBlocked') continue;
+      const track = scenario.tracks.find(track => track?.id === entry.sourceId);
+      if (!track) continue;
+      const chain = getSkillCastPlacementChains(track.skillCasts).find(
+        chain => chain.anchor.id === entry.data?.anchorCastId,
+      );
+      if (!chain) continue;
+      const start = chain.casts.findIndex(cast => cast.id === entry.data?.castId);
+      if (start < 0) continue;
+      const reason =
+        entry.data?.reason === 'inputRejected'
+          ? 'skillGroupInputRejected'
+          : 'skillGroupInterrupted';
+      for (const cast of chain.casts.slice(start)) {
+        if (!cast.presentation?.disabled) addReasons(cast.id, [reason]);
       }
     }
     return byCastId;

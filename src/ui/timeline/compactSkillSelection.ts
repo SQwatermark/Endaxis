@@ -1,8 +1,9 @@
 import type { ScenarioDocument } from '../../core/project/schema';
+import { getSkillCastPlacementChains } from '../../core/project/skillCastPlacement';
 
 export type CompactSkillSelection =
   | { readonly ok: true; readonly castIds: readonly string[] }
-  | { readonly ok: false; readonly reason: 'count' | 'mixed' };
+  | { readonly ok: false; readonly reason: 'count' | 'mixed' | 'grouped' };
 
 /** 只整理作者选择的身份和顺序，不以显示宽度推算接续时间。 */
 export function resolveCompactSkillSelection(
@@ -20,7 +21,17 @@ export function resolveCompactSkillSelection(
     new Set(selected.map(item => item.trackIndex)).size !== 1
   )
     return { ok: false, reason: 'mixed' };
-  selected.sort((a, b) => a.cast.placement.startFrame - b.cast.placement.startFrame);
+  if (
+    scenario.tracks.some(
+      track =>
+        track &&
+        getSkillCastPlacementChains(track.skillCasts).some(
+          chain => chain.casts.length > 1 && chain.casts.some(cast => selectedIds.has(cast.id)),
+        ),
+    )
+  )
+    return { ok: false, reason: 'grouped' };
+  selected.sort((a, b) => a.cast.placement.startFrame! - b.cast.placement.startFrame!);
   return { ok: true, castIds: selected.map(item => item.cast.id) };
 }
 
@@ -37,7 +48,9 @@ export function compactSkillSelectionByWidths(
     ),
   );
   const first = casts.get(castIds[0] ?? '');
-  if (first === undefined) return scenario;
+  if (first === undefined || !resolveCompactSkillSelection(scenario, new Set(castIds)).ok)
+    return scenario;
+  if (first.placement.startFrame === undefined) return scenario;
   let frame = first.placement.startFrame;
   const starts = new Map<string, number>();
   for (const id of castIds) {
@@ -50,7 +63,7 @@ export function compactSkillSelectionByWidths(
   for (const track of result.tracks)
     for (const cast of track?.skillCasts ?? []) {
       const startFrame = starts.get(cast.id);
-      if (startFrame !== undefined) cast.placement.startFrame = startFrame;
+      if (startFrame !== undefined) cast.placement = { startFrame };
     }
   return result;
 }

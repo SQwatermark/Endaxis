@@ -1,7 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyProject, createEmptyScenario } from '../../core/project/createProject';
 import type { EndaxisProjectDocument } from '../../core/project/schema';
+import { getSkillCastPlacementChains } from '../../core/project/skillCastPlacement';
+import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { validateProjectDocument } from '../../core/project/validation';
+import { ProjectEditorSession } from '../../application/editor/projectEditorSession';
+import { createSkillCastGroup } from './timelineDocumentCommands';
 import {
   addProjectScenario,
   deleteActiveScenario,
@@ -77,6 +81,77 @@ describe('scenario project commands', () => {
       stepKey: 'damage:key',
     });
     expect(validateProjectDocument(result)).toEqual({ ok: true, value: result });
+  });
+
+  it('复制连续组时重映射全部前驱，声明顺序不影响关系，并支持存档和撤销', () => {
+    const original = project();
+    const source = original.scenarios[0]!;
+    source.tracks[0] = {
+      id: 'track:group',
+      operator: null,
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [
+        { id: 'c', placement: { startFrame: 70 } },
+        { id: 'b', placement: { startFrame: 40 } },
+        { id: 'a', placement: { startFrame: 10 } },
+      ].map(cast => ({
+        ...cast,
+        source: { kind: 'operatorSkill', skillGroupKey: 'basicAttack', skillKey: cast.id },
+      })),
+    };
+    source.connections.push({
+      id: 'group:connection',
+      consumption: false,
+      from: { kind: 'skillCast', skillCastId: 'a' },
+      to: { kind: 'damageHit', skillCastId: 'c', stepKey: 'damage:key' },
+    });
+    original.scenarios[0] = createSkillCastGroup(
+      source,
+      new Set(['a', 'b', 'c']),
+      new Map([
+        ['a', 10],
+        ['b', 40],
+        ['c', 70],
+      ]),
+    );
+    const before = structuredClone(original);
+    const session = new ProjectEditorSession(original);
+    expect(
+      session.commit('duplicateScenario', value => duplicateActiveScenario(value, '副本')),
+    ).toBe(true);
+    const result = session.snapshot.project;
+    const copy = result.scenarios[1]!;
+    const [third, second, first] = copy.tracks[0]!.skillCasts;
+    expect(copy.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
+      { afterCastId: second!.id },
+      { afterCastId: first!.id },
+      { startFrame: 10 },
+    ]);
+    expect(
+      getSkillCastPlacementChains(copy.tracks[0]!.skillCasts).map(chain =>
+        chain.casts.map(cast => cast.id),
+      ),
+    ).toEqual([[first!.id, second!.id, third!.id]]);
+    expect(copy.tracks[0]!.skillCasts.every(cast => !['a', 'b', 'c'].includes(cast.id))).toBe(true);
+    expect(copy.connections[0]!.from.skillCastId).toBe(first!.id);
+    expect(copy.connections[0]!.to).toEqual({
+      kind: 'damageHit',
+      skillCastId: third!.id,
+      stepKey: 'damage:key',
+    });
+    expect(result.scenarios[0]).toBe(original.scenarios[0]);
+    expect(original).toEqual(before);
+    expect(validateProjectDocument(result)).toEqual({ ok: true, value: result });
+    expect(parseProjectDocument(serializeProjectDocument(result))).toEqual({
+      ok: true,
+      value: result,
+    });
+    expect(session.undo()).toBe(true);
+    expect(session.snapshot.project).toBe(original);
+    expect(session.redo()).toBe(true);
+    expect(session.snapshot.project).toBe(result);
   });
 
   it('refuses to delete a scenario referenced by inheritance', () => {

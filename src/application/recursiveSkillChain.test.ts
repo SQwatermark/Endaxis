@@ -29,14 +29,14 @@ function fixture() {
     receiptEntries: candidate.tracks[0]!.skillCasts.flatMap((cast, index): CombatReceiptEntry[] => [
       {
         sequence: index * 2,
-        frame: cast.placement.startFrame,
+        frame: cast.placement.startFrame!,
         time: 0,
         event: 'SkillInputProcessed',
         data: { castId: cast.id, accepted: true },
       },
       {
         sequence: index * 2 + 1,
-        frame: cast.placement.startFrame + 1,
+        frame: cast.placement.startFrame! + 1,
         time: 0,
         event: 'SkillOperableBoundaryReached',
         data: { castId: cast.id },

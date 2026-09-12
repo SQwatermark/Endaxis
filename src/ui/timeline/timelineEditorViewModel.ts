@@ -18,6 +18,7 @@ import { projectOperatorSupport, type OperatorSupportViewModel } from './operato
 import { projectCastHitMarkers, type TimelineHitMarker } from './timelineHitProjection';
 import { listSkillGroupLibraryPlacements } from './skillGroupPlacement';
 import { orderTimelineSkillLibrary } from './skillLibraryOrder';
+import { resolveSkillCastStartFrames } from '../../core/project/skillCastPlacement';
 
 /** UI 投影读取干员定义的最小端口。 */
 export interface TimelineOperatorIndex {
@@ -122,7 +123,8 @@ function projectSkillCast(
   const skillType = resolved?.definition.skillType ?? resolved?.group.skillType ?? null;
   return {
     id: skillCast.id,
-    startFrame: skillCast.placement.startFrame,
+    // 定义全部解析后，再统一补上连续组中各成员的预计位置。
+    startFrame: skillCast.placement.startFrame ?? 0,
     durationFrames: resolved !== null ? resolved.definition.timelineBlockFrames : 0,
     source: skillCast.source,
     skillType,
@@ -226,6 +228,11 @@ function projectTrack(
       operator?.buffDefinitions,
     );
   });
+  const durations = new Map(skillCasts.map(cast => [cast.id, cast.durationFrames]));
+  const startFrames = resolveSkillCastStartFrames(
+    track.skillCasts,
+    cast => durations.get(cast.id) ?? 0,
+  );
 
   return {
     trackIndex,
@@ -240,7 +247,7 @@ function projectTrack(
         ? null
         : resolveOperatorMaxUltimateEnergy(operator, operatorInstance.skillLevels.ultimate ?? 1)),
     skillLibrary,
-    skillCasts,
+    skillCasts: skillCasts.map(cast => ({ ...cast, startFrame: startFrames.get(cast.id)! })),
     issues,
   };
 }

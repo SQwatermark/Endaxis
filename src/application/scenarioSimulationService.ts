@@ -217,6 +217,17 @@ export class ScenarioSimulationService {
       }
   > {
     assertNotAborted(signal);
+    // 一次性整理不能拆掉用户保存的接续关系；连续组由正式模拟直接排程。
+    const selected = new Set(castIds);
+    for (const track of scenario.tracks) {
+      for (const cast of track?.skillCasts ?? []) {
+        if (
+          cast.placement.afterCastId !== undefined &&
+          (selected.has(cast.id) || selected.has(cast.placement.afterCastId))
+        )
+          throw new Error('dissolve continuous skill groups before planning fixed positions');
+      }
+    }
     if (extension !== undefined) {
       if (mode !== 'continuation' || castIds.length !== 1)
         throw new Error('recursive placement requires one seed');
@@ -268,7 +279,7 @@ export class ScenarioSimulationService {
     for (const track of candidate.tracks) {
       for (const cast of track?.skillCasts ?? []) {
         const frame = frames.get(cast.id);
-        if (frame !== undefined) cast.placement.startFrame = frame;
+        if (frame !== undefined) cast.placement = { startFrame: frame };
       }
     }
     const run = await this.simulate(candidate, endFrame, signal);

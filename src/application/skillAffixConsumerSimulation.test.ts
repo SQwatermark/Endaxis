@@ -34,6 +34,7 @@ it.each([false, true])('伊冯正式战技 SkillAffix 生命周期 interruption=
     startFrame: 1,
     ids: { allocate: kind => `${kind}:yvonne:affix` },
   }).scenario;
+  let nextInterruptCastId = 0;
   if (interrupted)
     placed = placeSkillGroup({
       scenario: placed,
@@ -41,7 +42,7 @@ it.each([false, true])('伊冯正式战技 SkillAffix 生命周期 interruption=
       operator: yvonne,
       skillGroupKey: 'basicAttack',
       startFrame: 10,
-      ids: { allocate: kind => `${kind}:yvonne:interrupt` },
+      ids: { allocate: kind => `${kind}:yvonne:interrupt:${++nextInterruptCastId}` },
     }).scenario;
   const result = runStandardPlayerDamageScenarioSimulation({
     scenario: placed,

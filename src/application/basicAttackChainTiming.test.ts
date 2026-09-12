@@ -139,7 +139,7 @@ describe('generated basic attack chain input timing', () => {
       expect(casts.length).toBeLessThanOrEqual(24);
       expect(casts[0]!.placement.startFrame).toBe(startFrame);
       for (let i = 1; i < casts.length; i++)
-        expect(casts[i]!.placement.startFrame).toBeGreaterThan(casts[i - 1]!.placement.startFrame);
+        expect(casts[i]!.placement.startFrame).toBeGreaterThan(casts[i - 1]!.placement.startFrame!);
       expect(placed.scenario.tracks[0]!.skillCasts).toHaveLength(2);
       expect(
         result.run.receiptEntries.filter(
@@ -359,7 +359,7 @@ describe('generated basic attack chain input timing', () => {
       const scenario = createChain(lifeng);
       const casts = scenario.tracks[0]!.skillCasts;
       casts.forEach(cast => {
-        cast.placement.startFrame += startFrame - 1;
+        cast.placement = { startFrame: cast.placement.startFrame! + startFrame - 1 };
       });
       const ids = casts.map(cast => cast.id);
       const before = structuredClone(scenario);

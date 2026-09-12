@@ -73,6 +73,75 @@ function createPerlicaScenario(): ScenarioDocument {
 }
 
 describe('useScenarioSimulation', () => {
+  it('按回执释放身份定位接续成员诊断，并把停组原因标到尚未执行的后缀', async () => {
+    const initial = createPerlicaScenario();
+    const source = {
+      kind: 'operatorSkill' as const,
+      skillGroupKey: 'basicAttack',
+      skillKey: 'basicAttack1',
+    };
+    initial.tracks[0]!.skillCasts = [
+      { id: 'first', source, placement: { startFrame: 55 } },
+      { id: 'second', source, placement: { afterCastId: 'first' } },
+      { id: 'third', source, placement: { afterCastId: 'second' } },
+    ];
+    const fakeService = {
+      simulate: async () => ({
+        receiptEntries: [
+          {
+            sequence: 0,
+            frame: 55,
+            event: 'SkillCostUnavailableAtStart',
+            sourceId: 'track:0',
+            data: { castId: 'second', skillId: 'basicAttack1' },
+          },
+          {
+            sequence: 1,
+            frame: 55,
+            event: 'SkillInputProcessed',
+            sourceId: 'track:0',
+            data: { castId: 'second', accepted: false },
+          },
+          {
+            sequence: 2,
+            frame: 55,
+            event: 'SkillInputGroupBlocked',
+            sourceId: 'track:0',
+            data: {
+              anchorCastId: 'first',
+              castId: 'third',
+              previousCastId: 'second',
+              reason: 'inputRejected',
+            },
+          },
+        ],
+        availabilityDiagnostics: [
+          {
+            frame: 55,
+            sourceId: 'track:0',
+            skillId: 'basicAttack1',
+            reasons: ['resourceUnavailable'],
+            receiptSequences: [0],
+          },
+        ],
+        executionDiagnostics: [],
+        comboWindowDiagnostics: [],
+      }),
+    } as unknown as ScenarioSimulationService;
+    const harness = createHarness(initial, fakeService);
+    try {
+      expect(await harness.result.simulateNow()).toBe(true);
+      expect(harness.result.diagnosticsByCastId.value.get('first')).toBeUndefined();
+      expect(harness.result.diagnosticsByCastId.value.get('second')).toEqual([
+        'resourceUnavailable',
+      ]);
+      expect(harness.result.diagnosticsByCastId.value.get('third')).toEqual([
+        'skillGroupInputRejected',
+      ]);
+    } finally {
+      harness.stop();
+    }
+  });
   it('连续编辑期间发布已经完整算完的快照，重置后禁止旧结果复活', async () => {
     const scenario = shallowRef(createPerlicaScenario());
     const requests: Array<(value: any) => void> = [];
@@ -277,13 +346,14 @@ describe('useScenarioSimulation', () => {
           harness.result.run.value!.receiptEntries,
         );
         for (let index = 0; index < casts.length - 1; index++) {
-          expect(casts[index]!.placement.startFrame + durations.get(casts[index]!.id)!).toBe(
+          expect(casts[index]!.placement.startFrame! + durations.get(casts[index]!.id)!).toBe(
             casts[index + 1]!.placement.startFrame,
           );
         }
         // 修的是新链布局，不是取消校验：作者主动提前一帧仍得到原生中断诊断。
         const early = structuredClone(placed.scenario);
-        early.tracks[0]!.skillCasts[1]!.placement.startFrame -= 1;
+        const earlyCast = early.tracks[0]!.skillCasts[1]!;
+        earlyCast.placement = { startFrame: earlyCast.placement.startFrame! - 1 };
         const earlyRun = await service.simulate(early, 300);
         expect(
           earlyRun.availabilityDiagnostics.some(
@@ -636,6 +706,7 @@ describe('useScenarioSimulation', () => {
   it('新模拟完成前保留上一份完整诊断，完成后再整体替换', async () => {
     const initial = createPerlicaScenario();
     const fakeRun = {
+      receiptEntries: [],
       availabilityDiagnostics: [
         {
           frame: 1,

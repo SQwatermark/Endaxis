@@ -386,6 +386,9 @@ export function compileScenarioRuntimeAssembly(
     enemy: applyMechanicsToScenarioEnemy(compileScenarioEnemy(scenario.enemy), mechanics),
     operators,
     inputs: timeline.inputs,
+    ...(timeline.skillInputGroups === undefined
+      ? {}
+      : { skillInputGroups: timeline.skillInputGroups }),
     externalEvents: compileScenarioExternalEventInputs(scenario),
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),

@@ -1,0 +1,84 @@
+/**
+ * 解释用户手动建立的技能顺序链。链保留每项释放身份，不等同于游戏定义中的技能组。
+ * 这里只解析引用与显示起点；实际接续边界由模拟提供，任何估计或模拟帧都不写回存档。
+ */
+import type { SkillCastDocument } from './schema';
+
+export interface SkillCastPlacementChain {
+  readonly anchor: SkillCastDocument;
+  readonly casts: readonly SkillCastDocument[];
+}
+
+/** 包含独立项；链之间按原数组首次出现成员的顺序，链内按前驱关系排列。 */
+export function getSkillCastPlacementChains(
+  casts: readonly SkillCastDocument[],
+): readonly SkillCastPlacementChain[] {
+  const byId = new Map<string, SkillCastDocument>();
+  const successor = new Map<string, SkillCastDocument>();
+  for (const cast of casts) {
+    if (byId.has(cast.id)) throw new Error(`duplicate skill cast '${cast.id}'`);
+    byId.set(cast.id, cast);
+  }
+  for (const cast of casts) {
+    const previous = cast.placement.afterCastId;
+    if (previous === undefined) {
+      if (!Number.isInteger(cast.placement.startFrame))
+        throw new Error(`skill cast '${cast.id}' must have an integer start frame`);
+      continue;
+    }
+    if (cast.placement.startFrame !== undefined)
+      throw new Error(`skill cast '${cast.id}' cannot have both start frame and predecessor`);
+    if (!byId.has(previous))
+      throw new Error(`skill cast '${cast.id}' has no predecessor '${previous}' on its track`);
+    if (successor.has(previous))
+      throw new Error(`skill cast '${previous}' has more than one successor`);
+    successor.set(previous, cast);
+  }
+  const chainByCast = new Map<string, SkillCastPlacementChain>();
+  for (const anchor of casts) {
+    if (anchor.placement.afterCastId !== undefined) continue;
+    const members: SkillCastDocument[] = [];
+    let current: SkillCastDocument | undefined = anchor;
+    while (current !== undefined) {
+      members.push(current);
+      current = successor.get(current.id);
+    }
+    const chain = { anchor, casts: members };
+    members.forEach(cast => chainByCast.set(cast.id, chain));
+  }
+  if (chainByCast.size !== casts.length) throw new Error('skill cast placement contains a cycle');
+  return [...new Set(casts.map(cast => chainByCast.get(cast.id)!))];
+}
+
+export function getSkillCastPlacementAnchor(
+  casts: readonly SkillCastDocument[],
+  castId: string,
+): SkillCastDocument {
+  const chain = getSkillCastPlacementChains(casts).find(chain =>
+    chain.casts.some(cast => cast.id === castId),
+  );
+  if (chain === undefined) throw new Error(`missing skill cast '${castId}'`);
+  return chain.anchor;
+}
+
+/** 实际起点优先；尚无实际结果时按前项宽度估计，禁用项不占时间，零宽启用项至少占一帧。 */
+export function resolveSkillCastStartFrames(
+  casts: readonly SkillCastDocument[],
+  durationFrames: (cast: SkillCastDocument) => number,
+  actualStartFrames?: ReadonlyMap<string, number>,
+): Map<string, number> {
+  const starts = new Map<string, number>();
+  for (const chain of getSkillCastPlacementChains(casts)) {
+    let next = chain.anchor.placement.startFrame!;
+    for (const cast of chain.casts) {
+      const start = actualStartFrames?.get(cast.id) ?? next;
+      if (!Number.isFinite(start)) throw new Error(`skill cast '${cast.id}' has no finite start`);
+      starts.set(cast.id, start);
+      const duration = cast.presentation?.disabled ? 0 : Math.max(1, durationFrames(cast));
+      if (!Number.isFinite(duration))
+        throw new Error(`skill cast '${cast.id}' has no finite display duration`);
+      next = start + duration;
+    }
+  }
+  return starts;
+}

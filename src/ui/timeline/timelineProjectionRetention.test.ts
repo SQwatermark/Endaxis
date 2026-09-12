@@ -24,13 +24,16 @@ describe('Next timeline simulation projection retention', () => {
   });
   it('keeps cast starts and time-dilation bands while a drag simulation is pending', () => {
     const projections = projectionSource(
-      'const skillCastActualStartFrames = computed',
+      'const publishedSkillCastActualStartFrames = computed',
       '\nconst timelineWidth = computed',
     );
 
     expect(projections).toContain('projectSkillCastActualStartFrames');
     expect(projections).toContain('projectSkillCastActualDurationFrames');
     expect(projections).toContain('projectTimelineTimeDilationBands');
+    expect(projections).toContain('publishedSkillCastActualStartFrames.value');
+    expect(projections).toContain('publishedSkillCastActualDurationFrames.value');
+    expect(projections).toContain('publishedTimeDilationBands.value');
     expect(projections).not.toContain('timelineTimeMapping');
     expect(projections).not.toContain('simulationStale.value');
   });
@@ -50,25 +53,40 @@ describe('Next timeline simulation projection retention', () => {
   });
 
   it('does not independently clear hit projections while the published snapshot is stale', () => {
+    const publishedHits = projectionSource(
+      'const hitReceipts = computed',
+      '\nconst castHitEffects = computed',
+    );
     const hitProjection = projectionSource(
       'const castHitEffects = computed',
       '\n/** 敌人瞬时效果标记',
     );
 
     expect(hitProjection).toContain('const current = simulationRun.value');
-    expect(hitProjection).toContain('projectTimelineHitActualFrames');
+    expect(publishedHits).toContain(
+      'projectTimelineHitReceipts(simulationRun.value?.receiptEntries',
+    );
+    expect(publishedHits).not.toContain('simulationStale.value');
+    expect(hitProjection).toContain(
+      'projectCompatibleHitFrames(hitReceipts.value.damages, compatibleSkillCastReceiptIds.value)',
+    );
     expect(hitProjection).not.toContain('simulationStale.value');
     expect(actionBlockSource).not.toContain('transition: all');
     expect(actionBlockSource).toContain('background-color 0.15s ease');
     expect(actionBlockSource).toContain('transform 0.15s cubic-bezier');
-    expect(source).toContain('hitId: $event');
+    const hitSelection = projectionSource('@hit-click="', '@connection-pointer-down="');
+    expect(hitSelection).toContain('(hitId, executionFrame) =>');
+    expect(hitSelection).toMatch(/hitDetailTarget\s*=\s*\{[\s\S]*castId: cast.id,\s*hitId,/);
+    expect(hitSelection).toContain('...(executionFrame === undefined ? {} : { executionFrame })');
     expect(source).toContain('candidate.hitId === target.hitId');
   });
 
   it('keeps legacy hit-marker press timing and forced-critical feedback', () => {
     expect(actionBlockSource).toContain("'is-forced-crit': hit.forcedCritical");
-    expect(actionBlockSource).toContain('@mousedown.stop.prevent="$emit(\'hitClick\', hit.hitId)"');
-    expect(actionBlockSource).not.toContain('@click.stop="$emit(\'hitClick\', hit.hitId)"');
+    expect(actionBlockSource).toContain(
+      '@mousedown.stop.prevent="$emit(\'hitClick\', hit.hitId, hit.executionFrame)"',
+    );
+    expect(actionBlockSource).not.toMatch(/@click[^=]*="\$emit\('hitClick'/);
     expect(actionBlockSource).toMatch(/\.hit-marker\.is-forced-crit\s*\{[^}]*#ff6b6b/s);
     expect(source).toContain('forcedCriticalStepKeys');
   });
@@ -203,13 +221,22 @@ describe('Next timeline simulation projection retention', () => {
     );
     const projection = projectionSource(
       'function castActualStartFrame',
-      '\nfunction gaugeCurveFor',
+      '\nfunction castActualDurationFrame',
+    );
+    const displayedStarts = projectionSource(
+      'const displayedSkillCastStartFrames = computed',
+      '\nconst skillCastGroupsByTrack = computed',
     );
     const movement = projectionSource('function beginCastMove', '\nasync function finishCastMove');
 
     expect(gesture).not.toContain('TimelineDisplayTime');
     expect(movement).not.toContain('toLogicalFrame');
-    expect(projection).toContain('return gesture.previewActualFrame');
+    expect(projection).toContain(
+      'return displayedSkillCastStartFrames.value.get(castId) ?? placementFrame',
+    );
+    expect(displayedStarts).toContain('projectMovingSkillCastStartFrames(');
+    expect(displayedStarts).toContain('previewActualFrame: gesture.previewActualFrame');
+    expect(displayedStarts).toContain('castIds: gesture.skillCastIds');
     expect(movement).toContain('pointerOffsetActualFrames');
     expect(movement).toContain('passedTimelineDragThreshold');
     expect(movement).toContain('dragStarted: false');
@@ -245,11 +272,17 @@ describe('Next timeline simulation projection retention', () => {
   });
 
   it('keeps the legacy inherited label typography and lets narrow labels overflow', () => {
-    expect(actionBlockSource).toContain('font-family: inherit');
-    expect(actionBlockSource).toContain('font-size: inherit');
-    expect(actionBlockSource).toContain('font-weight: 700');
-    expect(actionBlockSource).toContain('line-height: normal');
-    expect(actionBlockSource).toMatch(/\.action-label\s*\{[^}]*overflow: visible/s);
-    expect(actionBlockSource).not.toContain('text-overflow: ellipsis');
+    const blockStyle = actionBlockSource.match(/\.timeline-action-block\s*\{([^}]*)\}/)?.[1];
+    const labelStyle = actionBlockSource.match(/\.action-label\s*\{([^}]*)\}/)?.[1];
+    expect(blockStyle).toBeDefined();
+    expect(labelStyle).toBeDefined();
+    expect(blockStyle).toContain('font-family: inherit');
+    expect(blockStyle).toContain('font-size: inherit');
+    expect(blockStyle).toContain('font-weight: 700');
+    expect(blockStyle).toContain('line-height: normal');
+    expect(blockStyle).toContain('overflow: visible');
+    expect(labelStyle).toContain('overflow: visible');
+    expect(labelStyle).not.toContain('text-overflow: ellipsis');
+    expect(blockStyle).not.toContain('text-overflow: ellipsis');
   });
 });

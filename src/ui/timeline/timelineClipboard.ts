@@ -40,6 +40,7 @@ function cloneValue<T>(value: T): T {
 export function copyTimelineActions(
   scenario: ScenarioDocument,
   selectedIds: ReadonlySet<string>,
+  resolvedStartFrames?: ReadonlyMap<string, number>,
 ): TimelineActionClipboard | null {
   const casts = scenario.tracks.flatMap((track, trackIndex) =>
     track === null
@@ -51,8 +52,23 @@ export function copyTimelineActions(
   if (casts.length === 0) return null;
 
   const copiedIds = new Set(casts.map(entry => entry.cast.id));
+  for (const { cast } of casts) {
+    const previous = cast.placement.afterCastId;
+    if (previous === undefined || copiedIds.has(previous)) continue;
+    const startFrame = resolvedStartFrames?.get(cast.id);
+    if (startFrame === undefined || !Number.isInteger(startFrame))
+      throw new Error(
+        `resolved integer start frame is required to copy '${cast.id}' without its predecessor`,
+      );
+    // 只有显式复制的边界才物化；完整复制的链保持相对关系，也不修改原存档。
+    cast.placement = { startFrame };
+  }
   return {
-    originFrame: Math.min(...casts.map(entry => entry.cast.placement.startFrame)),
+    originFrame: Math.min(
+      ...casts.flatMap(entry =>
+        entry.cast.placement.startFrame === undefined ? [] : [entry.cast.placement.startFrame],
+      ),
+    ),
     casts,
     connections: scenario.connections
       .filter(
@@ -94,12 +110,21 @@ export function pasteTimelineActions(
     const track = tracks[entry.trackIndex];
     if (track === null) throw new Error(`track ${entry.trackIndex} is empty`);
     const skillCastId = castIds.get(entry.cast.id)!;
+    let placement: SkillCastDocument['placement'];
+    if (entry.cast.placement.afterCastId === undefined) {
+      placement = {
+        startFrame: startFrame + entry.cast.placement.startFrame - clipboard.originFrame,
+      };
+    } else {
+      const previous = castIds.get(entry.cast.placement.afterCastId);
+      if (previous === undefined)
+        throw new Error('clipboard predecessor is outside the copied selection');
+      placement = { afterCastId: previous };
+    }
     const cast: SkillCastDocument = {
       ...cloneValue(entry.cast),
       id: skillCastId,
-      placement: {
-        startFrame: startFrame + entry.cast.placement.startFrame - clipboard.originFrame,
-      },
+      placement,
     };
     tracks[entry.trackIndex] = { ...track, skillCasts: [...track.skillCasts, cast] };
     createdIds.push(skillCastId);

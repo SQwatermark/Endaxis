@@ -34,7 +34,7 @@ function index() {
 }
 
 function place(scenario: ScenarioDocument, skillGroupKey: string, startFrame: number) {
-  let nextId = 0;
+  let nextId = scenario.tracks[0]!.skillCasts.length;
   return placeSkillGroup({
     scenario,
     trackIndex: 0,
@@ -441,7 +441,7 @@ describe('compileScenarioTimeline', () => {
         frame: 60,
         operatorId: 'track:0',
         skillId: 'ultimate',
-        castId: 'skillCast:1',
+        castId: 'skillCast:2',
         action: 'ultimate',
       },
     ]);
@@ -467,6 +467,66 @@ describe('compileScenarioTimeline', () => {
     scenario.tracks[0]!.skillCasts[0]!.presentation = { disabled: true };
 
     expect(compileScenarioTimeline(scenario, index()).inputs).toEqual([]);
+  });
+
+  it.each(['none', 'head', 'middle', 'all'] as const)(
+    '连续组跳过 %s 禁用成员，始终保留原头锚点',
+    disabled => {
+      const scenario = place(createScenario(), 'basicAttack', -12);
+      const casts = scenario.tracks[0]!.skillCasts;
+      for (let i = 1; i < casts.length; i += 1)
+        casts[i]!.placement = { afterCastId: casts[i - 1]!.id };
+      for (const [i, cast] of casts.entries()) {
+        if (
+          disabled === 'all' ||
+          (disabled === 'head' && i === 0) ||
+          (disabled === 'middle' && i === 1)
+        )
+          cast.presentation = { disabled: true };
+      }
+      const before = structuredClone(scenario);
+      const compiled = compileScenarioTimeline(scenario, index());
+      const enabled = casts.filter(cast => !cast.presentation?.disabled);
+      expect(compiled.inputs.map(input => input.castId)).toEqual(enabled.map(cast => cast.id));
+      expect(compiled.inputs.every(input => input.frame === -12)).toBe(true);
+      expect(compiled.skillInputGroups).toEqual(
+        enabled.length === 0
+          ? undefined
+          : [
+              {
+                anchorCastId: casts[0]!.id,
+                castIds: enabled.map(cast => cast.id),
+              },
+            ],
+      );
+      expect(
+        compiled.operators[0]!.skills.filter(program => program.castId !== undefined).map(
+          program => program.castId,
+        ),
+      ).toEqual(enabled.map(cast => cast.id));
+      expect(scenario).toEqual(before);
+    },
+  );
+
+  it('连续组即使声明顺序不同于引用顺序，也按引用衔接并保留同帧声明序号', () => {
+    const scenario = place(createScenario(), 'basicAttack', 30);
+    const [first, second, third, fourth] = scenario.tracks[0]!.skillCasts;
+    second!.placement = { afterCastId: first!.id };
+    third!.placement = { afterCastId: second!.id };
+    fourth!.placement = { startFrame: 100 };
+    scenario.tracks[0]!.skillCasts = [third!, first!, fourth!, second!];
+    const compiled = compileScenarioTimeline(scenario, index());
+    expect(compiled.skillInputGroups).toEqual([
+      { anchorCastId: first!.id, castIds: [first!.id, second!.id, third!.id] },
+    ]);
+    expect(
+      compiled.inputs.map(input => [input.castId, input.frame, input.declarationOrder]),
+    ).toEqual([
+      [third!.id, 30, 0],
+      [first!.id, 30, 1],
+      [second!.id, 30, 3],
+      [fourth!.id, 100, 2],
+    ]);
   });
 
   it('compiles an active ultimate-cost potential into the runtime program', () => {
