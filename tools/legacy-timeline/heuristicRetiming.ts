@@ -75,6 +75,12 @@ export interface LegacyRetimingResult {
   readonly skillFormAdjustments: readonly LegacySkillFormAdjustment[];
   readonly controlSwitchAdjustments: readonly LegacyControlSwitchAdjustment[];
   readonly inferredControlSwitches: readonly LegacyInferredControlSwitch[];
+  readonly simulationStats: {
+    readonly scenarioCount: number;
+    readonly castCount: number;
+    readonly candidateProbes: number;
+    readonly simulationRuns: number;
+  };
 }
 
 export interface LegacyRetimingSimulationResult {
@@ -109,6 +115,7 @@ interface FrameInterval {
 const PLANNING_LOOKAHEAD_FRAMES = 300;
 const MAX_PLANNING_EXTENSIONS = 12;
 const MAX_INPUT_WINDOW_DELAY_FRAMES = 300;
+const LINEAR_INPUT_WINDOW_PROBES = 8;
 
 function record(value: unknown): UnknownRecord | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -185,6 +192,94 @@ function moveOutsideUltimateTimeDilation(
       return { frame: interval.endFrame + 1, intervalEnd: interval.endFrame };
   }
   return { frame };
+}
+
+interface InputWindowCandidate {
+  readonly frame: number;
+  readonly latestUltimateTimeDilationEndFrame?: number;
+}
+
+/**
+ * 预先生成逐帧试探原本会访问的位置，但不启动模拟。
+ * 终结技膨胀区间整体跳过，因此序号仍对应“最多尝试多少次”，不会改变旧规则的搜索边界。
+ */
+function inputWindowCandidates(
+  initialFrame: number,
+  intervals: readonly FrameInterval[],
+): readonly InputWindowCandidate[] {
+  const candidates: InputWindowCandidate[] = [{ frame: initialFrame }];
+  let frame = initialFrame;
+  let latestUltimateTimeDilationEndFrame: number | undefined;
+  for (let index = 0; index < MAX_INPUT_WINDOW_DELAY_FRAMES; index += 1) {
+    const next = moveOutsideUltimateTimeDilation(frame + 1, intervals);
+    frame = next.frame;
+    if (next.intervalEnd !== undefined) latestUltimateTimeDilationEndFrame = next.intervalEnd;
+    candidates.push({
+      frame,
+      ...(latestUltimateTimeDilationEndFrame === undefined
+        ? {}
+        : { latestUltimateTimeDilationEndFrame }),
+    });
+  }
+  return candidates;
+}
+
+interface InputWindowProbeResult {
+  readonly settled: boolean;
+  readonly blocked: boolean;
+}
+
+/** 初始候选已确认被拦截后，定位第一个未被拦截的候选，并让最后一次探测停在该位置。 */
+function findFirstAllowedInputWindowCandidate(
+  candidateCount: number,
+  probe: (index: number) => InputWindowProbeResult,
+): { readonly settled: boolean; readonly allowedIndex?: number } {
+  let blockedIndex = 0;
+  let allowedIndex: number | undefined;
+  let lastProbeIndex = 0;
+  const runProbe = (index: number) => {
+    lastProbeIndex = index;
+    return probe(index);
+  };
+
+  const linearProbeEnd = Math.min(LINEAR_INPUT_WINDOW_PROBES, candidateCount - 1);
+  let result: InputWindowProbeResult = { settled: true, blocked: true };
+  for (let probeIndex = 1; probeIndex <= linearProbeEnd; probeIndex += 1) {
+    result = runProbe(probeIndex);
+    if (!result.settled) return { settled: false };
+    if (!result.blocked) {
+      allowedIndex = probeIndex;
+      break;
+    }
+    blockedIndex = probeIndex;
+  }
+
+  let probeIndex = Math.min(candidateCount - 1, Math.max(1, blockedIndex * 2));
+  while (allowedIndex === undefined && probeIndex > blockedIndex) {
+    result = runProbe(probeIndex);
+    if (!result.settled) return { settled: false };
+    if (!result.blocked) {
+      allowedIndex = probeIndex;
+      break;
+    }
+    blockedIndex = probeIndex;
+    if (probeIndex === candidateCount - 1) break;
+    probeIndex = Math.min(candidateCount - 1, probeIndex * 2);
+  }
+
+  if (allowedIndex === undefined) return { settled: true };
+  while (allowedIndex - blockedIndex > 1) {
+    const middleIndex = Math.floor((blockedIndex + allowedIndex) / 2);
+    result = runProbe(middleIndex);
+    if (!result.settled) return { settled: false };
+    if (result.blocked) blockedIndex = middleIndex;
+    else allowedIndex = middleIndex;
+  }
+  if (lastProbeIndex !== allowedIndex) {
+    result = runProbe(allowedIndex);
+    if (!result.settled) return { settled: false };
+  }
+  return { settled: true, allowedIndex };
 }
 
 function projectDisplayedCastEndFrames(
@@ -334,6 +429,10 @@ export function retimeLegacyProjectBySimulation(
   const skillFormAdjustments: LegacySkillFormAdjustment[] = [];
   const controlSwitchAdjustments: LegacyControlSwitchAdjustment[] = [];
   const inferredControlSwitches: LegacyInferredControlSwitch[] = [];
+  let retimedScenarioCount = 0;
+  let retimedCastCount = 0;
+  let candidateProbes = 0;
+  let simulationRuns = 0;
 
   for (const scenario of project.scenarios) {
     const sourceWrapper = sourceScenarios.find(wrapper => wrapper.id === scenario.id);
@@ -367,6 +466,8 @@ export function retimeLegacyProjectBySimulation(
         left.actionIndex - right.actionIndex,
     );
     if (ordered.length === 0) continue;
+    retimedScenarioCount += 1;
+    retimedCastCount += ordered.length;
 
     const working = structuredClone(scenario);
     const workingCasts = new Map(
@@ -446,13 +547,11 @@ export function retimeLegacyProjectBySimulation(
       setSimulationDisabled(workingCast, false);
 
       let settled = false;
-      for (
-        let inputWindowAttempt = 0;
-        inputWindowAttempt <= MAX_INPUT_WINDOW_DELAY_FRAMES;
-        inputWindowAttempt += 1
-      ) {
-        targetCast.placement = { startFrame: adjustedStartFrame };
-        workingCast.placement = { startFrame: adjustedStartFrame };
+      const simulateCandidate = (candidateFrame: number): boolean => {
+        candidateProbes += 1;
+        adjustedStartFrame = candidateFrame;
+        targetCast.placement = { startFrame: candidateFrame };
+        workingCast.placement = { startFrame: candidateFrame };
         retimeControlSwitches(scenario, working, sourceData, ordered.slice(0, index + 1));
         synchronizeLegacyInferredControlSwitches(
           scenario,
@@ -462,9 +561,15 @@ export function retimeLegacyProjectBySimulation(
           working,
           ordered.slice(0, index + 1).map((item, order) => ({ ...item, order })),
         );
-        let planningEndFrame = Math.max(0, adjustedStartFrame + PLANNING_LOOKAHEAD_FRAMES);
+        const maximumPlanningEndFrame = Math.max(
+          0,
+          candidateFrame + PLANNING_LOOKAHEAD_FRAMES * (MAX_PLANNING_EXTENSIONS + 1),
+        );
+        let planningLookaheadFrames = PLANNING_LOOKAHEAD_FRAMES;
+        let planningEndFrame = Math.max(0, candidateFrame + planningLookaheadFrames);
         for (let attempt = 0; attempt <= MAX_PLANNING_EXTENSIONS; attempt += 1) {
           working.battle.durationFrames = planningEndFrame;
+          simulationRuns += 1;
           const run = runSimulation(working, planningEndFrame);
           lastReceiptEntries = run.receiptEntries;
           if (
@@ -496,33 +601,54 @@ export function retimeLegacyProjectBySimulation(
             settled = true;
             break;
           }
-          planningEndFrame += PLANNING_LOOKAHEAD_FRAMES;
+          if (planningEndFrame >= maximumPlanningEndFrame) break;
+          planningLookaheadFrames *= 2;
+          planningEndFrame = Math.min(
+            maximumPlanningEndFrame,
+            candidateFrame + planningLookaheadFrames,
+          );
         }
-        if (!settled || !castCannotInterruptCurrentSkill(lastReceiptEntries, current.castId)) break;
-        if (inputWindowAttempt === 0) {
-          fallbackActualStarts = actualStarts;
-          fallbackActualEnds = actualEnds;
-          fallbackUltimateIntervals = ultimateIntervals;
-        }
-        if (inputWindowAttempt === MAX_INPUT_WINDOW_DELAY_FRAMES) {
+        return settled;
+      };
+
+      const candidates = inputWindowCandidates(initialAdjustedStartFrame, priorUltimateIntervals);
+      simulateCandidate(initialAdjustedStartFrame);
+      if (settled && castCannotInterruptCurrentSkill(lastReceiptEntries, current.castId)) {
+        fallbackActualStarts = actualStarts;
+        fallbackActualEnds = actualEnds;
+        fallbackUltimateIntervals = ultimateIntervals;
+
+        // 已处理技能的放置帧单调不降，未来技能全部禁用；跳过已知终结技膨胀后，
+        // “当前技能不可被打断”只会从 true 变为 false，可安全查找第一个合法候选。
+        const search = findFirstAllowedInputWindowCandidate(candidates.length, probeIndex => {
+          settled = false;
+          const candidateSettled = simulateCandidate(candidates[probeIndex]!.frame);
+          return {
+            settled: candidateSettled,
+            blocked:
+              candidateSettled &&
+              castCannotInterruptCurrentSkill(lastReceiptEntries, current.castId),
+          };
+        });
+        settled = search.settled;
+
+        if (settled && search.allowedIndex !== undefined) {
+          const selected = candidates[search.allowedIndex]!;
+          adjustedStartFrame = selected.frame;
+          inputWindowDelayFrames = selected.frame - initialAdjustedStartFrame;
+          if (selected.latestUltimateTimeDilationEndFrame !== undefined) {
+            ultimateTimeDilationEndFrame = selected.latestUltimateTimeDilationEndFrame;
+          }
+        } else if (settled) {
           adjustedStartFrame = initialAdjustedStartFrame;
           targetCast.placement = { startFrame: adjustedStartFrame };
           workingCast.placement = { startFrame: adjustedStartFrame };
-          actualStarts = new Map(fallbackActualStarts!);
-          actualEnds = new Map(fallbackActualEnds!);
-          ultimateIntervals = fallbackUltimateIntervals!;
+          actualStarts = new Map(fallbackActualStarts);
+          actualEnds = new Map(fallbackActualEnds);
+          ultimateIntervals = fallbackUltimateIntervals;
           inputWindowDelayFrames = 0;
           inputWindowSearchExhausted = true;
-          break;
         }
-        settled = false;
-        const next = moveOutsideUltimateTimeDilation(
-          adjustedStartFrame + 1,
-          priorUltimateIntervals,
-        );
-        inputWindowDelayFrames += next.frame - adjustedStartFrame;
-        adjustedStartFrame = next.frame;
-        if (next.intervalEnd !== undefined) ultimateTimeDilationEndFrame = next.intervalEnd;
       }
       if (!settled) {
         const lifecycle = lastReceiptEntries
@@ -616,5 +742,11 @@ export function retimeLegacyProjectBySimulation(
     skillFormAdjustments,
     controlSwitchAdjustments,
     inferredControlSwitches,
+    simulationStats: {
+      scenarioCount: retimedScenarioCount,
+      castCount: retimedCastCount,
+      candidateProbes,
+      simulationRuns,
+    },
   };
 }

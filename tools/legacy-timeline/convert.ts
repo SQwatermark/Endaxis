@@ -182,6 +182,12 @@ export function convertLegacyTimeline(
           skillFormAdjustments: [],
           controlSwitchAdjustments: [],
           inferredControlSwitches: [],
+          simulationStats: {
+            scenarioCount: 0,
+            castCount: 0,
+            candidateProbes: 0,
+            simulationRuns: 0,
+          },
         };
   if (result.ok && issues.length === 0) {
     const checked = parseProjectDocument(result.value, { gameDataRepository: repository });
@@ -201,6 +207,7 @@ export function convertLegacyTimeline(
       skillFormAdjustments: retiming.skillFormAdjustments,
       controlSwitchAdjustments: retiming.controlSwitchAdjustments,
       inferredControlSwitches: retiming.inferredControlSwitches,
+      retimingSimulationStats: retiming.simulationStats,
       sourceActionCounts: prepared.source.scenarioList.map((s: any) => ({
         id: s.id,
         count: s.data.tracks.reduce((n: number, t: any) => n + t.actions.length, 0),

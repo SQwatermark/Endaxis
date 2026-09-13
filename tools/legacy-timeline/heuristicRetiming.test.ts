@@ -178,6 +178,69 @@ it('接续窗口探测耗尽时恢复原候选位置并保留报告', () => {
   );
 });
 
+it('用对数级模拟次数定位很远的接续窗口', () => {
+  const firstCastId = 'legacy:test:track:0:cast:0';
+  const secondCastId = 'legacy:test:track:0:cast:1';
+  const project = {
+    scenarios: [
+      {
+        id: 'test',
+        battle: { durationFrames: 60 },
+        tracks: [
+          {
+            skillCasts: [
+              { id: firstCastId, placement: { startFrame: 10 } },
+              { id: secondCastId, placement: { startFrame: 20 } },
+            ],
+          },
+        ],
+      },
+    ],
+  } as unknown as EndaxisProjectDocument;
+  const preparedSource = {
+    scenarioList: [
+      {
+        id: 'test',
+        data: { tracks: [{ actions: [{ startTime: 10 }, { startTime: 20 }] }] },
+      },
+    ],
+  };
+  let simulationRuns = 0;
+
+  const result = retimeLegacyProjectBySimulation(project, preparedSource, scenario => {
+    simulationRuns += 1;
+    const second = scenario.tracks[0]!.skillCasts[1]!;
+    const secondEnabled = second.presentation?.disabled !== true;
+    const secondStart = second.placement.startFrame!;
+    return {
+      receiptEntries: [
+        receipt(10, 'SkillStarted', firstCastId),
+        receipt(19, 'SkillOperableBoundaryReached', firstCastId),
+        ...(secondEnabled
+          ? [
+              ...(secondStart < 260
+                ? [receipt(secondStart, 'SkillInputCannotInterruptCurrentSkill', secondCastId)]
+                : []),
+              receipt(secondStart, 'SkillStarted', secondCastId),
+              receipt(secondStart + 4, 'SkillOperableBoundaryReached', secondCastId),
+            ]
+          : []),
+      ],
+    };
+  });
+
+  expect(project.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame).toBe(260);
+  expect(result.timingAdjustments).toContainEqual(
+    expect.objectContaining({ castId: secondCastId, inputWindowDelayFrames: 240 }),
+  );
+  expect(simulationRuns).toBeLessThan(30);
+  expect(result.simulationStats).toMatchObject({
+    scenarioCount: 1,
+    castCount: 2,
+    simulationRuns,
+  });
+});
+
 it('把落在终结技时间膨胀结束回执同帧的输入放到下一帧', () => {
   const firstCastId = 'legacy:test:track:0:cast:0';
   const secondCastId = 'legacy:test:track:1:cast:0';
