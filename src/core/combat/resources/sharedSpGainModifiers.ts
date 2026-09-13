@@ -9,6 +9,7 @@ import {
   SP_GAIN_SOURCES,
   type SpGainSource,
 } from '../../../../packages/game-data-contract/src/primitives';
+import type { RuntimeCheckpointParticipant } from '../runtime/runtimeCheckpoint';
 
 export const SHARED_SP_GAIN_SOURCES = SP_GAIN_SOURCES;
 /** 共享 SP 的获取来源；来源决定是否应用普攻或重击专属效率。 */
@@ -61,7 +62,9 @@ export interface SharedSpGainEfficiency {
  * 一次战斗唯一的共享 SP 效率修正注册表。
  * 注册表按对象身份移除修正，避免同值 Buff 相互覆盖或错误注销。
  */
-export class SharedSpGainModifierSet {
+export class SharedSpGainModifierSet implements RuntimeCheckpointParticipant<
+  readonly SharedSpGainModifier[]
+> {
   readonly #modifiers: SharedSpGainModifier[] = [];
 
   constructor(readonly settings: SharedSpGainSettings) {
@@ -81,6 +84,14 @@ export class SharedSpGainModifierSet {
     if (index < 0) return false;
     this.#modifiers.splice(index, 1);
     return true;
+  }
+
+  captureCheckpointState(): readonly SharedSpGainModifier[] {
+    return Object.freeze([...this.#modifiers]);
+  }
+
+  restoreCheckpointState(modifiers: readonly SharedSpGainModifier[]): void {
+    this.#modifiers.splice(0, this.#modifiers.length, ...modifiers);
   }
 
   resolve(source: SharedSpGainSource, method: SharedSpGainMethod): SharedSpGainEfficiency {
@@ -125,7 +136,9 @@ export class SharedSpRecoveryModifier {
 }
 
 /** 战斗内自然技力恢复使用的全局修正集合。 */
-export class SharedSpRecoveryModifierSet {
+export class SharedSpRecoveryModifierSet implements RuntimeCheckpointParticipant<
+  readonly SharedSpRecoveryModifier[]
+> {
   readonly #modifiers: SharedSpRecoveryModifier[] = [];
 
   add(modifier: SharedSpRecoveryModifier): void {
@@ -137,6 +150,14 @@ export class SharedSpRecoveryModifierSet {
     if (index < 0) return false;
     this.#modifiers.splice(index, 1);
     return true;
+  }
+
+  captureCheckpointState(): readonly SharedSpRecoveryModifier[] {
+    return Object.freeze([...this.#modifiers]);
+  }
+
+  restoreCheckpointState(modifiers: readonly SharedSpRecoveryModifier[]): void {
+    this.#modifiers.splice(0, this.#modifiers.length, ...modifiers);
   }
 
   resolve(baseValue: number): number {

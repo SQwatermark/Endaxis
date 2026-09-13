@@ -6,12 +6,15 @@ import { type ActionBlackboardValue } from '../../../../packages/game-data-contr
  * 普通键随技能实例重置；`EntityBB_` 动态写入会路由到同一干员共享的实体黑板。
  */
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
+import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
 
 const FLOAT_ASSIGNMENT_EPSILON = 0.00001;
 const ENTITY_BLACKBOARD_PREFIX = 'EntityBB_';
 
 /** 数据驱动战斗行为使用的分层可变值容器，不承担存档持久化。 */
-export class ActionBlackboard {
+export class ActionBlackboard implements RuntimeCheckpointParticipant<
+  Readonly<Record<string, ActionBlackboardValue>>
+> {
   readonly #values = new Map<string, ActionBlackboardValue>();
   readonly #entityBlackboard?: ActionBlackboard;
 
@@ -72,6 +75,14 @@ export class ActionBlackboard {
   restore(values: Readonly<Record<string, ActionBlackboardValue>>): void {
     this.#values.clear();
     this.assign(values);
+  }
+
+  captureCheckpointState(): Readonly<Record<string, ActionBlackboardValue>> {
+    return Object.freeze(this.snapshot());
+  }
+
+  restoreCheckpointState(values: Readonly<Record<string, ActionBlackboardValue>>): void {
+    this.restore(values);
   }
 
   /** 创建子 SkillData direct 作用域；独立逻辑宿主可同时创建自己的 entity blackboard。 */

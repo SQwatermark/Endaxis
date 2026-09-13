@@ -4,6 +4,7 @@
  */
 import { PeriodicTimer } from './periodicTimer';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
+import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
 
 const READY_EPSILON = 0.00001;
 
@@ -16,7 +17,7 @@ export interface SkillCooldownSnapshot {
 }
 
 /** 一项技能在一次战斗中的单次充能冷却状态。 */
-export class SkillCooldown {
+export class SkillCooldown implements RuntimeCheckpointParticipant<SkillCooldownCheckpointState> {
   readonly #timer?: PeriodicTimer;
   readonly #periodFrames: number;
   readonly #commitFrame?: number;
@@ -173,4 +174,28 @@ export class SkillCooldown {
     timer.reset(this.#periodFrames, false);
     return true;
   }
+
+  captureCheckpointState(): SkillCooldownCheckpointState {
+    return Object.freeze({
+      reservedByCurrentCast: this.#reservedByCurrentCast,
+      timer: this.#timer?.captureCheckpointState(),
+    });
+  }
+
+  validateCheckpointState(state: SkillCooldownCheckpointState): void {
+    if ((state.timer === undefined) !== (this.#timer === undefined)) {
+      throw new Error('skill cooldown checkpoint does not match this runtime');
+    }
+    if (state.timer !== undefined) this.#timer!.validateCheckpointState(state.timer);
+  }
+
+  restoreCheckpointState(state: SkillCooldownCheckpointState): void {
+    this.#reservedByCurrentCast = state.reservedByCurrentCast;
+    if (state.timer !== undefined) this.#timer!.restoreCheckpointState(state.timer);
+  }
+}
+
+interface SkillCooldownCheckpointState {
+  readonly reservedByCurrentCast: boolean;
+  readonly timer: ReturnType<PeriodicTimer['captureCheckpointState']> | undefined;
 }

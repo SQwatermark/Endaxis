@@ -10,6 +10,7 @@ import {
   SharedSpGainModifierSet,
   type SharedSpGainSettings,
 } from '../resources/sharedSpGainModifiers';
+import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
 
 const RESOURCE_EPSILON = 0.0001;
 const ULTIMATE_ENERGY_EPSILON = Math.fround(0.00001);
@@ -128,7 +129,7 @@ function requireFinite(value: number, path: string): void {
 }
 
 /** 原生共享技力与按队伍顺序保存的终结技能量状态。 */
-export class CombatResources {
+export class CombatResources implements RuntimeCheckpointParticipant<CombatResourcesCheckpointState> {
   #sp: number;
   readonly #maxSp: number;
   #returnedSp: number;
@@ -254,6 +255,66 @@ export class CombatResources {
       })),
       normalSkillUltimateEnergy: { ...this.#normalSkillUltimateEnergy },
     };
+  }
+
+  captureCheckpointState(): CombatResourcesCheckpointState {
+    return Object.freeze({
+      sp: this.#sp,
+      returnedSp: this.#returnedSp,
+      spRecoveryPauseRemaining: this.#spRecoveryPauseRemaining,
+      ultimateEnergy: Object.freeze(this.#squad.map(member => member.ultimateEnergy)),
+      restrictionHandles: Object.freeze(
+        [...this.#ultimateRecoveryRestrictionHandles].map(([handle, entry]) =>
+          Object.freeze({
+            handle,
+            operatorId: entry.operatorId,
+            allowed: new Set(entry.allowed),
+          }),
+        ),
+      ),
+      nextRestrictionHandle: this.#nextUltimateRecoveryRestrictionHandle,
+      sharedSpGainModifiers: this.sharedSpGainModifiers.captureCheckpointState(),
+      sharedSpRecoveryModifiers: this.sharedSpRecoveryModifiers.captureCheckpointState(),
+    });
+  }
+
+  validateCheckpointState(state: CombatResourcesCheckpointState): void {
+    if (
+      state.ultimateEnergy.length !== this.#squad.length ||
+      !Number.isInteger(state.nextRestrictionHandle) ||
+      state.nextRestrictionHandle < 1
+    ) {
+      throw new Error('resource checkpoint does not match this runtime');
+    }
+    requireFinite(state.sp, 'checkpoint sp');
+    requireNonNegativeFinite(state.returnedSp, 'checkpoint returnedSp');
+    requireFinite(state.spRecoveryPauseRemaining, 'checkpoint spRecoveryPauseRemaining');
+    state.ultimateEnergy.forEach((value, index) =>
+      requireNonNegativeFinite(value, `checkpoint ultimateEnergy[${index}]`),
+    );
+    for (const entry of state.restrictionHandles) this.#requireOperator(entry.operatorId);
+  }
+
+  restoreCheckpointState(state: CombatResourcesCheckpointState): void {
+    this.#sp = state.sp;
+    this.#returnedSp = state.returnedSp;
+    this.#spRecoveryPauseRemaining = state.spRecoveryPauseRemaining;
+    state.ultimateEnergy.forEach((value, index) => {
+      this.#squad[index]!.ultimateEnergy = value;
+    });
+    this.#ultimateRecoveryRestrictionHandles.clear();
+    for (const entry of state.restrictionHandles) {
+      this.#ultimateRecoveryRestrictionHandles.set(entry.handle, {
+        operatorId: entry.operatorId,
+        allowed: new Set(entry.allowed),
+      });
+    }
+    this.#nextUltimateRecoveryRestrictionHandle = state.nextRestrictionHandle;
+    for (const member of this.#squad) {
+      this.#refreshUltimateEnergyRecoveryRestriction(member.operatorId);
+    }
+    this.sharedSpGainModifiers.restoreCheckpointState(state.sharedSpGainModifiers);
+    this.sharedSpRecoveryModifiers.restoreCheckpointState(state.sharedSpRecoveryModifiers);
   }
 
   gainSp(
@@ -519,4 +580,19 @@ export class CombatResources {
     if (operator === undefined) throw new Error(`squad operator '${operatorId}' is not configured`);
     return operator;
   }
+}
+
+interface CombatResourcesCheckpointState {
+  readonly sp: number;
+  readonly returnedSp: number;
+  readonly spRecoveryPauseRemaining: number;
+  readonly ultimateEnergy: readonly number[];
+  readonly restrictionHandles: readonly {
+    readonly handle: number;
+    readonly operatorId: string;
+    readonly allowed: ReadonlySet<GameplayTag>;
+  }[];
+  readonly nextRestrictionHandle: number;
+  readonly sharedSpGainModifiers: readonly import('../resources/sharedSpGainModifiers').SharedSpGainModifier[];
+  readonly sharedSpRecoveryModifiers: readonly import('../resources/sharedSpGainModifiers').SharedSpRecoveryModifier[];
 }

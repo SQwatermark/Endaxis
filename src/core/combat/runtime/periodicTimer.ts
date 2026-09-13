@@ -2,10 +2,12 @@
  * 冷却和失衡恢复共用的原生单周期计时原语。
  * 调用方负责决定何时启动和消费完成事件，不应把它当作通用多周期任务调度器。
  */
+import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
+
 const READY_EPSILON = 0.00001;
 
 /** 冷却和失衡恢复使用的原生单周期计时器状态。 */
-export class PeriodicTimer {
+export class PeriodicTimer implements RuntimeCheckpointParticipant<PeriodicTimerCheckpointState> {
   #period = -1;
   #remaining = -1;
   #passed = 0;
@@ -60,4 +62,30 @@ export class PeriodicTimer {
     this.#passed = this.#period;
     return true;
   }
+
+  captureCheckpointState(): PeriodicTimerCheckpointState {
+    return Object.freeze({
+      period: this.#period,
+      remaining: this.#remaining,
+      passed: this.#passed,
+    });
+  }
+
+  validateCheckpointState(state: PeriodicTimerCheckpointState): void {
+    if (![state.period, state.remaining, state.passed].every(Number.isFinite)) {
+      throw new Error('timer checkpoint contains a non-finite value');
+    }
+  }
+
+  restoreCheckpointState(state: PeriodicTimerCheckpointState): void {
+    this.#period = state.period;
+    this.#remaining = state.remaining;
+    this.#passed = state.passed;
+  }
+}
+
+interface PeriodicTimerCheckpointState {
+  readonly period: number;
+  readonly remaining: number;
+  readonly passed: number;
 }
