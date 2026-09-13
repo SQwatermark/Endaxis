@@ -199,17 +199,22 @@ export function parseGameplayAttributeModifierEntrySource(
     path,
   );
   return {
-    modifyAttributeType: requireEnumName(
-      modifier.modifyAttributeType,
-      MODIFY_ATTRIBUTE_TYPES,
-      `${path}.modifyAttributeType`,
-    ),
-    attributeType: requireEnumName(
-      modifier.attributeType,
-      ATTRIBUTE_TYPES,
-      `${path}.attributeType`,
-    ),
-    formulaItem: requireEnumName(modifier.formulaItem, MODIFIER_TYPES, `${path}.formulaItem`),
+    modifyAttributeType:
+      typeof modifier.modifyAttributeType === 'number'
+        ? parseModifyAttributeTypeValue(modifier.modifyAttributeType, `${path}.modifyAttributeType`)
+        : requireEnumName(
+            modifier.modifyAttributeType,
+            MODIFY_ATTRIBUTE_TYPES,
+            `${path}.modifyAttributeType`,
+          ),
+    attributeType:
+      typeof modifier.attributeType === 'number'
+        ? parseAttributeTypeValue(modifier.attributeType, `${path}.attributeType`)
+        : requireEnumName(modifier.attributeType, ATTRIBUTE_TYPES, `${path}.attributeType`),
+    formulaItem:
+      typeof modifier.formulaItem === 'number'
+        ? parseModifierTypeValue(modifier.formulaItem, `${path}.formulaItem`)
+        : requireEnumName(modifier.formulaItem, MODIFIER_TYPES, `${path}.formulaItem`),
     parameter: parseScalarSource(modifier.param, `${path}.param`, inheritedBlackboard),
   };
 }

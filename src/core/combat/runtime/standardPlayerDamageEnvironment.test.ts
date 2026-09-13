@@ -1729,6 +1729,40 @@ describe('StandardPlayerDamageEnvironment', () => {
     ).toBe(5000);
   });
 
+  it('敌方来源读取敌方具体属性和最大生命值', () => {
+    const environment = createEnvironment();
+    environment.runtimeOptions.createOperationExecutor(createContext());
+    const runtime = environment.runtimeOptions.enemyBuffRuntime;
+    if (!(runtime instanceof BuffDefinitionOperationTarget))
+      throw new Error('fixture enemy Buff runtime');
+    runtime.container.attributes.addModifier(
+      new CombatAttributeModifier(
+        'cryoAbnormalDamageIncrease',
+        attributeModifierValues('addition', 0.25),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+    const read = environment.runtimeOptions.readSourceAttributeValue!;
+    const request = {
+      attribute: { kind: 'specific', key: 'cryoAbnormalDamageIncrease' },
+      stage: 'finalNonConverted',
+      useFloor: false,
+      divisor: { kind: 'constant', value: 1 },
+      multiplier: { kind: 'constant', value: 1 },
+      base: { kind: 'constant', value: 0 },
+      targetKey: 'cryo_damage_increase',
+    } as const;
+
+    expect(read('enemy', request)).toBeCloseTo(0.25);
+    expect(
+      read('enemy', {
+        ...request,
+        attribute: { kind: 'specific', key: 'maxHealth' },
+      }),
+    ).toBe(10000);
+  });
+
   it('resolves an ability entity source back to its operator before reading panel attributes', () => {
     const environment = createEnvironment();
     const baseContext = createContext();

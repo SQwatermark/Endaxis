@@ -1216,6 +1216,25 @@ export class StandardPlayerDamageEnvironment {
     },
   ): number {
     sourceId = this.#resolveAbilitySystemSourceId(sourceId);
+    if (sourceId === 'enemy') {
+      if (request.attribute.kind !== 'specific') {
+        throw new Error(
+          `combat attribute source enemy has no '${request.attribute.kind}' attribute`,
+        );
+      }
+      if (request.attribute.key === 'maxHealth') return this.#enemyVitals.maxHealth;
+      if (!this.#enemyAttributes.has(request.attribute.key)) {
+        throw new Error(
+          `combat attribute source 'enemy' has no attribute '${request.attribute.key}'`,
+        );
+      }
+      return request.stage === 'armedNonConverted'
+        ? this.#enemyAttributes.getArmed(
+            request.attribute.key,
+            ATTRIBUTE_MODIFIER_SOURCES.nonConverted,
+          )
+        : this.#enemyAttributes.get(request.attribute.key, ATTRIBUTE_MODIFIER_SOURCES.nonConverted);
+    }
     if (request.attribute.kind === 'specific' && request.attribute.key === 'maxUltimateEnergy') {
       if (this.#resources === null) {
         throw new Error('combat resource ledger is not bound');
@@ -1501,6 +1520,7 @@ export class StandardPlayerDamageEnvironment {
           buffId,
           instanceId: buff.instanceId,
           layers: buff.enhanceCount,
+          stackingType: buff.definition.stackingType,
           hasFiniteLifetime: buff.remainingDuration !== null,
           sourceActionId: buff.sourceActionId,
           ...(event.iconDurationSourceTargetId === undefined

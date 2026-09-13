@@ -3920,6 +3920,19 @@
     "yvonne": [
       {
         "source": {
+          "skillId": "enhancedBasicAttack",
+          "sourceSkillKey": "enhancedBasicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkillSequence",
+          "skillGroupKey": "basicAttack",
+          "variantKey": "enhancedBasicAttack"
+        }
+      },
+      {
+        "source": {
           "skillId": "basicAttack",
           "sourceSkillKey": "basicAttack",
           "type": "basicAttack",

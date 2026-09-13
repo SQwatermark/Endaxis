@@ -474,6 +474,7 @@ function inspectSequence(
         }
         return;
       case 'finishTimeline':
+      case 'reachSkillOperableBoundary':
         return;
       case 'scheduleProjectileFinishCallback':
         step.callback.timelineActions.forEach((action, index) =>

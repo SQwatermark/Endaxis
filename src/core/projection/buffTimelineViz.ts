@@ -15,6 +15,23 @@ export interface BuffTimelineSegment {
   /** 图标持续条的原生倒计时终点；缺省与 Buff 生命周期终点一致。 */
   readonly durationEndFrame?: number;
   readonly layers: number;
+  /** 当前展示段从何种生命周期变化开始。 */
+  readonly startReason?: 'applied' | 'reapplied' | 'presentationStarted';
+  /** 当前展示段为何结束；simulationEnd 表示模拟结束时 Buff 仍然存在。 */
+  readonly endReason?:
+    | 'reapplied'
+    | 'lifetime'
+    | 'ignite'
+    | 'early'
+    | 'dispelled'
+    | 'absorbed'
+    | 'other'
+    | 'released'
+    | 'simulationEnd';
+  /** 再次施加同一实例时，用于说明刷新、延长或叠层等具体行为。 */
+  readonly stackingType?: string;
+  /** 纯展示子 Buff 所跟随的父 Buff。 */
+  readonly parentBuffId?: string;
   /** 原生 Buff 是否具有有限生命周期；用于 Default 图标样式的原生回退。 */
   readonly hasFiniteLifetime?: boolean;
   /** 旧版可视分区：干员来源位于技能块上方，配装来源位于下方。 */
@@ -361,9 +378,21 @@ export function projectBuffTimelineViz(
       const active = open.get(key);
       if (active !== undefined) {
         open.delete(key);
+        const finishReason = optionalString(data, 'reason');
         closed.push({
           ...active,
           endFrame: entry.frame,
+          endReason:
+            entry.event === 'BuffReleased'
+              ? 'released'
+              : finishReason === 'lifetime' ||
+                  finishReason === 'ignite' ||
+                  finishReason === 'early' ||
+                  finishReason === 'dispelled' ||
+                  finishReason === 'absorbed' ||
+                  finishReason === 'other'
+                ? finishReason
+                : 'other',
           ...(active.durationEndFrame === undefined
             ? {}
             : { durationEndFrame: Math.min(active.durationEndFrame, entry.frame) }),
@@ -378,7 +407,9 @@ export function projectBuffTimelineViz(
         ? undefined
         : inheritedModifierFacts.get(sourceFrameKey(entry)!));
     const previous = open.get(key);
-    if (previous !== undefined) closed.push({ ...previous, endFrame: entry.frame });
+    if (previous !== undefined) {
+      closed.push({ ...previous, endFrame: entry.frame, endReason: 'reapplied' });
+    }
     open.set(key, {
       ...(entry.sourceId === undefined ? {} : { sourceId: entry.sourceId }),
       ...(optionalString(data, 'sourceActionId') === undefined
@@ -389,6 +420,19 @@ export function projectBuffTimelineViz(
       instanceId,
       startFrame: entry.frame,
       endFrame,
+      startReason:
+        entry.event === 'BuffPresentationStarted'
+          ? 'presentationStarted'
+          : previous === undefined
+            ? 'applied'
+            : 'reapplied',
+      endReason: 'simulationEnd',
+      ...(optionalString(data, 'stackingType') === undefined
+        ? {}
+        : { stackingType: optionalString(data, 'stackingType') }),
+      ...(optionalString(data, 'parentBuffId') === undefined
+        ? {}
+        : { parentBuffId: optionalString(data, 'parentBuffId') }),
       ...(optionalString(data, 'iconDurationSourceTargetId') === undefined
         ? {}
         : {

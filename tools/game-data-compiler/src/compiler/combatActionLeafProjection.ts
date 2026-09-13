@@ -1973,7 +1973,17 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'inputControl') {
     const action = node.body.value.action;
-    // 主动技能已有 inputWindows；Buff 映射必须随动作注册，不能静默丢弃。
+    // AllowNextSkillAction 的条件分支必须进入运行时，才能让实际走到的有序下一段
+    // 窗口决定技能块边界。没有有序下一段身份的技能会忽略这条轻量事实。
+    if (action.kind === 'allowNextSkill' && context.preserveSkillOperableBoundary === true) {
+      return [
+        {
+          kind: 'reachSkillOperableBoundary',
+          parameters: { sourceSkillIds: action.skillIds },
+        },
+      ];
+    }
+    // Buff 映射必须随动作注册，不能静默丢弃。
     if (action.kind !== 'comboCache' || context.actionOwnerTarget !== 'buffOwner') return [];
     const mappings = action.mappings.filter(mapping => mapping.commandType === 'Attack');
     if (mappings.length === 0) return [];

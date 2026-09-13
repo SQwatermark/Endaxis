@@ -2403,18 +2403,78 @@ export const arcane: OperatorDefinition = {
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
       skills: arcaneBattleSkill,
+      presentationVariants: [
+        {
+          key: 'int',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+        },
+        {
+          key: 'will',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'less',
+            right: 'will',
+          },
+        },
+      ],
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
       skills: arcaneComboSkill,
+      presentationVariants: [
+        {
+          key: 'int',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+        },
+        {
+          key: 'will',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'less',
+            right: 'will',
+          },
+        },
+      ],
     },
     {
       key: 'ultimate',
       skillType: 'ultimate',
       levelSource: 'ultimate',
       skills: arcaneUltimate,
+      presentationVariants: [
+        {
+          key: 'int',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+        },
+        {
+          key: 'will',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'less',
+            right: 'will',
+          },
+        },
+      ],
       replacementSkills: [arcaneArcana],
       replacementSkillPlacements: { arcana: 'standard' },
     },
@@ -5744,7 +5804,7 @@ export const arcane: OperatorDefinition = {
         'SelectCategory/UnSkillAutoSelectable',
         'Skill/Character/chr_0032_lizhiyan/ultimate_aura',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 6 },
+      lifetime: { kind: 'limited', durationSeconds: 30 },
       childSkill: {
         skillId: 'chr_0032_lizhiyan_ultimate_skill_abilityrange',
         blackboard: {
@@ -5815,7 +5875,7 @@ export const arcane: OperatorDefinition = {
         'SelectCategory/UnSkillAutoSelectable',
         'Skill/Character/chr_0032_lizhiyan/ultimate_place',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 6 },
+      lifetime: { kind: 'limited', durationSeconds: 30 },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill_death: {
       bornTags: [
@@ -5833,7 +5893,7 @@ export const arcane: OperatorDefinition = {
         'SelectCategory/UnSkillManualSelectable',
         'SelectCategory/UnSkillAutoSelectable',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 6 },
+      lifetime: { kind: 'limited', durationSeconds: 2 },
     },
     abilityentity_chr_0032_lizhiyan_ultimate_skill_laser: {
       bornTags: [
@@ -5843,7 +5903,7 @@ export const arcane: OperatorDefinition = {
         'SelectCategory/UnSkillAutoSelectable',
         'Skill/Character/chr_0032_lizhiyan/ultimate_tower',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 6 },
+      lifetime: { kind: 'limited', durationSeconds: 2 },
       childSkill: {
         skillId: 'chr_0032_lizhiyan_ultimate_skill_laser',
         blackboard: { atk_scale_laser: 1, duration: 0, radius: 5.67 },

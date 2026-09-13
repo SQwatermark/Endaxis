@@ -305,6 +305,18 @@ export function collectPresentationOnlyBlackboardKeys(
   graph: SkillActionGraphSource<KnownNativeActionLeafSource>,
 ): ReadonlySet<string> {
   const timelines = graph.actionGroup.timelineActions.map(item => item.sequence);
+  // SpawnAbilityEntity 会把当前动作黑板的完整 direct 快照交给实体子技能。这里尚未装配实体
+  // 定义，无法证明哪些键会被子技能读取；因此只要存在实体生成，任一写入都可能跨作用域影响
+  // 战斗。表现裁剪必须保守退出，后续整名干员优化器会在实体定义可见时再做精确活性分析。
+  const actionBlackboardEscapes = timelines.some(sequence =>
+    collectNativeActionNodes(sequence).some(
+      node =>
+        node.metadata.enabled &&
+        node.body.kind === 'leaf' &&
+        node.body.value.family === 'abilityEntity',
+    ),
+  );
+  if (actionBlackboardEscapes) return new Set();
   const candidates = new Set(
     timelines.flatMap(sequence =>
       collectNativeActionNodes(sequence).flatMap(node =>

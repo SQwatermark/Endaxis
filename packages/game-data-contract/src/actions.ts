@@ -1237,6 +1237,14 @@ export interface CombatStepParameters {
   };
   /** 立即结束当前宿主技能时间轴；只承接原生 InterruptCurSkillAction。 */
   finishTimeline: Record<string, never>;
+  /**
+   * 原生 AllowNextSkillAction 到达当前有序连段的下一技能窗口。
+   * 生成器保留此事实，使条件分支实际执行时决定技能块边界。
+   */
+  reachSkillOperableBoundary: {
+    /** 此窗口允许接续的原生 Skill ID。 */
+    sourceSkillIds: readonly string[];
+  };
   /** 按条件选择真假分支。 */
   conditional: {
     /** 决定执行哪个分支的条件。 */
@@ -1484,6 +1492,7 @@ export const COMBAT_STEP_KINDS = [
   'consumeStatus',
   'jumpTimeline',
   'finishTimeline',
+  'reachSkillOperableBoundary',
   'conditional',
   'switch',
   'once',

@@ -149,6 +149,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'finishTimeline':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'reachSkillOperableBoundary':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'forEachContextTarget':
       return {
         ...keyed,
@@ -1354,6 +1356,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     initialBlackboard,
     ...(input.skill.smartTarget === undefined ? {} : { smartTarget: input.skill.smartTarget }),
     timelineBlockFrames: input.skill.timelineBlockFrames,
+    ...(input.skill.timelineContinuationSourceSkillId === undefined
+      ? {}
+      : { timelineContinuationSourceSkillId: input.skill.timelineContinuationSourceSkillId }),
     ...(input.skill.naturalDurationFrames === undefined
       ? {}
       : { naturalDurationFrames: input.skill.naturalDurationFrames }),

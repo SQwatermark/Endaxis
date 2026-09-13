@@ -47,3 +47,14 @@ export function timelineSkillSegmentLabel(
   if (entry.skillType === 'comboSkill') return `${labels.comboSkill} ${index + 1}`;
   return null;
 }
+
+/** 时间轴块用星号标出定义明确声明的强化技能。 */
+export function timelineSkillBlockLabel(
+  entry: TimelineSkillLibraryEntryViewModel,
+  skillKey: string,
+  labels: TimelineSkillSegmentLabels,
+  fallbackLabel: string,
+): string {
+  const label = timelineSkillSegmentLabel(entry, skillKey, labels) ?? fallbackLabel;
+  return entry.enhanced ? `${label}*` : label;
+}

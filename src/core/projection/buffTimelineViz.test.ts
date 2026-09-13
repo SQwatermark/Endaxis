@@ -50,14 +50,15 @@ function finished(
 }
 
 describe('projectBuffTimelineViz', () => {
-  it('closes the same visual segment for release without requiring a finish fact', () => {
+  it('distinguishes host release from an ordinary Buff finish', () => {
     const end = finished(1, 50, 'entity:test', 1);
-    expect(
-      projectBuffTimelineViz(
-        [applied(0, 10, 'entity:test', 1, 1), { ...end, event: 'BuffReleased' }],
-        90,
-      ),
-    ).toEqual(projectBuffTimelineViz([applied(0, 10, 'entity:test', 1, 1), end], 90));
+    const released = projectBuffTimelineViz(
+      [applied(0, 10, 'entity:test', 1, 1), { ...end, event: 'BuffReleased' }],
+      90,
+    );
+    const finishedNormally = projectBuffTimelineViz([applied(0, 10, 'entity:test', 1, 1), end], 90);
+    expect(released).toEqual([expect.objectContaining({ endReason: 'released' })]);
+    expect(finishedNormally).toEqual([expect.objectContaining({ endReason: 'lifetime' })]);
   });
   it('projects apply, enhance, and finish boundaries by instance identity', () => {
     expect(
@@ -79,6 +80,8 @@ describe('projectBuffTimelineViz', () => {
         startFrame: 10,
         endFrame: 20,
         layers: 1,
+        startReason: 'applied',
+        endReason: 'reapplied',
         placement: 'upper',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
       },
@@ -91,6 +94,8 @@ describe('projectBuffTimelineViz', () => {
         startFrame: 20,
         endFrame: 50,
         layers: 2,
+        startReason: 'reapplied',
+        endReason: 'lifetime',
         placement: 'upper',
         iconPath: '/icons/icon_battle_buff_atk_up.webp',
       },
@@ -227,6 +232,9 @@ describe('projectBuffTimelineViz', () => {
         startFrame: 5,
         endFrame: 35,
         layers: 1,
+        startReason: 'presentationStarted',
+        endReason: 'lifetime',
+        parentBuffId: 'buff:test',
         placement: 'upper',
         iconPath: '/icons/child.webp',
       },

@@ -21,6 +21,7 @@ import {
   requireExactFields,
   requireInteger,
   requireNonEmptyString,
+  requireNonNegativeInteger,
   requireNumber,
   requireRecord,
   requireString,
@@ -673,6 +674,10 @@ function parsePresentation(
     new Set(['useDirectoryValue', 'priorityValue', 'priorityEnum']),
     `${sourcePath}.iconConfig._orderPriorityConfig`,
   );
+  const readSerializedEnum = (value: unknown, path: string): string =>
+    typeof value === 'number'
+      ? String(requireNonNegativeInteger(value, path))
+      : requireNonEmptyString(value, path);
   return {
     hasIcon: requireBoolean(root.hasIcon, `${sourcePath}.hasIcon`),
     spritePath: requireString(icon._spritePath, `${sourcePath}.iconConfig._spritePath`),
@@ -728,15 +733,15 @@ function parsePresentation(
       icon.hasCharHpBarVfxType,
       `${sourcePath}.iconConfig.hasCharHpBarVfxType`,
     ),
-    charHpBarVfxType: requireNonEmptyString(
+    charHpBarVfxType: readSerializedEnum(
       icon.charHpBarVfxType,
       `${sourcePath}.iconConfig.charHpBarVfxType`,
     ),
-    iconStyleInSquad: requireNonEmptyString(
+    iconStyleInSquad: readSerializedEnum(
       icon.iconStyleInSquad,
       `${sourcePath}.iconConfig.iconStyleInSquad`,
     ),
-    abnormalColorType: requireNonEmptyString(
+    abnormalColorType: readSerializedEnum(
       icon.abnormalColorType,
       `${sourcePath}.iconConfig.abnormalColorType`,
     ),
@@ -748,7 +753,7 @@ function parsePresentation(
       order.priorityValue,
       `${sourcePath}.iconConfig._orderPriorityConfig.priorityValue`,
     ),
-    orderPriorityEnum: requireNonEmptyString(
+    orderPriorityEnum: readSerializedEnum(
       order.priorityEnum,
       `${sourcePath}.iconConfig._orderPriorityConfig.priorityEnum`,
     ),
@@ -788,7 +793,9 @@ function validatePassiveFlags(
     `${sourcePath}.dispelConfig`,
   );
   requireBoolean(dispel.canBeDispelled, `${sourcePath}.dispelConfig.canBeDispelled`);
-  requireNonEmptyString(dispel.dispelledLevel, `${sourcePath}.dispelConfig.dispelledLevel`);
+  if (typeof dispel.dispelledLevel === 'number')
+    requireNonNegativeInteger(dispel.dispelledLevel, `${sourcePath}.dispelConfig.dispelledLevel`);
+  else requireNonEmptyString(dispel.dispelledLevel, `${sourcePath}.dispelConfig.dispelledLevel`);
   return parsedAddingCooldown;
 }
 
@@ -853,6 +860,12 @@ function requireOneOf<const T extends readonly string[]>(
   options: T,
   path: string,
 ): T[number] {
+  if (typeof value === 'number') {
+    const index = requireNonNegativeInteger(value, path);
+    const option = options[index];
+    if (option === undefined) throw new Error(`${path}: unsupported value ${value}`);
+    return option;
+  }
   const name = requireNonEmptyString(value, path);
   if (!(options as readonly string[]).includes(name))
     throw new Error(`${path}: unsupported value ${JSON.stringify(name)}`);

@@ -305,6 +305,7 @@ export interface ResolvedCombatStepParameters {
   consumeStatus: CombatStepParameters['consumeStatus'];
   jumpTimeline: CombatStepParameters['jumpTimeline'];
   finishTimeline: CombatStepParameters['finishTimeline'];
+  reachSkillOperableBoundary: CombatStepParameters['reachSkillOperableBoundary'];
   conditional: CombatStepParameters['conditional'];
   switch: CombatStepParameters['switch'];
   once: CombatStepParameters['once'];
@@ -458,6 +459,7 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   consumeStatus: 'operation',
   jumpTimeline: 'sequence',
   finishTimeline: 'sequence',
+  reachSkillOperableBoundary: 'sequence',
   conditional: 'sequence',
   switch: 'sequence',
   once: 'sequence',
@@ -571,6 +573,8 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames?: number;
+  /** 有序连段下一技能的原生身份；存在时由实际执行的输入窗口发布块边界。 */
+  readonly timelineContinuationSourceSkillId?: string;
   /** 原生技能实例的自然结束周期；与块宽、可中断边界彼此独立。 */
   readonly naturalDurationFrames?: number;
   readonly exclusiveFrame?: number;

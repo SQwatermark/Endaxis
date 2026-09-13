@@ -48,6 +48,20 @@ it('maps four identity categories and quantizes source frames without modifying 
   expect(d.systemConstants.staggerBreakDuration).toBe(300);
   expect(JSON.stringify(value)).toBe(before);
 });
+it('keeps a declared skill-group sequence separate from ordinary skill sources', () => {
+  const sequence = {
+    kind: 'operatorSkillSequence',
+    skillGroupKey: 'basicAttack',
+    variantKey: 'enhancedBasicAttack',
+  } as const;
+  const result = prepareLegacySource(input(), {
+    skills: { old: [{ source, target: sequence }] },
+  });
+  const action = result.source.scenarioList[0].data.tracks[0].actions[0];
+  expect(result.issues).toEqual([]);
+  expect(action.convertedSequence).toEqual(sequence);
+  expect(action.convertedSource).toBeUndefined();
+});
 it('does not guess missing, duplicate, segmented or variant skill mappings', () => {
   expect(prepareLegacySource(input()).unresolvedSkills).toHaveLength(1);
   expect(
@@ -73,6 +87,15 @@ it('supports audited per-action overrides and blocks nonempty unsupported user s
   const value = input();
   Object.assign(value.scenarioList[0]!.data, { characterOverrides: { old: { hp: 1 } } });
   expect(prepareLegacySource(value, mappings).issues[0]?.path).toContain('characterOverrides');
+});
+it('ignores nested empty override containers left by the old editor', () => {
+  const value = input();
+  Object.assign(value.scenarioList[0]!.data, {
+    characterOverrides: { old: { customBars: [] } },
+    weaponOverrides: { old: {} },
+  });
+
+  expect(prepareLegacySource(value, mappings).issues).toEqual([]);
 });
 it('reports a missing system constants block instead of aborting conversion', () => {
   const value = input();

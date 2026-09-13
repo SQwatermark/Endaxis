@@ -47,6 +47,7 @@ import type {
   PlayerActionRouteDefinition,
   PlayerSkillInput,
   OperatorDefinition,
+  SkillPresentationVariantDefinition,
 } from '../../../packages/game-data-contract/src/index.ts';
 
 /**
@@ -104,6 +105,11 @@ export function planOperatorDefinition(
     skillConditionTable: read(path.join(args.tableRoot, 'SkillConditionTable.json')),
     skillGroupValidationOptions,
   });
+  const presentationVariants = parsePresentationVariants(
+    row.presentationVariants,
+    foundation.progression.compiledSkillConditions,
+    `${args.slug}.presentationVariants`,
+  );
   const compileSkillSlotReplacement = createActiveSkillSlotReplacementProjection(
     foundation.skillLibrary.activeSkills.entries,
   );
@@ -232,6 +238,7 @@ export function planOperatorDefinition(
   const candidate = assembleOperatorDefinition({
     foundation,
     activeSkills,
+    ...(presentationVariants.length === 0 ? {} : { presentationVariants }),
     runtimeReplacementSkillKeys,
     ...(playerActionRouting === undefined ? {} : playerActionRouting),
     routedSkills,
@@ -358,6 +365,27 @@ export function planOperatorDefinition(
     audit: { ...candidate.audit, optimization: optimized.report },
     activeSkills,
   };
+}
+
+function parsePresentationVariants(
+  value: unknown,
+  conditions: ReadonlyMap<string, SkillPresentationVariantDefinition['condition']>,
+  sourcePath: string,
+): SkillPresentationVariantDefinition[] {
+  if (value === undefined) return [];
+  const keys = new Set<string>();
+  return requireArray(value, sourcePath).map((raw, index) => {
+    const path = `${sourcePath}[${index}]`;
+    const row = requireRecord(raw, path);
+    requireExactFields(row, new Set(['key', 'conditionId']), path);
+    const key = requireNonEmptyString(row.key, `${path}.key`);
+    if (keys.has(key)) throw new Error(`${sourcePath}: duplicate key '${key}'`);
+    keys.add(key);
+    const conditionId = requireNonEmptyString(row.conditionId, `${path}.conditionId`);
+    const compiled = conditions.get(conditionId);
+    if (compiled === undefined) throw new Error(`${path}: unknown condition '${conditionId}'`);
+    return { key, condition: compiled };
+  });
 }
 
 const RUNTIME_TEMPLATE_FIELDS = new Set([

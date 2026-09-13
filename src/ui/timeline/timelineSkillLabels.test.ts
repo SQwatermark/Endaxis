@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { TimelineSkillLibraryEntryViewModel } from './timelineEditorViewModel';
 import {
   skillLibrarySegmentLabel,
+  timelineSkillBlockLabel,
   timelineSkillSegmentLabel,
   type TimelineSkillSegmentLabels,
 } from './timelineSkillLabels';
@@ -15,13 +16,14 @@ const labels: TimelineSkillSegmentLabels = {
 function skillLibraryEntry(
   skillType: TimelineSkillLibraryEntryViewModel['skillType'],
   skillKeys: readonly string[],
+  enhanced = false,
 ): TimelineSkillLibraryEntryViewModel {
   return {
     entryKey: 'test:fixture',
     skillGroupKey: 'test',
     skillType,
     level: 1,
-    enhanced: false,
+    enhanced,
     groupPlacementSkillKeys: skillKeys,
     skills: skillKeys.map(skillKey => ({
       skillKey,
@@ -82,5 +84,40 @@ describe('skill sequence labels', () => {
         labels,
       ),
     ).toBe(null);
+  });
+
+  it('marks enhanced timeline blocks with an asterisk', () => {
+    expect(
+      timelineSkillBlockLabel(
+        skillLibraryEntry('battleSkill', ['enhanced-skill'], true),
+        'enhanced-skill',
+        labels,
+        '战技',
+      ),
+    ).toBe('战技*');
+    expect(
+      timelineSkillBlockLabel(
+        skillLibraryEntry('comboSkill', ['enhanced-combo'], true),
+        'enhanced-combo',
+        labels,
+        '连携',
+      ),
+    ).toBe('连携*');
+    expect(
+      timelineSkillBlockLabel(
+        skillLibraryEntry('basicAttack', ['attack-1', 'heavy-attack'], true),
+        'attack-1',
+        labels,
+        '普攻',
+      ),
+    ).toBe('A1*');
+    expect(
+      timelineSkillBlockLabel(
+        skillLibraryEntry('basicAttack', ['attack-1', 'heavy-attack'], true),
+        'heavy-attack',
+        labels,
+        '普攻',
+      ),
+    ).toBe('重击*');
   });
 });

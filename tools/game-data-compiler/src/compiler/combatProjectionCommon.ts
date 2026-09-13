@@ -63,6 +63,8 @@ export function isPlainOwnerTarget(target: TargetReferenceSource): boolean {
 
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
+  /** 仅基础攻击组装配保留 AllowNextSkillAction，用于按实际条件分支发布技能块边界。 */
+  readonly preserveSkillOperableBoundary?: boolean;
   /** 当前 Buff AbilityEvent；仅用于投影原生事件负载条件，不替代公开事件身份。 */
   readonly nativeAbilityEvent?: string | number;
   /** 同步伤害修正宿主具有 BeforeApplyDamageModifierContext；不代表发生 AbilitySystem 广播。 */

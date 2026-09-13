@@ -840,6 +840,29 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
         75,
       ),
       scheduled(
+        1,
+        sequence(
+          branch(
+            {
+              kind: 'actionValueCompare',
+              left: { kind: 'blackboard', key: 'EntityBB_isCombo', fallback: 0 },
+              operator: 'equal',
+              right: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('modifyActionValue', {
+                key: 'isCombo',
+                operation: 'assign',
+                value: { kind: 'constant', value: 1 },
+              }),
+            ),
+            undefined,
+            { alwaysNext: true },
+          ),
+        ),
+        3,
+      ),
+      scheduled(
         58,
         sequence(
           step('spawnAbilityEntity', {
@@ -941,6 +964,31 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
         49,
       ),
       scheduled(
+        19,
+        sequence(
+          step('createGlobalBuff', {
+            globalBuffId: 'global_buff_combo_trigger',
+            definition: {
+              stackingType: 'stack',
+              maxStackCount: 4,
+              durationSeconds: { blackboardKey: 'duration' },
+              blackboard: { duration: 0, imbue_scale: 0 },
+              children: [
+                {
+                  buffId: 'buff_common_affixes_combo_trigger',
+                  blackboardAssignments: {
+                    imbue_scale: { kind: 'blackboard', key: 'imbue_scale' },
+                  },
+                },
+              ],
+            },
+            source: 'caster',
+            blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+          }),
+        ),
+        20,
+      ),
+      scheduled(
         0,
         sequence(
           step('startTimeDilation', {
@@ -966,6 +1014,7 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [0.47, 0.51, 0.56, 0.61, 0.65, 0.7, 0.75, 0.79, 0.84, 0.9, 0.97, 1.05],
     atk_scale2: [1.67, 1.83, 2, 2.17, 2.33, 2.5, 2.67, 2.83, 3, 3.21, 3.46, 3.75],
+    duration: 20,
     main_near: 0,
     poise: 10,
     usp: 10,

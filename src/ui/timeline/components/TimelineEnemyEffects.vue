@@ -245,8 +245,12 @@ const buffs = computed(() =>
         targetId: buff.targetId,
         ...(sourceName === undefined ? {} : { sourceName }),
         startFrame: buff.startFrame,
-        endFrame: buff.durationEndFrame ?? buff.endFrame,
+        endFrame: buff.endFrame,
         layers: buff.layers,
+        ...(buff.startReason === undefined ? {} : { startReason: buff.startReason }),
+        ...(buff.endReason === undefined ? {} : { endReason: buff.endReason }),
+        ...(buff.stackingType === undefined ? {} : { stackingType: buff.stackingType }),
+        ...(buff.parentBuffId === undefined ? {} : { parentBuffId: buff.parentBuffId }),
         icon,
         ...(modifierSummary === undefined ? {} : { modifierSummary }),
         instances: buff.windows.map(member => {
@@ -262,8 +266,12 @@ const buffs = computed(() =>
           return {
             ...(memberSourceName === undefined ? {} : { sourceName: memberSourceName }),
             startFrame: member.startFrame,
-            endFrame: member.durationEndFrame ?? member.endFrame,
+            endFrame: member.endFrame,
             layers: member.layers,
+            ...(member.startReason === undefined ? {} : { startReason: member.startReason }),
+            ...(member.endReason === undefined ? {} : { endReason: member.endReason }),
+            ...(member.stackingType === undefined ? {} : { stackingType: member.stackingType }),
+            ...(member.parentBuffId === undefined ? {} : { parentBuffId: member.parentBuffId }),
             icon: props.icon?.(member) ?? member.iconPath ?? getIconAssetPath(member.iconId),
             ...(memberModifierSummary === undefined
               ? {}

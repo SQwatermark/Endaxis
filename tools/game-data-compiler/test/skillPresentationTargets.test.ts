@@ -294,6 +294,51 @@ describe('整张 SkillData 的表现目标依赖', () => {
     expect([...collectCombatInvisibleRandomBlackboardKeys(unsafe)]).toEqual([]);
   });
 
+  it('技能生成能力实体时不把可能传给子技能的黑板写入当成纯表现', () => {
+    const source = {
+      actionGroup: {
+        timelineActions: [
+          {
+            sequence: {
+              actions: [
+                {
+                  sourcePath: 'fixture.write',
+                  metadata: { nativeName: 'ModifyDynamicBlackboard', enabled: true },
+                  body: {
+                    kind: 'leaf',
+                    value: {
+                      family: 'blackboardMutation',
+                      action: { kind: 'blackboardMutation', key: 'isCombo' },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+          {
+            sequence: {
+              actions: [
+                {
+                  sourcePath: 'fixture.spawn',
+                  metadata: { nativeName: 'SpawnAbilityEntity', enabled: true },
+                  body: {
+                    kind: 'leaf',
+                    value: {
+                      family: 'abilityEntity',
+                      action: { kind: 'abilityEntitySpawn' },
+                    },
+                  },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    } as unknown as Parameters<typeof collectPresentationOnlyBlackboardKeys>[0];
+
+    expect([...collectPresentationOnlyBlackboardKeys(source)]).toEqual([]);
+  });
+
   it('跨序列特效读取与方向查询均保留来源信息，两个纯表现目标可省略', () => {
     const source = graph();
     const fixedPoint = source.actionGroup.timelineActions[0]!.sequence.actions[1]!;

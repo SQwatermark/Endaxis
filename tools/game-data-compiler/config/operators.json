@@ -1866,6 +1866,10 @@
           "right": "will"
         }
       },
+      "presentationVariants": [
+        { "key": "int", "conditionId": "lizhiyan_wisd" },
+        { "key": "will", "conditionId": "lizhiyan_will" }
+      ],
       "skills": [
         {
           "key": "comboSkill",

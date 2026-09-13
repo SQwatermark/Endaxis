@@ -4,7 +4,7 @@ import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/o
 import type { OperatorInstanceDocument } from '../../core/project/schema';
 import { gilbertaBattleSkill } from './gilberta';
 import { fluoriteBattleSkill } from './fluorite';
-import { lifengUltimate } from './lifeng';
+import { lifengComboSkill, lifengUltimate } from './lifeng';
 import { rossiBattleSkill, rossiComboSkill2, rossiComboSkill3, rossiUltimate } from './rossi';
 import {
   alesh,
@@ -250,13 +250,18 @@ describe('新增的完整技能转换干员', () => {
     });
   });
 
-  it('Lifeng 终结技把外层 IfElse 跳转保留为一次性局部条件分支', () => {
+  it('Lifeng 连携状态跨能力实体传入终结技第三段', () => {
     const serialized = JSON.stringify([lifengUltimate, lifeng.abilityEntityDefinitions]);
     const frames = lifengUltimate.scheduledSequences.map(sequence => sequence.startFrame);
+    const ultimateStart = JSON.stringify(lifengUltimate.scheduledSequences);
+    const combo = JSON.stringify(lifengComboSkill);
 
     expect(serialized).toContain('"childSkill":');
     expect(serialized).toContain('"destinationFrame":150');
     expect(serialized).toContain('"key":"EntityBB_isCombo"');
+    expect(ultimateStart).toContain('"key":"isCombo","operation":"assign"');
+    expect(combo).toContain('"globalBuffId":"global_buff_combo_trigger"');
+    expect(lifengComboSkill.blackboard).toHaveProperty('duration', 20);
     const jumpIndex = serialized.indexOf('"destinationFrame":150');
     expect(jumpIndex).toBeLessThan(serialized.indexOf('"key":"EntityBB_isCombo"', jumpIndex));
     expect(frames).not.toEqual(expect.arrayContaining([64, 124, 179]));
@@ -417,6 +422,31 @@ describe('新增的完整技能转换干员', () => {
     const ultimate = operator.skillGroups.find(group => group.key === 'ultimate');
     const definition = Array.isArray(ultimate?.skills) ? ultimate.skills[0] : ultimate?.skills;
     expect(definition?.enhancementStateBuffId).toBe(buffId);
+  });
+
+  it('诀的三类主动技能保留两种构筑形态及原生属性条件', () => {
+    for (const key of ['battleSkill', 'comboSkill', 'ultimate']) {
+      expect(arcane.skillGroups.find(group => group.key === key)?.presentationVariants).toEqual([
+        {
+          key: 'int',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+        },
+        {
+          key: 'will',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'less',
+            right: 'will',
+          },
+        },
+      ]);
+    }
   });
 
   it('汤汤终结技 Aura 的两个可见 Buff 共用实体 TimedMarker 展示时钟', () => {

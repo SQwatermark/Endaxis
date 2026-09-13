@@ -646,7 +646,15 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         9,
       ),
+      scheduled(
+        9,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack2'] }),
+        ),
+        34,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -744,12 +752,24 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         10,
       ),
+      scheduled(
+        12,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack3'] }),
+        ),
+        34,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.5, 0.54, 0.57, 0.61, 0.65, 0.71] },
+  {
+    atb: 0,
+    atk_scale: [0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.5, 0.54, 0.57, 0.61, 0.65, 0.71],
+    poise: 0,
+  },
 );
 
 export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -854,7 +874,15 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         13,
       ),
+      scheduled(
+        15,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack4'] }),
+        ),
+        36,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1220,12 +1248,31 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
         215,
       ),
       scheduled(188, sequence(step('finishTimeline', {})), 189),
+      scheduled(
+        36,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack5'] }),
+        ),
+        67,
+      ),
+      scheduled(
+        225,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack5'] }),
+        ),
+        250,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91] },
+  {
+    atb: 0,
+    atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
+    poise: 0,
+  },
 );
 
 export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -1367,7 +1414,15 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         18,
       ),
+      scheduled(
+        45,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack1'] }),
+        ),
+        60,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',

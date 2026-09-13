@@ -24,6 +24,7 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
     SkillDefinition,
     | 'key'
     | 'timelineBlockFrames'
+    | 'timelineContinuationSourceSkillId'
     | 'naturalDurationFrames'
     | 'cooldownFrames'
     | 'enhancementStateBuffId'
@@ -54,7 +55,13 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
   readonly visualOnlyIds?: ReadonlySet<string>;
   readonly extensions?: CombatActionProjectionExtensionsSource;
 }): CompiledOperatorActiveSkillRuntimeDefinitionSource {
-  const runtime = compileActiveSkillRuntimeProjectionSource(input);
+  const runtime = compileActiveSkillRuntimeProjectionSource({
+    ...input,
+    context: {
+      ...input.context,
+      preserveSkillOperableBoundary: input.skillType === 'basicAttack',
+    },
+  });
   const root = requireRecord(input.value, input.sourcePath);
   const cast = requireRecord(root.castData, `${input.sourcePath}.castData`);
   const costFrame = requireNonNegativeInteger(

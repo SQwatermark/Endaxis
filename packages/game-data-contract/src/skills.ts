@@ -307,6 +307,12 @@ export interface SkillDefinition extends SkillActionProgramDefinition {
   /** 时间轴技能块的显示宽度；由可操作边界推导，不对应原生 `durationFrame`。 */
   timelineBlockFrames: number;
   /**
+   * 基础攻击有序连段中下一技能的原生 Skill ID。
+   * 存在此字段时，运行时以实际执行到的 AllowNextSkillAction 决定技能块边界；
+   * timelineBlockFrames 只作为尚未得到完整模拟结果时的预览宽度。
+   */
+  timelineContinuationSourceSkillId?: string;
+  /**
    * 原生 `SkillData.durationFrame` 的运行时自然结束周期，已按原生 getter 钳制为至少 1 帧。
    * 它不决定技能块宽度，也不能用 `exclusiveFrame` 或最后一个可见战斗动作代替。
    */

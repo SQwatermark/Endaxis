@@ -10,6 +10,10 @@ export interface BuffDetailTarget {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly layers: number;
+  readonly startReason?: BuffDetailStartReason;
+  readonly endReason?: BuffDetailEndReason;
+  readonly stackingType?: string;
+  readonly parentBuffId?: string;
   readonly icon?: string | null;
   readonly modifierSummary?: string;
   readonly instances?: readonly BuffDetailInstance[];
@@ -20,6 +24,23 @@ export interface BuffDetailInstance {
   readonly startFrame: number;
   readonly endFrame: number;
   readonly layers: number;
+  readonly startReason?: BuffDetailStartReason;
+  readonly endReason?: BuffDetailEndReason;
+  readonly stackingType?: string;
+  readonly parentBuffId?: string;
   readonly icon?: string | null;
   readonly modifierSummary?: string;
 }
+
+export type BuffDetailStartReason = 'applied' | 'reapplied' | 'presentationStarted';
+
+export type BuffDetailEndReason =
+  | 'reapplied'
+  | 'lifetime'
+  | 'ignite'
+  | 'early'
+  | 'dispelled'
+  | 'absorbed'
+  | 'other'
+  | 'released'
+  | 'simulationEnd';

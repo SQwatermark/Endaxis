@@ -6,6 +6,7 @@ import {
 } from 'vue-router';
 import { ALL_GAME_TEXT_FAMILIES, ensureLocaleResources, i18n } from '../i18n';
 import type { GameTextFamily } from '../i18n/localeResourceLoaders';
+import { loadTemporaryLegacyPreviewProject } from './temporaryLegacyPreviewProjects';
 
 const routes: RouteRecordRaw[] = [
   { path: '/', redirect: '/timeline' },
@@ -13,6 +14,20 @@ const routes: RouteRecordRaw[] = [
     path: '/timeline',
     name: 'Timeline',
     component: () => import('../ui/timeline/TimelineEditor.vue'),
+    meta: {
+      gameTextFamilies: ALL_GAME_TEXT_FAMILIES,
+    },
+  },
+  {
+    path: '/timeline/preview/:legacyShareId',
+    name: 'TemporaryLegacyTimelinePreview',
+    component: () => import('../ui/timeline/TimelineEditor.vue'),
+    props: route => ({ initialProject: route.meta.temporaryLegacyPreviewProject }),
+    beforeEnter: async to => {
+      to.meta.temporaryLegacyPreviewProject = await loadTemporaryLegacyPreviewProject(
+        String(to.params.legacyShareId),
+      );
+    },
     meta: {
       gameTextFamilies: ALL_GAME_TEXT_FAMILIES,
     },

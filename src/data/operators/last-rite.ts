@@ -141,12 +141,24 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         13,
       ),
+      scheduled(
+        20,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack2'] }),
+        ),
+        35,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
+  {
+    atb: 0,
+    atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+    env_dmg: 20,
+  },
 );
 
 export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -249,12 +261,25 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         25,
       ),
+      scheduled(
+        29,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack3'] }),
+        ),
+        44,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62] },
+  {
+    atb: 0,
+    atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
+    env_dmg: 12.5,
+    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
+  },
 );
 
 export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -395,12 +420,25 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         28,
       ),
+      scheduled(
+        36,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack4'] }),
+        ),
+        48,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77] },
+  {
+    atb: 0,
+    atk_scale: [0.34, 0.37, 0.41, 0.44, 0.48, 0.51, 0.54, 0.58, 0.61, 0.65, 0.71, 0.77],
+    env_dmg: 10,
+    display_atk_scale: [0.68, 0.75, 0.82, 0.88, 0.95, 1.02, 1.09, 1.16, 1.22, 1.31, 1.41, 1.53],
+  },
 );
 
 export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -570,7 +608,15 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         23,
       ),
+      scheduled(
+        46,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack1'] }),
+        ),
+        54,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -579,6 +625,7 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 30,
     atk_scale: [0.9, 0.99, 1.08, 1.17, 1.26, 1.35, 1.44, 1.53, 1.62, 1.73, 1.87, 2.03],
     atk_scale2: 0.2,
+    env_dmg: 35,
     isBuffed: 0,
     poise: 25,
   },

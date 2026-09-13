@@ -182,4 +182,19 @@ describe('operator attack attributes', () => {
     expect(attributes.get('healOutputIncrease')).toBeCloseTo(0.1);
     expect(attributes.get('healTakenIncrease')).toBeCloseTo(0.25);
   });
+
+  it('按 AttributeMetaTable 承载治疗套装施加的全类型受伤倍率', () => {
+    const attributes = createOperatorAttackAttributes(input);
+    attributes.addModifier(
+      new CombatAttributeModifier(
+        'PhysicalDamageTakenScalar',
+        attributeModifierValues('baseFinalMultiplier', 0.7),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+
+    expect(attributes.get('PhysicalDamageTakenScalar')).toBeCloseTo(0.7);
+    expect(attributes.get('EtherDamageTakenScalar')).toBe(1);
+  });
 });

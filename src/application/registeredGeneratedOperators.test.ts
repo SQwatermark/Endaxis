@@ -2198,7 +2198,7 @@ describe('registered generated operators', () => {
         operatorSlug: zhuangFangyi.slug,
         level: 90,
         promoted: true,
-        potential: 0,
+        potential: 1,
         trustLevel: 4,
         skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
         talentStates: { 0: 2, 1: 2 },
@@ -2285,6 +2285,31 @@ describe('registered generated operators', () => {
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:zhuang-fangyi',
       ),
     ).toBe(true);
+    const enhancedBattleCastId = placed.tracks[0]!.skillCasts.find(
+      cast =>
+        cast.source.kind === 'operatorSkill' && cast.source.skillKey === 'enhancedBattleSkill',
+    )!.id;
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'DamageApplied',
+        sourceId: 'track:zhuang-fangyi',
+        data: expect.objectContaining({
+          castId: enhancedBattleCastId,
+          stepKey:
+            'abilityentity_chr_0030_zhuangfy_normal_skill_ult:chr_0030_zhuangfy_normal_skill_ult_abilityrange:/childSkill/scheduledSequences/3/sequence/steps/0/whenTrue/steps/2',
+        }),
+      }),
+    );
+    expect(result.receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'ElementalInflictionApplied',
+        sourceId: 'track:zhuang-fangyi',
+        data: expect.objectContaining({
+          castId: enhancedBattleCastId,
+          requestedElement: 'electric',
+        }),
+      }),
+    );
     expect(
       projectSkillEnhancementTimelineViz(result.receiptEntries, result.frame, [
         {

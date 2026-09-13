@@ -11,6 +11,7 @@ import type {
   OperatorPlayerActionRoutes,
   OperatorPlayerActionModeDefinition,
   NativeSkillType,
+  SkillPresentationVariantDefinition,
 } from '../../../../../packages/game-data-contract/src/index.ts';
 import type { compileOperatorFoundationSource } from './sourceClosure.ts';
 import { compileOperatorDefinitionHeaderSource } from './definitionHeader.ts';
@@ -85,6 +86,8 @@ export interface OperatorDefinitionAssemblyInput {
   readonly skillSlots?: readonly OperatorSkillSlotDefinition[];
   readonly playerActionRoutes?: OperatorPlayerActionRoutes;
   readonly playerActionModes?: readonly OperatorPlayerActionModeDefinition[];
+  /** 所有技能组共用的、由最终构筑属性决定的说明文本形态。 */
+  readonly presentationVariants?: readonly SkillPresentationVariantDefinition[];
   /** `_InitSkills` 从 CharacterData 注册出的原生类型初值，以 sourceSkillId 为键。 */
   readonly nativeSkillTypeBySourceId?: Readonly<Record<string, NativeSkillType>>;
   readonly nativePlayerActionRouting?: {
@@ -787,6 +790,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
                   : variant.skillKeys.map(key => definitions.get(key)!),
             })),
           }),
+      ...(input.presentationVariants === undefined
+        ? {}
+        : { presentationVariants: input.presentationVariants }),
     } satisfies SkillGroupDefinition;
   });
   const unassignedRuntimeReplacementSkillKeys = [...runtimeReplacementSkillKeys].filter(
@@ -918,6 +924,7 @@ export function selectBasicAttackTimelineBlockFrames(
   }[],
 ): void {
   const selectedFrames = new Map<string, number>();
+  const selectedTargets = new Map<string, string>();
   const selectRoute = (skillKeys: readonly string[]): void => {
     if (skillKeys.length < 2) return;
     for (let index = 0; index < skillKeys.length; index += 1) {
@@ -943,6 +950,13 @@ export function selectBasicAttackTimelineBlockFrames(
         );
       }
       selectedFrames.set(key, frame);
+      const previousTarget = selectedTargets.get(key);
+      if (previousTarget !== undefined && previousTarget !== nextDefinition.sourceSkillId) {
+        throw new Error(
+          `basic attack '${key}' has conflicting ordered continuations '${previousTarget}' and '${nextDefinition.sourceSkillId}'`,
+        );
+      }
+      selectedTargets.set(key, nextDefinition.sourceSkillId);
     }
   };
   for (const group of groups) {
@@ -951,7 +965,12 @@ export function selectBasicAttackTimelineBlockFrames(
     group.variants.forEach(variant => selectRoute(variant.skillKeys));
   }
   for (const [key, frame] of selectedFrames) {
-    definitions.set(key, { ...definitions.get(key)!, timelineBlockFrames: frame });
+    const definition = definitions.get(key)!;
+    definitions.set(key, {
+      ...definition,
+      timelineBlockFrames: frame,
+      timelineContinuationSourceSkillId: selectedTargets.get(key)!,
+    });
   }
 }
 

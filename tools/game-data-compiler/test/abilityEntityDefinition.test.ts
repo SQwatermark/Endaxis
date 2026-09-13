@@ -72,4 +72,47 @@ describe('能力实体模板定义投影', () => {
       maxStackingCount: { blackboardKey: 'EntityBB_limit', fallback: 5 },
     });
   });
+
+  it('优先使用原生 BlackboardDouble 中启用的直接寿命值', () => {
+    const template = parseNativeAbilityEntityTemplateSource(
+      {
+        ...abilityEntityFixture(),
+        bornTagIds: [],
+        durationSeconds: 1,
+        durationBlackboard: { useBlackboardKey: false, value: 3, blackboardKey: '' },
+        maxStackingCount: -1,
+        maxStackingCountBlackboard: { useBlackboardKey: false, value: 0, blackboardKey: '' },
+      },
+      'fixture',
+    );
+
+    expect(compileAbilityEntityDefinitionSource(template, '', () => ({}))).toEqual({
+      lifetime: { kind: 'limited', durationSeconds: 3 },
+    });
+  });
+
+  it('使用原生 BlackboardDouble 的直接值作为动态寿命回退值', () => {
+    const template = parseNativeAbilityEntityTemplateSource(
+      {
+        ...abilityEntityFixture(),
+        bornTagIds: [],
+        durationSeconds: 1,
+        durationBlackboard: {
+          useBlackboardKey: true,
+          value: 3,
+          blackboardKey: 'EntityBB_duration',
+        },
+        maxStackingCount: -1,
+        maxStackingCountBlackboard: { useBlackboardKey: false, value: 0, blackboardKey: '' },
+      },
+      'fixture',
+    );
+
+    expect(compileAbilityEntityDefinitionSource(template, '', () => ({}))).toEqual({
+      lifetime: {
+        kind: 'limited',
+        durationSeconds: { blackboardKey: 'EntityBB_duration', fallback: 3 },
+      },
+    });
+  });
 });

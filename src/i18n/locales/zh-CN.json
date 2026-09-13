@@ -1762,10 +1762,35 @@
       "effect": "效果摘要",
       "layers": "层数",
       "start": "开始",
+      "startReason": "开始原因",
       "end": "结束",
+      "endReason": "结束原因",
       "duration": "持续时间",
       "frames": "{value} 帧",
-      "buffId": "原始 Buff ID"
+      "buffId": "原始 Buff ID",
+      "startReasons": {
+        "applied": "Buff 实例施加成功",
+        "presentationStarted": "随父 Buff 开始显示",
+        "presentationStartedWithParent": "随父 Buff「{parentBuffId}」开始显示",
+        "enhanced": "同一实例再次施加并增加层数",
+        "refreshed": "同一实例再次施加并刷新持续时间",
+        "extended": "同一实例再次施加并延长持续时间",
+        "durationOverwritten": "同一实例再次施加并重设持续时间",
+        "modified": "同一实例再次施加并更新状态",
+        "reapplied": "同一实例被再次施加"
+      },
+      "endReasons": {
+        "reapplied": "同一实例再次施加，当前层数阶段结束",
+        "lifetime": "持续时间耗尽，自然结束",
+        "ignite": "被点燃并消耗",
+        "early": "被技能或效果提前结束",
+        "dispelled": "被驱散",
+        "absorbed": "被吸收",
+        "other": "由其他游戏规则结束",
+        "released": "宿主释放时移除",
+        "simulationEnd": "模拟结束时仍在持续",
+        "unknown": "未记录结束原因"
+      }
     },
     "hitDetail": {
       "frame": "帧",

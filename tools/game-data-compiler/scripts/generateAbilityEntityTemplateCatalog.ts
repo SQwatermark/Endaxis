@@ -38,7 +38,18 @@ export async function generateAbilityEntityTemplateCatalog(
       bornTags: template.bornTagIds.map(id => registry.resolve(id, template.gameId)),
       lifetime:
         template.lifeTypeNativeValue === 0
-          ? { kind: 'limited', durationSeconds: template.durationSeconds }
+          ? {
+              kind: 'limited',
+              durationSeconds:
+                template.durationBlackboard.blackboardKey !== null
+                  ? {
+                      blackboardKey: template.durationBlackboard.blackboardKey,
+                      fallback: template.durationBlackboard.value,
+                    }
+                  : template.durationBlackboard.value !== 0
+                    ? template.durationBlackboard.value
+                    : template.durationSeconds,
+            }
           : { kind: 'infinite' },
       maxStackingCount: template.maxStackingCount,
     };

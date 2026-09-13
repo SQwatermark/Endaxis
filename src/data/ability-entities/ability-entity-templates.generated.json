@@ -442,7 +442,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 62
+        "durationSeconds": 30
       },
       "maxStackingCount": 2
     },
@@ -548,7 +548,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 30
+        "durationSeconds": 5
       },
       "maxStackingCount": 1
     },
@@ -627,7 +627,7 @@
       "bornTags": ["SelectCategory/Unmarkable", "Immune/Damage"],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 1
+        "durationSeconds": 2
       },
       "maxStackingCount": -1
     },
@@ -649,7 +649,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 1
+        "durationSeconds": 3
       },
       "maxStackingCount": 10
     },
@@ -662,7 +662,10 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 45
+        "durationSeconds": {
+          "blackboardKey": "EntityBB_swordDuration",
+          "fallback": 0
+        }
       },
       "maxStackingCount": 5
     },
@@ -671,7 +674,7 @@
       "bornTags": ["SelectCategory/Unmarkable", "Immune/Damage"],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 1
+        "durationSeconds": 3
       },
       "maxStackingCount": -1
     },
@@ -761,7 +764,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 6
+        "durationSeconds": 30
       },
       "maxStackingCount": -1
     },
@@ -790,7 +793,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 6
+        "durationSeconds": 2
       },
       "maxStackingCount": -1
     },
@@ -804,7 +807,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 6
+        "durationSeconds": 2
       },
       "maxStackingCount": -1
     },
@@ -819,7 +822,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 6
+        "durationSeconds": 30
       },
       "maxStackingCount": -1
     },
@@ -834,7 +837,10 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 30
+        "durationSeconds": {
+          "blackboardKey": "EntityBB_bat_duration",
+          "fallback": 5
+        }
       },
       "maxStackingCount": 1
     },
@@ -848,7 +854,7 @@
       ],
       "lifetime": {
         "kind": "limited",
-        "durationSeconds": 30
+        "durationSeconds": 5
       },
       "maxStackingCount": 1
     }

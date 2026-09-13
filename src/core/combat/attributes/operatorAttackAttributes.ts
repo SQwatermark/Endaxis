@@ -29,6 +29,15 @@ export const ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE = {
 
 export type AttackFactorAttribute =
   (typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE)[OperatorAttribute];
+const PLAYER_DAMAGE_TAKEN_ATTRIBUTES = [
+  'PhysicalDamageTakenScalar',
+  'FireDamageTakenScalar',
+  'PulseDamageTakenScalar',
+  'CrystDamageTakenScalar',
+  'NaturalDamageTakenScalar',
+  'EtherDamageTakenScalar',
+] as const;
+type PlayerDamageTakenAttribute = (typeof PLAYER_DAMAGE_TAKEN_ATTRIBUTES)[number];
 export type OperatorRuntimeAttribute =
   | OperatorAttribute
   | AttackFactorAttribute
@@ -48,7 +57,8 @@ export type OperatorRuntimeAttribute =
   | 'shelterDamageMultiplier'
   | 'criticalDamageIncrease'
   | 'healOutputIncrease'
-  | 'healTakenIncrease';
+  | 'healTakenIncrease'
+  | PlayerDamageTakenAttribute;
 
 export interface OperatorAttackDerivationInput {
   readonly attributes: Readonly<Record<OperatorAttribute, number>>;
@@ -117,6 +127,10 @@ export function createOperatorAttackAttributes(
   for (const attribute of DAMAGE_SCALE_ATTRIBUTE_KEYS) {
     result.define(attribute, 0, {});
   }
+  // AttributeMetaTable[4-7,48,60]：六种受伤倍率默认值均为 1，且没有原生上下限。
+  // 当前木桩模型不计算干员承伤，但治疗套装会把这类 Buff 挂到受治疗的队友身上，
+  // 所以属性仍须存在并完整承载原生修正槽。
+  for (const attribute of PLAYER_DAMAGE_TAKEN_ATTRIBUTES) result.define(attribute, 1, {});
   for (const modifier of input.combatModifiers ?? []) {
     if (
       modifier.kind !== 'damageScale' ||

@@ -10987,7 +10987,7 @@ export const typhoeus: OperatorDefinition = {
     },
     abilityentity_chr_0034_typhoea_combo_presistdamage: {
       bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
-      lifetime: { kind: 'limited', durationSeconds: 3 },
+      lifetime: { kind: 'limited', durationSeconds: 10 },
       maxStackingCount: 1,
       childSkill: {
         skillId: 'chr_0034_typhoea_combo_persistentdamage',
@@ -11068,7 +11068,7 @@ export const typhoeus: OperatorDefinition = {
         'Immune/Damage',
         'Skill/Character/chr_0034_typhoea/ArrowRain_Main',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 3 },
+      lifetime: { kind: 'limited', durationSeconds: 10 },
       maxStackingCount: 1,
       childSkill: {
         skillId: 'chr_0034_typhoea_ultimate_skill_arrowrain',

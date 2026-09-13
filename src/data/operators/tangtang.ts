@@ -2849,7 +2849,7 @@ export const tangtang: OperatorDefinition = {
         'SelectCategory/UnSkillAutoSelectable',
         'Skill/Character/chr_0027_tangtang/NormalSkillWaterMove',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 30 },
+      lifetime: { kind: 'limited', durationSeconds: 5 },
       maxStackingCount: 1,
       childSkills: {
         chr_0027_tangtang_normal_skill_abilityentitymove: {
@@ -2919,7 +2919,7 @@ export const tangtang: OperatorDefinition = {
         'Immune/Poise',
         'Skill/Character/chr_0027_tangtang/ComboSkillWater',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 62 },
+      lifetime: { kind: 'limited', durationSeconds: 30 },
       maxStackingCount: 2,
       childSkill: {
         skillId: 'chr_0027_tangtang_combo_skill_water',

@@ -12,6 +12,8 @@ describe('Buff detail interaction structure', () => {
     expect(detailDialogSource).toContain('target.sourceName');
     expect(detailDialogSource).toContain('target.modifierSummary');
     expect(detailDialogSource).toContain('target.buffId');
+    expect(detailDialogSource).toContain('startReasonText(activeInstance)');
+    expect(detailDialogSource).toContain('endReasonText(activeInstance)');
     expect(statusSegmentSource).toContain(':role="interactive ? \'button\' : undefined"');
     expect(statusSegmentSource).toContain("emit('activate')");
     expect(buffBandsSource).toContain('interactive');

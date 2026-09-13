@@ -1,11 +1,107 @@
 import { expect, it } from 'vitest';
-import { convertLegacyTimeline } from './convert';
+import { convertLegacyTimeline, resolveLegacyRuntimeReplacementSkillKey } from './convert';
 import { gameDataRepository } from '../../src/data/gameDataRepository';
 import { parseProjectDocument } from '../../src/core/project/serialization';
 import realAxisMappings from './mappings.2026-08-31.json';
 import type { ConversionMappings } from './sourcePreparation';
 
-it('真实轴的末次诀终结技明确映射为秘仪，不自动替换其他终结技', () => {
+it('只把技能槽基础技能解析为同组声明的替换形态', () => {
+  const laevatain = gameDataRepository.getOperator('laevatain')!;
+  expect(
+    resolveLegacyRuntimeReplacementSkillKey(
+      laevatain,
+      'battleSkill',
+      'battleSkill',
+      'battleSkillDuringUltimate',
+    ),
+  ).toBe('battleSkillDuringUltimate');
+  expect(
+    resolveLegacyRuntimeReplacementSkillKey(
+      laevatain,
+      'battleSkill',
+      'battleSkillDuringUltimate',
+      'battleSkill',
+    ),
+  ).toBeNull();
+  expect(
+    resolveLegacyRuntimeReplacementSkillKey(
+      laevatain,
+      'basicAttack',
+      'basicAttack1',
+      'ultimateAttack1',
+    ),
+  ).toBeNull();
+  expect(
+    resolveLegacyRuntimeReplacementSkillKey(
+      laevatain,
+      'battleSkill',
+      'battleSkill',
+      'missingReplacement',
+    ),
+  ).toBeNull();
+});
+
+it('按当前递归输入路由把旧单块展开为稳定技能序列', { timeout: 15_000 }, () => {
+  const input = fixture();
+  const scenario = input.scenarioList[0]!;
+  scenario.data.initialGaugeMode = 'stored';
+  scenario.data.operators[0]!.operatorSlug = 'old-yvonne';
+  scenario.data.tracks[0]!.id = 'old-yvonne';
+  scenario.data.tracks[0]!.initialGauge = 220;
+  Object.assign(scenario.data.tracks[0]!, {
+    actions: [
+      {
+        skillId: 'ultimate',
+        sourceSkillKey: 'ultimate',
+        type: 'ultimate',
+        startTime: 300,
+        logicalStartTime: 300,
+      },
+      {
+        skillId: 'enhancedBasicAttack',
+        sourceSkillKey: 'enhancedBasicAttack',
+        type: 'basicAttack',
+        segmentIndex: 1,
+        startTime: 450,
+        logicalStartTime: 450,
+      },
+    ],
+  });
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-yvonne': 'yvonne' },
+    skills: {
+      'old-yvonne': [
+        {
+          source: { skillId: 'ultimate', sourceSkillKey: 'ultimate', type: 'ultimate' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+        },
+        {
+          source: {
+            skillId: 'enhancedBasicAttack',
+            sourceSkillKey: 'enhancedBasicAttack',
+            type: 'basicAttack',
+            segmentIndex: 1,
+          },
+          target: {
+            kind: 'operatorSkillSequence',
+            skillGroupKey: 'basicAttack',
+            variantKey: 'enhancedBasicAttack',
+          },
+        },
+      ],
+    },
+  });
+  expect(result.report.issues).toEqual([]);
+  expect(result.report.sequenceExpansions).toHaveLength(1);
+  const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
+  const sequence = casts.filter(cast => cast.id.includes(':cast:1'));
+  expect(sequence.length).toBeGreaterThan(6);
+  expect(sequence[0]!.id).toBe('legacy:test-axis:track:0:cast:1');
+  expect(sequence.at(-1)!.source).toMatchObject({ skillKey: 'ultimateAttackEnd' });
+  expect(new Set(sequence.map(cast => cast.id)).size).toBe(sequence.length);
+});
+
+it('真实轴的末次诀终结技明确映射为秘仪，不自动替换其他终结技', { timeout: 15_000 }, () => {
   const input = fixture();
   const scenario = input.scenarioList[0]!;
   scenario.id = 'sc_zpm5ozw';
@@ -125,6 +221,32 @@ function fixture() {
     ],
   };
 }
+it('keeps old empty track placeholders without treating them as unresolved operators', () => {
+  const input = fixture();
+  input.scenarioList[0]!.data.tracks.push(
+    ...([
+      { id: null, operatorInstanceId: null, initialGauge: 0, actions: [] },
+      { id: null, operatorInstanceId: null, initialGauge: 0, actions: [] },
+      { id: null, operatorInstanceId: null, initialGauge: 0, actions: [] },
+    ] as never[]),
+  );
+
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+    skills: {
+      'old-perlica': [
+        {
+          source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        },
+      ],
+    },
+  });
+
+  expect(result.status).toBe('converted');
+  expect(result.report.issues).toEqual([]);
+  expect(result.project?.scenarios[0]?.tracks.slice(1)).toEqual([null, null, null]);
+});
 it('produces a current reloadable document only after explicit skill mapping and validation', () => {
   const result = convertLegacyTimeline(fixture(), gameDataRepository, {
     operators: { 'old-perlica': 'perlica' },
@@ -143,6 +265,118 @@ it('produces a current reloadable document only after explicit skill mapping and
   expect(parseProjectDocument(JSON.stringify(result.project), { gameDataRepository }).ok).toBe(
     true,
   );
+});
+it('clamps an excessive stored gauge to the current native maximum before retiming', () => {
+  const input = fixture();
+  input.scenarioList[0]!.data.initialGaugeMode = 'custom';
+  input.scenarioList[0]!.data.tracks[0]!.initialGauge = 999;
+
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+    skills: {
+      'old-perlica': [
+        {
+          source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        },
+      ],
+    },
+  });
+
+  expect(result.status).toBe('converted');
+  expect(result.project?.scenarios[0]?.tracks[0]?.initialState.ultimateEnergy).toBe(80);
+  expect(result.report.issues).toEqual([]);
+  expect(result.report.resourceAdjustments).toContainEqual({
+    path: 'scenarioList[0].data.tracks[0].initialGauge',
+    resource: 'ultimateEnergy',
+    from: 999,
+    to: 80,
+    reason: 'clampedToCurrentNativeMaximum',
+  });
+});
+it('retimes from simulated starts, same-track ends, and ultimate dilation', () => {
+  const input = fixture();
+  const data = input.scenarioList[0]!.data as any;
+  data.operators.push({
+    ...data.operators[0]!,
+    id: 'op-2',
+  });
+  data.tracks[0]!.actions = [
+    {
+      skillId: 'ultimate',
+      sourceSkillKey: 'ultimate',
+      type: 'ultimate',
+      startTime: 600,
+      logicalStartTime: 600,
+      duration: 60,
+    },
+    {
+      skillId: 'ultimate',
+      sourceSkillKey: 'ultimate',
+      type: 'ultimate',
+      startTime: 660,
+      logicalStartTime: 660,
+      duration: 60,
+    },
+  ];
+  data.tracks.push({
+    id: 'old-perlica',
+    operatorInstanceId: 'op-2',
+    initialGauge: 0,
+    actions: [
+      {
+        skillId: 'battleSkill',
+        sourceSkillKey: 'battleSkill',
+        type: 'battleSkill',
+        startTime: 680,
+        logicalStartTime: 680,
+        duration: 60,
+      },
+    ],
+  });
+
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+    skills: {
+      'old-perlica': [
+        {
+          source: { skillId: 'ultimate', sourceSkillKey: 'ultimate', type: 'ultimate' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+        },
+        {
+          source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        },
+      ],
+    },
+  });
+
+  expect(result.report.issues).toEqual([]);
+  expect(
+    result.project?.scenarios[0]?.tracks[0]?.skillCasts.map(cast => cast.placement.startFrame),
+  ).toEqual([150, 237]);
+  expect(result.project?.scenarios[0]?.tracks[1]?.skillCasts[0]?.placement.startFrame).toBe(288);
+  expect(result.report.timingAdjustments).toEqual([
+    expect.objectContaining({
+      trackIndex: 0,
+      actionIndex: 1,
+      sourceStartFrame: 180,
+      adjustedStartFrame: 237,
+      sameTrackEndCandidate: 214,
+      globalOrderCandidate: 180,
+      pushedByUltimateTimeDilation: false,
+      inputWindowDelayFrames: 23,
+    }),
+    expect.objectContaining({
+      trackIndex: 1,
+      actionIndex: 0,
+      sourceStartFrame: 190,
+      adjustedStartFrame: 288,
+      globalOrderCandidate: 247,
+      pushedByUltimateTimeDilation: true,
+      ultimateTimeDilationEndFrame: 287,
+    }),
+  ]);
 });
 it('preserves validated action-to-action connections with migrated cast identities', () => {
   const input = fixture();
@@ -215,7 +449,7 @@ it('preserves the stored full ultimate energy without recompiling conditional ta
   expect(result.report.issues).toEqual([]);
   expect(result.project?.scenarios[0]?.tracks[0]?.initialState.ultimateEnergy).toBe(100);
 });
-it('blocks a stored initial ultimate energy above the current compiled maximum', () => {
+it('reports the clamp when stored initial energy exceeds the compiled maximum', () => {
   const input = fixture();
   const data = input.scenarioList[0]!.data;
   data.initialGaugeMode = 'custom';
@@ -226,11 +460,34 @@ it('blocks a stored initial ultimate energy above the current compiled maximum',
     operators: { 'old-perlica': 'perlica' },
   });
 
-  expect(result.status).toBe('blocked');
-  expect(result.project).toBeNull();
-  expect(result.report.issues).toContainEqual({
+  expect(result.status).toBe('converted');
+  expect(result.project?.scenarios[0]?.tracks[0]?.initialState.ultimateEnergy).toBe(80);
+  expect(result.report.issues).toEqual([]);
+  expect(result.report.resourceAdjustments).toContainEqual({
     path: 'scenarioList[0].data.tracks[0].initialGauge',
-    message: '初始终结技能量 101 超过当前原生上限 80',
+    resource: 'ultimateEnergy',
+    from: 101,
+    to: 80,
+    reason: 'clampedToCurrentNativeMaximum',
+  });
+});
+it('uses an explicit legacy gauge maximum before deciding whether to clamp', () => {
+  const input = fixture();
+  const data = input.scenarioList[0]!.data;
+  data.initialGaugeMode = 'custom';
+  data.tracks[0]!.initialGauge = 101;
+  (data.tracks[0]! as { maxGaugeOverride?: number }).maxGaugeOverride = 120;
+  data.tracks[0]!.actions = [];
+
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+  });
+
+  expect(result.status).toBe('converted');
+  expect(result.report.resourceAdjustments).toEqual([]);
+  expect(result.project?.scenarios[0]?.tracks[0]?.initialState).toEqual({
+    ultimateEnergy: 101,
+    maxUltimateEnergyOverride: 120,
   });
 });
 it('does not publish a project after missing mapping', () => {

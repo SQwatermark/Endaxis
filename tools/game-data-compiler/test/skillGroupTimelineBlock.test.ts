@@ -49,6 +49,8 @@ describe('基础攻击技能块窗口', () => {
 
     expect(definitions.get('attack1')?.timelineBlockFrames).toBe(16);
     expect(definitions.get('attack2')?.timelineBlockFrames).toBe(24);
+    expect(definitions.get('attack1')?.timelineContinuationSourceSkillId).toBe('native_attack2');
+    expect(definitions.get('attack2')?.timelineContinuationSourceSkillId).toBe('native_attack1');
   });
 
   it('同一顶层目标存在立即退出和稍后续段时采用较晚的连段窗口', () => {
@@ -72,5 +74,6 @@ describe('基础攻击技能块窗口', () => {
     ]);
 
     expect(definitions.get('attack1')?.timelineBlockFrames).toBe(16);
+    expect(definitions.get('attack1')?.timelineContinuationSourceSkillId).toBe('native_attack2');
   });
 });

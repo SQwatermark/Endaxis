@@ -1061,6 +1061,88 @@ describe('CombatRuntimeAssembly', () => {
     ).toBe(false);
   });
 
+  it('resolves a native combo candidate through the current combo skill slot', () => {
+    const ultimate = skill({
+      skillId: 'ultimate',
+      skillType: 'ultimate',
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeSkillSlot',
+                parameters: {
+                  skillGroupKey: 'comboSkill',
+                  targetSkillKey: 'enhancedComboSkill',
+                  inheritOriginSkillCooldownProgress: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const base = skill({ skillId: 'comboSkill', skillType: 'comboSkill', costs: [] });
+    const enhanced = skill({
+      skillId: 'enhancedComboSkill',
+      skillType: 'comboSkill',
+      costs: [],
+    });
+    const assembly = createAssembly(
+      [ultimate, base, enhanced],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [
+        {
+          skillGroupKey: 'comboSkill',
+          baseSkillKey: 'comboSkill',
+          replacementSkillKeys: ['enhancedComboSkill'],
+        },
+      ],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' } },
+    );
+
+    expect(assembly.tryStartSkill('operator', 'ultimate')).toBe(true);
+    assembly.comboWindows.open(
+      'operator',
+      'comboSkill',
+      {},
+      {
+        skillGroupKey: 'comboSkill',
+        event: {} as never,
+        inputTarget: { kind: 'enemy' },
+        triggerTarget: null,
+        assignPairs: null,
+      },
+    );
+
+    expect(
+      assembly.tryStartPlayerInput('operator', 'enhancedComboSkill', undefined, 'comboSkill'),
+    ).toBe(true);
+    expect(
+      assembly.receipt.entries.some(entry => entry.event === 'SkillInputResolvedToDifferentSkill'),
+    ).toBe(false);
+    expect(assembly.receipt.entries).toContainEqual(
+      expect.objectContaining({
+        event: 'SkillStarted',
+        data: expect.objectContaining({ skillId: 'enhancedComboSkill' }),
+      }),
+    );
+  });
+
   it('resolves descendant Buff definitions from the source skill after crossing to a teammate', () => {
     const sourceBuffs = new CombatBuffContainer('source', new CombatAttributeSet<string>());
     const allyBuffs = new CombatBuffContainer('ally', new CombatAttributeSet<string>());

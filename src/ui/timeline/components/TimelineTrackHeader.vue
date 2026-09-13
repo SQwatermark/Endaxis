@@ -14,6 +14,7 @@ import { EaButton } from '@/design-system';
 const props = defineProps<{
   track: TimelineTrackViewModel;
   name: string;
+  formName?: string | null;
   selected: boolean;
   reorderSource: boolean;
   reorderTarget: boolean;
@@ -198,6 +199,7 @@ function startReorder(event: DragEvent): void {
           @click.stop="selectName"
         >
           <span class="operator-name">{{ name }}</span>
+          <span v-if="formName" class="operator-form-badge" :title="formName">{{ formName }}</span>
           <OperatorSupportNotice
             v-if="track.operatorSlug"
             :support="track.operatorSupport"
@@ -558,8 +560,22 @@ function startReorder(event: DragEvent): void {
 
 .operator-name-row {
   position: relative;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
   flex: 1 1 auto;
   min-width: 0;
+}
+
+.operator-form-badge {
+  flex: 0 0 auto;
+  color: #00e5ff;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.35);
+  white-space: nowrap;
 }
 
 .operator-name-row.has-support-notice {

@@ -622,6 +622,21 @@ class TimelineFinishStep extends CombatStep {
   }
 }
 
+class SkillOperableBoundaryStep extends CombatStep {
+  constructor(
+    readonly step: ResolvedCombatStepForKind<'reachSkillOperableBoundary'>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(): void {
+    this.runtime.hooks.stepReached?.(this.step);
+    this.operationContext.reachSkillOperableBoundary?.(this.step.parameters.sourceSkillIds);
+  }
+}
+
 class CombatEventListenerStep extends CombatStep {
   readonly #registrations: AbilityEventRegistration[] = [];
 
@@ -762,6 +777,9 @@ export class CombatActionSequenceRuntime {
       }
       if (step.kind === 'finishTimeline') {
         return new TimelineFinishStep(step, this, operationContext);
+      }
+      if (step.kind === 'reachSkillOperableBoundary') {
+        return new SkillOperableBoundaryStep(step, this, operationContext);
       }
       if (step.kind === 'once') return new OnceStep(step, this, operationContext);
       if (step.kind === 'withActionBlackboardScope') {

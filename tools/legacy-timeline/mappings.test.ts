@@ -8,12 +8,12 @@ it('contains the complete one-time mapping catalog for the legacy data snapshot'
   expect(Object.keys(mappings.weapons)).toHaveLength(77);
   expect(Object.keys(mappings.gears)).toHaveLength(243);
   expect(Object.keys(mappings.enemies)).toHaveLength(82);
-  expect(Object.values(mappings.skills).reduce((sum, rules) => sum + rules.length, 0)).toBe(299);
+  expect(Object.values(mappings.skills).reduce((sum, rules) => sum + rules.length, 0)).toBe(300);
 
   // 旧版把伊冯整套强化普攻保存成一个技能块；新版是可递归分叉的技能序列，不能映射到某一段。
   expect(
     mappings.skills.yvonne.some(rule => rule.source.sourceSkillKey === 'enhancedBasicAttack'),
-  ).toBe(false);
+  ).toBe(true);
   expect(
     Object.values(mappings.skills).every(rules =>
       rules
@@ -65,6 +65,13 @@ it('keeps each reviewed skill mapping unique and points to an existing group mem
     for (const { target } of rules) {
       const group = definition.skillGroups.find(group => group.key === target.skillGroupKey)!;
       expect(group, slug + '/' + target.skillGroupKey).toBeDefined();
+      if (!('skillKey' in target)) {
+        const variantKey = 'variantKey' in target ? target.variantKey : undefined;
+        const variant = group.variants?.find(candidate => candidate.key === variantKey);
+        expect(variant, slug + '/' + variantKey).toBeDefined();
+        expect(variant?.placementPolicy?.kind, slug + '/' + variantKey).toBe('recursiveInput');
+        continue;
+      }
       const skills = [
         ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
         ...(group.replacementSkills ?? []),

@@ -1,5 +1,14 @@
 import { PROJECT_FPS, type SkillCastDocument } from '../../src/core/project/schema';
 
+/** 一个旧技能块对应当前技能库中的整组技能；具体分段和默认间距取当前干员定义。 */
+export interface LegacySkillSequenceTarget {
+  readonly kind: 'operatorSkillSequence';
+  readonly skillGroupKey: string;
+  readonly variantKey?: string;
+}
+
+export type LegacySkillMappingTarget = SkillCastDocument['source'] | LegacySkillSequenceTarget;
+
 export interface ConversionMappings {
   operators?: Record<string, string>;
   weapons?: Record<string, string>;
@@ -10,18 +19,18 @@ export interface ConversionMappings {
     string,
     readonly {
       source: LegacySkillIdentity;
-      target: SkillCastDocument['source'];
+      target: LegacySkillMappingTarget;
     }[]
   >;
   /** 精确旧坐标：方案 ID / 轨道下标 / 动作下标，不按名称猜变体。 */
-  actions?: Record<string, SkillCastDocument['source']>;
+  actions?: Record<string, LegacySkillMappingTarget>;
   /** 通用方案ID的已验证例外：坐标、源干员、实例及技能身份必须同时匹配。 */
   guardedActions?: readonly {
     path: string;
     operator: string;
     instanceId: string;
     source: LegacySkillIdentity;
-    target: SkillCastDocument['source'];
+    target: LegacySkillMappingTarget;
   }[];
 }
 export interface LegacySkillIdentity {
@@ -59,6 +68,15 @@ function object(value: unknown): Row {
     throw new Error('expected object');
   return value as Row;
 }
+
+/** 空对象和空数组只是旧编辑器留下的容器，不表示用户实际改过数值。 */
+function hasConfiguredValue(value: unknown): boolean {
+  if (value === null || value === undefined) return false;
+  if (Array.isArray(value)) return value.some(hasConfiguredValue);
+  if (typeof value === 'object')
+    return Object.values(value as Record<string, unknown>).some(hasConfiguredValue);
+  return true;
+}
 const timeKeys = new Set([
   'prepDuration',
   'battleDuration',
@@ -68,6 +86,7 @@ const timeKeys = new Set([
   'staggerNodeDuration',
   'startTime',
   'logicalStartTime',
+  'duration',
   'time',
 ]);
 
@@ -111,7 +130,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
       'inheritedInitialEnemyState',
       'contingencyContractTags',
     ]) {
-      if (d[key] != null && Object.keys(Object(d[key])).length)
+      if (hasConfiguredValue(d[key]))
         issues.push({
           path: prefix + '.' + key,
           message: '存在尚不支持的用户配置，不生成完整项目',
@@ -232,6 +251,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
       for (const [ai, action] of t.actions.entries()) {
         object(action);
         delete action.convertedSource;
+        delete action.convertedSequence;
         const path = wrapper.id + '/' + ti + '/' + ai;
         const identity = legacySkillIdentity(action);
         const candidates = (mappings.skills?.[oldOperator] ?? []).filter(
@@ -249,8 +269,9 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
           continue;
         }
         const override = guarded[0]?.target ?? mappings.actions?.[path];
-        if (override) action.convertedSource = override;
-        else if (candidates.length === 1) action.convertedSource = candidates[0]!.target;
+        const target = override ?? (candidates.length === 1 ? candidates[0]!.target : undefined);
+        if (target?.kind === 'operatorSkillSequence') action.convertedSequence = target;
+        else if (target) action.convertedSource = target;
         else {
           issues.push({ path, message: candidates.length ? '技能映射不唯一' : '缺少显式技能映射' });
           unresolvedSkills.push({ path, operator: oldOperator, source: identity });

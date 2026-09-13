@@ -6,6 +6,10 @@
  * 不能为旧文件补当前编辑器默认值。
  */
 import type { GameDataRepository } from '../../src/core/game-data/gameDataRepository';
+import {
+  layoutSkillGroupPlacement,
+  resolveSkillGroupPlacementSkills,
+} from '../../src/ui/timeline/skillGroupPlacement';
 export type LegacyMigrationResult =
   { ok: true; value: EndaxisProjectDocument; warnings: string[] } | { ok: false; errors: string[] };
 interface LegacyProjectImporter {
@@ -82,6 +86,49 @@ function resolveLegacySkillSource(
   const explicit = record(action.convertedSource);
   return explicit ? (explicit as unknown as SkillCastDocument['source']) : null;
 }
+
+function resolveLegacySkillSequence(
+  repository: GameDataRepository,
+  operatorSlug: string,
+  action: UnknownRecord,
+): readonly { source: SkillCastDocument['source']; offsetFrames: number }[] | null {
+  const explicit = record(action.convertedSequence);
+  if (explicit === null || explicit.kind !== 'operatorSkillSequence') return null;
+  const skillGroupKey = string(explicit.skillGroupKey);
+  const parsedVariantKey =
+    explicit.variantKey === undefined ? undefined : string(explicit.variantKey);
+  if (skillGroupKey === null || parsedVariantKey === null) return [];
+  const variantKey = parsedVariantKey ?? undefined;
+  const operator = repository.getOperator(operatorSlug);
+  const group = operator?.skillGroups.find(candidate => candidate.key === skillGroupKey);
+  if (group === undefined) return [];
+  let skills;
+  try {
+    skills = resolveSkillGroupPlacementSkills(group, variantKey);
+  } catch {
+    return [];
+  }
+  const policy =
+    variantKey === undefined
+      ? group.placementPolicy
+      : group.variants?.find(candidate => candidate.key === variantKey)?.placementPolicy;
+  if (policy?.kind === 'recursiveInput') {
+    const first = skills.find(skill => skill.key === policy.firstSkillKey);
+    return first === undefined
+      ? []
+      : [
+          {
+            source: { kind: 'operatorSkill', skillGroupKey, skillKey: first.key },
+            offsetFrames: 0,
+          },
+        ];
+  }
+  const offsets = layoutSkillGroupPlacement(skills).offsets;
+  return skills.map((skill, index) => ({
+    source: { kind: 'operatorSkill', skillGroupKey, skillKey: skill.key },
+    offsetFrames: offsets[index]!,
+  }));
+}
 function migrateOperator(source: UnknownRecord, operatorSlug: string): OperatorInstanceDocument {
   return {
     operatorSlug,
@@ -153,6 +200,8 @@ function migrateTrack(
 ): TrackDocument | null {
   const operatorSlug = string(source.id);
   const operatorSource = operators.get(string(source.operatorInstanceId) ?? '');
+  const hasNoOperatorIdentity = operatorSlug === null && string(source.operatorInstanceId) === null;
+  if (hasNoOperatorIdentity && records(source.actions).length === 0) return null;
   if (operatorSource && operatorSource.operatorSlug !== operatorSlug)
     warnings.push(`${scenarioId}: track/operator instance identity mismatch`);
   if (
@@ -168,20 +217,25 @@ function migrateTrack(
 
   const skillCasts = records(source.actions).flatMap((action, actionIndex) => {
     const skillSource = resolveLegacySkillSource(repository, operatorSlug, action);
+    const skillSequence = resolveLegacySkillSequence(repository, operatorSlug, action);
     const startFrame = integer(action.startTime) ?? integer(action.logicalStartTime);
-    if (skillSource === null || startFrame === null) {
+    const resolved =
+      skillSource === null ? skillSequence : [{ source: skillSource, offsetFrames: 0 }];
+    if (resolved === null || resolved.length === 0 || startFrame === null) {
       warnings.push(
         `${scenarioId}: ${operatorSlug} action ${actionIndex + 1} has no stable Next skill identity and was omitted`,
       );
       return [];
     }
-    return [
-      {
-        id: `legacy:${scenarioId}:track:${trackIndex}:cast:${actionIndex}`,
-        source: skillSource,
-        placement: { startFrame },
-      } satisfies SkillCastDocument,
-    ];
+    const baseId = `legacy:${scenarioId}:track:${trackIndex}:cast:${actionIndex}`;
+    return resolved.map(
+      ({ source: resolvedSource, offsetFrames }, sequenceIndex) =>
+        ({
+          id: sequenceIndex === 0 ? baseId : `${baseId}:sequence:${sequenceIndex}`,
+          source: resolvedSource,
+          placement: { startFrame: startFrame + offsetFrames },
+        }) satisfies SkillCastDocument,
+    );
   });
 
   const weapon = migrateWeapon(repository, weapons.get(string(source.weaponInstanceId) ?? ''));

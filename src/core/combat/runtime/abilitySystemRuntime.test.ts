@@ -452,6 +452,24 @@ describe('AbilitySystemRuntime', () => {
     ]);
   });
 
+  it('结束旧技能后才发布新技能的施放前事件', () => {
+    const events: string[] = [];
+    const first = new FixtureRuntime('first', events);
+    const second = new FixtureRuntime('second', events);
+    const ability = new AbilitySystemRuntime({ skills: [first, second] });
+
+    expect(ability.tryStartSkill('first')).toBe(true);
+    events.length = 0;
+    ability.prepareBeforeSkillCastStart('second', undefined, () => {
+      events.push('before:second');
+      expect(first.state).toBe('ended');
+      expect(ability.currentSkillId).toBe('second');
+    });
+
+    expect(ability.tryStartSkill('second')).toBe(true);
+    expect(events).toEqual(['interrupt:first:castNextSkill', 'before:second', 'start:second']);
+  });
+
   it('exposes the next native skill identity and exact Buff transfer port during interruption', () => {
     const events: string[] = [];
     const first = new FixtureRuntime('first', events);
@@ -484,6 +502,34 @@ describe('AbilitySystemRuntime', () => {
     actualFrame = 1;
     ability.advanceFrame();
     expect(reached).toEqual([]);
+  });
+
+  it('publishes the operable boundary when the active conditional route reaches it', () => {
+    const reached: unknown[] = [];
+    let actualFrame = 0;
+    let routeBoundary: number | undefined;
+    const skill = Object.assign(
+      new FixtureRuntime('attack4', [], 'basicAttack', 'cast:attack4', 225),
+      { usesRuntimeOperableBoundary: true },
+    );
+    Object.defineProperty(skill, 'reachedOperableBoundaryFrame', {
+      get: () => routeBoundary,
+    });
+    const ability = new AbilitySystemRuntime({
+      skills: [skill],
+      resolveActualFrame: () => actualFrame,
+      onSkillOperableBoundaryReached: fact => reached.push(fact),
+    });
+
+    expect(ability.tryStartSkill('attack4', 'cast:attack4')).toBe(true);
+    actualFrame = 1;
+    routeBoundary = 36;
+    ability.advanceFrame();
+    expect(reached).toEqual([{ castId: 'cast:attack4', durationFrames: 36, reachedAtFrame: 1 }]);
+
+    actualFrame = 2;
+    ability.advanceFrame();
+    expect(reached).toHaveLength(1);
   });
 
   it('snapshots the active slot variant at release start and applies changes to later releases', () => {
@@ -649,6 +695,16 @@ describe('AbilitySystemRuntime', () => {
           defaultSkillKey: 'attack1',
         },
       },
+      playerActionModes: [
+        {
+          modeId: 'ultimate-mode',
+          modeLayer: 'ultimate',
+          defaultEnabled: true,
+          commandMappings: {
+            basicAttack: { sourceSkillId: 'native.attack1', skillKey: 'attack1' },
+          },
+        },
+      ],
     });
 
     expect(ability.resolvePlayerInputSkill('finisher', 'basicAttack')).toEqual({
@@ -812,6 +868,63 @@ describe('AbilitySystemRuntime', () => {
 
     frame = 11;
     expect(ability.resolvePlayerInputSkill('attack2')).toEqual({
+      status: 'mismatched',
+      actualSkillKey: 'attack1',
+    });
+  });
+
+  it('accepts a preserved basic-attack stage from a non-attack allowed-next window', () => {
+    const events: string[] = [];
+    let frame = 5;
+    const battleSkill = new FixtureRuntime('battleSkill', events, 'battleSkill');
+    Object.defineProperties(battleSkill, {
+      currentTimelineFrame: { get: () => frame },
+      inputWindows: {
+        value: {
+          allowedNextSkills: [
+            {
+              startFrame: 5,
+              endFrame: 10,
+              sourceSkillIds: ['native.attack1', 'native.attack2'],
+            },
+          ],
+        },
+      },
+    });
+    const attack1 = new FixtureRuntime('attack1', events, 'basicAttack');
+    const attack2 = new FixtureRuntime('attack2', events, 'basicAttack');
+    Object.defineProperty(attack1, 'transitionSkillId', { value: 'native.attack1' });
+    Object.defineProperty(attack2, 'transitionSkillId', { value: 'native.attack2' });
+    const ability = new AbilitySystemRuntime({
+      skills: [battleSkill, attack1, attack2],
+      skillSlotGroups: [
+        {
+          skillGroupKey: 'basicAttack',
+          input: 'basicAttack',
+          defaultForInput: true,
+          baseSkillKey: 'attack1',
+          stableInputSkillKeys: ['attack1', 'attack2'],
+          replacementSkillKeys: [],
+        },
+      ],
+      playerActionRoutes: {
+        basicAttack: {
+          kind: 'basicAttack',
+          skillKeys: ['attack1', 'attack2'],
+          defaultSkillKey: 'attack1',
+        },
+      },
+    });
+
+    ability.tryStartSkill('battleSkill');
+    expect(ability.resolvePlayerInputSkill('attack2', 'basicAttack')).toEqual({
+      status: 'matched',
+      actualSkillKey: 'attack2',
+    });
+    expect(ability.evaluatePlayerInputInterruption('attack2')).toEqual({ status: 'allowed' });
+
+    frame = 11;
+    expect(ability.resolvePlayerInputSkill('attack2', 'basicAttack')).toEqual({
       status: 'mismatched',
       actualSkillKey: 'attack1',
     });

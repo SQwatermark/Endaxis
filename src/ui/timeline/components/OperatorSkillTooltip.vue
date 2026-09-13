@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref, watch } from 'vue';
+import { EaButton } from '@/design-system';
 import { useI18n } from 'vue-i18n';
 import type {
   OperatorDefinition,
@@ -7,7 +8,12 @@ import type {
   SkillLevelSource,
 } from '../../../core/game-data/operatorDefinition';
 import { listOperatorSkillDefinitionBindings } from '../../../core/game-data/operatorSkillDefinitions';
-import { getOperatorCombatSkillDescription, getOperatorCombatSkillName } from '../../gameText';
+import {
+  getOperatorCombatSkillDescription,
+  getOperatorCombatSkillFormKeys,
+  getOperatorCombatSkillName,
+  getOperatorFormName,
+} from '../../gameText';
 import { formatOperatorSkillLevel } from '../../progression';
 import GameRichTextRenderer from '../../components/GameRichTextRenderer.vue';
 
@@ -17,17 +23,50 @@ const props = defineProps<{
   skillKey: SkillLevelSource;
   skillLevel?: number;
   skillTypeName?: string;
+  activeFormKey?: string | null;
 }>();
 
 const { t, locale } = useI18n({ useScope: 'global' });
 const level = computed(() => Math.max(1, Math.trunc(props.skillLevel ?? 1)));
 const levelIndex = computed(() => level.value - 1);
 
-const skill = computed<SkillDefinition | null>(
+const binding = computed(
   () =>
     listOperatorSkillDefinitionBindings(props.operator).find(
-      binding => binding.skill.levelSource === props.skillKey,
-    )?.skill ?? null,
+      candidate => candidate.skill.levelSource === props.skillKey,
+    ) ?? null,
+);
+const skill = computed<SkillDefinition | null>(() => binding.value?.skill ?? null);
+const selectedFormKey = ref<string | null>(null);
+const formOptions = computed(() => {
+  const textKeys = new Set(
+    getOperatorCombatSkillFormKeys(props.operatorSlug, props.skillKey, locale.value),
+  );
+  return (binding.value?.group.presentationVariants ?? [])
+    .filter(form => textKeys.has(form.key))
+    .map(form => ({
+      key: form.key,
+      name: getOperatorFormName(props.operatorSlug, form.key, locale.value),
+    }));
+});
+const hasFormSwitcher = computed(() => formOptions.value.length > 1);
+watch(
+  () => [
+    props.operatorSlug,
+    props.skillKey,
+    props.activeFormKey,
+    formOptions.value.map(form => form.key).join('|'),
+  ],
+  () => {
+    selectedFormKey.value =
+      props.activeFormKey && formOptions.value.some(form => form.key === props.activeFormKey)
+        ? props.activeFormKey
+        : (formOptions.value[0]?.key ?? null);
+  },
+  { immediate: true },
+);
+const displayFormKey = computed(() =>
+  hasFormSwitcher.value ? selectedFormKey.value : props.activeFormKey,
 );
 
 function leveled(value: number | readonly number[] | undefined): number | null {
@@ -37,10 +76,21 @@ function leveled(value: number | readonly number[] | undefined): number | null {
 }
 
 const name = computed(() =>
-  getOperatorCombatSkillName(props.operatorSlug, props.skillKey, locale.value, props.skillTypeName),
+  getOperatorCombatSkillName(
+    props.operatorSlug,
+    props.skillKey,
+    locale.value,
+    props.skillTypeName,
+    displayFormKey.value,
+  ),
 );
 const description = computed(() =>
-  getOperatorCombatSkillDescription(props.operatorSlug, props.skillKey, locale.value),
+  getOperatorCombatSkillDescription(
+    props.operatorSlug,
+    props.skillKey,
+    locale.value,
+    displayFormKey.value,
+  ),
 );
 const rows = computed(() => {
   const current = skill.value;
@@ -72,13 +122,29 @@ const rows = computed(() => {
 <template>
   <div class="operator-skill-tooltip">
     <div class="operator-skill-tooltip-header">
-      <div>
+      <div class="operator-skill-tooltip-title-block">
         <div class="operator-skill-tooltip-title">{{ name }}</div>
         <div class="operator-skill-tooltip-rank">
           {{ t('armory.operator.skillTooltip.rank', { level: formatOperatorSkillLevel(level) }) }}
         </div>
       </div>
       <div class="operator-skill-tooltip-type">{{ skillTypeName }}</div>
+    </div>
+    <div v-if="hasFormSwitcher" class="operator-skill-tooltip-forms">
+      <EaButton
+        v-for="form in formOptions"
+        :key="form.key"
+        class="operator-skill-tooltip-form"
+        :class="{ selected: displayFormKey === form.key, active: activeFormKey === form.key }"
+        @click.stop.prevent="selectedFormKey = form.key"
+        @pointerdown.stop
+        @mousedown.stop
+      >
+        <span class="operator-skill-tooltip-form-name">{{ form.name }}</span>
+        <span v-if="activeFormKey === form.key" class="operator-skill-tooltip-form-badge">{{
+          t('armory.operator.skillTooltip.active')
+        }}</span>
+      </EaButton>
     </div>
     <div v-if="description" class="operator-skill-tooltip-desc">
       <GameRichTextRenderer :text="description" :locale="locale" />
@@ -96,11 +162,12 @@ const rows = computed(() => {
 .operator-skill-tooltip {
   box-sizing: border-box;
   width: min(380px, calc(100vw - 48px));
+  max-width: min(440px, calc(100vw - 48px));
   display: flex;
   flex-direction: column;
   gap: 8px;
   padding: 10px 12px 12px;
-  color: var(--ea-tooltip-fg, #f1f1f1);
+  color: #f1f1f1;
 }
 .operator-skill-tooltip-header {
   display: flex;
@@ -108,37 +175,107 @@ const rows = computed(() => {
   justify-content: space-between;
   gap: 14px;
   padding-bottom: 7px;
-  border-bottom: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+.operator-skill-tooltip-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 .operator-skill-tooltip-title {
+  color: #fff;
   font-size: 15px;
   font-weight: 800;
   line-height: 1.25;
 }
-.operator-skill-tooltip-rank,
-.operator-skill-tooltip-type {
-  opacity: 0.5;
-  font-size: 11px;
+.operator-skill-tooltip-rank {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 10px;
   font-weight: 700;
+  letter-spacing: 1px;
+  line-height: 1.2;
+}
+.operator-skill-tooltip-type {
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.operator-skill-tooltip-forms {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  padding-top: 2px;
+}
+.operator-skill-tooltip-form {
+  position: relative;
+  min-width: 0;
+  min-height: 42px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom-color: rgba(255, 255, 255, 0.25);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0.08));
+  color: rgba(255, 255, 255, 0.72);
+  cursor: pointer;
+  padding: 9px 10px 8px;
+  text-align: center;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 800;
+  line-height: 1.1;
+}
+.operator-skill-tooltip-form.selected {
+  color: #fff;
+  border-bottom-color: #fff;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.12));
+  box-shadow: inset 0 -2px 0 #fff;
+}
+.operator-skill-tooltip-form.active {
+  color: #fff;
+}
+.operator-skill-tooltip-form-name {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.operator-skill-tooltip-form-badge {
+  position: absolute;
+  top: -8px;
+  right: 6px;
+  border-radius: 999px;
+  padding: 2px 8px;
+  background: #f4ed32;
+  color: #4e4a00;
+  font-size: 11px;
+  font-weight: 900;
+  line-height: 1.1;
+  white-space: nowrap;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
 }
 .operator-skill-tooltip-desc {
+  color: rgba(255, 255, 255, 0.84);
   font-size: 13px;
-  line-height: 1.55;
+  font-weight: 500;
+  line-height: 1.45;
+  white-space: pre-wrap;
 }
 .operator-skill-tooltip-resources {
-  display: grid;
-  gap: 4px;
-  padding-top: 7px;
-  border-top: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
 }
 .operator-skill-tooltip-resource {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  gap: 16px;
-  font-size: 12px;
-}
-.operator-skill-tooltip-resource span:last-child {
-  color: #facc15;
+  gap: 20px;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 13px;
   font-weight: 700;
+  line-height: 1.2;
 }
 </style>

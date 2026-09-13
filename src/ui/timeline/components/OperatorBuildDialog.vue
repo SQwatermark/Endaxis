@@ -54,6 +54,8 @@ import {
   getWeaponActionIconPath,
 } from '../../gameAssetPaths';
 import { elementColors } from '../../../utils/theme';
+import type { OperatorPanelAttributes } from '../../../core/compiler/resolveOperatorPanel';
+import { resolveOperatorPresentationFormKey } from '../operatorFormPresentation';
 
 const LEVELS = [1, 20, 40, 60, 80, 90] as const satisfies readonly OperatorLevel[];
 const SKILL_ORDER = PLAYER_SKILL_INPUTS;
@@ -62,6 +64,7 @@ const props = defineProps<{
   visible: boolean;
   operator: OperatorInstanceViewModel | null;
   customDefinition?: OperatorDefinition;
+  buildAttributes?: OperatorPanelAttributes | null;
 }>();
 
 const emit = defineEmits<{
@@ -111,6 +114,11 @@ const availableSkillSources = computed(() => {
         ),
   );
   return SKILL_ORDER.filter(source => sources.has(source));
+});
+const activeFormKey = computed(() => {
+  const attributes = props.buildAttributes;
+  if (attributes === null || attributes === undefined || definition.value === null) return null;
+  return resolveOperatorPresentationFormKey(definition.value, attributes);
 });
 const trustAttributeKeys = computed(() => {
   const currentDefinition = definition.value;
@@ -385,7 +393,13 @@ function maxOut(): void {
               type="button"
               class="level-btn"
               :style="
-                operator.level === level ? { borderColor: rarityColor, color: rarityColor } : {}
+                operator.level === level
+                  ? {
+                      borderColor: rarityColor,
+                      color: rarityColor,
+                      background: `color-mix(in srgb, ${rarityColor} 18%, var(--ea-dialog-bg, #fff))`,
+                    }
+                  : {}
               "
               @click="handleLevelChange(level)"
             >
@@ -411,6 +425,7 @@ function maxOut(): void {
                       :skill-key="source"
                       :skill-level="operator.skillLevels[source] ?? 1"
                       :skill-type-name="skillTypeName(source)"
+                      :active-form-key="activeFormKey"
                     />
                   </template>
                   <div class="skill-icon-frame" :style="{ borderColor: elementColor }">
@@ -477,6 +492,7 @@ function maxOut(): void {
                           disabled: level > maxTrust,
                           'is-multi-attr': trustAttributeKeys.length > 1,
                         }"
+                        :style="operator.trustLevel >= level ? { borderColor: elementColor } : {}"
                         :disabled="level > maxTrust"
                         @click="setTrustLevel(level)"
                       >
@@ -532,6 +548,11 @@ function maxOut(): void {
                         :class="{
                           active: (operator.talentStates[String(groupIndex)] ?? 0) >= level,
                         }"
+                        :style="
+                          (operator.talentStates[String(groupIndex)] ?? 0) >= level
+                            ? { borderColor: elementColor }
+                            : {}
+                        "
                         @click="setTalentState(groupIndex, level)"
                       >
                         <img
@@ -709,6 +730,9 @@ function maxOut(): void {
 .level-btn {
   flex: 1;
   justify-content: center;
+}
+.level-selector {
+  gap: 6px;
 }
 .section {
   padding: 16px;

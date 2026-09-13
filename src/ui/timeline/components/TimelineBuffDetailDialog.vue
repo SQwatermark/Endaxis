@@ -2,7 +2,10 @@
 import { EaDialog } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type { BuffDetailInstance, BuffDetailTarget } from '../buffDetail';
+
+const { t } = useI18n({ useScope: 'global' });
 
 const props = defineProps<{
   visible: boolean;
@@ -14,7 +17,9 @@ const props = defineProps<{
     effect: string;
     layers: string;
     start: string;
+    startReason: string;
     end: string;
+    endReason: string;
     duration: string;
     frames: (value: number) => string;
     buffId: string;
@@ -40,6 +45,14 @@ const activeInstance = computed<BuffDetailInstance | null>(() => {
       startFrame: props.target.startFrame,
       endFrame: props.target.endFrame,
       layers: props.target.layers,
+      ...(props.target.startReason === undefined ? {} : { startReason: props.target.startReason }),
+      ...(props.target.endReason === undefined ? {} : { endReason: props.target.endReason }),
+      ...(props.target.stackingType === undefined
+        ? {}
+        : { stackingType: props.target.stackingType }),
+      ...(props.target.parentBuffId === undefined
+        ? {}
+        : { parentBuffId: props.target.parentBuffId }),
       icon: props.target.icon,
       ...(props.target.modifierSummary === undefined
         ? {}
@@ -56,6 +69,40 @@ const durationFrames = computed(() =>
 function seconds(frames: number): string {
   if (!Number.isFinite(props.fps) || props.fps <= 0) return '—';
   return `${(frames / props.fps).toFixed(2).replace(/\.00$/, '')}s`;
+}
+
+function startReasonText(instance: BuffDetailInstance): string {
+  if (instance.startReason === 'presentationStarted') {
+    return instance.parentBuffId === undefined
+      ? t('timeline.buffDetail.startReasons.presentationStarted')
+      : t('timeline.buffDetail.startReasons.presentationStartedWithParent', {
+          parentBuffId: instance.parentBuffId,
+        });
+  }
+  if (instance.startReason !== 'reapplied') {
+    return t('timeline.buffDetail.startReasons.applied');
+  }
+  switch (instance.stackingType) {
+    case 'enhance':
+    case 'enhanceAndRefresh':
+    case 'enhanceAndOverwriteDuration':
+    case 'timedGrowingEnhance':
+      return t('timeline.buffDetail.startReasons.enhanced');
+    case 'refresh':
+      return t('timeline.buffDetail.startReasons.refreshed');
+    case 'extend':
+      return t('timeline.buffDetail.startReasons.extended');
+    case 'overwriteDuration':
+      return t('timeline.buffDetail.startReasons.durationOverwritten');
+    case 'modify':
+      return t('timeline.buffDetail.startReasons.modified');
+    default:
+      return t('timeline.buffDetail.startReasons.reapplied');
+  }
+}
+
+function endReasonText(instance: BuffDetailInstance): string {
+  return t(`timeline.buffDetail.endReasons.${instance.endReason ?? 'unknown'}`);
 }
 </script>
 
@@ -108,10 +155,14 @@ function seconds(frames: number): string {
             {{ seconds(activeInstance.startFrame) }} ·
             {{ labels.frames(activeInstance.startFrame) }}
           </dd>
+          <dt>{{ labels.startReason }}</dt>
+          <dd>{{ startReasonText(activeInstance) }}</dd>
           <dt>{{ labels.end }}</dt>
           <dd>
             {{ seconds(activeInstance.endFrame) }} · {{ labels.frames(activeInstance.endFrame) }}
           </dd>
+          <dt>{{ labels.endReason }}</dt>
+          <dd>{{ endReasonText(activeInstance) }}</dd>
           <dt>{{ labels.duration }}</dt>
           <dd>{{ seconds(durationFrames) }} · {{ labels.frames(durationFrames) }}</dd>
           <dt>{{ labels.buffId }}</dt>

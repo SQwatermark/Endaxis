@@ -97,8 +97,12 @@ const items = computed(() =>
         targetId: segment.targetId,
         ...(sourceName === undefined ? {} : { sourceName }),
         startFrame: segment.startFrame,
-        endFrame: segment.durationEndFrame ?? segment.endFrame,
+        endFrame: segment.endFrame,
         layers: segment.layers,
+        ...(segment.startReason === undefined ? {} : { startReason: segment.startReason }),
+        ...(segment.endReason === undefined ? {} : { endReason: segment.endReason }),
+        ...(segment.stackingType === undefined ? {} : { stackingType: segment.stackingType }),
+        ...(segment.parentBuffId === undefined ? {} : { parentBuffId: segment.parentBuffId }),
         icon,
         ...(modifierSummary === undefined ? {} : { modifierSummary }),
         instances: segment.windows.map(member => {
@@ -114,8 +118,12 @@ const items = computed(() =>
           return {
             ...(memberSourceName === undefined ? {} : { sourceName: memberSourceName }),
             startFrame: member.startFrame,
-            endFrame: member.durationEndFrame ?? member.endFrame,
+            endFrame: member.endFrame,
             layers: member.layers,
+            ...(member.startReason === undefined ? {} : { startReason: member.startReason }),
+            ...(member.endReason === undefined ? {} : { endReason: member.endReason }),
+            ...(member.stackingType === undefined ? {} : { stackingType: member.stackingType }),
+            ...(member.parentBuffId === undefined ? {} : { parentBuffId: member.parentBuffId }),
             icon: props.icon?.(member) ?? member.iconPath ?? getIconAssetPath(member.iconId),
             ...(memberModifierSummary === undefined
               ? {}

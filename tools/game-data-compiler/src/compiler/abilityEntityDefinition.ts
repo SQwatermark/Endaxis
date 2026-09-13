@@ -94,17 +94,21 @@ export function compileAbilityEntityDefinitionSource(
           ),
         }),
     ...(Object.keys(entityBlackboard).length === 0 ? {} : { blackboard: entityBlackboard }),
+    // AbilityEntityController.OnSpawn (当前 RVA 0x03EB4ADE..0x03EB4BBF) 在包装值非零或
+    // 启用黑板键时读取 durationBB；两者都没有时才回退模板的 duration 字段。
     lifetime:
       template.lifeTypeNativeValue === 0
         ? {
             kind: 'limited',
             durationSeconds:
-              template.durationBlackboard.blackboardKey === null
-                ? template.durationSeconds
-                : {
+              template.durationBlackboard.blackboardKey !== null
+                ? {
                     blackboardKey: template.durationBlackboard.blackboardKey,
-                    fallback: template.durationSeconds,
-                  },
+                    fallback: template.durationBlackboard.value,
+                  }
+                : template.durationBlackboard.value !== 0
+                  ? template.durationBlackboard.value
+                  : template.durationSeconds,
           }
         : { kind: 'infinite' },
     ...(template.delayToRecycleSeconds === 0

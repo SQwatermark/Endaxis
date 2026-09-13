@@ -27,6 +27,10 @@ export interface CombatStatusIndicator {
   readonly layers: number;
   readonly startFrame: number;
   readonly endFrame: number;
+  readonly startReason?: BuffTimelineSegment['startReason'];
+  readonly endReason?: BuffTimelineSegment['endReason'];
+  readonly stackingType?: string;
+  readonly parentBuffId?: string;
   readonly durationEndFrame?: number;
   readonly slots: readonly CombatStatusDisplaySlot[];
   readonly onlyForControlledOperator: boolean;
@@ -114,6 +118,10 @@ export function projectCombatStatusIndicators(
           layers: segment.layers,
           startFrame: segment.startFrame,
           endFrame: segment.endFrame,
+          ...(segment.startReason === undefined ? {} : { startReason: segment.startReason }),
+          ...(segment.endReason === undefined ? {} : { endReason: segment.endReason }),
+          ...(segment.stackingType === undefined ? {} : { stackingType: segment.stackingType }),
+          ...(segment.parentBuffId === undefined ? {} : { parentBuffId: segment.parentBuffId }),
           ...(segment.durationEndFrame === undefined
             ? {}
             : { durationEndFrame: segment.durationEndFrame }),

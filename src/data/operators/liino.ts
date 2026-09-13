@@ -6799,7 +6799,7 @@ export const liino: OperatorDefinition = {
         'SelectCategory/UnSkillManualSelectable',
         'SelectCategory/UnSkillAutoSelectable',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 30 },
+      lifetime: { kind: 'limited', durationSeconds: 5 },
       maxStackingCount: 1,
       childSkill: {
         skillId: 'chr_0035_liino_ultimate_skill_projhit_abilityentity',

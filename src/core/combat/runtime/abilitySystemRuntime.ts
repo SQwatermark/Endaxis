@@ -32,6 +32,10 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly nativeSkillType?: NativeSkillType;
   /** 场景技能块在宿主局部时钟中的可操作宽度；非场景测试运行时可省略。 */
   readonly timelineBlockFrames?: number;
+  /** 有序下一段窗口由技能实际执行的条件分支决定。 */
+  readonly usesRuntimeOperableBoundary?: boolean;
+  /** 首次实际到达有序下一段窗口时的技能局部帧。 */
+  readonly reachedOperableBoundaryFrame?: number;
   readonly state: RuntimeSkillState;
   /** 当前技能局部整数执行帧；仅 casting 实例提供。 */
   readonly currentTimelineFrame?: number;
@@ -475,24 +479,24 @@ export class AbilitySystemRuntime implements FrameRuntime {
           ? { status: 'matched', actualSkillKey }
           : { status: 'mismatched', actualSkillKey };
       }
+      const expectedSkillType = this.#skills.find(
+        skill => skill.skillId === expectedSkillKey,
+      )?.skillType;
+      if (expectedSkillType === 'finisher' || expectedSkillType === 'plungingAttack') {
+        // 处决和下落攻击与普通攻击共用输入，但先由敌人处决状态或角色腾空状态选出。
+        // Next 尚未建模这两项状态，因此时间轴显式放置的特殊攻击不能再被地面普攻、
+        // 当前技能或模式的 Attack 命令映射反证为另一技能。
+        return {
+          status: 'notApplicable',
+          reason: 'special basic-attack selection state is outside simulation scope',
+        };
+      }
       const buffMapped = this.#resolveBuffBasicAttackMapping(expectedSkillKey);
       if (buffMapped !== null) return buffMapped;
       const mapped = this.#resolveCurrentBasicAttackMapping(expectedSkillKey);
       if (mapped !== null) return mapped;
       const modeMapped = this.#resolveActiveModeBasicAttackMapping(expectedSkillKey);
       if (modeMapped !== null) return modeMapped;
-      const expectedSkillType = this.#skills.find(
-        skill => skill.skillId === expectedSkillKey,
-      )?.skillType;
-      if (expectedSkillType === 'finisher' || expectedSkillType === 'plungingAttack') {
-        // 处决和下落攻击与普通攻击共用输入，但由敌人处决状态或角色腾空状态选择。
-        // Next 尚未建模这两项空间/敌人状态；缺少显式命令映射时不能拿 A1 默认映射
-        // 反证时间轴上已经明确放置的特殊攻击。
-        return {
-          status: 'notApplicable',
-          reason: 'special basic-attack selection state is outside simulation scope',
-        };
-      }
       if (route.defaultSkillKey === undefined) {
         return { status: 'unknown', reason: 'native basic-attack command mapping is not imported' };
       }
@@ -553,6 +557,22 @@ export class AbilitySystemRuntime implements FrameRuntime {
     const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
     if (current === null || current.currentTimelineFrame === undefined) return null;
     const frame = current.currentTimelineFrame;
+    const expectedSourceSkillIds = new Set(
+      this.#skills
+        .filter(skill => skill.skillId === expectedSkillKey)
+        .map(skill => skill.transitionSkillId ?? skill.skillId),
+    );
+    const explicitlyAllowed = (current.inputWindows?.allowedNextSkills ?? []).some(
+      window =>
+        window.startFrame <= frame &&
+        frame <= window.endFrame &&
+        window.sourceSkillIds.some(sourceSkillId => expectedSourceSkillIds.has(sourceSkillId)),
+    );
+    if (explicitlyAllowed) {
+      // AllowNextSkillAction 可以在战技等非普攻技能中保留此前的普攻段数，且不一定同时写
+      // ChangeInputCommandSkillAction。时间轴已经给出具体段数时，原生白名单足以证明该输入合法。
+      return { status: 'matched', actualSkillKey: expectedSkillKey };
+    }
     const mappings = (current.inputWindows?.commandMappings ?? []).filter(
       window =>
         window.input === 'basicAttack' && window.startFrame <= frame && frame <= window.endFrame,
@@ -840,9 +860,11 @@ export class AbilitySystemRuntime implements FrameRuntime {
       return true;
     }
 
-    if (beforeCastStart !== undefined) this.#withProcessingSkill(skill, beforeCastStart);
+    // 原生先登记新 CurrentSkill 并结束旧技能，再进入新技能的 BeforeCastStart。
+    // 下一技能消费型 Buff 因而不会被旧技能随后发布的 SkillEnd 清掉。
     this.#currentSkill = skill;
     if (previousSkill !== null) this.#interruptForNextSkill(previousSkill, skill);
+    if (beforeCastStart !== undefined) this.#withProcessingSkill(skill, beforeCastStart);
     if (!skill.tryStart()) {
       throw new Error(`skill '${skillId}' became unavailable during synchronous cast start`);
     }
@@ -882,6 +904,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
           if (skill.advance !== undefined)
             skill.advance(skill.startedInCurrentFrame ? 0 : deltas.selfScaledDeltaSeconds, 0);
           else skill.advanceFrame();
+          this.#publishRuntimeOperableBoundary(skill);
         }
       }
     } else {
@@ -894,6 +917,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
         } else {
           skill.advanceFrame();
         }
+        this.#publishRuntimeOperableBoundary(skill);
       }
     }
     if (this.#operableBoundaries !== null) {
@@ -925,15 +949,17 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (request.interruptCurrentSkillOnlyWhenTargetCastable === true && !nextSkill.canStart()) {
       return;
     }
-    this.#currentSkill = null;
+    // 与同步施放一致：旧技能结束回调应当能观察到已经登记的新 CurrentSkill。
+    this.#currentSkill = nextSkill;
     if (previousSkill !== null) this.#interruptForNextSkill(previousSkill, nextSkill);
     this.#beforePostSkillCastStart?.(request);
     const beforeCastStart = this.#beforeCastStarts.get(nextSkill);
     this.#beforeCastStarts.delete(nextSkill);
     beforeCastStart?.();
     if (nextSkill.tryStart()) {
-      this.#currentSkill = nextSkill;
       this.#beginSkillOperableBoundary(nextSkill);
+    } else {
+      this.#currentSkill = null;
     }
   }
 
@@ -960,12 +986,37 @@ export class AbilitySystemRuntime implements FrameRuntime {
     }
     // 一个场景放置身份只发布一次 UI 边界；技能槽替换或测试侧重复启动不伪造第二个块。
     if (this.#registeredOperableBoundaryCastIds.has(skill.castId)) return;
+    if (skill.usesRuntimeOperableBoundary === true) {
+      this.#publishRuntimeOperableBoundary(skill);
+      return;
+    }
     this.#registeredOperableBoundaryCastIds.add(skill.castId);
     this.#operableBoundaries.begin(
       skill.castId,
       skill.timelineBlockFrames,
       this.#resolveActualFrame!(),
     );
+  }
+
+  #publishRuntimeOperableBoundary(skill: AbilitySkillRuntime): void {
+    if (
+      skill.usesRuntimeOperableBoundary !== true ||
+      skill.castId === undefined ||
+      this.#resolveActualFrame === undefined ||
+      this.#onSkillOperableBoundaryReached === undefined ||
+      this.#registeredOperableBoundaryCastIds.has(skill.castId)
+    ) {
+      return;
+    }
+    const durationFrames = skill.reachedOperableBoundaryFrame;
+    // 零帧窗口沿用零宽技能块语义：下一次输入最早仍在下一实际帧，不发布零时长事实。
+    if (durationFrames === undefined || durationFrames <= 0) return;
+    this.#registeredOperableBoundaryCastIds.add(skill.castId);
+    this.#onSkillOperableBoundaryReached({
+      castId: skill.castId,
+      durationFrames,
+      reachedAtFrame: this.#resolveActualFrame(),
+    });
   }
 
   #requireSkill(skillId: string, castId?: string, resolveSkillSlot = true): AbilitySkillRuntime {

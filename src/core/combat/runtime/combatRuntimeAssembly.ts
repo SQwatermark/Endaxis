@@ -1388,9 +1388,11 @@ export class CombatRuntimeAssembly {
     const pendingCombo = action === 'comboSkill' ? this.comboWindows.first : undefined;
     const resolution =
       pendingCombo !== undefined && pendingCombo.operatorId === operatorId
-        ? pendingCombo.nextSkillKey === expectedSkillId
-          ? ({ status: 'matched', actualSkillKey: pendingCombo.nextSkillKey } as const)
-          : ({ status: 'mismatched', actualSkillKey: pendingCombo.nextSkillKey } as const)
+        ? pendingCombo.nativeCondition !== undefined
+          ? ability.resolvePlayerInputSkill(expectedSkillId, action)
+          : pendingCombo.nextSkillKey === expectedSkillId
+            ? ({ status: 'matched', actualSkillKey: pendingCombo.nextSkillKey } as const)
+            : ({ status: 'mismatched', actualSkillKey: pendingCombo.nextSkillKey } as const)
         : ability.resolvePlayerInputSkill(expectedSkillId, action);
     if (resolution.status === 'mismatched') {
       this.receipt.record({

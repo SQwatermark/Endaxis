@@ -1373,7 +1373,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           },
         },
       });
-      return result.receiptEntries
+      const damageFrames = result.receiptEntries
         .filter(
           entry =>
             entry.event === 'DamageApplied' &&
@@ -1381,10 +1381,20 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
             String(entry.data?.stepKey).includes('chr_0028_wulfa_attack4'),
         )
         .map(entry => entry.frame);
+      const operableBoundaryFrame = result.receiptEntries.find(
+        entry => entry.event === 'SkillOperableBoundaryReached',
+      )?.frame;
+      return { damageFrames, operableBoundaryFrame };
     };
 
-    expect(simulate(true)).toEqual([7, 9, 14, 16, 24]);
-    expect(simulate(false)).toEqual([7, 10, 15, 17, 25]);
+    expect(simulate(true)).toEqual({
+      damageFrames: [7, 9, 14, 16, 24],
+      operableBoundaryFrame: 37,
+    });
+    expect(simulate(false)).toEqual({
+      damageFrames: [7, 10, 15, 17, 25],
+      operableBoundaryFrame: 37,
+    });
   });
 
   it('runs Rossi delayed combo Buff trigger without the native-disabled Refresh timeline', () => {

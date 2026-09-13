@@ -457,9 +457,7 @@ export function planOperatorActiveSkillRuntime(
             : node.metadata.enabled &&
                 node.body.kind === 'leaf' &&
                 node.body.value.family === 'buffQuery'
-              ? node.body.value.action.kind === 'buffStackRead'
-                ? [...node.body.value.action.buffIds]
-                : [...node.body.value.action.settings.buffIds]
+              ? [...node.body.value.action.buffIds]
               : [],
         ),
       ),
@@ -481,9 +479,7 @@ export function planOperatorActiveSkillRuntime(
                 : node.metadata.enabled &&
                     node.body.kind === 'leaf' &&
                     node.body.value.family === 'buffQuery'
-                  ? node.body.value.action.kind === 'buffStackRead'
-                    ? [...node.body.value.action.buffIds]
-                    : [...node.body.value.action.settings.buffIds]
+                  ? [...node.body.value.action.buffIds]
                   : [],
             ),
           ),

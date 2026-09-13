@@ -4077,7 +4077,7 @@ export const zhuangFangyi: OperatorDefinition = {
     },
     abilityentity_chr_0030_zhuangfy_attack3_ult: {
       bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
-      lifetime: { kind: 'limited', durationSeconds: 1 },
+      lifetime: { kind: 'limited', durationSeconds: 2 },
       childSkill: {
         skillId: 'chr_0030_zhuangfy_attack3_ult_abilityrange',
         blackboard: { atb: 0, atk_scale: 0.2, poise: 0, randomRotate: 0, thunderPosIndex: 0 },
@@ -4133,7 +4133,7 @@ export const zhuangFangyi: OperatorDefinition = {
         'Immune/Damage',
         'Skill/Character/chr_0030_zhuangfy/ThunderAura',
       ],
-      lifetime: { kind: 'limited', durationSeconds: 1 },
+      lifetime: { kind: 'limited', durationSeconds: 3 },
       maxStackingCount: 10,
     },
     abilityentity_chr_0030_zhuangfy_normal_skill_sword: {
@@ -4155,7 +4155,7 @@ export const zhuangFangyi: OperatorDefinition = {
     },
     abilityentity_chr_0030_zhuangfy_normal_skill_ult: {
       bornTags: ['SelectCategory/Unmarkable', 'Immune/Damage'],
-      lifetime: { kind: 'limited', durationSeconds: 1 },
+      lifetime: { kind: 'limited', durationSeconds: 3 },
       childSkill: {
         skillId: 'chr_0030_zhuangfy_normal_skill_ult_abilityrange',
         blackboard: {

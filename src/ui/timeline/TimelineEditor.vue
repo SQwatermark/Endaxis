@@ -32,6 +32,7 @@ import {
   getGearPieceGameName,
   getGearSetGameName,
   getOperatorCombatSkillName,
+  getOperatorFormName,
   getOperatorGameName,
   getOperatorPotentialName,
   getOperatorTalentName,
@@ -174,7 +175,8 @@ import {
   switchTrackToCompatibleWeaponTemplate,
 } from '../../core/project/projectDefinitionLibrary';
 import { createEmptyProject } from '../../core/project/createProject';
-import { serializeProjectDocument } from '../../core/project/serialization';
+import convertedLegacyDefaultProject from '../../../tmp/public-6aa244-sim-retimed-20260913/project.json';
+import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { openProject } from '../../application/openProject';
 import { downloadProjectJson } from './downloadProjectJson';
 import {
@@ -206,6 +208,7 @@ import {
   getWeaponActionIconPath,
 } from '../gameAssetPaths';
 import { groupPlacedSkillSequence, placeLibrarySkillGroup } from './placeSkillGroup';
+import { resolveOperatorPresentationFormKey } from './operatorFormPresentation';
 import { SkillPlacementTransaction } from './skillPlacementTransaction';
 import {
   resolveCompactSkillSelection,
@@ -314,6 +317,7 @@ import {
 } from '../keyboard/keyboardShortcutRouter';
 import {
   skillLibrarySegmentLabel,
+  timelineSkillBlockLabel,
   timelineSkillSegmentLabel,
   type TimelineSkillSegmentLabels,
 } from './timelineSkillLabels';
@@ -402,7 +406,6 @@ import {
 import {
   ABILITY_ENTITY_SAMPLE_CAST_ID,
   ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
-  createTimelineSampleScenario,
 } from './timelineSampleScenario';
 
 const { t, te, locale } = useI18n({ useScope: 'global' });
@@ -700,18 +703,31 @@ let stopMarkerMove: (() => void) | null = null;
 let markerMoveAutoScrollFrame: number | null = null;
 
 /** 初始方案只在挂载时读取；编辑会话不回写调用方传入的对象。 */
-const props = defineProps<{ initialScenario?: ScenarioDocument }>();
-const initialScenario =
-  props.initialScenario === undefined
-    ? createTimelineSampleScenario()
-    : structuredClone(toRaw(props.initialScenario));
-const initialProject = createEmptyProject({
-  projectId: 'sample',
-  createdWith: 'endaxis',
-  gameDataRevision: gameDataRepository.revision,
+const props = defineProps<{ initialScenario?: ScenarioDocument; initialProject?: unknown }>();
+const convertedDefault = parseProjectDocument(convertedLegacyDefaultProject, {
+  gameDataRepository,
 });
-initialProject.activeScenarioId = initialScenario.id;
-initialProject.scenarios = [initialScenario];
+if (!convertedDefault.ok) throw new Error('临时默认转换轴未通过项目校验');
+const suppliedProject =
+  props.initialProject === undefined
+    ? undefined
+    : parseProjectDocument(props.initialProject, { gameDataRepository });
+if (suppliedProject !== undefined && !suppliedProject.ok)
+  throw new Error('临时预览轴未通过项目校验');
+const initialProject = suppliedProject?.ok
+  ? structuredClone(suppliedProject.value)
+  : props.initialScenario === undefined
+    ? structuredClone(convertedDefault.value)
+    : createEmptyProject({
+        projectId: 'sample',
+        createdWith: 'endaxis',
+        gameDataRevision: gameDataRepository.revision,
+      });
+if (props.initialScenario !== undefined) {
+  const initialScenario = structuredClone(toRaw(props.initialScenario));
+  initialProject.activeScenarioId = initialScenario.id;
+  initialProject.scenarios = [initialScenario];
+}
 const projectSession = new ProjectEditorSession(initialProject);
 const scenarioSession = new ActiveScenarioEditorSession(projectSession);
 const projectRevision = ref(0);
@@ -1310,6 +1326,26 @@ const selectedGearSetBaseDefinition = computed(() => {
   const template = projectDefinitionLibrary.value.gearSets[id];
   return gameDataRepository.getGearSet(template?.origin?.templateId ?? id);
 });
+const operatorBuildPanel = computed(() => {
+  return panelResolution.value.panels.get(selectedTrack.value) ?? null;
+});
+const operatorFormNamesByTrack = computed<readonly (string | null)[]>(() =>
+  viewModel.value.tracks.map(track => {
+    const operator = loadoutModels.value[track.trackIndex]?.operator ?? null;
+    const panel = panelResolution.value.panels.get(track.trackIndex) ?? null;
+    if (operator === null || panel === null) return null;
+    const formKey = resolveOperatorPresentationFormKey(operator.definition, panel.attributes);
+    if (formKey === null) return null;
+    return getOperatorFormName(
+      operator.definition.assetSlug ?? operator.operatorSlug,
+      formKey,
+      locale.value,
+    );
+  }),
+);
+const selectedOperatorFormName = computed(
+  () => operatorFormNamesByTrack.value[selectedTrack.value] ?? null,
+);
 
 /**
  * 项目定义提交可能同时替换活动场景，也可能只替换定义库。
@@ -3140,13 +3176,10 @@ function timelineCastLabel(
       candidate.skillGroupKey === source.skillGroupKey &&
       candidate.skills.some(skill => skill.skillKey === source.skillKey),
   );
-  const segmentLabel =
-    entry === undefined
-      ? null
-      : timelineSkillSegmentLabel(entry, source.skillKey, skillSegmentLabels());
-  return (
-    segmentLabel ?? (cast.skillType === null ? source.skillKey : skillTypeLabel(cast.skillType))
-  );
+  const fallbackLabel = cast.skillType === null ? source.skillKey : skillTypeLabel(cast.skillType);
+  return entry === undefined
+    ? fallbackLabel
+    : timelineSkillBlockLabel(entry, source.skillKey, skillSegmentLabels(), fallbackLabel);
 }
 
 const OPERATOR_ELEMENT_SKILL_COLORS: Readonly<Record<string, string>> = {
@@ -5257,7 +5290,15 @@ function setPanelDialogVisible(visible: boolean): void {
           <div class="library-header__main">
             <h3 class="operator-heading">
               <span class="operator-heading__mark"></span>
-              <span>{{ operatorName(selectedTrackModel.operatorSlug) }}</span>
+              <span class="operator-heading__main">{{
+                operatorName(selectedTrackModel.operatorSlug)
+              }}</span>
+              <span
+                v-if="selectedOperatorFormName"
+                class="operator-form-badge"
+                :title="selectedOperatorFormName"
+                >{{ selectedOperatorFormName }}</span
+              >
             </h3>
           </div>
           <div class="library-header__divider"></div>
@@ -5837,6 +5878,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 class="track-identity"
                 :track="track"
                 :name="operatorName(track.operatorSlug)"
+                :form-name="operatorFormNamesByTrack[track.trackIndex] ?? null"
                 :selected="isTrackIdentitySelected(track.trackIndex)"
                 :reorder-source="
                   dragPayload?.kind === 'trackOrder' && dragPayload.trackIndex === track.trackIndex
@@ -6018,6 +6060,10 @@ function setPanelDialogVisible(visible: boolean): void {
                   :class="{
                     selected:
                       selectedMarker?.kind === 'controlSwitch' && selectedMarker.id === marker.id,
+                    dragging:
+                      markerMoveGesture?.kind === 'controlSwitch' &&
+                      markerMoveGesture.id === marker.id &&
+                      markerMoveGesture.dragStarted,
                   }"
                   :style="{
                     left: `${timelineFramePx(displayedMarkerFrame('controlSwitch', marker.id, marker.frame))}px`,
@@ -6045,9 +6091,17 @@ function setPanelDialogVisible(visible: boolean): void {
                 >
                   <OperatorAvatar
                     v-if="track.operatorSlug"
+                    class="track-switch-marker__avatar"
                     :src="getOperatorAvatarPath(track.operatorAssetSlug ?? track.operatorSlug)"
                   />
-                  <span>{{ displayedMarkerFrame('controlSwitch', marker.id, marker.frame) }}f</span>
+                  <span class="track-switch-marker__time">
+                    {{
+                      formatGuideFrame(
+                        displayedMarkerFrame('controlSwitch', marker.id, marker.frame),
+                      )
+                    }}
+                  </span>
+                  <i class="track-switch-marker__pointer"></i>
                 </div>
                 <div
                   v-for="marker in (scenario.battle.externalEventMarkers ?? []).filter(
@@ -6611,6 +6665,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :visible="showOperatorBuildDialog"
     :operator="selectedLoadoutModel.operator"
     :custom-definition="selectedOperatorCustomDefinition"
+    :build-attributes="operatorBuildPanel?.attributes ?? null"
     @update:visible="showOperatorBuildDialog = $event"
     @change="updateOperatorBuild"
     @edit-definition="openOperatorDefinitionWorkspace"
@@ -6749,7 +6804,9 @@ function setPanelDialogVisible(visible: boolean): void {
       effect: t('timeline.buffDetail.effect'),
       layers: t('timeline.buffDetail.layers'),
       start: t('timeline.buffDetail.start'),
+      startReason: t('timeline.buffDetail.startReason'),
       end: t('timeline.buffDetail.end'),
+      endReason: t('timeline.buffDetail.endReason'),
       duration: t('timeline.buffDetail.duration'),
       frames: value => t('timeline.buffDetail.frames', { value }),
       buffId: t('timeline.buffDetail.buffId'),
@@ -6935,9 +6992,28 @@ button:disabled {
 }
 
 .operator-heading__mark {
+  flex: 0 0 auto;
   width: 4px;
   height: 18px;
   background: var(--ea-gold);
+}
+
+.operator-heading__main {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.operator-form-badge {
+  flex: 0 0 auto;
+  color: #00e5ff;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(0, 229, 255, 0.35);
+  white-space: nowrap;
 }
 
 .sidebar-tabs {
@@ -7365,32 +7441,73 @@ button:disabled {
 }
 
 .track-switch-marker {
-  top: 6px;
+  top: calc(var(--timeline-action-top, 55px) - 42px);
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 4px;
-  padding: 2px 5px 2px 2px;
-  border: 1px solid var(--ea-border-strong);
-  border-radius: 14px 3px 3px 14px;
-  background: rgb(16 16 18 / 92%);
-  color: var(--ea-fg-secondary);
-  font-size: 10px;
-  transform: translateX(-12px);
+  gap: 2px;
+  z-index: 30;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  transform: translateX(-50%);
+  transition: transform 0.1s;
+  cursor: grab;
 }
 
-.track-switch-marker::after {
-  content: '';
-  position: absolute;
-  left: 11px;
-  top: 100%;
-  height: 20px;
-  border-left: 1px solid var(--ea-border-strong);
+.track-switch-marker.dragging {
+  transition: none;
+  cursor: grabbing;
 }
 
-.track-switch-marker .operator-avatar-crop {
-  width: 20px;
-  height: 20px;
+.track-switch-marker__avatar.operator-avatar-crop {
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
+  border: 2px solid #d3adff;
+  background: #222;
+  box-shadow: 0 2px 4px rgb(0 0 0 / 50%);
+}
+
+.track-switch-marker__time {
+  padding: 1px 5px;
+  border: 1px solid rgb(211 173 255 / 65%);
+  border-radius: 10px;
+  background: rgb(24 18 30 / 92%);
+  box-shadow: 0 1px 4px rgb(0 0 0 / 35%);
+  color: #f0dcff;
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 1.2;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
+  white-space: nowrap;
+}
+
+.track-switch-marker__pointer {
+  width: 0;
+  height: 0;
+  border-top: 7px solid #d3adff;
+  border-right: 5px solid transparent;
+  border-left: 5px solid transparent;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 40%));
+}
+
+.timeline-marker.track-switch-marker.selected {
+  outline: 0;
+}
+
+.track-switch-marker.selected .track-switch-marker__avatar {
+  border-color: #fff;
+  box-shadow: 0 0 8px #fff;
+}
+
+.track-switch-marker.selected .track-switch-marker__time {
+  border-color: rgb(255 255 255 / 85%);
+  color: #fff;
+}
+
+.track-switch-marker.selected .track-switch-marker__pointer {
+  border-top-color: #fff;
 }
 
 .operator-event-marker {

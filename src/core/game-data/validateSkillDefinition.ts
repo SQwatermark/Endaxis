@@ -3135,6 +3135,17 @@ function validateCombatStep(
       break;
     case 'finishTimeline':
       break;
+    case 'reachSkillOperableBoundary':
+      if (!Array.isArray(parameters.sourceSkillIds) || parameters.sourceSkillIds.length === 0) {
+        push(out, `${path}.parameters.sourceSkillIds`, 'expected a non-empty array');
+      } else {
+        parameters.sourceSkillIds.forEach((sourceSkillId, index) => {
+          if (typeof sourceSkillId !== 'string' || sourceSkillId.length === 0) {
+            push(out, `${path}.parameters.sourceSkillIds[${index}]`, 'expected a non-empty string');
+          }
+        });
+      }
+      break;
     case 'switch':
       validateActionValueOperand(parameters.choice, `${path}.parameters.choice`, out);
       requireBoolean(parameters, 'alwaysNext', `${path}.parameters`, out);
@@ -3839,6 +3850,9 @@ export function validateSkillDefinition(
   if (record.nativeSkillType !== undefined)
     requireEnum(record, 'nativeSkillType', NATIVE_SKILL_TYPES_SET, path, out);
   requireNonNegativeInteger(record, 'timelineBlockFrames', path, out);
+  if (record.timelineContinuationSourceSkillId !== undefined) {
+    requireString(record, 'timelineContinuationSourceSkillId', path, out);
+  }
   if (record.naturalDurationFrames !== undefined) {
     requirePositiveInteger(record, 'naturalDurationFrames', path, out);
   }

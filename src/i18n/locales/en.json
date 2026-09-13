@@ -1780,10 +1780,35 @@
       "effect": "Effect summary",
       "layers": "Stacks",
       "start": "Start",
+      "startReason": "Start reason",
       "end": "End",
+      "endReason": "End reason",
       "duration": "Duration",
       "frames": "Frame {value}",
-      "buffId": "Original Buff ID"
+      "buffId": "Original Buff ID",
+      "startReasons": {
+        "applied": "The Buff instance was applied successfully",
+        "presentationStarted": "Shown when its parent Buff started",
+        "presentationStartedWithParent": "Shown when parent Buff “{parentBuffId}” started",
+        "enhanced": "Reapplied to the same instance and increased its stacks",
+        "refreshed": "Reapplied to the same instance and refreshed its duration",
+        "extended": "Reapplied to the same instance and extended its duration",
+        "durationOverwritten": "Reapplied to the same instance and reset its duration",
+        "modified": "Reapplied to the same instance and updated its state",
+        "reapplied": "Reapplied to the same instance"
+      },
+      "endReasons": {
+        "reapplied": "The same instance was reapplied, ending this stack phase",
+        "lifetime": "Its duration expired naturally",
+        "ignite": "Ignited and consumed",
+        "early": "Ended early by a skill or effect",
+        "dispelled": "Dispelled",
+        "absorbed": "Absorbed",
+        "other": "Ended by another game rule",
+        "released": "Removed when its owner was released",
+        "simulationEnd": "Still active when the simulation ended",
+        "unknown": "No end reason was recorded"
+      }
     },
     "hitDetail": {
       "frame": "Frame",

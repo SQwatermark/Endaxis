@@ -1168,6 +1168,26 @@ describe('CombatActionSequenceRuntime', () => {
     expect(requestTimelineJump).toHaveBeenCalledWith(150);
   });
 
+  it('把实际进入分支的有序连段窗口通知给技能宿主', () => {
+    const reachSkillOperableBoundary = vi.fn();
+    const fixture = createFixture();
+    const runtime = new CombatActionSequenceRuntime(fixture.operations, {
+      blackboard: new ActionBlackboard(),
+      reachSkillOperableBoundary,
+    });
+    const action = runtime.createSequence(
+      sequence({
+        kind: 'reachSkillOperableBoundary',
+        parameters: { sourceSkillIds: ['native.attack5'] },
+      }),
+    );
+
+    action.execute({});
+
+    expect(reachSkillOperableBoundary).toHaveBeenCalledOnce();
+    expect(reachSkillOperableBoundary).toHaveBeenCalledWith(['native.attack5']);
+  });
+
   it('条件时间轴跳转在后续 Tick 重试并只在首次通过时请求', () => {
     const requestTimelineJump = vi.fn();
     const conditionResults = [false, true];

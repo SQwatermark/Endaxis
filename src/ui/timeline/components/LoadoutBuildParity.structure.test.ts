@@ -11,10 +11,13 @@ import operatorBuildSource from './OperatorBuildDialog.vue?raw';
 import weaponBuildSource from './WeaponBuildDialog.vue?raw';
 import weaponTooltipSource from './WeaponSelectionTooltip.vue?raw';
 import operatorSelectionSource from './OperatorSelectionDialog.vue?raw';
+import timelineTrackHeaderSource from './TimelineTrackHeader.vue?raw';
+import timelineEditorSource from '../TimelineEditor.vue?raw';
 import weaponSelectionSource from './WeaponSelectionDialog.vue?raw';
 import loadoutBuildProgressionSource from '../loadoutBuildProgression.ts?raw';
 import {
   getOperatorCombatSkillDescription,
+  getOperatorCombatSkillFormKeys,
   getOperatorGameName,
   getOperatorPotentialDescription,
   getOperatorTalentDescription,
@@ -198,5 +201,38 @@ describe('旧版构筑编辑行为兼容结构', () => {
     );
     expect(getOperatorTalentDescription('liino', 0, 0, 'zh-CN')).toContain('<@ba.vup>+10%</>');
     expect(getOperatorPotentialDescription('liino', 0, 'zh-CN')).toContain('<#ba.return>返还</>');
+  });
+
+  it('诀的技能 tooltip 可以切换两种形态并显示当前构筑形态', () => {
+    expect(getOperatorCombatSkillFormKeys('arcane', 'comboSkill', 'zh-CN')).toEqual([
+      'int',
+      'will',
+    ]);
+    expect(getOperatorCombatSkillDescription('arcane', 'comboSkill', 'zh-CN', 'int')).toContain(
+      '阵诀·智',
+    );
+    expect(getOperatorCombatSkillDescription('arcane', 'comboSkill', 'zh-CN', 'will')).toContain(
+      '阵诀·意',
+    );
+    expect(operatorTooltipSource).toContain('group.presentationVariants');
+    expect(operatorTooltipSource).toContain('activeFormKey === form.key');
+    expect(operatorBuildSource).toContain(':active-form-key="activeFormKey"');
+    expect(operatorTooltipSource).toContain('class="operator-skill-tooltip-form-badge"');
+    expect(operatorTooltipSource).toContain('background: #f4ed32;');
+    expect(operatorTooltipSource).toContain('box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);');
+  });
+
+  it('干员名称显示当前形态，等级和天赋按钮沿用旧版样式', () => {
+    expect(timelineEditorSource).toContain('selectedOperatorFormName');
+    expect(timelineEditorSource).toContain(
+      ':form-name="operatorFormNamesByTrack[track.trackIndex]',
+    );
+    expect(timelineTrackHeaderSource).toContain('class="operator-form-badge"');
+    expect(timelineTrackHeaderSource).toContain('color: #00e5ff;');
+    expect(operatorBuildSource).toContain('borderColor: elementColor');
+    expect(operatorBuildSource).toContain(
+      'background: `color-mix(in srgb, ${rarityColor} 18%, var(--ea-dialog-bg, #fff))`',
+    );
+    expect(operatorBuildSource).toMatch(/\.level-selector\s*\{[\s\S]*?gap:\s*6px;/);
   });
 });

@@ -49,4 +49,13 @@ describe('timeline marker move gesture wiring', () => {
     expect(trackSwitchMarker).toContain('@click.stop');
     expect(operatorEventMarker).toContain('@click.stop');
   });
+
+  it('keeps the legacy switch marker stack and anchors it above the action lane', () => {
+    expect(source).toContain('class="track-switch-marker__avatar"');
+    expect(source).toContain('class="track-switch-marker__time"');
+    expect(source).toContain('class="track-switch-marker__pointer"');
+    expect(source).toContain('formatGuideFrame(');
+    expect(source).toContain('top: calc(var(--timeline-action-top, 55px) - 42px);');
+    expect(source).toContain('transform: translateX(-50%);');
+  });
 });

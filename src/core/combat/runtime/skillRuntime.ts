@@ -148,6 +148,8 @@ export interface CombatOperationContext {
   readonly canExecuteAction?: () => boolean;
   /** 仅由技能时间轴宿主提供；结束当前技能且不改写局部帧。 */
   readonly requestTimelineFinish?: () => void;
+  /** 原生有序下一段窗口实际进入活动分支时，通知技能宿主记录局部边界。 */
+  readonly reachSkillOperableBoundary?: (sourceSkillIds: readonly string[]) => void;
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
   readonly getCurrentTimelineFrame?: () => number;
   /** 已发射投射物的 duration-finish 注册端口；注册项不归当前技能寿命所有。 */
@@ -241,6 +243,7 @@ export class SkillRuntime {
   #forceTimelinePayment = false;
   #preparationCast = false;
   #timelineFinishRequested = false;
+  #reachedOperableBoundaryFrame: number | undefined;
   readonly #attachedBuffs = new Set<BuffApplicationHandle>();
   readonly #hostIdentity: SkillRuntimeHostIdentity;
   #pendingTransition: RuntimeSkillTransition | null = null;
@@ -286,6 +289,8 @@ export class SkillRuntime {
         : { createCallbackSkillHost: dependencies.createCallbackSkillHost }),
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       requestTimelineFinish: () => this.#requestTimelineFinish(),
+      reachSkillOperableBoundary: sourceSkillIds =>
+        this.#reachSkillOperableBoundary(sourceSkillIds),
       getCurrentTimelineFrame: () => roundToEven(this.#passedFrames),
       ...(dependencies.scheduleProjectileFinishCallback === undefined
         ? {}
@@ -345,6 +350,15 @@ export class SkillRuntime {
 
   get timelineBlockFrames(): number | undefined {
     return this.#program.timelineBlockFrames;
+  }
+
+  /** 存在有序下一段身份时，静态块宽只作为预览，正式边界由实际条件分支决定。 */
+  get usesRuntimeOperableBoundary(): boolean {
+    return this.#program.timelineContinuationSourceSkillId !== undefined;
+  }
+
+  get reachedOperableBoundaryFrame(): number | undefined {
+    return this.#reachedOperableBoundaryFrame;
   }
 
   get passedFrames(): number {
@@ -605,6 +619,7 @@ export class SkillRuntime {
     this.#forceTimelinePayment = this.#preparedForceTimelinePayment;
     this.#preparationCast = this.#dependencies.clock.frame < 0;
     this.#timelineFinishRequested = false;
+    this.#reachedOperableBoundaryFrame = undefined;
     this.#inheritedSkillCastInfo = this.#preparedSkillCastInfo;
     this.#nonReturnedSpCost = this.#preparedSkillCastInfo?.nonReturnedSpCost ?? 0;
     this.#skillCastId =
@@ -844,6 +859,18 @@ export class SkillRuntime {
     timeline.finish(this.#passedFrames, this.#context);
     this.#timelineFinishRequested = true;
     this.record('SkillTimelineFinished');
+  }
+
+  #reachSkillOperableBoundary(sourceSkillIds: readonly string[]): void {
+    const continuation = this.#program.timelineContinuationSourceSkillId;
+    if (
+      continuation === undefined ||
+      this.#reachedOperableBoundaryFrame !== undefined ||
+      !sourceSkillIds.includes(continuation)
+    ) {
+      return;
+    }
+    this.#reachedOperableBoundaryFrame = this.currentTimelineFrame;
   }
 
   #emitSkillEnd(): void {

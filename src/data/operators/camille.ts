@@ -3312,7 +3312,7 @@ export const camille: OperatorDefinition = {
       },
       lifetime: {
         kind: 'limited',
-        durationSeconds: { blackboardKey: 'EntityBB_bat_duration', fallback: 30 },
+        durationSeconds: { blackboardKey: 'EntityBB_bat_duration', fallback: 5 },
       },
       maxStackingCount: 1,
       childSkills: {
