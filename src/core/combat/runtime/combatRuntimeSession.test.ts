@@ -217,3 +217,24 @@ it('拒绝其他会话的检查点和非法推进数量', () => {
   expect(() => second.restore(first.save())).toThrow('does not belong');
   expect(() => first.advanceFrames(-1)).toThrow('non-negative safe integer');
 });
+
+it('试探分支独立推进，显式丢弃检查点后不再保留历史入口', () => {
+  const { session, createRestore, inputs, externalEvents } = createFixture();
+  session.advanceFrames(3);
+  const checkpoint = session.save();
+  const parent = session.readState();
+
+  const trial = session.fork(
+    checkpoint,
+    createRestore(inputs.slice(0, 1), externalEvents.slice(0, 1)),
+  );
+  trial.advanceFrames(2);
+  expect(trial.frame).toBe(5);
+  expect(trial.readState().inputs.skills.nextInputIndex).toBe(1);
+  expect(session.readState()).toEqual(parent);
+  expect(session.frame).toBe(3);
+
+  session.discardCheckpoint(checkpoint);
+  expect(() => session.restore(checkpoint)).toThrow('does not belong');
+  expect(() => session.fork(checkpoint)).toThrow('does not belong');
+});
