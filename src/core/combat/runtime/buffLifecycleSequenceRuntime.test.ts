@@ -324,6 +324,7 @@ describe('attachBuffLifecycleSequences', () => {
         number,
         (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void
       >,
+      restoredProjectiles?: ProjectileLifecycleRuntime,
     ) =>
       attachBuffLifecycleSequences<never>(
         { id: 'restored-affix', stackingType: 'unique' },
@@ -350,7 +351,16 @@ describe('attachBuffLifecycleSequences', () => {
         createPostRegistrar(requestState, requestHandlers),
         undefined,
         (reference, release) => {
-          if (reference.kind !== 'buff') throw new Error('unexpected entity reference');
+          if (reference.kind === 'entity') {
+            if (restoredProjectiles === undefined) {
+              throw new Error('restored projectile directory is missing');
+            }
+            return restoredProjectiles.bindRestoredResetCallback(
+              reference.target.instanceId,
+              reference.resetRegistrationId,
+              release,
+            );
+          }
           if (reference.reference.ownerId !== container.ownerId) {
             throw new Error('unexpected Buff owner');
           }
@@ -398,10 +408,30 @@ describe('attachBuffLifecycleSequences', () => {
       },
       [],
     );
+    const originalProjectiles = new ProjectileLifecycleRuntime();
+    const originalProjectile = originalProjectiles.launch({
+      finishDelaySeconds: 'firstTickReach',
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 1 / 30,
+      finish: () => {},
+      beforeReset: () => {},
+    });
+    originalDispatcher.dispatch(
+      {
+        event: 'projectileLaunched',
+        payload: {
+          sourceId: 'owner',
+          skillCastInfo: child.skillCastInfo!,
+          entity: originalProjectile,
+        },
+      },
+      [],
+    );
     const saved = structuredClone({
       container: original.runtimeState,
       events: originalDispatcher.runtimeState,
       requests: originalRequestState,
+      projectiles: originalProjectiles.runtimeState,
     });
     const restoredDispatcher = new AbilityEventDispatcher<
       AbilityResponseEventName,
@@ -411,6 +441,9 @@ describe('attachBuffLifecycleSequences', () => {
       number,
       (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void
     >();
+    const restoredProjectiles = new ProjectileLifecycleRuntime(() => 2, {
+      state: saved.projectiles,
+    });
     const restored = new CombatBuffContainer<never>(
       'owner',
       new CombatAttributeSet(saved.container.attributes),
@@ -430,6 +463,7 @@ describe('attachBuffLifecycleSequences', () => {
       restoredDispatcher,
       saved.requests,
       restoredRequestHandlers,
+      restoredProjectiles,
     );
     const nextEventId = restoredDispatcher.runtimeState.nextRegistrationId;
     const nextRequestId = saved.requests.nextRegistrationId;
@@ -441,6 +475,13 @@ describe('attachBuffLifecycleSequences', () => {
           : undefined,
     );
     restored.bindRestoredRelations(reference => restored.resolveHandle(reference));
+    restoredProjectiles.bindRestoredRelations({
+      resolveHost: () => ({
+        resolveTickDeltaSeconds: () => 1 / 30,
+        finish: () => {},
+        beforeReset: () => {},
+      }),
+    });
     const restoredBuff = restored.getInstance(oldBuff.instanceId)!;
     expect(restoredDispatcher.runtimeState.nextRegistrationId).toBe(nextEventId);
     expect(saved.requests.nextRegistrationId).toBe(nextRequestId);
@@ -474,9 +515,13 @@ describe('attachBuffLifecycleSequences', () => {
     const restoredChild = restored.getInstance(child.instanceId)!;
     restoredChild.finish('other');
     restored.recycleFinishedBuffs();
+    expect(restoredBuff.isFinished).toBe(false);
+    for (let frame = 0; frame < 3; frame++) restoredProjectiles.advanceFrame();
+    expect(restoredProjectiles.isActive(originalProjectile.target)).toBe(false);
     expect(restoredBuff.isFinished).toBe(true);
     expect(oldBuff.isFinished).toBe(false);
     expect(child.isFinished).toBe(false);
+    expect(originalProjectiles.isActive(originalProjectile.target)).toBe(true);
   });
 
   it('父结束动作先执行并可新增子实例，标记父已结束后再以空施法清理全部子实例', () => {
