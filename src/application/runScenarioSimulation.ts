@@ -22,6 +22,7 @@ import {
 import type { ScenarioDocument } from '../core/project/schema';
 import type { ResolvedOperatorPanel } from '../core/compiler/resolveOperatorPanel';
 import type { CombatRuntimeAssemblyOptions } from '../core/combat/runtime/combatRuntimeAssembly';
+import type { CombatStateGraph } from '../core/combat/runtime/combatStateGraph';
 
 export interface RunScenarioSimulationInput {
   readonly scenario: ScenarioDocument;
@@ -111,23 +112,61 @@ export function executeCompiledScenarioSimulation(
     throw new RangeError('endFrame must be a non-negative integer');
   }
 
-  const compiled = input.compiled;
+  const assembly = createCompiledScenarioRuntime(input.compiled);
+  advanceCombatRuntimeToFrame(assembly, input.endFrame);
+  return collectCompiledScenarioSimulationResult(assembly, input.compiled);
+}
+
+/** 为一次性执行与检查点会话创建同一种正式装配。 */
+export function createCompiledScenarioRuntime(
+  compiled: CombatRuntimeAssemblyOptions,
+): CombatRuntimeAssembly {
+  return new CombatRuntimeAssembly(compiled);
+}
+
+/** 推进到实际战斗帧；恢复分支也必须通过同一完整帧入口继续。 */
+export function advanceCombatRuntimeToFrame(
+  assembly: CombatRuntimeAssembly,
+  endFrame: number,
+): void {
+  if (!Number.isInteger(endFrame) || endFrame < assembly.clock.frame) {
+    throw new RangeError('endFrame must be an integer at or after the current combat frame');
+  }
+  while (assembly.clock.frame < endFrame) assembly.advanceFrame();
+}
+
+/** 从已推进装配收集不可变结果；不持有会话或可变战斗图。 */
+export function collectCompiledScenarioSimulationResult(
+  assembly: CombatRuntimeAssembly,
+  compiled: CombatRuntimeAssemblyOptions,
+): ScenarioSimulationResult {
+  return collectCombatStateGraphResult(assembly.stateGraph, compiled);
+}
+
+/** 直接从会话复制出的纯数据图投影结果，结果收集无需取得活动装配对象。 */
+export function collectCombatStateGraphResult(
+  graph: CombatStateGraph,
+  compiled: CombatRuntimeAssemblyOptions,
+): ScenarioSimulationResult {
   const operatorPanels = compiled.operators.flatMap(operator =>
     operator.panel === undefined ? [] : [operator.panel],
   );
   // 装配构造时会立即执行 initialFrame 上的输入。曲线基线必须取编译结果中的
   // 战斗初始资源，而不能取已经可能被准备期技能修改过的运行时快照。
   const initialResources = new CombatResources(compiled.resources).snapshot();
-  const assembly = new CombatRuntimeAssembly(compiled);
-  advanceToActualFrame(assembly, input.endFrame);
-  const receiptEntries = freezeReceiptEntries(assembly.receipt.entries);
+  const receiptEntries = freezeReceiptEntries(graph.shared.receipts.entries);
+  const finalResources = new CombatResources(
+    compiled.resources,
+    {},
+    graph.shared.resources,
+  ).snapshot();
 
   return Object.freeze({
-    frame: assembly.clock.frame,
+    frame: graph.shared.clock.frame,
     enemy: compiled.enemy,
     operatorPanels,
     initialResources,
-    finalResources: assembly.resources.snapshot(),
+    finalResources,
     // 脱离收集器并冻结，避免调用方改写本次模拟已经发生的事实。
     receiptEntries,
     resourceCurves: freezeResourceCurves(
@@ -138,10 +177,4 @@ export function executeCompiledScenarioSimulation(
       ),
     ),
   });
-}
-
-function advanceToActualFrame(assembly: CombatRuntimeAssembly, endFrame: number): void {
-  while (assembly.clock.frame < endFrame) {
-    assembly.advanceFrame();
-  }
 }

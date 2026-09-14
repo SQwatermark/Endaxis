@@ -15,11 +15,18 @@ import {
   StandardPlayerDamageEnvironment,
   type StandardPlayerDamageEnvironmentOptions,
 } from '../core/combat/runtime/standardPlayerDamageEnvironment';
-import type { CombatDamageExecutorContext } from '../core/combat/runtime/combatRuntimeAssembly';
+import type {
+  CombatDamageExecutorContext,
+  CombatRuntimeAssembly,
+  CombatRuntimeAssemblyOptions,
+} from '../core/combat/runtime/combatRuntimeAssembly';
 import {
-  executeCompiledScenarioSimulation,
+  advanceCombatRuntimeToFrame,
+  collectCombatStateGraphResult,
+  createCompiledScenarioRuntime,
   type ScenarioSimulationResult,
 } from './runScenarioSimulation';
+import type { CombatStateGraph } from '../core/combat/runtime/combatStateGraph';
 import type { ScenarioDocument } from '../core/project/schema';
 import {
   compileScenarioMechanics,
@@ -38,6 +45,7 @@ import { GameplayTagPredefine } from '../core/combat/tags/gameplayTagPredefine';
 import { resolveControlTimeline } from '../core/project/resolveControlTimeline';
 import { isOperatorControlledAt } from '../core/combat/runtime/operatorControlTimeline';
 import type { BuffProgressCurve } from '../core/combat/runtime/buffProgressRecorder';
+import { BuffProgressRecorder } from '../core/combat/runtime/buffProgressRecorder';
 
 type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
@@ -98,12 +106,6 @@ export function runStandardPlayerDamageScenarioSimulation(
     mechanics,
   );
   const enemyVitals = createEnemyCombatVitals(enemy);
-  const initialVitals = {
-    health: enemyVitals.health,
-    maxHealth: enemyVitals.maxHealth,
-    poise: enemyVitals.poise,
-    maxPoise: enemyVitals.maxPoise,
-  };
   const controlTimeline = resolveControlTimeline(
     input.scenario.tracks,
     input.scenario.battle.controlSwitches,
@@ -176,28 +178,48 @@ export function runStandardPlayerDamageScenarioSimulation(
     supportsElementalInfliction: input.elementalInflictionDocument !== undefined,
     supportsKnockDown: true,
   });
-  const result = executeCompiledScenarioSimulation({
-    compiled: {
-      ...compiled,
-      ...(input.continuationPlanCastIds === undefined
-        ? {}
-        : {
-            continuationPlanCastIds: input.continuationPlanCastIds,
-            continuationPlanMode: input.continuationPlanMode ?? 'continuation',
-          }),
-    },
-    endFrame: input.endFrame,
-  });
+  const executable = {
+    ...compiled,
+    ...(input.continuationPlanCastIds === undefined
+      ? {}
+      : {
+          continuationPlanCastIds: input.continuationPlanCastIds,
+          continuationPlanMode: input.continuationPlanMode ?? 'continuation',
+        }),
+  };
+  const assembly = createCompiledScenarioRuntime(executable);
+  advanceCombatRuntimeToFrame(assembly, input.endFrame);
+  return collectStandardPlayerDamageScenarioResult(assembly, executable);
+}
+
+/** 从一次性或检查点会话的标准装配收集同一种完整结果。 */
+export function collectStandardPlayerDamageScenarioResult(
+  assembly: CombatRuntimeAssembly,
+  compiled: CombatRuntimeAssemblyOptions,
+): StandardPlayerDamageScenarioResult {
+  return collectStandardPlayerDamageStateGraphResult(assembly.stateGraph, compiled);
+}
+
+/** 从会话的复制数据图收集标准伤害结果，不让结果层持有活动分支。 */
+export function collectStandardPlayerDamageStateGraphResult(
+  graph: CombatStateGraph,
+  compiled: CombatRuntimeAssemblyOptions,
+): StandardPlayerDamageScenarioResult {
+  const result = collectCombatStateGraphResult(graph, compiled);
+  const environmentState = graph.environment;
+  if (environmentState === null)
+    throw new Error('standard combat result requires environment state');
+  const vitals = environmentState.enemyVitals;
   return Object.freeze({
     ...result,
-    buffProgressCurves: environment.buffProgressCurves,
-    finalEnemyHealth: enemyVitals.health,
+    buffProgressCurves: new BuffProgressRecorder(environmentState.buffProgress).snapshot(),
+    finalEnemyHealth: vitals.health,
     enemyVitals: Object.freeze({
-      initialHealth: initialVitals.health,
-      maxHealth: initialVitals.maxHealth,
-      initialPoise: initialVitals.poise,
-      maxPoise: initialVitals.maxPoise,
-      finalPoise: enemyVitals.poise,
+      initialHealth: compiled.enemy.health,
+      maxHealth: vitals.maxHealth,
+      initialPoise: vitals.maxPoise,
+      maxPoise: vitals.maxPoise,
+      finalPoise: vitals.poise,
     }),
   });
 }
