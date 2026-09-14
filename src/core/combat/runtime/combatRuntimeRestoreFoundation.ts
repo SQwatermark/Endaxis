@@ -21,7 +21,7 @@ import {
   type StandardPlayerDamageEnvironmentOptions,
 } from './standardPlayerDamageEnvironment';
 
-type RestoredEnvironmentInput = Omit<
+export type RestoredCombatEnvironmentInput = Omit<
   StandardPlayerDamageEnvironmentOptions,
   'enemyVitals' | 'randomState' | 'restoredState' | 'restoredEventStates' | 'restoredBuffStates'
 >;
@@ -30,7 +30,7 @@ export interface RestoreCombatRuntimeFoundationOptions {
   readonly preparation: CombatRuntimeRestorePreparation;
   readonly shared: Omit<CombatSharedRuntimeOptions, 'operatorOrder' | 'initialFrame' | 'receipt'>;
   readonly timeDilationPrograms?: RestoredCombatSharedRuntime['timeDilationPrograms'];
-  readonly environment: RestoredEnvironmentInput;
+  readonly environment: RestoredCombatEnvironmentInput;
   readonly enemy: CombatEnemyProgram;
   readonly resolveProjectileRuntimeDependencies: (
     definitionOperatorId: string,

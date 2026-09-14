@@ -27,6 +27,8 @@ import type {
   CompiledSkillSlotGroup,
   CompiledSkillProgram,
   CompiledSkillCooldownProgram,
+  CompiledSkillExecutionProgram,
+  ResolvedCombatOperationStep,
   ResolvedAbilityEntityDefinition,
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
@@ -119,6 +121,7 @@ import {
   type TimeDilationInstanceKind,
   type TimeDilationInstanceSnapshot,
   type TimeDilationRuntimeConfig,
+  type TimeDilationPrograms,
 } from './timeDilationRuntime';
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
@@ -144,6 +147,7 @@ import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRunt
 import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
 import { SkillCastOperationExecutor } from './skillCastOperationExecutor';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
+import type { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
 import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
 import {
   BasicAttackSkillCastInheritanceRegistry,
@@ -157,6 +161,23 @@ import { CombatOperationPrograms } from './combatOperationPrograms';
 import { CombatSharedRuntime } from './combatSharedRuntime';
 import { CombatSkillPrograms } from './combatSkillPrograms';
 import { resolveCombatSkillCooldownConfiguration } from './combatSkillCooldownRestoration';
+import {
+  prepareCombatRuntimeRestore,
+  type CombatRuntimeRestorePreparation,
+} from './combatRuntimeRestorePreparation';
+import {
+  bindRestoredCombatRuntimeFoundation,
+  type RestoredCombatEnvironmentInput,
+  type RestoredCombatRuntimeFoundation,
+} from './combatRuntimeRestoreFoundation';
+import { bindRestoredCombatAbilityEntityDirectory } from './combatRuntimeAbilityEntityRestoration';
+import { createRestoredCombatProjectileDirectory } from './combatRuntimeProjectileRestoration';
+import { configureRestoredCombatObjectReferences } from './combatRuntimeObjectReferenceRestoration';
+import { bindRestoredCombatBuffInstances } from './combatRuntimeBuffInstanceRestoration';
+import { bindRestoredCombatRuntimeOperators } from './combatRuntimeOperatorRestoration';
+import { bindRestoredCombatRuntimeAbilityEntityRelations } from './combatRuntimeAbilityEntityRelationRestoration';
+import { bindRestoredCombatProjectileRelations } from './combatRuntimeProjectileRestoration';
+import { bindRestoredCombatRuntimeFrame } from './combatRuntimeFrameRestoration';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -244,6 +265,12 @@ export interface CombatEnemyProgram {
 }
 
 /** 非资源操作执行器工厂能够读取的稳定运行时依赖。 */
+type CombatOperationProgram = CompiledSkillExecutionProgram & {
+  /** 时间轴技能保留编辑身份；能力实体与投射物回调没有该字段。 */
+  readonly skillGroupKey?: string;
+  readonly skillLevel?: number;
+};
+
 export interface CombatOperationExecutorContext {
   readonly program: CompiledSkillProgram;
   /** 伤害、治疗和属性读取归属的干员；能力实体作为动作宿主时仍指向其定义宿主。 */
@@ -462,6 +489,25 @@ export interface CombatRuntimeEnvironmentOptions {
   readonly receipt?: CombatReceiptCollector;
 }
 
+/** 从同一切面树的固定程序与标准环境配置建立完整的当前分支装配。 */
+export interface CombatRuntimeAssemblyRestoreOptions {
+  readonly graph: CombatStateGraph;
+  readonly resources: CombatResourceSnapshot;
+  readonly enemy: CombatEnemyProgram;
+  readonly operators: readonly CombatOperatorProgram[];
+  readonly environment: RestoredCombatEnvironmentInput;
+  readonly abilityEntityChildSkillPrograms: AbilityEntityChildSkillPrograms;
+  readonly combatOperationPrograms: CombatOperationPrograms;
+  readonly combatSkillPrograms: CombatSkillPrograms;
+  readonly projectileCallbackPrograms: ProjectileCallbackPrograms;
+  readonly timeDilation?: {
+    readonly config: TimeDilationRuntimeConfig;
+    readonly programs: TimeDilationPrograms;
+  };
+  readonly skillAvailabilityTags?: import('../tags/gameplayTagPredefine').GameplayTagPredefine;
+  readonly enemyStatusContainer?: CombatStatusContainer;
+}
+
 type CombatAbilityRuntimeBindings = Pick<
   AbilitySystemRuntimeOptions,
   | 'onPostSkillCastRequest'
@@ -476,6 +522,12 @@ type CombatAbilityEntityEventHooks = Pick<
   LogicalAbilityEntityRuntimeHooks,
   'spawned' | 'childSkillRequested' | 'finished' | 'timedMarkerCreated' | 'timedMarkerFinished'
 >;
+
+interface PreparedCombatRuntimeAssemblyRestore {
+  readonly preparation: CombatRuntimeRestorePreparation;
+  readonly foundation: RestoredCombatRuntimeFoundation;
+  readonly projectileCallbackPrograms: ProjectileCallbackPrograms;
+}
 
 const unsupportedReactiveTerminal: CombatOperationExecutor = {
   execute(step): boolean {
@@ -610,12 +662,456 @@ export class CombatRuntimeAssembly {
     }[]
   >();
 
-  constructor(options: CombatRuntimeAssemblyOptions) {
+  static restore(options: CombatRuntimeAssemblyRestoreOptions): CombatRuntimeAssembly {
+    const preparation = prepareCombatRuntimeRestore(
+      options.graph,
+      options.operators,
+      options.combatSkillPrograms,
+    );
+    let assembly: CombatRuntimeAssembly;
+    let foundation: RestoredCombatRuntimeFoundation;
+    foundation = bindRestoredCombatRuntimeFoundation({
+      preparation,
+      shared: {
+        resources: options.resources,
+        resourceResolvers: {
+          ultimateEnergyGainMultiplier: operatorId =>
+            foundation.environment.runtimeOptions.resolveUltimateEnergyGainMultiplier?.(
+              operatorId,
+            ) ??
+            options.graph.shared.resources.squad.find(member => member.operatorId === operatorId)!
+              .ultimateEnergyGainMultiplier,
+        },
+        ...(options.timeDilation === undefined
+          ? {}
+          : {
+              timeDilation: {
+                config: options.timeDilation.config,
+                observer: {
+                  started: (kind, instance, entityId) =>
+                    assembly.#recordTimeDilation('TimeDilationStarted', kind, instance, entityId),
+                  rejected: (kind, instance, entityId) =>
+                    assembly.#recordTimeDilation('TimeDilationRejected', kind, instance, entityId),
+                  ended: (kind, instance, reason, entityId) =>
+                    assembly.#recordTimeDilation(
+                      'TimeDilationEnded',
+                      kind,
+                      instance,
+                      entityId,
+                      reason,
+                    ),
+                },
+              },
+            }),
+      },
+      ...(options.timeDilation === undefined
+        ? {}
+        : { timeDilationPrograms: options.timeDilation.programs }),
+      environment: options.environment,
+      enemy: options.enemy,
+      resolveProjectileRuntimeDependencies: definitionOperatorId =>
+        assembly.#projectileRuntimeDependencies(definitionOperatorId),
+    });
+    const runtimeOptions: CombatRuntimeAssemblyOptions = {
+      resources: options.resources,
+      enemy: options.enemy,
+      operators: options.operators,
+      ...foundation.environment.runtimeOptions,
+      abilityEntityChildSkillPrograms: options.abilityEntityChildSkillPrograms,
+      combatOperationPrograms: options.combatOperationPrograms,
+      combatSkillPrograms: options.combatSkillPrograms,
+      ...(options.timeDilation === undefined
+        ? {}
+        : { timeDilation: { config: options.timeDilation.config } }),
+      ...(options.skillAvailabilityTags === undefined
+        ? {}
+        : { skillAvailabilityTags: options.skillAvailabilityTags }),
+      ...(options.enemyStatusContainer === undefined
+        ? {}
+        : { enemyStatusContainer: options.enemyStatusContainer }),
+      ...(options.environment.isOperatorControlled === undefined
+        ? {}
+        : { isOperatorControlled: options.environment.isOperatorControlled }),
+    };
+    assembly = new CombatRuntimeAssembly(runtimeOptions, {
+      preparation,
+      foundation,
+      projectileCallbackPrograms: options.projectileCallbackPrograms,
+    });
+    return assembly;
+  }
+
+  constructor(
+    options: CombatRuntimeAssemblyOptions,
+    restored?: PreparedCombatRuntimeAssemblyRestore,
+  ) {
     this.#options = options;
     this.abilityEntityChildSkillPrograms =
       options.abilityEntityChildSkillPrograms ?? new AbilityEntityChildSkillPrograms();
     this.combatOperationPrograms = options.combatOperationPrograms ?? new CombatOperationPrograms();
     this.combatSkillPrograms = options.combatSkillPrograms ?? new CombatSkillPrograms();
+    if (restored !== undefined) {
+      const { preparation, foundation } = restored;
+      const sharedRuntime = foundation.shared;
+      this.clock = sharedRuntime.clock;
+      this.resources = sharedRuntime.resources;
+      this.receipt = sharedRuntime.receipt;
+      this.ultimatePresentation = sharedRuntime.ultimatePresentation;
+      this.comboWindows = sharedRuntime.comboWindows;
+      this.timeDilation = sharedRuntime.timeDilation;
+      this.#globalCooldowns = sharedRuntime.globalCooldowns;
+      this.#abilityEntityInstanceIds = sharedRuntime.abilityEntityInstanceIds;
+      this.#skillCastIds = sharedRuntime.skillCastIds;
+      this.#basicAttackSkillCastInheritance = sharedRuntime.basicAttackInheritance;
+      this.semanticEvents = foundation.semanticEvents;
+      this.#enemyBuffRuntime = foundation.enemyBuffTarget as EnemyBuffRuntime;
+      this.#enemyTimedMarkers = new TimedMarkerContainer(
+        'enemy',
+        this.clock,
+        undefined,
+        preparation.graph.enemy.timedMarkers,
+      );
+
+      for (const [operatorId, program] of preparation.programs) {
+        if ((program.comboConditionPrograms?.length ?? 0) > 0) {
+          throw new Error(
+            `restored operator '${operatorId}' has combo conditions without restored registration binding`,
+          );
+        }
+        const buffRuntime = foundation.operatorBuffTargets.get(operatorId);
+        if (buffRuntime === undefined) {
+          throw new Error(`restored operator '${operatorId}' has no Buff target`);
+        }
+        const runtimeOperator = { ...program, buffRuntime };
+        this.#operators.set(operatorId, runtimeOperator);
+        this.#operatorBuffs.set(operatorId, buffRuntime);
+        this.#operatorOrder.push(operatorId);
+        const state = preparation.operators.get(operatorId)!;
+        this.#entityBlackboards.set(
+          operatorId,
+          ActionBlackboard.bindRuntimeState(state.blackboard),
+        );
+        if (program.statusContainer !== undefined) {
+          if (state.statuses === null) {
+            throw new Error(
+              `restored operator '${operatorId}' has status definitions without data`,
+            );
+          }
+          this.#operatorStatuses.set(
+            operatorId,
+            new CombatStatusRuntime(
+              program.statusContainer.bindRuntimeState(state.statuses),
+              this.clock,
+              this.receipt,
+            ),
+          );
+        }
+        this.#registerOperatorSkillPrograms(
+          runtimeOperator,
+          this.#operatorStatuses.get(operatorId),
+        );
+      }
+
+      this.projectileLifetimes = createRestoredCombatProjectileDirectory({
+        preparation,
+        foundation,
+        callbackPrograms: restored.projectileCallbackPrograms,
+      });
+      const entities = bindRestoredCombatAbilityEntityDirectory({
+        preparation,
+        foundation,
+        hooks: this.#createAbilityEntityEventHooks(false),
+      });
+      this.abilityEntities = entities.runtime;
+      for (const [instanceId, state] of preparation.graph.instances.abilityEntities.instances) {
+        if (!state.buffContainerCreated) continue;
+        const target = entities.targets.get(logicalAbilityEntityRuntimeId(instanceId));
+        if (target === undefined) {
+          throw new Error(`restored AbilityEntity '${instanceId}' has no Buff target`);
+        }
+        this.#abilityEntityBuffs.set(instanceId, target as AbilityEntityBuffRuntime);
+      }
+      configureRestoredCombatObjectReferences({ entities, projectiles: this.projectileLifetimes });
+      for (const target of entities.targets.values()) this.#configureBuffLifecycle(target, options);
+
+      const partyTargets = [...preparation.programs.keys()].map(operatorId => {
+        const target = entities.targets.get(operatorId);
+        if (target === undefined) {
+          throw new Error(`restored party Buff target '${operatorId}' is missing`);
+        }
+        return target;
+      });
+      this.globalBuffs = new GlobalBuffRuntime(
+        () => partyTargets,
+        (sourceOperatorId, buffId) => {
+          if (sourceOperatorId !== 'battle') {
+            return this.#operators.get(sourceOperatorId)?.buffDefinitions?.[buffId];
+          }
+          for (const operator of this.#operators.values()) {
+            const definition = operator.buffDefinitions?.[buffId];
+            if (definition !== undefined) return definition;
+          }
+          return undefined;
+        },
+        this.resources.sharedSpGainModifiers,
+        this.resources.sharedSpRecoveryModifiers,
+        preparation.graph.instances.globalBuffs,
+      );
+
+      const buffs = bindRestoredCombatBuffInstances({
+        preparation,
+        foundation,
+        entities,
+        globalBuffs: this.globalBuffs,
+        resolveDefinition: (definitionOwnerId, definitionId) =>
+          this.#operators.get(definitionOwnerId)?.buffDefinitions?.[definitionId],
+        resolveGlobalDefinition: (
+          _sourceId,
+          id,
+          _sourceActionOwnerId,
+          _sourceActionId,
+          definitionProgramId,
+        ) => {
+          if (definitionProgramId === null) {
+            throw new Error(`restored global Buff '${id}' has no fixed definition program`);
+          }
+          const step =
+            this.combatOperationPrograms.resolve<ResolvedCombatOperationStep>(definitionProgramId);
+          if (step.kind !== 'createGlobalBuff' || step.parameters.globalBuffId !== id) {
+            throw new Error(`restored global Buff '${id}' definition program does not match`);
+          }
+          return step.parameters.definition;
+        },
+      });
+
+      const operators = bindRestoredCombatRuntimeOperators({
+        preparation,
+        foundation,
+        entities,
+        createCoreBindings: operator => ({
+          preboundStatusRuntime: this.#operatorStatuses.get(operator.operatorId),
+          createSkillDependencies: (binding, context) =>
+            this.#createSkillDependencies({
+              operator,
+              program: binding.program,
+              enemy: options.enemy,
+              entityBlackboard: context.blackboard,
+              statusRuntime: context.statuses,
+              createDelegate: options.createOperationExecutor,
+              isOperatorControlled: options.isOperatorControlled,
+              resolveVitals: options.resolveVitals,
+              resolveOperatorVitals: options.resolveOperatorVitals,
+              operationState: binding.state.operations,
+              getNonReturnedSpCost: () => binding.state.execution.nonReturnedSpCost,
+            }),
+          abilityRuntime: this.#createAbilityRuntimeBindings(operator.operatorId),
+          onCooldownReady: skillId =>
+            this.receipt.record({
+              frame: this.clock.frame,
+              time: this.clock.time,
+              event: 'SkillCooldownReady',
+              sourceId: operator.operatorId,
+              data: { skillId },
+            }),
+        }),
+        onCoreBound: (operator, core) => {
+          this.#operators.set(operator.operatorId, operator);
+          this.#entityBlackboards.set(operator.operatorId, core.blackboard);
+          this.#abilitySystems.set(operator.operatorId, core.ability);
+          this.#operatorTimedMarkers.set(operator.operatorId, core.timedMarkers);
+          if (core.statuses !== undefined)
+            this.#operatorStatuses.set(operator.operatorId, core.statuses);
+          const state = preparation.operators.get(operator.operatorId)!;
+          this.#skillStates.set(operator.operatorId, state.skills);
+          this.#cooldownStates.set(operator.operatorId, state.cooldowns);
+          for (const [skillId, binding] of core.cooldowns) {
+            this.#skillCooldowns.set(`${operator.operatorId}\u0000${skillId}`, {
+              cooldown: binding.cooldown,
+              program: binding.program,
+              sourceSkillIds: new Set(binding.sourceSkillIds),
+              ...binding.configuration,
+            });
+          }
+        },
+        createSourceBindings: operator => ({
+          createEquipmentExecutor: context =>
+            this.#createEquipmentEventOperationChain(operator, context, options),
+          registerEquipmentAbilityEventAction: options.registerEquipmentAbilityEventAction,
+          createInitializationOperations: (program, state) => {
+            const sourceActionId = `upgrade-initialization:${program.key}`;
+            return this.#createReactiveOperationChain(
+              operator,
+              sourceActionId,
+              this.#createReactiveTerminal(operator, sourceActionId, options),
+              options,
+              state.operations,
+            );
+          },
+          createPassiveOperations: (program, state) => {
+            const sourceActionId = `passive:${program.key}`;
+            return this.#createReactiveOperationChain(
+              operator,
+              sourceActionId,
+              this.#createReactiveTerminal(operator, sourceActionId, options),
+              options,
+              state.operations,
+            );
+          },
+          registerPassive: (event, priority, handle, subscriptions) => {
+            const register = options.registerPassiveAbilityEventAction;
+            if (register === undefined) {
+              throw new Error(
+                `operator '${operator.operatorId}' passive requires event registration`,
+              );
+            }
+            return register(operator.operatorId, event, priority, handle, subscriptions);
+          },
+          createUpgradeExecutor: context => {
+            const sourceActionId = `upgrade-event:${context.programKey}`;
+            return this.#createReactiveOperationChain(
+              operator,
+              sourceActionId,
+              this.#createReactiveTerminal(operator, sourceActionId, options),
+              options,
+            );
+          },
+        }),
+        onSourcesBound: (operator, sources) => {
+          if (sources.equipment !== null) {
+            this.#equipmentEventRuntimes.set(operator.operatorId, sources.equipment.runtime);
+          }
+          if (sources.upgradeEvents !== null) {
+            this.#operatorUpgradeEventRuntimes.push(sources.upgradeEvents);
+            this.#operatorUpgradeEventStates.set(
+              operator.operatorId,
+              sources.upgradeEvents.runtimeState,
+            );
+          }
+          this.#operatorInitializationStates.set(
+            operator.operatorId,
+            preparation.operators.get(operator.operatorId)!.initializations,
+          );
+          this.#operatorPassiveStates.set(
+            operator.operatorId,
+            preparation.operators.get(operator.operatorId)!.passives,
+          );
+          this.#passiveAbilityEvents.push(...sources.passives.runtimes.values());
+        },
+      });
+      operators.bindRestoredChildren();
+
+      const abilityEntityRelations = bindRestoredCombatRuntimeAbilityEntityRelations({
+        preparation,
+        foundation,
+        entities,
+        operators,
+        childSkillPrograms: this.abilityEntityChildSkillPrograms,
+        createPassiveOperations: ({ ownerId, entity, program, state }) => {
+          const operator = this.#operators.get(ownerId)!;
+          const sourceActionId = `ability-entity:${entity.instanceId}:passive:${program.key}`;
+          return this.#createReactiveOperationChain(
+            operator,
+            sourceActionId,
+            this.#createReactiveTerminal(operator, sourceActionId, options),
+            options,
+            state.operations,
+          );
+        },
+        registerPassive: (entityId, event, priority, handle, subscriptions) => {
+          const register = options.registerPassiveAbilityEventAction;
+          if (register === undefined) {
+            throw new Error(`AbilityEntity '${entityId}' passive requires event registration`);
+          }
+          return register(entityId, event, priority, handle, subscriptions);
+        },
+        createChildSkillBindings: ({ ownerId, state }) => {
+          const operator = this.#operators.get(ownerId)!;
+          const fixed = this.abilityEntityChildSkillPrograms.resolve(state.programId);
+          return {
+            operations: this.#createOperationChain({
+              operator,
+              program: { ...fixed.program, operatorId: ownerId, costs: [] },
+              enemy: options.enemy,
+              statusRuntime: this.#operatorStatuses.get(ownerId),
+              createDelegate: options.createOperationExecutor,
+              isOperatorControlled: options.isOperatorControlled,
+              resolveVitals: options.resolveVitals,
+              resolveOperatorVitals: options.resolveOperatorVitals,
+              getNonReturnedSpCost: () => 0,
+              operationHost: { state: state.operations, programs: this.combatOperationPrograms },
+            }),
+            ...this.#projectileRuntimeDependencies(ownerId),
+          };
+        },
+      });
+      for (const [instanceId, passives] of abilityEntityRelations.passives) {
+        this.#abilityEntityPassiveEvents.set(instanceId, [...passives.runtimes.values()]);
+      }
+
+      bindRestoredCombatProjectileRelations({
+        projectiles: this.projectileLifetimes,
+        foundation,
+        entities,
+        createCallbackBindings: ({ definitionOperatorId, state }) => {
+          const operator = this.#operators.get(definitionOperatorId)!;
+          const program = restored.projectileCallbackPrograms.resolve(state.programId!);
+          const operations = this.#createOperationChain({
+            operator,
+            program: {
+              operatorId: definitionOperatorId,
+              skillId: program.skillId,
+              nativeSkillType: program.nativeSkillType,
+              naturalDurationFrames: program.naturalDurationFrames,
+              initialBlackboard: program.initialBlackboard,
+              timelineActions: program.timelineActions,
+              costFrame: program.castResource.costFrame,
+              costs: [program.castResource.cost],
+            },
+            enemy: options.enemy,
+            statusRuntime: this.#operatorStatuses.get(definitionOperatorId),
+            createDelegate: options.createOperationExecutor,
+            isOperatorControlled: options.isOperatorControlled,
+            resolveVitals: options.resolveVitals,
+            resolveOperatorVitals: options.resolveOperatorVitals,
+            getNonReturnedSpCost: () => state.skillCastInfo?.nonReturnedSpCost ?? 0,
+            ...(state.host === null
+              ? {}
+              : {
+                  operationHost: {
+                    state: state.host.skill.operations,
+                    programs: this.combatOperationPrograms,
+                  },
+                }),
+          });
+          return { operations, ...this.#projectileRuntimeDependencies(definitionOperatorId) };
+        },
+      });
+      buffs.restoration.bindRelations();
+
+      const frame = bindRestoredCombatRuntimeFrame({
+        preparation,
+        foundation,
+        entities,
+        objects: {
+          projectiles: this.projectileLifetimes,
+          buffs,
+          operators,
+          abilityEntityRelations,
+        },
+        ...(options.enemyStatusContainer === undefined
+          ? {}
+          : { enemyStatusContainer: options.enemyStatusContainer }),
+      });
+      this.simulation = frame.simulation;
+      this.#enemyStatuses = frame.enemyStatuses;
+      this.#scheduledFrameInputs = {
+        skillInputs: () => undefined,
+        externalEvents: () => undefined,
+      };
+      this.sharedState = sharedRuntime.runtimeState;
+      this.stateGraph = preparation.graph;
+      return;
+    }
     const sharedRuntime = new CombatSharedRuntime({
       resources: options.resources,
       resourceResolvers: {
@@ -2672,7 +3168,7 @@ export class CombatRuntimeAssembly {
     readonly operator: CombatOperatorProgram;
     /** 跨实体 Buff 生命周期仍从创建该定义的原始 AbilitySystem 解析后代资源。 */
     readonly definitionOperator?: CombatOperatorProgram;
-    readonly program: CompiledSkillProgram;
+    readonly program: CombatOperationProgram;
     readonly enemy: CombatEnemyProgram;
     readonly statusRuntime?: CombatStatusRuntime;
     readonly createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'];
@@ -2703,7 +3199,8 @@ export class CombatRuntimeAssembly {
     };
     const operatorId = operator.operatorId;
     const terminalDelegate = createDelegate({
-      program,
+      // 环境末端的旧公开端口仍声明时间轴程序；嵌入式宿主不会读取编辑身份。
+      program: program as CompiledSkillProgram,
       sourceOperatorId: definitionOperator.operatorId,
       resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
       buffDefinitions: definitionOperator.buffDefinitions,
@@ -3418,7 +3915,6 @@ export class CombatRuntimeAssembly {
       program: {
         ...template,
         castId: sourceActionId,
-        skillGroupKey: '',
         skillId: sourceActionId,
         sourceSkillId: sourceActionId,
         initialBlackboard: {},

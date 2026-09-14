@@ -24,7 +24,11 @@ import { failAfterAbilityHostCleanup, runAbilityHostCleanup } from './abilityEve
 
 type OperatorCoreBindings = Pick<
   RestoreCombatOperatorCoreOptions,
-  'createSkillDependencies' | 'abilityRuntime' | 'onCooldownReady' | 'timedMarkerHooks'
+  | 'createSkillDependencies'
+  | 'abilityRuntime'
+  | 'onCooldownReady'
+  | 'timedMarkerHooks'
+  | 'preboundStatusRuntime'
 >;
 
 type OperatorSourceBindings = Omit<

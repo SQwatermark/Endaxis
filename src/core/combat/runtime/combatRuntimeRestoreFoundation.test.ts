@@ -14,9 +14,10 @@ import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillProgra
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { createBuffContainerState } from '../buffs/buffContainerState';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
-import type { AbilityEntityBuffRuntime } from './combatRuntimeAssembly';
+import { CombatRuntimeAssembly, type AbilityEntityBuffRuntime } from './combatRuntimeAssembly';
 import { restoreCombatRuntime } from './combatRuntimeRestoration';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
+import { CombatOperationPrograms } from './combatOperationPrograms';
 
 const resources = {
   sp: 0,
@@ -143,6 +144,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   entityState.buffContainerCreated = true;
   entityState.buffs = createBuffContainerState(undefined, entityState.blackboard);
   graph.instances.abilityEntities.instances.set(entityTarget.instanceId, entityState);
+  const assemblyGraph = structuredClone(graph);
   const program = {
     operatorId: 'operator',
     skills: [],
@@ -265,4 +267,108 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   expect(entities.targets.has(logicalAbilityEntityRuntimeId(entityTarget.instanceId))).toBe(false);
   objects.operators.disposeSources();
   objects.abilityEntityRelations.disposePassives();
+
+  const restoredAssembly = CombatRuntimeAssembly.restore({
+    graph: assemblyGraph,
+    resources,
+    enemy,
+    operators: [program],
+    environment: environmentInput,
+    abilityEntityChildSkillPrograms: new AbilityEntityChildSkillPrograms(),
+    combatOperationPrograms: new CombatOperationPrograms(),
+    combatSkillPrograms: new CombatSkillPrograms(),
+    projectileCallbackPrograms: new ProjectileCallbackPrograms(),
+  });
+  expect(restoredAssembly.stateGraph).toBe(assemblyGraph);
+  expect(restoredAssembly.sharedState).toBe(assemblyGraph.shared);
+  expect(restoredAssembly.abilityEntities.runtimeState).toBe(
+    assemblyGraph.instances.abilityEntities,
+  );
+  expect(restoredAssembly.projectileLifetimes.runtimeState).toBe(
+    assemblyGraph.instances.projectiles,
+  );
+  expect(restoredAssembly.globalBuffs.runtimeState).toBe(assemblyGraph.instances.globalBuffs);
+  const restoredFrame = restoredAssembly.clock.frame;
+  restoredAssembly.advanceFrame();
+  expect(restoredAssembly.clock.frame).toBe(restoredFrame + 1);
+});
+
+it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', () => {
+  const program = {
+    operatorId: 'operator',
+    skillGroupKey: 'battleSkill',
+    skillId: 'skill',
+    skillType: 'battleSkill' as const,
+    skillLevel: 1,
+    initialBlackboard: {},
+    timelineBlockFrames: 3,
+    naturalDurationFrames: 3,
+    costFrame: 0,
+    costs: [],
+    timelineActions: [
+      {
+        startFrame: 0,
+        sequence: {
+          steps: [
+            {
+              kind: 'applyBuff' as const,
+              parameters: {
+                buffId: 'persistent',
+                target: 'caster' as const,
+                inheritSourceSkillCastInfo: true,
+              },
+            },
+          ],
+        },
+      },
+    ],
+  };
+  const buffDefinitions = { persistent: { stackingType: 'unique' as const } };
+  const environment = new StandardPlayerDamageEnvironment({
+    ...environmentInput,
+    enemyVitals: new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      maxPoise: 100,
+      poise: 100,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    }),
+  });
+  const skillPrograms = new CombatSkillPrograms();
+  const operationPrograms = new CombatOperationPrograms();
+  const childSkillPrograms = new AbilityEntityChildSkillPrograms();
+  const original = new CombatRuntimeAssembly({
+    ...environment.runtimeOptions,
+    resources,
+    enemy,
+    operators: [{ operatorId: 'operator', skills: [program], buffDefinitions }],
+    abilityEntityChildSkillPrograms: childSkillPrograms,
+    combatOperationPrograms: operationPrograms,
+    combatSkillPrograms: skillPrograms,
+  });
+  expect(original.tryStartSkill('operator', 'skill')).toBe(true);
+  original.advanceFrame();
+  expect(original.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(1);
+  const saved = structuredClone(original.stateGraph);
+
+  const restored = CombatRuntimeAssembly.restore({
+    graph: saved,
+    resources,
+    enemy,
+    operators: [{ operatorId: 'operator', skills: [program], buffDefinitions }],
+    environment: environmentInput,
+    abilityEntityChildSkillPrograms: childSkillPrograms,
+    combatOperationPrograms: operationPrograms,
+    combatSkillPrograms: skillPrograms,
+    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+  });
+
+  expect(restored.stateGraph).toBe(saved);
+  expect(restored.stateGraph).toEqual(original.stateGraph);
+  original.advanceFrames(3);
+  restored.advanceFrames(3);
+  expect(restored.stateGraph).toEqual(original.stateGraph);
 });

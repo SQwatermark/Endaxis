@@ -17,6 +17,8 @@ export interface RestoreCombatBuffInstancesOptions {
   readonly entities: RestoredCombatAbilityEntityDirectory;
   readonly resolveDefinition: CombatBuffRestorationOptions['resolveDefinition'];
   readonly resolveGlobalDefinition: CombatBuffRestorationOptions['resolveGlobalDefinition'];
+  /** 完整装配可先公开目录，供普通 Buff 生命周期操作链闭包同一恢复分支。 */
+  readonly globalBuffs?: GlobalBuffRuntime;
   readonly resolvePartyBuffDefinition?: (
     sourceOperatorId: string,
     buffId: string,
@@ -42,13 +44,18 @@ export function bindRestoredCombatBuffInstances(
     ((sourceOperatorId: string, buffId: string) =>
       options.resolveDefinition(sourceOperatorId, buffId));
   const resources = options.foundation.shared.resources;
-  const globalBuffs = new GlobalBuffRuntime(
-    () => partyTargets,
-    resolvePartyBuffDefinition,
-    resources.sharedSpGainModifiers,
-    resources.sharedSpRecoveryModifiers,
-    options.preparation.graph.instances.globalBuffs,
-  );
+  const globalBuffs =
+    options.globalBuffs ??
+    new GlobalBuffRuntime(
+      () => partyTargets,
+      resolvePartyBuffDefinition,
+      resources.sharedSpGainModifiers,
+      resources.sharedSpRecoveryModifiers,
+      options.preparation.graph.instances.globalBuffs,
+    );
+  if (globalBuffs.runtimeState !== options.preparation.graph.instances.globalBuffs) {
+    throw new Error('restored global Buff directory uses another state');
+  }
   const restoration = new CombatBuffRestoration({
     targets: options.entities.targets,
     globalBuffs,
