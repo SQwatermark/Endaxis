@@ -4,7 +4,7 @@ import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { AbilitySystemRuntime } from './abilitySystemRuntime';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatClock } from './combatClock';
-import { createCombatOperationHostState } from './combatOperationHostState';
+import { createCombatOperationHostState } from '../state/actionState';
 import { CombatOperationPrograms } from './combatOperationPrograms';
 import { bindRestoredCombatOperatorSkills } from './combatOperatorSkillRestoration';
 import { bindRestoredCombatSkillCooldowns } from './combatSkillCooldownRestoration';

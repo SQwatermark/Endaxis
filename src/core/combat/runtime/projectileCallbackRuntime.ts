@@ -1,7 +1,7 @@
 /** 绑定一个投射物的回调宿主。飞行期间不创建技能，恢复已有宿主时不再次施放。 */
 import type { CallbackSkillHost } from './callbackSkillHost';
-import type { CallbackSkillHostState } from './callbackSkillHostState';
-import type { ProjectileCallbackState } from './projectileCallbackState';
+import type { CallbackSkillHostState } from '../state/abilityState';
+import type { ProjectileCallbackState } from '../state/instanceState';
 import type { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
 import type { CombatOperationExecutor, ProjectileRuntimeDependencies } from './skillRuntime';
 import type { BuffReference } from '../buffs/buffReference';

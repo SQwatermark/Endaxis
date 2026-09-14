@@ -13,7 +13,7 @@ import {
 } from '../events/abilityEventExecution';
 import { createSimulationRandomState } from '../random/simulationRandomState';
 import { takeSimulationRandomSample, type SimulationRandomMode } from '../random/simulationRandom';
-import { createProjectileLifecycleState } from './projectileLifecycleState';
+import { createProjectileLifecycleState } from '../state/instanceState';
 import {
   advanceProjectileLifetimes,
   launchProjectile,

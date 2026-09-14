@@ -7,7 +7,7 @@
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 import { buffReferenceKey, type BuffReference } from '../buffs/buffReference';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
-import type { CombatOperatorState } from './combatStateGraph';
+import type { CombatOperatorState } from '../state/combatState';
 import type { ActionBlackboard } from './actionBlackboard';
 import { failAfterAbilityHostCleanup, runAbilityHostCleanup } from './abilityEventHostLifecycle';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';

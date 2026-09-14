@@ -4,7 +4,8 @@
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
-import { createCombatResourceState, type CombatResourceState } from './combatResourceState';
+import type { CombatResourceState } from '../state/environmentState';
+import { createCombatResourceState } from './combatResourceInitialization';
 import type { GameplayTag } from '../tags/gameplayTags';
 import {
   SharedSpRecoveryModifierSet,

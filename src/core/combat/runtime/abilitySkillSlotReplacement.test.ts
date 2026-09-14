@@ -1,6 +1,6 @@
 /** 验证替换登记与真实冷却账本共同恢复，覆盖旧编号失效和分支独立推进。 */
 import { describe, expect, it } from 'vitest';
-import { createAbilitySystemState } from './abilitySystemState';
+import { createAbilitySystemState } from '../state/abilityState';
 import {
   replaceAbilitySkillSlot,
   finishAbilitySkillSlotReplacement,

@@ -12,7 +12,7 @@ import { resolveActionValueOperand } from './actionBlackboard';
 
 import type { AbilitySpGainPayload } from '../events/combatAbilityEvent';
 import { CombatOperationPrograms } from './combatOperationPrograms';
-import type { SkillResourceActionState } from './combatOperationHostState';
+import type { SkillResourceActionState } from '../state/actionState';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 

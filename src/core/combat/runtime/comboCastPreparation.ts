@@ -1,5 +1,5 @@
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
-import type { ComboCastParameters } from './comboSkillConditionRuntime';
+import type { ComboCastParameters } from '../state/environmentState';
 import type { SkillCastStartPreparation } from './skillCastStartPreparation';
 
 /**

@@ -7,11 +7,8 @@ import {
   takePostSkillCastRequest,
   takeBeforeSkillCastPreparation,
 } from './abilitySystemExecution';
-import type {
-  RuntimeSkillInterruptReason,
-  RuntimeSkillState,
-  RuntimeSkillTransition,
-} from './skillRuntime';
+import type { RuntimeSkillInterruptReason, RuntimeSkillTransition } from './skillRuntime';
+import type { RuntimeSkillState } from '../state/abilityState';
 
 class FixtureRuntime implements AbilitySkillRuntime {
   state: RuntimeSkillState = 'ready';

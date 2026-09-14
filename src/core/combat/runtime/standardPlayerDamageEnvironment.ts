@@ -1,18 +1,20 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
-import type { CombatStateGraph } from './combatStateGraph';
+import type { CombatStateGraph } from '../state/combatState';
 import { submitSimulationCastSeed } from '../random/simulationRandom';
-import type { StandardCombatEnvironmentState } from './standardCombatEnvironmentState';
+import {
+  createPostSkillRequestListenerState,
+  type StandardCombatEnvironmentState,
+} from '../state/environmentState';
 import type {
   AbilityResponseEventName,
   CombatAbilityEvent,
   AbilityEventPayloadMap,
 } from '../events/combatAbilityEvent';
 import {
-  createPostSkillRequestListenerState,
   registerPostSkillRequestListener,
   requirePostSkillRequestListener,
   unregisterPostSkillRequestListener,
-} from './postSkillRequestListenerState';
+} from './postSkillRequestListenerExecution';
 /**
  * 标准战斗环境：一场模拟里敌人的元素附着、反应和 Buff 都由它管；
  * 敌人生命与失衡账本由场景装配层创建并以明确依赖注入，本环境只持有同一实例。

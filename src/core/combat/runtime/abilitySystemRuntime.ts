@@ -9,7 +9,7 @@ import {
   registerAbilityBasicAttackMapping,
   finishAbilityBasicAttackMapping,
 } from './abilitySystemExecution';
-import { createAbilitySystemState } from './abilitySystemState';
+import { createAbilitySystemState } from '../state/abilityState';
 import type { SkillCastStartPreparation } from './skillCastStartPreparation';
 import {
   storePostSkillCastRequest,
@@ -18,7 +18,8 @@ import {
 } from './abilitySystemExecution';
 import type { NativeSkillType, SkillType } from '../../game-data/operatorDefinition';
 import type { PlayerSkillInput, SkillDefinition } from '../../game-data/operatorDefinition';
-import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
+import type { RuntimeSkillInterruptReason } from './skillRuntime';
+import type { RuntimeSkillState } from '../state/abilityState';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
@@ -845,7 +846,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
   prepareBeforeSkillCastStart(
     skillId: string,
     castId: string | undefined,
-    payload: import('./abilitySystemState').BeforeSkillCastPreparation['payload'],
+    payload: import('../state/abilityState').BeforeSkillCastPreparation['payload'],
     resolveSkillSlot = true,
   ): void {
     const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);

@@ -5,7 +5,7 @@
 export { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
 import type { ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
-import { createActionBlackboardState, type ActionBlackboardState } from './actionBlackboardState';
+import { createActionBlackboardState, type ActionBlackboardState } from '../state/actionState';
 import {
   readActionBlackboard,
   assignActionBlackboard,

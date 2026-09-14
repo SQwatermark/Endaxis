@@ -41,8 +41,8 @@
 
 ## 数据树层次
 
-战斗数据根定义在
-[combatStateGraph.ts](../../src/core/combat/runtime/combatStateGraph.ts)。当前层次如下：
+战斗数据集中定义在[切面数据模块](../../src/core/combat/state/README.md)，数据根位于
+[combatState.ts](../../src/core/combat/state/combatState.ts)。当前层次如下：
 
 ```text
 CombatStateGraph
@@ -75,8 +75,8 @@ CombatStateGraph
 这里的层次是所有权关系。跨层引用保存稳定编号或明确的数据引用，恢复准备阶段统一解析。运行对象、
 缓存和回调不进入树中。
 
-目前状态类型分散在各运行模块旁。后续会把切面数据整理成少数基础模块，但不会改变这棵所有权树，
-也不会把各业务运行逻辑集中成一个大文件。
+切面数据按环境、动作、能力、动态实例和战斗根分成五个文件。运行时推进、恢复绑定和业务规则仍放在
+各自模块中；状态模块不提供汇总导出文件，调用方直接导入所需层次。
 
 ## 完整帧顺序
 

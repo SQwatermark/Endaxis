@@ -1,9 +1,9 @@
 /** 将重复计时与跳转进度一起恢复，检查边界、兄弟分支和同步重入。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
-import { createRepeatedActionState } from './repeatedActionState';
+import { createRepeatedActionState } from '../state/actionState';
 import { executeRepeatedAction, tickRepeatedAction } from './repeatedActionExecution';
-import { createTimelineJumpState } from './timelineJumpState';
+import { createTimelineJumpState } from '../state/actionState';
 import {
   executeTimelineJump,
   tickTimelineJump,

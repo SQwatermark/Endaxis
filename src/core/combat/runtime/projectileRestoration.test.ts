@@ -10,7 +10,7 @@ import { createCallbackSkillHostFactory } from './callbackSkillHost';
 import { CombatClock, COMBAT_FRAME_INTERVAL } from './combatClock';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { ActionBlackboard } from './actionBlackboard';
-import type { ProjectileCallbackState } from './projectileCallbackState';
+import type { ProjectileCallbackState } from '../state/instanceState';
 import type { CompiledProjectileCallbackSkillProgram } from '../../compiler/combatProgram';
 
 it.each([1, 3, 5])('第 %s 帧保存后，投射物到回收的状态与回执逐帧一致', saveFrame => {

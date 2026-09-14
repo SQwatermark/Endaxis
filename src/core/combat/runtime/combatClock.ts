@@ -4,11 +4,7 @@
  */
 export const COMBAT_FRAMES_PER_SECOND = 30 as const;
 export const COMBAT_FRAME_INTERVAL = 1 / COMBAT_FRAMES_PER_SECOND;
-
-/** 当前已推进到的整数帧；准备期允许负数，不记录未来技能安排。 */
-export interface CombatClockState {
-  frame: number;
-}
+import type { CombatClockState } from '../state/environmentState';
 
 /** 只在开始推进前设置准备期起点，保持原有起点检查。 */
 export function initializeCombatFrame(state: CombatClockState, frame: number): void {

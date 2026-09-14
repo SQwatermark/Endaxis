@@ -13,7 +13,7 @@ import type { PoiseModifier } from '../damage/poiseModifiers';
 import type { DamageModifierState } from '../damage/damageModifierState';
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 import type { SharedSpGainModifier } from '../resources/sharedSpGainModifiers';
-import type { BuffActionHostState } from '../runtime/buffActionHostState';
+import type { BuffActionHostState } from '../state/instanceState';
 
 export interface BuffInstanceIdentity {
   readonly ownerId: string;
@@ -21,10 +21,7 @@ export interface BuffInstanceIdentity {
   readonly definitionId: string;
   readonly sourceId: string;
 }
-import {
-  createActionBlackboardState,
-  type ActionBlackboardState,
-} from '../runtime/actionBlackboardState';
+import { createActionBlackboardState, type ActionBlackboardState } from '../state/actionState';
 
 export interface BuffInstanceState<Key extends string> {
   actionHost: BuffActionHostState | null;

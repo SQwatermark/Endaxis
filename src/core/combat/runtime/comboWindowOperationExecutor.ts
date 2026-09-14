@@ -6,7 +6,7 @@ import type { ComboWindowRuntime } from './comboWindowRuntime';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import { resolveActionValueOperand } from './actionBlackboard';
 import { CombatOperationPrograms } from './combatOperationPrograms';
-import type { ComboWindowActionState } from './combatOperationHostState';
+import type { ComboWindowActionState } from '../state/actionState';
 
 export class ComboWindowOperationExecutor implements CombatOperationExecutor {
   readonly runtimeState: ComboWindowActionState;

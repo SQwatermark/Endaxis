@@ -10,7 +10,7 @@ import { sameSkillSimulationInputs, type SkillSimulationInputs } from './skillSi
 import type {
   CombatInputRuntimeState,
   SkillInputGroupRuntimeState,
-} from './combatInputRuntimeState';
+} from '../state/environmentState';
 
 /** 一次技能输入。固定输入已确定实际帧；组后段在运行时到达边界后才确定实际帧。 */
 export interface CombatSkillInput {

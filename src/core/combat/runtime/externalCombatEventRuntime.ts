@@ -8,7 +8,7 @@ import type { DamageFeature, DamageTag } from '../../game-data/operatorDefinitio
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
-import type { ExternalCombatEventRuntimeState } from './externalCombatEventRuntimeState';
+import type { ExternalCombatEventRuntimeState } from '../state/environmentState';
 
 export interface ExternalCombatEventInput {
   readonly targetOperatorIds: readonly string[];

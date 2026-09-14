@@ -6,7 +6,7 @@
 import type { CombatExecutionContext } from '../actions/combatStep';
 import { DamageCalculationSnapshots } from './damageCalculationSnapshots';
 import type { DamageCalculationSnapshotProgram } from './damageCalculationSnapshots';
-import type { AbilityEntityChildSkillState } from './abilityEntityChildSkillState';
+import type { AbilityEntityChildSkillState } from '../state/abilityState';
 import type { CompiledAbilityEntityChildSkillProgram } from '../../compiler/combatProgram';
 import {
   logicalAbilityEntityRuntimeId,
@@ -31,7 +31,7 @@ import type { CallbackSkillHostFactory } from './callbackSkillHost';
 import {
   createCombatOperationHostState,
   type CombatOperationHostState,
-} from './combatOperationHostState';
+} from '../state/actionState';
 
 export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChildRuntime {
   readonly #context: CombatExecutionContext = {};

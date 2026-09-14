@@ -3,7 +3,7 @@
  * 执行动作体的端口只在本次调用内使用；计数赋值与同步动作的先后顺序保持不变。
  */
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
-import type { RepeatedActionState } from './repeatedActionState';
+import type { RepeatedActionState } from '../state/actionState';
 
 type RepeatedActionParameters = ResolvedCombatStepForKind<'repeatEachTick'>['parameters'];
 

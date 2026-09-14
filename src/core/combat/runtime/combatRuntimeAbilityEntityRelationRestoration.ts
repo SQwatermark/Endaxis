@@ -18,7 +18,7 @@ import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 import type { ActionBlackboard } from './actionBlackboard';
 import { AbilityEntityChildSkillRuntime } from './abilityEntityChildSkillRuntime';
 import type { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
-import type { AbilityEntityChildSkillState } from './abilityEntityChildSkillState';
+import type { AbilityEntityChildSkillState } from '../state/abilityState';
 import {
   bindRestoredCombatAbilityEntityPassives,
   type RestoredCombatAbilityEntityPassives,
@@ -27,11 +27,11 @@ import type { RestoredCombatAbilityEntityDirectory } from './combatRuntimeAbilit
 import type { RestoredCombatRuntimeOperators } from './combatRuntimeOperatorRestoration';
 import type { RestoredCombatRuntimeFoundation } from './combatRuntimeRestoreFoundation';
 import type { CallbackSkillHostFactory } from './callbackSkillHost';
-import type { PassiveAbilityEventState } from './passiveAbilityEventState';
+import type { PassiveAbilityEventState } from '../state/abilityState';
 import type { RegisterPassiveAbilityEventAction } from './passiveAbilityEventRuntime';
 import type { CombatOperationExecutor, ScheduleProjectileFinishCallback } from './skillRuntime';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
-import type { LogicalAbilityEntityState } from './logicalAbilityEntityState';
+import type { LogicalAbilityEntityState } from '../state/instanceState';
 
 export interface AbilityEntityChildSkillRestoreBindings {
   readonly operations: CombatOperationExecutor;

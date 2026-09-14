@@ -1,7 +1,7 @@
 /** 技力支付、自然恢复、队伍回能及恢复限制的结算算法。只修改传入的资源状态；动态属性在结算时读取。 */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
-import type { CombatResourceState, OperatorResources } from './combatResourceState';
+import type { CombatResourceState, OperatorResources } from '../state/environmentState';
 import type { GameplayTag } from '../tags/gameplayTags';
 import {
   resolveSharedSpGain,

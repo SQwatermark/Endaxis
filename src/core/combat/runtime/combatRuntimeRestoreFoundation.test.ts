@@ -1,14 +1,13 @@
 import { expect, it, vi } from 'vitest';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
-import { createAbilitySystemState } from './abilitySystemState';
+import { createAbilitySystemState } from '../state/abilityState';
 import { CombatSharedRuntime } from './combatSharedRuntime';
 import { CombatSkillPrograms } from './combatSkillPrograms';
-import type { CombatStateGraph } from './combatStateGraph';
+import type { CombatStateGraph } from '../state/combatState';
 import { CombatVitals } from './combatVitals';
-import { createGlobalBuffState } from './globalBuffState';
-import { createProjectileLifecycleState } from './projectileLifecycleState';
+import { createGlobalBuffState, createProjectileLifecycleState } from '../state/instanceState';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
-import { createTimedMarkerState } from './timedMarkers';
+import { createTimedMarkerState } from '../state/environmentState';
 import { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';

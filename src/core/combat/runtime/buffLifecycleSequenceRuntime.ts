@@ -1,10 +1,10 @@
 import { skillAbilityEvent } from '../events/combatAbilityEvent';
 import {
-  createSkillAffixState,
   releaseSkillAffixReference,
   prepareSkillAffixRequest,
   startSkillAffixCast,
-} from './skillAffixState';
+} from './skillAffixExecution';
+import { createSkillAffixState } from '../state/instanceState';
 /**
  * 把编译后的有序步骤绑定到 Buff 的同步生命周期边界。
  * 每个 Buff 实例独占动作黑板和 once 状态；调用方仍需提供完整战斗操作链。
@@ -42,7 +42,7 @@ import type { AbilityEventSubscriptionReference } from '../events/abilityEventSt
 import {
   createCombatOperationHostState,
   type CombatOperationHostState,
-} from './combatOperationHostState';
+} from '../state/actionState';
 import type { KnockDownOutputEvent } from './combatSemanticEventRuntime';
 import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 import { type AbilityResponseEventName } from '../events/combatAbilityEvent';
@@ -87,7 +87,7 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
   readonly #actions: readonly CompiledTimelineAction[];
   readonly #runtimeFor: (buff: CombatBuff<Key>) => CombatActionSequenceRuntime;
   #timeline: TimelineActionProcessor | null = null;
-  #state: import('./buffActionHostState').BuffScheduledActionState = {
+  #state: import('../state/instanceState').BuffScheduledActionState = {
     passedFrames: 0,
     timeline: null,
   };
@@ -320,7 +320,7 @@ export type RegisterPostSkillCastRequest = (
 
 /** 恢复 SkillAffix 持有的实体 reset 或 Buff recycle 登记。 */
 export type BindRestoredSkillAffixObjectReference = (
-  reference: import('./skillAffixState').SkillAffixObjectReference,
+  reference: import('../state/instanceState').SkillAffixObjectReference,
   release: () => void,
 ) => { dispose(): void };
 
@@ -367,7 +367,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   const damageSnapshotProgram = new DamageCalculationSnapshotProgram();
   const bindSkillAffixState = (
     buff: CombatBuff<Key>,
-    state: import('./skillAffixState').SkillAffixState,
+    state: import('../state/instanceState').SkillAffixState,
     restoring: boolean,
   ): void => {
     if (registerAbilityEventCallback === undefined)
@@ -517,7 +517,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   };
   const runtimeFor = (
     buff: CombatBuff<Key>,
-    restoredHost?: import('./buffActionHostState').BuffActionHostState,
+    restoredHost?: import('../state/instanceState').BuffActionHostState,
   ): CombatActionSequenceRuntime => {
     let runtime = runtimes.get(buff);
     if (runtime !== undefined) return runtime;
@@ -714,7 +714,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   };
   const registerEventResponses = (
     buff: CombatBuff<Key>,
-    restoredResponses?: readonly import('./buffActionHostState').BuffEventResponseState[],
+    restoredResponses?: readonly import('../state/instanceState').BuffEventResponseState[],
   ): void => {
     if (abilityEventResponses.length === 0) return;
     if (
@@ -733,7 +733,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
       throw new Error(`buff '${definition.id}' ability event responses are already active`);
     }
     const registrations: BuffAbilityEventRegistration[] = [];
-    const responseStates: import('./buffActionHostState').BuffEventResponseState[] = [];
+    const responseStates: import('../state/instanceState').BuffEventResponseState[] = [];
     try {
       // Each native SequenceAction owns its registration; equal priority does not merge programs.
       for (const [index, response] of abilityEventResponses.entries()) {

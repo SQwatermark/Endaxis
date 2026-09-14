@@ -21,17 +21,10 @@ import {
 import { abilityEventSkillCastInfo } from '../events/combatAbilityEvent';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { CombatOperationExecutor } from './skillRuntime';
+import type { ComboCastParameters } from '../state/environmentState';
 
 type ComboConditionEventContext = CombatAbilityEvent<ActionContextBoundAbilityEvent>;
 type BlackboardSnapshot = Readonly<Record<string, ActionBlackboardValue>>;
-
-/** 条件已经求值后，后续施放只需要目标身份及条件黑板，不持有触发事件中的活动对象。 */
-export interface ComboCastParameters {
-  readonly inputTarget: RuntimeTargetRef;
-  readonly triggerTarget: RuntimeTargetRef | null;
-  /** null 表示未启用条件板；启用空板则为 {}。不包含共享 entity 板。 */
-  readonly assignPairs: BlackboardSnapshot | null;
-}
 
 /** 同步通知仍可查看触发上下文；事件不能作为待释放窗口状态保存。 */
 export interface PendingComboCondition extends ComboCastParameters {

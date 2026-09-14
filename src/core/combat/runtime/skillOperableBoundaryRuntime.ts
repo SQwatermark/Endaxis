@@ -11,30 +11,11 @@
  * 此处只跟踪显示用的局部边界，不能代替具体后续技能的原生中断/路由判断。
  */
 
-/** 一次释放到达可操作边界后返回给调用方的不可变事实。 */
-export interface SkillOperableBoundaryFact {
-  readonly castId: string;
-  readonly durationFrames: number;
-  /** 在技能更新阶段观察到边界的实际帧，当帧输入已经消费。 */
-  readonly reachedAtFrame: number;
-}
-
-export interface PendingSkillOperableBoundary {
-  readonly castId: string;
-  readonly durationFrames: number;
-  readonly actualStartFrame: number;
-  accumulatedFrames: number;
-}
-
-/** 待到达的边界和已经登记过的释放身份；两者一起恢复，避免重复或漏报。 */
-export interface SkillOperableBoundaryState {
-  readonly pendingByCastId: Map<string, PendingSkillOperableBoundary>;
-  readonly registeredCastIds: Set<string>;
-}
-
-export function createSkillOperableBoundaryState(): SkillOperableBoundaryState {
-  return { pendingByCastId: new Map(), registeredCastIds: new Set() };
-}
+import {
+  createSkillOperableBoundaryState,
+  type SkillOperableBoundaryFact,
+  type SkillOperableBoundaryState,
+} from '../state/abilityState';
 
 /** 浮点帧增量累计到整数边界时允许的误差；避免 0.2 × 150 这类情况晚一帧。 */
 const BOUNDARY_EPSILON_FRAMES = 0.00001;

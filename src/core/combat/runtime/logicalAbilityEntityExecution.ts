@@ -1,5 +1,5 @@
 /** 能力实体的死亡、延迟回收和寿命推进。实际清理子对象及发布通知由当前宿主执行。 */
-import type { LogicalAbilityEntityState } from './logicalAbilityEntityState';
+import type { LogicalAbilityEntityState } from '../state/instanceState';
 import type { LogicalAbilityEntityFinishReason } from './logicalAbilityEntityRuntime';
 
 /** 首次死亡时登记回收原因；死亡本身不移除目录中的实体。 */

@@ -4,7 +4,7 @@ import type {
 } from '../events/abilityEventDispatcher';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 import { buffReferenceKey } from '../buffs/buffReference';
-import { createAbilityEventHostState, type AbilityEventHostState } from './abilityEventHostState';
+import { createAbilityEventHostState, type AbilityEventHostState } from '../state/abilityState';
 
 /** Adapter failure handling, not native gameplay behavior: finish cleanup, then report all errors. */
 export function runAbilityHostCleanup(actions: Iterable<() => void>): void {

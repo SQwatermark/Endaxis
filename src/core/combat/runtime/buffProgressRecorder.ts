@@ -1,4 +1,5 @@
 import type { CombatBuff } from '../buffs/combatBuffs';
+import type { BuffProgressCurveState, BuffProgressRecorderState } from '../state/environmentState';
 
 export interface BuffProgressPoint {
   readonly frame: number;
@@ -14,25 +15,6 @@ export interface BuffProgressCurve {
   readonly showInHpBar: boolean;
   readonly weakBattleSkillStyle: boolean;
   readonly points: readonly BuffProgressPoint[];
-}
-
-/** 保留采样分母与原始历史，恢复后才能继续采样而不改变已有曲线。 */
-export interface BuffProgressCurveState {
-  readonly targetId: string;
-  readonly buffId: string;
-  readonly instanceId: number;
-  readonly showInBattleSkillButton: boolean;
-  readonly showInUltimateButton: boolean;
-  readonly showInHpBar: boolean;
-  readonly weakBattleSkillStyle: boolean;
-  durationSeconds: number | null;
-  readonly points: BuffProgressPoint[];
-}
-
-/** 曲线保留已结束的历史；实例索引只包含仍需采样的曲线。 */
-export interface BuffProgressRecorderState {
-  readonly curves: Map<string, BuffProgressCurveState>;
-  readonly runtimeCurveKeys: Map<string, Set<string>>;
 }
 
 function curveKey(targetId: string, buffId: string, instanceId: number): string {

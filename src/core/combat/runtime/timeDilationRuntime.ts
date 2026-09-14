@@ -10,7 +10,9 @@ import {
   type MutableTimeDilationInstance,
   type GlobalTimeDilationInstance,
   type EntityTimeDilationInstance,
-} from './timeDilationState';
+  type TimeDilationInstanceSnapshot,
+  type TimeDilationSource,
+} from '../state/environmentState';
 
 const VALIDITY_EPSILON = 0.00001;
 const GLOBAL_SCALE_SELECTION_EPSILON = 0.00001;
@@ -47,12 +49,6 @@ export class TimeDilationPrograms {
 
 /** 普通动作使用原生数值槽位；终结技使用独立语义槽位，避免伪造尚未恢复的原生标签。 */
 export type TimeDilationSlot = string;
-
-export interface TimeDilationSource {
-  readonly sourceId: string;
-  readonly sourceActionId: string;
-  readonly sourceCastId?: string;
-}
 
 /** AbilitySystem 一帧内按不同原生用途消费的四路时间增量。 */
 export interface AbilityTickDeltas {
@@ -101,16 +97,6 @@ export interface StartEntityTimeDilationOptions {
   readonly priority: number;
   readonly curve: TimeScaleCurve;
   readonly ignoreSlotCheck?: boolean;
-  readonly source?: TimeDilationSource;
-}
-
-export interface TimeDilationInstanceSnapshot {
-  readonly id: number;
-  readonly durationSeconds: number;
-  readonly elapsedSeconds: number;
-  readonly slot: TimeDilationSlot;
-  readonly priority: number;
-  readonly currentScale: number;
   readonly source?: TimeDilationSource;
 }
 

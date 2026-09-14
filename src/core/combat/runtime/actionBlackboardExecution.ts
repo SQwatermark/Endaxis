@@ -1,7 +1,7 @@
 /** 黑板的读取、赋值与子作用域创建。只操作传入数据，不持有运行实例或隐藏缓存。 */
 import type { ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
-import { createActionBlackboardState, type ActionBlackboardState } from './actionBlackboardState';
+import { createActionBlackboardState, type ActionBlackboardState } from '../state/actionState';
 
 export function readActionBlackboard(
   state: ActionBlackboardState,

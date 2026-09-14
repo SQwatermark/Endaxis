@@ -10,7 +10,7 @@ import { ActionBlackboard } from './actionBlackboard';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { CombatClock } from './combatClock';
 import { bindRestoredCombatOperatorCore } from './combatOperatorCoreRestoration';
-import { createCombatOperationHostState } from './combatOperationHostState';
+import { createCombatOperationHostState } from '../state/actionState';
 import { CombatOperationPrograms } from './combatOperationPrograms';
 import { CombatSkillPrograms } from './combatSkillPrograms';
 import { SkillCooldown } from './skillCooldown';

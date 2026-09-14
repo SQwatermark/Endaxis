@@ -1,13 +1,8 @@
 import type { RuntimeTargetGroup, RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-
-/** 当前释放已经建立的命名目标组，只保存实体身份，不保存实体对象或选择函数。 */
-export interface RuntimeTargetContextState {
-  readonly groups: Map<string, RuntimeTargetGroup>;
-}
-
-export function createRuntimeTargetContextState(): RuntimeTargetContextState {
-  return { groups: new Map() };
-}
+import {
+  createRuntimeTargetContextState,
+  type RuntimeTargetContextState,
+} from '../state/abilityState';
 
 /** 复制目标身份，调用方之后修改原数组或目标对象不会改变已经选择的目标。 */
 export function setRuntimeTargetGroup(

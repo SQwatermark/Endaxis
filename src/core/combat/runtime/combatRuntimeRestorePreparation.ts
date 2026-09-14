@@ -6,12 +6,12 @@
  * 通过后，按共享层、环境、实体和跨容器关系的顺序绑定同一份候选数据。
  */
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
-import type { CombatOperatorState, CombatStateGraph } from './combatStateGraph';
-import type { SkillRuntimeState } from './skillRuntimeState';
+import type { CombatOperatorState, CombatStateGraph } from '../state/combatState';
+import type { SkillRuntimeState } from '../state/abilityState';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import type { CombatSkillProgramBinding } from './combatSkillPrograms';
 import { CombatSkillPrograms, combatSkillProgramKey } from './combatSkillPrograms';
-import { hasActiveCombatOperationState } from './combatOperationHostState';
+import { hasActiveCombatOperationState } from './combatOperationHostInspection';
 import {
   prepareCombatBuffRestore,
   type PreparedCombatBuffRestore,

@@ -1,10 +1,5 @@
 import { VALIDITY_TOLERANCE_SECONDS, type TimedMarkerClock } from './timedMarkers';
-
-/** 全场冷却到期时间，以及最近一次清理时间；同帧零时长项是否保留取决于后者。 */
-export interface GlobalCooldownState {
-  readonly entries: Map<string, Map<string, number>>;
-  lastTick: number;
-}
+import type { GlobalCooldownState } from '../state/environmentState';
 
 export function advanceGlobalCooldowns(state: GlobalCooldownState, time: number): void {
   if (state.lastTick === time) return;

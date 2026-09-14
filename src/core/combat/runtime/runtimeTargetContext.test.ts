@@ -1,7 +1,7 @@
 /** 验证目标身份在选择时复制，并随技能状态一起保存、恢复。 */
 import { expect, it } from 'vitest';
 import { RuntimeTargetContext, setRuntimeTargetGroup } from './runtimeTargetContext';
-import { createSkillExecutionState } from './skillExecutionState';
+import { createSkillExecutionState } from '../state/abilityState';
 import { StateStepper } from './stateStepper';
 
 it('修改输入目标对象不会改写已选择的身份', () => {

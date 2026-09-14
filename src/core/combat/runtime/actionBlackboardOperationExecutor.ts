@@ -20,7 +20,7 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import type { ResolvedCombatStepParameters } from '../../compiler/combatProgram';
 import { CombatOperationPrograms } from './combatOperationPrograms';
-import type { ActionBlackboardActionState } from './combatOperationHostState';
+import type { ActionBlackboardActionState } from '../state/actionState';
 
 const PROBABILITY_TOLERANCE = 0.00001;
 

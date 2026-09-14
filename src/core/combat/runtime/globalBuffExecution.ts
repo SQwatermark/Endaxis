@@ -1,5 +1,5 @@
 /** 全局 Buff 结束时先注销技力修正，再固定子实例并逐个结束，不转发父实例结束原因。 */
-import type { GlobalBuffInstanceState } from './globalBuffState';
+import type { GlobalBuffInstanceState } from '../state/instanceState';
 import type { BuffReference } from '../buffs/buffReference';
 import type {
   SharedSpGainModifier,

@@ -39,7 +39,7 @@ import {
   createEquipmentContributionEventState,
   createEquipmentEventState,
   type EquipmentEventState,
-} from './equipmentEventState';
+} from '../state/abilityState';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,

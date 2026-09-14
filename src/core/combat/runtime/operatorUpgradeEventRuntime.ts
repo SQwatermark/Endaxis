@@ -12,7 +12,7 @@ import type {
 import {
   createOperatorUpgradeEventState,
   type OperatorUpgradeEventState,
-} from './operatorUpgradeEventState';
+} from '../state/abilityState';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
 export interface OperatorUpgradeEventExecutionContext {

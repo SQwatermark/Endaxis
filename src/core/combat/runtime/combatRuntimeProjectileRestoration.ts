@@ -11,7 +11,7 @@ import type { RestoredCombatAbilityEntityDirectory } from './combatRuntimeAbilit
 import type { CombatRuntimeRestorePreparation } from './combatRuntimeRestorePreparation';
 import type { RestoredCombatRuntimeFoundation } from './combatRuntimeRestoreFoundation';
 import type { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
-import type { ProjectileCallbackState } from './projectileCallbackState';
+import type { ProjectileCallbackState } from '../state/instanceState';
 import {
   bindProjectileCallbackLifecycle,
   restoreProjectileCallback,

@@ -1,5 +1,5 @@
 /** 修正器的取值来源。保存黑板引用而非捕获 Buff 对象的函数，执行时才读取当前值。 */
-import type { ActionBlackboardState } from '../runtime/actionBlackboardState';
+import type { ActionBlackboardState } from '../state/actionState';
 import { readActionBlackboard } from '../runtime/actionBlackboardExecution';
 
 export interface BuffModifierNumberSource {

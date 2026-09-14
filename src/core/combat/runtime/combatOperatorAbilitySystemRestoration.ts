@@ -4,7 +4,7 @@
  */
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
 import { AbilitySystemRuntime, type AbilitySystemRuntimeOptions } from './abilitySystemRuntime';
-import type { AbilitySystemState } from './abilitySystemState';
+import type { AbilitySystemState } from '../state/abilityState';
 import type { RestoredCombatSkillCooldownBinding } from './combatSkillCooldownRestoration';
 import type { SkillRuntime } from './skillRuntime';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';

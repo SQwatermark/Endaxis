@@ -2,7 +2,7 @@
  * 分支动作的选择与生命周期算法。Switch 与条件动作保留各自选择和重置规则。
  * 宿主只在调用期间提供分支操作，状态中不保存序列对象或闭包。
  */
-import type { BranchActionState } from './branchActionState';
+import type { BranchActionState } from '../state/actionState';
 
 /** 分支下标对应不可变程序；条件动作的 true、false 分别为 0、1。 */
 export interface BranchActionHost {

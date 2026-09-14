@@ -5,7 +5,7 @@
 import type { BuffApplicationHandle } from './buffOperationExecutor';
 import type { BuffReference } from '../buffs/buffReference';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
-import type { CombatOperatorState } from './combatStateGraph';
+import type { CombatOperatorState } from '../state/combatState';
 import type { PreparedCombatSkillRestoreBinding } from './combatRuntimeRestorePreparation';
 import type { RestoreCombatOperatorSkillsOptions } from './combatOperatorSkillRestoration';
 import { bindRestoredCombatOperatorSkills } from './combatOperatorSkillRestoration';

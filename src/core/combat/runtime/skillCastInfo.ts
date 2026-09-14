@@ -15,6 +15,8 @@ export interface CombatSkillCastInfo {
   readonly nonReturnedSpCost: number;
 }
 
+import type { SkillCastIdState } from '../state/environmentState';
+
 /** 为单场模拟按技能实际启动顺序分配确定性施法序号。 */
 export class SkillCastIdAllocator {
   readonly runtimeState: SkillCastIdState;
@@ -29,11 +31,6 @@ export class SkillCastIdAllocator {
   allocate(): number {
     return allocateSkillCastId(this.runtimeState);
   }
-}
-
-/** 下一次实际施放使用的编号；与实体编号分别计数。 */
-export interface SkillCastIdState {
-  nextId: number;
 }
 
 export function allocateSkillCastId(state: SkillCastIdState): number {

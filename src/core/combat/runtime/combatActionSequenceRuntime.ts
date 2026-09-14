@@ -1,6 +1,14 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
-import type { ActionBlackboardScopeState } from './actionBlackboardScopeState';
-import type { CombatEventListenerState } from './combatEventListenerState';
+import {
+  createActionScopeState,
+  createBranchActionState,
+  createRepeatedActionState,
+  createTargetLoopState,
+  createTimelineJumpState,
+  type ActionBlackboardScopeState,
+  type ActionBlackboardState,
+} from '../state/actionState';
+import type { CombatEventListenerState } from '../state/abilityState';
 import type { ActionStepData } from '../actions/actionStepData';
 import type { ActionSequenceState } from '../actions/actionSequenceState';
 
@@ -34,14 +42,11 @@ import type {
 } from './combatSemanticEventRuntime';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 import { RuntimeTargetContext } from './runtimeTargetContext';
-import { createActionScopeState } from './actionScopeState';
 import {
   executeActionOnce,
   getActionScopeBlackboard,
   resetActionScopes,
 } from './actionScopeExecution';
-import type { ActionBlackboardState } from './actionBlackboardState';
-import { createTargetLoopState } from './targetLoopState';
 import {
   executeTargetLoop,
   tickTargetLoop,
@@ -49,7 +54,6 @@ import {
   resetTargetLoop,
   type TargetLoopHost,
 } from './targetLoopExecution';
-import { createBranchActionState } from './branchActionState';
 import {
   executeSwitchAction,
   executeConditionalAction,
@@ -59,14 +63,12 @@ import {
   resetConditionalAction,
   type BranchActionHost,
 } from './branchActionExecution';
-import { createTimelineJumpState } from './timelineJumpState';
 import {
   executeTimelineJump,
   tickTimelineJump,
   resetTimelineJump,
   type TimelineJumpExecutionHost,
 } from './timelineJumpExecution';
-import { createRepeatedActionState } from './repeatedActionState';
 import {
   executeRepeatedAction,
   tickRepeatedAction,
@@ -571,7 +573,7 @@ class ProjectileFinishCallbackStep extends StatelessCombatStep {
     if (definitionOperatorId === undefined) {
       throw new Error('projectile callback requires an owning combat operator');
     }
-    const callbackState: import('./projectileCallbackState').ProjectileCallbackState = {
+    const callbackState: import('../state/instanceState').ProjectileCallbackState = {
       programId: null,
       definitionOperatorId,
       skillId: this.step.callback.skillId,

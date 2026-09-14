@@ -3,7 +3,7 @@ import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
 import { bindRestoredCombatOperatorAbilitySystem } from './combatOperatorAbilitySystemRestoration';
 import { bindRestoredCombatSkillCooldowns } from './combatSkillCooldownRestoration';
-import { createAbilitySystemState } from './abilitySystemState';
+import { createAbilitySystemState } from '../state/abilityState';
 import { SkillCooldown } from './skillCooldown';
 
 const cooldownProgram: CompiledSkillProgram = {

@@ -1,43 +1,7 @@
-/** 技力、终结技能量与回能限制的数据图；队伍列表和身份索引引用同一队员记录。 */
+/** 从用户配置快照校验并建立共享资源数据。 */
 import type { GameplayTag } from '../tags/gameplayTags';
-import type {
-  CombatResourceSnapshot,
-  OperatorResourceSnapshot,
-  NormalSkillUltimateEnergySettings,
-} from './combatResources';
-import type {
-  SharedSpGainModifierState,
-  SharedSpRecoveryModifierState,
-} from '../resources/sharedSpGainModifiers';
-
-export interface OperatorResources extends Omit<
-  OperatorResourceSnapshot,
-  'ultimateEnergy' | 'allowedUltimateEnergyRecoveryTags'
-> {
-  ultimateEnergy: number;
-  allowedUltimateEnergyRecoveryTags: ReadonlySet<GameplayTag> | null;
-}
-
-export interface CombatResourceState {
-  sp: number;
-  readonly maxSp: number;
-  returnedSp: number;
-  readonly spRecoveryPerSecond: number;
-  readonly spRecoveryPauseDuration: number;
-  spRecoveryPauseRemaining: number;
-  readonly ultimateEnergySystemUnlocked: boolean;
-  readonly squad: readonly OperatorResources[];
-  readonly operators: Map<string, OperatorResources>;
-  readonly baseUltimateRecoveryRestrictions: Map<string, ReadonlySet<GameplayTag> | null>;
-  readonly ultimateRecoveryRestrictionHandles: Map<
-    number,
-    { readonly operatorId: string; readonly allowed: ReadonlySet<GameplayTag> }
-  >;
-  nextUltimateRecoveryRestrictionHandle: number;
-  readonly normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
-  readonly sharedSpGainModifiers: SharedSpGainModifierState;
-  readonly sharedSpRecoveryModifiers: SharedSpRecoveryModifierState;
-}
+import type { CombatResourceSnapshot } from './combatResources';
+import type { CombatResourceState, OperatorResources } from '../state/environmentState';
 
 export function createCombatResourceState(snapshot: CombatResourceSnapshot): CombatResourceState {
   requireNonNegativeFinite(snapshot.sp, 'sp');
@@ -46,12 +10,10 @@ export function createCombatResourceState(snapshot: CombatResourceSnapshot): Com
   requireNonNegativeFinite(snapshot.spRecovery.valuePerSecond, 'spRecovery.valuePerSecond');
   requireNonNegativeFinite(snapshot.spRecovery.pauseDuration, 'spRecovery.pauseDuration');
   requireNonNegativeFinite(snapshot.spRecovery.pauseRemaining, 'spRecovery.pauseRemaining');
-  if (snapshot.sp > snapshot.maxSp + RESOURCE_EPSILON) {
+  if (snapshot.sp > snapshot.maxSp + RESOURCE_EPSILON)
     throw new RangeError('sp exceeds its maximum');
-  }
-  if (snapshot.returnedSp > snapshot.sp + RESOURCE_EPSILON) {
+  if (snapshot.returnedSp > snapshot.sp + RESOURCE_EPSILON)
     throw new RangeError('returnedSp exceeds current sp');
-  }
   requireFinite(
     snapshot.normalSkillUltimateEnergy.selfGainPerSp,
     'normalSkillUltimateEnergy.selfGainPerSp',
@@ -60,28 +22,25 @@ export function createCombatResourceState(snapshot: CombatResourceSnapshot): Com
     snapshot.normalSkillUltimateEnergy.otherGainPerSp,
     'normalSkillUltimateEnergy.otherGainPerSp',
   );
-
   if (!Number.isFinite(snapshot.sharedSpGain.baseGainEfficiency))
     throw new TypeError('base shared SP gain efficiency must be finite');
+
   const operators = new Map<string, OperatorResources>();
   const baseUltimateRecoveryRestrictions = new Map<string, ReadonlySet<GameplayTag> | null>();
   const squad = snapshot.squad.map((member, index) => {
-    if (member.operatorId.length === 0) {
+    if (member.operatorId.length === 0)
       throw new Error(`squad[${index}].operatorId must not be empty`);
-    }
     requireNonNegativeFinite(member.ultimateEnergy, `squad[${index}].ultimateEnergy`);
     requireNonNegativeFinite(member.maxUltimateEnergy, `squad[${index}].maxUltimateEnergy`);
     requireFinite(
       member.ultimateEnergyGainMultiplier,
       `squad[${index}].ultimateEnergyGainMultiplier`,
     );
-    if (member.ultimateEnergy > member.maxUltimateEnergy + ULTIMATE_ENERGY_EPSILON) {
+    if (member.ultimateEnergy > member.maxUltimateEnergy + ULTIMATE_ENERGY_EPSILON)
       throw new RangeError(`squad[${index}].ultimateEnergy exceeds its maximum`);
-    }
-    if (operators.has(member.operatorId)) {
+    if (operators.has(member.operatorId))
       throw new Error(`duplicate squad operator '${member.operatorId}'`);
-    }
-    const runtime = {
+    const runtime: OperatorResources = {
       ...member,
       ultimateEnergy: Math.fround(member.ultimateEnergy),
       allowedUltimateEnergyRecoveryTags:
@@ -116,16 +75,15 @@ export function createCombatResourceState(snapshot: CombatResourceSnapshot): Com
     sharedSpRecoveryModifiers: { modifiers: [] },
   };
 }
+
 const RESOURCE_EPSILON = 0.0001;
 const ULTIMATE_ENERGY_EPSILON = Math.fround(0.00001);
+
 function requireNonNegativeFinite(value: number, path: string): void {
-  if (!Number.isFinite(value) || value < 0) {
+  if (!Number.isFinite(value) || value < 0)
     throw new RangeError(`${path} must be a non-negative finite number`);
-  }
 }
 
 function requireFinite(value: number, path: string): void {
-  if (!Number.isFinite(value)) {
-    throw new RangeError(`${path} must be a finite number`);
-  }
+  if (!Number.isFinite(value)) throw new RangeError(`${path} must be a finite number`);
 }

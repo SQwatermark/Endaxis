@@ -10,7 +10,7 @@ import type { BuffReference } from '../buffs/buffReference';
 import { buffReferenceKey } from '../buffs/buffReference';
 import type { BuffInstanceState } from '../buffs/buffInstanceState';
 import type { BuffApplicationHandle, BuffOperationTarget } from './buffOperationExecutor';
-import type { GlobalBuffInstanceState } from './globalBuffState';
+import type { GlobalBuffInstanceState } from '../state/instanceState';
 import type { GlobalBuffRuntime } from './globalBuffRuntime';
 import type { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';

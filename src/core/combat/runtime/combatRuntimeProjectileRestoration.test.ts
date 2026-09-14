@@ -8,7 +8,7 @@ import {
   bindRestoredCombatProjectileRelations,
   createRestoredCombatProjectileDirectory,
 } from './combatRuntimeProjectileRestoration';
-import type { ProjectileCallbackState } from './projectileCallbackState';
+import type { ProjectileCallbackState } from '../state/instanceState';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 
 it('空投射物目录的关系阶段保持无操作', () => {

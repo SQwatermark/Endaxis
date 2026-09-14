@@ -1,6 +1,6 @@
 import type { CombatBuffContainer } from '../buffs/combatBuffs';
 import type { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
-import { createOrdinaryKnockDownState } from './ordinaryKnockDownState';
+import { createOrdinaryKnockDownState } from '../state/environmentState';
 import {
   isPeriodicTimerValid,
   resetPeriodicTimer,

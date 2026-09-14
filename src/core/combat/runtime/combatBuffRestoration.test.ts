@@ -10,7 +10,7 @@ import {
   collectRestoredCombatBuffTargets,
   CombatBuffRestoration,
 } from './combatBuffRestoration';
-import { createGlobalBuffState } from './globalBuffState';
+import { createGlobalBuffState } from '../state/instanceState';
 import { GlobalBuffRuntime } from './globalBuffRuntime';
 import type { SkillGlobalBuffDefinition } from '../../game-data/operatorDefinition';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';

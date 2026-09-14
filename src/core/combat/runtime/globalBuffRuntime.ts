@@ -10,9 +10,9 @@ import {
   createGlobalBuffState,
   type GlobalBuffInstanceState,
   type GlobalBuffState,
-} from './globalBuffState';
+} from '../state/instanceState';
 import { finishGlobalBuffInstance } from './globalBuffExecution';
-import { createGlobalBuffActionState } from './globalBuffActionState';
+import { createGlobalBuffActionState } from '../state/actionState';
 import { finishGlobalBuffAction } from './globalBuffActionExecution';
 import { buffReferenceKey } from '../buffs/buffReference';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';

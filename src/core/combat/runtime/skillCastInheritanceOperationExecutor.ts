@@ -3,19 +3,11 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import { CombatOperationPrograms } from './combatOperationPrograms';
-import type { SkillCastInheritanceActionState } from './combatOperationHostState';
-
-export interface SkillCastInheritanceRegistration {
-  readonly operatorId: string;
-  readonly id: number;
-  readonly skillCastInfo: CombatSkillCastInfo;
-}
-
-/** 全场继承槽和分配进度；失败的竞争注册也占用编号，不能误撤销实际持有者。 */
-export interface SkillCastInheritanceState {
-  readonly registrations: Map<string, SkillCastInheritanceRegistration>;
-  nextId: number;
-}
+import type { SkillCastInheritanceActionState } from '../state/actionState';
+import type {
+  SkillCastInheritanceRegistration,
+  SkillCastInheritanceState,
+} from '../state/environmentState';
 
 /** 原生 AbilitySystem 的普通攻击施法身份继承槽；首次注册优先，按动作结束撤销。 */
 export class BasicAttackSkillCastInheritanceRegistry {

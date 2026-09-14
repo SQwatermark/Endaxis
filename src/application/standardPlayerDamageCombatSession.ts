@@ -1,4 +1,4 @@
-import type { CombatStateGraph } from '../core/combat/runtime/combatStateGraph';
+import type { CombatStateGraph } from '../core/combat/state/combatState';
 import {
   CombatRuntimeAssembly,
   type CombatRuntimeAssemblyOptions,

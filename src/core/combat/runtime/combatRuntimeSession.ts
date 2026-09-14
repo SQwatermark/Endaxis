@@ -5,7 +5,7 @@
  * 登记表建立新装配。候选完整成功前，
  * 当前装配不会被替换。丢弃检查点句柄后，WeakMap 不再保留对应历史数据。
  */
-import type { CombatStateGraph } from './combatStateGraph';
+import type { CombatStateGraph } from '../state/combatState';
 import type { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import type { CombatFrameInput } from './combatFrameInput';
 import type { CombatSkillPrograms } from './combatSkillPrograms';

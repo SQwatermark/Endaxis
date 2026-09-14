@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
+import { createSkillAffixState } from '../state/instanceState';
 import {
-  createSkillAffixState,
   prepareSkillAffixRequest,
   releaseSkillAffixReference,
   startSkillAffixCast,
-} from './skillAffixState';
+} from './skillAffixExecution';
 
 describe('SkillAffix 分支', () => {
   it('回退待转交请求后可以改由其他技能开始，重复请求只增加一个引用', () => {

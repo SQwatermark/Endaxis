@@ -1,5 +1,5 @@
 /** 推进跳转动作。先记录已跳转，再调用同步请求，避免重入造成重复跳转。 */
-import type { TimelineJumpState } from './timelineJumpState';
+import type { TimelineJumpState } from '../state/actionState';
 
 /** 条件检查包含其同步通知；取请求时验证宿主，不能在已跳转后才发现缺少宿主。 */
 export interface TimelineJumpExecutionHost {

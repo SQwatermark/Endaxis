@@ -1,5 +1,5 @@
 import type { CompiledProjectileCallbackSkillProgram } from '../../compiler/combatProgram';
-import type { CallbackSkillHostState } from './callbackSkillHostState';
+import type { CallbackSkillHostState } from '../state/abilityState';
 import type { DamageCalculationSnapshotProgram } from './damageCalculationSnapshots';
 import type { BuffReference } from '../buffs/buffReference';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
@@ -15,7 +15,7 @@ import { COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { AbilitySkillPayload } from '../events/combatAbilityEvent';
 import { uniformAbilityTickDeltas } from './timeDilationRuntime';
-import { hasActiveCombatOperationState } from './combatOperationHostState';
+import { hasActiveCombatOperationState } from './combatOperationHostInspection';
 
 export interface CallbackSkillHost {
   readonly runtimeState: CallbackSkillHostState;

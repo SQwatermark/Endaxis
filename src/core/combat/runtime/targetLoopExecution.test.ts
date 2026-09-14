@@ -1,7 +1,7 @@
 /** 同时保存目标循环成员、动态子序列进度和目标，验证恢复不会遗漏在执行的子序列。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
-import { createTargetLoopState } from './targetLoopState';
+import { createTargetLoopState } from '../state/actionState';
 import {
   executeTargetLoop,
   tickTargetLoop,

@@ -5,7 +5,7 @@
 import type { CompiledSkillCooldownProgram } from '../../compiler/combatProgram';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
 import { SkillCooldown } from './skillCooldown';
-import type { SkillCooldownState } from './skillCooldownState';
+import type { SkillCooldownState } from '../state/abilityState';
 
 export interface CombatSkillCooldownConfiguration {
   readonly periodFrames?: number;

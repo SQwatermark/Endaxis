@@ -4,14 +4,10 @@
  * 动作索引属于当前宿主的程序绑定，恢复时复用同一绑定，不恢复或复用其编号。
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
-
-export interface DamageCalculationSnapshot {
-  readonly attack: number;
-  readonly attackScale: number;
-  readonly baseValue: number;
-}
-
-export type DamageCalculationSnapshotState = Map<number, DamageCalculationSnapshot>;
+import type {
+  DamageCalculationSnapshot,
+  DamageCalculationSnapshotState,
+} from '../state/abilityState';
 
 /** 同一动作对象重复 Reset 使用同一索引；内容相同的不同动作不能合并。 */
 export class DamageCalculationSnapshotProgram {

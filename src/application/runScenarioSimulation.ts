@@ -23,7 +23,7 @@ import {
 import type { ScenarioDocument } from '../core/project/schema';
 import type { ResolvedOperatorPanel } from '../core/compiler/resolveOperatorPanel';
 import type { CombatRuntimeAssemblyOptions } from '../core/combat/runtime/combatRuntimeAssembly';
-import type { CombatStateGraph } from '../core/combat/runtime/combatStateGraph';
+import type { CombatStateGraph } from '../core/combat/state/combatState';
 
 export interface RunScenarioSimulationInput {
   readonly scenario: ScenarioDocument;

@@ -1,7 +1,6 @@
 /** 能力系统的延迟施放和模式切换算法；技能查找与生命周期通知由执行阶段的宿主负责。 */
 import type { PostSkillCastRequest } from './abilitySystemRuntime';
-import type { AbilitySystemState } from './abilitySystemState';
-import type { BeforeSkillCastPreparation } from './abilitySystemState';
+import type { AbilitySystemState, BeforeSkillCastPreparation } from '../state/abilityState';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 
 /** 执行时才绑定当前分支的槽位、冷却账本与回执，不保存这些函数。 */

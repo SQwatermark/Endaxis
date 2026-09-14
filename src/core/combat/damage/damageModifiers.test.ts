@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createActionBlackboardState } from '../runtime/actionBlackboardState';
+import { createActionBlackboardState } from '../state/actionState';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,

@@ -8,7 +8,7 @@ import { buffReferenceKey, type BuffReference } from '../buffs/buffReference';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import type { ActionSequenceState } from '../actions/actionSequenceState';
 import type { TimelineRuntimeState } from '../timeline/timelineActionProcessor';
-import type { CombatStateGraph } from './combatStateGraph';
+import type { CombatStateGraph } from '../state/combatState';
 
 export interface PreparedCombatBuffRestore {
   readonly instanceKeys: ReadonlySet<string>;
@@ -54,32 +54,34 @@ function requireReference(
   if (!instanceKeys.has(key)) throw new Error(`restored ${label} '${key}' is missing`);
 }
 
-function collectActionSequenceReferences(
+/**
+ * holdBuffsById 保证被持有实例仍存在，所以恢复前必须找到它。
+ * finishByAction 和 inheritBuffById 保存的实例可以在动作结束前自然回收；它们的 End 会把缺失实例
+ * 当作已经完成，因此不能在预检阶段误判为非法切面。
+ */
+function collectRequiredActionSequenceReferences(
   sequence: ActionSequenceState | null,
   references: BuffReference[],
 ): void {
   if (sequence === null) return;
   for (const data of sequence.steps) {
     if (data === null) continue;
-    if (
-      data.kind === 'actionDurationBuffs' ||
-      data.kind === 'inheritedBuff' ||
-      data.kind === 'buffHold'
-    ) {
+    if (data.kind === 'buffHold') {
       references.push(...data.buffs.references);
     } else if (data.kind === 'sequence') {
-      collectActionSequenceReferences(data.sequence, references);
+      collectRequiredActionSequenceReferences(data.sequence, references);
     } else if (data.kind === 'branch') {
-      for (const branch of data.branches) collectActionSequenceReferences(branch, references);
+      for (const branch of data.branches)
+        collectRequiredActionSequenceReferences(branch, references);
     } else if (data.kind === 'targets') {
       for (const body of data.loop.bodies.values()) {
-        collectActionSequenceReferences(body.sequence, references);
+        collectRequiredActionSequenceReferences(body.sequence, references);
       }
     } else if (data.kind === 'blackboardScope') {
-      collectActionSequenceReferences(data.scope.body?.sequence ?? null, references);
+      collectRequiredActionSequenceReferences(data.scope.body?.sequence ?? null, references);
     } else if (data.kind === 'listener') {
       for (const response of data.listener.responses) {
-        collectActionSequenceReferences(response.sequence, references);
+        collectRequiredActionSequenceReferences(response.sequence, references);
       }
     }
   }
@@ -90,7 +92,7 @@ function collectTimelineReferences(
   references: BuffReference[],
 ): void {
   for (const sequence of timeline?.sequences ?? []) {
-    collectActionSequenceReferences(sequence, references);
+    collectRequiredActionSequenceReferences(sequence, references);
   }
 }
 
@@ -191,19 +193,22 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
       collectTimelineReferences(skill.timeline, actionReferences);
     }
     for (const passive of operator.passives.values()) {
-      collectActionSequenceReferences(passive.enableSequence, actionReferences);
+      collectRequiredActionSequenceReferences(passive.enableSequence, actionReferences);
       for (const response of passive.responses) {
-        collectActionSequenceReferences(response, actionReferences);
+        collectRequiredActionSequenceReferences(response, actionReferences);
       }
     }
     for (const contribution of operator.equipment?.contributions.values() ?? []) {
       for (const response of contribution.responses) {
-        collectActionSequenceReferences(response.sequence, actionReferences);
+        collectRequiredActionSequenceReferences(response.sequence, actionReferences);
       }
     }
     for (const initialization of operator.initializations.values()) {
-      collectActionSequenceReferences(initialization.initializationSequence, actionReferences);
-      collectActionSequenceReferences(initialization.enableSequence, actionReferences);
+      collectRequiredActionSequenceReferences(
+        initialization.initializationSequence,
+        actionReferences,
+      );
+      collectRequiredActionSequenceReferences(initialization.enableSequence, actionReferences);
     }
   }
   for (const entity of graph.instances.abilityEntities.instances.values()) {
@@ -211,9 +216,9 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
       collectTimelineReferences(child.timeline, actionReferences);
     }
     for (const passive of entity.passiveAbilities.values()) {
-      collectActionSequenceReferences(passive.enableSequence, actionReferences);
+      collectRequiredActionSequenceReferences(passive.enableSequence, actionReferences);
       for (const response of passive.responses) {
-        collectActionSequenceReferences(response, actionReferences);
+        collectRequiredActionSequenceReferences(response, actionReferences);
       }
     }
   }
@@ -221,11 +226,11 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
     for (const instance of container.instances.values()) {
       const host = instance.actionHost;
       if (host === null) continue;
-      collectActionSequenceReferences(host.enable, actionReferences);
-      collectActionSequenceReferences(host.trigger, actionReferences);
+      collectRequiredActionSequenceReferences(host.enable, actionReferences);
+      collectRequiredActionSequenceReferences(host.trigger, actionReferences);
       collectTimelineReferences(host.scheduled?.timeline ?? null, actionReferences);
       for (const response of host.eventResponses) {
-        collectActionSequenceReferences(response.sequence, actionReferences);
+        collectRequiredActionSequenceReferences(response.sequence, actionReferences);
       }
     }
   }

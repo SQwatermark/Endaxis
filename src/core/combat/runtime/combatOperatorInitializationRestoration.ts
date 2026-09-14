@@ -11,7 +11,7 @@ import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { EquipmentEventRuntime } from './equipmentEventRuntime';
-import type { OperatorInitializationState } from './operatorInitializationState';
+import type { OperatorInitializationState } from '../state/abilityState';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 export interface RestoreCombatOperatorInitializationsOptions {

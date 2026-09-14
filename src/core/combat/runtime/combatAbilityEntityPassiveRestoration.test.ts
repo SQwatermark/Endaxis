@@ -7,7 +7,7 @@ import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import type { AbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import { createCombatOperationHostState } from './combatOperationHostState';
+import { createCombatOperationHostState } from '../state/actionState';
 import { CombatOperationPrograms } from './combatOperationPrograms';
 import { bindRestoredCombatAbilityEntityPassives } from './combatAbilityEntityPassiveRestoration';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';

@@ -3,12 +3,14 @@
  * null 表示步骤尚未提供数据，不能据此断言它无状态，也不能据此开放整场恢复。
  */
 import type { ActionSequenceState } from './actionSequenceState';
-import type { BranchActionState } from '../runtime/branchActionState';
-import type { RepeatedActionState } from '../runtime/repeatedActionState';
-import type { TargetLoopState } from '../runtime/targetLoopState';
-import type { TimelineJumpState } from '../runtime/timelineJumpState';
-import type { ActionBlackboardScopeState } from '../runtime/actionBlackboardScopeState';
-import type { CombatEventListenerState } from '../runtime/combatEventListenerState';
+import type {
+  ActionBlackboardScopeState,
+  BranchActionState,
+  RepeatedActionState,
+  TargetLoopState,
+  TimelineJumpState,
+} from '../state/actionState';
+import type { CombatEventListenerState } from '../state/abilityState';
 import type { BuffReference } from '../buffs/buffReference';
 
 /** 当前动作持有的登记。结束动作时按编号解除，不保存回调。 */

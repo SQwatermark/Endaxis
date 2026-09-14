@@ -1,7 +1,6 @@
 /** 动作宿主的 once 和黑板作用域规则。回调仅在本次执行期间使用，不存入状态。 */
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
-import type { ActionBlackboardState } from './actionBlackboardState';
-import type { ActionScopeState } from './actionScopeState';
+import type { ActionBlackboardState, ActionScopeState } from '../state/actionState';
 
 export function resetActionScopes(state: ActionScopeState): void {
   state.executedOnce.clear();

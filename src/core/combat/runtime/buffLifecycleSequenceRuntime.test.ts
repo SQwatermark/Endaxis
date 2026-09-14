@@ -23,12 +23,14 @@ import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import {
-  createPostSkillRequestListenerState,
   registerPostSkillRequestListener,
   requirePostSkillRequestListener,
   unregisterPostSkillRequestListener,
+} from './postSkillRequestListenerExecution';
+import {
+  createPostSkillRequestListenerState,
   type PostSkillRequestListenerState,
-} from './postSkillRequestListenerState';
+} from '../state/environmentState';
 
 describe('attachBuffLifecycleSequences', () => {
   it('带伤害条件的 Buff 外壳保留活动 Enable 序列，结束时只清理恢复分支的动作期 Buff', () => {

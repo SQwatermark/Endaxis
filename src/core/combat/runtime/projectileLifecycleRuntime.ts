@@ -10,7 +10,7 @@ import type {
   RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
 import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
-import { createProjectileLifecycleState } from './projectileLifecycleState';
+import { createProjectileLifecycleState } from '../state/instanceState';
 import {
   advanceProjectileAbilityFrame,
   advanceProjectileLifetimes,

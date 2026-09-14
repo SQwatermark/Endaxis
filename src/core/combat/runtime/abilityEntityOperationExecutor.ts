@@ -16,14 +16,14 @@ import type {
 import { AbilityEntityChildSkillRuntime } from './abilityEntityChildSkillRuntime';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CallbackSkillHostFactory } from './callbackSkillHost';
-import type { AbilityEntityChildSkillState } from './abilityEntityChildSkillState';
+import type { AbilityEntityChildSkillState } from '../state/abilityState';
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 import { CombatOperationPrograms } from './combatOperationPrograms';
-import type { AbilityEntityActionState } from './combatOperationHostState';
+import type { AbilityEntityActionState } from '../state/actionState';
 import {
   createCombatOperationHostState,
   type CombatOperationHostState,
-} from './combatOperationHostState';
+} from '../state/actionState';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 

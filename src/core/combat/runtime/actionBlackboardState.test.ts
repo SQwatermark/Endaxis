@@ -2,7 +2,7 @@
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
 import { ActionBlackboard } from './actionBlackboard';
-import { createActionBlackboardState } from './actionBlackboardState';
+import { createActionBlackboardState } from '../state/actionState';
 import {
   assignDynamicBlackboard,
   createLocalBlackboardState,

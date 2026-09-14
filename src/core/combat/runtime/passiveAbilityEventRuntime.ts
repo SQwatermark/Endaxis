@@ -18,8 +18,8 @@ import type { ActionSequenceState } from '../actions/actionSequenceState';
 import {
   createPassiveAbilityEventState,
   type PassiveAbilityEventState,
-} from './passiveAbilityEventState';
-import { hasActiveCombatOperationState } from './combatOperationHostState';
+} from '../state/abilityState';
+import { hasActiveCombatOperationState } from './combatOperationHostInspection';
 
 export type RegisterPassiveAbilityEventAction = (
   event: NonNullable<CompiledOperatorPassiveProgram['abilityEventResponses']>[number]['event'],

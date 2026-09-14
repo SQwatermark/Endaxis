@@ -1,7 +1,7 @@
 /** 修正器必须读取当前分支黑板，并保留实体板回退与缺失值报错。 */
 import { expect, it } from 'vitest';
 import { StateStepper } from '../runtime/stateStepper';
-import { createActionBlackboardState } from '../runtime/actionBlackboardState';
+import { createActionBlackboardState } from '../state/actionState';
 import { assignDynamicBlackboard } from '../runtime/actionBlackboardExecution';
 import { resolveBuffModifierNumber } from './buffModifierNumberSource';
 

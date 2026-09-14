@@ -4,7 +4,7 @@ import type {
   CompiledSkillProgram,
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
-import type { CombatStateGraph } from './combatStateGraph';
+import type { CombatStateGraph } from '../state/combatState';
 import { CombatRuntimeSession } from './combatRuntimeSession';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 import { CombatVitals } from './combatVitals';

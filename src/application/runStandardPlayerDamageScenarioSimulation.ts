@@ -29,7 +29,7 @@ import {
   createCompiledScenarioRuntime,
   type ScenarioSimulationResult,
 } from './runScenarioSimulation';
-import type { CombatStateGraph } from '../core/combat/runtime/combatStateGraph';
+import type { CombatStateGraph } from '../core/combat/state/combatState';
 import type { RestoredCombatEnvironmentInput } from '../core/combat/runtime/combatRuntimeRestoreFoundation';
 import type { OrdinaryKnockDownRuntime } from '../core/combat/runtime/ordinaryKnockDownRuntime';
 import type { ScenarioDocument } from '../core/project/schema';

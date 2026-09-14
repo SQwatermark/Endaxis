@@ -2,11 +2,17 @@
  * 保存单个战斗实体拥有的原生定时标记。
  * 标记允许同 ID 多实例；每个实例绑定创建时选择的时钟，查询时惰性过滤。
  */
+import {
+  createTimedMarkerState,
+  type TimedMarkerClockDomain,
+  type TimedMarkerEntry,
+  type TimedMarkerSnapshot,
+  type TimedMarkerState,
+} from '../state/environmentState';
+
 export interface TimedMarkerClock {
   readonly time: number;
 }
-
-export type TimedMarkerClockDomain = 'default' | 'global' | 'globalScaled';
 
 export const VALIDITY_TOLERANCE_SECONDS = 0.00001;
 
@@ -17,35 +23,9 @@ export interface TimedMarkerHandle {
 
 export type TimedMarkerFinishReason = 'expired' | 'removed' | 'ownerFinished';
 
-export interface TimedMarkerSnapshot {
-  readonly instanceId: number;
-  readonly ownerId: string;
-  readonly markerId: string;
-  /** 可被 Buff 展示回执稳定引用的实例身份；同名重建不会复用。 */
-  readonly sourceTargetId: string;
-  readonly createdAt: number;
-  readonly expiresAt: number;
-}
-
 export interface TimedMarkerContainerHooks {
   created?(snapshot: TimedMarkerSnapshot): void;
   finished?(snapshot: TimedMarkerSnapshot, reason: TimedMarkerFinishReason): void;
-}
-
-export interface TimedMarkerEntry extends TimedMarkerSnapshot {
-  readonly id: string;
-  readonly clockDomain: TimedMarkerClockDomain;
-  finished: boolean;
-}
-
-/** 标记只保存时钟编号；具体读取哪份战斗时间由执行时的绑定提供。 */
-export interface TimedMarkerState {
-  readonly entries: TimedMarkerEntry[];
-  nextInstanceId: number;
-}
-
-export function createTimedMarkerState(): TimedMarkerState {
-  return { entries: [], nextInstanceId: 1 };
 }
 
 export class TimedMarkerContainer {

@@ -7,37 +7,15 @@
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import { COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
-import type { ComboCastParameters } from './comboSkillConditionRuntime';
+import {
+  type ComboCastParameters,
+  createComboWindowState,
+  type ComboWindowState,
+  type PendingComboRecord,
+  type PendingComboWindow,
+} from '../state/environmentState';
 
 export const COMBO_WINDOW_DURATION_FRAMES = 5 * COMBAT_FRAMES_PER_SECOND;
-
-/** 一个干员记录中的待释放候选；同一干员可以因多个目标重复满足条件而积累多项。 */
-export interface PendingComboWindow {
-  readonly sequence: number;
-  readonly operatorId: string;
-  readonly nextSkillKey: string;
-  readonly openedFrame: number;
-  /** 从角色级连携注册复制的本次候选参数；不能回写干员定义。 */
-  readonly blackboard: Readonly<Record<string, number>>;
-  /** 原生条件候选；与旧语义窗口的数值板分开，在 Start 恢复后才应用。 */
-  readonly nativeCondition?: ComboCastParameters & { readonly skillGroupKey: string };
-  remainingFrames: number;
-}
-
-export interface PendingComboRecord {
-  readonly operatorId: string;
-  readonly activationSequence: number;
-  readonly openedFrame: number;
-  readonly candidates: PendingComboWindow[];
-}
-
-export interface ComboRingQteRegistration {
-  readonly sequence: number;
-  readonly operatorId: string;
-  readonly startRemainingFrames: number;
-  readonly earlyDurationFrames: number;
-  readonly activeDurationFrames: number;
-}
 
 export type ComboWindowConsumeFailure =
   'windowMissing' | 'releaseOrderMismatch' | 'skillStageMismatch';
@@ -49,29 +27,6 @@ export type ComboWindowConsumeResult =
       readonly reason: ComboWindowConsumeFailure;
       readonly expected?: PendingComboWindow;
     };
-
-/** 全场连携候选、暂停与 QTE 结果。队伍顺序属于固定规则，不随试探改变。 */
-export interface ComboWindowState {
-  readonly records: Map<string, PendingComboRecord>;
-  readonly pausedOperators: Set<string>;
-  readonly ringQtes: Map<number, ComboRingQteRegistration>;
-  readonly successfulRingQteSkillCastIds: Set<number>;
-  globallyPaused: boolean;
-  nextSequence: number;
-  nextRingQteSequence: number;
-}
-
-export function createComboWindowState(): ComboWindowState {
-  return {
-    records: new Map(),
-    pausedOperators: new Set(),
-    ringQtes: new Map(),
-    successfulRingQteSkillCastIds: new Set(),
-    globallyPaused: false,
-    nextSequence: 0,
-    nextRingQteSequence: 0,
-  };
-}
 
 export class ComboWindowRuntime implements FrameRuntime {
   readonly #operatorOrder = new Map<string, number>();

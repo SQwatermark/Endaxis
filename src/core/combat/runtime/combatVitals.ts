@@ -2,8 +2,8 @@
  * 单个战斗实体生命和失衡状态的唯一所有者。
  * 这里只维护数值与计时，不发布 UI 状态；事件和事实记录由上层运行时适配器负责。
  */
-import { createCombatVitalsState } from './combatVitalsState';
-import type { CombatVitalsState } from './combatVitalsState';
+import type { CombatVitalsState } from '../state/environmentState';
+import { createCombatVitalsState } from './combatVitalsInitialization';
 import {
   hasVitalsPoise,
   inVitalsPoiseRecovery,

@@ -14,7 +14,7 @@ import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { TimedMarkerClock, TimedMarkerContainer } from './timedMarkers';
 import { CombatOperationPrograms } from './combatOperationPrograms';
-import type { TimedMarkerActionState } from './combatOperationHostState';
+import type { TimedMarkerActionState } from '../state/actionState';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 

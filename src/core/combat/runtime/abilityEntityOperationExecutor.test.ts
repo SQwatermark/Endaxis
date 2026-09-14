@@ -12,7 +12,7 @@ import { CombatOperationPrograms } from './combatOperationPrograms';
 import {
   createCombatOperationHostState,
   type CombatOperationHostState,
-} from './combatOperationHostState';
+} from '../state/actionState';
 
 describe('AbilityEntityOperationExecutor', () => {
   it('两个实体共用子技能程序，结束一个实例只清理它自己的动作创建物', () => {

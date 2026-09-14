@@ -1,5 +1,5 @@
 /** 冷却与失衡恢复使用的现有计时器绑定，算法和状态分别定义。 */
-import { createPeriodicTimerState } from './periodicTimerState';
+import { createPeriodicTimerState } from '../state/environmentState';
 import {
   isPeriodicTimerValid,
   isPeriodicTimerReady,

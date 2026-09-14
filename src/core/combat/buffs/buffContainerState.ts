@@ -11,10 +11,7 @@ import {
   createCombatAttributeState,
   type CombatAttributeState,
 } from '../attributes/combatAttributeState';
-import {
-  createActionBlackboardState,
-  type ActionBlackboardState,
-} from '../runtime/actionBlackboardState';
+import { createActionBlackboardState, type ActionBlackboardState } from '../state/actionState';
 
 export interface BuffContainerState<Key extends string = string> {
   readonly sharedSpGainModifiers: SharedSpGainModifierState | null;

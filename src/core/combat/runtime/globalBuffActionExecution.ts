@@ -1,5 +1,5 @@
-import type { GlobalBuffActionState } from './globalBuffActionState';
-import type { GlobalBuffInstanceState } from './globalBuffState';
+import type { GlobalBuffActionState } from '../state/actionState';
+import type { GlobalBuffInstanceState } from '../state/instanceState';
 
 /** 全部结束成功后才移除记录；结束回调抛错时保留原有未清理关系。 */
 export function finishGlobalBuffAction(

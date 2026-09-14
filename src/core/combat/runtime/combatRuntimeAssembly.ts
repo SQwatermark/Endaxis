@@ -1,13 +1,16 @@
 import type { RegisterPassiveAbilityEventAction } from './passiveAbilityEventRuntime';
-import type { CombatSharedState } from './combatSharedState';
+import type {
+  CombatInputRuntimeState,
+  CombatSharedState,
+  ExternalCombatEventRuntimeState,
+} from '../state/environmentState';
 import {
   replaceAbilitySkillSlot,
   finishAbilitySkillSlotReplacement,
   type SkillSlotReplacementHost,
 } from './abilitySystemExecution';
-import type { CombatStateGraph } from './combatStateGraph';
-import type { SkillRuntimeState } from './skillRuntimeState';
-import type { SkillCooldownState } from './skillCooldownState';
+import type { CombatStateGraph } from '../state/combatState';
+import type { SkillCooldownState, SkillRuntimeState } from '../state/abilityState';
 import { createCallbackSkillHostFactory } from './callbackSkillHost';
 import { abilityEventSourceId } from '../events/combatAbilityEvent';
 import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
@@ -63,7 +66,6 @@ import {
   type ScheduledSkillInput,
   type SkillInputGroup,
 } from './combatInputRuntime';
-import type { CombatInputRuntimeState } from './combatInputRuntimeState';
 import { SkillInputGroupTiming } from './skillInputGroupTiming';
 import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatResources, type CombatResourceSnapshot } from './combatResources';
@@ -120,10 +122,10 @@ import {
   type AbilityTickDeltas,
   type TimeDilationEndReason,
   type TimeDilationInstanceKind,
-  type TimeDilationInstanceSnapshot,
   type TimeDilationRuntimeConfig,
   type TimeDilationPrograms,
 } from './timeDilationRuntime';
+import type { TimeDilationInstanceSnapshot } from '../state/environmentState';
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { SkillCooldown } from './skillCooldown';
@@ -143,7 +145,6 @@ import {
   ExternalCombatEventRuntime,
   type ScheduledExternalCombatEventInput,
 } from './externalCombatEventRuntime';
-import type { ExternalCombatEventRuntimeState } from './externalCombatEventRuntimeState';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRuntime';
 import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
@@ -158,7 +159,7 @@ import {
 import {
   createCombatOperationHostState,
   type CombatOperationHostState,
-} from './combatOperationHostState';
+} from '../state/actionState';
 import { CombatOperationPrograms } from './combatOperationPrograms';
 import { CombatSharedRuntime } from './combatSharedRuntime';
 import { CombatSkillPrograms } from './combatSkillPrograms';
@@ -662,22 +663,22 @@ export class CombatRuntimeAssembly {
   readonly #operatorUpgradeEventRuntimes: OperatorUpgradeEventRuntime[] = [];
   readonly #operatorUpgradeEventStates = new Map<
     string,
-    import('./operatorUpgradeEventState').OperatorUpgradeEventState
+    import('../state/abilityState').OperatorUpgradeEventState
   >();
   readonly #operatorComboConditionStates = new Map<
     string,
-    Map<string, import('./comboSkillConditionState').ComboSkillConditionState>
+    Map<string, import('../state/abilityState').ComboSkillConditionState>
   >();
   readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveAbilityEvents: PassiveAbilityEventRuntime[] = [];
   readonly #operatorPassiveStates = new Map<
     string,
-    Map<string, import('./passiveAbilityEventState').PassiveAbilityEventState>
+    Map<string, import('../state/abilityState').PassiveAbilityEventState>
   >();
   readonly #operatorInitializationStates = new Map<
     string,
-    Map<string, import('./operatorInitializationState').OperatorInitializationState>
+    Map<string, import('../state/abilityState').OperatorInitializationState>
   >();
   /** 每个能力实体实例独占自身的原生被动 Ability；实体结束时立即对称注销。 */
   readonly #abilityEntityPassiveEvents = new Map<number, PassiveAbilityEventRuntime[]>();
@@ -1676,7 +1677,7 @@ export class CombatRuntimeAssembly {
             enableSequence: enableSequence?.runtimeState ?? null,
             initializationSequence: initializationSequence.runtimeState,
             initializationExecuted: false,
-          } satisfies import('./operatorInitializationState').OperatorInitializationState;
+          } satisfies import('../state/abilityState').OperatorInitializationState;
           initializationStates.set(initialization.key, initializationState);
           if (initialization.enableSequence !== undefined) {
             if (initialization.equipmentContributionIndex === undefined)
@@ -1857,18 +1858,15 @@ export class CombatRuntimeAssembly {
               skills,
               passives:
                 this.#operatorPassiveStates.get(operatorId) ??
-                new Map<string, import('./passiveAbilityEventState').PassiveAbilityEventState>(),
+                new Map<string, import('../state/abilityState').PassiveAbilityEventState>(),
               equipment: this.#equipmentEventRuntimes.get(operatorId)?.runtimeState ?? null,
               initializations:
                 this.#operatorInitializationStates.get(operatorId) ??
-                new Map<
-                  string,
-                  import('./operatorInitializationState').OperatorInitializationState
-                >(),
+                new Map<string, import('../state/abilityState').OperatorInitializationState>(),
               upgradeEvents: this.#operatorUpgradeEventStates.get(operatorId) ?? null,
               comboConditions:
                 this.#operatorComboConditionStates.get(operatorId) ??
-                new Map<string, import('./comboSkillConditionState').ComboSkillConditionState>(),
+                new Map<string, import('../state/abilityState').ComboSkillConditionState>(),
               cooldowns,
               statuses: this.#operatorStatuses.get(operatorId)?.container.runtimeState ?? null,
               timedMarkers: this.#operatorTimedMarkers.get(operatorId)!.runtimeState,
@@ -3490,7 +3488,7 @@ export class CombatRuntimeAssembly {
     operation: 'reduce' | 'set',
     basis: 'baseDurationRatio' | 'absoluteFrames',
     value: number,
-    snapshot: import('./skillCooldown').SkillCooldownSnapshot,
+    snapshot: import('../state/abilityState').SkillCooldownSnapshot,
   ): void {
     this.receipt.record({
       frame: this.clock.frame,

@@ -2,7 +2,7 @@
  * 冷却账本算法：保留预占、确认帧返还、动态倍率及显式覆盖的原有顺序。
  * 多个技能块必须引用同一个状态节点，不能各自复制一份冷却。
  */
-import { createPeriodicTimerState } from './periodicTimerState';
+import { createPeriodicTimerState } from '../state/environmentState';
 import {
   isPeriodicTimerReady,
   readPeriodicTimerProgress,
@@ -14,7 +14,7 @@ import type {
   SkillCooldownState,
   SkillCooldownProgram,
   SkillCooldownSnapshot,
-} from './skillCooldownState';
+} from '../state/abilityState';
 const READY_EPSILON = 0.00001;
 
 export function compileSkillCooldown(

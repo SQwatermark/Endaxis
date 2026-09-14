@@ -14,10 +14,9 @@ import type { FrameRuntime } from './combatSimulation';
 import {
   TimedMarkerContainer,
   type TimedMarkerClock,
-  createTimedMarkerState,
   type TimedMarkerFinishReason,
-  type TimedMarkerSnapshot,
 } from './timedMarkers';
+import { createTimedMarkerState, type TimedMarkerSnapshot } from '../state/environmentState';
 import type { GameplayTag } from '../tags/gameplayTags';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
@@ -30,7 +29,7 @@ import {
 import type {
   LogicalAbilityEntityState,
   LogicalAbilityEntityDirectoryState,
-} from './logicalAbilityEntityState';
+} from '../state/instanceState';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied' | 'stackingLimit';

@@ -1,10 +1,6 @@
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
-
-/** 原生演出标记是单一布尔值，不是嵌套演出的引用计数。 */
-export interface UltimatePresentationState {
-  inUltimateCasting: boolean;
-}
+import type { UltimatePresentationState } from '../state/environmentState';
 
 /** HideUIAction 普通分支的全场状态；不提供未经证实的统一施法门禁。 */
 export class UltimatePresentationRuntime {

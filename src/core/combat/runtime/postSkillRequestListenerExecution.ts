@@ -1,15 +1,5 @@
-/**
- * onPostSkillTryCastRequest 的监听目录数据。
- * 它不是 AbilityEvent，但同样需要保存登记身份和同一宿主内的通知顺序。
- */
-export interface PostSkillRequestListenerState {
-  nextRegistrationId: number;
-  readonly registrationsByOwner: Map<string, number[]>;
-}
-
-export function createPostSkillRequestListenerState(): PostSkillRequestListenerState {
-  return { nextRegistrationId: 0, registrationsByOwner: new Map() };
-}
+/** 预施法请求监听目录的登记、校验和注销操作。 */
+import type { PostSkillRequestListenerState } from '../state/environmentState';
 
 export function registerPostSkillRequestListener(
   state: PostSkillRequestListenerState,

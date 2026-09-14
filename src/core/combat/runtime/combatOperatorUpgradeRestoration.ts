@@ -10,7 +10,7 @@ import {
   OperatorUpgradeEventRuntime,
   type CreateOperatorUpgradeEventExecutor,
 } from './operatorUpgradeEventRuntime';
-import type { OperatorUpgradeEventState } from './operatorUpgradeEventState';
+import type { OperatorUpgradeEventState } from '../state/abilityState';
 
 export interface RestoreCombatOperatorUpgradeEventsOptions {
   readonly operatorId: string;

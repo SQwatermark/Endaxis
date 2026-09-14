@@ -3,7 +3,7 @@
  * 子序列执行结果不影响遍历；End 不能提前到 Execute 后，否则会提前移除动作期间的 Buff。
  */
 import type { RuntimeTargetGroup, RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import type { TargetLoopState } from './targetLoopState';
+import type { TargetLoopState } from '../state/actionState';
 
 /** start 按顺序完成创建、Reset、Execute，返回战斗数据中该子序列的编号。 */
 export interface TargetLoopHost {

@@ -1,5 +1,5 @@
 /** 生命、治疗与失衡推进算法；计时边界仍先更新状态，再同步通知调用方。 */
-import type { CombatVitalsState } from './combatVitalsState';
+import type { CombatVitalsState } from '../state/environmentState';
 import type { HealthDamageResult, HealthHealResult, PoiseTimerTransition } from './combatVitals';
 import {
   isPeriodicTimerValid,

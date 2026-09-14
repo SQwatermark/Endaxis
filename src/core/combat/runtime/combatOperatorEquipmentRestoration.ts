@@ -13,7 +13,7 @@ import {
   type CreateEquipmentEventOperationExecutor,
   type RegisterEquipmentAbilityEventAction,
 } from './equipmentEventRuntime';
-import type { EquipmentEventState } from './equipmentEventState';
+import type { EquipmentEventState } from '../state/abilityState';
 
 export interface RestoreCombatOperatorEquipmentOptions {
   readonly operatorId: string;

@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import type { CompiledOperatorInitializationProgram } from '../../compiler/combatProgram';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import { createCombatOperationHostState } from './combatOperationHostState';
+import { createCombatOperationHostState } from '../state/actionState';
 import { bindRestoredCombatOperatorInitializations } from './combatOperatorInitializationRestoration';
 import { CombatOperationPrograms } from './combatOperationPrograms';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';

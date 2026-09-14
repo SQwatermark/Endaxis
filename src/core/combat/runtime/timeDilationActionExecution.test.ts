@@ -1,7 +1,7 @@
 /** 验证动作清理关系的分支隔离、调用顺序和失败时的保留行为。 */
 import { expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
-import { createTimeDilationActionState } from './timeDilationActionState';
+import { createTimeDilationActionState } from '../state/actionState';
 import {
   finishTimeDilationAction,
   revertTimeDilationIgnoreAction,

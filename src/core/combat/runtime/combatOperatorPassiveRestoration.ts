@@ -17,7 +17,7 @@ import type {
   PassiveAbilityEventRuntime,
 } from './passiveAbilityEventRuntime';
 import { PassiveAbilityEventRuntime as PassiveRuntime } from './passiveAbilityEventRuntime';
-import type { PassiveAbilityEventState } from './passiveAbilityEventState';
+import type { PassiveAbilityEventState } from '../state/abilityState';
 import type { CombatOperationExecutor } from './skillRuntime';
 
 export interface RestoreCombatOperatorPassivesOptions {

@@ -4,13 +4,13 @@
  */
 import type { CombatStepParameters } from '../../game-data/operatorDefinition';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import type { ProjectileLifecycleState } from './projectileLifecycleState';
+import type { ProjectileLifecycleState } from '../state/instanceState';
 
 export type ProjectileFinishTiming =
   number | CombatStepParameters['launchProjectileLifetime']['finish'];
 
 export interface ProjectileLaunchData {
-  readonly callback?: import('./projectileCallbackState').ProjectileCallbackState;
+  readonly callback?: import('../state/instanceState').ProjectileCallbackState;
   readonly source?: RuntimeTargetRef;
   readonly finishDelaySeconds: ProjectileFinishTiming;
   readonly recycleDelaySeconds: number;

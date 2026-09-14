@@ -1,7 +1,7 @@
 /** 将分支选择与真实动作序列进度一起保存，避免只恢复选择却丢失分支内的执行状态。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
-import { createBranchActionState } from './branchActionState';
+import { createBranchActionState } from '../state/actionState';
 import {
   executeSwitchAction,
   executeConditionalAction,

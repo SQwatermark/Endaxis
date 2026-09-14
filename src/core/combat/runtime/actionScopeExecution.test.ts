@@ -1,8 +1,7 @@
 /** 作用域缓存与黑板整图恢复，确保恢复后命中原缓存，并恢复 once 标记。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
-import { createActionBlackboardState } from './actionBlackboardState';
-import { createActionScopeState } from './actionScopeState';
+import { createActionBlackboardState, createActionScopeState } from '../state/actionState';
 import {
   executeActionOnce,
   getActionScopeBlackboard,

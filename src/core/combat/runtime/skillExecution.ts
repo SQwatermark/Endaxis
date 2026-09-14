@@ -3,7 +3,7 @@
  * 扣费先于时间轴，结束检查后于时间轴；同步动作可能改变当前状态，不能提前缓存判定结果。
  */
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
-import type { SkillExecutionState } from './skillExecutionState';
+import type { SkillExecutionState } from '../state/abilityState';
 
 /** 初始化前黑板和时间轴已按原顺序重置；分配编号仍在原来的时点调用。 */
 export function beginSkillCast(

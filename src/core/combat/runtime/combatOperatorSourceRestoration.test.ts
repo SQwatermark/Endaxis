@@ -1,15 +1,15 @@
 import { expect, it, vi } from 'vitest';
 import type { CompiledOperatorPassiveProgram } from '../../compiler/combatProgram';
 import { ActionBlackboard } from './actionBlackboard';
-import { createAbilitySystemState } from './abilitySystemState';
+import { createAbilitySystemState } from '../state/abilityState';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import { createCombatOperationHostState } from './combatOperationHostState';
+import { createCombatOperationHostState } from '../state/actionState';
 import { CombatOperationPrograms } from './combatOperationPrograms';
 import { bindRestoredCombatOperatorSources } from './combatOperatorSourceRestoration';
-import type { CombatOperatorState } from './combatStateGraph';
+import type { CombatOperatorState } from '../state/combatState';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
-import { createPassiveAbilityEventState } from './passiveAbilityEventState';
-import { createTimedMarkerState } from './timedMarkers';
+import { createPassiveAbilityEventState } from '../state/abilityState';
+import { createTimedMarkerState } from '../state/environmentState';
 
 it('单干员来源协调器恢复被动并在统一关系阶段接回子 Buff', () => {
   const passive: CompiledOperatorPassiveProgram = {

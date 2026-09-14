@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { createPostSkillRequestListenerState } from '../state/environmentState';
 import {
-  createPostSkillRequestListenerState,
   registerPostSkillRequestListener,
   requirePostSkillRequestListener,
   unregisterPostSkillRequestListener,
-} from './postSkillRequestListenerState';
+} from './postSkillRequestListenerExecution';
 
 describe('postSkillRequestListenerState', () => {
   it('复制后保留编号和顺序，兄弟分支独立注销', () => {

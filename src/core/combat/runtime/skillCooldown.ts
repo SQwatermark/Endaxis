@@ -7,7 +7,7 @@ import type {
   SkillCooldownState,
   SkillCooldownProgram,
   SkillCooldownSnapshot,
-} from './skillCooldownState';
+} from '../state/abilityState';
 import {
   compileSkillCooldown,
   createSkillCooldownState,
@@ -22,7 +22,6 @@ import {
   setSkillCooldownFrames,
   finishSkillCooldownCast,
 } from './skillCooldownExecution';
-export type { SkillCooldownSnapshot } from './skillCooldownState';
 
 export class SkillCooldown {
   readonly #program: SkillCooldownProgram;

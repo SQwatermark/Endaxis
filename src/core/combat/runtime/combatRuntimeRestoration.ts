@@ -28,7 +28,7 @@ import {
   type RestoredCombatRuntimeFoundation,
 } from './combatRuntimeRestoreFoundation';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
-import type { CombatStateGraph } from './combatStateGraph';
+import type { CombatStateGraph } from '../state/combatState';
 import type { CombatSkillPrograms } from './combatSkillPrograms';
 import { TimedMarkerContainer, type TimedMarkerContainerHooks } from './timedMarkers';
 

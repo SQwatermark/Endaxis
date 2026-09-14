@@ -1,5 +1,5 @@
 /** 根据传入数据推进原生单周期计时，不持有内部对象。 */
-import type { PeriodicTimerState } from './periodicTimerState';
+import type { PeriodicTimerState } from '../state/environmentState';
 const READY_EPSILON = 0.00001;
 
 export function isPeriodicTimerValid(state: PeriodicTimerState): boolean {

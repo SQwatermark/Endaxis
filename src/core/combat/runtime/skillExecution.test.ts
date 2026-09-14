@@ -1,7 +1,7 @@
 /** 技能、调度及动作进度共同恢复，覆盖延迟扣费、自然结束及继承施法的开始状态。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from './stateStepper';
-import { createSkillExecutionState } from './skillExecutionState';
+import { createSkillExecutionState } from '../state/abilityState';
 import {
   beginSkillCast,
   tickSkillExecution,

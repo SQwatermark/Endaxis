@@ -13,7 +13,7 @@ import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveTimeScaleCurve } from './timeScaleCurve';
 import type { TimeDilationRuntime } from './timeDilationRuntime';
-import { createTimeDilationActionState } from './timeDilationActionState';
+import { createTimeDilationActionState } from '../state/actionState';
 import {
   finishTimeDilationAction,
   revertTimeDilationIgnoreAction,

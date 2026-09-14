@@ -1,5 +1,9 @@
-import { createSkillExecutionState, type RuntimeSkillState } from './skillExecutionState';
-import type { SkillRuntimeState } from './skillRuntimeState';
+import {
+  createSkillExecutionState,
+  type RuntimeSkillState,
+  type SkillCooldownSnapshot,
+  type SkillRuntimeState,
+} from '../state/abilityState';
 import {
   DamageCalculationSnapshots,
   type DamageCalculationSnapshotProgram,
@@ -32,7 +36,7 @@ export type ScheduleProjectileFinishCallback = (
   skillCastInfo?: CombatSkillCastInfo,
   advanceCallback?: (deltaSeconds: number) => void,
   sourceId?: string,
-  callbackState?: import('./projectileCallbackState').ProjectileCallbackState,
+  callbackState?: import('../state/instanceState').ProjectileCallbackState,
   callbackProgram?: import('../../compiler/combatProgram').CompiledProjectileCallbackSkillProgram,
 ) => ProjectileLifetimeReference;
 
@@ -62,7 +66,7 @@ import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
 import { SkillTimelineJumpGate } from './skillTimelineJump';
 import type { CombatSkillCastInfo } from './skillCastInfo';
-import { SkillCooldown, type SkillCooldownSnapshot } from './skillCooldown';
+import { SkillCooldown } from './skillCooldown';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { BuffFinishReason } from '../buffs/combatBuffs';
@@ -72,11 +76,10 @@ import { buffReferenceKey } from '../buffs/buffReference';
 import {
   createCombatOperationHostState,
   type CombatOperationHostState,
-} from './combatOperationHostState';
+} from '../state/actionState';
 import type { CombatOperationPrograms } from './combatOperationPrograms';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
-export type { RuntimeSkillState } from './skillExecutionState';
 /** 当前已闭环、会改变技能结束事实的中断来源。 */
 export type RuntimeSkillInterruptReason = 'default' | 'castNextSkill';
 

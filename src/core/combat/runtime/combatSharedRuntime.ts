@@ -9,7 +9,7 @@ import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAlloc
 import { CombatClock } from './combatClock';
 import type { CombatResourceRuntimeResolvers, CombatResourceSnapshot } from './combatResources';
 import { CombatResources } from './combatResources';
-import type { CombatSharedState } from './combatSharedState';
+import type { CombatSharedState } from '../state/environmentState';
 import { ComboWindowRuntime } from './comboWindowRuntime';
 import { GlobalCooldowns } from './globalCooldowns';
 import { BasicAttackSkillCastInheritanceRegistry } from './skillCastInheritanceOperationExecutor';
