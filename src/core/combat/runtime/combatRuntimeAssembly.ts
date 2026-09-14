@@ -127,7 +127,10 @@ import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
 import { SkillCooldownOperationExecutor } from './skillCooldownOperationExecutor';
 import { CombatSemanticOutputOperationExecutor } from './combatSemanticOutputOperationExecutor';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
-import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import {
+  LogicalAbilityEntityRuntime,
+  type LogicalAbilityEntityRuntimeHooks,
+} from './logicalAbilityEntityRuntime';
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
 import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
@@ -469,6 +472,11 @@ type CombatAbilityRuntimeBindings = Pick<
   | 'resolveTickDeltas'
 >;
 
+type CombatAbilityEntityEventHooks = Pick<
+  LogicalAbilityEntityRuntimeHooks,
+  'spawned' | 'childSkillRequested' | 'finished' | 'timedMarkerCreated' | 'timedMarkerFinished'
+>;
+
 const unsupportedReactiveTerminal: CombatOperationExecutor = {
   execute(step): boolean {
     throw new Error(`reactive event handler does not support '${step.kind}'`);
@@ -698,93 +706,7 @@ export class CombatRuntimeAssembly {
         },
         recycleBuffs: entity =>
           this.#abilityEntityBuffs.get(entity.instanceId)?.recycleFinishedBuffs?.(),
-        spawned: entity => {
-          const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
-          this.receipt.record({
-            frame: this.clock.frame,
-            time: this.clock.time,
-            event: 'AbilityEntitySpawned',
-            sourceId: entity.ownerId,
-            targetId: entityId,
-            data: {
-              abilityEntityId: entity.abilityEntityId,
-              childSkillId: entity.childSkillId ?? null,
-              remainingDurationSeconds: entity.remainingDurationSeconds,
-            },
-          });
-          this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntitySpawned', {
-            entity: {
-              instanceId: entity.instanceId,
-              onReset: callback =>
-                this.abilityEntities.onReset(
-                  { kind: 'abilityEntity', instanceId: entity.instanceId },
-                  callback,
-                ),
-            },
-            ...(entity.skillCastInfo === undefined ? {} : { skillCastInfo: entity.skillCastInfo }),
-            sourceId: entity.ownerId,
-            targetId: entityId,
-          });
-        },
-        childSkillRequested: (entity, childSkillId) =>
-          this.receipt.record({
-            frame: this.clock.frame,
-            time: this.clock.time,
-            event: 'AbilityEntityChildSkillRequested',
-            sourceId: entity.ownerId,
-            targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
-            data: { abilityEntityId: entity.abilityEntityId, childSkillId },
-          }),
-        finished: (entity, reason) => {
-          const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
-          this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntityFinished', {
-            ...(entity.skillCastInfo === undefined ? {} : { skillCastInfo: entity.skillCastInfo }),
-            sourceId: entity.ownerId,
-            targetId: entityId,
-          });
-          if (reason === 'durationExpired' || reason === 'explicit') {
-            this.#options.emitAbilityEvent?.(entityId, 'ownerHpZero', {
-              sourceId: entityId,
-              targetId: entityId,
-            });
-          }
-          this.#disposeAbilityEntityPassiveSkills(entity.instanceId);
-          const buffRuntime = this.#abilityEntityBuffs.get(entity.instanceId);
-          if (buffRuntime !== undefined) {
-            buffRuntime.releaseAll();
-            this.#abilityEntityBuffs.delete(entity.instanceId);
-          }
-          this.receipt.record({
-            frame: this.clock.frame,
-            time: this.clock.time,
-            event: 'AbilityEntityFinished',
-            sourceId: entity.ownerId,
-            targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
-            data: { abilityEntityId: entity.abilityEntityId, reason },
-          });
-        },
-        timedMarkerCreated: marker =>
-          this.receipt.record({
-            frame: this.clock.frame,
-            time: this.clock.time,
-            event: 'TimedMarkerCreated',
-            sourceId: marker.ownerId,
-            targetId: marker.sourceTargetId,
-            data: {
-              markerId: marker.markerId,
-              createdAt: marker.createdAt,
-              expiresAt: marker.expiresAt,
-            },
-          }),
-        timedMarkerFinished: (marker, reason) =>
-          this.receipt.record({
-            frame: this.clock.frame,
-            time: this.clock.time,
-            event: 'TimedMarkerFinished',
-            sourceId: marker.ownerId,
-            targetId: marker.sourceTargetId,
-            data: { markerId: marker.markerId, reason },
-          }),
+        ...this.#createAbilityEntityEventHooks(),
       },
     });
     if (options.enemyBuffRuntime.ownerId !== 'enemy') {
@@ -2066,6 +1988,101 @@ export class CombatRuntimeAssembly {
             resolveTickDeltas: () =>
               this.timeDilation!.getAbilityTickDeltas(operatorId, COMBAT_FRAME_INTERVAL),
           }),
+    };
+  }
+
+  /** 恢复目录负责数据推进；业务事件与清理顺序仍使用正式装配的同一组钩子。 */
+  #createAbilityEntityEventHooks(releaseBuffs = true): CombatAbilityEntityEventHooks {
+    return {
+      spawned: entity => {
+        const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'AbilityEntitySpawned',
+          sourceId: entity.ownerId,
+          targetId: entityId,
+          data: {
+            abilityEntityId: entity.abilityEntityId,
+            childSkillId: entity.childSkillId ?? null,
+            remainingDurationSeconds: entity.remainingDurationSeconds,
+          },
+        });
+        this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntitySpawned', {
+          entity: {
+            instanceId: entity.instanceId,
+            onReset: callback =>
+              this.abilityEntities.onReset(
+                { kind: 'abilityEntity', instanceId: entity.instanceId },
+                callback,
+              ),
+          },
+          ...(entity.skillCastInfo === undefined ? {} : { skillCastInfo: entity.skillCastInfo }),
+          sourceId: entity.ownerId,
+          targetId: entityId,
+        });
+      },
+      childSkillRequested: (entity, childSkillId) =>
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'AbilityEntityChildSkillRequested',
+          sourceId: entity.ownerId,
+          targetId: logicalAbilityEntityRuntimeId(entity.instanceId),
+          data: { abilityEntityId: entity.abilityEntityId, childSkillId },
+        }),
+      finished: (entity, reason) => {
+        const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
+        this.#options.emitAbilityEvent?.(entity.ownerId, 'abilityEntityFinished', {
+          ...(entity.skillCastInfo === undefined ? {} : { skillCastInfo: entity.skillCastInfo }),
+          sourceId: entity.ownerId,
+          targetId: entityId,
+        });
+        if (reason === 'durationExpired' || reason === 'explicit') {
+          this.#options.emitAbilityEvent?.(entityId, 'ownerHpZero', {
+            sourceId: entityId,
+            targetId: entityId,
+          });
+        }
+        this.#disposeAbilityEntityPassiveSkills(entity.instanceId);
+        if (releaseBuffs) {
+          const buffRuntime = this.#abilityEntityBuffs.get(entity.instanceId);
+          if (buffRuntime !== undefined) {
+            buffRuntime.releaseAll();
+            this.#abilityEntityBuffs.delete(entity.instanceId);
+          }
+        }
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'AbilityEntityFinished',
+          sourceId: entity.ownerId,
+          targetId: entityId,
+          data: { abilityEntityId: entity.abilityEntityId, reason },
+        });
+      },
+      timedMarkerCreated: marker =>
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'TimedMarkerCreated',
+          sourceId: marker.ownerId,
+          targetId: marker.sourceTargetId,
+          data: {
+            markerId: marker.markerId,
+            createdAt: marker.createdAt,
+            expiresAt: marker.expiresAt,
+          },
+        }),
+      timedMarkerFinished: (marker, reason) =>
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'TimedMarkerFinished',
+          sourceId: marker.ownerId,
+          targetId: marker.sourceTargetId,
+          data: { markerId: marker.markerId, reason },
+        }),
     };
   }
 
