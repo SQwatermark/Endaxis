@@ -37,7 +37,16 @@ export interface RestoreCombatRuntimeOperatorsOptions {
   readonly foundation: RestoredCombatRuntimeFoundation;
   readonly entities: RestoredCombatAbilityEntityDirectory;
   readonly createCoreBindings: (operator: CombatOperatorProgram) => OperatorCoreBindings;
+  /** 在来源宿主创建前，把已恢复核心登记到完整装配的当前分支目录。 */
+  readonly onCoreBound?: (
+    operator: CombatOperatorProgram,
+    core: RestoredCombatOperatorCore,
+  ) => void;
   readonly createSourceBindings: (operator: CombatOperatorProgram) => OperatorSourceBindings;
+  readonly onSourcesBound?: (
+    operator: CombatOperatorProgram,
+    sources: RestoredCombatOperatorSources,
+  ) => void;
 }
 
 export interface RestoredCombatRuntimeOperators {
@@ -63,31 +72,29 @@ export function bindRestoredCombatRuntimeOperators(
     }
     const restoredProgram = { ...program, buffRuntime };
     programs.set(operatorId, restoredProgram);
-    cores.set(
-      operatorId,
-      bindRestoredCombatOperatorCore({
-        operator: restoredProgram,
-        state: options.preparation.operators.get(operatorId)!,
-        skills: options.preparation.skills.get(operatorId)!,
-        clock: options.foundation.shared.clock,
-        receipt: options.foundation.shared.receipt,
-        resolveAttachedBuff: resolveBuff,
-        ...options.createCoreBindings(restoredProgram),
-      }),
-    );
+    const core = bindRestoredCombatOperatorCore({
+      operator: restoredProgram,
+      state: options.preparation.operators.get(operatorId)!,
+      skills: options.preparation.skills.get(operatorId)!,
+      clock: options.foundation.shared.clock,
+      receipt: options.foundation.shared.receipt,
+      resolveAttachedBuff: resolveBuff,
+      ...options.createCoreBindings(restoredProgram),
+    });
+    cores.set(operatorId, core);
+    options.onCoreBound?.(restoredProgram, core);
   }
   try {
     for (const [operatorId, program] of programs) {
-      sources.set(
-        operatorId,
-        bindRestoredCombatOperatorSources({
-          operator: program,
-          state: options.preparation.operators.get(operatorId)!,
-          operatorBlackboard: cores.get(operatorId)!.blackboard,
-          semanticEvents: options.foundation.semanticEvents,
-          ...options.createSourceBindings(program),
-        }),
-      );
+      const source = bindRestoredCombatOperatorSources({
+        operator: program,
+        state: options.preparation.operators.get(operatorId)!,
+        operatorBlackboard: cores.get(operatorId)!.blackboard,
+        semanticEvents: options.foundation.semanticEvents,
+        ...options.createSourceBindings(program),
+      });
+      sources.set(operatorId, source);
+      options.onSourcesBound?.(program, source);
     }
   } catch (error) {
     failAfterAbilityHostCleanup(

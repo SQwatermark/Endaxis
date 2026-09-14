@@ -36,6 +36,8 @@ export interface RestoreCombatRuntimeObjectGraphOptions {
   readonly foundation: RestoredCombatRuntimeFoundation;
   readonly entities: RestoredCombatAbilityEntityDirectory;
   readonly callbackPrograms: ProjectileCallbackPrograms;
+  /** 完整装配可先建立并公开目录，使随后创建的操作链只闭包当前恢复分支。 */
+  readonly projectiles?: ProjectileLifecycleRuntime;
   readonly buffs: Omit<
     RestoreCombatBuffInstancesOptions,
     'preparation' | 'foundation' | 'entities'
@@ -70,11 +72,19 @@ export function bindRestoredCombatRuntimeObjectGraph(
     foundation: options.foundation,
     entities: options.entities,
   };
-  const projectiles = createRestoredCombatProjectileDirectory({
-    preparation: options.preparation,
-    foundation: options.foundation,
-    callbackPrograms: options.callbackPrograms,
-  });
+  const projectiles =
+    options.projectiles ??
+    createRestoredCombatProjectileDirectory({
+      preparation: options.preparation,
+      foundation: options.foundation,
+      callbackPrograms: options.callbackPrograms,
+    });
+  if (projectiles.runtimeState !== options.preparation.graph.instances.projectiles) {
+    throw new Error('restored projectile directory uses another state');
+  }
+  if (projectiles.callbackPrograms !== options.callbackPrograms) {
+    throw new Error('restored projectile directory uses another callback program directory');
+  }
   configureRestoredCombatObjectReferences({ entities: options.entities, projectiles });
   const buffs = bindRestoredCombatBuffInstances({ ...shared, ...options.buffs });
   const operators = bindRestoredCombatRuntimeOperators({ ...shared, ...options.operators });

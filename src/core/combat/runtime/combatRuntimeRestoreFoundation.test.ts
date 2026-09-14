@@ -16,6 +16,7 @@ import { createBuffContainerState } from '../buffs/buffContainerState';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import type { AbilityEntityBuffRuntime } from './combatRuntimeAssembly';
 import { restoreCombatRuntime } from './combatRuntimeRestoration';
+import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 
 const resources = {
   sp: 0,
@@ -149,6 +150,10 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
       summon: { lifetime: { kind: 'limited' as const, durationSeconds: 10 } },
     },
   };
+  const callbackPrograms = new ProjectileCallbackPrograms();
+  let suppliedProjectiles: ProjectileLifecycleRuntime | undefined;
+  let coreRegistered = false;
+  let sourcesRegistered = false;
   const candidate = restoreCombatRuntime({
     graph,
     programs: [program],
@@ -161,44 +166,60 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
         throw new Error('fixture does not launch projectiles');
       },
     },
-    objects: {
-      callbackPrograms: new ProjectileCallbackPrograms(),
-      buffs: {
-        resolveDefinition: () => undefined,
-        resolveGlobalDefinition: () => undefined,
-      },
-      operators: {
-        createCoreBindings: () => ({
-          createSkillDependencies: () => {
-            throw new Error('fixture has no skills');
+    objects: context => {
+      suppliedProjectiles = new ProjectileLifecycleRuntime(
+        () => context.foundation.shared.abilityEntityInstanceIds.allocate(),
+        { state: graph.instances.projectiles, callbackPrograms },
+      );
+      return {
+        callbackPrograms,
+        projectiles: suppliedProjectiles,
+        buffs: {
+          resolveDefinition: () => undefined,
+          resolveGlobalDefinition: () => undefined,
+        },
+        operators: {
+          createCoreBindings: () => ({
+            createSkillDependencies: () => {
+              throw new Error('fixture has no skills');
+            },
+            abilityRuntime: {},
+          }),
+          onCoreBound: () => {
+            coreRegistered = true;
           },
-          abilityRuntime: {},
-        }),
-        createSourceBindings: () => ({
-          createEquipmentExecutor: () => ({ execute: () => true, evaluate: () => true }),
-          createInitializationOperations: () => ({ execute: () => true, evaluate: () => true }),
-          createPassiveOperations: () => ({ execute: () => true, evaluate: () => true }),
+          createSourceBindings: () => {
+            expect(coreRegistered).toBe(true);
+            return {
+              createEquipmentExecutor: () => ({ execute: () => true, evaluate: () => true }),
+              createInitializationOperations: () => ({ execute: () => true, evaluate: () => true }),
+              createPassiveOperations: () => ({ execute: () => true, evaluate: () => true }),
+              registerPassive: () => {
+                throw new Error('fixture has no passive responses');
+              },
+              createUpgradeExecutor: () => ({ execute: () => true, evaluate: () => true }),
+            };
+          },
+          onSourcesBound: () => {
+            sourcesRegistered = true;
+          },
+        },
+        abilityEntityRelations: {
+          childSkillPrograms: new AbilityEntityChildSkillPrograms(),
+          createPassiveOperations: () => {
+            throw new Error('fixture has no AbilityEntity passives');
+          },
           registerPassive: () => {
-            throw new Error('fixture has no passive responses');
+            throw new Error('fixture has no AbilityEntity passive responses');
           },
-          createUpgradeExecutor: () => ({ execute: () => true, evaluate: () => true }),
-        }),
-      },
-      abilityEntityRelations: {
-        childSkillPrograms: new AbilityEntityChildSkillPrograms(),
-        createPassiveOperations: () => {
-          throw new Error('fixture has no AbilityEntity passives');
+          createChildSkillBindings: () => {
+            throw new Error('fixture has no AbilityEntity child skills');
+          },
         },
-        registerPassive: () => {
-          throw new Error('fixture has no AbilityEntity passive responses');
+        createProjectileCallbackBindings: () => {
+          throw new Error('fixture has no projectile callbacks');
         },
-        createChildSkillBindings: () => {
-          throw new Error('fixture has no AbilityEntity child skills');
-        },
-      },
-      createProjectileCallbackBindings: () => {
-        throw new Error('fixture has no projectile callbacks');
-      },
+      };
     },
   });
   const { foundation: restored, entities, objects, frame } = candidate;
@@ -227,12 +248,14 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   const releaseEntityBuffs = vi.spyOn(entityBuffs, 'releaseAll');
   expect(objects.buffs.globalBuffs.runtimeState).toBe(graph.instances.globalBuffs);
   expect(objects.projectiles.runtimeState).toBe(graph.instances.projectiles);
+  expect(objects.projectiles).toBe(suppliedProjectiles);
   expect(objects.operators.cores.get('operator')!.blackboard.runtimeState).toBe(
     graph.operators.get('operator')!.blackboard,
   );
   expect(objects.operators.programs.get('operator')!.buffRuntime).toBe(
     restored.operatorBuffTargets.get('operator'),
   );
+  expect(sourcesRegistered).toBe(true);
   const previousFrame = restored.shared.clock.frame;
   frame.advanceFrame();
   expect(restored.shared.clock.frame).toBe(previousFrame + 1);
