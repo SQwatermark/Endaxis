@@ -300,7 +300,12 @@ describe('GlobalBuffRuntime', () => {
       },
     };
     const context = { blackboard: new ActionBlackboard() };
+    const definitionProgramId = originalExecutor.programs.slot(step);
     originalExecutor.execute(step, context);
+    expect(originalRuntime.runtimeState.groups.get('global')![0]!.definitionProgramId).toBe(
+      definitionProgramId,
+    );
+    expect(originalExecutor.programs.resolve(definitionProgramId)).toBe(step);
     const copied = new StateStepper(
       { global: originalRuntime.runtimeState, actions: originalExecutor.runtimeState },
       () => undefined,
@@ -313,8 +318,12 @@ describe('GlobalBuffRuntime', () => {
       null,
       copied.global,
     );
+    const resolvedDefinitionProgramIds: (number | null)[] = [];
     restoredRuntime.bindRestoredInstances({
-      resolveDefinition: () => step.parameters.definition,
+      resolveDefinition: (_sourceId, _id, _sourceActionOwnerId, _sourceActionId, programId) => {
+        resolvedDefinitionProgramIds.push(programId);
+        return step.parameters.definition;
+      },
       resolveChild: reference => ({
         reference,
         finish: reason => {
@@ -331,6 +340,7 @@ describe('GlobalBuffRuntime', () => {
     restoredExecutor.end(step, context);
 
     expect(copied.global.groups.get('global')![0]!.finished).toBe(true);
+    expect(resolvedDefinitionProgramIds).toEqual([definitionProgramId]);
     expect(restoredChildFinishes).toEqual(['other']);
     expect(originalRuntime.runtimeState.groups.get('global')![0]!.finished).toBe(false);
   });

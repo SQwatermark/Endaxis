@@ -28,6 +28,7 @@ export interface CombatBuffRestorationOptions {
     id: string,
     sourceActionOwnerId: string | undefined,
     sourceActionId: string | undefined,
+    definitionProgramId: number | null,
   ) => SkillGlobalBuffDefinition | undefined;
 }
 

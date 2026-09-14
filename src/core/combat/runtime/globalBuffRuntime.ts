@@ -85,6 +85,7 @@ export class GlobalBuffRuntime {
       id: string,
       sourceActionOwnerId: string | undefined,
       sourceActionId: string | undefined,
+      definitionProgramId: number | null,
     ) => SkillGlobalBuffDefinition | undefined;
     readonly resolveChild: (
       reference: import('../buffs/buffReference').BuffReference,
@@ -100,6 +101,7 @@ export class GlobalBuffRuntime {
           state.id,
           state.sourceActionOwnerId,
           state.sourceActionId,
+          state.definitionProgramId,
         );
         if (definition === undefined) {
           throw new Error(`global Buff '${state.id}' definition is missing during restoration`);
@@ -123,6 +125,7 @@ export class GlobalBuffRuntime {
   add(input: {
     readonly id: string;
     readonly definition: SkillGlobalBuffDefinition;
+    readonly definitionProgramId?: number;
     readonly sourceId: string;
     /** 执行 CreateGlobalBuff 的 AbilitySystem；battle 归因本身不是动作/定义所有者。 */
     readonly sourceActionOwnerId?: string;
@@ -176,6 +179,7 @@ export class GlobalBuffRuntime {
     const state: GlobalBuffInstanceState = {
       id,
       instanceId: this.runtimeState.nextInstanceId++,
+      definitionProgramId: input.definitionProgramId ?? null,
       sourceId,
       sourceActionOwnerId,
       sourceActionId,
@@ -374,7 +378,8 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
     }
     if (step.kind !== 'createGlobalBuff') return this.dependencies.delegate.execute(step, context);
     if (context === undefined) throw new Error('createGlobalBuff requires an action blackboard');
-    if (step.parameters.finishByAction && this.runtimeState.active.has(this.#slot(step))) {
+    const definitionProgramId = this.#slot(step);
+    if (step.parameters.finishByAction && this.runtimeState.active.has(definitionProgramId)) {
       throw new Error('action-duration createGlobalBuff step is already active');
     }
     const count =
@@ -394,6 +399,7 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
         this.dependencies.runtime.add({
           id: step.parameters.globalBuffId,
           definition: step.parameters.definition,
+          definitionProgramId,
           sourceId,
           sourceActionOwnerId: this.dependencies.sourceId,
           sourceActionId: this.dependencies.sourceActionId,
@@ -408,7 +414,7 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
     }
     if (step.parameters.finishByAction)
       this.runtimeState.active.set(
-        this.#slot(step),
+        definitionProgramId,
         created.map(instance => instance.runtimeState),
       );
     return true;

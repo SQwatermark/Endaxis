@@ -9,6 +9,8 @@ import type {
 export interface GlobalBuffInstanceState {
   readonly id: string;
   readonly instanceId: number;
+  /** 创建该实例的固定 createGlobalBuff 动作槽；旧式直接调用没有程序身份。 */
+  readonly definitionProgramId: number | null;
   readonly sourceId: string;
   readonly sourceActionOwnerId: string | undefined;
   readonly sourceActionId: string | undefined;

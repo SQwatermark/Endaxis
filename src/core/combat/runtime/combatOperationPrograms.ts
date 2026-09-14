@@ -7,6 +7,7 @@
  */
 export class CombatOperationPrograms {
   readonly #slots = new WeakMap<object, number>();
+  readonly #programs = new Map<number, object>();
   #nextSlot = 1;
 
   slot(step: object): number {
@@ -14,6 +15,13 @@ export class CombatOperationPrograms {
     if (existing !== undefined) return existing;
     const slot = this.#nextSlot++;
     this.#slots.set(step, slot);
+    this.#programs.set(slot, step);
     return slot;
+  }
+
+  resolve<Program extends object>(slot: number): Program {
+    const program = this.#programs.get(slot);
+    if (program === undefined) throw new Error(`combat operation program '${slot}' is missing`);
+    return program as Program;
   }
 }
