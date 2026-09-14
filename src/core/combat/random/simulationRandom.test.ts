@@ -113,6 +113,45 @@ describe('SimulationRandomSource', () => {
     ]);
   });
 
+  it('恢复时固定全局配置和已消费施放种子，但允许修改未来施放种子', () => {
+    const state = createSimulationRandomState();
+    const original = new SimulationRandomSource(
+      { mode: 'sampled', globalSeed: 123, castSeeds: new Map([['cast-a', 7]]) },
+      () => state,
+    );
+    original.nextCriticalSample({ castId: 'cast-a' });
+    const saved = structuredClone(state);
+
+    expect(
+      () =>
+        new SimulationRandomSource(
+          {
+            mode: 'sampled',
+            globalSeed: 123,
+            castSeeds: new Map([
+              ['cast-a', 7],
+              ['cast-b', 99],
+            ]),
+          },
+          () => structuredClone(saved),
+        ),
+    ).not.toThrow();
+    expect(
+      () =>
+        new SimulationRandomSource(
+          { mode: 'sampled', globalSeed: 124, castSeeds: new Map([['cast-a', 7]]) },
+          () => structuredClone(saved),
+        ),
+    ).toThrow('random configuration does not match');
+    expect(
+      () =>
+        new SimulationRandomSource(
+          { mode: 'sampled', globalSeed: 123, castSeeds: new Map([['cast-a', 8]]) },
+          () => structuredClone(saved),
+        ),
+    ).toThrow("consumed cast 'cast-a' does not match");
+  });
+
   it.each([-1, 0x100000000, 1.5])('rejects invalid seed %s', seed => {
     expect(() => createSource({ mode: 'sampled', globalSeed: seed })).toThrow(
       '32-bit unsigned integer',

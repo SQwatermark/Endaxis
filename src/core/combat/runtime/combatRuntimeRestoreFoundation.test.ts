@@ -18,6 +18,11 @@ import { CombatRuntimeAssembly, type AbilityEntityBuffRuntime } from './combatRu
 import { restoreCombatRuntime } from './combatRuntimeRestoration';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import { CombatOperationPrograms } from './combatOperationPrograms';
+import { SimulationRandomSource } from '../random/simulationRandom';
+import {
+  createSimulationRandomState,
+  type SimulationRandomState,
+} from '../random/simulationRandomState';
 
 const resources = {
   sp: 0,
@@ -301,6 +306,30 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   const restoredFrame = restoredAssembly.clock.frame;
   restoredAssembly.advanceFrame();
   expect(restoredAssembly.clock.frame).toBe(restoredFrame + 1);
+
+  const randomGraph = structuredClone(assemblyGraph);
+  const randomState = createSimulationRandomState();
+  const randomSettings = { mode: 'sampled' as const, globalSeed: 42 };
+  const randomSource = new SimulationRandomSource(randomSettings, () => randomState);
+  randomSource.nextCriticalSample();
+  (randomGraph.environment as { random: SimulationRandomState | null }).random = randomState;
+  const restoreRandomGraph = (globalSeed: number) =>
+    CombatRuntimeAssembly.restore({
+      graph: structuredClone(randomGraph),
+      resources,
+      enemy,
+      operators: [program],
+      environment: {
+        simulationRandomSettings: { mode: 'sampled', globalSeed },
+        resolveNonRandomRuntimeSnapshot: environmentInput.resolveNonRandomRuntimeSnapshot,
+      },
+      abilityEntityChildSkillPrograms: new AbilityEntityChildSkillPrograms(),
+      combatOperationPrograms: new CombatOperationPrograms(),
+      combatSkillPrograms: new CombatSkillPrograms(),
+      projectileCallbackPrograms: new ProjectileCallbackPrograms(),
+    });
+  expect(() => restoreRandomGraph(43)).toThrow('random configuration does not match');
+  expect(restoreRandomGraph(42).stateGraph.environment!.random).toEqual(randomState);
 });
 
 it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', () => {

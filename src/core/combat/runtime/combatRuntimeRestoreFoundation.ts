@@ -20,11 +20,37 @@ import {
   StandardPlayerDamageEnvironment,
   type StandardPlayerDamageEnvironmentOptions,
 } from './standardPlayerDamageEnvironment';
+import type { CriticalSampleSource } from '../random/criticalSampleSource';
+import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
+import { SimulationRandomSource, type SimulationRandomSettings } from '../random/simulationRandom';
 
-export type RestoredCombatEnvironmentInput = Omit<
+type RestoredCombatEnvironmentBase = Omit<
   StandardPlayerDamageEnvironmentOptions,
-  'enemyVitals' | 'randomState' | 'restoredState' | 'restoredEventStates' | 'restoredBuffStates'
+  | 'enemyVitals'
+  | 'randomState'
+  | 'restoredState'
+  | 'restoredEventStates'
+  | 'restoredBuffStates'
+  | 'criticalSamples'
+  | 'probabilitySamples'
+  | 'randomMode'
 >;
+
+type DirectRestoredCombatEnvironmentInput = RestoredCombatEnvironmentBase & {
+  readonly criticalSamples: CriticalSampleSource;
+  readonly probabilitySamples?: ProbabilitySampleSource;
+  readonly randomMode?: import('../random/simulationRandom').SimulationRandomMode;
+  readonly simulationRandomSettings?: never;
+};
+
+export type RestoredCombatEnvironmentInput =
+  | DirectRestoredCombatEnvironmentInput
+  | (RestoredCombatEnvironmentBase & {
+      readonly simulationRandomSettings: SimulationRandomSettings;
+      readonly criticalSamples?: never;
+      readonly probabilitySamples?: never;
+      readonly randomMode?: never;
+    });
 
 export interface RestoreCombatRuntimeFoundationOptions {
   readonly preparation: CombatRuntimeRestorePreparation;
@@ -73,17 +99,42 @@ export function bindRestoredCombatRuntimeFoundation(
         : { timeDilationPrograms: options.timeDilationPrograms }),
     },
   );
-  const environment = new StandardPlayerDamageEnvironment({
-    ...options.environment,
+  const { simulationRandomSettings, ...environmentInput } = options.environment;
+  const randomState = graph.environment.random;
+  if ((randomState === null) !== (simulationRandomSettings === undefined)) {
+    throw new Error(
+      randomState === null
+        ? 'restored combat has random settings without saved random state'
+        : 'restored combat random state requires simulation random settings',
+    );
+  }
+  const restoredRandomSource =
+    randomState === null || simulationRandomSettings === undefined
+      ? undefined
+      : new SimulationRandomSource(simulationRandomSettings, () => randomState);
+  const restorationOptions = {
     enemyVitals: CombatVitals.bindRuntimeState(graph.environment.enemyVitals),
-    ...(graph.environment.random === null ? {} : { randomState: graph.environment.random }),
     restoredState: graph.environment,
     restoredEventStates: graph.events.native,
     restoredBuffStates: {
       enemy: graph.enemy.buffs,
       operators: operatorBuffStates,
     },
-  });
+  };
+  const environment =
+    randomState === null
+      ? new StandardPlayerDamageEnvironment({
+          ...(environmentInput as DirectRestoredCombatEnvironmentInput),
+          ...restorationOptions,
+        })
+      : new StandardPlayerDamageEnvironment({
+          ...environmentInput,
+          criticalSamples: restoredRandomSource!,
+          probabilitySamples: restoredRandomSource!,
+          randomMode: simulationRandomSettings!.mode,
+          randomState,
+          ...restorationOptions,
+        });
   const boundEnvironment =
     environment.runtimeOptions.bindBattleRuntime?.({
       enemy: options.enemy,

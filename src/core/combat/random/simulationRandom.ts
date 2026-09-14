@@ -46,6 +46,15 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
       ...(settings.castSeeds === undefined ? {} : { castSeeds: new Map(settings.castSeeds) }),
     };
     this.#getState = getState;
+    const state = this.#getState();
+    bindSimulationRandomConfiguration(state, this.#settings);
+    if (this.#settings.mode === 'sampled') {
+      for (const [castId, usedSeed] of state.usedCastSeeds) {
+        if ((this.#settings.castSeeds?.get(castId) ?? null) !== usedSeed) {
+          throw new Error(`random seed selection for consumed cast '${castId}' does not match`);
+        }
+      }
+    }
   }
 
   nextCriticalSample(request?: RandomSampleRequest): number {
@@ -59,7 +68,16 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
   #next(kind: 'critical' | 'probability', request: RandomSampleRequest | undefined): number {
     const castId = request?.castId;
     const castSeed = castId === undefined ? undefined : this.#settings.castSeeds?.get(castId);
-    return takeSimulationRandomSample(this.#getState(), this.#settings, kind, {
+    const state = this.#getState();
+    if (this.#settings.mode === 'sampled' && castId !== undefined) {
+      const usedSeed = state.usedCastSeeds.get(castId);
+      const selectedSeed = castSeed ?? null;
+      if (usedSeed !== undefined && usedSeed !== selectedSeed) {
+        throw new Error(`random seed selection for consumed cast '${castId}' does not match`);
+      }
+      state.usedCastSeeds.set(castId, selectedSeed);
+    }
+    return takeSimulationRandomSample(state, this.#settings, kind, {
       ...request,
       ...(castSeed === undefined ? {} : { castSeed }),
     });
@@ -76,6 +94,7 @@ export function takeSimulationRandomSample(
   kind: 'critical' | 'probability',
   request?: RandomSampleRequest & { readonly castSeed?: number },
 ): number {
+  bindSimulationRandomConfiguration(state, settings);
   if (settings.mode === 'expected') {
     const scope =
       request?.expectedSequenceId === undefined ? 'global' : `source:${request.expectedSequenceId}`;
@@ -95,6 +114,20 @@ export function takeSimulationRandomSample(
   const next = (previous + 0x6d2b79f5) >>> 0;
   state.streams.set(streamKey, next);
   return mulberry32Sample(next);
+}
+
+function bindSimulationRandomConfiguration(
+  state: SimulationRandomState,
+  settings: { readonly mode: SimulationRandomMode; readonly globalSeed: number },
+): void {
+  const existing = state.configuration;
+  if (existing === null) {
+    state.configuration = { mode: settings.mode, globalSeed: settings.globalSeed };
+    return;
+  }
+  if (existing.mode !== settings.mode || existing.globalSeed !== settings.globalSeed) {
+    throw new Error('restored random configuration does not match saved combat state');
+  }
 }
 
 function takeEvenSample(state: SimulationRandomState, streamKey: string): number {

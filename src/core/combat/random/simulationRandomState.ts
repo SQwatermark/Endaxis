@@ -3,6 +3,10 @@
  * 状态由调用方持有；复制后可独立推进，替换后继续取样，不需要重新创建随机算法。
  */
 export interface SimulationRandomState {
+  /** 模式与全局种子属于整场固定配置；恢复候选不得在已存在状态上替换。 */
+  configuration: { readonly mode: 'expected' | 'sampled'; readonly globalSeed: number } | null;
+  /** 已实际取样的施放对种子覆盖的选择；null 表示该施放使用全局流。 */
+  readonly usedCastSeeds: Map<string, number | null>;
   /** 随机模式各来源的当前 Mulberry32 整数状态。 */
   readonly streams: Map<string, number>;
   /** 期望模式各来源已经消费的均匀样本数量。 */
@@ -11,5 +15,10 @@ export interface SimulationRandomState {
 
 /** 创建尚未取样的随机状态，不预装之后技能块的种子或施放计划。 */
 export function createSimulationRandomState(): SimulationRandomState {
-  return { streams: new Map(), evenIndices: new Map() };
+  return {
+    configuration: null,
+    usedCastSeeds: new Map(),
+    streams: new Map(),
+    evenIndices: new Map(),
+  };
 }
