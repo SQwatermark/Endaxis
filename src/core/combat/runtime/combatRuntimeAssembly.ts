@@ -63,6 +63,7 @@ import {
   type ScheduledSkillInput,
   type SkillInputGroup,
 } from './combatInputRuntime';
+import type { CombatInputRuntimeState } from './combatInputRuntimeState';
 import { SkillInputGroupTiming } from './skillInputGroupTiming';
 import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatResources, type CombatResourceSnapshot } from './combatResources';
@@ -142,6 +143,7 @@ import {
   ExternalCombatEventRuntime,
   type ScheduledExternalCombatEventInput,
 } from './externalCombatEventRuntime';
+import type { ExternalCombatEventRuntimeState } from './externalCombatEventRuntimeState';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRuntime';
 import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
@@ -495,6 +497,9 @@ export interface CombatRuntimeAssemblyRestoreOptions {
   readonly resources: CombatResourceSnapshot;
   readonly enemy: CombatEnemyProgram;
   readonly operators: readonly CombatOperatorProgram[];
+  readonly inputs?: readonly ScheduledSkillInput[];
+  readonly skillInputGroups?: readonly SkillInputGroup[];
+  readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
   readonly environment: RestoredCombatEnvironmentInput;
   readonly abilityEntityChildSkillPrograms: AbilityEntityChildSkillPrograms;
   readonly combatOperationPrograms: CombatOperationPrograms;
@@ -562,6 +567,8 @@ export class CombatRuntimeAssembly {
   readonly stateGraph: CombatStateGraph;
   /** 排轴驱动的过渡入口，不属于战斗切面；每次步进交给固定输入阶段调用。 */
   readonly #scheduledFrameInputs: import('./combatSimulation').CombatFrameInputs;
+  readonly #inputRuntime: CombatInputRuntime;
+  readonly #externalEventRuntime: ExternalCombatEventRuntime;
   readonly #options: CombatRuntimeAssemblyOptions;
   readonly clock: CombatClock;
   readonly resources: CombatResources;
@@ -741,6 +748,13 @@ export class CombatRuntimeAssembly {
         resources: restoreOptions.resources,
         enemy: restoreOptions.enemy,
         operators: restoreOptions.operators,
+        ...(restoreOptions.inputs === undefined ? {} : { inputs: restoreOptions.inputs }),
+        ...(restoreOptions.skillInputGroups === undefined
+          ? {}
+          : { skillInputGroups: restoreOptions.skillInputGroups }),
+        ...(restoreOptions.externalEvents === undefined
+          ? {}
+          : { externalEvents: restoreOptions.externalEvents }),
         ...restoredFoundation.environment.runtimeOptions,
         abilityEntityChildSkillPrograms: restoreOptions.abilityEntityChildSkillPrograms,
         combatOperationPrograms: restoreOptions.combatOperationPrograms,
@@ -1148,6 +1162,12 @@ export class CombatRuntimeAssembly {
       buffs.restoration.bindRelations();
       this.#installComboSkillConditions(true);
 
+      this.#inputRuntime = this.#createCombatInputRuntime(options, preparation.graph.inputs.skills);
+      this.#externalEventRuntime = this.#createExternalCombatEventRuntime(
+        options,
+        preparation.graph.inputs.externalEvents,
+      );
+
       const frame = bindRestoredCombatRuntimeFrame({
         preparation,
         foundation,
@@ -1158,6 +1178,7 @@ export class CombatRuntimeAssembly {
           operators,
           abilityEntityRelations,
         },
+        bindInputPhases: true,
         ...(options.enemyStatusContainer === undefined
           ? {}
           : { enemyStatusContainer: options.enemyStatusContainer }),
@@ -1165,8 +1186,8 @@ export class CombatRuntimeAssembly {
       this.simulation = frame.simulation;
       this.#enemyStatuses = frame.enemyStatuses;
       this.#scheduledFrameInputs = {
-        skillInputs: () => undefined,
-        externalEvents: () => undefined,
+        skillInputs: () => this.#inputRuntime.applyCurrentFrame(),
+        externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
       this.sharedState = sharedRuntime.runtimeState;
       this.stateGraph = preparation.graph;
@@ -1735,126 +1756,21 @@ export class CombatRuntimeAssembly {
       }
       // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
       this.simulation.add(this.comboWindows);
-      const groupTiming = new SkillInputGroupTiming(this.receipt.entries, input => {
-        const program = this.#skillPrograms.get(
-          `${input.operatorId}\u0000${input.skillId}\u0000${input.castId ?? ''}`,
-        );
-        if (program === undefined) throw new Error(`missing group skill program '${input.castId}'`);
-        return program.timelineBlockFrames;
-      });
-      const inputRuntime = new CombatInputRuntime({
-        clock: this.clock,
-        inputs: options.inputs ?? [],
-        ...(options.skillInputGroups === undefined
-          ? {}
-          : {
-              skillInputGroups: {
-                groups: options.skillInputGroups,
-                canContinue: previous => groupTiming.canContinue(previous, this.clock.frame),
-              },
-            }),
-        ...(options.continuationPlanCastIds === undefined
-          ? {}
-          : {
-              continuationPlan: {
-                castIds: options.continuationPlanCastIds,
-                ignoreInputFailures: options.continuationPlanMode === 'compact',
-                canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => {
-                  if (options.continuationPlanMode === 'compact') {
-                    // 编辑边界而非释放许可：告警由最终正式模拟保留。
-                    const interruption = this.receipt.entries.find(
-                      entry =>
-                        entry.event === 'SkillInterrupted' &&
-                        entry.data?.castId === previous.castId,
-                    );
-                    // 固定输入在本帧已被消费；实际中断会立即裁切块体，不再等待原始显示边界。
-                    if (interruption !== undefined && interruption.frame <= this.clock.frame)
-                      return true;
-                    const boundary = this.receipt.entries.find(
-                      entry =>
-                        entry.event === 'SkillOperableBoundaryReached' &&
-                        entry.data?.castId === previous.castId,
-                    );
-                    if (boundary !== undefined) return boundary.frame < this.clock.frame;
-                    const processed = this.receipt.entries.find(
-                      entry =>
-                        entry.event === 'SkillInputProcessed' &&
-                        entry.data?.castId === previous.castId,
-                    );
-                    const program = this.#skillPrograms.get(
-                      `${previous.operatorId}\u0000${previous.skillId}\u0000${previous.castId ?? ''}`,
-                    );
-                    // 未能释放或零宽技能没有边界回执，仍按定义块宽继续排列并保留失败事实。
-                    return (
-                      program !== undefined &&
-                      (processed?.data?.accepted === false || program.timelineBlockFrames === 0) &&
-                      this.clock.frame >=
-                        previous.frame + Math.max(1, program.timelineBlockFrames + 1)
-                    );
-                  }
-                  const ability = this.#requireAbilitySystem(input.operatorId);
-                  const resolution = ability.resolvePlayerInputSkill(input.skillId, input.action);
-                  return (
-                    resolution.status === 'matched' &&
-                    ability.evaluatePlayerInputInterruption(input.skillId, input.castId).status ===
-                      'allowed'
-                  );
-                },
-              },
-            }),
-        receipt: this.receipt,
-        tryStartSkill: (operatorId, skillId, castId, action) =>
-          this.tryStartPlayerInput(operatorId, skillId, castId, action),
-      });
+      this.#inputRuntime = this.#createCombatInputRuntime(options);
       this.simulation.addInputPhase('skillInputs');
       for (const operator of options.operators) {
         this.simulation.add(this.#requireAbilitySystem(operator.operatorId));
       }
       this.simulation.add({ advanceFrame: () => this.projectileLifetimes.advanceAbilityFrame() });
-      const externalEvents = new ExternalCombatEventRuntime({
-        clock: this.clock,
-        events: options.externalEvents ?? [],
-        controlComboCooldown: (operatorId, mode) => {
-          const visited = new Set<SkillCooldown>();
-          for (const ledger of this.#skillCooldowns.values()) {
-            if (
-              ledger.program.operatorId !== operatorId ||
-              ledger.program.skillType !== 'comboSkill' ||
-              visited.has(ledger.cooldown)
-            )
-              continue;
-            visited.add(ledger.cooldown);
-            if (!ledger.cooldown.overrideByTimeline(mode === 'ready')) continue;
-            this.#recordSkillCooldownAdjusted(
-              operatorId,
-              ledger.program.skillId,
-              'set',
-              'baseDurationRatio',
-              mode === 'ready' ? 0 : 1,
-              ledger.cooldown.snapshot,
-            );
-            this.receipt.record({
-              frame: this.clock.frame,
-              time: this.clock.time,
-              event: 'TimelineComboCooldownControlled',
-              sourceId: operatorId,
-              data: { skillId: ledger.program.skillId, mode },
-            });
-          }
-        },
-        emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
-        emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
-        emitEnemyWeaknessSet: options.emitExternalEnemyWeaknessSet,
-        receipt: this.receipt,
-      });
+      this.#externalEventRuntime = this.#createExternalCombatEventRuntime(options);
       // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。
       this.simulation.addInputPhase('externalEvents');
       this.#scheduledFrameInputs = {
-        skillInputs: () => inputRuntime.applyCurrentFrame(),
-        externalEvents: () => externalEvents.applyCurrentFrame(),
+        skillInputs: () => this.#inputRuntime.applyCurrentFrame(),
+        externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
-      inputRuntime.applyCurrentFrame();
-      externalEvents.applyCurrentFrame();
+      this.#inputRuntime.applyCurrentFrame();
+      this.#externalEventRuntime.applyCurrentFrame();
     } catch (error) {
       failAfterAbilityHostCleanup(error, [
         () => this.disposeEquipmentEvents(),
@@ -1865,6 +1781,10 @@ export class CombatRuntimeAssembly {
     this.sharedState = sharedRuntime.runtimeState;
     this.stateGraph = {
       shared: this.sharedState,
+      inputs: {
+        skills: this.#inputRuntime.runtimeState,
+        externalEvents: this.#externalEventRuntime.runtimeState,
+      },
       environment: boundBattleRuntimes.environmentState ?? null,
       events: {
         native: boundBattleRuntimes.eventStates ?? null,
@@ -2236,6 +2156,123 @@ export class CombatRuntimeAssembly {
       );
     }
     this.requestPostSkillCast(operatorId, { ...request, skillId, resolveSkillSlot: false });
+  }
+
+  #createCombatInputRuntime(
+    options: CombatRuntimeAssemblyOptions,
+    restoredState?: CombatInputRuntimeState,
+  ): CombatInputRuntime {
+    const groupTiming = new SkillInputGroupTiming(this.receipt.entries, input => {
+      const program = this.#skillPrograms.get(
+        `${input.operatorId}\u0000${input.skillId}\u0000${input.castId ?? ''}`,
+      );
+      if (program === undefined) throw new Error(`missing group skill program '${input.castId}'`);
+      return program.timelineBlockFrames;
+    });
+    return new CombatInputRuntime({
+      clock: this.clock,
+      inputs: options.inputs ?? [],
+      ...(options.skillInputGroups === undefined
+        ? {}
+        : {
+            skillInputGroups: {
+              groups: options.skillInputGroups,
+              canContinue: previous => groupTiming.canContinue(previous, this.clock.frame),
+            },
+          }),
+      ...(options.continuationPlanCastIds === undefined
+        ? {}
+        : {
+            continuationPlan: {
+              castIds: options.continuationPlanCastIds,
+              ignoreInputFailures: options.continuationPlanMode === 'compact',
+              canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => {
+                if (options.continuationPlanMode === 'compact') {
+                  const interruption = this.receipt.entries.find(
+                    entry =>
+                      entry.event === 'SkillInterrupted' && entry.data?.castId === previous.castId,
+                  );
+                  if (interruption !== undefined && interruption.frame <= this.clock.frame)
+                    return true;
+                  const boundary = this.receipt.entries.find(
+                    entry =>
+                      entry.event === 'SkillOperableBoundaryReached' &&
+                      entry.data?.castId === previous.castId,
+                  );
+                  if (boundary !== undefined) return boundary.frame < this.clock.frame;
+                  const processed = this.receipt.entries.find(
+                    entry =>
+                      entry.event === 'SkillInputProcessed' &&
+                      entry.data?.castId === previous.castId,
+                  );
+                  const program = this.#skillPrograms.get(
+                    `${previous.operatorId}\u0000${previous.skillId}\u0000${previous.castId ?? ''}`,
+                  );
+                  return (
+                    program !== undefined &&
+                    (processed?.data?.accepted === false || program.timelineBlockFrames === 0) &&
+                    this.clock.frame >=
+                      previous.frame + Math.max(1, program.timelineBlockFrames + 1)
+                  );
+                }
+                const ability = this.#requireAbilitySystem(input.operatorId);
+                const resolution = ability.resolvePlayerInputSkill(input.skillId, input.action);
+                return (
+                  resolution.status === 'matched' &&
+                  ability.evaluatePlayerInputInterruption(input.skillId, input.castId).status ===
+                    'allowed'
+                );
+              },
+            },
+          }),
+      receipt: this.receipt,
+      tryStartSkill: (operatorId, skillId, castId, action) =>
+        this.tryStartPlayerInput(operatorId, skillId, castId, action),
+      ...(restoredState === undefined ? {} : { restoredState }),
+    });
+  }
+
+  #createExternalCombatEventRuntime(
+    options: CombatRuntimeAssemblyOptions,
+    restoredState?: ExternalCombatEventRuntimeState,
+  ): ExternalCombatEventRuntime {
+    return new ExternalCombatEventRuntime({
+      clock: this.clock,
+      events: options.externalEvents ?? [],
+      controlComboCooldown: (operatorId, mode) => {
+        const visited = new Set<SkillCooldown>();
+        for (const ledger of this.#skillCooldowns.values()) {
+          if (
+            ledger.program.operatorId !== operatorId ||
+            ledger.program.skillType !== 'comboSkill' ||
+            visited.has(ledger.cooldown)
+          )
+            continue;
+          visited.add(ledger.cooldown);
+          if (!ledger.cooldown.overrideByTimeline(mode === 'ready')) continue;
+          this.#recordSkillCooldownAdjusted(
+            operatorId,
+            ledger.program.skillId,
+            'set',
+            'baseDurationRatio',
+            mode === 'ready' ? 0 : 1,
+            ledger.cooldown.snapshot,
+          );
+          this.receipt.record({
+            frame: this.clock.frame,
+            time: this.clock.time,
+            event: 'TimelineComboCooldownControlled',
+            sourceId: operatorId,
+            data: { skillId: ledger.program.skillId, mode },
+          });
+        }
+      },
+      emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
+      emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
+      emitEnemyWeaknessSet: options.emitExternalEnemyWeaknessSet,
+      receipt: this.receipt,
+      ...(restoredState === undefined ? {} : { restoredState }),
+    });
   }
 
   /** 指定本次输入阶段可跳过原排程；用于逐帧提交，入口不会保留到下一帧。 */

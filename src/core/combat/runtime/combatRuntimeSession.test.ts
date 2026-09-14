@@ -44,7 +44,15 @@ const resources = {
   spRecovery: { valuePerSecond: 3, pauseDuration: 0, pauseRemaining: 0 },
   ultimateEnergySystemUnlocked: false,
   normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
-  squad: [],
+  squad: [
+    {
+      operatorId: 'operator',
+      ultimateEnergy: 0,
+      maxUltimateEnergy: 0,
+      ultimateEnergyGainMultiplier: 1,
+      allowedUltimateEnergyRecoveryTags: null,
+    },
+  ],
 };
 
 function environmentInput() {
@@ -76,26 +84,75 @@ function createFixture() {
   const operationPrograms = new CombatOperationPrograms();
   const skillPrograms = new CombatSkillPrograms();
   const callbackPrograms = new ProjectileCallbackPrograms();
+  const skillProgramsInput = [
+    {
+      operatorId: 'operator',
+      skillGroupKey: 'battleSkill',
+      skillId: 'skill',
+      castId: 'cast:a',
+      skillType: 'battleSkill' as const,
+      skillLevel: 1,
+      initialBlackboard: {},
+      timelineBlockFrames: 0,
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [],
+    },
+    {
+      operatorId: 'operator',
+      skillGroupKey: 'battleSkill',
+      skillId: 'skill',
+      castId: 'cast:b',
+      skillType: 'battleSkill' as const,
+      skillLevel: 1,
+      initialBlackboard: {},
+      timelineBlockFrames: 0,
+      costFrame: undefined,
+      costs: [],
+      timelineActions: [],
+    },
+  ];
+  const operators = [{ operatorId: 'operator', skills: skillProgramsInput }];
+  const inputs = [
+    { frame: 0, operatorId: 'operator', skillId: 'skill', castId: 'cast:a' },
+    { frame: 4, operatorId: 'operator', skillId: 'skill', castId: 'cast:b' },
+  ];
+  const externalEvents = [
+    {
+      frame: 0,
+      targetOperatorIds: ['operator'],
+      event: { kind: 'enemyWeaknessSet' as const },
+    },
+    {
+      frame: 4,
+      targetOperatorIds: ['operator'],
+      event: { kind: 'enemyWeaknessSet' as const },
+    },
+  ];
   const original = new CombatRuntimeAssembly({
     ...environment.runtimeOptions,
     resources,
     enemy,
-    operators: [],
+    operators,
+    inputs,
     abilityEntityChildSkillPrograms: childPrograms,
     combatOperationPrograms: operationPrograms,
     combatSkillPrograms: skillPrograms,
+    externalEvents,
   });
   const restore = vi.fn((graph: typeof original.stateGraph) =>
     CombatRuntimeAssembly.restore({
       graph,
       resources,
       enemy,
-      operators: [],
+      operators,
+      inputs,
       environment: environmentInput(),
       abilityEntityChildSkillPrograms: childPrograms,
       combatOperationPrograms: operationPrograms,
       combatSkillPrograms: skillPrograms,
       projectileCallbackPrograms: callbackPrograms,
+      externalEvents,
     }),
   );
   return { session: new CombatRuntimeSession(original, restore), restore };
@@ -108,6 +165,16 @@ it('从同一完整帧按 A、B、A 回退，失败候选不替换当前装配',
 
   session.advanceFrames(2);
   const branchA = session.readState();
+  expect(branchA.inputs.externalEvents.nextEventIndex).toBe(2);
+  expect(branchA.inputs.skills.nextInputIndex).toBe(2);
+  expect(
+    branchA.shared.receipts.entries.filter(
+      entry => entry.event === 'ExternalEnemyWeaknessSetProcessed',
+    ),
+  ).toHaveLength(2);
+  expect(
+    branchA.shared.receipts.entries.filter(entry => entry.event === 'SkillInputProcessed'),
+  ).toHaveLength(2);
   session.restore(checkpoint);
   session.advanceFrames(5);
   const branchB = session.readState();

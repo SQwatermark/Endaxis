@@ -101,6 +101,14 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   });
   const graph: CombatStateGraph = {
     shared: saved.shared,
+    inputs: {
+      skills: {
+        nextInputIndex: 0,
+        continuation: { nextIndex: 1, previous: null, stopped: false },
+        groups: [],
+      },
+      externalEvents: { nextEventIndex: 0 },
+    },
     environment: saved.environment,
     events: { native: new Map(), semantic: saved.semanticEvents },
     operators: new Map([

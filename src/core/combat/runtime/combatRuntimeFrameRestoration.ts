@@ -16,6 +16,8 @@ export interface RestoreCombatRuntimeFrameOptions {
   readonly entities: RestoredCombatAbilityEntityDirectory;
   readonly objects: RestoredCombatRuntimeObjectGraph;
   readonly enemyStatusContainer?: CombatStatusContainer;
+  /** 输入运行时已经绑定保存游标时，在与普通装配完全相同的位置安装两个输入阶段。 */
+  readonly bindInputPhases?: boolean;
 }
 
 export interface RestoredCombatRuntimeFrame {
@@ -97,8 +99,10 @@ export function bindRestoredCombatRuntimeFrame(
     if (core.statuses !== undefined) simulation.add(core.statuses);
   }
   simulation.add(shared.comboWindows);
+  if (options.bindInputPhases === true) simulation.addInputPhase('skillInputs');
   for (const core of options.objects.operators.cores.values()) simulation.add(core.ability);
   simulation.add({ advanceFrame: () => options.objects.projectiles.advanceAbilityFrame() });
+  if (options.bindInputPhases === true) simulation.addInputPhase('externalEvents');
 
   return {
     simulation,

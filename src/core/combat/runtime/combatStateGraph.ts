@@ -20,6 +20,8 @@ import type { EquipmentEventState } from './equipmentEventState';
 import type { OperatorInitializationState } from './operatorInitializationState';
 import type { OperatorUpgradeEventState } from './operatorUpgradeEventState';
 import type { ComboSkillConditionState } from './comboSkillConditionState';
+import type { CombatInputRuntimeState } from './combatInputRuntimeState';
+import type { ExternalCombatEventRuntimeState } from './externalCombatEventRuntimeState';
 
 /** 单个干员已接入的可变数据；技能黑板回退读取这里的同一实体黑板。 */
 export interface CombatOperatorState {
@@ -47,6 +49,10 @@ export interface CombatOperatorState {
 
 export interface CombatStateGraph {
   readonly shared: CombatSharedState;
+  readonly inputs: {
+    readonly skills: CombatInputRuntimeState;
+    readonly externalEvents: ExternalCombatEventRuntimeState;
+  };
   /** null 表示装配没有提供标准环境的数据端口。 */
   readonly environment: StandardCombatEnvironmentState | null;
   readonly events: {
