@@ -294,6 +294,26 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
 });
 
 it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', () => {
+  const abilityEntityDefinition = {
+    lifetime: { kind: 'limited' as const, durationSeconds: 10 },
+    childSkill: {
+      skillId: 'entity-child',
+      initialBlackboard: {},
+      timelineActions: [
+        {
+          startFrame: 2,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeResource' as const,
+                parameters: { resource: 'sp' as const, amount: 3, recipient: 'team' as const },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  };
   const program = {
     operatorId: 'operator',
     skillGroupKey: 'battleSkill',
@@ -305,6 +325,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     naturalDurationFrames: 3,
     costFrame: 0,
     costs: [],
+    abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
     timelineActions: [
       {
         startFrame: 0,
@@ -350,6 +371,14 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
                     },
                   },
                 ],
+              },
+            },
+            {
+              kind: 'spawnAbilityEntity' as const,
+              parameters: {
+                abilityEntityId: 'restored_entity',
+                definition: abilityEntityDefinition,
+                dieWhenSourceDies: false,
               },
             },
           ],
@@ -431,7 +460,14 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     resources,
     enemy,
     operators: [
-      { operatorId: 'operator', skills: [program], buffDefinitions, panel, passivePrograms },
+      {
+        operatorId: 'operator',
+        skills: [program],
+        abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
+        buffDefinitions,
+        panel,
+        passivePrograms,
+      },
     ],
     abilityEntityChildSkillPrograms: childSkillPrograms,
     combatOperationPrograms: operationPrograms,
@@ -456,7 +492,14 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     resources,
     enemy,
     operators: [
-      { operatorId: 'operator', skills: [program], buffDefinitions, panel, passivePrograms },
+      {
+        operatorId: 'operator',
+        skills: [program],
+        abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
+        buffDefinitions,
+        panel,
+        passivePrograms,
+      },
     ],
     environment: environmentInput,
     abilityEntityChildSkillPrograms: childSkillPrograms,
@@ -478,7 +521,14 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     resources,
     enemy,
     operators: [
-      { operatorId: 'operator', skills: [program], buffDefinitions, panel, passivePrograms },
+      {
+        operatorId: 'operator',
+        skills: [program],
+        abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
+        buffDefinitions,
+        panel,
+        passivePrograms,
+      },
     ],
     environment: environmentInput,
     abilityEntityChildSkillPrograms: childSkillPrograms,

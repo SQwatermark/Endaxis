@@ -1053,20 +1053,28 @@ export class CombatRuntimeAssembly {
           }
           return register(entityId, event, priority, handle, subscriptions);
         },
-        createChildSkillBindings: ({ ownerId, state }) => {
+        createChildSkillBindings: ({ ownerId, entity, state }) => {
           const operator = this.#operators.get(ownerId)!;
           const fixed = this.abilityEntityChildSkillPrograms.resolve(state.programId);
+          const entityState = this.abilityEntities.runtimeState.instances.get(entity.instanceId)!;
+          const origin = entityState.skillCastInfo;
+          const originProgram =
+            origin == null
+              ? undefined
+              : (this.#skillPrograms.get(
+                  `${ownerId}\u0000${origin.originSkillId}\u0000${origin.originCastId ?? ''}`,
+                ) ?? this.#skillPrograms.get(`${ownerId}\u0000${origin.originSkillId}\u0000`));
           return {
             operations: this.#createOperationChain({
               operator,
-              program: { ...fixed.program, operatorId: ownerId, costs: [] },
+              program: originProgram ?? { ...fixed.program, operatorId: ownerId, costs: [] },
               enemy: options.enemy,
               statusRuntime: this.#operatorStatuses.get(ownerId),
               createDelegate: options.createOperationExecutor,
               isOperatorControlled: options.isOperatorControlled,
               resolveVitals: options.resolveVitals,
               resolveOperatorVitals: options.resolveOperatorVitals,
-              getNonReturnedSpCost: () => 0,
+              getNonReturnedSpCost: () => origin?.nonReturnedSpCost ?? 0,
               operationHost: { state: state.operations, programs: this.combatOperationPrograms },
             }),
             ...this.#projectileRuntimeDependencies(ownerId),
