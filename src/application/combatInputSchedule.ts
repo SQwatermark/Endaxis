@@ -12,7 +12,7 @@ import type { CombatInputRuntimeState } from '../core/combat/runtime/combatInput
 import type { CombatRuntimeCheckpoint } from '../core/combat/runtime/combatRuntimeSession';
 import type { StandardPlayerDamageCombatSession } from './standardPlayerDamageCombatSession';
 
-/** 排程器拥有的候选后缀。同帧技能按数组顺序，切人及人工标记保留各自的执行阶段。 */
+/** 排程器在指定帧提交的一组人工输入。同帧技能按数组顺序，切人及人工标记保留各自的执行阶段。 */
 export interface ScheduledCombatFrameInput extends CombatFrameInput {
   readonly skills?: readonly (CombatSkillInput & Pick<ScheduledSkillInput, 'declarationOrder'>)[];
   readonly frame: number;
@@ -217,22 +217,22 @@ export class CombatInputSchedule {
   }
 
   /**
-   * 用新的完整后缀替换保存点之后尚未提交的输入。
-   * 已消费输入以及已经启动或停止的连续组属于历史，必须保留原定义和游标。
+   * 从保存点建立分支，并明确指定该保存点之后要提交的全部输入。
+   * 保存点前已提交的输入，以及已经启动或停止的连续组属于历史，必须保留原定义和游标。
    */
-  forkReplacingFuture(
+  forkWithInputsAfterCheckpoint(
     checkpoint: CombatInputScheduleCheckpoint,
-    replacementInputs: readonly ScheduledCombatFrameInput[],
-    replacementGroups: readonly SkillInputGroup[] = [],
+    inputsAfterCheckpoint: readonly ScheduledCombatFrameInput[],
+    groupsAfterCheckpoint: readonly SkillInputGroup[] = [],
   ): CombatInputSchedule {
     this.#assertCurrent();
     const saved = this.#checkpoints.get(checkpoint);
     if (saved === undefined) throw new Error('checkpoint does not belong to this input schedule');
     let previousFrame = saved.inputBoundary - 1;
-    for (const input of replacementInputs) {
+    for (const input of inputsAfterCheckpoint) {
       if (!Number.isSafeInteger(input.frame) || input.frame <= previousFrame) {
         throw new RangeError(
-          'replacement inputs must be ordered, unique and after the saved input boundary',
+          'inputs after a checkpoint must be ordered, unique and after the saved input boundary',
         );
       }
       previousFrame = input.frame;
@@ -244,19 +244,19 @@ export class CombatInputSchedule {
         (input.skills ?? []).flatMap(skill => (skill.castId === undefined ? [] : [skill.castId])),
       ),
     );
-    const replacementCastIds = new Set<string>();
-    for (const input of replacementInputs) {
+    const castIdsAfterCheckpoint = new Set<string>();
+    for (const input of inputsAfterCheckpoint) {
       for (const skill of input.skills ?? []) {
         if (skill.castId === undefined) continue;
         if (historicalCastIds.has(skill.castId)) {
           throw new Error(
-            `replacement cast '${skill.castId}' already belongs to submitted history`,
+            `cast '${skill.castId}' after the checkpoint already belongs to submitted history`,
           );
         }
-        if (replacementCastIds.has(skill.castId)) {
-          throw new Error(`replacement cast '${skill.castId}' must be unique`);
+        if (castIdsAfterCheckpoint.has(skill.castId)) {
+          throw new Error(`cast '${skill.castId}' after the checkpoint must be unique`);
         }
-        replacementCastIds.add(skill.castId);
+        castIdsAfterCheckpoint.add(skill.castId);
       }
     }
 
@@ -274,16 +274,18 @@ export class CombatInputSchedule {
       }
     });
     const retainedAnchors = new Set(retainedGroups.map(group => group.anchorCastId));
-    for (const group of replacementGroups) {
+    for (const group of groupsAfterCheckpoint) {
       if (retainedAnchors.has(group.anchorCastId)) {
-        throw new Error(`replacement group '${group.anchorCastId}' already belongs to history`);
+        throw new Error(
+          `group '${group.anchorCastId}' after the checkpoint already belongs to history`,
+        );
       }
-      if (group.castIds.some(castId => !replacementCastIds.has(castId))) {
-        throw new Error('replacement groups must contain only replacement casts');
+      if (group.castIds.some(castId => !castIdsAfterCheckpoint.has(castId))) {
+        throw new Error('groups after a checkpoint must contain only casts after the checkpoint');
       }
     }
 
-    const groups = [...retainedGroups, ...replacementGroups];
+    const groups = [...retainedGroups, ...groupsAfterCheckpoint];
     let skills: CombatInputRuntimeState | undefined;
     if (groups.length > 0) {
       const base =
@@ -303,7 +305,7 @@ export class CombatInputSchedule {
         ...structuredClone(base),
         groups: [
           ...retainedGroupStates,
-          ...replacementGroups.map(group => ({
+          ...groupsAfterCheckpoint.map(group => ({
             anchorCastId: group.anchorCastId,
             nextIndex: 0,
             previous: null,
@@ -314,7 +316,7 @@ export class CombatInputSchedule {
     }
     return new CombatInputSchedule(
       this.session.fork(saved.combat),
-      [...prefix, ...replacementInputs],
+      [...prefix, ...inputsAfterCheckpoint],
       groups,
       {
         [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },

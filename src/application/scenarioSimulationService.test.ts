@@ -190,7 +190,7 @@ describe('ScenarioSimulationService', () => {
     driver.discardCheckpoint(saved);
   });
 
-  it('替换未来后缀可撤销未开始组，并保留已经启动的组及其游标', () => {
+  it('重新指定保存点后的输入时撤销未开始组，并保留已经启动的组及其游标', () => {
     let id = 0;
     const first = placeSkillGroup({
       scenario: createPerlicaScenario(),
@@ -218,16 +218,16 @@ describe('ScenarioSimulationService', () => {
     );
     driver.advanceToFrame(2);
     const saved = driver.save();
-    const withoutFuture = driver.forkReplacingFuture(saved, []);
+    const withoutPendingInputs = driver.forkWithInputsAfterCheckpoint(saved, []);
 
     driver.advanceToFrame(500);
-    withoutFuture.advanceToFrame(500);
+    withoutPendingInputs.advanceToFrame(500);
     const parentStarts = driver.session.runtime
       .readHistory()
       .toArray()
       .filter(entry => entry.event === 'SkillStarted')
       .map(entry => entry.data?.castId);
-    const branchStarts = withoutFuture.session.runtime
+    const branchStarts = withoutPendingInputs.session.runtime
       .readHistory()
       .toArray()
       .filter(entry => entry.event === 'SkillStarted')
@@ -256,7 +256,7 @@ describe('ScenarioSimulationService', () => {
       schedule.groups,
     );
     const saved = driver.save();
-    const replacement = driver.forkReplacingFuture(saved, [
+    const replacement = driver.forkWithInputsAfterCheckpoint(saved, [
       {
         frame: 10,
         skills: [

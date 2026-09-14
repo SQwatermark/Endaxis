@@ -111,8 +111,11 @@ export interface LegacyRetimingTrial {
 
 export interface LegacyRetimingCheckpointSession {
   readonly inputBoundary: number;
-  advanceBefore(frame: number, confirmedSuffix: readonly ScheduledCombatFrameInput[]): void;
-  trial(candidateSuffix: readonly ScheduledCombatFrameInput[]): LegacyRetimingTrial;
+  advanceBefore(
+    frame: number,
+    confirmedInputsFromCurrentBoundary: readonly ScheduledCombatFrameInput[],
+  ): void;
+  trial(inputsAfterCheckpoint: readonly ScheduledCombatFrameInput[]): LegacyRetimingTrial;
 }
 
 export interface LegacyRetimingCheckpointSupport {

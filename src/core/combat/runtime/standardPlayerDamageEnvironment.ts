@@ -417,7 +417,8 @@ export class StandardPlayerDamageEnvironment {
         subscriptions === undefined
           ? this.eventsFor('enemy').registerCallback(event, handle)
           : this.#bindSingleBuffSubscription('enemy', event, subscriptions, handle),
-      handle => this.#registerPostSkillRequest('enemy', handle),
+      (handle, restoredRegistrationId) =>
+        this.#registerPostSkillRequest('enemy', handle, restoredRegistrationId),
       definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
     );
     // 敌人生命账本由场景装配层创建并注入，环境只持有引用，不在首次绑定时另行构造。
@@ -557,7 +558,8 @@ export class StandardPlayerDamageEnvironment {
             subscriptions === undefined
               ? this.eventsFor(entityId).registerCallback(event, handle)
               : this.#bindSingleBuffSubscription(entityId, event, subscriptions, handle),
-          handle => this.#registerPostSkillRequest(entityId, handle),
+          (handle, restoredRegistrationId) =>
+            this.#registerPostSkillRequest(entityId, handle, restoredRegistrationId),
           definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
         );
       },
@@ -1233,7 +1235,8 @@ export class StandardPlayerDamageEnvironment {
           subscriptions === undefined
             ? this.eventsFor(operatorId).registerCallback(event, handle)
             : this.#bindSingleBuffSubscription(operatorId, event, subscriptions, handle),
-        handle => this.#registerPostSkillRequest(operatorId, handle),
+        (handle, restoredRegistrationId) =>
+          this.#registerPostSkillRequest(operatorId, handle, restoredRegistrationId),
         definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
       );
       runtime.configureAdvancedObserver(() =>

@@ -278,6 +278,27 @@ it('延迟请求对象通知接到对应 Buff 宿主，注销不影响之后的�
   expect(received).toHaveLength(2);
 });
 
+it('恢复后的 Buff 目标按保存编号接回延迟请求监听，不消费新编号', () => {
+  const original = createEnvironment();
+  const originalTarget = original.runtimeOptions.enemyBuffRuntime;
+  if (!(originalTarget instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const originalRegistration = originalTarget.registerPostSkillCastRequest!(() => {});
+  expect(originalRegistration.registrationId).toBe(0);
+  const saved = structuredClone(original.runtimeState);
+  const restored = new StandardPlayerDamageEnvironment({
+    ...original.options,
+    enemyVitals: CombatVitals.bindRuntimeState(saved.enemyVitals),
+    restoredState: saved,
+  });
+  const restoredTarget = restored.runtimeOptions.enemyBuffRuntime;
+  if (!(restoredTarget instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
+  const restoredRegistration = restoredTarget.registerPostSkillCastRequest!(() => {}, 0);
+
+  expect(restoredRegistration.registrationId).toBe(0);
+  expect(saved.postSkillRequestListeners.nextRegistrationId).toBe(1);
+  expect(saved.postSkillRequestListeners.registrationsByOwner.get('enemy')).toEqual([0]);
+});
+
 it.each([
   'enhance',
   'enhanceAndRefresh',

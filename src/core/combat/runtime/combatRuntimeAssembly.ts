@@ -887,6 +887,12 @@ export class CombatRuntimeAssembly {
           this.#operatorStatuses.get(operatorId),
         );
         for (const sourceActionId of [
+          ...(runtimeOperator.equipmentContributions ?? []).flatMap(contribution =>
+            contribution.eventHandlers.map(
+              handler =>
+                `equipment:${contribution.source.kind}:${contribution.source.slug}:${handler.key}`,
+            ),
+          ),
           ...(runtimeOperator.passivePrograms ?? []).map(program => `passive:${program.key}`),
           ...(runtimeOperator.initializationPrograms ?? []).map(
             program => `upgrade-initialization:${program.key}`,
@@ -1149,6 +1155,9 @@ export class CombatRuntimeAssembly {
           return {
             operations: this.#createOperationChain({
               operator,
+              sourceActionId:
+                origin?.originCastId ?? origin?.originSkillId ?? fixed.program.skillId,
+              ...(origin?.originCastId === undefined ? {} : { castId: origin.originCastId }),
               program: originProgram ?? { ...fixed.program, operatorId: ownerId, costs: [] },
               enemy: options.enemy,
               statusRuntime: this.#operatorStatuses.get(ownerId),

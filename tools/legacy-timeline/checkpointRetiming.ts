@@ -34,12 +34,15 @@ export class CheckpointRetimingSession implements LegacyRetimingCheckpointSessio
     return this.main.runtime.frame + (this.main.runtime.initialInputPending ? 0 : 1);
   }
 
-  advanceBefore(frame: number, confirmedSuffix: readonly ScheduledCombatFrameInput[]): void {
+  advanceBefore(
+    frame: number,
+    confirmedInputsFromCurrentBoundary: readonly ScheduledCombatFrameInput[],
+  ): void {
     if (!Number.isSafeInteger(frame) || frame < this.inputBoundary) {
       throw new RangeError('retiming boundary precedes the saved input checkpoint');
     }
     if (frame === this.inputBoundary) return;
-    const nextDriver = new CombatInputSchedule(this.main, confirmedSuffix);
+    const nextDriver = new CombatInputSchedule(this.main, confirmedInputsFromCurrentBoundary);
     nextDriver.advanceToFrame(frame - 1);
     const next = nextDriver.save();
     this.#driver.discardCheckpoint(this.#checkpoint);
@@ -47,10 +50,10 @@ export class CheckpointRetimingSession implements LegacyRetimingCheckpointSessio
     this.#checkpoint = next;
   }
 
-  trial(candidateSuffix: readonly ScheduledCombatFrameInput[]): LegacyRetimingTrial {
-    let driver: CombatInputSchedule | null = this.#driver.forkReplacingFuture(
+  trial(inputsAfterCheckpoint: readonly ScheduledCombatFrameInput[]): LegacyRetimingTrial {
+    let driver: CombatInputSchedule | null = this.#driver.forkWithInputsAfterCheckpoint(
       this.#checkpoint,
-      candidateSuffix,
+      inputsAfterCheckpoint,
     );
     let branch: StandardPlayerDamageCombatSession | null = driver.session;
     const entries: CombatReceiptEntry[] = [];
