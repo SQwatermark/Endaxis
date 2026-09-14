@@ -11,6 +11,48 @@ function advance(clock: CombatClock, runtime: ComboWindowRuntime, frames: number
 }
 
 describe('ComboWindowRuntime', () => {
+  it('replays independent QTE branches with pause state and candidate order preserved', () => {
+    const clock = new CombatClock();
+    const original = new ComboWindowRuntime(clock, new CombatReceiptCollector(), [
+      'rossi',
+      'perlica',
+    ]);
+    original.open('perlica', 'comboSkill');
+    original.open('rossi', 'comboSkillStage2');
+    original.registerRingQte('rossi', 2, 2);
+    original.setOperatorPaused('perlica', true);
+    const checkpoint = structuredClone(original.runtimeState);
+
+    const branch = (frames: number) => {
+      const branchClock = new CombatClock();
+      const receipt = new CombatReceiptCollector();
+      const runtime = new ComboWindowRuntime(
+        branchClock,
+        receipt,
+        ['rossi', 'perlica'],
+        structuredClone(checkpoint),
+      );
+      advance(branchClock, runtime, frames);
+      expect(runtime.first?.operatorId).toBe('rossi');
+      expect(runtime.pending.find(window => window.operatorId === 'perlica')?.remainingFrames).toBe(
+        COMBO_WINDOW_DURATION_FRAMES,
+      );
+      expect(runtime.consume('rossi', 'comboSkillStage2', undefined, 7).consumed).toBe(true);
+      runtime.open('rossi', 'comboSkill');
+      return { state: runtime.runtimeState, receipts: receipt.entries };
+    };
+
+    const early = branch(1);
+    const success = branch(3);
+    expect(early.state.successfulRingQteSkillCastIds.has(7)).toBe(false);
+    expect(success.state.successfulRingQteSkillCastIds.has(7)).toBe(true);
+    expect(branch(3)).toEqual(success);
+    expect(success.state.nextSequence).toBe(3);
+    expect(checkpoint).toEqual(original.runtimeState);
+    expect(checkpoint.successfulRingQteSkillCastIds.size).toBe(0);
+    expect(checkpoint.records.size).toBe(2);
+  });
+
   it('uses the fixed five-second lifetime', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();

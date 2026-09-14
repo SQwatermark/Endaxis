@@ -1,9 +1,136 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 
 describe('ProjectileLifecycleRuntime', () => {
+  it.each([1, 2, 3])('从寿命阶段 %s 恢复，不重放回调且旧注销不影响新分支', ticks => {
+    const oldCalls: string[] = [];
+    const original = new ProjectileLifecycleRuntime(() => 10);
+    const ref = original.launch({
+      finishDelaySeconds: { reachAfterTicks: 2, maxDurationSeconds: 5 },
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 0.1,
+      finish: () => oldCalls.push('finish'),
+      beforeReset: () => oldCalls.push('beforeReset'),
+    });
+    const registration = ref.onReset(() => oldCalls.push('reset'));
+    for (let i = 0; i < ticks; i++) original.advanceFrame();
+    const saved = structuredClone(original.runtimeState);
+    const before = structuredClone(saved);
+    const calls: string[] = [];
+    const allocate = vi.fn(() => 11);
+    const restored = new ProjectileLifecycleRuntime(allocate, {
+      state: saved,
+      resolveHost: id => {
+        expect(id).toBe(10);
+        return {
+          resolveTickDeltaSeconds: () => 0.1,
+          finish: () => calls.push('finish'),
+          beforeReset: () => calls.push('beforeReset'),
+        };
+      },
+      resolveResetHandler: () => () => calls.push('reset'),
+    });
+    expect(allocate).not.toHaveBeenCalled();
+    expect(saved).toEqual(before);
+    expect(calls).toEqual([]);
+    registration.dispose();
+    const oldBefore = [...oldCalls];
+    for (let i = ticks; i < 4; i++) restored.advanceFrame();
+    expect(calls).toEqual(
+      ticks === 1 ? ['finish', 'beforeReset', 'reset'] : ['beforeReset', 'reset'],
+    );
+    expect(oldCalls).toEqual(oldBefore);
+    expect(restored.activeCount).toBe(0);
+    expect(original.activeCount).toBe(1);
+  });
+
+  it('can defer restored relation binding until every projectile host exists', () => {
+    const original = new ProjectileLifecycleRuntime(() => 10);
+    original.launch({
+      finishDelaySeconds: 'firstTickReach',
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 0.1,
+      finish: () => {},
+      beforeReset: () => {},
+    });
+    const restored = new ProjectileLifecycleRuntime(() => 11, {
+      state: structuredClone(original.runtimeState),
+    });
+    expect(() => restored.advanceFrame()).toThrow('relations have not been bound');
+    const calls: string[] = [];
+    restored.bindRestoredRelations({
+      resolveHost: id => {
+        expect(id).toBe(10);
+        return {
+          resolveTickDeltaSeconds: () => 0.1,
+          finish: () => calls.push('finish'),
+          beforeReset: () => calls.push('beforeReset'),
+        };
+      },
+      resolveResetHandler: () => () => calls.push('reset'),
+    });
+    expect(calls).toEqual([]);
+    restored.advanceFrame();
+    expect(calls).toEqual(['finish']);
+    expect(() =>
+      restored.bindRestoredRelations({
+        resolveHost: () => {
+          throw new Error('must not resolve twice');
+        },
+        resolveResetHandler: () => () => {},
+      }),
+    ).toThrow('already bound');
+  });
+
+  it('可在宿主关系提交前按原编号接回 reset 处理函数', () => {
+    const original = new ProjectileLifecycleRuntime(() => 10);
+    const reference = original.launch({
+      finishDelaySeconds: 'firstTickReach',
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 1,
+      finish: () => {},
+      beforeReset: () => {},
+    });
+    const registration = reference.onReset(() => {});
+    const restored = new ProjectileLifecycleRuntime(() => 11, {
+      state: structuredClone(original.runtimeState),
+    });
+    const reset = vi.fn();
+    restored.bindRestoredResetCallback(10, registration.registrationId, reset);
+    restored.bindRestoredRelations({
+      resolveHost: () => ({
+        resolveTickDeltaSeconds: () => 1,
+        finish: () => {},
+        beforeReset: () => {},
+      }),
+    });
+    for (let frame = 0; frame < 3; frame++) restored.advanceFrame();
+    expect(reset).toHaveBeenCalledOnce();
+  });
+
+  it('已回收对象的旧引用不能因外部分配器复用编号而重新绑定', () => {
+    const runtime = new ProjectileLifecycleRuntime(() => 1);
+    const request = {
+      finishDelaySeconds: 'firstTickReach' as const,
+      recycleDelaySeconds: 0,
+      resolveTickDeltaSeconds: () => 0,
+      finish: () => {},
+      beforeReset: () => {},
+    };
+    const old = runtime.launch(request);
+    const registration = old.onReset(() => {});
+    for (let frame = 0; frame < 3; frame++) runtime.advanceFrame();
+    const current = runtime.launch(request);
+    let resets = 0;
+    current.onReset(() => resets++);
+    expect(() => old.onReset(() => {})).toThrow('already reset');
+    registration.dispose();
+    for (let frame = 0; frame < 3; frame++) runtime.advanceFrame();
+    expect(resets).toBe(1);
+  });
+
   it.each([0, 0.001, 0.5])(
     '分段到达按实际Tick推进，delta=%s不改变段数，回收仍分阶段',
     deltaSeconds => {

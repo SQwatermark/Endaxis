@@ -4,16 +4,26 @@
  */
 import type { CompiledSkillCost } from '../../compiler/combatProgram';
 import type { SpGainKind } from '../../game-data/operatorDefinition';
+import { createCombatResourceState, type CombatResourceState } from './combatResourceState';
 import type { GameplayTag } from '../tags/gameplayTags';
 import {
   SharedSpRecoveryModifierSet,
   SharedSpGainModifierSet,
   type SharedSpGainSettings,
 } from '../resources/sharedSpGainModifiers';
-import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
 
-const RESOURCE_EPSILON = 0.0001;
-const ULTIMATE_ENERGY_EPSILON = Math.fround(0.00001);
+import {
+  gainSp,
+  advanceInCombatSpRecovery,
+  getUltimateEnergy,
+  getMaxUltimateEnergy,
+  changeUltimateEnergy,
+  canPay,
+  pay,
+  gainSquadUltimateEnergyFromSkillCost,
+  requestUltimateEnergyRecoveryRestriction,
+  revertUltimateEnergyRecoveryRestriction,
+} from './combatResourceExecution';
 
 /** 单个队员终结技能量及其回复限制的可重建快照。 */
 export interface OperatorResourceSnapshot {
@@ -103,147 +113,59 @@ export interface UltimateEnergyChangeOptions {
   readonly ignoreGainMultiplier?: boolean;
 }
 
-interface OperatorResources extends Omit<
-  OperatorResourceSnapshot,
-  'ultimateEnergy' | 'allowedUltimateEnergyRecoveryTags'
-> {
-  ultimateEnergy: number;
-  allowedUltimateEnergyRecoveryTags: ReadonlySet<GameplayTag> | null;
-}
-
 export interface CombatResourceRuntimeResolvers {
   /** 原生每次正向回能时读取目标当前 UltimateSpGainScalar。 */
   readonly ultimateEnergyGainMultiplier?: (operatorId: string) => number;
 }
 
-function requireNonNegativeFinite(value: number, path: string): void {
-  if (!Number.isFinite(value) || value < 0) {
-    throw new RangeError(`${path} must be a non-negative finite number`);
-  }
-}
-
-function requireFinite(value: number, path: string): void {
-  if (!Number.isFinite(value)) {
-    throw new RangeError(`${path} must be a finite number`);
-  }
-}
-
 /** 原生共享技力与按队伍顺序保存的终结技能量状态。 */
-export class CombatResources implements RuntimeCheckpointParticipant<CombatResourcesCheckpointState> {
-  #sp: number;
-  readonly #maxSp: number;
-  #returnedSp: number;
-  readonly #spRecoveryPerSecond: number;
-  readonly #spRecoveryPauseDuration: number;
-  #spRecoveryPauseRemaining: number;
-  readonly #ultimateEnergySystemUnlocked: boolean;
-  readonly #squad: readonly OperatorResources[];
-  readonly #operators = new Map<string, OperatorResources>();
-  readonly #baseUltimateRecoveryRestrictions = new Map<string, ReadonlySet<GameplayTag> | null>();
-  readonly #ultimateRecoveryRestrictionHandles = new Map<
-    number,
-    { readonly operatorId: string; readonly allowed: ReadonlySet<GameplayTag> }
-  >();
-  #nextUltimateRecoveryRestrictionHandle = 1;
-  readonly #normalSkillUltimateEnergy: NormalSkillUltimateEnergySettings;
-  /** 一次战斗唯一的共享 SP 获取效率注册表，供 Buff 与资源动作共同使用。 */
+export class CombatResources {
+  readonly runtimeState: CombatResourceState;
   readonly sharedSpGainModifiers: SharedSpGainModifierSet;
-  readonly sharedSpRecoveryModifiers = new SharedSpRecoveryModifierSet();
+  readonly sharedSpRecoveryModifiers: SharedSpRecoveryModifierSet;
 
   constructor(
     snapshot: CombatResourceSnapshot,
     readonly resolvers: CombatResourceRuntimeResolvers = {},
+    restoredState?: CombatResourceState,
   ) {
-    requireNonNegativeFinite(snapshot.sp, 'sp');
-    requireNonNegativeFinite(snapshot.maxSp, 'maxSp');
-    requireNonNegativeFinite(snapshot.returnedSp, 'returnedSp');
-    requireNonNegativeFinite(snapshot.spRecovery.valuePerSecond, 'spRecovery.valuePerSecond');
-    requireNonNegativeFinite(snapshot.spRecovery.pauseDuration, 'spRecovery.pauseDuration');
-    requireNonNegativeFinite(snapshot.spRecovery.pauseRemaining, 'spRecovery.pauseRemaining');
-    if (snapshot.sp > snapshot.maxSp + RESOURCE_EPSILON) {
-      throw new RangeError('sp exceeds its maximum');
-    }
-    if (snapshot.returnedSp > snapshot.sp + RESOURCE_EPSILON) {
-      throw new RangeError('returnedSp exceeds current sp');
-    }
-    requireFinite(
-      snapshot.normalSkillUltimateEnergy.selfGainPerSp,
-      'normalSkillUltimateEnergy.selfGainPerSp',
+    this.runtimeState = restoredState ?? createCombatResourceState(snapshot);
+    validateRestoredResourceState(snapshot, this.runtimeState);
+    this.sharedSpGainModifiers = new SharedSpGainModifierSet(
+      { ...snapshot.sharedSpGain },
+      this.runtimeState.sharedSpGainModifiers,
     );
-    requireFinite(
-      snapshot.normalSkillUltimateEnergy.otherGainPerSp,
-      'normalSkillUltimateEnergy.otherGainPerSp',
+    this.sharedSpRecoveryModifiers = new SharedSpRecoveryModifierSet(
+      this.runtimeState.sharedSpRecoveryModifiers,
     );
-    this.#sp = snapshot.sp;
-    this.#maxSp = snapshot.maxSp;
-    this.#returnedSp = snapshot.returnedSp;
-    this.sharedSpGainModifiers = new SharedSpGainModifierSet({ ...snapshot.sharedSpGain });
-    this.#spRecoveryPerSecond = snapshot.spRecovery.valuePerSecond;
-    this.#spRecoveryPauseDuration = snapshot.spRecovery.pauseDuration;
-    this.#spRecoveryPauseRemaining = snapshot.spRecovery.pauseRemaining;
-    this.#ultimateEnergySystemUnlocked = snapshot.ultimateEnergySystemUnlocked;
-    this.#normalSkillUltimateEnergy = { ...snapshot.normalSkillUltimateEnergy };
-    this.#squad = snapshot.squad.map((member, index) => {
-      if (member.operatorId.length === 0) {
-        throw new Error(`squad[${index}].operatorId must not be empty`);
-      }
-      requireNonNegativeFinite(member.ultimateEnergy, `squad[${index}].ultimateEnergy`);
-      requireNonNegativeFinite(member.maxUltimateEnergy, `squad[${index}].maxUltimateEnergy`);
-      requireFinite(
-        member.ultimateEnergyGainMultiplier,
-        `squad[${index}].ultimateEnergyGainMultiplier`,
-      );
-      if (member.ultimateEnergy > member.maxUltimateEnergy + ULTIMATE_ENERGY_EPSILON) {
-        throw new RangeError(`squad[${index}].ultimateEnergy exceeds its maximum`);
-      }
-      if (this.#operators.has(member.operatorId)) {
-        throw new Error(`duplicate squad operator '${member.operatorId}'`);
-      }
-      const runtime = {
-        ...member,
-        ultimateEnergy: Math.fround(member.ultimateEnergy),
-        allowedUltimateEnergyRecoveryTags:
-          member.allowedUltimateEnergyRecoveryTags === null
-            ? null
-            : new Set(member.allowedUltimateEnergyRecoveryTags),
-      };
-      this.#operators.set(member.operatorId, runtime);
-      this.#baseUltimateRecoveryRestrictions.set(
-        member.operatorId,
-        member.allowedUltimateEnergyRecoveryTags === null
-          ? null
-          : new Set(member.allowedUltimateEnergyRecoveryTags),
-      );
-      return runtime;
-    });
   }
 
   get sp(): number {
-    return this.#sp;
+    return this.runtimeState.sp;
   }
 
   get returnedSp(): number {
-    return this.#returnedSp;
+    return this.runtimeState.returnedSp;
   }
 
   get spRecoveryPauseRemaining(): number {
-    return this.#spRecoveryPauseRemaining;
+    return this.runtimeState.spRecoveryPauseRemaining;
   }
 
-  /** 读取当前完整账本；所有复合值均与运行时状态隔离。 */
+  /** 导出当前余额及聚合许可，供初始化和展示使用；不包含动态注册项，不能用于切面恢复。 */
   snapshot(): CombatResourceSnapshot {
     return {
-      sp: this.#sp,
-      maxSp: this.#maxSp,
-      returnedSp: this.#returnedSp,
+      sp: this.runtimeState.sp,
+      maxSp: this.runtimeState.maxSp,
+      returnedSp: this.runtimeState.returnedSp,
       sharedSpGain: { ...this.sharedSpGainModifiers.settings },
       spRecovery: {
-        valuePerSecond: this.#spRecoveryPerSecond,
-        pauseDuration: this.#spRecoveryPauseDuration,
-        pauseRemaining: this.#spRecoveryPauseRemaining,
+        valuePerSecond: this.runtimeState.spRecoveryPerSecond,
+        pauseDuration: this.runtimeState.spRecoveryPauseDuration,
+        pauseRemaining: this.runtimeState.spRecoveryPauseRemaining,
       },
-      ultimateEnergySystemUnlocked: this.#ultimateEnergySystemUnlocked,
-      squad: this.#squad.map(member => ({
+      ultimateEnergySystemUnlocked: this.runtimeState.ultimateEnergySystemUnlocked,
+      squad: this.runtimeState.squad.map(member => ({
         operatorId: member.operatorId,
         ultimateEnergy: member.ultimateEnergy,
         maxUltimateEnergy: member.maxUltimateEnergy,
@@ -253,68 +175,8 @@ export class CombatResources implements RuntimeCheckpointParticipant<CombatResou
             ? null
             : new Set(member.allowedUltimateEnergyRecoveryTags),
       })),
-      normalSkillUltimateEnergy: { ...this.#normalSkillUltimateEnergy },
+      normalSkillUltimateEnergy: { ...this.runtimeState.normalSkillUltimateEnergy },
     };
-  }
-
-  captureCheckpointState(): CombatResourcesCheckpointState {
-    return Object.freeze({
-      sp: this.#sp,
-      returnedSp: this.#returnedSp,
-      spRecoveryPauseRemaining: this.#spRecoveryPauseRemaining,
-      ultimateEnergy: Object.freeze(this.#squad.map(member => member.ultimateEnergy)),
-      restrictionHandles: Object.freeze(
-        [...this.#ultimateRecoveryRestrictionHandles].map(([handle, entry]) =>
-          Object.freeze({
-            handle,
-            operatorId: entry.operatorId,
-            allowed: new Set(entry.allowed),
-          }),
-        ),
-      ),
-      nextRestrictionHandle: this.#nextUltimateRecoveryRestrictionHandle,
-      sharedSpGainModifiers: this.sharedSpGainModifiers.captureCheckpointState(),
-      sharedSpRecoveryModifiers: this.sharedSpRecoveryModifiers.captureCheckpointState(),
-    });
-  }
-
-  validateCheckpointState(state: CombatResourcesCheckpointState): void {
-    if (
-      state.ultimateEnergy.length !== this.#squad.length ||
-      !Number.isInteger(state.nextRestrictionHandle) ||
-      state.nextRestrictionHandle < 1
-    ) {
-      throw new Error('resource checkpoint does not match this runtime');
-    }
-    requireFinite(state.sp, 'checkpoint sp');
-    requireNonNegativeFinite(state.returnedSp, 'checkpoint returnedSp');
-    requireFinite(state.spRecoveryPauseRemaining, 'checkpoint spRecoveryPauseRemaining');
-    state.ultimateEnergy.forEach((value, index) =>
-      requireNonNegativeFinite(value, `checkpoint ultimateEnergy[${index}]`),
-    );
-    for (const entry of state.restrictionHandles) this.#requireOperator(entry.operatorId);
-  }
-
-  restoreCheckpointState(state: CombatResourcesCheckpointState): void {
-    this.#sp = state.sp;
-    this.#returnedSp = state.returnedSp;
-    this.#spRecoveryPauseRemaining = state.spRecoveryPauseRemaining;
-    state.ultimateEnergy.forEach((value, index) => {
-      this.#squad[index]!.ultimateEnergy = value;
-    });
-    this.#ultimateRecoveryRestrictionHandles.clear();
-    for (const entry of state.restrictionHandles) {
-      this.#ultimateRecoveryRestrictionHandles.set(entry.handle, {
-        operatorId: entry.operatorId,
-        allowed: new Set(entry.allowed),
-      });
-    }
-    this.#nextUltimateRecoveryRestrictionHandle = state.nextRestrictionHandle;
-    for (const member of this.#squad) {
-      this.#refreshUltimateEnergyRecoveryRestriction(member.operatorId);
-    }
-    this.sharedSpGainModifiers.restoreCheckpointState(state.sharedSpGainModifiers);
-    this.sharedSpRecoveryModifiers.restoreCheckpointState(state.sharedSpRecoveryModifiers);
   }
 
   gainSp(
@@ -322,54 +184,27 @@ export class CombatResources implements RuntimeCheckpointParticipant<CombatResou
     gainKind: SpGainKind = 'gain',
     source?: Parameters<SharedSpGainModifierSet['resolve']>[0],
   ): SpChange {
-    requireNonNegativeFinite(value, 'sp gain');
-    const requestedValue =
-      source === undefined
-        ? value
-        : value *
-          this.sharedSpGainModifiers.resolve(source, gainKind === 'refund' ? 'return' : 'gain')
-            .totalEfficiency;
-    const previousValue = this.#sp;
-    this.#sp = Math.min(this.#maxSp, previousValue + requestedValue);
-    const actualValue = this.#sp - previousValue;
-    if (gainKind === 'refund') this.#returnedSp += actualValue;
-    return {
-      baseValue: value,
-      requestedValue,
-      actualValue,
-      previousValue,
-      currentValue: this.#sp,
-      gainKind,
-    };
+    return gainSp(this.runtimeState, this.sharedSpGainModifiers.settings, value, gainKind, source);
   }
 
   /**
    * 推进战斗内自然恢复。暂停在本帧开始时仍有效时，整帧都不会恢复技力。
    */
   advanceInCombatSpRecovery(deltaSeconds: number): SpChange {
-    requireNonNegativeFinite(deltaSeconds, 'sp recovery delta');
-    if (this.#spRecoveryPauseRemaining > RESOURCE_EPSILON) {
-      this.#spRecoveryPauseRemaining -= deltaSeconds;
-      return this.#unchangedSpChange(0);
-    }
-
-    const requestedValue =
-      this.sharedSpRecoveryModifiers.resolve(this.#spRecoveryPerSecond) * deltaSeconds;
-    const change = this.gainSp(requestedValue);
-    const overflow = requestedValue - change.actualValue;
-    if (this.#returnedSp > RESOURCE_EPSILON && overflow > RESOURCE_EPSILON) {
-      this.#returnedSp = Math.max(0, this.#returnedSp - overflow);
-    }
-    return change;
+    return advanceInCombatSpRecovery(
+      this.runtimeState,
+      this.sharedSpGainModifiers.settings,
+      deltaSeconds,
+    );
   }
 
   getUltimateEnergy(operatorId: string): number {
-    return this.#requireOperator(operatorId).ultimateEnergy;
+    return getUltimateEnergy(this.runtimeState, operatorId);
   }
 
   /** 读取指定队员本场构筑结算后的终结技能量上限。 */
   getMaxUltimateEnergy(operatorId: string): number {
-    return this.#requireOperator(operatorId).maxUltimateEnergy;
+    return getMaxUltimateEnergy(this.runtimeState, operatorId);
   }
 
   /**
@@ -381,45 +216,11 @@ export class CombatResources implements RuntimeCheckpointParticipant<CombatResou
     baseValue: number,
     options: UltimateEnergyChangeOptions = {},
   ): UltimateEnergyChange {
-    requireFinite(baseValue, 'ultimate energy base value');
-    const coefficient = options.coefficient ?? 1;
-    requireFinite(coefficient, 'ultimate energy coefficient');
-    const operator = this.#requireOperator(operatorId);
-    let requestedValue = Math.fround(baseValue);
-    if (baseValue > 0 && !options.ignoreGainMultiplier) {
-      const multiplier =
-        this.resolvers.ultimateEnergyGainMultiplier?.(operatorId) ??
-        operator.ultimateEnergyGainMultiplier;
-      requireFinite(multiplier, `operator '${operatorId}' ultimate energy gain multiplier`);
-      requestedValue = Math.fround(requestedValue * multiplier);
-    }
-    if (options.isPercentValue) {
-      requestedValue = Math.fround(requestedValue * operator.maxUltimateEnergy);
-    }
-    requestedValue = Math.fround(requestedValue * coefficient);
-    const previousValue = operator.ultimateEnergy;
-    const applied = this.#trySetUltimateEnergy(
-      operator,
-      previousValue + requestedValue,
-      options.recoveryTag,
-    );
-    return {
-      operatorId,
-      baseValue,
-      requestedValue,
-      applied,
-      actualValue: operator.ultimateEnergy - previousValue,
-      previousValue,
-      currentValue: operator.ultimateEnergy,
-    };
+    return changeUltimateEnergy(this.runtimeState, this.resolvers, operatorId, baseValue, options);
   }
 
   canPay(operatorId: string, costs: readonly CompiledSkillCost[]): boolean {
-    return costs.every(cost => {
-      const available =
-        cost.resource === 'sp' ? this.#sp : this.#requireOperator(operatorId).ultimateEnergy;
-      return available + RESOURCE_EPSILON >= cost.value;
-    });
+    return canPay(this.runtimeState, operatorId, costs);
   }
 
   pay(
@@ -427,52 +228,7 @@ export class CombatResources implements RuntimeCheckpointParticipant<CombatResou
     costs: readonly CompiledSkillCost[],
     options: { readonly forceTimelinePayment?: boolean } = {},
   ): SkillPaymentResult {
-    if (!options.forceTimelinePayment && !this.canPay(operatorId, costs)) {
-      return { paid: false, nonReturnedSpCost: 0, changes: [] };
-    }
-    let nonReturnedSpCost = 0;
-    const changes: SkillPaymentChange[] = [];
-    for (const cost of costs) {
-      if (cost.resource === 'sp') {
-        // 原生 Skill._ApplyCost 只在最终 ATB 费用大于 epsilon 时调用 CostAtb。
-        if (cost.value <= RESOURCE_EPSILON) continue;
-        const previousValue = this.#sp;
-        this.#sp = options.forceTimelinePayment
-          ? this.#sp - cost.value
-          : Math.max(0, this.#sp - cost.value);
-        const consumedReturnedSp = Math.min(this.#returnedSp, cost.value);
-        this.#returnedSp -= consumedReturnedSp;
-        nonReturnedSpCost = cost.value - consumedReturnedSp;
-        this.#spRecoveryPauseRemaining = this.#spRecoveryPauseDuration;
-        changes.push({
-          resource: 'sp',
-          baseValue: -cost.value,
-          requestedValue: -cost.value,
-          actualValue: this.#sp - previousValue,
-          previousValue,
-          currentValue: this.#sp,
-        });
-      } else {
-        const previousValue = this.getUltimateEnergy(operatorId);
-        // 原生 `Skill.ApplyCost` 会忽略终结技能量 Setter 的返回值。
-        const applied = this.#trySetUltimateEnergy(
-          this.#requireOperator(operatorId),
-          previousValue - Math.fround(cost.value),
-        );
-        const currentValue = this.getUltimateEnergy(operatorId);
-        changes.push({
-          resource: 'ultimateEnergy',
-          operatorId,
-          baseValue: -cost.value,
-          requestedValue: -cost.value,
-          applied,
-          actualValue: currentValue - previousValue,
-          previousValue,
-          currentValue,
-        });
-      }
-    }
-    return { paid: true, nonReturnedSpCost, changes };
+    return pay(this.runtimeState, operatorId, costs, options);
   }
 
   gainSquadUltimateEnergyFromSkillCost(
@@ -480,119 +236,78 @@ export class CombatResources implements RuntimeCheckpointParticipant<CombatResou
     nonReturnedSpCost: number,
     coefficient: number,
   ): readonly UltimateEnergyChange[] {
-    requireNonNegativeFinite(nonReturnedSpCost, 'nonReturnedSpCost');
-    requireFinite(coefficient, 'coefficient');
-    this.#requireOperator(sourceOperatorId);
-
-    return this.#squad.map(member => {
-      const gainPerSp =
-        member.operatorId === sourceOperatorId
-          ? this.#normalSkillUltimateEnergy.selfGainPerSp
-          : this.#normalSkillUltimateEnergy.otherGainPerSp;
-      const baseValue = coefficient * nonReturnedSpCost * gainPerSp;
-      return this.changeUltimateEnergy(member.operatorId, baseValue);
-    });
+    return gainSquadUltimateEnergyFromSkillCost(
+      this.runtimeState,
+      this.resolvers,
+      sourceOperatorId,
+      nonReturnedSpCost,
+      coefficient,
+    );
   }
 
   requestUltimateEnergyRecoveryRestriction(
     operatorId: string,
     allowedRecoveryTags: ReadonlySet<GameplayTag>,
   ): number {
-    this.#requireOperator(operatorId);
-    const handle = this.#nextUltimateRecoveryRestrictionHandle++;
-    this.#ultimateRecoveryRestrictionHandles.set(handle, {
+    return requestUltimateEnergyRecoveryRestriction(
+      this.runtimeState,
       operatorId,
-      allowed: new Set(allowedRecoveryTags),
-    });
-    this.#refreshUltimateEnergyRecoveryRestriction(operatorId);
-    return handle;
+      allowedRecoveryTags,
+    );
   }
 
   revertUltimateEnergyRecoveryRestriction(
     handle: number,
     clearUltimateEnergyOnEnd: boolean,
   ): UltimateEnergyChange | null {
-    const entry = this.#ultimateRecoveryRestrictionHandles.get(handle);
-    if (entry === undefined) return null;
-    this.#ultimateRecoveryRestrictionHandles.delete(handle);
-    this.#refreshUltimateEnergyRecoveryRestriction(entry.operatorId);
-    if (!clearUltimateEnergyOnEnd) return null;
-    const current = this.getUltimateEnergy(entry.operatorId);
-    return this.changeUltimateEnergy(entry.operatorId, -current);
-  }
-
-  #refreshUltimateEnergyRecoveryRestriction(operatorId: string): void {
-    const dynamic = [...this.#ultimateRecoveryRestrictionHandles.values()].filter(
-      entry => entry.operatorId === operatorId,
+    return revertUltimateEnergyRecoveryRestriction(
+      this.runtimeState,
+      this.resolvers,
+      handle,
+      clearUltimateEnergyOnEnd,
     );
-    const operator = this.#requireOperator(operatorId);
-    if (dynamic.length === 0) {
-      const base = this.#baseUltimateRecoveryRestrictions.get(operatorId)!;
-      operator.allowedUltimateEnergyRecoveryTags = base === null ? null : new Set(base);
-      return;
-    }
-    const allowed = new Set<GameplayTag>();
-    const base = this.#baseUltimateRecoveryRestrictions.get(operatorId);
-    if (base !== null && base !== undefined) for (const tag of base) allowed.add(tag);
-    for (const entry of dynamic) for (const tag of entry.allowed) allowed.add(tag);
-    operator.allowedUltimateEnergyRecoveryTags = allowed;
-  }
-
-  #trySetUltimateEnergy(
-    operator: OperatorResources,
-    value: number,
-    recoveryTag?: GameplayTag,
-  ): boolean {
-    const restriction = operator.allowedUltimateEnergyRecoveryTags;
-    if (
-      !this.#ultimateEnergySystemUnlocked ||
-      (value > operator.ultimateEnergy &&
-        restriction !== null &&
-        (recoveryTag === undefined || !restriction.has(recoveryTag)))
-    ) {
-      return false;
-    }
-    // 原生余额和Setter入参为float，上限从double属性转float，差值也以float比较。
-    // 保留双精度加减会让靠近容差的小额支付产生原生没有的写入与applied回执。
-    const clamped = Math.min(
-      Math.fround(operator.maxUltimateEnergy),
-      Math.max(0, Math.fround(value)),
-    );
-    const difference = Math.fround(clamped - operator.ultimateEnergy);
-    if (Math.abs(difference) <= ULTIMATE_ENERGY_EPSILON) return false;
-    operator.ultimateEnergy = clamped;
-    return true;
-  }
-
-  #unchangedSpChange(requestedValue: number): SpChange {
-    return {
-      baseValue: requestedValue,
-      requestedValue,
-      actualValue: 0,
-      previousValue: this.#sp,
-      currentValue: this.#sp,
-      gainKind: 'gain',
-    };
-  }
-
-  #requireOperator(operatorId: string): OperatorResources {
-    const operator = this.#operators.get(operatorId);
-    if (operator === undefined) throw new Error(`squad operator '${operatorId}' is not configured`);
-    return operator;
   }
 }
 
-interface CombatResourcesCheckpointState {
-  readonly sp: number;
-  readonly returnedSp: number;
-  readonly spRecoveryPauseRemaining: number;
-  readonly ultimateEnergy: readonly number[];
-  readonly restrictionHandles: readonly {
-    readonly handle: number;
-    readonly operatorId: string;
-    readonly allowed: ReadonlySet<GameplayTag>;
-  }[];
-  readonly nextRestrictionHandle: number;
-  readonly sharedSpGainModifiers: readonly import('../resources/sharedSpGainModifiers').SharedSpGainModifier[];
-  readonly sharedSpRecoveryModifiers: readonly import('../resources/sharedSpGainModifiers').SharedSpRecoveryModifier[];
+/**
+ * 恢复只绑定可变账本；队伍身份、上限和基础回能参数仍须与本次装配的固定场景程序一致。
+ * 动态限制句柄和修正项属于切面数据，因此不在这里重新注册或改写。
+ */
+function validateRestoredResourceState(
+  snapshot: CombatResourceSnapshot,
+  state: CombatResourceState,
+): void {
+  if (state.maxSp !== snapshot.maxSp) throw new Error('restored max SP does not match scenario');
+  if (state.spRecoveryPerSecond !== snapshot.spRecovery.valuePerSecond) {
+    throw new Error('restored SP recovery does not match scenario');
+  }
+  if (state.spRecoveryPauseDuration !== snapshot.spRecovery.pauseDuration) {
+    throw new Error('restored SP recovery pause does not match scenario');
+  }
+  if (state.ultimateEnergySystemUnlocked !== snapshot.ultimateEnergySystemUnlocked) {
+    throw new Error('restored ultimate energy system does not match scenario');
+  }
+  if (
+    state.normalSkillUltimateEnergy.selfGainPerSp !==
+      snapshot.normalSkillUltimateEnergy.selfGainPerSp ||
+    state.normalSkillUltimateEnergy.otherGainPerSp !==
+      snapshot.normalSkillUltimateEnergy.otherGainPerSp
+  ) {
+    throw new Error('restored normal-skill ultimate energy settings do not match scenario');
+  }
+  if (state.squad.length !== snapshot.squad.length) {
+    throw new Error('restored resource squad does not match scenario');
+  }
+  snapshot.squad.forEach((member, index) => {
+    const restored = state.squad[index];
+    if (
+      restored?.operatorId !== member.operatorId ||
+      restored.maxUltimateEnergy !== member.maxUltimateEnergy
+    ) {
+      throw new Error(`restored resource squad member ${index} does not match scenario`);
+    }
+    if (state.operators.get(member.operatorId) !== restored) {
+      throw new Error(`restored operator resource index '${member.operatorId}' is inconsistent`);
+    }
+  });
 }

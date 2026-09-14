@@ -1,5 +1,17 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
-import type { CombatAbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { CombatStateGraph } from './combatStateGraph';
+import type { StandardCombatEnvironmentState } from './standardCombatEnvironmentState';
+import type {
+  AbilityResponseEventName,
+  CombatAbilityEvent,
+  AbilityEventPayloadMap,
+} from '../events/combatAbilityEvent';
+import {
+  createPostSkillRequestListenerState,
+  registerPostSkillRequestListener,
+  requirePostSkillRequestListener,
+  unregisterPostSkillRequestListener,
+} from './postSkillRequestListenerState';
 /**
  * 标准战斗环境：一场模拟里敌人的元素附着、反应和 Buff 都由它管；
  * 敌人生命与失衡账本由场景装配层创建并以明确依赖注入，本环境只持有同一实例。
@@ -15,7 +27,7 @@ import type {
 } from '../../game-data/operatorDefinition';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   CombatAttributeSet,
 } from '../attributes/combatAttributes';
 import {
@@ -57,10 +69,12 @@ import { ComboSkillConditionRuntime } from './comboSkillConditionRuntime';
 import { ElementalReactionOperationExecutor } from './elementalReactionOperationExecutor';
 import { executeSpellBurst } from './spellBurstRuntime';
 import { AbilityEventDispatcher, type AbilityEventFromMap } from '../events/abilityEventDispatcher';
+import type { AbilityEventState } from '../events/abilityEventState';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import type { SimulationRandomMode } from '../random/simulationRandom';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
+import { ActionBlackboard } from './actionBlackboard';
 import type {
   CombatBattleRuntimeContext,
   CombatOperationExecutorContext,
@@ -191,6 +205,20 @@ export interface StandardPlayerDamageEnvironmentOptions {
   /** RandomUtil.Dice 的独立样本源，不与暴击随机流混用。 */
   readonly probabilitySamples?: ProbabilitySampleSource;
   readonly randomMode?: SimulationRandomMode;
+  /** 必须与两个样本端口实际消费的状态一致；自定义源不能用空状态冒充。 */
+  readonly randomState?: import('../random/simulationRandomState').SimulationRandomState;
+  /** 已复制的环境数据；提供时构造过程只绑定数据，不重新初始化其中的账本。 */
+  readonly restoredState?: StandardCombatEnvironmentState;
+  /** 与 restoredState 同一切面中的原生事件目录；处理函数由各来源宿主随后按编号重绑。 */
+  readonly restoredEventStates?: NonNullable<CombatStateGraph['events']['native']>;
+  /** 与整场候选图共享的实体 Buff 数据；实例对象和生命周期关系由装配层随后统一绑定。 */
+  readonly restoredBuffStates?: {
+    readonly enemy: import('../buffs/buffContainerState').BuffContainerState<string>;
+    readonly operators: ReadonlyMap<
+      string,
+      import('../buffs/buffContainerState').BuffContainerState<string>
+    >;
+  };
   readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatDamageExecutorContext,
     step: DamageStep,
@@ -252,6 +280,7 @@ function panelAttackDetail(panel: ResolvedOperatorPanel) {
   };
 }
 export class StandardPlayerDamageEnvironment {
+  readonly runtimeState: StandardCombatEnvironmentState;
   readonly runtimeOptions: EnvironmentOptions;
   readonly #events = new Map<
     string,
@@ -264,8 +293,9 @@ export class StandardPlayerDamageEnvironment {
   readonly #operatorBuffRuntimes = new Map<string, BuffDefinitionOperationTarget<string>>();
   readonly #postSkillRequestListeners = new Map<
     string,
-    Set<(info: import('./skillCastInfo').CombatSkillCastInfo | null) => void>
+    Map<number, (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void>
   >();
+  readonly #postSkillRequestListenerState: ReturnType<typeof createPostSkillRequestListenerState>;
   readonly #inflictionAdapters = new Map<string, ElementalInflictionBuffAdapter<string>>();
   readonly #reactionModifiers = new Map<
     string,
@@ -274,10 +304,10 @@ export class StandardPlayerDamageEnvironment {
   #resolveAbilitySystemSourceId: (entityId: string) => string = entityId => entityId;
   #resolveProjectileRuntimeDependencies:
     ((definitionOperatorId: string) => ProjectileRuntimeDependencies) | null = null;
-  readonly #reactions = new ElementalReactionContainer();
+  readonly #reactions: ElementalReactionContainer;
   readonly #operatorPanels = new Map<string, ResolvedOperatorPanel>();
   readonly #operatorVitals = new Map<string, CombatVitals>();
-  readonly #buffProgress = new BuffProgressRecorder();
+  readonly #buffProgress: BuffProgressRecorder;
   #clock: CombatClock | null = null;
   #receipt: CombatReceiptSink | null = null;
   #elementalDefinitions: CompiledCombatBuffDefinitions<string> | null = null;
@@ -289,16 +319,43 @@ export class StandardPlayerDamageEnvironment {
   #enemyIdentity: CombatOperationExecutorContext['enemy'] | null = null;
   #resources: CombatResources | null = null;
   #boundByAssembly = false;
+  readonly #eventStates: NonNullable<CombatStateGraph['events']['native']>;
 
   constructor(readonly options: StandardPlayerDamageEnvironmentOptions) {
-    const enemyAttributes = new CombatAttributeSet<string>();
+    const restored = options.restoredState;
+    if (restored !== undefined && options.enemyVitals.runtimeState !== restored.enemyVitals) {
+      throw new Error('restored enemy vitals must use the environment state ledger');
+    }
+    if (restored?.random != null && restored.random !== options.randomState) {
+      throw new Error('restored random source must use the environment state ledger');
+    }
+    if (
+      restored !== undefined &&
+      (restored.knockDown === null) !== (options.knockDown === undefined)
+    ) {
+      throw new Error('restored knock-down state does not match the environment program');
+    }
+    this.#eventStates = options.restoredEventStates ?? new Map();
+    this.#postSkillRequestListenerState =
+      restored?.postSkillRequestListeners ?? createPostSkillRequestListenerState();
+    this.#reactions = new ElementalReactionContainer(restored?.reactions);
+    this.#buffProgress = new BuffProgressRecorder(restored?.buffProgress);
+    for (const [operatorId, state] of restored?.operatorVitals ?? []) {
+      this.#operatorVitals.set(operatorId, CombatVitals.bindRuntimeState(state));
+    }
+    const restoredEnemyBuffs = options.restoredBuffStates?.enemy;
+    const enemyAttributes = new CombatAttributeSet<string>(restoredEnemyBuffs?.attributes);
+    const enemyBlackboard =
+      restoredEnemyBuffs === undefined
+        ? undefined
+        : ActionBlackboard.bindRuntimeState(restoredEnemyBuffs.entityBlackboard);
     this.#enemyAttributes = enemyAttributes;
     this.#enemyBuffs = new CombatBuffContainer(
       'enemy',
       enemyAttributes,
       options.tagRegistry,
       null,
-      undefined,
+      enemyBlackboard,
       (buff, reason, skillCastInfo) =>
         this.#recordOwnedBuffFinished('enemy', buff, reason, skillCastInfo),
       (buff, layerCount, reason, skillCastInfo) =>
@@ -335,6 +392,8 @@ export class StandardPlayerDamageEnvironment {
             maximum * (1 + modifier.effectivenessAddition),
           );
       },
+      undefined,
+      restoredEnemyBuffs,
     );
     this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
       this.#enemyBuffs,
@@ -351,7 +410,10 @@ export class StandardPlayerDamageEnvironment {
       event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
       event => this.#emit(event.sourceId, 'outputBuff', event),
       event => this.#emit('enemy', 'beforeAddedBuff', event),
-      (event, handle) => this.eventsFor('enemy').registerCallback(event, handle),
+      (event, handle, subscriptions) =>
+        subscriptions === undefined
+          ? this.eventsFor('enemy').registerCallback(event, handle)
+          : this.#bindSingleBuffSubscription('enemy', event, subscriptions, handle),
       handle => this.#registerPostSkillRequest('enemy', handle),
       definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
     );
@@ -364,8 +426,22 @@ export class StandardPlayerDamageEnvironment {
             this.#enemyBuffs,
             options.knockDown.predefine,
             options.knockDown.onDurationElapsed,
+            restored?.knockDown ?? undefined,
           );
-    this.#poiseBreakBuffs = new PoiseBreakBuffRuntime(this.#enemyBuffRuntime);
+    this.#poiseBreakBuffs = new PoiseBreakBuffRuntime(
+      this.#enemyBuffRuntime,
+      restored?.poiseBreakBuffs,
+    );
+    this.runtimeState = restored ?? {
+      random: options.randomState ?? null,
+      enemyVitals: this.#enemyVitals.runtimeState,
+      operatorVitals: new Map(),
+      reactions: this.#reactions.runtimeState,
+      knockDown: this.#enemyKnockDown?.runtimeState ?? null,
+      buffProgress: this.#buffProgress.runtimeState,
+      poiseBreakBuffs: this.#poiseBreakBuffs.runtimeState,
+      postSkillRequestListeners: this.#postSkillRequestListenerState,
+    };
     // 对象字面量中的 getter 会把自己的 this 绑定为字面量本身，因此用箭头闭包引用环境实例。
     const vitalsRuntimeOf = (): FrameRuntime | null => this.#enemyVitalsRuntime;
     this.runtimeOptions = {
@@ -383,11 +459,31 @@ export class StandardPlayerDamageEnvironment {
           if (phase === 'dataAction') return dispatcher.registerAction(name, priority, receive);
           return dispatcher.registerListener(name, phase, receive);
         });
-        return { dispose: () => registrations.forEach(registration => registration.dispose()) };
+        return {
+          subscriptions: registrations.flatMap(registration => registration.subscriptions),
+          dispose: () => registrations.forEach(registration => registration.dispose()),
+        };
       },
       bindBattleRuntime: context => {
         this.#bindBattleRuntime(context, true);
         return {
+          eventStates: this.#eventStates,
+          environmentState: this.runtimeState,
+          bindNativeEventSubscription: (reference, receive) => {
+            const owner = [...this.#eventStates].find(([, state]) => state === reference.state);
+            if (owner === undefined) {
+              throw new Error('native event subscription belongs to another battle state');
+            }
+            if (typeof reference.event !== 'string') {
+              throw new Error('native event subscription requires a string event name');
+            }
+            return this.eventsFor(owner[0]).bindSubscription(reference, event =>
+              receive({
+                event,
+                actionContext: this.#resolveAbilityEventRuntimeActionContext(event),
+              }),
+            );
+          },
           enemyVitalsRuntime: this.#enemyVitalsRuntime,
           enemyControlRuntime: this.#enemyKnockDown,
         };
@@ -395,21 +491,27 @@ export class StandardPlayerDamageEnvironment {
       get enemyVitalsRuntime() {
         return vitalsRuntimeOf();
       },
-      createOperatorBuffRuntime: (operatorId, panel, reactionModifiers) => {
+      createOperatorBuffRuntime: (operatorId, panel, reactionModifiers, restoredState) => {
         if (reactionModifiers !== undefined)
           this.#reactionModifiers.set(operatorId, reactionModifiers);
         if (panel !== undefined) {
           this.#operatorPanels.set(operatorId, panel);
           this.#ensureOperatorVitals(operatorId, panel);
         }
-        return this.#operatorBuffRuntime(operatorId, panel);
+        return this.#operatorBuffRuntime(operatorId, panel, restoredState);
       },
       resolveUltimateEnergyGainMultiplier: operatorId =>
         this.#operatorBuffRuntime(operatorId).container.attributes.get('UltimateSpGainScalar'),
-      createAbilityEntityBuffRuntime: (entityId, entityBlackboard, target, bornTags) => {
+      createAbilityEntityBuffRuntime: (
+        entityId,
+        entityBlackboard,
+        target,
+        bornTags,
+        restoredState,
+      ) => {
         const container = new CombatBuffContainer(
           entityId,
-          new CombatAttributeSet<string>(),
+          new CombatAttributeSet<string>(restoredState?.attributes),
           options.tagRegistry,
           null,
           entityBlackboard,
@@ -427,8 +529,9 @@ export class StandardPlayerDamageEnvironment {
             }),
           undefined,
           buff => this.#recordBuffRemoval(entityId, buff, 'other', 'BuffReleased'),
+          restoredState,
         );
-        container.addEntityTags(bornTags);
+        if (restoredState === undefined) container.addEntityTags(bornTags);
         return new BuffDefinitionOperationTarget(
           container,
           {
@@ -441,7 +544,10 @@ export class StandardPlayerDamageEnvironment {
           event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
           event => this.#emit(event.sourceId, 'outputBuff', event),
           event => this.#emit(entityId, 'beforeAddedBuff', event),
-          (event, handle) => this.eventsFor(entityId).registerCallback(event, handle),
+          (event, handle, subscriptions) =>
+            subscriptions === undefined
+              ? this.eventsFor(entityId).registerCallback(event, handle)
+              : this.#bindSingleBuffSubscription(entityId, event, subscriptions, handle),
           handle => this.#registerPostSkillRequest(entityId, handle),
           definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
         );
@@ -451,8 +557,16 @@ export class StandardPlayerDamageEnvironment {
         this.#readSourceAttributeValue(sourceId, request),
       emitAbilityEvent: (entityId, event, payload) => this.#emit(entityId, event, payload),
       onPostSkillCastRequest: (ownerId, info) => {
-        for (const handle of [...(this.#postSkillRequestListeners.get(ownerId) ?? [])])
-          handle(info);
+        const handlers = (
+          this.#postSkillRequestListenerState.registrationsByOwner.get(ownerId) ?? []
+        ).map(id => {
+          const handle = this.#postSkillRequestListeners.get(ownerId)?.get(id);
+          if (handle === undefined) {
+            throw new Error(`post-skill request listener '${ownerId}:${id}' is not bound`);
+          }
+          return handle;
+        });
+        for (const handle of handlers) handle(info);
       },
       emitOperatorEnterFight: operatorId =>
         this.#emit(operatorId, 'enterFight', {
@@ -475,14 +589,20 @@ export class StandardPlayerDamageEnvironment {
       emitBuffLifecycleAbilityEvent: (event, payload) =>
         this.#emit(payload.sourceId, event, payload),
       createEquipmentEventOperationExecutor: context => this.#createOperationExecutor(context),
-      registerEquipmentAbilityEventAction: (operatorId, event, priority, handle) =>
-        this.eventsFor(operatorId).registerAction(event, priority, context =>
-          handle(context, this.#resolveAbilityEventRuntimeActionContext(context)),
-        ),
-      registerPassiveAbilityEventAction: (operatorId, event, priority, handle) =>
-        this.eventsFor(operatorId).registerAction(event, priority, context =>
-          handle(context, this.#resolveAbilityEventRuntimeActionContext(context)),
-        ),
+      registerEquipmentAbilityEventAction: (operatorId, event, priority, handle, subscriptions) => {
+        const receive = (context: CombatAbilityEvent<typeof event>) =>
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(context));
+        return subscriptions === undefined
+          ? this.eventsFor(operatorId).registerAction(event, priority, receive)
+          : this.#bindSingleBuffSubscription(operatorId, event, subscriptions, receive);
+      },
+      registerPassiveAbilityEventAction: (operatorId, event, priority, handle, subscriptions) => {
+        const receive = (context: CombatAbilityEvent<typeof event>) =>
+          handle(context, this.#resolveAbilityEventRuntimeActionContext(context));
+        return subscriptions === undefined
+          ? this.eventsFor(operatorId).registerAction(event, priority, receive)
+          : this.#bindSingleBuffSubscription(operatorId, event, subscriptions, receive);
+      },
       registerComboSkillCondition: registration =>
         this.comboConditions.registerPendingCondition(registration),
       // 固定木桩投影：没有干员死亡或敌方沉默状态；不把 HP=0 当 markDie，也不猜查询 Tag。
@@ -515,17 +635,38 @@ export class StandardPlayerDamageEnvironment {
   #registerPostSkillRequest(
     ownerId: string,
     handle: (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void,
-  ): { dispose(): void } {
+    restoredRegistrationId?: number,
+  ): { readonly registrationId: number; dispose(): void } {
+    const registrationId =
+      restoredRegistrationId ??
+      registerPostSkillRequestListener(this.#postSkillRequestListenerState, ownerId);
+    if (restoredRegistrationId !== undefined) {
+      requirePostSkillRequestListener(
+        this.#postSkillRequestListenerState,
+        ownerId,
+        restoredRegistrationId,
+      );
+    }
     let listeners = this.#postSkillRequestListeners.get(ownerId);
     if (listeners === undefined) {
-      listeners = new Set();
+      listeners = new Map();
       this.#postSkillRequestListeners.set(ownerId, listeners);
     }
-    const entry = (info: import('./skillCastInfo').CombatSkillCastInfo | null) => handle(info);
-    listeners.add(entry);
+    if (listeners.has(registrationId)) {
+      throw new Error(
+        `post-skill request listener '${ownerId}:${registrationId}' is already bound`,
+      );
+    }
+    listeners.set(registrationId, info => handle(info));
     return {
+      registrationId,
       dispose: () => {
-        listeners.delete(entry);
+        if (!listeners.delete(registrationId)) return;
+        unregisterPostSkillRequestListener(
+          this.#postSkillRequestListenerState,
+          ownerId,
+          registrationId,
+        );
         if (listeners.size === 0 && this.#postSkillRequestListeners.get(ownerId) === listeners)
           this.#postSkillRequestListeners.delete(ownerId);
       },
@@ -537,8 +678,14 @@ export class StandardPlayerDamageEnvironment {
   ): AbilityEventDispatcher<StandardPlayerDamageEvent, StandardPlayerDamagePayloadMap> {
     let dispatcher = this.#events.get(entityId);
     if (dispatcher === undefined) {
-      dispatcher = new AbilityEventDispatcher();
+      dispatcher = new AbilityEventDispatcher<
+        StandardPlayerDamageEvent,
+        StandardPlayerDamagePayloadMap
+      >(
+        this.#eventStates.get(entityId) as AbilityEventState<StandardPlayerDamageEvent> | undefined,
+      );
       this.#events.set(entityId, dispatcher);
+      this.#eventStates.set(entityId, dispatcher.runtimeState);
     }
     return dispatcher;
   }
@@ -576,7 +723,7 @@ export class StandardPlayerDamageEnvironment {
           );
         }
         attributes.addModifier(
-          new CombatAttributeModifier(
+          createCombatAttributeModifier(
             request.attribute,
             request.values,
             ATTRIBUTE_MODIFIER_SOURCES.instant,
@@ -917,6 +1064,7 @@ export class StandardPlayerDamageEnvironment {
       poiseImmune: false,
     });
     this.#operatorVitals.set(operatorId, vitals);
+    this.runtimeState.operatorVitals.set(operatorId, vitals.runtimeState);
     return vitals;
   }
 
@@ -995,17 +1143,35 @@ export class StandardPlayerDamageEnvironment {
   #operatorBuffRuntime(
     operatorId: string,
     panel?: ResolvedOperatorPanel,
+    restoredState?: import('../buffs/buffContainerState').BuffContainerState<string>,
   ): BuffDefinitionOperationTarget<string> {
     let runtime = this.#operatorBuffRuntimes.get(operatorId);
+    if (
+      runtime !== undefined &&
+      restoredState !== undefined &&
+      runtime.runtimeState !== restoredState
+    ) {
+      throw new Error(`restored operator Buff container '${operatorId}' is already bound`);
+    }
     if (runtime === undefined) {
+      const configuredState =
+        restoredState ?? this.options.restoredBuffStates?.operators.get(operatorId);
+      const attributes =
+        configuredState === undefined
+          ? panel === undefined
+            ? new CombatAttributeSet<string>()
+            : createOperatorAttackAttributes(panel)
+          : new CombatAttributeSet<string>(configuredState.attributes);
+      const entityBlackboard =
+        configuredState === undefined
+          ? undefined
+          : ActionBlackboard.bindRuntimeState(configuredState.entityBlackboard);
       const container = new CombatBuffContainer(
         operatorId,
-        panel === undefined
-          ? new CombatAttributeSet<string>()
-          : createOperatorAttackAttributes(panel),
+        attributes,
         this.options.tagRegistry,
         null,
-        undefined,
+        entityBlackboard,
         (buff, reason, skillCastInfo) =>
           this.#recordOwnedBuffFinished(operatorId, buff, reason, skillCastInfo),
         (buff, layerCount, reason, skillCastInfo) =>
@@ -1029,6 +1195,9 @@ export class StandardPlayerDamageEnvironment {
             gainedValue,
             currentValue,
           }),
+        undefined,
+        undefined,
+        configuredState,
       );
       runtime = new BuffDefinitionOperationTarget(
         container,
@@ -1045,7 +1214,10 @@ export class StandardPlayerDamageEnvironment {
         event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
         event => this.#emit(event.sourceId, 'outputBuff', event),
         event => this.#emit(operatorId, 'beforeAddedBuff', event),
-        (event, handle) => this.eventsFor(operatorId).registerCallback(event, handle),
+        (event, handle, subscriptions) =>
+          subscriptions === undefined
+            ? this.eventsFor(operatorId).registerCallback(event, handle)
+            : this.#bindSingleBuffSubscription(operatorId, event, subscriptions, handle),
         handle => this.#registerPostSkillRequest(operatorId, handle),
         definitionOperatorId => this.#requireProjectileRuntimeDependencies(definitionOperatorId),
       );
@@ -1058,10 +1230,25 @@ export class StandardPlayerDamageEnvironment {
   }
 
   #buffAbilityEventRegistrar(entityId: string): RegisterBuffAbilityEventAction {
-    return (event, priority: number, handle) =>
-      this.eventsFor(entityId).registerAction(event, priority, context => {
+    return (event, priority: number, handle, subscriptions) => {
+      const receive = (context: CombatAbilityEvent<typeof event>) => {
         handle(context, this.#resolveAbilityEventRuntimeActionContext(context));
-      });
+      };
+      return subscriptions === undefined
+        ? this.eventsFor(entityId).registerAction(event, priority, receive)
+        : this.#bindSingleBuffSubscription(entityId, event, subscriptions, receive);
+    };
+  }
+
+  #bindSingleBuffSubscription<Event extends AbilityResponseEventName>(
+    entityId: string,
+    event: Event,
+    subscriptions: readonly import('../events/abilityEventState').AbilityEventSubscriptionReference[],
+    handle: (event: CombatAbilityEvent<Event>) => void,
+  ) {
+    if (subscriptions.length !== 1)
+      throw new Error(`Buff event binding for '${entityId}' requires exactly one subscription`);
+    return this.eventsFor(entityId).bindSubscriptionFor(event, subscriptions[0]!, handle);
   }
 
   #requireProjectileRuntimeDependencies(

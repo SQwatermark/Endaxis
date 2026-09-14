@@ -6,6 +6,22 @@ import { ActionBlackboard } from './actionBlackboard';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 
 describe('战斗级全局冷却（combat-spec GlobalCooldownTests 对应行为）', () => {
+  it('恢复同帧清理位置，不提前删除刚写入的过期项，也不保留另一分支的刷新', () => {
+    const clock = { time: 1 };
+    const original = new GlobalCooldowns(clock);
+    original.set('a', 'x', -1);
+    const saved = structuredClone(original.runtimeState);
+    clock.time = 2;
+    original.set('a', 'x', 100);
+    const restoredClock = { time: 1 };
+    const restored = new GlobalCooldowns(restoredClock, structuredClone(saved));
+    expect(restored.has('a', 'x')).toBe(true);
+    restoredClock.time = 2;
+    expect(restored.has('a', 'x')).toBe(false);
+    expect(original.has('a', 'x')).toBe(true);
+    expect(saved.entries.get('a')?.get('x')).toBe(0);
+  });
+
   it('同角色/ID 刷新而非并存；缩短、延长均生效，其他角色和 ID 独立', () => {
     const clock = { time: 0 };
     const cooldowns = new GlobalCooldowns(clock);

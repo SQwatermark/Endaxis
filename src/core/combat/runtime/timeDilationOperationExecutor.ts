@@ -13,6 +13,12 @@ import { resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import { resolveTimeScaleCurve } from './timeScaleCurve';
 import type { TimeDilationRuntime } from './timeDilationRuntime';
+import { createTimeDilationActionState } from './timeDilationActionState';
+import {
+  finishTimeDilationAction,
+  revertTimeDilationIgnoreAction,
+} from './timeDilationActionExecution';
+import { CombatOperationPrograms } from './combatOperationPrograms';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -27,10 +33,24 @@ export interface TimeDilationOperationDependencies {
 }
 
 export class TimeDilationOperationExecutor implements CombatOperationExecutor {
-  readonly #instanceIds = new WeakMap<RuntimeOperation, readonly number[]>();
-  readonly #ignoredEntityIds = new WeakMap<RuntimeOperation, readonly string[]>();
+  readonly runtimeState: ReturnType<typeof createTimeDilationActionState>;
+  readonly programs: CombatOperationPrograms;
 
-  constructor(readonly dependencies: TimeDilationOperationDependencies) {}
+  constructor(
+    readonly dependencies: TimeDilationOperationDependencies,
+    restored?: {
+      readonly state: ReturnType<typeof createTimeDilationActionState>;
+      readonly programs: CombatOperationPrograms;
+    },
+  ) {
+    this.runtimeState = restored?.state ?? createTimeDilationActionState();
+    this.programs = restored?.programs ?? new CombatOperationPrograms();
+  }
+
+  /** 过渡期的程序节点绑定；动作关系本身存入可复制状态。 */
+  #slot(step: RuntimeOperation): number {
+    return this.programs.slot(step);
+  }
 
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (
@@ -51,7 +71,8 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
       for (const entityId of entityIds) {
         this.dependencies.runtime.setIgnoreGlobalTimeScale(entityId, step.parameters.ignore);
       }
-      if (step.parameters.revertOnEnd) this.#ignoredEntityIds.set(step, entityIds);
+      if (step.parameters.revertOnEnd)
+        this.runtimeState.ignoredEntityIds.set(this.#slot(step), entityIds);
       return true;
     }
     const source = {
@@ -76,7 +97,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
         ],
         source,
       );
-      this.#instanceIds.set(step, [id]);
+      this.runtimeState.instanceIds.set(this.#slot(step), [id]);
       return true;
     }
     const parameters = step.parameters;
@@ -132,7 +153,11 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
             }),
           );
     if (parameters.finishByAction) {
-      this.#instanceIds.set(step, [...(this.#instanceIds.get(step) ?? []), ...ids]);
+      const slot = this.#slot(step);
+      this.runtimeState.instanceIds.set(slot, [
+        ...(this.runtimeState.instanceIds.get(slot) ?? []),
+        ...ids,
+      ]);
     }
     return true;
   }
@@ -190,15 +215,18 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
 
   end(step: RuntimeOperation, context?: CombatOperationContext): void {
     if (step.kind === 'setIgnoreGlobalTimeScale') {
-      for (const entityId of this.#ignoredEntityIds.get(step) ?? []) {
-        this.dependencies.runtime.setIgnoreGlobalTimeScale(entityId, !step.parameters.ignore);
-      }
-      this.#ignoredEntityIds.delete(step);
+      revertTimeDilationIgnoreAction(
+        this.runtimeState,
+        this.#slot(step),
+        step.parameters.ignore,
+        (entityId, ignore) => this.dependencies.runtime.setIgnoreGlobalTimeScale(entityId, ignore),
+      );
       return;
     }
     if (step.kind === 'startTimeDilation' || step.kind === 'startUltimateTimeDilation') {
-      for (const id of this.#instanceIds.get(step) ?? []) this.dependencies.runtime.stop(id);
-      this.#instanceIds.delete(step);
+      finishTimeDilationAction(this.runtimeState, this.#slot(step), id =>
+        this.dependencies.runtime.stop(id),
+      );
       return;
     }
     this.dependencies.delegate.end?.(step, context);

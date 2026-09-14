@@ -58,6 +58,7 @@ describe('EventContextConditionExecutor', () => {
           targetId: 'entity',
           skillCastInfo: origin,
           entity: {
+            instanceId: 1,
             onReset: () => {
               throw new Error('condition must not subscribe to reset');
             },
@@ -164,7 +165,10 @@ describe('EventContextConditionExecutor', () => {
       },
     };
     expect(
-      executor.evaluate({ kind: 'actionInputTargetObjectTypeMatch', objectTypes: ['character'] }, context),
+      executor.evaluate(
+        { kind: 'actionInputTargetObjectTypeMatch', objectTypes: ['character'] },
+        context,
+      ),
     ).toBe(true);
     expect(
       executor.evaluate(

@@ -1,6 +1,16 @@
 import { describe, expect, it } from 'vitest';
 import { CombatResources } from './combatResources';
-import { SharedSpGainModifier, SharedSpRecoveryModifier } from '../resources/sharedSpGainModifiers';
+import { StateStepper } from './stateStepper';
+import {
+  pay,
+  advanceInCombatSpRecovery,
+  gainSquadUltimateEnergyFromSkillCost,
+  revertUltimateEnergyRecoveryRestriction,
+} from './combatResourceExecution';
+import {
+  createSharedSpGainModifier,
+  createSharedSpRecoveryModifier,
+} from '../resources/sharedSpGainModifiers';
 
 function createResources() {
   return new CombatResources({
@@ -31,6 +41,90 @@ function createResources() {
 }
 
 describe('CombatResources', () => {
+  it('同一切面的支付、回能限制和暂停恢复在各分支独立结算', () => {
+    const resources = createResources();
+    const handle = resources.requestUltimateEnergyRecoveryRestriction('source', new Set());
+    const session = new StateStepper(resources.runtimeState, (step, removeRestriction: boolean) => {
+      const state = step.state;
+      if (removeRestriction) revertUltimateEnergyRecoveryRestriction(state, {}, handle, false);
+      const payment = pay(state, 'source', [{ resource: 'sp', value: 20 }]);
+      const energy = gainSquadUltimateEnergyFromSkillCost(
+        state,
+        {},
+        'source',
+        payment.nonReturnedSpCost,
+        1,
+      );
+      const settings = { baseGainEfficiency: 1 };
+      const recovery = [0.5, 0.5, 1].map(
+        delta => advanceInCombatSpRecovery(state, settings, delta).actualValue,
+      );
+      return { payment, energy, recovery };
+    });
+    const checkpoint = session.save();
+    const unrestricted = session.step(true);
+    expect(unrestricted.payment.nonReturnedSpCost).toBe(10);
+    expect(unrestricted.energy.map(change => change.actualValue)).toEqual([1.5, 1]);
+    expect(unrestricted.recovery).toEqual([0, 0, 10]);
+    expect(session.read().sp).toBe(90);
+    expect(session.read().returnedSp).toBe(0);
+    session.restore(checkpoint);
+    const restricted = session.step(false);
+    expect(restricted.energy.map(change => change.actualValue)).toEqual([0, 1]);
+    expect(restricted.energy[0]!.applied).toBe(false);
+    expect(restricted.payment).toEqual(unrestricted.payment);
+    expect(restricted.recovery).toEqual(unrestricted.recovery);
+    session.restore(checkpoint);
+    expect(session.step(true)).toEqual(unrestricted);
+    expect(resources.sp).toBe(100);
+    expect(resources.getUltimateEnergy('other')).toBe(0);
+  });
+
+  it('copies squad aliases, recovery restrictions and pause state together', () => {
+    const resources = createResources();
+    const handle = resources.requestUltimateEnergyRecoveryRestriction(
+      'source',
+      new Set(['allowed']),
+    );
+    resources.pay('source', [{ resource: 'sp', value: 20 }]);
+    const modifier = createSharedSpGainModifier('gainEfficiency', 'addition', 0.5, true);
+    resources.sharedSpGainModifiers.add(modifier);
+    const session = new StateStepper(
+      { resources: resources.runtimeState, modifier },
+      () => undefined,
+    );
+    const copied = session.read();
+    expect(copied.resources.squad[0]).toBe(copied.resources.operators.get('source'));
+    expect(copied.resources.sharedSpGainModifiers.modifiers[0]).toBe(copied.modifier);
+    expect(copied.resources.spRecoveryPauseRemaining).toBe(1);
+    expect(copied.resources.ultimateRecoveryRestrictionHandles.get(handle)!.allowed).toEqual(
+      new Set(['allowed']),
+    );
+    resources.revertUltimateEnergyRecoveryRestriction(handle, false);
+    resources.sharedSpGainModifiers.remove(modifier);
+    expect(copied.resources.ultimateRecoveryRestrictionHandles.has(handle)).toBe(true);
+    expect(copied.resources.sharedSpGainModifiers.modifiers).toHaveLength(1);
+  });
+
+  it('恢复时直接绑定完整资源账本且不重复注册动态修正', () => {
+    const original = createResources();
+    const gainModifier = createSharedSpGainModifier('gainEfficiency', 'addition', 0.5, true);
+    const recoveryModifier = createSharedSpRecoveryModifier('multiplier', 0.25);
+    original.sharedSpGainModifiers.add(gainModifier);
+    original.sharedSpRecoveryModifiers.add(recoveryModifier);
+    original.pay('source', [{ resource: 'sp', value: 20 }]);
+    const restoredState = new StateStepper(original.runtimeState, () => undefined).read();
+
+    const restored = new CombatResources(original.snapshot(), {}, restoredState);
+
+    expect(restored.runtimeState).toBe(restoredState);
+    expect(restored.sharedSpGainModifiers.modifierCount).toBe(1);
+    expect(restored.sharedSpRecoveryModifiers.runtimeState.modifiers).toHaveLength(1);
+    expect(restored.gainSp(10, 'gain', 'normalAttack').actualValue).toBe(15);
+    expect(restored.advanceInCombatSpRecovery(1).actualValue).toBe(0);
+    expect(restored.advanceInCombatSpRecovery(1).actualValue).toBe(12.5);
+    expect(original.sp).toBe(80);
+  });
   it('按单精度余额差值判定小额费用，支付成功不代表Setter发生写入', () => {
     const resources = createResources();
     resources.changeUltimateEnergy('source', 16, { ignoreGainMultiplier: true });
@@ -160,7 +254,7 @@ describe('CombatResources', () => {
 
   it('持有一次战斗唯一的共享 SP 效率注册表', () => {
     const resources = createResources();
-    const modifier = new SharedSpGainModifier('powerAttackEfficiency', 'addition', 0.5, false);
+    const modifier = createSharedSpGainModifier('powerAttackEfficiency', 'addition', 0.5, false);
 
     resources.sharedSpGainModifiers.add(modifier);
 
@@ -203,10 +297,10 @@ describe('CombatResources', () => {
   it('applies the registered shared SP efficiency before the shared cap', () => {
     const resources = createResources();
     resources.sharedSpGainModifiers.add(
-      new SharedSpGainModifier('gainEfficiency', 'addition', 0.5, false),
+      createSharedSpGainModifier('gainEfficiency', 'addition', 0.5, false),
     );
     resources.sharedSpGainModifiers.add(
-      new SharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.5, false),
+      createSharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.5, false),
     );
 
     expect(resources.gainSp(20, 'gain', 'powerAttack')).toEqual({
@@ -284,7 +378,7 @@ describe('CombatResources', () => {
 
   it('applies active GlobalBuff modifiers to natural SP recovery only while registered', () => {
     const resources = createResources();
-    const modifier = new SharedSpRecoveryModifier('multiplier', -0.5);
+    const modifier = createSharedSpRecoveryModifier('multiplier', -0.5);
     resources.sharedSpRecoveryModifiers.add(modifier);
 
     expect(resources.advanceInCombatSpRecovery(0.5).actualValue).toBe(2.5);

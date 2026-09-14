@@ -2,6 +2,25 @@ import { describe, expect, it } from 'vitest';
 import { ElementalReactionContainer, MAX_REACTION_LEVEL } from './elementalReactionState';
 
 describe('ElementalReactionContainer', () => {
+  it('复制后恢复反应等级和到期时间，两个分支可独立消费', () => {
+    const original = new ElementalReactionContainer();
+    const input = {
+      reaction: 'electrification' as const,
+      durationSeconds: 5,
+      sourceId: 'operator',
+      time: 1,
+    };
+    original.apply(input);
+    original.apply(input);
+    const saved = structuredClone(original.runtimeState);
+    const restored = new ElementalReactionContainer(saved);
+    expect(original.consume('electrification', 2)).toEqual({ consumedLevel: 2 });
+    expect(restored.isActive('electrification', 2, 5.9)).toBe(true);
+    expect(restored.snapshot(5.9)[0]!.sourceId).toBe('operator');
+    expect(restored.isActive('electrification', undefined, 6)).toBe(false);
+    expect(original.snapshot(2)).toEqual([]);
+  });
+
   it('首次施加建立 1 级并按时长到期', () => {
     const container = new ElementalReactionContainer();
     const result = container.apply({

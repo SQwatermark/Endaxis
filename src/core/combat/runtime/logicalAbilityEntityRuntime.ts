@@ -13,6 +13,7 @@ import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import {
   TimedMarkerContainer,
+  createTimedMarkerState,
   type TimedMarkerFinishReason,
   type TimedMarkerSnapshot,
 } from './timedMarkers';
@@ -20,6 +21,15 @@ import type { GameplayTag } from '../tags/gameplayTags';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
+import {
+  killLogicalAbilityEntity,
+  advanceAbilityEntityRelease,
+  advanceAbilityEntityLifetime,
+} from './logicalAbilityEntityExecution';
+import type {
+  LogicalAbilityEntityState,
+  LogicalAbilityEntityDirectoryState,
+} from './logicalAbilityEntityState';
 
 export type LogicalAbilityEntityFinishReason =
   'durationExpired' | 'explicit' | 'ownerFinished' | 'sourceDied' | 'stackingLimit';
@@ -91,26 +101,12 @@ export interface LogicalAbilityEntityRuntimeHooks {
 }
 
 interface LogicalAbilityEntityInstance {
-  readonly skillCastInfo?: CombatSkillCastInfo | null;
-  readonly instanceId: number;
-  readonly abilityEntityId: string;
-  readonly definition: LogicalAbilityEntityDefinition;
-  readonly ownerId: string;
-  readonly source: RuntimeTargetRef;
-  readonly sourceSkillCastId?: number;
-  target?: RuntimeTargetRef;
-  readonly dieWhenSourceDies: boolean;
+  readonly state: LogicalAbilityEntityState;
   readonly blackboard: ActionBlackboard;
   readonly timedMarkers: TimedMarkerContainer;
-  remainingDurationSeconds: number | null;
-  elapsedDurationSeconds: number;
-  isAlive: boolean;
-  pendingRelease: boolean;
-  pendingReleaseElapsedSeconds: number;
-  pendingReleaseReason?: LogicalAbilityEntityFinishReason;
   readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
   readonly childBuffs: BuffApplicationHandle[];
-  readonly resetCallbacks: Set<() => void>;
+  readonly resetCallbacks: Map<number, () => void>;
 }
 
 function requireDuration(value: number, name: string): number {
@@ -123,7 +119,7 @@ function requireDuration(value: number, name: string): number {
 /** 一场战斗唯一的能力实体实例目录。 */
 export class LogicalAbilityEntityRuntime implements FrameRuntime {
   readonly #instances = new Map<number, LogicalAbilityEntityInstance>();
-  readonly #deadSources: RuntimeTargetRef[] = [];
+  readonly runtimeState: LogicalAbilityEntityDirectoryState;
   readonly #hooks: LogicalAbilityEntityRuntimeHooks;
   readonly #resolveDeltaSeconds: (snapshot: LogicalAbilityEntitySnapshot) => number;
   readonly #allocateInstanceId: () => number;
@@ -133,11 +129,73 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     /** 后续时间膨胀接线点；省略时使用一帧的普通实体时间。 */
     readonly resolveDeltaSeconds?: (snapshot: LogicalAbilityEntitySnapshot) => number;
     readonly allocateInstanceId?: () => number;
+    /** 已复制的目录数据；绑定过程不触发生成、子技能或公共事件。 */
+    readonly restoredState?: LogicalAbilityEntityDirectoryState;
   }) {
     this.#hooks = options.hooks ?? {};
     this.#resolveDeltaSeconds = options.resolveDeltaSeconds ?? (() => COMBAT_FRAME_INTERVAL);
     const instanceIds = new AbilityEntityInstanceIdAllocator();
     this.#allocateInstanceId = options.allocateInstanceId ?? (() => instanceIds.allocate());
+    this.runtimeState = options.restoredState ?? { instances: new Map(), deadSources: [] };
+    for (const [instanceId, state] of this.runtimeState.instances) {
+      if (instanceId !== state.instanceId) {
+        throw new Error(
+          `AbilityEntity directory key '${instanceId}' does not match instance '${state.instanceId}'`,
+        );
+      }
+      if (this.#instances.has(instanceId)) {
+        throw new Error(`duplicate restored AbilityEntity instance id '${instanceId}'`);
+      }
+      this.#instances.set(instanceId, this.#bindRestoredInstance(state));
+    }
+  }
+
+  /**
+   * 所有实体和 Buff 容器建立后，再接回子技能与子 Buff。恢复不会调用 start 或生成事件。
+   * reset 回调由持有该登记的宿主通过 bindResetCallback 单独接回。
+   */
+  bindRestoredRelations(options: {
+    readonly createChildRuntime?: (
+      entity: RuntimeTargetRef,
+      blackboard: ActionBlackboard,
+      state: LogicalAbilityEntityState['childSkills'][number],
+    ) => LogicalAbilityEntityChildRuntime;
+    readonly resolveChildBuff?: (
+      reference: LogicalAbilityEntityState['childBuffs'][number],
+    ) => BuffApplicationHandle;
+  }): void {
+    const prepared: Array<{
+      readonly instance: LogicalAbilityEntityInstance;
+      readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
+      readonly childBuffs: BuffApplicationHandle[];
+    }> = [];
+    for (const instance of this.#instances.values()) {
+      if (instance.childRuntimes.length > 0 || instance.childBuffs.length > 0) {
+        throw new Error(`AbilityEntity '${instance.state.instanceId}' relations are already bound`);
+      }
+      const entity = { kind: 'abilityEntity' as const, instanceId: instance.state.instanceId };
+      if (instance.state.childSkills.length > 0 && options.createChildRuntime === undefined) {
+        throw new Error(
+          `AbilityEntity '${instance.state.instanceId}' child skill binder is missing`,
+        );
+      }
+      if (instance.state.childBuffs.length > 0 && options.resolveChildBuff === undefined) {
+        throw new Error(
+          `AbilityEntity '${instance.state.instanceId}' child Buff resolver is missing`,
+        );
+      }
+      const childRuntimes = instance.state.childSkills.map(state =>
+        options.createChildRuntime!(entity, instance.blackboard, state),
+      );
+      const childBuffs = instance.state.childBuffs.map(reference =>
+        options.resolveChildBuff!(reference),
+      );
+      prepared.push({ instance, childRuntimes, childBuffs });
+    }
+    for (const { instance, childRuntimes, childBuffs } of prepared) {
+      instance.childRuntimes.push(...childRuntimes);
+      instance.childBuffs.push(...childBuffs);
+    }
   }
 
   get activeCount(): number {
@@ -176,11 +234,11 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     if (request.ownerId.length === 0) throw new Error('AbilityEntity owner id must not be empty');
     if (maxStackingCount !== undefined) {
       const matching = [...this.#instances.values()].filter(
-        instance => instance.abilityEntityId === request.abilityEntityId,
+        instance => instance.state.abilityEntityId === request.abilityEntityId,
       );
       while (matching.length >= maxStackingCount) {
         this.finish(
-          { kind: 'abilityEntity', instanceId: matching.shift()!.instanceId },
+          { kind: 'abilityEntity', instanceId: matching.shift()!.state.instanceId },
           'stackingLimit',
         );
       }
@@ -198,56 +256,71 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     if (this.#instances.has(instanceId)) {
       throw new Error(`duplicate AbilityEntity instance id '${instanceId}'`);
     }
+    const blackboard = new ActionBlackboard({
+      ...request.definition.blackboard,
+      ...request.blackboardAssignments,
+    });
     let instance!: LogicalAbilityEntityInstance;
+    const timedMarkers = createTimedMarkerState();
     instance = {
-      ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
-      instanceId,
-      abilityEntityId: request.abilityEntityId,
-      definition: request.definition,
-      ownerId: request.ownerId,
-      source: request.source,
-      ...(request.sourceSkillCastId === undefined
-        ? {}
-        : { sourceSkillCastId: request.sourceSkillCastId }),
-      ...(request.target === undefined ? {} : { target: request.target }),
-      dieWhenSourceDies: request.dieWhenSourceDies ?? false,
-      blackboard: new ActionBlackboard({
-        ...request.definition.blackboard,
-        ...request.blackboardAssignments,
-      }),
+      state: {
+        childBuffs: [],
+        childSkills: [],
+        passiveAbilities: new Map(),
+        buffContainerCreated: false,
+        buffs: null,
+        resetCallbackIds: [],
+        nextResetCallbackId: 0,
+        timedMarkers,
+        ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
+        instanceId,
+        abilityEntityId: request.abilityEntityId,
+        definition: request.definition,
+        ownerId: request.ownerId,
+        source: request.source,
+        ...(request.sourceSkillCastId === undefined
+          ? {}
+          : { sourceSkillCastId: request.sourceSkillCastId }),
+        ...(request.target === undefined ? {} : { target: request.target }),
+        dieWhenSourceDies: request.dieWhenSourceDies ?? false,
+        blackboard: blackboard.runtimeState,
+        remainingDurationSeconds,
+        elapsedDurationSeconds: 0,
+        isAlive: true,
+        pendingRelease: false,
+        pendingReleaseElapsedSeconds: 0,
+      },
+      blackboard,
       timedMarkers: new TimedMarkerContainer(
         `abilityEntity:${instanceId}`,
         {
           get time() {
-            return instance.elapsedDurationSeconds;
+            return instance.state.elapsedDurationSeconds;
           },
         },
         {
           created: marker => this.#hooks.timedMarkerCreated?.(marker),
           finished: (marker, reason) => this.#hooks.timedMarkerFinished?.(marker, reason),
         },
+        timedMarkers,
       ),
-      remainingDurationSeconds,
-      elapsedDurationSeconds: 0,
-      isAlive: true,
-      pendingRelease: false,
-      pendingReleaseElapsedSeconds: 0,
       childRuntimes: [],
       childBuffs: [],
-      resetCallbacks: new Set(),
+      resetCallbacks: new Map(),
     };
-    this.#instances.set(instance.instanceId, instance);
+    this.#instances.set(instance.state.instanceId, instance);
+    this.runtimeState.instances.set(instance.state.instanceId, instance.state);
     const snapshot = this.#snapshot(instance);
     this.#hooks.spawned?.(snapshot);
-    const target = { kind: 'abilityEntity' as const, instanceId: instance.instanceId };
+    const target = { kind: 'abilityEntity' as const, instanceId: instance.state.instanceId };
     if (request.createChildRuntime !== undefined) {
       this.startChildSkill(
         target,
-        instance.definition.childSkill?.skillId ?? '<spawn-child>',
+        instance.state.definition.childSkill?.skillId ?? '<spawn-child>',
         request.createChildRuntime,
       );
-    } else if (instance.definition.childSkill !== undefined) {
-      this.#hooks.childSkillRequested?.(snapshot, instance.definition.childSkill.skillId);
+    } else if (instance.state.definition.childSkill !== undefined) {
+      this.#hooks.childSkillRequested?.(snapshot, instance.state.definition.childSkill.skillId);
     }
     return target;
   }
@@ -271,7 +344,9 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
 
   /** 原生 asChildBuff：子 Buff 的寿命归当前能力实体所有。 */
   addChildBuff(entity: RuntimeTargetRef, child: BuffApplicationHandle): void {
-    this.#requireInstance(entity).childBuffs.push(child);
+    const instance = this.#requireInstance(entity);
+    instance.state.childBuffs.push(child.reference);
+    instance.childBuffs.push(child);
   }
 
   /** 零空间范围查找：返回全部活动实例，不应用距离、半径或形状裁剪。 */
@@ -288,20 +363,20 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     }
     const result: RuntimeTargetRef[] = [];
     for (const instance of this.#instances.values()) {
-      if (instance.ownerId !== query.ownerId) continue;
+      if (instance.state.ownerId !== query.ownerId) continue;
       if (
         query.abilityEntityIds !== undefined &&
-        !query.abilityEntityIds.includes(instance.abilityEntityId)
+        !query.abilityEntityIds.includes(instance.state.abilityEntityId)
       ) {
         continue;
       }
       if (
         query.sourceSkillCastId !== undefined &&
-        instance.sourceSkillCastId !== query.sourceSkillCastId
+        instance.state.sourceSkillCastId !== query.sourceSkillCastId
       ) {
         continue;
       }
-      result.push({ kind: 'abilityEntity', instanceId: instance.instanceId });
+      result.push({ kind: 'abilityEntity', instanceId: instance.state.instanceId });
     }
     return result;
   }
@@ -321,17 +396,17 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   }
 
   setTarget(entity: RuntimeTargetRef, target: RuntimeTargetRef): void {
-    this.#requireInstance(entity).target = target;
+    this.#requireInstance(entity).state.target = target;
   }
 
   isSourceDead(entity: RuntimeTargetRef): boolean {
-    const source = this.#requireInstance(entity).source;
-    return this.#deadSources.some(dead => this.#sameTarget(dead, source));
+    const source = this.#requireInstance(entity).state.source;
+    return this.runtimeState.deadSources.some(dead => this.#sameTarget(dead, source));
   }
 
   /** SetAbilityEntityDuration 的 Assign 路径设置当前剩余时长。 */
   setRemainingDuration(entity: RuntimeTargetRef, seconds: number): void {
-    this.#requireInstance(entity).remainingDurationSeconds = requireDuration(
+    this.#requireInstance(entity).state.remainingDurationSeconds = requireDuration(
       seconds,
       'remaining duration',
     );
@@ -339,27 +414,65 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
 
   finish(entity: RuntimeTargetRef, reason: LogicalAbilityEntityFinishReason = 'explicit'): void {
     const instance = this.#requireInstance(entity);
+    const resetCallbacks = instance.state.resetCallbackIds.map(id => {
+      const callback = instance.resetCallbacks.get(id);
+      if (callback === undefined) {
+        throw new Error(`AbilityEntity reset callback '${id}' is not bound`);
+      }
+      return callback;
+    });
     for (const runtime of instance.childRuntimes) runtime.finish();
-    for (const child of instance.childBuffs) child.finish('other', null);
+    // 实时读取长度，保留清理回调追加子 Buff 时同轮继续结束的行为。
+    for (let index = 0; index < instance.state.childBuffs.length; index++) {
+      instance.childBuffs[index]!.finish('other', null);
+    }
     instance.timedMarkers.finishAll();
     this.#hooks.finished?.(this.#snapshot(instance), reason);
-    this.#instances.delete(instance.instanceId);
+    this.#instances.delete(instance.state.instanceId);
+    this.runtimeState.instances.delete(instance.state.instanceId);
     try {
-      for (const callback of [...instance.resetCallbacks]) callback();
+      for (const callback of resetCallbacks) callback();
     } finally {
       instance.resetCallbacks.clear();
+      instance.state.resetCallbackIds.length = 0;
     }
   }
 
   /** 原生onResetAction对应的对象端口；在宿主清理后通知，不是公共战斗事件。 */
-  onReset(entity: RuntimeTargetRef, callback: () => void): { dispose(): void } {
+  onReset(
+    entity: RuntimeTargetRef,
+    callback: () => void,
+  ): {
+    readonly registrationId: number;
+    dispose(): void;
+  } {
     const instance = this.#requireInstance(entity);
     // 每次订阅保留独立身份，重复传入同一个函数也可分别注销。
-    const entry = () => callback();
-    instance.resetCallbacks.add(entry);
+    const registrationId = instance.state.nextResetCallbackId++;
+    instance.state.resetCallbackIds.push(registrationId);
+    return this.bindResetCallback(entity, registrationId, callback);
+  }
+
+  /** 给保存的 onReset 登记接回函数，不申请新编号或改变回调顺序。 */
+  bindResetCallback(
+    entity: RuntimeTargetRef,
+    registrationId: number,
+    callback: () => void,
+  ): { readonly registrationId: number; dispose(): void } {
+    const instance = this.#requireInstance(entity);
+    if (!instance.state.resetCallbackIds.includes(registrationId)) {
+      throw new Error(`AbilityEntity reset callback '${registrationId}' is missing`);
+    }
+    if (instance.resetCallbacks.has(registrationId)) {
+      throw new Error(`AbilityEntity reset callback '${registrationId}' is already bound`);
+    }
+    instance.resetCallbacks.set(registrationId, callback);
     return {
+      registrationId,
       dispose: () => {
-        instance.resetCallbacks.delete(entry);
+        if (!instance.resetCallbacks.delete(registrationId)) return;
+        const index = instance.state.resetCallbackIds.indexOf(registrationId);
+        if (index >= 0) instance.state.resetCallbackIds.splice(index, 1);
       },
     };
   }
@@ -370,11 +483,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
    */
   kill(entity: RuntimeTargetRef, reason: LogicalAbilityEntityFinishReason = 'explicit'): void {
     const instance = this.#requireInstance(entity);
-    if (!instance.isAlive) return;
-    instance.isAlive = false;
-    instance.pendingRelease = true;
-    instance.pendingReleaseElapsedSeconds = 0;
-    instance.pendingReleaseReason = reason;
+    if (!killLogicalAbilityEntity(instance.state, reason)) return;
     this.#hooks.killed?.(this.#snapshot(instance), reason);
   }
 
@@ -385,17 +494,17 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   }
 
   notifySourceDied(source: RuntimeTargetRef): number {
-    if (!this.#deadSources.some(dead => this.#sameTarget(dead, source))) {
-      this.#deadSources.push(source);
+    if (!this.runtimeState.deadSources.some(dead => this.#sameTarget(dead, source))) {
+      this.runtimeState.deadSources.push(source);
     }
     const targets = [...this.#instances.values()]
       .filter(
         instance =>
-          instance.isAlive &&
-          instance.dieWhenSourceDies &&
-          this.#sameTarget(instance.source, source),
+          instance.state.isAlive &&
+          instance.state.dieWhenSourceDies &&
+          this.#sameTarget(instance.state.source, source),
       )
-      .map(instance => ({ kind: 'abilityEntity' as const, instanceId: instance.instanceId }));
+      .map(instance => ({ kind: 'abilityEntity' as const, instanceId: instance.state.instanceId }));
     for (const target of targets) this.kill(target, 'sourceDied');
     return targets.length;
   }
@@ -403,43 +512,36 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   advanceFrame(): void {
     for (const instance of [...this.#instances.values()]) {
       // 前一个宿主的Buff/技能回调可能已释放此实例；快照不延长宿主生命期。
-      if (!this.#instances.has(instance.instanceId)) continue;
-      if (instance.pendingRelease) {
-        instance.pendingReleaseElapsedSeconds += requireDuration(
-          this.#resolveDeltaSeconds(this.#snapshot(instance)),
-          'AbilityEntity release delta',
-        );
+      if (!this.#instances.has(instance.state.instanceId)) continue;
+      if (instance.state.pendingRelease) {
         if (
-          instance.pendingReleaseElapsedSeconds >=
-          (instance.definition.deathReleaseDelaySeconds ?? 0) - 0.00001
+          advanceAbilityEntityRelease(
+            instance.state,
+            this.#resolveDeltaSeconds(this.#snapshot(instance)),
+          )
         ) {
           this.finish(
-            { kind: 'abilityEntity', instanceId: instance.instanceId },
-            instance.pendingReleaseReason ?? 'explicit',
+            { kind: 'abilityEntity', instanceId: instance.state.instanceId },
+            instance.state.pendingReleaseReason ?? 'explicit',
           );
         }
         continue;
       }
-      const delta = requireDuration(
-        this.#resolveDeltaSeconds(this.#snapshot(instance)),
-        'AbilityEntity delta',
-      );
-      instance.elapsedDurationSeconds += delta;
-      instance.timedMarkers.sweep();
-      if (instance.remainingDurationSeconds !== null) {
-        instance.remainingDurationSeconds = Math.max(0, instance.remainingDurationSeconds - delta);
-        if (instance.remainingDurationSeconds === 0) {
-          this.finish(
-            { kind: 'abilityEntity', instanceId: instance.instanceId },
-            'durationExpired',
-          );
-          continue;
-        }
+      const delta = this.#resolveDeltaSeconds(this.#snapshot(instance));
+      if (
+        advanceAbilityEntityLifetime(instance.state, delta, () => instance.timedMarkers.sweep())
+      ) {
+        this.finish(
+          { kind: 'abilityEntity', instanceId: instance.state.instanceId },
+          'durationExpired',
+        );
+        continue;
       }
       this.#hooks.tickBuffs?.(this.#snapshot(instance));
-      if (!this.#instances.has(instance.instanceId) || instance.pendingRelease) continue;
+      if (!this.#instances.has(instance.state.instanceId) || instance.state.pendingRelease)
+        continue;
       for (const runtime of instance.childRuntimes) runtime.advance(delta);
-      if (this.#instances.has(instance.instanceId) && !instance.pendingRelease)
+      if (this.#instances.has(instance.state.instanceId) && !instance.state.pendingRelease)
         this.#hooks.recycleBuffs?.(this.#snapshot(instance));
     }
   }
@@ -455,25 +557,53 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return instance;
   }
 
+  #bindRestoredInstance(state: LogicalAbilityEntityState): LogicalAbilityEntityInstance {
+    const blackboard = ActionBlackboard.bindRuntimeState(state.blackboard);
+    let instance!: LogicalAbilityEntityInstance;
+    instance = {
+      state,
+      blackboard,
+      timedMarkers: new TimedMarkerContainer(
+        `abilityEntity:${state.instanceId}`,
+        {
+          get time() {
+            return instance.state.elapsedDurationSeconds;
+          },
+        },
+        {
+          created: marker => this.#hooks.timedMarkerCreated?.(marker),
+          finished: (marker, reason) => this.#hooks.timedMarkerFinished?.(marker, reason),
+        },
+        state.timedMarkers,
+      ),
+      childRuntimes: [],
+      childBuffs: [],
+      resetCallbacks: new Map(),
+    };
+    return instance;
+  }
+
   #snapshot(instance: LogicalAbilityEntityInstance): LogicalAbilityEntitySnapshot {
     return Object.freeze({
-      instanceId: instance.instanceId,
-      abilityEntityId: instance.abilityEntityId,
-      bornTags: instance.definition.bornTags ?? [],
-      ownerId: instance.ownerId,
-      source: instance.source,
-      ...(instance.skillCastInfo === undefined ? {} : { skillCastInfo: instance.skillCastInfo }),
-      ...(instance.sourceSkillCastId === undefined
+      instanceId: instance.state.instanceId,
+      abilityEntityId: instance.state.abilityEntityId,
+      bornTags: instance.state.definition.bornTags ?? [],
+      ownerId: instance.state.ownerId,
+      source: instance.state.source,
+      ...(instance.state.skillCastInfo === undefined
         ? {}
-        : { sourceSkillCastId: instance.sourceSkillCastId }),
-      ...(instance.target === undefined ? {} : { target: instance.target }),
-      ...(instance.definition.childSkill === undefined
+        : { skillCastInfo: instance.state.skillCastInfo }),
+      ...(instance.state.sourceSkillCastId === undefined
         ? {}
-        : { childSkillId: instance.definition.childSkill.skillId }),
-      remainingDurationSeconds: instance.remainingDurationSeconds,
-      elapsedDurationSeconds: instance.elapsedDurationSeconds,
-      dieWhenSourceDies: instance.dieWhenSourceDies,
-      isAlive: instance.isAlive,
+        : { sourceSkillCastId: instance.state.sourceSkillCastId }),
+      ...(instance.state.target === undefined ? {} : { target: instance.state.target }),
+      ...(instance.state.definition.childSkill === undefined
+        ? {}
+        : { childSkillId: instance.state.definition.childSkill.skillId }),
+      remainingDurationSeconds: instance.state.remainingDurationSeconds,
+      elapsedDurationSeconds: instance.state.elapsedDurationSeconds,
+      dieWhenSourceDies: instance.state.dieWhenSourceDies,
+      isAlive: instance.state.isAlive,
       blackboard: instance.blackboard.snapshot(),
     });
   }

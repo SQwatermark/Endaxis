@@ -10,13 +10,10 @@ export {
   type HealModifierDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
-  type HealModifierCondition,
   type HealModifierDefinition,
-  type HealModifierNumber,
   type HealModifierSide,
-  type HealProcessTiming,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
-import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
+import type { BuffModifierNumberSource } from '../buffs/buffModifierNumberSource';
 import type { CombatVitals } from '../runtime/combatVitals';
 
 export class HealCalculationContext {
@@ -35,54 +32,16 @@ export class HealCalculationContext {
   }
 }
 
-export class HealModifier {
-  constructor(
-    readonly ownerId: string,
-    readonly definition: HealModifierDefinition,
-    readonly resolveNumber: (value: HealModifierNumber) => number,
-  ) {}
+export interface HealModifier {
+  readonly ownerId: string;
+  readonly definition: HealModifierDefinition;
+  readonly numberSource: BuffModifierNumberSource;
+}
 
-  apply(timing: HealProcessTiming, side: HealModifierSide, context: HealCalculationContext): void {
-    if (side !== this.definition.enabledSide || context.getEntityId(side) !== this.ownerId) return;
-    if (
-      this.definition.condition !== undefined &&
-      !this.#evaluate(this.definition.condition, context)
-    ) {
-      return;
-    }
-    for (const processor of this.definition.processors) {
-      if (processor.timing !== timing) continue;
-      if (processor.kind === 'modifyCalculationResult') {
-        context.value *=
-          1 +
-          this.resolveNumber(processor.baseMultiplier) *
-            this.resolveNumber(processor.multiplierCount);
-      } else if (processor.side === 'healer') {
-        context.healerOutputIncrease += this.resolveNumber(processor.addition);
-      } else {
-        context.receiverTakenIncrease += this.resolveNumber(processor.addition);
-      }
-    }
-  }
-
-  #evaluate(condition: HealModifierCondition, context: HealCalculationContext): boolean {
-    if (condition.kind === 'healTagsMatch') {
-      const actual = new Set(context.tags);
-      return condition.match === 'hasAny'
-        ? condition.tags.some(tagId => actual.has(tagId))
-        : condition.tags.every(tagId => actual.has(tagId));
-    }
-    if (condition.kind === 'buffBlackboardCompare') {
-      return compareCombatNumbers(
-        this.resolveNumber(condition.left),
-        this.resolveNumber(condition.right),
-        condition.operator,
-      );
-    }
-    const actual =
-      condition.valueType === 'current'
-        ? context.receiverVitals.health
-        : context.receiverVitals.health / context.receiverVitals.maxHealth;
-    return compareCombatNumbers(actual, this.resolveNumber(condition.value), condition.operator);
-  }
+export function createHealModifier(
+  ownerId: string,
+  definition: HealModifierDefinition,
+  numberSource: BuffModifierNumberSource,
+): HealModifier {
+  return { ownerId, definition, numberSource };
 }

@@ -2,6 +2,18 @@
  * 技能与 Buff 等 Ability 监听者共享的同步事件边界。
  * 注册动作使用整数优先级；同优先级按原生双缓冲优先队列保持注册顺序。
  */
+import {
+  createAbilityEventState,
+  type AbilityEventPhase,
+  type AbilityEventState,
+} from './abilityEventState';
+import type { AbilityEventSubscriptionReference } from './abilityEventState';
+import {
+  dispatchAbilityEvent,
+  registerAbilityEvent,
+  unregisterAbilityEvent,
+} from './abilityEventExecution';
+
 /** 一次 Ability 事件的稳定身份和只读负载。 */
 export interface AbilityEventContext<Event, Payload = unknown> {
   readonly event: Event;
@@ -38,64 +50,50 @@ export interface AbilityEventRegistration {
   dispose(): void;
 }
 
-interface RegisteredAction<Event extends PropertyKey, Payloads extends Record<Event, unknown>> {
-  readonly priority: number;
-  readonly registrationOrder: number;
-  readonly execute: AbilityEventHandler<Event, Payloads>;
+/** 事件订阅句柄同时提供纯数据引用；合并订阅必须保留每一项，不能只合并 dispose。 */
+export interface TrackedAbilityEventRegistration extends AbilityEventRegistration {
+  readonly subscriptions: readonly AbilityEventSubscriptionReference[];
 }
 
 /**
- * 复现已确认的原生分发阶段。数据行为按优先级降序执行，同优先级先注册者先执行。
+ * 尚未迁移的技能/Buff 回调端口。订阅关系交给纯数据状态，所有分发共用无状态算法。
+ * handlers 仍连接现有有状态宿主，不能把本绑定对象当成完整、可恢复的事件状态。
  */
 export class AbilityEventDispatcher<
   Event extends PropertyKey,
   Payloads extends Record<Event, unknown> = Record<Event, unknown>,
 > {
-  readonly #callbacks = new Map<Event, AbilityEventHandler<Event, Payloads>[]>();
-  readonly #actions = new Map<Event, RegisteredAction<Event, Payloads>[]>();
-  readonly #skillListeners = new Map<Event, AbilityEventHandler<Event, Payloads>[]>();
-  readonly #comboListeners = new Map<Event, AbilityEventHandler<Event, Payloads>[]>();
-  #nextActionRegistrationOrder = 0;
+  readonly #state: AbilityEventState<Event>;
+  readonly #handlers = new Map<number, AbilityEventHandler<Event, Payloads>>();
+
+  /** 传入已复制的目录时只连接数据；调用方必须先补齐处理函数，再允许分发。 */
+  constructor(state: AbilityEventState<Event> = createAbilityEventState<Event>()) {
+    this.#state = state;
+  }
+
+  /** 订阅顺序与编号的实际数据；处理函数仍由当前事件中心持有。 */
+  get runtimeState() {
+    return this.#state;
+  }
 
   registerCallback<Name extends Event>(
     event: Name,
     callback: AbilityEventHandler<Name, Payloads>,
-  ): AbilityEventRegistration {
-    // 注册表按事件键隔离；这里只擦除键关联，不包装事件或替换回调身份。
-    const registered = callback as AbilityEventHandler<Event, Payloads>;
-    const callbacks = this.#callbacks.get(event);
-    if (callbacks === undefined) {
-      this.#callbacks.set(event, [registered]);
-    } else {
-      callbacks.push(registered);
-    }
-    return this.#createRegistration(this.#callbacks, event, registered);
+  ): TrackedAbilityEventRegistration {
+    return this.#register(event, 'callback', callback as AbilityEventHandler<Event, Payloads>);
   }
 
   registerAction<Name extends Event>(
     event: Name,
     priority: number,
     execute: AbilityEventHandler<Name, Payloads>,
-  ): AbilityEventRegistration {
-    if (!Number.isInteger(priority)) {
-      throw new TypeError('ability event action priority must be an integer');
-    }
-    const actions = this.#actions.get(event);
-    const action = {
+  ): TrackedAbilityEventRegistration {
+    return this.#register(
+      event,
+      'action',
+      execute as AbilityEventHandler<Event, Payloads>,
       priority,
-      registrationOrder: this.#nextActionRegistrationOrder++,
-      execute: execute as AbilityEventHandler<Event, Payloads>,
-    };
-    if (actions === undefined) {
-      this.#actions.set(event, [action]);
-      return this.#createRegistration(this.#actions, event, action);
-    }
-    actions.push(action);
-    actions.sort(
-      (left, right) =>
-        right.priority - left.priority || left.registrationOrder - right.registrationOrder,
     );
-    return this.#createRegistration(this.#actions, event, action);
   }
 
   /** 持续监听器也进入同一次分发的原生阶段，不另开一轮事件循环。 */
@@ -103,14 +101,8 @@ export class AbilityEventDispatcher<
     event: Name,
     phase: 'skill' | 'combo',
     callback: AbilityEventHandler<Name, Payloads>,
-  ): AbilityEventRegistration {
-    const registry = phase === 'skill' ? this.#skillListeners : this.#comboListeners;
-    // 与回调注册相同：存储时擦除键关联，分发时始终按同一事件键读取。
-    const registered = callback as AbilityEventHandler<Event, Payloads>;
-    const entries = registry.get(event);
-    if (entries === undefined) registry.set(event, [registered]);
-    else entries.push(registered);
-    return this.#createRegistration(registry, event, registered);
+  ): TrackedAbilityEventRegistration {
+    return this.#register(event, phase, callback as AbilityEventHandler<Event, Payloads>);
   }
 
   dispatch(
@@ -118,33 +110,69 @@ export class AbilityEventDispatcher<
     skillListeners: readonly AbilityEventListener<Event, Payloads>[],
     comboListener?: AbilityEventListener<Event, Payloads>,
   ): void {
-    for (const callback of this.#callbacks.get(context.event)?.slice() ?? []) callback(context);
-    for (const action of this.#actions.get(context.event)?.slice() ?? []) action.execute(context);
-    for (const listener of this.#skillListeners.get(context.event)?.slice() ?? [])
-      listener(context);
-    for (const listener of skillListeners.slice()) listener.onAbilityEvent(context);
-    for (const listener of this.#comboListeners.get(context.event)?.slice() ?? [])
-      listener(context);
-    comboListener?.onAbilityEvent(context);
+    dispatchAbilityEvent(this.#state, context.event, {
+      resolveHandler: id => {
+        const handle = this.#handlers.get(id);
+        if (handle === undefined) throw new Error(`ability event handler ${id} is not bound`);
+        return () => handle(context);
+      },
+      dispatchSkills: () => {
+        for (const listener of skillListeners.slice()) listener.onAbilityEvent(context);
+      },
+      dispatchCombo: () => comboListener?.onAbilityEvent(context),
+    });
   }
 
-  #createRegistration<Value>(
-    registry: Map<Event, Value[]>,
+  #register(
     event: Event,
-    value: Value,
-  ): AbilityEventRegistration {
-    let disposed = false;
-    return {
-      dispose: () => {
-        if (disposed) return;
-        disposed = true;
+    phase: AbilityEventPhase,
+    handler: AbilityEventHandler<Event, Payloads>,
+    priority = 0,
+  ): TrackedAbilityEventRegistration {
+    const handlerId = this.#state.nextRegistrationId;
+    const id = registerAbilityEvent(this.#state, event, phase, handlerId, priority);
+    return this.bindSubscription({ state: this.#state, event, phase, id }, handler);
+  }
 
-        const values = registry.get(event);
-        if (values === undefined) return;
-        const index = values.indexOf(value);
-        if (index >= 0) values.splice(index, 1);
-        if (values.length === 0) registry.delete(event);
+  /**
+   * 给已有订阅接回处理函数，不重新分配编号、不改变优先级或注册顺序。
+   * 引用必须属于当前目录且仍有效；重复绑定直接报错，避免悄悄覆盖另一宿主的回调。
+   */
+  bindSubscription(
+    reference: AbilityEventSubscriptionReference,
+    handler: AbilityEventHandler<Event, Payloads>,
+  ): TrackedAbilityEventRegistration {
+    if (reference.state !== this.#state)
+      throw new Error('ability event subscription belongs to another state');
+    const { event, phase, id } = reference;
+    const entry = reference.state.phases[phase].get(event)?.find(entry => entry.id === id);
+    if (entry === undefined) throw new Error(`ability event subscription ${id} is missing`);
+    const handlerId = entry.handlerId;
+    if (this.#handlers.has(handlerId))
+      throw new Error(`ability event handler ${handlerId} is already bound`);
+    this.#handlers.set(handlerId, handler);
+    return {
+      subscriptions: [reference],
+      dispose: () => {
+        unregisterAbilityEvent(reference.state, event, phase, id);
+        this.#handlers.delete(handlerId);
       },
     };
+  }
+
+  /**
+   * 按已知事件名恢复订阅。先核对保存引用的事件，再收窄处理函数类型，避免把不同载荷接到同一回调。
+   */
+  bindSubscriptionFor<Name extends Event>(
+    event: Name,
+    reference: AbilityEventSubscriptionReference,
+    handler: AbilityEventHandler<Name, Payloads>,
+  ): TrackedAbilityEventRegistration {
+    if (reference.event !== event) {
+      throw new Error(
+        `ability event subscription belongs to '${String(reference.event)}', expected '${String(event)}'`,
+      );
+    }
+    return this.bindSubscription(reference, handler as AbilityEventHandler<Event, Payloads>);
   }
 }

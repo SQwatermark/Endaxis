@@ -3,6 +3,37 @@ import type { CombatBuff } from '../buffs/combatBuffs';
 import { BuffProgressRecorder } from './buffProgressRecorder';
 
 describe('BuffProgressRecorder', () => {
+  it('恢复采样分母与活动索引，旧分支结束不截断新分支的进度曲线', () => {
+    const original = new BuffProgressRecorder();
+    const value = { instanceId: 7, remainingDuration: 4, isFinished: false };
+    const buff = value as CombatBuff<string>;
+    original.register('owner', buff, 'progress', { showProgressInHpBar: true }, 0);
+    value.remainingDuration = 2;
+    original.sample('owner', [buff], 60);
+    const saved = structuredClone(original.runtimeState);
+    const restored = new BuffProgressRecorder(structuredClone(saved));
+    original.finish('owner', buff, 61);
+    value.remainingDuration = 1;
+    restored.sample('owner', [buff], 90);
+    restored.finish('owner', buff, 120);
+    expect(original.snapshot()[0]!.points).toEqual([
+      { frame: 0, ratio: 1 },
+      { frame: 60, ratio: 0.5 },
+      { frame: 61, ratio: 0 },
+    ]);
+    expect(restored.snapshot()[0]!.points).toEqual([
+      { frame: 0, ratio: 1 },
+      { frame: 120, ratio: 0 },
+    ]);
+    expect(saved.runtimeCurveKeys.size).toBe(1);
+    expect([...saved.curves.values()][0]!.points).toHaveLength(2);
+    const ended = structuredClone(restored.runtimeState);
+    const afterEnd = new BuffProgressRecorder(ended);
+    afterEnd.sample('owner', [buff], 150);
+    expect(afterEnd.snapshot()).toEqual(restored.snapshot());
+    expect(ended.runtimeCurveKeys.size).toBe(0);
+  });
+
   it('compresses linear samples while preserving a paused interval', () => {
     const recorder = new BuffProgressRecorder();
     const state = { instanceId: 7, remainingDuration: 1, isFinished: false };

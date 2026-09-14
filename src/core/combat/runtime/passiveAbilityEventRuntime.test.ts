@@ -1,3 +1,4 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { expect, it, vi } from 'vitest';
 import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
@@ -58,7 +59,7 @@ it('owns children even when the passive has no event responses', () => {
     },
   );
   const finish = vi.fn(() => true);
-  host.addChildBuff({ finish });
+  host.addChildBuff({ reference: createTestBuffReference(), finish });
   host.enable();
   host.dispose();
   host.dispose();
@@ -310,6 +311,65 @@ it('复用被动黑板与所有权，事件目标独立，并在注销后停止�
   expect(() => runtime.enable()).toThrow('disposed passive event host');
   fire();
   expect(seen).toHaveLength(2);
+});
+
+it('恢复时按保存订阅重绑响应，不重新注册或改写原分支黑板', () => {
+  const dispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>();
+  const originalBlackboard = new ActionBlackboard({ count: 0 });
+  const original = new PassiveAbilityEventRuntime(
+    {
+      evaluate: () => true,
+      execute: (_step, context) => {
+        context!.blackboard.assignDynamic('count', context!.blackboard.getNumber('count')! + 1);
+        return true;
+      },
+    },
+    { blackboard: originalBlackboard },
+    responses,
+    (event, priority, handle) =>
+      dispatcher.registerAction(event, priority, published => handle(published)),
+  );
+  original.enable();
+
+  const copied = structuredClone({
+    passive: original.runtimeState,
+    events: dispatcher.runtimeState,
+  });
+  const restoredDispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>(
+    copied.events,
+  );
+  const restoredBlackboard = ActionBlackboard.bindRuntimeState(copied.passive.blackboard);
+  const restored = new PassiveAbilityEventRuntime(
+    {
+      evaluate: () => true,
+      execute: (_step, context) => {
+        context!.blackboard.assignDynamic('count', context!.blackboard.getNumber('count')! + 1);
+        return true;
+      },
+    },
+    { blackboard: restoredBlackboard },
+    responses,
+    (event, _priority, handle, subscriptions) => {
+      if (subscriptions === undefined) throw new Error('restore requires saved subscriptions');
+      return restoredDispatcher.bindSubscriptionFor(event, subscriptions[0]!, published =>
+        handle(published),
+      );
+    },
+    copied.passive,
+  );
+  restoredDispatcher.dispatch(
+    {
+      event: 'abilityEntityFinished',
+      payload: { sourceId: 'owner', targetId: 'entity' },
+    },
+    [],
+  );
+
+  expect(restoredBlackboard.getNumber('count')).toBe(1);
+  expect(originalBlackboard.getNumber('count')).toBe(0);
+  expect(copied.events.nextRegistrationId).toBe(dispatcher.runtimeState.nextRegistrationId);
+  restored.dispose();
+  original.dispose();
 });
 
 it('注册中途失败会注销之前已安装的监听', () => {

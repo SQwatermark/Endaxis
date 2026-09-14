@@ -1,138 +1,98 @@
-// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
-export { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
-import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
 /**
- * 管理技能 direct blackboard，并按原生查找顺序回退读取干员 entity blackboard。
- * 普通键随技能实例重置；`EntityBB_` 动态写入会路由到同一干员共享的实体黑板。
+ * 将现有黑板对象调用接到纯数据黑板算法。共享实体板在数据中保持同一引用。
+ * 此绑定不提供整场恢复入口；对象身份缓存仍需随技能宿主迁移。
  */
+export { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
+import type { ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
-import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
+import { createActionBlackboardState, type ActionBlackboardState } from './actionBlackboardState';
+import {
+  readActionBlackboard,
+  assignActionBlackboard,
+  assignDynamicBlackboard,
+  assignDynamicBlackboardUnconditionally,
+  createLocalBlackboardState,
+  resolveActionOperand,
+} from './actionBlackboardExecution';
 
-const FLOAT_ASSIGNMENT_EPSILON = 0.00001;
-const ENTITY_BLACKBOARD_PREFIX = 'EntityBB_';
+/** 技能 direct 层与共享 entity 层的现有对象绑定。 */
+export class ActionBlackboard {
+  #state: ActionBlackboardState;
+  /** 仅供未迁移的宿主接线使用；正式执行器直接接收步进数据，不持有此对象。 */
+  get runtimeState(): ActionBlackboardState {
+    return this.#state;
+  }
 
-/** 数据驱动战斗行为使用的分层可变值容器，不承担存档持久化。 */
-export class ActionBlackboard implements RuntimeCheckpointParticipant<
-  Readonly<Record<string, ActionBlackboardValue>>
-> {
-  readonly #values = new Map<string, ActionBlackboardValue>();
-  readonly #entityBlackboard?: ActionBlackboard;
-
+  /** 为恢复后的数据重新建立对象接线，不执行赋值或游戏动作。 */
+  static bindRuntimeState(state: ActionBlackboardState): ActionBlackboard {
+    return ActionBlackboard.#bind(state);
+  }
   constructor(
     values?: Readonly<Record<string, ActionBlackboardValue>>,
     entityBlackboard?: ActionBlackboard,
   ) {
-    this.#entityBlackboard = entityBlackboard;
-    this.assign(values);
+    this.#state = createActionBlackboardState(
+      values,
+      entityBlackboard === undefined ? undefined : entityBlackboard.#state,
+    );
   }
-
   assign(values?: Readonly<Record<string, ActionBlackboardValue>>): void {
-    if (values === undefined) return;
-    for (const [key, value] of Object.entries(values)) this.#values.set(key, value);
+    assignActionBlackboard(this.#state, values);
   }
-
   getString(key: string): string | undefined {
-    const value = this.#getValue(key);
+    const value = readActionBlackboard(this.#state, key);
     return typeof value === 'string' ? value : undefined;
   }
-
   getNumber(key: string): number | undefined {
-    const value = this.#getValue(key);
+    const value = readActionBlackboard(this.#state, key);
     return typeof value === 'number' ? value : undefined;
   }
-
   assignDynamic(key: string, value: number): boolean {
-    const target = this.#dynamicTarget(key);
-    const current = target.#getDirectValue(key);
-    if (typeof current === 'number' && Math.abs(current - value) <= FLOAT_ASSIGNMENT_EPSILON) {
-      return false;
-    }
-    target.#values.set(key, value);
-    return true;
+    return assignDynamicBlackboard(this.#state, key, value);
   }
-
-  /**
-   * 原生 AssignDynamic 本身不做 epsilon 检查。调用方已按 GetFloat 比较（可能读到 direct 遮蔽）
-   * 后必须用此入口，不能再按目标实体板的另一个值跳过赋值。既有融合比较入口仍保持不变。
-   */
+  /** 调用方已比较过 GetFloat 时，直接写入目标层。 */
   assignDynamicUnconditionally(key: string, value: number): void {
-    this.#dynamicTarget(key).#values.set(key, value);
+    assignDynamicBlackboardUnconditionally(this.#state, key, value);
   }
-
-  #dynamicTarget(key: string): ActionBlackboard {
-    return key.startsWith(ENTITY_BLACKBOARD_PREFIX) ? (this.#entityBlackboard ?? this) : this;
-  }
-
   snapshot(): Readonly<Record<string, ActionBlackboardValue>> {
-    return Object.fromEntries(this.#values);
+    return Object.fromEntries(this.#state.values);
   }
-
-  /** 冻结脱离当前动作寿命的 direct 层；角色 EntityBB 仍归原实体共享。 */
+  /** 复制 direct 值，实体板仍共享，不是整场切面。 */
   detachedSnapshot(): ActionBlackboard {
-    return new ActionBlackboard(this.snapshot(), this.#entityBlackboard);
+    return ActionBlackboard.#bind(createActionBlackboardState(this.snapshot(), this.#state.entity));
   }
-
   restore(values: Readonly<Record<string, ActionBlackboardValue>>): void {
-    this.#values.clear();
+    this.#state.values.clear();
     this.assign(values);
   }
-
-  captureCheckpointState(): Readonly<Record<string, ActionBlackboardValue>> {
-    return Object.freeze(this.snapshot());
-  }
-
-  restoreCheckpointState(values: Readonly<Record<string, ActionBlackboardValue>>): void {
-    this.restore(values);
-  }
-
-  /** 创建子 SkillData direct 作用域；独立逻辑宿主可同时创建自己的 entity blackboard。 */
   createLocalScope(
     initialValues: Readonly<Record<string, ActionBlackboardValue>>,
     inheritDirect: boolean,
     entityInitialValues?: Readonly<Record<string, ActionBlackboardValue>>,
     entityAssignments?: Readonly<Record<string, ActionValueOperand>>,
   ): ActionBlackboard {
-    const assignedEntityValues =
-      entityAssignments === undefined
-        ? undefined
-        : Object.fromEntries(
-            Object.entries(entityAssignments).map(([key, operand]) => [
-              key,
-              resolveActionValueOperand(operand, this),
-            ]),
-          );
-    return new ActionBlackboard(
-      inheritDirect ? { ...initialValues, ...this.snapshot() } : initialValues,
-      entityInitialValues === undefined && assignedEntityValues === undefined
-        ? this.#entityBlackboard
-        : new ActionBlackboard({ ...entityInitialValues, ...assignedEntityValues }),
+    return ActionBlackboard.#bind(
+      createLocalBlackboardState(
+        this.#state,
+        initialValues,
+        inheritDirect,
+        entityInitialValues,
+        entityAssignments,
+        operand => resolveActionValueOperand(operand, this),
+      ),
     );
   }
-
-  #getValue(key: string): ActionBlackboardValue | undefined {
-    if (this.#values.has(key)) return this.#values.get(key);
-    return this.#entityBlackboard === undefined
-      ? undefined
-      : this.#entityBlackboard.#getDirectValue(key);
-  }
-
-  #getDirectValue(key: string): ActionBlackboardValue | undefined {
-    return this.#values.get(key);
+  static #bind(state: ActionBlackboardState): ActionBlackboard {
+    const board = new ActionBlackboard();
+    board.#state = state;
+    return board;
   }
 }
 
-/**
- * 解析动作操作数。默认严格；只有转换器根据原生调用点显式保留 fallback 时才允许缺键回退。
- */
+/** 缺键严格报错，只有操作数显式声明 fallback 时允许回退。 */
 export function resolveActionValueOperand(
   operand: ActionValueOperand,
   blackboard: ActionBlackboard,
 ): number {
-  if (operand.kind === 'constant') return operand.value;
-  const value = blackboard.getNumber(operand.key);
-  if (value === undefined) {
-    if (operand.fallback !== undefined) return operand.fallback;
-    throw new Error(`action blackboard value '${operand.key}' is missing`);
-  }
-  return value;
+  return resolveActionOperand(operand, key => blackboard.getNumber(key));
 }

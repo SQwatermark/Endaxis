@@ -1,178 +1,255 @@
+/**
+ * 现有技能/Buff 宿主与投射物纯数据算法之间的绑定。
+ * 生命周期数据不保存回调；这里暂时接住尚未迁移的宿主端口，不能据此保存整场战斗。
+ */
 import type { FrameRuntime } from './combatSimulation';
-import type { CombatStepParameters } from '../../game-data/operatorDefinition';
+import { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
 import type { AbilityResetReference } from '../events/combatAbilityEvent';
 import type {
   AbilityEntityTargetRef,
   RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
 import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
+import { createProjectileLifecycleState } from './projectileLifecycleState';
+import {
+  advanceProjectileAbilityFrame,
+  advanceProjectileLifetimes,
+  beginProjectileAbilityFrame,
+  launchProjectile,
+  registerProjectileReset,
+  unregisterProjectileReset,
+  type ProjectileLaunchData,
+} from './projectileLifecycleExecution';
 
-/** A specific projected projectile, not its source skill or a public battle event. */
+export type { ProjectileFinishTiming } from './projectileLifecycleExecution';
+
+/** 引用一个具体投射物，来源技能结束后它仍可独立存活。 */
 export type ProjectileLifetimeReference = AbilityResetReference & {
-  /** Endaxis 内部动作宿主身份；公开原生事件仍只暴露 AbilityResetReference。 */
   readonly target: AbilityEntityTargetRef;
 };
 
-export type ProjectileFinishTiming =
-  number | CombatStepParameters['launchProjectileLifetime']['finish'];
-
-interface ProjectileLifetime {
-  readonly instanceId: number;
-  readonly source?: RuntimeTargetRef;
-  phase: 'active' | 'finished' | 'marked' | 'reset';
-  remainingSeconds: number;
-  remainingReachTicks: number | null;
-  readonly recycleDelaySeconds: number;
-  readonly resetCallbacks: Set<() => void>;
+export interface ProjectileHostPorts {
   readonly resolveTickDeltaSeconds: () => number | null;
   readonly finish: () => void;
   readonly beforeReset: () => void;
   readonly abilityRuntime?: FrameRuntime;
 }
 
-/**
- * Duration or admitted zero-space reach projection of ProjectileComponent's lifetime.
- * The host supplies an owner-scaled Tick delta (null means no Tick). Finishing, marking recycling,
- * and resetting occur in separate passes, even with a zero recycle delay.
- * No spatial behavior, source-skill cancellation, or synthetic public event is implied.
- */
-export class ProjectileLifecycleRuntime implements FrameRuntime {
-  readonly #instances = new Map<number, ProjectileLifetime>();
-  #admittedAbilities: readonly ProjectileLifetime[] | null = null;
-  readonly #allocateInstanceId: () => number;
+interface ProjectileHostBinding extends ProjectileHostPorts {
+  readonly resetRegistrations: Set<number>;
+}
 
-  constructor(allocateInstanceId?: () => number) {
-    const instanceIds = new AbilityEntityInstanceIdAllocator();
-    this.#allocateInstanceId = allocateInstanceId ?? (() => instanceIds.allocate());
+export class ProjectileLifecycleRuntime implements FrameRuntime {
+  readonly callbackPrograms: ProjectileCallbackPrograms;
+  readonly #state: ReturnType<typeof createProjectileLifecycleState>;
+  readonly #bindings = new Map<number, ProjectileHostBinding>();
+  readonly #resetHandlers = new Map<number, () => void>();
+  readonly #allocateInstanceId: () => number;
+  #relationsBound: boolean;
+
+  /** 生命周期目录的唯一数据；结束回调绑定不在其中。 */
+  get runtimeState(): ReturnType<typeof createProjectileLifecycleState> {
+    return this.#state;
   }
 
-  /** SourceFinder 保留一层来源；reset 通知完成后来源关系才释放。 */
+  constructor(
+    allocateInstanceId?: () => number,
+    restored?: {
+      readonly state: ReturnType<typeof createProjectileLifecycleState>;
+      readonly callbackPrograms?: ProjectileCallbackPrograms;
+      readonly resolveHost?: (instanceId: number) => ProjectileHostPorts;
+      readonly resolveResetHandler?: (handlerId: number) => () => void;
+    },
+  ) {
+    if (restored !== undefined && allocateInstanceId === undefined)
+      throw new Error('restoring projectiles requires the restored instance id allocator');
+    this.#state = restored?.state ?? createProjectileLifecycleState();
+    this.callbackPrograms = restored?.callbackPrograms ?? new ProjectileCallbackPrograms();
+    const instanceIds = new AbilityEntityInstanceIdAllocator();
+    this.#allocateInstanceId = allocateInstanceId ?? (() => instanceIds.allocate());
+    this.#relationsBound = restored === undefined || this.#state.instances.size === 0;
+    if (restored !== undefined) {
+      if (this.#state.admittedAbilities !== null)
+        throw new Error('cannot restore projectiles during an ability frame');
+      for (const [id, instance] of this.#state.instances) {
+        if (instance.callback !== null) {
+          if (instance.callback.programId === null)
+            throw new Error(`projectile ${id} has no callback program registration`);
+          const program = this.callbackPrograms.resolve(instance.callback.programId);
+          if (program.skillId !== instance.callback.skillId)
+            throw new Error(`projectile ${id} callback program identity mismatch`);
+        }
+      }
+      if (restored.resolveHost !== undefined) {
+        this.bindRestoredRelations({
+          resolveHost: restored.resolveHost,
+          ...(restored.resolveResetHandler === undefined
+            ? {}
+            : { resolveResetHandler: restored.resolveResetHandler }),
+        });
+      } else if (restored.resolveResetHandler !== undefined) {
+        throw new Error('projectile reset resolver requires the host resolver');
+      }
+    }
+  }
+
+  /**
+   * 全部技能、回调和实体宿主建立后接回投射物关系。此阶段不推进寿命、不执行结束回调。
+   */
+  bindRestoredRelations(options: {
+    readonly resolveHost: (instanceId: number) => ProjectileHostPorts;
+    readonly resolveResetHandler?: (handlerId: number) => (() => void) | undefined;
+  }): void {
+    if (this.#relationsBound || this.#bindings.size !== 0)
+      throw new Error('projectile relations are already bound');
+    const bindings = new Map<number, ProjectileHostBinding>();
+    const resetHandlers = new Map<number, () => void>();
+    for (const [id, instance] of this.#state.instances) {
+      try {
+        const ports = options.resolveHost(id);
+        if (ports === undefined) throw new Error(`missing projectile host ${id}`);
+        const resetRegistrations = new Set(instance.resetListeners.values());
+        for (const handlerId of resetRegistrations) {
+          if (resetHandlers.has(handlerId)) {
+            throw new Error(`projectile reset handler '${handlerId}' has multiple registrations`);
+          }
+          const handler =
+            this.#resetHandlers.get(handlerId) ?? options.resolveResetHandler?.(handlerId);
+          if (handler === undefined)
+            throw new Error(`missing projectile reset handler ${handlerId}`);
+          resetHandlers.set(handlerId, handler);
+        }
+        bindings.set(id, { ...ports, resetRegistrations });
+      } catch (error) {
+        bindings.clear();
+        resetHandlers.clear();
+        throw error;
+      }
+    }
+    for (const [id, binding] of bindings) this.#bindings.set(id, binding);
+    for (const [id, handler] of resetHandlers) this.#resetHandlers.set(id, handler);
+    this.#relationsBound = true;
+  }
+
+  /** 按保存的登记编号接回对象持有者的 reset 处理函数，不申请新编号。 */
+  bindRestoredResetCallback(
+    instanceId: number,
+    registrationId: number,
+    callback: () => void,
+  ): { readonly registrationId: number; dispose(): void } {
+    const instance = this.#state.instances.get(instanceId);
+    if (instance === undefined) throw new Error(`missing projectile ${instanceId}`);
+    const handlerId = instance.resetListeners.get(registrationId);
+    if (handlerId === undefined) {
+      throw new Error(`projectile ${instanceId} reset registration '${registrationId}' is missing`);
+    }
+    if (this.#resetHandlers.has(handlerId)) {
+      throw new Error(`projectile reset handler '${handlerId}' is already bound`);
+    }
+    this.#resetHandlers.set(handlerId, callback);
+    this.#bindings.get(instanceId)?.resetRegistrations.add(handlerId);
+    return {
+      registrationId,
+      dispose: () => {
+        if (this.#resetHandlers.get(handlerId) !== callback) return;
+        instance.resetListeners.delete(registrationId);
+        this.#resetHandlers.delete(handlerId);
+        this.#bindings.get(instanceId)?.resetRegistrations.delete(handlerId);
+      },
+    };
+  }
+
+  /** reset 通知完成前仍可查询来源。 */
   findSource(instanceId: number): RuntimeTargetRef | undefined {
-    return this.#instances.get(instanceId)?.source;
+    return this.#state.instances.get(instanceId)?.source;
   }
 
   isActive(target: RuntimeTargetRef): boolean {
     if (target.kind !== 'abilityEntity') return false;
-    const instance = this.#instances.get(target.instanceId);
+    const instance = this.#state.instances.get(target.instanceId);
     return instance !== undefined && instance.phase !== 'reset';
   }
 
-  /** Capture at Battle-group entry, not after operator actions have spawned new objects. */
   beginAbilityFrame(): void {
-    if (this.#admittedAbilities !== null)
-      throw new Error('projectile ability phase has not finished');
-    this.#admittedAbilities = [...this.#instances.values()];
+    this.#requireRelations();
+    beginProjectileAbilityFrame(this.#state);
   }
 
-  /** The ability host owns its clock and cast-frame zero delta; component delta is not reused. */
   advanceAbilityFrame(): void {
-    const admitted = this.#admittedAbilities;
-    if (admitted === null) throw new Error('projectile ability phase must be captured first');
-    try {
-      for (const instance of admitted) {
-        if (instance.phase !== 'reset') instance.abilityRuntime?.advanceFrame();
-      }
-    } finally {
-      this.#admittedAbilities = null;
-    }
+    this.#requireRelations();
+    advanceProjectileAbilityFrame(this.#state, id =>
+      this.#bindings.get(id)!.abilityRuntime?.advanceFrame(),
+    );
   }
 
-  launch(request: {
-    readonly source?: RuntimeTargetRef;
-    readonly finishDelaySeconds: ProjectileFinishTiming;
-    readonly recycleDelaySeconds: number;
-    readonly resolveTickDeltaSeconds: () => number | null;
-    readonly finish: () => void;
-    /** End this projectile's current callback skill before notifying retained references. */
-    readonly beforeReset: () => void;
-    /** Actual callback AbilitySystem host; no skill interpreter or timer is created here. */
-    readonly abilityRuntime?: FrameRuntime;
-  }): ProjectileLifetimeReference {
-    const finishOnFirstTick = request.finishDelaySeconds === 'firstTickReach';
-    const segmented =
-      typeof request.finishDelaySeconds === 'object' ? request.finishDelaySeconds : null;
-    if (
-      segmented !== null &&
-      (!Number.isSafeInteger(segmented.reachAfterTicks) || segmented.reachAfterTicks < 1)
-    )
-      throw new RangeError('projectile reach tick count must be a positive safe integer');
-    const finishDelay = Math.fround(
-      segmented?.maxDurationSeconds ??
-        (typeof request.finishDelaySeconds === 'number' ? request.finishDelaySeconds : 0),
-    );
-    const recycleDelay = Math.fround(request.recycleDelaySeconds);
-    if (!finishOnFirstTick && (!Number.isFinite(finishDelay) || finishDelay <= 0))
-      throw new RangeError('projectile finish delay must be positive and finite');
-    if (!Number.isFinite(recycleDelay) || request.recycleDelaySeconds < 0)
-      throw new RangeError('projectile recycle delay must be non-negative and finite');
+  launch(
+    request: ProjectileLaunchData & {
+      readonly callbackProgram?: import('../../compiler/combatProgram').CompiledProjectileCallbackSkillProgram;
+      readonly resolveTickDeltaSeconds: () => number | null;
+      readonly finish: () => void;
+      readonly beforeReset: () => void;
+      readonly abilityRuntime?: FrameRuntime;
+    },
+  ): ProjectileLifetimeReference {
+    this.#requireRelations();
+    if (request.callback !== undefined) {
+      if (request.callbackProgram === undefined)
+        throw new Error('projectile callback requires its fixed program');
+      request.callback.programId = this.callbackPrograms.register(request.callbackProgram);
+    }
     const instanceId = this.#allocateInstanceId();
-    if (!Number.isSafeInteger(instanceId) || instanceId <= 0)
-      throw new RangeError('projectile AbilityEntity instance id must be a positive safe integer');
-    if (this.#instances.has(instanceId))
-      throw new Error(`duplicate projectile AbilityEntity instance id '${instanceId}'`);
-    const instance: ProjectileLifetime = {
-      instanceId,
-      ...(request.source === undefined ? {} : { source: request.source }),
-      phase: 'active',
-      remainingSeconds: finishDelay,
-      remainingReachTicks: segmented?.reachAfterTicks ?? null,
-      recycleDelaySeconds: recycleDelay,
-      resetCallbacks: new Set(),
+    launchProjectile(this.#state, instanceId, request);
+    const binding: ProjectileHostBinding = {
       resolveTickDeltaSeconds: request.resolveTickDeltaSeconds,
       finish: request.finish,
       beforeReset: request.beforeReset,
       ...(request.abilityRuntime === undefined ? {} : { abilityRuntime: request.abilityRuntime }),
+      resetRegistrations: new Set(),
     };
-    this.#instances.set(instanceId, instance);
+    this.#bindings.set(instanceId, binding);
     return {
+      instanceId,
       target: { kind: 'abilityEntity', instanceId },
       onReset: callback => {
-        if (instance.phase === 'reset')
+        if (this.#bindings.get(instanceId) !== binding)
           throw new Error('cannot retain an already reset projectile');
-        // Each registration is independent, including repeated registrations of one function.
-        const entry = () => callback();
-        instance.resetCallbacks.add(entry);
-        return { dispose: () => instance.resetCallbacks.delete(entry) };
+        const handlerId = this.#state.nextResetRegistrationId;
+        const id = registerProjectileReset(this.#state, instanceId, handlerId);
+        this.#resetHandlers.set(handlerId, callback);
+        binding.resetRegistrations.add(handlerId);
+        return {
+          registrationId: handlerId,
+          dispose: () => {
+            if (this.#bindings.get(instanceId) !== binding) return;
+            unregisterProjectileReset(this.#state, instanceId, id);
+            this.#resetHandlers.delete(handlerId);
+            binding.resetRegistrations.delete(handlerId);
+          },
+        };
       },
     };
   }
 
   advanceFrame(): void {
-    // Callbacks may launch another projectile; it must not gain a Tick in this pass.
-    for (const instance of [...this.#instances.values()]) {
-      const delta = instance.resolveTickDeltaSeconds();
-      if (delta === null) continue;
-      const nativeDelta = Math.fround(delta);
-      if (!Number.isFinite(nativeDelta) || delta < 0)
-        throw new RangeError('projectile Tick delta must be non-negative and finite');
-      if (instance.phase === 'marked') {
-        instance.beforeReset();
-        instance.phase = 'reset';
-        try {
-          for (const callback of [...instance.resetCallbacks]) callback();
-        } finally {
-          instance.resetCallbacks.clear();
-          this.#instances.delete(instance.instanceId);
-        }
-        continue;
-      }
-      // Native PeriodicTimer.Update compares remaining <= 0, without isReady's epsilon.
-      instance.remainingSeconds = Math.max(0, Math.fround(instance.remainingSeconds - nativeDelta));
-      if (instance.phase === 'active' && instance.remainingReachTicks !== null)
-        instance.remainingReachTicks--;
-      if (instance.remainingSeconds > 0 && instance.remainingReachTicks !== 0) continue;
-      if (instance.phase === 'active') {
-        instance.phase = 'finished';
-        instance.remainingReachTicks = null;
-        instance.remainingSeconds = instance.recycleDelaySeconds;
-        instance.finish();
-      } else {
-        instance.phase = 'marked';
-      }
-    }
+    this.#requireRelations();
+    advanceProjectileLifetimes(this.#state, {
+      resolveTickDeltaSeconds: id => this.#bindings.get(id)!.resolveTickDeltaSeconds(),
+      finish: id => this.#bindings.get(id)!.finish(),
+      beforeReset: id => this.#bindings.get(id)!.beforeReset(),
+      resolveResetHandler: id => this.#resetHandlers.get(id)!,
+      released: id => {
+        for (const registrationId of this.#bindings.get(id)!.resetRegistrations)
+          this.#resetHandlers.delete(registrationId);
+        this.#bindings.delete(id);
+      },
+    });
   }
 
   get activeCount(): number {
-    return this.#instances.size;
+    return this.#state.instances.size;
+  }
+
+  #requireRelations(): void {
+    if (!this.#relationsBound) throw new Error('restored projectile relations have not been bound');
   }
 }

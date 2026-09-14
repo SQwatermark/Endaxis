@@ -9,7 +9,7 @@ import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironme
 import { createEnemyCombatVitals } from './combatVitalsFactory';
 import type { OrdinaryKnockDownRuntime } from './ordinaryKnockDownRuntime';
 import {
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   ATTRIBUTE_MODIFIER_SOURCES,
   attributeModifierValues,
 } from '../attributes/combatAttributes';
@@ -248,7 +248,7 @@ describe('标准战斗环境的普通倒地显式装配', () => {
       s.environment.runtimeOptions.enemyBuffRuntime.matchesEntityTags([DOWN_TAG], 'hasAll'),
     ).toBe(true);
     expect(s.control.remaining).toBe(1.5);
-    s.assembly.simulation.advanceFrames(46);
+    s.assembly.advanceFrames(46);
     expect(s.elapsed).toHaveBeenCalledOnce();
     expect(s.control.active).toBe(false);
     expect(
@@ -276,7 +276,7 @@ describe('标准战斗环境的普通倒地显式装配', () => {
       priority: 1,
       curve: () => 0.4,
     });
-    s.assembly.simulation.advanceFrames(30);
+    s.assembly.advanceFrames(30);
     expect(s.control.remaining).toBeCloseTo(1.3, 5);
     expect(s.elapsed).not.toHaveBeenCalled();
   });
@@ -290,7 +290,7 @@ describe('标准战斗环境的普通倒地显式装配', () => {
       priority: 1,
       constantScale: 0,
     });
-    s.assembly.simulation.advanceFrames(300);
+    s.assembly.advanceFrames(300);
     expect(s.control.remaining).toBe(1.5);
     expect(
       s.environment.runtimeOptions.enemyBuffRuntime.getCountByIds(['buff_physical_knockdown']),
@@ -306,7 +306,7 @@ describe('标准战斗环境的普通倒地显式装配', () => {
     expect(attributes.get('KnockDownTimeAddition')).toBe(0);
     s.environment.eventsFor('operator').registerAction('beforeOutputKnockDown', 0, () => {
       attributes.addModifier(
-        new CombatAttributeModifier(
+        createCombatAttributeModifier(
           'KnockDownTimeAddition',
           attributeModifierValues('baseAddition', 2),
           ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -327,7 +327,7 @@ describe('标准战斗环境的普通倒地显式装配', () => {
     expect(
       second.environment.runtimeOptions.enemyBuffRuntime.matchesEntityTags([DOWN_TAG], 'hasAll'),
     ).toBe(false);
-    second.assembly.simulation.advanceFrames(90);
+    second.assembly.advanceFrames(90);
     expect(first.control.remaining).toBe(1.5);
   });
 

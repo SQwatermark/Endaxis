@@ -1,13 +1,18 @@
 /** 已编译干员养成事件在一场战斗中的注册与执行生命周期。 */
 import type { CompiledOperatorUpgradeEventProgram } from '../../compiler/combatProgram';
-import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
+import type { TrackedAbilityEventRegistration } from '../events/abilityEventDispatcher';
 import { ActionBlackboard } from './actionBlackboard';
+import { failAfterAbilityHostCleanup } from './abilityEventHostLifecycle';
 import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type {
   CombatSemanticEventContext,
   CombatSemanticEventRuntime,
 } from './combatSemanticEventRuntime';
+import {
+  createOperatorUpgradeEventState,
+  type OperatorUpgradeEventState,
+} from './operatorUpgradeEventState';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 
 export interface OperatorUpgradeEventExecutionContext {
@@ -21,30 +26,55 @@ export type CreateOperatorUpgradeEventExecutor = (
 ) => CombatOperationExecutor;
 
 export class OperatorUpgradeEventRuntime {
-  readonly #registrations: AbilityEventRegistration[] = [];
+  readonly #state: OperatorUpgradeEventState;
+  readonly #registrations: TrackedAbilityEventRegistration[] = [];
+
+  get runtimeState(): OperatorUpgradeEventState {
+    return this.#state;
+  }
 
   constructor(
     semanticEvents: CombatSemanticEventRuntime,
     operatorId: string,
     programs: readonly CompiledOperatorUpgradeEventProgram[],
     createExecutor: CreateOperatorUpgradeEventExecutor,
+    state?: OperatorUpgradeEventState,
   ) {
-    for (const program of programs) {
-      this.#registrations.push(
-        semanticEvents.register({
+    this.#state = state ?? createOperatorUpgradeEventState();
+    const restoring = state !== undefined;
+    if (restoring && state.programs.length !== programs.length)
+      throw new Error('operator upgrade event state does not match program length');
+    try {
+      for (const [index, program] of programs.entries()) {
+        const saved = this.#state.programs[index];
+        if (saved !== undefined && saved.key !== program.key)
+          throw new Error(`operator upgrade event '${index}' does not match '${program.key}'`);
+        const registration = {
           ownerOperatorId: operatorId,
           trigger: program.event,
           phase: 'dataAction',
-          createOperations: context =>
+          createOperations: (context: CombatSemanticEventContext) =>
             createExecutor({ operatorId, programKey: program.key, event: context.event }),
-          handle: (context, getOperations) => this.#execute(program, getOperations(), context),
-        }),
-      );
+          handle: (
+            context: CombatSemanticEventContext,
+            getOperations: () => CombatOperationExecutor,
+          ) => this.#execute(program, getOperations(), context),
+        } as const;
+        const installed = restoring
+          ? semanticEvents.bindRegistration(registration, saved!.subscriptions)
+          : semanticEvents.register(registration);
+        this.#registrations.push(installed);
+        if (!restoring)
+          this.#state.programs.push({ key: program.key, subscriptions: installed.subscriptions });
+      }
+    } catch (error) {
+      failAfterAbilityHostCleanup(error, [() => this.dispose()]);
     }
   }
 
   dispose(): void {
     for (const registration of this.#registrations.splice(0)) registration.dispose();
+    this.#state.programs.length = 0;
   }
 
   #execute(

@@ -1,3 +1,4 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it } from 'vitest';
 import type { ResolvedActionSequence } from '../../compiler/combatProgram';
 import { ActionBlackboard } from './actionBlackboard';
@@ -114,6 +115,56 @@ function delayedProbe(): ResolvedActionSequence {
 }
 
 describe('projectile callback action lifecycle', () => {
+  it('投射物目录保存命中前输入和命中后宿主，旧切面保持未命中', () => {
+    const projectiles = new ProjectileLifecycleRuntime();
+    const runtime = new CombatActionSequenceRuntime(
+      { execute: () => true, evaluate: () => true },
+      {
+        blackboard: new ActionBlackboard({ launchValue: 7 }),
+        skillCastInfo: {
+          skillCastId: 42,
+          originSkillId: 'source',
+          originSkillType: 'comboSkill',
+          nonReturnedSpCost: 0,
+        },
+        createCallbackSkillHost: createTestHost,
+        scheduleProjectileFinishCallback: (
+          delay,
+          recycle,
+          finish,
+          beforeReset,
+          _source,
+          _advance,
+          _owner,
+          callback,
+          callbackProgram,
+        ) =>
+          projectiles.launch({
+            finishDelaySeconds: delay,
+            recycleDelaySeconds: recycle,
+            resolveTickDeltaSeconds: () => 1,
+            finish,
+            beforeReset,
+            ...(callback === undefined ? {} : { callback }),
+            ...(callbackProgram === undefined ? {} : { callbackProgram }),
+          }),
+      },
+    );
+    runtime.createSequence(delayedProbe()).executeInstant({});
+    const data = [...projectiles.runtimeState.instances.values()][0]!.callback!;
+    expect(data.skillId).toBe('callback');
+    expect(projectiles.callbackPrograms.resolve(data.programId!).skillId).toBe('callback');
+    expect(data.skillCastInfo?.skillCastId).toBe(42);
+    expect(data.host).toBeNull();
+    expect(ActionBlackboard.bindRuntimeState(data.blackboard).snapshot().launchValue).toBe(7);
+    const saved = structuredClone(projectiles.runtimeState);
+    projectiles.advanceFrame();
+    projectiles.advanceFrame();
+    projectiles.advanceFrame();
+    expect(data.host).not.toBeNull();
+    expect([...saved.instances.values()][0]!.callback!.host).toBeNull();
+  });
+
   it('uses the same synchronous out-of-duration jump cleanup as an ordinary skill', () => {
     const trace: string[] = [];
     const context = { blackboard: new ActionBlackboard() };
@@ -229,6 +280,7 @@ describe('projectile callback action lifecycle', () => {
           if (step.parameters.flag === 'write') {
             context!.blackboard.assignDynamic('value', 2);
             context!.attachBuffToCurrentSkill!({
+              reference: createTestBuffReference(),
               finish: (reason, source) => {
                 expect([reason, source]).toEqual(['other', null]);
                 trace.push(`${frame}:attached-end`);

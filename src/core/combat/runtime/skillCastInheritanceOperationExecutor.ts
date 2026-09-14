@@ -2,51 +2,68 @@ import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import { CombatOperationPrograms } from './combatOperationPrograms';
+import type { SkillCastInheritanceActionState } from './combatOperationHostState';
 
 export interface SkillCastInheritanceRegistration {
+  readonly operatorId: string;
+  readonly id: number;
   readonly skillCastInfo: CombatSkillCastInfo;
-  dispose(): void;
+}
+
+/** 全场继承槽和分配进度；失败的竞争注册也占用编号，不能误撤销实际持有者。 */
+export interface SkillCastInheritanceState {
+  readonly registrations: Map<string, SkillCastInheritanceRegistration>;
+  nextId: number;
 }
 
 /** 原生 AbilitySystem 的普通攻击施法身份继承槽；首次注册优先，按动作结束撤销。 */
 export class BasicAttackSkillCastInheritanceRegistry {
-  readonly #registrations = new Map<
-    string,
-    { readonly token: object; readonly skillCastInfo: CombatSkillCastInfo }
-  >();
+  constructor(
+    readonly runtimeState: SkillCastInheritanceState = {
+      registrations: new Map(),
+      nextId: 1,
+    },
+  ) {}
 
   register(
     operatorId: string,
     skillCastInfo: CombatSkillCastInfo,
   ): SkillCastInheritanceRegistration {
-    const token = {};
-    if (!this.#registrations.has(operatorId)) {
-      this.#registrations.set(operatorId, { token, skillCastInfo });
+    const registration = { operatorId, id: this.runtimeState.nextId++, skillCastInfo };
+    if (!this.runtimeState.registrations.has(operatorId)) {
+      this.runtimeState.registrations.set(operatorId, registration);
     }
-    return {
-      skillCastInfo,
-      dispose: () => {
-        if (this.#registrations.get(operatorId)?.token === token) {
-          this.#registrations.delete(operatorId);
-        }
-      },
-    };
+    return registration;
+  }
+
+  unregister(registration: SkillCastInheritanceRegistration): void {
+    if (this.runtimeState.registrations.get(registration.operatorId)?.id === registration.id)
+      this.runtimeState.registrations.delete(registration.operatorId);
   }
 
   get(operatorId: string): CombatSkillCastInfo | undefined {
-    return this.#registrations.get(operatorId)?.skillCastInfo;
+    return this.runtimeState.registrations.get(operatorId)?.skillCastInfo;
   }
 }
 
 /** Buff enable 序列中的注册动作；同一步骤实例在 end/reset 时只撤销自己的注册。 */
 export class SkillCastInheritanceOperationExecutor implements CombatOperationExecutor {
-  readonly #active = new Map<ResolvedCombatOperationStep, SkillCastInheritanceRegistration>();
+  readonly runtimeState: SkillCastInheritanceActionState;
+  readonly programs: CombatOperationPrograms;
 
   constructor(
     readonly operatorId: string,
     readonly registry: BasicAttackSkillCastInheritanceRegistry,
     readonly delegate: CombatOperationExecutor,
-  ) {}
+    restored?: {
+      readonly state: SkillCastInheritanceActionState;
+      readonly programs: CombatOperationPrograms;
+    },
+  ) {
+    this.runtimeState = restored?.state ?? { registrations: new Map() };
+    this.programs = restored?.programs ?? new CombatOperationPrograms();
+  }
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind !== 'inheritSkillCastInfoForBasicAttack') {
@@ -54,11 +71,15 @@ export class SkillCastInheritanceOperationExecutor implements CombatOperationExe
         ? this.delegate.execute(step)
         : this.delegate.execute(step, context);
     }
-    if (this.#active.has(step)) return true;
+    const slot = this.programs.slot(step);
+    if (this.runtimeState.registrations.has(slot)) return true;
     if (context?.skillCastInfo === undefined) {
       throw new Error('basic-attack SkillCastInfo inheritance requires a source SkillCastInfo');
     }
-    this.#active.set(step, this.registry.register(this.operatorId, context.skillCastInfo));
+    this.runtimeState.registrations.set(
+      slot,
+      this.registry.register(this.operatorId, context.skillCastInfo),
+    );
     return true;
   }
 
@@ -67,8 +88,10 @@ export class SkillCastInheritanceOperationExecutor implements CombatOperationExe
       this.delegate.end?.(step, context);
       return;
     }
-    this.#active.get(step)?.dispose();
-    this.#active.delete(step);
+    const slot = this.programs.slot(step);
+    const registration = this.runtimeState.registrations.get(slot);
+    if (registration !== undefined) this.registry.unregister(registration);
+    this.runtimeState.registrations.delete(slot);
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {

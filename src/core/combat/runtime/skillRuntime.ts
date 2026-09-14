@@ -1,3 +1,20 @@
+import { createSkillExecutionState, type RuntimeSkillState } from './skillExecutionState';
+import type { SkillRuntimeState } from './skillRuntimeState';
+import {
+  DamageCalculationSnapshots,
+  type DamageCalculationSnapshotProgram,
+} from './damageCalculationSnapshots';
+import type { BuffReference } from '../buffs/buffReference';
+import {
+  applySkillCastStartPreparation,
+  type SkillCastStartPreparation,
+} from './skillCastStartPreparation';
+import {
+  beginSkillCast,
+  tickSkillExecution,
+  advanceSkillExecution,
+  endSkillExecution,
+} from './skillExecution';
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { CallbackSkillHostFactory } from './callbackSkillHost';
 import type { AbilityResponseEvent, AbilitySkillPayload } from '../events/combatAbilityEvent';
@@ -15,6 +32,8 @@ export type ScheduleProjectileFinishCallback = (
   skillCastInfo?: CombatSkillCastInfo,
   advanceCallback?: (deltaSeconds: number) => void,
   sourceId?: string,
+  callbackState?: import('./projectileCallbackState').ProjectileCallbackState,
+  callbackProgram?: import('../../compiler/combatProgram').CompiledProjectileCallbackSkillProgram,
 ) => ProjectileLifetimeReference;
 
 export interface ProjectileRuntimeDependencies {
@@ -38,7 +57,7 @@ import type {
   AbilityEntityTargetRef,
   RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
+import { COMBAT_FRAME_INTERVAL, type CombatClock } from './combatClock';
 import type { CombatResources } from './combatResources';
 import { ActionBlackboard } from './actionBlackboard';
 import { SkillTimelineJumpGate } from './skillTimelineJump';
@@ -49,9 +68,15 @@ import type { CombatSemanticEvent, CombatSemanticEventRuntime } from './combatSe
 import type { BuffFinishReason } from '../buffs/combatBuffs';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
+import { buffReferenceKey } from '../buffs/buffReference';
+import {
+  createCombatOperationHostState,
+  type CombatOperationHostState,
+} from './combatOperationHostState';
+import type { CombatOperationPrograms } from './combatOperationPrograms';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
-export type RuntimeSkillState = 'ready' | 'casting' | 'ended';
+export type { RuntimeSkillState } from './skillExecutionState';
 /** 当前已闭环、会改变技能结束事实的中断来源。 */
 export type RuntimeSkillInterruptReason = 'default' | 'castNextSkill';
 
@@ -63,6 +88,9 @@ export interface RuntimeSkillTransition {
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationContext {
+  /** 仅在执行持有登记的步骤时挂接，实际数据由动作树持有。 */
+  actionRegistrationState?: import('../actions/actionStepData').ActionRegistrationState;
+  actionBuffReferencesState?: import('../actions/actionStepData').ActionBuffReferencesState;
   /** 临时 BeforeApplyDamageModifierContext；不是 AbilitySystem 广播，不覆盖普通来源施法。 */
   readonly beforeApplyDamageModifier?: import('../damage/damageModifiers').DamageModifierConditionInput & {
     /** 原生 Buff.affixSkillCastId。未绑定与明确无效的 0/null 必须区分，不回退普通 SkillCastInfo。 */
@@ -71,14 +99,7 @@ export interface CombatOperationContext {
   /** 当前动作环境独占的 direct 黑板；生命周期由技能、Buff 或连携条件宿主管理。 */
   readonly blackboard: ActionBlackboard;
   /** 由宿主 Reset 准备、按动作实例保存的原生攻击计算快照。 */
-  readonly damageCalculationSnapshots?: Map<
-    ResolvedCombatOperationStep,
-    {
-      readonly attack: number;
-      readonly attackScale: number;
-      readonly baseValue: number;
-    }
-  >;
+  readonly damageCalculationSnapshots?: DamageCalculationSnapshots;
   /** 只有读取或写入原生 Context 目标组的步骤才要求存在。 */
   readonly targetContext?: RuntimeTargetContext;
   /** 连携条件的原生 InputTarget；承受附着事件中它是施加者，不是物理事件 targetId。 */
@@ -125,7 +146,8 @@ export interface CombatOperationContext {
     skillCastInfo: CombatSkillCastInfo | null,
   ) => boolean;
   /** 仅 Buff 环境提供；动作结束解除监听，不清除已记录的 affix 编号。 */
-  readonly bindCurrentBuffSkillAffix?: (skillCastId: number) => { dispose(): void };
+  readonly bindCurrentBuffSkillAffix?: (skillCastId: number) => number;
+  readonly finishCurrentBuffSkillAffix?: (affixId: number) => void;
   /** 只由 GlobalBuff 投影出的子 Buff 提供；不得按 ID 猜测父层。 */
   readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
   /** Environment BuffCount 查询读取正在执行的当前 Buff 增强层数。 */
@@ -158,6 +180,11 @@ export interface CombatOperationContext {
 }
 
 export interface CombatOperationExecutor {
+  /** 当前执行链使用的动作数据和固定槽目录；回调子技能据此共享同一宿主。 */
+  readonly operationHost?: {
+    readonly state: CombatOperationHostState;
+    readonly programs: CombatOperationPrograms;
+  };
   prepare?(step: ResolvedCombatOperationStep, context: CombatOperationContext): void;
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean;
   end?(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void;
@@ -166,9 +193,6 @@ export interface CombatOperationExecutor {
     context?: CombatOperationContext,
   ): boolean;
 }
-
-/** Start 恢复局部板及目标组之后、执行第零帧之前；不得用于改写实体初始化。 */
-export type AfterSkillCastStart = (context: CombatOperationContext) => void;
 
 /**
  * 技能程序不携带运行时对象身份。普通干员技能默认仍由 program.operatorId 承担这些职责；
@@ -210,49 +234,52 @@ type SkillRuntimeDependencies = {
   readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
   readonly createCallbackSkillHost?: CallbackSkillHostFactory;
   readonly hostIdentity?: SkillRuntimeHostIdentity;
+  readonly damageSnapshotProgram?: DamageCalculationSnapshotProgram;
   /** 干员技能使用战斗账本；零费用实体技能传null，不拥有资源状态。 */
   readonly resources: CombatResources | null;
+  /** 必须与构造 operations 执行链时注入的状态是同一对象。 */
+  readonly operationState?: CombatOperationHostState;
 };
 
 /** 一次编译后技能的有状态实例；创建后只用于一场战斗。 */
 export class SkillRuntime {
+  readonly runtimeState: SkillRuntimeState;
   readonly #program: CompiledSkillExecutionProgram;
   readonly #dependencies: SkillRuntimeDependencies;
   readonly #context: CombatExecutionContext = {};
   readonly #blackboard: ActionBlackboard;
   readonly #initialBlackboard: ReturnType<ActionBlackboard['snapshot']>;
-  readonly #targetContext = new RuntimeTargetContext();
+  readonly #execution: ReturnType<typeof createSkillExecutionState>;
+  readonly #targetContext: RuntimeTargetContext;
   readonly #operationContext: CombatOperationContext;
   readonly #sequenceRuntime: CombatActionSequenceRuntime;
   readonly #cooldown: SkillCooldown;
   readonly #advancesCooldown: boolean;
   #timeline: TimelineActionProcessor | null = null;
-  #state: RuntimeSkillState = 'ready';
-  #passedFrames = 0;
   readonly #timelineJump = new SkillTimelineJumpGate();
-  #castStartFrame: number | undefined;
-  #appliedCost = false;
-  #attemptedCost = false;
-  #nonReturnedSpCost = 0;
-  #skillCastId = 0;
-  #preparedSkillCastId = 0;
-  #preparedSkillCastInfo: CombatSkillCastInfo | undefined;
-  #inheritedSkillCastInfo: CombatSkillCastInfo | undefined;
-  #preparedSkipApplyCost = false;
-  #preparedForceTimelinePayment = false;
-  #forceTimelinePayment = false;
-  #preparationCast = false;
-  #timelineFinishRequested = false;
-  #reachedOperableBoundaryFrame: number | undefined;
-  readonly #attachedBuffs = new Set<BuffApplicationHandle>();
+  readonly #attachedBuffBindings = new Map<string, BuffApplicationHandle>();
   readonly #hostIdentity: SkillRuntimeHostIdentity;
   #pendingTransition: RuntimeSkillTransition | null = null;
-  #preparedStartBlackboard: Readonly<Record<string, number>> = {};
-  #afterCastStart: AfterSkillCastStart | undefined;
 
-  constructor(program: CompiledSkillExecutionProgram, dependencies: SkillRuntimeDependencies) {
+  constructor(
+    program: CompiledSkillExecutionProgram,
+    dependencies: SkillRuntimeDependencies,
+    restored?: {
+      readonly state: SkillRuntimeState;
+      readonly damageSnapshotProgram: DamageCalculationSnapshotProgram;
+      readonly resolveAttachedBuff: (reference: BuffReference) => BuffApplicationHandle | undefined;
+    },
+  ) {
     this.#program = program;
     this.#dependencies = dependencies;
+    if (
+      restored !== undefined &&
+      dependencies.actionBlackboard !== undefined &&
+      dependencies.actionBlackboard.runtimeState !== restored.state.blackboard
+    )
+      throw new Error('restored skill must use the restored action blackboard');
+    this.#execution = restored?.state.execution ?? createSkillExecutionState();
+    this.#targetContext = new RuntimeTargetContext(this.#execution.targetContext);
     this.#hostIdentity =
       dependencies.hostIdentity ??
       Object.freeze({
@@ -262,9 +289,14 @@ export class SkillRuntime {
         semanticEventOwnerOperatorId: program.operatorId,
       });
     this.#blackboard =
-      dependencies.actionBlackboard ??
+      (restored === undefined
+        ? dependencies.actionBlackboard
+        : ActionBlackboard.bindRuntimeState(restored.state.blackboard)) ??
       new ActionBlackboard(undefined, dependencies.entityBlackboard);
-    this.#initialBlackboard = { ...program.initialBlackboard, ...this.#blackboard.snapshot() };
+    this.#initialBlackboard = restored?.state.initialBlackboard ?? {
+      ...program.initialBlackboard,
+      ...this.#blackboard.snapshot(),
+    };
     if (
       dependencies.resources !== null &&
       this.#hostIdentity.actionOwnerAbilityEntity !== undefined
@@ -272,12 +304,23 @@ export class SkillRuntime {
       throw new Error('ability entity skill cannot own an operator resource ledger');
     if (dependencies.resources === null) this.#requireNoResourceCost(program.costs);
     this.#cooldown =
-      dependencies.cooldown ?? new SkillCooldown(program.cooldownFrames, program.costFrame);
+      dependencies.cooldown ??
+      new SkillCooldown(
+        program.cooldownFrames,
+        program.costFrame,
+        undefined,
+        restored?.state.cooldown,
+      );
+    if (restored !== undefined && this.#cooldown.runtimeState !== restored.state.cooldown)
+      throw new Error('restored skill must use the restored shared cooldown');
     this.#advancesCooldown = dependencies.advancesCooldown ?? true;
     const runtime = this;
     this.#operationContext = {
       blackboard: this.#blackboard,
-      damageCalculationSnapshots: new Map(),
+      damageCalculationSnapshots: new DamageCalculationSnapshots(
+        restored?.damageSnapshotProgram ?? dependencies.damageSnapshotProgram,
+        restored?.state.damageSnapshots,
+      ),
       targetContext: this.#targetContext,
       actionOwnerId: this.#hostIdentity.actionOwnerId,
       actionSourceId: this.#hostIdentity.actionSourceId,
@@ -291,15 +334,20 @@ export class SkillRuntime {
       requestTimelineFinish: () => this.#requestTimelineFinish(),
       reachSkillOperableBoundary: sourceSkillIds =>
         this.#reachSkillOperableBoundary(sourceSkillIds),
-      getCurrentTimelineFrame: () => roundToEven(this.#passedFrames),
+      getCurrentTimelineFrame: () => roundToEven(this.#execution.passedFrames),
       ...(dependencies.scheduleProjectileFinishCallback === undefined
         ? {}
         : { scheduleProjectileFinishCallback: dependencies.scheduleProjectileFinishCallback }),
       get skillCastInfo() {
         return runtime.skillCastInfo;
       },
-      attachBuffToCurrentSkill: buff => runtime.attachBuffToCast(runtime.#skillCastId, buff),
-      detachBuffFromCurrentSkill: buff => runtime.#attachedBuffs.delete(buff),
+      attachBuffToCurrentSkill: buff =>
+        runtime.attachBuffToCast(runtime.#execution.skillCastId, buff),
+      detachBuffFromCurrentSkill: buff => {
+        const key = buffReferenceKey(buff.reference);
+        runtime.#execution.attachedBuffs.delete(key);
+        runtime.#attachedBuffBindings.delete(key);
+      },
       get pendingNextSkillId() {
         return runtime.#pendingTransition?.nextSkillId;
       },
@@ -319,11 +367,46 @@ export class SkillRuntime {
       },
       dependencies.semanticEvents,
       this.#hostIdentity.semanticEventOwnerOperatorId,
+      restored?.state.scopes,
     );
+    const operationState =
+      restored?.state.operations ?? dependencies.operationState ?? createCombatOperationHostState();
+    if (
+      restored !== undefined &&
+      dependencies.operationState !== undefined &&
+      dependencies.operationState !== restored.state.operations
+    ) {
+      throw new Error('restored skill must use the restored operation host state');
+    }
+    this.runtimeState = restored?.state ?? {
+      execution: this.#execution,
+      blackboard: this.#blackboard.runtimeState,
+      initialBlackboard: this.#initialBlackboard,
+      cooldown: this.#cooldown.runtimeState,
+      scopes: this.#sequenceRuntime.scopeState,
+      damageSnapshots: this.#operationContext.damageCalculationSnapshots!.runtimeState,
+      operations: operationState,
+      timeline: null,
+    };
+    if (restored !== undefined) {
+      for (const [key, reference] of this.#execution.attachedBuffs) {
+        const binding = restored.resolveAttachedBuff(reference);
+        if (binding === undefined || buffReferenceKey(binding.reference) !== key)
+          throw new Error(`restored attached Buff ${key} is missing`);
+        this.#attachedBuffBindings.set(key, binding);
+      }
+      if (restored.state.timeline !== null)
+        this.#timeline = this.#createTimeline(restored.state.timeline);
+    }
+  }
+
+  /** 固定动作到快照槽位的映射由分支共用，不能跟随状态复制后重新编号。 */
+  get damageSnapshotProgram(): DamageCalculationSnapshotProgram {
+    return this.#operationContext.damageCalculationSnapshots!.program;
   }
 
   get state(): RuntimeSkillState {
-    return this.#state;
+    return this.#execution.state;
   }
 
   get skillId(): string {
@@ -358,16 +441,16 @@ export class SkillRuntime {
   }
 
   get reachedOperableBoundaryFrame(): number | undefined {
-    return this.#reachedOperableBoundaryFrame;
+    return this.#execution.reachedOperableBoundaryFrame;
   }
 
   get passedFrames(): number {
-    return this.#passedFrames;
+    return this.#execution.passedFrames;
   }
 
   /** 原生比较 Unity frameCount；固定宿主一次更新映射一帧，不使用技能局部帧。 */
   get startedInCurrentFrame(): boolean {
-    return this.#castStartFrame === this.#dependencies.clock.frame;
+    return this.#execution.castStartFrame === this.#dependencies.clock.frame;
   }
 
   /** 原生 canInterrupt 的时间分支；当前全量 SkillData 未出现 MarkCanInterruptAction。 */
@@ -376,7 +459,7 @@ export class SkillRuntime {
       throw new Error(`skill '${this.#program.skillId}' requires native exclusiveFrame data`);
     }
     // 原生按秒比较 passedTime > exclusiveFrame / 30 + 0.00001。
-    return this.#passedFrames > this.#program.exclusiveFrame + 0.0003;
+    return this.#execution.passedFrames > this.#program.exclusiveFrame + 0.0003;
   }
 
   get inputWindows(): CompiledSkillExecutionProgram['inputWindows'] {
@@ -384,15 +467,15 @@ export class SkillRuntime {
   }
 
   get currentTimelineFrame(): number {
-    return roundToEven(this.#passedFrames);
+    return roundToEven(this.#execution.passedFrames);
   }
 
   get appliedCost(): boolean {
-    return this.#appliedCost;
+    return this.#execution.appliedCost;
   }
 
   get nonReturnedSpCost(): number {
-    return this.#nonReturnedSpCost;
+    return this.#execution.nonReturnedSpCost;
   }
 
   get cooldown(): SkillCooldownSnapshot {
@@ -400,16 +483,16 @@ export class SkillRuntime {
   }
 
   get skillCastInfo(): CombatSkillCastInfo {
-    if (this.#skillCastId === 0)
+    if (this.#execution.skillCastId === 0)
       throw new Error(`skill '${this.#program.skillId}' has not started`);
-    const origin = this.#inheritedSkillCastInfo;
+    const origin = this.#execution.inheritedSkillCastInfo;
     if (origin === undefined && this.#program.skillType === undefined) {
       throw new Error(
         `native-only skill '${this.#program.skillId}' requires inherited SkillCastInfo`,
       );
     }
     return {
-      skillCastId: this.#skillCastId,
+      skillCastId: this.#execution.skillCastId,
       originSkillId: origin?.originSkillId ?? this.#program.skillId,
       originSkillType: origin?.originSkillType ?? this.#program.skillType!,
       ...(origin?.originCastId !== undefined
@@ -417,12 +500,12 @@ export class SkillRuntime {
         : this.#program.castId === undefined
           ? {}
           : { originCastId: this.#program.castId }),
-      nonReturnedSpCost: this.#nonReturnedSpCost,
+      nonReturnedSpCost: this.#execution.nonReturnedSpCost,
     };
   }
 
   get processingSkillCastId(): number | undefined {
-    return this.#preparedSkillCastId || this.#skillCastId || undefined;
+    return this.#execution.preparedSkillCastId || this.#execution.skillCastId || undefined;
   }
 
   get operations(): CombatOperationExecutor {
@@ -434,36 +517,36 @@ export class SkillRuntime {
   }
 
   canStart(): boolean {
-    return this.#state !== 'casting';
+    return this.#execution.state !== 'casting';
   }
 
   prepareStartBlackboard(values: Readonly<Record<string, number>>): void {
-    if (this.#state === 'casting') {
+    if (this.#execution.state === 'casting') {
       throw new Error(`skill '${this.#program.skillId}' is already casting`);
     }
-    this.#preparedStartBlackboard = Object.freeze({ ...values });
+    this.#execution.preparedStartBlackboard = Object.freeze({ ...values });
   }
 
-  prepareAfterCastStart(callback: AfterSkillCastStart): void {
+  prepareAfterCastStart(preparation: SkillCastStartPreparation): void {
     if (!this.canStart()) throw new Error(`skill '${this.skillId}' is already casting`);
-    this.#afterCastStart = callback;
+    this.#execution.preparedCastStart = structuredClone(preparation);
   }
 
   prepareSkillCastId(skillCastId: number): void {
-    if (this.#state === 'casting') {
+    if (this.#execution.state === 'casting') {
       throw new Error(`skill '${this.#program.skillId}' is already casting`);
     }
     if (!Number.isSafeInteger(skillCastId) || skillCastId <= 0) {
       throw new RangeError('prepared skill cast id must be a positive safe integer');
     }
-    this.#preparedSkillCastId = skillCastId;
+    this.#execution.preparedSkillCastId = skillCastId;
   }
 
   prepareCastInput(input: {
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
   }): void {
-    if (this.#state === 'casting') {
+    if (this.#execution.state === 'casting') {
       throw new Error(`skill '${this.#program.skillId}' is already casting`);
     }
     const inherited = input.inheritedSkillCastInfo;
@@ -471,31 +554,34 @@ export class SkillRuntime {
       if (!Number.isSafeInteger(inherited.skillCastId) || inherited.skillCastId <= 0) {
         throw new RangeError('inherited skill cast id must be a positive safe integer');
       }
-      this.#preparedSkillCastInfo = { ...inherited };
-      this.#preparedSkillCastId = inherited.skillCastId;
+      this.#execution.preparedSkillCastInfo = { ...inherited };
+      this.#execution.preparedSkillCastId = inherited.skillCastId;
     }
-    this.#preparedSkipApplyCost = input.skipApplyCost;
+    this.#execution.preparedSkipApplyCost = input.skipApplyCost;
   }
 
   /** 时间轴声明的玩家操作即使原生门槛不满足也继续执行，并按旧版展示规则扣费。 */
   prepareForcedTimelineCast(): void {
-    if (this.#state === 'casting') {
+    if (this.#execution.state === 'casting') {
       throw new Error(`skill '${this.#program.skillId}' is already casting`);
     }
-    this.#preparedForceTimelinePayment = true;
+    this.#execution.preparedForceTimelinePayment = true;
   }
 
   attachBuffToCast(skillCastId: number, buff: BuffApplicationHandle): void {
-    const currentCastId = this.#preparedSkillCastId || this.#skillCastId;
+    const currentCastId = this.#execution.preparedSkillCastId || this.#execution.skillCastId;
     if (skillCastId <= 0 || skillCastId !== currentCastId) {
       throw new Error('cannot attach a Buff using a stale skill cast context');
     }
     // 原生 Skill.AttachBuff 按实例去重，并保留首次附着顺序。
-    this.#attachedBuffs.add(buff);
+    this.attachInheritedBuff(buff);
   }
 
   attachInheritedBuff(buff: BuffApplicationHandle): void {
-    this.#attachedBuffs.add(buff);
+    const reference = buff.reference;
+    const key = buffReferenceKey(reference);
+    this.#execution.attachedBuffs.set(key, { ...reference });
+    this.#attachedBuffBindings.set(key, buff);
   }
 
   trySwitchToBuffCast(
@@ -529,18 +615,18 @@ export class SkillRuntime {
       return false;
     }
     this.#blackboard.restore(this.#initialBlackboard);
-    this.#blackboard.assign(this.#preparedStartBlackboard);
+    this.#blackboard.assign(this.#execution.preparedStartBlackboard);
     this.#targetContext.clear();
     this.#sequenceRuntime.reset();
     this.#operationContext.damageCalculationSnapshots!.clear();
     if (route.asSkillCast) {
-      this.#skillCastId =
-        this.#preparedSkillCastId === 0
+      this.#execution.skillCastId =
+        this.#execution.preparedSkillCastId === 0
           ? this.#dependencies.allocateSkillCastId()
-          : this.#preparedSkillCastId;
-      if (!Number.isSafeInteger(this.#skillCastId) || this.#skillCastId <= 0)
+          : this.#execution.preparedSkillCastId;
+      if (!Number.isSafeInteger(this.#execution.skillCastId) || this.#execution.skillCastId <= 0)
         throw new RangeError('allocated skill cast id must be a positive safe integer');
-      this.#nonReturnedSpCost = 0;
+      this.#execution.nonReturnedSpCost = 0;
     }
     const skillCastInfo = route.asSkillCast ? this.skillCastInfo : currentSkill?.skillCastInfo;
     if (skillCastInfo === undefined) return false;
@@ -577,67 +663,42 @@ export class SkillRuntime {
     // 非施法旁路仍处理当前技能；只有 AsSkillCast 临时覆盖至自身，包含结束事件。
     if (route.asSkillCast) withProcessingSkill(executeRoute);
     else executeRoute();
-    this.#preparedStartBlackboard = {};
-    this.#preparedSkillCastId = 0;
-    this.#afterCastStart = undefined;
+    this.#execution.preparedStartBlackboard = {};
+    this.#execution.preparedSkillCastId = 0;
+    this.#execution.preparedCastStart = undefined;
     return true;
   }
 
   tryStart(): boolean {
-    if (this.#state === 'casting') throw new Error(`skill '${this.#program.skillId}' is casting`);
+    if (this.#execution.state === 'casting')
+      throw new Error(`skill '${this.#program.skillId}' is casting`);
     const cooldownReserved = this.#cooldown.tryReserve();
     if (this.#cooldown.snapshot.configured) {
       this.record(cooldownReserved ? 'SkillCooldownReserved' : 'SkillCooldownUnavailableAtStart', {
         remainingFrames: this.#cooldown.snapshot.remainingFrames,
       });
     }
-    if (!this.#preparedSkipApplyCost && !this.#canPay(this.#resolvedCosts())) {
+    if (!this.#execution.preparedSkipApplyCost && !this.#canPay(this.#resolvedCosts())) {
       this.record('SkillCostUnavailableAtStart');
     }
 
-    this.#timeline = this.#sequenceRuntime.createTimeline(this.#program.timelineActions, {
-      started: action =>
-        this.record('TimelineActionStarted', {
-          startFrame: action.startFrame,
-        }),
-      ended: action =>
-        this.record('TimelineActionEnded', {
-          startFrame: action.startFrame,
-        }),
-    });
+    this.#timeline = this.#createTimeline();
     this.#blackboard.restore(this.#initialBlackboard);
     this.#targetContext.clear();
-    this.#blackboard.assign(this.#preparedStartBlackboard);
-    this.#preparedStartBlackboard = {};
+    this.#blackboard.assign(this.#execution.preparedStartBlackboard);
+    this.#execution.preparedStartBlackboard = {};
+    this.runtimeState.timeline = this.#timeline.runtimeState;
     this.#sequenceRuntime.reset();
     this.#operationContext.damageCalculationSnapshots!.clear();
     this.#timeline.reset(this.#context);
-    this.#passedFrames = 0;
-    this.#castStartFrame = this.#dependencies.clock.frame;
-    this.#appliedCost = this.#preparedSkipApplyCost;
-    this.#attemptedCost = this.#preparedSkipApplyCost;
-    this.#forceTimelinePayment = this.#preparedForceTimelinePayment;
-    this.#preparationCast = this.#dependencies.clock.frame < 0;
-    this.#timelineFinishRequested = false;
-    this.#reachedOperableBoundaryFrame = undefined;
-    this.#inheritedSkillCastInfo = this.#preparedSkillCastInfo;
-    this.#nonReturnedSpCost = this.#preparedSkillCastInfo?.nonReturnedSpCost ?? 0;
-    this.#skillCastId =
-      this.#preparedSkillCastId === 0
-        ? this.#dependencies.allocateSkillCastId()
-        : this.#preparedSkillCastId;
-    this.#preparedSkillCastId = 0;
-    this.#preparedSkillCastInfo = undefined;
-    this.#preparedSkipApplyCost = false;
-    this.#preparedForceTimelinePayment = false;
-    if (!Number.isSafeInteger(this.#skillCastId) || this.#skillCastId <= 0) {
-      throw new RangeError('allocated skill cast id must be a positive safe integer');
-    }
-    this.#state = 'casting';
+    beginSkillCast(this.#execution, this.#dependencies.clock.frame, () =>
+      this.#dependencies.allocateSkillCastId(),
+    );
     this.record('SkillStarted');
-    const afterCastStart = this.#afterCastStart;
-    this.#afterCastStart = undefined;
-    afterCastStart?.(this.#operationContext);
+    const afterCastStart = this.#execution.preparedCastStart;
+    this.#execution.preparedCastStart = undefined;
+    if (afterCastStart !== undefined)
+      applySkillCastStartPreparation(afterCastStart, this.#operationContext);
     // 原生 `TryCastSkill` 会立即执行一次 `OnTick(0, 0)`。
     this.#tick(0);
     return true;
@@ -647,58 +708,61 @@ export class SkillRuntime {
     this.advance(COMBAT_FRAME_INTERVAL, COMBAT_FRAME_INTERVAL);
   }
 
+  #createTimeline(state?: SkillRuntimeState['timeline']) {
+    return this.#sequenceRuntime.createTimeline(
+      this.#program.timelineActions,
+      {
+        started: action => this.record('TimelineActionStarted', { startFrame: action.startFrame }),
+        ended: action => this.record('TimelineActionEnded', { startFrame: action.startFrame }),
+      },
+      state ?? undefined,
+    );
+  }
+
   /** 低层显式增量入口，单位秒；AbilitySystem 分派负责施放当帧保护及共享冷却。 */
   advance(timelineDeltaSeconds: number, cooldownDeltaSeconds: number): void {
-    if (
-      !Number.isFinite(timelineDeltaSeconds) ||
-      timelineDeltaSeconds < 0 ||
-      !Number.isFinite(cooldownDeltaSeconds) ||
-      cooldownDeltaSeconds < 0
-    ) {
-      throw new RangeError('skill deltas must be non-negative finite numbers');
-    }
-    if (
-      this.#advancesCooldown &&
-      this.#cooldown.advance(cooldownDeltaSeconds * COMBAT_FRAMES_PER_SECOND)
-    ) {
-      this.record('SkillCooldownReady');
-    }
-    if (this.#state !== 'casting') return;
-    this.#passedFrames += timelineDeltaSeconds * COMBAT_FRAMES_PER_SECOND;
-    this.#tick(timelineDeltaSeconds);
-    // 原生自然结束由 SkillData.durationFrame 计时器驱动；到期帧先完成本帧 Timeline Tick，
-    // 再进入 CastEnd。旧自定义定义没有该字段时才沿用“动作全部完成”的兼容边界。
-    if (
-      this.#timelineFinishRequested ||
-      (this.#program.naturalDurationFrames === undefined
-        ? this.#timeline?.isComplete === true
-        : this.#passedFrames >= this.#program.naturalDurationFrames)
-    )
-      this.end();
+    advanceSkillExecution(
+      this.#execution,
+      this.#program.naturalDurationFrames,
+      this.#advancesCooldown,
+      timelineDeltaSeconds,
+      cooldownDeltaSeconds,
+      {
+        advanceCooldown: delta => this.#cooldown.advance(delta),
+        cooldownReady: () => this.record('SkillCooldownReady'),
+        tick: delta => this.#tick(delta),
+        timelineComplete: () => this.#timeline?.isComplete === true,
+        end: () => this.end(),
+      },
+    );
   }
 
   end(): void {
-    if (this.#state !== 'casting') return;
-    const attachedAtEnd = [...this.#attachedBuffs];
-    this.#timeline?.end(this.#passedFrames, this.#context);
-    this.#finishAttachedBuffs(attachedAtEnd);
-    if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
-    this.#state = 'ended';
-    this.record('SkillEnded');
-    this.#emitSkillEnd();
+    if (this.#execution.state !== 'casting') return;
+    const attachedAtEnd = this.#captureAttachedBuffs();
+    endSkillExecution(this.#execution, {
+      endTimeline: frame => this.#timeline?.end(frame, this.#context),
+      finishAttached: () => this.#finishAttachedBuffs(attachedAtEnd),
+      finishCooldown: () => this.#cooldown.finishCast(),
+      cooldownRefunded: () => this.record('SkillCooldownRefunded'),
+      recordEnded: () => this.record('SkillEnded'),
+      emitEnded: () => this.#emitSkillEnd(),
+    });
   }
 
   interrupt(reason: RuntimeSkillInterruptReason, transition?: RuntimeSkillTransition): void {
-    if (this.#state !== 'casting') return;
+    if (this.#execution.state !== 'casting') return;
     this.#pendingTransition = transition ?? null;
-    const attachedAtEnd = [...this.#attachedBuffs];
+    const attachedAtEnd = this.#captureAttachedBuffs();
     try {
-      this.#timeline?.end(this.#passedFrames, this.#context);
-      this.#finishAttachedBuffs(attachedAtEnd);
-      if (this.#cooldown.finishCast()) this.record('SkillCooldownRefunded');
-      this.#state = 'ended';
-      this.record('SkillInterrupted', { reason });
-      this.#emitSkillEnd();
+      endSkillExecution(this.#execution, {
+        endTimeline: frame => this.#timeline?.end(frame, this.#context),
+        finishAttached: () => this.#finishAttachedBuffs(attachedAtEnd),
+        finishCooldown: () => this.#cooldown.finishCast(),
+        cooldownRefunded: () => this.record('SkillCooldownRefunded'),
+        recordEnded: () => this.record('SkillInterrupted', { reason }),
+        emitEnded: () => this.#emitSkillEnd(),
+      });
     } finally {
       this.#pendingTransition = null;
     }
@@ -740,15 +804,12 @@ export class SkillRuntime {
   }
 
   #tick(deltaTime: number): void {
-    if (
-      !this.#attemptedCost &&
-      this.#program.costFrame !== undefined &&
-      this.#passedFrames >= this.#program.costFrame
-    ) {
-      this.#attemptedCost = true;
-      this.#applyCost(true);
-    }
-    this.#timeline?.tick(this.#passedFrames, deltaTime, this.#context);
+    tickSkillExecution(this.#execution, this.#program.costFrame, deltaTime, {
+      applyCost: () => {
+        this.#applyCost(true);
+      },
+      tickTimeline: (frame, delta) => this.#timeline?.tick(frame, delta, this.#context),
+    });
   }
 
   #resolvedCosts(
@@ -772,20 +833,20 @@ export class SkillRuntime {
   }
 
   #applyCost(emitSkillEvent: boolean): boolean {
-    const costs = this.#resolvedCosts(this.#preparationCast);
+    const costs = this.#resolvedCosts(this.#execution.preparationCast);
     if (this.#dependencies.resources === null) this.#requireNoResourceCost(costs);
     const payment =
       this.#dependencies.resources === null
         ? { paid: true, nonReturnedSpCost: 0, changes: [] }
         : this.#dependencies.resources.pay(this.#hostIdentity.actionOwnerId, costs, {
-            forceTimelinePayment: this.#forceTimelinePayment,
+            forceTimelinePayment: this.#execution.forceTimelinePayment,
           });
     if (!payment.paid) {
       this.record('SkillCostRejected');
       return false;
     }
-    this.#appliedCost = true;
-    this.#nonReturnedSpCost = payment.nonReturnedSpCost;
+    this.#execution.appliedCost = true;
+    this.#execution.nonReturnedSpCost = payment.nonReturnedSpCost;
     for (const change of payment.changes) {
       if (change.resource === 'sp') {
         this.record('SpChanged', {
@@ -830,21 +891,21 @@ export class SkillRuntime {
   #requestTimelineJump(destinationFrame: number): void {
     if (this.#timelineJump.isExecuting) return;
     const timeline = this.#timeline;
-    if (timeline === null || this.#state !== 'casting') {
+    if (timeline === null || this.#execution.state !== 'casting') {
       throw new Error(`skill '${this.#program.skillId}' cannot jump outside an active cast`);
     }
     this.#timelineJump.execute(
       destinationFrame,
-      this.#passedFrames,
+      this.#execution.passedFrames,
       this.#program.naturalDurationFrames,
       () => {
         // 原生允许 epsilon 内的微小回拨；它不会重新执行已过的调度项。
         timeline.jumpTo(
           destinationFrame,
-          Math.min(destinationFrame, this.#passedFrames),
+          Math.min(destinationFrame, this.#execution.passedFrames),
           this.#context,
         );
-        this.#passedFrames = destinationFrame;
+        this.#execution.passedFrames = destinationFrame;
         this.record('SkillTimelineJumped', { destinationFrame });
       },
       () => this.end(),
@@ -853,11 +914,11 @@ export class SkillRuntime {
 
   #requestTimelineFinish(): void {
     const timeline = this.#timeline;
-    if (timeline === null || this.#state !== 'casting') {
+    if (timeline === null || this.#execution.state !== 'casting') {
       throw new Error(`skill '${this.#program.skillId}' cannot finish outside an active cast`);
     }
-    timeline.finish(this.#passedFrames, this.#context);
-    this.#timelineFinishRequested = true;
+    timeline.finish(this.#execution.passedFrames, this.#context);
+    this.#execution.timelineFinishRequested = true;
     this.record('SkillTimelineFinished');
   }
 
@@ -865,12 +926,12 @@ export class SkillRuntime {
     const continuation = this.#program.timelineContinuationSourceSkillId;
     if (
       continuation === undefined ||
-      this.#reachedOperableBoundaryFrame !== undefined ||
+      this.#execution.reachedOperableBoundaryFrame !== undefined ||
       !sourceSkillIds.includes(continuation)
     ) {
       return;
     }
-    this.#reachedOperableBoundaryFrame = this.currentTimelineFrame;
+    this.#execution.reachedOperableBoundaryFrame = this.currentTimelineFrame;
   }
 
   #emitSkillEnd(): void {
@@ -881,7 +942,19 @@ export class SkillRuntime {
     // CastEnd 在 OnSkillEnd 之前正序 MarkFinish(Other)，不传入结束来源/施法信息。
     for (const buff of attachedAtEnd) buff.finish('other', null);
     // CastEnd 在时间轴清理前取快照；清理中新增的实例不属于本次移除集合。
-    for (const buff of attachedAtEnd) this.#attachedBuffs.delete(buff);
+    for (const buff of attachedAtEnd) {
+      const key = buffReferenceKey(buff.reference);
+      this.#execution.attachedBuffs.delete(key);
+      this.#attachedBuffBindings.delete(key);
+    }
+  }
+
+  #captureAttachedBuffs(): readonly BuffApplicationHandle[] {
+    return [...this.#execution.attachedBuffs.keys()].map(key => {
+      const buff = this.#attachedBuffBindings.get(key);
+      if (buff === undefined) throw new Error(`attached Buff binding ${key} is missing`);
+      return buff;
+    });
   }
 
   #skillEventPayload(): AbilitySkillPayload {
@@ -890,7 +963,7 @@ export class SkillRuntime {
       targetId: this.#hostIdentity.eventSourceId,
       skillType: this.#program.skillType,
       skillId: this.#program.sourceSkillId ?? this.#program.skillId,
-      skillCastId: this.#skillCastId,
+      skillCastId: this.#execution.skillCastId,
     };
   }
 }

@@ -1,4 +1,9 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
+import type { ActionBlackboardScopeState } from './actionBlackboardScopeState';
+import type { CombatEventListenerState } from './combatEventListenerState';
+import type { ActionStepData } from '../actions/actionStepData';
+import type { ActionSequenceState } from '../actions/actionSequenceState';
+
 /**
  * 把编译后的同步动作序列绑定到操作执行器和动作黑板。
  * 技能、Buff 等状态所有者应各自持有实例，避免共享 once 作用域或运行时黑板。
@@ -7,7 +12,9 @@ import { ActionSequence } from '../actions/actionSequence';
 import {
   TimelineActionProcessor,
   type TimelineActionLifecycleSink,
+  type TimelineRuntimeState,
 } from '../timeline/timelineActionProcessor';
+import { compileTimelineActionIntervals } from '../timeline/timelineActionExecution';
 import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import { CombatStep, type CombatExecutionContext } from '../actions/combatStep';
 import type {
@@ -22,11 +29,60 @@ import type { AbilityEntityTargetRef } from '../../game-data/logicalAbilityEntit
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type {
   CombatSemanticEventContext,
+  CombatEventHandlerRegistration,
   CombatSemanticEventRuntime,
 } from './combatSemanticEventRuntime';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 import { RuntimeTargetContext } from './runtimeTargetContext';
-import type { CallbackSkillHost } from './callbackSkillHost';
+import { createActionScopeState } from './actionScopeState';
+import {
+  executeActionOnce,
+  getActionScopeBlackboard,
+  resetActionScopes,
+} from './actionScopeExecution';
+import type { ActionBlackboardState } from './actionBlackboardState';
+import { createTargetLoopState } from './targetLoopState';
+import {
+  executeTargetLoop,
+  tickTargetLoop,
+  endTargetLoop,
+  resetTargetLoop,
+  type TargetLoopHost,
+} from './targetLoopExecution';
+import { createBranchActionState } from './branchActionState';
+import {
+  executeSwitchAction,
+  executeConditionalAction,
+  tickBranchAction,
+  endBranchAction,
+  resetSwitchAction,
+  resetConditionalAction,
+  type BranchActionHost,
+} from './branchActionExecution';
+import { createTimelineJumpState } from './timelineJumpState';
+import {
+  executeTimelineJump,
+  tickTimelineJump,
+  resetTimelineJump,
+  type TimelineJumpExecutionHost,
+} from './timelineJumpExecution';
+import { createRepeatedActionState } from './repeatedActionState';
+import {
+  executeRepeatedAction,
+  tickRepeatedAction,
+  resetRepeatedAction,
+} from './repeatedActionExecution';
+import { ProjectileCallbackRuntime } from './projectileCallbackRuntime';
+
+/** 步骤自身没有可变数据；它调用的操作执行器仍须由所属宿主恢复。 */
+abstract class StatelessCombatStep extends CombatStep {
+  override get executionData(): ActionStepData {
+    return { kind: 'stateless' as const };
+  }
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (data?.kind !== 'stateless') throw new Error('expected stateless step data');
+  }
+}
 
 export interface CombatActionSequenceRuntimeHooks {
   readonly stepReached?: (step: ResolvedCombatStep) => void;
@@ -62,13 +118,101 @@ class ProjectileLifetimeStep extends CombatStep {
   }
 }
 
-class OperationStep extends CombatStep {
+class OperationStep extends StatelessCombatStep {
+  #registrationState: import('../actions/actionStepData').ActionRegistrationState | null = null;
+  #buffReferencesState: import('../actions/actionStepData').ActionBuffReferencesState | null = null;
+
   constructor(
     readonly step: ResolvedCombatOperationStep,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
     super();
+    if (
+      step.kind === 'changePlayerActionMode' ||
+      step.kind === 'overrideBasicAttackMapping' ||
+      step.kind === 'skillAffix' ||
+      (step.kind === 'changeSkillSlot' && step.parameters.lifetime !== undefined)
+    )
+      this.#registrationState = { registrationId: null };
+    if (step.kind === 'applyBuff' && step.parameters.finishByAction === true)
+      this.#buffReferencesState = { active: false, references: [] };
+    if (step.kind === 'inheritBuffById')
+      this.#buffReferencesState = { active: false, references: [] };
+    if (step.kind === 'holdBuffsById')
+      this.#buffReferencesState = { active: false, references: [] };
+  }
+
+  override get executionData(): ActionStepData {
+    if (this.#registrationState !== null) {
+      return {
+        kind: this.#registrationKind(),
+        activation: this.#registrationState,
+      };
+    }
+    if (this.#buffReferencesState !== null) {
+      return {
+        kind: this.#buffReferencesKind(),
+        buffs: this.#buffReferencesState,
+      };
+    }
+    return super.executionData;
+  }
+
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (this.#registrationState !== null) {
+      const expected = this.#registrationKind();
+      if (data?.kind !== expected) throw new Error('expected matching action registration data');
+      this.#registrationState = data.activation;
+      return;
+    }
+    if (this.#buffReferencesState !== null) {
+      const expected = this.#buffReferencesKind();
+      if (data?.kind !== expected) throw new Error('expected matching action Buff data');
+      this.#buffReferencesState = data.buffs;
+      return;
+    }
+    super.bindExecutionData(data);
+  }
+
+  #withState<T>(operation: () => T): T {
+    if (this.#registrationState === null && this.#buffReferencesState === null) return operation();
+    const context = this.operationContext;
+    const previous = context.actionRegistrationState;
+    const previousBuffs = context.actionBuffReferencesState;
+    if (this.#registrationState !== null) context.actionRegistrationState = this.#registrationState;
+    if (this.#buffReferencesState !== null)
+      context.actionBuffReferencesState = this.#buffReferencesState;
+    try {
+      return operation();
+    } finally {
+      if (previous === undefined) delete context.actionRegistrationState;
+      else context.actionRegistrationState = previous;
+      if (previousBuffs === undefined) delete context.actionBuffReferencesState;
+      else context.actionBuffReferencesState = previousBuffs;
+    }
+  }
+
+  #registrationKind():
+    'playerActionMode' | 'basicAttackMapping' | 'skillSlotReplacement' | 'skillAffix' {
+    switch (this.step.kind) {
+      case 'changePlayerActionMode':
+        return 'playerActionMode';
+      case 'overrideBasicAttackMapping':
+        return 'basicAttackMapping';
+      case 'changeSkillSlot':
+        return 'skillSlotReplacement';
+      case 'skillAffix':
+        return 'skillAffix';
+      default:
+        throw new Error('operation does not own a registration');
+    }
+  }
+
+  #buffReferencesKind(): 'actionDurationBuffs' | 'inheritedBuff' | 'buffHold' {
+    if (this.step.kind === 'inheritBuffById') return 'inheritedBuff';
+    if (this.step.kind === 'holdBuffsById') return 'buffHold';
+    return 'actionDurationBuffs';
   }
 
   execute(): void {
@@ -77,19 +221,19 @@ class OperationStep extends CombatStep {
 
   override tryExecute(): boolean {
     this.runtime.hooks.stepReached?.(this.step);
-    return this.runtime.operations.execute(this.step, this.operationContext);
+    return this.#withState(() => this.runtime.operations.execute(this.step, this.operationContext));
   }
 
   override end(): void {
-    this.runtime.operations.end?.(this.step, this.operationContext);
+    this.#withState(() => this.runtime.operations.end?.(this.step, this.operationContext));
   }
 
   override reset(): void {
-    this.runtime.operations.prepare?.(this.step, this.operationContext);
+    this.#withState(() => this.runtime.operations.prepare?.(this.step, this.operationContext));
   }
 }
 
-class OnceStep extends CombatStep {
+class OnceStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'once'>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -114,6 +258,28 @@ class OnceStep extends CombatStep {
 
 class ActionBlackboardScopeStep extends CombatStep {
   #body?: ActionSequence;
+  #state: ActionBlackboardScopeState = { body: null };
+
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (data?.kind !== 'blackboardScope') throw new Error('expected blackboard scope data');
+    this.#state = data.scope;
+    const body = data.scope.body;
+    this.#body =
+      body === null
+        ? undefined
+        : this.runtime.createSequence(
+            this.step.body,
+            {
+              ...this.operationContext,
+              blackboard: ActionBlackboard.bindRuntimeState(body.blackboard),
+            },
+            body.sequence,
+          );
+  }
+
+  override get executionData() {
+    return { kind: 'blackboardScope' as const, scope: this.#state };
+  }
 
   constructor(
     readonly step: ResolvedCombatStepForKind<'withActionBlackboardScope'>,
@@ -145,10 +311,14 @@ class ActionBlackboardScopeStep extends CombatStep {
   override reset(context: CombatExecutionContext): void {
     this.#body?.reset(context);
     this.#body = undefined;
+    this.#state.body = null;
   }
 
   #beginExecution(): void {
-    if (this.step.parameters.lifetime === 'execution') this.#body = undefined;
+    if (this.step.parameters.lifetime === 'execution') {
+      this.#body = undefined;
+      this.#state.body = null;
+    }
   }
 
   #getBody(): ActionSequence {
@@ -161,6 +331,10 @@ class ActionBlackboardScopeStep extends CombatStep {
       ...this.operationContext,
       blackboard,
     });
+    this.#state.body = {
+      blackboard: blackboard.runtimeState,
+      sequence: this.#body.runtimeState,
+    };
     // 该层级按执行惰性创建，外层 reset 时它尚不存在；创建后必须立即准备内部
     // OperationStep，否则 takeAttackSnapshot 等原生 Reset 阶段状态会在首次命中时缺失。
     this.#body.reset({});
@@ -169,11 +343,14 @@ class ActionBlackboardScopeStep extends CombatStep {
 }
 
 class RepeatEachTickStep extends CombatStep {
-  #skipInitialTick = false;
-  #timerSeconds = 0;
-  #scanCount = 0;
-  #targetTriggerCount = 0;
-  #lastTargetTriggerSeconds = 0;
+  #state = createRepeatedActionState();
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (data?.kind !== 'repeat') throw new Error('expected repeated action data');
+    this.#state = data.repetition;
+  }
+  override get executionData() {
+    return { kind: 'repeat' as const, repetition: this.#state };
+  }
 
   constructor(
     readonly step: ResolvedCombatStepForKind<'repeatEachTick'>,
@@ -184,83 +361,17 @@ class RepeatEachTickStep extends CombatStep {
   }
 
   execute(context: CombatExecutionContext): void {
-    this.#skipInitialTick = true;
-    this.#timerSeconds = 0;
-    this.#scanCount = 0;
-    this.#targetTriggerCount = 0;
-    this.#lastTargetTriggerSeconds = 0;
-    this.#scan(context);
+    executeRepeatedAction(this.#state, this.step.parameters, () => this.#executeBody(context));
   }
 
   override tick(deltaTime: number, context: CombatExecutionContext): void {
-    if (this.#skipInitialTick) {
-      this.#skipInitialTick = false;
-      return;
-    }
-    const tickInterval = this.step.parameters.nativeTickInterval;
-    if (tickInterval !== undefined) {
-      this.#timerSeconds = Math.fround(this.#timerSeconds + Math.fround(deltaTime));
-      const executeEachFrame =
-        tickInterval.executeEachFrame ||
-        Math.fround(tickInterval.intervalSeconds) < Math.fround(0.0329900011);
-      if (
-        executeEachFrame ||
-        this.#timerSeconds >= Math.fround(this.#scanCount * tickInterval.intervalSeconds)
-      ) {
-        this.#scan(context);
-      }
-      return;
-    }
-    const channeling = this.step.parameters.nativeChanneling;
-    if (channeling === undefined) {
-      this.#executeBody(context);
-      return;
-    }
-    this.#timerSeconds = Math.fround(this.#timerSeconds + Math.fround(deltaTime));
-    if (
-      channeling.executeEachFrame ||
-      this.#timerSeconds >= Math.fround(this.#scanCount * channeling.triggerIntervalSeconds)
-    ) {
-      this.#scan(context);
-    }
+    tickRepeatedAction(this.#state, this.step.parameters, deltaTime, () =>
+      this.#executeBody(context),
+    );
   }
 
   override reset(): void {
-    this.#skipInitialTick = false;
-    this.#timerSeconds = 0;
-    this.#scanCount = 0;
-    this.#targetTriggerCount = 0;
-    this.#lastTargetTriggerSeconds = 0;
-  }
-
-  #scan(context: CombatExecutionContext): void {
-    if (this.step.parameters.nativeTickInterval !== undefined) {
-      this.#scanCount += 1;
-      this.#executeBody(context);
-      return;
-    }
-    const channeling = this.step.parameters.nativeChanneling;
-    if (channeling === undefined) {
-      this.#executeBody(context);
-      return;
-    }
-    this.#scanCount += 1;
-    if (
-      channeling.maxCountPerTarget >= 0 &&
-      this.#targetTriggerCount >= channeling.maxCountPerTarget
-    )
-      return;
-    if (
-      this.#targetTriggerCount > 0 &&
-      !(
-        Math.fround(this.#timerSeconds - this.#lastTargetTriggerSeconds) >
-        channeling.targetTriggerIntervalSeconds
-      )
-    )
-      return;
-    this.#executeBody(context);
-    this.#targetTriggerCount += 1;
-    this.#lastTargetTriggerSeconds = this.#timerSeconds;
+    resetRepeatedAction(this.#state);
   }
 
   #executeBody(context: CombatExecutionContext): void {
@@ -278,7 +389,27 @@ class RepeatEachTickStep extends CombatStep {
 }
 
 class ForEachContextTargetStep extends CombatStep {
-  readonly #activeBodies: ActionSequence[] = [];
+  #state = createTargetLoopState();
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (data?.kind !== 'targets') throw new Error('expected target loop data');
+    this.#state = data.loop;
+    this.#bodies.clear();
+    for (const [id, body] of data.loop.bodies) {
+      this.#bodies.set(
+        id,
+        this.runtime.createSequence(
+          this.step.body,
+          { ...this.operationContext, currentTarget: body.target },
+          body.sequence,
+        ),
+      );
+    }
+  }
+  override get executionData() {
+    return { kind: 'targets' as const, loop: this.#state };
+  }
+  // 临时绑定仍持有未迁移的子序列对象，不能用于整场切面。
+  readonly #bodies = new Map<number, ActionSequence>();
 
   constructor(
     readonly step: ResolvedCombatStepForKind<'forEachContextTarget'>,
@@ -300,32 +431,50 @@ class ForEachContextTargetStep extends CombatStep {
         : parameters.target === 'caster'
           ? ([{ kind: 'operator', operatorId: this.#ownerOperatorId() }] as const)
           : this.#contextTargets(parameters.contextKey!);
-    for (const currentTarget of targets) {
-      // Native ForEachAction ignores the body's result for each item. The body's End must still
-      // follow the enclosing timeline action's lifetime: action-duration Buffs inside the loop
-      // cannot be ended immediately after their synchronous Execute.
-      const sequence = this.runtime.createSequence(this.step.body, {
-        ...this.operationContext,
-        currentTarget,
-      });
-      sequence.reset(context);
-      sequence.tryExecute(context);
-      this.#activeBodies.push(sequence);
-    }
+    executeTargetLoop(this.#state, targets, this.#host(context));
     return true;
   }
 
   override tick(deltaTime: number, context: CombatExecutionContext): void {
-    for (const sequence of this.#activeBodies) sequence.tick(deltaTime, context);
+    tickTargetLoop(this.#state, deltaTime, this.#host(context));
   }
 
   override end(context: CombatExecutionContext): void {
-    for (const sequence of this.#activeBodies) sequence.end(context);
-    this.#activeBodies.length = 0;
+    endTargetLoop(this.#state, this.#host(context));
+    this.#bodies.clear();
   }
 
   override reset(): void {
-    this.#activeBodies.length = 0;
+    resetTargetLoop(this.#state);
+    this.#bodies.clear();
+  }
+
+  #host(context: CombatExecutionContext): TargetLoopHost {
+    return {
+      start: currentTarget => {
+        const id = this.#state.nextBodyId++;
+        const sequence = this.runtime.createSequence(this.step.body, {
+          ...this.operationContext,
+          currentTarget,
+        });
+        sequence.reset(context);
+        sequence.tryExecute(context);
+        this.#bodies.set(id, sequence);
+        this.#state.bodies.set(id, {
+          target: { ...currentTarget },
+          sequence: sequence.runtimeState,
+        });
+        return id;
+      },
+      tick: (id, delta) => this.#body(id).tick(delta, context),
+      end: id => this.#body(id).end(context),
+    };
+  }
+
+  #body(id: number): ActionSequence {
+    const body = this.#bodies.get(id);
+    if (body === undefined) throw new Error(`target loop body ${id} is missing`);
+    return body;
   }
 
   #contextTargets(contextKey: string) {
@@ -345,7 +494,8 @@ class ForEachContextTargetStep extends CombatStep {
   }
 }
 
-class RepeatByActionValueStep extends CombatStep {
+// 循环在一次 execute 中同步完成，迭代进度不会跨步进保存；派生对象由各自目录持有。
+class RepeatByActionValueStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'repeatByActionValue'>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -397,7 +547,7 @@ class ProjectileFinishCallbackStep extends CombatStep {
     const parent = this.operationContext;
     const detachedContext: CombatOperationContext = {
       blackboard: parent.blackboard.detachedSnapshot(),
-      damageCalculationSnapshots: new Map(),
+      damageCalculationSnapshots: new DamageCalculationSnapshots(),
       targetContext: new RuntimeTargetContext(),
       ...(parent.skillCastInfo === undefined
         ? {}
@@ -410,31 +560,39 @@ class ProjectileFinishCallbackStep extends CombatStep {
     const createHost = parent.createCallbackSkillHost;
     if (createHost === undefined)
       throw new Error('projectile callback requires a skill host factory');
-    let callback: CallbackSkillHost | undefined;
+    const callbackState: import('./projectileCallbackState').ProjectileCallbackState = {
+      programId: null,
+      definitionOperatorId: this.runtime.ownerOperatorId,
+      skillId: this.step.callback.skillId,
+      blackboard: detachedContext.blackboard.runtimeState,
+      skillCastInfo: detachedContext.skillCastInfo ?? null,
+      host: null,
+    };
     let callbackEntity: AbilityEntityTargetRef | undefined;
+    const callback = new ProjectileCallbackRuntime(callbackState, () => {
+      if (callbackEntity === undefined)
+        throw new Error('projectile callback started before its host identity was assigned');
+      return createHost(
+        this.step.callback,
+        {
+          ...detachedContext,
+          actionOwnerId: `ability-entity:${callbackEntity.instanceId}`,
+          actionSourceId: `ability-entity:${callbackEntity.instanceId}`,
+          actionOwnerAbilityEntity: callbackEntity,
+        },
+        this.runtime.operations,
+      );
+    });
     const projectile = schedule(
       this.step.parameters.delaySeconds,
       this.step.parameters.recycleDelaySeconds,
-      () => {
-        if (callbackEntity === undefined) {
-          throw new Error('projectile callback started before its host identity was assigned');
-        }
-        callback = createHost(
-          this.step.callback,
-          {
-            ...detachedContext,
-            actionOwnerId: `ability-entity:${callbackEntity.instanceId}`,
-            actionSourceId: `ability-entity:${callbackEntity.instanceId}`,
-            actionOwnerAbilityEntity: callbackEntity,
-          },
-          this.runtime.operations,
-        );
-        callback.start();
-      },
-      () => callback?.end(),
+      () => callback.reach(),
+      () => callback.beforeReset(),
       detachedContext.skillCastInfo,
-      delta => callback?.advance(delta),
+      delta => callback.advance(delta),
       parent.actionSourceId ?? parent.buffSourceId ?? this.runtime.ownerOperatorId,
+      callbackState,
+      this.step.callback,
     );
     callbackEntity = projectile.target;
     return true;
@@ -443,9 +601,23 @@ class ProjectileFinishCallbackStep extends CombatStep {
 
 /** 原生 Switch 的持久分支实例；选择、生命周期和浮点匹配不能复用普通 conditional。 */
 class SwitchStep extends CombatStep {
-  readonly #branches: readonly ActionSequence[];
-  #activeBranch?: ActionSequence;
-
+  #branches: readonly ActionSequence[];
+  #state = createBranchActionState();
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (data?.kind !== 'branch' || data.branches.length !== this.step.options.length)
+      throw new Error('switch data does not match program');
+    this.#branches = this.step.options.map((option, index) =>
+      this.runtime.createSequence(option.sequence, this.operationContext, data.branches[index]!),
+    );
+    this.#state = data.selection;
+  }
+  override get executionData() {
+    return {
+      kind: 'branch' as const,
+      selection: this.#state,
+      branches: this.#branches.map(branch => branch.runtimeState),
+    };
+  }
   constructor(
     readonly step: ResolvedCombatStepForKind<'switch'>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -456,42 +628,47 @@ class SwitchStep extends CombatStep {
       runtime.createSequence(option.sequence, operationContext),
     );
   }
-
   execute(context: CombatExecutionContext): void {
     this.tryExecute(context);
   }
-
   override tryExecute(context: CombatExecutionContext): boolean {
-    this.#activeBranch = undefined;
-    const choice = Math.fround(
-      resolveActionValueOperand(this.step.parameters.choice, this.operationContext.blackboard),
+    return executeSwitchAction(
+      this.#state,
+      this.#branches.length,
+      this.step.parameters.alwaysNext,
+      {
+        ...this.#host(context),
+        choice: () =>
+          resolveActionValueOperand(this.step.parameters.choice, this.operationContext.blackboard),
+        value: index =>
+          resolveActionValueOperand(
+            this.step.options[index]!.value,
+            this.operationContext.blackboard,
+          ),
+      },
     );
-    for (const [index, option] of this.step.options.entries()) {
-      const value = Math.fround(
-        resolveActionValueOperand(option.value, this.operationContext.blackboard),
-      );
-      // 减法本身也收窄；NaN 的比较为 false，不得写成“大于容差则跳过”。
-      if (!(Math.abs(Math.fround(value - choice)) <= Math.fround(1e-5))) continue;
-      this.#activeBranch = this.#branches[index]!;
-      const result = this.#activeBranch.tryExecute(context);
-      return this.step.parameters.alwaysNext || result;
-    }
-    return this.step.parameters.alwaysNext;
   }
-
-  override tick(deltaTime: number, context: CombatExecutionContext): void {
-    this.#activeBranch?.tick(deltaTime, context);
+  override tick(delta: number, context: CombatExecutionContext): void {
+    tickBranchAction(this.#state, delta, this.#host(context));
   }
   override end(context: CombatExecutionContext): void {
-    this.#activeBranch?.end(context);
+    endBranchAction(this.#state, this.#host(context));
   }
   override reset(context: CombatExecutionContext): void {
-    for (const branch of this.#branches) branch.reset(context);
+    resetSwitchAction(this.#branches.length, this.#host(context));
+  }
+  #host(context: CombatExecutionContext): BranchActionHost {
+    return {
+      execute: index => this.#branches[index]!.tryExecute(context),
+      tick: (index, delta) => this.#branches[index]!.tick(delta, context),
+      end: index => this.#branches[index]!.end(context),
+      reset: index => this.#branches[index]!.reset(context),
+    };
   }
 }
 
 /** A stopping one-sided conditional is the DSL's sequential guard. */
-class ConditionGuardStep extends CombatStep {
+class ConditionGuardStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'conditional'>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -513,55 +690,87 @@ class ConditionGuardStep extends CombatStep {
 }
 
 class ConditionalStep extends CombatStep {
-  readonly #whenTrue: ActionSequence;
-  readonly #whenFalse?: ActionSequence;
-  #activeBranch?: ActionSequence;
+  #branches: readonly ActionSequence[];
+  #state = createBranchActionState();
+  override bindExecutionData(data: ActionStepData | null): void {
+    const definitions = [
+      this.step.whenTrue,
+      ...(this.step.whenFalse === undefined ? [] : [this.step.whenFalse]),
+    ];
+    if (data?.kind !== 'branch' || data.branches.length !== definitions.length)
+      throw new Error('conditional data does not match program');
+    this.#branches = definitions.map((definition, index) =>
+      this.runtime.createSequence(definition, this.operationContext, data.branches[index]!),
+    );
+    this.#state = data.selection;
+  }
+  override get executionData() {
+    return {
+      kind: 'branch' as const,
+      selection: this.#state,
+      branches: this.#branches.map(branch => branch.runtimeState),
+    };
+  }
   constructor(
     readonly step: ResolvedCombatStepForKind<'conditional'>,
     readonly runtime: CombatActionSequenceRuntime,
     readonly operationContext: CombatOperationContext,
   ) {
     super();
-    this.#whenTrue = runtime.createSequence(step.whenTrue, operationContext);
-    this.#whenFalse =
-      step.whenFalse === undefined
-        ? undefined
-        : runtime.createSequence(step.whenFalse, operationContext);
+    this.#branches = [
+      runtime.createSequence(step.whenTrue, operationContext),
+      ...(step.whenFalse === undefined
+        ? []
+        : [runtime.createSequence(step.whenFalse, operationContext)]),
+    ];
   }
-
   execute(context: CombatExecutionContext): void {
     this.tryExecute(context);
   }
-
   override tryExecute(context: CombatExecutionContext): boolean {
-    const condition = this.step.parameters.condition;
-    const passed = this.runtime.operations.evaluate(condition, this.operationContext);
-    this.runtime.hooks.conditionEvaluated?.(condition, passed);
-    this.#activeBranch = passed ? this.#whenTrue : this.#whenFalse;
-    const result =
-      this.#activeBranch === undefined ? passed : this.#activeBranch.tryExecute(context);
-    return this.step.parameters.alwaysNext === true || result;
+    return executeConditionalAction(
+      this.#state,
+      this.#branches.length === 2,
+      this.step.parameters.alwaysNext === true,
+      {
+        ...this.#host(context),
+        evaluate: () => {
+          const condition = this.step.parameters.condition;
+          const passed = this.runtime.operations.evaluate(condition, this.operationContext);
+          this.runtime.hooks.conditionEvaluated?.(condition, passed);
+          return passed;
+        },
+      },
+    );
   }
-
-  override tick(deltaTime: number, context: CombatExecutionContext): void {
-    this.#activeBranch?.tick(deltaTime, context);
+  override tick(delta: number, context: CombatExecutionContext): void {
+    tickBranchAction(this.#state, delta, this.#host(context));
   }
-
   override end(context: CombatExecutionContext): void {
-    this.#activeBranch?.end(context);
+    endBranchAction(this.#state, this.#host(context));
   }
-
   override reset(context: CombatExecutionContext): void {
-    // combat-spec IfElseAction.Reset：两支都重置，保证未选分支的攻击快照也在准备阶段建立。
-    this.#whenTrue.reset(context);
-    this.#whenFalse?.reset(context);
-    this.#activeBranch = undefined;
+    resetConditionalAction(this.#state, this.#branches.length === 2, this.#host(context));
+  }
+  #host(context: CombatExecutionContext): BranchActionHost {
+    return {
+      execute: index => this.#branches[index]!.tryExecute(context),
+      tick: (index, delta) => this.#branches[index]!.tick(delta, context),
+      end: index => this.#branches[index]!.end(context),
+      reset: index => this.#branches[index]!.reset(context),
+    };
   }
 }
 
 class TimelineJumpStep extends CombatStep {
-  #jumped = false;
-  #skipInitialTick = false;
+  #state = createTimelineJumpState();
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (data?.kind !== 'jump') throw new Error('expected timeline jump data');
+    this.#state = data.jump;
+  }
+  override get executionData() {
+    return { kind: 'jump' as const, jump: this.#state };
+  }
 
   constructor(
     readonly step: ResolvedCombatStepForKind<'jumpTimeline'>,
@@ -573,39 +782,36 @@ class TimelineJumpStep extends CombatStep {
 
   execute(): void {
     this.runtime.hooks.stepReached?.(this.step);
-    this.#skipInitialTick = true;
-    this.#tryJump();
+    executeTimelineJump(this.#state, this.#host());
   }
 
   override tick(): void {
-    if (this.#skipInitialTick) {
-      this.#skipInitialTick = false;
-      return;
-    }
-    this.#tryJump();
+    tickTimelineJump(this.#state, this.#host());
   }
 
   override reset(): void {
-    this.#jumped = false;
-    this.#skipInitialTick = false;
+    resetTimelineJump(this.#state);
   }
 
-  #tryJump(): void {
-    if (this.#jumped) return;
-    const condition = this.step.parameters.condition;
-    if (condition !== undefined) {
-      const passed = this.runtime.operations.evaluate(condition, this.operationContext);
-      this.runtime.hooks.conditionEvaluated?.(condition, passed);
-      if (!passed) return;
-    }
-    const request = this.operationContext.requestTimelineJump;
-    if (request === undefined) throw new Error('jumpTimeline requires a timeline host');
-    this.#jumped = true;
-    request(this.step.parameters.destinationFrame);
+  #host(): TimelineJumpExecutionHost {
+    return {
+      evaluate: () => {
+        const condition = this.step.parameters.condition;
+        if (condition === undefined) return true;
+        const passed = this.runtime.operations.evaluate(condition, this.operationContext);
+        this.runtime.hooks.conditionEvaluated?.(condition, passed);
+        return passed;
+      },
+      resolveRequest: () => {
+        const request = this.operationContext.requestTimelineJump;
+        if (request === undefined) throw new Error('jumpTimeline requires a timeline host');
+        return () => request(this.step.parameters.destinationFrame);
+      },
+    };
   }
 }
 
-class TimelineFinishStep extends CombatStep {
+class TimelineFinishStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'finishTimeline'>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -622,7 +828,7 @@ class TimelineFinishStep extends CombatStep {
   }
 }
 
-class SkillOperableBoundaryStep extends CombatStep {
+class SkillOperableBoundaryStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'reachSkillOperableBoundary'>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -639,6 +845,22 @@ class SkillOperableBoundaryStep extends CombatStep {
 
 class CombatEventListenerStep extends CombatStep {
   readonly #registrations: AbilityEventRegistration[] = [];
+  #state: CombatEventListenerState = { responses: [] };
+
+  override bindExecutionData(data: ActionStepData | null): void {
+    if (data?.kind !== 'listener') throw new Error('expected listener data');
+    if (
+      data.listener.responses.length !== 0 &&
+      data.listener.responses.length !== this.step.parameters.responses.length
+    )
+      throw new Error('listener data does not match response count');
+    this.#state = data.listener;
+    if (data.listener.responses.length > 0) this.#install(true);
+  }
+
+  override get executionData() {
+    return { kind: 'listener' as const, listener: this.#state };
+  }
 
   constructor(
     readonly step: ResolvedCombatStepForKind<'listenForCombatEvents'>,
@@ -649,14 +871,18 @@ class CombatEventListenerStep extends CombatStep {
   }
 
   execute(): void {
-    if (this.#registrations.length > 0) return;
+    if (this.#state.responses.length > 0) return;
+    this.#install(false);
+  }
+
+  #install(restoring: boolean): void {
     const semanticEvents = this.runtime.semanticEvents;
     const ownerOperatorId = this.runtime.ownerOperatorId;
     if (semanticEvents === undefined || ownerOperatorId === undefined) {
       throw new Error('combat event listener requires a semantic event runtime and owner');
     }
     try {
-      for (const response of this.step.parameters.responses) {
+      for (const [index, response] of this.step.parameters.responses.entries()) {
         // Native EventListenerAction registers one runtime SequenceAction, not
         // a factory. Its completed guard entries must remain visible to nested
         // synchronous events until ExecuteInstant performs End/Reset.
@@ -664,8 +890,13 @@ class CombatEventListenerStep extends CombatStep {
           ...this.operationContext,
           event: this.operationContext.event,
         };
-        const sequence = this.runtime.createSequence(response.sequence, operationContext);
-        sequence.reset({});
+        const saved = restoring ? this.#state.responses[index]! : undefined;
+        const sequence = this.runtime.createSequence(
+          response.sequence,
+          operationContext,
+          saved?.sequence,
+        );
+        if (!restoring) sequence.reset({});
         const registration = {
           ownerOperatorId,
           trigger: response.event,
@@ -678,13 +909,20 @@ class CombatEventListenerStep extends CombatStep {
             });
           },
         };
-        this.#registrations.push(
-          semanticEvents.register(
-            response.phase === 'dataAction'
-              ? { ...registration, phase: 'dataAction', priority: response.priority }
-              : { ...registration, phase: 'skill' },
-          ),
-        );
+        const handler: CombatEventHandlerRegistration =
+          response.phase === 'dataAction'
+            ? { ...registration, phase: 'dataAction', priority: response.priority }
+            : { ...registration, phase: 'skill' };
+        const installed =
+          saved === undefined
+            ? semanticEvents.register(handler)
+            : semanticEvents.bindRegistration(handler, saved.subscriptions);
+        this.#registrations.push(installed);
+        if (!restoring)
+          this.#state.responses.push({
+            sequence: sequence.runtimeState,
+            subscriptions: installed.subscriptions,
+          });
       }
     } catch (error) {
       // A failed installation must not leave an earlier response active.
@@ -704,14 +942,20 @@ class CombatEventListenerStep extends CombatStep {
   #dispose(): void {
     for (const registration of this.#registrations) registration.dispose();
     this.#registrations.length = 0;
+    this.#state.responses.length = 0;
   }
 }
 
 /** 一个状态所有者范围内的同步动作序列运行环境。 */
 export class CombatActionSequenceRuntime {
-  readonly #executedOnceScopes = new Set<string>();
+  readonly #scopeState: ReturnType<typeof createActionScopeState>;
+
+  /** 宿主下所有动作共用的 once 标记和黑板作用域。 */
+  get scopeState(): ReturnType<typeof createActionScopeState> {
+    return this.#scopeState;
+  }
   // 相同子技能 ID/静态路径在不同投射物中不能复用同一块 direct/entity 板。
-  #actionBlackboardScopes = new WeakMap<ActionBlackboard, Map<string, ActionBlackboard>>();
+  #blackboardBindings = new WeakMap<ActionBlackboardState, ActionBlackboard>();
 
   constructor(
     readonly operations: CombatOperationExecutor,
@@ -719,15 +963,20 @@ export class CombatActionSequenceRuntime {
     readonly hooks: CombatActionSequenceRuntimeHooks = {},
     readonly semanticEvents?: CombatSemanticEventRuntime,
     readonly ownerOperatorId?: string,
-  ) {}
+    scopeState = createActionScopeState(),
+  ) {
+    this.#scopeState = scopeState;
+  }
 
   createSequence(
     sequence: ResolvedActionSequence,
     operationContext: CombatOperationContext = this.context,
+    state?: ActionSequenceState,
   ): ActionSequence {
     return new ActionSequence(
       this.#createSteps(sequence, operationContext),
       operationContext.canExecuteAction,
+      state,
     );
   }
 
@@ -735,14 +984,28 @@ export class CombatActionSequenceRuntime {
   createTimeline(
     actions: readonly CompiledTimelineAction[],
     lifecycle: TimelineActionLifecycleSink = {},
+    state?: TimelineRuntimeState,
   ): TimelineActionProcessor {
+    let statesBySource: Map<number, ActionSequenceState> | undefined;
+    if (state !== undefined) {
+      if (state.sequences.length !== actions.length)
+        throw new Error('timeline state does not match program length');
+      // 保存数组按开始帧排序，配置数组不一定有序，不能直接按配置下标恢复。
+      statesBySource = new Map(
+        compileTimelineActionIntervals(actions).map((interval, index) => [
+          interval.sourceIndex,
+          state.sequences[index]!,
+        ]),
+      );
+    }
     return new TimelineActionProcessor(
-      actions.map(action => ({
+      actions.map((action, index) => ({
         startFrame: action.startFrame,
         ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
-        sequence: this.createSequence(action.sequence),
+        sequence: this.createSequence(action.sequence, this.context, statesBySource?.get(index)),
       })),
       lifecycle,
+      state,
     );
   }
 
@@ -806,38 +1069,36 @@ export class CombatActionSequenceRuntime {
   }
 
   reset(): void {
-    this.#executedOnceScopes.clear();
-    this.#actionBlackboardScopes = new WeakMap();
+    resetActionScopes(this.#scopeState);
+    this.#blackboardBindings = new WeakMap();
   }
 
   getActionBlackboardScope(
     step: ResolvedCombatStepForKind<'withActionBlackboardScope'>,
     parent: ActionBlackboard,
   ): ActionBlackboard {
-    if (step.parameters.shareParentBlackboard === true) return parent;
-    let scopes = this.#actionBlackboardScopes.get(parent);
-    const existing = scopes?.get(step.parameters.scopeKey);
-    if (step.parameters.lifetime === 'execution') {
-      return parent.createLocalScope(
-        step.parameters.initialValues,
-        step.parameters.inheritParent,
-        step.parameters.entityInitialValues,
-        step.parameters.entityAssignments,
-      );
-    }
-    if (existing !== undefined) return existing;
-    const created = parent.createLocalScope(
-      step.parameters.initialValues,
-      step.parameters.inheritParent,
-      step.parameters.entityInitialValues,
-      step.parameters.entityAssignments,
+    this.#blackboardBindings.set(parent.runtimeState, parent);
+    const state = getActionScopeBlackboard(
+      this.#scopeState,
+      parent.runtimeState,
+      step.parameters,
+      () => {
+        const created = parent.createLocalScope(
+          step.parameters.initialValues,
+          step.parameters.inheritParent,
+          step.parameters.entityInitialValues,
+          step.parameters.entityAssignments,
+        );
+        this.#blackboardBindings.set(created.runtimeState, created);
+        return created.runtimeState;
+      },
     );
-    if (scopes === undefined) {
-      scopes = new Map();
-      this.#actionBlackboardScopes.set(parent, scopes);
+    let binding = this.#blackboardBindings.get(state);
+    if (binding === undefined) {
+      binding = ActionBlackboard.bindRuntimeState(state);
+      this.#blackboardBindings.set(state, binding);
     }
-    scopes.set(step.parameters.scopeKey, created);
-    return created;
+    return binding;
   }
 
   tryExecuteOnce(
@@ -846,11 +1107,11 @@ export class CombatActionSequenceRuntime {
     context: CombatExecutionContext,
     operationContext: CombatOperationContext = this.context,
   ): boolean {
-    if (this.#executedOnceScopes.has(scopeKey)) return true;
-    const sequence = this.createSequence(body, operationContext);
-    sequence.reset(context);
-    sequence.executeInstant(context);
-    this.#executedOnceScopes.add(scopeKey);
-    return true;
+    return executeActionOnce(this.#scopeState, scopeKey, () => {
+      const sequence = this.createSequence(body, operationContext);
+      sequence.reset(context);
+      sequence.executeInstant(context);
+    });
   }
 }
+import { DamageCalculationSnapshots } from './damageCalculationSnapshots';

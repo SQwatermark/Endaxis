@@ -179,7 +179,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(combo).not.toHaveProperty('timelineActions');
     expect(combo).not.toHaveProperty('initialBlackboard');
     const assembly = new CombatRuntimeAssembly(compiled);
-    assembly.simulation.advanceFrames(10);
+    assembly.advanceFrames(10);
     // 完整定义中的未放置技能会装配成内部路由目标，但静态目录本身不能触发动作。
     expect(createOperationExecutor).toHaveBeenCalled();
     expect(execute).not.toHaveBeenCalled();

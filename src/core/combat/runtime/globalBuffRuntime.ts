@@ -6,20 +6,33 @@ import type {
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
+import {
+  createGlobalBuffState,
+  type GlobalBuffInstanceState,
+  type GlobalBuffState,
+} from './globalBuffState';
+import { finishGlobalBuffInstance } from './globalBuffExecution';
+import { createGlobalBuffActionState } from './globalBuffActionState';
+import { finishGlobalBuffAction } from './globalBuffActionExecution';
+import { buffReferenceKey } from '../buffs/buffReference';
 import { ActionBlackboard, resolveActionValueOperand } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { BuffApplicationHandle, BuffOperationTarget } from './buffOperationExecutor';
 import type { BuffApplicationSource } from '../../game-data/operatorDefinition';
 import {
-  SharedSpGainModifier,
+  createSharedSpGainModifier,
+  type SharedSpGainModifier,
   type SharedSpGainModifierSet,
-  SharedSpRecoveryModifier,
+  createSharedSpRecoveryModifier,
+  type SharedSpRecoveryModifier,
   type SharedSpRecoveryModifierSet,
 } from '../resources/sharedSpGainModifiers';
+import { CombatOperationPrograms } from './combatOperationPrograms';
 
 type CreateStep = ResolvedCombatStepForKind<'createGlobalBuff'>;
 
 interface GlobalBuffInstance {
+  readonly runtimeState: GlobalBuffInstanceState;
   readonly id: string;
   readonly definition: SkillGlobalBuffDefinition;
   readonly children: BuffApplicationHandle[];
@@ -35,7 +48,19 @@ interface GlobalBuffInstance {
  * 投影到队员 AbilitySystem；任何一个子节点消费父层时都清理同一父实例的全部镜像。
  */
 export class GlobalBuffRuntime {
-  readonly #groups = new Map<string, GlobalBuffInstance[]>();
+  readonly runtimeState: GlobalBuffState;
+  readonly #bindings = new WeakMap<GlobalBuffInstanceState, GlobalBuffInstance>();
+
+  #requireInstance(state: GlobalBuffInstanceState): GlobalBuffInstance {
+    const instance = this.#bindings.get(state);
+    if (instance === undefined) throw new Error('global Buff instance binding is missing');
+    return instance;
+  }
+
+  /** 当前绑定层按实例数据定位，不能退化成按同名 Buff 结束整组。 */
+  finishInstance(state: GlobalBuffInstanceState, reason: 'early' | 'other'): boolean {
+    return this.#requireInstance(state).finish(reason);
+  }
 
   constructor(
     readonly resolvePartyTargets: () => readonly BuffOperationTarget[],
@@ -45,7 +70,55 @@ export class GlobalBuffRuntime {
     ) => ResolvedSkillBuffDefinition | undefined,
     readonly sharedSpGainModifierSet: SharedSpGainModifierSet | null = null,
     readonly sharedSpRecoveryModifierSet: SharedSpRecoveryModifierSet | null = null,
-  ) {}
+    restoredState?: GlobalBuffState,
+  ) {
+    this.runtimeState = restoredState ?? createGlobalBuffState();
+  }
+
+  /**
+   * 在所有目标 Buff 容器恢复完成后，为父实例接回定义、子 Buff 和共享技力修正。
+   * 此阶段只建立对象外壳，不重新施加子 Buff，也不重新注册修正。
+   */
+  bindRestoredInstances(options: {
+    readonly resolveDefinition: (
+      sourceId: string,
+      id: string,
+      sourceActionOwnerId: string | undefined,
+      sourceActionId: string | undefined,
+    ) => SkillGlobalBuffDefinition | undefined;
+    readonly resolveChild: (
+      reference: import('../buffs/buffReference').BuffReference,
+    ) => BuffApplicationHandle | undefined;
+  }): void {
+    for (const group of this.runtimeState.groups.values()) {
+      for (const state of group) {
+        if (this.#bindings.has(state)) {
+          throw new Error(`global Buff ${state.instanceId} is bound twice`);
+        }
+        const definition = options.resolveDefinition(
+          state.sourceId,
+          state.id,
+          state.sourceActionOwnerId,
+          state.sourceActionId,
+        );
+        if (definition === undefined) {
+          throw new Error(`global Buff '${state.id}' definition is missing during restoration`);
+        }
+        const childBindings = new Map(
+          state.children.map(reference => {
+            const child = options.resolveChild(reference);
+            if (child === undefined) {
+              throw new Error(
+                `global Buff ${state.instanceId} child '${buffReferenceKey(reference)}' is missing`,
+              );
+            }
+            return [buffReferenceKey(reference), child] as const;
+          }),
+        );
+        this.#bindInstance(state, definition, childBindings);
+      }
+    }
+  }
 
   add(input: {
     readonly id: string;
@@ -61,14 +134,14 @@ export class GlobalBuffRuntime {
     if (definition.children.length === 0) {
       throw new Error(`global buff '${id}' requires at least one child Buff`);
     }
-    const group = this.#groups.get(id) ?? [];
+    const group = this.runtimeState.groups.get(id) ?? [];
     const active = group.filter(instance => !instance.finished);
     if (definition.stackingType === 'stack') {
       const maximum = definition.maxStackCount;
       if (maximum === undefined || !Number.isInteger(maximum) || maximum <= 0) {
         throw new Error(`global buff '${id}' stack requires a positive integer maximum`);
       }
-      if (active.length >= maximum) active[0]!.finish('other');
+      if (active.length >= maximum) this.#requireInstance(active[0]!).finish('other');
     } else if (definition.stackingType !== 'unlimited') {
       throw new Error(`global buff '${id}' stacking '${definition.stackingType}' is unsupported`);
     }
@@ -83,13 +156,13 @@ export class GlobalBuffRuntime {
         if (this.sharedSpRecoveryModifierSet === null) {
           throw new Error(`global buff '${id}' requires the shared SP recovery modifier system`);
         }
-        recoveryModifiers.push(new SharedSpRecoveryModifier(modifier.operation, value));
+        recoveryModifiers.push(createSharedSpRecoveryModifier(modifier.operation, value));
       } else {
         if (this.sharedSpGainModifierSet === null) {
           throw new Error(`global buff '${id}' requires the shared SP gain modifier system`);
         }
         gainModifiers.push(
-          new SharedSpGainModifier(
+          createSharedSpGainModifier(
             modifier.attribute,
             modifier.operation,
             value,
@@ -100,29 +173,23 @@ export class GlobalBuffRuntime {
     }
     gainModifiers.forEach(modifier => this.sharedSpGainModifierSet!.add(modifier));
     recoveryModifiers.forEach(modifier => this.sharedSpRecoveryModifierSet!.add(modifier));
-    const gainSet = this.sharedSpGainModifierSet;
-    const recoverySet = this.sharedSpRecoveryModifierSet;
-    const instance: GlobalBuffInstance = {
+    const state: GlobalBuffInstanceState = {
       id,
-      definition,
+      instanceId: this.runtimeState.nextInstanceId++,
+      sourceId,
+      sourceActionOwnerId,
+      sourceActionId,
+      blackboard: blackboard.runtimeState,
       children: [],
       sharedSpGainModifiers: gainModifiers,
       sharedSpRecoveryModifiers: recoveryModifiers,
       remainingDuration: duration,
       finished: false,
-      finish(_reason) {
-        if (this.finished) return false;
-        this.finished = true;
-        for (const modifier of this.sharedSpGainModifiers) gainSet?.remove(modifier);
-        for (const modifier of this.sharedSpRecoveryModifiers) recoverySet?.remove(modifier);
-        // GlobalBuff._FinishBuffs does not forward the parent's finish reason or cast.
-        for (const child of [...this.children]) child.finish('other', null);
-        this.children.length = 0;
-        return true;
-      },
     };
-    group.push(instance);
-    this.#groups.set(id, group);
+    const childBindings = new Map<string, BuffApplicationHandle>();
+    const instance = this.#bindInstance(state, definition, childBindings);
+    group.push(state);
+    this.runtimeState.groups.set(id, group);
     try {
       for (const target of this.resolvePartyTargets()) {
         if (target.applyScoped === undefined) {
@@ -149,7 +216,10 @@ export class GlobalBuffRuntime {
             ),
             finishParentGlobalBuff: reason => instance.finish(reason),
           });
-          if (handle !== null) instance.children.push(handle);
+          if (handle !== null) {
+            childBindings.set(buffReferenceKey(handle.reference), handle);
+            state.children.push(handle.reference);
+          }
         }
       }
     } catch (error) {
@@ -159,12 +229,75 @@ export class GlobalBuffRuntime {
     return instance;
   }
 
+  #bindInstance(
+    state: GlobalBuffInstanceState,
+    definition: SkillGlobalBuffDefinition,
+    childBindings: Map<string, BuffApplicationHandle>,
+  ): GlobalBuffInstance {
+    if (!state.finished) {
+      for (const modifier of state.sharedSpGainModifiers) {
+        if (!this.sharedSpGainModifierSet?.runtimeState.modifiers.includes(modifier)) {
+          throw new Error(`global Buff ${state.instanceId} shared SP gain modifier is missing`);
+        }
+      }
+      for (const modifier of state.sharedSpRecoveryModifiers) {
+        if (!this.sharedSpRecoveryModifierSet?.runtimeState.modifiers.includes(modifier)) {
+          throw new Error(`global Buff ${state.instanceId} shared SP recovery modifier is missing`);
+        }
+      }
+    }
+    const gainSet = this.sharedSpGainModifierSet;
+    const recoverySet = this.sharedSpRecoveryModifierSet;
+    const resolveChild = (reference: import('../buffs/buffReference').BuffReference) => {
+      const child = childBindings.get(buffReferenceKey(reference));
+      if (child === undefined) throw new Error('global Buff child binding is missing');
+      return child;
+    };
+    const instance: GlobalBuffInstance = {
+      runtimeState: state,
+      id: state.id,
+      definition,
+      get children() {
+        return state.children.map(resolveChild);
+      },
+      sharedSpGainModifiers: state.sharedSpGainModifiers,
+      sharedSpRecoveryModifiers: state.sharedSpRecoveryModifiers,
+      get remainingDuration() {
+        return state.remainingDuration;
+      },
+      set remainingDuration(value) {
+        state.remainingDuration = value;
+      },
+      get finished() {
+        return state.finished;
+      },
+      set finished(value) {
+        state.finished = value;
+      },
+      finish(_reason) {
+        const finished = finishGlobalBuffInstance(state, {
+          removeGain: modifier => {
+            gainSet?.remove(modifier);
+          },
+          removeRecovery: modifier => {
+            recoverySet?.remove(modifier);
+          },
+          resolveChild,
+        });
+        if (finished) childBindings.clear();
+        return finished;
+      },
+    };
+    this.#bindings.set(state, instance);
+    return instance;
+  }
+
   advanceFrame(): void {
-    for (const group of this.#groups.values()) {
+    for (const group of this.runtimeState.groups.values()) {
       for (const instance of group) {
         if (instance.finished || instance.remainingDuration === null) continue;
         instance.remainingDuration -= COMBAT_FRAME_INTERVAL;
-        if (instance.remainingDuration <= 1e-8) instance.finish('other');
+        if (instance.remainingDuration <= 1e-8) this.#requireInstance(instance).finish('other');
       }
     }
   }
@@ -173,8 +306,8 @@ export class GlobalBuffRuntime {
   finishAllByIds(ids: readonly string[], reason: 'early' | 'other'): boolean {
     let finished = false;
     for (const id of ids) {
-      for (const instance of this.#groups.get(id) ?? []) {
-        finished = instance.finish(reason) || finished;
+      for (const instance of this.runtimeState.groups.get(id) ?? []) {
+        finished = this.#requireInstance(instance).finish(reason) || finished;
       }
     }
     return finished;
@@ -208,9 +341,23 @@ export interface GlobalBuffOperationDependencies {
 }
 
 export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
-  readonly #actionDurationInstances = new WeakMap<CreateStep, readonly GlobalBuffInstance[]>();
+  readonly runtimeState: ReturnType<typeof createGlobalBuffActionState>;
+  readonly programs: CombatOperationPrograms;
 
-  constructor(readonly dependencies: GlobalBuffOperationDependencies) {}
+  #slot(step: CreateStep): number {
+    return this.programs.slot(step);
+  }
+
+  constructor(
+    readonly dependencies: GlobalBuffOperationDependencies,
+    restored?: {
+      readonly state: ReturnType<typeof createGlobalBuffActionState>;
+      readonly programs: CombatOperationPrograms;
+    },
+  ) {
+    this.runtimeState = restored?.state ?? createGlobalBuffActionState();
+    this.programs = restored?.programs ?? new CombatOperationPrograms();
+  }
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'finishParentGlobalBuff') {
@@ -227,7 +374,7 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
     }
     if (step.kind !== 'createGlobalBuff') return this.dependencies.delegate.execute(step, context);
     if (context === undefined) throw new Error('createGlobalBuff requires an action blackboard');
-    if (step.parameters.finishByAction && this.#actionDurationInstances.has(step)) {
+    if (step.parameters.finishByAction && this.runtimeState.active.has(this.#slot(step))) {
       throw new Error('action-duration createGlobalBuff step is already active');
     }
     const count =
@@ -259,15 +406,19 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
         }),
       );
     }
-    if (step.parameters.finishByAction) this.#actionDurationInstances.set(step, created);
+    if (step.parameters.finishByAction)
+      this.runtimeState.active.set(
+        this.#slot(step),
+        created.map(instance => instance.runtimeState),
+      );
     return true;
   }
 
   end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     if (step.kind === 'createGlobalBuff' && step.parameters.finishByAction) {
-      for (const instance of this.#actionDurationInstances.get(step) ?? [])
-        instance.finish('other');
-      this.#actionDurationInstances.delete(step);
+      finishGlobalBuffAction(this.runtimeState, this.#slot(step), instance => {
+        this.dependencies.runtime.finishInstance(instance, 'other');
+      });
       return;
     }
     this.dependencies.delegate.end?.(step, context);

@@ -16,7 +16,8 @@ export interface BuffProgressCurve {
   readonly points: readonly BuffProgressPoint[];
 }
 
-interface MutableCurve {
+/** 保留采样分母与原始历史，恢复后才能继续采样而不改变已有曲线。 */
+export interface BuffProgressCurveState {
   readonly targetId: string;
   readonly buffId: string;
   readonly instanceId: number;
@@ -26,6 +27,12 @@ interface MutableCurve {
   readonly weakBattleSkillStyle: boolean;
   durationSeconds: number | null;
   readonly points: BuffProgressPoint[];
+}
+
+/** 曲线保留已结束的历史；实例索引只包含仍需采样的曲线。 */
+export interface BuffProgressRecorderState {
+  readonly curves: Map<string, BuffProgressCurveState>;
+  readonly runtimeCurveKeys: Map<string, Set<string>>;
 }
 
 function curveKey(targetId: string, buffId: string, instanceId: number): string {
@@ -67,8 +74,12 @@ function compact(points: readonly BuffProgressPoint[]): readonly BuffProgressPoi
 
 /** 只记录原生 HUD 进度控件明确消费的 Buff；逐帧采样后压缩共线点。 */
 export class BuffProgressRecorder {
-  readonly #curves = new Map<string, MutableCurve>();
-  readonly #runtimeCurveKeys = new Map<string, Set<string>>();
+  constructor(
+    readonly runtimeState: BuffProgressRecorderState = {
+      curves: new Map(),
+      runtimeCurveKeys: new Map(),
+    },
+  ) {}
 
   register(
     targetId: string,
@@ -83,7 +94,7 @@ export class BuffProgressRecorder {
     const showInHpBar = presentation?.showProgressInHpBar === true;
     if (!forceTrack && !showInBattleSkillButton && !showInUltimateButton && !showInHpBar) return;
     const key = curveKey(targetId, buffId, buff.instanceId);
-    let curve = this.#curves.get(key);
+    let curve = this.runtimeState.curves.get(key);
     if (curve === undefined) {
       curve = {
         targetId,
@@ -96,11 +107,11 @@ export class BuffProgressRecorder {
         durationSeconds: buff.remainingDuration,
         points: [],
       };
-      this.#curves.set(key, curve);
+      this.runtimeState.curves.set(key, curve);
       const ownerKey = runtimeKey(targetId, buff.instanceId);
-      const keys = this.#runtimeCurveKeys.get(ownerKey) ?? new Set<string>();
+      const keys = this.runtimeState.runtimeCurveKeys.get(ownerKey) ?? new Set<string>();
       keys.add(key);
-      this.#runtimeCurveKeys.set(ownerKey, keys);
+      this.runtimeState.runtimeCurveKeys.set(ownerKey, keys);
     } else {
       // 重复施加会重新触发按钮指针，但叠层本身不等价于重置总时长；只有实际剩余时长
       // 超过此前分母时才扩展显示区间，避免把半途叠层错误画回 100%。
@@ -117,28 +128,28 @@ export class BuffProgressRecorder {
   sample(targetId: string, buffs: readonly CombatBuff<string>[], frame: number): void {
     for (const buff of buffs) {
       if (buff.isFinished) continue;
-      const keys = this.#runtimeCurveKeys.get(runtimeKey(targetId, buff.instanceId));
+      const keys = this.runtimeState.runtimeCurveKeys.get(runtimeKey(targetId, buff.instanceId));
       if (keys === undefined) continue;
       for (const key of keys) {
-        const curve = this.#curves.get(key);
+        const curve = this.runtimeState.curves.get(key);
         if (curve !== undefined) this.#sampleCurve(curve, buff.remainingDuration, frame);
       }
     }
   }
 
   finish(targetId: string, buff: CombatBuff<string>, frame: number): void {
-    const keys = this.#runtimeCurveKeys.get(runtimeKey(targetId, buff.instanceId));
+    const keys = this.runtimeState.runtimeCurveKeys.get(runtimeKey(targetId, buff.instanceId));
     if (keys === undefined) return;
     for (const key of keys) {
-      const curve = this.#curves.get(key);
+      const curve = this.runtimeState.curves.get(key);
       if (curve !== undefined) this.#sampleCurve(curve, 0, frame);
     }
-    this.#runtimeCurveKeys.delete(runtimeKey(targetId, buff.instanceId));
+    this.runtimeState.runtimeCurveKeys.delete(runtimeKey(targetId, buff.instanceId));
   }
 
   snapshot(): readonly BuffProgressCurve[] {
     return Object.freeze(
-      [...this.#curves.values()].map(curve =>
+      [...this.runtimeState.curves.values()].map(curve =>
         Object.freeze({
           targetId: curve.targetId,
           buffId: curve.buffId,
@@ -153,7 +164,7 @@ export class BuffProgressRecorder {
     );
   }
 
-  #sampleCurve(curve: MutableCurve, remaining: number | null, frame: number): void {
+  #sampleCurve(curve: BuffProgressCurveState, remaining: number | null, frame: number): void {
     curve.points.push({ frame, ratio: ratio(remaining, curve.durationSeconds) });
   }
 }

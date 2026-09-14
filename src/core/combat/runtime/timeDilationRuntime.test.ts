@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { TimeDilationRuntime } from './timeDilationRuntime';
+import {
+  TimeDilationPrograms,
+  TimeDilationRuntime,
+  advanceTimeDilation,
+} from './timeDilationRuntime';
+import { StateStepper } from './stateStepper';
 
 const LOW = 10;
 const HIGH = 20;
@@ -9,6 +14,92 @@ function createRuntime() {
 }
 
 describe('TimeDilationRuntime', () => {
+  it('曲线留在程序中，保存的膨胀状态可以独立继续推进和到期', () => {
+    const curve = (progress: number) => 0.5 + progress * 0.5;
+    const runtime = new TimeDilationRuntime({
+      entityLifetimeUsesGlobalScaleBySlot: new Map([['local', true]]),
+    });
+    runtime.startGlobal({ durationSeconds: 0.1, slot: 'global', priority: LOW, curve });
+    runtime.startEntity({
+      entityId: 'caster',
+      durationSeconds: 0.2,
+      slot: 'local',
+      priority: LOW,
+      curve,
+    });
+    runtime.advanceFrame();
+    const session = new StateStepper(runtime.runtimeState, (step, frames: number) => {
+      const ended: string[] = [];
+      for (let index = 0; index < frames; index++) {
+        advanceTimeDilation(step.state, [curve], {
+          ended: (kind, instance, reason) => ended.push(`${kind}:${instance.id}:${reason}`),
+        });
+      }
+      return ended;
+    });
+    const saved = session.save();
+    const ended = session.step(12);
+    const completed = session.read();
+    expect(ended).toEqual(['global:1:natural', 'entity:2:natural']);
+    for (let index = 0; index < 12; index++) runtime.advanceFrame();
+    expect(completed).toEqual(runtime.runtimeState);
+    session.restore(saved);
+    expect(session.step(1)).toEqual([]);
+    expect(session.read().entityInstances).toHaveLength(1);
+    session.restore(saved);
+    expect(session.step(12)).toEqual(ended);
+    expect(session.read()).toEqual(completed);
+  });
+
+  it('恢复后沿用同一曲线程序目录且不重放开始事件', () => {
+    const curve = (progress: number) => 0.25 + progress * 0.5;
+    const original = new TimeDilationRuntime({});
+    original.startEntity({
+      entityId: 'caster',
+      durationSeconds: 1,
+      slot: 'local',
+      priority: LOW,
+      curve,
+    });
+    original.advanceFrame();
+    const restoredState = new StateStepper(original.runtimeState, () => undefined).read();
+    const events: string[] = [];
+
+    const restored = new TimeDilationRuntime(
+      {},
+      { started: () => events.push('started') },
+      { state: restoredState, programs: original.programs },
+    );
+
+    expect(restored.runtimeState).toBe(restoredState);
+    expect(events).toEqual([]);
+    restored.advanceFrame();
+    original.advanceFrame();
+    expect(restored.runtimeState).toEqual(original.runtimeState);
+    expect(restored.runtimeState).not.toBe(original.runtimeState);
+  });
+
+  it('状态含曲线编号时拒绝使用空程序目录恢复', () => {
+    const original = new TimeDilationRuntime({});
+    original.startEntity({
+      entityId: 'caster',
+      durationSeconds: 1,
+      slot: 'local',
+      priority: LOW,
+      curve: () => 0.5,
+    });
+    const restoredState = new StateStepper(original.runtimeState, () => undefined).read();
+
+    expect(
+      () =>
+        new TimeDilationRuntime(
+          {},
+          {},
+          { state: restoredState, programs: new TimeDilationPrograms() },
+        ),
+    ).toThrow("unknown time-dilation curve program '0'");
+  });
+
   it('lets the source ignore a global curve while other operators use it', () => {
     const runtime = createRuntime();
     runtime.startGlobal({

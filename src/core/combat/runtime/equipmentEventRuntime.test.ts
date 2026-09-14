@@ -1,4 +1,8 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { createNativeEventFixture } from '../events/nativeEventTestFixture';
+import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
+import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import { describe, expect, it, vi } from 'vitest';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { CombatOperationExecutor } from './skillRuntime';
@@ -50,11 +54,12 @@ describe('EquipmentEventRuntime', () => {
     const error = new Error('first child cleanup');
     const second = vi.fn(() => true);
     runtime.addChildBuff(0, {
+      reference: createTestBuffReference(),
       finish: () => {
         throw error;
       },
     });
-    runtime.addChildBuff(1, { finish: second });
+    runtime.addChildBuff(1, { reference: createTestBuffReference(), finish: second });
     expect(() => runtime.dispose()).toThrow(error);
     expect(second).toHaveBeenCalledExactlyOnceWith('other', null);
     expect(() => runtime.blackboardFor(1)).toThrow('not active');
@@ -76,6 +81,7 @@ describe('EquipmentEventRuntime', () => {
       }),
     );
     runtime.addChildBuff(0, {
+      reference: createTestBuffReference(),
       finish: () => {
         native.emitOutputDamage({ sourceId: 'operator:a', tags: ['normalSkill'] });
         return true;
@@ -361,6 +367,97 @@ describe('EquipmentEventRuntime', () => {
     expect(() => runtime.blackboardFor(0)).toThrow('not active');
   });
 
+  it('恢复装备贡献时按原订阅重绑，共享保存黑板且只清理恢复分支子 Buff', () => {
+    const item: CompiledEquipmentContribution = {
+      ...contribution,
+      blackboard: { counter: 0 },
+      eventHandlers: [
+        {
+          key: 'sp',
+          abilityEvent: 'skillSpGained',
+          sequence: contribution.eventHandlers[0]!.sequence,
+        },
+      ],
+    };
+    const originalEvents = createNativeEventFixture();
+    const original = new EquipmentEventRuntime(
+      originalEvents.semanticEvents,
+      'operator:a',
+      [item],
+      () => ({
+        evaluate: () => true,
+        execute: (_step, context) => {
+          context!.blackboard.assign({
+            counter: context!.blackboard.getNumber('counter')! + 1,
+          });
+          return true;
+        },
+      }),
+      (_owner, event, priority, handle) =>
+        originalEvents.dispatcher.registerAction(event, priority, published => handle(published)),
+    );
+    const originalChildFinish = vi.fn(() => true);
+    original.addChildBuff(0, {
+      reference: { ownerId: 'operator:a', instanceId: 9 },
+      finish: originalChildFinish,
+    });
+    original.enable(0);
+
+    const copied = structuredClone({
+      equipment: original.runtimeState,
+      events: originalEvents.dispatcher.runtimeState,
+    });
+    const restoredDispatcher = new AbilityEventDispatcher<AbilityEvent, AbilityEventPayloadMap>(
+      copied.events,
+    );
+    const restored = new EquipmentEventRuntime(
+      new CombatSemanticEventRuntime(),
+      'operator:a',
+      [item],
+      () => ({
+        evaluate: () => true,
+        execute: (_step, context) => {
+          context!.blackboard.assign({
+            counter: context!.blackboard.getNumber('counter')! + 1,
+          });
+          return true;
+        },
+      }),
+      (_owner, event, _priority, handle, subscriptions) => {
+        if (subscriptions === undefined) throw new Error('restore requires subscriptions');
+        return restoredDispatcher.bindSubscriptionFor(event, subscriptions[0]!, published =>
+          handle(published),
+        );
+      },
+      copied.equipment,
+    );
+    const restoredChildFinish = vi.fn(() => true);
+    restored.bindRestoredChildren(reference => ({ reference, finish: restoredChildFinish }));
+    restoredDispatcher.dispatch(
+      {
+        event: 'skillSpGained',
+        payload: {
+          sourceOperatorId: 'operator:a',
+          source: 'skill',
+          gainKind: 'gain',
+          requestedAmount: 1,
+          amount: 1,
+        },
+      },
+      [],
+    );
+
+    expect(restored.blackboardFor(0).getNumber('counter')).toBe(1);
+    expect(original.blackboardFor(0).getNumber('counter')).toBe(0);
+    expect(copied.events.nextRegistrationId).toBe(
+      originalEvents.dispatcher.runtimeState.nextRegistrationId,
+    );
+    restored.dispose();
+    expect(restoredChildFinish).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(originalChildFinish).not.toHaveBeenCalled();
+    original.dispose();
+  });
+
   it.each([true, false])('配装复用序列状态但不加全局重入锁：已执行前缀=%s', prefix => {
     let registered:
       | Parameters<import('./equipmentEventRuntime').RegisterEquipmentAbilityEventAction>[3]
@@ -479,6 +576,7 @@ describe('EquipmentEventRuntime', () => {
     const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const finished: string[] = [];
     const child = (id: string) => ({
+      reference: createTestBuffReference(),
       finish: (reason: unknown, source: unknown) => {
         expect(reason).toBe('other');
         expect(source).toBeNull();
@@ -527,6 +625,7 @@ describe('EquipmentEventRuntime', () => {
       execute: (_step, context) => {
         const id = ++nextChild;
         context!.addAbilityChildBuff!({
+          reference: createTestBuffReference(),
           finish: () => {
             finished.push(id);
             return true;

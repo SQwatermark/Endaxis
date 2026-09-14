@@ -19,11 +19,14 @@ import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
 import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
 import type { ResolvedCombatStepParameters } from '../../compiler/combatProgram';
+import { CombatOperationPrograms } from './combatOperationPrograms';
+import type { ActionBlackboardActionState } from './combatOperationHostState';
 
 const PROBABILITY_TOLERANCE = 0.00001;
 
 export class ActionBlackboardOperationExecutor implements CombatOperationExecutor {
-  readonly #healthFloorCleanups = new Map<object, () => void>();
+  readonly runtimeState: ActionBlackboardActionState;
+  readonly programs: CombatOperationPrograms;
   constructor(
     readonly delegate: CombatOperationExecutor,
     readonly probabilitySamples?: ProbabilitySampleSource,
@@ -57,9 +60,17 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
         entityId: string,
         mode: 'absolute' | 'maxHealthRatio',
         value: number,
-      ) => () => void;
+      ) => number;
+      readonly removeHealthFloor?: (entityId: string, handle: number) => void;
     },
-  ) {}
+    restored?: {
+      readonly state: ActionBlackboardActionState;
+      readonly programs: CombatOperationPrograms;
+    },
+  ) {
+    this.runtimeState = restored?.state ?? { healthFloors: new Map() };
+    this.programs = restored?.programs ?? new CombatOperationPrograms();
+  }
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'storeCurrentTimelineFrame') {
@@ -200,15 +211,17 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
       }
       const ownerId = context.actionOwnerId ?? context.buffOwnerId;
       if (ownerId === undefined) throw new Error('setHealthFloor requires an action owner');
-      this.#healthFloorCleanups.get(step)?.();
-      this.#healthFloorCleanups.set(
-        step,
-        setHealthFloor(
+      const slot = this.programs.slot(step);
+      const existing = this.runtimeState.healthFloors.get(slot);
+      if (existing !== undefined) this.#removeHealthFloor(existing.entityId, existing.handle);
+      this.runtimeState.healthFloors.set(slot, {
+        entityId: ownerId,
+        handle: setHealthFloor(
           ownerId,
           step.parameters.mode,
           resolveActionValueOperand(step.parameters.value, context.blackboard),
         ),
-      );
+      });
       return true;
     }
     if (step.kind === 'readSkillSettingData') {
@@ -260,12 +273,21 @@ export class ActionBlackboardOperationExecutor implements CombatOperationExecuto
   }
 
   end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
-    const cleanup = this.#healthFloorCleanups.get(step);
-    if (cleanup !== undefined) {
-      cleanup();
-      this.#healthFloorCleanups.delete(step);
+    const slot = this.programs.slot(step);
+    const healthFloor = this.runtimeState.healthFloors.get(slot);
+    if (healthFloor !== undefined) {
+      this.#removeHealthFloor(healthFloor.entityId, healthFloor.handle);
+      this.runtimeState.healthFloors.delete(slot);
     }
     this.delegate.end?.(step, context);
+  }
+
+  #removeHealthFloor(entityId: string, handle: number): void {
+    const remove = this.entityProperties?.removeHealthFloor;
+    if (remove === undefined) {
+      throw new Error('restored health floor requires an entity property remover');
+    }
+    remove(entityId, handle);
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {

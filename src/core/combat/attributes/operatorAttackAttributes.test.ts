@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   attributeModifierValues,
 } from './combatAttributes';
 import {
@@ -27,7 +27,7 @@ describe('operator attack attributes', () => {
     };
     const attributes = createOperatorAttackAttributes(build);
     expect(attributes.get('Atk')).toBeCloseTo(build.attackBeforeAttributeScalar);
-    const buff = new CombatAttributeModifier(
+    const buff = createCombatAttributeModifier(
       'Atk',
       attributeModifierValues('baseMultiplier', 0.2),
       ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -58,7 +58,7 @@ describe('operator attack attributes', () => {
   it('uses panel arts intensity as native infliction enhance and accepts Buff additions', () => {
     const attributes = createOperatorAttackAttributes(input);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'PhysicalAndSpellInflictionEnhance',
         attributeModifierValues('baseAddition', 10),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -75,7 +75,7 @@ describe('operator attack attributes', () => {
       ultimateEnergyGainEfficiency: 1.2,
     });
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'UltimateSpGainScalar',
         attributeModifierValues('baseAddition', 0.05),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -89,7 +89,7 @@ describe('operator attack attributes', () => {
   it('按 AttributeMetaTable 承载并限制关键词加速倍率', () => {
     const attributes = createOperatorAttackAttributes(input);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'KeywordSpeedUpScalar',
         attributeModifierValues('baseAddition', 0.5),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -111,7 +111,7 @@ describe('operator attack attributes', () => {
   it('运行时 Buff 修改派生系数后重新计算攻击', () => {
     const attributes = createOperatorAttackAttributes(input);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'AtkIncreaseFactorFromWisd',
         attributeModifierValues('baseAddition', 0.001),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -119,7 +119,7 @@ describe('operator attack attributes', () => {
       ),
     );
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'AtkIncreaseFactorFromWill',
         attributeModifierValues('baseAddition', 0.001),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -137,7 +137,7 @@ describe('operator attack attributes', () => {
   it('applies native Atk base-multiplier buffs before attribute scaling', () => {
     const attributes = createOperatorAttackAttributes(input);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'Atk',
         attributeModifierValues('baseMultiplier', 0.4),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -159,7 +159,7 @@ describe('operator attack attributes', () => {
       ],
     });
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'natureDamageIncrease',
         attributeModifierValues('baseMultiplier', 0.5),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -186,7 +186,7 @@ describe('operator attack attributes', () => {
   it('按 AttributeMetaTable 承载治疗套装施加的全类型受伤倍率', () => {
     const attributes = createOperatorAttackAttributes(input);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'PhysicalDamageTakenScalar',
         attributeModifierValues('baseFinalMultiplier', 0.7),
         ATTRIBUTE_MODIFIER_SOURCES.buff,

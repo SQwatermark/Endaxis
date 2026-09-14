@@ -7,6 +7,7 @@ import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
 import { TimedMarkerContainer } from './timedMarkers';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
+import { StateStepper } from './stateStepper';
 
 const delegate: CombatOperationExecutor = {
   execute: () => false,
@@ -81,6 +82,55 @@ describe('TimedMarkerOperationExecutor', () => {
     expect(
       executor.evaluate({ kind: 'timedMarkerPresent', target: 'caster', markerId: 'voice' }),
     ).toBe(false);
+  });
+
+  it('恢复动作宿主后按标记身份只移除恢复分支实例', () => {
+    const originalClock = new CombatClock();
+    const originalContainer = new TimedMarkerContainer('operator', originalClock);
+    const originalExecutor = new TimedMarkerOperationExecutor({
+      resolveTarget: () => originalContainer,
+      resolveEventTarget: () => originalContainer,
+      delegate,
+    });
+    const step: ResolvedCombatOperationStep = {
+      kind: 'createTimedMarker',
+      parameters: {
+        target: 'caster',
+        markerId: 'voice',
+        durationSeconds: { kind: 'constant', value: 5 },
+        autoFinishByAction: true,
+      },
+    };
+    const context = { blackboard: new ActionBlackboard() };
+    originalExecutor.execute(step, context);
+    const copied = new StateStepper(
+      {
+        clock: originalClock.runtimeState,
+        markers: originalContainer.runtimeState,
+        actions: originalExecutor.runtimeState,
+      },
+      () => undefined,
+    ).read();
+    const restoredClock = new CombatClock(copied.clock);
+    const restoredContainer = new TimedMarkerContainer(
+      'operator',
+      restoredClock,
+      {},
+      copied.markers,
+    );
+    const restoredExecutor = new TimedMarkerOperationExecutor(
+      {
+        resolveTarget: () => restoredContainer,
+        resolveEventTarget: () => restoredContainer,
+        delegate,
+      },
+      { state: copied.actions, programs: originalExecutor.programs },
+    );
+
+    restoredExecutor.end(step, context);
+
+    expect(restoredContainer.has('voice')).toBe(false);
+    expect(originalContainer.has('voice')).toBe(true);
   });
 
   it('creates and queries a marker on the active healing event target', () => {

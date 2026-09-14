@@ -334,12 +334,21 @@ describe('PlayerDamageOperationExecutor', () => {
     };
     const snapshotContext = {
       blackboard: new ActionBlackboard(),
-      damageCalculationSnapshots: new Map(),
+      damageCalculationSnapshots: new DamageCalculationSnapshots(),
     };
     executor.prepare(snapshotStep, snapshotContext);
     runtimeAttack = 999;
     executor.prepare(snapshotStep, snapshotContext);
-    executor.execute(snapshotStep, snapshotContext);
+    const savedSnapshots = structuredClone(snapshotContext.damageCalculationSnapshots.runtimeState);
+    const restoredContext = {
+      ...snapshotContext,
+      damageCalculationSnapshots: new DamageCalculationSnapshots(
+        snapshotContext.damageCalculationSnapshots.program,
+        savedSnapshots,
+      ),
+    };
+    snapshotContext.damageCalculationSnapshots.clear();
+    executor.execute(snapshotStep, restoredContext);
     expect(targetVitals.health).toBe(250);
     expect(receipt.entries.at(-1)?.data).toMatchObject({
       attack: 100,
@@ -352,7 +361,7 @@ describe('PlayerDamageOperationExecutor', () => {
     // 未选 Switch 分支内的 IfElse 也必须在 Reset 时建立快照，不能等命中后读实时攻击。
     const branchContext = {
       blackboard: new ActionBlackboard({ choice: 0 }),
-      damageCalculationSnapshots: new Map(),
+      damageCalculationSnapshots: new DamageCalculationSnapshots(),
     };
     const branchRuntime = new CombatActionSequenceRuntime(
       {
@@ -942,3 +951,4 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(delegate.execute).toHaveBeenCalledWith(step);
   });
 });
+import { DamageCalculationSnapshots } from './damageCalculationSnapshots';

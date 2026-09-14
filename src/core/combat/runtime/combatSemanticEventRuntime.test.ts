@@ -10,6 +10,45 @@ import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 
 describe('CombatSemanticEventRuntime', () => {
+  it('手工事件恢复沿用原订阅，不在绑定阶段触发响应', () => {
+    const original = new CombatSemanticEventRuntime();
+    const definition = {
+      ownerOperatorId: 'operator',
+      trigger: { kind: 'airborneOutput' as const },
+      phase: 'dataAction' as const,
+      priority: 2,
+    };
+    const registration = original.register({ ...definition, handle: () => {} });
+    const saved = structuredClone({
+      state: original.runtimeState,
+      subscriptions: registration.subscriptions,
+    });
+    const restored = new CombatSemanticEventRuntime(undefined, {
+      state: saved.state,
+      bindNative: () => {
+        throw new Error('fixture has no native subscriptions');
+      },
+    });
+    let count = 0;
+    const bound = restored.bindRegistration(
+      {
+        ...definition,
+        handle: () => {
+          count++;
+        },
+      },
+      saved.subscriptions,
+    );
+    expect(count).toBe(0);
+    expect(saved.state.nextRegistrationId).toBe(1);
+    registration.dispose();
+    restored.emit({ kind: 'airborneOutput', sourceOperatorId: 'operator', targetId: 'enemy' });
+    expect(count).toBe(1);
+    bound.dispose();
+    restored.emit({ kind: 'airborneOutput', sourceOperatorId: 'operator', targetId: 'enemy' });
+    expect(count).toBe(1);
+  });
+
   it.each(['addedBuff', 'outputBuff'] as const)(
     '直接订阅 %s 保留载荷、条件和原生实体归属',
     event => {
@@ -268,6 +307,13 @@ describe('CombatSemanticEventRuntime', () => {
         received.push(context.event);
       },
     });
+    expect(registration.subscriptions).toHaveLength(2);
+    expect(registration.subscriptions[0]!.state).toBe(dispatcher.runtimeState);
+    expect(registration.subscriptions[1]!.state).toBe(runtime.runtimeState);
+    expect(registration.subscriptions.map(reference => reference.event)).toEqual([
+      'afterOutputKnockDown',
+      'knockDownOutput',
+    ]);
     dispatcher.registerAction('afterOutputKnockDown', 0, () => order.push('low'));
     const published = {
       event: 'afterOutputKnockDown' as const,

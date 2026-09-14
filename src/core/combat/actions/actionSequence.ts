@@ -1,50 +1,56 @@
 /**
- * 复现同一行为序列内同步顺序的通用执行器。
- * 调用方应按真实先后提供步骤；此层不会替调用方重排伤害、附着或 Buff。
+ * 将现有步骤对象接到数据驱动的序列内核。
+ * 步骤对象仍可能持有内部状态，所以此绑定层尚不能作为完整战斗切面。
  */
-import { CombatStep, STEP_RESULT_MODE, type CombatExecutionContext } from './combatStep';
+import { CombatStep, type CombatExecutionContext } from './combatStep';
+import { createActionSequenceState, type ActionSequenceState } from './actionSequenceState';
+import {
+  executeActionSequence,
+  resetActionSequence,
+  tickActionSequence,
+  endActionSequence,
+  type ActionSequenceExecutionHost,
+} from './actionSequenceExecution';
 
-export const COMBAT_STEP_STATE = {
-  pending: 'pending',
-  started: 'started',
-  ticking: 'ticking',
-  ended: 'ended',
-} as const;
-
-/** 序列内部用于区分尚未开始、持续执行和已经结束的步骤状态。 */
-export type CombatStepState = (typeof COMBAT_STEP_STATE)[keyof typeof COMBAT_STEP_STATE];
-
-interface StepEntry {
-  step: CombatStep;
-  state: CombatStepState;
-  executeResult: boolean;
-  executionPermitted: boolean;
-}
+export { COMBAT_STEP_STATE, type CombatStepState } from './actionSequenceState';
 
 /** 按配置数组的顺序同步执行战斗步骤。 */
 export class ActionSequence extends CombatStep {
-  readonly #entries: StepEntry[];
+  readonly #steps: readonly CombatStep[];
+  readonly #state: ActionSequenceState;
 
   constructor(
     steps: readonly CombatStep[],
     readonly canExecuteAction?: () => boolean,
+    state?: ActionSequenceState,
   ) {
     super();
-    this.#entries = steps.map(step => ({
-      step,
-      state: COMBAT_STEP_STATE.pending,
-      executeResult: false,
-      executionPermitted: false,
-    }));
+    this.#steps = [...steps];
+    this.#state = state ?? createActionSequenceState(steps.length);
+    if (this.#state.entries.length !== steps.length || this.#state.steps.length !== steps.length)
+      throw new Error('action sequence state does not match program length');
+    steps.forEach((step, index) => {
+      if (state === undefined) this.#state.steps[index] = step.executionData;
+      else step.bindExecutionData(state.steps[index]!);
+    });
   }
 
   get isEmpty(): boolean {
-    return this.#entries.length === 0;
+    return this.#steps.length === 0;
+  }
+
+  override get executionData() {
+    return { kind: 'sequence' as const, sequence: this.#state };
+  }
+
+  /** 序列进度和已经接入的步骤数据，共同组成递归动作树。 */
+  get runtimeState(): ActionSequenceState {
+    return this.#state;
   }
 
   override createRuntimeInstance(): ActionSequence {
     return new ActionSequence(
-      this.#entries.map(entry => entry.step.createRuntimeInstance()),
+      this.#steps.map(step => step.createRuntimeInstance()),
       this.canExecuteAction,
     );
   }
@@ -54,26 +60,7 @@ export class ActionSequence extends CombatStep {
   }
 
   override tryExecute(context: CombatExecutionContext): boolean {
-    for (const entry of this.#entries) {
-      if (entry.state === COMBAT_STEP_STATE.ended) continue;
-      if (entry.state !== COMBAT_STEP_STATE.pending) return false;
-
-      // 原生 AbilityAction.Execute 在进入动作前检查宿主 canExecuteAction。
-      // 必须逐项读实时状态；不能只在事件订阅入口检查一次，也不能阻止已开始项 End。
-      const resultMode = context.sequence?.resultMode ?? STEP_RESULT_MODE.normal;
-      entry.executionPermitted = this.canExecuteAction?.() !== false;
-      // 原生在进入 OnExecute 前写入状态 1；同步事件可在动作尚未返回时 End。
-      entry.state = COMBAT_STEP_STATE.started;
-      let result = entry.executionPermitted ? entry.step.tryExecute(context) : false;
-      if (resultMode === STEP_RESULT_MODE.invertNextResult) {
-        context.sequence!.resultMode = STEP_RESULT_MODE.normal;
-        result = !result;
-      }
-
-      entry.executeResult = result;
-      if (!result) return false;
-    }
-    return true;
+    return executeActionSequence(this.#state, context, this.#host(context));
   }
 
   executeInstant(context: CombatExecutionContext): boolean {
@@ -84,36 +71,24 @@ export class ActionSequence extends CombatStep {
   }
 
   override reset(context: CombatExecutionContext): void {
-    for (const entry of this.#entries) {
-      entry.step.reset(context);
-      entry.state = COMBAT_STEP_STATE.pending;
-      entry.executeResult = false;
-      entry.executionPermitted = false;
-    }
+    resetActionSequence(this.#state, this.#host(context));
   }
 
   override tick(deltaTime: number, context: CombatExecutionContext): void {
-    for (const entry of this.#entries) {
-      if (entry.state !== COMBAT_STEP_STATE.started && entry.state !== COMBAT_STEP_STATE.ticking) {
-        continue;
-      }
-      if (!entry.executeResult || !entry.executionPermitted) continue;
-      if (this.canExecuteAction?.() === false) continue;
-
-      entry.state = COMBAT_STEP_STATE.ticking;
-      entry.step.tick(deltaTime, context);
-    }
+    tickActionSequence(this.#state, deltaTime, this.#host(context));
   }
 
   override end(context: CombatExecutionContext): void {
-    for (const entry of this.#entries) {
-      if (
-        (entry.state === COMBAT_STEP_STATE.started || entry.state === COMBAT_STEP_STATE.ticking) &&
-        entry.executionPermitted
-      )
-        entry.step.end(context);
-      // 尚未开始的动作不调用 End，但也必须封闭，直到 Reset。
-      entry.state = COMBAT_STEP_STATE.ended;
-    }
+    endActionSequence(this.#state, this.#host(context));
+  }
+
+  #host(context: CombatExecutionContext): ActionSequenceExecutionHost {
+    return {
+      canExecute: () => this.canExecuteAction?.() !== false,
+      execute: index => this.#steps[index]!.tryExecute(context),
+      reset: index => this.#steps[index]!.reset(context),
+      tick: (index, deltaTime) => this.#steps[index]!.tick(deltaTime, context),
+      end: index => this.#steps[index]!.end(context),
+    };
   }
 }

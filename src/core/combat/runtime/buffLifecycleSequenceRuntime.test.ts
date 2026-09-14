@@ -21,8 +21,198 @@ import { ActionBlackboard } from './actionBlackboard';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { BuffOperationExecutor } from './buffOperationExecutor';
+import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
+import {
+  createPostSkillRequestListenerState,
+  registerPostSkillRequestListener,
+  requirePostSkillRequestListener,
+  unregisterPostSkillRequestListener,
+  type PostSkillRequestListenerState,
+} from './postSkillRequestListenerState';
 
 describe('attachBuffLifecycleSequences', () => {
+  it('从容器切面重绑活动 Enable 序列，结束时只清理恢复分支的动作期 Buff', () => {
+    const childDefinition: CombatBuffDefinition<never> = {
+      id: 'restored-enable-child',
+      stackingType: 'unlimited',
+    };
+    const createParentDefinition = (container: CombatBuffContainer<never>) => {
+      const target = new BuffDefinitionOperationTarget(container, {
+        get: id => (id === childDefinition.id ? childDefinition : undefined),
+      });
+      return attachBuffLifecycleSequences<never>(
+        { id: 'restored-enable-parent', stackingType: 'unlimited' },
+        {
+          enable: {
+            steps: [
+              {
+                kind: 'applyBuff',
+                parameters: {
+                  buffId: childDefinition.id,
+                  target: 'caster',
+                  finishByAction: true,
+                },
+              },
+            ],
+          },
+        },
+        () =>
+          new BuffOperationExecutor({
+            sourceId: 'owner',
+            resolveTarget: () => target,
+            resolveEventTarget: () => target,
+            delegate: { execute: () => false, evaluate: () => false },
+          }),
+      );
+    };
+    const original = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+    const originalParentDefinition = createParentDefinition(original);
+    const oldParent = original.add(originalParentDefinition, 'owner')!;
+    const oldChild = original.buffs.find(buff => buff.definition.id === childDefinition.id)!;
+    const saved = structuredClone(original.runtimeState);
+
+    const restoredAttributes = new CombatAttributeSet(saved.attributes);
+    const restoredBlackboard = ActionBlackboard.bindRuntimeState(saved.entityBlackboard);
+    const restored = new CombatBuffContainer<never>(
+      'owner',
+      restoredAttributes,
+      undefined,
+      null,
+      restoredBlackboard,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved,
+    );
+    const restoredParentDefinition = createParentDefinition(restored);
+    restored.bindRestoredInstances(state =>
+      state.identity.definitionId === restoredParentDefinition.id
+        ? restoredParentDefinition
+        : state.identity.definitionId === childDefinition.id
+          ? childDefinition
+          : undefined,
+    );
+    restored.bindRestoredRelations(reference => restored.resolveHandle(reference));
+    const newParent = restored.getInstance(oldParent.instanceId)!;
+    const newChild = restored.getInstance(oldChild.instanceId)!;
+
+    expect(newParent.runtimeState.actionHost!.enable).not.toBeNull();
+    newParent.finish('other', null);
+    expect(newParent.isFinished).toBe(true);
+    expect(newChild.isFinished).toBe(true);
+    expect(oldParent.isFinished).toBe(false);
+    expect(oldChild.isFinished).toBe(false);
+  });
+
+  it('从切面重绑能力事件订阅并保留响应序列进度', () => {
+    const createDefinition = (
+      dispatcher: AbilityEventDispatcher<AbilityResponseEventName, AbilityEventPayloadMap>,
+      reached: string[],
+    ) =>
+      attachBuffLifecycleSequences<never>(
+        { id: 'restored-event-response', stackingType: 'unique' },
+        {},
+        () => ({
+          execute: step => {
+            if (step.kind !== 'setContextFlag') throw new Error(`unexpected step '${step.kind}'`);
+            reached.push(step.parameters.flag);
+            return true;
+          },
+          evaluate: () => true,
+        }),
+        undefined,
+        [
+          {
+            event: 'addedBuff',
+            priority: 3,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'always', value: true, target: 'caster' },
+                },
+                {
+                  kind: 'once',
+                  parameters: { scopeKey: 'saved-once' },
+                  body: {
+                    steps: [
+                      {
+                        kind: 'setContextFlag',
+                        parameters: { flag: 'once', value: true, target: 'caster' },
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          },
+        ],
+        (event, priority, handle, subscriptions) =>
+          subscriptions === undefined
+            ? dispatcher.registerAction(event, priority, published => handle(published))
+            : dispatcher.bindSubscriptionFor(event, subscriptions[0]!, published =>
+                handle(published),
+              ),
+      );
+    const event = {
+      event: 'addedBuff' as const,
+      payload: {
+        sourceId: 'source',
+        targetId: 'owner',
+        buffId: 'incoming',
+        buffTags: [],
+      },
+    };
+    const originalReached: string[] = [];
+    const originalDispatcher = new AbilityEventDispatcher<
+      AbilityResponseEventName,
+      AbilityEventPayloadMap
+    >();
+    const original = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+    const originalDefinition = createDefinition(originalDispatcher, originalReached);
+    original.add(originalDefinition, 'source');
+    originalDispatcher.dispatch(event, []);
+    expect(originalReached).toEqual(['always', 'once']);
+
+    const saved = structuredClone({
+      container: original.runtimeState,
+      events: originalDispatcher.runtimeState,
+    });
+    const restoredReached: string[] = [];
+    const restoredDispatcher = new AbilityEventDispatcher<
+      AbilityResponseEventName,
+      AbilityEventPayloadMap
+    >(saved.events);
+    const restored = new CombatBuffContainer<never>(
+      'owner',
+      new CombatAttributeSet(saved.container.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.container.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved.container,
+    );
+    const restoredDefinition = createDefinition(restoredDispatcher, restoredReached);
+    const nextRegistrationId = restoredDispatcher.runtimeState.nextRegistrationId;
+    restored.bindRestoredInstances(state =>
+      state.identity.definitionId === restoredDefinition.id ? restoredDefinition : undefined,
+    );
+
+    expect(restoredDispatcher.runtimeState.nextRegistrationId).toBe(nextRegistrationId);
+    restoredDispatcher.dispatch(event, []);
+    expect(restoredReached).toEqual(['always']);
+    originalDispatcher.dispatch(event, []);
+    expect(originalReached).toEqual(['always', 'once', 'always']);
+  });
+
   it.each(['matching', 'other'] as const)(
     'SkillAffix 将唯一请求引用在 %s 施法时转交或释放',
     mode => {
@@ -82,6 +272,8 @@ describe('attachBuffLifecycleSequences', () => {
       request!(info);
       request!(info); // 重复匹配只保留一次；不匹配请求本身也不释放旧 pending。
       request!({ ...info, skillCastId: 99 });
+      const savedAffixes = structuredClone(buff.runtimeState.actionHost!.affixes);
+      expect(savedAffixes[0]).toMatchObject({ references: 2, pendingRequest: true });
       emit('skillEnd', 42);
       expect(buff.isFinished).toBe(false);
       emit('beforeCastSkill', mode === 'matching' ? 42 : 99);
@@ -91,10 +283,201 @@ describe('attachBuffLifecycleSequences', () => {
       }
       expect(buff.isFinished).toBe(true);
       expect(dispose).toHaveBeenCalledOnce();
+      expect(buff.runtimeState.actionHost!.affixes).toEqual([]);
+      expect(savedAffixes[0]).toMatchObject({
+        references: 2,
+        pendingRequest: true,
+        disposed: false,
+      });
       request!(info); // 分发快照残留回调不能重新取得引用。
       expect(dispose).toHaveBeenCalledOnce();
     },
   );
+
+  it('从切面按原编号重绑 SkillAffix 事件与预施法请求', () => {
+    const createPostRegistrar =
+      (
+        state: PostSkillRequestListenerState,
+        handlers: Map<number, (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void>,
+      ) =>
+      (
+        handle: (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void,
+        restoredId?: number,
+      ) => {
+        const registrationId = restoredId ?? registerPostSkillRequestListener(state, 'owner');
+        if (restoredId !== undefined) requirePostSkillRequestListener(state, 'owner', restoredId);
+        if (handlers.has(registrationId)) throw new Error('duplicate request handler');
+        handlers.set(registrationId, handle);
+        return {
+          registrationId,
+          dispose: () => {
+            if (!handlers.delete(registrationId)) return;
+            unregisterPostSkillRequestListener(state, 'owner', registrationId);
+          },
+        };
+      };
+    const createDefinition = (
+      container: CombatBuffContainer<never>,
+      dispatcher: AbilityEventDispatcher<AbilityResponseEventName, AbilityEventPayloadMap>,
+      requestState: PostSkillRequestListenerState,
+      requestHandlers: Map<
+        number,
+        (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void
+      >,
+    ) =>
+      attachBuffLifecycleSequences<never>(
+        { id: 'restored-affix', stackingType: 'unique' },
+        { enable: { steps: [{ kind: 'skillAffix', parameters: {} }] } },
+        () =>
+          new BuffOperationExecutor({
+            sourceId: 'owner',
+            resolveTarget: () => container,
+            readProcessingSkillCastId: () => 42,
+            delegate: { execute: () => false, evaluate: () => false },
+          }),
+        undefined,
+        [],
+        undefined,
+        [],
+        [],
+        [],
+        undefined,
+        [],
+        (event, callback, subscriptions) =>
+          subscriptions === undefined
+            ? dispatcher.registerCallback(event, callback)
+            : dispatcher.bindSubscriptionFor(event, subscriptions[0]!, callback),
+        createPostRegistrar(requestState, requestHandlers),
+        undefined,
+        (reference, release) => {
+          if (reference.kind !== 'buff') throw new Error('unexpected entity reference');
+          if (reference.reference.ownerId !== container.ownerId) {
+            throw new Error('unexpected Buff owner');
+          }
+          const child = container.getInstance(reference.reference.instanceId);
+          if (child === undefined) throw new Error('restored SkillAffix child is missing');
+          return child.bindRecycledCallback(reference.recycleRegistrationId, release);
+        },
+      );
+    const originalDispatcher = new AbilityEventDispatcher<
+      AbilityResponseEventName,
+      AbilityEventPayloadMap
+    >();
+    const originalRequestState = createPostSkillRequestListenerState();
+    const originalRequestHandlers = new Map<
+      number,
+      (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void
+    >();
+    const original = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+    const originalDefinition = createDefinition(
+      original,
+      originalDispatcher,
+      originalRequestState,
+      originalRequestHandlers,
+    );
+    const oldBuff = original.add(originalDefinition, 'owner')!;
+    const child = original.add({ id: 'affix-child', stackingType: 'unique' }, 'owner', {
+      skillCastInfo: {
+        skillCastId: 42,
+        originSkillId: 'skill',
+        originSkillType: 'battleSkill',
+        nonReturnedSpCost: 0,
+      },
+    })!;
+    originalDispatcher.dispatch(
+      {
+        event: 'outputBuff',
+        payload: {
+          sourceId: 'owner',
+          targetId: 'owner',
+          buffId: child.definition.id,
+          buffTags: [],
+          buff: child,
+          skillCastInfo: child.skillCastInfo,
+        },
+      },
+      [],
+    );
+    const saved = structuredClone({
+      container: original.runtimeState,
+      events: originalDispatcher.runtimeState,
+      requests: originalRequestState,
+    });
+    const restoredDispatcher = new AbilityEventDispatcher<
+      AbilityResponseEventName,
+      AbilityEventPayloadMap
+    >(saved.events);
+    const restoredRequestHandlers = new Map<
+      number,
+      (info: import('./skillCastInfo').CombatSkillCastInfo | null) => void
+    >();
+    const restored = new CombatBuffContainer<never>(
+      'owner',
+      new CombatAttributeSet(saved.container.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.container.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved.container,
+    );
+    const restoredDefinition = createDefinition(
+      restored,
+      restoredDispatcher,
+      saved.requests,
+      restoredRequestHandlers,
+    );
+    const nextEventId = restoredDispatcher.runtimeState.nextRegistrationId;
+    const nextRequestId = saved.requests.nextRegistrationId;
+    restored.bindRestoredInstances(state =>
+      state.identity.definitionId === restoredDefinition.id
+        ? restoredDefinition
+        : state.identity.definitionId === child.definition.id
+          ? child.definition
+          : undefined,
+    );
+    restored.bindRestoredRelations(reference => restored.resolveHandle(reference));
+    const restoredBuff = restored.getInstance(oldBuff.instanceId)!;
+    expect(restoredDispatcher.runtimeState.nextRegistrationId).toBe(nextEventId);
+    expect(saved.requests.nextRegistrationId).toBe(nextRequestId);
+
+    const info = {
+      skillCastId: 42,
+      originSkillId: 'skill',
+      originSkillType: 'battleSkill' as const,
+      nonReturnedSpCost: 0,
+    };
+    for (const handle of restoredRequestHandlers.values()) handle(info);
+    const emit = (event: 'beforeCastSkill' | 'skillEnd') =>
+      restoredDispatcher.dispatch(
+        {
+          event,
+          payload: {
+            sourceId: 'owner',
+            targetId: 'owner',
+            skillId: 'skill',
+            skillType: 'battleSkill',
+            skillCastId: 42,
+          },
+        },
+        [],
+      );
+    emit('beforeCastSkill');
+    emit('skillEnd');
+    expect(restoredBuff.isFinished).toBe(false);
+    emit('skillEnd');
+    expect(restoredBuff.isFinished).toBe(false);
+    const restoredChild = restored.getInstance(child.instanceId)!;
+    restoredChild.finish('other');
+    restored.recycleFinishedBuffs();
+    expect(restoredBuff.isFinished).toBe(true);
+    expect(oldBuff.isFinished).toBe(false);
+    expect(child.isFinished).toBe(false);
+  });
 
   it('父结束动作先执行并可新增子实例，标记父已结束后再以空施法清理全部子实例', () => {
     const seen: unknown[] = [];
@@ -408,6 +791,7 @@ describe('attachBuffLifecycleSequences', () => {
         source: { kind: 'operator', operatorId: 'owner' },
         definition: { lifetime: { kind: 'infinite' } },
       });
+      if (entity.kind !== 'abilityEntity') throw new Error('expected ability entity');
       dispatcher.dispatch(
         {
           event: 'abilityEntitySpawned',
@@ -415,7 +799,10 @@ describe('attachBuffLifecycleSequences', () => {
             sourceId: 'owner',
             targetId: 'entity',
             skillCastInfo: { ...ordinary, skillCastId: 42 },
-            entity: { onReset: callback => entities.onReset(entity, callback) },
+            entity: {
+              instanceId: entity.instanceId,
+              onReset: callback => entities.onReset(entity, callback),
+            },
           },
         },
         [],
@@ -442,6 +829,18 @@ describe('attachBuffLifecycleSequences', () => {
         [],
       );
       emit('other', 42, 'beforeCastSkill');
+      const savedObjectReferences = structuredClone(
+        buff.runtimeState.actionHost!.affixes[0]?.objectReferences,
+      );
+      if (processing !== undefined) {
+        expect(savedObjectReferences!.size).toBe(3);
+        expect([...savedObjectReferences!.values()]).toEqual(
+          expect.arrayContaining([
+            expect.objectContaining({ kind: 'buff', reference: output.reference }),
+            expect.objectContaining({ kind: 'entity', target: entity }),
+          ]),
+        );
+      }
       emit('owner', 999, 'beforeCastSkill');
       emit('owner', 42);
       expect(buff.isFinished).toBe(false);
@@ -709,6 +1108,68 @@ describe('attachBuffLifecycleSequences', () => {
     ]);
   });
 
+  it('从切面恢复技能槽替换时不重放应用，结束只还原恢复分支', () => {
+    const createDefinition = (changes: string[]) =>
+      attachBuffLifecycleSequences<never>(
+        { id: 'restored-skill-slot', stackingType: 'unique' },
+        {},
+        () => ({
+          execute: step => {
+            if (step.kind !== 'changeSkillSlot') throw new Error(`unexpected step '${step.kind}'`);
+            changes.push(step.parameters.targetSkillKey);
+            return true;
+          },
+          evaluate: () => true,
+        }),
+        undefined,
+        [],
+        undefined,
+        [],
+        [],
+        [
+          {
+            skillGroupKey: 'battleSkill',
+            targetSkillKey: 'ultimate-form',
+            revertedSkillKey: 'normal-form',
+            inheritOriginSkillCooldownProgress: true,
+          },
+        ],
+      );
+    const originalChanges: string[] = [];
+    const original = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+    const originalDefinition = createDefinition(originalChanges);
+    const oldBuff = original.add(originalDefinition, 'owner')!;
+    expect(originalChanges).toEqual(['ultimate-form']);
+    const saved = structuredClone(original.runtimeState);
+
+    const restoredChanges: string[] = [];
+    const restored = new CombatBuffContainer<never>(
+      'owner',
+      new CombatAttributeSet(saved.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved,
+    );
+    const restoredDefinition = createDefinition(restoredChanges);
+    restored.bindRestoredInstances(state =>
+      state.identity.definitionId === restoredDefinition.id ? restoredDefinition : undefined,
+    );
+    const newBuff = restored.getInstance(oldBuff.instanceId)!;
+    expect(restoredChanges).toEqual([]);
+
+    newBuff.finish('other');
+    expect(restoredChanges).toEqual(['normal-form']);
+    expect(originalChanges).toEqual(['ultimate-form']);
+    expect(oldBuff.isFinished).toBe(false);
+  });
+
   it('为每个 Buff 实例隔离黑板和 once 状态', () => {
     const reached: number[] = [];
     const operations: CombatOperationExecutor = {
@@ -886,6 +1347,8 @@ describe('attachBuffLifecycleSequences', () => {
     container.add(definition, 'source', { blackboardValues: { instance: 2 } });
 
     container.tick(1 / 30);
+    const savedActions = structuredClone(first.runtimeState.actionHost);
+    expect(savedActions!.scheduled!.passedFrames).toBe(1);
     first.disable();
     container.tick(1 / 30);
     expect(reached).toEqual([2]);
@@ -895,6 +1358,83 @@ describe('attachBuffLifecycleSequences', () => {
     expect(reached).toEqual([2]);
     container.tick(1 / 30);
     expect(reached).toEqual([2, 1]);
+    expect(savedActions!.scheduled!.passedFrames).toBe(1);
+    expect(savedActions!.scheduled!.timeline!.scheduling.nextPendingIndex).toBe(0);
+    expect(first.runtimeState.actionHost!.scheduled!.passedFrames).toBe(2);
+  });
+
+  it('从切面继续推进 Buff 局部时间线且不重放已过帧', () => {
+    const createDefinition = (reached: string[]) =>
+      attachBuffLifecycleSequences<never>(
+        { id: 'restored-scheduled', stackingType: 'unique' },
+        {},
+        () => ({
+          execute: step => {
+            if (step.kind !== 'setContextFlag') throw new Error(`unexpected step '${step.kind}'`);
+            reached.push(step.parameters.flag);
+            return true;
+          },
+          evaluate: () => true,
+        }),
+        undefined,
+        [],
+        undefined,
+        [
+          {
+            startFrame: 1,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'past', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+          {
+            startFrame: 3,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'future', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        ],
+      );
+    const originalReached: string[] = [];
+    const original = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+    const originalDefinition = createDefinition(originalReached);
+    original.add(originalDefinition, 'source');
+    original.tick(2 / 30);
+    expect(originalReached).toEqual(['past']);
+    const saved = structuredClone(original.runtimeState);
+
+    const restoredReached: string[] = [];
+    const restored = new CombatBuffContainer<never>(
+      'owner',
+      new CombatAttributeSet(saved.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved,
+    );
+    const restoredDefinition = createDefinition(restoredReached);
+    restored.bindRestoredInstances(state =>
+      state.identity.definitionId === restoredDefinition.id ? restoredDefinition : undefined,
+    );
+    restored.tick(1 / 30);
+
+    expect(restoredReached).toEqual(['future']);
+    expect(originalReached).toEqual(['past']);
   });
 
   it('让启用序列的作用域操作持续到 Buff 停用或结束', () => {
@@ -998,6 +1538,11 @@ describe('attachBuffLifecycleSequences', () => {
     );
     const container = new CombatBuffContainer<never>('enemy', new CombatAttributeSet<never>());
     const buff = container.add(definition, 'seal')!;
+    expect(buff.runtimeState.actionHost!.eventResponses).toHaveLength(1);
+    expect(buff.runtimeState.actionHost!.eventResponses[0]!.subscriptions).toHaveLength(1);
+    expect(buff.runtimeState.actionHost!.eventResponses[0]!.subscriptions[0]!.state).toBe(
+      dispatcher.runtimeState,
+    );
     const dispatch = (
       tags: readonly import('../../game-data/operatorDefinition').DamageTag[],
       sourceId = 'seal',
@@ -1267,6 +1812,7 @@ describe('attachBuffLifecycleSequences', () => {
 
     expect(executions).toBe(1);
     expect(buff.isFinished).toBe(true);
+    expect(buff.runtimeState.actionHost!.eventResponses).toEqual([]);
     expect(consumed).toEqual([{ instance: buff, sourceId: 'seal', layers: 1, cast: null }]);
   });
 

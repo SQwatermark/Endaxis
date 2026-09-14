@@ -48,6 +48,7 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly criticalSamples: CriticalSampleSource;
   readonly probabilitySamples?: ProbabilitySampleSource;
   readonly randomMode?: SimulationRandomMode;
+  readonly randomState?: StandardPlayerDamageEnvironmentOptions['randomState'];
   readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatDamageExecutorContext,
     step: DamageStep,
@@ -121,6 +122,7 @@ export function runStandardPlayerDamageScenarioSimulation(
 
   const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
     criticalSamples: input.criticalSamples,
+    ...(input.randomState === undefined ? {} : { randomState: input.randomState }),
     randomMode: input.randomMode,
     ...(input.probabilitySamples === undefined
       ? {}

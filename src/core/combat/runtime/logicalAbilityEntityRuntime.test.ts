@@ -1,5 +1,12 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import { StateStepper } from './stateStepper';
+import {
+  killLogicalAbilityEntity,
+  advanceAbilityEntityRelease,
+  advanceAbilityEntityLifetime,
+} from './logicalAbilityEntityExecution';
 
 function createRuntime() {
   return new LogicalAbilityEntityRuntime({
@@ -8,6 +15,201 @@ function createRuntime() {
 }
 
 describe('LogicalAbilityEntityRuntime', () => {
+  it('关系恢复失败时不提交半批结果，可以修正解析器后重试', () => {
+    const original = createRuntime();
+    const first = original.spawn({
+      abilityEntityId: 'first',
+      ownerId: 'owner',
+      source: { kind: 'enemy' },
+      definition: { lifetime: { kind: 'infinite' } },
+    });
+    const second = original.spawn({
+      abilityEntityId: 'second',
+      ownerId: 'owner',
+      source: { kind: 'enemy' },
+      definition: { lifetime: { kind: 'infinite' } },
+    });
+    original.addChildBuff(first, {
+      reference: { ownerId: 'first', instanceId: 1 },
+      finish: () => true,
+    });
+    original.addChildBuff(second, {
+      reference: { ownerId: 'second', instanceId: 2 },
+      finish: () => true,
+    });
+    const restored = new LogicalAbilityEntityRuntime({
+      restoredState: structuredClone(original.runtimeState),
+    });
+    expect(() =>
+      restored.bindRestoredRelations({
+        resolveChildBuff: reference => {
+          if (reference.ownerId === 'second') throw new Error('missing second child');
+          return { reference, finish: () => true };
+        },
+      }),
+    ).toThrow('missing second child');
+
+    const firstFinish = vi.fn(() => true);
+    const secondFinish = vi.fn(() => true);
+    restored.bindRestoredRelations({
+      resolveChildBuff: reference => ({
+        reference,
+        finish: reference.ownerId === 'first' ? firstFinish : secondFinish,
+      }),
+    });
+    restored.finish(first);
+    restored.finish(second);
+    expect(firstFinish).toHaveBeenCalledOnce();
+    expect(secondFinish).toHaveBeenCalledOnce();
+  });
+
+  it('从目录数据恢复实体时不重放生成，并在关系阶段接回子Buff和reset回调', () => {
+    const original = createRuntime();
+    const entity = original.spawn({
+      abilityEntityId: 'restored',
+      ownerId: 'owner',
+      source: { kind: 'operator', operatorId: 'owner' },
+      definition: { lifetime: { kind: 'limited', durationSeconds: 1 } },
+      blackboardAssignments: { damage: 12 },
+    });
+    original.timedMarkers(entity).add('window', 0.5);
+    const childReference = createTestBuffReference();
+    original.addChildBuff(entity, { reference: childReference, finish: () => true });
+    const reset = original.onReset(entity, () => {});
+    original.advanceFrame();
+    const saved = structuredClone(original.runtimeState);
+
+    const spawned = vi.fn();
+    const markerFinished = vi.fn();
+    const childFinish = vi.fn(() => true);
+    const restored = new LogicalAbilityEntityRuntime({
+      restoredState: structuredClone(saved),
+      resolveDeltaSeconds: () => 0.25,
+      hooks: { spawned, timedMarkerFinished: markerFinished },
+    });
+    expect(spawned).not.toHaveBeenCalled();
+    expect(restored.entityBlackboard(entity).getNumber('damage')).toBe(12);
+    expect(restored.timedMarkers(entity).has('window')).toBe(true);
+    restored.bindRestoredRelations({
+      resolveChildBuff: reference => {
+        expect(reference).toEqual(childReference);
+        return { reference, finish: childFinish };
+      },
+    });
+    const restoredReset = vi.fn();
+    restored.bindResetCallback(entity, reset.registrationId, restoredReset);
+
+    restored.advanceFrame();
+    expect(markerFinished).not.toHaveBeenCalled();
+    restored.advanceFrame();
+    expect(markerFinished).toHaveBeenCalledOnce();
+    restored.advanceFrame();
+    expect(restored.isActive(entity)).toBe(false);
+    expect(childFinish).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(restoredReset).toHaveBeenCalledOnce();
+    expect(original.isActive(entity)).toBe(true);
+  });
+
+  it('子Buff身份和reset登记可复制，通知中注销不改变本轮回调快照', () => {
+    const runtime = createRuntime();
+    const entity = runtime.spawn({
+      abilityEntityId: 'entity',
+      ownerId: 'owner',
+      source: { kind: 'enemy' },
+      definition: { lifetime: { kind: 'infinite' } },
+    });
+    const reference = createTestBuffReference();
+    runtime.addChildBuff(entity, { reference, finish: () => true });
+    const calls: string[] = [];
+    runtime.onReset(entity, () => {
+      calls.push('first');
+      second.dispose();
+    });
+    const second = runtime.onReset(entity, () => calls.push('second'));
+    const session = new StateStepper(runtime.runtimeState, () => undefined);
+    const saved = session.read();
+    const state = [...saved.instances.values()][0]!;
+    expect(state.childBuffs).toEqual([reference]);
+    expect(state.resetCallbackIds).toEqual([0, 1]);
+    expect(state.nextResetCallbackId).toBe(2);
+    runtime.finish(entity);
+    expect(calls).toEqual(['first', 'second']);
+    expect(state.resetCallbackIds).toEqual([0, 1]);
+  });
+
+  it('同一切面可以继续寿命或进入延迟回收，两条分支独立计时', () => {
+    const runtime = createRuntime();
+    runtime.spawn({
+      abilityEntityId: 'entity',
+      ownerId: 'owner',
+      source: { kind: 'enemy' },
+      definition: {
+        lifetime: { kind: 'limited', durationSeconds: 1 },
+        deathReleaseDelaySeconds: 0.5,
+      },
+    });
+    const state = [...runtime.runtimeState.instances.values()][0]!;
+    const session = new StateStepper(state, (step, kill: boolean) => {
+      if (kill) {
+        expect(killLogicalAbilityEntity(step.state, 'explicit')).toBe(true);
+        expect(killLogicalAbilityEntity(step.state, 'sourceDied')).toBe(false);
+        return [
+          advanceAbilityEntityRelease(step.state, 0.25),
+          advanceAbilityEntityRelease(step.state, 0.25),
+        ];
+      }
+      const sweep = () => expect(step.state.elapsedDurationSeconds).toBeGreaterThan(0);
+      return [
+        advanceAbilityEntityLifetime(step.state, 0.5, sweep),
+        advanceAbilityEntityLifetime(step.state, 0.5, sweep),
+      ];
+    });
+    const saved = session.save();
+    expect(session.step(false)).toEqual([false, true]);
+    expect(session.read().remainingDurationSeconds).toBe(0);
+    session.restore(saved);
+    expect(session.step(true)).toEqual([false, true]);
+    expect(session.read().remainingDurationSeconds).toBe(1);
+    expect(session.read().pendingReleaseReason).toBe('explicit');
+    expect(state.isAlive).toBe(true);
+    expect(state.elapsedDurationSeconds).toBe(0);
+  });
+
+  it('目录复制包含待回收状态、死亡来源和共享黑板，原实例释放不清理副本', () => {
+    const runtime = createRuntime();
+    const source = { kind: 'operator' as const, operatorId: 'owner' };
+    const entity = runtime.spawn({
+      abilityEntityId: 'entity',
+      ownerId: 'owner',
+      source,
+      dieWhenSourceDies: true,
+      definition: {
+        lifetime: { kind: 'limited', durationSeconds: 2 },
+        deathReleaseDelaySeconds: 0.5,
+      },
+    });
+    runtime.advanceFrame();
+    runtime.notifySourceDied(source);
+    const blackboard = runtime.entityBlackboard(entity);
+    const session = new StateStepper(
+      { directory: runtime.runtimeState, blackboard: blackboard.runtimeState },
+      () => undefined,
+    );
+    const copied = session.read();
+    const instance = [...copied.directory.instances.values()][0]!;
+    expect(instance.blackboard).toBe(copied.blackboard);
+    expect(instance.remainingDurationSeconds).toBe(1.75);
+    expect(instance.pendingRelease).toBe(true);
+    expect(instance.isAlive).toBe(false);
+    expect(instance.pendingReleaseReason).toBe('sourceDied');
+    expect(copied.directory.deadSources).toEqual([source]);
+    runtime.advanceFrame();
+    runtime.advanceFrame();
+    expect(runtime.runtimeState.instances.size).toBe(0);
+    expect(copied.directory.instances.size).toBe(1);
+    expect(instance.pendingReleaseElapsedSeconds).toBe(0);
+  });
+
   it('用生成动作赋值覆盖实体模板黑板，并保留未覆盖默认值', () => {
     const runtime = createRuntime();
     const entity = runtime.spawn({
@@ -41,10 +243,10 @@ describe('LogicalAbilityEntityRuntime', () => {
     });
     const firstFinish = vi.fn(() => {
       order.push('first');
-      runtime.addChildBuff(entity, { finish: lateFinish });
+      runtime.addChildBuff(entity, { reference: createTestBuffReference(), finish: lateFinish });
       return true;
     });
-    runtime.addChildBuff(entity, { finish: firstFinish });
+    runtime.addChildBuff(entity, { reference: createTestBuffReference(), finish: firstFinish });
     runtime.onReset(entity, () => order.push('reset'));
     runtime.finish(entity);
     expect(firstFinish).toHaveBeenCalledExactlyOnceWith('other', null);

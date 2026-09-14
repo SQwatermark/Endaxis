@@ -1,9 +1,27 @@
 /**
- * 编译后时间轴行为与固定帧战斗时钟之间的调度层。
- * 输入必须预先按起始帧编译完成；同帧原生排序未知时仅使用有记录的确定性回退。
+ * 将现有动作对象连接到纯数据时间轴调度内核。
+ * 动作内部状态尚未全部迁移，此绑定层本身不提供整场保存能力。
  */
 import type { ActionSequence } from '../actions/actionSequence';
 import type { CombatExecutionContext } from '../actions/combatStep';
+import { createTimelineActionState } from './timelineActionState';
+import type { ActionSequenceState } from '../actions/actionSequenceState';
+
+/** 调度器和按开始帧排序的序列数据；未迁移步骤仍会拒绝恢复绑定。 */
+export interface TimelineRuntimeState {
+  readonly scheduling: ReturnType<typeof createTimelineActionState>;
+  readonly sequences: readonly ActionSequenceState[];
+}
+import {
+  compileTimelineActionIntervals,
+  resetTimelineActions,
+  tickTimelineActions,
+  jumpToTimelineActions,
+  finishTimelineActions,
+  endTimelineActions,
+  type TimelineActionInterval,
+  type TimelineActionExecutionHost,
+} from './timelineActionExecution';
 
 /** 固定帧调度器消费的不可变行为区间。 */
 export interface TimelineAction {
@@ -18,186 +36,82 @@ export interface TimelineActionLifecycleSink {
   ended?(action: TimelineAction, sourceIndex: number, currentFrame: number): void;
 }
 
-interface IndexedTimelineAction {
-  readonly action: TimelineAction;
-  readonly sourceIndex: number;
-}
-
-/**
- * 按固定帧运行行为区间。待执行行为使用游标推进，使每个 Tick
- * 只访问刚开始和当前仍处于活动状态的行为。
- */
+/** 按固定帧运行区间；游标仅访问刚开始和仍活动的行为。 */
 export class TimelineActionProcessor {
-  readonly #actions: readonly IndexedTimelineAction[];
+  readonly runtimeState: TimelineRuntimeState;
+  readonly #actions: readonly TimelineAction[];
+  readonly #program: readonly TimelineActionInterval[];
+  readonly #state: ReturnType<typeof createTimelineActionState>;
   readonly #lifecycle: TimelineActionLifecycleSink;
-  readonly #active: IndexedTimelineAction[] = [];
-  #nextPendingIndex = 0;
-  #starting: IndexedTimelineAction | null = null;
-  #startingCrossedByJump = false;
-  #startingJumpDestination: number | null = null;
-  #ended = false;
 
-  constructor(actions: readonly TimelineAction[], lifecycle: TimelineActionLifecycleSink = {}) {
-    actions.forEach((action, index) => {
-      if (!Number.isInteger(action.startFrame)) {
-        throw new TypeError(`timeline action ${index} must use an integer frame`);
-      }
+  constructor(
+    actions: readonly TimelineAction[],
+    lifecycle: TimelineActionLifecycleSink = {},
+    state?: TimelineRuntimeState,
+  ) {
+    this.#program = compileTimelineActionIntervals(actions);
+    this.#actions = this.#program.map(interval => actions[interval.sourceIndex]!);
+    if (state !== undefined) {
+      if (state.scheduling.starting !== null)
+        throw new Error('cannot bind timeline while an action is starting');
       if (
-        action.endFrame !== undefined &&
-        (!Number.isInteger(action.endFrame) || action.endFrame < action.startFrame)
-      ) {
-        throw new TypeError(`timeline action ${index} must use endFrame >= startFrame`);
-      }
-    });
-    // 游戏内同起始帧行为的排序仍未确认；暂时沿用 combat-spec 使用的来源顺序，
-    // 作为显式且确定性的回退规则。
-    this.#actions = actions
-      .map((action, sourceIndex) => ({ action, sourceIndex }))
-      .sort(
-        (left, right) =>
-          left.action.startFrame - right.action.startFrame || left.sourceIndex - right.sourceIndex,
-      );
+        state.sequences.length !== this.#actions.length ||
+        this.#actions.some(
+          (action, index) => action.sequence.runtimeState !== state.sequences[index],
+        )
+      )
+        throw new Error('timeline sequences are not bound to the supplied state');
+    }
+    this.#state = state?.scheduling ?? createTimelineActionState();
+    this.runtimeState = state ?? {
+      scheduling: this.#state,
+      sequences: this.#actions.map(action => action.sequence.runtimeState),
+    };
     this.#lifecycle = lifecycle;
   }
 
   get isComplete(): boolean {
-    return this.#nextPendingIndex === this.#actions.length && this.#active.length === 0;
+    return this.#state.nextPendingIndex === this.#program.length && this.#state.active.length === 0;
   }
 
   reset(context: CombatExecutionContext): void {
-    this.#ended = false;
-    this.#nextPendingIndex = 0;
-    this.#active.length = 0;
-    this.#starting = null;
-    this.#startingCrossedByJump = false;
-    this.#startingJumpDestination = null;
-    for (const { action } of this.#actions) action.sequence.reset(context);
+    resetTimelineActions(this.#state, this.#program, this.#host(context));
   }
 
   tick(currentFrame: number, deltaTime: number, context: CombatExecutionContext): void {
-    if (this.#ended) return;
-    // 已开始的区间行为在后续帧继续推进；本帧新开始的行为由下方分支推进一次。
-    for (const indexedAction of this.#active) {
-      indexedAction.action.sequence.tick(deltaTime, context);
-    }
-
-    while (
-      !this.#ended &&
-      this.#nextPendingIndex < this.#actions.length &&
-      this.#actions[this.#nextPendingIndex]!.action.startFrame <= currentFrame
-    ) {
-      const indexedAction = this.#actions[this.#nextPendingIndex]!;
-      this.#nextPendingIndex += 1;
-      this.#starting = indexedAction;
-      this.#startingCrossedByJump = false;
-      this.#startingJumpDestination = null;
-      this.#lifecycle.started?.(indexedAction.action, indexedAction.sourceIndex, currentFrame);
-      indexedAction.action.sequence.execute(context);
-      if (!this.#startingCrossedByJump) {
-        indexedAction.action.sequence.tick(deltaTime, context);
-      }
-      // Execute 或首次 Tick 均可通过同步事件结束宿主。两者返回后都要清理，
-      // 不能把已经结束的区间重新放回 active。
-      if (this.#startingCrossedByJump) {
-        this.#end(indexedAction, this.#startingJumpDestination!, context);
-      }
-      this.#starting = null;
-      this.#startingJumpDestination = null;
-      if (this.#startingCrossedByJump) {
-        this.#startingCrossedByJump = false;
-      } else if (indexedAction.action.endFrame === undefined) {
-        this.#end(indexedAction, currentFrame, context);
-      } else {
-        this.#active.push(indexedAction);
-      }
-    }
-
-    for (let index = this.#active.length - 1; index >= 0; index -= 1) {
-      const indexedAction = this.#active[index]!;
-      if (indexedAction.action.endFrame! > currentFrame) continue;
-      this.#active.splice(index, 1);
-      this.#end(indexedAction, currentFrame, context);
-    }
+    tickTimelineActions(this.#state, this.#program, currentFrame, deltaTime, this.#host(context));
   }
 
-  /**
-   * 将调度游标向前移动到目标帧。
-   *
-   * 原生 TimelineActionProcessor.JumpTo 的已确认行为是：起始帧严格早于目标帧、
-   * 且尚未执行的序列直接标记结束；已经开始并在目标帧前结束的序列正常 End；
-   * 跨越目标帧的活动序列继续存活。目标帧上的待执行序列留给下一次 tick 启动。
-   * 当前证据只覆盖向前跳转，因此反向跳转在这里显式拒绝。
-   */
+  /** 向前跳转，目标帧上的待执行序列保留到下一次 Tick。 */
   jumpTo(destinationFrame: number, currentFrame: number, context: CombatExecutionContext): void {
-    if (!Number.isInteger(destinationFrame)) {
-      throw new TypeError('timeline jump destination must use an integer frame');
-    }
-    if (destinationFrame < currentFrame) {
-      throw new RangeError('backward timeline jumps are not supported');
-    }
-
-    if (
-      this.#starting !== null &&
-      (this.#starting.action.endFrame === undefined ||
-        this.#starting.action.endFrame <= destinationFrame)
-    ) {
-      // 当前序列仍位于 execute 调用栈中；返回后再 End，避免重入其步骤生命周期。
-      this.#startingCrossedByJump = true;
-      this.#startingJumpDestination = destinationFrame;
-    }
-
-    for (let index = this.#active.length - 1; index >= 0; index -= 1) {
-      const indexedAction = this.#active[index]!;
-      if (indexedAction.action.endFrame! > destinationFrame) continue;
-      this.#active.splice(index, 1);
-      this.#end(indexedAction, destinationFrame, context);
-    }
-
-    while (
-      this.#nextPendingIndex < this.#actions.length &&
-      this.#actions[this.#nextPendingIndex]!.action.startFrame < destinationFrame
-    ) {
-      this.#nextPendingIndex += 1;
-    }
+    jumpToTimelineActions(
+      this.#state,
+      this.#program,
+      destinationFrame,
+      currentFrame,
+      this.#host(context),
+    );
   }
 
-  /** 原生 InterruptCurSkillAction：结束活动项并丢弃全部尚未开始的时间轴项。 */
+  /** 结束活动项，丢弃全部尚未开始项。 */
   finish(currentFrame: number, context: CombatExecutionContext): void {
-    if (this.#starting !== null) {
-      this.#startingCrossedByJump = true;
-      this.#startingJumpDestination = currentFrame;
-    }
-    for (let index = this.#active.length - 1; index >= 0; index -= 1) {
-      const indexedAction = this.#active[index]!;
-      this.#active.splice(index, 1);
-      this.#end(indexedAction, currentFrame, context);
-    }
-    this.#nextPendingIndex = this.#actions.length;
+    finishTimelineActions(this.#state, this.#program, currentFrame, this.#host(context));
   }
 
   end(currentFrame: number, context: CombatExecutionContext): void {
-    if (this.#ended) return;
-    // 原生 CastEnd 清理后关闭 isCasting；下一条 timeline 每次检查该状态。
-    // 先封闭调度入口，避免 End 的同步回调重入，Reset 才允许再次启动。
-    this.#ended = true;
-    this.#nextPendingIndex = this.#actions.length;
-    if (this.#starting !== null) {
-      this.#startingCrossedByJump = true;
-      this.#startingJumpDestination = currentFrame;
-      // CastEnd 与 JumpTo 不同：原生同步 End 所有序列，包括当前进入中的序列。
-      this.#starting.action.sequence.end(context);
-    }
-    for (const indexedAction of this.#active.splice(0)) {
-      this.#end(indexedAction, currentFrame, context);
-    }
+    endTimelineActions(this.#state, this.#program, currentFrame, this.#host(context));
   }
 
-  #end(
-    indexedAction: IndexedTimelineAction,
-    currentFrame: number,
-    context: CombatExecutionContext,
-  ): void {
-    indexedAction.action.sequence.end(context);
-    this.#lifecycle.ended?.(indexedAction.action, indexedAction.sourceIndex, currentFrame);
+  #host(context: CombatExecutionContext): TimelineActionExecutionHost {
+    return {
+      reset: index => this.#actions[index]!.sequence.reset(context),
+      execute: index => this.#actions[index]!.sequence.execute(context),
+      tick: (index, deltaTime) => this.#actions[index]!.sequence.tick(deltaTime, context),
+      end: index => this.#actions[index]!.sequence.end(context),
+      started: (index, frame) =>
+        this.#lifecycle.started?.(this.#actions[index]!, this.#program[index]!.sourceIndex, frame),
+      ended: (index, frame) =>
+        this.#lifecycle.ended?.(this.#actions[index]!, this.#program[index]!.sourceIndex, frame),
+    };
   }
 }

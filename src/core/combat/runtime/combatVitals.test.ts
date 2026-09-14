@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import { CombatVitals } from './combatVitals';
+import { StateStepper } from './stateStepper';
+import {
+  registerVitalsHealthFloor,
+  removeVitalsHealthFloor,
+  takeVitalsDamage,
+  tickVitals,
+} from './combatVitalsExecution';
 
 function createVitals(overrides: Partial<ConstructorParameters<typeof CombatVitals>[0]> = {}) {
   return new CombatVitals({
@@ -17,6 +24,27 @@ function createVitals(overrides: Partial<ConstructorParameters<typeof CombatVita
 }
 
 describe('CombatVitals', () => {
+  it('restores a running poise timer and the owning health floor handle together', () => {
+    const vitals = createVitals({ poise: 0 });
+    vitals.beginPoiseBreakIfZero();
+    vitals.tick(0.25);
+    const floorId = registerVitalsHealthFloor(vitals.runtimeState, 500);
+    const session = new StateStepper(
+      { vitals: vitals.runtimeState, floorId },
+      (step, remove: boolean) => {
+        if (remove) removeVitalsHealthFloor(step.state.vitals, step.state.floorId);
+        const damage = takeVitalsDamage(step.state.vitals, 800);
+        return { damage: damage.actualDamage, transitions: tickVitals(step.state.vitals, 0.75) };
+      },
+    );
+    const root = session.save();
+    expect(session.step(false)).toEqual({ damage: 500, transitions: ['poiseRecovered'] });
+    session.restore(root);
+    expect(session.read().vitals.poiseRecoveryTimer.remaining).toBe(0.75);
+    expect(session.step(true)).toEqual({ damage: 800, transitions: ['poiseRecovered'] });
+    expect(vitals.health).toBe(1000);
+    expect(vitals.poise).toBe(0);
+  });
   it('uses the highest active health floor without healing when a floor is installed', () => {
     const vitals = new CombatVitals({
       health: 800,

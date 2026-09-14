@@ -8,6 +8,11 @@ import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import { createNativeEventFixture } from '../events/nativeEventTestFixture';
+import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
+import { AbilitySystemRuntime } from './abilitySystemRuntime';
+import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 
 function operation(flag: string): ResolvedCombatStep {
   return {
@@ -36,6 +41,528 @@ function createFixture(conditionResult = true) {
 }
 
 describe('CombatActionSequenceRuntime', () => {
+  it('技能槽替换动作恢复时不重放替换，结束只调用新分支的登记编号', () => {
+    const firstFinish = vi.fn();
+    const secondFinish = vi.fn();
+    const bind = (finish: (group: string, id: number) => void) => {
+      const replace = vi.fn(() => 12);
+      const context = { blackboard: new ActionBlackboard() };
+      const runtime = new CombatActionSequenceRuntime(
+        new SkillSlotOperationExecutor({
+          changeSkillSlot: vi.fn(),
+          replaceSkillSlot: replace,
+          finishSkillSlotReplacement: finish,
+          delegate: { execute: () => false, evaluate: () => false },
+        }),
+        context,
+      );
+      return { runtime, context, replace };
+    };
+    const definition = sequence({
+      kind: 'changeSkillSlot',
+      parameters: {
+        skillGroupKey: 'battle',
+        targetSkillKey: 'enhanced',
+        lifetime: 'finishByAction',
+      },
+    });
+    const first = bind(firstFinish);
+    const action = first.runtime.createSequence(definition);
+    action.execute({});
+    const saved = structuredClone(action.runtimeState);
+    const second = bind(secondFinish);
+    const restored = second.runtime.createSequence(definition, second.context, saved);
+    expect(second.replace).not.toHaveBeenCalled();
+    restored.end({});
+    restored.end({});
+    expect(secondFinish).toHaveBeenCalledExactlyOnceWith('battle', 12);
+    expect(firstFinish).not.toHaveBeenCalled();
+    action.end({});
+    expect(firstFinish).toHaveBeenCalledExactlyOnceWith('battle', 12);
+  });
+
+  it('普攻映射动作恢复后保留覆盖顺序，结束时只删除当前分支自己的登记', () => {
+    const bind = (ability: AbilitySystemRuntime) => {
+      const register = vi.fn((id: string) => ability.overrideBasicAttackMapping(id).registrationId);
+      const context = { blackboard: new ActionBlackboard() };
+      const runtime = new CombatActionSequenceRuntime(
+        new SkillSlotOperationExecutor({
+          changeSkillSlot: vi.fn(),
+          overrideBasicAttackMapping: register,
+          finishBasicAttackMapping: id => ability.finishBasicAttackMapping(id),
+          delegate: { execute: () => false, evaluate: () => false },
+        }),
+        context,
+      );
+      return { runtime, context, register };
+    };
+    const original = new AbilitySystemRuntime({ skills: [] });
+    original.overrideBasicAttackMapping('earlier');
+    const first = bind(original);
+    const definition = sequence({
+      kind: 'overrideBasicAttackMapping',
+      parameters: { sourceSkillId: 'current' },
+    });
+    const action = first.runtime.createSequence(definition);
+    action.execute({});
+    const saved = structuredClone({ ability: original.runtimeState, action: action.runtimeState });
+    const restored = new AbilitySystemRuntime({ skills: [] }, saved.ability);
+    const second = bind(restored);
+    const resumed = second.runtime.createSequence(definition, second.context, saved.action);
+    expect(second.register).not.toHaveBeenCalled();
+    expect(saved.ability.nextBasicAttackMappingId).toBe(2);
+    restored.overrideBasicAttackMapping('later');
+    resumed.end({});
+    resumed.end({});
+    expect([...saved.ability.buffBasicAttackMappings.values()]).toEqual(['earlier', 'later']);
+    expect([...original.runtimeState.buffBasicAttackMappings.values()]).toEqual([
+      'earlier',
+      'current',
+    ]);
+    expect(second.context).not.toHaveProperty('actionRegistrationState');
+  });
+
+  it('恢复形态动作后按保存的编号结束，不重放切换或触碰旧分支', () => {
+    const options = {
+      skills: [],
+      playerActionModes: [
+        { modeId: 'base', modeLayer: 'mode', defaultEnabled: true, commandMappings: {} },
+        { modeId: 'special', modeLayer: 'mode', defaultEnabled: false, commandMappings: {} },
+      ],
+    };
+    const bind = (ability: AbilitySystemRuntime) => {
+      const activate = vi.fn((id: string) => ability.activatePlayerActionMode(id).registrationId);
+      const context = { blackboard: new ActionBlackboard() };
+      const runtime = new CombatActionSequenceRuntime(
+        new SkillSlotOperationExecutor({
+          changeSkillSlot: vi.fn(),
+          activatePlayerActionMode: activate,
+          finishPlayerActionMode: id => ability.finishPlayerActionModeActivation(id),
+          delegate: { execute: () => false, evaluate: () => false },
+        }),
+        context,
+      );
+      return { runtime, activate, context };
+    };
+    const definition = sequence({
+      kind: 'changePlayerActionMode',
+      parameters: { modeId: 'special', lifetime: 'finishByAction' },
+    });
+    const original = new AbilitySystemRuntime(options);
+    const first = bind(original);
+    const action = first.runtime.createSequence(definition);
+    action.execute({});
+    expect(first.context).not.toHaveProperty('actionRegistrationState');
+    const saved = structuredClone({ ability: original.runtimeState, action: action.runtimeState });
+    const restored = new AbilitySystemRuntime(options, saved.ability);
+    const second = bind(restored);
+    const resumed = second.runtime.createSequence(definition, second.context, saved.action);
+    expect(second.activate).not.toHaveBeenCalled();
+    expect(saved.ability.nextPlayerActionModeActivationId).toBe(1);
+    resumed.end({});
+    resumed.end({});
+    expect(saved.ability.activePlayerActionModeByLayer.get('mode')).toBe('base');
+    expect(original.runtimeState.activePlayerActionModeByLayer.get('mode')).toBe('special');
+    expect(second.context).not.toHaveProperty('actionRegistrationState');
+    action.end({});
+    expect(original.runtimeState.activePlayerActionModeByLayer.get('mode')).toBe('base');
+  });
+
+  it('恢复 SkillAffix 动作后按保存编号结束且不重新安装', () => {
+    const create = (installed: number[], finished: number[]) => {
+      const context = { blackboard: new ActionBlackboard() };
+      return {
+        context,
+        runtime: new CombatActionSequenceRuntime(
+          {
+            execute: (step, operationContext) => {
+              if (step.kind !== 'skillAffix') return false;
+              const state = operationContext?.actionRegistrationState;
+              if (state === undefined) throw new Error('missing SkillAffix action data');
+              state.registrationId = 17;
+              installed.push(17);
+              return true;
+            },
+            end: (step, operationContext) => {
+              if (step.kind !== 'skillAffix') return;
+              const state = operationContext?.actionRegistrationState;
+              if (state?.registrationId === null || state?.registrationId === undefined) return;
+              finished.push(state.registrationId);
+              state.registrationId = null;
+            },
+            evaluate: () => false,
+          },
+          context,
+        ),
+      };
+    };
+    const definition = sequence({ kind: 'skillAffix', parameters: {} });
+    const oldInstalled: number[] = [];
+    const oldFinished: number[] = [];
+    const first = create(oldInstalled, oldFinished);
+    const action = first.runtime.createSequence(definition);
+    action.execute({});
+    const saved = structuredClone(action.runtimeState);
+
+    const newInstalled: number[] = [];
+    const newFinished: number[] = [];
+    const second = create(newInstalled, newFinished);
+    const restored = second.runtime.createSequence(definition, second.context, saved);
+    restored.end({});
+
+    expect(oldInstalled).toEqual([17]);
+    expect(newInstalled).toEqual([]);
+    expect(newFinished).toEqual([17]);
+    expect(oldFinished).toEqual([]);
+    action.end({});
+    expect(oldFinished).toEqual([17]);
+  });
+
+  it('恢复原生监听响应时不重注册或重置，后续事件只执行一次且旧句柄不影响新分支', () => {
+    const native = createNativeEventFixture();
+    const parent = new ActionBlackboard();
+    const original = new CombatActionSequenceRuntime(
+      { execute: () => true, evaluate: () => true },
+      { blackboard: parent },
+      {},
+      native.semanticEvents,
+      'owner',
+    );
+    const definition = sequence({
+      kind: 'listenForCombatEvents',
+      parameters: {
+        responses: [
+          {
+            key: 'response',
+            event: { kind: 'buffApplied' },
+            phase: 'dataAction',
+            priority: 4,
+            sequence: sequence(operation('response')),
+          },
+        ],
+      },
+    });
+    const listener = original.createSequence(definition);
+    listener.execute({});
+    const saved = structuredClone({
+      sequence: listener.runtimeState,
+      parent: parent.runtimeState,
+      scopes: original.scopeState,
+      native: native.dispatcher.runtimeState,
+      semantic: native.semanticEvents.runtimeState,
+    });
+    const dispatcher = new AbilityEventDispatcher<
+      keyof AbilityEventPayloadMap,
+      AbilityEventPayloadMap
+    >(saved.native);
+    const semantic = new CombatSemanticEventRuntime(undefined, {
+      state: saved.semantic,
+      bindNative: (reference, receive) =>
+        dispatcher.bindSubscription(reference, event => {
+          if (event.event !== 'addedBuff') throw new Error('unexpected fixture event');
+          receive({ event });
+        }),
+    });
+    const execute = vi.fn(() => true);
+    const prepare = vi.fn();
+    const restored = new CombatActionSequenceRuntime(
+      { execute, prepare, evaluate: () => true },
+      { blackboard: ActionBlackboard.bindRuntimeState(saved.parent) },
+      {},
+      semantic,
+      'owner',
+      saved.scopes,
+    );
+    const nextId = saved.native.nextRegistrationId;
+    const resumed = restored.createSequence(definition, undefined, saved.sequence);
+    expect(prepare).not.toHaveBeenCalled();
+    expect(execute).not.toHaveBeenCalled();
+    expect(saved.native.nextRegistrationId).toBe(nextId);
+    listener.end({});
+    const event = {
+      event: 'addedBuff' as const,
+      payload: {
+        sourceId: 'owner',
+        targetId: 'owner',
+        buffId: 'signal',
+        buffTags: [],
+      },
+    };
+    dispatcher.dispatch(event, []);
+    expect(execute).toHaveBeenCalledTimes(1);
+    resumed.end({});
+    dispatcher.dispatch(event, []);
+    expect(execute).toHaveBeenCalledTimes(1);
+  });
+
+  it('恢复无序配置的时间轴，保留活动区间并按原顺序启动尚未开始的区间', () => {
+    const actions = [
+      { startFrame: 3, sequence: sequence(operation('later')) },
+      {
+        startFrame: 0,
+        endFrame: 5,
+        sequence: sequence({
+          kind: 'repeatEachTick' as const,
+          parameters: {},
+          body: sequence(operation('running')),
+        }),
+      },
+    ];
+    const original = createFixture();
+    const timeline = original.runtime.createTimeline(actions);
+    timeline.reset({});
+    timeline.tick(0, 0, {});
+    timeline.tick(1, 1 / 30, {});
+    const saved = structuredClone(timeline.runtimeState);
+    const restored = createFixture();
+    const lifecycle = { started: vi.fn(), ended: vi.fn() };
+    const restoredState = structuredClone(saved);
+    const resumed = restored.runtime.createTimeline(actions, lifecycle, restoredState);
+    expect(resumed.runtimeState).toBe(restoredState);
+    expect(restored.executed).toEqual([]);
+    expect(lifecycle.started).not.toHaveBeenCalled();
+    original.executed.length = 0;
+    for (let frame = 2; frame <= 5; frame++) {
+      timeline.tick(frame, 1 / 30, {});
+      resumed.tick(frame, 1 / 30, {});
+      expect(resumed.runtimeState).toEqual(timeline.runtimeState);
+    }
+    expect(restored.executed).toEqual(original.executed);
+    expect(restored.executed).toContain('later');
+    expect(lifecycle.started).toHaveBeenCalledTimes(1);
+    expect(lifecycle.started).toHaveBeenCalledWith(expect.anything(), 0, 3);
+    expect(resumed.isComplete).toBe(true);
+    expect(saved.scheduling.active).toEqual([0]);
+  });
+
+  it('恢复宿主作用域后保留 once 标记和缓存黑板，后续新序列继续复用', () => {
+    const original = createFixture();
+    const parent = original.runtime.context.blackboard;
+    const scoped = {
+      kind: 'withActionBlackboardScope',
+      parameters: { scopeKey: 'shared', inheritParent: true, initialValues: { value: 1 } },
+      body: sequence(),
+    } as const;
+    const board = original.runtime.getActionBlackboardScope(scoped, parent);
+    board.assignDynamic('value', 9);
+    const definition = sequence({
+      kind: 'once',
+      parameters: { scopeKey: 'once' },
+      body: sequence(operation('once')),
+    });
+    original.runtime.createSequence(definition).executeInstant({});
+    const saved = structuredClone({
+      parent: parent.runtimeState,
+      scopes: original.runtime.scopeState,
+    });
+    const restoredParent = ActionBlackboard.bindRuntimeState(saved.parent);
+    const execute = vi.fn(() => true);
+    const restored = new CombatActionSequenceRuntime(
+      { execute, evaluate: () => true },
+      { blackboard: restoredParent },
+      {},
+      undefined,
+      undefined,
+      saved.scopes,
+    );
+    expect(restored.scopeState).toBe(saved.scopes);
+    const restoredBoard = restored.getActionBlackboardScope(scoped, restoredParent);
+    expect(restoredBoard.runtimeState).toBe(
+      saved.scopes.blackboards.get(saved.parent)!.get('shared'),
+    );
+    expect(restoredBoard.getNumber('value')).toBe(9);
+    restored.createSequence(definition).executeInstant({});
+    expect(execute).not.toHaveBeenCalled();
+    restoredBoard.assignDynamic('value', 12);
+    expect(board.getNumber('value')).toBe(9);
+    restored.reset();
+    restored.createSequence(definition).executeInstant({});
+    expect(execute).toHaveBeenCalledTimes(1);
+    expect(original.runtime.scopeState.executedOnce.has('once')).toBe(true);
+  });
+
+  it('绑定时拒绝尚未支持的步骤和不匹配的序列长度', () => {
+    const { runtime } = createFixture();
+    const definition = sequence({
+      kind: 'launchProjectileLifetime',
+      parameters: { finish: { reachAfterTicks: 2, maxDurationSeconds: 2 }, recycleDelaySeconds: 0 },
+    });
+    const state = structuredClone(runtime.createSequence(definition).runtimeState);
+    expect(() => runtime.createSequence(definition, undefined, state)).toThrow(
+      'does not support state binding',
+    );
+    expect(() => runtime.createSequence(sequence(), undefined, state)).toThrow('program length');
+  });
+
+  it('恢复同步循环、结束时间轴和可操作边界步骤，不重放已执行动作', () => {
+    const definition = sequence(
+      {
+        kind: 'repeatByActionValue',
+        parameters: { count: { kind: 'blackboard', key: 'count' } },
+        body: sequence(operation('hit')),
+      },
+      { kind: 'reachSkillOperableBoundary', parameters: { sourceSkillIds: ['native'] } },
+      { kind: 'finishTimeline', parameters: {} },
+    );
+    const bind = () => {
+      const execute = vi.fn(() => true);
+      const finish = vi.fn();
+      const boundary = vi.fn();
+      const context = {
+        blackboard: new ActionBlackboard({ count: 2 }),
+        requestTimelineFinish: finish,
+        reachSkillOperableBoundary: boundary,
+      };
+      const runtime = new CombatActionSequenceRuntime({ execute, evaluate: () => true }, context);
+      return { runtime, context, execute, finish, boundary };
+    };
+    const original = bind();
+    const action = original.runtime.createSequence(definition);
+    action.execute({});
+    expect(original.execute).toHaveBeenCalledTimes(2);
+    const next = bind();
+    const restored = next.runtime.createSequence(
+      definition,
+      next.context,
+      structuredClone(action.runtimeState),
+    );
+    restored.tick(1, {});
+    restored.end({});
+    expect(next.execute).not.toHaveBeenCalled();
+    expect(next.finish).not.toHaveBeenCalled();
+    expect(next.boundary).not.toHaveBeenCalled();
+    restored.reset({});
+    restored.execute({});
+    expect(next.execute).toHaveBeenCalledTimes(2);
+    expect(next.finish).toHaveBeenCalledOnce();
+    expect(next.boundary).toHaveBeenCalledExactlyOnceWith(['native']);
+    expect(original.finish).toHaveBeenCalledOnce();
+  });
+
+  it('恢复目标循环中的作用域和计时器，不重选目标或重新初始化黑板', () => {
+    const definition = sequence({
+      kind: 'forEachContextTarget',
+      parameters: { contextKey: 'targets' },
+      body: sequence({
+        kind: 'withActionBlackboardScope',
+        parameters: {
+          scopeKey: 'target',
+          lifetime: 'execution',
+          inheritParent: true,
+          initialValues: { count: 0 },
+        },
+        body: sequence({
+          kind: 'repeatEachTick',
+          parameters: {},
+          body: sequence(operation('count')),
+        }),
+      }),
+    });
+    const targets = new RuntimeTargetContext();
+    targets.set('targets', [
+      { kind: 'abilityEntity', instanceId: 3 },
+      { kind: 'abilityEntity', instanceId: 7 },
+    ]);
+    const create = (targetContext: RuntimeTargetContext) => {
+      const seen: unknown[] = [];
+      const runtime = new CombatActionSequenceRuntime(
+        {
+          evaluate: () => true,
+          execute: (_step, context) => {
+            const board = context!.blackboard;
+            const previous = board.getNumber('count');
+            if (previous === undefined) throw new Error('restored scope is missing count');
+            const count = previous + 1;
+            board.assignDynamic('count', count);
+            seen.push([context!.currentTarget, count]);
+            return true;
+          },
+        },
+        { blackboard: new ActionBlackboard(), targetContext },
+      );
+      return { seen, runtime };
+    };
+    const original = create(targets);
+    const action = original.runtime.createSequence(definition);
+    action.execute({});
+    action.tick(0, {});
+    const saved = structuredClone(action.runtimeState);
+    const restored = create(new RuntimeTargetContext());
+    const resumed = restored.runtime.createSequence(definition, undefined, structuredClone(saved));
+    expect(restored.seen).toEqual([]);
+    resumed.tick(1 / 30, {});
+    expect(restored.seen).toEqual([
+      [{ kind: 'abilityEntity', instanceId: 3 }, 2],
+      [{ kind: 'abilityEntity', instanceId: 7 }, 2],
+    ]);
+    action.tick(1 / 30, {});
+    expect(resumed.runtimeState).toEqual(action.runtimeState);
+    resumed.end({});
+    const loop = saved.steps[0];
+    if (loop?.kind !== 'targets') throw new Error('expected target loop');
+    expect(loop.loop.bodies.size).toBe(2);
+  });
+
+  it('重新绑定分支循环后只继续 Tick，不重放 Execute 或重新求值分支', () => {
+    const definition = sequence({
+      kind: 'conditional',
+      parameters: { condition: { kind: 'combatActive' }, alwaysNext: true },
+      whenTrue: sequence({
+        kind: 'repeatEachTick',
+        parameters: {},
+        body: sequence(operation('tick')),
+      }),
+      whenFalse: sequence(operation('wrong-branch')),
+    });
+    const original = createFixture(true);
+    const action = original.runtime.createSequence(definition);
+    action.execute({});
+    action.tick(0, {});
+    const saved = structuredClone(action.runtimeState);
+    action.tick(1 / 30, {});
+    const restored = createFixture(false);
+    const resumed = restored.runtime.createSequence(definition, undefined, structuredClone(saved));
+    expect(restored.executed).toEqual([]);
+    expect(restored.operations.evaluate).not.toHaveBeenCalled();
+    resumed.tick(1 / 30, {});
+    expect(restored.executed).toEqual(['tick']);
+    expect(resumed.runtimeState).toEqual(action.runtimeState);
+    resumed.end({});
+    expect(saved.entries[0]!.state).not.toBe('ended');
+  });
+
+  it('从父序列保存分支内的循环进度，后续执行不会修改已保存的数据', () => {
+    const { runtime } = createFixture();
+    const action = runtime.createSequence(
+      sequence({
+        kind: 'conditional',
+        parameters: { condition: { kind: 'combatActive' }, alwaysNext: true },
+        whenTrue: sequence({
+          kind: 'repeatEachTick',
+          parameters: {},
+          body: sequence(operation('frame')),
+        }),
+      }),
+    );
+    action.execute({});
+    const branch = action.runtimeState.steps[0];
+    if (branch?.kind !== 'branch') throw new Error('expected branch data');
+    expect(branch.selection.activeBranch).toBe(0);
+    const loop = branch.branches[0]!.steps[0];
+    if (loop?.kind !== 'repeat') throw new Error('expected repeat data');
+    expect(loop.repetition.skipInitialTick).toBe(true);
+    const saved = structuredClone(action.runtimeState);
+    action.tick(0, {});
+    expect(loop.repetition.skipInitialTick).toBe(false);
+    const savedBranch = saved.steps[0];
+    if (savedBranch?.kind !== 'branch') throw new Error('expected saved branch');
+    expect(savedBranch.branches[0]!.steps[0]).toMatchObject({
+      kind: 'repeat',
+      repetition: { skipInitialTick: true },
+    });
+    expect(savedBranch.branches[0]!.entries[0]!.state).toBe('started');
+  });
+
   it('每种步骤必须声明执行归属，监听器不能进入操作链', () => {
     expect(Object.keys(COMBAT_STEP_EXECUTION_ROUTES).sort()).toEqual([...COMBAT_STEP_KINDS].sort());
     expect(isCombatOperationStep(operation('ordinary'))).toBe(true);
@@ -100,7 +627,7 @@ describe('CombatActionSequenceRuntime', () => {
   });
 
   it('temporary listener conditions and bodies share the live host permission', () => {
-    const { semanticEvents, emitAddedBuff } = createNativeEventFixture();
+    const { dispatcher, semanticEvents, emitAddedBuff } = createNativeEventFixture();
     let enabled = true;
     const evaluate = vi.fn(() => true);
     const execute = vi.fn(() => true);
@@ -131,6 +658,18 @@ describe('CombatActionSequenceRuntime', () => {
     const emit = () =>
       emitAddedBuff({ sourceId: 'owner', targetId: 'owner', buffId: 'signal', buffTags: [] });
     listener.execute({});
+    const listenerData = listener.runtimeState.steps[0];
+    if (listenerData?.kind !== 'listener') throw new Error('expected listener data');
+    expect(listenerData.listener.responses).toHaveLength(1);
+    const copied = structuredClone({ listenerData, events: dispatcher.runtimeState });
+    const savedListener = copied.listenerData;
+    const reference = savedListener.listener.responses[0]!.subscriptions[0]!;
+    expect(reference.state).toBe(copied.events);
+    expect(reference.event).toBe('addedBuff');
+    expect(reference.phase).toBe('action');
+    expect(
+      copied.events.phases.action.get('addedBuff')!.some(entry => entry.id === reference.id),
+    ).toBe(true);
     enabled = false;
     emit();
     expect(evaluate).not.toHaveBeenCalled();
@@ -141,6 +680,8 @@ describe('CombatActionSequenceRuntime', () => {
     expect(execute).toHaveBeenCalledTimes(1);
     enabled = false;
     listener.end({});
+    expect(listenerData.listener.responses).toHaveLength(0);
+    expect(savedListener.listener.responses).toHaveLength(1);
     enabled = true;
     emit();
     expect(evaluate).toHaveBeenCalledTimes(1);
@@ -374,7 +915,8 @@ describe('CombatActionSequenceRuntime', () => {
       targetContext.set('items', []);
       return {
         target: { kind: 'abilityEntity' as const, instanceId: 100 },
-        onReset: () => ({ dispose: () => {} }),
+        instanceId: 100,
+        onReset: () => ({ registrationId: 0, dispose: () => {} }),
       };
     });
     const runtime = new CombatActionSequenceRuntime(
@@ -567,6 +1109,50 @@ describe('CombatActionSequenceRuntime', () => {
     expect(first.getNumber('sourceValue')).toBe(2);
     expect(second.getNumber('sourceValue')).toBe(7);
     expect(fixture.runtime.getActionBlackboardScope(step, firstParent)).toBe(first);
+  });
+
+  it('作用域子序列惰性接入数据树，重置清除当前子序列但不影响已保存的切面', () => {
+    const parent = new ActionBlackboard();
+    const boards: ActionBlackboard[] = [];
+    const runtime = new CombatActionSequenceRuntime(
+      {
+        execute: (_step, context) => {
+          boards.push(context!.blackboard);
+          context!.blackboard.assignDynamic('count', 7);
+          return true;
+        },
+        evaluate: () => true,
+      },
+      { blackboard: parent },
+    );
+    const action = runtime.createSequence(
+      sequence({
+        kind: 'withActionBlackboardScope',
+        parameters: {
+          scopeKey: 'saved-scope',
+          lifetime: 'execution',
+          inheritParent: true,
+          initialValues: { count: 1 },
+        },
+        body: sequence(operation('write')),
+      }),
+    );
+    const data = action.runtimeState.steps[0];
+    if (data?.kind !== 'blackboardScope') throw new Error('expected scope data');
+    expect(data.scope.body).toBeNull();
+    action.execute({});
+    expect(data.scope.body!.blackboard).toBe(boards[0]!.runtimeState);
+    const saved = structuredClone(action.runtimeState);
+    action.end({});
+    action.reset({});
+    expect(data.scope.body).toBeNull();
+    const savedData = saved.steps[0];
+    if (savedData?.kind !== 'blackboardScope') throw new Error('expected saved scope');
+    expect(savedData.scope.body!.blackboard.values.get('count')).toBe(7);
+    expect(savedData.scope.body!.sequence.entries[0]!.state).toBe('started');
+    action.execute({});
+    expect(boards[1]).not.toBe(boards[0]);
+    expect(data.scope.body!.blackboard).toBe(boards[1]!.runtimeState);
   });
 
   it('逐目标循环在同一静态路径创建独立实体板，保留当前目标', () => {

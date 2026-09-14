@@ -275,7 +275,7 @@ describe('原生条件经正式项目定义进入实际附着', () => {
           ...(deckGate === 0 ? ['condition:4'] : []),
         ]);
         pending.length = 0;
-        assembly.simulation.advanceFrames(2);
+        assembly.advanceFrames(2);
         expect(pending).toEqual([
           `condition:${{ nature: 0, heat: 1, electric: 2, cryo: 3 }[element]}`,
           ...(deckGate === 0 ? ['condition:4'] : []),
@@ -286,7 +286,7 @@ describe('原生条件经正式项目定义进入实际附着', () => {
           )!.entityBlackboard!.getNumber('EntityBB_consumed_type'),
         ).toBe(deckGate === 0 ? { heat: 0, electric: 1, cryo: 2, nature: 3 }[element] : 0);
         if (actualCombo) {
-          assembly.simulation.advanceFrames(600);
+          assembly.advanceFrames(600);
           expect(
             assembly.receipt.entries.some(entry => entry.event === 'ComboWindowConsumed'),
           ).toBe(true);

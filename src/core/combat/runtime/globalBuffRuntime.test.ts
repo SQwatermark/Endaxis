@@ -4,6 +4,8 @@ import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffApplicationRequest, BuffOperationTarget } from './buffOperationExecutor';
 import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRuntime';
 import { ActionBlackboard } from './actionBlackboard';
+import { StateStepper } from './stateStepper';
+import { finishGlobalBuffInstance } from './globalBuffExecution';
 import {
   SharedSpGainModifierSet,
   SharedSpRecoveryModifierSet,
@@ -31,6 +33,7 @@ function target(ownerId: string) {
     applyScoped(request: BuffApplicationRequest) {
       requests.push(request);
       return {
+        reference: { ownerId, instanceId: requests.length },
         finish(reason: 'early' | 'absorbed' | 'other', source: unknown) {
           expect(source).toBeNull();
           finished.push(reason);
@@ -43,6 +46,85 @@ function target(ownerId: string) {
 }
 
 describe('GlobalBuffRuntime', () => {
+  it('keeps action-owned instances separate even when steps have the same key', () => {
+    const member = target('member');
+    const runtime = new GlobalBuffRuntime(
+      () => [member.value],
+      () => childDefinition,
+    );
+    const executor = new GlobalBuffOperationExecutor({
+      sourceId: 'source',
+      runtime,
+      resolveSource: () => 'source',
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+    const first = {
+      kind: 'createGlobalBuff' as const,
+      key: 'same',
+      parameters: {
+        globalBuffId: 'global',
+        finishByAction: true,
+        definition: { ...definition, stackingType: 'unlimited' as const },
+      },
+    };
+    const second = { ...first };
+    const context = { blackboard: new ActionBlackboard() };
+    executor.execute(first, context);
+    executor.execute(second, context);
+    expect(() => executor.execute(first, context)).toThrow('already active');
+    const session = new StateStepper(
+      { actions: executor.runtimeState, global: runtime.runtimeState },
+      () => undefined,
+    );
+    const copied = session.read();
+    const held = [...copied.actions.active.values()];
+    expect(held[0]![0]).toBe(copied.global.groups.get('global')![0]);
+    expect(held[1]![0]).toBe(copied.global.groups.get('global')![1]);
+    executor.end(first, context);
+    expect(member.finished).toEqual(['other']);
+    expect(executor.runtimeState.active.size).toBe(1);
+    executor.end(second, context);
+    expect(member.finished).toEqual(['other', 'other']);
+    expect(executor.runtimeState.active.size).toBe(0);
+  });
+  it('copies real global Buff data and restores child finishing on a separate branch', () => {
+    const member = target('member');
+    const runtime = new GlobalBuffRuntime(
+      () => [member.value],
+      () => childDefinition,
+    );
+    runtime.add({
+      id: 'global',
+      definition,
+      sourceId: 'source',
+      blackboardValues: { duration: 10 },
+    });
+    const session = new StateStepper(
+      { global: runtime.runtimeState, ended: [] as string[] },
+      step => {
+        const instance = step.state.global.groups.get('global')![0]!;
+        return finishGlobalBuffInstance(instance, {
+          removeGain: () => undefined,
+          removeRecovery: () => undefined,
+          resolveChild: reference => ({
+            finish: () => {
+              expect(instance.finished).toBe(true);
+              step.state.ended.push(reference.ownerId);
+              return true;
+            },
+          }),
+        });
+      },
+    );
+    const root = session.save();
+    expect(session.step(undefined)).toBe(true);
+    expect(session.step(undefined)).toBe(false);
+    expect(session.read().ended).toEqual(['member']);
+    session.restore(root);
+    expect(session.step(undefined)).toBe(true);
+    expect(session.read().ended).toEqual(['member']);
+    expect(runtime.runtimeState.groups.get('global')![0]!.finished).toBe(false);
+  });
   it('keeps an exact parent layer and removes every squad mirror through one child', () => {
     const first = target('first');
     const second = target('second');
@@ -125,6 +207,132 @@ describe('GlobalBuffRuntime', () => {
     expect(recoveryModifiers.resolve(10)).toBe(10);
     expect(gainModifiers.resolve('skill', 'gain').totalEfficiency).toBe(1);
     expect(member.finished).toEqual(['other']);
+  });
+
+  it('恢复父实例时接回既有子 Buff 和共享技力修正而不重新施加', () => {
+    const member = target('member');
+    const gainModifiers = new SharedSpGainModifierSet({ baseGainEfficiency: 1 });
+    const recoveryModifiers = new SharedSpRecoveryModifierSet();
+    const runtime = new GlobalBuffRuntime(
+      () => [member.value],
+      () => childDefinition,
+      gainModifiers,
+      recoveryModifiers,
+    );
+    const restorableDefinition: SkillGlobalBuffDefinition = {
+      ...definition,
+      durationSeconds: 1 / 30,
+      sharedSpModifiers: [
+        {
+          attribute: 'gainEfficiency',
+          operation: 'addition',
+          value: { kind: 'constant', value: 0.2 },
+          applyToReturnSpGain: false,
+        },
+      ],
+    };
+    runtime.add({
+      id: 'global',
+      definition: restorableDefinition,
+      sourceId: 'akekuri',
+      blackboardValues: {},
+    });
+    const copied = new StateStepper(
+      {
+        global: runtime.runtimeState,
+        gain: gainModifiers.runtimeState,
+        recovery: recoveryModifiers.runtimeState,
+      },
+      () => undefined,
+    ).read();
+    const restoredGain = new SharedSpGainModifierSet({ baseGainEfficiency: 1 }, copied.gain);
+    const restoredRecovery = new SharedSpRecoveryModifierSet(copied.recovery);
+    const childFinished: string[] = [];
+    const restored = new GlobalBuffRuntime(
+      () => {
+        throw new Error('restoration must not apply child Buffs');
+      },
+      () => childDefinition,
+      restoredGain,
+      restoredRecovery,
+      copied.global,
+    );
+
+    restored.bindRestoredInstances({
+      resolveDefinition: () => restorableDefinition,
+      resolveChild: reference => ({
+        reference,
+        finish: reason => {
+          childFinished.push(reason);
+          return true;
+        },
+      }),
+    });
+
+    expect(restoredGain.resolve('skill', 'gain').totalEfficiency).toBe(1.2);
+    restored.advanceFrame();
+    expect(childFinished).toEqual(['other']);
+    expect(restoredGain.resolve('skill', 'gain').totalEfficiency).toBe(1);
+    expect(runtime.runtimeState.groups.get('global')![0]!.finished).toBe(false);
+  });
+
+  it('恢复动作宿主后由同一程序槽结束恢复分支的父实例', () => {
+    const originalTarget = target('member');
+    const originalRuntime = new GlobalBuffRuntime(
+      () => [originalTarget.value],
+      () => childDefinition,
+    );
+    const dependencies = {
+      sourceId: 'source',
+      sourceActionId: 'skill',
+      runtime: originalRuntime,
+      resolveSource: () => 'source',
+      delegate: { execute: () => false, evaluate: () => false },
+    };
+    const originalExecutor = new GlobalBuffOperationExecutor(dependencies);
+    const step = {
+      kind: 'createGlobalBuff' as const,
+      key: 'restorable',
+      parameters: {
+        globalBuffId: 'global',
+        finishByAction: true,
+        definition: { ...definition, stackingType: 'unlimited' as const },
+      },
+    };
+    const context = { blackboard: new ActionBlackboard() };
+    originalExecutor.execute(step, context);
+    const copied = new StateStepper(
+      { global: originalRuntime.runtimeState, actions: originalExecutor.runtimeState },
+      () => undefined,
+    ).read();
+    const restoredChildFinishes: string[] = [];
+    const restoredRuntime = new GlobalBuffRuntime(
+      () => [],
+      () => childDefinition,
+      null,
+      null,
+      copied.global,
+    );
+    restoredRuntime.bindRestoredInstances({
+      resolveDefinition: () => step.parameters.definition,
+      resolveChild: reference => ({
+        reference,
+        finish: reason => {
+          restoredChildFinishes.push(reason);
+          return true;
+        },
+      }),
+    });
+    const restoredExecutor = new GlobalBuffOperationExecutor(
+      { ...dependencies, runtime: restoredRuntime },
+      { state: copied.actions, programs: originalExecutor.programs },
+    );
+
+    restoredExecutor.end(step, context);
+
+    expect(copied.global.groups.get('global')![0]!.finished).toBe(true);
+    expect(restoredChildFinishes).toEqual(['other']);
+    expect(originalRuntime.runtimeState.groups.get('global')![0]!.finished).toBe(false);
   });
 
   it('finishes every active parent instance for each explicitly named GlobalBuff ID', () => {

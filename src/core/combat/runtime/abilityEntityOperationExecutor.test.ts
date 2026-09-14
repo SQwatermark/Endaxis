@@ -6,8 +6,92 @@ import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationContext } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
+import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
+import { StateStepper } from './stateStepper';
 
 describe('AbilityEntityOperationExecutor', () => {
+  it('按保存的子技能身份恢复实体时间轴，不重复加入子技能状态', () => {
+    const definition = {
+      lifetime: { kind: 'limited' as const, durationSeconds: 10 },
+      childSkill: {
+        skillId: 'restored-child',
+        initialBlackboard: {},
+        timelineActions: [
+          {
+            startFrame: 0,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag' as const,
+                  parameters: { flag: 'first', value: true, target: 'caster' as const },
+                },
+              ],
+            },
+          },
+          {
+            startFrame: 2,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag' as const,
+                  parameters: { flag: 'second', value: true, target: 'caster' as const },
+                },
+              ],
+            },
+          },
+        ],
+      },
+    };
+    const originalEntities = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 1 / 30,
+    });
+    const originalExecute = vi.fn(() => true);
+    const programs = new AbilityEntityChildSkillPrograms();
+    let originalExecutor!: AbilityEntityOperationExecutor;
+    originalExecutor = new AbilityEntityOperationExecutor(
+      'owner',
+      originalEntities,
+      { execute: originalExecute, evaluate: () => false },
+      { resolveOperations: () => originalExecutor, programs },
+      id => (id === 'entity' ? definition : undefined),
+    );
+    originalExecutor.execute(
+      {
+        kind: 'spawnAbilityEntity',
+        parameters: { abilityEntityId: 'entity', dieWhenSourceDies: false },
+      },
+      { blackboard: new ActionBlackboard() },
+    );
+    originalEntities.advanceFrame();
+    const saved = structuredClone(originalEntities.runtimeState);
+    expect([...saved.instances.values()][0]!.childSkills[0]!.skillId).toBe('restored-child');
+
+    const restoredExecute = vi.fn((_step: ResolvedCombatOperationStep) => true);
+    const restoredEntities = new LogicalAbilityEntityRuntime({
+      restoredState: saved,
+      resolveDeltaSeconds: () => 1 / 30,
+    });
+    let restoredExecutor!: AbilityEntityOperationExecutor;
+    restoredExecutor = new AbilityEntityOperationExecutor(
+      'owner',
+      restoredEntities,
+      { execute: restoredExecute, evaluate: () => false },
+      { resolveOperations: () => restoredExecutor, programs },
+      id => (id === 'entity' ? definition : undefined),
+    );
+    restoredEntities.bindRestoredRelations({
+      createChildRuntime: (entity, blackboard, state) =>
+        restoredExecutor.bindRestoredChildSkill(entity, blackboard, state),
+    });
+    expect(restoredExecute).not.toHaveBeenCalled();
+    expect([...saved.instances.values()][0]!.childSkills).toHaveLength(1);
+    restoredEntities.advanceFrame();
+    expect(restoredExecute).toHaveBeenCalledOnce();
+    expect(restoredExecute.mock.calls[0]![0]).toMatchObject({
+      parameters: { flag: 'second' },
+    });
+  });
+
   it('resolves an ID-only spawn from the current compiled skill definition table', () => {
     const entities = new LogicalAbilityEntityRuntime({});
     const executor = new AbilityEntityOperationExecutor(
@@ -161,6 +245,46 @@ describe('AbilityEntityOperationExecutor', () => {
 
     executor.end(step, context);
     expect(entities.activeCount).toBe(0);
+  });
+
+  it('恢复动作宿主后只结束恢复分支中由该动作创建的实体', () => {
+    const definition = { lifetime: { kind: 'limited' as const, durationSeconds: 5 } };
+    const originalEntities = new LogicalAbilityEntityRuntime({});
+    const originalExecutor = new AbilityEntityOperationExecutor(
+      'owner',
+      originalEntities,
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      () => definition,
+    );
+    const step: ResolvedCombatOperationStep = {
+      kind: 'spawnAbilityEntity',
+      parameters: {
+        abilityEntityId: 'mirror',
+        dieWhenSourceDies: true,
+        finishByAction: true,
+      },
+    };
+    const context = { blackboard: new ActionBlackboard() };
+    originalExecutor.execute(step, context);
+    const copied = new StateStepper(
+      { entities: originalEntities.runtimeState, actions: originalExecutor.runtimeState },
+      () => undefined,
+    ).read();
+    const restoredEntities = new LogicalAbilityEntityRuntime({ restoredState: copied.entities });
+    const restoredExecutor = new AbilityEntityOperationExecutor(
+      'owner',
+      restoredEntities,
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      () => definition,
+      { state: copied.actions, programs: originalExecutor.programs },
+    );
+
+    restoredExecutor.end(step, context);
+
+    expect(restoredEntities.activeCount).toBe(0);
+    expect(originalEntities.activeCount).toBe(1);
   });
 
   it('keeps native query truncation after zero-space distance ordering is erased', () => {
@@ -747,6 +871,12 @@ describe('AbilityEntityOperationExecutor', () => {
       { blackboard: new ActionBlackboard({ inheritedParent: 11 }) },
     );
 
+    const owner = [...entities.runtimeState.instances.values()][0]!;
+    const childState = owner.childSkills[0]!;
+    expect(childState.started).toBe(true);
+    expect(childState.blackboard.entity).toBe(owner.blackboard);
+    const saved = structuredClone(owner);
+
     entities.advanceFrame();
     entities.advanceFrame();
     entities.advanceFrame();
@@ -758,6 +888,9 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(operationContext?.blackboard.getNumber('local')).toBe(3);
     expect(operationContext?.blackboard.getNumber('inherited')).toBe(7);
     expect(operationContext?.blackboard.getNumber('inheritedParent')).toBe(11);
+    expect(childState.passedFrames).toBeGreaterThan(0);
+    expect(saved.childSkills[0]!.passedFrames).toBe(0);
+    expect(saved.childSkills[0]!.blackboard.entity).toBe(saved.blackboard);
   });
 
   it('selects the named child skill bound by the spawn action', () => {

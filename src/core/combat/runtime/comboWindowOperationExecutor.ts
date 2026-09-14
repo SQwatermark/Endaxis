@@ -5,12 +5,12 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 import type { ComboWindowRuntime } from './comboWindowRuntime';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
 import { resolveActionValueOperand } from './actionBlackboard';
+import { CombatOperationPrograms } from './combatOperationPrograms';
+import type { ComboWindowActionState } from './combatOperationHostState';
 
 export class ComboWindowOperationExecutor implements CombatOperationExecutor {
-  readonly #qteRegistrations = new WeakMap<
-    ResolvedCombatOperationStep,
-    WeakMap<CombatOperationContext, number>
-  >();
+  readonly runtimeState: ComboWindowActionState;
+  readonly programs: CombatOperationPrograms;
   constructor(
     readonly operatorId: string,
     readonly windows: ComboWindowRuntime,
@@ -21,7 +21,14 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     ) => string = () => {
       throw new Error('current combo skill slot resolver is unavailable');
     },
-  ) {}
+    restored?: {
+      readonly state: ComboWindowActionState;
+      readonly programs: CombatOperationPrograms;
+    },
+  ) {
+    this.runtimeState = restored?.state ?? { ringQteRegistrations: new Map() };
+    this.programs = restored?.programs ?? new CombatOperationPrograms();
+  }
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'openComboWindow') {
@@ -52,17 +59,17 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
         step.parameters.activeDurationSeconds,
         context.blackboard,
       );
-      const registrations =
-        this.#qteRegistrations.get(step) ?? new WeakMap<CombatOperationContext, number>();
+      const slot = this.programs.slot(step);
+      const registrations = this.runtimeState.ringQteRegistrations.get(slot) ?? new Map();
       registrations.set(
-        context,
+        context.blackboard.runtimeState,
         this.windows.registerRingQte(
           this.operatorId,
           Math.fround(earlyDurationSeconds) * COMBAT_FRAMES_PER_SECOND,
           Math.fround(activeDurationSeconds) * COMBAT_FRAMES_PER_SECOND,
         ),
       );
-      this.#qteRegistrations.set(step, registrations);
+      this.runtimeState.ringQteRegistrations.set(slot, registrations);
       return true;
     }
     return context === undefined
@@ -74,10 +81,12 @@ export class ComboWindowOperationExecutor implements CombatOperationExecutor {
     if (step.kind === 'openComboWindow') return;
     if (step.kind === 'showComboRingQte') {
       if (context === undefined) return;
-      const registrations = this.#qteRegistrations.get(step);
-      const registration = registrations?.get(context);
+      const slot = this.programs.slot(step);
+      const registrations = this.runtimeState.ringQteRegistrations.get(slot);
+      const registration = registrations?.get(context.blackboard.runtimeState);
       if (registration !== undefined) this.windows.unregisterRingQte(registration);
-      registrations?.delete(context);
+      registrations?.delete(context.blackboard.runtimeState);
+      if (registrations?.size === 0) this.runtimeState.ringQteRegistrations.delete(slot);
       return;
     }
     if (context === undefined) this.delegate.end?.(step);

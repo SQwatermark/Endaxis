@@ -1,6 +1,12 @@
 import type { CombatBuffContainer } from '../buffs/combatBuffs';
 import type { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
-import { PeriodicTimer } from './periodicTimer';
+import { createOrdinaryKnockDownState } from './ordinaryKnockDownState';
+import {
+  isPeriodicTimerValid,
+  resetPeriodicTimer,
+  updatePeriodicTimer,
+  invalidatePeriodicTimer,
+} from './periodicTimerExecution';
 
 /** 普通倒地切片的内部控制结果；成功与仅打断互斥，不由 Buff 添加结果推断。 */
 export type KnockDownControlResult = 'failure' | 'success' | 'interruption';
@@ -28,20 +34,18 @@ export interface KnockDownComponentInvocation {
  * 宿主必须显式绑定到期策略与实体 delta，不能偷偷用 Buff 时钟或零秒起身替代。
  */
 export class OrdinaryKnockDownRuntime {
-  readonly #timer = new PeriodicTimer();
-  #active = false;
-
   constructor(
     readonly entity: CombatBuffContainer<string>,
     readonly predefine: GameplayTagPredefine,
     readonly onDurationElapsed: (runtime: OrdinaryKnockDownRuntime) => void,
+    readonly runtimeState = createOrdinaryKnockDownState(),
   ) {}
 
   get active(): boolean {
-    return this.#active;
+    return this.runtimeState.active;
   }
   get remaining(): number {
-    return this.#timer.isValid ? this.#timer.remaining : 0;
+    return isPeriodicTimerValid(this.runtimeState.timer) ? this.runtimeState.timer.remaining : 0;
   }
 
   apply(duration: number, invocation: KnockDownComponentInvocation): KnockDownControlResult {
@@ -55,15 +59,15 @@ export class OrdinaryKnockDownRuntime {
       return interrupted ? 'interruption' : 'failure';
 
     // 重复倒地也先退出旧状态；不取 max(旧剩余量, 新时长)。
-    if (this.#active) this.exit();
+    if (this.runtimeState.active) this.exit();
     const adjustedDuration = Math.fround(
       Math.fround(duration) + Math.fround(invocation.readSourceDurationAddition()),
     );
     invocation.emit('forceTriggerWeakness');
     // 弱点回调之后实际 AddTag 再查一次免疫；安装失败不推翻已确定的 Success。
     this.predefine.addTagIfNotHaving(this.entity, 'KnockDown');
-    this.#active = true;
-    this.#timer.reset(adjustedDuration, true);
+    this.runtimeState.active = true;
+    resetPeriodicTimer(this.runtimeState.timer, adjustedDuration, true);
     invocation.emit('afterTakeKnockDown');
     invocation.emit('afterApplyPhysics');
     invocation.emit('afterOutputKnockDown');
@@ -75,13 +79,17 @@ export class OrdinaryKnockDownRuntime {
   advance(entityDeltaSeconds: number): void {
     if (!Number.isFinite(entityDeltaSeconds) || entityDeltaSeconds < 0)
       throw new RangeError('knock-down entity delta must be finite and non-negative');
-    if (this.#active && this.#timer.isValid && this.#timer.update(entityDeltaSeconds))
+    if (
+      this.runtimeState.active &&
+      isPeriodicTimerValid(this.runtimeState.timer) &&
+      updatePeriodicTimer(this.runtimeState.timer, entityDeltaSeconds)
+    )
       this.onDurationElapsed(this);
   }
 
   exit(): void {
     this.predefine.removeTagIfHaving(this.entity, 'KnockDown');
-    this.#timer.markInvalid();
-    this.#active = false;
+    invalidatePeriodicTimer(this.runtimeState.timer);
+    this.runtimeState.active = false;
   }
 }

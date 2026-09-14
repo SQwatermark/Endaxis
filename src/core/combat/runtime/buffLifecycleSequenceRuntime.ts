@@ -1,4 +1,10 @@
 import { skillAbilityEvent } from '../events/combatAbilityEvent';
+import {
+  createSkillAffixState,
+  releaseSkillAffixReference,
+  prepareSkillAffixRequest,
+  startSkillAffixCast,
+} from './skillAffixState';
 /**
  * 把编译后的有序步骤绑定到 Buff 的同步生命周期边界。
  * 每个 Buff 实例独占动作黑板和 once 状态；调用方仍需提供完整战斗操作链。
@@ -31,6 +37,7 @@ import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { createDamageModifierConditionProgram } from './damageModifierSequenceRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
+import type { AbilityEventSubscriptionReference } from '../events/abilityEventState';
 import type { KnockDownOutputEvent } from './combatSemanticEventRuntime';
 import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 import { type AbilityResponseEventName } from '../events/combatAbilityEvent';
@@ -41,6 +48,10 @@ import {
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { CombatAbilityEvent } from '../events/combatAbilityEvent';
 
+export interface BuffAbilityEventRegistration extends AbilityEventRegistration {
+  readonly subscriptions?: readonly AbilityEventSubscriptionReference[];
+}
+
 /** 由 Buff 所有者环境提供的事件注册端口，避免生命周期层依赖具体伤害环境。 */
 export type RegisterBuffAbilityEventAction = (
   event: AbilityResponseEventName,
@@ -49,26 +60,32 @@ export type RegisterBuffAbilityEventAction = (
     published: CombatAbilityEvent<AbilityResponseEventName>,
     actionContext?: AbilityEventRuntimeActionContext,
   ) => void,
-) => AbilityEventRegistration;
+  subscriptions?: readonly AbilityEventSubscriptionReference[],
+) => BuffAbilityEventRegistration;
 
 export type RegisterBuffSemanticEventAction = (
   event: 'outputKnockDown',
   priority: number,
   handle: (event: KnockDownOutputEvent, actionContext?: AbilityEventRuntimeActionContext) => void,
-) => AbilityEventRegistration;
+  subscriptions?: readonly AbilityEventSubscriptionReference[],
+) => BuffAbilityEventRegistration;
 
 /** 原生 RegisterEvent 回调阶段；不进入 SequenceAction 优先级队列。 */
 export type RegisterBuffAbilityEventCallback = (
   event: AbilityResponseEventName,
   handle: (published: CombatAbilityEvent<AbilityResponseEventName>) => void,
-) => AbilityEventRegistration;
+  subscriptions?: readonly AbilityEventSubscriptionReference[],
+) => BuffAbilityEventRegistration;
 
 class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnableAction<Key> {
   readonly #context: CombatExecutionContext = {};
   readonly #actions: readonly CompiledTimelineAction[];
   readonly #runtimeFor: (buff: CombatBuff<Key>) => CombatActionSequenceRuntime;
   #timeline: TimelineActionProcessor | null = null;
-  #passedFrames = 0;
+  #state: import('./buffActionHostState').BuffScheduledActionState = {
+    passedFrames: 0,
+    timeline: null,
+  };
 
   constructor(
     actions: readonly CompiledTimelineAction[],
@@ -82,6 +99,40 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
     return new BuffScheduledSequenceAction(this.#actions, this.#runtimeFor);
   }
 
+  bindRestored(buff: CombatBuff<Key>): void {
+    const saved = buff.runtimeState.actionHost?.scheduled;
+    if (saved === null || saved === undefined) {
+      throw new Error(`restored Buff '${buff.definition.id}' has no scheduled action state`);
+    }
+    this.#state = saved;
+    if (saved.timeline === null) {
+      if (buff.isEnabled) {
+        throw new Error(`restored enabled Buff '${buff.definition.id}' has no scheduled timeline`);
+      }
+      this.#timeline = null;
+      return;
+    }
+    if (saved.timeline.sequences.length !== this.#actions.length) {
+      throw new Error(
+        `restored Buff '${buff.definition.id}' scheduled action count does not match`,
+      );
+    }
+    const runtime = this.#runtimeFor(buff);
+    this.#timeline = new TimelineActionProcessor(
+      this.#actions.map((action, index) => ({
+        startFrame: action.startFrame,
+        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
+        sequence: runtime.createSequence(
+          action.sequence,
+          runtime.context,
+          saved.timeline!.sequences[index],
+        ),
+      })),
+      {},
+      saved.timeline,
+    );
+  }
+
   tryExecute(buff: CombatBuff<Key>): boolean {
     if (this.#timeline !== null) throw new Error(`Buff '${buff.definition.id}' timeline is active`);
     const runtime = this.#runtimeFor(buff);
@@ -92,7 +143,9 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
         sequence: runtime.createSequence(action.sequence),
       })),
     );
-    this.#passedFrames = 0;
+    this.#state.passedFrames = 0;
+    this.#state.timeline = this.#timeline.runtimeState;
+    buff.runtimeState.actionHost!.scheduled = this.#state;
     this.#timeline.reset(this.#context);
     this.#timeline.tick(0, 0, this.#context);
     return true;
@@ -100,17 +153,18 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
 
   tick(deltaTime: number): void {
     if (this.#timeline === null || this.#timeline.isComplete) return;
-    this.#passedFrames += deltaTime * COMBAT_FRAMES_PER_SECOND;
-    this.#timeline.tick(this.#passedFrames, deltaTime, this.#context);
+    this.#state.passedFrames += deltaTime * COMBAT_FRAMES_PER_SECOND;
+    this.#timeline.tick(this.#state.passedFrames, deltaTime, this.#context);
   }
 
   end(): void {
-    this.#timeline?.end(this.#passedFrames, this.#context);
+    this.#timeline?.end(this.#state.passedFrames, this.#context);
   }
 
   reset(): void {
     this.#timeline = null;
-    this.#passedFrames = 0;
+    this.#state.passedFrames = 0;
+    this.#state.timeline = null;
   }
 }
 
@@ -120,15 +174,32 @@ class BuffSkillSlotReplacementAction<Key extends string> implements BuffDuringEn
   constructor(
     readonly replacements: readonly SkillBuffSlotReplacement[],
     readonly resolveOperations: (buff: CombatBuff<Key>) => CombatOperationExecutor,
+    readonly ensureActionHost: (buff: CombatBuff<Key>) => void,
   ) {}
 
   createRuntimeInstance(): BuffDuringEnableAction<Key> {
-    return new BuffSkillSlotReplacementAction(this.replacements, this.resolveOperations);
+    return new BuffSkillSlotReplacementAction(
+      this.replacements,
+      this.resolveOperations,
+      this.ensureActionHost,
+    );
+  }
+
+  bindRestored(buff: CombatBuff<Key>): void {
+    const active = buff.runtimeState.actionHost?.skillSlotsReplaced;
+    if (active === undefined) {
+      throw new Error(`restored Buff '${buff.definition.id}' has no skill-slot state`);
+    }
+    if (active !== buff.isEnabled) {
+      throw new Error(`restored Buff '${buff.definition.id}' skill-slot state is inconsistent`);
+    }
+    this.#active = active;
   }
 
   tryExecute(buff: CombatBuff<Key>): boolean {
     if (this.#active)
       throw new Error(`buff '${buff.definition.id}' skill slots are already replaced`);
+    this.ensureActionHost(buff);
     const operations = this.resolveOperations(buff);
     let applied = 0;
     try {
@@ -144,6 +215,7 @@ class BuffSkillSlotReplacementAction<Key extends string> implements BuffDuringEn
         applied += 1;
       }
       this.#active = true;
+      buff.runtimeState.actionHost!.skillSlotsReplaced = true;
       return true;
     } catch (error) {
       for (const replacement of this.replacements.slice(0, applied).reverse()) {
@@ -176,10 +248,12 @@ class BuffSkillSlotReplacementAction<Key extends string> implements BuffDuringEn
       });
     }
     this.#active = false;
+    buff.runtimeState.actionHost!.skillSlotsReplaced = false;
   }
 
-  reset(): void {
+  reset(buff: CombatBuff<Key>): void {
     this.#active = false;
+    buff.runtimeState.actionHost!.skillSlotsReplaced = false;
   }
 }
 
@@ -190,6 +264,15 @@ class CompositeBuffDuringEnableAction<Key extends string> implements BuffDuringE
     return new CompositeBuffDuringEnableAction(
       this.actions.map(action => action.createRuntimeInstance()),
     );
+  }
+
+  bindRestored(buff: CombatBuff<Key>): void {
+    for (const action of this.actions) {
+      if (action.bindRestored === undefined) {
+        throw new Error(`restored Buff '${buff.definition.id}' has an unbindable active action`);
+      }
+      action.bindRestored(buff);
+    }
   }
 
   tryExecute(buff: CombatBuff<Key>): boolean {
@@ -212,9 +295,16 @@ class CompositeBuffDuringEnableAction<Key extends string> implements BuffDuringE
   }
 }
 
-export type RegisterPostSkillCastRequest = (handle: (info: CombatSkillCastInfo | null) => void) => {
-  dispose(): void;
-};
+export type RegisterPostSkillCastRequest = (
+  handle: (info: CombatSkillCastInfo | null) => void,
+  restoredRegistrationId?: number,
+) => { readonly registrationId?: number; dispose(): void };
+
+/** 恢复 SkillAffix 持有的实体 reset 或 Buff recycle 登记。 */
+export type BindRestoredSkillAffixObjectReference = (
+  reference: import('./skillAffixState').SkillAffixObjectReference,
+  release: () => void,
+) => { dispose(): void };
 
 /** 为一份已编译 Buff 定义安装同步生命周期序列。 */
 export function attachBuffLifecycleSequences<Key extends string>(
@@ -238,6 +328,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
   resolveProjectileRuntimeDependencies?: (
     definitionOwnerId: string,
   ) => ProjectileRuntimeDependencies,
+  bindRestoredSkillAffixObjectReference?: BindRestoredSkillAffixObjectReference,
 ): CombatBuffDefinition<Key> {
   if (definition.actions !== undefined) {
     throw new Error(
@@ -246,17 +337,179 @@ export function attachBuffLifecycleSequences<Key extends string>(
   }
 
   const runtimes = new WeakMap<CombatBuff<Key>, CombatActionSequenceRuntime>();
-  const eventRegistrations = new WeakMap<CombatBuff<Key>, AbilityEventRegistration[]>();
+  const eventRegistrations = new WeakMap<CombatBuff<Key>, BuffAbilityEventRegistration[]>();
   const activeEnableSequences = new WeakMap<CombatBuff<Key>, ActionSequence>();
   const triggerSequences = new WeakMap<CombatBuff<Key>, ActionSequence>();
-  const runtimeFor = (buff: CombatBuff<Key>): CombatActionSequenceRuntime => {
+  interface SkillAffixBinding {
+    dispose(): void;
+    bindObjectReferences(): void;
+  }
+  const affixBindings = new WeakMap<CombatBuff<Key>, Map<number, SkillAffixBinding>>();
+  const damageSnapshotProgram = new DamageCalculationSnapshotProgram();
+  const bindSkillAffixState = (
+    buff: CombatBuff<Key>,
+    state: import('./skillAffixState').SkillAffixState,
+    restoring: boolean,
+  ): void => {
+    if (registerAbilityEventCallback === undefined)
+      throw new Error('SkillAffix requires Buff ability-event registration');
+    if (state.disposed) throw new Error(`SkillAffix '${state.instanceId}' is already disposed`);
+    const affixes = buff.runtimeState.actionHost!.affixes;
+    const bindings = affixBindings.get(buff) ?? new Map<number, SkillAffixBinding>();
+    if (bindings.has(state.instanceId)) {
+      throw new Error(`SkillAffix '${state.instanceId}' is already bound`);
+    }
+    affixBindings.set(buff, bindings);
+    const registrations: AbilityEventRegistration[] = [];
+    const objectReferences = new Map<number, { dispose(): void }>();
+    const registration: SkillAffixBinding = {
+      dispose: () => {
+        if (state.disposed) return;
+        state.disposed = true;
+        state.pendingRequest = false;
+        for (const handle of registrations) handle.dispose();
+        state.eventSubscriptions.clear();
+        state.postSkillRequestRegistrationId = null;
+        for (const handle of objectReferences.values()) handle.dispose();
+        objectReferences.clear();
+        state.objectReferences.clear();
+        const index = affixes.indexOf(state);
+        if (index !== -1) affixes.splice(index, 1);
+        bindings.delete(state.instanceId);
+      },
+      bindObjectReferences: () => {
+        if (objectReferences.size !== 0) {
+          throw new Error(`SkillAffix '${state.instanceId}' object references are already bound`);
+        }
+        if (
+          state.objectReferences.size !== 0 &&
+          bindRestoredSkillAffixObjectReference === undefined
+        ) {
+          throw new Error(`SkillAffix '${state.instanceId}' has no object reference binding port`);
+        }
+        for (const [referenceId, saved] of state.objectReferences) {
+          const reference = bindRestoredSkillAffixObjectReference!(saved, () => {
+            objectReferences.delete(referenceId);
+            state.objectReferences.delete(referenceId);
+            decreaseReference();
+          });
+          objectReferences.set(referenceId, reference);
+        }
+      },
+    };
+    const decreaseReference = () => {
+      if (!releaseSkillAffixReference(state)) return;
+      // Native SkillAffix._DecreaseRefCount ends with Other and an empty cast context.
+      if (buff.finish('other', null)) registration.dispose();
+    };
+    const handle = (published: CombatAbilityEvent<AbilityResponseEventName>) => {
+      if (state.disposed) return;
+      if (published.event === 'abilityEntitySpawned' || published.event === 'projectileLaunched') {
+        if (
+          published.payload.sourceId !== buff.owner.ownerId ||
+          published.payload.skillCastInfo?.skillCastId !== state.skillCastId
+        )
+          return;
+        const referenceId = state.nextObjectReferenceId++;
+        const reference = published.payload.entity.onReset(() => {
+          objectReferences.delete(referenceId);
+          state.objectReferences.delete(referenceId);
+          decreaseReference();
+        });
+        objectReferences.set(referenceId, reference);
+        state.objectReferences.set(referenceId, {
+          kind: 'entity',
+          target: { kind: 'abilityEntity', instanceId: published.payload.entity.instanceId },
+          resetRegistrationId: reference.registrationId,
+        });
+        state.references++;
+        return;
+      }
+      if (published.event === 'outputBuff') {
+        const output = published.payload.buff;
+        if (
+          published.payload.sourceId !== buff.owner.ownerId ||
+          output.affixSkillCastId !== 0 ||
+          output.skillCastInfo?.skillCastId !== state.skillCastId
+        )
+          return;
+        const referenceId = state.nextObjectReferenceId++;
+        const reference = output.onRecycled(() => {
+          objectReferences.delete(referenceId);
+          state.objectReferences.delete(referenceId);
+          decreaseReference();
+        });
+        objectReferences.set(referenceId, reference);
+        state.objectReferences.set(referenceId, {
+          kind: 'buff',
+          reference: { ownerId: published.payload.targetId, instanceId: output.instanceId },
+          recycleRegistrationId: reference.registrationId,
+        });
+        state.references++;
+        return;
+      }
+      const event = skillAbilityEvent(published);
+      if (event === undefined || event.payload.sourceId !== buff.owner.ownerId) return;
+      if (event.event === 'beforeCastSkill') {
+        if (startSkillAffixCast(state, event.payload.skillCastId)) decreaseReference();
+        return;
+      }
+      if (event.event === 'skillEnd' && event.payload.skillCastId === state.skillCastId)
+        decreaseReference();
+    };
+    try {
+      if (registerPostSkillCastRequest !== undefined) {
+        if (restoring && state.postSkillRequestRegistrationId === null) {
+          throw new Error(`SkillAffix '${state.instanceId}' has no saved request listener`);
+        }
+        const requestRegistration = registerPostSkillCastRequest(
+          info => prepareSkillAffixRequest(state, info?.skillCastId),
+          restoring ? (state.postSkillRequestRegistrationId ?? undefined) : undefined,
+        );
+        if (!restoring) {
+          state.postSkillRequestRegistrationId = requestRegistration.registrationId ?? null;
+        }
+        registrations.push(requestRegistration);
+      } else if (restoring && state.postSkillRequestRegistrationId !== null) {
+        throw new Error(`SkillAffix '${state.instanceId}' request listener has no binding port`);
+      }
+      for (const event of [
+        'beforeCastSkill',
+        'skillEnd',
+        'outputBuff',
+        'abilityEntitySpawned',
+        'projectileLaunched',
+      ] as const) {
+        const saved = restoring ? state.eventSubscriptions.get(event) : undefined;
+        if (restoring && (saved === undefined || saved.length === 0)) {
+          throw new Error(`SkillAffix '${state.instanceId}' has no saved '${event}' subscription`);
+        }
+        const eventRegistration = registerAbilityEventCallback(event, handle, saved);
+        if (!restoring && eventRegistration.subscriptions !== undefined) {
+          state.eventSubscriptions.set(event, [...eventRegistration.subscriptions]);
+        }
+        registrations.push(eventRegistration);
+      }
+    } catch (error) {
+      registration.dispose();
+      throw error;
+    }
+    bindings.set(state.instanceId, registration);
+  };
+  const runtimeFor = (
+    buff: CombatBuff<Key>,
+    restoredHost?: import('./buffActionHostState').BuffActionHostState,
+  ): CombatActionSequenceRuntime => {
     let runtime = runtimes.get(buff);
     if (runtime !== undefined) return runtime;
     const context: CombatOperationContext = {
       blackboard: buff.blackboard,
       canExecuteAction: () => buff.isEnabled && !buff.isFinished,
-      damageCalculationSnapshots: new Map(),
-      targetContext: new RuntimeTargetContext(),
+      damageCalculationSnapshots: new DamageCalculationSnapshots(
+        damageSnapshotProgram,
+        restoredHost?.damageSnapshots,
+      ),
+      targetContext: new RuntimeTargetContext(restoredHost?.targets),
       ...(currentTarget === undefined ? {} : { currentTarget }),
       ...(buff.skillCastInfo === null ? {} : { skillCastInfo: buff.skillCastInfo }),
       buffSourceId: buff.sourceId,
@@ -272,98 +525,17 @@ export function attachBuffLifecycleSequences<Key extends string>(
       finishCurrentBuff: (reason, sourceId, skillCastInfo) =>
         buff.owner.finishInstance(buff, reason, sourceId, skillCastInfo),
       bindCurrentBuffSkillAffix: skillCastId => {
-        if (registerAbilityEventCallback === undefined)
-          throw new Error('SkillAffix requires Buff ability-event registration');
         buff.recordBuffAffixSkillCastId(skillCastId);
-        let references = 1;
-        let pendingRequest = false;
-        let disposed = false;
-        const registrations: AbilityEventRegistration[] = [];
-        const objectReferences = new Set<{ dispose(): void }>();
-        const registration = {
-          dispose: () => {
-            if (disposed) return;
-            disposed = true;
-            pendingRequest = false;
-            for (const handle of registrations) handle.dispose();
-            for (const handle of objectReferences) handle.dispose();
-            objectReferences.clear();
-          },
-        };
-        const decreaseReference = () => {
-          if (disposed || --references > 0) return;
-          // Native SkillAffix._DecreaseRefCount ends with Other and an empty cast context.
-          if (buff.finish('other', null)) registration.dispose();
-        };
-        const handle = (published: CombatAbilityEvent<AbilityResponseEventName>) => {
-          if (disposed) return;
-          if (
-            published.event === 'abilityEntitySpawned' ||
-            published.event === 'projectileLaunched'
-          ) {
-            if (
-              published.payload.sourceId !== buff.owner.ownerId ||
-              published.payload.skillCastInfo?.skillCastId !== skillCastId
-            )
-              return;
-            const reference = published.payload.entity.onReset(() => {
-              objectReferences.delete(reference);
-              decreaseReference();
-            });
-            objectReferences.add(reference);
-            references++;
-            return;
-          }
-          if (published.event === 'outputBuff') {
-            const output = published.payload.buff;
-            if (
-              published.payload.sourceId !== buff.owner.ownerId ||
-              output.affixSkillCastId !== 0 ||
-              output.skillCastInfo?.skillCastId !== skillCastId
-            )
-              return;
-            const reference = output.onRecycled(() => {
-              objectReferences.delete(reference);
-              decreaseReference();
-            });
-            objectReferences.add(reference);
-            references++;
-            return;
-          }
-          const event = skillAbilityEvent(published);
-          if (event === undefined || event.payload.sourceId !== buff.owner.ownerId) return;
-          if (event.event === 'beforeCastSkill') {
-            if (event.payload.skillCastId === skillCastId) {
-              if (pendingRequest) pendingRequest = false;
-              else references++;
-            } else if (pendingRequest) {
-              pendingRequest = false;
-              decreaseReference();
-            }
-            return;
-          }
-          if (event.event === 'skillEnd' && event.payload.skillCastId === skillCastId)
-            decreaseReference();
-        };
-        try {
-          if (registerPostSkillCastRequest !== undefined)
-            registrations.push(
-              registerPostSkillCastRequest(info => {
-                if (disposed || pendingRequest || info?.skillCastId !== skillCastId) return;
-                references++;
-                pendingRequest = true;
-              }),
-            );
-          registrations.push(registerAbilityEventCallback('beforeCastSkill', handle));
-          registrations.push(registerAbilityEventCallback('skillEnd', handle));
-          registrations.push(registerAbilityEventCallback('outputBuff', handle));
-          registrations.push(registerAbilityEventCallback('abilityEntitySpawned', handle));
-          registrations.push(registerAbilityEventCallback('projectileLaunched', handle));
-        } catch (error) {
-          registration.dispose();
-          throw error;
-        }
-        return registration;
+        const host = buff.runtimeState.actionHost!;
+        const state = createSkillAffixState(host.nextAffixId++, skillCastId);
+        host.affixes.push(state);
+        bindSkillAffixState(buff, state, false);
+        return state.instanceId;
+      },
+      finishCurrentBuffSkillAffix: affixId => {
+        const binding = affixBindings.get(buff)?.get(affixId);
+        if (binding === undefined) throw new Error(`SkillAffix '${affixId}' binding is missing`);
+        binding.dispose();
       },
       ...(buff.finishParentGlobalBuff === null
         ? {}
@@ -399,9 +571,71 @@ export function attachBuffLifecycleSequences<Key extends string>(
         end: (step, callback) => operationsFor(callback).end?.(step, callback),
       },
       context,
+      {},
+      undefined,
+      undefined,
+      restoredHost?.scopes,
     );
     runtimes.set(buff, runtime);
+    if (restoredHost !== undefined) return runtime;
+    buff.runtimeState.actionHost = {
+      affixes: [],
+      nextAffixId: 1,
+      eventResponses: [],
+      scopes: runtime.scopeState,
+      targets: context.targetContext!.runtimeState,
+      damageSnapshots: context.damageCalculationSnapshots!.runtimeState,
+      enable: null,
+      trigger: null,
+      scheduled: null,
+      skillSlotsReplaced: false,
+    };
     return runtime;
+  };
+  const bindRestoredActions = (buff: CombatBuff<Key>): void => {
+    const host = buff.runtimeState.actionHost;
+    if (host === null) throw new Error(`buff '${definition.id}' has no saved action host`);
+    const runtime = runtimeFor(buff, host);
+    for (const affix of host.affixes) bindSkillAffixState(buff, affix, true);
+    if (scheduledSequences.length !== 0 || skillSlotReplacements.length !== 0)
+      buff.bindRestoredDuringEnableAction();
+    else if (host.scheduled !== null)
+      throw new Error(`buff '${definition.id}' saved an unexpected scheduled action`);
+    if (host.trigger !== null) {
+      if (sequences.trigger === undefined)
+        throw new Error(`buff '${definition.id}' saved an unexpected trigger sequence`);
+      triggerSequences.set(
+        buff,
+        runtime.createSequence(sequences.trigger, runtime.context, host.trigger),
+      );
+    } else if (sequences.trigger !== undefined && buff.isStarted) {
+      throw new Error(`buff '${definition.id}' is missing its saved trigger sequence`);
+    }
+    if (host.enable !== null) {
+      if (sequences.enable === undefined)
+        throw new Error(`buff '${definition.id}' saved an unexpected enable sequence`);
+      activeEnableSequences.set(
+        buff,
+        runtime.createSequence(sequences.enable, runtime.context, host.enable),
+      );
+    } else if (sequences.enable !== undefined && buff.isEnabled) {
+      throw new Error(`buff '${definition.id}' is missing its saved enable sequence`);
+    }
+    if (buff.isEnabled) registerEventResponses(buff, host.eventResponses);
+    else if (host.eventResponses.length !== 0)
+      throw new Error(`buff '${definition.id}' has subscriptions while disabled`);
+  };
+  const bindRestoredRelations = (buff: CombatBuff<Key>): void => {
+    const host = buff.runtimeState.actionHost;
+    if (host === null) return;
+    const bindings = affixBindings.get(buff);
+    for (const affix of host.affixes) {
+      const binding = bindings?.get(affix.instanceId);
+      if (binding === undefined) {
+        throw new Error(`SkillAffix '${affix.instanceId}' binding is missing`);
+      }
+      binding.bindObjectReferences();
+    }
   };
   const execute = (sequence: ResolvedActionSequence | undefined, buff: CombatBuff<Key>): void => {
     if (sequence === undefined) return;
@@ -428,12 +662,14 @@ export function attachBuffLifecycleSequences<Key extends string>(
     }
     const sequence = runtimeFor(buff).createSequence(sequences.enable);
     activeEnableSequences.set(buff, sequence);
+    buff.runtimeState.actionHost!.enable = sequence.runtimeState;
     try {
       sequence.tryExecute({});
     } catch (error) {
       sequence.end({});
       sequence.reset({});
       activeEnableSequences.delete(buff);
+      buff.runtimeState.actionHost!.enable = null;
       throw error;
     }
   };
@@ -443,12 +679,18 @@ export function attachBuffLifecycleSequences<Key extends string>(
     sequence.end({});
     sequence.reset({});
     activeEnableSequences.delete(buff);
+    buff.runtimeState.actionHost!.enable = null;
   };
   const disposeEventResponses = (buff: CombatBuff<Key>): void => {
     for (const registration of eventRegistrations.get(buff) ?? []) registration.dispose();
     eventRegistrations.delete(buff);
+    const host = buff.runtimeState.actionHost;
+    if (host !== null) host.eventResponses.length = 0;
   };
-  const registerEventResponses = (buff: CombatBuff<Key>): void => {
+  const registerEventResponses = (
+    buff: CombatBuff<Key>,
+    restoredResponses?: readonly import('./buffActionHostState').BuffEventResponseState[],
+  ): void => {
     if (abilityEventResponses.length === 0) return;
     if (
       abilityEventResponses.some(response => response.event !== 'outputKnockDown') &&
@@ -465,35 +707,38 @@ export function attachBuffLifecycleSequences<Key extends string>(
     if (eventRegistrations.has(buff)) {
       throw new Error(`buff '${definition.id}' ability event responses are already active`);
     }
-    const registrations: AbilityEventRegistration[] = [];
+    const registrations: BuffAbilityEventRegistration[] = [];
+    const responseStates: import('./buffActionHostState').BuffEventResponseState[] = [];
     try {
       // Each native SequenceAction owns its registration; equal priority does not merge programs.
-      for (const response of abilityEventResponses) {
+      for (const [index, response] of abilityEventResponses.entries()) {
+        const restored = restoredResponses?.[index];
+        if (restoredResponses !== undefined && restored === undefined) {
+          throw new Error(`buff '${definition.id}' saved event responses do not match its program`);
+        }
         const runtime = runtimeFor(buff);
         const context = {
           ...runtime.context,
           actionOwnerId: buff.owner.ownerId,
           actionSourceId: buff.sourceId,
         };
-        const sequence = runtime.createSequence(response.sequence, context);
-        sequence.reset({});
+        const sequence = runtime.createSequence(response.sequence, context, restored?.sequence);
+        if (restored === undefined) sequence.reset({});
+        let registration: BuffAbilityEventRegistration;
         if (response.event === 'outputKnockDown') {
-          registrations.push(
-            registerSemanticEventAction!(
-              response.event,
-              response.priority,
-              (event, actionContext) => {
-                if (buff.isFinished) return;
-                withCombatEventResponseContext(context, { event, actionContext }, () =>
-                  sequence.executeInstant({}),
-                );
-              },
-            ),
+          registration = registerSemanticEventAction!(
+            response.event,
+            response.priority,
+            (event, actionContext) => {
+              if (buff.isFinished) return;
+              withCombatEventResponseContext(context, { event, actionContext }, () =>
+                sequence.executeInstant({}),
+              );
+            },
+            restored?.subscriptions,
           );
-          continue;
-        }
-        registrations.push(
-          registerAbilityEventAction!(
+        } else {
+          registration = registerAbilityEventAction!(
             response.event,
             response.priority,
             (published, actionContext) => {
@@ -503,14 +748,29 @@ export function attachBuffLifecycleSequences<Key extends string>(
                 sequence.executeInstant({}),
               );
             },
-          ),
-        );
+            restored?.subscriptions,
+          );
+        }
+        registrations.push(registration);
+        responseStates.push({
+          sequence: sequence.runtimeState,
+          subscriptions: [...(registration.subscriptions ?? [])],
+        });
       }
     } catch (error) {
       for (const registration of registrations) registration.dispose();
       throw error;
     }
+    if (
+      restoredResponses !== undefined &&
+      restoredResponses.length !== abilityEventResponses.length
+    ) {
+      for (const registration of registrations) registration.dispose();
+      throw new Error(`buff '${definition.id}' saved event response count does not match`);
+    }
     eventRegistrations.set(buff, registrations);
+    const savedResponses = buff.runtimeState.actionHost!.eventResponses;
+    savedResponses.splice(0, savedResponses.length, ...responseStates);
   };
   const actions: BuffLifecycleActions<Key> = {
     ...(scheduledSequences.length === 0 && skillSlotReplacements.length === 0
@@ -522,7 +782,13 @@ export function attachBuffLifecycleSequences<Key extends string>(
               : [new BuffScheduledSequenceAction(scheduledSequences, runtimeFor)]),
             ...(skillSlotReplacements.length === 0
               ? []
-              : [new BuffSkillSlotReplacementAction(skillSlotReplacements, resolveOperations)]),
+              : [
+                  new BuffSkillSlotReplacementAction(
+                    skillSlotReplacements,
+                    resolveOperations,
+                    buff => void runtimeFor(buff),
+                  ),
+                ]),
           ]),
         }),
     ...(sequences.start === undefined && sequences.trigger === undefined
@@ -533,6 +799,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
               const sequence = runtimeFor(buff).createSequence(sequences.trigger);
               sequence.reset({});
               triggerSequences.set(buff, sequence);
+              buff.runtimeState.actionHost!.trigger = sequence.runtimeState;
             }
             execute(sequences.start, buff);
           },
@@ -653,5 +920,15 @@ export function attachBuffLifecycleSequences<Key extends string>(
         }),
     };
   });
-  return { ...definition, ...(damageModifiers === undefined ? {} : { damageModifiers }), actions };
+  return {
+    ...definition,
+    ...(damageModifiers === undefined ? {} : { damageModifiers }),
+    actions,
+    bindRestoredActions,
+    bindRestoredRelations,
+  };
 }
+import {
+  DamageCalculationSnapshotProgram,
+  DamageCalculationSnapshots,
+} from './damageCalculationSnapshots';

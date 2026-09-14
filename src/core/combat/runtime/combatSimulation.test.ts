@@ -3,6 +3,37 @@ import { CombatClock } from './combatClock';
 import { CombatSimulation } from './combatSimulation';
 
 describe('CombatSimulation', () => {
+  it('每帧只调用本次传入的输入，保持输入前后的系统顺序', () => {
+    const clock = new CombatClock();
+    const simulation = new CombatSimulation(clock);
+    const order: string[] = [];
+    simulation.add({ advanceFrame: () => order.push('before') });
+    simulation.addInputPhase('skillInputs');
+    simulation.add({ advanceFrame: () => order.push('skills') });
+    simulation.addInputPhase('externalEvents');
+    simulation.advanceFrame({
+      skillInputs: () => order.push('input A'),
+      externalEvents: () => order.push('external A'),
+    });
+    simulation.advanceFrame({
+      skillInputs: () => order.push('input B'),
+      externalEvents: () => order.push('external B'),
+    });
+    expect(order).toEqual([
+      'before',
+      'input A',
+      'skills',
+      'external A',
+      'before',
+      'input B',
+      'skills',
+      'external B',
+    ]);
+    expect(() => simulation.advanceFrame()).toThrow('requires external input phases');
+    expect(clock.frame).toBe(2);
+    expect(order).toHaveLength(8);
+  });
+
   it('advances the shared clock before runtime systems', () => {
     const clock = new CombatClock();
     const observedFrames: number[] = [];

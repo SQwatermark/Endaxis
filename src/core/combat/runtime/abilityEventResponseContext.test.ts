@@ -13,6 +13,7 @@ const payload = {
   sourceId: 'owner',
   targetId: 'entity',
   entity: {
+    instanceId: 1,
     onReset: () => {
       throw new Error('context projection must not subscribe to reset');
     },

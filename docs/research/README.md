@@ -14,6 +14,7 @@
 
 ## 战斗规则、时钟与目标
 
+- [战斗切面方案审查（2026-09-13）](combat/runtime-checkpoint-audit.md)
 - [无战斗回调的投射物生命周期](combat/projectile-lifetime-compilation.md)
 - [Ability-entity Context target audit](combat/ability-entity-context-target-audit.md)
 - [队友目标查询与快照边界（2026-08-28）](combat/character-team-target-snapshots.md)

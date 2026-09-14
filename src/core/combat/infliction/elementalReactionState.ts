@@ -37,14 +37,14 @@ export interface ApplyElementalReactionResult {
 
 /** 单敌人模型的反应状态容器；一场模拟一个实例。 */
 export class ElementalReactionContainer {
-  readonly #states = new Map<ElementalReaction, ElementalReactionState>();
+  constructor(readonly runtimeState = new Map<ElementalReaction, ElementalReactionState>()) {}
 
   /** 施加反应：已有则升一级并刷新时长，没有则新建 1 级。 */
   apply(input: ApplyElementalReactionInput): ApplyElementalReactionResult {
-    const current = this.#states.get(input.reaction);
+    const current = this.runtimeState.get(input.reaction);
     const previousLevel = this.#isFresh(current, input.time) ? current.level : 0;
     const level = Math.min(MAX_REACTION_LEVEL, previousLevel + 1);
-    this.#states.set(input.reaction, {
+    this.runtimeState.set(input.reaction, {
       reaction: input.reaction,
       level,
       expiresAt: input.time + input.durationSeconds,
@@ -60,20 +60,20 @@ export class ElementalReactionContainer {
 
   /** 消费反应：清除并返回被消费的等级；敌人身上没有该反应时返回 null。 */
   consume(reaction: ElementalReaction, time: number): { readonly consumedLevel: number } | null {
-    const current = this.#states.get(reaction);
+    const current = this.runtimeState.get(reaction);
     if (!this.#isFresh(current, time)) {
-      this.#states.delete(reaction);
+      this.runtimeState.delete(reaction);
       return null;
     }
-    this.#states.delete(reaction);
+    this.runtimeState.delete(reaction);
     return { consumedLevel: current.level };
   }
 
   /** 判断敌人当前是否带着该反应，可要求最低等级。 */
   isActive(reaction: ElementalReaction, minimumLevel: number | undefined, time: number): boolean {
-    const current = this.#states.get(reaction);
+    const current = this.runtimeState.get(reaction);
     if (!this.#isFresh(current, time)) {
-      if (current !== undefined) this.#states.delete(reaction);
+      if (current !== undefined) this.runtimeState.delete(reaction);
       return false;
     }
     return minimumLevel === undefined || current.level >= minimumLevel;
@@ -82,9 +82,9 @@ export class ElementalReactionContainer {
   /** 当前仍有效的全部反应状态，按添加顺序返回。 */
   snapshot(time: number): readonly ElementalReactionState[] {
     const active: ElementalReactionState[] = [];
-    for (const [reaction, state] of this.#states) {
+    for (const [reaction, state] of this.runtimeState) {
       if (this.#isFresh(state, time)) active.push(state);
-      else this.#states.delete(reaction);
+      else this.runtimeState.delete(reaction);
     }
     return active;
   }

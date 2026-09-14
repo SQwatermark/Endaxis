@@ -1,18 +1,53 @@
 import { describe, expect, it } from 'vitest';
+import { StateStepper } from '../runtime/stateStepper';
 import {
-  SharedSpGainModifier,
+  createSharedSpGainModifier,
   SharedSpGainModifierSet,
-  SharedSpRecoveryModifier,
+  createSharedSpRecoveryModifier,
   SharedSpRecoveryModifierSet,
+  resolveSharedSpGain,
+  resolveSharedSpRecovery,
 } from './sharedSpGainModifiers';
 
 describe('SharedSpGainModifierSet', () => {
+  it('恢复同一切面后，各分支按自己的注册项计算获取和恢复效率', () => {
+    const runtime = new StateStepper(
+      {
+        gain: { modifiers: [createSharedSpGainModifier('gainEfficiency', 'addition', 0.5, false)] },
+        recovery: { modifiers: [createSharedSpRecoveryModifier('multiplier', 0.5)] },
+      },
+      (step, remove: boolean) => {
+        if (remove) {
+          step.state.gain.modifiers.length = 0;
+          step.state.recovery.modifiers.length = 0;
+        }
+        return {
+          gain: resolveSharedSpGain(step.state.gain, { baseGainEfficiency: 1 }, 'skill', 'gain')
+            .totalEfficiency,
+          returned: resolveSharedSpGain(
+            step.state.gain,
+            { baseGainEfficiency: 1 },
+            'skill',
+            'return',
+          ).totalEfficiency,
+          recovery: resolveSharedSpRecovery(step.state.recovery, 8),
+        };
+      },
+    );
+    const checkpoint = runtime.save();
+    expect(runtime.step(true)).toEqual({ gain: 1, returned: 1, recovery: 8 });
+    runtime.restore(checkpoint);
+    expect(runtime.step(false)).toEqual({ gain: 1.5, returned: 1, recovery: 12 });
+    runtime.restore(checkpoint);
+    expect(runtime.step(true)).toEqual({ gain: 1, returned: 1, recovery: 8 });
+  });
+
   it('combines the base gain segment and power-attack segment in native order', () => {
     const modifiers = new SharedSpGainModifierSet({ baseGainEfficiency: 1.2 });
-    modifiers.add(new SharedSpGainModifier('gainEfficiency', 'addition', 0.3, true));
-    modifiers.add(new SharedSpGainModifier('gainEfficiency', 'multiplier', 0.5, true));
-    modifiers.add(new SharedSpGainModifier('powerAttackEfficiency', 'addition', 0.2, false));
-    modifiers.add(new SharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.25, false));
+    modifiers.add(createSharedSpGainModifier('gainEfficiency', 'addition', 0.3, true));
+    modifiers.add(createSharedSpGainModifier('gainEfficiency', 'multiplier', 0.5, true));
+    modifiers.add(createSharedSpGainModifier('powerAttackEfficiency', 'addition', 0.2, false));
+    modifiers.add(createSharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.25, false));
 
     expect(modifiers.resolve('powerAttack', 'gain')).toEqual({
       gainEfficiency: 2.25,
@@ -23,9 +58,9 @@ describe('SharedSpGainModifierSet', () => {
 
   it('filters only the base gain segment for returned SP', () => {
     const modifiers = new SharedSpGainModifierSet({ baseGainEfficiency: 1 });
-    modifiers.add(new SharedSpGainModifier('gainEfficiency', 'addition', 0.5, false));
-    modifiers.add(new SharedSpGainModifier('gainEfficiency', 'addition', 0.25, true));
-    modifiers.add(new SharedSpGainModifier('powerAttackEfficiency', 'addition', 0.5, false));
+    modifiers.add(createSharedSpGainModifier('gainEfficiency', 'addition', 0.5, false));
+    modifiers.add(createSharedSpGainModifier('gainEfficiency', 'addition', 0.25, true));
+    modifiers.add(createSharedSpGainModifier('powerAttackEfficiency', 'addition', 0.5, false));
 
     expect(modifiers.resolve('powerAttack', 'return')).toEqual({
       gainEfficiency: 1.25,
@@ -36,8 +71,8 @@ describe('SharedSpGainModifierSet', () => {
 
   it('clamps each multiplier segment to a non-negative factor', () => {
     const modifiers = new SharedSpGainModifierSet({ baseGainEfficiency: 1 });
-    modifiers.add(new SharedSpGainModifier('gainEfficiency', 'multiplier', -2, true));
-    modifiers.add(new SharedSpGainModifier('powerAttackEfficiency', 'multiplier', -3, true));
+    modifiers.add(createSharedSpGainModifier('gainEfficiency', 'multiplier', -2, true));
+    modifiers.add(createSharedSpGainModifier('powerAttackEfficiency', 'multiplier', -3, true));
 
     expect(modifiers.resolve('powerAttack', 'gain')).toEqual({
       gainEfficiency: 0,
@@ -48,8 +83,8 @@ describe('SharedSpGainModifierSet', () => {
 
   it('registers and removes modifiers by identity', () => {
     const modifiers = new SharedSpGainModifierSet({ baseGainEfficiency: 1 });
-    const first = new SharedSpGainModifier('gainEfficiency', 'addition', 0.5, true);
-    const second = new SharedSpGainModifier('gainEfficiency', 'addition', 0.5, true);
+    const first = createSharedSpGainModifier('gainEfficiency', 'addition', 0.5, true);
+    const second = createSharedSpGainModifier('gainEfficiency', 'addition', 0.5, true);
     modifiers.add(first);
     modifiers.add(first);
     modifiers.add(second);
@@ -71,17 +106,17 @@ describe('SharedSpGainModifierSet', () => {
 describe('SharedSpRecoveryModifierSet', () => {
   it('applies native additions before the clamped multiplier segment', () => {
     const modifiers = new SharedSpRecoveryModifierSet();
-    modifiers.add(new SharedSpRecoveryModifier('addition', 2));
-    modifiers.add(new SharedSpRecoveryModifier('multiplier', -0.25));
+    modifiers.add(createSharedSpRecoveryModifier('addition', 2));
+    modifiers.add(createSharedSpRecoveryModifier('multiplier', -0.25));
 
     expect(modifiers.resolve(10)).toBe(9);
-    modifiers.add(new SharedSpRecoveryModifier('multiplier', -2));
+    modifiers.add(createSharedSpRecoveryModifier('multiplier', -2));
     expect(modifiers.resolve(10)).toBe(0);
   });
 
   it('registers and removes recovery modifiers by identity', () => {
     const modifiers = new SharedSpRecoveryModifierSet();
-    const modifier = new SharedSpRecoveryModifier('multiplier', -0.1);
+    const modifier = createSharedSpRecoveryModifier('multiplier', -0.1);
 
     modifiers.add(modifier);
     modifiers.add(modifier);

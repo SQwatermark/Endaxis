@@ -16,33 +16,38 @@ export interface SkillSlotOperationExecutorOptions {
     readonly targetSkillKey: string;
     readonly revertedSkillKey?: string;
     readonly inheritOriginSkillCooldownProgress: boolean;
-  }) => { finish(): void };
-  readonly activatePlayerActionMode?: (modeId: string) => { finish(): void };
-  readonly overrideBasicAttackMapping?: (sourceSkillId: string) => { finish(): void };
+  }) => number;
+  readonly finishSkillSlotReplacement?: (skillGroupKey: string, registrationId: number) => void;
+  readonly activatePlayerActionMode?: (modeId: string) => number;
+  readonly finishPlayerActionMode?: (registrationId: number) => void;
+  readonly overrideBasicAttackMapping?: (sourceSkillId: string) => number;
+  readonly finishBasicAttackMapping?: (registrationId: number) => void;
   readonly changeNativeSkillType?: (skillKey: string, nativeSkillType: NativeSkillType) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
 export class SkillSlotOperationExecutor implements CombatOperationExecutor {
-  readonly #mappingHandles = new WeakMap<ResolvedCombatOperationStep, { finish(): void }>();
-  readonly #replacementHandles = new WeakMap<ResolvedCombatOperationStep, { finish(): void }>();
-  readonly #modeHandles = new WeakMap<ResolvedCombatOperationStep, { finish(): void }>();
-
   constructor(readonly options: SkillSlotOperationExecutorOptions) {}
 
   execute(step: ResolvedCombatOperationStep, context?: CombatOperationContext): boolean {
     if (step.kind === 'overrideBasicAttackMapping') {
       const register = this.options.overrideBasicAttackMapping;
-      if (register === undefined) throw new Error('Buff basic-attack mapping requires a handle');
-      this.#mappingHandles.get(step)?.finish();
-      this.#mappingHandles.set(step, register(step.parameters.sourceSkillId));
+      const finish = this.options.finishBasicAttackMapping;
+      const state = context?.actionRegistrationState;
+      if (register === undefined || finish === undefined || state === undefined)
+        throw new Error('basic-attack mapping requires action state and lifecycle ports');
+      if (state.registrationId !== null) finish(state.registrationId);
+      state.registrationId = register(step.parameters.sourceSkillId);
       return true;
     }
     if (step.kind === 'changePlayerActionMode') {
       const activate = this.options.activatePlayerActionMode;
-      if (activate === undefined) throw new Error('native player-action mode requires a handle');
-      this.#modeHandles.get(step)?.finish();
-      this.#modeHandles.set(step, activate(step.parameters.modeId));
+      const finish = this.options.finishPlayerActionMode;
+      const state = context?.actionRegistrationState;
+      if (activate === undefined || finish === undefined || state === undefined)
+        throw new Error('native player-action mode requires action state and lifecycle ports');
+      if (state.registrationId !== null) finish(state.registrationId);
+      state.registrationId = activate(step.parameters.modeId);
       return true;
     }
     if (step.kind === 'changeNativeSkillType') {
@@ -58,21 +63,21 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
     }
     if (step.parameters.lifetime !== undefined) {
       const replace = this.options.replaceSkillSlot;
-      if (replace === undefined) throw new Error('native skill-slot replacement requires a handle');
-      const previous = this.#replacementHandles.get(step);
-      previous?.finish();
-      this.#replacementHandles.set(
-        step,
-        replace({
-          skillGroupKey: step.parameters.skillGroupKey,
-          targetSkillKey: step.parameters.targetSkillKey,
-          ...(step.parameters.revertedSkillKey === undefined
-            ? {}
-            : { revertedSkillKey: step.parameters.revertedSkillKey }),
-          inheritOriginSkillCooldownProgress:
-            step.parameters.inheritOriginSkillCooldownProgress ?? false,
-        }),
-      );
+      const finish = this.options.finishSkillSlotReplacement;
+      const state = context?.actionRegistrationState;
+      if (replace === undefined || finish === undefined || state === undefined)
+        throw new Error('skill-slot replacement requires action state and lifecycle ports');
+      if (state.registrationId !== null)
+        finish(step.parameters.skillGroupKey, state.registrationId);
+      state.registrationId = replace({
+        skillGroupKey: step.parameters.skillGroupKey,
+        targetSkillKey: step.parameters.targetSkillKey,
+        ...(step.parameters.revertedSkillKey === undefined
+          ? {}
+          : { revertedSkillKey: step.parameters.revertedSkillKey }),
+        inheritOriginSkillCooldownProgress:
+          step.parameters.inheritOriginSkillCooldownProgress ?? false,
+      });
     } else {
       this.options.changeSkillSlot(
         step.parameters.skillGroupKey,
@@ -85,20 +90,33 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
 
   end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     if (step.kind === 'overrideBasicAttackMapping') {
-      this.#mappingHandles.get(step)?.finish();
-      this.#mappingHandles.delete(step);
+      const state = context?.actionRegistrationState;
+      const finish = this.options.finishBasicAttackMapping;
+      if (state === undefined || finish === undefined)
+        throw new Error('basic-attack mapping requires action state and lifecycle ports');
+      if (state.registrationId !== null) finish(state.registrationId);
+      state.registrationId = null;
       return;
     }
     if (step.kind === 'changeSkillSlot') {
       if (step.parameters.lifetime === 'finishByAction') {
-        this.#replacementHandles.get(step)?.finish();
-        this.#replacementHandles.delete(step);
+        const state = context?.actionRegistrationState;
+        const finish = this.options.finishSkillSlotReplacement;
+        if (state === undefined || finish === undefined)
+          throw new Error('skill-slot replacement requires action state and lifecycle ports');
+        if (state.registrationId !== null)
+          finish(step.parameters.skillGroupKey, state.registrationId);
+        state.registrationId = null;
       }
       return;
     }
     if (step.kind === 'changePlayerActionMode') {
-      this.#modeHandles.get(step)?.finish();
-      this.#modeHandles.delete(step);
+      const state = context?.actionRegistrationState;
+      const finish = this.options.finishPlayerActionMode;
+      if (state === undefined || finish === undefined)
+        throw new Error('native player-action mode requires action state and lifecycle ports');
+      if (state.registrationId !== null) finish(state.registrationId);
+      state.registrationId = null;
       return;
     }
     this.options.delegate.end?.(step, context);

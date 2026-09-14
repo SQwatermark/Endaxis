@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import { prepareComboCast } from './comboCastPreparation';
+import { applySkillCastStartPreparation } from './skillCastStartPreparation';
+import { StateStepper } from './stateStepper';
 import type { PendingComboCondition } from './comboSkillConditionRuntime';
 
 function pending(
@@ -35,7 +37,7 @@ describe('木桩连携施法准备', () => {
       blackboard: new ActionBlackboard(),
       targetContext: new RuntimeTargetContext(),
     };
-    prepareComboCast({ smartTarget: 'enemy' })(context);
+    applySkillCastStartPreparation(prepareComboCast({ smartTarget: 'enemy' }), context);
     expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
   });
 
@@ -48,7 +50,13 @@ describe('木桩连携施法准备', () => {
       blackboard: new ActionBlackboard({ local: 0 }, entity),
       targetContext: new RuntimeTargetContext(),
     };
-    callback(context);
+    const session = new StateStepper(
+      { preparation: callback },
+      (step, _: undefined) => step.state.preparation,
+    );
+    const saved = session.save();
+    session.restore(saved);
+    applySkillCastStartPreparation(session.step(undefined), context);
     expect(context.blackboard.snapshot()).toEqual({
       local: 4,
       label: 'saved',
@@ -65,7 +73,7 @@ describe('木桩连携施法准备', () => {
       blackboard: new ActionBlackboard({ local: 3 }),
       targetContext: new RuntimeTargetContext(),
     };
-    prepareComboCast({}, pending(assignPairs))(context);
+    applySkillCastStartPreparation(prepareComboCast({}, pending(assignPairs)), context);
     expect(context.blackboard.snapshot()).toEqual({ local: 3 });
     expect(context.targetContext.getOptional('smart_target')).toBeUndefined();
   });
@@ -75,7 +83,7 @@ describe('木桩连携施法准备', () => {
       blackboard: new ActionBlackboard({ local: 0 }),
       targetContext: new RuntimeTargetContext(),
     };
-    prepareComboCast({ smartTarget: 'trigger' })(context);
+    applySkillCastStartPreparation(prepareComboCast({ smartTarget: 'trigger' }), context);
     expect(context.blackboard.snapshot()).toEqual({ local: 0 });
     expect(context.targetContext.getOptional('trigger')).toBeUndefined();
     expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
@@ -86,14 +94,17 @@ describe('木桩连携施法准备', () => {
       blackboard: new ActionBlackboard(),
       targetContext: new RuntimeTargetContext(),
     };
-    prepareComboCast(
-      { smartTarget: 'input' },
-      {
-        ...pending(),
-        inputTarget: { kind: 'enemy' },
-        triggerTarget: { kind: 'operator', operatorId: 'owner' },
-      },
-    )(context);
+    applySkillCastStartPreparation(
+      prepareComboCast(
+        { smartTarget: 'input' },
+        {
+          ...pending(),
+          inputTarget: { kind: 'enemy' },
+          triggerTarget: { kind: 'operator', operatorId: 'owner' },
+        },
+      ),
+      context,
+    );
     expect(context.targetContext.get('trigger')).toEqual([
       { kind: 'operator', operatorId: 'owner' },
     ]);

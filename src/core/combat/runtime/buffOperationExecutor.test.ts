@@ -1,3 +1,4 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
@@ -873,6 +874,7 @@ describe('BuffOperationExecutor', () => {
     const target = {
       ownerId: 'enemy',
       applyScoped: () => ({
+        reference: createTestBuffReference(),
         finish: (reason: string) => {
           finished.push(reason);
           return true;
@@ -900,17 +902,20 @@ describe('BuffOperationExecutor', () => {
         finishByAction: true,
       },
     };
+    const actionBuffReferencesState = { active: false, references: [] };
 
-    expect(executor.execute(step, { blackboard: new ActionBlackboard() })).toBe(true);
+    expect(
+      executor.execute(step, { blackboard: new ActionBlackboard(), actionBuffReferencesState }),
+    ).toBe(true);
     expect(finished).toEqual([]);
 
-    executor.end(step, { blackboard: new ActionBlackboard() });
+    executor.end(step, { blackboard: new ActionBlackboard(), actionBuffReferencesState });
     expect(finished).toEqual(['other']);
   });
 
   it('transfers the same action-duration Buff handle only to an allowed next native skill', () => {
     const finish = vi.fn(() => true);
-    const handle = { finish };
+    const handle = { reference: createTestBuffReference(), finish };
     const target = {
       ownerId: 'ability-entity',
       applyScoped: () => handle,
@@ -939,10 +944,12 @@ describe('BuffOperationExecutor', () => {
     };
     const detachBuffFromCurrentSkill = vi.fn();
     const attachBuffToNextSkill = vi.fn();
+    const actionBuffReferencesState = { active: false, references: [] };
 
-    executor.execute(step, { blackboard: new ActionBlackboard() });
+    executor.execute(step, { blackboard: new ActionBlackboard(), actionBuffReferencesState });
     executor.end(step, {
       blackboard: new ActionBlackboard(),
+      actionBuffReferencesState,
       pendingNextSkillId: 'native.attack1',
       detachBuffFromCurrentSkill,
       attachBuffToNextSkill,
@@ -953,9 +960,83 @@ describe('BuffOperationExecutor', () => {
     expect(finish).not.toHaveBeenCalled();
   });
 
+  it('ends a restored action-duration Buff through the new branch handle', () => {
+    const reference = createTestBuffReference();
+    const oldFinish = vi.fn(() => true);
+    const oldHandle = { reference, finish: oldFinish };
+    const step = {
+      kind: 'applyBuff' as const,
+      parameters: {
+        buffId: 'branch-aura',
+        target: 'enemy' as const,
+        finishByAction: true,
+      },
+    };
+    const originalState = { active: false, references: [] };
+    const original = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        ownerId: reference.ownerId,
+        applyScoped: () => oldHandle,
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        holdByIds: () => ({ release: () => undefined }),
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      }),
+      delegate,
+    });
+    original.execute(step, {
+      blackboard: new ActionBlackboard(),
+      actionBuffReferencesState: originalState,
+    });
+
+    const restoredState = structuredClone(originalState);
+    const newFinish = vi.fn(() => true);
+    const newHandle = { reference, finish: newFinish };
+    const restored = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => {
+        throw new Error('restored End must resolve the saved owner identity');
+      },
+      resolveEventTarget: ownerId => {
+        expect(ownerId).toBe(reference.ownerId);
+        return {
+          ownerId,
+          resolveHandle: saved => {
+            expect(saved).toEqual(reference);
+            return newHandle;
+          },
+          getCountByIds: () => 0,
+          finishByIds: () => 0,
+          holdByIds: () => ({ release: () => undefined }),
+          getCountByTags: () => 0,
+          matchesEntityTags: () => false,
+          findFirstByIds: () => undefined,
+          findFirstByTags: () => undefined,
+          finishByTags: () => 0,
+        };
+      },
+      delegate,
+    });
+
+    restored.end(step, {
+      blackboard: new ActionBlackboard(),
+      actionBuffReferencesState: restoredState,
+    });
+
+    expect(newFinish).toHaveBeenCalledExactlyOnceWith('other');
+    expect(oldFinish).not.toHaveBeenCalled();
+    expect(restoredState).toEqual({ active: false, references: [] });
+    expect(originalState).toEqual({ active: true, references: [reference] });
+  });
+
   it('detaches and transfers the same existing Buff instance during an allowed skill transition', () => {
     const finish = vi.fn(() => true);
-    const handle = { finish };
+    const handle = { reference: createTestBuffReference(), finish };
     const target = {
       ownerId: 'operator',
       findFirstHandleByIds: () => handle,
@@ -985,13 +1066,16 @@ describe('BuffOperationExecutor', () => {
     };
     const detachBuffFromCurrentSkill = vi.fn();
     const attachBuffToNextSkill = vi.fn();
+    const actionBuffReferencesState = { active: false, references: [] };
 
     executor.execute(step, {
       blackboard: new ActionBlackboard(),
+      actionBuffReferencesState,
       detachBuffFromCurrentSkill,
     });
     executor.end(step, {
       blackboard: new ActionBlackboard(),
+      actionBuffReferencesState,
       pendingNextSkillId: 'native.followup',
       attachBuffToNextSkill,
     });
@@ -1003,7 +1087,7 @@ describe('BuffOperationExecutor', () => {
 
   it('ends an inherited existing Buff when no next skill is available', () => {
     const finish = vi.fn(() => true);
-    const handle = { finish };
+    const handle = { reference: createTestBuffReference(), finish };
     const target = {
       ownerId: 'operator',
       findFirstHandleByIds: () => handle,
@@ -1031,12 +1115,14 @@ describe('BuffOperationExecutor', () => {
         finishWithNextSkillIfNotInherited: true,
       },
     };
+    const actionBuffReferencesState = { active: false, references: [] };
 
     executor.execute(step, {
       blackboard: new ActionBlackboard(),
+      actionBuffReferencesState,
       detachBuffFromCurrentSkill: () => undefined,
     });
-    executor.end(step, { blackboard: new ActionBlackboard() });
+    executor.end(step, { blackboard: new ActionBlackboard(), actionBuffReferencesState });
 
     expect(finish).toHaveBeenCalledExactlyOnceWith('other');
   });
@@ -1050,7 +1136,7 @@ describe('BuffOperationExecutor', () => {
     'rejectedCastSkill',
     'missingCastSkill',
   ] as const)('attaches scoped Buff handles to the current %s owner', owner => {
-    const child = { finish: vi.fn(() => true) };
+    const child = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
     const addCurrentBuffChild = vi.fn();
     const usesAttachingSkillLifetime = [
       'castSkill',
@@ -2616,13 +2702,77 @@ describe('BuffOperationExecutor', () => {
       kind: 'holdBuffsById' as const,
       parameters: { target: 'caster' as const, buffIds: ['ultimate-base'] },
     };
+    const actionBuffReferencesState = { active: false, references: [] };
 
-    expect(executor.execute(operation)).toBe(true);
+    expect(
+      executor.execute(operation, {
+        blackboard: new ActionBlackboard(),
+        actionBuffReferencesState,
+      }),
+    ).toBe(true);
     expect(buff.isFinishable).toBe(false);
 
-    executor.end(operation);
+    executor.end(operation, {
+      blackboard: new ActionBlackboard(),
+      actionBuffReferencesState,
+    });
 
     expect(buff.isFinishable).toBe(true);
+  });
+
+  it('releases a restored Buff hold by saved instance references', () => {
+    const reference = createTestBuffReference();
+    const operation = {
+      kind: 'holdBuffsById' as const,
+      parameters: { target: 'caster' as const, buffIds: ['ultimate-base'] },
+    };
+    const originalState = { active: false, references: [] };
+    const original = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        ownerId: reference.ownerId,
+        holdByIds: () => ({ references: [reference], release: () => undefined }),
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      }),
+      delegate,
+    });
+    original.execute(operation, {
+      blackboard: new ActionBlackboard(),
+      actionBuffReferencesState: originalState,
+    });
+
+    const restoredState = structuredClone(originalState);
+    const released: unknown[] = [];
+    const restored = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => ({
+        ownerId: reference.ownerId,
+        holdByIds: () => ({ references: [], release: () => undefined }),
+        releaseHeld: references => released.push(...references),
+        getCountByIds: () => 0,
+        finishByIds: () => 0,
+        getCountByTags: () => 0,
+        matchesEntityTags: () => false,
+        findFirstByIds: () => undefined,
+        findFirstByTags: () => undefined,
+        finishByTags: () => 0,
+      }),
+      delegate,
+    });
+    restored.end(operation, {
+      blackboard: new ActionBlackboard(),
+      actionBuffReferencesState: restoredState,
+    });
+
+    expect(released).toEqual([reference]);
+    expect(restoredState).toEqual({ active: false, references: [] });
+    expect(originalState).toEqual({ active: true, references: [reference] });
   });
 });
 import { createEventBuff } from '../events/buffEventTestFixture';

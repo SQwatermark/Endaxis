@@ -19,6 +19,8 @@ import { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
 import { GAMEPLAY_TAG_PREDEFINE } from '../../../data/combat/gameplayTagPredefine.generated';
 import { CombatStatusContainer } from '../status/combatStatuses';
 import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
+import { prepareCombatRuntimeRestore } from './combatRuntimeRestorePreparation';
+import { CombatSkillPrograms, combatSkillProgramKey } from './combatSkillPrograms';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatVitals } from './combatVitals';
@@ -187,6 +189,13 @@ function createAssembly(
     | readonly CompiledSkillProgram[]
     | {
         programs: readonly CompiledSkillProgram[];
+        definitionSkillPrograms?: readonly CompiledSkillProgram[];
+        skillCooldownPrograms?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['operators'][number]['skillCooldownPrograms'];
+        createOperationExecutor?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['createOperationExecutor'];
         emitAbilityEvent?: ConstructorParameters<
           typeof CombatRuntimeAssembly
         >[0]['emitAbilityEvent'];
@@ -196,6 +205,7 @@ function createAssembly(
         registerPassiveAbilityEventAction?: ConstructorParameters<
           typeof CombatRuntimeAssembly
         >[0]['registerPassiveAbilityEventAction'];
+        combatSkillPrograms?: CombatSkillPrograms;
       },
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,
   resolveVitals?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['resolveVitals'],
@@ -237,6 +247,9 @@ function createAssembly(
       ? { registerPassiveAbilityEventAction: input.registerPassiveAbilityEventAction }
       : {}),
     ...(skillAvailabilityTags === undefined ? {} : { skillAvailabilityTags }),
+    ...('programs' in input && input.combatSkillPrograms !== undefined
+      ? { combatSkillPrograms: input.combatSkillPrograms }
+      : {}),
     enemy,
     resources: {
       sp: 100,
@@ -262,6 +275,12 @@ function createAssembly(
       {
         operatorId: 'operator',
         skills: programs,
+        ...('programs' in input && input.skillCooldownPrograms !== undefined
+          ? { skillCooldownPrograms: input.skillCooldownPrograms }
+          : {}),
+        ...('programs' in input && input.definitionSkillPrograms !== undefined
+          ? { definitionSkillPrograms: input.definitionSkillPrograms }
+          : {}),
         ...(buffDefinitions === undefined ? {} : { buffDefinitions }),
         ...(skillSlotGroups === undefined ? {} : { skillSlotGroups }),
         ...(playerActionRoutes === undefined ? {} : { playerActionRoutes }),
@@ -270,7 +289,10 @@ function createAssembly(
         ...(panel === undefined ? {} : { panel }),
       },
     ],
-    createOperationExecutor: () => rejectingExecutor,
+    createOperationExecutor:
+      'programs' in input && input.createOperationExecutor !== undefined
+        ? input.createOperationExecutor
+        : () => rejectingExecutor,
     ...(inputs === undefined ? {} : { inputs }),
     ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
     ...(createAbilityEntityBuffRuntime === undefined ? {} : { createAbilityEntityBuffRuntime }),
@@ -281,6 +303,283 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('Buff 容器接入干员节点并与技能共用实体黑板，清理不改写副本', () => {
+    const container = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+    const target = new BuffDefinitionOperationTarget(container, { get: () => undefined });
+    const assembly = createAssembly(
+      [skill()],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      () => target,
+    );
+    const operator = assembly.stateGraph.operators.get('operator')!;
+    expect(operator.buffs).toBe(container.runtimeState);
+    expect(operator.buffs!.entityBlackboard).toBe(operator.blackboard);
+    container.add({ id: 'test', stackingType: 'unlimited' }, 'operator');
+    const saved = structuredClone(assembly.stateGraph);
+    container.finishByIds(['test'], 'other');
+    container.recycleFinishedBuffs();
+    expect(saved.operators.get('operator')!.buffs!.instances.size).toBe(1);
+    expect(operator.buffs!.instances.size).toBe(0);
+    expect(saved.operators.get('operator')!.buffs!.entityBlackboard).toBe(
+      saved.operators.get('operator')!.blackboard,
+    );
+  });
+
+  it('固定定义相同时，不同未来块的身份和黑板不进入相同前缀的数据图', () => {
+    const build = (futureId: string, futureValue: number) =>
+      createAssembly({
+        programs: [
+          skill({ castId: 'prefix' }),
+          skill({ castId: futureId, initialBlackboard: { futureValue } }),
+        ],
+        definitionSkillPrograms: [skill()],
+        ...nativeEventRuntimeOptions(),
+      });
+    const a = build('future-a', 11);
+    const b = build('future-b', 99);
+    expect(a.stateGraph).toEqual(b.stateGraph);
+    a.tryStartPlayerInput('operator', 'skill', 'prefix');
+    b.tryStartPlayerInput('operator', 'skill', 'prefix');
+    expect(a.stateGraph.operators.get('operator')!.ability.currentSkillKey).toBe(
+      'skill\u0000prefix',
+    );
+    a.advanceFrame();
+    b.advanceFrame();
+    expect(a.stateGraph).toEqual(b.stateGraph);
+    expect([...a.stateGraph.operators.get('operator')!.skills.keys()]).toEqual([
+      'skill\u0000',
+      'skill\u0000prefix',
+    ]);
+    const saved = structuredClone(a.stateGraph);
+    const savedOperator = saved.operators.get('operator')!;
+    expect(savedOperator.cooldowns.get('skill')).toBe(
+      savedOperator.skills.get('skill\u0000')!.cooldown,
+    );
+    expect(savedOperator.cooldowns.get('skill')).toBe(
+      savedOperator.skills.get('skill\u0000prefix')!.cooldown,
+    );
+    expect(saved.operators.get('operator')!.skills.get('skill\u0000')!.blackboard.entity).toBe(
+      saved.operators.get('operator')!.skills.get('skill\u0000prefix')!.blackboard.entity,
+    );
+    a.tryStartPlayerInput('operator', 'skill', 'future-a');
+    expect(a.stateGraph.operators.get('operator')!.skills.has('skill\u0000future-a')).toBe(true);
+    expect(saved.operators.get('operator')!.skills.has('skill\u0000future-a')).toBe(false);
+    expect(
+      saved.operators.get('operator')!.skills.get('skill\u0000prefix')!.blackboard.entity,
+    ).toBe(saved.operators.get('operator')!.blackboard);
+    expect(saved.operators.get('operator')!.ability.currentSkillKey).toBeNull();
+  });
+
+  it('只配置冷却而没有施放实例的技能也进入数据图', () => {
+    const assembly = createAssembly({
+      programs: [],
+      skillCooldownPrograms: [skill({ skillId: 'unplaced', cooldownFrames: 100, costFrame: 0 })],
+      ...nativeEventRuntimeOptions(),
+    });
+    const operator = assembly.stateGraph.operators.get('operator')!;
+    expect(operator.skills.size).toBe(0);
+    expect([...operator.cooldowns.keys()]).toEqual(['unplaced']);
+    const saved = structuredClone(assembly.stateGraph);
+    expect(saved.operators.get('operator')!.cooldowns.get('unplaced')).toEqual(
+      operator.cooldowns.get('unplaced'),
+    );
+    expect(saved.operators.get('operator')!.cooldowns.get('unplaced')).not.toBe(
+      operator.cooldowns.get('unplaced'),
+    );
+  });
+
+  it('有固定定义的未来技能块在提交时才创建执行器，重复输入不重复创建', () => {
+    const created: (string | undefined)[] = [];
+    const definition = skill();
+    const placed = skill({ castId: 'future' });
+    const assembly = createAssembly({
+      programs: [placed],
+      definitionSkillPrograms: [definition],
+      ...nativeEventRuntimeOptions(),
+      createOperationExecutor: context => {
+        created.push(context.program.castId);
+        return rejectingExecutor;
+      },
+    });
+    expect(created).not.toContain('future');
+    assembly.advanceFrame();
+    expect(created).not.toContain('future');
+    assembly.tryStartPlayerInput('operator', placed.skillId, 'future');
+    expect(created.filter(id => id === 'future')).toHaveLength(1);
+    assembly.tryStartPlayerInput('operator', placed.skillId, 'future');
+    expect(created.filter(id => id === 'future')).toHaveLength(1);
+  });
+
+  it('共享层引用正式运行数据，复制后不会被后续帧和事件改写', () => {
+    const assembly = createAssembly([]);
+    const state = assembly.sharedState;
+    expect(state.clock).toBe(assembly.clock.runtimeState);
+    expect(state.resources).toBe(assembly.resources.runtimeState);
+    expect(state.receipts).toBe(assembly.receipt.runtimeState);
+    expect(state.comboWindows).toBe(assembly.comboWindows.runtimeState);
+    const saved = structuredClone(state);
+    assembly.comboWindows.open('operator', 'combo');
+    assembly.ultimatePresentation.setActive(true, 'operator', 'hide');
+    assembly.advanceFrame();
+    expect(state.clock.frame).toBe(saved.clock.frame + 1);
+    expect(state.comboWindows.records.size).toBe(1);
+    expect(state.ultimatePresentation.inUltimateCasting).toBe(true);
+    expect(saved.comboWindows.records.size).toBe(0);
+    expect(saved.ultimatePresentation.inUltimateCasting).toBe(false);
+    expect(state.receipts.entries.length).toBeGreaterThan(saved.receipts.entries.length);
+  });
+
+  it('正式装配把普通技能登记到切面树共享的固定程序目录', () => {
+    const program = skill();
+    const programs = new CombatSkillPrograms();
+    const assembly = createAssembly({
+      programs: [program],
+      combatSkillPrograms: programs,
+      ...nativeEventRuntimeOptions(),
+    });
+
+    expect(assembly.combatSkillPrograms).toBe(programs);
+    expect(programs.resolve(combatSkillProgramKey(program)).program).toBe(program);
+  });
+
+  it('整场恢复预检接受完整复制图，并拒绝丢失程序或共享引用的候选', () => {
+    const definition = skill();
+    const placed = skill({ castId: 'future' });
+    const operator = {
+      operatorId: 'operator',
+      skills: [placed],
+      definitionSkillPrograms: [definition],
+    };
+    const assembly = createAssembly({
+      programs: [placed],
+      definitionSkillPrograms: [definition],
+      ...nativeEventRuntimeOptions(),
+    });
+    const saved = structuredClone(assembly.stateGraph);
+
+    const prepared = prepareCombatRuntimeRestore(saved, [operator], assembly.combatSkillPrograms);
+
+    expect(prepared.graph).toBe(saved);
+    expect(prepared.operators).toBe(saved.operators);
+    expect(prepared.skills.get('operator')![0]!.state).toBe(
+      saved.operators.get('operator')!.skills.get('skill\u0000'),
+    );
+    expect(prepared.skills.get('operator')![0]!.fixed.program).toBe(definition);
+    expect(() => prepareCombatRuntimeRestore(saved, [operator], new CombatSkillPrograms())).toThrow(
+      "combat skill program 'operator",
+    );
+    const missingSkill = structuredClone(saved);
+    missingSkill.operators.get('operator')!.skills.delete('skill\u0000');
+    expect(() =>
+      prepareCombatRuntimeRestore(missingSkill, [operator], assembly.combatSkillPrograms),
+    ).toThrow("restored operator 'operator' is missing skill");
+    const splitCooldown = structuredClone(saved);
+    const splitOperator = splitCooldown.operators.get('operator')!;
+    splitOperator.skills.set('skill\u0000', {
+      ...splitOperator.skills.get('skill\u0000')!,
+      cooldown: structuredClone(splitOperator.cooldowns.get('skill')!),
+    });
+    expect(() =>
+      prepareCombatRuntimeRestore(splitCooldown, [operator], assembly.combatSkillPrograms),
+    ).toThrow("restored skill 'operator:skill");
+    const wrongOrder = structuredClone(saved);
+    (wrongOrder.shared.resources.squad[0] as { operatorId: string }).operatorId = 'other';
+    expect(() =>
+      prepareCombatRuntimeRestore(wrongOrder, [operator], assembly.combatSkillPrograms),
+    ).toThrow('restored resource squad order does not match combat operators');
+    const splitResources = structuredClone(saved);
+    const member = splitResources.shared.resources.squad[0]!;
+    splitResources.shared.resources.operators.set(member.operatorId, structuredClone(member));
+    expect(() =>
+      prepareCombatRuntimeRestore(splitResources, [operator], assembly.combatSkillPrograms),
+    ).toThrow("restored resource operator 'operator' uses another ledger");
+  });
+
+  it('整场恢复预检拒绝脱离干员实体黑板的被动状态', () => {
+    const definition = skill();
+    const passive: CompiledOperatorPassiveProgram = {
+      key: 'passive',
+      initialBlackboard: {},
+      enableSequence: { steps: [] },
+    };
+    const operator = {
+      operatorId: 'operator',
+      skills: [definition],
+      passivePrograms: [passive],
+    };
+    const assembly = createAssembly(
+      [definition],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      [passive],
+    );
+    const saved = structuredClone(assembly.stateGraph);
+    const passiveState = saved.operators.get('operator')!.passives.get('passive')!;
+    passiveState.blackboard.entity = structuredClone(saved.operators.get('operator')!.blackboard);
+
+    expect(() =>
+      prepareCombatRuntimeRestore(saved, [operator], assembly.combatSkillPrograms),
+    ).toThrow("restored passive 'operator:passive' uses another entity blackboard");
+  });
+
+  it('整场恢复预检在创建对象前拒绝能力实体 Buff 容器的不完整拓扑', () => {
+    const definition = skill();
+    const operator = {
+      operatorId: 'operator',
+      skills: [definition],
+    };
+    const assembly = createAssembly([definition]);
+    const target = assembly.abilityEntities.spawn({
+      abilityEntityId: 'summon',
+      definition: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+      ownerId: 'operator',
+      source: { kind: 'operator', operatorId: 'operator' },
+    });
+    if (target.kind !== 'abilityEntity') throw new Error('test entity was not created');
+    const entity = assembly.stateGraph.instances.abilityEntities.instances.get(target.instanceId)!;
+    const buffs = new CombatBuffContainer(
+      logicalAbilityEntityRuntimeId(target.instanceId),
+      new CombatAttributeSet<string>(),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(entity.blackboard),
+    );
+    entity.buffContainerCreated = true;
+    entity.buffs = buffs.runtimeState;
+    const valid = structuredClone(assembly.stateGraph);
+
+    expect(() =>
+      prepareCombatRuntimeRestore(valid, [operator], assembly.combatSkillPrograms),
+    ).not.toThrow();
+
+    const missing = structuredClone(valid);
+    missing.instances.abilityEntities.instances.get(target.instanceId)!.buffs = null;
+    expect(() =>
+      prepareCombatRuntimeRestore(missing, [operator], assembly.combatSkillPrograms),
+    ).toThrow(`restored AbilityEntity '${target.instanceId}' created Buff container has no data`);
+
+    const splitBlackboard = structuredClone(valid);
+    const splitEntity = splitBlackboard.instances.abilityEntities.instances.get(target.instanceId)!;
+    splitEntity.buffs = {
+      ...splitEntity.buffs!,
+      entityBlackboard: structuredClone(splitEntity.blackboard),
+    };
+    expect(() =>
+      prepareCombatRuntimeRestore(splitBlackboard, [operator], assembly.combatSkillPrograms),
+    ).toThrow(`restored AbilityEntity '${target.instanceId}' Buffs use another blackboard`);
+  });
+
   it.each([
     { scope: 'global', scale: 0.5, blockFrames: 2, nextFrame: 5, instant: false, frozenFrames: 0 },
     { scope: 'entity', scale: 0.5, blockFrames: 2, nextFrame: 5, instant: false, frozenFrames: 0 },
@@ -603,6 +902,7 @@ describe('CombatRuntimeAssembly', () => {
     expect(launch?.[0]).toBe('operator');
     expect(launch?.[2].sourceId).toBe('operator');
     expect(launch?.[2].entity).not.toHaveProperty('target');
+    expect(launch?.[2].entity.instanceId).toBeGreaterThan(0);
     expect(launch?.[2].skillCastInfo.skillCastId).toBe(cast?.[2].skillCastId);
     const reset = vi.fn(() => {
       expect(assembly.projectileLifetimes.findSource(1)).toEqual({
@@ -730,6 +1030,15 @@ describe('CombatRuntimeAssembly', () => {
       abilityRuntime: { advanceFrame: () => calls.push('ability') },
     });
     projectile.onReset(() => calls.push('reset'));
+    const savedGraph = structuredClone(assembly.stateGraph);
+    expect(assembly.stateGraph.shared).toBe(assembly.sharedState);
+    expect(assembly.stateGraph.events.semantic).toBe(assembly.semanticEvents.runtimeState);
+    expect(assembly.stateGraph.events.native).toBeNull();
+    expect(assembly.stateGraph.instances.abilityEntities).toBe(
+      assembly.abilityEntities.runtimeState,
+    );
+    expect(assembly.stateGraph.instances.globalBuffs).toBe(assembly.globalBuffs.runtimeState);
+    expect(savedGraph.instances.projectiles.instances.has(projectile.target.instanceId)).toBe(true);
     assembly.advanceFrame();
     expect(calls).toEqual(['finish-callback', 'enemy-buffs', 'ability']);
     calls.length = 0;
@@ -738,6 +1047,8 @@ describe('CombatRuntimeAssembly', () => {
     calls.length = 0;
     assembly.advanceFrame();
     expect(calls).toEqual(['end-callback', 'reset', 'enemy-buffs']);
+    expect(assembly.stateGraph.instances.projectiles.instances.size).toBe(0);
+    expect(savedGraph.instances.projectiles.instances.size).toBe(1);
   });
 
   it.each(['common', 'type'] as const)(
@@ -1523,7 +1834,7 @@ describe('CombatRuntimeAssembly', () => {
       curve: () => 0.5,
     });
 
-    assembly.simulation.advanceFrames(30);
+    assembly.advanceFrames(30);
 
     const snapshot = assembly.abilityEntities.snapshot(entity);
     expect(snapshot.remainingDurationSeconds).toBeCloseTo(0.5);
@@ -1587,6 +1898,13 @@ describe('CombatRuntimeAssembly', () => {
     const [entity] = assembly.abilityEntities.findAll();
     expect(entity).toBeDefined();
     expect(assembly.abilityEntities.entityBlackboard(entity!).getNumber('EntityBB_seed')).toBe(7);
+    const entityState = assembly.stateGraph.instances.abilityEntities.instances.get(
+      entity!.instanceId,
+    )!;
+    const passiveState = entityState.passiveAbilities.get('entity-passive')!;
+    expect(passiveState.host.enabled).toBe(true);
+    expect(passiveState.host.registrations).toHaveLength(1);
+    expect(passiveState.blackboard.entity).toBe(entityState.blackboard);
     native.emitAddedBuff({
       sourceId: 'operator',
       targetId: 'enemy',
@@ -1849,6 +2167,11 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.tryStartSkill('operator', 'skill', 'entity-buff-cast')).toBe(true);
     expect(createAbilityEntityBuffRuntime).toHaveBeenCalledOnce();
     expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual(['entity-monitor']);
+    const entityState = [...assembly.stateGraph.instances.abilityEntities.instances.values()][0]!;
+    expect(entityState.buffContainerCreated).toBe(true);
+    expect(entityState.buffs).toBe(entityBuffs!.runtimeState);
+    expect(entityState.buffs!.entityBlackboard).toBe(entityState.blackboard);
+    const savedEntity = structuredClone(entityState);
     const monitor = entityBuffs?.buffs[0];
     expect(assembly.abilityEntities.activeCount).toBe(1);
     assembly.advanceFrames(1);
@@ -1859,6 +2182,8 @@ describe('CombatRuntimeAssembly', () => {
     expect(monitor?.isRecycled).toBe(true);
     expect(entityBuffs?.buffs).toEqual([]);
     expect(ownerHpZeroCleanupStates).toEqual([false]);
+    expect(savedEntity.buffs!.instances.size).toBe(1);
+    expect(savedEntity.buffs!.entityBlackboard).toBe(savedEntity.blackboard);
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({
         event: 'AbilityEntityFinished',
@@ -2302,6 +2627,60 @@ describe('CombatRuntimeAssembly', () => {
         data: expect.objectContaining({ skillId: 'battleSkillEnd' }),
       }),
     );
+  });
+
+  it('技能槽替换的还原数据保存在能力系统中，动作结束后清除登记', () => {
+    const base = skill({
+      castId: 'cast',
+      skillId: 'base',
+      costs: [],
+      costFrame: 0,
+      timelineActions: [
+        {
+          startFrame: 0,
+          endFrame: 3,
+          sequence: {
+            steps: [
+              {
+                kind: 'changeSkillSlot',
+                parameters: {
+                  skillGroupKey: 'battle',
+                  targetSkillKey: 'enhanced',
+                  lifetime: 'finishByAction',
+                  inheritOriginSkillCooldownProgress: true,
+                },
+              },
+            ],
+          },
+        },
+      ],
+    });
+    const enhanced = skill({ castId: 'cast', skillId: 'enhanced', costs: [], costFrame: 0 });
+    const assembly = createAssembly(
+      [base, enhanced],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [{ skillGroupKey: 'battle', baseSkillKey: 'base', replacementSkillKeys: ['enhanced'] }],
+    );
+    expect(assembly.tryStartSkill('operator', 'base', 'cast')).toBe(true);
+    const state = assembly.stateGraph.operators.get('operator')!.ability;
+    expect(state.skillSlotReplacements.get('battle')).toEqual({
+      registrationId: 0,
+      revertedSkillKey: 'base',
+      inheritOriginSkillCooldownProgress: true,
+    });
+    const saved = structuredClone(state);
+    assembly.advanceFrames(4);
+    expect(state.skillSlotReplacements.size).toBe(0);
+    expect(state.skillSlotGroups.get('battle')!.currentSkillKey).toBe('base');
+    expect(saved.skillSlotReplacements.size).toBe(1);
+    expect(saved.nextSkillSlotReplacementId).toBe(1);
   });
 
   it('changes an unplaced skill group without fabricating cooldown ledgers', () => {
@@ -3303,6 +3682,15 @@ describe('CombatRuntimeAssembly', () => {
       const assembly = create();
       expect(buffs.buffs).toHaveLength(1);
       const child = buffs.buffs[0]!;
+      const equipmentState = assembly.stateGraph.operators.get('operator')!.equipment!;
+      expect(equipmentState.contributions.get(0)!.host.enabled).toBe(true);
+      expect(equipmentState.contributions.get(0)!.host.childBuffs).toEqual([child.reference]);
+      const initializationState = assembly.stateGraph.operators
+        .get('operator')!
+        .initializations.get('fixture')!;
+      expect(initializationState.initializationExecuted).toBe(true);
+      expect(initializationState.blackboard).toBe(equipmentState.contributions.get(0)!.blackboard);
+      expect(initializationState.operations).toBeDefined();
       expect(child.sourceId).toBe('operator');
       expect(child.isFinished).toBe(false);
       // 无施法来源的装备被动也必须为每个 Buff 分配独立的有状态执行链。
@@ -3429,6 +3817,14 @@ describe('CombatRuntimeAssembly', () => {
     expect(buffs.buffs[0]?.blackboard.getNumber('ratio')).toBeCloseTo(0.5);
     expect(buffs.buffs[1]?.sourceActionId).toBe('passive:talent-aura');
     expect(buffs.buffs[1]?.blackboard.getNumber('attackIncrease')).toBeCloseTo(0.2);
+    const passiveState = assembly.stateGraph.operators
+      .get('operator')!
+      .passives.get('talent-aura')!;
+    expect(passiveState.host.enabled).toBe(true);
+    expect(passiveState.blackboard.values.get('attackIncrease')).toBeCloseTo(0.2);
+    expect(passiveState.host.childBuffs).toEqual([buffs.buffs[1]!.reference]);
+    expect(passiveState.operations).toBeDefined();
+    expect(passiveState.enableSequence).not.toBeNull();
     expect(assembly.resources.sp).toBe(20);
     expect(assembly.receipt.entries).toContainEqual(
       expect.objectContaining({ event: 'SpChanged', sourceId: 'operator' }),
@@ -3694,6 +4090,12 @@ describe('CombatRuntimeAssembly', () => {
       createOperationExecutor: () => rejectingExecutor,
     });
 
+    const operatorState = assembly.stateGraph.operators.get('operator')!;
+    expect(operatorState.upgradeEvents?.programs).toEqual([
+      expect.objectContaining({ key: 'potential:skill-sp-attack:0' }),
+    ]);
+    expect(operatorState.upgradeEvents?.programs[0]!.subscriptions.length).toBeGreaterThan(0);
+    expect(operatorState.initializations.has('skill-sp-buff-listener')).toBe(true);
     expect(assembly.tryStartSkill('operator', 'sp-skill')).toBe(true);
     assembly.advanceFrame();
     expect(assembly.resources.sp).toBe(20);

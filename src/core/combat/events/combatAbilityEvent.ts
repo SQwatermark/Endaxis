@@ -174,7 +174,9 @@ export interface AbilityOriginPayload extends AbilityEntityPair {
 
 /** 实际 AbilitySystem 的只读 reset 端口；不是另一个可配置事件。 */
 export interface AbilityResetReference {
-  onReset(callback: () => void): { dispose(): void };
+  /** 运行时对象身份，用于保存回收订阅的目标；事件查询不应把它当作伤害目标。 */
+  readonly instanceId: number;
+  onReset(callback: () => void): { readonly registrationId: number; dispose(): void };
 }
 
 /** 出生实例的只读生命周期端口；reset不是可配置的公共事件。 */
@@ -216,7 +218,7 @@ export type EventBuffInstance = Pick<
 export interface AbilityOutputBuffPayload extends BuffAppliedEvent {
   readonly buff: EventBuffInstance &
     Pick<CombatBuff<string>, 'affixSkillCastId' | 'skillCastInfo'> & {
-      onRecycled(callback: () => void): { dispose(): void };
+      onRecycled(callback: () => void): { readonly registrationId: number; dispose(): void };
     };
 }
 

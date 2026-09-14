@@ -2,6 +2,40 @@ import { describe, expect, it } from 'vitest';
 import { AbilityEventDispatcher } from './abilityEventDispatcher';
 
 describe('AbilityEventDispatcher', () => {
+  it('复制目录后按原编号恢复回调，保留顺序且旧句柄不影响新目录', () => {
+    const original = new AbilityEventDispatcher<'hit', { hit: number }>();
+    const first = original.registerAction('hit', 5, () => {});
+    const second = original.registerAction('hit', 5, () => {});
+    const saved = structuredClone({
+      state: original.runtimeState,
+      references: [...first.subscriptions, ...second.subscriptions],
+    });
+    expect(saved.references[0]!.state).toBe(saved.state);
+    const restored = new AbilityEventDispatcher<'hit', { hit: number }>(saved.state);
+    expect(() => restored.dispatch({ event: 'hit', payload: 3 }, [])).toThrow('is not bound');
+    const calls: string[] = [];
+    // 绑定顺序与注册顺序相反，不能因此改变原来的执行顺序。
+    restored.bindSubscription(saved.references[1]!, () => calls.push('second'));
+    const rebound = restored.bindSubscription(saved.references[0]!, event =>
+      calls.push(`first:${event.payload}`),
+    );
+    expect(saved.state.nextRegistrationId).toBe(2);
+    expect(() => restored.bindSubscription(saved.references[0]!, () => {})).toThrow(
+      'already bound',
+    );
+    expect(() => restored.bindSubscription(first.subscriptions[0]!, () => {})).toThrow(
+      'another state',
+    );
+    first.dispose();
+    restored.dispatch({ event: 'hit', payload: 3 }, []);
+    expect(calls).toEqual(['first:3', 'second']);
+    rebound.dispose();
+    expect(() => restored.bindSubscription(saved.references[0]!, () => {})).toThrow('is missing');
+    calls.length = 0;
+    restored.dispatch({ event: 'hit', payload: 4 }, []);
+    expect(calls).toEqual(['second']);
+  });
+
   it('持久订阅与临时监听共享阶段，并在阶段开始时取得快照', () => {
     const dispatcher = new AbilityEventDispatcher<'hit', { hit: number }>();
     const calls: string[] = [];

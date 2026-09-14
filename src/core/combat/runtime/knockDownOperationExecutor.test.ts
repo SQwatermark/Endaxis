@@ -135,6 +135,31 @@ function setup() {
 }
 
 describe('普通根倒地：复用真实 Buff 目标与控制标签', () => {
+  it('恢复倒地计时后沿用剩余时间，到期只清理新分支的控制标签', () => {
+    const original = setup();
+    original.executor.execute(step(), original.context);
+    original.executor.execute(step(), original.context);
+    original.control.advance(0.1);
+    const saved = structuredClone(original.control.runtimeState);
+    const next = setup();
+    // 本例只验证控制器恢复，实体标签作为另一份独立数据预先准备好。
+    next.control.predefine.addTagIfNotHaving(next.container, 'KnockDown');
+    const restored = new OrdinaryKnockDownRuntime(
+      next.container,
+      next.control.predefine,
+      runtime => runtime.exit(),
+      saved,
+    );
+    expect(restored.remaining).toBe(original.control.remaining);
+    restored.advance(100);
+    expect(restored.active).toBe(false);
+    expect(original.control.active).toBe(true);
+    expect(original.container.hasEntityTag(original.control.predefine.getTag('KnockDown'))).toBe(
+      true,
+    );
+    expect(next.container.hasEntityTag(next.control.predefine.getTag('KnockDown'))).toBe(false);
+  });
+
   it('第一次仅破防，第二次才进入普通倒地，控制时长不覆盖 Buff 自身时长', () => {
     const s = setup();
     expect(s.executor.execute(step(), s.context)).toBe(true);

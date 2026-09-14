@@ -1,0 +1,28 @@
+/**
+ * 技能宿主已经接入的数据层次。各字段引用正式执行所用的数据，不能另建一份镜像。
+ * 冷却和实体黑板可以被多个宿主共享，整图复制必须保留这种关系。
+ * 可用于重新绑定技能宿主；操作执行器、Buff 和事件环境必须从同一份战斗切面恢复。
+ * 尚未完成整场装配，不能只复制此结构就宣称可以恢复完整战斗。
+ */
+import type { SkillExecutionState } from './skillExecutionState';
+import type { ActionBlackboardState } from './actionBlackboardState';
+import type { SkillCooldownState } from './skillCooldownState';
+import type { ActionScopeState } from './actionScopeState';
+import type { TimelineRuntimeState } from '../timeline/timelineActionProcessor';
+import type { DamageCalculationSnapshotState } from './damageCalculationSnapshots';
+import type { ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
+import type { CombatOperationHostState } from './combatOperationHostState';
+
+export interface SkillRuntimeState {
+  readonly execution: SkillExecutionState;
+  readonly blackboard: ActionBlackboardState;
+  /** 再次施放时恢复的初值，不能用已经被动作修改的当前黑板代替。 */
+  readonly initialBlackboard: Readonly<Record<string, ActionBlackboardValue>>;
+  readonly cooldown: SkillCooldownState;
+  readonly scopes: ActionScopeState;
+  readonly damageSnapshots: DamageCalculationSnapshotState;
+  /** 动作开始到结束之间持有的实体、Buff、时间、资源和标记关系。 */
+  readonly operations: CombatOperationHostState;
+  /** 每次实际开始施放时替换；未开始时没有动作时间轴。 */
+  timeline: TimelineRuntimeState | null;
+}

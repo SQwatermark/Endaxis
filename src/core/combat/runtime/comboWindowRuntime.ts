@@ -24,14 +24,14 @@ export interface PendingComboWindow {
   remainingFrames: number;
 }
 
-interface PendingComboRecord {
+export interface PendingComboRecord {
   readonly operatorId: string;
   readonly activationSequence: number;
   readonly openedFrame: number;
   readonly candidates: PendingComboWindow[];
 }
 
-interface ComboRingQteRegistration {
+export interface ComboRingQteRegistration {
   readonly sequence: number;
   readonly operatorId: string;
   readonly startRemainingFrames: number;
@@ -50,20 +50,37 @@ export type ComboWindowConsumeResult =
       readonly expected?: PendingComboWindow;
     };
 
+/** 全场连携候选、暂停与 QTE 结果。队伍顺序属于固定规则，不随试探改变。 */
+export interface ComboWindowState {
+  readonly records: Map<string, PendingComboRecord>;
+  readonly pausedOperators: Set<string>;
+  readonly ringQtes: Map<number, ComboRingQteRegistration>;
+  readonly successfulRingQteSkillCastIds: Set<number>;
+  globallyPaused: boolean;
+  nextSequence: number;
+  nextRingQteSequence: number;
+}
+
+export function createComboWindowState(): ComboWindowState {
+  return {
+    records: new Map(),
+    pausedOperators: new Set(),
+    ringQtes: new Map(),
+    successfulRingQteSkillCastIds: new Set(),
+    globallyPaused: false,
+    nextSequence: 0,
+    nextRingQteSequence: 0,
+  };
+}
+
 export class ComboWindowRuntime implements FrameRuntime {
-  readonly #records = new Map<string, PendingComboRecord>();
   readonly #operatorOrder = new Map<string, number>();
-  readonly #pausedOperators = new Set<string>();
-  readonly #ringQtes = new Map<number, ComboRingQteRegistration>();
-  readonly #successfulRingQteSkillCastIds = new Set<number>();
-  #globallyPaused = false;
-  #nextSequence = 0;
-  #nextRingQteSequence = 0;
 
   constructor(
     readonly clock: CombatClock,
     readonly receipt: CombatReceiptSink,
     operatorOrder: readonly string[] = [],
+    readonly runtimeState: ComboWindowState = createComboWindowState(),
   ) {
     operatorOrder.forEach((operatorId, index) => this.#operatorOrder.set(operatorId, index));
   }
@@ -75,7 +92,7 @@ export class ComboWindowRuntime implements FrameRuntime {
 
   /** 原生 HasPendingComboSkill：只看该角色记录的候选数，不执行释放门禁或检查队首。 */
   hasPending(operatorId: string): boolean {
-    return (this.#records.get(operatorId)?.candidates.length ?? 0) > 0;
+    return (this.runtimeState.records.get(operatorId)?.candidates.length ?? 0) > 0;
   }
 
   registerRingQte(
@@ -87,11 +104,11 @@ export class ComboWindowRuntime implements FrameRuntime {
       throw new Error('combo ring QTE early duration must be a non-negative finite number');
     if (!Number.isFinite(activeDurationFrames) || activeDurationFrames < 0)
       throw new Error('combo ring QTE active duration must be a non-negative finite number');
-    const sequence = this.#nextRingQteSequence++;
+    const sequence = this.runtimeState.nextRingQteSequence++;
     const currentRemaining =
-      this.#records.get(operatorId)?.candidates.at(-1)?.remainingFrames ??
+      this.runtimeState.records.get(operatorId)?.candidates.at(-1)?.remainingFrames ??
       COMBO_WINDOW_DURATION_FRAMES;
-    this.#ringQtes.set(sequence, {
+    this.runtimeState.ringQtes.set(sequence, {
       sequence,
       operatorId,
       startRemainingFrames: currentRemaining,
@@ -109,11 +126,11 @@ export class ComboWindowRuntime implements FrameRuntime {
   }
 
   unregisterRingQte(sequence: number): void {
-    this.#ringQtes.delete(sequence);
+    this.runtimeState.ringQtes.delete(sequence);
   }
 
   wasRingQteSuccessful(skillCastId: number): boolean {
-    return this.#successfulRingQteSkillCastIds.has(skillCastId);
+    return this.runtimeState.successfulRingQteSkillCastIds.has(skillCastId);
   }
 
   /** 当前应最先处理的干员记录中的候选。 */
@@ -130,7 +147,7 @@ export class ComboWindowRuntime implements FrameRuntime {
     if (operatorId.length === 0) throw new Error('combo window operatorId must not be empty');
     if (nextSkillKey.length === 0) throw new Error('combo window nextSkillKey must not be empty');
     const window: PendingComboWindow = {
-      sequence: this.#nextSequence,
+      sequence: this.runtimeState.nextSequence,
       operatorId,
       nextSkillKey,
       openedFrame: this.clock.frame,
@@ -153,11 +170,11 @@ export class ComboWindowRuntime implements FrameRuntime {
           }),
       remainingFrames: COMBO_WINDOW_DURATION_FRAMES,
     };
-    this.#nextSequence += 1;
+    this.runtimeState.nextSequence += 1;
 
-    const existing = this.#records.get(operatorId);
+    const existing = this.runtimeState.records.get(operatorId);
     if (existing === undefined) {
-      this.#records.set(operatorId, {
+      this.runtimeState.records.set(operatorId, {
         operatorId,
         activationSequence: window.sequence,
         openedFrame: window.openedFrame,
@@ -217,7 +234,7 @@ export class ComboWindowRuntime implements FrameRuntime {
     ) {
       return { consumed: false, reason: 'skillStageMismatch', expected: candidate };
     }
-    const qte = [...this.#ringQtes.values()]
+    const qte = [...this.runtimeState.ringQtes.values()]
       .filter(registration => registration.operatorId === operatorId)
       .sort((left, right) => right.sequence - left.sequence)[0];
     if (qte !== undefined) {
@@ -226,7 +243,7 @@ export class ComboWindowRuntime implements FrameRuntime {
         elapsedFrames >= qte.earlyDurationFrames &&
         elapsedFrames <= qte.earlyDurationFrames + qte.activeDurationFrames;
       if (succeeded && skillCastId !== undefined)
-        this.#successfulRingQteSkillCastIds.add(skillCastId);
+        this.runtimeState.successfulRingQteSkillCastIds.add(skillCastId);
       this.receipt.record({
         frame: this.clock.frame,
         time: this.clock.time,
@@ -241,7 +258,7 @@ export class ComboWindowRuntime implements FrameRuntime {
         },
       });
     }
-    this.#records.delete(operatorId);
+    this.runtimeState.records.delete(operatorId);
     this.receipt.record({
       frame: this.clock.frame,
       time: this.clock.time,
@@ -253,18 +270,18 @@ export class ComboWindowRuntime implements FrameRuntime {
   }
 
   setGloballyPaused(paused: boolean): void {
-    this.#globallyPaused = paused;
+    this.runtimeState.globallyPaused = paused;
   }
 
   setOperatorPaused(operatorId: string, paused: boolean): void {
-    if (paused) this.#pausedOperators.add(operatorId);
-    else this.#pausedOperators.delete(operatorId);
+    if (paused) this.runtimeState.pausedOperators.add(operatorId);
+    else this.runtimeState.pausedOperators.delete(operatorId);
   }
 
   advanceFrame(): void {
-    if (this.#globallyPaused) return;
-    for (const record of [...this.#records.values()]) {
-      if (this.#pausedOperators.has(record.operatorId)) continue;
+    if (this.runtimeState.globallyPaused) return;
+    for (const record of [...this.runtimeState.records.values()]) {
+      if (this.runtimeState.pausedOperators.has(record.operatorId)) continue;
       for (const candidate of record.candidates) candidate.remainingFrames -= 1;
       // 原生只在 remainTime < 0 时移除；恰好归零的候选在本帧仍然存在。
       const expired = record.candidates.filter(candidate => candidate.remainingFrames < 0);
@@ -284,12 +301,12 @@ export class ComboWindowRuntime implements FrameRuntime {
           data: { windowSequence: window.sequence, nextSkillKey: window.nextSkillKey },
         });
       }
-      if (record.candidates.length === 0) this.#records.delete(record.operatorId);
+      if (record.candidates.length === 0) this.runtimeState.records.delete(record.operatorId);
     }
   }
 
   #orderedRecords(): readonly PendingComboRecord[] {
-    return [...this.#records.values()].sort((left, right) => {
+    return [...this.runtimeState.records.values()].sort((left, right) => {
       if (left.openedFrame !== right.openedFrame) return left.openedFrame - right.openedFrame;
       const leftOrder = this.#operatorOrder.get(left.operatorId) ?? Number.MAX_SAFE_INTEGER;
       const rightOrder = this.#operatorOrder.get(right.operatorId) ?? Number.MAX_SAFE_INTEGER;

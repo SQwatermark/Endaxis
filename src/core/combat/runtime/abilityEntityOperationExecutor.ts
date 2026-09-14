@@ -16,6 +16,11 @@ import type {
 import { AbilityEntityChildSkillRuntime } from './abilityEntityChildSkillRuntime';
 import type { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import type { CallbackSkillHostFactory } from './callbackSkillHost';
+import type { AbilityEntityChildSkillState } from './abilityEntityChildSkillState';
+import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
+import { CombatOperationPrograms } from './combatOperationPrograms';
+import type { AbilityEntityActionState } from './combatOperationHostState';
+import type { CombatOperationHostState } from './combatOperationHostState';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -33,11 +38,14 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       entity: RuntimeTargetRef,
       definition: ResolvedAbilityEntityDefinition,
     ) => void;
+    readonly operationState?: CombatOperationHostState;
   };
   readonly #resolveDefinition?: (
     abilityEntityId: string,
   ) => ResolvedAbilityEntityDefinition | undefined;
-  readonly #actionDurationEntities = new WeakMap<RuntimeOperation, RuntimeTargetRef[]>();
+  readonly #childSkillPrograms: AbilityEntityChildSkillPrograms;
+  readonly runtimeState: AbilityEntityActionState;
+  readonly programs: CombatOperationPrograms;
 
   constructor(
     operatorId: string,
@@ -52,14 +60,61 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         entity: RuntimeTargetRef,
         definition: ResolvedAbilityEntityDefinition,
       ) => void;
+      readonly programs?: AbilityEntityChildSkillPrograms;
+      readonly operationState?: CombatOperationHostState;
     },
     resolveDefinition?: (abilityEntityId: string) => ResolvedAbilityEntityDefinition | undefined,
+    restored?: {
+      readonly state: AbilityEntityActionState;
+      readonly programs: CombatOperationPrograms;
+    },
   ) {
     this.#operatorId = operatorId;
     this.#entities = entities;
     this.#delegate = delegate;
     this.#childRuntimeDependencies = childRuntimeDependencies;
     this.#resolveDefinition = resolveDefinition;
+    this.#childSkillPrograms =
+      childRuntimeDependencies?.programs ?? new AbilityEntityChildSkillPrograms();
+    this.runtimeState = restored?.state ?? { actionDurationEntities: new Map() };
+    this.programs = restored?.programs ?? new CombatOperationPrograms();
+  }
+
+  /** 按实体定义和保存的 skillId 重建子技能程序绑定，不执行 Start。 */
+  bindRestoredChildSkill(
+    entity: RuntimeTargetRef,
+    entityBlackboard: ActionBlackboard,
+    state: AbilityEntityChildSkillState,
+  ): AbilityEntityChildSkillRuntime {
+    if (this.#childRuntimeDependencies === undefined || this.#resolveDefinition === undefined) {
+      throw new Error('AbilityEntity child skill restore is not configured');
+    }
+    const snapshot = this.#entities.snapshot(entity);
+    const definition = this.#resolveDefinition(snapshot.abilityEntityId);
+    if (definition === undefined) {
+      throw new Error(`AbilityEntity definition '${snapshot.abilityEntityId}' does not exist`);
+    }
+    const childSkill = this.#resolveSpawnChildSkill(definition, state.skillId);
+    if (childSkill === undefined) {
+      throw new Error(`AbilityEntity child skill '${state.skillId}' does not exist`);
+    }
+    const binding = this.#childSkillPrograms.resolve(state.programId);
+    if (binding.program.skillId !== childSkill.skillId) {
+      throw new Error(
+        `AbilityEntity child program '${state.programId}' belongs to '${binding.program.skillId}', expected '${childSkill.skillId}'`,
+      );
+    }
+    return this.#createChildRuntime(
+      binding.program,
+      entity,
+      entityBlackboard,
+      {
+        blackboard: entityBlackboard,
+        ...(snapshot.skillCastInfo == null ? {} : { skillCastInfo: snapshot.skillCastInfo }),
+      },
+      snapshot.skillCastInfo != null,
+      { state },
+    );
   }
 
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
@@ -378,8 +433,9 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       context.targetContext.setSingle(parameters.saveToContextKey, entity);
     }
     if (parameters.finishByAction) {
-      this.#actionDurationEntities.set(step, [
-        ...(this.#actionDurationEntities.get(step) ?? []),
+      const slot = this.programs.slot(step);
+      this.runtimeState.actionDurationEntities.set(slot, [
+        ...(this.runtimeState.actionDurationEntities.get(slot) ?? []),
         entity,
       ]);
     }
@@ -413,10 +469,11 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
 
   end(step: RuntimeOperation, context?: CombatOperationContext): void {
     if (step.kind === 'spawnAbilityEntity') {
-      for (const entity of this.#actionDurationEntities.get(step) ?? []) {
+      const slot = this.programs.slot(step);
+      for (const entity of this.runtimeState.actionDurationEntities.get(slot) ?? []) {
         if (this.#entities.isActive(entity)) this.#entities.finish(entity, 'ownerFinished');
       }
-      this.#actionDurationEntities.delete(step);
+      this.runtimeState.actionDurationEntities.delete(slot);
       return;
     }
     this.#delegate.end?.(step, context);
@@ -476,6 +533,9 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     entityBlackboard: ActionBlackboard,
     context: CombatOperationContext,
     inheritSourceSkillCastInfo = true,
+    restored?: {
+      readonly state: AbilityEntityChildSkillState;
+    },
   ): AbilityEntityChildSkillRuntime {
     if (this.#childRuntimeDependencies === undefined) {
       throw new Error('AbilityEntity child skill runtime is not configured');
@@ -485,28 +545,45 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     }
     // 蓝图由同一技能程序共享；每个实体实例必须获得独立步骤对象，否则按步骤身份保存的
     // finishByAction、时间动作等运行态会在递归生成同一实体时彼此冲突。
-    const instanceProgram = structuredClone(program);
-    return new AbilityEntityChildSkillRuntime(instanceProgram, {
-      entity,
-      entityBlackboard,
-      operations: this.#childRuntimeDependencies.resolveOperations(),
-      ownerOperatorId: this.#operatorId,
-      ...(this.#childRuntimeDependencies.semanticEvents === undefined
-        ? {}
-        : { semanticEvents: this.#childRuntimeDependencies.semanticEvents }),
-      ...(this.#childRuntimeDependencies.scheduleProjectileFinishCallback === undefined
-        ? {}
-        : {
-            scheduleProjectileFinishCallback:
-              this.#childRuntimeDependencies.scheduleProjectileFinishCallback,
-          }),
-      ...(this.#childRuntimeDependencies.createCallbackSkillHost === undefined
-        ? {}
-        : { createCallbackSkillHost: this.#childRuntimeDependencies.createCallbackSkillHost }),
-      ...(!inheritSourceSkillCastInfo || context.skillCastInfo === undefined
-        ? {}
-        : { inheritedSkillCastInfo: context.skillCastInfo }),
-      addAbilityChildBuff: child => this.#entities.addChildBuff(entity, child),
-    });
+    const binding =
+      restored === undefined
+        ? this.#childSkillPrograms.register(structuredClone(program))
+        : this.#childSkillPrograms.resolve(restored.state.programId);
+    const instanceProgram = binding.program;
+    const runtime = new AbilityEntityChildSkillRuntime(
+      instanceProgram,
+      {
+        entity,
+        entityBlackboard,
+        operations: this.#childRuntimeDependencies.resolveOperations(),
+        ownerOperatorId: this.#operatorId,
+        ...(this.#childRuntimeDependencies.semanticEvents === undefined
+          ? {}
+          : { semanticEvents: this.#childRuntimeDependencies.semanticEvents }),
+        ...(this.#childRuntimeDependencies.scheduleProjectileFinishCallback === undefined
+          ? {}
+          : {
+              scheduleProjectileFinishCallback:
+                this.#childRuntimeDependencies.scheduleProjectileFinishCallback,
+            }),
+        ...(this.#childRuntimeDependencies.createCallbackSkillHost === undefined
+          ? {}
+          : { createCallbackSkillHost: this.#childRuntimeDependencies.createCallbackSkillHost }),
+        ...(!inheritSourceSkillCastInfo || context.skillCastInfo === undefined
+          ? {}
+          : { inheritedSkillCastInfo: context.skillCastInfo }),
+        addAbilityChildBuff: child => this.#entities.addChildBuff(entity, child),
+        programId: binding.id,
+        damageSnapshotProgram: binding.damageSnapshots,
+        operationState: this.#childRuntimeDependencies.operationState,
+      },
+      restored,
+    );
+    if (restored === undefined) {
+      const owner = this.#entities.runtimeState.instances.get(entity.instanceId);
+      if (owner === undefined) throw new Error('AbilityEntity child skill owner is missing');
+      owner.childSkills.push(runtime.runtimeState);
+    }
+    return runtime;
   }
 }

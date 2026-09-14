@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
+  type CombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,
 } from './combatAttributes';
@@ -14,7 +15,7 @@ function addModifier(
   value: number,
   source: (typeof ATTRIBUTE_MODIFIER_SOURCES)[keyof typeof ATTRIBUTE_MODIFIER_SOURCES],
 ): CombatAttributeModifier<Attribute> {
-  const modifier = new CombatAttributeModifier(
+  const modifier = createCombatAttributeModifier(
     'attack',
     attributeModifierValues(slot, value),
     source,
@@ -142,7 +143,7 @@ describe('CombatAttributeSet', () => {
   it('requires explicit native bounds before a modifier is attached', () => {
     const attributes = new CombatAttributeSet<Attribute>();
     attributes.setRawValue('attack', 100);
-    const modifier = new CombatAttributeModifier(
+    const modifier = createCombatAttributeModifier(
       'attack',
       attributeModifierValues('addition', 10),
       ATTRIBUTE_MODIFIER_SOURCES.buff,

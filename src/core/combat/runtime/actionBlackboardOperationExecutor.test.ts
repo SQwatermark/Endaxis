@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { ActionBlackboard } from './actionBlackboard';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { ExplicitProbabilitySampleSource } from '../random/probabilitySampleSource';
+import { CombatVitals } from './combatVitals';
+import { StateStepper } from './stateStepper';
 
 const delegate = {
   execute: vi.fn(() => false),
@@ -248,8 +250,8 @@ describe('ActionBlackboardOperationExecutor', () => {
 
   it('registers and removes an action-lifetime health floor', () => {
     const blackboard = new ActionBlackboard({ floor: 0.4 });
-    const cleanup = vi.fn();
-    const setHealthFloor = vi.fn(() => cleanup);
+    const setHealthFloor = vi.fn(() => 7);
+    const removeHealthFloor = vi.fn();
     const executor = new ActionBlackboardOperationExecutor(
       delegate,
       undefined,
@@ -258,7 +260,7 @@ describe('ActionBlackboardOperationExecutor', () => {
       undefined,
       undefined,
       undefined,
-      { read: () => 0, setHealthFloor },
+      { read: () => 0, setHealthFloor, removeHealthFloor },
     );
     const step = {
       kind: 'setHealthFloor' as const,
@@ -273,7 +275,67 @@ describe('ActionBlackboardOperationExecutor', () => {
     expect(executor.execute(step, context)).toBe(true);
     expect(setHealthFloor).toHaveBeenCalledWith('enemy', 'maxHealthRatio', 0.4);
     executor.end(step, context);
-    expect(cleanup).toHaveBeenCalledOnce();
+    expect(removeHealthFloor).toHaveBeenCalledWith('enemy', 7);
+  });
+
+  it('恢复动作宿主后只移除恢复分支的生命下限', () => {
+    const originalVitals = new CombatVitals({
+      health: 1000,
+      maxHealth: 1000,
+      poise: 0,
+      maxPoise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const ports = (vitals: CombatVitals) => ({
+      read: () => vitals.health,
+      setHealthFloor: (_entityId: string, mode: 'absolute' | 'maxHealthRatio', value: number) =>
+        vitals.requestHealthFloor(mode === 'maxHealthRatio' ? vitals.maxHealth * value : value),
+      removeHealthFloor: (_entityId: string, handle: number) => vitals.removeHealthFloor(handle),
+    });
+    const originalExecutor = new ActionBlackboardOperationExecutor(
+      delegate,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      ports(originalVitals),
+    );
+    const step = {
+      kind: 'setHealthFloor' as const,
+      parameters: {
+        target: 'actionOwner' as const,
+        mode: 'absolute' as const,
+        value: { kind: 'constant' as const, value: 400 },
+      },
+    };
+    const context = { blackboard: new ActionBlackboard(), actionOwnerId: 'enemy' };
+    originalExecutor.execute(step, context);
+    const copied = new StateStepper(
+      { vitals: originalVitals.runtimeState, actions: originalExecutor.runtimeState },
+      () => undefined,
+    ).read();
+    const restoredVitals = CombatVitals.bindRuntimeState(copied.vitals);
+    const restoredExecutor = new ActionBlackboardOperationExecutor(
+      delegate,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      ports(restoredVitals),
+      { state: copied.actions, programs: originalExecutor.programs },
+    );
+
+    restoredExecutor.end(step, context);
+
+    expect(restoredVitals.takeDamage(1000).currentHealth).toBe(0);
+    expect(originalVitals.takeDamage(1000).currentHealth).toBe(400);
   });
 
   it('stores final and real heal event values independently', () => {

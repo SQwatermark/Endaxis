@@ -1,3 +1,4 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import { perlica } from '../../../data/operators/perlica';
 import { liino } from '../../../data/operators/liino';
@@ -12,6 +13,8 @@ import { CombatSimulation } from './combatSimulation';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
 import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { AbilitySystemRuntime } from './abilitySystemRuntime';
+import { ActionBlackboard } from './actionBlackboard';
+import { SkillCooldown } from './skillCooldown';
 
 function findPerlicaSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -98,6 +101,152 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('恢复施放中的技能不重新扣费或开始，后续回执与连续执行一致，再次施放恢复初值', () => {
+    const program = {
+      operatorId: 'operator',
+      skillId: 'saved-skill',
+      skillType: 'battleSkill' as const,
+      nativeSkillType: 'normalSkill' as const,
+      costFrame: 0,
+      naturalDurationFrames: 4,
+      initialBlackboard: { count: 1 },
+      costs: [],
+      timelineActions: [
+        {
+          startFrame: 0,
+          endFrame: 4,
+          sequence: {
+            steps: [
+              {
+                kind: 'repeatEachTick' as const,
+                parameters: {},
+                body: {
+                  steps: [
+                    {
+                      kind: 'setContextFlag' as const,
+                      parameters: { flag: 'count', value: true, target: 'caster' as const },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      ],
+    };
+    const operations: CombatOperationExecutor = {
+      evaluate: () => true,
+      execute: (_step, context) => {
+        const count = context!.blackboard.getNumber('count');
+        if (count === undefined) throw new Error('count is missing');
+        context!.blackboard.assignDynamic('count', count + 1);
+        return true;
+      },
+    };
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const original = new SkillRuntime(program, {
+      clock,
+      receipt,
+      operations,
+      resources: null,
+      allocateSkillCastId: () => 1,
+    });
+    const originalAbility = new AbilitySystemRuntime({ skills: [original] });
+    originalAbility.tryStartSkill(program.skillId);
+    const originalBuff = { reference: createTestBuffReference(), finish: vi.fn() };
+    original.attachBuffToCast(1, originalBuff);
+    clock.advanceFrame();
+    originalAbility.advanceFrame();
+    const saved = structuredClone({
+      skill: original.runtimeState,
+      ability: originalAbility.runtimeState,
+      clock: clock.runtimeState,
+      receipts: receipt.runtimeState,
+    });
+    const savedReceiptCount = saved.receipts.entries.length;
+    const restoredClock = new CombatClock(saved.clock);
+    const restoredReceipt = new CombatReceiptCollector(saved.receipts);
+    const allocateSkillCastId = vi.fn(() => 2);
+    const restoredBuff = { reference: originalBuff.reference, finish: vi.fn() };
+    const resumed = new SkillRuntime(
+      program,
+      {
+        clock: restoredClock,
+        receipt: restoredReceipt,
+        operations,
+        resources: null,
+        allocateSkillCastId,
+      },
+      {
+        state: saved.skill,
+        damageSnapshotProgram: original.damageSnapshotProgram,
+        resolveAttachedBuff: () => restoredBuff,
+      },
+    );
+    const restoredAbility = new AbilitySystemRuntime({ skills: [resumed] }, saved.ability);
+    expect(restoredAbility.currentSkillId).toBe(program.skillId);
+    expect(allocateSkillCastId).not.toHaveBeenCalled();
+    expect(restoredReceipt.entries).toHaveLength(savedReceiptCount);
+    for (let frame = 2; frame <= 4; frame++) {
+      clock.advanceFrame();
+      originalAbility.advanceFrame();
+      restoredClock.advanceFrame();
+      restoredAbility.advanceFrame();
+      expect(resumed.runtimeState).toEqual(original.runtimeState);
+      expect(restoredAbility.runtimeState).toEqual(originalAbility.runtimeState);
+      expect(restoredReceipt.entries).toEqual(receipt.entries);
+    }
+    expect(resumed.state).toBe('ended');
+    expect(originalBuff.finish).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(restoredBuff.finish).toHaveBeenCalledExactlyOnceWith('other', null);
+    expect(resumed.runtimeState.blackboard.values.get('count')).toBeGreaterThan(2);
+    restoredAbility.tryStartSkill(program.skillId);
+    expect(resumed.runtimeState.blackboard.values.get('count')).toBe(2);
+    expect(resumed.runtimeState.execution.skillCastId).toBe(2);
+    expect(original.state).toBe('ended');
+  });
+
+  it('宿主数据连接实际进度，整图复制保留共享冷却和实体黑板', () => {
+    const fixture = createBattleSkillRuntime(300);
+    const cooldown = new SkillCooldown(30, 0);
+    const entityBlackboard = new ActionBlackboard({ shared: 2 });
+    const program = compileSkill({
+      operatorId: 'perlica',
+      skillGroupKey: 'battleSkill',
+      skillType: 'battleSkill',
+      skillLevel: 12,
+      skill: findPerlicaSkill('battleSkill'),
+    });
+    let nextId = 1;
+    const create = () =>
+      new SkillRuntime(program, {
+        clock: fixture.clock,
+        resources: fixture.resources,
+        receipt: fixture.receipt,
+        operations: fixture.operations,
+        allocateSkillCastId: () => nextId++,
+        cooldown,
+        entityBlackboard,
+      });
+    const first = create();
+    const second = create();
+    expect(first.runtimeState.timeline).toBeNull();
+    expect(first.tryStart()).toBe(true);
+    expect(first.runtimeState.execution.state).toBe(first.state);
+    expect(first.runtimeState.timeline).not.toBeNull();
+    expect(first.runtimeState.cooldown).toBe(cooldown.runtimeState);
+    const copied = structuredClone([first.runtimeState, second.runtimeState]);
+    expect(copied[0]!.cooldown).toBe(copied[1]!.cooldown);
+    expect(copied[0]!.blackboard.entity).toBe(copied[1]!.blackboard.entity);
+    expect(copied[0]!.blackboard).not.toBe(copied[1]!.blackboard);
+    const savedProgress = copied[0]!.execution.passedFrames;
+    first.advance(1 / 30, 1 / 30);
+    expect(first.runtimeState.execution.passedFrames).toBe(first.passedFrames);
+    expect(first.runtimeState.execution.passedFrames).toBeGreaterThan(savedProgress);
+    expect(copied[0]!.execution.passedFrames).toBe(savedProgress);
+  });
+
   it('零费用技能无需账户，仍执行费用阶段事件与正常结束，不生成余额', () => {
     const fixture = createBattleSkillRuntime(300);
     const initial = fixture.resources.snapshot();
@@ -361,7 +510,7 @@ describe('SkillRuntime', () => {
     };
     const ability = new AbilitySystemRuntime({ skills: [callback.runtime] });
     expect(ability.tryStartProjectileCallbackSkill('callback', source)).toBe(true);
-    const attached = { finish: vi.fn(() => true) };
+    const attached = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
     callback.runtime.attachBuffToCast(77, attached);
     source.nonReturnedSpCost = 99;
     callback.simulation.advanceFrames(2);
@@ -426,13 +575,21 @@ describe('SkillRuntime', () => {
         observed.push(['body', ability.currentProcessingSkillCastId]);
         return true;
       });
-      ability = new AbilitySystemRuntime({ skills: [current.runtime, route.runtime] });
+      ability = new AbilitySystemRuntime({
+        skills: [current.runtime, route.runtime],
+        emitBeforeSkillCast: () => {
+          observed.push(['before', ability.currentProcessingSkillCastId]);
+          expect(ability.currentSkillId).toBe(current.runtime.skillId);
+        },
+      });
       expect(ability.currentProcessingSkillCastId).toBeUndefined();
       ability.tryStartSkill(current.runtime.skillId);
       expect(ability.currentProcessingSkillCastId).toBe(42);
-      ability.prepareBeforeSkillCastStart(route.runtime.skillId, undefined, () => {
-        observed.push(['before', ability.currentProcessingSkillCastId]);
-        expect(ability.currentSkillId).toBe(current.runtime.skillId);
+      ability.prepareBeforeSkillCastStart(route.runtime.skillId, undefined, {
+        sourceId: 'owner',
+        targetId: 'owner',
+        skillId: 'route',
+        skillCastId: 73,
       });
       expect(ability.tryStartSkill(route.runtime.skillId)).toBe(true);
       expect(observed).toEqual(
@@ -451,28 +608,44 @@ describe('SkillRuntime', () => {
     },
   );
 
-  it.each(['regular', 'buff-route'] as const)('processing临时覆盖在异常后恢复：%s', kind => {
-    const current = createBattleSkillRuntime(300);
-    current.runtime.prepareSkillCastId(42);
-    const next = createBattleSkillRuntime(300, undefined, undefined, {
-      key: 'next',
-      timelineBlockFrames: 1,
-      scheduledSequences: [],
-      ...(kind === 'buff-route'
-        ? { switchToBuffCast: { asSkillCast: true, sequence: { steps: [] } } }
-        : {}),
-    });
-    next.runtime.prepareSkillCastId(73);
-    const ability = new AbilitySystemRuntime({ skills: [current.runtime, next.runtime] });
-    ability.tryStartSkill(current.runtime.skillId);
-    ability.prepareBeforeSkillCastStart('next', undefined, () => {
-      expect(ability.currentProcessingSkillCastId).toBe(73);
-      throw new Error('fixture-before-cast');
-    });
-    expect(() => ability.tryStartSkill('next')).toThrow('fixture-before-cast');
-    expect(ability.currentProcessingSkillCastId).toBe(42);
-    expect(ability.currentSkillId).toBe(current.runtime.skillId);
-  });
+  it.each(['regular', 'buff-route'] as const)(
+    'processing临时覆盖在异常后清除，不伪回滚已执行的切换：%s',
+    kind => {
+      const current = createBattleSkillRuntime(300);
+      current.runtime.prepareSkillCastId(42);
+      const next = createBattleSkillRuntime(300, undefined, undefined, {
+        key: 'next',
+        timelineBlockFrames: 1,
+        scheduledSequences: [],
+        ...(kind === 'buff-route'
+          ? { switchToBuffCast: { asSkillCast: true, sequence: { steps: [] } } }
+          : {}),
+      });
+      next.runtime.prepareSkillCastId(73);
+      const ability = new AbilitySystemRuntime({
+        skills: [current.runtime, next.runtime],
+        emitBeforeSkillCast: () => {
+          expect(ability.currentProcessingSkillCastId).toBe(73);
+          throw new Error('fixture-before-cast');
+        },
+      });
+      ability.tryStartSkill(current.runtime.skillId);
+      ability.prepareBeforeSkillCastStart('next', undefined, {
+        sourceId: 'owner',
+        targetId: 'owner',
+        skillId: 'next',
+        skillCastId: 73,
+      });
+      expect(() => ability.tryStartSkill('next')).toThrow('fixture-before-cast');
+      // 普通入口按原生顺序先结束旧技能、登记新技能，再执行 BeforeCastStart。
+      // finally 只解除临时 processing 覆盖；完整回退必须由外层切面恢复，不能复活旧技能。
+      expect(ability.currentProcessingSkillCastId).toBe(kind === 'regular' ? undefined : 42);
+      expect(ability.currentSkillId).toBe(
+        kind === 'regular' ? next.runtime.skillId : current.runtime.skillId,
+      );
+      expect(current.runtime.state).toBe(kind === 'regular' ? 'ended' : 'casting');
+    },
+  );
 
   it.each([1, 30])('展示宽度 %s 不裁切后续原生序列', timelineBlockFrames => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
@@ -555,17 +728,33 @@ describe('SkillRuntime', () => {
       },
       scheduledSequences: [],
     });
-    const ability = new AbilitySystemRuntime({ skills: [current.runtime, ending.runtime] });
-    ability.tryStartSkill(current.runtime.skillId);
     const beforeCastStart = vi.fn();
-    ability.prepareBeforeSkillCastStart('route', undefined, beforeCastStart);
+    const fallback = vi.fn();
+    const ability = new AbilitySystemRuntime({
+      skills: [current.runtime, ending.runtime],
+      emitBeforeSkillCast: payload => {
+        if (payload.skillCastId === 1) beforeCastStart();
+        else fallback();
+      },
+    });
+    ability.tryStartSkill(current.runtime.skillId);
+    ability.prepareBeforeSkillCastStart('route', undefined, {
+      sourceId: 'owner',
+      targetId: 'owner',
+      skillId: 'route',
+      skillCastId: 1,
+    });
     expect(ability.tryStartSkill('route')).toBe(true);
     expect(beforeCastStart).toHaveBeenCalledTimes(asSkillCast ? 1 : 0);
     // A later regular cast (no active matching current skill) must not replay
     // the callback which was consumed/discarded with this bypass attempt.
     current.runtime.interrupt('castNextSkill');
-    const fallback = vi.fn();
-    ability.prepareBeforeSkillCastStart('route', undefined, fallback);
+    ability.prepareBeforeSkillCastStart('route', undefined, {
+      sourceId: 'owner',
+      targetId: 'owner',
+      skillId: 'route',
+      skillCastId: 2,
+    });
     expect(ability.tryStartSkill('route')).toBe(true);
     expect(fallback).toHaveBeenCalledTimes(1);
     expect(beforeCastStart).toHaveBeenCalledTimes(asSkillCast ? 1 : 0);
@@ -592,7 +781,10 @@ describe('SkillRuntime', () => {
       emitSkillEnd,
       emitAfterSkillApplyCost,
     );
-    const afterCastStart = vi.fn();
+    const afterCastStart = {
+      trigger: { kind: 'enemy' as const },
+      assignPairs: { preparationProbe: 7 },
+    };
     const emit = vi.spyOn(ending.semanticEvents, 'emit');
     const ability = new AbilitySystemRuntime({ skills: [current.runtime, ending.runtime] });
     expect(ability.tryStartSkill(current.runtime.skillId)).toBe(true);
@@ -616,7 +808,11 @@ describe('SkillRuntime', () => {
       'CombatStepReached',
       'SkillSwitchedToBuff',
     ]);
-    expect(afterCastStart).not.toHaveBeenCalled();
+    expect(
+      vi
+        .mocked(ending.operations.execute)
+        .mock.calls[0]?.[1]?.blackboard.getNumber('preparationProbe'),
+    ).toBeUndefined();
     expect(emitSkillEnd).not.toHaveBeenCalled();
     expect(emitAfterSkillApplyCost).not.toHaveBeenCalled();
     expect(emit).not.toHaveBeenCalled();
@@ -742,13 +938,7 @@ describe('SkillRuntime', () => {
       observed.push(context!.blackboard.getNumber('local')!);
       return true;
     });
-    const callback = vi.fn(context => {
-      expect(fixture.runtime.state).toBe('casting');
-      expect(context.blackboard.getNumber('local')).toBe(0);
-      expect(fixture.receipt.entries.at(-1)?.event).toBe('SkillStarted');
-      expect(observed).toEqual([]);
-      context.blackboard.assign({ local: 4 });
-    });
+    const callback = { trigger: { kind: 'enemy' as const }, assignPairs: { local: 4 } };
     fixture.runtime.prepareAfterCastStart(callback);
     fixture.runtime.tryStart();
     expect(observed).toEqual([4]);
@@ -756,14 +946,13 @@ describe('SkillRuntime', () => {
     fixture.simulation.advanceFrames(1);
     fixture.runtime.tryStart();
     expect(observed).toEqual([4, 0]);
-    expect(callback).toHaveBeenCalledTimes(1);
   });
 
   it('keeps attachments on the addressed runtime while another skill is casting', () => {
     const previous = createBattleSkillRuntime(300).runtime;
     const next = createBattleSkillRuntime(300).runtime;
-    const oldBuff = { finish: vi.fn(() => true) };
-    const newBuff = { finish: vi.fn(() => true) };
+    const oldBuff = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
+    const newBuff = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
     previous.prepareSkillCastId(10);
     previous.tryStart();
     previous.attachBuffToCast(10, oldBuff);
@@ -788,12 +977,14 @@ describe('SkillRuntime', () => {
         () => order.push('skillEnd'),
       );
       const first = {
+        reference: createTestBuffReference(),
         finish: vi.fn(() => {
           order.push('first');
           return true;
         }),
       };
       const alreadyFinished = {
+        reference: createTestBuffReference(),
         finish: vi.fn(() => {
           order.push('second');
           return false;
@@ -841,9 +1032,13 @@ describe('SkillRuntime', () => {
           },
         ],
       });
-      const addedDuringEnd = { finish: vi.fn(() => true) };
-      const addedDuringBuffFinish = { finish: vi.fn(() => true) };
+      const addedDuringEnd = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
+      const addedDuringBuffFinish = {
+        reference: createTestBuffReference(),
+        finish: vi.fn(() => true),
+      };
       const original = {
+        reference: createTestBuffReference(),
         finish: vi.fn(() => {
           fixture.runtime.attachInheritedBuff(addedDuringBuffFinish);
           return true;
@@ -865,6 +1060,23 @@ describe('SkillRuntime', () => {
       expect(original.finish).toHaveBeenCalledOnce();
     },
   );
+
+  it('keeps equal local Buff numbers on different owners distinct', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'attachment-owner-identity',
+      timelineBlockFrames: 0,
+      scheduledSequences: [],
+    });
+    const first = { reference: { ownerId: 'first', instanceId: 1 }, finish: vi.fn(() => true) };
+    const second = { reference: { ownerId: 'second', instanceId: 1 }, finish: vi.fn(() => true) };
+    fixture.runtime.tryStart();
+    fixture.runtime.attachInheritedBuff(first);
+    fixture.runtime.attachInheritedBuff(second);
+    fixture.runtime.attachInheritedBuff(first);
+    fixture.runtime.end();
+    expect(first.finish).toHaveBeenCalledOnce();
+    expect(second.finish).toHaveBeenCalledOnce();
+  });
 
   it('does not infer a CastSkillContext for the paid-cost event from its source identity', () => {
     const onCost = vi.fn((event: import('../events/combatAbilityEvent').AbilitySkillPayload) => {

@@ -3,6 +3,7 @@ import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import type { CompiledOperatorUpgradeEventProgram } from '../../compiler/combatProgram';
 import { OperatorUpgradeEventRuntime } from './operatorUpgradeEventRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 
 const PROGRAM: CompiledOperatorUpgradeEventProgram = {
   key: 'potential:attackAfterSpGain:0',
@@ -67,6 +68,59 @@ describe('OperatorUpgradeEventRuntime', () => {
     runtime.dispose();
     dispatcher.dispatch(event, []);
     expect(executed).toEqual(['applyBuff']);
+  });
+
+  it('restores semantic subscriptions by saved identity without allocating a new registration', () => {
+    const program = { ...PROGRAM, event: { kind: 'airborneOutput' as const } };
+    const originalEvents = new CombatSemanticEventRuntime();
+    let originalExecutions = 0;
+    const original = new OperatorUpgradeEventRuntime(
+      originalEvents,
+      'operator:perlica',
+      [program],
+      () => ({
+        execute: () => {
+          originalExecutions += 1;
+          return true;
+        },
+        evaluate: () => true,
+      }),
+    );
+    const copied = structuredClone({
+      upgrade: original.runtimeState,
+      events: originalEvents.runtimeState,
+    });
+    const restoredEvents = new CombatSemanticEventRuntime(undefined, {
+      state: copied.events,
+      bindNative: () => {
+        throw new Error('fixture has no native subscriptions');
+      },
+    });
+    let restoredExecutions = 0;
+    const restored = new OperatorUpgradeEventRuntime(
+      restoredEvents,
+      'operator:perlica',
+      [program],
+      () => ({
+        execute: () => {
+          restoredExecutions += 1;
+          return true;
+        },
+        evaluate: () => true,
+      }),
+      copied.upgrade,
+    );
+    restoredEvents.emit({
+      kind: 'airborneOutput',
+      sourceOperatorId: 'operator:perlica',
+      targetId: 'enemy',
+    });
+
+    expect(restoredExecutions).toBe(1);
+    expect(originalExecutions).toBe(0);
+    expect(copied.events.nextRegistrationId).toBe(originalEvents.runtimeState.nextRegistrationId);
+    restored.dispose();
+    original.dispose();
   });
 
   it('seeds the native consumed-layer store key for attachment-consumption handlers', () => {

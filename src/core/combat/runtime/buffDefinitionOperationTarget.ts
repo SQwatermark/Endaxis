@@ -5,9 +5,11 @@
 import {
   CombatBuffContainer,
   type CombatBuff,
+  type CombatBuffAddOptions,
   type BuffFinishReason,
   type CombatBuffDefinition,
 } from '../buffs/combatBuffs';
+import type { BuffInstanceState } from '../buffs/buffInstanceState';
 import type { CombatBuffDefinitionEntry } from '../buffs/combatBuffDefinitions';
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type {
@@ -28,12 +30,14 @@ import {
   type RegisterBuffAbilityEventCallback,
   type RegisterBuffSemanticEventAction,
   type RegisterPostSkillCastRequest,
+  type BindRestoredSkillAffixObjectReference,
 } from './buffLifecycleSequenceRuntime';
 import type { CombatOperationExecutor, ProjectileRuntimeDependencies } from './skillRuntime';
 import type { AbilityTickDeltas } from './timeDilationRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import type { AbilityOutputBuffPayload } from '../events/combatAbilityEvent';
+import type { BuffReference } from '../buffs/buffReference';
 
 export interface CombatBuffDefinitionResolver<Key extends string> {
   get(id: string): CombatBuffDefinition<Key> | undefined;
@@ -51,6 +55,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     ((source: BuffLifecycleOperationSource) => CombatOperationExecutor) | null = null;
   #advancedObserver: (() => void) | null = null;
   #registerSemanticEventAction: RegisterBuffSemanticEventAction | null = null;
+  #bindRestoredSkillAffixObjectReference: BindRestoredSkillAffixObjectReference | undefined;
   constructor(
     readonly container: CombatBuffContainer<Key>,
     readonly definitions: CombatBuffDefinitionResolver<Key>,
@@ -65,10 +70,17 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly resolveProjectileRuntimeDependencies?: (
       definitionOwnerId: string,
     ) => ProjectileRuntimeDependencies,
-  ) {}
+    bindRestoredSkillAffixObjectReference?: BindRestoredSkillAffixObjectReference,
+  ) {
+    this.#bindRestoredSkillAffixObjectReference = bindRestoredSkillAffixObjectReference;
+  }
 
   get ownerId(): string {
     return this.container.ownerId;
+  }
+
+  get runtimeState() {
+    return this.container.runtimeState;
   }
 
   get currentFiniteShieldValue(): number {
@@ -77,6 +89,54 @@ export class BuffDefinitionOperationTarget<Key extends string>
 
   get entityBlackboard() {
     return this.container.entityBlackboard;
+  }
+
+  /**
+   * 用当前目标已经配置好的定义编译器和生命周期端口重建保存实例。
+   * 此阶段不解析父子 Buff 或 SkillAffix 的对象引用。
+   */
+  bindRestoredInstances(
+    resolveDefinition: (
+      id: string,
+      definitionOwnerId: string,
+    ) => ResolvedSkillBuffDefinition | undefined,
+    resolveOptions?: (state: BuffInstanceState<Key>) => CombatBuffAddOptions | undefined,
+  ): void {
+    this.container.bindRestoredInstances(state => {
+      const id = state.identity.definitionId;
+      const source = resolveDefinition(id, state.definitionOwnerId);
+      return source === undefined ? undefined : this.#compileInlineDefinition(id, source);
+    }, resolveOptions);
+  }
+
+  /** 所有容器实例完成后，再按保存引用接回跨容器关系。 */
+  bindRestoredRelations(
+    resolveHandle: (reference: BuffReference) => BuffApplicationHandle | undefined,
+  ): void {
+    this.container.bindRestoredRelations(resolveHandle);
+  }
+
+  configureRestoredSkillAffixObjectReferenceBinder(
+    bind: BindRestoredSkillAffixObjectReference,
+  ): void {
+    this.#bindRestoredSkillAffixObjectReference = bind;
+  }
+
+  bindRestoredBuffRecycleCallback(
+    reference: BuffReference,
+    registrationId: number,
+    callback: () => void,
+  ): { dispose(): void } {
+    if (reference.ownerId !== this.ownerId) {
+      throw new Error(
+        `Buff recycle reference belongs to '${reference.ownerId}', not '${this.ownerId}'`,
+      );
+    }
+    const buff = this.container.getInstance(reference.instanceId);
+    if (buff === undefined) {
+      throw new Error(`restored Buff recycle target '${reference.instanceId}' is missing`);
+    }
+    return buff.bindRecycledCallback(registrationId, callback);
   }
 
   getAttributeValue(attribute: string): number {
@@ -127,7 +187,10 @@ export class BuffDefinitionOperationTarget<Key extends string>
             : { finishParentGlobalBuff: request.finishParentGlobalBuff }),
           ...(request.getSourceAttributeValue === undefined
             ? {}
-            : { getSourceAttributeValue: request.getSourceAttributeValue }),
+            : {
+                getSourceAttributeValue: request.getSourceAttributeValue,
+                sourceAttributeOwnerId: request.sourceAttributeOwnerId,
+              }),
         },
         buff => {
           // 接收侧 Added → 来源侧 Output → 容器执行已有关键词增强。
@@ -297,6 +360,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
             this.registerAbilityEventCallback,
             this.registerPostSkillCastRequest,
             this.resolveProjectileRuntimeDependencies,
+            this.#bindRestoredSkillAffixObjectReference,
           );
     this.#inlineDefinitions.set(source, definition);
     return definition;
@@ -342,6 +406,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.findFirstByIds(ids);
   }
 
+  resolveHandle(reference: BuffReference): BuffApplicationHandle | undefined {
+    if (reference.ownerId !== this.ownerId) {
+      throw new Error(
+        `Buff reference owner '${reference.ownerId}' does not match '${this.ownerId}'`,
+      );
+    }
+    return this.container.getInstance(reference.instanceId);
+  }
+
   finishByIds(
     ids: readonly string[],
     reason: BuffFinishReason,
@@ -365,8 +438,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
     return this.container.ignite(igniteType, sourceId, skillCastInfo);
   }
 
-  holdByIds(ids: readonly string[]): { release(): void } {
+  holdByIds(ids: readonly string[]): {
+    readonly references: readonly BuffReference[];
+    release(): void;
+  } {
     return this.container.holdByIds(ids);
+  }
+
+  releaseHeld(references: readonly BuffReference[]): void {
+    this.container.releaseHeld(references);
   }
 
   getCountByTags(

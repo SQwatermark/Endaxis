@@ -14,9 +14,13 @@ import type {
 import {
   AbilityEventDispatcher,
   type AbilityEventFromMap,
-  type AbilityEventRegistration,
+  type TrackedAbilityEventRegistration,
 } from '../events/abilityEventDispatcher';
 import { ActionBlackboard } from './actionBlackboard';
+import type {
+  AbilityEventState,
+  AbilityEventSubscriptionReference,
+} from '../events/abilityEventState';
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
@@ -56,7 +60,7 @@ export type RegisterCombatAbilityEvent = <
     event: CombatAbilityEvent<Name>,
     actionContext?: AbilityEventRuntimeActionContext,
   ) => void,
-) => AbilityEventRegistration;
+) => TrackedAbilityEventRegistration;
 
 /** 手工动作的兼容标记，不是原生组件通知，不携带 fromAirborne 或施法来源。 */
 export interface ManualAirborneOutputEvent {
@@ -255,14 +259,46 @@ function matches(
  * 语义事件名与原生事件名的迁移尚未完成；本层不再自行实现第二套阶段循环。
  */
 export class CombatSemanticEventRuntime {
-  constructor(private readonly registerAbilityEvent?: RegisterCombatAbilityEvent) {}
+  constructor(
+    private readonly registerAbilityEvent?: RegisterCombatAbilityEvent,
+    private readonly restored?: {
+      readonly state: AbilityEventState<NonNullable<CombatSemanticEvent['kind']>>;
+      /** 环境解析原生事件目录，并补回当前事件的目标上下文。 */
+      readonly bindNative: (
+        reference: AbilityEventSubscriptionReference,
+        receive: (context: CombatSemanticEventContext) => void,
+      ) => TrackedAbilityEventRegistration;
+    },
+  ) {
+    this.#dispatcher = new AbilityEventDispatcher(restored?.state);
+  }
 
-  readonly #dispatcher = new AbilityEventDispatcher<
+  readonly #dispatcher: AbilityEventDispatcher<
     NonNullable<CombatSemanticEvent['kind']>,
     Record<NonNullable<CombatSemanticEvent['kind']>, CombatSemanticEventContext>
-  >();
+  >;
 
-  register(registration: CombatEventHandlerRegistration): AbilityEventRegistration {
+  /** 仅包含手工语义事件；实体原生事件由战斗环境的事件目录持有。 */
+  get runtimeState() {
+    return this.#dispatcher.runtimeState;
+  }
+
+  register(registration: CombatEventHandlerRegistration): TrackedAbilityEventRegistration {
+    return this.#install(registration);
+  }
+
+  /** 给保存的订阅接回响应逻辑，不重新申请编号或执行响应序列。 */
+  bindRegistration(
+    registration: CombatEventHandlerRegistration,
+    subscriptions: readonly AbilityEventSubscriptionReference[],
+  ): TrackedAbilityEventRegistration {
+    return this.#install(registration, subscriptions);
+  }
+
+  #install(
+    registration: CombatEventHandlerRegistration,
+    subscriptions?: readonly AbilityEventSubscriptionReference[],
+  ): TrackedAbilityEventRegistration {
     if (registration.ownerOperatorId.length === 0) {
       throw new TypeError('semantic event owner must not be empty');
     }
@@ -304,6 +340,44 @@ export class CombatSemanticEventRuntime {
     };
     const event = stored.trigger.kind;
     const native = eventSubscription(stored.trigger);
+    if (subscriptions !== undefined) {
+      const phase = stored.phase === 'dataAction' ? 'action' : stored.phase;
+      const bindings: TrackedAbilityEventRegistration[] = [];
+      try {
+        for (const reference of subscriptions) {
+          const manual = reference.state === this.#dispatcher.runtimeState;
+          const expectedEvent = manual
+            ? native.kind === 'entity'
+              ? native.legacyEvent
+              : native.event
+            : native.kind === 'entity'
+              ? native.event
+              : undefined;
+          if (
+            expectedEvent === undefined ||
+            reference.event !== expectedEvent ||
+            reference.phase !== phase
+          )
+            throw new Error('saved event subscription does not match response');
+          if (manual) bindings.push(this.#dispatcher.bindSubscription(reference, execute));
+          else {
+            if (this.restored === undefined)
+              throw new Error('native event restore port is missing');
+            bindings.push(
+              this.restored.bindNative(reference, context => execute({ payload: context })),
+            );
+          }
+        }
+        return {
+          subscriptions,
+          dispose: () => bindings.forEach(binding => binding.dispose()),
+        };
+      } catch (error) {
+        // 恢复在候选数据图中进行；失败后撤销候选绑定，整场入口必须丢弃该候选图。
+        bindings.forEach(binding => binding.dispose());
+        throw error;
+      }
+    }
     if (native.kind === 'entity') {
       if (this.registerAbilityEvent === undefined)
         throw new Error(`${event} requires the native ability event subscription port`);
@@ -320,6 +394,7 @@ export class CombatSemanticEventRuntime {
       try {
         const legacy = this.#registerLegacy(native.legacyEvent, stored, execute);
         return {
+          subscriptions: [...registration.subscriptions, ...legacy.subscriptions],
           dispose: () => {
             registration.dispose();
             legacy.dispose();
@@ -337,7 +412,7 @@ export class CombatSemanticEventRuntime {
     event: NonNullable<CombatSemanticEvent['kind']>,
     stored: CombatEventHandlerRegistration,
     execute: (event: { readonly payload: CombatSemanticEventContext }) => void,
-  ): AbilityEventRegistration {
+  ): TrackedAbilityEventRegistration {
     switch (stored.phase) {
       case 'callback':
         return this.#dispatcher.registerCallback(event, execute);

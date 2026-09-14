@@ -9,7 +9,11 @@ import type {
   CompiledEquipmentEventHandler,
   EquipmentContributionSource,
 } from '../../compiler/compileEquipment';
-import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
+import type {
+  AbilityEventRegistration,
+  TrackedAbilityEventRegistration,
+} from '../events/abilityEventDispatcher';
+import type { AbilityEventSubscriptionReference } from '../events/abilityEventState';
 import type { EquipmentAbilityEvent } from '../../game-data/equipmentDefinition';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
@@ -31,6 +35,11 @@ import {
   runAbilityHostCleanup,
   failAfterAbilityHostCleanup,
 } from './abilityEventHostLifecycle';
+import {
+  createEquipmentContributionEventState,
+  createEquipmentEventState,
+  type EquipmentEventState,
+} from './equipmentEventState';
 
 export type RegisterEquipmentAbilityEventAction = (
   operatorId: string,
@@ -40,6 +49,7 @@ export type RegisterEquipmentAbilityEventAction = (
     published: CombatAbilityEvent<EquipmentAbilityEvent>,
     actionContext?: AbilityEventRuntimeActionContext,
   ) => void,
+  subscriptions?: readonly AbilityEventSubscriptionReference[],
 ) => AbilityEventRegistration;
 
 /** 配装操作执行器用于归因和选择实体状态的稳定上下文。 */
@@ -57,10 +67,15 @@ export type CreateEquipmentEventOperationExecutor = (
 /** 一名干员的全部配装事件监听生命周期；模拟结束后可统一释放。 */
 export class EquipmentEventRuntime {
   readonly #operatorId: string;
+  readonly #state: EquipmentEventState;
   readonly #blackboards = new Map<number, ActionBlackboard>();
   #disposed = false;
   // 固定配装的被动 Ability 存活到本运行实例释放；不能把子 Buff 挂到触发它的主动技能。
   readonly #hosts = new Map<number, AbilityEventHostLifecycle>();
+
+  get runtimeState(): EquipmentEventState {
+    return this.#state;
+  }
 
   constructor(
     semanticEvents: CombatSemanticEventRuntime,
@@ -68,8 +83,11 @@ export class EquipmentEventRuntime {
     contributions: readonly CompiledEquipmentContribution[],
     createExecutor: CreateEquipmentEventOperationExecutor,
     registerAbilityEventAction?: RegisterEquipmentAbilityEventAction,
+    state?: EquipmentEventState,
   ) {
     this.#operatorId = operatorId;
+    this.#state = state ?? createEquipmentEventState();
+    const restoring = state !== undefined;
     try {
       for (const [contributionIndex, contribution] of contributions.entries()) {
         if (
@@ -78,62 +96,112 @@ export class EquipmentEventRuntime {
           contribution.enableSequence === undefined
         )
           continue;
-        const host = new AbilityEventHostLifecycle();
+        const saved = this.#state.contributions.get(contributionIndex);
+        if (restoring && saved === undefined) {
+          throw new Error(`restored equipment contribution '${contributionIndex}' is missing`);
+        }
+        const blackboard =
+          saved === undefined
+            ? new ActionBlackboard(contribution.blackboard)
+            : ActionBlackboard.bindRuntimeState(saved.blackboard);
+        const contributionState =
+          saved ?? createEquipmentContributionEventState(blackboard.runtimeState);
+        if (contributionState.host.disposed)
+          throw new Error(`cannot restore disposed equipment contribution '${contributionIndex}'`);
+        if (restoring && contributionState.responses.length !== contribution.eventHandlers.length) {
+          throw new Error(
+            `equipment contribution '${contributionIndex}' response state does not match program length`,
+          );
+        }
+        if (saved === undefined)
+          this.#state.contributions.set(contributionIndex, contributionState);
+        const host = new AbilityEventHostLifecycle(contributionState.host);
         this.#hosts.set(contributionIndex, host);
-        this.#blackboards.set(contributionIndex, new ActionBlackboard(contribution.blackboard));
-        for (const handler of contribution.eventHandlers) {
-          const executeResponse = this.#createResponse(contributionIndex, handler);
+        this.#blackboards.set(contributionIndex, blackboard);
+        for (const [handlerIndex, handler] of contribution.eventHandlers.entries()) {
+          const savedResponse = contributionState.responses[handlerIndex];
+          if (savedResponse !== undefined && savedResponse.key !== handler.key) {
+            throw new Error(
+              `equipment contribution '${contributionIndex}' response '${handlerIndex}' does not match '${handler.key}'`,
+            );
+          }
+          const response = this.#createResponse(
+            contributionIndex,
+            handler,
+            savedResponse?.sequence,
+          );
+          let registration: AbilityEventRegistration;
           if (handler.abilityEvent !== undefined) {
             if (registerAbilityEventAction === undefined) {
               throw new Error(
                 `equipment handler '${handler.key}' requires an AbilityEvent registration port`,
               );
             }
-            host.register(
-              registerAbilityEventAction(
-                operatorId,
-                handler.abilityEvent,
-                handler.priority ?? 0,
-                (published, actionContext) => {
-                  if (!host.acceptsEvents) return;
-                  const event = published;
-                  executeResponse(
-                    createExecutor({
-                      operatorId,
-                      source: contribution.source,
-                      handlerKey: handler.key,
-                      event,
-                    }),
+            registration = registerAbilityEventAction(
+              operatorId,
+              handler.abilityEvent,
+              handler.priority ?? 0,
+              (published, actionContext) => {
+                if (!host.acceptsEvents) return;
+                const event = published;
+                response.execute(
+                  createExecutor({
+                    operatorId,
+                    source: contribution.source,
+                    handlerKey: handler.key,
                     event,
-                    published,
-                    actionContext,
-                  );
-                },
-              ),
+                  }),
+                  event,
+                  published,
+                  actionContext,
+                );
+              },
+              restoring ? contributionState.host.registrations[handlerIndex] : undefined,
             );
-            continue;
-          }
-          host.register(
-            semanticEvents.register({
+          } else {
+            const eventRegistration = {
               ownerOperatorId: operatorId,
               trigger: handler.event,
-              phase: 'dataAction',
+              phase: 'dataAction' as const,
               priority: handler.priority ?? 0,
-              createOperations: context =>
+              createOperations: (context: CombatSemanticEventContext) =>
                 createExecutor({
                   operatorId,
                   source: contribution.source,
                   handlerKey: handler.key,
                   event: context.event,
                 }),
-              handle: (context, getOperations) => {
+              handle: (
+                context: CombatSemanticEventContext,
+                getOperations: () => CombatOperationExecutor,
+              ) => {
                 if (!host.acceptsEvents) return;
-                executeResponse(getOperations(), context.event, undefined, context.actionContext);
+                response.execute(getOperations(), context.event, undefined, context.actionContext);
               },
-            }),
-          );
+            };
+            registration = restoring
+              ? semanticEvents.bindRegistration(
+                  eventRegistration,
+                  contributionState.host.registrations[handlerIndex]!,
+                )
+              : semanticEvents.register(eventRegistration);
+          }
+          if (restoring) {
+            if (!isTrackedRegistration(registration)) {
+              registration.dispose();
+              throw new Error(
+                `restored equipment response '${contributionIndex}:${handler.key}' has no subscription references`,
+              );
+            }
+            host.bindRestoredRegistration(registration);
+          } else {
+            host.register(registration);
+            contributionState.responses.push({ key: handler.key, sequence: response.state });
+          }
         }
       }
+      if (restoring && [...this.#state.contributions.keys()].some(index => !this.#hosts.has(index)))
+        throw new Error('restored equipment state contains an inactive contribution');
     } catch (error) {
       failAfterAbilityHostCleanup(error, [() => this.dispose()]);
     }
@@ -178,12 +246,23 @@ export class EquipmentEventRuntime {
     host.addChildBuff(child);
   }
 
+  /** 所有目标 Buff 容器恢复后，按贡献分别接回其持有的子实例。 */
+  bindRestoredChildren(
+    resolve: (reference: BuffApplicationHandle['reference']) => BuffApplicationHandle | undefined,
+  ): void {
+    for (const host of this.#hosts.values()) host.bindRestoredChildren(resolve);
+  }
+
   onDisable(contributionIndex: number, cleanup: () => void): void {
     this.blackboardFor(contributionIndex);
     this.#hosts.get(contributionIndex)!.onDisable(cleanup);
   }
 
-  #createResponse(contributionIndex: number, handler: CompiledEquipmentEventHandler) {
+  #createResponse(
+    contributionIndex: number,
+    handler: CompiledEquipmentEventHandler,
+    state?: import('../actions/actionSequenceState').ActionSequenceState,
+  ) {
     let activeOperations: CombatOperationExecutor | undefined;
     const operations = () => {
       if (activeOperations === undefined) throw new Error('equipment response is not executing');
@@ -207,8 +286,8 @@ export class EquipmentEventRuntime {
         evaluate: (condition, context) => operations().evaluate(condition, context),
       },
       operationContext,
-    ).createSequence(handler.sequence);
-    return (
+    ).createSequence(handler.sequence, operationContext, state);
+    const execute = (
       executor: CombatOperationExecutor,
       event: EquipmentEventExecutionContext['event'],
       published?: CombatAbilityEvent<EquipmentAbilityEvent>,
@@ -235,5 +314,12 @@ export class EquipmentEventRuntime {
         activeOperations = previousOperations;
       }
     };
+    return { execute, state: sequence.runtimeState };
   }
+}
+
+function isTrackedRegistration(
+  registration: AbilityEventRegistration,
+): registration is TrackedAbilityEventRegistration {
+  return 'subscriptions' in registration;
 }

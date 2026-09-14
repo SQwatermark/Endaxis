@@ -6,6 +6,7 @@ import type { CombatOperationExecutor } from './skillRuntime';
 import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
 import { TimeDilationRuntime } from './timeDilationRuntime';
 import { RuntimeTargetContext } from './runtimeTargetContext';
+import { StateStepper } from './stateStepper';
 
 const PRIORITY = 20;
 const delegate: CombatOperationExecutor = {
@@ -335,5 +336,55 @@ describe('TimeDilationOperationExecutor', () => {
     expect(timeDilation.getOperatorScale('enemy')).toBe(0);
     executor.end(step, context);
     expect(timeDilation.currentGlobalScale).toBe(1);
+    // 同内容的两个程序节点必须持有不同关系；被替换的旧动作不能停止新实例。
+    const otherStep = structuredClone(step);
+    executor.execute(step, context);
+    executor.execute(otherStep, context);
+    expect(executor.runtimeState.instanceIds.size).toBe(2);
+    executor.end(step, context);
+    expect(timeDilation.currentGlobalScale).toBe(0);
+    executor.end(otherStep, context);
+    expect(timeDilation.currentGlobalScale).toBe(1);
+    expect(executor.runtimeState.instanceIds.size).toBe(0);
+  });
+
+  it('恢复动作宿主后由同一程序槽停止恢复分支的膨胀实例', () => {
+    const originalRuntime = runtime();
+    const dependencies = {
+      runtime: originalRuntime,
+      resolveTargetIds: (target: string) => [target === 'caster' ? 'operator' : 'enemy'],
+      sourceId: 'operator',
+      sourceActionId: 'skill',
+      delegate,
+    };
+    const originalExecutor = new TimeDilationOperationExecutor(dependencies);
+    const step: ResolvedCombatStepForKind<'startUltimateTimeDilation'> = {
+      kind: 'startUltimateTimeDilation',
+      parameters: {
+        priority: PRIORITY,
+        targetScale: { kind: 'constant', value: 0 },
+        ignoredTargets: [],
+      },
+    };
+    const context = { blackboard: new ActionBlackboard() };
+    originalExecutor.execute(step, context);
+    const copied = new StateStepper(
+      { time: originalRuntime.runtimeState, actions: originalExecutor.runtimeState },
+      () => undefined,
+    ).read();
+    const restoredRuntime = new TimeDilationRuntime(
+      {},
+      {},
+      { state: copied.time, programs: originalRuntime.programs },
+    );
+    const restoredExecutor = new TimeDilationOperationExecutor(
+      { ...dependencies, runtime: restoredRuntime },
+      { state: copied.actions, programs: originalExecutor.programs },
+    );
+
+    restoredExecutor.end(step, context);
+
+    expect(restoredRuntime.currentGlobalScale).toBe(1);
+    expect(originalRuntime.currentGlobalScale).toBe(0);
   });
 });

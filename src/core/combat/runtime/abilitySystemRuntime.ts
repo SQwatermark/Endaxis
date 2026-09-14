@@ -3,13 +3,22 @@
  * 技能顺序必须由定义编译结果显式传入；该层不负责推断队伍顺序、输入许可或目标选择。
  */
 import type { FrameRuntime } from './combatSimulation';
+import {
+  activateAbilityPlayerActionMode,
+  finishAbilityPlayerActionMode,
+  registerAbilityBasicAttackMapping,
+  finishAbilityBasicAttackMapping,
+} from './abilitySystemExecution';
+import { createAbilitySystemState } from './abilitySystemState';
+import type { SkillCastStartPreparation } from './skillCastStartPreparation';
+import {
+  storePostSkillCastRequest,
+  takePostSkillCastRequest,
+  takeBeforeSkillCastPreparation,
+} from './abilitySystemExecution';
 import type { NativeSkillType, SkillType } from '../../game-data/operatorDefinition';
 import type { PlayerSkillInput, SkillDefinition } from '../../game-data/operatorDefinition';
-import type {
-  AfterSkillCastStart,
-  RuntimeSkillInterruptReason,
-  RuntimeSkillState,
-} from './skillRuntime';
+import type { RuntimeSkillInterruptReason, RuntimeSkillState } from './skillRuntime';
 import type { BuffApplicationHandle } from './buffOperationExecutor';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
@@ -47,7 +56,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   canStart(): boolean;
   /** 本次启动前合并进动作黑板的运行时参数，例如连携候选携带的黑板。 */
   prepareStartBlackboard?(values: Readonly<Record<string, number>>): void;
-  prepareAfterCastStart?(callback: AfterSkillCastStart): void;
+  prepareAfterCastStart?(preparation: SkillCastStartPreparation): void;
   /** 装配层在施放前事件之前预分配的原生技能释放序号。 */
   prepareSkillCastId?(skillCastId: number): void;
   /** Prepare synchronous cast input only; queuing belongs to requestPostSkillCast. */
@@ -132,6 +141,10 @@ export interface PostSkillCastRequest {
 }
 
 export interface AbilitySystemRuntimeOptions {
+  /** 真正进入施放时发布；待发布的数据保存在能力系统状态中。 */
+  readonly emitBeforeSkillCast?: (
+    payload: import('../events/combatAbilityEvent').AbilitySkillPayload,
+  ) => void;
   /** 原生 onPostSkillTryCastRequest 对象委托：写入延迟槽之后通知，不是 AbilityEvent。 */
   readonly onPostSkillCastRequest?: (skillCastInfo: CombatSkillCastInfo | null) => void;
   readonly buffRuntime?: AbilityBuffRuntime;
@@ -165,25 +178,15 @@ export interface AbilitySystemRuntimeOptions {
 
 /** 按原生 PreLateTick 主干顺序推进一个实体的战斗能力。 */
 export class AbilitySystemRuntime implements FrameRuntime {
+  readonly runtimeState: ReturnType<typeof createAbilitySystemState>;
   readonly #buffRuntime?: AbilityBuffRuntime;
-  readonly #skills: readonly AbilitySkillRuntime[];
+  readonly #skills: AbilitySkillRuntime[];
   readonly #skillTickPlan?: readonly {
+    readonly skillId: string;
     readonly advanceCooldown: (deltaSeconds: number) => void;
-    readonly skills: readonly AbilitySkillRuntime[];
+    readonly skills: AbilitySkillRuntime[];
   }[];
   readonly #skillsById = new Map<string, AbilitySkillRuntime>();
-  readonly #nativeSkillTypeBySkillId = new Map<string, NativeSkillType>();
-  readonly #skillSlotGroups = new Map<
-    string,
-    {
-      readonly baseSkillKey: string;
-      readonly input: PlayerSkillInput;
-      readonly defaultForInput: boolean;
-      readonly stableInputSkillKeys: ReadonlySet<string>;
-      readonly allowedSkillKeys: ReadonlySet<string>;
-      currentSkillKey: string;
-    }
-  >();
   readonly #slotGroupByStableInputSkill = new Map<string, string>();
   readonly #slotGroupByAllowedSkill = new Map<string, string>();
   readonly #defaultSlotGroupByInput = new Map<PlayerSkillInput, string>();
@@ -192,7 +195,6 @@ export class AbilitySystemRuntime implements FrameRuntime {
     string,
     import('../../game-data/operatorDefinition').OperatorPlayerActionModeDefinition
   >();
-  readonly #activePlayerActionModeByLayer = new Map<string, string>();
   readonly #skillKeysByTransitionSkillId = new Map<string, Set<string>>();
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
@@ -200,28 +202,52 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #operableBoundaries: SkillOperableBoundaryRuntime | null;
   readonly #resolveActualFrame?: () => number;
   readonly #onSkillOperableBoundaryReached?: (fact: SkillOperableBoundaryFact) => void;
-  readonly #registeredOperableBoundaryCastIds = new Set<string>();
-  #currentSkill: AbilitySkillRuntime | null = null;
-  #processingSkill: AbilitySkillRuntime | null = null;
-  readonly #beforeCastStarts = new Map<AbilitySkillRuntime, () => void>();
-  #postSkillCastRequest: PostSkillCastRequest | null = null;
+  readonly #emitBeforeSkillCast: AbilitySystemRuntimeOptions['emitBeforeSkillCast'];
   readonly #onPostSkillCastRequest?: AbilitySystemRuntimeOptions['onPostSkillCastRequest'];
 
-  constructor(options: AbilitySystemRuntimeOptions) {
+  /** 过渡对象接口只按稳定身份解析技能，当前技能选择保存在数据中。 */
+  get #currentSkill(): AbilitySkillRuntime | null {
+    return this.#resolveStoredSkill(this.runtimeState.currentSkillKey);
+  }
+  set #currentSkill(skill: AbilitySkillRuntime | null) {
+    this.runtimeState.currentSkillKey = skill === null ? null : abilitySkillKey(skill);
+  }
+  get #processingSkill(): AbilitySkillRuntime | null {
+    return this.#resolveStoredSkill(this.runtimeState.processingSkillKey);
+  }
+  set #processingSkill(skill: AbilitySkillRuntime | null) {
+    this.runtimeState.processingSkillKey = skill === null ? null : abilitySkillKey(skill);
+  }
+  #resolveStoredSkill(key: string | null): AbilitySkillRuntime | null {
+    if (key === null) return null;
+    const skill = this.#skillsById.get(key);
+    if (skill === undefined) throw new Error(`missing ability skill binding '${key}'`);
+    return skill;
+  }
+
+  constructor(
+    options: AbilitySystemRuntimeOptions,
+    restored?: ReturnType<typeof createAbilitySystemState>,
+  ) {
+    this.runtimeState = restored ?? createAbilitySystemState();
+    this.#emitBeforeSkillCast = options.emitBeforeSkillCast;
     this.#buffRuntime = options.buffRuntime;
     this.#skills = [...options.skills];
     this.#actionRuntime = options.actionRuntime;
     this.#playerActionRoutes = options.playerActionRoutes;
+    const defaultModeLayers = new Set<string>();
     for (const mode of options.playerActionModes ?? []) {
       if (this.#playerActionModes.has(mode.modeId)) {
         throw new Error(`duplicate player-action mode '${mode.modeId}'`);
       }
       this.#playerActionModes.set(mode.modeId, mode);
       if (mode.defaultEnabled) {
-        if (this.#activePlayerActionModeByLayer.has(mode.modeLayer)) {
+        if (defaultModeLayers.has(mode.modeLayer)) {
           throw new Error(`multiple default player-action modes use layer '${mode.modeLayer}'`);
         }
-        this.#activePlayerActionModeByLayer.set(mode.modeLayer, mode.modeId);
+        defaultModeLayers.add(mode.modeLayer);
+        if (restored === undefined)
+          this.runtimeState.activePlayerActionModeByLayer.set(mode.modeLayer, mode.modeId);
       }
     }
     this.#beforePostSkillCastStart = options.beforePostSkillCastStart;
@@ -237,9 +263,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#resolveActualFrame = options.resolveActualFrame;
     this.#onSkillOperableBoundaryReached = options.onSkillOperableBoundaryReached;
     this.#operableBoundaries =
-      options.resolveActualFrame === undefined ? null : new SkillOperableBoundaryRuntime();
+      options.resolveActualFrame === undefined
+        ? null
+        : new SkillOperableBoundaryRuntime(this.runtimeState.operableBoundaries);
     this.#resolveTickDeltas =
       options.resolveTickDeltas ?? (() => uniformAbilityTickDeltas(COMBAT_FRAME_INTERVAL));
+    const definedNativeSkillTypes = new Map<string, NativeSkillType>();
     for (const skill of this.#skills) {
       const key = abilitySkillKey(skill);
       if (this.#skillsById.has(key)) {
@@ -253,11 +282,16 @@ export class AbilitySystemRuntime implements FrameRuntime {
               throw new Error(`ability skill '${skill.skillId}' has no native or player type`);
             })()
           : fallbackNativeSkillType(skill.skillType));
-      const previousNativeSkillType = this.#nativeSkillTypeBySkillId.get(skill.skillId);
+      const previousNativeSkillType = definedNativeSkillTypes.get(skill.skillId);
       if (previousNativeSkillType !== undefined && previousNativeSkillType !== nativeSkillType) {
         throw new Error(`ability skill '${skill.skillId}' has inconsistent native SkillType`);
       }
-      this.#nativeSkillTypeBySkillId.set(skill.skillId, nativeSkillType);
+      definedNativeSkillTypes.set(skill.skillId, nativeSkillType);
+      // 定义之间必须一致；切面里的类型可能已被 ChangeSkillType 改过，应原样保留。
+      if (restored === undefined)
+        this.runtimeState.nativeSkillTypeBySkillId.set(skill.skillId, nativeSkillType);
+      else if (!this.runtimeState.nativeSkillTypeBySkillId.has(skill.skillId))
+        throw new Error(`restored ability has no native type for '${skill.skillId}'`);
       const transitionSkillId = skill.transitionSkillId ?? skill.skillId;
       const skillKeys = this.#skillKeysByTransitionSkillId.get(transitionSkillId) ?? new Set();
       skillKeys.add(skill.skillId);
@@ -270,6 +304,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
           throw new Error(`duplicate skill tick identity '${entry.skillId}'`);
         ids.add(entry.skillId);
         return {
+          skillId: entry.skillId,
           advanceCooldown: entry.advanceCooldown,
           skills: this.#skills.filter(skill => skill.skillId === entry.skillId),
         };
@@ -279,10 +314,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
           throw new Error(`skill '${skill.skillId}' is missing from tick plan`);
       }
     }
+    const slotGroupKeys = new Set<string>();
     for (const group of options.skillSlotGroups ?? []) {
-      if (this.#skillSlotGroups.has(group.skillGroupKey)) {
+      if (slotGroupKeys.has(group.skillGroupKey)) {
         throw new Error(`duplicate ability skill slot group '${group.skillGroupKey}'`);
       }
+      slotGroupKeys.add(group.skillGroupKey);
       const stableInputSkillKeys = group.stableInputSkillKeys ?? [group.baseSkillKey];
       const baseSkill = this.#skills.find(skill => skill.skillId === group.baseSkillKey);
       const input =
@@ -331,20 +368,53 @@ export class AbilitySystemRuntime implements FrameRuntime {
         }
         this.#slotGroupByAllowedSkill.set(skillKey, group.skillGroupKey);
       }
-      this.#skillSlotGroups.set(group.skillGroupKey, {
-        baseSkillKey: group.baseSkillKey,
-        input,
-        defaultForInput,
-        stableInputSkillKeys: new Set(stableInputSkillKeys),
-        allowedSkillKeys,
-        currentSkillKey: group.baseSkillKey,
-      });
+      if (restored !== undefined) {
+        const saved = restored.skillSlotGroups.get(group.skillGroupKey);
+        if (
+          saved === undefined ||
+          saved.baseSkillKey !== group.baseSkillKey ||
+          saved.input !== input ||
+          saved.defaultForInput !== defaultForInput ||
+          saved.stableInputSkillKeys.size !== stableInputSkillKeys.length ||
+          stableInputSkillKeys.some(key => !saved.stableInputSkillKeys.has(key)) ||
+          saved.allowedSkillKeys.size !== allowedSkillKeys.size ||
+          [...allowedSkillKeys].some(key => !saved.allowedSkillKeys.has(key)) ||
+          !allowedSkillKeys.has(saved.currentSkillKey)
+        )
+          throw new Error(`restored skill slot '${group.skillGroupKey}' does not match program`);
+      } else
+        this.runtimeState.skillSlotGroups.set(group.skillGroupKey, {
+          baseSkillKey: group.baseSkillKey,
+          input,
+          defaultForInput,
+          stableInputSkillKeys: new Set(stableInputSkillKeys),
+          allowedSkillKeys,
+          currentSkillKey: group.baseSkillKey,
+        });
       if (defaultForInput) {
         if (this.#defaultSlotGroupByInput.has(input)) {
           throw new Error(`multiple default ability skill slots use input '${input}'`);
         }
         this.#defaultSlotGroupByInput.set(input, group.skillGroupKey);
       }
+    }
+    if (restored !== undefined) {
+      if (restored.skillSlotGroups.size !== slotGroupKeys.size)
+        throw new Error('restored skill slot groups do not match program');
+      for (const [layer, modeId] of restored.activePlayerActionModeByLayer) {
+        if (this.#playerActionModes.get(modeId)?.modeLayer !== layer)
+          throw new Error(`restored player-action mode '${modeId}' does not match program`);
+      }
+      for (const activation of restored.playerActionModeActivations.values()) {
+        if (
+          this.#playerActionModes.get(activation.modeId)?.modeLayer !== activation.layer ||
+          (activation.previousModeId !== null &&
+            this.#playerActionModes.get(activation.previousModeId)?.modeLayer !== activation.layer)
+        )
+          throw new Error('restored player-action mode activation does not match program');
+      }
+      this.#resolveStoredSkill(restored.currentSkillKey);
+      this.#resolveStoredSkill(restored.processingSkillKey);
     }
   }
 
@@ -376,13 +446,13 @@ export class AbilitySystemRuntime implements FrameRuntime {
 
   get currentNativeSkillType(): NativeSkillType | undefined {
     return this.#currentSkill?.state === 'casting'
-      ? this.#nativeSkillTypeBySkillId.get(this.#currentSkill.skillId)
+      ? this.runtimeState.nativeSkillTypeBySkillId.get(this.#currentSkill.skillId)
       : undefined;
   }
 
   /** 查询可变原生类型，不按技能库分组或玩家操作重新推断。 */
   nativeSkillTypeForSkill(skillId: string): NativeSkillType {
-    const type = this.#nativeSkillTypeBySkillId.get(skillId);
+    const type = this.runtimeState.nativeSkillTypeBySkillId.get(skillId);
     if (type === undefined)
       throw new Error(`unknown ability skill '${skillId}' for native SkillType query`);
     return type;
@@ -390,10 +460,10 @@ export class AbilitySystemRuntime implements FrameRuntime {
 
   /** ChangeSkillType 修改同一原生技能身份的运行时类型，不改变玩家操作槽位。 */
   changeNativeSkillType(skillId: string, nativeSkillType: NativeSkillType): void {
-    if (!this.#nativeSkillTypeBySkillId.has(skillId)) {
+    if (!this.runtimeState.nativeSkillTypeBySkillId.has(skillId)) {
       throw new Error(`unknown ability skill '${skillId}' for native SkillType mutation`);
     }
-    this.#nativeSkillTypeBySkillId.set(skillId, nativeSkillType);
+    this.runtimeState.nativeSkillTypeBySkillId.set(skillId, nativeSkillType);
   }
 
   get currentSkillTimelineFrame(): number | undefined {
@@ -412,7 +482,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
 
   /** 读取当前槽位身份；未知组不回退为基础技能。 */
   currentSkillKeyForSlot(skillGroupKey: string): string {
-    const group = this.#skillSlotGroups.get(skillGroupKey);
+    const group = this.runtimeState.skillSlotGroups.get(skillGroupKey);
     if (group === undefined) {
       throw new Error(`unknown ability skill slot group '${skillGroupKey}'`);
     }
@@ -421,7 +491,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
 
   /** 只改变后续释放的槽位解析；已经进入 casting 的实例保持原引用。 */
   changeSkillSlot(skillGroupKey: string, targetSkillKey: string): string {
-    const group = this.#skillSlotGroups.get(skillGroupKey);
+    const group = this.runtimeState.skillSlotGroups.get(skillGroupKey);
     if (group === undefined) {
       throw new Error(`unknown ability skill slot group '${skillGroupKey}'`);
     }
@@ -454,7 +524,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
         if (route.kind === 'basicAttack') {
           return route.skillKeys.includes(expectedSkillKey) ? [input as PlayerSkillInput] : [];
         }
-        const group = this.#skillSlotGroups.get(route.skillSlotKey);
+        const group = this.runtimeState.skillSlotGroups.get(route.skillSlotKey);
         return group?.allowedSkillKeys.has(expectedSkillKey) === true
           ? [input as PlayerSkillInput]
           : [];
@@ -474,7 +544,9 @@ export class AbilitySystemRuntime implements FrameRuntime {
       const input = matchingInputs[0]!;
       const route = this.#playerActionRoutes[input]!;
       if (route.kind === 'skillSlot') {
-        const actualSkillKey = this.#skillSlotGroups.get(route.skillSlotKey)!.currentSkillKey;
+        const actualSkillKey = this.runtimeState.skillSlotGroups.get(
+          route.skillSlotKey,
+        )!.currentSkillKey;
         return actualSkillKey === expectedSkillKey
           ? { status: 'matched', actualSkillKey }
           : { status: 'mismatched', actualSkillKey };
@@ -511,22 +583,26 @@ export class AbilitySystemRuntime implements FrameRuntime {
     };
   }
 
-  readonly #buffBasicAttackMappings = new Map<object, string>();
-
   /** Buff 映射高于 Skill/Mode；按注册身份撤销，不恢复已失效的快照。 */
-  overrideBasicAttackMapping(sourceSkillId: string): { finish(): void } {
-    const token = {};
-    this.#buffBasicAttackMappings.set(token, sourceSkillId);
+  overrideBasicAttackMapping(sourceSkillId: string): {
+    readonly registrationId: number;
+    finish(): void;
+  } {
+    const token = registerAbilityBasicAttackMapping(this.runtimeState, sourceSkillId);
     return {
-      finish: () => {
-        this.#buffBasicAttackMappings.delete(token);
-      },
+      registrationId: token,
+      finish: () => this.finishBasicAttackMapping(token),
     };
   }
 
+  /** 删除当前分支的指定登记，其他映射及其优先级保持不变。 */
+  finishBasicAttackMapping(registrationId: number): void {
+    finishAbilityBasicAttackMapping(this.runtimeState, registrationId);
+  }
+
   #resolveBuffBasicAttackMapping(expectedSkillKey: string) {
-    if (this.#buffBasicAttackMappings.size === 0) return null;
-    const targets = new Set(this.#buffBasicAttackMappings.values());
+    if (this.runtimeState.buffBasicAttackMappings.size === 0) return null;
+    const targets = new Set(this.runtimeState.buffBasicAttackMappings.values());
     if (targets.size !== 1) {
       return {
         status: 'unknown' as const,
@@ -610,10 +686,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
     | { readonly status: 'mismatched'; readonly actualSkillKey: string }
     | { readonly status: 'unknown'; readonly reason: string }
     | null {
-    const mappings = [...this.#activePlayerActionModeByLayer.values()].flatMap(modeId => {
-      const mapping = this.#playerActionModes.get(modeId)?.commandMappings?.basicAttack;
-      return mapping === undefined ? [] : [mapping];
-    });
+    const mappings = [...this.runtimeState.activePlayerActionModeByLayer.values()].flatMap(
+      modeId => {
+        const mapping = this.#playerActionModes.get(modeId)?.commandMappings?.basicAttack;
+        return mapping === undefined ? [] : [mapping];
+      },
+    );
     if (mappings.length === 0) return null;
     if (mappings.length > 1) {
       return { status: 'unknown', reason: 'multiple active modes override basic-attack routing' };
@@ -631,22 +709,29 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   /** SwitchModeAction 在一个 modeLayer 上替换活动模式，并返回按动作寿命恢复的句柄。 */
-  activatePlayerActionMode(modeId: string): { finish(): void } {
+  activatePlayerActionMode(modeId: string): { readonly registrationId: number; finish(): void } {
     const mode = this.#playerActionModes.get(modeId);
     if (mode === undefined) throw new Error(`unknown player-action mode '${modeId}'`);
-    const previousModeId = this.#activePlayerActionModeByLayer.get(mode.modeLayer);
-    this.#activePlayerActionModeByLayer.set(mode.modeLayer, modeId);
-    let finished = false;
+    const id = activateAbilityPlayerActionMode(this.runtimeState, mode.modeLayer, modeId);
+    return this.bindPlayerActionModeActivation(id);
+  }
+
+  /** 只绑定已经存在的切换，不再次覆盖模式或重新分配编号。 */
+  bindPlayerActionModeActivation(registrationId: number): {
+    readonly registrationId: number;
+    finish(): void;
+  } {
+    if (!this.runtimeState.playerActionModeActivations.has(registrationId))
+      throw new Error(`player-action mode activation ${registrationId} is missing`);
     return {
-      finish: () => {
-        if (finished) return;
-        finished = true;
-        if (this.#activePlayerActionModeByLayer.get(mode.modeLayer) !== modeId) return;
-        if (previousModeId === undefined)
-          this.#activePlayerActionModeByLayer.delete(mode.modeLayer);
-        else this.#activePlayerActionModeByLayer.set(mode.modeLayer, previousModeId);
-      },
+      registrationId,
+      finish: () => this.finishPlayerActionModeActivation(registrationId),
     };
+  }
+
+  /** 按当前分支的数据结束登记，重复结束不产生副作用。 */
+  finishPlayerActionModeActivation(registrationId: number): void {
+    finishAbilityPlayerActionMode(this.runtimeState, registrationId);
   }
 
   evaluatePlayerInputInterruption(
@@ -675,8 +760,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
       return { status: 'allowed' };
     }
     if (next.skillType === 'plungingAttack') return { status: 'allowed' };
-    const nextNativeSkillType = this.#nativeSkillTypeBySkillId.get(next.skillId)!;
-    const currentNativeSkillType = this.#nativeSkillTypeBySkillId.get(current.skillId)!;
+    const nextNativeSkillType = this.runtimeState.nativeSkillTypeBySkillId.get(next.skillId)!;
+    const currentNativeSkillType = this.runtimeState.nativeSkillTypeBySkillId.get(current.skillId)!;
     if (
       nativeSkillInterruptPriority(nextNativeSkillType) >
       nativeSkillInterruptPriority(currentNativeSkillType)
@@ -748,22 +833,47 @@ export class AbilitySystemRuntime implements FrameRuntime {
   prepareAfterSkillCastStart(
     skillId: string,
     castId: string | undefined,
-    callback: AfterSkillCastStart,
+    preparation: SkillCastStartPreparation,
     resolveSkillSlot = true,
   ): void {
     const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
     if (skill.prepareAfterCastStart === undefined)
       throw new Error(`skill '${skillId}' cannot receive afterCastStart preparation`);
-    skill.prepareAfterCastStart(callback);
+    skill.prepareAfterCastStart(preparation);
   }
 
   prepareBeforeSkillCastStart(
     skillId: string,
     castId: string | undefined,
-    callback: () => void,
+    payload: import('./abilitySystemState').BeforeSkillCastPreparation['payload'],
     resolveSkillSlot = true,
   ): void {
-    this.#beforeCastStarts.set(this.#requireSkill(skillId, castId, resolveSkillSlot), callback);
+    const skill = this.#requireSkill(skillId, castId, resolveSkillSlot);
+    this.runtimeState.beforeCastStarts.set(abilitySkillKey(skill), {
+      skillId,
+      castId,
+      resolveSkillSlot,
+      payload: structuredClone(payload),
+    });
+  }
+
+  /** 先清除登记，再创建本次执行使用的附着入口；入口不会保存进状态。 */
+  #takeBeforeCastStart(skill: AbilitySkillRuntime): (() => void) | undefined {
+    const key = abilitySkillKey(skill);
+    const preparation = takeBeforeSkillCastPreparation(this.runtimeState, key);
+    if (preparation === undefined) return undefined;
+    return () =>
+      this.#emitBeforeSkillCast?.({
+        ...preparation.payload,
+        attachBuffToCurrentSkill: buff =>
+          this.attachBuffToSkillCast(
+            preparation.skillId,
+            preparation.castId,
+            preparation.payload.skillCastId,
+            buff,
+            preparation.resolveSkillSlot,
+          ),
+      });
   }
 
   attachBuffToSkillCast(
@@ -833,8 +943,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
       skill.prepareForcedTimelineCast();
     }
     const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
-    const beforeCastStart = this.#beforeCastStarts.get(skill);
-    this.#beforeCastStarts.delete(skill);
+    const beforeCastStart = this.#takeBeforeCastStart(skill);
 
     if (
       skill.trySwitchToBuffCast?.(
@@ -875,12 +984,33 @@ export class AbilitySystemRuntime implements FrameRuntime {
   /** 同一帧多次写入会覆盖旧值；消费前先清槽，使消费期间的新请求留到下一帧。 */
   requestPostSkillCast(request: PostSkillCastRequest): void {
     this.#requireSkill(request.skillId, request.castId, request.resolveSkillSlot !== false);
-    const inheritedSkillCastInfo =
-      request.inheritedSkillCastInfo === undefined
-        ? undefined
-        : Object.freeze({ ...request.inheritedSkillCastInfo });
-    this.#postSkillCastRequest = { ...request, inheritedSkillCastInfo };
-    this.#onPostSkillCastRequest?.(inheritedSkillCastInfo ?? null);
+    const inheritedSkillCastInfo = storePostSkillCastRequest(this.runtimeState, request);
+    this.#onPostSkillCastRequest?.(inheritedSkillCastInfo);
+  }
+
+  /** 输入阶段提交新的放置块实例；技能定义和共享冷却必须已经登记。 */
+  registerCastInstance(skill: AbilitySkillRuntime): void {
+    if (skill.castId === undefined || skill.castId.length === 0)
+      throw new Error('submitted skill instance requires a castId');
+    const key = abilitySkillKey(skill);
+    if (this.#skillsById.has(key)) throw new Error(`duplicate ability skill '${key}'`);
+    const definition = this.#skillsById.get(abilitySkillKey({ skillId: skill.skillId }));
+    if (definition === undefined)
+      throw new Error(`submitted skill '${skill.skillId}' has no registered definition`);
+    if (
+      skill.skillType !== definition.skillType ||
+      skill.nativeSkillType !== definition.nativeSkillType ||
+      (skill.transitionSkillId ?? skill.skillId) !==
+        (definition.transitionSkillId ?? definition.skillId)
+    )
+      throw new Error(`submitted skill '${skill.skillId}' disagrees with its definition`);
+    const tickEntry = this.#skillTickPlan?.find(entry => entry.skillId === skill.skillId);
+    if (this.#skillTickPlan !== undefined && tickEntry === undefined)
+      throw new Error(`skill '${skill.skillId}' is missing from tick plan`);
+    // 所有校验先完成，再同时更新寻址表和推进列表，失败不能留下半注册实例。
+    this.#skillsById.set(key, skill);
+    this.#skills.push(skill);
+    tickEntry?.skills.push(skill);
   }
 
   advanceFrame(): void {
@@ -936,9 +1066,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   #flushPostSkillCastRequest(): void {
-    const request = this.#postSkillCastRequest;
+    const request = takePostSkillCastRequest(this.runtimeState);
     if (request === null) return;
-    this.#postSkillCastRequest = null;
 
     const previousSkill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
     const nextSkill = this.#requireSkill(
@@ -953,8 +1082,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#currentSkill = nextSkill;
     if (previousSkill !== null) this.#interruptForNextSkill(previousSkill, nextSkill);
     this.#beforePostSkillCastStart?.(request);
-    const beforeCastStart = this.#beforeCastStarts.get(nextSkill);
-    this.#beforeCastStarts.delete(nextSkill);
+    const beforeCastStart = this.#takeBeforeCastStart(nextSkill);
     beforeCastStart?.();
     if (nextSkill.tryStart()) {
       this.#beginSkillOperableBoundary(nextSkill);
@@ -985,12 +1113,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
       return;
     }
     // 一个场景放置身份只发布一次 UI 边界；技能槽替换或测试侧重复启动不伪造第二个块。
-    if (this.#registeredOperableBoundaryCastIds.has(skill.castId)) return;
+    if (this.runtimeState.registeredOperableBoundaryCastIds.has(skill.castId)) return;
     if (skill.usesRuntimeOperableBoundary === true) {
       this.#publishRuntimeOperableBoundary(skill);
       return;
     }
-    this.#registeredOperableBoundaryCastIds.add(skill.castId);
+    this.runtimeState.registeredOperableBoundaryCastIds.add(skill.castId);
     this.#operableBoundaries.begin(
       skill.castId,
       skill.timelineBlockFrames,
@@ -1004,14 +1132,14 @@ export class AbilitySystemRuntime implements FrameRuntime {
       skill.castId === undefined ||
       this.#resolveActualFrame === undefined ||
       this.#onSkillOperableBoundaryReached === undefined ||
-      this.#registeredOperableBoundaryCastIds.has(skill.castId)
+      this.runtimeState.registeredOperableBoundaryCastIds.has(skill.castId)
     ) {
       return;
     }
     const durationFrames = skill.reachedOperableBoundaryFrame;
     // 零帧窗口沿用零宽技能块语义：下一次输入最早仍在下一实际帧，不发布零时长事实。
     if (durationFrames === undefined || durationFrames <= 0) return;
-    this.#registeredOperableBoundaryCastIds.add(skill.castId);
+    this.runtimeState.registeredOperableBoundaryCastIds.add(skill.castId);
     this.#onSkillOperableBoundaryReached({
       castId: skill.castId,
       durationFrames,
@@ -1024,7 +1152,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
       ? this.#slotGroupByStableInputSkill.get(skillId)
       : undefined;
     const slotGroup =
-      slotGroupKey === undefined ? undefined : this.#skillSlotGroups.get(slotGroupKey)!;
+      slotGroupKey === undefined ? undefined : this.runtimeState.skillSlotGroups.get(slotGroupKey)!;
     const resolvedSkillId =
       slotGroup === undefined || slotGroup.currentSkillKey === slotGroup.baseSkillKey
         ? skillId

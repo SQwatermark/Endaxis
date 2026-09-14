@@ -4,14 +4,16 @@ Endaxis 是《明日方舟：终末地》的时间轴编辑器和战斗模拟器
 
 ## 从这里开始
 
-| 要做什么               | 入口                                                       |
-| ---------------------- | ---------------------------------------------------------- |
-| 第一次理解代码         | [架构总览](architecture/README.md)，再读数据、技能和运行时 |
-| 修改代码或生成数据     | [开发指南](development/README.md)                          |
-| 接续开发任务           | [当前交接](handoff/current-context.md)                     |
-| 找本机仓库、游戏或转储 | [本地环境](development/local-environment.md)               |
-| 查某条游戏规则的依据   | [研究资料](research/README.md)                             |
-| 追溯旧设计、迁移和验收 | [历史档案](archive/README.md)                              |
+| 要做什么               | 入口                                                           |
+| ---------------------- | -------------------------------------------------------------- |
+| 第一次理解代码         | [架构总览](architecture/README.md)，再读数据、技能和运行时     |
+| 修改代码或生成数据     | [开发指南](development/README.md)                              |
+| 接续开发任务           | [当前交接](handoff/current-context.md)                         |
+| 推进战斗切面与转换加速 | [任务安排与验收](handoff/runtime-checkpoint-plan.md)           |
+| 查看切面状态覆盖与基线 | [状态覆盖清单](research/combat/runtime-checkpoint-coverage.md) |
+| 找本机仓库、游戏或转储 | [本地环境](development/local-environment.md)                   |
+| 查某条游戏规则的依据   | [研究资料](research/README.md)                                 |
+| 追溯旧设计、迁移和验收 | [历史档案](archive/README.md)                                  |
 
 ## 新版文档目录
 

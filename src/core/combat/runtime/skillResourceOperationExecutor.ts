@@ -11,6 +11,8 @@ import type { CombatOperationContext, CombatOperationExecutor } from './skillRun
 import { resolveActionValueOperand } from './actionBlackboard';
 
 import type { AbilitySpGainPayload } from '../events/combatAbilityEvent';
+import { CombatOperationPrograms } from './combatOperationPrograms';
+import type { SkillResourceActionState } from './combatOperationHostState';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -31,8 +33,19 @@ export interface SkillResourceOperationDependencies {
 
 /** 处理已还原的技能资源操作，并将其他操作继续委托。 */
 export class SkillResourceOperationExecutor implements CombatOperationExecutor {
-  readonly #ultimateRecoveryRestrictionHandles = new WeakMap<RuntimeOperation, number>();
-  constructor(readonly dependencies: SkillResourceOperationDependencies) {}
+  readonly runtimeState: SkillResourceActionState;
+  readonly programs: CombatOperationPrograms;
+
+  constructor(
+    readonly dependencies: SkillResourceOperationDependencies,
+    restored?: {
+      readonly state: SkillResourceActionState;
+      readonly programs: CombatOperationPrograms;
+    },
+  ) {
+    this.runtimeState = restored?.state ?? { ultimateRecoveryRestrictionHandles: new Map() };
+    this.programs = restored?.programs ?? new CombatOperationPrograms();
+  }
 
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
     if (step.kind === 'restrictUltimateEnergyRecovery') {
@@ -40,7 +53,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         this.dependencies.sourceOperatorId,
         new Set(step.parameters.allowedRecoveryTags),
       );
-      this.#ultimateRecoveryRestrictionHandles.set(step, handle);
+      this.runtimeState.ultimateRecoveryRestrictionHandles.set(this.programs.slot(step), handle);
       return true;
     }
     if (step.kind === 'changeResourceByActionValue') {
@@ -126,14 +139,15 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
 
   end(step: ResolvedCombatOperationStep, context?: CombatOperationContext): void {
     if (step.kind === 'restrictUltimateEnergyRecovery') {
-      const handle = this.#ultimateRecoveryRestrictionHandles.get(step);
+      const slot = this.programs.slot(step);
+      const handle = this.runtimeState.ultimateRecoveryRestrictionHandles.get(slot);
       if (handle !== undefined) {
         const clearChange = this.dependencies.resources.revertUltimateEnergyRecoveryRestriction(
           handle,
           step.parameters.clearUltimateEnergyOnEnd,
         );
         if (clearChange !== null) this.#recordUltimateEnergyChange(clearChange);
-        this.#ultimateRecoveryRestrictionHandles.delete(step);
+        this.runtimeState.ultimateRecoveryRestrictionHandles.delete(slot);
       }
       return;
     }

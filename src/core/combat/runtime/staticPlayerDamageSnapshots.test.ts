@@ -22,7 +22,7 @@ import { createOperatorAttackAttributes } from '../attributes/operatorAttackAttr
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
   attributeModifierValues,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   CombatAttributeSet,
 } from '../attributes/combatAttributes';
 
@@ -123,7 +123,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       ...enemy.defenderAttributes,
       shelterDamageMultiplier: 0.1,
     });
-    const modifier = new CombatAttributeModifier(
+    const modifier = createCombatAttributeModifier(
       'shelterDamageMultiplier',
       attributeModifierValues('baseAddition', 0.2),
       ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -145,7 +145,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
   it('完整暴击面板经共同属性槽求值，技能局部修正不污染其他快照', () => {
     const attributes = createOperatorAttackAttributes(panel);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'criticalRate',
         attributeModifierValues('finalMultiplier', 0.5),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -153,7 +153,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       ),
     );
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'criticalDamageIncrease',
         attributeModifierValues('finalMultiplier', 2),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -223,7 +223,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     const enemyAttributes = new CombatAttributeSet<string>();
     initializeEnemyCombatAttributes(enemyAttributes, enemy.defenderAttributes);
     enemyAttributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'PulseResistance',
         attributeModifierValues('baseAddition', -15),
         ATTRIBUTE_MODIFIER_SOURCES.instant,
@@ -254,7 +254,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
   ] as const)('敌人 %s 从运行时冻结，撤销修正不改变既有命中快照', attribute => {
     const enemyAttributes = new CombatAttributeSet<string>();
     initializeEnemyCombatAttributes(enemyAttributes, enemy.defenderAttributes);
-    const modifier = new CombatAttributeModifier(
+    const modifier = createCombatAttributeModifier(
       attribute,
       attributeModifierValues('baseAddition', 0.3),
       ATTRIBUTE_MODIFIER_SOURCES.instant,
@@ -383,7 +383,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
   it('把运行时 Buff 的伤害属性修正叠加到静态构筑增伤', () => {
     const attributes = createOperatorAttackAttributes(panel);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'electricDamageIncrease',
         attributeModifierValues('baseAddition', 0.12),
         ATTRIBUTE_MODIFIER_SOURCES.converted,
@@ -403,7 +403,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
   it('把运行时 Buff 的暴击属性修正叠加到静态面板', () => {
     const attributes = createOperatorAttackAttributes(panel);
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'criticalRate',
         attributeModifierValues('addition', 0.25),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -411,7 +411,7 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       ),
     );
     attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'criticalDamageIncrease',
         attributeModifierValues('addition', 0.5),
         ATTRIBUTE_MODIFIER_SOURCES.buff,

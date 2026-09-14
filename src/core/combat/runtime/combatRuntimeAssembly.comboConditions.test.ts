@@ -167,7 +167,7 @@ describe('assembly 原生常驻连携条件', () => {
       ],
     });
     expect(assembly.comboWindows.first).toBeUndefined();
-    assembly.simulation.advanceFrames(11);
+    assembly.advanceFrames(11);
     const controls = assembly.receipt.entries.filter(
       entry => entry.event === 'TimelineComboCooldownControlled',
     );
@@ -256,7 +256,7 @@ describe('assembly 原生常驻连携条件', () => {
       },
     ]);
     expect(assembly.tryStartSkill('owner', 'combo')).toBe(false);
-    assembly.simulation.advanceFrames(1);
+    assembly.advanceFrames(1);
     assembly.tryStartSkill('owner', 'combo');
     expect(frames[1]).toEqual({
       local: { local: 0 },
@@ -298,7 +298,7 @@ describe('assembly 原生常驻连携条件', () => {
       }),
     });
     f.emit();
-    assembly.simulation.advanceFrames(151);
+    assembly.advanceFrames(151);
     expect(assembly.comboWindows.pending).toEqual([]);
     expect(assembly.tryStartSkill('owner', 'combo')).toBe(true);
     expect(observed).toBe(0);
@@ -371,7 +371,7 @@ describe('assembly 原生常驻连携条件', () => {
     f.emit();
     expect(f.pending).toHaveLength(1);
     expect(() => assembly.tryStartSkill('owner', 'combo')).toThrow();
-    assembly.simulation.advanceFrames(10);
+    assembly.advanceFrames(10);
     expect(assembly.receipt.entries.some(entry => entry.event === 'SkillStarted')).toBe(false);
   });
 
@@ -408,10 +408,10 @@ describe('assembly 原生常驻连携条件', () => {
     });
     f.emit();
     expect(f.pending).toHaveLength(1);
-    assembly.simulation.advanceFrames(6);
+    assembly.advanceFrames(6);
     f.emit();
     expect(f.pending).toHaveLength(1);
-    assembly.simulation.advanceFrames(294);
+    assembly.advanceFrames(294);
     f.emit();
     expect(f.pending).toHaveLength(2);
     const ready = assembly.receipt.entries.filter(entry => entry.event === 'SkillCooldownReady');
@@ -519,7 +519,7 @@ describe('assembly 原生常驻连携条件', () => {
     assembly.tryStartSkill('owner', 'switch');
     f.emit();
     expect(f.pending).toHaveLength(0);
-    assembly.simulation.advanceFrames(299);
+    assembly.advanceFrames(299);
     f.emit();
     expect(f.pending).toHaveLength(1);
   });
@@ -532,16 +532,16 @@ describe('assembly 原生常驻连携条件', () => {
       operators: [{ ...f.owner, skillCooldownPrograms: [combo()] }],
     });
     assembly.tryStartSkill('owner', 'combo', 'a');
-    assembly.simulation.advanceFrames(5);
+    assembly.advanceFrames(5);
     f.emit();
     expect(f.pending).toHaveLength(1);
-    assembly.simulation.advanceFrame();
+    assembly.advanceFrame();
     f.emit();
     expect(f.pending).toHaveLength(1);
-    assembly.simulation.advanceFrames(593);
+    assembly.advanceFrames(593);
     f.emit();
     expect(f.pending).toHaveLength(1);
-    assembly.simulation.advanceFrame();
+    assembly.advanceFrame();
     f.emit();
     expect(f.pending).toHaveLength(2);
     expect(
@@ -572,7 +572,7 @@ describe('assembly 原生常驻连携条件', () => {
     );
     const assembly = new CombatRuntimeAssembly(f.options);
     assembly.tryStartSkill('owner', 'combo', 'a');
-    assembly.simulation.advanceFrames(6);
+    assembly.advanceFrames(6);
     f.emit();
     expect(f.pending).toHaveLength(0);
     assembly.tryStartSkill('owner', 'reset');
@@ -625,10 +625,10 @@ describe('assembly 原生常驻连携条件', () => {
       influenceSkillCooldownSeconds: 10,
     });
     assembly.tryStartSkill('owner', 'combo');
-    assembly.simulation.advanceFrames(11);
+    assembly.advanceFrames(11);
     f.emit();
     expect(f.pending).toHaveLength(1);
-    assembly.simulation.advanceFrame();
+    assembly.advanceFrame();
     f.emit();
     expect(f.pending).toHaveLength(1);
   });
@@ -711,14 +711,14 @@ describe('assembly 原生常驻连携条件', () => {
     const assembly = new CombatRuntimeAssembly(f.options);
     f.emit();
     expect(assembly.tryStartSkill('owner', 'combo')).toBe(true);
-    assembly.simulation.advanceFrames(5);
+    assembly.advanceFrames(5);
     f.emit();
-    assembly.simulation.advanceFrame();
+    assembly.advanceFrame();
     f.emit();
-    assembly.simulation.advanceFrame();
+    assembly.advanceFrame();
     f.emit();
     expect(f.pending.map(value => value.assignPairs?.local)).toEqual([1, 2]);
-    assembly.simulation.advanceFrames(293);
+    assembly.advanceFrames(293);
     f.emit();
     expect(f.pending.at(-1)?.assignPairs).toEqual({ local: 3, label: 'condition' });
     expect(f.pending[0]?.assignPairs).toEqual({ local: 1, label: 'condition' });
@@ -738,7 +738,7 @@ describe('assembly 原生常驻连携条件', () => {
     );
     const assembly = new CombatRuntimeAssembly(f.options);
     assembly.tryStartSkill('owner', 'combo');
-    assembly.simulation.advanceFrames(6);
+    assembly.advanceFrames(6);
     f.emit();
     expect(f.pending).toHaveLength(0);
     assembly.tryStartSkill('owner', 'to-variant');
@@ -747,7 +747,7 @@ describe('assembly 原生常驻连携条件', () => {
     assembly.tryStartSkill('owner', 'to-base');
     f.emit();
     expect(f.pending).toHaveLength(0);
-    assembly.simulation.advanceFrames(294);
+    assembly.advanceFrames(294);
     f.emit();
     expect(f.pending).toHaveLength(1);
   });

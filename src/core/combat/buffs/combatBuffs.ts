@@ -1,3 +1,38 @@
+import { createBuffStackingState } from './buffStackingState';
+import {
+  refreshBuffStackingPriority,
+  countBuffStackingInstances,
+  countBuffStackingEnhancements,
+  enhanceBuffStacking,
+  canGrowBuffStacking,
+  growBuffStacking,
+  applyTimedBuffEnhancement,
+  type BuffStackingHost,
+} from './buffStackingExecution';
+import { createBuffInstanceState, type BuffInstanceState } from './buffInstanceState';
+import { createBuffContainerState, type BuffContainerState } from './buffContainerState';
+import {
+  addBuffEntityTags,
+  removeBuffEntityTags,
+  advanceBuffAddingCooldowns,
+} from './buffContainerExecution';
+import type { BuffShieldState } from './buffShieldState';
+import { SHIELD_EPSILON, absorbShieldDamage, refreshShieldConsumed } from './buffShieldExecution';
+import { attachBuffChild, finishBuffChildren } from './buffChildrenExecution';
+import { buffReferenceKey } from './buffReference';
+import {
+  removeBuffAttributeModifiers,
+  replaceBuffAttributeModifiers,
+} from './buffAttributeExecution';
+import {
+  finishBuffLifecycle,
+  tickBuffLifecycle,
+  refreshBuffDuration,
+  extendBuffDuration,
+  setFiniteBuffDuration,
+  enhanceBuffLifecycle,
+  decreaseBuffEnhancements,
+} from './buffLifecycleExecution';
 // 纯数据契约由独立包唯一声明；此路径保留兼容导出。
 export {
   BUFF_STACKING_TYPES,
@@ -35,7 +70,8 @@ import {
  */
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
+  type CombatAttributeModifier,
   attributeModifierValues,
   type AttributeModifierSlot,
   type AttributeModifierSource,
@@ -47,7 +83,6 @@ import {
   DamageModifier,
   type DamageModifierConditionEvaluator,
   type DamageModifierDefinition,
-  type DamageModifierNumber,
 } from '../damage/damageModifiers';
 import type {
   DamageModifierSide,
@@ -55,26 +90,31 @@ import type {
   PlayerDamageContext,
 } from '../damage/playerDamageContext';
 import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
+import { applyHealModifier } from '../heal/healModifierExecution';
+import { applyPoiseModifier } from '../damage/poiseModifierExecution';
+import { resolveBuffModifierNumber } from './buffModifierNumberSource';
+import type { DamageModifierState } from '../damage/damageModifierState';
+import { advanceBuffTriggers } from './buffTriggerExecution';
 import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 import type { DamageType } from '../../game-data/operatorDefinition';
 import {
-  HealModifier,
+  createHealModifier,
+  type HealModifier,
   type HealCalculationContext,
   type HealModifierDefinition,
-  type HealModifierNumber,
   type HealModifierSide,
   type HealProcessTiming,
 } from '../heal/healModifiers';
 import {
-  PoiseModifier,
+  createPoiseModifier,
+  type PoiseModifier,
   type PoiseCalculationContext,
   type PoiseModifierDefinition,
-  type PoiseModifierNumber,
   type PoiseModifierSide,
   type PoiseProcessTiming,
 } from '../damage/poiseModifiers';
 import {
-  SharedSpGainModifier,
+  createSharedSpGainModifier,
   type SharedSpGainAttribute,
   type SharedSpGainModifierOperation,
   type SharedSpGainModifierSet,
@@ -140,6 +180,8 @@ export interface BuffTickDeltas {
  */
 export interface BuffDuringEnableAction<Key extends string> {
   createRuntimeInstance(): BuffDuringEnableAction<Key>;
+  /** 只把复制后的动作数据接回当前实例；不得重放启用动作。 */
+  bindRestored?(buff: CombatBuff<Key>): void;
   tryExecute(buff: CombatBuff<Key>): boolean;
   tick(deltaTime: number, buff: CombatBuff<Key>): void;
   end(buff: CombatBuff<Key>): void;
@@ -209,6 +251,10 @@ export interface CombatBuffDefinition<Key extends string> {
   readonly shields?: readonly BuffShieldDefinition[];
   readonly sustainedProtection?: BuffSustainedProtectionDefinition;
   readonly actions?: BuffLifecycleActions<Key>;
+  /** 编译后的固定程序为恢复实例重建动作对象；绑定过程不得执行生命周期。 */
+  readonly bindRestoredActions?: (buff: CombatBuff<Key>) => void;
+  /** 所有实例目录建立后，再接回可能跨目标的动作引用。 */
+  readonly bindRestoredRelations?: (buff: CombatBuff<Key>) => void;
 }
 
 /** 添加 Buff 实例时由具体行为提供的初始黑板和层数。 */
@@ -224,66 +270,78 @@ export interface CombatBuffAddOptions {
   readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
   /** 原生护盾 Calculation 的 attacker 端；跨实体 Buff 不得退化为 owner 属性。 */
   readonly getSourceAttributeValue?: (attribute: string) => number;
+  /** getSourceAttributeValue 对应的战斗实体，用于恢复时从当前分支重新解析端口。 */
+  readonly sourceAttributeOwnerId?: string;
 }
 
 /** 一个实体上某项 Buff 的独立运行时实例。 */
 /** 由宿主精确持有的实例结束端口；null 是已知空施法，省略仍表示未核实。 */
 export interface BuffApplicationHandle {
+  readonly reference: import('./buffReference').BuffReference;
   finish(reason: BuffFinishReason, finishSkillCastInfo?: CombatSkillCastInfo | null): boolean;
 }
 
 export class CombatBuff<Key extends string> {
-  readonly #childBuffs = new Set<BuffApplicationHandle>();
+  readonly #state: BuffInstanceState<Key>;
+  /** 供容器统一持有实例数据；对象回调和宿主绑定不进入此结构。 */
+  get runtimeState(): BuffInstanceState<Key> {
+    return this.#state;
+  }
+  /** 只包含目标与实例编号，可随战斗数据保存；不能保存整个 Buff 对象。 */
+  get reference(): import('./buffReference').BuffReference {
+    return { ownerId: this.#state.identity.ownerId, instanceId: this.#state.identity.instanceId };
+  }
+  readonly #childBindings = new Map<string, BuffApplicationHandle>();
 
   attachChildBuff(child: BuffApplicationHandle): void {
-    this.#childBuffs.add(child);
+    this.#childBindings.set(buffReferenceKey(child.reference), child);
+    attachBuffChild(this.#state.children, child.reference);
+  }
+
+  /** 恢复时只重建对象绑定；关系本身已经存在于数据中，不能再次执行附着语义。 */
+  bindRestoredChild(child: BuffApplicationHandle): void {
+    const key = buffReferenceKey(child.reference);
+    if (!this.#state.children.members.has(key)) {
+      throw new Error(`restored child Buff '${key}' is not present in parent data`);
+    }
+    this.#childBindings.set(key, child);
   }
   readonly damageModifiers: readonly DamageModifier[];
-  readonly healModifiers: readonly HealModifier[];
-  readonly poiseModifiers: readonly PoiseModifier[];
+  get healModifiers(): readonly HealModifier[] {
+    return this.#state.healModifiers;
+  }
+  get poiseModifiers(): readonly PoiseModifier[] {
+    return this.#state.poiseModifiers;
+  }
   readonly blackboard: ActionBlackboard;
-  readonly priority: number;
-  readonly sourceActionId: string;
-  readonly definitionOwnerId: string;
+  get priority(): number {
+    return this.#state.priority;
+  }
+  get sourceActionId(): string {
+    return this.#state.sourceActionId;
+  }
+  get definitionOwnerId(): string {
+    return this.#state.definitionOwnerId;
+  }
   /** 来源施法在创建瞬间的快照，不随后续技能扣费变化。 */
-  readonly skillCastInfo: CombatSkillCastInfo | null;
-  #affixSkillCastId = 0;
+  get skillCastInfo(): CombatSkillCastInfo | null {
+    return this.#state.skillCastInfo;
+  }
   /** 原生独立运行时状态：只有显式记录才写入，不从 Buff 普通来源编号继承。 */
   get affixSkillCastId(): number {
-    return this.#affixSkillCastId;
+    return this.#state.lifecycle.affixSkillCastId;
   }
 
   recordBuffAffixSkillCastId(skillCastId: number): void {
     if (!Number.isSafeInteger(skillCastId) || skillCastId < 0 || skillCastId > 0xffffffff) {
       throw new Error('Buff affix skill cast identity must be a UInt32');
     }
-    this.#affixSkillCastId = skillCastId;
+    this.#state.lifecycle.affixSkillCastId = skillCastId;
   }
   readonly finishParentGlobalBuff: ((reason: 'early' | 'other') => boolean) | null;
   readonly getSourceAttributeValue: ((attribute: string) => number) | null;
-  #attributeModifiers: readonly CombatAttributeModifier<Key>[];
-  readonly #sharedSpGainModifiers: readonly SharedSpGainModifier[];
-  #passedTime = 0;
-  #remainingDuration: number | null;
-  readonly #timedGrowthPeriod: number | null;
-  #timedGrowthRemaining = 0;
-  #started = false;
-  #enabled = false;
-  #finished = false;
-  #finishing = false;
-  #timePaused = false;
-  #finishable = true;
-  #appliedTags = false;
-  #appliedExtendTags = false;
-  #finishReason: BuffFinishReason | null = null;
-  #released = false;
-  #recycled = false;
-  readonly #recycleCallbacks: { callback: () => void }[] = [];
-  #enhanceCount = 1;
+  readonly #recycleCallbacks = new Map<number, () => void>();
   #stackingGroup: BuffStackingGroup<Key> | null = null;
-  #triggerInterval: number | null = null;
-  #triggerRemainingTime = 0;
-  #remainingTriggerCount = 0;
   readonly #duringEnableAction: BuffDuringEnableAction<Key> | null;
   readonly shields: readonly CombatShield<Key>[];
 
@@ -293,13 +351,87 @@ export class CombatBuff<Key extends string> {
     readonly sourceId: string,
     readonly instanceId: number,
     options?: CombatBuffAddOptions,
+    restoredState?: BuffInstanceState<Key>,
   ) {
+    if (restoredState !== undefined) {
+      if (
+        restoredState.identity.ownerId !== owner.ownerId ||
+        restoredState.identity.instanceId !== instanceId ||
+        restoredState.identity.definitionId !== definition.id ||
+        restoredState.identity.sourceId !== sourceId
+      ) {
+        throw new Error(`restored Buff '${definition.id}' identity does not match its binding`);
+      }
+      this.#state = restoredState;
+      this.blackboard = ActionBlackboard.bindRuntimeState(restoredState.blackboard);
+      if (restoredState.blackboard.entity !== owner.entityBlackboard.runtimeState) {
+        throw new Error(
+          `restored Buff '${definition.id}' does not share its owner entity blackboard`,
+        );
+      }
+      this.finishParentGlobalBuff = options?.finishParentGlobalBuff ?? null;
+      this.getSourceAttributeValue = options?.getSourceAttributeValue ?? null;
+      const sourceAttributeOwnerId =
+        options?.sourceAttributeOwnerId ??
+        (this.getSourceAttributeValue === null ? null : restoredState.identity.sourceId);
+      if (
+        restoredState.sourceAttributeOwnerId !== sourceAttributeOwnerId ||
+        (restoredState.sourceAttributeOwnerId !== null && this.getSourceAttributeValue === null)
+      ) {
+        throw new Error(`restored Buff '${definition.id}' source attribute binding does not match`);
+      }
+      const damageDefinitions = definition.damageModifiers ?? [];
+      if (damageDefinitions.length !== restoredState.damageModifiers.length) {
+        throw new Error(`restored Buff '${definition.id}' damage modifier count does not match`);
+      }
+      if ((definition.healModifiers?.length ?? 0) !== restoredState.healModifiers.length) {
+        throw new Error(`restored Buff '${definition.id}' heal modifier count does not match`);
+      }
+      if ((definition.poiseModifiers?.length ?? 0) !== restoredState.poiseModifiers.length) {
+        throw new Error(`restored Buff '${definition.id}' poise modifier count does not match`);
+      }
+      if (
+        (definition.sharedSpGainModifiers?.length ?? 0) !==
+        restoredState.sharedSpGainModifiers.length
+      ) {
+        throw new Error(`restored Buff '${definition.id}' SP modifier count does not match`);
+      }
+      this.damageModifiers = damageDefinitions.map(
+        (modifier, index) =>
+          new DamageModifier(
+            owner.ownerId,
+            modifier,
+            restoredState.damageModifiers[index]!.numberSource,
+            restoredState.damageModifiers[index]!.sourceSkillCastId,
+            modifier.createConditionProgram?.(this),
+            restoredState.damageModifiers[index],
+          ),
+      );
+      this.#duringEnableAction = definition.actions?.duringEnable?.createRuntimeInstance() ?? null;
+      const shieldDefinitions = definition.shields ?? [];
+      if (shieldDefinitions.length !== restoredState.shields.length) {
+        throw new Error(`restored Buff '${definition.id}' shield count does not match`);
+      }
+      this.shields = shieldDefinitions.map(
+        (shield, index) => new CombatShield(this, shield, restoredState.shields[index]),
+      );
+      return;
+    }
     this.blackboard = new ActionBlackboard(definition.blackboard, owner.entityBlackboard);
+    this.#state = createBuffInstanceState<Key>(
+      { ownerId: owner.ownerId, instanceId, definitionId: definition.id, sourceId },
+      this.blackboard.runtimeState,
+    );
     this.blackboard.assign(options?.blackboardValues);
     // 对应原生 Buff.Reset：本次赋值完成后收集来源修正，早于寿命/修正器求值。
     // 仅初始化新实例执行；刷新旧实例不会因此重播收集事件。
     owner.collectOutputBlackboard?.(definition, sourceId, this.blackboard);
     this.getSourceAttributeValue = options?.getSourceAttributeValue ?? null;
+    this.#state.sourceAttributeOwnerId =
+      options?.sourceAttributeOwnerId ?? (this.getSourceAttributeValue === null ? null : sourceId);
+    if ((this.getSourceAttributeValue === null) !== (this.#state.sourceAttributeOwnerId === null)) {
+      throw new Error(`buff '${definition.id}' source attribute binding requires owner identity`);
+    }
     const initializedKeywordRates = new Set<string>();
     for (const enhancement of definition.keywordEnhancements ?? []) {
       if (initializedKeywordRates.has(enhancement.targetKey)) continue;
@@ -315,9 +447,10 @@ export class CombatBuff<Key extends string> {
       this.blackboard.assignDynamic(enhancement.targetKey, initialValue);
       initializedKeywordRates.add(enhancement.targetKey);
     }
-    this.sourceActionId = options?.sourceActionId ?? definition.id;
-    this.definitionOwnerId = options?.definitionOwnerId ?? sourceId;
-    this.skillCastInfo = options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
+    this.#state.sourceActionId = options?.sourceActionId ?? definition.id;
+    this.#state.definitionOwnerId = options?.definitionOwnerId ?? sourceId;
+    this.#state.skillCastInfo =
+      options?.skillCastInfo === undefined ? null : { ...options.skillCastInfo };
     if (definition.affixSkillCastIdentity === 'sourceSkillCast') {
       if (this.skillCastInfo === null) {
         throw new Error(
@@ -327,20 +460,20 @@ export class CombatBuff<Key extends string> {
       this.recordBuffAffixSkillCastId(this.skillCastInfo.skillCastId);
     }
     this.finishParentGlobalBuff = options?.finishParentGlobalBuff ?? null;
-    this.priority = resolveBuffPriority(definition, this.blackboard);
+    this.#state.priority = resolveBuffPriority(definition, this.blackboard);
     const duration = resolveBuffDuration(definition, this.blackboard);
     if (definition.stackingType === 'timedGrowingEnhance') {
       if (duration === null || duration <= BUFF_LIFETIME_EPSILON) {
         throw new Error(`buff '${definition.id}' timed growth requires a positive duration`);
       }
-      this.#remainingDuration = null;
-      this.#timedGrowthPeriod = duration;
-      this.#timedGrowthRemaining = duration;
+      this.#state.lifecycle.remainingDuration = null;
+      this.#state.lifecycle.timedGrowthPeriod = duration;
+      this.#state.lifecycle.timedGrowthRemaining = duration;
     } else {
-      this.#remainingDuration = duration;
-      this.#timedGrowthPeriod = null;
+      this.#state.lifecycle.remainingDuration = duration;
+      this.#state.lifecycle.timedGrowthPeriod = null;
     }
-    this.#remainingTriggerCount = resolveBuffTriggerCount(definition, this.blackboard);
+    this.#state.trigger.remainingCount = resolveBuffTriggerCount(definition, this.blackboard);
     const triggerInterval = resolveOptionalBuffNumber(
       definition.id,
       'trigger interval',
@@ -351,113 +484,145 @@ export class CombatBuff<Key extends string> {
       throw new RangeError('buff trigger interval must resolve to a finite number');
     }
     if (triggerInterval !== null && triggerInterval > BUFF_LIFETIME_EPSILON) {
-      this.#triggerInterval = triggerInterval;
-      this.#triggerRemainingTime = definition.waitFirstTriggerInterval ? triggerInterval : 0;
+      this.#state.trigger.intervalSeconds = triggerInterval;
+      this.#state.trigger.remainingSeconds = definition.waitFirstTriggerInterval
+        ? triggerInterval
+        : 0;
     }
     this.damageModifiers = (definition.damageModifiers ?? []).map(
       modifier =>
         new DamageModifier(
           owner.ownerId,
           modifier,
-          value => this.resolveDamageNumber(value),
+          { buffId: definition.id, blackboard: this.#state.blackboard },
           this.skillCastInfo?.skillCastId ?? null,
           modifier.createConditionProgram?.(this),
         ),
     );
-    this.healModifiers = (definition.healModifiers ?? []).map(
-      modifier => new HealModifier(owner.ownerId, modifier, value => this.resolveHealNumber(value)),
+    this.#state.damageModifiers = this.damageModifiers.map(modifier => modifier.runtimeState);
+    this.#state.healModifiers = (definition.healModifiers ?? []).map(modifier =>
+      createHealModifier(owner.ownerId, modifier, {
+        buffId: definition.id,
+        blackboard: this.#state.blackboard,
+      }),
     );
-    this.poiseModifiers = (definition.poiseModifiers ?? []).map(
-      modifier =>
-        new PoiseModifier(owner.ownerId, modifier, value => this.resolvePoiseNumber(value)),
+    this.#state.poiseModifiers = (definition.poiseModifiers ?? []).map(modifier =>
+      createPoiseModifier(owner.ownerId, modifier, {
+        buffId: definition.id,
+        blackboard: this.#state.blackboard,
+      }),
     );
-    this.#attributeModifiers = this.createAttributeModifiers();
-    this.#sharedSpGainModifiers = (definition.sharedSpGainModifiers ?? []).map(
-      modifier =>
-        new SharedSpGainModifier(
-          modifier.attribute,
-          modifier.operation,
-          modifier.value,
-          modifier.applyToReturnSpGain,
-        ),
+    this.#state.attributes.modifiers = this.createAttributeModifiers();
+    this.#state.sharedSpGainModifiers = (definition.sharedSpGainModifiers ?? []).map(modifier =>
+      createSharedSpGainModifier(
+        modifier.attribute,
+        modifier.operation,
+        modifier.value,
+        modifier.applyToReturnSpGain,
+      ),
     );
-    if (this.#sharedSpGainModifiers.length > 0 && owner.sharedSpGainModifiers === null) {
+    if (this.#state.sharedSpGainModifiers.length > 0 && owner.sharedSpGainModifiers === null) {
       throw new Error(
         `buff '${definition.id}' requires a shared SP gain modifier set on its owner`,
       );
     }
     this.#duringEnableAction = definition.actions?.duringEnable?.createRuntimeInstance() ?? null;
     this.shields = (definition.shields ?? []).map(shield => new CombatShield(this, shield));
+    this.#state.shields.push(...this.shields.map(shield => shield.runtimeState));
   }
 
   get passedTime(): number {
-    return this.#passedTime;
+    return this.#state.lifecycle.passedTime;
   }
 
   get remainingDuration(): number | null {
-    return this.#remainingDuration;
+    return this.#state.lifecycle.remainingDuration;
   }
 
   get isStarted(): boolean {
-    return this.#started;
+    return this.#state.lifecycle.started;
   }
 
   get isEnabled(): boolean {
-    return this.#enabled;
+    return this.#state.lifecycle.enabled;
   }
 
   get isFinished(): boolean {
-    return this.#finished;
+    return this.#state.lifecycle.finished;
   }
 
   get isRecycled(): boolean {
-    return this.#recycled;
+    return this.#state.lifecycle.recycled;
   }
 
   /** 实例生命周期回调，不向能力事件总线发布新事件。 */
-  onRecycled(callback: (buff: CombatBuff<Key>) => void): { dispose(): void } {
-    if (this.#recycled) throw new Error('Cannot subscribe to a recycled Buff');
-    const entry = { callback: () => callback(this) };
-    this.#recycleCallbacks.push(entry);
-    let disposed = false;
+  onRecycled(callback: (buff: CombatBuff<Key>) => void): {
+    readonly registrationId: number;
+    dispose(): void;
+  } {
+    if (this.#state.lifecycle.recycled) throw new Error('Cannot subscribe to a recycled Buff');
+    const registrationId = this.#state.nextRecycleCallbackId++;
+    this.#state.recycleCallbackIds.push(registrationId);
+    return this.bindRecycledCallback(registrationId, callback);
+  }
+
+  /** 给保存的 onRecycled 登记接回函数，不申请新编号或改变回调顺序。 */
+  bindRecycledCallback(
+    registrationId: number,
+    callback: (buff: CombatBuff<Key>) => void,
+  ): { readonly registrationId: number; dispose(): void } {
+    if (this.#state.lifecycle.recycled) throw new Error('Cannot bind a recycled Buff callback');
+    if (!this.#state.recycleCallbackIds.includes(registrationId)) {
+      throw new Error(`Buff recycle callback '${registrationId}' is missing`);
+    }
+    if (this.#recycleCallbacks.has(registrationId)) {
+      throw new Error(`Buff recycle callback '${registrationId}' is already bound`);
+    }
+    this.#recycleCallbacks.set(registrationId, () => callback(this));
     return {
+      registrationId,
       dispose: () => {
-        if (disposed) return;
-        disposed = true;
-        const index = this.#recycleCallbacks.indexOf(entry);
-        if (index >= 0) this.#recycleCallbacks.splice(index, 1);
+        if (!this.#recycleCallbacks.delete(registrationId)) return;
+        const index = this.#state.recycleCallbackIds.indexOf(registrationId);
+        if (index >= 0) this.#state.recycleCallbackIds.splice(index, 1);
       },
     };
   }
 
   /** 仅供容器独立回收阶段使用；结束不隐式调用此方法。 */
   recycleFinished(): void {
-    if (this.#recycled) return;
-    if (!this.#finished) throw new Error('Cannot recycle an active Buff');
-    this.#recycled = true;
+    if (this.#state.lifecycle.recycled) return;
+    if (!this.#state.lifecycle.finished) throw new Error('Cannot recycle an active Buff');
+    const callbacks = this.#state.recycleCallbackIds.map(id => {
+      const callback = this.#recycleCallbacks.get(id);
+      if (callback === undefined) throw new Error(`Buff recycle callback '${id}' is not bound`);
+      return callback;
+    });
+    this.#state.lifecycle.recycled = true;
     this.#stackingGroup?.removeRecycled(this);
     this.#stackingGroup = null;
     try {
-      for (const entry of this.#recycleCallbacks.slice()) entry.callback();
+      for (const callback of callbacks) callback();
     } finally {
-      this.#recycleCallbacks.length = 0;
+      this.#recycleCallbacks.clear();
+      this.#state.recycleCallbackIds.length = 0;
     }
   }
 
   get finishReason(): BuffFinishReason | null {
-    return this.#finishReason;
+    return this.#state.lifecycle.finishReason;
   }
 
   get isFinishable(): boolean {
-    return this.#finishable;
+    return this.#state.lifecycle.finishable;
   }
 
   get isTimePaused(): boolean {
-    return this.#timePaused;
+    return this.#state.lifecycle.timePaused;
   }
 
   get enhanceCount(): number {
-    return this.#enhanceCount;
+    return this.#state.lifecycle.enhanceCount;
   }
 
   applyKeywordEnhancements(onAddedBuffId: string): boolean {
@@ -493,40 +658,7 @@ export class CombatBuff<Key extends string> {
   }
 
   get attributeModifiers(): readonly CombatAttributeModifier<Key>[] {
-    return this.#attributeModifiers;
-  }
-
-  private resolveDamageNumber(value: DamageModifierNumber): number {
-    if (typeof value === 'number') return value;
-    const resolved = this.blackboard.getNumber(value.blackboardKey);
-    if (resolved === undefined) {
-      throw new Error(
-        `buff '${this.definition.id}' damage modifier blackboard value '${value.blackboardKey}' is missing`,
-      );
-    }
-    return resolved;
-  }
-
-  private resolveHealNumber(value: HealModifierNumber): number {
-    if (typeof value === 'number') return value;
-    const resolved = this.blackboard.getNumber(value.blackboardKey);
-    if (resolved === undefined) {
-      throw new Error(
-        `buff '${this.definition.id}' heal modifier blackboard value '${value.blackboardKey}' is missing`,
-      );
-    }
-    return resolved;
-  }
-
-  private resolvePoiseNumber(value: PoiseModifierNumber): number {
-    if (typeof value === 'number') return value;
-    const resolved = this.blackboard.getNumber(value.blackboardKey);
-    if (resolved === undefined) {
-      throw new Error(
-        `buff '${this.definition.id}' poise modifier blackboard value '${value.blackboardKey}' is missing`,
-      );
-    }
-    return resolved;
+    return this.#state.attributes.modifiers;
   }
 
   /** 按原生 Buff.ContainsTag 语义查询定义携带的 applyTags。 */
@@ -537,10 +669,10 @@ export class CombatBuff<Key extends string> {
   }
 
   enable(): void {
-    if (this.#finished || this.#enabled) return;
-    this.#enabled = true;
-    if (!this.#started) {
-      this.#started = true;
+    if (this.#state.lifecycle.finished || this.#state.lifecycle.enabled) return;
+    this.#state.lifecycle.enabled = true;
+    if (!this.#state.lifecycle.started) {
+      this.#state.lifecycle.started = true;
       this.definition.actions?.start?.(this);
       this.triggerInternal(0);
     }
@@ -566,7 +698,7 @@ export class CombatBuff<Key extends string> {
       this.owner.unregisterShields(this.shields);
       this.owner.unregisterSustainedProtection(this);
       this.removeApplyTags();
-      this.#enabled = false;
+      this.#state.lifecycle.enabled = false;
       throw error;
     }
     this.definition.actions?.enable?.(this);
@@ -574,7 +706,7 @@ export class CombatBuff<Key extends string> {
   }
 
   disable(): void {
-    if (!this.#enabled) return;
+    if (!this.#state.lifecycle.enabled) return;
     this.definition.actions?.disable?.(this);
     this.endDuringEnableAction();
     this.owner.unregisterDamageModifiers(this.damageModifiers);
@@ -585,13 +717,13 @@ export class CombatBuff<Key extends string> {
     this.removeApplyTags();
     this.removeAttributeModifiers();
     this.unregisterSharedSpGainModifiers();
-    this.#enabled = false;
+    this.#state.lifecycle.enabled = false;
   }
 
   /** 宿主释放与 MarkFinish 不同：不受 finishable 限制，不伪造结束原因/减层通知。 */
   release(): boolean {
-    if (this.#released) return false;
-    this.#released = true;
+    if (this.#state.lifecycle.released) return false;
+    this.#state.lifecycle.released = true;
     this.owner.unregisterDamageModifiers(this.damageModifiers);
     this.owner.unregisterHealModifiers(this.healModifiers);
     this.owner.unregisterPoiseModifiers(this.poiseModifiers);
@@ -601,12 +733,13 @@ export class CombatBuff<Key extends string> {
     this.removeAttributeModifiers();
     this.unregisterSharedSpGainModifiers();
     this.removeExtendTags();
-    if (!this.#finished) this.endDuringEnableAction();
+    if (!this.#state.lifecycle.finished) this.endDuringEnableAction();
     this.definition.actions?.release?.(this);
-    this.#enabled = false;
+    this.#state.lifecycle.enabled = false;
     // 现有 isFinished 是目录/执行器的终止门禁；finishReason 不因此改变。
-    this.#finished = true;
-    this.#childBuffs.clear();
+    this.#state.lifecycle.finished = true;
+    this.#state.children.members.clear();
+    this.#childBindings.clear();
     this.owner.onBuffReleased?.(this);
     return true;
   }
@@ -616,82 +749,74 @@ export class CombatBuff<Key extends string> {
     reason: BuffFinishReason = 'other',
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): boolean {
-    if (this.#finished || this.#finishing) return false;
-    if (!this.#finishable) {
-      this.addExtendTags();
-      return false;
-    }
-    this.#finishing = true;
-    this.#finishReason = reason;
-    this.definition.actions?.finish?.(this);
-    this.endDuringEnableAction();
-    const hadRegisteredModifiers = this.#enabled;
-    this.#enabled = false;
-    this.#finished = true;
-    // MarkFinish: OnFinish → finished/disabled → _RemoveAllChildrenBuff → stacking/modifiers.
-    for (const child of this.#childBuffs) child.finish('other', null);
-    this.#childBuffs.clear();
-    this.removeExtendTags();
-    this.#stackingGroup?.refreshAfterFinish();
-    if (hadRegisteredModifiers) {
-      this.owner.unregisterDamageModifiers(this.damageModifiers);
-      this.owner.unregisterHealModifiers(this.healModifiers);
-      this.owner.unregisterPoiseModifiers(this.poiseModifiers);
-      this.owner.unregisterShields(this.shields);
-      this.owner.unregisterSustainedProtection(this);
-      this.removeApplyTags();
-      this.removeAttributeModifiers();
-      this.unregisterSharedSpGainModifiers();
-    }
-    this.#finishing = false;
-    this.owner.handleBuffFinished(this, reason, finishSkillCastInfo);
-    return true;
+    return finishBuffLifecycle(this.#state.lifecycle, reason, {
+      addExtendTags: () => this.addExtendTags(),
+      finishAction: () => this.definition.actions?.finish?.(this),
+      endDuringEnable: () => this.endDuringEnableAction(),
+      finishChildren: () => {
+        finishBuffChildren(this.#state.children, reference => {
+          const child = this.#childBindings.get(buffReferenceKey(reference));
+          if (child === undefined) throw new Error('attached child Buff binding is missing');
+          child.finish('other', null);
+        });
+        this.#childBindings.clear();
+      },
+      removeExtendTags: () => this.removeExtendTags(),
+      refreshStacking: () => this.#stackingGroup?.refreshAfterFinish(),
+      unregisterModifiers: () => {
+        this.owner.unregisterDamageModifiers(this.damageModifiers);
+        this.owner.unregisterHealModifiers(this.healModifiers);
+        this.owner.unregisterPoiseModifiers(this.poiseModifiers);
+        this.owner.unregisterShields(this.shields);
+        this.owner.unregisterSustainedProtection(this);
+        this.removeApplyTags();
+        this.removeAttributeModifiers();
+        this.unregisterSharedSpGainModifiers();
+      },
+      notifyFinished: () => this.owner.handleBuffFinished(this, reason, finishSkillCastInfo),
+    });
   }
 
   tick(deltaTime: number | BuffTickDeltas): void {
-    if (this.#finished) return;
+    if (this.#state.lifecycle.finished) return;
     const resolvedDeltaTime =
       typeof deltaTime === 'number'
         ? deltaTime
         : resolveBuffTickDelta(this.definition.timeClock ?? 'default', deltaTime);
-    if (!Number.isFinite(resolvedDeltaTime)) throw new TypeError('buff delta time must be finite');
-    if (this.#timePaused) return;
-    const elapsed = Math.max(0, resolvedDeltaTime);
-    this.#passedTime += elapsed;
-    if (this.#enabled) {
-      this.triggerInternal(elapsed);
-      this.#duringEnableAction?.tick(elapsed, this);
+    tickBuffLifecycle(this.#state.lifecycle, resolvedDeltaTime, {
+      trigger: elapsed => this.triggerInternal(elapsed),
+      tickDuringEnable: elapsed => this.#duringEnableAction?.tick(elapsed, this),
+      canTimedGrow: () => this.#stackingGroup?.canTimedGrow(this) === true,
+      growTimed: () => this.#stackingGroup?.growTimed(this) === true,
+      finishLifetime: () => {
+        this.finish('lifetime', null);
+      },
+    });
+  }
+
+  /** 由定义的恢复接线调用，连接实例私有的持续动作。 */
+  bindRestoredDuringEnableAction(): void {
+    if (this.#duringEnableAction === null) return;
+    const bind = this.#duringEnableAction.bindRestored;
+    if (bind === undefined) {
+      throw new Error(`restored Buff '${this.definition.id}' cannot bind during-enable action`);
     }
-    if (this.#timedGrowthPeriod !== null) {
-      if (this.#stackingGroup?.canTimedGrow(this) !== true) return;
-      this.#timedGrowthRemaining -= elapsed;
-      while (this.#timedGrowthRemaining <= BUFF_LIFETIME_EPSILON) {
-        if (this.#stackingGroup?.growTimed(this) !== true) {
-          this.#timedGrowthRemaining = this.#timedGrowthPeriod;
-          break;
-        }
-        this.#timedGrowthRemaining += this.#timedGrowthPeriod;
-        if (this.#stackingGroup.canTimedGrow(this) !== true) {
-          this.#timedGrowthRemaining = this.#timedGrowthPeriod;
-          break;
-        }
-      }
-      return;
-    }
-    if (this.#remainingDuration === null) return;
-    this.#remainingDuration -= elapsed;
-    if (this.#remainingDuration <= BUFF_LIFETIME_EPSILON) this.finish('lifetime', null);
+    bind.call(this.#duringEnableAction, this);
   }
 
   /** PauseBuffTime 只冻结当前 Buff 的生命周期、周期触发与挂载时间轴。 */
   setTimePaused(paused: boolean): void {
-    this.#timePaused = paused;
+    this.#state.lifecycle.timePaused = paused;
   }
 
   /** 恢复可结束时，原生仅在剩余时长已经小于 0 的情况下补发到期结束。 */
   setFinishable(finishable: boolean): void {
-    this.#finishable = finishable;
-    if (finishable && this.#remainingDuration !== null && this.#remainingDuration < 0) {
+    this.#state.lifecycle.finishable = finishable;
+    if (
+      finishable &&
+      this.#state.lifecycle.remainingDuration !== null &&
+      this.#state.lifecycle.remainingDuration < 0
+    ) {
       this.finish('lifetime', null);
     }
   }
@@ -701,31 +826,20 @@ export class CombatBuff<Key extends string> {
   }
 
   refreshDuration(incomingDuration: number | null): void {
-    if (this.#remainingDuration === null || incomingDuration === null) {
-      this.#remainingDuration = null;
-      return;
-    }
-    if (incomingDuration > this.#remainingDuration + BUFF_LIFETIME_EPSILON) {
-      this.#remainingDuration = incomingDuration;
-    }
+    refreshBuffDuration(this.#state.lifecycle, incomingDuration);
   }
 
   extendDuration(incomingDuration: number | null): void {
-    if (this.#remainingDuration === null || incomingDuration === null) {
-      this.#remainingDuration = null;
-      return;
-    }
-    this.#remainingDuration += incomingDuration;
+    extendBuffDuration(this.#state.lifecycle, incomingDuration);
   }
 
   overwriteDuration(incomingDuration: number | null): void {
-    this.#remainingDuration = incomingDuration;
+    this.#state.lifecycle.remainingDuration = incomingDuration;
   }
 
   /** 原生 RawSetLifeTime：仅有限时长定义接受直接剩余时间写入。 */
   rawSetRemainingDuration(duration: number): void {
-    if (this.#remainingDuration === null) return;
-    this.#remainingDuration = Math.max(0, duration);
+    setFiniteBuffDuration(this.#state.lifecycle, duration);
   }
 
   executeBeforeEnhance(sourceId: string): void {
@@ -733,15 +847,15 @@ export class CombatBuff<Key extends string> {
   }
 
   enhance(sourceId: string): void {
-    this.#enhanceCount += 1;
-    // 原生 _Enhance：先执行内部事件6，再刷新属性；动作看见新层数、刷新前属性。
-    this.definition.actions?.enhanceChanged?.(this, sourceId);
-    // 强化层等价于重复注册同一组属性修正；重复对象可保留八槽中加法与乘法槽各自的聚合公式。
-    this.replaceAttributeModifiers(this.createAttributeModifiers());
+    enhanceBuffLifecycle(this.#state.lifecycle, {
+      changed: () => this.definition.actions?.enhanceChanged?.(this, sourceId),
+      refreshAttributes: () => this.replaceAttributeModifiers(this.createAttributeModifiers()),
+    });
   }
 
   resetTimedGrowthPeriod(): void {
-    if (this.#timedGrowthPeriod !== null) this.#timedGrowthRemaining = this.#timedGrowthPeriod;
+    if (this.#state.lifecycle.timedGrowthPeriod !== null)
+      this.#state.lifecycle.timedGrowthRemaining = this.#state.lifecycle.timedGrowthPeriod;
   }
 
   /** 原生 DecreaseEnhanceCnt：增强型 Buff 扣层，扣尽时结束整个实例。 */
@@ -750,14 +864,13 @@ export class CombatBuff<Key extends string> {
     reason: BuffFinishReason,
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): boolean {
-    if (this.#finished || count <= 0) return false;
-    if (this.#enhanceCount <= count) return this.finish(reason, finishSkillCastInfo);
-    this.#enhanceCount -= count;
-    this.definition.actions?.enhanceChanged?.(this, this.sourceId);
-    this.replaceAttributeModifiers(this.createAttributeModifiers());
-    this.#stackingGroup?.refreshAfterEnhanceDecrease();
-    this.owner.handleBuffEnhanced(this, -count, reason, finishSkillCastInfo);
-    return true;
+    return decreaseBuffEnhancements(this.#state.lifecycle, count, {
+      finish: () => this.finish(reason, finishSkillCastInfo),
+      changed: () => this.definition.actions?.enhanceChanged?.(this, this.sourceId),
+      refreshAttributes: () => this.replaceAttributeModifiers(this.createAttributeModifiers()),
+      refreshStacking: () => this.#stackingGroup?.refreshAfterEnhanceDecrease(),
+      notify: () => this.owner.handleBuffEnhanced(this, -count, reason, finishSkillCastInfo),
+    });
   }
 
   executeAfterEnhance(sourceId: string, skillCastInfo?: CombatSkillCastInfo | null): void {
@@ -784,36 +897,26 @@ export class CombatBuff<Key extends string> {
   }
 
   private triggerInternal(deltaTime: number): void {
-    if (this.#remainingTriggerCount === 0 || this.#triggerInterval === null) return;
-    this.#triggerRemainingTime -= deltaTime;
-    if (this.#triggerRemainingTime > BUFF_LIFETIME_EPSILON) return;
-
-    const triggerCount =
-      Math.max(0, Math.trunc(-this.#triggerRemainingTime / this.#triggerInterval)) + 1;
-    this.#triggerRemainingTime += triggerCount * this.#triggerInterval;
-    for (let index = 0; index < triggerCount; index += 1) {
-      if (this.#remainingTriggerCount === 0 || !this.#enabled) break;
-      this.#remainingTriggerCount -= 1;
-      this.definition.actions?.trigger?.(this);
-    }
+    advanceBuffTriggers(this.#state.trigger, deltaTime, {
+      isEnabled: () => this.#state.lifecycle.enabled,
+      trigger: () => this.definition.actions?.trigger?.(this),
+    });
   }
 
   private removeAttributeModifiers(): void {
-    for (const modifier of this.#attributeModifiers) {
-      this.owner.attributes.removeModifier(modifier);
-    }
+    removeBuffAttributeModifiers(this.#state.attributes, this.owner.attributes);
   }
 
   private registerSharedSpGainModifiers(): void {
     const registry = this.owner.sharedSpGainModifiers;
     if (registry === null) return;
-    for (const modifier of this.#sharedSpGainModifiers) registry.add(modifier);
+    for (const modifier of this.#state.sharedSpGainModifiers) registry.add(modifier);
   }
 
   private unregisterSharedSpGainModifiers(): void {
     const registry = this.owner.sharedSpGainModifiers;
     if (registry === null) return;
-    for (const modifier of this.#sharedSpGainModifiers) registry.remove(modifier);
+    for (const modifier of this.#state.sharedSpGainModifiers) registry.remove(modifier);
   }
 
   private endDuringEnableAction(): void {
@@ -834,13 +937,13 @@ export class CombatBuff<Key extends string> {
               );
             })());
       return attributes.flatMap(attribute =>
-        Array.from({ length: this.#enhanceCount }, () => {
+        Array.from({ length: this.#state.lifecycle.enhanceCount }, () => {
           const values = resolveBuffAttributeModifierValues(
             this.definition.id,
             modifier.values,
             this.blackboard,
           );
-          return new CombatAttributeModifier(
+          return createCombatAttributeModifier(
             attribute,
             values,
             modifier.source ?? ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -862,132 +965,146 @@ export class CombatBuff<Key extends string> {
   }
 
   private replaceAttributeModifiers(replacements: readonly CombatAttributeModifier<Key>[]): void {
-    if (this.#enabled) {
-      let registeredCount = 0;
-      try {
-        for (const modifier of replacements) {
-          this.owner.attributes.addModifier(modifier);
-          registeredCount += 1;
-        }
-      } catch (error) {
-        for (const modifier of replacements.slice(0, registeredCount)) {
-          this.owner.attributes.removeModifier(modifier);
-        }
-        throw error;
-      }
-
-      this.removeAttributeModifiers();
-    }
-    this.#attributeModifiers = replacements;
+    replaceBuffAttributeModifiers(
+      this.#state.attributes,
+      this.#state.lifecycle.enabled,
+      replacements,
+      this.owner.attributes,
+    );
   }
 
   private addExtendTags(): void {
-    if (this.#appliedExtendTags) return;
+    if (this.#state.lifecycle.appliedExtendTags) return;
     this.owner.addEntityTags(this.definition.extendTags ?? []);
-    this.#appliedExtendTags = true;
+    this.#state.lifecycle.appliedExtendTags = true;
   }
 
   private addApplyTags(): void {
-    if (this.#appliedTags) return;
+    if (this.#state.lifecycle.appliedTags) return;
     this.owner.addEntityTags(this.definition.applyTags ?? []);
-    this.#appliedTags = true;
+    this.#state.lifecycle.appliedTags = true;
   }
 
   private removeApplyTags(): void {
-    if (!this.#appliedTags) return;
+    if (!this.#state.lifecycle.appliedTags) return;
     this.owner.removeEntityTags(this.definition.applyTags ?? []);
-    this.#appliedTags = false;
+    this.#state.lifecycle.appliedTags = false;
   }
 
   private removeExtendTags(): void {
-    if (!this.#appliedExtendTags) return;
+    if (!this.#state.lifecycle.appliedExtendTags) return;
     this.owner.removeEntityTags(this.definition.extendTags ?? []);
-    this.#appliedExtendTags = false;
+    this.#state.lifecycle.appliedExtendTags = false;
   }
 }
 
 export class CombatShield<Key extends string> {
-  static readonly epsilon = 0.00001;
-  readonly maxValue: number;
-  readonly maxAbsorbCount: number;
-  readonly #absorptions = new Map<DamageType, readonly [number, number]>();
-  remainingValue: number;
-  remainingAbsorbCount: number;
-  consumed = false;
+  static readonly epsilon = SHIELD_EPSILON;
+  /** 供 Buff 实例统一持有的数据；宿主绑定本身不进入切面。 */
+  readonly runtimeState: BuffShieldState;
 
   constructor(
     readonly buff: CombatBuff<Key>,
     readonly definition: BuffShieldDefinition,
+    restored?: BuffShieldState,
   ) {
+    // 护盾参数在创建时已经结算，恢复不能按当前属性重新计算或补满余额。
+    if (restored !== undefined) {
+      this.runtimeState = restored;
+      return;
+    }
     const value =
       typeof definition.value === 'object' && 'attribute' in definition.value
         ? resolveShieldAttributeValue(buff, definition.value)
         : resolveBuffNumber(buff, definition.value, 'shield value');
-    this.maxValue = Math.max(0, value);
-    this.remainingValue = this.maxValue;
-    this.maxAbsorbCount = resolveBuffInteger(buff, definition.absorbCount, 'shield absorb count');
-    this.remainingAbsorbCount = this.maxAbsorbCount;
+    const maxValue = Math.max(0, value);
+    const maxAbsorbCount = resolveBuffInteger(buff, definition.absorbCount, 'shield absorb count');
+    this.runtimeState = {
+      maxValue,
+      maxAbsorbCount,
+      remainingValue: maxValue,
+      remainingAbsorbCount: maxAbsorbCount,
+      consumed: false,
+      absorptions: new Map(),
+    };
     for (const absorption of definition.damageAbsorptions) {
-      this.#absorptions.set(absorption.damageType, [
+      this.runtimeState.absorptions.set(absorption.damageType, [
         resolveBuffNumber(buff, absorption.ratio, 'shield absorption ratio'),
         resolveBuffNumber(buff, absorption.scale, 'shield absorption scale'),
       ]);
     }
-    this.refreshConsumed();
+    refreshShieldConsumed(this.runtimeState, this.infiniteValue);
   }
 
+  get maxValue(): number {
+    return this.runtimeState.maxValue;
+  }
+  get maxAbsorbCount(): number {
+    return this.runtimeState.maxAbsorbCount;
+  }
+  get remainingValue(): number {
+    return this.runtimeState.remainingValue;
+  }
+  set remainingValue(value: number) {
+    this.runtimeState.remainingValue = value;
+  }
+  get remainingAbsorbCount(): number {
+    return this.runtimeState.remainingAbsorbCount;
+  }
+  set remainingAbsorbCount(value: number) {
+    this.runtimeState.remainingAbsorbCount = value;
+  }
+  get consumed(): boolean {
+    return this.runtimeState.consumed;
+  }
+  set consumed(value: boolean) {
+    this.runtimeState.consumed = value;
+  }
   get infiniteValue(): boolean {
     return this.definition.infinityValue;
   }
-
   get infiniteAbsorbCount(): boolean {
     return this.maxAbsorbCount < 0;
   }
 
   absorb(damageType: DamageType, inputValue: number): number {
-    if (this.consumed || inputValue <= CombatShield.epsilon) return inputValue;
-    const [ratio, scale] = this.#absorptions.get(damageType) ?? [1, 1];
-    if (ratio <= CombatShield.epsilon || scale <= CombatShield.epsilon) return inputValue;
-    const configuredBlocked = ratio * inputValue;
-    const cost = configuredBlocked / scale;
-    let remaining: number;
-    if (!this.infiniteValue && this.remainingValue + CombatShield.epsilon < cost) {
-      remaining = inputValue - scale * this.remainingValue;
-      this.remainingValue = 0;
-    } else {
-      if (!this.infiniteValue) this.remainingValue -= cost;
-      remaining = inputValue - configuredBlocked;
-    }
-    if (!this.infiniteAbsorbCount) this.remainingAbsorbCount -= 1;
-    this.refreshConsumed();
-    if (this.consumed && this.definition.absorbAllDamageWhenConsumed) {
-      remaining = inputValue - configuredBlocked;
-    }
-    remaining = Math.max(0, remaining);
-    if (this.consumed && this.definition.removeBuffWhenConsumed) this.buff.finish('other', null);
-    return remaining;
-  }
-
-  private refreshConsumed(): void {
-    this.consumed =
-      (!this.infiniteAbsorbCount && this.remainingAbsorbCount <= 0) ||
-      (!this.infiniteValue && this.remainingValue <= CombatShield.epsilon);
+    return absorbShieldDamage(this.runtimeState, this.definition, damageType, inputValue, () => {
+      this.buff.finish('other', null);
+    });
   }
 }
 
 /** 按实体隔离的 Buff 存储与活动伤害修正注册表。 */
 export class CombatBuffContainer<Key extends string> {
-  readonly #buffs: CombatBuff<Key>[] = [];
-  #releasing = false;
-  readonly #damageModifiers: DamageModifier[] = [];
-  readonly #healModifiers: HealModifier[] = [];
-  readonly #poiseModifiers: PoiseModifier[] = [];
+  readonly #memberBindings = new Map<number, CombatBuff<Key>>();
+
+  #requireMember(id: number): CombatBuff<Key> {
+    const buff = this.#memberBindings.get(id);
+    if (buff === undefined) throw new Error(`Buff member binding '${id}' is missing`);
+    return buff;
+  }
+
+  #snapshotBuffs(): CombatBuff<Key>[] {
+    return this.#state.memberIds.map(id => this.#requireMember(id));
+  }
+
+  *#iterateBuffs(): IterableIterator<CombatBuff<Key>> {
+    for (const id of this.#state.memberIds) yield this.#requireMember(id);
+  }
+  readonly #state: BuffContainerState<Key>;
+  /** 供战斗根状态装配；尚不包含活动动作绑定，不能据此单独恢复容器。 */
+  get runtimeState(): BuffContainerState<Key> {
+    return this.#state;
+  }
+  readonly #damageBindings = new WeakMap<DamageModifierState, DamageModifier>();
   readonly #stackingGroups = new Map<string, BuffStackingGroup<Key>>();
-  readonly #entityTagCounts = new Map<GameplayTag, number>();
-  readonly #shields: CombatShield<Key>[] = [];
-  readonly #sustainedProtections = new Map<CombatBuff<Key>, readonly [number, number]>();
-  readonly #addingCooldowns = new Map<string, number[]>();
-  #nextInstanceId = 1;
+  readonly #shieldBindings = new WeakMap<BuffShieldState, CombatShield<Key>>();
+
+  #requireShield(state: BuffShieldState): CombatShield<Key> {
+    const shield = this.#shieldBindings.get(state);
+    if (shield === undefined) throw new Error('active shield binding is missing');
+    return shield;
+  }
   #onBuffConsumed?: (
     buff: CombatBuff<Key>,
     sourceId: string,
@@ -1034,7 +1151,116 @@ export class CombatBuffContainer<Key extends string> {
       blackboard: ActionBlackboard,
     ) => void,
     readonly onBuffReleased?: (buff: CombatBuff<Key>) => void,
-  ) {}
+    restoredState?: BuffContainerState<Key>,
+  ) {
+    if (restoredState === undefined) {
+      this.#state = createBuffContainerState(
+        attributes.runtimeState,
+        entityBlackboard.runtimeState,
+        sharedSpGainModifiers?.runtimeState ?? null,
+      );
+      return;
+    }
+    if (restoredState.attributes !== attributes.runtimeState)
+      throw new Error(`restored Buff container '${ownerId}' does not share its attribute state`);
+    if (restoredState.entityBlackboard !== entityBlackboard.runtimeState)
+      throw new Error(`restored Buff container '${ownerId}' does not share its entity blackboard`);
+    if (restoredState.sharedSpGainModifiers !== (sharedSpGainModifiers?.runtimeState ?? null))
+      throw new Error(`restored Buff container '${ownerId}' does not share its SP modifier state`);
+    if (restoredState.releasing)
+      throw new Error(`cannot bind Buff container '${ownerId}' during synchronous release`);
+    this.#state = restoredState;
+  }
+
+  /**
+   * 为复制后的容器数据建立实例、叠层、修正器和护盾对象，不执行 Add、Start 或 Enable。
+   * 生命周期动作和跨容器子 Buff 关系由上层在所有容器实例建立后继续绑定。
+   */
+  bindRestoredInstances(
+    resolveDefinition: (state: BuffInstanceState<Key>) => CombatBuffDefinition<Key> | undefined,
+    resolveOptions?: (state: BuffInstanceState<Key>) => CombatBuffAddOptions | undefined,
+  ): void {
+    if (this.#memberBindings.size !== 0 || this.#stackingGroups.size !== 0) {
+      throw new Error(`restored Buff container '${this.ownerId}' is already bound`);
+    }
+    if (new Set(this.#state.memberIds).size !== this.#state.memberIds.length) {
+      throw new Error(`restored Buff container '${this.ownerId}' has duplicate member ids`);
+    }
+    for (const instanceId of this.#state.memberIds) {
+      const state = this.#state.instances.get(instanceId);
+      if (state === undefined)
+        throw new Error(`restored Buff instance '${this.ownerId}:${instanceId}' is missing`);
+      const definition = resolveDefinition(state);
+      if (definition === undefined)
+        throw new Error(`restored Buff definition '${state.identity.definitionId}' is missing`);
+      const buff = new CombatBuff(
+        definition,
+        this,
+        state.identity.sourceId,
+        instanceId,
+        resolveOptions?.(state),
+        state,
+      );
+      if (state.actionHost !== null) {
+        if (definition.bindRestoredActions === undefined) {
+          throw new Error(
+            `restored Buff '${state.identity.definitionId}' requires lifecycle action binding`,
+          );
+        }
+        definition.bindRestoredActions(buff);
+      } else if (definition.actions?.duringEnable !== undefined) {
+        throw new Error(
+          `restored Buff '${state.identity.definitionId}' has unbound during-enable actions`,
+        );
+      }
+      this.#memberBindings.set(instanceId, buff);
+      for (const modifier of buff.damageModifiers)
+        this.#damageBindings.set(modifier.runtimeState, modifier);
+      for (const shield of buff.shields) this.#shieldBindings.set(shield.runtimeState, shield);
+    }
+    for (const [key, state] of this.#state.stackingGroups) {
+      if (state.members.length === 0) continue;
+      const first = this.#requireMember(state.members[0]!);
+      const group = new BuffStackingGroup(this, key, first.definition.stackingType, state);
+      for (const instanceId of state.members) {
+        const buff = this.#requireMember(instanceId);
+        const stackingKey = buff.definition.stackingKey ?? buff.definition.id;
+        if (stackingKey !== key || buff.definition.stackingType !== first.definition.stackingType) {
+          throw new Error(`restored Buff stacking group '${key}' has incompatible members`);
+        }
+        group.bindRestored(buff);
+      }
+      this.#stackingGroups.set(key, group);
+    }
+    for (const state of this.#state.damageModifiers) {
+      if (this.#damageBindings.get(state) === undefined)
+        throw new Error('restored active damage modifier has no Buff binding');
+    }
+    for (const state of this.#state.activeShields) {
+      if (this.#shieldBindings.get(state) === undefined)
+        throw new Error('restored active shield has no Buff binding');
+    }
+  }
+
+  /** 所有目标容器完成实例绑定后，再解析可能跨目标的父子关系。 */
+  bindRestoredRelations(
+    resolveHandle: (
+      reference: import('./buffReference').BuffReference,
+    ) => BuffApplicationHandle | undefined,
+  ): void {
+    for (const buff of this.#snapshotBuffs()) {
+      for (const reference of buff.runtimeState.children.members.values()) {
+        const child = resolveHandle(reference);
+        if (child === undefined) {
+          throw new Error(
+            `restored child Buff '${buffReferenceKey(reference)}' has no runtime binding`,
+          );
+        }
+        buff.bindRestoredChild(child);
+      }
+      buff.definition.bindRestoredRelations?.(buff);
+    }
+  }
 
   /** Buff 结束成功时由实例调用；调用方不应在回调里修改容器。 */
   handleBuffFinished(
@@ -1086,19 +1312,38 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   get buffs(): readonly CombatBuff<Key>[] {
-    return this.#buffs;
+    return this.#snapshotBuffs();
+  }
+
+  /** 按容器内实例编号解析绑定；已回收返回 undefined，数据仍在但绑定缺失则报错。 */
+  getInstance(instanceId: number): CombatBuff<Key> | undefined {
+    const binding = this.#memberBindings.get(instanceId);
+    if (binding === undefined && this.#state.instances.has(instanceId))
+      throw new Error(`Buff instance ${instanceId} has no runtime binding`);
+    return binding;
+  }
+
+  resolveHandle(
+    reference: import('./buffReference').BuffReference,
+  ): BuffApplicationHandle | undefined {
+    if (reference.ownerId !== this.ownerId) {
+      throw new Error(
+        `Buff reference owner '${reference.ownerId}' does not match '${this.ownerId}'`,
+      );
+    }
+    return this.getInstance(reference.instanceId);
   }
 
   get shields(): readonly CombatShield<Key>[] {
-    return this.#shields;
+    return this.#state.activeShields.map(state => this.#requireShield(state));
   }
 
   get superArmor(): number {
-    return Math.max(0, ...[...this.#sustainedProtections.values()].map(value => value[0]));
+    return Math.max(0, ...[...this.#state.sustainedProtections.values()].map(value => value[0]));
   }
 
   get impactResistance(): number {
-    return Math.max(0, ...[...this.#sustainedProtections.values()].map(value => value[1]));
+    return Math.max(0, ...[...this.#state.sustainedProtections.values()].map(value => value[1]));
   }
 
   /** 添加成功时返回实例；原生叠加策略拒绝本次施加时返回 null。 */
@@ -1109,7 +1354,7 @@ export class CombatBuffContainer<Key extends string> {
     afterPublished?: (buff: CombatBuff<Key>) => void,
   ): CombatBuff<Key> | null {
     if (definition.addingCooldownSeconds !== undefined) {
-      const active = this.#addingCooldowns.get(definition.id) ?? [];
+      const active = this.#state.addingCooldowns.get(definition.id) ?? [];
       if (!definition.ignoreAddingCooldown && active.some(value => value > BUFF_LIFETIME_EPSILON)) {
         return null;
       }
@@ -1124,7 +1369,7 @@ export class CombatBuffContainer<Key extends string> {
       }
       if (duration > BUFF_LIFETIME_EPSILON) {
         active.push(duration);
-        this.#addingCooldowns.set(definition.id, active);
+        this.#state.addingCooldowns.set(definition.id, active);
       }
     }
     const stackingKey = definition.stackingKey ?? definition.id;
@@ -1132,17 +1377,19 @@ export class CombatBuffContainer<Key extends string> {
     if (group === undefined) {
       group = new BuffStackingGroup(this, stackingKey, definition.stackingType);
       this.#stackingGroups.set(stackingKey, group);
+      this.#state.stackingGroups.set(stackingKey, group.runtimeState);
     }
     const buff = group.stack(definition, sourceId, options);
     // 原生 BuffContainer.CreateBuff 在 StackBuff（含 Start/Enable）返回后才登记实例。
     // 因此启动动作查询容器时尚看不到自身；返回旧实例的刷新路径不能重复登记。
-    if (buff !== null && !this.#buffs.includes(buff)) {
-      this.#buffs.push(buff);
+    if (buff !== null && !this.#state.memberIds.includes(buff.instanceId)) {
+      this.#memberBindings.set(buff.instanceId, buff);
+      this.#state.memberIds.push(buff.instanceId);
     }
     if (buff === null) return null;
     // combat-spec/before-output-buff.md：成功事件先于已有关键词增强；刷新旧实例也走成功尾部。
     afterPublished?.(buff);
-    for (const active of this.#buffs) {
+    for (const active of this.#iterateBuffs()) {
       if (!active.isFinished) active.applyKeywordEnhancements(definition.id);
     }
     return buff;
@@ -1153,11 +1400,13 @@ export class CombatBuffContainer<Key extends string> {
     sourceId: string,
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
-    return new CombatBuff(definition, this, sourceId, this.#nextInstanceId++, options);
+    const buff = new CombatBuff(definition, this, sourceId, this.#state.nextInstanceId++, options);
+    this.#state.instances.set(buff.instanceId, buff.runtimeState);
+    return buff;
   }
 
   getCountById(id: string): number {
-    return this.#buffs
+    return this.#snapshotBuffs()
       .filter(buff => !buff.isFinished && buff.definition.id === id)
       .reduce((count, buff) => count + buff.enhanceCount, 0);
   }
@@ -1165,7 +1414,7 @@ export class CombatBuffContainer<Key extends string> {
   /** 统计所有未结束且 ID 命中任一候选项的 Buff 层数。 */
   getCountByIds(ids: readonly string[], skillCastId?: number): number {
     const accepted = new Set(ids);
-    return this.#buffs
+    return this.#snapshotBuffs()
       .filter(
         buff =>
           !buff.isFinished &&
@@ -1179,7 +1428,8 @@ export class CombatBuffContainer<Key extends string> {
   getInstanceCountByIds(ids: readonly string[]): number {
     return ids.reduce(
       (total, id) =>
-        total + this.#buffs.filter(buff => !buff.isFinished && buff.definition.id === id).length,
+        total +
+        this.#snapshotBuffs().filter(buff => !buff.isFinished && buff.definition.id === id).length,
       0,
     );
   }
@@ -1187,7 +1437,7 @@ export class CombatBuffContainer<Key extends string> {
   /** 按容器插入顺序返回首个未结束且 ID 命中任一候选项的 Buff。 */
   findFirstByIds(ids: readonly string[]): CombatBuff<Key> | undefined {
     const accepted = new Set(ids);
-    return this.#buffs.find(buff => !buff.isFinished && accepted.has(buff.definition.id));
+    return this.#snapshotBuffs().find(buff => !buff.isFinished && accepted.has(buff.definition.id));
   }
 
   /** 按容器插入顺序结束所有 ID 命中任一候选项的 Buff。 */
@@ -1199,7 +1449,7 @@ export class CombatBuffContainer<Key extends string> {
   ): number {
     const accepted = new Set(ids);
     let count = 0;
-    for (const buff of this.#buffs) {
+    for (const buff of this.#iterateBuffs()) {
       if (!buff.isFinished && accepted.has(buff.definition.id)) {
         if (this.#finishWithSource(buff, reason, sourceId, finishSkillCastInfo)) {
           count += 1;
@@ -1216,7 +1466,11 @@ export class CombatBuffContainer<Key extends string> {
     sourceId: string,
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): boolean {
-    if (buff.owner !== this || !this.#buffs.includes(buff))
+    if (
+      buff.owner !== this ||
+      this.#memberBindings.get(buff.instanceId) !== buff ||
+      !this.#state.memberIds.includes(buff.instanceId)
+    )
       throw new Error('Buff instance does not belong to this container');
     return this.#finishWithSource(buff, reason, sourceId, finishSkillCastInfo);
   }
@@ -1251,7 +1505,7 @@ export class CombatBuffContainer<Key extends string> {
       throw new RangeError('Buff finish count must be a finite non-negative number');
     }
     const accepted = new Set(ids);
-    const firstMatch = this.#buffs.find(
+    const firstMatch = this.#snapshotBuffs().find(
       buff => !buff.isFinished && accepted.has(buff.definition.id),
     );
     if (
@@ -1261,7 +1515,7 @@ export class CombatBuffContainer<Key extends string> {
       )
     ) {
       let changed = 0;
-      for (const buff of this.#buffs) {
+      for (const buff of this.#iterateBuffs()) {
         if (
           !buff.isFinished &&
           accepted.has(buff.definition.id) &&
@@ -1273,7 +1527,7 @@ export class CombatBuffContainer<Key extends string> {
       return changed;
     }
     let finished = 0;
-    for (const buff of this.#buffs) {
+    for (const buff of this.#iterateBuffs()) {
       if (finished >= count) break;
       if (!buff.isFinished && accepted.has(buff.definition.id)) {
         const layers = buff.enhanceCount;
@@ -1291,7 +1545,7 @@ export class CombatBuffContainer<Key extends string> {
   ignite(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number {
     if (igniteType.length === 0) throw new Error('Buff ignite type must not be empty');
     if (sourceId.length === 0) throw new Error('Buff ignite source id must not be empty');
-    const active = this.#buffs.filter(buff => !buff.isFinished);
+    const active = this.#snapshotBuffs().filter(buff => !buff.isFinished);
     let count = 0;
     for (const buff of active) {
       if (buff.isFinished) continue;
@@ -1303,37 +1557,47 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 固定当前匹配实例并禁止其结束；释放不会影响保护开始后新增的同 ID Buff。 */
-  holdByIds(ids: readonly string[]): { release(): void } {
+  holdByIds(ids: readonly string[]): {
+    readonly references: readonly import('./buffReference').BuffReference[];
+    release(): void;
+  } {
     const accepted = new Set(ids);
-    const held = this.#buffs.filter(buff => !buff.isFinished && accepted.has(buff.definition.id));
+    const held = this.#snapshotBuffs().filter(
+      buff => !buff.isFinished && accepted.has(buff.definition.id),
+    );
     for (const buff of held) buff.setFinishable(false);
     let released = false;
     return {
+      references: held.map(buff => buff.reference),
       release: () => {
         if (released) return;
         released = true;
-        for (const buff of held) {
-          if (!buff.isFinished) buff.setFinishable(true);
-        }
+        this.releaseHeld(held.map(buff => buff.reference));
       },
     };
   }
 
+  /** 按保存的实例身份释放动作期保护；不会误伤保护开始后新增的同 ID Buff。 */
+  releaseHeld(references: readonly import('./buffReference').BuffReference[]): void {
+    for (const reference of references) {
+      if (reference.ownerId !== this.ownerId) {
+        throw new Error(`Buff hold owner '${reference.ownerId}' does not match '${this.ownerId}'`);
+      }
+      const buff = this.getInstance(reference.instanceId);
+      if (buff !== undefined && !buff.isFinished) buff.setFinishable(true);
+    }
+  }
+
   hasEntityTag(tag: GameplayTag): boolean {
-    return (this.#entityTagCounts.get(tag) ?? 0) > 0;
+    return (this.#state.entityTagCounts.get(tag) ?? 0) > 0;
   }
 
   addEntityTags(tags: readonly GameplayTag[]): void {
-    for (const tag of tags)
-      this.#entityTagCounts.set(tag, (this.#entityTagCounts.get(tag) ?? 0) + 1);
+    addBuffEntityTags(this.#state, tags);
   }
 
   removeEntityTags(tags: readonly GameplayTag[]): void {
-    for (const tag of tags) {
-      const next = (this.#entityTagCounts.get(tag) ?? 0) - 1;
-      if (next > 0) this.#entityTagCounts.set(tag, next);
-      else this.#entityTagCounts.delete(tag);
-    }
+    removeBuffEntityTags(this.#state, tags);
   }
 
   /** 按原生父级展开规则查询当前实体标签，不把 Buff 分类标签另行计数。 */
@@ -1342,7 +1606,7 @@ export class CombatBuffContainer<Key extends string> {
     type: GameplayTagQueryType,
     exact = false,
   ): boolean {
-    return this.tagRegistry.query(this.#entityTagCounts.keys(), tags, type, exact);
+    return this.tagRegistry.query(this.#state.entityTagCounts.keys(), tags, type, exact);
   }
 
   /** 对任意一组原生标签执行同一目录的父级展开查询，供事件载荷匹配使用。 */
@@ -1362,7 +1626,7 @@ export class CombatBuffContainer<Key extends string> {
     exact = false,
     skillCastId?: number,
   ): number {
-    return this.#buffs
+    return this.#snapshotBuffs()
       .filter(
         buff =>
           !buff.isFinished &&
@@ -1380,7 +1644,7 @@ export class CombatBuffContainer<Key extends string> {
     skillCastId?: number,
   ): number {
     return new Set(
-      this.#buffs
+      this.#snapshotBuffs()
         .filter(
           buff =>
             !buff.isFinished &&
@@ -1398,7 +1662,7 @@ export class CombatBuffContainer<Key extends string> {
     exact = false,
     skillCastId?: number,
   ): number {
-    return this.#buffs.filter(
+    return this.#snapshotBuffs().filter(
       buff =>
         !buff.isFinished &&
         (skillCastId === undefined || buff.skillCastInfo?.skillCastId === skillCastId) &&
@@ -1412,7 +1676,7 @@ export class CombatBuffContainer<Key extends string> {
     type: GameplayTagQueryType = 'hasAny',
     exact = false,
   ): CombatBuff<Key> | undefined {
-    return this.#buffs.find(
+    return this.#snapshotBuffs().find(
       buff =>
         !buff.isFinished &&
         this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact),
@@ -1429,7 +1693,7 @@ export class CombatBuffContainer<Key extends string> {
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number {
     let count = 0;
-    for (const buff of this.#buffs) {
+    for (const buff of this.#iterateBuffs()) {
       if (
         !buff.isFinished &&
         this.tagRegistry.query(buff.definition.applyTags ?? [], tags, type, exact) &&
@@ -1454,7 +1718,7 @@ export class CombatBuffContainer<Key extends string> {
     if (!Number.isFinite(count) || count < 0) {
       throw new RangeError('Buff finish count must be a finite non-negative number');
     }
-    const matchingIds = this.#buffs
+    const matchingIds = this.#snapshotBuffs()
       .filter(
         buff =>
           !buff.isFinished &&
@@ -1468,7 +1732,14 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   findFirst(predicate: (buff: CombatBuff<Key>) => boolean): CombatBuff<Key> | undefined {
-    return this.#buffs.find(buff => !buff.isFinished && predicate(buff));
+    let matched: CombatBuff<Key> | undefined;
+    this.#state.memberIds.find(id => {
+      const buff = this.#requireMember(id);
+      if (buff.isFinished || !predicate(buff)) return false;
+      matched = buff;
+      return true;
+    });
+    return matched;
   }
 
   applyDamageModifiers(
@@ -1477,7 +1748,9 @@ export class CombatBuffContainer<Key extends string> {
     context: PlayerDamageContext,
     evaluateCondition?: DamageModifierConditionEvaluator,
   ): void {
-    for (const modifier of this.#damageModifiers) {
+    for (const state of this.#state.damageModifiers) {
+      const modifier = this.#damageBindings.get(state);
+      if (modifier === undefined) throw new Error('active damage modifier binding is missing');
       modifier.apply(timing, side, context, evaluateCondition);
     }
   }
@@ -1487,7 +1760,15 @@ export class CombatBuffContainer<Key extends string> {
     side: HealModifierSide,
     context: HealCalculationContext,
   ): void {
-    for (const modifier of this.#healModifiers) modifier.apply(timing, side, context);
+    for (const modifier of this.#state.healModifiers)
+      applyHealModifier(
+        modifier.ownerId,
+        modifier.definition,
+        value => resolveBuffModifierNumber(modifier.numberSource, value, 'heal'),
+        timing,
+        side,
+        context,
+      );
   }
 
   applyPoiseModifiers(
@@ -1495,87 +1776,100 @@ export class CombatBuffContainer<Key extends string> {
     side: PoiseModifierSide,
     context: PoiseCalculationContext,
   ): void {
-    for (const modifier of this.#poiseModifiers) modifier.apply(timing, side, context);
+    for (const modifier of this.#state.poiseModifiers)
+      applyPoiseModifier(
+        modifier.ownerId,
+        modifier.definition,
+        value => resolveBuffModifierNumber(modifier.numberSource, value, 'poise'),
+        timing,
+        side,
+        context,
+      );
   }
 
   tick(deltaTime: number | BuffTickDeltas): void {
     const defaultDelta =
       typeof deltaTime === 'number' ? deltaTime : resolveBuffTickDelta('default', deltaTime);
-    if (!Number.isFinite(defaultDelta)) throw new TypeError('buff delta time must be finite');
-    for (const [buffId, values] of this.#addingCooldowns) {
-      const remaining = values
-        .map(value => value - Math.max(0, defaultDelta))
-        .filter(value => value > BUFF_LIFETIME_EPSILON);
-      if (remaining.length === 0) this.#addingCooldowns.delete(buffId);
-      else this.#addingCooldowns.set(buffId, remaining);
-    }
-    for (const buff of this.#buffs) buff.tick(deltaTime);
+    advanceBuffAddingCooldowns(this.#state, defaultDelta);
+    for (const buff of this.#iterateBuffs()) buff.tick(deltaTime);
   }
 
   /** 原生回收独立于 tick；逆序逐项检查当前结束状态。 */
   recycleFinishedBuffs(): void {
-    for (let index = this.#buffs.length - 1; index >= 0; index--) {
-      const buff = this.#buffs[index]!;
+    for (let index = this.#state.memberIds.length - 1; index >= 0; index--) {
+      const buff = this.#requireMember(this.#state.memberIds[index]!);
       if (!buff.isFinished) continue;
-      this.#buffs.splice(index, 1);
+      this.#state.memberIds.splice(index, 1);
       buff.recycleFinished();
+      this.#memberBindings.delete(buff.instanceId);
+      this.#state.instances.delete(buff.instanceId);
     }
   }
 
   /** 宿主释放：逐实例Release后回收，不等待已停止的宿主再次tick。 */
   releaseAll(): void {
-    if (this.#releasing) return;
-    this.#releasing = true;
+    if (this.#state.releasing) return;
+    this.#state.releasing = true;
     try {
-      for (const buff of [...this.#buffs]) {
+      for (const buff of [...this.#snapshotBuffs()]) {
         if (buff.isRecycled) continue;
         buff.release();
-        const index = this.#buffs.indexOf(buff);
-        if (index >= 0) this.#buffs.splice(index, 1);
+        const index = this.#state.memberIds.indexOf(buff.instanceId);
+        if (index >= 0) this.#state.memberIds.splice(index, 1);
         buff.recycleFinished();
+        this.#memberBindings.delete(buff.instanceId);
+        this.#state.instances.delete(buff.instanceId);
       }
     } finally {
-      this.#releasing = false;
+      this.#state.releasing = false;
     }
   }
 
   registerDamageModifiers(modifiers: readonly DamageModifier[]): void {
-    this.#damageModifiers.push(...modifiers);
+    for (const modifier of modifiers) {
+      this.#damageBindings.set(modifier.runtimeState, modifier);
+      this.#state.damageModifiers.push(modifier.runtimeState);
+    }
   }
 
   unregisterDamageModifiers(modifiers: readonly DamageModifier[]): void {
     for (const modifier of modifiers) {
-      const index = this.#damageModifiers.indexOf(modifier);
-      if (index >= 0) this.#damageModifiers.splice(index, 1);
+      const index = this.#state.damageModifiers.indexOf(modifier.runtimeState);
+      if (index >= 0) this.#state.damageModifiers.splice(index, 1);
     }
   }
 
   registerHealModifiers(modifiers: readonly HealModifier[]): void {
-    this.#healModifiers.push(...modifiers);
+    this.#state.healModifiers.push(...modifiers);
   }
 
   unregisterHealModifiers(modifiers: readonly HealModifier[]): void {
     for (const modifier of modifiers) {
-      const index = this.#healModifiers.indexOf(modifier);
-      if (index >= 0) this.#healModifiers.splice(index, 1);
+      const index = this.#state.healModifiers.indexOf(modifier);
+      if (index >= 0) this.#state.healModifiers.splice(index, 1);
     }
   }
 
   registerPoiseModifiers(modifiers: readonly PoiseModifier[]): void {
-    this.#poiseModifiers.push(...modifiers);
+    this.#state.poiseModifiers.push(...modifiers);
   }
 
   unregisterPoiseModifiers(modifiers: readonly PoiseModifier[]): void {
     for (const modifier of modifiers) {
-      const index = this.#poiseModifiers.indexOf(modifier);
-      if (index >= 0) this.#poiseModifiers.splice(index, 1);
+      const index = this.#state.poiseModifiers.indexOf(modifier);
+      if (index >= 0) this.#state.poiseModifiers.splice(index, 1);
     }
   }
 
   registerShields(shields: readonly CombatShield<Key>[]): void {
     const beforeValue = this.currentFiniteShieldValue;
-    this.#shields.push(...shields);
-    this.#shields.sort(compareShields);
+    for (const shield of shields) {
+      this.#shieldBindings.set(shield.runtimeState, shield);
+      this.#state.activeShields.push(shield.runtimeState);
+    }
+    this.#state.activeShields.sort((left, right) =>
+      compareShields(this.#requireShield(left), this.#requireShield(right)),
+    );
     if (shields.length > 0) {
       const currentValue = this.currentFiniteShieldValue;
       this.onShieldsAdded?.(currentValue - beforeValue, currentValue);
@@ -1583,21 +1877,21 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   get currentFiniteShieldValue(): number {
-    return this.#shields
+    return this.shields
       .filter(shield => !shield.infiniteValue)
       .reduce((total, shield) => total + shield.remainingValue, 0);
   }
 
   unregisterShields(shields: readonly CombatShield<Key>[]): void {
     for (const shield of shields) {
-      const index = this.#shields.indexOf(shield);
-      if (index >= 0) this.#shields.splice(index, 1);
+      const index = this.#state.activeShields.indexOf(shield.runtimeState);
+      if (index >= 0) this.#state.activeShields.splice(index, 1);
     }
   }
 
   absorbDamage(damageType: DamageType, inputValue: number): number {
     let remaining = inputValue;
-    for (const shield of [...this.#shields].reverse()) {
+    for (const shield of [...this.shields].reverse()) {
       if (remaining <= 0) break;
       remaining = shield.absorb(damageType, remaining);
     }
@@ -1612,14 +1906,14 @@ export class CombatBuffContainer<Key extends string> {
         `buff '${buff.definition.id}' targets a distinct buff source for sustained protection`,
       );
     }
-    this.#sustainedProtections.set(buff, [
+    this.#state.sustainedProtections.set(buff.runtimeState, [
       resolveBuffNumber(buff, definition.superArmor, 'super armor'),
       resolveBuffNumber(buff, definition.impactResistance, 'impact resistance'),
     ]);
   }
 
   unregisterSustainedProtection(buff: CombatBuff<Key>): void {
-    this.#sustainedProtections.delete(buff);
+    this.#state.sustainedProtections.delete(buff.runtimeState);
   }
 }
 
@@ -1714,15 +2008,56 @@ function isEnhanceChangedStackingType(stackingType: BuffStackingType): boolean {
 }
 
 class BuffStackingGroup<Key extends string> {
-  readonly #buffs: CombatBuff<Key>[] = [];
-  #currentStackCount = 0;
-  #maxStackCount = 0;
+  readonly #state: import('./buffStackingState').BuffStackingState;
+  /** 容器持有同一份叠层数据，实例关系按编号保留。 */
+  get runtimeState(): import('./buffStackingState').BuffStackingState {
+    return this.#state;
+  }
+  // 迁移期间的对象绑定；完整恢复时须从恢复后的容器重建。
+  readonly #bindings = new Map<number, CombatBuff<Key>>();
+  #buff(id: number): CombatBuff<Key> {
+    const buff = this.#bindings.get(id);
+    if (buff === undefined) throw new Error(`stacking Buff ${id} is missing`);
+    return buff;
+  }
+  #members(): CombatBuff<Key>[] {
+    return this.#state.members.map(id => this.#buff(id));
+  }
+  #host(): BuffStackingHost {
+    return {
+      compare: (left, right) => compareBuffPriority(this.#buff(left), this.#buff(right)),
+      isFinished: id => this.#buff(id).isFinished,
+      enhanceCount: id => this.#buff(id).enhanceCount,
+      resolve: id => {
+        const buff = this.#buff(id);
+        return {
+          isFinished: () => buff.isFinished,
+          enable: () => buff.enable(),
+          disable: () => buff.disable(),
+        };
+      },
+    };
+  }
 
   constructor(
     readonly owner: CombatBuffContainer<Key>,
     readonly key: string,
     readonly stackingType: BuffStackingType,
-  ) {}
+    state = createBuffStackingState(),
+  ) {
+    this.#state = state;
+  }
+
+  bindRestored(buff: CombatBuff<Key>): void {
+    if (!this.#state.members.includes(buff.instanceId))
+      throw new Error(
+        `restored stacking group '${this.key}' does not contain Buff ${buff.instanceId}`,
+      );
+    if (this.#bindings.has(buff.instanceId))
+      throw new Error(`restored stacking Buff ${buff.instanceId} is already bound`);
+    this.#bindings.set(buff.instanceId, buff);
+    buff.attachStackingGroup(this);
+  }
 
   stack(
     definition: CombatBuffDefinition<Key>,
@@ -1734,7 +2069,7 @@ class BuffStackingGroup<Key extends string> {
         `buff stacking key '${this.key}' changed type from '${this.stackingType}' to '${definition.stackingType}'`,
       );
     }
-    const existing = this.#buffs.find(buff => !buff.isFinished);
+    const existing = this.#members().find(buff => !buff.isFinished);
     switch (this.stackingType) {
       case 'unlimited':
         return this.allocate(definition, sourceId, options);
@@ -1768,21 +2103,20 @@ class BuffStackingGroup<Key extends string> {
   }
 
   removeRecycled(buff: CombatBuff<Key>): void {
-    const index = this.#buffs.indexOf(buff);
-    if (index >= 0) this.#buffs.splice(index, 1);
+    const index = this.#state.members.indexOf(buff.instanceId);
+    if (index >= 0) this.#state.members.splice(index, 1);
+    this.#bindings.delete(buff.instanceId);
   }
 
   refreshAfterFinish(): void {
-    this.#currentStackCount = this.#buffs.filter(buff => !buff.isFinished).length;
+    this.#state.currentStackCount = countBuffStackingInstances(this.#state, this.#host());
     if (this.stackingType === 'highPriority' || this.stackingType === 'highPriorityWithMaxStack') {
       this.refreshPriority();
     }
   }
 
   refreshAfterEnhanceDecrease(): void {
-    this.#currentStackCount = this.#buffs
-      .filter(buff => !buff.isFinished)
-      .reduce((count, buff) => count + buff.enhanceCount, 0);
+    this.#state.currentStackCount = countBuffStackingEnhancements(this.#state, this.#host());
   }
 
   private allocate(
@@ -1793,7 +2127,8 @@ class BuffStackingGroup<Key extends string> {
     const buff = this.owner.allocateBuff(definition, sourceId, options);
     buff.attachStackingGroup(this);
     buff.enable();
-    this.#buffs.push(buff);
+    this.#bindings.set(buff.instanceId, buff);
+    this.#state.members.push(buff.instanceId);
     return buff;
   }
 
@@ -1803,17 +2138,23 @@ class BuffStackingGroup<Key extends string> {
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
     const initialMaxStackCount =
-      this.#currentStackCount === 0 ? resolveIncomingMaxStackCount(definition, options) : undefined;
+      this.#state.currentStackCount === 0
+        ? resolveIncomingMaxStackCount(definition, options)
+        : undefined;
 
     const buff = this.owner.allocateBuff(definition, sourceId, options);
     buff.attachStackingGroup(this);
-    if (initialMaxStackCount !== undefined) this.#maxStackCount = initialMaxStackCount;
-    if (this.#maxStackCount > 0 && this.#currentStackCount >= this.#maxStackCount) {
+    if (initialMaxStackCount !== undefined) this.#state.maxStackCount = initialMaxStackCount;
+    if (
+      this.#state.maxStackCount > 0 &&
+      this.#state.currentStackCount >= this.#state.maxStackCount
+    ) {
       this.getLastUnfinishedBuff()?.finish('other', null);
     }
 
-    this.#buffs.push(buff);
-    this.#currentStackCount = this.#buffs.filter(candidate => !candidate.isFinished).length;
+    this.#bindings.set(buff.instanceId, buff);
+    this.#state.members.push(buff.instanceId);
+    this.#state.currentStackCount = countBuffStackingInstances(this.#state, this.#host());
     buff.enable();
     return buff;
   }
@@ -1824,35 +2165,29 @@ class BuffStackingGroup<Key extends string> {
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
     const initialMaxStackCount =
-      this.stackingType === 'highPriorityWithMaxStack' && this.#currentStackCount === 0
+      this.stackingType === 'highPriorityWithMaxStack' && this.#state.currentStackCount === 0
         ? resolveIncomingMaxStackCount(definition, options)
         : undefined;
     const buff = this.owner.allocateBuff(definition, sourceId, options);
     buff.attachStackingGroup(this);
-    if (initialMaxStackCount !== undefined) this.#maxStackCount = initialMaxStackCount;
-    this.#buffs.push(buff);
-    this.#currentStackCount += 1;
+    if (initialMaxStackCount !== undefined) this.#state.maxStackCount = initialMaxStackCount;
+    this.#bindings.set(buff.instanceId, buff);
+    this.#state.members.push(buff.instanceId);
+    this.#state.currentStackCount += 1;
     this.refreshPriority();
     return buff;
   }
 
   private refreshPriority(): void {
     const enabledLimit =
-      this.stackingType === 'highPriority' ? 1 : Math.max(0, this.#maxStackCount);
-    let enabledCount = 0;
-    for (const buff of [...this.#buffs].sort(compareBuffPriority)) {
-      if (buff.isFinished) continue;
-      if (enabledCount < enabledLimit) {
-        enabledCount += 1;
-        buff.enable();
-      } else {
-        buff.disable();
-      }
-    }
+      this.stackingType === 'highPriority' ? 1 : Math.max(0, this.#state.maxStackCount);
+    refreshBuffStackingPriority(this.#state, enabledLimit, this.#host());
   }
 
   private getLastUnfinishedBuff(): CombatBuff<Key> | undefined {
-    const sorted = this.#buffs.filter(buff => !buff.isFinished).sort(compareBuffPriority);
+    const sorted = this.#members()
+      .filter(buff => !buff.isFinished)
+      .sort(compareBuffPriority);
     return sorted[sorted.length - 1];
   }
 
@@ -1908,31 +2243,30 @@ class BuffStackingGroup<Key extends string> {
   ): CombatBuff<Key> {
     const maxStackCount = resolveIncomingMaxStackCount(definition, options);
     const buff = this.allocate(definition, sourceId, options);
-    this.#currentStackCount = 1;
-    this.#maxStackCount = maxStackCount;
+    this.#state.currentStackCount = 1;
+    this.#state.maxStackCount = maxStackCount;
     return buff;
   }
 
   private enhanceWithinLimit(buff: CombatBuff<Key>, sourceId: string): void {
-    if (this.#maxStackCount > 0 && this.#currentStackCount >= this.#maxStackCount) return;
-    this.#currentStackCount += 1;
-    buff.enhance(sourceId);
+    enhanceBuffStacking(this.#state, () => buff.enhance(sourceId));
   }
 
   canTimedGrow(buff: CombatBuff<Key>): boolean {
-    return (
-      this.stackingType === 'timedGrowingEnhance' &&
-      this.#buffs.includes(buff) &&
-      !buff.isFinished &&
-      (this.#maxStackCount <= 0 || this.#currentStackCount < this.#maxStackCount)
+    return canGrowBuffStacking(
+      this.#state,
+      buff.instanceId,
+      this.stackingType === 'timedGrowingEnhance',
+      () => buff.isFinished,
     );
   }
 
   growTimed(buff: CombatBuff<Key>): boolean {
-    if (!this.canTimedGrow(buff)) return false;
-    this.#currentStackCount += 1;
-    buff.enhance(buff.sourceId);
-    return true;
+    return growBuffStacking(
+      this.#state,
+      () => this.canTimedGrow(buff),
+      () => buff.enhance(buff.sourceId),
+    );
   }
 
   private timedGrowingEnhance(
@@ -1942,17 +2276,12 @@ class BuffStackingGroup<Key extends string> {
     options?: CombatBuffAddOptions,
   ): CombatBuff<Key> {
     if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
-    const previousCount = this.#currentStackCount;
-    existing.executeBeforeEnhance(sourceId);
-    this.enhanceWithinLimit(existing, sourceId);
-    if (
-      previousCount < this.#maxStackCount &&
-      this.#maxStackCount > 0 &&
-      this.#currentStackCount >= this.#maxStackCount
-    ) {
-      existing.resetTimedGrowthPeriod();
-    }
-    existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
+    applyTimedBuffEnhancement(this.#state, {
+      before: () => existing.executeBeforeEnhance(sourceId),
+      enhance: () => existing.enhance(sourceId),
+      resetPeriod: () => existing.resetTimedGrowthPeriod(),
+      after: () => existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null),
+    });
     return existing;
   }
 

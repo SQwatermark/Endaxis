@@ -2,6 +2,10 @@ import { expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
 import type { EndaxisProjectDocument } from '../../src/core/project/schema';
 import { retimeLegacyProjectBySimulation } from './heuristicRetiming';
+import {
+  AbilitySystemRuntime,
+  type AbilitySkillRuntime,
+} from '../../src/core/combat/runtime/abilitySystemRuntime';
 
 function receipt(
   frame: number,
@@ -178,7 +182,10 @@ it('接续窗口探测耗尽时恢复原候选位置并保留报告', () => {
   );
 });
 
-it('用对数级模拟次数定位很远的接续窗口', () => {
+it.each([
+  { earlyWindow: false, expectedStart: 260 },
+  { earlyWindow: true, expectedStart: 30 },
+])('找到最早接续窗口，包含打开后又关闭的窗口（$earlyWindow）', ({ earlyWindow, expectedStart }) => {
   const firstCastId = 'legacy:test:track:0:cast:0';
   const secondCastId = 'legacy:test:track:0:cast:1';
   const project = {
@@ -212,13 +219,34 @@ it('用对数级模拟次数定位很远的接续窗口', () => {
     const second = scenario.tracks[0]!.skillCasts[1]!;
     const secondEnabled = second.presentation?.disabled !== true;
     const secondStart = second.placement.startFrame!;
+    const currentSkill: AbilitySkillRuntime = {
+      skillId: 'current',
+      skillType: 'battleSkill',
+      state: 'casting',
+      currentTimelineFrame: secondStart - 10,
+      canInterrupt: secondStart >= 260,
+      inputWindows: {
+        allowedNextSkills: earlyWindow
+          ? [{ startFrame: 20, endFrame: 22, sourceSkillIds: ['next'] }]
+          : [],
+      },
+      canStart: () => true,
+      tryStart: () => true,
+      interrupt: () => {},
+      advanceFrame: () => {},
+    };
+    const ability = new AbilitySystemRuntime({
+      skills: [currentSkill, { ...currentSkill, skillId: 'next' }],
+    });
+    ability.tryStartSkill('current');
+    const blocked = ability.evaluatePlayerInputInterruption('next').status === 'blocked';
     return {
       receiptEntries: [
         receipt(10, 'SkillStarted', firstCastId),
         receipt(19, 'SkillOperableBoundaryReached', firstCastId),
         ...(secondEnabled
           ? [
-              ...(secondStart < 260
+              ...(blocked
                 ? [receipt(secondStart, 'SkillInputCannotInterruptCurrentSkill', secondCastId)]
                 : []),
               receipt(secondStart, 'SkillStarted', secondCastId),
@@ -229,11 +257,10 @@ it('用对数级模拟次数定位很远的接续窗口', () => {
     };
   });
 
-  expect(project.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame).toBe(260);
+  expect(project.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame).toBe(expectedStart);
   expect(result.timingAdjustments).toContainEqual(
-    expect.objectContaining({ castId: secondCastId, inputWindowDelayFrames: 240 }),
+    expect.objectContaining({ castId: secondCastId, inputWindowDelayFrames: expectedStart - 20 }),
   );
-  expect(simulationRuns).toBeLessThan(30);
   expect(result.simulationStats).toMatchObject({
     scenarioCount: 1,
     castCount: 2,

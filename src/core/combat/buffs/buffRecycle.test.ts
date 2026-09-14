@@ -3,6 +3,7 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from './combatBuffs';
 import { BuffProgressRecorder } from '../runtime/buffProgressRecorder';
 import { AbilitySystemRuntime } from '../runtime/abilitySystemRuntime';
+import { ActionBlackboard } from '../runtime/actionBlackboard';
 
 describe('Buff instance recycling', () => {
   it('宿主释放逐个回收，即便Buff不可结束，也不发布普通结束通知', () => {
@@ -91,6 +92,43 @@ describe('Buff instance recycling', () => {
     owner.recycleFinishedBuffs();
     expect(order).toEqual(['repeated', 'middle']);
   });
+
+  it('复制后按原编号重绑回收回调且不触发旧分支', () => {
+    const definition = { id: 'restored-callback', stackingType: 'unique' as const };
+    const original = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
+    const oldBuff = original.add(definition, 'owner')!;
+    let oldCalls = 0;
+    const registration = oldBuff.onRecycled(() => oldCalls++);
+    oldBuff.finish('other');
+    const saved = structuredClone(original.runtimeState);
+    const restored = new CombatBuffContainer<never>(
+      'owner',
+      new CombatAttributeSet(saved.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved,
+    );
+    restored.bindRestoredInstances(state =>
+      state.identity.definitionId === definition.id ? definition : undefined,
+    );
+    const newBuff = restored.getInstance(oldBuff.instanceId)!;
+    let newCalls = 0;
+    newBuff.bindRecycledCallback(registration.registrationId, () => newCalls++);
+
+    restored.recycleFinishedBuffs();
+    expect(newCalls).toBe(1);
+    expect(oldCalls).toBe(0);
+    original.recycleFinishedBuffs();
+    expect(oldCalls).toBe(1);
+  });
+
   it('结束和tick不回收；独立回收幂等且不重复结束', () => {
     let finishes = 0;
     const owner = new CombatBuffContainer<never>(

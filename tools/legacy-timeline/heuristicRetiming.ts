@@ -115,7 +115,6 @@ interface FrameInterval {
 const PLANNING_LOOKAHEAD_FRAMES = 300;
 const MAX_PLANNING_EXTENSIONS = 12;
 const MAX_INPUT_WINDOW_DELAY_FRAMES = 300;
-const LINEAR_INPUT_WINDOW_PROBES = 8;
 
 function record(value: unknown): UnknownRecord | null {
   return value !== null && typeof value === 'object' && !Array.isArray(value)
@@ -234,52 +233,14 @@ function findFirstAllowedInputWindowCandidate(
   candidateCount: number,
   probe: (index: number) => InputWindowProbeResult,
 ): { readonly settled: boolean; readonly allowedIndex?: number } {
-  let blockedIndex = 0;
-  let allowedIndex: number | undefined;
-  let lastProbeIndex = 0;
-  const runProbe = (index: number) => {
-    lastProbeIndex = index;
-    return probe(index);
-  };
-
-  const linearProbeEnd = Math.min(LINEAR_INPUT_WINDOW_PROBES, candidateCount - 1);
-  let result: InputWindowProbeResult = { settled: true, blocked: true };
-  for (let probeIndex = 1; probeIndex <= linearProbeEnd; probeIndex += 1) {
-    result = runProbe(probeIndex);
+  // AllowedNextSkill 可以短暂开放后关闭，之后才到达可打断边界，许可并不单调。
+  // 在运行时切面可用之前逐帧检查，不能用二分或指数跳步漏掉中间的合法窗口。
+  for (let probeIndex = 1; probeIndex < candidateCount; probeIndex += 1) {
+    const result = probe(probeIndex);
     if (!result.settled) return { settled: false };
-    if (!result.blocked) {
-      allowedIndex = probeIndex;
-      break;
-    }
-    blockedIndex = probeIndex;
+    if (!result.blocked) return { settled: true, allowedIndex: probeIndex };
   }
-
-  let probeIndex = Math.min(candidateCount - 1, Math.max(1, blockedIndex * 2));
-  while (allowedIndex === undefined && probeIndex > blockedIndex) {
-    result = runProbe(probeIndex);
-    if (!result.settled) return { settled: false };
-    if (!result.blocked) {
-      allowedIndex = probeIndex;
-      break;
-    }
-    blockedIndex = probeIndex;
-    if (probeIndex === candidateCount - 1) break;
-    probeIndex = Math.min(candidateCount - 1, probeIndex * 2);
-  }
-
-  if (allowedIndex === undefined) return { settled: true };
-  while (allowedIndex - blockedIndex > 1) {
-    const middleIndex = Math.floor((blockedIndex + allowedIndex) / 2);
-    result = runProbe(middleIndex);
-    if (!result.settled) return { settled: false };
-    if (result.blocked) blockedIndex = middleIndex;
-    else allowedIndex = middleIndex;
-  }
-  if (lastProbeIndex !== allowedIndex) {
-    result = runProbe(allowedIndex);
-    if (!result.settled) return { settled: false };
-  }
-  return { settled: true, allowedIndex };
+  return { settled: true };
 }
 
 function projectDisplayedCastEndFrames(
@@ -618,8 +579,6 @@ export function retimeLegacyProjectBySimulation(
         fallbackActualEnds = actualEnds;
         fallbackUltimateIntervals = ultimateIntervals;
 
-        // 已处理技能的放置帧单调不降，未来技能全部禁用；跳过已知终结技膨胀后，
-        // “当前技能不可被打断”只会从 true 变为 false，可安全查找第一个合法候选。
         const search = findFirstAllowedInputWindowCandidate(candidates.length, probeIndex => {
           settled = false;
           const candidateSettled = simulateCandidate(candidates[probeIndex]!.frame);

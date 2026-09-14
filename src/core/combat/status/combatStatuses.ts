@@ -55,7 +55,7 @@ export interface CombatStatusConsumeRequest {
   readonly stacks?: number;
 }
 
-interface ActiveCombatStatus {
+export interface ActiveCombatStatus {
   readonly statusKey: string;
   readonly sourceId: string;
   readonly skillId: string;
@@ -65,14 +65,19 @@ interface ActiveCombatStatus {
 
 const EMPTY_STATUS: CombatStatusSnapshot = { stacks: 0, remainingFrames: null };
 
+/** 一个实体当前存在的语义状态，保持施加顺序和原始来源；定义规则由程序另行持有。 */
+export interface CombatStatusState {
+  readonly statuses: Map<string, ActiveCombatStatus>;
+}
+
 /** 单个实体的通用状态所有者；状态只存在于一次模拟中，不进入存档。 */
 export class CombatStatusContainer {
   readonly #definitions = new Map<string, CombatStatusDefinition>();
-  readonly #statuses = new Map<string, ActiveCombatStatus>();
 
   constructor(
     readonly ownerId: string,
     definitions: readonly CombatStatusDefinition[],
+    readonly runtimeState: CombatStatusState = { statuses: new Map() },
   ) {
     if (ownerId.length === 0) throw new Error('combat status owner id must not be empty');
     for (const definition of definitions) {
@@ -84,12 +89,20 @@ export class CombatStatusContainer {
     }
   }
 
+  /**
+   * 复用当前容器的固定状态定义，为复制后的战斗数据创建对象外壳。
+   * 此过程不施加状态、不推进持续时间，也不复制传入的数据。
+   */
+  bindRuntimeState(state: CombatStatusState): CombatStatusContainer {
+    return new CombatStatusContainer(this.ownerId, [...this.#definitions.values()], state);
+  }
+
   getSnapshot(statusKey: string): CombatStatusSnapshot {
-    return snapshot(this.#statuses.get(statusKey));
+    return snapshot(this.runtimeState.statuses.get(statusKey));
   }
 
   getStacks(statusKey: string): number {
-    return this.#statuses.get(statusKey)?.stacks ?? 0;
+    return this.runtimeState.statuses.get(statusKey)?.stacks ?? 0;
   }
 
   apply(request: CombatStatusApplyRequest): CombatStatusTransition {
@@ -104,10 +117,10 @@ export class CombatStatusContainer {
       throw new Error(`status '${request.statusKey}' requires source and skill identities`);
     }
 
-    const existing = this.#statuses.get(request.statusKey);
+    const existing = this.runtimeState.statuses.get(request.statusKey);
     const previous = snapshot(existing);
     if (existing === undefined) {
-      this.#statuses.set(request.statusKey, {
+      this.runtimeState.statuses.set(request.statusKey, {
         statusKey: request.statusKey,
         sourceId: request.sourceId,
         skillId: request.skillId,
@@ -123,7 +136,7 @@ export class CombatStatusContainer {
       );
     }
 
-    const current = snapshot(this.#statuses.get(request.statusKey));
+    const current = snapshot(this.runtimeState.statuses.get(request.statusKey));
     return {
       statusKey: request.statusKey,
       reason: 'applied',
@@ -136,7 +149,7 @@ export class CombatStatusContainer {
 
   consume(request: CombatStatusConsumeRequest): CombatStatusTransition {
     const definition = this.requireDefinition(request.statusKey);
-    const existing = this.#statuses.get(request.statusKey);
+    const existing = this.runtimeState.statuses.get(request.statusKey);
     const previous = snapshot(existing);
     const requested = request.stacks ?? definition.consumeStacks;
     if (request.sourceId.length === 0 || request.skillId.length === 0) {
@@ -159,26 +172,26 @@ export class CombatStatusContainer {
 
     const consumedStacks = requested === 'all' ? existing.stacks : requested;
     existing.stacks = Math.max(0, existing.stacks - consumedStacks);
-    if (existing.stacks === 0) this.#statuses.delete(request.statusKey);
+    if (existing.stacks === 0) this.runtimeState.statuses.delete(request.statusKey);
     return {
       statusKey: request.statusKey,
       reason: 'consumed',
       sourceId: request.sourceId,
       skillId: request.skillId,
       previous,
-      current: snapshot(this.#statuses.get(request.statusKey)),
+      current: snapshot(this.runtimeState.statuses.get(request.statusKey)),
     };
   }
 
   /** 每次调用推进一帧，并按状态插入顺序返回这一帧自然到期的事实。 */
   advanceFrame(): readonly CombatStatusTransition[] {
     const expired: CombatStatusTransition[] = [];
-    for (const [statusKey, status] of this.#statuses) {
+    for (const [statusKey, status] of this.runtimeState.statuses) {
       if (status.remainingFrames === null) continue;
       const previous = snapshot(status);
       status.remainingFrames = Math.max(0, status.remainingFrames - 1);
       if (status.remainingFrames > 0) continue;
-      this.#statuses.delete(statusKey);
+      this.runtimeState.statuses.delete(statusKey);
       expired.push({
         statusKey,
         reason: 'expired',

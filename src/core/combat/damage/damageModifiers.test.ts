@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
+import { createActionBlackboardState } from '../runtime/actionBlackboardState';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,
@@ -64,7 +65,7 @@ describe('DamageModifier', () => {
         condition: { kind: 'sourceSkillCastMatch' },
         processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.6 }],
       },
-      value => (typeof value === 'number' ? value : 0),
+      undefined,
       42,
     );
     const matching = createContext('physical', () => undefined, 42);
@@ -102,12 +103,10 @@ describe('DamageModifier', () => {
           },
         ],
       },
-      value =>
-        typeof value === 'number'
-          ? value
-          : value.blackboardKey === 'critical_damage_up_to_bleed'
-            ? 0.2
-            : 0,
+      {
+        buffId: 'test',
+        blackboard: createActionBlackboardState({ critical_damage_up_to_bleed: 0.2 }),
+      },
     );
 
     modifier.apply('beforeCalculation', 'attacker', context, () => true);
@@ -145,7 +144,7 @@ describe('DamageModifier', () => {
         },
         processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.25 }],
       },
-      value => (typeof value === 'number' ? value : value.blackboardKey === 'potential_1' ? 1 : 0),
+      { buffId: 'test', blackboard: createActionBlackboardState({ potential_1: 1 }) },
     );
 
     modifier.apply('afterCalculation', 'attacker', context, evaluateCondition);
@@ -207,7 +206,7 @@ describe('DamageModifier', () => {
         condition,
         processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.2 }],
       },
-      value => (typeof value === 'number' ? value : 0.5),
+      { buffId: 'test', blackboard: createActionBlackboardState({ hp_remain: 0.5 }) },
     );
 
     modifier.apply('afterCalculation', 'attacker', context, evaluateCondition);

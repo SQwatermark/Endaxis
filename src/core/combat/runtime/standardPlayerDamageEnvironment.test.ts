@@ -1,4 +1,229 @@
 import { withAbilityEventResponseContext } from './abilityEventResponseContext';
+import type { BoundCombatBattleRuntimes } from './combatRuntimeAssembly';
+import { CombatVitals } from './combatVitals';
+
+import { SimulationRandomSource } from '../random/simulationRandom';
+import { createSimulationRandomState } from '../random/simulationRandomState';
+
+it.each(['expected', 'sampled'] as const)('环境保存 %s 模式实际消费的随机位置', mode => {
+  const state = createSimulationRandomState();
+  const settings = { mode, globalSeed: 42 };
+  const source = new SimulationRandomSource(settings, () => state);
+  const environment = new StandardPlayerDamageEnvironment({
+    ...createEnvironment().options,
+    criticalSamples: source,
+    probabilitySamples: source,
+    randomState: state,
+  });
+  source.nextCriticalSample();
+  source.nextProbabilitySample();
+  expect(environment.runtimeState.random).toBe(state);
+  const saved = structuredClone(environment.runtimeState);
+  const restored = new SimulationRandomSource(settings, () => saved.random!);
+  expect(restored.nextCriticalSample()).toBe(source.nextCriticalSample());
+  expect(restored.nextProbabilitySample()).toBe(source.nextProbabilitySample());
+  const before = structuredClone(saved.random);
+  source.nextCriticalSample();
+  expect(saved.random).toEqual(before);
+  expect(createEnvironment().runtimeState.random).toBeNull();
+});
+
+it('环境数据端口引用实际生命账本，保存后原分支受伤不改变切面', () => {
+  const environment = createEnvironment();
+  const bound = bindBattleWithoutProjectiles(environment, createContext());
+  expect(bound.environmentState).toBe(environment.runtimeState);
+  expect(environment.runtimeState.enemyVitals).toBe(environment.enemyVitals.runtimeState);
+  const saved = structuredClone(environment.runtimeState);
+  const before = saved.enemyVitals.health;
+  environment.enemyVitals.takeDamage(10);
+  expect(environment.runtimeState.enemyVitals.health).toBe(before - 10);
+  expect(saved.enemyVitals.health).toBe(before);
+});
+
+it('恢复环境直接绑定账本和事件目录，不重新登记监听或改写原分支', () => {
+  const original = createEnvironment();
+  const received = vi.fn();
+  const registration = original.eventsFor('enemy').registerCallback('afterAddedShield', received);
+  const saved = structuredClone({
+    environment: original.runtimeState,
+    events: new Map([['enemy', original.eventsFor('enemy').runtimeState]]),
+    subscription: registration.subscriptions[0]!,
+  });
+  const restoredEnemyVitals = CombatVitals.bindRuntimeState(saved.environment.enemyVitals);
+  const restored = new StandardPlayerDamageEnvironment({
+    ...original.options,
+    enemyVitals: restoredEnemyVitals,
+    restoredState: saved.environment,
+    restoredEventStates: saved.events,
+  });
+
+  expect(restored.runtimeState).toBe(saved.environment);
+  expect(restored.eventsFor('enemy').runtimeState).toBe(saved.events.get('enemy'));
+  expect(restored.runtimeState.postSkillRequestListeners).toBe(
+    saved.environment.postSkillRequestListeners,
+  );
+  expect(restored.runtimeState.buffProgress).toBe(saved.environment.buffProgress);
+  expect(restored.runtimeState.reactions).toBe(saved.environment.reactions);
+  const restoredReceived = vi.fn();
+  restored
+    .eventsFor('enemy')
+    .bindSubscriptionFor('afterAddedShield', saved.subscription, restoredReceived);
+  restored.eventsFor('enemy').dispatch(
+    {
+      event: 'afterAddedShield',
+      payload: {
+        sourceId: 'enemy',
+        targetId: 'enemy',
+        gainedValue: 10,
+        currentValue: 10,
+      },
+    },
+    [],
+  );
+  expect(restoredReceived).toHaveBeenCalledOnce();
+  expect(received).not.toHaveBeenCalled();
+  restoredEnemyVitals.takeDamage(10);
+  expect(original.enemyVitals.health).not.toBe(restoredEnemyVitals.health);
+});
+
+it('环境按保存的状态目录接回原生事件订阅，不重新分配编号', () => {
+  const original = createEnvironment();
+  const registration = original.eventsFor('enemy').registerCallback('afterAddedShield', () => {});
+  const saved = structuredClone({
+    environment: original.runtimeState,
+    events: new Map([['enemy', original.eventsFor('enemy').runtimeState]]),
+    subscription: registration.subscriptions[0]!,
+  });
+  const restored = new StandardPlayerDamageEnvironment({
+    ...original.options,
+    enemyVitals: CombatVitals.bindRuntimeState(saved.environment.enemyVitals),
+    restoredState: saved.environment,
+    restoredEventStates: saved.events,
+  });
+  const bound = bindBattleWithoutProjectiles(restored, createContext());
+  const before = saved.events.get('enemy')!.nextRegistrationId;
+  const received = vi.fn();
+
+  bound.bindNativeEventSubscription!(saved.subscription, received);
+
+  expect(saved.events.get('enemy')!.nextRegistrationId).toBe(before);
+  restored.eventsFor('enemy').dispatch(
+    {
+      event: 'afterAddedShield',
+      payload: {
+        sourceId: 'enemy',
+        targetId: 'enemy',
+        gainedValue: 10,
+        currentValue: 10,
+      },
+    },
+    [],
+  );
+  expect(received).toHaveBeenCalledOnce();
+  expect(received.mock.calls[0]![0].event.event).toBe('afterAddedShield');
+});
+
+it('恢复环境直接绑定敌人与干员 Buff 数据，不重建属性和实体黑板', () => {
+  const original = createEnvironment();
+  const originalOperator = original.runtimeOptions.createOperatorBuffRuntime!('operator');
+  const saved = structuredClone({
+    environment: original.runtimeState,
+    events: new Map([['enemy', original.eventsFor('enemy').runtimeState]]),
+    enemyBuffs: original.runtimeOptions.enemyBuffRuntime.runtimeState!,
+    operatorBuffs: originalOperator.runtimeState!,
+  });
+  const restored = new StandardPlayerDamageEnvironment({
+    ...original.options,
+    enemyVitals: CombatVitals.bindRuntimeState(saved.environment.enemyVitals),
+    restoredState: saved.environment,
+    restoredEventStates: saved.events,
+    restoredBuffStates: {
+      enemy: saved.enemyBuffs,
+      operators: new Map([['operator', saved.operatorBuffs]]),
+    },
+  });
+  const restoredOperator = restored.runtimeOptions.createOperatorBuffRuntime!('operator');
+
+  expect(restored.runtimeOptions.enemyBuffRuntime.runtimeState).toBe(saved.enemyBuffs);
+  expect(restoredOperator.runtimeState).toBe(saved.operatorBuffs);
+  expect(restoredOperator.entityBlackboard!.runtimeState).toBe(
+    saved.operatorBuffs.entityBlackboard,
+  );
+  expect(restoredOperator.runtimeState!.attributes).toBe(saved.operatorBuffs.attributes);
+});
+
+it('恢复能力实体 Buff 目标时复用保存的属性与黑板，且不重复施加出生标签', () => {
+  const original = createEnvironment();
+  const originalBlackboard = new ActionBlackboard({ phase: 3 });
+  const originalTarget = original.runtimeOptions.createAbilityEntityBuffRuntime!(
+    'ability-entity:7',
+    originalBlackboard,
+    { kind: 'abilityEntity', instanceId: 7 },
+    ['Test/Tag123'],
+  );
+  const saved = structuredClone({
+    blackboard: originalBlackboard.runtimeState,
+    buffs: originalTarget.runtimeState!,
+  });
+  const restoredBlackboard = ActionBlackboard.bindRuntimeState(saved.blackboard);
+  const restored = createEnvironment().runtimeOptions.createAbilityEntityBuffRuntime!(
+    'ability-entity:7',
+    restoredBlackboard,
+    { kind: 'abilityEntity', instanceId: 7 },
+    ['Test/Tag123'],
+    saved.buffs,
+  );
+
+  expect(saved.buffs.entityBlackboard).toBe(saved.blackboard);
+  expect(restored.runtimeState).toBe(saved.buffs);
+  expect(restored.entityBlackboard).toBe(restoredBlackboard);
+  expect(restored.runtimeState!.attributes).toBe(restored.container.attributes.runtimeState);
+  expect(restored.runtimeState!.entityTagCounts.get('Test/Tag123')).toBe(1);
+  expect(restored.entityBlackboard!.getNumber('phase')).toBe(3);
+});
+
+it('队伍订阅保留每个实体的注册引用，注销只清除对应的注册', () => {
+  const environment = createEnvironment();
+  environment.runtimeOptions.createOperatorBuffRuntime!('first');
+  environment.runtimeOptions.createOperatorBuffRuntime!('second');
+  const first = environment.eventsFor('first');
+  const second = environment.eventsFor('second');
+  const persistent = first.registerAction('addedBuff', 0, () => {});
+  const registration = environment.runtimeOptions.registerCombatAbilityEvent!(
+    'first',
+    'team',
+    'addedBuff',
+    'dataAction',
+    3,
+    () => {},
+  );
+  expect(registration.subscriptions).toHaveLength(2);
+  expect(registration.subscriptions.map(reference => reference.state)).toEqual([
+    first.runtimeState,
+    second.runtimeState,
+  ]);
+  registration.dispose();
+  expect(first.runtimeState.phases.action.get('addedBuff')!.map(entry => entry.id)).toEqual([
+    persistent.subscriptions[0]!.id,
+  ]);
+  expect(second.runtimeState.phases.action.has('addedBuff')).toBe(false);
+});
+
+it('战斗事件目录包含绑定后新建的实体，复制后不受订阅注销影响', () => {
+  const environment = createEnvironment();
+  const bound = bindBattleWithoutProjectiles(environment, createContext());
+  const states = bound.eventStates!;
+  const dispatcher = environment.eventsFor('late-entity');
+  expect(states.get('late-entity')).toBe(dispatcher.runtimeState);
+  const registration = dispatcher.registerCallback('afterAddedShield', () => {});
+  const saved = structuredClone(states);
+  registration.dispose();
+  expect(states.get('late-entity')!.phases.callback.has('afterAddedShield')).toBe(false);
+  expect(saved.get('late-entity')!.phases.callback.get('afterAddedShield')).toHaveLength(1);
+  environment.eventsFor('another-entity');
+  expect(states.has('another-entity')).toBe(true);
+  expect(saved.has('another-entity')).toBe(false);
+});
 import { AbilitySystemRuntime } from './abilitySystemRuntime';
 import { expectTypeOf } from 'vitest';
 import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
@@ -18,6 +243,10 @@ it('延迟请求对象通知接到对应 Buff 宿主，注销不影响之后的�
   const received: unknown[] = [];
   const register = target.registerPostSkillCastRequest!;
   const first = register(info => received.push(info));
+  expect(first.registrationId).toBe(0);
+  expect(
+    environment.runtimeState.postSkillRequestListeners.registrationsByOwner.get('enemy'),
+  ).toEqual([0]);
   environment.runtimeOptions.onPostSkillCastRequest?.('operator', null);
   expect(received).toEqual([]);
   const create = () =>
@@ -40,6 +269,7 @@ it('延迟请求对象通知接到对应 Buff 宿主，注销不影响之后的�
   expect(received).toEqual([null]);
   first.dispose();
   const second = register(info => received.push(info));
+  expect(second.registrationId).toBe(1);
   first.dispose();
   create().requestPostSkillCast({ skillId: 'next' });
   expect(received).toEqual([null, null]);
@@ -385,7 +615,7 @@ import { BuffOperationExecutor } from './buffOperationExecutor';
 import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   attributeModifierValues,
 } from '../attributes/combatAttributes';
 
@@ -436,6 +666,7 @@ it.each([
       ...createEnvironment().options,
       elementalInflictionDocument: elementalAttachments,
     });
+    bindBattleWithoutProjectiles(environment, context);
     const executor = environment.runtimeOptions.createOperationExecutor(context);
     const target = environment.runtimeOptions.enemyBuffRuntime;
     if (!(target instanceof BuffDefinitionOperationTarget))
@@ -553,6 +784,27 @@ function createContext(): CombatOperationExecutorContext {
     receipt: new CombatReceiptCollector(),
     semanticEvents: new CombatSemanticEventRuntime(),
   };
+}
+
+/** 本组隔离用例不发射投射物；新增相关动作时必须换实际宿主，不能靠空回调漏执行。 */
+function bindBattleWithoutProjectiles(
+  environment: StandardPlayerDamageEnvironment,
+  context: CombatOperationExecutorContext,
+): BoundCombatBattleRuntimes {
+  return environment.runtimeOptions.bindBattleRuntime!({
+    enemy: context.enemy,
+    clock: context.clock,
+    resources: context.resources,
+    receipt: context.receipt,
+    resolveProjectileRuntimeDependencies: () => ({
+      scheduleProjectileFinishCallback: () => {
+        throw new Error('fixture does not support projectile launches');
+      },
+      createCallbackSkillHost: () => {
+        throw new Error('fixture does not support callback skills');
+      },
+    }),
+  })!;
 }
 
 function createEnvironment(
@@ -1001,7 +1253,7 @@ it.each(['burst', 'buff'] as const)(
       if (!(owner instanceof BuffDefinitionOperationTarget))
         throw new Error('fixture Buff runtime');
       owner.container.attributes.addModifier(
-        new CombatAttributeModifier(
+        createCombatAttributeModifier(
           'criticalRate',
           attributeModifierValues('finalMultiplier', finalMultiplier),
           ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -1009,7 +1261,7 @@ it.each(['burst', 'buff'] as const)(
         ),
       );
       owner.container.attributes.addModifier(
-        new CombatAttributeModifier(
+        createCombatAttributeModifier(
           'criticalDamageIncrease',
           attributeModifierValues('finalMultiplier', 2),
           ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -1455,7 +1707,7 @@ describe('StandardPlayerDamageEnvironment', () => {
           ...(deckGate === 0 ? ['4'] : []),
         ]);
         pending.length = 0;
-        assembly.simulation.advanceFrame();
+        assembly.advanceFrame();
         expect(assembly.tryStartSkill('operator', 'battleSkill')).toBe(true);
         expect(pending).toEqual([
           { nature: '0', heat: '1', electric: '2', cryo: '3' }[element],
@@ -1469,7 +1721,7 @@ describe('StandardPlayerDamageEnvironment', () => {
         assembly.disposeComboSkillConditions();
         assembly.disposeComboSkillConditions();
         pending.length = 0;
-        assembly.simulation.advanceFrame();
+        assembly.advanceFrame();
         assembly.tryStartSkill('operator', 'battleSkill');
         expect(pending).toEqual([]);
       }
@@ -1736,7 +1988,7 @@ describe('StandardPlayerDamageEnvironment', () => {
     if (!(runtime instanceof BuffDefinitionOperationTarget))
       throw new Error('fixture enemy Buff runtime');
     runtime.container.attributes.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         'cryoAbnormalDamageIncrease',
         attributeModifierValues('addition', 0.25),
         ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -1832,7 +2084,7 @@ describe('StandardPlayerDamageEnvironment', () => {
       [ATTRIBUTE_MODIFIER_SOURCES.converted, 1000],
     ] as const) {
       runtime.container.attributes.addModifier(
-        new CombatAttributeModifier(
+        createCombatAttributeModifier(
           'will',
           attributeModifierValues('addition', value),
           source,
@@ -1919,6 +2171,7 @@ describe('StandardPlayerDamageEnvironment', () => {
   it('runs an affixed Buff condition program against the current damage before processors', () => {
     const environment = createEnvironment();
     const context = createContext();
+    bindBattleWithoutProjectiles(environment, context);
     const executor = environment.runtimeOptions.createOperationExecutor(context);
     const operatorBuffs = environment.runtimeOptions.createOperatorBuffRuntime?.(
       'operator',

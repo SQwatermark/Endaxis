@@ -7,6 +7,7 @@
  */
 import type { CriticalSampleSource } from './criticalSampleSource';
 import type { ProbabilitySampleSource } from './probabilitySampleSource';
+import type { SimulationRandomState } from './simulationRandomState';
 
 export type SimulationRandomMode = 'expected' | 'sampled';
 
@@ -25,19 +26,26 @@ export interface SimulationRandomSettings {
   readonly castSeeds?: ReadonlyMap<string, number>;
 }
 
-/** 同时服务暴击和普通概率条件，两个类别各自持有流，互不改变对方的结果。 */
+/**
+ * 尚未迁移的伤害/概率端口使用此绑定。算法和状态分别由下方函数及 SimulationRandomState 提供。
+ * getState 每次取样时解析当前数据，不跨调用缓存分支状态；整场恢复仍须等待其余运行时迁移。
+ */
 export class SimulationRandomSource implements CriticalSampleSource, ProbabilitySampleSource {
   readonly #settings: SimulationRandomSettings;
-  readonly #streams = new Map<string, () => number>();
-  readonly #evenIndices = new Map<string, number>();
+  readonly #getState: () => SimulationRandomState;
 
-  constructor(settings: SimulationRandomSettings) {
+  constructor(settings: SimulationRandomSettings, getState: () => SimulationRandomState) {
     assertSeed(settings.globalSeed, 'globalSeed');
     for (const [castId, seed] of settings.castSeeds ?? []) {
       if (castId.length === 0) throw new RangeError('cast seed id must not be empty');
       assertSeed(seed, `cast seed '${castId}'`);
     }
-    this.#settings = settings;
+    this.#settings = {
+      mode: settings.mode,
+      globalSeed: settings.globalSeed,
+      ...(settings.castSeeds === undefined ? {} : { castSeeds: new Map(settings.castSeeds) }),
+    };
+    this.#getState = getState;
   }
 
   nextCriticalSample(request?: RandomSampleRequest): number {
@@ -49,40 +57,58 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
   }
 
   #next(kind: 'critical' | 'probability', request: RandomSampleRequest | undefined): number {
-    if (this.#settings.mode === 'expected') {
-      const expectedScope =
-        request?.expectedSequenceId === undefined
-          ? 'global'
-          : `source:${request.expectedSequenceId}`;
-      return this.#nextEven(`${kind}:${expectedScope}`);
-    }
     const castId = request?.castId;
     const castSeed = castId === undefined ? undefined : this.#settings.castSeeds?.get(castId);
-    const scope = castSeed === undefined ? 'global' : `cast:${castId}`;
-    const streamKey = `${kind}:${scope}`;
-
-    let stream = this.#streams.get(streamKey);
-    if (stream === undefined) {
-      const baseSeed = castSeed ?? this.#settings.globalSeed;
-      stream = mulberry32(mixSeed(baseSeed, streamKey));
-      this.#streams.set(streamKey, stream);
-    }
-    return stream();
+    return takeSimulationRandomSample(this.#getState(), this.#settings, kind, {
+      ...request,
+      ...(castSeed === undefined ? {} : { castSeed }),
+    });
   }
+}
 
-  #nextEven(streamKey: string): number {
-    const index = (this.#evenIndices.get(streamKey) ?? 0) + 1;
-    this.#evenIndices.set(streamKey, index);
-    let remaining = index;
-    let sample = 0;
-    let place = 0.5;
-    while (remaining > 0) {
-      sample += (remaining % 2) * place;
-      remaining = Math.floor(remaining / 2);
-      place *= 0.5;
-    }
-    return sample;
+/**
+ * 在当前步进中消费一个样本。只读取本次来源，不能查询整条轴的未来种子表。
+ * 期望模式和随机模式共享此入口，流划分与整数运算顺序保持原有规则。
+ */
+export function takeSimulationRandomSample(
+  state: SimulationRandomState,
+  settings: { readonly mode: SimulationRandomMode; readonly globalSeed: number },
+  kind: 'critical' | 'probability',
+  request?: RandomSampleRequest & { readonly castSeed?: number },
+): number {
+  if (settings.mode === 'expected') {
+    const scope =
+      request?.expectedSequenceId === undefined ? 'global' : `source:${request.expectedSequenceId}`;
+    return takeEvenSample(state, `${kind}:${scope}`);
   }
+  const castSeed = request?.castSeed;
+  if (castSeed !== undefined && (request?.castId === undefined || request.castId.length === 0))
+    throw new Error('a cast seed requires a non-empty cast id');
+  const scope = castSeed === undefined ? 'global' : `cast:${request!.castId}`;
+  const streamKey = `${kind}:${scope}`;
+  let previous = state.streams.get(streamKey);
+  if (previous === undefined) {
+    const seed = castSeed ?? settings.globalSeed;
+    assertSeed(seed, 'random stream seed');
+    previous = mixSeed(seed, streamKey);
+  }
+  const next = (previous + 0x6d2b79f5) >>> 0;
+  state.streams.set(streamKey, next);
+  return mulberry32Sample(next);
+}
+
+function takeEvenSample(state: SimulationRandomState, streamKey: string): number {
+  const index = (state.evenIndices.get(streamKey) ?? 0) + 1;
+  state.evenIndices.set(streamKey, index);
+  let remaining = index;
+  let sample = 0;
+  let place = 0.5;
+  while (remaining > 0) {
+    sample += (remaining % 2) * place;
+    remaining = Math.floor(remaining / 2);
+    place *= 0.5;
+  }
+  return sample;
 }
 
 function assertSeed(seed: number, label: string): void {
@@ -100,13 +126,9 @@ function mixSeed(seed: number, text: string): number {
   return value;
 }
 
-function mulberry32(seed: number): () => number {
-  let state = seed >>> 0;
-  return () => {
-    state = (state + 0x6d2b79f5) >>> 0;
-    let value = state;
-    value = Math.imul(value ^ (value >>> 15), value | 1);
-    value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
-    return ((value ^ (value >>> 14)) >>> 0) / 0x100000000;
-  };
+function mulberry32Sample(state: number): number {
+  let value = state;
+  value = Math.imul(value ^ (value >>> 15), value | 1);
+  value ^= value + Math.imul(value ^ (value >>> 7), value | 61);
+  return ((value ^ (value >>> 14)) >>> 0) / 0x100000000;
 }

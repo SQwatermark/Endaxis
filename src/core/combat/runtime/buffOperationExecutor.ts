@@ -15,6 +15,7 @@ import type { ResolvedCombatStepParameters } from '../../compiler/combatProgram'
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffApplicationTarget, CombatTarget } from '../../game-data/operatorDefinition';
 import type { BuffApplicationHandle, BuffFinishReason } from '../buffs/combatBuffs';
+import { buffReferenceKey, type BuffReference } from '../buffs/buffReference';
 import type { GameplayTag, GameplayTagQueryType } from '../tags/gameplayTags';
 import { resolveActionValueOperand, type ActionBlackboard } from './actionBlackboard';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
@@ -46,9 +47,25 @@ export interface BuffLifecycleOperationSource {
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */
 export interface BuffOperationTarget {
+  /** 有状态容器必须暴露实际数据；仅供查询的外部端口可能尚未接入，不可用于完整恢复。 */
+  readonly runtimeState?: import('../buffs/buffContainerState').BuffContainerState;
   readonly currentFiniteShieldValue?: number;
   /** 此端口所属的稳定战斗实体身份，用于原生动作显式指定 Buff 来源时传递来源。 */
   readonly ownerId: string;
+  /** 从候选容器数据重建实例对象；只绑定当前容器，跨容器关系留给下一阶段。 */
+  bindRestoredInstances?(
+    resolveDefinition: (
+      id: string,
+      definitionOwnerId: string,
+    ) => ResolvedSkillBuffDefinition | undefined,
+    resolveOptions?: (
+      state: import('../buffs/buffInstanceState').BuffInstanceState<string>,
+    ) => import('../buffs/combatBuffs').CombatBuffAddOptions | undefined,
+  ): void;
+  /** 所有目标容器的实例对象都存在后，按保存身份接回父子和对象引用。 */
+  bindRestoredRelations?(
+    resolveHandle: (reference: BuffReference) => BuffApplicationHandle | undefined,
+  ): void;
   /** 只读原生属性值；技能费用等非 Buff 操作不得反向持有具体容器。 */
   getAttributeValue?(attribute: string): number;
   /** 支持内联生命周期行为的目标由场景装配根配置；普通查询目标可以不实现。 */
@@ -60,6 +77,16 @@ export interface BuffOperationTarget {
   configureBuffAbsorbedObserver?(observer: (event: BuffConsumedEvent) => void): void;
   /** 场景装配根把 Buff 存续期内的全场语义事件监听接入唯一事件中心。 */
   configureSemanticEventAction?(register: RegisterBuffSemanticEventAction): void;
+  /** 完整对象目录建立后，为保存的 SkillAffix 实体与 Buff 引用提供当前分支绑定。 */
+  configureRestoredSkillAffixObjectReferenceBinder?(
+    bind: import('./buffLifecycleSequenceRuntime').BindRestoredSkillAffixObjectReference,
+  ): void;
+  /** 按保存编号接回本目标中一个 Buff 的回收处理函数。 */
+  bindRestoredBuffRecycleCallback?(
+    reference: BuffReference,
+    registrationId: number,
+    callback: () => void,
+  ): { dispose(): void };
   apply?(request: BuffApplicationRequest): boolean;
   applyScoped?(request: BuffApplicationRequest): BuffApplicationHandle | null;
   getCountByIds(ids: readonly string[], skillCastId?: number): number;
@@ -67,6 +94,8 @@ export interface BuffOperationTarget {
   findFirstByIds(ids: readonly string[]): BuffQueryResult | undefined;
   /** InheritBuffAction 需要稳定实例身份；普通查询端口不能代替。 */
   findFirstHandleByIds?(ids: readonly string[]): BuffApplicationHandle | undefined;
+  /** 恢复动作期引用时按所属目标和实例编号精确重绑，已回收实例返回 undefined。 */
+  resolveHandle?(reference: BuffReference): BuffApplicationHandle | undefined;
   finishByIds(
     ids: readonly string[],
     reason: BuffFinishReason,
@@ -81,7 +110,11 @@ export interface BuffOperationTarget {
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): number;
   ignite?(igniteType: string, sourceId: string, skillCastInfo?: CombatSkillCastInfo): number;
-  holdByIds(ids: readonly string[]): { release(): void };
+  holdByIds(ids: readonly string[]): {
+    readonly references?: readonly BuffReference[];
+    release(): void;
+  };
+  releaseHeld?(references: readonly BuffReference[]): void;
   getCountByTags(
     tags: readonly GameplayTag[],
     type: GameplayTagQueryType,
@@ -178,6 +211,8 @@ export interface BuffApplicationRequest {
   readonly iconDurationSourceTargetId?: string;
   readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;
   readonly getSourceAttributeValue?: (attribute: string) => number;
+  /** getSourceAttributeValue 所属实体；恢复时据此解析当前分支对象。 */
+  readonly sourceAttributeOwnerId?: string;
 }
 
 export interface BuffOperationDependencies {
@@ -208,10 +243,8 @@ export interface BuffOperationDependencies {
 }
 
 export class BuffOperationExecutor implements CombatOperationExecutor {
-  readonly #skillAffixes = new WeakMap<RuntimeOperation, { dispose(): void }>();
-  readonly #holds = new WeakMap<RuntimeOperation, { release(): void }>();
-  readonly #actionDurationBuffs = new WeakMap<RuntimeOperation, readonly BuffApplicationHandle[]>();
-  readonly #inheritedBuffs = new WeakMap<RuntimeOperation, BuffApplicationHandle>();
+  /** 只缓存当前执行器创建过的对象；是否活动以及实例身份以动作数据为准。 */
+  readonly #buffHandleBindings = new Map<string, BuffApplicationHandle>();
   constructor(readonly dependencies: BuffOperationDependencies) {}
 
   execute(step: RuntimeOperation, context?: CombatOperationContext): boolean {
@@ -238,14 +271,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return true;
     }
     if (step.kind === 'skillAffix') {
-      if (this.#skillAffixes.has(step)) throw new Error('SkillAffix action is already active');
+      const state = context?.actionRegistrationState;
+      if (state === undefined) throw new Error('SkillAffix requires action data');
+      if (state.registrationId !== null) throw new Error('SkillAffix action is already active');
       if (context?.bindCurrentBuffSkillAffix === undefined || context.buffOwnerId === undefined)
         return false;
       if (this.dependencies.readProcessingSkillCastId === undefined)
         throw new Error('SkillAffix requires a processing-skill resolver');
       const id = this.dependencies.readProcessingSkillCastId(context.buffOwnerId);
       if (id === undefined) return false;
-      this.#skillAffixes.set(step, context.bindCurrentBuffSkillAffix(id));
+      state.registrationId = context.bindCurrentBuffSkillAffix(id);
       return true;
     }
     if (step.kind === 'applyPhysicalInfliction') {
@@ -510,7 +545,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
           ...(sourceTarget?.getAttributeValue === undefined
             ? {}
-            : { getSourceAttributeValue: sourceTarget.getAttributeValue.bind(sourceTarget) }),
+            : {
+                getSourceAttributeValue: sourceTarget.getAttributeValue.bind(sourceTarget),
+                sourceAttributeOwnerId: sourceTarget.ownerId,
+              }),
           ...(this.dependencies.sourceActionId === undefined
             ? {}
             : { sourceActionId: this.dependencies.sourceActionId }),
@@ -528,7 +566,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ...(iconDurationSourceTargetId === undefined ? {} : { iconDurationSourceTargetId }),
         };
       };
-      if (finishByAction && this.#actionDurationBuffs.has(step)) {
+      const actionBuffs = finishByAction ? this.#requireActionBuffState(context) : undefined;
+      if (actionBuffs?.active) {
         throw new Error('action-duration applyBuff step is already active');
       }
       const scoped: BuffApplicationHandle[] = [];
@@ -539,7 +578,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           if (finishByAction || asChildBuff || attachToSkill) {
             const handle = target.applyScoped!(request);
             if (handle !== null) {
-              if (finishByAction) scoped.push(handle);
+              if (finishByAction) {
+                scoped.push(handle);
+                this.#buffHandleBindings.set(buffReferenceKey(handle.reference), handle);
+              }
               if (asChildBuff) addOwnerChild!(handle);
               if (attachToSkill) {
                 // 原生派生钩子只对创建成功的实例读取 CastSkillContext。
@@ -556,7 +598,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           }
         }
       }
-      if (finishByAction) this.#actionDurationBuffs.set(step, scoped);
+      if (actionBuffs !== undefined) {
+        actionBuffs.references.splice(
+          0,
+          actionBuffs.references.length,
+          ...scoped.map(handle => handle.reference),
+        );
+        actionBuffs.active = true;
+      }
       return true;
     }
 
@@ -824,19 +873,24 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
 
     if (step.kind === 'holdBuffsById') {
-      const previous = this.#holds.get(step);
-      if (previous !== undefined) {
+      const actionBuffs = this.#requireActionBuffState(context);
+      if (actionBuffs.active) {
         throw new Error('holdBuffsById step is already active');
       }
-      this.#holds.set(
-        step,
-        this.dependencies.resolveTarget(step.parameters.target).holdByIds(step.parameters.buffIds),
-      );
+      const hold = this.dependencies
+        .resolveTarget(step.parameters.target)
+        .holdByIds(step.parameters.buffIds);
+      if (hold.references === undefined) {
+        throw new Error('holdBuffsById target must expose held Buff references');
+      }
+      actionBuffs.references.push(...hold.references);
+      actionBuffs.active = true;
       return true;
     }
 
     if (step.kind === 'inheritBuffById') {
-      if (this.#inheritedBuffs.has(step)) {
+      const actionBuffs = this.#requireActionBuffState(context);
+      if (actionBuffs.active) {
         throw new Error('inheritBuffById step is already active');
       }
       const target = this.dependencies.resolveTarget(step.parameters.target);
@@ -844,12 +898,14 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         throw new Error(`Buff target '${target.ownerId}' cannot expose stable instance handles`);
       }
       const handle = target.findFirstHandleByIds([step.parameters.buffId]);
+      actionBuffs.active = true;
       if (handle === undefined) return true;
       if (context?.detachBuffFromCurrentSkill === undefined) {
         throw new Error('inheritBuffById requires a current-skill detachment port');
       }
       context.detachBuffFromCurrentSkill(handle);
-      this.#inheritedBuffs.set(step, handle);
+      actionBuffs.references.push(handle.reference);
+      this.#buffHandleBindings.set(buffReferenceKey(handle.reference), handle);
       return true;
     }
 
@@ -992,19 +1048,34 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
 
   end(step: RuntimeOperation, context?: CombatOperationContext): void {
     if (step.kind === 'skillAffix') {
-      this.#skillAffixes.get(step)?.dispose();
-      this.#skillAffixes.delete(step);
+      const state = context?.actionRegistrationState;
+      if (state === undefined) throw new Error('SkillAffix requires action data');
+      if (state.registrationId !== null) {
+        if (context?.finishCurrentBuffSkillAffix === undefined)
+          throw new Error('SkillAffix requires a current Buff finish port');
+        context.finishCurrentBuffSkillAffix(state.registrationId);
+        state.registrationId = null;
+      }
       return;
     }
     if (step.kind === 'holdBuffsById') {
-      this.#holds.get(step)?.release();
-      this.#holds.delete(step);
+      const actionBuffs = this.#requireActionBuffState(context);
+      const target = this.dependencies.resolveTarget(step.parameters.target);
+      if (target.releaseHeld === undefined) {
+        throw new Error(`Buff target '${target.ownerId}' cannot release a restored hold`);
+      }
+      target.releaseHeld(actionBuffs.references);
+      actionBuffs.references.length = 0;
+      actionBuffs.active = false;
       return;
     }
     if (step.kind === 'inheritBuffById') {
-      const handle = this.#inheritedBuffs.get(step);
-      this.#inheritedBuffs.delete(step);
-      if (handle === undefined) return;
+      const actionBuffs = this.#requireActionBuffState(context);
+      const reference = actionBuffs.references[0];
+      actionBuffs.references.length = 0;
+      actionBuffs.active = false;
+      if (reference === undefined) return;
+      const handle = this.#resolveActionBuff(reference);
       const hasNextSkill = context?.pendingNextSkillId !== undefined;
       const inherited =
         hasNextSkill && step.parameters.inheritToNextSkillIds.includes(context.pendingNextSkillId!);
@@ -1020,7 +1091,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return;
     }
     if (step.kind === 'applyBuff' && step.parameters.finishByAction === true) {
-      const handles = this.#actionDurationBuffs.get(step) ?? [];
+      const actionBuffs = this.#requireActionBuffState(context);
+      const handles = actionBuffs.references.map(reference => this.#resolveActionBuff(reference));
       const inherited =
         context?.pendingNextSkillId !== undefined &&
         step.parameters.inheritToNextSkillIds?.includes(context.pendingNextSkillId) === true;
@@ -1038,7 +1110,8 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       } else {
         for (const handle of handles) handle.finish('other');
       }
-      this.#actionDurationBuffs.delete(step);
+      actionBuffs.references.length = 0;
+      actionBuffs.active = false;
       for (const exit of step.parameters.onActionEndBuffs ?? []) {
         this.execute(
           {
@@ -1051,6 +1124,27 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       return;
     }
     this.dependencies.delegate.end?.(step, context);
+  }
+
+  #requireActionBuffState(context: CombatOperationContext | undefined) {
+    const state = context?.actionBuffReferencesState;
+    if (state === undefined) throw new Error('action-owned Buff operation requires action data');
+    return state;
+  }
+
+  #resolveActionBuff(reference: BuffReference): BuffApplicationHandle {
+    const key = buffReferenceKey(reference);
+    const cached = this.#buffHandleBindings.get(key);
+    if (cached !== undefined) {
+      this.#buffHandleBindings.delete(key);
+      return cached;
+    }
+    const target = this.dependencies.resolveEventTarget?.(reference.ownerId);
+    const rebound = target?.resolveHandle?.(reference);
+    if (rebound === undefined) {
+      throw new Error(`action-owned Buff '${key}' cannot be rebound in the current branch`);
+    }
+    return rebound;
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {

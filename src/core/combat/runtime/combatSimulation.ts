@@ -10,9 +10,15 @@ export interface FrameRuntime {
   advanceFrame(): void;
 }
 
+/** 本次步进的外部输入入口；驱动器不保存入口，也不读取未来帧。 */
+export interface CombatFrameInputs {
+  readonly skillInputs: () => void;
+  readonly externalEvents: () => void;
+}
+
 /** 先推进共享时钟，再按当前显式注册顺序更新运行时系统。 */
 export class CombatSimulation {
-  readonly #systems: FrameRuntime[] = [];
+  readonly #systems: (FrameRuntime | keyof CombatFrameInputs)[] = [];
 
   constructor(readonly clock: CombatClock) {}
 
@@ -20,15 +26,25 @@ export class CombatSimulation {
     this.#systems.push(system);
   }
 
-  advanceFrame(): void {
-    this.clock.advanceFrame();
-    for (const system of this.#systems) system.advanceFrame();
+  addInputPhase(phase: keyof CombatFrameInputs): void {
+    this.#systems.push(phase);
   }
 
-  advanceFrames(count: number): void {
+  advanceFrame(inputs?: CombatFrameInputs): void {
+    if (inputs === undefined && this.#systems.some(system => typeof system === 'string')) {
+      throw new Error('combat frame requires external input phases');
+    }
+    this.clock.advanceFrame();
+    for (const system of this.#systems) {
+      if (typeof system === 'string') inputs![system]();
+      else system.advanceFrame();
+    }
+  }
+
+  advanceFrames(count: number, inputs?: CombatFrameInputs): void {
     if (!Number.isInteger(count) || count < 0) {
       throw new RangeError('frame count must be a non-negative integer');
     }
-    for (let frame = 0; frame < count; frame += 1) this.advanceFrame();
+    for (let frame = 0; frame < count; frame += 1) this.advanceFrame(inputs);
   }
 }

@@ -11,6 +11,40 @@ const MARK: CombatStatusDefinition = {
 };
 
 describe('CombatStatusContainer', () => {
+  it('恢复剩余寿命、层数和首次来源，另一分支的消费不会污染副本', () => {
+    const original = new CombatStatusContainer('operator', [MARK]);
+    original.apply({ statusKey: 'mark', sourceId: 'first', skillId: 'skill1', stacks: 2 });
+    original.advanceFrame();
+    const saved = structuredClone(original.runtimeState);
+    original.consume({ statusKey: 'mark', sourceId: 'consumer', skillId: 'skill2', stacks: 2 });
+    const restored = new CombatStatusContainer('operator', [MARK], structuredClone(saved));
+    expect(restored.getSnapshot('mark')).toEqual({ stacks: 2, remainingFrames: 2 });
+    expect(restored.advanceFrame()).toEqual([]);
+    expect(restored.advanceFrame()[0]).toMatchObject({
+      reason: 'expired',
+      sourceId: 'first',
+      skillId: 'skill1',
+    });
+    expect(saved.statuses.get('mark')?.remainingFrames).toBe(2);
+    expect(original.getStacks('mark')).toBe(0);
+  });
+
+  it('从固定定义模板绑定复制状态，不施加或推进状态', () => {
+    const template = new CombatStatusContainer('operator', [MARK]);
+    template.apply({ statusKey: 'mark', sourceId: 'first', skillId: 'skill1', stacks: 2 });
+    template.advanceFrame();
+    const saved = structuredClone(template.runtimeState);
+
+    const restored = template.bindRuntimeState(saved);
+
+    expect(restored).not.toBe(template);
+    expect(restored.runtimeState).toBe(saved);
+    expect(restored.getSnapshot('mark')).toEqual({ stacks: 2, remainingFrames: 2 });
+    restored.apply({ statusKey: 'mark', sourceId: 'second', skillId: 'skill2' });
+    expect(saved.statuses.get('mark')?.stacks).toBe(3);
+    expect(template.getSnapshot('mark')).toEqual({ stacks: 2, remainingFrames: 2 });
+  });
+
   it('uses explicit definitions, adds layers and caps them', () => {
     const statuses = new CombatStatusContainer('operator', [MARK]);
     statuses.apply({ statusKey: 'mark', sourceId: 'first', skillId: 'skill1' });

@@ -1,13 +1,15 @@
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
-import type { CombatBuff } from '../buffs/combatBuffs';
 import type { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 
 /** 原生固定身份；行为和倍率只能来自导出的定义。依据 combat-spec/docs/poise-break-buff.md。 */
 export const POISE_BREAK_BUFF_ID = 'buff_common_poise_break_damage_taken_scale';
 
 export class PoiseBreakBuffRuntime {
-  readonly #instances = new Set<CombatBuff<string>>();
-  constructor(readonly target: BuffDefinitionOperationTarget<string>) {}
+  /** 只保存当前目标容器内的实例编号，不跨分支保留 Buff 对象。 */
+  constructor(
+    readonly target: BuffDefinitionOperationTarget<string>,
+    readonly runtimeState = new Set<number>(),
+  ) {}
 
   begin(sourceId: string, definition: ResolvedSkillBuffDefinition | undefined): void {
     if (definition === undefined)
@@ -19,13 +21,16 @@ export class PoiseBreakBuffRuntime {
       sourceActionId: 'poise-break',
       blackboardValues: {},
     });
-    if (buff !== null) this.#instances.add(buff);
+    if (buff !== null) this.runtimeState.add(buff.instanceId);
   }
 
   recover(): void {
     // 先移交本轮句柄，避免结束副作用重入时清除下一轮登记的实例。
-    const instances = [...this.#instances];
-    this.#instances.clear();
-    for (const buff of instances) if (!buff.isFinished) buff.finish();
+    const instances = [...this.runtimeState];
+    this.runtimeState.clear();
+    for (const instanceId of instances) {
+      const buff = this.target.container.getInstance(instanceId);
+      if (buff !== undefined && !buff.isFinished) buff.finish();
+    }
   }
 }

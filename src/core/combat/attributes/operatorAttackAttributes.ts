@@ -11,7 +11,7 @@ import {
 } from '../../game-data/battleConstants';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,
 } from './combatAttributes';
@@ -101,7 +101,7 @@ export function createOperatorAttackAttributes(
     // 原始来源仍保存在构筑 receipt；这里恢复聚合后的 Deck 基础槽位。
     for (const slot of ['baseMultiplier', 'baseFinalAddition'] as const) {
       result.addModifier(
-        new CombatAttributeModifier(
+        createCombatAttributeModifier(
           'Atk',
           attributeModifierValues(slot, input.attackBase[slot]),
           ATTRIBUTE_MODIFIER_SOURCES.deck,
@@ -143,7 +143,7 @@ export function createOperatorAttackAttributes(
     if (attribute === undefined) continue;
     const slot = modifier.slot === 'addition' ? 'addition' : 'baseAddition';
     result.addModifier(
-      new CombatAttributeModifier(
+      createCombatAttributeModifier(
         attribute,
         attributeModifierValues(slot, modifier.value),
         ATTRIBUTE_MODIFIER_SOURCES.equipment,

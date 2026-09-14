@@ -7,18 +7,20 @@ export {
   type DamageModifierDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
-  type DamageModifierCondition,
   type DamageModifierDefinition,
   type DamageModifierExternalCondition,
   type DamageModifierNumber,
-  type DamageProcessorDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 /**
  * Buff 定义与伤害包各处理阶段之间的声明式协议。
  * 修正必须明确所属阶段、作用方和条件；可保存定义不接受回调，已编译程序也只获得只读伤害视图。
  */
-import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
-import { attributeModifierValues } from '../attributes/combatAttributes';
+import { applyDamageModifier } from './damageModifierExecution';
+import type { DamageModifierState } from './damageModifierState';
+import {
+  resolveBuffModifierNumber,
+  type BuffModifierNumberSource,
+} from '../buffs/buffModifierNumberSource';
 import type {
   DamageModifierSide,
   DamageProcessTiming,
@@ -50,20 +52,35 @@ export interface DamageModifierConditionProgram {
 
 /** 由一个已启用 Buff 实例持有的运行时修正。 */
 export class DamageModifier {
+  readonly runtimeState: DamageModifierState;
   constructor(
     readonly ownerId: string,
     readonly definition: DamageModifierDefinition,
-    readonly resolveNumber: (value: DamageModifierNumber) => number = value => {
-      if (typeof value === 'number') return value;
-      throw new Error(
-        `damage modifier blackboard value '${value.blackboardKey}' cannot be resolved`,
-      );
-    },
+    readonly numberSource?: BuffModifierNumberSource,
     readonly sourceSkillCastId: number | null = null,
     readonly conditionProgram?: DamageModifierConditionProgram,
+    restoredState?: DamageModifierState,
   ) {
     if (definition.condition !== undefined && conditionProgram !== undefined) {
       throw new Error('damage modifier cannot combine a pure condition with a condition program');
+    }
+    this.runtimeState = restoredState ?? {
+      ownerId,
+      numberSource,
+      sourceSkillCastId,
+      hasConditionProgram: conditionProgram !== undefined,
+      // Buff 装配定义可能附带工厂函数，只保留伤害协议字段。
+      definition: {
+        enabledSide: definition.enabledSide,
+        processors: definition.processors,
+        condition: definition.condition,
+      },
+    };
+    if (restoredState !== undefined) {
+      if (restoredState.ownerId !== ownerId)
+        throw new Error('restored damage modifier owner does not match its Buff owner');
+      if (restoredState.hasConditionProgram !== (conditionProgram !== undefined))
+        throw new Error('restored damage modifier condition program does not match its definition');
     }
   }
 
@@ -73,104 +90,16 @@ export class DamageModifier {
     context: PlayerDamageContext,
     evaluateCondition?: DamageModifierConditionEvaluator,
   ): void {
-    if (side !== this.definition.enabledSide || context.getEntityId(side) !== this.ownerId) {
-      return;
-    }
-    if (
-      this.conditionProgram !== undefined &&
-      !this.conditionProgram.execute({
-        side,
-        sourceId: context.sourceId,
-        targetId: context.targetId,
-        skillCastId: context.skillCastId,
-        damageType: context.damageType,
-        tags: context.tags,
-        gameplayTags: context.gameplayTags,
-        features: context.features,
-      })
-    )
-      return;
-    if (this.definition.condition !== undefined) {
-      if (evaluateCondition === undefined) {
-        throw new Error('conditional damage modifier requires a condition evaluator');
-      }
-      if (!this.#evaluateCondition(this.definition.condition, evaluateCondition, context)) return;
-    }
-    for (const processor of this.definition.processors) {
-      applyProcessor(processor, timing, context, this.resolveNumber);
-    }
-  }
-
-  #evaluateCondition(
-    condition: DamageModifierCondition,
-    evaluateExternal: DamageModifierConditionEvaluator,
-    context: PlayerDamageContext,
-  ): boolean {
-    switch (condition.kind) {
-      case 'sourceSkillCastMatch':
-        return (
-          this.sourceSkillCastId !== null &&
-          this.sourceSkillCastId > 0 &&
-          context.skillCastId === this.sourceSkillCastId
-        );
-      case 'buffBlackboardCompare':
-        return compareCombatNumbers(
-          this.resolveNumber(condition.left),
-          this.resolveNumber(condition.right),
-          condition.operator,
-        );
-      case 'not':
-        return !this.#evaluateCondition(condition.condition, evaluateExternal, context);
-      case 'all':
-        return condition.conditions.every(child =>
-          this.#evaluateCondition(child, evaluateExternal, context),
-        );
-      case 'any':
-        return condition.conditions.some(child =>
-          this.#evaluateCondition(child, evaluateExternal, context),
-        );
-      default:
-        return evaluateExternal(condition, this.resolveNumber);
-    }
-  }
-}
-
-function applyProcessor(
-  processor: DamageProcessorDefinition,
-  timing: DamageProcessTiming,
-  context: PlayerDamageContext,
-  resolveNumber: (value: DamageModifierNumber) => number,
-): void {
-  if (context.damageType === 'lifeDrain') return;
-  switch (processor.kind) {
-    case 'multiplyValue':
-      if (
-        timing === processor.timing &&
-        processor.targetHealthTypes.includes(context.targetHealthType)
-      ) {
-        context.multiplyCalculationValue(processor.scale);
-      }
-      return;
-    case 'damageScale':
-      if (timing === 'afterCalculation' && context.targetHealthType === 'normal') {
-        context.damageScales.modify(
-          processor.side,
-          processor.zone,
-          resolveNumber(processor.addition),
-        );
-      }
-      return;
-    case 'instantAttribute':
-      if (timing === 'beforeCalculation' && context.targetHealthType === 'normal') {
-        const values =
-          'slot' in processor.values
-            ? attributeModifierValues(processor.values.slot, resolveNumber(processor.values.value))
-            : processor.values;
-        context.addInstantAttributeModifier(processor.targetSide, {
-          attribute: processor.attribute,
-          values,
-          timing: processor.attributeTiming,
-        });
-      }
+    applyDamageModifier(
+      this.runtimeState.ownerId,
+      this.runtimeState.sourceSkillCastId,
+      this.runtimeState.definition,
+      value => resolveBuffModifierNumber(this.runtimeState.numberSource, value, 'damage'),
+      this.conditionProgram,
+      timing,
+      side,
+      context,
+      evaluateCondition,
+    );
   }
 }

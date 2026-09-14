@@ -9,7 +9,6 @@ import {
   SP_GAIN_SOURCES,
   type SpGainSource,
 } from '../../../../packages/game-data-contract/src/primitives';
-import type { RuntimeCheckpointParticipant } from '../runtime/runtimeCheckpoint';
 
 export const SHARED_SP_GAIN_SOURCES = SP_GAIN_SOURCES;
 /** 共享 SP 的获取来源；来源决定是否应用普攻或重击专属效率。 */
@@ -40,15 +39,25 @@ export interface SharedSpGainSettings {
  * 一项可由 Buff 生命周期独立注册和注销的共享 SP 效率修正。
  * applyToReturnSpGain 只过滤 gainEfficiency；来源专属效率不受该字段影响。
  */
-export class SharedSpGainModifier {
-  constructor(
-    readonly attribute: SharedSpGainAttribute,
-    readonly operation: SharedSpGainModifierOperation,
-    readonly value: number,
-    readonly applyToReturnSpGain: boolean,
-  ) {
-    requireFinite(value, 'shared SP gain modifier value');
-  }
+export interface SharedSpGainModifier {
+  readonly attribute: SharedSpGainAttribute;
+  readonly operation: SharedSpGainModifierOperation;
+  readonly value: number;
+  readonly applyToReturnSpGain: boolean;
+}
+
+export function createSharedSpGainModifier(
+  attribute: SharedSpGainAttribute,
+  operation: SharedSpGainModifierOperation,
+  value: number,
+  applyToReturnSpGain: boolean,
+): SharedSpGainModifier {
+  requireFinite(value, 'shared SP gain modifier value');
+  return { attribute, operation, value, applyToReturnSpGain };
+}
+
+export interface SharedSpGainModifierState {
+  readonly modifiers: SharedSpGainModifier[];
 }
 
 /** 两段效率以及最终乘积，供资源回执保留可诊断的中间结果。 */
@@ -62,111 +71,120 @@ export interface SharedSpGainEfficiency {
  * 一次战斗唯一的共享 SP 效率修正注册表。
  * 注册表按对象身份移除修正，避免同值 Buff 相互覆盖或错误注销。
  */
-export class SharedSpGainModifierSet implements RuntimeCheckpointParticipant<
-  readonly SharedSpGainModifier[]
-> {
-  readonly #modifiers: SharedSpGainModifier[] = [];
-
-  constructor(readonly settings: SharedSpGainSettings) {
+export class SharedSpGainModifierSet {
+  constructor(
+    readonly settings: SharedSpGainSettings,
+    readonly runtimeState: SharedSpGainModifierState = { modifiers: [] },
+  ) {
     requireFinite(settings.baseGainEfficiency, 'base shared SP gain efficiency');
   }
 
   get modifierCount(): number {
-    return this.#modifiers.length;
+    return this.runtimeState.modifiers.length;
   }
 
   add(modifier: SharedSpGainModifier): void {
-    if (!this.#modifiers.includes(modifier)) this.#modifiers.push(modifier);
+    if (!this.runtimeState.modifiers.includes(modifier)) this.runtimeState.modifiers.push(modifier);
   }
 
   remove(modifier: SharedSpGainModifier): boolean {
-    const index = this.#modifiers.indexOf(modifier);
+    const index = this.runtimeState.modifiers.indexOf(modifier);
     if (index < 0) return false;
-    this.#modifiers.splice(index, 1);
+    this.runtimeState.modifiers.splice(index, 1);
     return true;
-  }
-
-  captureCheckpointState(): readonly SharedSpGainModifier[] {
-    return Object.freeze([...this.#modifiers]);
-  }
-
-  restoreCheckpointState(modifiers: readonly SharedSpGainModifier[]): void {
-    this.#modifiers.splice(0, this.#modifiers.length, ...modifiers);
   }
 
   resolve(source: SharedSpGainSource, method: SharedSpGainMethod): SharedSpGainEfficiency {
-    const gainEfficiency = this.#resolveAttribute(
-      'gainEfficiency',
-      this.settings.baseGainEfficiency,
-      method === 'return',
-    );
-    const sourceAttribute = sourceAttributeOf(source);
-    const sourceEfficiency =
-      sourceAttribute === null ? 1 : this.#resolveAttribute(sourceAttribute, 1, false);
-    return {
-      gainEfficiency,
-      sourceEfficiency,
-      totalEfficiency: gainEfficiency * sourceEfficiency,
-    };
+    return resolveSharedSpGain(this.runtimeState, this.settings, source, method);
   }
+}
 
-  #resolveAttribute(
-    attribute: SharedSpGainAttribute,
-    baseValue: number,
-    filterReturnSpGain: boolean,
-  ): number {
-    const modifiers = this.#modifiers.filter(
-      modifier =>
-        modifier.attribute === attribute && (!filterReturnSpGain || modifier.applyToReturnSpGain),
-    );
-    const addition = sum(modifiers, 'addition');
-    const multiplier = sum(modifiers, 'multiplier');
-    return (baseValue + addition) * Math.max(0, 1 + multiplier);
-  }
+/** 按当前注册项计算获取效率；恢复后的状态可以直接使用，无需重建注册表对象。 */
+export function resolveSharedSpGain(
+  state: SharedSpGainModifierState,
+  settings: SharedSpGainSettings,
+  source: SharedSpGainSource,
+  method: SharedSpGainMethod,
+): SharedSpGainEfficiency {
+  const gainEfficiency = resolveAttribute(
+    state,
+    'gainEfficiency',
+    settings.baseGainEfficiency,
+    method === 'return',
+  );
+  const sourceAttribute = sourceAttributeOf(source);
+  const sourceEfficiency =
+    sourceAttribute === null ? 1 : resolveAttribute(state, sourceAttribute, 1, false);
+  return {
+    gainEfficiency,
+    sourceEfficiency,
+    totalEfficiency: gainEfficiency * sourceEfficiency,
+  };
+}
+
+function resolveAttribute(
+  state: SharedSpGainModifierState,
+  attribute: SharedSpGainAttribute,
+  baseValue: number,
+  filterReturnSpGain: boolean,
+): number {
+  const modifiers = state.modifiers.filter(
+    modifier =>
+      modifier.attribute === attribute && (!filterReturnSpGain || modifier.applyToReturnSpGain),
+  );
+  const addition = sum(modifiers, 'addition');
+  const multiplier = sum(modifiers, 'multiplier');
+  return (baseValue + addition) * Math.max(0, 1 + multiplier);
 }
 
 /** 原生 GlobalAttributeType.AtbRecover 的独立注册项。 */
-export class SharedSpRecoveryModifier {
-  constructor(
-    readonly operation: SharedSpGainModifierOperation,
-    readonly value: number,
-  ) {
-    requireFinite(value, 'shared SP recovery modifier value');
-  }
+export interface SharedSpRecoveryModifier {
+  readonly operation: SharedSpGainModifierOperation;
+  readonly value: number;
+}
+
+export function createSharedSpRecoveryModifier(
+  operation: SharedSpGainModifierOperation,
+  value: number,
+): SharedSpRecoveryModifier {
+  requireFinite(value, 'shared SP recovery modifier value');
+  return { operation, value };
+}
+
+export interface SharedSpRecoveryModifierState {
+  readonly modifiers: SharedSpRecoveryModifier[];
 }
 
 /** 战斗内自然技力恢复使用的全局修正集合。 */
-export class SharedSpRecoveryModifierSet implements RuntimeCheckpointParticipant<
-  readonly SharedSpRecoveryModifier[]
-> {
-  readonly #modifiers: SharedSpRecoveryModifier[] = [];
+export class SharedSpRecoveryModifierSet {
+  constructor(readonly runtimeState: SharedSpRecoveryModifierState = { modifiers: [] }) {}
 
   add(modifier: SharedSpRecoveryModifier): void {
-    if (!this.#modifiers.includes(modifier)) this.#modifiers.push(modifier);
+    if (!this.runtimeState.modifiers.includes(modifier)) this.runtimeState.modifiers.push(modifier);
   }
 
   remove(modifier: SharedSpRecoveryModifier): boolean {
-    const index = this.#modifiers.indexOf(modifier);
+    const index = this.runtimeState.modifiers.indexOf(modifier);
     if (index < 0) return false;
-    this.#modifiers.splice(index, 1);
+    this.runtimeState.modifiers.splice(index, 1);
     return true;
   }
 
-  captureCheckpointState(): readonly SharedSpRecoveryModifier[] {
-    return Object.freeze([...this.#modifiers]);
-  }
-
-  restoreCheckpointState(modifiers: readonly SharedSpRecoveryModifier[]): void {
-    this.#modifiers.splice(0, this.#modifiers.length, ...modifiers);
-  }
-
   resolve(baseValue: number): number {
-    requireFinite(baseValue, 'shared SP recovery base value');
-    return (
-      (baseValue + sum(this.#modifiers, 'addition')) *
-      Math.max(0, 1 + sum(this.#modifiers, 'multiplier'))
-    );
+    return resolveSharedSpRecovery(this.runtimeState, baseValue);
   }
+}
+
+/** 按当前注册项计算每秒自然恢复量，不读写注册表以外的战斗数据。 */
+export function resolveSharedSpRecovery(
+  state: SharedSpRecoveryModifierState,
+  baseValue: number,
+): number {
+  requireFinite(baseValue, 'shared SP recovery base value');
+  return (
+    (baseValue + sum(state.modifiers, 'addition')) *
+    Math.max(0, 1 + sum(state.modifiers, 'multiplier'))
+  );
 }
 
 function sourceAttributeOf(source: SharedSpGainSource): SharedSpGainAttribute | null {

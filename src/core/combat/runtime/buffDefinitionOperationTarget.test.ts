@@ -1,12 +1,73 @@
 import { describe, expect, it, vi } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer, type CombatBuffDefinition } from '../buffs/combatBuffs';
+import { ActionBlackboard } from './actionBlackboard';
 import type { CombatBuffDefinitionEntry } from '../buffs/combatBuffDefinitions';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 
 type Attribute = 'cost';
 
 describe('BuffDefinitionOperationTarget', () => {
+  it('通过当前定义编译端口重建保存实例，不重新施加 Buff', () => {
+    const originalContainer = new CombatBuffContainer<string>(
+      'operator',
+      new CombatAttributeSet<string>(),
+    );
+    const compile = (entry: CombatBuffDefinitionEntry): CombatBuffDefinition<string> => ({
+      id: entry.id,
+      stackingType: entry.stackingType,
+      durationSeconds: entry.durationSeconds,
+    });
+    const original = new BuffDefinitionOperationTarget(originalContainer, {
+      get: () => undefined,
+      compile,
+    });
+    const definition = { stackingType: 'refresh', durationSeconds: 10 } as const;
+    original.apply({
+      buffId: 'saved',
+      definition,
+      sourceId: 'operator',
+      blackboardValues: { value: 3 },
+      getSourceAttributeValue: () => 42,
+      sourceAttributeOwnerId: 'source-entity',
+    });
+    originalContainer.tick(1);
+    const saved = structuredClone(originalContainer.runtimeState);
+    const restoredContainer = new CombatBuffContainer(
+      'operator',
+      new CombatAttributeSet<string>(saved.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved,
+    );
+    const restored = new BuffDefinitionOperationTarget(restoredContainer, {
+      get: () => undefined,
+      compile,
+    });
+
+    const resolveDefinition = (id: string, ownerId: string) =>
+      id === 'saved' && ownerId === 'operator' ? definition : undefined;
+    expect(() => restored.bindRestoredInstances(resolveDefinition)).toThrow(
+      "restored Buff 'saved' source attribute binding does not match",
+    );
+    restored.bindRestoredInstances(resolveDefinition, state => ({
+      sourceAttributeOwnerId: state.sourceAttributeOwnerId!,
+      getSourceAttributeValue: () => 42,
+    }));
+
+    expect(restored.runtimeState).toBe(saved);
+    expect(saved.instances.get(1)!.sourceAttributeOwnerId).toBe('source-entity');
+    expect(restored.findFirstByIds(['saved'])?.remainingDuration).toBe(9);
+    expect(restored.findFirstByIds(['saved'])?.blackboard.getNumber('value')).toBe(3);
+    expect(restored.resolveHandle({ ownerId: 'operator', instanceId: 1 })).toBeDefined();
+  });
   it.each(['unique', 'refresh'] as const)(
     '成功事件早于已有关键词增强，%s 重施按实际结果执行',
     stackingType => {

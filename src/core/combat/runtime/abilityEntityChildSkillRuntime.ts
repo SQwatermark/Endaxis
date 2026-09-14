@@ -4,6 +4,9 @@
  * 它只复用普通技能的动作序列解释器，不创建第二份施法、费用或冷却模型。
  */
 import type { CombatExecutionContext } from '../actions/combatStep';
+import { DamageCalculationSnapshots } from './damageCalculationSnapshots';
+import type { DamageCalculationSnapshotProgram } from './damageCalculationSnapshots';
+import type { AbilityEntityChildSkillState } from './abilityEntityChildSkillState';
 import type { CompiledAbilityEntityChildSkillProgram } from '../../compiler/combatProgram';
 import {
   logicalAbilityEntityRuntimeId,
@@ -25,15 +28,17 @@ import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { LogicalAbilityEntityChildRuntime } from './logicalAbilityEntityRuntime';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 import type { CallbackSkillHostFactory } from './callbackSkillHost';
+import {
+  createCombatOperationHostState,
+  type CombatOperationHostState,
+} from './combatOperationHostState';
 
 export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChildRuntime {
   readonly #context: CombatExecutionContext = {};
   readonly #operationContext: CombatOperationContext;
   readonly #sequenceRuntime: CombatActionSequenceRuntime;
   readonly #timeline: TimelineActionProcessor;
-  #passedFrames = 0;
-  #started = false;
-  #finished = false;
+  readonly runtimeState: AbilityEntityChildSkillState;
 
   constructor(
     program: CompiledAbilityEntityChildSkillProgram,
@@ -47,24 +52,52 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       readonly addAbilityChildBuff?: (child: BuffApplicationHandle) => void;
       readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
       readonly createCallbackSkillHost?: CallbackSkillHostFactory;
+      readonly programId: number;
+      readonly damageSnapshotProgram: DamageCalculationSnapshotProgram;
+      readonly operationState?: CombatOperationHostState;
+    },
+    restored?: {
+      readonly state: AbilityEntityChildSkillState;
     },
   ) {
+    if (restored !== undefined && restored.state.programId !== dependencies.programId) {
+      throw new Error(
+        `restored AbilityEntity child program '${restored.state.programId}' does not match '${dependencies.programId}'`,
+      );
+    }
+    if (restored !== undefined && restored.state.skillId !== program.skillId) {
+      throw new Error(
+        `restored AbilityEntity child skill '${restored.state.skillId}' does not match '${program.skillId}'`,
+      );
+    }
     // 原生实体技能先有自身 SkillData 默认值，再由 SpawnAbilityEntity.assignBlackboard
     // 的来源快照覆盖同名 direct key；实体黑板仍作为 EntityBB_ 的后备所有者。
-    const blackboard = new ActionBlackboard(
-      { ...program.initialBlackboard, ...dependencies.entityBlackboard.snapshot() },
-      dependencies.entityBlackboard,
-    );
+    if (
+      restored !== undefined &&
+      restored.state.blackboard.entity !== dependencies.entityBlackboard.runtimeState
+    ) {
+      throw new Error('restored AbilityEntity child skill must use the restored entity blackboard');
+    }
+    const blackboard =
+      restored === undefined
+        ? new ActionBlackboard(
+            { ...program.initialBlackboard, ...dependencies.entityBlackboard.snapshot() },
+            dependencies.entityBlackboard,
+          )
+        : ActionBlackboard.bindRuntimeState(restored.state.blackboard);
     const runtime = this;
     this.#operationContext = {
       blackboard,
-      damageCalculationSnapshots: new Map(),
-      targetContext: new RuntimeTargetContext(),
+      damageCalculationSnapshots: new DamageCalculationSnapshots(
+        dependencies.damageSnapshotProgram,
+        restored?.state.damageSnapshots,
+      ),
+      targetContext: new RuntimeTargetContext(restored?.state.targets),
       currentTarget: dependencies.entity,
       actionOwnerAbilityEntity: dependencies.entity,
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       requestTimelineFinish: () => this.#requestTimelineFinish(),
-      getCurrentTimelineFrame: () => roundToEven(runtime.#passedFrames),
+      getCurrentTimelineFrame: () => roundToEven(runtime.runtimeState.passedFrames),
       ...(dependencies.addAbilityChildBuff === undefined
         ? {}
         : { addAbilityChildBuff: dependencies.addAbilityChildBuff }),
@@ -84,13 +117,45 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
       {},
       dependencies.semanticEvents,
       logicalAbilityEntityRuntimeId(dependencies.entity.instanceId),
+      restored?.state.scopes,
     );
-    this.#timeline = this.#sequenceRuntime.createTimeline(program.timelineActions);
+    this.#timeline = this.#sequenceRuntime.createTimeline(
+      program.timelineActions,
+      {},
+      restored?.state.timeline,
+    );
+    const operationState =
+      restored?.state.operations ?? dependencies.operationState ?? createCombatOperationHostState();
+    if (
+      restored !== undefined &&
+      dependencies.operationState !== undefined &&
+      dependencies.operationState !== restored.state.operations
+    ) {
+      throw new Error('restored AbilityEntity child skill must use restored operation state');
+    }
+    this.runtimeState = restored?.state ?? {
+      programId: dependencies.programId,
+      skillId: program.skillId,
+      passedFrames: 0,
+      started: false,
+      finished: false,
+      blackboard: blackboard.runtimeState,
+      targets: this.#operationContext.targetContext!.runtimeState,
+      scopes: this.#sequenceRuntime.scopeState,
+      timeline: this.#timeline.runtimeState,
+      damageSnapshots: this.#operationContext.damageCalculationSnapshots!.runtimeState,
+      operations: operationState,
+    };
+  }
+
+  /** 固定动作身份映射由同一切面树共享；其中不保存分支内的伤害数值。 */
+  get damageSnapshotProgram(): DamageCalculationSnapshotProgram {
+    return this.#operationContext.damageCalculationSnapshots!.program;
   }
 
   start(): void {
-    if (this.#started) throw new Error('AbilityEntity child skill has already started');
-    this.#started = true;
+    if (this.runtimeState.started) throw new Error('AbilityEntity child skill has already started');
+    this.runtimeState.started = true;
     this.#sequenceRuntime.reset();
     this.#operationContext.damageCalculationSnapshots!.clear();
     this.#timeline.reset(this.#context);
@@ -102,35 +167,36 @@ export class AbilityEntityChildSkillRuntime implements LogicalAbilityEntityChild
     if (!Number.isFinite(deltaSeconds) || deltaSeconds < 0) {
       throw new RangeError('AbilityEntity child skill delta must be non-negative and finite');
     }
-    if (!this.#started || this.#finished || this.#timeline.isComplete) return;
-    this.#passedFrames += deltaSeconds * COMBAT_FRAMES_PER_SECOND;
-    this.#timeline.tick(this.#passedFrames, deltaSeconds, this.#context);
+    if (!this.runtimeState.started || this.runtimeState.finished || this.#timeline.isComplete)
+      return;
+    this.runtimeState.passedFrames += deltaSeconds * COMBAT_FRAMES_PER_SECOND;
+    this.#timeline.tick(this.runtimeState.passedFrames, deltaSeconds, this.#context);
   }
 
   finish(): void {
-    if (!this.#started || this.#finished) return;
-    this.#finished = true;
-    this.#timeline.end(this.#passedFrames, this.#context);
+    if (!this.runtimeState.started || this.runtimeState.finished) return;
+    this.runtimeState.finished = true;
+    this.#timeline.end(this.runtimeState.passedFrames, this.#context);
   }
 
   #requestTimelineJump(destinationFrame: number): void {
-    if (!this.#started || this.#finished) {
+    if (!this.runtimeState.started || this.runtimeState.finished) {
       throw new Error('AbilityEntity child skill cannot jump outside an active timeline');
     }
-    if (isSkillTimelineJumpBeforeCurrent(destinationFrame, this.#passedFrames)) return;
+    if (isSkillTimelineJumpBeforeCurrent(destinationFrame, this.runtimeState.passedFrames)) return;
     this.#timeline.jumpTo(
       destinationFrame,
-      Math.min(destinationFrame, this.#passedFrames),
+      Math.min(destinationFrame, this.runtimeState.passedFrames),
       this.#context,
     );
-    this.#passedFrames = destinationFrame;
+    this.runtimeState.passedFrames = destinationFrame;
   }
 
   #requestTimelineFinish(): void {
-    if (!this.#started || this.#finished) {
+    if (!this.runtimeState.started || this.runtimeState.finished) {
       throw new Error('AbilityEntity child skill cannot finish outside an active timeline');
     }
-    this.#timeline.finish(this.#passedFrames, this.#context);
+    this.#timeline.finish(this.runtimeState.passedFrames, this.#context);
   }
 }
 

@@ -3,7 +3,7 @@ import { compileCombatBuffDefinitions } from '../buffs/combatBuffDefinitions';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,
 } from './combatAttributes';
@@ -26,7 +26,7 @@ function createAttributes(): CombatAttributeSet<Attribute> {
     attributes.define(key, value, { minimum: 0, maximum: 1000 });
   }
   attributes.addModifier(
-    new CombatAttributeModifier(
+    createCombatAttributeModifier(
       'strength',
       attributeModifierValues('baseAddition', 2),
       ATTRIBUTE_MODIFIER_SOURCES.buff,
@@ -34,7 +34,7 @@ function createAttributes(): CombatAttributeSet<Attribute> {
     ),
   );
   attributes.addModifier(
-    new CombatAttributeModifier(
+    createCombatAttributeModifier(
       'strength',
       attributeModifierValues('baseAddition', 100),
       ATTRIBUTE_MODIFIER_SOURCES.converted,
@@ -42,7 +42,7 @@ function createAttributes(): CombatAttributeSet<Attribute> {
     ),
   );
   attributes.addModifier(
-    new CombatAttributeModifier(
+    createCombatAttributeModifier(
       'strength',
       attributeModifierValues('addition', 3),
       ATTRIBUTE_MODIFIER_SOURCES.talent,
@@ -50,7 +50,7 @@ function createAttributes(): CombatAttributeSet<Attribute> {
     ),
   );
   attributes.addModifier(
-    new CombatAttributeModifier(
+    createCombatAttributeModifier(
       'strength',
       attributeModifierValues('addition', 200),
       ATTRIBUTE_MODIFIER_SOURCES.converted,

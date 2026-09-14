@@ -2,9 +2,20 @@
  * 单个战斗实体生命和失衡状态的唯一所有者。
  * 这里只维护数值与计时，不发布 UI 状态；事件和事实记录由上层运行时适配器负责。
  */
-import { PeriodicTimer } from './periodicTimer';
-
-const POISE_EPSILON = 0.00001;
+import { createCombatVitalsState } from './combatVitalsState';
+import type { CombatVitalsState } from './combatVitalsState';
+import {
+  hasVitalsPoise,
+  inVitalsPoiseRecovery,
+  takeVitalsDamage,
+  healVitals,
+  applyVitalsPoiseDelta,
+  beginVitalsPoiseBreak,
+  tickVitals,
+  registerVitalsHealthFloor,
+  removeVitalsHealthFloor,
+} from './combatVitalsExecution';
+import { isPeriodicTimerValid, readPeriodicTimerProgress } from './periodicTimerExecution';
 
 /** 创建一个实体生命与失衡账本所需的完整初始状态。 */
 export interface CombatVitalsSnapshot {
@@ -38,167 +49,98 @@ export interface HealthHealResult {
 /** 失衡计时器跨越边界时可能发布的状态转换。 */
 export type PoiseTimerTransition = 'poiseRecovered' | 'poiseBrokenTagEnded';
 
-/** 不掺杂技能、事件分发或展示职责的生命与失衡状态。 */
+/** 现有宿主接口；动作宿主保存生命下限编号，恢复后可在当前分支按编号移除。 */
 export class CombatVitals {
-  #health: number;
-  #poise: number;
-  #poiseImmune: boolean;
-  #stopPoiseRecovery = false;
-  #hasPoiseBrokenTag = false;
-  readonly #maxPoise: number;
-  readonly #maxHealth: number;
-  readonly #poiseRecoveryTime: number;
-  readonly #poiseRecoveryTimeMultiplier: number;
-  readonly #poiseBrokenEndTime: number;
-  readonly #poiseRecoveryTimer = new PeriodicTimer();
-  readonly #poiseBrokenEndTimer = new PeriodicTimer();
-  readonly #healthFloors = new Map<number, number>();
-  #nextHealthFloorId = 1;
+  readonly runtimeState: CombatVitalsState;
+
+  /** 为恢复后的生命与失衡数据建立对象接口，不重置计时器或生命下限登记。 */
+  static bindRuntimeState(state: CombatVitalsState): CombatVitals {
+    return CombatVitals.bind(state);
+  }
 
   constructor(snapshot: CombatVitalsSnapshot) {
-    for (const [name, value] of Object.entries(snapshot)) {
-      if (typeof value === 'number' && (!Number.isFinite(value) || value < 0)) {
-        throw new RangeError(`${name} must be a non-negative finite number`);
-      }
-    }
-    if (snapshot.poise > snapshot.maxPoise + POISE_EPSILON) {
-      throw new RangeError('poise exceeds maxPoise');
-    }
-    if (snapshot.maxHealth <= 0) throw new RangeError('maxHealth must be positive');
-    if (snapshot.health > snapshot.maxHealth) throw new RangeError('health exceeds maxHealth');
-    this.#health = snapshot.health;
-    this.#maxHealth = snapshot.maxHealth;
-    this.#maxPoise = snapshot.maxPoise;
-    this.#poise = snapshot.poise;
-    this.#poiseRecoveryTime = snapshot.poiseRecoveryTime;
-    this.#poiseRecoveryTimeMultiplier = snapshot.poiseRecoveryTimeMultiplier;
-    this.#poiseBrokenEndTime = snapshot.poiseBrokenEndTime;
-    this.#poiseImmune = snapshot.poiseImmune;
+    this.runtimeState = createCombatVitalsState(snapshot);
   }
 
+  private static bind(state: CombatVitalsState): CombatVitals {
+    const vitals = Object.create(CombatVitals.prototype) as CombatVitals;
+    Object.defineProperty(vitals, 'runtimeState', {
+      value: state,
+      enumerable: true,
+      configurable: false,
+      writable: false,
+    });
+    return vitals;
+  }
   get health(): number {
-    return this.#health;
+    return this.runtimeState.health;
   }
   get maxHealth(): number {
-    return this.#maxHealth;
+    return this.runtimeState.maxHealth;
   }
   get poise(): number {
-    return this.#poise;
+    return this.runtimeState.poise;
   }
   get maxPoise(): number {
-    return this.#maxPoise;
+    return this.runtimeState.maxPoise;
   }
   get hasPoise(): boolean {
-    return this.#maxPoise > POISE_EPSILON;
+    return hasVitalsPoise(this.runtimeState);
   }
   get poiseImmune(): boolean {
-    return this.#poiseImmune;
-  }
-  get inPoiseRecovery(): boolean {
-    return this.#poiseRecoveryTimer.isValid && !this.#poiseRecoveryTimer.isReady;
-  }
-  get poiseRecoveryProgress(): number {
-    return this.#poiseRecoveryTimer.isValid ? this.#poiseRecoveryTimer.progress : 0;
-  }
-  get hasPoiseBrokenTag(): boolean {
-    return this.#hasPoiseBrokenTag;
-  }
-  set stopPoiseRecovery(value: boolean) {
-    this.#stopPoiseRecovery = value;
+    return this.runtimeState.poiseImmune;
   }
   set poiseImmune(value: boolean) {
-    this.#poiseImmune = value;
+    this.runtimeState.poiseImmune = value;
   }
-
+  get inPoiseRecovery(): boolean {
+    return inVitalsPoiseRecovery(this.runtimeState);
+  }
+  get poiseRecoveryProgress(): number {
+    return isPeriodicTimerValid(this.runtimeState.poiseRecoveryTimer)
+      ? readPeriodicTimerProgress(this.runtimeState.poiseRecoveryTimer)
+      : 0;
+  }
+  get hasPoiseBrokenTag(): boolean {
+    return this.runtimeState.hasPoiseBrokenTag;
+  }
+  set stopPoiseRecovery(value: boolean) {
+    this.runtimeState.stopPoiseRecovery = value;
+  }
   takeDamage(value: number): HealthDamageResult {
-    const previousHealth = this.#health;
-    const requestedDamage = Math.max(0, value);
-    const floor = this.#healthFloors.size === 0 ? 0 : Math.max(...this.#healthFloors.values());
-    // 安装高于当前生命的下限不会反向治疗；它只约束后续生命减少。
-    this.#health = Math.min(previousHealth, Math.max(floor, this.#health - requestedDamage));
-    return {
-      requestedDamage,
-      actualDamage: previousHealth - this.#health,
-      previousHealth,
-      currentHealth: this.#health,
-    };
+    return takeVitalsDamage(this.runtimeState, value);
   }
-
-  /** 注册可叠加的生命下限；最高有效下限生效，返回的清理函数只移除本次句柄。 */
-  registerHealthFloor(value: number): () => void {
-    if (!Number.isFinite(value) || value < 0) {
-      throw new RangeError('health floor must be a non-negative finite number');
-    }
-    const id = this.#nextHealthFloorId++;
-    this.#healthFloors.set(id, Math.min(value, this.#maxHealth));
-    let active = true;
-    return () => {
-      if (!active) return;
-      active = false;
-      this.#healthFloors.delete(id);
-    };
-  }
-
   heal(value: number): HealthHealResult {
-    if (!Number.isFinite(value)) throw new RangeError('healing must be finite');
-    const previousHealth = this.#health;
-    const requestedHealing = Math.max(0, value);
-    this.#health = Math.min(this.#maxHealth, this.#health + requestedHealing);
-    const actualHealing = this.#health - previousHealth;
-    return {
-      requestedHealing,
-      actualHealing,
-      overhealing: requestedHealing - actualHealing,
-      previousHealth,
-      currentHealth: this.#health,
-    };
+    return healVitals(this.runtimeState, value);
   }
-
   applyPoiseDelta(delta: number): number {
-    if (!this.hasPoise) return 0;
-    const previousPoise = this.#poise;
-    const next = Math.min(this.#maxPoise, Math.max(0, this.#poise + delta));
-    if (Math.abs(next - this.#poise) > POISE_EPSILON) this.#poise = next;
-    return this.#poise - previousPoise;
+    return applyVitalsPoiseDelta(this.runtimeState, delta);
   }
-
   beginPoiseBreakIfZero(): boolean {
-    if (!this.hasPoise || this.inPoiseRecovery || Math.abs(this.#poise) > POISE_EPSILON) {
-      return false;
-    }
-    const recoveryTime = this.#poiseRecoveryTime * this.#poiseRecoveryTimeMultiplier;
-    if (recoveryTime > 0) this.#poiseRecoveryTimer.reset(recoveryTime, true);
-    this.#poiseBrokenEndTimer.markInvalid();
-    this.#hasPoiseBrokenTag = true;
-    return true;
+    return beginVitalsPoiseBreak(this.runtimeState);
   }
-
   tick(
     deltaTime: number,
     onTransition?: (transition: PoiseTimerTransition) => void,
   ): readonly PoiseTimerTransition[] {
-    const transitions: PoiseTimerTransition[] = [];
-    if (
-      this.#poiseRecoveryTimer.isValid &&
-      !this.#stopPoiseRecovery &&
-      this.#poiseRecoveryTimer.update(deltaTime)
-    ) {
-      this.#poiseRecoveryTimer.markInvalid();
-      this.#poise = this.#maxPoise;
-      if (this.#poiseBrokenEndTime > 0) {
-        this.#poiseBrokenEndTimer.reset(this.#poiseBrokenEndTime, true);
-      } else {
-        this.#hasPoiseBrokenTag = false;
-      }
-      transitions.push('poiseRecovered');
-      onTransition?.('poiseRecovered');
-    }
-    if (this.#poiseBrokenEndTimer.isValid && this.#poiseBrokenEndTimer.update(deltaTime)) {
-      this.#poiseBrokenEndTimer.markInvalid();
-      this.#hasPoiseBrokenTag = false;
-      transitions.push('poiseBrokenTagEnded');
-      onTransition?.('poiseBrokenTagEnded');
-    }
-    return transitions;
+    return tickVitals(this.runtimeState, deltaTime, onTransition);
+  }
+  registerHealthFloor(value: number): () => void {
+    const id = this.requestHealthFloor(value);
+    let active = true;
+    return () => {
+      if (!active) return;
+      active = false;
+      this.removeHealthFloor(id);
+    };
+  }
+
+  /** 动作宿主保存编号并在当前分支结束时移除，不保存闭包。 */
+  requestHealthFloor(value: number): number {
+    return registerVitalsHealthFloor(this.runtimeState, value);
+  }
+
+  removeHealthFloor(id: number): void {
+    removeVitalsHealthFloor(this.runtimeState, id);
   }
 }

@@ -21,6 +21,7 @@ import {
   SimulationRandomSource,
   type SimulationRandomMode,
 } from '../core/combat/random/simulationRandom';
+import { createSimulationRandomState } from '../core/combat/random/simulationRandomState';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 import type { StandardPlayerDamageScenarioResult } from './runStandardPlayerDamageScenarioSimulation';
 import type { CompileScenarioResourcesOptions } from '../core/compiler/compileScenarioResources';
@@ -333,7 +334,8 @@ export class ScenarioSimulationService {
     continuationPlanMode: 'continuation' | 'compact' = 'continuation',
   ): StandardPlayerDamageScenarioResult {
     const randomSettings = resolveScenarioRandomSettings(scenario);
-    const randomSource = new SimulationRandomSource(randomSettings);
+    const randomState = createSimulationRandomState();
+    const randomSource = new SimulationRandomSource(randomSettings, () => randomState);
     return runStandardPlayerDamageScenarioSimulation({
       scenario,
       endFrame,
@@ -343,6 +345,10 @@ export class ScenarioSimulationService {
       criticalSamples: this.#options.criticalSamples ?? randomSource,
       probabilitySamples: this.#options.probabilitySamples ?? randomSource,
       randomMode: randomSettings.mode,
+      ...(this.#options.criticalSamples === undefined &&
+      this.#options.probabilitySamples === undefined
+        ? { randomState }
+        : {}),
       resolveNonRandomRuntimeSnapshot: this.#options.resolveNonRandomRuntimeSnapshot!,
       elementalInflictionDocument: this.#options.elementalInflictionDocument,
       ...(this.#options.spellInflictionSettings === undefined

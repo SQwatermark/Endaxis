@@ -1,3 +1,4 @@
+import { createTestBuffReference } from '../core/combat/buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import type {
   EnemyBuffRuntime,
@@ -42,7 +43,7 @@ function operatorBuffRuntime(ownerId: string): OperatorBuffRuntime {
     ownerId,
     advanceFrame: () => undefined,
     apply: () => true,
-    applyScoped: () => ({ finish: () => true }),
+    applyScoped: () => ({ reference: createTestBuffReference(), finish: () => true }),
     getCountByIds: () => 0,
     findFirstByIds: () => undefined,
     finishByIds: () => 0,

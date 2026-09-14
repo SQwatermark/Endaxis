@@ -1,201 +1,96 @@
 /**
- * 单次充能技能的冷却账本，负责施放预占、逐帧恢复，以及确认帧已知时的提前返还。
- * 本层不猜缺失的确认帧；多充能和动态恢复倍率需要独立证据与定义字段后再扩展。
+ * 共享冷却账本的现有对象绑定。固定配置和计时数据分离，执行时才读取动态倍率。
  */
-import { PeriodicTimer } from './periodicTimer';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
-import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
+import { isPeriodicTimerReady } from './periodicTimerExecution';
+import type {
+  SkillCooldownState,
+  SkillCooldownProgram,
+  SkillCooldownSnapshot,
+} from './skillCooldownState';
+import {
+  compileSkillCooldown,
+  createSkillCooldownState,
+  readSkillCooldown,
+  reserveSkillCooldown,
+  advanceSkillCooldown,
+  reduceSkillCooldownByRatio,
+  reduceSkillCooldownByFrames,
+  setSkillCooldownByRatio,
+  setSkillCooldownProgress,
+  overrideSkillCooldown,
+  setSkillCooldownFrames,
+  finishSkillCooldownCast,
+} from './skillCooldownExecution';
+export type { SkillCooldownSnapshot } from './skillCooldownState';
 
-const READY_EPSILON = 0.00001;
-
-/** 投影与合法性诊断可读取的冷却事实快照。 */
-export interface SkillCooldownSnapshot {
-  readonly configured: boolean;
-  readonly ready: boolean;
-  readonly remainingFrames: number;
-  readonly progress: number;
-}
-
-/** 一项技能在一次战斗中的单次充能冷却状态。 */
-export class SkillCooldown implements RuntimeCheckpointParticipant<SkillCooldownCheckpointState> {
-  readonly #timer?: PeriodicTimer;
-  readonly #periodFrames: number;
-  readonly #commitFrame?: number;
+export class SkillCooldown {
+  readonly #program: SkillCooldownProgram;
+  readonly #state: SkillCooldownState;
   readonly #resolvePeriodMultiplier?: () => number;
-  #reservedByCurrentCast = false;
-
-  constructor(periodFrames?: number, commitFrame?: number, resolvePeriodMultiplier?: () => number) {
-    if (periodFrames === undefined) {
-      this.#periodFrames = 0;
-      return;
-    }
-    if (!Number.isFinite(periodFrames) || periodFrames <= 0) {
-      throw new RangeError('skill cooldown period must be a positive finite frame count');
-    }
-    if (commitFrame !== undefined && (!Number.isInteger(commitFrame) || commitFrame < 0)) {
-      throw new RangeError('skill cooldown commit frame must be a non-negative integer');
-    }
-    this.#periodFrames = periodFrames;
-    this.#commitFrame = commitFrame;
-    this.#resolvePeriodMultiplier = resolvePeriodMultiplier;
-    this.#timer = new PeriodicTimer();
-    this.#timer.reset(periodFrames, false);
+  constructor(
+    periodFrames?: number,
+    commitFrame?: number,
+    resolvePeriodMultiplier?: () => number,
+    state?: SkillCooldownState,
+  ) {
+    this.#program = compileSkillCooldown(periodFrames, commitFrame);
+    this.#state = state ?? createSkillCooldownState(this.#program);
+    this.#resolvePeriodMultiplier =
+      periodFrames === undefined ? undefined : resolvePeriodMultiplier;
   }
-
   get snapshot(): SkillCooldownSnapshot {
-    const timer = this.#timer;
-    return {
-      configured: timer !== undefined,
-      ready: timer?.isReady ?? true,
-      remainingFrames: timer === undefined ? 0 : Math.max(0, timer.remaining),
-      progress: timer?.progress ?? 1,
-    };
+    return readSkillCooldown(this.#state);
   }
 
-  /** 原生 CheckCooldown 门禁所需事实。只覆盖本账本的单充能；缺配置不冒充就绪。 */
+  /** 多个技能宿主必须引用同一份账本数据，不能各自复制。 */
+  get runtimeState(): SkillCooldownState {
+    return this.#state;
+  }
   get comboConditionSnapshot(): {
     readonly oneReady: boolean;
     readonly maxPassedTime: number;
     readonly startCdFrame: number;
   } | null {
-    if (this.#timer === undefined || this.#commitFrame === undefined) return null;
+    if (this.#state.timer === undefined || this.#program.commitFrame === undefined) return null;
     return {
-      oneReady: this.#timer.isReady,
-      maxPassedTime: this.#timer.passed / COMBAT_FRAMES_PER_SECOND,
-      startCdFrame: this.#commitFrame,
+      oneReady: isPeriodicTimerReady(this.#state.timer),
+      maxPassedTime: this.#state.timer.passed / COMBAT_FRAMES_PER_SECOND,
+      startCdFrame: this.#program.commitFrame,
     };
   }
-
-  /**
-   * 对一次实际可用的施放预占冷却。排轴中的非法施放仍可继续模拟，
-   * 但不会重置尚未完成的旧冷却。
-   */
   tryReserve(): boolean {
-    const timer = this.#timer;
-    if (timer === undefined) return true;
-    if (!timer.isReady) {
-      this.#reservedByCurrentCast = false;
-      return false;
-    }
-    const multiplier = this.#resolvePeriodMultiplier?.() ?? 1;
-    if (!Number.isFinite(multiplier) || multiplier <= 0) {
-      throw new RangeError(
-        `skill cooldown period multiplier must be positive and finite, received ${multiplier}`,
-      );
-    }
-    timer.reset(this.#periodFrames * multiplier, true);
-    this.#reservedByCurrentCast = true;
-    return true;
+    return reserveSkillCooldown(
+      this.#state,
+      this.#program,
+      () => this.#resolvePeriodMultiplier?.() ?? 1,
+    );
   }
-
-  /** 按已换算成配置帧的时间推进；返回本次是否刚到达可用边界。 */
-  advance(deltaFrames = 1): boolean {
-    if (!Number.isFinite(deltaFrames) || deltaFrames < 0) {
-      throw new RangeError('cooldown delta frames must be a non-negative finite number');
-    }
-    const timer = this.#timer;
-    return timer !== undefined && !timer.isReady && timer.update(deltaFrames);
-  }
-
-  /** 固定帧驱动兼容入口；精确时钟调用应使用 advance。 */
   advanceFrame(): boolean {
     return this.advance(1);
   }
-
-  /** 原生 SetSkillCdAtOnce(Reduce, percentage) 从剩余值扣除基础周期乘比例。 */
+  advance(deltaFrames = 1): boolean {
+    return advanceSkillCooldown(this.#state, deltaFrames);
+  }
   reduceByBaseDurationRatio(ratio: number): boolean {
-    if (!Number.isFinite(ratio) || ratio < 0) {
-      throw new RangeError('skill cooldown reduction ratio must be a non-negative finite number');
-    }
-    const timer = this.#timer;
-    if (timer === undefined || timer.isReady) return false;
-    timer.update(this.#periodFrames * ratio);
-    return true;
+    return reduceSkillCooldownByRatio(this.#state, this.#program, ratio);
   }
-
-  /** 原生 SetSkillCdAtOnce(Reduce, absolute) 从当前剩余冷却扣除固定帧数。 */
   reduceByFrames(frames: number): boolean {
-    if (!Number.isFinite(frames) || frames < 0) {
-      throw new RangeError('skill cooldown reduction frames must be non-negative and finite');
-    }
-    const timer = this.#timer;
-    if (timer === undefined || timer.isReady) return false;
-    timer.update(frames);
-    return true;
+    return reduceSkillCooldownByFrames(this.#state, frames);
   }
-
-  /** 把剩余冷却直接设置为基础周期的给定比例。 */
   setByBaseDurationRatio(ratio: number): boolean {
-    if (!Number.isFinite(ratio) || ratio < 0) {
-      throw new RangeError('skill cooldown ratio must be a non-negative finite number');
-    }
-    const timer = this.#timer;
-    if (timer === undefined) return false;
-    timer.setRemaining(this.#periodFrames * ratio);
-    return true;
+    return setSkillCooldownByRatio(this.#state, this.#program, ratio);
   }
-
-  /** 原生 SetFirstTimerProgress：0 表示刚进入冷却，1 表示已经可用。 */
   setProgress(progress: number): boolean {
-    if (!Number.isFinite(progress) || progress < 0 || progress > 1) {
-      throw new RangeError('skill cooldown progress must be a finite number between 0 and 1');
-    }
-    return this.setByBaseDurationRatio(1 - progress);
+    return setSkillCooldownProgress(this.#state, this.#program, progress);
   }
-
-  /** 显式排轴控制取代旧施放的冷却预占。 */
   overrideByTimeline(ready: boolean): boolean {
-    // 用户控制覆盖既有施放的预占；随后结束该施放不能退回这次显式设置。
-    this.#reservedByCurrentCast = false;
-    return this.setByBaseDurationRatio(ready ? 0 : 1);
+    return overrideSkillCooldown(this.#state, this.#program, ready);
   }
-
-  /** 把剩余冷却直接设置为配置帧数。 */
   setRemainingFrames(frames: number): boolean {
-    if (!Number.isFinite(frames) || frames < 0) {
-      throw new RangeError('skill cooldown frames must be a non-negative finite number');
-    }
-    const timer = this.#timer;
-    if (timer === undefined) return false;
-    timer.setRemaining(frames);
-    return true;
+    return setSkillCooldownFrames(this.#state, frames);
   }
-
-  /**
-   * 结束当前施放；确认帧存在且冷却尚未越过该帧时，返还本次预占。
-   * 返回值只表示本次结束是否实际发生了返还。
-   */
   finishCast(): boolean {
-    const timer = this.#timer;
-    if (!this.#reservedByCurrentCast || timer === undefined) return false;
-    this.#reservedByCurrentCast = false;
-    if (this.#commitFrame === undefined) return false;
-    if (timer.passed >= this.#commitFrame - READY_EPSILON) return false;
-    timer.reset(this.#periodFrames, false);
-    return true;
+    return finishSkillCooldownCast(this.#state, this.#program);
   }
-
-  captureCheckpointState(): SkillCooldownCheckpointState {
-    return Object.freeze({
-      reservedByCurrentCast: this.#reservedByCurrentCast,
-      timer: this.#timer?.captureCheckpointState(),
-    });
-  }
-
-  validateCheckpointState(state: SkillCooldownCheckpointState): void {
-    if ((state.timer === undefined) !== (this.#timer === undefined)) {
-      throw new Error('skill cooldown checkpoint does not match this runtime');
-    }
-    if (state.timer !== undefined) this.#timer!.validateCheckpointState(state.timer);
-  }
-
-  restoreCheckpointState(state: SkillCooldownCheckpointState): void {
-    this.#reservedByCurrentCast = state.reservedByCurrentCast;
-    if (state.timer !== undefined) this.#timer!.restoreCheckpointState(state.timer);
-  }
-}
-
-interface SkillCooldownCheckpointState {
-  readonly reservedByCurrentCast: boolean;
-  readonly timer: ReturnType<PeriodicTimer['captureCheckpointState']> | undefined;
 }

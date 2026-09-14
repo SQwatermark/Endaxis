@@ -8,6 +8,7 @@ import { ComboWindowRuntime } from './comboWindowRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { ActionBlackboard } from './actionBlackboard';
 import { RuntimeTargetContext } from './runtimeTargetContext';
+import { StateStepper } from './stateStepper';
 
 describe('ComboWindowOperationExecutor', () => {
   it('reads the first context owner and resolves that character slot without falling back', () => {
@@ -111,5 +112,52 @@ describe('ComboWindowOperationExecutor', () => {
       operatorId: 'catcher',
       nextSkillKey: 'enhancedComboSkill',
     });
+  });
+
+  it('恢复动作宿主后按黑板身份注销恢复分支的连携 QTE', () => {
+    const originalClock = new CombatClock();
+    const originalWindows = new ComboWindowRuntime(originalClock, new CombatReceiptCollector());
+    const originalExecutor = new ComboWindowOperationExecutor('rossi', originalWindows, {
+      execute: () => false,
+      evaluate: () => false,
+    });
+    const step: ResolvedCombatStepForKind<'showComboRingQte'> = {
+      kind: 'showComboRingQte',
+      parameters: {
+        earlyDurationSeconds: { kind: 'constant', value: 0.5 },
+        activeDurationSeconds: { kind: 'constant', value: 0.5 },
+      },
+    };
+    const blackboard = new ActionBlackboard();
+    originalExecutor.execute(step, { blackboard });
+    const copied = new StateStepper(
+      {
+        clock: originalClock.runtimeState,
+        windows: originalWindows.runtimeState,
+        actions: originalExecutor.runtimeState,
+        blackboard: blackboard.runtimeState,
+      },
+      () => undefined,
+    ).read();
+    const restoredWindows = new ComboWindowRuntime(
+      new CombatClock(copied.clock),
+      new CombatReceiptCollector(),
+      [],
+      copied.windows,
+    );
+    const restoredExecutor = new ComboWindowOperationExecutor(
+      'rossi',
+      restoredWindows,
+      { execute: () => false, evaluate: () => false },
+      undefined,
+      { state: copied.actions, programs: originalExecutor.programs },
+    );
+
+    restoredExecutor.end(step, {
+      blackboard: ActionBlackboard.bindRuntimeState(copied.blackboard),
+    });
+
+    expect(restoredWindows.runtimeState.ringQtes.size).toBe(0);
+    expect(originalWindows.runtimeState.ringQtes.size).toBe(1);
   });
 });

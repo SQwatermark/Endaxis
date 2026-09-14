@@ -1,3 +1,4 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { expect, it } from 'vitest';
 import { AbilityEventDispatcher } from './abilityEventDispatcher';
 import type { AbilityEventPayloadMap, CombatAbilityEvent } from './combatAbilityEvent';
@@ -84,7 +85,10 @@ it('发布、数据动作、技能与连携共享同一事件和原始操作端�
   dispatcher.registerCallback(published.event, event => check(event, 'callback'));
   dispatcher.registerAction(published.event, 0, event => {
     check(event, 'action');
-    event.payload.attachBuffToCurrentSkill?.({ finish: () => true });
+    event.payload.attachBuffToCurrentSkill?.({
+      reference: createTestBuffReference(),
+      finish: () => true,
+    });
   });
   dispatcher.dispatch(published, [{ onAbilityEvent: event => check(event, 'skill') }], {
     onAbilityEvent: event => check(event, 'combo'),

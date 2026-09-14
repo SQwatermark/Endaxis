@@ -1,25 +1,32 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
+import { ActionBlackboard } from './actionBlackboard';
 
 describe('SkillSlotOperationExecutor', () => {
   it('结束普攻映射动作只撤销自己的句柄，重复结束无副作用', () => {
     const finish = vi.fn();
-    const register = vi.fn(() => ({ finish }));
+    const register = vi.fn(() => 3);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionRegistrationState: { registrationId: null as number | null },
+    };
     const delegate = { execute: vi.fn(() => false), evaluate: vi.fn(() => false) };
     const executor = new SkillSlotOperationExecutor({
       changeSkillSlot: vi.fn(),
       overrideBasicAttackMapping: register,
+      finishBasicAttackMapping: finish,
       delegate,
     });
     const step: ResolvedCombatOperationStep = {
       kind: 'overrideBasicAttackMapping',
       parameters: { sourceSkillId: 'native.heavy' },
     };
-    executor.execute(step);
+    executor.execute(step, context);
     expect(register).toHaveBeenCalledWith('native.heavy');
-    executor.end(step);
-    executor.end(step);
+    executor.end(step, context);
+    executor.end(step, context);
+    expect(finish).toHaveBeenCalledWith(3);
     expect(finish).toHaveBeenCalledOnce();
     expect(delegate.execute).not.toHaveBeenCalled();
   });
@@ -61,10 +68,15 @@ describe('SkillSlotOperationExecutor', () => {
 
   it('keeps an infinite native replacement handle alive when its action ends', () => {
     const finish = vi.fn();
-    const replaceSkillSlot = vi.fn(() => ({ finish }));
+    const replaceSkillSlot = vi.fn(() => 2);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionRegistrationState: { registrationId: null as number | null },
+    };
     const executor = new SkillSlotOperationExecutor({
       changeSkillSlot: vi.fn(),
       replaceSkillSlot,
+      finishSkillSlotReplacement: finish,
       delegate: { execute: () => false, evaluate: () => false },
     });
     const step: ResolvedCombatOperationStep = {
@@ -76,8 +88,8 @@ describe('SkillSlotOperationExecutor', () => {
       },
     };
 
-    expect(executor.execute(step)).toBe(true);
-    executor.end(step);
+    expect(executor.execute(step, context)).toBe(true);
+    executor.end(step, context);
 
     expect(replaceSkillSlot).toHaveBeenCalledWith({
       skillGroupKey: 'comboSkill',
@@ -89,9 +101,14 @@ describe('SkillSlotOperationExecutor', () => {
 
   it('reverts a FinishByAction replacement exactly when its action ends', () => {
     const finish = vi.fn();
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionRegistrationState: { registrationId: null as number | null },
+    };
     const executor = new SkillSlotOperationExecutor({
       changeSkillSlot: vi.fn(),
-      replaceSkillSlot: () => ({ finish }),
+      replaceSkillSlot: () => 3,
+      finishSkillSlotReplacement: finish,
       delegate: { execute: () => false, evaluate: () => false },
     });
     const step: ResolvedCombatOperationStep = {
@@ -105,19 +122,25 @@ describe('SkillSlotOperationExecutor', () => {
       },
     };
 
-    executor.execute(step);
-    executor.end(step);
-    executor.end(step);
+    executor.execute(step, context);
+    executor.end(step, context);
+    executor.end(step, context);
 
+    expect(finish).toHaveBeenCalledWith('battleSkill', 3);
     expect(finish).toHaveBeenCalledTimes(1);
   });
 
   it('activates a player-action mode for the action lifetime and restores it once', () => {
     const finish = vi.fn();
-    const activatePlayerActionMode = vi.fn(() => ({ finish }));
+    const activatePlayerActionMode = vi.fn(() => 7);
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionRegistrationState: { registrationId: null as number | null },
+    };
     const executor = new SkillSlotOperationExecutor({
       changeSkillSlot: vi.fn(),
       activatePlayerActionMode,
+      finishPlayerActionMode: finish,
       delegate: { execute: () => false, evaluate: () => false },
     });
     const step: ResolvedCombatOperationStep = {
@@ -125,11 +148,12 @@ describe('SkillSlotOperationExecutor', () => {
       parameters: { modeId: 'ultimateMode', lifetime: 'finishByAction' },
     };
 
-    expect(executor.execute(step)).toBe(true);
-    executor.end(step);
-    executor.end(step);
+    expect(executor.execute(step, context)).toBe(true);
+    executor.end(step, context);
+    executor.end(step, context);
 
     expect(activatePlayerActionMode).toHaveBeenCalledWith('ultimateMode');
+    expect(finish).toHaveBeenCalledWith(7);
     expect(finish).toHaveBeenCalledTimes(1);
   });
 

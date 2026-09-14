@@ -1,7 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { SkillOperableBoundaryRuntime } from './skillOperableBoundaryRuntime';
+import {
+  SkillOperableBoundaryRuntime,
+  advanceSkillOperableBoundaries,
+  beginSkillOperableBoundary,
+} from './skillOperableBoundaryRuntime';
+import { StateStepper } from './stateStepper';
 
 describe('SkillOperableBoundaryRuntime', () => {
+  it('在时间膨胀中保存，恢复后可按另一倍率推进，完成登记也一起恢复', () => {
+    const runtime = new SkillOperableBoundaryRuntime();
+    runtime.begin('cast', 1, 0);
+    runtime.advance(0.25, 1);
+    const session = new StateStepper(runtime.runtimeState, (step, delta: number) =>
+      advanceSkillOperableBoundaries(step.state, delta, 2),
+    );
+    const saved = session.save();
+    expect(session.step(0.75)).toEqual([{ castId: 'cast', durationFrames: 1, reachedAtFrame: 2 }]);
+    expect(session.read().pendingByCastId.size).toBe(0);
+    session.restore(saved);
+    expect(session.step(0.25)).toEqual([]);
+    expect(session.read().pendingByCastId.get('cast')!.accumulatedFrames).toBe(0.5);
+    session.restore(saved);
+    expect(session.step(0.75)).toHaveLength(1);
+    expect(() => beginSkillOperableBoundary(session.read(), 'cast', 1, 2)).toThrow('duplicate');
+    expect(runtime.runtimeState.pendingByCastId.get('cast')!.accumulatedFrames).toBe(0.25);
+  });
+
   it('scale=1：累计 30 次 1 帧后，在 updateFrame=30 返回一次边界', () => {
     const runtime = new SkillOperableBoundaryRuntime();
     runtime.begin('cast:normal', 30, 0);

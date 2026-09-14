@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  CombatAttributeModifier,
+  createCombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,
 } from '../attributes/combatAttributes';
@@ -15,14 +15,293 @@ import {
 } from '../damage/playerDamageContext';
 import {
   CombatBuffContainer,
+  CombatShield,
   type BuffDuringEnableAction,
   type CombatBuffDefinition,
 } from './combatBuffs';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { SharedSpGainModifierSet } from '../resources/sharedSpGainModifiers';
 import { ActionBlackboard } from '../runtime/actionBlackboard';
+import { StateStepper } from '../runtime/stateStepper';
 
 type Attribute = 'attack';
+
+it('恢复护盾保留余额和创建时参数，耗尽只结束新分支的 Buff', () => {
+  const oldContainer = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());
+  const newContainer = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());
+  const original = requireAddedBuff(
+    oldContainer.add(
+      {
+        id: 'shield',
+        stackingType: 'unlimited',
+        shields: [
+          {
+            infinityValue: false,
+            value: 100,
+            absorbCount: -1,
+            absorbAllDamageWhenConsumed: false,
+            removeBuffWhenConsumed: true,
+            priority: 'normal',
+            replaceHitEffect: false,
+            damageAbsorptions: [],
+          },
+        ],
+      },
+      'owner',
+    ),
+  );
+  const shield = original.shields[0]!;
+  shield.absorb('physical', 40);
+  const saved = structuredClone(shield.runtimeState);
+  const target = requireAddedBuff(
+    newContainer.add({ id: 'shield', stackingType: 'unlimited' }, 'owner'),
+  );
+  const restored = new CombatShield(target, shield.definition, saved);
+  expect(restored.remainingValue).toBe(60);
+  expect(restored.maxValue).toBe(100);
+  expect(restored.runtimeState).toBe(saved);
+  expect(restored.absorb('physical', 80)).toBe(20);
+  expect(target.isFinished).toBe(true);
+  expect(original.isFinished).toBe(false);
+  expect(shield.remainingValue).toBe(60);
+});
+
+it('正式容器数据图保留 Buff 黑板与属性修正的共享关系', () => {
+  const attributes = new CombatAttributeSet<Attribute>();
+  attributes.define('attack', 100, {});
+  const sharedSp = new SharedSpGainModifierSet({ baseGainEfficiency: 1 });
+  const container = new CombatBuffContainer('owner', attributes, undefined, sharedSp);
+  const buff = requireAddedBuff(
+    container.add(
+      {
+        id: 'data-graph',
+        stackingType: 'unlimited',
+        sharedSpGainModifiers: [
+          {
+            attribute: 'gainEfficiency',
+            operation: 'addition',
+            value: 0.5,
+            applyToReturnSpGain: true,
+          },
+        ],
+        damageModifiers: [
+          {
+            enabledSide: 'attacker',
+            processors: [],
+            createConditionProgram: () => ({ execute: () => true }),
+          },
+        ],
+        healModifiers: [{ enabledSide: 'healer', processors: [] }],
+        poiseModifiers: [{ enabledSide: 'attacker', processors: [] }],
+        sustainedProtection: { target: 'owner', superArmor: 20, impactResistance: 40 },
+        shields: [
+          {
+            infinityValue: false,
+            value: 100,
+            absorbCount: -1,
+            absorbAllDamageWhenConsumed: false,
+            removeBuffWhenConsumed: true,
+            priority: 'normal',
+            replaceHitEffect: false,
+            damageAbsorptions: [],
+          },
+        ],
+        attributeModifiers: [
+          {
+            attribute: 'attack',
+            timing: 'runtime',
+            values: attributeModifierValues('addition', 10),
+          },
+        ],
+      },
+      'source',
+    ),
+  );
+  const session = new StateStepper(container.runtimeState, () => undefined);
+  const copied = session.read();
+  const instance = copied.instances.get(buff.instanceId)!;
+  expect(instance.sharedSpGainModifiers[0]).toBe(copied.sharedSpGainModifiers!.modifiers[0]);
+  expect(instance.identity).toEqual({
+    ownerId: 'owner',
+    instanceId: buff.instanceId,
+    definitionId: 'data-graph',
+    sourceId: 'source',
+  });
+  expect(instance.sourceActionId).toBe('data-graph');
+  expect(instance.definitionOwnerId).toBe('source');
+  expect(instance.blackboard.entity).toBe(copied.entityBlackboard);
+  expect(instance.attributes.modifiers[0]).toBe(copied.attributes.modifiers[0]);
+  expect(instance.damageModifiers[0]).toBe(copied.damageModifiers[0]);
+  expect(copied.damageModifiers[0]!.hasConditionProgram).toBe(true);
+  expect(copied.damageModifiers[0]!.numberSource!.blackboard).toBe(instance.blackboard);
+  expect(instance.healModifiers[0]).toBe(copied.healModifiers[0]);
+  expect(instance.poiseModifiers[0]).toBe(copied.poiseModifiers[0]);
+  expect(copied.healModifiers[0]!.numberSource.blackboard).toBe(instance.blackboard);
+  expect(copied.poiseModifiers[0]!.numberSource.blackboard).toBe(instance.blackboard);
+  expect(copied.activeShields[0]).toBe(instance.shields[0]);
+  expect(copied.sustainedProtections.get(instance)).toEqual([20, 40]);
+  expect(copied.memberIds).toEqual([buff.instanceId]);
+  buff.finish('other', null);
+  container.recycleFinishedBuffs();
+  expect(container.runtimeState.instances.size).toBe(0);
+  expect(sharedSp.runtimeState.modifiers).toEqual([]);
+  expect(container.runtimeState.damageModifiers).toEqual([]);
+  expect(container.runtimeState.healModifiers).toEqual([]);
+  expect(container.runtimeState.poiseModifiers).toEqual([]);
+  expect(container.runtimeState.activeShields).toEqual([]);
+  expect(container.runtimeState.sustainedProtections.size).toBe(0);
+  expect(instance.lifecycle.finished).toBe(false);
+});
+
+it('容器从复制数据重绑实例、叠层、修正器和护盾且不重放生命周期', () => {
+  const definition: CombatBuffDefinition<Attribute> = {
+    id: 'restored-container',
+    stackingType: 'enhance',
+    maxStackCount: 3,
+    durationSeconds: 2,
+    damageModifiers: [{ enabledSide: 'attacker', processors: [] }],
+    attributeModifiers: [
+      {
+        attribute: 'attack',
+        timing: 'runtime',
+        values: attributeModifierValues('addition', 15),
+      },
+    ],
+    shields: [
+      {
+        infinityValue: false,
+        value: 100,
+        absorbCount: -1,
+        absorbAllDamageWhenConsumed: false,
+        removeBuffWhenConsumed: true,
+        priority: 'normal',
+        replaceHitEffect: false,
+        damageAbsorptions: [],
+      },
+    ],
+  };
+  const childDefinition: CombatBuffDefinition<Attribute> = {
+    id: 'restored-child',
+    stackingType: 'unlimited',
+  };
+  const attributes = new CombatAttributeSet<Attribute>();
+  attributes.define('attack', 100, {});
+  const original = new CombatBuffContainer('owner', attributes);
+  const oldBuff = requireAddedBuff(original.add(definition, 'source'));
+  original.add(definition, 'source');
+  const oldChild = requireAddedBuff(original.add(childDefinition, 'source'));
+  oldBuff.attachChildBuff(oldChild);
+  oldBuff.shields[0]!.absorb('physical', 40);
+  original.tick(0.25);
+
+  const saved = structuredClone(original.runtimeState);
+  const restoredAttributes = new CombatAttributeSet(saved.attributes);
+  const restoredBlackboard = ActionBlackboard.bindRuntimeState(saved.entityBlackboard);
+  const restored = new CombatBuffContainer(
+    'owner',
+    restoredAttributes,
+    undefined,
+    null,
+    restoredBlackboard,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    saved,
+  );
+  restored.bindRestoredInstances(state =>
+    state.identity.definitionId === definition.id
+      ? definition
+      : state.identity.definitionId === childDefinition.id
+        ? childDefinition
+        : undefined,
+  );
+  restored.bindRestoredRelations(reference =>
+    reference.ownerId === restored.ownerId ? restored.getInstance(reference.instanceId) : undefined,
+  );
+
+  const newBuff = restored.getInstance(oldBuff.instanceId)!;
+  expect(restored.runtimeState).toBe(saved);
+  expect(newBuff.runtimeState).toBe(saved.instances.get(oldBuff.instanceId));
+  expect(newBuff.enhanceCount).toBe(2);
+  expect(newBuff.remainingDuration).toBe(1.75);
+  expect(restoredAttributes.get('attack')).toBe(130);
+  expect(restored.shields[0]!.remainingValue).toBe(60);
+  expect(restored.shields[0]!.runtimeState).toBe(newBuff.runtimeState.shields[0]);
+
+  restored.shields[0]!.absorb('physical', 80);
+  expect(newBuff.isFinished).toBe(true);
+  expect(restored.getInstance(oldChild.instanceId)!.isFinished).toBe(true);
+  expect(oldBuff.isFinished).toBe(false);
+  expect(oldChild.isFinished).toBe(false);
+  expect(oldBuff.shields[0]!.remainingValue).toBe(60);
+});
+
+it('容器实时结束遍历包含结束回调中新发布的成员，回收后目录为空', () => {
+  const container = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());
+  let appended = false;
+  const definition: CombatBuffDefinition<Attribute> = {
+    id: 'live-members',
+    stackingType: 'unlimited',
+    actions: {
+      finish: () => {
+        if (appended) return;
+        appended = true;
+        container.add(definition, 'source');
+      },
+    },
+  };
+  container.add(definition, 'source');
+  expect(container.finishByIds([definition.id], 'other')).toBe(2);
+  expect(container.buffs.map(buff => buff.instanceId)).toEqual([1, 2]);
+  container.recycleFinishedBuffs();
+  expect(container.buffs).toEqual([]);
+  expect(requireAddedBuff(container.add(definition, 'source')).instanceId).toBe(3);
+});
+
+it('结束父 Buff 时继续处理回调中新附着的子实例，释放则仅清理关系', () => {
+  const container = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());
+  const parent = requireAddedBuff(
+    container.add({ id: 'parent', stackingType: 'unlimited' }, 'source'),
+  );
+  const seen: string[] = [];
+  const late = requireAddedBuff(
+    container.add(
+      { id: 'late', stackingType: 'unlimited', actions: { finish: () => seen.push('late') } },
+      'source',
+    ),
+  );
+  const first = requireAddedBuff(
+    container.add(
+      {
+        id: 'first',
+        stackingType: 'unlimited',
+        actions: {
+          finish: () => {
+            seen.push('first');
+            parent.attachChildBuff(late);
+          },
+        },
+      },
+      'source',
+    ),
+  );
+  parent.attachChildBuff(first);
+  parent.attachChildBuff(first);
+  parent.finish('other', null);
+  expect(seen).toEqual(['first', 'late']);
+  const released = requireAddedBuff(
+    container.add({ id: 'released', stackingType: 'unlimited' }, 'source'),
+  );
+  const survivor = requireAddedBuff(
+    container.add({ id: 'survivor', stackingType: 'unlimited' }, 'source'),
+  );
+  released.attachChildBuff(survivor);
+  released.release();
+  expect(survivor.isFinished).toBe(false);
+});
 
 it('宿主释放清理实例，但不执行普通结束动作或发布结束/减层通知', () => {
   const seen: string[] = [];
@@ -301,7 +580,7 @@ function createDamageContext(
           throw new Error('unexpected instant-attribute target');
         }
         attributes.addModifier(
-          new CombatAttributeModifier(
+          createCombatAttributeModifier(
             request.attribute,
             request.values,
             ATTRIBUTE_MODIFIER_SOURCES.instant,

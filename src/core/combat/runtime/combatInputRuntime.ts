@@ -6,7 +6,7 @@ import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import type { PlayerSkillInput } from '../../game-data/operatorDefinition';
-import type { RuntimeCheckpointParticipant } from './runtimeCheckpoint';
+import { processCombatSkillInput } from './combatInputExecution';
 
 /** 一次技能输入。固定输入已确定实际帧；组后段在运行时到达边界后才确定实际帧。 */
 export interface ScheduledSkillInput {
@@ -60,9 +60,7 @@ export interface CombatInputRuntimeOptions {
 }
 
 /** 保持输入顺序并在当前帧同步提交施放请求。 */
-export class CombatInputRuntime
-  implements FrameRuntime, RuntimeCheckpointParticipant<CombatInputRuntimeCheckpointState>
-{
+export class CombatInputRuntime implements FrameRuntime {
   readonly #clock: CombatClock;
   readonly #inputs: readonly ScheduledSkillInput[];
   readonly #receipt: CombatReceiptSink;
@@ -286,90 +284,6 @@ export class CombatInputRuntime
   }
 
   #processInput(input: ScheduledSkillInput): boolean {
-    const accepted =
-      input.action === undefined
-        ? this.#tryStartSkill(input.operatorId, input.skillId, input.castId)
-        : this.#tryStartSkill(input.operatorId, input.skillId, input.castId, input.action);
-    this.#receipt.record({
-      frame: this.#clock.frame,
-      time: this.#clock.time,
-      event: 'SkillInputProcessed',
-      sourceId: input.operatorId,
-      data: {
-        skillId: input.skillId,
-        ...(input.castId === undefined ? {} : { castId: input.castId }),
-        accepted,
-        scheduledActualFrame: input.frame,
-      },
-    });
-    return accepted;
+    return processCombatSkillInput(input, this.#clock.frame, this.#tryStartSkill, this.#receipt);
   }
-
-  captureCheckpointState(): CombatInputRuntimeCheckpointState {
-    return Object.freeze({
-      nextInputIndex: this.#nextInputIndex,
-      previousContinuationInput: this.#previousContinuationInput,
-      nextContinuationIndex: this.#nextContinuationIndex,
-      continuationStopped: this.#continuationStopped,
-      groups: Object.freeze(
-        this.#groups.map(group =>
-          Object.freeze({
-            nextIndex: group.nextIndex,
-            previous: group.previous,
-            stopped: group.stopped,
-          }),
-        ),
-      ),
-    });
-  }
-
-  validateCheckpointState(state: CombatInputRuntimeCheckpointState): void {
-    if (
-      !Number.isInteger(state.nextInputIndex) ||
-      state.nextInputIndex < 0 ||
-      state.nextInputIndex > this.#inputs.length ||
-      !Number.isInteger(state.nextContinuationIndex) ||
-      state.nextContinuationIndex < 1 ||
-      state.nextContinuationIndex > Math.max(1, this.#continuationInputs.length) ||
-      state.groups.length !== this.#groups.length
-    ) {
-      throw new Error('input checkpoint does not match this runtime');
-    }
-    for (let index = 0; index < state.groups.length; index += 1) {
-      const group = state.groups[index]!;
-      if (
-        !Number.isInteger(group.nextIndex) ||
-        group.nextIndex < 0 ||
-        group.nextIndex > this.#groups[index]!.inputs.length
-      ) {
-        throw new Error('input checkpoint contains an invalid group cursor');
-      }
-    }
-  }
-
-  restoreCheckpointState(state: CombatInputRuntimeCheckpointState): void {
-    this.#nextInputIndex = state.nextInputIndex;
-    this.#previousContinuationInput = state.previousContinuationInput;
-    this.#nextContinuationIndex = state.nextContinuationIndex;
-    this.#continuationStopped = state.continuationStopped;
-    for (let index = 0; index < state.groups.length; index += 1) {
-      const source = state.groups[index]!;
-      const target = this.#groups[index]!;
-      target.nextIndex = source.nextIndex;
-      target.previous = source.previous;
-      target.stopped = source.stopped;
-    }
-  }
-}
-
-interface CombatInputRuntimeCheckpointState {
-  readonly nextInputIndex: number;
-  readonly previousContinuationInput: ScheduledSkillInput | undefined;
-  readonly nextContinuationIndex: number;
-  readonly continuationStopped: boolean;
-  readonly groups: readonly {
-    readonly nextIndex: number;
-    readonly previous: ScheduledSkillInput | undefined;
-    readonly stopped: boolean;
-  }[];
 }

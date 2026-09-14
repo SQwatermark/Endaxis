@@ -9,7 +9,8 @@ import { CombatResources } from './combatResources';
 import { CombatSimulation } from './combatSimulation';
 import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
 import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
-import { SharedSpGainModifier } from '../resources/sharedSpGainModifiers';
+import { createSharedSpGainModifier } from '../resources/sharedSpGainModifiers';
+import { StateStepper } from './stateStepper';
 
 function findSkill(key: string): SkillDefinition {
   for (const group of perlica.skillGroups) {
@@ -73,6 +74,61 @@ describe('SkillResourceOperationExecutor', () => {
     expect(receipt.entries).toHaveLength(1);
   });
 
+  it('恢复动作宿主后只撤销恢复分支的终结技能量限制', () => {
+    const original = new CombatResources({
+      sp: 0,
+      maxSp: 300,
+      returnedSp: 0,
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+      squad: [
+        {
+          operatorId: 'arcane',
+          ultimateEnergy: 20,
+          maxUltimateEnergy: 100,
+          ultimateEnergyGainMultiplier: 1,
+          allowedUltimateEnergyRecoveryTags: null,
+        },
+      ],
+    });
+    const baseDependencies = {
+      sourceOperatorId: 'arcane',
+      sourceActionId: 'ultimate',
+      clock: new CombatClock(),
+      resources: original,
+      receipt: new CombatReceiptCollector(),
+      getNonReturnedSpCost: () => 0,
+      finisherSpRecovery: 0,
+      delegate: { execute: () => false, evaluate: () => false },
+    };
+    const originalExecutor = new SkillResourceOperationExecutor(baseDependencies);
+    const step = {
+      kind: 'restrictUltimateEnergyRecovery' as const,
+      parameters: {
+        target: 'caster' as const,
+        allowedRecoveryTags: ['Test/Allowed'],
+        clearUltimateEnergyOnEnd: false,
+      },
+    };
+    originalExecutor.execute(step);
+    const copied = new StateStepper(
+      { resources: original.runtimeState, actions: originalExecutor.runtimeState },
+      () => undefined,
+    ).read();
+    const restored = new CombatResources(original.snapshot(), {}, copied.resources);
+    const restoredExecutor = new SkillResourceOperationExecutor(
+      { ...baseDependencies, resources: restored, receipt: new CombatReceiptCollector() },
+      { state: copied.actions, programs: originalExecutor.programs },
+    );
+
+    restoredExecutor.end(step);
+
+    expect(restored.changeUltimateEnergy('arcane', 1).applied).toBe(true);
+    expect(original.changeUltimateEnergy('arcane', 1).applied).toBe(false);
+  });
+
   it('uses the enemy finisher recovery and power-attack gain efficiency', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
@@ -95,7 +151,7 @@ describe('SkillResourceOperationExecutor', () => {
       ],
     });
     resources.sharedSpGainModifiers.add(
-      new SharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.5, false),
+      createSharedSpGainModifier('powerAttackEfficiency', 'multiplier', 0.5, false),
     );
     const gains: unknown[] = [];
     const operations = new SkillResourceOperationExecutor({

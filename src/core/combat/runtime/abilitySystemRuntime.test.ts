@@ -1,5 +1,12 @@
+import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import { AbilitySystemRuntime, type AbilitySkillRuntime } from './abilitySystemRuntime';
+import { StateStepper } from './stateStepper';
+import {
+  storePostSkillCastRequest,
+  takePostSkillCastRequest,
+  takeBeforeSkillCastPreparation,
+} from './abilitySystemExecution';
 import type {
   RuntimeSkillInterruptReason,
   RuntimeSkillState,
@@ -44,7 +51,186 @@ class FixtureRuntime implements AbilitySkillRuntime {
   }
 }
 
+const beforeCastPayload = { sourceId: 'owner', targetId: 'owner', skillId: 'test', skillCastId: 1 };
+
 describe('AbilitySystemRuntime', () => {
+  it('恢复运行中修改的原生技能类型，同时保留定义一致性检查', () => {
+    const original = new AbilitySystemRuntime({
+      skills: [new FixtureRuntime('skill', [], 'ultimate')],
+    });
+    original.changeNativeSkillType('skill', 'attachSkill');
+    const saved = structuredClone(original.runtimeState);
+    const restored = new AbilitySystemRuntime(
+      { skills: [new FixtureRuntime('skill', [], 'ultimate')] },
+      saved,
+    );
+    expect(restored.nativeSkillTypeForSkill('skill')).toBe('attachSkill');
+    original.changeNativeSkillType('skill', 'normalSkill');
+    expect(restored.nativeSkillTypeForSkill('skill')).toBe('attachSkill');
+    expect(
+      () =>
+        new AbilitySystemRuntime(
+          {
+            skills: [
+              new FixtureRuntime('skill', [], 'ultimate'),
+              new FixtureRuntime('skill', [], 'battleSkill', 'cast'),
+            ],
+          },
+          structuredClone(saved),
+        ),
+    ).toThrow('inconsistent native SkillType');
+    saved.nativeSkillTypeBySkillId.clear();
+    expect(
+      () =>
+        new AbilitySystemRuntime({ skills: [new FixtureRuntime('skill', [], 'ultimate')] }, saved),
+    ).toThrow('has no native type');
+  });
+
+  it('恢复当前技能、替换槽和活动模式，不套用构造默认值或调用旧技能绑定', () => {
+    const definition = {
+      skillSlotGroups: [
+        { skillGroupKey: 'battle', baseSkillKey: 'base', replacementSkillKeys: ['enhanced'] },
+      ],
+      playerActionModes: [
+        { modeId: 'default', modeLayer: 'mode', defaultEnabled: true, commandMappings: {} },
+        { modeId: 'changed', modeLayer: 'mode', defaultEnabled: false, commandMappings: {} },
+      ],
+    };
+    const oldEvents: string[] = [];
+    const original = new AbilitySystemRuntime({
+      ...definition,
+      skills: [new FixtureRuntime('base', oldEvents), new FixtureRuntime('enhanced', oldEvents)],
+    });
+    original.tryStartSkill('base');
+    original.changeSkillSlot('battle', 'enhanced');
+    const mode = original.activatePlayerActionMode('changed');
+    const saved = structuredClone(original.runtimeState);
+    const beforeBinding = structuredClone(saved);
+    const events: string[] = [];
+    const base = new FixtureRuntime('base', events);
+    base.state = 'casting'; // 技能宿主由调用方先恢复，本例单独验证能力系统绑定。
+    const restored = new AbilitySystemRuntime(
+      { ...definition, skills: [base, new FixtureRuntime('enhanced', events)] },
+      saved,
+    );
+    expect(saved).toEqual(beforeBinding);
+    expect(restored.currentSkillId).toBe('base');
+    expect(events).toEqual([]);
+    mode.finish();
+    expect(saved.activePlayerActionModeByLayer.get('mode')).toBe('changed');
+    expect(saved.playerActionModeActivations.has(mode.registrationId)).toBe(true);
+    expect(original.runtimeState.playerActionModeActivations.size).toBe(0);
+    const reboundMode = restored.bindPlayerActionModeActivation(mode.registrationId);
+    expect(saved.nextPlayerActionModeActivationId).toBe(1);
+    reboundMode.finish();
+    reboundMode.finish();
+    expect(saved.activePlayerActionModeByLayer.get('mode')).toBe('default');
+    expect(saved.playerActionModeActivations.size).toBe(0);
+    expect(() => restored.bindPlayerActionModeActivation(mode.registrationId)).toThrow(
+      'is missing',
+    );
+    expect(saved.skillSlotGroups.get('battle')!.currentSkillKey).toBe('enhanced');
+    oldEvents.length = 0;
+    restored.advanceFrame();
+    expect(events).toContain('tick:base');
+    expect(oldEvents).toEqual([]);
+    expect(
+      () => new AbilitySystemRuntime({ ...definition, skills: [] }, structuredClone(saved)),
+    ).toThrow('missing ability skill binding');
+  });
+
+  it('提交施放实例后才加入推进列表，同技能冷却仍只推进一次', () => {
+    const calls: string[] = [];
+    const definition = new FixtureRuntime('skill', calls);
+    const cooldown = vi.fn();
+    const ability = new AbilitySystemRuntime({
+      skills: [definition],
+      skillTickPlan: [{ skillId: 'skill', advanceCooldown: cooldown }],
+    });
+    ability.advanceFrame();
+    expect(calls).toEqual(['tick:skill']);
+    const cast = new FixtureRuntime('skill', calls, 'battleSkill', 'cast-1');
+    ability.registerCastInstance(cast);
+    expect(ability.tryStartSkill('skill', 'cast-1')).toBe(true);
+    calls.length = 0;
+    cooldown.mockClear();
+    ability.advanceFrame();
+    expect(calls).toEqual(['tick:skill', 'tick:skill']);
+    expect(cooldown).toHaveBeenCalledTimes(1);
+    expect(() => ability.registerCastInstance(cast)).toThrow('duplicate');
+  });
+
+  it('拒绝不匹配定义的实例后不会留下半注册记录', () => {
+    const calls: string[] = [];
+    const ability = new AbilitySystemRuntime({ skills: [new FixtureRuntime('skill', calls)] });
+    expect(() =>
+      ability.registerCastInstance(new FixtureRuntime('skill', calls, 'ultimate', 'cast')),
+    ).toThrow('disagrees');
+    expect(() =>
+      ability.registerCastInstance(new FixtureRuntime('unknown', calls, 'battleSkill', 'cast')),
+    ).toThrow('no registered definition');
+    ability.registerCastInstance(new FixtureRuntime('skill', calls, 'battleSkill', 'cast'));
+    expect(ability.tryStartSkill('skill', 'cast')).toBe(true);
+  });
+
+  it('施放前准备保存数据，恢复后可以再次消费同一准备而不持有旧回调', () => {
+    const ability = new AbilitySystemRuntime({ skills: [new FixtureRuntime('skill', [])] });
+    const payload = { ...beforeCastPayload, skillCastId: 42 };
+    ability.prepareBeforeSkillCastStart('skill', undefined, payload);
+    payload.skillCastId = 99;
+    const session = new StateStepper(ability.runtimeState, (step, _: undefined) =>
+      takeBeforeSkillCastPreparation(step.state, 'skill\u0000'),
+    );
+    const saved = session.save();
+    expect(session.step(undefined)?.payload.skillCastId).toBe(42);
+    expect(session.step(undefined)).toBeUndefined();
+    session.restore(saved);
+    expect(session.step(undefined)?.payload.skillCastId).toBe(42);
+    expect(ability.runtimeState.beforeCastStarts.size).toBe(1);
+  });
+
+  it('正式能力系统把已启动技能的边界跟踪纳入同一数据根', () => {
+    const ability = new AbilitySystemRuntime({
+      skills: [new FixtureRuntime('skill', [], 'battleSkill', 'cast', 3)],
+      resolveActualFrame: () => 0,
+      onSkillOperableBoundaryReached: () => {},
+    });
+    ability.tryStartSkill('skill', 'cast');
+    const session = new StateStepper(ability.runtimeState, () => undefined);
+    const state = session.read();
+    expect(state.currentSkillKey).toBe('skill\u0000cast');
+    expect(state.operableBoundaries.pendingByCastId.get('cast')).toEqual({
+      castId: 'cast',
+      durationFrames: 3,
+      actualStartFrame: 0,
+      accumulatedFrames: 0,
+    });
+    expect(state.operableBoundaries.registeredCastIds.has('cast')).toBe(true);
+  });
+
+  it('保存当前技能身份和延迟请求，恢复后替换请求不污染另一分支', () => {
+    const ability = new AbilitySystemRuntime({
+      skills: [new FixtureRuntime('first', []), new FixtureRuntime('second', [])],
+    });
+    ability.tryStartSkill('first');
+    ability.requestPostSkillCast({ skillId: 'second' });
+    const session = new StateStepper(ability.runtimeState, (step, replace: boolean) => {
+      if (replace) storePostSkillCastRequest(step.state, { skillId: 'first' });
+      const request = takePostSkillCastRequest(step.state);
+      storePostSkillCastRequest(step.state, { skillId: 'second', skipApplyCost: true });
+      return request;
+    });
+    const saved = session.save();
+    expect(session.read().currentSkillKey).toBe('first\u0000');
+    expect(session.step(true)?.skillId).toBe('first');
+    expect(session.read().postSkillCastRequest?.skipApplyCost).toBe(true);
+    session.restore(saved);
+    expect(session.step(false)?.skillId).toBe('second');
+    expect(ability.runtimeState.postSkillCastRequest).toMatchObject({ skillId: 'second' });
+    expect(ability.runtimeState.postSkillCastRequest?.skipApplyCost).toBeUndefined();
+    expect(ability.currentSkillId).toBe('first');
+  });
+
   it('Buff 普攻映射覆盖当前技能，重复注册与乱序撤销不复活旧映射', () => {
     const first = Object.assign(new FixtureRuntime('attack', [], 'basicAttack'), {
       currentTimelineFrame: 1,
@@ -147,20 +333,16 @@ describe('AbilitySystemRuntime', () => {
     const replacement = new FixtureRuntime('replacement', events);
     const ability = new AbilitySystemRuntime({
       skills: [base, replacement],
+      emitBeforeSkillCast: () => {
+        events.push('before');
+        expect(ability.currentProcessingSkillCastId).toBe(42);
+      },
       skillSlotGroups: [
         { skillGroupKey: 'slot', baseSkillKey: 'base', replacementSkillKeys: ['replacement'] },
       ],
     });
     ability.changeSkillSlot('slot', 'replacement');
-    ability.prepareBeforeSkillCastStart(
-      'base',
-      undefined,
-      () => {
-        events.push('before');
-        expect(ability.currentProcessingSkillCastId).toBe(42);
-      },
-      false,
-    );
+    ability.prepareBeforeSkillCastStart('base', undefined, beforeCastPayload, false);
     expect(
       ability.tryStartProjectileCallbackSkill('base', {
         skillCastId: 42,
@@ -456,15 +638,18 @@ describe('AbilitySystemRuntime', () => {
     const events: string[] = [];
     const first = new FixtureRuntime('first', events);
     const second = new FixtureRuntime('second', events);
-    const ability = new AbilitySystemRuntime({ skills: [first, second] });
+    const ability = new AbilitySystemRuntime({
+      skills: [first, second],
+      emitBeforeSkillCast: () => {
+        events.push('before:second');
+        expect(first.state).toBe('ended');
+        expect(ability.currentSkillId).toBe('second');
+      },
+    });
 
     expect(ability.tryStartSkill('first')).toBe(true);
     events.length = 0;
-    ability.prepareBeforeSkillCastStart('second', undefined, () => {
-      events.push('before:second');
-      expect(first.state).toBe('ended');
-      expect(ability.currentSkillId).toBe('second');
-    });
+    ability.prepareBeforeSkillCastStart('second', undefined, beforeCastPayload);
 
     expect(ability.tryStartSkill('second')).toBe(true);
     expect(events).toEqual(['interrupt:first:castNextSkill', 'before:second', 'start:second']);
@@ -477,7 +662,7 @@ describe('AbilitySystemRuntime', () => {
       transitionSkillId: 'native.second',
     });
     const ability = new AbilitySystemRuntime({ skills: [first, second] });
-    const buff = { finish: () => true };
+    const buff = { reference: createTestBuffReference(), finish: () => true };
 
     ability.tryStartSkill('first');
     ability.tryStartSkill('second');

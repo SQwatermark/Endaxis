@@ -9,6 +9,44 @@ import { CombatVitals } from './combatVitals';
 import { CombatVitalsRuntime } from './combatVitalsRuntime';
 import { POISE_BREAK_BUFF_ID, PoiseBreakBuffRuntime } from './poiseBreakBuffRuntime';
 
+it('恢复清理列表只解析当前容器的实例，不结束旧分支或同 ID 的其他实例', () => {
+  const createTarget = () =>
+    new BuffDefinitionOperationTarget(
+      new CombatBuffContainer<string>('enemy', new CombatAttributeSet<string>()),
+      {
+        get: () => undefined,
+        compile: () => ({ id: POISE_BREAK_BUFF_ID, stackingType: 'unlimited' }),
+      },
+    );
+  const definition = { stackingType: 'unlimited' as const };
+  const oldTarget = createTarget();
+  const oldRuntime = new PoiseBreakBuffRuntime(oldTarget);
+  oldRuntime.begin('source', definition);
+  const oldBuff = oldTarget.container.buffs[0]!;
+  const saved = structuredClone(oldRuntime.runtimeState);
+  const target = createTarget();
+  const restoredBuff = target.applyScoped({
+    buffId: POISE_BREAK_BUFF_ID,
+    definition,
+    sourceId: 'source',
+    blackboardValues: {},
+  })!;
+  const independent = target.applyScoped({
+    buffId: POISE_BREAK_BUFF_ID,
+    definition,
+    sourceId: 'other',
+    blackboardValues: {},
+  })!;
+  expect(restoredBuff.instanceId).toBe(oldBuff.instanceId);
+  const restored = new PoiseBreakBuffRuntime(target, saved);
+  restored.recover();
+  expect(restoredBuff.isFinished).toBe(true);
+  expect(oldBuff.isFinished).toBe(false);
+  expect(independent.isFinished).toBe(false);
+  expect(oldRuntime.runtimeState.size).toBe(1);
+  expect(restored.runtimeState.size).toBe(0);
+});
+
 it('事件前施加，恢复事件前只清理登记实例，延迟标签不延长 Buff；重复周期不泄漏', () => {
   const container = new CombatBuffContainer<string>('enemy', new CombatAttributeSet<string>());
   const definition = { stackingType: 'unlimited' as const };
