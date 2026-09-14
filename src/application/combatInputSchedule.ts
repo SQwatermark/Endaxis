@@ -45,7 +45,7 @@ export class CombatInputSchedule {
   #expectedInitialInputPending: boolean;
   #nextIndex = 0;
   readonly #groups: readonly SkillInputGroup[];
-  readonly #skillProgramsByCastId: ReadonlyMap<string, CombatSkillCastProgram>;
+  readonly #customSkillProgramsByCastId: ReadonlyMap<string, CombatSkillCastProgram>;
   #skills: CombatInputRuntime | undefined;
   #phase: CombatSkillInputPhase | undefined;
   readonly #checkpoints = new WeakMap<CombatInputScheduleCheckpoint, SavedSchedule>();
@@ -54,7 +54,7 @@ export class CombatInputSchedule {
     readonly session: StandardPlayerDamageCombatSession,
     inputs: readonly ScheduledCombatFrameInput[],
     groups: readonly SkillInputGroup[] = [],
-    skillPrograms: readonly CombatSkillCastProgram[] = [],
+    customSkillPrograms: readonly CombatSkillCastProgram[] = [],
     restoration?: ScheduleRestoration,
   ) {
     const restored = restoration?.[scheduleRestoration];
@@ -89,7 +89,7 @@ export class CombatInputSchedule {
       ),
     );
     const programsByCastId = new Map<string, CombatSkillCastProgram>();
-    for (const binding of skillPrograms) {
+    for (const binding of customSkillPrograms) {
       const skill = scheduledSkills.get(binding.castId);
       if (skill === undefined) {
         throw new Error(`skill program '${binding.castId}' has no scheduled input`);
@@ -105,7 +105,7 @@ export class CombatInputSchedule {
       }
       programsByCastId.set(binding.castId, binding);
     }
-    this.#skillProgramsByCastId = programsByCastId;
+    this.#customSkillProgramsByCastId = programsByCastId;
     this.#nextIndex = restored?.nextIndex ?? 0;
     this.#generation = session.runtime.generation;
     this.#expectedFrame = session.runtime.frame;
@@ -157,7 +157,7 @@ export class CombatInputSchedule {
     checkpoint: CombatInputScheduleCheckpoint,
     additions: readonly ScheduledCombatFrameInput[] = [],
     addedGroups: readonly SkillInputGroup[] = [],
-    addedSkillPrograms: readonly CombatSkillCastProgram[] = [],
+    addedCustomSkillPrograms: readonly CombatSkillCastProgram[] = [],
   ): CombatInputSchedule {
     this.#assertCurrent();
     const saved = this.#checkpoints.get(checkpoint);
@@ -244,7 +244,7 @@ export class CombatInputSchedule {
       this.session.fork(saved.combat),
       inputs,
       groups,
-      [...this.#skillProgramsByCastId.values(), ...addedSkillPrograms],
+      [...this.#customSkillProgramsByCastId.values(), ...addedCustomSkillPrograms],
       {
         [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },
       },
@@ -259,7 +259,7 @@ export class CombatInputSchedule {
     checkpoint: CombatInputScheduleCheckpoint,
     inputsAfterCheckpoint: readonly ScheduledCombatFrameInput[],
     groupsAfterCheckpoint: readonly SkillInputGroup[] = [],
-    skillProgramsAfterCheckpoint: readonly CombatSkillCastProgram[] = [],
+    customSkillProgramsAfterCheckpoint: readonly CombatSkillCastProgram[] = [],
   ): CombatInputSchedule {
     this.#assertCurrent();
     const saved = this.#checkpoints.get(checkpoint);
@@ -326,11 +326,11 @@ export class CombatInputSchedule {
       ...historicalCastIds,
       ...retainedGroups.flatMap(group => group.castIds),
     ]);
-    const skillPrograms = [
-      ...[...this.#skillProgramsByCastId.values()].filter(binding =>
+    const customSkillPrograms = [
+      ...[...this.#customSkillProgramsByCastId.values()].filter(binding =>
         retainedCastIds.has(binding.castId),
       ),
-      ...skillProgramsAfterCheckpoint,
+      ...customSkillProgramsAfterCheckpoint,
     ];
     let skills: CombatInputRuntimeState | undefined;
     if (groups.length > 0) {
@@ -364,7 +364,7 @@ export class CombatInputSchedule {
       this.session.fork(saved.combat),
       [...prefix, ...inputsAfterCheckpoint],
       groups,
-      skillPrograms,
+      customSkillPrograms,
       {
         [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },
       },
@@ -379,7 +379,8 @@ export class CombatInputSchedule {
   }
 
   #frameInput(input?: ScheduledCombatFrameInput): CombatFrameInput {
-    if (this.#skills === undefined && this.#skillProgramsByCastId.size === 0) return input ?? {};
+    if (this.#skills === undefined && this.#customSkillProgramsByCastId.size === 0)
+      return input ?? {};
     return {
       ...input,
       skills: phase => {
@@ -405,7 +406,7 @@ export class CombatInputSchedule {
     actualFrame: number,
   ): boolean {
     if (input.castId !== undefined) {
-      const binding = this.#skillProgramsByCastId.get(input.castId);
+      const binding = this.#customSkillProgramsByCastId.get(input.castId);
       if (binding !== undefined) return phase.submit(input, actualFrame, binding);
     }
     return phase.submit(input, actualFrame);

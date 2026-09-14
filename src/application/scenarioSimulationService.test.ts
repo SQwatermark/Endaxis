@@ -141,14 +141,14 @@ describe('ScenarioSimulationService', () => {
     expect(() => service.compileFixedInputs(placed)).toThrow(
       'custom skill definitions require a compiled input schedule',
     );
-    expect(schedule.skillPrograms[0]?.program.timelineBlockFrames).toBe(1);
+    expect(schedule.customSkillPrograms[0]?.program.timelineBlockFrames).toBe(1);
     expect(session.compiled.operators[0]!.skillCasts).toBeUndefined();
 
     const driver = new CombatInputSchedule(
       session,
       schedule.inputs,
       schedule.groups,
-      schedule.skillPrograms,
+      schedule.customSkillPrograms,
     );
     driver.advanceToFrame(3);
     expect(
@@ -210,7 +210,7 @@ describe('ScenarioSimulationService', () => {
         saved,
         schedule.inputs,
         schedule.groups,
-        schedule.skillPrograms,
+        schedule.customSkillPrograms,
       );
     const shortBranch = branch(shortSchedule);
     const longBranch = branch(longSchedule);

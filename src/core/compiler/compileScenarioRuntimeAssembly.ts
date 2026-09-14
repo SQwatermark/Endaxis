@@ -9,6 +9,7 @@ import type {
   CombatOperatorProgram,
   CombatRuntimeAssemblyOptions,
   CombatRuntimeEnvironmentOptions,
+  CombatSkillCastProgram,
 } from '../combat/runtime/combatRuntimeAssembly';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { ScenarioDocument } from '../project/schema';

@@ -1,6 +1,7 @@
 import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import { ActionBlackboard } from './actionBlackboard';
 import { StateStepper } from './stateStepper';
 import {
   killLogicalAbilityEntity,
@@ -15,6 +16,23 @@ function createRuntime() {
 }
 
 describe('LogicalAbilityEntityRuntime', () => {
+  it('每帧时间倍率和 Buff 阶段不复制完整实体黑板', () => {
+    const runtime = new LogicalAbilityEntityRuntime({
+      resolveDeltaSeconds: () => 0.1,
+      hooks: { tickBuffs: () => {}, recycleBuffs: () => {} },
+    });
+    runtime.spawn({
+      abilityEntityId: 'test',
+      ownerId: 'owner',
+      source: { kind: 'enemy' },
+      definition: { lifetime: { kind: 'infinite' }, blackboard: { value: 1 } },
+    });
+    const snapshot = vi.spyOn(ActionBlackboard.prototype, 'snapshot');
+    runtime.advanceFrame();
+    expect(snapshot).not.toHaveBeenCalled();
+    snapshot.mockRestore();
+  });
+
   it('关系恢复失败时不提交半批结果，可以修正解析器后重试', () => {
     const original = createRuntime();
     const first = original.spawn({

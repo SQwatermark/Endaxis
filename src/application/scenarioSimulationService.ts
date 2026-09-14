@@ -374,7 +374,7 @@ export class ScenarioSimulationService {
   compileInputSchedule(scenario: ScenarioDocument) {
     return {
       ...compileCombatInputSchedule(scenario, this.#options.index),
-      skillPrograms: compileScenarioCustomSkillCastPrograms(scenario, this.#options.index),
+      customSkillPrograms: compileScenarioCustomSkillCastPrograms(scenario, this.#options.index),
     };
   }
 

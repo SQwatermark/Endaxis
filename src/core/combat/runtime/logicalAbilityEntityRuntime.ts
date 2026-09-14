@@ -89,10 +89,16 @@ export interface LogicalAbilityEntitySnapshot {
   readonly blackboard: Readonly<Record<string, ActionBlackboardValue>>;
 }
 
+/** 每帧推进只需要稳定实体身份；不会为时间倍率或 Buff 阶段复制完整黑板。 */
+export interface LogicalAbilityEntityIdentity {
+  readonly instanceId: number;
+  readonly abilityEntityId: string;
+}
+
 export interface LogicalAbilityEntityRuntimeHooks {
   /** 宿主阶段：Buff → 子技能时间轴 → 普通Buff回收。不是公共能力事件。 */
-  tickBuffs?(snapshot: LogicalAbilityEntitySnapshot): void;
-  recycleBuffs?(snapshot: LogicalAbilityEntitySnapshot): void;
+  tickBuffs?(entity: LogicalAbilityEntityIdentity): void;
+  recycleBuffs?(entity: LogicalAbilityEntityIdentity): void;
   spawned?(snapshot: LogicalAbilityEntitySnapshot): void;
   childSkillRequested?(snapshot: LogicalAbilityEntitySnapshot, skillId: string): void;
   killed?(snapshot: LogicalAbilityEntitySnapshot, reason: LogicalAbilityEntityFinishReason): void;
@@ -103,6 +109,7 @@ export interface LogicalAbilityEntityRuntimeHooks {
 
 interface LogicalAbilityEntityInstance {
   readonly state: LogicalAbilityEntityState;
+  readonly identity: LogicalAbilityEntityIdentity;
   readonly blackboard: ActionBlackboard;
   readonly timedMarkers: TimedMarkerContainer;
   readonly childRuntimes: LogicalAbilityEntityChildRuntime[];
@@ -122,14 +129,14 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   readonly #instances = new Map<number, LogicalAbilityEntityInstance>();
   readonly runtimeState: LogicalAbilityEntityDirectoryState;
   readonly #hooks: LogicalAbilityEntityRuntimeHooks;
-  readonly #resolveDeltaSeconds: (snapshot: LogicalAbilityEntitySnapshot) => number;
+  readonly #resolveDeltaSeconds: (entity: LogicalAbilityEntityIdentity) => number;
   readonly #allocateInstanceId: () => number;
   readonly #timedMarkerClocks: Partial<Record<'global' | 'globalScaled', TimedMarkerClock>>;
 
   constructor(options: {
     readonly hooks?: LogicalAbilityEntityRuntimeHooks;
     /** 后续时间膨胀接线点；省略时使用一帧的普通实体时间。 */
-    readonly resolveDeltaSeconds?: (snapshot: LogicalAbilityEntitySnapshot) => number;
+    readonly resolveDeltaSeconds?: (entity: LogicalAbilityEntityIdentity) => number;
     readonly allocateInstanceId?: () => number;
     readonly timedMarkerClocks?: Partial<Record<'global' | 'globalScaled', TimedMarkerClock>>;
     /** 已复制的目录数据；绑定过程不触发生成、子技能或公共事件。 */
@@ -267,6 +274,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     let instance!: LogicalAbilityEntityInstance;
     const timedMarkers = createTimedMarkerState();
     instance = {
+      identity: Object.freeze({ instanceId, abilityEntityId: request.abilityEntityId }),
       state: {
         childBuffs: [],
         childSkills: [],
@@ -520,10 +528,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       if (!this.#instances.has(instance.state.instanceId)) continue;
       if (instance.state.pendingRelease) {
         if (
-          advanceAbilityEntityRelease(
-            instance.state,
-            this.#resolveDeltaSeconds(this.#snapshot(instance)),
-          )
+          advanceAbilityEntityRelease(instance.state, this.#resolveDeltaSeconds(instance.identity))
         ) {
           this.finish(
             { kind: 'abilityEntity', instanceId: instance.state.instanceId },
@@ -532,7 +537,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
         }
         continue;
       }
-      const delta = this.#resolveDeltaSeconds(this.#snapshot(instance));
+      const delta = this.#resolveDeltaSeconds(instance.identity);
       if (
         advanceAbilityEntityLifetime(instance.state, delta, () => instance.timedMarkers.sweep())
       ) {
@@ -542,12 +547,12 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
         );
         continue;
       }
-      this.#hooks.tickBuffs?.(this.#snapshot(instance));
+      this.#hooks.tickBuffs?.(instance.identity);
       if (!this.#instances.has(instance.state.instanceId) || instance.state.pendingRelease)
         continue;
       for (const runtime of instance.childRuntimes) runtime.advance(delta);
       if (this.#instances.has(instance.state.instanceId) && !instance.state.pendingRelease)
-        this.#hooks.recycleBuffs?.(this.#snapshot(instance));
+        this.#hooks.recycleBuffs?.(instance.identity);
     }
   }
 
@@ -566,6 +571,10 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     const blackboard = ActionBlackboard.bindRuntimeState(state.blackboard);
     let instance!: LogicalAbilityEntityInstance;
     instance = {
+      identity: Object.freeze({
+        instanceId: state.instanceId,
+        abilityEntityId: state.abilityEntityId,
+      }),
       state,
       blackboard,
       timedMarkers: new TimedMarkerContainer(
