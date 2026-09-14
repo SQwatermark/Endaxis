@@ -525,8 +525,7 @@ type CombatAbilityEntityEventHooks = Pick<
 
 interface PreparedCombatRuntimeAssemblyRestore {
   readonly preparation: CombatRuntimeRestorePreparation;
-  readonly foundation: RestoredCombatRuntimeFoundation;
-  readonly projectileCallbackPrograms: ProjectileCallbackPrograms;
+  readonly options: CombatRuntimeAssemblyRestoreOptions;
 }
 
 const unsupportedReactiveTerminal: CombatOperationExecutor = {
@@ -668,90 +667,98 @@ export class CombatRuntimeAssembly {
       options.operators,
       options.combatSkillPrograms,
     );
-    let assembly: CombatRuntimeAssembly;
-    let foundation: RestoredCombatRuntimeFoundation;
-    foundation = bindRestoredCombatRuntimeFoundation({
+    return new CombatRuntimeAssembly({} as CombatRuntimeAssemblyOptions, {
       preparation,
-      shared: {
-        resources: options.resources,
-        resourceResolvers: {
-          ultimateEnergyGainMultiplier: operatorId =>
-            foundation.environment.runtimeOptions.resolveUltimateEnergyGainMultiplier?.(
-              operatorId,
-            ) ??
-            options.graph.shared.resources.squad.find(member => member.operatorId === operatorId)!
-              .ultimateEnergyGainMultiplier,
-        },
-        ...(options.timeDilation === undefined
-          ? {}
-          : {
-              timeDilation: {
-                config: options.timeDilation.config,
-                observer: {
-                  started: (kind, instance, entityId) =>
-                    assembly.#recordTimeDilation('TimeDilationStarted', kind, instance, entityId),
-                  rejected: (kind, instance, entityId) =>
-                    assembly.#recordTimeDilation('TimeDilationRejected', kind, instance, entityId),
-                  ended: (kind, instance, reason, entityId) =>
-                    assembly.#recordTimeDilation(
-                      'TimeDilationEnded',
-                      kind,
-                      instance,
-                      entityId,
-                      reason,
-                    ),
-                },
-              },
-            }),
-      },
-      ...(options.timeDilation === undefined
-        ? {}
-        : { timeDilationPrograms: options.timeDilation.programs }),
-      environment: options.environment,
-      enemy: options.enemy,
-      resolveProjectileRuntimeDependencies: definitionOperatorId =>
-        assembly.#projectileRuntimeDependencies(definitionOperatorId),
+      options,
     });
-    const runtimeOptions: CombatRuntimeAssemblyOptions = {
-      resources: options.resources,
-      enemy: options.enemy,
-      operators: options.operators,
-      ...foundation.environment.runtimeOptions,
-      abilityEntityChildSkillPrograms: options.abilityEntityChildSkillPrograms,
-      combatOperationPrograms: options.combatOperationPrograms,
-      combatSkillPrograms: options.combatSkillPrograms,
-      ...(options.timeDilation === undefined
-        ? {}
-        : { timeDilation: { config: options.timeDilation.config } }),
-      ...(options.skillAvailabilityTags === undefined
-        ? {}
-        : { skillAvailabilityTags: options.skillAvailabilityTags }),
-      ...(options.enemyStatusContainer === undefined
-        ? {}
-        : { enemyStatusContainer: options.enemyStatusContainer }),
-      ...(options.environment.isOperatorControlled === undefined
-        ? {}
-        : { isOperatorControlled: options.environment.isOperatorControlled }),
-    };
-    assembly = new CombatRuntimeAssembly(runtimeOptions, {
-      preparation,
-      foundation,
-      projectileCallbackPrograms: options.projectileCallbackPrograms,
-    });
-    return assembly;
   }
 
   constructor(
-    options: CombatRuntimeAssemblyOptions,
+    inputOptions: CombatRuntimeAssemblyOptions,
     restored?: PreparedCombatRuntimeAssemblyRestore,
   ) {
+    let options = inputOptions;
+    let restoredFoundation: RestoredCombatRuntimeFoundation | undefined;
+    if (restored === undefined) {
+      this.abilityEntityChildSkillPrograms =
+        options.abilityEntityChildSkillPrograms ?? new AbilityEntityChildSkillPrograms();
+      this.combatOperationPrograms =
+        options.combatOperationPrograms ?? new CombatOperationPrograms();
+      this.combatSkillPrograms = options.combatSkillPrograms ?? new CombatSkillPrograms();
+    } else {
+      const restoreOptions = restored.options;
+      this.abilityEntityChildSkillPrograms = restoreOptions.abilityEntityChildSkillPrograms;
+      this.combatOperationPrograms = restoreOptions.combatOperationPrograms;
+      this.combatSkillPrograms = restoreOptions.combatSkillPrograms;
+      restoredFoundation = bindRestoredCombatRuntimeFoundation({
+        preparation: restored.preparation,
+        shared: {
+          resources: restoreOptions.resources,
+          resourceResolvers: {
+            ultimateEnergyGainMultiplier: operatorId =>
+              restoredFoundation!.environment.runtimeOptions.resolveUltimateEnergyGainMultiplier?.(
+                operatorId,
+              ) ??
+              restoreOptions.graph.shared.resources.squad.find(
+                member => member.operatorId === operatorId,
+              )!.ultimateEnergyGainMultiplier,
+          },
+          ...(restoreOptions.timeDilation === undefined
+            ? {}
+            : {
+                timeDilation: {
+                  config: restoreOptions.timeDilation.config,
+                  observer: {
+                    started: (kind, instance, entityId) =>
+                      this.#recordTimeDilation('TimeDilationStarted', kind, instance, entityId),
+                    rejected: (kind, instance, entityId) =>
+                      this.#recordTimeDilation('TimeDilationRejected', kind, instance, entityId),
+                    ended: (kind, instance, reason, entityId) =>
+                      this.#recordTimeDilation(
+                        'TimeDilationEnded',
+                        kind,
+                        instance,
+                        entityId,
+                        reason,
+                      ),
+                  },
+                },
+              }),
+        },
+        ...(restoreOptions.timeDilation === undefined
+          ? {}
+          : { timeDilationPrograms: restoreOptions.timeDilation.programs }),
+        environment: restoreOptions.environment,
+        enemy: restoreOptions.enemy,
+        resolveProjectileRuntimeDependencies: definitionOperatorId =>
+          this.#projectileRuntimeDependencies(definitionOperatorId),
+      });
+      options = {
+        resources: restoreOptions.resources,
+        enemy: restoreOptions.enemy,
+        operators: restoreOptions.operators,
+        ...restoredFoundation.environment.runtimeOptions,
+        abilityEntityChildSkillPrograms: restoreOptions.abilityEntityChildSkillPrograms,
+        combatOperationPrograms: restoreOptions.combatOperationPrograms,
+        combatSkillPrograms: restoreOptions.combatSkillPrograms,
+        ...(restoreOptions.timeDilation === undefined
+          ? {}
+          : { timeDilation: { config: restoreOptions.timeDilation.config } }),
+        ...(restoreOptions.skillAvailabilityTags === undefined
+          ? {}
+          : { skillAvailabilityTags: restoreOptions.skillAvailabilityTags }),
+        ...(restoreOptions.enemyStatusContainer === undefined
+          ? {}
+          : { enemyStatusContainer: restoreOptions.enemyStatusContainer }),
+        ...(restoreOptions.environment.isOperatorControlled === undefined
+          ? {}
+          : { isOperatorControlled: restoreOptions.environment.isOperatorControlled }),
+      };
+    }
     this.#options = options;
-    this.abilityEntityChildSkillPrograms =
-      options.abilityEntityChildSkillPrograms ?? new AbilityEntityChildSkillPrograms();
-    this.combatOperationPrograms = options.combatOperationPrograms ?? new CombatOperationPrograms();
-    this.combatSkillPrograms = options.combatSkillPrograms ?? new CombatSkillPrograms();
     if (restored !== undefined) {
-      const { preparation, foundation } = restored;
+      const preparation = restored.preparation;
+      const foundation = restoredFoundation!;
       const sharedRuntime = foundation.shared;
       this.clock = sharedRuntime.clock;
       this.resources = sharedRuntime.resources;
@@ -810,12 +817,23 @@ export class CombatRuntimeAssembly {
           runtimeOperator,
           this.#operatorStatuses.get(operatorId),
         );
+        for (const sourceActionId of [
+          ...(runtimeOperator.passivePrograms ?? []).map(program => `passive:${program.key}`),
+          ...(runtimeOperator.initializationPrograms ?? []).map(
+            program => `upgrade-initialization:${program.key}`,
+          ),
+          ...(runtimeOperator.upgradeEventPrograms ?? []).map(
+            program => `upgrade-event:${program.key}`,
+          ),
+        ]) {
+          this.#registerRestoredReactiveOperationBinding(runtimeOperator, sourceActionId, options);
+        }
       }
 
       this.projectileLifetimes = createRestoredCombatProjectileDirectory({
         preparation,
         foundation,
-        callbackPrograms: restored.projectileCallbackPrograms,
+        callbackPrograms: restored.options.projectileCallbackPrograms,
       });
       const entities = bindRestoredCombatAbilityEntityDirectory({
         preparation,
@@ -824,6 +842,17 @@ export class CombatRuntimeAssembly {
       });
       this.abilityEntities = entities.runtime;
       for (const [instanceId, state] of preparation.graph.instances.abilityEntities.instances) {
+        const operator = this.#operators.get(state.ownerId);
+        const definition = operator?.abilityEntityDefinitions?.[state.abilityEntityId];
+        if (operator !== undefined && definition !== undefined) {
+          for (const passive of definition.passiveSkills ?? []) {
+            this.#registerRestoredReactiveOperationBinding(
+              operator,
+              `ability-entity:${instanceId}:passive:${passive.key}`,
+              options,
+            );
+          }
+        }
         if (!state.buffContainerCreated) continue;
         const target = entities.targets.get(logicalAbilityEntityRuntimeId(instanceId));
         if (target === undefined) {
@@ -1054,12 +1083,15 @@ export class CombatRuntimeAssembly {
         entities,
         createCallbackBindings: ({ definitionOperatorId, state }) => {
           const operator = this.#operators.get(definitionOperatorId)!;
-          const program = restored.projectileCallbackPrograms.resolve(state.programId!);
+          const program = restored.options.projectileCallbackPrograms.resolve(state.programId!);
           const operations = this.#createOperationChain({
             operator,
             program: {
               operatorId: definitionOperatorId,
               skillId: program.skillId,
+              ...(state.skillCastInfo === null
+                ? {}
+                : { skillType: state.skillCastInfo.originSkillType }),
               nativeSkillType: program.nativeSkillType,
               naturalDurationFrames: program.naturalDurationFrames,
               initialBlackboard: program.initialBlackboard,
@@ -3933,6 +3965,24 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
+  }
+
+  /** Buff 实例先于来源宿主恢复时，按固定来源程序预建当前分支的生命周期操作工厂。 */
+  #registerRestoredReactiveOperationBinding(
+    operator: CombatOperatorProgram,
+    sourceActionId: string,
+    options: CombatRuntimeAssemblyOptions,
+  ): void {
+    const bindingKey = `${operator.operatorId}\u0000${sourceActionId}`;
+    if (this.#reactiveOperationBindings.has(bindingKey)) return;
+    this.#reactiveOperationBindings.set(bindingKey, () =>
+      this.#createReactiveOperationChain(
+        operator,
+        sourceActionId,
+        this.#createReactiveTerminal(operator, sourceActionId, options),
+        options,
+      ),
+    );
   }
 
   #requireAbilitySystem(operatorId: string): AbilitySystemRuntime {

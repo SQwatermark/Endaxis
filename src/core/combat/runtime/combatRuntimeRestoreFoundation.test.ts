@@ -332,7 +332,24 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
                   cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
                 },
                 initialBlackboard: {},
-                timelineActions: [],
+                timelineActions: [
+                  {
+                    startFrame: 0,
+                    sequence: {
+                      steps: [
+                        {
+                          kind: 'dealFixedDamage' as const,
+                          key: 'callback-hit',
+                          parameters: {
+                            damageType: 'physical' as const,
+                            value: 25,
+                            tags: [],
+                          },
+                        },
+                      ],
+                    },
+                  },
+                ],
               },
             },
           ],
@@ -340,7 +357,59 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       },
     ],
   };
-  const buffDefinitions = { persistent: { stackingType: 'unique' as const } };
+  const buffDefinitions = {
+    persistent: { stackingType: 'unique' as const },
+    passivePersistent: {
+      stackingType: 'unique' as const,
+      lifecycleSequences: {
+        enable: {
+          steps: [
+            {
+              kind: 'modifyActionValue' as const,
+              parameters: {
+                key: 'restoredValue',
+                operation: 'assign' as const,
+                value: { kind: 'constant' as const, value: 9 },
+              },
+            },
+          ],
+        },
+      },
+    },
+  };
+  const passivePrograms = [
+    {
+      key: 'passive',
+      initialBlackboard: { restoredValue: 7 },
+      enableSequence: {
+        steps: [
+          {
+            kind: 'applyBuff' as const,
+            parameters: { buffId: 'passivePersistent', target: 'caster' as const },
+          },
+        ],
+      },
+    },
+  ];
+  const panel = {
+    operatorId: 'operator',
+    level: 1,
+    attributes: { strength: 0, agility: 0, intellect: 0, will: 0 },
+    attack: 1,
+    attackBeforeAttributeScalar: 1,
+    mainAttribute: 'intellect' as const,
+    secondaryAttribute: 'will' as const,
+    health: 1000,
+    defense: 0,
+    criticalRate: 0,
+    criticalDamage: 0,
+    artsIntensity: 0,
+    ultimateEnergyGainEfficiency: 1,
+    skillCooldownReduction: 0,
+    staggerDamagePercent: 0,
+    combatModifiers: [],
+    receipt: [],
+  };
   const environment = new StandardPlayerDamageEnvironment({
     ...environmentInput,
     enemyVitals: new CombatVitals({
@@ -361,14 +430,23 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     ...environment.runtimeOptions,
     resources,
     enemy,
-    operators: [{ operatorId: 'operator', skills: [program], buffDefinitions }],
+    operators: [
+      { operatorId: 'operator', skills: [program], buffDefinitions, panel, passivePrograms },
+    ],
     abilityEntityChildSkillPrograms: childSkillPrograms,
     combatOperationPrograms: operationPrograms,
     combatSkillPrograms: skillPrograms,
+    timeDilation: { config: {} },
+  });
+  original.timeDilation!.startGlobal({
+    durationSeconds: 10,
+    slot: 'Test/TimeSlot1',
+    priority: 1,
+    constantScale: 0.5,
   });
   expect(original.tryStartSkill('operator', 'skill')).toBe(true);
   original.advanceFrame();
-  expect(original.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(1);
+  expect(original.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(2);
   expect(original.stateGraph.instances.projectiles.instances.size).toBe(1);
   expect(original.stateGraph.instances.projectiles.instances.get(1)!.callback!.host).toBeNull();
   const saved = structuredClone(original.stateGraph);
@@ -377,18 +455,21 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     graph: saved,
     resources,
     enemy,
-    operators: [{ operatorId: 'operator', skills: [program], buffDefinitions }],
+    operators: [
+      { operatorId: 'operator', skills: [program], buffDefinitions, panel, passivePrograms },
+    ],
     environment: environmentInput,
     abilityEntityChildSkillPrograms: childSkillPrograms,
     combatOperationPrograms: operationPrograms,
     combatSkillPrograms: skillPrograms,
     projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+    timeDilation: { config: {}, programs: original.timeDilation!.programs },
   });
 
   expect(restored.stateGraph).toBe(saved);
   expect(restored.stateGraph).toEqual(original.stateGraph);
-  original.advanceFrame();
-  restored.advanceFrame();
+  original.advanceFrames(5);
+  restored.advanceFrames(5);
   expect(restored.stateGraph.instances.projectiles.instances.get(1)!.callback!.host).not.toBeNull();
   expect(restored.stateGraph).toEqual(original.stateGraph);
   const activeHostSaved = structuredClone(original.stateGraph);
@@ -396,17 +477,20 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     graph: activeHostSaved,
     resources,
     enemy,
-    operators: [{ operatorId: 'operator', skills: [program], buffDefinitions }],
+    operators: [
+      { operatorId: 'operator', skills: [program], buffDefinitions, panel, passivePrograms },
+    ],
     environment: environmentInput,
     abilityEntityChildSkillPrograms: childSkillPrograms,
     combatOperationPrograms: operationPrograms,
     combatSkillPrograms: skillPrograms,
     projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+    timeDilation: { config: {}, programs: original.timeDilation!.programs },
   });
   expect(activeHostRestored.stateGraph).toEqual(original.stateGraph);
-  original.advanceFrames(5);
-  restored.advanceFrames(5);
-  activeHostRestored.advanceFrames(5);
+  original.advanceFrames(12);
+  restored.advanceFrames(12);
+  activeHostRestored.advanceFrames(12);
   expect(restored.stateGraph).toEqual(original.stateGraph);
   expect(activeHostRestored.stateGraph).toEqual(original.stateGraph);
   expect(restored.stateGraph.instances.projectiles.instances.size).toBe(0);
