@@ -216,6 +216,112 @@ export class CombatInputSchedule {
     });
   }
 
+  /**
+   * 用新的完整后缀替换保存点之后尚未提交的输入。
+   * 已消费输入以及已经启动或停止的连续组属于历史，必须保留原定义和游标。
+   */
+  forkReplacingFuture(
+    checkpoint: CombatInputScheduleCheckpoint,
+    replacementInputs: readonly ScheduledCombatFrameInput[],
+    replacementGroups: readonly SkillInputGroup[] = [],
+  ): CombatInputSchedule {
+    this.#assertCurrent();
+    const saved = this.#checkpoints.get(checkpoint);
+    if (saved === undefined) throw new Error('checkpoint does not belong to this input schedule');
+    let previousFrame = saved.inputBoundary - 1;
+    for (const input of replacementInputs) {
+      if (!Number.isSafeInteger(input.frame) || input.frame <= previousFrame) {
+        throw new RangeError(
+          'replacement inputs must be ordered, unique and after the saved input boundary',
+        );
+      }
+      previousFrame = input.frame;
+    }
+
+    const prefix = this.#inputs.slice(0, saved.nextIndex);
+    const historicalCastIds = new Set(
+      prefix.flatMap(input =>
+        (input.skills ?? []).flatMap(skill => (skill.castId === undefined ? [] : [skill.castId])),
+      ),
+    );
+    const replacementCastIds = new Set<string>();
+    for (const input of replacementInputs) {
+      for (const skill of input.skills ?? []) {
+        if (skill.castId === undefined) continue;
+        if (historicalCastIds.has(skill.castId)) {
+          throw new Error(
+            `replacement cast '${skill.castId}' already belongs to submitted history`,
+          );
+        }
+        if (replacementCastIds.has(skill.castId)) {
+          throw new Error(`replacement cast '${skill.castId}' must be unique`);
+        }
+        replacementCastIds.add(skill.castId);
+      }
+    }
+
+    const savedGroupStates = saved.skills?.groups ?? [];
+    const retainedGroups: SkillInputGroup[] = [];
+    const retainedGroupStates: CombatInputRuntimeState['groups'][number][] = [];
+    this.#groups.forEach((group, index) => {
+      const state = savedGroupStates[index];
+      if (
+        state !== undefined &&
+        (state.nextIndex > 0 || state.previous !== null || state.stopped)
+      ) {
+        retainedGroups.push(group);
+        retainedGroupStates.push(structuredClone(state));
+      }
+    });
+    const retainedAnchors = new Set(retainedGroups.map(group => group.anchorCastId));
+    for (const group of replacementGroups) {
+      if (retainedAnchors.has(group.anchorCastId)) {
+        throw new Error(`replacement group '${group.anchorCastId}' already belongs to history`);
+      }
+      if (group.castIds.some(castId => !replacementCastIds.has(castId))) {
+        throw new Error('replacement groups must contain only replacement casts');
+      }
+    }
+
+    const groups = [...retainedGroups, ...replacementGroups];
+    let skills: CombatInputRuntimeState | undefined;
+    if (groups.length > 0) {
+      const base =
+        saved.skills ??
+        (() => {
+          const consumed = prefix.flatMap(input =>
+            (input.skills ?? []).map(skill => ({ ...skill, frame: input.frame })),
+          );
+          return {
+            nextInputIndex: consumed.length,
+            previousFixedInput: consumed.at(-1) ?? null,
+            continuation: { nextIndex: 1, previous: null, stopped: false },
+            groups: [],
+          } satisfies CombatInputRuntimeState;
+        })();
+      skills = {
+        ...structuredClone(base),
+        groups: [
+          ...retainedGroupStates,
+          ...replacementGroups.map(group => ({
+            anchorCastId: group.anchorCastId,
+            nextIndex: 0,
+            previous: null,
+            stopped: false,
+          })),
+        ],
+      };
+    }
+    return new CombatInputSchedule(
+      this.session.fork(saved.combat),
+      [...prefix, ...replacementInputs],
+      groups,
+      {
+        [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },
+      },
+    );
+  }
+
   discardCheckpoint(checkpoint: CombatInputScheduleCheckpoint): void {
     const saved = this.#checkpoints.get(checkpoint);
     if (saved === undefined) throw new Error('checkpoint does not belong to this input schedule');

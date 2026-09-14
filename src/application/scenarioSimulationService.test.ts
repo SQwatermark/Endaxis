@@ -190,6 +190,97 @@ describe('ScenarioSimulationService', () => {
     driver.discardCheckpoint(saved);
   });
 
+  it('替换未来后缀可撤销未开始组，并保留已经启动的组及其游标', () => {
+    let id = 0;
+    const first = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'basicAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:active:${id++}` },
+    });
+    let scenario = groupPlacedSkillSequence(first.scenario, first.skillCastIds);
+    const future = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'basicAttack',
+      startFrame: 180,
+      ids: { allocate: kind => `${kind}:future:${id++}` },
+    });
+    scenario = groupPlacedSkillSequence(future.scenario, future.skillCastIds);
+    const schedule = compileCombatInputSchedule(scenario, testIndex);
+    const driver = new CombatInputSchedule(
+      createService().createInputCombatSession(scenario),
+      schedule.inputs,
+      schedule.groups,
+    );
+    driver.advanceToFrame(2);
+    const saved = driver.save();
+    const withoutFuture = driver.forkReplacingFuture(saved, []);
+
+    driver.advanceToFrame(500);
+    withoutFuture.advanceToFrame(500);
+    const parentStarts = driver.session.runtime
+      .readHistory()
+      .toArray()
+      .filter(entry => entry.event === 'SkillStarted')
+      .map(entry => entry.data?.castId);
+    const branchStarts = withoutFuture.session.runtime
+      .readHistory()
+      .toArray()
+      .filter(entry => entry.event === 'SkillStarted')
+      .map(entry => entry.data?.castId);
+    expect(branchStarts).toEqual(expect.arrayContaining([...first.skillCastIds]));
+    expect(branchStarts.some(castId => future.skillCastIds.includes(String(castId)))).toBe(false);
+    expect(parentStarts.some(castId => future.skillCastIds.includes(String(castId)))).toBe(true);
+    driver.discardCheckpoint(saved);
+  });
+
+  it('替换尚未提交的固定输入时允许复用原 castId', () => {
+    const placed = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 180,
+      ids: { allocate: kind => `${kind}:replace` },
+    }).scenario;
+    const originalCastId = placed.tracks[0]!.skillCasts[0]!.id;
+    const service = createService();
+    const schedule = compileCombatInputSchedule(placed, testIndex);
+    const driver = new CombatInputSchedule(
+      service.createInputCombatSession(placed),
+      schedule.inputs,
+      schedule.groups,
+    );
+    const saved = driver.save();
+    const replacement = driver.forkReplacingFuture(saved, [
+      {
+        frame: 10,
+        skills: [
+          {
+            operatorId: 'track:0',
+            skillId: 'plungingAttack',
+            castId: originalCastId,
+            declarationOrder: 0,
+          },
+        ],
+      },
+    ]);
+    replacement.advanceToFrame(20);
+    expect(
+      replacement.session.runtime
+        .readHistory()
+        .toArray()
+        .find(entry => entry.event === 'SkillStarted' && entry.data?.castId === originalCastId)
+        ?.data?.skillId,
+    ).toBe('plungingAttack');
+    expect(driver.session.runtime.readState().shared.clock.frame).toBe(0);
+    driver.discardCheckpoint(saved);
+  });
+
   it.each(['empty', 'fixed', 'group'] as const)(
     '截面后新增连续组，保留 %s 进度且候选不污染父分支',
     prefixKind => {

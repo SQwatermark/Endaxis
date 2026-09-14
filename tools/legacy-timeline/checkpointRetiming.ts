@@ -1,9 +1,9 @@
 import {
   CombatInputSchedule,
+  type CombatInputScheduleCheckpoint,
   type ScheduledCombatFrameInput,
 } from '../../src/application/combatInputSchedule';
 import type { StandardPlayerDamageCombatSession } from '../../src/application/standardPlayerDamageCombatSession';
-import type { CombatRuntimeCheckpoint } from '../../src/core/combat/runtime/combatRuntimeSession';
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
 import type { LegacyRetimingCheckpointSession, LegacyRetimingTrial } from './heuristicRetiming';
 
@@ -22,10 +22,12 @@ const RETIMING_EVENTS = new Set([
 
 /** 主会话只推进已确认前缀；观察分支可以越过下一候选，但不会替换主会话。 */
 export class CheckpointRetimingSession implements LegacyRetimingCheckpointSession {
-  #checkpoint: CombatRuntimeCheckpoint;
+  #driver: CombatInputSchedule;
+  #checkpoint: CombatInputScheduleCheckpoint;
 
   constructor(readonly main: StandardPlayerDamageCombatSession) {
-    this.#checkpoint = main.runtime.save();
+    this.#driver = new CombatInputSchedule(main, []);
+    this.#checkpoint = this.#driver.save();
   }
 
   get inputBoundary(): number {
@@ -37,15 +39,20 @@ export class CheckpointRetimingSession implements LegacyRetimingCheckpointSessio
       throw new RangeError('retiming boundary precedes the saved input checkpoint');
     }
     if (frame === this.inputBoundary) return;
-    new CombatInputSchedule(this.main, confirmedSuffix).advanceToFrame(frame - 1);
-    const next = this.main.runtime.save();
-    this.main.runtime.discardCheckpoint(this.#checkpoint);
+    const nextDriver = new CombatInputSchedule(this.main, confirmedSuffix);
+    nextDriver.advanceToFrame(frame - 1);
+    const next = nextDriver.save();
+    this.#driver.discardCheckpoint(this.#checkpoint);
+    this.#driver = nextDriver;
     this.#checkpoint = next;
   }
 
   trial(candidateSuffix: readonly ScheduledCombatFrameInput[]): LegacyRetimingTrial {
-    let branch: StandardPlayerDamageCombatSession | null = this.main.fork(this.#checkpoint);
-    let driver: CombatInputSchedule | null = new CombatInputSchedule(branch, candidateSuffix);
+    let driver: CombatInputSchedule | null = this.#driver.forkReplacingFuture(
+      this.#checkpoint,
+      candidateSuffix,
+    );
+    let branch: StandardPlayerDamageCombatSession | null = driver.session;
     const entries: CombatReceiptEntry[] = [];
     let cursor:
       import('../../src/core/combat/receipt/combatReceiptHistory').CombatReceiptCursor | undefined;
