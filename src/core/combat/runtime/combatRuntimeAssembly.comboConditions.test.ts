@@ -59,6 +59,7 @@ function setup() {
   const owner = {
     operatorId: 'owner',
     skills: [combo()],
+    skillCasts: [] as { readonly castId: string; readonly program: CompiledSkillProgram }[],
     skillSlotGroups: [
       { skillGroupKey: 'combo', baseSkillKey: 'combo', replacementSkillKeys: [] as string[] },
     ],
@@ -524,9 +525,13 @@ describe('assembly 原生常驻连携条件', () => {
     expect(f.pending).toHaveLength(1);
   });
 
-  it('静态目录与重复放置共享一次推进，自定义块的实际冷却覆盖模板默认', () => {
+  it('固定定义与重复放置共享一次冷却推进', () => {
     const f = setup();
-    f.owner.skills = ['a', 'b'].map(castId => ({ ...combo(), castId, cooldownFrames: 600 }));
+    f.owner.skills = [{ ...combo(), cooldownFrames: 600 }];
+    f.owner.skillCasts = ['a', 'b'].map(castId => ({
+      castId,
+      program: { ...combo(), cooldownFrames: 600 },
+    }));
     const assembly = new CombatRuntimeAssembly({
       ...f.options,
       operators: [{ ...f.owner, skillCooldownPrograms: [combo()] }],
@@ -549,12 +554,12 @@ describe('assembly 原生常驻连携条件', () => {
     ).toHaveLength(1);
   });
 
-  it('不同自定义来源 ID 指向同一共享账本，不会漏掉后一个块的冷却修改', () => {
+  it('同一原生来源的不同施放实例共用冷却账本', () => {
     const f = setup();
-    f.owner.skills = ['a', 'b'].map(castId => ({
-      ...combo(),
+    f.owner.skills = [{ ...combo(), sourceSkillId: 'native-combo' }];
+    f.owner.skillCasts = ['a', 'b'].map(castId => ({
       castId,
-      sourceSkillId: `source-${castId}`,
+      program: { ...combo(), sourceSkillId: 'native-combo' },
     }));
     f.owner.skills.push(
       action('reset', [
@@ -562,7 +567,7 @@ describe('assembly 原生常驻连携条件', () => {
           kind: 'adjustSkillCooldown',
           parameters: {
             target: 'caster',
-            skill: { kind: 'id', skillId: 'source-b' },
+            skill: { kind: 'id', skillId: 'native-combo' },
             operation: 'set',
             basis: 'absoluteSeconds',
             value: { kind: 'constant', value: 0 },

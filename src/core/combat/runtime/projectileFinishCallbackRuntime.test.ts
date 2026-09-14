@@ -149,6 +149,9 @@ describe('projectile callback action lifecycle', () => {
             ...(callbackProgram === undefined ? {} : { callbackProgram }),
           }),
       },
+      undefined,
+      undefined,
+      'source',
     );
     runtime.createSequence(delayedProbe()).executeInstant({});
     const data = [...projectiles.runtimeState.instances.values()][0]!.callback!;
@@ -316,6 +319,9 @@ describe('projectile callback action lifecycle', () => {
           return projectile;
         },
       },
+      undefined,
+      undefined,
+      'source',
     );
     const parent = runtime.createSequence(
       compileActionSequence(
@@ -424,6 +430,9 @@ describe('projectile callback action lifecycle', () => {
           return instance;
         },
       },
+      undefined,
+      undefined,
+      'source',
     );
     const parent = runtime.createSequence({
       steps: [
@@ -467,24 +476,30 @@ describe('projectile callback action lifecycle', () => {
       evaluate: () => passed,
     };
     const blackboard = new ActionBlackboard({ launchValue: 7 });
-    const runtime = new CombatActionSequenceRuntime(operations, {
-      blackboard,
-      createCallbackSkillHost: createTestHost,
-      scheduleProjectileFinishCallback: (
-        delaySeconds,
-        recycleDelaySeconds,
-        execute,
-        beforeReset,
-      ) => {
-        return scheduler.launch({
-          finishDelaySeconds: delaySeconds,
+    const runtime = new CombatActionSequenceRuntime(
+      operations,
+      {
+        blackboard,
+        createCallbackSkillHost: createTestHost,
+        scheduleProjectileFinishCallback: (
+          delaySeconds,
           recycleDelaySeconds,
-          resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
-          finish: execute,
+          execute,
           beforeReset,
-        });
+        ) => {
+          return scheduler.launch({
+            finishDelaySeconds: delaySeconds,
+            recycleDelaySeconds,
+            resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
+            finish: execute,
+            beforeReset,
+          });
+        },
       },
-    });
+      undefined,
+      undefined,
+      'source',
+    );
     const branched: ResolvedActionSequence = {
       steps: [
         {
@@ -535,25 +550,31 @@ describe('projectile callback action lifecycle', () => {
     };
     const entityBlackboard = new ActionBlackboard({ EntityBB_source: 11 });
     const blackboard = new ActionBlackboard({ launchValue: 7 }, entityBlackboard);
-    const runtime = new CombatActionSequenceRuntime(operations, {
-      blackboard,
-      canExecuteAction: () => sourceEnabled,
-      createCallbackSkillHost: createTestHost,
-      scheduleProjectileFinishCallback: (
-        delaySeconds,
-        recycleDelaySeconds,
-        execute,
-        beforeReset,
-      ) => {
-        return scheduler.launch({
-          finishDelaySeconds: delaySeconds,
+    const runtime = new CombatActionSequenceRuntime(
+      operations,
+      {
+        blackboard,
+        canExecuteAction: () => sourceEnabled,
+        createCallbackSkillHost: createTestHost,
+        scheduleProjectileFinishCallback: (
+          delaySeconds,
           recycleDelaySeconds,
-          resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
-          finish: execute,
+          execute,
           beforeReset,
-        });
+        ) => {
+          return scheduler.launch({
+            finishDelaySeconds: delaySeconds,
+            recycleDelaySeconds,
+            resolveTickDeltaSeconds: () => COMBAT_FRAME_INTERVAL,
+            finish: execute,
+            beforeReset,
+          });
+        },
       },
-    });
+      undefined,
+      undefined,
+      'source',
+    );
 
     runtime.createSequence(delayedProbe()).executeInstant({});
     blackboard.assignDynamic('launchValue', 99);
