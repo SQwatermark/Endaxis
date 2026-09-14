@@ -38,7 +38,10 @@ import {
   type CompiledMechanics,
 } from '../mechanics/mechanicCompiler';
 
-type BuildIndex = Pick<GameDataRepository, 'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'> &
+export type ScenarioRuntimeBuildIndex = Pick<
+  GameDataRepository,
+  'getOperator' | 'getWeapon' | 'getGear' | 'getGearSet'
+> &
   Partial<
     Pick<
       GameDataRepository,
@@ -61,7 +64,7 @@ export type { CombatRuntimeEnvironmentOptions } from '../combat/runtime/combatRu
 export interface CompileScenarioRuntimeAssemblyOptions {
   /** 逐帧会话只编译构筑与固定定义；人工输入由调用方在此起点之后提交。 */
   readonly liveInputInitialFrame?: number;
-  readonly index: BuildIndex;
+  readonly index: ScenarioRuntimeBuildIndex;
   readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   readonly environment: CombatRuntimeEnvironmentOptions;
   /** 以 `OperatorInstanceDocument.id` 为键，不接受未上场干员。 */
@@ -154,6 +157,35 @@ export function compileOperatorEntityBlackboardInitialValues(
     values[initializer.key] = Math.fround(value);
   }
   return values;
+}
+
+/**
+ * 编译逐帧输入实际需要的自定义技能块程序。
+ * 返回值属于外部输入计划；创建战斗会话时不会把这些尚未提交的释放装进运行时。
+ */
+export function compileScenarioCustomSkillCastPrograms(
+  scenario: ScenarioDocument,
+  index: ScenarioRuntimeBuildIndex,
+): readonly CombatSkillCastProgram[] {
+  const builds = resolveScenarioBuilds(scenario, index);
+  const panels = new Map(
+    resolveScenarioOperatorPanels(builds, scenario.globalConfig).map(panel => [
+      panel.operatorId,
+      panel,
+    ]),
+  );
+  return builds.flatMap(build => {
+    const panel = panels.get(build.track.id);
+    if (panel === undefined) throw new Error(`operator '${build.track.id}' has no resolved panel`);
+    return compileOperatorSkillCastPrograms(
+      build.track.id,
+      build.track.skillCasts.filter(cast => cast.customDefinition !== undefined),
+      build.operatorInstance,
+      build.operator,
+      index.getCommonAbilityEntityDefinitions?.(),
+      panel.attributes,
+    );
+  });
 }
 
 /** 把轨道引用解析为本场稳定干员实例；不为缺席轨道制造虚拟受击者。 */
@@ -275,28 +307,6 @@ export function compileScenarioRuntimeAssembly(
   const equipment = new Map(
     compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),
   );
-  const liveCustomSkillCasts =
-    options.liveInputInitialFrame === undefined
-      ? new Map<string, NonNullable<CombatOperatorProgram['skillCasts']>>()
-      : new Map(
-          builds.map(build => {
-            const panel = panels.get(build.track.id);
-            if (panel === undefined) {
-              throw new Error(`operator '${build.track.id}' has no resolved panel`);
-            }
-            return [
-              build.track.id,
-              compileOperatorSkillCastPrograms(
-                build.track.id,
-                build.track.skillCasts.filter(cast => cast.customDefinition !== undefined),
-                build.operatorInstance,
-                build.operator,
-                options.index.getCommonAbilityEntityDefinitions?.(),
-                panel.attributes,
-              ),
-            ] as const;
-          }),
-        );
   // 资源和常驻槽位共用同一次完整定义编译；绝不把这些动作安装成虚构的技能块。
   const definitionPrograms = new Map(
     builds.map(build => {
@@ -372,10 +382,6 @@ export function compileScenarioRuntimeAssembly(
       );
       return {
         ...operator,
-        ...(options.liveInputInitialFrame === undefined ||
-        liveCustomSkillCasts.get(operator.operatorId)!.length === 0
-          ? {}
-          : { skillCasts: liveCustomSkillCasts.get(operator.operatorId)! }),
         definitionSkillPrograms: definitionPrograms.get(operator.operatorId)!,
         skillCooldownPrograms: definitionPrograms.get(operator.operatorId)!.map(program => ({
           operatorId: program.operatorId,

@@ -119,7 +119,7 @@ describe('ScenarioSimulationService', () => {
     expect(session.runtime.readReceipts(undefined, new Set(['SkillStarted'])).entries).toEqual([]);
   });
 
-  it('逐帧会话只额外编译自定义技能块，并按同一释放身份执行', () => {
+  it('逐帧会话不预装后续自定义技能，并在输入提交时按同一释放身份执行', () => {
     const placed = placeSkillGroup({
       scenario: createPerlicaScenario(),
       trackIndex: 0,
@@ -137,15 +137,18 @@ describe('ScenarioSimulationService', () => {
     };
     const service = createService();
     const session = service.createInputCombatSession(placed);
-    const customBinding = session.compiled.operators[0]!.skillCasts?.find(
-      binding => binding.castId === cast.id,
+    const schedule = service.compileInputSchedule(placed);
+    expect(() => service.compileFixedInputs(placed)).toThrow(
+      'custom skill definitions require a compiled input schedule',
     );
-    expect(customBinding?.program.timelineBlockFrames).toBe(1);
-    expect(session.compiled.operators[0]!.skillCasts).toHaveLength(1);
+    expect(schedule.skillPrograms[0]?.program.timelineBlockFrames).toBe(1);
+    expect(session.compiled.operators[0]!.skillCasts).toBeUndefined();
 
     const driver = new CombatInputSchedule(
       session,
-      compileFixedCombatInputSchedule(placed, testIndex),
+      schedule.inputs,
+      schedule.groups,
+      schedule.skillPrograms,
     );
     driver.advanceToFrame(3);
     expect(
@@ -154,6 +157,86 @@ describe('ScenarioSimulationService', () => {
         .toArray()
         .some(entry => entry.event === 'SkillStarted' && entry.data?.castId === cast.id),
     ).toBe(true);
+  });
+
+  it('同一保存点可用同一释放 ID 试验不同自定义定义，分支互不污染', () => {
+    const base = createPerlicaScenario();
+    const first = placeSkillGroup({
+      scenario: base,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:candidate` },
+    });
+    const second = placeSkillGroup({
+      scenario: first.scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'plungingAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:after-candidate` },
+    });
+    const placed = groupPlacedSkillSequence(second.scenario, [
+      ...first.skillCastIds,
+      ...second.skillCastIds,
+    ]);
+    const cast = placed.tracks[0]!.skillCasts[0]!;
+    const followingCastId = second.skillCastIds[0]!;
+    const short = structuredClone(placed);
+    short.tracks[0]!.skillCasts[0]!.customDefinition = {
+      ...perlicaBattleSkill,
+      timelineBlockFrames: 0,
+      costs: [],
+      scheduledSequences: [],
+    };
+    const long = structuredClone(placed);
+    long.tracks[0]!.skillCasts[0]!.customDefinition = {
+      ...perlicaBattleSkill,
+      timelineBlockFrames: perlicaBattleSkill.timelineBlockFrames,
+      costs: [],
+      scheduledSequences: [],
+    };
+    const service = createService();
+    const parent = new CombatInputSchedule(service.createInputCombatSession(base), []);
+    const saved = parent.save();
+    const shortSchedule = service.compileInputSchedule(short);
+    const longSchedule = service.compileInputSchedule(long);
+    expect(shortSchedule.inputs[0]!.skills![0]!.castId).toBe(cast.id);
+    expect(longSchedule.inputs[0]!.skills![0]!.castId).toBe(cast.id);
+
+    const branch = (schedule: ReturnType<ScenarioSimulationService['compileInputSchedule']>) =>
+      parent.forkWithInputsAfterCheckpoint(
+        saved,
+        schedule.inputs,
+        schedule.groups,
+        schedule.skillPrograms,
+      );
+    const shortBranch = branch(shortSchedule);
+    const longBranch = branch(longSchedule);
+    const shortRetry = branch(shortSchedule);
+    shortBranch.advanceToFrame(3);
+    const afterCustomInput = shortBranch.save();
+    const restoredShortBranch = shortBranch.fork(afterCustomInput);
+    shortBranch.advanceToFrame(40);
+    restoredShortBranch.advanceToFrame(40);
+    longBranch.advanceToFrame(40);
+    shortRetry.advanceToFrame(40);
+    const followingInputFrame = (driver: CombatInputSchedule) =>
+      driver.session.runtime
+        .readHistory()
+        .toArray()
+        .find(
+          entry => entry.event === 'SkillInputProcessed' && entry.data?.castId === followingCastId,
+        )!.frame;
+    expect(followingInputFrame(shortBranch)).toBeLessThan(followingInputFrame(longBranch));
+    expect(restoredShortBranch.session.runtime.readState()).toEqual(
+      shortBranch.session.runtime.readState(),
+    );
+    expect(shortRetry.session.runtime.readState()).toEqual(shortBranch.session.runtime.readState());
+    expect(parent.session.runtime.readState().shared.clock.frame).toBe(0);
+    shortBranch.discardCheckpoint(afterCustomInput);
+    parent.discardCheckpoint(saved);
   });
 
   it('外部连续组在截面恢复后沿实际边界接续，与正常排程投影一致', () => {

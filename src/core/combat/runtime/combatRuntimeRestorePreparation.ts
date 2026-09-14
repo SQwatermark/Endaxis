@@ -310,7 +310,11 @@ export function prepareCombatRuntimeRestore(
       const fullKey = `${operator.operatorId}\u0000${key}`;
       if (byKey.has(fullKey)) continue;
       const binding = fixedSkillPrograms.resolve(fullKey);
-      if (binding.castId === undefined || !configured.includes(binding.program)) {
+      if (
+        binding.castId === undefined ||
+        binding.program.operatorId !== operator.operatorId ||
+        !configured.some(program => program.skillId === binding.program.skillId)
+      ) {
         throw new Error(`restored dynamic skill '${fullKey}' uses another definition`);
       }
       additional.push({ castId: binding.castId, program: binding.program });

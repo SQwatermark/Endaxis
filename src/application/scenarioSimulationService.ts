@@ -1,5 +1,8 @@
 import type { ResolvedCombatStepForKind } from '../core/compiler/combatProgram';
-import { compileFixedCombatInputSchedule } from './compileFixedCombatInputSchedule';
+import {
+  compileCombatInputSchedule,
+  compileFixedCombatInputSchedule,
+} from './compileFixedCombatInputSchedule';
 import { planRecursiveSkillChain, type RecursiveSkillChain } from './recursiveSkillChain';
 /**
  * 给页面提供"跑一次模拟"的入口。
@@ -34,7 +37,10 @@ import {
   type StandardPlayerDamageCombatSession,
 } from './standardPlayerDamageCombatSession';
 import type { CompileScenarioResourcesOptions } from '../core/compiler/compileScenarioResources';
-import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
+import {
+  compileScenarioCustomSkillCastPrograms,
+  type CompileScenarioRuntimeAssemblyOptions,
+} from '../core/compiler/compileScenarioRuntimeAssembly';
 import type { ScenarioDocument } from '../core/project/schema';
 import { elementalAttachments } from '../data/buffs/elementalAttachments';
 import { compoundStatusFactories } from '../data/buffs/compoundStatusFactories';
@@ -359,9 +365,17 @@ export class ScenarioSimulationService {
     return this.#createCombatSession(scenario, scenario.battle.durationFrames, initialFrame);
   }
 
-  /** 仅解析已指定帧的人工输入，不重新编译战斗或技能定义。 */
+  /** 仅解析已指定帧的人工输入；不包含自定义技能程序，普通固定轴转换优先用此入口。 */
   compileFixedInputs(scenario: ScenarioDocument) {
     return compileFixedCombatInputSchedule(scenario, this.#options.index);
+  }
+
+  /** 编译保存点外部的人工输入计划，以及提交时才会绑定的自定义技能程序。 */
+  compileInputSchedule(scenario: ScenarioDocument) {
+    return {
+      ...compileCombatInputSchedule(scenario, this.#options.index),
+      skillPrograms: compileScenarioCustomSkillCastPrograms(scenario, this.#options.index),
+    };
   }
 
   #createCombatSession(

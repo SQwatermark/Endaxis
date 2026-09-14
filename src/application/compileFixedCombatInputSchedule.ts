@@ -10,12 +10,21 @@ import type { SkillInputGroup } from '../core/combat/runtime/combatInputRuntime'
 
 /**
  * 旧轴修复把各段拆成固定帧后，仅解析其人工输入，不编译技能动作或构筑。
- * 连续组仍需要动态排程；自定义定义的程序由逐帧会话在装配时单独绑定。
+ * 连续组仍需要动态排程；自定义技能程序由应用层另行编译，并在对应输入提交时绑定。
  */
 export function compileFixedCombatInputSchedule(
   scenario: ScenarioDocument,
   index: Pick<GameDataRepository, 'getOperator'>,
 ): readonly ScheduledCombatFrameInput[] {
+  if (
+    scenario.tracks.some(track =>
+      track?.skillCasts.some(
+        cast => !cast.presentation?.disabled && cast.customDefinition !== undefined,
+      ),
+    )
+  ) {
+    throw new Error('custom skill definitions require a compiled input schedule');
+  }
   const schedule = compileCombatInputSchedule(scenario, index);
   if (schedule.groups.length > 0) throw new Error('casts require a continuation schedule');
   return schedule.inputs;

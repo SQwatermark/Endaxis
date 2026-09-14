@@ -2273,6 +2273,65 @@ export class CombatRuntimeAssembly {
     ));
   }
 
+  /**
+   * 只在对应玩家输入即将提交时，把单次释放程序接入当前分支。
+   * 该登记会随检查点的 CombatSkillPrograms 复制，但不会进入纯数据状态图。
+   */
+  #bindSkillCastProgram({ castId, program }: CombatSkillCastProgram): void {
+    if (castId.length === 0) throw new Error('combat cast id must not be empty');
+    const operator = this.#operators.get(program.operatorId);
+    if (operator === undefined) {
+      throw new Error(
+        `combat cast '${castId}' belongs to unknown operator '${program.operatorId}'`,
+      );
+    }
+    const definitionKey = `${program.operatorId}\u0000${program.skillId}\u0000`;
+    if (!this.#skillPrograms.has(definitionKey)) {
+      throw new Error(
+        `combat cast '${program.operatorId}:${program.skillId}:${castId}' has no fixed definition`,
+      );
+    }
+    const key = `${program.operatorId}\u0000${program.skillId}\u0000${castId}`;
+    const existing = this.#skillPrograms.get(key);
+    if (existing !== undefined) {
+      if (existing !== program) {
+        throw new Error(`combat skill program '${key}' is already bound to another definition`);
+      }
+      return;
+    }
+    const statusRuntime = this.#operatorStatuses.get(program.operatorId);
+    const cooldownProgram = this.#skillCooldowns.get(
+      `${program.operatorId}\u0000${program.skillId}`,
+    )?.program;
+    if (cooldownProgram === undefined) {
+      throw new Error(
+        `combat cast '${program.operatorId}:${program.skillId}:${castId}' has no cooldown definition`,
+      );
+    }
+    this.#resolveSkillCooldown(operator, program);
+    this.combatSkillPrograms.register(program, castId);
+    this.#skillPrograms.set(key, program);
+    this.#castOperationBindings.set(castId, [
+      ...(this.#castOperationBindings.get(castId) ?? []),
+      { operator, program, ...(statusRuntime === undefined ? {} : { statusRuntime }) },
+    ]);
+    this.#pendingCastFactories.set(key, () =>
+      this.#createSkillRuntime(
+        operator,
+        program,
+        cooldownProgram,
+        this.#options.enemy,
+        this.#entityBlackboards.get(program.operatorId)!,
+        statusRuntime,
+        this.#options.createOperationExecutor,
+        this.#options.isOperatorControlled,
+        this.#options.resolveVitals,
+        this.#options.resolveOperatorVitals,
+        castId,
+      ),
+    );
+  }
+
   #createCombatInputRuntime(
     options: CombatRuntimeAssemblyOptions,
     restoredState?: CombatInputRuntimeState,
@@ -2432,8 +2491,18 @@ export class CombatRuntimeAssembly {
           };
           try {
             input.skills({
-              submit: (skill, frame) => {
+              submit: (skill, frame, skillProgram) => {
                 requireCurrentPhase(frame);
+                if (skillProgram !== undefined) {
+                  if (
+                    skill.castId !== skillProgram.castId ||
+                    skill.operatorId !== skillProgram.program.operatorId ||
+                    skill.skillId !== skillProgram.program.skillId
+                  ) {
+                    throw new Error('custom skill program does not match the submitted input');
+                  }
+                  this.#bindSkillCastProgram(skillProgram);
+                }
                 return execution.submit(skill, frame);
               },
               groupBlocked: event => {

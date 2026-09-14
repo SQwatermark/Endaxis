@@ -10,6 +10,7 @@ import {
 } from '../core/combat/runtime/combatInputRuntime';
 import type { CombatInputRuntimeState } from '../core/combat/runtime/combatInputRuntimeState';
 import type { CombatRuntimeCheckpoint } from '../core/combat/runtime/combatRuntimeSession';
+import type { CombatSkillCastProgram } from '../core/combat/runtime/combatRuntimeAssembly';
 import type { StandardPlayerDamageCombatSession } from './standardPlayerDamageCombatSession';
 
 /** 排程器在指定帧提交的一组人工输入。同帧技能按数组顺序，切人及人工标记保留各自的执行阶段。 */
@@ -44,6 +45,7 @@ export class CombatInputSchedule {
   #expectedInitialInputPending: boolean;
   #nextIndex = 0;
   readonly #groups: readonly SkillInputGroup[];
+  readonly #skillProgramsByCastId: ReadonlyMap<string, CombatSkillCastProgram>;
   #skills: CombatInputRuntime | undefined;
   #phase: CombatSkillInputPhase | undefined;
   readonly #checkpoints = new WeakMap<CombatInputScheduleCheckpoint, SavedSchedule>();
@@ -52,6 +54,7 @@ export class CombatInputSchedule {
     readonly session: StandardPlayerDamageCombatSession,
     inputs: readonly ScheduledCombatFrameInput[],
     groups: readonly SkillInputGroup[] = [],
+    skillPrograms: readonly CombatSkillCastProgram[] = [],
     restoration?: ScheduleRestoration,
   ) {
     const restored = restoration?.[scheduleRestoration];
@@ -78,6 +81,31 @@ export class CombatInputSchedule {
     }
     this.#inputs = structuredClone(inputs);
     this.#groups = structuredClone(groups);
+    const scheduledSkills = new Map(
+      this.#inputs.flatMap(input =>
+        (input.skills ?? []).flatMap(skill =>
+          skill.castId === undefined ? [] : [[skill.castId, skill] as const],
+        ),
+      ),
+    );
+    const programsByCastId = new Map<string, CombatSkillCastProgram>();
+    for (const binding of skillPrograms) {
+      const skill = scheduledSkills.get(binding.castId);
+      if (skill === undefined) {
+        throw new Error(`skill program '${binding.castId}' has no scheduled input`);
+      }
+      if (
+        binding.program.operatorId !== skill.operatorId ||
+        binding.program.skillId !== skill.skillId
+      ) {
+        throw new Error(`skill program '${binding.castId}' does not match its scheduled input`);
+      }
+      if (programsByCastId.has(binding.castId)) {
+        throw new Error(`duplicate scheduled skill program '${binding.castId}'`);
+      }
+      programsByCastId.set(binding.castId, binding);
+    }
+    this.#skillProgramsByCastId = programsByCastId;
     this.#nextIndex = restored?.nextIndex ?? 0;
     this.#generation = session.runtime.generation;
     this.#expectedFrame = session.runtime.frame;
@@ -98,7 +126,7 @@ export class CombatInputSchedule {
           (input.skills ?? []).map(skill => ({ ...skill, frame: input.frame })),
         ),
         execution: {
-          submit: (input, frame) => requirePhase().submit(input, frame),
+          submit: (input, frame) => this.#submitSkill(requirePhase(), input, frame),
           groupBlocked: input => requirePhase().groupBlocked(input),
         },
         skillInputGroups: {
@@ -129,6 +157,7 @@ export class CombatInputSchedule {
     checkpoint: CombatInputScheduleCheckpoint,
     additions: readonly ScheduledCombatFrameInput[] = [],
     addedGroups: readonly SkillInputGroup[] = [],
+    addedSkillPrograms: readonly CombatSkillCastProgram[] = [],
   ): CombatInputSchedule {
     this.#assertCurrent();
     const saved = this.#checkpoints.get(checkpoint);
@@ -211,9 +240,15 @@ export class CombatInputSchedule {
         })),
       );
     }
-    return new CombatInputSchedule(this.session.fork(saved.combat), inputs, groups, {
-      [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },
-    });
+    return new CombatInputSchedule(
+      this.session.fork(saved.combat),
+      inputs,
+      groups,
+      [...this.#skillProgramsByCastId.values(), ...addedSkillPrograms],
+      {
+        [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },
+      },
+    );
   }
 
   /**
@@ -224,6 +259,7 @@ export class CombatInputSchedule {
     checkpoint: CombatInputScheduleCheckpoint,
     inputsAfterCheckpoint: readonly ScheduledCombatFrameInput[],
     groupsAfterCheckpoint: readonly SkillInputGroup[] = [],
+    skillProgramsAfterCheckpoint: readonly CombatSkillCastProgram[] = [],
   ): CombatInputSchedule {
     this.#assertCurrent();
     const saved = this.#checkpoints.get(checkpoint);
@@ -286,6 +322,16 @@ export class CombatInputSchedule {
     }
 
     const groups = [...retainedGroups, ...groupsAfterCheckpoint];
+    const retainedCastIds = new Set([
+      ...historicalCastIds,
+      ...retainedGroups.flatMap(group => group.castIds),
+    ]);
+    const skillPrograms = [
+      ...[...this.#skillProgramsByCastId.values()].filter(binding =>
+        retainedCastIds.has(binding.castId),
+      ),
+      ...skillProgramsAfterCheckpoint,
+    ];
     let skills: CombatInputRuntimeState | undefined;
     if (groups.length > 0) {
       const base =
@@ -318,6 +364,7 @@ export class CombatInputSchedule {
       this.session.fork(saved.combat),
       [...prefix, ...inputsAfterCheckpoint],
       groups,
+      skillPrograms,
       {
         [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },
       },
@@ -332,18 +379,36 @@ export class CombatInputSchedule {
   }
 
   #frameInput(input?: ScheduledCombatFrameInput): CombatFrameInput {
-    if (this.#skills === undefined) return input ?? {};
+    if (this.#skills === undefined && this.#skillProgramsByCastId.size === 0) return input ?? {};
     return {
       ...input,
       skills: phase => {
-        this.#phase = phase;
-        try {
-          this.#skills!.applyCurrentFrame();
-        } finally {
-          this.#phase = undefined;
+        if (this.#skills === undefined) {
+          for (const skill of input?.skills ?? []) {
+            this.#submitSkill(phase, { ...skill, frame: input!.frame }, input!.frame);
+          }
+        } else {
+          this.#phase = phase;
+          try {
+            this.#skills.applyCurrentFrame();
+          } finally {
+            this.#phase = undefined;
+          }
         }
       },
     };
+  }
+
+  #submitSkill(
+    phase: CombatSkillInputPhase,
+    input: ScheduledSkillInput,
+    actualFrame: number,
+  ): boolean {
+    if (input.castId !== undefined) {
+      const binding = this.#skillProgramsByCastId.get(input.castId);
+      if (binding !== undefined) return phase.submit(input, actualFrame, binding);
+    }
+    return phase.submit(input, actualFrame);
   }
 
   #assertCurrent(): void {
