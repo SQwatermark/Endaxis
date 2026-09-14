@@ -822,81 +822,10 @@ export class CombatRuntimeAssembly {
       if (statusRuntime !== undefined) {
         this.#operatorStatuses.set(operator.operatorId, statusRuntime);
       }
-      const registerCastOperationBinding = (program: CompiledSkillProgram) => {
-        const bindingsMap =
-          program.castId === undefined
-            ? this.#unboundSkillOperationBindings
-            : this.#castOperationBindings;
-        const bindingKey =
-          program.castId === undefined
-            ? `${operator.operatorId}\u0000${program.skillId}`
-            : program.castId;
-        const bindings = bindingsMap.get(bindingKey) ?? [];
-        if (bindings.some(binding => binding.program.skillId === program.skillId)) {
-          throw new Error(
-            `duplicate combat skill operation binding '${bindingKey}/${program.skillId}'`,
-          );
-        }
-        bindingsMap.set(bindingKey, [
-          ...bindings,
-          {
-            operator: runtimeOperator,
-            program,
-            ...(statusRuntime === undefined ? {} : { statusRuntime }),
-          },
-        ]);
-      };
-      for (const program of runtimeOperator.skills) {
-        const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId ?? ''}`;
-        if (this.#skillPrograms.has(programKey)) {
-          throw new Error(`duplicate combat skill program '${programKey}'`);
-        }
-        this.#skillPrograms.set(programKey, program);
-        if (program.sourceSkillId !== undefined) {
-          const nativeKey = `${operator.operatorId}\u0000${program.sourceSkillId}`;
-          if (this.#ambiguousNativeSkillKeys.has(nativeKey)) continue;
-          const previous = this.#nativeSkillKeys.get(nativeKey);
-          if (previous !== undefined && previous !== program.skillId) {
-            // 一个原生技能可以被多个可编辑逻辑入口复用（例如基础槽位与强化期槽位）。
-            // 时间轴按逻辑 skillId 精确执行；只有原生 CastSkill 真正尝试按该 ID 路由时才要求唯一。
-            this.#nativeSkillKeys.delete(nativeKey);
-            this.#ambiguousNativeSkillKeys.add(nativeKey);
-            continue;
-          }
-          this.#nativeSkillKeys.set(nativeKey, program.skillId);
-        }
-        registerCastOperationBinding(program);
-      }
-      // 带 castId 的时间轴实例只服务该技能块；Buff/技能内部按原生 ID 延迟
-      // Cast 仍需要无 castId 的静态定义。两者的 AbilitySkillKey 不同，可以并存。
-      const placedUnboundSkillIds = new Set(
-        runtimeOperator.skills
-          .filter(program => program.castId === undefined)
-          .map(program => program.skillId),
+      const hiddenSkillPrograms = this.#registerOperatorSkillPrograms(
+        runtimeOperator,
+        statusRuntime,
       );
-      const hiddenSkillPrograms = (runtimeOperator.definitionSkillPrograms ?? []).filter(
-        program => !placedUnboundSkillIds.has(program.skillId),
-      );
-      for (const program of hiddenSkillPrograms) {
-        const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000`;
-        if (this.#skillPrograms.has(programKey)) {
-          throw new Error(`duplicate hidden combat skill program '${programKey}'`);
-        }
-        this.#skillPrograms.set(programKey, program);
-        // 原生 CastSkill 启动的隐藏定义没有时间轴块 castId；其后代 Buff 仍以逻辑 skillId
-        // 保存施法来源，生命周期必须能回到同一静态操作程序，而不是只认识玩家放置块。
-        registerCastOperationBinding(program);
-        if (program.sourceSkillId === undefined) continue;
-        const nativeKey = `${operator.operatorId}\u0000${program.sourceSkillId}`;
-        if (this.#ambiguousNativeSkillKeys.has(nativeKey)) continue;
-        const previous = this.#nativeSkillKeys.get(nativeKey);
-        if (previous !== undefined && previous !== program.skillId) {
-          this.#nativeSkillKeys.delete(nativeKey);
-          this.#ambiguousNativeSkillKeys.add(nativeKey);
-          continue;
-        }
-        this.#nativeSkillKeys.set(nativeKey, program.skillId);
-      }
       // 放置块自定义定义仍是实际执行体；同 ID 的其他块必须保持冷却一致。
       // 原目录保留推进顺序，额外自定义身份追加；不执行静态目录中的任何技能动作。
       const cooldownPrograms = new Map<string, CompiledSkillCooldownProgram>();
@@ -1921,6 +1850,82 @@ export class CombatRuntimeAssembly {
         return entity;
       },
     };
+  }
+
+  /** 新战斗与恢复分支共用同一套固定技能寻址，不在恢复器另猜隐藏技能或原生路由。 */
+  #registerOperatorSkillPrograms(
+    operator: CombatOperatorProgram,
+    statusRuntime: CombatStatusRuntime | undefined,
+  ): readonly CompiledSkillProgram[] {
+    const registerCastOperationBinding = (program: CompiledSkillProgram) => {
+      const bindingsMap =
+        program.castId === undefined
+          ? this.#unboundSkillOperationBindings
+          : this.#castOperationBindings;
+      const bindingKey =
+        program.castId === undefined
+          ? `${operator.operatorId}\u0000${program.skillId}`
+          : program.castId;
+      const bindings = bindingsMap.get(bindingKey) ?? [];
+      if (bindings.some(binding => binding.program.skillId === program.skillId)) {
+        throw new Error(
+          `duplicate combat skill operation binding '${bindingKey}/${program.skillId}'`,
+        );
+      }
+      bindingsMap.set(bindingKey, [
+        ...bindings,
+        {
+          operator,
+          program,
+          ...(statusRuntime === undefined ? {} : { statusRuntime }),
+        },
+      ]);
+    };
+    const registerNativeSkill = (program: CompiledSkillProgram): boolean => {
+      if (program.sourceSkillId === undefined) return false;
+      const nativeKey = `${operator.operatorId}\u0000${program.sourceSkillId}`;
+      if (this.#ambiguousNativeSkillKeys.has(nativeKey)) return true;
+      const previous = this.#nativeSkillKeys.get(nativeKey);
+      if (previous !== undefined && previous !== program.skillId) {
+        this.#nativeSkillKeys.delete(nativeKey);
+        this.#ambiguousNativeSkillKeys.add(nativeKey);
+        return true;
+      }
+      this.#nativeSkillKeys.set(nativeKey, program.skillId);
+      return false;
+    };
+    const registerProgramIdentity = (program: CompiledSkillProgram, hidden: boolean) => {
+      const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId ?? ''}`;
+      if (this.#skillPrograms.has(programKey)) {
+        throw new Error(
+          `${hidden ? 'duplicate hidden' : 'duplicate'} combat skill program '${programKey}'`,
+        );
+      }
+      this.#skillPrograms.set(programKey, program);
+    };
+
+    for (const program of operator.skills) {
+      registerProgramIdentity(program, false);
+      // 保持既有歧义路由行为；此处只抽取登记代码，不在切面改造中修正它。
+      if (registerNativeSkill(program)) continue;
+      registerCastOperationBinding(program);
+    }
+    // 带 castId 的时间轴实例只服务该技能块；Buff/技能内部按原生 ID 延迟 Cast
+    // 仍需要无 castId 的静态定义，两者可以同时登记。
+    const placedUnboundSkillIds = new Set(
+      operator.skills
+        .filter(program => program.castId === undefined)
+        .map(program => program.skillId),
+    );
+    const hiddenSkillPrograms = (operator.definitionSkillPrograms ?? []).filter(
+      program => !placedUnboundSkillIds.has(program.skillId),
+    );
+    for (const program of hiddenSkillPrograms) {
+      registerProgramIdentity(program, true);
+      registerCastOperationBinding(program);
+      registerNativeSkill(program);
+    }
+    return hiddenSkillPrograms;
   }
 
   #createSkillRuntime(
