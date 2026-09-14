@@ -140,26 +140,34 @@ function createFixture() {
     combatSkillPrograms: skillPrograms,
     externalEvents,
   });
-  const restore = vi.fn((graph: typeof original.stateGraph) =>
-    CombatRuntimeAssembly.restore({
-      graph,
-      resources,
-      enemy,
-      operators,
-      inputs,
-      environment: environmentInput(),
-      abilityEntityChildSkillPrograms: childPrograms,
-      combatOperationPrograms: operationPrograms,
-      combatSkillPrograms: skillPrograms,
-      projectileCallbackPrograms: callbackPrograms,
-      externalEvents,
-    }),
-  );
-  return { session: new CombatRuntimeSession(original, restore), restore };
+  const createRestore =
+    (candidateInputs = inputs, candidateExternalEvents = externalEvents) =>
+    (graph: typeof original.stateGraph) =>
+      CombatRuntimeAssembly.restore({
+        graph,
+        resources,
+        enemy,
+        operators,
+        inputs: candidateInputs,
+        environment: environmentInput(),
+        abilityEntityChildSkillPrograms: childPrograms,
+        combatOperationPrograms: operationPrograms,
+        combatSkillPrograms: skillPrograms,
+        projectileCallbackPrograms: callbackPrograms,
+        externalEvents: candidateExternalEvents,
+      });
+  const restore = vi.fn(createRestore());
+  return {
+    session: new CombatRuntimeSession(original, restore),
+    restore,
+    createRestore,
+    inputs,
+    externalEvents,
+  };
 }
 
 it('从同一完整帧按 A、B、A 回退，失败候选不替换当前装配', () => {
-  const { session, restore } = createFixture();
+  const { session, restore, createRestore, inputs, externalEvents } = createFixture();
   session.advanceFrames(3);
   const checkpoint = session.save();
 
@@ -175,11 +183,20 @@ it('从同一完整帧按 A、B、A 回退，失败候选不替换当前装配',
   expect(
     branchA.shared.receipts.entries.filter(entry => entry.event === 'SkillInputProcessed'),
   ).toHaveLength(2);
-  session.restore(checkpoint);
-  session.advanceFrames(5);
+  expect(() =>
+    session.restore(
+      checkpoint,
+      createRestore([{ ...inputs[0]!, castId: 'cast:b' }, inputs[1]!], externalEvents),
+    ),
+  ).toThrow('fixed input prefix does not match program');
+  expect(session.readState()).toEqual(branchA);
+  session.restore(checkpoint, createRestore(inputs.slice(0, 1), externalEvents.slice(0, 1)));
+  session.advanceFrames(2);
   const branchB = session.readState();
-  expect(branchB.shared.clock.frame).toBe(8);
-  expect(branchB.shared.resources.sp).toBeGreaterThan(branchA.shared.resources.sp);
+  expect(branchB.shared.clock.frame).toBe(5);
+  expect(branchB.inputs.skills.nextInputIndex).toBe(1);
+  expect(branchB.inputs.externalEvents.nextEventIndex).toBe(1);
+  expect(branchB).not.toEqual(branchA);
 
   session.restore(checkpoint);
   session.advanceFrames(2);

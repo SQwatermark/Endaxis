@@ -104,10 +104,11 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
     inputs: {
       skills: {
         nextInputIndex: 0,
+        previousFixedInput: null,
         continuation: { nextIndex: 1, previous: null, stopped: false },
         groups: [],
       },
-      externalEvents: { nextEventIndex: 0 },
+      externalEvents: { nextEventIndex: 0, previousEvent: null },
     },
     environment: saved.environment,
     events: { native: new Map(), semantic: saved.semanticEvents },

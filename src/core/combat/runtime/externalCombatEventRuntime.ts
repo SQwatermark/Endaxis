@@ -76,13 +76,20 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
       }
       previousFrame = input.frame;
     }
-    this.runtimeState = options.restoredState ?? { nextEventIndex: 0 };
+    this.runtimeState = options.restoredState ?? { nextEventIndex: 0, previousEvent: null };
     if (
       !Number.isSafeInteger(this.runtimeState.nextEventIndex) ||
       this.runtimeState.nextEventIndex < 0 ||
       this.runtimeState.nextEventIndex > this.#events.length
     ) {
       throw new Error('restored external event cursor is out of range');
+    }
+    const expectedPreviousEvent =
+      this.runtimeState.nextEventIndex === 0
+        ? null
+        : this.#events[this.runtimeState.nextEventIndex - 1]!;
+    if (!sameExternalEventInput(this.runtimeState.previousEvent, expectedPreviousEvent)) {
+      throw new Error('restored external event prefix does not match program');
     }
   }
 
@@ -96,6 +103,7 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
       const input = this.#events[this.runtimeState.nextEventIndex];
       if (input === undefined || input.frame > actualFrame) break;
       this.runtimeState.nextEventIndex += 1;
+      this.runtimeState.previousEvent = input;
       if (input.event.kind === 'comboCooldownControl') {
         if (this.#controlComboCooldown === undefined)
           throw new Error('combo cooldown control handler is missing');
@@ -151,4 +159,34 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
       }
     }
   }
+}
+
+function sameExternalEventInput(
+  left: ScheduledExternalCombatEventInput | null,
+  right: ScheduledExternalCombatEventInput | null,
+): boolean {
+  if (left === right) return true;
+  if (left === null || right === null || left.frame !== right.frame) return false;
+  if (
+    left.targetOperatorIds.length !== right.targetOperatorIds.length ||
+    left.targetOperatorIds.some((id, index) => id !== right.targetOperatorIds[index]) ||
+    left.event.kind !== right.event.kind
+  )
+    return false;
+  if (left.event.kind === 'comboCooldownControl') {
+    return right.event.kind === left.event.kind && left.event.mode === right.event.mode;
+  }
+  if (left.event.kind === 'operatorHit') {
+    if (right.event.kind !== 'operatorHit') return false;
+    const leftEvent = left.event;
+    const rightEvent = right.event;
+    return (
+      leftEvent.damageType === rightEvent.damageType &&
+      leftEvent.tags.length === rightEvent.tags.length &&
+      leftEvent.tags.every((tag, index) => tag === rightEvent.tags[index]) &&
+      leftEvent.features.length === rightEvent.features.length &&
+      leftEvent.features.every((feature, index) => feature === rightEvent.features[index])
+    );
+  }
+  return true;
 }

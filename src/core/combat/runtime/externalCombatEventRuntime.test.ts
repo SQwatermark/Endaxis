@@ -51,6 +51,42 @@ describe('ExternalCombatEventRuntime', () => {
     expect(restoredReceipt.runtimeState).toEqual(originalReceipt.runtimeState);
   });
 
+  it('允许替换未来事实，但拒绝把不同的已消费前缀绑定到保存游标', () => {
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const consumed = {
+      frame: 0,
+      targetOperatorIds: ['operator'],
+      event: { kind: 'enemyWeaknessSet' as const },
+    };
+    const original = new ExternalCombatEventRuntime({
+      clock,
+      receipt,
+      events: [consumed, { ...consumed, frame: 4 }],
+    });
+    original.applyCurrentFrame();
+    const saved = structuredClone(original.runtimeState);
+
+    expect(
+      () =>
+        new ExternalCombatEventRuntime({
+          clock,
+          receipt,
+          events: [consumed],
+          restoredState: structuredClone(saved),
+        }),
+    ).not.toThrow();
+    expect(
+      () =>
+        new ExternalCombatEventRuntime({
+          clock,
+          receipt,
+          events: [{ ...consumed, targetOperatorIds: ['other'] }],
+          restoredState: structuredClone(saved),
+        }),
+    ).toThrow('external event prefix does not match program');
+  });
+
   it('dispatches explicit operator hit facts without creating a damage result', () => {
     const clock = new CombatClock();
     const { semanticEvents: events, dispatcher } = createNativeEventFixture();

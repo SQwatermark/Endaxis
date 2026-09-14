@@ -9,6 +9,7 @@ export interface SkillInputGroupRuntimeState {
 
 export interface CombatInputRuntimeState {
   nextInputIndex: number;
+  previousFixedInput: ScheduledSkillInput | null;
   readonly continuation: {
     nextIndex: number;
     previous: ScheduledSkillInput | null;

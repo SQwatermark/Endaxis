@@ -169,6 +169,7 @@ export class CombatInputRuntime implements FrameRuntime {
     );
     this.runtimeState = options.restoredState ?? {
       nextInputIndex: 0,
+      previousFixedInput: null,
       continuation: { nextIndex: 1, previous: null, stopped: false },
       groups: this.#groups.map(group => group.state),
     };
@@ -178,6 +179,15 @@ export class CombatInputRuntime implements FrameRuntime {
       this.runtimeState.nextInputIndex > this.#inputs.length
     ) {
       throw new Error('restored fixed input cursor is out of range');
+    }
+    const expectedPreviousFixedInput =
+      this.runtimeState.nextInputIndex === 0
+        ? null
+        : this.#inputs[this.runtimeState.nextInputIndex - 1]!;
+    if (
+      !sameScheduledSkillInput(this.runtimeState.previousFixedInput, expectedPreviousFixedInput)
+    ) {
+      throw new Error('restored fixed input prefix does not match program');
     }
     validateContinuationState(
       this.runtimeState.continuation,
@@ -202,6 +212,7 @@ export class CombatInputRuntime implements FrameRuntime {
       const input = this.#inputs[this.runtimeState.nextInputIndex];
       if (input === undefined || input.frame > actualFrame) break;
       this.runtimeState.nextInputIndex += 1;
+      this.runtimeState.previousFixedInput = input;
       ready.push({ input, order: this.#declarationOrder.get(input)! });
     }
     // 就绪状态在输入阶段开始时读取；本帧刚启动的组不能在同帧再推进一段。
@@ -316,6 +327,23 @@ export class CombatInputRuntime implements FrameRuntime {
   #processInput(input: ScheduledSkillInput): boolean {
     return processCombatSkillInput(input, this.#clock.frame, this.#tryStartSkill, this.#receipt);
   }
+}
+
+function sameScheduledSkillInput(
+  left: ScheduledSkillInput | null,
+  right: ScheduledSkillInput | null,
+): boolean {
+  return (
+    left === right ||
+    (left !== null &&
+      right !== null &&
+      left.frame === right.frame &&
+      left.operatorId === right.operatorId &&
+      left.skillId === right.skillId &&
+      left.action === right.action &&
+      left.castId === right.castId &&
+      left.declarationOrder === right.declarationOrder)
+  );
 }
 
 function validateGroupState(

@@ -74,7 +74,10 @@ export class CombatRuntimeSession {
     }
   }
 
-  restore(checkpoint: CombatRuntimeCheckpoint): void {
+  restore(
+    checkpoint: CombatRuntimeCheckpoint,
+    restoreAssembly: RestoreCombatRuntimeAssembly = this.#restoreAssembly,
+  ): void {
     if (this.#phase !== 'idle' && this.#phase !== 'faulted') {
       throw new Error(`cannot restore combat session while ${this.#phase}`);
     }
@@ -83,7 +86,7 @@ export class CombatRuntimeSession {
     const previousPhase = this.#phase;
     this.#phase = 'restoring';
     try {
-      const candidate = this.#restoreAssembly(structuredClone(saved));
+      const candidate = restoreAssembly(structuredClone(saved));
       this.#current = candidate;
       this.#generation += 1;
       this.#phase = 'idle';
