@@ -38,6 +38,10 @@ import { createDamageModifierConditionProgram } from './damageModifierSequenceRu
 import { RuntimeTargetContext } from './runtimeTargetContext';
 import type { AbilityEventRegistration } from '../events/abilityEventDispatcher';
 import type { AbilityEventSubscriptionReference } from '../events/abilityEventState';
+import {
+  createCombatOperationHostState,
+  type CombatOperationHostState,
+} from './combatOperationHostState';
 import type { KnockDownOutputEvent } from './combatSemanticEventRuntime';
 import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 import { type AbilityResponseEventName } from '../events/combatAbilityEvent';
@@ -314,6 +318,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
     buff: CombatBuff<Key>,
     actionSourceId?: string,
     skillCastInfo?: CombatSkillCastInfo | null,
+    operationState?: CombatOperationHostState,
   ) => CombatOperationExecutor,
   currentTarget?: RuntimeTargetRef,
   abilityEventResponses: readonly ResolvedSkillBuffAbilityEventResponse[] = [],
@@ -547,7 +552,8 @@ export function attachBuffLifecycleSequences<Key extends string>(
       addCurrentBuffChild: child => buff.attachChildBuff(child),
       setCurrentBuffTimePaused: paused => buff.setTimePaused(paused),
     };
-    const defaultOperations = resolveOperations(buff);
+    const operationState = restoredHost?.operations ?? createCombatOperationHostState();
+    const defaultOperations = resolveOperations(buff, undefined, undefined, operationState);
     const callbackOperations = new WeakMap<CombatOperationContext, CombatOperationExecutor>();
     const operationsFor = (callback?: CombatOperationContext): CombatOperationExecutor => {
       if (callback?.actionSourceId === undefined) return defaultOperations;
@@ -557,6 +563,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
           buff,
           callback.actionSourceId,
           callback.skillCastInfo ?? null,
+          operationState,
         );
         callbackOperations.set(callback, operations);
       }
@@ -579,6 +586,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
     runtimes.set(buff, runtime);
     if (restoredHost !== undefined) return runtime;
     buff.runtimeState.actionHost = {
+      operations: operationState,
       affixes: [],
       nextAffixId: 1,
       eventResponses: [],

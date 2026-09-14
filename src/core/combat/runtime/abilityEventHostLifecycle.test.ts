@@ -115,6 +115,26 @@ it('stores subscription and child identities without storing their runtime objec
   expect(host.runtimeState.childBuffs[0]).toEqual(child.reference);
 });
 
+it('forgets a child Buff that finishes while its Ability host remains enabled', () => {
+  const host = new AbilityEventHostLifecycle();
+  const finish = vi.fn(() => true);
+  let notifyFinished: (() => void) | undefined;
+  host.addChildBuff({
+    reference: { ownerId: 'owner', instanceId: 7 },
+    finish,
+    bindFinishedCallback: callback => {
+      notifyFinished = callback;
+      return { dispose: vi.fn() };
+    },
+  });
+
+  notifyFinished!();
+
+  expect(host.runtimeState.childBuffs).toEqual([]);
+  host.dispose();
+  expect(finish).not.toHaveBeenCalled();
+});
+
 it('binds restored subscriptions and child Buffs without changing saved data', () => {
   const dispatcher = new AbilityEventDispatcher<'changed'>();
   const original = new AbilityEventHostLifecycle();

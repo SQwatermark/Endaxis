@@ -68,6 +68,72 @@ describe('BuffDefinitionOperationTarget', () => {
     expect(restored.findFirstByIds(['saved'])?.blackboard.getNumber('value')).toBe(3);
     expect(restored.resolveHandle({ ownerId: 'operator', instanceId: 1 })).toBeDefined();
   });
+
+  it('保存动作宿主时优先用带生命周期绑定的来源定义恢复', () => {
+    const compile = (entry: CombatBuffDefinitionEntry): CombatBuffDefinition<string> => ({
+      id: entry.id,
+      stackingType: entry.stackingType,
+      durationSeconds: entry.durationSeconds,
+    });
+    const sourceDefinition = {
+      stackingType: 'unique',
+      durationSeconds: 10,
+      lifecycleSequences: { trigger: { steps: [] } },
+    } as const;
+    const originalContainer = new CombatBuffContainer<string>(
+      'enemy',
+      new CombatAttributeSet<string>(),
+    );
+    const original = new BuffDefinitionOperationTarget(originalContainer, {
+      get: () => undefined,
+      compile,
+    });
+    original.configureLifecycleOperations(() => ({
+      execute: () => true,
+      evaluate: () => true,
+    }));
+    original.apply({
+      buffId: 'shared-lifecycle-buff',
+      sourceId: 'operator',
+      definitionOwnerId: 'operator',
+      definition: sourceDefinition,
+      blackboardValues: {},
+    });
+    const saved = structuredClone(originalContainer.runtimeState);
+    expect(saved.instances.get(1)?.actionHost).not.toBeNull();
+
+    const restoredContainer = new CombatBuffContainer(
+      'enemy',
+      new CombatAttributeSet<string>(saved.attributes),
+      undefined,
+      null,
+      ActionBlackboard.bindRuntimeState(saved.entityBlackboard),
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      saved,
+    );
+    const restored = new BuffDefinitionOperationTarget(restoredContainer, {
+      // 元素系统可能预先缓存同身份的静态定义；它不能接管带动作宿主的实例。
+      get: id => ({ id, stackingType: 'unique' }),
+      compile,
+    });
+    restored.configureLifecycleOperations(() => ({
+      execute: () => true,
+      evaluate: () => true,
+    }));
+
+    expect(() =>
+      restored.bindRestoredInstances((id, ownerId) =>
+        id === 'shared-lifecycle-buff' && ownerId === 'operator' ? sourceDefinition : undefined,
+      ),
+    ).not.toThrow();
+    expect(restored.resolveHandle({ ownerId: 'enemy', instanceId: 1 })).toBeDefined();
+  });
+
   it.each(['unique', 'refresh'] as const)(
     '成功事件早于已有关键词增强，%s 重施按实际结果执行',
     stackingType => {

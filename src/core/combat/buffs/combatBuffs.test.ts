@@ -303,6 +303,24 @@ it('结束父 Buff 时继续处理回调中新附着的子实例，释放则仅�
   expect(survivor.isFinished).toBe(false);
 });
 
+it('子 Buff 独立结束后从仍存续的父 Buff 关系中移除', () => {
+  const attributes = new CombatAttributeSet<Attribute>();
+  const container = new CombatBuffContainer('owner', attributes);
+  const parent = requireAddedBuff(
+    container.add({ id: 'parent', stackingType: 'unlimited' }, 'source'),
+  );
+  const child = requireAddedBuff(
+    container.add({ id: 'child', stackingType: 'unlimited' }, 'source'),
+  );
+  parent.attachChildBuff(child);
+
+  child.finish('lifetime', null);
+  container.recycleFinishedBuffs();
+
+  expect(parent.runtimeState.children.members.size).toBe(0);
+  expect(parent.isFinished).toBe(false);
+});
+
 it('宿主释放清理实例，但不执行普通结束动作或发布结束/减层通知', () => {
   const seen: string[] = [];
   const attributes = new CombatAttributeSet<Attribute>();

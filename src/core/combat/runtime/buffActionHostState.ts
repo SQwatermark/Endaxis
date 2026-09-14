@@ -10,6 +10,7 @@ import type { ActionSequenceState } from '../actions/actionSequenceState';
 import type { TimelineRuntimeState } from '../timeline/timelineActionProcessor';
 import type { SkillAffixState } from './skillAffixState';
 import type { AbilityEventSubscriptionReference } from '../events/abilityEventState';
+import type { CombatOperationHostState } from './combatOperationHostState';
 
 export interface BuffScheduledActionState {
   passedFrames: number;
@@ -23,6 +24,8 @@ export interface BuffEventResponseState {
 }
 
 export interface BuffActionHostState {
+  /** 生命周期步骤已经登记的实体、时间膨胀等关系；恢复后由当前分支端口继续清理。 */
+  readonly operations: CombatOperationHostState;
   readonly affixes: SkillAffixState[];
   nextAffixId: number;
   /** 与定义中的能力事件响应同序；同时保留动作进度和实际安装的订阅。 */

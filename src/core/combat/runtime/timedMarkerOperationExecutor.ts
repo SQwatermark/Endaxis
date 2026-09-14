@@ -80,10 +80,17 @@ export class TimedMarkerOperationExecutor implements CombatOperationExecutor {
         : step.kind === 'createTimedMarker' && step.parameters.timeDomain === 'globalScaled'
           ? this.#requireGlobalScaledClock()
           : undefined;
+    const markerClockDomain =
+      step.kind === 'createAbilityEntityTimedMarker' && step.parameters.timeDomain === 'global'
+        ? 'global'
+        : step.kind === 'createTimedMarker' && step.parameters.timeDomain === 'globalScaled'
+          ? 'globalScaled'
+          : 'default';
     const handle = target.add(
       resolveMarkerId(step.parameters.markerId, context),
       duration,
       markerClock,
+      markerClockDomain,
     );
     if (step.parameters.autoFinishByAction) {
       const slot = this.programs.slot(step);

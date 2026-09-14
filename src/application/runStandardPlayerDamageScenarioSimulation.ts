@@ -10,7 +10,10 @@ import type { CompoundStatusFactoriesDocument } from '../core/combat/infliction/
 import type { PlayerDamageNonRandomRuntimeSnapshot } from '../core/combat/damage/playerActiveDamageInput';
 import type { CriticalSampleSource } from '../core/combat/random/criticalSampleSource';
 import type { ProbabilitySampleSource } from '../core/combat/random/probabilitySampleSource';
-import type { SimulationRandomMode } from '../core/combat/random/simulationRandom';
+import type {
+  SimulationRandomMode,
+  SimulationRandomSettings,
+} from '../core/combat/random/simulationRandom';
 import {
   StandardPlayerDamageEnvironment,
   type StandardPlayerDamageEnvironmentOptions,
@@ -27,6 +30,8 @@ import {
   type ScenarioSimulationResult,
 } from './runScenarioSimulation';
 import type { CombatStateGraph } from '../core/combat/runtime/combatStateGraph';
+import type { RestoredCombatEnvironmentInput } from '../core/combat/runtime/combatRuntimeRestoreFoundation';
+import type { OrdinaryKnockDownRuntime } from '../core/combat/runtime/ordinaryKnockDownRuntime';
 import type { ScenarioDocument } from '../core/project/schema';
 import {
   compileScenarioMechanics,
@@ -57,6 +62,8 @@ export interface RunStandardPlayerDamageScenarioInput {
   readonly probabilitySamples?: ProbabilitySampleSource;
   readonly randomMode?: SimulationRandomMode;
   readonly randomState?: StandardPlayerDamageEnvironmentOptions['randomState'];
+  /** 存在完整随机状态时用于恢复分支重建样本源；自定义无状态样本端口省略。 */
+  readonly simulationRandomSettings?: SimulationRandomSettings;
   readonly resolveNonRandomRuntimeSnapshot: (
     context: CombatDamageExecutorContext,
     step: DamageStep,
@@ -87,6 +94,11 @@ export interface StandardPlayerDamageScenarioResult extends ScenarioSimulationRe
   readonly buffProgressCurves: readonly BuffProgressCurve[];
 }
 
+export interface PreparedStandardPlayerDamageScenarioRuntime {
+  readonly compiled: CombatRuntimeAssemblyOptions;
+  readonly restoredEnvironment: RestoredCombatEnvironmentInput;
+}
+
 /** 执行一次不会跨场景复用状态的标准玩家生命伤害模拟。 */
 export function runStandardPlayerDamageScenarioSimulation(
   input: RunStandardPlayerDamageScenarioInput,
@@ -98,8 +110,22 @@ export function runStandardPlayerDamageScenarioSimulation(
     throw new RangeError('endFrame must not exceed scenario battle duration');
   }
 
-  // 场景装配层先编译敌人静态程序并创建本次模拟唯一的敌人生命账本，再注入标准伤害环境；
-  // 后续伤害写入、生命条件求值、失衡推进与最终结果都引用这一实例，不再由环境延迟构造。
+  const prepared = prepareStandardPlayerDamageScenarioRuntime(input);
+  const assembly = createCompiledScenarioRuntime(prepared.compiled);
+  advanceCombatRuntimeToFrame(assembly, input.endFrame);
+  return collectStandardPlayerDamageScenarioResult(assembly, prepared.compiled);
+}
+
+/** 编译标准战斗并同时产出只绑定候选数据的恢复环境输入。 */
+export function prepareStandardPlayerDamageScenarioRuntime(
+  input: RunStandardPlayerDamageScenarioInput,
+): PreparedStandardPlayerDamageScenarioRuntime {
+  if (!Number.isInteger(input.endFrame) || input.endFrame < 0) {
+    throw new RangeError('endFrame must be a non-negative integer');
+  }
+  if (input.endFrame > input.scenario.battle.durationFrames) {
+    throw new RangeError('endFrame must not exceed scenario battle duration');
+  }
   const mechanics = compileScenarioMechanics(input.scenario, input.options);
   const enemy = applyMechanicsToScenarioEnemy(
     compileScenarioEnemy(input.scenario.enemy),
@@ -122,22 +148,15 @@ export function runStandardPlayerDamageScenarioSimulation(
     );
   }
 
-  const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
-    criticalSamples: input.criticalSamples,
-    ...(input.randomState === undefined ? {} : { randomState: input.randomState }),
-    randomMode: input.randomMode,
-    ...(input.probabilitySamples === undefined
-      ? {}
-      : { probabilitySamples: input.probabilitySamples }),
+  const restoredEnvironmentBase = {
     resolveNonRandomRuntimeSnapshot: input.resolveNonRandomRuntimeSnapshot,
-    enemyVitals,
     tagRegistry: gameplayTagRegistry,
     knockDown: {
       predefine: new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE),
       // 下方整场消费者预检通过后才会执行；没有可观察起身阶段时只结束倒地，不模拟动画。
-      onDurationElapsed: runtime => runtime.exit(),
+      onDurationElapsed: (runtime: OrdinaryKnockDownRuntime) => runtime.exit(),
     },
-    isOperatorControlled: (operatorId, frame) =>
+    isOperatorControlled: (operatorId: string, frame: number) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
     passiveProgressBuffIdsByOperator,
     ...(input.elementalInflictionDocument === undefined
@@ -149,6 +168,16 @@ export function runStandardPlayerDamageScenarioSimulation(
     ...(input.compoundStatusFactories === undefined
       ? {}
       : { compoundStatusFactories: input.compoundStatusFactories }),
+  };
+  const environmentOptions: StandardPlayerDamageEnvironmentOptions = {
+    ...restoredEnvironmentBase,
+    criticalSamples: input.criticalSamples,
+    ...(input.randomState === undefined ? {} : { randomState: input.randomState }),
+    randomMode: input.randomMode,
+    ...(input.probabilitySamples === undefined
+      ? {}
+      : { probabilitySamples: input.probabilitySamples }),
+    enemyVitals,
   };
   const environment = new StandardPlayerDamageEnvironment(environmentOptions);
   const compiled = compileScenarioRuntimeAssembly(input.scenario, {
@@ -178,7 +207,7 @@ export function runStandardPlayerDamageScenarioSimulation(
     supportsElementalInfliction: input.elementalInflictionDocument !== undefined,
     supportsKnockDown: true,
   });
-  const executable = {
+  const executable: CombatRuntimeAssemblyOptions = {
     ...compiled,
     ...(input.continuationPlanCastIds === undefined
       ? {}
@@ -187,9 +216,26 @@ export function runStandardPlayerDamageScenarioSimulation(
           continuationPlanMode: input.continuationPlanMode ?? 'continuation',
         }),
   };
-  const assembly = createCompiledScenarioRuntime(executable);
-  advanceCombatRuntimeToFrame(assembly, input.endFrame);
-  return collectStandardPlayerDamageScenarioResult(assembly, executable);
+  let restoredEnvironment: RestoredCombatEnvironmentInput;
+  if (input.randomState === undefined) {
+    restoredEnvironment = {
+      ...restoredEnvironmentBase,
+      criticalSamples: input.criticalSamples,
+      randomMode: input.randomMode,
+      ...(input.probabilitySamples === undefined
+        ? {}
+        : { probabilitySamples: input.probabilitySamples }),
+    };
+  } else {
+    if (input.simulationRandomSettings === undefined) {
+      throw new Error('stateful simulation random requires restoration settings');
+    }
+    restoredEnvironment = {
+      ...restoredEnvironmentBase,
+      simulationRandomSettings: input.simulationRandomSettings,
+    };
+  }
+  return { compiled: executable, restoredEnvironment };
 }
 
 /** 从一次性或检查点会话的标准装配收集同一种完整结果。 */

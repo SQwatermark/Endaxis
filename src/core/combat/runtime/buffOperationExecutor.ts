@@ -43,6 +43,8 @@ export interface BuffLifecycleOperationSource {
   readonly sourceActionId: string;
   /** 普通/叠层回调沿用 Buff 来源施法，点燃使用本次 IgniteAction 的施法身份。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
+  /** 同一 Buff 生命周期内全部序列共用的可复制操作关系。 */
+  readonly operations?: import('./combatOperationHostState').CombatOperationHostState;
 }
 
 /** 技能动作对目标 Buff 容器使用的最小稳定端口。 */

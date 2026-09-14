@@ -278,7 +278,9 @@ export interface CombatBuffAddOptions {
 /** 由宿主精确持有的实例结束端口；null 是已知空施法，省略仍表示未核实。 */
 export interface BuffApplicationHandle {
   readonly reference: import('./buffReference').BuffReference;
+  readonly isFinished?: boolean;
   finish(reason: BuffFinishReason, finishSkillCastInfo?: CombatSkillCastInfo | null): boolean;
+  bindFinishedCallback?(callback: () => void): { dispose(): void };
 }
 
 export class CombatBuff<Key extends string> {
@@ -291,11 +293,18 @@ export class CombatBuff<Key extends string> {
   get reference(): import('./buffReference').BuffReference {
     return { ownerId: this.#state.identity.ownerId, instanceId: this.#state.identity.instanceId };
   }
-  readonly #childBindings = new Map<string, BuffApplicationHandle>();
+  readonly #childBindings = new Map<
+    string,
+    { readonly child: BuffApplicationHandle; readonly finished?: { dispose(): void } }
+  >();
+  readonly #finishedCallbacks = new Set<() => void>();
 
   attachChildBuff(child: BuffApplicationHandle): void {
-    this.#childBindings.set(buffReferenceKey(child.reference), child);
+    if (child.isFinished === true) return;
+    const key = buffReferenceKey(child.reference);
+    if (this.#childBindings.has(key)) return;
     attachBuffChild(this.#state.children, child.reference);
+    this.#bindChild(key, child);
   }
 
   /** 恢复时只重建对象绑定；关系本身已经存在于数据中，不能再次执行附着语义。 */
@@ -304,7 +313,34 @@ export class CombatBuff<Key extends string> {
     if (!this.#state.children.members.has(key)) {
       throw new Error(`restored child Buff '${key}' is not present in parent data`);
     }
-    this.#childBindings.set(key, child);
+    this.#bindChild(key, child);
+  }
+
+  #bindChild(key: string, child: BuffApplicationHandle): void {
+    const finished = child.bindFinishedCallback?.(() => {
+      this.#state.children.members.delete(key);
+      this.#childBindings.delete(key);
+    });
+    this.#childBindings.set(key, { child, ...(finished === undefined ? {} : { finished }) });
+  }
+
+  bindFinishedCallback(callback: () => void): { dispose(): void } {
+    if (this.isFinished) {
+      callback();
+      return { dispose() {} };
+    }
+    this.#finishedCallbacks.add(callback);
+    return { dispose: () => void this.#finishedCallbacks.delete(callback) };
+  }
+
+  #notifyFinishedCallbacks(): void {
+    for (const callback of [...this.#finishedCallbacks]) callback();
+    this.#finishedCallbacks.clear();
+  }
+
+  #clearChildBindings(): void {
+    for (const binding of this.#childBindings.values()) binding.finished?.dispose();
+    this.#childBindings.clear();
   }
   readonly damageModifiers: readonly DamageModifier[];
   get healModifiers(): readonly HealModifier[] {
@@ -739,8 +775,9 @@ export class CombatBuff<Key extends string> {
     // 现有 isFinished 是目录/执行器的终止门禁；finishReason 不因此改变。
     this.#state.lifecycle.finished = true;
     this.#state.children.members.clear();
-    this.#childBindings.clear();
+    this.#clearChildBindings();
     this.owner.onBuffReleased?.(this);
+    this.#notifyFinishedCallbacks();
     return true;
   }
 
@@ -749,17 +786,17 @@ export class CombatBuff<Key extends string> {
     reason: BuffFinishReason = 'other',
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): boolean {
-    return finishBuffLifecycle(this.#state.lifecycle, reason, {
+    const finished = finishBuffLifecycle(this.#state.lifecycle, reason, {
       addExtendTags: () => this.addExtendTags(),
       finishAction: () => this.definition.actions?.finish?.(this),
       endDuringEnable: () => this.endDuringEnableAction(),
       finishChildren: () => {
         finishBuffChildren(this.#state.children, reference => {
-          const child = this.#childBindings.get(buffReferenceKey(reference));
-          if (child === undefined) throw new Error('attached child Buff binding is missing');
-          child.finish('other', null);
+          const binding = this.#childBindings.get(buffReferenceKey(reference));
+          if (binding === undefined) throw new Error('attached child Buff binding is missing');
+          binding.child.finish('other', null);
         });
-        this.#childBindings.clear();
+        this.#clearChildBindings();
       },
       removeExtendTags: () => this.removeExtendTags(),
       refreshStacking: () => this.#stackingGroup?.refreshAfterFinish(),
@@ -775,6 +812,8 @@ export class CombatBuff<Key extends string> {
       },
       notifyFinished: () => this.owner.handleBuffFinished(this, reason, finishSkillCastInfo),
     });
+    if (finished) this.#notifyFinishedCallbacks();
+    return finished;
   }
 
   tick(deltaTime: number | BuffTickDeltas): void {

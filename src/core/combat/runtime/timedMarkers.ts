@@ -6,6 +6,8 @@ export interface TimedMarkerClock {
   readonly time: number;
 }
 
+export type TimedMarkerClockDomain = 'default' | 'global' | 'globalScaled';
+
 export const VALIDITY_TOLERANCE_SECONDS = 0.00001;
 
 export interface TimedMarkerHandle {
@@ -32,7 +34,7 @@ export interface TimedMarkerContainerHooks {
 
 export interface TimedMarkerEntry extends TimedMarkerSnapshot {
   readonly id: string;
-  readonly clockId: number;
+  readonly clockDomain: TimedMarkerClockDomain;
   finished: boolean;
 }
 
@@ -47,22 +49,22 @@ export function createTimedMarkerState(): TimedMarkerState {
 }
 
 export class TimedMarkerContainer {
-  readonly #clockIds = new WeakMap<TimedMarkerClock, number>();
-  readonly #clocks: TimedMarkerClock[] = [];
+  readonly #clocks = new Map<TimedMarkerClockDomain, TimedMarkerClock>();
 
   constructor(
     readonly ownerId: string,
     readonly clock: TimedMarkerClock,
     readonly hooks: TimedMarkerContainerHooks = {},
     readonly runtimeState = createTimedMarkerState(),
+    clocks: Partial<Record<Exclude<TimedMarkerClockDomain, 'default'>, TimedMarkerClock>> = {},
   ) {
-    // 默认时钟始终占用 0。这样恢复后的 clockId=0 可立即读取，首次新增也不会改变编号。
-    this.#clocks.push(clock);
-    this.#clockIds.set(clock, 0);
+    this.#clocks.set('default', clock);
+    if (clocks.global !== undefined) this.#clocks.set('global', clocks.global);
+    if (clocks.globalScaled !== undefined) this.#clocks.set('globalScaled', clocks.globalScaled);
     for (const entry of runtimeState.entries) {
-      if (entry.clockId !== 0) {
+      if (!this.#clocks.has(entry.clockDomain)) {
         throw new Error(
-          `timed marker '${entry.sourceTargetId}' uses unbound clock '${entry.clockId}'`,
+          `timed marker '${entry.sourceTargetId}' uses unbound clock '${entry.clockDomain}'`,
         );
       }
     }
@@ -72,18 +74,18 @@ export class TimedMarkerContainer {
     id: string,
     durationSeconds: number,
     clock: TimedMarkerClock = this.clock,
+    clockDomain: TimedMarkerClockDomain = 'default',
   ): TimedMarkerHandle {
     if (id.length === 0) throw new TypeError('timed marker id cannot be empty');
     if (!Number.isFinite(durationSeconds)) {
       throw new TypeError('timed marker duration must be finite');
     }
     const instanceId = this.runtimeState.nextInstanceId++;
-    let clockId = this.#clockIds.get(clock);
-    if (clockId === undefined) {
-      clockId = this.#clocks.length;
-      this.#clocks.push(clock);
-      this.#clockIds.set(clock, clockId);
+    const boundClock = this.#clocks.get(clockDomain);
+    if (boundClock !== undefined && boundClock !== clock) {
+      throw new Error(`timed marker clock '${clockDomain}' is already bound to another runtime`);
     }
+    this.#clocks.set(clockDomain, clock);
     const entry: TimedMarkerEntry = {
       id,
       markerId: id,
@@ -92,7 +94,7 @@ export class TimedMarkerContainer {
       sourceTargetId: `${this.ownerId}:timed-marker:${instanceId}`,
       createdAt: clock.time,
       expiresAt: clock.time + durationSeconds,
-      clockId,
+      clockDomain,
       finished: false,
     };
     this.runtimeState.entries.push(entry);
@@ -109,7 +111,8 @@ export class TimedMarkerContainer {
       marker =>
         !marker.finished &&
         marker.id === id &&
-        marker.expiresAt - this.#clocks[marker.clockId]!.time >= -VALIDITY_TOLERANCE_SECONDS,
+        marker.expiresAt - this.#clocks.get(marker.clockDomain)!.time >=
+          -VALIDITY_TOLERANCE_SECONDS,
     );
   }
 
@@ -122,7 +125,7 @@ export class TimedMarkerContainer {
 
   /** 由所属实体逐帧调用，确保没有条件查询时也能产生精确的结束边沿。 */
   sweep(): void {
-    sweepTimedMarkers(this.runtimeState, id => this.#clocks[id]!.time, this.hooks);
+    sweepTimedMarkers(this.runtimeState, domain => this.#clocks.get(domain)!.time, this.hooks);
   }
 
   finishAll(reason: TimedMarkerFinishReason = 'ownerFinished'): void {
@@ -149,13 +152,13 @@ export class TimedMarkerContainer {
 /** 按扫描开始时的登记顺序处理到期，通知期间新建的标记留给下一次扫描。 */
 export function sweepTimedMarkers(
   state: TimedMarkerState,
-  readTime: (clockId: number) => number,
+  readTime: (clockDomain: TimedMarkerClockDomain) => number,
   hooks: TimedMarkerContainerHooks,
 ): void {
   for (const entry of [...state.entries]) {
     if (
       !entry.finished &&
-      entry.expiresAt - readTime(entry.clockId) < -VALIDITY_TOLERANCE_SECONDS
+      entry.expiresAt - readTime(entry.clockDomain) < -VALIDITY_TOLERANCE_SECONDS
     ) {
       finishTimedMarker(state, entry, 'expired', hooks);
     }

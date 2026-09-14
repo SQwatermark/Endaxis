@@ -13,6 +13,7 @@ import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import {
   TimedMarkerContainer,
+  type TimedMarkerClock,
   createTimedMarkerState,
   type TimedMarkerFinishReason,
   type TimedMarkerSnapshot,
@@ -123,12 +124,14 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   readonly #hooks: LogicalAbilityEntityRuntimeHooks;
   readonly #resolveDeltaSeconds: (snapshot: LogicalAbilityEntitySnapshot) => number;
   readonly #allocateInstanceId: () => number;
+  readonly #timedMarkerClocks: Partial<Record<'global' | 'globalScaled', TimedMarkerClock>>;
 
   constructor(options: {
     readonly hooks?: LogicalAbilityEntityRuntimeHooks;
     /** 后续时间膨胀接线点；省略时使用一帧的普通实体时间。 */
     readonly resolveDeltaSeconds?: (snapshot: LogicalAbilityEntitySnapshot) => number;
     readonly allocateInstanceId?: () => number;
+    readonly timedMarkerClocks?: Partial<Record<'global' | 'globalScaled', TimedMarkerClock>>;
     /** 已复制的目录数据；绑定过程不触发生成、子技能或公共事件。 */
     readonly restoredState?: LogicalAbilityEntityDirectoryState;
   }) {
@@ -136,6 +139,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     this.#resolveDeltaSeconds = options.resolveDeltaSeconds ?? (() => COMBAT_FRAME_INTERVAL);
     const instanceIds = new AbilityEntityInstanceIdAllocator();
     this.#allocateInstanceId = options.allocateInstanceId ?? (() => instanceIds.allocate());
+    this.#timedMarkerClocks = options.timedMarkerClocks ?? {};
     this.runtimeState = options.restoredState ?? { instances: new Map(), deadSources: [] };
     for (const [instanceId, state] of this.runtimeState.instances) {
       if (instanceId !== state.instanceId) {
@@ -303,6 +307,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
           finished: (marker, reason) => this.#hooks.timedMarkerFinished?.(marker, reason),
         },
         timedMarkers,
+        this.#timedMarkerClocks,
       ),
       childRuntimes: [],
       childBuffs: [],
@@ -575,6 +580,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
           finished: (marker, reason) => this.#hooks.timedMarkerFinished?.(marker, reason),
         },
         state.timedMarkers,
+        this.#timedMarkerClocks,
       ),
       childRuntimes: [],
       childBuffs: [],

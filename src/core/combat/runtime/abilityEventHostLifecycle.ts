@@ -33,7 +33,10 @@ export function failAfterAbilityHostCleanup(error: unknown, actions: Iterable<()
 export class AbilityEventHostLifecycle {
   readonly #state: AbilityEventHostState;
   readonly #registrations: AbilityEventRegistration[] = [];
-  readonly #children: BuffApplicationHandle[] = [];
+  readonly #children: Array<{
+    readonly child: BuffApplicationHandle;
+    readonly finished?: { dispose(): void };
+  }> = [];
   readonly #cleanup: (() => void)[] = [];
   #disposing = false;
 
@@ -93,8 +96,31 @@ export class AbilityEventHostLifecycle {
 
   addChildBuff(child: BuffApplicationHandle): void {
     if (this.#state.disposed) throw new Error('cannot attach a child to a disposed Ability host');
-    this.#children.push(child);
+    if (child.isFinished === true) return;
+    if (
+      this.#state.childBuffs.some(
+        reference => buffReferenceKey(reference) === buffReferenceKey(child.reference),
+      )
+    )
+      return;
     this.#state.childBuffs.push(child.reference);
+    this.#bindChild(child);
+  }
+
+  #bindChild(child: BuffApplicationHandle): void {
+    const key = buffReferenceKey(child.reference);
+    const finished = child.bindFinishedCallback?.(() => {
+      if (this.#disposing) return;
+      const stateIndex = this.#state.childBuffs.findIndex(
+        reference => buffReferenceKey(reference) === key,
+      );
+      if (stateIndex >= 0) this.#state.childBuffs.splice(stateIndex, 1);
+      const runtimeIndex = this.#children.findIndex(
+        binding => buffReferenceKey(binding.child.reference) === key,
+      );
+      if (runtimeIndex >= 0) this.#children.splice(runtimeIndex, 1);
+    });
+    this.#children.push({ child, ...(finished === undefined ? {} : { finished }) });
   }
 
   /** 所有 Buff 容器恢复后，按保存身份接回当前分支对象；不再次附着或启动 Buff。 */
@@ -115,7 +141,7 @@ export class AbilityEventHostLifecycle {
           `restored Ability host child Buff '${buffReferenceKey(reference)}' is missing`,
         );
       }
-      this.#children.push(child);
+      this.#bindChild(child);
     }
   }
 
@@ -131,6 +157,7 @@ export class AbilityEventHostLifecycle {
     try {
       runAbilityHostCleanup(this.#cleanupActions());
     } finally {
+      for (const binding of this.#children) binding.finished?.dispose();
       this.#children.length = 0;
       this.#state.childBuffs.length = 0;
       this.#state.enabled = false;
@@ -146,7 +173,7 @@ export class AbilityEventHostLifecycle {
     yield* this.#cleanup.splice(0);
     // Keep the native live-list traversal even when an earlier adapter callback failed.
     for (let index = 0; index < this.#children.length; index++) {
-      const child = this.#children[index]!;
+      const child = this.#children[index]!.child;
       yield () => {
         child.finish('other', null);
       };

@@ -30,6 +30,8 @@ import type { CallbackSkillHostFactory } from './callbackSkillHost';
 import type { PassiveAbilityEventState } from './passiveAbilityEventState';
 import type { RegisterPassiveAbilityEventAction } from './passiveAbilityEventRuntime';
 import type { CombatOperationExecutor, ScheduleProjectileFinishCallback } from './skillRuntime';
+import type { CombatOperatorProgram } from './combatRuntimeAssembly';
+import type { LogicalAbilityEntityState } from './logicalAbilityEntityState';
 
 export interface AbilityEntityChildSkillRestoreBindings {
   readonly operations: CombatOperationExecutor;
@@ -76,9 +78,11 @@ export function bindRestoredCombatRuntimeAbilityEntityRelations(
   try {
     for (const [instanceId, state] of options.entities.runtime.runtimeState.instances) {
       const entity = { kind: 'abilityEntity' as const, instanceId };
-      const definition = options.operators.programs.get(state.ownerId)?.abilityEntityDefinitions?.[
-        state.abilityEntityId
-      ];
+      const operator = options.operators.programs.get(state.ownerId);
+      const definition =
+        operator === undefined
+          ? undefined
+          : resolveRestoredAbilityEntityDefinition(operator, state);
       if (definition === undefined) {
         throw new Error(
           `restored AbilityEntity '${instanceId}' definition '${state.abilityEntityId}' does not exist for '${state.ownerId}'`,
@@ -184,6 +188,36 @@ export function bindRestoredCombatRuntimeAbilityEntityRelations(
       for (const host of [...passiveHosts.values()].reverse()) host.dispose();
     },
   };
+}
+
+/** 优先按保存的来源施法定位技能内定义；无施法来源时只接受唯一的固定定义。 */
+export function resolveRestoredAbilityEntityDefinition(
+  operator: CombatOperatorProgram,
+  state: LogicalAbilityEntityState,
+): ResolvedAbilityEntityDefinition | undefined {
+  const programs = [...operator.skills, ...(operator.definitionSkillPrograms ?? [])];
+  const origin = state.skillCastInfo;
+  if (origin != null) {
+    const exact = programs.find(
+      program => program.skillId === origin.originSkillId && program.castId === origin.originCastId,
+    );
+    const unbound = programs.find(
+      program => program.skillId === origin.originSkillId && program.castId === undefined,
+    );
+    const definition =
+      exact?.abilityEntityDefinitions?.[state.abilityEntityId] ??
+      unbound?.abilityEntityDefinitions?.[state.abilityEntityId];
+    if (definition !== undefined) return definition;
+  }
+  const direct = operator.abilityEntityDefinitions?.[state.abilityEntityId];
+  if (direct !== undefined) return direct;
+  const candidates = programs
+    .map(program => program.abilityEntityDefinitions?.[state.abilityEntityId])
+    .filter(
+      (definition): definition is ResolvedAbilityEntityDefinition => definition !== undefined,
+    );
+  if (candidates.length === 0) return undefined;
+  return candidates.every(candidate => candidate === candidates[0]) ? candidates[0] : undefined;
 }
 
 function definitionContainsChildSkill(

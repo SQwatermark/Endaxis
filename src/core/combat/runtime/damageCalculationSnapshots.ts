@@ -42,6 +42,11 @@ export class DamageCalculationSnapshots {
     return this.runtimeState.size;
   }
 
+  /** 恢复动作树时按程序遍历顺序重建步骤槽位，不读取或改写已保存的攻击数值。 */
+  bindProgramStep(step: ResolvedCombatOperationStep): void {
+    this.program.register(step);
+  }
+
   has(step: ResolvedCombatOperationStep): boolean {
     const slot = this.program.find(step);
     return slot !== undefined && this.runtimeState.has(slot);

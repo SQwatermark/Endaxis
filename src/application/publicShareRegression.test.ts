@@ -47,3 +47,27 @@ it('runs the public low-star action sequence with native definitions without rew
   // they must not erase placements or force the editor to "repair" this imported action pattern.
   expect(scenario.tracks.flatMap(track => track?.skillCasts ?? [])).toHaveLength(35);
 });
+
+it('公开轴动作序列从中途检查点续算与从头运行完全一致', () => {
+  const { scenario } = createLowStarShareRegressionScenario();
+  const service = new ScenarioSimulationService({
+    index: gameDataRepository,
+    spellInflictionSettings: skillSettings,
+    resources: {
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecoveryPauseDuration: 1.5,
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+    },
+  });
+  const original = service.createCombatSession(scenario);
+  const checkpointFrame = Math.floor(scenario.battle.durationFrames / 2);
+  original.advanceToFrame(checkpointFrame);
+  const checkpoint = original.runtime.save();
+  const restored = original.fork(checkpoint);
+
+  original.advanceToFrame(scenario.battle.durationFrames);
+  restored.advanceToFrame(scenario.battle.durationFrames);
+
+  expect(restored.collectResult()).toEqual(original.collectResult());
+});

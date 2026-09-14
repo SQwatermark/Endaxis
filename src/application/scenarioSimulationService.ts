@@ -22,8 +22,16 @@ import {
   type SimulationRandomMode,
 } from '../core/combat/random/simulationRandom';
 import { createSimulationRandomState } from '../core/combat/random/simulationRandomState';
-import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
-import type { StandardPlayerDamageScenarioResult } from './runStandardPlayerDamageScenarioSimulation';
+import {
+  prepareStandardPlayerDamageScenarioRuntime,
+  runStandardPlayerDamageScenarioSimulation,
+  type RunStandardPlayerDamageScenarioInput,
+  type StandardPlayerDamageScenarioResult,
+} from './runStandardPlayerDamageScenarioSimulation';
+import {
+  createStandardPlayerDamageCombatSession,
+  type StandardPlayerDamageCombatSession,
+} from './standardPlayerDamageCombatSession';
 import type { CompileScenarioResourcesOptions } from '../core/compiler/compileScenarioResources';
 import type { CompileScenarioRuntimeAssemblyOptions } from '../core/compiler/compileScenarioRuntimeAssembly';
 import type { ScenarioDocument } from '../core/project/schema';
@@ -333,10 +341,43 @@ export class ScenarioSimulationService {
     continuationPlanCastIds?: readonly string[],
     continuationPlanMode: 'continuation' | 'compact' = 'continuation',
   ): StandardPlayerDamageScenarioResult {
+    return runStandardPlayerDamageScenarioSimulation(
+      this.#createStandardSimulationInput(
+        scenario,
+        endFrame,
+        continuationPlanCastIds,
+        continuationPlanMode,
+      ),
+    );
+  }
+
+  /** 创建不进入结果缓存的完整战斗会话，供真实轴检查点和后缀试探使用。 */
+  createCombatSession(
+    scenario: ScenarioDocument,
+    endFrame = scenario.battle.durationFrames,
+  ): StandardPlayerDamageCombatSession {
+    if (
+      this.#options.criticalSamples !== undefined ||
+      this.#options.probabilitySamples !== undefined
+    ) {
+      throw new Error('checkpoint combat sessions require the stateful simulation random source');
+    }
+    const prepared = prepareStandardPlayerDamageScenarioRuntime(
+      this.#createStandardSimulationInput(scenario, endFrame),
+    );
+    return createStandardPlayerDamageCombatSession(prepared.compiled, prepared.restoredEnvironment);
+  }
+
+  #createStandardSimulationInput(
+    scenario: ScenarioDocument,
+    endFrame: number,
+    continuationPlanCastIds?: readonly string[],
+    continuationPlanMode: 'continuation' | 'compact' = 'continuation',
+  ): RunStandardPlayerDamageScenarioInput {
     const randomSettings = resolveScenarioRandomSettings(scenario);
     const randomState = createSimulationRandomState();
     const randomSource = new SimulationRandomSource(randomSettings, () => randomState);
-    return runStandardPlayerDamageScenarioSimulation({
+    return {
       scenario,
       endFrame,
       ...(continuationPlanCastIds === undefined
@@ -345,6 +386,7 @@ export class ScenarioSimulationService {
       criticalSamples: this.#options.criticalSamples ?? randomSource,
       probabilitySamples: this.#options.probabilitySamples ?? randomSource,
       randomMode: randomSettings.mode,
+      simulationRandomSettings: randomSettings,
       ...(this.#options.criticalSamples === undefined &&
       this.#options.probabilitySamples === undefined
         ? { randomState }
@@ -360,7 +402,7 @@ export class ScenarioSimulationService {
         resources: this.#options.resources,
         mechanicAdapters: this.#options.mechanicAdapters,
       },
-    });
+    };
   }
 
   /** 执行一次标准玩家伤害模拟，并在同一份回执上完成全部投影。 */

@@ -160,6 +160,13 @@ class OperationStep extends StatelessCombatStep {
   }
 
   override bindExecutionData(data: ActionStepData | null): void {
+    if (this.step.kind === 'dealDamage' && this.step.parameters.takeAttackSnapshot === true) {
+      const snapshots = this.operationContext.damageCalculationSnapshots;
+      if (snapshots === undefined) {
+        throw new Error('restored attack snapshot requires a stateful action host');
+      }
+      snapshots.bindProgramStep(this.step);
+    }
     if (this.#registrationState !== null) {
       const expected = this.#registrationKind();
       if (data?.kind !== expected) throw new Error('expected matching action registration data');
@@ -560,9 +567,13 @@ class ProjectileFinishCallbackStep extends StatelessCombatStep {
     const createHost = parent.createCallbackSkillHost;
     if (createHost === undefined)
       throw new Error('projectile callback requires a skill host factory');
+    const definitionOperatorId = this.runtime.ownerOperatorId;
+    if (definitionOperatorId === undefined) {
+      throw new Error('projectile callback requires an owning combat operator');
+    }
     const callbackState: import('./projectileCallbackState').ProjectileCallbackState = {
       programId: null,
-      definitionOperatorId: this.runtime.ownerOperatorId,
+      definitionOperatorId,
       skillId: this.step.callback.skillId,
       blackboard: detachedContext.blackboard.runtimeState,
       skillCastInfo: detachedContext.skillCastInfo ?? null,

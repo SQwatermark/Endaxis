@@ -398,7 +398,7 @@ export class StandardPlayerDamageEnvironment {
     this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
       this.#enemyBuffs,
       {
-        get: () => undefined,
+        get: id => this.#resolveEnvironmentBuffDefinition(id),
         compile: entry => this.#compileInlineBuffDefinition(entry),
       },
       undefined,
@@ -535,7 +535,7 @@ export class StandardPlayerDamageEnvironment {
         return new BuffDefinitionOperationTarget(
           container,
           {
-            get: () => undefined,
+            get: id => this.#resolveEnvironmentBuffDefinition(id),
             compile: entry => this.#compileInlineBuffDefinition(entry),
           },
           target,
@@ -1202,7 +1202,7 @@ export class StandardPlayerDamageEnvironment {
       runtime = new BuffDefinitionOperationTarget(
         container,
         {
-          get: () => undefined,
+          get: id => this.#resolveEnvironmentBuffDefinition(id),
           compile: entry => this.#compileInlineBuffDefinition(entry),
         },
         undefined,
@@ -1391,6 +1391,14 @@ export class StandardPlayerDamageEnvironment {
       readAttribute: (request, buff) => this.#readSourceAttributeValue(buff.sourceId, request),
     });
     return this.#elementalDefinitions;
+  }
+
+  #resolveEnvironmentBuffDefinition(
+    id: string,
+  ): import('../buffs/combatBuffs').CombatBuffDefinition<string> | undefined {
+    return this.options.elementalInflictionDocument === undefined
+      ? undefined
+      : this.#ensureElementalDefinitions().get(id);
   }
 
   #readSourceAttributeValue(

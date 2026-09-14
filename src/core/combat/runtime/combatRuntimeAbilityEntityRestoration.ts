@@ -21,6 +21,8 @@ export interface RestoreCombatAbilityEntityDirectoryOptions {
   readonly preparation: CombatRuntimeRestorePreparation;
   readonly foundation: RestoredCombatRuntimeFoundation;
   readonly hooks?: LogicalAbilityEntityRuntimeHooks;
+  /** 恢复后新生成的实体由完整装配登记；目录仍须推进它们的 Buff。 */
+  readonly resolveDynamicBuffs?: (instanceId: number) => AbilityEntityBuffRuntime | undefined;
 }
 
 export interface RestoredCombatAbilityEntityDirectory {
@@ -34,13 +36,18 @@ export function bindRestoredCombatAbilityEntityDirectory(
   const shared = options.foundation.shared;
   const targets = new Map<string, BuffOperationTarget>();
   const resolveEntityBuffs = (instanceId: number): AbilityEntityBuffRuntime | undefined =>
-    targets.get(logicalAbilityEntityRuntimeId(instanceId)) as AbilityEntityBuffRuntime | undefined;
+    (targets.get(logicalAbilityEntityRuntimeId(instanceId)) as
+      AbilityEntityBuffRuntime | undefined) ?? options.resolveDynamicBuffs?.(instanceId);
   const runtime = new LogicalAbilityEntityRuntime({
     restoredState: options.preparation.graph.instances.abilityEntities,
     allocateInstanceId: () => shared.abilityEntityInstanceIds.allocate(),
     resolveDeltaSeconds: entity =>
       COMBAT_FRAME_INTERVAL *
       (shared.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
+    timedMarkerClocks: {
+      global: shared.clock,
+      globalScaled: shared.timeDilation ?? shared.clock,
+    },
     hooks: {
       ...options.hooks,
       tickBuffs: entity => {

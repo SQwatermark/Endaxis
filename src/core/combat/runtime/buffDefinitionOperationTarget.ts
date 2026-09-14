@@ -104,8 +104,15 @@ export class BuffDefinitionOperationTarget<Key extends string>
   ): void {
     this.container.bindRestoredInstances(state => {
       const id = state.identity.definitionId;
+      const configured = this.definitions.get(id);
+      if (
+        configured !== undefined &&
+        (state.actionHost === null || configured.bindRestoredActions !== undefined)
+      ) {
+        return configured;
+      }
       const source = resolveDefinition(id, state.definitionOwnerId);
-      return source === undefined ? undefined : this.#compileInlineDefinition(id, source);
+      return source === undefined ? configured : this.#compileInlineDefinition(id, source);
     }, resolveOptions);
   }
 
@@ -341,13 +348,19 @@ export class BuffDefinitionOperationTarget<Key extends string>
         : attachBuffLifecycleSequences(
             baseDefinition,
             lifecycleSequences ?? {},
-            (buff, actionSourceId = buff.sourceId, skillCastInfo = buff.skillCastInfo) =>
+            (
+              buff,
+              actionSourceId = buff.sourceId,
+              skillCastInfo = buff.skillCastInfo,
+              operations,
+            ) =>
               this.#resolveLifecycleOperations!({
                 ownerId: buff.owner.ownerId,
                 sourceId: actionSourceId,
                 definitionOwnerId: buff.definitionOwnerId,
                 sourceActionId: buff.sourceActionId,
                 skillCastInfo,
+                operations: operations ?? buff.runtimeState.actionHost!.operations,
               }),
             this.currentTarget,
             abilityEventResponses,

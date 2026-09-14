@@ -120,7 +120,6 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
     }
   }
 
-  const buffChildren: BuffReference[] = [];
   for (const container of containers.values()) {
     for (const instance of container.instances.values()) {
       if (
@@ -133,7 +132,6 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
       }
       for (const [key, reference] of instance.children.members) {
         requireReference(reference, instanceKeys, 'Buff child', key);
-        buffChildren.push(reference);
       }
       for (const affix of instance.actionHost?.affixes ?? []) {
         for (const objectReference of affix.objectReferences.values()) {
@@ -144,12 +142,13 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
       }
     }
   }
-  collectOwnedReferences(buffChildren, instanceKeys, 'Buff child');
 
   const globalChildren = [...graph.instances.globalBuffs.groups.values()].flatMap(group =>
     group.flatMap(instance => instance.children),
   );
-  collectOwnedReferences(globalChildren, instanceKeys, 'global Buff child');
+  for (const reference of globalChildren) {
+    requireReference(reference, instanceKeys, 'global Buff child');
+  }
 
   const operatorSourceChildren = collectOwnedReferences(
     [...graph.operators.values()].flatMap(state => [

@@ -177,7 +177,10 @@ import { createRestoredCombatProjectileDirectory } from './combatRuntimeProjecti
 import { configureRestoredCombatObjectReferences } from './combatRuntimeObjectReferenceRestoration';
 import { bindRestoredCombatBuffInstances } from './combatRuntimeBuffInstanceRestoration';
 import { bindRestoredCombatRuntimeOperators } from './combatRuntimeOperatorRestoration';
-import { bindRestoredCombatRuntimeAbilityEntityRelations } from './combatRuntimeAbilityEntityRelationRestoration';
+import {
+  bindRestoredCombatRuntimeAbilityEntityRelations,
+  resolveRestoredAbilityEntityDefinition,
+} from './combatRuntimeAbilityEntityRelationRestoration';
 import { bindRestoredCombatProjectileRelations } from './combatRuntimeProjectileRestoration';
 import { bindRestoredCombatRuntimeFrame } from './combatRuntimeFrameRestoration';
 
@@ -854,12 +857,16 @@ export class CombatRuntimeAssembly {
       const entities = bindRestoredCombatAbilityEntityDirectory({
         preparation,
         foundation,
-        hooks: this.#createAbilityEntityEventHooks(false),
+        hooks: this.#createAbilityEntityEventHooks(),
+        resolveDynamicBuffs: instanceId => this.#abilityEntityBuffs.get(instanceId),
       });
       this.abilityEntities = entities.runtime;
       for (const [instanceId, state] of preparation.graph.instances.abilityEntities.instances) {
         const operator = this.#operators.get(state.ownerId);
-        const definition = operator?.abilityEntityDefinitions?.[state.abilityEntityId];
+        const definition =
+          operator === undefined
+            ? undefined
+            : resolveRestoredAbilityEntityDefinition(operator, state);
         if (operator !== undefined && definition !== undefined) {
           for (const passive of definition.passiveSkills ?? []) {
             this.#registerRestoredReactiveOperationBinding(
@@ -977,6 +984,7 @@ export class CombatRuntimeAssembly {
               ...binding.configuration,
             });
           }
+          this.#restorePendingCastFactories(operator, core, options);
         },
         createSourceBindings: operator => ({
           createEquipmentExecutor: context =>
@@ -1124,9 +1132,10 @@ export class CombatRuntimeAssembly {
                 ));
           const operations = this.#createOperationChain({
             operator,
+            sourceActionId: origin?.originCastId ?? origin?.originSkillId ?? program.skillId,
             program: {
               operatorId: definitionOperatorId,
-              skillId: program.skillId,
+              skillId: originProgram?.skillId ?? origin?.originSkillId ?? program.skillId,
               ...(originProgram?.skillGroupKey === undefined
                 ? {}
                 : { skillGroupKey: originProgram.skillGroupKey }),
@@ -1260,6 +1269,10 @@ export class CombatRuntimeAssembly {
     this.semanticEvents = new CombatSemanticEventRuntime(options.registerCombatAbilityEvent);
     this.abilityEntities = new LogicalAbilityEntityRuntime({
       allocateInstanceId: () => this.#abilityEntityInstanceIds.allocate(),
+      timedMarkerClocks: {
+        global: this.clock,
+        globalScaled: this.timeDilation ?? this.clock,
+      },
       resolveDeltaSeconds: entity =>
         COMBAT_FRAME_INTERVAL *
         (this.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
@@ -2462,6 +2475,56 @@ export class CombatRuntimeAssembly {
     return runtime;
   }
 
+  /** 恢复只绑定检查点时已经实例化的技能；尚未轮到的放置块仍按新战斗路径延迟创建。 */
+  #restorePendingCastFactories(
+    operator: CombatOperatorProgram,
+    core: import('./combatOperatorCoreRestoration').RestoredCombatOperatorCore,
+    options: CombatRuntimeAssemblyOptions,
+  ): void {
+    const placedUnboundSkillIds = new Set(
+      operator.skills
+        .filter(program => program.castId === undefined)
+        .map(program => program.skillId),
+    );
+    const hiddenSkillPrograms = (operator.definitionSkillPrograms ?? []).filter(
+      program => !placedUnboundSkillIds.has(program.skillId),
+    );
+    const allPrograms = [...operator.skills, ...hiddenSkillPrograms];
+    const definitionIds = new Set(
+      allPrograms.filter(program => program.castId === undefined).map(program => program.skillId),
+    );
+    const savedSkills = this.#skillStates.get(operator.operatorId)!;
+    for (const program of allPrograms) {
+      if (program.castId === undefined || !definitionIds.has(program.skillId)) continue;
+      const stateKey = `${program.skillId}\u0000${program.castId}`;
+      if (savedSkills.has(stateKey)) continue;
+      const key = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId}`;
+      if (this.#pendingCastFactories.has(key)) {
+        throw new Error(`duplicate pending combat skill '${key}'`);
+      }
+      const cooldownProgram = core.cooldowns.get(program.skillId)?.program;
+      if (cooldownProgram === undefined) {
+        throw new Error(
+          `restored skill '${operator.operatorId}:${stateKey}' has no shared cooldown program`,
+        );
+      }
+      this.#pendingCastFactories.set(key, () =>
+        this.#createSkillRuntime(
+          operator,
+          program,
+          cooldownProgram,
+          options.enemy,
+          core.blackboard,
+          core.statuses,
+          options.createOperationExecutor,
+          options.isOperatorControlled,
+          options.resolveVitals,
+          options.resolveOperatorVitals,
+        ),
+      );
+    }
+  }
+
   /** 普通新技能与恢复技能只在状态来源上不同，运行端口和操作责任链必须完全一致。 */
   #createSkillDependencies(options: {
     readonly operator: CombatOperatorProgram;
@@ -3286,11 +3349,17 @@ export class CombatRuntimeAssembly {
       resolveVitals: options.resolveVitals,
       resolveOperatorVitals: options.resolveOperatorVitals,
       getNonReturnedSpCost: () => cast?.nonReturnedSpCost ?? 0,
+      operationHost: {
+        state: source.operations ?? createCombatOperationHostState(),
+        programs: this.combatOperationPrograms,
+      },
     });
   }
 
   #createOperationChain(options: {
     readonly operator: CombatOperatorProgram;
+    /** 后代技能使用自身程序执行，但回执与事件继续归因发起这条动作链的来源。 */
+    readonly sourceActionId?: string;
     /** 跨实体 Buff 生命周期仍从创建该定义的原始 AbilitySystem 解析后代资源。 */
     readonly definitionOperator?: CombatOperatorProgram;
     readonly program: CombatOperationProgram;
@@ -3318,6 +3387,7 @@ export class CombatRuntimeAssembly {
       getNonReturnedSpCost,
     } = options;
     const definitionOperator = options.definitionOperator ?? operator;
+    const sourceActionId = options.sourceActionId ?? program.castId ?? program.skillId;
     const operationHost = options.operationHost ?? {
       state: createCombatOperationHostState(),
       programs: this.combatOperationPrograms,
@@ -3434,8 +3504,7 @@ export class CombatRuntimeAssembly {
         ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId =>
-        program.abilityEntityDefinitions?.[abilityEntityId] ??
-        definitionOperator.abilityEntityDefinitions?.[abilityEntityId],
+        this.#resolveOperatorAbilityEntityDefinition(definitionOperator, abilityEntityId, program),
       { state: operationHost.state.abilityEntities, programs: operationHost.programs },
     );
     const timeDilationOperations = this.#wrapPresentationAndTimeOperations(
@@ -3450,7 +3519,7 @@ export class CombatRuntimeAssembly {
       definitionOwnerId: definitionOperator.operatorId,
       readProcessingSkillCastId: ownerId =>
         this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
-      sourceActionId: program.castId ?? program.skillId,
+      sourceActionId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
         this.#resolveBuffApplicationTargets(
@@ -3472,7 +3541,7 @@ export class CombatRuntimeAssembly {
     const globalBuffOperations = new GlobalBuffOperationExecutor(
       {
         sourceId: operatorId,
-        sourceActionId: program.castId ?? program.skillId,
+        sourceActionId,
         runtime: this.globalBuffs,
         resolveSource: (source, context) =>
           this.#resolveGlobalBuffSource(source, operatorId, context),
@@ -3793,7 +3862,7 @@ export class CombatRuntimeAssembly {
         operationState: operationHost.state,
         ...this.#projectileRuntimeDependencies(operatorId),
       },
-      abilityEntityId => operator.abilityEntityDefinitions?.[abilityEntityId],
+      abilityEntityId => this.#resolveOperatorAbilityEntityDefinition(operator, abilityEntityId),
       { state: operationHost.state.abilityEntities, programs: operationHost.programs },
     );
     const timeDilationOperations = this.#wrapPresentationAndTimeOperations(
@@ -4300,6 +4369,31 @@ export class CombatRuntimeAssembly {
       return this.#resolveAbilitySystemSourceId(logicalAbilityEntityRuntimeId(source.instanceId));
     }
     throw new Error('spatial points cannot be AbilitySystem sources');
+  }
+
+  #resolveOperatorAbilityEntityDefinition(
+    operator: CombatOperatorProgram,
+    abilityEntityId: string,
+    preferredProgram?: CombatOperationProgram,
+  ): ResolvedAbilityEntityDefinition | undefined {
+    const preferred = preferredProgram?.abilityEntityDefinitions?.[abilityEntityId];
+    if (preferred !== undefined) return preferred;
+    const direct = operator.abilityEntityDefinitions?.[abilityEntityId];
+    if (direct !== undefined) return direct;
+    const candidates = [...operator.skills, ...(operator.definitionSkillPrograms ?? [])].flatMap(
+      program => {
+        const definition = program.abilityEntityDefinitions?.[abilityEntityId];
+        return definition === undefined ? [] : [{ program, definition }];
+      },
+    );
+    if (candidates.length === 0) return undefined;
+    if (candidates.every(candidate => candidate.definition === candidates[0]!.definition)) {
+      return candidates[0]!.definition;
+    }
+    const skillIds = new Set(candidates.map(candidate => candidate.program.skillId));
+    if (skillIds.size !== 1) return undefined;
+    const unbound = candidates.filter(candidate => candidate.program.castId === undefined);
+    return unbound.length === 1 ? unbound[0]!.definition : undefined;
   }
 
   /** SourceFinder 读取一层 source；能力实体来源仍是实体时保留身份，不递归追祖先。 */
