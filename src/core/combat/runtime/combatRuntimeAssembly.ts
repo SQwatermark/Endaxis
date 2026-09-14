@@ -627,6 +627,10 @@ export class CombatRuntimeAssembly {
     string,
     import('./operatorUpgradeEventState').OperatorUpgradeEventState
   >();
+  readonly #operatorComboConditionStates = new Map<
+    string,
+    Map<string, import('./comboSkillConditionState').ComboSkillConditionState>
+  >();
   readonly #comboConditionRegistrations: AbilityEventRegistration[] = [];
   /** 保留常驻监听步骤的所有者，便于后续补充场景卸载时的对称注销。 */
   readonly #passiveAbilityEvents: PassiveAbilityEventRuntime[] = [];
@@ -780,11 +784,6 @@ export class CombatRuntimeAssembly {
       );
 
       for (const [operatorId, program] of preparation.programs) {
-        if ((program.comboConditionPrograms?.length ?? 0) > 0) {
-          throw new Error(
-            `restored operator '${operatorId}' has combo conditions without restored registration binding`,
-          );
-        }
         const buffRuntime = foundation.operatorBuffTargets.get(operatorId);
         if (buffRuntime === undefined) {
           throw new Error(`restored operator '${operatorId}' has no Buff target`);
@@ -824,6 +823,9 @@ export class CombatRuntimeAssembly {
           ),
           ...(runtimeOperator.upgradeEventPrograms ?? []).map(
             program => `upgrade-event:${program.key}`,
+          ),
+          ...(runtimeOperator.comboConditionPrograms ?? []).map(
+            program => `native-combo-condition:${program.key}`,
           ),
         ]) {
           this.#registerRestoredReactiveOperationBinding(runtimeOperator, sourceActionId, options);
@@ -1024,6 +1026,10 @@ export class CombatRuntimeAssembly {
             operator.operatorId,
             preparation.operators.get(operator.operatorId)!.passives,
           );
+          this.#operatorComboConditionStates.set(
+            operator.operatorId,
+            preparation.operators.get(operator.operatorId)!.comboConditions,
+          );
           this.#passiveAbilityEvents.push(...sources.passives.runtimes.values());
         },
       });
@@ -1092,11 +1098,24 @@ export class CombatRuntimeAssembly {
         createCallbackBindings: ({ definitionOperatorId, state }) => {
           const operator = this.#operators.get(definitionOperatorId)!;
           const program = restored.options.projectileCallbackPrograms.resolve(state.programId!);
+          const origin = state.skillCastInfo;
+          const originProgram =
+            origin === null
+              ? undefined
+              : (this.#skillPrograms.get(
+                  `${definitionOperatorId}\u0000${origin.originSkillId}\u0000${origin.originCastId ?? ''}`,
+                ) ??
+                this.#skillPrograms.get(
+                  `${definitionOperatorId}\u0000${origin.originSkillId}\u0000`,
+                ));
           const operations = this.#createOperationChain({
             operator,
             program: {
               operatorId: definitionOperatorId,
               skillId: program.skillId,
+              ...(originProgram?.skillGroupKey === undefined
+                ? {}
+                : { skillGroupKey: originProgram.skillGroupKey }),
               ...(state.skillCastInfo === null
                 ? {}
                 : { skillType: state.skillCastInfo.originSkillType }),
@@ -1127,6 +1146,7 @@ export class CombatRuntimeAssembly {
         },
       });
       buffs.restoration.bindRelations();
+      this.#installComboSkillConditions(true);
 
       const frame = bindRestoredCombatRuntimeFrame({
         preparation,
@@ -1877,6 +1897,9 @@ export class CombatRuntimeAssembly {
                   import('./operatorInitializationState').OperatorInitializationState
                 >(),
               upgradeEvents: this.#operatorUpgradeEventStates.get(operatorId) ?? null,
+              comboConditions:
+                this.#operatorComboConditionStates.get(operatorId) ??
+                new Map<string, import('./comboSkillConditionState').ComboSkillConditionState>(),
               cooldowns,
               statuses: this.#operatorStatuses.get(operatorId)?.container.runtimeState ?? null,
               timedMarkers: this.#operatorTimedMarkers.get(operatorId)!.runtimeState,
@@ -2807,7 +2830,7 @@ export class CombatRuntimeAssembly {
     }
   }
 
-  #installComboSkillConditions(): void {
+  #installComboSkillConditions(restoring = false): void {
     const options = this.#options;
     const pending: {
       operator: CombatOperatorProgram;
@@ -2869,6 +2892,29 @@ export class CombatRuntimeAssembly {
     }
     for (const { operator, program } of pending) {
       const operatorId = operator.operatorId;
+      let states = this.#operatorComboConditionStates.get(operatorId);
+      if (states === undefined) {
+        states = new Map();
+        this.#operatorComboConditionStates.set(operatorId, states);
+      }
+      const saved = states.get(program.key);
+      if (restoring && saved === undefined) {
+        throw new Error(`restored combo condition '${operatorId}:${program.key}' has no state`);
+      }
+      const blackboard =
+        saved === undefined
+          ? new ActionBlackboard(
+              program.initialValues ?? {},
+              this.#entityBlackboards.get(operatorId)!,
+            )
+          : ActionBlackboard.bindRuntimeState(saved.blackboard);
+      const operationState = saved?.operations ?? createCombatOperationHostState();
+      if (saved === undefined) {
+        states.set(program.key, {
+          blackboard: blackboard.runtimeState,
+          operations: operationState,
+        });
+      }
       this.#comboConditionRegistrations.push(
         register({
           event: program.event,
@@ -2876,12 +2922,14 @@ export class CombatRuntimeAssembly {
           sourceId: operatorId,
           entityBlackboard: this.#entityBlackboards.get(operatorId)!,
           initialValues: program.initialValues,
+          directBlackboard: blackboard,
           sequence: program.sequence,
           operations: this.#createReactiveOperationChain(
             operator,
             `native-combo-condition:${program.key}`,
             unsupportedReactiveTerminal,
             options,
+            operationState,
           ),
           isOwnerAlive: () => eligibility.isAlive(operatorId),
           isOwnerSilenced: () => eligibility.isSilenced(operatorId),

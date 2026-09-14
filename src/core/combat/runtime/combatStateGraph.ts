@@ -19,6 +19,7 @@ import type { PassiveAbilityEventState } from './passiveAbilityEventState';
 import type { EquipmentEventState } from './equipmentEventState';
 import type { OperatorInitializationState } from './operatorInitializationState';
 import type { OperatorUpgradeEventState } from './operatorUpgradeEventState';
+import type { ComboSkillConditionState } from './comboSkillConditionState';
 
 /** 单个干员已接入的可变数据；技能黑板回退读取这里的同一实体黑板。 */
 export interface CombatOperatorState {
@@ -33,6 +34,8 @@ export interface CombatOperatorState {
   readonly initializations: Map<string, OperatorInitializationState>;
   /** null 表示该干员没有构筑启用的养成事件监听。 */
   readonly upgradeEvents: OperatorUpgradeEventState | null;
+  /** 按编译条件 key 保存的常驻连携条件宿主。 */
+  readonly comboConditions: Map<string, ComboSkillConditionState>;
   /** 按技能身份共享的冷却；尚未创建施放实例的技能也在这里保存账本。 */
   readonly cooldowns: Map<string, SkillCooldownState>;
   /** null 表示该实体未配置通用语义状态系统。 */

@@ -114,6 +114,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
           equipment: null,
           initializations: new Map(),
           upgradeEvents: null,
+          comboConditions: new Map(),
           cooldowns: new Map(),
           statuses: null,
           timedMarkers: createTimedMarkerState(),
@@ -420,6 +421,42 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       },
     },
   ];
+  const comboProgram = {
+    operatorId: 'operator',
+    skillGroupKey: 'combo',
+    skillId: 'combo',
+    skillType: 'comboSkill' as const,
+    skillLevel: 1,
+    initialBlackboard: {},
+    cooldownFrames: 300,
+    costFrame: 0,
+    costs: [],
+    timelineBlockFrames: 1,
+    naturalDurationFrames: 1,
+    timelineActions: [{ startFrame: 1, sequence: { steps: [] } }],
+  };
+  const comboConditionPrograms = [
+    {
+      key: 'damage-condition',
+      skillGroupKey: 'combo',
+      skillKey: 'combo',
+      event: 'beforeOutputDamage' as const,
+      immediately: false,
+      initialValues: { hits: 0 },
+      sequence: {
+        steps: [
+          {
+            kind: 'modifyActionValue' as const,
+            parameters: {
+              key: 'hits',
+              operation: 'add' as const,
+              value: { kind: 'constant' as const, value: 1 },
+            },
+          },
+        ],
+      },
+    },
+  ];
   const panel = {
     operatorId: 'operator',
     level: 1,
@@ -455,20 +492,21 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   const skillPrograms = new CombatSkillPrograms();
   const operationPrograms = new CombatOperationPrograms();
   const childSkillPrograms = new AbilityEntityChildSkillPrograms();
+  const operatorProgram = {
+    operatorId: 'operator',
+    skills: [program, comboProgram],
+    skillSlotGroups: [{ skillGroupKey: 'combo', baseSkillKey: 'combo', replacementSkillKeys: [] }],
+    comboConditionPrograms,
+    abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
+    buffDefinitions,
+    panel,
+    passivePrograms,
+  };
   const original = new CombatRuntimeAssembly({
     ...environment.runtimeOptions,
     resources,
     enemy,
-    operators: [
-      {
-        operatorId: 'operator',
-        skills: [program],
-        abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
-        buffDefinitions,
-        panel,
-        passivePrograms,
-      },
-    ],
+    operators: [operatorProgram],
     abilityEntityChildSkillPrograms: childSkillPrograms,
     combatOperationPrograms: operationPrograms,
     combatSkillPrograms: skillPrograms,
@@ -485,22 +523,19 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   expect(original.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(2);
   expect(original.stateGraph.instances.projectiles.instances.size).toBe(1);
   expect(original.stateGraph.instances.projectiles.instances.get(1)!.callback!.host).toBeNull();
+  expect(
+    original.stateGraph.operators
+      .get('operator')!
+      .comboConditions.get('damage-condition')!
+      .blackboard.values.get('hits'),
+  ).toBe(0);
   const saved = structuredClone(original.stateGraph);
 
   const restored = CombatRuntimeAssembly.restore({
     graph: saved,
     resources,
     enemy,
-    operators: [
-      {
-        operatorId: 'operator',
-        skills: [program],
-        abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
-        buffDefinitions,
-        panel,
-        passivePrograms,
-      },
-    ],
+    operators: [operatorProgram],
     environment: environmentInput,
     abilityEntityChildSkillPrograms: childSkillPrograms,
     combatOperationPrograms: operationPrograms,
@@ -514,22 +549,19 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   original.advanceFrames(5);
   restored.advanceFrames(5);
   expect(restored.stateGraph.instances.projectiles.instances.get(1)!.callback!.host).not.toBeNull();
+  expect(
+    restored.stateGraph.operators
+      .get('operator')!
+      .comboConditions.get('damage-condition')!
+      .blackboard.values.get('hits'),
+  ).toBe(1);
   expect(restored.stateGraph).toEqual(original.stateGraph);
   const activeHostSaved = structuredClone(original.stateGraph);
   const activeHostRestored = CombatRuntimeAssembly.restore({
     graph: activeHostSaved,
     resources,
     enemy,
-    operators: [
-      {
-        operatorId: 'operator',
-        skills: [program],
-        abilityEntityDefinitions: { restored_entity: abilityEntityDefinition },
-        buffDefinitions,
-        panel,
-        passivePrograms,
-      },
-    ],
+    operators: [operatorProgram],
     environment: environmentInput,
     abilityEntityChildSkillPrograms: childSkillPrograms,
     combatOperationPrograms: operationPrograms,

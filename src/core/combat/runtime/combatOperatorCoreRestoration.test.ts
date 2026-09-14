@@ -88,6 +88,7 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
     equipment: null,
     initializations: new Map(),
     upgradeEvents: null,
+    comboConditions: new Map(),
     cooldowns: new Map([['skill', cooldown.runtimeState]]),
     statuses: statusTemplate.runtimeState,
     timedMarkers: markers.runtimeState,

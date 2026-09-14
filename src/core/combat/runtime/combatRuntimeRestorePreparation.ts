@@ -11,6 +11,7 @@ import type { SkillRuntimeState } from './skillRuntimeState';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import type { CombatSkillProgramBinding } from './combatSkillPrograms';
 import { CombatSkillPrograms, combatSkillProgramKey } from './combatSkillPrograms';
+import { hasActiveCombatOperationState } from './combatOperationHostState';
 import {
   prepareCombatBuffRestore,
   type PreparedCombatBuffRestore,
@@ -117,6 +118,23 @@ function validateOperatorState(program: CombatOperatorProgram, state: CombatOper
     new Set((program.initializationPrograms ?? []).map(initialization => initialization.key)),
     `operator '${program.operatorId}' initializations`,
   );
+  requireExactKeys(
+    state.comboConditions,
+    new Set((program.comboConditionPrograms ?? []).map(condition => condition.key)),
+    `operator '${program.operatorId}' combo conditions`,
+  );
+  for (const [key, condition] of state.comboConditions) {
+    if (condition.blackboard.entity !== state.blackboard) {
+      throw new Error(
+        `restored combo condition '${program.operatorId}:${key}' uses another entity blackboard`,
+      );
+    }
+    if (hasActiveCombatOperationState(condition.operations)) {
+      throw new Error(
+        `restored combo condition '${program.operatorId}:${key}' has unfinished instant operations`,
+      );
+    }
+  }
 
   const hasEquipmentRuntime = (program.equipmentContributions ?? []).some(
     contribution =>

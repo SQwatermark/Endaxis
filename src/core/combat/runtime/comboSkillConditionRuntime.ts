@@ -40,6 +40,8 @@ export interface ComboConditionRegistration {
   readonly sequence: ResolvedActionSequence;
   readonly entityBlackboard: ActionBlackboard;
   readonly initialValues: BlackboardSnapshot | null;
+  /** 装配根提供并持有的 direct 黑板；独立使用时省略并从 initialValues 创建。 */
+  readonly directBlackboard?: ActionBlackboard;
   readonly operations: CombatOperationExecutor;
   /** entity.markDie 的 alive 语义或显式木桩投影；不能用血量替代。 */
   readonly isOwnerAlive: () => boolean;
@@ -72,7 +74,9 @@ export class ComboSkillConditionRuntime {
       throw new Error(`unaudited AbilityEvent action-context binding '${options.event}'`);
     const registration: Registration = {
       options,
-      blackboard: new ActionBlackboard(options.initialValues ?? {}, options.entityBlackboard),
+      blackboard:
+        options.directBlackboard ??
+        new ActionBlackboard(options.initialValues ?? {}, options.entityBlackboard),
       targets: new RuntimeTargetContext(),
       captureBlackboard: options.initialValues !== null,
     };
