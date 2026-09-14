@@ -11,6 +11,23 @@ import {
 import type { ProjectileCallbackState } from './projectileCallbackState';
 import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
 
+it('空投射物目录的关系阶段保持无操作', () => {
+  const projectiles = new ProjectileLifecycleRuntime(() => 1, {
+    state: { instances: new Map(), admittedAbilities: null, nextResetRegistrationId: 0 },
+  });
+  const createCallbackBindings = vi.fn();
+
+  expect(() =>
+    bindRestoredCombatProjectileRelations({
+      projectiles,
+      foundation: {} as never,
+      entities: { targets: new Map() } as never,
+      createCallbackBindings,
+    }),
+  ).not.toThrow();
+  expect(createCallbackBindings).not.toHaveBeenCalled();
+});
+
 it('整场投射物阶段按保存的定义干员恢复待命中回调', () => {
   const program: CompiledProjectileCallbackSkillProgram = {
     skillId: 'callback',

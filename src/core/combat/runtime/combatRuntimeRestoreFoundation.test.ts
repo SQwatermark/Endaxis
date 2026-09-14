@@ -12,8 +12,9 @@ import { createProjectileLifecycleState } from './projectileLifecycleState';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 import { createTimedMarkerState } from './timedMarkers';
 import { bindRestoredCombatAbilityEntityDirectory } from './combatRuntimeAbilityEntityRestoration';
-import { bindRestoredCombatBuffInstances } from './combatRuntimeBuffInstanceRestoration';
-import { bindRestoredCombatRuntimeOperators } from './combatRuntimeOperatorRestoration';
+import { bindRestoredCombatRuntimeObjectGraph } from './combatRuntimeObjectGraphRestoration';
+import { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
+import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 
 const resources = {
   sp: 0,
@@ -160,41 +161,56 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   });
   expect(entities.runtime.runtimeState).toBe(graph.instances.abilityEntities);
   expect([...entities.targets.keys()]).toEqual(['enemy', 'operator']);
-  const buffs = bindRestoredCombatBuffInstances({
+  const objects = bindRestoredCombatRuntimeObjectGraph({
     preparation,
     foundation: restored,
     entities,
-    resolveDefinition: () => undefined,
-    resolveGlobalDefinition: () => undefined,
-  });
-  expect(buffs.globalBuffs.runtimeState).toBe(graph.instances.globalBuffs);
-  const operators = bindRestoredCombatRuntimeOperators({
-    preparation,
-    foundation: restored,
-    entities,
-    createCoreBindings: () => ({
-      createSkillDependencies: () => {
-        throw new Error('fixture has no skills');
+    callbackPrograms: new ProjectileCallbackPrograms(),
+    buffs: {
+      resolveDefinition: () => undefined,
+      resolveGlobalDefinition: () => undefined,
+    },
+    operators: {
+      createCoreBindings: () => ({
+        createSkillDependencies: () => {
+          throw new Error('fixture has no skills');
+        },
+        abilityRuntime: {},
+      }),
+      createSourceBindings: () => ({
+        createEquipmentExecutor: () => ({ execute: () => true, evaluate: () => true }),
+        createInitializationOperations: () => ({ execute: () => true, evaluate: () => true }),
+        createPassiveOperations: () => ({ execute: () => true, evaluate: () => true }),
+        registerPassive: () => {
+          throw new Error('fixture has no passive responses');
+        },
+        createUpgradeExecutor: () => ({ execute: () => true, evaluate: () => true }),
+      }),
+    },
+    abilityEntityRelations: {
+      childSkillPrograms: new AbilityEntityChildSkillPrograms(),
+      createPassiveOperations: () => {
+        throw new Error('fixture has no AbilityEntity passives');
       },
-      abilityRuntime: {},
-    }),
-    createSourceBindings: () => ({
-      createEquipmentExecutor: () => ({ execute: () => true, evaluate: () => true }),
-      createInitializationOperations: () => ({ execute: () => true, evaluate: () => true }),
-      createPassiveOperations: () => ({ execute: () => true, evaluate: () => true }),
       registerPassive: () => {
-        throw new Error('fixture has no passive responses');
+        throw new Error('fixture has no AbilityEntity passive responses');
       },
-      createUpgradeExecutor: () => ({ execute: () => true, evaluate: () => true }),
-    }),
+      createChildSkillBindings: () => {
+        throw new Error('fixture has no AbilityEntity child skills');
+      },
+    },
+    createProjectileCallbackBindings: () => {
+      throw new Error('fixture has no projectile callbacks');
+    },
   });
-  expect(operators.cores.get('operator')!.blackboard.runtimeState).toBe(
+  expect(objects.buffs.globalBuffs.runtimeState).toBe(graph.instances.globalBuffs);
+  expect(objects.projectiles.runtimeState).toBe(graph.instances.projectiles);
+  expect(objects.operators.cores.get('operator')!.blackboard.runtimeState).toBe(
     graph.operators.get('operator')!.blackboard,
   );
-  expect(operators.programs.get('operator')!.buffRuntime).toBe(
+  expect(objects.operators.programs.get('operator')!.buffRuntime).toBe(
     restored.operatorBuffTargets.get('operator'),
   );
-  operators.bindRestoredChildren();
-  buffs.restoration.bindRelations();
-  operators.disposeSources();
+  objects.operators.disposeSources();
+  objects.abilityEntityRelations.disposePassives();
 });

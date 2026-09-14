@@ -7,8 +7,10 @@ import type {
   CompiledSkillSlotGroup,
 } from '../../compiler/combatProgram';
 import { compileOperatorBuffDefinitions, compileSkill } from '../../compiler/compileSkill';
+import { createActionSequenceState } from '../actions/actionSequenceState';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { createBuffInstanceState } from '../buffs/buffInstanceState';
 import {
   CompiledCombatBuffDefinitions,
   type CombatBuffDefinitionEntry,
@@ -18,6 +20,7 @@ import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
 import { GAMEPLAY_TAG_PREDEFINE } from '../../../data/combat/gameplayTagPredefine.generated';
 import { CombatStatusContainer } from '../status/combatStatuses';
+import { createTimelineActionState } from '../timeline/timelineActionState';
 import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
 import { prepareCombatRuntimeRestore } from './combatRuntimeRestorePreparation';
 import { CombatSkillPrograms, combatSkillProgramKey } from './combatSkillPrograms';
@@ -495,6 +498,31 @@ describe('CombatRuntimeAssembly', () => {
     expect(() =>
       prepareCombatRuntimeRestore(splitResources, [operator], assembly.combatSkillPrograms),
     ).toThrow("restored resource operator 'operator' uses another ledger");
+    const missingAttachedBuff = structuredClone(saved);
+    missingAttachedBuff.operators
+      .get('operator')!
+      .skills.get('skill\u0000')!
+      .execution.attachedBuffs.set('["enemy",99]', { ownerId: 'enemy', instanceId: 99 });
+    expect(() =>
+      prepareCombatRuntimeRestore(missingAttachedBuff, [operator], assembly.combatSkillPrograms),
+    ).toThrow('restored attached Buff');
+
+    const missingActionBuff = structuredClone(saved);
+    const actionSequence = createActionSequenceState(1);
+    actionSequence.steps[0] = {
+      kind: 'buffHold',
+      buffs: {
+        active: true,
+        references: [{ ownerId: 'enemy', instanceId: 100 }],
+      },
+    };
+    missingActionBuff.operators.get('operator')!.skills.get('skill\u0000')!.timeline = {
+      scheduling: createTimelineActionState(),
+      sequences: [actionSequence],
+    };
+    expect(() =>
+      prepareCombatRuntimeRestore(missingActionBuff, [operator], assembly.combatSkillPrograms),
+    ).toThrow('restored action-owned Buff');
   });
 
   it('整场恢复预检拒绝脱离干员实体黑板的被动状态', () => {
@@ -578,6 +606,23 @@ describe('CombatRuntimeAssembly', () => {
     expect(() =>
       prepareCombatRuntimeRestore(splitBlackboard, [operator], assembly.combatSkillPrograms),
     ).toThrow(`restored AbilityEntity '${target.instanceId}' Buffs use another blackboard`);
+
+    const duplicateChildOwner = structuredClone(valid);
+    const duplicateEntity = duplicateChildOwner.instances.abilityEntities.instances.get(
+      target.instanceId,
+    )!;
+    const ownerId = logicalAbilityEntityRuntimeId(target.instanceId);
+    const child = createBuffInstanceState({
+      ownerId,
+      instanceId: 1,
+      definitionId: 'child',
+      sourceId: 'operator',
+    });
+    duplicateEntity.buffs!.instances.set(1, child);
+    duplicateEntity.childBuffs.push(child.identity, child.identity);
+    expect(() =>
+      prepareCombatRuntimeRestore(duplicateChildOwner, [operator], assembly.combatSkillPrograms),
+    ).toThrow(`restored AbilityEntity child Buff '["${ownerId}",1]' has multiple owners`);
   });
 
   it.each([

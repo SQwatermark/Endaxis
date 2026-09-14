@@ -58,6 +58,7 @@ export function bindRestoredCombatProjectileRelations(options: {
     readonly state: ProjectileCallbackState;
   }) => ProjectileCallbackRestoreBindings;
 }): void {
+  if (options.projectiles.runtimeState.instances.size === 0) return;
   const resolveAttachedBuff = (reference: BuffReference): BuffApplicationHandle | undefined =>
     options.entities.targets.get(reference.ownerId)?.resolveHandle?.(reference);
   const resolveTickDeltaSeconds = () =>

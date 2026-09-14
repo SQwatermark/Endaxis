@@ -115,22 +115,8 @@ function resolveOperatorSourceChildren(
   preparation: CombatRuntimeRestorePreparation,
   resolve: (reference: BuffReference) => BuffApplicationHandle | undefined,
 ): ReadonlyMap<string, BuffApplicationHandle> {
-  const references = [...preparation.operators.values()].flatMap(state => [
-    ...[...state.passives.values()].flatMap(passive => passive.host.childBuffs),
-    ...(state.equipment === null
-      ? []
-      : [...state.equipment.contributions.values()].flatMap(
-          contribution => contribution.host.childBuffs,
-        )),
-  ]);
-  const unique = new Map<string, BuffReference>();
-  for (const reference of references) {
-    const key = buffReferenceKey(reference);
-    if (unique.has(key)) throw new Error(`restored source child Buff '${key}' has multiple owners`);
-    unique.set(key, reference);
-  }
   const children = new Map<string, BuffApplicationHandle>();
-  for (const [key, reference] of unique) {
+  for (const [key, reference] of preparation.buffs.operatorSourceChildren) {
     const child = resolve(reference);
     if (child === undefined) throw new Error(`restored source child Buff '${key}' is missing`);
     children.set(key, child);

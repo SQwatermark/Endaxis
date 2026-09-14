@@ -11,6 +11,10 @@ import type { SkillRuntimeState } from './skillRuntimeState';
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
 import type { CombatSkillProgramBinding } from './combatSkillPrograms';
 import { CombatSkillPrograms, combatSkillProgramKey } from './combatSkillPrograms';
+import {
+  prepareCombatBuffRestore,
+  type PreparedCombatBuffRestore,
+} from './combatRuntimeBuffRestorePreflight';
 
 export interface PreparedCombatSkillRestoreBinding {
   readonly program: CompiledSkillProgram;
@@ -23,6 +27,7 @@ export interface CombatRuntimeRestorePreparation {
   readonly programs: ReadonlyMap<string, CombatOperatorProgram>;
   readonly operators: ReadonlyMap<string, CombatOperatorState>;
   readonly skills: ReadonlyMap<string, readonly PreparedCombatSkillRestoreBinding[]>;
+  readonly buffs: PreparedCombatBuffRestore;
 }
 
 function requireExactKeys(
@@ -289,6 +294,13 @@ export function prepareCombatRuntimeRestore(
     validateOperatorState(program, graph.operators.get(program.operatorId)!);
   }
   validateAbilityEntityBuffTopology(graph);
+  const buffs = prepareCombatBuffRestore(graph);
   const skills = prepareSkillBindings(programs, graph.operators, fixedSkillPrograms);
-  return Object.freeze({ graph, programs: programsById, operators: graph.operators, skills });
+  return Object.freeze({
+    graph,
+    programs: programsById,
+    operators: graph.operators,
+    skills,
+    buffs,
+  });
 }

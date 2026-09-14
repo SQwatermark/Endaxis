@@ -39,6 +39,7 @@ export interface AbilityEntityChildSkillRestoreBindings {
 
 export interface RestoreCombatRuntimeAbilityEntityRelationsOptions {
   readonly foundation: RestoredCombatRuntimeFoundation;
+  readonly preparation?: import('./combatRuntimeRestorePreparation').CombatRuntimeRestorePreparation;
   readonly entities: RestoredCombatAbilityEntityDirectory;
   readonly operators: RestoredCombatRuntimeOperators;
   readonly childSkillPrograms: AbilityEntityChildSkillPrograms;
@@ -70,7 +71,7 @@ export function bindRestoredCombatRuntimeAbilityEntityRelations(
 ): RestoredCombatRuntimeAbilityEntityRelations {
   const definitions = new Map<number, ResolvedAbilityEntityDefinition>();
   const passiveHosts = new Map<number, RestoredCombatAbilityEntityPassives>();
-  const childBuffs = resolveEntityChildBuffs(options.entities);
+  const childBuffs = resolveEntityChildBuffs(options.entities, options.preparation);
 
   try {
     for (const [instanceId, state] of options.entities.runtime.runtimeState.instances) {
@@ -197,21 +198,9 @@ function definitionContainsChildSkill(
 
 function resolveEntityChildBuffs(
   entities: RestoredCombatAbilityEntityDirectory,
+  preparation?: import('./combatRuntimeRestorePreparation').CombatRuntimeRestorePreparation,
 ): ReadonlyMap<string, BuffApplicationHandle> {
-  const unique = new Map<string, BuffReference>();
-  for (const state of entities.runtime.runtimeState.instances.values()) {
-    const references = [
-      ...state.childBuffs,
-      ...[...state.passiveAbilities.values()].flatMap(passive => passive.host.childBuffs),
-    ];
-    for (const reference of references) {
-      const key = buffReferenceKey(reference);
-      if (unique.has(key)) {
-        throw new Error(`restored AbilityEntity child Buff '${key}' has multiple owners`);
-      }
-      unique.set(key, reference);
-    }
-  }
+  const unique = preparation?.buffs.abilityEntityChildren ?? collectEntityChildBuffs(entities);
   const children = new Map<string, BuffApplicationHandle>();
   for (const [key, reference] of unique) {
     const child = entities.targets.get(reference.ownerId)?.resolveHandle?.(reference);
@@ -221,4 +210,23 @@ function resolveEntityChildBuffs(
     children.set(key, child);
   }
   return children;
+}
+
+function collectEntityChildBuffs(
+  entities: RestoredCombatAbilityEntityDirectory,
+): ReadonlyMap<string, BuffReference> {
+  const unique = new Map<string, BuffReference>();
+  for (const state of entities.runtime.runtimeState.instances.values()) {
+    for (const reference of [
+      ...state.childBuffs,
+      ...[...state.passiveAbilities.values()].flatMap(passive => passive.host.childBuffs),
+    ]) {
+      const key = buffReferenceKey(reference);
+      if (unique.has(key)) {
+        throw new Error(`restored AbilityEntity child Buff '${key}' has multiple owners`);
+      }
+      unique.set(key, reference);
+    }
+  }
+  return unique;
 }
