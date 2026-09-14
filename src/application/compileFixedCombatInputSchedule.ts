@@ -10,7 +10,7 @@ import type { SkillInputGroup } from '../core/combat/runtime/combatInputRuntime'
 
 /**
  * 旧轴修复把各段拆成固定帧后，仅解析其人工输入，不编译技能动作或构筑。
- * 连续组及自定义定义需要各自的动态排程/程序绑定，不能在这里静默退化为普通技能。
+ * 连续组仍需要动态排程；自定义定义的程序由逐帧会话在装配时单独绑定。
  */
 export function compileFixedCombatInputSchedule(
   scenario: ScenarioDocument,
@@ -59,9 +59,6 @@ export function compileCombatInputSchedule(
     for (const cast of track.skillCasts) {
       const order = declarationOrder++;
       if (cast.presentation?.disabled) continue;
-      if (cast.customDefinition !== undefined) {
-        throw new Error(`cast '${cast.id}' requires a custom program binding`);
-      }
       const operator =
         track.operator === null ? null : index.getOperator(track.operator.operatorSlug);
       if (operator === null) throw new Error(`track '${track.id}' has no operator definition`);

@@ -19,6 +19,7 @@ import {
 import {
   compileResolvedScenarioTimeline,
   compileOperatorDefinitionSkills,
+  compileOperatorSkillCastPrograms,
 } from './compileScenarioTimeline';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import { resolveScenarioBuilds } from './resolveScenarioBuilds';
@@ -274,6 +275,28 @@ export function compileScenarioRuntimeAssembly(
   const equipment = new Map(
     compileResolvedScenarioEquipment(builds).map(entry => [entry.operatorId, entry.contributions]),
   );
+  const liveCustomSkillCasts =
+    options.liveInputInitialFrame === undefined
+      ? new Map<string, NonNullable<CombatOperatorProgram['skillCasts']>>()
+      : new Map(
+          builds.map(build => {
+            const panel = panels.get(build.track.id);
+            if (panel === undefined) {
+              throw new Error(`operator '${build.track.id}' has no resolved panel`);
+            }
+            return [
+              build.track.id,
+              compileOperatorSkillCastPrograms(
+                build.track.id,
+                build.track.skillCasts.filter(cast => cast.customDefinition !== undefined),
+                build.operatorInstance,
+                build.operator,
+                options.index.getCommonAbilityEntityDefinitions?.(),
+                panel.attributes,
+              ),
+            ] as const;
+          }),
+        );
   // 资源和常驻槽位共用同一次完整定义编译；绝不把这些动作安装成虚构的技能块。
   const definitionPrograms = new Map(
     builds.map(build => {
@@ -349,6 +372,10 @@ export function compileScenarioRuntimeAssembly(
       );
       return {
         ...operator,
+        ...(options.liveInputInitialFrame === undefined ||
+        liveCustomSkillCasts.get(operator.operatorId)!.length === 0
+          ? {}
+          : { skillCasts: liveCustomSkillCasts.get(operator.operatorId)! }),
         definitionSkillPrograms: definitionPrograms.get(operator.operatorId)!,
         skillCooldownPrograms: definitionPrograms.get(operator.operatorId)!.map(program => ({
           operatorId: program.operatorId,

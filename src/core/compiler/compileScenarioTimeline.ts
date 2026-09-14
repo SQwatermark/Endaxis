@@ -172,6 +172,67 @@ function compileCastSkillPrograms(
   );
 }
 
+function compileCastBindings(
+  trackId: string,
+  casts: readonly SkillCastDocument[],
+  build: OperatorInstanceDocument,
+  operator: OperatorDefinition,
+  abilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'],
+  buildAttributes?: Readonly<Record<OperatorAttribute, number>>,
+): readonly CombatSkillCastProgram[] {
+  const bindings = casts.flatMap(cast => {
+    if (cast.presentation?.disabled) return [];
+    if (cast.source.kind === 'custom') {
+      throw new Error(
+        `skill cast '${cast.id}' is a presentation-only custom action without a SkillDefinition`,
+      );
+    }
+    const resolved = resolveEffectiveSkillDefinition(cast, operator);
+    return compileCastSkillPrograms(
+      trackId,
+      cast,
+      resolved,
+      requireSkillLevel(build, resolved.levelSource),
+      abilityEntityDefinitions,
+    );
+  });
+  const patched = applyOperatorUpgradeSkillPatches(
+    bindings.map(binding => binding.program),
+    resolveActiveOperatorUpgrades(build, operator),
+    { skipUncompiledSkillGroups: true, buildAttributes },
+  );
+  return bindings.map((binding, index) => ({ ...binding, program: patched[index]! }));
+}
+
+/**
+ * 为逐帧会话单独编译指定技能块的程序绑定。调用方可只传自定义块，避免重编译整条时间轴。
+ */
+export function compileOperatorSkillCastPrograms(
+  trackId: string,
+  casts: readonly SkillCastDocument[],
+  build: OperatorInstanceDocument,
+  operator: OperatorDefinition,
+  commonAbilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'] = {},
+  buildAttributes?: Readonly<Record<OperatorAttribute, number>>,
+): readonly CombatSkillCastProgram[] {
+  const duplicateIds = Object.keys(operator.abilityEntityDefinitions ?? {}).filter(
+    id => id in commonAbilityEntityDefinitions,
+  );
+  if (duplicateIds.length > 0) {
+    throw new Error(
+      `operator '${operator.slug}' duplicates shared AbilityEntity definitions: ${duplicateIds.join(', ')}`,
+    );
+  }
+  return compileCastBindings(
+    trackId,
+    casts,
+    build,
+    operator,
+    { ...commonAbilityEntityDefinitions, ...operator.abilityEntityDefinitions },
+    buildAttributes,
+  );
+}
+
 function compileSkillSlotGroups(operator: OperatorDefinition): readonly CompiledSkillSlotGroup[] {
   if (operator.skillSlots === undefined || operator.playerActionRoutes === undefined) {
     throw new Error(
@@ -303,7 +364,14 @@ function compileResolvedTimelineTracks(
       ...operator.abilityEntityDefinitions,
     };
     const activeUpgrades = resolveActiveOperatorUpgrades(operatorInstance, operator);
-    const skillCasts: CombatSkillCastProgram[] = [];
+    const skillCasts = compileCastBindings(
+      track.id,
+      track.skillCasts,
+      operatorInstance,
+      operator,
+      abilityEntityDefinitions,
+      buildAttributes,
+    );
     const anchorFrameByCastId = new Map<string, number>();
     for (const chain of getSkillCastPlacementChains(track.skillCasts)) {
       const anchorFrame = chain.anchor.placement.startFrame;
@@ -326,11 +394,6 @@ function compileResolvedTimelineTracks(
           `skill cast '${cast.id}' is a presentation-only custom action without a SkillDefinition`,
         );
       }
-      const resolved = resolveEffectiveSkillDefinition(cast, operator);
-      const level = requireSkillLevel(operatorInstance, resolved.levelSource);
-      skillCasts.push(
-        ...compileCastSkillPrograms(track.id, cast, resolved, level, abilityEntityDefinitions),
-      );
       pendingInputs.push({
         // 后段此处仅保留最早可能开始的锚点帧，正式执行由连续组排程决定。
         ...compileSkillCastPlayerInput(track.id, cast, operator, anchorFrameByCastId.get(cast.id)!),
@@ -338,18 +401,6 @@ function compileResolvedTimelineTracks(
       });
     }
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
-    const compiledSkills = applyOperatorUpgradeSkillPatches(
-      skillCasts.map(binding => binding.program),
-      activeUpgrades,
-      {
-        skipUncompiledSkillGroups: true,
-        buildAttributes,
-      },
-    );
-    const compiledSkillCasts = skillCasts.map((binding, index) => ({
-      castId: binding.castId,
-      program: compiledSkills[index]!,
-    }));
     const compiledOperatorBuffResources = compileOperatorBuffResources(
       operator.buffDefinitions,
       abilityEntityDefinitions,
@@ -400,7 +451,7 @@ function compileResolvedTimelineTracks(
       upgradeEventPrograms: compileOperatorUpgradeEventPrograms(activeUpgrades),
       reactionModifiers: compileOperatorReactionModifiers(activeUpgrades),
       skills: [],
-      ...(compiledSkillCasts.length === 0 ? {} : { skillCasts: compiledSkillCasts }),
+      ...(skillCasts.length === 0 ? {} : { skillCasts }),
     });
   }
 

@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../core/project/createProject';
 import type { ScenarioDocument } from '../core/project/schema';
 import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
-import { perlica } from '../data/operators/perlica';
+import { perlica, perlicaBattleSkill } from '../data/operators/perlica';
 import { commonBuffDefinitions } from '../data/buffs/commonDefinitions';
 import { placeSkillGroup, groupPlacedSkillSequence } from '../ui/timeline/placeSkillGroup';
 import { CombatInputSchedule } from './combatInputSchedule';
@@ -117,6 +117,43 @@ describe('ScenarioSimulationService', () => {
       retained!.canContinue({ frame: 0, operatorId: 'track:0', skillId: 'basicAttack1' }),
     ).toThrow('current frame input phase');
     expect(session.runtime.readReceipts(undefined, new Set(['SkillStarted'])).entries).toEqual([]);
+  });
+
+  it('逐帧会话只额外编译自定义技能块，并按同一释放身份执行', () => {
+    const placed = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:custom` },
+    }).scenario;
+    const cast = placed.tracks[0]!.skillCasts[0]!;
+    cast.customDefinition = {
+      ...perlicaBattleSkill,
+      timelineBlockFrames: 1,
+      naturalDurationFrames: 1,
+      scheduledSequences: [],
+    };
+    const service = createService();
+    const session = service.createInputCombatSession(placed);
+    const customBinding = session.compiled.operators[0]!.skillCasts?.find(
+      binding => binding.castId === cast.id,
+    );
+    expect(customBinding?.program.timelineBlockFrames).toBe(1);
+    expect(session.compiled.operators[0]!.skillCasts).toHaveLength(1);
+
+    const driver = new CombatInputSchedule(
+      session,
+      compileFixedCombatInputSchedule(placed, testIndex),
+    );
+    driver.advanceToFrame(3);
+    expect(
+      session.runtime
+        .readHistory()
+        .toArray()
+        .some(entry => entry.event === 'SkillStarted' && entry.data?.castId === cast.id),
+    ).toBe(true);
   });
 
   it('外部连续组在截面恢复后沿实际边界接续，与正常排程投影一致', () => {
