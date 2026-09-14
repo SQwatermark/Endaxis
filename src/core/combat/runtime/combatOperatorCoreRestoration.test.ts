@@ -4,6 +4,7 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatStatusContainer } from '../status/combatStatuses';
+import { CombatStatusRuntime } from './combatStatusRuntime';
 import { AbilitySystemRuntime } from './abilitySystemRuntime';
 import { ActionBlackboard } from './actionBlackboard';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
@@ -114,6 +115,11 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
   };
   const restoredClock = new CombatClock(structuredClone(clock.runtimeState));
   const restoredReceipt = new CombatReceiptCollector(structuredClone(receipt.runtimeState));
+  const preboundStatus = new CombatStatusRuntime(
+    statusTemplate.bindRuntimeState(saved.statuses),
+    restoredClock,
+    restoredReceipt,
+  );
 
   const restored = bindRestoredCombatOperatorCore({
     operator,
@@ -121,6 +127,7 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
     skills: [{ program, fixed, state: saved.skills.get('skill\u0000')! }],
     clock: restoredClock,
     receipt: restoredReceipt,
+    preboundStatusRuntime: preboundStatus,
     createSkillDependencies: (binding, context) => ({
       clock: restoredClock,
       receipt: restoredReceipt,
@@ -135,6 +142,7 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
 
   expect(restored.blackboard.runtimeState).toBe(saved.blackboard);
   expect(restored.statuses!.container.runtimeState).toBe(saved.statuses);
+  expect(restored.statuses).toBe(preboundStatus);
   expect(restored.timedMarkers.runtimeState).toBe(saved.timedMarkers);
   expect(restored.cooldowns.get('skill')!.cooldown.runtimeState).toBe(saved.cooldowns.get('skill'));
   expect(restored.skills.get('skill\u0000')!.runtimeState).toBe(saved.skills.get('skill\u0000'));

@@ -24,6 +24,8 @@ export interface RestoreCombatOperatorCoreOptions {
   readonly skills: readonly PreparedCombatSkillRestoreBinding[];
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
+  /** 完整装配在 Buff 生命周期操作链创建前建立的当前分支状态运行时。 */
+  readonly preboundStatusRuntime?: CombatStatusRuntime;
   readonly timedMarkerHooks?: TimedMarkerContainerHooks;
   readonly createSkillDependencies: (
     binding: PreparedCombatSkillRestoreBinding,
@@ -64,6 +66,11 @@ export function bindRestoredCombatOperatorCore(
   }
   let statuses: CombatStatusRuntime | undefined;
   if (options.operator.statusContainer === undefined) {
+    if (options.preboundStatusRuntime !== undefined) {
+      throw new Error(
+        `restored operator '${ownerId}' has a prebound status runtime without definitions`,
+      );
+    }
     if (options.state.statuses !== null) {
       throw new Error(`restored operator '${ownerId}' has status data without definitions`);
     }
@@ -76,11 +83,23 @@ export function bindRestoredCombatOperatorCore(
     if (options.state.statuses === null) {
       throw new Error(`restored operator '${ownerId}' has status definitions without data`);
     }
-    statuses = new CombatStatusRuntime(
-      options.operator.statusContainer.bindRuntimeState(options.state.statuses),
-      options.clock,
-      options.receipt,
-    );
+    statuses =
+      options.preboundStatusRuntime ??
+      new CombatStatusRuntime(
+        options.operator.statusContainer.bindRuntimeState(options.state.statuses),
+        options.clock,
+        options.receipt,
+      );
+    if (statuses.container.runtimeState !== options.state.statuses) {
+      throw new Error(`restored operator '${ownerId}' prebound status uses another state`);
+    }
+    if (
+      statuses.targetId !== ownerId ||
+      statuses.clock !== options.clock ||
+      statuses.receipt !== options.receipt
+    ) {
+      throw new Error(`restored operator '${ownerId}' prebound status uses another runtime`);
+    }
   }
   const timedMarkers = new TimedMarkerContainer(
     ownerId,
