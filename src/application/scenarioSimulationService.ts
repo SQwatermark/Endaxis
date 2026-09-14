@@ -284,7 +284,7 @@ export class ScenarioSimulationService {
     const result = this.#runSimulation(candidate, endFrame, castIds, mode);
     assertNotAborted(signal);
     const frames = new Map<string, number>();
-    for (const entry of result.receiptEntries) {
+    for (const entry of result.receiptHistory.entries()) {
       if (
         entry.event === 'SkillInputProcessed' &&
         entry.data !== undefined &&
@@ -319,7 +319,7 @@ export class ScenarioSimulationService {
     const invalid = run.availabilityDiagnostics.filter(
       d =>
         d.receiptSequences.some(sequence => {
-          const entry = run.receiptEntries.find(e => e.sequence === sequence);
+          const entry = run.receiptHistory.get(sequence);
           return typeof entry?.data?.castId === 'string' && castIds.includes(entry.data.castId);
         }) && d.reasons.some(reason => blockingReasons.has(reason)),
     );
@@ -443,7 +443,7 @@ export class ScenarioSimulationService {
       lookupEndedAt = this.#performanceNow();
       if (cached !== undefined) {
         cacheHit = true;
-        receiptCount = cached.run.receiptEntries.length;
+        receiptCount = cached.run.receiptHistory.length;
         this.#cache.delete(key);
         this.#cache.set(key, cached);
         const endedAt = this.#performanceNow();
@@ -464,7 +464,7 @@ export class ScenarioSimulationService {
       const result = this.#runSimulation(scenario, endFrame);
       simulationEndedAt = this.#performanceNow();
       projectionStartedAt = simulationEndedAt;
-      receiptCount = result.receiptEntries.length;
+      receiptCount = result.receiptHistory.length;
 
       const run = Object.freeze({
         ...result,

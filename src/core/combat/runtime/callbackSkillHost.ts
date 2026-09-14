@@ -109,6 +109,9 @@ export function createCallbackSkillHostFactory(dependencies: {
           actionSourceId: ownerId,
           eventSourceId: ownerId,
           actionOwnerAbilityEntity: target,
+          // 回调技能的动作 Owner 是投射物实体，但它仍由创建该回调定义的干员
+          // AbilitySystem 解释。嵌套回调继续需要这个干员身份来解析下一层程序。
+          semanticEventOwnerOperatorId: dependencies.definitionOperatorId,
         },
         emitSkillEnd: payload => dependencies.emitEvent?.(ownerId, 'skillEnd', payload),
         emitAfterSkillApplyCost: payload =>

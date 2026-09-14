@@ -63,9 +63,7 @@ describe('Next timeline simulation projection retention', () => {
     );
 
     expect(hitProjection).toContain('const current = simulationRun.value');
-    expect(publishedHits).toContain(
-      'projectTimelineHitReceipts(simulationRun.value?.receiptEntries',
-    );
+    expect(publishedHits).toContain('projectTimelineHitReceipts(publishedReceiptEntries.value)');
     expect(publishedHits).not.toContain('simulationStale.value');
     expect(hitProjection).toContain(
       'projectCompatibleHitFrames(hitReceipts.value.damages, compatibleSkillCastReceiptIds.value)',

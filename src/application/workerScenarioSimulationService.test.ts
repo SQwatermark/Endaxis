@@ -15,6 +15,26 @@ function harness() {
     worker.onmessage({ data: { id, ok: true, result: { frame: id }, samples: [] } });
   return { worker, service, reply };
 }
+it('在主线程从纯回执数据重建固定历史视图', async () => {
+  const { worker, service } = harness();
+  const scenario = createEmptyScenario('history', 'history');
+  const pending = service.simulate(scenario, 1);
+  const result = {
+    frame: 1,
+    receiptEntries: [
+      { sequence: 0, frame: 1, time: 1 / 30, event: 'SkillStarted', data: { castId: 'cast' } },
+    ],
+  };
+  worker.onmessage({
+    data: { id: 1, ok: true, result, samples: [] },
+  });
+  const received = await pending;
+  expect(received.receiptHistory.get(0)).toEqual(result.receiptEntries[0]);
+  expect(received.receiptHistory.toArray()).toEqual(result.receiptEntries);
+  expect(received.receiptHistory.toArray()).toBe(received.receiptEntries);
+  expect(Object.isFrozen(received.receiptEntries)).toBe(true);
+  service.dispose();
+});
 it('后台规划携带递归停止条件与预留身份，原场景不预先展开', async () => {
   const { worker, service, reply } = harness();
   const scenario = createEmptyScenario('recursive', 'recursive');

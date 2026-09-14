@@ -37,7 +37,7 @@ export function capturePublishedBattleLog(
     };
   });
   return {
-    entries: published.run.receiptEntries,
+    history: published.run.receiptHistory,
     resolveCastOwners: () =>
       tracks.flatMap(({ track, name }) =>
         track.skillCasts.map(cast => ({

@@ -3,6 +3,7 @@ import type {
   SimulationWorkerRequest,
   SimulationWorkerResponse,
 } from './scenarioSimulationWorkerProtocol';
+import { toSimulationWorkerResult } from './scenarioSimulationWorkerProtocol';
 import type { ScenarioSimulationPerformanceSample } from './scenarioSimulationService';
 
 let revision = -1;
@@ -28,7 +29,7 @@ self.onmessage = async (event: MessageEvent<SimulationWorkerRequest>) => {
           request.plan.extension,
         )
       : await service.simulate(request.scenario, request.endFrame);
-    response = { id: request.id, ok: true, result, samples };
+    response = { id: request.id, ok: true, result: toSimulationWorkerResult(result), samples };
   } catch (error) {
     response = {
       id: request.id,

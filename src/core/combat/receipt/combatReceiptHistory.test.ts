@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest';
 import { CombatReceiptCollector } from './combatReceipt';
+import { restoreCombatReceiptView } from './combatReceiptHistory';
 
 it('写入冻结事实，父分支继续追加不改变固定视图，分叉共享前缀但不共享后缀', () => {
   const parent = new CombatReceiptCollector();
@@ -52,4 +53,15 @@ it('跨封存段和未满尾部增量读取，不漏同帧事实，空筛选仍�
     'another history branch',
   );
   expect(() => [...saved.entries(0, 531)]).toThrow('within this history');
+});
+
+it('从纯数据边界重建固定历史并拒绝序号缺口', () => {
+  const entry = { sequence: 0, frame: 3, time: 0.1, event: 'fact', data: { value: 7 } };
+  const view = restoreCombatReceiptView([entry]);
+  expect(view.get(0)).toEqual(entry);
+  expect(view.toArray()).toBe(view.toArray());
+  expect(Object.isFrozen(view.get(0))).toBe(true);
+  expect(() => restoreCombatReceiptView([{ ...entry, sequence: 1 }])).toThrow(
+    'expected sequence 0',
+  );
 });

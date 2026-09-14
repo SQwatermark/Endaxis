@@ -266,9 +266,11 @@ describe('原生条件经正式项目定义进入实际附着', () => {
           deckGate,
         );
         expect(compiled.operators[0]!.comboConditionPrograms).toHaveLength(5);
-        expect(compiled.operators[0]!.skills.some(skill => skill.skillType === 'comboSkill')).toBe(
-          actualCombo,
-        );
+        expect(
+          compiled.operators[0]!.skillCasts?.some(
+            binding => binding.program.skillType === 'comboSkill',
+          ) ?? false,
+        ).toBe(actualCombo);
         const assembly = new CombatRuntimeAssembly(compiled);
         expect(pending).toEqual([
           ...(element === 'nature' ? ['condition:0'] : []),

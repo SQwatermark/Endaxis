@@ -105,6 +105,8 @@ export interface LegacyRetimingTrial {
     endFrame: number,
     stopWhen?: (result: LegacyRetimingSimulationResult) => boolean,
   ): LegacyRetimingSimulationResult;
+  /** 释放候选分支、排程器和游标；释放后不能继续观察。 */
+  dispose(): void;
 }
 
 export interface LegacyRetimingCheckpointSession {
@@ -607,72 +609,83 @@ export function retimeLegacyProjectBySimulation(
               observed = true;
               return result.advanceToFrame(endFrame, stopWhen);
             },
+            dispose() {
+              result.dispose();
+            },
           };
         };
         let trial = beginTrial();
-        const maximumPlanningEndFrame = Math.max(
-          0,
-          candidateFrame + PLANNING_LOOKAHEAD_FRAMES * (MAX_PLANNING_EXTENSIONS + 1),
-        );
-        let planningLookaheadFrames = PLANNING_LOOKAHEAD_FRAMES;
-        let planningEndFrame = Math.max(0, candidateFrame + planningLookaheadFrames);
-        const hasRequiredEnds = (ends: ReadonlyMap<string, number>) =>
-          ends.has(current.castId) &&
-          [...previousByTrack.values()].every(previous => ends.has(previous.castId));
-        for (let attempt = 0; attempt <= MAX_PLANNING_EXTENSIONS; attempt += 1) {
-          working.battle.durationFrames = planningEndFrame;
-          simulationRuns += 1;
-          const run =
-            trial === undefined
-              ? runSimulation(working, planningEndFrame)
-              : trial.advanceToFrame(planningEndFrame, observation => {
-                  const starts = projectExecutedCastStartFrames(observation.receiptEntries);
-                  const ends = projectDisplayedCastEndFrames(observation.receiptEntries, starts);
-                  // 其他轨道的上一输入可能比当前输入更晚到达边界；下一项排程仍需要这些事实。
-                  return (
-                    hasRequiredEnds(ends) &&
-                    !hasOpenUltimateTimeDilation(observation.receiptEntries)
-                  );
+        try {
+          const maximumPlanningEndFrame = Math.max(
+            0,
+            candidateFrame + PLANNING_LOOKAHEAD_FRAMES * (MAX_PLANNING_EXTENSIONS + 1),
+          );
+          let planningLookaheadFrames = PLANNING_LOOKAHEAD_FRAMES;
+          let planningEndFrame = Math.max(0, candidateFrame + planningLookaheadFrames);
+          const hasRequiredEnds = (ends: ReadonlyMap<string, number>) =>
+            ends.has(current.castId) &&
+            [...previousByTrack.values()].every(previous => ends.has(previous.castId));
+          for (let attempt = 0; attempt <= MAX_PLANNING_EXTENSIONS; attempt += 1) {
+            working.battle.durationFrames = planningEndFrame;
+            simulationRuns += 1;
+            const run =
+              trial === undefined
+                ? runSimulation(working, planningEndFrame)
+                : trial.advanceToFrame(planningEndFrame, observation => {
+                    const starts = projectExecutedCastStartFrames(observation.receiptEntries);
+                    const ends = projectDisplayedCastEndFrames(observation.receiptEntries, starts);
+                    // 其他轨道的上一输入可能比当前输入更晚到达边界；下一项排程仍需要这些事实。
+                    return (
+                      hasRequiredEnds(ends) &&
+                      !hasOpenUltimateTimeDilation(observation.receiptEntries)
+                    );
+                  });
+            lastReceiptEntries = run.receiptEntries;
+            if (
+              resolveRuntimeReplacement !== undefined &&
+              workingCast.source.kind === 'operatorSkill'
+            ) {
+              const actualSkillKey = mismatchedActualSkillKey(run.receiptEntries, current.castId);
+              if (actualSkillKey !== null) {
+                const replacement = resolveRuntimeReplacement({
+                  scenario: working,
+                  trackIndex: current.trackIndex,
+                  skillGroupKey: workingCast.source.skillGroupKey,
+                  expectedSkillKey: workingCast.source.skillKey,
+                  actualSkillKey,
                 });
-          lastReceiptEntries = run.receiptEntries;
-          if (
-            resolveRuntimeReplacement !== undefined &&
-            workingCast.source.kind === 'operatorSkill'
-          ) {
-            const actualSkillKey = mismatchedActualSkillKey(run.receiptEntries, current.castId);
-            if (actualSkillKey !== null) {
-              const replacement = resolveRuntimeReplacement({
-                scenario: working,
-                trackIndex: current.trackIndex,
-                skillGroupKey: workingCast.source.skillGroupKey,
-                expectedSkillKey: workingCast.source.skillKey,
-                actualSkillKey,
-              });
-              if (replacement !== null && replacement !== workingCast.source.skillKey) {
-                sourceSkillKey ??= workingCast.source.skillKey;
-                resolvedSkillKey = replacement;
-                workingCast.source = { ...workingCast.source, skillKey: replacement };
-                targetCast.source = { ...workingCast.source };
-                trial = beginTrial();
-                continue;
+                if (replacement !== null && replacement !== workingCast.source.skillKey) {
+                  sourceSkillKey ??= workingCast.source.skillKey;
+                  resolvedSkillKey = replacement;
+                  workingCast.source = { ...workingCast.source, skillKey: replacement };
+                  targetCast.source = { ...workingCast.source };
+                  trial?.dispose();
+                  trial = beginTrial();
+                  continue;
+                }
               }
             }
+            actualStarts = new Map(projectExecutedCastStartFrames(run.receiptEntries));
+            actualEnds = new Map(projectDisplayedCastEndFrames(run.receiptEntries, actualStarts));
+            if (hasRequiredEnds(actualEnds) && !hasOpenUltimateTimeDilation(run.receiptEntries)) {
+              ultimateIntervals = ultimateTimeDilationIntervals(
+                run.receiptEntries,
+                planningEndFrame,
+              );
+              settled = true;
+              break;
+            }
+            if (planningEndFrame >= maximumPlanningEndFrame) break;
+            planningLookaheadFrames *= 2;
+            planningEndFrame = Math.min(
+              maximumPlanningEndFrame,
+              candidateFrame + planningLookaheadFrames,
+            );
           }
-          actualStarts = new Map(projectExecutedCastStartFrames(run.receiptEntries));
-          actualEnds = new Map(projectDisplayedCastEndFrames(run.receiptEntries, actualStarts));
-          if (hasRequiredEnds(actualEnds) && !hasOpenUltimateTimeDilation(run.receiptEntries)) {
-            ultimateIntervals = ultimateTimeDilationIntervals(run.receiptEntries, planningEndFrame);
-            settled = true;
-            break;
-          }
-          if (planningEndFrame >= maximumPlanningEndFrame) break;
-          planningLookaheadFrames *= 2;
-          planningEndFrame = Math.min(
-            maximumPlanningEndFrame,
-            candidateFrame + planningLookaheadFrames,
-          );
+          return settled;
+        } finally {
+          trial?.dispose();
         }
-        return settled;
       };
 
       const candidates = inputWindowCandidates(initialAdjustedStartFrame, priorUltimateIntervals);

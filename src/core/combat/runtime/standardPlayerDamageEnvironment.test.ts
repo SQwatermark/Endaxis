@@ -1652,12 +1652,15 @@ describe('StandardPlayerDamageEnvironment', () => {
               panel: context.panel,
               // 零放置和重复放置拥有同一份常驻配置，均只安装五条条件。
               skillCooldownPrograms: [combo],
-              skills: placeCombo
-                ? [
-                    { ...combo, castId: 'a' },
-                    { ...combo, castId: 'b' },
-                  ]
-                : [],
+              skills: [combo],
+              ...(placeCombo
+                ? {
+                    skillCasts: [
+                      { castId: 'a', program: combo },
+                      { castId: 'b', program: combo },
+                    ],
+                  }
+                : {}),
               initialEntityBlackboard: {
                 EntityBB_consumed_type: 0,
                 EntityBB_wisd_greater_will: deckGate,

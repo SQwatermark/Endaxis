@@ -44,37 +44,50 @@ export class CheckpointRetimingSession implements LegacyRetimingCheckpointSessio
   }
 
   trial(candidateSuffix: readonly ScheduledCombatFrameInput[]): LegacyRetimingTrial {
-    const branch = this.main.fork(this.#checkpoint);
-    const driver = new CombatInputSchedule(branch, candidateSuffix);
+    let branch: StandardPlayerDamageCombatSession | null = this.main.fork(this.#checkpoint);
+    let driver: CombatInputSchedule | null = new CombatInputSchedule(branch, candidateSuffix);
     const entries: CombatReceiptEntry[] = [];
     let cursor:
       import('../../src/core/combat/receipt/combatReceiptHistory').CombatReceiptCursor | undefined;
     return {
       advanceToFrame(endFrame, stopWhen) {
+        const activeBranch = branch;
+        const activeDriver = driver;
+        if (activeBranch === null || activeDriver === null) {
+          throw new Error('retiming trial has been disposed');
+        }
         const collect = () => {
-          const next = branch.runtime.readReceipts(cursor, RETIMING_EVENTS);
+          const next = activeBranch.runtime.readReceipts(cursor, RETIMING_EVENTS);
           entries.push(...next.entries);
           cursor = next.cursor;
           return next.entries.length > 0;
         };
         if (stopWhen === undefined) {
-          driver.advanceToFrame(endFrame);
+          activeDriver.advanceToFrame(endFrame);
           collect();
         } else {
-          if (!Number.isSafeInteger(endFrame) || endFrame < branch.runtime.frame) {
+          if (!Number.isSafeInteger(endFrame) || endFrame < activeBranch.runtime.frame) {
             throw new RangeError('observation end must be at or after the current frame');
           }
           // 判定在完整帧末进行；输入、技能和时间膨胀事实均已提交。只在新增相关事实时重算。
           collect();
           if (stopWhen({ receiptEntries: entries })) return { receiptEntries: entries };
-          while (branch.runtime.initialInputPending || branch.runtime.frame < endFrame) {
-            driver.advanceToFrame(
-              branch.runtime.frame + (branch.runtime.initialInputPending ? 0 : 1),
+          while (
+            activeBranch.runtime.initialInputPending ||
+            activeBranch.runtime.frame < endFrame
+          ) {
+            activeDriver.advanceToFrame(
+              activeBranch.runtime.frame + (activeBranch.runtime.initialInputPending ? 0 : 1),
             );
             if (collect() && stopWhen({ receiptEntries: entries })) break;
           }
         }
         return { receiptEntries: entries };
+      },
+      dispose() {
+        branch = null;
+        driver = null;
+        cursor = undefined;
       },
     };
   }

@@ -87,9 +87,9 @@ describe('compileScenarioTimeline', () => {
         },
       ],
     };
-    const program = compileScenarioTimeline(scenario, index()).operators[0]!.skills.find(
-      skill => skill.castId === cast.id,
-    )!;
+    const program = compileScenarioTimeline(scenario, index()).operators[0]!.skillCasts!.find(
+      binding => binding.castId === cast.id,
+    )!.program;
     const step = program.timelineActions[0]!.sequence.steps[0]!;
     if (step.kind !== 'switch') throw new Error('expected switch');
     expect(step.options.map(option => option.sequence.steps[0]!.key)).toEqual(['case0', 'case1']);
@@ -176,7 +176,7 @@ describe('compileScenarioTimeline', () => {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
 
-    expect(compiled.operators[0]?.skills[0]?.abilityEntityDefinitions).toEqual({
+    expect(compiled.operators[0]?.skillCasts?.[0]?.program.abilityEntityDefinitions).toEqual({
       generated: { lifetime: { kind: 'limited', durationSeconds: 3 } },
       custom: { lifetime: { kind: 'infinite' } },
     });
@@ -189,7 +189,10 @@ describe('compileScenarioTimeline', () => {
 
     expect(compiled.operators).toHaveLength(1);
     expect(compiled.operators[0]!.operatorId).toBe('track:0');
-    expect(compiled.operators[0]!.skills.map(skill => skill.skillId)).toContain('battleSkill');
+    expect(compiled.operators[0]!.skills).toEqual([]);
+    expect(compiled.operators[0]!.skillCasts?.map(binding => binding.program.skillId)).toContain(
+      'battleSkill',
+    );
     expect(compiled.inputs).toEqual([
       {
         frame: 60,
@@ -231,9 +234,9 @@ describe('compileScenarioTimeline', () => {
         action: 'battleSkill',
       },
     ]);
-    expect(compiled.operators[0]!.skills.map(skill => [skill.skillId, skill.castId])).toEqual([
-      ['battleSkill', 'skillCast:1'],
-    ]);
+    expect(
+      compiled.operators[0]!.skillCasts?.map(binding => [binding.program.skillId, binding.castId]),
+    ).toEqual([['battleSkill', 'skillCast:1']]);
     expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
       expect.objectContaining({
         skillGroupKey: 'battleSkill',
@@ -261,10 +264,10 @@ describe('compileScenarioTimeline', () => {
       castId: 'skillCast:replacement',
       action: 'battleSkill',
     });
-    expect(explicitCompiled.operators[0]!.skills).toContainEqual(
+    expect(explicitCompiled.operators[0]!.skillCasts).toContainEqual(
       expect.objectContaining({
-        skillId: 'battleSkillVariant',
         castId: 'skillCast:replacement',
+        program: expect.objectContaining({ skillId: 'battleSkillVariant' }),
       }),
     );
   });
@@ -400,9 +403,9 @@ describe('compileScenarioTimeline', () => {
     const compiled = compileScenarioTimeline(explicit, {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
-    const variant = compiled.operators[0]!.skills.find(
-      skill => skill.skillId === 'battleSkillRoutedToCombo',
-    )!;
+    const variant = compiled.operators[0]!.skillCasts!.find(
+      binding => binding.program.skillId === 'battleSkillRoutedToCombo',
+    )!.program;
 
     expect(variant).toMatchObject({
       skillGroupKey: 'battleSkill',
@@ -498,11 +501,9 @@ describe('compileScenarioTimeline', () => {
               },
             ],
       );
-      expect(
-        compiled.operators[0]!.skills.filter(program => program.castId !== undefined).map(
-          program => program.castId,
-        ),
-      ).toEqual(enabled.map(cast => cast.id));
+      expect((compiled.operators[0]!.skillCasts ?? []).map(binding => binding.castId)).toEqual(
+        enabled.map(cast => cast.id),
+      );
       expect(scenario).toEqual(before);
     },
   );
@@ -551,7 +552,9 @@ describe('compileScenarioTimeline', () => {
     const compiled = compileScenarioTimeline(place(scenario, 'ultimate', 60), {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
-    const ultimate = compiled.operators[0]!.skills.find(skill => skill.skillId === 'ultimate');
+    const ultimate = compiled.operators[0]!.skillCasts?.find(
+      binding => binding.program.skillId === 'ultimate',
+    )?.program;
 
     expect(ultimate?.costs).toEqual([{ resource: 'ultimateEnergy', value: 68 }]);
   });
@@ -572,9 +575,10 @@ describe('compileScenarioTimeline', () => {
     };
 
     const compiled = compileScenarioTimeline(scenario, index());
-    const program = compiled.operators[0]!.skills[0]!;
+    const binding = compiled.operators[0]!.skillCasts![0]!;
+    const program = binding.program;
 
-    expect(program.castId).toBe(cast.id);
+    expect(binding.castId).toBe(cast.id);
     expect(program.skillId).toBe('battleSkill');
     expect(program.timelineBlockFrames).toBe(99);
     expect(program.costs).toEqual([{ resource: 'sp', value: 123 }]);
@@ -632,7 +636,8 @@ describe('compileScenarioTimeline', () => {
       ],
     };
 
-    const program = compileScenarioTimeline(scenario, index()).operators[0]!.skills[0]!;
+    const program = compileScenarioTimeline(scenario, index()).operators[0]!.skillCasts![0]!
+      .program;
     const root = program.timelineActions[0]!.sequence.steps[0]!;
     const spawn = program.timelineActions[0]!.sequence.steps[1]!;
     expect(root.key).toBe('root-hit');
@@ -674,7 +679,7 @@ describe('compileScenarioTimeline', () => {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
 
-    expect(compiled.operators[0]!.skills[0]!.costs).toEqual([
+    expect(compiled.operators[0]!.skillCasts![0]!.program.costs).toEqual([
       { resource: 'ultimateEnergy', value: 85 },
     ]);
   });

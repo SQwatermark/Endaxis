@@ -33,7 +33,10 @@ const emit = defineEmits<{
 const { t } = useI18n({ useScope: 'global' });
 
 const snapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
-const entries = computed(() => snapshot.value?.entries ?? []);
+// 日志面板显式打开或刷新时才物化固定视图；模拟发布本身不再为本面板复制整份数组。
+const entries = computed(() =>
+  snapshot.value === null ? [] : [...snapshot.value.history.entries()],
+);
 const castOwners = computed(() => snapshot.value?.resolveCastOwners() ?? []);
 const dirty = computed(() => props.log !== snapshot.value);
 const keyword = ref('');
@@ -100,7 +103,7 @@ watch(
     }
     if (snapshot.value === null && log !== null) {
       snapshot.value = log;
-      selectedEvents.value = new Set(log.entries.map(entry => entry.event));
+      selectedEvents.value = new Set(Array.from(log.history.entries(), entry => entry.event));
     }
   },
   { immediate: true },

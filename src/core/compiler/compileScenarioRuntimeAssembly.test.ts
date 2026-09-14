@@ -249,7 +249,7 @@ describe('compileScenarioRuntimeAssembly', () => {
       .skills as SkillDefinition;
     cast.customDefinition = { ...base, cooldownFrames: 123 };
     const compiled = compileScenarioRuntimeAssembly(scenario, options());
-    expect(compiled.operators[0]!.skills[0]!.cooldownFrames).toBe(123);
+    expect(compiled.operators[0]!.skillCasts![0]!.program.cooldownFrames).toBe(123);
     expect(
       compiled.operators[0]!.skillCooldownPrograms!.find(
         program => program.skillId === 'comboSkill',
@@ -362,7 +362,10 @@ describe('compileScenarioRuntimeAssembly', () => {
     });
     expect(() => new CombatRuntimeAssembly(compiled)).not.toThrow();
     expect(operator.entityBlackboard.EntityBB_form).toBe(7);
-    for (const skill of compiled.operators[0]!.skills)
+    for (const skill of [
+      ...(compiled.operators[0]!.definitionSkillPrograms ?? []),
+      ...(compiled.operators[0]!.skillCasts ?? []).map(binding => binding.program),
+    ])
       expect(skill.initialBlackboard).not.toHaveProperty('EntityBB_type');
   });
 

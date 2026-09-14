@@ -1,8 +1,9 @@
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
+import type { CombatReceiptView } from '../../core/combat/receipt/combatReceiptHistory';
 
 /** 手工刷新日志的完整单元：回执不能脱离它对应的技能/来源标签更新。 */
 export interface TimelineBattleLogSnapshot {
-  readonly entries: readonly CombatReceiptEntry[];
+  readonly history: CombatReceiptView;
   /** 只本地化已捕获的来源事实，不读取当前编辑文档或定义库。 */
   readonly resolveCastOwners: () => readonly TimelineBattleLogCastOwner[];
 }

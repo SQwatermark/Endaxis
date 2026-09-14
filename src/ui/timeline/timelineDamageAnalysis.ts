@@ -21,7 +21,7 @@ export function projectPublishedTimelineDamageAnalysis(
       unattributedDamage: 0,
     };
   return projectTimelineDamageAnalysis(
-    published.run.receiptEntries,
+    published.run.receiptHistory.entries(),
     published.scenario,
     index => operatorLabel(published.scenario.tracks[index]?.operator?.operatorSlug ?? null),
     damageTypeLabel,
@@ -56,7 +56,7 @@ function finiteNumber(value: unknown): number | null {
  * `actualDamage` 会被木桩剩余生命截断，不能代表本次攻击本应造成的伤害。
  */
 export function projectTimelineDamageAnalysis(
-  receipts: readonly CombatReceiptEntry[],
+  receipts: Iterable<CombatReceiptEntry>,
   scenario: ScenarioDocument,
   operatorLabel: (trackIndex: TrackIndex) => string,
   damageTypeLabel: (damageType: DamageType) => string,

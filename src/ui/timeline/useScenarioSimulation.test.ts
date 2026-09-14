@@ -10,6 +10,16 @@ import { placeSkillGroup } from './placeSkillGroup';
 import { projectSkillCastActualDurationFrames } from './timelineDisplayTime';
 import { ScenarioSimulationService } from '../../application/scenarioSimulationService';
 import { useScenarioSimulation, type UseScenarioSimulationResult } from './useScenarioSimulation';
+import {
+  CombatReceiptCollector,
+  type CombatReceiptEntry,
+} from '../../core/combat/receipt/combatReceipt';
+
+function historyOf(entries: readonly CombatReceiptEntry[]) {
+  const receipt = new CombatReceiptCollector();
+  for (const { sequence: _sequence, ...entry } of entries) receipt.record(entry);
+  return receipt.history.snapshot();
+}
 
 const service = new ScenarioSimulationService({
   index: {
@@ -86,11 +96,12 @@ describe('useScenarioSimulation', () => {
       { id: 'third', source, placement: { afterCastId: 'second' } },
     ];
     const fakeService = {
-      simulate: async () => ({
-        receiptEntries: [
+      simulate: async () => {
+        const receiptEntries: CombatReceiptEntry[] = [
           {
             sequence: 0,
             frame: 55,
+            time: 55 / 30,
             event: 'SkillCostUnavailableAtStart',
             sourceId: 'track:0',
             data: { castId: 'second', skillId: 'basicAttack1' },
@@ -98,6 +109,7 @@ describe('useScenarioSimulation', () => {
           {
             sequence: 1,
             frame: 55,
+            time: 55 / 30,
             event: 'SkillInputProcessed',
             sourceId: 'track:0',
             data: { castId: 'second', accepted: false },
@@ -105,6 +117,7 @@ describe('useScenarioSimulation', () => {
           {
             sequence: 2,
             frame: 55,
+            time: 55 / 30,
             event: 'SkillInputGroupBlocked',
             sourceId: 'track:0',
             data: {
@@ -114,19 +127,23 @@ describe('useScenarioSimulation', () => {
               reason: 'inputRejected',
             },
           },
-        ],
-        availabilityDiagnostics: [
-          {
-            frame: 55,
-            sourceId: 'track:0',
-            skillId: 'basicAttack1',
-            reasons: ['resourceUnavailable'],
-            receiptSequences: [0],
-          },
-        ],
-        executionDiagnostics: [],
-        comboWindowDiagnostics: [],
-      }),
+        ];
+        return {
+          receiptEntries,
+          receiptHistory: historyOf(receiptEntries),
+          availabilityDiagnostics: [
+            {
+              frame: 55,
+              sourceId: 'track:0',
+              skillId: 'basicAttack1',
+              reasons: ['resourceUnavailable'],
+              receiptSequences: [0],
+            },
+          ],
+          executionDiagnostics: [],
+          comboWindowDiagnostics: [],
+        };
+      },
     } as unknown as ScenarioSimulationService;
     const harness = createHarness(initial, fakeService);
     try {
@@ -747,6 +764,7 @@ describe('useScenarioSimulation', () => {
     const initial = createPerlicaScenario();
     const fakeRun = {
       receiptEntries: [],
+      receiptHistory: historyOf([]),
       availabilityDiagnostics: [
         {
           frame: 1,

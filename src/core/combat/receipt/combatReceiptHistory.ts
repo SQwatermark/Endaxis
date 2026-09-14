@@ -175,3 +175,22 @@ export class CombatReceiptHistory {
     return this.cursor(this.#count);
   }
 }
+
+/**
+ * 从线程或存盘边界返回的纯数据重建固定历史。
+ * sequence 必须从零连续递增；不能静默重排或接受缺口。
+ */
+export function restoreCombatReceiptView(
+  entries: readonly CombatReceiptEntry[],
+): CombatReceiptView {
+  const history = new CombatReceiptHistory();
+  for (let sequence = 0; sequence < entries.length; sequence += 1) {
+    const entry = entries[sequence]!;
+    if (entry.sequence !== sequence) {
+      throw new Error(`receipt history expected sequence ${sequence}, received ${entry.sequence}`);
+    }
+    const { sequence: _sequence, ...record } = entry;
+    history.append(record);
+  }
+  return history.snapshot();
+}

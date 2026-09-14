@@ -18,7 +18,7 @@ export function projectPublishedHitDetail(
         ([key, result]) => result && deriveHitId(cast.id, key) === target.hitId,
       ),
       entries: projectTimelineHitDetailEntries(
-        published.run.receiptEntries,
+        published.run.receiptHistory.toArray(),
         cast.id,
         target.hitId,
         target.executionFrame,

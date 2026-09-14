@@ -3,6 +3,16 @@ import { createEmptyScenario } from '../../core/project/createProject';
 import type { PublishedScenarioSimulation } from './useScenarioSimulation';
 import { projectPublishedHitDetail } from './publishedHitDetail';
 import { deriveHitId } from '../../core/combat/timeline/deriveHitId';
+import {
+  CombatReceiptCollector,
+  type CombatReceiptEntry,
+} from '../../core/combat/receipt/combatReceipt';
+
+function historyOf(entries: readonly CombatReceiptEntry[]) {
+  const receipt = new CombatReceiptCollector();
+  for (const { sequence: _sequence, ...entry } of entries) receipt.record(entry);
+  return receipt.history.snapshot();
+}
 
 it('resolves receipts and panel through stable cast identity, independently of edited track position', () => {
   const scenario = createEmptyScenario('test', 'test');
@@ -21,8 +31,8 @@ it('resolves receipts and panel through stable cast identity, independently of e
     ],
   };
   const panel = { operatorId: 'source' };
-  const entry = {
-    sequence: 1,
+  const entry: CombatReceiptEntry = {
+    sequence: 0,
     frame: 1,
     time: 1 / 30,
     event: 'DamageApplied',
@@ -32,7 +42,7 @@ it('resolves receipts and panel through stable cast identity, independently of e
     scenario,
     // Only owner/panel identity and hit projection fields are needed by this fixture.
     run: {
-      receiptEntries: [entry],
+      receiptHistory: historyOf([entry]),
       operatorPanels: [panel],
     } as unknown as PublishedScenarioSimulation['run'],
   };
@@ -43,12 +53,15 @@ it('resolves receipts and panel through stable cast identity, independently of e
   expect(detail?.entries).toEqual([entry]);
   const laterEntry = {
     ...entry,
-    sequence: 2,
+    sequence: 1,
     frame: 2,
     time: 2 / 30,
     data: { ...entry.data, value: 200 },
   };
-  const repeated = { ...published, run: { ...published.run, receiptEntries: [entry, laterEntry] } };
+  const repeated = {
+    ...published,
+    run: { ...published.run, receiptHistory: historyOf([entry, laterEntry]) },
+  };
   expect(
     projectPublishedHitDetail(repeated, { castId: 'cast', hitId: 'hit', executionFrame: 2 })
       ?.entries,

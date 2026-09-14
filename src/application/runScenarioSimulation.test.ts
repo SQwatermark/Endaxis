@@ -163,6 +163,7 @@ describe('runScenarioSimulation', () => {
       pauseRemaining: 0,
     });
     expect(Object.isFrozen(result)).toBe(true);
+    expect(result.receiptHistory.toArray()).toBe(result.receiptEntries);
     expect(Object.isFrozen(result.receiptEntries)).toBe(true);
     expect(Object.isFrozen(result.receiptEntries[0])).toBe(true);
     expect(Object.isFrozen(result.receiptEntries[0]!.data)).toBe(true);

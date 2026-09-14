@@ -9,6 +9,13 @@ import {
 import { computed, shallowRef } from 'vue';
 import type { PublishedScenarioSimulation } from './useScenarioSimulation';
 import { createTimelineSampleScenario } from './timelineSampleScenario';
+import { CombatReceiptCollector } from '../../core/combat/receipt/combatReceipt';
+
+function historyOf(entries: readonly CombatReceiptEntry[]) {
+  const receipt = new CombatReceiptCollector();
+  for (const { sequence: _sequence, ...entry } of entries) receipt.record(entry);
+  return receipt.history.snapshot();
+}
 
 describe('projectTimelineDamageAnalysis', () => {
   it('projects real post-preparation simulation damage into chart data', async () => {
@@ -56,7 +63,9 @@ describe('projectTimelineDamageAnalysis', () => {
     const published = shallowRef<PublishedScenarioSimulation | null>({
       scenario: original,
       // 本投影只读取回执，完整模拟发布单元由 useScenarioSimulation 的测试覆盖。
-      run: { receiptEntries: [receipt] } as unknown as PublishedScenarioSimulation['run'],
+      run: {
+        receiptHistory: historyOf([receipt]),
+      } as unknown as PublishedScenarioSimulation['run'],
     });
     const analysis = computed(() =>
       projectPublishedTimelineDamageAnalysis(published.value, String, String),
@@ -69,7 +78,9 @@ describe('projectTimelineDamageAnalysis', () => {
     expect(analysis.value.dps).toBe(100);
     published.value = {
       scenario: edited,
-      run: { receiptEntries: [receipt] } as unknown as PublishedScenarioSimulation['run'],
+      run: {
+        receiptHistory: historyOf([receipt]),
+      } as unknown as PublishedScenarioSimulation['run'],
     };
     expect(analysis.value.byOperator[0]?.label).toBe('arclight');
     expect(analysis.value.dps).toBe(300);

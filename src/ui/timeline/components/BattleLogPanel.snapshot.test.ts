@@ -3,11 +3,25 @@ import { createI18n } from 'vue-i18n';
 import { expect, it } from 'vitest';
 import BattleLogPanel from './BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from '../timelineBattleLogProjection';
+import {
+  CombatReceiptCollector,
+  type CombatReceiptEntry,
+} from '../../../core/combat/receipt/combatReceipt';
+
+function historyOf(entries: readonly CombatReceiptEntry[]) {
+  const receipt = new CombatReceiptCollector();
+  for (const { sequence: _sequence, ...entry } of entries) receipt.record(entry);
+  return receipt.history.snapshot();
+}
+
+function firstEntry(snapshot: TimelineBattleLogSnapshot): CombatReceiptEntry {
+  return snapshot.history.get(0)!;
+}
 
 const log = (name: string, damage: number): TimelineBattleLogSnapshot => ({
-  entries: [
+  history: historyOf([
     {
-      sequence: 1,
+      sequence: 0,
       frame: 30,
       time: 1,
       event: 'DamageApplied',
@@ -15,7 +29,7 @@ const log = (name: string, damage: number): TimelineBattleLogSnapshot => ({
       targetId: 'enemy',
       data: { castId: 'cast:1', value: damage, damageType: 'electric' },
     },
-  ],
+  ]),
   resolveCastOwners: () => [
     { castId: 'cast:1', label: '战技', operatorLabel: name, sourceId: 'track:1' },
   ],
@@ -66,8 +80,8 @@ async function mount(initial: TimelineBattleLogSnapshot | null) {
 
 it('locates preparation receipts at their negative frame without toggling the group closed', async () => {
   const initial = log('佩丽卡', 100);
-  const entry = { ...initial.entries[0]!, frame: -60, time: -2 };
-  const f = await mount({ ...initial, entries: [entry] });
+  const entry = { ...firstEntry(initial), frame: -60, time: -2 };
+  const f = await mount({ ...initial, history: historyOf([entry]) });
   try {
     const group = f.panel.groupedEntries.value[0];
     const event = { preventDefault() {} };
@@ -87,18 +101,18 @@ it('holds receipts, group labels and source labels until one explicit refresh', 
   const first = log('佩丽卡', 100);
   const f = await mount(first);
   try {
-    expect(f.panel.sourceLabel(first.entries[0])).toBe('佩丽卡 · 战技');
+    expect(f.panel.sourceLabel(firstEntry(first))).toBe('佩丽卡 · 战技');
     expect(f.panel.groupedEntries.value[0].damage).toBe(100);
     f.current.value = log('弧光', 500);
     await nextTick();
     expect(f.panel.dirty.value).toBe(true);
     expect(f.panel.snapshot.value).toBe(first);
-    expect(f.panel.sourceLabel(first.entries[0])).toBe('佩丽卡 · 战技');
+    expect(f.panel.sourceLabel(firstEntry(first))).toBe('佩丽卡 · 战技');
     expect(f.panel.groupedEntries.value[0].damage).toBe(100);
     expect(f.panel.ownerBySourceId.value.get('track:1').operatorLabel).toBe('佩丽卡');
     f.panel.refresh();
     expect(f.panel.dirty.value).toBe(false);
-    expect(f.panel.sourceLabel(first.entries[0])).toBe('弧光 · 战技');
+    expect(f.panel.sourceLabel(firstEntry(first))).toBe('弧光 · 战技');
     expect(f.panel.groupedEntries.value[0].damage).toBe(500);
   } finally {
     f.stop();
@@ -108,7 +122,7 @@ it('holds receipts, group labels and source labels until one explicit refresh', 
 it('loads the first publication but does not auto-refresh a published empty log', async () => {
   const f = await mount(null);
   try {
-    const empty = { entries: [], resolveCastOwners: () => [] };
+    const empty = { history: historyOf([]), resolveCastOwners: () => [] };
     f.current.value = empty;
     await nextTick();
     expect(f.panel.snapshot.value).toBe(empty);
@@ -143,7 +157,7 @@ it('relocalizes the retained snapshot without refreshing to a newer publication'
     f.current.value = log('弧光', 500);
     await nextTick();
     language.value = 'en';
-    expect(f.panel.sourceLabel(first.entries[0])).toBe('Perlica · Battle skill');
+    expect(f.panel.sourceLabel(firstEntry(first))).toBe('Perlica · Battle skill');
     expect(f.panel.groupedEntries.value[0].damage).toBe(100);
     expect(f.panel.dirty.value).toBe(true);
   } finally {

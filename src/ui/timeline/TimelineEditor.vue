@@ -1174,6 +1174,8 @@ const {
   scenario,
   service: simulationService,
 });
+// 尚未迁移的时间轴投影共用固定历史视图中的同一份缓存数组，不能各自重新物化。
+const publishedReceiptEntries = computed(() => simulationRun.value?.receiptHistory.toArray() ?? []);
 watch(
   publishedSimulation,
   published => {
@@ -1792,15 +1794,15 @@ const compatibleSkillCastReceiptIds = computed(() =>
 const publishedSkillCastActualStartFrames = computed(() =>
   simulationRun.value === null
     ? new Map<string, number>()
-    : projectSkillCastActualStartFrames(simulationRun.value.receiptEntries),
+    : projectSkillCastActualStartFrames(publishedReceiptEntries.value),
 );
 const publishedSkillCastActualDurationFrames = computed(() =>
   simulationRun.value === null
     ? new Map<string, number>()
-    : projectSkillCastActualDurationFrames(simulationRun.value.receiptEntries),
+    : projectSkillCastActualDurationFrames(publishedReceiptEntries.value),
 );
 const publishedSkillCastInputFacts = computed(() =>
-  projectSkillCastInputFacts(simulationRun.value?.receiptEntries ?? []),
+  projectSkillCastInputFacts(publishedReceiptEntries.value),
 );
 const skillCastInputFrames = computed(
   () =>
@@ -1892,7 +1894,7 @@ const groupedSkillCastIds = computed(
 const publishedPerfectComboCastIds = computed(() =>
   simulationRun.value === null
     ? new Set<string>()
-    : projectRossiComboSuccessCastIds(simulationRun.value.receiptEntries),
+    : projectRossiComboSuccessCastIds(publishedReceiptEntries.value),
 );
 const perfectComboCastIds = computed(
   () =>
@@ -1939,10 +1941,7 @@ const rulerOperations = computed<TimelineOperationMarkerInput[]>(() => {
 });
 const publishedTimeDilationBands = computed(() => {
   if (simulationRun.value === null) return [];
-  return projectTimelineTimeDilationBands(
-    simulationRun.value.receiptEntries,
-    simulationRun.value.frame,
-  );
+  return projectTimelineTimeDilationBands(publishedReceiptEntries.value, simulationRun.value.frame);
 });
 const timeDilationBands = computed(() => {
   const bands = publishedTimeDilationBands.value.filter(
@@ -2195,7 +2194,7 @@ function castActualDurationFrame(castId: string, definitionDurationFrames: numbe
 }
 
 const publishedSkillCastInterruptionFrames = computed(() =>
-  projectSkillCastInterruptionFrames(simulationRun.value?.receiptEntries ?? []),
+  projectSkillCastInterruptionFrames(publishedReceiptEntries.value),
 );
 const visibleSkillEndFrames = computed(() => {
   const ends = new Map<string, number>();
@@ -2303,9 +2302,7 @@ function formatPlayerInputEvidenceDetail(detail: string): string {
 }
 
 // 同一发布回执只解析一次；不能每个技能、每次指针移动都重扫整份日志。
-const hitReceipts = computed(() =>
-  projectTimelineHitReceipts(simulationRun.value?.receiptEntries ?? []),
-);
+const hitReceipts = computed(() => projectTimelineHitReceipts(publishedReceiptEntries.value));
 const castHitEffects = computed(() => {
   const current = simulationRun.value;
   if (current === null) {
@@ -2324,7 +2321,7 @@ const castHitEffects = computed(() => {
         cast.id,
         projectHitEffectsByCast(
           scenario.value,
-          current.receiptEntries,
+          publishedReceiptEntries.value,
           cast.id,
           castModel?.hitMarkers ?? [],
           hitReceipts.value,
@@ -2351,18 +2348,22 @@ const enemyEffectViz = computed(() => {
   }
   // 拖动草稿会立即把模拟标脏，但上一份成功回执仍是比空白更稳定的视觉占位；
   // 新模拟完成后 simulationRun 会整体替换，效果条随之原子更新，避免来回闪烁。
-  return projectEnemyEffectViz(current.receiptEntries, current.frame);
+  return projectEnemyEffectViz(publishedReceiptEntries.value, current.frame);
 });
 
 const poiseBrokenSegments = computed(() => {
   const current = simulationRun.value;
-  return current === null ? [] : projectPoiseBrokenSegments(current.receiptEntries, current.frame);
+  return current === null
+    ? []
+    : projectPoiseBrokenSegments(publishedReceiptEntries.value, current.frame);
 });
 
 /** 所有持续状态统一由原生可见 Buff 生命周期投影，Buff 实例就是稳定展示身份。 */
 const buffTimelineSegments = computed(() => {
   const current = simulationRun.value;
-  return current === null ? [] : projectBuffTimelineViz(current.receiptEntries, current.frame);
+  return current === null
+    ? []
+    : projectBuffTimelineViz(publishedReceiptEntries.value, current.frame);
 });
 
 /** 光标快照只消费已经生成的生命周期段，不回查或重算 Buff 运行时。 */
@@ -2396,7 +2397,7 @@ const operatorPassiveUiTimelineSegments = computed(() => {
   return current === null
     ? []
     : projectOperatorPassiveUiTimelineViz(
-        current.receiptEntries,
+        publishedReceiptEntries.value,
         current.frame,
         combatHudOperatorPassiveUis.value,
       );
@@ -2430,7 +2431,7 @@ const combatHudSnapshot = computed(() => {
     enemyHealthCurve: current.enemyHealthCurve,
     poiseCurve: current.poiseCurve,
     resourceCurves: current.resourceCurves,
-    receiptEntries: current.receiptEntries,
+    receiptEntries: publishedReceiptEntries.value,
     operatorSkillSlots: combatHudInitialSkillSlots.value,
     operatorPassiveUis: combatHudOperatorPassiveUis.value,
     buffProgressCurves: current.buffProgressCurves,
@@ -2442,25 +2443,27 @@ const comboWindowSegments = computed(() => {
   const current = simulationRun.value;
   return current === null
     ? []
-    : projectComboWindowTimelineViz(current.receiptEntries, current.frame);
+    : projectComboWindowTimelineViz(publishedReceiptEntries.value, current.frame);
 });
 
 const skillCooldownSegments = computed(() => {
   const current = simulationRun.value;
   return current === null
     ? []
-    : projectSkillCooldownTimelineViz(current.receiptEntries, current.frame);
+    : projectSkillCooldownTimelineViz(publishedReceiptEntries.value, current.frame);
 });
 const controlledComboCooldownBands = computed(() => {
   const run = simulationRun.value;
-  return run === null ? [] : projectTimelineComboCooldowns(run.receiptEntries, run.frame);
+  return run === null
+    ? []
+    : projectTimelineComboCooldowns(publishedReceiptEntries.value, run.frame);
 });
 
 const skillEnhancementSegments = computed(() => {
   const current = simulationRun.value;
   if (current === null) return [];
   return projectSkillEnhancementTimelineViz(
-    current.receiptEntries,
+    publishedReceiptEntries.value,
     current.frame,
     viewModel.value.tracks.flatMap(track =>
       track.operatorInstanceId === null
@@ -2757,7 +2760,7 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
 }
 
 const publishedHitOccurrences = computed(() =>
-  projectTimelineHitOccurrences(simulationRun.value?.receiptEntries ?? []),
+  projectTimelineHitOccurrences(publishedReceiptEntries.value),
 );
 const hitOccurrences = computed(
   () =>
@@ -2817,7 +2820,7 @@ const publishedHitDetail = computed(() =>
 );
 const enemyDamageDetailEntries = computed(() => {
   if (enemyDamageDetailSequence.value === null) return [];
-  const entries = simulationRun.value?.receiptEntries ?? [];
+  const entries = publishedReceiptEntries.value;
   return (
     layoutEnemyDamageHits(
       entries,
@@ -2944,7 +2947,7 @@ const cursorGuideMetrics = computed(() => {
           enemyHealthCurve: current.enemyHealthCurve,
           poiseCurve: current.poiseCurve,
           resourceCurves: current.resourceCurves,
-          receiptEntries: current.receiptEntries,
+          receiptEntries: publishedReceiptEntries.value,
           operatorSkillSlots: combatHudInitialSkillSlots.value,
           operatorPassiveUis: combatHudOperatorPassiveUis.value,
         });

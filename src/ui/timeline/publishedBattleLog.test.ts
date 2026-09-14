@@ -4,6 +4,7 @@ import { perlica } from '../../data/operators';
 import type { PublishedScenarioSimulation } from './useScenarioSimulation';
 import { capturePublishedBattleLog } from './publishedBattleLog';
 import { capturePublishedOperatorMetadata } from './publishedOperatorMetadata';
+import { CombatReceiptCollector } from '../../core/combat/receipt/combatReceipt';
 
 it('captures definition metadata once, while localization uses the captured identity', () => {
   const scenario = createEmptyScenario('test', 'test');
@@ -35,12 +36,12 @@ it('captures definition metadata once, while localization uses the captured iden
     talents: perlica.talents.map(talent => ({ ...talent })),
   };
   const index = { getOperator: vi.fn(() => definition) };
-  const entries: PublishedScenarioSimulation['run']['receiptEntries'] = [];
+  const receiptHistory = new CombatReceiptCollector().history.snapshot();
   let language = 'zh';
   const operators = capturePublishedOperatorMetadata(scenario, index);
   const originalTalent = { ...operators.get(perlica.slug)!.talents[0] };
   const snapshot = capturePublishedBattleLog(
-    { scenario, run: { receiptEntries: entries } as unknown as PublishedScenarioSimulation['run'] },
+    { scenario, run: { receiptHistory } as unknown as PublishedScenarioSimulation['run'] },
     index,
     operators,
     {
@@ -60,5 +61,5 @@ it('captures definition metadata once, while localization uses the captured iden
     operatorLabel: 'captured custom name:en',
   });
   expect(index.getOperator).toHaveBeenCalledTimes(reads);
-  expect(snapshot.entries).toBe(entries);
+  expect(snapshot.history).toBe(receiptHistory);
 });

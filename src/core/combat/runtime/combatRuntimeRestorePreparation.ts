@@ -53,17 +53,17 @@ function validateOperatorState(program: CombatOperatorProgram, state: CombatOper
     throw new Error(`restored operator '${program.operatorId}' Buffs use another blackboard`);
   }
 
-  const definitionIds = new Set(
-    [...program.skills, ...(program.definitionSkillPrograms ?? [])]
-      .filter(skill => skill.castId === undefined)
-      .map(skill => skill.skillId),
-  );
+  const definitions = [...program.skills, ...(program.definitionSkillPrograms ?? [])];
   const availableSkills = new Set<string>();
   const requiredSkills = new Set<string>();
-  for (const skill of [...program.skills, ...(program.definitionSkillPrograms ?? [])]) {
-    const key = skillStateKey(skill.skillId, skill.castId);
+  for (const skill of definitions) {
+    const key = skillStateKey(skill.skillId);
     availableSkills.add(key);
-    if (skill.castId === undefined || !definitionIds.has(skill.skillId)) requiredSkills.add(key);
+    requiredSkills.add(key);
+  }
+  for (const binding of program.skillCasts ?? []) {
+    const key = skillStateKey(binding.program.skillId, binding.castId);
+    availableSkills.add(key);
   }
   for (const [key, skill] of state.skills) {
     const expectedCastId = key.slice(key.indexOf('\u0000') + 1) || null;
@@ -101,6 +101,7 @@ function validateOperatorState(program: CombatOperatorProgram, state: CombatOper
   const expectedCooldowns = new Set([
     ...(program.skillCooldownPrograms ?? []).map(skill => skill.skillId),
     ...program.skills.map(skill => skill.skillId),
+    ...(program.skillCasts ?? []).map(binding => binding.program.skillId),
   ]);
   requireExactKeys(
     state.cooldowns,
@@ -263,6 +264,14 @@ function prepareSkillBindings(
       }
       programsByKey.set(key, program);
     }
+    for (const { castId, program } of operator.skillCasts ?? []) {
+      const key = combatSkillProgramKey(program, castId);
+      const previous = programsByKey.get(key);
+      if (previous !== undefined && previous !== program) {
+        throw new Error(`combat operator '${operator.operatorId}' has duplicate skill '${key}'`);
+      }
+      programsByKey.set(key, program);
+    }
     const bindings: PreparedCombatSkillRestoreBinding[] = [];
     for (const [stateKey, state] of states.get(operator.operatorId)!.skills) {
       const fullKey = `${operator.operatorId}\u0000${stateKey}`;
@@ -293,19 +302,22 @@ export function prepareCombatRuntimeRestore(
   programs = programs.map(operator => {
     const configured = [...operator.skills, ...(operator.definitionSkillPrograms ?? [])];
     const byKey = new Map(configured.map(program => [combatSkillProgramKey(program), program]));
-    const additional: CompiledSkillProgram[] = [];
+    for (const { castId, program } of operator.skillCasts ?? []) {
+      byKey.set(combatSkillProgramKey(program, castId), program);
+    }
+    const additional: NonNullable<CombatOperatorProgram['skillCasts']>[number][] = [];
     for (const key of graph.operators.get(operator.operatorId)?.skills.keys() ?? []) {
       const fullKey = `${operator.operatorId}\u0000${key}`;
       if (byKey.has(fullKey)) continue;
       const binding = fixedSkillPrograms.resolve(fullKey);
-      if (binding.definition === undefined || !configured.includes(binding.definition)) {
+      if (binding.castId === undefined || !configured.includes(binding.program)) {
         throw new Error(`restored dynamic skill '${fullKey}' uses another definition`);
       }
-      additional.push(binding.program);
+      additional.push({ castId: binding.castId, program: binding.program });
     }
     return additional.length === 0
       ? operator
-      : { ...operator, skills: [...operator.skills, ...additional] };
+      : { ...operator, skillCasts: [...(operator.skillCasts ?? []), ...additional] };
   });
   const programIds = new Set<string>();
   const programsById = new Map<string, CombatOperatorProgram>();

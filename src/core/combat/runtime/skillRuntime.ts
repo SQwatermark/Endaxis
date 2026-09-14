@@ -211,7 +211,7 @@ export interface SkillRuntimeHostIdentity {
 }
 
 type SkillRuntimeDependencies = {
-  /** 显式施放实例身份，null 表示无技能块；旧编译调用未迁移时才从程序读取。 */
+  /** 显式施放实例身份；null 或缺失表示固定技能定义。 */
   readonly castId?: string | null;
   readonly clock: CombatClock;
   /** 原生费用属性在开始门禁和实际扣费时分别重新求值。 */
@@ -274,13 +274,8 @@ export class SkillRuntime {
   ) {
     this.#program = program;
     this.#dependencies = dependencies;
-    const castId =
-      dependencies.castId !== undefined ? dependencies.castId : (program.castId ?? null);
-    if (
-      restored !== undefined &&
-      dependencies.castId !== undefined &&
-      restored.state.castId !== castId
-    ) {
+    const castId = dependencies.castId ?? null;
+    if (restored !== undefined && restored.state.castId !== castId) {
       throw new Error('restored skill cast identity does not match its instance');
     }
     if (

@@ -198,12 +198,11 @@ export function resolveRestoredAbilityEntityDefinition(
   const programs = [...operator.skills, ...(operator.definitionSkillPrograms ?? [])];
   const origin = state.skillCastInfo;
   if (origin != null) {
-    const exact = programs.find(
-      program => program.skillId === origin.originSkillId && program.castId === origin.originCastId,
-    );
-    const unbound = programs.find(
-      program => program.skillId === origin.originSkillId && program.castId === undefined,
-    );
+    const exact = operator.skillCasts?.find(
+      binding =>
+        binding.program.skillId === origin.originSkillId && binding.castId === origin.originCastId,
+    )?.program;
+    const unbound = programs.find(program => program.skillId === origin.originSkillId);
     const definition =
       exact?.abilityEntityDefinitions?.[state.abilityEntityId] ??
       unbound?.abilityEntityDefinitions?.[state.abilityEntityId];

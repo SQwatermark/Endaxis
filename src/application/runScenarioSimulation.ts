@@ -40,6 +40,9 @@ export interface ScenarioSimulationResult {
   readonly operatorPanels: readonly ResolvedOperatorPanel[];
   /** 模拟推进前的资源基线，供曲线、诊断和 UI 使用同一初始状态。 */
   readonly initialResources: CombatResourceSnapshot;
+  /** 本次发布对应的固定回执历史；查询和详情应优先使用该视图。 */
+  readonly receiptHistory: CombatReceiptView;
+  /** 尚未迁移的数组消费者使用的缓存适配；新代码不要据此再建序号索引。 */
   readonly receiptEntries: readonly CombatReceiptEntry[];
   /** 由正式回执投影端口生成的稀疏资源曲线，应用层不重复解释事件。 */
   readonly resourceCurves: CombatResourceCurves;
@@ -160,6 +163,7 @@ export function collectCombatStateGraphResult(
     operatorPanels,
     initialResources,
     finalResources,
+    receiptHistory: history,
     // 脱离收集器并冻结，避免调用方改写本次模拟已经发生的事实。
     receiptEntries,
     resourceCurves: freezeResourceCurves(

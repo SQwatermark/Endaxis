@@ -554,8 +554,6 @@ export interface CompiledSkillStatModifiers {
 /** 已解析等级的执行程序；非时间轴宿主不需要伪造分组、养成等级或块宽。 */
 export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgram {
   readonly operatorId: string;
-  /** 文档中对应的技能释放身份；缺失时表示不是从场景时间轴编译的单元测试程序。 */
-  readonly castId?: string;
   readonly skillId: string;
   /** 路由包装器的行为养成补丁按真实执行体身份匹配；费用和冷却仍使用槽位身份。 */
   readonly executionSkillGroupKey?: string;

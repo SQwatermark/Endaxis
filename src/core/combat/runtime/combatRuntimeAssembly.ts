@@ -204,6 +204,8 @@ export interface CombatOperatorProgram {
   /** CharacterTable.charTypeId 的一一映射；仅角色类型筛选实际出现时要求提供。 */
   readonly characterTypeId?: DamageElement;
   readonly skills: readonly CompiledSkillProgram[];
+  /** 时间轴施放身份与固定技能定义的显式绑定；定义本身不携带单次施放状态。 */
+  readonly skillCasts?: readonly CombatSkillCastProgram[];
   /** 完整定义中的未放置技能；只供原生 CastSkill/换槽等内部路由启动。 */
   readonly definitionSkillPrograms?: readonly CompiledSkillProgram[];
   /** 完整定义的静态冷却目录，独立于时间轴放置；缺省仅供底层程序兼容。 */
@@ -240,6 +242,11 @@ export interface CombatOperatorProgram {
   /** 通用语义状态与 Buff 分属两个显式所有者；容器只在本次模拟中使用。 */
   readonly statusContainer?: CombatStatusContainer;
   readonly actionRuntime?: FrameRuntime;
+}
+
+export interface CombatSkillCastProgram {
+  readonly castId: string;
+  readonly program: CompiledSkillProgram;
 }
 
 /** 敌方 Buff 既是技能查询目标，也是必须随战斗时钟推进的实体运行时。 */
@@ -283,6 +290,8 @@ type CombatOperationProgram = CompiledSkillExecutionProgram & {
 
 export interface CombatOperationExecutorContext {
   readonly readSimulationInputs?: () => SkillSimulationInputs | undefined;
+  /** 当前时间轴施放身份；固定定义和非技能宿主不提供。 */
+  readonly castId?: string;
   readonly program: CompiledSkillProgram;
   /** 伤害、治疗和属性读取归属的干员；能力实体作为动作宿主时仍指向其定义宿主。 */
   readonly sourceOperatorId?: string;
@@ -796,6 +805,10 @@ export class CombatRuntimeAssembly {
       };
     }
     const scheduledControl = options.isOperatorControlled;
+    const hasControlQuery =
+      restored === undefined
+        ? scheduledControl !== undefined || options.initialControlledOperatorId !== undefined
+        : restored.options.environment.isOperatorControlled !== undefined;
     const controlState =
       restored?.preparation.graph.inputs.control ??
       new Map(
@@ -806,10 +819,12 @@ export class CombatRuntimeAssembly {
             : operator.operatorId === options.initialControlledOperatorId,
         ]),
       );
-    options = {
-      ...options,
-      isOperatorControlled: operatorId => controlState.get(operatorId) ?? false,
-    };
+    if (hasControlQuery) {
+      options = {
+        ...options,
+        isOperatorControlled: operatorId => controlState.get(operatorId) ?? false,
+      };
+    }
     this.#options = options;
     this.#castParameters = restored?.preparation.graph.inputs.castParameters ?? new Map();
     if (options.deferInitialInput || restored?.preparation.graph.inputs.initialInputPending) {
@@ -984,6 +999,7 @@ export class CombatRuntimeAssembly {
             this.#createSkillDependencies({
               operator,
               program: binding.program,
+              castId: binding.state.castId,
               enemy: options.enemy,
               entityBlackboard: context.blackboard,
               statusRuntime: context.statuses,
@@ -1403,7 +1419,10 @@ export class CombatRuntimeAssembly {
         cooldownPrograms.set(program.skillId, program);
       }
       const placedCooldownPrograms = new Map<string, CompiledSkillProgram>();
-      for (const program of runtimeOperator.skills) {
+      for (const program of [
+        ...runtimeOperator.skills,
+        ...(runtimeOperator.skillCasts ?? []).map(binding => binding.program),
+      ]) {
         const previous = placedCooldownPrograms.get(program.skillId);
         if (previous !== undefined) {
           if (
@@ -1425,11 +1444,8 @@ export class CombatRuntimeAssembly {
         this.#resolveSkillCooldown(runtimeOperator, program);
       const skills: SkillRuntime[] = [];
       const allPrograms = [...runtimeOperator.skills, ...hiddenSkillPrograms];
-      const definitionIds = new Set(
-        allPrograms.filter(program => program.castId === undefined).map(program => program.skillId),
-      );
       for (const program of allPrograms) {
-        const create = () =>
+        skills.push(
           this.#createSkillRuntime(
             runtimeOperator,
             program,
@@ -1446,11 +1462,37 @@ export class CombatRuntimeAssembly {
             options.isOperatorControlled,
             options.resolveVitals,
             options.resolveOperatorVitals,
+          ),
+        );
+      }
+      const definitionIds = new Set(allPrograms.map(program => program.skillId));
+      for (const { castId, program } of runtimeOperator.skillCasts ?? []) {
+        if (!definitionIds.has(program.skillId)) {
+          throw new Error(
+            `combat cast '${operator.operatorId}:${program.skillId}:${castId}' has no fixed definition`,
           );
-        if (program.castId !== undefined && definitionIds.has(program.skillId)) {
-          const key = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId}`;
-          this.#pendingCastFactories.set(key, create);
-        } else skills.push(create());
+        }
+        const key = `${operator.operatorId}\u0000${program.skillId}\u0000${castId}`;
+        this.#pendingCastFactories.set(key, () =>
+          this.#createSkillRuntime(
+            runtimeOperator,
+            program,
+            {
+              ...cooldownPrograms.get(program.skillId)!,
+              ...(program.sourceSkillId === undefined
+                ? {}
+                : { sourceSkillId: program.sourceSkillId }),
+            },
+            options.enemy,
+            entityBlackboard,
+            statusRuntime,
+            options.createOperationExecutor,
+            options.isOperatorControlled,
+            options.resolveVitals,
+            options.resolveOperatorVitals,
+            castId,
+          ),
+        );
       }
       this.#abilitySystems.set(
         operator.operatorId,
@@ -1839,7 +1881,7 @@ export class CombatRuntimeAssembly {
 
   tryStartSkill(operatorId: string, skillId: string, castId?: string): boolean {
     const ability = this.#requireAbilitySystem(operatorId);
-    this.#ensureCastInstance(operatorId, skillId, castId);
+    this.#ensureCastInstance(operatorId, ability.resolveSkillId(skillId), castId);
     if (!ability.canStartSkill(skillId, castId)) return false;
     this.#prepareSkillStart(operatorId, skillId, castId);
     return ability.tryStartSkill(skillId, castId);
@@ -2071,6 +2113,7 @@ export class CombatRuntimeAssembly {
       this.#options.isOperatorControlled,
       this.#options.resolveVitals,
       this.#options.resolveOperatorVitals,
+      castId,
     );
     this.#requireAbilitySystem(operatorId).registerCastInstance(runtime);
   }
@@ -2083,7 +2126,8 @@ export class CombatRuntimeAssembly {
     resolveSkillSlot = true,
   ): void {
     const ability = this.#requireAbilitySystem(operatorId);
-    this.#ensureCastInstance(operatorId, skillId, castId);
+    const definitionSkillId = ability.resolveSkillId(skillId, undefined, resolveSkillSlot);
+    this.#ensureCastInstance(operatorId, definitionSkillId, castId);
     const resolvedSkillId = ability.resolveSkillId(skillId, castId, resolveSkillSlot);
     const program = this.#skillPrograms.get(
       `${operatorId}\u0000${resolvedSkillId}\u0000${castId ?? ''}`,
@@ -2169,7 +2213,7 @@ export class CombatRuntimeAssembly {
             skillCastId,
             originSkillId: program.skillId,
             originSkillType: program.skillType,
-            ...(program.castId === undefined ? {} : { originCastId: program.castId }),
+            ...(castId === undefined ? {} : { originCastId: castId }),
             nonReturnedSpCost: 0,
           },
         },
@@ -2469,15 +2513,11 @@ export class CombatRuntimeAssembly {
     operator: CombatOperatorProgram,
     statusRuntime: CombatStatusRuntime | undefined,
   ): readonly CompiledSkillProgram[] {
-    const registerCastOperationBinding = (program: CompiledSkillProgram) => {
+    const registerCastOperationBinding = (program: CompiledSkillProgram, castId?: string) => {
       const bindingsMap =
-        program.castId === undefined
-          ? this.#unboundSkillOperationBindings
-          : this.#castOperationBindings;
+        castId === undefined ? this.#unboundSkillOperationBindings : this.#castOperationBindings;
       const bindingKey =
-        program.castId === undefined
-          ? `${operator.operatorId}\u0000${program.skillId}`
-          : program.castId;
+        castId === undefined ? `${operator.operatorId}\u0000${program.skillId}` : castId;
       const bindings = bindingsMap.get(bindingKey) ?? [];
       if (bindings.some(binding => binding.program.skillId === program.skillId)) {
         throw new Error(
@@ -2506,8 +2546,12 @@ export class CombatRuntimeAssembly {
       this.#nativeSkillKeys.set(nativeKey, program.skillId);
       return false;
     };
-    const registerProgramIdentity = (program: CompiledSkillProgram, hidden: boolean) => {
-      const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId ?? ''}`;
+    const registerProgramIdentity = (
+      program: CompiledSkillProgram,
+      castId: string | undefined,
+      hidden: boolean,
+    ) => {
+      const programKey = `${operator.operatorId}\u0000${program.skillId}\u0000${castId ?? ''}`;
       if (this.#skillPrograms.has(programKey)) {
         throw new Error(
           `${hidden ? 'duplicate hidden' : 'duplicate'} combat skill program '${programKey}'`,
@@ -2517,25 +2561,23 @@ export class CombatRuntimeAssembly {
     };
 
     for (const program of operator.skills) {
-      registerProgramIdentity(program, false);
+      registerProgramIdentity(program, undefined, false);
       // 保持既有歧义路由行为；此处只抽取登记代码，不在切面改造中修正它。
       if (registerNativeSkill(program)) continue;
       registerCastOperationBinding(program);
     }
-    // 带 castId 的时间轴实例只服务该技能块；Buff/技能内部按原生 ID 延迟 Cast
-    // 仍需要无 castId 的静态定义，两者可以同时登记。
-    const placedUnboundSkillIds = new Set(
-      operator.skills
-        .filter(program => program.castId === undefined)
-        .map(program => program.skillId),
-    );
+    const placedUnboundSkillIds = new Set(operator.skills.map(program => program.skillId));
     const hiddenSkillPrograms = (operator.definitionSkillPrograms ?? []).filter(
       program => !placedUnboundSkillIds.has(program.skillId),
     );
     for (const program of hiddenSkillPrograms) {
-      registerProgramIdentity(program, true);
+      registerProgramIdentity(program, undefined, true);
       registerCastOperationBinding(program);
       registerNativeSkill(program);
+    }
+    for (const { castId, program } of operator.skillCasts ?? []) {
+      registerProgramIdentity(program, castId, false);
+      registerCastOperationBinding(program, castId);
     }
     return hiddenSkillPrograms;
   }
@@ -2551,6 +2593,7 @@ export class CombatRuntimeAssembly {
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveVitals: CombatRuntimeAssemblyOptions['resolveVitals'],
     resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
+    castId: string | null = null,
   ): SkillRuntime {
     const operatorId = operator.operatorId;
     if (program.operatorId !== operatorId) {
@@ -2562,12 +2605,16 @@ export class CombatRuntimeAssembly {
     let runtime: SkillRuntime;
     const operationState = createCombatOperationHostState();
     const cooldownBinding = this.#resolveSkillCooldown(operator, cooldownProgram);
-    const skillProgramBinding = this.combatSkillPrograms.register(program);
+    const skillProgramBinding = this.combatSkillPrograms.register(
+      program,
+      castId === null ? undefined : castId,
+    );
     runtime = new SkillRuntime(program, {
-      castId: program.castId ?? null,
+      castId,
       ...this.#createSkillDependencies({
         operator,
         program,
+        castId,
         enemy,
         entityBlackboard,
         statusRuntime,
@@ -2582,7 +2629,7 @@ export class CombatRuntimeAssembly {
       ...cooldownBinding,
     });
     const skills = this.#skillStates.get(operatorId) ?? new Map<string, SkillRuntimeState>();
-    skills.set(`${program.skillId}\u0000${program.castId ?? ''}`, runtime.runtimeState);
+    skills.set(`${program.skillId}\u0000${castId ?? ''}`, runtime.runtimeState);
     this.#skillStates.set(operatorId, skills);
     return runtime;
   }
@@ -2593,24 +2640,11 @@ export class CombatRuntimeAssembly {
     core: import('./combatOperatorCoreRestoration').RestoredCombatOperatorCore,
     options: CombatRuntimeAssemblyOptions,
   ): void {
-    const placedUnboundSkillIds = new Set(
-      operator.skills
-        .filter(program => program.castId === undefined)
-        .map(program => program.skillId),
-    );
-    const hiddenSkillPrograms = (operator.definitionSkillPrograms ?? []).filter(
-      program => !placedUnboundSkillIds.has(program.skillId),
-    );
-    const allPrograms = [...operator.skills, ...hiddenSkillPrograms];
-    const definitionIds = new Set(
-      allPrograms.filter(program => program.castId === undefined).map(program => program.skillId),
-    );
     const savedSkills = this.#skillStates.get(operator.operatorId)!;
-    for (const program of allPrograms) {
-      if (program.castId === undefined || !definitionIds.has(program.skillId)) continue;
-      const stateKey = `${program.skillId}\u0000${program.castId}`;
+    for (const { castId, program } of operator.skillCasts ?? []) {
+      const stateKey = `${program.skillId}\u0000${castId}`;
       if (savedSkills.has(stateKey)) continue;
-      const key = `${operator.operatorId}\u0000${program.skillId}\u0000${program.castId}`;
+      const key = `${operator.operatorId}\u0000${program.skillId}\u0000${castId}`;
       if (this.#pendingCastFactories.has(key)) {
         throw new Error(`duplicate pending combat skill '${key}'`);
       }
@@ -2632,6 +2666,7 @@ export class CombatRuntimeAssembly {
           options.isOperatorControlled,
           options.resolveVitals,
           options.resolveOperatorVitals,
+          castId,
         ),
       );
     }
@@ -2641,6 +2676,7 @@ export class CombatRuntimeAssembly {
   #createSkillDependencies(options: {
     readonly operator: CombatOperatorProgram;
     readonly program: CompiledSkillProgram;
+    readonly castId: string | null;
     readonly enemy: CombatEnemyProgram;
     readonly entityBlackboard: ActionBlackboard;
     readonly statusRuntime: CombatStatusRuntime | undefined;
@@ -2679,6 +2715,7 @@ export class CombatRuntimeAssembly {
       operations: this.#createOperationChain({
         operator,
         program,
+        ...(options.castId === null ? {} : { castId: options.castId }),
         enemy: options.enemy,
         statusRuntime: options.statusRuntime,
         createDelegate: options.createDelegate,
@@ -3448,6 +3485,8 @@ export class CombatRuntimeAssembly {
         : { ...binding.program, operatorId: operationOperator.operatorId };
     return this.#createOperationChain({
       operator: operationOperator,
+      sourceActionId: castId,
+      ...(cast?.originCastId === undefined ? {} : { castId: cast.originCastId }),
       // 宿主、Buff 来源和触发施法都可能属于不同干员；定义目录使用实例保存的显式身份。
       definitionOperator,
       program: operationProgram,
@@ -3470,6 +3509,8 @@ export class CombatRuntimeAssembly {
 
   #createOperationChain(options: {
     readonly operator: CombatOperatorProgram;
+    /** 当前时间轴施放身份；定义程序本身始终与单次施放无关。 */
+    readonly castId?: string;
     /** 后代技能使用自身程序执行，但回执与事件继续归因发起这条动作链的来源。 */
     readonly sourceActionId?: string;
     /** 跨实体 Buff 生命周期仍从创建该定义的原始 AbilitySystem 解析后代资源。 */
@@ -3499,7 +3540,7 @@ export class CombatRuntimeAssembly {
       getNonReturnedSpCost,
     } = options;
     const definitionOperator = options.definitionOperator ?? operator;
-    const sourceActionId = options.sourceActionId ?? program.castId ?? program.skillId;
+    const sourceActionId = options.sourceActionId ?? options.castId ?? program.skillId;
     const operationHost = options.operationHost ?? {
       state: createCombatOperationHostState(),
       programs: this.combatOperationPrograms,
@@ -3508,10 +3549,11 @@ export class CombatRuntimeAssembly {
     const terminalDelegate = createDelegate({
       readSimulationInputs: () =>
         this.#castParameters.get(
-          `${definitionOperator.operatorId}\u0000${program.castId ?? program.skillId}`,
+          `${definitionOperator.operatorId}\u0000${options.castId ?? program.skillId}`,
         ),
       // 环境末端的旧公开端口仍声明时间轴程序；嵌入式宿主不会读取编辑身份。
       program: program as CompiledSkillProgram,
+      ...(options.castId === undefined ? {} : { castId: options.castId }),
       sourceOperatorId: definitionOperator.operatorId,
       resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
       buffDefinitions: definitionOperator.buffDefinitions,
@@ -3698,7 +3740,7 @@ export class CombatRuntimeAssembly {
     const angleConditions = new CameraTargetAngleConditionExecutor(
       context =>
         this.#castParameters.get(
-          `${definitionOperator.operatorId}\u0000${program.castId ?? context.skillCastInfo?.originCastId ?? program.skillId}`,
+          `${definitionOperator.operatorId}\u0000${options.castId ?? context.skillCastInfo?.originCastId ?? program.skillId}`,
         )?.cameraToTargetSignedAngleDegrees,
       timedMarkerOperations,
     );
@@ -4209,15 +4251,15 @@ export class CombatRuntimeAssembly {
     sourceActionId: string,
     options: CombatRuntimeAssemblyOptions,
   ): CombatOperationExecutor {
-    const template = operator.skills[0];
+    const template = operator.skills[0] ?? operator.definitionSkillPrograms?.[0];
     if (template === undefined) return unsupportedReactiveTerminal;
     return options.createOperationExecutor({
+      castId: sourceActionId,
       sourceOperatorId: operator.operatorId,
       resolveAbilitySystemSourceId: entityId => this.#resolveAbilitySystemSourceId(entityId),
       buffDefinitions: operator.buffDefinitions,
       program: {
         ...template,
-        castId: sourceActionId,
         skillId: sourceActionId,
         sourceSkillId: sourceActionId,
         initialBlackboard: {},
@@ -4489,20 +4531,26 @@ export class CombatRuntimeAssembly {
     if (preferred !== undefined) return preferred;
     const direct = operator.abilityEntityDefinitions?.[abilityEntityId];
     if (direct !== undefined) return direct;
-    const candidates = [...operator.skills, ...(operator.definitionSkillPrograms ?? [])].flatMap(
-      program => {
-        const definition = program.abilityEntityDefinitions?.[abilityEntityId];
-        return definition === undefined ? [] : [{ program, definition }];
-      },
-    );
+    const fixedPrograms = new Set([
+      ...operator.skills,
+      ...(operator.definitionSkillPrograms ?? []),
+    ]);
+    const candidatePrograms = new Set([
+      ...fixedPrograms,
+      ...(operator.skillCasts ?? []).map(binding => binding.program),
+    ]);
+    const candidates = [...candidatePrograms].flatMap(program => {
+      const definition = program.abilityEntityDefinitions?.[abilityEntityId];
+      return definition === undefined ? [] : [{ program, definition }];
+    });
     if (candidates.length === 0) return undefined;
     if (candidates.every(candidate => candidate.definition === candidates[0]!.definition)) {
       return candidates[0]!.definition;
     }
     const skillIds = new Set(candidates.map(candidate => candidate.program.skillId));
     if (skillIds.size !== 1) return undefined;
-    const unbound = candidates.filter(candidate => candidate.program.castId === undefined);
-    return unbound.length === 1 ? unbound[0]!.definition : undefined;
+    const fixedCandidates = candidates.filter(candidate => fixedPrograms.has(candidate.program));
+    return fixedCandidates.length === 1 ? fixedCandidates[0]!.definition : undefined;
   }
 
   /** SourceFinder 读取一层 source；能力实体来源仍是实体时保留身份，不递归追祖先。 */

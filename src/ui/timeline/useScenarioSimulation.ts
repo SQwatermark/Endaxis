@@ -263,9 +263,8 @@ export function useScenarioSimulation(
       })),
     ];
     const byCastId = new Map<string, TimelineSkillDiagnosticReason[]>();
-    const receipts = new Map(current.receiptEntries.map(entry => [entry.sequence, entry]));
     const inputFrames = new Map<string, number>();
-    for (const entry of current.receiptEntries) {
+    for (const entry of current.receiptHistory.entries()) {
       if (entry.event === 'SkillInputProcessed' && typeof entry.data?.castId === 'string')
         inputFrames.set(entry.data.castId, entry.frame);
     }
@@ -276,7 +275,7 @@ export function useScenarioSimulation(
       // 接续成员没有保存开始帧；优先使用回执中的释放身份，不靠同技能、同时间猜身份。
       const castIds = new Set(
         diagnostic.receiptSequences.flatMap(sequence => {
-          const castId = receipts.get(sequence)?.data?.castId;
+          const castId = current.receiptHistory.get(sequence)?.data?.castId;
           return typeof castId === 'string' ? [castId] : [];
         }),
       );
@@ -297,7 +296,7 @@ export function useScenarioSimulation(
         }
       }
     }
-    for (const entry of current.receiptEntries) {
+    for (const entry of current.receiptHistory.entries()) {
       if (entry.event !== 'SkillInputGroupBlocked') continue;
       const track = scenario.tracks.find(track => track?.id === entry.sourceId);
       if (!track) continue;

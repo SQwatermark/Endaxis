@@ -9,6 +9,7 @@ import type {
   SimulationWorkerResponse,
   SimulationPlan,
 } from './scenarioSimulationWorkerProtocol';
+import { fromSimulationWorkerResult } from './scenarioSimulationWorkerProtocol';
 
 type Pending = {
   request: SimulationWorkerRequest;
@@ -40,7 +41,7 @@ export class WorkerScenarioSimulationService {
       for (const sample of response.samples)
         for (const listener of this.subscribers) listener(sample);
       if (current.request.revision !== this.revision) current.reject(abort());
-      else if (response.ok) current.resolve(response.result);
+      else if (response.ok) current.resolve(fromSimulationWorkerResult(response.result));
       else current.reject(new Error(response.message));
       this.pump();
     };

@@ -101,7 +101,11 @@ function asBuffRuntime(container: CombatBuffContainer<string>) {
   };
 }
 
-function skill(overrides: Partial<CompiledSkillProgram> = {}): CompiledSkillProgram {
+type TestSkillProgram = CompiledSkillProgram & { readonly castId?: string };
+
+function skill(
+  overrides: Partial<CompiledSkillProgram> & { readonly castId?: string } = {},
+): TestSkillProgram {
   return {
     operatorId: 'operator',
     skillGroupKey: 'battleSkill',
@@ -189,9 +193,12 @@ function nativeEventRuntimeOptions() {
 
 function createAssembly(
   input:
-    | readonly CompiledSkillProgram[]
+    | readonly TestSkillProgram[]
     | {
-        programs: readonly CompiledSkillProgram[];
+        programs: readonly TestSkillProgram[];
+        skillCasts?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['operators'][number]['skillCasts'];
         definitionSkillPrograms?: readonly CompiledSkillProgram[];
         skillCooldownPrograms?: ConstructorParameters<
           typeof CombatRuntimeAssembly
@@ -237,7 +244,24 @@ function createAssembly(
   >[0]['operators'][number]['playerActionRoutes'],
   skillAvailabilityTags?: GameplayTagPredefine,
 ): CombatRuntimeAssembly {
-  const programs = 'programs' in input ? input.programs : input;
+  const testPrograms = 'programs' in input ? input.programs : input;
+  const programs = testPrograms.flatMap(program => (program.castId === undefined ? [program] : []));
+  const skillCasts = [
+    ...('programs' in input ? (input.skillCasts ?? []) : []),
+    ...testPrograms.flatMap(program => {
+      const { castId, ...definition } = program;
+      return castId === undefined ? [] : [{ castId, program: definition }];
+    }),
+  ];
+  for (const binding of skillCasts) {
+    if (
+      programs.some(program => program.skillId === binding.program.skillId) ||
+      ('programs' in input &&
+        input.definitionSkillPrograms?.some(program => program.skillId === binding.program.skillId))
+    )
+      continue;
+    programs.push(binding.program);
+  }
   return new CombatRuntimeAssembly({
     ...nativeEventRuntimeOptions(),
     ...('programs' in input
@@ -278,6 +302,7 @@ function createAssembly(
       {
         operatorId: 'operator',
         skills: programs,
+        ...(skillCasts.length === 0 ? {} : { skillCasts }),
         ...('programs' in input && input.skillCooldownPrograms !== undefined
           ? { skillCooldownPrograms: input.skillCooldownPrograms }
           : {}),
@@ -402,7 +427,7 @@ describe('CombatRuntimeAssembly', () => {
       definitionSkillPrograms: [definition],
       ...nativeEventRuntimeOptions(),
       createOperationExecutor: context => {
-        created.push(context.program.castId);
+        created.push(context.castId);
         return rejectingExecutor;
       },
     });
@@ -450,14 +475,16 @@ describe('CombatRuntimeAssembly', () => {
 
   it('整场恢复预检接受完整复制图，并拒绝丢失程序或共享引用的候选', () => {
     const definition = skill();
-    const placed = skill({ castId: 'future' });
+    const placed = skill();
     const operator = {
       operatorId: 'operator',
-      skills: [placed],
+      skills: [],
       definitionSkillPrograms: [definition],
+      skillCasts: [{ castId: 'future', program: placed }],
     };
     const assembly = createAssembly({
-      programs: [placed],
+      programs: [],
+      skillCasts: operator.skillCasts,
       definitionSkillPrograms: [definition],
       ...nativeEventRuntimeOptions(),
     });
@@ -2280,10 +2307,10 @@ describe('CombatRuntimeAssembly', () => {
       action.sequence.steps.some(step => step.kind === 'spawnAbilityEntity'),
     );
     if (spawnAction === undefined) throw new Error('Gilberta generated spawn action is missing');
+    const castId = 'gilberta-monitor-cast';
     const program: CompiledSkillProgram = {
       ...compiled,
       skillId: 'gilberta-monitor-fixture',
-      castId: 'gilberta-monitor-cast',
       timelineBlockFrames: 1,
       costFrame: undefined,
       costs: [],
@@ -2300,7 +2327,7 @@ describe('CombatRuntimeAssembly', () => {
       poiseImmune: false,
     });
     const assembly = createAssembly(
-      [program],
+      [{ ...program, castId }],
       undefined,
       () => operatorVitals,
       emptyEnemyBuffRuntime,
@@ -2314,7 +2341,7 @@ describe('CombatRuntimeAssembly', () => {
       compileOperatorBuffDefinitions(gilbertaGeneratedOperator.buffDefinitions),
     );
 
-    expect(assembly.tryStartSkill('operator', program.skillId, program.castId)).toBe(true);
+    expect(assembly.tryStartSkill('operator', program.skillId, castId)).toBe(true);
     expect(assembly.abilityEntities.activeCount).toBe(1);
     expect(entityBuffs?.buffs.map(buff => buff.definition.id)).toEqual([
       'buff_chr_0013_aglina_normal_skill_monitor',

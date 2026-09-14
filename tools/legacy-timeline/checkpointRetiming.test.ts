@@ -8,6 +8,13 @@ import { ScenarioSimulationService } from '../../src/application/scenarioSimulat
 import { CheckpointRetimingSession } from './checkpointRetiming';
 import { retimeLegacyProjectBySimulation } from './heuristicRetiming';
 
+function collectHeap(): number {
+  if (globalThis.gc === undefined) throw new Error('memory audit requires --expose-gc');
+  globalThis.gc();
+  globalThis.gc();
+  return process.memoryUsage().heapUsed;
+}
+
 function fixture() {
   let scenario = createEmptyScenario('test', 'checkpoint retiming');
   scenario.battle.durationFrames = 500;
@@ -118,6 +125,8 @@ it('观察在所需事实出现的帧末停止，继续观察沿用同一分支'
   expect(branch.runtime.frame).toBe(300);
   expect(fork).toHaveBeenCalledTimes(1);
   expect(main.runtime.frame).toBe(0);
+  trial.dispose();
+  expect(() => trial.advanceToFrame(301)).toThrow('trial has been disposed');
 });
 
 it('观察越过下一输入后仍从主会话截面试放，延长窗口不重新分叉', () => {
@@ -144,3 +153,43 @@ it('观察越过下一输入后仍从主会话截面试放，延长窗口不重�
   expect(main.runtime.frame).toBe(10);
   expect(() => planner.trial(inputs)).toThrow('after the saved input boundary');
 });
+
+it.runIf(globalThis.gc !== undefined)(
+  '显式释放会断开仍被调用方持有的试探外壳与重型候选分支',
+  () => {
+    const { scenario, service } = fixture();
+    const planner = new CheckpointRetimingSession(service.createInputCombatSession(scenario));
+    const inputs = service.compileFixedInputs(scenario).filter(input => input.frame < 11);
+    const retained = [] as ReturnType<CheckpointRetimingSession['trial']>[];
+
+    // 先让编译缓存和 JIT 稳定，避免把一次性初始化误记成候选持有量。
+    for (let index = 0; index < 8; index += 1) {
+      const trial = planner.trial(inputs);
+      trial.advanceToFrame(80);
+      trial.dispose();
+    }
+    const baseline = collectHeap();
+    for (let index = 0; index < 24; index += 1) {
+      const trial = planner.trial(inputs);
+      trial.advanceToFrame(80);
+      retained.push(trial);
+    }
+    const held = collectHeap();
+    for (const trial of retained) trial.dispose();
+    const released = collectHeap();
+
+    console.info('checkpoint retiming heap audit', {
+      baseline,
+      held,
+      released,
+      heldDelta: held - baseline,
+      retainedAfterDispose: released - baseline,
+    });
+
+    expect(held).toBeGreaterThan(baseline);
+    expect(released).toBeLessThan(held);
+    // 外壳和少量筛选回执仍由 retained 数组持有；重型状态图应已被释放。
+    expect(released - baseline).toBeLessThan(1024 * 1024);
+  },
+  30_000,
+);

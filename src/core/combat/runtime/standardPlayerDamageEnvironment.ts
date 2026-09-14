@@ -766,7 +766,7 @@ export class StandardPlayerDamageEnvironment {
     const operatorBuffs = this.#operatorBuffRuntime(operatorId, context.panel).container;
     const damage = new PlayerDamageOperationExecutor({
       sourceOperatorId: operatorId,
-      castId: program?.castId,
+      castId: 'program' in context ? context.castId : undefined,
       skillId: program?.skillId,
       executingSkillGroupKey: program?.skillGroupKey || undefined,
       skillType: program?.skillType,
@@ -923,7 +923,7 @@ export class StandardPlayerDamageEnvironment {
   #createReactionExecutor(context: CombatOperationExecutorContext): CombatOperationExecutor {
     return new ElementalReactionOperationExecutor({
       sourceOperatorId: context.program.operatorId,
-      castId: context.program.castId,
+      castId: context.castId,
       targetId: 'enemy',
       clock: context.clock,
       receipt: context.receipt,
@@ -987,7 +987,7 @@ export class StandardPlayerDamageEnvironment {
     const adapter = this.#inflictionAdapter(context.program.operatorId);
     return new ElementalInflictionOperationExecutor({
       sourceOperatorId: context.program.operatorId,
-      castId: context.program.castId,
+      castId: context.castId,
       targetId: 'enemy',
       skillId: context.program.skillId,
       clock: context.clock,

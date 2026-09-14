@@ -5,7 +5,10 @@
  * 不再从存档快照读取时间轴。`disabled` 从 `presentation` 读取。
  * 基于干员模板的完整 `customDefinition` 会直接参与编译；只有不携带战斗定义的自由展示块失败。
  */
-import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
+import type {
+  CombatOperatorProgram,
+  CombatSkillCastProgram,
+} from '../combat/runtime/combatRuntimeAssembly';
 import type { CompiledSkillProgram, CompiledSkillSlotGroup } from './combatProgram';
 import type { ScheduledSkillInput, SkillInputGroup } from '../combat/runtime/combatInputRuntime';
 import { getSkillCastPlacementChains } from '../project/skillCastPlacement';
@@ -47,10 +50,6 @@ interface SkillCompilationBinding {
   readonly level: number;
   readonly executionSkillGroupKey?: string;
   readonly executionSkillId?: string;
-}
-
-function bindProgramCast(program: CompiledSkillProgram, castId: string): CompiledSkillProgram {
-  return { ...program, castId };
 }
 
 /** 只解析本次操作身份及参数；固定技能定义的编译与输入帧无关。 */
@@ -125,14 +124,14 @@ function requireDefinitionLevelSource(skill: SkillDefinition, operatorSlug: stri
   return skill.levelSource;
 }
 
-/** 编译一次技能释放。等级和养成效果在这里按当前项目配置计算。 */
+/** 编译一次技能释放，并把时间轴块身份与不含身份的技能程序显式绑定。 */
 function compileCastSkillPrograms(
   trackId: string,
   cast: SkillCastDocument,
   resolved: ResolvedSkillDefinition,
   level: number,
   abilityEntityDefinitions: OperatorDefinition['abilityEntityDefinitions'],
-): readonly CompiledSkillProgram[] {
+): readonly CombatSkillCastProgram[] {
   const definition = resolved.definition;
   const routed = resolved.group.routedReplacementSkills?.find(
     replacement => replacement.skill.key === definition.key,
@@ -154,23 +153,22 @@ function compileCastSkillPrograms(
     },
   ];
   return definitions.map(
-    ({ skill, skillType, level: definitionLevel, executionSkillGroupKey, executionSkillId }) =>
-      bindProgramCast(
-        {
-          ...compileSkill({
-            operatorId: trackId,
-            skillGroupKey: resolved.group.key,
-            skillType,
-            skillLevel: definitionLevel,
-            skill,
-            abilityEntityDefinitions,
-          }),
-          ...(executionSkillGroupKey === undefined
-            ? {}
-            : { executionSkillGroupKey, executionSkillId }),
-        },
-        cast.id,
-      ),
+    ({ skill, skillType, level: definitionLevel, executionSkillGroupKey, executionSkillId }) => ({
+      castId: cast.id,
+      program: {
+        ...compileSkill({
+          operatorId: trackId,
+          skillGroupKey: resolved.group.key,
+          skillType,
+          skillLevel: definitionLevel,
+          skill,
+          abilityEntityDefinitions,
+        }),
+        ...(executionSkillGroupKey === undefined
+          ? {}
+          : { executionSkillGroupKey, executionSkillId }),
+      },
+    }),
   );
 }
 
@@ -210,7 +208,7 @@ function compileSkillSlotGroups(operator: OperatorDefinition): readonly Compiled
 
 /**
  * 编译干员定义中的全部技能（已应用养成补丁，不带 castId）。
- * 资源规则等与放置无关的解析使用这份名单；放置程序由 `compileCastSkillProgram` 单独产生。
+ * 资源规则等与放置无关的解析使用这份名单；放置绑定由 `compileCastSkillPrograms` 单独产生。
  */
 export function compileOperatorDefinitionSkills(
   trackId: string,
@@ -305,7 +303,7 @@ function compileResolvedTimelineTracks(
       ...operator.abilityEntityDefinitions,
     };
     const activeUpgrades = resolveActiveOperatorUpgrades(operatorInstance, operator);
-    const skills: CompiledSkillProgram[] = [];
+    const skillCasts: CombatSkillCastProgram[] = [];
     const anchorFrameByCastId = new Map<string, number>();
     for (const chain of getSkillCastPlacementChains(track.skillCasts)) {
       const anchorFrame = chain.anchor.placement.startFrame;
@@ -330,7 +328,7 @@ function compileResolvedTimelineTracks(
       }
       const resolved = resolveEffectiveSkillDefinition(cast, operator);
       const level = requireSkillLevel(operatorInstance, resolved.levelSource);
-      skills.push(
+      skillCasts.push(
         ...compileCastSkillPrograms(track.id, cast, resolved, level, abilityEntityDefinitions),
       );
       pendingInputs.push({
@@ -340,10 +338,18 @@ function compileResolvedTimelineTracks(
       });
     }
     // 干员只要有构筑就进入运行时（技能列表可能为空），资源规则与面板解析依赖这份名单。
-    const compiledSkills = applyOperatorUpgradeSkillPatches(skills, activeUpgrades, {
-      skipUncompiledSkillGroups: true,
-      buildAttributes,
-    });
+    const compiledSkills = applyOperatorUpgradeSkillPatches(
+      skillCasts.map(binding => binding.program),
+      activeUpgrades,
+      {
+        skipUncompiledSkillGroups: true,
+        buildAttributes,
+      },
+    );
+    const compiledSkillCasts = skillCasts.map((binding, index) => ({
+      castId: binding.castId,
+      program: compiledSkills[index]!,
+    }));
     const compiledOperatorBuffResources = compileOperatorBuffResources(
       operator.buffDefinitions,
       abilityEntityDefinitions,
@@ -393,7 +399,8 @@ function compileResolvedTimelineTracks(
       ),
       upgradeEventPrograms: compileOperatorUpgradeEventPrograms(activeUpgrades),
       reactionModifiers: compileOperatorReactionModifiers(activeUpgrades),
-      skills: compiledSkills,
+      skills: [],
+      ...(compiledSkillCasts.length === 0 ? {} : { skillCasts: compiledSkillCasts }),
     });
   }
 

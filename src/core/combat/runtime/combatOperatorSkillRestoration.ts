@@ -34,7 +34,7 @@ export function bindRestoredCombatOperatorSkills(
         `restored skill '${binding.program.skillId}' belongs to '${binding.program.operatorId}', expected '${options.operatorId}'`,
       );
     }
-    const stateKey = `${binding.program.skillId}\u0000${binding.program.castId ?? ''}`;
+    const stateKey = `${binding.program.skillId}\u0000${binding.state.castId ?? ''}`;
     if (runtimes.has(stateKey)) {
       throw new Error(`duplicate restored skill '${options.operatorId}:${stateKey}'`);
     }

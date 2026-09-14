@@ -102,7 +102,6 @@ function createFixture(
       operatorId: 'operator',
       skillGroupKey: 'battleSkill',
       skillId: 'skill',
-      castId: 'cast:a',
       skillType: 'battleSkill' as const,
       skillLevel: 1,
       initialBlackboard: {},
@@ -159,7 +158,6 @@ function createFixture(
       operatorId: 'operator',
       skillGroupKey: 'battleSkill',
       skillId: 'skill',
-      castId: 'cast:b',
       skillType: 'battleSkill' as const,
       skillLevel: 1,
       initialBlackboard: {},
@@ -188,14 +186,12 @@ function createFixture(
   const operators: CombatOperatorProgram[] = [
     {
       operatorId: 'operator',
-      skills: skillProgramsInput,
-      ...(lazyCasts
-        ? {
-            definitionSkillPrograms: skillProgramsInput
-              .slice(0, 1)
-              .map(({ castId: _castId, ...program }) => program),
-          }
-        : {}),
+      skills: skillProgramsInput.slice(0, 1),
+      skillCasts: [
+        { castId: 'cast:a', program: skillProgramsInput[0]! },
+        { castId: 'cast:b', program: skillProgramsInput[1]! },
+      ],
+      ...(lazyCasts ? { definitionSkillPrograms: skillProgramsInput.slice(0, 1) } : {}),
       buffDefinitions: { 'switch-counter': switchCounter },
       passivePrograms: [
         {
@@ -296,10 +292,10 @@ it.each([true, false])('未来候选和父分支登记互不污染，候选先�
   const before = session.readState();
   const candidateOperators = operators.map(operator => ({
     ...operator,
-    skills: operator.skills.map(program =>
-      program.castId === 'cast:b'
-        ? { ...program, initialBlackboard: { candidateValue: 2 } }
-        : program,
+    skillCasts: operator.skillCasts?.map(binding =>
+      binding.castId === 'cast:b'
+        ? { ...binding, program: { ...binding.program, initialBlackboard: { candidateValue: 2 } } }
+        : binding,
     ),
   }));
   const trial = session.fork(checkpoint, createRestore(inputs, externalEvents, candidateOperators));
@@ -330,10 +326,10 @@ it.each([true, false])('未来候选和父分支登记互不污染，候选先�
   expect(session.readState()).toEqual(parent);
   const changedPast = operators.map(operator => ({
     ...operator,
-    skills: operator.skills.map(program =>
-      program.castId === 'cast:a'
-        ? { ...program, initialBlackboard: { candidateValue: 9 } }
-        : program,
+    skillCasts: operator.skillCasts?.map(binding =>
+      binding.castId === 'cast:a'
+        ? { ...binding, program: { ...binding.program, initialBlackboard: { candidateValue: 9 } } }
+        : binding,
     ),
   }));
   expect(() =>
