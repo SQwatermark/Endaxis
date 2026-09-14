@@ -40,7 +40,11 @@ import type {
 } from '../../game-data/operatorDefinition';
 import type { EnemyRank } from '../../game-data/enemyRank';
 import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
-import { AbilitySystemRuntime, type PostSkillCastRequest } from './abilitySystemRuntime';
+import {
+  AbilitySystemRuntime,
+  type AbilitySystemRuntimeOptions,
+  type PostSkillCastRequest,
+} from './abilitySystemRuntime';
 import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
 import { EventContextConditionExecutor } from './eventContextConditionExecutor';
 import { ActionBlackboard } from './actionBlackboard';
@@ -454,6 +458,16 @@ export interface CombatRuntimeEnvironmentOptions {
   ) => void;
   readonly receipt?: CombatReceiptCollector;
 }
+
+type CombatAbilityRuntimeBindings = Pick<
+  AbilitySystemRuntimeOptions,
+  | 'onPostSkillCastRequest'
+  | 'beforePostSkillCastStart'
+  | 'emitBeforeSkillCast'
+  | 'resolveActualFrame'
+  | 'onSkillOperableBoundaryReached'
+  | 'resolveTickDeltas'
+>;
 
 const unsupportedReactiveTerminal: CombatOperationExecutor = {
   execute(step): boolean {
@@ -889,8 +903,7 @@ export class CombatRuntimeAssembly {
       this.#abilitySystems.set(
         operator.operatorId,
         new AbilitySystemRuntime({
-          onPostSkillCastRequest: info =>
-            options.onPostSkillCastRequest?.(operator.operatorId, info),
+          ...this.#createAbilityRuntimeBindings(operator.operatorId),
           buffRuntime,
           skills,
           skillTickPlan: [...cooldownPrograms.keys()].map(skillId => ({
@@ -926,49 +939,6 @@ export class CombatRuntimeAssembly {
           playerActionRoutes: runtimeOperator.playerActionRoutes,
           playerActionModes: runtimeOperator.playerActionModes,
           actionRuntime: operator.actionRuntime,
-          beforePostSkillCastStart: request => {
-            this.#prepareSkillStart(
-              operator.operatorId,
-              request.skillId,
-              request.castId,
-              request.inheritedSkillCastInfo,
-              request.resolveSkillSlot !== false,
-            );
-            this.#requireAbilitySystem(operator.operatorId).prepareCastInput(
-              request.skillId,
-              request.castId,
-              {
-                skipApplyCost: request.skipApplyCost ?? false,
-                ...(request.inheritedSkillCastInfo === undefined
-                  ? {}
-                  : { inheritedSkillCastInfo: request.inheritedSkillCastInfo }),
-              },
-              request.resolveSkillSlot !== false,
-            );
-          },
-          emitBeforeSkillCast: payload =>
-            options.emitAbilityEvent?.(operator.operatorId, 'beforeCastSkill', payload),
-          resolveActualFrame: () => this.clock.frame,
-          onSkillOperableBoundaryReached: fact =>
-            this.receipt.record({
-              frame: fact.reachedAtFrame,
-              time: fact.reachedAtFrame / COMBAT_FRAMES_PER_SECOND,
-              event: 'SkillOperableBoundaryReached',
-              sourceId: operator.operatorId,
-              data: {
-                castId: fact.castId,
-                durationFrames: fact.durationFrames,
-              },
-            }),
-          ...(this.timeDilation === null
-            ? {}
-            : {
-                resolveTickDeltas: () =>
-                  this.timeDilation!.getAbilityTickDeltas(
-                    operator.operatorId,
-                    COMBAT_FRAME_INTERVAL,
-                  ),
-              }),
         }),
       );
     }
@@ -2049,6 +2019,53 @@ export class CombatRuntimeAssembly {
         >[0],
       ) => this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
       ...this.#projectileRuntimeDependencies(operatorId),
+    };
+  }
+
+  /** 能力系统的事件和推进端口不携带初始状态，可直接用于新建或绑定保存数据。 */
+  #createAbilityRuntimeBindings(operatorId: string): CombatAbilityRuntimeBindings {
+    return {
+      onPostSkillCastRequest: info => this.#options.onPostSkillCastRequest?.(operatorId, info),
+      beforePostSkillCastStart: request => {
+        this.#prepareSkillStart(
+          operatorId,
+          request.skillId,
+          request.castId,
+          request.inheritedSkillCastInfo,
+          request.resolveSkillSlot !== false,
+        );
+        this.#requireAbilitySystem(operatorId).prepareCastInput(
+          request.skillId,
+          request.castId,
+          {
+            skipApplyCost: request.skipApplyCost ?? false,
+            ...(request.inheritedSkillCastInfo === undefined
+              ? {}
+              : { inheritedSkillCastInfo: request.inheritedSkillCastInfo }),
+          },
+          request.resolveSkillSlot !== false,
+        );
+      },
+      emitBeforeSkillCast: payload =>
+        this.#options.emitAbilityEvent?.(operatorId, 'beforeCastSkill', payload),
+      resolveActualFrame: () => this.clock.frame,
+      onSkillOperableBoundaryReached: fact =>
+        this.receipt.record({
+          frame: fact.reachedAtFrame,
+          time: fact.reachedAtFrame / COMBAT_FRAMES_PER_SECOND,
+          event: 'SkillOperableBoundaryReached',
+          sourceId: operatorId,
+          data: {
+            castId: fact.castId,
+            durationFrames: fact.durationFrames,
+          },
+        }),
+      ...(this.timeDilation === null
+        ? {}
+        : {
+            resolveTickDeltas: () =>
+              this.timeDilation!.getAbilityTickDeltas(operatorId, COMBAT_FRAME_INTERVAL),
+          }),
     };
   }
 
