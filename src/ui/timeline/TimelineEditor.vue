@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import {
   computed,
+  defineAsyncComponent,
   nextTick,
   onMounted,
   onScopeDispose,
@@ -44,17 +45,6 @@ import {
   getDefaultLibraryDragOffsets,
   removeLibraryDragGhost,
 } from '../../utils/libraryDragGhost';
-import GearSelectionDialog from './components/GearSelectionDialog.vue';
-import GearLoadoutBuildDialog from './components/GearLoadoutBuildDialog.vue';
-import GearDefinitionWorkspaceDialog from './components/GearDefinitionWorkspaceDialog.vue';
-import GearSetDefinitionWorkspaceDialog from './components/GearSetDefinitionWorkspaceDialog.vue';
-import OperatorPanelDialog from './components/OperatorPanelDialog.vue';
-import OperatorBuildDialog from './components/OperatorBuildDialog.vue';
-import OperatorDefinitionWorkspaceDialog from './components/OperatorDefinitionWorkspaceDialog.vue';
-import WeaponBuildDialog from './components/WeaponBuildDialog.vue';
-import WeaponDefinitionWorkspaceDialog from './components/WeaponDefinitionWorkspaceDialog.vue';
-import OperatorSelectionDialog from './components/OperatorSelectionDialog.vue';
-import WeaponSelectionDialog from './components/WeaponSelectionDialog.vue';
 import TimelineActionBlock from './components/TimelineActionBlock.vue';
 import TimelineSkillCastGroupMarker from './components/TimelineSkillCastGroupMarker.vue';
 import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
@@ -62,15 +52,12 @@ import TimelineActionInspector from './components/TimelineActionInspector.vue';
 import TimelineLibrarySkillInspector from './components/TimelineLibrarySkillInspector.vue';
 import TimelineExternalEventInspector from './components/TimelineExternalEventInspector.vue';
 import TimelineDocumentMarkerInspector from './components/TimelineDocumentMarkerInspector.vue';
-import SkillDefinitionEditorDialog from './components/SkillDefinitionEditorDialog.vue';
 import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
 import TimelineConnectionLayer from './components/TimelineConnectionLayer.vue';
 import TimelineCursorGuide, {
   type TimelineCursorGaugeRow,
 } from './components/TimelineCursorGuide.vue';
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
-import TimelineExportDialog from './components/TimelineExportDialog.vue';
-import TimelineSmallImageExportDialog from './components/TimelineSmallImageExportDialog.vue';
 import type { TimelineShareTrack } from './components/TimelineShareCard.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
@@ -83,7 +70,6 @@ import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vu
 import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
 import TimelineEnemyStatusSections from './components/TimelineEnemyStatusSections.vue';
 import TimelineBuffBands from './components/TimelineBuffBands.vue';
-import TimelineBuffDetailDialog from './components/TimelineBuffDetailDialog.vue';
 import type { BuffDetailTarget } from './buffDetail';
 import TimelineOperatorPassiveUiBands from './components/TimelineOperatorPassiveUiBands.vue';
 import {
@@ -333,7 +319,6 @@ import {
   scenariosDependingOn,
   switchProjectScenario,
 } from './scenarioProjectCommands';
-import TimelineResetDialog from './components/TimelineResetDialog.vue';
 import { useTimelineMarqueeGesture } from './useTimelineMarqueeGesture';
 import { useTimelineViewportPan } from './useTimelineViewportPan';
 import { handleTimelineEditorShortcut } from './timelineKeyboardShortcuts';
@@ -375,13 +360,11 @@ import {
   projectTimelineHitOccurrences,
   type TimelineHitEffectLabel,
 } from './timelineHitEffects';
-import TimelineHitDetailDialog from './components/TimelineHitDetailDialog.vue';
 import { projectPublishedHitDetail } from './publishedHitDetail';
 import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
 import { useSimulationReceiptSelection } from './useSimulationReceiptSelection';
 import { resolveBuffDisplayName } from './buffDisplayName';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
-import DamageAnalysisDialog from './components/DamageAnalysisDialog.vue';
 import BattleLogPanel from './components/BattleLogPanel.vue';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
 import { capturePublishedBattleLog } from './publishedBattleLog';
@@ -391,7 +374,6 @@ import {
   capturePublishedOperatorMetadata,
   type PublishedOperatorMetadata,
 } from './publishedOperatorMetadata';
-import TimelineShortcutHelpDialog from './components/TimelineShortcutHelpDialog.vue';
 import TimelineMarkerContextMenu from './components/TimelineMarkerContextMenu.vue';
 import { projectPublishedTimelineDamageAnalysis } from './timelineDamageAnalysis';
 import {
@@ -408,6 +390,64 @@ import {
   ABILITY_ENTITY_SAMPLE_CAST_ID,
   ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
 } from './timelineSampleScenario';
+
+// 定义编辑器只在用户明确打开时加载。它们会引入完整的行为编辑组件树，常驻在
+// 时间轴首页既浪费内存，也会让 Vite 在首次打开页面时转换大量不会使用的源码。
+const GearDefinitionWorkspaceDialog = defineAsyncComponent(
+  () => import('./components/GearDefinitionWorkspaceDialog.vue'),
+);
+const GearSetDefinitionWorkspaceDialog = defineAsyncComponent(
+  () => import('./components/GearSetDefinitionWorkspaceDialog.vue'),
+);
+const OperatorDefinitionWorkspaceDialog = defineAsyncComponent(
+  () => import('./components/OperatorDefinitionWorkspaceDialog.vue'),
+);
+const WeaponDefinitionWorkspaceDialog = defineAsyncComponent(
+  () => import('./components/WeaponDefinitionWorkspaceDialog.vue'),
+);
+const SkillDefinitionEditorDialog = defineAsyncComponent(
+  () => import('./components/SkillDefinitionEditorDialog.vue'),
+);
+const GearSelectionDialog = defineAsyncComponent(
+  () => import('./components/GearSelectionDialog.vue'),
+);
+const GearLoadoutBuildDialog = defineAsyncComponent(
+  () => import('./components/GearLoadoutBuildDialog.vue'),
+);
+const OperatorPanelDialog = defineAsyncComponent(
+  () => import('./components/OperatorPanelDialog.vue'),
+);
+const OperatorBuildDialog = defineAsyncComponent(
+  () => import('./components/OperatorBuildDialog.vue'),
+);
+const WeaponBuildDialog = defineAsyncComponent(() => import('./components/WeaponBuildDialog.vue'));
+const OperatorSelectionDialog = defineAsyncComponent(
+  () => import('./components/OperatorSelectionDialog.vue'),
+);
+const WeaponSelectionDialog = defineAsyncComponent(
+  () => import('./components/WeaponSelectionDialog.vue'),
+);
+const TimelineResetDialog = defineAsyncComponent(
+  () => import('./components/TimelineResetDialog.vue'),
+);
+const TimelineHitDetailDialog = defineAsyncComponent(
+  () => import('./components/TimelineHitDetailDialog.vue'),
+);
+const TimelineBuffDetailDialog = defineAsyncComponent(
+  () => import('./components/TimelineBuffDetailDialog.vue'),
+);
+const TimelineExportDialog = defineAsyncComponent(
+  () => import('./components/TimelineExportDialog.vue'),
+);
+const TimelineSmallImageExportDialog = defineAsyncComponent(
+  () => import('./components/TimelineSmallImageExportDialog.vue'),
+);
+const DamageAnalysisDialog = defineAsyncComponent(
+  () => import('./components/DamageAnalysisDialog.vue'),
+);
+const TimelineShortcutHelpDialog = defineAsyncComponent(
+  () => import('./components/TimelineShortcutHelpDialog.vue'),
+);
 
 const { t, te, locale } = useI18n({ useScope: 'global' });
 const { appearance, setAppearance } = useAppearance();
@@ -5265,7 +5305,11 @@ function setPanelDialogVisible(visible: boolean): void {
 </script>
 
 <template>
-  <TimelineResetDialog v-model="resetDialogVisible" @confirm="resetScenario" />
+  <TimelineResetDialog
+    v-if="resetDialogVisible"
+    v-model="resetDialogVisible"
+    @confirm="resetScenario"
+  />
   <input
     ref="projectFileInput"
     class="project-file-input"
@@ -6598,6 +6642,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @delete="removeMarkerFromContext"
   />
   <OperatorSelectionDialog
+    v-if="operatorDialogTrack !== null"
     :visible="operatorDialogTrack !== null"
     :operators="editorGameDataRepository.getOperators()"
     :selected-slugs="
@@ -6608,6 +6653,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @clear="clearOperator"
   />
   <WeaponSelectionDialog
+    v-if="weaponDialogTrack !== null"
     :visible="weaponDialogTrack !== null"
     :weapons="selectableWeapons"
     :selected-slug="selectedWeaponSlug"
@@ -6624,6 +6670,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @clear="clearWeapon"
   />
   <GearSelectionDialog
+    v-if="gearDialogTarget !== null"
     :visible="gearDialogTarget !== null"
     :gears="selectableGears"
     :selected-slug="selectedGearSlug"
@@ -6649,6 +6696,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @change-refine-tier="changeGearRefineTier"
   />
   <WeaponBuildDialog
+    v-if="showWeaponBuildDialog"
     :visible="showWeaponBuildDialog"
     :weapon="selectedLoadoutModel.weapon"
     :custom-definition="selectedWeaponCustomDefinition"
@@ -6657,7 +6705,11 @@ function setPanelDialogVisible(visible: boolean): void {
     @edit-definition="openWeaponDefinitionWorkspace"
   />
   <WeaponDefinitionWorkspaceDialog
-    v-if="selectedWeaponBaseDefinition && selectedWeaponCustomDefinition"
+    v-if="
+      showWeaponDefinitionWorkspace &&
+      selectedWeaponBaseDefinition &&
+      selectedWeaponCustomDefinition
+    "
     :visible="showWeaponDefinitionWorkspace"
     :base-definition="selectedWeaponBaseDefinition"
     :custom-definition="selectedWeaponCustomDefinition"
@@ -6666,6 +6718,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetWeaponDefinition"
   />
   <OperatorBuildDialog
+    v-if="showOperatorBuildDialog"
     :visible="showOperatorBuildDialog"
     :operator="selectedLoadoutModel.operator"
     :custom-definition="selectedOperatorCustomDefinition"
@@ -6675,7 +6728,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @edit-definition="openOperatorDefinitionWorkspace"
   />
   <OperatorDefinitionWorkspaceDialog
-    v-if="selectedOperatorBaseDefinition"
+    v-if="showOperatorDefinitionWorkspace && selectedOperatorBaseDefinition"
     :visible="showOperatorDefinitionWorkspace"
     :base-definition="selectedOperatorBaseDefinition"
     :custom-definition="selectedOperatorCustomDefinition"
@@ -6688,6 +6741,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetOperatorDefinition"
   />
   <GearLoadoutBuildDialog
+    v-if="showGearBuildDialog"
     :visible="showGearBuildDialog"
     :gears="selectedLoadoutModel.gears"
     :custom-definition-slugs="customGearDefinitionSlugs"
@@ -6698,7 +6752,11 @@ function setPanelDialogVisible(visible: boolean): void {
     @edit-definition="openGearDefinitionWorkspace"
   />
   <GearDefinitionWorkspaceDialog
-    v-if="selectedGearBaseDefinition && selectedGearCustomDefinition"
+    v-if="
+      gearDefinitionWorkspaceSlot !== null &&
+      selectedGearBaseDefinition &&
+      selectedGearCustomDefinition
+    "
     :visible="gearDefinitionWorkspaceSlot !== null"
     :base-definition="selectedGearBaseDefinition"
     :custom-definition="selectedGearCustomDefinition"
@@ -6709,7 +6767,11 @@ function setPanelDialogVisible(visible: boolean): void {
     @edit-gear-set="openGearSetDefinitionWorkspace"
   />
   <GearSetDefinitionWorkspaceDialog
-    v-if="selectedGearSetBaseDefinition && selectedGearSetCustomDefinition"
+    v-if="
+      gearSetDefinitionWorkspaceId !== null &&
+      selectedGearSetBaseDefinition &&
+      selectedGearSetCustomDefinition
+    "
     :visible="gearSetDefinitionWorkspaceId !== null"
     :base-definition="selectedGearSetBaseDefinition"
     :custom-definition="selectedGearSetCustomDefinition"
@@ -6718,6 +6780,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetGearSetDefinition"
   />
   <OperatorPanelDialog
+    v-if="panelDialogTrack !== null"
     :visible="panelDialogTrack !== null"
     :panel="selectedPanel"
     :operator="panelDialogOperator"
@@ -6725,6 +6788,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @update:visible="setPanelDialogVisible"
   />
   <SkillDefinitionEditorDialog
+    v-if="showSkillDefinitionEditor"
     :visible="showSkillDefinitionEditor"
     :title="selectedCastModel?.label ?? ''"
     :template-definition="selectedCastModel?.templateDefinition ?? null"
@@ -6737,6 +6801,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
+    v-if="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
     :random-mode="publishedRandomMode"
     :operator-panel-for-entry="hitDetailTarget === null ? enemyDamageOperatorPanel : undefined"
     :source-label="t('timeline.buffDetail.source')"
@@ -6799,6 +6864,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @toggle-force-critical="toggleHitDetailForceCritical"
   />
   <TimelineBuffDetailDialog
+    v-if="buffDetailTarget !== null"
     :visible="buffDetailTarget !== null"
     :target="buffDetailTarget"
     :fps="PROJECT_FPS"
@@ -6818,6 +6884,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @update:visible="buffDetailTarget = $event ? buffDetailTarget : null"
   />
   <TimelineExportDialog
+    v-if="showExportDialog"
     :visible="showExportDialog"
     :max-duration="Math.max(10, Math.round(scenario.battle.durationFrames / PROJECT_FPS))"
     :labels="{
@@ -6841,6 +6908,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @export-image="exportTimelineLongImage"
   />
   <TimelineSmallImageExportDialog
+    v-if="showSmallImageExport"
     :visible="showSmallImageExport"
     :initial-filename="smallImageExportInitial.filename"
     :initial-duration="smallImageExportInitial.duration"
@@ -6877,6 +6945,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @update:visible="showSmallImageExport = $event"
   />
   <DamageAnalysisDialog
+    v-if="showDamageAnalysis"
     :visible="showDamageAnalysis"
     :analysis="damageAnalysis"
     :locale="locale"
@@ -6911,6 +6980,7 @@ function setPanelDialogVisible(visible: boolean): void {
   />
   <TimelineSimulationErrorNotice :error="simulationError" />
   <TimelineShortcutHelpDialog
+    v-if="showShortcutHelp"
     :visible="showShortcutHelp"
     @update:visible="showShortcutHelp = $event"
   />
