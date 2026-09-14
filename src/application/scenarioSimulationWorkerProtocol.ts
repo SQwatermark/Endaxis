@@ -3,9 +3,10 @@ import type {
   ScenarioSimulationRun,
   ScenarioSimulationPerformanceSample,
 } from './scenarioSimulationService';
-import type { ScenarioDocument, ProjectDefinitionLibraryDocument } from '../core/project/schema';
+import type { ScenarioDocument } from '../core/project/schema';
 import type { RecursiveSkillChain } from './recursiveSkillChain';
 import { restoreCombatReceiptView } from '../core/combat/receipt/combatReceiptHistory';
+import type { ScenarioSimulationGameData } from './scenarioSimulationGameData';
 
 export type SimulationPlan = Awaited<ReturnType<ScenarioSimulationService['planSkillChain']>>;
 type TransferableScenarioSimulationRun = Omit<ScenarioSimulationRun, 'receiptHistory'>;
@@ -18,7 +19,8 @@ export type SimulationWorkerResult = TransferableScenarioSimulationRun | Transfe
 export interface SimulationWorkerRequest {
   readonly id: number;
   readonly revision: number;
-  readonly library?: ProjectDefinitionLibraryDocument;
+  /** 首次请求、定义变更或场景引用集合变更时发送；其余请求复用 Worker 中的仓库。 */
+  readonly gameData?: ScenarioSimulationGameData;
   readonly scenario: ScenarioDocument;
   readonly endFrame: number;
   readonly plan?: {

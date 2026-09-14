@@ -9,12 +9,49 @@ function harness() {
     onmessage: null as any,
     onerror: null as any,
   };
-  const library = { operators: {}, weapons: {}, gears: {}, gearSets: {} };
-  const service = new WorkerScenarioSimulationService(worker as unknown as Worker, () => library);
+  const gameData = {
+    revision: 'test',
+    selectionKey: '',
+    commonBuffDefinitions: {},
+    commonAbilityEntityDefinitions: {},
+    operators: [],
+    weapons: [],
+    gears: [],
+    gearSets: [],
+    enemies: [],
+    mechanics: [],
+  };
+  const captureGameData = vi.fn(() => gameData);
+  const service = new WorkerScenarioSimulationService(worker as unknown as Worker, captureGameData);
   const reply = (id: number) =>
     worker.onmessage({ data: { id, ok: true, result: { frame: id }, samples: [] } });
-  return { worker, service, reply };
+  return { worker, service, reply, captureGameData };
 }
+it('首次请求携带当前场景数据，引用集合不变时由后台复用', async () => {
+  const { worker, service, reply, captureGameData } = harness();
+  const scenario = createEmptyScenario('definitions', 'definitions');
+  const first = service.simulate(scenario, 1);
+  expect(worker.postMessage.mock.lastCall![0]).toHaveProperty('gameData');
+  reply(1);
+  await first;
+  const second = service.simulate(scenario, 2);
+  expect(worker.postMessage.mock.lastCall![0]).not.toHaveProperty('gameData');
+  reply(2);
+  await second;
+  expect(captureGameData).toHaveBeenCalledOnce();
+  scenario.mechanics.selections.push({
+    id: 'selection',
+    mechanicId: 'mechanic',
+    enabled: false,
+    parameters: {},
+  });
+  const changed = service.simulate(scenario, 3);
+  expect(worker.postMessage.mock.lastCall![0]).toHaveProperty('gameData');
+  expect(captureGameData).toHaveBeenCalledTimes(2);
+  reply(3);
+  await changed;
+  service.dispose();
+});
 it('在主线程从纯回执数据重建固定历史视图', async () => {
   const { worker, service } = harness();
   const scenario = createEmptyScenario('history', 'history');
@@ -73,12 +110,12 @@ it('只发送一个在途与最新待算位置，完整结果返回后才继续'
   expect((await first).frame).toBe(1);
   expect(worker.postMessage).toHaveBeenCalledTimes(2);
   expect(worker.postMessage.mock.lastCall![0].endFrame).toBe(12);
-  expect(worker.postMessage.mock.lastCall![0]).not.toHaveProperty('library');
+  expect(worker.postMessage.mock.lastCall![0]).not.toHaveProperty('gameData');
   reply(3);
   await latest;
   service.dispose();
 });
-it('定义版本变更使旧结果作废，新请求重新传模板库', async () => {
+it('定义版本变更使旧结果作废，新请求重新传当前场景数据', async () => {
   const { worker, service, reply } = harness();
   const scenario = createEmptyScenario('qa', 'qa');
   const old = service.simulate(scenario, 10).catch(error => error.name);
@@ -86,7 +123,7 @@ it('定义版本变更使旧结果作废，新请求重新传模板库', async (
   const next = service.simulate(scenario, 12);
   reply(1);
   expect(await old).toBe('AbortError');
-  expect(worker.postMessage.mock.lastCall![0]).toHaveProperty('library');
+  expect(worker.postMessage.mock.lastCall![0]).toHaveProperty('gameData');
   reply(2);
   await next;
   service.dispose();

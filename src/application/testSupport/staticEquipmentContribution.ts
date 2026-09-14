@@ -5,6 +5,7 @@ export function staticEquipmentContribution<T extends EquipmentContributionDefin
   definition: T,
 ) {
   const {
+    enableSequence: _enableSequence,
     initializationSequence: _initializationSequence,
     blackboard: _blackboard,
     eventHandlers: _eventHandlers,

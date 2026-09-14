@@ -125,8 +125,36 @@ RSS 峰值 612876288 字节。第 1、4、7、10、12 次释放并强制 GC 后�
 这不是对任意轴规模和任意 Node/V8 版本的零泄漏证明。复现脚本为忽略目录中的
 `tmp/audit-legacy-conversion-memory.mjs`。
 
+## 模块加载组成与后台模拟仓库
+
+同日又把一条真实转换轴按进程阶段拆开。只加载项目序列化模块后，强制 GC 后的稳定堆约
+23.4 MiB、RSS 约 151.3 MiB；加载原编辑模拟入口后，稳定堆升到约 124.6 MiB、RSS 升到
+约 446.8 MiB。此时 Vite SSR 共保留 696 个模块，其中 `src/data` 419 个、`src/core` 256 个。
+排程模块只额外增加 1 个模块，状态图、保存点和结果也都不是这次约 101 MiB 堆增量的来源。
+
+完整仓库在编辑器主线程有选择器用途，但后台模拟 Worker 只需要当前场景引用的定义。现在由主线程
+捕获最小数据包，Worker 从纯数据恢复查询仓库，不再静态导入完整仓库。测试轴的数据包包含 4 名
+干员、4 把武器、13 件装备、5 个套装和 1 个敌人，JSON 为 574,119 字节；完整仓库与小仓库的
+5866 条回执及最终结果逐字节一致。
+
+在干净 Vite SSR 进程中，新 Worker 入口稳定保留 278 个模块，不包含任何具体干员或武器定义。
+强制 GC 后稳定堆约 53.1 MiB、RSS 约 261.5 MiB。与原编辑模拟入口的模块加载边界相比：
+
+| 指标            | 原整库入口 | 新 Worker 入口 |               下降 |
+| --------------- | ---------: | -------------: | -----------------: |
+| Vite SSR 模块数 |        696 |            278 |       418（60.1%） |
+| 稳定堆          |  124.6 MiB |       53.1 MiB |  71.5 MiB（57.4%） |
+| 稳定 RSS        |  446.8 MiB |      261.5 MiB | 185.3 MiB（41.5%） |
+
+这些数字包含 Vite 的源码转换和模块缓存，不能直接当作浏览器生产包的节省量。生产构建的 Worker
+包为约 1.21 MB，检查不到干员 slug、武器 ID 或生成定义内容，证明依赖边界确实已经切断。数据包
+只在首次请求、定义版本变化或场景所用干员/装备/敌人/机制变化时重发；拖动技能块不会重新组装或
+传输它。
+
 复现脚本：`tmp/checkpoint-cost-profile.mjs`、`tmp/checkpoint-cost-detail.mjs`、
 `tmp/checkpoint-lookahead-experiment.mjs`；结果分别存入同名 JSON，CPU 样本为
 `tmp/checkpoint-conversion.cpuprofile`。这些文件包含本机路径，保留在忽略目录。
 按事实停止的对照为 `tmp/checkpoint-event-stop-benchmark.mjs/json`，分项结果为
-`tmp/checkpoint-cost-profile-event.json`。旧轴工具 7 文件 55 项通过，最终全量验收仍未完成。
+`tmp/checkpoint-cost-profile-event.json`。模块分项、数据包一致性和小仓库测量分别使用
+`tmp/audit-checkpoint-memory-phases.mjs`、`tmp/audit-scoped-simulation-game-data.mjs` 和
+`tmp/audit-scoped-worker-memory.mjs`。

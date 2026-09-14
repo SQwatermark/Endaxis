@@ -189,6 +189,7 @@ import {
 import { createProjectFileReader } from './projectFileReader';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
 import { gameDataRepository } from '../../data/gameDataRepository';
+import { captureScenarioSimulationGameData } from '../../application/scenarioSimulationGameData';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type {
@@ -1152,7 +1153,7 @@ const simulationService = new AdaptiveTimelineSimulationService(
     new Worker(new URL('../../application/scenarioSimulation.worker.ts', import.meta.url), {
       type: 'module',
     }),
-    () => projectDefinitionLibrary.value,
+    currentScenario => captureScenarioSimulationGameData(currentScenario, editorGameDataRepository),
   ),
   () => createEditorSimulationService(projectDefinitionLibrary.value),
 );

@@ -1,26 +1,34 @@
-import { createEditorSimulationService } from './editorSimulationService';
+import { createScenarioSimulationService } from './createScenarioSimulationService';
 import type {
   SimulationWorkerRequest,
   SimulationWorkerResponse,
 } from './scenarioSimulationWorkerProtocol';
 import { toSimulationWorkerResult } from './scenarioSimulationWorkerProtocol';
 import type { ScenarioSimulationPerformanceSample } from './scenarioSimulationService';
+import { restoreScenarioSimulationGameData } from './scenarioSimulationGameData';
 
-let revision = -1;
-let service: ReturnType<typeof createEditorSimulationService>;
+let service: ReturnType<typeof createScenarioSimulationService> | undefined;
 // 主线程保证单个在途请求；此处只执行正式模拟与投影，不维护另一套模型。
 self.onmessage = async (event: MessageEvent<SimulationWorkerRequest>) => {
   const request = event.data;
-  if (revision !== request.revision) {
-    service = createEditorSimulationService(request.library);
-    revision = request.revision;
-  }
+  if (request.gameData !== undefined)
+    service = createScenarioSimulationService(restoreScenarioSimulationGameData(request.gameData));
   const samples: ScenarioSimulationPerformanceSample[] = [];
-  const unsubscribe = service.subscribePerformance(sample => samples.push(sample));
+  const currentService = service;
   let response: SimulationWorkerResponse;
+  if (currentService === undefined) {
+    self.postMessage({
+      id: request.id,
+      ok: false,
+      message: '后台模拟缺少当前场景的游戏数据',
+      samples,
+    } satisfies SimulationWorkerResponse);
+    return;
+  }
+  const unsubscribe = currentService.subscribePerformance(sample => samples.push(sample));
   try {
     const result = request.plan
-      ? await service.planSkillChain(
+      ? await currentService.planSkillChain(
           request.scenario,
           request.plan.castIds,
           request.endFrame,
@@ -28,7 +36,7 @@ self.onmessage = async (event: MessageEvent<SimulationWorkerRequest>) => {
           request.plan.mode,
           request.plan.extension,
         )
-      : await service.simulate(request.scenario, request.endFrame);
+      : await currentService.simulate(request.scenario, request.endFrame);
     response = { id: request.id, ok: true, result: toSimulationWorkerResult(result), samples };
   } catch (error) {
     response = {

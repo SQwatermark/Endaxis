@@ -1,4 +1,4 @@
-import type { ProjectDefinitionLibraryDocument, ScenarioDocument } from '../core/project/schema';
+import type { ScenarioDocument } from '../core/project/schema';
 import type { RecursiveSkillChain } from './recursiveSkillChain';
 import type {
   ScenarioSimulationRun,
@@ -10,6 +10,10 @@ import type {
   SimulationPlan,
 } from './scenarioSimulationWorkerProtocol';
 import { fromSimulationWorkerResult } from './scenarioSimulationWorkerProtocol';
+import {
+  scenarioSimulationGameDataSelectionKey,
+  type ScenarioSimulationGameData,
+} from './scenarioSimulationGameData';
 
 type Pending = {
   request: SimulationWorkerRequest;
@@ -25,12 +29,12 @@ export class WorkerScenarioSimulationService {
   private pending?: Pending;
   private sequence = 0;
   private revision = 0;
-  private sentRevision = -1;
+  private sentGameDataKey: string | undefined;
   private disposed = false;
   private subscribers = new Set<ScenarioSimulationPerformanceSubscriber>();
   constructor(
     private worker: Worker,
-    private library: () => ProjectDefinitionLibraryDocument,
+    private captureGameData: (scenario: ScenarioDocument) => ScenarioSimulationGameData,
   ) {
     worker.onmessage = (event: MessageEvent<SimulationWorkerResponse>) => {
       const response = event.data;
@@ -132,13 +136,19 @@ export class WorkerScenarioSimulationService {
     this.pending = undefined;
     this.active = task;
     try {
-      // 场景/模板是 JSON 契约；发送前去掉 Vue 代理，模板只在版本变化时传一次。
+      // 场景和定义是 JSON 契约；发送前去掉 Vue 代理，定义集合未变化时由 Worker 复用。
+      const selectionKey = scenarioSimulationGameDataSelectionKey(task.request.scenario);
+      const gameDataKey = `${this.revision}\u001e${selectionKey}`;
+      const gameData =
+        this.sentGameDataKey === gameDataKey
+          ? undefined
+          : this.captureGameData(task.request.scenario);
       const request = {
         ...task.request,
-        ...(this.sentRevision !== this.revision ? { library: this.library() } : {}),
+        ...(gameData === undefined ? {} : { gameData }),
       };
       this.worker.postMessage(JSON.parse(JSON.stringify(request)));
-      this.sentRevision = this.revision;
+      this.sentGameDataKey = gameDataKey;
     } catch (error) {
       this.active = undefined;
       task.cleanup();
