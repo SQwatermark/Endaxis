@@ -14,6 +14,8 @@ import {
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { COMBAT_FRAME_INTERVAL } from './combatClock';
 import type { BuffOperationTarget } from './buffOperationExecutor';
+import type { AbilityEntityBuffRuntime } from './combatRuntimeAssembly';
+import { uniformAbilityTickDeltas } from './timeDilationRuntime';
 
 export interface RestoreCombatAbilityEntityDirectoryOptions {
   readonly preparation: CombatRuntimeRestorePreparation;
@@ -30,13 +32,41 @@ export function bindRestoredCombatAbilityEntityDirectory(
   options: RestoreCombatAbilityEntityDirectoryOptions,
 ): RestoredCombatAbilityEntityDirectory {
   const shared = options.foundation.shared;
+  const targets = new Map<string, BuffOperationTarget>();
+  const resolveEntityBuffs = (instanceId: number): AbilityEntityBuffRuntime | undefined =>
+    targets.get(logicalAbilityEntityRuntimeId(instanceId)) as AbilityEntityBuffRuntime | undefined;
   const runtime = new LogicalAbilityEntityRuntime({
     restoredState: options.preparation.graph.instances.abilityEntities,
     allocateInstanceId: () => shared.abilityEntityInstanceIds.allocate(),
     resolveDeltaSeconds: entity =>
       COMBAT_FRAME_INTERVAL *
       (shared.timeDilation?.getEntityScale(logicalAbilityEntityRuntimeId(entity.instanceId)) ?? 1),
-    hooks: options.hooks,
+    hooks: {
+      ...options.hooks,
+      tickBuffs: entity => {
+        const buffs = resolveEntityBuffs(entity.instanceId);
+        if (buffs !== undefined) {
+          buffs.advanceWithDeltas(
+            shared.timeDilation === null
+              ? uniformAbilityTickDeltas(COMBAT_FRAME_INTERVAL)
+              : shared.timeDilation.getAbilityTickDeltas(
+                  logicalAbilityEntityRuntimeId(entity.instanceId),
+                  COMBAT_FRAME_INTERVAL,
+                ),
+          );
+        }
+        options.hooks?.tickBuffs?.(entity);
+      },
+      recycleBuffs: entity => {
+        resolveEntityBuffs(entity.instanceId)?.recycleFinishedBuffs?.();
+        options.hooks?.recycleBuffs?.(entity);
+      },
+      finished: (entity, reason) => {
+        options.hooks?.finished?.(entity, reason);
+        resolveEntityBuffs(entity.instanceId)?.releaseAll();
+        targets.delete(logicalAbilityEntityRuntimeId(entity.instanceId));
+      },
+    },
   });
   const createAbilityEntityTarget =
     options.foundation.environment.runtimeOptions.createAbilityEntityBuffRuntime;
@@ -49,13 +79,15 @@ export function bindRestoredCombatAbilityEntityDirectory(
       state.buffs,
     ]),
   );
-  const targets = collectRestoredCombatBuffTargets({
+  for (const [ownerId, target] of collectRestoredCombatBuffTargets({
     enemyState: options.preparation.graph.enemy.buffs,
     enemyTarget: options.foundation.enemyBuffTarget,
     operatorStates,
     operatorTargets: options.foundation.operatorBuffTargets,
     abilityEntities: runtime,
     createAbilityEntityTarget,
-  });
+  })) {
+    targets.set(ownerId, target);
+  }
   return { runtime, targets };
 }

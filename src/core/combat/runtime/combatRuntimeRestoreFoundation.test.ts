@@ -1,8 +1,6 @@
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { createAbilitySystemState } from './abilitySystemState';
-import { prepareCombatRuntimeRestore } from './combatRuntimeRestorePreparation';
-import { bindRestoredCombatRuntimeFoundation } from './combatRuntimeRestoreFoundation';
 import { CombatSharedRuntime } from './combatSharedRuntime';
 import { CombatSkillPrograms } from './combatSkillPrograms';
 import type { CombatStateGraph } from './combatStateGraph';
@@ -11,10 +9,13 @@ import { createGlobalBuffState } from './globalBuffState';
 import { createProjectileLifecycleState } from './projectileLifecycleState';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 import { createTimedMarkerState } from './timedMarkers';
-import { bindRestoredCombatAbilityEntityDirectory } from './combatRuntimeAbilityEntityRestoration';
-import { bindRestoredCombatRuntimeObjectGraph } from './combatRuntimeObjectGraphRestoration';
 import { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
+import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import { createBuffContainerState } from '../buffs/buffContainerState';
+import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
+import type { AbilityEntityBuffRuntime } from './combatRuntimeAssembly';
+import { restoreCombatRuntime } from './combatRuntimeRestoration';
 
 const resources = {
   sp: 0,
@@ -129,21 +130,79 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
       globalBuffs: createGlobalBuffState(),
     },
   };
-  const preparation = prepareCombatRuntimeRestore(
+  const originalEntities = new LogicalAbilityEntityRuntime({});
+  const entityTarget = originalEntities.spawn({
+    abilityEntityId: 'summon',
+    definition: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+    ownerId: 'operator',
+    source: { kind: 'operator', operatorId: 'operator' },
+  });
+  if (entityTarget.kind !== 'abilityEntity') throw new Error('fixture entity was not created');
+  const entityState = originalEntities.runtimeState.instances.get(entityTarget.instanceId)!;
+  entityState.buffContainerCreated = true;
+  entityState.buffs = createBuffContainerState(undefined, entityState.blackboard);
+  graph.instances.abilityEntities.instances.set(entityTarget.instanceId, entityState);
+  const program = {
+    operatorId: 'operator',
+    skills: [],
+    abilityEntityDefinitions: {
+      summon: { lifetime: { kind: 'limited' as const, durationSeconds: 10 } },
+    },
+  };
+  const candidate = restoreCombatRuntime({
     graph,
-    [{ operatorId: 'operator', skills: [] }],
-    new CombatSkillPrograms(),
-  );
-
-  const restored = bindRestoredCombatRuntimeFoundation({
-    preparation,
-    shared: { resources },
-    environment: environmentInput,
-    enemy,
-    resolveProjectileRuntimeDependencies: () => {
-      throw new Error('fixture does not launch projectiles');
+    programs: [program],
+    fixedSkillPrograms: new CombatSkillPrograms(),
+    foundation: {
+      shared: { resources },
+      environment: environmentInput,
+      enemy,
+      resolveProjectileRuntimeDependencies: () => {
+        throw new Error('fixture does not launch projectiles');
+      },
+    },
+    objects: {
+      callbackPrograms: new ProjectileCallbackPrograms(),
+      buffs: {
+        resolveDefinition: () => undefined,
+        resolveGlobalDefinition: () => undefined,
+      },
+      operators: {
+        createCoreBindings: () => ({
+          createSkillDependencies: () => {
+            throw new Error('fixture has no skills');
+          },
+          abilityRuntime: {},
+        }),
+        createSourceBindings: () => ({
+          createEquipmentExecutor: () => ({ execute: () => true, evaluate: () => true }),
+          createInitializationOperations: () => ({ execute: () => true, evaluate: () => true }),
+          createPassiveOperations: () => ({ execute: () => true, evaluate: () => true }),
+          registerPassive: () => {
+            throw new Error('fixture has no passive responses');
+          },
+          createUpgradeExecutor: () => ({ execute: () => true, evaluate: () => true }),
+        }),
+      },
+      abilityEntityRelations: {
+        childSkillPrograms: new AbilityEntityChildSkillPrograms(),
+        createPassiveOperations: () => {
+          throw new Error('fixture has no AbilityEntity passives');
+        },
+        registerPassive: () => {
+          throw new Error('fixture has no AbilityEntity passive responses');
+        },
+        createChildSkillBindings: () => {
+          throw new Error('fixture has no AbilityEntity child skills');
+        },
+      },
+      createProjectileCallbackBindings: () => {
+        throw new Error('fixture has no projectile callbacks');
+      },
     },
   });
+  const { foundation: restored, entities, objects, frame } = candidate;
+  expect(candidate.enemyTimedMarkers.runtimeState).toBe(graph.enemy.timedMarkers);
 
   expect(restored.shared.runtimeState).toBe(saved.shared);
   expect(restored.shared.clock.runtimeState).toBe(saved.shared.clock);
@@ -155,54 +214,17 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   expect(restored.operatorBuffTargets.get('operator')!.entityBlackboard!.runtimeState).toBe(
     graph.operators.get('operator')!.blackboard,
   );
-  const entities = bindRestoredCombatAbilityEntityDirectory({
-    preparation,
-    foundation: restored,
-  });
   expect(entities.runtime.runtimeState).toBe(graph.instances.abilityEntities);
-  expect([...entities.targets.keys()]).toEqual(['enemy', 'operator']);
-  const objects = bindRestoredCombatRuntimeObjectGraph({
-    preparation,
-    foundation: restored,
-    entities,
-    callbackPrograms: new ProjectileCallbackPrograms(),
-    buffs: {
-      resolveDefinition: () => undefined,
-      resolveGlobalDefinition: () => undefined,
-    },
-    operators: {
-      createCoreBindings: () => ({
-        createSkillDependencies: () => {
-          throw new Error('fixture has no skills');
-        },
-        abilityRuntime: {},
-      }),
-      createSourceBindings: () => ({
-        createEquipmentExecutor: () => ({ execute: () => true, evaluate: () => true }),
-        createInitializationOperations: () => ({ execute: () => true, evaluate: () => true }),
-        createPassiveOperations: () => ({ execute: () => true, evaluate: () => true }),
-        registerPassive: () => {
-          throw new Error('fixture has no passive responses');
-        },
-        createUpgradeExecutor: () => ({ execute: () => true, evaluate: () => true }),
-      }),
-    },
-    abilityEntityRelations: {
-      childSkillPrograms: new AbilityEntityChildSkillPrograms(),
-      createPassiveOperations: () => {
-        throw new Error('fixture has no AbilityEntity passives');
-      },
-      registerPassive: () => {
-        throw new Error('fixture has no AbilityEntity passive responses');
-      },
-      createChildSkillBindings: () => {
-        throw new Error('fixture has no AbilityEntity child skills');
-      },
-    },
-    createProjectileCallbackBindings: () => {
-      throw new Error('fixture has no projectile callbacks');
-    },
-  });
+  expect([...entities.targets.keys()]).toEqual([
+    'enemy',
+    'operator',
+    logicalAbilityEntityRuntimeId(entityTarget.instanceId),
+  ]);
+  const entityBuffs = entities.targets.get(
+    logicalAbilityEntityRuntimeId(entityTarget.instanceId),
+  ) as AbilityEntityBuffRuntime;
+  const advanceEntityBuffs = vi.spyOn(entityBuffs, 'advanceWithDeltas');
+  const releaseEntityBuffs = vi.spyOn(entityBuffs, 'releaseAll');
   expect(objects.buffs.globalBuffs.runtimeState).toBe(graph.instances.globalBuffs);
   expect(objects.projectiles.runtimeState).toBe(graph.instances.projectiles);
   expect(objects.operators.cores.get('operator')!.blackboard.runtimeState).toBe(
@@ -211,6 +233,13 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   expect(objects.operators.programs.get('operator')!.buffRuntime).toBe(
     restored.operatorBuffTargets.get('operator'),
   );
+  const previousFrame = restored.shared.clock.frame;
+  frame.advanceFrame();
+  expect(restored.shared.clock.frame).toBe(previousFrame + 1);
+  expect(advanceEntityBuffs).toHaveBeenCalledOnce();
+  entities.runtime.finish(entityTarget);
+  expect(releaseEntityBuffs).toHaveBeenCalledOnce();
+  expect(entities.targets.has(logicalAbilityEntityRuntimeId(entityTarget.instanceId))).toBe(false);
   objects.operators.disposeSources();
   objects.abilityEntityRelations.disposePassives();
 });
