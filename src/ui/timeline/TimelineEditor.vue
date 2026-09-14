@@ -161,7 +161,6 @@ import {
   switchTrackToCompatibleWeaponTemplate,
 } from '../../core/project/projectDefinitionLibrary';
 import { createEmptyProject } from '../../core/project/createProject';
-import convertedLegacyDefaultProject from '../../../tmp/public-6aa244-sim-retimed-20260913/project.json';
 import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { openProject } from '../../application/openProject';
 import { downloadProjectJson } from './downloadProjectJson';
@@ -174,7 +173,7 @@ import {
 } from './timelineExport';
 import { createProjectFileReader } from './projectFileReader';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
-import { gameDataRepository } from '../../data/gameDataRepository';
+import type { ProjectGameDataRepository } from '../../data/projectGameDataRepository';
 import { captureScenarioSimulationGameData } from '../../application/scenarioSimulationGameData';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
@@ -744,11 +743,12 @@ let stopMarkerMove: (() => void) | null = null;
 let markerMoveAutoScrollFrame: number | null = null;
 
 /** 初始方案只在挂载时读取；编辑会话不回写调用方传入的对象。 */
-const props = defineProps<{ initialScenario?: ScenarioDocument; initialProject?: unknown }>();
-const convertedDefault = parseProjectDocument(convertedLegacyDefaultProject, {
-  gameDataRepository,
-});
-if (!convertedDefault.ok) throw new Error('临时默认转换轴未通过项目校验');
+const props = defineProps<{
+  initialScenario?: ScenarioDocument;
+  initialProject?: unknown;
+  gameDataRepository: ProjectGameDataRepository;
+}>();
+const gameDataRepository = props.gameDataRepository;
 const suppliedProject =
   props.initialProject === undefined
     ? undefined
@@ -757,13 +757,11 @@ if (suppliedProject !== undefined && !suppliedProject.ok)
   throw new Error('临时预览轴未通过项目校验');
 const initialProject = suppliedProject?.ok
   ? structuredClone(suppliedProject.value)
-  : props.initialScenario === undefined
-    ? structuredClone(convertedDefault.value)
-    : createEmptyProject({
-        projectId: 'sample',
-        createdWith: 'endaxis',
-        gameDataRevision: gameDataRepository.revision,
-      });
+  : createEmptyProject({
+      projectId: 'sample',
+      createdWith: 'endaxis',
+      gameDataRevision: gameDataRepository.revision,
+    });
 if (props.initialScenario !== undefined) {
   const initialScenario = structuredClone(toRaw(props.initialScenario));
   initialProject.activeScenarioId = initialScenario.id;
@@ -883,6 +881,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   try {
     const content = await projectFileReader.read(file);
     if (content === null) return;
+    await ensureAllGameData();
     const result = openProject(content, {
       gameDataRepository: gameDataRepository,
     });
@@ -1052,15 +1051,15 @@ const {
   selectedGearBuild,
   panelResolution,
   selectedPanel,
-  openOperatorDialog,
+  openOperatorDialog: openOperatorDialogNow,
   selectTrack,
   selectOperator,
   clearOperator,
-  openWeaponDialog,
+  openWeaponDialog: openWeaponDialogNow,
   openPanelDialog,
   selectWeapon,
   clearWeapon,
-  openGearDialog,
+  openGearDialog: openGearDialogNow,
   selectGear,
   clearGear,
   changeGearRefineTier,
@@ -1076,6 +1075,29 @@ const {
   definitionRevision: operatorDefinitionRevision,
   ids,
 });
+
+let fullGameDataRevisionApplied = false;
+async function ensureAllGameData(): Promise<void> {
+  await gameDataRepository.ensureAllDefinitions();
+  if (fullGameDataRevisionApplied) return;
+  fullGameDataRevisionApplied = true;
+  operatorDefinitionRevision.value += 1;
+}
+
+async function openOperatorDialog(trackIndex?: TrackIndex): Promise<void> {
+  await ensureAllGameData();
+  openOperatorDialogNow(trackIndex);
+}
+
+async function openWeaponDialog(trackIndex?: TrackIndex): Promise<void> {
+  await ensureAllGameData();
+  openWeaponDialogNow(trackIndex);
+}
+
+async function openGearDialog(trackIndex?: TrackIndex, slot?: TrackGearSlot): Promise<void> {
+  await ensureAllGameData();
+  openGearDialogNow(trackIndex, slot);
+}
 const {
   enemies,
   selectedDefinition: selectedEnemyDefinition,
@@ -1531,7 +1553,8 @@ function resetWeaponDefinition(): void {
   refreshSimulationAfterDefinitionChange();
 }
 
-function openGearDefinitionWorkspace(slot: TrackGearSlot): void {
+async function openGearDefinitionWorkspace(slot: TrackGearSlot): Promise<void> {
+  await ensureAllGameData();
   const track = scenario.value.tracks[selectedTrack.value];
   const current = selectedLoadoutModel.value.gears[slot]?.definition ?? null;
   if (track === null || track?.gears[slot] === null || current === null) return;

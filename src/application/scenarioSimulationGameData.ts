@@ -144,11 +144,11 @@ export function restoreScenarioSimulationGameData(
     revision: data.revision,
     getCommonBuffDefinitions: () => data.commonBuffDefinitions,
     getCommonAbilityEntityDefinitions: () => data.commonAbilityEntityDefinitions,
-    getOperator: id => operators.get(id) ?? null,
-    getWeapon: id => weapons.get(id) ?? null,
-    getGear: id => gears.get(id) ?? null,
-    getGearSet: id => gearSets.get(id) ?? null,
-    getEnemy: id => enemies.get(id) ?? null,
-    getMechanic: id => mechanics.get(id) ?? null,
+    getOperator: (id: string) => operators.get(id) ?? null,
+    getWeapon: (id: string) => weapons.get(id) ?? null,
+    getGear: (id: string) => gears.get(id) ?? null,
+    getGearSet: (id: string) => gearSets.get(id) ?? null,
+    getEnemy: (id: string) => enemies.get(id) ?? null,
+    getMechanic: (id: string) => mechanics.get(id) ?? null,
   });
 }
