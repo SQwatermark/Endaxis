@@ -595,19 +595,29 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     original.stateGraph.operators.get('operator')!.upgradeEvents!.programs[0]!.subscriptions,
   ).not.toHaveLength(0);
   const saved = structuredClone(original.stateGraph);
+  const restoreBranch = (
+    graph: CombatStateGraph,
+    projectileCallbackPrograms = original.projectileLifetimes.callbackPrograms,
+  ) =>
+    CombatRuntimeAssembly.restore({
+      graph,
+      resources,
+      enemy,
+      operators: [operatorProgram],
+      environment: environmentInput,
+      abilityEntityChildSkillPrograms: childSkillPrograms,
+      combatOperationPrograms: operationPrograms,
+      combatSkillPrograms: skillPrograms,
+      projectileCallbackPrograms,
+      timeDilation: { config: {}, programs: original.timeDilation!.programs },
+    });
+  const originalBeforeRejectedCandidate = structuredClone(original.stateGraph);
+  expect(() => restoreBranch(structuredClone(saved), new ProjectileCallbackPrograms())).toThrow(
+    'missing projectile callback program',
+  );
+  expect(original.stateGraph).toEqual(originalBeforeRejectedCandidate);
 
-  const restored = CombatRuntimeAssembly.restore({
-    graph: saved,
-    resources,
-    enemy,
-    operators: [operatorProgram],
-    environment: environmentInput,
-    abilityEntityChildSkillPrograms: childSkillPrograms,
-    combatOperationPrograms: operationPrograms,
-    combatSkillPrograms: skillPrograms,
-    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
-    timeDilation: { config: {}, programs: original.timeDilation!.programs },
-  });
+  const restored = restoreBranch(saved);
 
   expect(restored.stateGraph).toBe(saved);
   expect(restored.stateGraph).toEqual(original.stateGraph);
@@ -629,18 +639,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   expect(restored.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(3);
   expect(restored.stateGraph).toEqual(original.stateGraph);
   const activeHostSaved = structuredClone(original.stateGraph);
-  const activeHostRestored = CombatRuntimeAssembly.restore({
-    graph: activeHostSaved,
-    resources,
-    enemy,
-    operators: [operatorProgram],
-    environment: environmentInput,
-    abilityEntityChildSkillPrograms: childSkillPrograms,
-    combatOperationPrograms: operationPrograms,
-    combatSkillPrograms: skillPrograms,
-    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
-    timeDilation: { config: {}, programs: original.timeDilation!.programs },
-  });
+  const activeHostRestored = restoreBranch(activeHostSaved);
   expect(activeHostRestored.stateGraph).toEqual(original.stateGraph);
   original.advanceFrames(12);
   restored.advanceFrames(12);
