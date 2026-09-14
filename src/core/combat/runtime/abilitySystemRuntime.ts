@@ -205,7 +205,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #emitBeforeSkillCast: AbilitySystemRuntimeOptions['emitBeforeSkillCast'];
   readonly #onPostSkillCastRequest?: AbilitySystemRuntimeOptions['onPostSkillCastRequest'];
 
-  /** 过渡对象接口只按稳定身份解析技能，当前技能选择保存在数据中。 */
+  /** 运行对象按数据中的稳定技能身份即时解析，不在字段中另存一份当前对象引用。 */
   get #currentSkill(): AbilitySkillRuntime | null {
     return this.#resolveStoredSkill(this.runtimeState.currentSkillKey);
   }

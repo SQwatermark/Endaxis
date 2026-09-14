@@ -591,7 +591,7 @@ export class CombatRuntimeAssembly {
   /** 全场共享数据的内部装配入口；不等于完整战斗切面。 */
   readonly sharedState: CombatSharedState;
   readonly stateGraph: CombatStateGraph;
-  /** 排轴驱动的过渡入口，不属于战斗切面；每次步进交给固定输入阶段调用。 */
+  /** 普通整轴模拟使用的固定输入计划；逐帧会话改由调用方在每一帧提交输入。 */
   readonly #scheduledFrameInputs: import('./combatSimulation').CombatFrameInputs;
   readonly #inputRuntime: CombatInputRuntime;
   #inputExecution: CombatInputExecution | undefined;

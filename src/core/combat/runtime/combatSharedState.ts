@@ -1,6 +1,6 @@
 /**
- * 正式战斗装配中的全场共享数据。这里连接各模块唯一的数据实例，不保存模块对象或执行函数。
- * 这只是完整战斗根的共享层：实体、技能、Buff、事件和随机流尚未全部接入，不能单独恢复。
+ * 一场战斗中由所有干员和动态实例共同使用的数据。
+ * 这里只保存时钟、资源、全局机制和编号分配器；干员、环境和动态实例数据由 CombatStateGraph 其他层保存。
  */
 import type { CombatClockState } from './combatClock';
 import type { CombatResourceState } from './combatResourceState';

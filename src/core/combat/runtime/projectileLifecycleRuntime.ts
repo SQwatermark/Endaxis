@@ -1,6 +1,6 @@
 /**
- * 现有技能/Buff 宿主与投射物纯数据算法之间的绑定。
- * 生命周期数据不保存回调；这里暂时接住尚未迁移的宿主端口，不能据此保存整场战斗。
+ * 投射物生命周期数据与当前分支执行端口的绑定。
+ * 数据只保存投射物、回调程序和 reset 订阅的稳定身份；恢复装配按这些身份重新连接宿主行为。
  */
 import type { FrameRuntime } from './combatSimulation';
 import { ProjectileCallbackPrograms } from './projectileCallbackPrograms';

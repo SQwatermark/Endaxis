@@ -31,7 +31,7 @@ export class DamageCalculationSnapshotProgram {
   }
 }
 
-/** 过渡绑定：执行时把固定动作解析为索引，所有数值只写入 runtimeState。 */
+/** 用固定动作槽位读写当前分支的伤害数值快照。 */
 export class DamageCalculationSnapshots {
   constructor(
     readonly program = new DamageCalculationSnapshotProgram(),

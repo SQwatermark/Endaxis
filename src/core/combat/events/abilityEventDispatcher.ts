@@ -56,8 +56,8 @@ export interface TrackedAbilityEventRegistration extends AbilityEventRegistratio
 }
 
 /**
- * 尚未迁移的技能/Buff 回调端口。订阅关系交给纯数据状态，所有分发共用无状态算法。
- * handlers 仍连接现有有状态宿主，不能把本绑定对象当成完整、可恢复的事件状态。
+ * 把可保存的订阅目录与当前分支的处理函数绑定起来。
+ * 订阅顺序和编号保存在数据中；技能、Buff 等宿主恢复后按原编号重新绑定处理函数。
  */
 export class AbilityEventDispatcher<
   Event extends PropertyKey,

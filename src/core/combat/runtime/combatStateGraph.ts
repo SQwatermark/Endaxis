@@ -1,6 +1,6 @@
 /**
- * 正式装配中已经接通的数据图。共享层与动态实例目录引用实际运行数据，不另存镜像。
- * 干员/敌人的全部状态、具体动作树和监听绑定尚未全部接入，不能据此恢复整场战斗。
+ * 一场战斗在完整帧边界可保存的全部可变数据。
+ * 各层直接引用实际运行数据，不保存运行对象、动作程序或回调；恢复时由固定程序重新绑定这些数据。
  */
 import type { CombatSharedState } from './combatSharedState';
 import type { StandardCombatEnvironmentState } from './standardCombatEnvironmentState';

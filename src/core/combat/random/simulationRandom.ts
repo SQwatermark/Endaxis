@@ -25,8 +25,8 @@ export interface SimulationRandomSettings {
 }
 
 /**
- * 尚未迁移的伤害/概率端口使用此绑定。算法和状态分别由下方函数及 SimulationRandomState 提供。
- * getState 每次取样时解析当前数据，不跨调用缓存分支状态；整场恢复仍须等待其余运行时迁移。
+ * 把伤害与概率取样端口绑定到当前分支的随机状态。
+ * getState 每次取样时解析当前数据，不跨调用缓存分支状态；恢复或回退后同一对象可立即读取新分支。
  */
 export class SimulationRandomSource implements CriticalSampleSource, ProbabilitySampleSource {
   readonly #settings: SimulationRandomSettings;

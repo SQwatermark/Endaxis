@@ -67,7 +67,7 @@ SP属于全队，终结技能量属于干员。投射物不建立能量账户。
 ## 详细说明
 
 - [战斗执行与状态](runtime.md)：执行器、时间、事件清理和可复现性。
-- [战斗运行时切面](runtime-checkpoints.md)：审查后的实现方案，尚未开放正式保存/恢复入口。
+- [战斗运行时切面](runtime-checkpoints.md)：完整帧保存、恢复、分支、回退和外部输入边界。
 - [数据与状态](data-and-state.md)：存档、两个编译器、生成优化设计、资源下载和目标查询。
 - [公共类型](../../packages/game-data-contract/README.md)
 - [游戏数据转换器](../../tools/game-data-compiler/README.md)
