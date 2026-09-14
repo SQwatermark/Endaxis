@@ -5,6 +5,52 @@ import { createNativeEventFixture } from '../events/nativeEventTestFixture';
 import { ExternalCombatEventRuntime } from './externalCombatEventRuntime';
 
 describe('ExternalCombatEventRuntime', () => {
+  it('绑定保存游标后只处理尚未发生的外部事实', () => {
+    const events = [0, 2].map(frame => ({
+      frame,
+      targetOperatorIds: ['operator'],
+      event: { kind: 'enemyWeaknessSet' as const },
+    }));
+    const originalClock = new CombatClock();
+    const originalReceipt = new CombatReceiptCollector();
+    const originalCalls: number[] = [];
+    const original = new ExternalCombatEventRuntime({
+      clock: originalClock,
+      receipt: originalReceipt,
+      events,
+      emitEnemyWeaknessSet: () => originalCalls.push(originalClock.frame),
+    });
+    original.applyCurrentFrame();
+    originalClock.advanceFrame();
+    original.applyCurrentFrame();
+    const saved = structuredClone({
+      clock: originalClock.runtimeState,
+      receipt: originalReceipt.runtimeState,
+      events: original.runtimeState,
+    });
+
+    originalClock.advanceFrame();
+    original.applyCurrentFrame();
+    const restoredClock = new CombatClock(saved.clock);
+    const restoredReceipt = new CombatReceiptCollector(saved.receipt);
+    const restoredCalls: number[] = [];
+    const restored = new ExternalCombatEventRuntime({
+      clock: restoredClock,
+      receipt: restoredReceipt,
+      events,
+      restoredState: saved.events,
+      emitEnemyWeaknessSet: () => restoredCalls.push(restoredClock.frame),
+    });
+    expect(restored.runtimeState).toBe(saved.events);
+    restored.applyCurrentFrame();
+    restoredClock.advanceFrame();
+    restored.applyCurrentFrame();
+
+    expect(restoredCalls).toEqual([2]);
+    expect(restored.runtimeState).toEqual(original.runtimeState);
+    expect(restoredReceipt.runtimeState).toEqual(originalReceipt.runtimeState);
+  });
+
   it('dispatches explicit operator hit facts without creating a damage result', () => {
     const clock = new CombatClock();
     const { semanticEvents: events, dispatcher } = createNativeEventFixture();

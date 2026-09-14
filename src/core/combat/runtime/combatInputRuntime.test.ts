@@ -5,6 +5,76 @@ import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { SkillInputGroupTiming } from './skillInputGroupTiming';
 
 describe('CombatInputRuntime', () => {
+  it('绑定保存游标后不重放固定输入，并继续递归接续与持久组', () => {
+    const inputs: ScheduledSkillInput[] = [
+      { frame: 0, operatorId: 'one', skillId: 'a', castId: 'a', declarationOrder: 0 },
+      { frame: 0, operatorId: 'one', skillId: 'b', castId: 'b', declarationOrder: 1 },
+      { frame: 0, operatorId: 'one', skillId: 'c', castId: 'c', declarationOrder: 2 },
+      { frame: 0, operatorId: 'two', skillId: 'x', castId: 'x', declarationOrder: 3 },
+      { frame: 0, operatorId: 'two', skillId: 'y', castId: 'y', declarationOrder: 4 },
+      { frame: 0, operatorId: 'two', skillId: 'z', castId: 'z', declarationOrder: 5 },
+    ];
+    const create = (
+      clock: CombatClock,
+      receipt: CombatReceiptCollector,
+      restoredState?: ConstructorParameters<typeof CombatInputRuntime>[0]['restoredState'],
+    ) =>
+      new CombatInputRuntime({
+        clock,
+        receipt,
+        inputs,
+        tryStartSkill: () => true,
+        skillInputGroups: {
+          groups: [{ anchorCastId: 'a', castIds: ['a', 'b', 'c'] }],
+          canContinue: previous => clock.frame >= previous.frame + 2,
+        },
+        continuationPlan: {
+          castIds: ['x', 'y', 'z'],
+          canContinue: (_input, previous) => clock.frame >= previous.frame + 3,
+        },
+        ...(restoredState === undefined ? {} : { restoredState }),
+      });
+    const originalClock = new CombatClock();
+    const originalReceipt = new CombatReceiptCollector();
+    const original = create(originalClock, originalReceipt);
+    original.applyCurrentFrame();
+    originalClock.advanceFrame();
+    original.applyCurrentFrame();
+    const saved = structuredClone({
+      clock: originalClock.runtimeState,
+      receipt: originalReceipt.runtimeState,
+      input: original.runtimeState,
+    });
+
+    for (let frame = 2; frame <= 6; frame += 1) {
+      originalClock.advanceFrame();
+      original.applyCurrentFrame();
+    }
+    const restoredClock = new CombatClock(saved.clock);
+    const restoredReceipt = new CombatReceiptCollector(saved.receipt);
+    const restored = create(restoredClock, restoredReceipt, saved.input);
+    expect(restored.runtimeState).toBe(saved.input);
+    for (let frame = 2; frame <= 6; frame += 1) {
+      restoredClock.advanceFrame();
+      restored.applyCurrentFrame();
+    }
+
+    expect(restored.runtimeState).toEqual(original.runtimeState);
+    expect(restoredReceipt.runtimeState).toEqual(originalReceipt.runtimeState);
+    expect(
+      restoredReceipt.entries
+        .filter(entry => entry.event === 'SkillInputProcessed')
+        .map(entry => [entry.data?.castId, entry.frame]),
+    ).toEqual([
+      ['a', 0],
+      ['x', 0],
+      ['b', 2],
+      ['y', 3],
+      ['c', 4],
+      ['z', 6],
+    ]);
+  });
+
   it('preserves same-frame input order and records acceptance', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();

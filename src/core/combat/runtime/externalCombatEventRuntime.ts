@@ -8,6 +8,7 @@ import type { DamageFeature, DamageTag } from '../../game-data/operatorDefinitio
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
+import type { ExternalCombatEventRuntimeState } from './externalCombatEventRuntimeState';
 
 export interface ScheduledExternalCombatEventInput {
   readonly frame: number;
@@ -38,9 +39,11 @@ export interface ExternalCombatEventRuntimeOptions {
   /** 唯一敌人发布无目标 OnSetWeakness；由全局连携监听器消费。 */
   readonly emitEnemyWeaknessSet?: () => void;
   readonly receipt: CombatReceiptSink;
+  readonly restoredState?: ExternalCombatEventRuntimeState;
 }
 
 export class ExternalCombatEventRuntime implements FrameRuntime {
+  readonly runtimeState: ExternalCombatEventRuntimeState;
   readonly #controlComboCooldown: ExternalCombatEventRuntimeOptions['controlComboCooldown'];
   readonly #clock: CombatClock;
   readonly #events: readonly ScheduledExternalCombatEventInput[];
@@ -48,7 +51,6 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
   readonly #emitOperatorWeaknessTriggeredOutput: ExternalCombatEventRuntimeOptions['emitOperatorWeaknessTriggeredOutput'];
   readonly #emitEnemyWeaknessSet: ExternalCombatEventRuntimeOptions['emitEnemyWeaknessSet'];
   readonly #receipt: CombatReceiptSink;
-  #nextEventIndex = 0;
 
   constructor(options: ExternalCombatEventRuntimeOptions) {
     this.#controlComboCooldown = options.controlComboCooldown;
@@ -74,6 +76,14 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
       }
       previousFrame = input.frame;
     }
+    this.runtimeState = options.restoredState ?? { nextEventIndex: 0 };
+    if (
+      !Number.isSafeInteger(this.runtimeState.nextEventIndex) ||
+      this.runtimeState.nextEventIndex < 0 ||
+      this.runtimeState.nextEventIndex > this.#events.length
+    ) {
+      throw new Error('restored external event cursor is out of range');
+    }
   }
 
   advanceFrame(): void {
@@ -83,9 +93,9 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
   applyCurrentFrame(): void {
     const actualFrame = this.#clock.frame;
     while (true) {
-      const input = this.#events[this.#nextEventIndex];
+      const input = this.#events[this.runtimeState.nextEventIndex];
       if (input === undefined || input.frame > actualFrame) break;
-      this.#nextEventIndex += 1;
+      this.runtimeState.nextEventIndex += 1;
       if (input.event.kind === 'comboCooldownControl') {
         if (this.#controlComboCooldown === undefined)
           throw new Error('combo cooldown control handler is missing');

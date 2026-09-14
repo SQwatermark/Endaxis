@@ -7,6 +7,10 @@ import type { CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import type { PlayerSkillInput } from '../../game-data/operatorDefinition';
 import { processCombatSkillInput } from './combatInputExecution';
+import type {
+  CombatInputRuntimeState,
+  SkillInputGroupRuntimeState,
+} from './combatInputRuntimeState';
 
 /** 一次技能输入。固定输入已确定实际帧；组后段在运行时到达边界后才确定实际帧。 */
 export interface ScheduledSkillInput {
@@ -28,12 +32,9 @@ export interface SkillInputGroup {
   readonly castIds: readonly string[];
 }
 
-interface SkillInputGroupState {
-  readonly anchorCastId: string;
+interface SkillInputGroupRuntime {
   readonly inputs: readonly ScheduledSkillInput[];
-  nextIndex: number;
-  previous?: ScheduledSkillInput;
-  stopped: boolean;
+  readonly state: SkillInputGroupRuntimeState;
 }
 
 export interface CombatInputRuntimeOptions {
@@ -57,22 +58,21 @@ export interface CombatInputRuntimeOptions {
     readonly canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => boolean;
     readonly ignoreInputFailures?: boolean;
   };
+  /** 恢复时绑定已经复制的输入游标；固定输入与组程序仍由当前编译结果提供。 */
+  readonly restoredState?: CombatInputRuntimeState;
 }
 
 /** 保持输入顺序并在当前帧同步提交施放请求。 */
 export class CombatInputRuntime implements FrameRuntime {
+  readonly runtimeState: CombatInputRuntimeState;
   readonly #clock: CombatClock;
   readonly #inputs: readonly ScheduledSkillInput[];
   readonly #receipt: CombatReceiptSink;
   readonly #tryStartSkill: CombatInputRuntimeOptions['tryStartSkill'];
-  #nextInputIndex = 0;
   readonly #continuationInputs: readonly ScheduledSkillInput[];
   readonly #canContinue: CombatInputRuntimeOptions['continuationPlan'];
-  #previousContinuationInput: ScheduledSkillInput | undefined;
-  #nextContinuationIndex = 1;
-  #continuationStopped = false;
-  readonly #groups: readonly SkillInputGroupState[];
-  readonly #groupByCastId = new Map<string, SkillInputGroupState>();
+  readonly #groups: readonly SkillInputGroupRuntime[];
+  readonly #groupByCastId = new Map<string, SkillInputGroupRuntime>();
   readonly #groupOptions: CombatInputRuntimeOptions['skillInputGroups'];
   readonly #declarationOrder = new Map<ScheduledSkillInput, number>();
 
@@ -124,7 +124,14 @@ export class CombatInputRuntime implements FrameRuntime {
       inputsByCastId.set(input.castId, matches);
     }
     const anchors = new Set<string>();
-    this.#groups = (options.skillInputGroups?.groups ?? []).map(group => {
+    const restoredGroups = options.restoredState?.groups;
+    if (
+      restoredGroups !== undefined &&
+      restoredGroups.length !== (options.skillInputGroups?.groups.length ?? 0)
+    ) {
+      throw new Error('restored skill input groups do not match program length');
+    }
+    this.#groups = (options.skillInputGroups?.groups ?? []).map((group, groupIndex) => {
       if (group.anchorCastId.length === 0 || anchors.has(group.anchorCastId))
         throw new Error('skill input groups require unique non-empty anchors');
       anchors.add(group.anchorCastId);
@@ -141,18 +148,41 @@ export class CombatInputRuntime implements FrameRuntime {
         throw new Error('skill input group requires unique cast IDs');
       if (inputs.some(input => input.operatorId !== inputs[0]!.operatorId))
         throw new Error('skill input group inputs must belong to the same operator');
-      const state: SkillInputGroupState = {
+      const restored = restoredGroups?.[groupIndex];
+      if (restored !== undefined && restored.anchorCastId !== group.anchorCastId) {
+        throw new Error(`restored skill input group '${groupIndex}' does not match anchor`);
+      }
+      const state: SkillInputGroupRuntimeState = restored ?? {
         anchorCastId: group.anchorCastId,
-        inputs,
         nextIndex: 0,
+        previous: null,
         stopped: false,
       };
-      group.castIds.forEach(castId => this.#groupByCastId.set(castId, state));
+      validateGroupState(state, inputs, this.#clock.frame);
+      const runtime = { inputs, state };
+      group.castIds.forEach(castId => this.#groupByCastId.set(castId, runtime));
       group.castIds.slice(1).forEach(castId => deferredCastIds.add(castId));
-      return state;
+      return runtime;
     });
     this.#inputs = options.inputs.filter(
       input => input.castId === undefined || !deferredCastIds.has(input.castId),
+    );
+    this.runtimeState = options.restoredState ?? {
+      nextInputIndex: 0,
+      continuation: { nextIndex: 1, previous: null, stopped: false },
+      groups: this.#groups.map(group => group.state),
+    };
+    if (
+      !Number.isSafeInteger(this.runtimeState.nextInputIndex) ||
+      this.runtimeState.nextInputIndex < 0 ||
+      this.runtimeState.nextInputIndex > this.#inputs.length
+    ) {
+      throw new Error('restored fixed input cursor is out of range');
+    }
+    validateContinuationState(
+      this.runtimeState.continuation,
+      this.#continuationInputs,
+      this.#clock.frame,
     );
   }
 
@@ -165,22 +195,22 @@ export class CombatInputRuntime implements FrameRuntime {
     const actualFrame = this.#clock.frame;
     const ready: {
       readonly input: ScheduledSkillInput;
-      readonly group?: SkillInputGroupState;
+      readonly group?: SkillInputGroupRuntime;
       readonly order: number;
     }[] = [];
     while (true) {
-      const input = this.#inputs[this.#nextInputIndex];
+      const input = this.#inputs[this.runtimeState.nextInputIndex];
       if (input === undefined || input.frame > actualFrame) break;
-      this.#nextInputIndex += 1;
+      this.runtimeState.nextInputIndex += 1;
       ready.push({ input, order: this.#declarationOrder.get(input)! });
     }
     // 就绪状态在输入阶段开始时读取；本帧刚启动的组不能在同帧再推进一段。
     for (const group of this.#groups) {
-      const previous = group.previous;
-      const input = group.inputs[group.nextIndex];
+      const previous = group.state.previous;
+      const input = group.inputs[group.state.nextIndex];
       if (
-        group.stopped ||
-        previous === undefined ||
+        group.state.stopped ||
+        previous === null ||
         input === undefined ||
         actualFrame <= previous.frame ||
         !this.#groupOptions!.canContinue(previous)
@@ -195,40 +225,40 @@ export class CombatInputRuntime implements FrameRuntime {
     ready.sort((left, right) => left.input.frame - right.input.frame || left.order - right.order);
     for (const candidate of ready) {
       const { input } = candidate;
-      if (candidate.group?.stopped) continue;
+      if (candidate.group?.state.stopped) continue;
       const anchor = this.#continuationInputs[0];
       if (
         anchor !== undefined &&
         input.castId !== anchor.castId &&
         input.operatorId === anchor.operatorId &&
-        this.#previousContinuationInput !== undefined &&
+        this.runtimeState.continuation.previous !== null &&
         this.#canContinue?.ignoreInputFailures !== true
       ) {
         // Never move a generated continuation past another authored operation on this operator.
-        this.#continuationStopped = true;
+        this.runtimeState.continuation.stopped = true;
       }
       const accepted = this.#processInput(input);
       const ownGroup =
         input.castId === undefined ? undefined : this.#groupByCastId.get(input.castId);
       if (ownGroup !== undefined) {
-        ownGroup.previous = { ...input, frame: actualFrame };
-        ownGroup.nextIndex += 1;
+        ownGroup.state.previous = { ...input, frame: actualFrame };
+        ownGroup.state.nextIndex += 1;
         if (!accepted) this.#stopGroup(ownGroup, 'inputRejected');
       }
       if (candidate.group === undefined && accepted) {
         this.#stopOtherGroupsForInput(input, ownGroup);
       }
       if (anchor !== undefined && input.castId === anchor.castId) {
-        this.#previousContinuationInput = { ...input, frame: actualFrame };
+        this.runtimeState.continuation.previous = { ...input, frame: actualFrame };
         if (!accepted && this.#canContinue?.ignoreInputFailures !== true)
-          this.#continuationStopped = true;
+          this.runtimeState.continuation.stopped = true;
       }
     }
-    const previous = this.#previousContinuationInput;
-    const continuation = this.#continuationInputs[this.#nextContinuationIndex];
+    const previous = this.runtimeState.continuation.previous;
+    const continuation = this.#continuationInputs[this.runtimeState.continuation.nextIndex];
     if (
-      this.#continuationStopped ||
-      previous === undefined ||
+      this.runtimeState.continuation.stopped ||
+      previous === null ||
       continuation === undefined ||
       actualFrame <= previous.frame
     )
@@ -236,22 +266,22 @@ export class CombatInputRuntime implements FrameRuntime {
     const input = { ...continuation, frame: actualFrame };
     if (!this.#canContinue!.canContinue(input, previous)) return;
     // At most one continuation per real frame, including repeated applyCurrentFrame calls.
-    this.#nextContinuationIndex += 1;
-    this.#previousContinuationInput = input;
+    this.runtimeState.continuation.nextIndex += 1;
+    this.runtimeState.continuation.previous = input;
     const accepted = this.#processInput(input);
     if (accepted) this.#stopOtherGroupsForInput(input);
     if (!accepted && this.#canContinue?.ignoreInputFailures !== true)
-      this.#continuationStopped = true;
+      this.runtimeState.continuation.stopped = true;
   }
 
-  #stopOtherGroupsForInput(input: ScheduledSkillInput, ownGroup?: SkillInputGroupState): void {
+  #stopOtherGroupsForInput(input: ScheduledSkillInput, ownGroup?: SkillInputGroupRuntime): void {
     for (const group of this.#groups) {
       if (
         group === ownGroup ||
-        group.stopped ||
-        group.previous === undefined ||
-        group.previous.operatorId !== input.operatorId ||
-        group.inputs[group.nextIndex] === undefined
+        group.state.stopped ||
+        group.state.previous === null ||
+        group.state.previous.operatorId !== input.operatorId ||
+        group.inputs[group.state.nextIndex] === undefined
       )
         continue;
       // 另一项作者操作已接管本轨道。即使前段自然结束而没有中断回执，也不跨过它补放旧组。
@@ -260,23 +290,23 @@ export class CombatInputRuntime implements FrameRuntime {
   }
 
   #stopGroup(
-    group: SkillInputGroupState,
+    group: SkillInputGroupRuntime,
     reason: 'inputRejected' | 'interruptedByFixedInput',
     interruptingCastId?: string,
   ): void {
-    group.stopped = true;
-    const next = group.inputs[group.nextIndex];
+    group.state.stopped = true;
+    const next = group.inputs[group.state.nextIndex];
     // 最后一段失败已有输入回执；只有尚未启动的后缀需要额外阻断事实。
-    if (next === undefined || group.previous === undefined) return;
+    if (next === undefined || group.state.previous === null) return;
     this.#receipt.record({
       frame: this.#clock.frame,
       time: this.#clock.time,
       event: 'SkillInputGroupBlocked',
-      sourceId: group.previous.operatorId,
+      sourceId: group.state.previous.operatorId,
       data: {
-        anchorCastId: group.anchorCastId,
+        anchorCastId: group.state.anchorCastId,
         castId: next.castId!,
-        previousCastId: group.previous.castId!,
+        previousCastId: group.state.previous.castId!,
         reason,
         ...(interruptingCastId === undefined ? {} : { interruptingCastId }),
       },
@@ -286,4 +316,61 @@ export class CombatInputRuntime implements FrameRuntime {
   #processInput(input: ScheduledSkillInput): boolean {
     return processCombatSkillInput(input, this.#clock.frame, this.#tryStartSkill, this.#receipt);
   }
+}
+
+function validateGroupState(
+  state: SkillInputGroupRuntimeState,
+  inputs: readonly ScheduledSkillInput[],
+  currentFrame: number,
+): void {
+  if (
+    !Number.isSafeInteger(state.nextIndex) ||
+    state.nextIndex < 0 ||
+    state.nextIndex > inputs.length
+  )
+    throw new Error(`restored skill input group '${state.anchorCastId}' cursor is out of range`);
+  const expectedPrevious = state.nextIndex === 0 ? undefined : inputs[state.nextIndex - 1];
+  if (
+    (expectedPrevious === undefined) !== (state.previous === null) ||
+    (expectedPrevious !== undefined && !sameInputIdentity(expectedPrevious, state.previous!)) ||
+    (state.previous !== null && state.previous.frame > currentFrame)
+  ) {
+    throw new Error(
+      `restored skill input group '${state.anchorCastId}' previous input does not match`,
+    );
+  }
+}
+
+function validateContinuationState(
+  state: CombatInputRuntimeState['continuation'],
+  inputs: readonly ScheduledSkillInput[],
+  currentFrame: number,
+): void {
+  const maximum = Math.max(1, inputs.length);
+  if (!Number.isSafeInteger(state.nextIndex) || state.nextIndex < 1 || state.nextIndex > maximum)
+    throw new Error('restored continuation input cursor is out of range');
+  if (state.previous === null) {
+    if (state.nextIndex !== 1) {
+      throw new Error('restored continuation previous input does not match');
+    }
+    return;
+  }
+  const expectedPrevious = inputs.length === 0 ? undefined : inputs[state.nextIndex - 1];
+  if (
+    expectedPrevious === undefined ||
+    !sameInputIdentity(expectedPrevious, state.previous) ||
+    state.previous.frame > currentFrame
+  ) {
+    throw new Error('restored continuation previous input does not match');
+  }
+}
+
+function sameInputIdentity(left: ScheduledSkillInput, right: ScheduledSkillInput): boolean {
+  return (
+    left.operatorId === right.operatorId &&
+    left.skillId === right.skillId &&
+    left.castId === right.castId &&
+    left.action === right.action &&
+    left.declarationOrder === right.declarationOrder
+  );
 }
