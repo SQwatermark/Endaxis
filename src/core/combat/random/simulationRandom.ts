@@ -22,8 +22,6 @@ export interface SimulationRandomSettings {
   readonly mode: SimulationRandomMode;
   /** 32 位无符号整数。相同场景、种子和执行顺序得到相同结果。 */
   readonly globalSeed: number;
-  /** 键为时间轴技能块 ID；存在时该技能及其派生行为使用独立随机流。 */
-  readonly castSeeds?: ReadonlyMap<string, number>;
 }
 
 /**
@@ -36,15 +34,7 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
 
   constructor(settings: SimulationRandomSettings, getState: () => SimulationRandomState) {
     assertSeed(settings.globalSeed, 'globalSeed');
-    for (const [castId, seed] of settings.castSeeds ?? []) {
-      if (castId.length === 0) throw new RangeError('cast seed id must not be empty');
-      assertSeed(seed, `cast seed '${castId}'`);
-    }
-    this.#settings = {
-      mode: settings.mode,
-      globalSeed: settings.globalSeed,
-      ...(settings.castSeeds === undefined ? {} : { castSeeds: new Map(settings.castSeeds) }),
-    };
+    this.#settings = { mode: settings.mode, globalSeed: settings.globalSeed };
     this.#getState = getState;
     const state = this.#getState();
     bindSimulationRandomConfiguration(state, this.#settings);
@@ -62,9 +52,7 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
   }
 
   #selectedSeed(state: SimulationRandomState, castId: string): number | null {
-    return state.submittedCastSeeds.has(castId)
-      ? state.submittedCastSeeds.get(castId)!
-      : (this.#settings.castSeeds?.get(castId) ?? null);
+    return state.submittedCastSeeds.get(castId) ?? null;
   }
 
   nextProbabilitySample(request?: RandomSampleRequest): number {

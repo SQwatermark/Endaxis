@@ -11,6 +11,12 @@ function createSource(settings: SimulationRandomSettings): SimulationRandomSourc
   return new SimulationRandomSource(settings, () => state);
 }
 
+function createSourceWithCastSeed(globalSeed: number, castId: string, seed: number) {
+  const state = createSimulationRandomState();
+  submitSimulationCastSeed(state, castId, seed);
+  return new SimulationRandomSource({ mode: 'sampled', globalSeed }, () => state);
+}
+
 describe('SimulationRandomSource', () => {
   it('截面后提交不同种子，不改过去、不推进全局流，恢复保留已提交选择', () => {
     let state = createSimulationRandomState();
@@ -58,12 +64,8 @@ describe('SimulationRandomSource', () => {
     expect(state.streams.has('critical:cast:cast')).toBe(false);
   });
 
-  it('移出闭包后仍逐项保持既有随机序列', () => {
-    const source = createSource({
-      mode: 'sampled',
-      globalSeed: 123,
-      castSeeds: new Map([['cast-a', 7]]),
-    });
+  it('输入提交后的技能块种子逐项保持既有随机序列', () => {
+    const source = createSourceWithCastSeed(123, 'cast-a', 7);
     expect(Array.from({ length: 5 }, () => source.nextCriticalSample())).toEqual([
       0.920615452574566, 0.48073568590916693, 0.7334760089870542, 0.9312194793019444,
       0.015476783737540245,
@@ -124,17 +126,8 @@ describe('SimulationRandomSource', () => {
   });
 
   it('lets a cast seed isolate one skill block from the global stream', () => {
-    const castSeeds = new Map([['cast-a', 7]]);
-    const withLocalCast = createSource({
-      mode: 'sampled',
-      globalSeed: 123,
-      castSeeds,
-    });
-    const sameLocalCast = createSource({
-      mode: 'sampled',
-      globalSeed: 999,
-      castSeeds,
-    });
+    const withLocalCast = createSourceWithCastSeed(123, 'cast-a', 7);
+    const sameLocalCast = createSourceWithCastSeed(999, 'cast-a', 7);
 
     expect(withLocalCast.nextCriticalSample({ castId: 'cast-a' })).toBe(
       sameLocalCast.nextCriticalSample({ castId: 'cast-a' }),
@@ -143,16 +136,15 @@ describe('SimulationRandomSource', () => {
   });
 
   it('keeps expected mode independent from saved seeds', () => {
-    const first = createSource({
-      mode: 'expected',
-      globalSeed: 1,
-      castSeeds: new Map([['cast-a', 2]]),
-    });
-    const second = createSource({
-      mode: 'expected',
-      globalSeed: 999,
-      castSeeds: new Map([['cast-a', 1000]]),
-    });
+    const firstState = createSimulationRandomState();
+    const secondState = createSimulationRandomState();
+    submitSimulationCastSeed(firstState, 'cast-a', 2);
+    submitSimulationCastSeed(secondState, 'cast-a', 1000);
+    const first = new SimulationRandomSource({ mode: 'expected', globalSeed: 1 }, () => firstState);
+    const second = new SimulationRandomSource(
+      { mode: 'expected', globalSeed: 999 },
+      () => secondState,
+    );
 
     expect([
       first.nextCriticalSample({ castId: 'cast-a' }),
@@ -165,40 +157,29 @@ describe('SimulationRandomSource', () => {
 
   it('恢复时固定全局配置和已消费施放种子，但允许修改未来施放种子', () => {
     const state = createSimulationRandomState();
-    const original = new SimulationRandomSource(
-      { mode: 'sampled', globalSeed: 123, castSeeds: new Map([['cast-a', 7]]) },
-      () => state,
-    );
+    submitSimulationCastSeed(state, 'cast-a', 7);
+    const original = new SimulationRandomSource({ mode: 'sampled', globalSeed: 123 }, () => state);
     original.nextCriticalSample({ castId: 'cast-a' });
     const saved = structuredClone(state);
 
+    const restored = structuredClone(saved);
     expect(
-      () =>
-        new SimulationRandomSource(
-          {
-            mode: 'sampled',
-            globalSeed: 123,
-            castSeeds: new Map([
-              ['cast-a', 7],
-              ['cast-b', 99],
-            ]),
-          },
-          () => structuredClone(saved),
-        ),
+      () => new SimulationRandomSource({ mode: 'sampled', globalSeed: 123 }, () => restored),
     ).not.toThrow();
+    expect(() => submitSimulationCastSeed(restored, 'cast-b', 99)).not.toThrow();
+    expect(() => submitSimulationCastSeed(restored, 'cast-a', 8)).toThrow(
+      'cannot change submitted',
+    );
     expect(
       () =>
-        new SimulationRandomSource(
-          { mode: 'sampled', globalSeed: 124, castSeeds: new Map([['cast-a', 7]]) },
-          () => structuredClone(saved),
+        new SimulationRandomSource({ mode: 'sampled', globalSeed: 124 }, () =>
+          structuredClone(saved),
         ),
     ).toThrow('random configuration does not match');
+    const conflicting = structuredClone(saved);
+    conflicting.submittedCastSeeds.set('cast-a', 8);
     expect(
-      () =>
-        new SimulationRandomSource(
-          { mode: 'sampled', globalSeed: 123, castSeeds: new Map([['cast-a', 8]]) },
-          () => structuredClone(saved),
-        ),
+      () => new SimulationRandomSource({ mode: 'sampled', globalSeed: 123 }, () => conflicting),
     ).toThrow("consumed cast 'cast-a' does not match");
   });
 
