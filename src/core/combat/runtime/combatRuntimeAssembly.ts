@@ -1949,25 +1949,55 @@ export class CombatRuntimeAssembly {
 
     let runtime: SkillRuntime;
     const operationState = createCombatOperationHostState();
-    const operationPrograms = this.combatOperationPrograms;
-    const operations = this.#createOperationChain({
-      operator,
-      program,
-      enemy,
-      statusRuntime,
-      createDelegate,
-      isOperatorControlled,
-      resolveVitals,
-      resolveOperatorVitals,
-      getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
-      operationHost: { state: operationState, programs: operationPrograms },
-    });
     const cooldownBinding = this.#resolveSkillCooldown(operator, cooldownProgram);
     const skillProgramBinding = this.combatSkillPrograms.register(program);
     runtime = new SkillRuntime(program, {
+      ...this.#createSkillDependencies({
+        operator,
+        program,
+        enemy,
+        entityBlackboard,
+        statusRuntime,
+        createDelegate,
+        isOperatorControlled,
+        resolveVitals,
+        resolveOperatorVitals,
+        operationState,
+        getNonReturnedSpCost: () => runtime.nonReturnedSpCost,
+      }),
+      damageSnapshotProgram: skillProgramBinding.damageSnapshots,
+      ...cooldownBinding,
+    });
+    const skills = this.#skillStates.get(operatorId) ?? new Map<string, SkillRuntimeState>();
+    skills.set(`${program.skillId}\u0000${program.castId ?? ''}`, runtime.runtimeState);
+    this.#skillStates.set(operatorId, skills);
+    return runtime;
+  }
+
+  /** 普通新技能与恢复技能只在状态来源上不同，运行端口和操作责任链必须完全一致。 */
+  #createSkillDependencies(options: {
+    readonly operator: CombatOperatorProgram;
+    readonly program: CompiledSkillProgram;
+    readonly enemy: CombatEnemyProgram;
+    readonly entityBlackboard: ActionBlackboard;
+    readonly statusRuntime: CombatStatusRuntime | undefined;
+    readonly createDelegate: CombatRuntimeAssemblyOptions['createOperationExecutor'];
+    readonly isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'];
+    readonly resolveVitals: CombatRuntimeAssemblyOptions['resolveVitals'];
+    readonly resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'];
+    readonly operationState: CombatOperationHostState;
+    readonly getNonReturnedSpCost: () => number;
+  }) {
+    const { operator, program } = options;
+    const operatorId = operator.operatorId;
+    return {
       clock: this.clock,
       resources: this.resources,
-      resolveCosts: costs =>
+      resolveCosts: (
+        costs: Parameters<
+          NonNullable<ConstructorParameters<typeof SkillRuntime>[1]['resolveCosts']>
+        >[0],
+      ) =>
         costs.map(cost =>
           cost.resource === 'sp'
             ? {
@@ -1983,28 +2013,43 @@ export class CombatRuntimeAssembly {
             : cost,
         ),
       receipt: this.receipt,
-      operations,
-      operationState,
+      operations: this.#createOperationChain({
+        operator,
+        program,
+        enemy: options.enemy,
+        statusRuntime: options.statusRuntime,
+        createDelegate: options.createDelegate,
+        isOperatorControlled: options.isOperatorControlled,
+        resolveVitals: options.resolveVitals,
+        resolveOperatorVitals: options.resolveOperatorVitals,
+        getNonReturnedSpCost: options.getNonReturnedSpCost,
+        operationHost: {
+          state: options.operationState,
+          programs: this.combatOperationPrograms,
+        },
+      }),
+      operationState: options.operationState,
       allocateSkillCastId: () => this.#skillCastIds.allocate(),
       semanticEvents: this.semanticEvents,
-      damageSnapshotProgram: skillProgramBinding.damageSnapshots,
-      entityBlackboard,
+      entityBlackboard: options.entityBlackboard,
       hostIdentity: {
         actionOwnerId: operatorId,
         actionSourceId: operatorId,
         eventSourceId: operatorId,
         semanticEventOwnerOperatorId: operatorId,
       },
-      emitSkillEnd: payload => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
-      emitAfterSkillApplyCost: payload =>
-        this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
+      emitSkillEnd: (
+        payload: Parameters<
+          NonNullable<ConstructorParameters<typeof SkillRuntime>[1]['emitSkillEnd']>
+        >[0],
+      ) => this.#options.emitAbilityEvent?.(operatorId, 'skillEnd', payload),
+      emitAfterSkillApplyCost: (
+        payload: Parameters<
+          NonNullable<ConstructorParameters<typeof SkillRuntime>[1]['emitAfterSkillApplyCost']>
+        >[0],
+      ) => this.#options.emitAbilityEvent?.(operatorId, 'afterSkillApplyCost', payload),
       ...this.#projectileRuntimeDependencies(operatorId),
-      ...cooldownBinding,
-    });
-    const skills = this.#skillStates.get(operatorId) ?? new Map<string, SkillRuntimeState>();
-    skills.set(`${program.skillId}\u0000${program.castId ?? ''}`, runtime.runtimeState);
-    this.#skillStates.set(operatorId, skills);
-    return runtime;
+    };
   }
 
   #resolveSkillCooldown(
