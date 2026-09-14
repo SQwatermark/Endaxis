@@ -4,7 +4,6 @@
  */
 import type { CombatClockState } from './combatClock';
 import type { CombatResourceState } from './combatResourceState';
-import type { CombatReceiptState } from '../receipt/combatReceipt';
 import type { TimeDilationState } from './timeDilationState';
 import type { ComboWindowState } from './comboWindowRuntime';
 import type { UltimatePresentationState } from './ultimatePresentationRuntime';
@@ -16,7 +15,6 @@ import type { SkillCastIdState } from './skillCastInfo';
 export interface CombatSharedState {
   readonly clock: CombatClockState;
   readonly resources: CombatResourceState;
-  readonly receipts: CombatReceiptState;
   readonly timeDilation: TimeDilationState | null;
   readonly comboWindows: ComboWindowState;
   readonly ultimatePresentation: UltimatePresentationState;

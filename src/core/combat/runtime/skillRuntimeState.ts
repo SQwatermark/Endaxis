@@ -14,6 +14,8 @@ import type { ActionBlackboardValue } from '../../../../packages/game-data-contr
 import type { CombatOperationHostState } from './combatOperationHostState';
 
 export interface SkillRuntimeState {
+  /** 文档施放身份属于当前实例；null 为没有人工技能块身份的宿主。 */
+  readonly castId: string | null;
   readonly execution: SkillExecutionState;
   readonly blackboard: ActionBlackboardState;
   /** 再次施放时恢复的初值，不能用已经被动作修改的当前黑板代替。 */

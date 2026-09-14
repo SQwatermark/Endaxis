@@ -25,14 +25,14 @@ describe('ExternalCombatEventRuntime', () => {
     original.applyCurrentFrame();
     const saved = structuredClone({
       clock: originalClock.runtimeState,
-      receipt: originalReceipt.runtimeState,
       events: original.runtimeState,
     });
+    const savedHistory = originalReceipt.history.snapshot();
 
     originalClock.advanceFrame();
     original.applyCurrentFrame();
     const restoredClock = new CombatClock(saved.clock);
-    const restoredReceipt = new CombatReceiptCollector(saved.receipt);
+    const restoredReceipt = new CombatReceiptCollector(savedHistory);
     const restoredCalls: number[] = [];
     const restored = new ExternalCombatEventRuntime({
       clock: restoredClock,
@@ -48,7 +48,7 @@ describe('ExternalCombatEventRuntime', () => {
 
     expect(restoredCalls).toEqual([2]);
     expect(restored.runtimeState).toEqual(original.runtimeState);
-    expect(restoredReceipt.runtimeState).toEqual(originalReceipt.runtimeState);
+    expect(restoredReceipt.entries).toEqual(originalReceipt.entries);
   });
 
   it('允许替换未来事实，但拒绝把不同的已消费前缀绑定到保存游标', () => {

@@ -11,12 +11,8 @@ import {
   retimeLegacyProjectBySimulation,
   type LegacyRuntimeReplacementResolver,
 } from './heuristicRetiming';
-import { runStandardPlayerDamageScenarioSimulation } from '../../src/application/runStandardPlayerDamageScenarioSimulation';
-import {
-  createDefaultCriticalSampleSource,
-  createDefaultProbabilitySampleSource,
-  defaultNonRandomRuntimeSnapshot,
-} from '../../src/application/scenarioSimulationService';
+import { ScenarioSimulationService } from '../../src/application/scenarioSimulationService';
+import { CheckpointRetimingSession } from './checkpointRetiming';
 import { skillSettings, skillSettingResources } from '../../src/data/combat/skillSettings';
 import { elementalAttachments } from '../../src/data/buffs/elementalAttachments';
 import { compoundStatusFactories } from '../../src/data/buffs/compoundStatusFactories';
@@ -124,30 +120,30 @@ export function convertLegacyTimeline(
   const prepared = prepareLegacySource(input, mappings);
   const result = createLegacyProjectImporter(repository).migrate(prepared.source);
   const mechanicAdapters = new MechanicAdapterRegistry([contingencyContractMechanicAdapter]);
-  const runSimulation = (scenario: EndaxisProjectDocument['scenarios'][number], endFrame: number) =>
-    runStandardPlayerDamageScenarioSimulation({
-      scenario,
-      endFrame,
-      criticalSamples: createDefaultCriticalSampleSource(),
-      probabilitySamples: createDefaultProbabilitySampleSource(),
-      resolveNonRandomRuntimeSnapshot: defaultNonRandomRuntimeSnapshot,
-      elementalInflictionDocument: elementalAttachments,
-      spellInflictionSettings: skillSettings,
-      compoundStatusFactories,
-      options: {
-        index: repository,
-        mechanicAdapters,
-        resources: {
-          sharedSpGain: { baseGainEfficiency: skillSettingResources.atbGainEfficiency },
-          spRecoveryPauseDuration: skillSettingResources.atbRecoverInterval,
-          ultimateEnergySystemUnlocked: true,
-          normalSkillUltimateEnergy: {
-            selfGainPerSp: skillSettingResources.atbConsumedDefaultUspGainSelf,
-            otherGainPerSp: skillSettingResources.atbConsumedDefaultUspGainOther,
-          },
-        },
+  const simulation = new ScenarioSimulationService({
+    index: repository,
+    mechanicAdapters,
+    elementalInflictionDocument: elementalAttachments,
+    spellInflictionSettings: skillSettings,
+    compoundStatusFactories,
+    resources: {
+      sharedSpGain: { baseGainEfficiency: skillSettingResources.atbGainEfficiency },
+      spRecoveryPauseDuration: skillSettingResources.atbRecoverInterval,
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: {
+        selfGainPerSp: skillSettingResources.atbConsumedDefaultUspGainSelf,
+        otherGainPerSp: skillSettingResources.atbConsumedDefaultUspGainOther,
       },
-    });
+    },
+  });
+  const runSimulation = (
+    scenario: EndaxisProjectDocument['scenarios'][number],
+    endFrame: number,
+  ) => {
+    const session = simulation.createCombatSession(scenario, endFrame);
+    session.advanceToFrame(endFrame);
+    return session.collectResult();
+  };
   const issues = [...prepared.issues];
   let resourceAdjustments: LegacyResourceAdjustment[] = [];
   if (!result.ok) issues.push(...result.errors.map(message => ({ path: '', message })));
@@ -176,6 +172,11 @@ export function convertLegacyTimeline(
           prepared.source,
           runSimulation,
           createLegacyRuntimeReplacementResolver(repository),
+          {
+            compileInputs: scenario => simulation.compileFixedInputs(scenario),
+            createSession: (scenario, frame) =>
+              new CheckpointRetimingSession(simulation.createInputCombatSession(scenario, frame)),
+          },
         )
       : {
           timingAdjustments: [],

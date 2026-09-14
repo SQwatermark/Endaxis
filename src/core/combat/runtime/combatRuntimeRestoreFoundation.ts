@@ -54,7 +54,7 @@ export type RestoredCombatEnvironmentInput =
 
 export interface RestoreCombatRuntimeFoundationOptions {
   readonly preparation: CombatRuntimeRestorePreparation;
-  readonly shared: Omit<CombatSharedRuntimeOptions, 'operatorOrder' | 'initialFrame' | 'receipt'>;
+  readonly shared: Omit<CombatSharedRuntimeOptions, 'operatorOrder' | 'initialFrame'>;
   readonly timeDilationPrograms?: RestoredCombatSharedRuntime['timeDilationPrograms'];
   readonly environment: RestoredCombatEnvironmentInput;
   readonly enemy: CombatEnemyProgram;
@@ -137,6 +137,7 @@ export function bindRestoredCombatRuntimeFoundation(
         });
   const boundEnvironment =
     environment.runtimeOptions.bindBattleRuntime?.({
+      isOperatorControlled: operatorId => graph.inputs.control.get(operatorId) ?? false,
       enemy: options.enemy,
       clock: shared.clock,
       resources: shared.resources,

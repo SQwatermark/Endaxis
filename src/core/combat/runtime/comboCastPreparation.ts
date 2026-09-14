@@ -1,5 +1,5 @@
 import type { CompiledSkillProgram } from '../../compiler/combatProgram';
-import type { PendingComboCondition } from './comboSkillConditionRuntime';
+import type { ComboCastParameters } from './comboSkillConditionRuntime';
 import type { SkillCastStartPreparation } from './skillCastStartPreparation';
 
 /**
@@ -9,7 +9,7 @@ import type { SkillCastStartPreparation } from './skillCastStartPreparation';
  */
 export function prepareComboCast(
   program: Pick<CompiledSkillProgram, 'smartTarget'>,
-  pending?: PendingComboCondition,
+  pending?: ComboCastParameters,
 ): SkillCastStartPreparation {
   const trigger = pending?.triggerTarget == null ? undefined : { ...pending.triggerTarget };
   const assignPairs = pending?.assignPairs == null ? null : { ...pending.assignPairs };

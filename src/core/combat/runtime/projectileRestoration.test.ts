@@ -107,10 +107,9 @@ it.each([1, 3, 5])('第 %s 帧保存后，投射物到回收的状态与回执�
   const saved = structuredClone({
     projectiles: original.runtimeState,
     clock: clock.runtimeState,
-    receipts: receipt.runtimeState,
   });
   const nextClock = new CombatClock(saved.clock);
-  const nextReceipt = new CombatReceiptCollector(saved.receipts);
+  const nextReceipt = new CombatReceiptCollector(receipt.history.snapshot());
   const nextExecute = vi.fn(() => true);
   const allocate = vi.fn(() => 2);
   const restored = new ProjectileLifecycleRuntime(allocate, {

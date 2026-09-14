@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { SimulationRandomSource, type SimulationRandomSettings } from './simulationRandom';
+import {
+  SimulationRandomSource,
+  submitSimulationCastSeed,
+  type SimulationRandomSettings,
+} from './simulationRandom';
 import { createSimulationRandomState } from './simulationRandomState';
 
 function createSource(settings: SimulationRandomSettings): SimulationRandomSource {
@@ -8,6 +12,52 @@ function createSource(settings: SimulationRandomSettings): SimulationRandomSourc
 }
 
 describe('SimulationRandomSource', () => {
+  it('截面后提交不同种子，不改过去、不推进全局流，恢复保留已提交选择', () => {
+    let state = createSimulationRandomState();
+    const settings = { mode: 'sampled' as const, globalSeed: 123 };
+    const source = new SimulationRandomSource(settings, () => state);
+    source.nextCriticalSample();
+    const saved = structuredClone(state);
+    const globalAfterPrefix = new Map(state.streams);
+    submitSimulationCastSeed(state, 'candidate', 7);
+    expect(state.streams).toEqual(globalAfterPrefix);
+    const submitted = structuredClone(state);
+    const first = [
+      source.nextCriticalSample({ castId: 'candidate' }),
+      source.nextProbabilitySample({ castId: 'candidate' }),
+    ];
+    const firstState = structuredClone(state);
+    state = structuredClone(saved);
+    submitSimulationCastSeed(state, 'candidate', 99);
+    const second = [
+      source.nextCriticalSample({ castId: 'candidate' }),
+      source.nextProbabilitySample({ castId: 'candidate' }),
+    ];
+    expect(second).not.toEqual(first);
+    expect(state.streams.get('critical:global')).toBe(globalAfterPrefix.get('critical:global'));
+    state = structuredClone(submitted);
+    const restored = new SimulationRandomSource(settings, () => state);
+    expect([
+      restored.nextCriticalSample({ castId: 'candidate' }),
+      restored.nextProbabilitySample({ castId: 'candidate' }),
+    ]).toEqual(first);
+    expect(state).toEqual(firstState);
+    expect(() => submitSimulationCastSeed(state, 'candidate', 99)).toThrow(
+      'cannot change submitted',
+    );
+  });
+
+  it('提交未指定种子的施放使用全局流，登记时就固定该选择', () => {
+    const state = createSimulationRandomState();
+    const source = new SimulationRandomSource({ mode: 'sampled', globalSeed: 123 }, () => state);
+    submitSimulationCastSeed(state, 'cast');
+    expect(() => submitSimulationCastSeed(state, 'cast', 7)).toThrow('cannot change submitted');
+    expect(state.streams.size).toBe(0);
+    const reference = createSource({ mode: 'sampled', globalSeed: 123 });
+    expect(source.nextCriticalSample({ castId: 'cast' })).toBe(reference.nextCriticalSample());
+    expect(state.streams.has('critical:cast:cast')).toBe(false);
+  });
+
   it('移出闭包后仍逐项保持既有随机序列', () => {
     const source = createSource({
       mode: 'sampled',

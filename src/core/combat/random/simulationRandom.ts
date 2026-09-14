@@ -50,7 +50,7 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
     bindSimulationRandomConfiguration(state, this.#settings);
     if (this.#settings.mode === 'sampled') {
       for (const [castId, usedSeed] of state.usedCastSeeds) {
-        if ((this.#settings.castSeeds?.get(castId) ?? null) !== usedSeed) {
+        if (this.#selectedSeed(state, castId) !== usedSeed) {
           throw new Error(`random seed selection for consumed cast '${castId}' does not match`);
         }
       }
@@ -61,14 +61,21 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
     return this.#next('critical', request);
   }
 
+  #selectedSeed(state: SimulationRandomState, castId: string): number | null {
+    return state.submittedCastSeeds.has(castId)
+      ? state.submittedCastSeeds.get(castId)!
+      : (this.#settings.castSeeds?.get(castId) ?? null);
+  }
+
   nextProbabilitySample(request?: RandomSampleRequest): number {
     return this.#next('probability', request);
   }
 
   #next(kind: 'critical' | 'probability', request: RandomSampleRequest | undefined): number {
     const castId = request?.castId;
-    const castSeed = castId === undefined ? undefined : this.#settings.castSeeds?.get(castId);
     const state = this.#getState();
+    const castSeed =
+      castId === undefined ? undefined : (this.#selectedSeed(state, castId) ?? undefined);
     if (this.#settings.mode === 'sampled' && castId !== undefined) {
       const usedSeed = state.usedCastSeeds.get(castId);
       const selectedSeed = castSeed ?? null;
@@ -82,6 +89,23 @@ export class SimulationRandomSource implements CriticalSampleSource, Probability
       ...(castSeed === undefined ? {} : { castSeed }),
     });
   }
+}
+
+/** 输入时只登记选择，不预先创建随机流，也不消费样本。 */
+export function submitSimulationCastSeed(
+  state: SimulationRandomState,
+  castId: string,
+  seed?: number,
+): void {
+  if (castId.length === 0) throw new RangeError('cast seed id must not be empty');
+  if (seed !== undefined) assertSeed(seed, `cast seed '${castId}'`);
+  const selected = seed ?? null;
+  const previous = state.submittedCastSeeds.has(castId)
+    ? state.submittedCastSeeds.get(castId)
+    : state.usedCastSeeds.get(castId);
+  if (previous !== undefined && previous !== selected)
+    throw new Error(`cannot change submitted random seed '${castId}'`);
+  state.submittedCastSeeds.set(castId, selected);
 }
 
 /**

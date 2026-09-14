@@ -1,5 +1,6 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { CombatStateGraph } from './combatStateGraph';
+import { submitSimulationCastSeed } from '../random/simulationRandom';
 import type { StandardCombatEnvironmentState } from './standardCombatEnvironmentState';
 import type {
   AbilityResponseEventName,
@@ -148,6 +149,7 @@ function simpleAttributeModifierFact(buff: CombatBuff<string>):
 type EnvironmentOptions = Pick<
   CombatRuntimeAssemblyOptions,
   | 'enemyBuffRuntime'
+  | 'submitCastRandomSeed'
   | 'bindBattleRuntime'
   | 'registerCombatAbilityEvent'
   | 'enemyVitalsRuntime'
@@ -309,6 +311,7 @@ export class StandardPlayerDamageEnvironment {
   readonly #operatorVitals = new Map<string, CombatVitals>();
   readonly #buffProgress: BuffProgressRecorder;
   #clock: CombatClock | null = null;
+  #isOperatorControlled: ((operatorId: string, frame: number) => boolean) | undefined;
   #receipt: CombatReceiptSink | null = null;
   #elementalDefinitions: CompiledCombatBuffDefinitions<string> | null = null;
   #skillSettings: CompoundStatusSkillSettingSource | null = null;
@@ -449,6 +452,12 @@ export class StandardPlayerDamageEnvironment {
         ? {}
         : { probabilitySamples: options.probabilitySamples }),
       enemyBuffRuntime: this.#enemyBuffRuntime,
+      submitCastRandomSeed: (castId, seed) => {
+        const state = this.runtimeState.random;
+        if (state !== null) submitSimulationCastSeed(state, castId, seed);
+        else if (seed !== undefined)
+          throw new Error('cast seed requires stateful simulation random');
+      },
       registerCombatAbilityEvent: (ownerId, scope, name, phase, priority, handle) => {
         const owners = scope === 'team' ? [...this.#operatorBuffRuntimes.keys()] : [ownerId];
         const registrations = owners.map(id => {
@@ -787,7 +796,9 @@ export class StandardPlayerDamageEnvironment {
       resolveCriticalOverride: step =>
         step.key === undefined
           ? undefined
-          : program?.simulationInputs?.criticalOverrides?.[step.key],
+          : 'program' in context
+            ? context.readSimulationInputs?.()?.criticalOverrides?.[step.key]
+            : undefined,
       resolveNonRandomRuntimeSnapshot: step =>
         this.options.resolveNonRandomRuntimeSnapshot(context, step),
       ...this.#damagePreparationPorts(operatorId, operatorBuffs),
@@ -799,8 +810,8 @@ export class StandardPlayerDamageEnvironment {
       applyPoiseModifiers: (timing, side, poiseContext) =>
         this.#buffContainer(side, operatorBuffs).applyPoiseModifiers(timing, side, poiseContext),
       isSourceControlled: () => {
-        if (this.options.isOperatorControlled === undefined || this.#clock === null) return false;
-        return this.options.isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
+        if (this.#isOperatorControlled === undefined || this.#clock === null) return false;
+        return this.#isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
       },
       emitHealthSourceEvent: (event, payload) => {
         this.#emit(operatorId, event, payload);
@@ -933,12 +944,12 @@ export class StandardPlayerDamageEnvironment {
         return target.matchesEntityTags(condition.tags, condition.tagQueryType);
       }
       case 'casterControlled':
-        if (this.options.isOperatorControlled === undefined || this.#clock === null) {
+        if (this.#isOperatorControlled === undefined || this.#clock === null) {
           throw new Error(
             'caster-controlled damage modifier requires the scenario control timeline',
           );
         }
-        return this.options.isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
+        return this.#isOperatorControlled(operatorBuffs.ownerId, this.#clock.frame);
       case 'buffIdCountCompare': {
         const target = condition.target === 'caster' ? operatorBuffs : this.#enemyBuffs;
         return compareCombatNumbers(
@@ -1028,6 +1039,10 @@ export class StandardPlayerDamageEnvironment {
       throw new Error('standard player damage environment cannot be shared across enemies');
     }
     this.#clock = context.clock;
+    this.#isOperatorControlled =
+      context.isOperatorControlled ??
+      this.#isOperatorControlled ??
+      this.options.isOperatorControlled;
     this.#receipt = context.receipt;
     this.#resources = context.resources;
     this.#enemyIdentity = context.enemy;
@@ -1108,7 +1123,7 @@ export class StandardPlayerDamageEnvironment {
         vitals: this.#requireOperatorVitals(sourceOperatorId),
       };
     }
-    const isControlled = this.options.isOperatorControlled;
+    const isControlled = this.#isOperatorControlled;
     if (isControlled === undefined) {
       throw new Error(`heal target '${target}' requires the scenario control timeline`);
     }

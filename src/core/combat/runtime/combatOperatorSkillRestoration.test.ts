@@ -61,14 +61,13 @@ it('预检后的技能宿主从原局部帧继续，不重新施放或修改原�
   originalAbility.advanceFrame();
   const saved = structuredClone({
     clock: originalClock.runtimeState,
-    receipt: originalReceipt.runtimeState,
     blackboard: originalBlackboard.runtimeState,
     cooldowns: new Map([['skill', originalCooldown.runtimeState]]),
     skill: original.runtimeState,
     ability: originalAbility.runtimeState,
   });
   const restoredClock = new CombatClock(saved.clock);
-  const restoredReceipt = new CombatReceiptCollector(saved.receipt);
+  const restoredReceipt = new CombatReceiptCollector(originalReceipt.history.snapshot());
   const restoredBlackboard = ActionBlackboard.bindRuntimeState(saved.blackboard);
   const cooldowns = bindRestoredCombatSkillCooldowns(
     { operatorId: 'operator', skills: [program] },

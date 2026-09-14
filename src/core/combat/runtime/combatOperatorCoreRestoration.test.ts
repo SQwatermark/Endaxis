@@ -115,7 +115,7 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
     statusContainer: statusTemplate,
   };
   const restoredClock = new CombatClock(structuredClone(clock.runtimeState));
-  const restoredReceipt = new CombatReceiptCollector(structuredClone(receipt.runtimeState));
+  const restoredReceipt = new CombatReceiptCollector(receipt.history.snapshot());
   const preboundStatus = new CombatStatusRuntime(
     statusTemplate.bindRuntimeState(saved.statuses),
     restoredClock,

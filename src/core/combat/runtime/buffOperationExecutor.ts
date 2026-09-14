@@ -1078,6 +1078,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       actionBuffs.active = false;
       if (reference === undefined) return;
       const handle = this.#resolveActionBuff(reference);
+      if (handle === undefined) return;
       const hasNextSkill = context?.pendingNextSkillId !== undefined;
       const inherited =
         hasNextSkill && step.parameters.inheritToNextSkillIds.includes(context.pendingNextSkillId!);
@@ -1094,7 +1095,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     }
     if (step.kind === 'applyBuff' && step.parameters.finishByAction === true) {
       const actionBuffs = this.#requireActionBuffState(context);
-      const handles = actionBuffs.references.map(reference => this.#resolveActionBuff(reference));
+      const handles = actionBuffs.references.flatMap(reference => {
+        const handle = this.#resolveActionBuff(reference);
+        return handle === undefined ? [] : [handle];
+      });
       const inherited =
         context?.pendingNextSkillId !== undefined &&
         step.parameters.inheritToNextSkillIds?.includes(context.pendingNextSkillId) === true;
@@ -1134,19 +1138,20 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     return state;
   }
 
-  #resolveActionBuff(reference: BuffReference): BuffApplicationHandle {
+  #resolveActionBuff(reference: BuffReference): BuffApplicationHandle | undefined {
     const key = buffReferenceKey(reference);
     const cached = this.#buffHandleBindings.get(key);
     if (cached !== undefined) {
       this.#buffHandleBindings.delete(key);
-      return cached;
+      return cached.isFinished === true ? undefined : cached;
     }
     const target = this.dependencies.resolveEventTarget?.(reference.ownerId);
-    const rebound = target?.resolveHandle?.(reference);
-    if (rebound === undefined) {
+    if (target?.resolveHandle === undefined) {
       throw new Error(`action-owned Buff '${key}' cannot be rebound in the current branch`);
     }
-    return rebound;
+    // 动作仍未结束时，Buff 可以先消费并回收。容器明确返回空引用时无需再次结束或继承。
+    const rebound = target.resolveHandle(reference);
+    return rebound?.isFinished === true ? undefined : rebound;
   }
 
   evaluate(condition: CombatCondition, context?: CombatOperationContext): boolean {

@@ -33,6 +33,7 @@ it('场景输入与环境端口互不重叠，完整装配选项由两者组成'
     | 'inputs'
     | 'skillInputGroups'
     | 'externalEvents'
+    | 'initialControlledOperatorId'
     | 'isOperatorControlled'
   >();
   expectTypeOf<

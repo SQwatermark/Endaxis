@@ -107,6 +107,9 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   const graph: CombatStateGraph = {
     shared: saved.shared,
     inputs: {
+      initialInputPending: false,
+      castParameters: new Map(),
+      control: new Map([['operator', false]]),
       skills: {
         nextInputIndex: 0,
         previousFixedInput: null,
@@ -284,6 +287,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   objects.abilityEntityRelations.disposePassives();
 
   const restoredAssembly = CombatRuntimeAssembly.restore({
+    receiptHistory: originalShared.receipt.history.snapshot(),
     graph: assemblyGraph,
     resources,
     enemy,
@@ -315,6 +319,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   (randomGraph.environment as { random: SimulationRandomState | null }).random = randomState;
   const restoreRandomGraph = (globalSeed: number) =>
     CombatRuntimeAssembly.restore({
+      receiptHistory: originalShared.receipt.history.snapshot(),
       graph: structuredClone(randomGraph),
       resources,
       enemy,
@@ -638,6 +643,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     projectileCallbackPrograms = original.projectileLifetimes.callbackPrograms,
   ) =>
     CombatRuntimeAssembly.restore({
+      receiptHistory: original.receipt.history.snapshot(),
       graph,
       resources,
       enemy,

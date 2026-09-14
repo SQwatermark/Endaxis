@@ -67,8 +67,12 @@ export function bindRestoredCombatProjectileRelations(options: {
   options.projectiles.bindRestoredRelations({
     resolveHost: instanceId => {
       const state = options.projectiles.runtimeState.instances.get(instanceId)?.callback;
-      if (state === undefined || state === null) {
+      if (state === undefined) {
         throw new Error(`restored projectile '${instanceId}' has no callback host data`);
+      }
+      // launchProjectileLifetime 只登记对象寿命；与发射路径一样不建立回调技能宿主。
+      if (state === null) {
+        return { resolveTickDeltaSeconds, finish: () => {}, beforeReset: () => {} };
       }
       const bindings = options.createCallbackBindings({
         instanceId,

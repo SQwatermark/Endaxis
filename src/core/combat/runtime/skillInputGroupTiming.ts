@@ -3,17 +3,21 @@
  * 每条回执只读取一次；自然结束不会被误当成显示块结束，也不扫描整份战斗日志寻找下一段。
  * SkillSwitchedToBuff 表示同步旁路已经执行完毕，没有候选技能生命周期，从下一输入帧接续。
  */
+import type { CombatReceiptHistory, CombatReceiptCursor } from '../receipt/combatReceiptHistory';
 import type { CombatReceiptEntry } from '../receipt/combatReceipt';
 import type { ScheduledSkillInput } from './combatInputRuntime';
 
 export class SkillInputGroupTiming {
+  readonly #facts = new Map<string, Map<string, CombatReceiptEntry>>();
   readonly #boundaryFrames = new Map<string, number>();
-  #nextReceipt = 0;
+  #cursor: CombatReceiptCursor;
 
   constructor(
-    readonly entries: readonly CombatReceiptEntry[],
+    readonly history: CombatReceiptHistory,
     readonly resolveBlockFrames: (input: ScheduledSkillInput) => number,
-  ) {}
+  ) {
+    this.#cursor = history.cursor();
+  }
 
   canContinue(previous: ScheduledSkillInput, currentFrame: number): boolean {
     this.#collect();
@@ -24,13 +28,32 @@ export class SkillInputGroupTiming {
     return boundary !== undefined && boundary < currentFrame;
   }
 
+  find(castId: string | undefined, event: string): CombatReceiptEntry | undefined {
+    this.#collect();
+    return castId === undefined ? undefined : this.#facts.get(castId)?.get(event);
+  }
+
   #collect(): void {
-    while (this.#nextReceipt < this.entries.length) {
-      const entry = this.entries[this.#nextReceipt++]!;
+    const next = this.history.readSince(this.#cursor, INPUT_FACTS);
+    this.#cursor = next.cursor;
+    for (const entry of next.entries) {
       const castId = entry.data?.castId;
       if (typeof castId !== 'string') continue;
+      let facts = this.#facts.get(castId);
+      if (facts === undefined) {
+        facts = new Map();
+        this.#facts.set(castId, facts);
+      }
+      if (!facts.has(entry.event)) facts.set(entry.event, entry);
       if (entry.event === 'SkillOperableBoundaryReached' || entry.event === 'SkillSwitchedToBuff')
         this.#boundaryFrames.set(castId, entry.frame);
     }
   }
 }
+
+const INPUT_FACTS = new Set([
+  'SkillOperableBoundaryReached',
+  'SkillSwitchedToBuff',
+  'SkillInterrupted',
+  'SkillInputProcessed',
+]);

@@ -8,8 +8,82 @@ import type { CombatOperationContext } from './skillRuntime';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 import { StateStepper } from './stateStepper';
+import { CombatOperationPrograms } from './combatOperationPrograms';
+import {
+  createCombatOperationHostState,
+  type CombatOperationHostState,
+} from './combatOperationHostState';
 
 describe('AbilityEntityOperationExecutor', () => {
+  it('两个实体共用子技能程序，结束一个实例只清理它自己的动作创建物', () => {
+    const entities = new LogicalAbilityEntityRuntime({});
+    const programs = new AbilityEntityChildSkillPrograms();
+    const operationPrograms = new CombatOperationPrograms();
+    const makeOperations = (state: CombatOperationHostState): AbilityEntityOperationExecutor =>
+      new AbilityEntityOperationExecutor(
+        'owner',
+        entities,
+        { execute: () => false, evaluate: () => false },
+        { resolveOperations: makeOperations, programs },
+        undefined,
+        { state: state.abilityEntities, programs: operationPrograms },
+      );
+    const root = makeOperations(createCombatOperationHostState());
+    const spawn: ResolvedCombatOperationStep = {
+      kind: 'spawnAbilityEntity',
+      parameters: {
+        abilityEntityId: 'parent',
+        dieWhenSourceDies: false,
+        definition: {
+          lifetime: { kind: 'limited', durationSeconds: 10 },
+          childSkill: {
+            skillId: 'child',
+            initialBlackboard: {},
+            timelineActions: [
+              {
+                startFrame: 0,
+                endFrame: 10,
+                sequence: {
+                  steps: [
+                    {
+                      kind: 'spawnAbilityEntity',
+                      parameters: {
+                        abilityEntityId: 'owned',
+                        dieWhenSourceDies: false,
+                        finishByAction: true,
+                        definition: { lifetime: { kind: 'limited', durationSeconds: 10 } },
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
+      },
+    };
+    root.execute(spawn, { blackboard: new ActionBlackboard() });
+    root.execute(spawn, { blackboard: new ActionBlackboard() });
+    const parents = [...entities.runtimeState.instances.values()].filter(
+      entity => entity.abilityEntityId === 'parent',
+    );
+    const first = parents[0]!.childSkills[0]!;
+    const second = parents[1]!.childSkills[0]!;
+    expect(first.programId).toBe(second.programId);
+    expect(first.operations).not.toBe(second.operations);
+    const owned = () =>
+      [...entities.runtimeState.instances.values()].filter(
+        entity => entity.abilityEntityId === 'owned' && entity.isAlive,
+      );
+    expect(owned()).toHaveLength(2);
+    entities.finish({ kind: 'abilityEntity', instanceId: parents[0]!.instanceId });
+    expect(owned()).toHaveLength(1);
+    expect(parents[1]!.isAlive).toBe(true);
+    entities.finish({ kind: 'abilityEntity', instanceId: parents[1]!.instanceId });
+    expect(owned()).toHaveLength(0);
+    expect(() => programs.resolve(first.programId + 1)).toThrow('does not exist');
+  });
+
   it('按保存的子技能身份恢复实体时间轴，不重复加入子技能状态', () => {
     const definition = {
       lifetime: { kind: 'limited' as const, durationSeconds: 10 },

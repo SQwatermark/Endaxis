@@ -1,6 +1,6 @@
 /**
  * 一场战斗内能力实体子技能的固定程序目录。
- * 子技能实例生成时登记已克隆的动作程序，切面只保存编号；同一切面树共享此目录。
+ * 每份固定子技能程序只登记一次，多个实体实例共享程序；各自的动作账本保存在实例状态中。
  */
 import type { CompiledAbilityEntityChildSkillProgram } from '../../compiler/combatProgram';
 import { DamageCalculationSnapshotProgram } from './damageCalculationSnapshots';

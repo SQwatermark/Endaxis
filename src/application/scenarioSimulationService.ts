@@ -1,4 +1,5 @@
 import type { ResolvedCombatStepForKind } from '../core/compiler/combatProgram';
+import { compileFixedCombatInputSchedule } from './compileFixedCombatInputSchedule';
 import { planRecursiveSkillChain, type RecursiveSkillChain } from './recursiveSkillChain';
 /**
  * 给页面提供"跑一次模拟"的入口。
@@ -81,19 +82,10 @@ export function createDefaultProbabilitySampleSource(): ProbabilitySampleSource 
 function resolveScenarioRandomSettings(scenario: ScenarioDocument): {
   readonly mode: SimulationRandomMode;
   readonly globalSeed: number;
-  readonly castSeeds: ReadonlyMap<string, number>;
 } {
-  const castSeeds = new Map<string, number>();
-  for (const track of scenario.tracks) {
-    for (const cast of track?.skillCasts ?? []) {
-      const seed = cast.simulationInputs?.randomSeed;
-      if (seed !== undefined) castSeeds.set(cast.id, seed);
-    }
-  }
   return {
     mode: scenario.battle.random?.mode ?? 'expected',
     globalSeed: scenario.battle.random?.globalSeed ?? 0,
-    castSeeds,
   };
 }
 
@@ -356,15 +348,41 @@ export class ScenarioSimulationService {
     scenario: ScenarioDocument,
     endFrame = scenario.battle.durationFrames,
   ): StandardPlayerDamageCombatSession {
+    return this.#createCombatSession(scenario, endFrame);
+  }
+
+  /** 只装配构筑与固定定义，停在首帧输入前；原场景的人工排程不会执行。 */
+  createInputCombatSession(
+    scenario: ScenarioDocument,
+    initialFrame = 0,
+  ): StandardPlayerDamageCombatSession {
+    return this.#createCombatSession(scenario, scenario.battle.durationFrames, initialFrame);
+  }
+
+  /** 仅解析已指定帧的人工输入，不重新编译战斗或技能定义。 */
+  compileFixedInputs(scenario: ScenarioDocument) {
+    return compileFixedCombatInputSchedule(scenario, this.#options.index);
+  }
+
+  #createCombatSession(
+    scenario: ScenarioDocument,
+    endFrame: number,
+    liveInputInitialFrame?: number,
+  ): StandardPlayerDamageCombatSession {
     if (
       this.#options.criticalSamples !== undefined ||
       this.#options.probabilitySamples !== undefined
     ) {
       throw new Error('checkpoint combat sessions require the stateful simulation random source');
     }
-    const prepared = prepareStandardPlayerDamageScenarioRuntime(
-      this.#createStandardSimulationInput(scenario, endFrame),
-    );
+    const input = this.#createStandardSimulationInput(scenario, endFrame);
+    const prepared = prepareStandardPlayerDamageScenarioRuntime({
+      ...input,
+      options: {
+        ...input.options,
+        ...(liveInputInitialFrame === undefined ? {} : { liveInputInitialFrame }),
+      },
+    });
     return createStandardPlayerDamageCombatSession(prepared.compiled, prepared.restoredEnvironment);
   }
 

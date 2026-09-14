@@ -556,11 +556,6 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
   readonly operatorId: string;
   /** 文档中对应的技能释放身份；缺失时表示不是从场景时间轴编译的单元测试程序。 */
   readonly castId?: string;
-  readonly simulationInputs?: {
-    readonly cameraToTargetSignedAngleDegrees?: number;
-    readonly randomSeed?: number;
-    readonly criticalOverrides?: Readonly<Record<string, boolean>>;
-  };
   readonly skillId: string;
   /** 路由包装器的行为养成补丁按真实执行体身份匹配；费用和冷却仍使用槽位身份。 */
   readonly executionSkillGroupKey?: string;

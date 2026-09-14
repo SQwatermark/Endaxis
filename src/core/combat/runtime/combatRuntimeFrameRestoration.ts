@@ -5,7 +5,8 @@ import type { RestoredCombatAbilityEntityDirectory } from './combatRuntimeAbilit
 import type { RestoredCombatRuntimeObjectGraph } from './combatRuntimeObjectGraphRestoration';
 import type { RestoredCombatRuntimeFoundation } from './combatRuntimeRestoreFoundation';
 import type { CombatRuntimeRestorePreparation } from './combatRuntimeRestorePreparation';
-import { COMBAT_FRAME_INTERVAL } from './combatClock';
+import { bindCombatFramePipeline } from './combatFramePipeline';
+import { OperatorControlRuntime } from './operatorControlRuntime';
 import { CombatResourceRuntime } from './combatResourceRuntime';
 import { CombatSimulation } from './combatSimulation';
 import { CombatStatusRuntime } from './combatStatusRuntime';
@@ -21,6 +22,7 @@ export interface RestoreCombatRuntimeFrameOptions {
 }
 
 export interface RestoredCombatRuntimeFrame {
+  readonly control: OperatorControlRuntime;
   readonly simulation: CombatSimulation;
   readonly enemyStatuses?: CombatStatusRuntime;
   advanceFrame(): void;
@@ -55,56 +57,33 @@ export function bindRestoredCombatRuntimeFrame(
   }
 
   const simulation = new CombatSimulation(shared.clock);
-  if (shared.timeDilation !== null) simulation.add(shared.timeDilation);
-  const enemyControl = options.foundation.boundEnvironment.enemyControlRuntime;
-  if (enemyControl !== undefined && enemyControl !== null) {
-    simulation.add({
-      advanceFrame: () =>
-        enemyControl.advance(
-          COMBAT_FRAME_INTERVAL * (shared.timeDilation?.getEntityScale('enemy') ?? 1),
-        ),
-    });
-  }
-  simulation.add(new CombatResourceRuntime(shared.resources, shared.clock, shared.receipt));
-  simulation.add(options.objects.buffs.globalBuffs);
-  simulation.add(options.entities.runtime);
-  simulation.add(options.objects.projectiles);
-  simulation.add({ advanceFrame: () => options.objects.projectiles.beginAbilityFrame() });
-  simulation.add({
-    advanceFrame: () => {
-      if (shared.timeDilation === null || enemyBuffs.advanceWithDeltas === undefined) {
-        enemyBuffs.advanceFrame();
-      } else {
-        enemyBuffs.advanceWithDeltas(
-          shared.timeDilation.getAbilityTickDeltas('enemy', COMBAT_FRAME_INTERVAL),
-        );
-      }
-    },
+  const control = new OperatorControlRuntime(
+    [...options.preparation.programs.keys()],
+    shared.clock,
+    options.foundation.environment.options.isOperatorControlled,
+    options.foundation.environment.runtimeOptions.emitAbilityEvent,
+    options.preparation.graph.inputs.control,
+  );
+  const cores = [...options.objects.operators.cores.values()];
+  bindCombatFramePipeline(simulation, {
+    timeDilation: shared.timeDilation,
+    control,
+    enemyControl: options.foundation.boundEnvironment.enemyControlRuntime,
+    resources: new CombatResourceRuntime(shared.resources, shared.clock, shared.receipt),
+    globalBuffs: options.objects.buffs.globalBuffs,
+    abilityEntities: options.entities.runtime,
+    projectiles: options.objects.projectiles,
+    enemyBuffs,
+    enemyVitals: options.foundation.boundEnvironment.enemyVitalsRuntime,
+    enemyStatuses,
+    operatorStatuses: cores.flatMap(core => (core.statuses === undefined ? [] : [core.statuses])),
+    comboWindows: shared.comboWindows,
+    abilities: cores.map(core => core.ability),
+    bindInputPhases: options.bindInputPhases === true,
   });
-  const enemyVitals = options.foundation.boundEnvironment.enemyVitalsRuntime;
-  if (enemyVitals !== undefined && enemyVitals !== null) {
-    simulation.add({
-      advanceFrame: () => {
-        if (shared.timeDilation === null || enemyVitals.advance === undefined) {
-          enemyVitals.advanceFrame();
-        } else {
-          enemyVitals.advance(COMBAT_FRAME_INTERVAL * shared.timeDilation.currentGlobalScale);
-        }
-      },
-    });
-  }
-  if (enemyStatuses !== undefined) simulation.add(enemyStatuses);
-  simulation.add({ advanceFrame: () => enemyBuffs.recycleFinishedBuffs?.() });
-  for (const core of options.objects.operators.cores.values()) {
-    if (core.statuses !== undefined) simulation.add(core.statuses);
-  }
-  simulation.add(shared.comboWindows);
-  if (options.bindInputPhases === true) simulation.addInputPhase('skillInputs');
-  for (const core of options.objects.operators.cores.values()) simulation.add(core.ability);
-  simulation.add({ advanceFrame: () => options.objects.projectiles.advanceAbilityFrame() });
-  if (options.bindInputPhases === true) simulation.addInputPhase('externalEvents');
 
   return {
+    control,
     simulation,
     enemyStatuses,
     advanceFrame: () => simulation.advanceFrame(),

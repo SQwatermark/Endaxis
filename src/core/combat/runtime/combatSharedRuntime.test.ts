@@ -1,5 +1,6 @@
 import { expect, it, vi } from 'vitest';
 import { CombatSharedRuntime } from './combatSharedRuntime';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
 
 const resources = {
   sp: 10,
@@ -47,6 +48,7 @@ it('binds every shared runtime to one copied graph without replaying business ev
       resources,
       operatorOrder: ['operator'],
       timeDilation: { config: {}, observer },
+      receipt: new CombatReceiptCollector(original.receipt.history.snapshot()),
     },
     { state: saved, timeDilationPrograms: original.timeDilation!.programs },
   );
@@ -54,7 +56,7 @@ it('binds every shared runtime to one copied graph without replaying business ev
   expect(restored.runtimeState).toBe(saved);
   expect(restored.clock.runtimeState).toBe(saved.clock);
   expect(restored.resources.runtimeState).toBe(saved.resources);
-  expect(restored.receipt.runtimeState).toBe(saved.receipts);
+  expect(restored.receipt.entries).toEqual(original.receipt.entries);
   expect(restored.ultimatePresentation.runtimeState).toBe(saved.ultimatePresentation);
   expect(restored.comboWindows.runtimeState).toBe(saved.comboWindows);
   expect(restored.timeDilation!.runtimeState).toBe(saved.timeDilation);

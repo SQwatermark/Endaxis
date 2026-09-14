@@ -59,6 +59,7 @@ export function bindRestoredCombatOperatorSkills(
       binding.program,
       {
         ...dependencies,
+        castId: binding.state.castId,
         cooldown: cooldown.cooldown,
         advancesCooldown: false,
         damageSnapshotProgram: binding.fixed.damageSnapshots,

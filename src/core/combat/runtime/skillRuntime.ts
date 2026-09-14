@@ -211,6 +211,8 @@ export interface SkillRuntimeHostIdentity {
 }
 
 type SkillRuntimeDependencies = {
+  /** 显式施放实例身份，null 表示无技能块；旧编译调用未迁移时才从程序读取。 */
+  readonly castId?: string | null;
   readonly clock: CombatClock;
   /** 原生费用属性在开始门禁和实际扣费时分别重新求值。 */
   readonly resolveCosts?: (
@@ -272,6 +274,15 @@ export class SkillRuntime {
   ) {
     this.#program = program;
     this.#dependencies = dependencies;
+    const castId =
+      dependencies.castId !== undefined ? dependencies.castId : (program.castId ?? null);
+    if (
+      restored !== undefined &&
+      dependencies.castId !== undefined &&
+      restored.state.castId !== castId
+    ) {
+      throw new Error('restored skill cast identity does not match its instance');
+    }
     if (
       restored !== undefined &&
       dependencies.actionBlackboard !== undefined &&
@@ -379,6 +390,7 @@ export class SkillRuntime {
       throw new Error('restored skill must use the restored operation host state');
     }
     this.runtimeState = restored?.state ?? {
+      castId,
       execution: this.#execution,
       blackboard: this.#blackboard.runtimeState,
       initialBlackboard: this.#initialBlackboard,
@@ -420,7 +432,7 @@ export class SkillRuntime {
 
   /** 文档中的技能释放身份；单元测试程序可能缺失。 */
   get castId(): string | undefined {
-    return this.#program.castId;
+    return this.runtimeState.castId ?? undefined;
   }
 
   get skillType(): CompiledSkillExecutionProgram['skillType'] {
@@ -497,9 +509,9 @@ export class SkillRuntime {
       originSkillType: origin?.originSkillType ?? this.#program.skillType!,
       ...(origin?.originCastId !== undefined
         ? { originCastId: origin.originCastId }
-        : this.#program.castId === undefined
+        : this.castId === undefined
           ? {}
-          : { originCastId: this.#program.castId }),
+          : { originCastId: this.castId }),
       nonReturnedSpCost: this.#execution.nonReturnedSpCost,
     };
   }
@@ -797,7 +809,7 @@ export class SkillRuntime {
       ...(targetId === undefined ? {} : { targetId }),
       data: {
         skillId: this.#program.skillId,
-        ...(this.#program.castId === undefined ? {} : { castId: this.#program.castId }),
+        ...(this.castId === undefined ? {} : { castId: this.castId }),
         ...data,
       },
     });

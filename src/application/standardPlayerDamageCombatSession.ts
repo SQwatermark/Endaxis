@@ -17,7 +17,6 @@ import {
 interface CombatProgramTree {
   readonly abilityEntities: CombatRuntimeAssembly['abilityEntityChildSkillPrograms'];
   readonly operations: CombatRuntimeAssembly['combatOperationPrograms'];
-  readonly skills: CombatRuntimeAssembly['combatSkillPrograms'];
   readonly projectileCallbacks: CombatRuntimeAssembly['projectileLifetimes']['callbackPrograms'];
   readonly timeDilation: NonNullable<CombatRuntimeAssembly['timeDilation']>['programs'] | null;
 }
@@ -43,7 +42,11 @@ export class StandardPlayerDamageCombatSession {
   }
 
   collectResult(): StandardPlayerDamageScenarioResult {
-    return collectStandardPlayerDamageStateGraphResult(this.runtime.readState(), this.compiled);
+    return collectStandardPlayerDamageStateGraphResult(
+      this.runtime.readState(),
+      this.compiled,
+      this.runtime.readHistory(),
+    );
   }
 
   fork(
@@ -70,7 +73,6 @@ export function createStandardPlayerDamageCombatSession(
   const programs: CombatProgramTree = {
     abilityEntities: assembly.abilityEntityChildSkillPrograms,
     operations: assembly.combatOperationPrograms,
-    skills: assembly.combatSkillPrograms,
     projectileCallbacks: assembly.projectileLifetimes.callbackPrograms,
     timeDilation: assembly.timeDilation?.programs ?? null,
   };
@@ -87,8 +89,9 @@ function createRestoreAssembly(
   environment: RestoredCombatEnvironmentInput,
   programs: CombatProgramTree,
 ): RestoreCombatRuntimeAssembly {
-  return (graph: CombatStateGraph) =>
+  return (graph: CombatStateGraph, skillPrograms, receiptHistory) =>
     CombatRuntimeAssembly.restore({
+      receiptHistory,
       graph,
       resources: compiled.resources,
       enemy: compiled.enemy,
@@ -101,7 +104,7 @@ function createRestoreAssembly(
       environment,
       abilityEntityChildSkillPrograms: programs.abilityEntities,
       combatOperationPrograms: programs.operations,
-      combatSkillPrograms: programs.skills,
+      combatSkillPrograms: skillPrograms,
       projectileCallbackPrograms: programs.projectileCallbacks,
       ...(compiled.timeDilation === undefined || programs.timeDilation === null
         ? {}

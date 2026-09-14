@@ -4,7 +4,13 @@ import type { ScenarioDocument } from '../core/project/schema';
 import type { OperatorDefinition } from '../core/game-data/operatorDefinition';
 import { perlica } from '../data/operators/perlica';
 import { commonBuffDefinitions } from '../data/buffs/commonDefinitions';
-import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
+import { placeSkillGroup, groupPlacedSkillSequence } from '../ui/timeline/placeSkillGroup';
+import { CombatInputSchedule } from './combatInputSchedule';
+import type { CombatSkillInputPhase } from '../core/combat/runtime/combatFrameInput';
+import {
+  compileFixedCombatInputSchedule,
+  compileCombatInputSchedule,
+} from './compileFixedCombatInputSchedule';
 import {
   createDefaultCriticalSampleSource,
   ScenarioSimulationService,
@@ -96,6 +102,121 @@ const testIndex = {
 };
 
 describe('ScenarioSimulationService', () => {
+  it('排程回调只能在当前输入阶段提交，不能保留端口或改写其他帧', () => {
+    const session = createService().createInputCombatSession(createPerlicaScenario());
+    let retained: CombatSkillInputPhase | undefined;
+    session.runtime.applyInitialInput({
+      skills: phase => {
+        retained = phase;
+        expect(() =>
+          phase.submit({ frame: 1, operatorId: 'track:0', skillId: 'basicAttack1' }, 1),
+        ).toThrow('current frame input phase');
+      },
+    });
+    expect(() =>
+      retained!.canContinue({ frame: 0, operatorId: 'track:0', skillId: 'basicAttack1' }),
+    ).toThrow('current frame input phase');
+    expect(session.runtime.readReceipts(undefined, new Set(['SkillStarted'])).entries).toEqual([]);
+  });
+
+  it('外部连续组在截面恢复后沿实际边界接续，与正常排程投影一致', () => {
+    let id = 0;
+    const placed = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'basicAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:group:${id++}` },
+    });
+    const scenario = groupPlacedSkillSequence(placed.scenario, placed.skillCastIds);
+    const schedule = compileCombatInputSchedule(scenario, testIndex);
+    expect(schedule.groups.length).toBeGreaterThan(0);
+    const service = createService();
+    const driver = new CombatInputSchedule(
+      service.createInputCombatSession(scenario),
+      schedule.inputs,
+      schedule.groups,
+    );
+    driver.advanceToFrame(2);
+    const saved = driver.save();
+    const branch = driver.fork(saved);
+    driver.advanceToFrame(300);
+    branch.advanceToFrame(300);
+    expect(branch.session.runtime.readState()).toEqual(driver.session.runtime.readState());
+    const scheduled = service.createCombatSession(scenario, 300);
+    scheduled.advanceToFrame(300);
+    expect(branch.session.collectResult()).toEqual(scheduled.collectResult());
+    expect(
+      branch.session.runtime.readReceipts(undefined, new Set(['SkillStarted'])).entries.length,
+    ).toBeGreaterThan(1);
+    driver.discardCheckpoint(saved);
+  });
+
+  it.each(['empty', 'fixed', 'group'] as const)(
+    '截面后新增连续组，保留 %s 进度且候选不污染父分支',
+    prefixKind => {
+      let id = 0;
+      const place = (scenario: ScenarioDocument, startFrame: number) => {
+        const placed = placeSkillGroup({
+          scenario,
+          trackIndex: 0,
+          operator: perlica,
+          skillGroupKey: 'basicAttack',
+          startFrame,
+          ids: { allocate: kind => `${kind}:added:${id++}` },
+        });
+        return groupPlacedSkillSequence(placed.scenario, placed.skillCastIds);
+      };
+      const prefix =
+        prefixKind === 'group' ? place(createPerlicaScenario(), 1) : createPerlicaScenario();
+      if (prefixKind === 'fixed') {
+        prefix.tracks[0]!.skillCasts = placeSkillGroup({
+          scenario: prefix,
+          trackIndex: 0,
+          operator: perlica,
+          skillGroupKey: 'plungingAttack',
+          startFrame: 1,
+          ids: { allocate: kind => `${kind}:prefix` },
+        }).scenario.tracks[0]!.skillCasts;
+      }
+      const service = createService();
+      const schedule = compileCombatInputSchedule(prefix, testIndex);
+      const driver = new CombatInputSchedule(
+        service.createInputCombatSession(prefix),
+        schedule.inputs,
+        schedule.groups,
+      );
+      driver.advanceToFrame(2);
+      const saved = driver.save();
+      const before = driver.session.runtime.readState();
+      const candidate = place(prefix, 180);
+      candidate.battle.controlSwitches = [{ id: 'switch', frame: 180, trackIndex: 0 }];
+      candidate.battle.externalEventMarkers = [
+        {
+          id: 'weakness',
+          frame: 180,
+          target: { scope: 'team' },
+          event: { kind: 'enemyWeaknessSet' },
+        },
+      ];
+      const planned = compileCombatInputSchedule(candidate, testIndex);
+      const additions = planned.inputs.filter(input => input.frame >= 180);
+      const groups = planned.groups.slice(schedule.groups.length);
+      expect(() => driver.fork(saved, [{ frame: 2 }])).toThrow('saved input boundary');
+      const branch = driver.fork(saved, additions, groups);
+      branch.advanceToFrame(500);
+      const reference = service.createCombatSession(candidate, 500);
+      reference.advanceToFrame(500);
+      expect(branch.session.collectResult()).toEqual(reference.collectResult());
+      expect(driver.session.runtime.readState()).toEqual(before);
+      const retry = driver.fork(saved, additions, groups);
+      retry.advanceToFrame(500);
+      expect(retry.session.runtime.readState()).toEqual(branch.session.runtime.readState());
+      driver.discardCheckpoint(saved);
+    },
+  );
+
   it('在同一份回执上投影资源、敌人生命、失衡和技能诊断', async () => {
     const scenario = createPerlicaScenario();
     const placed = placeSkillGroup({
@@ -387,6 +508,98 @@ describe('ScenarioSimulationService', () => {
 
     expect(second).not.toBe(first);
     expect(service.findCached(secondScenario, 30)).toBe(second);
+  });
+
+  it('完整会话仅在输入时提交技能种子，未来候选换种子不改父分支', () => {
+    const scenario = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'plungingAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:seeded` },
+    }).scenario;
+    scenario.battle.random = { mode: 'sampled', globalSeed: 123 };
+    const cast = scenario.tracks[0]!.skillCasts[0]!;
+    cast.simulationInputs = { randomSeed: 7 };
+    const parent = createService().createCombatSession(scenario, 30);
+    const saved = parent.runtime.save();
+    expect(parent.runtime.readState().environment!.random!.submittedCastSeeds.size).toBe(0);
+    const branch = parent.fork(saved, {
+      ...parent.compiled,
+      inputs: parent.compiled.inputs!.map(input => ({
+        ...input,
+        simulationInputs: { ...input.simulationInputs, randomSeed: 99 },
+      })),
+    });
+    branch.advanceToFrame(30);
+    expect(branch.runtime.readState().environment!.random!.submittedCastSeeds.get(cast.id)).toBe(
+      99,
+    );
+    expect(parent.runtime.readState().environment!.random!.submittedCastSeeds.size).toBe(0);
+    parent.advanceToFrame(30);
+    expect(parent.runtime.readState().environment!.random!.submittedCastSeeds.get(cast.id)).toBe(7);
+    const result = parent.runtime.readState();
+    parent.runtime.restore(saved);
+    parent.advanceToFrame(30);
+    expect(parent.runtime.readState()).toEqual(result);
+  });
+
+  it('逐帧应用会话不编译未来放置，新施放及恢复使用正式伤害投影', () => {
+    const scenario = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'plungingAttack',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:live` },
+    }).scenario;
+    scenario.battle.controlSwitches = [
+      { id: 'off', frame: 0, trackIndex: 1 },
+      { id: 'on', frame: 1, trackIndex: 0 },
+    ];
+    scenario.battle.externalEventMarkers = [
+      {
+        id: 'weakness',
+        frame: 1,
+        target: { scope: 'team' },
+        event: { kind: 'enemyWeaknessSet' },
+      },
+    ];
+    const service = createService();
+    const scheduled = service.createCombatSession(scenario, 30);
+    const input = scheduled.compiled.inputs![0]!;
+    const live = service.createInputCombatSession(scenario);
+    expect(live.compiled.inputs).toEqual([]);
+    expect(live.compiled.operators.every(operator => operator.skills.length === 0)).toBe(true);
+    const saved = live.runtime.save();
+    const initial = live.runtime.readState();
+    const branch = live.fork(saved);
+    const driver = new CombatInputSchedule(
+      branch,
+      compileFixedCombatInputSchedule(scenario, testIndex),
+    );
+    driver.advanceToFrame(input.frame);
+    const active = branch.runtime.save();
+    driver.advanceToFrame(15);
+    const cursor = branch.runtime.readReceipts(undefined, new Set(['SkillStarted']));
+    expect(cursor.entries).toHaveLength(1);
+    expect(cursor.entries[0]!.data!.castId).toBe(input.castId);
+    driver.advanceToFrame(30);
+    expect(branch.runtime.readReceipts(cursor.cursor, new Set(['SkillStarted'])).entries).toEqual(
+      [],
+    );
+    scheduled.advanceToFrame(30);
+    expect(branch.collectResult()).toEqual(scheduled.collectResult());
+    const completed = branch.runtime.readState();
+    branch.runtime.restore(active);
+    expect(() => driver.advanceToFrame(30)).toThrow('previous combat generation');
+    expect(
+      () => new CombatInputSchedule(branch, [{ frame: input.frame, skills: [input] }]),
+    ).toThrow('after the saved input boundary');
+    new CombatInputSchedule(branch, []).advanceToFrame(30);
+    expect(branch.runtime.readState()).toEqual(completed);
+    expect(live.runtime.readState()).toEqual(initial);
   });
 
   it('默认暴击策略为每次新建的确定性均匀样本流', () => {

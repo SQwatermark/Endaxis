@@ -61,12 +61,6 @@ export class CombatSharedRuntime {
     )
       throw new Error('restored time-dilation state does not match the scenario');
     if (
-      state !== undefined &&
-      options.receipt !== undefined &&
-      options.receipt.runtimeState !== state.receipts
-    )
-      throw new Error('restored receipt collector must bind the saved receipt state');
-    if (
       state?.timeDilation !== undefined &&
       state.timeDilation !== null &&
       restored?.timeDilationPrograms === undefined
@@ -80,7 +74,7 @@ export class CombatSharedRuntime {
       options.resourceResolvers,
       state?.resources,
     );
-    this.receipt = options.receipt ?? new CombatReceiptCollector(state?.receipts);
+    this.receipt = options.receipt ?? new CombatReceiptCollector();
     this.ultimatePresentation = new UltimatePresentationRuntime(
       this.clock,
       this.receipt,
@@ -116,7 +110,6 @@ export class CombatSharedRuntime {
     this.runtimeState = state ?? {
       clock: this.clock.runtimeState,
       resources: this.resources.runtimeState,
-      receipts: this.receipt.runtimeState,
       timeDilation: this.timeDilation?.runtimeState ?? null,
       comboWindows: this.comboWindows.runtimeState,
       ultimatePresentation: this.ultimatePresentation.runtimeState,

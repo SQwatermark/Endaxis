@@ -5,7 +5,6 @@ import { perlica } from '../../data/operators/perlica';
 import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
 import { compileScenarioTimeline } from './compileScenarioTimeline';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
-import { deriveHitId } from '../combat/timeline/deriveHitId';
 
 function createScenario(): ScenarioDocument {
   const scenario = createEmptyScenario('scenario:1', '佩丽卡编译样本');
@@ -54,7 +53,7 @@ function requireSingleSkill(skillGroupKey: string): SkillDefinition {
 }
 
 describe('compileScenarioTimeline', () => {
-  it('Switch 的全部候选伤害绑定放置实例 hitId，而不是遗漏未选分支', () => {
+  it('Switch 的候选伤害保留步骤 key，不预写施放 hitId', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     const cast = scenario.tracks[0]!.skillCasts[0]!;
     cast.customDefinition = {
@@ -93,13 +92,14 @@ describe('compileScenarioTimeline', () => {
     )!;
     const step = program.timelineActions[0]!.sequence.steps[0]!;
     if (step.kind !== 'switch') throw new Error('expected switch');
+    expect(step.options.map(option => option.sequence.steps[0]!.key)).toEqual(['case0', 'case1']);
     expect(step.options.map(option => option.sequence.steps[0]!.hitId)).toEqual([
-      deriveHitId(cast.id, 'case0'),
-      deriveHitId(cast.id, 'case1'),
+      undefined,
+      undefined,
     ]);
   });
 
-  it('copies cast-specific simulation inputs into the placed combat program', () => {
+  it('copies cast-specific simulation inputs into the input instead of the skill program', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     scenario.tracks[0]!.skillCasts[0]!.simulationInputs = {
       cameraToTargetSignedAngleDegrees: 22.5,
@@ -109,17 +109,14 @@ describe('compileScenarioTimeline', () => {
 
     const compiled = compileScenarioTimeline(scenario, index());
 
-    expect(
-      compiled.operators[0]?.skills.find(skill => skill.castId !== undefined)?.simulationInputs,
-    ).toEqual({
+    expect(compiled.inputs[0]?.simulationInputs).toEqual({
       cameraToTargetSignedAngleDegrees: 22.5,
       randomSeed: 7,
       criticalOverrides: { 'damage:1': true },
     });
-    expect(
-      compiled.operators[0]?.skills.find(skill => skill.castId !== undefined)?.simulationInputs
-        ?.criticalOverrides,
-    ).not.toBe(scenario.tracks[0]!.skillCasts[0]!.simulationInputs?.criticalOverrides);
+    expect(compiled.inputs[0]?.simulationInputs?.criticalOverrides).not.toBe(
+      scenario.tracks[0]!.skillCasts[0]!.simulationInputs?.criticalOverrides,
+    );
   });
 
   it('combines read-only common Buffs with operator-owned Buffs without a skill level', () => {
@@ -583,7 +580,7 @@ describe('compileScenarioTimeline', () => {
     expect(program.costs).toEqual([{ resource: 'sp', value: 123 }]);
   });
 
-  it('binds stable hit identities through root and ability-entity child sequences', () => {
+  it('keeps local step keys through root and child sequences without binding cast hit IDs', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
     const cast = scenario.tracks[0]!.skillCasts[0]!;
     cast.customDefinition = {
@@ -638,12 +635,13 @@ describe('compileScenarioTimeline', () => {
     const program = compileScenarioTimeline(scenario, index()).operators[0]!.skills[0]!;
     const root = program.timelineActions[0]!.sequence.steps[0]!;
     const spawn = program.timelineActions[0]!.sequence.steps[1]!;
-    expect(root.hitId).toBe(deriveHitId(cast.id, 'root-hit'));
+    expect(root.key).toBe('root-hit');
+    expect(root.hitId).toBeUndefined();
     expect(spawn.kind).toBe('spawnAbilityEntity');
     if (spawn.kind !== 'spawnAbilityEntity') throw new Error('expected spawn step');
     expect(
       spawn.parameters.definition!.childSkill?.timelineActions[0]?.sequence.steps[0]?.hitId,
-    ).toBe(deriveHitId(cast.id, 'child-hit'));
+    ).toBeUndefined();
   });
 
   it('applies active operator upgrades after compiling a custom definition', () => {

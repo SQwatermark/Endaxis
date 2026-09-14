@@ -7,7 +7,7 @@
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import { COMBAT_FRAMES_PER_SECOND, type CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
-import type { PendingComboCondition } from './comboSkillConditionRuntime';
+import type { ComboCastParameters } from './comboSkillConditionRuntime';
 
 export const COMBO_WINDOW_DURATION_FRAMES = 5 * COMBAT_FRAMES_PER_SECOND;
 
@@ -20,7 +20,7 @@ export interface PendingComboWindow {
   /** 从角色级连携注册复制的本次候选参数；不能回写干员定义。 */
   readonly blackboard: Readonly<Record<string, number>>;
   /** 原生条件候选；与旧语义窗口的数值板分开，在 Start 恢复后才应用。 */
-  readonly nativeCondition?: PendingComboCondition & { readonly skillGroupKey: string };
+  readonly nativeCondition?: ComboCastParameters & { readonly skillGroupKey: string };
   remainingFrames: number;
 }
 
@@ -142,7 +142,7 @@ export class ComboWindowRuntime implements FrameRuntime {
     operatorId: string,
     nextSkillKey: string,
     blackboard: Readonly<Record<string, number>> = {},
-    nativeCondition?: PendingComboCondition & { readonly skillGroupKey: string },
+    nativeCondition?: ComboCastParameters & { readonly skillGroupKey: string },
   ): PendingComboWindow {
     if (operatorId.length === 0) throw new Error('combo window operatorId must not be empty');
     if (nextSkillKey.length === 0) throw new Error('combo window nextSkillKey must not be empty');
@@ -156,7 +156,7 @@ export class ComboWindowRuntime implements FrameRuntime {
         ? {}
         : {
             nativeCondition: Object.freeze({
-              ...nativeCondition,
+              skillGroupKey: nativeCondition.skillGroupKey,
               inputTarget: Object.freeze({ ...nativeCondition.inputTarget }),
               triggerTarget:
                 nativeCondition.triggerTarget === null

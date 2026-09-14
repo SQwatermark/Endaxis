@@ -1,0 +1,55 @@
+import { expect, it } from 'vitest';
+import { CombatReceiptCollector } from './combatReceipt';
+
+it('写入冻结事实，父分支继续追加不改变固定视图，分叉共享前缀但不共享后缀', () => {
+  const parent = new CombatReceiptCollector();
+  const data = { value: 1 };
+  parent.record({ event: 'first', frame: 0, time: 0, data });
+  const saved = parent.history.snapshot();
+  data.value = 9;
+  expect(saved.get(0)!.data!.value).toBe(1);
+  expect(Reflect.set(saved.get(0)!.data!, 'value', 8)).toBe(false);
+  expect(Reflect.set(saved.get(0)!, 'event', 'changed')).toBe(false);
+  const a = new CombatReceiptCollector(saved),
+    b = new CombatReceiptCollector(saved);
+  parent.record({ event: 'parent', frame: 1, time: 1 / 30 });
+  a.record({ event: 'a', frame: 1, time: 1 / 30 });
+  b.record({ event: 'b', frame: 1, time: 1 / 30 });
+  expect(saved.length).toBe(1);
+  expect(a.entries[0]).toBe(saved.get(0));
+  expect(b.entries[0]).toBe(saved.get(0));
+  expect([a.entries[1]!.event, b.entries[1]!.event, parent.entries[1]!.event]).toEqual([
+    'a',
+    'b',
+    'parent',
+  ]);
+  expect(a.entries[1]!.sequence).toBe(b.entries[1]!.sequence);
+  expect(saved.toArray()).toBe(saved.toArray());
+});
+
+it('跨封存段和未满尾部增量读取，不漏同帧事实，空筛选仍推进且拒绝其他分支游标', () => {
+  const receipt = new CombatReceiptCollector();
+  let cursor = receipt.history.cursor();
+  for (let index = 0; index < 530; index += 1)
+    receipt.record({ frame: 0, time: 0, event: index % 2 === 0 ? 'even' : 'odd' });
+  const empty = receipt.history.readSince(cursor, new Set(['missing']));
+  expect(empty.entries).toEqual([]);
+  expect(empty.cursor.nextSequence).toBe(530);
+  const all = receipt.history.readSince(cursor);
+  expect(all.entries.map(entry => entry.sequence)).toEqual(
+    Array.from({ length: 530 }, (_, i) => i),
+  );
+  cursor = all.cursor;
+  const saved = receipt.history.snapshot();
+  receipt.record({ frame: 0, time: 0, event: 'after' });
+  const next = receipt.history.readSince(cursor);
+  expect(next.entries.map(entry => entry.sequence)).toEqual([530]);
+  expect([...saved.entries(254, 258)].map(entry => entry.sequence)).toEqual([254, 255, 256, 257]);
+  expect(() => new CombatReceiptCollector(saved).history.readSince(cursor)).toThrow(
+    'another history branch',
+  );
+  expect(() => receipt.history.readSince({ ...cursor, nextSequence: 0 })).toThrow(
+    'another history branch',
+  );
+  expect(() => [...saved.entries(0, 531)]).toThrow('within this history');
+});

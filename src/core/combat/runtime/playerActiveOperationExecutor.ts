@@ -65,7 +65,7 @@ export function createPlayerActiveOperationExecutor(
     ) =>
       step.key === undefined
         ? undefined
-        : options.context.program.simulationInputs?.criticalOverrides?.[step.key],
+        : options.context.readSimulationInputs?.()?.criticalOverrides?.[step.key],
     targetId: options.targetId,
     clock: options.context.clock,
     receipt: options.context.receipt,

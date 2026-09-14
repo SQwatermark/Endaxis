@@ -2,26 +2,30 @@
  * 在原生 PlayerController 所在的 Frame 阶段消费已编译施放输入。
  * 输入必须按帧有序；同帧输入保持声明顺序，不能在运行时按干员或技能身份重排。
  */
-import type { CombatReceiptSink } from '../receipt/combatReceipt';
 import type { CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import type { PlayerSkillInput } from '../../game-data/operatorDefinition';
-import { processCombatSkillInput } from './combatInputExecution';
+import type { CombatInputExecution } from './combatInputExecution';
+import { sameSkillSimulationInputs, type SkillSimulationInputs } from './skillSimulationInputs';
 import type {
   CombatInputRuntimeState,
   SkillInputGroupRuntimeState,
 } from './combatInputRuntimeState';
 
 /** 一次技能输入。固定输入已确定实际帧；组后段在运行时到达边界后才确定实际帧。 */
-export interface ScheduledSkillInput {
-  /** 固定输入的实际帧；尚未启动的组后段仅携带锚点帧，供编译预检使用。 */
-  readonly frame: number;
+export interface CombatSkillInput {
+  readonly simulationInputs?: SkillSimulationInputs;
   readonly operatorId: string;
   readonly skillId: string;
   /** 玩家尝试执行的四类语义动作；与设备键位和技能库分组无关。 */
   readonly action?: PlayerSkillInput;
   /** 文档中的技能释放身份；同技能多次放置靠它区分。 */
   readonly castId?: string;
+}
+
+export interface ScheduledSkillInput extends CombatSkillInput {
+  /** 固定输入的实际帧；尚未启动的组后段仅携带锚点帧，供编译预检使用。 */
+  readonly frame: number;
   /** 动态组与固定输入落在同帧时，仍按轨道和块的原始声明顺序执行。 */
   readonly declarationOrder?: number;
 }
@@ -38,15 +42,9 @@ interface SkillInputGroupRuntime {
 }
 
 export interface CombatInputRuntimeOptions {
-  readonly clock: CombatClock;
+  readonly clock: Pick<CombatClock, 'frame'>;
   readonly inputs: readonly ScheduledSkillInput[];
-  readonly receipt: CombatReceiptSink;
-  readonly tryStartSkill: (
-    operatorId: string,
-    skillId: string,
-    castId?: string,
-    action?: PlayerSkillInput,
-  ) => boolean;
+  readonly execution: CombatInputExecution;
   readonly skillInputGroups?: {
     readonly groups: readonly SkillInputGroup[];
     /** 只检查前段实际块边界；不把技能路由或资源许可变成自动等待条件。 */
@@ -65,10 +63,9 @@ export interface CombatInputRuntimeOptions {
 /** 保持输入顺序并在当前帧同步提交施放请求。 */
 export class CombatInputRuntime implements FrameRuntime {
   readonly runtimeState: CombatInputRuntimeState;
-  readonly #clock: CombatClock;
+  readonly #clock: Pick<CombatClock, 'frame'>;
   readonly #inputs: readonly ScheduledSkillInput[];
-  readonly #receipt: CombatReceiptSink;
-  readonly #tryStartSkill: CombatInputRuntimeOptions['tryStartSkill'];
+  readonly #execution: CombatInputExecution;
   readonly #continuationInputs: readonly ScheduledSkillInput[];
   readonly #canContinue: CombatInputRuntimeOptions['continuationPlan'];
   readonly #groups: readonly SkillInputGroupRuntime[];
@@ -78,8 +75,7 @@ export class CombatInputRuntime implements FrameRuntime {
 
   constructor(options: CombatInputRuntimeOptions) {
     this.#clock = options.clock;
-    this.#receipt = options.receipt;
-    this.#tryStartSkill = options.tryStartSkill;
+    this.#execution = options.execution;
     this.#groupOptions = options.skillInputGroups;
     let previousFrame = Number.NEGATIVE_INFINITY;
     for (const [index, input] of options.inputs.entries()) {
@@ -309,23 +305,19 @@ export class CombatInputRuntime implements FrameRuntime {
     const next = group.inputs[group.state.nextIndex];
     // 最后一段失败已有输入回执；只有尚未启动的后缀需要额外阻断事实。
     if (next === undefined || group.state.previous === null) return;
-    this.#receipt.record({
+    this.#execution.groupBlocked({
       frame: this.#clock.frame,
-      time: this.#clock.time,
-      event: 'SkillInputGroupBlocked',
-      sourceId: group.state.previous.operatorId,
-      data: {
-        anchorCastId: group.state.anchorCastId,
-        castId: next.castId!,
-        previousCastId: group.state.previous.castId!,
-        reason,
-        ...(interruptingCastId === undefined ? {} : { interruptingCastId }),
-      },
+      operatorId: group.state.previous.operatorId,
+      anchorCastId: group.state.anchorCastId,
+      castId: next.castId!,
+      previousCastId: group.state.previous.castId!,
+      reason,
+      ...(interruptingCastId === undefined ? {} : { interruptingCastId }),
     });
   }
 
   #processInput(input: ScheduledSkillInput): boolean {
-    return processCombatSkillInput(input, this.#clock.frame, this.#tryStartSkill, this.#receipt);
+    return this.#execution.submit(input, this.#clock.frame);
   }
 }
 
@@ -342,6 +334,7 @@ function sameScheduledSkillInput(
       left.skillId === right.skillId &&
       left.action === right.action &&
       left.castId === right.castId &&
+      sameSkillSimulationInputs(left.simulationInputs, right.simulationInputs) &&
       left.declarationOrder === right.declarationOrder)
   );
 }

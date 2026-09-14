@@ -183,6 +183,11 @@ import {
 } from './combatRuntimeAbilityEntityRelationRestoration';
 import { bindRestoredCombatProjectileRelations } from './combatRuntimeProjectileRestoration';
 import { bindRestoredCombatRuntimeFrame } from './combatRuntimeFrameRestoration';
+import { bindCombatFramePipeline } from './combatFramePipeline';
+import { OperatorControlRuntime } from './operatorControlRuntime';
+import type { CombatFrameInput } from './combatFrameInput';
+import { createCombatInputExecution, type CombatInputExecution } from './combatInputExecution';
+import { sameSkillSimulationInputs, type SkillSimulationInputs } from './skillSimulationInputs';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -277,6 +282,7 @@ type CombatOperationProgram = CompiledSkillExecutionProgram & {
 };
 
 export interface CombatOperationExecutorContext {
+  readonly readSimulationInputs?: () => SkillSimulationInputs | undefined;
   readonly program: CompiledSkillProgram;
   /** 伤害、治疗和属性读取归属的干员；能力实体作为动作宿主时仍指向其定义宿主。 */
   readonly sourceOperatorId?: string;
@@ -296,6 +302,8 @@ export interface CombatOperationExecutorContext {
 
 /** 装配根在任何开局程序执行前交给外部战斗环境的一次性运行时上下文。 */
 export interface CombatBattleRuntimeContext {
+  /** 当前已生效的主控身份；不查询未来排程。 */
+  readonly isOperatorControlled?: (operatorId: string) => boolean;
   readonly enemy: CombatEnemyProgram;
   readonly clock: CombatClock;
   readonly resources: CombatResources;
@@ -350,6 +358,8 @@ export interface CombatRuntimeScenarioOptions {
   readonly skillInputGroups?: readonly SkillInputGroup[];
   /** 时间轴显式输入的受击事实；不执行敌方伤害或生命扣减。 */
   readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
+  /** 初始化时、首帧人工切换之前的主控；省略时兼容直接装配提供的控制查询。 */
+  readonly initialControlledOperatorId?: string | null;
   /** 场景编译层依据控制切换时间线提供查询；装配层不猜测初始主控。 */
   readonly isOperatorControlled?: (operatorId: string, frame: number) => boolean;
 }
@@ -369,6 +379,9 @@ export interface CombatRuntimeEnvironmentOptions {
   readonly skillAvailabilityTags?: import('../tags/gameplayTagPredefine').GameplayTagPredefine;
   /** 准备期从负帧开始；省略时保持独立运行时原有的第 0 帧起点。 */
   readonly initialFrame?: number;
+  readonly submitCastRandomSeed?: (castId: string, seed?: number) => void;
+  /** 逐帧驱动在初始化之后、起始帧输入之前交还控制权。 */
+  readonly deferInitialInput?: boolean;
   /** RandomUtil.Dice 使用的独立样本源；只有实际执行概率条件时才要求存在。 */
   readonly probabilitySamples?: ProbabilitySampleSource;
   /** StoreAttributeValue 的动态来源属性读取端口；只有技能实际使用时才要求提供。 */
@@ -496,6 +509,7 @@ export interface CombatRuntimeEnvironmentOptions {
 
 /** 从同一切面树的固定程序与标准环境配置建立完整的当前分支装配。 */
 export interface CombatRuntimeAssemblyRestoreOptions {
+  readonly receiptHistory: import('../receipt/combatReceiptHistory').CombatReceiptView;
   readonly graph: CombatStateGraph;
   readonly resources: CombatResourceSnapshot;
   readonly enemy: CombatEnemyProgram;
@@ -571,8 +585,11 @@ export class CombatRuntimeAssembly {
   /** 排轴驱动的过渡入口，不属于战斗切面；每次步进交给固定输入阶段调用。 */
   readonly #scheduledFrameInputs: import('./combatSimulation').CombatFrameInputs;
   readonly #inputRuntime: CombatInputRuntime;
+  #inputExecution: CombatInputExecution | undefined;
+  #groupTiming: SkillInputGroupTiming | undefined;
   readonly #externalEventRuntime: ExternalCombatEventRuntime;
   readonly #options: CombatRuntimeAssemblyOptions;
+  readonly #castParameters: Map<string, SkillSimulationInputs>;
   readonly clock: CombatClock;
   readonly resources: CombatResources;
   readonly receipt: CombatReceiptCollector;
@@ -584,6 +601,7 @@ export class CombatRuntimeAssembly {
   readonly timeDilation: TimeDilationRuntime | null;
   /** 按实际战斗帧驱动各个运行时；每个对象自行消费对应的局部 delta。 */
   readonly simulation: CombatSimulation;
+  readonly #operatorControl: OperatorControlRuntime;
   /** 全场唯一的零空间能力实体实例目录。 */
   readonly abilityEntities: LogicalAbilityEntityRuntime;
   /** 动态生成的实体子技能程序在整个切面树中保持同一编号与动作槽位映射。 */
@@ -707,6 +725,7 @@ export class CombatRuntimeAssembly {
       restoredFoundation = bindRestoredCombatRuntimeFoundation({
         preparation: restored.preparation,
         shared: {
+          receipt: new CombatReceiptCollector(restoreOptions.receiptHistory),
           resources: restoreOptions.resources,
           resourceResolvers: {
             ultimateEnergyGainMultiplier: operatorId =>
@@ -750,7 +769,7 @@ export class CombatRuntimeAssembly {
       options = {
         resources: restoreOptions.resources,
         enemy: restoreOptions.enemy,
-        operators: restoreOptions.operators,
+        operators: [...restored.preparation.programs.values()],
         ...(restoreOptions.inputs === undefined ? {} : { inputs: restoreOptions.inputs }),
         ...(restoreOptions.skillInputGroups === undefined
           ? {}
@@ -776,7 +795,26 @@ export class CombatRuntimeAssembly {
           : { isOperatorControlled: restoreOptions.environment.isOperatorControlled }),
       };
     }
+    const scheduledControl = options.isOperatorControlled;
+    const controlState =
+      restored?.preparation.graph.inputs.control ??
+      new Map(
+        options.operators.map(operator => [
+          operator.operatorId,
+          options.initialControlledOperatorId === undefined
+            ? (scheduledControl?.(operator.operatorId, options.initialFrame ?? 0) ?? false)
+            : operator.operatorId === options.initialControlledOperatorId,
+        ]),
+      );
+    options = {
+      ...options,
+      isOperatorControlled: operatorId => controlState.get(operatorId) ?? false,
+    };
     this.#options = options;
+    this.#castParameters = restored?.preparation.graph.inputs.castParameters ?? new Map();
+    if (options.deferInitialInput || restored?.preparation.graph.inputs.initialInputPending) {
+      this.#requireLiveInputs();
+    }
     if (restored !== undefined) {
       const preparation = restored.preparation;
       const foundation = restoredFoundation!;
@@ -1193,6 +1231,7 @@ export class CombatRuntimeAssembly {
           : { enemyStatusContainer: options.enemyStatusContainer }),
       });
       this.simulation = frame.simulation;
+      this.#operatorControl = frame.control;
       this.#enemyStatuses = frame.enemyStatuses;
       this.#scheduledFrameInputs = {
         skillInputs: () => this.#inputRuntime.applyCurrentFrame(),
@@ -1258,6 +1297,7 @@ export class CombatRuntimeAssembly {
     );
     const boundBattleRuntimes =
       options.bindBattleRuntime?.({
+        isOperatorControlled: operatorId => controlState.get(operatorId) ?? false,
         enemy: options.enemy,
         clock: this.clock,
         resources: this.resources,
@@ -1685,105 +1725,45 @@ export class CombatRuntimeAssembly {
         options.emitOperatorEnterFight?.(operator.operatorId);
       }
 
-      if (this.timeDilation !== null) this.simulation.add(this.timeDilation);
-      if (options.isOperatorControlled !== undefined) {
-        const controlledByOperator = new Map(
-          options.operators.map(operator => [
-            operator.operatorId,
-            options.isOperatorControlled!(operator.operatorId, this.clock.frame),
-          ]),
-        );
-        this.simulation.add({
-          // 共享时钟已进入新帧，但 Buff PreLateTick 尚未推进：此处对应原生角色换位事件边界。
-          advanceFrame: () => {
-            for (const operator of options.operators) {
-              const previous = controlledByOperator.get(operator.operatorId)!;
-              const current = options.isOperatorControlled!(operator.operatorId, this.clock.frame);
-              if (previous === current) continue;
-              controlledByOperator.set(operator.operatorId, current);
-              options.emitAbilityEvent?.(
-                operator.operatorId,
-                current ? 'ownerSwitchToCenter' : 'ownerSwitchToGuard',
-                { sourceId: operator.operatorId, targetId: operator.operatorId },
-              );
-            }
-          },
-        });
-      }
-      const enemyControlRuntime = boundBattleRuntimes.enemyControlRuntime;
-      if (enemyControlRuntime !== undefined && enemyControlRuntime !== null) {
-        this.simulation.add({
-          // 控制组件在 FixedTick 推进，早于 AbilitySystem 的 Buff PreLateTick。
-          advanceFrame: () =>
-            enemyControlRuntime.advance(
-              COMBAT_FRAME_INTERVAL * (this.timeDilation?.getEntityScale('enemy') ?? 1),
-            ),
-        });
-      }
-      this.simulation.add(new CombatResourceRuntime(this.resources, this.clock, this.receipt));
-      // GlobalBuff 父寿命先推进；父层到期会在本帧普通 Buff 推进前同步结束全部镜像。
-      this.simulation.add(this.globalBuffs);
-      // 能力实体到期先于本帧输入和技能动作；新生成实例从下一帧开始扣减时长。
-      this.simulation.add(this.abilityEntities);
-      // ProjectileComponent 属于 PreLateTick Default(0)，AbilitySystem 属于
-      // Battle(1)。结束回调与 reset 必须先于敌方/干员的 Buff 和技能更新。
-      this.simulation.add(this.projectileLifetimes);
-      this.simulation.add({ advanceFrame: () => this.projectileLifetimes.beginAbilityFrame() });
-      // 敌方 Buff 与干员 AbilitySystem 中的 Buff 一样，在本帧技能动作前推进生命周期。
-      this.simulation.add({
-        advanceFrame: () => {
-          if (
-            this.timeDilation === null ||
-            this.#enemyBuffRuntime.advanceWithDeltas === undefined
-          ) {
-            this.#enemyBuffRuntime.advanceFrame();
-            return;
-          }
-          this.#enemyBuffRuntime.advanceWithDeltas(
-            this.timeDilation.getAbilityTickDeltas('enemy', COMBAT_FRAME_INTERVAL),
-          );
-        },
+      this.#operatorControl = new OperatorControlRuntime(
+        options.operators.map(operator => operator.operatorId),
+        this.clock,
+        scheduledControl,
+        options.emitAbilityEvent,
+        controlState,
+      );
+      bindCombatFramePipeline(this.simulation, {
+        timeDilation: this.timeDilation,
+        control: this.#operatorControl,
+        enemyControl: boundBattleRuntimes.enemyControlRuntime,
+        resources: new CombatResourceRuntime(this.resources, this.clock, this.receipt),
+        globalBuffs: this.globalBuffs,
+        abilityEntities: this.abilityEntities,
+        projectiles: this.projectileLifetimes,
+        enemyBuffs: this.#enemyBuffRuntime,
+        enemyVitals: boundBattleRuntimes.enemyVitalsRuntime ?? options.enemyVitalsRuntime,
+        enemyStatuses: this.#enemyStatuses,
+        operatorStatuses: options.operators.flatMap(operator => {
+          const status = this.#operatorStatuses.get(operator.operatorId);
+          return status === undefined ? [] : [status];
+        }),
+        comboWindows: this.comboWindows,
+        abilities: options.operators.map(operator =>
+          this.#requireAbilitySystem(operator.operatorId),
+        ),
+        bindInputPhases: true,
       });
-      // 失衡恢复计时与状态到期一样，在本帧输入和技能动作前推进。
-      const enemyVitalsRuntime =
-        boundBattleRuntimes.enemyVitalsRuntime ?? options.enemyVitalsRuntime;
-      if (enemyVitalsRuntime !== undefined && enemyVitalsRuntime !== null) {
-        this.simulation.add({
-          advanceFrame: () => {
-            if (this.timeDilation === null || enemyVitalsRuntime.advance === undefined) {
-              enemyVitalsRuntime.advanceFrame();
-              return;
-            }
-            enemyVitalsRuntime.advance(
-              COMBAT_FRAME_INTERVAL * this.timeDilation.currentGlobalScale,
-            );
-          },
-        });
-      }
-      // 状态到期先于本帧输入和技能动作结算；同一所有者内按状态插入顺序处理。
-      if (this.#enemyStatuses !== undefined) this.simulation.add(this.#enemyStatuses);
-      this.simulation.add({ advanceFrame: () => this.#enemyBuffRuntime.recycleFinishedBuffs?.() });
-      for (const operator of options.operators) {
-        const statusRuntime = this.#operatorStatuses.get(operator.operatorId);
-        if (statusRuntime !== undefined) this.simulation.add(statusRuntime);
-      }
-      // 先扣减未暂停候选的剩余时间，再处理本帧输入；归零的候选不能被本帧输入消费。
-      this.simulation.add(this.comboWindows);
       this.#inputRuntime = this.#createCombatInputRuntime(options);
-      this.simulation.addInputPhase('skillInputs');
-      for (const operator of options.operators) {
-        this.simulation.add(this.#requireAbilitySystem(operator.operatorId));
-      }
-      this.simulation.add({ advanceFrame: () => this.projectileLifetimes.advanceAbilityFrame() });
       this.#externalEventRuntime = this.#createExternalCombatEventRuntime(options);
-      // 外部事实晚于同帧技能动作：第 0 帧启用的临时监听器也能接收第 0 帧标记。
-      this.simulation.addInputPhase('externalEvents');
       this.#scheduledFrameInputs = {
         skillInputs: () => this.#inputRuntime.applyCurrentFrame(),
         externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
-      this.#inputRuntime.applyCurrentFrame();
-      this.#externalEventRuntime.applyCurrentFrame();
+      if (!options.deferInitialInput) {
+        this.#operatorControl.advanceFrame();
+        this.#inputRuntime.applyCurrentFrame();
+        this.#externalEventRuntime.applyCurrentFrame();
+      }
     } catch (error) {
       failAfterAbilityHostCleanup(error, [
         () => this.disposeEquipmentEvents(),
@@ -1795,6 +1775,9 @@ export class CombatRuntimeAssembly {
     this.stateGraph = {
       shared: this.sharedState,
       inputs: {
+        castParameters: this.#castParameters,
+        initialInputPending: options.deferInitialInput === true,
+        control: this.#operatorControl.runtimeState,
         skills: this.#inputRuntime.runtimeState,
         externalEvents: this.#externalEventRuntime.runtimeState,
       },
@@ -1868,8 +1851,23 @@ export class CombatRuntimeAssembly {
     expectedSkillId: string,
     castId?: string,
     action?: import('../../game-data/operatorDefinition').PlayerSkillInput,
+    simulationInputs: SkillSimulationInputs = {},
   ): boolean {
     const ability = this.#requireAbilitySystem(operatorId);
+    const parameterKey = `${operatorId}\u0000${castId ?? expectedSkillId}`;
+    const existingParameters = this.#castParameters.get(parameterKey);
+    if (
+      existingParameters !== undefined &&
+      !sameSkillSimulationInputs(existingParameters, simulationInputs)
+    ) {
+      throw new Error(`cannot change submitted skill parameters '${parameterKey}'`);
+    }
+    if (existingParameters === undefined)
+      this.#castParameters.set(parameterKey, structuredClone(simulationInputs));
+    if (castId !== undefined)
+      this.#options.submitCastRandomSeed?.(castId, simulationInputs.randomSeed);
+    else if (simulationInputs.randomSeed !== undefined)
+      throw new Error('a cast seed requires a cast id');
     this.#ensureCastInstance(operatorId, expectedSkillId, castId);
     const tagRules = this.#options.skillAvailabilityTags;
     if (tagRules !== undefined) {
@@ -2043,9 +2041,38 @@ export class CombatRuntimeAssembly {
     if (castId === undefined) return;
     const key = `${operatorId}\u0000${skillId}\u0000${castId}`;
     const create = this.#pendingCastFactories.get(key);
-    if (create === undefined) return;
-    this.#requireAbilitySystem(operatorId).registerCastInstance(create());
-    this.#pendingCastFactories.delete(key);
+    if (create !== undefined) {
+      this.#requireAbilitySystem(operatorId).registerCastInstance(create());
+      this.#pendingCastFactories.delete(key);
+      return;
+    }
+    if (this.#skillStates.get(operatorId)?.has(`${skillId}\u0000${castId}`)) return;
+    const definition = this.#skillPrograms.get(`${operatorId}\u0000${skillId}\u0000`);
+    if (definition === undefined) return;
+    const sourceBinding = this.#unboundSkillOperationBindings
+      .get(`${operatorId}\u0000${skillId}`)
+      ?.find(binding => binding.program === definition);
+    if (sourceBinding === undefined)
+      throw new Error(`missing skill definition binding '${operatorId}:${skillId}'`);
+    const { program } = this.combatSkillPrograms.registerCast(definition, castId);
+    this.#skillPrograms.set(key, program);
+    this.#castOperationBindings.set(castId, [
+      ...(this.#castOperationBindings.get(castId) ?? []),
+      { ...sourceBinding, program },
+    ]);
+    const runtime = this.#createSkillRuntime(
+      sourceBinding.operator,
+      program,
+      definition,
+      this.#options.enemy,
+      this.#entityBlackboards.get(operatorId)!,
+      this.#operatorStatuses.get(operatorId),
+      this.#options.createOperationExecutor,
+      this.#options.isOperatorControlled,
+      this.#options.resolveVitals,
+      this.#options.resolveOperatorVitals,
+    );
+    this.#requireAbilitySystem(operatorId).registerCastInstance(runtime);
   }
 
   #prepareSkillStart(
@@ -2171,17 +2198,32 @@ export class CombatRuntimeAssembly {
     this.requestPostSkillCast(operatorId, { ...request, skillId, resolveSkillSlot: false });
   }
 
-  #createCombatInputRuntime(
-    options: CombatRuntimeAssemblyOptions,
-    restoredState?: CombatInputRuntimeState,
-  ): CombatInputRuntime {
-    const groupTiming = new SkillInputGroupTiming(this.receipt.entries, input => {
+  #canContinueInputGroup(previous: ScheduledSkillInput): boolean {
+    return this.#inputTiming().canContinue(previous, this.clock.frame);
+  }
+
+  #inputTiming(): SkillInputGroupTiming {
+    return (this.#groupTiming ??= new SkillInputGroupTiming(this.receipt.history, input => {
       const program = this.#skillPrograms.get(
         `${input.operatorId}\u0000${input.skillId}\u0000${input.castId ?? ''}`,
       );
       if (program === undefined) throw new Error(`missing group skill program '${input.castId}'`);
       return program.timelineBlockFrames;
-    });
+    }));
+  }
+
+  #createInputExecution(): CombatInputExecution {
+    return (this.#inputExecution ??= createCombatInputExecution(
+      (operatorId, skillId, castId, action, simulationInputs) =>
+        this.tryStartPlayerInput(operatorId, skillId, castId, action, simulationInputs),
+      this.receipt,
+    ));
+  }
+
+  #createCombatInputRuntime(
+    options: CombatRuntimeAssemblyOptions,
+    restoredState?: CombatInputRuntimeState,
+  ): CombatInputRuntime {
     return new CombatInputRuntime({
       clock: this.clock,
       inputs: options.inputs ?? [],
@@ -2190,7 +2232,7 @@ export class CombatRuntimeAssembly {
         : {
             skillInputGroups: {
               groups: options.skillInputGroups,
-              canContinue: previous => groupTiming.canContinue(previous, this.clock.frame),
+              canContinue: previous => this.#canContinueInputGroup(previous),
             },
           }),
       ...(options.continuationPlanCastIds === undefined
@@ -2201,23 +2243,13 @@ export class CombatRuntimeAssembly {
               ignoreInputFailures: options.continuationPlanMode === 'compact',
               canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => {
                 if (options.continuationPlanMode === 'compact') {
-                  const interruption = this.receipt.entries.find(
-                    entry =>
-                      entry.event === 'SkillInterrupted' && entry.data?.castId === previous.castId,
-                  );
+                  const timing = this.#inputTiming();
+                  const interruption = timing.find(previous.castId, 'SkillInterrupted');
                   if (interruption !== undefined && interruption.frame <= this.clock.frame)
                     return true;
-                  const boundary = this.receipt.entries.find(
-                    entry =>
-                      entry.event === 'SkillOperableBoundaryReached' &&
-                      entry.data?.castId === previous.castId,
-                  );
+                  const boundary = timing.find(previous.castId, 'SkillOperableBoundaryReached');
                   if (boundary !== undefined) return boundary.frame < this.clock.frame;
-                  const processed = this.receipt.entries.find(
-                    entry =>
-                      entry.event === 'SkillInputProcessed' &&
-                      entry.data?.castId === previous.castId,
-                  );
+                  const processed = timing.find(previous.castId, 'SkillInputProcessed');
                   const program = this.#skillPrograms.get(
                     `${previous.operatorId}\u0000${previous.skillId}\u0000${previous.castId ?? ''}`,
                   );
@@ -2238,9 +2270,7 @@ export class CombatRuntimeAssembly {
               },
             },
           }),
-      receipt: this.receipt,
-      tryStartSkill: (operatorId, skillId, castId, action) =>
-        this.tryStartPlayerInput(operatorId, skillId, castId, action),
+      execution: this.#createInputExecution(),
       ...(restoredState === undefined ? {} : { restoredState }),
     });
   }
@@ -2290,11 +2320,92 @@ export class CombatRuntimeAssembly {
 
   /** 指定本次输入阶段可跳过原排程；用于逐帧提交，入口不会保留到下一帧。 */
   advanceFrame(inputs = this.#scheduledFrameInputs): void {
+    this.#requireInitialInputApplied();
     this.simulation.advanceFrame(inputs);
   }
 
   advanceFrames(count: number): void {
+    if (count > 0) this.#requireInitialInputApplied();
     this.simulation.advanceFrames(count, this.#scheduledFrameInputs);
+  }
+
+  /** 逐帧驱动只用于没有预置人工排程的装配，避免混用游标和即时输入。 */
+  advanceInputFrame(input: CombatFrameInput): void {
+    this.#requireInitialInputApplied();
+    this.simulation.advanceFrame(this.#liveFrameInputs(input));
+  }
+
+  /** 起始帧只处理输入，不 Tick、不推进时钟；顺序与旧装配的起始输入一致。 */
+  applyInitialInput(input: CombatFrameInput): void {
+    if (!this.stateGraph.inputs.initialInputPending) {
+      throw new Error('initial combat input has already been applied');
+    }
+    const phases = this.#liveFrameInputs(input);
+    this.stateGraph.inputs.initialInputPending = false;
+    phases.controlInputs!();
+    phases.skillInputs();
+    phases.externalEvents();
+  }
+
+  #requireInitialInputApplied(): void {
+    if (this.stateGraph.inputs.initialInputPending) {
+      throw new Error('apply initial combat input before advancing frames');
+    }
+  }
+
+  #requireLiveInputs(): void {
+    if (
+      (this.#options.inputs?.length ?? 0) > 0 ||
+      (this.#options.externalEvents?.length ?? 0) > 0 ||
+      (this.#options.skillInputGroups?.length ?? 0) > 0 ||
+      this.#options.continuationPlanCastIds !== undefined
+    ) {
+      throw new Error('live frame input requires an assembly without scheduled inputs');
+    }
+  }
+
+  #liveFrameInputs(input: CombatFrameInput): import('./combatSimulation').CombatFrameInputs {
+    this.#requireLiveInputs();
+    return {
+      controlInputs: () => this.#operatorControl.applyInput(input.controlledOperatorId),
+      skillInputs: () => {
+        const execution = this.#createInputExecution();
+        if (typeof input.skills === 'function') {
+          let active = true;
+          const requireCurrentPhase = (frame = this.clock.frame) => {
+            if (!active || frame !== this.clock.frame) {
+              throw new Error('skill input port is only valid in the current frame input phase');
+            }
+          };
+          try {
+            input.skills({
+              submit: (skill, frame) => {
+                requireCurrentPhase(frame);
+                return execution.submit(skill, frame);
+              },
+              groupBlocked: event => {
+                requireCurrentPhase(event.frame);
+                execution.groupBlocked(event);
+              },
+              canContinue: previous => {
+                requireCurrentPhase();
+                return this.#canContinueInputGroup(previous);
+              },
+            });
+          } finally {
+            active = false;
+          }
+          return;
+        }
+        for (const skill of input.skills ?? []) {
+          execution.submit({ ...skill, frame: this.clock.frame }, this.clock.frame);
+        }
+      },
+      externalEvents: () => {
+        for (const event of input.externalEvents ?? [])
+          this.#externalEventRuntime.applyInput(event);
+      },
+    };
   }
 
   #projectileRuntimeDependencies(operatorId: string): ProjectileRuntimeDependencies {
@@ -2453,6 +2564,7 @@ export class CombatRuntimeAssembly {
     const cooldownBinding = this.#resolveSkillCooldown(operator, cooldownProgram);
     const skillProgramBinding = this.combatSkillPrograms.register(program);
     runtime = new SkillRuntime(program, {
+      castId: program.castId ?? null,
       ...this.#createSkillDependencies({
         operator,
         program,
@@ -3394,6 +3506,10 @@ export class CombatRuntimeAssembly {
     };
     const operatorId = operator.operatorId;
     const terminalDelegate = createDelegate({
+      readSimulationInputs: () =>
+        this.#castParameters.get(
+          `${definitionOperator.operatorId}\u0000${program.castId ?? program.skillId}`,
+        ),
       // 环境末端的旧公开端口仍声明时间轴程序；嵌入式宿主不会读取编辑身份。
       program: program as CompiledSkillProgram,
       sourceOperatorId: definitionOperator.operatorId,
@@ -3460,7 +3576,6 @@ export class CombatRuntimeAssembly {
       },
       delegate: deferredSkillCasts,
     });
-    let rootOperations: CombatOperationExecutor | undefined;
     const targetContextOperations = new TargetContextOperationExecutor(
       operatorId,
       customAbilityEvents,
@@ -3490,17 +3605,15 @@ export class CombatRuntimeAssembly {
       this.abilityEntities,
       targetContextOperations,
       {
-        resolveOperations: () => {
-          if (rootOperations === undefined) {
-            throw new Error('combat operation chain is not fully initialized');
-          }
-          return rootOperations;
-        },
+        resolveOperations: state =>
+          this.#createOperationChain({
+            ...options,
+            operationHost: { state, programs: operationHost.programs },
+          }),
         semanticEvents: this.semanticEvents,
         installPassiveSkills: (entity, definition) =>
           this.#installAbilityEntityPassiveSkills(entity, definition),
         programs: this.abilityEntityChildSkillPrograms,
-        operationState: operationHost.state,
         ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId =>
@@ -3583,7 +3696,10 @@ export class CombatRuntimeAssembly {
       { state: operationHost.state.timedMarkers, programs: operationHost.programs },
     );
     const angleConditions = new CameraTargetAngleConditionExecutor(
-      program.simulationInputs?.cameraToTargetSignedAngleDegrees,
+      context =>
+        this.#castParameters.get(
+          `${definitionOperator.operatorId}\u0000${program.castId ?? context.skillCastInfo?.originCastId ?? program.skillId}`,
+        )?.cameraToTargetSignedAngleDegrees,
       timedMarkerOperations,
     );
     const superArmorConditions = new EnemySuperArmorConditionExecutor(
@@ -3726,8 +3842,7 @@ export class CombatRuntimeAssembly {
       },
       { state: operationHost.state.resources, programs: operationHost.programs },
     );
-    rootOperations = withTerminalPreparation(operationChain, terminalDelegate, operationHost);
-    return rootOperations;
+    return withTerminalPreparation(operationChain, terminalDelegate, operationHost);
   }
 
   #createEquipmentEventOperationChain(
@@ -3819,7 +3934,6 @@ export class CombatRuntimeAssembly {
       },
       delegate: deferredSkillCasts,
     });
-    let reactiveOperations: CombatOperationExecutor | undefined;
     const targetContextOperations = new TargetContextOperationExecutor(
       operatorId,
       customAbilityEvents,
@@ -3849,17 +3963,12 @@ export class CombatRuntimeAssembly {
       this.abilityEntities,
       targetContextOperations,
       {
-        resolveOperations: () => {
-          if (reactiveOperations === undefined) {
-            throw new Error('reactive combat operation chain is not fully initialized');
-          }
-          return reactiveOperations;
-        },
+        resolveOperations: state =>
+          this.#createReactiveOperationChain(operator, sourceActionId, terminal, options, state),
         semanticEvents: this.semanticEvents,
         installPassiveSkills: (entity, definition) =>
           this.#installAbilityEntityPassiveSkills(entity, definition),
         programs: this.abilityEntityChildSkillPrograms,
-        operationState: operationHost.state,
         ...this.#projectileRuntimeDependencies(operatorId),
       },
       abilityEntityId => this.#resolveOperatorAbilityEntityDefinition(operator, abilityEntityId),
@@ -4085,7 +4194,7 @@ export class CombatRuntimeAssembly {
       },
       { state: operationHost.state.resources, programs: operationHost.programs },
     );
-    reactiveOperations = withTerminalPreparation(operationChain, terminal, operationHost);
+    const reactiveOperations = withTerminalPreparation(operationChain, terminal, operationHost);
     const bindingKey = `${operatorId}\u0000${sourceActionId}`;
     if (!this.#reactiveOperationBindings.has(bindingKey)) {
       this.#reactiveOperationBindings.set(bindingKey, () =>

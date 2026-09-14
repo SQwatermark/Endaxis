@@ -24,6 +24,7 @@ import type {
 } from '../buffs/combatBuffs';
 import type { CombatExecutionContext } from '../actions/combatStep';
 import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
+import { compileTimelineActionIntervals } from '../timeline/timelineActionExecution';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import type { ActionSequence } from '../actions/actionSequence';
 import { COMBAT_FRAMES_PER_SECOND } from './combatClock';
@@ -95,7 +96,10 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
     actions: readonly CompiledTimelineAction[],
     runtimeFor: (buff: CombatBuff<Key>) => CombatActionSequenceRuntime,
   ) {
-    this.#actions = actions;
+    // 保存的 sequences 按实际执行顺序排列；恢复绑定必须采用同一顺序，而非定义声明顺序。
+    this.#actions = compileTimelineActionIntervals(actions).map(
+      interval => actions[interval.sourceIndex]!,
+    );
     this.#runtimeFor = runtimeFor;
   }
 
@@ -122,15 +126,25 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
       );
     }
     const runtime = this.#runtimeFor(buff);
+    const restoreSequence = (action: CompiledTimelineAction, index: number) => {
+      try {
+        return runtime.createSequence(
+          action.sequence,
+          runtime.context,
+          saved.timeline!.sequences[index],
+        );
+      } catch (cause) {
+        throw new Error(
+          `restored Buff '${buff.owner.ownerId}:${buff.definition.id}:${buff.instanceId}' scheduled action ${index} cannot bind (${action.sequence.steps.length} program steps, ${saved.timeline!.sequences[index]?.steps.length} saved steps)`,
+          { cause },
+        );
+      }
+    };
     this.#timeline = new TimelineActionProcessor(
       this.#actions.map((action, index) => ({
         startFrame: action.startFrame,
         ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
-        sequence: runtime.createSequence(
-          action.sequence,
-          runtime.context,
-          saved.timeline!.sequences[index],
-        ),
+        sequence: restoreSequence(action, index),
       })),
       {},
       saved.timeline,
@@ -507,6 +521,9 @@ export function attachBuffLifecycleSequences<Key extends string>(
   ): CombatActionSequenceRuntime => {
     let runtime = runtimes.get(buff);
     if (runtime !== undefined) return runtime;
+    // 伤害修正条件会在 Buff 外壳构造时先索取宿主，此时恢复动作尚未正式重绑。
+    // 已有数据必须直接绑定，不能用空宿主覆盖其中的 Enable/SkillAffix 进度。
+    restoredHost ??= buff.runtimeState.actionHost ?? undefined;
     const context: CombatOperationContext = {
       blackboard: buff.blackboard,
       canExecuteAction: () => buff.isEnabled && !buff.isFinished,

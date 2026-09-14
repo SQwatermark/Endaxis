@@ -420,9 +420,10 @@ describe('CombatRuntimeAssembly', () => {
     const state = assembly.sharedState;
     expect(state.clock).toBe(assembly.clock.runtimeState);
     expect(state.resources).toBe(assembly.resources.runtimeState);
-    expect(state.receipts).toBe(assembly.receipt.runtimeState);
+    expect(state).not.toHaveProperty('receipts');
     expect(state.comboWindows).toBe(assembly.comboWindows.runtimeState);
     const saved = structuredClone(state);
+    const savedHistory = assembly.receipt.history.snapshot();
     assembly.comboWindows.open('operator', 'combo');
     assembly.ultimatePresentation.setActive(true, 'operator', 'hide');
     assembly.advanceFrame();
@@ -431,7 +432,7 @@ describe('CombatRuntimeAssembly', () => {
     expect(state.ultimatePresentation.inUltimateCasting).toBe(true);
     expect(saved.comboWindows.records.size).toBe(0);
     expect(saved.ultimatePresentation.inUltimateCasting).toBe(false);
-    expect(state.receipts.entries.length).toBeGreaterThan(saved.receipts.entries.length);
+    expect(assembly.receipt.history.length).toBeGreaterThan(savedHistory.length);
   });
 
   it('正式装配把普通技能登记到切面树共享的固定程序目录', () => {
@@ -1478,7 +1479,6 @@ describe('CombatRuntimeAssembly', () => {
       {},
       {
         skillGroupKey: 'comboSkill',
-        event: {} as never,
         inputTarget: { kind: 'enemy' },
         triggerTarget: null,
         assignPairs: null,

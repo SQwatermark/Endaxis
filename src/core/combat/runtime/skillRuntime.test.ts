@@ -101,6 +101,65 @@ function createBattleSkillRuntime(
 }
 
 describe('SkillRuntime', () => {
+  it('同一执行程序支持不同施放身份，回执与恢复使用实例身份', () => {
+    const program = {
+      operatorId: 'operator',
+      skillId: 'shared',
+      skillType: 'battleSkill' as const,
+      initialBlackboard: {},
+      costs: [],
+      timelineActions: [],
+      naturalDurationFrames: 4,
+    };
+    const clock = new CombatClock();
+    const receipt = new CombatReceiptCollector();
+    const operations = { execute: () => true, evaluate: () => true };
+    let nextId = 1;
+    const dependencies = {
+      clock,
+      receipt,
+      operations,
+      resources: null,
+      allocateSkillCastId: () => nextId++,
+    };
+    const first = new SkillRuntime(program, { ...dependencies, castId: 'first' });
+    const second = new SkillRuntime(program, { ...dependencies, castId: 'second' });
+    expect(first.tryStart()).toBe(true);
+    expect(second.tryStart()).toBe(true);
+    expect(first.skillCastInfo.originCastId).toBe('first');
+    expect(second.skillCastInfo.originCastId).toBe('second');
+    expect(
+      receipt.entries
+        .filter(entry => entry.event === 'SkillStarted')
+        .map(entry => entry.data?.castId),
+    ).toEqual(['first', 'second']);
+    expect(program).not.toHaveProperty('castId');
+    const saved = structuredClone(first.runtimeState);
+    const restored = new SkillRuntime(
+      program,
+      { ...dependencies, castId: 'first' },
+      {
+        state: saved,
+        damageSnapshotProgram: first.damageSnapshotProgram,
+        resolveAttachedBuff: () => undefined,
+      },
+    );
+    expect(restored.castId).toBe('first');
+    expect(restored.skillCastInfo).toEqual(first.skillCastInfo);
+    expect(
+      () =>
+        new SkillRuntime(
+          program,
+          { ...dependencies, castId: 'second' },
+          {
+            state: structuredClone(saved),
+            damageSnapshotProgram: first.damageSnapshotProgram,
+            resolveAttachedBuff: () => undefined,
+          },
+        ),
+    ).toThrow('cast identity does not match');
+  });
+
   it('恢复施放中的技能不重新扣费或开始，后续回执与连续执行一致，再次施放恢复初值', () => {
     const program = {
       operatorId: 'operator',
@@ -162,11 +221,11 @@ describe('SkillRuntime', () => {
       skill: original.runtimeState,
       ability: originalAbility.runtimeState,
       clock: clock.runtimeState,
-      receipts: receipt.runtimeState,
     });
-    const savedReceiptCount = saved.receipts.entries.length;
+    const savedHistory = receipt.history.snapshot();
+    const savedReceiptCount = savedHistory.length;
     const restoredClock = new CombatClock(saved.clock);
-    const restoredReceipt = new CombatReceiptCollector(saved.receipts);
+    const restoredReceipt = new CombatReceiptCollector(savedHistory);
     const allocateSkillCastId = vi.fn(() => 2);
     const restoredBuff = { reference: originalBuff.reference, finish: vi.fn() };
     const resumed = new SkillRuntime(

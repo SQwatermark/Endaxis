@@ -20,7 +20,10 @@ import type { AbilityEntityChildSkillState } from './abilityEntityChildSkillStat
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 import { CombatOperationPrograms } from './combatOperationPrograms';
 import type { AbilityEntityActionState } from './combatOperationHostState';
-import type { CombatOperationHostState } from './combatOperationHostState';
+import {
+  createCombatOperationHostState,
+  type CombatOperationHostState,
+} from './combatOperationHostState';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -30,7 +33,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
   readonly #entities: LogicalAbilityEntityRuntime;
   readonly #delegate: CombatOperationExecutor;
   readonly #childRuntimeDependencies?: {
-    readonly resolveOperations: () => CombatOperationExecutor;
+    readonly resolveOperations: (state: CombatOperationHostState) => CombatOperationExecutor;
     readonly semanticEvents?: CombatSemanticEventRuntime;
     readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
     readonly createCallbackSkillHost?: CallbackSkillHostFactory;
@@ -38,7 +41,6 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       entity: RuntimeTargetRef,
       definition: ResolvedAbilityEntityDefinition,
     ) => void;
-    readonly operationState?: CombatOperationHostState;
   };
   readonly #resolveDefinition?: (
     abilityEntityId: string,
@@ -52,7 +54,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     entities: LogicalAbilityEntityRuntime,
     delegate: CombatOperationExecutor,
     childRuntimeDependencies?: {
-      readonly resolveOperations: () => CombatOperationExecutor;
+      readonly resolveOperations: (state: CombatOperationHostState) => CombatOperationExecutor;
       readonly semanticEvents?: CombatSemanticEventRuntime;
       readonly scheduleProjectileFinishCallback?: ScheduleProjectileFinishCallback;
       readonly createCallbackSkillHost?: CallbackSkillHostFactory;
@@ -61,7 +63,6 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         definition: ResolvedAbilityEntityDefinition,
       ) => void;
       readonly programs?: AbilityEntityChildSkillPrograms;
-      readonly operationState?: CombatOperationHostState;
     },
     resolveDefinition?: (abilityEntityId: string) => ResolvedAbilityEntityDefinition | undefined,
     restored?: {
@@ -543,19 +544,19 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
     if (entity.kind !== 'abilityEntity') {
       throw new Error('AbilityEntity child skill requires an ability-entity runtime target');
     }
-    // 蓝图由同一技能程序共享；每个实体实例必须获得独立步骤对象，否则按步骤身份保存的
-    // finishByAction、时间动作等运行态会在递归生成同一实体时彼此冲突。
+    // 程序共享，动作持有的运行态归每个子技能实例，不能靠复制步骤对象区分实例。
     const binding =
       restored === undefined
-        ? this.#childSkillPrograms.register(structuredClone(program))
+        ? this.#childSkillPrograms.register(program)
         : this.#childSkillPrograms.resolve(restored.state.programId);
     const instanceProgram = binding.program;
+    const operationState = restored?.state.operations ?? createCombatOperationHostState();
     const runtime = new AbilityEntityChildSkillRuntime(
       instanceProgram,
       {
         entity,
         entityBlackboard,
-        operations: this.#childRuntimeDependencies.resolveOperations(),
+        operations: this.#childRuntimeDependencies.resolveOperations(operationState),
         ownerOperatorId: this.#operatorId,
         ...(this.#childRuntimeDependencies.semanticEvents === undefined
           ? {}
@@ -575,7 +576,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
         addAbilityChildBuff: child => this.#entities.addChildBuff(entity, child),
         programId: binding.id,
         damageSnapshotProgram: binding.damageSnapshots,
-        operationState: this.#childRuntimeDependencies.operationState,
+        operationState,
       },
       restored,
     );

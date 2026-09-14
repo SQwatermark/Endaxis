@@ -50,6 +50,11 @@ export interface CombatOperatorState {
 export interface CombatStateGraph {
   readonly shared: CombatSharedState;
   readonly inputs: {
+    /** 初始化已完成，起始帧尚未提交人工输入；提交后只能通过恢复再次进入。 */
+    initialInputPending: boolean;
+    readonly castParameters: Map<string, import('./skillSimulationInputs').SkillSimulationInputs>;
+    /** 上一已完成帧的主控身份，用于下一帧的切人通知。 */
+    readonly control: Map<string, boolean>;
     readonly skills: CombatInputRuntimeState;
     readonly externalEvents: ExternalCombatEventRuntimeState;
   };

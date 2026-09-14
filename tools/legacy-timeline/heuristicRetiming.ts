@@ -6,6 +6,8 @@
  * 不要把它们隐藏在存档转换或技能定义中。
  */
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
+import { isDeepStrictEqual } from 'node:util';
+import type { ScheduledCombatFrameInput } from '../../src/application/combatInputSchedule';
 import type {
   EndaxisProjectDocument,
   ScenarioDocument,
@@ -80,6 +82,12 @@ export interface LegacyRetimingResult {
     readonly castCount: number;
     readonly candidateProbes: number;
     readonly simulationRuns: number;
+    /** simulationRuns 保留观察次数口径；这里区分新建分支与沿原分支延长观察。 */
+    readonly checkpoints?: {
+      readonly compiledSessions: number;
+      readonly trials: number;
+      readonly observationExtensions: number;
+    };
   };
 }
 
@@ -91,6 +99,39 @@ export type LegacyRetimingSimulationRunner = (
   scenario: ScenarioDocument,
   endFrame: number,
 ) => LegacyRetimingSimulationResult;
+
+export interface LegacyRetimingTrial {
+  advanceToFrame(
+    endFrame: number,
+    stopWhen?: (result: LegacyRetimingSimulationResult) => boolean,
+  ): LegacyRetimingSimulationResult;
+}
+
+export interface LegacyRetimingCheckpointSession {
+  readonly inputBoundary: number;
+  advanceBefore(frame: number, confirmedSuffix: readonly ScheduledCombatFrameInput[]): void;
+  trial(candidateSuffix: readonly ScheduledCombatFrameInput[]): LegacyRetimingTrial;
+}
+
+export interface LegacyRetimingCheckpointSupport {
+  compileInputs(scenario: ScenarioDocument): readonly ScheduledCombatFrameInput[];
+  createSession(scenario: ScenarioDocument, initialFrame: number): LegacyRetimingCheckpointSession;
+}
+
+/** 同帧任何人工输入变化都必须回到该帧之前，包括被移走的标记原帧。 */
+function firstChangedInputFrame(
+  accepted: readonly ScheduledCombatFrameInput[],
+  candidate: readonly ScheduledCombatFrameInput[],
+): number {
+  let index = 0;
+  while (
+    index < accepted.length &&
+    index < candidate.length &&
+    isDeepStrictEqual(accepted[index], candidate[index])
+  )
+    index += 1;
+  return Math.min(accepted[index]?.frame ?? Infinity, candidate[index]?.frame ?? Infinity);
+}
 
 export type LegacyRuntimeReplacementResolver = (input: {
   readonly scenario: ScenarioDocument;
@@ -383,6 +424,7 @@ export function retimeLegacyProjectBySimulation(
   preparedSource: unknown,
   runSimulation: LegacyRetimingSimulationRunner,
   resolveRuntimeReplacement?: LegacyRuntimeReplacementResolver,
+  checkpointSupport?: LegacyRetimingCheckpointSupport,
 ): LegacyRetimingResult {
   const root = record(preparedSource);
   const sourceScenarios = records(root?.scenarioList);
@@ -394,6 +436,9 @@ export function retimeLegacyProjectBySimulation(
   let retimedCastCount = 0;
   let candidateProbes = 0;
   let simulationRuns = 0;
+  let compiledSessions = 0;
+  let checkpointTrials = 0;
+  let observationExtensions = 0;
 
   for (const scenario of project.scenarios) {
     const sourceWrapper = sourceScenarios.find(wrapper => wrapper.id === scenario.id);
@@ -444,6 +489,8 @@ export function retimeLegacyProjectBySimulation(
     let actualEnds = new Map<string, number>();
     let ultimateIntervals: readonly FrameInterval[] = [];
     let lastReceiptEntries: readonly CombatReceiptEntry[] = [];
+    let checkpointSession: LegacyRetimingCheckpointSession | undefined;
+    let acceptedInputs: readonly ScheduledCombatFrameInput[] = [];
 
     for (const [index, current] of ordered.entries()) {
       let candidate = current.sourceStartFrame;
@@ -508,6 +555,7 @@ export function retimeLegacyProjectBySimulation(
       setSimulationDisabled(workingCast, false);
 
       let settled = false;
+      let candidateCheckpointPrepared = false;
       const simulateCandidate = (candidateFrame: number): boolean => {
         candidateProbes += 1;
         adjustedStartFrame = candidateFrame;
@@ -522,16 +570,70 @@ export function retimeLegacyProjectBySimulation(
           working,
           ordered.slice(0, index + 1).map((item, order) => ({ ...item, order })),
         );
+        const beginTrial = (): LegacyRetimingTrial | undefined => {
+          if (checkpointSupport === undefined) return undefined;
+          const inputs = checkpointSupport.compileInputs(working);
+          if (checkpointSession === undefined) {
+            checkpointSession = checkpointSupport.createSession(
+              working,
+              Math.min(0, ...inputs.map(input => input.frame)),
+            );
+            compiledSessions += 1;
+          }
+          if (!candidateCheckpointPrepared) {
+            const boundary = Math.min(
+              candidateFrame,
+              firstChangedInputFrame(acceptedInputs, inputs),
+            );
+            checkpointSession.advanceBefore(
+              boundary,
+              acceptedInputs.filter(input => input.frame >= checkpointSession!.inputBoundary),
+            );
+            candidateCheckpointPrepared = true;
+          }
+          const past = (schedule: readonly ScheduledCombatFrameInput[]) =>
+            schedule.filter(input => input.frame < checkpointSession!.inputBoundary);
+          if (!isDeepStrictEqual(past(acceptedInputs), past(inputs))) {
+            throw new Error(`candidate '${current.castId}' changes inputs before its checkpoint`);
+          }
+          const result = checkpointSession.trial(
+            inputs.filter(input => input.frame >= checkpointSession!.inputBoundary),
+          );
+          checkpointTrials += 1;
+          let observed = false;
+          return {
+            advanceToFrame(endFrame, stopWhen) {
+              if (observed) observationExtensions += 1;
+              observed = true;
+              return result.advanceToFrame(endFrame, stopWhen);
+            },
+          };
+        };
+        let trial = beginTrial();
         const maximumPlanningEndFrame = Math.max(
           0,
           candidateFrame + PLANNING_LOOKAHEAD_FRAMES * (MAX_PLANNING_EXTENSIONS + 1),
         );
         let planningLookaheadFrames = PLANNING_LOOKAHEAD_FRAMES;
         let planningEndFrame = Math.max(0, candidateFrame + planningLookaheadFrames);
+        const hasRequiredEnds = (ends: ReadonlyMap<string, number>) =>
+          ends.has(current.castId) &&
+          [...previousByTrack.values()].every(previous => ends.has(previous.castId));
         for (let attempt = 0; attempt <= MAX_PLANNING_EXTENSIONS; attempt += 1) {
           working.battle.durationFrames = planningEndFrame;
           simulationRuns += 1;
-          const run = runSimulation(working, planningEndFrame);
+          const run =
+            trial === undefined
+              ? runSimulation(working, planningEndFrame)
+              : trial.advanceToFrame(planningEndFrame, observation => {
+                  const starts = projectExecutedCastStartFrames(observation.receiptEntries);
+                  const ends = projectDisplayedCastEndFrames(observation.receiptEntries, starts);
+                  // 其他轨道的上一输入可能比当前输入更晚到达边界；下一项排程仍需要这些事实。
+                  return (
+                    hasRequiredEnds(ends) &&
+                    !hasOpenUltimateTimeDilation(observation.receiptEntries)
+                  );
+                });
           lastReceiptEntries = run.receiptEntries;
           if (
             resolveRuntimeReplacement !== undefined &&
@@ -551,13 +653,14 @@ export function retimeLegacyProjectBySimulation(
                 resolvedSkillKey = replacement;
                 workingCast.source = { ...workingCast.source, skillKey: replacement };
                 targetCast.source = { ...workingCast.source };
+                trial = beginTrial();
                 continue;
               }
             }
           }
           actualStarts = new Map(projectExecutedCastStartFrames(run.receiptEntries));
           actualEnds = new Map(projectDisplayedCastEndFrames(run.receiptEntries, actualStarts));
-          if (actualEnds.has(current.castId) && !hasOpenUltimateTimeDilation(run.receiptEntries)) {
+          if (hasRequiredEnds(actualEnds) && !hasOpenUltimateTimeDilation(run.receiptEntries)) {
             ultimateIntervals = ultimateTimeDilationIntervals(run.receiptEntries, planningEndFrame);
             settled = true;
             break;
@@ -619,6 +722,8 @@ export function retimeLegacyProjectBySimulation(
         );
       }
       const actualEndFrame = actualEnds.get(current.castId)!;
+      if (checkpointSupport !== undefined)
+        acceptedInputs = checkpointSupport.compileInputs(working);
       scenario.battle.durationFrames = Math.max(scenario.battle.durationFrames, actualEndFrame);
       if (scenario.battle.simulationRange?.endFrame !== undefined) {
         scenario.battle.simulationRange.endFrame = Math.max(
@@ -706,6 +811,11 @@ export function retimeLegacyProjectBySimulation(
       castCount: retimedCastCount,
       candidateProbes,
       simulationRuns,
+      ...(checkpointSupport === undefined
+        ? {}
+        : {
+            checkpoints: { compiledSessions, trials: checkpointTrials, observationExtensions },
+          }),
     },
   };
 }

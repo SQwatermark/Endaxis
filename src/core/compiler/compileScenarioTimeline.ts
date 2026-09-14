@@ -6,13 +6,7 @@
  * 基于干员模板的完整 `customDefinition` 会直接参与编译；只有不携带战斗定义的自由展示块失败。
  */
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
-import type {
-  CompiledAbilityEntityChildSkillProgram,
-  ResolvedActionSequence,
-  ResolvedCombatStep,
-  CompiledSkillProgram,
-  CompiledSkillSlotGroup,
-} from './combatProgram';
+import type { CompiledSkillProgram, CompiledSkillSlotGroup } from './combatProgram';
 import type { ScheduledSkillInput, SkillInputGroup } from '../combat/runtime/combatInputRuntime';
 import { getSkillCastPlacementChains } from '../project/skillCastPlacement';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
@@ -41,7 +35,6 @@ import {
   resolveEffectiveSkillDefinition,
   type ResolvedSkillDefinition,
 } from './resolveSkillDefinition';
-import { deriveHitId } from '../combat/timeline/deriveHitId';
 import type { OperatorAttribute } from '../game-data/operatorDefinition';
 import { resolveOperatorPanel } from './resolveOperatorPanel';
 import { compileOperatorComboSkillConditions } from './compileOperatorComboSkillConditions';
@@ -56,154 +49,34 @@ interface SkillCompilationBinding {
   readonly executionSkillId?: string;
 }
 
-function bindChildSkillHitIds(
-  childSkill: CompiledAbilityEntityChildSkillProgram,
-  castId: string,
-): CompiledAbilityEntityChildSkillProgram {
-  return {
-    ...childSkill,
-    timelineActions: childSkill.timelineActions.map(action => ({
-      ...action,
-      sequence: bindSequenceHitIds(action.sequence, castId),
-    })),
-  };
+function bindProgramCast(program: CompiledSkillProgram, castId: string): CompiledSkillProgram {
+  return { ...program, castId };
 }
 
-function bindStepHitIds(step: ResolvedCombatStep, castId: string): ResolvedCombatStep {
-  switch (step.kind) {
-    case 'dealDamage':
-    case 'dealFixedDamage':
-      return step.key === undefined ? step : { ...step, hitId: deriveHitId(castId, step.key) };
-    case 'switch':
-      return {
-        ...step,
-        options: step.options.map(option => ({
-          ...option,
-          sequence: bindSequenceHitIds(option.sequence, castId),
-        })),
-      };
-    case 'conditional':
-      return {
-        ...step,
-        whenTrue: bindSequenceHitIds(step.whenTrue, castId),
-        ...(step.whenFalse === undefined
-          ? {}
-          : { whenFalse: bindSequenceHitIds(step.whenFalse, castId) }),
-      };
-    case 'once':
-    case 'withActionBlackboardScope':
-    case 'repeatEachTick':
-    case 'forEachContextTarget':
-      return { ...step, body: bindSequenceHitIds(step.body, castId) };
-    case 'spawnAbilityEntity': {
-      const definition = step.parameters.definition;
-      if (definition === undefined) return step;
-      const childSkill = definition.childSkill;
-      const childSkills = definition.childSkills;
-      if (childSkill === undefined && childSkills === undefined) return step;
-      return {
-        ...step,
-        parameters: {
-          ...step.parameters,
-          definition: {
-            ...definition,
-            ...(childSkill === undefined
-              ? {}
-              : { childSkill: bindChildSkillHitIds(childSkill, castId) }),
-            ...(childSkills === undefined
-              ? {}
-              : {
-                  childSkills: Object.fromEntries(
-                    Object.entries(childSkills).map(([skillId, program]) => [
-                      skillId,
-                      bindChildSkillHitIds(program, castId),
-                    ]),
-                  ),
-                }),
-          },
-        },
-      };
-    }
-    case 'startCurrentAbilityEntityChildSkill':
-      return {
-        ...step,
-        parameters: {
-          childSkill: bindChildSkillHitIds(step.parameters.childSkill, castId),
-        },
-      };
-    case 'listenForCombatEvents':
-      return {
-        ...step,
-        parameters: {
-          responses: step.parameters.responses.map(response => ({
-            ...response,
-            sequence: bindSequenceHitIds(response.sequence, castId),
-          })),
-        },
-      };
-    default:
-      return step;
+/** 只解析本次操作身份及参数；固定技能定义的编译与输入帧无关。 */
+export function compileSkillCastPlayerInput(
+  operatorId: string,
+  cast: SkillCastDocument,
+  operator: OperatorDefinition,
+  frame: number,
+): ScheduledSkillInput {
+  if (cast.source.kind === 'custom') {
+    throw new Error(
+      `skill cast '${cast.id}' is a presentation-only custom action without a SkillDefinition`,
+    );
   }
-}
-
-function bindSequenceHitIds(
-  sequence: ResolvedActionSequence,
-  castId: string,
-): ResolvedActionSequence {
-  return { steps: sequence.steps.map(step => bindStepHitIds(step, castId)) };
-}
-
-function bindProgramHitIds(program: CompiledSkillProgram, castId: string): CompiledSkillProgram {
+  const resolved = resolveEffectiveSkillDefinition(cast, operator);
+  const action =
+    cast.source.action ?? resolveUniquePlayerActionForSkill(operator, resolved.definition.key);
   return {
-    ...program,
-    castId,
-    timelineActions: program.timelineActions.map(action => ({
-      ...action,
-      sequence: bindSequenceHitIds(action.sequence, castId),
-    })),
-    ...(program.abilityEntityDefinitions === undefined
+    frame,
+    operatorId,
+    skillId: resolved.definition.key,
+    ...(action === undefined ? {} : { action }),
+    castId: cast.id,
+    ...(cast.simulationInputs === undefined
       ? {}
-      : {
-          abilityEntityDefinitions: Object.fromEntries(
-            Object.entries(program.abilityEntityDefinitions).map(([id, definition]) => [
-              id,
-              {
-                ...definition,
-                ...(definition.childSkill === undefined
-                  ? {}
-                  : { childSkill: bindChildSkillHitIds(definition.childSkill, castId) }),
-                ...(definition.childSkills === undefined
-                  ? {}
-                  : {
-                      childSkills: Object.fromEntries(
-                        Object.entries(definition.childSkills).map(([skillId, childSkill]) => [
-                          skillId,
-                          bindChildSkillHitIds(childSkill, castId),
-                        ]),
-                      ),
-                    }),
-                ...(definition.passiveSkills === undefined
-                  ? {}
-                  : {
-                      passiveSkills: definition.passiveSkills.map(passive => ({
-                        ...passive,
-                        enableSequence: bindSequenceHitIds(passive.enableSequence, castId),
-                        ...(passive.abilityEventResponses === undefined
-                          ? {}
-                          : {
-                              abilityEventResponses: passive.abilityEventResponses.map(
-                                response => ({
-                                  ...response,
-                                  sequence: bindSequenceHitIds(response.sequence, castId),
-                                }),
-                              ),
-                            }),
-                      })),
-                    }),
-              },
-            ]),
-          ),
-        }),
+      : { simulationInputs: structuredClone(cast.simulationInputs) }),
   };
 }
 
@@ -282,7 +155,7 @@ function compileCastSkillPrograms(
   ];
   return definitions.map(
     ({ skill, skillType, level: definitionLevel, executionSkillGroupKey, executionSkillId }) =>
-      bindProgramHitIds(
+      bindProgramCast(
         {
           ...compileSkill({
             operatorId: trackId,
@@ -295,16 +168,6 @@ function compileCastSkillPrograms(
           ...(executionSkillGroupKey === undefined
             ? {}
             : { executionSkillGroupKey, executionSkillId }),
-          ...(cast.simulationInputs === undefined
-            ? {}
-            : {
-                simulationInputs: {
-                  ...cast.simulationInputs,
-                  ...(cast.simulationInputs.criticalOverrides === undefined
-                    ? {}
-                    : { criticalOverrides: { ...cast.simulationInputs.criticalOverrides } }),
-                },
-              }),
         },
         cast.id,
       ),
@@ -470,15 +333,9 @@ function compileResolvedTimelineTracks(
       skills.push(
         ...compileCastSkillPrograms(track.id, cast, resolved, level, abilityEntityDefinitions),
       );
-      const action =
-        cast.source.action ?? resolveUniquePlayerActionForSkill(operator, resolved.definition.key);
       pendingInputs.push({
         // 后段此处仅保留最早可能开始的锚点帧，正式执行由连续组排程决定。
-        frame: anchorFrameByCastId.get(cast.id)!,
-        operatorId: track.id,
-        skillId: resolved.definition.key,
-        ...(action === undefined ? {} : { action }),
-        castId: cast.id,
+        ...compileSkillCastPlayerInput(track.id, cast, operator, anchorFrameByCastId.get(cast.id)!),
         order: declarationOrder,
       });
     }

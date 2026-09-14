@@ -134,8 +134,8 @@ export function prepareStandardPlayerDamageScenarioRuntime(
   const enemyVitals = createEnemyCombatVitals(enemy);
   const controlTimeline = resolveControlTimeline(
     input.scenario.tracks,
-    input.scenario.battle.controlSwitches,
-    -input.scenario.battle.prepFrames,
+    input.options.liveInputInitialFrame === undefined ? input.scenario.battle.controlSwitches : [],
+    input.options.liveInputInitialFrame ?? -input.scenario.battle.prepFrames,
   );
   const passiveProgressBuffIdsByOperator = new Map<string, ReadonlySet<string>>();
   for (const track of input.scenario.tracks) {
@@ -243,15 +243,20 @@ export function collectStandardPlayerDamageScenarioResult(
   assembly: CombatRuntimeAssembly,
   compiled: CombatRuntimeAssemblyOptions,
 ): StandardPlayerDamageScenarioResult {
-  return collectStandardPlayerDamageStateGraphResult(assembly.stateGraph, compiled);
+  return collectStandardPlayerDamageStateGraphResult(
+    assembly.stateGraph,
+    compiled,
+    assembly.receipt.history.snapshot(),
+  );
 }
 
 /** 从会话的复制数据图收集标准伤害结果，不让结果层持有活动分支。 */
 export function collectStandardPlayerDamageStateGraphResult(
   graph: CombatStateGraph,
   compiled: CombatRuntimeAssemblyOptions,
+  history: import('../core/combat/receipt/combatReceiptHistory').CombatReceiptView,
 ): StandardPlayerDamageScenarioResult {
-  const result = collectCombatStateGraphResult(graph, compiled);
+  const result = collectCombatStateGraphResult(graph, compiled, history);
   const environmentState = graph.environment;
   if (environmentState === null)
     throw new Error('standard combat result requires environment state');

@@ -3,6 +3,7 @@
  * 这里只编排已有编译器与战斗装配，不解释敌人，也不为运行环境依赖提供默认值。
  */
 import type { CombatReceiptEntry } from '../core/combat/receipt/combatReceipt';
+import type { CombatReceiptView } from '../core/combat/receipt/combatReceiptHistory';
 import {
   CombatResources,
   type CombatResourceSnapshot,
@@ -50,19 +51,6 @@ export interface ExecuteCompiledScenarioSimulationInput {
   readonly compiled: CombatRuntimeAssemblyOptions;
   /** 项目实际战斗终点。 */
   readonly endFrame: number;
-}
-
-function freezeReceiptEntries(
-  entries: readonly CombatReceiptEntry[],
-): readonly CombatReceiptEntry[] {
-  return Object.freeze(
-    entries.map(entry =>
-      Object.freeze({
-        ...entry,
-        ...(entry.data === undefined ? {} : { data: Object.freeze({ ...entry.data }) }),
-      }),
-    ),
-  );
 }
 
 function freezeResourceCurves(curves: CombatResourceCurves): CombatResourceCurves {
@@ -140,13 +128,18 @@ export function collectCompiledScenarioSimulationResult(
   assembly: CombatRuntimeAssembly,
   compiled: CombatRuntimeAssemblyOptions,
 ): ScenarioSimulationResult {
-  return collectCombatStateGraphResult(assembly.stateGraph, compiled);
+  return collectCombatStateGraphResult(
+    assembly.stateGraph,
+    compiled,
+    assembly.receipt.history.snapshot(),
+  );
 }
 
 /** 直接从会话复制出的纯数据图投影结果，结果收集无需取得活动装配对象。 */
 export function collectCombatStateGraphResult(
   graph: CombatStateGraph,
   compiled: CombatRuntimeAssemblyOptions,
+  history: CombatReceiptView,
 ): ScenarioSimulationResult {
   const operatorPanels = compiled.operators.flatMap(operator =>
     operator.panel === undefined ? [] : [operator.panel],
@@ -154,7 +147,7 @@ export function collectCombatStateGraphResult(
   // 装配构造时会立即执行 initialFrame 上的输入。曲线基线必须取编译结果中的
   // 战斗初始资源，而不能取已经可能被准备期技能修改过的运行时快照。
   const initialResources = new CombatResources(compiled.resources).snapshot();
-  const receiptEntries = freezeReceiptEntries(graph.shared.receipts.entries);
+  const receiptEntries = history.toArray();
   const finalResources = new CombatResources(
     compiled.resources,
     {},

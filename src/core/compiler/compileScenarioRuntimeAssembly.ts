@@ -58,6 +58,8 @@ export type { CombatRuntimeEnvironmentOptions } from '../combat/runtime/combatRu
 
 /** 编译完整运行时装配参数所需的显式依赖。 */
 export interface CompileScenarioRuntimeAssemblyOptions {
+  /** 逐帧会话只编译构筑与固定定义；人工输入由调用方在此起点之后提交。 */
+  readonly liveInputInitialFrame?: number;
   readonly index: BuildIndex;
   readonly resources: Omit<CompileScenarioResourcesOptions, 'operators'>;
   readonly environment: CombatRuntimeEnvironmentOptions;
@@ -226,6 +228,16 @@ export function compileScenarioRuntimeAssembly(
   scenario: ScenarioDocument,
   options: CompileScenarioRuntimeAssemblyOptions,
 ): CombatRuntimeAssemblyOptions {
+  if (
+    options.liveInputInitialFrame !== undefined &&
+    (!Number.isSafeInteger(options.liveInputInitialFrame) ||
+      options.liveInputInitialFrame < -scenario.battle.prepFrames ||
+      options.liveInputInitialFrame > 0)
+  ) {
+    throw new RangeError(
+      'live input initial frame must be between the preparation start and frame zero',
+    );
+  }
   const mechanics = compileScenarioMechanics(scenario, options);
   const mechanicInitializations = mechanics.contributions.flatMap(entry =>
     entry.contribution.kind === 'battleInitializationSequence'
@@ -244,7 +256,12 @@ export function compileScenarioRuntimeAssembly(
   }
   const builds = resolveScenarioBuilds(scenario, options.index);
   const timeline = compileResolvedScenarioTimeline(
-    builds,
+    options.liveInputInitialFrame === undefined
+      ? builds
+      : builds.map(build => ({
+          ...build,
+          track: { ...build.track, skillCasts: [] },
+        })),
     options.index.getCommonBuffDefinitions?.(),
     options.index.getCommonAbilityEntityDefinitions?.(),
   );
@@ -372,16 +389,19 @@ export function compileScenarioRuntimeAssembly(
   );
   // 准备区只是可编辑范围，不应让空白负时间凭空推进资源恢复和 Buff 计时。
   // 只有确实放置了负帧技能时，战斗运行时才从最早的输入帧启动。
-  const initialFrame = Math.min(0, ...timeline.inputs.map(input => input.frame));
+  const initialFrame =
+    options.liveInputInitialFrame ?? Math.min(0, ...timeline.inputs.map(input => input.frame));
   const controlTimeline = resolveControlTimeline(
     scenario.tracks,
-    scenario.battle.controlSwitches,
+    options.liveInputInitialFrame === undefined ? scenario.battle.controlSwitches : [],
     initialFrame,
   );
 
   return {
     ...options.environment,
     initialFrame,
+    initialControlledOperatorId: scenario.tracks[0]?.id ?? null,
+    ...(options.liveInputInitialFrame === undefined ? {} : { deferInitialInput: true }),
     resources,
     enemy: applyMechanicsToScenarioEnemy(compileScenarioEnemy(scenario.enemy), mechanics),
     operators,
@@ -389,7 +409,10 @@ export function compileScenarioRuntimeAssembly(
     ...(timeline.skillInputGroups === undefined
       ? {}
       : { skillInputGroups: timeline.skillInputGroups }),
-    externalEvents: compileScenarioExternalEventInputs(scenario),
+    externalEvents:
+      options.liveInputInitialFrame === undefined
+        ? compileScenarioExternalEventInputs(scenario)
+        : [],
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
   };

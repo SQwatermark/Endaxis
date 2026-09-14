@@ -12,13 +12,18 @@ export interface FrameRuntime {
 
 /** 本次步进的外部输入入口；驱动器不保存入口，也不读取未来帧。 */
 export interface CombatFrameInputs {
+  readonly controlInputs?: () => void;
   readonly skillInputs: () => void;
   readonly externalEvents: () => void;
 }
 
 /** 先推进共享时钟，再按当前显式注册顺序更新运行时系统。 */
 export class CombatSimulation {
-  readonly #systems: (FrameRuntime | keyof CombatFrameInputs)[] = [];
+  readonly #systems: (
+    | FrameRuntime
+    | keyof CombatFrameInputs
+    | { phase: keyof CombatFrameInputs; fallback: FrameRuntime }
+  )[] = [];
 
   constructor(readonly clock: CombatClock) {}
 
@@ -26,8 +31,8 @@ export class CombatSimulation {
     this.#systems.push(system);
   }
 
-  addInputPhase(phase: keyof CombatFrameInputs): void {
-    this.#systems.push(phase);
+  addInputPhase(phase: keyof CombatFrameInputs, fallback?: FrameRuntime): void {
+    this.#systems.push(fallback === undefined ? phase : { phase, fallback });
   }
 
   advanceFrame(inputs?: CombatFrameInputs): void {
@@ -36,8 +41,12 @@ export class CombatSimulation {
     }
     this.clock.advanceFrame();
     for (const system of this.#systems) {
-      if (typeof system === 'string') inputs![system]();
-      else system.advanceFrame();
+      if (typeof system === 'string') inputs![system]!();
+      else if ('phase' in system) {
+        const apply = inputs?.[system.phase];
+        if (apply === undefined) system.fallback.advanceFrame();
+        else apply();
+      } else system.advanceFrame();
     }
   }
 

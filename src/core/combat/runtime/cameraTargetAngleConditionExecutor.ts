@@ -7,7 +7,8 @@ import type { CombatOperationExecutor } from './skillRuntime';
 /** 求值本次释放显式提供的镜头→目标有符号夹角；空间简化模型不会自行补造该值。 */
 export class CameraTargetAngleConditionExecutor implements CombatOperationExecutor {
   constructor(
-    private readonly signedAngleDegrees: number | undefined,
+    private readonly signedAngleDegrees:
+      number | undefined | ((context: CombatOperationContext) => number | undefined),
     private readonly delegate: CombatOperationExecutor,
   ) {}
 
@@ -24,11 +25,15 @@ export class CameraTargetAngleConditionExecutor implements CombatOperationExecut
     if (context === undefined) {
       throw new Error('cameraToTargetAngleCompare requires a combat operation context');
     }
-    if (this.signedAngleDegrees === undefined) {
+    const angle =
+      typeof this.signedAngleDegrees === 'function'
+        ? this.signedAngleDegrees(context)
+        : this.signedAngleDegrees;
+    if (angle === undefined) {
       throw new Error('skill cast requires cameraToTargetSignedAngleDegrees simulation input');
     }
     return compareCombatNumbers(
-      this.signedAngleDegrees,
+      angle,
       resolveActionValueOperand(condition.value, context.blackboard),
       condition.operator,
     );

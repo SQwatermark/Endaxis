@@ -10,8 +10,7 @@ import type { CombatClock } from './combatClock';
 import type { FrameRuntime } from './combatSimulation';
 import type { ExternalCombatEventRuntimeState } from './externalCombatEventRuntimeState';
 
-export interface ScheduledExternalCombatEventInput {
-  readonly frame: number;
+export interface ExternalCombatEventInput {
   readonly targetOperatorIds: readonly string[];
   readonly event:
     | {
@@ -23,6 +22,10 @@ export interface ScheduledExternalCombatEventInput {
     | { readonly kind: 'operatorWeaknessTriggeredOutput' }
     | { readonly kind: 'enemyWeaknessSet' }
     | { readonly kind: 'comboCooldownControl'; readonly mode: 'cooldown' | 'ready' };
+}
+
+export interface ScheduledExternalCombatEventInput extends ExternalCombatEventInput {
+  readonly frame: number;
 }
 
 export interface ExternalCombatEventRuntimeOptions {
@@ -104,59 +107,74 @@ export class ExternalCombatEventRuntime implements FrameRuntime {
       if (input === undefined || input.frame > actualFrame) break;
       this.runtimeState.nextEventIndex += 1;
       this.runtimeState.previousEvent = input;
-      if (input.event.kind === 'comboCooldownControl') {
-        if (this.#controlComboCooldown === undefined)
-          throw new Error('combo cooldown control handler is missing');
-        for (const operatorId of input.targetOperatorIds) {
-          this.#controlComboCooldown(operatorId, input.event.mode);
-        }
-        continue;
+      this.#processInput(input);
+    }
+  }
+
+  /** 已提交的本帧事实；不改变排程游标，也不保留调用方的输入对象。 */
+  applyInput(input: ExternalCombatEventInput): void {
+    if (
+      input.targetOperatorIds.length === 0 ||
+      input.targetOperatorIds.some(id => id.length === 0)
+    ) {
+      throw new TypeError('external event targetOperatorIds must not be empty');
+    }
+    this.#processInput({ ...input, frame: this.#clock.frame });
+  }
+
+  #processInput(input: ScheduledExternalCombatEventInput): void {
+    if (input.event.kind === 'comboCooldownControl') {
+      if (this.#controlComboCooldown === undefined)
+        throw new Error('combo cooldown control handler is missing');
+      for (const operatorId of input.targetOperatorIds) {
+        this.#controlComboCooldown(operatorId, input.event.mode);
       }
-      if (input.event.kind === 'enemyWeaknessSet') {
-        this.#emitEnemyWeaknessSet?.();
+      return;
+    }
+    if (input.event.kind === 'enemyWeaknessSet') {
+      this.#emitEnemyWeaknessSet?.();
+      this.#receipt.record({
+        frame: this.#clock.frame,
+        time: this.#clock.time,
+        event: 'ExternalEnemyWeaknessSetProcessed',
+        sourceId: 'enemy',
+        targetId: 'enemy',
+        data: { scheduledActualFrame: input.frame },
+      });
+      return;
+    }
+    for (const operatorId of input.targetOperatorIds) {
+      if (input.event.kind === 'operatorWeaknessTriggeredOutput') {
+        this.#emitOperatorWeaknessTriggeredOutput?.(operatorId);
         this.#receipt.record({
           frame: this.#clock.frame,
           time: this.#clock.time,
-          event: 'ExternalEnemyWeaknessSetProcessed',
-          sourceId: 'enemy',
+          event: 'ExternalOperatorWeaknessTriggeredOutputProcessed',
+          sourceId: operatorId,
           targetId: 'enemy',
           data: { scheduledActualFrame: input.frame },
         });
         continue;
       }
-      for (const operatorId of input.targetOperatorIds) {
-        if (input.event.kind === 'operatorWeaknessTriggeredOutput') {
-          this.#emitOperatorWeaknessTriggeredOutput?.(operatorId);
-          this.#receipt.record({
-            frame: this.#clock.frame,
-            time: this.#clock.time,
-            event: 'ExternalOperatorWeaknessTriggeredOutputProcessed',
-            sourceId: operatorId,
-            targetId: 'enemy',
-            data: { scheduledActualFrame: input.frame },
-          });
-          continue;
-        }
-        if (this.#emitOperatorHitAbilityEvent === undefined) {
-          throw new Error('external operator hit requires an ability event publisher');
-        }
-        this.#emitOperatorHitAbilityEvent(operatorId, {
-          external: true,
-          sourceId: 'enemy',
-          targetId: operatorId,
-          ...(input.event.damageType === undefined ? {} : { damageType: input.event.damageType }),
-          tags: input.event.tags,
-          features: input.event.features,
-        });
-        this.#receipt.record({
-          frame: this.#clock.frame,
-          time: this.#clock.time,
-          event: 'ExternalOperatorHitProcessed',
-          sourceId: 'enemy',
-          targetId: operatorId,
-          data: { scheduledActualFrame: input.frame },
-        });
+      if (this.#emitOperatorHitAbilityEvent === undefined) {
+        throw new Error('external operator hit requires an ability event publisher');
       }
+      this.#emitOperatorHitAbilityEvent(operatorId, {
+        external: true,
+        sourceId: 'enemy',
+        targetId: operatorId,
+        ...(input.event.damageType === undefined ? {} : { damageType: input.event.damageType }),
+        tags: input.event.tags,
+        features: input.event.features,
+      });
+      this.#receipt.record({
+        frame: this.#clock.frame,
+        time: this.#clock.time,
+        event: 'ExternalOperatorHitProcessed',
+        sourceId: 'enemy',
+        targetId: operatorId,
+        data: { scheduledActualFrame: input.frame },
+      });
     }
   }
 }

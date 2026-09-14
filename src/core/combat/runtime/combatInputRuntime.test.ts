@@ -3,6 +3,23 @@ import { CombatClock } from './combatClock';
 import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { SkillInputGroupTiming } from './skillInputGroupTiming';
+import { createCombatInputExecution, type TryStartCombatSkill } from './combatInputExecution';
+import type { CombatInputRuntimeOptions } from './combatInputRuntime';
+
+function createRuntime(
+  options: Pick<
+    CombatInputRuntimeOptions,
+    'clock' | 'inputs' | 'skillInputGroups' | 'continuationPlan' | 'restoredState'
+  > & {
+    readonly receipt: CombatReceiptCollector;
+    readonly tryStartSkill: TryStartCombatSkill;
+  },
+) {
+  return new CombatInputRuntime({
+    ...options,
+    execution: createCombatInputExecution(options.tryStartSkill, options.receipt),
+  });
+}
 
 describe('CombatInputRuntime', () => {
   it('绑定保存游标后不重放固定输入，并继续递归接续与持久组', () => {
@@ -19,7 +36,7 @@ describe('CombatInputRuntime', () => {
       receipt: CombatReceiptCollector,
       restoredState?: ConstructorParameters<typeof CombatInputRuntime>[0]['restoredState'],
     ) =>
-      new CombatInputRuntime({
+      createRuntime({
         clock,
         receipt,
         inputs,
@@ -42,16 +59,16 @@ describe('CombatInputRuntime', () => {
     original.applyCurrentFrame();
     const saved = structuredClone({
       clock: originalClock.runtimeState,
-      receipt: originalReceipt.runtimeState,
       input: original.runtimeState,
     });
+    const savedHistory = originalReceipt.history.snapshot();
 
     for (let frame = 2; frame <= 6; frame += 1) {
       originalClock.advanceFrame();
       original.applyCurrentFrame();
     }
     const restoredClock = new CombatClock(saved.clock);
-    const restoredReceipt = new CombatReceiptCollector(saved.receipt);
+    const restoredReceipt = new CombatReceiptCollector(savedHistory);
     const restored = create(restoredClock, restoredReceipt, saved.input);
     expect(restored.runtimeState).toBe(saved.input);
     for (let frame = 2; frame <= 6; frame += 1) {
@@ -60,7 +77,7 @@ describe('CombatInputRuntime', () => {
     }
 
     expect(restored.runtimeState).toEqual(original.runtimeState);
-    expect(restoredReceipt.runtimeState).toEqual(originalReceipt.runtimeState);
+    expect(restoredReceipt.entries).toEqual(originalReceipt.entries);
     expect(
       restoredReceipt.entries
         .filter(entry => entry.event === 'SkillInputProcessed')
@@ -82,7 +99,7 @@ describe('CombatInputRuntime', () => {
       (_operatorId: string, skillId: string, castId?: string) =>
         skillId === 'first' && castId === 'cast:first',
     );
-    const runtime = new CombatInputRuntime({
+    const runtime = createRuntime({
       clock,
       receipt,
       tryStartSkill,
@@ -103,17 +120,16 @@ describe('CombatInputRuntime', () => {
   });
 
   it('rejects out-of-order schedules instead of silently sorting them', () => {
-    expect(
-      () =>
-        new CombatInputRuntime({
-          clock: new CombatClock(),
-          receipt: new CombatReceiptCollector(),
-          tryStartSkill: () => true,
-          inputs: [
-            { frame: 2, operatorId: 'operator', skillId: 'later' },
-            { frame: 1, operatorId: 'operator', skillId: 'earlier' },
-          ],
-        }),
+    expect(() =>
+      createRuntime({
+        clock: new CombatClock(),
+        receipt: new CombatReceiptCollector(),
+        tryStartSkill: () => true,
+        inputs: [
+          { frame: 2, operatorId: 'operator', skillId: 'later' },
+          { frame: 1, operatorId: 'operator', skillId: 'earlier' },
+        ],
+      }),
     ).toThrow('scheduled skill inputs must be ordered by frame');
   });
 
@@ -126,15 +142,14 @@ describe('CombatInputRuntime', () => {
   it.each([['a'], ['a', 'a'], ['a', 'missing']])(
     'rejects invalid continuation IDs %j',
     (...castIds) => {
-      expect(
-        () =>
-          new CombatInputRuntime({
-            clock: new CombatClock(),
-            receipt: new CombatReceiptCollector(),
-            inputs: chain(),
-            tryStartSkill: () => true,
-            continuationPlan: { castIds, canContinue: () => true },
-          }),
+      expect(() =>
+        createRuntime({
+          clock: new CombatClock(),
+          receipt: new CombatReceiptCollector(),
+          inputs: chain(),
+          tryStartSkill: () => true,
+          continuationPlan: { castIds, canContinue: () => true },
+        }),
       ).toThrow(/continuation plan/);
     },
   );
@@ -144,15 +159,14 @@ describe('CombatInputRuntime', () => {
       [...chain(), { ...chain()[2]!, castId: 'b' }],
       chain().map(input => (input.castId === 'b' ? { ...input, operatorId: 'other' } : input)),
     ]) {
-      expect(
-        () =>
-          new CombatInputRuntime({
-            clock: new CombatClock(),
-            receipt: new CombatReceiptCollector(),
-            inputs,
-            tryStartSkill: () => true,
-            continuationPlan: { castIds: ['a', 'b'], canContinue: () => true },
-          }),
+      expect(() =>
+        createRuntime({
+          clock: new CombatClock(),
+          receipt: new CombatReceiptCollector(),
+          inputs,
+          tryStartSkill: () => true,
+          continuationPlan: { castIds: ['a', 'b'], canContinue: () => true },
+        }),
       ).toThrow(/continuation plan/);
     }
   });
@@ -168,7 +182,7 @@ describe('CombatInputRuntime', () => {
           input.frame - previous.frame >= 3,
       );
       const inputs = chain(firstFrame);
-      const runtime = new CombatInputRuntime({
+      const runtime = createRuntime({
         clock,
         receipt,
         inputs,
@@ -200,7 +214,7 @@ describe('CombatInputRuntime', () => {
   it('preserves fixed input order and frames while delaying continuations', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
-    const runtime = new CombatInputRuntime({
+    const runtime = createRuntime({
       clock,
       receipt,
       tryStartSkill: () => true,
@@ -233,7 +247,7 @@ describe('CombatInputRuntime', () => {
   it('stops at another authored input on the same operator', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
-    const runtime = new CombatInputRuntime({
+    const runtime = createRuntime({
       clock,
       receipt,
       tryStartSkill: () => true,
@@ -256,7 +270,7 @@ describe('CombatInputRuntime', () => {
   it('keeps compact planning through failed inputs and an intervening authored cast', () => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
-    const runtime = new CombatInputRuntime({
+    const runtime = createRuntime({
       clock,
       receipt,
       tryStartSkill: () => false,
@@ -288,7 +302,7 @@ describe('CombatInputRuntime', () => {
   it.each(['a', 'b'])('stops when chain input %s fails', failedCastId => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
-    const runtime = new CombatInputRuntime({
+    const runtime = createRuntime({
       clock,
       receipt,
       inputs: chain(),
@@ -315,7 +329,7 @@ describe('持久连续组输入', () => {
   ) {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
-    const runtime = new CombatInputRuntime({
+    const runtime = createRuntime({
       clock,
       receipt,
       inputs,
@@ -486,7 +500,7 @@ describe('持久连续组输入', () => {
   it.each([true, false])('临时紧凑规划的后段 accepted=%s 时才接管已启动的持久组', accepted => {
     const clock = new CombatClock();
     const receipt = new CombatReceiptCollector();
-    const runtime = new CombatInputRuntime({
+    const runtime = createRuntime({
       clock,
       receipt,
       inputs: [
@@ -533,7 +547,7 @@ describe('持久连续组输入', () => {
 
   it('边界索引忽略自然结束，等到块边界之后的输入帧；零宽也不在同帧接续', () => {
     const receipt = new CombatReceiptCollector();
-    const timing = new SkillInputGroupTiming(receipt.entries, value =>
+    const timing = new SkillInputGroupTiming(receipt.history, value =>
       value.skillId === 'zero' ? 0 : 2,
     );
     const previous = input('a', 'one', 0);

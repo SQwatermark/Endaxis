@@ -68,10 +68,9 @@ it('恢复回调宿主后逐帧状态和回执一致，绑定不分配编号或�
   const saved = structuredClone({
     host: original.runtimeState,
     clock: clock.runtimeState,
-    receipts: receipt.runtimeState,
   });
   const nextClock = new CombatClock(saved.clock);
-  const nextReceipt = new CombatReceiptCollector(saved.receipts);
+  const nextReceipt = new CombatReceiptCollector(receipt.history.snapshot());
   const nextExecute = vi.fn(() => true);
   const allocate = vi.fn(() => 2);
   const restore = createCallbackSkillHostFactory({

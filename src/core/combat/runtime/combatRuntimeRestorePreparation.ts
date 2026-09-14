@@ -66,6 +66,12 @@ function validateOperatorState(program: CombatOperatorProgram, state: CombatOper
     if (skill.castId === undefined || !definitionIds.has(skill.skillId)) requiredSkills.add(key);
   }
   for (const [key, skill] of state.skills) {
+    const expectedCastId = key.slice(key.indexOf('\u0000') + 1) || null;
+    if (skill.castId !== expectedCastId) {
+      throw new Error(
+        `restored operator '${program.operatorId}' skill '${key}' has another cast identity`,
+      );
+    }
     if (!availableSkills.has(key)) {
       throw new Error(`restored operator '${program.operatorId}' has unknown skill '${key}'`);
     }
@@ -283,6 +289,24 @@ export function prepareCombatRuntimeRestore(
   programs: readonly CombatOperatorProgram[],
   fixedSkillPrograms: CombatSkillPrograms,
 ): CombatRuntimeRestorePreparation {
+  // 输入后新增的施放不必出现在原始排程，但必须绑定同一份固定定义。
+  programs = programs.map(operator => {
+    const configured = [...operator.skills, ...(operator.definitionSkillPrograms ?? [])];
+    const byKey = new Map(configured.map(program => [combatSkillProgramKey(program), program]));
+    const additional: CompiledSkillProgram[] = [];
+    for (const key of graph.operators.get(operator.operatorId)?.skills.keys() ?? []) {
+      const fullKey = `${operator.operatorId}\u0000${key}`;
+      if (byKey.has(fullKey)) continue;
+      const binding = fixedSkillPrograms.resolve(fullKey);
+      if (binding.definition === undefined || !configured.includes(binding.definition)) {
+        throw new Error(`restored dynamic skill '${fullKey}' uses another definition`);
+      }
+      additional.push(binding.program);
+    }
+    return additional.length === 0
+      ? operator
+      : { ...operator, skills: [...operator.skills, ...additional] };
+  });
   const programIds = new Set<string>();
   const programsById = new Map<string, CombatOperatorProgram>();
   for (const program of programs) {
@@ -293,6 +317,7 @@ export function prepareCombatRuntimeRestore(
     programsById.set(program.operatorId, program);
   }
   requireExactKeys(graph.operators, programIds, 'operator directory');
+  requireExactKeys(graph.inputs.control, programIds, 'control operator directory');
 
   const squadIds = graph.shared.resources.squad.map(member => member.operatorId);
   const expectedOrder = programs.map(program => program.operatorId);

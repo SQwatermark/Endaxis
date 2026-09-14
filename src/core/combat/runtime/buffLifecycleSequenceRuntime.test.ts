@@ -31,7 +31,7 @@ import {
 } from './postSkillRequestListenerState';
 
 describe('attachBuffLifecycleSequences', () => {
-  it('从容器切面重绑活动 Enable 序列，结束时只清理恢复分支的动作期 Buff', () => {
+  it('带伤害条件的 Buff 外壳保留活动 Enable 序列，结束时只清理恢复分支的动作期 Buff', () => {
     const childDefinition: CombatBuffDefinition<never> = {
       id: 'restored-enable-child',
       stackingType: 'unlimited',
@@ -41,7 +41,11 @@ describe('attachBuffLifecycleSequences', () => {
         get: id => (id === childDefinition.id ? childDefinition : undefined),
       });
       return attachBuffLifecycleSequences<never>(
-        { id: 'restored-enable-parent', stackingType: 'unlimited' },
+        {
+          id: 'restored-enable-parent',
+          stackingType: 'unlimited',
+          damageModifiers: [{ enabledSide: 'attacker', processors: [] }],
+        },
         {
           enable: {
             steps: [
@@ -63,6 +67,14 @@ describe('attachBuffLifecycleSequences', () => {
             resolveEventTarget: () => target,
             delegate: { execute: () => false, evaluate: () => false },
           }),
+        undefined,
+        [],
+        undefined,
+        [],
+        [],
+        [],
+        undefined,
+        [{ steps: [] }],
       );
     };
     const original = new CombatBuffContainer<never>('owner', new CombatAttributeSet<never>());
@@ -1408,7 +1420,7 @@ describe('attachBuffLifecycleSequences', () => {
     expect(first.runtimeState.actionHost!.scheduled!.passedFrames).toBe(2);
   });
 
-  it('从切面继续推进 Buff 局部时间线且不重放已过帧', () => {
+  it('乱序声明的 Buff 局部时间线按执行顺序恢复，且不重放已过帧', () => {
     const createDefinition = (reached: string[]) =>
       attachBuffLifecycleSequences<never>(
         { id: 'restored-scheduled', stackingType: 'unique' },
@@ -1426,23 +1438,23 @@ describe('attachBuffLifecycleSequences', () => {
         undefined,
         [
           {
-            startFrame: 1,
-            sequence: {
-              steps: [
-                {
-                  kind: 'setContextFlag',
-                  parameters: { flag: 'past', value: true, target: 'caster' },
-                },
-              ],
-            },
-          },
-          {
             startFrame: 3,
             sequence: {
               steps: [
                 {
                   kind: 'setContextFlag',
                   parameters: { flag: 'future', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+          {
+            startFrame: 1,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'past', value: true, target: 'caster' },
                 },
               ],
             },
