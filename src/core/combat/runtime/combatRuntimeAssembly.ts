@@ -945,7 +945,9 @@ export class CombatRuntimeAssembly {
       configureRestoredCombatObjectReferences({ entities, projectiles: this.projectileLifetimes });
       for (const target of entities.targets.values()) this.#configureBuffLifecycle(target, options);
 
-      const partyTargets = [...preparation.programs.keys()].map(operatorId => {
+      // 新建装配通过 #requirePartyBuffTargets 使用 CharacterTeamFinder 的逆序。
+      // 恢复装配必须保持同一顺序，否则群体 Buff 的实例编号和事件先后会在分支中改变。
+      const partyTargets = [...preparation.programs.keys()].reverse().map(operatorId => {
         const target = entities.targets.get(operatorId);
         if (target === undefined) {
           throw new Error(`restored party Buff target '${operatorId}' is missing`);

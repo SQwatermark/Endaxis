@@ -280,6 +280,82 @@ function createFixture(
   };
 }
 
+it('恢复后群体 GlobalBuff 仍按原生队伍逆序应用子 Buff', () => {
+  const childDefinition: ResolvedSkillBuffDefinition = { stackingType: 'unlimited' };
+  const operators: CombatOperatorProgram[] = [
+    {
+      operatorId: 'operator-a',
+      skills: [],
+      buffDefinitions: { 'party-child': childDefinition },
+    },
+    { operatorId: 'operator-b', skills: [] },
+  ];
+  const twoOperatorResources = {
+    ...resources,
+    squad: operators.map(operator => ({
+      operatorId: operator.operatorId,
+      ultimateEnergy: 0,
+      maxUltimateEnergy: 0,
+      ultimateEnergyGainMultiplier: 1,
+      allowedUltimateEnergyRecoveryTags: null,
+    })),
+  };
+  const createEnvironment = () =>
+    new StandardPlayerDamageEnvironment({
+      ...environmentInput(),
+      enemyVitals: new CombatVitals({
+        health: 100,
+        maxHealth: 100,
+        maxPoise: 0,
+        poise: 0,
+        poiseRecoveryTime: 0,
+        poiseRecoveryTimeMultiplier: 1,
+        poiseBrokenEndTime: 0,
+        poiseImmune: false,
+      }),
+    });
+  const environment = createEnvironment();
+  const original = new CombatRuntimeAssembly({
+    ...environment.runtimeOptions,
+    resources: twoOperatorResources,
+    enemy,
+    operators,
+  });
+  const saved = structuredClone(original.stateGraph);
+  const restored = CombatRuntimeAssembly.restore({
+    receiptHistory: original.receipt.history.snapshot(),
+    graph: saved,
+    resources: twoOperatorResources,
+    enemy,
+    operators,
+    environment: environmentInput(),
+    abilityEntityChildSkillPrograms: original.abilityEntityChildSkillPrograms,
+    combatOperationPrograms: original.combatOperationPrograms,
+    combatSkillPrograms: original.combatSkillPrograms,
+    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+  });
+  const definition = {
+    stackingType: 'unlimited' as const,
+    durationSeconds: 1,
+    blackboard: {},
+    children: [{ buffId: 'party-child', blackboardAssignments: {} }],
+  };
+  const add = (assembly: CombatRuntimeAssembly) => {
+    assembly.globalBuffs.add({
+      id: 'party-global',
+      definition,
+      sourceId: 'operator-a',
+      blackboardValues: {},
+    });
+    return assembly.receipt.entries
+      .filter(entry => entry.event === 'BuffApplied')
+      .map(entry => entry.targetId);
+  };
+
+  expect(add(original)).toEqual(['operator-b', 'operator-a']);
+  expect(add(restored)).toEqual(['operator-b', 'operator-a']);
+});
+
 it.each([true, false])('未来候选和父分支登记互不污染，候选先运行=%s', candidateFirst => {
   const { session, createRestore, inputs, externalEvents, operators } = createFixture(
     undefined,
