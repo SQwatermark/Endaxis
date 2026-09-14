@@ -406,6 +406,7 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
         },
       },
     },
+    potentialPersistent: { stackingType: 'unique' as const },
   };
   const passivePrograms = [
     {
@@ -492,6 +493,58 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   const skillPrograms = new CombatSkillPrograms();
   const operationPrograms = new CombatOperationPrograms();
   const childSkillPrograms = new AbilityEntityChildSkillPrograms();
+  const equipmentContributions = [
+    {
+      source: { kind: 'weaponTrait' as const, slug: 'fixture-weapon', traitKey: 'damage-count' },
+      selectedLevel: 1,
+      modifiers: [],
+      blackboard: { hits: 0 },
+      eventHandlers: [
+        {
+          key: 'count-damage',
+          abilityEvent: 'beforeOutputDamage' as const,
+          sequence: {
+            steps: [
+              {
+                kind: 'modifyActionValue' as const,
+                parameters: {
+                  key: 'hits',
+                  operation: 'add' as const,
+                  value: { kind: 'constant' as const, value: 1 },
+                },
+              },
+            ],
+          },
+        },
+      ],
+    },
+  ];
+  const initializationPrograms = [
+    {
+      key: 'equipment-fixture',
+      equipmentContributionIndex: 0,
+      sequence: { steps: [] },
+    },
+  ];
+  const upgradeEventPrograms = [
+    {
+      key: 'potential:skill-hit-buff:0',
+      event: {
+        kind: 'skillHit' as const,
+        skillGroupKey: 'battleSkill',
+        scope: 'operator' as const,
+      },
+      initialBlackboard: {},
+      sequence: {
+        steps: [
+          {
+            kind: 'applyBuff' as const,
+            parameters: { buffId: 'potentialPersistent', target: 'caster' as const },
+          },
+        ],
+      },
+    },
+  ];
   const operatorProgram = {
     operatorId: 'operator',
     skills: [program, comboProgram],
@@ -501,6 +554,9 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
     buffDefinitions,
     panel,
     passivePrograms,
+    equipmentContributions,
+    initializationPrograms,
+    upgradeEventPrograms,
   };
   const original = new CombatRuntimeAssembly({
     ...environment.runtimeOptions,
@@ -529,6 +585,15 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       .comboConditions.get('damage-condition')!
       .blackboard.values.get('hits'),
   ).toBe(0);
+  expect(
+    original.stateGraph.operators
+      .get('operator')!
+      .equipment!.contributions.get(0)!
+      .blackboard.values.get('hits'),
+  ).toBe(0);
+  expect(
+    original.stateGraph.operators.get('operator')!.upgradeEvents!.programs[0]!.subscriptions,
+  ).not.toHaveLength(0);
   const saved = structuredClone(original.stateGraph);
 
   const restored = CombatRuntimeAssembly.restore({
@@ -555,6 +620,13 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
       .comboConditions.get('damage-condition')!
       .blackboard.values.get('hits'),
   ).toBe(1);
+  expect(
+    restored.stateGraph.operators
+      .get('operator')!
+      .equipment!.contributions.get(0)!
+      .blackboard.values.get('hits'),
+  ).toBe(1);
+  expect(restored.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(3);
   expect(restored.stateGraph).toEqual(original.stateGraph);
   const activeHostSaved = structuredClone(original.stateGraph);
   const activeHostRestored = CombatRuntimeAssembly.restore({
