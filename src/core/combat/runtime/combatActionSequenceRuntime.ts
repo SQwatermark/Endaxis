@@ -93,7 +93,7 @@ export interface CombatActionSequenceRuntimeHooks {
 }
 
 /** 无战斗回调的发射保留对象寿命；不创建虚构的技能或资源账户。 */
-class ProjectileLifetimeStep extends CombatStep {
+class ProjectileLifetimeStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'launchProjectileLifetime'>,
     readonly runtime: CombatActionSequenceRuntime,
@@ -526,7 +526,7 @@ class RepeatByActionValueStep extends StatelessCombatStep {
   }
 }
 
-class ProjectileFinishCallbackStep extends CombatStep {
+class ProjectileFinishCallbackStep extends StatelessCombatStep {
   constructor(
     readonly step: ResolvedCombatStepForKind<'scheduleProjectileFinishCallback'>,
     readonly runtime: CombatActionSequenceRuntime,

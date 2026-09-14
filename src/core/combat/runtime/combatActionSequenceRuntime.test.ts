@@ -381,16 +381,14 @@ describe('CombatActionSequenceRuntime', () => {
     expect(original.runtime.scopeState.executedOnce.has('once')).toBe(true);
   });
 
-  it('绑定时拒绝尚未支持的步骤和不匹配的序列长度', () => {
+  it('无状态投射物步骤可绑定，序列长度仍必须匹配', () => {
     const { runtime } = createFixture();
     const definition = sequence({
       kind: 'launchProjectileLifetime',
       parameters: { finish: { reachAfterTicks: 2, maxDurationSeconds: 2 }, recycleDelaySeconds: 0 },
     });
     const state = structuredClone(runtime.createSequence(definition).runtimeState);
-    expect(() => runtime.createSequence(definition, undefined, state)).toThrow(
-      'does not support state binding',
-    );
+    expect(() => runtime.createSequence(definition, undefined, state)).not.toThrow();
     expect(() => runtime.createSequence(sequence(), undefined, state)).toThrow('program length');
   });
 

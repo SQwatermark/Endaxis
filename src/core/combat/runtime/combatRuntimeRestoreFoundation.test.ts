@@ -318,6 +318,23 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
                 inheritSourceSkillCastInfo: true,
               },
             },
+            {
+              kind: 'scheduleProjectileFinishCallback' as const,
+              parameters: { delaySeconds: 0.05, recycleDelaySeconds: 0.05 },
+              callback: {
+                skillId: 'callback',
+                nativeSkillType: 'normalSkill' as const,
+                naturalDurationFrames: 2,
+                castResource: {
+                  costFrame: 0,
+                  cooldownSeconds: 0,
+                  maxChargeTime: 1,
+                  cost: { resource: 'sp' as const, value: 0, availabilityThreshold: 0 },
+                },
+                initialBlackboard: {},
+                timelineActions: [],
+              },
+            },
           ],
         },
       },
@@ -352,6 +369,8 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
   expect(original.tryStartSkill('operator', 'skill')).toBe(true);
   original.advanceFrame();
   expect(original.stateGraph.operators.get('operator')!.buffs!.instances.size).toBe(1);
+  expect(original.stateGraph.instances.projectiles.instances.size).toBe(1);
+  expect(original.stateGraph.instances.projectiles.instances.get(1)!.callback!.host).toBeNull();
   const saved = structuredClone(original.stateGraph);
 
   const restored = CombatRuntimeAssembly.restore({
@@ -368,7 +387,28 @@ it('正式装配从活动技能切面恢复后继续得到相同逐帧结果', (
 
   expect(restored.stateGraph).toBe(saved);
   expect(restored.stateGraph).toEqual(original.stateGraph);
-  original.advanceFrames(3);
-  restored.advanceFrames(3);
+  original.advanceFrame();
+  restored.advanceFrame();
+  expect(restored.stateGraph.instances.projectiles.instances.get(1)!.callback!.host).not.toBeNull();
   expect(restored.stateGraph).toEqual(original.stateGraph);
+  const activeHostSaved = structuredClone(original.stateGraph);
+  const activeHostRestored = CombatRuntimeAssembly.restore({
+    graph: activeHostSaved,
+    resources,
+    enemy,
+    operators: [{ operatorId: 'operator', skills: [program], buffDefinitions }],
+    environment: environmentInput,
+    abilityEntityChildSkillPrograms: childSkillPrograms,
+    combatOperationPrograms: operationPrograms,
+    combatSkillPrograms: skillPrograms,
+    projectileCallbackPrograms: original.projectileLifetimes.callbackPrograms,
+  });
+  expect(activeHostRestored.stateGraph).toEqual(original.stateGraph);
+  original.advanceFrames(5);
+  restored.advanceFrames(5);
+  activeHostRestored.advanceFrames(5);
+  expect(restored.stateGraph).toEqual(original.stateGraph);
+  expect(activeHostRestored.stateGraph).toEqual(original.stateGraph);
+  expect(restored.stateGraph.instances.projectiles.instances.size).toBe(0);
+  expect(restored.projectileLifetimes.findSource(1)).toBeUndefined();
 });
