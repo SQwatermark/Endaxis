@@ -1759,27 +1759,37 @@
       "layers": "{stacks} 层"
     },
     "passiveUi": {
-      "detailTitle": "干员专属状态详情",
+      "detailTitle": "专属状态详情",
       "appearances": {
-        "tangtangDroplets": "水滴",
-        "laevatainCounter": "熔火计数",
-        "zhuangFangyiThunder": "青霆计数",
-        "arcaneSigils": "符印",
-        "liinoMusic": "音乐进度",
-        "typhoeaArrows": "箭矢"
+        "tangtangDroplets": "涡流",
+        "laevatainCounter": "熔火",
+        "zhuangFangyiThunder": "青霆剑",
+        "arcaneSigils": "破晦",
+        "liinoMusic": "演唱姿态",
+        "typhoeaArrows": "猎物清点"
+      },
+      "values": {
+        "tangtangDroplets": "涡流数量",
+        "laevatainCounter": "熔火层数",
+        "zhuangFangyiThunder": "青霆剑数量",
+        "arcaneSigils": "破晦阶段",
+        "typhoeaArrows": "猎矢数量"
+      },
+      "descriptions": {
+        "tangtangDroplets": "连携技“河水，助我！”生成的涡流。场上最多存在2处。",
+        "laevatainCounter": "莱万汀吸收敌人的灼热附着时获得熔火，最多叠加4层。",
+        "zhuangFangyiThunder": "场上现存的青霆剑数量。",
+        "arcaneSigils": "破晦阵的推进阶段。发动2次集束打击后，终结技切换为破晦诀明。",
+        "liinoMusic": "黎诺当前的演唱姿态。高歌姿态会在终结技期间代替演唱姿态。",
+        "typhoeaArrows": "猎矢可强化提弗洛斯的射击；每2点启示可以转化为1枚猎矢。"
       },
       "numericState": "{value} / {maximum}",
-      "counterState": "战斗箭 {battle}/{maximumArrows}，后备箭 {reserve}/{maximumArrows}，点数 {points}/{maximumPoints}",
-      "value": "当前计数",
-      "activeState": "强化状态",
-      "active": "已生效",
-      "inactive": "未生效",
-      "mode": "当前形态",
-      "modes": { "normal": "普通形态", "ultimate": "终结技形态" },
-      "sourceBuff": "原始 Buff ID",
-      "battleArrows": "战斗箭",
-      "reserveArrows": "后备箭",
-      "points": "点数"
+      "counterState": "猎矢 {battle}/{maximumArrows}，场外恢复 {reserve}/{maximumArrows}，启示 {points}/{maximumPoints}",
+      "mode": "当前姿态",
+      "modes": { "normal": "演唱姿态", "ultimate": "高歌姿态" },
+      "battleArrows": "猎矢",
+      "reserveArrows": "场外恢复猎矢",
+      "points": "启示"
     },
     "buffDetail": {
       "title": "状态详情",

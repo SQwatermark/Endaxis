@@ -1777,27 +1777,37 @@
       "layers": "{stacks} layers"
     },
     "passiveUi": {
-      "detailTitle": "Operator status details",
+      "detailTitle": "Operator-specific status details",
       "appearances": {
-        "tangtangDroplets": "Droplets",
-        "laevatainCounter": "Molten counter",
-        "zhuangFangyiThunder": "Thunder counter",
-        "arcaneSigils": "Sigils",
-        "liinoMusic": "Music progress",
-        "typhoeaArrows": "Arrows"
+        "tangtangDroplets": "Whirlpools",
+        "laevatainCounter": "Melting Flame",
+        "zhuangFangyiThunder": "Sunderblades",
+        "arcaneSigils": "Gloompurge",
+        "liinoMusic": "Vocalist Stance",
+        "typhoeaArrows": "Prey Checklist"
+      },
+      "values": {
+        "tangtangDroplets": "Whirlpools",
+        "laevatainCounter": "Melting Flame stacks",
+        "zhuangFangyiThunder": "Sunderblades",
+        "arcaneSigils": "Gloompurge stage",
+        "typhoeaArrows": "Hunting Arrows"
+      },
+      "descriptions": {
+        "tangtangDroplets": "Whirlpools created by the combo skill RIVER, TO ME! Up to 2 can exist on the field.",
+        "laevatainCounter": "Laevatain gains Melting Flame by absorbing Heat Infliction from enemies, up to 4 stacks.",
+        "zhuangFangyiThunder": "The number of Sunderblades currently on the field.",
+        "arcaneSigils": "The current stage of the Gloompurger Array. After 2 Cluster Strikes, the ultimate switches to Gloompurge Arcana.",
+        "liinoMusic": "Liino's current singing stance. Cosmovoice Stance replaces Vocalist Stance during her ultimate.",
+        "typhoeaArrows": "Hunting Arrows empower Typhoeus's shots. Every 2 Signs convert to 1 Hunting Arrow."
       },
       "numericState": "{value} / {maximum}",
-      "counterState": "battle {battle}/{maximumArrows}, reserve {reserve}/{maximumArrows}, points {points}/{maximumPoints}",
-      "value": "Current value",
-      "activeState": "Enhanced state",
-      "active": "Active",
-      "inactive": "Inactive",
-      "mode": "Current mode",
-      "modes": { "normal": "Normal", "ultimate": "Ultimate" },
-      "sourceBuff": "Original Buff ID",
-      "battleArrows": "Battle arrows",
-      "reserveArrows": "Reserve arrows",
-      "points": "Points"
+      "counterState": "Hunting Arrows {battle}/{maximumArrows}, out-of-combat recovery {reserve}/{maximumArrows}, Signs {points}/{maximumPoints}",
+      "mode": "Current stance",
+      "modes": { "normal": "Vocalist Stance", "ultimate": "Cosmovoice Stance" },
+      "battleArrows": "Hunting Arrows",
+      "reserveArrows": "Out-of-combat recovery",
+      "points": "Signs"
     },
     "buffDetail": {
       "title": "Status details",

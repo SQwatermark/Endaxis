@@ -23,6 +23,16 @@ const durationFrames = computed(() =>
   props.segment === null ? 0 : Math.max(0, props.segment.endFrame - props.segment.startFrame),
 );
 
+const numericValueLabel = computed(() => {
+  if (props.segment?.kind !== 'numeric') return '';
+  return t(`timeline.passiveUi.values.${props.segment.appearance}`);
+});
+
+const description = computed(() => {
+  if (props.segment === null) return '';
+  return t(`timeline.passiveUi.descriptions.${props.segment.appearance}`);
+});
+
 function seconds(frames: number): string {
   if (!Number.isFinite(props.fps) || props.fps <= 0) return '—';
   return `${(frames / props.fps).toFixed(2).replace(/\.00$/, '')}s`;
@@ -68,22 +78,16 @@ function seconds(frames: number): string {
           <strong>{{ title }}</strong>
         </header>
 
+        <p class="passive-detail__description">{{ description }}</p>
+
         <dl class="passive-detail__facts">
           <template v-if="segment.kind === 'numeric'">
-            <dt>{{ t('timeline.passiveUi.value') }}</dt>
+            <dt>{{ numericValueLabel }}</dt>
             <dd>{{ segment.value }} / {{ segment.maximum }}</dd>
-            <dt>{{ t('timeline.passiveUi.activeState') }}</dt>
-            <dd>
-              {{ t(segment.active ? 'timeline.passiveUi.active' : 'timeline.passiveUi.inactive') }}
-            </dd>
           </template>
           <template v-else-if="segment.kind === 'buffProgress'">
             <dt>{{ t('timeline.passiveUi.mode') }}</dt>
             <dd>{{ t(`timeline.passiveUi.modes.${segment.mode}`) }}</dd>
-            <dt>{{ t('timeline.passiveUi.sourceBuff') }}</dt>
-            <dd>
-              <code>{{ segment.buffId }}</code>
-            </dd>
           </template>
           <template v-else>
             <dt>{{ t('timeline.passiveUi.battleArrows') }}</dt>
@@ -136,6 +140,13 @@ function seconds(frames: number): string {
   font-size: 15px;
 }
 
+.passive-detail__description {
+  margin: 14px 0 0;
+  color: var(--ea-text-secondary, #c8c8c8);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .passive-detail__facts {
   display: grid;
   grid-template-columns: 112px minmax(0, 1fr);
@@ -153,10 +164,5 @@ function seconds(frames: number): string {
   margin: 0;
   color: var(--ea-text-primary, #eee);
   overflow-wrap: anywhere;
-}
-
-.passive-detail__facts code {
-  color: var(--ea-gold);
-  font-family: 'Roboto Mono', Consolas, monospace;
 }
 </style>

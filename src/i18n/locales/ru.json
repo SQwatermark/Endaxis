@@ -1735,25 +1735,35 @@
     "passiveUi": {
       "detailTitle": "Особое состояние оперативника",
       "appearances": {
-        "tangtangDroplets": "Капли",
-        "laevatainCounter": "Счётчик жара",
-        "zhuangFangyiThunder": "Счётчик грома",
-        "arcaneSigils": "Сигилы",
-        "liinoMusic": "Музыкальный прогресс",
-        "typhoeaArrows": "Стрелы"
+        "tangtangDroplets": "Водовороты",
+        "laevatainCounter": "Плавящее пламя",
+        "zhuangFangyiThunder": "Рассекающие клинки",
+        "arcaneSigils": "Рассеивание мрака",
+        "liinoMusic": "Певческая стойка",
+        "typhoeaArrows": "Подсчёт добычи"
+      },
+      "values": {
+        "tangtangDroplets": "Водовороты",
+        "laevatainCounter": "Слои плавящего пламени",
+        "zhuangFangyiThunder": "Рассекающие клинки",
+        "arcaneSigils": "Стадия рассеивания мрака",
+        "typhoeaArrows": "Охотничьи стрелы"
+      },
+      "descriptions": {
+        "tangtangDroplets": "Водовороты, создаваемые совместным навыком Тантан. Одновременно на поле может быть не более 2.",
+        "laevatainCounter": "Лэватейн получает слои плавящего пламени, поглощая тепловое наложение врагов. Максимум — 4 слоя.",
+        "zhuangFangyiThunder": "Количество рассекающих клинков на поле.",
+        "arcaneSigils": "Текущая стадия массива рассеивания мрака. После 2 кластерных ударов ультимативный навык сменяется на завершающую форму.",
+        "liinoMusic": "Текущая певческая стойка Лино. Во время ультимативного навыка стойка полного голоса заменяет обычную певческую стойку.",
+        "typhoeaArrows": "Охотничьи стрелы усиливают выстрелы. Каждые 2 знака превращаются в 1 охотничью стрелу."
       },
       "numericState": "{value} / {maximum}",
-      "counterState": "боевые {battle}/{maximumArrows}, запасные {reserve}/{maximumArrows}, очки {points}/{maximumPoints}",
-      "value": "Текущее значение",
-      "activeState": "Усиленное состояние",
-      "active": "Активно",
-      "inactive": "Неактивно",
-      "mode": "Текущий режим",
-      "modes": { "normal": "Обычный", "ultimate": "Ультимативный" },
-      "sourceBuff": "Исходный ID Buff",
-      "battleArrows": "Боевые стрелы",
-      "reserveArrows": "Запасные стрелы",
-      "points": "Очки"
+      "counterState": "Охотничьи стрелы {battle}/{maximumArrows}, восстановление вне боя {reserve}/{maximumArrows}, знаки {points}/{maximumPoints}",
+      "mode": "Текущая стойка",
+      "modes": { "normal": "Певческая стойка", "ultimate": "Стойка полного голоса" },
+      "battleArrows": "Охотничьи стрелы",
+      "reserveArrows": "Восстановление вне боя",
+      "points": "Знаки"
     },
     "buffDetail": {
       "title": "Сведения о статусе",
