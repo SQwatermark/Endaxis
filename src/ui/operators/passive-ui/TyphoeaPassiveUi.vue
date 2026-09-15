@@ -1,9 +1,30 @@
 <script setup lang="ts">
+/**
+ * 提弗洛斯原生战斗 HUD。
+ *
+ * 三张图取自 OverlayInfoNodeTyphoea.prefab 引用的 Unity Sprite：底图 76×56、箭矢 40×8、点 12×12。
+ * prefab 将箭矢按 1px 间距纵排，并将八个点从左下开始按两列横向填充。
+ */
 import type { PassiveUiWidgetState } from './state';
+
 defineProps<PassiveUiWidgetState>();
+
+function pointGridPosition(index: number) {
+  return {
+    gridColumn: ((index - 1) % 2) + 1,
+    gridRow: 4 - Math.floor((index - 1) / 2),
+  };
+}
 </script>
+
 <template>
-  <span class="passive-ui-skin">
+  <span class="passive-ui-skin typhoea-passive-ui">
+    <img
+      class="typhoea-background"
+      src="/next/passive-ui/typhoea-bg.webp"
+      alt=""
+      draggable="false"
+    />
     <span class="typhoea-arrows">
       <span
         v-for="index in Math.max(1, maximum)"
@@ -18,60 +39,74 @@ defineProps<PassiveUiWidgetState>();
         :key="`point:${index}`"
         class="typhoea-point"
         :class="{ 'is-filled': index <= points }"
+        :style="pointGridPosition(index)"
       />
     </span>
   </span>
 </template>
+
 <style scoped>
 .passive-ui-skin {
-  display: contents;
-}
-img {
-  position: absolute;
   display: block;
+  position: relative;
+  width: 76px;
+  height: 56px;
 }
-.native-fill {
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
+
+.typhoea-background,
 .typhoea-arrows,
 .typhoea-points {
   position: absolute;
-  left: 2px;
-  display: flex;
-  gap: 3px;
+}
+
+.typhoea-background {
+  inset: 0;
+  display: block;
+  width: 76px;
+  height: 56px;
+  pointer-events: none;
 }
 
 .typhoea-arrows {
-  top: 4px;
+  top: 6px;
+  left: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
 .typhoea-points {
-  top: 29px;
-  gap: 2px;
+  bottom: 11px;
+  left: 49px;
+  display: grid;
+  grid-template-columns: repeat(2, 12px);
+  grid-template-rows: repeat(4, 12px);
+  gap: 0 -3px;
 }
 
 .typhoea-arrow {
-  width: 13px;
-  height: 18px;
-  border: 1px solid rgb(116 127 127 / 80%);
-  clip-path: polygon(50% 0, 100% 48%, 68% 48%, 68% 100%, 32% 100%, 32% 48%, 0 48%);
-  background: rgb(55 61 61);
+  display: block;
+  width: 40px;
+  height: 8px;
+  background: rgb(29 255 231);
+  -webkit-mask: url('/next/passive-ui/typhoea-arrow.webp') center / contain no-repeat;
+  mask: url('/next/passive-ui/typhoea-arrow.webp') center / contain no-repeat;
+  opacity: 0;
+}
+
+.typhoea-point {
+  display: block;
+  width: 12px;
+  height: 12px;
+  background: rgb(105 239 222);
+  -webkit-mask: url('/next/passive-ui/typhoea-point.webp') center / contain no-repeat;
+  mask: url('/next/passive-ui/typhoea-point.webp') center / contain no-repeat;
+  opacity: 0;
 }
 
 .typhoea-arrow.is-filled,
 .typhoea-point.is-filled {
-  border-color: rgb(160 255 241);
-  background: rgb(94 231 209);
-}
-
-.typhoea-point {
-  width: 6px;
-  height: 6px;
-  border: 1px solid rgb(116 127 127 / 80%);
-  border-radius: 50%;
-  background: rgb(55 61 61);
+  opacity: 1;
+  filter: drop-shadow(0 0 2px rgb(78 255 230 / 70%));
 }
 </style>

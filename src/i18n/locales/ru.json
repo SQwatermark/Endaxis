@@ -1732,6 +1732,29 @@
       "reactionConsumed": "Поглощение реакции",
       "layers": "Слоёв: {stacks}"
     },
+    "passiveUi": {
+      "detailTitle": "Особое состояние оперативника",
+      "appearances": {
+        "tangtangDroplets": "Капли",
+        "laevatainCounter": "Счётчик жара",
+        "zhuangFangyiThunder": "Счётчик грома",
+        "arcaneSigils": "Сигилы",
+        "liinoMusic": "Музыкальный прогресс",
+        "typhoeaArrows": "Стрелы"
+      },
+      "numericState": "{value} / {maximum}",
+      "counterState": "боевые {battle}/{maximumArrows}, запасные {reserve}/{maximumArrows}, очки {points}/{maximumPoints}",
+      "value": "Текущее значение",
+      "activeState": "Усиленное состояние",
+      "active": "Активно",
+      "inactive": "Неактивно",
+      "mode": "Текущий режим",
+      "modes": { "normal": "Обычный", "ultimate": "Ультимативный" },
+      "sourceBuff": "Исходный ID Buff",
+      "battleArrows": "Боевые стрелы",
+      "reserveArrows": "Запасные стрелы",
+      "points": "Очки"
+    },
     "buffDetail": {
       "title": "Сведения о статусе",
       "source": "Источник",

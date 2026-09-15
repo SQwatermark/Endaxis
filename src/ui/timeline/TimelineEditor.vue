@@ -405,6 +405,9 @@ const TimelineHitDetailDialog = defineAsyncComponent(
 const TimelineBuffDetailDialog = defineAsyncComponent(
   () => import('./results/TimelineBuffDetailDialog.vue'),
 );
+const TimelineOperatorPassiveUiDetailDialog = defineAsyncComponent(
+  () => import('./results/TimelineOperatorPassiveUiDetailDialog.vue'),
+);
 const TimelineExportDialog = defineAsyncComponent(
   () => import('./components/TimelineExportDialog.vue'),
 );
@@ -571,6 +574,8 @@ const showSmallImageExport = ref(false);
 const smallImageExportInitial = ref({ filename: '', duration: 60 });
 const showShortcutHelp = ref(false);
 const buffDetailTarget = ref<BuffDetailTarget | null>(null);
+const passiveUiDetailSegment = ref<PositionedOperatorPassiveUiTimelineSegment | null>(null);
+const passiveUiDetailTitle = ref('');
 const projectDefinitionLibrary = shallowRef<ProjectDefinitionLibraryDocument>({
   operators: {},
   weapons: {},
@@ -2859,6 +2864,14 @@ function openBuffDetail(target: BuffDetailTarget): void {
   buffDetailTarget.value = target;
 }
 
+function openOperatorPassiveUiDetail(
+  segment: PositionedOperatorPassiveUiTimelineSegment,
+  title: string,
+): void {
+  passiveUiDetailSegment.value = segment;
+  passiveUiDetailTitle.value = title;
+}
+
 function skillLibraryEntryName(entry: TimelineSkillLibraryEntryViewModel): string {
   const assetSlug = selectedTrackModel.value.operatorAssetSlug;
   if (assetSlug === null) return entry.placementSkillKey ?? entry.variantKey ?? entry.skillGroupKey;
@@ -4096,6 +4109,8 @@ function resetTransientScenarioUi(): void {
   hitDetailTarget.value = null;
   enemyDamageDetailSequence.value = null;
   buffDetailTarget.value = null;
+  passiveUiDetailSegment.value = null;
+  passiveUiDetailTitle.value = '';
   showDamageAnalysis.value = false;
   showExportDialog.value = false;
   showSmallImageExport.value = false;
@@ -5460,6 +5475,8 @@ function setPanelDialogVisible(visible: boolean): void {
                   :action-top="
                     trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
                   "
+                  :operator-name="operatorName(track.operatorSlug)"
+                  @open-detail="openOperatorPassiveUiDetail"
                 />
                 <TimelineBuffBands
                   v-if="timelineViewLayers.lowerBuffs && isOperatorEffectsVisible(track.trackIndex)"
@@ -6285,6 +6302,14 @@ function setPanelDialogVisible(visible: boolean): void {
       buffId: t('timeline.buffDetail.buffId'),
     }"
     @update:visible="buffDetailTarget = $event ? buffDetailTarget : null"
+  />
+  <TimelineOperatorPassiveUiDetailDialog
+    v-if="passiveUiDetailSegment !== null"
+    :visible="passiveUiDetailSegment !== null"
+    :segment="passiveUiDetailSegment"
+    :title="passiveUiDetailTitle"
+    :fps="PROJECT_FPS"
+    @update:visible="passiveUiDetailSegment = $event ? passiveUiDetailSegment : null"
   />
   <TimelineExportDialog
     v-if="showExportDialog"

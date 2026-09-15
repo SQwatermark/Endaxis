@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import editorSource from '../TimelineEditor.vue?raw';
 import bandsSource from './TimelineOperatorPassiveUiBands.vue?raw';
+import detailSource from './TimelineOperatorPassiveUiDetailDialog.vue?raw';
 import statusSegmentSource from './TimelineStatusSegment.vue?raw';
 
 describe('operator passive UI timeline retention', () => {
@@ -16,7 +17,8 @@ describe('operator passive UI timeline retention', () => {
 
   it('renders numeric values as duration segments rather than a cursor-only snapshot', () => {
     expect(bandsSource).toContain('TimelineStatusSegment');
-    expect(bandsSource).not.toContain('interactive');
+    expect(bandsSource).toContain('interactive');
+    expect(bandsSource).toContain('@activate="emit(\'open-detail\', item, item.name)"');
     expect(bandsSource).toContain(':count="item.kind === \'numeric\' ? item.value : null"');
     expect(bandsSource).toContain('segment.value');
     expect(bandsSource).toContain('segment.endFrame');
@@ -25,10 +27,26 @@ describe('operator passive UI timeline retention', () => {
     expect(statusSegmentSource).toContain('bottom: -3px');
   });
 
-  it('contains native content inside the same 18px frame used by Buff segments', () => {
-    expect(bandsSource).toContain(':height="16"');
-    expect(bandsSource).toContain(':max-width="16"');
-    expect(statusSegmentSource).toContain('width: 18px');
+  it('preserves each native HUD aspect ratio instead of clipping every appearance to a square', () => {
+    expect(bandsSource).toContain('const ICON_HEIGHT = 16');
+    expect(bandsSource).toContain('(skin.width / skin.height) * ICON_HEIGHT + 2');
+    expect(bandsSource).toContain(':icon-width="item.iconWidth"');
+    expect(bandsSource).toContain('bare-icon');
+    expect(statusSegmentSource).toContain('width: var(--timeline-status-icon-width)');
     expect(statusSegmentSource).toContain('height: 18px');
+  });
+
+  it('makes the icon and duration segment one keyboard-accessible tooltip trigger', () => {
+    expect(statusSegmentSource).toContain('<EaTooltip');
+    expect(statusSegmentSource).toContain('class="timeline-status-segment__body"');
+    expect(statusSegmentSource).toContain('@click.stop="interactive && emit(\'activate\')"');
+    expect(statusSegmentSource).toContain(
+      '.timeline-status-segment__body:hover .timeline-status-segment__duration',
+    );
+    expect(editorSource).toContain('@open-detail="openOperatorPassiveUiDetail"');
+    expect(editorSource).toContain('<TimelineOperatorPassiveUiDetailDialog');
+    expect(detailSource).toContain("segment.kind === 'numeric'");
+    expect(detailSource).toContain("segment.kind === 'buffProgress'");
+    expect(detailSource).toContain('segment.reserveArrows');
   });
 });

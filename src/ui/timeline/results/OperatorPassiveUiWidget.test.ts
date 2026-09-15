@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 import Widget from './OperatorPassiveUiWidget.vue';
 import { passiveUiSkins } from '../../operators/passive-ui/registry';
 import type { OperatorPassiveUiAppearance } from '../../../../packages/game-data-contract/src/operators';
+import typhoeaSource from '../../operators/passive-ui/TyphoeaPassiveUi.vue?raw';
 
 function render(appearance: OperatorPassiveUiAppearance, state = {}) {
   return renderToString(createSSRApp({ render: () => h(Widget, { appearance, ...state }) }));
@@ -58,5 +59,12 @@ describe('专属 HUD 外观通过通用容器显示', () => {
     expect(
       classes.filter(items => items.includes('typhoea-point') && items.includes('is-filled')),
     ).toHaveLength(3);
+    expect(arrows).toContain('/next/passive-ui/typhoea-bg.webp');
+    expect(typhoeaSource).toContain("url('/next/passive-ui/typhoea-arrow.webp')");
+    expect(typhoeaSource).toContain("url('/next/passive-ui/typhoea-point.webp')");
+    expect(typhoeaSource).toContain('flex-direction: column');
+    expect(typhoeaSource).toContain('gridRow: 4 - Math.floor((index - 1) / 2)');
+    expect(typhoeaSource).not.toContain('clip-path: polygon');
+    expect(passiveUiSkins.typhoeaArrows).toMatchObject({ width: 76, height: 56 });
   });
 });

@@ -44,8 +44,8 @@ export const passiveUiSkins = {
   },
   typhoeaArrows: {
     component: TyphoeaPassiveUi,
-    width: 72,
-    height: 44,
+    width: 76,
+    height: 56,
     label: '箭矢',
     numeric: true,
   },

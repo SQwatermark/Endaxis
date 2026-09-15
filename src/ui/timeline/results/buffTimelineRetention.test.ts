@@ -32,10 +32,10 @@ describe('Next timeline Buff visualization retention', () => {
     expect(statusSegmentSource).toContain('timeline-status-segment__count');
     expect(statusSegmentSource).toContain(':role="interactive ? \'button\' : undefined"');
     expect(statusSegmentSource).toContain(
-      '.timeline-status-segment.is-interactive .timeline-status-segment__icon',
+      '.timeline-status-segment.is-interactive .timeline-status-segment__body',
     );
     expect(statusSegmentSource).toContain(
-      '.timeline-status-segment.is-interactive .timeline-status-segment__duration',
+      '.timeline-status-segment__body:hover .timeline-status-segment__duration',
     );
     expect(statusSegmentSource).toContain('transform: scale(1.18)');
     expect(enemyEffectsSource).toContain('anomaly-stacks');

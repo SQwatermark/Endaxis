@@ -1758,6 +1758,29 @@
       "reactionConsumed": "反应消费",
       "layers": "{stacks} 层"
     },
+    "passiveUi": {
+      "detailTitle": "干员专属状态详情",
+      "appearances": {
+        "tangtangDroplets": "水滴",
+        "laevatainCounter": "熔火计数",
+        "zhuangFangyiThunder": "青霆计数",
+        "arcaneSigils": "符印",
+        "liinoMusic": "音乐进度",
+        "typhoeaArrows": "箭矢"
+      },
+      "numericState": "{value} / {maximum}",
+      "counterState": "战斗箭 {battle}/{maximumArrows}，后备箭 {reserve}/{maximumArrows}，点数 {points}/{maximumPoints}",
+      "value": "当前计数",
+      "activeState": "强化状态",
+      "active": "已生效",
+      "inactive": "未生效",
+      "mode": "当前形态",
+      "modes": { "normal": "普通形态", "ultimate": "终结技形态" },
+      "sourceBuff": "原始 Buff ID",
+      "battleArrows": "战斗箭",
+      "reserveArrows": "后备箭",
+      "points": "点数"
+    },
     "buffDetail": {
       "title": "状态详情",
       "source": "来源",

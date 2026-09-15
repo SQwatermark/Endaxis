@@ -4,6 +4,8 @@
  *
  * Buff、干员专属 UI 和后续其他状态只提供图形内容；边框、计数、悬停和持续条由这里统一。
  */
+import { EaTooltip } from '@/design-system';
+
 withDefaults(
   defineProps<{
     left: number;
@@ -14,8 +16,10 @@ withDefaults(
     count?: number | string | null;
     active?: boolean;
     interactive?: boolean;
+    iconWidth?: number;
+    bareIcon?: boolean;
   }>(),
-  { interactive: false },
+  { interactive: false, iconWidth: 18, bareIcon: false },
 );
 
 const emit = defineEmits<{
@@ -26,31 +30,48 @@ const emit = defineEmits<{
 <template>
   <span
     class="timeline-status-segment"
-    :class="{ 'is-active': active, 'is-interactive': interactive }"
-    :style="{ left: `${left}px`, top: `${top}px` }"
+    :class="{
+      'is-active': active,
+      'is-interactive': interactive,
+      'has-bare-icon': bareIcon,
+    }"
+    :style="{
+      left: `${left}px`,
+      top: `${top}px`,
+      '--timeline-status-icon-width': `${iconWidth}px`,
+    }"
   >
-    <span
-      class="timeline-status-segment__icon"
-      :title="title"
-      :role="interactive ? 'button' : undefined"
-      :tabindex="interactive ? 0 : undefined"
-      @click.stop="interactive && emit('activate')"
-      @keydown.enter.stop.prevent="interactive && emit('activate')"
-      @keydown.space.stop.prevent="interactive && emit('activate')"
+    <EaTooltip
+      :content="title"
+      placement="top"
+      effect="dark"
+      :show-after="100"
+      popper-class="timeline-status-tooltip"
     >
-      <span class="timeline-status-segment__content"><slot name="content" /></span>
-      <span v-if="count !== undefined && count !== null" class="timeline-status-segment__count">
-        {{ count }}
+      <span
+        class="timeline-status-segment__body"
+        :role="interactive ? 'button' : undefined"
+        :tabindex="interactive ? 0 : undefined"
+        :aria-label="interactive ? title : undefined"
+        @click.stop="interactive && emit('activate')"
+        @keydown.enter.stop.prevent="interactive && emit('activate')"
+        @keydown.space.stop.prevent="interactive && emit('activate')"
+      >
+        <span class="timeline-status-segment__icon">
+          <span class="timeline-status-segment__content"><slot name="content" /></span>
+          <span v-if="count !== undefined && count !== null" class="timeline-status-segment__count">
+            {{ count }}
+          </span>
+        </span>
+        <span
+          v-if="width > 0"
+          class="timeline-status-segment__duration"
+          :style="{ width: `${width}px`, backgroundColor: durationColor }"
+        >
+          <span class="timeline-status-segment__stripes"></span>
+        </span>
       </span>
-    </span>
-    <span
-      v-if="width > 0"
-      class="timeline-status-segment__duration"
-      :style="{ width: `${width}px`, backgroundColor: durationColor }"
-      :title="title"
-    >
-      <span class="timeline-status-segment__stripes"></span>
-    </span>
+    </EaTooltip>
   </span>
 </template>
 
@@ -63,20 +84,31 @@ const emit = defineEmits<{
   pointer-events: none;
 }
 
+.timeline-status-segment__body {
+  display: flex;
+  align-items: center;
+  outline: none;
+  pointer-events: none;
+}
+
+.timeline-status-segment.is-interactive .timeline-status-segment__body {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
 .timeline-status-segment__icon {
   position: relative;
   z-index: 2;
-  width: 18px;
+  width: var(--timeline-status-icon-width);
   height: 18px;
   box-sizing: border-box;
   display: grid;
-  flex: 0 0 18px;
+  flex: 0 0 var(--timeline-status-icon-width);
   place-items: center;
   border: 1px solid var(--ea-keycap-skill-border, #999);
   border-radius: 2px;
   background: var(--ea-keycap-skill-bg, #333);
   box-shadow: 0 1px 2px rgb(0 0 0 / 50%);
-  pointer-events: none;
   transition:
     transform 0.12s ease,
     filter 0.12s ease,
@@ -84,12 +116,14 @@ const emit = defineEmits<{
     box-shadow 0.12s ease;
 }
 
-.timeline-status-segment.is-interactive .timeline-status-segment__icon {
-  pointer-events: auto;
-  cursor: pointer;
+.timeline-status-segment.has-bare-icon .timeline-status-segment__icon {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
 
-.timeline-status-segment__icon:hover {
+.timeline-status-segment__body:hover .timeline-status-segment__icon,
+.timeline-status-segment__body:focus-visible .timeline-status-segment__icon {
   z-index: 12;
   transform: scale(1.18);
   filter: brightness(1.18);
@@ -101,7 +135,7 @@ const emit = defineEmits<{
 
 .timeline-status-segment__content {
   position: relative;
-  width: 16px;
+  width: calc(var(--timeline-status-icon-width) - 2px);
   height: 16px;
   display: grid;
   place-items: center;
@@ -139,15 +173,12 @@ const emit = defineEmits<{
   pointer-events: none;
 }
 
-.timeline-status-segment.is-interactive .timeline-status-segment__duration {
-  pointer-events: auto;
-}
-
 .timeline-status-segment.is-active .timeline-status-segment__duration {
   background: color-mix(in srgb, var(--ea-gold) 55%, #555);
 }
 
-.timeline-status-segment__duration:hover {
+.timeline-status-segment__body:hover .timeline-status-segment__duration,
+.timeline-status-segment__body:focus-visible .timeline-status-segment__duration {
   filter: brightness(1.16) saturate(1.08);
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 18%),

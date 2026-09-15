@@ -1776,6 +1776,29 @@
       "reactionConsumed": "Reaction consumed",
       "layers": "{stacks} layers"
     },
+    "passiveUi": {
+      "detailTitle": "Operator status details",
+      "appearances": {
+        "tangtangDroplets": "Droplets",
+        "laevatainCounter": "Molten counter",
+        "zhuangFangyiThunder": "Thunder counter",
+        "arcaneSigils": "Sigils",
+        "liinoMusic": "Music progress",
+        "typhoeaArrows": "Arrows"
+      },
+      "numericState": "{value} / {maximum}",
+      "counterState": "battle {battle}/{maximumArrows}, reserve {reserve}/{maximumArrows}, points {points}/{maximumPoints}",
+      "value": "Current value",
+      "activeState": "Enhanced state",
+      "active": "Active",
+      "inactive": "Inactive",
+      "mode": "Current mode",
+      "modes": { "normal": "Normal", "ultimate": "Ultimate" },
+      "sourceBuff": "Original Buff ID",
+      "battleArrows": "Battle arrows",
+      "reserveArrows": "Reserve arrows",
+      "points": "Points"
+    },
     "buffDetail": {
       "title": "Status details",
       "source": "Source",
