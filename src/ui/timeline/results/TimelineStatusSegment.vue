@@ -17,9 +17,8 @@ withDefaults(
     active?: boolean;
     interactive?: boolean;
     iconWidth?: number;
-    bareIcon?: boolean;
   }>(),
-  { interactive: false, iconWidth: 18, bareIcon: false },
+  { interactive: false, iconWidth: 18 },
 );
 
 const emit = defineEmits<{
@@ -77,7 +76,6 @@ onBeforeUnmount(() => clearTimeout(tooltipTimer));
     :class="{
       'is-active': active,
       'is-interactive': interactive,
-      'has-bare-icon': bareIcon,
     }"
     :style="{
       left: `${left}px`,
@@ -165,12 +163,6 @@ onBeforeUnmount(() => clearTimeout(tooltipTimer));
     filter 0.12s ease,
     border-color 0.12s ease,
     box-shadow 0.12s ease;
-}
-
-.timeline-status-segment.has-bare-icon .timeline-status-segment__icon {
-  border-color: transparent;
-  background: transparent;
-  box-shadow: none;
 }
 
 .timeline-status-segment__body:hover .timeline-status-segment__icon,

@@ -107,7 +107,6 @@ const items = computed(() =>
       :count="item.kind === 'numeric' ? item.value : null"
       :active="item.kind === 'numeric' && item.active"
       :icon-width="item.iconWidth"
-      bare-icon
       interactive
       @activate="emit('open-detail', item, item.name)"
     >

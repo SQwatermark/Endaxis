@@ -31,9 +31,10 @@ describe('operator passive UI timeline retention', () => {
     expect(bandsSource).toContain('const ICON_HEIGHT = 16');
     expect(bandsSource).toContain('(skin.width / skin.height) * ICON_HEIGHT + 2');
     expect(bandsSource).toContain(':icon-width="item.iconWidth"');
-    expect(bandsSource).toContain('bare-icon');
+    expect(bandsSource).not.toContain('bare-icon');
     expect(statusSegmentSource).toContain('width: var(--timeline-status-icon-width)');
     expect(statusSegmentSource).toContain('height: 18px');
+    expect(statusSegmentSource).not.toContain('has-bare-icon');
   });
 
   it('anchors the shared tooltip to the pointer instead of the segment width', () => {
