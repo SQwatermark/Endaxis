@@ -54,10 +54,10 @@ describe('BuffDefinitionOperationTarget', () => {
 
     const resolveDefinition = (id: string, ownerId: string) =>
       id === 'saved' && ownerId === 'operator' ? definition : undefined;
-    expect(() => restored.bindRestoredInstances(resolveDefinition)).toThrow(
+    expect(() => restored.bindRestoredDefinitionInstances(resolveDefinition)).toThrow(
       "restored Buff 'saved' source attribute binding does not match",
     );
-    restored.bindRestoredInstances(resolveDefinition, state => ({
+    restored.bindRestoredDefinitionInstances(resolveDefinition, state => ({
       sourceAttributeOwnerId: state.sourceAttributeOwnerId!,
       getSourceAttributeValue: () => 42,
     }));
@@ -127,7 +127,7 @@ describe('BuffDefinitionOperationTarget', () => {
     }));
 
     expect(() =>
-      restored.bindRestoredInstances((id, ownerId) =>
+      restored.bindRestoredDefinitionInstances((id, ownerId) =>
         id === 'shared-lifecycle-buff' && ownerId === 'operator' ? sourceDefinition : undefined,
       ),
     ).not.toThrow();

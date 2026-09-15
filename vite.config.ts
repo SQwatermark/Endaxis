@@ -8,7 +8,12 @@ import { inspectorSchemaPlugin } from './tools/inspector-schema/vitePlugin';
 
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [inspectorSchemaPlugin(), vue(), vueDevTools()],
+  plugins: [
+    inspectorSchemaPlugin(),
+    // public 绝对 URL 保持浏览器路径，不能在 Windows SSR 测试中转为无盘符的文件导入。
+    vue({ template: { transformAssetUrls: { includeAbsolute: false } } }),
+    vueDevTools(),
+  ],
   base: '/',
   resolve: {
     alias: {

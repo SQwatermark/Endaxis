@@ -46,6 +46,7 @@ import {
   zhuangFangyi,
 } from '../data/operators';
 import { placeSkillGroup } from '../ui/timeline/placeSkillGroup';
+import { laevatainBasicAttack1 } from '../data/operators/laevatain';
 import { projectTimelineEditor } from '../ui/timeline/timelineEditorViewModel';
 import {
   projectHitEffectsByCast,
@@ -1360,7 +1361,8 @@ describe('registered generated operators', () => {
         key: 'basicAttack1',
         skillType: 'basicAttack',
         levelSource: 'basicAttack',
-        sourceSkillId: 'test_laevatain_talent_1_attachment',
+        sourceSkillId: laevatainBasicAttack1.sourceSkillId,
+        nativeSkillType: laevatainBasicAttack1.nativeSkillType,
         timelineBlockFrames: 1,
         scheduledSequences: [
           scheduled(
@@ -1384,7 +1386,8 @@ describe('registered generated operators', () => {
         key: 'basicAttack1',
         skillType: 'basicAttack',
         levelSource: 'basicAttack',
-        sourceSkillId: 'test_laevatain_talent_1_probe',
+        sourceSkillId: laevatainBasicAttack1.sourceSkillId,
+        nativeSkillType: laevatainBasicAttack1.nativeSkillType,
         timelineBlockFrames: 1,
         scheduledSequences: [
           scheduled(

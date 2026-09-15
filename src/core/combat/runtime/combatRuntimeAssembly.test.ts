@@ -582,7 +582,9 @@ describe('CombatRuntimeAssembly', () => {
     );
     const saved = structuredClone(assembly.stateGraph);
     const passiveState = saved.operators.get('operator')!.passives.get('passive')!;
-    passiveState.blackboard.entity = structuredClone(saved.operators.get('operator')!.blackboard);
+    Object.defineProperty(passiveState.blackboard, 'entity', {
+      value: structuredClone(saved.operators.get('operator')!.blackboard),
+    });
 
     expect(() =>
       prepareCombatRuntimeRestore(saved, [operator], assembly.combatSkillPrograms),

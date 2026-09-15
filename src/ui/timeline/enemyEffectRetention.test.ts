@@ -10,7 +10,9 @@ describe('Next timeline enemy effect retention', () => {
 
     expect(projection).toContain('if (current === null)');
     expect(projection).not.toContain('simulationStale.value');
-    expect(projection).toContain('projectEnemyEffectViz(current.receiptEntries, current.frame)');
+    expect(projection).toContain(
+      'projectEnemyEffectViz(publishedReceiptEntries.value, current.frame)',
+    );
   });
 
   it('uses native visible Buff instances as the sole duration-segment identity', () => {

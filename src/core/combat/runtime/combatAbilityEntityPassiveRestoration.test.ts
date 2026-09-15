@@ -4,7 +4,8 @@ import type {
   ResolvedAbilityEntityDefinition,
 } from '../../compiler/combatProgram';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
-import type { AbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { createCombatOperationHostState } from '../state/actionState';

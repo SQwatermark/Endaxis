@@ -32,7 +32,7 @@ describe('generated gear production integration', () => {
       Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join(''),
     ]).toEqual([
       'endaxis-definitions-latest',
-      'e97999d31e28056e84c68c12be9e7ccec645002832d77644641cd45aef445c12',
+      'e8a56955ec3ef22e96681b741c1c01c7172cb3b71997a3fd78dd17262d40b8e4',
     ]);
   });
 

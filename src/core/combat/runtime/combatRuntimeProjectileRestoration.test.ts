@@ -51,7 +51,7 @@ it('整场投射物阶段按保存的定义干员恢复待命中回调', () => {
     skillCastInfo: {
       skillCastId: 7,
       originSkillId: 'source',
-      originSkillType: 'normalSkill',
+      originSkillType: 'battleSkill',
       nonReturnedSpCost: 0,
     },
     host: null,

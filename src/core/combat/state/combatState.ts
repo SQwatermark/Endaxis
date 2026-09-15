@@ -61,7 +61,7 @@ export interface CombatStateGraph {
   readonly environment: StandardCombatEnvironmentState | null;
   readonly events: {
     readonly native: Map<string, AbilityEventState<string>> | null;
-    readonly semantic: AbilityEventState<string>;
+    readonly semantic: AbilityEventState<'airborneOutput' | 'knockDownOutput'>;
   };
   readonly operators: Map<string, CombatOperatorState>;
   readonly enemy: {

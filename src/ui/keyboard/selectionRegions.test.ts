@@ -7,9 +7,10 @@ import timeline from '../timeline/TimelineEditor.vue?raw';
 describe('selection dialog region wiring', () => {
   it.each([operator, gear])('contains the entire dialog in a modal region', source => {
     const template = source.slice(source.indexOf('<template>'));
-    expect(template.indexOf('<InputRegionBoundary')).toBeLessThan(template.indexOf('<el-dialog'));
+    expect(template.indexOf('<EaDialog')).toBeGreaterThanOrEqual(0);
+    expect(template.indexOf('<InputRegionBoundary')).toBeLessThan(template.indexOf('<EaDialog'));
     expect(template.indexOf('</InputRegionBoundary>')).toBeGreaterThan(
-      template.indexOf('</el-dialog>'),
+      template.indexOf('</EaDialog>'),
     );
     expect(template).toMatch(/:active="visible" modal/);
   });

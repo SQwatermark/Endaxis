@@ -22,9 +22,10 @@ const program: CompiledSkillProgram = {
   skillGroupKey: 'battleSkill',
   skillId: 'skill',
   skillType: 'battleSkill',
+  skillLevel: 1,
+  timelineBlockFrames: 30,
   costs: [],
   initialBlackboard: {},
-  timeline: [],
   timelineActions: [],
   cooldownFrames: 30,
   costFrame: 0,
@@ -50,7 +51,6 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
     null,
     blackboard,
   );
-  const buffTarget = new BuffDefinitionOperationTarget(buffs, { get: () => undefined });
   const statusTemplate = new CombatStatusContainer('operator', [
     {
       statusKey: 'charge',

@@ -13,7 +13,8 @@ describe('skill modal region wiring', () => {
   });
   it('wraps only the modal editor, leaving embedded mode in its existing owner', () => {
     const template = dialog.slice(dialog.indexOf('<template>'));
-    const embedded = template.slice(0, template.indexOf('<el-dialog'));
+    expect(template.indexOf('<EaDialog')).toBeGreaterThanOrEqual(0);
+    const embedded = template.slice(0, template.indexOf('<EaDialog'));
     expect(embedded).not.toContain('<InputRegionBoundary');
     expect(template).toContain(
       '<InputRegionBoundary label="skill-definition-dialog" :active="visible" modal>',
@@ -22,7 +23,7 @@ describe('skill modal region wiring', () => {
       template.lastIndexOf('<SkillDefinitionEditor'),
     );
     expect(template.lastIndexOf('</InputRegionBoundary>')).toBeLessThan(
-      template.indexOf('</el-dialog>'),
+      template.indexOf('</EaDialog>'),
     );
   });
 });

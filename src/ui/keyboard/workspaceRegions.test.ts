@@ -17,9 +17,10 @@ describe('definition workspace regions', () => {
     'wraps the whole dialog including named slots',
     source => {
       const template = source.slice(source.indexOf('<template>'));
-      expect(template.indexOf('<InputRegionBoundary')).toBeLessThan(template.indexOf('<el-dialog'));
+      expect(template.indexOf('<EaDialog')).toBeGreaterThanOrEqual(0);
+      expect(template.indexOf('<InputRegionBoundary')).toBeLessThan(template.indexOf('<EaDialog'));
       expect(template.indexOf('</InputRegionBoundary>')).toBeGreaterThan(
-        template.indexOf('</el-dialog>'),
+        template.indexOf('</EaDialog>'),
       );
     },
   );

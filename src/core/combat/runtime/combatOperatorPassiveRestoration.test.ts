@@ -1,7 +1,8 @@
 import { expect, it, vi } from 'vitest';
 import type { CompiledOperatorPassiveProgram } from '../../compiler/combatProgram';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
-import type { AbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import { ActionBlackboard } from './actionBlackboard';
 import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
 import { createCombatOperationHostState } from '../state/actionState';
@@ -9,6 +10,7 @@ import { bindRestoredCombatOperatorPassives } from './combatOperatorPassiveResto
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { PassiveAbilityEventRuntime } from './passiveAbilityEventRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
+import { CombatOperationPrograms } from './combatOperationPrograms';
 
 const program: CompiledOperatorPassiveProgram = {
   key: 'passive',
@@ -39,7 +41,7 @@ function executor(
   onExecute: CombatOperationExecutor['execute'],
 ): CombatOperationExecutor {
   return {
-    operationHost: { state, programs: { resolve: () => undefined } },
+    operationHost: { state, programs: new CombatOperationPrograms() },
     execute: onExecute,
     evaluate: () => true,
   };

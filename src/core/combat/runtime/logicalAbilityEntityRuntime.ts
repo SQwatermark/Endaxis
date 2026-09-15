@@ -6,6 +6,7 @@
  */
 import type {
   OwnerSpawnedAbilityEntityQuery,
+  AbilityEntityTargetRef,
   RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
 import { ActionBlackboard, type ActionBlackboardValue } from './actionBlackboard';
@@ -216,7 +217,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     return target.kind === 'abilityEntity' && this.#instances.has(target.instanceId);
   }
 
-  spawn(request: LogicalAbilityEntitySpawnRequest): RuntimeTargetRef {
+  spawn(request: LogicalAbilityEntitySpawnRequest): AbilityEntityTargetRef {
     if (request.abilityEntityId.length === 0) throw new Error('AbilityEntity id must not be empty');
     if (
       request.sourceSkillCastId !== undefined &&
@@ -362,7 +363,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
   }
 
   /** 零空间范围查找：返回全部活动实例，不应用距离、半径或形状裁剪。 */
-  findAll(): readonly RuntimeTargetRef[] {
+  findAll(): readonly AbilityEntityTargetRef[] {
     return [...this.#instances.keys()].map(instanceId => ({ kind: 'abilityEntity', instanceId }));
   }
 

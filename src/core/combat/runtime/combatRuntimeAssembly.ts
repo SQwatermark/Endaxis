@@ -1667,7 +1667,7 @@ export class CombatRuntimeAssembly {
             throw new Error(
               `duplicate initialization key '${operator.operatorId}:${initialization.key}'`,
             );
-          const initializationState = {
+          const initializationState: import('../state/abilityState').OperatorInitializationState = {
             key: initialization.key,
             ...(initialization.equipmentContributionIndex === undefined
               ? {}
@@ -1677,7 +1677,7 @@ export class CombatRuntimeAssembly {
             enableSequence: enableSequence?.runtimeState ?? null,
             initializationSequence: initializationSequence.runtimeState,
             initializationExecuted: false,
-          } satisfies import('../state/abilityState').OperatorInitializationState;
+          };
           initializationStates.set(initialization.key, initializationState);
           if (initialization.enableSequence !== undefined) {
             if (initialization.equipmentContributionIndex === undefined)
@@ -2376,8 +2376,7 @@ export class CombatRuntimeAssembly {
                 const resolution = ability.resolvePlayerInputSkill(input.skillId, input.action);
                 return (
                   resolution.status === 'matched' &&
-                  ability.evaluatePlayerInputInterruption(input.skillId, input.castId).status ===
-                    'allowed'
+                  ability.evaluatePlayerInputInterruption(input.skillId).status === 'allowed'
                 );
               },
             },

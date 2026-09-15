@@ -24,10 +24,8 @@ import type { BuffApplicationHandle } from './buffOperationExecutor';
 import type { CombatSkillCastInfo } from './skillCastInfo';
 import { uniformAbilityTickDeltas, type AbilityTickDeltas } from './timeDilationRuntime';
 import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
-import {
-  SkillOperableBoundaryRuntime,
-  type SkillOperableBoundaryFact,
-} from './skillOperableBoundaryRuntime';
+import { SkillOperableBoundaryRuntime } from './skillOperableBoundaryRuntime';
+import type { SkillOperableBoundaryFact } from '../state/abilityState';
 
 /** AbilitySystem 编排技能所需的最小生命周期端口。 */
 export interface AbilitySkillRuntime extends FrameRuntime {

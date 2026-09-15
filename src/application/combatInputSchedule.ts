@@ -8,7 +8,7 @@ import {
   type ScheduledSkillInput,
   type SkillInputGroup,
 } from '../core/combat/runtime/combatInputRuntime';
-import type { CombatInputRuntimeState } from '../core/combat/runtime/combatInputRuntimeState';
+import type { CombatInputRuntimeState } from '../core/combat/state/environmentState';
 import type { CombatRuntimeCheckpoint } from '../core/combat/runtime/combatRuntimeSession';
 import type { CombatSkillCastProgram } from '../core/combat/runtime/combatRuntimeAssembly';
 import type { StandardPlayerDamageCombatSession } from './standardPlayerDamageCombatSession';

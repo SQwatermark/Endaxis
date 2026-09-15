@@ -688,6 +688,54 @@ describe('standardPlayerDamageCompatibility', () => {
     ).toEqual([]);
   });
 
+  it('checks each submitted cast program independently from the fixed definition and other casts', () => {
+    const unsupported = program({
+      steps: [
+        { kind: 'applyElementalInfliction', parameters: { element: 'heat', isExtra: false } },
+      ],
+    });
+    const supported = program({ steps: [] });
+    const entry: CombatOperatorProgram = {
+      operatorId: 'operator:1',
+      skills: [],
+      definitionSkillPrograms: [unsupported],
+      skillCasts: [
+        { castId: 'safe', program: supported },
+        {
+          castId: 'delayed',
+          program: {
+            ...unsupported,
+            timelineActions: unsupported.timelineActions.map(action => ({
+              ...action,
+              startFrame: 20,
+            })),
+          },
+        },
+      ],
+    };
+    const inputs = [
+      { frame: 0, operatorId: 'operator:1', skillId: 'battle-skill', castId: 'safe' },
+      { frame: 30, operatorId: 'operator:1', skillId: 'battle-skill', castId: 'delayed' },
+    ];
+    expect(
+      inspectStandardPlayerDamageCompatibility({ operators: [entry], inputs, endFrame: 40 }),
+    ).toEqual([]);
+    expect(
+      inspectStandardPlayerDamageCompatibility({ operators: [entry], inputs, endFrame: 50 }).map(
+        issue => issue.code,
+      ),
+    ).toEqual(['unsupported-step']);
+    expect(
+      inspectStandardPlayerDamageCompatibility({
+        operators: [entry],
+        inputs: [
+          { frame: 0, operatorId: 'operator:1', skillId: 'battle-skill', castId: 'default' },
+        ],
+        endFrame: 0,
+      }).map(issue => issue.code),
+    ).toEqual(['unsupported-step']);
+  });
+
   it('does not inspect a scheduled skill action that starts after the requested end frame', () => {
     const base = operator({ steps: [] });
     const entry: CombatOperatorProgram = {

@@ -1,6 +1,8 @@
 import { expect, it, vi } from 'vitest';
 import type { CompiledAbilityEntityChildSkillProgram } from '../../compiler/combatProgram';
 import type { BuffOperationTarget } from './buffOperationExecutor';
+import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 import { AbilityEntityChildSkillRuntime } from './abilityEntityChildSkillRuntime';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
@@ -62,10 +64,12 @@ it('统一恢复能力实体子技能和直属子 Buff，且不重放子技能�
   });
   const finish = vi.fn(() => true);
   const execute = vi.fn(() => true);
-  const target = {
-    ownerId: reference.ownerId,
-    resolveHandle: () => ({ reference, finish }),
-  } as BuffOperationTarget;
+  const target = Object.assign(
+    new CombatBuffContainer(reference.ownerId, new CombatAttributeSet<string>()),
+    {
+      resolveHandle: () => ({ reference, finish }),
+    },
+  ) satisfies BuffOperationTarget;
   const entities = {
     runtime: restoredRuntime,
     targets: new Map([[reference.ownerId, target]]),

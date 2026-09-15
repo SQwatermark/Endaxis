@@ -1,5 +1,6 @@
 import { expect, it, vi } from 'vitest';
 import type { BindRestoredSkillAffixObjectReference } from './buffLifecycleSequenceRuntime';
+import type { BuffOperationTarget } from './buffOperationExecutor';
 import { configureRestoredCombatObjectReferences } from './combatRuntimeObjectReferenceRestoration';
 
 it('按对象目录把 SkillAffix 引用接到能力实体、投射物或 Buff', () => {
@@ -11,7 +12,7 @@ it('按对象目录把 SkillAffix 引用接到能力实体、投射物或 Buff',
   configureRestoredCombatObjectReferences({
     entities: {
       runtime: { bindResetCallback: bindEntity },
-      targets: new Map([
+      targets: new Map<string, Partial<BuffOperationTarget>>([
         [
           'host',
           {

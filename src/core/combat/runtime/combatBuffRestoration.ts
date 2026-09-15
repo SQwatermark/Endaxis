@@ -162,10 +162,10 @@ export class CombatBuffRestoration {
         const state = target.runtimeState;
         if (state === undefined) throw new Error(`Buff target '${target.ownerId}' has no state`);
         if (state.instances.size === 0) continue;
-        if (target.bindRestoredInstances === undefined) {
+        if (target.bindRestoredDefinitionInstances === undefined) {
           throw new Error(`Buff target '${target.ownerId}' cannot restore instances`);
         }
-        target.bindRestoredInstances(
+        target.bindRestoredDefinitionInstances(
           (definitionId, definitionOwnerId) =>
             this.options.resolveDefinition(definitionOwnerId, definitionId),
           instance => this.#instanceOptions(instance),

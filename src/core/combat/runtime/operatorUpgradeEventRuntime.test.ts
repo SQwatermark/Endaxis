@@ -4,6 +4,8 @@ import type { CompiledOperatorUpgradeEventProgram } from '../../compiler/combatP
 import { OperatorUpgradeEventRuntime } from './operatorUpgradeEventRuntime';
 import type { CombatOperationExecutor } from './skillRuntime';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 
 const PROGRAM: CompiledOperatorUpgradeEventProgram = {
   key: 'potential:attackAfterSpGain:0',
@@ -71,8 +73,15 @@ describe('OperatorUpgradeEventRuntime', () => {
   });
 
   it('restores semantic subscriptions by saved identity without allocating a new registration', () => {
-    const program = { ...PROGRAM, event: { kind: 'airborneOutput' as const } };
-    const originalEvents = new CombatSemanticEventRuntime();
+    const program = PROGRAM;
+    const originalDispatcher = new AbilityEventDispatcher<
+      keyof AbilityEventPayloadMap,
+      AbilityEventPayloadMap
+    >();
+    const originalEvents = new CombatSemanticEventRuntime(
+      (_owner, _scope, event, _phase, priority, handle) =>
+        originalDispatcher.registerAction(event, priority, handle),
+    );
     let originalExecutions = 0;
     const original = new OperatorUpgradeEventRuntime(
       originalEvents,
@@ -89,12 +98,18 @@ describe('OperatorUpgradeEventRuntime', () => {
     const copied = structuredClone({
       upgrade: original.runtimeState,
       events: originalEvents.runtimeState,
+      native: originalDispatcher.runtimeState,
     });
+    const restoredDispatcher = new AbilityEventDispatcher<
+      keyof AbilityEventPayloadMap,
+      AbilityEventPayloadMap
+    >(copied.native);
     const restoredEvents = new CombatSemanticEventRuntime(undefined, {
       state: copied.events,
-      bindNative: () => {
-        throw new Error('fixture has no native subscriptions');
-      },
+      bindNative: (reference, receive) =>
+        restoredDispatcher.bindSubscriptionFor('skillSpGained', reference, event =>
+          receive({ event }),
+        ),
     });
     let restoredExecutions = 0;
     const restored = new OperatorUpgradeEventRuntime(
@@ -110,15 +125,25 @@ describe('OperatorUpgradeEventRuntime', () => {
       }),
       copied.upgrade,
     );
-    restoredEvents.emit({
-      kind: 'airborneOutput',
-      sourceOperatorId: 'operator:perlica',
-      targetId: 'enemy',
-    });
+    restoredDispatcher.dispatch(
+      {
+        event: 'skillSpGained',
+        payload: {
+          sourceOperatorId: 'operator:perlica',
+          source: 'skill',
+          gainKind: 'gain',
+          requestedAmount: 1,
+          amount: 1,
+        },
+      },
+      [],
+    );
 
     expect(restoredExecutions).toBe(1);
     expect(originalExecutions).toBe(0);
-    expect(copied.events.nextRegistrationId).toBe(originalEvents.runtimeState.nextRegistrationId);
+    expect(copied.native.nextRegistrationId).toBe(
+      originalDispatcher.runtimeState.nextRegistrationId,
+    );
     restored.dispose();
     original.dispose();
   });

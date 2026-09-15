@@ -24,28 +24,7 @@ import type {
 import type { AbilityEventRuntimeActionContext } from '../events/abilityEventActionContext';
 import { withCombatEventResponseContext } from './abilityEventResponseContext';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
-import type {
-  CombatAbilityEvent,
-  BuffAbilityEvent,
-  HealAbilityEvent,
-  DamageAbilityEvent,
-  PhysicalAbilityEvent,
-  NativeKillEvent,
-  InflictionAbilityEvent,
-  SpGainAbilityEvent,
-  KnockDownAbilityEvent,
-} from '../events/combatAbilityEvent';
-
-/** 迁移中的原生事件没有旧 kind 字段；此约束仅供旧联合判别，不向对象注入字段。 */
-type MigratedAbilityEvent =
-  | InflictionAbilityEvent
-  | SpGainAbilityEvent
-  | NativeKillEvent
-  | BuffAbilityEvent
-  | HealAbilityEvent
-  | DamageAbilityEvent
-  | PhysicalAbilityEvent
-  | KnockDownAbilityEvent;
+import type { CombatAbilityEvent, AbilityResponseEvent } from '../events/combatAbilityEvent';
 
 /** 订阅安装到发布实体原有的分发器，不通过另一次 emit 转发。 */
 export type RegisterCombatAbilityEvent = <
@@ -76,7 +55,7 @@ export interface ManualKnockDownOutputEvent {
 }
 
 export type CombatSemanticEvent =
-  ManualAirborneOutputEvent | ManualKnockDownOutputEvent | MigratedAbilityEvent;
+  ManualAirborneOutputEvent | ManualKnockDownOutputEvent | AbilityResponseEvent;
 
 /** 旧倒地触发器接收后置通知或手工标记；前置通知不在此端口内。 */
 export type KnockDownOutputEvent =

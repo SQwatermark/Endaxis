@@ -11,9 +11,11 @@ const cooldownProgram: CompiledSkillProgram = {
   skillGroupKey: 'battleSkill',
   skillId: 'unplaced',
   skillType: 'battleSkill',
+  skillLevel: 1,
+  timelineBlockFrames: 30,
+  timelineActions: [],
   costs: [],
   initialBlackboard: {},
-  timeline: [],
   cooldownFrames: 30,
   costFrame: 0,
 };

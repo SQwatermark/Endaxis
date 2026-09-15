@@ -99,6 +99,8 @@ export function bindRestoredCombatOperatorSources(
       register: options.registerPassive,
     });
     const restoredPassives = passives;
+    const restoredUpgradeEvents = upgradeEvents;
+    const restoredEquipment = equipment;
     return {
       equipment,
       upgradeEvents,
@@ -113,16 +115,19 @@ export function bindRestoredCombatOperatorSources(
       dispose() {
         runAbilityHostCleanup([
           () => restoredPassives.dispose(),
-          ...(upgradeEvents === null ? [] : [() => upgradeEvents.dispose()]),
-          ...(equipment === null ? [] : [() => equipment.runtime.dispose()]),
+          ...(restoredUpgradeEvents === null ? [] : [() => restoredUpgradeEvents.dispose()]),
+          ...(restoredEquipment === null ? [] : [() => restoredEquipment.runtime.dispose()]),
         ]);
       },
     };
   } catch (error) {
+    const failedPassives = passives;
+    const failedUpgradeEvents = upgradeEvents;
+    const failedEquipment = equipment;
     failAfterAbilityHostCleanup(error, [
-      ...(passives === null ? [] : [() => passives.dispose()]),
-      ...(upgradeEvents === null ? [] : [() => upgradeEvents.dispose()]),
-      ...(equipment === null ? [] : [() => equipment.runtime.dispose()]),
+      ...(failedPassives === null ? [] : [() => failedPassives.dispose()]),
+      ...(failedUpgradeEvents === null ? [] : [() => failedUpgradeEvents.dispose()]),
+      ...(failedEquipment === null ? [] : [() => failedEquipment.runtime.dispose()]),
     ]);
   }
 }

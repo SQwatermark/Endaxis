@@ -7,7 +7,6 @@ import {
 import { ALL_GAME_TEXT_FAMILIES, ensureLocaleResources, i18n } from '../i18n';
 import type { GameTextFamily } from '../i18n/localeResourceLoaders';
 import { loadTemporaryLegacyPreviewProject } from './temporaryLegacyPreviewProjects';
-import convertedLegacyDefaultProject from '../../tmp/public-6aa244-sim-retimed-20260913/project.json';
 import {
   createProjectGameDataRepository,
   type ProjectGameDataRepository,
@@ -38,7 +37,7 @@ const routes: RouteRecordRaw[] = [
     name: 'Timeline',
     component: () => import('../ui/timeline/TimelineEditor.vue'),
     props: timelineRouteProps,
-    beforeEnter: async to => prepareTimelineRoute(to, convertedLegacyDefaultProject),
+    beforeEnter: async to => prepareTimelineRoute(to, undefined),
     meta: {
       gameTextFamilies: ALL_GAME_TEXT_FAMILIES,
     },

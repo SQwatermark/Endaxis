@@ -95,7 +95,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
    * 用当前目标已经配置好的定义编译器和生命周期端口重建保存实例。
    * 此阶段不解析父子 Buff 或 SkillAffix 的对象引用。
    */
-  bindRestoredInstances(
+  bindRestoredDefinitionInstances(
     resolveDefinition: (
       id: string,
       definitionOwnerId: string,

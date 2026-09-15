@@ -36,7 +36,7 @@ it('binds every shared runtime to one copied graph without replaying business ev
   original.basicAttackInheritance.register('operator', {
     skillCastId: 1,
     originSkillId: 'skill',
-    originSkillType: 'normalAttack',
+    originSkillType: 'basicAttack',
     nonReturnedSpCost: 0,
   });
   original.timeDilation!.runtimeState.globalScaledTime = 2;

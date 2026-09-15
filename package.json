@@ -14,7 +14,7 @@
     "preview": "vite preview",
     "export:game-icons": "node --experimental-strip-types tools/game-data-compiler/scripts/exportReferencedGameIcons.ts",
     "export:game-locales": "python tools/game-data-compiler/scripts/exportGameLocales.py",
-    "type-check": "vue-tsc --noEmit --project tsconfig.app.json",
+    "type-check": "vue-tsc --noEmit --project tsconfig.app.json --incremental false",
     "type-check:game-data-contract": "tsc --project packages/game-data-contract/tsconfig.json",
     "type-check:game-data-production": "tsc --project tools/game-data-compiler/tsconfig.production.json",
     "type-check:game-data": "tsc --project tools/game-data-compiler/tsconfig.json",

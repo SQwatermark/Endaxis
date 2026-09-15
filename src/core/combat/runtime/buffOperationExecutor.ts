@@ -55,7 +55,7 @@ export interface BuffOperationTarget {
   /** 此端口所属的稳定战斗实体身份，用于原生动作显式指定 Buff 来源时传递来源。 */
   readonly ownerId: string;
   /** 从候选容器数据重建实例对象；只绑定当前容器，跨容器关系留给下一阶段。 */
-  bindRestoredInstances?(
+  bindRestoredDefinitionInstances?(
     resolveDefinition: (
       id: string,
       definitionOwnerId: string,

@@ -19,6 +19,8 @@ export function inspectKnockDownControlConsumers(operators: readonly CombatOpera
     // 明确列出静态入口；不把整个 CombatOperatorProgram 当成可序列化文档扫描。
     const roots = {
       skills: operator.skills,
+      definitionSkillPrograms: operator.definitionSkillPrograms,
+      skillCasts: operator.skillCasts?.map(binding => binding.program),
       buffDefinitions: operator.buffDefinitions,
       abilityEntityDefinitions: operator.abilityEntityDefinitions,
       initializationPrograms: operator.initializationPrograms,

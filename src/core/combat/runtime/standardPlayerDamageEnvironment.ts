@@ -1,4 +1,5 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
+import { ABILITY_EVENTS } from '../../../../packages/game-data-contract/src/abilityEvents';
 import type { CombatStateGraph } from '../state/combatState';
 import { submitSimulationCastSeed } from '../random/simulationRandom';
 import {
@@ -486,10 +487,13 @@ export class StandardPlayerDamageEnvironment {
             if (owner === undefined) {
               throw new Error('native event subscription belongs to another battle state');
             }
-            if (typeof reference.event !== 'string') {
-              throw new Error('native event subscription requires a string event name');
+            const eventName = ABILITY_EVENTS.filter(name => name !== 'outputKnockDown').find(
+              name => name === reference.event,
+            );
+            if (eventName === undefined) {
+              throw new Error(`unsupported restored ability event '${String(reference.event)}'`);
             }
-            return this.eventsFor(owner[0]).bindSubscription(reference, event =>
+            return this.eventsFor(owner[0]).bindSubscriptionFor(eventName, reference, event =>
               receive({
                 event,
                 actionContext: this.#resolveAbilityEventRuntimeActionContext(event),

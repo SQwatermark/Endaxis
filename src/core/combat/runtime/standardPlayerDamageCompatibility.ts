@@ -619,25 +619,6 @@ function inspectProgram(
   });
 }
 
-function indexScheduledFrames(
-  inputs: readonly ScheduledSkillInput[],
-  endFrame: number,
-): ReadonlyMap<string, ReadonlyMap<string, readonly number[]>> {
-  const index = new Map<string, Map<string, number[]>>();
-  for (const input of inputs) {
-    if (input.frame > endFrame) continue;
-    let operatorSkills = index.get(input.operatorId);
-    if (operatorSkills === undefined) {
-      operatorSkills = new Map();
-      index.set(input.operatorId, operatorSkills);
-    }
-    const frames = operatorSkills.get(input.skillId);
-    if (frames === undefined) operatorSkills.set(input.skillId, [input.frame]);
-    else frames.push(input.frame);
-  }
-  return index;
-}
-
 /**
  * 检查完整干员编译结果，包括尚未安装进标准入口的装备事件监听器。
  * 返回顺序与干员、技能、时间动作和步骤的声明顺序一致，便于稳定测试与展示。
@@ -660,20 +641,36 @@ export function inspectStandardPlayerDamageCompatibility(
     for (const issue of inspectKnockDownControlConsumers(input.operators))
       report(collect, 'unsupported-condition', issue.path, issue.detail);
   }
-  const scheduledFrames = indexScheduledFrames(input.inputs ?? [], input.endFrame);
-
   input.operators.forEach((operator, operatorIndex) => {
     const operatorPath = `operators[${operatorIndex}]('${operator.operatorId}')`;
-    const operatorScheduledFrames = scheduledFrames.get(operator.operatorId);
     const operatorFlags: CompatibilityFlags = {
       ...flags,
       operatorVitals: operator.panel !== undefined,
       buffDefinitions: operator.buffDefinitions,
       inspectedBuffs: new Set(),
     };
-    operator.skills.forEach(program => {
-      const skillScheduledFrames = operatorScheduledFrames?.get(program.skillId);
-      if (skillScheduledFrames === undefined) return;
+    const definitions = new Map(
+      [...(operator.definitionSkillPrograms ?? []), ...operator.skills].map(program => [
+        program.skillId,
+        program,
+      ]),
+    );
+    const casts = new Map(
+      (operator.skillCasts ?? []).map(binding => [binding.castId, binding.program]),
+    );
+    const scheduledPrograms = new Map<CompiledSkillProgram, number[]>();
+    for (const scheduled of input.inputs ?? []) {
+      if (scheduled.operatorId !== operator.operatorId || scheduled.frame > input.endFrame)
+        continue;
+      const program =
+        (scheduled.castId === undefined ? undefined : casts.get(scheduled.castId)) ??
+        definitions.get(scheduled.skillId);
+      if (program === undefined) continue;
+      const frames = scheduledPrograms.get(program) ?? [];
+      frames.push(scheduled.frame);
+      scheduledPrograms.set(program, frames);
+    }
+    scheduledPrograms.forEach((skillScheduledFrames, program) => {
       inspectProgram(
         program,
         skillScheduledFrames,

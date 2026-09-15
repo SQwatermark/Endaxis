@@ -2,11 +2,13 @@ import { expect, it } from 'vitest';
 import type { CompiledOperatorUpgradeEventProgram } from '../../compiler/combatProgram';
 import { bindRestoredCombatOperatorUpgradeEvents } from './combatOperatorUpgradeRestoration';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
 import { OperatorUpgradeEventRuntime } from './operatorUpgradeEventRuntime';
 
 const program: CompiledOperatorUpgradeEventProgram = {
   key: 'potential:event',
-  event: { kind: 'airborneOutput' },
+  event: { kind: 'spGained' },
   initialBlackboard: {},
   sequence: {
     steps: [
@@ -19,7 +21,14 @@ const program: CompiledOperatorUpgradeEventProgram = {
 };
 
 it('恢复潜能事件时复用原订阅身份且只由当前分支处理函数响应', () => {
-  const originalEvents = new CombatSemanticEventRuntime();
+  const originalDispatcher = new AbilityEventDispatcher<
+    keyof AbilityEventPayloadMap,
+    AbilityEventPayloadMap
+  >();
+  const originalEvents = new CombatSemanticEventRuntime(
+    (_owner, _scope, event, _phase, priority, handle) =>
+      originalDispatcher.registerAction(event, priority, handle),
+  );
   let originalExecutions = 0;
   const original = new OperatorUpgradeEventRuntime(originalEvents, 'operator', [program], () => ({
     execute: () => {
@@ -31,12 +40,18 @@ it('恢复潜能事件时复用原订阅身份且只由当前分支处理函数�
   const copied = structuredClone({
     upgrade: original.runtimeState,
     events: originalEvents.runtimeState,
+    native: originalDispatcher.runtimeState,
   });
+  const restoredDispatcher = new AbilityEventDispatcher<
+    keyof AbilityEventPayloadMap,
+    AbilityEventPayloadMap
+  >(copied.native);
   const restoredEvents = new CombatSemanticEventRuntime(undefined, {
     state: copied.events,
-    bindNative: () => {
-      throw new Error('fixture has no native subscriptions');
-    },
+    bindNative: (reference, receive) =>
+      restoredDispatcher.bindSubscriptionFor('skillSpGained', reference, event =>
+        receive({ event }),
+      ),
   });
   let restoredExecutions = 0;
   const restored = bindRestoredCombatOperatorUpgradeEvents({
@@ -52,14 +67,22 @@ it('恢复潜能事件时复用原订阅身份且只由当前分支处理函数�
       evaluate: () => true,
     }),
   });
-  restoredEvents.emit({
-    kind: 'airborneOutput',
-    sourceOperatorId: 'operator',
-    targetId: 'enemy',
-  });
+  restoredDispatcher.dispatch(
+    {
+      event: 'skillSpGained',
+      payload: {
+        sourceOperatorId: 'operator',
+        source: 'skill',
+        gainKind: 'gain',
+        requestedAmount: 1,
+        amount: 1,
+      },
+    },
+    [],
+  );
 
   expect(restored.runtimeState).toBe(copied.upgrade);
-  expect(copied.events.nextRegistrationId).toBe(originalEvents.runtimeState.nextRegistrationId);
+  expect(copied.native.nextRegistrationId).toBe(originalDispatcher.runtimeState.nextRegistrationId);
   expect(restoredExecutions).toBe(1);
   expect(originalExecutions).toBe(0);
   restored.dispose();

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EaDialog } from '@/design-system';
+import { EaButton, EaDialog } from '@/design-system';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
@@ -125,17 +125,18 @@ function endReasonText(instance: BuffDetailInstance): string {
           </span>
           <strong>{{ target.title }}</strong>
           <span v-if="(target.instances?.length ?? 0) > 1" class="buff-detail__pager">
-            <button type="button" :disabled="instanceIndex === 0" @click="instanceIndex--">
+            <EaButton size="sm" icon-only :disabled="instanceIndex === 0" @click="instanceIndex--">
               ‹
-            </button>
+            </EaButton>
             <span>{{ instanceIndex + 1 }} / {{ target.instances!.length }}</span>
-            <button
-              type="button"
+            <EaButton
+              size="sm"
+              icon-only
               :disabled="instanceIndex >= target.instances!.length - 1"
               @click="instanceIndex++"
             >
               ›
-            </button>
+            </EaButton>
           </span>
         </header>
 
@@ -192,21 +193,6 @@ function endReasonText(instance: BuffDetailInstance): string {
   gap: 7px;
   color: var(--ea-fg-muted);
   font-size: 12px;
-}
-
-.buff-detail__pager button {
-  width: 28px;
-  height: 28px;
-  padding: 0;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-fill-soft);
-  color: var(--ea-fg);
-  cursor: pointer;
-}
-
-.buff-detail__pager button:disabled {
-  opacity: 0.35;
-  cursor: default;
 }
 
 .buff-detail__icon {

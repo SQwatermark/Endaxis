@@ -36,7 +36,10 @@ const accessoryPairs = accessoryGears.map((gear, index) => ({
 }));
 const gearSets = gameDataRepository.getGearSets();
 const runtimeGearSets = gearSets.filter(
-  gearSet => (gearSet.initializationSequence?.steps.length ?? 0) > 0,
+  gearSet =>
+    (gearSet.initializationSequence?.steps.length ?? 0) +
+      (gearSet.enableSequence?.steps.length ?? 0) >
+    0,
 );
 const resources = {
   sharedSpGain: { baseGainEfficiency: 1 },
@@ -399,9 +402,10 @@ function observableGearSetRuntimeResult(
   gearSet: (typeof gearSets)[number],
 ) {
   const rootBuffIds = new Set(
-    (gearSet.initializationSequence?.steps ?? []).flatMap(step =>
-      step.kind === 'applyBuff' ? [step.parameters.buffId] : [],
-    ),
+    [
+      ...(gearSet.initializationSequence?.steps ?? []),
+      ...(gearSet.enableSequence?.steps ?? []),
+    ].flatMap(step => (step.kind === 'applyBuff' ? [step.parameters.buffId] : [])),
   );
   return {
     operatorPanel: result.operatorPanels[0],

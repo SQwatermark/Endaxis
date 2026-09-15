@@ -1,7 +1,8 @@
 import { expect, it, vi } from 'vitest';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import { AbilityEventDispatcher } from '../events/abilityEventDispatcher';
-import type { AbilityEvent, AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
 import { bindRestoredCombatOperatorEquipment } from './combatOperatorEquipmentRestoration';
 import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
 import { EquipmentEventRuntime } from './equipmentEventRuntime';

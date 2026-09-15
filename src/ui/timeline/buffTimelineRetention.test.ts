@@ -6,7 +6,9 @@ import statusSegmentSource from './components/TimelineStatusSegment.vue?raw';
 
 describe('Next timeline Buff visualization retention', () => {
   it('projects one receipt stream onto operator tracks and the enemy status row', () => {
-    expect(source).toContain('projectBuffTimelineViz(current.receiptEntries, current.frame)');
+    expect(source).toContain(
+      'projectBuffTimelineViz(publishedReceiptEntries.value, current.frame)',
+    );
     expect(source).toContain(
       ':segments="buffSegmentsForTarget(track.operatorInstanceId, \'upper\')"',
     );

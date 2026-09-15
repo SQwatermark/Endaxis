@@ -176,10 +176,11 @@ it('恢复能力实体 Buff 目标时复用保存的属性与黑板，且不重�
 
   expect(saved.buffs.entityBlackboard).toBe(saved.blackboard);
   expect(restored.runtimeState).toBe(saved.buffs);
-  expect(restored.entityBlackboard).toBe(restoredBlackboard);
-  expect(restored.runtimeState!.attributes).toBe(restored.container.attributes.runtimeState);
+  expect(restored.runtimeState!.entityBlackboard).toBe(restoredBlackboard.runtimeState);
   expect(restored.runtimeState!.entityTagCounts.get('Test/Tag123')).toBe(1);
-  expect(restored.entityBlackboard!.getNumber('phase')).toBe(3);
+  expect(
+    ActionBlackboard.bindRuntimeState(restored.runtimeState!.entityBlackboard!).getNumber('phase'),
+  ).toBe(3);
 });
 
 it('队伍订阅保留每个实体的注册引用，注销只清除对应的注册', () => {
