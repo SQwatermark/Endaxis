@@ -58,6 +58,53 @@ function createChain(operator: OperatorDefinition) {
 }
 
 describe('generated basic attack chain input timing', () => {
+  it('提弗洛斯强化普攻按各段第一次原生输入窗口紧凑放置', async () => {
+    const scenario = createChain(operators.typhoeus);
+    scenario.battle.durationFrames = 240;
+    scenario.tracks[0]!.skillCasts = [];
+    const battleSkill = placeSkillGroup({
+      scenario,
+      trackIndex: 0,
+      operator: operators.typhoeus,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: () => 'typhoeus:battle' },
+    });
+    let nextId = 0;
+    const enhanced = placeLibrarySkillGroup({
+      scenario: battleSkill.scenario,
+      trackIndex: 0,
+      operator: operators.typhoeus,
+      skillGroupKey: 'basicAttack',
+      variantKey: 'enhancedBasicAttack',
+      startFrame: 30,
+      ids: { allocate: () => `typhoeus:floating:${nextId++}` },
+    });
+
+    expect(
+      enhanced.scenario.tracks[0]!.skillCasts.filter(cast =>
+        cast.id.startsWith('typhoeus:floating:'),
+      ).map(cast => cast.placement.startFrame),
+    ).toEqual([30, 49, 68, 87, 116]);
+
+    const run = await service.simulate(enhanced.scenario, 240);
+    expect(
+      run.receiptEntries
+        .filter(
+          entry =>
+            entry.event === 'SkillInputProcessed' &&
+            String(entry.data?.castId).startsWith('typhoeus:floating:'),
+        )
+        .map(entry => [entry.data?.castId, entry.frame, entry.data?.accepted]),
+    ).toEqual([
+      ['typhoeus:floating:0', 30, true],
+      ['typhoeus:floating:1', 49, true],
+      ['typhoeus:floating:2', 68, true],
+      ['typhoeus:floating:3', 87, true],
+      ['typhoeus:floating:4', 116, true],
+    ]);
+  });
+
   it('伊冯未开启强化时回退为12345重击六段，原场景不留下推测前缀', async () => {
     const scenario = createChain(operators.yvonne);
     scenario.battle.durationFrames = 650;

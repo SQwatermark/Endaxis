@@ -53,7 +53,7 @@ describe('基础攻击技能块窗口', () => {
     expect(definitions.get('attack2')?.timelineContinuationSourceSkillId).toBe('native_attack1');
   });
 
-  it('同一顶层目标存在立即退出和稍后续段时采用较晚的连段窗口', () => {
+  it('同一顶层目标存在立即退出和稍后续段时采用最早的正数连段窗口', () => {
     const definitions = new Map([
       [
         'attack1',
@@ -74,6 +74,33 @@ describe('基础攻击技能块窗口', () => {
     ]);
 
     expect(definitions.get('attack1')?.timelineBlockFrames).toBe(16);
+    expect(definitions.get('attack1')?.timelineContinuationSourceSkillId).toBe('native_attack2');
+  });
+
+  it('同一下一段存在多轮输入窗口时采用第一次可输入的窗口', () => {
+    const definitions = new Map([
+      [
+        'attack1',
+        skill('attack1', 'native_attack1', [
+          { startFrame: 18, skillIds: ['native_attack2'], direct: false },
+          { startFrame: 63, skillIds: ['native_attack2'], direct: false },
+          { startFrame: 93, skillIds: ['native_attack2'], direct: false },
+          { startFrame: 123, skillIds: ['native_attack2'], direct: false },
+          { startFrame: 153, skillIds: ['native_attack2'], direct: false },
+        ]),
+      ],
+      ['attack2', skill('attack2', 'native_attack2', [])],
+    ]);
+
+    selectBasicAttackTimelineBlockFrames(definitions, [
+      {
+        skillType: 'basicAttack',
+        skillKeys: ['attack1', 'attack2'],
+        variants: [],
+      },
+    ]);
+
+    expect(definitions.get('attack1')?.timelineBlockFrames).toBe(18);
     expect(definitions.get('attack1')?.timelineContinuationSourceSkillId).toBe('native_attack2');
   });
 });

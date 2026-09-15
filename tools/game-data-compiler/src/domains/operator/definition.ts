@@ -912,8 +912,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
  * 基础攻击组中的数组表示有序连段，而 AllowNextSkillAction 还可能同时包含跳段、退出强化
  * 状态等其他输入路由。只有指向明确下一段的窗口才能决定时间轴技能块宽度。
  *
- * 同一目标有多个窗口时，优先顶层直连动作，再取其中较晚的开启帧：这会排除条件控制流
- * 里的快捷退出，并保留强化连段“0 帧可退出、稍后可续段”的原生区别。
+ * 同一目标有多个窗口时，优先顶层直连动作，再取最早的正数开启帧。0 帧通常表示状态
+ * 退出或初始化路由；只在没有正数窗口时才采用。重复动作可能为不同姿态、移动状态或多轮
+ * 攻击分别声明后续输入窗口，技能块应在第一次可输入时结束，不能延长到最后一次窗口。
  */
 export function selectBasicAttackTimelineBlockFrames(
   definitions: Map<string, CompiledOperatorActiveSkillRuntimeDefinitionSource>,
@@ -939,9 +940,14 @@ export function selectBasicAttackTimelineBlockFrames(
       if (matching.length === 0) continue;
       const direct = matching.filter(item => item.direct);
       const candidates = direct.length > 0 ? direct : matching;
+      const positiveStartFrames = candidates
+        .map(item => item.startFrame)
+        .filter(startFrame => startFrame > 0);
       const frame = Math.min(
         definition.exclusiveFrame + 1,
-        Math.max(...candidates.map(item => item.startFrame)),
+        positiveStartFrames.length > 0
+          ? Math.min(...positiveStartFrames)
+          : Math.min(...candidates.map(item => item.startFrame)),
       );
       const previous = selectedFrames.get(key);
       if (previous !== undefined && previous !== frame) {
