@@ -28,6 +28,14 @@
 [publicShareRegression.test.ts](../../src/application/simulation/integration/publicShareRegression.test.ts)。
 私有样本及本机临时产物的位置留在 `.local/`。
 
+检查真实轴的保存和恢复时使用仓库内维护的入口，项目文件仍放在忽略目录：
+
+```powershell
+npm run verify:real-timeline-checkpoints -- path/to/project.json [方案序号] [随机种子]
+```
+
+该命令同时比较完整排程、逐帧提交和从事件边界恢复后的分支，默认种子为 `123`。
+
 ## 性能与界面
 
 固定短轴、长轴和多状态样本，在同一机器与构建模式下比较首次运行、重复编辑和连续操作。

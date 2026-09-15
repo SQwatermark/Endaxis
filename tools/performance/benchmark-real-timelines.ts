@@ -21,10 +21,14 @@ try {
   const parsed = parseProjectDocument(readFileSync(resolve(input), 'utf8'));
   if (!parsed.ok) throw new Error(JSON.stringify(parsed));
   const project: EndaxisProjectDocument = parsed.value;
+  const { createProjectGameDataRepository } = await server.ssrLoadModule(
+    '/src/data/projectGameDataRepository.ts',
+  );
   const { createEditorSimulationService } = await server.ssrLoadModule(
     '/src/application/simulation/editorSimulationService.ts',
   );
-  const service = createEditorSimulationService(project.definitionLibrary);
+  const repository = await createProjectGameDataRepository(project);
+  const service = createEditorSimulationService(repository);
   let timing: unknown;
   service.subscribePerformance((sample: unknown) => {
     timing = sample;

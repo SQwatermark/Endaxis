@@ -52,6 +52,7 @@
     "generate:game-data:contingency-contract": "node --experimental-strip-types tools/game-data-compiler/scripts/generateContingencyContractLocales.ts",
     "generate:game-data:contingency-contract-definitions": "node --experimental-strip-types tools/game-data-compiler/scripts/generateContingencyContractDefinitions.ts",
     "bench": "vitest bench --run src/benchmarks",
+    "verify:real-timeline-checkpoints": "node --experimental-strip-types tools/performance/verify-real-timeline-checkpoints.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "prepare": "husky"

@@ -74,13 +74,13 @@
 模拟到第 3600 帧，两种模式的全局种子均为 123。复现命令：
 
 ```powershell
-node --experimental-strip-types tmp/checkpoint-audit/runtime-parity.ts current
+npm run verify:real-timeline-checkpoints -- tmp/checkpoint-audit/conversion/project.json 0 123
 ```
 
 | 模式 |   帧 | 回执 | 命中 |        总期望伤害 | 完整回执 SHA-256                                                   |
 | ---- | ---: | ---: | ---: | ----------------: | ------------------------------------------------------------------ |
-| 期望 | 3600 | 5866 |  242 | 1578204.069260518 | `31ca47019eaab08701521807cb9a23668da6f567401524041be51bebfc304409` |
-| 随机 | 3600 | 5866 |  242 | 1578204.069260518 | `a1274cbcb6e87ed9521cca69a12c2670863385a42fc7a6bc82a6850fe287cf63` |
+| 期望 | 3600 | 5866 |  242 | 1578204.069260518 | `6326b900144339781d2b50608a0c1752ccd50d19e0d55a9f939adaffc6131b46` |
+| 随机 | 3600 | 5866 |  242 | 1578204.069260518 | `9b82d7edde6e47fab6474adcc1c01291ece062ed1ac3c3a93f1d5b0e797b9f38` |
 
 当前工作树的战斗与应用回归命令通过 156 个测试文件、1706 项测试，耗时 42.41 秒：
 
@@ -88,9 +88,14 @@ node --experimental-strip-types tmp/checkpoint-audit/runtime-parity.ts current
 npx vitest run src/core/combat src/application/publicShareRegression.test.ts src/application/scenarioSimulationService.test.ts src/application/runScenarioSimulation.test.ts --maxWorkers=1 --silent
 ```
 
-`runtime-parity.ts baseline` 曾尝试把部分文件替换成 HEAD 版本。当前接口已经整体演进，这种新旧模块
-混装会在 `PoiseBreakBuffRuntime.recover` 处因容器接口不一致而失败，不能作为迁移前基线。
-以后只用同一完整工作树从头运行与恢复续算比较；需要历史对照时使用独立完整提交或工作树。
+旧临时脚本曾尝试把部分文件替换成 HEAD 版本。当前接口已经整体演进，这种新旧模块混装会在
+`PoiseBreakBuffRuntime.recover` 处因容器接口不一致而失败，不能作为迁移前基线。正式验证入口现位于
+`tools/performance/verify-real-timeline-checkpoints.ts`，并使用与页面相同的项目级按需数据仓库。
+需要历史对照时使用独立完整提交或工作树，不能混装不同提交的模块。
+
+2026-09-15 用正式入口重跑后，期望伤害、命中数和回执数与 T0 记录一致。完整回执摘要因其间增加的
+来源和恢复元数据发生变化，表内已更新为当前基线。工具在时间膨胀、能力实体、Buff 周期伤害等
+9 个事件边界前后保存，期望和随机模式下的恢复分支都与不保存的完整运行完全一致。
 
 T1 开始后，`finishByAction`、`inheritBuffById` 与 `holdBuffsById` 的活动实例已从执行器 `WeakMap`
 迁入动作步骤数据。步骤保存 Buff 的 owner 和 instanceId；新分支结束动作时从恢复后的目标容器
