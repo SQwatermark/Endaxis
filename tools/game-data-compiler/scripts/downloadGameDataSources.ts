@@ -108,7 +108,7 @@ export async function downloadGameDataSources(args: DownloadArguments): Promise<
   await fs.mkdir(path.dirname(output), { recursive: true });
   const stagingWorkspace = args.jsonFile
     ? undefined
-    : await createCompilerTemporaryDirectory('source-snapshot');
+    : await createCompilerTemporaryDirectory('source-snapshot', path.dirname(output));
   const staging = stagingWorkspace ? path.join(stagingWorkspace, 'snapshot') : output;
   if (stagingWorkspace) await fs.mkdir(staging);
 
@@ -233,8 +233,9 @@ function parseCollectionManifest(value: unknown, collection: string): string[] {
 }
 
 export async function writeAtomicBytes(output: string, content: Uint8Array): Promise<void> {
-  await fs.mkdir(path.dirname(output), { recursive: true });
-  const workspace = await createCompilerTemporaryDirectory('atomic-file');
+  const parent = path.dirname(output);
+  await fs.mkdir(parent, { recursive: true });
+  const workspace = await createCompilerTemporaryDirectory('atomic-file', parent);
   const temporary = path.join(workspace, 'generated');
   try {
     await fs.writeFile(temporary, content);

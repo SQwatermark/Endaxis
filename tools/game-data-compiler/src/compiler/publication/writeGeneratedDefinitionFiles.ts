@@ -14,8 +14,9 @@ export async function writeGeneratedDefinitionFile(
   file: RenderedDefinitionFileSource,
 ): Promise<void> {
   const destination = resolveGeneratedPath(resolve(outputDirectory), file.relativePath);
-  await mkdir(dirname(destination), { recursive: true });
-  const workspace = await createCompilerTemporaryDirectory('definition-file');
+  const parent = dirname(destination);
+  await mkdir(parent, { recursive: true });
+  const workspace = await createCompilerTemporaryDirectory('definition-file', parent);
   const temporary = join(workspace, 'generated');
   try {
     await writeFile(temporary, file.content, { encoding: 'utf8', flag: 'wx' });
@@ -58,7 +59,7 @@ export function checkGeneratedDefinitionFiles(
   }
 }
 
-/** 在项目 tmp 生成完整新数据区，完成后一次性替换目标目录。 */
+/** 在目标同级目录生成完整新数据区，完成后在同一卷内一次性替换目标目录。 */
 export async function writeGeneratedDefinitionFiles(
   outputDirectory: string,
   files: readonly RenderedDefinitionFileSource[],
@@ -68,10 +69,10 @@ export async function writeGeneratedDefinitionFiles(
   if (target === parent) {
     throw new Error(`unsafe generated definition output directory ${JSON.stringify(target)}`);
   }
-  const workspace = await createCompilerTemporaryDirectory('definition-directory');
+  await mkdir(parent, { recursive: true });
+  const workspace = await createCompilerTemporaryDirectory('definition-directory', parent);
   const staging = join(workspace, 'staging');
   const backup = join(workspace, 'backup');
-  await mkdir(parent, { recursive: true });
   await mkdir(staging, { recursive: false });
   let movedExistingTarget = false;
   let installedNewTarget = false;
