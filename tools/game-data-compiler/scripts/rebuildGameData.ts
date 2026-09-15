@@ -474,7 +474,6 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           tableRoot: path.join(sourceRoot, 'TableCfg-current'),
           skillPatchTable: path.join(sourceRoot, 'TableCfg-current/SkillPatchTable.json'),
           buffDataRoot: path.join(sourceRoot, 'BuffData'),
-          abilityEntityCatalog: path.join(sourceRoot, 'AbilityEntityData'),
           gameplayTagCatalog: tags,
           timeDilationCatalog,
           globalBuffCatalog,

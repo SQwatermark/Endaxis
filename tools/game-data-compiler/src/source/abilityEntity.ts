@@ -72,16 +72,6 @@ export interface NativeAbilityEntityTemplateSource {
   readonly skillDataBundle?: AbilityEntitySkillDataBundleSource;
   readonly entityBlackboard?: readonly DeclaredBlackboardValueSource[];
 }
-/** 旧模板证据容器还带资产索引和引用审计；在进入严格原生模板解析前剥离这些容器字段。 */
-export function selectNativeAbilityEntityTemplateFields(value: unknown): Record<string, unknown> {
-  const record = requireRecord(value, 'AbilityEntityTemplateEvidence');
-  return Object.fromEntries(
-    [...ABILITY_ENTITY_TEMPLATE_FIELDS, ...ABILITY_ENTITY_TEMPLATE_OPTIONAL_FIELDS].flatMap(
-      field => (field in record ? [[field, record[field]]] : []),
-    ),
-  );
-}
-
 export function parseNativeAbilityEntityTemplateSource(
   value: unknown,
   sourcePath: string,

@@ -19,20 +19,8 @@ const setup = () => {
 };
 
 describe('能力实体直接来源读取', () => {
-  it('原始目录与显式旧容器进入同一公共解析，不需要旧生成文件补缺', () => {
-    const { root, directory, template } = setup();
-    const file = path.join(root, 'old-evidence.json');
-    fs.writeFileSync(
-      file,
-      JSON.stringify({
-        format: 'EndaxisLogicalAbilityEntityTemplateEvidence',
-        spatialModel: 'zero-distance-all-instances-single-enemy',
-        lifeTypeNativeValues: { limited: 0, infinite: 1 },
-        templates: { entity_test: { ...template, audit: 'container metadata only' } },
-      }),
-    );
-    expect(readAbilityEntityTemplates(directory)).toEqual(readAbilityEntityTemplates(file));
-    fs.unlinkSync(file);
+  it('直接读取原始目录，不需要旧生成文件补缺', () => {
+    const { directory } = setup();
     expect(readAbilityEntityTemplates(directory).templates).toHaveLength(1);
   });
   it('原始目录保留严格字段/文件身份校验，不剥离未知字段伪装成旧容器', () => {
@@ -42,8 +30,9 @@ describe('能力实体直接来源读取', () => {
     fs.writeFileSync(file, JSON.stringify({ ...template, gameId: 'different' }));
     expect(() => readAbilityEntityTemplates(directory)).toThrow('expected "entity_test"');
   });
-  it('目录外文件、子目录与缺失目录不触发隐式回退', () => {
-    const { directory } = setup();
+  it('文件、子目录与缺失目录不触发隐式回退', () => {
+    const { directory, file } = setup();
+    expect(() => readAbilityEntityTemplates(file)).toThrow('is not a directory');
     fs.mkdirSync(path.join(directory, 'nested'));
     expect(() => readAbilityEntityTemplates(directory)).toThrow(
       'unexpected ability entity source entry',

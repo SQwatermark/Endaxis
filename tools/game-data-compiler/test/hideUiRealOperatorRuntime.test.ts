@@ -38,7 +38,6 @@ describe.skipIf(!sourceRoot || !globalBuffCatalog)('真实整名 HideUI 转换�
         tableRoot: path.join(root, 'TableCfg-current'),
         skillPatchTable: path.join(root, 'TableCfg-current/SkillPatchTable.json'),
         buffDataRoot: path.join(root, 'BuffData'),
-        abilityEntityCatalog: path.join(root, 'AbilityEntityData'),
         gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
         timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
         globalBuffCatalog: globalBuffCatalog!,

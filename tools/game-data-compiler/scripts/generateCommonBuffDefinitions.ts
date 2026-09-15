@@ -24,7 +24,6 @@ interface Arguments {
   readonly tableRoot: string;
   readonly skillPatchTable: string;
   readonly buffDataRoot: string;
-  readonly abilityEntityCatalog: string;
   readonly projectileBlackboardCatalog?: string;
   readonly gameplayTagCatalog: string;
   readonly timeDilationCatalog: string;
@@ -223,7 +222,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--table-root',
     '--skill-patch-table',
     '--buff-data-root',
-    '--ability-entity-catalog',
     '--projectile-blackboard-catalog',
     '--gameplay-tag-catalog',
     '--time-dilation-catalog',
@@ -255,7 +253,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       tableRoot: required('--table-root'),
       skillPatchTable: required('--skill-patch-table'),
       buffDataRoot: required('--buff-data-root'),
-      abilityEntityCatalog: required('--ability-entity-catalog'),
       ...(values.has('--projectile-blackboard-catalog')
         ? { projectileBlackboardCatalog: required('--projectile-blackboard-catalog') }
         : {}),

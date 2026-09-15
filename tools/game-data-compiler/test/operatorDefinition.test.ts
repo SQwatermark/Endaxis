@@ -222,7 +222,6 @@ beforeAll(() => {
     tableRoot: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12'),
     skillPatchTable: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12/SkillPatchTable.json'),
     buffDataRoot: path.join(sourceRoot, 'BuffData'),
-    abilityEntityCatalog: 'src/data/ability-entities/ability-entity-templates-1.4.4.json',
     projectileBlackboardCatalog:
       'tools/game-data-compiler/legacy/evidence/projectile-entity-blackboards-1.4.4.json',
     gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
@@ -240,14 +239,6 @@ afterAll(() => {
 });
 
 describe('原始整名候选：不依赖旧 Operator 补空', () => {
-  it('直接使用本次 AbilityEntityData，完整干员对象与显式基线目录一致', () => {
-    const current = planOperatorDefinition({
-      ...args,
-      abilityEntityCatalog: path.join(sourceRoot, 'AbilityEntityData'),
-    });
-    expect(current.operator).toEqual(candidate.operator);
-    expect(current.commonBuffDefinitions).toEqual(candidate.commonBuffDefinitions);
-  });
   it('隔离候选在相同原始快照上确定性渲染', async () => {
     const first = await renderOperatorDefinition(args);
     const second = await renderOperatorDefinition(args);

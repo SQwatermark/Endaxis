@@ -206,7 +206,6 @@ async function setup(): Promise<CombatDefinitionCandidateArguments> {
     tableRoot: root,
     buffDataRoot: root,
     skillPatchTable: 'unused-patches',
-    abilityEntityCatalog: 'unused-entities',
     projectileBlackboardCatalog: 'unused-projectiles',
     gameplayTagCatalog,
     timeDilationCatalog: 'unused-time',

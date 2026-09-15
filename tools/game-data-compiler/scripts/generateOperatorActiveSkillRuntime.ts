@@ -68,8 +68,6 @@ export interface OperatorActiveSkillRuntimeArguments {
   readonly preserveBuffIds?: readonly string[];
   /** 仅供已显式审计的内部/替换技能；它们可能不在 SkillPatchTable 养成等级组中。 */
   readonly allowMissingSkillPatch?: boolean;
-  /** 当前原始 AbilityEntityData 目录；仍允许显式指定旧证据文件用于基线回归。 */
-  readonly abilityEntityCatalog: string;
   /**
    * 旧版独立 Projectile EntityBB 证据，仅用于历史基线回归。当前来源能直接解出所需模板时省略；
    * 若某回调读取了尚未解出的 EntityBB，投射物编译器仍会原地报缺失证据。
@@ -363,7 +361,7 @@ export function planOperatorActiveSkillRuntime(
     sources,
   );
   preferDecodedProjectileBlackboards(runtimeCatalog, templateCatalog);
-  const abilityCatalog = sources.abilityEntities(args.abilityEntityCatalog);
+  const abilityCatalog = sources.abilityEntities(path.join(args.sourceRoot, 'AbilityEntityData'));
   const registry = new GameplayTagRegistry(sources.gameplayTags(args.gameplayTagCatalog));
   const priorities = sources.timeDilationPriorities(args.timeDilationCatalog);
   const resolveTimeDilationPriority = (tagId: number, actionPath: string) => {
@@ -818,7 +816,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--skill-patch-table',
     '--skill-setting-catalog',
     '--buff-data-root',
-    '--ability-entity-catalog',
     '--projectile-blackboard-catalog',
     '--gameplay-tag-catalog',
     '--time-dilation-catalog',
@@ -869,7 +866,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
         .split(',')
         .map(value => value.trim())
         .filter(value => value.length > 0),
-      abilityEntityCatalog: required('--ability-entity-catalog'),
       projectileBlackboardCatalog: required('--projectile-blackboard-catalog'),
       gameplayTagCatalog: required('--gameplay-tag-catalog'),
       timeDilationCatalog: required('--time-dilation-catalog'),
