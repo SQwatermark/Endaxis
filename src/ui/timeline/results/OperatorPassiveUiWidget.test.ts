@@ -59,6 +59,7 @@ describe('专属 HUD 外观通过通用容器显示', () => {
     expect(laevatainSource).toContain('width: 28px');
     expect(laevatainSource).toContain('transform: scaleX(-1)');
     expect(laevatainSource).toContain('rgb(255 101 112)');
+    expect(laevatainSource).toContain("mask: url('/next/passive-ui/laevatain-leaf.webp')");
 
     expect(zhuangFangyiSource).toContain('top: 18 - y');
     expect(zhuangFangyiSource).toContain('top: 2px');

@@ -7,13 +7,11 @@ defineProps<PassiveUiWidgetState>();
     <img class="laevatain-bg" src="/next/passive-ui/laevatain-bg.webp" alt="" />
     <span v-if="value >= maximum" class="laevatain-max" />
     <template v-else>
-      <img
+      <span
         v-for="index in Math.min(value, 4)"
         :key="index"
         class="laevatain-leaf"
         :class="`laevatain-leaf--${index}`"
-        src="/next/passive-ui/laevatain-leaf.webp"
-        alt=""
       />
     </template>
   </span>
@@ -45,8 +43,12 @@ img {
   transform: scaleX(-1);
 }
 .laevatain-leaf {
+  position: absolute;
+  display: block;
   width: 16px;
   height: 16px;
+  background: rgb(255 101 112);
+  mask: url('/next/passive-ui/laevatain-leaf.webp') center / 100% 100% no-repeat;
 }
 
 .laevatain-leaf--1 {
