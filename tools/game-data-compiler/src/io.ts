@@ -1,4 +1,13 @@
-import { rename } from 'node:fs/promises';
+import { mkdir, mkdtemp, rename } from 'node:fs/promises';
+import path from 'node:path';
+
+/** 生成器的暂存、备份和原子写文件统一留在项目 tmp，不进入正式数据目录。 */
+export async function createCompilerTemporaryDirectory(prefix: string): Promise<string> {
+  if (!/^[a-z0-9-]+$/i.test(prefix)) throw new Error(`unsafe temporary prefix ${prefix}`);
+  const parent = path.resolve(import.meta.dirname, '../../../tmp/game-data-writes');
+  await mkdir(parent, { recursive: true });
+  return mkdtemp(path.join(parent, `${prefix}-`));
+}
 
 /**
  * Windows 索引器、杀毒软件或资源管理器可能短暂持有大型新目录句柄；仅对占用错误

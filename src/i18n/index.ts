@@ -38,6 +38,7 @@ export const i18n = createI18n({
 });
 
 export const ALL_GAME_TEXT_FAMILIES = [
+  'contingency-contracts',
   'operators',
   'weapons',
   'gears',

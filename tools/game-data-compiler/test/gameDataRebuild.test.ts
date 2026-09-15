@@ -110,9 +110,12 @@ describe('从无产物工作树重建装备候选', () => {
       expect(() => parseRebuildArguments(values)).toThrow();
     }
     const localeBoundary = GAME_DATA_REBUILD_BOUNDARIES.find(item => item.id === 'locales')!;
-    expect(localeBoundary.outputs).toHaveLength(14);
+    expect(localeBoundary.outputs).toHaveLength(16);
     expect(localeBoundary.outputs).not.toContain('src/i18n/game-locales');
     expect(localeBoundary.outputs.filter(file => file.endsWith('/enemies.json'))).toHaveLength(2);
+    expect(
+      localeBoundary.outputs.filter(file => file.endsWith('/contingency-contracts.json')),
+    ).toHaveLength(2);
   });
 
   it('正式资源全不存在时生成真实夹具，并通过重复生成 --check；完整重建仍明确未完成', async () => {

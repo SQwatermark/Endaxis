@@ -19,7 +19,9 @@ describe('ContingencyContractPanel legacy interaction parity', () => {
     expect(source).toContain("'is-locked': isLocked(cell.tag)");
     expect(source).toContain('isContingencyContractTagLocked');
     expect(source).toContain('opacity: 0.38');
-    expect(source).toContain('该词条在Endaxis中无实际效果');
+    expect(source).toContain('t(`contingencyContract.support.${tag.support}.description`)');
+    expect(source).not.toContain("score: '危机等级'");
+    expect(source).not.toContain("score: 'Risk level'");
     expect(source).toContain("cell.tag.support === 'omitted'");
     expect(source).toContain("cell.tag.support === 'blocked'");
     expect(source).not.toContain("cell.tag.support !== 'supported'");

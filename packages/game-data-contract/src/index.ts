@@ -16,3 +16,4 @@ export * from './equipment.ts';
 export * from './enemies.ts';
 export * from './buildModifiers.ts';
 export * from './modifiers.ts';
+export type { ContingencyContractTagDefinition } from './mechanics.ts';

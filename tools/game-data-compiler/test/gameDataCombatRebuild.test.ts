@@ -13,6 +13,7 @@ const mocks = vi.hoisted(() => ({
   snapshot: vi.fn(),
   enemyRanks: vi.fn(),
   enemies: vi.fn(),
+  globalBuffs: vi.fn(),
   types: vi.fn(),
   assets: vi.fn(),
   operatorSimulation: vi.fn(),
@@ -72,10 +73,16 @@ vi.mock('../scripts/generateSkillSettingCatalog.ts', () => ({
   generateSkillSettingCatalog: async () => ({}),
 }));
 vi.mock('../scripts/generateGlobalBuffCatalog.ts', () => ({
-  generateGlobalBuffCatalog: async () => ({}),
+  generateGlobalBuffCatalog: mocks.globalBuffs,
 }));
-vi.mock('../scripts/generateContingencyContractCatalog.ts', () => ({
-  generateContingencyContractCatalog: async () => ({ globalBuffIds: [] }),
+vi.mock('../scripts/generateContingencyContractLocales.ts', () => ({
+  generateContingencyContractLocales: async ({ output }: { output: string }) => {
+    for (const locale of ['zh', 'en'])
+      await json(path.join(output, locale, 'contingency-contracts.json'), {
+        fixture: { name: 'text', description: 'description' },
+      });
+    return { globalBuffIds: [] };
+  },
 }));
 vi.mock('../scripts/generateGameplayTagPredefine.ts', () => ({
   generateGameplayTagPredefine: async () => ({}),
@@ -175,6 +182,12 @@ beforeEach(() => {
     async ({ outputDirectory, check }: { outputDirectory: string; check: boolean }) => {
       if (!check) await json(path.join(outputDirectory, 'enemy.json'), { enemy: 'fixture' });
       return { definitionCount: 1 };
+    },
+  );
+  mocks.globalBuffs.mockImplementation(
+    async ({ output, check }: { output: string; check: boolean }) => {
+      if (!check) await json(output, { version: 'fixture', evidence: {}, templates: {} });
+      return {};
     },
   );
   mocks.types.mockReturnValue({});
@@ -305,6 +318,23 @@ describe('完整重建的统一战斗定义阶段', () => {
     }
     expect(mocks.snapshot).toHaveBeenCalledTimes(2);
     expect(mocks.publish).toHaveBeenCalledTimes(1);
+    expect(mocks.publish.mock.calls[0]![0].fileOutputs).toEqual(
+      expect.arrayContaining([
+        'src/i18n/game-locales/zh/contingency-contracts.json',
+        'src/i18n/game-locales/en/contingency-contracts.json',
+      ]),
+    );
+    expect(mocks.publish.mock.calls[0]![0].fileOutputs).not.toContain(
+      'src/data/mechanics/contingency-contract-catalog.generated.json',
+    );
+    expect(mocks.publish.mock.calls[0]![0].fileOutputs).not.toContain(
+      'src/data/global-buffs/global-buff-templates.generated.json',
+    );
+    const globalBuffOutput = mocks.globalBuffs.mock.calls[0]![0].output;
+    expect(path.relative(report.runRoot, globalBuffOutput).replaceAll('\\', '/')).toBe(
+      'intermediate/global-buff-templates.generated.json',
+    );
+    await expect(fs.stat(globalBuffOutput)).rejects.toMatchObject({ code: 'ENOENT' });
     const rankOutput = mocks.enemyRanks.mock.calls[0]![0].output;
     await expect(fs.stat(rankOutput)).rejects.toMatchObject({ code: 'ENOENT' });
     expect(mocks.publish.mock.calls[0]![0].fileOutputs).not.toContain(
@@ -364,6 +394,8 @@ describe('完整重建的统一战斗定义阶段', () => {
     });
     expect(report.published).toBe(false);
     expect(exitCode).toBe(1);
+    const globalBuffOutput = mocks.globalBuffs.mock.calls[0]![0].output;
+    await expect(fs.stat(globalBuffOutput)).rejects.toMatchObject({ code: 'ENOENT' });
     await expect(fs.stat(path.join(root, 'src'))).rejects.toMatchObject({ code: 'ENOENT' });
   });
 });

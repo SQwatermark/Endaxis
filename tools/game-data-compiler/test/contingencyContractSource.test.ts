@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   collectContingencyContractGlobalBuffIds,
+  compileContingencyContractTagDefinitions,
   parseContingencyContractCatalogSource,
 } from '../src/domains/mechanics/contingencyContractSource.ts';
 
@@ -55,6 +56,19 @@ describe('Contingency Contract native source', () => {
       'reduceChallengeTime',
     ]);
     expect(collectContingencyContractGlobalBuffIds(result)).toEqual(['global_buff_party']);
+    const definitions = compileContingencyContractTagDefinitions(result);
+    expect(definitions.map(tag => tag.tagId)).toEqual([100201, 100003, 102101]);
+    expect(definitions[0]).toEqual({
+      tagId: 100201,
+      columnId: '2',
+      conflictId: '',
+      score: 1,
+      keyId: '',
+      lockIds: [],
+      romanNumSuffix: '',
+      iconPath: '/contingency_contract/1/icon_100201.webp',
+      blackboard: { value: 0.5 },
+    });
   });
 
   it('rejects unknown term enums instead of inferring their target from the Buff ID', () => {

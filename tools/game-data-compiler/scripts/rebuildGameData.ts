@@ -22,7 +22,7 @@ import { generateTimeDilationCatalog } from './generateTimeDilationCatalog.ts';
 import { generateHitStopCurveCatalog } from './generateHitStopCurveCatalog.ts';
 import { generateSkillSettingCatalog } from './generateSkillSettingCatalog.ts';
 import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
-import { generateContingencyContractCatalog } from './generateContingencyContractCatalog.ts';
+import { generateContingencyContractLocales } from './generateContingencyContractLocales.ts';
 import { generateCombatDefinitionCandidates } from './generateCombatDefinitionCandidates.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { typeCheckCandidateOverlay } from '../src/compiler/publication/candidateTypeCheck.ts';
@@ -39,9 +39,16 @@ import { OPERATOR_DEFINITION_OUTPUTS } from './operatorDefinitionOutputs.ts';
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
 const runFile = promisify(execFile);
 const GAME_LOCALE_FILES = ['zh', 'en'].flatMap(locale =>
-  ['operators', 'terms', 'weapons', 'gearsets', 'gearpieces', 'enum-terms', 'enemies'].map(
-    name => `${locale}/${name}.json`,
-  ),
+  [
+    'operators',
+    'terms',
+    'weapons',
+    'gearsets',
+    'gearpieces',
+    'enum-terms',
+    'enemies',
+    'contingency-contracts',
+  ].map(name => `${locale}/${name}.json`),
 );
 const GAME_LOCALE_REBUILD_OUTPUTS = GAME_LOCALE_FILES.map(file => `src/i18n/game-locales/${file}`);
 
@@ -82,8 +89,6 @@ const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
   'src/data/combat/hitStopCurveCatalog.generated.ts',
   'src/data/combat/timeDilationCatalog.generated.ts',
   'src/data/combat/skill-setting.generated.json',
-  'src/data/global-buffs/global-buff-templates.generated.json',
-  'src/data/mechanics/contingency-contract-catalog.generated.json',
   ...GAME_LOCALE_REBUILD_OUTPUTS,
 ] as const;
 
@@ -127,8 +132,6 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
       'src/data/combat/hitStopCurveCatalog.generated.ts',
       'src/data/combat/timeDilationCatalog.generated.ts',
       'src/data/combat/skill-setting.generated.json',
-      'src/data/global-buffs/global-buff-templates.generated.json',
-      'src/data/mechanics/contingency-contract-catalog.generated.json',
       'src/data/mechanics/generated',
     ],
     blocker:
@@ -361,23 +364,20 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           'src/data/combat/skill-setting.generated.json',
         );
         const globalBuffCatalog = path.join(
-          candidateRoot,
-          'src/data/global-buffs/global-buff-templates.generated.json',
+          runRoot,
+          'intermediate/global-buff-templates.generated.json',
         );
-        const contingencyContractCatalog = path.join(
-          candidateRoot,
-          'src/data/mechanics/contingency-contract-catalog.generated.json',
-        );
+        const contingencyContractLocaleRoot = path.join(candidateRoot, 'src/i18n/game-locales');
         let contingencyContractGlobalBuffIds: readonly string[] = [];
-        const contingencyContractOkay = await stage('contingency-contract-catalog', async () => {
+        const contingencyContractOkay = await stage('contingency-contract-locales', async () => {
           const input = {
             tableRoot: path.join(sourceRoot, 'TableCfg-current'),
             revision: snapshot!.version,
-            output: contingencyContractCatalog,
+            output: contingencyContractLocaleRoot,
             check: false,
           };
-          const generated = await generateContingencyContractCatalog(input);
-          await generateContingencyContractCatalog({ ...input, check: true });
+          const generated = await generateContingencyContractLocales(input);
+          await generateContingencyContractLocales({ ...input, check: true });
           contingencyContractGlobalBuffIds = generated.globalBuffIds;
           return {
             ...generated,
@@ -536,6 +536,8 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
               '同次任务的危机合约、TimeDilation、HitStop、SkillSetting 或 GlobalBuff 候选未通过。',
           });
         }
+        // GlobalBuff 模板只用于把本次来源编译进最终定义，不是运行时或发布产物。
+        await fs.rm(path.dirname(globalBuffCatalog), { recursive: true, force: true });
         await stage('operator-refresh', async () => {
           const detail = await inspectOperatorRefresh(sourceRoot, root, tags);
           await writeAtomicJson(path.join(runRoot, 'audit', 'operator-refresh.json'), detail);
@@ -619,10 +621,6 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
               gameDataSourceRoot: sourceRoot,
               outputRoot: path.join(candidateRoot, 'public'),
               additionalReferenceRoots: [path.join(candidateRoot, 'src')],
-              contingencyContractCatalog: path.join(
-                candidateRoot,
-                'src/data/mechanics/contingency-contract-catalog.generated.json',
-              ),
               auditOutput: path.join(runRoot, 'audit', 'referenced-game-icons.json'),
             })),
             note: '扫描正式运行源码与同批候选，向隔离 public 根只补缺漏；游戏图经 AKEDB 优先/VFS 补缺导出，项目占位图只复制并标记 kept-local。',
@@ -659,7 +657,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           'time-dilation',
           'hit-stop',
           'skill-setting',
-          'contingency-contract-catalog',
+          'contingency-contract-locales',
           'global-buffs',
           'gameplay-tag-predefine',
           'locales',
@@ -738,7 +736,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         for (const id of [
           'operator-refresh',
           'combat-definitions',
-          'contingency-contract-catalog',
+          'contingency-contract-locales',
           'gameplay-tag-predefine',
           'locales',
           'icons',
@@ -987,6 +985,7 @@ async function exportCandidateGameLocales(projectRoot: string, input: CandidateL
     { cwd: projectRoot, maxBuffer: 16 * 1024 * 1024 },
   );
   const expectedFiles = [
+    'contingency-contracts.json',
     'enemies.json',
     'enum-terms.json',
     'gearpieces.json',

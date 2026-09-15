@@ -2584,13 +2584,26 @@
   "contingencyContract": {
     "title": "Contingency Contract",
     "operationName": "Rekindled Test Operation",
-    "score": "Score",
+    "score": "Risk level",
     "queue": "Queue",
     "selectedCount": "{count} selected",
     "pickHint": "Select a tag to view details",
     "noDescription": "No description",
     "keyGained": "Key: {key}",
     "keyRequired": "Requires: {key}",
+    "reset": "Reset",
+    "reason": "Reason",
+    "remove": "Remove",
+    "support": {
+      "blocked": {
+        "label": "Not implemented",
+        "description": "Endaxis does not implement this tag yet. It remains selectable but currently has no effect."
+      },
+      "omitted": {
+        "label": "Not applicable to the fixed-target model",
+        "description": "This tag has no effect in Endaxis."
+      }
+    },
     "term": {
       "enemyBuff": "Enemy buff",
       "selfGlobalBuff": "Operator modifier",

@@ -145,7 +145,6 @@ export type ExportGameIconsArguments = {
   readonly outputRoot: string;
   /** 额外扫描尚未发布的候选定义；不改变正式 src 的默认闭包。 */
   readonly additionalReferenceRoots: readonly string[];
-  readonly contingencyContractCatalog?: string;
   readonly auditOutput?: string;
 };
 
@@ -262,36 +261,6 @@ async function collectLiteralReferences(
     }),
   );
   return references;
-}
-
-async function addContingencyContractImpliedReferences(
-  references: Map<string, Set<string>>,
-  catalogPath = path.join(
-    SOURCE_ROOT,
-    'data',
-    'mechanics',
-    'contingency-contract-catalog.generated.json',
-  ),
-): Promise<void> {
-  const value: unknown = JSON.parse(await readFile(catalogPath, 'utf8'));
-  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
-    throw new Error(`${catalogPath}: expected an object`);
-  }
-  const tags = (value as { readonly tags?: unknown }).tags;
-  if (!Array.isArray(tags)) throw new Error(`${catalogPath}.tags: expected an array`);
-  for (const [index, raw] of tags.entries()) {
-    if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) {
-      throw new Error(`${catalogPath}.tags[${index}]: expected an object`);
-    }
-    const icon = (raw as { readonly icon?: unknown }).icon;
-    if (typeof icon !== 'string' || icon.length === 0 || !/^[a-zA-Z0-9_-]+$/u.test(icon)) {
-      throw new Error(`${catalogPath}.tags[${index}].icon: expected a safe non-empty icon ID`);
-    }
-    const publicPath = `/contingency_contract/1/${icon}.webp`;
-    const owners = references.get(publicPath) ?? new Set<string>();
-    owners.add(path.relative(PROJECT_ROOT, catalogPath).replaceAll('\\', '/'));
-    references.set(publicPath, owners);
-  }
 }
 
 async function runRichTextExporter(refreshRichText: boolean): Promise<void> {
@@ -535,7 +504,6 @@ async function buildReferenceClosure(
   arguments_: ExportGameIconsArguments,
 ): Promise<readonly IconReference[]> {
   const references = await collectLiteralReferences(arguments_.additionalReferenceRoots);
-  await addContingencyContractImpliedReferences(references, arguments_.contingencyContractCatalog);
   const configuredOverrides = await addOperatorImpliedReferences(
     references,
     arguments_.gameDataSourceRoot,

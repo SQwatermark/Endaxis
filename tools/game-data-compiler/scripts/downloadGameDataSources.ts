@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
-import { renameWithRetry } from '../src/io.ts';
+import { createCompilerTemporaryDirectory, renameWithRetry } from '../src/io.ts';
 
 import {
   AkedbSnapshot,
@@ -106,104 +106,112 @@ export async function downloadGameDataSources(args: DownloadArguments): Promise<
   const akedb =
     mode === 'hybrid' ? await AkedbSnapshot.load(args.cdn ?? DEFAULT_CDN, args.version) : null;
   await fs.mkdir(path.dirname(output), { recursive: true });
-  const staging = args.jsonFile ? output : await fs.mkdtemp(output + '.partial-');
+  const stagingWorkspace = args.jsonFile
+    ? undefined
+    : await createCompilerTemporaryDirectory('source-snapshot');
+  const staging = stagingWorkspace ? path.join(stagingWorkspace, 'snapshot') : output;
+  if (stagingWorkspace) await fs.mkdir(staging);
 
-  async function resource(logicalPath: string, tableName?: string): Promise<ResourceBytes> {
-    let reason = akedb ? 'not-in-akedb-index' : undefined;
-    if (akedb && (tableName || akedb.assets.json.has(logicalPath))) {
-      try {
-        return tableName ? await akedb.table(tableName) : await akedb.asset('json', logicalPath);
-      } catch (error) {
-        if (!isMissingResource(error)) throw error;
-        reason = 'akedb-http-404';
+  try {
+    async function resource(logicalPath: string, tableName?: string): Promise<ResourceBytes> {
+      let reason = akedb ? 'not-in-akedb-index' : undefined;
+      if (akedb && (tableName || akedb.assets.json.has(logicalPath))) {
+        try {
+          return tableName ? await akedb.table(tableName) : await akedb.asset('json', logicalPath);
+        } catch (error) {
+          if (!isMissingResource(error)) throw error;
+          reason = 'akedb-http-404';
+        }
       }
+      const result = await vfsResource(args.vfsBase, logicalPath, args.vfsVersion ?? null);
+      return { ...result, ...(reason ? { fallbackReason: reason } : {}) };
     }
-    const result = await vfsResource(args.vfsBase, logicalPath, args.vfsVersion ?? null);
-    return { ...result, ...(reason ? { fallbackReason: reason } : {}) };
-  }
 
-  async function save(logicalPath: string, destination: string, tableName?: string) {
-    const item = await resource(logicalPath, tableName);
-    parseJson(item.content);
-    await writeAtomicBytes(path.join(staging, destination), item.content);
-    const { content, ...identity } = item;
-    const entry = {
-      logicalPath,
-      ...identity,
-      byteLength: content.byteLength,
-      sha256: sha256(content),
-    };
-    provenance.push(entry);
-    return entry;
-  }
+    async function save(logicalPath: string, destination: string, tableName?: string) {
+      const item = await resource(logicalPath, tableName);
+      parseJson(item.content);
+      await writeAtomicBytes(path.join(staging, destination), item.content);
+      const { content, ...identity } = item;
+      const entry = {
+        logicalPath,
+        ...identity,
+        byteLength: content.byteLength,
+        sha256: sha256(content),
+      };
+      provenance.push(entry);
+      return entry;
+    }
 
-  if (args.jsonFile) {
-    const entry = await save(args.jsonFile, args.jsonFile);
-    await writeAtomicJson(path.join(output, args.jsonFile + '.provenance.json'), entry);
-    return;
-  }
+    if (args.jsonFile) {
+      const entry = await save(args.jsonFile, args.jsonFile);
+      await writeAtomicJson(path.join(output, args.jsonFile + '.provenance.json'), entry);
+      return;
+    }
 
-  await runConcurrent(catalog.tableCfg, args.workers, name =>
-    save(`TableCfg-current/${name}.json`, `TableCfg-current/${name}.json`, name).then(() => {}),
-  );
-  if (!args.tablesOnly) {
-    for (const logicalPath of catalog.jsonFiles) await save(logicalPath, logicalPath);
-    for (const [collection, directory] of Object.entries(catalog.jsonCollections)) {
-      const cdnFiles = akedb?.collectionFiles(collection) ?? [];
-      let vfsFiles: string[] = [];
-      let vfsStatus = 'available';
-      // 取并集以发现 AKEDB 尚未收录的新文件；同名资源只取 AKEDB，不覆盖或合并字段。
-      let rawInventory: ResourceBytes | undefined;
-      try {
-        rawInventory = await vfsResource(
-          args.vfsBase,
-          `${collection}/manifest.json`,
-          args.vfsVersion ?? null,
+    await runConcurrent(catalog.tableCfg, args.workers, name =>
+      save(`TableCfg-current/${name}.json`, `TableCfg-current/${name}.json`, name).then(() => {}),
+    );
+    if (!args.tablesOnly) {
+      for (const logicalPath of catalog.jsonFiles) await save(logicalPath, logicalPath);
+      for (const [collection, directory] of Object.entries(catalog.jsonCollections)) {
+        const cdnFiles = akedb?.collectionFiles(collection) ?? [];
+        let vfsFiles: string[] = [];
+        let vfsStatus = 'available';
+        // 取并集以发现 AKEDB 尚未收录的新文件；同名资源只取 AKEDB，不覆盖或合并字段。
+        let rawInventory: ResourceBytes | undefined;
+        try {
+          rawInventory = await vfsResource(
+            args.vfsBase,
+            `${collection}/manifest.json`,
+            args.vfsVersion ?? null,
+          );
+        } catch (error) {
+          const unavailable =
+            error instanceof ResourceHttpError ||
+            error instanceof TypeError ||
+            (error instanceof DOMException && error.name === 'TimeoutError');
+          if (cdnFiles.length === 0 || !unavailable) throw error;
+          vfsStatus = 'unavailable: ' + String(error);
+          process.stderr.write(`${collection}: VFS inventory unavailable; AKEDB coverage only\n`);
+        }
+        // 坏清单不是网络不可用，必须阻断，不能静默缩小资源集合。
+        if (rawInventory)
+          vfsFiles = parseCollectionManifest(parseJson(rawInventory.content), collection);
+        const entries = [...new Set([...cdnFiles, ...vfsFiles])].sort();
+        entries.forEach(name => {
+          if (!/^[A-Za-z0-9_.-]+\.json$/.test(name) || name.includes('..'))
+            throw new Error('unsafe collection filename');
+        });
+        inventories.push({ collection, vfs: vfsStatus, files: entries.length });
+        await runConcurrent(entries, args.workers, name =>
+          save(`${collection}/${name}`, `${directory}/${name}`).then(() => {}),
         );
-      } catch (error) {
-        const unavailable =
-          error instanceof ResourceHttpError ||
-          error instanceof TypeError ||
-          (error instanceof DOMException && error.name === 'TimeoutError');
-        if (cdnFiles.length === 0 || !unavailable) throw error;
-        vfsStatus = 'unavailable: ' + String(error);
-        process.stderr.write(`${collection}: VFS inventory unavailable; AKEDB coverage only\n`);
+        process.stdout.write(`${collection}: ${entries.length} files\n`);
       }
-      // 坏清单不是网络不可用，必须阻断，不能静默缩小资源集合。
-      if (rawInventory)
-        vfsFiles = parseCollectionManifest(parseJson(rawInventory.content), collection);
-      const entries = [...new Set([...cdnFiles, ...vfsFiles])].sort();
-      entries.forEach(name => {
-        if (!/^[A-Za-z0-9_.-]+\.json$/.test(name) || name.includes('..'))
-          throw new Error('unsafe collection filename');
-      });
-      inventories.push({ collection, vfs: vfsStatus, files: entries.length });
-      await runConcurrent(entries, args.workers, name =>
-        save(`${collection}/${name}`, `${directory}/${name}`).then(() => {}),
-      );
-      process.stdout.write(`${collection}: ${entries.length} files\n`);
     }
+    await akedb?.verifyUnchanged();
+    const sorted = provenance.sort((a, b) => a.logicalPath.localeCompare(b.logicalPath));
+    const snapshotSha256 = createHash('sha256')
+      .update(sorted.map(entry => `${entry.logicalPath}\0${entry.sha256}\n`).join(''))
+      .digest('hex');
+    await writeAtomicJson(path.join(staging, 'source-provenance.json'), {
+      schemaVersion: 2,
+      mode,
+      snapshotSha256,
+      akedb: akedb
+        ? { version: akedb.version, assetRevision: akedb.revision, evidence: akedb.evidence }
+        : null,
+      vfs: { base: args.vfsBase, declaredVersion: args.vfsVersion ?? null, versionVerified: false },
+      inventories,
+      entries: sorted,
+    });
+    await renameWithRetry(staging, output);
+    process.stdout.write(
+      `downloaded ${mode} snapshot ${snapshotSha256.slice(0, 12)}: ${sorted.length} resources\n`,
+    );
+  } finally {
+    if (stagingWorkspace) await fs.rm(stagingWorkspace, { recursive: true, force: true });
   }
-  await akedb?.verifyUnchanged();
-  const sorted = provenance.sort((a, b) => a.logicalPath.localeCompare(b.logicalPath));
-  const snapshotSha256 = createHash('sha256')
-    .update(sorted.map(entry => `${entry.logicalPath}\0${entry.sha256}\n`).join(''))
-    .digest('hex');
-  await writeAtomicJson(path.join(staging, 'source-provenance.json'), {
-    schemaVersion: 2,
-    mode,
-    snapshotSha256,
-    akedb: akedb
-      ? { version: akedb.version, assetRevision: akedb.revision, evidence: akedb.evidence }
-      : null,
-    vfs: { base: args.vfsBase, declaredVersion: args.vfsVersion ?? null, versionVerified: false },
-    inventories,
-    entries: sorted,
-  });
-  await renameWithRetry(staging, output);
-  process.stdout.write(
-    `downloaded ${mode} snapshot ${snapshotSha256.slice(0, 12)}: ${sorted.length} resources\n`,
-  );
 }
 
 function parseCollectionManifest(value: unknown, collection: string): string[] {
@@ -226,9 +234,14 @@ function parseCollectionManifest(value: unknown, collection: string): string[] {
 
 export async function writeAtomicBytes(output: string, content: Uint8Array): Promise<void> {
   await fs.mkdir(path.dirname(output), { recursive: true });
-  const temporary = `${output}.part`;
-  await fs.writeFile(temporary, content);
-  await renameWithRetry(temporary, output);
+  const workspace = await createCompilerTemporaryDirectory('atomic-file');
+  const temporary = path.join(workspace, 'generated');
+  try {
+    await fs.writeFile(temporary, content);
+    await renameWithRetry(temporary, output);
+  } finally {
+    await fs.rm(workspace, { recursive: true, force: true });
+  }
 }
 
 export async function writeAtomicJson(output: string, value: unknown): Promise<void> {

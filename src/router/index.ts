@@ -55,14 +55,6 @@ const routes: RouteRecordRaw[] = [
       gameTextFamilies: ALL_GAME_TEXT_FAMILIES,
     },
   },
-  {
-    path: '/editor-demo',
-    name: 'EditorDemo',
-    component: () => import('../ui/editor-demo/OperatorEditorWorkspaceDemo.vue'),
-    meta: {
-      gameTextFamilies: ['operators'] satisfies readonly GameTextFamily[],
-    },
-  },
 ];
 
 const router = createRouter({

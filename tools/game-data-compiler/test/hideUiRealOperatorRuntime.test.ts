@@ -11,6 +11,7 @@ import { loadSourceCatalog } from '../scripts/downloadGameDataSources.ts';
 
 // 显式真实来源门禁；普通单测不依赖本机 tmp，也不以正式干员产物补空。
 const sourceRoot = process.env.ENDAXIS_HIDE_UI_SOURCE_ROOT;
+const globalBuffCatalog = process.env.ENDAXIS_HIDE_UI_GLOBAL_BUFF_CATALOG;
 const expectedEnds: Readonly<Record<string, number>> = { perlica: 52, arclight: 55 };
 const slugs: string[] =
   process.env.ENDAXIS_HIDE_UI_ALL_OPERATORS === '1'
@@ -18,7 +19,7 @@ const slugs: string[] =
         fs.readFileSync('tools/game-data-compiler/config/operators.json', 'utf8'),
       ).operators.map((operator: { slug: string }) => operator.slug)
     : ['perlica', 'arclight'];
-describe.skipIf(!sourceRoot)('真实整名 HideUI 转换与生产模拟', () => {
+describe.skipIf(!sourceRoot || !globalBuffCatalog)('真实整名 HideUI 转换与生产模拟', () => {
   it.each(slugs)(
     '%s 保留演出区间并进入正式回执',
     async slug => {
@@ -40,9 +41,7 @@ describe.skipIf(!sourceRoot)('真实整名 HideUI 转换与生产模拟', () => 
         abilityEntityCatalog: path.join(root, 'AbilityEntityData'),
         gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
         timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
-        globalBuffCatalog:
-          process.env.ENDAXIS_HIDE_UI_GLOBAL_BUFF_CATALOG ??
-          'src/data/global-buffs/global-buff-templates.generated.json',
+        globalBuffCatalog: globalBuffCatalog!,
         skillSettingCatalog: 'src/data/combat/skill-setting.generated.json',
         slug,
         output: path.join('tmp/hide-ui-probe', slug),

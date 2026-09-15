@@ -18,7 +18,6 @@ const REPLACEMENT_PATHS = [
   'src/data/combat/hitStopCurveCatalog.generated.ts',
   'src/data/combat/timeDilationCatalog.generated.ts',
   'src/data/combat/skill-setting.generated.json',
-  'src/data/global-buffs/global-buff-templates.generated.json',
 ] as const;
 
 interface AuditArguments {

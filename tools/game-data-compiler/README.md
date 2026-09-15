@@ -143,6 +143,9 @@ tables-only 不允许 publish；报告中的 fullRebuild/published 和 remaining
 这是可恢复的文件事务，不代表所有目录在同一瞬间切换。
 
 生成和复核敌人定义期间使用 enemy-ranks.tmp.json，成功或失败均清理，不发布此中间目录。
+GlobalBuff 模板目录同样只在每轮 `tmp/game-data-rebuild/run-*/intermediate` 中存在；
+联合战斗定义编译完成后立即清理。运行时使用已经编译进最终 TS 定义的结果，不读取模板 JSON。
+生成器的 staging、backup 和原子文件统一放在 `tmp/game-data-writes`，正式目录只接收最终产物。
 审计 JSON/Markdown 默认写 tmp/game-data-audit，不提交历史快照。
 
 候选定位检查：
@@ -159,6 +162,11 @@ npx vitest run tools/game-data-compiler --maxWorkers=1
 大型检查串行执行；当前机器的成功与环境失败只记录在近期交接。
 
 ## 公共边界
+
+危机合约的选择字段与行为定义统一生成到 `contingencyContractDefinitions.generated.ts`；
+名称与说明另用 `npm run generate:game-data:contingency-contract -- <table root> <locale output root> [--check]`
+生成 `zh/en/contingency-contracts.json`。完整重建包含两条链路，图标直接扫描 TS 中的显式路径。
+不再生成独立合约目录 JSON，也不在行为定义中内嵌多语言文本。
 
 公共字段与可读名称由 [game-data-contract](../../packages/game-data-contract/README.md) 维护。
 转换器不依赖本体运行时，领域入口复用公共解析、编译与优化；生成身份/来源证据不得混成运行时数值。

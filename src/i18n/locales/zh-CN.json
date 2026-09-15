@@ -2566,13 +2566,26 @@
   "contingencyContract": {
     "title": "危机合约",
     "operationName": "重燃测试作战",
-    "score": "指标",
+    "score": "危机等级",
     "queue": "队列",
     "selectedCount": "已选 {count} 个",
-    "pickHint": "选择词条查看详情",
+    "pickHint": "选择指标以查看详情",
     "noDescription": "暂无描述",
     "keyGained": "获得：{key}",
     "keyRequired": "需要：{key}",
+    "reset": "重置",
+    "reason": "原因",
+    "remove": "删除",
+    "support": {
+      "blocked": {
+        "label": "待实现",
+        "description": "Endaxis 尚未实现此词条；当前仍可选择，但不会产生实际效果。"
+      },
+      "omitted": {
+        "label": "当前木桩模型不适用",
+        "description": "该词条在 Endaxis 中无实际效果。"
+      }
+    },
     "term": {
       "enemyBuff": "敌方增益",
       "selfGlobalBuff": "己方修正",

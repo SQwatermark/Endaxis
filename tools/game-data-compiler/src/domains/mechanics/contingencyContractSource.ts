@@ -1,3 +1,4 @@
+import type { ContingencyContractTagDefinition } from '../../../../../packages/game-data-contract/src/mechanics.ts';
 import {
   requireArray,
   requireExactFields,
@@ -98,6 +99,37 @@ export interface ContingencyContractSource {
 export interface ContingencyContractCatalogSource {
   readonly tags: readonly ContingencyContractTagSource[];
   readonly contracts: readonly ContingencyContractSource[];
+}
+
+/** 仅输出词条选择与说明求值需要的数据；原生 term 与文本留在各自生成链路。 */
+export function compileContingencyContractTagDefinitions(
+  catalog: ContingencyContractCatalogSource,
+): readonly ContingencyContractTagDefinition[] {
+  const tags = new Map(catalog.tags.map(tag => [tag.tagId, tag]));
+  return (catalog.contracts[0]?.columns ?? []).flatMap(column =>
+    column.entries.map(entry => {
+      const tag = tags.get(entry.tagId);
+      if (tag === undefined) throw new Error(`unknown contract tag ${entry.tagId}`);
+      if (!/^[a-zA-Z0-9_-]+$/u.test(tag.icon)) throw new Error(`unsafe contract icon ${tag.icon}`);
+      const blackboard: Record<string, number> = {};
+      for (const term of tag.terms) {
+        for (const item of term.blackboard) {
+          if (!Object.hasOwn(blackboard, item.key)) blackboard[item.key] = item.value;
+        }
+      }
+      return {
+        tagId: tag.tagId,
+        columnId: column.id,
+        conflictId: entry.conflictId,
+        score: tag.score,
+        keyId: entry.keyId,
+        lockIds: entry.lockIds,
+        romanNumSuffix: tag.romanNumSuffix,
+        iconPath: `/contingency_contract/1/${tag.icon}.webp`,
+        blackboard,
+      };
+    }),
+  );
 }
 
 function orderedNumericEntries(value: SourceRecord, path: string): [string, unknown][] {

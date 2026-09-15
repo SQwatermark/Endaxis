@@ -2373,13 +2373,26 @@
   "contingencyContract": {
     "title": "Контракт",
     "operationName": "Операция повторного испытания",
-    "score": "Очки",
+    "score": "Уровень риска",
     "queue": "Очередь",
     "selectedCount": "Выбрано: {count}",
     "pickHint": "Выберите тег для деталей",
     "noDescription": "Нет описания",
     "keyGained": "Ключ: {key}",
     "keyRequired": "Требуется: {key}",
+    "reset": "Сбросить",
+    "reason": "Причина",
+    "remove": "Удалить",
+    "support": {
+      "blocked": {
+        "label": "Не реализовано",
+        "description": "Этот тег пока не реализован в Endaxis. Его можно выбрать, но сейчас он не действует."
+      },
+      "omitted": {
+        "label": "Неприменимо к модели фиксированной цели",
+        "description": "Этот тег не действует в Endaxis."
+      }
+    },
     "term": {
       "enemyBuff": "Усиление врага",
       "selfGlobalBuff": "Модификатор отряда",

@@ -2,6 +2,8 @@
 import { EaTooltip } from '@/design-system';
 import { EaButton, EaDeleteIcon } from '@/design-system';
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
+import { contingencyContractTagText } from '../contingencyContractBuffPresentation';
 import {
   contingencyContractTags,
   isContingencyContractTagLocked,
@@ -11,6 +13,7 @@ import {
 
 const props = defineProps<{ selectedTagIds: readonly number[]; locale: string }>();
 const emit = defineEmits<{ setSelectedTagIds: [tagIds: readonly number[]] }>();
+const { t } = useI18n({ useScope: 'global' });
 
 const COLUMN_WIDTH = 76;
 const COLUMN_GAP = 12;
@@ -19,34 +22,7 @@ const ROW_GAP = 22;
 const TAG_SIZE = 58;
 const MAX_SCORE_ROW = 3;
 
-const language = computed<'zh' | 'en'>(() => (props.locale.startsWith('zh') ? 'zh' : 'en'));
 const selected = computed(() => new Set(props.selectedTagIds));
-const copy = computed(() =>
-  language.value === 'zh'
-    ? {
-        score: '危机等级',
-        reset: '重置',
-        pickHint: '选择指标以查看详情',
-        blocked: '待实现',
-        omitted: '当前木桩模型不适用',
-        blockedEffect: 'Endaxis 尚未实现此词条；当前仍可选择，但不会产生实际效果。',
-        omittedEffect: '该词条在Endaxis中无实际效果',
-        reason: '原因',
-        remove: '删除',
-      }
-    : {
-        score: 'Risk level',
-        reset: 'Reset',
-        pickHint: 'Select a tag to view details',
-        blocked: 'Not implemented',
-        omitted: 'Not applicable to the fixed-target model',
-        blockedEffect:
-          'Endaxis does not implement this tag yet. It remains selectable but currently has no effect.',
-        omittedEffect: 'This tag has no effect in Endaxis.',
-        reason: 'Reason',
-        remove: 'Remove',
-      },
-);
 const columnIds = [...new Set(contingencyContractTags.map(tag => tag.columnId))];
 const selectedTags = computed(() =>
   contingencyContractTags.filter(tag => selected.value.has(tag.tagId)),
@@ -133,10 +109,11 @@ function remove(tagId: number): void {
   );
 }
 function statusLabel(tag: ContingencyContractTagPresentation): string {
-  return tag.support === 'supported' ? '' : copy.value[tag.support];
+  return tag.support === 'supported' ? '' : t(`contingencyContract.support.${tag.support}.label`);
 }
 function noEffectDescription(tag: ContingencyContractTagPresentation): string {
-  return tag.support === 'blocked' ? copy.value.blockedEffect : copy.value.omittedEffect;
+  if (tag.support === 'supported') return '';
+  return t(`contingencyContract.support.${tag.support}.description`);
 }
 function isConflictMuted(tag: ContingencyContractTagPresentation): boolean {
   return (
@@ -151,11 +128,7 @@ function isLocked(tag: ContingencyContractTagPresentation): boolean {
   return isContingencyContractTagLocked(props.selectedTagIds, tag.tagId);
 }
 function blackboardValue(tag: ContingencyContractTagPresentation, key: string): number | null {
-  for (const term of tag.terms) {
-    const entry = term.blackboard.find(item => item.key === key);
-    if (entry !== undefined) return entry.value;
-  }
-  return null;
+  return tag.blackboard[key] ?? null;
 }
 function evaluate(expression: string, tag: ContingencyContractTagPresentation): number | null {
   let total = 0;
@@ -172,8 +145,8 @@ function evaluate(expression: string, tag: ContingencyContractTagPresentation): 
   return total;
 }
 function description(tag: ContingencyContractTagPresentation): string {
-  return tag.localization[language.value].description
-    .replace(/\{([^}]+)\}/g, (_match, content: string) => {
+  return contingencyContractTagText(tag, props.locale)
+    .description.replace(/\{([^}]+)\}/g, (_match, content: string) => {
       let target = tag;
       let expression = content;
       const reference = content.match(/^@(\d+)@(.+)$/);
@@ -274,14 +247,15 @@ function description(tag: ContingencyContractTagPresentation): string {
               <template #content>
                 <div class="cc-tag-tooltip">
                   <div class="cc-tag-tooltip-title">
-                    {{ cell.tag.localization[language].name }} {{ cell.tag.romanNumSuffix }}
+                    {{ contingencyContractTagText(cell.tag, locale).name }}
+                    {{ cell.tag.romanNumSuffix }}
                   </div>
                   <div class="cc-tag-tooltip-desc">{{ description(cell.tag) }}</div>
                   <div v-if="cell.tag.support === 'blocked'" class="cc-tag-tooltip-state">
                     <strong>{{ statusLabel(cell.tag) }}</strong>
                     <span>{{ noEffectDescription(cell.tag) }}</span>
-                    <small v-if="language === 'en' && cell.tag.supportReason">
-                      {{ copy.reason }}: {{ cell.tag.supportReason }}
+                    <small v-if="!locale.startsWith('zh') && cell.tag.supportReason">
+                      {{ t('contingencyContract.reason') }}: {{ cell.tag.supportReason }}
                     </small>
                   </div>
                   <div v-else-if="cell.tag.support === 'omitted'" class="cc-tag-tooltip-no-effect">
@@ -314,7 +288,7 @@ function description(tag: ContingencyContractTagPresentation): string {
       </div>
       <aside class="cc-detail">
         <div class="cc-detail-toolbar">
-          <div class="cc-total-score" :title="copy.score">
+          <div class="cc-total-score" :title="t('contingencyContract.score')">
             <img src="/contingency_contract/deco_contract_027.webp" alt="" /><strong>{{
               selectedScore
             }}</strong>
@@ -326,7 +300,7 @@ function description(tag: ContingencyContractTagPresentation): string {
             :disabled="selectedTags.length === 0"
             @click="emit('setSelectedTagIds', [])"
           >
-            {{ copy.reset }}
+            {{ t('contingencyContract.reset') }}
           </EaButton>
         </div>
         <div v-if="selectedTags.length" class="cc-selected-list">
@@ -334,7 +308,8 @@ function description(tag: ContingencyContractTagPresentation): string {
             <img :src="tag.iconPath" alt="" />
             <div class="cc-selected-content">
               <div class="cc-selected-title">
-                <span>{{ tag.localization[language].name }} {{ tag.romanNumSuffix }}</span
+                <span
+                  >{{ contingencyContractTagText(tag, locale).name }} {{ tag.romanNumSuffix }}</span
                 ><b>+{{ tag.score }}</b>
               </div>
               <div class="cc-selected-desc">{{ description(tag) }}</div>
@@ -345,15 +320,15 @@ function description(tag: ContingencyContractTagPresentation): string {
               icon-only
               type="button"
               class="cc-selected-remove"
-              :title="copy.remove"
-              :aria-label="copy.remove"
+              :title="t('contingencyContract.remove')"
+              :aria-label="t('contingencyContract.remove')"
               @click="remove(tag.tagId)"
             >
               <EaDeleteIcon />
             </EaButton>
           </div>
         </div>
-        <div v-else class="cc-detail-empty">{{ copy.pickHint }}</div>
+        <div v-else class="cc-detail-empty">{{ t('contingencyContract.pickHint') }}</div>
       </aside>
     </div>
   </section>

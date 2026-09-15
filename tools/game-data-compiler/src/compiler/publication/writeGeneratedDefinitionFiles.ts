@@ -1,8 +1,7 @@
-import { randomBytes } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { access, mkdir, rm, writeFile } from 'node:fs/promises';
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
-import { renameWithRetry } from '../../io.ts';
+import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { createCompilerTemporaryDirectory, renameWithRetry } from '../../io.ts';
 
 export interface RenderedDefinitionFileSource {
   readonly relativePath: string;
@@ -16,12 +15,13 @@ export async function writeGeneratedDefinitionFile(
 ): Promise<void> {
   const destination = resolveGeneratedPath(resolve(outputDirectory), file.relativePath);
   await mkdir(dirname(destination), { recursive: true });
-  const temporary = `${destination}.tmp-${randomBytes(6).toString('hex')}`;
+  const workspace = await createCompilerTemporaryDirectory('definition-file');
+  const temporary = join(workspace, 'generated');
   try {
     await writeFile(temporary, file.content, { encoding: 'utf8', flag: 'wx' });
     await renameWithRetry(temporary, destination);
   } finally {
-    await rm(temporary, { force: true });
+    await rm(workspace, { recursive: true, force: true });
   }
 }
 
@@ -58,23 +58,19 @@ export function checkGeneratedDefinitionFiles(
   }
 }
 
-/** 使用同级暂存目录生成完整新数据区，完成后一次性替换目标目录。 */
+/** 在项目 tmp 生成完整新数据区，完成后一次性替换目标目录。 */
 export async function writeGeneratedDefinitionFiles(
   outputDirectory: string,
   files: readonly RenderedDefinitionFileSource[],
 ): Promise<void> {
   const target = resolve(outputDirectory);
   const parent = dirname(target);
-  const identity = basename(target);
-  if (identity.length === 0 || target === parent) {
+  if (target === parent) {
     throw new Error(`unsafe generated definition output directory ${JSON.stringify(target)}`);
   }
-  // PID 已隔离并发进程，64 位随机数用于隔离同进程批次；避免完整 UUID 把深层候选推过 Windows 260 字符边界。
-  const suffix = `${process.pid}-${randomBytes(8).toString('hex')}`;
-  const staging = resolve(parent, `.${identity}.staging-${suffix}`);
-  const backup = resolve(parent, `.${identity}.backup-${suffix}`);
-  requireDirectChild(parent, staging, 'staging directory');
-  requireDirectChild(parent, backup, 'backup directory');
+  const workspace = await createCompilerTemporaryDirectory('definition-directory');
+  const staging = join(workspace, 'staging');
+  const backup = join(workspace, 'backup');
   await mkdir(parent, { recursive: true });
   await mkdir(staging, { recursive: false });
   let movedExistingTarget = false;
@@ -107,10 +103,7 @@ export async function writeGeneratedDefinitionFiles(
     }
     throw error;
   } finally {
-    if (await pathExists(staging)) await rm(staging, { recursive: true, force: false });
-    if (installedNewTarget && movedExistingTarget && (await pathExists(backup))) {
-      await rm(backup, { recursive: true, force: false });
-    }
+    await rm(workspace, { recursive: true, force: true });
   }
 }
 
@@ -138,13 +131,6 @@ function listGeneratedFiles(directory: string): string[] {
 
 function normalizeLineEndings(value: string): string {
   return value.replaceAll('\r\n', '\n');
-}
-
-function requireDirectChild(parent: string, child: string, kind: string): void {
-  const fromParent = relative(parent, child);
-  if (fromParent.length === 0 || fromParent.includes(sep)) {
-    throw new Error(`unsafe ${kind} ${JSON.stringify(child)}`);
-  }
 }
 
 async function pathExists(path: string): Promise<boolean> {

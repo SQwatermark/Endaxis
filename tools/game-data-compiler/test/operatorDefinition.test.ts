@@ -211,6 +211,11 @@ beforeAll(() => {
   avywennaManifest.runtimeTemplate.sourceSha256 =
     'aefbe71b7b9b14a258c922be943c3329fcb3cef8dd8f57dd860f7c8c7e3549cc';
   fs.writeFileSync(fixtureManifestPath, JSON.stringify(fixtureManifest));
+  const globalBuffCatalogPath = path.join(sourceRoot, 'global-buff-templates.fixture.json');
+  fs.writeFileSync(
+    globalBuffCatalogPath,
+    JSON.stringify({ version: 'fixture', evidence: {}, templates: {} }),
+  );
   args = {
     manifest: fixtureManifestPath,
     sourceRoot,
@@ -222,7 +227,7 @@ beforeAll(() => {
       'tools/game-data-compiler/legacy/evidence/projectile-entity-blackboards-1.4.4.json',
     gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
     timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
-    globalBuffCatalog: 'src/data/global-buffs/global-buff-templates.generated.json',
+    globalBuffCatalog: globalBuffCatalogPath,
     skillSettingCatalog: 'src/data/combat/skill-setting.generated.json',
     slug: 'avywenna',
     output: path.join(sourceRoot, 'generated/avywenna'),

@@ -11,7 +11,7 @@ describe('contingencyContractCatalog', () => {
     expect(contingencyContractTags.filter(tag => tag.support === 'supported')).toHaveLength(24);
     expect(contingencyContractTags.filter(tag => tag.support === 'blocked')).toHaveLength(0);
     expect(contingencyContractTags.filter(tag => tag.support === 'omitted')).toHaveLength(22);
-    expect(contingencyContractTags.every(tag => tag.localization.zh.name.length > 0)).toBe(true);
+    expect(contingencyContractTags.every(tag => !Object.hasOwn(tag, 'localization'))).toBe(true);
   });
 
   it('replaces a selected tier in the same native conflict group', () => {

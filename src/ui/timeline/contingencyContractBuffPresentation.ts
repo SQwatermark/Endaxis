@@ -1,4 +1,6 @@
 import type { MechanicSelectionDocument } from '../../core/project/schema';
+import { gameLocaleRegistry } from '../../i18n/gameLocaleRegistry';
+import { normalizeLocale } from '../../i18n/elementPlusLocale';
 import {
   contingencyContractTags,
   type ContingencyContractTagPresentation,
@@ -47,9 +49,18 @@ export function localizedContingencyContractTagName(
   tag: ContingencyContractTagPresentation,
   locale: string,
 ): string {
-  const language = locale.toLowerCase().startsWith('zh') ? 'zh' : 'en';
-  const name = tag.localization[language].name;
+  const name = contingencyContractTagText(tag, locale).name;
   return tag.romanNumSuffix === '' ? name : `${name} ${tag.romanNumSuffix}`;
+}
+
+export function contingencyContractTagText(
+  tag: ContingencyContractTagPresentation,
+  locale: string,
+) {
+  const texts = gameLocaleRegistry.getFamily(normalizeLocale(locale), 'contingency-contracts');
+  const text = texts[String(tag.tagId)];
+  if (text === undefined) throw new Error(`Contingency Contract text ${tag.tagId} is missing`);
+  return text;
 }
 
 export function formatContingencyContractBuffSourceName(

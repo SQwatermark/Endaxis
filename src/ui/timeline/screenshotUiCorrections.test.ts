@@ -7,7 +7,7 @@ describe('annotated timeline UI corrections', () => {
   it('preloads enemy names before the synchronous selector renders', () => {
     const timelineRoute = router.slice(
       router.indexOf("path: '/timeline'"),
-      router.indexOf("path: '/editor-demo'"),
+      router.indexOf("path: '/timeline/preview/:legacyShareId'"),
     );
     expect(timelineRoute).toContain('ALL_GAME_TEXT_FAMILIES');
   });

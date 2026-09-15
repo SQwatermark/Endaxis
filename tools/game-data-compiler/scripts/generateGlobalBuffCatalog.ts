@@ -170,6 +170,11 @@ async function parseArguments(values: readonly string[]) {
   }
   if (positional.length !== 4)
     throw new Error('expected <VFS base URL> <revision> <identity JSON> <output>');
+  const output = path.resolve(positional[3]!);
+  const temporaryRoot = path.resolve(import.meta.dirname, '../../../tmp');
+  if (output === temporaryRoot || !output.startsWith(temporaryRoot + path.sep)) {
+    throw new Error('GlobalBuff catalog is an intermediate; output must be under project tmp');
+  }
   let additionalIdentities: string[] = [];
   if (additionalCatalog !== undefined) {
     const value: unknown = JSON.parse(await fs.readFile(additionalCatalog, 'utf8'));
@@ -186,7 +191,7 @@ async function parseArguments(values: readonly string[]) {
     vfsBase: positional[0]!,
     revision: positional[1]!,
     identities: path.resolve(positional[2]!),
-    output: path.resolve(positional[3]!),
+    output,
     check,
     tolerateUnsupportedAdditionalIdentities,
     ...(additionalIdentities.length === 0 ? {} : { additionalIdentities }),

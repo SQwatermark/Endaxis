@@ -90,16 +90,8 @@ async function readTree(root: string): Promise<TreeEntry[]> {
 
 async function installFile(source: string, target: string) {
   await fs.mkdir(path.dirname(target), { recursive: true });
-  const temporary = path.join(
-    path.dirname(target),
-    `.${path.basename(target)}.publish-${process.pid}-${randomBytes(4).toString('hex')}.tmp`,
-  );
-  try {
-    await fs.copyFile(source, temporary);
-    await renameWithRetry(temporary, target);
-  } finally {
-    await fs.rm(temporary, { force: true });
-  }
+  await fs.rm(target, { force: true });
+  await renameWithRetry(source, target);
 }
 
 /** Synchronize one already-validated directory without renaming its watched root. */

@@ -18,6 +18,7 @@ import {
 } from '../src/source/primitives.ts';
 import {
   parseContingencyContractCatalogSource,
+  compileContingencyContractTagDefinitions,
   type ContingencyContractCatalogSource,
 } from '../src/domains/mechanics/contingencyContractSource.ts';
 import {
@@ -58,6 +59,7 @@ export interface ContingencyContractEnemyMaxHealthPlan {
 
 /** 来源校验和行为闭包完成后的结果；可先收集黑板用途，再直接渲染这一批内容。 */
 export interface CompiledContingencyContractDefinitions {
+  readonly tags: ReturnType<typeof compileContingencyContractTagDefinitions>;
   readonly buffDefinitions: Readonly<Record<string, CompiledBuffDefinitionSource>>;
   readonly initializationPlans: readonly ContingencyContractInitializationPlan[];
   readonly enemyMaxHealthPlans: readonly ContingencyContractEnemyMaxHealthPlan[];
@@ -264,6 +266,7 @@ export function compileContingencyContractDefinitionsFromFiles(
 
   return {
     buffDefinitions: definitions,
+    tags: compileContingencyContractTagDefinitions(catalog),
     initializationPlans: plans,
     enemyMaxHealthPlans,
     scope,
@@ -293,9 +296,10 @@ export async function renderContingencyContractDefinitionsFromCompiled(
   const prettierConfig = (await resolveConfig(path.resolve('.prettierrc.json'))) ?? {};
   const content = await format(
     `/** 由危机合约原生词条、GlobalBuff 与 BuffData 闭包生成；不要手工编辑。 */
-import type { ActionSequenceDefinition, OperatorBuffDefinitions } from '../../../../packages/game-data-contract/src/index.ts';
+import type { ActionSequenceDefinition, OperatorBuffDefinitions, ContingencyContractTagDefinition } from '../../../../packages/game-data-contract/src/index.ts';
 
 export const contingencyContractBuffDefinitions = Object.freeze(${JSON.stringify(definitions, null, 2)}) as OperatorBuffDefinitions;
+export const contingencyContractTagDefinitions = Object.freeze<readonly ContingencyContractTagDefinition[]>(${JSON.stringify(compiled.tags, null, 2)});
 export const contingencyContractInitializationPlans = Object.freeze(${JSON.stringify(plans, null, 2)}) as readonly { readonly tagId: number; readonly sequence: ActionSequenceDefinition }[];
 export const contingencyContractEnemyMaxHealthPlans = Object.freeze(${JSON.stringify(enemyMaxHealthPlans, null, 2)}) as readonly { readonly tagId: number; readonly multiplier: number }[];
 export const contingencyContractBlockedTagReasons = Object.freeze(${JSON.stringify(Object.fromEntries(scope.blockedTagReasons), null, 2)}) as Readonly<Record<number, string>>;
