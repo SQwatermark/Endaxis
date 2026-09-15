@@ -2,6 +2,7 @@ import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { format, resolveConfig } from 'prettier';
+import { ENEMY_LEVELS } from '../../../packages/game-data-contract/src/enemies.ts';
 
 const TIER_BY_DISPLAY_TYPE = {
   0: 'normal',
@@ -235,11 +236,20 @@ function renderDefinitions(
   definitions: readonly EnemyDefinitionSource[],
   evidence: string,
 ): string {
+  // Keep raw identities in the audit plan only; runtime references use the stable id.
+  const runtimeDefinitions = definitions.map(({ gameId: _gameId, levelHp, ...definition }) => ({
+    ...definition,
+    levelHp: ENEMY_LEVELS.map(level => {
+      const node = levelHp.find(node => node.level === level);
+      if (node === undefined) throw new Error(`${definition.id}: missing HP at level ${level}`);
+      return node.hp;
+    }),
+  }));
   return `import type { EnemyDefinition } from '../../../core/game-data/enemyDefinition';
 
 // knotBreakDurationSeconds is a project compatibility default: ${evidence}.
 // Every other field below is compiled from the same source snapshot and strict rank evidence.
-export const generatedEnemyDefinitions = ${JSON.stringify(definitions, null, 2)} as const satisfies readonly EnemyDefinition[];
+export const generatedEnemyDefinitions = ${JSON.stringify(runtimeDefinitions, null, 2)} as const satisfies readonly EnemyDefinition[];
 `;
 }
 

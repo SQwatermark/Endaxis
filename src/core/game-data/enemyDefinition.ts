@@ -4,16 +4,12 @@
  */
 import type { DamageElement } from './operatorDefinition';
 import type { EnemyRank } from './enemyRank';
+import { ENEMY_LEVELS, type EnemyLevelHp } from '../../../packages/game-data-contract/src/index';
+export { ENEMY_LEVELS };
 
 export const ENEMY_TIERS = ['normal', 'advanced', 'elite', 'boss', 'leader'] as const;
 /** 定义筛选和展示使用的敌人强度分类。 */
 export type EnemyTier = (typeof ENEMY_TIERS)[number];
-
-/** 数据源明确提供的一组等级生命值，不允许在定义适配阶段自行插值。 */
-export interface EnemyLevelHpDefinition {
-  readonly level: number;
-  readonly hp: number;
-}
 
 /** 敌人失衡规则的定义默认值；时长沿用数据源的秒单位，进入场景时再换算为项目帧。 */
 export interface EnemyStaggerDefinition {
@@ -32,13 +28,12 @@ export interface EnemyStaggerDefinition {
  */
 export interface EnemyDefinition {
   readonly id: string;
-  /** 解包数据中的原始敌人身份，仅用于数据追踪，项目引用始终使用 `id`。 */
-  readonly gameId: string;
   readonly iconPath?: string;
   readonly tier: EnemyTier;
   /** 原生战斗等级；独立于五档展示 tier，供 CheckEnemyRank 等战斗规则读取。 */
   readonly rank: EnemyRank;
-  readonly levelHp: readonly EnemyLevelHpDefinition[];
+  /** 按 ENEMY_LEVELS 排列的六档生命值。 */
+  readonly levelHp: EnemyLevelHp;
   readonly defense: number;
   readonly resistances: Readonly<Record<DamageElement, number>>;
   readonly superArmor: number;
@@ -48,5 +43,6 @@ export interface EnemyDefinition {
 
 /** 只接受定义中明确存在的等级节点，避免把推测插值伪装成游戏数据。 */
 export function getEnemyHpAtLevel(definition: EnemyDefinition, level: number): number | null {
-  return definition.levelHp.find(node => node.level === level)?.hp ?? null;
+  const index = ENEMY_LEVELS.findIndex(value => value === level);
+  return definition.levelHp[index] ?? null;
 }

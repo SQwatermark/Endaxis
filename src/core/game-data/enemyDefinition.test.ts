@@ -5,13 +5,9 @@ import { getEnemyHpAtLevel, type EnemyDefinition } from './enemyDefinition';
 
 const enemy: EnemyDefinition = {
   id: 'enemy-1',
-  gameId: 'game_enemy_1',
   tier: 'normal',
   rank: 'mob',
-  levelHp: [
-    { level: 1, hp: 100 },
-    { level: 90, hp: 1000 },
-  ],
+  levelHp: [100, 200, 400, 600, 800, 1000],
   defense: 20,
   resistances: { physical: 0, heat: 0, cryo: 0, electric: 0, nature: 0 },
   superArmor: 0,
@@ -28,6 +24,7 @@ const enemy: EnemyDefinition = {
 describe('enemyDefinition', () => {
   it('only resolves HP nodes explicitly present in the index', () => {
     expect(getEnemyHpAtLevel(enemy, 90)).toBe(1000);
+    expect(getEnemyHpAtLevel(enemy, 20)).toBe(200);
     expect(getEnemyHpAtLevel(enemy, 45)).toBeNull();
   });
 

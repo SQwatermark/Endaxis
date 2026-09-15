@@ -144,19 +144,18 @@ describe('gameDataRepository', () => {
     expect(gameDataRepository.getEnemies()).toContain(enemy);
     expect(enemy).toMatchObject({
       id: 'eny-0125-fdcentur',
-      gameId: 'eny_0125_fdcentur',
       rank: 'boss',
       defense: 100,
       superArmor: 30,
       finisherMultiplier: 1.75,
     });
-    expect(enemy?.levelHp).toContainEqual({ level: 90, hp: 2476341 });
+    expect(enemy?.levelHp[5]).toBe(2476341);
     expect(gameDataRepository.getEnemy('missing')).toBeNull();
   });
 
   it('keeps native rank independent from the legacy display tier', () => {
     expect(gameDataRepository.getEnemy('eny-0007-mimicw')).toMatchObject({
-      gameId: 'eny_0007_mimicw',
+      id: 'eny-0007-mimicw',
       tier: 'advanced',
       rank: 'elite',
     });

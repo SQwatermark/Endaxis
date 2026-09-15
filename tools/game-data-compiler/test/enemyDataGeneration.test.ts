@@ -6,7 +6,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 
 import { parseEnemyTemplateRank } from '../scripts/extractEnemyRankEvidence.ts';
 import { auditCandidateEnemyDefinitions } from '../scripts/auditCandidateEnemyDefinitions.ts';
-import { planEnemyDefinitions } from '../scripts/generateEnemyDefinitions.ts';
+import {
+  generateEnemyDefinitions,
+  planEnemyDefinitions,
+} from '../scripts/generateEnemyDefinitions.ts';
 
 const temporaryRoots: string[] = [];
 
@@ -87,6 +90,15 @@ describe('enemy data generation', () => {
     const plan = await planEnemyDefinitions(tables, ranks, defaults);
     expect(plan.excludedDisplayIds).toEqual(['tatget_001_normal']);
     expect(plan.compatibilityDefaults.evidence).toBe('test compatibility evidence');
+    await expect(
+      generateEnemyDefinitions({
+        tablesDirectory: tables,
+        rankEvidence: ranks,
+        runtimeDefaults: defaults,
+        outputDirectory: join(root, 'generated'),
+        check: false,
+      }),
+    ).rejects.toThrow('missing HP at level 20');
     expect(plan.definitions).toEqual([
       expect.objectContaining({
         id: 'eny-9999-fixture',

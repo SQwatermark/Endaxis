@@ -27,9 +27,9 @@ it('contains the complete one-time mapping catalog for the legacy data snapshot'
   ).toBe(true);
 });
 
-it('keeps reviewed weapon and gear identities resolvable in the current repository', () => {
-  for (const [gameId, id] of Object.entries(mappings.enemies))
-    expect(gameDataRepository.getEnemy(id)?.gameId).toBe(gameId);
+it('keeps reviewed entity identities resolvable in the current repository', () => {
+  for (const id of Object.values(mappings.enemies))
+    expect(gameDataRepository.getEnemy(id)?.id, id).toBe(id);
   for (const id of Object.values(mappings.operators))
     expect(gameDataRepository.getOperator(id), id).not.toBeNull();
   for (const id of Object.values(mappings.weapons))

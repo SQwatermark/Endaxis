@@ -17,6 +17,7 @@ import { Plus, Search } from '@element-plus/icons-vue';
 import { elementColors } from '../../../utils/theme';
 import { useI18n } from 'vue-i18n';
 import type { EnemyDefinition, EnemyTier } from '../../../core/game-data/enemyDefinition';
+import { ENEMY_LEVELS as LEVELS, getEnemyHpAtLevel } from '../../../core/game-data/enemyDefinition';
 import type { EnemyDocument, EnemyEditableValues } from '../../../core/project/schema';
 import { DAMAGE_ELEMENTS } from '../../../core/game-data/operatorDefinition';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
@@ -25,7 +26,6 @@ import { cloneEditorDefinition } from '../../cloneEditorDefinition';
 const EDITABLE_RESISTANCE_DAMAGE_TYPES = DAMAGE_ELEMENTS;
 const { t } = useI18n();
 
-const LEVELS = [1, 20, 40, 60, 80, 90] as const;
 const TIERS: readonly { value: EnemyTier; color: string }[] = [
   { value: 'leader', color: '#ff4d4f' },
   { value: 'boss', color: '#ffd700' },
@@ -117,7 +117,7 @@ watch(statsVisible, visible => {
 });
 
 function supportsLevel(enemy: EnemyDefinition): boolean {
-  return enemy.levelHp.some(node => node.level === selectedLevel.value);
+  return getEnemyHpAtLevel(enemy, selectedLevel.value) !== null;
 }
 
 function selectDefinition(enemy: EnemyDefinition): void {
