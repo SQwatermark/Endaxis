@@ -23,6 +23,24 @@ describe('时间膨胀动作来源', () => {
       'curve[0].weightedMode',
     );
   });
+  it('读取 Unity AnimationCurve 包装并校验包裹字段', () => {
+    expect(
+      parseTimeDilationCurveKeys(
+        {
+          keys: [{ ...curve[0], tangentMode: 0 }],
+          preWrapMode: 8,
+          postWrapMode: 8,
+        },
+        'curve',
+      ),
+    ).toEqual(curve);
+    expect(() =>
+      parseTimeDilationCurveKeys(
+        { keys: curve, preWrapMode: 8, postWrapMode: 8, unknown: true },
+        'curve',
+      ),
+    ).toThrow('curve: unexpected fields');
+  });
   it('保留普通动作的标签、曲线选择、目标和冷却影响窗口', () => {
     const parsed = parseTimeDilationActionSource(
       {

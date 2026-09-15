@@ -13,7 +13,6 @@ interface Arguments {
   readonly skillSettingCatalog: string;
   readonly globalBuffCatalog: string;
   readonly buffDataRoot: string;
-  readonly projectileBlackboardCatalog?: string;
   readonly gameplayTagCatalog: string;
   readonly timeDilationCatalog: string;
   readonly auditOutput: string;
@@ -62,9 +61,6 @@ export async function auditOperatorActiveSkillMigration(args: Arguments) {
           globalBuffCatalog: args.globalBuffCatalog,
           buffDataRoot: args.buffDataRoot,
           supplementalBuffIds: [],
-          ...(args.projectileBlackboardCatalog === undefined
-            ? {}
-            : { projectileBlackboardCatalog: args.projectileBlackboardCatalog }),
           gameplayTagCatalog: args.gameplayTagCatalog,
           timeDilationCatalog: args.timeDilationCatalog,
           slug,
@@ -147,7 +143,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--skill-setting-catalog',
     '--global-buff-catalog',
     '--buff-data-root',
-    '--projectile-blackboard-catalog',
     '--gameplay-tag-catalog',
     '--time-dilation-catalog',
     '--audit-output',
@@ -173,9 +168,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
       skillSettingCatalog: required('--skill-setting-catalog'),
       globalBuffCatalog: required('--global-buff-catalog'),
       buffDataRoot: required('--buff-data-root'),
-      ...(values.has('--projectile-blackboard-catalog')
-        ? { projectileBlackboardCatalog: required('--projectile-blackboard-catalog') }
-        : {}),
       gameplayTagCatalog: required('--gameplay-tag-catalog'),
       timeDilationCatalog: required('--time-dilation-catalog'),
       auditOutput: required('--audit-output'),

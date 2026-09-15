@@ -64,7 +64,6 @@ const sourceArguments = {
   tableRoot: 'tables',
   skillPatchTable: 'skills',
   buffDataRoot: 'buffs',
-  projectileBlackboardCatalog: 'projectiles',
   gameplayTagCatalog: 'tags',
   timeDilationCatalog: 'time',
   globalBuffCatalog: 'global-buffs',

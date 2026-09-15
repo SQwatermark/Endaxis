@@ -588,6 +588,28 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
+  it('ComboCache 将 VFS 的原生命令枚举值映射为稳定名称', () => {
+    const parsed = parseKnownNativeActionLeafSource(
+      {
+        ...META,
+        $type: 'Beyond.Gameplay.Core.ComboCacheAction+Data, Gameplay.Beyond',
+        mappingDataList: [
+          {
+            cmdType: 0,
+            skillId: 'next',
+            cacheEndByAction: true,
+            clearOffsetTargetSkillIdOnEnd: false,
+            overrideCacheTime: false,
+            cacheTime: scalarFixture(0),
+          },
+        ],
+      },
+      'fixture.comboCache',
+      {},
+    );
+    expect(parsed).toMatchObject({ action: { mappings: [{ commandType: 'Attack' }] } });
+  });
+
   it('严格识别动作寿命内的移动打断屏蔽，并交给输入控制投影消去', () => {
     const source = parseKnownNativeActionLeafSource(
       {
@@ -1813,6 +1835,13 @@ describe('公共 Action 叶子分派', () => {
         startOffsetFrame: 6,
       },
     });
+    expect(
+      parseKnownNativeActionLeafSource(
+        { ...source, rootMotionCurveMask: 5 },
+        'fixture.rootMotion',
+        {},
+      ),
+    ).toMatchObject({ action: { rootMotionCurveMask: 5 } });
     expect(() =>
       parseKnownNativeActionLeafSource(
         { ...source, unknownCombatField: true },

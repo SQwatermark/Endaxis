@@ -1,5 +1,6 @@
 import {
   requireExactFields,
+  requireInteger,
   requireNonEmptyString,
   requireNumber,
   requireRecord,
@@ -16,11 +17,19 @@ export interface SkillCostSource {
   readonly atbValueThreshold: number;
 }
 
+function parseCostType(value: unknown, path: string): string {
+  if (typeof value !== 'number') return requireNonEmptyString(value, path);
+  const index = requireInteger(value, path);
+  const costType = (['UltimateSp', 'Atb'] as const)[index];
+  if (costType === undefined) throw new Error(`${path}: unknown CostType ${index}`);
+  return costType;
+}
+
 export function parseSkillCostSource(value: unknown, path: string): SkillCostSource {
   const cost = requireRecord(value, path);
   requireExactFields(cost, new Set(['costType', 'costValue', 'atbValueThreshold']), path);
   return {
-    costType: requireNonEmptyString(cost.costType, `${path}.costType`),
+    costType: parseCostType(cost.costType, `${path}.costType`),
     costValue: requireNumber(cost.costValue, `${path}.costValue`),
     atbValueThreshold: requireNumber(cost.atbValueThreshold, `${path}.atbValueThreshold`),
   };

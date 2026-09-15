@@ -4,6 +4,8 @@ import {
   requireExactFields,
   requireInteger,
   requireNonEmptyString,
+  requireNativeActionPriority,
+  requireNamedOrInteger,
   requireNumber,
   requireRecord,
   requireString,
@@ -31,11 +33,11 @@ export interface PlaySoundActionSource {
   readonly jumpToWhenPlayMilliseconds: number;
   readonly useTemporaryEmitter: boolean;
   readonly target: TargetReferenceSource;
-  readonly mountPoint: string;
+  readonly mountPoint: string | number;
   readonly followMountPoint: boolean;
   readonly useWeaponMountPoint: boolean;
   readonly weaponIndex: number;
-  readonly weaponMountPoint: string;
+  readonly weaponMountPoint: string | number;
   readonly useTimeDilationPauseAndSeek: boolean;
   readonly timeDilationPauseThreshold: number;
   readonly timeDilationSeekThreshold: number;
@@ -1686,7 +1688,7 @@ export function parseEffectActionSource(
   );
   const config = requireRecord(action.effectActionCfg, `${path}.effectActionCfg`);
   // 专用 stackEffects 槽与多态动作共用字段校验，区别仅在是否序列化类型标记。
-  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
+  requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`);
   requireNumber(action.priorityOffset, `${path}.priorityOffset`);
   requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
   for (const key of [
@@ -1778,11 +1780,11 @@ export function parsePlaySoundActionSource(value: unknown, path: string): PlaySo
     ),
     useTemporaryEmitter: requireBoolean(action._useTempEmitter, `${path}._useTempEmitter`),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
-    mountPoint: requireString(action.mountPoint, `${path}.mountPoint`),
+    mountPoint: requireNamedOrInteger(action.mountPoint, `${path}.mountPoint`),
     followMountPoint: requireBoolean(action.followMountPoint, `${path}.followMountPoint`),
     useWeaponMountPoint: requireBoolean(action.useWeaponMountPoint, `${path}.useWeaponMountPoint`),
     weaponIndex: requireInteger(action.weaponIndex, `${path}.weaponIndex`),
-    weaponMountPoint: requireString(action.weaponMountPoint, `${path}.weaponMountPoint`),
+    weaponMountPoint: requireNamedOrInteger(action.weaponMountPoint, `${path}.weaponMountPoint`),
     useTimeDilationPauseAndSeek: requireBoolean(
       action.useTimeDilationPauseAndSeek,
       `${path}.useTimeDilationPauseAndSeek`,

@@ -56,6 +56,31 @@ describe('伤害动作公共载荷', () => {
     '<attributeMask>k__BackingField': { lowerMask: 0, higherMask: 0 },
   };
 
+  it('将 VFS 的伤害枚举整数转换成稳定名称', () => {
+    expect(
+      parseDamageUnitSource(
+        {
+          ...BASE_UNIT,
+          damageType: 3,
+          damageAttributeType: 0,
+          atkCalculation: null,
+          poiseCalculation: null,
+          ignoreDamageImmuneLevel: -1,
+          damageVisualImportance: 0,
+        },
+        'unit',
+        { atk_scale: [1] },
+      ),
+    ).toMatchObject({
+      damageType: 'Pulse',
+      attributeType: 'Hp',
+      ignoreDamageImmuneLevel: 'None',
+      visualImportance: 0,
+      serializedAttackCalculationPresent: false,
+      serializedPoiseCalculationPresent: false,
+    });
+  });
+
   it('空导出缓存不进入来源 IR，真实属性修正及黑板引用完整保留', () => {
     const blackboard = { critical_rate: [0.1, 0.2] };
     const old = parseDamageProcessors([instantModifier], 'processors', blackboard);

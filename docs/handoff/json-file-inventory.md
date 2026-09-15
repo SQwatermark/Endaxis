@@ -13,9 +13,10 @@
 | 装备审计快照                         | 5 份 JSON 及过期 Markdown 已删除；两个审计 CLI 默认输出改到 tmp              |
 | 敌人分类                             | 仓库副本已删，重建期间临时生成，成功或失败均清理                             |
 | 能力实体聚合目录                     | 旧 JSON、文件兼容读取和显式路径参数已删除；固定从本次 AbilityEntityData 读取 |
+| 投射物实体黑板                       | 旧版 8 条回退已删除；同次 ProjectileData 明确保留非空和已确认空的黑板        |
 | GlobalBuff 模板目录                  | 每轮在 tmp 生成，编译进最终定义后清理；不再发布生产副本                      |
 
 ## 剩余项
 
-1. `tools/game-data-compiler/legacy/evidence/projectile-entity-blackboards-1.4.4.json` 有实际旧版回退读者，
-   已移出本体。当前原始数据优先，不能把它误判为无人读取。
+仓库内需要人工维护的旧数据回退已经清完。后续新增原生字段时，应扩展同批来源的解码结果，
+不能再建立独立版本 JSON 给生成器补值。

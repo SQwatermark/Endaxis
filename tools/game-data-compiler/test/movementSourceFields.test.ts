@@ -81,7 +81,7 @@ function rootMotion(): Record<string, unknown> {
     playbackSpeed: scalar(1),
     stopByCliff: true,
     ignoreAllCollision: false,
-    ignoreCollisionLayer: {},
+    ignoreCollisionLayer: { m_Mask: 0 },
   };
 }
 

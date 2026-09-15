@@ -210,8 +210,20 @@ export function parseTimeDilationCurveKeys(
   path: string,
   allowSerializedInfinity = false,
 ): TimeDilationCurveKeySource[] {
-  return requireArray(value, path).map((raw, index) => {
-    const keyPath = `${path}[${index}]`;
+  let serializedKeys: unknown[];
+  let keyPathPrefix = path;
+  if (Array.isArray(value)) {
+    serializedKeys = value;
+  } else {
+    const curve = requireRecord(value, path);
+    requireExactFields(curve, new Set(['keys', 'preWrapMode', 'postWrapMode']), path);
+    requireInteger(curve.preWrapMode, `${path}.preWrapMode`);
+    requireInteger(curve.postWrapMode, `${path}.postWrapMode`);
+    serializedKeys = requireArray(curve.keys, `${path}.keys`);
+    keyPathPrefix = `${path}.keys`;
+  }
+  return serializedKeys.map((raw, index) => {
+    const keyPath = `${keyPathPrefix}[${index}]`;
     const key = requireRecord(raw, keyPath);
     requireExactFields(
       key,
@@ -220,12 +232,14 @@ export function parseTimeDilationCurveKeys(
         'value',
         'inTangent',
         'outTangent',
+        ...('tangentMode' in key ? ['tangentMode'] : []),
         'weightedMode',
         'inWeight',
         'outWeight',
       ]),
       keyPath,
     );
+    if ('tangentMode' in key) requireInteger(key.tangentMode, `${keyPath}.tangentMode`);
     return {
       time: requireNumber(key.time, `${keyPath}.time`),
       value: requireNumber(key.value, `${keyPath}.value`),

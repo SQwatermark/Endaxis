@@ -17,7 +17,6 @@ interface Arguments {
   readonly sourceRoot: string;
   readonly skillPatchTable: string;
   readonly buffDataRoot: string;
-  readonly projectileBlackboardCatalog?: string;
   readonly gameplayTagCatalog: string;
   readonly timeDilationCatalog: string;
   readonly globalBuffCatalog?: string;
@@ -84,9 +83,6 @@ export async function generateOperatorActiveSkillRuntimeBatch(args: Arguments) {
     sourceRoot: args.sourceRoot,
     skillPatchTable: args.skillPatchTable,
     buffDataRoot: args.buffDataRoot,
-    ...(args.projectileBlackboardCatalog === undefined
-      ? {}
-      : { projectileBlackboardCatalog: args.projectileBlackboardCatalog }),
     gameplayTagCatalog: args.gameplayTagCatalog,
     timeDilationCatalog: args.timeDilationCatalog,
     slug: args.slug,
@@ -201,7 +197,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--source-root',
     '--skill-patch-table',
     '--buff-data-root',
-    '--projectile-blackboard-catalog',
     '--gameplay-tag-catalog',
     '--time-dilation-catalog',
     '--global-buff-catalog',
@@ -246,9 +241,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     sourceRoot: required('--source-root'),
     skillPatchTable: required('--skill-patch-table'),
     buffDataRoot: required('--buff-data-root'),
-    ...(values.has('--projectile-blackboard-catalog')
-      ? { projectileBlackboardCatalog: required('--projectile-blackboard-catalog') }
-      : {}),
     gameplayTagCatalog: required('--gameplay-tag-catalog'),
     timeDilationCatalog: required('--time-dilation-catalog'),
     ...(complete ? { globalBuffCatalog: required('--global-buff-catalog') } : {}),

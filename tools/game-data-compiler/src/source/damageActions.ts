@@ -4,6 +4,8 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireInteger,
+  requireNamedOrInteger,
   requireNonEmptyString,
   requireNonNegativeInteger,
   requireNumber,
@@ -108,7 +110,7 @@ export interface DamageUnitSource {
   readonly gainCost: boolean;
   readonly costs: readonly DamageCostSource[];
   readonly enablePoiseBreakTimeDilation: boolean;
-  readonly visualImportance: string;
+  readonly visualImportance: string | number;
   readonly visualCoalitionEnabled: boolean;
   readonly visualCoalitionGroupKey: string;
   readonly alwaysStartNewCoalition: boolean;
@@ -124,6 +126,78 @@ export interface DamageActionSource {
   readonly effectSource: TargetReferenceSource;
   readonly hitEnvironment: boolean;
   readonly units: readonly DamageUnitSource[];
+}
+
+const ACTION_TARGET_TYPES = [
+  'ActionSource',
+  'ActionOwner',
+  'InputTarget',
+  'CurrentTarget',
+  'ContextTarget',
+  'MainCharacter',
+] as const;
+const DAMAGE_TYPES = [
+  'Physical',
+  'Real',
+  'Fire',
+  'Pulse',
+  'Cryst',
+  'LifeDrain',
+  'Natural',
+  'Ether',
+] as const;
+const DAMAGE_ATTRIBUTE_TYPES = ['Hp', 'Poise'] as const;
+const DAMAGE_DECORATE_TYPES = [
+  'PoiseBreak',
+  'IgnoreGuardDodge',
+  'PowerAttack',
+  'FireAbnormalInitial',
+  'PulseAbnormalInitial',
+  'CrystAbnormalInitial',
+  'IgniteByMud',
+  'NormalAttack',
+  'NormalSkill',
+  'UltimateSkill',
+  'PlungingAttack',
+  'Bomb',
+  'CanBreakWeakness',
+  'ComboSkill',
+  'Crush',
+  'Airborne',
+  'KnockDown',
+  'DashAttack',
+  'IgnoreDodgeImmune',
+  'IgnoreSkillImmune',
+  'NaturalAbnormalInitial',
+  'NormalAttackLastCombo',
+  'FireBurst',
+  'CrystBurst',
+  'PulseBurst',
+  'NaturalBurst',
+  'Burning',
+  'Shatter',
+  'Dot',
+  'RemainArea',
+  'Fracture',
+  'TalentDamage',
+] as const;
+
+function parseIndexedEnum(
+  value: unknown,
+  names: readonly string[],
+  path: string,
+  nativeName: string,
+): string {
+  if (typeof value !== 'number') return requireNonEmptyString(value, path);
+  const index = requireInteger(value, path);
+  const name = names[index];
+  if (name === undefined) throw new Error(`${path}: unknown ${nativeName} ${index}`);
+  return name;
+}
+
+function parseIgnoredDamageImmuneLevel(value: unknown, path: string): string {
+  if (value === -1) return 'None';
+  return parseIndexedEnum(value, DAMAGE_DECORATE_TYPES, path, 'DamageDecorateType');
 }
 
 /** 读取 DamageAction 的原生战斗事实；标准伤害公式兼容性由后续投影层判断。 */
@@ -152,7 +226,12 @@ export function parseDamageActionSource(
   return {
     kind: 'damage',
     alwaysNext: requireBoolean(action.alwaysNext, `${path}.alwaysNext`),
-    attacker: requireNonEmptyString(action.attacker, `${path}.attacker`),
+    attacker: parseIndexedEnum(
+      action.attacker,
+      ACTION_TARGET_TYPES,
+      `${path}.attacker`,
+      'ActionTargetType',
+    ),
     target: parseTargetReferenceSource(action.targetSettings, `${path}.targetSettings`),
     effectSource: parseTargetReferenceSource(action.effectSource, `${path}.effectSource`),
     hitEnvironment: requireBoolean(action.hitEnvironment, `${path}.hitEnvironment`),
@@ -178,18 +257,22 @@ export function parseDamageUnitSource(
   // 两个字段是完整表现配置；只校验对象存在。
   requireRecord(unit.effectData, `${path}.effectData`);
   requireRecord(unit.hitSoundData, `${path}.hitSoundData`);
-  const attributeType = requireNonEmptyString(
+  const attributeType = parseIndexedEnum(
     unit.damageAttributeType,
+    DAMAGE_ATTRIBUTE_TYPES,
     `${path}.damageAttributeType`,
+    'DamageAttributeType',
   );
   const simpleCalculation = requireBoolean(unit.simpleCalculation, `${path}.simpleCalculation`);
-  if ('poiseCalculation' in unit && attributeType === 'Hp') {
+  const hasAttackCalculation = 'atkCalculation' in unit && unit.atkCalculation !== null;
+  const hasPoiseCalculation = 'poiseCalculation' in unit && unit.poiseCalculation !== null;
+  if (hasPoiseCalculation && attributeType === 'Hp') {
     // combat-spec: DamageAction._ProcessDamage branches on damageAttributeType at
     // 0x0353FFE5. The Hp branch never reads the +0x68 poiseCalculation field, but
     // real data may still serialize an inactive calculation object (Gilberta battle skill).
     requireRecord(unit.poiseCalculation, `${path}.poiseCalculation`);
   }
-  if ('atkCalculation' in unit && attributeType === 'Poise') {
+  if (hasAttackCalculation && attributeType === 'Poise') {
     // The Poise branch reads poiseCalculation directly after damageAttributeType
     // dispatch; simpleCalculation and atkCalculation belong to the inactive Hp path.
     requireRecord(unit.atkCalculation, `${path}.atkCalculation`);
@@ -205,22 +288,22 @@ export function parseDamageUnitSource(
     requireBoolean(unit[field], `${path}.${field}`);
   }
   return {
-    damageType: requireNonEmptyString(unit.damageType, `${path}.damageType`),
+    damageType: parseIndexedEnum(unit.damageType, DAMAGE_TYPES, `${path}.damageType`, 'DamageType'),
     attributeType,
     simpleCalculation,
     attackScale: parseScalarSource(unit.atkScale, `${path}.atkScale`, inheritedBlackboard),
-    serializedAttackCalculationPresent: 'atkCalculation' in unit,
+    serializedAttackCalculationPresent: hasAttackCalculation,
     attackCalculation:
-      'atkCalculation' in unit && attributeType === 'Hp' && !simpleCalculation
+      hasAttackCalculation && attributeType === 'Hp' && !simpleCalculation
         ? parseNativeCalculationSource(
             unit.atkCalculation,
             `${path}.atkCalculation`,
             inheritedBlackboard,
           )
         : null,
-    serializedPoiseCalculationPresent: 'poiseCalculation' in unit,
+    serializedPoiseCalculationPresent: hasPoiseCalculation,
     poiseCalculation:
-      'poiseCalculation' in unit && attributeType === 'Poise'
+      hasPoiseCalculation && attributeType === 'Poise'
         ? parseNativeCalculationSource(
             unit.poiseCalculation,
             `${path}.poiseCalculation`,
@@ -243,7 +326,7 @@ export function parseDamageUnitSource(
       `${path}.damageProcessors`,
       inheritedBlackboard,
     ),
-    ignoreDamageImmuneLevel: requireNonEmptyString(
+    ignoreDamageImmuneLevel: parseIgnoredDamageImmuneLevel(
       unit.ignoreDamageImmuneLevel,
       `${path}.ignoreDamageImmuneLevel`,
     ),
@@ -259,7 +342,7 @@ export function parseDamageUnitSource(
       unit.enablePoiseBreakTimeDilation,
       `${path}.enablePoiseBreakTimeDilation`,
     ),
-    visualImportance: requireNonEmptyString(
+    visualImportance: requireNamedOrInteger(
       unit.damageVisualImportance,
       `${path}.damageVisualImportance`,
     ),

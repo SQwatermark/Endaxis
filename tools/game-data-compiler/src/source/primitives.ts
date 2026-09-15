@@ -56,6 +56,18 @@ export function requireNonEmptyString(value: unknown, path: string): string {
   return result;
 }
 
+/** 当前 VFS 用整数 0 表示 Default，命名来源直接使用枚举名。 */
+export function requireNativeActionPriority(value: unknown, path: string): string {
+  return value === 0 ? 'Default' : requireNonEmptyString(value, path);
+}
+
+/** 枚举或位掩码在命名 JSON 中是字符串，在 VFS 原始导出中是整数。 */
+export function requireNamedOrInteger(value: unknown, path: string): string | number {
+  return typeof value === 'number'
+    ? requireInteger(value, path)
+    : requireNonEmptyString(value, path);
+}
+
 /** 校验版本敏感的原生结构，防止新增字段被旧转换器静默吞掉。 */
 export function requireExactFields(
   value: SourceRecord,

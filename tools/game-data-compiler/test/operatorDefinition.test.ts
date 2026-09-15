@@ -222,8 +222,6 @@ beforeAll(() => {
     tableRoot: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12'),
     skillPatchTable: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12/SkillPatchTable.json'),
     buffDataRoot: path.join(sourceRoot, 'BuffData'),
-    projectileBlackboardCatalog:
-      'tools/game-data-compiler/legacy/evidence/projectile-entity-blackboards-1.4.4.json',
     gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
     timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
     globalBuffCatalog: globalBuffCatalogPath,

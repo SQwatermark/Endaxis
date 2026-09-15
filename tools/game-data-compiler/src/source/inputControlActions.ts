@@ -2,6 +2,7 @@ import {
   requireArray,
   requireBoolean,
   requireExactFields,
+  requireInteger,
   requireNonEmptyString,
   requireRecord,
   requireString,
@@ -24,6 +25,28 @@ export interface ComboCacheActionSource {
     readonly cacheEndByAction: boolean;
     readonly cacheTime: ScalarSource;
   }[];
+}
+
+const BATTLE_COMMAND_TYPES = [
+  'Attack',
+  'Dash',
+  'Jump',
+  'NormalSkill',
+  'ComboSkill',
+  'UltimateSkill',
+] as const;
+
+function parseBattleCommandType(value: unknown, path: string): string {
+  if (typeof value === 'number') {
+    const index = requireInteger(value, path);
+    const command = BATTLE_COMMAND_TYPES[index];
+    if (command === undefined) throw new Error(`${path}: unknown BattleCommandType ${index}`);
+    return command;
+  }
+  const command = requireNonEmptyString(value, path);
+  if (!(BATTLE_COMMAND_TYPES as readonly string[]).includes(command))
+    throw new Error(`${path}: unknown BattleCommandType ${command}`);
+  return command;
 }
 
 export interface AllowNextSkillActionSource {
@@ -98,7 +121,7 @@ export function parseComboCacheActionSource(
       requireBoolean(row.clearOffsetTargetSkillIdOnEnd, `${rowPath}.clearOffsetTargetSkillIdOnEnd`);
       requireBoolean(row.overrideCacheTime, `${rowPath}.overrideCacheTime`);
       return {
-        commandType: requireNonEmptyString(row.cmdType, `${rowPath}.cmdType`),
+        commandType: parseBattleCommandType(row.cmdType, `${rowPath}.cmdType`),
         // 原生 ComboCache 映射允许用空串表示该命令没有直接技能路由；
         // Endaxis 不执行客户端输入缓存，但来源层仍须保留这个占位事实。
         skillId: requireString(row.skillId, `${rowPath}.skillId`),

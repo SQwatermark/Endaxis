@@ -160,7 +160,6 @@ async function setup(slugs: readonly string[] = ['one', 'two']) {
     tableRoot: root,
     skillPatchTable: 'unused-skill-patch',
     buffDataRoot: root,
-    projectileBlackboardCatalog: 'unused-projectiles',
     gameplayTagCatalog,
     timeDilationCatalog: 'unused-time',
     globalBuffCatalog,

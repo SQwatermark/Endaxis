@@ -16,6 +16,10 @@ describe('native skill cast resource metadata', () => {
     const result = parseSkillCastResourceMetadataSource({ castData }, 'callback');
     expect(result.costData).toEqual(parseSkillCostSource(costData, 'damage.costDataList[0]'));
   });
+  it('maps VFS CostType integers to resource names', () => {
+    expect(parseSkillCostSource({ ...costData, costType: 0 }, 'cost').costType).toBe('UltimateSp');
+    expect(parseSkillCostSource({ ...costData, costType: 1 }, 'cost').costType).toBe('Atb');
+  });
   it('projects readable resources while preserving threshold and uninterpreted native values', () => {
     expect(
       projectSkillCastResourceDefinitionSource(

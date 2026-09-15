@@ -8,10 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 import { collectBuffRuntimeClosure } from '../src/compiler/buffs/buffReferenceClosure.ts';
-import {
-  parseBlackboardDataPairs,
-  type DeclaredBlackboardValueSource,
-} from '../src/source/blackboard.ts';
+import type { DeclaredBlackboardValueSource } from '../src/source/blackboard.ts';
 import {
   parseProjectileRuntimeSource,
   type ProjectileRuntimeSource,
@@ -68,11 +65,6 @@ export interface OperatorActiveSkillRuntimeArguments {
   readonly preserveBuffIds?: readonly string[];
   /** 仅供已显式审计的内部/替换技能；它们可能不在 SkillPatchTable 养成等级组中。 */
   readonly allowMissingSkillPatch?: boolean;
-  /**
-   * 旧版独立 Projectile EntityBB 证据，仅用于历史基线回归。当前来源能直接解出所需模板时省略；
-   * 若某回调读取了尚未解出的 EntityBB，投射物编译器仍会原地报缺失证据。
-   */
-  readonly projectileBlackboardCatalog?: string;
   readonly gameplayTagCatalog: string;
   readonly timeDilationCatalog: string;
   readonly slug: string;
@@ -167,13 +159,10 @@ type ProjectileBlackboardTemplate = {
   readonly entityBlackboard: readonly DeclaredBlackboardValueSource[];
 };
 
-function preferDecodedProjectileBlackboards(
+function collectDecodedProjectileBlackboards(
   runtimes: ReadonlyMap<string, ProjectileRuntimeSource>,
-  templates: Map<string, ProjectileBlackboardTemplate>,
-): void {
-  // 当前 VFS ProjectileData 已能在部分资源中直接恢复 AbilitySystem.entityBlackboard；
-  // 它与本轮 ProjectileComponentData 同源，优先级高于旧版本独立证据目录。尚未解出该字段的
-  // 资源继续使用版本化目录，不能把“字段缺失”解释成空黑板。
+): Map<string, ProjectileBlackboardTemplate> {
+  const templates = new Map<string, ProjectileBlackboardTemplate>();
   for (const [projectileId, runtime] of runtimes) {
     if (runtime.entityBlackboard === undefined) continue;
     templates.set(projectileId, {
@@ -181,53 +170,14 @@ function preferDecodedProjectileBlackboards(
       entityBlackboard: runtime.entityBlackboard,
     });
   }
-}
-
-function readLegacyProjectileBlackboardTemplates(
-  catalogPath: string | undefined,
-  projectileIds: readonly string[],
-  sources: OperatorPlanningSources,
-): Map<string, ProjectileBlackboardTemplate> {
-  if (catalogPath === undefined) return new Map();
-  const evidence = sources.readJson(catalogPath) as {
-    projectiles: readonly {
-      projectileId: string;
-      entityBlackboard: readonly { key: string; value: number; isDynamic: boolean }[];
-    }[];
-  };
-  return new Map(
-    evidence.projectiles
-      .filter(row => projectileIds.includes(row.projectileId))
-      .map(
-        row =>
-          [
-            row.projectileId,
-            {
-              projectileId: row.projectileId,
-              entityBlackboard: parseBlackboardDataPairs(
-                row.entityBlackboard.map(item => ({
-                  key: item.key,
-                  valueDouble: item.value,
-                  valueStr: '',
-                  isDynamic: item.isDynamic,
-                })),
-                `ProjectileTemplateData.${row.projectileId}.entityBlackboard`,
-              ),
-            },
-          ] as const,
-      ),
-  );
+  return templates;
 }
 
 /** 技能本体和 Buff 闭包共用的零距离投射物目录；回调 SkillData 仍逐个严格解析。 */
 export function prepareProjectileProjection(
   args: Pick<
     OperatorActiveSkillRuntimeArguments,
-    | 'sourceRoot'
-    | 'skillPatchTable'
-    | 'projectileBlackboardCatalog'
-    | 'timeDilationCatalog'
-    | 'sources'
+    'sourceRoot' | 'skillPatchTable' | 'timeDilationCatalog' | 'sources'
   >,
   launches: readonly ProjectileLaunchActionSource[],
   visualOnlyIds: ReadonlySet<string>,
@@ -259,15 +209,7 @@ export function prepareProjectileProjection(
         ] as const,
     ),
   );
-  const templateCatalog = readLegacyProjectileBlackboardTemplates(
-    args.projectileBlackboardCatalog,
-    projectileIds,
-    sources,
-  );
-  // 当前 VFS ProjectileData 已能在部分资源中直接恢复 AbilitySystem.entityBlackboard；
-  // 它与本轮 ProjectileComponentData 同源，优先级高于旧版本独立证据目录。尚未解出该字段的
-  // 资源继续使用版本化目录，不能把“字段缺失”解释成空黑板。
-  preferDecodedProjectileBlackboards(runtimeCatalog, templateCatalog);
+  const templateCatalog = collectDecodedProjectileBlackboards(runtimeCatalog);
   const priorities = sources.timeDilationPriorities(args.timeDilationCatalog);
   const resolveTimeDilationPriority = (tagId: number, actionPath: string) => {
     const value = priorities.get(tagId);
@@ -355,12 +297,7 @@ export function planOperatorActiveSkillRuntime(
       return [id, parseProjectileRuntimeSource(value, `ProjectileData.${id}`)] as const;
     }),
   );
-  const templateCatalog = readLegacyProjectileBlackboardTemplates(
-    args.projectileBlackboardCatalog,
-    projectileIds,
-    sources,
-  );
-  preferDecodedProjectileBlackboards(runtimeCatalog, templateCatalog);
+  const templateCatalog = collectDecodedProjectileBlackboards(runtimeCatalog);
   const abilityCatalog = sources.abilityEntities(path.join(args.sourceRoot, 'AbilityEntityData'));
   const registry = new GameplayTagRegistry(sources.gameplayTags(args.gameplayTagCatalog));
   const priorities = sources.timeDilationPriorities(args.timeDilationCatalog);
@@ -816,7 +753,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
     '--skill-patch-table',
     '--skill-setting-catalog',
     '--buff-data-root',
-    '--projectile-blackboard-catalog',
     '--gameplay-tag-catalog',
     '--time-dilation-catalog',
     '--slug',
@@ -866,7 +802,6 @@ if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.me
         .split(',')
         .map(value => value.trim())
         .filter(value => value.length > 0),
-      projectileBlackboardCatalog: required('--projectile-blackboard-catalog'),
       gameplayTagCatalog: required('--gameplay-tag-catalog'),
       timeDilationCatalog: required('--time-dilation-catalog'),
       slug: required('--slug'),

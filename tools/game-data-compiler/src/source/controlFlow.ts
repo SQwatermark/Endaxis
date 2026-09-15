@@ -5,6 +5,7 @@ import {
   requireExactFields,
   requireInteger,
   requireNonEmptyString,
+  requireNativeActionPriority,
   requireNumber,
   requireRecord,
   requireString,
@@ -231,12 +232,7 @@ function parseNativeActionNodeSource<TLeaf>(
     nativeType,
     nativeName,
     enabled: requireBoolean(action.isEnable, `${path}.isEnable`),
-    // 当前 VFS 79749 个 SkillData 动作均为 0，对应已取证的 Default。
-    // 非零整数的跨版本映射尚未核实，不能沿用曾被撤回且缺少本轮证据确认的 -1/1 映射。
-    priorityLevel:
-      action.priorityLevel === 0
-        ? 'Default'
-        : requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`),
+    priorityLevel: requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`),
     priorityOffset: requireInteger(action.priorityOffset, `${path}.priorityOffset`),
     serverActionIndex: requireInteger(action.serverActionIndex, `${path}.serverActionIndex`),
   };

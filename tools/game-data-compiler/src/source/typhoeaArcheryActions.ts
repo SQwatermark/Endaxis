@@ -5,6 +5,7 @@ import {
   requireExactFields,
   requireInteger,
   requireNonEmptyString,
+  requireNativeActionPriority,
   requireRecord,
   requireString,
 } from './primitives.ts';
@@ -57,7 +58,7 @@ export function parseTyphoeaArcheryTargetSelectionActionSource(
     path,
   );
   requireBoolean(action.isEnable, `${path}.isEnable`);
-  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
+  requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`);
   requireInteger(action.priorityOffset, `${path}.priorityOffset`);
   requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
 

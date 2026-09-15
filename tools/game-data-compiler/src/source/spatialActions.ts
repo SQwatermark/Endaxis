@@ -3,6 +3,8 @@ import {
   requireExactFields,
   requireInteger,
   requireNonEmptyString,
+  requireNativeActionPriority,
+  requireNamedOrInteger,
   requireNumber,
   requireRecord,
   requireString,
@@ -14,8 +16,16 @@ import type { BlackboardLevelValues } from './scalar.ts';
 import { gameplayTagId, type GameplayTagId } from './nativeGameplayTags.ts';
 import { parseFiniteRangedShape } from './auraActions.ts';
 import {
-  readRootMotionDirectionType, readRotateDirectionType, readSelfRotateType,
+  readRootMotionDirectionType,
+  readRotateDirectionType,
+  readSelfRotateType,
 } from './spatialEnums.ts';
+
+function parseIgnoredCollisionLayer(value: unknown, path: string): void {
+  const layer = requireRecord(value, path);
+  requireExactFields(layer, new Set('m_Mask' in layer ? ['m_Mask'] : []), path);
+  if ('m_Mask' in layer) requireInteger(layer.m_Mask, `${path}.m_Mask`);
+}
 
 export interface AdditionalBattleShapeActionSource {
   readonly kind: 'additionalBattleShape';
@@ -54,7 +64,7 @@ export function parseAdditionalBattleShapeActionSource(
     path,
   );
   requireBoolean(action.isEnable, `${path}.isEnable`);
-  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
+  requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`);
   requireInteger(action.priorityOffset, `${path}.priorityOffset`);
   requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
   const durationSeconds = requireNumber(action.duration, `${path}.duration`);
@@ -127,7 +137,7 @@ export interface CustomRootMotionActionSource {
   readonly kind: 'customRootMotion';
   readonly target: TargetReferenceSource;
   readonly animationKey: string;
-  readonly rootMotionCurveMask: string;
+  readonly rootMotionCurveMask: string | number;
   readonly updateDirection: boolean;
   readonly startOffsetFrame: number;
 }
@@ -377,8 +387,11 @@ export function parseReceiveMoveInputActionSource(
       'disableCliffCheck',
       'rotateSpeed',
       'recoverWhenLanding',
-      ...('combineRootMotion' in action || 'inputAlongRMScale' in action || 'rootMotionScale' in action
-        ? ['combineRootMotion', 'inputAlongRMScale', 'rootMotionScale'] : []),
+      ...('combineRootMotion' in action ||
+      'inputAlongRMScale' in action ||
+      'rootMotionScale' in action
+        ? ['combineRootMotion', 'inputAlongRMScale', 'rootMotionScale']
+        : []),
       'useTeammateParam',
       'teammateParam',
     ]),
@@ -539,8 +552,7 @@ export function parseMoveToActionSource(
   requireInteger(action.startOffsetFrame, `${path}.startOffsetFrame`);
   requireNumber(action.moveDirYRotateSpeed, `${path}.moveDirYRotateSpeed`);
   requireNumber(action.stepOffset, `${path}.stepOffset`);
-  const ignoredLayers = requireRecord(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
-  requireExactFields(ignoredLayers, new Set(), `${path}.ignoreCollisionLayer`);
+  parseIgnoredCollisionLayer(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
   return {
     kind: 'moveTo',
     moveType: requireNonEmptyString(action.moveType, `${path}.moveType`),
@@ -616,13 +628,12 @@ export function parseCustomRootMotionActionSource(
     'ignoreAllCollision',
   ] as const)
     requireBoolean(action[key], `${path}.${key}`);
-  const ignoredLayers = requireRecord(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
-  requireExactFields(ignoredLayers, new Set(), `${path}.ignoreCollisionLayer`);
+  parseIgnoredCollisionLayer(action.ignoreCollisionLayer, `${path}.ignoreCollisionLayer`);
   return {
     kind: 'customRootMotion',
     target: parseTargetReferenceSource(action.moveTo, `${path}.moveTo`),
     animationKey: requireString(action.animKey, `${path}.animKey`),
-    rootMotionCurveMask: requireNonEmptyString(
+    rootMotionCurveMask: requireNamedOrInteger(
       action.rootMotionCurveMask,
       `${path}.rootMotionCurveMask`,
     ),
@@ -743,7 +754,7 @@ export function parseBoneAttachActionSource(value: unknown, path: string): BoneA
     path,
   );
   requireBoolean(action.isEnable, `${path}.isEnable`);
-  requireNonEmptyString(action.priorityLevel, `${path}.priorityLevel`);
+  requireNativeActionPriority(action.priorityLevel, `${path}.priorityLevel`);
   requireInteger(action.priorityOffset, `${path}.priorityOffset`);
   requireInteger(action.serverActionIndex, `${path}.serverActionIndex`);
   const rotateAnchor = requireNonEmptyString(action.rotateAnchor, `${path}.rotateAnchor`);
