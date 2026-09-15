@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { TrackDocument } from '../../../core/project/schema';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 function track(slug: string, weaponSlug: string, casts: [string, string, number][]): TrackDocument {
   return {

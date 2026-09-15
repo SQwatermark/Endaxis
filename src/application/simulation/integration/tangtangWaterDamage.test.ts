@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { tangtang } from '../../../data/operators/tangtang.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it.each([0, 1, 2])('汤汤预先放 %i 次连携后，战技水体分别独立按原生周期结算', async comboCount => {
   let scenario = createEmptyScenario('tangtang-water', '单水体');

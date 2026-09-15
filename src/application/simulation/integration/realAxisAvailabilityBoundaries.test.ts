@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { TrackDocument } from '../../../core/project/schema';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it('洛茜连携三提前消费火附着后，公共事件打开卡蜜拉连携窗口', async () => {
   const scenario = createEmptyScenario('rossi-camille', '火附着消费');

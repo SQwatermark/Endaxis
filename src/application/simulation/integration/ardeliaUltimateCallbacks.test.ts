@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it.each([0, 3])(
   '艾尔黛拉潜能%i终结技独立伤害不被治疗概率阻止，双路弹体共享敌方标记',

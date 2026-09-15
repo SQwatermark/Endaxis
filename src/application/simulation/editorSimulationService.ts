@@ -1,14 +1,7 @@
-import { gameDataRepository } from '../../data/gameDataRepository';
-import type { ProjectDefinitionLibraryDocument } from '../../core/project/schema';
+import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
 import { createScenarioSimulationService } from './createScenarioSimulationService';
 
-/** 页面与后台线程共用同一装配，不在传输层重写战斗规则。 */
-export function createEditorSimulationService(library?: ProjectDefinitionLibraryDocument) {
-  return createScenarioSimulationService({
-    ...gameDataRepository,
-    getOperator: id => library?.operators[id]?.definition ?? gameDataRepository.getOperator(id),
-    getWeapon: id => library?.weapons[id]?.definition ?? gameDataRepository.getWeapon(id),
-    getGear: id => library?.gears[id]?.definition ?? gameDataRepository.getGear(id),
-    getGearSet: id => library?.gearSets[id]?.definition ?? gameDataRepository.getGearSet(id),
-  });
+/** 使用页面已经装配好的仓库创建模拟服务，不在应用层再次加载或覆盖游戏定义。 */
+export function createEditorSimulationService(repository: GameDataRepository) {
+  return createScenarioSimulationService(repository);
 }

@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { ScenarioDocument } from '../../../core/project/schema';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 function createScenario(camilleTalentLevel: number): ScenarioDocument {
   const scenario = createEmptyScenario('camille-combo-global-buff', '卡米拉连携增伤');

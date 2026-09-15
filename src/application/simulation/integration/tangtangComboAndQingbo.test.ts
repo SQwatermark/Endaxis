@@ -3,7 +3,7 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import { perlica } from '../../../data/operators/perlica.generated';
 import { tangtang } from '../../../data/operators/tangtang.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it('汤汤连携造成寒冷伤害，清波各次触发独立按十五秒到期', async () => {
   let scenario = createEmptyScenario('tangtang-qingbo', '连携与清波');

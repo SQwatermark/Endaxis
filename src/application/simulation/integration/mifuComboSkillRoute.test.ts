@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { mifu } from '../../../data/operators/mifu.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it.each([
   { battleSkill: 'battleSkill1', frame: 200, mismatch: true },

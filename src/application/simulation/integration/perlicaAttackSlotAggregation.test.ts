@@ -5,7 +5,7 @@ import { resolveScenarioOperatorPanels } from '../../../core/compiler/resolveOpe
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { perlica } from '../../../data/operators/perlica.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it('佩丽卡潜能的攻击 Buff 与武器攻击词条按同槽加算，而非在成品面板上相乘', async () => {
   let scenario = createEmptyScenario('perlica-attack-slots', '攻击槽位');

@@ -4,7 +4,7 @@ import type { TrackDocument } from '../../../core/project/schema';
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { skillSettings } from '../../../data/combat/skillSettings';
 import { ScenarioSimulationService } from '../scenarioSimulationService';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 import { spDisplayPoints } from '../../../ui/timeline/results/resourceCurveDisplay';
 
 const resources = {

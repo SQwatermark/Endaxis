@@ -1,7 +1,7 @@
 import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { TrackDocument } from '../../../core/project/schema';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it.each([null, 0])('别礼开场普攻夹战技：切入帧 %s 决定旁路，不隐式切主控', async switchFrame => {
   const scenario = createEmptyScenario('last-rite-control', '公开轴主控最小对照');

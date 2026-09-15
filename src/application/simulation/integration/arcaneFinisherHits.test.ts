@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { arcane } from '../../../data/operators/arcane.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it('诀处决按原生分段执行五次十分之一与一次二分之一，不合并成旧版单次伤害', async () => {
   let scenario = createEmptyScenario('arcane-finisher', '诀处决');

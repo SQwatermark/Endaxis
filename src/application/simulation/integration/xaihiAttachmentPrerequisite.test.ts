@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { xaihi } from '../../../data/operators/xaihi.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it('赛希连携先检查已有寒冷附着再施加本次附着；到期后不触发天赋或爆发', async () => {
   let scenario = createEmptyScenario('xaihi-prerequisite', '赛希附着前置');

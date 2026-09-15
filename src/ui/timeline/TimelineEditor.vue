@@ -1141,7 +1141,7 @@ const simulationService = new AdaptiveTimelineSimulationService(
     ),
     currentScenario => captureScenarioSimulationGameData(currentScenario, editorGameDataRepository),
   ),
-  () => createEditorSimulationService(projectDefinitionLibrary.value),
+  () => createEditorSimulationService(editorGameDataRepository),
 );
 onScopeDispose(() => simulationService.dispose());
 const skillPlacementTransaction = new SkillPlacementTransaction(

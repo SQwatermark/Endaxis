@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
-import { createEditorSimulationService } from '../../../application/simulation/editorSimulationService';
+import { createEditorSimulationService } from '../../../application/simulation/testSupport/editorSimulationService';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import {
   projectTimelineDamageAnalysis,

@@ -3,7 +3,7 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import { perlica } from '../../../data/operators/perlica.generated';
 import { tangtang } from '../../../data/operators/tangtang.generated';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { createEditorSimulationService } from '../editorSimulationService';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it('汤汤法术脆弱与落草承伤按源时钟到期，不被队友终结技时间膨胀延寿', async () => {
   let scenario = createEmptyScenario('debuff-clock', '法术承伤时钟');
