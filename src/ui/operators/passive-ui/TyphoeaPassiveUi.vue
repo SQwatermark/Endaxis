@@ -91,6 +91,7 @@ function pointGridPosition(index: number) {
   background: rgb(29 255 231);
   -webkit-mask: url('/next/passive-ui/typhoea-arrow.webp') center / contain no-repeat;
   mask: url('/next/passive-ui/typhoea-arrow.webp') center / contain no-repeat;
+  clip-path: inset(0 0 0 21%);
   opacity: 0;
 }
 
@@ -98,7 +99,7 @@ function pointGridPosition(index: number) {
   display: block;
   width: 12px;
   height: 12px;
-  background: rgb(105 239 222);
+  background: rgb(242 242 240);
   -webkit-mask: url('/next/passive-ui/typhoea-point.webp') center / contain no-repeat;
   mask: url('/next/passive-ui/typhoea-point.webp') center / contain no-repeat;
   opacity: 0;
