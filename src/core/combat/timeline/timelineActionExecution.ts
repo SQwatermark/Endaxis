@@ -2,7 +2,7 @@
  * 时间轴程序及调度算法。程序只包含固定区间，进度由调用方传入，动作通过本次执行端口调用。
  * 同帧顺序、同步 End 和 JumpTo 的区别沿用原调度器，不改变游戏规则。
  */
-import type { TimelineActionState } from './timelineActionState';
+import type { TimelineActionState } from '../state/actionState';
 
 /** 已排序的动作区间；sourceIndex 对应原始配置中的步骤绑定。 */
 export interface TimelineActionInterval {

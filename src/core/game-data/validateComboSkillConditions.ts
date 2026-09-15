@@ -1,8 +1,6 @@
 import { ABILITY_EVENTS } from './operatorDefinition';
-import {
-  validateActionSequenceDefinition,
-  type SkillDefinitionValidationIssue,
-} from './validateSkillDefinition';
+import { type SkillDefinitionValidationIssue } from './validateSkillDefinition';
+import { validateActionSequenceDefinition } from './validation/actionPrograms';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);

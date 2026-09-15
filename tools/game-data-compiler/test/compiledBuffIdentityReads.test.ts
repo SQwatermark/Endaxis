@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collectCompiledBuffIdentityReadIds } from '../src/compiler/compiledBuffReferences';
+import { collectCompiledBuffIdentityReadIds } from '../src/compiler/references/compiledReferences';
 
 describe('observed Buff identities survive presentation pruning', () => {
   it('keeps otherwise-empty signals read inside nested ability event listeners', () => {

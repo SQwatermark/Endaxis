@@ -6,7 +6,7 @@ import { stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
-import { createCandidateRuntimeServer } from '../src/compiler/candidateRuntimeServer.ts';
+import { createCandidateRuntimeServer } from '../src/compiler/publication/candidateRuntimeServer.ts';
 import { OPERATOR_DEFINITION_OUTPUTS } from './operatorDefinitionOutputs.ts';
 import {
   requireArray,

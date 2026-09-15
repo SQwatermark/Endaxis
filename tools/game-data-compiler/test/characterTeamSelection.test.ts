@@ -6,7 +6,7 @@ import { parseTargetGroupActionSource } from '../src/source/targetGroup.ts';
 import { requireRecord } from '../src/source/primitives.ts';
 import { parseNativeSequenceSource } from '../src/source/controlFlow.ts';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { targetFixture } from './sourceFixtures.ts';
 
 function queries(): { selectorData: { postProcessorData: Record<string, unknown>[] } }[] {
@@ -44,8 +44,9 @@ describe('CharacterTeamFinder 来源事实', () => {
   it('队伍身份识别入口也拒绝未闭环的 HittableTargets 通道', () => {
     const raw = queries();
     raw[1]!.selectorData.postProcessorData[1]!.processTargetType = 'HittableTargets';
-    expect(() => parseCharacterTeamSelection(raw[1]!.selectorData, 'selector'))
-      .toThrow('processTargetType');
+    expect(() => parseCharacterTeamSelection(raw[1]!.selectorData, 'selector')).toThrow(
+      'processTargetType',
+    );
     expect(() => compileQueries(raw)).toThrow('processTargetType');
   });
 

@@ -1,3 +1,4 @@
+import { type ActiveCombatStatus, type CombatStatusState } from '../state/environmentState';
 /**
  * 保存一次模拟中的通用语义状态，并按显式定义处理层数、持续时间、消费和到期。
  * 所有缺省行为都必须写进定义；调用方不能依赖未声明的隐式层数或时长规则。
@@ -55,20 +56,7 @@ export interface CombatStatusConsumeRequest {
   readonly stacks?: number;
 }
 
-export interface ActiveCombatStatus {
-  readonly statusKey: string;
-  readonly sourceId: string;
-  readonly skillId: string;
-  stacks: number;
-  remainingFrames: number | null;
-}
-
 const EMPTY_STATUS: CombatStatusSnapshot = { stacks: 0, remainingFrames: null };
-
-/** 一个实体当前存在的语义状态，保持施加顺序和原始来源；定义规则由程序另行持有。 */
-export interface CombatStatusState {
-  readonly statuses: Map<string, ActiveCombatStatus>;
-}
 
 /** 单个实体的通用状态所有者；状态只存在于一次模拟中，不进入存档。 */
 export class CombatStatusContainer {

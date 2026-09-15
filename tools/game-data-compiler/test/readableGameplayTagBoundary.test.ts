@@ -43,7 +43,7 @@ describe('可读标签的单向数据边界', () => {
         }
       }
     }
-    for (const directory of ['packages/game-data-contract/src', 'src/shared', 'src'])
+    for (const directory of ['packages/game-data-contract/src', 'src'])
       inspect(path.join(root, directory));
     expect(violations).toEqual([]);
   });

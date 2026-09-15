@@ -3,12 +3,12 @@ import { describe, expect, it } from 'vitest';
 import { unityComboConditionFixture } from '../../../tools/game-data-compiler/test/unityComboConditionFixture.ts';
 import { parseUnityComboSkillConditionsSource } from '../../../tools/game-data-compiler/src/source/unityComboSkillConditions.ts';
 import { parseAbilitySystemBlackboardsSource } from '../../../tools/game-data-compiler/src/source/abilitySystemBlackboards.ts';
-import { compileAbilitySystemBlackboardsSource } from '../../../tools/game-data-compiler/src/compiler/abilitySystemBlackboards.ts';
-import { compileComboSkillConditionDefinitionSource } from '../../../tools/game-data-compiler/src/compiler/comboSkillConditions.ts';
-import { perlica } from '../../data/operators/perlica';
-import { arcane } from '../../data/operators/arcane';
+import { compileAbilitySystemBlackboardsSource } from '../../../tools/game-data-compiler/src/compiler/abilities/abilitySystemBlackboards.ts';
+import { compileComboSkillConditionDefinitionSource } from '../../../tools/game-data-compiler/src/compiler/conditions/comboSkillConditions.ts';
+import { perlica } from '../../data/operators/perlica.generated';
+import { arcane } from '../../data/operators/arcane.generated';
 import { parseSkillTargetSelectionHeaderSource } from '../../../tools/game-data-compiler/src/source/skillTargetSelection.ts';
-import { compileSkillSmartTargetSource } from '../../../tools/game-data-compiler/src/compiler/comboSmartTarget.ts';
+import { compileSkillSmartTargetSource } from '../../../tools/game-data-compiler/src/compiler/conditions/comboSmartTarget.ts';
 import { createGameDataRepository } from '../../data/gameDataRepository';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 import { skillSettings } from '../../data/combat/skillSettings';
@@ -21,7 +21,7 @@ import {
   createProjectGameDataRepository,
 } from '../project/projectDefinitionLibrary';
 import { serializeProjectDocument, parseProjectDocument } from '../project/serialization';
-import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
+import { placeSkillGroup } from '../../ui/timeline/interaction/placeSkillGroup';
 import { validateComboSkillConditions } from '../game-data/validateComboSkillConditions';
 import type {
   ComboSkillConditionDefinition,
@@ -31,7 +31,7 @@ import type {
 import { compileScenarioRuntimeAssembly } from './compileScenarioRuntimeAssembly';
 import { compileScenarioEnemy } from './compileScenarioEnemy';
 import { StandardPlayerDamageEnvironment } from '../combat/runtime/standardPlayerDamageEnvironment';
-import { createEnemyCombatVitals } from '../combat/runtime/combatVitalsFactory';
+import { createEnemyCombatVitals } from '../combat/resources/combatVitalsFactory';
 import { CombatRuntimeAssembly } from '../combat/runtime/combatRuntimeAssembly';
 
 function template(

@@ -5,44 +5,45 @@
  * 不再从存档快照读取时间轴。`disabled` 从 `presentation` 读取。
  * 基于干员模板的完整 `customDefinition` 会直接参与编译；只有不携带战斗定义的自由展示块失败。
  */
+import type { SkillInputGroup } from '../combat/runtime/combatInputRuntime';
 import type {
   CombatOperatorProgram,
   CombatSkillCastProgram,
 } from '../combat/runtime/combatRuntimeAssembly';
-import type { CompiledSkillProgram, CompiledSkillSlotGroup } from './combatProgram';
-import type { ScheduledSkillInput, SkillInputGroup } from '../combat/runtime/combatInputRuntime';
-import { getSkillCastPlacementChains } from '../project/skillCastPlacement';
+import type { ScheduledSkillInput } from '../combat/state/environmentState';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type {
+  OperatorAttribute,
   OperatorBuffDefinitions,
   OperatorDefinition,
   SkillDefinition,
   SkillType,
 } from '../game-data/operatorDefinition';
+import { listSkillGroupDefinitionBindings } from '../game-data/operatorSkillDefinitions';
+import { resolveUniquePlayerActionForSkill } from '../game-data/resolvePlayerActionRoute';
 import type {
   OperatorInstanceDocument,
   ScenarioDocument,
   SkillCastDocument,
 } from '../project/schema';
-import { compileOperatorBuffResources, compileSkill } from './compileSkill';
+import { getSkillCastPlacementChains } from '../project/skillCastPlacement';
+import type { CompiledSkillProgram, CompiledSkillSlotGroup } from './combatProgram';
+import { compileOperatorComboSkillConditions } from './compileOperatorComboSkillConditions';
 import {
   applyOperatorUpgradeSkillPatches,
-  compileOperatorReactionModifiers,
   compileOperatorInitializationPrograms,
-  compileOperatorUpgradeEventPrograms,
   compileOperatorPassivePrograms,
+  compileOperatorReactionModifiers,
+  compileOperatorUpgradeEventPrograms,
   resolveActiveOperatorUpgrades,
 } from './compileOperatorUpgrades';
+import { compileOperatorBuffResources, compileSkill } from './compileSkill';
+import { resolveOperatorPanel } from './resolveOperatorPanel';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
 import {
   resolveEffectiveSkillDefinition,
   type ResolvedSkillDefinition,
 } from './resolveSkillDefinition';
-import type { OperatorAttribute } from '../game-data/operatorDefinition';
-import { resolveOperatorPanel } from './resolveOperatorPanel';
-import { compileOperatorComboSkillConditions } from './compileOperatorComboSkillConditions';
-import { resolveUniquePlayerActionForSkill } from '../game-data/resolvePlayerActionRoute';
-import { listSkillGroupDefinitionBindings } from '../game-data/operatorSkillDefinitions';
 
 interface SkillCompilationBinding {
   readonly skill: SkillDefinition;

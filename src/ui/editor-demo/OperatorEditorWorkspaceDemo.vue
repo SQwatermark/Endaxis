@@ -13,7 +13,7 @@ import { validateSkillDefinition } from '../../core/game-data/validateSkillDefin
 import type { ValidationIssue } from '../../core/project/validation';
 import { rossi, tangtang } from '../../data/operators';
 import ExpandedFlowSequence from './ExpandedFlowSequence.vue';
-import SkillMindMap from '../timeline/components/SkillStructureMindMap.vue';
+import SkillMindMap from '../timeline/definitions/SkillStructureMindMap.vue';
 
 type ReferenceKind = 'buff' | 'entity';
 

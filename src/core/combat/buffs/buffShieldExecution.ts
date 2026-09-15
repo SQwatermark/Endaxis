@@ -1,6 +1,6 @@
 /** 护盾吸收计算；余额与次数先更新，耗尽通知最后执行，保持同步结束的原顺序。 */
 import type { DamageType } from '../../game-data/operatorDefinition';
-import type { BuffShieldState } from './buffShieldState';
+import type { BuffShieldState } from '../state/instanceState';
 
 export const SHIELD_EPSILON = 0.00001;
 

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import type { GameplayTagPredefineDocument } from '../../../packages/game-data-contract/src/gameplayTags.ts';
 import { parseGameplayTagPredefineTableSource } from '../src/source/gameplayTagPredefineTable.ts';
-import { compileGameplayTagPredefine } from '../src/compiler/gameplayTagPredefine.ts';
+import { compileGameplayTagPredefine } from '../src/compiler/catalogs/gameplayTagPredefine.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
 
 // 生成内容描述的是未来正式文件，而不是候选暂存文件的物理位置。

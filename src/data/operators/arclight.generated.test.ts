@@ -3,7 +3,7 @@ import type {
   ScheduledSequenceDefinition,
   SkillDefinition,
 } from '../../core/game-data/operatorDefinition';
-import { arclight as arclightGeneratedOperator } from './arclight';
+import { arclight as arclightGeneratedOperator } from './arclight.generated';
 
 function findSkill(key: string): SkillDefinition {
   for (const group of arclightGeneratedOperator.skillGroups) {

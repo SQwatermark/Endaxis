@@ -5,7 +5,7 @@ import { getSkillCastPlacementChains } from '../../core/project/skillCastPlaceme
 import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { validateProjectDocument } from '../../core/project/validation';
 import { ProjectEditorSession } from '../../application/editor/projectEditorSession';
-import { createSkillCastGroup } from './timelineDocumentCommands';
+import { createSkillCastGroup } from './interaction/timelineDocumentCommands';
 import {
   addProjectScenario,
   deleteActiveScenario,

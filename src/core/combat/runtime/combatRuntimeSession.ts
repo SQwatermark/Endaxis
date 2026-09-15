@@ -8,7 +8,7 @@
 import type { CombatStateGraph } from '../state/combatState';
 import type { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import type { CombatFrameInput } from './combatFrameInput';
-import type { CombatSkillPrograms } from './combatSkillPrograms';
+import type { CombatSkillPrograms } from '../skills/combatSkillPrograms';
 import type { CombatReceiptEntry } from '../receipt/combatReceipt';
 import type { CombatReceiptView, CombatReceiptCursor } from '../receipt/combatReceiptHistory';
 

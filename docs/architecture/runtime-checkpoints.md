@@ -72,10 +72,10 @@ CombatStateGraph
    └─ globalBuffs
 ```
 
-这里的层次是所有权关系。跨层引用保存稳定编号或明确的数据引用，恢复准备阶段统一解析。运行对象、
-缓存和回调不进入树中。
+这里画的是所有权关系，实际数据图可以有共享节点和循环引用。跨层引用保存稳定编号或明确的数据引用，
+恢复准备阶段统一解析并保留身份；不为消除数据环复制节点。运行对象、缓存和回调不进入切面。
 
-切面数据按环境、动作、能力、动态实例和战斗根分成五个文件。运行时推进、恢复绑定和业务规则仍放在
+切面数据按共享基础节点、环境、动作、能力、动态实例和战斗根分成六个文件。运行时推进、恢复绑定和业务规则仍放在
 各自模块中；状态模块不提供汇总导出文件，调用方直接导入所需层次。
 
 ## 完整帧顺序
@@ -117,7 +117,7 @@ CombatStateGraph
 ## 恢复装配
 
 恢复入口在
-[combatRuntimeRestoration.ts](../../src/core/combat/runtime/combatRuntimeRestoration.ts) 及相邻恢复模块。
+[combatRuntimeRestoration.ts](../../src/core/combat/runtime/restoration/combatRuntimeRestoration.ts) 及相邻恢复模块。
 流程分为四步：
 
 1. **预检**：核对程序版本、实体目录、Buff 容器、技能身份、回调程序和所有跨对象引用；
@@ -149,7 +149,7 @@ CombatStateGraph
 ## 随机状态
 
 随机模式和期望模式使用同一份
-[simulationRandomState.ts](../../src/core/combat/random/simulationRandomState.ts) 数据结构：
+[environmentState.ts](../../src/core/combat/state/environmentState.ts) 中的随机流数据结构：
 
 - 全局模式和全局种子属于整场固定配置；
 - 已提交技能块的种子选择进入 `submittedCastSeeds`；
@@ -176,7 +176,7 @@ UI 中仍有需要数组的投影适配点。这些适配点应逐步改为视�
 
 ## 连续组与外部输入
 
-[combatInputSchedule.ts](../../src/application/combatInputSchedule.ts) 管理候选分支的外部计划。它保存：
+[combatInputSchedule.ts](../../src/application/simulation/combatInputSchedule.ts) 管理候选分支的外部计划。它保存：
 
 - 已确认且尚未执行的输入；
 - 连续组游标和活动/停止状态；

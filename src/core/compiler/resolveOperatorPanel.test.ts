@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { arcane } from '../../data/operators/arcane';
-import { endministrator } from '../../data/operators/endministrator';
-import { zhuangFangyi } from '../../data/operators/zhuang-fangyi';
+import { arcane } from '../../data/operators/arcane.generated';
+import { endministrator } from '../../data/operators/endministrator.generated';
+import { zhuangFangyi } from '../../data/operators/zhuang-fangyi.generated';
 import type {
   GearDefinition,
   GearSetDefinition,

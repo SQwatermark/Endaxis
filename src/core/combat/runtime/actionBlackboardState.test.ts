@@ -1,13 +1,13 @@
 /** 验证整图复制保留实体板共享关系，同时隔离兄弟分支和独立子作用域。 */
 import { describe, expect, it } from 'vitest';
-import { StateStepper } from './stateStepper';
-import { ActionBlackboard } from './actionBlackboard';
-import { createActionBlackboardState } from '../state/actionState';
+import { ActionBlackboard } from '../actions/actionBlackboard';
 import {
   assignDynamicBlackboard,
   createLocalBlackboardState,
   readActionBlackboard,
-} from './actionBlackboardExecution';
+} from '../actions/actionBlackboardExecution';
+import { createActionBlackboardState } from '../state/foundationState';
+import { StateStepper } from './stateStepper';
 
 describe('blackboard data graph', () => {
   it('keeps local entity assignments on the existing number read interface', () => {

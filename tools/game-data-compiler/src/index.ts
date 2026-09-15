@@ -8,7 +8,7 @@ export {
 export {
   compileAbilitySystemBlackboardsSource,
   type CompiledAbilitySystemBlackboardsSource,
-} from './compiler/abilitySystemBlackboards.ts';
+} from './compiler/abilities/abilitySystemBlackboards.ts';
 
 export {
   parseSkillTargetSelectionHeaderSource,
@@ -38,26 +38,26 @@ export {
   renderGameplayTagCatalogModule,
   type CompiledGameplayTagCatalogSource,
   type CompiledGameplayTagDefinitionSource,
-} from './compiler/gameplayTagCatalog.ts';
+} from './compiler/catalogs/gameplayTagCatalog.ts';
 export {
   compileAbilityEventPrograms,
   type AbilityEventProgramSource,
   type CompiledAbilityEventProgram,
   type CompileAbilityEventProgramOptions,
-} from './compiler/abilityEventProgram.ts';
-export { projectAbilityEvent } from './compiler/abilityEventProjection.ts';
+} from './compiler/abilities/abilityEventProgram.ts';
+export { projectAbilityEvent } from './compiler/abilities/abilityEventProjection.ts';
 export {
   compileActionNodePrograms,
   compileActionSequenceProgram,
   type CompiledActionNodeProgram,
   type CompiledActionSequenceProgram,
   type CompileActionSequenceProgramOptions,
-} from './compiler/actionSequenceProgram.ts';
+} from './compiler/actions/actionSequenceProgram.ts';
 export {
   compileAbilityEntityTemplateCatalogSource,
   resolveAbilityEntityTemplateIdsByTagQuery,
   type CompiledAbilityEntityTemplateCatalogSource,
-} from './compiler/abilityEntityCatalog.ts';
+} from './compiler/abilities/abilityEntityCatalog.ts';
 export {
   compileTargetGroupAbilityEntityQuerySource,
   compileTargetReferenceAbilityEntityQuerySource,
@@ -67,7 +67,7 @@ export {
   type CompiledAbilityEntitySelectorQuerySource,
   type CompiledAbilityEntityValidatorSource,
   type CompiledSelectorAnchorSource,
-} from './compiler/abilityEntityQuery.ts';
+} from './compiler/abilities/abilityEntityQuery.ts';
 export {
   parseBuffLifeTimeReadActionSource,
   parseBuffDurationMutationActionSource,
@@ -187,8 +187,8 @@ export {
   type CompiledAttributeModifierSource,
   type CompiledAttributeModifierTargetSource,
   type ProjectedPrimaryAttributeSource,
-} from './compiler/attributeModifier.ts';
-export { projectWeaponType, type ProjectedWeaponTypeSource } from './compiler/weaponType.ts';
+} from './compiler/build/attributeModifier.ts';
+export { projectWeaponType } from './compiler/build/weaponType.ts';
 export {
   compileBuildConditionGroupSource,
   compileBuildConditionIndexSource,
@@ -196,12 +196,12 @@ export {
   projectSingleBuildConditionSource,
   type CompiledBuildConditionGroupSource,
   type CompiledBuildConditionSource,
-} from './compiler/buildCondition.ts';
+} from './compiler/conditions/buildCondition.ts';
 export {
   compileEventTargetSimpleDamageOperationSource,
   type CompiledActionValueOperandSource,
   type CompiledSimpleDamageOperationSource,
-} from './compiler/simpleDamageOperation.ts';
+} from './compiler/actions/simpleDamageOperation.ts';
 export {
   collectNativeActionNodes,
   parseNativeSequenceSource,
@@ -398,7 +398,7 @@ export {
 export {
   type PassiveSkillCompileRequestSource,
   type PassiveSkillLevelSource,
-} from './compiler/passiveSkillRequest.ts';
+} from './compiler/skills/passiveSkillRequest.ts';
 export { discoverWeaponPassiveSkillRequests } from './domains/weapon/passiveDiscovery.ts';
 export { parseWeaponBasicSources, type WeaponBasicSource } from './domains/weapon/basicTable.ts';
 export {
@@ -481,16 +481,16 @@ export {
   type CompiledBuffStepSource,
   type CombatActionProjectionContextSource,
   type CombatActionProjectionExtensionsSource,
-} from './compiler/buffRuntimeProjection.ts';
+} from './compiler/buffs/buffRuntimeProjection.ts';
 export {
   evaluateStandardStumpFullHealthComparison,
   standardStumpBuffAbilityEventOmissionReason,
-} from './compiler/standardStumpScenarioPolicy.ts';
+} from './compiler/scenario/standardStumpScenarioPolicy.ts';
 export {
   compileStandardStumpBuffClosure,
   type CompiledStandardStumpBuffClosure,
   type StandardStumpBuffClosureDiagnostic,
-} from './compiler/standardStumpBuffClosure.ts';
+} from './compiler/buffs/standardStumpBuffClosure.ts';
 export {
   renderEquipmentSuitDefinitionFiles,
   type RenderedEquipmentSuitDefinitionFileSource,
@@ -537,29 +537,29 @@ export {
 export {
   writeGeneratedDefinitionFiles,
   type RenderedDefinitionFileSource,
-} from './compiler/writeGeneratedDefinitionFiles.ts';
+} from './compiler/publication/writeGeneratedDefinitionFiles.ts';
 export { writeWeaponDefinitionFiles } from './domains/weapon/writeRuntimeDefinitions.ts';
 export {
   compilePassiveSkillSource,
   type CompiledPassiveSkillSource,
-} from './compiler/passiveSkillDefinition.ts';
+} from './compiler/skills/passiveSkillDefinition.ts';
 export {
   compileActiveSkillSource,
   type CompiledActiveSkillSource,
-} from './compiler/activeSkillDefinition.ts';
+} from './compiler/skills/activeSkillDefinition.ts';
 export {
   compileActiveSkillRuntimeProjectionSource,
   type CompiledActiveSkillRuntimeProjectionSource,
   type CompiledActiveSkillTimelineSequenceSource,
-} from './compiler/activeSkillRuntimeProjection.ts';
+} from './compiler/skills/activeSkillRuntimeProjection.ts';
 export {
   compileActiveSkillAbilityEntityQueriesSource,
   type CompiledActiveSkillAbilityEntityQuerySource,
-} from './compiler/activeSkillAbilityEntityQueries.ts';
+} from './compiler/abilities/activeSkillAbilityEntityQueries.ts';
 export {
   prepareSkillDefinitionInputSource,
   type PreparedSkillDefinitionInputSource,
-} from './compiler/skillDefinitionInput.ts';
+} from './compiler/skills/skillDefinitionInput.ts';
 export {
   parseNativeActiveSkillSource,
   type NativeActiveSkillSource,
@@ -568,31 +568,31 @@ export {
   compilePassiveSkillRequestBatch,
   type CompiledPassiveSkillDefinitionSource,
   type PassiveSkillCompilationBatchSource,
-} from './compiler/passiveSkillBatch.ts';
+} from './compiler/skills/passiveSkillBatch.ts';
 export {
   compileActiveSkillRequestBatch,
   type ActiveSkillCompilationBatchSource,
   type ActiveSkillCompileRequestSource,
   type CompiledActiveSkillDefinitionSource,
-} from './compiler/activeSkillBatch.ts';
+} from './compiler/skills/activeSkillBatch.ts';
 export {
   compileSkillDefinitionBatchSource,
   type CompiledSkillDefinitionIdentitySource,
   type SkillDefinitionCompileRequestIdentitySource,
-} from './compiler/skillDefinitionBatch.ts';
+} from './compiler/skills/skillDefinitionBatch.ts';
 export {
   materializePassiveBuffInstallation,
   materializePassiveSkillInstallation,
   type MaterializedPassiveBuffInstallationSource,
   type MaterializedPassiveSkillInstallationSource,
   type UnresolvedPassiveSkillBlackboardValueSource,
-} from './compiler/passiveSkillInstallation.ts';
+} from './compiler/skills/passiveSkillInstallation.ts';
 export {
   resolveSkillBlackboardSource,
   selectSkillBlackboardLevel,
   type ResolvedSkillBlackboardSource,
   type SelectedSkillBlackboardSource,
-} from './compiler/skillBlackboard.ts';
+} from './compiler/skills/skillBlackboard.ts';
 export {
   createAbilityEntityDefinitionReferenceNodes,
   createBuffDefinitionReferenceNode,
@@ -601,14 +601,14 @@ export {
   parseAbilityEntityDefinitionReferenceNodes,
   parseBuffDefinitionReferenceNodes,
   parseProjectileDefinitionReferenceNodes,
-} from './compiler/referenceDefinitions.ts';
+} from './compiler/references/referenceDefinitions.ts';
 export {
   indexDefinitionReferenceNodes,
   resolveDefinitionReferenceClosure,
   type DefinitionReferenceClosureSource,
   type DefinitionReferenceNodeSource,
   type MissingDefinitionReferenceSource,
-} from './compiler/referenceClosure.ts';
+} from './compiler/references/referenceClosure.ts';
 export { parseSkillPatchSource, type SkillPatchSource } from './source/skillPatch.ts';
 export {
   parseNativePassiveSkillSource,
@@ -681,12 +681,12 @@ export {
 } from './source/comboSkillConditions.ts';
 export { parseUnityComboSkillConditionsSource } from './source/unityComboSkillConditions.ts';
 export { parseObjectTypeMask } from './source/objectType.ts';
-export { compileSkillSmartTargetSource } from './compiler/comboSmartTarget.ts';
+export { compileSkillSmartTargetSource } from './compiler/conditions/comboSmartTarget.ts';
 export {
   compileSynchronousProjectileCallbackScopesSource,
   type CompiledActionBlackboardScopeSource,
   type ProjectileCallbackInvocationSource,
-} from './compiler/projectileCallbackScopes.ts';
+} from './compiler/abilities/projectileCallbackScopes.ts';
 export {
   createZeroDistanceProjectileProjectionExtensionSource,
   compileImmediateProjectileCallbackSkillSource,
@@ -694,7 +694,7 @@ export {
   compileZeroDistanceFirstTickProjectileSource,
   type ZeroDistanceProjectileProjectionCatalogSource,
   type ZeroDistanceProjectileCallbackSource,
-} from './compiler/projectileRuntimeProjection.ts';
+} from './compiler/abilities/projectileRuntimeProjection.ts';
 export {
   parseProjectileRuntimeSource,
   type ProjectileRuntimeSource,
@@ -708,4 +708,4 @@ export {
   compilePendingComboConditionSource,
   compileComboSkillConditionDefinitionSource,
   type CompiledComboConditionSource,
-} from './compiler/comboSkillConditions.ts';
+} from './compiler/conditions/comboSkillConditions.ts';

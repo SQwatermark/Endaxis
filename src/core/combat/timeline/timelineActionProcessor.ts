@@ -1,26 +1,20 @@
+import { type TimelineRuntimeState } from '../state/actionState';
 /**
  * 将现有动作对象连接到纯数据时间轴调度内核。
  * 动作内部状态尚未全部迁移，此绑定层本身不提供整场保存能力。
  */
 import type { ActionSequence } from '../actions/actionSequence';
 import type { CombatExecutionContext } from '../actions/combatStep';
-import { createTimelineActionState } from './timelineActionState';
-import type { ActionSequenceState } from '../actions/actionSequenceState';
-
-/** 调度器和按开始帧排序的序列数据；未迁移步骤仍会拒绝恢复绑定。 */
-export interface TimelineRuntimeState {
-  readonly scheduling: ReturnType<typeof createTimelineActionState>;
-  readonly sequences: readonly ActionSequenceState[];
-}
+import { createTimelineActionState } from '../state/actionState';
 import {
   compileTimelineActionIntervals,
+  endTimelineActions,
+  finishTimelineActions,
+  jumpToTimelineActions,
   resetTimelineActions,
   tickTimelineActions,
-  jumpToTimelineActions,
-  finishTimelineActions,
-  endTimelineActions,
-  type TimelineActionInterval,
   type TimelineActionExecutionHost,
+  type TimelineActionInterval,
 } from './timelineActionExecution';
 
 /** 固定帧调度器消费的不可变行为区间。 */

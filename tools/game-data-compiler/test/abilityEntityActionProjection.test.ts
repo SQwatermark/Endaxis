@@ -1,7 +1,7 @@
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import lifetimeFixture from './fixtures/liino-no-callback-lifetime-current.ts';
 import { describe, expect, it } from 'vitest';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
 import type { TargetReferenceSource } from '../src/source/target.ts';
 import { parseReturnSequence } from './support/avywennaReturnProjection.ts';

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { perlica } from './perlica';
+import { perlica } from './perlica.generated';
 import { collectSteps, getGroupSkills, getSkill as findSkill } from './testUtils';
 
 const getSkill = (key: string) => findSkill(perlica, key);

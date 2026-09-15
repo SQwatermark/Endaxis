@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseAbilitySystemBlackboardsSource } from '../../../tools/game-data-compiler/src/source/abilitySystemBlackboards.ts';
-import { compileAbilitySystemBlackboardsSource } from '../../../tools/game-data-compiler/src/compiler/abilitySystemBlackboards.ts';
-import { ActionBlackboard } from '../combat/runtime/actionBlackboard';
+import { compileAbilitySystemBlackboardsSource } from '../../../tools/game-data-compiler/src/compiler/abilities/abilitySystemBlackboards.ts';
+import { ActionBlackboard } from '../combat/actions/actionBlackboard';
 
 const pair = (key: string, valueDouble = 0, valueStr = '') => ({
   key,

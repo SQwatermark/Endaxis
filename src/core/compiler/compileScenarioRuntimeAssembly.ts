@@ -5,39 +5,39 @@
  * 由调用方显式注入。调用方可以把返回值直接交给 `CombatRuntimeAssembly`，但不得把这里当作
  * 缺失规则的默认值来源。
  */
+import { compareCombatNumbers } from '../../../packages/game-data-contract/src/primitives';
 import type {
   CombatOperatorProgram,
   CombatRuntimeAssemblyOptions,
   CombatRuntimeEnvironmentOptions,
   CombatSkillCastProgram,
 } from '../combat/runtime/combatRuntimeAssembly';
+import { isOperatorControlledAt } from '../combat/skills/operatorControlTimeline';
+import type { ScheduledExternalCombatEventInput } from '../combat/state/environmentState';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
-import type { ScenarioDocument } from '../project/schema';
-import {
-  compileScenarioResources,
-  type CompileScenarioResourcesOptions,
-} from './compileScenarioResources';
-import {
-  compileResolvedScenarioTimeline,
-  compileOperatorDefinitionSkills,
-  compileOperatorSkillCastPrograms,
-} from './compileScenarioTimeline';
-import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
-import { resolveScenarioBuilds } from './resolveScenarioBuilds';
-import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
-import { applyMechanicsToScenarioEnemy, compileScenarioEnemy } from './compileScenarioEnemy';
-import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
-import { resolveControlTimeline } from '../project/resolveControlTimeline';
-import { isOperatorControlledAt } from '../combat/runtime/operatorControlTimeline';
-import { compareCombatNumbers } from '../../shared/combatNumericComparison';
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
-import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
-import type { ScheduledExternalCombatEventInput } from '../combat/runtime/externalCombatEventRuntime';
 import {
   compileMechanics,
   MechanicAdapterRegistry,
   type CompiledMechanics,
 } from '../mechanics/mechanicCompiler';
+import { resolveControlTimeline } from '../project/resolveControlTimeline';
+import type { ScenarioDocument } from '../project/schema';
+import { applyMechanicsToScenarioEnemy, compileScenarioEnemy } from './compileScenarioEnemy';
+import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
+import {
+  compileScenarioResources,
+  type CompileScenarioResourcesOptions,
+} from './compileScenarioResources';
+import {
+  compileOperatorDefinitionSkills,
+  compileOperatorSkillCastPrograms,
+  compileResolvedScenarioTimeline,
+} from './compileScenarioTimeline';
+import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
+import { resolveScenarioOperatorPanels } from './resolveOperatorPanel';
+import { resolveScenarioBuilds } from './resolveScenarioBuilds';
+import { resolveScenarioOperatorResourceRules } from './resolveScenarioResourceRules';
 
 export type ScenarioRuntimeBuildIndex = Pick<
   GameDataRepository,

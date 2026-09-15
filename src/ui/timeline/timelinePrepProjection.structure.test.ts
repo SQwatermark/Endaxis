@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import editor from './TimelineEditor.vue?raw';
-import buffs from './components/TimelineBuffBands.vue?raw';
-import combo from './components/TimelineComboWindowBands.vue?raw';
-import connections from './components/TimelineConnectionLayer.vue?raw';
-import enemy from './components/TimelineEnemyEffects.vue?raw';
-import passive from './components/TimelineOperatorPassiveUiBands.vue?raw';
-import resources from './components/TimelineResourceCurves.vue?raw';
-import dilation from './components/TimelineTimeDilationBands.vue?raw';
-import gauge from './components/TimelineTrackGauge.vue?raw';
+import buffs from './results/TimelineBuffBands.vue?raw';
+import combo from './results/TimelineComboWindowBands.vue?raw';
+import connections from './interaction/TimelineConnectionLayer.vue?raw';
+import enemy from './results/TimelineEnemyEffects.vue?raw';
+import passive from './results/TimelineOperatorPassiveUiBands.vue?raw';
+import resources from './results/TimelineResourceCurves.vue?raw';
+import dilation from './results/TimelineTimeDilationBands.vue?raw';
+import gauge from './results/TimelineTrackGauge.vue?raw';
 
 describe('collapsed prep projection integration', () => {
   it('passes the persisted projection mode to every horizontal timeline layer', () => {

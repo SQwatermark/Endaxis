@@ -3,8 +3,8 @@
  * 调用方应在生命伤害之后按证据调用，并提供同一伤害包对应的来源和目标修正器。
  */
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
-import type { CombatClock } from '../runtime/combatClock';
-import type { CombatVitals } from '../runtime/combatVitals';
+import type { CombatClock } from '../time/combatClock';
+import type { CombatVitals } from '../resources/combatVitals';
 
 export const POISE_DAMAGE_EVENTS = [
   'beforeOutputPoiseDamage',

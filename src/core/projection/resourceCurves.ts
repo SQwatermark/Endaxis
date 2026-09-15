@@ -4,7 +4,7 @@
  * 本层不自行解释回执字段，也不计算资源变化；原始回执入口会复用 `projectResourceChangePoints`。
  * 初始点之外只为真实变化回执生成点，因此不会按连续帧展开。同帧事件按输入中的 sequence 顺序保留。
  */
-import type { CombatResourceSnapshot } from '../combat/runtime/combatResources';
+import type { CombatResourceSnapshot } from '../combat/resources/combatResources';
 import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 import { projectResourceChangePoints, type ResourceChangePoint } from './resourceChangePoints';
 

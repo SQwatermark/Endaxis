@@ -1,3 +1,6 @@
+import type { CombatBuffContainer } from '../buffs/combatBuffs';
+import type { CombatVitals } from '../resources/combatVitals';
+import type { DamageModifierExternalCondition } from './damageModifiers';
 /** 伤害修正的条件与处理器算法；所有本次输入由调用方传入，不保留伤害上下文。 */
 import type {
   DamageModifierCondition,
@@ -5,7 +8,7 @@ import type {
   DamageModifierNumber,
   DamageProcessorDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
-import { compareCombatNumbers } from '../../../shared/combatNumericComparison';
+import { compareCombatNumbers } from '../../../../packages/game-data-contract/src/primitives';
 import { attributeModifierValues } from '../attributes/combatAttributes';
 import type {
   DamageModifierSide,
@@ -143,5 +146,78 @@ function applyProcessor(
           timing: processor.attributeTiming,
         });
       }
+  }
+}
+
+/** 场景提供查询端口，伤害修正模块统一解释条件；仅主控条件读取控制时间线。 */
+export function evaluateDamageModifierEnvironmentCondition(
+  condition: DamageModifierExternalCondition,
+  operatorBuffs: Pick<CombatBuffContainer<string>, 'matchesEntityTags' | 'getCountByIds'>,
+  enemyBuffs: Pick<CombatBuffContainer<string>, 'matchesEntityTags' | 'getCountByIds'>,
+  enemyVitals: Pick<CombatVitals, 'health' | 'maxHealth' | 'hasPoise' | 'poise'>,
+  damageContext: PlayerDamageContext,
+  resolveNumber: (value: DamageModifierNumber) => number,
+  readControlled: () => boolean,
+): boolean {
+  switch (condition.kind) {
+    case 'entityTagMatch': {
+      const target = condition.target === 'caster' ? operatorBuffs : enemyBuffs;
+      return target.matchesEntityTags(condition.tags, condition.tagQueryType);
+    }
+    case 'casterControlled':
+      return readControlled();
+    case 'buffIdCountCompare': {
+      const target = condition.target === 'caster' ? operatorBuffs : enemyBuffs;
+      return compareCombatNumbers(
+        target.getCountByIds(condition.buffIds),
+        resolveNumber(condition.value),
+        condition.operator,
+      );
+    }
+    case 'eventDamageTagsMatch':
+      return matchDamageProperties(damageContext.tags, condition.tags, condition.match);
+    case 'eventDamageFeaturesMatch':
+      return matchDamageProperties(damageContext.features, condition.features, condition.match);
+    case 'eventDamageTypesMatch':
+      return condition.damageTypes.includes(damageContext.damageType);
+    case 'targetHealthCompare': {
+      const current =
+        condition.valueType === 'ratio'
+          ? enemyVitals.health / enemyVitals.maxHealth
+          : enemyVitals.health;
+      return compareCombatNumbers(current, resolveNumber(condition.value), condition.operator);
+    }
+    case 'targetPoiseCompare':
+      return enemyVitals.hasPoise
+        ? compareCombatNumbers(
+            enemyVitals.poise,
+            resolveNumber(condition.value),
+            condition.operator,
+          )
+        : condition.returnValueIfMissing;
+  }
+}
+
+function matchDamageProperties<
+  T extends PlayerDamageContext['tags'][number] | PlayerDamageContext['features'][number],
+>(
+  actualValues: readonly T[],
+  expectedValues: readonly T[],
+  match: 'exact' | 'hasAny' | 'hasAll' | 'exceptAny' | 'exceptAll',
+): boolean {
+  const actual = new Set(actualValues);
+  const hasAny = expectedValues.some(value => actual.has(value));
+  const hasAll = expectedValues.every(value => actual.has(value));
+  switch (match) {
+    case 'exact':
+      return actual.size === new Set(expectedValues).size && hasAll;
+    case 'hasAny':
+      return hasAny;
+    case 'hasAll':
+      return hasAll;
+    case 'exceptAny':
+      return !hasAny;
+    case 'exceptAll':
+      return !hasAll;
   }
 }

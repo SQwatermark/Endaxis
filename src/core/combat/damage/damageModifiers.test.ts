@@ -1,10 +1,10 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createActionBlackboardState } from '../state/actionState';
+import { createActionBlackboardState } from '../state/foundationState';
+import { DamageModifier } from './damageModifiers';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,
 } from './damageScaleAttributes';
-import { DamageModifier } from './damageModifiers';
 import { PlayerDamageContext, type PlayerDamageAttributeSnapshots } from './playerDamageContext';
 
 const scaleAttributes = Object.fromEntries(

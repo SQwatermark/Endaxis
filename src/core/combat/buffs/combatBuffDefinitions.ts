@@ -1,18 +1,18 @@
 // 纯数据契约由独立包唯一声明；此路径保留兼容导出。
 export {
   COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
-  type CombatBuffSemanticRole,
-  type CombatBuffDefinitionNumberOperand,
+  type CombatBuffDefinitionAction,
+  type CombatBuffDefinitionAttributeModifier,
   type CombatBuffDefinitionAttributeSelector,
   type CombatBuffDefinitionAttributeStage,
-  type CombatBuffDefinitionAction,
-  type CombatBuffSpellBurstDefinition,
-  type CombatBuffDefinitionLifecycleActions,
-  type CombatBuffDefinitionAttributeModifier,
-  type CombatBuffDefinitionDamageProcessor,
   type CombatBuffDefinitionDamageModifier,
+  type CombatBuffDefinitionDamageProcessor,
   type CombatBuffDefinitionEntry,
+  type CombatBuffDefinitionLifecycleActions,
+  type CombatBuffDefinitionNumberOperand,
   type CombatBuffDefinitionsDocument,
+  type CombatBuffSemanticRole,
+  type CombatBuffSpellBurstDefinition,
 } from '../../../../packages/game-data-contract/src/buffs.ts';
 import {
   COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
@@ -34,17 +34,30 @@ import {
  * 数据源必须先转换为这里支持的原语；未知原生行为不能以回调或静默缺省方式穿透。
  */
 import {
-  INFLICTION_ELEMENTS,
   COMPARISON_OPERATORS,
   DAMAGE_FEATURES,
   DAMAGE_TAGS,
   DAMAGE_TYPES,
-  type DamageType,
+  INFLICTION_ELEMENTS,
   type DamageFeature,
   type DamageTag,
+  type DamageType,
   type InflictionElement,
 } from '../../game-data/operatorDefinition';
-import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
+import type { ActionBlackboardValue } from '../actions/actionBlackboard';
+import { ATTRIBUTE_MODIFIER_SLOTS, attributeModifierValues } from '../attributes/combatAttributes';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
+import type { DamageModifierCondition } from '../damage/damageModifiers';
+import { DAMAGE_SCALE_SIDES, DAMAGE_SCALE_ZONES } from '../damage/damageScale';
+import { DAMAGE_MODIFIER_SIDES } from '../damage/playerDamageContext';
+import type { PoiseModifierCondition, PoiseModifierDefinition } from '../damage/poiseModifiers';
+import type { HealModifierDefinition } from '../heal/healModifiers';
+import type {
+  ElementalInflictionBuffIndex,
+  ElementalInflictionStartedPayload,
+} from '../infliction/elementalInflictionBuffAdapter';
+import { createElementalAttachmentLifecycleActions } from '../infliction/elementalInflictionBuffAdapter';
+import { assertGameplayTag } from '../tags/gameplayTags';
 import type {
   BuffLifecycleActions,
   BuffPriority,
@@ -56,22 +69,6 @@ import type {
   CombatBuffPresentation,
 } from './combatBuffs';
 import { BUFF_STACKING_TYPES } from './combatBuffs';
-import type {
-  ElementalInflictionBuffIndex,
-  ElementalInflictionStartedPayload,
-} from '../infliction/elementalInflictionBuffAdapter';
-import { createElementalAttachmentLifecycleActions } from '../infliction/elementalInflictionBuffAdapter';
-import { assertGameplayTag } from '../tags/gameplayTags';
-import {
-  ATTRIBUTE_MODIFIER_SOURCES,
-  ATTRIBUTE_MODIFIER_SLOTS,
-  attributeModifierValues,
-} from '../attributes/combatAttributes';
-import type { DamageModifierCondition } from '../damage/damageModifiers';
-import { DAMAGE_SCALE_SIDES, DAMAGE_SCALE_ZONES } from '../damage/damageScale';
-import { DAMAGE_MODIFIER_SIDES } from '../damage/playerDamageContext';
-import type { HealModifierDefinition } from '../heal/healModifiers';
-import type { PoiseModifierCondition, PoiseModifierDefinition } from '../damage/poiseModifiers';
 
 /** 执行器向战斗装配层提出的读取请求，不属于生成数据契约。 */
 export interface CombatBuffDefinitionAttributeReadRequest {
@@ -98,7 +95,7 @@ export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
   readonly onSpellBurstTriggered?: (payload: {
     readonly burstType: string;
     readonly sourceId: string;
-    readonly skillCastInfo?: import('../runtime/skillCastInfo').CombatSkillCastInfo;
+    readonly skillCastInfo?: import('../state/foundationState').CombatSkillCastInfo;
   }) => void;
   /** 伤害动作携带执行实例身份，供实际伤害回执关联生命周期；不是按元素推测的来源。 */
   readonly onAttackScaledDamageTriggered?: (payload: {
@@ -108,7 +105,7 @@ export interface CombatBuffDefinitionCompilerPorts<Key extends string> {
     readonly features: readonly DamageFeature[];
     readonly canCritical: boolean;
     readonly sourceId: string;
-    readonly skillCastInfo?: import('../runtime/skillCastInfo').CombatSkillCastInfo;
+    readonly skillCastInfo?: import('../state/foundationState').CombatSkillCastInfo;
     readonly buffId: string;
     readonly buffInstanceId: number;
     readonly buffOwnerId: string;

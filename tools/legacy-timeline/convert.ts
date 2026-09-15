@@ -11,7 +11,7 @@ import {
   retimeLegacyProjectBySimulation,
   type LegacyRuntimeReplacementResolver,
 } from './heuristicRetiming';
-import { ScenarioSimulationService } from '../../src/application/scenarioSimulationService';
+import { ScenarioSimulationService } from '../../src/application/simulation/scenarioSimulationService';
 import { CheckpointRetimingSession } from './checkpointRetiming';
 import { skillSettings, skillSettingResources } from '../../src/data/combat/skillSettings';
 import { elementalAttachments } from '../../src/data/buffs/elementalAttachments';

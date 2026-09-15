@@ -4,7 +4,7 @@ import { parseDamageUnitSource } from '../src/index.ts';
 import { parseDamageProcessors } from '../src/source/damageActions.ts';
 import { parseTargetReferenceSource } from '../src/source/target.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
-import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/simpleDamageOperation.ts';
+import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/actions/simpleDamageOperation.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const BASE_UNIT = {

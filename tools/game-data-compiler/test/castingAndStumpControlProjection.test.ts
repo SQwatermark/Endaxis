@@ -1,11 +1,11 @@
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 
-import { compileBuffLeafNode } from '../src/compiler/combatEntityAndTimeProjection.ts';
+import { compileBuffLeafNode } from '../src/compiler/actions/combatEntityAndTimeProjection.ts';
 import {
   canOmitUnusedNativeCondition,
   compileEventCondition,
-} from '../src/compiler/combatConditionProjection.ts';
+} from '../src/compiler/conditions/combatConditionProjection.ts';
 import {
   isDynamicSingleEnemyTagTargetGroup,
   isStaticSingleEnemyTargetGroup,
@@ -15,7 +15,7 @@ import {
   parseKnownNativeActionLeafSource,
   parseKnownNativeActionSequenceSource,
 } from '../src/source/actionLeaf.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../packages/game-data-contract/src/conditions.ts';
 

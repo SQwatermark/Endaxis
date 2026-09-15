@@ -13,12 +13,12 @@ import type {
 import type { OperatorDefinition } from '../../../packages/game-data-contract/src/operators.ts';
 import type { GearSetDefinition } from '../../../packages/game-data-contract/src/equipment.ts';
 import type { SkillDefinition } from '../../../packages/game-data-contract/src/skills.ts';
-import { avywenna } from '../../../src/data/operators/avywenna.ts';
-import { optimizeCommonBuffDefinitions } from '../src/compiler/equipmentDefinitionOptimization.ts';
+import { avywenna } from '../../../src/data/operators/avywenna.generated.ts';
+import { optimizeCommonBuffDefinitions } from '../src/compiler/optimization/equipmentDefinitionOptimization.ts';
 import {
   collectSharedEntityValueUsage,
   type SharedEntityValueUsageInput,
-} from '../src/compiler/definitionEntityUsageContext.ts';
+} from '../src/compiler/optimization/definitionEntityUsageContext.ts';
 import type { OperatorPlanningSources } from '../scripts/operatorPlanningSources.ts';
 
 const {
@@ -37,7 +37,7 @@ vi.mock('../scripts/planOperatorDefinition.ts', () => ({
   planOperatorDefinition,
 }));
 vi.mock('../scripts/compileEntityValueConsumers.ts', () => ({ compileEntityValueConsumers }));
-vi.mock('../src/compiler/standardStumpBuffClosure.ts', () => ({
+vi.mock('../src/compiler/buffs/standardStumpBuffClosure.ts', () => ({
   compileStandardStumpBuffClosure,
 }));
 
@@ -122,7 +122,7 @@ beforeEach(() => {
   renderOperatorDefinitionFiles.mockImplementation(
     async (slug: string, operator: OperatorDefinition, audit) => ({
       file: {
-        relativePath: `${slug}.ts`,
+        relativePath: `${slug}.generated.ts`,
         content: `export default ${JSON.stringify(operator)};\n`,
       },
       auditFile: { relativePath: 'operator.audit.json', content: `${JSON.stringify(audit)}\n` },
@@ -288,7 +288,7 @@ describe('干员与公共 Buff 共用规划', () => {
         return { ...result, operator };
       });
       await generateOperatorDefinitionCandidates(input);
-      const candidate = await fs.readFile(path.join(input.outputRoot, 'one.ts'), 'utf8');
+      const candidate = await fs.readFile(path.join(input.outputRoot, 'one.generated.ts'), 'utf8');
       expect(candidate.includes('"unused":99')).toBe(optimization !== 'apply');
       expect(candidate).toContain('"teammateValue":7');
       const candidateAudit = await fs.readFile(
@@ -303,12 +303,12 @@ describe('干员与公共 Buff 共用规划', () => {
       const commonOutput = path.join(input.sourceRoot, 'src/data/buffs/generated');
       await fs.mkdir(output, { recursive: true });
       await fs.mkdir(commonOutput, { recursive: true });
-      await fs.writeFile(path.join(output, 'two.ts'), 'other operator');
+      await fs.writeFile(path.join(output, 'two.generated.ts'), 'other operator');
       await fs.writeFile(path.join(commonOutput, 'previous'), 'common snapshot');
       vi.spyOn(process, 'cwd').mockReturnValue(input.sourceRoot);
       const selected = { ...input, slug: 'one', output, auditOutput };
       await expect(generateOperatorDefinition(selected)).resolves.toMatchObject({ slug: 'one' });
-      expect(await fs.readFile(path.join(output, 'one.ts'), 'utf8')).toBe(candidate);
+      expect(await fs.readFile(path.join(output, 'one.generated.ts'), 'utf8')).toBe(candidate);
       expect(await fs.readFile(path.join(auditOutput, 'operator.audit.json'), 'utf8')).toBe(
         candidateAudit,
       );
@@ -329,7 +329,9 @@ describe('干员与公共 Buff 共用规划', () => {
         'one',
         'one',
       ]);
-      expect(await fs.readFile(path.join(output, 'two.ts'), 'utf8')).toBe('other operator');
+      expect(await fs.readFile(path.join(output, 'two.generated.ts'), 'utf8')).toBe(
+        'other operator',
+      );
       expect(await fs.readdir(commonOutput)).toEqual(['previous']);
       expect(await fs.readFile(path.join(commonOutput, 'previous'), 'utf8')).toBe(
         'common snapshot',
@@ -645,11 +647,11 @@ describe('干员与公共 Buff 共用规划', () => {
     );
     await generateOperatorDefinitionCandidates(input);
     expect(contexts[0]).toBe(contexts[1]);
-    const output = path.join(input.outputRoot, 'one.ts');
+    const output = path.join(input.outputRoot, 'one.generated.ts');
     const before = await fs.readFile(output, 'utf8');
     await fs.writeFile(skillPatchTable, '{"value":3}');
     await expect(generateOperatorDefinitionCandidates({ ...input, check: true })).rejects.toThrow(
-      'generated definition file is stale: one.ts',
+      'generated definition file is stale: one.generated.ts',
     );
     expect(contexts).toHaveLength(4);
     expect(contexts[2]).toBe(contexts[3]);

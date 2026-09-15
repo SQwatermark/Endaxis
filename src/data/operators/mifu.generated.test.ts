@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { mifu as mifuGeneratedOperator } from './mifu';
+import { mifu as mifuGeneratedOperator } from './mifu.generated';
 
 describe('mifu generated operator', () => {
   it('keeps the chained battle skills as runtime-only replacements', () => {

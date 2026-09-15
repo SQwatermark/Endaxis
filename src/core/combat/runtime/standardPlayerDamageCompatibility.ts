@@ -8,8 +8,8 @@ import type {
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
 import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type { ScheduledSkillInput } from '../state/environmentState';
 import type { CombatOperatorProgram } from './combatRuntimeAssembly';
-import type { ScheduledSkillInput } from './combatInputRuntime';
 import { inspectKnockDownControlConsumers } from './knockDownControlCompatibility';
 
 export const STANDARD_PLAYER_DAMAGE_COMPATIBILITY_CODES = [

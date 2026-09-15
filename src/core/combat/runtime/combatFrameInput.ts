@@ -1,6 +1,9 @@
-import type { CombatSkillInput, ScheduledSkillInput } from './combatInputRuntime';
-import type { CombatInputExecution } from './combatInputExecution';
-import type { ExternalCombatEventInput } from './externalCombatEventRuntime';
+import type { CombatInputExecution } from '../skills/combatInputExecution';
+import type {
+  CombatSkillInput,
+  ExternalCombatEventInput,
+  ScheduledSkillInput,
+} from '../state/environmentState';
 import type { CombatSkillCastProgram } from './combatRuntimeAssembly';
 
 export interface CombatSkillInputPhase extends CombatInputExecution {

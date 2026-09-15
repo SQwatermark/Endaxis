@@ -4,14 +4,14 @@ import {
   checkGeneratedDefinitionFiles,
   writeGeneratedDefinitionFiles,
   type RenderedDefinitionFileSource,
-} from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+} from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { planOperatorDefinition, renderOperatorDefinitionFiles } from './planOperatorDefinition.ts';
-import { optimizeOperatorDefinitionPrograms } from '../src/compiler/definitionProgramOptimization.ts';
+import { optimizeOperatorDefinitionPrograms } from '../src/compiler/optimization/definitionProgramOptimization.ts';
 import {
   createSharedEntityValueUsageCollector,
   type SharedEntityValueUsage,
-} from '../src/compiler/definitionEntityUsageContext.ts';
+} from '../src/compiler/optimization/definitionEntityUsageContext.ts';
 import { compileEntityValueConsumers } from './compileEntityValueConsumers.ts';
 import {
   createCommonBuffCollector,

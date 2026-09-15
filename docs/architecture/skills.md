@@ -48,7 +48,7 @@
 这些值不能互相代替，也不能用最后一次可见伤害推断技能寿命。
 原生自然结束周期由生成数据保留；到期时，运行时先执行本帧动作，再结束技能。
 只有缺少 `naturalDurationFrames` 的旧自定义定义，才兼容使用“时间轴动作全部完成”作为结束边界。
-显式结束请求和中断也可以结束当前释放。具体顺序见 [SkillRuntime](../../src/core/combat/runtime/skillRuntime.ts)。
+显式结束请求和中断也可以结束当前释放。具体顺序见 [SkillRuntime](../../src/core/combat/skills/skillRuntime.ts)。
 
 ## 编译、执行和结束
 

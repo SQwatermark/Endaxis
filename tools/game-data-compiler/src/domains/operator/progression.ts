@@ -1,8 +1,8 @@
-import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
+import type { PassiveSkillCompileRequestSource } from '../../compiler/skills/passiveSkillRequest.ts';
 import {
   compileBuildConditionIndexSource,
   type CompiledBuildConditionSource,
-} from '../../compiler/buildCondition.ts';
+} from '../../compiler/conditions/buildCondition.ts';
 import {
   parseOperatorPotentialSource,
   type OperatorPotentialSource,

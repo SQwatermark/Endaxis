@@ -1,20 +1,21 @@
 import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
-// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
-export {
-  type HealModifierSide,
-  type HealProcessTiming,
-  type HealModifierNumber,
-  type HealModifierCondition,
-  type ModifyHealCalculationResultProcessorDefinition,
-  type ModifyHealingIncreaseProcessorDefinition,
-  type HealModifierDefinition,
-} from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
   type HealModifierDefinition,
   type HealModifierSide,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
-import type { BuffModifierNumberSource } from '../buffs/buffModifierNumberSource';
-import type { CombatVitals } from '../runtime/combatVitals';
+import type { CombatVitals } from '../resources/combatVitals';
+import type { BuffModifierNumberSource } from '../state/foundationState';
+import { type HealModifier } from '../state/foundationState';
+// 纯数据契约由独立包唯一声明；此路径保留兼容导出。
+export {
+  type HealModifierCondition,
+  type HealModifierDefinition,
+  type HealModifierNumber,
+  type HealModifierSide,
+  type HealProcessTiming,
+  type ModifyHealCalculationResultProcessorDefinition,
+  type ModifyHealingIncreaseProcessorDefinition,
+} from '../../../../packages/game-data-contract/src/modifiers.ts';
 
 export class HealCalculationContext {
   constructor(
@@ -30,12 +31,6 @@ export class HealCalculationContext {
   getEntityId(side: HealModifierSide): string {
     return side === 'healer' ? this.healerId : this.receiverId;
   }
-}
-
-export interface HealModifier {
-  readonly ownerId: string;
-  readonly definition: HealModifierDefinition;
-  readonly numberSource: BuffModifierNumberSource;
 }
 
 export function createHealModifier(

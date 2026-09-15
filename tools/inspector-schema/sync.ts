@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   extractInspectorStructures,
@@ -20,8 +20,10 @@ export function syncInspectorSchema(root: string): string[] {
     ['eventStructure.generated.ts', formatEventSchema(root, structures)],
   ] as const;
   const changed: string[] = [];
+  const outputDirectory = resolve(root, 'src/ui/timeline/definitions/inspector');
+  mkdirSync(outputDirectory, { recursive: true });
   for (const [name, content] of outputs) {
-    const path = resolve(root, 'src/ui/timeline', name);
+    const path = resolve(outputDirectory, name);
     if (existsSync(path) && readFileSync(path, 'utf8').replace(/\r\n/g, '\n') === content) continue;
     writeFileSync(path, content);
     changed.push(path);

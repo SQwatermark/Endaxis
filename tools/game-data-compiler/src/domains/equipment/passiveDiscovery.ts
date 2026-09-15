@@ -1,4 +1,4 @@
-import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
+import type { PassiveSkillCompileRequestSource } from '../../compiler/skills/passiveSkillRequest.ts';
 import {
   requireArray,
   requireExactFields,

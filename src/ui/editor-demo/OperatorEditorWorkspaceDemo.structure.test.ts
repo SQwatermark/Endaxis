@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import mindMapSource from '../timeline/components/SkillStructureMindMap.vue?raw';
+import mindMapSource from '../timeline/definitions/SkillStructureMindMap.vue?raw';
 import source from './OperatorEditorWorkspaceDemo.vue?raw';
 
 describe('OperatorEditorWorkspaceDemo structure', () => {

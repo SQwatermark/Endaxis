@@ -6,10 +6,10 @@ import {
 } from '../keyboard/keyboardShortcutRouter';
 import { createInteractionSession } from './interactionSession';
 import { usePopoverInteractionBoundary } from './usePopoverInteractionBoundary';
-import stepPicker from '../timeline/components/StepTypePicker.vue?raw';
-import conditionPicker from '../timeline/components/CombatConditionTypePicker.vue?raw';
-import equipmentPicker from '../timeline/components/EquipmentContributionTypePicker.vue?raw';
-import buffEditor from '../timeline/components/BuffDefinitionGraphEditor.vue?raw';
+import stepPicker from '../timeline/definitions/actions/StepTypePicker.vue?raw';
+import conditionPicker from '../timeline/definitions/actions/CombatConditionTypePicker.vue?raw';
+import equipmentPicker from '../timeline/definitions/equipment/EquipmentContributionTypePicker.vue?raw';
+import buffEditor from '../timeline/definitions/buffs/BuffDefinitionGraphEditor.vue?raw';
 
 describe('interactive popover ownership', () => {
   afterEach(() => vi.unstubAllGlobals());

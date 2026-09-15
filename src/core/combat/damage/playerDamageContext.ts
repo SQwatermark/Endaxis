@@ -1,10 +1,10 @@
 // 纯数据契约由独立包唯一声明；此路径保留兼容导出。
 export {
-  DAMAGE_PROCESS_TIMINGS,
-  type DamageProcessTiming,
   DAMAGE_MODIFIER_SIDES,
-  type DamageModifierSide,
+  DAMAGE_PROCESS_TIMINGS,
   DAMAGE_TARGET_HEALTH_TYPES,
+  type DamageModifierSide,
+  type DamageProcessTiming,
   type DamageTargetHealthType,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
@@ -26,14 +26,14 @@ import type {
   AttributeModifierTiming,
   AttributeModifierValues,
 } from '../attributes/combatAttributes';
+import type { CombatSkillCastInfo } from '../state/foundationState';
+import type { GameplayTag } from '../tags/gameplayTags';
 import { DamageScaleAccumulator } from './damageScale';
 import type { DamageScaleAttributeSnapshot } from './damageScaleAttributes';
 import type {
   PlayerDamageAttackerSnapshot,
   PlayerDamageDefenderSnapshot,
 } from './playerActiveDamageInput';
-import type { GameplayTag } from '../tags/gameplayTags';
-import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 
 /** 单次伤害包冻结的来源方与目标方属性快照。 */
 export interface PlayerDamageAttributeSnapshots {

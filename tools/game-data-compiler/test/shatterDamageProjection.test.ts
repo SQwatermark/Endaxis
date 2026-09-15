@@ -2,14 +2,14 @@ import { describe, expect, it, vi } from 'vitest';
 import fixture from './fixtures/avywenna-return-damage.json';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 import { parseDamageActionSource } from '../src/source/damageActions.ts';
-import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/simpleDamageOperation.ts';
+import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/actions/simpleDamageOperation.ts';
 import { compileActionSequence } from '../../../src/core/compiler/compileSkill';
-import { CombatActionSequenceRuntime } from '../../../src/core/combat/runtime/combatActionSequenceRuntime';
-import { PlayerDamageOperationExecutor } from '../../../src/core/combat/runtime/playerDamageOperationExecutor';
-import { CombatClock } from '../../../src/core/combat/runtime/combatClock';
-import { CombatVitals } from '../../../src/core/combat/runtime/combatVitals';
+import { CombatActionSequenceRuntime } from '../../../src/core/combat/actions/combatActionSequenceRuntime';
+import { PlayerDamageOperationExecutor } from '../../../src/core/combat/damage/playerDamageOperationExecutor';
+import { CombatClock } from '../../../src/core/combat/time/combatClock';
+import { CombatVitals } from '../../../src/core/combat/resources/combatVitals';
 import { CombatReceiptCollector } from '../../../src/core/combat/receipt/combatReceipt';
-import { ActionBlackboard } from '../../../src/core/combat/runtime/actionBlackboard';
+import { ActionBlackboard } from '../../../src/core/combat/actions/actionBlackboard';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeSnapshot,

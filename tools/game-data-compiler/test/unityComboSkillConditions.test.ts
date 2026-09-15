@@ -2,7 +2,7 @@ import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { describe, expect, it } from 'vitest';
 import { unityComboConditionFixture } from './unityComboConditionFixture.ts';
 import { parseUnityComboSkillConditionsSource } from '../src/source/unityComboSkillConditions.ts';
-import { compilePendingComboConditionSource } from '../src/compiler/comboSkillConditions.ts';
+import { compilePendingComboConditionSource } from '../src/compiler/conditions/comboSkillConditions.ts';
 import { parseObjectTypeMask } from '../src/source/objectType.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 const projection = {

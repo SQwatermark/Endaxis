@@ -9,7 +9,7 @@ import App from './App.vue';
 
 import router from './router';
 import { i18n, setLocale } from './i18n';
-import { bootstrapAppearance } from './composables/useAppearance';
+import { bootstrapAppearance } from './ui/appearance/useAppearance';
 import { showBootstrapFailure } from './bootstrapFailure';
 
 async function bootstrap() {

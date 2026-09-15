@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ATTRIBUTE_MODIFIER_SOURCES,
-  createCombatAttributeModifier,
-  attributeModifierValues,
-} from './combatAttributes';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
+import { createCombatAttributeModifier, attributeModifierValues } from './combatAttributes';
 import {
   createOperatorAttackAttributes,
   resolveOperatorAttack,

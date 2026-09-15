@@ -2,17 +2,15 @@
  * 将现有步骤对象接到数据驱动的序列内核。
  * 步骤对象仍可能持有内部状态，所以此绑定层尚不能作为完整战斗切面。
  */
-import { CombatStep, type CombatExecutionContext } from './combatStep';
-import { createActionSequenceState, type ActionSequenceState } from './actionSequenceState';
+import { createActionSequenceState, type ActionSequenceState } from '../state/actionState';
 import {
+  endActionSequence,
   executeActionSequence,
   resetActionSequence,
   tickActionSequence,
-  endActionSequence,
   type ActionSequenceExecutionHost,
 } from './actionSequenceExecution';
-
-export { COMBAT_STEP_STATE, type CombatStepState } from './actionSequenceState';
+import { CombatStep, type CombatExecutionContext } from './combatStep';
 
 /** 按配置数组的顺序同步执行战斗步骤。 */
 export class ActionSequence extends CombatStep {

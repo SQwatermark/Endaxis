@@ -7,7 +7,7 @@ import {
   MIN_TIMELINE_ZOOM_PERCENT,
   MAX_TIMELINE_ZOOM_PERCENT,
   stepTimelineZoomPercent,
-} from '../timelineZoom';
+} from '../interaction/timelineViewport';
 
 /** 时间轴轨道头部上方的编辑工具区，结构与尺寸以旧版 TimelineGrid 为准。 */
 defineProps<{

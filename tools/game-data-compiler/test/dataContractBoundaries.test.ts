@@ -35,7 +35,6 @@ const root = fileURLToPath(new URL('../../../', import.meta.url));
 const contractRoot = join(root, 'packages/game-data-contract/src');
 const compilerRoot = join(root, 'tools/game-data-compiler');
 const productRoot = join(root, 'src');
-const sharedRoot = join(root, 'src/shared');
 
 function inside(file: string, directory: string): boolean {
   const path = relative(directory, file);
@@ -93,7 +92,7 @@ function loadProgram(configFile: string): ts.Program {
 
 describe('独立游戏数据契约边界', () => {
   it('公共战斗事件触发器同时具备严格校验草稿和语义运行时匹配分支', () => {
-    const runtimePath = join(productRoot, 'core/combat/runtime/combatSemanticEventRuntime.ts');
+    const runtimePath = join(productRoot, 'core/combat/events/combatSemanticEventRuntime.ts');
     const ast = ts.createSourceFile(
       runtimePath,
       readFileSync(runtimePath, 'utf8'),
@@ -113,9 +112,25 @@ describe('独立游戏数据契约边界', () => {
   });
 
   it('公共动作和条件没有新增未登记的生产运行时缺口', () => {
-    const runtimeRoot = join(productRoot, 'core/combat/runtime');
+    const runtimeDirectories = [
+      'runtime',
+      'actions',
+      'abilities',
+      'buffs',
+      'skills',
+      'time',
+      'resources',
+      'damage',
+      'heal',
+      'infliction',
+      'events',
+      'status',
+    ];
+    const runtimeFiles = runtimeDirectories.flatMap(directory =>
+      sourceFiles(join(productRoot, 'core/combat', directory)),
+    );
     const discriminants = new Set<string>();
-    for (const path of sourceFiles(runtimeRoot).filter(
+    for (const path of runtimeFiles.filter(
       path =>
         !/\.(test|spec)\.ts$/.test(path) && !path.endsWith('standardPlayerDamageCompatibility.ts'),
     )) {
@@ -166,8 +181,8 @@ describe('独立游戏数据契约边界', () => {
   it('实体及整名干员装配直接接受契约检查，不用类型断言绕过输出差异', () => {
     const violations: string[] = [];
     for (const name of [
-      'compiler/abilityEntityDefinition.ts',
-      'compiler/abilityEntityChildSkill.ts',
+      'compiler/abilities/abilityEntityDefinition.ts',
+      'compiler/abilities/abilityEntityChildSkill.ts',
       'domains/operator/definition.ts',
     ]) {
       const path = join(compilerRoot, 'src', name);
@@ -469,14 +484,14 @@ describe('独立游戏数据契约边界', () => {
   });
   it('投影输出类型有唯一声明，且不反向依赖来源或编译实现', () => {
     const owners: Record<string, readonly string[]> = {
-      'combatActionProjectionTypes.ts': [
+      'actions/combatActionProjectionTypes.ts': [
         'CompiledActionValueOperandSource',
         'CompiledSimpleDamageOperationSource',
         'CompiledBuffConditionSource',
         'CompiledBuffStepSource',
         'CompiledBuffSequenceSource',
       ],
-      'buffProjectionTypes.ts': [
+      'buffs/buffProjectionTypes.ts': [
         'CompiledBuffNumberSource',
         'CompiledBuffPresentationSource',
         'CompiledBuffAttributeModifierSource',
@@ -509,7 +524,7 @@ describe('独立游戏数据契约边界', () => {
         const resolved = resolve(dirname(path), specifier);
         if (
           !inside(resolved, contractRoot) &&
-          resolved !== join(compilerRoot, 'src/compiler/combatActionProjectionTypes.ts')
+          resolved !== join(compilerRoot, 'src/compiler/actions/combatActionProjectionTypes.ts')
         ) {
           violations.push(`${relative(root, path)}: 禁止依赖 ${specifier}`);
         }
@@ -580,16 +595,14 @@ describe('独立游戏数据契约边界', () => {
     ).toEqual([]);
   }, 20_000);
 
-  it('转换器生产依赖图不加载本体；仅复用原有无本体依赖的 shared 工具', () => {
+  it('转换器生产依赖图不加载本体', () => {
     const program = loadProgram(join(compilerRoot, 'tsconfig.production.json'));
     const violations = program
       .getSourceFiles()
       .filter(
         file =>
           !file.isDeclarationFile &&
-          ![compilerRoot, contractRoot, sharedRoot].some(directory =>
-            inside(file.fileName, directory),
-          ),
+          ![compilerRoot, contractRoot].some(directory => inside(file.fileName, directory)),
       );
     expect(violations.map(file => relative(root, file.fileName))).toEqual([]);
     expect(

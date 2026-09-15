@@ -1,9 +1,9 @@
-import { compilePassiveSkillRequestBatch } from '../../compiler/passiveSkillBatch.ts';
+import { compilePassiveSkillRequestBatch } from '../../compiler/skills/passiveSkillBatch.ts';
 import {
   createSkillDefinitionReferenceNode,
   parseBuffDefinitionReferenceNodes,
-} from '../../compiler/referenceDefinitions.ts';
-import { resolveDefinitionReferenceClosure } from '../../compiler/referenceClosure.ts';
+} from '../../compiler/references/referenceDefinitions.ts';
+import { resolveDefinitionReferenceClosure } from '../../compiler/references/referenceClosure.ts';
 import { requireRecord } from '../../source/primitives.ts';
 import { discoverEquipmentSuitPassiveSkillRequests } from './passiveDiscovery.ts';
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { resolveProjectileRecycleDelaySource } from '../src/compiler/projectileRuntimeProjection.ts';
+import { resolveProjectileRecycleDelaySource } from '../src/compiler/abilities/projectileRuntimeProjection.ts';
 
 describe('projectile recycle delay source', () => {
   it.each([-1, 1.5, Number.POSITIVE_INFINITY, 1e100])(

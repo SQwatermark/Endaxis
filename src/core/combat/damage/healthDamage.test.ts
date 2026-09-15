@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
-import { CombatClock } from '../runtime/combatClock';
-import { CombatVitals } from '../runtime/combatVitals';
+import { CombatClock } from '../time/combatClock';
+import { CombatVitals } from '../resources/combatVitals';
 import type { PlayerActiveDamageResult } from './playerActiveDamage';
 import { executeHealthDamage } from './healthDamage';
 import type { DamageTag } from '../../game-data/operatorDefinition';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { groupEnemyBurstDamageHits } from '../../../ui/timeline/enemyBurstDamageGroups';
+import { groupEnemyBurstDamageHits } from '../../../ui/timeline/results/enemyBurstDamageGroups';
 
 function createDamageResult(value: number): PlayerActiveDamageResult {
   return {

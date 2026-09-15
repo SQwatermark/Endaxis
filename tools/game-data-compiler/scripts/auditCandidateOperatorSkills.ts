@@ -4,7 +4,7 @@ import { parseSkillSettingResources } from '../../../packages/game-data-contract
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createCandidateRuntimeServer } from '../src/compiler/candidateRuntimeServer.ts';
+import { createCandidateRuntimeServer } from '../src/compiler/publication/candidateRuntimeServer.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
 const REPLACEMENT_PATHS = [
@@ -155,7 +155,7 @@ export async function auditCandidateOperatorSkills(args: AuditArguments) {
       '/src/ui/timeline/skillGroupPlacement.ts',
     );
     const serviceModule = await server.ssrLoadModule(
-      '/src/application/scenarioSimulationService.ts',
+      '/src/application/simulation/scenarioSimulationService.ts',
     );
     const attachmentModule = await server.ssrLoadModule('/src/data/buffs/elementalAttachments.ts');
     const cases: RuntimeSkillCase[] = operators.flatMap(operator =>

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { createGameDataRepository } from '../../data/gameDataRepository';
-import { perlica } from '../../data/operators/perlica';
+import { perlica } from '../../data/operators/perlica.generated';
 import { gearDefinitions, gearSetDefinitions, weaponDefinitions } from '../../data/equipment';
 import { createEmptyProject, createEmptyScenario } from './createProject';
 import { validateProjectWithGameData } from './definitionValidation';

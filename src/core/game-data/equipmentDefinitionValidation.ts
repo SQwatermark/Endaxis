@@ -19,12 +19,14 @@ import {
   WEAPON_RARITIES,
 } from './equipmentDefinition';
 import {
-  validateActionSequenceDefinition,
   validateCombatConditionDefinition,
-  validateCombatEventTriggerDefinition,
   validateLevelValuesDefinition,
   type SkillDefinitionValidationIssue,
 } from './validateSkillDefinition';
+import {
+  validateActionSequenceDefinition,
+  validateCombatEventTriggerDefinition,
+} from './validation/actionPrograms';
 
 export type EquipmentDefinitionValidationIssue = SkillDefinitionValidationIssue;
 

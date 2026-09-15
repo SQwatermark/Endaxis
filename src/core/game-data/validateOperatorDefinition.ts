@@ -13,12 +13,14 @@ import { validateComboSkillConditions } from './validateComboSkillConditions';
 import { OPERATOR_PROGRESSION_SLOTS } from './operatorProgressionSlots';
 import { isOperatorPassiveAbilityEvent } from '../../../packages/game-data-contract/src/operators';
 import {
-  validateAbilityEntityDefinition,
-  validateActionSequenceDefinition,
   validateLevelValuesDefinition,
   validateSkillDefinition,
   type SkillDefinitionValidationIssue,
 } from './validateSkillDefinition';
+import {
+  validateAbilityEntityDefinition,
+  validateActionSequenceDefinition,
+} from './validation/actionPrograms';
 
 function push(issues: SkillDefinitionValidationIssue[], path: string, message: string): void {
   issues.push({ path, message });

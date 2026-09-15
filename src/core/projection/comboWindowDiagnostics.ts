@@ -3,7 +3,7 @@
  * 窗口顺序和阶段由运行时账本决定，投影层不重新模拟连携队列。
  */
 import type { CombatReceiptEntry } from '../combat/receipt/combatReceipt';
-import type { ComboWindowConsumeFailure } from '../combat/runtime/comboWindowRuntime';
+import type { ComboWindowConsumeFailure } from '../combat/skills/comboWindowRuntime';
 import { reduceSkillDiagnostics } from './skillDiagnosticReducer';
 
 export type ComboWindowDiagnosticReason = ComboWindowConsumeFailure;

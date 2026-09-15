@@ -2,10 +2,15 @@ import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import { gilbertaBattleSkill } from './gilberta';
-import { fluoriteBattleSkill } from './fluorite';
-import { lifengComboSkill, lifengUltimate } from './lifeng';
-import { rossiBattleSkill, rossiComboSkill2, rossiComboSkill3, rossiUltimate } from './rossi';
+import { gilbertaBattleSkill } from './gilberta.generated';
+import { fluoriteBattleSkill } from './fluorite.generated';
+import { lifengComboSkill, lifengUltimate } from './lifeng.generated';
+import {
+  rossiBattleSkill,
+  rossiComboSkill2,
+  rossiComboSkill3,
+  rossiUltimate,
+} from './rossi.generated';
 import {
   alesh,
   antal,

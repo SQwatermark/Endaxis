@@ -7,11 +7,11 @@ import type {
 import type { CombatStateGraph } from '../state/combatState';
 import { CombatRuntimeSession } from './combatRuntimeSession';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
-import { CombatVitals } from './combatVitals';
-import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
-import { CombatOperationPrograms } from './combatOperationPrograms';
-import { CombatSkillPrograms } from './combatSkillPrograms';
-import { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
+import { CombatVitals } from '../resources/combatVitals';
+import { AbilityEntityChildSkillPrograms } from '../abilities/abilityEntityChildSkillPrograms';
+import { CombatOperationPrograms } from '../actions/combatOperationPrograms';
+import { CombatSkillPrograms } from '../skills/combatSkillPrograms';
+import { ProjectileCallbackPrograms } from '../abilities/projectileCallbackPrograms';
 
 const enemy = {
   source: { kind: 'custom' as const, level: 1 },

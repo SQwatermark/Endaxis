@@ -4,35 +4,46 @@
  * 这里集中保存 Buff 动作宿主、全局 Buff、能力实体、投射物和 SkillAffix 的身份与寿命。
  * 所有跨实例关系都使用稳定编号、目标引用或共享数据节点；回调和运行对象由恢复阶段重新绑定。
  */
-import type {
-  AbilityEntityTargetRef,
-  RuntimeTargetRef,
+import {
+  type GlobalBuffInstanceState,
+  type AbilityEventSubscriptionReference,
+  type AbilityResponseEventName,
+  type ActionBlackboardState,
+  type BuffFinishReason,
+  type BuffReference,
+  type CombatSkillCastInfo,
+  type LogicalAbilityEntityFinishReason,
+  type SharedSpGainModifier,
+  type DamageModifierState,
+  type HealModifier,
+  type PoiseModifier,
+  createActionBlackboardState,
+  type SharedSpGainModifierState,
+  createCombatAttributeState,
+  type CombatAttributeState,
+  type CombatAttributeModifier,
+} from './foundationState';
+import {
+  type AbilityEntityTargetRef,
+  type LogicalAbilityEntityDefinition,
+  type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import type { ActionSequenceState } from '../actions/actionSequenceState';
-import type { BuffContainerState } from '../buffs/buffContainerState';
-import type { BuffReference } from '../buffs/buffReference';
-import type { AbilityEventSubscriptionReference } from '../events/abilityEventState';
-import type { AbilityResponseEventName } from '../events/combatAbilityEvent';
-import type {
-  SharedSpGainModifier,
-  SharedSpRecoveryModifier,
-} from '../resources/sharedSpGainModifiers';
-import type { TimelineRuntimeState } from '../timeline/timelineActionProcessor';
-import type { LogicalAbilityEntityFinishReason } from '../runtime/logicalAbilityEntityRuntime';
-import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
-import type {
-  ActionBlackboardState,
-  ActionScopeState,
-  CombatOperationHostState,
+import {
+  type ActionSequenceState,
+  type ActionScopeState,
+  type CombatOperationHostState,
+  type TimelineRuntimeState,
 } from './actionState';
-import type {
-  AbilityEntityChildSkillState,
-  CallbackSkillHostState,
-  DamageCalculationSnapshotState,
-  PassiveAbilityEventState,
-  RuntimeTargetContextState,
+import { type DamageType } from '../../game-data/operatorDefinition';
+import {
+  type AbilityEntityChildSkillState,
+  type CallbackSkillHostState,
+  type DamageCalculationSnapshotState,
+  type PassiveAbilityEventState,
+  type RuntimeTargetContextState,
 } from './abilityState';
-import type { TimedMarkerState } from './environmentState';
+import { type TimedMarkerState } from './environmentState';
+import { type GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 
 export type SkillAffixObjectReference =
   | {
@@ -98,22 +109,6 @@ export interface BuffActionHostState {
   skillSlotsReplaced: boolean;
 }
 
-/** 全局 Buff 单个实例的来源、寿命和子实例关系。 */
-export interface GlobalBuffInstanceState {
-  readonly id: string;
-  readonly instanceId: number;
-  readonly definitionProgramId: number | null;
-  readonly sourceId: string;
-  readonly sourceActionOwnerId: string | undefined;
-  readonly sourceActionId: string | undefined;
-  readonly blackboard: ActionBlackboardState;
-  readonly children: BuffReference[];
-  readonly sharedSpGainModifiers: readonly SharedSpGainModifier[];
-  readonly sharedSpRecoveryModifiers: readonly SharedSpRecoveryModifier[];
-  remainingDuration: number | null;
-  finished: boolean;
-}
-
 export interface GlobalBuffState {
   nextInstanceId: number;
   readonly groups: Map<string, GlobalBuffInstanceState[]>;
@@ -136,7 +131,7 @@ export interface LogicalAbilityEntityState {
   readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly instanceId: number;
   readonly abilityEntityId: string;
-  readonly definition: import('../runtime/logicalAbilityEntityRuntime').LogicalAbilityEntityDefinition;
+  readonly definition: LogicalAbilityEntityDefinition;
   readonly ownerId: string;
   readonly source: RuntimeTargetRef;
   readonly sourceSkillCastId?: number;
@@ -186,4 +181,198 @@ export interface ProjectileLifecycleState {
 
 export function createProjectileLifecycleState(): ProjectileLifecycleState {
   return { instances: new Map(), admittedAbilities: null, nextResetRegistrationId: 0 };
+}
+
+/**
+ * Buff 周期触发器的全部计时数据。负触发次数沿用原生无限触发表示，不归一化成另一种规则。
+ * 本状态只覆盖周期触发；Buff 的属性、叠层、生命周期和子对象仍由各自的完整状态负责。
+ */
+export interface BuffTriggerState {
+  intervalSeconds: number | null;
+  remainingSeconds: number;
+  remainingCount: number;
+}
+
+export function createBuffTriggerState(): BuffTriggerState {
+  return { intervalSeconds: null, remainingSeconds: 0, remainingCount: 0 };
+}
+
+/** 同一目标内一个叠层组的成员与计数。成员只保存该目标容器内的 Buff 实例编号。 */
+export interface BuffStackingState {
+  readonly members: number[];
+  currentStackCount: number;
+  maxStackCount: number;
+}
+
+export function createBuffStackingState(): BuffStackingState {
+  return { members: [], currentStackCount: 0, maxStackCount: 0 };
+}
+
+export interface BuffShieldState {
+  readonly maxValue: number;
+  readonly maxAbsorbCount: number;
+  readonly absorptions: Map<DamageType, readonly [number, number]>;
+  remainingValue: number;
+  remainingAbsorbCount: number;
+  consumed: boolean;
+}
+
+export interface BuffLifecycleState {
+  affixSkillCastId: number;
+  passedTime: number;
+  remainingDuration: number | null;
+  timedGrowthPeriod: number | null;
+  timedGrowthRemaining: number;
+  started: boolean;
+  enabled: boolean;
+  finished: boolean;
+  finishing: boolean;
+  timePaused: boolean;
+  finishable: boolean;
+  appliedTags: boolean;
+  appliedExtendTags: boolean;
+  finishReason: BuffFinishReason | null;
+  released: boolean;
+  recycled: boolean;
+  enhanceCount: number;
+}
+
+export function createBuffLifecycleState(): BuffLifecycleState {
+  return {
+    affixSkillCastId: 0,
+    passedTime: 0,
+    remainingDuration: null,
+    timedGrowthPeriod: null,
+    timedGrowthRemaining: 0,
+    started: false,
+    enabled: false,
+    finished: false,
+    finishing: false,
+    timePaused: false,
+    finishable: true,
+    appliedTags: false,
+    appliedExtendTags: false,
+    finishReason: null,
+    released: false,
+    recycled: false,
+    enhanceCount: 1,
+  };
+}
+
+export interface BuffInstanceIdentity {
+  readonly ownerId: string;
+  readonly instanceId: number;
+  readonly definitionId: string;
+  readonly sourceId: string;
+}
+
+export interface BuffInstanceState<Key extends string> {
+  actionHost: BuffActionHostState | null;
+  /** onRecycled 回调的稳定登记顺序；函数由恢复后的宿主按编号重绑。 */
+  readonly recycleCallbackIds: number[];
+  nextRecycleCallbackId: number;
+  sharedSpGainModifiers: readonly SharedSpGainModifier[];
+  readonly identity: BuffInstanceIdentity;
+  sourceActionId: string;
+  definitionOwnerId: string;
+  /** null 表示创建时没有显式的来源属性读取目标；否则恢复时必须按实体身份接回读取端口。 */
+  sourceAttributeOwnerId: string | null;
+  skillCastInfo: CombatSkillCastInfo | null;
+  priority: number;
+  damageModifiers: readonly DamageModifierState[];
+  healModifiers: readonly HealModifier[];
+  poiseModifiers: readonly PoiseModifier[];
+  readonly shields: BuffShieldState[];
+  readonly blackboard: ActionBlackboardState;
+  readonly lifecycle: BuffLifecycleState;
+  readonly trigger: BuffTriggerState;
+  readonly attributes: BuffAttributeState<Key>;
+  readonly children: BuffChildrenState;
+}
+
+export function createBuffInstanceState<Key extends string>(
+  identity: BuffInstanceIdentity,
+  blackboard: ActionBlackboardState = createActionBlackboardState(),
+): BuffInstanceState<Key> {
+  return {
+    actionHost: null,
+    recycleCallbackIds: [],
+    nextRecycleCallbackId: 0,
+    sharedSpGainModifiers: [],
+    identity,
+    sourceActionId: identity.definitionId,
+    definitionOwnerId: identity.sourceId,
+    sourceAttributeOwnerId: null,
+    skillCastInfo: null,
+    priority: 0,
+    damageModifiers: [],
+    healModifiers: [],
+    poiseModifiers: [],
+    shields: [],
+    blackboard,
+    lifecycle: createBuffLifecycleState(),
+    trigger: createBuffTriggerState(),
+    attributes: createBuffAttributeState<Key>(),
+    children: createBuffChildrenState(),
+  };
+}
+
+export interface BuffContainerState<Key extends string = string> {
+  readonly sharedSpGainModifiers: SharedSpGainModifierState | null;
+  readonly damageModifiers: DamageModifierState[];
+  readonly healModifiers: HealModifier[];
+  readonly poiseModifiers: PoiseModifier[];
+  readonly activeShields: BuffShieldState[];
+  readonly sustainedProtections: Map<BuffInstanceState<Key>, readonly [number, number]>;
+  readonly attributes: CombatAttributeState<Key>;
+  readonly entityBlackboard: ActionBlackboardState;
+  /** 已完成创建的实例数据；尚在 Start 中的实例可能还未进入发布列表。 */
+  readonly instances: Map<number, BuffInstanceState<Key>>;
+  readonly stackingGroups: Map<string, BuffStackingState>;
+  /** 发布顺序，区别于分配顺序；Start 中新建的子实例可能先发布。 */
+  readonly memberIds: number[];
+  nextInstanceId: number;
+  releasing: boolean;
+  readonly entityTagCounts: Map<GameplayTag, number>;
+  readonly addingCooldowns: Map<string, number[]>;
+}
+
+export function createBuffContainerState<Key extends string = string>(
+  attributes: CombatAttributeState<Key> = createCombatAttributeState<Key>(),
+  entityBlackboard: ActionBlackboardState = createActionBlackboardState(),
+  sharedSpGainModifiers: SharedSpGainModifierState | null = null,
+): BuffContainerState<Key> {
+  return {
+    sharedSpGainModifiers,
+    damageModifiers: [],
+    healModifiers: [],
+    poiseModifiers: [],
+    activeShields: [],
+    sustainedProtections: new Map(),
+    attributes,
+    entityBlackboard,
+    instances: new Map(),
+    stackingGroups: new Map(),
+    memberIds: [],
+    nextInstanceId: 1,
+    releasing: false,
+    entityTagCounts: new Map(),
+    addingCooldowns: new Map(),
+  };
+}
+
+export interface BuffChildrenState {
+  readonly members: Map<string, BuffReference>;
+}
+
+export function createBuffChildrenState(): BuffChildrenState {
+  return { members: new Map() };
+}
+
+export interface BuffAttributeState<Key extends string> {
+  modifiers: readonly CombatAttributeModifier<Key>[];
+}
+
+export function createBuffAttributeState<Key extends string>(): BuffAttributeState<Key> {
+  return { modifiers: [] };
 }

@@ -16,16 +16,16 @@ import type {
 import type { OperatorDefinition } from '../../../packages/game-data-contract/src/operators.ts';
 import type { InflictionElement } from '../../../packages/game-data-contract/src/primitives.ts';
 import { validateGearSetDefinition } from '../../../src/core/game-data/equipmentDefinitionValidation';
-import { createSkillEditorStep } from '../../../src/ui/timeline/skillDefinitionEditorViewModel';
-import { createCombatCondition } from '../../../src/ui/timeline/combatConditionEditorViewModel';
+import { createSkillEditorStep } from '../../../src/ui/timeline/definitions/skills/skillDefinitionEditorViewModel';
+import { createCombatCondition } from '../../../src/ui/timeline/definitions/actions/combatConditionEditorViewModel';
 import { createEmptyScenario } from '../../../src/core/project/createProject';
 import { compileScenarioEquipment } from '../../../src/core/compiler/compileScenarioEquipment';
-import { perlica } from '../../../src/data/operators/perlica';
-import { perlicaBattleSkill } from '../../../src/data/operators/perlica';
+import { perlica } from '../../../src/data/operators/perlica.generated';
+import { perlicaBattleSkill } from '../../../src/data/operators/perlica.generated';
 import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
-import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
-import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { placeSkillGroup } from '../../../src/ui/timeline/interaction/placeSkillGroup';
+import { ScenarioSimulationService } from '../../../src/application/simulation/scenarioSimulationService';
 
 it('全局冷却编辑器工厂输出通过公共定义校验', () => {
   const step = createSkillEditorStep(perlicaBattleSkill, 'setGlobalCooldown');

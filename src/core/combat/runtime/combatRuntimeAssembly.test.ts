@@ -1,39 +1,40 @@
 import { describe, expect, it, vi } from 'vitest';
-import { createNativeEventFixture } from '../events/nativeEventTestFixture';
+import { GAMEPLAY_TAG_PREDEFINE } from '../../../data/combat/gameplayTagPredefine.generated';
+import {
+  gilbertaBattleSkill,
+  gilberta as gilbertaGeneratedOperator,
+} from '../../../data/operators/gilberta.generated';
 import type {
   CompiledOperatorPassiveProgram,
-  ResolvedCombatStep,
   CompiledSkillProgram,
   CompiledSkillSlotGroup,
+  ResolvedCombatStep,
 } from '../../compiler/combatProgram';
 import { compileOperatorBuffDefinitions, compileSkill } from '../../compiler/compileSkill';
-import { createActionSequenceState } from '../actions/actionSequenceState';
-import { CombatAttributeSet } from '../attributes/combatAttributes';
-import { CombatBuffContainer } from '../buffs/combatBuffs';
-import { createBuffInstanceState } from '../buffs/buffInstanceState';
-import {
-  CompiledCombatBuffDefinitions,
-  type CombatBuffDefinitionEntry,
-} from '../buffs/combatBuffDefinitions';
-import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { GameplayTagRegistry } from '../tags/gameplayTags';
-import { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
-import { GAMEPLAY_TAG_PREDEFINE } from '../../../data/combat/gameplayTagPredefine.generated';
-import { CombatStatusContainer } from '../status/combatStatuses';
-import { createTimelineActionState } from '../timeline/timelineActionState';
-import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
-import { prepareCombatRuntimeRestore } from './combatRuntimeRestorePreparation';
-import { CombatSkillPrograms, combatSkillProgramKey } from './combatSkillPrograms';
-import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
-import { ActionBlackboard } from './actionBlackboard';
-import { CombatVitals } from './combatVitals';
-import type { CombatOperationExecutor } from './skillRuntime';
 import {
   logicalAbilityEntityRuntimeId,
   type RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
-import { gilbertaBattleSkill } from '../../../data/operators/gilberta';
-import { gilberta as gilbertaGeneratedOperator } from '../../../data/operators/gilberta';
+import { ActionBlackboard } from '../actions/actionBlackboard';
+import { CombatAttributeSet } from '../attributes/combatAttributes';
+import { BuffDefinitionOperationTarget } from '../buffs/buffDefinitionOperationTarget';
+import {
+  CompiledCombatBuffDefinitions,
+  type CombatBuffDefinitionEntry,
+} from '../buffs/combatBuffDefinitions';
+import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { createNativeEventFixture } from '../events/nativeEventTestFixture';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { CombatVitals } from '../resources/combatVitals';
+import { CombatSkillPrograms, combatSkillProgramKey } from '../skills/combatSkillPrograms';
+import type { CombatOperationExecutor } from '../skills/skillRuntime';
+import { createActionSequenceState, createTimelineActionState } from '../state/actionState';
+import { createBuffInstanceState } from '../state/instanceState';
+import { CombatStatusContainer } from '../status/combatStatuses';
+import { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
+import { GameplayTagRegistry } from '../tags/gameplayTags';
+import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
+import { prepareCombatRuntimeRestore } from './restoration/combatRuntimeRestorePreparation';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',

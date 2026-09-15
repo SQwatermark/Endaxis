@@ -1,6 +1,6 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import { describe, expect, it } from 'vitest';
-import { perlica } from '../../../data/operators/perlica';
+import { perlica } from '../../../data/operators/perlica.generated';
 import { compileSkill } from '../../compiler/compileSkill';
 
 import type { SkillDefinition } from '../../game-data/operatorDefinition';

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { pogranichnik as pogranichnikGeneratedOperator } from './pogranichnik';
+import { pogranichnik as pogranichnikGeneratedOperator } from './pogranichnik.generated';
 
 describe('pogranichnik generated operator', () => {
   it('keeps physical infliction, soldier variants, and both talent programs executable', () => {

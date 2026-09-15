@@ -4,7 +4,7 @@ import { parseSkillSettingResources } from '../../../packages/game-data-contract
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { createCandidateRuntimeServer } from '../src/compiler/candidateRuntimeServer.ts';
+import { createCandidateRuntimeServer } from '../src/compiler/publication/candidateRuntimeServer.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');
 const REPLACEMENT_PATHS = [
@@ -126,7 +126,7 @@ export async function auditCandidateEquipment(args: AuditArguments) {
     const projectModule = await server.ssrLoadModule('/src/core/project/createProject.ts');
     const placementModule = await server.ssrLoadModule('/src/ui/timeline/placeSkillGroup.ts');
     const serviceModule = await server.ssrLoadModule(
-      '/src/application/scenarioSimulationService.ts',
+      '/src/application/simulation/scenarioSimulationService.ts',
     );
     const repository = repositoryModule.createGameDataRepository({
       revision: 'candidate-weapon-simulation-audit',

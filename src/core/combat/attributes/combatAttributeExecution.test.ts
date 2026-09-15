@@ -1,18 +1,15 @@
 /** 验证切面复制保留修正器的归属、身份和注册顺序，回退后可按原关系移除。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from '../runtime/stateStepper';
-import { attributeModifierValues } from './combatAttributes';
-import {
-  ATTRIBUTE_MODIFIER_SOURCES,
-  createCombatAttributeModifier,
-  createCombatAttributeState,
-} from './combatAttributeState';
+import { ATTRIBUTE_MODIFIER_SOURCES, createCombatAttributeState } from '../state/foundationState';
 import {
   addCombatAttributeModifier,
   defineCombatAttribute,
   readCombatAttribute,
   removeCombatAttributeModifier,
 } from './combatAttributeExecution';
+import { attributeModifierValues } from './combatAttributes';
+import { createCombatAttributeModifier } from './combatAttributeExecution';
 
 describe('attribute state graph', () => {
   it('restores distinct equal-valued modifiers and their owner references', () => {

@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { OperatorDefinition } from '../../../packages/game-data-contract/src/operators.ts';
-import { avywenna } from '../../../src/data/operators/avywenna.ts';
+import { avywenna } from '../../../src/data/operators/avywenna.generated.ts';
 
 const { planOperatorDefinition, renderOperatorDefinitionFiles } = vi.hoisted(() => ({
   planOperatorDefinition: vi.fn(),
@@ -37,7 +37,7 @@ beforeEach(() => {
     audit: { slug },
   }));
   renderOperatorDefinitionFiles.mockImplementation(async (slug: string, _operator, audit) => ({
-    file: { relativePath: `${slug}.ts`, content: `export default '${slug}';\n` },
+    file: { relativePath: `${slug}.generated.ts`, content: `export default '${slug}';\n` },
     auditFile: {
       relativePath: 'operator.audit.json',
       content: `${JSON.stringify(audit)}\n`,
@@ -127,9 +127,9 @@ describe('整批干员候选写入', () => {
       skillCount: 2,
       operators: [{ slug: 'one' }, { slug: 'two' }],
     });
-    await expect(fs.readFile(path.join(paths.outputRoot, 'two.ts'), 'utf8')).resolves.toBe(
-      "export default 'two';\n",
-    );
+    await expect(
+      fs.readFile(path.join(paths.outputRoot, 'two.generated.ts'), 'utf8'),
+    ).resolves.toBe("export default 'two';\n");
     await expect(
       generateOperatorDefinitionCandidates({ ...input, check: true }),
     ).resolves.toMatchObject({ operatorCount: 2 });

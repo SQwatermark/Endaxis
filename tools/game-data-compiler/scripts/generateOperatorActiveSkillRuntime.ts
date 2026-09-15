@@ -7,7 +7,7 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
-import { collectBuffRuntimeClosure } from '../src/compiler/buffReferenceClosure.ts';
+import { collectBuffRuntimeClosure } from '../src/compiler/buffs/buffReferenceClosure.ts';
 import {
   parseBlackboardDataPairs,
   type DeclaredBlackboardValueSource,
@@ -23,21 +23,21 @@ import { parseKnownSkillActionGraphSource } from '../src/source/skillActionGraph
 import {
   prepareSkillDefinitionInputSource,
   assertNoUnprojectedSkillRootEffects,
-} from '../src/compiler/skillDefinitionInput.ts';
-import { createZeroDistanceProjectileProjectionExtensionSource } from '../src/compiler/projectileRuntimeProjection.ts';
+} from '../src/compiler/skills/skillDefinitionInput.ts';
+import { createZeroDistanceProjectileProjectionExtensionSource } from '../src/compiler/abilities/projectileRuntimeProjection.ts';
 import {
   compileOperatorActiveSkillRuntimeDefinitionSource,
   renderOperatorActiveSkillRuntimeDefinitionSource,
 } from '../src/domains/operator/activeSkillRuntimeDefinition.ts';
 import type { OperatorActiveSkillTypeSource } from '../src/domains/operator/activeSkills.ts';
-import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
-import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
-import { collectCombatInvisibleBuffClosureIds } from '../src/compiler/combatInvisibleBuffClosure.ts';
+import { writeGeneratedDefinitionFiles } from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
+import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
+import { collectCombatInvisibleBuffClosureIds } from '../src/compiler/buffs/combatInvisibleBuffClosure.ts';
 import {
   collectCompiledBuffCapturedTargetGroups,
   collectCompiledBuffIds,
   collectCompiledPhysicalInflictionBuffIds,
-} from '../src/compiler/compiledBuffReferences.ts';
+} from '../src/compiler/references/compiledReferences.ts';
 import {
   collectSkillActionReferences,
   collectSkillRootBuffReferences,
@@ -49,9 +49,9 @@ import type {
   CombatActionProjectionExtensionsSource,
 } from '../src/compiler/combatProjectionCommon.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTemplate.ts';
-import { createGlobalBuffProjectionExtensions } from '../src/compiler/globalBuffProjection.ts';
-import { createSkillSettingProjectionExtensions } from '../src/compiler/skillSettingProjection.ts';
-import { readGeneratedTimeDilationPriorities } from '../src/compiler/generatedTimeDilationCatalog.ts';
+import { createGlobalBuffProjectionExtensions } from '../src/compiler/buffs/globalBuffProjection.ts';
+import { createSkillSettingProjectionExtensions } from '../src/compiler/skills/skillSettingProjection.ts';
+import { readGeneratedTimeDilationPriorities } from '../src/compiler/catalogs/generatedTimeDilationCatalog.ts';
 
 export interface OperatorActiveSkillRuntimeArguments {
   /** 整名或整批规划共用当轮来源；单技能入口省略时创建独立实例。 */

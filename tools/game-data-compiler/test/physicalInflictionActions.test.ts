@@ -11,12 +11,12 @@ import {
   collectSkillActionReferences,
   parseReferenceAwareActionLeafSource,
 } from '../src/source/referenceGraph.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
-import { projectKnockDownAction } from '../src/compiler/knockDownProjection.ts';
-import { collectCompiledBuffApplications } from '../src/compiler/compiledBuffReferences.ts';
-import { projectPhysicalInflictionAction } from '../src/compiler/physicalInflictionProjection.ts';
-import { createPhysicalInflictionDefinitionHydrator } from '../src/compiler/physicalInflictionHydration.ts';
+import { projectKnockDownAction } from '../src/compiler/actions/knockDownProjection.ts';
+import { collectCompiledBuffApplications } from '../src/compiler/references/compiledReferences.ts';
+import { projectPhysicalInflictionAction } from '../src/compiler/actions/physicalInflictionProjection.ts';
+import { createPhysicalInflictionDefinitionHydrator } from '../src/compiler/actions/physicalInflictionHydration.ts';
 
 const sequence = (actionData: unknown[]) => ({
   actionData,
@@ -154,11 +154,17 @@ describe('击倒来源与隐式引用', () => {
   });
 
   it('受控状态和返回策略数字编码不改变完整击倒动作 IR', () => {
-    const named = parseKnockDownActionSource(knockDown({
-      deadOption: 'OnlyAlive', returnTrueWhen: 'OnlySuccess',
-    }), 'fixture', {});
-    expect(parseKnockDownActionSource(knockDown({ deadOption: 1, returnTrueWhen: 2 }), 'fixture', {}))
-      .toEqual(named);
+    const named = parseKnockDownActionSource(
+      knockDown({
+        deadOption: 'OnlyAlive',
+        returnTrueWhen: 'OnlySuccess',
+      }),
+      'fixture',
+      {},
+    );
+    expect(
+      parseKnockDownActionSource(knockDown({ deadOption: 1, returnTrueWhen: 2 }), 'fixture', {}),
+    ).toEqual(named);
   });
 
   it.each(['Always', 'BothSuccessAndInterrupted', 'OnlySuccess', 'OnlyInterrupted'])(

@@ -1,15 +1,15 @@
 import { describe, expect, it } from 'vitest';
 import { reactive, toRaw } from 'vue';
-import operator from '../timeline/components/OperatorDefinitionWorkspaceDialog.vue?raw';
-import weapon from '../timeline/components/WeaponDefinitionWorkspaceDialog.vue?raw';
-import gear from '../timeline/components/GearDefinitionWorkspaceDialog.vue?raw';
-import gearSet from '../timeline/components/GearSetDefinitionWorkspaceDialog.vue?raw';
-import skillEditor from '../timeline/components/SkillDefinitionEditor.vue?raw';
-import operatorBuild from '../timeline/components/OperatorBuildDialog.vue?raw';
-import weaponBuild from '../timeline/components/WeaponBuildDialog.vue?raw';
-import gearBuild from '../timeline/components/GearLoadoutBuildDialog.vue?raw';
-import gearInstance from '../timeline/components/GearInstanceDialog.vue?raw';
-import { createSkillEditorDraft } from '../timeline/skillDefinitionEditorViewModel';
+import operator from '../timeline/definitions/operators/OperatorDefinitionWorkspaceDialog.vue?raw';
+import weapon from '../timeline/definitions/equipment/WeaponDefinitionWorkspaceDialog.vue?raw';
+import gear from '../timeline/definitions/equipment/GearDefinitionWorkspaceDialog.vue?raw';
+import gearSet from '../timeline/definitions/equipment/GearSetDefinitionWorkspaceDialog.vue?raw';
+import skillEditor from '../timeline/definitions/skills/SkillDefinitionEditor.vue?raw';
+import operatorBuild from '../timeline/library/OperatorBuildDialog.vue?raw';
+import weaponBuild from '../timeline/library/WeaponBuildDialog.vue?raw';
+import gearBuild from '../timeline/library/GearLoadoutBuildDialog.vue?raw';
+import gearInstance from '../timeline/library/GearInstanceDialog.vue?raw';
+import { createSkillEditorDraft } from '../timeline/definitions/skills/skillDefinitionEditorViewModel';
 import type { SkillDefinition } from '../../core/game-data/operatorDefinition';
 
 describe('definition workspace regions', () => {

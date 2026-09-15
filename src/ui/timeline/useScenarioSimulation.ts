@@ -5,14 +5,14 @@
  * 警告一起更新；计算期间保留上次完整结果。本文件不计算战斗数值。
  */
 import { computed, onScopeDispose, ref, shallowRef, watch, type ComputedRef, type Ref } from 'vue';
-import type { ScenarioSimulationRun } from '../../application/scenarioSimulationService';
-import type { ScenarioSimulationPerformanceSample } from '../../application/scenarioSimulationService';
-import type { ScenarioSimulationService } from '../../application/scenarioSimulationService';
+import type { ScenarioSimulationRun } from '../../application/simulation/scenarioSimulationService';
+import type { ScenarioSimulationPerformanceSample } from '../../application/simulation/scenarioSimulationService';
+import type { ScenarioSimulationService } from '../../application/simulation/scenarioSimulationService';
 import type { ScenarioDocument } from '../../core/project/schema';
 import type { SkillAvailabilityDiagnosticReason } from '../../core/projection/skillAvailabilityDiagnostics';
 import type { SkillExecutionDiagnosticReason } from '../../core/projection/skillExecutionDiagnostics';
 import type { ComboWindowDiagnosticReason } from '../../core/projection/comboWindowDiagnostics';
-import { appendSimulationPerformanceSample } from './simulationPerformanceAudit';
+import { appendSimulationPerformanceSample } from './results/simulationPerformanceAudit';
 import { getSkillCastPlacementChains } from '../../core/project/skillCastPlacement';
 
 export type TimelineSkillDiagnosticReason =

@@ -2,7 +2,7 @@
 
 ## 干员文件输出
 
-完整干员直接生成到 `src/data/operators/<slug>.ts`，不再由手写文件转引嵌套生成文件。
+完整干员直接生成到 `src/data/operators/<slug>.generated.ts`，不再由手写文件转引嵌套生成文件。
 文件提供驼峰名称的具名导出及默认导出，技能的具名导出也保留。
 整批候选使用同样的相对路径，审计仍按干员单独保存。
 完整重建使用 `combat-definitions` 阶段联合生成武器、单件装备、套装、机制、干员与公共 Buff。
@@ -26,6 +26,9 @@
 总体开发方法见 [开发指南](../../docs/development/README.md)，游戏依据见 [研究分类](../../docs/research/README.md)。
 
 ## 生成后优化
+
+优化实现集中在 `src/compiler/optimization/`，对应测试位于 `test/optimization/`。
+真实模拟对照通过回执历史的公开读取接口取得事实，不比较历史存储对象本身。
 
 优化发生在领域组装和步骤身份分配后，裁剪无效程序与无人使用的技能黑板值。
 公共 Buff、武器和套装生成入口使用同一套分支规则。内部参数 `optimization` 支持
@@ -202,7 +205,7 @@ npm run rebuild:game-data -- --publish --unity-worker <VFS_UNITY_WORKER>
   口径为 31 名、325/325 个可摆放技能、198/198 张技能库卡片（38 张多技能链）和 31/31 条全卡片
   组合轴。
 
-  同一门禁默认要求每份干员 `<slug>.ts` 不超过 **1 MiB**，避免结构投射回归重新制造数 MB
+  同一门禁默认要求每份干员 `<slug>.generated.ts` 不超过 **1 MiB**，避免结构投射回归重新制造数 MB
   乃至数十 MB 的单文件并拖垮 TypeScript/Vite。可用 `--max-operator-source-bytes <正整数>` 显式调整，
   但统一重建使用默认发布口径。最新候选总计 3,963,484 bytes，最大为 Typhoeus 878,234 bytes。
 
@@ -356,6 +359,8 @@ GlobalBuff 资产；它们不能被误当成一个总配置文件。
 - `scripts/extractEnemyRankEvidence.ts`、`generateEnemyDefinitions.ts`、
   `auditCandidateEnemyDefinitions.ts`：通过 VFS 公共 API + 显式 Unity worker 恢复原生 rank，编译
   87 个 `eny_*` 敌人，并对旧 82 项逐字段回归；`tatget_*` 训练木桩不冒充敌人模板；
+  正式 `levelHp` 仅保留 1、20、40、60、80、90 级，按公共契约 `ENEMY_LEVELS` 顺序生成六项数组；
+  缺失节点直接报错，不插值。完整等级和原始 `gameId` 留在源表审计计划，不写入运行时定义。
 - `scripts/auditGearSetSourceClosure.ts`、`auditGearSetStaticDefinitions.ts`：套装来源闭包与静态候选审计；
 - `scripts/exportReferencedGameIcons.ts`：扫描正式运行引用，只补缺漏地导出 WebP；`--overwrite` 覆盖，
   `--dry-run` 只审计，`--prune` 删除引用闭包外的受管游戏资源；
@@ -618,7 +623,7 @@ npm run generate:game-data:gameplay-tags -- tools/game-data-compiler/gameplay-ta
 当前 VFS HTTP 兼容路由未开放 GameplayConfig，本轮使用离线同构导出；不要写成 HTTP 已可用。
 
 `source/gameplayTagPredefineTable.ts` 保留原生三个字典；缓存查询的数字枚举和动作 JSON 的名称
-分开严格读取，标签都检查 Int32。`compiler/gameplayTagPredefine.ts` 通过同版本来源目录解析为路径，
+分开严格读取，标签都检查 Int32。`compiler/catalogs/gameplayTagPredefine.ts` 通过同版本来源目录解析为路径，
 保留空查询并拒绝哈希冲突、未知路径，不按名称补免疫。公共契约 `gameplayTags.ts` 不持有索引/运行状态，
 本体 `GameplayTagPredefine` 复用原有实体标签计数及非精确层级查询，不另造标签容器。
 物理状态 Buff 准入与组件 KnockDown 标签准入独立；实际安装还须重查免疫。起身配置、实体时钟、
@@ -732,7 +737,7 @@ Burning/Dot 分类和禁暴击即时修正也已保留。Wulfgard 完整输出�
 不把公共契约的建立计为新增完整干员；完整生成与正式注册仍为艾维文娜 1 名。
 
 独立门禁：`npm run type-check:game-data-contract`、`npm run type-check:game-data-production`，以及
-`test/dataContractBoundaries.test.ts`。生产图只允许编译器、契约和既有无本体依赖的 `src/shared` 工具；
+`test/dataContractBoundaries.test.ts`。生产图只允许编译器和公共契约，不再保留 `src/shared` 特例；
 跨端集成测试单独允许消费本体。契约自身不允许运行类、回调字段或包外依赖。
 完整结构 validator 仍暂留本体，后续纯校验迁移必须先拆掉与 Buff 执行器的耦合，不能复制一套近似实现。
 
@@ -855,17 +860,17 @@ Toggle 组和动作图。旧 `CompiledWeaponTraitLevelRuntimeDependencySource` �
 新增中间类型必须说明生产者、消费者、额外信息、不变量以及退出阶段；仅仅重命名、转交字段
 不构成创建第二套 schema 的理由。编译工具类型不必进入契约，原生类型也不得因外形相同合并。
 
-| 当前类型/模块                                                                        | 类别与处理                                                                    |
-| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------- |
-| `weaponType.ts` / `ProjectedWeaponTypeSource`                                        | 正式身份直接使用 `OperatorWeaponType`，旧名只转导出；原生到正式的映射保留     |
-| `CompiledWeaponStaticDefinitionSource` / `CompiledWeaponTraitStaticDefinitionSource` | 正式阶段输出，从 Weapon/词条契约派生，修正器仍取已支持子集                    |
-| `CompiledWeaponRuntimeDefinitionSource`                                              | 静态候选补齐行为后的正式输出，资源字段及初始化黑板来自契约；不是优化 IR       |
-| `CompiledWeaponEventHandlerSource`                                                   | 公共事件协议的已支持子集，priority/blackboard 必填；两种触发入口互斥          |
-| `CompiledWeaponTraitRuntimeDependencySource`                                         | 静态编译→运行装配的依赖计划，保留原生请求、动作图、等级身份与资源引用；不输出 |
-| `CompiledWeaponToggleConditionSource` / Toggle 组                                    | 安装判定中间态，原生比较名及未解析值保留到场景装配；不能冒充正式条件          |
-| `CompiledGearDefinitionSource` / 词条                                                | 正式输出子集，槽位与字段来自契约，assetSlug 和 modifiers 保持必填             |
-| `ProjectedModifierLevels`                                                            | 装配用的修正结果及原生 origin，保留索引和来源；进入正式装备后不再携带 origin  |
-| 各种 Batch / Diagnostic / Request                                                    | 编译工具数据，不是正式游戏 schema，也不是为优化新增的 IR                      |
+| 当前类型/模块                                                                        | 类别与处理                                                                      |
+| ------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------- |
+| `weaponType.ts` / `ProjectedWeaponTypeSource`                                        | 正式身份直接使用 `OperatorWeaponType`，已删除无生产消费者的旧别名；原生映射保留 |
+| `CompiledWeaponStaticDefinitionSource` / `CompiledWeaponTraitStaticDefinitionSource` | 正式阶段输出，从 Weapon/词条契约派生，修正器仍取已支持子集                      |
+| `CompiledWeaponRuntimeDefinitionSource`                                              | 静态候选补齐行为后的正式输出，资源字段及初始化黑板来自契约；不是优化 IR         |
+| `CompiledWeaponEventHandlerSource`                                                   | 公共事件协议的已支持子集，priority/blackboard 必填；两种触发入口互斥            |
+| `CompiledWeaponTraitRuntimeDependencySource`                                         | 静态编译→运行装配的依赖计划，保留原生请求、动作图、等级身份与资源引用；不输出   |
+| `CompiledWeaponToggleConditionSource` / Toggle 组                                    | 安装判定中间态，原生比较名及未解析值保留到场景装配；不能冒充正式条件            |
+| `CompiledGearDefinitionSource` / 词条                                                | 正式输出子集，槽位与字段来自契约，assetSlug 和 modifiers 保持必填               |
+| `ProjectedModifierLevels`                                                            | 装配用的修正结果及原生 origin，保留索引和来源；进入正式装备后不再携带 origin    |
+| 各种 Batch / Diagnostic / Request                                                    | 编译工具数据，不是正式游戏 schema，也不是为优化新增的 IR                        |
 
 本轮已收敛武器星级、武器类型、Ability 事件和装备槽位四组身份；语义战斗事件仍保留当前三类
 及物理异常四项/装备者范围。契约拥有更多形状不代表转换器自动支持，映射之外的原生值仍阻断。
@@ -1028,7 +1033,7 @@ npm run generate:game-data:operator-active-skills -- --complete `
   已生成 TS。Arcane 当前约定路径为
   `CharacterData/chr_0032_lizhiyan.runtime-template.json`，源 SHA-256 为
   `33934515ea8b90efdf35f3fae4901124ed54fc16c087a9755574d8db58dca0bc`。
-- 单干员命令一次原子写入一个 `<slug>.ts`，只包含干员定义、私有 `buff_chr_*`
+- 单干员命令一次原子写入一个 `<slug>.generated.ts`，只包含干员定义、私有 `buff_chr_*`
   和对公共 Buff ID 的引用。它不得导出 `commonBuffDefinitions`，也不得反向决定公共资源内容。
 - 公共 Buff 使用独立 `generate:game-data:common-buffs` 命令扫描全部正式来源闭包，原子生成
   `src/data/buffs/generated/commonBuffDefinitions.generated.ts`。相同 ID 在多个闭包中出现时必须
@@ -1214,7 +1219,7 @@ formatter/runtime schema 类型身份建立同样的引用图。字符串 ID 指
 
 同一报告还证明 CharacterTable、CharGrowthTable 与 WeaponBasicTable 的 `weaponType` 都引用
 type hash `0x8DD3BF94` 的 `Beyond.GEnums.WeaponType`。因此原生枚举只在 `source/weaponType.ts`
-定义一次，干员与武器兼容性分类只通过 `compiler/weaponType.ts` 的同一投影进入 Next；原生已定义但
+定义一次，干员与武器兼容性分类只通过 `compiler/build/weaponType.ts` 的同一投影进入 Next；原生已定义但
 Next 尚无语义的成员必须失败关闭，不能由任一领域自行补映射。
 
 ### 2.4 场景投影层
@@ -1348,7 +1353,7 @@ Action、Buff 或 AbilityEntity 编译器。
 节点和完全相同/仅生成位置身份不同的重复子树；后者只用于定位，不能直接作为合并证明：
 
 ```bash
-npm run audit:game-data:generated-operator-structure -- --file src/data/operators/<slug>.ts --top 20
+npm run audit:game-data:generated-operator-structure -- --file src/data/operators/<slug>.generated.ts --top 20
 ```
 
 - 根 SequenceAction 的释放条件不能作为运行时根守卫，使条件失败时整项技能消失；
@@ -1719,7 +1724,7 @@ ExcludeTarget/ShuffleTarget 已分别追踪当前镜像消费者，三者通过
   只接受 1/20/40/60/80/90 级六个精确基础攻击节点和 Next 可表达的稀有度/武器类型；
   CardSkill 属性按 SkillPatch 的完整等级黑板物化为逐档词条，而 Buff、Toggle 和动作闭包作为
   显式运行依赖保留，不因静态定义已生成而冒充动态行为已闭环；
-- 公共构筑属性投影：武器与装备共用 `compiler/buildAttributeProjection.ts` 中的原生属性语义，
+- 公共构筑属性投影：武器与装备共用 `compiler/build/buildAttributeProjection.ts` 中的原生属性语义，
   正式修正与诊断类型也归入公共编译层；两个领域不互相导入，装备旧公开名称只保留为薄兼容导出；
 - 装备套装发现入口：按 `EquipSuitTable.list` 的原生顺序产生相同的公共请求，保留每个阈值的
   `equipCnt`、`skillID` 和 `skillLv`；当前数据碰巧都是三件套一级技能，但实现不固化这些值；
@@ -1854,7 +1859,7 @@ Unity Random 状态仍是后续运行时边界。
 最后一个庄方宜样本还包含 DistanceValidator；来源层现保存完整阈值、比较符与 XZ 开关，不能只因
 项目距离投影为零就在 parser 中删除。这个数字只衡量查询 IR 完整，不代表对应技能整体可编译。
 主动 SkillData 的公共编译结果现直接保存这些 `targetGroupWrites`，
-`compiler/activeSkillAbilityEntityQueries.ts` 只消费该 IR 并生成查询切片，不再扫描原始动作树。
+`compiler/abilities/activeSkillAbilityEntityQueries.ts` 只消费该 IR 并生成查询切片，不再扫描原始动作树。
 Operator 下载计划允许模板目录为空以发现引用；正式来源闭包若遇到 owner-spawned 查询，则必须显式
 提供由同一份 AbilityEntityData 编译的目录和同版本 GameplayTag 注册表，不能导入 Next 生成目录或
 隐藏全局状态。定义图中的 AbilityEntity 节点也从这份已编译目录派生，正式审计不会为不同消费者
@@ -1931,7 +1936,7 @@ Owner 生命周期动作和 219 个时间膨胀动作。
 误写成模拟执行已完成。
 
 艾维文娜回收枪现建立了第一个严格投射物运行投影：`source/projectileRuntime.ts` 读取 partial
-ProjectileComponentData 的首帧相关字段，`compiler/projectileRuntimeProjection.ts` 只接受
+ProjectileComponentData 的首帧相关字段，`compiler/abilities/projectileRuntimeProjection.ts` 只接受
 combat-spec 已证明的“首帧重叠碰撞 → 同帧 Reach、hitOnReach=false”形状。公共动作序列默认仍拒绝
 LaunchProjectile；正式宿主必须显式提供扩展，并从完整 hit/reach SkillData 动作图、模板实体黑板和
 版本化时间膨胀优先级目录建立每次发射的独立作用域。该入口不是通用移动/碰撞模拟器，任何延迟回调、

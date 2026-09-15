@@ -1,20 +1,27 @@
 import type { AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
+import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
 import type {
   InflictionElement,
   PhysicalInflictionType,
-  SkillType,
-  SpGainSource,
   SpGainKind,
+  SpGainSource,
 } from '../../game-data/operatorDefinition';
-import type { GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
-import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
+import type { BuffApplicationHandle, BuffAppliedEvent } from '../buffs/buffOperationExecutor';
 import type { CombatBuff } from '../buffs/combatBuffs';
-import type { BuffApplicationHandle, BuffAppliedEvent } from '../runtime/buffOperationExecutor';
-import type { BuffFinishReason } from '../buffs/combatBuffs';
-import type { AbilityEventFromMap } from './abilityEventDispatcher';
 import type { HealthDamageEventPayload } from '../damage/healthDamage';
 import type { PlayerDamageContext } from '../damage/playerDamageContext';
-import type { ElementalInflictionEventPayload } from '../runtime/elementalInflictionOperationExecutor';
+import type { ElementalInflictionEventPayload } from '../infliction/elementalInflictionOperationExecutor';
+import type {
+  BuffFinishReason,
+  CombatSkillCastInfo,
+  SkillCastEventData,
+} from '../state/foundationState';
+import {
+  type AbilityEntityPair,
+  type AbilityOriginPayload,
+  type AbilityResponseEventName,
+} from '../state/foundationState';
+import type { AbilityEventFromMap } from './abilityEventDispatcher';
 
 /** 已发布的强类型事件，或仅供兼容路由识别的手工语义标记；不是外部数据解析器。 */
 type AbilityEventCandidate = CombatAbilityEvent | { readonly kind: string; readonly event?: never };
@@ -132,11 +139,6 @@ export function killAbilityEvent(event: AbilityEventCandidate): NativeKillEvent 
   return 'event' in event && event.event === 'afterKillEntity' ? event : undefined;
 }
 
-export interface AbilityEntityPair {
-  readonly sourceId: string;
-  readonly targetId: string;
-}
-
 /** 附着四阶段使用生产者的完整载荷，保留 isExtra 与施法来源，不压平为第二套事件。 */
 export type InflictionAbilityEvent = CombatAbilityEvent<
   | 'beforeOutputInfliction'
@@ -165,11 +167,6 @@ export function abilityEventTargetId(event: CombatAbilityEvent): string | undefi
 }
 export function abilityEventSourceId(event: CombatAbilityEvent): string {
   return 'sourceId' in event.payload ? event.payload.sourceId : event.payload.sourceOperatorId;
-}
-
-export interface AbilityOriginPayload extends AbilityEntityPair {
-  /** undefined 是生产者未提供，null 是明确无来源，均不能回退外层事件。 */
-  readonly skillCastInfo?: CombatSkillCastInfo | null;
 }
 
 /** 实际 AbilitySystem 的只读 reset 端口；不是另一个可配置事件。 */
@@ -250,11 +247,7 @@ export interface AbilityBuffEnhancePayload {
   readonly reason?: BuffFinishReason;
 }
 
-export interface AbilitySkillPayload extends AbilityOriginPayload {
-  /** 玩家技能库分类；实体内部技能没有此分类，不沿用继承来源的分类。 */
-  readonly skillType?: SkillType;
-  readonly skillId: string;
-  readonly skillCastId: number;
+export interface AbilitySkillPayload extends SkillCastEventData {
   readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
 }
 
@@ -356,9 +349,6 @@ export function abilityEventSkillCastInfo(
 ): CombatSkillCastInfo | null | undefined {
   return 'skillCastInfo' in event.payload ? event.payload.skillCastInfo : undefined;
 }
-
-/** 原生响应端口；旧 outputKnockDown 标记不是原生事件，不在此边界内。 */
-export type AbilityResponseEventName = Exclude<AbilityEvent, 'outputKnockDown'>;
 /** 保留统一事件与载荷的关联；kind 仅用于和手工语义标记进行类型判别。 */
 export type AbilityResponseEvent = CombatAbilityEvent<AbilityResponseEventName> & {
   readonly kind?: never;

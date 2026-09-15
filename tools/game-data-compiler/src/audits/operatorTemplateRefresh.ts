@@ -1,8 +1,8 @@
-import { compileAbilitySystemBlackboardsSource } from '../compiler/abilitySystemBlackboards.ts';
+import { compileAbilitySystemBlackboardsSource } from '../compiler/abilities/abilitySystemBlackboards.ts';
 import {
   compileComboSkillConditionDefinitionSource,
   createOperatorComboActionProjectionContext,
-} from '../compiler/comboSkillConditions.ts';
+} from '../compiler/conditions/comboSkillConditions.ts';
 import { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 import { parseOperatorRuntimeTemplateSource } from '../source/operatorRuntimeTemplate.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../source/primitives.ts';

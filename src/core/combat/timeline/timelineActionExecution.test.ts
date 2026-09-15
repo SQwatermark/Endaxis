@@ -1,20 +1,19 @@
 /** 使用真实调度和序列内核，验证活动区间、跳转游标及动作进度在同一切面恢复。 */
 import { describe, expect, it } from 'vitest';
-import { StateStepper } from '../runtime/stateStepper';
-import { createActionSequenceState } from '../actions/actionSequenceState';
 import {
+  endActionSequence,
   executeActionSequence,
   resetActionSequence,
   tickActionSequence,
-  endActionSequence,
   type ActionSequenceExecutionHost,
 } from '../actions/actionSequenceExecution';
-import { createTimelineActionState } from './timelineActionState';
+import { StateStepper } from '../runtime/stateStepper';
+import { createActionSequenceState, createTimelineActionState } from '../state/actionState';
 import {
   compileTimelineActionIntervals,
-  tickTimelineActions,
-  jumpToTimelineActions,
   endTimelineActions,
+  jumpToTimelineActions,
+  tickTimelineActions,
   type TimelineActionExecutionHost,
 } from './timelineActionExecution';
 

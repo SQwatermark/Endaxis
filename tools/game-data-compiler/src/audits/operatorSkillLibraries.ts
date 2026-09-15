@@ -8,8 +8,8 @@ import {
   createAbilityEntityDefinitionReferenceNodes,
   parseBuffDefinitionReferenceNodes,
   parseProjectileDefinitionReferenceNodes,
-} from '../compiler/referenceDefinitions.ts';
-import { compileAbilityEntityTemplateCatalogSource } from '../compiler/abilityEntityCatalog.ts';
+} from '../compiler/references/referenceDefinitions.ts';
+import { compileAbilityEntityTemplateCatalogSource } from '../compiler/abilities/abilityEntityCatalog.ts';
 import { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
 
 export interface OperatorSkillLibraryAuditEntrySource {

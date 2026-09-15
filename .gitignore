@@ -47,8 +47,8 @@ __pycache__/
 __screenshots__/
 
 # Inspector 反射元数据：由开发、构建和类型检查自动恢复，不作为源码审查。
-/src/ui/timeline/conditionStructure.generated.ts
-/src/ui/timeline/stepStructure.generated.ts
-/src/ui/timeline/modifierStructure.generated.ts
-/src/ui/timeline/contributionStructure.generated.ts
-/src/ui/timeline/eventStructure.generated.ts
+/src/ui/timeline/definitions/inspector/conditionStructure.generated.ts
+/src/ui/timeline/definitions/inspector/stepStructure.generated.ts
+/src/ui/timeline/definitions/inspector/modifierStructure.generated.ts
+/src/ui/timeline/definitions/inspector/contributionStructure.generated.ts
+/src/ui/timeline/definitions/inspector/eventStructure.generated.ts

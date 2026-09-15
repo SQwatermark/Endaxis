@@ -2,7 +2,7 @@ import fs from 'node:fs/promises';
 import os from 'node:os';
 import path from 'node:path';
 import { expect, it } from 'vitest';
-import { writeGeneratedDefinitionFile } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+import { writeGeneratedDefinitionFile } from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 
 it('直接替换干员文件时保留混合目录中的相邻文件，并拒绝越界路径', async () => {
   const root = await fs.mkdtemp(path.join(os.tmpdir(), 'operator-file-'));

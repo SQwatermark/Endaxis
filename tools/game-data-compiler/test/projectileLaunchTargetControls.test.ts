@@ -15,7 +15,7 @@ import {
   compileZeroDistanceFirstTickReachProjectileSource,
   compileZeroDistanceProjectileLaunchFromSources,
   createZeroDistanceProjectileProjectionExtensionSource,
-} from '../src/compiler/projectileRuntimeProjection.ts';
+} from '../src/compiler/abilities/projectileRuntimeProjection.ts';
 import { returnProjectionContext } from './support/avywennaReturnProjection.ts';
 
 const raw = scopeFixtures[0]!;

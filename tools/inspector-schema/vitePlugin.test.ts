@@ -12,7 +12,6 @@ function fixture() {
   const root = mkdtempSync(resolve(tmpdir(), 'endaxis-inspector-test-'));
   roots.push(root);
   mkdirSync(resolve(root, 'packages/game-data-contract/src'), { recursive: true });
-  mkdirSync(resolve(root, 'src/ui/timeline'), { recursive: true });
   writeFileSync(
     resolve(root, 'packages/game-data-contract/src/equipment.ts'),
     "export type EquipmentModifierDefinition = { kind: 'attribute'; value: number } | { kind: 'panelStat'; value: number }; export interface EquipmentEventHandlerDefinition { key: string }; export interface EquipmentContributionDefinition { blackboard?: Readonly<Record<string, number>> };",
@@ -47,9 +46,11 @@ it('冷启动自动恢复缓存，类型依赖改变后自动刷新元数据', a
     logLevel: 'silent',
   });
   servers.push(server);
-  const output = resolve(root, 'src/ui/timeline/stepStructure.generated.ts');
+  const output = resolve(root, 'src/ui/timeline/definitions/inspector/stepStructure.generated.ts');
   expect(readFileSync(output, 'utf8')).toContain('"type":"number"');
-  await server.transformRequest('/src/ui/timeline/stepStructure.generated.ts');
+  await server.transformRequest(
+    '/src/ui/timeline/definitions/inspector/stepStructure.generated.ts',
+  );
   await vi.waitFor(() =>
     expect(
       Object.values(server.watcher.getWatched()).some(files => files.includes('primitives.ts')),
@@ -63,13 +64,17 @@ it('冷启动自动恢复缓存，类型依赖改变后自动刷新元数据', a
     timeout: 10000,
   });
   expect(
-    (await server.transformRequest('/src/ui/timeline/stepStructure.generated.ts'))?.code,
+    (
+      await server.transformRequest(
+        '/src/ui/timeline/definitions/inspector/stepStructure.generated.ts',
+      )
+    )?.code,
   ).toContain('text');
 }, 20000);
 
 it('构建不依赖预生成文件；无变化不重写，语法错误保留最后有效缓存', async () => {
   const root = fixture();
-  const output = resolve(root, 'src/ui/timeline/stepStructure.generated.ts');
+  const output = resolve(root, 'src/ui/timeline/definitions/inspector/stepStructure.generated.ts');
   await build({
     root,
     configFile: false,

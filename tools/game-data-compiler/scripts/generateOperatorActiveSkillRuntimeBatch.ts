@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { writeGeneratedDefinitionFiles } from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+import { writeGeneratedDefinitionFiles } from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 import { parseOperatorActiveSkillEntries } from '../src/domains/operator/activeSkills.ts';
 import { requireArray, requireRecord } from '../src/source/primitives.ts';
 import { generateOperatorDefinition } from './generateOperatorDefinition.ts';

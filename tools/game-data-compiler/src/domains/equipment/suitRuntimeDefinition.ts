@@ -1,11 +1,11 @@
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import { requireRecord } from '../../source/primitives.ts';
 import { parseBuffRuntimeSource } from '../../source/buffRuntime.ts';
-import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffs/buffProjectionTypes.ts';
 import type {
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
-} from '../../compiler/combatActionProjectionTypes.ts';
+} from '../../compiler/actions/combatActionProjectionTypes.ts';
 import {
   buffRuntimeReadsBlackboardKey,
   collectBuffRuntimePresentationActionPaths,
@@ -13,7 +13,7 @@ import {
   compileBuffRuntimeDefinitionSource,
   isAfterEnemyDefeatedOnlyBuffRuntime,
   isPresentationOnlyBuffStackEffect,
-} from '../../compiler/buffRuntimeProjection.ts';
+} from '../../compiler/buffs/buffRuntimeProjection.ts';
 import type {
   CompiledGearSetStaticDefinitionSource,
   CompiledGearSetRuntimeDependencySource,
@@ -21,7 +21,7 @@ import type {
   UnresolvedSkillBlackboardValueSource,
 } from './suitStaticDefinition.ts';
 import type { EquipmentDefinitionDiagnosticSource } from './formalDefinition.ts';
-import { standardStumpBuffAbilityEventOmissionReason } from '../../compiler/standardStumpScenarioPolicy.ts';
+import { standardStumpBuffAbilityEventOmissionReason } from '../../compiler/scenario/standardStumpScenarioPolicy.ts';
 
 export interface CompiledEquipmentSuitRuntimeBatchSource {
   readonly definitions: readonly (CompiledGearSetStaticDefinitionSource & {

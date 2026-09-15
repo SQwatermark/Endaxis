@@ -1,10 +1,14 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CombatClock } from './combatClock';
-import { CombatInputRuntime, type ScheduledSkillInput } from './combatInputRuntime';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { SkillInputGroupTiming } from './skillInputGroupTiming';
-import { createCombatInputExecution, type TryStartCombatSkill } from './combatInputExecution';
+import {
+  createCombatInputExecution,
+  type TryStartCombatSkill,
+} from '../skills/combatInputExecution';
+import { SkillInputGroupTiming } from '../skills/skillInputGroupTiming';
+import { type ScheduledSkillInput } from '../state/environmentState';
+import { CombatClock } from '../time/combatClock';
 import type { CombatInputRuntimeOptions } from './combatInputRuntime';
+import { CombatInputRuntime } from './combatInputRuntime';
 
 function createRuntime(
   options: Pick<

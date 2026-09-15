@@ -5,7 +5,7 @@ import { retimeLegacyProjectBySimulation } from './heuristicRetiming';
 import {
   AbilitySystemRuntime,
   type AbilitySkillRuntime,
-} from '../../src/core/combat/runtime/abilitySystemRuntime';
+} from '../../src/core/combat/abilities/abilitySystemRuntime';
 
 function receipt(
   frame: number,

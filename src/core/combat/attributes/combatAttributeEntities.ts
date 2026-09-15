@@ -7,7 +7,8 @@ import type {
   CombatBuffDefinitionAttributeReadRequest,
   CombatBuffDefinitionCompilerPorts,
 } from '../buffs/combatBuffDefinitions';
-import { ATTRIBUTE_MODIFIER_SOURCES, type CombatAttributeSet } from './combatAttributes';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
+import { type CombatAttributeSet } from './combatAttributes';
 
 /** 一个可按来源身份读取的战斗实体属性上下文。 */
 export interface CombatAttributeEntity<Key extends string> {

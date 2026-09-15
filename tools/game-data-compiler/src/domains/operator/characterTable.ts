@@ -1,8 +1,8 @@
 import {
   projectPrimaryAttributeKey,
   type AttributeTypeSource,
-} from '../../compiler/attributeModifier.ts';
-import { projectWeaponType } from '../../compiler/weaponType.ts';
+} from '../../compiler/build/attributeModifier.ts';
+import { projectWeaponType } from '../../compiler/build/weaponType.ts';
 import {
   OPERATOR_RARITIES,
   type OperatorAttribute,

@@ -4,7 +4,7 @@ import {
   parseTemporaryUnlockActionSource,
 } from '../src/source/presentationActions.ts';
 import { parseKnownNativeActionSequenceSource } from '../src/source/actionLeaf.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { targetFixture } from './sourceFixtures.ts';
 
 const meta = { isEnable: true, priorityLevel: 'Default', priorityOffset: 0, serverActionIndex: 1 };

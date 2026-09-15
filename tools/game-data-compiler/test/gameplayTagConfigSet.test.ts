@@ -11,7 +11,7 @@ import {
   parseGameplayTagConfigDumpSource,
   parseGameplayTagConfigSetDumpSource,
 } from '../src/source/gameplayTagConfigDump.ts';
-import { compileGameplayTagConfigSetSource } from '../src/compiler/gameplayTagCatalog.ts';
+import { compileGameplayTagConfigSetSource } from '../src/compiler/catalogs/gameplayTagCatalog.ts';
 
 const bytes = (value: string) => new TextEncoder().encode(value);
 const dirs: string[] = [];

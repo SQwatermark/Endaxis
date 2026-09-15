@@ -9,7 +9,7 @@ import type { GameDataRepository } from '../../src/core/game-data/gameDataReposi
 import {
   layoutSkillGroupPlacement,
   resolveSkillGroupPlacementSkills,
-} from '../../src/ui/timeline/skillGroupPlacement';
+} from '../../src/ui/timeline/interaction/skillGroupPlacement';
 export type LegacyMigrationResult =
   { ok: true; value: EndaxisProjectDocument; warnings: string[] } | { ok: false; errors: string[] };
 interface LegacyProjectImporter {

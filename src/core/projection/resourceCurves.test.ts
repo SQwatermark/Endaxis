@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CombatResourceSnapshot } from '../combat/runtime/combatResources';
+import type { CombatResourceSnapshot } from '../combat/resources/combatResources';
 import type { ResourceChangePoint } from './resourceChangePoints';
 import { projectResourceCurves, projectResourceCurvesFromReceipt } from './resourceCurves';
 

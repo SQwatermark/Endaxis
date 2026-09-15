@@ -1,11 +1,11 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilitySystemBlackboards.ts';
+import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilities/abilitySystemBlackboards.ts';
 import {
   compileComboSkillConditionDefinitionSource,
   createOperatorComboActionProjectionContext,
-} from '../src/compiler/comboSkillConditions.ts';
+} from '../src/compiler/conditions/comboSkillConditions.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { parseOperatorRuntimeTemplateSource } from '../src/source/operatorRuntimeTemplate.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';

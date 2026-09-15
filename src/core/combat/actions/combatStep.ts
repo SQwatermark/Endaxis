@@ -2,7 +2,7 @@
  * 战斗原语与有序序列执行器之间的最小执行协议。
  * 新步骤应通过明确实现接入；不能把未知步骤当作成功空操作，也不能在这里引入 UI 语义。
  */
-import type { ActionStepData } from './actionStepData';
+import type { ActionStepData } from '../state/actionState';
 
 export const STEP_RESULT_MODE = {
   normal: 'normal',

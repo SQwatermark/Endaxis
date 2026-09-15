@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import * as operators from '../../../src/data/operators';
 import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
-import { collectCompiledBuffIdentityReadIds } from '../src/compiler/compiledBuffReferences';
+import { collectCompiledBuffIdentityReadIds } from '../src/compiler/references/compiledReferences';
 
 describe('generated Buff identity closure', () => {
   it('has no unclassified missing event signal Buff definitions', () => {

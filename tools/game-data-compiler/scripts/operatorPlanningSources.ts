@@ -4,7 +4,7 @@
  */
 import path from 'node:path';
 import { SourceFileCache } from '../src/source/sourceFileCache.ts';
-import type { CompiledAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
+import type { CompiledAbilityEntityTemplateCatalogSource } from '../src/compiler/abilities/abilityEntityCatalog.ts';
 import {
   parseGlobalBuffTemplateCatalogSource,
   type GlobalBuffTemplateCatalogSource,
@@ -13,7 +13,7 @@ import {
   parseSkillSettingCatalogSource,
   type SkillSettingCatalogSource,
 } from '../src/source/skillSettingCatalog.ts';
-import { readGeneratedTimeDilationPriorities } from '../src/compiler/generatedTimeDilationCatalog.ts';
+import { readGeneratedTimeDilationPriorities } from '../src/compiler/catalogs/generatedTimeDilationCatalog.ts';
 import { readAbilityEntityTemplates } from './readAbilityEntityTemplates.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 

@@ -5,22 +5,25 @@
  * 编号目录。恢复时每个对象直接绑定同一份 `CombatSharedState` 数据，不能先创建空账本再覆盖。
  */
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
-import { CombatClock } from './combatClock';
-import type { CombatResourceRuntimeResolvers, CombatResourceSnapshot } from './combatResources';
-import { CombatResources } from './combatResources';
+import { AbilityEntityInstanceIdAllocator } from '../abilities/abilityEntityInstanceIdAllocator';
+import { CombatClock } from '../time/combatClock';
+import type {
+  CombatResourceRuntimeResolvers,
+  CombatResourceSnapshot,
+} from '../resources/combatResources';
+import { CombatResources } from '../resources/combatResources';
 import type { CombatSharedState } from '../state/environmentState';
-import { ComboWindowRuntime } from './comboWindowRuntime';
-import { GlobalCooldowns } from './globalCooldowns';
-import { BasicAttackSkillCastInheritanceRegistry } from './skillCastInheritanceOperationExecutor';
-import { SkillCastIdAllocator } from './skillCastInfo';
+import { ComboWindowRuntime } from '../skills/comboWindowRuntime';
+import { GlobalCooldowns } from '../skills/globalCooldowns';
+import { BasicAttackSkillCastInheritanceRegistry } from '../skills/skillCastInheritanceOperationExecutor';
+import { SkillCastIdAllocator } from '../skills/skillCastInfo';
 import {
   TimeDilationRuntime,
   type TimeDilationPrograms,
   type TimeDilationRuntimeConfig,
   type TimeDilationRuntimeObserver,
-} from './timeDilationRuntime';
-import { UltimatePresentationRuntime } from './ultimatePresentationRuntime';
+} from '../time/timeDilationRuntime';
+import { UltimatePresentationRuntime } from '../skills/ultimatePresentationRuntime';
 
 export interface CombatSharedRuntimeOptions {
   readonly resources: CombatResourceSnapshot;

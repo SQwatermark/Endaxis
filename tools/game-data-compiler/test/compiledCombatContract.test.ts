@@ -4,7 +4,7 @@ import type {
   BuildModifierDefinitionMap,
   EquipmentModifierDefinition,
 } from '../../../packages/game-data-contract/src/index.ts';
-import type { CompiledBuildModifierDefinitionSource } from '../src/compiler/formalBuildDefinition.ts';
+import type { CompiledBuildModifierDefinitionSource } from '../src/compiler/build/formalBuildDefinition.ts';
 import type {
   GameplayTag,
   ActionSequenceDefinition,
@@ -47,7 +47,7 @@ import type {
   CompiledBuffPresentationSource,
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
-} from '../src/compiler/buffRuntimeProjection.ts';
+} from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import type {
   CompiledWeaponEventHandlerSource,
   CompiledWeaponRuntimeDefinitionSource,
@@ -60,7 +60,7 @@ import type {
   CompiledGearDefinitionSource,
   CompiledGearSlotTypeSource,
 } from '../src/domains/equipment/formalDefinition.ts';
-import type { ProjectedWeaponTypeSource } from '../src/compiler/weaponType.ts';
+import { projectWeaponType } from '../src/compiler/build/weaponType.ts';
 import type {
   CompiledOperatorAttributeGrowthSource,
   ProjectedOperatorRoleSource,
@@ -71,7 +71,7 @@ import type { CompiledTrustAttributeBonusSource } from '../src/domains/operator/
 import type { CompiledGearSetStaticDefinitionSource } from '../src/domains/equipment/suitStaticDefinition.ts';
 import type { CompiledEquipmentSuitRuntimeBatchSource } from '../src/domains/equipment/suitRuntimeDefinition.ts';
 import type { CompiledOperatorActiveSkillRuntimeDefinitionSource } from '../src/domains/operator/activeSkillRuntimeDefinition.ts';
-import type { CompiledActiveSkillTimelineSequenceSource } from '../src/compiler/activeSkillRuntimeProjection.ts';
+import type { CompiledActiveSkillTimelineSequenceSource } from '../src/compiler/skills/activeSkillRuntimeProjection.ts';
 import type {
   OperatorSkillGroupSource,
   OperatorSkillGroupVariantSource,
@@ -265,7 +265,7 @@ it('武器与装备阶段输出直接使用契约身份，兼容旧类型导出�
   expectTypeOf<
     CompiledWeaponStaticDefinitionSource['weaponType']
   >().toEqualTypeOf<OperatorWeaponType>();
-  expectTypeOf<ProjectedWeaponTypeSource>().toEqualTypeOf<OperatorWeaponType>();
+  expectTypeOf<ReturnType<typeof projectWeaponType>>().toEqualTypeOf<OperatorWeaponType>();
   expectTypeOf<CompiledGearSlotTypeSource>().toEqualTypeOf<GearSlotType>();
   expectTypeOf<CompiledWeaponStaticDefinitionSource>().toExtend<WeaponDefinition>();
   expectTypeOf<CompiledGearDefinitionSource>().toExtend<GearDefinition>();

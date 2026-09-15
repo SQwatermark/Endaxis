@@ -2,7 +2,7 @@ import { createRenderer, defineComponent, nextTick, ref } from 'vue';
 import { afterEach, expect, it, vi } from 'vitest';
 import type { KeyboardShortcutScope } from './keyboardShortcutRouter';
 import { useEditorHistoryShortcuts } from './useEditorHistoryShortcuts';
-import { useDefinitionDraftHistory } from '../timeline/useDefinitionDraftHistory';
+import { useDefinitionDraftHistory } from '../timeline/definitions/useDefinitionDraftHistory';
 
 const capture = vi.hoisted(() => ({ scope: undefined as KeyboardShortcutScope | undefined }));
 vi.mock('./keyboardShortcutRouter', () => ({
@@ -35,7 +35,7 @@ it.each(['input', 'textarea', 'select', 'contenteditable'])(
     const input = new Element();
     const root = new Element();
     const dialog = new Element();
-    root.closest = selector => selector.includes('[role="dialog"]') ? dialog : null;
+    root.closest = selector => (selector.includes('[role="dialog"]') ? dialog : null);
     dialog.contains = target => target instanceof Element && target.inDialog;
     const draft = ref({ value: 1 });
     let history!: ReturnType<typeof useDefinitionDraftHistory<{ value: number }>>;

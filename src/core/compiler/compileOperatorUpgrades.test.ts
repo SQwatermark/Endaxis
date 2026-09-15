@@ -1,16 +1,16 @@
 import { describe, expect, it } from 'vitest';
-import { perlica } from '../../data/operators/perlica';
-import { arclight as arclightGeneratedOperator } from '../../data/operators/arclight';
-import { camille as camilleGeneratedOperator } from '../../data/operators/camille';
-import { chenQianyu as chenQianyuGeneratedOperator } from '../../data/operators/chen-qianyu';
-import { daPan as daPanGeneratedOperator } from '../../data/operators/da-pan';
-import { endministrator as endministratorGeneratedOperator } from '../../data/operators/endministrator';
-import { lifeng as lifengGeneratedOperator } from '../../data/operators/lifeng';
-import fluoriteGeneratedOperator from '../../data/operators/fluorite';
-import { gilberta as gilbertaGeneratedOperator } from '../../data/operators/gilberta';
-import { lastRite as lastRiteGeneratedOperator } from '../../data/operators/last-rite';
-import { estella as estellaGeneratedOperator } from '../../data/operators/estella';
-import { tangtang as tangtangGeneratedOperator } from '../../data/operators/tangtang';
+import { perlica } from '../../data/operators/perlica.generated';
+import { arclight as arclightGeneratedOperator } from '../../data/operators/arclight.generated';
+import { camille as camilleGeneratedOperator } from '../../data/operators/camille.generated';
+import { chenQianyu as chenQianyuGeneratedOperator } from '../../data/operators/chen-qianyu.generated';
+import { daPan as daPanGeneratedOperator } from '../../data/operators/da-pan.generated';
+import { endministrator as endministratorGeneratedOperator } from '../../data/operators/endministrator.generated';
+import { lifeng as lifengGeneratedOperator } from '../../data/operators/lifeng.generated';
+import fluoriteGeneratedOperator from '../../data/operators/fluorite.generated';
+import { gilberta as gilbertaGeneratedOperator } from '../../data/operators/gilberta.generated';
+import { lastRite as lastRiteGeneratedOperator } from '../../data/operators/last-rite.generated';
+import { estella as estellaGeneratedOperator } from '../../data/operators/estella.generated';
+import { tangtang as tangtangGeneratedOperator } from '../../data/operators/tangtang.generated';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorInstanceDocument } from '../project/schema';
 import type {

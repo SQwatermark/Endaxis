@@ -17,7 +17,7 @@ import {
   checkGeneratedDefinitionFiles,
   writeGeneratedDefinitionFiles,
   type RenderedDefinitionFileSource,
-} from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+} from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 
 export interface CombatDefinitionCandidateArguments extends Omit<
   OperatorDefinitionCandidateArguments,

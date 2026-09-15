@@ -7,7 +7,7 @@ import { useKeyboardShortcutScope } from '../keyboard/keyboardShortcutRouter';
 import enemy from '../timeline/components/EnemySettingsPanel.vue?raw';
 import global from '../timeline/components/GlobalResourcePanel.vue?raw';
 import reset from '../timeline/components/TimelineResetDialog.vue?raw';
-import markerMenu from '../timeline/components/TimelineMarkerContextMenu.vue?raw';
+import markerMenu from '../timeline/interaction/TimelineMarkerContextMenu.vue?raw';
 
 describe('locally owned leaf dialog input', () => {
   afterEach(() => vi.unstubAllGlobals());

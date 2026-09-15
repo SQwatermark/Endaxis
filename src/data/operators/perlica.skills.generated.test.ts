@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { perlica } from './perlica';
+import { perlica } from './perlica.generated';
 import { collectSteps, getGroupSkills } from './testUtils';
 import {
   perlicaBasicAttack1,
@@ -12,7 +12,7 @@ import {
   perlicaFinisher,
   perlicaPlungingAttack,
   perlicaUltimate,
-} from './perlica';
+} from './perlica.generated';
 
 const basicAttacks = [
   perlicaBasicAttack1,

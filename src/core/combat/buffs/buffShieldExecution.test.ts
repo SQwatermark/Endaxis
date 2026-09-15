@@ -1,7 +1,7 @@
 /** 护盾与 Buff 一起恢复，耗尽回调只能看到已经扣除的余额和次数。 */
 import { expect, it } from 'vitest';
 import { StateStepper } from '../runtime/stateStepper';
-import { createBuffInstanceState } from './buffInstanceState';
+import { createBuffInstanceState } from '../state/instanceState';
 import { absorbShieldDamage } from './buffShieldExecution';
 
 it('restores shield consumption and finishing across branches', () => {

@@ -1,13 +1,15 @@
 /** 容器回退必须一起恢复编号、标签引用次数和添加冷却。 */
 import { expect, it } from 'vitest';
 import { StateStepper } from '../runtime/stateStepper';
-import { createBuffContainerState } from './buffContainerState';
-import { createBuffInstanceState } from './buffInstanceState';
-import { createBuffStackingState } from './buffStackingState';
+import {
+  createBuffContainerState,
+  createBuffInstanceState,
+  createBuffStackingState,
+} from '../state/instanceState';
 import {
   addBuffEntityTags,
-  removeBuffEntityTags,
   advanceBuffAddingCooldowns,
+  removeBuffEntityTags,
 } from './buffContainerExecution';
 
 it('restores tag counts, cooldown lists and allocation order', () => {

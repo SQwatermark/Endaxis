@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
-import { ActionBlackboard } from './actionBlackboard';
-import { RuntimeTargetContext } from './runtimeTargetContext';
-import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
-import { BuffOperationExecutor } from './buffOperationExecutor';
+import { ActionBlackboard } from '../actions/actionBlackboard';
+import { RuntimeTargetContext } from '../abilities/runtimeTargetContext';
+import { TargetContextOperationExecutor } from '../abilities/targetContextOperationExecutor';
+import { BuffOperationExecutor } from '../buffs/buffOperationExecutor';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
 import { GameplayTagRegistry } from '../tags/gameplayTags';

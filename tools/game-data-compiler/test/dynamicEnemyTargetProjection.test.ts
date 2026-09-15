@@ -1,15 +1,15 @@
 /** 验证目标组读写保留：动态查询可为空，分支内静态查询不能丢失后续读取需要的写入。 */
 import { describe, expect, it } from 'vitest';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
-import { compileActiveSkillRuntimeProjectionSource } from '../src/compiler/activeSkillRuntimeProjection.ts';
-import { collectCompiledBuffApplications } from '../src/compiler/compiledBuffReferences.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
+import { compileActiveSkillRuntimeProjectionSource } from '../src/compiler/skills/activeSkillRuntimeProjection.ts';
+import { collectCompiledBuffApplications } from '../src/compiler/references/compiledReferences.ts';
 import type { CombatActionProjectionContextSource } from '../src/compiler/combatProjectionCommon.ts';
 import { parseKnownNativeActionSequenceSource } from '../src/source/actionLeaf.ts';
 import { compileActionSequence } from '../../../src/core/compiler/compileSkill.ts';
-import { CombatActionSequenceRuntime } from '../../../src/core/combat/runtime/combatActionSequenceRuntime.ts';
-import { ActionBlackboard } from '../../../src/core/combat/runtime/actionBlackboard.ts';
-import { RuntimeTargetContext } from '../../../src/core/combat/runtime/runtimeTargetContext.ts';
-import { TargetContextOperationExecutor } from '../../../src/core/combat/runtime/targetContextOperationExecutor.ts';
+import { CombatActionSequenceRuntime } from '../../../src/core/combat/actions/combatActionSequenceRuntime.ts';
+import { ActionBlackboard } from '../../../src/core/combat/actions/actionBlackboard.ts';
+import { RuntimeTargetContext } from '../../../src/core/combat/abilities/runtimeTargetContext.ts';
+import { TargetContextOperationExecutor } from '../../../src/core/combat/abilities/targetContextOperationExecutor.ts';
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import {
   ownerSpawnedAbilityEntityFindTargetActionFixture,

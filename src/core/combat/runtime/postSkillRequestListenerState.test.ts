@@ -4,7 +4,7 @@ import {
   registerPostSkillRequestListener,
   requirePostSkillRequestListener,
   unregisterPostSkillRequestListener,
-} from './postSkillRequestListenerExecution';
+} from '../skills/postSkillRequestListenerExecution';
 
 describe('postSkillRequestListenerState', () => {
   it('复制后保留编号和顺序，兄弟分支独立注销', () => {

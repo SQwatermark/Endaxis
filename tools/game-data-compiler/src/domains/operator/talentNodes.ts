@@ -1,7 +1,7 @@
 import {
   projectPrimaryAttributeKey,
   type AttributeTypeSource,
-} from '../../compiler/attributeModifier.ts';
+} from '../../compiler/build/attributeModifier.ts';
 import type { OperatorTalentNodeSource } from '../../source/operatorTalentNodes.ts';
 import type { OperatorAttribute } from '../../../../../packages/game-data-contract/src/primitives.ts';
 import {

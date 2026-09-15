@@ -1,16 +1,16 @@
 import { describe, expect, it, vi } from 'vitest';
 import { parseConditionLeafSource } from '../../../tools/game-data-compiler/src/source/condition.ts';
 import { parseKnownNativeActionSequenceSource } from '../../../tools/game-data-compiler/src/source/actionLeaf.ts';
-import { compileCombatActionSequenceSource } from '../../../tools/game-data-compiler/src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../../../tools/game-data-compiler/src/compiler/buffs/buffRuntimeProjection.ts';
 import { compileActionSequence } from './compileSkill';
 import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
 import type { ActionSequenceDefinition } from '../game-data/operatorDefinition';
-import { CombatActionSequenceRuntime } from '../combat/runtime/combatActionSequenceRuntime';
-import { EventContextConditionExecutor } from '../combat/runtime/eventContextConditionExecutor';
-import { ActionBlackboardOperationExecutor } from '../combat/runtime/actionBlackboardOperationExecutor';
-import { ActionBlackboard } from '../combat/runtime/actionBlackboard';
-import { ElementalInflictionOperationExecutor } from '../combat/runtime/elementalInflictionOperationExecutor';
-import { CombatClock } from '../combat/runtime/combatClock';
+import { CombatActionSequenceRuntime } from '../combat/actions/combatActionSequenceRuntime';
+import { EventContextConditionExecutor } from '../combat/events/eventContextConditionExecutor';
+import { ActionBlackboardOperationExecutor } from '../combat/actions/actionBlackboardOperationExecutor';
+import { ActionBlackboard } from '../combat/actions/actionBlackboard';
+import { ElementalInflictionOperationExecutor } from '../combat/infliction/elementalInflictionOperationExecutor';
+import { CombatClock } from '../combat/time/combatClock';
 import { scalarFixture } from '../../../tools/game-data-compiler/test/sourceFixtures.ts';
 
 const key = 'EntityBB_consumed_type';

@@ -2,8 +2,8 @@
  * 根据显式状态推进动作序列。执行端口只在调用期间使用，不进入保存的数据。
  * 状态赋值与同步回调的顺序沿用原有执行器，允许动作在执行中结束整个序列。
  */
+import { COMBAT_STEP_STATE, type ActionSequenceState } from '../state/actionState';
 import { STEP_RESULT_MODE, type CombatExecutionContext } from './combatStep';
-import { COMBAT_STEP_STATE, type ActionSequenceState } from './actionSequenceState';
 
 /** 下标对应程序中的步骤；宿主必须即时读取本次步进的数据。 */
 export interface ActionSequenceExecutionHost {

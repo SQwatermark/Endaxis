@@ -1,8 +1,8 @@
 /** 验证恢复后按新分支数据结束子实例，并保留原有实时遍历和异常行为。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from '../runtime/stateStepper';
-import { createBuffChildrenState } from './buffChildrenState';
-import { attachBuffChild, finishBuffChildren } from './buffChildrenExecution';
+import { createBuffChildrenState } from '../state/instanceState';
+import { attachBuffChild, finishBuffChildren } from './buffLifecycleExecution';
 
 describe('buff child references', () => {
   it('restores ordered children across targets and visits children attached during finish', () => {

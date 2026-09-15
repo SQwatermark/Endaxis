@@ -1,9 +1,21 @@
-import { withAbilityEventResponseContext } from './abilityEventResponseContext';
+import { withAbilityEventResponseContext } from '../events/abilityEventResponseContext';
+import { CombatVitals } from '../resources/combatVitals';
 import type { BoundCombatBattleRuntimes } from './combatRuntimeAssembly';
-import { CombatVitals } from './combatVitals';
 
+import { expectTypeOf } from 'vitest';
+import { AbilitySystemRuntime } from '../abilities/abilitySystemRuntime';
+import type { HealthDamageEventPayload } from '../damage/healthDamage';
+import type { PoiseDamageModifier } from '../damage/poiseDamage';
+import { resolveAbilityEventActionContextBinding } from '../events/abilityEventActionContext';
+import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
+import { buffEnhanceAbilityEvent } from '../events/combatAbilityEvent';
 import { SimulationRandomSource } from '../random/simulationRandom';
-import { createSimulationRandomState } from '../random/simulationRandomState';
+import { createSimulationRandomState } from '../state/environmentState';
+import type { KnockDownEventPayload } from '../status/knockDownOperationExecutor';
+import type {
+  StandardPlayerDamageEvent,
+  StandardPlayerDamagePayloadMap,
+} from './standardPlayerDamageEnvironment';
 
 it.each(['expected', 'sampled'] as const)('环境保存 %s 模式实际消费的随机位置', mode => {
   const state = createSimulationRandomState();
@@ -225,17 +237,6 @@ it('战斗事件目录包含绑定后新建的实体，复制后不受订阅注�
   expect(states.has('another-entity')).toBe(true);
   expect(saved.has('another-entity')).toBe(false);
 });
-import { AbilitySystemRuntime } from './abilitySystemRuntime';
-import { expectTypeOf } from 'vitest';
-import type { AbilityEventPayloadMap } from '../events/combatAbilityEvent';
-import { resolveAbilityEventActionContextBinding } from '../events/abilityEventActionContext';
-import type {
-  StandardPlayerDamagePayloadMap,
-  StandardPlayerDamageEvent,
-} from './standardPlayerDamageEnvironment';
-import type { PoiseDamageModifier } from '../damage/poiseDamage';
-import type { HealthDamageEventPayload } from '../damage/healthDamage';
-import type { KnockDownEventPayload } from './knockDownOperationExecutor';
 
 it('延迟请求对象通知接到对应 Buff 宿主，注销不影响之后的新订阅', () => {
   const environment = createEnvironment();
@@ -381,7 +382,6 @@ it('过程事件载荷覆盖全部广播键，复用生产端类型且不含 unk
     AbilityEventPayloadMap['beforeOutputSpellBurst']
   >();
 });
-import { buffEnhanceAbilityEvent } from '../events/combatAbilityEvent';
 
 it.each(['early', 'absorbed'] as const)('结束通知和%s回调保持同一独立来源', reason => {
   const original = {
@@ -416,7 +416,7 @@ it.each(['early', 'absorbed'] as const)('结束通知和%s回调保持同一独�
         expect(event.payload.skillCastInfo).toBe(source);
       });
     }
-    const observer = (event: import('./buffOperationExecutor').BuffConsumedEvent) => {
+    const observer = (event: import('../buffs/buffOperationExecutor').BuffConsumedEvent) => {
       order.push('source-notification');
       expect(event.skillCastInfo).toBe(source);
       expect(event).toMatchObject({
@@ -538,7 +538,7 @@ it('Buff 层数变化在 owner 发布，载荷不伪造目标且消费同一原�
     expect(published).toBe(event);
     expect(published.payload.sourceId).toBe('enemy');
     expect('targetId' in published.payload).toBe(false);
-    const context: import('./skillRuntime').CombatOperationContext = {
+    const context: import('../skills/skillRuntime').CombatOperationContext = {
       blackboard: new ActionBlackboard(),
     };
     withAbilityEventResponseContext(context, event, undefined, () => {
@@ -556,8 +556,51 @@ it('Buff 层数变化在 owner 发布，载荷不伪造目标且消费同一原�
   expect(received).toContain(1);
 });
 
-import { fixtureGameplayTagRegistry } from '../../../../tools/game-data-compiler/test/gameplayTagFixtures.ts';
 import { describe, expect, it, vi } from 'vitest';
+import { compileEventTargetSimpleDamageOperationSource } from '../../../../tools/game-data-compiler/src/compiler/actions/simpleDamageOperation.ts';
+import { compilePendingComboConditionSource } from '../../../../tools/game-data-compiler/src/compiler/conditions/comboSkillConditions.ts';
+import { parseDamageActionSource } from '../../../../tools/game-data-compiler/src/source/damageActions.ts';
+import { parseUnityComboSkillConditionsSource } from '../../../../tools/game-data-compiler/src/source/unityComboSkillConditions.ts';
+import damageFixture from '../../../../tools/game-data-compiler/test/fixtures/avywenna-return-damage.json';
+import { fixtureGameplayTagRegistry } from '../../../../tools/game-data-compiler/test/gameplayTagFixtures.ts';
+import { scalarFixture } from '../../../../tools/game-data-compiler/test/sourceFixtures.ts';
+import { unityComboConditionFixture } from '../../../../tools/game-data-compiler/test/unityComboConditionFixture.ts';
+import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
+import { skillSettings } from '../../../data/combat/skillSettings';
+import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
+import { compileActionSequence } from '../../compiler/compileSkill';
+import type { ActionSequenceDefinition } from '../../game-data/operatorDefinition';
+import { validateSkillDefinition } from '../../game-data/validateSkillDefinition';
+import { TargetContextOperationExecutor } from '../abilities/targetContextOperationExecutor';
+import { ActionBlackboard } from '../actions/actionBlackboard';
+import { ActionBlackboardOperationExecutor } from '../actions/actionBlackboardOperationExecutor';
+import { CombatActionSequenceRuntime } from '../actions/combatActionSequenceRuntime';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
+import {
+  attributeModifierValues,
+  createCombatAttributeModifier,
+} from '../attributes/combatAttributes';
+import { BuffDefinitionOperationTarget } from '../buffs/buffDefinitionOperationTarget';
+import { BuffOperationExecutor } from '../buffs/buffOperationExecutor';
+import type { CombatBuffDefinitionsDocument } from '../buffs/combatBuffDefinitions';
+import { POISE_BREAK_BUFF_ID } from '../buffs/poiseBreakBuffRuntime';
+import { CombatSemanticEventRuntime } from '../events/combatSemanticEventRuntime';
+import { EventContextConditionExecutor } from '../events/eventContextConditionExecutor';
+import { ELEMENTAL_INFLICTION_EVENTS } from '../infliction/elementalInflictionOperationExecutor';
+import type { SkillSettingsDocument } from '../infliction/skillSettings';
+import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { CombatResources } from '../resources/combatResources';
+import { CombatVitalsConditionExecutor } from '../resources/combatVitalsConditionExecutor';
+import { createEnemyCombatVitals } from '../resources/combatVitalsFactory';
+import type { PendingComboCondition } from '../skills/comboSkillConditionRuntime';
+import { CombatClock } from '../time/combatClock';
+import type {
+  CombatEnemyProgram,
+  CombatOperationExecutorContext,
+  EquipmentEventOperationExecutorContext,
+} from './combatRuntimeAssembly';
+import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
+import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 
 it('正式发布链向连携转交同一事件对象，不重新投影或包装', () => {
   const environment = createEnvironment();
@@ -597,49 +640,6 @@ it('发布链的连携准入不因完整事件收窄而放开增强/普通结束
     ),
   ).toBe(false);
 });
-import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
-import type { CombatBuffDefinitionsDocument } from '../buffs/combatBuffDefinitions';
-import type { SkillSettingsDocument } from '../infliction/skillSettings';
-import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { CombatClock } from './combatClock';
-import damageFixture from '../../../../tools/game-data-compiler/test/fixtures/avywenna-return-damage.json';
-import { parseDamageActionSource } from '../../../../tools/game-data-compiler/src/source/damageActions.ts';
-import { compileEventTargetSimpleDamageOperationSource } from '../../../../tools/game-data-compiler/src/compiler/simpleDamageOperation.ts';
-import { scalarFixture } from '../../../../tools/game-data-compiler/test/sourceFixtures.ts';
-import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import { CombatResources } from './combatResources';
-import type {
-  CombatEnemyProgram,
-  CombatOperationExecutorContext,
-  EquipmentEventOperationExecutorContext,
-} from './combatRuntimeAssembly';
-import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
-import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
-import { POISE_BREAK_BUFF_ID } from './poiseBreakBuffRuntime';
-import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
-import { createEnemyCombatVitals } from './combatVitalsFactory';
-import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
-import { ActionBlackboard } from './actionBlackboard';
-import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
-import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
-import { skillSettings } from '../../../data/combat/skillSettings';
-import { ELEMENTAL_INFLICTION_EVENTS } from './elementalInflictionOperationExecutor';
-import { EventContextConditionExecutor } from './eventContextConditionExecutor';
-import type { PendingComboCondition } from './comboSkillConditionRuntime';
-import { parseUnityComboSkillConditionsSource } from '../../../../tools/game-data-compiler/src/source/unityComboSkillConditions.ts';
-import { compilePendingComboConditionSource } from '../../../../tools/game-data-compiler/src/compiler/comboSkillConditions.ts';
-import { unityComboConditionFixture } from '../../../../tools/game-data-compiler/test/unityComboConditionFixture.ts';
-import { compileActionSequence } from '../../compiler/compileSkill';
-import type { ActionSequenceDefinition } from '../../game-data/operatorDefinition';
-import { validateSkillDefinition } from '../../game-data/validateSkillDefinition';
-import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
-import { BuffOperationExecutor } from './buffOperationExecutor';
-import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
-import {
-  ATTRIBUTE_MODIFIER_SOURCES,
-  createCombatAttributeModifier,
-  attributeModifierValues,
-} from '../attributes/combatAttributes';
 
 const damageStep: ResolvedCombatStepForKind<'dealDamage'> = {
   kind: 'dealDamage',

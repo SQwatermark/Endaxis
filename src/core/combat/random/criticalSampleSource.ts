@@ -6,6 +6,7 @@ const BATTLE_RANDOM_STATE_LENGTH = 56;
 const BATTLE_RANDOM_MAX_VALUE = 0x7fffffff;
 
 import type { RandomSampleRequest } from './simulationRandom';
+import type { BattleRandomState } from '../state/environmentState';
 
 /** 一场战斗持有的有状态暴击样本来源。 */
 export interface CriticalSampleSource {
@@ -34,13 +35,6 @@ export class EvenCriticalSampleSource implements CriticalSampleSource {
     this.#index += 1;
     return sample;
   }
-}
-
-/** 可完整恢复后续随机序列的原生减法随机状态。 */
-export interface BattleRandomState {
-  readonly currentIndex: number;
-  readonly pairedIndex: number;
-  readonly values: readonly number[];
 }
 
 /** 精确复刻当前反编译版本单步推进规则的 56 项减法随机流。 */

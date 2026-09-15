@@ -21,7 +21,7 @@ try {
   const parsed = parseProjectDocument(content);
   if (!parsed.ok) throw new Error(JSON.stringify(parsed));
   const { createEditorSimulationService } = await server.ssrLoadModule(
-    '/src/application/editorSimulationService.ts',
+    '/src/application/simulation/editorSimulationService.ts',
   );
   const { auditScenarioSimulation } = await server.ssrLoadModule(
     '/tools/legacy-timeline/simulationAudit.ts',

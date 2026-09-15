@@ -7,18 +7,18 @@ import {
   type CombatRuntimeEnvironmentOptions,
   type CombatRuntimeScenarioOptions,
 } from '../combat/runtime/combatRuntimeAssembly';
-import type { CombatOperationExecutor } from '../combat/runtime/skillRuntime';
+import type { CombatOperationExecutor } from '../combat/skills/skillRuntime';
 import type { CompiledSkillProgram } from './combatProgram';
 import type { OperatorDefinition, SkillDefinition } from '../game-data/operatorDefinition';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
-import { perlica } from '../../data/operators/perlica';
+import { perlica } from '../../data/operators/perlica.generated';
 import type {
   GearDefinition,
   GearSetDefinition,
   WeaponDefinition,
 } from '../game-data/equipmentDefinition';
-import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
+import { placeSkillGroup } from '../../ui/timeline/interaction/placeSkillGroup';
 import {
   compileOperatorEntityBlackboardInitialValues,
   compileScenarioRuntimeAssembly,

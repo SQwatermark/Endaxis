@@ -4,7 +4,7 @@ import { createInteractionSession } from './interactionSession';
 import { KeyboardShortcutRouter } from '../keyboard/keyboardShortcutRouter';
 import editor from '../timeline/TimelineEditor.vue?raw';
 import hook from './useAsyncModalBoundary.ts?raw';
-import map from '../timeline/components/SkillStructureMindMap.vue?raw';
+import map from '../timeline/definitions/SkillStructureMindMap.vue?raw';
 
 function deferred() {
   let resolve!: (value: string) => void;

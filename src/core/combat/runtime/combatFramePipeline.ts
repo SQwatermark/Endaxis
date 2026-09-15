@@ -1,9 +1,9 @@
 /** 新战斗和恢复战斗使用同一份帧内顺序，不在两处分别维护游戏推进规则。 */
 import type { EnemyBuffRuntime } from './combatRuntimeAssembly';
 import type { CombatSimulation, FrameRuntime } from './combatSimulation';
-import type { TimeDilationRuntime } from './timeDilationRuntime';
-import type { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
-import { COMBAT_FRAME_INTERVAL } from './combatClock';
+import type { TimeDilationRuntime } from '../time/timeDilationRuntime';
+import type { ProjectileLifecycleRuntime } from '../abilities/projectileLifecycleRuntime';
+import { COMBAT_FRAME_INTERVAL } from '../time/combatClock';
 
 export interface CombatFramePipeline {
   readonly timeDilation: TimeDilationRuntime | null;

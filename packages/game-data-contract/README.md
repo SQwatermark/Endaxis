@@ -43,9 +43,10 @@ flowchart BT
 
 契约不得引用本体、转换器、浏览器、文件系统或任何第三方实现；类型导入也不能例外。
 转换器的生产代码不得导入本体。本体生产代码不得导入转换器。集成测试可以同时使用两端。
-`src/shared/weaponAssetIdentity.ts` 是双方复用的独立身份工具，门禁检查其传递依赖，防止引回本体。
+数值比较规则由本包 `primitives.ts` 提供，两端共用同一容差和比较逻辑，不再允许转换器导入 `src/shared`。
+武器图标身份转换只有转换器使用，归入其 `domains/weapon/productIdentity.ts`。
 GameplayTag 不再共享原生索引：转换器 `source/nativeGameplayTags.ts` 负责原生数字与来源树，
-本体 `src/shared/gameplayTags.ts` 仅直接匹配可读路径。两端共享本契约，不互相导入实现；
+本体 `src/core/combat/tags/gameplayTags.ts` 仅直接匹配可读路径。两端共享本契约，不互相导入实现；
 可变来源索引或实体标签容器都不进入契约。
 
 ```mermaid

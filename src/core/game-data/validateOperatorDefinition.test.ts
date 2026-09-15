@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { gameDataRepository } from '../../data/gameDataRepository';
-import { perlica } from '../../data/operators/perlica';
+import { perlica } from '../../data/operators/perlica.generated';
 import { validateOperatorDefinition } from './validateOperatorDefinition';
 
 describe('validateOperatorDefinition', () => {

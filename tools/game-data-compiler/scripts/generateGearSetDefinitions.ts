@@ -6,8 +6,8 @@ import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import { requireRecord } from '../src/source/primitives.ts';
 import type { CompiledEquipmentSuitRuntimeBatchSource } from '../src/domains/equipment/suitRuntimeDefinition.ts';
-import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
-import { optimizeGearSetDefinitionPrograms } from '../src/compiler/equipmentDefinitionOptimization.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/optimization/definitionOptimization.ts';
+import { optimizeGearSetDefinitionPrograms } from '../src/compiler/optimization/equipmentDefinitionOptimization.ts';
 
 import {
   checkEquipmentDefinitionFiles,

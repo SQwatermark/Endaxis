@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from './combatBuffs';
-import { BuffProgressRecorder } from '../runtime/buffProgressRecorder';
-import { AbilitySystemRuntime } from '../runtime/abilitySystemRuntime';
-import { ActionBlackboard } from '../runtime/actionBlackboard';
+import { BuffProgressRecorder } from './buffProgressRecorder';
+import { AbilitySystemRuntime } from '../abilities/abilitySystemRuntime';
+import { ActionBlackboard } from '../actions/actionBlackboard';
 
 describe('Buff instance recycling', () => {
   it('宿主释放逐个回收，即便Buff不可结束，也不发布普通结束通知', () => {

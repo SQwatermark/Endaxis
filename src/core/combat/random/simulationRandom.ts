@@ -5,9 +5,9 @@
  * 可复现的伪随机流取样。两种模式向战斗运行时提供相同的样本接口，具体技能无需维护两套实现；
  * 直接伤害只在统一的伤害执行器中选择写入期望值或本次取样值。
  */
+import type { SimulationRandomState } from '../state/environmentState';
 import type { CriticalSampleSource } from './criticalSampleSource';
 import type { ProbabilitySampleSource } from './probabilitySampleSource';
-import type { SimulationRandomState } from './simulationRandomState';
 
 export type SimulationRandomMode = 'expected' | 'sampled';
 

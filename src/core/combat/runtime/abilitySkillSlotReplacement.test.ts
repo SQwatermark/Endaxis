@@ -5,8 +5,8 @@ import {
   replaceAbilitySkillSlot,
   finishAbilitySkillSlotReplacement,
   type SkillSlotReplacementHost,
-} from './abilitySystemExecution';
-import { SkillCooldown } from './skillCooldown';
+} from '../abilities/abilitySystemExecution';
+import { SkillCooldown } from '../skills/skillCooldown';
 
 describe('技能槽替换恢复', () => {
   it('撤销使用当前分支的冷却进度，旧编号不能撤销后来安装的替换', () => {

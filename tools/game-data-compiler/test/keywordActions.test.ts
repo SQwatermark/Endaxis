@@ -10,9 +10,9 @@ import { parseBuffRuntimeSource } from '../src/source/buffRuntime.ts';
 import {
   compileBuffRuntimeDefinitionSource,
   collectBuffRuntimeClosure,
-} from '../src/compiler/buffRuntimeProjection.ts';
+} from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { scalarFixture } from './sourceFixtures.ts';
-import { collectCompiledBuffIdentityReadIds } from '../src/compiler/compiledBuffReferences.ts';
+import { collectCompiledBuffIdentityReadIds } from '../src/compiler/references/compiledReferences.ts';
 
 const rootId = 'buff_chr_0012_avywen_ultimate_skill_debuff';
 const carrierId = 'buff_common_affixes_vulnerable_pulse';

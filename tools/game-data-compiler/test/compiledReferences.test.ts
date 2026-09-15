@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { collectCompiledAbilityEntitySpawns } from '../src/compiler/compiledBuffReferences.ts';
+import { collectCompiledAbilityEntitySpawns } from '../src/compiler/references/compiledReferences.ts';
 
 describe('compiled definition references', () => {
   it('collects nested AbilityEntity child-skill spawn edges', () => {

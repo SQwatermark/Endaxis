@@ -6,11 +6,11 @@
 
 ## 战斗帧与局部时间
 
-[CombatClock](../../src/core/combat/runtime/combatClock.ts) 以30 FPS推进整数战斗帧，
+[CombatClock](../../src/core/combat/time/combatClock.ts) 以30 FPS推进整数战斗帧，
 不使用电脑的墙上时钟。技能、Buff和冷却按各自规则消费时间增量，因此同一战斗帧内，
 一个对象可以暂停，另一个对象继续推进。
 
-[TimeDilationRuntime](../../src/core/combat/runtime/timeDilationRuntime.ts) 管理全局和实体倍率、
+[TimeDilationRuntime](../../src/core/combat/time/timeDilationRuntime.ts) 管理全局和实体倍率、
 槽位竞争、优先级和时间实例寿命。它提供时间增量，不替技能或Buff决定该使用哪种时钟。
 能力系统区分原始、全局变速、自身变速和技能冷却四路增量，调用者按对应规则使用。
 
@@ -19,6 +19,9 @@
 [槽位与曲线研究](../research/combat/time-dilation-slot-and-curve-config.md)。
 
 ## 哪一层负责什么
+
+结果显示组件及其布局模型集中在 `src/ui/timeline/results/`，包括资源曲线、状态条、
+光标 HUD、日志和命中详情。它们消费投影与已发布结果；定义编辑及文档输入命令独立组织。
 
 - 定义和编译器保留有证据的变速动作、目标与参数，不修改其他技能的放置帧。
 - 运行时创建、替换和结束变速实例，记录来源及实际发生帧。
@@ -35,7 +38,7 @@
 ## 技能块宽度从哪里来
 
 定义中的 `timelineBlockFrames` 是局部显示边界，既不是技能自然寿命，也不能直接表示变速后的实际宽度。
-[SkillOperableBoundaryRuntime](../../src/core/combat/runtime/skillOperableBoundaryRuntime.ts)
+[SkillOperableBoundaryRuntime](../../src/core/combat/skills/skillOperableBoundaryRuntime.ts)
 累计施法者变速后的局部帧，到达边界时产生一次记录。此跟踪独立于技能是否自然结束，
 也不能替代下一技能的输入路由或中断判断。
 

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import editor from '../timeline/TimelineEditor.vue?raw';
 import shell from '../timeline/components/TimelineWorkbenchShell.vue?raw';
 import context from './interactionSessionContext.ts?raw';
+import castMoveSource from '../timeline/interaction/useTimelineCastMove.ts?raw';
 
 describe('first workbench gesture ownership integration', () => {
   it('provides one boundary to the editor and its shell', () => {
@@ -9,9 +10,11 @@ describe('first workbench gesture ownership integration', () => {
       'const interactionSession = provideInteractionSession(workbenchInputRegion)',
     );
     expect(shell).toContain('const interactionSession = useInteractionSession()');
-    for (const owner of ['library-drag', 'library-placement', 'cast-move', 'track-order']) {
+    for (const owner of ['library-drag', 'library-placement', 'track-order']) {
       expect(editor).toMatch(new RegExp(`interactionSession\\.tryStart\\(\\s*'${owner}'`));
     }
+    expect(editor).toContain('useTimelineCastMove({');
+    expect(castMoveSource).toContain("interactionSession.tryStart('cast-move', cancelCastMove)");
     expect(shell).toContain("interactionSession.tryStart('workbench-resize'");
     expect(shell).toContain('moveEvent.pointerId !== event.pointerId');
   });
@@ -20,9 +23,9 @@ describe('first workbench gesture ownership integration', () => {
     expect(context).toContain('useKeyboardShortcutScope({');
     expect(context).toContain('blockLowerScopes: true');
     expect(context).toContain("event.key === 'Escape' && session.cancel()");
-    const castMove = editor.slice(
-      editor.indexOf('function beginCastMove('),
-      editor.indexOf('function castMoveFrame('),
+    const castMove = castMoveSource.slice(
+      castMoveSource.indexOf('function beginCastMove('),
+      castMoveSource.indexOf('function castMoveFrame('),
     );
     expect(castMove).not.toContain("addEventListener('keydown'");
     expect(castMove).toContain('lease.release()');

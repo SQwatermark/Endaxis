@@ -4,7 +4,7 @@ import {
   parseKnownNativeActionLeafSource,
   parseKnownNativeActionSequenceSource,
 } from '../src/index.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { isStaticExplicitBadFactionEnemyTargetGroup } from '../src/compiler/combatProjectionCommon.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 

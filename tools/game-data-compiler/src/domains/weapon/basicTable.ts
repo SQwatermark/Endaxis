@@ -6,7 +6,7 @@ import {
   requireRecord,
   requireString,
 } from '../../source/primitives.ts';
-import { projectWeaponType } from '../../compiler/weaponType.ts';
+import { projectWeaponType } from '../../compiler/build/weaponType.ts';
 import type { OperatorWeaponType } from '../../../../../packages/game-data-contract/src/primitives.ts';
 import { parseWeaponTypeValue, type WeaponTypeSource } from '../../source/weaponType.ts';
 

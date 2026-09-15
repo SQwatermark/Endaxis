@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import operator from '../timeline/components/OperatorSelectionDialog.vue?raw';
-import gear from '../timeline/components/GearSelectionDialog.vue?raw';
-import weapon from '../timeline/components/WeaponSelectionDialog.vue?raw';
+import operator from '../timeline/library/OperatorSelectionDialog.vue?raw';
+import gear from '../timeline/library/GearSelectionDialog.vue?raw';
+import weapon from '../timeline/library/WeaponSelectionDialog.vue?raw';
 import timeline from '../timeline/TimelineEditor.vue?raw';
 
 describe('selection dialog region wiring', () => {

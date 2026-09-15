@@ -9,8 +9,8 @@ import type { EndaxisProjectDocument } from '../../src/core/project/schema';
 import {
   planRecursiveSkillChain,
   type RecursiveSkillChain,
-} from '../../src/application/recursiveSkillChain';
-import { resolveSkillGroupPlacementSkills } from '../../src/ui/timeline/skillGroupPlacement';
+} from '../../src/application/simulation/recursiveSkillChain';
+import { resolveSkillGroupPlacementSkills } from '../../src/ui/timeline/interaction/skillGroupPlacement';
 import type { LegacyRetimingSimulationRunner } from './heuristicRetiming';
 
 type UnknownRecord = Record<string, unknown>;

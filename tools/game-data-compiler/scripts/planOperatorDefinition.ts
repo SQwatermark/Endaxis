@@ -10,9 +10,9 @@ import {
 } from '../src/domains/operator/activeSkills.ts';
 import { assembleOperatorDefinition } from '../src/domains/operator/definition.ts';
 import { renderOperatorDefinitionSource } from '../src/domains/operator/definitionSourceRenderer.ts';
-import { optimizeOperatorDefinitionPrograms } from '../src/compiler/definitionProgramOptimization.ts';
-import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
-import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
+import { optimizeOperatorDefinitionPrograms } from '../src/compiler/optimization/definitionProgramOptimization.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/optimization/definitionOptimization.ts';
+import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilities/abilityEntityCatalog.ts';
 import {
   requireArray,
   requireExactFields,
@@ -27,20 +27,20 @@ import {
   type OperatorActiveSkillRuntimeArguments,
   type PlannedOperatorActiveSkillRuntime,
 } from './generateOperatorActiveSkillRuntime.ts';
-import { compilePassiveSkillRequestBatch } from '../src/compiler/passiveSkillBatch.ts';
-import { compilePassiveSkillSource } from '../src/compiler/passiveSkillDefinition.ts';
+import { compilePassiveSkillRequestBatch } from '../src/compiler/skills/passiveSkillBatch.ts';
+import { compilePassiveSkillSource } from '../src/compiler/skills/passiveSkillDefinition.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
-import { prepareSkillDefinitionInputSource } from '../src/compiler/skillDefinitionInput.ts';
+import { prepareSkillDefinitionInputSource } from '../src/compiler/skills/skillDefinitionInput.ts';
 import { parseKnownSkillActionGraphSource } from '../src/source/skillActionGraph.ts';
 import type { NativeConditionSource } from '../src/source/condition.ts';
 import type { SkillSlotReplacementActionSource } from '../src/source/skillSlotActions.ts';
 import { parseOperatorRuntimeTemplateSource } from '../src/source/operatorRuntimeTemplate.ts';
-import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilitySystemBlackboards.ts';
+import { compileAbilitySystemBlackboardsSource } from '../src/compiler/abilities/abilitySystemBlackboards.ts';
 import {
   compileComboSkillConditionDefinitionSource,
   createOperatorComboActionProjectionContext,
-} from '../src/compiler/comboSkillConditions.ts';
+} from '../src/compiler/conditions/comboSkillConditions.ts';
 import type {
   OperatorPlayerActionRoutes,
   OperatorSkillSlotDefinition,
@@ -1025,7 +1025,7 @@ export async function renderOperatorDefinitionFiles(
     { ...prettierConfig, parser: 'typescript' },
   );
   const file = {
-    relativePath: `${slug}.ts`,
+    relativePath: `${slug}.generated.ts`,
     content,
   };
   return {

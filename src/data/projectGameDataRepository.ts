@@ -15,13 +15,9 @@ import { createGameDataRepository } from './createGameDataRepository';
 type DefinitionModule<T> = Readonly<Record<string, unknown>> & { readonly default?: T };
 type TimelineGameDataRepository = GameDataRepository & GameDataBrowser;
 
-const operatorLoaders = import.meta.glob<DefinitionModule<OperatorDefinition>>([
-  './operators/*.ts',
-  '!./operators/*.test.ts',
-  '!./operators/index.ts',
-  '!./operators/definitionHelpers.ts',
-  '!./operators/testUtils.ts',
-]);
+const operatorLoaders = import.meta.glob<DefinitionModule<OperatorDefinition>>(
+  './operators/*.generated.ts',
+);
 const weaponLoaders = import.meta.glob<DefinitionModule<WeaponDefinition>>(
   './equipment/generated-weapons/**/*.generated.ts',
 );
@@ -130,10 +126,7 @@ function loaderByBasename<T>(
   loaders: Readonly<Record<string, () => Promise<DefinitionModule<T>>>>,
   slug: string,
 ): (() => Promise<DefinitionModule<T>>) | undefined {
-  const suffixes = [`/${slug}.ts`, `/${slug}.generated.ts`];
-  return Object.entries(loaders).find(([path]) =>
-    suffixes.some(suffix => path.endsWith(suffix)),
-  )?.[1];
+  return Object.entries(loaders).find(([path]) => path.endsWith(`/${slug}.generated.ts`))?.[1];
 }
 
 function definitionFromModule<T extends { readonly slug: string }>(

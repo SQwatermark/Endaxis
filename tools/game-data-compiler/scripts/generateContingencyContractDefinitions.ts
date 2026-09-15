@@ -5,9 +5,9 @@ import { pathToFileURL } from 'node:url';
 import { isDeepStrictEqual } from 'node:util';
 import { format, resolveConfig } from 'prettier';
 import type { ActionSequenceDefinition } from '../../../packages/game-data-contract/src/actions.ts';
-import type { CompiledBuffDefinitionSource } from '../src/compiler/buffProjectionTypes.ts';
-import { compileGlobalBuffTemplate } from '../src/compiler/globalBuffProjection.ts';
-import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
+import type { CompiledBuffDefinitionSource } from '../src/compiler/buffs/buffProjectionTypes.ts';
+import { compileGlobalBuffTemplate } from '../src/compiler/buffs/globalBuffProjection.ts';
+import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../src/source/globalBuffTemplate.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import {
@@ -23,7 +23,7 @@ import {
 import {
   writeGeneratedDefinitionFiles,
   checkGeneratedDefinitionFiles,
-} from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+} from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 
 export interface ContingencyContractDefinitionSourceArguments {
   readonly tableRoot: string;

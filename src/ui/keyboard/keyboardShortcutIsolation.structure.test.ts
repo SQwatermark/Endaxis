@@ -2,8 +2,8 @@ import { describe, expect, it } from 'vitest';
 import routerSource from './keyboardShortcutRouter.ts?raw';
 import editorSource from '../timeline/TimelineEditor.vue?raw';
 import headerSource from '../timeline/components/TimelineHeaderToolbar.vue?raw';
-import menuSource from '../timeline/components/TimelineActionContextMenu.vue?raw';
-import mapSource from '../timeline/components/SkillStructureMindMap.vue?raw';
+import menuSource from '../timeline/interaction/TimelineActionContextMenu.vue?raw';
+import mapSource from '../timeline/definitions/SkillStructureMindMap.vue?raw';
 
 describe('keyboard shortcut isolation integration', () => {
   it('tracks keyboard focus and the specific teleported map menu without global key listeners', () => {

@@ -7,7 +7,7 @@
  */
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
 import { isDeepStrictEqual } from 'node:util';
-import type { ScheduledCombatFrameInput } from '../../src/application/combatInputSchedule';
+import type { ScheduledCombatFrameInput } from '../../src/application/simulation/combatInputSchedule';
 import type {
   EndaxisProjectDocument,
   ScenarioDocument,

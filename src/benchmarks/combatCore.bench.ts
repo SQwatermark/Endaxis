@@ -8,7 +8,7 @@ import { CombatStep, type CombatExecutionContext } from '../core/combat/actions/
 import { TimelineActionProcessor } from '../core/combat/timeline/timelineActionProcessor';
 import { compileSkill } from '../core/compiler/compileSkill';
 import type { SkillDefinition } from '../core/game-data/operatorDefinition';
-import { perlica } from '../data/operators/perlica';
+import { perlica } from '../data/operators/perlica.generated';
 
 class EmptyStep extends CombatStep {
   execute(): void {}

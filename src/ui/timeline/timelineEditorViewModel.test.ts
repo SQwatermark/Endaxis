@@ -11,7 +11,7 @@ import {
   rossi,
   zhuangFangyi,
 } from '../../data/operators';
-import { placeSkillGroup } from './placeSkillGroup';
+import { placeSkillGroup } from './interaction/placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
 
 describe('projectTimelineEditor', () => {

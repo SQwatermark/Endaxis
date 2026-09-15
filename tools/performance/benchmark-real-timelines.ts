@@ -22,7 +22,7 @@ try {
   if (!parsed.ok) throw new Error(JSON.stringify(parsed));
   const project: EndaxisProjectDocument = parsed.value;
   const { createEditorSimulationService } = await server.ssrLoadModule(
-    '/src/application/editorSimulationService.ts',
+    '/src/application/simulation/editorSimulationService.ts',
   );
   const service = createEditorSimulationService(project.definitionLibrary);
   let timing: unknown;

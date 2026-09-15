@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { CombatClock } from '../runtime/combatClock';
-import { CombatVitals } from '../runtime/combatVitals';
+import { CombatClock } from '../time/combatClock';
+import { CombatVitals } from '../resources/combatVitals';
 import { calculatePoiseDamage, executePoiseDamage } from './poiseDamage';
 
 function createTarget(overrides: Partial<ConstructorParameters<typeof CombatVitals>[0]> = {}) {

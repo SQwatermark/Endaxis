@@ -8,7 +8,7 @@ import { CombatRuntimeAssembly, type CombatRuntimeAssemblyOptions } from './comb
 import {
   ComboSkillConditionRuntime,
   type PendingComboCondition,
-} from './comboSkillConditionRuntime';
+} from '../skills/comboSkillConditionRuntime';
 
 const condition: CompiledComboSkillConditionProgram = {
   key: 'saved-element',

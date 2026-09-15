@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { validateComboSkillConditions } from './validateComboSkillConditions';
 import { ABILITY_EVENTS, type ComboSkillConditionDefinition } from './operatorDefinition';
-import { perlica } from '../../data/operators/perlica';
+import { perlica } from '../../data/operators/perlica.generated';
 import { compileOperatorComboSkillConditions } from '../compiler/compileOperatorComboSkillConditions';
 import { createEmptyProject } from '../project/createProject';
 import { deriveProjectOperatorTemplate } from '../project/projectDefinitionLibrary';

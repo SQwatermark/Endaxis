@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import { createProjectFileReader } from './projectFileReader';
+import { createProjectFileReader } from './projectFileSession';
 import { createEmptyProject } from '../../core/project/createProject';
 import { ProjectEditorSession } from '../../application/editor/projectEditorSession';
 

@@ -9,7 +9,7 @@ export type { SkillType as OperatorActiveSkillTypeSource } from '../../../../../
 import {
   compileActiveSkillRequestBatch,
   type CompiledActiveSkillDefinitionSource,
-} from '../../compiler/activeSkillBatch.ts';
+} from '../../compiler/skills/activeSkillBatch.ts';
 import {
   requireArray,
   requireExactFields,

@@ -3,18 +3,18 @@ import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-pulse-check-buff.json';
 import vulnerableCarriers from './fixtures/avywenna-vulnerable-buffs.json';
 import vulnerableChildren from './fixtures/avywenna-vulnerable-children.json';
-import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
+import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
 import type {
   OperatorDefinition,
   SkillBuffDefinition,
 } from '../../../src/core/game-data/operatorDefinition';
-import { validateActionSequenceDefinition } from '../../../src/core/game-data/validateSkillDefinition';
-import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { validateActionSequenceDefinition } from '../../../src/core/game-data/validation/actionPrograms';
+import { ScenarioSimulationService } from '../../../src/application/simulation/scenarioSimulationService';
 import { createEmptyScenario } from '../../../src/core/project/createProject';
-import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
-import { avywenna } from '../../../src/data/operators/avywenna';
+import { placeSkillGroup } from '../../../src/ui/timeline/interaction/placeSkillGroup';
+import { avywenna } from '../../../src/data/operators/avywenna.generated';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
-import { COMBAT_FRAMES_PER_SECOND } from '../../../src/core/combat/runtime/combatClock';
+import { COMBAT_FRAMES_PER_SECOND } from '../../../src/core/combat/time/combatClock';
 
 const id = 'buff_chr_0012_avywen_lance_pulse_check';
 

@@ -15,10 +15,10 @@ import { createEmptyScenario } from '../../../src/core/project/createProject';
 import type { GearDefinition } from '../../../src/core/game-data/equipmentDefinition';
 import { OPERATOR_ATTRIBUTES } from '../../../packages/game-data-contract/src/primitives.ts';
 import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
-import { perlica } from '../../../src/data/operators/perlica';
+import { perlica } from '../../../src/data/operators/perlica.generated';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
-import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
-import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { placeSkillGroup } from '../../../src/ui/timeline/interaction/placeSkillGroup';
+import { ScenarioSimulationService } from '../../../src/application/simulation/scenarioSimulationService';
 
 // 配装兼容性门禁：干员/公共规则仍用已验证正式基线，不冒充全资源无旧数据重建。
 // 默认用小型真实夹具；指定完整报告时逐件验证该批候选，不复制其文件到正式目录。

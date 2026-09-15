@@ -3,7 +3,7 @@ import {
   parseKnownNativeActionLeafSource,
   parseKnownNativeActionSequenceSource,
 } from '../src/source/actionLeaf.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { scalarFixture as scalar, targetFixture } from './sourceFixtures.ts';
 import { parseReceiveMoveInputActionSource } from '../src/source/spatialActions.ts';
 
@@ -22,26 +22,37 @@ describe('侧移模式朝向偏移', () => {
   });
 
   it.each([0, 10, -30])('偏移 %s 与旧格式投影一致，不产生战斗步骤', yawOffset => {
-    expect(parseKnownNativeActionLeafSource(create({ yawOffset }), 'strafe', {}))
-      .toEqual(parseKnownNativeActionLeafSource(create(), 'strafe', {}));
-    const source = parseKnownNativeActionSequenceSource({
-      actionData: [create({ yawOffset })],
-      onlyExecuteWhenSourceIsMainChar: false,
-      onlyExecuteWhenSourceIsGuard: false,
-    }, 'sequence', {});
-    expect(compileCombatActionSequenceSource(source, {
-      actionOwnerTarget: 'caster', actionSourceTarget: 'caster', actionTargetTarget: 'enemy',
-    })).toEqual({ steps: [] });
+    expect(parseKnownNativeActionLeafSource(create({ yawOffset }), 'strafe', {})).toEqual(
+      parseKnownNativeActionLeafSource(create(), 'strafe', {}),
+    );
+    const source = parseKnownNativeActionSequenceSource(
+      {
+        actionData: [create({ yawOffset })],
+        onlyExecuteWhenSourceIsMainChar: false,
+        onlyExecuteWhenSourceIsGuard: false,
+      },
+      'sequence',
+      {},
+    );
+    expect(
+      compileCombatActionSequenceSource(source, {
+        actionOwnerTarget: 'caster',
+        actionSourceTarget: 'caster',
+        actionTargetTarget: 'enemy',
+      }),
+    ).toEqual({ steps: [] });
   });
 
   it.each([null, undefined, '10', {}, NaN, Infinity])('拒绝非法偏移 %j', yawOffset => {
-    expect(() => parseKnownNativeActionLeafSource(create({ yawOffset }), 'strafe', {}))
-      .toThrow('strafe.yawOffset');
+    expect(() => parseKnownNativeActionLeafSource(create({ yawOffset }), 'strafe', {})).toThrow(
+      'strafe.yawOffset',
+    );
   });
 
   it('新增偏移不放开未知字段', () => {
-    expect(() => parseKnownNativeActionLeafSource(create({ yawOffset: 0, unknown: 1 }), 'strafe', {}))
-      .toThrow('unexpected fields');
+    expect(() =>
+      parseKnownNativeActionLeafSource(create({ yawOffset: 0, unknown: 1 }), 'strafe', {}),
+    ).toThrow('unexpected fields');
   });
 });
 const curve = [

@@ -1,34 +1,16 @@
+import { type ScheduledSkillInput } from '../state/environmentState';
 /**
  * 在原生 PlayerController 所在的 Frame 阶段消费已编译施放输入。
  * 输入必须按帧有序；同帧输入保持声明顺序，不能在运行时按干员或技能身份重排。
  */
-import type { CombatClock } from './combatClock';
-import type { FrameRuntime } from './combatSimulation';
-import type { PlayerSkillInput } from '../../game-data/operatorDefinition';
-import type { CombatInputExecution } from './combatInputExecution';
-import { sameSkillSimulationInputs, type SkillSimulationInputs } from './skillSimulationInputs';
+import type { CombatInputExecution } from '../skills/combatInputExecution';
+import { sameSkillSimulationInputs } from '../skills/skillSimulationInputs';
 import type {
   CombatInputRuntimeState,
   SkillInputGroupRuntimeState,
 } from '../state/environmentState';
-
-/** 一次技能输入。固定输入已确定实际帧；组后段在运行时到达边界后才确定实际帧。 */
-export interface CombatSkillInput {
-  readonly simulationInputs?: SkillSimulationInputs;
-  readonly operatorId: string;
-  readonly skillId: string;
-  /** 玩家尝试执行的四类语义动作；与设备键位和技能库分组无关。 */
-  readonly action?: PlayerSkillInput;
-  /** 文档中的技能释放身份；同技能多次放置靠它区分。 */
-  readonly castId?: string;
-}
-
-export interface ScheduledSkillInput extends CombatSkillInput {
-  /** 固定输入的实际帧；尚未启动的组后段仅携带锚点帧，供编译预检使用。 */
-  readonly frame: number;
-  /** 动态组与固定输入落在同帧时，仍按轨道和块的原始声明顺序执行。 */
-  readonly declarationOrder?: number;
-}
+import type { CombatClock } from '../time/combatClock';
+import type { FrameRuntime } from './combatSimulation';
 
 /** 一条持久连续组；禁用成员已由编译器跳过，锚点身份仍指向原始组头。 */
 export interface SkillInputGroup {

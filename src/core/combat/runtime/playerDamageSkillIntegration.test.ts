@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { perlica } from '../../../data/operators/perlica';
-import { createEnemyElementalBuffRuntime } from '../../../data/buffs/createEnemyElementalBuffRuntime';
+import { perlica } from '../../../data/operators/perlica.generated';
+import { createEnemyElementalBuffRuntime } from '../../../test/elementalBuffFixture';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { compileSkill } from '../../compiler/compileSkill';
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
@@ -9,15 +9,15 @@ import {
   type DamageScaleAttributeSnapshot,
 } from '../damage/damageScaleAttributes';
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
-import { CombatClock } from './combatClock';
-import { CombatResources } from './combatResources';
+import { CombatClock } from '../time/combatClock';
+import { CombatResources } from '../resources/combatResources';
 import { CombatSimulation } from './combatSimulation';
-import { CombatVitals } from './combatVitals';
+import { CombatVitals } from '../resources/combatVitals';
 import type { CombatEnemyProgram } from './combatRuntimeAssembly';
-import { createPlayerActiveOperationExecutorForElementalTarget } from './playerActiveOperationExecutor';
-import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
-import { SkillRuntime, type CombatOperationExecutor } from './skillRuntime';
-import { CombatSemanticEventRuntime } from './combatSemanticEventRuntime';
+import { createPlayerActiveOperationExecutorForElementalTarget } from '../damage/playerActiveOperationExecutor';
+import { SkillResourceOperationExecutor } from '../resources/skillResourceOperationExecutor';
+import { SkillRuntime, type CombatOperationExecutor } from '../skills/skillRuntime';
+import { CombatSemanticEventRuntime } from '../events/combatSemanticEventRuntime';
 
 function findPerlicaBattleSkill(): SkillDefinition {
   const group = perlica.skillGroups.find(candidate => candidate.key === 'battleSkill');

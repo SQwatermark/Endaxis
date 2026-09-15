@@ -6,14 +6,12 @@ import {
   planOperatorDefinition,
   renderOperatorDefinition,
 } from '../scripts/planOperatorDefinition.ts';
-import { avywenna } from '../../../src/data/operators/avywenna';
-import {
-  validateAbilityEntityDefinition,
-  validateSkillDefinition,
-} from '../../../src/core/game-data/validateSkillDefinition';
-import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { avywenna } from '../../../src/data/operators/avywenna.generated';
+import { validateSkillDefinition } from '../../../src/core/game-data/validateSkillDefinition';
+import { validateAbilityEntityDefinition } from '../../../src/core/game-data/validation/actionPrograms';
+import { ScenarioSimulationService } from '../../../src/application/simulation/scenarioSimulationService';
 import { createEmptyScenario } from '../../../src/core/project/createProject';
-import { placeSkillGroup } from '../../../src/ui/timeline/placeSkillGroup';
+import { placeSkillGroup } from '../../../src/ui/timeline/interaction/placeSkillGroup';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
 
 let sourceRoot: string;
@@ -247,6 +245,7 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
   it('隔离候选在相同原始快照上确定性渲染', async () => {
     const first = await renderOperatorDefinition(args);
     const second = await renderOperatorDefinition(args);
+    expect(first.file.relativePath).toBe(`${args.slug}.generated.ts`);
     expect(second.file).toEqual(first.file);
     expect(second.auditFile).toEqual(first.auditFile);
     expect(first.plan.activeSkills).toHaveLength(10);

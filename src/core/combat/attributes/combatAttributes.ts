@@ -1,43 +1,35 @@
 // 纯数据契约由独立包唯一声明；此路径保留兼容导出。
 export {
-  ATTRIBUTE_MODIFIER_TIMINGS,
-  type AttributeModifierTiming,
   ATTRIBUTE_MODIFIER_SLOTS,
+  ATTRIBUTE_MODIFIER_TIMINGS,
   type AttributeModifierSlot,
+  type AttributeModifierTiming,
   type AttributeModifierValues,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
   type AttributeModifierSlot,
   type AttributeModifierValues,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
+import {
+  ATTRIBUTE_MODIFIER_SOURCES,
+  createCombatAttributeState,
+  type AttributeModifierSource,
+  type CombatAttributeDefinition,
+  type CombatAttributeModifier,
+} from '../state/foundationState';
+import {
+  addCombatAttributeModifier,
+  clearInstantAttributeModifiers,
+  defineCombatAttribute,
+  readCombatAttribute,
+  removeCombatAttributeModifier,
+  setCombatAttributeRawValue,
+} from './combatAttributeExecution';
 /**
  * 面板解析和战斗运行时共享的属性修正聚合核心。
  * 调用方必须按已确认的原生槽位注册修正，并显式管理启停，不能预先合并而丢失来源身份。
  */
-export {
-  ATTRIBUTE_MODIFIER_SOURCES,
-  COMBAT_ATTRIBUTE_VALUE_STAGES,
-  createCombatAttributeModifier,
-  type AttributeModifierSource,
-  type CombatAttributeValueStage,
-  type CombatAttributeDefinition,
-  type CombatAttributeModifier,
-} from './combatAttributeState';
-import {
-  ATTRIBUTE_MODIFIER_SOURCES,
-  createCombatAttributeState,
-  type CombatAttributeDefinition,
-  type CombatAttributeModifier,
-  type AttributeModifierSource,
-} from './combatAttributeState';
-import {
-  defineCombatAttribute,
-  setCombatAttributeRawValue,
-  readCombatAttribute,
-  addCombatAttributeModifier,
-  removeCombatAttributeModifier,
-  clearInstantAttributeModifiers,
-} from './combatAttributeExecution';
+export { createCombatAttributeModifier } from './combatAttributeExecution';
 const IDENTITY_VALUES: AttributeModifierValues = {
   addition: 0,
   multiplier: 0,
@@ -59,12 +51,12 @@ export function attributeModifierValues(
 
 /** 属性集合的现有调用接口，状态与算法由独立模块提供。 */
 export class CombatAttributeSet<Key extends string> {
-  readonly #state: import('./combatAttributeState').CombatAttributeState<Key>;
+  readonly #state: import('../state/foundationState').CombatAttributeState<Key>;
   constructor(state = createCombatAttributeState<Key>()) {
     this.#state = state;
   }
   /** 供实体宿主纳入完整数据图；不提供单独恢复属性的入口。 */
-  get runtimeState(): import('./combatAttributeState').CombatAttributeState<Key> {
+  get runtimeState(): import('../state/foundationState').CombatAttributeState<Key> {
     return this.#state;
   }
   get modifierCount(): number {

@@ -11,7 +11,7 @@ import type {
   GlobalOperatorStatModifier,
   GlobalOperatorStatModifierDocument,
 } from '../../../core/project/schema';
-import type { EditableBattleResourceRule } from '../timelineDocumentCommands';
+import type { EditableBattleResourceRule } from '../interaction/timelineDocumentCommands';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 
 const props = defineProps<{

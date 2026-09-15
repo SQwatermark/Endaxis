@@ -1,11 +1,6 @@
+import { type BuffModifierNumberSource } from '../state/foundationState';
 /** 修正器的取值来源。保存黑板引用而非捕获 Buff 对象的函数，执行时才读取当前值。 */
-import type { ActionBlackboardState } from '../state/actionState';
-import { readActionBlackboard } from '../runtime/actionBlackboardExecution';
-
-export interface BuffModifierNumberSource {
-  readonly buffId: string;
-  readonly blackboard: ActionBlackboardState;
-}
+import { readActionBlackboard } from '../actions/actionBlackboardExecution';
 
 export function resolveBuffModifierNumber(
   source: BuffModifierNumberSource | undefined,

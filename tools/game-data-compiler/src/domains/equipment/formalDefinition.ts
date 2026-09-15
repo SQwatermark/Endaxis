@@ -4,8 +4,8 @@ import type {
   EquipmentTraitDisplayDefinition,
   GearTraitDefinition,
 } from '../../../../../packages/game-data-contract/src/equipment.ts';
-import { compileResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
-import { isBuildContributionModifier } from '../../compiler/buildAttributeProjection.ts';
+import { compileResolvedAttributeModifierSource } from '../../compiler/build/attributeModifier.ts';
+import { isBuildContributionModifier } from '../../compiler/build/buildAttributeProjection.ts';
 import type {
   EquipmentAttributeModifierSource,
   EquipmentDisplayAttributeModifierSource,
@@ -19,7 +19,7 @@ import {
 import type {
   BuildDefinitionDiagnosticSource,
   CompiledBuildModifierDefinitionSource,
-} from '../../compiler/formalBuildDefinition.ts';
+} from '../../compiler/build/formalBuildDefinition.ts';
 
 export type EquipmentDefinitionDiagnosticSource = BuildDefinitionDiagnosticSource;
 export type CompiledEquipmentModifierDefinitionSource = CompiledBuildModifierDefinitionSource;

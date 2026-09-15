@@ -1,6 +1,6 @@
 import type { CompiledWeaponRuntimeDefinitionBatchSource } from './runtimeDefinition.ts';
 import type { WeaponDefinition } from '../../../../../packages/game-data-contract/src/equipment.ts';
-import type { DefinitionProgramOptimizationReport } from '../../compiler/definitionProgramOptimization.ts';
+import type { DefinitionProgramOptimizationReport } from '../../compiler/optimization/definitionProgramOptimization.ts';
 
 /** 渲染接收组装、优化后的正式定义，不要求仍属于来源编译器的窄子集。 */
 interface WeaponDefinitionRenderBatch {

@@ -4,12 +4,12 @@
  * 本模块只负责编译全新战斗的初始账本，不读取定义、面板或 Buff。调用方必须先解析项目中
  * 没有保存的原生规则；场景继承需要来源边界快照，不能调用本入口并假定资源从零开始。
  */
+import type { CombatResourceSnapshot } from '../combat/resources/combatResources';
+import type { SharedSpGainSettings } from '../combat/resources/sharedSpGainModifiers';
 import type {
-  CombatResourceSnapshot,
   NormalSkillUltimateEnergySettings,
   OperatorResourceSnapshot,
-} from '../combat/runtime/combatResources';
-import type { SharedSpGainSettings } from '../combat/resources/sharedSpGainModifiers';
+} from '../combat/state/environmentState';
 import type { GameplayTag } from '../combat/tags/gameplayTags';
 import type { ScenarioDocument, TrackDocument } from '../project/schema';
 

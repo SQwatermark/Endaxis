@@ -1,11 +1,11 @@
 import type { BuffApplicationActionSource } from '../source/buffActions.ts';
 import type { ProjectileLaunchActionSource } from '../source/referenceActions.ts';
 import type { ScalarSource } from '../source/scalar.ts';
-import type { CompiledBuffNumberSource } from './buffProjectionTypes.ts';
-import type { CompiledBuffStepSource } from './combatActionProjectionTypes.ts';
-import type { CompiledBuffSequenceSource } from './combatActionProjectionTypes.ts';
+import type { CompiledBuffNumberSource } from './buffs/buffProjectionTypes.ts';
+import type { CompiledBuffStepSource } from './actions/combatActionProjectionTypes.ts';
+import type { CompiledBuffSequenceSource } from './actions/combatActionProjectionTypes.ts';
 import type { GameplayTagRegistry } from '../source/nativeGameplayTags.ts';
-import type { CompiledAbilityEntityTemplateCatalogSource } from './abilityEntityCatalog.ts';
+import type { CompiledAbilityEntityTemplateCatalogSource } from './abilities/abilityEntityCatalog.ts';
 import type { GlobalBuffActionSource } from '../source/globalBuffActions.ts';
 import type { SkillSettingReadActionSource } from '../source/skillSettingActions.ts';
 import type { TargetGroupActionSource } from '../source/targetGroup.ts';

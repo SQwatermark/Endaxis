@@ -3,21 +3,21 @@ import type { GameplayTag } from '../../../../packages/game-data-contract/src/ga
  * 元素附着纯决策结果与目标 Buff 容器之间的执行适配层。
  * 调用前必须使用同一时刻的附着快照完成解析，避免决策与写入之间状态漂移。
  */
+import type { InflictionElement } from '../../game-data/operatorDefinition';
 import type {
+  BuffLifecycleActions,
   CombatBuff,
   CombatBuffAddOptions,
   CombatBuffContainer,
   CombatBuffDefinition,
-  BuffLifecycleActions,
 } from '../buffs/combatBuffs';
+import type { AbilityOutputBuffPayload } from '../events/combatAbilityEvent';
+import type { CombatSkillCastInfo } from '../state/foundationState';
 import type {
   ElementalInflictionOperation,
   ExistingElementalAttachment,
 } from './elementalInfliction';
-import type { InflictionElement } from '../../game-data/operatorDefinition';
-import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
 import { NATIVE_ELEMENT_VALUES } from './elementalInfliction';
-import type { AbilityOutputBuffPayload } from '../events/combatAbilityEvent';
 
 /** 附着适配器读取 Buff 定义和复合状态工厂的定义端口。 */
 export interface ElementalInflictionBuffIndex<Key extends string> {

@@ -1,62 +1,68 @@
-import { createBuffStackingState } from './buffStackingState';
+import type { BuffFinishReason } from '../state/foundationState';
 import {
-  refreshBuffStackingPriority,
-  countBuffStackingInstances,
-  countBuffStackingEnhancements,
-  enhanceBuffStacking,
-  canGrowBuffStacking,
-  growBuffStacking,
-  applyTimedBuffEnhancement,
-  type BuffStackingHost,
-} from './buffStackingExecution';
-import { createBuffInstanceState, type BuffInstanceState } from './buffInstanceState';
-import { createBuffContainerState, type BuffContainerState } from './buffContainerState';
+  type BuffDuration,
+  type BuffKeywordEnhancementDefinition,
+  type BuffMaxStackCount,
+  type BuffPriority,
+  type BuffShieldAttributeValue,
+  type BuffShieldDefinition,
+  type BuffStackingType,
+  type BuffSustainedProtectionDefinition,
+  type BuffTimeClock,
+  type BuffTriggerCount,
+  type CombatBuffChildPresentation,
+  type CombatBuffPresentation,
+} from '../../../../packages/game-data-contract/src/buffs.ts';
+import type { BuffShieldState } from '../state/instanceState';
 import {
-  addBuffEntityTags,
-  removeBuffEntityTags,
-  advanceBuffAddingCooldowns,
-} from './buffContainerExecution';
-import type { BuffShieldState } from './buffShieldState';
-import { SHIELD_EPSILON, absorbShieldDamage, refreshShieldConsumed } from './buffShieldExecution';
-import { attachBuffChild, finishBuffChildren } from './buffChildrenExecution';
-import { buffReferenceKey } from './buffReference';
+  createBuffContainerState,
+  createBuffInstanceState,
+  createBuffStackingState,
+  type BuffContainerState,
+  type BuffInstanceState,
+} from '../state/instanceState';
 import {
   removeBuffAttributeModifiers,
   replaceBuffAttributeModifiers,
 } from './buffAttributeExecution';
 import {
-  finishBuffLifecycle,
-  tickBuffLifecycle,
-  refreshBuffDuration,
-  extendBuffDuration,
-  setFiniteBuffDuration,
-  enhanceBuffLifecycle,
+  addBuffEntityTags,
+  advanceBuffAddingCooldowns,
+  removeBuffEntityTags,
+} from './buffContainerExecution';
+import {
+  attachBuffChild,
   decreaseBuffEnhancements,
+  enhanceBuffLifecycle,
+  extendBuffDuration,
+  finishBuffChildren,
+  finishBuffLifecycle,
+  refreshBuffDuration,
+  setFiniteBuffDuration,
+  tickBuffLifecycle,
 } from './buffLifecycleExecution';
+import { buffReferenceKey } from './buffReference';
+import { SHIELD_EPSILON, absorbShieldDamage, refreshShieldConsumed } from './buffShieldExecution';
+import {
+  applyTimedBuffEnhancement,
+  canGrowBuffStacking,
+  countBuffStackingEnhancements,
+  countBuffStackingInstances,
+  enhanceBuffStacking,
+  growBuffStacking,
+  refreshBuffStackingPriority,
+  type BuffStackingHost,
+} from './buffStackingExecution';
 // 纯数据契约由独立包唯一声明；此路径保留兼容导出。
 export {
   BUFF_STACKING_TYPES,
-  type BuffStackingType,
   type BuffDuration,
-  type BuffTriggerCount,
+  type BuffKeywordEnhancementDefinition,
   type BuffMaxStackCount,
   type BuffPriority,
-  type BuffShieldPriority,
   type BuffShieldDamageAbsorptionDefinition,
   type BuffShieldDefinition,
-  type BuffSustainedProtectionDefinition,
-  type BuffTimeClock,
-  type CombatBuffPresentation,
-  type CombatBuffChildPresentation,
-  type BuffKeywordEnhancementDefinition,
-} from '../../../../packages/game-data-contract/src/buffs.ts';
-import {
-  type BuffShieldAttributeValue,
-  type BuffDuration,
-  type BuffKeywordEnhancementDefinition,
-  type BuffMaxStackCount,
-  type BuffPriority,
-  type BuffShieldDefinition,
+  type BuffShieldPriority,
   type BuffStackingType,
   type BuffSustainedProtectionDefinition,
   type BuffTimeClock,
@@ -68,13 +74,17 @@ import {
  * 一次模拟中每个实体的 Buff 状态所有者。
  * 调用方通过稳定定义添加 Buff，并按战斗时钟推进；不得把实例写回定义或项目存档。
  */
+import type { DamageType } from '../../game-data/operatorDefinition';
+import { ActionBlackboard, type ActionBlackboardValue } from '../actions/actionBlackboard';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  createCombatAttributeModifier,
-  type CombatAttributeModifier,
-  attributeModifierValues,
-  type AttributeModifierSlot,
   type AttributeModifierSource,
+  type CombatAttributeModifier,
+} from '../state/foundationState';
+import {
+  attributeModifierValues,
+  createCombatAttributeModifier,
+  type AttributeModifierSlot,
   type AttributeModifierTiming,
   type AttributeModifierValues,
   type CombatAttributeSet,
@@ -89,55 +99,43 @@ import type {
   DamageProcessTiming,
   PlayerDamageContext,
 } from '../damage/playerDamageContext';
-import { ActionBlackboard, type ActionBlackboardValue } from '../runtime/actionBlackboard';
-import { applyHealModifier } from '../heal/healModifierExecution';
 import { applyPoiseModifier } from '../damage/poiseModifierExecution';
-import { resolveBuffModifierNumber } from './buffModifierNumberSource';
-import type { DamageModifierState } from '../damage/damageModifierState';
-import { advanceBuffTriggers } from './buffTriggerExecution';
-import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
-import type { DamageType } from '../../game-data/operatorDefinition';
+import {
+  createPoiseModifier,
+  type PoiseCalculationContext,
+  type PoiseModifierDefinition,
+  type PoiseModifierSide,
+  type PoiseProcessTiming,
+} from '../damage/poiseModifiers';
+import { applyHealModifier } from '../heal/healModifierExecution';
 import {
   createHealModifier,
-  type HealModifier,
   type HealCalculationContext,
   type HealModifierDefinition,
   type HealModifierSide,
   type HealProcessTiming,
 } from '../heal/healModifiers';
 import {
-  createPoiseModifier,
-  type PoiseModifier,
-  type PoiseCalculationContext,
-  type PoiseModifierDefinition,
-  type PoiseModifierSide,
-  type PoiseProcessTiming,
-} from '../damage/poiseModifiers';
-import {
   createSharedSpGainModifier,
-  type SharedSpGainAttribute,
-  type SharedSpGainModifierOperation,
   type SharedSpGainModifierSet,
 } from '../resources/sharedSpGainModifiers';
+import type { CombatSkillCastInfo, DamageModifierState } from '../state/foundationState';
+import {
+  type HealModifier,
+  type PoiseModifier,
+  type SharedSpGainAttribute,
+  type SharedSpGainModifierOperation,
+} from '../state/foundationState';
 import {
   GameplayTagRegistry,
   type GameplayTag,
   type GameplayTagQueryType,
 } from '../tags/gameplayTags';
+import { advanceBuffTriggers } from './buffLifecycleExecution';
+import { resolveBuffModifierNumber } from './buffModifierNumberSource';
 
 const BUFF_LIFETIME_EPSILON = 0.00001;
 const BUFF_PRIORITY_EPSILON = 0.00001;
-
-export const BUFF_FINISH_REASONS = [
-  'lifetime',
-  'ignite',
-  'early',
-  'dispelled',
-  'absorbed',
-  'other',
-] as const;
-/** Buff 结束时记录并传给生命周期行为的原因。 */
-export type BuffFinishReason = (typeof BUFF_FINISH_REASONS)[number];
 
 /** 从 Buff 实例黑板读取单个原生属性槽位值的动态修正。 */
 export interface BuffBlackboardAttributeModifierValues {
@@ -277,7 +275,7 @@ export interface CombatBuffAddOptions {
 /** 一个实体上某项 Buff 的独立运行时实例。 */
 /** 由宿主精确持有的实例结束端口；null 是已知空施法，省略仍表示未核实。 */
 export interface BuffApplicationHandle {
-  readonly reference: import('./buffReference').BuffReference;
+  readonly reference: import('../state/foundationState').BuffReference;
   readonly isFinished?: boolean;
   finish(reason: BuffFinishReason, finishSkillCastInfo?: CombatSkillCastInfo | null): boolean;
   bindFinishedCallback?(callback: () => void): { dispose(): void };
@@ -290,7 +288,7 @@ export class CombatBuff<Key extends string> {
     return this.#state;
   }
   /** 只包含目标与实例编号，可随战斗数据保存；不能保存整个 Buff 对象。 */
-  get reference(): import('./buffReference').BuffReference {
+  get reference(): import('../state/foundationState').BuffReference {
     return { ownerId: this.#state.identity.ownerId, instanceId: this.#state.identity.instanceId };
   }
   readonly #childBindings = new Map<
@@ -1284,7 +1282,7 @@ export class CombatBuffContainer<Key extends string> {
   /** 所有目标容器完成实例绑定后，再解析可能跨目标的父子关系。 */
   bindRestoredRelations(
     resolveHandle: (
-      reference: import('./buffReference').BuffReference,
+      reference: import('../state/foundationState').BuffReference,
     ) => BuffApplicationHandle | undefined,
   ): void {
     for (const buff of this.#snapshotBuffs()) {
@@ -1363,7 +1361,7 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   resolveHandle(
-    reference: import('./buffReference').BuffReference,
+    reference: import('../state/foundationState').BuffReference,
   ): BuffApplicationHandle | undefined {
     if (reference.ownerId !== this.ownerId) {
       throw new Error(
@@ -1597,7 +1595,7 @@ export class CombatBuffContainer<Key extends string> {
 
   /** 固定当前匹配实例并禁止其结束；释放不会影响保护开始后新增的同 ID Buff。 */
   holdByIds(ids: readonly string[]): {
-    readonly references: readonly import('./buffReference').BuffReference[];
+    readonly references: readonly import('../state/foundationState').BuffReference[];
     release(): void;
   } {
     const accepted = new Set(ids);
@@ -1617,7 +1615,7 @@ export class CombatBuffContainer<Key extends string> {
   }
 
   /** 按保存的实例身份释放动作期保护；不会误伤保护开始后新增的同 ID Buff。 */
-  releaseHeld(references: readonly import('./buffReference').BuffReference[]): void {
+  releaseHeld(references: readonly import('../state/foundationState').BuffReference[]): void {
     for (const reference of references) {
       if (reference.ownerId !== this.ownerId) {
         throw new Error(`Buff hold owner '${reference.ownerId}' does not match '${this.ownerId}'`);
@@ -2047,9 +2045,9 @@ function isEnhanceChangedStackingType(stackingType: BuffStackingType): boolean {
 }
 
 class BuffStackingGroup<Key extends string> {
-  readonly #state: import('./buffStackingState').BuffStackingState;
+  readonly #state: import('../state/instanceState').BuffStackingState;
   /** 容器持有同一份叠层数据，实例关系按编号保留。 */
-  get runtimeState(): import('./buffStackingState').BuffStackingState {
+  get runtimeState(): import('../state/instanceState').BuffStackingState {
     return this.#state;
   }
   // 迁移期间的对象绑定；完整恢复时须从恢复后的容器重建。

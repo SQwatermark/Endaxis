@@ -1,6 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilityEntityCatalog.ts';
+import { compileAbilityEntityTemplateCatalogSource } from '../src/compiler/abilities/abilityEntityCatalog.ts';
 import { selectNativeAbilityEntityTemplateFields } from '../src/source/abilityEntity.ts';
 import { requireRecord } from '../src/source/primitives.ts';
 

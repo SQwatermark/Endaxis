@@ -5,19 +5,19 @@ import type {
   SkillLevelSource,
   UpgradeModifierDefinition,
 } from '../../../../../packages/game-data-contract/src/index.ts';
-import type { CompiledPassiveSkillDefinitionSource } from '../../compiler/passiveSkillBatch.ts';
-import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
+import type { CompiledPassiveSkillDefinitionSource } from '../../compiler/skills/passiveSkillBatch.ts';
+import type { PassiveSkillCompileRequestSource } from '../../compiler/skills/passiveSkillRequest.ts';
 import {
   materializePassiveBuffInstallation,
   resolvePassiveSkillDefinitionBlackboard,
-} from '../../compiler/passiveSkillInstallation.ts';
-import { isPresentationOnlyActionSequence } from '../../compiler/skillPresentationTargets.ts';
-import { compileCombatActionSequenceSource } from '../../compiler/buffRuntimeProjection.ts';
+} from '../../compiler/skills/passiveSkillInstallation.ts';
+import { isPresentationOnlyActionSequence } from '../../compiler/skills/skillPresentationTargets.ts';
+import { compileCombatActionSequenceSource } from '../../compiler/buffs/buffRuntimeProjection.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
-import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
+import { projectAbilityEvent } from '../../compiler/abilities/abilityEventProjection.ts';
 import { isOperatorPassiveAbilityEvent } from '../../../../../packages/game-data-contract/src/operators.ts';
-import type { CompiledBuffSequenceSource } from '../../compiler/combatActionProjectionTypes.ts';
-import { collectCompiledBuffIds } from '../../compiler/compiledBuffReferences.ts';
+import type { CompiledBuffSequenceSource } from '../../compiler/actions/combatActionProjectionTypes.ts';
+import { collectCompiledBuffIds } from '../../compiler/references/compiledReferences.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import {
   nativeActionName,

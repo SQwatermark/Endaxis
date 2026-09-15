@@ -4,11 +4,11 @@
  */
 import type { DamageFeature, DamageTag, DamageType } from '../../game-data/operatorDefinition';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
-import type { CombatClock } from '../runtime/combatClock';
-import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
-import type { CombatVitals, HealthDamageResult } from '../runtime/combatVitals';
-import type { PlayerActiveDamageResult } from './playerActiveDamage';
+import type { CombatVitals, HealthDamageResult } from '../resources/combatVitals';
+import type { CombatSkillCastInfo } from '../state/foundationState';
 import type { GameplayTag } from '../tags/gameplayTags';
+import type { CombatClock } from '../time/combatClock';
+import type { PlayerActiveDamageResult } from './playerActiveDamage';
 
 export const HEALTH_DAMAGE_EVENTS = [
   'beforeTakeDamage',

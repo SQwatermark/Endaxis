@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import type { ResolvedCombatStep, ResolvedCombatStepForKind } from '../../compiler/combatProgram';
 import type { ActionValueOperand } from '../../game-data/operatorDefinition';
-import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import { ActionBlackboard } from './actionBlackboard';
-import type { CombatOperationExecutor } from './skillRuntime';
+import { CombatActionSequenceRuntime } from '../actions/combatActionSequenceRuntime';
+import { ActionBlackboard } from '../actions/actionBlackboard';
+import type { CombatOperationExecutor } from '../skills/skillRuntime';
 
 const constant = (value: number): ActionValueOperand => ({ kind: 'constant', value });
 const effect = (key: string): ResolvedCombatStep => ({

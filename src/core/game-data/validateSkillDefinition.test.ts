@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import {
-  validateAbilityEntityDefinition,
-  validateSkillDefinition,
-} from './validateSkillDefinition';
+import { validateSkillDefinition } from './validateSkillDefinition';
+import { validateAbilityEntityDefinition } from './validation/actionPrograms';
 
 function baseSkill(): Record<string, unknown> {
   return {

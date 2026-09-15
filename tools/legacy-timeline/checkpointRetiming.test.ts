@@ -1,10 +1,10 @@
 import { expect, it, vi } from 'vitest';
 import { createEmptyScenario } from '../../src/core/project/createProject';
 import type { EndaxisProjectDocument, ScenarioDocument } from '../../src/core/project/schema';
-import { perlica } from '../../src/data/operators/perlica';
+import { perlica } from '../../src/data/operators/perlica.generated';
 import { commonBuffDefinitions } from '../../src/data/buffs/commonDefinitions';
-import { placeSkillGroup } from '../../src/ui/timeline/placeSkillGroup';
-import { ScenarioSimulationService } from '../../src/application/scenarioSimulationService';
+import { placeSkillGroup } from '../../src/ui/timeline/interaction/placeSkillGroup';
+import { ScenarioSimulationService } from '../../src/application/simulation/scenarioSimulationService';
 import { CheckpointRetimingSession } from './checkpointRetiming';
 import { retimeLegacyProjectBySimulation } from './heuristicRetiming';
 

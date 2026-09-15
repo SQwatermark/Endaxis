@@ -10,13 +10,13 @@ import {
   compileActiveSkillRuntimeProjectionSource,
   type CompiledActiveSkillRuntimeProjectionSource,
   type CompiledActiveSkillTimelineSequenceSource,
-} from '../../compiler/activeSkillRuntimeProjection.ts';
+} from '../../compiler/skills/activeSkillRuntimeProjection.ts';
 import type {
   CombatActionProjectionContextSource,
   CombatActionProjectionExtensionsSource,
 } from '../../compiler/combatProjectionCommon.ts';
-import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
-import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physicalInflictionHydration.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffs/buffProjectionTypes.ts';
+import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/actions/physicalInflictionHydration.ts';
 
 /** 已编译的正式技能子集；来源身份、黑板与消耗帧必填，不接受尚未接入的事件字段。 */
 export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<

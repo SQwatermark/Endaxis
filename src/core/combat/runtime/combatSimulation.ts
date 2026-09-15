@@ -3,7 +3,7 @@
  * 当前注册顺序与原生同一 TickGroup 的列表顺序一致；跨阶段及跨实体注册来源仍由装配层显式确定。
  * 调用方不得依赖对象映射或集合的偶然遍历顺序注册系统。
  */
-import { CombatClock } from './combatClock';
+import { CombatClock } from '../time/combatClock';
 
 /** 由 `CombatSimulation` 按帧驱动的运行时子系统。 */
 export interface FrameRuntime {

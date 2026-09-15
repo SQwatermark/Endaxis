@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { compileGearSetContribution } from '../../core/compiler/compileEquipment';
 import { validateGearSetDefinition } from '../../core/game-data/equipmentDefinitionValidation';
-import { perlica } from '../operators/perlica';
+import { perlica } from '../operators/perlica.generated';
 import { generatedGearSetDefinitions } from './generated-gear-sets/index.generated';
 
 describe('生成套装正式定义', () => {

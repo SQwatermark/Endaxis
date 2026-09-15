@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import boundary from './InputRegionBoundary.vue?raw';
-import dialog from '../timeline/components/SkillDefinitionEditorDialog.vue?raw';
+import dialog from '../timeline/definitions/skills/SkillDefinitionEditorDialog.vue?raw';
 
 describe('skill modal region wiring', () => {
   it('registers the boundary fallback in its own region without adding layout DOM', () => {

@@ -40,7 +40,7 @@
 
 ## 临时上下文与持久状态
 
-[响应作用域](../../src/core/combat/runtime/abilityEventResponseContext.ts) 在进入事件时绑定上下文，
+[响应作用域](../../src/core/combat/events/abilityEventResponseContext.ts) 在进入事件时绑定上下文，
 退出或抛错时恢复外层上下文。恢复目标与来源不意味着回滚战斗效果。
 
 黑板是动作程序的变量表。同一能力的初始化和响应可以共享它，不同能力实例必须隔离。
@@ -60,7 +60,7 @@
 `BuffReleased` 用于关闭显示，不能当作新增的可配置战斗事件。
 能力拥有的子Buff与附着在实体身上的Buff也不是同一份集合。
 
-[能力生命周期](../../src/core/combat/runtime/abilityEventHostLifecycle.ts) 管理注册和清理。
+[能力生命周期](../../src/core/combat/abilities/abilityEventHostLifecycle.ts) 管理注册和清理。
 初始化成功后才启用自身响应；中途失败清理已创建内容，尽量完成其余清理后一起报告错误。
 这是工程上的错误恢复保证，不是新的游戏规则。宿主差异仍由技能、Buff、装备和实体各自管理。
 

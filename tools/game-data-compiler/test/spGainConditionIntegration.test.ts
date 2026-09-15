@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { parseKnownNativeActionSequenceSource } from '../src/source/actionLeaf.ts';
-import { compileEventCondition } from '../src/compiler/combatConditionProjection.ts';
-import { EventContextConditionExecutor } from '../../../src/core/combat/runtime/eventContextConditionExecutor';
-import { ActionBlackboard } from '../../../src/core/combat/runtime/actionBlackboard';
+import { compileEventCondition } from '../src/compiler/conditions/combatConditionProjection.ts';
+import { EventContextConditionExecutor } from '../../../src/core/combat/events/eventContextConditionExecutor';
+import { ActionBlackboard } from '../../../src/core/combat/actions/actionBlackboard';
 import {
   SP_GAIN_KINDS,
   SP_GAIN_SOURCES,

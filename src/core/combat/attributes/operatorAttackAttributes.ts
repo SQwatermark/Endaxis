@@ -9,8 +9,8 @@ import {
   MAIN_ATTRIBUTE_ATTACK_FACTOR,
   SECONDARY_ATTRIBUTE_ATTACK_FACTOR,
 } from '../../game-data/battleConstants';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
 import {
-  ATTRIBUTE_MODIFIER_SOURCES,
   createCombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,

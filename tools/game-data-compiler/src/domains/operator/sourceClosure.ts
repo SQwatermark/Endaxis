@@ -14,21 +14,21 @@ import type { OperatorSkillGroupValidationOptions } from './skillGroups.ts';
 import {
   compilePassiveSkillRequestBatch,
   type PassiveSkillCompilationBatchSource,
-} from '../../compiler/passiveSkillBatch.ts';
+} from '../../compiler/skills/passiveSkillBatch.ts';
 import {
   compileReferencedSkillDefinitionNode,
   createSkillDefinitionReferenceNode,
-} from '../../compiler/referenceDefinitions.ts';
+} from '../../compiler/references/referenceDefinitions.ts';
 import {
   resolveDefinitionReferenceClosure,
   type DefinitionReferenceClosureSource,
   type DefinitionReferenceNodeSource,
-} from '../../compiler/referenceClosure.ts';
+} from '../../compiler/references/referenceClosure.ts';
 import {
   compileActiveSkillAbilityEntityQueriesSource,
   type CompiledActiveSkillAbilityEntityQuerySource,
-} from '../../compiler/activeSkillAbilityEntityQueries.ts';
-import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
+} from '../../compiler/abilities/activeSkillAbilityEntityQueries.ts';
+import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilities/abilityEntityCatalog.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import type { OperatorProductIdentitySource } from './productIdentity.ts';
 

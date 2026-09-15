@@ -18,10 +18,10 @@ import {
   type RenderedWeaponDefinitionFileSource,
 } from '../src/domains/weapon/renderRuntimeDefinitions.ts';
 import { writeWeaponDefinitionFiles } from '../src/domains/weapon/writeRuntimeDefinitions.ts';
-import type { BuildDefinitionDiagnosticSource } from '../src/compiler/formalBuildDefinition.ts';
-import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
-import type { DefinitionProgramOptimizationReport } from '../src/compiler/definitionProgramOptimization.ts';
-import { optimizeWeaponDefinitionPrograms } from '../src/compiler/equipmentDefinitionOptimization.ts';
+import type { BuildDefinitionDiagnosticSource } from '../src/compiler/build/formalBuildDefinition.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/optimization/definitionOptimization.ts';
+import type { DefinitionProgramOptimizationReport } from '../src/compiler/optimization/definitionProgramOptimization.ts';
+import { optimizeWeaponDefinitionPrograms } from '../src/compiler/optimization/equipmentDefinitionOptimization.ts';
 
 export interface WeaponDefinitionSourceArguments {
   readonly tables: string;

@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from 'vitest';
 import { compileCombatBuffDefinitions } from '../buffs/combatBuffDefinitions';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
 import {
-  ATTRIBUTE_MODIFIER_SOURCES,
   createCombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,

@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
+import { ATTRIBUTE_MODIFIER_SOURCES, type CombatAttributeModifier } from '../state/foundationState';
 import {
-  ATTRIBUTE_MODIFIER_SOURCES,
   createCombatAttributeModifier,
-  type CombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,
 } from './combatAttributes';

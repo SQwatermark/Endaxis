@@ -4,5 +4,5 @@ import manifest from '../config/operators.json' with { type: 'json' };
 export const OPERATOR_DEFINITION_OUTPUTS = manifest.operators.map(operator => {
   if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(operator.slug))
     throw new Error(`unsafe operator slug: ${operator.slug}`);
-  return `src/data/operators/${operator.slug}.ts`;
+  return `src/data/operators/${operator.slug}.generated.ts`;
 });

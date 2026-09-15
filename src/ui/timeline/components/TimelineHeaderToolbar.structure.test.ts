@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { TIMELINE_VIEW_LAYER_IDS } from '../timelineViewLayers';
+import { TIMELINE_VIEW_LAYER_IDS } from '../results/timelineViewLayers';
 import source from './TimelineHeaderToolbar.vue?raw';
 import resetDialogSource from './TimelineResetDialog.vue?raw';
 

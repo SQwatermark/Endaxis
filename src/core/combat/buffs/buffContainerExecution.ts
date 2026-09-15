@@ -1,6 +1,6 @@
 /** 容器计数与冷却推进，不持有 Buff 对象或生命周期回调。 */
+import type { BuffContainerState } from '../state/instanceState';
 import type { GameplayTag } from '../tags/gameplayTags';
-import type { BuffContainerState } from './buffContainerState';
 
 export function addBuffEntityTags(state: BuffContainerState, tags: readonly GameplayTag[]): void {
   for (const tag of tags) state.entityTagCounts.set(tag, (state.entityTagCounts.get(tag) ?? 0) + 1);

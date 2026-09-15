@@ -1,0 +1,203 @@
+import { describe, expect, it } from 'vitest';
+import timelineEditorSource from '../../TimelineEditor.vue?raw';
+import coordinatorSource from '../useProjectDefinitionWorkspaces.ts?raw';
+import buildDialogSource from '../../library/GearLoadoutBuildDialog.vue?raw';
+import workspaceSource from './GearDefinitionWorkspaceDialog.vue?raw';
+import gearSetWorkspaceSource from './GearSetDefinitionWorkspaceDialog.vue?raw';
+import { readFileSync } from 'node:fs';
+import contributionEditorSource from './EquipmentContributionGraphEditor.vue?raw';
+import mindMapSource from '../SkillStructureMindMap.vue?raw';
+import contributionTypePickerSource from './EquipmentContributionTypePicker.vue?raw';
+import eventTriggerEditorSource from '../actions/CombatEventTriggerEditor.vue?raw';
+import conditionTypePickerSource from '../actions/CombatConditionTypePicker.vue?raw';
+import conditionEditorSource from '../actions/CombatConditionEditor.vue?raw';
+import weaponWorkspaceSource from './WeaponDefinitionWorkspaceDialog.vue?raw';
+import equipmentBuffDialogSource from './EquipmentBuffDefinitionsDialog.vue?raw';
+import buffDefinitionGraphEditorSource from '../buffs/BuffDefinitionGraphEditor.vue?raw';
+import buffStepEditorSource from '../buffs/BuffStepEditor.vue?raw';
+
+const workspaceLayout = readFileSync(
+  new URL('../definitionWorkspaceLayout.css', import.meta.url),
+  'utf8',
+);
+
+describe('GearDefinitionWorkspaceDialog structure', () => {
+  it('keeps node counts and gesture help available in a narrow equipment canvas', () => {
+    expect(contributionEditorSource).toContain('container-name: equipment-map');
+    expect(contributionEditorSource).toContain('@container equipment-map (max-width: 480px)');
+    expect(mindMapSource).toContain('<small title="空白处漫游，抓手拖放节点">');
+    expect(mindMapSource).toContain('{{ layout.nodes.length }} / {{ totalNodeCount }}');
+    expect(mindMapSource).toContain('class="map-gesture-hint"');
+  });
+  it('shares viewport ownership across equipment hosts without making base forms unscrollable', () => {
+    for (const source of [workspaceSource, weaponWorkspaceSource]) {
+      expect(source).toContain("import '../definitionWorkspaceLayout.css'");
+      expect(source).toContain("'trait-inspector': selectedTrait !== undefined");
+      expect(source).toContain('definition-card trait-definition-card');
+      expect(source).toContain('fill-available');
+      expect(source).not.toContain('min-height: 480px');
+    }
+    expect(workspaceLayout).toContain('.el-dialog__body .trait-inspector');
+    expect(gearSetWorkspaceSource).toContain('definition-workspace-dialog');
+  });
+  it('bounds the set workspace while letting the graph and Inspector own their scrolling', () => {
+    expect(workspaceLayout).toContain('height: calc(100dvh - 32px)');
+    expect(workspaceLayout).toContain('.definition-workspace-dialog > .el-dialog__body');
+    expect(gearSetWorkspaceSource).toContain('fill-available');
+    expect(contributionEditorSource).toContain('fillAvailable?: boolean');
+    expect(contributionEditorSource).toContain('grid-template-rows: auto minmax(0, 1fr)');
+    expect(contributionEditorSource).toContain('.fill-available :deep(.map-toolbar)');
+    expect(contributionEditorSource).toContain('overscroll-behavior: contain');
+    expect(contributionEditorSource).not.toContain('.blackboard-row');
+  });
+  it('materializes and switches a selected gear slot through the project library', () => {
+    expect(coordinatorSource).toContain('deriveProjectGearTemplate');
+    expect(coordinatorSource).toContain('switchTrackToCompatibleGearTemplate');
+    expect(coordinatorSource).toContain('replaceProjectGearTemplateDefinition');
+    expect(timelineEditorSource).toContain('@edit-definition="openGearDefinitionWorkspace"');
+    expect(buildDialogSource).toContain("'edit-definition': [slot: LoadoutGearSlot]");
+  });
+
+  it('装备和套装定义保存共用一次性模拟刷新边界', () => {
+    expect(timelineEditorSource).toContain('function refreshSimulationAfterDefinitionChange()');
+    expect(timelineEditorSource).toContain(
+      'onDefinitionChange: refreshSimulationAfterDefinitionChange',
+    );
+    for (const name of [
+      'saveGearDefinition',
+      'resetGearDefinition',
+      'saveGearSetDefinition',
+      'resetGearSetDefinition',
+    ]) {
+      expect(coordinatorSource).toMatch(
+        new RegExp(`function ${name}[\\s\\S]*?options\\.onDefinitionChange\\(\\);`),
+      );
+    }
+  });
+
+  it('keeps the inspector layer-local and validates without raw JSON editing', () => {
+    expect(workspaceSource).toContain('validateGearDefinition');
+    expect(workspaceSource).toContain("selectedSection = ref<'base' | number>('base')");
+    expect(workspaceSource).toContain('baseDefense');
+    expect(workspaceSource).toContain('gearSetSlug');
+    expect(workspaceSource).not.toContain('<textarea');
+  });
+
+  it('edits presentation identity and closes the ordered trait collection workflow', () => {
+    expect(workspaceSource).toContain("updateBase('assetSlug'");
+    expect(workspaceSource).toContain("updateBase('iconPath'");
+    expect(workspaceSource).toContain('function addTrait()');
+    expect(workspaceSource).toContain('function removeTrait()');
+    expect(workspaceSource).toContain('function moveTrait(offset: -1 | 1)');
+    expect(workspaceSource).toContain('项目内稳定引用身份');
+  });
+
+  it('uses materialized names and inherited assets for custom gear cards', () => {
+    expect(buildDialogSource).toContain('definition.displayName');
+    expect(buildDialogSource).toContain('getGearPieceGameName(definition.slug, locale.value)');
+    expect(buildDialogSource).toContain('timeline.customDefinition.editGear');
+  });
+
+  it('navigates explicitly from a saved gear draft into a project gear set template', () => {
+    expect(workspaceSource).toContain("'edit-gear-set': [definition: GearDefinition]");
+    expect(workspaceSource).toContain('进入套装模板前会先保存当前装备草稿');
+    expect(coordinatorSource).toContain('deriveProjectGearSetTemplate');
+    expect(coordinatorSource).toContain('replaceProjectGearSetTemplateDefinition');
+    expect(coordinatorSource).toContain('saveProjectGearBeforeEditingSet');
+    expect(gearSetWorkspaceSource).toContain('validateGearSetDefinition');
+    expect(gearSetWorkspaceSource).not.toContain('<textarea');
+  });
+
+  it('shares the same layer-local contribution graph across weapons, gear and sets', () => {
+    for (const source of [workspaceSource, weaponWorkspaceSource, gearSetWorkspaceSource]) {
+      expect(source).toContain('EquipmentContributionGraphEditor');
+    }
+    expect(contributionEditorSource).toContain('SkillStructureMindMap');
+    expect(contributionEditorSource).toContain('CombatEventTriggerEditor');
+    expect(contributionEditorSource).toContain('CombatStepEditor');
+    expect(contributionEditorSource).toContain('inspector-only');
+    expect(contributionEditorSource).toContain('@move-node="moveNode"');
+    expect(contributionEditorSource).toContain('@node-action="nodeAction"');
+    expect(contributionEditorSource).toContain('@history-action="restoreHistory"');
+    expect(contributionEditorSource).toContain('@add-child="beginAdd"');
+    expect(contributionEditorSource).toContain('StepTypePicker');
+    expect(contributionEditorSource).toContain('@close="pendingAdd = null"');
+    expect(contributionEditorSource).toContain('EquipmentContributionTypePicker');
+    expect(contributionEditorSource).toContain(':clipboard-kind="clipboard?.kind"');
+    expect(contributionEditorSource).toContain('duplicateSkillEditorDetachedStep');
+    expect(contributionEditorSource).not.toContain('<textarea');
+  });
+
+  it('edits every top-level contribution field without a raw JSON escape hatch', () => {
+    expect(contributionEditorSource).toContain(':fields="contributionBlackboardFields"');
+    expect(contributionEditorSource).toContain('createInitializationSequence');
+    expect(contributionEditorSource).toContain('EquipmentBuffDefinitionsDialog');
+    expect(contributionEditorSource).toContain('初始化和所有事件响应共用这份能力黑板');
+    expect(contributionEditorSource).toContain('每场战斗一次');
+    expect(contributionEditorSource).not.toContain('<textarea');
+    expect(equipmentBuffDialogSource).toContain('BuffDefinitionGraphEditor');
+    expect(equipmentBuffDialogSource).toContain('collectReferences');
+    expect(equipmentBuffDialogSource).not.toContain('<el-dialog');
+    expect(equipmentBuffDialogSource).not.toContain('<textarea');
+  });
+
+  it('附属 Buff 复用完整根定义导图，不维护装备专用 Buff 表单', () => {
+    expect(equipmentBuffDialogSource).toContain('BuffDefinitionGraphEditor');
+    expect(buffDefinitionGraphEditorSource).toContain('BuffStepEditor');
+    expect(buffDefinitionGraphEditorSource).toContain('definition-only');
+    for (const editor of [
+      'CombatBuffPresentationEditor',
+      'BuffDamageModifierEditor',
+      'BuffHealModifierEditor',
+      'BuffPoiseModifierEditor',
+      'BuffShieldEditor',
+      'BuffAdvancedPropertiesEditor',
+    ]) {
+      expect(buffStepEditorSource).toContain(editor);
+    }
+  });
+
+  it('adds contribution structures through an explicit mouse-position type picker', () => {
+    expect(contributionTypePickerSource).toContain('<Teleport to="body">');
+    expect(contributionTypePickerSource).toContain('props.anchor.x');
+    expect(contributionTypePickerSource).toContain('EQUIPMENT_PANEL_STATS');
+    expect(contributionTypePickerSource).toContain('DAMAGE_TYPES');
+    expect(contributionTypePickerSource).toContain('EDITABLE_COMBAT_EVENT_TRIGGER_KINDS');
+    expect(eventTriggerEditorSource).toContain('eventInspectorFields');
+    expect(eventTriggerEditorSource).toContain(':binding="binding"');
+  });
+
+  it('edits every modifier variant in the layer-local inspector', () => {
+    expect(contributionEditorSource).toContain(
+      ':fields="modifierInspectorFields(selectedModifier)"',
+    );
+    expect(contributionEditorSource).toContain(':binding="editing.property.value"');
+    expect(contributionEditorSource).not.toContain('function toggleDamageType');
+    expect(contributionEditorSource).not.toContain('function toggleSkillType');
+    expect(contributionEditorSource).not.toContain('function clearSkillTypeFilter');
+    expect(contributionTypePickerSource).toContain('EQUIPMENT_DAMAGE_SCALE_TARGETS');
+    expect(contributionTypePickerSource).toContain('chooseStaticHealingIncrease');
+    expect(contributionTypePickerSource).toContain('chooseSkillCooldownMultiplier');
+    expect(contributionEditorSource).not.toContain('v-for="(value, key) in selectedModifier"');
+  });
+
+  it('edits both handler event families plus priority and per-level blackboard', () => {
+    expect(contributionTypePickerSource).toContain('chooseAbilityHandler');
+    expect(contributionTypePickerSource).toContain('EQUIPMENT_ABILITY_EVENTS');
+    expect(contributionEditorSource).toContain(':fields="handlerInspectorFields(selectedHandler)"');
+    expect(contributionEditorSource).toContain(':current-level="level"');
+    expect(contributionEditorSource).not.toContain('function setHandlerPriority');
+    expect(contributionEditorSource).not.toContain('function addHandlerBlackboardEntry');
+  });
+
+  it('projects event conditions into the map and keeps their inspector layer-local', () => {
+    expect(contributionEditorSource).toContain('CombatConditionTypePicker');
+    expect(contributionEditorSource).toContain('appendCondition');
+    expect(contributionEditorSource).toContain('deleteStructureValueAtPath');
+    expect(contributionEditorSource).toContain('layer-only');
+    expect(conditionTypePickerSource).toContain('COMBAT_CONDITION_KINDS');
+    expect(conditionTypePickerSource).toContain('createCombatCondition');
+    expect(conditionEditorSource).toMatch(/<Workspace\b[\s\S]*?v-if="!layerOnly"/);
+    expect(conditionEditorSource).not.toContain('RecursiveConditionEditor');
+  });
+});

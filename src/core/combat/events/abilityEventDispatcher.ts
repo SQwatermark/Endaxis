@@ -2,12 +2,12 @@
  * 技能与 Buff 等 Ability 监听者共享的同步事件边界。
  * 注册动作使用整数优先级；同优先级按原生双缓冲优先队列保持注册顺序。
  */
+import type { AbilityEventSubscriptionReference } from '../state/foundationState';
 import {
   createAbilityEventState,
   type AbilityEventPhase,
   type AbilityEventState,
-} from './abilityEventState';
-import type { AbilityEventSubscriptionReference } from './abilityEventState';
+} from '../state/foundationState';
 import {
   dispatchAbilityEvent,
   registerAbilityEvent,

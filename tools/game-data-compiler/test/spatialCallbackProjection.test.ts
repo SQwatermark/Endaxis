@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { parseKnownNativeActionSequenceSource } from '../src/source/actionLeaf.ts';
 import { collectNativeActionNodes } from '../src/source/controlFlow.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 
 const meta = { isEnable: true, priorityLevel: 'Default', priorityOffset: 0, serverActionIndex: 1 };
@@ -90,17 +90,21 @@ const compile = (actions: unknown[]) =>
 
 describe('空间失败回调自叶向根消去', () => {
   it.each(spatialConditions)('条件槽中的纯空 alwaysNext 分支按原生返回规则恒真：$type', check => {
-    expect(compile([branch(branch(check, []), [calculation], [teleport()])]))
-      .toEqual(compile([calculation]));
+    expect(compile([branch(branch(check, []), [calculation], [teleport()])])).toEqual(
+      compile([calculation]),
+    );
   });
 
   it('空 IfElse 只有无副作用且 alwaysNext=true 才能作为恒真条件', () => {
-    expect(() => compile([branch({ ...branch(condition, []), alwaysNext: false }, [calculation])]))
-      .toThrow('expected a condition-only sequence');
-    expect(() => compile([branch(branch(calculation, []), [calculation])]))
-      .toThrow('expected a condition-only sequence');
-    expect(() => compile([branch(branch(condition, [calculation]), [calculation])]))
-      .toThrow('expected a condition-only sequence');
+    expect(() =>
+      compile([branch({ ...branch(condition, []), alwaysNext: false }, [calculation])]),
+    ).toThrow('expected a condition-only sequence');
+    expect(() => compile([branch(branch(calculation, []), [calculation])])).toThrow(
+      'expected a condition-only sequence',
+    );
+    expect(() => compile([branch(branch(condition, [calculation]), [calculation])])).toThrow(
+      'expected a condition-only sequence',
+    );
   });
 
   it.each(spatialConditions)('静态预选不抢先编译空间条件：$\u0074ype', check => {
@@ -111,9 +115,7 @@ describe('空间失败回调自叶向根消去', () => {
   });
 
   it.each(spatialConditions)('两侧相同的有效写入合并，无需空间条件：$\u0074ype', check => {
-    expect(compile([branch(check, [calculation], [calculation])])).toEqual(
-      compile([calculation]),
-    );
+    expect(compile([branch(check, [calculation], [calculation])])).toEqual(compile([calculation]));
   });
 
   it.each(spatialConditions)('两侧仍有战斗差异时空间条件继续阻断：$\u0074ype', check => {

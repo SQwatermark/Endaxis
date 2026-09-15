@@ -15,7 +15,7 @@ import type { CompiledEquipmentSuitRuntimeBatchSource } from '../src/domains/equ
 import {
   createSharedEntityValueUsageCollector,
   type SharedEntityValueUsageCollector,
-} from '../src/compiler/definitionEntityUsageContext.ts';
+} from '../src/compiler/optimization/definitionEntityUsageContext.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 
 export interface EntityValueConsumerSourceArguments {

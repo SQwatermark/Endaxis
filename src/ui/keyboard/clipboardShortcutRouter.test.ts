@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { KeyboardShortcutRouter } from './keyboardShortcutRouter';
 import routerSource from './keyboardShortcutRouter.ts?raw';
-import mapSource from '../timeline/components/SkillStructureMindMap.vue?raw';
+import mapSource from '../timeline/definitions/SkillStructureMindMap.vue?raw';
 
 const clipboardEvent = (type: string) => new Event(type, { cancelable: true }) as ClipboardEvent;
 afterEach(() => vi.unstubAllGlobals());

@@ -9,4 +9,4 @@ export {
   type ProjectedBuildDamageScale as ProjectedEquipmentDamageScale,
   type ProjectedBuildModifierSource as ProjectedEquipmentModifierSource,
   type ProjectedBuildPanelStat as ProjectedEquipmentPanelStat,
-} from '../../compiler/buildAttributeProjection.ts';
+} from '../../compiler/build/buildAttributeProjection.ts';

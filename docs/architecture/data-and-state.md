@@ -24,11 +24,30 @@
 选择、悬停和撤销栈属于编辑会话；语言和主题属于设备偏好。
 游戏名称由稳定ID和语言包取得，不把翻译后的名称当作身份。
 
+通用属性编辑器位于 `src/ui/timeline/definitions/inspector/`。该目录中的五份
+`*Structure.generated.ts` 是公共契约生成的编辑元数据缓存，由 `tools/inspector-schema`
+在开发启动、类型检查和构建时自动准备，不属于存档或手工维护的游戏定义。
+
+定义工作区的打开、派生、保存和恢复由
+[useProjectDefinitionWorkspaces](../../src/ui/timeline/definitions/useProjectDefinitionWorkspaces.ts)
+协调，实际变更仍提交给项目会话。页面负责外层弹窗和模拟刷新时机；工作区不持有独立项目副本。
+
 用户对象和需要显示、连接的命中有稳定身份。纯派生步骤不必为了完整外观分配随机ID。
+技能拖动会话由
+[useTimelineCastMove](../../src/ui/timeline/interaction/useTimelineCastMove.ts) 管理：拖动过程中
+维护原场景和预览，松手仅提交一次历史命令，待对应模拟发布后清理预览。切换项目时丢弃旧预览，
+不能将“取消拖动”的原场景回退应用到新项目。
 命中连接保存伤害步骤的稳定key；运行时hitId由施放ID和步骤key派生，不把两者混为一个存档字段。
 重新编译同一输入应得到稳定结果，不能让撤销因为重新分配身份而失效。
 
 ## 两个编译器做不同的事
+
+定义结构校验由 `src/core/game-data/` 共用：技能自身字段由
+[validateSkillDefinition](../../src/core/game-data/validateSkillDefinition.ts) 检查；
+[actionPrograms](../../src/core/game-data/validation/actionPrograms.ts) 负责动作序列、能力实体、
+子技能和事件程序的递归检查；条件与基础值分别归 `validation/combatConditions` 和
+`validation/definitionValues`。Buff 安装与内联定义归 `validation/buffApplication`，通过
+调用方提供的动作/定时序列校验函数继续递归，不反向导入动作程序模块。
 
 `tools/game-data-compiler` 把版本化游戏资源转成正式游戏定义。
 `src/core/compiler` 把这些定义与用户等级、配装、时间轴组合成一次模拟程序。
@@ -87,14 +106,14 @@
 
 现有代码已经有裁剪，新增优化应接着这些规则做：
 
-- [actionSequenceProgram.ts](../../tools/game-data-compiler/src/compiler/actionSequenceProgram.ts)
+- [actionSequenceProgram.ts](../../tools/game-data-compiler/src/compiler/actions/actionSequenceProgram.ts)
   能删除禁用节点、部分恒定守卫和纯读取的空分支，也能合并投影后相同的两分支。
   外层是否消费返回值、`alwaysNext` 和条件是否有副作用都会影响判断。
-- [skillPresentationTargets.ts](../../tools/game-data-compiler/src/compiler/skillPresentationTargets.ts)
+- [skillPresentationTargets.ts](../../tools/game-data-compiler/src/compiler/skills/skillPresentationTargets.ts)
   已分析只用于表现的黑板和目标组；部分分析通过完整字符串查找引用，判断比较保守。
-  [presentationCalculationIsolation.ts](../../tools/game-data-compiler/src/compiler/presentationCalculationIsolation.ts)
+  [presentationCalculationIsolation.ts](../../tools/game-data-compiler/src/compiler/scenario/presentationCalculationIsolation.ts)
   会阻止被省略的相机、角度等计算结果流入保留的战斗动作。
-- [skillBlackboard.ts](../../tools/game-data-compiler/src/compiler/skillBlackboard.ts)
+- [skillBlackboard.ts](../../tools/game-data-compiler/src/compiler/skills/skillBlackboard.ts)
   合并原始默认值和各等级补丁，本身不判断哪些键已经没有用途。
 - [planOperatorDefinition.ts](../../tools/game-data-compiler/scripts/planOperatorDefinition.ts)
   在组装完整干员后、渲染前执行整份定义的优化。
@@ -149,7 +168,7 @@
 新增定义域或读取出口时必须复查这些边界，不能沿用旧的空集合来证明没有消费者。
 
 第一阶段放在现有伤害步骤 key 分配之后。保留节点原有的 key，数组压缩后不重新编号。
-[definitionStepKeys.ts](../../tools/game-data-compiler/src/compiler/definitionStepKeys.ts)
+[definitionStepKeys.ts](../../tools/game-data-compiler/src/compiler/publication/definitionStepKeys.ts)
 目前使用结构路径补充身份；提前裁剪会改变这些路径，使同一来源的优化前后无法直接核对命中。
 渲染时的共享序列提取仍放在优化之后，并验证展开后的 key 与优化前逐项对应。
 Buff、技能、实体 ID 以及公共导出名同样不因优化重命名。
@@ -167,7 +186,7 @@ Buff、技能、实体 ID 以及公共导出名同样不因优化重命名。
 - 不把 `alwaysNext`、独立黑板作用域、`once`、循环或延迟容器当成普通嵌套数组直接摊平。
 
 比较、计算和取整必须使用已经核实的数值语义，包括 float32、比较容差、除零和整数边界。
-[actionBlackboardOperationExecutor.ts](../../src/core/combat/runtime/actionBlackboardOperationExecutor.ts)
+[actionBlackboardOperationExecutor.ts](../../src/core/combat/actions/actionBlackboardOperationExecutor.ts)
 中的 `calculateActionValue` 与 `modifyActionValue` 就有不同的除法处理，不能用同一个 JavaScript
 除法替代。需要复用时仅提取小型纯数值函数，不让生成器执行一场战斗来猜常量。
 原生证据不足或数值行为不明确的运算先保留。
@@ -365,7 +384,8 @@ Worker只负责把执行放到后台，不另造一种核心行为。
 
 快捷键通过 `src/ui/keyboard/keyboardShortcutRouter.ts` 管理：活动作用域先处理，
 弹窗阻止底层穿透，文本框保留正常编辑键，作用域销毁时注销。不要散落新增全局按键监听。
-主题通过 `src/ui/theme/themeRegistry.ts` 管理，界面使用统一变量。
+明暗外观由 `src/ui/appearance/appearance.ts` 管理，同目录 `useAppearance.ts` 提供响应式入口，
+界面使用 `src/styles/theme.css` 中的统一变量。
 游戏文字与界面文字在显示处解析，语言和主题不进入战斗缓存。
 
 不再依赖已经移除的旧Store、Simulator或旧文本适配层。

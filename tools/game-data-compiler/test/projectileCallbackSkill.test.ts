@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import {
   compileImmediateProjectileCallbackSkillSource,
   compileProjectileCallbackSkillSource,
-} from '../src/compiler/projectileRuntimeProjection.ts';
+} from '../src/compiler/abilities/projectileRuntimeProjection.ts';
 import type { SkillActionGraphSource } from '../src/source/skillActionGraph.ts';
 import type { KnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
 import { returnProjectionContext } from './support/avywennaReturnProjection.ts';

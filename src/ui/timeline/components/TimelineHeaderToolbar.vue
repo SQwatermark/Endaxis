@@ -3,9 +3,9 @@
 import { EaButton, EaDeleteIcon, EaDiceIcon, EaInput, EaNumberInput } from '@/design-system';
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
-import TimelineDurationBarColorControls from './TimelineDurationBarColorControls.vue';
+import TimelineDurationBarColorControls from '../results/TimelineDurationBarColorControls.vue';
 import { resolveScenarioTabsScrollMask } from '../scenarioTabsScrollMask';
-import type { TimelineViewLayerId, TimelineViewLayers } from '../timelineViewLayers';
+import type { TimelineViewLayerId, TimelineViewLayers } from '../results/timelineViewLayers';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 

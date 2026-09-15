@@ -6,17 +6,17 @@ import { format, resolveConfig } from 'prettier';
 import {
   writeGeneratedDefinitionFiles,
   checkGeneratedDefinitionFiles,
-} from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+} from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 import { renderCommonBuffDefinitionsSource } from '../src/domains/operator/definitionSourceRenderer.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { planOperatorDefinition } from './planOperatorDefinition.ts';
 import { OperatorPlanningSources } from './operatorPlanningSources.ts';
-import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
+import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './generateOperatorActiveSkillRuntime.ts';
 import type { OperatorBuffDefinitions } from '../../../packages/game-data-contract/src/buffs.ts';
-import type { DefinitionOptimizationMode } from '../src/compiler/definitionOptimization.ts';
-import { optimizeCommonBuffDefinitions } from '../src/compiler/equipmentDefinitionOptimization.ts';
+import type { DefinitionOptimizationMode } from '../src/compiler/optimization/definitionOptimization.ts';
+import { optimizeCommonBuffDefinitions } from '../src/compiler/optimization/equipmentDefinitionOptimization.ts';
 
 interface Arguments {
   readonly manifest: string;

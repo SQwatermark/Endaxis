@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import { camille as camilleGeneratedOperator } from './camille';
+import { camille as camilleGeneratedOperator } from './camille.generated';
 
 describe('camille generated operator', () => {
   it('routes the transformed battle slot through combo skill 2 with wrapper cost and cooldown', () => {

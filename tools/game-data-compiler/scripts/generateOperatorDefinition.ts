@@ -9,7 +9,7 @@ import { renderOperatorDefinitionBatch } from './generateOperatorDefinitionCandi
 import {
   writeGeneratedDefinitionFile,
   writeGeneratedDefinitionFiles,
-} from '../src/compiler/writeGeneratedDefinitionFiles.ts';
+} from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 
 export async function generateOperatorDefinition(
   args: Parameters<typeof planOperatorDefinition>[0] & { readonly check: boolean },

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import actionBlockSource from './TimelineActionBlock.vue?raw';
-import skillCardSource from './SkillLibraryCard.vue?raw';
+import actionBlockSource from '../interaction/TimelineActionBlock.vue?raw';
+import skillCardSource from '../library/SkillLibraryCard.vue?raw';
 import workbenchSource from './TimelineWorkbenchShell.vue?raw';
 import trackHeaderSource from './TimelineTrackHeader.vue?raw';
 

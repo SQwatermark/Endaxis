@@ -1,3 +1,17 @@
+import type { GameplayTag } from '../../../packages/game-data-contract/src/gameplayTags';
+import type { ActionBlackboardValue } from '../../../packages/game-data-contract/src/primitives';
+
+/** 编译后生成步骤携带的自包含蓝图；运行时只依赖子技能身份。 */
+export interface LogicalAbilityEntityDefinition {
+  readonly bornTags?: readonly GameplayTag[];
+  readonly blackboard?: Readonly<Record<string, ActionBlackboardValue>>;
+  readonly lifetime:
+    { readonly kind: 'limited'; readonly durationSeconds: number } | { readonly kind: 'infinite' };
+  readonly deathReleaseDelaySeconds?: number;
+  readonly maxStackingCount?: number;
+  readonly childSkill?: { readonly skillId: string };
+}
+
 /** 零空间模型中仍需保持身份的运行时目标；空间点只有临时身份，没有坐标。 */
 export type RuntimeTargetRef =
   | { readonly kind: 'operator'; readonly operatorId: string }

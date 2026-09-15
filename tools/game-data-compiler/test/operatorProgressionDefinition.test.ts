@@ -3,11 +3,11 @@ import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/avywenna-progression.json';
 import buffFixture from './fixtures/avywenna-talent-buff.json';
 import type { SkillBuffDefinition } from '../../../src/core/game-data/operatorDefinition';
-import { validateActionSequenceDefinition } from '../../../src/core/game-data/validateSkillDefinition';
-import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
-import { ScenarioSimulationService } from '../../../src/application/scenarioSimulationService';
+import { validateActionSequenceDefinition } from '../../../src/core/game-data/validation/actionPrograms';
+import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
+import { ScenarioSimulationService } from '../../../src/application/simulation/scenarioSimulationService';
 import { createEmptyScenario } from '../../../src/core/project/createProject';
-import { avywenna } from '../../../src/data/operators/avywenna';
+import { avywenna } from '../../../src/data/operators/avywenna.generated';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
 import { parseOperatorProgressionSource } from '../src/domains/operator/progression.ts';
 import {

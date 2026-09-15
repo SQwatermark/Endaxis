@@ -27,9 +27,15 @@
 
 底层不能读取Vue组件或Store。生成器不能读取旧生成文件来填补未知数据。
 
-战斗目录进一步分工：`actions`处理同步动作，`timeline`负责技能帧调度，`runtime`组织执行和状态，
+战斗目录进一步分工：`actions`处理同步动作及序列控制，`timeline`负责技能帧调度，`runtime`组织执行和状态，
 `damage`计算伤害，`buffs`、`status`、`infliction`分别管理相关状态，`events`分发通知，
-`receipt`记录结果。新增曲线先找显示层，新增游戏规则先找对应执行模块，不把逻辑塞进装配文件。
+`receipt`记录结果。Buff 操作、生命周期序列及全局/元素 Buff 宿主归 `buffs`，不再散放于 `runtime`。
+`time` 集中时钟、时间膨胀、倍率曲线和周期计时器；技能冷却仍由技能功能负责。
+`skills` 集中技能运行、冷却、施放身份和输入窗口；`abilities` 集中能力系统、实体身份及
+投射物回调生命周期。整帧输入协调归 `runtime`，恢复装配集中在 `runtime/restoration`。
+资源账户及生命/失衡数值适配归 `resources`，伤害与治疗适配归 `damage`/`heal`，
+异常反应归 `infliction`，同步语义通知归 `events`；装备和潜能事件宿主归 `abilities`。
+新增曲线先找显示层，新增游戏规则先找对应执行模块，不把逻辑塞进装配文件。
 
 ## 模拟哪些内容
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { evaluateTimeScaleCurve } from '../../core/combat/runtime/timeScaleCurve';
+import { evaluateTimeScaleCurve } from '../../core/combat/time/timeScaleCurve';
 import { timeDilationRuntimeConfig } from './timeDilationConfig';
 import { HIT_STOP_NAMED_CURVE_DEFINITIONS, HIT_STOP_NAMED_CURVE_KEYS } from './hitStopCurveCatalog';
 import {

@@ -11,7 +11,7 @@ import type {
 } from './combatProgram';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
 import type { SkillActionProgramDefinition } from '../../../packages/game-data-contract/src/skills';
-import { perlica } from '../../data/operators/perlica';
+import { perlica } from '../../data/operators/perlica.generated';
 import {
   compileOperatorBuffDefinitions,
   compileOperatorBuffResources,

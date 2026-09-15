@@ -4,9 +4,9 @@ import cornerToolbarSource from '../ui/timeline/components/TimelineCornerToolbar
 import enemySettingsSource from '../ui/timeline/components/EnemySettingsPanel.vue?raw';
 import globalResourceSource from '../ui/timeline/components/GlobalResourcePanel.vue?raw';
 import timelineEditorSource from '../ui/timeline/TimelineEditor.vue?raw';
-import actionInspectorSource from '../ui/timeline/components/TimelineActionInspector.vue?raw';
-import documentMarkerInspectorSource from '../ui/timeline/components/TimelineDocumentMarkerInspector.vue?raw';
-import externalEventInspectorSource from '../ui/timeline/components/TimelineExternalEventInspector.vue?raw';
+import actionInspectorSource from '../ui/timeline/interaction/TimelineActionInspector.vue?raw';
+import documentMarkerInspectorSource from '../ui/timeline/interaction/TimelineDocumentMarkerInspector.vue?raw';
+import externalEventInspectorSource from '../ui/timeline/interaction/TimelineExternalEventInspector.vue?raw';
 import headerToolbarSource from '../ui/timeline/components/TimelineHeaderToolbar.vue?raw';
 import rulerSource from '../ui/timeline/components/TimelineRuler.vue?raw';
 import trackHeaderSource from '../ui/timeline/components/TimelineTrackHeader.vue?raw';

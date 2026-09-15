@@ -1,35 +1,37 @@
 /**
  * 完整帧边界上的战斗数据根。
  *
- * CombatStateGraph 把共享账本、外部输入、环境、事件目录、干员、敌人和动态实例组织成一棵
+ * CombatStateGraph 把共享账本、外部输入、环境、事件目录、干员、敌人和动态实例组织成一份
  * 可复制的对象图。字段直接引用正式模拟使用的数据；程序、执行器和回调由恢复阶段重新绑定。
  */
-import type { SkillSimulationInputs } from '../runtime/skillSimulationInputs';
-import type { AbilityEventState } from '../events/abilityEventState';
-import type { BuffContainerState } from '../buffs/buffContainerState';
-import type { CombatStatusState } from '../status/combatStatuses';
-import type { ActionBlackboardState } from './actionState';
-import type {
-  AbilitySystemState,
-  ComboSkillConditionState,
-  EquipmentEventState,
-  OperatorInitializationState,
-  OperatorUpgradeEventState,
-  PassiveAbilityEventState,
-  SkillCooldownState,
-  SkillRuntimeState,
+import {
+  type AbilitySystemState,
+  type ComboSkillConditionState,
+  type EquipmentEventState,
+  type OperatorInitializationState,
+  type OperatorUpgradeEventState,
+  type PassiveAbilityEventState,
+  type SkillCooldownState,
+  type SkillRuntimeState,
 } from './abilityState';
-import type {
-  CombatInputRuntimeState,
-  CombatSharedState,
-  ExternalCombatEventRuntimeState,
-  StandardCombatEnvironmentState,
-  TimedMarkerState,
+import {
+  type CombatInputRuntimeState,
+  type CombatSharedState,
+  type CombatStatusState,
+  type ExternalCombatEventRuntimeState,
+  type StandardCombatEnvironmentState,
+  type TimedMarkerState,
 } from './environmentState';
-import type {
-  GlobalBuffState,
-  LogicalAbilityEntityDirectoryState,
-  ProjectileLifecycleState,
+import {
+  type AbilityEventState,
+  type ActionBlackboardState,
+  type SkillSimulationInputs,
+} from './foundationState';
+import {
+  type BuffContainerState,
+  type GlobalBuffState,
+  type LogicalAbilityEntityDirectoryState,
+  type ProjectileLifecycleState,
 } from './instanceState';
 
 /** 单个干员已接入的全部可变数据。 */

@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { perlica } from '../../data/operators/perlica';
+import { perlica } from '../../data/operators/perlica.generated';
 import type {
   GearDefinition,
   GearSetDefinition,

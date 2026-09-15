@@ -18,8 +18,8 @@ import {
   projectSkillCooldownTimelineViz,
   type SkillCooldownTimelineSegment,
 } from './skillCooldownTimelineViz';
-import type { BuffProgressCurve } from '../combat/runtime/buffProgressRecorder';
-import type { OperatorControlTimeline } from '../combat/runtime/operatorControlTimeline';
+import type { BuffProgressCurve } from '../combat/buffs/buffProgressRecorder';
+import type { OperatorControlTimeline } from '../combat/skills/operatorControlTimeline';
 import type { OperatorPassiveUiDefinition } from '../game-data/operatorDefinition';
 
 export interface CombatHudGaugeSnapshot {

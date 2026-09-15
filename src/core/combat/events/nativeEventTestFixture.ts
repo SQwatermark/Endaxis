@@ -4,7 +4,7 @@ import { AbilityEventDispatcher } from './abilityEventDispatcher';
 import {
   CombatSemanticEventRuntime,
   type RegisterCombatAbilityEvent,
-} from '../runtime/combatSemanticEventRuntime';
+} from './combatSemanticEventRuntime';
 
 /** 测试也使用真实公共分发器，不能通过旧语义 emit 绕过原生发布阶段。 */
 export function createNativeEventFixture() {

@@ -2,7 +2,7 @@
  * 将场景轨道和持久化的切换事件解析为战斗运行时使用的主控时间线。
  * 初始主控沿用编辑器既有语义：第 1 轨道的干员；切换事件从其所在帧起生效。
  */
-import type { OperatorControlTimeline } from '../combat/runtime/operatorControlTimeline';
+import type { OperatorControlTimeline } from '../combat/skills/operatorControlTimeline';
 import type { ControlSwitchDocument, TrackListDocument } from './schema';
 
 /**

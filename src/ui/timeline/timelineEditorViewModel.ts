@@ -14,10 +14,13 @@ import {
   resolveEffectiveSkillDefinition,
   type ResolvedSkillDefinition,
 } from '../../core/compiler/resolveSkillDefinition';
-import { projectOperatorSupport, type OperatorSupportViewModel } from './operatorSupportViewModel';
-import { projectCastHitMarkers, type TimelineHitMarker } from './timelineHitProjection';
-import { listSkillGroupLibraryPlacements } from './skillGroupPlacement';
-import { orderTimelineSkillLibrary } from './skillLibraryOrder';
+import {
+  projectOperatorSupport,
+  type OperatorSupportViewModel,
+} from './library/operatorSupportViewModel';
+import { projectCastHitMarkers, type TimelineHitMarker } from './results/timelineHitProjection';
+import { listSkillGroupLibraryPlacements } from './interaction/skillGroupPlacement';
+import { orderTimelineSkillLibrary } from './library/skillLibraryOrder';
 import { resolveSkillCastStartFrames } from '../../core/project/skillCastPlacement';
 
 /** UI 投影读取干员定义的最小端口。 */

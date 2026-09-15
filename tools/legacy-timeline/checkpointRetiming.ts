@@ -2,8 +2,8 @@ import {
   CombatInputSchedule,
   type CombatInputScheduleCheckpoint,
   type ScheduledCombatFrameInput,
-} from '../../src/application/combatInputSchedule';
-import type { StandardPlayerDamageCombatSession } from '../../src/application/standardPlayerDamageCombatSession';
+} from '../../src/application/simulation/combatInputSchedule';
+import type { StandardPlayerDamageCombatSession } from '../../src/application/simulation/standardPlayerDamageCombatSession';
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
 import type { LegacyRetimingCheckpointSession, LegacyRetimingTrial } from './heuristicRetiming';
 

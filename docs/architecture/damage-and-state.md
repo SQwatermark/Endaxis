@@ -5,7 +5,7 @@
 
 ## 伤害执行
 
-[伤害动作执行器](../../src/core/combat/runtime/playerDamageOperationExecutor.ts) 组织动作执行，
+[伤害动作执行器](../../src/core/combat/damage/playerDamageOperationExecutor.ts) 组织动作执行，
 [伤害模块](../../src/core/combat/damage) 处理公式和具体结算。
 公式接收明确数值，不读取项目、语言、Buff容器或全局随机数。
 运行环境负责从本场实体状态解析属性、修正、目标和随机输入。
@@ -76,8 +76,8 @@ Buff、语义状态、元素附着和定时标记有不同用途。元素附着�
 
 ## 模拟入口与不支持的行为
 
-[标准模拟入口](../../src/application/runStandardPlayerDamageScenarioSimulation.ts) 准备环境并检查能力，
-[场景执行入口](../../src/application/runScenarioSimulation.ts) 组织编译后执行和结果。
+[标准模拟入口](../../src/application/simulation/runStandardPlayerDamageScenarioSimulation.ts) 准备环境并检查能力，
+[场景执行入口](../../src/application/simulation/runScenarioSimulation.ts) 组织编译后执行和结果。
 便捷入口不能另建一套时钟、资源结算或显示计算。
 
 [兼容性检查](../../src/core/combat/runtime/standardPlayerDamageCompatibility.ts) 应覆盖本次程序需要的能力。

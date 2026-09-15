@@ -53,7 +53,7 @@
 
 ## 运行与清理
 
-[EquipmentEventRuntime](../../src/core/combat/runtime/equipmentEventRuntime.ts) 已有正式装配入口。
+[EquipmentEventRuntime](../../src/core/combat/abilities/equipmentEventRuntime.ts) 已有正式装配入口。
 处理器可以选择语义事件 `event` 或原生能力事件 `abilityEvent`，两者互斥；
 优先级与注册顺序按定义保留，不能把两类通知当作同一个效果执行两遍。
 

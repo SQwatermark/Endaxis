@@ -214,7 +214,7 @@ T4 缺少的是用户实际保存、同时包含连续组和局部自定义技�
 在仓库根目录顺序运行：
 
 ```powershell
-npx vitest run src/core/combat src/application/publicShareRegression.test.ts src/application/scenarioSimulationService.test.ts src/application/runScenarioSimulation.test.ts --maxWorkers=1 --silent
+npx vitest run src/core/combat src/application/simulation/integration/publicShareRegression.test.ts src/application/simulation/scenarioSimulationService.test.ts src/application/simulation/runScenarioSimulation.test.ts --maxWorkers=1 --silent
 npx vitest run tools/legacy-timeline --maxWorkers=1 --silent
 npm run type-check
 npx prettier --check <本次修改文件>

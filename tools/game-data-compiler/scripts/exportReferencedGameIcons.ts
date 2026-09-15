@@ -6,7 +6,7 @@ import { pathToFileURL } from 'node:url';
 import sharp from 'sharp';
 import { runConcurrent } from './downloadGameDataSources.ts';
 import { AkedbSnapshot, DEFAULT_CDN, isMissingResource } from './gameDataProviders.ts';
-import { readGameIconReferences } from '../src/compiler/gameIconReferences.ts';
+import { readGameIconReferences } from '../src/compiler/publication/gameIconReferences.ts';
 import { requireRecord, requireNonEmptyString } from '../src/source/primitives.ts';
 
 type Candidate = {

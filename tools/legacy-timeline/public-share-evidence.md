@@ -61,7 +61,7 @@
 实际是归账和当前原生派生动作不同。
 
 阿列什的前三个旧块明确保存为 `alesh-enhanced-combo`，即旧版允许用户直接选择“强化连携”。
-这个技能来自旧版手写的 `src/data/operators/alesh.ts`：普通连携下另建了同名 `subSkills`
+这个技能来自旧版手写的 `src/data/operators/alesh.generated.ts`：普通连携下另建了同名 `subSkills`
 分支，并配置了更高倍率和技力恢复。它不属于艾尔黛拉；艾尔黛拉的 slug 是 `ardelia`。
 现有映射把阿列什的普通连携和强化连携都落到当前唯一的 `comboSkill`。这是正确的转换：新版
 没有把珍鳞结果拆成独立技能，转换器也不应为了保留旧版的分支选择而扩展项目存档。当前原生
@@ -1062,7 +1062,7 @@ useTimeDilationDt=false、triggerInterval=1、waitFirstTriggerInterval=true，
 这些检查不代表所有时间、增益乘区和抗性跳变均已闭合。
 
 新增明确差项是旧0-based命中5/17/29的“守墓人之赠”普通增伤0.20。旧只读
-src/data/operators/last-rite.ts的potentials[0]：队伍finalStrike增伤20，只判断
+src/data/operators/last-rite.generated.ts的potentials[0]：队伍finalStrike增伤20，只判断
 lastrite-hypothermic-perfusion存在，没有受益者主控条件。
 原始BuffData/buff_chr_0026_lastrite_normal_skill.json SHA256
 1d307834484673e5f62f6b72dbaed7f0dbbede4d60317f9a02de8059e5ef98a7，damageModifier[0]
@@ -1783,7 +1783,7 @@ ElementalInflictionApplied显示previousElement=cryo、previousLayers=4、outcom
 1337帧爆发9390.101474103883（主控诊断）。旧相应43.566秒命中360%，effects仅消费
 arcane-gloompurge-arcana-ready和arcane-gloompurger-array，没有附着。
 
-只读旧4dadc55f src/data/operators/arcane.ts约959–1030行：基础终结技180%分支
+只读旧4dadc55f src/data/operators/arcane.generated.ts约959–1030行：基础终结技180%分支
 按敌方现有元素施加附着，秘仪360%分支仅消费状态。当前生成arcaneUltimate与
 arcaneArcana分别来自chr_0032_lizhiyan_ultimate_skill和ultimate_skill2，公开导入轴
 却仍选择基础ultimate。这是转换技能身份缺口，不是应删去的反应运行时事件。
@@ -1801,7 +1801,7 @@ tools/legacy-timeline/convert.test.ts已有私人轴sc_zpm5ozw第47动作显式a
 1328/1340/1352/1364/1374/1465/1477/1489/1501/1513/1525/1537，共12笔，
 均来自同一个ultimate cast、每笔165%；两组输入的增益不同，不能混用伤害总数。
 
-旧版4dadc55f的src/data/operators/ardelia.ts手写duration=4、hitCount=5，三潜
+旧版4dadc55f的src/data/operators/ardelia.generated.ts手写duration=4、hitCount=5，三潜
 patchTick改为6；src/data/collect.ts的expandTickGroup按duration/(hitCount-1)
 等分，即三潜每0.8秒一击，再经旧统一时停映射得到上述实际时刻。不是原生弹体计数。
 
@@ -1838,7 +1838,7 @@ tmp/public-last-rite-controlled-affix-fixed.json，不把它当原始输入结�
 前置连携输入454，518帧命中的实体停帧至529；A1命中产生的实体停帧延续至548，
 跨过A2输入542。A2第二个本地24帧动作未在A3输入前执行。
 
-旧src/data/operators/last-rite.ts给A2 duration=1、命中offset=0.33/0.8。
+旧src/data/operators/last-rite.generated.ts给A2 duration=1、命中offset=0.33/0.8。
 当前原始SkillData/chr_0026_lastrite_attack2.json包含本地10/24帧动作，伤害后的
 实体HitStop持续0.067秒；生成定义保持这些时刻及finishByAction=false。
 原始文件SHA256：884F080E87B24FF125F20B1D0524154B90889D5C97E0BFC81003F93685DE3F14。

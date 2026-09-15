@@ -1,194 +1,202 @@
-import type { RegisterPassiveAbilityEventAction } from './passiveAbilityEventRuntime';
+import {
+  finishAbilitySkillSlotReplacement,
+  replaceAbilitySkillSlot,
+  type SkillSlotReplacementHost,
+} from '../abilities/abilitySystemExecution';
+import { createCallbackSkillHostFactory } from '../abilities/callbackSkillHost';
+import type { RegisterPassiveAbilityEventAction } from '../abilities/passiveAbilityEventRuntime';
+import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
+import type { SkillCooldownState, SkillRuntimeState } from '../state/abilityState';
+import type { CombatStateGraph } from '../state/combatState';
 import type {
   CombatInputRuntimeState,
   CombatSharedState,
   ExternalCombatEventRuntimeState,
 } from '../state/environmentState';
-import {
-  replaceAbilitySkillSlot,
-  finishAbilitySkillSlotReplacement,
-  type SkillSlotReplacementHost,
-} from './abilitySystemExecution';
-import type { CombatStateGraph } from '../state/combatState';
-import type { SkillCooldownState, SkillRuntimeState } from '../state/abilityState';
-import { createCallbackSkillHostFactory } from './callbackSkillHost';
-import { abilityEventSourceId } from '../events/combatAbilityEvent';
-import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
 /**
  * 将已解析资源和已编译技能组装成一次可执行的战斗运行时。
  * 这里只负责依赖接线与原生阶段顺序，不解析存档，也不为还没做通的战斗操作提供默认行为。
  */
-import { UltimatePresentationRuntime } from './ultimatePresentationRuntime';
-import { PassiveAbilityEventRuntime } from './passiveAbilityEventRuntime';
-import { runAbilityHostCleanup, failAfterAbilityHostCleanup } from './abilityEventHostLifecycle';
-import { HideUiOperationExecutor } from './hideUiOperationExecutor';
 import type {
   CompiledComboSkillConditionProgram,
   CompiledOperatorInitializationProgram,
   CompiledOperatorPassiveProgram,
   CompiledOperatorUpgradeEventProgram,
-  CompiledSkillSlotGroup,
-  CompiledSkillProgram,
   CompiledSkillCooldownProgram,
   CompiledSkillExecutionProgram,
-  ResolvedCombatOperationStep,
+  CompiledSkillProgram,
+  CompiledSkillSlotGroup,
   ResolvedAbilityEntityDefinition,
+  ResolvedCombatOperationStep,
   ResolvedSkillBuffDefinition,
 } from '../../compiler/combatProgram';
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
+import type { EnemyRank } from '../../game-data/enemyRank';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import type {
-  BuffApplicationSource,
   CombatStepParameters,
   CombatTarget,
   DamageElement,
+  GlobalCooldownTarget,
 } from '../../game-data/operatorDefinition';
-import type { EnemyRank } from '../../game-data/enemyRank';
-import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
+import { AbilityEntityChildSkillPrograms } from '../abilities/abilityEntityChildSkillPrograms';
+import { AbilityEntityInstanceIdAllocator } from '../abilities/abilityEntityInstanceIdAllocator';
+import { AbilityEntityOperationExecutor } from '../abilities/abilityEntityOperationExecutor';
+import {
+  failAfterAbilityHostCleanup,
+  runAbilityHostCleanup,
+} from '../abilities/abilityEventHostLifecycle';
 import {
   AbilitySystemRuntime,
   type AbilitySystemRuntimeOptions,
-  type PostSkillCastRequest,
-} from './abilitySystemRuntime';
-import { ActionBlackboardOperationExecutor } from './actionBlackboardOperationExecutor';
-import { EventContextConditionExecutor } from './eventContextConditionExecutor';
-import { ActionBlackboard } from './actionBlackboard';
+} from '../abilities/abilitySystemRuntime';
+import {
+  EquipmentEventRuntime,
+  type EquipmentEventExecutionContext,
+  type RegisterEquipmentAbilityEventAction,
+} from '../abilities/equipmentEventRuntime';
+import {
+  LogicalAbilityEntityRuntime,
+  type LogicalAbilityEntityRuntimeHooks,
+} from '../abilities/logicalAbilityEntityRuntime';
+import { OperatorUpgradeEventRuntime } from '../abilities/operatorUpgradeEventRuntime';
+import { PassiveAbilityEventRuntime } from '../abilities/passiveAbilityEventRuntime';
+import type { ProjectileCallbackPrograms } from '../abilities/projectileCallbackPrograms';
+import { ProjectileLifecycleRuntime } from '../abilities/projectileLifecycleRuntime';
+import {
+  CameraTargetAngleConditionExecutor,
+  EnemyRankConditionExecutor,
+  EnemySuperArmorConditionExecutor,
+} from '../abilities/targetConditionExecutors';
+import { TargetContextOperationExecutor } from '../abilities/targetContextOperationExecutor';
+import { ActionBlackboard } from '../actions/actionBlackboard';
+import { ActionBlackboardOperationExecutor } from '../actions/actionBlackboardOperationExecutor';
+import { CombatActionSequenceRuntime } from '../actions/combatActionSequenceRuntime';
+import { CombatOperationPrograms } from '../actions/combatOperationPrograms';
 import {
   BuffOperationExecutor,
   type BuffApplicationHandle,
   type BuffLifecycleOperationSource,
-  type BuffOperationTarget,
   type BuffOperationDependencies,
-} from './buffOperationExecutor';
-import { CombatClock, COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND } from './combatClock';
-import {
-  CombatInputRuntime,
-  type ScheduledSkillInput,
-  type SkillInputGroup,
-} from './combatInputRuntime';
-import { SkillInputGroupTiming } from './skillInputGroupTiming';
-import { CombatResourceRuntime } from './combatResourceRuntime';
-import { CombatResources, type CombatResourceSnapshot } from './combatResources';
-import { CombatSimulation, type FrameRuntime } from './combatSimulation';
-import { SkillResourceOperationExecutor } from './skillResourceOperationExecutor';
-import {
-  SkillRuntime,
-  type CombatOperationContext,
-  type CombatOperationExecutor,
-  type ProjectileRuntimeDependencies,
-} from './skillRuntime';
-import { SkillCastIdAllocator } from './skillCastInfo';
-import { OperatorControlConditionExecutor } from './operatorControlConditionExecutor';
-import { StatusOperationExecutor } from './statusOperationExecutor';
-import { CombatStatusContainer } from '../status/combatStatuses';
-import { CombatStatusRuntime } from './combatStatusRuntime';
-import type { CombatVitals } from './combatVitals';
+  type BuffOperationTarget,
+} from '../buffs/buffOperationExecutor';
+import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from '../buffs/globalBuffRuntime';
 import type { PlayerDamageDefenderSnapshot } from '../damage/playerActiveDamageInput';
-import { CombatVitalsConditionExecutor } from './combatVitalsConditionExecutor';
-import type { CombatVitalsConditionDependencies } from './combatVitalsConditionExecutor';
-import { EnemyRankConditionExecutor } from './enemyRankConditionExecutor';
-import { EnemySuperArmorConditionExecutor } from './enemySuperArmorConditionExecutor';
-import { CameraTargetAngleConditionExecutor } from './cameraTargetAngleConditionExecutor';
-import { TimedMarkerContainer } from './timedMarkers';
-import { GlobalCooldowns } from './globalCooldowns';
-import type { GlobalCooldownTarget } from '../../game-data/operatorDefinition';
-import { TimedMarkerOperationExecutor } from './timedMarkerOperationExecutor';
-import { ComboWindowRuntime } from './comboWindowRuntime';
-import { prepareComboCast } from './comboCastPreparation';
-import { ComboWindowOperationExecutor } from './comboWindowOperationExecutor';
+import type {
+  AbilityEventRegistration,
+  TrackedAbilityEventRegistration,
+} from '../events/abilityEventDispatcher';
 import {
   CombatSemanticEventRuntime,
   isKnockDownOutputEvent,
   type CombatSemanticEventContext,
   type RegisterCombatAbilityEvent,
-} from './combatSemanticEventRuntime';
+} from '../events/combatSemanticEventRuntime';
+import { CombatSemanticOutputOperationExecutor } from '../events/combatSemanticOutputOperationExecutor';
+import { CustomAbilityEventOperationExecutor } from '../events/customAbilityEventOperationExecutor';
+import { EventContextConditionExecutor } from '../events/eventContextConditionExecutor';
+import { ExternalCombatEventRuntime } from '../events/externalCombatEventRuntime';
+import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
+import { CombatReceiptCollector, type CombatReceiptSink } from '../receipt/combatReceipt';
+import { CombatResourceRuntime } from '../resources/combatResourceRuntime';
+import { CombatResources, type CombatResourceSnapshot } from '../resources/combatResources';
+import type { CombatVitals } from '../resources/combatVitals';
+import type { CombatVitalsConditionDependencies } from '../resources/combatVitalsConditionExecutor';
+import { CombatVitalsConditionExecutor } from '../resources/combatVitalsConditionExecutor';
+import { SkillResourceOperationExecutor } from '../resources/skillResourceOperationExecutor';
 import {
-  EquipmentEventRuntime,
-  type RegisterEquipmentAbilityEventAction,
-  type EquipmentEventExecutionContext,
-} from './equipmentEventRuntime';
+  createCombatInputExecution,
+  type CombatInputExecution,
+} from '../skills/combatInputExecution';
+import { CombatSkillPrograms } from '../skills/combatSkillPrograms';
+import { prepareComboCast } from '../skills/comboCastPreparation';
 import type {
   ComboConditionRegistration,
   PendingComboCondition,
-} from './comboSkillConditionRuntime';
-import type {
-  AbilityEventRegistration,
-  TrackedAbilityEventRegistration,
-} from '../events/abilityEventDispatcher';
-import type { AbilityEventSubscriptionReference } from '../events/abilityEventState';
-import { OperatorUpgradeEventRuntime } from './operatorUpgradeEventRuntime';
+} from '../skills/comboSkillConditionRuntime';
+import { ComboWindowOperationExecutor } from '../skills/comboWindowOperationExecutor';
+import { ComboWindowRuntime } from '../skills/comboWindowRuntime';
+import { GlobalCooldowns } from '../skills/globalCooldowns';
+import { HideUiOperationExecutor } from '../skills/hideUiOperationExecutor';
+import { OperatorControlConditionExecutor } from '../skills/operatorControlConditionExecutor';
+import { OperatorControlRuntime } from '../skills/operatorControlRuntime';
+import { SkillCastIdAllocator } from '../skills/skillCastInfo';
+import {
+  BasicAttackSkillCastInheritanceRegistry,
+  SkillCastInheritanceOperationExecutor,
+} from '../skills/skillCastInheritanceOperationExecutor';
+import { SkillCastOperationExecutor } from '../skills/skillCastOperationExecutor';
+import { SkillCooldown } from '../skills/skillCooldown';
+import {
+  adjustMatchingSkillCooldowns,
+  SkillCooldownOperationExecutor,
+} from '../skills/skillCooldownOperationExecutor';
+import { SkillInputGroupTiming } from '../skills/skillInputGroupTiming';
+import {
+  SkillRuntime,
+  type CombatOperationContext,
+  type CombatOperationExecutor,
+  type ProjectileRuntimeDependencies,
+} from '../skills/skillRuntime';
+import { sameSkillSimulationInputs } from '../skills/skillSimulationInputs';
+import { SkillSlotOperationExecutor } from '../skills/skillSlotOperationExecutor';
+import { UltimatePresentationRuntime } from '../skills/ultimatePresentationRuntime';
+import {
+  createCombatOperationHostState,
+  type CombatOperationHostState,
+} from '../state/actionState';
+import type { TimeDilationInstanceSnapshot } from '../state/environmentState';
+import {
+  type ScheduledExternalCombatEventInput,
+  type ScheduledSkillInput,
+} from '../state/environmentState';
+import type { AbilityEventSubscriptionReference } from '../state/foundationState';
+import { type PostSkillCastRequest, type SkillSimulationInputs } from '../state/foundationState';
+import { CombatStatusContainer } from '../status/combatStatuses';
+import { CombatStatusRuntime } from '../status/combatStatusRuntime';
+import { StatusOperationExecutor } from '../status/statusOperationExecutor';
+import { TimedMarkerOperationExecutor } from '../status/timedMarkerOperationExecutor';
+import { TimedMarkerContainer } from '../status/timedMarkers';
+import { COMBAT_FRAME_INTERVAL, COMBAT_FRAMES_PER_SECOND, CombatClock } from '../time/combatClock';
+import { TimeDilationOperationExecutor } from '../time/timeDilationOperationExecutor';
 import {
   TimeDilationRuntime,
   type AbilityTickDeltas,
   type TimeDilationEndReason,
   type TimeDilationInstanceKind,
-  type TimeDilationRuntimeConfig,
   type TimeDilationPrograms,
-} from './timeDilationRuntime';
-import type { TimeDilationInstanceSnapshot } from '../state/environmentState';
-import { TimeDilationOperationExecutor } from './timeDilationOperationExecutor';
-import { CombatActionSequenceRuntime } from './combatActionSequenceRuntime';
-import { SkillCooldown } from './skillCooldown';
-import { SkillSlotOperationExecutor } from './skillSlotOperationExecutor';
-import { SkillCooldownOperationExecutor } from './skillCooldownOperationExecutor';
-import { CombatSemanticOutputOperationExecutor } from './combatSemanticOutputOperationExecutor';
-import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
-import {
-  LogicalAbilityEntityRuntime,
-  type LogicalAbilityEntityRuntimeHooks,
-} from './logicalAbilityEntityRuntime';
-import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
-import { AbilityEntityOperationExecutor } from './abilityEntityOperationExecutor';
-import { TargetContextOperationExecutor } from './targetContextOperationExecutor';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import {
-  ExternalCombatEventRuntime,
-  type ScheduledExternalCombatEventInput,
-} from './externalCombatEventRuntime';
-import type { ProbabilitySampleSource } from '../random/probabilitySampleSource';
-import { GlobalBuffOperationExecutor, GlobalBuffRuntime } from './globalBuffRuntime';
-import { CustomAbilityEventOperationExecutor } from './customAbilityEventOperationExecutor';
-import { SkillCastOperationExecutor } from './skillCastOperationExecutor';
-import { ProjectileLifecycleRuntime } from './projectileLifecycleRuntime';
-import type { ProjectileCallbackPrograms } from './projectileCallbackPrograms';
-import { AbilityEntityInstanceIdAllocator } from './abilityEntityInstanceIdAllocator';
-import {
-  BasicAttackSkillCastInheritanceRegistry,
-  SkillCastInheritanceOperationExecutor,
-} from './skillCastInheritanceOperationExecutor';
-import {
-  createCombatOperationHostState,
-  type CombatOperationHostState,
-} from '../state/actionState';
-import { CombatOperationPrograms } from './combatOperationPrograms';
+  type TimeDilationRuntimeConfig,
+} from '../time/timeDilationRuntime';
+import type { CombatFrameInput } from './combatFrameInput';
+import { bindCombatFramePipeline } from './combatFramePipeline';
+import { CombatInputRuntime, type SkillInputGroup } from './combatInputRuntime';
 import { CombatSharedRuntime } from './combatSharedRuntime';
-import { CombatSkillPrograms } from './combatSkillPrograms';
-import { resolveCombatSkillCooldownConfiguration } from './combatSkillCooldownRestoration';
+import { CombatSimulation, type FrameRuntime } from './combatSimulation';
 import {
-  prepareCombatRuntimeRestore,
-  type CombatRuntimeRestorePreparation,
-} from './combatRuntimeRestorePreparation';
+  bindRestoredCombatRuntimeAbilityEntityRelations,
+  resolveRestoredAbilityEntityDefinition,
+} from './restoration/combatRuntimeAbilityEntityRelationRestoration';
+import { bindRestoredCombatAbilityEntityDirectory } from './restoration/combatRuntimeAbilityEntityRestoration';
+import { bindRestoredCombatBuffInstances } from './restoration/combatRuntimeBuffInstanceRestoration';
+import { bindRestoredCombatRuntimeFrame } from './restoration/combatRuntimeFrameRestoration';
+import { configureRestoredCombatObjectReferences } from './restoration/combatRuntimeObjectReferenceRestoration';
+import { bindRestoredCombatRuntimeOperators } from './restoration/combatRuntimeOperatorRestoration';
+import {
+  bindRestoredCombatProjectileRelations,
+  createRestoredCombatProjectileDirectory,
+} from './restoration/combatRuntimeProjectileRestoration';
 import {
   bindRestoredCombatRuntimeFoundation,
   type RestoredCombatEnvironmentInput,
   type RestoredCombatRuntimeFoundation,
-} from './combatRuntimeRestoreFoundation';
-import { bindRestoredCombatAbilityEntityDirectory } from './combatRuntimeAbilityEntityRestoration';
-import { createRestoredCombatProjectileDirectory } from './combatRuntimeProjectileRestoration';
-import { configureRestoredCombatObjectReferences } from './combatRuntimeObjectReferenceRestoration';
-import { bindRestoredCombatBuffInstances } from './combatRuntimeBuffInstanceRestoration';
-import { bindRestoredCombatRuntimeOperators } from './combatRuntimeOperatorRestoration';
+} from './restoration/combatRuntimeRestoreFoundation';
 import {
-  bindRestoredCombatRuntimeAbilityEntityRelations,
-  resolveRestoredAbilityEntityDefinition,
-} from './combatRuntimeAbilityEntityRelationRestoration';
-import { bindRestoredCombatProjectileRelations } from './combatRuntimeProjectileRestoration';
-import { bindRestoredCombatRuntimeFrame } from './combatRuntimeFrameRestoration';
-import { bindCombatFramePipeline } from './combatFramePipeline';
-import { OperatorControlRuntime } from './operatorControlRuntime';
-import type { CombatFrameInput } from './combatFrameInput';
-import { createCombatInputExecution, type CombatInputExecution } from './combatInputExecution';
-import { sameSkillSimulationInputs, type SkillSimulationInputs } from './skillSimulationInputs';
+  prepareCombatRuntimeRestore,
+  type CombatRuntimeRestorePreparation,
+} from './restoration/combatRuntimeRestorePreparation';
+import { resolveCombatSkillCooldownConfiguration } from './restoration/combatSkillCooldownRestoration';
 
 /** 同一干员在一场战斗中唯一的 Buff 状态与实体黑板所有者。 */
 export type OperatorBuffRuntime = FrameRuntime &
@@ -424,7 +432,7 @@ export interface CombatRuntimeEnvironmentOptions {
     panel?: ResolvedOperatorPanel,
     reactionModifiers?: CombatOperatorProgram['reactionModifiers'],
     /** 恢复分支的容器数据；提供时必须直接绑定，不能重新初始化面板属性或实体黑板。 */
-    restoredState?: import('../buffs/buffContainerState').BuffContainerState<string>,
+    restoredState?: import('../state/instanceState').BuffContainerState<string>,
   ) => OperatorBuffRuntime;
   /** 按每次回能时的 Buff 属性状态解析 UltimateSpGainScalar。 */
   readonly resolveUltimateEnergyGainMultiplier?: (operatorId: string) => number;
@@ -435,7 +443,7 @@ export interface CombatRuntimeEnvironmentOptions {
     target: RuntimeTargetRef,
     bornTags: readonly import('../tags/gameplayTags').GameplayTag[],
     /** 恢复分支中的实体容器数据；提供时不得重新添加出生标签或初始化属性。 */
-    restoredState?: import('../buffs/buffContainerState').BuffContainerState<string>,
+    restoredState?: import('../state/instanceState').BuffContainerState<string>,
   ) => AbilityEntityBuffRuntime;
   readonly enemyStatusContainer?: CombatStatusContainer;
   /** 仅临时放置规划启用，不修改项目中的持久连续组。 */
@@ -462,7 +470,7 @@ export interface CombatRuntimeEnvironmentOptions {
   /** 发布端使用公共事件载荷；具体生产能力由安装的运行时端口决定。 */
   readonly onPostSkillCastRequest?: (
     ownerId: string,
-    info: import('./skillCastInfo').CombatSkillCastInfo | null,
+    info: import('../state/foundationState').CombatSkillCastInfo | null,
   ) => void;
   readonly emitAbilityEvent?: <
     Event extends import('../../../../packages/game-data-contract/src/abilityEvents').AbilityEvent,
@@ -2131,7 +2139,7 @@ export class CombatRuntimeAssembly {
     operatorId: string,
     skillId: string,
     castId?: string,
-    inheritedSkillCastInfo?: import('./skillCastInfo').CombatSkillCastInfo,
+    inheritedSkillCastInfo?: import('../state/foundationState').CombatSkillCastInfo,
     resolveSkillSlot = true,
   ): void {
     const ability = this.#requireAbilitySystem(operatorId);
@@ -2714,7 +2722,7 @@ export class CombatRuntimeAssembly {
   /** 恢复只绑定检查点时已经实例化的技能；尚未轮到的放置块仍按新战斗路径延迟创建。 */
   #restorePendingCastFactories(
     operator: CombatOperatorProgram,
-    core: import('./combatOperatorCoreRestoration').RestoredCombatOperatorCore,
+    core: import('./restoration/combatOperatorCoreRestoration').RestoredCombatOperatorCore,
     options: CombatRuntimeAssemblyOptions,
   ): void {
     const savedSkills = this.#skillStates.get(operator.operatorId)!;
@@ -3370,115 +3378,23 @@ export class CombatRuntimeAssembly {
     };
   }
 
-  #reduceSkillCooldownsByBaseDurationRatio(
+  #adjustSkillCooldowns(
     operatorId: string,
     skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
-    ratio: number,
-  ): number {
-    const matchedKeys = new Set<string>();
-    let changed = 0;
-    for (const { program, sourceSkillIds } of this.#skillCooldowns.values()) {
-      if (
-        program.operatorId !== operatorId ||
-        (skill.kind === 'type'
-          ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId && !sourceSkillIds.has(skill.skillId))
-      ) {
-        continue;
-      }
-      const key = `${operatorId}\u0000${program.skillId}`;
-      if (matchedKeys.has(key)) continue;
-      matchedKeys.add(key);
-      const ledger = this.#skillCooldowns.get(key);
-      if (ledger?.cooldown.reduceByBaseDurationRatio(ratio)) {
-        changed += 1;
-        this.#recordSkillCooldownAdjusted(
-          operatorId,
-          ledger.program.skillId,
-          'reduce',
-          'baseDurationRatio',
-          ratio,
-          ledger.cooldown.snapshot,
-        );
-      }
-    }
-    return changed;
-  }
-
-  #reduceSkillCooldownsByAbsoluteFrames(
-    operatorId: string,
-    skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
-    frames: number,
-  ): number {
-    const matchedKeys = new Set<string>();
-    let changed = 0;
-    for (const { program, sourceSkillIds } of this.#skillCooldowns.values()) {
-      if (
-        program.operatorId !== operatorId ||
-        (skill.kind === 'type'
-          ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId && !sourceSkillIds.has(skill.skillId))
-      ) {
-        continue;
-      }
-      const key = `${operatorId}\u0000${program.skillId}`;
-      if (matchedKeys.has(key)) continue;
-      matchedKeys.add(key);
-      const ledger = this.#skillCooldowns.get(key);
-      if (ledger?.cooldown.reduceByFrames(frames)) {
-        changed += 1;
-        this.#recordSkillCooldownAdjusted(
-          operatorId,
-          ledger.program.skillId,
-          'reduce',
-          'absoluteFrames',
-          frames,
-          ledger.cooldown.snapshot,
-        );
-      }
-    }
-    return changed;
-  }
-
-  #setSkillCooldowns(
-    operatorId: string,
-    skill: import('../../game-data/operatorDefinition').CombatStepParameters['adjustSkillCooldown']['skill'],
-    value: number,
+    operation: 'reduce' | 'set',
     basis: 'baseDurationRatio' | 'absoluteFrames',
+    value: number,
   ): number {
-    const matchedKeys = new Set<string>();
-    let changed = 0;
-    for (const { program, sourceSkillIds } of this.#skillCooldowns.values()) {
-      if (
-        program.operatorId !== operatorId ||
-        (skill.kind === 'type'
-          ? program.skillType !== skill.skillType
-          : program.skillId !== skill.skillId && !sourceSkillIds.has(skill.skillId))
-      ) {
-        continue;
-      }
-      const key = `${operatorId}\u0000${program.skillId}`;
-      if (matchedKeys.has(key)) continue;
-      matchedKeys.add(key);
-      const ledger = this.#skillCooldowns.get(key);
-      const cooldown = ledger?.cooldown;
-      const didChange =
-        basis === 'baseDurationRatio'
-          ? cooldown?.setByBaseDurationRatio(value)
-          : cooldown?.setRemainingFrames(value);
-      if (didChange && ledger !== undefined) {
-        changed += 1;
-        this.#recordSkillCooldownAdjusted(
-          operatorId,
-          ledger.program.skillId,
-          'set',
-          basis,
-          value,
-          ledger.cooldown.snapshot,
-        );
-      }
-    }
-    return changed;
+    return adjustMatchingSkillCooldowns(
+      this.#skillCooldowns,
+      operatorId,
+      skill,
+      operation,
+      basis,
+      value,
+      (skillId, snapshot) =>
+        this.#recordSkillCooldownAdjusted(operatorId, skillId, operation, basis, value, snapshot),
+    );
   }
 
   #recordSkillCooldownAdjusted(
@@ -3584,6 +3500,47 @@ export class CombatRuntimeAssembly {
     });
   }
 
+  /** 普通施放与常驻事件共享技能控制绑定和包装顺序。 */
+  #wrapSkillControlOperations(
+    operatorId: string,
+    delegate: CombatOperationExecutor,
+  ): CombatOperationExecutor {
+    const cooldownDelegate = new SkillCooldownOperationExecutor({
+      reduceByBaseDurationRatio: (skill, ratio) =>
+        this.#adjustSkillCooldowns(operatorId, skill, 'reduce', 'baseDurationRatio', ratio),
+      reduceByAbsoluteFrames: (skill, frames) =>
+        this.#adjustSkillCooldowns(operatorId, skill, 'reduce', 'absoluteFrames', frames),
+      setByBaseDurationRatio: (skill, ratio) =>
+        this.#adjustSkillCooldowns(operatorId, skill, 'set', 'baseDurationRatio', ratio),
+      setByAbsoluteFrames: (skill, frames) =>
+        this.#adjustSkillCooldowns(operatorId, skill, 'set', 'absoluteFrames', frames),
+      delegate,
+    });
+    const baseDelegate = new SkillSlotOperationExecutor({
+      changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
+        this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
+      replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
+      finishSkillSlotReplacement: (group, id) =>
+        this.#finishSkillSlotReplacement(operatorId, group, id),
+      activatePlayerActionMode: modeId =>
+        this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId).registrationId,
+      finishPlayerActionMode: id =>
+        this.#requireAbilitySystem(operatorId).finishPlayerActionModeActivation(id),
+      overrideBasicAttackMapping: sourceSkillId =>
+        this.#requireAbilitySystem(operatorId).overrideBasicAttackMapping(sourceSkillId)
+          .registrationId,
+      finishBasicAttackMapping: id =>
+        this.#requireAbilitySystem(operatorId).finishBasicAttackMapping(id),
+      changeNativeSkillType: (skillKey, nativeSkillType) =>
+        this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
+      delegate: cooldownDelegate,
+    });
+    return new SkillCastOperationExecutor({
+      request: request => this.requestPostNativeSkillCast(operatorId, request),
+      delegate: baseDelegate,
+    });
+  }
+
   #createOperationChain(options: {
     readonly operator: CombatOperatorProgram;
     /** 当前时间轴施放身份；定义程序本身始终与单次施放无关。 */
@@ -3651,40 +3608,7 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       delegate: terminalDelegate,
     });
-    const cooldownDelegate = new SkillCooldownOperationExecutor({
-      reduceByBaseDurationRatio: (skill, ratio) =>
-        this.#reduceSkillCooldownsByBaseDurationRatio(operatorId, skill, ratio),
-      reduceByAbsoluteFrames: (skill, frames) =>
-        this.#reduceSkillCooldownsByAbsoluteFrames(operatorId, skill, frames),
-      setByBaseDurationRatio: (skill, ratio) =>
-        this.#setSkillCooldowns(operatorId, skill, ratio, 'baseDurationRatio'),
-      setByAbsoluteFrames: (skill, frames) =>
-        this.#setSkillCooldowns(operatorId, skill, frames, 'absoluteFrames'),
-      delegate: semanticOutputDelegate,
-    });
-    const baseDelegate = new SkillSlotOperationExecutor({
-      changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
-        this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
-      replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
-      finishSkillSlotReplacement: (group, id) =>
-        this.#finishSkillSlotReplacement(operatorId, group, id),
-      activatePlayerActionMode: modeId =>
-        this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId).registrationId,
-      finishPlayerActionMode: id =>
-        this.#requireAbilitySystem(operatorId).finishPlayerActionModeActivation(id),
-      overrideBasicAttackMapping: sourceSkillId =>
-        this.#requireAbilitySystem(operatorId).overrideBasicAttackMapping(sourceSkillId)
-          .registrationId,
-      finishBasicAttackMapping: id =>
-        this.#requireAbilitySystem(operatorId).finishBasicAttackMapping(id),
-      changeNativeSkillType: (skillKey, nativeSkillType) =>
-        this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
-      delegate: cooldownDelegate,
-    });
-    const deferredSkillCasts = new SkillCastOperationExecutor({
-      request: request => this.requestPostNativeSkillCast(operatorId, request),
-      delegate: baseDelegate,
-    });
+    const deferredSkillCasts = this.#wrapSkillControlOperations(operatorId, semanticOutputDelegate);
     const customAbilityEvents = new CustomAbilityEventOperationExecutor({
       sourceId: operatorId,
       emit: (entityId, payload) => {
@@ -3775,8 +3699,6 @@ export class CombatRuntimeAssembly {
         sourceId: operatorId,
         sourceActionId,
         runtime: this.globalBuffs,
-        resolveSource: (source, context) =>
-          this.#resolveGlobalBuffSource(source, operatorId, context),
         delegate: buffOperations,
       },
       { state: operationHost.state.globalBuffs, programs: operationHost.programs },
@@ -4009,40 +3931,10 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       delegate: terminal,
     });
-    const cooldownOperations = new SkillCooldownOperationExecutor({
-      reduceByBaseDurationRatio: (skill, ratio) =>
-        this.#reduceSkillCooldownsByBaseDurationRatio(operatorId, skill, ratio),
-      reduceByAbsoluteFrames: (skill, frames) =>
-        this.#reduceSkillCooldownsByAbsoluteFrames(operatorId, skill, frames),
-      setByBaseDurationRatio: (skill, ratio) =>
-        this.#setSkillCooldowns(operatorId, skill, ratio, 'baseDurationRatio'),
-      setByAbsoluteFrames: (skill, frames) =>
-        this.#setSkillCooldowns(operatorId, skill, frames, 'absoluteFrames'),
-      delegate: semanticOutputOperations,
-    });
-    const slotOperations = new SkillSlotOperationExecutor({
-      changeSkillSlot: (skillGroupKey, targetSkillKey, inheritCooldownProgress) =>
-        this.#changeSkillSlot(operatorId, skillGroupKey, targetSkillKey, inheritCooldownProgress),
-      replaceSkillSlot: parameters => this.#replaceSkillSlot(operatorId, parameters),
-      finishSkillSlotReplacement: (group, id) =>
-        this.#finishSkillSlotReplacement(operatorId, group, id),
-      activatePlayerActionMode: modeId =>
-        this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId).registrationId,
-      finishPlayerActionMode: id =>
-        this.#requireAbilitySystem(operatorId).finishPlayerActionModeActivation(id),
-      overrideBasicAttackMapping: sourceSkillId =>
-        this.#requireAbilitySystem(operatorId).overrideBasicAttackMapping(sourceSkillId)
-          .registrationId,
-      finishBasicAttackMapping: id =>
-        this.#requireAbilitySystem(operatorId).finishBasicAttackMapping(id),
-      changeNativeSkillType: (skillKey, nativeSkillType) =>
-        this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
-      delegate: cooldownOperations,
-    });
-    const deferredSkillCasts = new SkillCastOperationExecutor({
-      request: request => this.requestPostNativeSkillCast(operatorId, request),
-      delegate: slotOperations,
-    });
+    const deferredSkillCasts = this.#wrapSkillControlOperations(
+      operatorId,
+      semanticOutputOperations,
+    );
     const customAbilityEvents = new CustomAbilityEventOperationExecutor({
       sourceId: operatorId,
       emit: (entityId, payload) => {
@@ -4128,8 +4020,6 @@ export class CombatRuntimeAssembly {
         sourceId: operatorId,
         sourceActionId,
         runtime: this.globalBuffs,
-        resolveSource: (source, context) =>
-          this.#resolveGlobalBuffSource(source, operatorId, context),
         delegate: buffOperations,
       },
       { state: operationHost.state.globalBuffs, programs: operationHost.programs },
@@ -4543,48 +4433,6 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat entity '${targetId}' has no Buff operation target`);
     }
     return target;
-  }
-
-  #resolveGlobalBuffSource(
-    source: BuffApplicationSource,
-    operatorId: string,
-    context?: CombatOperationContext,
-  ): string {
-    if (source === 'caster') return operatorId;
-    if (source === 'enemy') return 'enemy';
-    if (source === 'buffOwner') {
-      if (context?.buffOwnerId === undefined)
-        throw new Error('buffOwner GlobalBuff source requires a Buff lifecycle context');
-      return context.buffOwnerId;
-    }
-    if (source === 'buffSource') {
-      if (context?.buffSourceId === undefined)
-        throw new Error('buffSource GlobalBuff source requires a Buff lifecycle context');
-      return context.buffSourceId;
-    }
-    if (source === 'eventSource') {
-      if (context?.event === undefined)
-        throw new Error('eventSource GlobalBuff source requires an event context');
-      if ('payload' in context.event) return abilityEventSourceId(context.event);
-      if ('sourceId' in context.event && typeof context.event.sourceId === 'string') {
-        return context.event.sourceId;
-      }
-      if (
-        'sourceOperatorId' in context.event &&
-        typeof context.event.sourceOperatorId === 'string'
-      ) {
-        return context.event.sourceOperatorId;
-      }
-      throw new Error('active event does not expose a GlobalBuff source identity');
-    }
-    if (source === 'currentAbilityEntity') {
-      const target = context?.currentTarget;
-      if (target?.kind !== 'abilityEntity') {
-        throw new Error('currentAbilityEntity GlobalBuff source requires an active entity target');
-      }
-      return logicalAbilityEntityRuntimeId(target.instanceId);
-    }
-    throw new Error(`unsupported GlobalBuff source '${source}'`);
   }
 
   #resolveAbilitySystemSourceId(entityId: string): string {

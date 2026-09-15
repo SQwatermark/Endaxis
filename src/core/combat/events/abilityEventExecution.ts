@@ -2,7 +2,7 @@
  * Ability 订阅与同步分发算法。状态由每次调用传入，宿主端口仅在这次调用中使用。
  * 各阶段分别取得遍历副本：本阶段新注册者等下次事件，尚未进入的阶段能看到新增注册。
  */
-import type { AbilityEventPhase, AbilityEventState } from './abilityEventState';
+import type { AbilityEventPhase, AbilityEventState } from '../state/foundationState';
 
 export function registerAbilityEvent<Event extends PropertyKey>(
   state: AbilityEventState<Event>,

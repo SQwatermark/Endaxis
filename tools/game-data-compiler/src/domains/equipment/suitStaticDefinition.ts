@@ -1,12 +1,12 @@
 import type { GearSetDefinition } from '../../../../../packages/game-data-contract/src/equipment.ts';
-import { compileCardSkillBuildModifiers } from '../../compiler/cardSkillBuildModifiers.ts';
-import { compilePassiveSkillRequestBatch } from '../../compiler/passiveSkillBatch.ts';
+import { compileCardSkillBuildModifiers } from '../../compiler/build/cardSkillBuildModifiers.ts';
+import { compilePassiveSkillRequestBatch } from '../../compiler/skills/passiveSkillBatch.ts';
 import {
   materializePassiveBuffInstallation,
   materializePassiveSkillInstallation,
   type MaterializedPassiveBuffInstallationSource,
   type UnresolvedPassiveSkillBlackboardValueSource,
-} from '../../compiler/passiveSkillInstallation.ts';
+} from '../../compiler/skills/passiveSkillInstallation.ts';
 import { requireRecord } from '../../source/primitives.ts';
 import { discoverEquipmentSuitPassiveSkillRequests } from './passiveDiscovery.ts';
 import type {

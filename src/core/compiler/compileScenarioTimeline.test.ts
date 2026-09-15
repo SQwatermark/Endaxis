@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../project/createProject';
 import type { ScenarioDocument } from '../project/schema';
-import { perlica } from '../../data/operators/perlica';
-import { placeSkillGroup } from '../../ui/timeline/placeSkillGroup';
+import { perlica } from '../../data/operators/perlica.generated';
+import { placeSkillGroup } from '../../ui/timeline/interaction/placeSkillGroup';
 import { compileScenarioTimeline } from './compileScenarioTimeline';
 import type { SkillDefinition } from '../game-data/operatorDefinition';
 

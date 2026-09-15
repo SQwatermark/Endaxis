@@ -3,7 +3,7 @@
  * 解析完成的定义才可交给工厂；未知字段和不完整映射不能被忽略。
  */
 import { INFLICTION_ELEMENTS, type InflictionElement } from '../../game-data/operatorDefinition';
-import type { ActionBlackboardValue } from '../runtime/actionBlackboard';
+import type { ActionBlackboardValue } from '../actions/actionBlackboard';
 
 export const COMPOUND_STATUS_FACTORIES_SCHEMA_VERSION = 1;
 

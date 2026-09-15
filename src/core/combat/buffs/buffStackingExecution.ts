@@ -1,5 +1,5 @@
 /** 优先级启用与成员计数算法。排序先取成员快照，执行 Enable/Disable 时再读取实时结束状态。 */
-import type { BuffStackingState } from './buffStackingState';
+import type { BuffStackingState } from '../state/instanceState';
 
 /** 先增加组计数，再执行增强动作；同步事件会看到新的组层数。 */
 export function enhanceBuffStacking(state: BuffStackingState, enhance: () => void): void {

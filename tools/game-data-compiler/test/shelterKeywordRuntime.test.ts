@@ -2,13 +2,13 @@ import { describe, expect, it } from 'vitest';
 import fixture from './fixtures/ember-shelter-buffs.json';
 import { fixtureGameplayTagRegistry } from './gameplayTagFixtures.ts';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
-import { compileStandardStumpBuffClosure } from '../src/compiler/standardStumpBuffClosure.ts';
+import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
 import { compileOperatorBuffDefinitions } from '../../../src/core/compiler/compileSkill';
 import { CombatAttributeSet } from '../../../src/core/combat/attributes/combatAttributes';
 import { CombatBuffContainer } from '../../../src/core/combat/buffs/combatBuffs';
 import { CompiledCombatBuffDefinitions } from '../../../src/core/combat/buffs/combatBuffDefinitions';
-import { BuffDefinitionOperationTarget } from '../../../src/core/combat/runtime/buffDefinitionOperationTarget';
-import { BuffOperationExecutor } from '../../../src/core/combat/runtime/buffOperationExecutor';
+import { BuffDefinitionOperationTarget } from '../../../src/core/combat/buffs/buffDefinitionOperationTarget';
+import { BuffOperationExecutor } from '../../../src/core/combat/buffs/buffOperationExecutor';
 
 const rootId = 'buff_chr_0009_azrila_normal_skill_shelter';
 const carrierId = 'buff_common_affixes_shelter';

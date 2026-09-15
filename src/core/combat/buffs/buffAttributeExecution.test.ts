@@ -1,20 +1,16 @@
 /** 同时恢复 Buff 归属与实体属性，验证增强、移除和失败回退不会留下游离修正。 */
 import { describe, expect, it } from 'vitest';
-import { StateStepper } from '../runtime/stateStepper';
-import { attributeModifierValues } from '../attributes/combatAttributes';
-import {
-  ATTRIBUTE_MODIFIER_SOURCES,
-  createCombatAttributeModifier,
-  createCombatAttributeState,
-} from '../attributes/combatAttributeState';
 import {
   addCombatAttributeModifier,
   defineCombatAttribute,
   readCombatAttribute,
   removeCombatAttributeModifier,
 } from '../attributes/combatAttributeExecution';
-import { createBuffAttributeState } from './buffAttributeState';
-import { createBuffInstanceState } from './buffInstanceState';
+import { attributeModifierValues } from '../attributes/combatAttributes';
+import { createCombatAttributeModifier } from '../attributes/combatAttributeExecution';
+import { StateStepper } from '../runtime/stateStepper';
+import { ATTRIBUTE_MODIFIER_SOURCES, createCombatAttributeState } from '../state/foundationState';
+import { createBuffAttributeState, createBuffInstanceState } from '../state/instanceState';
 import {
   removeBuffAttributeModifiers,
   replaceBuffAttributeModifiers,

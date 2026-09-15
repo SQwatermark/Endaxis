@@ -6,14 +6,14 @@ import { GAMEPLAY_TAG_PREDEFINE } from '../../../data/combat/gameplayTagPredefin
 import { gameplayTagRegistry } from '../../../data/combat/gameplayTagCatalog';
 import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
-import { createEnemyCombatVitals } from './combatVitalsFactory';
-import type { OrdinaryKnockDownRuntime } from './ordinaryKnockDownRuntime';
+import { createEnemyCombatVitals } from '../resources/combatVitalsFactory';
+import type { OrdinaryKnockDownRuntime } from '../status/ordinaryKnockDownRuntime';
 import {
   createCombatAttributeModifier,
-  ATTRIBUTE_MODIFIER_SOURCES,
   attributeModifierValues,
 } from '../attributes/combatAttributes';
-import type { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
+import type { BuffDefinitionOperationTarget } from '../buffs/buffDefinitionOperationTarget';
 import { knockDownAbilityEvent } from '../events/combatAbilityEvent';
 
 const DOWN_TAG = 'Status/Immobilized/KnockDown';

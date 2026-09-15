@@ -1,6 +1,6 @@
 /** 更新 Buff 的属性修正；新修正全部注册成功后，才移除旧修正并替换归属。 */
-import type { CombatAttributeModifier } from '../attributes/combatAttributeState';
-import type { BuffAttributeState } from './buffAttributeState';
+import type { CombatAttributeModifier } from '../state/foundationState';
+import type { BuffAttributeState } from '../state/instanceState';
 
 export interface BuffAttributeHost<Key extends string> {
   addModifier(modifier: CombatAttributeModifier<Key>): void;

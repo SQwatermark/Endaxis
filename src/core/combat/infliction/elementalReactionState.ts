@@ -1,3 +1,4 @@
+import { type ElementalReactionState } from '../state/environmentState';
 /**
  * 敌人身上的元素反应状态（感电/腐蚀）。
  *
@@ -8,15 +9,6 @@ import type { ElementalReaction } from '../../game-data/operatorDefinition';
 
 /** 反应等级上限；Next 数据中的反应条件按 1 至 4 级判断。 */
 export const MAX_REACTION_LEVEL = 4;
-
-/** 敌人身上一个反应状态的当前取值。 */
-export interface ElementalReactionState {
-  readonly reaction: ElementalReaction;
-  readonly level: number;
-  /** 到期时间（战斗时钟的秒）；查询时已过期即视为不存在。 */
-  readonly expiresAt: number;
-  readonly sourceId: string;
-}
 
 /** 一次施加的输入与结果。 */
 export interface ApplyElementalReactionInput {

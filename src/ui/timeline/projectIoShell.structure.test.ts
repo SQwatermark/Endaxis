@@ -1,11 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import editorSource from './TimelineEditor.vue?raw';
+import fileSessionSource from './projectFileSession.ts?raw';
 import toolbarSource from './components/TimelineHeaderToolbar.vue?raw';
 
 describe('Next project I/O shell', () => {
   it('opens against the only latest data library and marks a normalized project unsaved', () => {
     expect(editorSource).toContain('result.gameDataRevisionUpdated');
-    expect(editorSource).toContain('projectDirty.value = gameDataRevisionUpdated');
+    expect(fileSessionSource).toContain('projectDirty.value = gameDataRevisionUpdated');
     expect(editorSource).not.toContain('prepareDefaultWeaponMigration');
     expect(editorSource).not.toContain('WeaponMigrationDialog');
   });
@@ -15,16 +16,16 @@ describe('Next project I/O shell', () => {
     expect(editorSource).toContain('await projectFileReader.read(file)');
     expect(editorSource).toContain('if (content === null) return');
     expect(editorSource).toContain('openProject(content,');
-    expect(editorSource).toContain('projectSession.snapshot.revision');
-    expect(editorSource).toContain('onScopeDispose(() => projectFileReader.dispose())');
+    expect(fileSessionSource).toContain('projectSession.snapshot.revision');
+    expect(fileSessionSource).toContain('projectFileReader.dispose()');
     expect(editorSource).toContain('projectSession.replaceProject(project)');
     expect(editorSource).toContain('type="file"');
     expect(editorSource).toContain('@change="handleProjectFileChange"');
   });
 
   it('serializes the complete project instead of exporting a scenario projection', () => {
-    expect(editorSource).toContain('serializeProjectDocument(project, true)');
-    expect(editorSource).toContain('downloadProjectJson(');
+    expect(fileSessionSource).toContain('serializeProjectDocument(project, true)');
+    expect(fileSessionSource).toContain('downloadProjectJson(');
     expect(editorSource).toContain('@export="showExportDialog = true"');
     expect(editorSource).toContain('@export-json="exportProject"');
     expect(editorSource).toContain('@copy-code="copyProjectCode"');
@@ -42,9 +43,9 @@ describe('Next project I/O shell', () => {
   });
 
   it('protects dirty projects before replacing or leaving the page', () => {
-    expect(editorSource).toContain('snapshot.project !== savedProjectSnapshot.value');
+    expect(fileSessionSource).toContain('snapshot.project !== savedProjectSnapshot');
     expect(editorSource).toContain('ElMessageBox.confirm');
-    expect(editorSource).toContain(
+    expect(fileSessionSource).toContain(
       "window.addEventListener('beforeunload', protectUnsavedProject)",
     );
     expect(editorSource).toContain(':project-dirty="projectDirty"');

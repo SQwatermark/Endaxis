@@ -4,21 +4,19 @@
  * 本文件保存所有参与者共享的时钟与资源、敌我生命、时间膨胀、随机源和已经消费到的位置。
  * 它不负责校验初始配置，也不执行资源、生命或时间推进；这些操作留在 runtime 目录。
  */
-import type { ElementalReaction } from '../../game-data/operatorDefinition';
-import type { ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
-import type { ElementalReactionState } from '../infliction/elementalReactionState';
-import type { SimulationRandomState } from '../random/simulationRandomState';
-import type {
-  SharedSpGainModifierState,
-  SharedSpRecoveryModifierState,
-} from '../resources/sharedSpGainModifiers';
-import type { GameplayTag } from '../tags/gameplayTags';
-import type {
-  NormalSkillUltimateEnergySettings,
-  OperatorResourceSnapshot,
-} from '../runtime/combatResources';
-import type { ScheduledSkillInput } from '../runtime/combatInputRuntime';
-import type { ScheduledExternalCombatEventInput } from '../runtime/externalCombatEventRuntime';
+import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
+import {
+  type ElementalReaction,
+  type DamageFeature,
+  type DamageTag,
+  type PlayerSkillInput,
+} from '../../game-data/operatorDefinition';
+import { type GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
+import {
+  type SharedSpGainModifierState,
+  type SharedSpRecoveryModifierState,
+  type SkillSimulationInputs,
+} from './foundationState';
 
 /** 当前已经推进到的整数帧。 */
 export interface CombatClockState {
@@ -38,7 +36,7 @@ export interface SkillCastIdState {
 export interface SkillCastInheritanceRegistration {
   readonly operatorId: string;
   readonly id: number;
-  readonly skillCastInfo: import('../runtime/skillCastInfo').CombatSkillCastInfo;
+  readonly skillCastInfo: import('./foundationState').CombatSkillCastInfo;
 }
 
 /** 全场普通攻击施法身份继承槽及编号进度。 */
@@ -348,4 +346,116 @@ export interface CombatSharedState {
     readonly abilityEntities: AbilityEntityInstanceIdState;
     readonly skillCasts: SkillCastIdState;
   };
+}
+
+/** 单个队员终结技能量及其回复限制的可重建快照。 */
+export interface OperatorResourceSnapshot {
+  readonly operatorId: string;
+  readonly ultimateEnergy: number;
+  readonly maxUltimateEnergy: number;
+  readonly ultimateEnergyGainMultiplier: number;
+  /**
+   * 当前终结技能量回复限制聚合后的许可标签；null 表示没有限制，空集合会拦截全部正向回复。
+   * 原生由多个有效限制句柄取并集，资源账本只消费聚合结果，不负责 Buff 生命周期。
+   */
+  readonly allowedUltimateEnergyRecoveryTags: ReadonlySet<GameplayTag> | null;
+}
+
+/** 普通战技消耗技力时队内终结技能量的换算参数。 */
+export interface NormalSkillUltimateEnergySettings {
+  readonly selfGainPerSp: number;
+  readonly otherGainPerSp: number;
+}
+
+/** 一次技能输入。固定输入已确定实际帧；组后段在运行时到达边界后才确定实际帧。 */
+export interface CombatSkillInput {
+  readonly simulationInputs?: SkillSimulationInputs;
+  readonly operatorId: string;
+  readonly skillId: string;
+  /** 玩家尝试执行的四类语义动作；与设备键位和技能库分组无关。 */
+  readonly action?: PlayerSkillInput;
+  /** 文档中的技能释放身份；同技能多次放置靠它区分。 */
+  readonly castId?: string;
+}
+
+export interface ScheduledSkillInput extends CombatSkillInput {
+  /** 固定输入的实际帧；尚未启动的组后段仅携带锚点帧，供编译预检使用。 */
+  readonly frame: number;
+  /** 动态组与固定输入落在同帧时，仍按轨道和块的原始声明顺序执行。 */
+  readonly declarationOrder?: number;
+}
+
+export interface ExternalCombatEventInput {
+  readonly targetOperatorIds: readonly string[];
+  readonly event:
+    | {
+        readonly kind: 'operatorHit';
+        readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
+        readonly tags: readonly DamageTag[];
+        readonly features: readonly DamageFeature[];
+      }
+    | { readonly kind: 'operatorWeaknessTriggeredOutput' }
+    | { readonly kind: 'enemyWeaknessSet' }
+    | { readonly kind: 'comboCooldownControl'; readonly mode: 'cooldown' | 'ready' };
+}
+
+export interface ScheduledExternalCombatEventInput extends ExternalCombatEventInput {
+  readonly frame: number;
+}
+
+/** 敌人身上一个反应状态的当前取值。 */
+export interface ElementalReactionState {
+  readonly reaction: ElementalReaction;
+  readonly level: number;
+  /** 到期时间（战斗时钟的秒）；查询时已过期即视为不存在。 */
+  readonly expiresAt: number;
+  readonly sourceId: string;
+}
+
+/** 可完整恢复后续随机序列的原生减法随机状态；不补造未知的初始化规则。 */
+export interface BattleRandomState {
+  readonly currentIndex: number;
+  readonly pairedIndex: number;
+  readonly values: readonly number[];
+}
+
+/**
+ * 场景随机流的全部可变数据。取样表只保存整数，不保存随机函数或闭包。
+ * 状态由调用方持有；复制后可独立推进，替换后继续取样，不需要重新创建随机算法。
+ */
+export interface SimulationRandomState {
+  /** 已提交施放的种子选择；null 表示使用全局流，不含未来计划。 */
+  readonly submittedCastSeeds: Map<string, number | null>;
+  /** 模式与全局种子属于整场固定配置；恢复候选不得在已存在状态上替换。 */
+  configuration: { readonly mode: 'expected' | 'sampled'; readonly globalSeed: number } | null;
+  /** 已实际取样的施放对种子覆盖的选择；null 表示该施放使用全局流。 */
+  readonly usedCastSeeds: Map<string, number | null>;
+  /** 随机模式各来源的当前 Mulberry32 整数状态。 */
+  readonly streams: Map<string, number>;
+  /** 期望模式各来源已经消费的均匀样本数量。 */
+  readonly evenIndices: Map<string, number>;
+}
+
+/** 创建尚未取样的随机状态，不预装之后技能块的种子或施放计划。 */
+export function createSimulationRandomState(): SimulationRandomState {
+  return {
+    submittedCastSeeds: new Map(),
+    configuration: null,
+    usedCastSeeds: new Map(),
+    streams: new Map(),
+    evenIndices: new Map(),
+  };
+}
+
+export interface ActiveCombatStatus {
+  readonly statusKey: string;
+  readonly sourceId: string;
+  readonly skillId: string;
+  stacks: number;
+  remainingFrames: number | null;
+}
+
+/** 一个实体当前存在的语义状态，保持施加顺序和原始来源；定义规则由程序另行持有。 */
+export interface CombatStatusState {
+  readonly statuses: Map<string, ActiveCombatStatus>;
 }

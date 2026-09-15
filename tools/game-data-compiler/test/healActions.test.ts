@@ -4,7 +4,7 @@ import { parseHealActionSource } from '../src/index.ts';
 import { scalarFixture, targetFixture } from './sourceFixtures.ts';
 import { parseNativeSequenceSource } from '../src/source/controlFlow.ts';
 import { parseKnownNativeActionLeafSource } from '../src/source/actionLeaf.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 
 const BASE = {
   $type: 'Example.HealAction+Data, Example',

@@ -1,8 +1,8 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { effectScope, ref } from 'vue';
 import { createInteractionSession } from './interactionSession';
-import { useTimelineMarqueeGesture } from '../timeline/useTimelineMarqueeGesture';
-import { useTimelineViewportPan } from '../timeline/useTimelineViewportPan';
+import { useTimelineMarqueeGesture } from '../timeline/interaction/useTimelineMarqueeGesture';
+import { useTimelineViewportPan } from '../timeline/interaction/useTimelineViewportPan';
 
 function pointer(type: string, pointerId = 1, x = 0): PointerEvent {
   return Object.assign(new Event(type), {

@@ -1,7 +1,7 @@
 import fixture from '../fixtures/avywenna-return-targets.json';
 import { GameplayTagRegistry } from '../../src/source/nativeGameplayTags.ts';
-import { compileAbilityEntityTemplateCatalogSource } from '../../src/compiler/abilityEntityCatalog.ts';
-import { compileCombatActionSequenceSource } from '../../src/compiler/buffRuntimeProjection.ts';
+import { compileAbilityEntityTemplateCatalogSource } from '../../src/compiler/abilities/abilityEntityCatalog.ts';
+import { compileCombatActionSequenceSource } from '../../src/compiler/buffs/buffRuntimeProjection.ts';
 import { parseReturnSequence } from './avywennaReturnProjection.ts';
 
 export const returnTargetFixture = fixture;

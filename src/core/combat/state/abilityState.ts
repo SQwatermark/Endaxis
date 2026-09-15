@@ -4,23 +4,25 @@
  * 本文件按“事件宿主 → 技能选择 → 单次技能执行 → 常驻来源”组织。它只保存恢复所需的数据；
  * 编译后的技能程序、事件处理函数和运行时端口仍由对应运行时模块持有。
  */
-import type { ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives.ts';
-import type { NativeSkillType, PlayerSkillInput } from '../../game-data/operatorDefinition';
-import type { ActionSequenceState } from '../actions/actionSequenceState';
-import type { BuffReference } from '../buffs/buffReference';
-import type { AbilityEventSubscriptionReference } from '../events/abilityEventState';
-import type { AbilitySkillPayload } from '../events/combatAbilityEvent';
-import type { TimelineRuntimeState } from '../timeline/timelineActionProcessor';
-import type { PostSkillCastRequest } from '../runtime/abilitySystemRuntime';
-import type { CombatSkillCastInfo } from '../runtime/skillCastInfo';
-import type { SkillCastStartPreparation } from '../runtime/skillCastStartPreparation';
-import type { PeriodicTimerState } from './environmentState';
 import {
-  createCombatOperationHostState,
+  type SkillCastEventData,
+  type AbilityEventSubscriptionReference,
+  type BuffReference,
+  type CombatSkillCastInfo,
+  type PostSkillCastRequest,
+  type SkillCastStartPreparation,
   type ActionBlackboardState,
+} from './foundationState';
+import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
+import { type NativeSkillType, type PlayerSkillInput } from '../../game-data/operatorDefinition';
+import {
+  type ActionSequenceState,
+  type TimelineRuntimeState,
+  createCombatOperationHostState,
   type ActionScopeState,
   type CombatOperationHostState,
 } from './actionState';
+import { type PeriodicTimerState } from './environmentState';
 
 export interface DamageCalculationSnapshot {
   readonly attack: number;
@@ -79,7 +81,7 @@ export interface BeforeSkillCastPreparation {
   readonly skillId: string;
   readonly castId: string | undefined;
   readonly resolveSkillSlot: boolean;
-  readonly payload: Omit<AbilitySkillPayload, 'attachBuffToCurrentSkill'>;
+  readonly payload: SkillCastEventData;
 }
 
 export interface AbilitySkillSlotState {
@@ -247,14 +249,6 @@ export interface AbilityEntityChildSkillState {
   readonly timeline: TimelineRuntimeState;
   readonly damageSnapshots: DamageCalculationSnapshotState;
   readonly operations: CombatOperationHostState;
-}
-
-/** 监听动作已安装的响应序列和稳定订阅引用。 */
-export interface CombatEventListenerState {
-  readonly responses: {
-    readonly sequence: ActionSequenceState;
-    readonly subscriptions: readonly AbilityEventSubscriptionReference[];
-  }[];
 }
 
 /** 一条常驻连携条件的数据。 */

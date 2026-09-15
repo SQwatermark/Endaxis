@@ -25,15 +25,15 @@ import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
 import { generateContingencyContractCatalog } from './generateContingencyContractCatalog.ts';
 import { generateCombatDefinitionCandidates } from './generateCombatDefinitionCandidates.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
-import { typeCheckCandidateOverlay } from '../src/compiler/candidateTypeCheck.ts';
-import { checkCandidateGameAssets } from '../src/compiler/candidateAssetCheck.ts';
+import { typeCheckCandidateOverlay } from '../src/compiler/publication/candidateTypeCheck.ts';
+import { checkCandidateGameAssets } from '../src/compiler/publication/candidateAssetCheck.ts';
 import { auditCandidateOperatorSkills } from './auditCandidateOperatorSkills.ts';
 import { auditCandidateEquipment } from './auditCandidateEquipment.ts';
 import { extractEnemyRankEvidence } from './extractEnemyRankEvidence.ts';
 import { generateEnemyDefinitions } from './generateEnemyDefinitions.ts';
 import { auditCandidateEnemyDefinitions } from './auditCandidateEnemyDefinitions.ts';
 import { exportReferencedGameIcons } from './exportReferencedGameIcons.ts';
-import { publishGameDataCandidate } from '../src/compiler/gameDataCandidatePublisher.ts';
+import { publishGameDataCandidate } from '../src/compiler/publication/gameDataCandidatePublisher.ts';
 import { OPERATOR_DEFINITION_OUTPUTS } from './operatorDefinitionOutputs.ts';
 
 const PROJECT_ROOT = path.resolve(import.meta.dirname, '../../..');

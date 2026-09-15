@@ -1,12 +1,12 @@
 /** Buff 黑板随实例复制，同时保留与目标实体板的共享引用。 */
 import { describe, expect, it } from 'vitest';
-import { StateStepper } from '../runtime/stateStepper';
-import { createActionBlackboardState } from '../state/actionState';
 import {
   assignDynamicBlackboard,
   readActionBlackboard,
-} from '../runtime/actionBlackboardExecution';
-import { createBuffInstanceState } from './buffInstanceState';
+} from '../actions/actionBlackboardExecution';
+import { StateStepper } from '../runtime/stateStepper';
+import { createActionBlackboardState } from '../state/foundationState';
+import { createBuffInstanceState } from '../state/instanceState';
 
 describe('buff instance blackboard', () => {
   it('restores shared entity writes and isolates local values across siblings', () => {

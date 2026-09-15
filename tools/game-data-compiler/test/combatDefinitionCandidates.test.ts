@@ -13,7 +13,7 @@ import type {
   GearSetDefinition,
   WeaponDefinition,
 } from '../../../packages/game-data-contract/src/equipment.ts';
-import type { SharedEntityValueUsage } from '../src/compiler/definitionEntityUsageContext.ts';
+import type { SharedEntityValueUsage } from '../src/compiler/optimization/definitionEntityUsageContext.ts';
 import type { OperatorDefinitionBatchArguments } from '../scripts/generateOperatorDefinitionCandidates.ts';
 
 const mocks = vi.hoisted(() => ({

@@ -8,7 +8,7 @@ import { skillSettings, skillSettingResources } from '../../../../src/data/comba
 import {
   ScenarioSimulationService,
   type ScenarioSimulationRun,
-} from '../../../../src/application/scenarioSimulationService.ts';
+} from '../../../../src/application/simulation/scenarioSimulationService.ts';
 import { createEmptyScenario } from '../../../../src/core/project/createProject.ts';
 import { listOperatorSkillDefinitionBindings } from '../../../../src/core/game-data/operatorSkillDefinitions.ts';
 import type { OperatorDefinition } from '../../../../packages/game-data-contract/src/operators.ts';
@@ -108,9 +108,13 @@ export function optimizationSimulationService(
 
 /** 仅排除编译树遍历记录；重映射所有可见产物的回执引用，战斗事件和诊断完整比较。 */
 export function optimizationSimulationFacts(run: ScenarioSimulationRun): unknown {
-  const entries = run.receiptEntries.filter(
-    entry => entry.event !== 'CombatStepReached' && entry.event !== 'CombatConditionEvaluated',
-  );
+  // 历史对象是存储视图；完整读取其事实后，按下面的规则重排可见回执引用。
+  const { receiptHistory, ...facts } = run;
+  const entries = receiptHistory
+    .toArray()
+    .filter(
+      entry => entry.event !== 'CombatStepReached' && entry.event !== 'CombatConditionEvaluated',
+    );
   const indexes = new Map(entries.map((entry, index) => [entry.sequence, index]));
   const reindex = (original: number): number => {
     const index = indexes.get(original);
@@ -135,7 +139,7 @@ export function optimizationSimulationFacts(run: ScenarioSimulationRun): unknown
         .map(([key, child]) => [key, visit(child, key)]),
     );
   };
-  return visit({ ...run, receiptEntries: entries });
+  return visit({ ...facts, receiptEntries: entries });
 }
 
 export function optimizationSimulationScenario(

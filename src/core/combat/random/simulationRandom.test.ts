@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { createSimulationRandomState } from '../state/environmentState';
 import {
   SimulationRandomSource,
   submitSimulationCastSeed,
   type SimulationRandomSettings,
 } from './simulationRandom';
-import { createSimulationRandomState } from './simulationRandomState';
 
 function createSource(settings: SimulationRandomSettings): SimulationRandomSource {
   const state = createSimulationRandomState();

@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { downloadProjectJson } from './downloadProjectJson';
+import { downloadProjectJson } from './projectFileSession';
 
 afterEach(() => {
   vi.useRealTimers();

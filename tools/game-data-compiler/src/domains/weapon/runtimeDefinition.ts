@@ -7,19 +7,19 @@ import type {
   WeaponTraitDefinition,
 } from '../../../../../packages/game-data-contract/src/equipment.ts';
 import { EQUIPMENT_ABILITY_EVENTS } from '../../../../../packages/game-data-contract/src/equipment.ts';
-import { buffRuntimeReadsBlackboardKey } from '../../compiler/buffRuntimeProjection.ts';
-import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
+import { buffRuntimeReadsBlackboardKey } from '../../compiler/buffs/buffRuntimeProjection.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffs/buffProjectionTypes.ts';
 import type {
   CompiledBuffSequenceSource,
   CompiledBuffStepSource,
-} from '../../compiler/combatActionProjectionTypes.ts';
-import { compileCombatActionSequenceSource } from '../../compiler/buffRuntimeProjection.ts';
-import { compileAbilityEventPrograms } from '../../compiler/abilityEventProgram.ts';
-import { projectAbilityEvent } from '../../compiler/abilityEventProjection.ts';
-import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
-import { evaluateStandardStumpFullHealthComparison } from '../../compiler/standardStumpScenarioPolicy.ts';
-import type { BuildDefinitionDiagnosticSource } from '../../compiler/formalBuildDefinition.ts';
-import type { MaterializedPassiveBuffInstallationSource } from '../../compiler/passiveSkillInstallation.ts';
+} from '../../compiler/actions/combatActionProjectionTypes.ts';
+import { compileCombatActionSequenceSource } from '../../compiler/buffs/buffRuntimeProjection.ts';
+import { compileAbilityEventPrograms } from '../../compiler/abilities/abilityEventProgram.ts';
+import { projectAbilityEvent } from '../../compiler/abilities/abilityEventProjection.ts';
+import { compileStandardStumpBuffClosure } from '../../compiler/buffs/standardStumpBuffClosure.ts';
+import { evaluateStandardStumpFullHealthComparison } from '../../compiler/scenario/standardStumpScenarioPolicy.ts';
+import type { BuildDefinitionDiagnosticSource } from '../../compiler/build/formalBuildDefinition.ts';
+import type { MaterializedPassiveBuffInstallationSource } from '../../compiler/skills/passiveSkillInstallation.ts';
 import type {
   CompiledWeaponStaticDefinitionSource,
   CompiledWeaponTraitRuntimeDependencySource,

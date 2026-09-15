@@ -11,7 +11,7 @@ import {
   watch,
   toRaw,
 } from 'vue';
-import { durationBarColorKey } from './durationBarColorContext';
+import { durationBarColorKey } from './results/durationBarColorContext';
 import {
   provideInteractionSession,
   useInteractionBarrier,
@@ -19,14 +19,14 @@ import {
 import type { InteractionLease } from '../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../interaction/nativeDragLifecycle';
 import { useAsyncModalBoundary } from '../interaction/useAsyncModalBoundary';
-import { isInsideTimelineDropRegion } from './timelineDropRegion';
-import { normalizeDurationBarColorPrefs } from './durationBarColor';
+import { isInsideTimelineDropRegion } from './interaction/timelineDropRegion';
+import { normalizeDurationBarColorPrefs } from './results/durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
 import { EaButton } from '@/design-system';
-import { useAppearance } from '../../composables/useAppearance';
-import { formatTimeWithFrames } from '../../utils/time';
-import { ELEMENT_COLORS } from '../../utils/theme';
+import { useAppearance } from '../appearance/useAppearance';
+import { formatTimeWithFrames } from './timeFormatting';
+import { ELEMENT_COLORS } from '../gameColors';
 import { ALL_GAME_TEXT_FAMILIES, setLocale } from '../../i18n';
 import {
   getEnemyGameName,
@@ -39,21 +39,21 @@ import {
   getOperatorTalentName,
   getWeaponGameName,
 } from '../gameText';
-import SkillLibraryCard from './components/SkillLibraryCard.vue';
+import SkillLibraryCard from './library/SkillLibraryCard.vue';
 import {
   createLibraryDragGhost,
   getDefaultLibraryDragOffsets,
   removeLibraryDragGhost,
-} from '../../utils/libraryDragGhost';
-import TimelineActionBlock from './components/TimelineActionBlock.vue';
-import TimelineSkillCastGroupMarker from './components/TimelineSkillCastGroupMarker.vue';
-import TimelineActionContextMenu from './components/TimelineActionContextMenu.vue';
-import TimelineActionInspector from './components/TimelineActionInspector.vue';
-import TimelineLibrarySkillInspector from './components/TimelineLibrarySkillInspector.vue';
-import TimelineExternalEventInspector from './components/TimelineExternalEventInspector.vue';
-import TimelineDocumentMarkerInspector from './components/TimelineDocumentMarkerInspector.vue';
+} from '../interaction/libraryDragGhost';
+import TimelineActionBlock from './interaction/TimelineActionBlock.vue';
+import TimelineSkillCastGroupMarker from './interaction/TimelineSkillCastGroupMarker.vue';
+import TimelineActionContextMenu from './interaction/TimelineActionContextMenu.vue';
+import TimelineActionInspector from './interaction/TimelineActionInspector.vue';
+import TimelineLibrarySkillInspector from './library/TimelineLibrarySkillInspector.vue';
+import TimelineExternalEventInspector from './interaction/TimelineExternalEventInspector.vue';
+import TimelineDocumentMarkerInspector from './interaction/TimelineDocumentMarkerInspector.vue';
 import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
-import TimelineConnectionLayer from './components/TimelineConnectionLayer.vue';
+import TimelineConnectionLayer from './interaction/TimelineConnectionLayer.vue';
 import TimelineCursorGuide, {
   type TimelineCursorGaugeRow,
 } from './components/TimelineCursorGuide.vue';
@@ -63,24 +63,24 @@ import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
 import OperatorAvatar from '../components/OperatorAvatar.vue';
 import TimelineWorkbenchShell from './components/TimelineWorkbenchShell.vue';
-import TimelineResourceCurves from './components/TimelineResourceCurves.vue';
-import TimelineSimulationErrorNotice from './components/TimelineSimulationErrorNotice.vue';
-import TimelineTrackGauge from './components/TimelineTrackGauge.vue';
-import TimelineTimeDilationBands from './components/TimelineTimeDilationBands.vue';
-import TimelineEnemyEffects from './components/TimelineEnemyEffects.vue';
-import TimelineEnemyStatusSections from './components/TimelineEnemyStatusSections.vue';
-import TimelineBuffBands from './components/TimelineBuffBands.vue';
-import type { BuffDetailTarget } from './buffDetail';
-import TimelineOperatorPassiveUiBands from './components/TimelineOperatorPassiveUiBands.vue';
+import TimelineResourceCurves from './results/TimelineResourceCurves.vue';
+import TimelineSimulationErrorNotice from './results/TimelineSimulationErrorNotice.vue';
+import TimelineTrackGauge from './results/TimelineTrackGauge.vue';
+import TimelineTimeDilationBands from './results/TimelineTimeDilationBands.vue';
+import TimelineEnemyEffects from './results/TimelineEnemyEffects.vue';
+import TimelineEnemyStatusSections from './results/TimelineEnemyStatusSections.vue';
+import TimelineBuffBands from './results/TimelineBuffBands.vue';
+import type { BuffDetailTarget } from './results/buffDetail';
+import TimelineOperatorPassiveUiBands from './results/TimelineOperatorPassiveUiBands.vue';
 import {
   projectTimelineTrackEffectLayout,
   resizeTimelineTrackPair,
   resolveCompactTrackHeights,
   TIMELINE_TRACK_BASE_HEIGHT,
   TIMELINE_TRACK_MIN_HEIGHT,
-} from './timelineTrackEffectLayout';
-import TimelineComboWindowBands from './components/TimelineComboWindowBands.vue';
-import SimulationPerformanceAudit from './components/SimulationPerformanceAudit.vue';
+} from './results/timelineTrackEffectLayout';
+import TimelineComboWindowBands from './results/TimelineComboWindowBands.vue';
+import SimulationPerformanceAudit from './results/SimulationPerformanceAudit.vue';
 import EnemySettingsPanel from './components/EnemySettingsPanel.vue';
 import GlobalResourcePanel from './components/GlobalResourcePanel.vue';
 import ContingencyContractPanel from './components/ContingencyContractPanel.vue';
@@ -95,17 +95,17 @@ import {
   ActiveScenarioEditorSession,
   ProjectEditorSession,
 } from '../../application/editor/projectEditorSession';
-import { AdaptiveTimelineSimulationService } from '../../application/adaptiveTimelineSimulationService';
-import { createEditorSimulationService } from '../../application/editorSimulationService';
-import { WorkerScenarioSimulationService } from '../../application/workerScenarioSimulationService';
+import { AdaptiveTimelineSimulationService } from '../../application/simulation/adaptiveTimelineSimulationService';
+import { createEditorSimulationService } from '../../application/simulation/editorSimulationService';
+import { WorkerScenarioSimulationService } from '../../application/simulation/workerScenarioSimulationService';
+import { useProjectDefinitionWorkspaces } from './definitions/useProjectDefinitionWorkspaces';
 import { useScenarioSimulation } from './useScenarioSimulation';
 import { projectCombatHudSnapshot } from '../../core/projection/combatHudSnapshot';
-import { resolveTimelineWheelIntent } from './timelineWheel';
-import { projectActiveGearSetLabels } from './activeGearSetHint';
-import { passedTimelineDragThreshold } from './timelineDragThreshold';
-import { projectTimelineEdgeAutoScrollDelta } from './timelineEdgeAutoScroll';
-import { resolveTimelineMarkerPointerFrame } from './timelineMarkerMoveGeometry';
-import { resolveOperatorPanelContributionSourceLabel } from './operatorPanelContributionPresentation';
+import { projectActiveGearSetLabels } from './library/activeGearSetHint';
+import { passedTimelineDragThreshold } from './interaction/timelineDragThreshold';
+import { projectTimelineEdgeAutoScrollDelta } from './interaction/timelineEdgeAutoScroll';
+import { resolveTimelineMarkerPointerFrame } from './interaction/timelineMarkerMoveGeometry';
+import { resolveOperatorPanelContributionSourceLabel } from './library/operatorPanelContributionPresentation';
 import type { OperatorPanelContributionReceipt } from '../../core/compiler/resolveOperatorPanel';
 import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
@@ -118,7 +118,6 @@ import { projectTimelineComboCooldowns } from '../../core/projection/timelineCom
 import { projectSkillEnhancementTimelineViz } from '../../core/projection/skillEnhancementTimelineViz';
 import { resolveControlTimeline } from '../../core/project/resolveControlTimeline';
 import {
-  getSkillCastPlacementAnchor,
   getSkillCastPlacementChains,
   resolveSkillCastStartFrames,
 } from '../../core/project/skillCastPlacement';
@@ -145,36 +144,20 @@ import {
   type ScenarioDocument,
   type TrackIndex,
 } from '../../core/project/schema';
-import {
-  allocateProjectTemplateId,
-  deriveProjectGearTemplate,
-  deriveProjectGearSetTemplate,
-  deriveProjectOperatorTemplate,
-  deriveProjectWeaponTemplate,
-  getProjectDefinitionLibrary,
-  replaceProjectGearTemplateDefinition,
-  replaceProjectGearSetTemplateDefinition,
-  replaceProjectOperatorTemplateDefinition,
-  replaceProjectWeaponTemplateDefinition,
-  switchTrackToCompatibleOperatorTemplate,
-  switchTrackToCompatibleGearTemplate,
-  switchTrackToCompatibleWeaponTemplate,
-} from '../../core/project/projectDefinitionLibrary';
+import { getProjectDefinitionLibrary } from '../../core/project/projectDefinitionLibrary';
 import { createEmptyProject } from '../../core/project/createProject';
 import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { openProject } from '../../application/openProject';
-import { downloadProjectJson } from './downloadProjectJson';
+import { useProjectFileSession } from './projectFileSession';
 import {
   captureTimelineLongImage,
   compressProjectCode,
   downloadBlob,
   imageFilename,
-  projectFilename,
 } from './timelineExport';
-import { createProjectFileReader } from './projectFileReader';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
 import type { ProjectGameDataRepository } from '../../data/projectGameDataRepository';
-import { captureScenarioSimulationGameData } from '../../application/scenarioSimulationGameData';
+import { captureScenarioSimulationGameData } from '../../application/simulation/scenarioSimulationGameData';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import type {
@@ -193,18 +176,18 @@ import {
   getOperatorSkillIconPath,
   getWeaponActionIconPath,
 } from '../gameAssetPaths';
-import { groupPlacedSkillSequence, placeLibrarySkillGroup } from './placeSkillGroup';
-import { resolveOperatorPresentationFormKey } from './operatorFormPresentation';
-import { SkillPlacementTransaction } from './skillPlacementTransaction';
+import { groupPlacedSkillSequence, placeLibrarySkillGroup } from './interaction/placeSkillGroup';
+import { resolveOperatorPresentationFormKey } from './library/operatorFormPresentation';
+import { SkillPlacementTransaction } from './interaction/skillPlacementTransaction';
 import {
   resolveCompactSkillSelection,
   compactSkillSelectionByWidths,
-} from './compactSkillSelection';
+} from './library/compactSkillSelection';
 import {
   layoutSkillGroupPlacement,
   resolveSkillGroupPlacementSkills,
   skillPlacementDisplayFrames,
-} from './skillGroupPlacement';
+} from './interaction/skillGroupPlacement';
 import { createProjectDocumentIdAllocator } from './projectDocumentIdAllocator';
 import {
   projectTimelineEditor,
@@ -214,7 +197,6 @@ import {
   COLLAPSED_PREP_WIDTH_PX,
   frameToTimelinePx,
   resolveTimelineCursorGuidePosition,
-  timelinePxToExactFrame,
   timelinePxToFrame,
   timelineTotalWidth,
 } from './timelineGeometry';
@@ -225,16 +207,15 @@ import {
   projectSkillCastInterruptionFrames,
   projectTimelineTimeDilationBands,
 } from './timelineDisplayTime';
-import { useTimelineLoadoutEditor } from './useTimelineLoadoutEditor';
+import { useTimelineLoadoutEditor } from './library/useTimelineLoadoutEditor';
 import { timelineVisibleSkillEnds } from './timelineVisibleSkillEnds';
 import {
-  expandSkillCastGroupSelection,
   matchingPublishedSkillCastIds,
   projectCompatibleHitFrames,
   projectMovingSkillCastStartFrames,
   projectSkillCastInputFacts,
   resolveSkillCastGroupSelection,
-} from './skillCastGroupInteraction';
+} from './interaction/skillCastGroupInteraction';
 import { useTimelineEnemyEditor } from './useTimelineEnemyEditor';
 import {
   createEmptyTimelineActionSelection,
@@ -242,7 +223,7 @@ import {
   reconcileTimelineActionSelection,
   selectTimelineAction,
   type TimelineActionSelection,
-} from './timelineActionSelection';
+} from './interaction/timelineActionSelection';
 import {
   clearTimelineEditorSelection,
   createTimelineEditorSelection,
@@ -250,12 +231,12 @@ import {
   selectTimelineMarkerIdentity,
   selectTimelineTrackIdentity,
   type TimelineMarkerKind,
-} from './timelineEditorSelection';
+} from './interaction/timelineEditorSelection';
 import {
   copyTimelineActions,
   pasteTimelineActions,
   type TimelineActionClipboard,
-} from './timelineClipboard';
+} from './interaction/timelineClipboard';
 import {
   createSkillCastGroup,
   dissolveSkillCastGroups,
@@ -295,7 +276,7 @@ import {
   removeExternalEventMarker,
   setSimulationRangeBoundary,
   clearSimulationRangeBoundary,
-} from './timelineDocumentCommands';
+} from './interaction/timelineDocumentCommands';
 import {
   isKeyboardShortcutIsolationTarget,
   useKeyboardShortcutScope,
@@ -318,26 +299,22 @@ import {
   scenariosDependingOn,
   switchProjectScenario,
 } from './scenarioProjectCommands';
-import { useTimelineMarqueeGesture } from './useTimelineMarqueeGesture';
-import { useTimelineViewportPan } from './useTimelineViewportPan';
-import { handleTimelineEditorShortcut } from './timelineKeyboardShortcuts';
+import { useTimelineMarqueeGesture } from './interaction/useTimelineMarqueeGesture';
+import { useTimelineViewportPan } from './interaction/useTimelineViewportPan';
+import { handleTimelineEditorShortcut } from './interaction/timelineKeyboardShortcuts';
 import {
   COARSE_TIMELINE_SNAP_FRAMES,
   PRECISE_TIMELINE_SNAP_FRAMES,
   snapTimelineFrame,
-} from './timelineSnap';
-import { findAdjacentOccupiedTrack } from './timelineTrackSelection';
-import { resolveTimelineCastMovePointerFrame } from './timelineCastMoveGeometry';
-import { resolveTimelineLibraryDropFrame } from './timelineLibraryDropGeometry';
+} from './interaction/timelineSnap';
+import { findAdjacentOccupiedTrack } from './interaction/timelineTrackSelection';
+import { useTimelineCastMove } from './interaction/useTimelineCastMove';
+import { resolveTimelineLibraryDropFrame } from './interaction/timelineLibraryDropGeometry';
 import {
   resolveTimelineCastAlignmentFrame,
   type TimelineCastAlignmentMode,
-} from './timelineCastAlignment';
-import {
-  normalizeTimelineZoomPercent,
-  timelinePxPerFrame,
-  wheelTimelineZoomPercent,
-} from './timelineZoom';
+} from './interaction/timelineCastAlignment';
+import { useTimelineZoom } from './interaction/useTimelineZoom';
 import type { TimelineOperationMarkerInput } from './timelineOperationMarkers';
 import { projectRossiComboSuccessCastIds } from '../operators/rossi/comboSuccessEvidence';
 import {
@@ -348,43 +325,39 @@ import {
   updateTimelineConnection,
   type TimelineConnectionPort,
   type UpdateTimelineConnectionInput,
-} from './timelineConnections';
+} from './interaction/timelineConnections';
 import {
   shouldDisplayTimelineHitMarker,
   type TimelineHitMarkerView,
-} from './timelineHitProjection';
+} from './results/timelineHitProjection';
 import {
   projectHitEffectsByCast,
   projectTimelineHitReceipts,
   projectTimelineHitOccurrences,
   type TimelineHitEffectLabel,
-} from './timelineHitEffects';
-import { projectPublishedHitDetail } from './publishedHitDetail';
-import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
-import { useSimulationReceiptSelection } from './useSimulationReceiptSelection';
-import { resolveBuffDisplayName } from './buffDisplayName';
+} from './results/timelineHitEffects';
+import { projectPublishedHitDetail } from './results/publishedHitDetail';
+import { layoutEnemyDamageHits } from './results/enemyDamageHitLayout';
+import { useSimulationReceiptSelection } from './results/useSimulationReceiptSelection';
+import { resolveBuffDisplayName } from './results/buffDisplayName';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
-import BattleLogPanel from './components/BattleLogPanel.vue';
-import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
-import { capturePublishedBattleLog } from './publishedBattleLog';
-import { capturePublishedWeaponSources, resolvePublishedBuffSource } from './publishedBuffSource';
-import { isEnemyTimelineBuffVisible } from './enemyStatusRows';
-import {
-  capturePublishedOperatorMetadata,
-  type PublishedOperatorMetadata,
-} from './publishedOperatorMetadata';
-import TimelineMarkerContextMenu from './components/TimelineMarkerContextMenu.vue';
-import { projectPublishedTimelineDamageAnalysis } from './timelineDamageAnalysis';
+import BattleLogPanel from './results/BattleLogPanel.vue';
+import { usePublishedSimulationDisplay } from './results/usePublishedSimulationDisplay';
+import { resolvePublishedBuffSource } from './results/publishedBuffSource';
+import { isEnemyTimelineBuffVisible } from './results/enemyStatusRows';
+
+import TimelineMarkerContextMenu from './interaction/TimelineMarkerContextMenu.vue';
+import { projectPublishedTimelineDamageAnalysis } from './results/timelineDamageAnalysis';
 import {
   TIMELINE_VIEW_LAYER_IDS,
   normalizeTimelineViewLayers,
   toggleTimelineViewLayerState,
   type TimelineViewLayerId,
-} from './timelineViewLayers';
+} from './results/timelineViewLayers';
 import {
   normalizeTimelineOperatorEffectsVisibility,
   toggleTimelineOperatorEffectsVisibility,
-} from './timelineOperatorEffectsVisibility';
+} from './results/timelineOperatorEffectsVisibility';
 import {
   ABILITY_ENTITY_SAMPLE_CAST_ID,
   ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
@@ -393,47 +366,41 @@ import {
 // 定义编辑器只在用户明确打开时加载。它们会引入完整的行为编辑组件树，常驻在
 // 时间轴首页既浪费内存，也会让 Vite 在首次打开页面时转换大量不会使用的源码。
 const GearDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./components/GearDefinitionWorkspaceDialog.vue'),
+  () => import('./definitions/equipment/GearDefinitionWorkspaceDialog.vue'),
 );
 const GearSetDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./components/GearSetDefinitionWorkspaceDialog.vue'),
+  () => import('./definitions/equipment/GearSetDefinitionWorkspaceDialog.vue'),
 );
 const OperatorDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./components/OperatorDefinitionWorkspaceDialog.vue'),
+  () => import('./definitions/operators/OperatorDefinitionWorkspaceDialog.vue'),
 );
 const WeaponDefinitionWorkspaceDialog = defineAsyncComponent(
-  () => import('./components/WeaponDefinitionWorkspaceDialog.vue'),
+  () => import('./definitions/equipment/WeaponDefinitionWorkspaceDialog.vue'),
 );
 const SkillDefinitionEditorDialog = defineAsyncComponent(
-  () => import('./components/SkillDefinitionEditorDialog.vue'),
+  () => import('./definitions/skills/SkillDefinitionEditorDialog.vue'),
 );
-const GearSelectionDialog = defineAsyncComponent(
-  () => import('./components/GearSelectionDialog.vue'),
-);
+const GearSelectionDialog = defineAsyncComponent(() => import('./library/GearSelectionDialog.vue'));
 const GearLoadoutBuildDialog = defineAsyncComponent(
-  () => import('./components/GearLoadoutBuildDialog.vue'),
+  () => import('./library/GearLoadoutBuildDialog.vue'),
 );
-const OperatorPanelDialog = defineAsyncComponent(
-  () => import('./components/OperatorPanelDialog.vue'),
-);
-const OperatorBuildDialog = defineAsyncComponent(
-  () => import('./components/OperatorBuildDialog.vue'),
-);
-const WeaponBuildDialog = defineAsyncComponent(() => import('./components/WeaponBuildDialog.vue'));
+const OperatorPanelDialog = defineAsyncComponent(() => import('./library/OperatorPanelDialog.vue'));
+const OperatorBuildDialog = defineAsyncComponent(() => import('./library/OperatorBuildDialog.vue'));
+const WeaponBuildDialog = defineAsyncComponent(() => import('./library/WeaponBuildDialog.vue'));
 const OperatorSelectionDialog = defineAsyncComponent(
-  () => import('./components/OperatorSelectionDialog.vue'),
+  () => import('./library/OperatorSelectionDialog.vue'),
 );
 const WeaponSelectionDialog = defineAsyncComponent(
-  () => import('./components/WeaponSelectionDialog.vue'),
+  () => import('./library/WeaponSelectionDialog.vue'),
 );
 const TimelineResetDialog = defineAsyncComponent(
   () => import('./components/TimelineResetDialog.vue'),
 );
 const TimelineHitDetailDialog = defineAsyncComponent(
-  () => import('./components/TimelineHitDetailDialog.vue'),
+  () => import('./results/TimelineHitDetailDialog.vue'),
 );
 const TimelineBuffDetailDialog = defineAsyncComponent(
-  () => import('./components/TimelineBuffDetailDialog.vue'),
+  () => import('./results/TimelineBuffDetailDialog.vue'),
 );
 const TimelineExportDialog = defineAsyncComponent(
   () => import('./components/TimelineExportDialog.vue'),
@@ -442,10 +409,10 @@ const TimelineSmallImageExportDialog = defineAsyncComponent(
   () => import('./components/TimelineSmallImageExportDialog.vue'),
 );
 const DamageAnalysisDialog = defineAsyncComponent(
-  () => import('./components/DamageAnalysisDialog.vue'),
+  () => import('./results/DamageAnalysisDialog.vue'),
 );
 const TimelineShortcutHelpDialog = defineAsyncComponent(
-  () => import('./components/TimelineShortcutHelpDialog.vue'),
+  () => import('./interaction/TimelineShortcutHelpDialog.vue'),
 );
 
 const { t, te, locale } = useI18n({ useScope: 'global' });
@@ -453,8 +420,18 @@ const { appearance, setAppearance } = useAppearance();
 const TIMELINE_TRACK_HEADER_WIDTH = 180;
 const TIMELINE_RULER_HEIGHT = 60;
 const INTERACTIVE_SIMULATION_BUDGET_MS = 1000 / 60;
-const timelineZoomPercent = ref(100);
-const pxPerFrame = computed(() => timelinePxPerFrame(timelineZoomPercent.value));
+const {
+  timelineZoomPercent,
+  pxPerFrame,
+  setTimelineZoomPercent,
+  updateTimelineZoomPercent,
+  handleTimelineWheel,
+} = useTimelineZoom({
+  viewport: () => timelineScroll.value,
+  prepFrames: () => scenario.value.battle.prepFrames,
+  prepExpanded: () => scenario.value.editor.prepExpanded,
+  trackHeaderWidth: TIMELINE_TRACK_HEADER_WIDTH,
+});
 const CURSOR_GUIDE_STORAGE_KEY = 'endaxis:timeline-cursor-guide:v1';
 const showCursorGuide = ref(window.localStorage.getItem(CURSOR_GUIDE_STORAGE_KEY) === 'true');
 watch(showCursorGuide, visible =>
@@ -591,10 +568,6 @@ const showSmallImageExport = ref(false);
 const smallImageExportInitial = ref({ filename: '', duration: 60 });
 const showShortcutHelp = ref(false);
 const buffDetailTarget = ref<BuffDetailTarget | null>(null);
-const showOperatorDefinitionWorkspace = ref(false);
-const showWeaponDefinitionWorkspace = ref(false);
-const gearDefinitionWorkspaceSlot = ref<TrackGearSlot | null>(null);
-const gearSetDefinitionWorkspaceId = ref<string | null>(null);
 const projectDefinitionLibrary = shallowRef<ProjectDefinitionLibraryDocument>({
   operators: {},
   weapons: {},
@@ -678,30 +651,6 @@ const alignmentGuide = ref<{
   readonly label: string;
   readonly color: string;
 } | null>(null);
-interface TimelineCastMoveGesture {
-  readonly pointerId: number;
-  readonly trackIndex: TrackIndex;
-  readonly skillCastId: string;
-  readonly pointerCastId: string;
-  readonly skillCastIds: readonly string[];
-  readonly baseStartFrames: ReadonlyMap<string, number>;
-  readonly pointerOffsetActualFrames: number;
-  readonly initialPointerX: number;
-  readonly initialPointerY: number;
-  latestPointerX: number;
-  latestPointerY: number;
-  readonly baseScenario: ScenarioDocument;
-  previewFrame: number;
-  previewActualFrame: number;
-  /** 松手后保留预览，直到对应场景的新模拟快照发布。 */
-  readonly committed: boolean;
-  dragStarted: boolean;
-  moved: boolean;
-}
-const castMoveGesture = shallowRef<TimelineCastMoveGesture | null>(null);
-let stopCastMoveGesture: (() => void) | null = null;
-let castMoveAutoScrollFrame: number | null = null;
-let suppressedCastClickId: string | null = null;
 const contextMenuTarget = ref<{
   x: number;
   y: number;
@@ -798,10 +747,8 @@ const publishedGlobalRandomSeed = computed(
   () => publishedSimulation.value?.scenario.battle.random?.globalSeed ?? 0,
 );
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
-const savedProjectSnapshot = shallowRef(initialProject);
-const projectFileReader = createProjectFileReader(() => projectSession.snapshot.revision);
-onScopeDispose(() => projectFileReader.dispose());
-const projectDirty = ref(false);
+const { projectDirty, projectFileReader, markOpenedProject, exportProjectFile } =
+  useProjectFileSession(projectSession);
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const timelinePrepPreviewFrames = ref<number | null>(null);
 const displayedTimelinePrepFrames = computed(
@@ -824,7 +771,6 @@ const unsubscribeScenarioSession = scenarioSession.subscribe(snapshot => {
 });
 const unsubscribeProjectSession = projectSession.subscribe(snapshot => {
   projectRevision.value = snapshot.revision;
-  projectDirty.value = snapshot.project !== savedProjectSnapshot.value;
   const library = getProjectDefinitionLibrary(snapshot.project);
   if (library === projectDefinitionLibrary.value) return;
   projectDefinitionLibrary.value = library;
@@ -839,15 +785,7 @@ onScopeDispose(() => {
   cancelCastMove();
   stopMarkerMove?.();
   finishSkillDrag();
-  window.removeEventListener('beforeunload', protectUnsavedProject);
 });
-
-function protectUnsavedProject(event: BeforeUnloadEvent): void {
-  if (!projectDirty.value) return;
-  event.preventDefault();
-  event.returnValue = '';
-}
-window.addEventListener('beforeunload', protectUnsavedProject);
 
 function commitScenario(
   commandName: string,
@@ -906,8 +844,7 @@ async function acceptOpenedProject(
   gearSetDefinitionWorkspaceId.value = null;
   resetSimulationPublication();
   projectSession.replaceProject(project);
-  if (!gameDataRevisionUpdated) savedProjectSnapshot.value = project;
-  projectDirty.value = gameDataRevisionUpdated;
+  markOpenedProject(project, gameDataRevisionUpdated);
   selectedTrack.value = 0;
   clearTimelineSelection();
   timelineClipboard.value = null;
@@ -923,18 +860,7 @@ async function acceptOpenedProject(
 
 function exportProject(filename?: string): void {
   try {
-    const project = projectSession.snapshot.project;
-    const content = serializeProjectDocument(project, true);
-    const activeScenario = project.scenarios.find(value => value.id === project.activeScenarioId);
-    const fileBase = (activeScenario?.name ?? project.activeScenarioId)
-      .replace(/[^A-Za-z0-9._-]+/g, '-')
-      .replace(/^-+|-+$/g, '');
-    downloadProjectJson(
-      content,
-      filename === undefined ? `${fileBase || 'endaxis-project'}.json` : projectFilename(filename),
-    );
-    savedProjectSnapshot.value = project;
-    projectDirty.value = false;
+    exportProjectFile(filename);
     showExportDialog.value = false;
     ElMessage.success(t('timeline.export.exportJson'));
   } catch (error) {
@@ -1205,16 +1131,14 @@ watch(selectedTrack, () => {
     ...(replacement.variantKey === undefined ? {} : { variantKey: replacement.variantKey }),
   };
 });
-const battleLogSnapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
-const publishedOperators = shallowRef<ReadonlyMap<string, PublishedOperatorMetadata>>(new Map());
-const publishedWeaponSources = shallowRef<ReturnType<typeof capturePublishedWeaponSources>>(
-  new Map(),
-);
 const simulationService = new AdaptiveTimelineSimulationService(
   new WorkerScenarioSimulationService(
-    new Worker(new URL('../../application/scenarioSimulation.worker.ts', import.meta.url), {
-      type: 'module',
-    }),
+    new Worker(
+      new URL('../../application/simulation/scenarioSimulation.worker.ts', import.meta.url),
+      {
+        type: 'module',
+      },
+    ),
     currentScenario => captureScenarioSimulationGameData(currentScenario, editorGameDataRepository),
   ),
   () => createEditorSimulationService(projectDefinitionLibrary.value),
@@ -1237,51 +1161,68 @@ const {
   scenario,
   service: simulationService,
 });
-// 尚未迁移的时间轴投影共用固定历史视图中的同一份缓存数组，不能各自重新物化。
-const publishedReceiptEntries = computed(() => simulationRun.value?.receiptHistory.toArray() ?? []);
-watch(
-  publishedSimulation,
-  published => {
-    if (published === null) {
-      battleLogSnapshot.value = null;
-      publishedOperators.value = new Map();
-      publishedWeaponSources.value = new Map();
-      return;
-    }
-    publishedOperators.value = capturePublishedOperatorMetadata(
-      published.scenario,
-      editorGameDataRepository,
-    );
-    publishedWeaponSources.value = capturePublishedWeaponSources(
-      editorGameDataRepository.getWeapons(),
-    );
-    battleLogSnapshot.value = capturePublishedBattleLog(
-      published,
-      editorGameDataRepository,
-      publishedOperators.value,
-      {
-        skill: timelineCastLabel,
-        operator: name =>
-          name.displayName ??
-          (name.assetSlug === null
-            ? t('timeline.emptyTrack')
-            : getOperatorGameName(name.assetSlug, locale.value)),
-      },
-    );
+const { battleLogSnapshot, publishedOperators, publishedWeaponSources, publishedReceiptEntries } =
+  usePublishedSimulationDisplay(
+    publishedSimulation,
+    editorGameDataRepository,
+    () => editorGameDataRepository.getWeapons(),
+    {
+      skill: timelineCastLabel,
+      operator: name =>
+        name.displayName ??
+        (name.assetSlug === null
+          ? t('timeline.emptyTrack')
+          : getOperatorGameName(name.assetSlug, locale.value)),
+    },
+  );
+const {
+  showOperatorDefinitionWorkspace,
+  showWeaponDefinitionWorkspace,
+  gearDefinitionWorkspaceSlot,
+  gearSetDefinitionWorkspaceId,
+  selectedOperatorBaseDefinition,
+  selectedOperatorCustomDefinition,
+  selectedWeaponBaseDefinition,
+  selectedWeaponCustomDefinition,
+  selectedGearBaseDefinition,
+  selectedGearCustomDefinition,
+  selectedGearSetCustomDefinition,
+  selectedGearSetBaseDefinition,
+  openOperatorDefinitionWorkspace,
+  saveOperatorDefinition,
+  resetOperatorDefinition,
+  openWeaponDefinitionWorkspace,
+  saveWeaponDefinition,
+  resetWeaponDefinition,
+  openGearDefinitionWorkspace,
+  saveGearDefinition,
+  resetGearDefinition,
+  openGearSetDefinitionWorkspace,
+  saveGearSetDefinition,
+  resetGearSetDefinition,
+} = useProjectDefinitionWorkspaces({
+  projectSession,
+  gameDataRepository,
+  scenario,
+  selectedTrack,
+  selectedLoadoutModel,
+  projectDefinitionLibrary,
+  names: {
+    operator: slug => getOperatorGameName(slug, locale.value),
+    weapon: slug => getWeaponGameName(slug, locale.value),
+    gear: slug => getGearPieceGameName(slug, locale.value),
+    gearSet: slug => getGearSetGameName(slug, locale.value),
   },
-  { flush: 'sync' },
-);
-const selectedOperatorBaseDefinition = computed(() => {
-  const slug = selectedLoadoutModel.value.operator?.operatorSlug;
-  if (slug === undefined) return null;
-  const template = projectDefinitionLibrary.value.operators[slug];
-  return gameDataRepository.getOperator(template?.origin?.templateId ?? slug);
-});
-const selectedOperatorCustomDefinition = computed(() => {
-  const slug = selectedLoadoutModel.value.operator?.operatorSlug;
-  return slug === undefined
-    ? undefined
-    : projectDefinitionLibrary.value.operators[slug]?.definition;
+  beforeOpen: kind => {
+    if (kind === 'operator') showOperatorBuildDialog.value = false;
+    else if (kind === 'weapon') showWeaponBuildDialog.value = false;
+    else showGearBuildDialog.value = false;
+  },
+  onDefinitionChange: refreshSimulationAfterDefinitionChange,
+  ensureGameData: ensureAllGameData,
+  reportError: message => {
+    ElMessage.error(message);
+  },
 });
 const selectedLibraryInspectorModel = computed(() => {
   const entry = selectedLibraryEntry.value;
@@ -1332,30 +1273,6 @@ const selectedOperatorRequiredSkillReferences = computed(() => {
 const selectedOperatorDefinitionSkillLevel = computed(() =>
   Math.max(1, ...Object.values(selectedLoadoutModel.value.operator?.skillLevels ?? {})),
 );
-const selectedWeaponBaseDefinition = computed(() => {
-  const slug = selectedLoadoutModel.value.weapon?.weaponSlug;
-  if (slug === undefined) return null;
-  const template = projectDefinitionLibrary.value.weapons[slug];
-  return gameDataRepository.getWeapon(template?.origin?.templateId ?? slug);
-});
-const selectedWeaponCustomDefinition = computed(() => {
-  const slug = selectedLoadoutModel.value.weapon?.weaponSlug;
-  return slug === undefined ? undefined : projectDefinitionLibrary.value.weapons[slug]?.definition;
-});
-const selectedGearDefinition = computed(() => {
-  const slot = gearDefinitionWorkspaceSlot.value;
-  return slot === null ? null : (selectedLoadoutModel.value.gears[slot]?.definition ?? null);
-});
-const selectedGearBaseDefinition = computed(() => {
-  const current = selectedGearDefinition.value;
-  if (current === null) return null;
-  const template = projectDefinitionLibrary.value.gears[current.slug];
-  return gameDataRepository.getGear(template?.origin?.templateId ?? current.slug);
-});
-const selectedGearCustomDefinition = computed(() => {
-  const slug = selectedGearDefinition.value?.slug;
-  return slug === undefined ? undefined : projectDefinitionLibrary.value.gears[slug]?.definition;
-});
 const customGearDefinitionSlugs = computed(() => Object.keys(projectDefinitionLibrary.value.gears));
 const gearSetIds = computed(() => editorGameDataRepository.getGearSets().map(value => value.slug));
 const gearSetNames = computed<Readonly<Record<string, string>>>(() =>
@@ -1381,16 +1298,6 @@ const activeGearSetLabelsByTrack = computed(() =>
     projectActiveGearSetLabels(loadout, gearSetNames.value).join(' / '),
   ),
 );
-const selectedGearSetCustomDefinition = computed(() => {
-  const id = gearSetDefinitionWorkspaceId.value;
-  return id === null ? undefined : projectDefinitionLibrary.value.gearSets[id]?.definition;
-});
-const selectedGearSetBaseDefinition = computed(() => {
-  const id = gearSetDefinitionWorkspaceId.value;
-  if (id === null) return null;
-  const template = projectDefinitionLibrary.value.gearSets[id];
-  return gameDataRepository.getGearSet(template?.origin?.templateId ?? id);
-});
 const operatorBuildPanel = computed(() => {
   return panelResolution.value.panels.get(selectedTrack.value) ?? null;
 });
@@ -1421,269 +1328,6 @@ function refreshSimulationAfterDefinitionChange(): void {
   void nextTick(simulateNow);
 }
 
-function openOperatorDefinitionWorkspace(): void {
-  const track = scenario.value.tracks[selectedTrack.value];
-  const current = selectedLoadoutModel.value.operator?.definition ?? null;
-  if (track?.operator === null || track === null || current === null) return;
-  // 定义工作区取代构筑弹窗，不在其上再叠一个同尺寸模态框。
-  showOperatorBuildDialog.value = false;
-  if (projectDefinitionLibrary.value.operators[current.slug] !== undefined) {
-    showOperatorDefinitionWorkspace.value = true;
-    return;
-  }
-
-  const templateId = allocateProjectTemplateId(projectDefinitionLibrary.value, 'operator');
-  const displayName = `${getOperatorGameName(current.slug, locale.value)}（自定义）`;
-  const changed = projectSession.commit('deriveProjectOperatorTemplate', project => {
-    const nextProject = deriveProjectOperatorTemplate(project, {
-      id: templateId,
-      name: displayName,
-      baseTemplateId: current.slug,
-      definition: current,
-    });
-    const nextDefinition =
-      getProjectDefinitionLibrary(nextProject).operators[templateId]!.definition;
-    return {
-      ...nextProject,
-      scenarios: nextProject.scenarios.map(value =>
-        value.id === nextProject.activeScenarioId
-          ? switchTrackToCompatibleOperatorTemplate(
-              value,
-              selectedTrack.value,
-              current,
-              templateId,
-              nextDefinition,
-            )
-          : value,
-      ),
-    };
-  });
-  if (!changed) return;
-  refreshSimulationAfterDefinitionChange();
-  showOperatorDefinitionWorkspace.value = true;
-}
-
-function saveOperatorDefinition(definition: OperatorDefinition): void {
-  projectSession.commit('saveProjectOperatorTemplate', project =>
-    replaceProjectOperatorTemplateDefinition(project, definition.slug, definition),
-  );
-  refreshSimulationAfterDefinitionChange();
-}
-
-function resetOperatorDefinition(): void {
-  const slug = selectedLoadoutModel.value.operator?.operatorSlug;
-  if (slug === undefined) return;
-  const template = projectDefinitionLibrary.value.operators[slug];
-  const base = selectedOperatorBaseDefinition.value;
-  if (template === undefined || base === null) return;
-  const definition = structuredClone({
-    ...base,
-    slug,
-    displayName: template.name,
-    assetSlug: base.assetSlug ?? base.slug,
-  });
-  projectSession.commit('resetProjectOperatorTemplate', project =>
-    replaceProjectOperatorTemplateDefinition(project, slug, definition),
-  );
-  showOperatorDefinitionWorkspace.value = false;
-  refreshSimulationAfterDefinitionChange();
-}
-
-function openWeaponDefinitionWorkspace(): void {
-  const track = scenario.value.tracks[selectedTrack.value];
-  const current = selectedLoadoutModel.value.weapon?.definition ?? null;
-  if (track?.weapon === null || track === null || current === null) return;
-  showWeaponBuildDialog.value = false;
-  if (projectDefinitionLibrary.value.weapons[current.slug] !== undefined) {
-    showWeaponDefinitionWorkspace.value = true;
-    return;
-  }
-
-  const templateId = allocateProjectTemplateId(projectDefinitionLibrary.value, 'weapon');
-  const displayName = `${getWeaponGameName(current.slug, locale.value)}（自定义）`;
-  const changed = projectSession.commit('deriveProjectWeaponTemplate', project => {
-    const nextProject = deriveProjectWeaponTemplate(project, {
-      id: templateId,
-      name: displayName,
-      baseTemplateId: current.slug,
-      definition: current,
-    });
-    const nextDefinition = getProjectDefinitionLibrary(nextProject).weapons[templateId]!.definition;
-    return {
-      ...nextProject,
-      scenarios: nextProject.scenarios.map(value =>
-        value.id === nextProject.activeScenarioId
-          ? switchTrackToCompatibleWeaponTemplate(
-              value,
-              selectedTrack.value,
-              templateId,
-              nextDefinition,
-            )
-          : value,
-      ),
-    };
-  });
-  if (!changed) return;
-  refreshSimulationAfterDefinitionChange();
-  showWeaponDefinitionWorkspace.value = true;
-}
-
-function saveWeaponDefinition(definition: WeaponDefinition): void {
-  projectSession.commit('saveProjectWeaponTemplate', project =>
-    replaceProjectWeaponTemplateDefinition(project, definition.slug, definition),
-  );
-  refreshSimulationAfterDefinitionChange();
-}
-
-function resetWeaponDefinition(): void {
-  const slug = selectedLoadoutModel.value.weapon?.weaponSlug;
-  const base = selectedWeaponBaseDefinition.value;
-  const template = slug === undefined ? undefined : projectDefinitionLibrary.value.weapons[slug];
-  if (slug === undefined || template === undefined || base === null) return;
-  const definition = structuredClone({
-    ...base,
-    slug,
-    displayName: template.name,
-    assetSlug: base.assetSlug ?? base.slug,
-  });
-  projectSession.commit('resetProjectWeaponTemplate', project =>
-    replaceProjectWeaponTemplateDefinition(project, slug, definition),
-  );
-  showWeaponDefinitionWorkspace.value = false;
-  refreshSimulationAfterDefinitionChange();
-}
-
-async function openGearDefinitionWorkspace(slot: TrackGearSlot): Promise<void> {
-  await ensureAllGameData();
-  const track = scenario.value.tracks[selectedTrack.value];
-  const current = selectedLoadoutModel.value.gears[slot]?.definition ?? null;
-  if (track === null || track?.gears[slot] === null || current === null) return;
-  showGearBuildDialog.value = false;
-  gearDefinitionWorkspaceSlot.value = slot;
-  if (projectDefinitionLibrary.value.gears[current.slug] !== undefined) return;
-
-  const templateId = allocateProjectTemplateId(projectDefinitionLibrary.value, 'gear');
-  const displayName = `${getGearPieceGameName(current.slug, locale.value)}（自定义）`;
-  const changed = projectSession.commit('deriveProjectGearTemplate', project => {
-    const nextProject = deriveProjectGearTemplate(project, {
-      id: templateId,
-      name: displayName,
-      baseTemplateId: current.slug,
-      definition: current,
-    });
-    const nextDefinition = getProjectDefinitionLibrary(nextProject).gears[templateId]!.definition;
-    return {
-      ...nextProject,
-      scenarios: nextProject.scenarios.map(value =>
-        value.id === nextProject.activeScenarioId
-          ? switchTrackToCompatibleGearTemplate(
-              value,
-              selectedTrack.value,
-              slot,
-              templateId,
-              nextDefinition,
-            )
-          : value,
-      ),
-    };
-  });
-  if (!changed) return;
-  refreshSimulationAfterDefinitionChange();
-}
-
-function saveGearDefinition(definition: GearDefinition): void {
-  projectSession.commit('saveProjectGearTemplate', project =>
-    replaceProjectGearTemplateDefinition(project, definition.slug, definition),
-  );
-  refreshSimulationAfterDefinitionChange();
-}
-
-function resetGearDefinition(): void {
-  const slug = selectedGearDefinition.value?.slug;
-  const base = selectedGearBaseDefinition.value;
-  const template = slug === undefined ? undefined : projectDefinitionLibrary.value.gears[slug];
-  if (slug === undefined || template === undefined || base === null) return;
-  const definition = structuredClone({
-    ...base,
-    slug,
-    displayName: template.name,
-    assetSlug: base.assetSlug ?? base.slug,
-  });
-  projectSession.commit('resetProjectGearTemplate', project =>
-    replaceProjectGearTemplateDefinition(project, slug, definition),
-  );
-  gearDefinitionWorkspaceSlot.value = null;
-  refreshSimulationAfterDefinitionChange();
-}
-
-function openGearSetDefinitionWorkspace(gearDefinition: GearDefinition): void {
-  const sourceSetId = gearDefinition.gearSetSlug;
-  const gearTemplate = projectDefinitionLibrary.value.gears[gearDefinition.slug];
-  if (sourceSetId === undefined || gearTemplate === undefined) return;
-
-  const existingSet = projectDefinitionLibrary.value.gearSets[sourceSetId];
-  if (existingSet !== undefined) {
-    projectSession.commit('saveProjectGearBeforeEditingSet', project =>
-      replaceProjectGearTemplateDefinition(project, gearDefinition.slug, gearDefinition),
-    );
-    gearDefinitionWorkspaceSlot.value = null;
-    gearSetDefinitionWorkspaceId.value = sourceSetId;
-    refreshSimulationAfterDefinitionChange();
-    return;
-  }
-
-  const baseSet = gameDataRepository.getGearSet(sourceSetId);
-  if (baseSet === null) {
-    ElMessage.error(`找不到套装定义：${sourceSetId}`);
-    return;
-  }
-  const templateId = allocateProjectTemplateId(projectDefinitionLibrary.value, 'gearSet');
-  const displayName = `${getGearSetGameName(sourceSetId, locale.value)}（自定义）`;
-  const changed = projectSession.commit('deriveProjectGearSetTemplate', project => {
-    let nextProject = replaceProjectGearTemplateDefinition(
-      project,
-      gearDefinition.slug,
-      gearDefinition,
-    );
-    nextProject = deriveProjectGearSetTemplate(nextProject, {
-      id: templateId,
-      name: displayName,
-      baseTemplateId: sourceSetId,
-      definition: baseSet,
-    });
-    return replaceProjectGearTemplateDefinition(nextProject, gearDefinition.slug, {
-      ...gearDefinition,
-      gearSetSlug: templateId,
-    });
-  });
-  if (!changed) return;
-  gearDefinitionWorkspaceSlot.value = null;
-  gearSetDefinitionWorkspaceId.value = templateId;
-  refreshSimulationAfterDefinitionChange();
-}
-
-function saveGearSetDefinition(definition: GearSetDefinition): void {
-  projectSession.commit('saveProjectGearSetTemplate', project =>
-    replaceProjectGearSetTemplateDefinition(project, definition.slug, definition),
-  );
-  refreshSimulationAfterDefinitionChange();
-}
-
-function resetGearSetDefinition(): void {
-  const id = gearSetDefinitionWorkspaceId.value;
-  const base = selectedGearSetBaseDefinition.value;
-  const template = id === null ? undefined : projectDefinitionLibrary.value.gearSets[id];
-  if (id === null || base === null || template === undefined) return;
-  projectSession.commit('resetProjectGearSetTemplate', project =>
-    replaceProjectGearSetTemplateDefinition(project, id, {
-      ...structuredClone(base),
-      slug: id,
-      displayName: template.name,
-    }),
-  );
-  gearSetDefinitionWorkspaceId.value = null;
-  refreshSimulationAfterDefinitionChange();
-}
 const panelDialogOperator = computed(() => {
   const trackIndex = panelDialogTrack.value;
   return trackIndex === null
@@ -1923,6 +1567,26 @@ function resolveDisplayedSkillStarts(document: ScenarioDocument): ReadonlyMap<st
 }
 
 const resolvedSkillCastStartFrames = computed(() => resolveDisplayedSkillStarts(scenario.value));
+const { castMoveGesture, beginCastMove, cancelCastMove, discardCastMove, consumeCastClick } =
+  useTimelineCastMove({
+    scenario,
+    actionSelection,
+    interactionSession,
+    simulationService,
+    resolvedSkillCastStartFrames,
+    timelineScroll,
+    pxPerFrame,
+    snapFrames,
+    cursorFrame,
+    trackHeaderWidth: TIMELINE_TRACK_HEADER_WIDTH,
+    rulerHeight: TIMELINE_RULER_HEIGHT,
+    timelineFramePx,
+    alignSelectedCastToTarget,
+    applyActionSelection,
+    commitScenario,
+    simulateNow,
+    warnLocked: () => ElMessage.warning(t('timelineGrid.action.locked')),
+  });
 const displayedSkillCastStartFrames = computed(() => {
   const gesture = castMoveGesture.value;
   // 等待新回执时只平移上一版完整结果；新回执发布后，立即使用其中的组内间距。
@@ -3509,10 +3173,7 @@ function updateSelectedCastConnection(
 }
 
 function handleActionSelection(event: MouseEvent, skillCastId: string): void {
-  if (suppressedCastClickId === skillCastId) {
-    suppressedCastClickId = null;
-    return;
-  }
+  if (consumeCastClick(skillCastId)) return;
   applyActionSelection(
     selectTimelineAction(actionSelection.value, skillCastId, event.ctrlKey || event.metaKey),
   );
@@ -4309,262 +3970,6 @@ function finishSkillDrag(): void {
   removeLibraryDragGhost();
 }
 
-function beginCastMove(event: PointerEvent, trackIndex: TrackIndex, skillCastId: string): void {
-  if (event.button !== 0) return;
-  if (interactionSession.current !== null) return;
-  if (alignSelectedCastToTarget(event, skillCastId)) return;
-  event.preventDefault();
-  event.stopPropagation();
-  cancelCastMove();
-  const selection = actionSelection.value.selectedIds.has(skillCastId)
-    ? { ...actionSelection.value, primaryId: skillCastId }
-    : selectTimelineAction(actionSelection.value, skillCastId, false);
-  const movingIds = expandSkillCastGroupSelection(scenario.value, selection.selectedIds);
-  const selectedCasts = scenario.value.tracks.flatMap(track =>
-    track === null ? [] : track.skillCasts.filter(candidate => movingIds.has(candidate.id)),
-  );
-  if (selectedCasts.some(candidate => candidate.presentation?.locked ?? false)) {
-    event.preventDefault();
-    event.stopPropagation();
-    ElMessage.warning(t('timelineGrid.action.locked'));
-    return;
-  }
-  const block = event.currentTarget as HTMLElement;
-  const cast = scenario.value.tracks[trackIndex]?.skillCasts.find(
-    candidate => candidate.id === skillCastId,
-  );
-  if (cast === undefined) return;
-  const anchor = getSkillCastPlacementAnchor(
-    scenario.value.tracks[trackIndex]!.skillCasts,
-    cast.id,
-  );
-  const baseStartFrames = resolvedSkillCastStartFrames.value;
-  const initialActualFrame = baseStartFrames.get(anchor.id)!;
-  const initialPlacementFrame = anchor.placement.startFrame!;
-  const pointerTimelinePx =
-    timelineFramePx(baseStartFrames.get(cast.id)!) +
-    event.clientX -
-    block.getBoundingClientRect().left;
-  const pointerOffsetActualFrames = Math.max(
-    0,
-    timelinePxToExactFrame(
-      pointerTimelinePx,
-      scenario.value.battle.prepFrames,
-      pxPerFrame.value,
-      scenario.value.editor.prepExpanded,
-    ) - initialActualFrame,
-  );
-  castMoveGesture.value = {
-    pointerId: event.pointerId,
-    trackIndex,
-    skillCastId: anchor.id,
-    pointerCastId: skillCastId,
-    skillCastIds: [...movingIds],
-    baseStartFrames,
-    pointerOffsetActualFrames,
-    initialPointerX: event.clientX,
-    initialPointerY: event.clientY,
-    latestPointerX: event.clientX,
-    latestPointerY: event.clientY,
-    baseScenario: scenario.value,
-    previewFrame: initialPlacementFrame,
-    previewActualFrame: initialActualFrame,
-    committed: false,
-    dragStarted: false,
-    moved: false,
-  };
-  simulationService.beginInteractiveSession();
-  // 捕获到稳定的滚动容器，避免模拟刷新替换技能块或跨控件悬停抢走手势。
-  // 落点仍通过 elementFromPoint 解析，不依赖捕获后的 event.target。
-  const captureTarget = timelineScroll.value;
-  const lease = interactionSession.tryStart('cast-move', cancelCastMove)!;
-  const onMove = (moveEvent: PointerEvent) => {
-    if (moveEvent.pointerId !== event.pointerId) return;
-    moveEvent.stopPropagation();
-    updateCastMove(moveEvent);
-    // 超过拖动阈值才接管，普通点击仍交给原技能块，不能丢失选择行为。
-    if (castMoveGesture.value?.dragStarted && !captureTarget?.hasPointerCapture(event.pointerId)) {
-      captureTarget?.setPointerCapture(event.pointerId);
-    }
-  };
-  const onFinish = (finishEvent: PointerEvent) => {
-    if (finishEvent.pointerId !== event.pointerId) return;
-    finishEvent.stopPropagation();
-    void finishCastMove(finishEvent);
-  };
-  const onCancel = () => cancelCastMove();
-  stopCastMoveGesture = () => {
-    simulationService.endInteractiveSession();
-    lease.release();
-    window.removeEventListener('pointermove', onMove, true);
-    window.removeEventListener('pointerup', onFinish, true);
-    window.removeEventListener('pointercancel', onCancel);
-    captureTarget?.removeEventListener('lostpointercapture', onCancel);
-    window.removeEventListener('blur', onCancel);
-    if (captureTarget?.hasPointerCapture(event.pointerId)) {
-      captureTarget.releasePointerCapture(event.pointerId);
-    }
-    if (castMoveAutoScrollFrame !== null) cancelAnimationFrame(castMoveAutoScrollFrame);
-    castMoveAutoScrollFrame = null;
-    stopCastMoveGesture = null;
-  };
-  window.addEventListener('pointermove', onMove, true);
-  window.addEventListener('pointerup', onFinish, true);
-  window.addEventListener('pointercancel', onCancel);
-  captureTarget?.addEventListener('lostpointercapture', onCancel);
-  window.addEventListener('blur', onCancel);
-}
-
-function castMoveFrame(
-  clientX: number,
-  clientY: number,
-  gesture: TimelineCastMoveGesture,
-): { readonly placementFrame: number; readonly actualFrame: number } | null {
-  const pointed = document.elementFromPoint(clientX, clientY);
-  const lane = pointed instanceof Element ? pointed.closest<HTMLElement>('.track-lane') : null;
-  if (lane?.dataset.trackIndex !== String(gesture.trackIndex)) return null;
-  return resolveTimelineCastMovePointerFrame({
-    clientX,
-    laneLeftPx: lane.getBoundingClientRect().left,
-    pxPerFrame: pxPerFrame.value,
-    prepFrames: scenario.value.battle.prepFrames,
-    prepExpanded: scenario.value.editor.prepExpanded,
-    pointerOffsetActualFrames: gesture.pointerOffsetActualFrames,
-    snapFrames: snapFrames.value,
-    minimumFrame: -scenario.value.battle.prepFrames,
-    actualMaximumFrame: scenario.value.battle.durationFrames,
-  });
-}
-
-function updateCastMoveAt(
-  pointerId: number,
-  clientX: number,
-  clientY: number,
-  fromAutoScroll = false,
-): void {
-  let gesture = castMoveGesture.value;
-  if (gesture === null || gesture.pointerId !== pointerId) return;
-  if (!fromAutoScroll) {
-    gesture.latestPointerX = clientX;
-    gesture.latestPointerY = clientY;
-  }
-  if (!gesture.dragStarted) {
-    if (
-      !passedTimelineDragThreshold(
-        gesture.initialPointerX,
-        gesture.initialPointerY,
-        clientX,
-        clientY,
-      )
-    ) {
-      return;
-    }
-    gesture = { ...gesture, dragStarted: true };
-    castMoveGesture.value = gesture;
-  }
-  if (!fromAutoScroll) scheduleCastMoveAutoScroll();
-  const frame = castMoveFrame(clientX, clientY, gesture);
-  if (frame === null) return;
-  const movedScenario = moveSkillCasts(
-    gesture.baseScenario,
-    new Set(gesture.skillCastIds),
-    gesture.trackIndex,
-    gesture.skillCastId,
-    frame.placementFrame,
-    gesture.baseStartFrames,
-  );
-  // 多选按共享位移整体限位。预览必须使用命令实际采用的落点，不能让主块单独越界。
-  const placedFrame = movedScenario.tracks[gesture.trackIndex]!.skillCasts.find(
-    cast => cast.id === gesture.skillCastId,
-  )!.placement.startFrame!;
-  const actualFrame = frame.actualFrame + placedFrame - frame.placementFrame;
-  if (placedFrame === gesture.previewFrame && actualFrame === gesture.previewActualFrame) {
-    return;
-  }
-  if (!gesture.moved) {
-    gesture.moved = true;
-    applyActionSelection({
-      selectedIds: new Set(gesture.skillCastIds),
-      primaryId: gesture.pointerCastId,
-    });
-  }
-  castMoveGesture.value = {
-    ...gesture,
-    previewFrame: placedFrame,
-    previewActualFrame: actualFrame,
-  };
-  if (placedFrame !== gesture.previewFrame) {
-    scenario.value = movedScenario;
-  }
-  cursorFrame.value = placedFrame;
-}
-
-function updateCastMove(event: PointerEvent): void {
-  updateCastMoveAt(event.pointerId, event.clientX, event.clientY);
-}
-
-function scheduleCastMoveAutoScroll(): void {
-  if (castMoveAutoScrollFrame !== null) return;
-  const tick = () => {
-    castMoveAutoScrollFrame = null;
-    const gesture = castMoveGesture.value;
-    const viewport = timelineScroll.value;
-    if (gesture === null || viewport === null || gesture.committed || !gesture.dragStarted) return;
-    const rect = viewport.getBoundingClientRect();
-    const delta = projectTimelineEdgeAutoScrollDelta({
-      pointerX: gesture.latestPointerX,
-      pointerY: gesture.latestPointerY,
-      left: rect.left + TIMELINE_TRACK_HEADER_WIDTH,
-      right: rect.right,
-      top: rect.top + TIMELINE_RULER_HEIGHT,
-      bottom: rect.bottom,
-    });
-    if (delta.x === 0 && delta.y === 0) return;
-    const previousLeft = viewport.scrollLeft;
-    const previousTop = viewport.scrollTop;
-    viewport.scrollLeft += delta.x;
-    viewport.scrollTop += delta.y;
-    if (viewport.scrollLeft === previousLeft && viewport.scrollTop === previousTop) return;
-    updateCastMoveAt(gesture.pointerId, gesture.latestPointerX, gesture.latestPointerY, true);
-    castMoveAutoScrollFrame = requestAnimationFrame(tick);
-  };
-  castMoveAutoScrollFrame = requestAnimationFrame(tick);
-}
-
-async function finishCastMove(event: PointerEvent): Promise<void> {
-  let gesture = castMoveGesture.value;
-  if (gesture === null || gesture.pointerId !== event.pointerId) return;
-  updateCastMove(event);
-  gesture = castMoveGesture.value;
-  if (gesture === null) return;
-  const finalScenario = scenario.value;
-  const moved = gesture.moved;
-  stopCastMoveGesture?.();
-  if (!moved) {
-    castMoveGesture.value = null;
-    scenario.value = gesture.baseScenario;
-    return;
-  }
-  const settlingGesture = { ...gesture, committed: true };
-  castMoveGesture.value = settlingGesture;
-  suppressedCastClickId = gesture.pointerCastId;
-  setTimeout(() => {
-    if (suppressedCastClickId === gesture.pointerCastId) suppressedCastClickId = null;
-  }, 0);
-  commitScenario('moveSkillCasts', () => finalScenario);
-  await nextTick();
-  const published = await simulateNow();
-  // 只清理仍属于本次松手的预览；失败时保留实际落点，避免回退到不匹配的旧回执。
-  if (published && castMoveGesture.value === settlingGesture) castMoveGesture.value = null;
-}
-
-function cancelCastMove(): void {
-  const gesture = castMoveGesture.value;
-  stopCastMoveGesture?.();
-  castMoveGesture.value = null;
-  if (gesture !== null && !gesture.committed) scenario.value = gesture.baseScenario;
-}
-
 function beginTrackOrderDrag(event: DragEvent, trackIndex: TrackIndex): void {
   const lease = interactionSession.tryStart('track-order', finishTrackOrderDrag);
   if (lease === null) {
@@ -4654,10 +4059,8 @@ function resetScenario(mode: TimelineResetMode): void {
 
 function resetTransientScenarioUi(): void {
   // 丢弃旧方案的拖动预览，不能让取消回调把旧草稿写回已切换的方案。
-  castMoveGesture.value = null;
-  stopCastMoveGesture?.();
+  discardCastMove();
   interactionSession.cancel();
-  suppressedCastClickId = null;
   selectedTrack.value = 0;
   clearTimelineSelection();
   cursorFrame.value = 30;
@@ -4991,54 +4394,6 @@ function toggleCursorGuide(): boolean {
 function toggleBoxSelect(): boolean {
   boxSelectEnabled.value = !boxSelectEnabled.value;
   return true;
-}
-
-async function updateTimelineZoomPercent(percent: number, anchorClientX?: number): Promise<void> {
-  const nextPercent = normalizeTimelineZoomPercent(percent);
-  if (nextPercent === timelineZoomPercent.value) return;
-
-  const viewport = timelineScroll.value;
-  const anchorOffset =
-    viewport === null
-      ? null
-      : anchorClientX === undefined
-        ? TIMELINE_TRACK_HEADER_WIDTH + (viewport.clientWidth - TIMELINE_TRACK_HEADER_WIDTH) / 2
-        : anchorClientX - viewport.getBoundingClientRect().left;
-  const anchorContentX =
-    viewport === null || anchorOffset === null ? null : viewport.scrollLeft + anchorOffset;
-  const anchorFrame =
-    anchorContentX === null
-      ? null
-      : timelinePxToExactFrame(
-          anchorContentX - TIMELINE_TRACK_HEADER_WIDTH,
-          scenario.value.battle.prepFrames,
-          pxPerFrame.value,
-          scenario.value.editor.prepExpanded,
-        );
-
-  timelineZoomPercent.value = nextPercent;
-  if (viewport === null || anchorFrame === null || anchorOffset === null) return;
-
-  await nextTick();
-  viewport.scrollLeft = Math.max(
-    0,
-    TIMELINE_TRACK_HEADER_WIDTH + timelineFramePx(anchorFrame) - anchorOffset,
-  );
-}
-
-function handleTimelineWheel(event: WheelEvent): void {
-  const intent = resolveTimelineWheelIntent(event);
-  if (intent.kind === 'nativeVerticalScroll') return;
-  event.preventDefault();
-  if (intent.kind === 'horizontalPan') {
-    const viewport = timelineScroll.value;
-    if (viewport !== null) viewport.scrollLeft += intent.deltaPx;
-    return;
-  }
-  void updateTimelineZoomPercent(
-    wheelTimelineZoomPercent(timelineZoomPercent.value, intent.direction),
-    event.clientX,
-  );
 }
 
 function cycleOccupiedTrack(direction: -1 | 1): boolean {
@@ -5640,7 +4995,7 @@ function setPanelDialogVisible(visible: boolean): void {
               @toggle-connection-tool="toggleConnectionTool"
               @toggle-buff-layout="toggleBuffLayout"
               @update-zoom-percent="updateTimelineZoomPercent"
-              @set-zoom-percent="timelineZoomPercent = normalizeTimelineZoomPercent($event)"
+              @set-zoom-percent="setTimelineZoomPercent"
             />
           </div>
           <TimelineRuler

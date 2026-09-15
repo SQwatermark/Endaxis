@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import { CombatClock } from './combatClock';
+import { CombatClock } from '../time/combatClock';
 import { CombatSimulation } from './combatSimulation';
 
 describe('CombatSimulation', () => {

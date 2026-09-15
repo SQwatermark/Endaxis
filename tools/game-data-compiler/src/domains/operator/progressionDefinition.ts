@@ -7,8 +7,8 @@ import {
   type OperatorUpgradeDefinition,
   type UpgradeModifierDefinition,
 } from '../../../../../packages/game-data-contract/src/index.ts';
-import { projectBuildAttributeModifier } from '../../compiler/buildAttributeProjection.ts';
-import { projectSingleBuildConditionSource } from '../../compiler/buildCondition.ts';
+import { projectBuildAttributeModifier } from '../../compiler/build/buildAttributeProjection.ts';
+import { projectSingleBuildConditionSource } from '../../compiler/conditions/buildCondition.ts';
 import type { OperatorProgressionSource } from './progression.ts';
 import type { CompiledOperatorProgressionEntrySource } from './progressionEffects.ts';
 import type { OperatorSkillGroupSource, OperatorSkillIdentitySource } from './skillGroups.ts';

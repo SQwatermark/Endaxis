@@ -1,4 +1,4 @@
-import type { ResolvedAttributeModifierSource } from '../../compiler/attributeModifier.ts';
+import type { ResolvedAttributeModifierSource } from '../../compiler/build/attributeModifier.ts';
 import {
   requireArray,
   requireExactFields,

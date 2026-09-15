@@ -93,10 +93,10 @@ vi.mock('../src/audits/operatorSkillLibraries.ts', () => ({
 vi.mock('../scripts/exportReferencedGameIcons.ts', () => ({
   exportReferencedGameIcons: async () => ({}),
 }));
-vi.mock('../src/compiler/candidateTypeCheck.ts', () => ({
+vi.mock('../src/compiler/publication/candidateTypeCheck.ts', () => ({
   typeCheckCandidateOverlay: mocks.types,
 }));
-vi.mock('../src/compiler/candidateAssetCheck.ts', () => ({
+vi.mock('../src/compiler/publication/candidateAssetCheck.ts', () => ({
   checkCandidateGameAssets: mocks.assets,
 }));
 vi.mock('../scripts/auditCandidateOperatorSkills.ts', () => ({
@@ -105,7 +105,7 @@ vi.mock('../scripts/auditCandidateOperatorSkills.ts', () => ({
 vi.mock('../scripts/auditCandidateEquipment.ts', () => ({
   auditCandidateEquipment: mocks.equipmentSimulation,
 }));
-vi.mock('../src/compiler/gameDataCandidatePublisher.ts', () => ({
+vi.mock('../src/compiler/publication/gameDataCandidatePublisher.ts', () => ({
   publishGameDataCandidate: mocks.publish,
 }));
 vi.mock('node:child_process', async importOriginal => ({

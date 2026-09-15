@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { arcane } from './arcane';
+import { arcane } from './arcane.generated';
 import { collectSteps, getGroupSkills, getSkill as findSkill } from './testUtils';
 
 const getSkill = (key: string) => findSkill(arcane, key);

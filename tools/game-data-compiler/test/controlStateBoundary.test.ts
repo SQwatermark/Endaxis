@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import akekuri from '../../../src/data/operators/akekuri';
-import avywenna from '../../../src/data/operators/avywenna';
-import wulfgard from '../../../src/data/operators/wulfgard';
-import xaihi from '../../../src/data/operators/xaihi';
-import yvonne from '../../../src/data/operators/yvonne';
-import { standardStumpBuffAbilityEventOmissionReason } from '../src/compiler/standardStumpScenarioPolicy.ts';
+import akekuri from '../../../src/data/operators/akekuri.generated';
+import avywenna from '../../../src/data/operators/avywenna.generated';
+import wulfgard from '../../../src/data/operators/wulfgard.generated';
+import xaihi from '../../../src/data/operators/xaihi.generated';
+import yvonne from '../../../src/data/operators/yvonne.generated';
+import { standardStumpBuffAbilityEventOmissionReason } from '../src/compiler/scenario/standardStumpScenarioPolicy.ts';
 
 function visit(value: unknown, inspect: (row: Record<string, unknown>) => void) {
   if (Array.isArray(value)) return value.forEach(item => visit(item, inspect));

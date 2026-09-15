@@ -4,8 +4,8 @@
  * 选择、排序和编辑动作由父层 command 处理，本组件不修改项目对象。
  */
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
-import type { LoadoutGearSlot } from '../loadoutBuildViewModel';
-import OperatorSupportNotice from './OperatorSupportNotice.vue';
+import type { LoadoutGearSlot } from '../library/loadoutBuildViewModel';
+import OperatorSupportNotice from '../library/OperatorSupportNotice.vue';
 import { getOperatorAvatarPath } from '../../gameAssetPaths';
 import CustomNumberInput from '../../components/CustomNumberInput.vue';
 import OperatorAvatar from '../../components/OperatorAvatar.vue';

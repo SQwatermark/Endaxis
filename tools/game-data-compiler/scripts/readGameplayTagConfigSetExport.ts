@@ -11,7 +11,7 @@ import {
   parseGameplayTagConfigDumpSource,
   parseGameplayTagConfigSetDumpSource,
 } from '../src/source/gameplayTagConfigDump.ts';
-import { compileGameplayTagConfigSetSource } from '../src/compiler/gameplayTagCatalog.ts';
+import { compileGameplayTagConfigSetSource } from '../src/compiler/catalogs/gameplayTagCatalog.ts';
 
 /**
  * 读取配置集导出清单 v1。它只包装 VFS worker 的原始 dump、CABMap、对象身份和校验和，

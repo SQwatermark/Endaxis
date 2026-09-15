@@ -1,10 +1,10 @@
 // 纯数据契约由独立包唯一声明；此路径保留兼容导出。
 export {
-  type DamageModifierNumber,
-  type DamageModifierExternalCondition,
   type DamageModifierCondition,
-  type DamageProcessorDefinition,
   type DamageModifierDefinition,
+  type DamageModifierExternalCondition,
+  type DamageModifierNumber,
+  type DamageProcessorDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
   type DamageModifierDefinition,
@@ -15,12 +15,10 @@ import {
  * Buff 定义与伤害包各处理阶段之间的声明式协议。
  * 修正必须明确所属阶段、作用方和条件；可保存定义不接受回调，已编译程序也只获得只读伤害视图。
  */
+import { resolveBuffModifierNumber } from '../buffs/buffModifierNumberSource';
+import type { DamageModifierState } from '../state/foundationState';
+import { type BuffModifierNumberSource } from '../state/foundationState';
 import { applyDamageModifier } from './damageModifierExecution';
-import type { DamageModifierState } from './damageModifierState';
-import {
-  resolveBuffModifierNumber,
-  type BuffModifierNumberSource,
-} from '../buffs/buffModifierNumberSource';
 import type {
   DamageModifierSide,
   DamageProcessTiming,

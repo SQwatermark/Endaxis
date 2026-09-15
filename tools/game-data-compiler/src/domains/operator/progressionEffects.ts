@@ -1,12 +1,12 @@
 import {
   compileResolvedAttributeModifierSource,
   type CompiledAttributeModifierSource,
-} from '../../compiler/attributeModifier.ts';
+} from '../../compiler/build/attributeModifier.ts';
 import {
   compileBuildConditionGroupSource,
   type CompiledBuildConditionGroupSource,
   type CompiledBuildConditionSource,
-} from '../../compiler/buildCondition.ts';
+} from '../../compiler/conditions/buildCondition.ts';
 import type {
   ModifiableSkillParameterSource,
   OperatorProgressionEffectBundleSource,

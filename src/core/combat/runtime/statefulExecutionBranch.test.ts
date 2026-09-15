@@ -3,22 +3,21 @@
  * 用于验证分支恢复的跨模块因果关系；不冒充技能、Buff 容器和整场装配的完整迁移验收。
  */
 import { expect, it } from 'vitest';
-import { advanceBuffTriggers } from '../buffs/buffTriggerExecution';
-import { createBuffTriggerState } from '../buffs/buffTriggerState';
-import { createAbilityEventState } from '../events/abilityEventState';
+import {
+  advanceProjectileLifetimes,
+  launchProjectile,
+  registerProjectileReset,
+} from '../abilities/projectileLifecycleExecution';
+import { advanceBuffTriggers } from '../buffs/buffLifecycleExecution';
 import {
   dispatchAbilityEvent,
   registerAbilityEvent,
   unregisterAbilityEvent,
 } from '../events/abilityEventExecution';
-import { createSimulationRandomState } from '../random/simulationRandomState';
 import { takeSimulationRandomSample, type SimulationRandomMode } from '../random/simulationRandom';
-import { createProjectileLifecycleState } from '../state/instanceState';
-import {
-  advanceProjectileLifetimes,
-  launchProjectile,
-  registerProjectileReset,
-} from './projectileLifecycleExecution';
+import { createSimulationRandomState } from '../state/environmentState';
+import { createAbilityEventState } from '../state/foundationState';
+import { createBuffTriggerState, createProjectileLifecycleState } from '../state/instanceState';
 import { StateStepper, type StateStep } from './stateStepper';
 
 const DELTA = 1 / 30;

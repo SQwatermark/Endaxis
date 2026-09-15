@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
 import {
-  ATTRIBUTE_MODIFIER_SOURCES,
   createCombatAttributeModifier,
   CombatAttributeSet,
   attributeModifierValues,
@@ -21,7 +21,7 @@ import {
 } from './combatBuffs';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { SharedSpGainModifierSet } from '../resources/sharedSpGainModifiers';
-import { ActionBlackboard } from '../runtime/actionBlackboard';
+import { ActionBlackboard } from '../actions/actionBlackboard';
 import { StateStepper } from '../runtime/stateStepper';
 
 type Attribute = 'attack';

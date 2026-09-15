@@ -14,7 +14,7 @@ import {
 } from '@/design-system';
 import { computed, reactive, ref, watch } from 'vue';
 import { Plus, Search } from '@element-plus/icons-vue';
-import { elementColors } from '../../../utils/theme';
+import { elementColors } from '../../gameColors';
 import { useI18n } from 'vue-i18n';
 import type { EnemyDefinition, EnemyTier } from '../../../core/game-data/enemyDefinition';
 import { ENEMY_LEVELS as LEVELS, getEnemyHpAtLevel } from '../../../core/game-data/enemyDefinition';

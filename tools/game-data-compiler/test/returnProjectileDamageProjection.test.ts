@@ -3,8 +3,8 @@ import fixtures from './fixtures/avywenna-return-damage.json';
 import scopeFixtures from './fixtures/avywenna-return-blackboard.json';
 import runtimeFixtures from './fixtures/avywenna-return-projectile-runtime.json';
 import { parseDamageActionSource } from '../src/source/damageActions.ts';
-import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/simpleDamageOperation.ts';
-import { compileCombatActionSequenceSource } from '../src/compiler/buffRuntimeProjection.ts';
+import { compileEventTargetSimpleDamageOperationSource } from '../src/compiler/actions/simpleDamageOperation.ts';
+import { compileCombatActionSequenceSource } from '../src/compiler/buffs/buffRuntimeProjection.ts';
 import {
   compileImmediateProjectileCallbackSkillSource,
   compileProjectileCallbackSkillSource,
@@ -12,7 +12,7 @@ import {
   compileZeroDistanceFirstTickHitProjectileSource,
   compileZeroDistanceFirstTickReachProjectileSource,
   createZeroDistanceProjectileProjectionExtensionSource,
-} from '../src/compiler/projectileRuntimeProjection.ts';
+} from '../src/compiler/abilities/projectileRuntimeProjection.ts';
 import { parseProjectileLaunchActionSource } from '../src/source/referenceActions.ts';
 import { parseProjectileRuntimeSource } from '../src/source/projectileRuntime.ts';
 import { gameplayTagIdFromPath } from '../src/source/nativeGameplayTags.ts';

@@ -1,8 +1,8 @@
 /** 修正器必须读取当前分支黑板，并保留实体板回退与缺失值报错。 */
 import { expect, it } from 'vitest';
+import { assignDynamicBlackboard } from '../actions/actionBlackboardExecution';
 import { StateStepper } from '../runtime/stateStepper';
-import { createActionBlackboardState } from '../state/actionState';
-import { assignDynamicBlackboard } from '../runtime/actionBlackboardExecution';
+import { createActionBlackboardState } from '../state/foundationState';
 import { resolveBuffModifierNumber } from './buffModifierNumberSource';
 
 it('uses the restored shared blackboard for all modifier kinds', () => {

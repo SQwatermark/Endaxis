@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { parseSkillTargetSelectionHeaderSource } from '../src/source/skillTargetSelection.ts';
-import { compileActiveSkillSource } from '../src/compiler/activeSkillDefinition.ts';
+import { compileActiveSkillSource } from '../src/compiler/skills/activeSkillDefinition.ts';
 import { activeSkillFixture } from './sourceFixtures.ts';
 
 // 1.4.4 诀 combo 原生二进制 C4395DB3...67937841 的策略字段，非完整 SkillData。

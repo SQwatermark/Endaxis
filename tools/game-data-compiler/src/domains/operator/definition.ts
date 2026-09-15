@@ -20,14 +20,14 @@ import {
   compileOperatorPotentialDefinition,
 } from './progressionDefinition.ts';
 import type { CompiledOperatorActiveSkillRuntimeDefinitionSource } from './activeSkillRuntimeDefinition.ts';
-import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
-import { compileAbilityEntityTemplateCatalogSource } from '../../compiler/abilityEntityCatalog.ts';
-import { compileAbilityEntityDefinitionSource } from '../../compiler/abilityEntityDefinition.ts';
-import { compileStandardStumpBuffClosure } from '../../compiler/standardStumpBuffClosure.ts';
-import type { CompiledBuffDefinitionSource } from '../../compiler/buffProjectionTypes.ts';
-import { assignGeneratedDamageStepKeys } from '../../compiler/definitionStepKeys.ts';
-import type { PassiveSkillCompilationBatchSource } from '../../compiler/passiveSkillBatch.ts';
-import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
+import type { CompiledAbilityEntityTemplateCatalogSource } from '../../compiler/abilities/abilityEntityCatalog.ts';
+import { compileAbilityEntityTemplateCatalogSource } from '../../compiler/abilities/abilityEntityCatalog.ts';
+import { compileAbilityEntityDefinitionSource } from '../../compiler/abilities/abilityEntityDefinition.ts';
+import { compileStandardStumpBuffClosure } from '../../compiler/buffs/standardStumpBuffClosure.ts';
+import type { CompiledBuffDefinitionSource } from '../../compiler/buffs/buffProjectionTypes.ts';
+import { assignGeneratedDamageStepKeys } from '../../compiler/publication/definitionStepKeys.ts';
+import type { PassiveSkillCompilationBatchSource } from '../../compiler/skills/passiveSkillBatch.ts';
+import type { PassiveSkillCompileRequestSource } from '../../compiler/skills/passiveSkillRequest.ts';
 import { compileOperatorUpgradePassiveSkills } from './passiveSkillDefinition.ts';
 import type { GameplayTagRegistry } from '../../source/nativeGameplayTags.ts';
 import { buffShowsTimelineActions, type BuffRuntimeSource } from '../../source/buffRuntime.ts';
@@ -39,16 +39,16 @@ import {
   collectCompiledDefaultKeywordCarrierIds,
   collectCompiledBuffIds,
   collectCompiledBuffIdentityReadIds,
-} from '../../compiler/compiledBuffReferences.ts';
-import { collectCombatInvisibleBuffClosureIds } from '../../compiler/combatInvisibleBuffClosure.ts';
-import { collectBuffRuntimeClosure } from '../../compiler/buffReferenceClosure.ts';
+} from '../../compiler/references/compiledReferences.ts';
+import { collectCombatInvisibleBuffClosureIds } from '../../compiler/buffs/combatInvisibleBuffClosure.ts';
+import { collectBuffRuntimeClosure } from '../../compiler/buffs/buffReferenceClosure.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
 import { parseGlobalBuffTemplateCatalogSource } from '../../source/globalBuffTemplate.ts';
-import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/physicalInflictionHydration.ts';
+import { createPhysicalInflictionDefinitionHydrator } from '../../compiler/actions/physicalInflictionHydration.ts';
 import {
   compileTargetGroupAbilityEntityQuerySource,
   compileTargetReferenceAbilityEntityQuerySource,
-} from '../../compiler/abilityEntityQuery.ts';
+} from '../../compiler/abilities/abilityEntityQuery.ts';
 import { compileOperatorPassiveUiDefinition } from './passiveUi.ts';
 
 export interface OperatorDefinitionAssemblyInput {

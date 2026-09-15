@@ -5,20 +5,20 @@ import {
   type WeaponDefinition,
   type WeaponTraitDefinition,
 } from '../../../../../packages/game-data-contract/src/equipment.ts';
-import { compileCardSkillBuildModifiers } from '../../compiler/cardSkillBuildModifiers.ts';
-import { compilePassiveSkillRequestBatch } from '../../compiler/passiveSkillBatch.ts';
+import { compileCardSkillBuildModifiers } from '../../compiler/build/cardSkillBuildModifiers.ts';
+import { compilePassiveSkillRequestBatch } from '../../compiler/skills/passiveSkillBatch.ts';
 import {
   materializePassiveBuffInstallation,
   resolvePassiveSkillDefinitionBlackboard,
   type MaterializedPassiveBuffInstallationSource,
   type UnresolvedPassiveSkillBlackboardValueSource,
-} from '../../compiler/passiveSkillInstallation.ts';
-import type { CompiledPassiveSkillDefinitionSource } from '../../compiler/passiveSkillBatch.ts';
-import type { PassiveSkillCompileRequestSource } from '../../compiler/passiveSkillRequest.ts';
+} from '../../compiler/skills/passiveSkillInstallation.ts';
+import type { CompiledPassiveSkillDefinitionSource } from '../../compiler/skills/passiveSkillBatch.ts';
+import type { PassiveSkillCompileRequestSource } from '../../compiler/skills/passiveSkillRequest.ts';
 import type {
   BuildDefinitionDiagnosticSource,
   CompiledBuildModifierDefinitionSource,
-} from '../../compiler/formalBuildDefinition.ts';
+} from '../../compiler/build/formalBuildDefinition.ts';
 import { parseWeaponBaseAttackSources } from './baseAttack.ts';
 import { parseWeaponBasicSources } from './basicTable.ts';
 import { discoverWeaponPassiveSkillRequests } from './passiveDiscovery.ts';

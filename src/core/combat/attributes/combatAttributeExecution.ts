@@ -1,13 +1,29 @@
 /** 复用原生八槽公式及修正器注册规则；算法不持有属性状态。 */
-import type { AttributeModifierValues } from '../../../../packages/game-data-contract/src/modifiers.ts';
+import type {
+  AttributeModifierTiming,
+  AttributeModifierValues,
+} from '../../../../packages/game-data-contract/src/modifiers.ts';
 import {
   ATTRIBUTE_MODIFIER_SOURCES,
-  type CombatAttributeState,
+  type AttributeModifierSource,
   type CombatAttributeDefinition,
   type CombatAttributeModifier,
+  type CombatAttributeState,
   type CombatAttributeValueStage,
-  type AttributeModifierSource,
-} from './combatAttributeState';
+} from '../state/foundationState';
+
+/** 校验并创建修正项；注册时继续保留同一对象身份。 */
+export function createCombatAttributeModifier<Key extends string>(
+  attribute: Key,
+  values: AttributeModifierValues,
+  source: AttributeModifierSource,
+  timing: AttributeModifierTiming,
+): CombatAttributeModifier<Key> {
+  for (const [name, value] of Object.entries(values)) {
+    if (!Number.isFinite(value)) throw new TypeError(`attribute modifier ${name} must be finite`);
+  }
+  return { attribute, values, source, timing };
+}
 
 export function defineCombatAttribute<Key extends string>(
   state: CombatAttributeState<Key>,

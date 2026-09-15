@@ -1,13 +1,13 @@
 /** 叠层组成员和 Buff 状态一起恢复；同步回收不破坏本次优先级遍历。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from '../runtime/stateStepper';
-import { createBuffStackingState } from './buffStackingState';
-import { createBuffLifecycleState } from './buffLifecycleState';
-import { enhanceBuffLifecycle, decreaseBuffEnhancements } from './buffLifecycleExecution';
-import { applyTimedBuffEnhancement, countBuffStackingEnhancements } from './buffStackingExecution';
+import { createBuffLifecycleState, createBuffStackingState } from '../state/instanceState';
+import { decreaseBuffEnhancements, enhanceBuffLifecycle } from './buffLifecycleExecution';
 import {
-  refreshBuffStackingPriority,
+  applyTimedBuffEnhancement,
+  countBuffStackingEnhancements,
   countBuffStackingInstances,
+  refreshBuffStackingPriority,
   type BuffStackingHost,
 } from './buffStackingExecution';
 

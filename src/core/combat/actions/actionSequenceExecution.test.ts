@@ -1,11 +1,11 @@
 /** 验证真实序列内核在兄弟分支中恢复进度，以及同步结束不会继续执行后续步骤。 */
 import { describe, expect, it } from 'vitest';
 import { StateStepper } from '../runtime/stateStepper';
-import { createActionSequenceState } from './actionSequenceState';
+import { createActionSequenceState } from '../state/actionState';
 import {
+  endActionSequence,
   executeActionSequence,
   tickActionSequence,
-  endActionSequence,
   type ActionSequenceExecutionHost,
 } from './actionSequenceExecution';
 import { STEP_RESULT_MODE, type CombatExecutionContext } from './combatStep';

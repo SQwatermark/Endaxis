@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from '../buffs/combatBuffs';
-import { CombatVitals } from '../runtime/combatVitals';
+import { CombatVitals } from '../resources/combatVitals';
 import { HealCalculationContext } from './healModifiers';
 
 function vitals(health: number) {

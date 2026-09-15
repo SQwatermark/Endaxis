@@ -1,5 +1,8 @@
 import type { EndaxisProjectDocument } from '../../core/project/schema';
-import type { TimelineDocumentIdAllocator, TimelineDocumentIdKind } from './placeSkillGroup';
+import type {
+  TimelineDocumentIdAllocator,
+  TimelineDocumentIdKind,
+} from './interaction/placeSkillGroup';
 
 function collectPersistedIds(value: unknown, output: Set<string>): void {
   if (value === null || typeof value !== 'object') return;

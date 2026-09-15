@@ -1,3 +1,11 @@
+import {
+  type SharedSpGainAttribute,
+  type SharedSpGainModifier,
+  type SharedSpGainModifierOperation,
+  type SharedSpGainModifierState,
+  type SharedSpRecoveryModifier,
+  type SharedSpRecoveryModifierState,
+} from '../state/foundationState';
 /**
  * 聚合一次战斗共享 SP 的获取效率修正。
  *
@@ -18,32 +26,9 @@ export const SHARED_SP_GAIN_METHODS = ['gain', 'return'] as const;
 /** 普通获取不会进入返还池；返还获取还会受到修正项的过滤标记约束。 */
 export type SharedSpGainMethod = (typeof SHARED_SP_GAIN_METHODS)[number];
 
-export const SHARED_SP_GAIN_ATTRIBUTES = [
-  'gainEfficiency',
-  'normalAttackEfficiency',
-  'powerAttackEfficiency',
-] as const;
-/** 原生共享 ATB 获取链中已经确认的三项全局属性。 */
-export type SharedSpGainAttribute = (typeof SHARED_SP_GAIN_ATTRIBUTES)[number];
-
-export const SHARED_SP_GAIN_MODIFIER_OPERATIONS = ['addition', 'multiplier'] as const;
-/** 单段效率中先汇总 addition，再以 max(0, 1 + sum(multiplier)) 相乘。 */
-export type SharedSpGainModifierOperation = (typeof SHARED_SP_GAIN_MODIFIER_OPERATIONS)[number];
-
 /** SkillSetting 中与共享 SP 获取有关的稳定战斗配置。 */
 export interface SharedSpGainSettings {
   readonly baseGainEfficiency: number;
-}
-
-/**
- * 一项可由 Buff 生命周期独立注册和注销的共享 SP 效率修正。
- * applyToReturnSpGain 只过滤 gainEfficiency；来源专属效率不受该字段影响。
- */
-export interface SharedSpGainModifier {
-  readonly attribute: SharedSpGainAttribute;
-  readonly operation: SharedSpGainModifierOperation;
-  readonly value: number;
-  readonly applyToReturnSpGain: boolean;
 }
 
 export function createSharedSpGainModifier(
@@ -54,10 +39,6 @@ export function createSharedSpGainModifier(
 ): SharedSpGainModifier {
   requireFinite(value, 'shared SP gain modifier value');
   return { attribute, operation, value, applyToReturnSpGain };
-}
-
-export interface SharedSpGainModifierState {
-  readonly modifiers: SharedSpGainModifier[];
 }
 
 /** 两段效率以及最终乘积，供资源回执保留可诊断的中间结果。 */
@@ -137,22 +118,12 @@ function resolveAttribute(
   return (baseValue + addition) * Math.max(0, 1 + multiplier);
 }
 
-/** 原生 GlobalAttributeType.AtbRecover 的独立注册项。 */
-export interface SharedSpRecoveryModifier {
-  readonly operation: SharedSpGainModifierOperation;
-  readonly value: number;
-}
-
 export function createSharedSpRecoveryModifier(
   operation: SharedSpGainModifierOperation,
   value: number,
 ): SharedSpRecoveryModifier {
   requireFinite(value, 'shared SP recovery modifier value');
   return { operation, value };
-}
-
-export interface SharedSpRecoveryModifierState {
-  readonly modifiers: SharedSpRecoveryModifier[];
 }
 
 /** 战斗内自然技力恢复使用的全局修正集合。 */
