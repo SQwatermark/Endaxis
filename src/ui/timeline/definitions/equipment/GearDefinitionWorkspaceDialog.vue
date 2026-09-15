@@ -193,8 +193,8 @@ function editGearSet(): void {
         <aside class="gear-outliner">
           <EaButton
             variant="ghost"
-            :class="{ active: selectedSection === 'base' }"
             @click="selectedSection = 'base'"
+            :pressed="selectedSection === 'base'"
           >
             <strong>基础定义</strong><small>{{ baseDefinition.slug }}</small>
           </EaButton>
@@ -206,8 +206,8 @@ function editGearSet(): void {
             variant="ghost"
             v-for="(trait, index) in draft.traits"
             :key="`${trait.key}:${index}`"
-            :class="{ active: selectedSection === index }"
             @click="selectedSection = index"
+            :pressed="selectedSection === index"
           >
             <strong>{{ trait.key }}</strong
             ><small>{{ trait.levelCount }} 档</small>
@@ -404,7 +404,7 @@ function editGearSet(): void {
   text-align: left;
   cursor: pointer;
 }
-.gear-outliner button.active {
+.gear-outliner button[aria-pressed='true'] {
   border-left-color: var(--ea-gold);
   background: var(--ea-active-fill);
   color: var(--ea-fg);

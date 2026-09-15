@@ -77,12 +77,10 @@ function applyGaugeDraft(): void {
           type="button"
           class="mini-tool-button"
           :class="{
-            'is-active': initialGaugeMode !== 'empty',
             'is-gauge-custom': initialGaugeMode === 'custom',
           }"
           :title="labels.initialGauge"
           :aria-label="labels.initialGauge"
-          :aria-pressed="initialGaugeMode !== 'empty'"
           :aria-expanded="gaugeEditorOpen"
           aria-controls="timeline-initial-gauge-editor"
           @click="
@@ -91,6 +89,7 @@ function applyGaugeDraft(): void {
           "
           @contextmenu="toggleGaugeEditor"
           @keydown.shift.enter.prevent.stop="toggleGaugeEditor"
+          :pressed="initialGaugeMode !== 'empty'"
         >
           <svg v-if="initialGaugeMode !== 'custom'" viewBox="0 0 24 24" aria-hidden="true">
             <path
@@ -224,7 +223,7 @@ function applyGaugeDraft(): void {
   cursor: not-allowed;
 }
 
-.mini-tool-button.is-active {
+.mini-tool-button[aria-pressed='true'] {
   border-color: var(--ea-gold);
   background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
   color: var(--ea-gold);
@@ -246,7 +245,7 @@ function applyGaugeDraft(): void {
   border-style: dashed;
 }
 
-.mini-tool-button.is-gauge-custom.is-active {
+.mini-tool-button.is-gauge-custom[aria-pressed='true'] {
   border-color: #38bdf8;
   background: rgb(56 189 248 / 12%);
   color: #7dd3fc;
@@ -397,5 +396,18 @@ function applyGaugeDraft(): void {
   border-radius: 50%;
   cursor: pointer;
   border: none;
+}
+@media (hover: hover) and (pointer: fine) {
+  .mini-tool-button[aria-pressed='true']:hover:not(:disabled) {
+    border-color: var(--ea-gold);
+    background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
+    color: var(--ea-gold);
+    box-shadow: none;
+  }
+  .mini-tool-button.is-gauge-custom[aria-pressed='true']:hover:not(:disabled) {
+    border-color: #38bdf8;
+    background: rgb(56 189 248 / 12%);
+    color: #7dd3fc;
+  }
 }
 </style>

@@ -177,8 +177,8 @@ function save(): void {
         <aside class="weapon-outliner">
           <EaButton
             variant="ghost"
-            :class="{ active: selectedSection === 'base' }"
             @click="selectedSection = 'base'"
+            :pressed="selectedSection === 'base'"
           >
             <strong>基础与成长</strong><small>6 个等级节点</small>
           </EaButton>
@@ -190,8 +190,8 @@ function save(): void {
             variant="ghost"
             v-for="(trait, index) in draft.traits"
             :key="`${trait.key}:${index}`"
-            :class="{ active: selectedSection === index }"
             @click="selectedSection = index"
+            :pressed="selectedSection === index"
           >
             <strong>{{ trait.key }}</strong
             ><small>{{ trait.levelCount }} 级</small>
@@ -375,7 +375,7 @@ function save(): void {
   text-align: left;
   cursor: pointer;
 }
-.weapon-outliner button.active {
+.weapon-outliner button[aria-pressed='true'] {
   border-left-color: var(--ea-gold);
   background: var(--ea-active-fill);
   color: var(--ea-fg);

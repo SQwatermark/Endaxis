@@ -24,9 +24,9 @@ describe('TimelineCornerToolbar legacy behavior parity', () => {
 
   it('keeps the compact tools keyboard-readable without changing their visual layout', () => {
     expect(source).toContain(':aria-label="labels.initialGauge"');
-    expect(header).toContain(':aria-pressed="cursorGuideEnabled"');
-    expect(header).toContain(':aria-pressed="boxSelectEnabled"');
-    expect(header).toContain(':aria-pressed="connectionToolEnabled"');
+    expect(header).toContain(':pressed="cursorGuideEnabled"');
+    expect(header).toContain(':pressed="boxSelectEnabled"');
+    expect(header).toContain(':pressed="connectionToolEnabled"');
     expect(source).toContain('@keydown.shift.enter.prevent.stop="toggleGaugeEditor"');
     expect(source).toContain(':aria-label="labels.zoom"');
     expect(editorSource).toContain(

@@ -4,7 +4,7 @@
  * 内容区只通过插槽接入；本组件不读取项目、时间轴或战斗状态。
  */
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
-import { EaButton } from '@/design-system';
+import { EaButton, EaActivityRailButton } from '@/design-system';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import {
   resolveWorkbenchBottomHeight,
@@ -257,76 +257,41 @@ watch(
   >
     <aside class="activity-bar">
       <div class="activity-group">
-        <EaButton
-          variant="ghost"
-          icon-only
-          type="button"
+        <EaActivityRailButton
           class="activity-button activity-button--library"
-          :class="{ 'is-active': !leftCollapsed }"
-          :aria-label="props.labels.library"
-          :aria-pressed="!leftCollapsed"
-          :data-tooltip="props.labels.library"
+          side="left"
+          :active="!leftCollapsed"
+          :label="props.labels.library"
           @click="toggleLeft"
-        >
-          <img src="/icons/btn_character.webp" alt="" />
-        </EaButton>
+          icon="/icons/btn_character.webp"
+        />
       </div>
       <div class="activity-group activity-group--bottom">
-        <EaButton
-          variant="ghost"
-          icon-only
-          type="button"
+        <EaActivityRailButton
           class="activity-button activity-button--global"
-          :class="{ 'is-active': !bottomCollapsed && bottomTool === 'global' }"
-          :aria-label="props.labels.globalConfig"
-          :aria-pressed="!bottomCollapsed && bottomTool === 'global'"
-          :data-tooltip="props.labels.globalConfig"
+          side="left"
+          :active="!bottomCollapsed && bottomTool === 'global'"
+          :label="props.labels.globalConfig"
           @click="selectBottom('global')"
-        >
-          <img src="/icons/setting_tab_setting.webp" alt="" />
-        </EaButton>
-        <EaButton
-          variant="ghost"
-          icon-only
-          type="button"
+          icon="/icons/setting_tab_setting.webp"
+        />
+        <EaActivityRailButton
           class="activity-button activity-button--contract"
-          :class="{ 'is-active': !bottomCollapsed && bottomTool === 'contract' }"
-          :aria-label="props.labels.contract"
-          :aria-pressed="!bottomCollapsed && bottomTool === 'contract'"
-          :data-tooltip="props.labels.contract"
+          side="left"
+          :active="!bottomCollapsed && bottomTool === 'contract'"
+          :label="props.labels.contract"
           @click="selectBottom('contract')"
-        >
-          <img src="/contingency_contract/deco_contract_028.webp" alt="" />
-        </EaButton>
-        <EaButton
-          variant="ghost"
-          icon-only
-          type="button"
+          icon="/contingency_contract/deco_contract_028.webp"
+          :icon-size="28"
+        />
+        <EaActivityRailButton
           class="activity-button activity-button--enemy"
-          :class="{ 'is-active': !bottomCollapsed && bottomTool === 'enemy' }"
-          :aria-label="props.labels.resourceMonitor"
-          :aria-pressed="!bottomCollapsed && bottomTool === 'enemy'"
-          :data-tooltip="props.labels.resourceMonitor"
+          side="left"
+          :active="!bottomCollapsed && bottomTool === 'enemy'"
+          :label="props.labels.resourceMonitor"
           @click="selectBottom('enemy')"
-        >
-          <svg class="activity-icon" viewBox="0 0 288 288" aria-hidden="true">
-            <defs>
-              <mask id="next-enemy-panel-mask">
-                <rect width="288" height="288" fill="black" />
-                <g fill="white">
-                  <rect x="74" y="38" width="140" height="38" />
-                  <circle cx="80" cy="131" r="40" />
-                  <path d="M40 89h208v105h-38l-18 20v42H96v-42l-18-20H40Z" />
-                </g>
-                <g fill="black">
-                  <path d="m95 130 22 22-22 22-22-22Z" />
-                  <path d="m193 130 22 22-22 22-22-22Z" />
-                </g>
-              </mask>
-            </defs>
-            <rect width="288" height="288" fill="currentColor" mask="url(#next-enemy-panel-mask)" />
-          </svg>
-        </EaButton>
+          icon="/icons/icon_wiki_group_monster_hongshan.webp"
+        />
       </div>
     </aside>
 
@@ -466,49 +431,41 @@ watch(
 
     <aside class="activity-bar activity-bar--right">
       <div class="activity-group">
-        <EaButton
-          variant="ghost"
-          icon-only
-          type="button"
+        <EaActivityRailButton
           class="activity-button activity-button--inspector"
-          :class="{ 'is-active': !rightCollapsed && rightTool === 'inspector' }"
-          :aria-label="props.labels.inspector"
-          :aria-pressed="!rightCollapsed && rightTool === 'inspector'"
-          :data-tooltip="props.labels.inspector"
+          side="right"
+          :active="!rightCollapsed && rightTool === 'inspector'"
+          :label="props.labels.inspector"
           @click="selectRight('inspector')"
-        >
-          <img src="/icons/btn_week_raid.webp" alt="" />
-        </EaButton>
-        <EaButton
-          variant="ghost"
-          icon-only
-          type="button"
+          icon="/icons/btn_week_raid.webp"
+        />
+        <EaActivityRailButton
           class="activity-button activity-button--performance"
-          :class="{ 'is-active': !rightCollapsed && rightTool === 'performance' }"
-          :aria-label="props.labels.performance"
-          :aria-pressed="!rightCollapsed && rightTool === 'performance'"
-          :data-tooltip="props.labels.performance"
+          side="right"
+          :active="!rightCollapsed && rightTool === 'performance'"
+          :label="props.labels.performance"
           @click="selectRight('performance')"
         >
-          <svg class="activity-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M4 18a8 8 0 1 1 16 0" />
-            <path d="m12 14 4-4" />
-            <path d="M7 18h10" />
-          </svg>
-        </EaButton>
-        <EaButton
-          variant="ghost"
-          icon-only
-          type="button"
+          <template #icon>
+            <svg
+              class="ea-activity-rail-button__icon activity-performance-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <path d="M4 18a8 8 0 1 1 16 0" />
+              <path d="m12 14 4-4" />
+              <path d="M7 18h10" />
+            </svg>
+          </template>
+        </EaActivityRailButton>
+        <EaActivityRailButton
           class="activity-button activity-button--battle-log"
-          :class="{ 'is-active': !rightCollapsed && rightTool === 'battleLog' }"
-          :aria-label="props.labels.battleLog"
-          :aria-pressed="!rightCollapsed && rightTool === 'battleLog'"
-          :data-tooltip="props.labels.battleLog"
+          side="right"
+          :active="!rightCollapsed && rightTool === 'battleLog'"
+          :label="props.labels.battleLog"
           @click="selectRight('battleLog')"
-        >
-          <img src="/icons/btn_manual.webp" alt="" />
-        </EaButton>
+          icon="/icons/btn_manual.webp"
+        />
       </div>
     </aside>
   </div>
@@ -578,147 +535,12 @@ watch(
   padding-top: 14px;
 }
 
-.activity-button {
-  position: relative;
-  width: 100%;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border: 0;
-  background: transparent;
-  color: var(--ea-icon-muted);
-  cursor: pointer;
-  padding: 0;
-}
-
-.activity-button.ea-button[aria-pressed='true'] {
-  border: 0;
-  background: transparent;
-  color: var(--ea-icon-muted);
-  box-shadow: none;
-}
-
-.activity-button::before {
-  content: attr(data-tooltip);
-  position: absolute;
-  left: calc(100% + 8px);
-  top: 50%;
-  z-index: 30;
-  padding: 5px 8px;
-  border: 1px solid var(--ea-border);
-  background: var(--ea-tooltip-bg);
-  color: var(--ea-icon-strong);
-  font-size: 11px;
-  font-weight: 600;
-  white-space: nowrap;
-  opacity: 0;
-  transform: translate(6px, -50%);
-  pointer-events: none;
-  box-shadow: 0 6px 18px var(--ea-shadow);
-  transition:
-    opacity 0.12s ease,
-    transform 0.12s ease;
-}
-
-.activity-bar--right .activity-button::before {
-  left: auto;
-  right: calc(100% + 8px);
-  transform: translate(-6px, -50%);
-}
-
-.activity-button::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 34px;
-  height: 34px;
-  border: 1px solid var(--ea-border-soft);
-  border-radius: 8px;
-  background: var(--ea-fill-soft);
-  opacity: 0;
-  transform: translate(-50%, -50%);
-  pointer-events: none;
-}
-
-.activity-button:hover::before {
-  opacity: 1;
-  transform: translate(0, -50%);
-}
-
-.activity-button:hover::after,
-.activity-button.is-active::after {
-  opacity: 1;
-}
-
-.activity-button img,
-.activity-icon {
-  position: relative;
-  z-index: 1;
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-  opacity: 0.78;
-  transition:
-    transform 0.14s ease,
-    opacity 0.14s ease,
-    filter 0.14s ease;
-}
-
-.activity-button--library img,
-.activity-button--global img,
-.activity-button--inspector img,
-.activity-button--battle-log img,
-.activity-icon {
-  width: 24px;
-  height: 24px;
-}
-
-.activity-button--performance .activity-icon {
+.activity-performance-icon {
   fill: none;
   stroke: currentColor;
   stroke-width: 1.7;
   stroke-linecap: square;
   stroke-linejoin: miter;
-}
-
-.activity-button:hover img,
-.activity-button:hover .activity-icon,
-.activity-button.is-active img,
-.activity-button.is-active .activity-icon {
-  opacity: 1;
-  transform: translateY(-2px) scale(1.06);
-  filter: drop-shadow(0 2px 8px rgb(255 255 255 / 20%));
-}
-
-.activity-button.is-disabled {
-  cursor: not-allowed;
-}
-
-.activity-button.is-disabled::after {
-  opacity: 0;
-}
-
-.activity-button.is-disabled img,
-.activity-button.is-disabled:hover img {
-  opacity: 0.32;
-  transform: none;
-  filter: grayscale(1);
-}
-
-:global(html[data-theme='light'] .activity-button img) {
-  filter: brightness(0) opacity(0.72);
-  opacity: 1;
-}
-
-:global(html[data-theme='light'] .activity-button.is-active img) {
-  filter: brightness(0) opacity(0.92);
-}
-
-:global(html[data-theme='light'] .activity-button:hover img),
-:global(html[data-theme='light'] .activity-button.is-active:hover img) {
-  filter: brightness(0) opacity(1);
 }
 
 .workbench-panel {
@@ -740,22 +562,14 @@ watch(
   padding: 2px 4px 2px 6px;
   border: 1px solid var(--ea-border-soft);
   border-right: 0;
-  border-radius: 8px 0 0 8px;
-  background: var(--ea-panel-chrome-bg);
-  backdrop-filter: blur(4px);
-  opacity: 0.18;
-  transform: translateX(2px);
-  transition:
-    opacity 0.14s ease,
-    background-color 0.14s ease,
-    transform 0.14s ease;
+  border-radius: 0;
+  background: var(--ea-workbench-panel);
+  opacity: 0.56;
+  transition: opacity 0.14s ease;
 }
 
-.workbench-panel:hover > .panel-chrome,
 .panel-chrome:focus-within {
   opacity: 1;
-  background: var(--ea-panel-chrome-bg-hover);
-  transform: translateX(0);
 }
 
 .panel-chrome__button {
@@ -777,9 +591,8 @@ watch(
   height: 20px;
 }
 
-.panel-chrome__button:hover,
 .panel-chrome__button:focus-visible {
-  background: var(--ea-hover-fill);
+  background: transparent;
   color: var(--ea-icon-strong);
 }
 
@@ -870,7 +683,7 @@ watch(
 }
 
 .bottom-resizer:hover::before,
-.bottom-resizer.is-active::before {
+.bottom-resizer[aria-pressed='true']::before {
   opacity: 1;
 }
 
@@ -955,5 +768,14 @@ watch(
 
 .resizer--right {
   grid-column: 5;
+}
+@media (hover: hover) and (pointer: fine) {
+  .workbench-panel:hover > .panel-chrome {
+    opacity: 1;
+  }
+  .panel-chrome__button.ea-button:hover:not(:disabled) {
+    background: transparent;
+    color: var(--ea-icon-strong);
+  }
 }
 </style>

@@ -199,15 +199,14 @@ function clear(): void {
             <div class="rarity-line"></div>
           </div>
           <div class="roster-grid">
-            <div
+            <EaButton
               v-for="operator in group.list"
               :key="operator.slug"
               class="roster-card operator-roster-card"
-              :class="[
-                { 'is-selected': selectedSlugs.includes(operator.slug) },
-                `rarity-${operator.rarity}-style`,
-              ]"
+              :class="[`rarity-${operator.rarity}-style`]"
               @click="select(operator.slug)"
+              variant="ghost"
+              :pressed="selectedSlugs.includes(operator.slug)"
             >
               <div
                 class="card-avatar-wrapper"
@@ -228,7 +227,7 @@ function clear(): void {
               <div v-if="selectedSlugs.includes(operator.slug)" class="in-team-tag">
                 {{ t('timelineGrid.operatorDialog.inTeam') }}
               </div>
-            </div>
+            </EaButton>
           </div>
         </template>
         <div v-if="groups.length === 0" class="empty-roster">

@@ -99,14 +99,14 @@ describe('Next timeline simulation projection retention', () => {
     expect(actionBlockSource).toContain('ultimate-side-bar--left');
     expect(actionBlockSource).toContain('ultimate-side-bar--right');
     expect(actionBlockSource).toContain('border: 2px dashed var(--action-accent)');
-    expect(actionBlockSource).toContain(
-      ".timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='basicAttack']",
+    expect(actionBlockSource.replace(/\s+/g, '')).toContain(
+      ".timeline-action-block:not([data-selected='true']):not(.is-disabled)[data-skill-type='basicAttack']",
     );
-    expect(actionBlockSource).toContain(
-      ".timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='comboSkill']",
+    expect(actionBlockSource.replace(/\s+/g, '')).toContain(
+      ".timeline-action-block:not([data-selected='true']):not(.is-disabled)[data-skill-type='comboSkill']",
     );
-    expect(actionBlockSource).toContain(
-      ".timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='ultimate']",
+    expect(actionBlockSource.replace(/\s+/g, '')).toContain(
+      ".timeline-action-block:not([data-selected='true']):not(.is-disabled)[data-skill-type='ultimate']",
     );
   });
 

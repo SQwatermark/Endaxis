@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaTooltip } from '@/design-system';
 /**
  * 为技能编辑器中的领域概念提供补充说明。
  *
@@ -9,9 +10,9 @@ defineProps<{ text: string }>();
 </script>
 
 <template>
-  <el-tooltip :content="text" placement="top" :show-after="180">
+  <EaTooltip :content="text" placement="top" :show-after="180">
     <button type="button" class="editor-help-hint" :aria-label="text" @click.prevent>?</button>
-  </el-tooltip>
+  </EaTooltip>
 </template>
 
 <style scoped>

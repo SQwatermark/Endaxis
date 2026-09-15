@@ -64,6 +64,7 @@ const chartPaint = computed(() => {
   const light = appearance.value === 'light';
   return {
     tooltip: {
+      borderRadius: 0,
       backgroundColor: light ? '#ffffff' : '#2a2a2a',
       borderColor: light ? '#d8dbe0' : '#444444',
       textStyle: { color: light ? '#1a1b1e' : '#f0f0f0', fontSize: 13 },
@@ -211,7 +212,7 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
   margin-bottom: 24px;
   padding: 10px 16px;
   border: 1px solid color-mix(in srgb, #ffab40 35%, transparent);
-  border-radius: 6px;
+  border-radius: var(--ea-control-radius);
   background: color-mix(in srgb, #ffab40 10%, transparent);
 }
 
@@ -251,7 +252,7 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
 .chart-card,
 .summary-item {
   border: 1px solid var(--ea-border);
-  border-radius: 6px;
+  border-radius: var(--ea-control-radius);
   background: color-mix(in srgb, var(--ea-fg) 5%, var(--ea-dialog-bg));
 }
 
@@ -339,7 +340,7 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
   --el-collapse-content-font-size: 13px;
 
   overflow: hidden;
-  border-radius: 6px;
+  border-radius: var(--ea-control-radius);
 }
 
 .faq-collapse :deep(.el-collapse-item__header) {

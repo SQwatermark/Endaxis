@@ -10,14 +10,14 @@ describe('TimelineActionBlock legacy visual parity', () => {
     expect(source).toContain('border: 2px dashed var(--action-accent)');
     expect(source).toContain("[data-skill-type='basicAttack']");
     expect(source).toContain("[data-skill-type='comboSkill']");
-    expect(source).toContain(
+    expect(source.replace(/\s+/g, '')).toContain(
       ".timeline-action-block:not(.is-disabled)[data-skill-type='ultimate']",
     );
-    expect(source).toContain(
-      ".timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='basicAttack']",
+    expect(source.replace(/\s+/g, '')).toContain(
+      ".timeline-action-block:not([data-selected='true']):not(.is-disabled)[data-skill-type='basicAttack']",
     );
-    expect(source).toContain(
-      ".timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='comboSkill']",
+    expect(source.replace(/\s+/g, '')).toContain(
+      ".timeline-action-block:not([data-selected='true']):not(.is-disabled)[data-skill-type='comboSkill']",
     );
   });
 
@@ -40,7 +40,7 @@ describe('TimelineActionBlock legacy visual parity', () => {
     expect(source).toContain(
       'zIndex: `calc(${props.moving ? 20000 : props.selected ? 10000 : 10} + ${props.stackOrder ?? 0})`',
     );
-    expect(source).toContain('.timeline-action-block.is-selected');
+    expect(source.replace(/\s+/g, '')).toContain(".timeline-action-block[data-selected='true']");
     expect(source).toContain('border: 2px dashed var(--ea-action-selected, #fff)');
   });
 

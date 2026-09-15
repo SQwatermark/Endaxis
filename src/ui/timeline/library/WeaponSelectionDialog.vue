@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaTooltip } from '@/design-system';
 /**
  * Next 时间轴的武器定义选择器。界面与旧时间轴保持一致，但只读取 Next 定义并返回稳定 slug；
  * 武器 Build 的创建和持久化仍由父层负责，组件内不依赖旧 store。
@@ -181,15 +182,17 @@ function handleDialogVisibility(value: boolean): void {
           <div class="rarity-line"></div>
         </div>
         <div class="roster-grid">
-          <div
+          <EaButton
             v-for="weapon in group.list"
             :key="weapon.definition.slug"
             class="roster-card"
             :class="`rarity-${weapon.definition.rarity}-style`"
             :title="weapon.supportSummary || undefined"
             @click="select(weapon.definition.slug)"
+            variant="ghost"
+            :pressed="selectedSlug === weapon.definition.slug"
           >
-            <el-tooltip
+            <EaTooltip
               placement="top-start"
               effect="dark"
               :show-after="160"
@@ -219,11 +222,11 @@ function handleDialogVisibility(value: boolean): void {
                 </div>
                 <div class="card-name">{{ weapon.name }}</div>
               </div>
-            </el-tooltip>
+            </EaTooltip>
             <div v-if="selectedSlug === weapon.definition.slug" class="in-team-tag weapon-equipped">
               {{ $t('timelineGrid.weaponDialog.equipped') }}
             </div>
-          </div>
+          </EaButton>
         </div>
       </template>
       <div v-if="groups.length === 0" class="empty-roster">

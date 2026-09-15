@@ -278,9 +278,9 @@ function maxOut(): void {
                     v-for="potential in 5"
                     :key="potential"
                     class="diamond"
-                    :class="{ active: weapon.potential >= potential }"
                     :style="weapon.potential >= potential ? { background: potentialColor } : {}"
                     @click="setPotential(potential)"
+                    :pressed="weapon.potential >= potential"
                   />
                 </div>
               </div>
@@ -483,8 +483,9 @@ function maxOut(): void {
   cursor: pointer;
   padding: 0;
 }
-.diamond.active {
+.diamond[aria-pressed='true'] {
   border-color: transparent;
+  box-shadow: none;
 }
 .level-selector {
   display: flex;
@@ -647,6 +648,12 @@ function maxOut(): void {
 
   .skill-slots {
     flex: 0 0 auto;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .diamond[aria-pressed='true']:hover:not(:disabled) {
+    border-color: transparent;
+    box-shadow: none;
   }
 }
 </style>

@@ -234,8 +234,8 @@ function removeKnotThreshold(index: number): void {
               v-for="level in LEVELS"
               :key="level"
               type="button"
-              :class="{ 'is-active': selectedLevel === level }"
               @click="selectedLevel = level"
+              :pressed="selectedLevel === level"
             >
               {{ level }}
             </EaButton>
@@ -275,8 +275,8 @@ function removeKnotThreshold(index: number): void {
             <EaButton
               type="button"
               class="enemy-card enemy-card--custom"
-              :class="{ selected: enemy.source.kind === 'custom' }"
               @click="selectCustom"
+              :pressed="enemy.source.kind === 'custom'"
             >
               <span class="card-avatar">?</span>
               <span
@@ -296,12 +296,12 @@ function removeKnotThreshold(index: number): void {
             type="button"
             class="enemy-card"
             :class="{
-              selected: definition?.id === candidate.id,
               'has-tier': candidate.tier !== 'normal',
             }"
             :disabled="!supportsLevel(candidate)"
             :style="{ '--tier-color': TIERS.find(tier => tier.value === candidate.tier)?.color }"
             @click="selectDefinition(candidate)"
+            :pressed="definition?.id === candidate.id"
           >
             <span class="card-avatar">
               <img v-if="candidate.iconPath" :src="candidate.iconPath" alt="" />
@@ -649,8 +649,8 @@ function removeKnotThreshold(index: number): void {
   height: 24px;
   padding: 0 7px;
 }
-.level-buttons button.is-active,
-.tier-filters button.is-active {
+.level-buttons button[aria-pressed='true'],
+.tier-filters button[aria-pressed='true'] {
   color: var(--tier-color, var(--ea-gold));
   border-color: var(--tier-color, var(--ea-gold));
 }
@@ -772,7 +772,7 @@ function removeKnotThreshold(index: number): void {
   grid-column: 1 / -1;
   height: 4px;
 }
-.enemy-card.selected {
+.enemy-card[aria-pressed='true'] {
   background: color-mix(in srgb, var(--tier-color) 15%, var(--ea-fill-muted));
 }
 .enemy-card:disabled {
@@ -858,7 +858,7 @@ function removeKnotThreshold(index: number): void {
   background: rgb(180 140 0 / 10%);
 }
 
-:global(html[data-theme='light'] .enemy-settings-panel .enemy-card.selected) {
+:global(html[data-theme='light'] .enemy-settings-panel .enemy-card[aria-pressed='true']) {
   border-top-color: rgb(180 140 0 / 35%);
   border-right-color: rgb(180 140 0 / 35%);
   border-bottom-color: rgb(180 140 0 / 35%);
@@ -877,5 +877,20 @@ function removeKnotThreshold(index: number): void {
 :global(html[data-theme='light'] .enemy-settings-panel .card-avatar) {
   border-color: rgb(26 27 30 / 14%);
   background: var(--ea-chip-fill);
+}
+@media (hover: hover) and (pointer: fine) {
+  .enemy-card[aria-pressed='true']:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--tier-color) 15%, var(--ea-fill-muted));
+  }
+  :global(
+    html[data-theme='light']
+      .enemy-settings-panel
+      .enemy-card[aria-pressed='true']:hover:not(:disabled)
+  ) {
+    border-top-color: rgb(180 140 0 / 35%);
+    border-right-color: rgb(180 140 0 / 35%);
+    border-bottom-color: rgb(180 140 0 / 35%);
+    background: rgb(180 140 0 / 14%);
+  }
 }
 </style>

@@ -224,11 +224,11 @@ onBeforeUnmount(() => {
           :key="option.value ?? 'default'"
           type="button"
           class="color-dot"
-          :class="{ 'is-active': color === option.value }"
           :style="{ background: option.swatch }"
           :title="t(option.labelKey)"
           :aria-label="t(option.labelKey)"
           @click="$emit('setColor', option.value)"
+          :pressed="color === option.value"
         ></EaButton>
       </div>
     </div>
@@ -347,7 +347,7 @@ onBeforeUnmount(() => {
 }
 
 .color-dot:hover,
-.color-dot.is-active {
+.color-dot[aria-pressed='true'] {
   border-color: #fff;
   box-shadow: 0 0 0 1px #777;
 }

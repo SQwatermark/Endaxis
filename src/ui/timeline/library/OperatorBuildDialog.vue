@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaTooltip } from '@/design-system';
 /**
  * Next 时间轴的干员养成编辑弹窗。
  *
@@ -353,7 +354,7 @@ function maxOut(): void {
               <div v-if="potentialCount > 0" class="row">
                 <span class="section-label">{{ t('armory.common.potential') }}</span>
                 <div class="diamonds">
-                  <el-tooltip
+                  <EaTooltip
                     v-for="level in potentialCount"
                     :key="level"
                     effect="dark"
@@ -375,11 +376,11 @@ function maxOut(): void {
                     <EaButton
                       type="button"
                       class="diamond"
-                      :class="{ active: operator.potential >= level }"
                       :style="operator.potential >= level ? { background: potentialColor } : {}"
                       @click="togglePotential(level)"
+                      :pressed="operator.potential >= level"
                     />
-                  </el-tooltip>
+                  </EaTooltip>
                 </div>
               </div>
             </div>
@@ -411,7 +412,7 @@ function maxOut(): void {
             <div class="section-title">{{ t('armory.common.skills') }}</div>
             <div class="skills-row">
               <div v-for="source in availableSkillSources" :key="source" class="skill-card">
-                <el-tooltip
+                <EaTooltip
                   placement="top"
                   effect="dark"
                   :show-after="120"
@@ -431,7 +432,7 @@ function maxOut(): void {
                   <div class="skill-icon-frame" :style="{ borderColor: elementColor }">
                     <img :src="skillIcon(source)" alt="" class="skill-icon" />
                   </div>
-                </el-tooltip>
+                </EaTooltip>
                 <div class="skill-name">{{ skillTypeName(source) }}</div>
                 <div class="skill-controls">
                   <EaButton
@@ -472,7 +473,7 @@ function maxOut(): void {
                     class="talent-chain"
                     :class="{ active: operator.trustLevel >= level }"
                   />
-                  <el-tooltip
+                  <EaTooltip
                     effect="dark"
                     placement="top"
                     :show-after="120"
@@ -488,13 +489,13 @@ function maxOut(): void {
                         type="button"
                         class="talent-node"
                         :class="{
-                          active: operator.trustLevel >= level,
                           disabled: level > maxTrust,
                           'is-multi-attr': trustAttributeKeys.length > 1,
                         }"
                         :style="operator.trustLevel >= level ? { borderColor: elementColor } : {}"
                         :disabled="level > maxTrust"
                         @click="setTrustLevel(level)"
+                        :pressed="operator.trustLevel >= level"
                       >
                         <img
                           v-for="attribute in trustAttributeKeys"
@@ -505,7 +506,7 @@ function maxOut(): void {
                         />
                       </EaButton>
                     </span>
-                  </el-tooltip>
+                  </EaTooltip>
                 </template>
               </div>
             </div>
@@ -525,7 +526,7 @@ function maxOut(): void {
                     class="talent-chain"
                     :class="{ active: (operator.talentStates[String(groupIndex)] ?? 0) >= level }"
                   />
-                  <el-tooltip
+                  <EaTooltip
                     effect="dark"
                     placement="top"
                     :show-after="120"
@@ -545,15 +546,13 @@ function maxOut(): void {
                       <EaButton
                         type="button"
                         class="talent-node"
-                        :class="{
-                          active: (operator.talentStates[String(groupIndex)] ?? 0) >= level,
-                        }"
                         :style="
                           (operator.talentStates[String(groupIndex)] ?? 0) >= level
                             ? { borderColor: elementColor }
                             : {}
                         "
                         @click="setTalentState(groupIndex, level)"
+                        :pressed="(operator.talentStates[String(groupIndex)] ?? 0) >= level"
                       >
                         <img
                           :src="
@@ -567,7 +566,7 @@ function maxOut(): void {
                         />
                       </EaButton>
                     </span>
-                  </el-tooltip>
+                  </EaTooltip>
                 </template>
               </div>
             </div>
@@ -724,8 +723,9 @@ function maxOut(): void {
   cursor: pointer;
   transform: rotate(45deg);
 }
-.diamond.active {
+.diamond[aria-pressed='true'] {
   border-color: transparent;
+  box-shadow: none;
 }
 .level-btn {
   flex: 1;
@@ -838,7 +838,11 @@ function maxOut(): void {
   background: var(--ea-panel-elevated, #2a2a2e);
   cursor: pointer;
 }
-.talent-node:not(.active) {
+.talent-node[aria-pressed='true'] {
+  background: var(--ea-panel-elevated, #2a2a2e);
+  box-shadow: none;
+}
+.talent-node:not([aria-pressed='true']) {
   opacity: 0.35;
   filter: grayscale(1);
 }
@@ -958,6 +962,16 @@ function maxOut(): void {
   .talent-nodes {
     max-width: 100%;
     margin-left: 0;
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .diamond[aria-pressed='true']:hover:not(:disabled) {
+    border-color: transparent;
+    box-shadow: none;
+  }
+  .talent-node[aria-pressed='true']:hover:not(:disabled) {
+    background: var(--ea-panel-elevated, #2a2a2e);
+    box-shadow: none;
   }
 }
 </style>

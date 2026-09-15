@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaTooltip } from '@/design-system';
 /**
  * 时间轴动作块的展示组件。
  *
@@ -153,7 +154,6 @@ function formatDurationFrames(frames: number): string {
     class="timeline-action-block"
     :data-timeline-action-id="actionId"
     :class="{
-      'is-selected': selected,
       'is-perfect-combo': perfect,
       'is-disabled': disabled,
       'is-locked': locked,
@@ -172,6 +172,7 @@ function formatDurationFrames(frames: number): string {
     @contextmenu.prevent.stop="$emit('contextmenu', $event)"
     @mouseenter="setHovered(true)"
     @mouseleave="setHovered(false)"
+    :data-selected="selected"
   >
     <span
       v-for="(segment, index) in timeDilationSegments ?? []"
@@ -205,7 +206,7 @@ function formatDurationFrames(frames: number): string {
       @pointerdown.stop
       @mousedown.stop.prevent="$emit('hitClick', hit.hitId, hit.executionFrame)"
     ></span>
-    <el-tooltip
+    <EaTooltip
       v-if="warning"
       :content="warningText || warningFallbackText || ''"
       placement="top"
@@ -232,7 +233,7 @@ function formatDurationFrames(frames: number): string {
           <line x1="12" y1="17" x2="12.01" y2="17"></line>
         </svg>
       </span>
-    </el-tooltip>
+    </EaTooltip>
     <EditPen
       v-if="edited"
       class="edited-mark"
@@ -374,7 +375,7 @@ function formatDurationFrames(frames: number): string {
   pointer-events: none;
 }
 
-.timeline-action-block.is-selected {
+.timeline-action-block[data-selected='true'] {
   border: 2px dashed var(--ea-action-selected, #fff);
   box-shadow: 0 0 10px color-mix(in srgb, var(--action-accent) 50%, transparent);
 }
@@ -530,12 +531,14 @@ function formatDurationFrames(frames: number): string {
   --action-accent: #a5a5a8;
 }
 
-.timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='basicAttack'] {
+.timeline-action-block:not([data-selected='true']):not(
+    .is-disabled
+  )[data-skill-type='basicAttack'] {
   border: 1.5px solid color-mix(in srgb, var(--action-accent) 40%, transparent);
 }
 
-.timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='comboSkill'],
-.timeline-action-block:not(.is-selected):not(.is-disabled)[data-skill-type='ultimate'] {
+.timeline-action-block:not([data-selected='true']):not(.is-disabled)[data-skill-type='comboSkill'],
+.timeline-action-block:not([data-selected='true']):not(.is-disabled)[data-skill-type='ultimate'] {
   border: 1.5px solid var(--action-accent);
   border-radius: 2px;
 }

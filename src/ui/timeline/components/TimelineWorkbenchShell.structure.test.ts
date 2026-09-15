@@ -67,7 +67,7 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
   });
 
   it('does not hard-code the enemy activity icon language', () => {
-    expect(source).toContain('id="next-enemy-panel-mask"');
+    expect(source).toContain('icon="/icons/icon_wiki_group_monster_hongshan.webp"');
     expect(source).not.toContain('<span>敌</span>');
   });
 
@@ -79,15 +79,15 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
   });
 
   it('uses the legacy activity icons and pressed-state semantics', () => {
-    expect(source).toContain('src="/icons/btn_character.webp"');
-    expect(source).toContain('src="/icons/setting_tab_setting.webp"');
-    expect(source).toContain('src="/contingency_contract/deco_contract_028.webp"');
-    expect(source).toContain('src="/icons/btn_week_raid.webp"');
-    expect(source).toContain('src="/icons/btn_manual.webp"');
-    expect(source).toContain('id="next-enemy-panel-mask"');
-    expect(source).toContain(':aria-pressed="!leftCollapsed"');
-    expect(source).toContain(':aria-pressed="!rightCollapsed && rightTool === \'battleLog\'"');
-    expect(source).toContain(':aria-pressed="!rightCollapsed && rightTool === \'performance\'"');
+    expect(source).toContain('icon="/icons/btn_character.webp"');
+    expect(source).toContain('icon="/icons/setting_tab_setting.webp"');
+    expect(source).toContain('icon="/contingency_contract/deco_contract_028.webp"');
+    expect(source).toContain('icon="/icons/btn_week_raid.webp"');
+    expect(source).toContain('icon="/icons/btn_manual.webp"');
+    expect(source).toContain('icon="/icons/icon_wiki_group_monster_hongshan.webp"');
+    expect(source).toContain(':active="!leftCollapsed"');
+    expect(source).toContain(':active="!rightCollapsed && rightTool === \'battleLog\'"');
+    expect(source).toContain(':active="!rightCollapsed && rightTool === \'performance\'"');
   });
 
   it('keeps simulation performance in an independent right-side tool', () => {
@@ -124,10 +124,13 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
     );
   });
 
-  it('keeps the old image sizes and light-theme silhouette treatment', () => {
-    expect(source).toContain('width: 28px');
-    expect(source).toContain('.activity-button--library img');
-    expect(source).toContain('filter: brightness(0) opacity(0.72)');
+  it('uses the shared activity rail with optical sizing and matching panel sides', () => {
+    expect(source.match(/<EaActivityRailButton\b/g)).toHaveLength(7);
+    expect(source.match(/side="left"/g)).toHaveLength(4);
+    expect(source.match(/side="right"/g)).toHaveLength(3);
+    expect(source).toContain(':icon-size="28"');
+    expect(source).toContain('icon="/icons/icon_wiki_group_monster_hongshan.webp"');
+    expect(source).toContain('<template #icon>');
   });
 
   it('owns consistent reset and collapse chrome for every resizable panel', () => {
@@ -140,7 +143,7 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
     expect(source).toContain('v-if="bottomTool !== \'enemy\'"');
     expect(source).toContain('class="bottom-panel-collapse"');
     expect(source).toContain('@click="collapseBottom"');
-    expect(source).toContain('opacity: 0.18');
+    expect(source).toContain('opacity: 0.56');
     expect(source).toContain('.workbench-panel:hover > .panel-chrome');
     expect(source).toContain('.panel-chrome:focus-within');
   });

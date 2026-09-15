@@ -24,8 +24,8 @@ describe('legacy panel visual contracts', () => {
     expect(header).toContain('<span>{{ labels.export }}</span>');
     expect(header).toContain('<span>{{ labels.reset }}</span>');
     expect(header).toContain('popper-class="header-more-popper"');
-    expect(header).toContain('.header-more-popper.el-popover.el-popper');
-    expect(header).toContain('background: var(--ea-popover-bg)');
+    expect(header).toContain('<EaPopover');
+    expect(header).not.toContain('background: var(--ea-popover-bg)');
   });
 
   it('uses legacy card sizing and puts the enemy tier on the portrait', () => {
@@ -39,7 +39,7 @@ describe('legacy panel visual contracts', () => {
     expect(enemy).toContain('nodes: candidate.stagger.knotThresholds.length');
     expect(enemy).toContain("t('resourceMonitor.enemy.specialGroup')");
     expect(enemy).toContain("t('resourceMonitor.enemy.standardGroup')");
-    expect(enemy).toContain("selected: enemy.source.kind === 'custom'");
+    expect(enemy).toContain(':pressed="enemy.source.kind === \'custom\'"');
     expect(zhCN.resourceMonitor.enemy.desc).toContain('{nodes}');
     expect(zhCN.resourceMonitor.enemy.desc).not.toContain('|');
   });
@@ -55,7 +55,7 @@ describe('legacy panel visual contracts', () => {
 
   it('renders appearance with vector icons and explicit accessible state', () => {
     expect(header).toContain(':aria-label="labels.appearanceLight"');
-    expect(header).toContain(':aria-pressed="appearance === \'dark\'"');
+    expect(header).toContain(':pressed="appearance === \'dark\'"');
     expect(header).not.toContain('◐');
   });
 });

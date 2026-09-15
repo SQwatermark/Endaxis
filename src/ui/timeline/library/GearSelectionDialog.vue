@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaTooltip } from '@/design-system';
 /**
  * Next 时间轴的单槽装备选择器。父层决定正在编辑的轨道和槽位，并负责把选择、卸下及精锻档位写回项目；
  * 本组件只复刻旧版装备选择弹窗的定义浏览流程，不读取旧 store，也不把适配状态写入存档。
@@ -269,8 +270,8 @@ function clearGear(): void {
                 :key="tier"
                 type="button"
                 class="equipment-refine-btn"
-                :class="{ 'is-active': refineTier === tier }"
                 @click="setRefineTier(tier)"
+                :pressed="refineTier === tier"
               >
                 {{ tier === 0 ? t('timelineGrid.equipmentDialog.refineBase') : tier }}
               </EaButton>
@@ -363,14 +364,16 @@ function clearGear(): void {
             <div class="rarity-line"></div>
           </div>
           <div class="roster-grid">
-            <div
+            <EaButton
               v-for="gear in group.items"
               :key="gear.definition.slug"
               class="roster-card equipment-roster-card"
               :class="{ 'is-ability-match-both': gear.matchesOperatorAttributes }"
+              :pressed="selectedSlug === gear.definition.slug"
               @click="selectGear(gear.definition.slug)"
+              variant="ghost"
             >
-              <el-tooltip
+              <EaTooltip
                 placement="top-start"
                 effect="dark"
                 :show-after="160"
@@ -456,11 +459,11 @@ function clearGear(): void {
                   </div>
                   <div class="card-name">{{ gear.name }}</div>
                 </div>
-              </el-tooltip>
+              </EaTooltip>
               <div v-if="selectedSlug === gear.definition.slug" class="in-team-tag weapon-equipped">
                 {{ t('timelineGrid.weaponDialog.equipped') }}
               </div>
-            </div>
+            </EaButton>
           </div>
         </template>
         <div v-if="groups.length === 0" class="empty-roster">{{ labels.empty }}</div>

@@ -129,8 +129,8 @@ function maxOut(): void {
                     :key="level"
                     type="button"
                     class="art-slot"
-                    :class="{ 'is-active': level <= slot.current }"
                     @click="setArtificingLevel(slot.traitIndex, level)"
+                    :pressed="level <= slot.current"
                   >
                     <template v-if="level <= slot.current">/</template>
                     <template v-else>&nbsp;</template>
@@ -279,7 +279,7 @@ function maxOut(): void {
   color: transparent;
   font-family: 'Roboto Mono', monospace;
 }
-.art-slot.is-active {
+.art-slot[aria-pressed='true'] {
   color: inherit;
 }
 .stat-level {
@@ -293,5 +293,10 @@ function maxOut(): void {
 .stat-locked {
   color: var(--ea-dialog-hint, #777);
   font-size: 12px;
+}
+@media (hover: hover) and (pointer: fine) {
+  .art-slot[aria-pressed='true']:hover:not(:disabled) {
+    color: inherit;
+  }
 }
 </style>

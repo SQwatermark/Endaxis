@@ -6,6 +6,7 @@ import { ArrowUp, ArrowDown } from '@element-plus/icons-vue';
 
 const props = defineProps({
   modelValue: { type: Number, required: true },
+  inputId: { type: String, default: undefined },
   min: { type: Number, default: -Infinity },
   max: { type: Number, default: Infinity },
   step: { type: Number, default: 1 },
@@ -144,6 +145,7 @@ function increment() {
   <div class="custom-number-input" :class="containerClass" :style="containerStyle" tabindex="0">
     <div v-if="$slots.prepend" class="prepend-slot"><slot name="prepend"></slot></div>
     <input
+      :id="inputId"
       type="text"
       class="value-display"
       :style="inputStyle"
@@ -198,8 +200,10 @@ function increment() {
   width: 100%;
 }
 
-.custom-number-input.has-hover:hover {
-  box-shadow: 0 0 0 1px var(--hover-border-color) inset;
+@media (hover: hover) and (pointer: fine) {
+  .custom-number-input.has-hover:hover {
+    box-shadow: 0 0 0 1px var(--hover-border-color) inset;
+  }
 }
 
 .custom-number-input:focus {
@@ -246,9 +250,11 @@ function increment() {
   justify-content: center;
 }
 
-.control-btn:hover:not(:disabled) {
-  background-color: var(--ea-hover-fill, rgba(255, 255, 255, 0.04));
-  color: var(--ea-gold);
+@media (hover: hover) and (pointer: fine) {
+  .control-btn:hover:not(:disabled) {
+    background-color: var(--ea-hover-fill, rgba(255, 255, 255, 0.04));
+    color: var(--ea-gold);
+  }
 }
 
 .control-btn:active:not(:disabled) {

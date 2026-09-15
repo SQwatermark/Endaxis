@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EaButton } from '@/design-system';
+import { EaButton, EaCloseButton } from '@/design-system';
 import { computed, onUnmounted, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import ElFocusTrap from 'element-plus/es/components/focus-trap/index';
@@ -120,17 +120,7 @@ function confirm() {
           >
             <header class="timeline-reset-dialog__header">
               <h2 class="timeline-reset-dialog__title">{{ t('reset.title') }}</h2>
-              <EaButton
-                type="button"
-                class="timeline-reset-dialog__close"
-                icon-only
-                :aria-label="t('common.close')"
-                @click="close"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M6 6l12 12M18 6 6 18" />
-                </svg>
-              </EaButton>
+              <EaCloseButton :label="t('common.close')" @click="close" />
             </header>
 
             <div class="timeline-reset-options" role="radiogroup" :aria-label="t('reset.title')">
@@ -140,7 +130,6 @@ function confirm() {
                 type="button"
                 class="timeline-reset-option"
                 :class="{
-                  'is-selected': selectedMode === option.mode,
                   'is-danger': option.mode === 'all',
                 }"
                 role="radio"
@@ -221,33 +210,6 @@ function confirm() {
   font-weight: 700;
 }
 
-.timeline-reset-dialog__close {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  color: var(--ea-text-muted, #aaa);
-  cursor: pointer;
-}
-
-.timeline-reset-dialog__close:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: inherit;
-}
-
-.timeline-reset-dialog__close svg,
-.timeline-reset-option__icon svg {
-  width: 18px;
-  height: 18px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 1.8;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-}
-
 .timeline-reset-options {
   display: grid;
   margin: 16px;
@@ -315,13 +277,13 @@ function confirm() {
   box-shadow: inset 0 0 0 3px transparent;
 }
 
-.timeline-reset-option.is-selected .timeline-reset-option__radio {
+.timeline-reset-option[aria-checked='true'] .timeline-reset-option__radio {
   border-color: var(--ea-accent, #fdd900);
   background: var(--ea-accent, #fdd900);
   box-shadow: inset 0 0 0 3px #1b1b1b;
 }
 
-.timeline-reset-option.is-danger.is-selected .timeline-reset-option__radio {
+.timeline-reset-option.is-danger[aria-checked='true'] .timeline-reset-option__radio {
   border-color: #ff6b74;
   background: #ff6b74;
 }
@@ -354,7 +316,9 @@ function confirm() {
   border-color: rgba(0, 0, 0, 0.3);
 }
 
-:global(html[data-theme='light'] .timeline-reset-option.is-selected .timeline-reset-option__radio) {
+:global(
+  html[data-theme='light'] .timeline-reset-option[aria-checked='true'] .timeline-reset-option__radio
+) {
   box-shadow: inset 0 0 0 3px #fff;
 }
 </style>

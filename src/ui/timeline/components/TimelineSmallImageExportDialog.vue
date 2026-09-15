@@ -152,15 +152,15 @@ async function save(): Promise<void> {
           <div class="appearance-buttons">
             <EaButton
               size="sm"
-              :class="{ active: form.appearance === 'light' }"
               :title="labels.light"
               @click="form.appearance = 'light'"
+              :pressed="form.appearance === 'light'"
               >☀</EaButton
             ><EaButton
               size="sm"
-              :class="{ active: form.appearance === 'dark' }"
               :title="labels.dark"
               @click="form.appearance = 'dark'"
+              :pressed="form.appearance === 'dark'"
               >☾</EaButton
             >
           </div>
@@ -304,7 +304,7 @@ small {
   align-items: center;
   gap: 6px;
 }
-.appearance-buttons .active {
+.appearance-buttons [aria-pressed='true'] {
   color: var(--ea-gold);
   border-color: var(--ea-gold);
 }

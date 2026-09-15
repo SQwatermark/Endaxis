@@ -1,7 +1,12 @@
+import { readFileSync } from 'node:fs';
 import { createSSRApp, defineComponent, h, type Component } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { ID_INJECTION_KEY, ZINDEX_INJECTION_KEY } from 'element-plus';
 import { describe, expect, test } from 'vitest';
+import { getEaSelectPopperClass } from './components/EaSelect/selectPopperClass';
+
+const controlsCss = readFileSync(new URL('./styles/controls.css', import.meta.url), 'utf8');
+const tokensCss = readFileSync(new URL('./styles/tokens.css', import.meta.url), 'utf8');
 
 type ComponentModule = { default: Component };
 
@@ -39,6 +44,33 @@ async function renderComponent(name: string, props: Record<string, unknown>, con
 }
 
 describe('design-system component contracts', () => {
+  test('shared controls consume semantic foreground colors for accent and danger fills', () => {
+    expect(tokensCss).toContain('--ea-on-accent:');
+    expect(tokensCss).toContain('--ea-on-danger:');
+    expect(controlsCss).toContain('color: var(--ea-on-accent);');
+    expect(controlsCss).toContain('color: var(--ea-on-danger);');
+    expect(controlsCss).not.toMatch(
+      /(?:color|background|border):\s*(?:#151515|#050505|#fff|#111)\b/,
+    );
+  });
+
+  test('EaActivityRailButton exposes its side, selection, label, and optical icon size', async () => {
+    const html = await renderComponent('EaActivityRailButton', {
+      side: 'right',
+      active: true,
+      icon: '/icons/activity.webp',
+      label: 'Inspector',
+      iconSize: 26,
+    });
+
+    expect(html).toContain('ea-activity-rail-button--right');
+    expect(html).toContain('aria-pressed="true"');
+    expect(html).toContain('aria-label="Inspector"');
+    expect(html).toContain('data-tooltip="Inspector"');
+    expect(html).toContain('src="/icons/activity.webp"');
+    expect(html).toMatch(/style="[^"]*--ea-activity-rail-icon-size:26px/);
+  });
+
   test('EaButton prevents duplicate actions while loading', async () => {
     const html = await renderComponent('EaButton', { loading: true }, 'Save');
 
@@ -53,6 +85,19 @@ describe('design-system component contracts', () => {
     const html = await renderComponent('EaButton', { pressed: true }, 'Display');
 
     expect(html).toContain('aria-pressed="true"');
+  });
+
+  test('EaCloseButton renders one labelled close control with the requested size', async () => {
+    const html = await renderComponent('EaCloseButton', {
+      label: 'Close panel',
+      size: 'sm',
+    });
+
+    expect(html).toContain('<button');
+    expect(html).toContain('aria-label="Close panel"');
+    expect(html).toContain('title="Close panel"');
+    expect(html).toContain('ea-close-button--sm');
+    expect(html).toContain('viewBox="0 0 24 24"');
   });
 
   test('EaButton keeps slotted layout items as direct button children', async () => {
@@ -122,6 +167,28 @@ describe('design-system component contracts', () => {
     expect(html).toContain('for="duration"');
     expect(html).toContain('id="duration-error"');
     expect(html).toContain('role="alert"');
+  });
+
+  test('EaFormField keeps rich label content inside the associated label element', async () => {
+    const field = getComponent('EaFormField');
+    expect(field).toBeDefined();
+    if (!field) return;
+
+    const html = await renderToString(
+      createSSRApp({
+        render: () =>
+          h(
+            field,
+            { controlId: 'strength' },
+            {
+              label: () => [h('img', { src: '/strength.webp', alt: '' }), 'Strength'],
+              default: () => h('input', { id: 'strength' }),
+            },
+          ),
+      }),
+    );
+
+    expect(html).toMatch(/<label[^>]*for="strength"[^>]*>.*strength\.webp.*Strength.*<\/label>/);
   });
 
   test('EaInput consumes the surrounding field error state', async () => {
@@ -254,6 +321,12 @@ describe('design-system component contracts', () => {
     expect(html).toContain('ea-select--inline');
   });
 
+  test('EaSelect carries its control size into the teleported option list', () => {
+    expect(getEaSelectPopperClass('sm', 'feature-options')).toBe(
+      'ea-select-popper ea-select-popper--sm feature-options',
+    );
+  });
+
   test('EaOption and EaOptionGroup are available for custom select content', () => {
     const option = getComponent('EaOption');
     const optionGroup = getComponent('EaOptionGroup');
@@ -262,6 +335,71 @@ describe('design-system component contracts', () => {
     expect(componentSources['./components/EaOption/EaOption.vue']).toContain(
       '<slot>{{ label }}</slot>',
     );
+  });
+
+  test('EaTooltip and EaPopover expose shared floating-surface adapters', () => {
+    expect(getComponent('EaTooltip')).toBeDefined();
+    expect(getComponent('EaPopover')).toBeDefined();
+  });
+
+  test('EaDrawer owns the shared mobile drawer defaults while preserving dismissal overrides', async () => {
+    const drawer = getComponent('EaDrawer');
+    expect(drawer).toBeDefined();
+    if (!drawer) return;
+
+    const app = configureElementPlusSsr(
+      createSSRApp({
+        render: () =>
+          h('main', [
+            h(
+              drawer,
+              { modelValue: true, size: '78%', closeOnClickModal: false },
+              { default: () => 'Fixed drawer body' },
+            ),
+            h(drawer, { modelValue: true }, { default: () => 'Dismissible drawer body' }),
+          ]),
+      }),
+    );
+    app.component(
+      'ElDrawer',
+      defineComponent({
+        inheritAttrs: false,
+        props: {
+          direction: String,
+          size: [String, Number],
+          withHeader: Boolean,
+          appendToBody: Boolean,
+          lockScroll: Boolean,
+          closeOnClickModal: Boolean,
+        },
+        setup:
+          (props, { slots }) =>
+          () =>
+            h(
+              'section',
+              {
+                'data-direction': props.direction,
+                'data-size': String(props.size),
+                'data-with-header': String(props.withHeader),
+                'data-append-to-body': String(props.appendToBody),
+                'data-lock-scroll': String(props.lockScroll),
+                'data-close-on-click-modal': String(props.closeOnClickModal),
+              },
+              slots.default?.(),
+            ),
+      }),
+    );
+
+    const html = await renderToString(app);
+    expect(html).toContain('data-direction="btt"');
+    expect(html).toContain('data-size="78%"');
+    expect(html).toContain('data-with-header="false"');
+    expect(html).toContain('data-append-to-body="true"');
+    expect(html).toContain('data-lock-scroll="false"');
+    expect(html).toContain('data-close-on-click-modal="false"');
+    expect(html).toContain('data-close-on-click-modal="true"');
+    expect(html).toContain('Fixed drawer body');
+    expect(html).toContain('Dismissible drawer body');
   });
 
   test('EaDialog locks every dismissal path while busy', async () => {

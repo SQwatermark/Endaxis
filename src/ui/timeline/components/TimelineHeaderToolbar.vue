@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { EaPopover } from '@/design-system';
 /** 时间轴顶部方案栏。DOM 分区与视觉契约以旧版 TimelineEditor 为准。 */
 import { EaButton, EaDeleteIcon, EaDiceIcon, EaInput, EaNumberInput } from '@/design-system';
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
@@ -245,11 +246,11 @@ onBeforeUnmount(() => {
           :key="scenario.id"
           type="button"
           class="ts-tab-item"
-          :class="{ 'is-active': scenario.id === activeScenarioId }"
           :title="scenario.name"
           :aria-label="scenario.name"
           :aria-current="scenario.id === activeScenarioId ? 'page' : undefined"
           @click="$emit('select', scenario.id)"
+          :pressed="scenario.id === activeScenarioId"
         >
           {{ String(index + 1).padStart(2, '0') }}
         </EaButton>
@@ -284,7 +285,7 @@ onBeforeUnmount(() => {
         </svg>
         {{ labels.export }}
       </EaButton>
-      <el-popover
+      <EaPopover
         v-model:visible="displayMenuOpen"
         placement="bottom-end"
         trigger="click"
@@ -296,7 +297,6 @@ onBeforeUnmount(() => {
           <EaButton
             size="sm"
             type="button"
-            :class="{ 'is-active': displayMenuOpen }"
             :title="t('display.title')"
             :aria-label="t('display.title')"
             :aria-expanded="displayMenuOpen"
@@ -313,9 +313,8 @@ onBeforeUnmount(() => {
           <EaButton
             type="button"
             class="timeline-display-guide"
-            :class="{ 'is-active': cursorGuideEnabled }"
-            :aria-pressed="cursorGuideEnabled"
             @click="$emit('toggleCursorGuide')"
+            :pressed="cursorGuideEnabled"
           >
             <svg
               class="timeline-display-guide__icon"
@@ -363,9 +362,8 @@ onBeforeUnmount(() => {
                     v-for="mode in ['compact', 'loose'] as const"
                     :key="mode"
                     type="button"
-                    :class="{ 'is-active': buffLayoutMode === mode }"
-                    :aria-pressed="buffLayoutMode === mode"
                     @click="$emit('setBuffLayout', mode)"
+                    :pressed="buffLayoutMode === mode"
                   >
                     {{
                       t(
@@ -439,8 +437,8 @@ onBeforeUnmount(() => {
             <TimelineDurationBarColorControls />
           </div>
         </div>
-      </el-popover>
-      <el-popover
+      </EaPopover>
+      <EaPopover
         v-model:visible="moreMenuOpen"
         placement="bottom-end"
         trigger="click"
@@ -452,7 +450,6 @@ onBeforeUnmount(() => {
           <EaButton
             size="sm"
             type="button"
-            :class="{ 'is-active': moreMenuOpen }"
             :title="labels.more"
             :aria-label="labels.more"
             :aria-expanded="moreMenuOpen"
@@ -475,9 +472,8 @@ onBeforeUnmount(() => {
               <EaButton
                 type="button"
                 class="header-more-check-row header-more-tool-row"
-                :class="{ 'is-active': boxSelectEnabled }"
-                :aria-pressed="boxSelectEnabled"
                 @click="$emit('toggleBoxSelect')"
+                :pressed="boxSelectEnabled"
               >
                 <svg
                   class="header-more-tool-row__icon"
@@ -514,9 +510,8 @@ onBeforeUnmount(() => {
               <EaButton
                 type="button"
                 class="header-more-check-row header-more-tool-row"
-                :class="{ 'is-active': connectionToolEnabled }"
-                :aria-pressed="connectionToolEnabled"
                 @click="$emit('toggleConnectionTool')"
+                :pressed="connectionToolEnabled"
               >
                 <svg
                   class="header-more-tool-row__icon"
@@ -586,9 +581,8 @@ onBeforeUnmount(() => {
                   v-for="mode in ['expected', 'sampled'] as const"
                   :key="mode"
                   type="button"
-                  :class="{ 'is-active': randomMode === mode }"
-                  :aria-pressed="randomMode === mode"
                   @click="$emit('setRandomMode', mode)"
+                  :pressed="randomMode === mode"
                 >
                   {{ t(`timeline.random.${mode}`) }}
                 </EaButton>
@@ -625,8 +619,8 @@ onBeforeUnmount(() => {
                   :key="localeId"
                   type="button"
                   class="header-more-locale__btn"
-                  :class="{ 'is-active': locale === localeId }"
                   @click="$emit('setLocale', localeId)"
+                  :pressed="locale === localeId"
                 >
                   {{ localeLabel(localeId) }}
                 </EaButton>
@@ -662,11 +656,10 @@ onBeforeUnmount(() => {
                   icon-only
                   type="button"
                   class="header-more-appearance__btn"
-                  :class="{ 'is-active': appearance === 'light' }"
                   :title="labels.appearanceLight"
                   :aria-label="labels.appearanceLight"
-                  :aria-pressed="appearance === 'light'"
                   @click="$emit('setAppearance', 'light')"
+                  :pressed="appearance === 'light'"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -690,11 +683,10 @@ onBeforeUnmount(() => {
                   icon-only
                   type="button"
                   class="header-more-appearance__btn"
-                  :class="{ 'is-active': appearance === 'dark' }"
                   :title="labels.appearanceDark"
                   :aria-label="labels.appearanceDark"
-                  :aria-pressed="appearance === 'dark'"
                   @click="$emit('setAppearance', 'dark')"
+                  :pressed="appearance === 'dark'"
                 >
                   <svg
                     viewBox="0 0 24 24"
@@ -750,7 +742,7 @@ onBeforeUnmount(() => {
             </div>
           </section>
         </div>
-      </el-popover>
+      </EaPopover>
     </div>
   </div>
 </template>
@@ -890,7 +882,7 @@ onBeforeUnmount(() => {
   color: var(--ea-fg);
 }
 
-.ts-tab-item.is-active {
+.ts-tab-item[aria-pressed='true'] {
   background: var(--ea-tab-active-bg);
   color: var(--ea-tab-active-fg);
   box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
@@ -908,7 +900,7 @@ onBeforeUnmount(() => {
   gap: 8px;
 }
 
-.header-controls .ea-button.is-active {
+.header-controls .ea-button[aria-expanded='true'] {
   background: var(--ea-active-fill);
   color: var(--ea-fg);
 }
@@ -1043,8 +1035,8 @@ onBeforeUnmount(() => {
   justify-content: center;
 }
 
-.header-more-locale__btn.ea-button.is-active,
-.header-more-appearance__btn.ea-button.is-active {
+.header-more-locale__btn.ea-button[aria-pressed='true'],
+.header-more-appearance__btn.ea-button[aria-pressed='true'] {
   border-color: color-mix(in srgb, var(--ea-gold) 50%, transparent);
   background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
   color: #ffe38a;
@@ -1087,7 +1079,7 @@ onBeforeUnmount(() => {
 }
 
 .timeline-display-guide:hover .timeline-display-guide__icon,
-.timeline-display-guide.is-active .timeline-display-guide__icon {
+.timeline-display-guide[aria-pressed='true'] .timeline-display-guide__icon {
   color: var(--ea-gold);
 }
 
@@ -1161,23 +1153,17 @@ onBeforeUnmount(() => {
     display: none;
   }
 }
+@media (hover: hover) and (pointer: fine) {
+  .ts-tab-item[aria-pressed='true']:hover:not(:disabled) {
+    background: var(--ea-tab-active-bg);
+    color: var(--ea-tab-active-fg);
+    box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+  }
+}
 </style>
 
 <style>
-.header-more-popper.el-popover.el-popper {
+.header-more-popper {
   padding: 12px;
-  background: var(--ea-popover-bg);
-  border: 1px solid var(--ea-border);
-  box-shadow: 0 10px 28px var(--ea-shadow-strong);
-}
-
-.header-more-popper.el-popper.is-light,
-.header-more-popper.el-popper {
-  color: var(--ea-fg-secondary);
-}
-
-.header-more-popper.el-popper .el-popper__arrow::before {
-  background: var(--ea-popover-bg);
-  border-color: var(--ea-border);
 }
 </style>

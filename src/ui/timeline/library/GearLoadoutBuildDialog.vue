@@ -271,8 +271,8 @@ const activeSetBonuses = computed(() => {
                   :key="`${slot.slot}-${level}`"
                   type="button"
                   class="refine-btn"
-                  :class="{ 'is-active': isUniformLevel(slot.build, level) }"
                   @click="setUniformLevel(slot.build, level)"
+                  :pressed="isUniformLevel(slot.build, level)"
                 >
                   {{
                     level === 0

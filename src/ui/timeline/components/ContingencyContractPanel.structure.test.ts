@@ -33,6 +33,8 @@ describe('ContingencyContractPanel legacy interaction parity', () => {
     expect(source).toContain(
       ":global(html[data-theme='light'] .cc-tag-tooltip-popper.el-popper.is-dark)",
     );
-    expect(source).toContain('background: var(--ea-tooltip-bg, #fff)');
+    expect(source).toContain('<EaTooltip');
+    expect(source).toContain('--ea-floating-border: color-mix(');
+    expect(source).not.toContain('background: var(--ea-tooltip-bg, #fff)');
   });
 });
