@@ -84,7 +84,6 @@ const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
   'src/data/combat/skill-setting.generated.json',
   'src/data/global-buffs/global-buff-templates.generated.json',
   'src/data/mechanics/contingency-contract-catalog.generated.json',
-  'src/data/enemies/enemy-ranks.generated.json',
   ...GAME_LOCALE_REBUILD_OUTPUTS,
 ] as const;
 
@@ -143,7 +142,7 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
   },
   {
     id: 'enemies',
-    outputs: ['src/data/enemies/generated', 'src/data/enemies/enemy-ranks.generated.json'],
+    outputs: ['src/data/enemies/generated'],
     blocker:
       '87 个原生 eny_* 敌人已可由同批表格与 VFS Unity worker 原始 EnemyTemplateData.rank 生成并发布；韧性节点 2 秒仍是明确标注的项目兼容常量。敌人图标已进入隔离引用闭包。',
   },
@@ -276,47 +275,50 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
     if (!args.tablesOnly && missingRequestedInputs.length === 0 && args.unityWorker) {
       await stage('enemies', async () => {
         const relativeOutput = 'src/data/enemies/generated';
-        const rankRelative = 'src/data/enemies/enemy-ranks.generated.json';
-        const rankOutput = path.join(candidateRoot, rankRelative);
-        const rankInput = {
-          tablesDirectory: path.join(sourceRoot, 'TableCfg-current'),
-          unityWorker: args.unityWorker!,
-          output: rankOutput,
-          vfsUrl: args.vfsBase.replace(/\/api\/endaxis-data\/?$/, ''),
-          workers: Math.min(args.workers, 4),
-        };
-        const ranks = await extractEnemyRankEvidence(rankInput);
-        const firstRankText = await fs.readFile(rankOutput, 'utf8');
-        await extractEnemyRankEvidence(rankInput);
-        if ((await fs.readFile(rankOutput, 'utf8')) !== firstRankText) {
-          throw new Error('enemy rank evidence changed on identical second extraction');
-        }
-        const generationInput = {
-          tablesDirectory: rankInput.tablesDirectory,
-          rankEvidence: rankOutput,
-          runtimeDefaults: path.join(
-            root,
-            'tools/game-data-compiler/config/enemies/runtime-defaults.json',
-          ),
-          outputDirectory: path.join(candidateRoot, relativeOutput),
-          check: false,
-        };
-        const generated = await generateEnemyDefinitions(generationInput);
-        await generateEnemyDefinitions({ ...generationInput, check: true });
-        return {
-          ranks,
-          generated,
-          audit: await auditCandidateEnemyDefinitions({
+        const rankOutput = path.join(runRoot, 'enemy-ranks.tmp.json');
+        try {
+          const rankInput = {
+            tablesDirectory: path.join(sourceRoot, 'TableCfg-current'),
+            unityWorker: args.unityWorker!,
+            output: rankOutput,
+            vfsUrl: args.vfsBase.replace(/\/api\/endaxis-data\/?$/, ''),
+            workers: Math.min(args.workers, 4),
+          };
+          const ranks = await extractEnemyRankEvidence(rankInput);
+          const firstRankText = await fs.readFile(rankOutput, 'utf8');
+          await extractEnemyRankEvidence(rankInput);
+          if ((await fs.readFile(rankOutput, 'utf8')) !== firstRankText) {
+            throw new Error('enemy rank evidence changed on identical second extraction');
+          }
+          const generationInput = {
             tablesDirectory: rankInput.tablesDirectory,
             rankEvidence: rankOutput,
-            runtimeDefaults: generationInput.runtimeDefaults,
-          }),
-          deterministicCheck: 'passed',
-          comparison: await compareCandidateFiles(
-            path.join(root, relativeOutput),
-            generationInput.outputDirectory,
-          ),
-        };
+            runtimeDefaults: path.join(
+              root,
+              'tools/game-data-compiler/config/enemies/runtime-defaults.json',
+            ),
+            outputDirectory: path.join(candidateRoot, relativeOutput),
+            check: false,
+          };
+          const generated = await generateEnemyDefinitions(generationInput);
+          await generateEnemyDefinitions({ ...generationInput, check: true });
+          return {
+            ranks,
+            generated,
+            audit: await auditCandidateEnemyDefinitions({
+              tablesDirectory: rankInput.tablesDirectory,
+              rankEvidence: rankOutput,
+              runtimeDefaults: generationInput.runtimeDefaults,
+            }),
+            deterministicCheck: 'passed',
+            comparison: await compareCandidateFiles(
+              path.join(root, relativeOutput),
+              generationInput.outputDirectory,
+            ),
+          };
+        } finally {
+          await fs.rm(rankOutput, { force: true });
+        }
       });
       const tags = path.join(candidateRoot, 'src/data/combat/gameplayTagCatalog.generated.ts');
       const tagRoot = path.join(runRoot, 'unity-sources', 'GameplayTagConfigSet');

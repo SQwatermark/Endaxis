@@ -1,8 +1,7 @@
 # 战斗运行时切面
 
 本文说明战斗模拟如何保存一个完整帧时刻的数据、从该时刻建立分支、试算后回退。这里描述当前设计，
-不记录迁移过程。任务状态和测量结果见[切面任务清单](../handoff/runtime-checkpoint-plan.md)，实现缺口的
-历史审查见[切面审查](../research/combat/runtime-checkpoint-review-2026-09-14.md)。
+不记录迁移过程。任务状态和测量结果见[切面任务清单](../handoff/runtime-checkpoint-plan.md)。
 
 ## 用途
 

@@ -65,11 +65,9 @@
 多段同时保留原始持续时间上限；未获准执行Tick时，不能自行推进段数。
 结束后再按所有启用回调技能的最大原生时长等待回收，随后分别标记回收、执行reset。
 空目标组不发射，多个能力实体目标逐个发射。适用条件与来源见
-[投射物生命周期编译](../research/combat/projectile-lifetime-compilation.md)。
+[投射物生命周期编译](../../../combat-spec-operator-completion/docs/research/combat/projectile-lifetime-compilation.md)。
 
 界面根据实际结果记录展示命中和状态。强化状态条按确认的 Buff 回执生成，不能把任意自身 Buff
 猜成强化状态，也不能把显示条的长度写回技能寿命。
 
 运行对象、事件清理和各自时钟见 [战斗执行与状态](runtime.md)。
-旧设计细节保存在 [生命周期旧稿](../archive/next/history-skill-lifecycle.md) 和
-[定义蓝图旧稿](../archive/next/history-skill-definition-blueprint.md)，使用其中结论前仍需核对代码与证据。

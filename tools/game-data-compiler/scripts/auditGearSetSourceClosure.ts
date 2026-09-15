@@ -1,6 +1,6 @@
 import { createHash } from 'node:crypto';
-import { access, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
-import { basename, resolve } from 'node:path';
+import { access, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, resolve } from 'node:path';
 
 import { compileEquipmentSuitSourceClosure } from '../src/index.ts';
 
@@ -99,6 +99,7 @@ function requireSameIdentities(
 
 async function writeAtomic(path: string, content: string): Promise<void> {
   const target = resolve(path);
+  await mkdir(dirname(target), { recursive: true });
   const temporary = `${target}.part-${process.pid}`;
   const backup = `${target}.backup-${process.pid}`;
   await writeFile(temporary, content, 'utf8');
@@ -161,10 +162,10 @@ function parseArguments(values: readonly string[]): Arguments {
     buffDataDirectory: resolve(entries['--buffs']!),
     clientVersion: entries['--client-version']!,
     jsonOutput: resolve(
-      entries['--json-output'] ?? 'docs/research/equipment/equipment-suit-source-closure.json',
+      entries['--json-output'] ?? 'tmp/game-data-audit/equipment-suit-source-closure.json',
     ),
     markdownOutput: resolve(
-      entries['--markdown-output'] ?? 'docs/research/equipment/equipment-suit-source-closure.md',
+      entries['--markdown-output'] ?? 'tmp/game-data-audit/equipment-suit-source-closure.md',
     ),
   };
 }

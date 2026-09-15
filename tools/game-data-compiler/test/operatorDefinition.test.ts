@@ -218,7 +218,8 @@ beforeAll(() => {
     skillPatchTable: path.join(sourceRoot, 'TableCfg-1.4.4-9433094-12/SkillPatchTable.json'),
     buffDataRoot: path.join(sourceRoot, 'BuffData'),
     abilityEntityCatalog: 'src/data/ability-entities/ability-entity-templates-1.4.4.json',
-    projectileBlackboardCatalog: 'src/data/projectiles/projectile-entity-blackboards-1.4.4.json',
+    projectileBlackboardCatalog:
+      'tools/game-data-compiler/legacy/evidence/projectile-entity-blackboards-1.4.4.json',
     gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
     timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
     globalBuffCatalog: 'src/data/global-buffs/global-buff-templates.generated.json',

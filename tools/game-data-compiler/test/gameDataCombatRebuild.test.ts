@@ -305,9 +305,27 @@ describe('完整重建的统一战斗定义阶段', () => {
     }
     expect(mocks.snapshot).toHaveBeenCalledTimes(2);
     expect(mocks.publish).toHaveBeenCalledTimes(1);
+    const rankOutput = mocks.enemyRanks.mock.calls[0]![0].output;
+    await expect(fs.stat(rankOutput)).rejects.toMatchObject({ code: 'ENOENT' });
+    expect(mocks.publish.mock.calls[0]![0].fileOutputs).not.toContain(
+      path.relative(report.candidateRoot, rankOutput),
+    );
+    expect(mocks.publish.mock.calls[0]![0].fileOutputs).not.toContain(
+      'src/data/enemies/enemy-ranks.generated.json',
+    );
     expect(mocks.publish.mock.invocationCallOrder[0]).toBeGreaterThan(
       mocks.snapshot.mock.invocationCallOrder[1]!,
     );
+  });
+
+  it('敌人生成失败也清理已提取的分类中间文件', async () => {
+    const { root, args } = await setup();
+    mocks.enemies.mockRejectedValueOnce(new Error('enemy generation failed'));
+    const { report } = await rebuildGameData(args, root);
+    expect(report.stages.find(stage => stage.id === 'enemies')?.status).toBe('failed');
+    expect(mocks.publish).not.toHaveBeenCalled();
+    const rankOutput = mocks.enemyRanks.mock.calls[0]![0].output;
+    await expect(fs.stat(rankOutput)).rejects.toMatchObject({ code: 'ENOENT' });
   });
 
   it('第二轮失败时记在统一阶段，阻止类型、资源、模拟和发布', async () => {

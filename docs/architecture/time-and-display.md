@@ -16,7 +16,7 @@
 
 曲线、标签和槽位配置属于版本化游戏数据。命名曲线与内联曲线只是来源不同，不能据此判断作用范围。
 缺失配置应明确报错，不能补上旧版的固定冻结秒数。游戏依据见
-[槽位与曲线研究](../research/combat/time-dilation-slot-and-curve-config.md)。
+[槽位与曲线研究](../../../combat-spec-operator-completion/docs/research/combat/time-dilation-slot-and-curve-config.md)。
 
 ## 哪一层负责什么
 
@@ -82,6 +82,3 @@
 
 命中、资源和状态显示使用模拟记录的发生帧。编辑后需要检查结果版本和取消状态，
 避免把上一轮模拟结果当作当前输入的结果。
-
-旧版双坐标与冻结带设计保存在 [历史稿](../archive/next/history-time-freeze-and-projection.md)，
-其中的时间映射和未完成事项不再作为当前开发要求。

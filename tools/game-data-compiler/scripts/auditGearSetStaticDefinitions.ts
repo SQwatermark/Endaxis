@@ -1,5 +1,5 @@
-import { access, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
-import { basename, resolve } from 'node:path';
+import { access, mkdir, readFile, readdir, rename, rm, writeFile } from 'node:fs/promises';
+import { basename, dirname, resolve } from 'node:path';
 
 import { compileEquipmentSuitStaticDefinitionBatchSource } from '../src/index.ts';
 
@@ -75,6 +75,7 @@ function countBy<T>(values: readonly T[], key: (value: T) => string): Record<str
 
 async function writeAtomic(path: string, content: string): Promise<void> {
   const target = resolve(path);
+  await mkdir(dirname(target), { recursive: true });
   const temporary = `${target}.part-${process.pid}`;
   const backup = `${target}.backup-${process.pid}`;
   await writeFile(temporary, content, 'utf8');
@@ -121,11 +122,10 @@ function parseArguments(values: readonly string[]) {
     skills: resolve(entries['--skills']!),
     clientVersion: entries['--client-version']!,
     jsonOutput: resolve(
-      entries['--json-output'] ?? 'docs/research/equipment/equipment-suit-static-definitions.json',
+      entries['--json-output'] ?? 'tmp/game-data-audit/equipment-suit-static-definitions.json',
     ),
     markdownOutput: resolve(
-      entries['--markdown-output'] ??
-        'docs/research/equipment/equipment-suit-static-definitions.md',
+      entries['--markdown-output'] ?? 'tmp/game-data-audit/equipment-suit-static-definitions.md',
     ),
   };
 }

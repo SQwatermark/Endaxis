@@ -89,7 +89,4 @@
 - 触发Buff的内部冷却、叠层、重复触发和结束顺序符合证据。
 - 初始化、事件响应和主动技能共存时，黑板及来源没有串用，清理不会提前结束独立效果。
 
-这些入口存在，不代表所有武器、套装和复杂组合已经验收。数据覆盖查
-[装备生成审计](../research/equipment/equipment-generation-audit.md)，当前待办查 [交接](../handoff/current-context.md)。
-旧设计及当时的缺口保存在 [历史蓝图](../archive/next/history-equipment-definition-blueprint.md)、
-[DSL旧方案](../archive/architecture/history-equipment-dsl-design.md) 和 [常驻效果旧方案](../archive/architecture/history-equipment-persistent-effects-extension-plan.md)。
+这些入口存在，不代表所有复杂组合已经验收。当前待办查[交接](../handoff/current-context.md)。

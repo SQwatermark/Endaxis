@@ -14,9 +14,8 @@ npm run convert:legacy-timeline -- "C:\Users\sqwat\Downloads\Endaxis_Timeline_20
 输出目录必须不存在，父目录须存在。只写新目录，不覆盖旧存档。
 成功输出 project.json 和 report.json；有遗漏/目标校验失败只输出报告并以非零状态结束。
 示例配置只演示字段。旧版 2026-08-31 数据快照统一使用 mappings.2026-08-31.json；
-依据、告警与未验证边界见 [映射及运行检查](mapping-evidence.md)。
-同一映射文件也包含官网“别赛羊诀”扩样；筛选、身份依据和未解决差异见
-[公开轴检查记录](public-share-evidence.md)。成功转换不等于新旧模拟结果一致。
+原生样本依据归 [combat-spec](../../../combat-spec-operator-completion/docs/research/README.md)。
+成功转换不等于新旧模拟结果一致。
 未传配置可用来发现未映射内容。
 
 ## 模拟审计

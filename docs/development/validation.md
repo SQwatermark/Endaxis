@@ -25,8 +25,8 @@
 
 按每次命中的时间、来源、数值、资源和状态比较。区分旧版近似、新版缺陷、证据缺失以及随机差异，
 每项结论都应有来源和覆盖边界。公开样本的应用测试入口是
-[publicShareRegression.test.ts](../../src/application/publicShareRegression.test.ts)。
-旧采集过程见历史区，私有样本及本机临时产物的位置留在 `.local/`。
+[publicShareRegression.test.ts](../../src/application/simulation/integration/publicShareRegression.test.ts)。
+私有样本及本机临时产物的位置留在 `.local/`。
 
 ## 性能与界面
 
