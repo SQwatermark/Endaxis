@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import { compressProjectCode, imageFilename, projectFilename } from './timelineExport';
+import source from './timelineExport.ts?raw';
 
 describe('timeline export helpers', () => {
+  it('loads the image renderer only when an image export starts', () => {
+    expect(source).not.toMatch(/^import .*@zumer\/snapdom/m);
+    expect(source).toContain("await import('@zumer/snapdom')");
+  });
   it('normalizes project and image extensions without retaining legacy PNG suffixes', () => {
     expect(projectFilename(' rotation.webp ')).toBe('rotation.json');
     expect(imageFilename('rotation.png')).toBe('rotation.webp');

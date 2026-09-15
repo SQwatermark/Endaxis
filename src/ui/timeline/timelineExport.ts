@@ -1,5 +1,4 @@
 /** 时间轴导出的文件名、压缩数据码、下载和长图渲染工具。 */
-import { snapdom } from '@zumer/snapdom';
 
 export function projectFilename(value: string, fallback = 'Endaxis_Export'): string {
   const base = value.trim().replace(/\.(?:json|webp|png)$/i, '') || fallback;
@@ -53,6 +52,7 @@ export async function captureTimelineLongImage(
   timelineMain: HTMLElement,
   options: TimelineLongImageOptions,
 ): Promise<Blob> {
+  const { snapdom } = await import('@zumer/snapdom');
   const width = Math.ceil(
     options.trackHeaderWidth +
       options.prepWidth +
