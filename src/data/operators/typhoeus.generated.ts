@@ -3230,7 +3230,16 @@ export const typhoeusFloatingAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 160,
     exclusiveFrame: 999,
-    inputWindows: { hasConditionalActions: true },
+    inputWindows: {
+      hasConditionalActions: true,
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 25, sourceSkillIds: ['chr_0034_typhoea_floating_attack2'] },
+        { startFrame: 63, endFrame: 70, sourceSkillIds: ['chr_0034_typhoea_floating_attack2'] },
+        { startFrame: 93, endFrame: 100, sourceSkillIds: ['chr_0034_typhoea_floating_attack2'] },
+        { startFrame: 123, endFrame: 130, sourceSkillIds: ['chr_0034_typhoea_floating_attack2'] },
+        { startFrame: 153, endFrame: 160, sourceSkillIds: ['chr_0034_typhoea_floating_attack2'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -4162,7 +4171,16 @@ export const typhoeusFloatingAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 160,
     exclusiveFrame: 999,
-    inputWindows: { hasConditionalActions: true },
+    inputWindows: {
+      hasConditionalActions: true,
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 25, sourceSkillIds: ['chr_0034_typhoea_floating_attack3'] },
+        { startFrame: 63, endFrame: 70, sourceSkillIds: ['chr_0034_typhoea_floating_attack3'] },
+        { startFrame: 93, endFrame: 100, sourceSkillIds: ['chr_0034_typhoea_floating_attack3'] },
+        { startFrame: 123, endFrame: 130, sourceSkillIds: ['chr_0034_typhoea_floating_attack3'] },
+        { startFrame: 153, endFrame: 160, sourceSkillIds: ['chr_0034_typhoea_floating_attack3'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -5093,7 +5111,16 @@ export const typhoeusFloatingAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 160,
     exclusiveFrame: 999,
-    inputWindows: { hasConditionalActions: true },
+    inputWindows: {
+      hasConditionalActions: true,
+      allowedNextSkills: [
+        { startFrame: 18, endFrame: 26, sourceSkillIds: ['chr_0034_typhoea_floating_attack4'] },
+        { startFrame: 63, endFrame: 70, sourceSkillIds: ['chr_0034_typhoea_floating_attack4'] },
+        { startFrame: 93, endFrame: 100, sourceSkillIds: ['chr_0034_typhoea_floating_attack4'] },
+        { startFrame: 123, endFrame: 130, sourceSkillIds: ['chr_0034_typhoea_floating_attack4'] },
+        { startFrame: 153, endFrame: 160, sourceSkillIds: ['chr_0034_typhoea_floating_attack4'] },
+      ],
+    },
     costFrame: 13,
     scheduledSequences: [
       scheduled(
@@ -6073,6 +6100,13 @@ export const typhoeusFloatingAttack4: SkillDefinition = withSkillBlackboard(
         },
       ],
       hasConditionalActions: true,
+      allowedNextSkills: [
+        { startFrame: 28, endFrame: 42, sourceSkillIds: ['chr_0034_typhoea_floating_attack5'] },
+        { startFrame: 178, endFrame: 193, sourceSkillIds: ['chr_0034_typhoea_floating_attack5'] },
+        { startFrame: 328, endFrame: 342, sourceSkillIds: ['chr_0034_typhoea_floating_attack5'] },
+        { startFrame: 478, endFrame: 492, sourceSkillIds: ['chr_0034_typhoea_floating_attack5'] },
+        { startFrame: 628, endFrame: 642, sourceSkillIds: ['chr_0034_typhoea_floating_attack5'] },
+      ],
     },
     costFrame: 13,
     scheduledSequences: [

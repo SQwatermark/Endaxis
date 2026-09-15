@@ -926,6 +926,10 @@ export function selectBasicAttackTimelineBlockFrames(
 ): void {
   const selectedFrames = new Map<string, number>();
   const selectedTargets = new Map<string, string>();
+  const selectedWindows = new Map<
+    string,
+    readonly { readonly startFrame: number; readonly endFrame: number }[]
+  >();
   const selectRoute = (skillKeys: readonly string[]): void => {
     if (skillKeys.length < 2) return;
     for (let index = 0; index < skillKeys.length; index += 1) {
@@ -963,6 +967,21 @@ export function selectBasicAttackTimelineBlockFrames(
         );
       }
       selectedTargets.set(key, nextDefinition.sourceSkillId);
+      selectedWindows.set(
+        key,
+        candidates
+          .map(item => ({ startFrame: item.startFrame, endFrame: item.endFrame }))
+          .filter(
+            (item, itemIndex, items) =>
+              items.findIndex(
+                candidate =>
+                  candidate.startFrame === item.startFrame && candidate.endFrame === item.endFrame,
+              ) === itemIndex,
+          )
+          .sort(
+            (left, right) => left.startFrame - right.startFrame || left.endFrame - right.endFrame,
+          ),
+      );
     }
   };
   for (const group of groups) {
@@ -972,10 +991,31 @@ export function selectBasicAttackTimelineBlockFrames(
   }
   for (const [key, frame] of selectedFrames) {
     const definition = definitions.get(key)!;
+    const continuationSourceSkillId = selectedTargets.get(key)!;
+    const recoveredAllowedNextSkills = (selectedWindows.get(key) ?? []).map(window => ({
+      ...window,
+      sourceSkillIds: [continuationSourceSkillId],
+    }));
+    const existingAllowedNextSkills = definition.inputWindows?.allowedNextSkills ?? [];
     definitions.set(key, {
       ...definition,
       timelineBlockFrames: frame,
-      timelineContinuationSourceSkillId: selectedTargets.get(key)!,
+      timelineContinuationSourceSkillId: continuationSourceSkillId,
+      inputWindows: {
+        ...definition.inputWindows,
+        allowedNextSkills: [...existingAllowedNextSkills, ...recoveredAllowedNextSkills].filter(
+          (window, windowIndex, windows) =>
+            windows.findIndex(
+              candidate =>
+                candidate.startFrame === window.startFrame &&
+                candidate.endFrame === window.endFrame &&
+                candidate.sourceSkillIds.length === window.sourceSkillIds.length &&
+                candidate.sourceSkillIds.every(
+                  (id, idIndex) => id === window.sourceSkillIds[idIndex],
+                ),
+            ) === windowIndex,
+        ),
+      },
     });
   }
 }

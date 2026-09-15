@@ -69,6 +69,7 @@ export interface CompiledActiveSkillRuntimeProjectionSource {
    */
   readonly allowNextSkillTransitions: readonly {
     readonly startFrame: number;
+    readonly endFrame: number;
     readonly skillIds: readonly string[];
     readonly direct: boolean;
   }[];
@@ -1097,6 +1098,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
       return [
         {
           startFrame: timeline.startFrame,
+          endFrame: timeline.endFrame,
           skillIds: node.body.value.action.skillIds,
           direct: directNodes.has(node),
         },

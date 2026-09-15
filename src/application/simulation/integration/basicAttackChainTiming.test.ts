@@ -103,6 +103,13 @@ describe('generated basic attack chain input timing', () => {
       ['typhoeus:floating:3', 87, true],
       ['typhoeus:floating:4', 116, true],
     ]);
+    expect(
+      run.receiptEntries.filter(
+        entry =>
+          entry.event === 'SkillInputResolutionUnknown' ||
+          entry.event === 'SkillInputInterruptionUnknown',
+      ),
+    ).toEqual([]);
   });
 
   it('伊冯未开启强化时回退为12345重击六段，原场景不留下推测前缀', async () => {
