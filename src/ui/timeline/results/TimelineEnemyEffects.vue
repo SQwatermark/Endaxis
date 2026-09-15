@@ -73,6 +73,7 @@ const props = defineProps<{
     readonly sourceId?: string;
     readonly sourceActionId?: string;
   }) => string | undefined;
+  operatorBuffNameKeys?: ReadonlyMap<string, string>;
   icon?: (source: {
     readonly sourceId?: string;
     readonly sourceActionId?: string;
@@ -217,6 +218,7 @@ const buffs = computed(() =>
           value: buff.simpleModifierValue,
         },
         sourceName,
+        props.operatorBuffNameKeys,
       );
     const icon = props.icon?.(buff) ?? buff.iconPath ?? getIconAssetPath(buff.iconId);
     return {

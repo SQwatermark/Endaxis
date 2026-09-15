@@ -339,7 +339,10 @@ import {
 import { projectPublishedHitDetail } from './results/publishedHitDetail';
 import { layoutEnemyDamageHits } from './results/enemyDamageHitLayout';
 import { useSimulationReceiptSelection } from './results/useSimulationReceiptSelection';
-import { resolveBuffDisplayName } from './results/buffDisplayName';
+import {
+  collectOperatorBuffDisplayNameKeys,
+  resolveBuffDisplayName,
+} from './results/buffDisplayName';
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import BattleLogPanel from './results/BattleLogPanel.vue';
 import { usePublishedSimulationDisplay } from './results/usePublishedSimulationDisplay';
@@ -959,6 +962,11 @@ const editorGameDataRepository = {
     ...Object.values(projectDefinitionLibrary.value.gearSets).map(value => value.definition),
   ],
 };
+
+const operatorBuffDisplayNameKeys = computed(() => {
+  operatorDefinitionRevision.value;
+  return collectOperatorBuffDisplayNameKeys(editorGameDataRepository.getOperators());
+});
 
 const {
   operatorDialogTrack,
@@ -2572,7 +2580,13 @@ function enemyDamageSourceDescription(entry: CombatReceiptEntry) {
     buffSourceName({ sourceActionId, sourceId: entry.sourceId }),
     typeof entry.data?.spellBurstType === 'string'
       ? t('battleLog.receiptTypes.SpellBurstApplied')
-      : resolveBuffDisplayName(String(entry.data?.buffId ?? ''), { t, te }),
+      : resolveBuffDisplayName(
+          String(entry.data?.buffId ?? ''),
+          { t, te },
+          undefined,
+          undefined,
+          operatorBuffDisplayNameKeys.value,
+        ),
   ]
     .filter(Boolean)
     .join(' · ');
@@ -2719,7 +2733,15 @@ const cursorEnemyEffects = computed(() => {
     if (previous !== undefined && previous.layers >= segment.layers) continue;
     byBuffId.set(segment.buffId, {
       buffId: segment.buffId,
-      title: buffDisplayName(segment) ?? resolveBuffDisplayName(segment.buffId, { t, te }),
+      title:
+        buffDisplayName(segment) ??
+        resolveBuffDisplayName(
+          segment.buffId,
+          { t, te },
+          undefined,
+          undefined,
+          operatorBuffDisplayNameKeys.value,
+        ),
       icon: buffIcon(segment) ?? segment.iconPath ?? getIconAssetPath(segment.iconId) ?? null,
       layers: segment.layers,
     });
@@ -5416,6 +5438,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :segments="buffSegmentsForTarget(track.operatorInstanceId, 'upper')"
                   :source-name="buffSourceName"
                   :display-name="buffDisplayName"
+                  :operator-buff-name-keys="operatorBuffDisplayNameKeys"
                   :icon="buffIcon"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
@@ -5443,6 +5466,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :segments="buffSegmentsForTarget(track.operatorInstanceId, 'lower')"
                   :source-name="buffSourceName"
                   :display-name="buffDisplayName"
+                  :operator-buff-name-keys="operatorBuffDisplayNameKeys"
                   :icon="buffIcon"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
@@ -5774,6 +5798,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :buffs="buffSegmentsForTarget('enemy')"
                 :source-name="buffSourceName"
                 :display-name="buffDisplayName"
+                :operator-buff-name-keys="operatorBuffDisplayNameKeys"
                 :icon="buffIcon"
                 :timeline-width="timelineWidth"
                 :prep-frames="scenario.battle.prepFrames"

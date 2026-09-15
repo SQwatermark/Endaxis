@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { resolveBuffDisplayName } from './buffDisplayName';
+import { collectOperatorBuffDisplayNameKeys, resolveBuffDisplayName } from './buffDisplayName';
 import { compoundStatusFactories } from '../../../data/buffs/compoundStatusFactories';
 import zh from '../../../i18n/locales/zh-CN.json';
 import en from '../../../i18n/locales/en.json';
+import source from './buffDisplayName.ts?raw';
 
 const messages: Readonly<Record<string, string>> = {
   'effects.name.susceptibility:physical': '物理脆弱',
@@ -18,6 +19,9 @@ const i18n = {
 };
 
 describe('Buff display name', () => {
+  it('does not load the complete game data repository for presentation names', () => {
+    expect(source).not.toContain('data/gameDataRepository');
+  });
   it.each([zh, en])('translates Razor Clawmark before falling back to its source', messages => {
     expect(
       resolveBuffDisplayName(
@@ -28,6 +32,13 @@ describe('Buff display name', () => {
         },
         undefined,
         '洛茜',
+        collectOperatorBuffDisplayNameKeys([
+          {
+            buffDisplayNameKeys: {
+              buff_chr_0028_wulfa_normal_bleed: 'effects.name.razorClawmark',
+            },
+          },
+        ]),
       ),
     ).toBe(messages.effects.name.razorClawmark);
   });

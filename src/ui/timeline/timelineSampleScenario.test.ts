@@ -1,14 +1,18 @@
 import { describe, expect, it } from 'vitest';
 import { resolveSkillTemplateDefinition } from '../../core/compiler/resolveSkillDefinition';
 import { validateSkillDefinition } from '../../core/game-data/validateSkillDefinition';
-import { arclight } from '../../data/operators';
+import { arclight } from '../../data/operators/arclight.generated';
 import {
   ABILITY_ENTITY_SAMPLE_CAST_ID,
   ABILITY_ENTITY_SAMPLE_TRACK_INDEX,
   createTimelineSampleScenario,
 } from './timelineSampleScenario';
+import source from './timelineSampleScenario.ts?raw';
 
 describe('timelineSampleScenario', () => {
+  it('does not load the complete operator catalog for two stable slugs', () => {
+    expect(source).not.toContain('data/operators');
+  });
   it('keeps the shared 120 second default on first launch', () => {
     expect(createTimelineSampleScenario().battle.durationFrames).toBe(120 * 30);
   });

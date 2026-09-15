@@ -6,7 +6,9 @@
  */
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument, TrackIndex } from '../../core/project/schema';
-import { arclight, perlica } from '../../data/operators';
+
+const SAMPLE_PERLICA_SLUG = 'perlica';
+const SAMPLE_ARCLIGHT_SLUG = 'arclight';
 
 export const ABILITY_ENTITY_SAMPLE_TRACK_INDEX = 1 satisfies TrackIndex;
 export const ABILITY_ENTITY_SAMPLE_CAST_ID = 'skillCast:sample:arclight-ultimate';
@@ -16,7 +18,7 @@ export function createTimelineSampleScenario(): ScenarioDocument {
   scenario.tracks[0] = {
     id: 'track:sample:perlica',
     operator: {
-      operatorSlug: perlica.slug,
+      operatorSlug: SAMPLE_PERLICA_SLUG,
       level: 90,
       promoted: true,
       potential: 0,
@@ -32,7 +34,7 @@ export function createTimelineSampleScenario(): ScenarioDocument {
   scenario.tracks[ABILITY_ENTITY_SAMPLE_TRACK_INDEX] = {
     id: 'track:sample:arclight',
     operator: {
-      operatorSlug: arclight.slug,
+      operatorSlug: SAMPLE_ARCLIGHT_SLUG,
       level: 90,
       promoted: true,
       potential: 0,
