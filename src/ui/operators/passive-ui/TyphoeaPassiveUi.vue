@@ -9,10 +9,10 @@ import type { PassiveUiWidgetState } from './state';
 
 defineProps<PassiveUiWidgetState>();
 
-function pointGridPosition(index: number) {
+function pointPosition(index: number) {
   return {
-    gridColumn: ((index - 1) % 2) + 1,
-    gridRow: 4 - Math.floor((index - 1) / 2),
+    left: `${((index - 1) % 2) * 9}px`,
+    bottom: `${Math.floor((index - 1) / 2) * 9}px`,
   };
 }
 </script>
@@ -39,7 +39,7 @@ function pointGridPosition(index: number) {
         :key="`point:${index}`"
         class="typhoea-point"
         :class="{ 'is-filled': index <= points }"
-        :style="pointGridPosition(index)"
+        :style="pointPosition(index)"
       />
     </span>
   </span>
@@ -68,20 +68,18 @@ function pointGridPosition(index: number) {
 }
 
 .typhoea-arrows {
-  top: 6px;
-  left: 4px;
+  bottom: 10px;
+  left: 8px;
   display: flex;
   flex-direction: column;
   gap: 1px;
 }
 
 .typhoea-points {
-  bottom: 11px;
-  left: 49px;
-  display: grid;
-  grid-template-columns: repeat(2, 12px);
-  grid-template-rows: repeat(4, 12px);
-  gap: 0 -3px;
+  bottom: 8px;
+  left: 46px;
+  width: 21px;
+  height: 39px;
 }
 
 .typhoea-arrow {
@@ -96,6 +94,7 @@ function pointGridPosition(index: number) {
 }
 
 .typhoea-point {
+  position: absolute;
   display: block;
   width: 12px;
   height: 12px;
