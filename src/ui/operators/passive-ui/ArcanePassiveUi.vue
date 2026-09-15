@@ -10,7 +10,7 @@ const arcanePartColor = (part: 1 | 2) => {
 <template>
   <span class="passive-ui-skin">
     <template v-if="value > 0">
-      <img class="arcane-frame" src="/next/passive-ui/arcane-frame.png" alt="" />
+      <span class="arcane-frame" />
       <span
         class="arcane-energy arcane-energy--part-1"
         :style="{ backgroundColor: arcanePartColor(1) }"
@@ -45,10 +45,14 @@ img {
 }
 
 .arcane-frame {
+  position: absolute;
+  display: block;
   top: -1.5px;
   left: 2px;
   width: 42px;
   height: 33px;
+  background: rgb(34 34 34);
+  mask: url('/next/passive-ui/arcane-frame.webp') center / 100% 100% no-repeat;
 }
 
 .arcane-energy {
@@ -59,11 +63,11 @@ img {
 
 .arcane-energy--part-1 {
   left: 6.25px;
-  mask-image: url('/next/passive-ui/arcane-energy-1.png');
+  mask-image: url('/next/passive-ui/arcane-energy-1.webp');
 }
 
 .arcane-energy--part-2 {
   left: 22.25px;
-  mask-image: url('/next/passive-ui/arcane-energy-2.png');
+  mask-image: url('/next/passive-ui/arcane-energy-2.webp');
 }
 </style>

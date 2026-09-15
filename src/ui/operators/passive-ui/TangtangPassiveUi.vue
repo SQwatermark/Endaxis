@@ -10,7 +10,7 @@ const tangtangFillColor = computed(() =>
   <span class="passive-ui-skin">
     <span class="tangtang-droplet">
       <span class="tangtang-fill" :style="{ backgroundColor: tangtangFillColor }" />
-      <img src="/next/passive-ui/tangtang-droplet-border.png" alt="" />
+      <span class="tangtang-border" />
     </span>
   </span>
 </template>
@@ -40,10 +40,12 @@ img {
   height: 44px;
 }
 
-.tangtang-droplet img {
+.tangtang-border {
+  position: absolute;
   inset: 0;
-  width: 48px;
-  height: 44px;
+  display: block;
+  background: rgb(34 34 34);
+  mask: url('/next/passive-ui/tangtang-droplet-border.webp') center / 100% 100% no-repeat;
 }
 
 .tangtang-fill {
@@ -56,6 +58,6 @@ img {
 
 .tangtang-fill {
   inset: 0;
-  mask-image: url('/next/passive-ui/tangtang-droplet.png');
+  mask-image: url('/next/passive-ui/tangtang-droplet.webp');
 }
 </style>

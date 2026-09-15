@@ -4,7 +4,7 @@
  *
  * Buff、干员专属 UI 和后续其他状态只提供图形内容；边框、计数、悬停和持续条由这里统一。
  */
-import { EaTooltip } from '@/design-system';
+import { computed, onBeforeUnmount, ref } from 'vue';
 
 withDefaults(
   defineProps<{
@@ -25,6 +25,50 @@ withDefaults(
 const emit = defineEmits<{
   activate: [];
 }>();
+
+const tooltipVisible = ref(false);
+const pointerX = ref(0);
+const pointerY = ref(0);
+let tooltipTimer: ReturnType<typeof setTimeout> | undefined;
+
+const tooltipStyle = computed(() => {
+  const viewportWidth = typeof window === 'undefined' ? 0 : window.innerWidth;
+  const placeLeft = viewportWidth > 0 && pointerX.value > viewportWidth / 2;
+  const placeBelow = pointerY.value < 48;
+  return {
+    left: `${pointerX.value + (placeLeft ? -12 : 12)}px`,
+    top: `${pointerY.value + (placeBelow ? 12 : -12)}px`,
+    transform: `translate(${placeLeft ? '-100%' : '0'}, ${placeBelow ? '0' : '-100%'})`,
+  };
+});
+
+function updateTooltipPointer(event: PointerEvent): void {
+  pointerX.value = event.clientX;
+  pointerY.value = event.clientY;
+}
+
+function beginTooltip(event: PointerEvent): void {
+  updateTooltipPointer(event);
+  clearTimeout(tooltipTimer);
+  tooltipTimer = setTimeout(() => {
+    tooltipVisible.value = true;
+  }, 100);
+}
+
+function endTooltip(): void {
+  clearTimeout(tooltipTimer);
+  tooltipVisible.value = false;
+}
+
+function showTooltipForFocus(event: FocusEvent): void {
+  const rect = (event.currentTarget as HTMLElement).getBoundingClientRect();
+  pointerX.value = rect.left + rect.width / 2;
+  pointerY.value = rect.top;
+  clearTimeout(tooltipTimer);
+  tooltipVisible.value = true;
+}
+
+onBeforeUnmount(() => clearTimeout(tooltipTimer));
 </script>
 
 <template>
@@ -41,37 +85,44 @@ const emit = defineEmits<{
       '--timeline-status-icon-width': `${iconWidth}px`,
     }"
   >
-    <EaTooltip
-      :content="title"
-      placement="top"
-      effect="dark"
-      :show-after="100"
-      popper-class="timeline-status-tooltip"
+    <span
+      class="timeline-status-segment__body"
+      :role="interactive ? 'button' : undefined"
+      :tabindex="interactive ? 0 : undefined"
+      :aria-label="interactive ? title : undefined"
+      @pointerenter="beginTooltip"
+      @pointermove="updateTooltipPointer"
+      @pointerleave="endTooltip"
+      @focus="showTooltipForFocus"
+      @blur="endTooltip"
+      @click.stop="interactive && emit('activate')"
+      @keydown.enter.stop.prevent="interactive && emit('activate')"
+      @keydown.space.stop.prevent="interactive && emit('activate')"
     >
-      <span
-        class="timeline-status-segment__body"
-        :role="interactive ? 'button' : undefined"
-        :tabindex="interactive ? 0 : undefined"
-        :aria-label="interactive ? title : undefined"
-        @click.stop="interactive && emit('activate')"
-        @keydown.enter.stop.prevent="interactive && emit('activate')"
-        @keydown.space.stop.prevent="interactive && emit('activate')"
-      >
-        <span class="timeline-status-segment__icon">
-          <span class="timeline-status-segment__content"><slot name="content" /></span>
-          <span v-if="count !== undefined && count !== null" class="timeline-status-segment__count">
-            {{ count }}
-          </span>
-        </span>
-        <span
-          v-if="width > 0"
-          class="timeline-status-segment__duration"
-          :style="{ width: `${width}px`, backgroundColor: durationColor }"
-        >
-          <span class="timeline-status-segment__stripes"></span>
+      <span class="timeline-status-segment__icon">
+        <span class="timeline-status-segment__content"><slot name="content" /></span>
+        <span v-if="count !== undefined && count !== null" class="timeline-status-segment__count">
+          {{ count }}
         </span>
       </span>
-    </EaTooltip>
+      <span
+        v-if="width > 0"
+        class="timeline-status-segment__duration"
+        :style="{ width: `${width}px`, backgroundColor: durationColor }"
+      >
+        <span class="timeline-status-segment__stripes"></span>
+      </span>
+    </span>
+    <Teleport to="body">
+      <span
+        v-if="tooltipVisible"
+        class="timeline-status-pointer-tooltip"
+        :style="tooltipStyle"
+        role="tooltip"
+      >
+        {{ title }}
+      </span>
+    </Teleport>
   </span>
 </template>
 
@@ -195,5 +246,22 @@ const emit = defineEmits<{
     transparent 2px,
     transparent 6px
   );
+}
+
+:global(.timeline-status-pointer-tooltip) {
+  position: fixed;
+  z-index: 10000;
+  max-width: min(320px, calc(100vw - 16px));
+  box-sizing: border-box;
+  padding: var(--ea-space-2) 10px;
+  border: 1px solid var(--ea-floating-border);
+  border-radius: var(--ea-control-radius);
+  background: var(--ea-floating-bg);
+  color: var(--ea-floating-fg);
+  box-shadow: var(--ea-floating-shadow);
+  font-size: var(--ea-control-font-size-sm);
+  line-height: 1.4;
+  white-space: normal;
+  pointer-events: none;
 }
 </style>

@@ -7,14 +7,14 @@ const progressClip = computed(() => `inset(${(1 - progressRatio.value) * 100}% 0
 </script>
 <template>
   <span class="passive-ui-skin">
-    <img class="liino-ring" src="/next/passive-ui/liino-bg.png" alt="" />
-    <img class="liino-deco" src="/next/passive-ui/liino-deco.png" alt="" />
+    <span class="liino-ring" />
+    <img class="liino-deco" src="/next/passive-ui/liino-deco.webp" alt="" />
     <img
       class="liino-note-bg"
       :src="
         mode === 'ultimate'
-          ? '/next/passive-ui/liino-ultimate-bg.png'
-          : '/next/passive-ui/liino-normal-bg.png'
+          ? '/next/passive-ui/liino-ultimate-bg.webp'
+          : '/next/passive-ui/liino-normal-bg.webp'
       "
       alt=""
     />
@@ -22,8 +22,8 @@ const progressClip = computed(() => `inset(${(1 - progressRatio.value) * 100}% 0
       class="liino-note-bar"
       :src="
         mode === 'ultimate'
-          ? '/next/passive-ui/liino-ultimate-bar.png'
-          : '/next/passive-ui/liino-normal-bar.png'
+          ? '/next/passive-ui/liino-ultimate-bar.webp'
+          : '/next/passive-ui/liino-normal-bar.webp'
       "
       :style="{ clipPath: progressClip }"
       alt=""
@@ -31,13 +31,13 @@ const progressClip = computed(() => `inset(${(1 - progressRatio.value) * 100}% 0
     <img
       v-if="ratio !== null"
       class="liino-star liino-star--big"
-      src="/next/passive-ui/liino-big-star.png"
+      src="/next/passive-ui/liino-big-star.webp"
       alt=""
     />
     <img
       v-if="ratio !== null"
       class="liino-star liino-star--small"
-      src="/next/passive-ui/liino-small-star.png"
+      src="/next/passive-ui/liino-small-star.webp"
       alt=""
     />
   </span>
@@ -57,28 +57,32 @@ img {
   height: 100%;
 }
 .liino-ring {
-  top: 8px;
+  position: absolute;
+  display: block;
+  top: 6px;
   left: 12px;
   width: 44px;
   height: 44px;
+  background: rgb(254 201 255 / 60%);
+  mask: url('/next/passive-ui/liino-bg.webp') center / 100% 100% no-repeat;
 }
 
 .liino-deco {
-  top: 10px;
+  top: 8px;
   left: 14px;
   width: 40px;
   height: 40px;
 }
 
 .liino-note-bg {
-  top: 1px;
+  top: -1px;
   left: 11px;
   width: 52px;
   height: 56px;
 }
 
 .liino-note-bar {
-  top: 12px;
+  top: 10px;
   left: 16px;
   width: 32px;
   height: 36px;
@@ -90,7 +94,7 @@ img {
 }
 
 .liino-note-bar[src*='ultimate'] {
-  top: 10px;
+  top: 7px;
   left: 8.75px;
   width: 44px;
   height: 40px;

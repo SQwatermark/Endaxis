@@ -14,8 +14,9 @@ const zhuangPointPositions: readonly (readonly [number, number])[] = [
 ];
 const zhuangPoints = zhuangPointPositions.map(([x, y], index) => ({
   index: index + 1,
+  // Prefab：56×56 画布，点组中心 (-6.5, 4)，每个点 12×12。
   left: 15.5 + x,
-  top: 14 - y,
+  top: 18 - y,
 }));
 const zhuangPointColor = (index: number) => {
   if (index > props.value) return 'rgb(122 122 122)';
@@ -24,8 +25,8 @@ const zhuangPointColor = (index: number) => {
 </script>
 <template>
   <span class="passive-ui-skin">
-    <img v-if="active" class="zhuang-glow" src="/next/passive-ui/zhuang-fangyi-glow.png" alt="" />
-    <img class="native-fill" src="/next/passive-ui/zhuang-fangyi-frame.png" alt="" />
+    <img v-if="active" class="zhuang-glow" src="/next/passive-ui/zhuang-fangyi-glow.webp" alt="" />
+    <span class="zhuang-frame" />
     <span
       v-for="point in zhuangPoints"
       :key="point.index"
@@ -61,22 +62,26 @@ img {
 }
 
 .zhuang-glow {
-  top: -4px;
+  top: 0;
   left: 0;
   width: 56px;
   height: 56px;
 }
 
-.native-fill {
-  top: -2px;
+.zhuang-frame {
+  position: absolute;
+  display: block;
+  top: 2px;
   left: -0.5px;
   width: 44px;
   height: 44px;
+  background: rgb(34 34 34);
+  mask: url('/next/passive-ui/zhuang-fangyi-frame.webp') center / 100% 100% no-repeat;
 }
 
 .zhuang-point {
   width: 12px;
   height: 12px;
-  mask-image: url('/next/passive-ui/zhuang-fangyi-active-point.png');
+  mask-image: url('/next/passive-ui/zhuang-fangyi-active-point.webp');
 }
 </style>

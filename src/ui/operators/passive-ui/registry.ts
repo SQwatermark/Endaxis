@@ -15,7 +15,7 @@ import TyphoeaPassiveUi from './TyphoeaPassiveUi.vue';
 export const passiveUiSkins = {
   tangtangDroplets: {
     component: TangtangPassiveUi,
-    width: 64,
+    width: 48,
     height: 44,
     label: '水滴',
     numeric: true,
@@ -30,7 +30,7 @@ export const passiveUiSkins = {
   zhuangFangyiThunder: {
     component: ZhuangFangyiPassiveUi,
     width: 56,
-    height: 48,
+    height: 56,
     label: '青霆计数',
     numeric: true,
   },

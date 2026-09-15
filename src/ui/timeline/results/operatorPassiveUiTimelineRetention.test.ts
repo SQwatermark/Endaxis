@@ -36,8 +36,11 @@ describe('operator passive UI timeline retention', () => {
     expect(statusSegmentSource).toContain('height: 18px');
   });
 
-  it('makes the icon and duration segment one keyboard-accessible tooltip trigger', () => {
-    expect(statusSegmentSource).toContain('<EaTooltip');
+  it('anchors the shared tooltip to the pointer instead of the segment width', () => {
+    expect(statusSegmentSource).toContain('@pointermove="updateTooltipPointer"');
+    expect(statusSegmentSource).toContain('event.clientX');
+    expect(statusSegmentSource).toContain('event.clientY');
+    expect(statusSegmentSource).toContain('position: fixed');
     expect(statusSegmentSource).toContain('class="timeline-status-segment__body"');
     expect(statusSegmentSource).toContain('@click.stop="interactive && emit(\'activate\')"');
     expect(statusSegmentSource).toContain(

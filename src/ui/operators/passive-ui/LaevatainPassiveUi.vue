@@ -4,20 +4,15 @@ defineProps<PassiveUiWidgetState>();
 </script>
 <template>
   <span class="passive-ui-skin">
-    <img class="native-fill" src="/next/passive-ui/laevatain-bg.png" alt="" />
-    <img
-      v-if="value >= maximum"
-      class="native-fill"
-      src="/next/passive-ui/laevatain-max.png"
-      alt=""
-    />
+    <img class="laevatain-bg" src="/next/passive-ui/laevatain-bg.webp" alt="" />
+    <span v-if="value >= maximum" class="laevatain-max" />
     <template v-else>
       <img
         v-for="index in Math.min(value, 4)"
         :key="index"
         class="laevatain-leaf"
         :class="`laevatain-leaf--${index}`"
-        src="/next/passive-ui/laevatain-leaf.png"
+        src="/next/passive-ui/laevatain-leaf.webp"
         alt=""
       />
     </template>
@@ -31,11 +26,23 @@ img {
   position: absolute;
   display: block;
 }
-.native-fill {
+.laevatain-bg {
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 32px;
+  height: 32px;
+}
+
+.laevatain-max {
+  position: absolute;
+  display: block;
+  top: 2px;
+  left: 2px;
+  width: 28px;
+  height: 28px;
+  background: rgb(255 101 112);
+  mask: url('/next/passive-ui/laevatain-max.webp') center / 100% 100% no-repeat;
+  transform: scaleX(-1);
 }
 .laevatain-leaf {
   width: 16px;
@@ -63,10 +70,5 @@ img {
   top: 2px;
   left: 1px;
   transform: scaleX(-1);
-}
-
-.native-fill {
-  width: 32px;
-  height: 32px;
 }
 </style>
