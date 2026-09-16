@@ -3990,7 +3990,14 @@ export class CombatRuntimeAssembly {
       receipt: this.receipt,
       semanticEvents: this.semanticEvents,
     });
-    return this.#createReactiveOperationChain(operator, sourceActionId, terminal, options);
+    return this.#createReactiveOperationChain(
+      operator,
+      sourceActionId,
+      terminal,
+      options,
+      undefined,
+      'equipment',
+    );
   }
 
   /** 常驻事件监听器共用的条件与动作解释链；来源模块只提供末端能力和归因身份。 */
@@ -4000,6 +4007,7 @@ export class CombatRuntimeAssembly {
     terminal: CombatOperationExecutor,
     options: CombatRuntimeAssemblyOptions,
     restoredOperationHost?: CombatOperationHostState,
+    contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind,
   ): CombatOperationExecutor {
     const operatorId = operator.operatorId;
     const operationHost = {
@@ -4059,7 +4067,14 @@ export class CombatRuntimeAssembly {
       targetContextOperations,
       {
         resolveOperations: state =>
-          this.#createReactiveOperationChain(operator, sourceActionId, terminal, options, state),
+          this.#createReactiveOperationChain(
+            operator,
+            sourceActionId,
+            terminal,
+            options,
+            state,
+            contributionSourceKind,
+          ),
         semanticEvents: this.semanticEvents,
         installPassiveSkills: (entity, definition) =>
           this.#installAbilityEntityPassiveSkills(entity, definition),
@@ -4079,6 +4094,7 @@ export class CombatRuntimeAssembly {
     const buffOperations = new BuffOperationExecutor({
       sourceId: operatorId,
       sourceActionId,
+      ...(contributionSourceKind === undefined ? {} : { contributionSourceKind }),
       readProcessingSkillCastId: ownerId =>
         this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),

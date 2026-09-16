@@ -226,6 +226,8 @@ export interface BuffApplicationRequest {
 
 export interface BuffOperationDependencies {
   readonly sourceId: string;
+  /** 当前动作模块的归因类型；装备事件链由装配层明确传入。 */
+  readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
   /** 当前操作链解析 Buff/能力实体定义所使用的干员。 */
   readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
@@ -552,6 +554,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               ? (context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId)
               : sourceTarget!.ownerId,
           definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
+          ...(this.dependencies.contributionSourceKind === undefined
+            ? {}
+            : { contributionSourceKind: this.dependencies.contributionSourceKind }),
           ...(sourceTarget?.getAttributeValue === undefined
             ? {}
             : {

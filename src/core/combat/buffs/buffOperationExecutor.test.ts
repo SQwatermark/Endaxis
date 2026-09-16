@@ -217,6 +217,7 @@ describe('BuffOperationExecutor', () => {
     targetContext.set('source', [{ kind: 'operator', operatorId: 'source' }]);
     const executor = new BuffOperationExecutor({
       sourceId: 'definition-owner',
+      contributionSourceKind: 'equipment',
       resolveTarget: () => {
         throw new Error('must not substitute caster or enemy');
       },
@@ -244,7 +245,11 @@ describe('BuffOperationExecutor', () => {
     );
     expect(apply).toHaveBeenCalledOnce();
     expect(apply).toHaveBeenCalledWith(
-      expect.objectContaining({ sourceId: 'source', definitionOwnerId: 'definition-owner' }),
+      expect.objectContaining({
+        sourceId: 'source',
+        definitionOwnerId: 'definition-owner',
+        contributionSourceKind: 'equipment',
+      }),
     );
   });
   it.each([
