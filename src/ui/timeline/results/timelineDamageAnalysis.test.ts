@@ -206,7 +206,68 @@ describe('projectTimelineDamageAnalysis', () => {
       expect.objectContaining({ key: '0', directValue: 100, supportValue: 0, value: 100 }),
       expect.objectContaining({ key: '1', directValue: 0, supportValue: 50, value: 50 }),
     ]);
+    expect(result.byContributionSource).toEqual([
+      {
+        providerOperatorId: 'track:support',
+        sourceKind: 'buff',
+        sourceId: 'support-buff',
+        value: 50,
+        ratio: 1 / 3,
+      },
+    ]);
     expect(result.unattributedContribution).toBe(0);
+  });
+
+  it('preserves and sorts negative source contribution by absolute magnitude', () => {
+    const scenario = createEmptyScenario('scenario:1', 'test');
+    scenario.tracks[0] = {
+      id: 'track:attacker',
+      operator: null,
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const entries: CombatReceiptEntry[] = [
+      {
+        sequence: 1,
+        frame: 30,
+        time: 1,
+        event: 'DamageApplied',
+        sourceId: 'track:attacker',
+        targetId: 'enemy',
+        data: {
+          value: 80,
+          damageType: 'physical',
+          contribution: {
+            self: 97,
+            external: [
+              {
+                providerOperatorId: null,
+                sourceKind: 'mechanic',
+                sourceId: 'environment-penalty',
+                value: -20,
+              },
+            ],
+            unallocated: 3,
+            diagnostics: [],
+          },
+        },
+      },
+    ];
+
+    const result = projectTimelineDamageAnalysis(entries, scenario, String, String);
+
+    expect(result.byContributionSource).toEqual([
+      {
+        providerOperatorId: null,
+        sourceKind: 'mechanic',
+        sourceId: 'environment-penalty',
+        value: -20,
+        ratio: -0.25,
+      },
+    ]);
+    expect(result.unattributedContribution).toBe(-17);
   });
 
   it('uses frame zero as the default analysis start and filters negative preparation damage', () => {

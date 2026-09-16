@@ -360,6 +360,8 @@
       "dps": "DPS",
       "noData": "No damage data available. Add actions to the timeline first.",
       "contributionByOperator": "Contribution by Operator",
+      "contributionChartHint": "Slice area shows absolute contribution magnitude; a negative value means the source reduced final damage.",
+      "contributionSourceDetails": "View contribution sources",
       "lmdiModeStacks": "By Stacks",
       "lmdiModeStacksTip": "Breach, electrification, and corrosion contribution are split between the trigger and the infliction stack providers.",
       "lmdiModeApplier": "By Applier",

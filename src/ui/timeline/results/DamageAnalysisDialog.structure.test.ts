@@ -40,6 +40,9 @@ describe('DamageAnalysisDialog structure', () => {
     expect(source).toContain('analysis.byContributor');
     expect(source).toContain('entry.directValue');
     expect(source).toContain('entry.supportValue');
+    expect(source).toContain('Math.abs(Math.round(value))');
+    expect(source).toContain('analysis.byContributionSource');
+    expect(source).toContain('contributionSourceName(source.sourceId)');
     expect(source).not.toContain('lmdiAttributionMode');
   });
 });

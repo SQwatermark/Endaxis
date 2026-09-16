@@ -19,12 +19,16 @@ const props = defineProps<{
   locale: string;
   randomMode: 'expected' | 'sampled';
   globalRandomSeed: number;
+  contributionProviderLabel: (operatorId: string | null) => string;
+  contributionSourceName: (sourceId: string) => string;
   labels: {
     title: string;
     warning: string;
     noData: string;
     damageByOperator: string;
     contributionByOperator: string;
+    contributionChartHint: string;
+    contributionSourceDetails: string;
     damageByElement: string;
     totalDamage: string;
     expectedTotalDamage: string;
@@ -111,26 +115,46 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
 
 const contributionChartOption = computed<ChartOption>(() => {
   const paint = chartPaint.value;
+  const signedDatum = (name: string, value: number, color: string, opacity = 1) => ({
+    name,
+    // ECharts 的饼图不接受负值。扇区面积表达影响量的绝对值，标签和提示保留正负号。
+    value: Math.abs(Math.round(value)),
+    signedValue: Math.round(value),
+    itemStyle: { color, opacity },
+  });
   const inner = props.analysis.byContributor.map(entry => ({
-    name: entry.label,
-    value: Math.max(0, Math.round(entry.value)),
-    itemStyle: { color: entry.color ?? '#888888' },
+    ...signedDatum(entry.label, entry.value, entry.color ?? '#888888'),
+    // 内圈面积与外圈一致，避免正负贡献相抵后内圈消失、外圈仍存在。
+    value: Math.abs(Math.round(entry.directValue)) + Math.abs(Math.round(entry.supportValue)),
   }));
   const outer = props.analysis.byContributor.flatMap(entry => [
-    {
-      name: `${entry.label} · ${props.labels.damage}`,
-      value: Math.max(0, Math.round(entry.directValue)),
-      itemStyle: { color: entry.color ?? '#888888' },
-    },
-    {
-      name: `${entry.label} · ${props.labels.buff}`,
-      value: Math.max(0, Math.round(entry.supportValue)),
-      itemStyle: { color: entry.color ?? '#888888', opacity: 0.52 },
-    },
+    signedDatum(
+      `${entry.label} · ${props.labels.damage}`,
+      entry.directValue,
+      entry.color ?? '#888888',
+    ),
+    signedDatum(
+      `${entry.label} · ${props.labels.buff}`,
+      entry.supportValue,
+      entry.color ?? '#888888',
+      0.52,
+    ),
   ]);
+  const signedTooltip = (parameters: unknown): string => {
+    const parameter = parameters as { name?: string; data?: { signedValue?: number } };
+    const value = parameter.data?.signedValue ?? 0;
+    const ratio = props.analysis.totalDamage <= 0 ? 0 : (value / props.analysis.totalDamage) * 100;
+    return `${parameter.name ?? ''}: ${formatNumber(value)} (${ratio.toFixed(1)}%)`;
+  };
+  const signedLabel = (parameters: unknown): string => {
+    const parameter = parameters as { name?: string; data?: { signedValue?: number } };
+    const value = parameter.data?.signedValue ?? 0;
+    const ratio = props.analysis.totalDamage <= 0 ? 0 : (value / props.analysis.totalDamage) * 100;
+    return `${parameter.name ?? ''}\n${ratio.toFixed(1)}%`;
+  };
   return {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)', ...paint.tooltip },
+    tooltip: { trigger: 'item', formatter: signedTooltip, ...paint.tooltip },
     series: [
       {
         type: 'pie',
@@ -145,7 +169,7 @@ const contributionChartOption = computed<ChartOption>(() => {
         radius: ['48%', '70%'],
         center: ['50%', '50%'],
         itemStyle: { borderColor: paint.sliceBorder, borderWidth: 2 },
-        label: { color: paint.label, formatter: '{b}\n{d}%', fontSize: 11 },
+        label: { color: paint.label, formatter: signedLabel, fontSize: 11 },
         data: outer.filter(entry => entry.value > 0),
       },
     ],
@@ -198,6 +222,27 @@ const contributionChartOption = computed<ChartOption>(() => {
             <section class="chart-card">
               <h3 class="chart-title">{{ labels.contributionByOperator }}</h3>
               <VChart :option="contributionChartOption" autoresize class="chart" />
+              <p class="analysis-note">{{ labels.contributionChartHint }}</p>
+              <details
+                v-if="analysis.byContributionSource.length > 0"
+                class="contribution-source-details"
+              >
+                <summary>{{ labels.contributionSourceDetails }}</summary>
+                <ul>
+                  <li
+                    v-for="source in analysis.byContributionSource"
+                    :key="`${source.providerOperatorId ?? ''}:${source.sourceKind}:${source.sourceId}`"
+                  >
+                    <span>
+                      {{ contributionProviderLabel(source.providerOperatorId) }} ·
+                      {{ contributionSourceName(source.sourceId) }}
+                    </span>
+                    <strong :class="{ negative: source.value < 0 }">
+                      {{ source.value > 0 ? '+' : '' }}{{ formatNumber(source.value) }}
+                    </strong>
+                  </li>
+                </ul>
+              </details>
               <p v-if="analysis.unattributedContribution !== 0" class="analysis-note">
                 {{
                   labels.unattributedContribution(formatNumber(analysis.unattributedContribution))
@@ -329,6 +374,41 @@ const contributionChartOption = computed<ChartOption>(() => {
   color: var(--ea-fg-muted);
   font-size: 12px;
   line-height: 1.6;
+}
+
+.contribution-source-details {
+  margin-top: 8px;
+  color: var(--ea-fg-muted);
+  font-size: 12px;
+}
+
+.contribution-source-details summary {
+  cursor: pointer;
+}
+
+.contribution-source-details ul {
+  max-height: 160px;
+  margin: 8px 0 0;
+  padding: 0;
+  overflow: auto;
+  list-style: none;
+}
+
+.contribution-source-details li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0;
+  border-top: 1px solid var(--ea-border);
+}
+
+.contribution-source-details strong {
+  color: var(--el-color-success, #67c23a);
+  font-variant-numeric: tabular-nums;
+}
+
+.contribution-source-details strong.negative {
+  color: var(--el-color-danger, #f56c6c);
 }
 
 .summary-row {

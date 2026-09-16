@@ -6733,12 +6733,16 @@ function setPanelDialogVisible(visible: boolean): void {
     :locale="locale"
     :random-mode="publishedRandomMode"
     :global-random-seed="publishedGlobalRandomSeed"
+    :contribution-provider-label="contributionProviderName"
+    :contribution-source-name="contributionSourceName"
     :labels="{
       title: t('timeline.analysis.dialogTitle'),
       warning: t('timeline.analysis.warning'),
       noData: t('timeline.analysis.noData'),
       damageByOperator: t('timeline.analysis.damageByOperator'),
       contributionByOperator: t('timeline.analysis.contributionByOperator'),
+      contributionChartHint: t('timeline.analysis.contributionChartHint'),
+      contributionSourceDetails: t('timeline.analysis.contributionSourceDetails'),
       damageByElement: t('timeline.analysis.damageByElement'),
       totalDamage: t('timeline.analysis.totalDamage'),
       expectedTotalDamage: t('timeline.analysis.expectedTotalDamage'),

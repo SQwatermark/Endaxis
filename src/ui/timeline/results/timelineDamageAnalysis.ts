@@ -1,4 +1,5 @@
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
+import type { DamageContributionSourceKind } from '../../../core/combat/damage/damageContribution';
 import type { DamageType } from '../../../core/game-data/operatorDefinition';
 import type { ScenarioDocument, TrackIndex } from '../../../core/project/schema';
 import type { PublishedScenarioSimulation } from '../useScenarioSimulation';
@@ -18,6 +19,7 @@ export function projectPublishedTimelineDamageAnalysis(
       dps: 0,
       byOperator: [],
       byContributor: [],
+      byContributionSource: [],
       byDamageType: [],
       unattributedDamage: 0,
       unattributedContribution: 0,
@@ -47,12 +49,22 @@ export interface TimelineDamageContributionEntry extends TimelineDamageAnalysisE
   readonly supportValue: number;
 }
 
+/** 跨 Hit 汇总的一项外部伤害贡献来源。 */
+export interface TimelineDamageContributionSourceEntry {
+  readonly providerOperatorId: string | null;
+  readonly sourceKind: DamageContributionSourceKind;
+  readonly sourceId: string;
+  readonly value: number;
+  readonly ratio: number;
+}
+
 export interface TimelineDamageAnalysis {
   readonly totalDamage: number;
   readonly rotationSeconds: number;
   readonly dps: number;
   readonly byOperator: readonly TimelineDamageAnalysisEntry[];
   readonly byContributor: readonly TimelineDamageContributionEntry[];
+  readonly byContributionSource: readonly TimelineDamageContributionSourceEntry[];
   readonly byDamageType: readonly TimelineDamageAnalysisEntry[];
   readonly unattributedDamage: number;
   readonly unattributedContribution: number;
@@ -89,6 +101,10 @@ export function projectTimelineDamageAnalysis(
   const operatorTotals = new Map<TrackIndex, number>();
   const typeTotals = new Map<DamageType, number>();
   const contributionTotals = new Map<TrackIndex, { directValue: number; supportValue: number }>();
+  const contributionSourceTotals = new Map<
+    string,
+    Omit<TimelineDamageContributionSourceEntry, 'value' | 'ratio'> & { value: number }
+  >();
   let totalDamage = 0;
   let unattributedDamage = 0;
   let unattributedContribution = 0;
@@ -122,6 +138,7 @@ export function projectTimelineDamageAnalysis(
       }
       continue;
     }
+    unattributedContribution += contribution.unallocated;
     if (trackIndex === undefined) unattributedContribution += contribution.self;
     else {
       const current = contributionTotals.get(trackIndex) ?? { directValue: 0, supportValue: 0 };
@@ -129,6 +146,17 @@ export function projectTimelineDamageAnalysis(
       contributionTotals.set(trackIndex, current);
     }
     for (const external of contribution.external) {
+      const sourceKey = JSON.stringify([
+        external.providerOperatorId,
+        external.sourceKind,
+        external.sourceId,
+      ]);
+      const sourceTotal = contributionSourceTotals.get(sourceKey);
+      if (sourceTotal === undefined) {
+        contributionSourceTotals.set(sourceKey, { ...external });
+      } else {
+        sourceTotal.value += external.value;
+      }
       const providerTrack =
         external.providerOperatorId === null
           ? undefined
@@ -179,12 +207,19 @@ export function projectTimelineDamageAnalysis(
       };
     })
     .sort((left, right) => right.value - left.value);
+  const byContributionSource = [...contributionSourceTotals.values()]
+    .map(entry => ({
+      ...entry,
+      ratio: totalDamage <= 0 ? 0 : entry.value / totalDamage,
+    }))
+    .sort((left, right) => Math.abs(right.value) - Math.abs(left.value));
   return {
     totalDamage,
     rotationSeconds,
     dps: rotationSeconds <= 0 ? 0 : totalDamage / rotationSeconds,
     byOperator: entries(operatorTotals, operatorLabel, operatorColor),
     byContributor,
+    byContributionSource,
     byDamageType: entries(typeTotals, damageTypeLabel, damageTypeColor),
     unattributedDamage,
     unattributedContribution,
@@ -193,8 +228,11 @@ export function projectTimelineDamageAnalysis(
 
 interface ReadDamageContribution {
   readonly self: number;
+  readonly unallocated: number;
   readonly external: readonly {
     readonly providerOperatorId: string | null;
+    readonly sourceKind: DamageContributionSourceKind;
+    readonly sourceId: string;
     readonly value: number;
   }[];
 }
@@ -203,15 +241,34 @@ function readDamageContribution(value: unknown): ReadDamageContribution | null {
   if (value === null || typeof value !== 'object' || Array.isArray(value)) return null;
   const record = value as Record<string, unknown>;
   const self = finiteNumber(record.self);
-  if (self === null || !Array.isArray(record.external)) return null;
+  const unallocated = finiteNumber(record.unallocated);
+  if (self === null || unallocated === null || !Array.isArray(record.external)) return null;
   const external = record.external.flatMap(item => {
     if (item === null || typeof item !== 'object' || Array.isArray(item)) return [];
     const entry = item as Record<string, unknown>;
     const amount = finiteNumber(entry.value);
     const providerOperatorId = entry.providerOperatorId;
-    if (amount === null || (providerOperatorId !== null && typeof providerOperatorId !== 'string'))
+    const sourceKind = entry.sourceKind;
+    const sourceId = entry.sourceId;
+    if (
+      amount === null ||
+      (providerOperatorId !== null && typeof providerOperatorId !== 'string') ||
+      (sourceKind !== 'buff' &&
+        sourceKind !== 'equipment' &&
+        sourceKind !== 'status' &&
+        sourceKind !== 'stagger' &&
+        sourceKind !== 'mechanic') ||
+      typeof sourceId !== 'string'
+    )
       return [];
-    return [{ providerOperatorId, value: amount }];
+    return [
+      {
+        providerOperatorId,
+        sourceKind: sourceKind as DamageContributionSourceKind,
+        sourceId,
+        value: amount,
+      },
+    ];
   });
-  return { self, external };
+  return { self, unallocated, external };
 }
