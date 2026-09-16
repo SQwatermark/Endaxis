@@ -1628,6 +1628,9 @@ describe('CombatRuntimeAssembly', () => {
         definitionOwnerId: 'source',
         sourceActionId: 'support',
         contributionSourceKind: 'status',
+        contributionConsumedLayerProviderShares: [
+          { providerOperatorId: 'attachment-owner', weight: 2 },
+        ],
         blackboardValues: {},
         definition: parentDefinition,
       }),
@@ -1637,7 +1640,12 @@ describe('CombatRuntimeAssembly', () => {
     expect(sourceBuffs.getCountById('source-child')).toBe(0);
     expect(
       allyBuffs.buffs.find(buff => buff.definition.id === 'source-child')?.runtimeState,
-    ).toMatchObject({ contributionSourceKind: 'status' });
+    ).toMatchObject({
+      contributionSourceKind: 'status',
+      contributionConsumedLayerProviderShares: [
+        { providerOperatorId: 'attachment-owner', weight: 2 },
+      ],
+    });
   });
 
   it('emits before-cast events for both direct and deferred skill starts', () => {
@@ -3789,6 +3797,8 @@ describe('CombatRuntimeAssembly', () => {
         definitionOwnerId: child.definitionOwnerId,
         sourceActionId: child.sourceActionId,
         contributionSourceKind: child.runtimeState.contributionSourceKind,
+        contributionConsumedLayerProviderShares:
+          child.runtimeState.contributionConsumedLayerProviderShares,
         skillCastInfo: child.skillCastInfo,
       };
       expect(child.skillCastInfo).toBeNull();

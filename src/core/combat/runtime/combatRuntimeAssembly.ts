@@ -3564,6 +3564,11 @@ export class CombatRuntimeAssembly {
       operator: operationOperator,
       sourceActionId: castId,
       contributionSourceKind: source.contributionSourceKind,
+      ...(source.contributionConsumedLayerProviderShares === null
+        ? {}
+        : {
+            contributionConsumedLayerProviderShares: source.contributionConsumedLayerProviderShares,
+          }),
       ...(cast?.originCastId === undefined ? {} : { castId: cast.originCastId }),
       // 宿主、Buff 来源和触发施法都可能属于不同干员；定义目录使用实例保存的显式身份。
       definitionOperator,
@@ -3634,6 +3639,7 @@ export class CombatRuntimeAssembly {
     readonly sourceActionId?: string;
     /** Buff 生命周期派生链沿用根 Buff 的贡献来源类型。 */
     readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
+    readonly contributionConsumedLayerProviderShares?: readonly import('../damage/damageContribution').DamageContributionProviderShare[];
     /** 跨实体 Buff 生命周期仍从创建该定义的原始 AbilitySystem 解析后代资源。 */
     readonly definitionOperator?: CombatOperatorProgram;
     readonly program: CombatOperationProgram;
@@ -3766,6 +3772,12 @@ export class CombatRuntimeAssembly {
       ...(options.contributionSourceKind === undefined
         ? {}
         : { contributionSourceKind: options.contributionSourceKind }),
+      ...(options.contributionConsumedLayerProviderShares === undefined
+        ? {}
+        : {
+            contributionConsumedLayerProviderShares:
+              options.contributionConsumedLayerProviderShares,
+          }),
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
         this.#resolveBuffApplicationTargets(

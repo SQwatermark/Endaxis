@@ -140,6 +140,9 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
           this.index.getCompoundStatus(operation.consumedElement, operation.incomingElement),
           {
             ...addOptions,
+            contributionConsumedLayerProviderShares: operation.consumedLayerSourceIds.map(
+              providerOperatorId => ({ providerOperatorId, weight: 1 }),
+            ),
             blackboardValues: {
               ...addOptions?.blackboardValues,
               ...inputBlackboard,

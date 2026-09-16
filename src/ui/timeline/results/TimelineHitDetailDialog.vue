@@ -10,6 +10,12 @@ import type {
   ResolvedOperatorPanel,
 } from '../../../core/compiler/resolveOperatorPanel';
 import { projectAttackPercentContributionSources } from '../library/operatorPanelContributionPresentation';
+import {
+  normalizeDamageContributionProviderShares,
+  projectDamageContributionEntry,
+  type DamageContributionAttributionMode,
+  type DamageContributionSourceKind,
+} from '../../../core/combat/damage/damageContribution';
 
 const props = defineProps<{
   visible: boolean;
@@ -17,6 +23,7 @@ const props = defineProps<{
   forceCritical: boolean;
   /** 结果区使用发布快照；forceCritical 仅表示当前编辑中的复选框。 */
   resultForceCritical: boolean;
+  contributionAttributionMode: DamageContributionAttributionMode;
   allowForceCritical?: boolean;
   sourceDescription?: (entry: CombatReceiptEntry) => string | undefined;
   sourceLabel?: string;
@@ -231,24 +238,77 @@ function projectContributionRows(data: CombatReceiptEntry['data']): readonly Det
   const self = finiteNumber(contribution.self, Number.NaN);
   if (!Number.isFinite(self) || !Array.isArray(contribution.external)) return [];
   const rows: DetailRow[] = [{ label: props.labels.selfContribution, value: num(self) }];
+  const projected = new Map<
+    string,
+    { providerOperatorId: string | null; sourceId: string; value: number }
+  >();
   for (const rawEntry of contribution.external) {
     if (rawEntry === null || typeof rawEntry !== 'object' || Array.isArray(rawEntry)) continue;
     const entry = rawEntry as Record<string, unknown>;
     const value = finiteNumber(entry.value, Number.NaN);
     const providerOperatorId = entry.providerOperatorId;
+    const sourceKind = entry.sourceKind;
     const sourceId = entry.sourceId;
     if (
       !Number.isFinite(value) ||
       (providerOperatorId !== null && typeof providerOperatorId !== 'string') ||
+      (sourceKind !== 'buff' &&
+        sourceKind !== 'equipment' &&
+        sourceKind !== 'status' &&
+        sourceKind !== 'stagger' &&
+        sourceKind !== 'mechanic') ||
       typeof sourceId !== 'string'
     )
       continue;
+    const consumedLayerShares =
+      props.contributionAttributionMode === 'consumedLayers' &&
+      Array.isArray(entry.consumedLayerProviderShares)
+        ? normalizeDamageContributionProviderShares(
+            entry.consumedLayerProviderShares.flatMap(rawShare => {
+              if (rawShare === null || typeof rawShare !== 'object' || Array.isArray(rawShare))
+                return [];
+              const share = rawShare as Record<string, unknown>;
+              const shareProvider = share.providerOperatorId;
+              const weight = finiteNumber(share.weight, Number.NaN);
+              if (
+                !Number.isFinite(weight) ||
+                weight <= 0 ||
+                (shareProvider !== null && typeof shareProvider !== 'string')
+              )
+                return [];
+              return [{ providerOperatorId: shareProvider, weight }];
+            }),
+          )
+        : [];
+    const entries = projectDamageContributionEntry(
+      {
+        providerOperatorId,
+        sourceKind: sourceKind as DamageContributionSourceKind,
+        sourceId,
+        value,
+        ...(consumedLayerShares.length === 0
+          ? {}
+          : { consumedLayerProviderShares: consumedLayerShares }),
+      },
+      props.contributionAttributionMode,
+    );
+    entries.forEach(projectedEntry => {
+      const key = `${projectedEntry.providerOperatorId ?? ''}\u0000${sourceId}`;
+      const previous = projected.get(key);
+      projected.set(key, {
+        providerOperatorId: projectedEntry.providerOperatorId,
+        sourceId,
+        value: (previous?.value ?? 0) + projectedEntry.value,
+      });
+    });
+  }
+  for (const entry of projected.values()) {
     rows.push({
       label: props.labels.contributionSource(
-        props.contributionProviderLabel(providerOperatorId),
-        props.contributionSourceName(sourceId),
+        props.contributionProviderLabel(entry.providerOperatorId),
+        props.contributionSourceName(entry.sourceId),
       ),
-      value: value >= 0 ? `+${num(value)}` : num(value),
+      value: entry.value >= 0 ? `+${num(entry.value)}` : num(entry.value),
     });
   }
   const unallocated = finiteNumber(contribution.unallocated);

@@ -82,8 +82,12 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain('data?.contribution');
     expect(source).toContain('detail.contributionRows');
     expect(source).toContain('labels.selfContribution');
-    expect(source).toContain('props.contributionProviderLabel(providerOperatorId)');
-    expect(source).toContain('props.contributionSourceName(sourceId)');
+    expect(source).toContain('props.contributionProviderLabel(entry.providerOperatorId)');
+    expect(source).toContain('props.contributionSourceName(entry.sourceId)');
+    expect(source).toContain('projectDamageContributionEntry');
+    expect(editorSource).toContain(
+      ':contribution-attribution-mode="damageContributionAttributionMode"',
+    );
     expect(editorSource).toContain(':contribution-provider-label="contributionProviderName"');
     expect(editorSource).toContain(':contribution-source-name="contributionSourceName"');
   });

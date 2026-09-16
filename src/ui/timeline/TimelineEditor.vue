@@ -354,6 +354,7 @@ import { isEnemyTimelineBuffVisible } from './results/enemyStatusRows';
 import TimelineMarkerContextMenu from './interaction/TimelineMarkerContextMenu.vue';
 import ConsumableSelectionDialog from './components/ConsumableSelectionDialog.vue';
 import { projectPublishedTimelineDamageAnalysis } from './results/timelineDamageAnalysis';
+import type { DamageContributionAttributionMode } from '../../core/combat/damage/damageContribution';
 import {
   TIMELINE_VIEW_LAYER_IDS,
   normalizeTimelineViewLayers,
@@ -753,6 +754,7 @@ const activeProjectScenarioId = computed(() => {
   projectRevision.value;
   return projectSession.snapshot.project.activeScenarioId;
 });
+const damageContributionAttributionMode = ref<DamageContributionAttributionMode>('applier');
 const damageAnalysis = computed(() =>
   projectPublishedTimelineDamageAnalysis(
     publishedSimulation.value,
@@ -764,6 +766,7 @@ const damageAnalysis = computed(() =>
     },
     damageType =>
       damageType === 'physical' ? '#c9c9c9' : (ELEMENT_COLORS[damageType] ?? '#888888'),
+    damageContributionAttributionMode.value,
   ),
 );
 const publishedRandomMode = computed(
@@ -6577,6 +6580,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :allow-force-critical="hitDetailTarget !== null"
     :force-critical="hitDetailForceCritical"
     :result-force-critical="publishedHitDetail?.forcedCritical ?? false"
+    :contribution-attribution-mode="damageContributionAttributionMode"
     :entries="
       hitDetailTarget !== null ? (publishedHitDetail?.entries ?? []) : enemyDamageDetailEntries
     "
@@ -6733,6 +6737,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :locale="locale"
     :random-mode="publishedRandomMode"
     :global-random-seed="publishedGlobalRandomSeed"
+    :contribution-attribution-mode="damageContributionAttributionMode"
     :contribution-provider-label="contributionProviderName"
     :contribution-source-name="contributionSourceName"
     :labels="{
@@ -6743,6 +6748,10 @@ function setPanelDialogVisible(visible: boolean): void {
       contributionByOperator: t('timeline.analysis.contributionByOperator'),
       contributionChartHint: t('timeline.analysis.contributionChartHint'),
       contributionSourceDetails: t('timeline.analysis.contributionSourceDetails'),
+      lmdiModeStacks: t('timeline.analysis.lmdiModeStacks'),
+      lmdiModeStacksTip: t('timeline.analysis.lmdiModeStacksTip'),
+      lmdiModeApplier: t('timeline.analysis.lmdiModeApplier'),
+      lmdiModeApplierTip: t('timeline.analysis.lmdiModeApplierTip'),
       damageByElement: t('timeline.analysis.damageByElement'),
       totalDamage: t('timeline.analysis.totalDamage'),
       expectedTotalDamage: t('timeline.analysis.expectedTotalDamage'),
@@ -6765,6 +6774,7 @@ function setPanelDialogVisible(visible: boolean): void {
         [t('timeline.analysis.faq4Q'), t('timeline.analysis.faq4A')],
       ],
     }"
+    @update:contribution-attribution-mode="damageContributionAttributionMode = $event"
     @update:visible="showDamageAnalysis = $event"
   />
   <TimelineSimulationErrorNotice :error="simulationError" />

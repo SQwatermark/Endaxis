@@ -435,6 +435,7 @@ describe('BuffDefinitionOperationTarget', () => {
         definitionOwnerId: 'definition-operator',
         sourceActionId: 'support-passive',
         contributionSourceKind: 'buff',
+        contributionConsumedLayerProviderShares: null,
       }),
     ]);
   });
@@ -460,6 +461,9 @@ describe('BuffDefinitionOperationTarget', () => {
         definitionOwnerId: 'operator',
         sourceActionId: 'elemental-infliction',
         contributionSourceKind: 'status',
+        contributionConsumedLayerProviderShares: [
+          { providerOperatorId: 'attachment-owner', weight: 2 },
+        ],
         blackboardValues: {},
         definition: {
           stackingType: 'unique',
@@ -477,7 +481,12 @@ describe('BuffDefinitionOperationTarget', () => {
       }),
     ).toBe(true);
     expect(lifecycleSources).toEqual([
-      expect.objectContaining({ contributionSourceKind: 'status' }),
+      expect.objectContaining({
+        contributionSourceKind: 'status',
+        contributionConsumedLayerProviderShares: [
+          { providerOperatorId: 'attachment-owner', weight: 2 },
+        ],
+      }),
     ]);
   });
 

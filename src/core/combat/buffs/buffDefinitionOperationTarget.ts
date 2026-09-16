@@ -191,6 +191,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
           sourceActionId: request.sourceActionId ?? request.buffId,
           contributionSourceKind: request.contributionSourceKind,
           contributionSourceShares: request.contributionSourceShares,
+          contributionConsumedLayerProviderShares: request.contributionConsumedLayerProviderShares,
           definitionOwnerId: request.definitionOwnerId ?? request.sourceId,
           ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
           ...(request.finishParentGlobalBuff === undefined
@@ -368,6 +369,8 @@ export class BuffDefinitionOperationTarget<Key extends string>
                 definitionOwnerId: buff.definitionOwnerId,
                 sourceActionId: buff.sourceActionId,
                 contributionSourceKind: buff.runtimeState.contributionSourceKind,
+                contributionConsumedLayerProviderShares:
+                  buff.runtimeState.contributionConsumedLayerProviderShares,
                 skillCastInfo,
                 operations: operations ?? buff.runtimeState.actionHost!.operations,
               }),

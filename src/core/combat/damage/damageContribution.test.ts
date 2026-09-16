@@ -90,6 +90,32 @@ describe('damage contribution', () => {
     expect(scaled.self + scaled.unallocated + scaled.external[0]!.value).toBe(40);
   });
 
+  it('keeps different consumed-layer projections separate while decomposing once', () => {
+    const result = decomposeDamageContribution(144, 100, [
+      {
+        providerOperatorId: 'trigger',
+        sourceKind: 'status',
+        sourceId: 'reaction-status',
+        consumedLayerProviderShares: [{ providerOperatorId: 'layer-a', weight: 1 }],
+        logEffect: Math.log(1.2),
+      },
+      {
+        providerOperatorId: 'trigger',
+        sourceKind: 'status',
+        sourceId: 'reaction-status',
+        consumedLayerProviderShares: [{ providerOperatorId: 'layer-b', weight: 1 }],
+        logEffect: Math.log(1.2),
+      },
+    ]);
+
+    expect(result.external).toHaveLength(2);
+    expect(result.external.map(entry => entry.consumedLayerProviderShares)).toEqual([
+      [{ providerOperatorId: 'layer-a', weight: 1 }],
+      [{ providerOperatorId: 'layer-b', weight: 1 }],
+    ]);
+    expect(result.self + result.external.reduce((sum, entry) => sum + entry.value, 0)).toBe(144);
+  });
+
   it('leaves invalid zero-baseline cases with the attacker', () => {
     const result = decomposeDamageContribution(20, 0, [
       {

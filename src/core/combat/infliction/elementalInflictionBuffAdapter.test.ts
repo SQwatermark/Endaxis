@@ -78,7 +78,7 @@ describe('ElementalInflictionBuffAdapter', () => {
   });
 
   it('returns the actual consumed and created identities without looking them up after callbacks', () => {
-    const { adapter } = createAdapter();
+    const { adapter, target } = createAdapter();
     const applied = adapter.apply({ kind: 'addAttachment', element: 'heat' });
     expect(applied?.buffId).toBe('attachment.heat');
     const existing = adapter.getExistingAttachment()!;
@@ -93,6 +93,11 @@ describe('ElementalInflictionBuffAdapter', () => {
     });
     expect(output?.buffId).toBe('status.heat.electric');
     expect(output?.instanceId).not.toBe(applied?.instanceId);
+    expect(target.getInstance(output!.instanceId)?.runtimeState).toMatchObject({
+      contributionConsumedLayerProviderShares: [
+        { providerOperatorId: 'operator', weight: existing.layers },
+      ],
+    });
   });
   it.each([
     { kind: 'addAttachment', element: 'cryo' },

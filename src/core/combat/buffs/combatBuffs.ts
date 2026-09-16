@@ -94,7 +94,10 @@ import {
   type DamageModifierConditionEvaluator,
   type DamageModifierDefinition,
 } from '../damage/damageModifiers';
-import { normalizeDamageContributionSourceShares } from '../damage/damageContribution';
+import {
+  normalizeDamageContributionProviderShares,
+  normalizeDamageContributionSourceShares,
+} from '../damage/damageContribution';
 import type {
   DamageModifierSide,
   DamageProcessTiming,
@@ -264,6 +267,8 @@ export interface CombatBuffAddOptions {
   /** 贡献归因中的语义类型；只由明确知道来源语义的应用子系统覆盖。 */
   readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
   readonly contributionSourceShares?: readonly import('../damage/damageContribution').DamageContributionSourceShare[];
+  /** 复合状态消费层的冻结来源；只改变伤害贡献的显示投影。 */
+  readonly contributionConsumedLayerProviderShares?: readonly import('../damage/damageContribution').DamageContributionProviderShare[];
   /** 创建该定义的 AbilitySystem；跨实体挂载和事件触发都不改变它。 */
   readonly definitionOwnerId?: string;
   /** 创建时复制的来源施法信息；缺少表示该 Buff 不继承施法身份。 */
@@ -447,6 +452,12 @@ export class CombatBuff<Key extends string> {
               providerOperatorId: sourceId,
               sourceKind: restoredState.contributionSourceKind,
               sourceId: definition.id,
+              ...(restoredState.contributionConsumedLayerProviderShares === null
+                ? {}
+                : {
+                    consumedLayerProviderShares:
+                      restoredState.contributionConsumedLayerProviderShares,
+                  }),
             },
             () => this.damageContributionSources(),
           ),
@@ -471,6 +482,12 @@ export class CombatBuff<Key extends string> {
       options?.contributionSourceShares === undefined
         ? null
         : normalizeDamageContributionSourceShares(options.contributionSourceShares);
+    this.#state.contributionConsumedLayerProviderShares =
+      options?.contributionConsumedLayerProviderShares === undefined
+        ? null
+        : normalizeDamageContributionProviderShares(
+            options.contributionConsumedLayerProviderShares,
+          );
     this.blackboard.assign(options?.blackboardValues);
     // 对应原生 Buff.Reset：本次赋值完成后收集来源修正，早于寿命/修正器求值。
     // 仅初始化新实例执行；刷新旧实例不会因此重播收集事件。
@@ -551,6 +568,11 @@ export class CombatBuff<Key extends string> {
             providerOperatorId: sourceId,
             sourceKind: this.#state.contributionSourceKind,
             sourceId: definition.id,
+            ...(this.#state.contributionConsumedLayerProviderShares === null
+              ? {}
+              : {
+                  consumedLayerProviderShares: this.#state.contributionConsumedLayerProviderShares,
+                }),
           },
           () => this.damageContributionSources(),
         ),
@@ -1017,6 +1039,12 @@ export class CombatBuff<Key extends string> {
               providerOperatorId: layerSourceId,
               sourceKind: this.#state.contributionSourceKind,
               sourceId: this.definition.id,
+              ...(this.#state.contributionConsumedLayerProviderShares === null
+                ? {}
+                : {
+                    consumedLayerProviderShares:
+                      this.#state.contributionConsumedLayerProviderShares,
+                  }),
             },
           );
         }),
@@ -1035,6 +1063,11 @@ export class CombatBuff<Key extends string> {
       sourceKind: this.#state.contributionSourceKind,
       sourceId: this.definition.id,
       weight: 1,
+      ...(this.#state.contributionConsumedLayerProviderShares === null
+        ? {}
+        : {
+            consumedLayerProviderShares: this.#state.contributionConsumedLayerProviderShares,
+          }),
     }));
   }
 

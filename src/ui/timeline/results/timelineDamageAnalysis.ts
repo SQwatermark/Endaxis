@@ -1,5 +1,10 @@
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
-import type { DamageContributionSourceKind } from '../../../core/combat/damage/damageContribution';
+import {
+  projectDamageContributionEntry,
+  type DamageContributionAttributionMode,
+  type DamageContributionProviderShare,
+  type DamageContributionSourceKind,
+} from '../../../core/combat/damage/damageContribution';
 import type { DamageType } from '../../../core/game-data/operatorDefinition';
 import type { ScenarioDocument, TrackIndex } from '../../../core/project/schema';
 import type { PublishedScenarioSimulation } from '../useScenarioSimulation';
@@ -11,6 +16,7 @@ export function projectPublishedTimelineDamageAnalysis(
   damageTypeLabel: (damageType: DamageType) => string,
   operatorColor?: (slug: string | null) => string,
   damageTypeColor?: (damageType: DamageType) => string,
+  contributionAttributionMode: DamageContributionAttributionMode = 'applier',
 ): TimelineDamageAnalysis {
   if (published === null)
     return {
@@ -32,6 +38,7 @@ export function projectPublishedTimelineDamageAnalysis(
     index => operatorColor?.(published.scenario.tracks[index]?.operator?.operatorSlug ?? null),
     damageTypeColor,
     operatorLabel(null),
+    contributionAttributionMode,
   );
 }
 
@@ -87,6 +94,7 @@ export function projectTimelineDamageAnalysis(
   operatorColor?: (trackIndex: TrackIndex) => string | undefined,
   damageTypeColor?: (damageType: DamageType) => string | undefined,
   environmentContributionLabel = 'Environment',
+  contributionAttributionMode: DamageContributionAttributionMode = 'applier',
 ): TimelineDamageAnalysis {
   const castToTrack = new Map<string, TrackIndex>();
   const sourceToTrack = new Map<string, TrackIndex>();
@@ -150,7 +158,9 @@ export function projectTimelineDamageAnalysis(
       current.directValue += contribution.self;
       contributionTotals.set(trackIndex, current);
     }
-    for (const external of contribution.external) {
+    for (const external of contribution.external.flatMap(entry =>
+      projectDamageContributionEntry(entry, contributionAttributionMode),
+    )) {
       const sourceKey = JSON.stringify([
         external.providerOperatorId,
         external.sourceKind,
@@ -158,7 +168,12 @@ export function projectTimelineDamageAnalysis(
       ]);
       const sourceTotal = contributionSourceTotals.get(sourceKey);
       if (sourceTotal === undefined) {
-        contributionSourceTotals.set(sourceKey, { ...external });
+        contributionSourceTotals.set(sourceKey, {
+          providerOperatorId: external.providerOperatorId,
+          sourceKind: external.sourceKind,
+          sourceId: external.sourceId,
+          value: external.value,
+        });
       } else {
         sourceTotal.value += external.value;
       }
@@ -245,6 +260,7 @@ interface ReadDamageContribution {
     readonly sourceKind: DamageContributionSourceKind;
     readonly sourceId: string;
     readonly value: number;
+    readonly consumedLayerProviderShares?: readonly DamageContributionProviderShare[];
   }[];
 }
 
@@ -261,6 +277,22 @@ function readDamageContribution(value: unknown): ReadDamageContribution | null {
     const providerOperatorId = entry.providerOperatorId;
     const sourceKind = entry.sourceKind;
     const sourceId = entry.sourceId;
+    const consumedLayerProviderShares = Array.isArray(entry.consumedLayerProviderShares)
+      ? entry.consumedLayerProviderShares.flatMap(rawShare => {
+          if (rawShare === null || typeof rawShare !== 'object' || Array.isArray(rawShare))
+            return [];
+          const share = rawShare as Record<string, unknown>;
+          const providerOperatorId = share.providerOperatorId;
+          const weight = finiteNumber(share.weight);
+          if (
+            weight === null ||
+            weight <= 0 ||
+            (providerOperatorId !== null && typeof providerOperatorId !== 'string')
+          )
+            return [];
+          return [{ providerOperatorId, weight }];
+        })
+      : undefined;
     if (
       amount === null ||
       (providerOperatorId !== null && typeof providerOperatorId !== 'string') ||
@@ -278,6 +310,7 @@ function readDamageContribution(value: unknown): ReadDamageContribution | null {
         sourceKind: sourceKind as DamageContributionSourceKind,
         sourceId,
         value: amount,
+        ...(consumedLayerProviderShares === undefined ? {} : { consumedLayerProviderShares }),
       },
     ];
   });

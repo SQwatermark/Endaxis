@@ -211,6 +211,51 @@ it('增强型状态逐层保留施加者并在减层时移除最后加入的来�
   ]);
 });
 
+it('复合状态修正保留被消费层的显示归因来源', () => {
+  const attributes = new CombatAttributeSet<Attribute>();
+  attributes.define('attack', 100, {});
+  const container = new CombatBuffContainer('enemy', attributes);
+  const buff = requireAddedBuff(
+    container.add(
+      {
+        id: 'compound-status',
+        stackingType: 'unique',
+        damageModifiers: [{ enabledSide: 'defender', processors: [] }],
+        attributeModifiers: [
+          {
+            attribute: 'attack',
+            timing: 'runtime',
+            values: attributeModifierValues('addition', 10),
+          },
+        ],
+      },
+      'trigger',
+      {
+        contributionSourceKind: 'status',
+        contributionConsumedLayerProviderShares: [
+          { providerOperatorId: 'layer-b', weight: 1 },
+          { providerOperatorId: 'layer-a', weight: 1 },
+          { providerOperatorId: 'layer-b', weight: 1 },
+        ],
+      },
+    ),
+  );
+  const consumedLayers = [
+    { providerOperatorId: 'layer-a', weight: 1 },
+    { providerOperatorId: 'layer-b', weight: 2 },
+  ];
+
+  expect(buff.runtimeState.contributionConsumedLayerProviderShares).toEqual(consumedLayers);
+  expect(attributes.runtimeState.modifiers[0]!.contributionSource).toMatchObject({
+    providerOperatorId: 'trigger',
+    consumedLayerProviderShares: consumedLayers,
+  });
+  expect(buff.damageModifiers[0]!.resolveContributionSources?.()[0]).toMatchObject({
+    providerOperatorId: 'trigger',
+    consumedLayerProviderShares: consumedLayers,
+  });
+});
+
 it('容器从复制数据重绑实例、叠层、修正器和护盾且不重放生命周期', () => {
   const definition: CombatBuffDefinition<Attribute> = {
     id: 'restored-container',

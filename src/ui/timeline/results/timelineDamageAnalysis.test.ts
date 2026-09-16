@@ -218,6 +218,85 @@ describe('projectTimelineDamageAnalysis', () => {
     expect(result.unattributedContribution).toBe(0);
   });
 
+  it('switches consumed-layer attribution from frozen receipt data without changing damage', () => {
+    const scenario = createEmptyScenario('scenario:1', 'test');
+    for (const [index, id] of ['attacker', 'trigger', 'layer-a', 'layer-b'].entries()) {
+      scenario.tracks[index] = {
+        id: `track:${id}`,
+        operator: null,
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+    }
+    const receipts: CombatReceiptEntry[] = [
+      {
+        sequence: 1,
+        frame: 30,
+        time: 1,
+        event: 'DamageApplied',
+        sourceId: 'track:attacker',
+        targetId: 'enemy',
+        data: {
+          value: 150,
+          damageType: 'electric',
+          contribution: {
+            self: 90,
+            external: [
+              {
+                providerOperatorId: 'track:trigger',
+                sourceKind: 'status',
+                sourceId: 'electrification',
+                value: 60,
+                consumedLayerProviderShares: [
+                  { providerOperatorId: 'track:layer-a', weight: 1 },
+                  { providerOperatorId: 'track:layer-b', weight: 2 },
+                ],
+              },
+            ],
+            unallocated: 0,
+            diagnostics: [],
+          },
+        },
+      },
+    ];
+
+    const byApplier = projectTimelineDamageAnalysis(
+      receipts,
+      scenario,
+      String,
+      String,
+      undefined,
+      undefined,
+      'Environment',
+      'applier',
+    );
+    const byConsumedLayers = projectTimelineDamageAnalysis(
+      receipts,
+      scenario,
+      String,
+      String,
+      undefined,
+      undefined,
+      'Environment',
+      'consumedLayers',
+    );
+
+    expect(byApplier.totalDamage).toBe(150);
+    expect(byConsumedLayers.totalDamage).toBe(150);
+    expect(byApplier.byContributor).toEqual(
+      expect.arrayContaining([expect.objectContaining({ key: '1', supportValue: 60 })]),
+    );
+    expect(byConsumedLayers.byContributor).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: '2', supportValue: 20 }),
+        expect.objectContaining({ key: '3', supportValue: 40 }),
+      ]),
+    );
+    expect(byConsumedLayers.byContributionSource.map(entry => entry.value)).toEqual([40, 20]);
+  });
+
   it('preserves and sorts negative source contribution by absolute magnitude', () => {
     const scenario = createEmptyScenario('scenario:1', 'test');
     scenario.tracks[0] = {

@@ -15,6 +15,30 @@ export const DAMAGE_CONTRIBUTION_SOURCE_KINDS = [
 ] as const;
 
 export type DamageContributionSourceKind = (typeof DAMAGE_CONTRIBUTION_SOURCE_KINDS)[number];
+export type DamageContributionAttributionMode = 'applier' | 'consumedLayers';
+
+/** 另一种显示归因中，一个提供者所占的非负权重。 */
+export interface DamageContributionProviderShare {
+  readonly providerOperatorId: string | null;
+  readonly weight: number;
+}
+
+/** 清理、合并并稳定排序另一种显示归因的提供者权重。 */
+export function normalizeDamageContributionProviderShares(
+  shares: readonly DamageContributionProviderShare[],
+): readonly DamageContributionProviderShare[] {
+  const merged = new Map<string | null, number>();
+  for (const share of shares) {
+    if (!Number.isFinite(share.weight) || share.weight <= Number.EPSILON) continue;
+    merged.set(
+      share.providerOperatorId,
+      (merged.get(share.providerOperatorId) ?? 0) + share.weight,
+    );
+  }
+  return [...merged.entries()]
+    .sort(([left], [right]) => (left ?? '').localeCompare(right ?? ''))
+    .map(([providerOperatorId, weight]) => ({ providerOperatorId, weight }));
+}
 
 /** 能稳定显示并聚合的一项伤害影响来源。 */
 export interface DamageContributionSource {
@@ -23,6 +47,8 @@ export interface DamageContributionSource {
   readonly sourceKind: DamageContributionSourceKind;
   /** Buff、装备或机制的稳定定义编号。 */
   readonly sourceId: string;
+  /** 复合状态创建时实际消费的附着层来源；仅供切换显示归因，不改变模拟结果。 */
+  readonly consumedLayerProviderShares?: readonly DamageContributionProviderShare[];
 }
 
 /** 一个聚合修正中某个来源所占的非负权重。 */
@@ -64,6 +90,29 @@ export interface DamageContributionEntry extends DamageContributionSource {
   readonly value: number;
 }
 
+/**
+ * 将一项已结算贡献投影到所选提供者口径。
+ * 这里只拆分既有数值，不读取战斗状态，也不重新计算伤害。
+ */
+export function projectDamageContributionEntry(
+  entry: DamageContributionEntry,
+  mode: DamageContributionAttributionMode,
+): readonly DamageContributionEntry[] {
+  if (mode !== 'consumedLayers' || entry.consumedLayerProviderShares === undefined) return [entry];
+  const shares = normalizeDamageContributionProviderShares(entry.consumedLayerProviderShares);
+  const totalWeight = shares.reduce((sum, share) => sum + share.weight, 0);
+  if (totalWeight <= Number.EPSILON) return [entry];
+  let assigned = 0;
+  return shares.map((share, index) => {
+    const value =
+      index === shares.length - 1
+        ? entry.value - assigned
+        : entry.value * (share.weight / totalWeight);
+    assigned += value;
+    return { ...entry, providerOperatorId: share.providerOperatorId, value };
+  });
+}
+
 /** 写入 DamageApplied 回执的冻结归因结果。 */
 export interface DamageContributionResult {
   readonly self: number;
@@ -78,7 +127,13 @@ export interface DamageContributionLogEffect extends DamageContributionSource {
 }
 
 function sourceKey(source: DamageContributionSource): string {
-  return `${source.providerOperatorId ?? ''}\u0000${source.sourceKind}\u0000${source.sourceId}`;
+  const consumedLayers =
+    source.consumedLayerProviderShares === undefined
+      ? undefined
+      : normalizeDamageContributionProviderShares(source.consumedLayerProviderShares)
+          .map(share => `${share.providerOperatorId ?? ''}:${share.weight}`)
+          .join(',');
+  return `${source.providerOperatorId ?? ''}\u0000${source.sourceKind}\u0000${source.sourceId}\u0000${consumedLayers ?? ''}`;
 }
 
 /** 合并同一来源在多个处理器和乘区中的对数影响。 */
@@ -95,6 +150,9 @@ export function mergeDamageContributionLogEffects(
       providerOperatorId: effect.providerOperatorId,
       sourceKind: effect.sourceKind,
       sourceId: effect.sourceId,
+      ...(effect.consumedLayerProviderShares === undefined
+        ? {}
+        : { consumedLayerProviderShares: effect.consumedLayerProviderShares }),
       logEffect: (previous?.logEffect ?? 0) + effect.logEffect,
     });
   }
@@ -155,6 +213,9 @@ export function decomposeDamageContribution(
     providerOperatorId: effect.providerOperatorId,
     sourceKind: effect.sourceKind,
     sourceId: effect.sourceId,
+    ...(effect.consumedLayerProviderShares === undefined
+      ? {}
+      : { consumedLayerProviderShares: effect.consumedLayerProviderShares }),
     value: logMean * effect.logEffect,
   }));
   const externalTotal = external.reduce((sum, entry) => sum + entry.value, 0);

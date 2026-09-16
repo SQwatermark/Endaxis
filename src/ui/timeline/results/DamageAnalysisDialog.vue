@@ -10,6 +10,7 @@ import { useAppearance } from '../../appearance/useAppearance';
 import '../../../utils/echartsSetup';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import type { TimelineDamageAnalysis, TimelineDamageAnalysisEntry } from './timelineDamageAnalysis';
+import type { DamageContributionAttributionMode } from '../../../core/combat/damage/damageContribution';
 
 type ChartOption = ComposeOption<PieSeriesOption | TooltipComponentOption | LegendComponentOption>;
 
@@ -19,6 +20,7 @@ const props = defineProps<{
   locale: string;
   randomMode: 'expected' | 'sampled';
   globalRandomSeed: number;
+  contributionAttributionMode: DamageContributionAttributionMode;
   contributionProviderLabel: (operatorId: string | null) => string;
   contributionSourceName: (sourceId: string) => string;
   labels: {
@@ -29,6 +31,10 @@ const props = defineProps<{
     contributionByOperator: string;
     contributionChartHint: string;
     contributionSourceDetails: string;
+    lmdiModeStacks: string;
+    lmdiModeStacksTip: string;
+    lmdiModeApplier: string;
+    lmdiModeApplierTip: string;
     damageByElement: string;
     totalDamage: string;
     expectedTotalDamage: string;
@@ -46,7 +52,10 @@ const props = defineProps<{
   };
 }>();
 
-defineEmits<{ 'update:visible': [visible: boolean] }>();
+const emit = defineEmits<{
+  'update:visible': [visible: boolean];
+  'update:contributionAttributionMode': [mode: DamageContributionAttributionMode];
+}>();
 
 const { appearance } = useAppearance();
 const hasData = computed(() => props.analysis.totalDamage > 0);
@@ -220,7 +229,27 @@ const contributionChartOption = computed<ChartOption>(() => {
               </p>
             </section>
             <section class="chart-card">
-              <h3 class="chart-title">{{ labels.contributionByOperator }}</h3>
+              <div class="contribution-heading">
+                <h3 class="chart-title">{{ labels.contributionByOperator }}</h3>
+                <div class="contribution-mode" role="group">
+                  <button
+                    type="button"
+                    :class="{ active: contributionAttributionMode === 'applier' }"
+                    :title="labels.lmdiModeApplierTip"
+                    @click="emit('update:contributionAttributionMode', 'applier')"
+                  >
+                    {{ labels.lmdiModeApplier }}
+                  </button>
+                  <button
+                    type="button"
+                    :class="{ active: contributionAttributionMode === 'consumedLayers' }"
+                    :title="labels.lmdiModeStacksTip"
+                    @click="emit('update:contributionAttributionMode', 'consumedLayers')"
+                  >
+                    {{ labels.lmdiModeStacks }}
+                  </button>
+                </div>
+              </div>
               <VChart :option="contributionChartOption" autoresize class="chart" />
               <p class="analysis-note">{{ labels.contributionChartHint }}</p>
               <details
@@ -362,6 +391,41 @@ const contributionChartOption = computed<ChartOption>(() => {
   color: var(--ea-dialog-body);
   font-size: 14px;
   font-weight: 500;
+}
+
+.contribution-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.contribution-mode {
+  display: inline-flex;
+  border: 1px solid var(--ea-border);
+}
+
+.contribution-mode button {
+  padding: 4px 9px;
+  border: 0;
+  background: transparent;
+  color: var(--ea-dialog-hint);
+  cursor: pointer;
+  font: inherit;
+  font-size: 12px;
+}
+
+.contribution-mode button + button {
+  border-left: 1px solid var(--ea-border);
+}
+
+.contribution-mode button:hover {
+  color: var(--ea-dialog-body);
+}
+
+.contribution-mode button.active {
+  background: color-mix(in srgb, var(--ea-accent) 18%, transparent);
+  color: var(--ea-accent);
 }
 
 .chart {

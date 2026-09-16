@@ -47,6 +47,9 @@ export interface BuffLifecycleOperationSource {
   readonly sourceActionId: string;
   /** 当前 Buff 的贡献来源类型；生命周期派生的子 Buff 必须沿用，不能退化成普通 Buff。 */
   readonly contributionSourceKind: import('../damage/damageContribution').DamageContributionSourceKind;
+  /** 根 Buff 创建时冻结的消费层来源；派生子 Buff 沿用同一份显示归因事实。 */
+  readonly contributionConsumedLayerProviderShares:
+    readonly import('../damage/damageContribution').DamageContributionProviderShare[] | null;
   /** 普通/叠层回调沿用 Buff 来源施法，点燃使用本次 IgniteAction 的施法身份。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
   /** 同一 Buff 生命周期内全部序列共用的可复制操作关系。 */
@@ -216,6 +219,7 @@ export interface BuffApplicationRequest {
   readonly sourceActionId?: string;
   readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
   readonly contributionSourceShares?: readonly import('../damage/damageContribution').DamageContributionSourceShare[];
+  readonly contributionConsumedLayerProviderShares?: readonly import('../damage/damageContribution').DamageContributionProviderShare[];
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
   readonly isExtra?: boolean;
@@ -231,6 +235,7 @@ export interface BuffOperationDependencies {
   readonly sourceId: string;
   /** 当前动作模块的归因类型；装备事件链由装配层明确传入。 */
   readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
+  readonly contributionConsumedLayerProviderShares?: readonly import('../damage/damageContribution').DamageContributionProviderShare[];
   /** 当前操作链解析 Buff/能力实体定义所使用的干员。 */
   readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
@@ -560,6 +565,12 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
           ...(this.dependencies.contributionSourceKind === undefined
             ? {}
             : { contributionSourceKind: this.dependencies.contributionSourceKind }),
+          ...(this.dependencies.contributionConsumedLayerProviderShares === undefined
+            ? {}
+            : {
+                contributionConsumedLayerProviderShares:
+                  this.dependencies.contributionConsumedLayerProviderShares,
+              }),
           ...(sourceTarget?.getAttributeValue === undefined
             ? {}
             : {
