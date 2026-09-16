@@ -141,6 +141,38 @@ describe('PlayerDamageContext', () => {
     ]);
   });
 
+  it('separates explicit environment effects from the attacker baseline', () => {
+    const context = new PlayerDamageContext({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      damageType: 'physical',
+      targetHealthType: 'normal',
+      ports: {
+        captureAttributeSnapshots: () => createSnapshots(100),
+        applyModifiers: () => undefined,
+        addInstantAttributeModifier: () => undefined,
+        clearInstantAttributeModifiers: () => undefined,
+      },
+    });
+    context.multiplyCalculationValue(0.8, {
+      providerOperatorId: null,
+      sourceKind: 'mechanic',
+      sourceId: 'environment-penalty',
+    });
+    context.setCalculationResult(100);
+
+    expect(context.value).toBe(80);
+    expect(context.resolveSelfFinalAttackValue()).toBe(100);
+    expect(context.getContributionLogEffects()).toEqual([
+      expect.objectContaining({
+        providerOperatorId: null,
+        sourceKind: 'mechanic',
+        sourceId: 'environment-penalty',
+        logEffect: expect.closeTo(Math.log(0.8), 10),
+      }),
+    ]);
+  });
+
   it('keeps before-calculation instant attributes through the final snapshot, then clears them', () => {
     let instantResistance = false;
     const clear = vi.fn(() => {

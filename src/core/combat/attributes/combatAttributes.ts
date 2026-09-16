@@ -127,12 +127,7 @@ export class CombatAttributeSet<Key extends string> {
       if (relevantAttributes !== undefined && !relevantAttributes.has(modifier.attribute))
         return [];
       const source = modifier.contributionSource;
-      if (
-        source?.providerOperatorId === null ||
-        source?.providerOperatorId === undefined ||
-        source.providerOperatorId === attackerId
-      )
-        return [];
+      if (source === undefined || source.providerOperatorId === attackerId) return [];
       const weight = Object.entries(modifier.values).reduce(
         (sum, [slot, value]) =>
           sum +

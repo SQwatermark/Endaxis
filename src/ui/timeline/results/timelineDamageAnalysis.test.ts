@@ -256,7 +256,15 @@ describe('projectTimelineDamageAnalysis', () => {
       },
     ];
 
-    const result = projectTimelineDamageAnalysis(entries, scenario, String, String);
+    const result = projectTimelineDamageAnalysis(
+      entries,
+      scenario,
+      String,
+      String,
+      undefined,
+      undefined,
+      '环境',
+    );
 
     expect(result.byContributionSource).toEqual([
       {
@@ -267,7 +275,18 @@ describe('projectTimelineDamageAnalysis', () => {
         ratio: -0.25,
       },
     ]);
-    expect(result.unattributedContribution).toBe(-17);
+    expect(result.byContributor).toEqual([
+      expect.objectContaining({ key: '0', directValue: 97, supportValue: 0, value: 97 }),
+      {
+        key: 'environment',
+        label: '环境',
+        directValue: 0,
+        supportValue: -20,
+        value: -20,
+        ratio: -0.25,
+      },
+    ]);
+    expect(result.unattributedContribution).toBe(3);
   });
 
   it('uses frame zero as the default analysis start and filters negative preparation damage', () => {

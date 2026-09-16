@@ -31,6 +31,7 @@ export function projectPublishedTimelineDamageAnalysis(
     damageTypeLabel,
     index => operatorColor?.(published.scenario.tracks[index]?.operator?.operatorSlug ?? null),
     damageTypeColor,
+    operatorLabel(null),
   );
 }
 
@@ -85,6 +86,7 @@ export function projectTimelineDamageAnalysis(
   damageTypeLabel: (damageType: DamageType) => string,
   operatorColor?: (trackIndex: TrackIndex) => string | undefined,
   damageTypeColor?: (damageType: DamageType) => string | undefined,
+  environmentContributionLabel = 'Environment',
 ): TimelineDamageAnalysis {
   const castToTrack = new Map<string, TrackIndex>();
   const sourceToTrack = new Map<string, TrackIndex>();
@@ -100,7 +102,10 @@ export function projectTimelineDamageAnalysis(
   const startFrame = scenario.battle.simulationRange?.startFrame ?? 0;
   const operatorTotals = new Map<TrackIndex, number>();
   const typeTotals = new Map<DamageType, number>();
-  const contributionTotals = new Map<TrackIndex, { directValue: number; supportValue: number }>();
+  const contributionTotals = new Map<
+    TrackIndex | 'environment',
+    { directValue: number; supportValue: number }
+  >();
   const contributionSourceTotals = new Map<
     string,
     Omit<TimelineDamageContributionSourceEntry, 'value' | 'ratio'> & { value: number }
@@ -157,10 +162,16 @@ export function projectTimelineDamageAnalysis(
       } else {
         sourceTotal.value += external.value;
       }
-      const providerTrack =
-        external.providerOperatorId === null
-          ? undefined
-          : sourceToTrack.get(external.providerOperatorId);
+      if (external.providerOperatorId === null) {
+        const current = contributionTotals.get('environment') ?? {
+          directValue: 0,
+          supportValue: 0,
+        };
+        current.supportValue += external.value;
+        contributionTotals.set('environment', current);
+        continue;
+      }
+      const providerTrack = sourceToTrack.get(external.providerOperatorId);
       if (providerTrack === undefined) {
         unattributedContribution += external.value;
         continue;
@@ -195,10 +206,10 @@ export function projectTimelineDamageAnalysis(
   const byContributor = [...contributionTotals.entries()]
     .map(([key, parts]): TimelineDamageContributionEntry => {
       const value = parts.directValue + parts.supportValue;
-      const entryColor = operatorColor?.(key);
+      const entryColor = key === 'environment' ? undefined : operatorColor?.(key);
       return {
         key: String(key),
-        label: operatorLabel(key),
+        label: key === 'environment' ? environmentContributionLabel : operatorLabel(key),
         value,
         ratio: totalDamage <= 0 ? 0 : value / totalDamage,
         directValue: parts.directValue,

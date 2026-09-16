@@ -313,11 +313,9 @@ export class PlayerDamageContext {
   }
 
   #isSelfSource(source: DamageContributionSource | undefined): boolean {
-    return (
-      source?.providerOperatorId === null ||
-      source?.providerOperatorId === undefined ||
-      source.providerOperatorId === this.sourceId
-    );
+    // 没有归因元数据的旧修正仍属于伤害来源自身；显式的 null 则是环境来源，
+    // 必须从自身基线中排除，才能在贡献结果中进入环境桶。
+    return source === undefined || source.providerOperatorId === this.sourceId;
   }
 
   #captureAttributeSourceWeights(): void {

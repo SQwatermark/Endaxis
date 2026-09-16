@@ -151,4 +151,46 @@ describe('CombatAttributeSet', () => {
 
     expect(() => attributes.addModifier(modifier)).toThrow('explicit native bounds');
   });
+
+  it('reports explicit environment modifiers as external contribution sources', () => {
+    const attributes = new CombatAttributeSet<Attribute>();
+    attributes.define('attack', 100, { minimum: 0, maximum: 1000 });
+    attributes.addModifier(
+      createCombatAttributeModifier(
+        'attack',
+        attributeModifierValues('addition', -20),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+        {
+          providerOperatorId: null,
+          sourceKind: 'mechanic',
+          sourceId: 'environment-penalty',
+        },
+      ),
+    );
+    attributes.addModifier(
+      createCombatAttributeModifier(
+        'attack',
+        attributeModifierValues('addition', 10),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+        {
+          providerOperatorId: 'attacker',
+          sourceKind: 'buff',
+          sourceId: 'self-buff',
+        },
+      ),
+    );
+
+    expect(attributes.getExternalContributionSourceWeights('attacker')).toEqual([
+      {
+        source: {
+          providerOperatorId: null,
+          sourceKind: 'mechanic',
+          sourceId: 'environment-penalty',
+        },
+        weight: 20,
+      },
+    ]);
+  });
 });
