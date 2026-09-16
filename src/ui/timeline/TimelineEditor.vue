@@ -6722,7 +6722,10 @@ function setPanelDialogVisible(visible: boolean): void {
       rotationTime: t('timeline.analysis.rotationTime'),
       dps: t('timeline.analysis.dps'),
       unattributedDamage: (value: string) => t('timeline.analysis.unattributedDamage', { value }),
-      contributionUnavailable: t('timeline.analysis.contributionUnavailable'),
+      unattributedContribution: (value: string) =>
+        t('timeline.analysis.unattributedContribution', { value }),
+      damage: t('timeline.analysis.damage'),
+      buff: t('timeline.analysis.buff'),
       faqTitle: t('timeline.analysis.faqTitle'),
       faq: [
         [t('timeline.analysis.faq1Q'), t('timeline.analysis.faq1A')],

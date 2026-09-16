@@ -26,9 +26,10 @@ import type {
   AttributeModifierTiming,
   AttributeModifierValues,
 } from '../attributes/combatAttributes';
-import type { CombatSkillCastInfo } from '../state/foundationState';
+import type { CombatAttributeModifier, CombatSkillCastInfo } from '../state/foundationState';
 import type { GameplayTag } from '../tags/gameplayTags';
 import { DamageScaleAccumulator } from './damageScale';
+import type { DamageContributionLogEffect, DamageContributionSource } from './damageContribution';
 import type { DamageScaleAttributeSnapshot } from './damageScaleAttributes';
 import type {
   PlayerDamageAttackerSnapshot,
@@ -46,11 +47,18 @@ export interface InstantAttributeModifierRequest {
   readonly attribute: string;
   readonly values: AttributeModifierValues;
   readonly timing: AttributeModifierTiming;
+  readonly contributionSource?: DamageContributionSource;
 }
 
 /** 伤害上下文访问属性修正注册表所需的受控端口。 */
 export interface PlayerDamageContextPorts {
-  readonly captureAttributeSnapshots: () => PlayerDamageAttributeSnapshots;
+  readonly captureAttributeSnapshots: (
+    includeModifier?: (modifier: CombatAttributeModifier<string>) => boolean,
+  ) => PlayerDamageAttributeSnapshots;
+  readonly captureAttributeContributionSourceWeights?: () => readonly {
+    readonly source: DamageContributionSource;
+    readonly weight: number;
+  }[];
   readonly applyModifiers: (
     timing: DamageProcessTiming,
     side: DamageModifierSide,
@@ -96,10 +104,19 @@ export class PlayerDamageContext {
   #baseValue = 0;
   #value = 0;
   #pendingCalculationScale = 1;
+  #selfValue = 0;
+  #pendingSelfCalculationScale = 1;
+  readonly #calculationLogEffects: DamageContributionLogEffect[] = [];
   #hasCalculationResult = false;
   readonly #instantModifiedSides = new Set<DamageModifierSide>();
   #beforeCalculationInstantSnapshots: Partial<PlayerDamageAttributeSnapshots> = {};
+  #beforeCalculationSelfInstantSnapshots: Partial<PlayerDamageAttributeSnapshots> = {};
   #snapshots: PlayerDamageAttributeSnapshots;
+  #selfSnapshots: PlayerDamageAttributeSnapshots;
+  readonly #attributeSourceWeights = new Map<
+    string,
+    { readonly source: DamageContributionSource; weight: number }
+  >();
 
   constructor(input: PlayerDamageContextInput) {
     this.sourceId = input.sourceId;
@@ -115,6 +132,10 @@ export class PlayerDamageContext {
     this.skillType = input.skillType;
     this.#ports = input.ports;
     this.#snapshots = input.ports.captureAttributeSnapshots();
+    this.#selfSnapshots = input.ports.captureAttributeSnapshots(modifier =>
+      this.#isSelfSource(modifier.contributionSource),
+    );
+    this.#captureAttributeSourceWeights();
   }
 
   get baseValue(): number {
@@ -154,12 +175,25 @@ export class PlayerDamageContext {
       this.#ports.applyModifiers(timing, 'attacker', this);
       this.#ports.applyModifiers(timing, 'defender', this);
       const captured = this.#ports.captureAttributeSnapshots();
+      const selfCaptured = this.#ports.captureAttributeSnapshots(modifier =>
+        this.#isSelfSource(modifier.contributionSource),
+      );
+      this.#captureAttributeSourceWeights();
       if (timing === 'beforeCalculation') {
         this.#beforeCalculationInstantSnapshots = {
           ...(this.#instantModifiedSides.has('attacker') ? { attacker: captured.attacker } : {}),
           ...(this.#instantModifiedSides.has('defender') ? { defender: captured.defender } : {}),
         };
+        this.#beforeCalculationSelfInstantSnapshots = {
+          ...(this.#instantModifiedSides.has('attacker')
+            ? { attacker: selfCaptured.attacker }
+            : {}),
+          ...(this.#instantModifiedSides.has('defender')
+            ? { defender: selfCaptured.defender }
+            : {}),
+        };
         this.#snapshots = captured;
+        this.#selfSnapshots = selfCaptured;
       } else {
         // 原生在每个处理阶段重采样后立即清理 Instant 修正。最终公式仍须使用
         // BeforeCalculation 为被修改一侧冻结的包内副本；另一侧继续接收后阶段快照。
@@ -167,11 +201,17 @@ export class PlayerDamageContext {
           attacker: this.#beforeCalculationInstantSnapshots.attacker ?? captured.attacker,
           defender: this.#beforeCalculationInstantSnapshots.defender ?? captured.defender,
         };
+        this.#selfSnapshots = {
+          attacker: this.#beforeCalculationSelfInstantSnapshots.attacker ?? selfCaptured.attacker,
+          defender: this.#beforeCalculationSelfInstantSnapshots.defender ?? selfCaptured.defender,
+        };
         this.#beforeCalculationInstantSnapshots = {};
+        this.#beforeCalculationSelfInstantSnapshots = {};
         this.#instantModifiedSides.clear();
       }
     } catch (error) {
       this.#beforeCalculationInstantSnapshots = {};
+      this.#beforeCalculationSelfInstantSnapshots = {};
       this.#instantModifiedSides.clear();
       throw error;
     } finally {
@@ -185,26 +225,92 @@ export class PlayerDamageContext {
     this.#ports.clearInstantAttributeModifiers('attacker');
     this.#ports.clearInstantAttributeModifiers('defender');
     this.#beforeCalculationInstantSnapshots = {};
+    this.#beforeCalculationSelfInstantSnapshots = {};
     this.#instantModifiedSides.clear();
   }
 
-  setCalculationResult(value: number): void {
+  setCalculationResult(value: number, selfValue = value): void {
     this.#baseValue = value;
     this.#value = value * this.#pendingCalculationScale;
+    this.#selfValue = selfValue * this.#pendingSelfCalculationScale;
     this.#hasCalculationResult = true;
   }
 
-  multiplyCalculationValue(scale: number): void {
+  multiplyCalculationValue(scale: number, source?: DamageContributionSource): void {
     if (this.#hasCalculationResult) {
       this.#value *= scale;
+    } else {
+      this.#pendingCalculationScale *= scale;
+    }
+    const external =
+      source?.providerOperatorId !== null &&
+      source?.providerOperatorId !== undefined &&
+      source.providerOperatorId !== this.sourceId;
+    if (!external) {
+      if (this.#hasCalculationResult) this.#selfValue *= scale;
+      else this.#pendingSelfCalculationScale *= scale;
       return;
     }
-    this.#pendingCalculationScale *= scale;
+    if (scale > 0) this.#calculationLogEffects.push({ ...source, logEffect: Math.log(scale) });
+  }
+
+  get selfAttackerAttributes(): PlayerDamageAttributeSnapshots['attacker'] {
+    return this.#selfSnapshots.attacker;
+  }
+
+  get selfDefenderAttributes(): PlayerDamageAttributeSnapshots['defender'] {
+    return this.#selfSnapshots.defender;
   }
 
   resolveFinalAttackValue(): number {
     if (this.damageType === 'lifeDrain') return this.#value;
     this.applyModifiers('afterCalculation');
     return this.#value * this.damageScales.getFinalValue();
+  }
+
+  resolveSelfFinalAttackValue(): number {
+    if (this.damageType === 'lifeDrain') return this.#selfValue;
+    return this.#selfValue * this.damageScales.getSelfValue(this.sourceId);
+  }
+
+  getContributionLogEffects(totalLogEffect?: number): readonly DamageContributionLogEffect[] {
+    const direct = [
+      ...this.#calculationLogEffects,
+      ...this.damageScales.getContributionLogEffects(this.sourceId),
+    ];
+    if (totalLogEffect === undefined || this.#attributeSourceWeights.size === 0) return direct;
+    const directTotal = direct.reduce((sum, effect) => sum + effect.logEffect, 0);
+    const attributeLogEffect = totalLogEffect - directTotal;
+    const totalWeight = [...this.#attributeSourceWeights.values()].reduce(
+      (sum, entry) => sum + entry.weight,
+      0,
+    );
+    if (Math.abs(attributeLogEffect) <= Number.EPSILON || totalWeight <= Number.EPSILON)
+      return direct;
+    return [
+      ...direct,
+      ...[...this.#attributeSourceWeights.values()].map(entry => ({
+        ...entry.source,
+        logEffect: attributeLogEffect * (entry.weight / totalWeight),
+      })),
+    ];
+  }
+
+  #isSelfSource(source: DamageContributionSource | undefined): boolean {
+    return (
+      source?.providerOperatorId === null ||
+      source?.providerOperatorId === undefined ||
+      source.providerOperatorId === this.sourceId
+    );
+  }
+
+  #captureAttributeSourceWeights(): void {
+    for (const entry of this.#ports.captureAttributeContributionSourceWeights?.() ?? []) {
+      const key = `${entry.source.providerOperatorId ?? ''}\u0000${entry.source.sourceKind}\u0000${entry.source.sourceId}`;
+      const previous = this.#attributeSourceWeights.get(key);
+      if (previous === undefined || previous.weight < entry.weight) {
+        this.#attributeSourceWeights.set(key, { source: entry.source, weight: entry.weight });
+      }
+    }
   }
 }

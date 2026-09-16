@@ -4,7 +4,7 @@ import source from './DamageAnalysisDialog.vue?raw';
 describe('DamageAnalysisDialog structure', () => {
   it('keeps receipt-only analysis boundaries visible without hard-coded locale text', () => {
     expect(source).toContain('labels.unattributedDamage');
-    expect(source).toContain('labels.contributionUnavailable');
+    expect(source).toContain('labels.unattributedContribution');
     expect(source).not.toContain('未归属伤害');
     expect(source).not.toContain('推测性归因');
   });
@@ -26,7 +26,7 @@ describe('DamageAnalysisDialog structure', () => {
 
   it('restores the legacy chart, summary, and FAQ layout', () => {
     expect(source).toContain("import VChart from 'vue-echarts'");
-    expect(source.match(/<VChart/g)).toHaveLength(2);
+    expect(source.match(/<VChart/g)).toHaveLength(3);
     expect(source).toContain('class="charts-row"');
     expect(source).toContain('class="summary-row"');
     expect(source).toContain('class="faq-section"');
@@ -35,9 +35,11 @@ describe('DamageAnalysisDialog structure', () => {
     expect(source).toContain('top="3vh"');
   });
 
-  it('keeps unsupported contribution attribution visibly unavailable', () => {
-    expect(source).toContain('class="chart contribution-unavailable"');
-    expect(source).toContain('{{ labels.contributionUnavailable }}');
+  it('renders the contribution chart from frozen receipt attribution', () => {
+    expect(source).toContain('contributionChartOption');
+    expect(source).toContain('analysis.byContributor');
+    expect(source).toContain('entry.directValue');
+    expect(source).toContain('entry.supportValue');
     expect(source).not.toContain('lmdiAttributionMode');
   });
 });

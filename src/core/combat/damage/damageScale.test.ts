@@ -33,4 +33,28 @@ describe('DamageScaleAccumulator', () => {
     invalid.modify('attacker', 'normal', Number.NaN);
     expect(invalid.getZoneValue('normal')).toBe(0);
   });
+
+  it('separates another operator damage-scale source from the attacker baseline', () => {
+    const scales = new DamageScaleAccumulator();
+    scales.modify('attacker', 'normal', 0.2, {
+      providerOperatorId: 'attacker',
+      sourceKind: 'buff',
+      sourceId: 'self-buff',
+    });
+    scales.modify('attacker', 'normal', 0.3, {
+      providerOperatorId: 'support',
+      sourceKind: 'buff',
+      sourceId: 'support-buff',
+    });
+
+    expect(scales.getFinalValue()).toBeCloseTo(1.5);
+    expect(scales.getSelfValue('attacker')).toBeCloseTo(1.2);
+    expect(scales.getContributionLogEffects('attacker')).toEqual([
+      expect.objectContaining({
+        providerOperatorId: 'support',
+        sourceId: 'support-buff',
+        logEffect: expect.closeTo(Math.log(1.5 / 1.2), 10),
+      }),
+    ]);
+  });
 });

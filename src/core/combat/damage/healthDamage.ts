@@ -3,12 +3,13 @@
  * 只能在承伤事件完成后的正确阶段调用，避免提前改变后续监听器看到的生命值。
  */
 import type { DamageFeature, DamageTag, DamageType } from '../../game-data/operatorDefinition';
-import type { CombatReceiptSink } from '../receipt/combatReceipt';
+import type { CombatReceiptSink, CombatReceiptValue } from '../receipt/combatReceipt';
 import type { CombatVitals, HealthDamageResult } from '../resources/combatVitals';
 import type { CombatSkillCastInfo } from '../state/foundationState';
 import type { GameplayTag } from '../tags/gameplayTags';
 import type { CombatClock } from '../time/combatClock';
 import type { PlayerActiveDamageResult } from './playerActiveDamage';
+import { scaleDamageContribution, type DamageContributionResult } from './damageContribution';
 
 export const HEALTH_DAMAGE_EVENTS = [
   'beforeTakeDamage',
@@ -108,6 +109,8 @@ export interface ExecuteHealthDamageInput {
   readonly result: PlayerActiveDamageResult;
   /** 伤害详情使用的公式冻结值；只记录已参与本次结算的标量，不在投影层重算规则。 */
   readonly detail?: HealthDamageReceiptDetail;
+  /** 在公式边界冻结的贡献分解；护盾吸收后会在此处同比缩放。 */
+  readonly contribution?: DamageContributionResult;
   readonly target: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
@@ -157,6 +160,10 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
       ? input.result
       : { ...input.result, value: input.absorbDamage(input.damageType, input.result.value) };
   const payload: HealthDamageEventPayload = { ...beforePayload, result };
+  const contribution =
+    input.contribution === undefined
+      ? undefined
+      : scaleDamageContribution(input.contribution, result.value);
   const mayKillTarget = input.target.health > 0 && result.value >= input.target.health;
   if (mayKillTarget) input.emitSourceEvent('beforeKillEntity', payload);
   const stateChange = input.target.takeDamage(result.value);
@@ -183,6 +190,9 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
       igniteMultiplier: result.igniteMultiplier,
       physicalInflictionMultiplier: result.physicalInflictionMultiplier,
       ...input.detail,
+      ...(contribution === undefined
+        ? {}
+        : { contribution: contribution as unknown as CombatReceiptValue }),
       ...(spellBurstType === undefined ? {} : { spellBurstType }),
       ...(input.stepKey === undefined ? {} : { stepKey: input.stepKey }),
       ...(input.castId === undefined ? {} : { castId: input.castId }),

@@ -216,17 +216,21 @@ const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES: Readonly<Record<string, DamageScaleAttr
 export function resolveOperatorAttack(
   input: OperatorAttackDerivationInput,
   attributes: CombatAttributeSet<string>,
+  includeModifier?: (
+    modifier: import('../state/foundationState').CombatAttributeModifier<string>,
+  ) => boolean,
 ): number {
+  const read = (attribute: string) =>
+    includeModifier === undefined
+      ? attributes.get(attribute)
+      : attributes.getFiltered(attribute, includeModifier);
   let scalar = 1;
   for (const attribute of Object.keys(
     ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
   ) as OperatorAttribute[]) {
     scalar +=
-      Math.floor(attributes.get(attribute)) *
-      attributes.get(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE[attribute]);
+      Math.floor(read(attribute)) * read(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE[attribute]);
   }
-  const attackBase = attributes.has('Atk')
-    ? attributes.get('Atk')
-    : input.attackBeforeAttributeScalar;
+  const attackBase = attributes.has('Atk') ? read('Atk') : input.attackBeforeAttributeScalar;
   return Math.floor(attackBase * scalar);
 }

@@ -19,6 +19,7 @@ import type {
   DamageModifierConditionEvaluator,
   DamageModifierConditionProgram,
 } from './damageModifiers';
+import type { DamageContributionSource } from './damageContribution';
 
 export function applyDamageModifier(
   ownerId: string,
@@ -30,6 +31,7 @@ export function applyDamageModifier(
   side: DamageModifierSide,
   context: PlayerDamageContext,
   evaluateCondition?: DamageModifierConditionEvaluator,
+  contributionSource?: DamageContributionSource,
 ): void {
   if (side !== definition.enabledSide || context.getEntityId(side) !== ownerId) {
     return;
@@ -64,7 +66,7 @@ export function applyDamageModifier(
       return;
   }
   for (const processor of definition.processors) {
-    applyProcessor(processor, timing, context, resolveNumber);
+    applyProcessor(processor, timing, context, resolveNumber, contributionSource);
   }
 }
 
@@ -114,6 +116,7 @@ function applyProcessor(
   timing: DamageProcessTiming,
   context: PlayerDamageContext,
   resolveNumber: (value: DamageModifierNumber) => number,
+  contributionSource?: DamageContributionSource,
 ): void {
   if (context.damageType === 'lifeDrain') return;
   switch (processor.kind) {
@@ -122,7 +125,7 @@ function applyProcessor(
         timing === processor.timing &&
         processor.targetHealthTypes.includes(context.targetHealthType)
       ) {
-        context.multiplyCalculationValue(processor.scale);
+        context.multiplyCalculationValue(processor.scale, contributionSource);
       }
       return;
     case 'damageScale':
@@ -131,6 +134,7 @@ function applyProcessor(
           processor.side,
           processor.zone,
           resolveNumber(processor.addition),
+          contributionSource,
         );
       }
       return;
@@ -144,6 +148,7 @@ function applyProcessor(
           attribute: processor.attribute,
           values,
           timing: processor.attributeTiming,
+          ...(contributionSource === undefined ? {} : { contributionSource }),
         });
       }
   }

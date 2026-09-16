@@ -10,6 +10,7 @@ import {
   type PoiseModifierDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers';
 import { type AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
+import type { DamageContributionSource } from '../damage/damageContribution';
 
 export interface SkillCastEventData extends AbilityOriginPayload {
   /** 玩家技能库分类；实体内部技能没有此分类。 */
@@ -99,6 +100,8 @@ export interface CombatAttributeModifier<Key extends string> {
   readonly values: AttributeModifierValues;
   readonly source: AttributeModifierSource;
   readonly timing: AttributeModifierTiming;
+  /** 创建该修正的可展示来源；未提供时按目标自身的静态属性处理。 */
+  readonly contributionSource?: DamageContributionSource;
 }
 
 export interface CombatAttributeState<Key extends string> {
@@ -117,6 +120,8 @@ export interface DamageModifierState {
   readonly numberSource: BuffModifierNumberSource | undefined;
   readonly sourceSkillCastId: number | null;
   readonly hasConditionProgram: boolean;
+  /** 创建该修正的可展示来源；仅用于结算后的贡献归因。 */
+  readonly contributionSource?: DamageContributionSource;
 }
 
 export interface HealModifier {

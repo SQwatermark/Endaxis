@@ -136,6 +136,126 @@ describe('PlayerDamageOperationExecutor', () => {
     });
   });
 
+  it('freezes an external damage-scale provider into the damage receipt', () => {
+    const targetVitals = new CombatVitals({
+      health: 2000,
+      maxHealth: 2000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const receipt = new CombatReceiptCollector();
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'attacker',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt,
+      captureAttributeSnapshots: () => createAttributeSnapshots(),
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: (timing, side, context) => {
+        if (timing !== 'afterCalculation' || side !== 'attacker') return;
+        context.damageScales.modify('attacker', 'normal', 0.5, {
+          providerOperatorId: 'support',
+          sourceKind: 'buff',
+          sourceId: 'support-buff',
+        });
+      },
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    executor.execute(DAMAGE_STEP);
+
+    const contribution = receipt.entries.find(entry => entry.event === 'DamageApplied')?.data
+      ?.contribution as unknown as {
+      readonly self: number;
+      readonly external: readonly { readonly providerOperatorId: string; readonly value: number }[];
+    };
+    expect(contribution.self).toBeCloseTo(400);
+    expect(contribution.external).toEqual([
+      expect.objectContaining({ providerOperatorId: 'support', value: expect.closeTo(200, 8) }),
+    ]);
+    expect(contribution.self + contribution.external[0]!.value).toBe(600);
+  });
+
+  it('attributes an externally sourced combat attribute through the frozen self snapshot', () => {
+    const targetVitals = new CombatVitals({
+      health: 2000,
+      maxHealth: 2000,
+      maxPoise: 0,
+      poise: 0,
+      poiseRecoveryTime: 0,
+      poiseRecoveryTimeMultiplier: 1,
+      poiseBrokenEndTime: 0,
+      poiseImmune: false,
+    });
+    const receipt = new CombatReceiptCollector();
+    const executor = new PlayerDamageOperationExecutor({
+      sourceOperatorId: 'attacker',
+      targetId: 'enemy',
+      targetVitals,
+      clock: new CombatClock(),
+      receipt,
+      captureAttributeSnapshots: (_step, includeModifier) =>
+        createAttributeSnapshots(includeModifier === undefined ? 150 : 100),
+      captureAttributeContributionSourceWeights: () => [
+        {
+          source: {
+            providerOperatorId: 'support',
+            sourceKind: 'buff',
+            sourceId: 'attack-buff',
+          },
+          weight: 50,
+        },
+      ],
+      criticalSamples: { nextCriticalSample: () => 1 },
+      resolveNonRandomRuntimeSnapshot: () => ({
+        runtimeExtensionMultiplier: 1,
+        appliesIgniteDamageMultiplier: false,
+        appliesPhysicalInflictionDamageMultiplier: false,
+      }),
+      applyDamageModifiers: () => undefined,
+      addInstantAttributeModifier: () => undefined,
+      clearInstantAttributeModifiers: () => undefined,
+      emitPreparationEvent: () => undefined,
+      resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+      emitHealthSourceEvent: () => undefined,
+      emitHealthTargetEvent: () => undefined,
+      emitPoiseSourceEvent: () => undefined,
+      emitPoiseTargetEvent: () => undefined,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    executor.execute(DAMAGE_STEP);
+
+    const contribution = receipt.entries.find(entry => entry.event === 'DamageApplied')?.data
+      ?.contribution as unknown as {
+      readonly self: number;
+      readonly external: readonly { readonly providerOperatorId: string; readonly value: number }[];
+    };
+    expect(contribution.self).toBeCloseTo(400);
+    expect(contribution.external[0]).toEqual(
+      expect.objectContaining({ providerOperatorId: 'support', value: expect.closeTo(200, 8) }),
+    );
+    expect(contribution.self + contribution.external[0]!.value).toBe(600);
+  });
+
   it('在实际执行生命伤害后置位本次技能的原生命中状态', () => {
     const targetVitals = new CombatVitals({
       health: 1000,
@@ -734,15 +854,18 @@ describe('PlayerDamageOperationExecutor', () => {
     expect(targetVitals.health).toBe(1100);
     expect(order).toEqual([
       'capture',
+      'capture',
       'beforeDamageAction',
       'beforeCalculateDamage',
       'beforeCalculation:attacker',
       'beforeCalculation:defender',
       'capture',
+      'capture',
       'clear:attacker',
       'clear:defender',
       'afterCalculation:attacker',
       'afterCalculation:defender',
+      'capture',
       'capture',
       'clear:attacker',
       'clear:defender',

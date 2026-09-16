@@ -141,6 +141,72 @@ describe('projectTimelineDamageAnalysis', () => {
       value: 300,
       color: '#445566',
     });
+    expect(result.byContributor[0]).toMatchObject({ directValue: 300, supportValue: 0 });
+  });
+
+  it('projects frozen per-hit support contribution onto the provider track', () => {
+    const scenario = createEmptyScenario('scenario:1', 'test');
+    scenario.tracks[0] = {
+      id: 'track:attacker',
+      operator: null,
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [
+        {
+          id: 'cast:1',
+          source: { kind: 'operatorSkill', skillGroupKey: 'g', skillKey: 's' },
+          placement: { startFrame: 0 },
+        },
+      ],
+    };
+    scenario.tracks[1] = {
+      id: 'track:support',
+      operator: null,
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const result = projectTimelineDamageAnalysis(
+      [
+        {
+          sequence: 1,
+          frame: 30,
+          time: 1,
+          event: 'DamageApplied',
+          sourceId: 'track:attacker',
+          targetId: 'enemy',
+          data: {
+            value: 150,
+            damageType: 'physical',
+            castId: 'cast:1',
+            contribution: {
+              self: 100,
+              external: [
+                {
+                  providerOperatorId: 'track:support',
+                  sourceKind: 'buff',
+                  sourceId: 'support-buff',
+                  value: 50,
+                },
+              ],
+              unallocated: 0,
+              diagnostics: [],
+            },
+          },
+        },
+      ],
+      scenario,
+      index => `干员 ${index + 1}`,
+      String,
+    );
+
+    expect(result.byContributor).toEqual([
+      expect.objectContaining({ key: '0', directValue: 100, supportValue: 0, value: 100 }),
+      expect.objectContaining({ key: '1', directValue: 0, supportValue: 50, value: 50 }),
+    ]);
+    expect(result.unattributedContribution).toBe(0);
   });
 
   it('uses frame zero as the default analysis start and filters negative preparation damage', () => {

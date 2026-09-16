@@ -3,7 +3,13 @@
  * 运行时只能追加已发生事实；本地化文本和面向 UI 的聚合结果不得写入回执。
  */
 import { CombatReceiptHistory, type CombatReceiptView } from './combatReceiptHistory';
-export type CombatReceiptValue = boolean | number | string | null;
+export type CombatReceiptValue =
+  | boolean
+  | number
+  | string
+  | null
+  | readonly CombatReceiptValue[]
+  | Readonly<{ [key: string]: CombatReceiptValue }>;
 
 /** 一条带帧、事实类型和结构化数据的运行时回执。 */
 export interface CombatReceiptEntry {

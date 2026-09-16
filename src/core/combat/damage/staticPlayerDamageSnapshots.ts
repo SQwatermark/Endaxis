@@ -18,7 +18,12 @@ import {
 import type { PlayerDamageAttributeSnapshots } from './playerDamageContext';
 import type { CombatDamageExecutorContext } from '../runtime/combatRuntimeAssembly';
 import { CombatAttributeSet, attributeModifierValues } from '../attributes/combatAttributes';
-import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
+import {
+  ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
+  resolveOperatorAttack,
+} from '../attributes/operatorAttackAttributes';
+import type { DamageContributionSource } from './damageContribution';
+import type { CombatAttributeModifier } from '../state/foundationState';
 
 type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
@@ -125,6 +130,7 @@ export function resolveStaticPlayerDamageSnapshots(
   step: DamageStep,
   operatorAttributes: CombatAttributeSet<string>,
   enemyAttributes?: CombatAttributeSet<string>,
+  includeModifier?: (modifier: CombatAttributeModifier<string>) => boolean,
 ): PlayerDamageAttributeSnapshots {
   const panel = context.panel;
   if (panel === undefined) {
@@ -133,11 +139,18 @@ export function resolveStaticPlayerDamageSnapshots(
     );
   }
   const staticDamageScales = resolveStaticDamageScales(context, step);
+  const operatorAttribute = (key: string) =>
+    includeModifier === undefined
+      ? operatorAttributes.get(key)
+      : operatorAttributes.getFiltered(key, includeModifier);
+  const enemyAttribute = (key: string) =>
+    enemyAttributes === undefined
+      ? 0
+      : includeModifier === undefined
+        ? enemyAttributes.get(key)
+        : enemyAttributes.getFiltered(key, includeModifier);
   const attackerDamageScales = Object.fromEntries(
-    DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [
-      key,
-      staticDamageScales[key] + operatorAttributes.get(key),
-    ]),
+    DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, staticDamageScales[key] + operatorAttribute(key)]),
   ) as Record<DamageScaleAttributeKey, number>;
   attackerDamageScales.damageToStaggeredEnemyIncrease +=
     ('program' in context
@@ -146,7 +159,7 @@ export function resolveStaticPlayerDamageSnapshots(
   const result: PlayerDamageAttributeSnapshots = {
     attacker: {
       ...attackerDamageScales,
-      attack: resolveOperatorAttack(panel, operatorAttributes),
+      attack: resolveOperatorAttack(panel, operatorAttributes, includeModifier),
       ...(step.kind === 'dealDamage' && step.parameters.calculation === 'attribute'
         ? (() => {
             const attribute = step.parameters.calculationAttribute;
@@ -155,7 +168,7 @@ export function resolveStaticPlayerDamageSnapshots(
                 `damage calculation attribute '${attribute ?? ''}' is not available on the attacker`,
               );
             }
-            return { calculationAttributeValue: operatorAttributes.get(attribute) };
+            return { calculationAttributeValue: operatorAttribute(attribute) };
           })()
         : {}),
       // 技能专属加成也在最终乘法之前求值；只读叠加，不污染其他技能或 Buff 命中。
@@ -164,9 +177,10 @@ export function resolveStaticPlayerDamageSnapshots(
         'program' in context && context.program.statModifiers?.criticalRate !== undefined
           ? [attributeModifierValues('baseAddition', context.program.statModifiers.criticalRate)]
           : [],
+        includeModifier,
       ),
-      criticalDamageIncrease: operatorAttributes.get('criticalDamageIncrease'),
-      weaknessDamageMultiplier: operatorAttributes.get('weaknessDamageMultiplier'),
+      criticalDamageIncrease: operatorAttribute('criticalDamageIncrease'),
+      weaknessDamageMultiplier: operatorAttribute('weaknessDamageMultiplier'),
       igniteDamageMultiplier: 1,
       physicalInflictionDamageMultiplier: 1,
     },
@@ -177,9 +191,9 @@ export function resolveStaticPlayerDamageSnapshots(
         ? {}
         : {
             ...Object.fromEntries(
-              DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, enemyAttributes.get(key)]),
+              DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [key, enemyAttribute(key)]),
             ),
-            shelterDamageMultiplier: enemyAttributes.get('shelterDamageMultiplier'),
+            shelterDamageMultiplier: enemyAttribute('shelterDamageMultiplier'),
             resistances: Object.fromEntries(
               Object.entries(ENEMY_RESISTANCE_ATTRIBUTES).map(([damageType, attribute]) => [
                 damageType,
@@ -187,7 +201,7 @@ export function resolveStaticPlayerDamageSnapshots(
                   ...context.enemy.defenderAttributes.resistances[
                     damageType as keyof typeof ENEMY_RESISTANCE_ATTRIBUTES
                   ],
-                  percent: enemyAttributes.get(attribute),
+                  percent: enemyAttribute(attribute),
                 },
               ]),
             ) as PlayerDamageAttributeSnapshots['defender']['resistances'],
@@ -195,4 +209,35 @@ export function resolveStaticPlayerDamageSnapshots(
     },
   };
   return result;
+}
+
+/** 收集本次命中实际会读取的属性修正来源，避免无关属性稀释贡献分配。 */
+export function resolveDamageAttributeContributionSourceWeights(
+  step: DamageStep,
+  attackerId: string,
+  operatorAttributes: CombatAttributeSet<string>,
+  enemyAttributes: CombatAttributeSet<string>,
+): readonly { readonly source: DamageContributionSource; readonly weight: number }[] {
+  const attackerAttributes = new Set<string>([
+    ...DAMAGE_SCALE_ATTRIBUTE_KEYS,
+    ...Object.keys(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE),
+    ...Object.values(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE),
+    'Atk',
+    'criticalRate',
+    'criticalDamageIncrease',
+    'weaknessDamageMultiplier',
+  ]);
+  if (step.kind === 'dealDamage' && step.parameters.calculation === 'attribute') {
+    const attribute = step.parameters.calculationAttribute;
+    if (attribute !== undefined) attackerAttributes.add(attribute);
+  }
+  const defenderAttributes = new Set<string>([
+    ...DAMAGE_SCALE_ATTRIBUTE_KEYS,
+    ...Object.values(ENEMY_RESISTANCE_ATTRIBUTES),
+    'shelterDamageMultiplier',
+  ]);
+  return [
+    ...operatorAttributes.getExternalContributionSourceWeights(attackerId, attackerAttributes),
+    ...enemyAttributes.getExternalContributionSourceWeights(attackerId, defenderAttributes),
+  ];
 }

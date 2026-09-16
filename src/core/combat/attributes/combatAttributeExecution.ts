@@ -18,11 +18,18 @@ export function createCombatAttributeModifier<Key extends string>(
   values: AttributeModifierValues,
   source: AttributeModifierSource,
   timing: AttributeModifierTiming,
+  contributionSource?: import('../damage/damageContribution').DamageContributionSource,
 ): CombatAttributeModifier<Key> {
   for (const [name, value] of Object.entries(values)) {
     if (!Number.isFinite(value)) throw new TypeError(`attribute modifier ${name} must be finite`);
   }
-  return { attribute, values, source, timing };
+  return {
+    attribute,
+    values,
+    source,
+    timing,
+    ...(contributionSource === undefined ? {} : { contributionSource }),
+  };
 }
 
 export function defineCombatAttribute<Key extends string>(
@@ -52,6 +59,7 @@ export function readCombatAttribute<Key extends string>(
   stage: CombatAttributeValueStage,
   filter: AttributeModifierSource,
   additionalValues: readonly AttributeModifierValues[] = [],
+  includeModifier: (modifier: CombatAttributeModifier<Key>) => boolean = () => true,
 ): number {
   const rawValue = state.rawValues.get(attribute);
   if (rawValue === undefined) {
@@ -60,7 +68,10 @@ export function readCombatAttribute<Key extends string>(
   }
   const definition = state.definitions.get(attribute);
   const modifiers = state.modifiers.filter(
-    modifier => modifier.attribute === attribute && (modifier.source & filter) !== 0,
+    modifier =>
+      modifier.attribute === attribute &&
+      (modifier.source & filter) !== 0 &&
+      includeModifier(modifier),
   );
   if (definition === undefined) {
     if (modifiers.length > 0 || additionalValues.length > 0) {

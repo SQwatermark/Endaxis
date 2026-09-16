@@ -20,6 +20,8 @@ import { freezeAttackReceiptDetail, type AttackReceiptSnapshot } from './attackR
 import { calculateBreakingAttackValue } from './breakingAttackDamage';
 import { classifyDamageTags, injectDamageScaleAttributes } from './damageScaleAttributes';
 import { executeHealthDamage } from './healthDamage';
+import { decomposeDamageContribution } from './damageContribution';
+import { DamageScaleAccumulator } from './damageScale';
 import { calculatePlayerActiveDamage } from './playerActiveDamage';
 import {
   resolvePlayerActiveDamageInput,
@@ -76,7 +78,16 @@ export interface PlayerDamageOperationDependencies {
   readonly targetVitals: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
-  readonly captureAttributeSnapshots: (step: DamageStep) => PlayerDamageAttributeSnapshots;
+  readonly captureAttributeSnapshots: (
+    step: DamageStep,
+    includeModifier?: (
+      modifier: import('../state/foundationState').CombatAttributeModifier<string>,
+    ) => boolean,
+  ) => PlayerDamageAttributeSnapshots;
+  readonly captureAttributeContributionSourceWeights?: (step: DamageStep) => readonly {
+    readonly source: import('./damageContribution').DamageContributionSource;
+    readonly weight: number;
+  }[];
   readonly criticalSamples: CriticalSampleSource;
   /** 期望模式把每次直接伤害写成期望值；随机事件仍由均匀序列给出可执行的离散结果。 */
   readonly randomMode?: SimulationRandomMode;
@@ -188,7 +199,12 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         ? {}
         : { skillType: this.dependencies.skillType }),
       ports: {
-        captureAttributeSnapshots: () => this.dependencies.captureAttributeSnapshots(step),
+        captureAttributeSnapshots: includeModifier =>
+          this.dependencies.captureAttributeSnapshots(step, includeModifier),
+        captureAttributeContributionSourceWeights:
+          this.dependencies.captureAttributeContributionSourceWeights === undefined
+            ? undefined
+            : () => this.dependencies.captureAttributeContributionSourceWeights!(step),
         applyModifiers: (timing, side, damageContext) =>
           this.dependencies.applyDamageModifiers(timing, side, damageContext),
         addInstantAttributeModifier: this.dependencies.addInstantAttributeModifier,
@@ -216,7 +232,13 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         });
       }
       context.applyModifiers('beforeCalculation');
-      context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
+      context.setCalculationResult(
+        this.#resolveCalculationResult(step, context, operationContext),
+        this.#resolveCalculationResult(step, context, operationContext, {
+          attacker: context.selfAttackerAttributes,
+          defender: context.selfDefenderAttributes,
+        }),
+      );
       injectDamageScaleAttributes(context.damageScales, {
         damageType: step.parameters.damageType,
         classifications: classifyDamageTags(step.parameters.tags, step.parameters.features),
@@ -286,6 +308,61 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         this.dependencies.randomMode === 'expected' && criticalOverride === undefined
           ? { ...damageResult, value: expectedDamage }
           : damageResult;
+      const actualAttributeScales = new DamageScaleAccumulator();
+      injectDamageScaleAttributes(actualAttributeScales, {
+        damageType: step.parameters.damageType,
+        classifications: classifyDamageTags(step.parameters.tags, step.parameters.features),
+        attacker: context.attackerAttributes,
+        defender: context.defenderAttributes,
+        defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
+      });
+      const selfAttributeScales = new DamageScaleAccumulator();
+      injectDamageScaleAttributes(selfAttributeScales, {
+        damageType: step.parameters.damageType,
+        classifications: classifyDamageTags(step.parameters.tags, step.parameters.features),
+        attacker: context.selfAttackerAttributes,
+        defender: context.selfDefenderAttributes,
+        defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
+      });
+      const actualAttributeScale = actualAttributeScales.getFinalValue();
+      const selfFinalAttackValue =
+        context.resolveSelfFinalAttackValue() *
+        (actualAttributeScale > 0 ? selfAttributeScales.getFinalValue() / actualAttributeScale : 1);
+      const selfFormulaInput = resolvePlayerActiveDamageInput({
+        step,
+        finalAttackValue: selfFinalAttackValue,
+        attacker: context.selfAttackerAttributes,
+        defender: context.selfDefenderAttributes,
+        runtime: formulaInput,
+      });
+      const selfDamageResult = calculatePlayerActiveDamage(
+        criticalOverride === undefined
+          ? selfFormulaInput
+          : {
+              ...selfFormulaInput,
+              criticalRate: criticalOverride ? 1 : 0,
+              criticalSample: criticalOverride ? 0 : 1,
+            },
+      );
+      const selfNonCriticalDamage = selfDamageResult.value / selfDamageResult.criticalMultiplier;
+      const selfExpectedDamage =
+        selfNonCriticalDamage *
+        (1 +
+          Math.min(Math.max(context.selfAttackerAttributes.criticalRate, 0), 1) *
+            context.selfAttackerAttributes.criticalDamageIncrease);
+      const selfDamage =
+        this.dependencies.randomMode === 'expected' && criticalOverride === undefined
+          ? selfExpectedDamage
+          : selfDamageResult.value;
+      const totalLogEffect =
+        appliedDamageResult.value > 0 && selfDamage > 0
+          ? Math.log(appliedDamageResult.value / selfDamage)
+          : undefined;
+      const contribution = decomposeDamageContribution(
+        appliedDamageResult.value,
+        selfDamage,
+        context.getContributionLogEffects(totalLogEffect),
+      );
       const standardCalculation =
         step.kind === 'dealDamage' &&
         (step.parameters.calculation === undefined || step.parameters.calculation === 'standard');
@@ -326,6 +403,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         gameplayTags: step.kind === 'dealDamage' ? (step.parameters.gameplayTags ?? []) : [],
         features: step.parameters.features ?? [],
         result: appliedDamageResult,
+        contribution,
         detail: {
           ...operationContext?.executingBuff,
           ...(this.dependencies.sourceActionId === undefined
@@ -416,6 +494,10 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     step: DamageStep,
     context: PlayerDamageContext,
     operationContext: CombatOperationContext | undefined,
+    attributes: PlayerDamageAttributeSnapshots = {
+      attacker: context.attackerAttributes,
+      defender: context.defenderAttributes,
+    },
   ): number {
     if (step.kind === 'dealFixedDamage') {
       return this.#resolveActionValue(
@@ -435,7 +517,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       'dynamic damage scale',
     );
     if (step.parameters.calculation === 'attribute') {
-      const attributeValue = context.attackerAttributes.calculationAttributeValue;
+      const attributeValue = attributes.attacker.calculationAttributeValue;
       if (attributeValue === undefined) {
         throw new Error(
           `damage calculation attribute '${step.parameters.calculationAttribute ?? ''}' is missing`,
@@ -449,11 +531,11 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       return attributeValue * attackScale + addition;
     }
     if (step.parameters.calculation !== 'breakingAttack') {
-      return context.attackerAttributes.attack * attackScale;
+      return attributes.attacker.attack * attackScale;
     }
     return calculateBreakingAttackValue({
-      attack: context.attackerAttributes.attack,
-      targetDamageTakenMultiplier: context.defenderAttributes.breakingAttackDamageTakenMultiplier,
+      attack: attributes.attacker.attack,
+      targetDamageTakenMultiplier: attributes.defender.breakingAttackDamageTakenMultiplier,
       calculationMultiplier: step.parameters.calculationMultiplier ?? 1,
       attackScale,
     });

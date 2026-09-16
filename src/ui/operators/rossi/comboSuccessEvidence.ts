@@ -3,10 +3,12 @@
  * Buff 可能在后续动作中被重复施加，不能用 Buff 来源反推哪一次输入命中了完美区间。
  */
 
+import type { CombatReceiptValue } from '../../../core/combat/receipt/combatReceipt';
+
 interface PerfectComboReceiptEntry {
   readonly sequence: number;
   readonly event: string;
-  readonly data?: Readonly<Record<string, boolean | number | string | null>>;
+  readonly data?: Readonly<Record<string, CombatReceiptValue>>;
 }
 
 /** Project timeline cast ids with explicit native-branch success evidence. */

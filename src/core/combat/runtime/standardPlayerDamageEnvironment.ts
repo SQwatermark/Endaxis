@@ -57,6 +57,7 @@ import {
 import type { PoiseDamageModifier } from '../damage/poiseDamage';
 import {
   initializeEnemyCombatAttributes,
+  resolveDamageAttributeContributionSourceWeights,
   resolveStaticPlayerDamageSnapshots,
 } from '../damage/staticPlayerDamageSnapshots';
 import { resolveAbilityEventActionContextBinding } from '../events/abilityEventActionContext';
@@ -738,6 +739,7 @@ export class StandardPlayerDamageEnvironment {
             request.values,
             ATTRIBUTE_MODIFIER_SOURCES.instant,
             request.timing,
+            request.contributionSource,
           ),
         );
       },
@@ -785,10 +787,18 @@ export class StandardPlayerDamageEnvironment {
         : {
             attackDetail: panelAttackDetail(context.panel)!,
           }),
-      captureAttributeSnapshots: step =>
+      captureAttributeSnapshots: (step, includeModifier) =>
         resolveStaticPlayerDamageSnapshots(
           context,
           step,
+          operatorBuffs.attributes,
+          this.#enemyAttributes,
+          includeModifier,
+        ),
+      captureAttributeContributionSourceWeights: step =>
+        resolveDamageAttributeContributionSourceWeights(
+          step,
+          operatorId,
           operatorBuffs.attributes,
           this.#enemyAttributes,
         ),
@@ -1533,10 +1543,18 @@ export class StandardPlayerDamageEnvironment {
       clock: this.#requireClock(),
       receipt: this.#requireReceipt(),
       ...(panel.attackDetail === undefined ? {} : { attackDetail: panelAttackDetail(panel)! }),
-      captureAttributeSnapshots: step =>
+      captureAttributeSnapshots: (step, includeModifier) =>
         resolveStaticPlayerDamageSnapshots(
           { operatorId: sourceId, panel, enemy: this.#requireEnemyIdentity() },
           step,
+          operatorBuffs.attributes,
+          this.#enemyAttributes,
+          includeModifier,
+        ),
+      captureAttributeContributionSourceWeights: step =>
+        resolveDamageAttributeContributionSourceWeights(
+          step,
+          sourceId,
           operatorBuffs.attributes,
           this.#enemyAttributes,
         ),

@@ -19,6 +19,7 @@ import { resolveBuffModifierNumber } from '../buffs/buffModifierNumberSource';
 import type { DamageModifierState } from '../state/foundationState';
 import { type BuffModifierNumberSource } from '../state/foundationState';
 import { applyDamageModifier } from './damageModifierExecution';
+import type { DamageContributionSource } from './damageContribution';
 import type {
   DamageModifierSide,
   DamageProcessTiming,
@@ -58,6 +59,7 @@ export class DamageModifier {
     readonly sourceSkillCastId: number | null = null,
     readonly conditionProgram?: DamageModifierConditionProgram,
     restoredState?: DamageModifierState,
+    contributionSource?: DamageContributionSource,
   ) {
     if (definition.condition !== undefined && conditionProgram !== undefined) {
       throw new Error('damage modifier cannot combine a pure condition with a condition program');
@@ -67,6 +69,7 @@ export class DamageModifier {
       numberSource,
       sourceSkillCastId,
       hasConditionProgram: conditionProgram !== undefined,
+      ...(contributionSource === undefined ? {} : { contributionSource }),
       // Buff 装配定义可能附带工厂函数，只保留伤害协议字段。
       definition: {
         enabledSide: definition.enabledSide,
@@ -98,6 +101,7 @@ export class DamageModifier {
       side,
       context,
       evaluateCondition,
+      this.runtimeState.contributionSource,
     );
   }
 }

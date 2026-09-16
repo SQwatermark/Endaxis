@@ -81,8 +81,25 @@ export class CombatAttributeSet<Key extends string> {
   get(attribute: Key, filter: AttributeModifierSource = ATTRIBUTE_MODIFIER_SOURCES.all): number {
     return readCombatAttribute(this.#state, attribute, 'final', filter);
   }
+  getFiltered(
+    attribute: Key,
+    includeModifier: (modifier: CombatAttributeModifier<Key>) => boolean,
+  ): number {
+    return readCombatAttribute(
+      this.#state,
+      attribute,
+      'final',
+      ATTRIBUTE_MODIFIER_SOURCES.all,
+      [],
+      includeModifier,
+    );
+  }
   /** 仅为当前命中附加修正，不注册到实体，也不影响后续命中。 */
-  getWithAdditionalModifiers(attribute: Key, values: readonly AttributeModifierValues[]): number {
+  getWithAdditionalModifiers(
+    attribute: Key,
+    values: readonly AttributeModifierValues[],
+    includeModifier: (modifier: CombatAttributeModifier<Key>) => boolean = () => true,
+  ): number {
     for (const modifier of values) {
       for (const [name, value] of Object.entries(modifier)) {
         if (!Number.isFinite(value))
@@ -95,7 +112,37 @@ export class CombatAttributeSet<Key extends string> {
       'final',
       ATTRIBUTE_MODIFIER_SOURCES.all,
       values,
+      includeModifier,
     );
+  }
+  /** 返回属性集中由其他干员提供的来源及其未合并修正强度。 */
+  getExternalContributionSourceWeights(
+    attackerId: string,
+    relevantAttributes?: ReadonlySet<string>,
+  ): readonly {
+    readonly source: NonNullable<CombatAttributeModifier<Key>['contributionSource']>;
+    readonly weight: number;
+  }[] {
+    return this.#state.modifiers.flatMap(modifier => {
+      if (relevantAttributes !== undefined && !relevantAttributes.has(modifier.attribute))
+        return [];
+      const source = modifier.contributionSource;
+      if (
+        source?.providerOperatorId === null ||
+        source?.providerOperatorId === undefined ||
+        source.providerOperatorId === attackerId
+      )
+        return [];
+      const weight = Object.entries(modifier.values).reduce(
+        (sum, [slot, value]) =>
+          sum +
+          Math.abs(
+            slot === 'finalMultiplier' || slot === 'baseFinalMultiplier' ? value - 1 : value,
+          ),
+        0,
+      );
+      return weight <= Number.EPSILON ? [] : [{ source, weight }];
+    });
   }
   addModifier(modifier: CombatAttributeModifier<Key>): void {
     addCombatAttributeModifier(this.#state, modifier);

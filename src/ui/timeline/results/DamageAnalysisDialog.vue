@@ -34,7 +34,9 @@ const props = defineProps<{
     rotationTime: string;
     dps: string;
     unattributedDamage: (value: string) => string;
-    contributionUnavailable: string;
+    unattributedContribution: (value: string) => string;
+    damage: string;
+    buff: string;
     faqTitle: string;
     faq: readonly (readonly [question: string, answer: string])[];
   };
@@ -106,6 +108,49 @@ function pieOption(entries: readonly TimelineDamageAnalysisEntry[]): ChartOption
 
 const operatorChartOption = computed(() => pieOption(props.analysis.byOperator));
 const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageType));
+
+const contributionChartOption = computed<ChartOption>(() => {
+  const paint = chartPaint.value;
+  const inner = props.analysis.byContributor.map(entry => ({
+    name: entry.label,
+    value: Math.max(0, Math.round(entry.value)),
+    itemStyle: { color: entry.color ?? '#888888' },
+  }));
+  const outer = props.analysis.byContributor.flatMap(entry => [
+    {
+      name: `${entry.label} · ${props.labels.damage}`,
+      value: Math.max(0, Math.round(entry.directValue)),
+      itemStyle: { color: entry.color ?? '#888888' },
+    },
+    {
+      name: `${entry.label} · ${props.labels.buff}`,
+      value: Math.max(0, Math.round(entry.supportValue)),
+      itemStyle: { color: entry.color ?? '#888888', opacity: 0.52 },
+    },
+  ]);
+  return {
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)', ...paint.tooltip },
+    series: [
+      {
+        type: 'pie',
+        radius: ['20%', '43%'],
+        center: ['50%', '50%'],
+        itemStyle: { borderColor: paint.sliceBorder, borderWidth: 2 },
+        label: { show: false },
+        data: inner,
+      },
+      {
+        type: 'pie',
+        radius: ['48%', '70%'],
+        center: ['50%', '50%'],
+        itemStyle: { borderColor: paint.sliceBorder, borderWidth: 2 },
+        label: { color: paint.label, formatter: '{b}\n{d}%', fontSize: 11 },
+        data: outer.filter(entry => entry.value > 0),
+      },
+    ],
+  };
+});
 </script>
 
 <template>
@@ -152,7 +197,12 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
             </section>
             <section class="chart-card">
               <h3 class="chart-title">{{ labels.contributionByOperator }}</h3>
-              <div class="chart contribution-unavailable">{{ labels.contributionUnavailable }}</div>
+              <VChart :option="contributionChartOption" autoresize class="chart" />
+              <p v-if="analysis.unattributedContribution !== 0" class="analysis-note">
+                {{
+                  labels.unattributedContribution(formatNumber(analysis.unattributedContribution))
+                }}
+              </p>
             </section>
             <section class="chart-card">
               <h3 class="chart-title">{{ labels.damageByElement }}</h3>
@@ -272,17 +322,6 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
 .chart {
   width: 100%;
   height: 260px;
-}
-
-.contribution-unavailable {
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-  padding: 24px;
-  color: var(--ea-fg-muted);
-  font-size: 12px;
-  line-height: 1.7;
-  text-align: center;
 }
 
 .analysis-note {

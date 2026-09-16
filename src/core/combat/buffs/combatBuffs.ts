@@ -439,6 +439,11 @@ export class CombatBuff<Key extends string> {
             restoredState.damageModifiers[index]!.sourceSkillCastId,
             modifier.createConditionProgram?.(this),
             restoredState.damageModifiers[index],
+            restoredState.damageModifiers[index]!.contributionSource ?? {
+              providerOperatorId: sourceId,
+              sourceKind: 'buff',
+              sourceId: definition.id,
+            },
           ),
       );
       this.#duringEnableAction = definition.actions?.duringEnable?.createRuntimeInstance() ?? null;
@@ -531,6 +536,12 @@ export class CombatBuff<Key extends string> {
           { buffId: definition.id, blackboard: this.#state.blackboard },
           this.skillCastInfo?.skillCastId ?? null,
           modifier.createConditionProgram?.(this),
+          undefined,
+          {
+            providerOperatorId: sourceId,
+            sourceKind: 'buff',
+            sourceId: definition.id,
+          },
         ),
     );
     this.#state.damageModifiers = this.damageModifiers.map(modifier => modifier.runtimeState);
@@ -985,6 +996,11 @@ export class CombatBuff<Key extends string> {
             values,
             modifier.source ?? ATTRIBUTE_MODIFIER_SOURCES.buff,
             modifier.timing,
+            {
+              providerOperatorId: this.sourceId,
+              sourceKind: 'buff',
+              sourceId: this.definition.id,
+            },
           );
         }),
       );
