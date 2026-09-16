@@ -33,6 +33,7 @@ import type {
 import type { CompiledEquipmentContribution } from '../../compiler/compileEquipment';
 import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel';
 import type { EnemyRank } from '../../game-data/enemyRank';
+import type { ConsumableDefinition } from '../../game-data/consumableDefinition';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import type {
@@ -150,6 +151,7 @@ import {
 import type { TimeDilationInstanceSnapshot } from '../state/environmentState';
 import {
   type ScheduledExternalCombatEventInput,
+  type ScheduledConsumableUseInput,
   type ScheduledSkillInput,
 } from '../state/environmentState';
 import type { AbilityEventSubscriptionReference } from '../state/foundationState';
@@ -371,6 +373,9 @@ export interface CombatRuntimeScenarioOptions {
   readonly enemy: CombatEnemyProgram;
   /** 顺序应来自已解析队伍/实体启动结果，装配器不会自行排序。 */
   readonly operators: readonly CombatOperatorProgram[];
+  /** 当前版本可主动使用的物品目录；物品输入只引用稳定 ID。 */
+  readonly consumables?: readonly ConsumableDefinition[];
+  readonly consumableUses?: readonly ScheduledConsumableUseInput[];
   readonly inputs?: readonly ScheduledSkillInput[];
   /** 正式连续组由锚点启动，其余成员按实际块边界逐段开始。 */
   readonly skillInputGroups?: readonly SkillInputGroup[];
@@ -532,6 +537,8 @@ export interface CombatRuntimeAssemblyRestoreOptions {
   readonly resources: CombatResourceSnapshot;
   readonly enemy: CombatEnemyProgram;
   readonly operators: readonly CombatOperatorProgram[];
+  readonly consumables?: readonly ConsumableDefinition[];
+  readonly consumableUses?: readonly ScheduledConsumableUseInput[];
   readonly inputs?: readonly ScheduledSkillInput[];
   readonly skillInputGroups?: readonly SkillInputGroup[];
   readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
@@ -635,6 +642,7 @@ export class CombatRuntimeAssembly {
   readonly globalBuffs: GlobalBuffRuntime;
   /** 实际运行时干员；Buff 生命周期按宿主切换执行身份时复用其构筑与面板。 */
   readonly #operators = new Map<string, CombatOperatorProgram>();
+  readonly #consumables = new Map<string, ConsumableDefinition>();
   readonly #entityBlackboards = new Map<string, ActionBlackboard>();
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
   readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
@@ -788,6 +796,12 @@ export class CombatRuntimeAssembly {
         resources: restoreOptions.resources,
         enemy: restoreOptions.enemy,
         operators: [...restored.preparation.programs.values()],
+        ...(restoreOptions.consumables === undefined
+          ? {}
+          : { consumables: restoreOptions.consumables }),
+        ...(restoreOptions.consumableUses === undefined
+          ? {}
+          : { consumableUses: restoreOptions.consumableUses }),
         ...(restoreOptions.inputs === undefined ? {} : { inputs: restoreOptions.inputs }),
         ...(restoreOptions.skillInputGroups === undefined
           ? {}
@@ -812,6 +826,13 @@ export class CombatRuntimeAssembly {
           ? {}
           : { isOperatorControlled: restoreOptions.environment.isOperatorControlled }),
       };
+    }
+
+    for (const definition of options.consumables ?? []) {
+      if (this.#consumables.has(definition.id)) {
+        throw new Error(`duplicate consumable '${definition.id}'`);
+      }
+      this.#consumables.set(definition.id, definition);
     }
     const scheduledControl = options.isOperatorControlled;
     const hasControlQuery =
@@ -1270,7 +1291,10 @@ export class CombatRuntimeAssembly {
       this.#operatorControl = frame.control;
       this.#enemyStatuses = frame.enemyStatuses;
       this.#scheduledFrameInputs = {
-        skillInputs: () => this.#inputRuntime.applyCurrentFrame(),
+        skillInputs: () => {
+          this.#applyScheduledConsumables();
+          this.#inputRuntime.applyCurrentFrame();
+        },
         externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
       this.sharedState = sharedRuntime.runtimeState;
@@ -1818,11 +1842,15 @@ export class CombatRuntimeAssembly {
       this.#inputRuntime = this.#createCombatInputRuntime(options);
       this.#externalEventRuntime = this.#createExternalCombatEventRuntime(options);
       this.#scheduledFrameInputs = {
-        skillInputs: () => this.#inputRuntime.applyCurrentFrame(),
+        skillInputs: () => {
+          this.#applyScheduledConsumables();
+          this.#inputRuntime.applyCurrentFrame();
+        },
         externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
       if (!options.deferInitialInput) {
         this.#operatorControl.advanceFrame();
+        this.#applyScheduledConsumables();
         this.#inputRuntime.applyCurrentFrame();
         this.#externalEventRuntime.applyCurrentFrame();
       }
@@ -2475,6 +2503,7 @@ export class CombatRuntimeAssembly {
   #requireLiveInputs(): void {
     if (
       (this.#options.inputs?.length ?? 0) > 0 ||
+      (this.#options.consumableUses?.length ?? 0) > 0 ||
       (this.#options.externalEvents?.length ?? 0) > 0 ||
       (this.#options.skillInputGroups?.length ?? 0) > 0 ||
       this.#options.continuationPlanCastIds !== undefined
@@ -2488,6 +2517,7 @@ export class CombatRuntimeAssembly {
     return {
       controlInputs: () => this.#operatorControl.applyInput(input.controlledOperatorId),
       skillInputs: () => {
+        for (const use of input.consumableUses ?? []) this.#applyConsumableUse(use);
         const execution = this.#createInputExecution();
         if (typeof input.skills === 'function') {
           let active = true;
@@ -2535,6 +2565,60 @@ export class CombatRuntimeAssembly {
           this.#externalEventRuntime.applyInput(event);
       },
     };
+  }
+
+  #applyConsumableUse(input: import('../state/environmentState').ConsumableUseInput): void {
+    const definition = this.#consumables.get(input.consumableId);
+    if (definition === undefined) {
+      throw new Error(`unknown consumable '${input.consumableId}'`);
+    }
+    const operator = this.#operators.get(input.operatorId);
+    if (operator === undefined) {
+      throw new Error(`unknown consumable target operator '${input.operatorId}'`);
+    }
+    const target = this.#operatorBuffs.get(input.operatorId);
+    if (target === undefined) {
+      throw new Error(`operator '${input.operatorId}' has no Buff runtime for consumable use`);
+    }
+    const applyBuff = target.apply?.bind(target);
+    if (applyBuff === undefined) {
+      throw new Error(`operator '${input.operatorId}' Buff runtime cannot apply consumables`);
+    }
+
+    const replacedBuffIds = [...this.#consumables.values()]
+      .filter(candidate => candidate.exclusiveGroup === definition.exclusiveGroup)
+      .flatMap(candidate => candidate.applications.map(application => application.buffId));
+    target.finishByIds(replacedBuffIds, 'other', input.operatorId, null);
+    for (const application of definition.applications) {
+      const buffDefinition = operator.buffDefinitions?.[application.buffId];
+      if (buffDefinition === undefined) {
+        throw new Error(
+          `consumable '${definition.id}' requires missing Buff '${application.buffId}' on operator '${input.operatorId}'`,
+        );
+      }
+      applyBuff({
+        buffId: application.buffId,
+        definition: buffDefinition,
+        sourceId: input.operatorId,
+        definitionOwnerId: input.operatorId,
+        sourceActionId: `consumable:${input.useId}`,
+        blackboardValues: application.blackboardValues,
+      });
+    }
+    this.receipt.record({
+      frame: this.clock.frame,
+      time: this.clock.time,
+      event: 'ConsumableUsed',
+      sourceId: input.operatorId,
+      targetId: input.operatorId,
+      data: { useId: input.useId, consumableId: definition.id },
+    });
+  }
+
+  #applyScheduledConsumables(): void {
+    for (const input of this.#options.consumableUses ?? []) {
+      if (input.frame === this.clock.frame) this.#applyConsumableUse(input);
+    }
   }
 
   #projectileRuntimeDependencies(operatorId: string): ProjectileRuntimeDependencies {

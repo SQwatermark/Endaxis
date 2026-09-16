@@ -189,6 +189,9 @@ export interface SkillExecutionState {
   preparationCast: boolean;
   timelineFinishRequested: boolean;
   reachedOperableBoundaryFrame: number | undefined;
+  /** 本帧实际执行的 AllowNextSkillAction 所公开的候选；AbilitySystem 在技能 Tick 后解释玩家路由。 */
+  operableBoundaryCandidateFrame: number | undefined;
+  readonly operableBoundaryCandidateSourceSkillIds: string[];
   preparedStartBlackboard: Readonly<Record<string, number>>;
 }
 
@@ -213,6 +216,8 @@ export function createSkillExecutionState(): SkillExecutionState {
     preparationCast: false,
     timelineFinishRequested: false,
     reachedOperableBoundaryFrame: undefined,
+    operableBoundaryCandidateFrame: undefined,
+    operableBoundaryCandidateSourceSkillIds: [],
     preparedStartBlackboard: {},
   };
 }

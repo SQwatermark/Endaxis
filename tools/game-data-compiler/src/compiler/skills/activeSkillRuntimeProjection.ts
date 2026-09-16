@@ -1350,12 +1350,10 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   return {
     skillId: graph.skillId,
     durationFrame: graph.durationFrame,
-    // 单技能定义尚不知道自己位于哪个技能组。这里保留旧的独立技能默认值；
-    // 多段基础攻击会在整名装配时按明确的下一段 skillId 重新选择窗口。
-    timelineBlockFrames: Math.min(
-      exclusiveFrame + 1,
-      ...allowNextSkillTransitions.map(item => item.startFrame),
-    ),
+    // 未模拟时只用当前技能自身的普通可中断边界作为保守预览。AllowNextSkillAction
+    // 允许的是特定后继，不能在尚无未来输入时把任意一个窗口当成通用块宽。
+    // 多段基础攻击仍可在整名装配时用明确的有序下一段生成更紧凑的技能库预览。
+    timelineBlockFrames: exclusiveFrame + 1,
     exclusiveFrame,
     allowNextSkillTransitions,
     ...(inputWindows === undefined ? {} : { inputWindows }),

@@ -945,6 +945,17 @@ describe('timeline marker commands', () => {
     expect(() => addControlSwitch(original, 'switch:2', 30, 1)).toThrow('track 1 is empty');
   });
 
+  it('places and moves control switches throughout the preparation range', () => {
+    const original = scenario();
+    original.battle.prepFrames = 150;
+    const added = addControlSwitch(original, 'switch:prep', -120, 0);
+    expect(added.battle.controlSwitches[0]?.frame).toBe(-120);
+    expect(moveControlSwitch(added, 'switch:prep', -150).battle.controlSwitches[0]?.frame).toBe(
+      -150,
+    );
+    expect(() => moveControlSwitch(added, 'switch:prep', -151)).toThrow('editable timeline');
+  });
+
   it('persists only the explicitly supplied external fact and target', () => {
     const original = scenario();
     const added = addExternalEventMarker(

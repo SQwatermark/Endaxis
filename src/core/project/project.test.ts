@@ -52,7 +52,7 @@ describe('V2 project document', () => {
     });
     const battle = project.scenarios[0]!.battle;
     battle.cycleBoundaries.push({ id: 'boundary:1', frame: 900 });
-    battle.controlSwitches.push({ id: 'switch:1', frame: 180, trackIndex: 2 });
+    battle.controlSwitches.push({ id: 'switch:1', frame: -120, trackIndex: 2 });
 
     const parsed = parseProjectDocument(serializeProjectDocument(project));
 

@@ -23,7 +23,7 @@ describe('TimelineLibrarySkillInspector', () => {
 
   it('is mutually exclusive with a selected timeline action', () => {
     expect(editorSource).toContain(
-      'v-else-if="tool === \'inspector\' && selectedLibraryEntry === null"',
+      "tool === 'inspector' && selectedLibraryEntry === null && selectedConsumableUse === null",
     );
     expect(editorSource).toContain(
       'if (selection.primaryId !== null) selectedLibrarySkill.value = null;',

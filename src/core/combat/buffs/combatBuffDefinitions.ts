@@ -270,23 +270,6 @@ export function compileCombatBuffDefinitions<Key extends string>(
 }
 
 /** 生成或外部存储的语义定义进入核心前的严格 JSON 边界。 */
-export function parseCombatBuffDefinitionsDocument(input: unknown): CombatBuffDefinitionsDocument {
-  const root = requireObject(input, '$');
-  requireOnlyKeys(root, '$', ['schemaVersion', 'revision', 'buffs']);
-  if (root.schemaVersion !== COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION) {
-    throw new Error(`$.schemaVersion: expected ${COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION}`);
-  }
-  const revision = requireNonEmptyString(root.revision, '$.revision');
-  if (!Array.isArray(root.buffs)) throw new Error('$.buffs: expected array');
-  return {
-    schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
-    revision,
-    buffs: root.buffs.map((entry, index) =>
-      parseCombatBuffDefinitionEntry(entry, `$.buffs[${index}]`),
-    ),
-  };
-}
-
 /** 严格解析一项可序列化 Buff 定义，供外部文档和技能内联定义共用。 */
 export function parseCombatBuffDefinitionEntry(
   input: unknown,
@@ -1831,11 +1814,12 @@ function requireRole<Key, Attribute extends string>(
   if (definition === undefined) throw new Error(`buff definition is missing ${label}`);
   return definition;
 }
+
 function parseGameplayTag(value: unknown, path: string): string {
   try {
     assertGameplayTag(value);
     return value;
   } catch {
-    throw new Error(path + ': expected readable GameplayTag path');
+    throw new Error(`${path}: expected readable GameplayTag path`);
   }
 }

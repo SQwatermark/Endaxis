@@ -485,6 +485,9 @@ function sourcePlanForReference(
   if (publicPath.startsWith('/equipment/')) {
     return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/itemicon/'] };
   }
+  if (publicPath.startsWith('/consumables/')) {
+    return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/itemicon/'] };
+  }
   if (publicPath.startsWith('/enemies/')) {
     return { sourceNames: [`${stem}.png`], preferredPathSegments: ['/monstericon/'] };
   }
@@ -664,6 +667,7 @@ async function pruneUnreferencedAssets(
     'operators',
     'weapons',
     'equipment',
+    'consumables',
     'enemies',
     'contingency_contract',
   ].map(name => path.join(outputRoot, name));

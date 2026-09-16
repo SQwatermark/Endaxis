@@ -37,6 +37,7 @@
     "generate:game-data:operator-active-skills": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorActiveSkillRuntimeBatch.ts",
     "generate:game-data:operator-passive-ui": "node --experimental-strip-types tools/game-data-compiler/scripts/generateOperatorPassiveUiPrefabCatalog.ts",
     "generate:game-data:common-buffs": "node --experimental-strip-types tools/game-data-compiler/scripts/generateCommonBuffDefinitions.ts",
+    "generate:game-data:consumables": "node --experimental-strip-types tools/game-data-compiler/scripts/generateConsumableDefinitions.ts",
     "plan:game-data:operator-unity-templates": "node --experimental-strip-types tools/game-data-compiler/scripts/planOperatorUnityTemplates.ts",
     "download:game-data:sources": "node --experimental-strip-types tools/game-data-compiler/scripts/downloadGameDataSources.ts",
     "extract:game-data:enemy-ranks": "node --experimental-strip-types tools/game-data-compiler/scripts/extractEnemyRankEvidence.ts",

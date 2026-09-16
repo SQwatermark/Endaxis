@@ -6,6 +6,7 @@ import { ScenarioSimulationService } from '../../../src/application/simulation/s
 import { createEmptyScenario } from '../../../src/core/project/createProject';
 import { placeSkillGroup } from '../../../src/ui/timeline/interaction/placeSkillGroup';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
+import { generatedSkillSettings } from '../../../src/data/combat/skillSettings.generated';
 import { verifyGameDataSnapshot } from '../scripts/verifyGameDataSnapshot.ts';
 import { loadSourceCatalog } from '../scripts/downloadGameDataSources.ts';
 
@@ -32,6 +33,9 @@ describe.skipIf(!sourceRoot || !globalBuffCatalog)('真实整名 HideUI 转换�
       expect(snapshot.snapshotSha256).toBe(
         'e5944e88357583d2e4ebf6775decaf2b23afa2813b879c67688ee3c261a395df',
       );
+      const skillSettingCatalog = path.join('tmp/hide-ui-probe', 'skill-setting.catalog.json');
+      fs.mkdirSync(path.dirname(skillSettingCatalog), { recursive: true });
+      fs.writeFileSync(skillSettingCatalog, JSON.stringify(generatedSkillSettings));
       const candidate = planOperatorDefinition({
         manifest: 'tools/game-data-compiler/config/operators.json',
         sourceRoot: root,
@@ -41,7 +45,7 @@ describe.skipIf(!sourceRoot || !globalBuffCatalog)('真实整名 HideUI 转换�
         gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
         timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
         globalBuffCatalog: globalBuffCatalog!,
-        skillSettingCatalog: 'src/data/combat/skill-setting.generated.json',
+        skillSettingCatalog,
         slug,
         output: path.join('tmp/hide-ui-probe', slug),
         auditOutput: path.join('tmp/hide-ui-probe/audit', slug),

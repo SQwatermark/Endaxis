@@ -43,6 +43,7 @@ export const ALL_GAME_TEXT_FAMILIES = [
   'weapons',
   'gears',
   'enemies',
+  'consumables',
   'terms',
 ] as const satisfies readonly GameTextFamily[];
 

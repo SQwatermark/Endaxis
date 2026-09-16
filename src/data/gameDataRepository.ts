@@ -42,6 +42,10 @@ import { generatedEnemyDefinitions } from './enemies/generated/index.generated';
 import { commonBuffDefinitions } from './buffs/commonDefinitions';
 import { contingencyContractBuffDefinitions } from './mechanics/generated/contingencyContractDefinitions.generated';
 import { contingencyContractMechanicDefinitions } from './mechanics/contingencyContractAdapter';
+import {
+  consumableBuffDefinitions,
+  consumableDefinitions,
+} from './consumables';
 
 /** 项目始终使用随当前 Endaxis 发布的唯一最新定义库。 */
 export { GAME_DATA_REVISION } from './gameDataRevision';
@@ -55,6 +59,7 @@ export const gameDataRepository = createGameDataRepository({
   commonBuffDefinitions: {
     ...commonBuffDefinitions,
     ...contingencyContractBuffDefinitions,
+    ...consumableBuffDefinitions,
   },
   operators: [
     perlica,
@@ -94,4 +99,5 @@ export const gameDataRepository = createGameDataRepository({
   gearSets: gearSetDefinitions,
   enemies: generatedEnemyDefinitions,
   mechanics: contingencyContractMechanicDefinitions,
+  consumables: consumableDefinitions,
 });

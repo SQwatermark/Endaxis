@@ -198,6 +198,7 @@ describe('player input windows', () => {
       ],
       allowedNextSkills: [{ startFrame: 5, endFrame: 8, sourceSkillIds: ['native.attack2'] }],
     });
+    expect(result.timelineBlockFrames).toBe(31);
     expect(result.scheduledSequences).toEqual([]);
   });
 });

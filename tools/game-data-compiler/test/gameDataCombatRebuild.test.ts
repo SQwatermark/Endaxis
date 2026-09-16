@@ -125,6 +125,7 @@ import { OPERATOR_DEFINITION_OUTPUTS } from '../scripts/operatorDefinitionOutput
 
 const roots: string[] = [];
 const localeFiles = [
+  'consumables',
   'enemies',
   'enum-terms',
   'gearpieces',
@@ -254,6 +255,8 @@ async function setup() {
     'EquipSuitTable',
     'SkillPatchTable',
     'CharGrowthTable',
+    'UseItemTable',
+    'ItemTable',
   ])
     await json(path.join(sourceRoot, 'TableCfg-current', `${table}.json`), {});
   for (const directory of ['CharacterData', 'SkillData'])

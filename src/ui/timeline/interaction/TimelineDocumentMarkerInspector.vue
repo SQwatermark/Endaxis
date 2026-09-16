@@ -16,6 +16,7 @@ const props = defineProps<{
   kind: TimelineDocumentMarkerKind;
   id: string;
   frame: number;
+  minimumFrame: number;
   maximumFrame: number;
   trackIndex?: TrackIndex;
   trackOptions: readonly { trackIndex: TrackIndex; label: string }[];
@@ -31,7 +32,11 @@ const { t } = useI18n({ useScope: 'global' });
 
 function commitFrame(value: number | undefined): void {
   const frame = Number(value);
-  if (Number.isInteger(frame) && frame >= 0 && frame <= props.maximumFrame) {
+  if (
+    Number.isInteger(frame) &&
+    frame >= props.minimumFrame &&
+    frame <= props.maximumFrame
+  ) {
     emit('setFrame', frame);
   }
 }
@@ -69,7 +74,7 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
             <EaNumberInput
               size="sm"
               controls-position="right"
-              :min="0"
+              :min="minimumFrame"
               :max="maximumFrame"
               :step="1"
               :model-value="frame"

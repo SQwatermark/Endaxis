@@ -7,6 +7,8 @@ export {
   getGameSlotTypeName,
   getGameWeaponTypeName,
   getEnemyGameName,
+  getConsumableGameDescription,
+  getConsumableGameName,
   getGearPieceGameName,
   getGearSetGameDescription,
   getGearSetGameName,

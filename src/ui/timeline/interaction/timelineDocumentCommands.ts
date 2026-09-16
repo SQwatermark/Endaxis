@@ -936,9 +936,17 @@ export function removeSkillCasts(
   return { ...scenario, tracks, connections };
 }
 
-function requireTimelineMarkerFrame(scenario: ScenarioDocument, frame: number): void {
-  if (!Number.isInteger(frame) || frame < 0 || frame > scenario.battle.durationFrames) {
-    throw new RangeError('timeline marker frame must be an integer inside the battle duration');
+function requireTimelineMarkerFrame(
+  scenario: ScenarioDocument,
+  frame: number,
+  minimumFrame = 0,
+): void {
+  if (
+    !Number.isInteger(frame) ||
+    frame < minimumFrame ||
+    frame > scenario.battle.durationFrames
+  ) {
+    throw new RangeError('timeline marker frame must be an integer inside the editable timeline');
   }
 }
 
@@ -1032,7 +1040,7 @@ export function addControlSwitch(
   frame: number,
   trackIndex: TrackIndex,
 ): ScenarioDocument {
-  requireTimelineMarkerFrame(scenario, frame);
+  requireTimelineMarkerFrame(scenario, frame, -scenario.battle.prepFrames);
   if (scenario.tracks[trackIndex] === null) throw new Error(`track ${trackIndex} is empty`);
   if (id.length === 0 || scenario.battle.controlSwitches.some(item => item.id === id)) {
     throw new Error(`invalid or duplicate control switch id '${id}'`);
@@ -1051,7 +1059,7 @@ export function moveControlSwitch(
   id: string,
   frame: number,
 ): ScenarioDocument {
-  requireTimelineMarkerFrame(scenario, frame);
+  requireTimelineMarkerFrame(scenario, frame, -scenario.battle.prepFrames);
   const index = scenario.battle.controlSwitches.findIndex(item => item.id === id);
   if (index < 0 || scenario.battle.controlSwitches[index]!.frame === frame) return scenario;
   const controlSwitches = [...scenario.battle.controlSwitches];

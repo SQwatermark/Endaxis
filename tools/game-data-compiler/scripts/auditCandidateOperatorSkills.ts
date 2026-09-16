@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import { OPERATOR_DEFINITION_OUTPUTS } from './operatorDefinitionOutputs.ts';
-import { parseSkillSettingResources } from '../../../packages/game-data-contract/src/skillSettingResources.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -14,7 +13,7 @@ const REPLACEMENT_PATHS = [
   'src/data/combat/gameplayTagPredefine.generated.ts',
   'src/data/combat/hitStopCurveCatalog.generated.ts',
   'src/data/combat/timeDilationCatalog.generated.ts',
-  'src/data/combat/skill-setting.generated.json',
+  'src/data/combat/skillSettings.generated.ts',
 ] as const;
 
 interface AuditArguments {
@@ -127,15 +126,7 @@ export async function auditCandidateOperatorSkills(args: AuditArguments) {
         path.join(candidateRoot, 'src/data/buffs/generated/commonBuffDefinitions.generated.ts'),
       ),
     );
-    const skillSettingModule = await server.ssrLoadModule(
-      '/src/core/combat/infliction/skillSettings.ts',
-    );
-    const rawSkillSettings = JSON.parse(
-      await fs.readFile(
-        path.join(candidateRoot, 'src/data/combat/skill-setting.generated.json'),
-        'utf8',
-      ),
-    );
+    const runtimeSkillSettings = await server.ssrLoadModule('/src/data/combat/skillSettings.ts');
     const repository = repositoryModule.createGameDataRepository({
       revision: 'candidate-operator-simulation-audit',
       commonBuffDefinitions: commonBuffModule.commonBuffDefinitions,
@@ -184,7 +175,7 @@ export async function auditCandidateOperatorSkills(args: AuditArguments) {
       throw new Error('candidate library placement identity is not unique');
     }
 
-    const nativeResources = parseSkillSettingResources(rawSkillSettings.resources);
+    const nativeResources = runtimeSkillSettings.skillSettingResources;
     const service = new serviceModule.ScenarioSimulationService({
       index: repository,
       repositoryRevision: 'candidate-operator-simulation-audit',
@@ -198,7 +189,7 @@ export async function auditCandidateOperatorSkills(args: AuditArguments) {
         },
       },
       elementalInflictionDocument: attachmentModule.elementalAttachments,
-      spellInflictionSettings: skillSettingModule.parseSkillSettings(rawSkillSettings),
+      spellInflictionSettings: runtimeSkillSettings.skillSettings,
     });
     const failures = [];
     let maximumCompositeEndFrame = args.endFrame;

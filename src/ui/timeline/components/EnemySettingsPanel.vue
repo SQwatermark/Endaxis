@@ -22,6 +22,7 @@ import type { EnemyDocument, EnemyEditableValues } from '../../../core/project/s
 import { DAMAGE_ELEMENTS } from '../../../core/game-data/operatorDefinition';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { cloneEditorDefinition } from '../../cloneEditorDefinition';
+import { LEGACY_ENEMY_CATEGORIES, legacyEnemyCategory } from './enemySelectionCategories';
 
 const EDITABLE_RESISTANCE_DAMAGE_TYPES = DAMAGE_ELEMENTS;
 const { t } = useI18n();
@@ -33,6 +34,15 @@ const TIERS: readonly { value: EnemyTier; color: string }[] = [
   { value: 'advanced', color: '#52c41a' },
   { value: 'normal', color: '#a0a0a0' },
 ];
+const CATEGORY_ALL = '__all__';
+const CATEGORY_UNCATEGORIZED = '__uncategorized__';
+const TIER_WEIGHT: Readonly<Record<EnemyTier, number>> = {
+  normal: 0,
+  advanced: 1,
+  elite: 2,
+  boss: 3,
+  leader: 4,
+};
 
 const props = defineProps<{
   enemy: EnemyDocument;
@@ -79,6 +89,7 @@ const selectorVisible = ref(false);
 const statsVisible = ref(false);
 const searchQuery = ref('');
 const tierFilter = ref<EnemyTier | 'all'>('all');
+const categoryFilter = ref<string>(CATEGORY_ALL);
 const selectedLevel = ref(90);
 const draft = reactive<EnemyEditableValues>(cloneEditorDefinition(props.enemy.editable));
 
@@ -100,9 +111,31 @@ const filteredEnemies = computed(() => {
   const query = searchQuery.value.trim().toLocaleLowerCase();
   return props.enemies.filter(enemy => {
     if (tierFilter.value !== 'all' && enemy.tier !== tierFilter.value) return false;
+    const category = legacyEnemyCategory(enemy.id) ?? CATEGORY_UNCATEGORIZED;
+    if (categoryFilter.value !== CATEGORY_ALL && category !== categoryFilter.value) return false;
     return query.length === 0 || props.nameOf(enemy.id).toLocaleLowerCase().includes(query);
   });
 });
+const groupedEnemies = computed(() => {
+  const categories =
+    categoryFilter.value === CATEGORY_ALL
+      ? [...LEGACY_ENEMY_CATEGORIES, CATEGORY_UNCATEGORIZED]
+      : [categoryFilter.value];
+  return categories.flatMap(category => {
+    const enemies = filteredEnemies.value
+      .filter(
+        candidate => (legacyEnemyCategory(candidate.id) ?? CATEGORY_UNCATEGORIZED) === category,
+      )
+      .sort((left, right) => TIER_WEIGHT[right.tier] - TIER_WEIGHT[left.tier]);
+    return enemies.length === 0 ? [] : [{ category, enemies }];
+  });
+});
+const showCustomEnemy = computed(
+  () =>
+    categoryFilter.value === CATEGORY_ALL &&
+    tierFilter.value === 'all' &&
+    searchQuery.value.trim() === '',
+);
 const canAddKnotThreshold = computed(() => (draft.stagger.knotThresholds.at(-1) ?? 0) < 0.99);
 
 watch(
@@ -129,6 +162,14 @@ function selectDefinition(enemy: EnemyDefinition): void {
 function selectCustom(): void {
   emit('selectCustom', selectedLevel.value);
   selectorVisible.value = false;
+}
+
+function selectLevel(level: number): void {
+  selectedLevel.value = level;
+  if (props.enemy.source.kind === 'custom') emit('selectCustom', level);
+  else if (props.definition !== null && getEnemyHpAtLevel(props.definition, level) !== null) {
+    emit('selectDefinition', props.definition.id, level);
+  }
 }
 
 function saveDraft(): void {
@@ -234,92 +275,133 @@ function removeKnotThreshold(index: number): void {
               v-for="level in LEVELS"
               :key="level"
               type="button"
-              @click="selectedLevel = level"
+              @click="selectLevel(level)"
               :pressed="selectedLevel === level"
             >
               {{ level }}
             </EaButton>
           </div>
         </div>
-        <div class="tier-filters">
-          <EaFilterChip
-            type="button"
-            :selected="tierFilter === 'all'"
-            accent="var(--ea-gold)"
-            @click="tierFilter = 'all'"
-          >
-            {{ labels.all }}
-          </EaFilterChip>
-          <EaFilterChip
-            v-for="tier in TIERS"
-            :key="tier.value"
-            type="button"
-            :selected="tierFilter === tier.value"
-            :accent="tier.color"
-            @click="tierFilter = tier.value"
-          >
-            {{ labels.tier[tier.value] }}
-          </EaFilterChip>
+        <div class="enemy-filter-rows">
+          <div class="category-tabs">
+            <EaFilterChip
+              type="button"
+              :selected="categoryFilter === CATEGORY_ALL"
+              accent="var(--ea-gold)"
+              @click="categoryFilter = CATEGORY_ALL"
+            >
+              {{ labels.all }}
+            </EaFilterChip>
+            <EaFilterChip
+              v-for="category in LEGACY_ENEMY_CATEGORIES"
+              :key="category"
+              type="button"
+              :selected="categoryFilter === category"
+              accent="var(--ea-gold)"
+              @click="categoryFilter = category"
+            >
+              {{ category }}
+            </EaFilterChip>
+          </div>
+          <div class="tier-filters">
+            <EaFilterChip
+              type="button"
+              :selected="tierFilter === 'all'"
+              accent="var(--ea-gold)"
+              @click="tierFilter = 'all'"
+            >
+              {{ labels.all }}
+            </EaFilterChip>
+            <EaFilterChip
+              v-for="tier in TIERS"
+              :key="tier.value"
+              type="button"
+              :selected="tierFilter === tier.value"
+              :accent="tier.color"
+              @click="tierFilter = tier.value"
+            >
+              {{ labels.tier[tier.value] }}
+            </EaFilterChip>
+          </div>
         </div>
-        <div class="enemy-grid">
-          <template
-            v-if="
-              tierFilter === 'all' &&
-              (searchQuery.trim() === '' ||
-                labels.custom.toLocaleLowerCase().includes(searchQuery.trim().toLocaleLowerCase()))
-            "
-          >
+        <div class="enemy-list-grid">
+          <section v-if="showCustomEnemy" class="enemy-group-section">
             <div class="group-header">
               {{ t('resourceMonitor.enemy.specialGroup') }} <span>(1)</span>
             </div>
-            <EaButton
-              type="button"
-              class="enemy-card enemy-card--custom"
-              @click="selectCustom"
-              :pressed="enemy.source.kind === 'custom'"
-            >
-              <span class="card-avatar">?</span>
-              <span
-                ><strong>{{ labels.custom }}</strong
-                ><small>{{ labels.customDescription }}</small></span
+            <div class="group-items">
+              <EaButton
+                type="button"
+                class="enemy-card enemy-card--custom"
+                @click="selectCustom"
+                :pressed="enemy.source.kind === 'custom'"
               >
-            </EaButton>
-            <div class="group-separator" aria-hidden="true"></div>
-          </template>
-          <div v-if="filteredEnemies.length > 0" class="group-header group-header--standard">
-            {{ t('resourceMonitor.enemy.standardGroup') }}
-            <span>({{ filteredEnemies.length }})</span>
-          </div>
-          <EaButton
-            v-for="candidate in filteredEnemies"
-            :key="candidate.id"
-            type="button"
-            class="enemy-card"
-            :class="{
-              'has-tier': candidate.tier !== 'normal',
-            }"
-            :disabled="!supportsLevel(candidate)"
-            :style="{ '--tier-color': TIERS.find(tier => tier.value === candidate.tier)?.color }"
-            @click="selectDefinition(candidate)"
-            :pressed="definition?.id === candidate.id"
+                <span class="card-avatar">?</span>
+                <span
+                  ><strong>{{ labels.custom }}</strong
+                  ><small>{{ labels.customDescription }}</small></span
+                >
+              </EaButton>
+            </div>
+          </section>
+          <section
+            v-for="group in groupedEnemies"
+            :key="group.category"
+            class="enemy-group-section"
           >
-            <span class="card-avatar">
-              <img v-if="candidate.iconPath" :src="candidate.iconPath" alt="" />
-              <span v-if="candidate.tier !== 'normal'" class="tier-strip">{{
-                labels.tier[candidate.tier]
-              }}</span>
-            </span>
-            <span>
-              <strong>{{ nameOf(candidate.id) }}</strong>
-              <small>{{
-                t('resourceMonitor.enemy.desc', {
-                  max: candidate.stagger.maximum,
-                  nodes: candidate.stagger.knotThresholds.length,
-                })
-              }}</small>
-            </span>
-          </EaButton>
-          <div v-if="filteredEnemies.length === 0" class="empty-state">{{ labels.empty }}</div>
+            <div class="group-header">
+              {{
+                group.category === CATEGORY_UNCATEGORIZED
+                  ? t('common.uncategorized')
+                  : group.category
+              }}
+              <span>({{ group.enemies.length }})</span>
+            </div>
+            <div class="group-items">
+              <EaButton
+                v-for="candidate in group.enemies"
+                :key="candidate.id"
+                type="button"
+                class="enemy-card"
+                :class="{ 'has-tier': candidate.tier !== 'normal' }"
+                :disabled="!supportsLevel(candidate)"
+                :style="{
+                  '--tier-color': TIERS.find(tier => tier.value === candidate.tier)?.color,
+                }"
+                @click="selectDefinition(candidate)"
+                :pressed="definition?.id === candidate.id"
+              >
+                <span class="card-avatar">
+                  <img v-if="candidate.iconPath" :src="candidate.iconPath" alt="" />
+                  <span v-if="candidate.tier !== 'normal'" class="tier-strip">{{
+                    labels.tier[candidate.tier]
+                  }}</span>
+                </span>
+                <span>
+                  <strong
+                    :style="{
+                      color:
+                        candidate.tier === 'leader'
+                          ? '#ff4d4f'
+                          : candidate.tier === 'boss'
+                            ? '#ffd700'
+                            : undefined,
+                    }"
+                    >{{ nameOf(candidate.id) }}</strong
+                  >
+                  <small>{{
+                    t('resourceMonitor.enemy.desc', {
+                      max: candidate.stagger.maximum,
+                      nodes: candidate.stagger.knotThresholds.length,
+                    })
+                  }}</small>
+                </span>
+              </EaButton>
+            </div>
+          </section>
+          <div v-if="groupedEnemies.length === 0 && !showCustomEnemy" class="empty-state">
+            {{ labels.empty }}
+          </div>
         </div>
       </EaDialog>
     </InputRegionBoundary>
@@ -638,6 +720,7 @@ function removeKnotThreshold(index: number): void {
   font-size: 12px;
 }
 .level-buttons,
+.category-tabs,
 .tier-filters {
   display: flex;
   flex-wrap: wrap;
@@ -654,29 +737,41 @@ function removeKnotThreshold(index: number): void {
   color: var(--tier-color, var(--ea-gold));
   border-color: var(--tier-color, var(--ea-gold));
 }
-.tier-filters {
+.enemy-filter-rows {
   margin: 0 0 20px;
   padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
   background: var(--ea-fill-input);
   border-bottom: 1px solid color-mix(in srgb, var(--ea-gold) 20%, transparent);
+}
+.category-tabs,
+.tier-filters {
   gap: 6px;
 }
+.category-tabs .ea-filter-chip,
 .tier-filters .ea-filter-chip {
   height: auto;
   padding: 6px 16px;
   margin-bottom: 2px;
 }
-.enemy-grid {
+.enemy-list-grid {
   max-height: 450px;
   padding: 10px;
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
   overflow-y: auto;
   scrollbar-width: none;
 }
-.enemy-grid::-webkit-scrollbar {
+.enemy-list-grid::-webkit-scrollbar {
   display: none;
+}
+.enemy-group-section {
+  margin-bottom: 24px;
+}
+.group-items {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
 }
 .enemy-card {
   --tier-color: var(--ea-border-strong);
@@ -751,11 +846,10 @@ function removeKnotThreshold(index: number): void {
   font-size: 10px;
 }
 .group-header {
-  grid-column: 1 / -1;
   display: flex;
   align-items: baseline;
   gap: 8px;
-  margin-bottom: 2px;
+  margin-bottom: 12px;
   padding-left: 10px;
   border-left: 3px solid var(--ea-gold);
   color: var(--ea-fg);
@@ -768,10 +862,6 @@ function removeKnotThreshold(index: number): void {
   color: var(--ea-fg-faint);
   font-weight: normal;
 }
-.group-separator {
-  grid-column: 1 / -1;
-  height: 4px;
-}
 .enemy-card[aria-pressed='true'] {
   background: color-mix(in srgb, var(--tier-color) 15%, var(--ea-fill-muted));
 }
@@ -782,8 +872,7 @@ function removeKnotThreshold(index: number): void {
   --tier-color: var(--ea-gold);
 }
 .empty-state {
-  grid-column: 1 / -1;
-  padding: 40px;
+  padding: 40px 0;
   color: var(--ea-fg-faint);
   text-align: center;
 }
@@ -869,7 +958,7 @@ function removeKnotThreshold(index: number): void {
   background: var(--ea-surface-row);
 }
 
-:global(html[data-theme='light'] .enemy-settings-panel .tier-filters) {
+:global(html[data-theme='light'] .enemy-settings-panel .enemy-filter-rows) {
   background: var(--ea-surface-sunken);
 }
 

@@ -566,7 +566,7 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
   readonly smartTarget?: 'enemy' | 'input' | 'trigger';
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames?: number;
-  /** 有序连段下一技能的原生身份；存在时由实际执行的输入窗口发布块边界。 */
+  /** 有序连段下一技能身份；也标记程序已保留 AllowNext 动作，但不预选正式边界目标。 */
   readonly timelineContinuationSourceSkillId?: string;
   /** 原生技能实例的自然结束周期；与块宽、可中断边界彼此独立。 */
   readonly naturalDurationFrames?: number;

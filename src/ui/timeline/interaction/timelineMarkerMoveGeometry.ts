@@ -9,6 +9,8 @@ export interface TimelineMarkerPointerInput {
   readonly prepFrames: number;
   readonly snapFrames: number;
   readonly maximumFrame: number;
+  /** 最早可写入的现实帧；普通标记默认为战斗开始，准备阶段输入可显式传负值。 */
+  readonly minimumFrame?: number;
   /** 抓取点相对标记竖线的位置；在吸附和边界裁定之前扣除。 */
   readonly grabOffsetPx?: number;
   readonly prepExpanded?: boolean;
@@ -45,5 +47,9 @@ export function resolveTimelineMarkerPointerFrame(input: TimelineMarkerPointerIn
     input.pxPerFrame,
     input.prepExpanded,
   );
-  return snapTimelineFrame(frame, input.snapFrames, input.maximumFrame);
+  const minimumFrame = input.minimumFrame ?? 0;
+  if (!Number.isInteger(minimumFrame) || minimumFrame > input.maximumFrame) {
+    throw new RangeError('minimumFrame must be an integer no greater than maximumFrame');
+  }
+  return snapTimelineFrame(frame, input.snapFrames, input.maximumFrame, minimumFrame);
 }

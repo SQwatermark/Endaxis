@@ -19,7 +19,8 @@ function harness() {
     gears: [],
     gearSets: [],
     enemies: [],
-    mechanics: [],
+      mechanics: [],
+      consumables: [],
   };
   const captureGameData = vi.fn(() => gameData);
   const service = new WorkerScenarioSimulationService(worker as unknown as Worker, captureGameData);

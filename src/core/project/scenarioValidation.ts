@@ -226,6 +226,7 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
     entries: unknown,
     entriesPath: string,
     validateEntry: (entry: JsonObject, entryPath: string) => void,
+    minimumFrame = 0,
   ) => {
     if (!Array.isArray(entries)) {
       issues.push({ path: entriesPath, message: 'expected an array' });
@@ -243,20 +244,39 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
         issues.push({ path: `${entryPath}.id`, message: 'duplicate timed entry id' });
       }
       if (id !== null) ids.add(id);
-      requireNonNegativeInteger(entry.frame, `${entryPath}.frame`, issues);
+      if (
+        typeof entry.frame !== 'number' ||
+        !Number.isInteger(entry.frame) ||
+        entry.frame < minimumFrame
+      ) {
+        issues.push({
+          path: `${entryPath}.frame`,
+          message:
+            minimumFrame < 0
+              ? `expected an integer no earlier than ${minimumFrame}`
+              : 'expected a non-negative integer',
+        });
+      }
       validateEntry(entry, entryPath);
     });
   };
 
   validateTimedEntries(value.cycleBoundaries, `${path}.cycleBoundaries`, () => {});
-  validateTimedEntries(value.controlSwitches, `${path}.controlSwitches`, (entry, entryPath) => {
-    if (![0, 1, 2, 3].includes(entry.trackIndex as number)) {
-      issues.push({
-        path: `${entryPath}.trackIndex`,
-        message: 'expected a track index from 0 to 3',
-      });
-    }
-  });
+  validateTimedEntries(
+    value.controlSwitches,
+    `${path}.controlSwitches`,
+    (entry, entryPath) => {
+      if (![0, 1, 2, 3].includes(entry.trackIndex as number)) {
+        issues.push({
+          path: `${entryPath}.trackIndex`,
+          message: 'expected a track index from 0 to 3',
+        });
+      }
+    },
+    typeof value.prepFrames === 'number' && Number.isInteger(value.prepFrames)
+      ? -Math.max(0, value.prepFrames)
+      : 0,
+  );
   if (value.externalEventMarkers !== undefined) {
     validateTimedEntries(
       value.externalEventMarkers,

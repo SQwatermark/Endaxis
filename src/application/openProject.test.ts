@@ -13,6 +13,8 @@ function createRepository(revision = 'definitions:current'): GameDataRepository 
     getGearSet: () => null,
     getEnemy: () => null,
     getMechanic: () => null,
+    getConsumable: () => null,
+    getConsumables: () => [],
   };
 }
 

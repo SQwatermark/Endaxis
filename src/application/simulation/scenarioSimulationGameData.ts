@@ -20,6 +20,7 @@ import type {
   OperatorDefinition,
 } from '../../core/game-data/operatorDefinition';
 import type { ScenarioDocument } from '../../core/project/schema';
+import type { ConsumableDefinition } from '../../core/game-data/consumableDefinition';
 
 /** 可通过 Worker 消息传输、足以编译一个场景的纯数据。 */
 export interface ScenarioSimulationGameData {
@@ -33,6 +34,7 @@ export interface ScenarioSimulationGameData {
   readonly gearSets: readonly GearSetDefinition[];
   readonly enemies: readonly EnemyDefinition[];
   readonly mechanics: readonly MechanicDefinitionRef[];
+  readonly consumables: readonly ConsumableDefinition[];
 }
 
 function requireDefinition<T>(value: T | null, kind: string, id: string): T {
@@ -123,6 +125,7 @@ export function captureScenarioSimulationGameData(
     gearSets: [...gearSets.values()],
     enemies: [...enemies.values()],
     mechanics: [...mechanics.values()],
+    consumables: repository.getConsumables(),
   };
 }
 
@@ -140,6 +143,7 @@ export function restoreScenarioSimulationGameData(
   const gearSets = indexBy(data.gearSets, value => value.slug);
   const enemies = indexBy(data.enemies, value => value.id);
   const mechanics = indexBy(data.mechanics, value => value.id);
+  const consumables = indexBy(data.consumables, value => value.id);
   return Object.freeze({
     revision: data.revision,
     getCommonBuffDefinitions: () => data.commonBuffDefinitions,
@@ -150,5 +154,7 @@ export function restoreScenarioSimulationGameData(
     getGearSet: (id: string) => gearSets.get(id) ?? null,
     getEnemy: (id: string) => enemies.get(id) ?? null,
     getMechanic: (id: string) => mechanics.get(id) ?? null,
+    getConsumable: (id: string) => consumables.get(id) ?? null,
+    getConsumables: () => data.consumables,
   });
 }

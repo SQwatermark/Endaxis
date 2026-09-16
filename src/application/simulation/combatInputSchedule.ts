@@ -215,6 +215,10 @@ export class CombatInputSchedule {
           ...(existing?.skills ?? []),
           ...(input.skills ?? []).map(skill => ({ ...skill, declarationOrder: order++ })),
         ],
+        consumableUses: [
+          ...(existing?.consumableUses ?? []),
+          ...(input.consumableUses ?? []),
+        ],
         externalEvents: [...(existing?.externalEvents ?? []), ...(input.externalEvents ?? [])],
       });
     }

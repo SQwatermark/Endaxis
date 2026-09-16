@@ -5,7 +5,7 @@ import { weaponPresentationSlugByAsset } from './weaponPresentationSlugs';
 
 type LocaleTable = Record<string, any>;
 /** 以slug直接索引条目的语言表；装备与术语有各自的嵌套结构。 */
-type EntryGameTextFamily = 'operators' | 'weapons' | 'enemies';
+type EntryGameTextFamily = 'operators' | 'weapons' | 'enemies' | 'consumables';
 
 type GameEnumGroup =
   | 'element'
@@ -142,6 +142,16 @@ function getGameEnumValue(
 export function getOperatorGameName(slug: string, locale?: string | null) {
   const entry = getOperatorEntry(slug, locale);
   return readTrimmedText(entry?.name) || humanizeIdentifier(slug);
+}
+
+export function getConsumableGameName(id: string, locale?: string | null) {
+  const entry = getEntry('consumables', id, locale);
+  return readTrimmedText(entry?.name) || humanizeIdentifier(id);
+}
+
+export function getConsumableGameDescription(id: string, locale?: string | null) {
+  const entry = getEntry('consumables', id, locale);
+  return readTrimmedText(entry?.description);
 }
 
 /** Localized operator form label (e.g. arcane `int` → 阵诀·智). */

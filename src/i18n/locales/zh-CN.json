@@ -316,7 +316,7 @@
       "label": "连续 · {count}",
       "followsPrevious": "接续上一技能",
       "actualStartFrame": "实际开始：{frame} 帧",
-      "unexecuted": "尚未执行",
+      "actualStartUnavailable": "暂无实际开始帧",
       "count": "请选择至少两个技能",
       "mixed": "请选择同一轨道上的技能",
       "nonAdjacent": "请选择相邻技能，中间不能漏选",
@@ -589,19 +589,7 @@
       }
     },
     "loading": "正在加载资源...",
-    "reset": {
-      "title": "选择重置范围",
-      "currentKeepLoadout": "重置当前方案并保留配装",
-      "currentKeepLoadoutDescription": "清空当前方案的时间轴与战斗设置，保留干员、武器和装备。",
-      "current": "重置当前方案",
-      "currentDescription": "清空当前方案的全部内容，其他方案不受影响。",
-      "all": "重置全部方案",
-      "allDescription": "删除所有方案及配装数据，并恢复为初始项目。",
-      "confirmButton": "确认重置",
-      "currentKeepLoadoutDone": "当前方案已重置，配装已保留",
-      "currentDone": "当前方案已重置",
-      "done": "全部方案已重置"
-    },
+    "reset": "重置",
     "scenario": {
       "addTooltip": "新建方案",
       "defaultName": "方案 {index}",
@@ -654,7 +642,7 @@
       "removeSimulationStart": "移除模拟起始线",
       "addSimulationEnd": "添加模拟终止线",
       "removeSimulationEnd": "移除模拟终止线",
-      "switchOperator": "切入当前干员",
+      "switchOperator": "在此处切入",
       "restrictedHint": "仅补充木桩模型无法自然产生的事件",
       "operatorHit": "当前干员受到攻击",
       "operatorWeakness": "当前干员触发敌方弱点",
@@ -1675,9 +1663,8 @@
     },
     "emptyTrack": "未设置干员",
     "cursorFrame": "光标：第 {frame} 帧",
-    "simulationPending": "场景编译器尚未接入",
+    "simulationPending": "等待模拟…",
     "simulate": "模拟",
-    "reset": "重置",
     "backToCurrent": "返回现有编辑器",
     "operatorTab": "干员",
     "weaponTab": "武器",
@@ -2144,7 +2131,6 @@
       "comboWindow": "连携窗口",
       "nature_burst": "自然爆发",
       "corrosion": "腐蚀",
-      "razorClawmark": "爪印斫痕",
       "default": "默认图标",
       "vulnerability": "破防",
       "breach": "碎甲",
@@ -2759,5 +2745,13 @@
       "ultimateSkillOnCooldown": "终结技仍在冷却",
       "arcaneUltimateArcanaRequired": "无法释放终结技，需进行两次重击或处决"
     }
+  },
+  "consumable": {
+    "inspectorTitle": "使用消耗品",
+    "item": "物品",
+    "frame": "使用帧",
+    "useFromContext": "使用物品",
+    "dialogTitle": "选择消耗品",
+    "searchPlaceholder": "搜索名称或效果"
   }
 }

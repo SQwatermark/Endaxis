@@ -14,6 +14,11 @@ import { ScenarioSimulationService } from '../scenarioSimulationService';
 import { resolveCompactSkillSelection } from '../../../ui/timeline/library/compactSkillSelection';
 import { SkillPlacementTransaction } from '../../../ui/timeline/interaction/skillPlacementTransaction';
 import { ScenarioEditorSession } from '../../editor/scenarioEditorSession';
+import {
+  projectSkillCastActualDurationFrames,
+  projectSkillCastActualStartFrames,
+} from '../../../ui/timeline/timelineDisplayTime';
+import { projectTimelineHitOccurrences } from '../../../ui/timeline/results/timelineHitEffects';
 
 const service = new ScenarioSimulationService({
   index: gameDataRepository,
@@ -110,6 +115,29 @@ describe('generated basic attack chain input timing', () => {
           entry.event === 'SkillInputInterruptionUnknown',
       ),
     ).toEqual([]);
+    const burstHits = run.receiptEntries.filter(
+      entry => entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string',
+    );
+    expect(burstHits.length).toBeGreaterThan(0);
+    const skillMarkerDamageCount = [...projectTimelineHitOccurrences(run.receiptEntries).values()]
+      .flat()
+      .reduce((total, occurrence) => total + occurrence.label.damage.length, 0);
+    expect(skillMarkerDamageCount).toBe(
+      run.receiptEntries.filter(
+        entry => entry.event === 'DamageApplied' && entry.data?.spellBurstType === undefined,
+      ).length,
+    );
+
+    const groupedScenario = groupPlacedSkillSequence(enhanced.scenario, enhanced.skillCastIds);
+    const groupedRun = await service.simulate(groupedScenario, 240);
+    const select = (values: ReadonlyMap<string, number>) =>
+      new Map([...values].filter(([id]) => enhanced.skillCastIds.includes(id)));
+    expect(select(projectSkillCastActualStartFrames(groupedRun.receiptEntries))).toEqual(
+      select(projectSkillCastActualStartFrames(run.receiptEntries)),
+    );
+    expect(select(projectSkillCastActualDurationFrames(groupedRun.receiptEntries))).toEqual(
+      select(projectSkillCastActualDurationFrames(run.receiptEntries)),
+    );
   });
 
   it('伊冯未开启强化时回退为12345重击六段，原场景不留下推测前缀', async () => {

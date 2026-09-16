@@ -23,6 +23,7 @@ import { generateHitStopCurveCatalog } from './generateHitStopCurveCatalog.ts';
 import { generateSkillSettingCatalog } from './generateSkillSettingCatalog.ts';
 import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
 import { generateContingencyContractLocales } from './generateContingencyContractLocales.ts';
+import { generateConsumableDefinitions } from './generateConsumableDefinitions.ts';
 import { generateCombatDefinitionCandidates } from './generateCombatDefinitionCandidates.ts';
 import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
 import { typeCheckCandidateOverlay } from '../src/compiler/publication/candidateTypeCheck.ts';
@@ -48,6 +49,7 @@ const GAME_LOCALE_FILES = ['zh', 'en'].flatMap(locale =>
     'enum-terms',
     'enemies',
     'contingency-contracts',
+    'consumables',
   ].map(name => `${locale}/${name}.json`),
 );
 const GAME_LOCALE_REBUILD_OUTPUTS = GAME_LOCALE_FILES.map(file => `src/i18n/game-locales/${file}`);
@@ -73,9 +75,11 @@ const GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS = [
   'src/data/equipment/generated-gear-sets',
   'src/data/enemies/generated',
   'src/data/mechanics/generated',
+  'src/data/consumables/generated',
   // These roots contain referenced game-derived WebP files plus the four explicitly audited
   // project defaults. Replacing the roots removes stale, no-longer-referenced game icons.
   'public/equipment',
+  'public/consumables',
   'public/enemies',
   'public/icons',
   'public/operators',
@@ -88,7 +92,7 @@ const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
   'src/data/combat/gameplayTagPredefine.generated.ts',
   'src/data/combat/hitStopCurveCatalog.generated.ts',
   'src/data/combat/timeDilationCatalog.generated.ts',
-  'src/data/combat/skill-setting.generated.json',
+  'src/data/combat/skillSettings.generated.ts',
   ...GAME_LOCALE_REBUILD_OUTPUTS,
 ] as const;
 
@@ -125,13 +129,19 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
       '同次任务完整标签与被动闭包已可生成并发布全部套装，并逐套通过三件套四技能场景及无套装/纯静态基线差分；仍需机制定向数值和来源版本核对。',
   },
   {
+    id: 'consumables',
+    outputs: ['src/data/consumables/generated'],
+    blocker:
+      '主动使用物品由同批 UseItemTable、ItemTable 与 BuffData 严格生成；当前只发布原生 300 秒干员增益物品，治疗、复活、驱散和投掷物仍明确排除。Buff 最终定义随公共 Buff 目录发布。',
+  },
+  {
     id: 'global-catalogs',
     outputs: [
       'src/data/combat/gameplayTagCatalog.generated.ts',
       'src/data/combat/gameplayTagPredefine.generated.ts',
       'src/data/combat/hitStopCurveCatalog.generated.ts',
       'src/data/combat/timeDilationCatalog.generated.ts',
-      'src/data/combat/skill-setting.generated.json',
+      'src/data/combat/skillSettings.generated.ts',
       'src/data/mechanics/generated',
     ],
     blocker:
@@ -153,7 +163,7 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
     id: 'locales',
     outputs: GAME_LOCALE_REBUILD_OUTPUTS,
     blocker:
-      '干员、战斗术语、武器、套装、单件装备、枚举和敌人的 14 个中英文文件已可由同批本地 TableCfg、候选身份和项目自有枚举配置严格生成，并随完整候选通过资源与发布门禁。',
+      '干员、战斗术语、武器、套装、单件装备、枚举、敌人、危机合约和消耗品的 18 个中英文文件已可由同批本地 TableCfg、候选身份和项目自有枚举配置严格生成，并随完整候选通过资源与发布门禁。',
   },
   {
     id: 'icons',
@@ -359,9 +369,10 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           candidateRoot,
           'src/data/combat/hitStopCurveCatalog.generated.ts',
         );
-        const skillSettingCatalog = path.join(
+        const skillSettingCatalog = path.join(runRoot, 'intermediate/skill-setting.catalog.json');
+        const runtimeSkillSettings = path.join(
           candidateRoot,
-          'src/data/combat/skill-setting.generated.json',
+          'src/data/combat/skillSettings.generated.ts',
         );
         const globalBuffCatalog = path.join(
           runRoot,
@@ -432,6 +443,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             sourceUrl,
             revision: snapshot!.version,
             output: skillSettingCatalog,
+            runtimeOutput: runtimeSkillSettings,
             check: false,
           };
           const generated = await generateSkillSettingCatalog(input);
@@ -535,6 +547,45 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
               '同次任务的危机合约、TimeDilation、HitStop、SkillSetting 或 GlobalBuff 候选未通过。',
           });
         }
+        let consumablesOkay = false;
+        if (combatOkay) {
+          consumablesOkay = await stage('consumables', async () => {
+            const definitionOutput = path.join(
+              candidateRoot,
+              'src/data/consumables/generated/consumableDefinitions.generated.ts',
+            );
+            const buffOutput = path.join(
+              candidateRoot,
+              'src/data/buffs/generated/consumableBuffDefinitions.generated.ts',
+            );
+            const input = {
+              tableRoot: path.join(sourceRoot, 'TableCfg-current'),
+              buffDataRoot: path.join(sourceRoot, 'BuffData'),
+              definitionOutput,
+              buffOutput,
+            };
+            const generated = await generateConsumableDefinitions(input);
+            const first = await Promise.all([
+              fs.readFile(definitionOutput, 'utf8'),
+              fs.readFile(buffOutput, 'utf8'),
+            ]);
+            await generateConsumableDefinitions(input);
+            const second = await Promise.all([
+              fs.readFile(definitionOutput, 'utf8'),
+              fs.readFile(buffOutput, 'utf8'),
+            ]);
+            if (first[0] !== second[0] || first[1] !== second[1]) {
+              throw new Error('consumable candidate changed on identical second generation');
+            }
+            return { ...generated, deterministicCheck: 'passed' };
+          });
+        } else {
+          stages.push({
+            id: 'consumables',
+            status: 'blocked',
+            detail: '战斗定义未通过，不能把消耗品 Buff 写入不完整候选。',
+          });
+        }
         // GlobalBuff 模板只用于把本次来源编译进最终定义，不是运行时或发布产物。
         await fs.rm(path.dirname(globalBuffCatalog), { recursive: true, force: true });
         await stage('operator-refresh', async () => {
@@ -571,7 +622,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           await generateGameplayTagPredefine(...params, true);
           return { ...generated, deterministicCheck: 'passed' };
         });
-        if (combatOkay) {
+        if (combatOkay && consumablesOkay) {
           await stage('locales', async () => {
             const relative = 'src/i18n/game-locales';
             const output = path.join(candidateRoot, relative);
@@ -651,6 +702,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         });
         const typeCheckDependencies = [
           'combat-definitions',
+          'consumables',
           'enemies',
           'gameplay-tags',
           'time-dilation',
@@ -735,6 +787,7 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         for (const id of [
           'operator-refresh',
           'combat-definitions',
+          'consumables',
           'contingency-contract-locales',
           'gameplay-tag-predefine',
           'locales',
@@ -984,6 +1037,7 @@ async function exportCandidateGameLocales(projectRoot: string, input: CandidateL
     { cwd: projectRoot, maxBuffer: 16 * 1024 * 1024 },
   );
   const expectedFiles = [
+    'consumables.json',
     'contingency-contracts.json',
     'enemies.json',
     'enum-terms.json',

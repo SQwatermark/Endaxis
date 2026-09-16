@@ -30,6 +30,8 @@ it('场景输入与环境端口互不重叠，完整装配选项由两者组成'
     | 'resources'
     | 'enemy'
     | 'operators'
+    | 'consumables'
+    | 'consumableUses'
     | 'inputs'
     | 'skillInputGroups'
     | 'externalEvents'
@@ -534,6 +536,24 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(compiled.isOperatorControlled?.('track:0', 29)).toBe(true);
     expect(compiled.isOperatorControlled?.('track:0', 30)).toBe(false);
     expect(compiled.isOperatorControlled?.('track:1', 30)).toBe(true);
+  });
+
+  it('starts at a preparation-frame control switch instead of applying it at frame zero', () => {
+    const scenario = createScenario();
+    scenario.battle.prepFrames = 150;
+    scenario.tracks[1] = {
+      ...scenario.tracks[0]!,
+      id: 'track:1',
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    scenario.battle.controlSwitches.push({ id: 'switch:prep', frame: -90, trackIndex: 1 });
+
+    const compiled = compileScenarioRuntimeAssembly(scenario, options());
+
+    expect(compiled.initialFrame).toBe(-90);
+    expect(compiled.initialControlledOperatorId).toBe('track:1');
+    expect(compiled.isOperatorControlled?.('track:1', -90)).toBe(true);
   });
 
   it('compiles external hit markers to stable operator instances in timeline order', () => {

@@ -184,13 +184,14 @@ async function loadReferencedDefinitions(project: unknown) {
 export async function createProjectGameDataRepository(
   project: unknown,
 ): Promise<ProjectGameDataRepository> {
-  const [{ GAME_DATA_REVISION }, common, contingency, mechanics, enemies, selected] =
+  const [{ GAME_DATA_REVISION }, common, contingency, mechanics, enemies, consumables, selected] =
     await Promise.all([
       import('./gameDataRevision'),
       import('./buffs/commonDefinitions'),
       import('./mechanics/generated/contingencyContractDefinitions.generated'),
       import('./mechanics/contingencyContractAdapter'),
       import('./enemies/generated/index.generated'),
+      import('./consumables'),
       loadReferencedDefinitions(project),
     ]);
 
@@ -199,9 +200,11 @@ export async function createProjectGameDataRepository(
     commonBuffDefinitions: {
       ...common.commonBuffDefinitions,
       ...contingency.contingencyContractBuffDefinitions,
+      ...consumables.consumableBuffDefinitions,
     },
     enemies: enemies.generatedEnemyDefinitions,
     mechanics: mechanics.contingencyContractMechanicDefinitions,
+    consumables: consumables.consumableDefinitions,
   } as const;
   let current = createGameDataRepository({ ...fixed, ...selected });
   let allDefinitionsTask: Promise<void> | undefined;
@@ -254,6 +257,8 @@ export async function createProjectGameDataRepository(
     getGearSet: (slug: string) => current.getGearSet(slug),
     getEnemy: (id: string) => current.getEnemy(id),
     getMechanic: (id: string) => current.getMechanic(id),
+    getConsumable: (id: string) => current.getConsumable(id),
+    getConsumables: () => current.getConsumables(),
     ensureAllDefinitions,
     hasAllDefinitions: () => allDefinitionsLoaded,
   });

@@ -13,6 +13,15 @@ import {
 import { verifyGameDataSnapshot } from '../scripts/verifyGameDataSnapshot.ts';
 
 const roots: string[] = [];
+it('只允许 i18n 目录提交生成 JSON', async () => {
+  const files = await fs.readdir(path.resolve('src'), { recursive: true });
+  expect(
+    files
+      .map(file => file.replaceAll('\\', '/'))
+      .filter(file => file.endsWith('.json') && !file.startsWith('i18n/')),
+  ).toEqual([]);
+});
+
 it('候选类型门禁使用当前应用配置，不引用已经删除的 Next 配置', async () => {
   const config = JSON.parse(
     await fs.readFile(new URL(`../../../${GAME_DATA_CANDIDATE_TSCONFIG}`, import.meta.url), 'utf8'),
@@ -110,12 +119,15 @@ describe('从无产物工作树重建装备候选', () => {
       expect(() => parseRebuildArguments(values)).toThrow();
     }
     const localeBoundary = GAME_DATA_REBUILD_BOUNDARIES.find(item => item.id === 'locales')!;
-    expect(localeBoundary.outputs).toHaveLength(16);
+    expect(localeBoundary.outputs).toHaveLength(18);
     expect(localeBoundary.outputs).not.toContain('src/i18n/game-locales');
     expect(localeBoundary.outputs.filter(file => file.endsWith('/enemies.json'))).toHaveLength(2);
     expect(
       localeBoundary.outputs.filter(file => file.endsWith('/contingency-contracts.json')),
     ).toHaveLength(2);
+    expect(localeBoundary.outputs.filter(file => file.endsWith('/consumables.json'))).toHaveLength(
+      2,
+    );
   });
 
   it('正式资源全不存在时生成真实夹具，并通过重复生成 --check；完整重建仍明确未完成', async () => {

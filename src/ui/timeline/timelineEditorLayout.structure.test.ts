@@ -19,6 +19,15 @@ describe('Next timeline editor layout boundaries', () => {
     expect(source).toMatch(/\.timeline-ruler\s*\{[^}]*position: sticky;[^}]*z-index: 110;/s);
   });
 
+  it('prevents drag gestures from creating browser text selections inside the timeline', () => {
+    expect(source).toMatch(
+      /\.timeline-surface\s*\{[^}]*-webkit-user-select: none;[^}]*user-select: none;/s,
+    );
+    expect(source).toMatch(
+      /\.timeline-surface :is\(input, textarea, \[contenteditable='true'\]\)\s*\{[^}]*user-select: text;/s,
+    );
+  });
+
   it('uses the enemy panel emitted event names instead of an obsolete index event', () => {
     expect(source).toContain('@select-definition="selectDefinitionEnemy"');
     expect(source).toContain('@select-custom="selectCustomEnemy"');

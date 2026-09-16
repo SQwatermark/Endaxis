@@ -1,6 +1,7 @@
 import type { CombatInputExecution } from '../skills/combatInputExecution';
 import type {
   CombatSkillInput,
+  ConsumableUseInput,
   ExternalCombatEventInput,
   ScheduledSkillInput,
 } from '../state/environmentState';
@@ -20,6 +21,7 @@ export interface CombatSkillInputPhase extends CombatInputExecution {
 export interface CombatFrameInput {
   /** 不提供表示保持当前身份，null 表示没有主控干员。 */
   readonly controlledOperatorId?: string | null;
+  readonly consumableUses?: readonly ConsumableUseInput[];
   readonly skills?: readonly CombatSkillInput[] | ((phase: CombatSkillInputPhase) => void);
   readonly externalEvents?: readonly ExternalCombatEventInput[];
 }

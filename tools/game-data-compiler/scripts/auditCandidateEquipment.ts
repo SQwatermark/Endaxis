@@ -1,6 +1,5 @@
 import fs from 'node:fs/promises';
 import { OPERATOR_DEFINITION_OUTPUTS } from './operatorDefinitionOutputs.ts';
-import { parseSkillSettingResources } from '../../../packages/game-data-contract/src/skillSettingResources.ts';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -17,7 +16,7 @@ const REPLACEMENT_PATHS = [
   'src/data/combat/gameplayTagPredefine.generated.ts',
   'src/data/combat/hitStopCurveCatalog.generated.ts',
   'src/data/combat/timeDilationCatalog.generated.ts',
-  'src/data/combat/skill-setting.generated.json',
+  'src/data/combat/skillSettings.generated.ts',
 ] as const;
 
 interface AuditArguments {
@@ -112,15 +111,7 @@ export async function auditCandidateEquipment(args: AuditArguments) {
         path.join(candidateRoot, 'src/data/buffs/generated/commonBuffDefinitions.generated.ts'),
       ),
     );
-    const skillSettingModule = await server.ssrLoadModule(
-      '/src/core/combat/infliction/skillSettings.ts',
-    );
-    const rawSkillSettings = JSON.parse(
-      await fs.readFile(
-        path.join(candidateRoot, 'src/data/combat/skill-setting.generated.json'),
-        'utf8',
-      ),
-    );
+    const runtimeSkillSettings = await server.ssrLoadModule('/src/data/combat/skillSettings.ts');
     const attachmentModule = await server.ssrLoadModule('/src/data/buffs/elementalAttachments.ts');
     const projectModule = await server.ssrLoadModule('/src/core/project/createProject.ts');
     const placementModule = await server.ssrLoadModule('/src/ui/timeline/placeSkillGroup.ts');
@@ -136,7 +127,7 @@ export async function auditCandidateEquipment(args: AuditArguments) {
       gearSets,
       enemies: formalRepository.getEnemies(),
     });
-    const nativeResources = parseSkillSettingResources(rawSkillSettings.resources);
+    const nativeResources = runtimeSkillSettings.skillSettingResources;
     const serviceResources = {
       sharedSpGain: { baseGainEfficiency: nativeResources.atbGainEfficiency },
       spRecoveryPauseDuration: nativeResources.atbRecoverInterval,
@@ -146,7 +137,7 @@ export async function auditCandidateEquipment(args: AuditArguments) {
         otherGainPerSp: nativeResources.atbConsumedDefaultUspGainOther,
       },
     };
-    const spellInflictionSettings = skillSettingModule.parseSkillSettings(rawSkillSettings);
+    const spellInflictionSettings = runtimeSkillSettings.skillSettings;
     const createService = (index: any, revision: string) =>
       new serviceModule.ScenarioSimulationService({
         index,

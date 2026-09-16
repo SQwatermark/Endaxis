@@ -714,6 +714,70 @@ describe('AbilitySystemRuntime', () => {
     expect(reached).toHaveLength(1);
   });
 
+  it('publishes the first currently routed decision point without choosing a future skill', () => {
+    const reached: unknown[] = [];
+    let actualFrame = 0;
+    let localFrame = 0;
+    let boundaryFrame: number | undefined;
+    const current = Object.assign(
+      new FixtureRuntime('current', [], 'basicAttack', 'cast:current', 30),
+      {
+        transitionSkillId: 'native.current',
+        usesRuntimeOperableBoundary: true,
+        inputWindows: {
+          commandMappings: [
+            {
+              startFrame: 0,
+              endFrame: 8,
+              input: 'basicAttack' as const,
+              targetSourceSkillId: 'native.next',
+            },
+          ],
+          allowedNextSkills: [
+            { startFrame: 0, endFrame: 8, sourceSkillIds: ['native.cleanup'] },
+            { startFrame: 5, endFrame: 8, sourceSkillIds: ['native.next'] },
+          ],
+        },
+        canInterrupt: false,
+        markOperableBoundaryReached(frame = localFrame) {
+          boundaryFrame ??= frame;
+        },
+      },
+    );
+    Object.defineProperties(current, {
+      currentTimelineFrame: { get: () => localFrame },
+      passedFrames: { get: () => localFrame },
+      reachedOperableBoundaryFrame: { get: () => boundaryFrame },
+    });
+    current.advanceFrame = () => {
+      localFrame = 5;
+    };
+    const next = Object.assign(new FixtureRuntime('next', [], 'basicAttack'), {
+      transitionSkillId: 'native.next',
+    });
+    const cleanup = Object.assign(new FixtureRuntime('cleanup', [], 'basicAttack'), {
+      transitionSkillId: 'native.cleanup',
+    });
+    const ability = new AbilitySystemRuntime({
+      skills: [current, next, cleanup],
+      playerActionRoutes: {
+        basicAttack: {
+          kind: 'basicAttack',
+          skillKeys: ['current', 'next', 'cleanup'],
+          defaultSkillKey: 'current',
+        },
+      },
+      resolveActualFrame: () => actualFrame,
+      onSkillOperableBoundaryReached: fact => reached.push(fact),
+    });
+
+    expect(ability.tryStartSkill('current', 'cast:current')).toBe(true);
+    expect(reached).toEqual([]);
+    actualFrame = 1;
+    ability.advanceFrame();
+    expect(reached).toEqual([{ castId: 'cast:current', durationFrames: 5, reachedAtFrame: 1 }]);
+  });
+
   it('snapshots the active slot variant at release start and applies changes to later releases', () => {
     const events: string[] = [];
     const base = new FixtureRuntime('ultimate', events, 'ultimate');

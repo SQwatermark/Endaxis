@@ -34,9 +34,6 @@ const props = defineProps<{
   moving?: boolean;
   /** 已启动但在当前模拟终点前尚未到达实例局部可操作边界。 */
   durationPending?: boolean;
-  /** 连续组中尚无输入回执的成员，保持可编辑并标明当前位置只是预计。 */
-  unexecuted?: boolean;
-  unexecutedText?: string;
   color?: string | null;
   connectionToolEnabled?: boolean;
   connectionDragging?: boolean;
@@ -163,9 +160,7 @@ function formatDurationFrames(frames: number): string {
     }"
     :data-skill-type="skillType"
     :style="blockStyle"
-    :title="
-      [label, warningText, unexecuted ? unexecutedText : undefined].filter(Boolean).join(' · ')
-    "
+    :title="[label, warningText].filter(Boolean).join(' · ')"
     :draggable="false"
     @pointerdown="beginMove"
     @click.stop="$emit('select', $event)"
@@ -184,7 +179,6 @@ function formatDurationFrames(frames: number): string {
       <span class="time-dilation-shimmer"></span>
     </span>
     <span class="action-label">{{ label }}</span>
-    <span v-if="unexecuted" class="unexecuted-label">{{ unexecutedText }}</span>
     <template v-if="skillType === 'ultimate' && !disabled">
       <span class="ultimate-side-bar ultimate-side-bar--left" aria-hidden="true"></span>
       <span class="ultimate-side-bar ultimate-side-bar--right" aria-hidden="true"></span>
@@ -359,20 +353,6 @@ function formatDurationFrames(frames: number): string {
 
 .timeline-action-block:hover {
   filter: brightness(1.18);
-}
-
-.unexecuted-label {
-  position: absolute;
-  bottom: 2px;
-  left: 4px;
-  right: 4px;
-  overflow: hidden;
-  color: var(--ea-fg-muted, #aaa);
-  font-size: 10px;
-  font-weight: 400;
-  line-height: 12px;
-  text-overflow: ellipsis;
-  pointer-events: none;
 }
 
 .timeline-action-block[data-selected='true'] {

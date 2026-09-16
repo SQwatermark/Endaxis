@@ -316,7 +316,7 @@
       "label": "Chain · {count}",
       "followsPrevious": "Follows the previous skill",
       "actualStartFrame": "Actual start: frame {frame}",
-      "unexecuted": "Not executed",
+      "actualStartUnavailable": "No actual start frame yet",
       "count": "Select at least two skills",
       "mixed": "Select skills on the same track",
       "nonAdjacent": "Select adjacent skills without skipping any",
@@ -589,19 +589,7 @@
       }
     },
     "loading": "Loading resources...",
-    "reset": {
-      "title": "Choose Reset Scope",
-      "currentKeepLoadout": "Reset Current Project and Keep Loadout",
-      "currentKeepLoadoutDescription": "Clear the current timeline and combat settings while keeping operators, weapons, and gear.",
-      "current": "Reset Current Project",
-      "currentDescription": "Clear all content in the current project without affecting other projects.",
-      "all": "Reset All Projects",
-      "allDescription": "Delete all projects and loadout data, then restore the initial project.",
-      "confirmButton": "Confirm Reset",
-      "currentKeepLoadoutDone": "Current project reset; loadout preserved",
-      "currentDone": "Current project has been reset",
-      "done": "All projects have been reset"
-    },
+    "reset": "Reset",
     "scenario": {
       "addTooltip": "New Project",
       "defaultName": "Project {index}",
@@ -654,7 +642,7 @@
       "removeSimulationStart": "Remove simulation start",
       "addSimulationEnd": "Add simulation end",
       "removeSimulationEnd": "Remove simulation end",
-      "switchOperator": "Switch to current operator",
+      "switchOperator": "Switch here",
       "restrictedHint": "Only supplement events the target-dummy model cannot produce naturally",
       "operatorHit": "Current operator is hit",
       "operatorWeakness": "Current operator triggers enemy weakness",
@@ -1693,9 +1681,8 @@
     },
     "emptyTrack": "No operator",
     "cursorFrame": "Cursor: frame {frame}",
-    "simulationPending": "The scenario compiler is not connected yet",
+    "simulationPending": "Simulation pending…",
     "simulate": "Simulate",
-    "reset": "Reset",
     "backToCurrent": "Current editor",
     "operatorTab": "Operator",
     "weaponTab": "Weapon",
@@ -2162,7 +2149,6 @@
       "comboWindow": "Combo Window",
       "nature_burst": "Nature Burst",
       "corrosion": "Corrosion",
-      "razorClawmark": "Razor Clawmark",
       "default": "Default Icon",
       "vulnerability": "Vulnerability",
       "breach": "Breach",
@@ -2777,5 +2763,13 @@
       "ultimateSkillOnCooldown": "Ultimate is still on cooldown",
       "arcaneUltimateArcanaRequired": "Cannot release ultimate. Perform two heavy attacks or finishers first"
     }
+  },
+  "consumable": {
+    "inspectorTitle": "Use consumable",
+    "item": "Item",
+    "frame": "Use frame",
+    "useFromContext": "Use consumable",
+    "dialogTitle": "Select a consumable",
+    "searchPlaceholder": "Search by name or effect"
   }
 }

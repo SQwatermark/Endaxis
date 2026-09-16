@@ -122,6 +122,22 @@ node --max-old-space-size=2048 --experimental-strip-types tools/game-data-compil
 
 ## 重建与发布
 
+### 主动使用物品
+
+下载清单包含 `UseItemTable`、`ItemTable`、中英文文本表和完整 `BuffData`。完整重建会在隔离候选目录中生成
+`consumableDefinitions.generated.ts`、`consumableBuffDefinitions.generated.ts`、中英文
+`consumables.json` 和引用到的 `/public/consumables/*.webp`，确定性复跑、类型、资源检查通过后才发布。
+当前产品范围只接受原生持久 300 秒、目标为单个干员的增益物品；治疗、复活、驱散、战术效果和投掷物
+仍留在来源表中，但不会生成可编辑定义。
+
+单独复现定义时使用：
+
+```powershell
+npm run generate:game-data:consumables -- --table-root <source>/TableCfg-current --buff-data-root <source>/BuffData --definition-output <candidate>/src/data/consumables/generated/consumableDefinitions.generated.ts --buff-output <candidate>/src/data/buffs/generated/consumableBuffDefinitions.generated.ts
+```
+
+该命令的两个输出都是最终候选；下载文件、审计和其他中间内容只放在 `tmp/`。
+
 来源使用 AKEDB 优先、VFS 补缺。每轮创建 tmp/game-data-rebuild/run-*，先生成隔离候选，
 复验来源、独立重编译、类型、图标、技能与装备模拟均通过后才允许发布。
 正式生成目录不能反过来填补候选缺失；VFS 补件的哈希不证明它与 AKEDB 同版本。

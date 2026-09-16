@@ -750,6 +750,79 @@ def export_enemies(table_dir, locale='CN'):
     return result
 
 
+def export_consumables(table_dir, locale='CN'):
+    """Export the active 300-second operator Buff consumables published by Endaxis."""
+    load_text_table(table_dir, locale)
+    item_table = load_json(os.path.join(table_dir, 'ItemTable.json'))
+    use_item_table = load_json(os.path.join(table_dir, 'UseItemTable.json'))
+    result = {}
+    for item_id, use in sorted(use_item_table.items()):
+        if not isinstance(use, dict):
+            data_error(f'UseItemTable {item_id}', 'expected object')
+        supported = (
+            use.get('isPersistentBuff') is True
+            and use.get('duration') == 300
+            and use.get('effectType') == 2
+            and use.get('targetNumType') == 0
+            and use.get('uiType') == 3
+            and use.get('stackingKey') == 'buff'
+        )
+        if not supported:
+            continue
+        item = item_table.get(item_id)
+        if not isinstance(item, dict):
+            data_error(f'ItemTable {item_id}', 'missing consumable identity')
+        name = resolve_text(item.get('name'))
+        description = resolve_text(use.get('itemUseDesc')) or resolve_text(item.get('desc'))
+        if not name:
+            data_error(f'ItemTable {item_id}', 'missing localized name')
+        if not description:
+            data_error(f'UseItemTable {item_id}', 'missing localized use description')
+        values = {}
+        unqualified = {}
+        conflicts = set()
+        for action_index, action in enumerate(use.get('useActions', [])):
+            buff = action.get('buffBBData', {})
+            buff_id = buff.get('buffId')
+            for pair in buff.get('blackboard', []):
+                key = pair.get('key')
+                value = pair.get('value')
+                require_non_empty_string(key, f'UseItemTable {item_id}', 'blackboard key')
+                require_number(value, f'UseItemTable {item_id}', key)
+                values[f'{buff_id}\\{key}'.lower()] = value
+                if key in unqualified and unqualified[key] != value:
+                    conflicts.add(key)
+                else:
+                    unqualified[key] = value
+        values.update({key.lower(): value for key, value in unqualified.items() if key not in conflicts})
+
+        def replace_consumable(match):
+            expr, fmt = parse_placeholder(match.group(1), f'UseItemTable {item_id}')
+            namespaced = re.compile(r'[A-Za-z0-9_]+\\[A-Za-z0-9_]+')
+            synthetic = {}
+            def replace_name(value_match):
+                key = value_match.group(0).lower()
+                if key not in values:
+                    data_error(f'UseItemTable {item_id}', f'unknown consumable value {key}')
+                name = f'v{len(synthetic)}'
+                synthetic[name] = values[key]
+                return name
+            safe_expr = namespaced.sub(replace_name, expr)
+            evaluated = evaluate_placeholder_expression(
+                safe_expr,
+                {**values, **synthetic},
+                f'UseItemTable {item_id}',
+            )
+            return format_placeholder_value(evaluated, fmt, f'UseItemTable {item_id}')
+
+        description = PLACEHOLDER_RE.sub(replace_consumable, description)
+        description = strip_rich_text_tags(description, f'UseItemTable {item_id}')
+        result[item_id] = {'name': name, 'description': description}
+    if not result:
+        data_error('UseItemTable', 'no active operator Buff consumables')
+    return result
+
+
 # ─── Operator locale export ─────────────────────────────────────────────────
 
 def build_operator_slug(char_id, char_data, en_text, old_slugs=None, char_slug_map=None):
@@ -1861,6 +1934,7 @@ def main():
         old_weapons = {} if local_mode else load_json(old_weapons_file)
         gearsets_file = os.path.join(locale_dir, 'gearsets.json')
         enemies_file = os.path.join(locale_dir, 'enemies.json')
+        consumables_file = os.path.join(locale_dir, 'consumables.json')
         old_gearsets_file = os.path.join(default_output_base, out_locale, 'gearsets.json')
         old_gearsets = {} if local_mode else load_json(old_gearsets_file)
         enum_terms = (
@@ -1897,6 +1971,7 @@ def main():
             else load_json(os.path.join(default_output_base, out_locale, 'gearpieces.json'))
         )
         enemies = export_enemies(table_dir, locale=locale)
+        consumables = export_consumables(table_dir, locale=locale)
 
         with open(operators_file, 'w', encoding='utf-8') as f:
             json.dump(operators, f, ensure_ascii=False, indent=2)
@@ -1929,6 +2004,11 @@ def main():
             json.dump(enemies, f, ensure_ascii=False, indent=2)
             f.write('\n')
         print(f'  [write] {enemies_file} ({len(enemies)} enemies)')
+
+        with open(consumables_file, 'w', encoding='utf-8') as f:
+            json.dump(consumables, f, ensure_ascii=False, indent=2)
+            f.write('\n')
+        print(f'  [write] {consumables_file} ({len(consumables)} consumables)')
 
         enum_terms_file = os.path.join(locale_dir, 'enum-terms.json')
         with open(enum_terms_file, 'w', encoding='utf-8') as f:

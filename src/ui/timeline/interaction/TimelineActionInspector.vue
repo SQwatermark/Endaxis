@@ -180,7 +180,7 @@ function removeCustomBar(barId: string): void {
             <div class="readonly-field">{{ t('timeline.continuousGroup.followsPrevious') }}</div>
             <small class="field-help">{{
               actualStartFrame === undefined
-                ? t('timeline.continuousGroup.unexecuted')
+                ? t('timeline.continuousGroup.actualStartUnavailable')
                 : t('timeline.continuousGroup.actualStartFrame', { frame: actualStartFrame })
             }}</small>
           </div>

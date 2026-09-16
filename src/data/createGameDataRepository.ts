@@ -18,6 +18,7 @@ import type {
   OperatorDefinition,
 } from '../core/game-data/operatorDefinition';
 import type { EnemyDefinition } from '../core/game-data/enemyDefinition';
+import type { ConsumableDefinition } from '../core/game-data/consumableDefinition';
 
 export interface GameDataRepositoryInput {
   readonly revision: string;
@@ -35,6 +36,7 @@ export interface GameDataRepositoryInput {
   readonly gearSetAliases?: Readonly<Record<string, string>>;
   readonly enemies?: readonly EnemyDefinition[];
   readonly mechanics?: readonly MechanicDefinitionRef[];
+  readonly consumables?: readonly ConsumableDefinition[];
 }
 
 function indexDefinitions<T>(
@@ -98,6 +100,8 @@ export function createGameDataRepository(
   const gearSetAliases = indexSlugAliases(input.gearSetAliases, gearSets, 'gear set');
   const enemies = indexDefinitions(enemyList, value => value.id, 'enemy');
   const mechanics = indexDefinitions(input.mechanics ?? [], value => value.id, 'mechanic');
+  const consumableList = Object.freeze([...(input.consumables ?? [])]);
+  const consumables = indexDefinitions(consumableList, value => value.id, 'consumable');
 
   return Object.freeze({
     revision: input.revision,
@@ -114,5 +118,7 @@ export function createGameDataRepository(
     getGearSet: (slug: string) => gearSets.get(slug) ?? gearSetAliases.get(slug) ?? null,
     getEnemy: (id: string) => enemies.get(id) ?? null,
     getMechanic: (id: string) => mechanics.get(id) ?? null,
+    getConsumable: (id: string) => consumables.get(id) ?? null,
+    getConsumables: () => consumableList,
   });
 }

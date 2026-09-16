@@ -13,6 +13,7 @@ import { ScenarioSimulationService } from '../../../src/application/simulation/s
 import { createEmptyScenario } from '../../../src/core/project/createProject';
 import { placeSkillGroup } from '../../../src/ui/timeline/interaction/placeSkillGroup';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
+import { generatedSkillSettings } from '../../../src/data/combat/skillSettings.generated';
 
 let sourceRoot: string;
 let candidate: ReturnType<typeof planOperatorDefinition>;
@@ -216,6 +217,8 @@ beforeAll(() => {
     globalBuffCatalogPath,
     JSON.stringify({ version: 'fixture', evidence: {}, templates: {} }),
   );
+  const skillSettingCatalogPath = path.join(sourceRoot, 'skill-setting.fixture.json');
+  fs.writeFileSync(skillSettingCatalogPath, JSON.stringify(generatedSkillSettings));
   args = {
     manifest: fixtureManifestPath,
     sourceRoot,
@@ -225,7 +228,7 @@ beforeAll(() => {
     gameplayTagCatalog: 'src/data/combat/gameplayTagCatalog.generated.ts',
     timeDilationCatalog: 'src/data/combat/timeDilationCatalog.generated.ts',
     globalBuffCatalog: globalBuffCatalogPath,
-    skillSettingCatalog: 'src/data/combat/skill-setting.generated.json',
+    skillSettingCatalog: skillSettingCatalogPath,
     slug: 'avywenna',
     output: path.join(sourceRoot, 'generated/avywenna'),
     auditOutput: path.join(sourceRoot, 'audit/avywenna'),

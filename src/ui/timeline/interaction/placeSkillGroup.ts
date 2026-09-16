@@ -23,7 +23,8 @@ export type TimelineDocumentIdKind =
   | 'connection'
   | 'cycleBoundary'
   | 'controlSwitch'
-  | 'externalEvent';
+  | 'externalEvent'
+  | 'consumableUse';
 
 export interface TimelineDocumentIdAllocator {
   allocate(kind: TimelineDocumentIdKind): string;

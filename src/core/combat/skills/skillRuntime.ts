@@ -173,7 +173,7 @@ export interface CombatOperationContext {
   readonly canExecuteAction?: () => boolean;
   /** 仅由技能时间轴宿主提供；结束当前技能且不改写局部帧。 */
   readonly requestTimelineFinish?: () => void;
-  /** 原生有序下一段窗口实际进入活动分支时，通知技能宿主记录局部边界。 */
+  /** 原生 AllowNext 窗口实际进入活动分支时，通知技能宿主保存本帧候选。 */
   readonly reachSkillOperableBoundary?: (sourceSkillIds: readonly string[]) => void;
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
   readonly getCurrentTimelineFrame?: () => number;
@@ -445,13 +445,41 @@ export class SkillRuntime {
     return this.#program.timelineBlockFrames;
   }
 
-  /** 存在有序下一段身份时，静态块宽只作为预览，正式边界由实际条件分支决定。 */
+  /** 玩家技能的正式块宽由实际 AllowNext 分支或 canInterrupt 决定；静态块宽只供预览。 */
   get usesRuntimeOperableBoundary(): boolean {
+    return this.#program.exclusiveFrame !== undefined;
+  }
+
+  get requiresExecutedOperableBoundaryCandidate(): boolean {
     return this.#program.timelineContinuationSourceSkillId !== undefined;
   }
 
   get reachedOperableBoundaryFrame(): number | undefined {
     return this.#execution.reachedOperableBoundaryFrame;
+  }
+
+  get operableBoundaryCandidateFrame(): number | undefined {
+    return this.#execution.operableBoundaryCandidateFrame;
+  }
+
+  get operableBoundaryCandidateSourceSkillIds(): readonly string[] {
+    return this.#execution.operableBoundaryCandidateSourceSkillIds;
+  }
+
+  takeOperableBoundaryCandidate():
+    { readonly frame: number; readonly sourceSkillIds: readonly string[] } | undefined {
+    const frame = this.#execution.operableBoundaryCandidateFrame;
+    if (frame === undefined || this.#execution.operableBoundaryCandidateSourceSkillIds.length === 0)
+      return undefined;
+    const sourceSkillIds = [...this.#execution.operableBoundaryCandidateSourceSkillIds];
+    this.#execution.operableBoundaryCandidateFrame = undefined;
+    this.#execution.operableBoundaryCandidateSourceSkillIds.length = 0;
+    return { frame, sourceSkillIds };
+  }
+
+  markOperableBoundaryReached(frame = this.currentTimelineFrame): void {
+    if (this.#execution.reachedOperableBoundaryFrame !== undefined) return;
+    this.#execution.reachedOperableBoundaryFrame = frame;
   }
 
   get passedFrames(): number {
@@ -933,15 +961,17 @@ export class SkillRuntime {
   }
 
   #reachSkillOperableBoundary(sourceSkillIds: readonly string[]): void {
-    const continuation = this.#program.timelineContinuationSourceSkillId;
-    if (
-      continuation === undefined ||
-      this.#execution.reachedOperableBoundaryFrame !== undefined ||
-      !sourceSkillIds.includes(continuation)
-    ) {
-      return;
+    if (this.#execution.reachedOperableBoundaryFrame !== undefined) return;
+    const frame = this.currentTimelineFrame;
+    if (this.#execution.operableBoundaryCandidateFrame !== frame) {
+      this.#execution.operableBoundaryCandidateFrame = frame;
+      this.#execution.operableBoundaryCandidateSourceSkillIds.length = 0;
     }
-    this.#execution.reachedOperableBoundaryFrame = this.currentTimelineFrame;
+    for (const sourceSkillId of sourceSkillIds) {
+      if (!this.#execution.operableBoundaryCandidateSourceSkillIds.includes(sourceSkillId)) {
+        this.#execution.operableBoundaryCandidateSourceSkillIds.push(sourceSkillId);
+      }
+    }
   }
 
   #emitSkillEnd(): void {

@@ -46,12 +46,16 @@ export interface TimelineHitEffectLabel {
   readonly reactions: readonly TimelineHitReactionEffect[];
 }
 
-function excludeVisibleBuffTimelineDamage(
+function excludeStandaloneEffectDamage(
   entries: readonly CombatReceiptEntry[],
 ): readonly CombatReceiptEntry[] {
   const endFrame = entries.reduce((maximum, entry) => Math.max(maximum, entry.frame), 0);
   const segments = projectBuffTimelineViz(entries, endFrame);
-  return entries.filter(entry => findBuffTimelineSegmentForDamage(entry, segments) === undefined);
+  return entries.filter(
+    entry =>
+      findBuffTimelineSegmentForDamage(entry, segments) === undefined &&
+      !(entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string'),
+  );
 }
 
 /** 定义hitId可重复执行；帧区分可视命中，同帧同身份伤害仍合并查看。 */
@@ -108,7 +112,7 @@ export function projectTimelineHitDetailEntries(
   hitId: string,
   executionFrame?: number,
 ): readonly CombatReceiptEntry[] {
-  const skillEntries = excludeVisibleBuffTimelineDamage(entries);
+  const skillEntries = excludeStandaloneEffectDamage(entries);
   const firstFrame = skillEntries.find(
     entry =>
       entry.event === 'DamageApplied' &&
@@ -143,7 +147,7 @@ export function projectTimelineHitActualFrames(
   entries: readonly CombatReceiptEntry[],
 ): ReadonlyMap<string, number> {
   const result = new Map<string, number>();
-  for (const receipt of projectHitDamageReceipts(excludeVisibleBuffTimelineDamage(entries))) {
+  for (const receipt of projectHitDamageReceipts(excludeStandaloneEffectDamage(entries))) {
     if (receipt.castId === undefined || receipt.hitId === undefined || result.has(receipt.hitId)) {
       continue;
     }
@@ -155,7 +159,7 @@ export function projectTimelineHitActualFrames(
 /** 把一次释放的命中标记与回执事实归因；键为 `hitId`。 */
 export function projectTimelineHitReceipts(entries: readonly CombatReceiptEntry[]) {
   return {
-    damages: projectHitDamageReceipts(excludeVisibleBuffTimelineDamage(entries)),
+    damages: projectHitDamageReceipts(excludeStandaloneEffectDamage(entries)),
     inflictions: projectHitInflictionReceipts(entries),
     reactions: projectHitReactionReceipts(entries),
   };

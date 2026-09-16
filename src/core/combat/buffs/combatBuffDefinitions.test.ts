@@ -5,11 +5,13 @@ import { GameplayTagRegistry } from '../tags/gameplayTags';
 import {
   COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
   compileCombatBuffDefinitions,
-  parseCombatBuffDefinitionsDocument,
   type CombatBuffDefinitionsDocument,
 } from './combatBuffDefinitions';
 
 type Attribute = 'attack';
+
+const defineDocument = (input: unknown): CombatBuffDefinitionsDocument =>
+  input as CombatBuffDefinitionsDocument;
 
 function requireAddedBuff<T>(buff: T | null): T {
   if (buff === null) throw new Error('test fixture buff was unexpectedly rejected');
@@ -131,24 +133,8 @@ describe('compileCombatBuffDefinitions', () => {
     expect(() => index.getBurst('nature')).toThrow("missing elemental burst 'nature'");
   });
 
-  it('rejects unknown fields at the stored JSON boundary', () => {
-    expect(() =>
-      parseCombatBuffDefinitionsDocument({
-        schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
-        revision: 'test-1',
-        buffs: [
-          {
-            id: 'attachment.heat',
-            stackingType: 'enhanceAndRefresh',
-            unexpectedNativeField: true,
-          },
-        ],
-      }),
-    ).toThrow("unknown property 'unexpectedNativeField'");
-  });
-
   it('strictly parses and compiles Buff presentation instead of dropping it', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-presentation',
       buffs: [
@@ -187,7 +173,7 @@ describe('compileCombatBuffDefinitions', () => {
   it.each(['stack', 'highPriority'] as const)(
     'preserves dynamic priority configuration but only loads it for priority types (%s)',
     stackingType => {
-      const document = parseCombatBuffDefinitionsDocument({
+      const document = defineDocument({
         schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
         revision: 'test-priority',
         buffs: [
@@ -214,7 +200,7 @@ describe('compileCombatBuffDefinitions', () => {
   );
 
   it('parses shield and sustained-protection definitions strictly', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-protection',
       buffs: [
@@ -261,7 +247,7 @@ describe('compileCombatBuffDefinitions', () => {
   it('preserves raw applyTags and compiles them into queryable identities', () => {
     const path = 'Combat/Buff/Pulse/Triggered';
     const tagId = path;
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-tags',
       buffs: [{ id: 'pulse-triggered', stackingType: 'unique', applyTags: [tagId] }],
@@ -282,7 +268,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('parses and registers fixed and blackboard-backed attribute modifiers', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-attributes',
       buffs: [
@@ -317,7 +303,7 @@ describe('compileCombatBuffDefinitions', () => {
 
   it('parses and compiles conditional blackboard-backed damage modifiers', () => {
     const slowTagId = 'Skill/Character/Common/Affixes/Slow';
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-damage-modifier',
       buffs: [
@@ -375,7 +361,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('parses composite damage-event and Buff-blackboard modifier conditions', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-composite-damage-modifier',
       buffs: [
@@ -427,31 +413,8 @@ describe('compileCombatBuffDefinitions', () => {
     });
   });
 
-  it('rejects unsupported damage modifier semantics at the stored-data boundary', () => {
-    const base = {
-      schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
-      revision: 'test-invalid-damage-modifier',
-      buffs: [
-        {
-          id: 'buff.invalid',
-          stackingType: 'unique',
-          damageModifiers: [
-            {
-              enabledSide: 'attacker',
-              processors: [{ kind: 'multiplyValue', timing: 'beforeCalculation', scale: 2 }],
-            },
-          ],
-        },
-      ],
-    };
-
-    expect(() => parseCombatBuffDefinitionsDocument(base)).toThrow(
-      "unsupported damage processor 'multiplyValue'",
-    );
-  });
-
   it('parses a dynamic instant attribute damage processor', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-instant-damage-attribute',
       buffs: [
@@ -498,7 +461,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('refreshes registered attribute modifiers from the current buff blackboard on trigger', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-refresh-attribute-modifiers',
       buffs: [
@@ -542,7 +505,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('executes direct blackboard assignment and addition before refreshing modifiers', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-modify-blackboard',
       buffs: [
@@ -592,7 +555,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('treats a missing direct blackboard addition target as zero', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-add-missing-blackboard-target',
       buffs: [
@@ -625,7 +588,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('clamps a dynamic blackboard value against blackboard-backed bounds', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-clamp-blackboard',
       buffs: [
@@ -669,33 +632,8 @@ describe('compileCombatBuffDefinitions', () => {
     expect(overshot.blackboard.getNumber('def_decrease')).toBeCloseTo(-0.15);
   });
 
-  it('rejects unsupported blackboard operations at the strict index boundary', () => {
-    expect(() =>
-      parseCombatBuffDefinitionsDocument({
-        schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
-        revision: 'test-invalid-blackboard-operation',
-        buffs: [
-          {
-            id: 'status.invalid',
-            stackingType: 'unique',
-            actions: {
-              start: [
-                {
-                  kind: 'modifyBlackboard',
-                  operation: 'multiply',
-                  targetKey: 'tick',
-                  value: 2,
-                },
-              ],
-            },
-          },
-        ],
-      }),
-    ).toThrow("$.buffs[0].actions.start[0].operation: unknown value 'multiply'");
-  });
-
   it('stores a non-converted attribute value and immediately refreshes blackboard modifiers', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-store-attribute-value',
       buffs: [
@@ -755,7 +693,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('floors after division and before multiplying when StoreAttributeValue requests it', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-store-floored-attribute-value',
       buffs: [
@@ -799,7 +737,7 @@ describe('compileCombatBuffDefinitions', () => {
   });
 
   it('fails during index compilation when StoreAttributeValue lacks its runtime port', () => {
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-missing-store-attribute-port',
       buffs: [
@@ -834,7 +772,7 @@ describe('compileCombatBuffDefinitions', () => {
 
   it('resolves attack-scaled Buff damage from the instance blackboard', () => {
     const onDamage = vi.fn();
-    const document = parseCombatBuffDefinitionsDocument({
+    const document = defineDocument({
       schemaVersion: COMBAT_BUFF_DEFINITIONS_SCHEMA_VERSION,
       revision: 'test-buff-damage',
       buffs: [

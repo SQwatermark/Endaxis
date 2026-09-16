@@ -96,6 +96,10 @@ function createRestoreAssembly(
       resources: compiled.resources,
       enemy: compiled.enemy,
       operators: compiled.operators,
+      ...(compiled.consumables === undefined ? {} : { consumables: compiled.consumables }),
+      ...(compiled.consumableUses === undefined
+        ? {}
+        : { consumableUses: compiled.consumableUses }),
       ...(compiled.inputs === undefined ? {} : { inputs: compiled.inputs }),
       ...(compiled.skillInputGroups === undefined
         ? {}

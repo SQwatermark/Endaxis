@@ -38,7 +38,10 @@ describe('legacy panel visual contracts', () => {
     expect(enemy).toContain('max: candidate.stagger.maximum');
     expect(enemy).toContain('nodes: candidate.stagger.knotThresholds.length');
     expect(enemy).toContain("t('resourceMonitor.enemy.specialGroup')");
-    expect(enemy).toContain("t('resourceMonitor.enemy.standardGroup')");
+    expect(enemy).toContain('v-for="group in groupedEnemies"');
+    expect(enemy).toContain('v-for="category in LEGACY_ENEMY_CATEGORIES"');
+    expect(enemy).toContain('TIER_WEIGHT[right.tier] - TIER_WEIGHT[left.tier]');
+    expect(enemy).toContain('@click="selectLevel(level)"');
     expect(enemy).toContain(':pressed="enemy.source.kind === \'custom\'"');
     expect(zhCN.resourceMonitor.enemy.desc).toContain('{nodes}');
     expect(zhCN.resourceMonitor.enemy.desc).not.toContain('|');

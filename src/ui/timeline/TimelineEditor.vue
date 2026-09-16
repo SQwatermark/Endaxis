@@ -23,13 +23,15 @@ import { isInsideTimelineDropRegion } from './interaction/timelineDropRegion';
 import { normalizeDurationBarColorPrefs } from './results/durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
-import { EaButton } from '@/design-system';
+import { EaButton, EaNumberInput, EaSelect, type EaSelectValue } from '@/design-system';
 import { useAppearance } from '../appearance/useAppearance';
 import { formatTimeWithFrames } from './timeFormatting';
 import { ELEMENT_COLORS } from '../gameColors';
 import { ALL_GAME_TEXT_FAMILIES, setLocale } from '../../i18n';
 import {
   getEnemyGameName,
+  getConsumableGameDescription,
+  getConsumableGameName,
   getGearPieceGameName,
   getGearSetGameName,
   getOperatorCombatSkillName,
@@ -350,6 +352,7 @@ import { resolvePublishedBuffSource } from './results/publishedBuffSource';
 import { isEnemyTimelineBuffVisible } from './results/enemyStatusRows';
 
 import TimelineMarkerContextMenu from './interaction/TimelineMarkerContextMenu.vue';
+import ConsumableSelectionDialog from './components/ConsumableSelectionDialog.vue';
 import { projectPublishedTimelineDamageAnalysis } from './results/timelineDamageAnalysis';
 import {
   TIMELINE_VIEW_LAYER_IDS,
@@ -632,6 +635,18 @@ interface TimelineLibraryPlacement {
   readonly skillKey?: string;
 }
 const libraryPlacement = ref<TimelineLibraryPlacement | null>(null);
+const selectedConsumableUseId = ref<string | null>(null);
+const consumableDialogTarget = ref<{ trackIndex: TrackIndex; frame: number } | null>(null);
+const consumableMoveGesture = shallowRef<{
+  pointerId: number;
+  trackIndex: TrackIndex;
+  useId: string;
+  initialPointerX: number;
+  initialPointerY: number;
+  initialFrame: number;
+  previewFrame: number;
+  dragStarted: boolean;
+} | null>(null);
 const workbenchInputRegion = useKeyboardInputRegion({
   label: 'timeline-workbench',
   parent: null,
@@ -682,7 +697,9 @@ const markerContextTarget = ref<{
   y: number;
   frame: number;
   trackIndex: TrackIndex;
-  existing?: { kind: TimelineMarkerKind; id: string; label: string };
+  existing?:
+    | { kind: TimelineMarkerKind; id: string; label: string }
+    | { kind: 'consumableUse'; id: string; label: string };
 } | null>(null);
 const markerMoveGesture = shallowRef<{
   pointerId: number;
@@ -706,6 +723,7 @@ const props = defineProps<{
   gameDataRepository: ProjectGameDataRepository;
 }>();
 const gameDataRepository = props.gameDataRepository;
+const consumables = gameDataRepository.getConsumables();
 const suppliedProject =
   props.initialProject === undefined
     ? undefined
@@ -1094,6 +1112,16 @@ const maximumUltimateEnergyByTrack = computed(() =>
   viewModel.value.tracks.map(track => track.maxUltimateEnergy),
 );
 const selectedTrackModel = computed(() => viewModel.value.tracks[selectedTrack.value]!);
+const selectedConsumableUse = computed(() => {
+  const id = selectedConsumableUseId.value;
+  if (id === null) return null;
+  for (let trackIndex = 0; trackIndex < scenario.value.tracks.length; trackIndex += 1) {
+    const track = scenario.value.tracks[trackIndex];
+    const use = track?.consumableUses?.find(candidate => candidate.id === id);
+    if (use !== undefined) return { trackIndex: trackIndex as TrackIndex, use };
+  }
+  return null;
+});
 const selectedLibraryEntry = computed(() => {
   const selection = selectedLibrarySkill.value;
   if (selection === null) return null;
@@ -3209,6 +3237,7 @@ function updateSelectedCastConnection(
 
 function handleActionSelection(event: MouseEvent, skillCastId: string): void {
   if (consumeCastClick(skillCastId)) return;
+  selectedConsumableUseId.value = null;
   applyActionSelection(
     selectTimelineAction(actionSelection.value, skillCastId, event.ctrlKey || event.metaKey),
   );
@@ -3239,6 +3268,7 @@ function selectTimelinePosition(event: MouseEvent): void {
     ),
   );
   clearTimelineSelection();
+  selectedConsumableUseId.value = null;
 }
 
 const { marqueeStyle, beginMarqueeGesture, consumeLaneClickSuppression } =
@@ -3264,12 +3294,177 @@ function handleTimelineLanePointerDown(event: PointerEvent): void {
   if (event.ctrlKey || event.metaKey) beginMarqueeGesture(event, true);
 }
 
+function openConsumableSelectionFromContext(): void {
+  const target = markerContextTarget.value;
+  if (target === null || target.existing !== undefined) return;
+  const track = scenario.value.tracks[target.trackIndex];
+  if (track === null || track.operator === null) return;
+  consumableDialogTarget.value = { trackIndex: target.trackIndex, frame: target.frame };
+  markerContextTarget.value = null;
+}
+
+function addConsumableFromDialog(consumableId: string): void {
+  const target = consumableDialogTarget.value;
+  if (target === null) return;
+  const id = ids.allocate('consumableUse');
+  commitScenario('placeConsumableUse', current => ({
+    ...current,
+    tracks: current.tracks.map((track, index) =>
+      index !== target.trackIndex || track === null
+        ? track
+        : {
+            ...track,
+            consumableUses: [
+              ...(track.consumableUses ?? []),
+              { id, frame: target.frame, consumableId },
+            ],
+          },
+    ) as typeof current.tracks,
+  }));
+  consumableDialogTarget.value = null;
+  selectedTrack.value = target.trackIndex;
+  selectedConsumableUseId.value = id;
+  clearTimelineSelection();
+}
+
+function updateSelectedConsumableUse(patch: { frame?: number; consumableId?: string }): void {
+  const selected = selectedConsumableUse.value;
+  if (selected === null) return;
+  commitScenario('updateConsumableUse', current => ({
+    ...current,
+    tracks: current.tracks.map((track, index) =>
+      index !== selected.trackIndex || track === null
+        ? track
+        : {
+            ...track,
+            consumableUses: (track.consumableUses ?? []).map(use =>
+              use.id === selected.use.id ? { ...use, ...patch } : use,
+            ),
+          },
+    ) as typeof current.tracks,
+  }));
+}
+
+function setSelectedConsumableId(value: EaSelectValue | EaSelectValue[]): void {
+  if (typeof value === 'string') updateSelectedConsumableUse({ consumableId: value });
+}
+
+function setSelectedConsumableFrame(value: number | undefined): void {
+  if (!Number.isInteger(value)) return;
+  updateSelectedConsumableUse({
+    frame: Math.max(
+      -scenario.value.battle.prepFrames,
+      Math.min(scenario.value.battle.durationFrames, value!),
+    ),
+  });
+}
+
+function removeSelectedConsumableUse(): void {
+  const selected = selectedConsumableUse.value;
+  if (selected === null) return;
+  commitScenario('removeConsumableUse', current => ({
+    ...current,
+    tracks: current.tracks.map((track, index) =>
+      index !== selected.trackIndex || track === null
+        ? track
+        : {
+            ...track,
+            consumableUses: (track.consumableUses ?? []).filter(use => use.id !== selected.use.id),
+          },
+    ) as typeof current.tracks,
+  }));
+  selectedConsumableUseId.value = null;
+}
+
+function displayedConsumableUseFrame(useId: string, frame: number): number {
+  const gesture = consumableMoveGesture.value;
+  return gesture?.useId === useId ? gesture.previewFrame : frame;
+}
+
+function beginConsumableUseMove(
+  event: PointerEvent,
+  trackIndex: TrackIndex,
+  useId: string,
+  frame: number,
+): void {
+  if (event.button !== 0 || interactionSession.current !== null) return;
+  const surface = timelineSurface.value;
+  if (surface === null) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const lease = interactionSession.tryStart('consumable-use-move', () => {
+    consumableMoveGesture.value = null;
+  });
+  if (lease === null) return;
+  const grabOffsetPx =
+    event.clientX -
+    surface.getBoundingClientRect().left -
+    TIMELINE_TRACK_HEADER_WIDTH -
+    timelineFramePx(frame);
+  selectedTrack.value = trackIndex;
+  selectedConsumableUseId.value = useId;
+  clearTimelineSelection();
+  consumableMoveGesture.value = {
+    pointerId: event.pointerId,
+    trackIndex,
+    useId,
+    initialPointerX: event.clientX,
+    initialPointerY: event.clientY,
+    initialFrame: frame,
+    previewFrame: frame,
+    dragStarted: false,
+  };
+  const move = (moveEvent: PointerEvent) => {
+    const gesture = consumableMoveGesture.value;
+    if (gesture === null || moveEvent.pointerId !== gesture.pointerId) return;
+    const dragStarted =
+      gesture.dragStarted ||
+      passedTimelineDragThreshold(
+        gesture.initialPointerX,
+        gesture.initialPointerY,
+        moveEvent.clientX,
+        moveEvent.clientY,
+      );
+    consumableMoveGesture.value = {
+      ...gesture,
+      dragStarted,
+      previewFrame: dragStarted
+        ? pointerMarkerFrame(moveEvent.clientX, grabOffsetPx, -scenario.value.battle.prepFrames)
+        : gesture.initialFrame,
+    };
+  };
+  const cleanup = () => {
+    lease.release();
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', finish);
+    window.removeEventListener('pointercancel', cancel);
+  };
+  const finish = (finishEvent: PointerEvent) => {
+    move(finishEvent);
+    const gesture = consumableMoveGesture.value;
+    if (gesture === null || finishEvent.pointerId !== gesture.pointerId) return;
+    consumableMoveGesture.value = null;
+    cleanup();
+    if (gesture.dragStarted && gesture.previewFrame !== gesture.initialFrame) {
+      updateSelectedConsumableUse({ frame: gesture.previewFrame });
+    }
+  };
+  const cancel = (cancelEvent: PointerEvent) => {
+    if (cancelEvent.pointerId !== consumableMoveGesture.value?.pointerId) return;
+    consumableMoveGesture.value = null;
+    cleanup();
+  };
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', finish);
+  window.addEventListener('pointercancel', cancel);
+}
+
 function handleTimelineLaneClick(event: MouseEvent): void {
   if (consumeLaneClickSuppression()) return;
   selectTimelinePosition(event);
 }
 
-function pointerMarkerFrame(clientX: number, grabOffsetPx = 0): number {
+function pointerMarkerFrame(clientX: number, grabOffsetPx = 0, minimumFrame = 0): number {
   const surface = timelineSurface.value;
   if (surface === null) return cursorFrame.value;
   return resolveTimelineMarkerPointerFrame({
@@ -3281,6 +3476,7 @@ function pointerMarkerFrame(clientX: number, grabOffsetPx = 0): number {
     prepFrames: scenario.value.battle.prepFrames,
     snapFrames: snapFrames.value,
     maximumFrame: scenario.value.battle.durationFrames,
+    minimumFrame,
     prepExpanded: scenario.value.editor.prepExpanded,
   });
 }
@@ -3297,8 +3493,30 @@ function openMarkerContextMenu(event: MouseEvent, trackIndex: TrackIndex): void 
   markerContextTarget.value = {
     x: event.clientX,
     y: event.clientY,
-    frame: pointerMarkerFrame(event.clientX),
+    frame: pointerMarkerFrame(event.clientX, 0, -scenario.value.battle.prepFrames),
     trackIndex,
+  };
+  contextMenuTarget.value = null;
+}
+
+function openExistingConsumableContextMenu(
+  event: MouseEvent,
+  trackIndex: TrackIndex,
+  useId: string,
+  frame: number,
+  label: string,
+): void {
+  event.preventDefault();
+  event.stopPropagation();
+  selectedTrack.value = trackIndex;
+  selectedConsumableUseId.value = useId;
+  clearTimelineSelection();
+  markerContextTarget.value = {
+    x: event.clientX,
+    y: event.clientY,
+    frame,
+    trackIndex,
+    existing: { kind: 'consumableUse', id: useId, label },
   };
   contextMenuTarget.value = null;
 }
@@ -3334,7 +3552,6 @@ function addMarkerFromContext(
     | 'cycle'
     | 'simulationStart'
     | 'simulationEnd'
-    | 'switch'
     | 'operatorHit'
     | 'operatorWeakness'
     | 'teamHit'
@@ -3344,9 +3561,10 @@ function addMarkerFromContext(
 ): void {
   const target = markerContextTarget.value;
   if (target === null || target.existing !== undefined) return;
+  const battleFrame = Math.max(0, target.frame);
   if (kind === 'cycle') {
     commitScenario('addCycleBoundary', current =>
-      addCycleBoundary(current, ids.allocate('cycleBoundary'), target.frame),
+      addCycleBoundary(current, ids.allocate('cycleBoundary'), battleFrame),
     );
   } else if (kind === 'simulationStart' || kind === 'simulationEnd') {
     const boundary = kind === 'simulationStart' ? 'start' : 'end';
@@ -3356,11 +3574,7 @@ function addMarkerFromContext(
       current =>
         hasBoundary
           ? clearSimulationRangeBoundary(current, boundary)
-          : setSimulationRangeBoundary(current, boundary, target.frame),
-    );
-  } else if (kind === 'switch') {
-    commitScenario('addControlSwitch', current =>
-      addControlSwitch(current, ids.allocate('controlSwitch'), target.frame, target.trackIndex),
+          : setSimulationRangeBoundary(current, boundary, battleFrame),
     );
   } else {
     const event: ExternalCombatEventDocument =
@@ -3382,12 +3596,26 @@ function addMarkerFromContext(
       addExternalEventMarker(
         current,
         ids.allocate('externalEvent'),
-        target.frame,
+        battleFrame,
         eventTarget,
         event,
       ),
     );
   }
+  markerContextTarget.value = null;
+}
+
+function addSwitchMarkerFromContext(trackIndex: number): void {
+  const target = markerContextTarget.value;
+  if (target === null || target.existing !== undefined) return;
+  commitScenario('addControlSwitch', current =>
+    addControlSwitch(
+      current,
+      ids.allocate('controlSwitch'),
+      Math.max(0, target.frame),
+      trackIndex as TrackIndex,
+    ),
+  );
   markerContextTarget.value = null;
 }
 
@@ -3408,7 +3636,12 @@ function removeSelectedMarker(kind: TimelineMarkerKind, id: string): boolean {
 function removeMarkerFromContext(): void {
   const existing = markerContextTarget.value?.existing;
   if (existing === undefined) return;
-  removeSelectedMarker(existing.kind, existing.id);
+  if (existing.kind === 'consumableUse') {
+    selectedConsumableUseId.value = existing.id;
+    removeSelectedConsumableUse();
+  } else {
+    removeSelectedMarker(existing.kind, existing.id);
+  }
   markerContextTarget.value = null;
 }
 
@@ -3594,7 +3827,11 @@ function beginMarkerMove(
     markerMoveGesture.value = {
       ...gesture,
       dragStarted: true,
-      previewFrame: pointerMarkerFrame(clientX, grabOffsetPx),
+      previewFrame: pointerMarkerFrame(
+        clientX,
+        grabOffsetPx,
+        kind === 'controlSwitch' ? -scenario.value.battle.prepFrames : 0,
+      ),
     };
   };
   const move = (moveEvent: PointerEvent) =>
@@ -4289,10 +4526,6 @@ function skillCastGroupEndFrame(castIds: readonly string[]): number {
       return Math.max(start, visibleSkillEndFrames.value.get(id) ?? start);
     }),
   );
-}
-
-function skillCastIsUnexecuted(castId: string): boolean {
-  return !skillCastInputFrames.value.has(castId);
 }
 
 async function compactSelectedSkills(): Promise<void> {
@@ -5199,15 +5432,15 @@ function setPanelDialogVisible(visible: boolean): void {
               )
             "
           >
-            <span
-              >{{
+            <span>{{
+              formatGuideFrame(
                 displayedMarkerFrame(
                   'simulationStart',
                   'simulationStart',
                   scenario.battle.simulationRange.startFrame,
-                )
-              }}f</span
-            >
+                ),
+              )
+            }}</span>
             <b>{{ t('timeline.markerLabels.simulationStart') }}</b>
           </div>
           <div
@@ -5236,15 +5469,15 @@ function setPanelDialogVisible(visible: boolean): void {
               )
             "
           >
-            <span
-              >{{
+            <span>{{
+              formatGuideFrame(
                 displayedMarkerFrame(
                   'simulationEnd',
                   'simulationEnd',
                   scenario.battle.simulationRange.endFrame,
-                )
-              }}f</span
-            >
+                ),
+              )
+            }}</span>
             <b>{{ t('timeline.markerLabels.simulationEnd') }}</b>
           </div>
           <div
@@ -5270,7 +5503,9 @@ function setPanelDialogVisible(visible: boolean): void {
               )
             "
           >
-            <span>{{ displayedMarkerFrame('cycleBoundary', boundary.id, boundary.frame) }}f</span>
+            <span>{{
+              formatGuideFrame(displayedMarkerFrame('cycleBoundary', boundary.id, boundary.frame))
+            }}</span>
             <b>{{ t('timeline.markerLabels.cycleBoundary') }}</b>
           </div>
           <div
@@ -5515,6 +5750,43 @@ function setPanelDialogVisible(visible: boolean): void {
                   class="battle-start-line"
                   :style="{ left: `${timelineFramePx(0, displayedTimelinePrepFrames)}px` }"
                 ></div>
+                <EaButton
+                  v-for="use in scenario.tracks[track.trackIndex]?.consumableUses ?? []"
+                  :key="use.id"
+                  type="button"
+                  variant="ghost"
+                  icon-only
+                  class="timeline-marker consumable-use-marker"
+                  :class="{
+                    dragging:
+                      consumableMoveGesture?.useId === use.id && consumableMoveGesture.dragStarted,
+                  }"
+                  :pressed="selectedConsumableUseId === use.id"
+                  :style="{
+                    left: `${timelineFramePx(displayedConsumableUseFrame(use.id, use.frame))}px`,
+                  }"
+                  :title="getConsumableGameName(use.consumableId)"
+                  @pointerdown="beginConsumableUseMove($event, track.trackIndex, use.id, use.frame)"
+                  @click.stop="
+                    selectedConsumableUseId = use.id;
+                    clearTimelineSelection();
+                  "
+                  @contextmenu="
+                    openExistingConsumableContextMenu(
+                      $event,
+                      track.trackIndex,
+                      use.id,
+                      use.frame,
+                      getConsumableGameName(use.consumableId),
+                    )
+                  "
+                >
+                  <img
+                    :src="gameDataRepository.getConsumable(use.consumableId)?.iconPath"
+                    alt=""
+                    aria-hidden="true"
+                  />
+                </EaButton>
                 <div
                   v-if="
                     timelineViewLayers.switchMarkers && isOperatorEffectsVisible(track.trackIndex)
@@ -5657,12 +5929,6 @@ function setPanelDialogVisible(visible: boolean): void {
                     castMoveGesture?.skillCastIds.includes(cast.id)
                   "
                   :disabled="cast.disabled"
-                  :unexecuted="
-                    !cast.disabled &&
-                    groupedSkillCastIds.has(cast.id) &&
-                    skillCastIsUnexecuted(cast.id)
-                  "
-                  :unexecuted-text="t('timeline.continuousGroup.unexecuted')"
                   :locked="cast.locked"
                   :edited="cast.edited"
                   :color="cast.color ?? skillAccentColor(cast.skillType, track.operatorSlug)"
@@ -5909,6 +6175,9 @@ function setPanelDialogVisible(visible: boolean): void {
         :kind="selectedDocumentMarker.kind"
         :id="selectedDocumentMarker.id"
         :frame="selectedDocumentMarker.frame"
+        :minimum-frame="
+          selectedDocumentMarker.kind === 'controlSwitch' ? -scenario.battle.prepFrames : 0
+        "
         :maximum-frame="scenario.battle.durationFrames"
         :track-index="
           selectedDocumentMarker.kind === 'controlSwitch'
@@ -5921,7 +6190,9 @@ function setPanelDialogVisible(visible: boolean): void {
         @remove="removeSelectedDocumentMarker"
       />
       <TimelineActionInspector
-        v-else-if="tool === 'inspector' && selectedLibraryEntry === null"
+        v-else-if="
+          tool === 'inspector' && selectedLibraryEntry === null && selectedConsumableUse === null
+        "
         :cast="selectedCastModel?.cast ?? null"
         :label="selectedCastModel?.label ?? ''"
         :skill-type="selectedCastModel?.skillType ?? null"
@@ -5953,6 +6224,40 @@ function setPanelDialogVisible(visible: boolean): void {
         @remove-connection="deleteTimelineConnection"
         @update-connection="updateSelectedCastConnection"
       />
+      <section
+        v-else-if="tool === 'inspector' && selectedConsumableUse !== null"
+        class="consumable-inspector"
+      >
+        <h3>{{ t('consumable.inspectorTitle') }}</h3>
+        <label>
+          <span>{{ t('consumable.item') }}</span>
+          <EaSelect
+            size="sm"
+            :model-value="selectedConsumableUse.use.consumableId"
+            :options="
+              consumables.map(item => ({ label: getConsumableGameName(item.id), value: item.id }))
+            "
+            @change="setSelectedConsumableId"
+          />
+        </label>
+        <label>
+          <span>{{ t('consumable.frame') }}</span>
+          <EaNumberInput
+            size="sm"
+            controls-position="right"
+            :min="-scenario.battle.prepFrames"
+            :max="scenario.battle.durationFrames"
+            :model-value="selectedConsumableUse.use.frame"
+            @change="setSelectedConsumableFrame"
+          />
+        </label>
+        <p>
+          {{ getConsumableGameDescription(selectedConsumableUse.use.consumableId) }}
+        </p>
+        <EaButton variant="ghost" type="button" @click="removeSelectedConsumableUse">
+          {{ t('common.delete') }}
+        </EaButton>
+      </section>
       <TimelineLibrarySkillInspector
         v-else-if="tool === 'inspector'"
         :name="selectedLibraryInspectorModel.name"
@@ -6028,7 +6333,21 @@ function setPanelDialogVisible(visible: boolean): void {
     :x="markerContextTarget?.x ?? 0"
     :y="markerContextTarget?.y ?? 0"
     :frame="markerContextTarget?.frame ?? 0"
-    :can-target-track="scenario.tracks[markerContextTarget?.trackIndex ?? selectedTrack] !== null"
+    :can-target-track="
+      scenario.tracks[markerContextTarget?.trackIndex ?? selectedTrack]?.operator != null
+    "
+    :switch-targets="
+      viewModel.tracks
+        .filter(track => track.operatorSlug !== null)
+        .map(track => ({
+          trackIndex: track.trackIndex,
+          name: operatorName(track.operatorSlug),
+          avatar:
+            track.operatorAssetSlug === null
+              ? undefined
+              : getOperatorAvatarPath(track.operatorAssetSlug),
+        }))
+    "
     :has-simulation-start="scenario.battle.simulationRange?.startFrame !== undefined"
     :has-simulation-end="scenario.battle.simulationRange?.endFrame !== undefined"
     :existing-label="markerContextTarget?.existing?.label"
@@ -6041,6 +6360,7 @@ function setPanelDialogVisible(visible: boolean): void {
       addSimulationEnd: t('timeline.markerContext.addSimulationEnd'),
       removeSimulationEnd: t('timeline.markerContext.removeSimulationEnd'),
       switchOperator: t('timeline.markerContext.switchOperator'),
+      useConsumable: t('consumable.useFromContext'),
       restrictedHint: t('timeline.markerContext.restrictedHint'),
       operatorHit: t('timeline.markerContext.operatorHit'),
       operatorWeakness: t('timeline.markerContext.operatorWeakness'),
@@ -6051,7 +6371,8 @@ function setPanelDialogVisible(visible: boolean): void {
     @add-cycle="addMarkerFromContext('cycle')"
     @toggle-simulation-start="addMarkerFromContext('simulationStart')"
     @toggle-simulation-end="addMarkerFromContext('simulationEnd')"
-    @add-switch="addMarkerFromContext('switch')"
+    @add-switch="addSwitchMarkerFromContext"
+    @use-consumable="openConsumableSelectionFromContext"
     @add-operator-hit="addMarkerFromContext('operatorHit')"
     @add-operator-weakness="addMarkerFromContext('operatorWeakness')"
     @add-team-hit="addMarkerFromContext('teamHit')"
@@ -6060,6 +6381,12 @@ function setPanelDialogVisible(visible: boolean): void {
       addMarkerFromContext($event === 'ready' ? 'comboReady' : 'comboCooldown')
     "
     @delete="removeMarkerFromContext"
+  />
+  <ConsumableSelectionDialog
+    :visible="consumableDialogTarget !== null"
+    :consumables="consumables"
+    @close="consumableDialogTarget = null"
+    @select="addConsumableFromDialog"
   />
   <OperatorSelectionDialog
     v-if="operatorDialogTrack !== null"
@@ -6565,6 +6892,12 @@ button:disabled {
   gap: 12px;
 }
 
+.consumable-use-marker img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+}
+
 .timeline-workspace,
 .timeline-scroll {
   min-width: 0;
@@ -6643,6 +6976,14 @@ button:disabled {
   background-image: linear-gradient(to right, var(--ea-grid-line) 1px, transparent 1px);
   background-position-x: var(--timeline-grid-origin);
   background-size: var(--timeline-grid-step) 100%;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* 标尺和左上工具区仍有可编辑数字框；只为真实文本编辑控件恢复选择。 */
+.timeline-surface :is(input, textarea, [contenteditable='true']) {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 .timeline-surface.is-library-placing .track-lane {
@@ -6835,12 +7176,55 @@ button:disabled {
   cursor: ew-resize;
 }
 
+.consumable-use-marker {
+  top: calc(var(--timeline-action-top, 55px) - 36px);
+  z-index: 31;
+  width: 28px;
+  height: 28px;
+  padding: 2px;
+  transform: translateX(-14px);
+  border: 1px solid rgb(255 255 255 / 55%);
+  border-radius: 50%;
+  background: rgb(25 28 34 / 92%);
+  cursor: pointer;
+}
+
+.consumable-use-marker.dragging {
+  cursor: grabbing;
+}
+
+.consumable-use-marker::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  width: 1px;
+  height: 8px;
+  background: rgb(255 255 255 / 65%);
+}
+
+.consumable-use-marker[aria-pressed='true'] {
+  border-color: var(--ea-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--ea-accent) 45%, transparent);
+}
+
+.consumable-inspector {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+}
+
+.consumable-inspector label {
+  display: grid;
+  gap: 5px;
+}
+
 .simulation-range-dim {
   position: absolute;
   z-index: 7;
   top: 60px;
   bottom: 0;
-  background: rgb(0 0 0 / 38%);
+  background: rgb(0 0 0 / 35%);
   pointer-events: none;
 }
 
@@ -6852,13 +7236,16 @@ button:disabled {
   top: 60px;
   bottom: 0;
   width: 1px;
-  border-left: 2px solid #5b9bd5;
-  box-shadow: 0 0 5px rgb(91 155 213 / 55%);
+  background: #22cc44;
+  box-shadow: 0 0 6px #22cc44;
+  transition:
+    background-color 0.1s,
+    box-shadow 0.1s;
 }
 
 .simulation-range-marker--end {
-  border-left-color: #d46b5f;
-  box-shadow: 0 0 5px rgb(212 107 95 / 55%);
+  background: #cc2222;
+  box-shadow: 0 0 6px #cc2222;
 }
 
 .simulation-range-marker::after {
@@ -6867,42 +7254,107 @@ button:disabled {
   inset: 0 -6px;
 }
 
+.simulation-range-marker:hover {
+  width: 2px;
+  background: #33ee55;
+  box-shadow: 0 0 8px #33ee55;
+}
+
+.simulation-range-marker--end:hover {
+  background: #ee3333;
+  box-shadow: 0 0 8px #ee3333;
+}
+
+.simulation-range-marker.selected {
+  z-index: 30;
+  width: 2px;
+  background: #fff;
+  box-shadow:
+    0 0 8px #fff,
+    0 0 12px rgb(255 255 255 / 50%);
+}
+
 .simulation-range-marker > span,
 .simulation-range-marker > b {
   position: absolute;
-  left: 5px;
+  left: 0;
   padding: 2px 4px;
-  background: rgb(12 34 52 / 94%);
-  color: #b9dcff;
+  background: #22cc44;
+  color: #fff;
   font-size: 10px;
-  font-weight: 500;
+  font-family: monospace;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
   white-space: nowrap;
 }
 
 .simulation-range-marker--end > span,
 .simulation-range-marker--end > b {
-  background: rgb(58 24 20 / 94%);
-  color: #ffc1ba;
+  background: #cc2222;
+  color: #fff;
 }
 
 .simulation-range-marker > span {
-  top: 40px;
+  top: 0;
+  border-radius: 0 4px 4px 0;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
 }
 
 .simulation-range-marker > b {
-  top: 58px;
+  top: 16px;
+  background: transparent;
+  color: #22cc44;
+  text-shadow: 0 0 2px rgb(34 204 68 / 50%);
 }
 
-.cycle-boundary-marker,
+.simulation-range-marker--end > b {
+  background: transparent;
+  color: #cc2222;
+  text-shadow: 0 0 2px rgb(204 34 34 / 50%);
+}
+
+.simulation-range-marker.selected > span {
+  background: #fff;
+  color: #000;
+}
+
+.simulation-range-marker.selected > b {
+  color: #fff;
+  text-shadow: 0 0 2px rgb(255 255 255 / 80%);
+}
+
+.cycle-boundary-marker {
+  top: 60px;
+  bottom: 0;
+  width: 1px;
+  background: #d3adff;
+  box-shadow: 0 0 6px #d3adff;
+  cursor: grab;
+  transition:
+    background-color 0.1s,
+    box-shadow 0.1s;
+}
+
+.cycle-boundary-marker:hover {
+  width: 2px;
+  background: #e0c4ff;
+  box-shadow: 0 0 8px #e0c4ff;
+}
+
+.cycle-boundary-marker.selected {
+  z-index: 30;
+  width: 2px;
+  background: #fff;
+  box-shadow:
+    0 0 8px #fff,
+    0 0 12px rgb(255 255 255 / 50%);
+}
+
 .team-event-marker {
   top: 60px;
   bottom: 0;
   width: 1px;
-  border-left: 1px solid rgb(0 0 0 / 82%);
-  box-shadow: -1px 0 rgb(255 255 255 / 8%);
-}
-
-.team-event-marker {
   border-left: 1px dashed #ff7875;
   box-shadow: none;
 }
@@ -6915,31 +7367,61 @@ button:disabled {
 }
 
 .cycle-boundary-marker > span,
-.cycle-boundary-marker > b,
+.cycle-boundary-marker > b {
+  position: absolute;
+  left: 0;
+  padding: 2px 4px;
+  font-size: 10px;
+  font-family: monospace;
+  font-weight: 700;
+  line-height: 1;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.cycle-boundary-marker > span {
+  top: 0;
+  border-radius: 0 4px 4px 0;
+  background: #d3adff;
+  color: #222;
+  box-shadow: 0 1px 3px rgb(0 0 0 / 30%);
+}
+
+.cycle-boundary-marker > b {
+  top: 16px;
+  background: transparent;
+  color: #d3adff;
+  text-shadow: 0 0 2px rgb(211 173 255 / 50%);
+}
+
+.cycle-boundary-marker.selected > span {
+  background: #fff;
+  color: #000;
+}
+
+.cycle-boundary-marker.selected > b {
+  color: #fff;
+  text-shadow: 0 0 2px rgb(255 255 255 / 80%);
+}
+
 .team-event-marker > span,
 .team-event-marker > b {
   position: absolute;
   left: 4px;
   padding: 2px 4px;
-  background: rgb(0 0 0 / 82%);
-  color: #ddd;
+  background: rgb(80 16 20 / 92%);
+  color: #ffccc7;
   font-size: 10px;
   font-weight: 500;
   white-space: nowrap;
 }
 
-.cycle-boundary-marker > span,
 .team-event-marker > span {
   top: 2px;
 }
-.cycle-boundary-marker > b,
+
 .team-event-marker > b {
   top: 20px;
-}
-.team-event-marker > span,
-.team-event-marker > b {
-  background: rgb(80 16 20 / 92%);
-  color: #ffccc7;
 }
 
 .track-switch-marker {
@@ -7035,7 +7517,9 @@ button:disabled {
   border-left: 1px dashed #ff7875;
 }
 
-.timeline-marker.selected {
+.timeline-marker.selected:not(.simulation-range-marker):not(.cycle-boundary-marker):not(
+    .track-switch-marker
+  ) {
   outline: 2px solid var(--ea-gold);
   outline-offset: 2px;
 }

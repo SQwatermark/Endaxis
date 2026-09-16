@@ -123,6 +123,23 @@ describe('timeline marker move geometry', () => {
     ).toBe(18);
   });
 
+  it('allows inputs in the expanded preparation range when a negative minimum is requested', () => {
+    expect(
+      resolveTimelineMarkerPointerFrame({
+        ...base,
+        clientX: base.surfaceLeftPx + base.trackHeaderWidthPx + 30 * base.pxPerFrame,
+        minimumFrame: -base.prepFrames,
+      }),
+    ).toBe(-120);
+    expect(
+      resolveTimelineMarkerPointerFrame({
+        ...base,
+        clientX: 0,
+        minimumFrame: -base.prepFrames,
+      }),
+    ).toBe(-150);
+  });
+
   it('rejects invalid browser geometry instead of writing a guessed frame', () => {
     expect(() => resolveTimelineMarkerPointerFrame({ ...base, clientX: Number.NaN })).toThrow(
       'coordinates must be finite',

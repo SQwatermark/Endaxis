@@ -75,11 +75,30 @@ describe('Next timeline marker editing structure', () => {
     expect(editorSource).toContain('dragStarted: true');
   });
 
-  it('opens the marker context menu as a focused keyboard menu', () => {
+  it('exposes menu semantics without stealing focus when it opens', () => {
     expect(menuSource).toContain('role="menu"');
     expect(menuSource).toContain('role="menuitem"');
-    expect(menuSource).toContain(
-      "querySelector<HTMLButtonElement>('button:not(:disabled)')?.focus()",
+    expect(menuSource).not.toContain("querySelector<HTMLButtonElement>('button:not(:disabled)')");
+  });
+
+  it('restores the legacy global menu and cycle/start/end line presentation', () => {
+    expect(menuSource).toContain("t('contextMenu.globalOps')");
+    expect(menuSource).toContain('class="menu-item"');
+    expect(menuSource).toContain('background: #007fd4');
+    expect(menuSource).toContain('animation: marker-menu-fade-in 0.1s ease-out');
+    expect(editorSource).toMatch(
+      /\.cycle-boundary-marker \{[\s\S]*background: #d3adff;[\s\S]*box-shadow: 0 0 6px #d3adff;/,
     );
+    expect(editorSource).toMatch(
+      /\.simulation-range-marker \{[\s\S]*background: #22cc44;[\s\S]*box-shadow: 0 0 6px #22cc44;/,
+    );
+    expect(editorSource).toMatch(
+      /\.simulation-range-marker--end \{[\s\S]*background: #cc2222;[\s\S]*box-shadow: 0 0 6px #cc2222;/,
+    );
+    expect(editorSource).toContain('.simulation-range-marker.selected');
+    expect(editorSource).toContain('.cycle-boundary-marker.selected');
+    expect(editorSource).toContain(':not(\n    .track-switch-marker\n  )');
+    expect(editorSource).toContain('.track-switch-marker.selected .track-switch-marker__avatar');
+    expect(editorSource).toContain('border-color: #fff');
   });
 });

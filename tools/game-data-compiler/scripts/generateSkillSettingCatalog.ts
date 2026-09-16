@@ -12,6 +12,7 @@ export async function generateSkillSettingCatalog(args: {
   readonly revision: string;
   readonly output: string;
   readonly check: boolean;
+  readonly runtimeOutput?: string;
 }) {
   const response = await fetch(args.sourceUrl);
   if (!response.ok) throw new Error(`${args.sourceUrl}: HTTP ${response.status}`);
@@ -29,17 +30,77 @@ export async function generateSkillSettingCatalog(args: {
     throw new Error(`${args.sourceUrl}: missing TypeTree dump text`);
   const source = parseSkillSettingDumpSource(preview.text, args.sourceUrl);
   const content = renderSkillSettingDocument(source, args.revision);
+  const runtimeContent = renderRuntimeSkillSettings(source, args.revision);
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content)
       throw new Error(`${args.output}: generated SkillSetting catalog is stale`);
+    if (
+      args.runtimeOutput !== undefined &&
+      (await fs.readFile(args.runtimeOutput, 'utf8')).replaceAll('\r\n', '\n') !== runtimeContent
+    )
+      throw new Error(`${args.runtimeOutput}: generated runtime SkillSetting data is stale`);
   } else {
     await writeAtomicBytes(args.output, new TextEncoder().encode(content));
+    if (args.runtimeOutput !== undefined) {
+      await writeAtomicBytes(args.runtimeOutput, new TextEncoder().encode(runtimeContent));
+    }
   }
   return {
     dataCount: source.data.length,
     formulaCount: source.enhanceFormulas.length,
     sourceSha256: source.sha256,
   };
+}
+
+const RUNTIME_SETTING_KEYS = [
+  '异常初始伤害倍率',
+  '导电法术伤害提高',
+  '燃烧每跳伤害',
+  '腐蚀每跳减抗',
+  '腐蚀减抗上限',
+  '碎冰倍率',
+  '冰冻持续时间',
+  '法术爆发伤害倍率',
+  '导电持续时间',
+  '腐蚀初始减抗',
+  '腐蚀持续时间',
+] as const;
+
+function renderRuntimeSkillSettings(
+  source: ReturnType<typeof parseSkillSettingDumpSource>,
+  revision: string,
+): string {
+  const data = RUNTIME_SETTING_KEYS.map(key => {
+    const entry = source.data.find(candidate => candidate.key === key);
+    if (entry === undefined) throw new Error(`runtime SkillSetting row is missing: ${key}`);
+    return entry;
+  });
+  const formulaKeys = new Set(data.map(entry => entry.enhanceFormulaKey).filter(Boolean));
+  const enhanceFormulas = source.enhanceFormulas
+    .filter(formula => formulaKeys.has(formula.key))
+    .map(formula => {
+      switch (formula.formulaType) {
+        case 'none':
+          return { key: formula.key, kind: 'none' as const };
+        case 'linear':
+          return { key: formula.key, kind: 'linear' as const, paramA: formula.paramA };
+        case 'saturating':
+          return {
+            key: formula.key,
+            kind: 'saturating' as const,
+            paramA: formula.paramA,
+            paramB: formula.paramB,
+          };
+      }
+    });
+  const document = {
+    schemaVersion: 1,
+    revision,
+    data,
+    enhanceFormulas,
+    resources: source.resources,
+  };
+  return `// Generated from the current native SkillSetting during the same rebuild. Do not edit manually.\nimport type { SkillSettingsDocument } from '../../core/combat/infliction/skillSettings';\nimport type { SkillSettingResources } from '../../../packages/game-data-contract/src/skillSettingResources';\n\nexport const generatedSkillSettings = ${JSON.stringify(document, null, 2)} as const satisfies SkillSettingsDocument & { readonly resources: SkillSettingResources };\n`;
 }
 
 function parseArguments(values: readonly string[]) {

@@ -19,6 +19,8 @@ export function beginSkillCast(
   state.preparationCast = frame < 0;
   state.timelineFinishRequested = false;
   state.reachedOperableBoundaryFrame = undefined;
+  state.operableBoundaryCandidateFrame = undefined;
+  state.operableBoundaryCandidateSourceSkillIds.length = 0;
   state.inheritedSkillCastInfo = state.preparedSkillCastInfo;
   state.nonReturnedSpCost = state.preparedSkillCastInfo?.nonReturnedSpCost ?? 0;
   state.skillCastId =

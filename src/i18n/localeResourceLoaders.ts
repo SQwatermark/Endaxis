@@ -8,7 +8,13 @@ import { normalizeLocale, type SupportedLocale } from './elementPlusLocale';
 
 export type GameTextLocale = 'zh' | 'en';
 export type GameTextFamily =
-  'operators' | 'weapons' | 'gears' | 'enemies' | 'terms' | 'contingency-contracts';
+  | 'operators'
+  | 'weapons'
+  | 'gears'
+  | 'enemies'
+  | 'consumables'
+  | 'terms'
+  | 'contingency-contracts';
 export type LocaleTable = Readonly<Record<string, unknown>>;
 
 export interface GearLocaleTables {
@@ -29,6 +35,9 @@ export interface GameTextFamilyTables {
   readonly weapons: LocaleTable;
   readonly gears: GearLocaleTables;
   readonly enemies: LocaleTable;
+  readonly consumables: Readonly<
+    Record<string, { readonly name: string; readonly description: string }>
+  >;
   readonly terms: TermLocaleTables;
 }
 

@@ -6,6 +6,51 @@
 export const DEFAULT_TIMELINE_PX_PER_FRAME = 50 / 30;
 export const MIN_TIMELINE_ZOOM_PERCENT = 30;
 export const MAX_TIMELINE_ZOOM_PERCENT = 2400;
+export const TIMELINE_ZOOM_SLIDER_MIDPOINT = 500;
+export const TIMELINE_ZOOM_SLIDER_MAX = 1000;
+
+/**
+ * 滑杆左半段专门表示 30%–100%，右半段表示 100%–2400%。两段分别使用对数尺度，
+ * 让相同的视觉距离对应相近的相对倍率变化，同时给缩小区间留下足够行程。
+ */
+export function timelineZoomPercentToSliderPosition(percent: number): number {
+  const normalized = normalizeTimelineZoomPercent(percent);
+  if (normalized <= 100) {
+    return (
+      (Math.log(normalized / MIN_TIMELINE_ZOOM_PERCENT) /
+        Math.log(100 / MIN_TIMELINE_ZOOM_PERCENT)) *
+      TIMELINE_ZOOM_SLIDER_MIDPOINT
+    );
+  }
+  return (
+    TIMELINE_ZOOM_SLIDER_MIDPOINT +
+    (Math.log(normalized / 100) / Math.log(MAX_TIMELINE_ZOOM_PERCENT / 100)) *
+      (TIMELINE_ZOOM_SLIDER_MAX - TIMELINE_ZOOM_SLIDER_MIDPOINT)
+  );
+}
+
+export function timelineZoomSliderPositionToPercent(position: number): number {
+  const normalizedPosition = Number.isFinite(position)
+    ? Math.min(TIMELINE_ZOOM_SLIDER_MAX, Math.max(0, position))
+    : TIMELINE_ZOOM_SLIDER_MIDPOINT;
+  if (normalizedPosition <= TIMELINE_ZOOM_SLIDER_MIDPOINT) {
+    return normalizeTimelineZoomPercent(
+      MIN_TIMELINE_ZOOM_PERCENT *
+        Math.pow(
+          100 / MIN_TIMELINE_ZOOM_PERCENT,
+          normalizedPosition / TIMELINE_ZOOM_SLIDER_MIDPOINT,
+        ),
+    );
+  }
+  return normalizeTimelineZoomPercent(
+    100 *
+      Math.pow(
+        MAX_TIMELINE_ZOOM_PERCENT / 100,
+        (normalizedPosition - TIMELINE_ZOOM_SLIDER_MIDPOINT) /
+          (TIMELINE_ZOOM_SLIDER_MAX - TIMELINE_ZOOM_SLIDER_MIDPOINT),
+      ),
+  );
+}
 
 /** 缩放按钮每次增减当前秒宽的约 10%，最小变化 1px / 秒。 */
 export function stepTimelineZoomPercent(percent: number, direction: -1 | 1): number {

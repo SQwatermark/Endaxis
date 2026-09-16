@@ -13,6 +13,8 @@ function createMissingRepository(): GameDataRepository {
     getGearSet: () => null,
     getEnemy: () => null,
     getMechanic: () => null,
+    getConsumable: () => null,
+    getConsumables: () => [],
   };
 }
 

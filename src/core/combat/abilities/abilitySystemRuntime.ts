@@ -41,13 +41,23 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly nativeSkillType?: NativeSkillType;
   /** 场景技能块在宿主局部时钟中的可操作宽度；非场景测试运行时可省略。 */
   readonly timelineBlockFrames?: number;
-  /** 有序下一段窗口由技能实际执行的条件分支决定。 */
+  /** 正式块宽由技能实际执行和 canInterrupt 决定，静态宽度只供预览。 */
   readonly usesRuntimeOperableBoundary?: boolean;
-  /** 首次实际到达有序下一段窗口时的技能局部帧。 */
+  /** 该技能已保留 AllowNext 动作；静态窗口只作诊断，边界必须等待实际执行候选。 */
+  readonly requiresExecutedOperableBoundaryCandidate?: boolean;
+  /** 当前技能首次产生玩家决策点时的局部帧。 */
   readonly reachedOperableBoundaryFrame?: number;
+  /** 本帧实际执行的 AllowNextSkillAction 候选，由 AbilitySystem 按当前玩家路由筛选。 */
+  readonly operableBoundaryCandidateFrame?: number;
+  readonly operableBoundaryCandidateSourceSkillIds?: readonly string[];
+  takeOperableBoundaryCandidate?():
+    { readonly frame: number; readonly sourceSkillIds: readonly string[] } | undefined;
+  markOperableBoundaryReached?(frame?: number): void;
   readonly state: RuntimeSkillState;
   /** 当前技能局部整数执行帧；仅 casting 实例提供。 */
   readonly currentTimelineFrame?: number;
+  /** 当前技能受 self-scaled 时间推进的精确局部帧累计。 */
+  readonly passedFrames?: number;
   /** 原生当前技能可打断状态；只有读取 mustBeforeExclusiveTime 的切换路径才要求提供。 */
   readonly canInterrupt?: boolean;
   readonly skillCastInfo?: CombatSkillCastInfo;
@@ -626,17 +636,6 @@ export class AbilitySystemRuntime implements FrameRuntime {
         .filter(skill => skill.skillId === expectedSkillKey)
         .map(skill => skill.transitionSkillId ?? skill.skillId),
     );
-    const explicitlyAllowed = (current.inputWindows?.allowedNextSkills ?? []).some(
-      window =>
-        window.startFrame <= frame &&
-        frame <= window.endFrame &&
-        window.sourceSkillIds.some(sourceSkillId => expectedSourceSkillIds.has(sourceSkillId)),
-    );
-    if (explicitlyAllowed) {
-      // AllowNextSkillAction 可以在战技等非普攻技能中保留此前的普攻段数，且不一定同时写
-      // ChangeInputCommandSkillAction。时间轴已经给出具体段数时，原生白名单足以证明该输入合法。
-      return { status: 'matched', actualSkillKey: expectedSkillKey };
-    }
     const mappings = (current.inputWindows?.commandMappings ?? []).filter(
       window =>
         window.input === 'basicAttack' && window.startFrame <= frame && frame <= window.endFrame,
@@ -649,6 +648,17 @@ export class AbilitySystemRuntime implements FrameRuntime {
       };
     }
     if (targets.size === 0) {
+      const explicitlyAllowed = (current.inputWindows?.allowedNextSkills ?? []).some(
+        window =>
+          window.startFrame <= frame &&
+          frame <= window.endFrame &&
+          window.sourceSkillIds.some(sourceSkillId => expectedSourceSkillIds.has(sourceSkillId)),
+      );
+      if (explicitlyAllowed) {
+        // 部分技能只用 AllowNextSkillAction 开放下一段，没有同时改写 CommandMapping；
+        // 此时白名单本身就是当前普攻操作的路由。若同帧存在显式映射，则映射优先。
+        return { status: 'matched', actualSkillKey: expectedSkillKey };
+      }
       return current.inputWindows?.hasConditionalActions === true
         ? { status: 'unknown', reason: 'current skill has conditional input actions' }
         : null;
@@ -1124,6 +1134,38 @@ export class AbilitySystemRuntime implements FrameRuntime {
     ) {
       return;
     }
+    if (skill !== this.#currentSkill || skill.state !== 'casting') return;
+    if (skill.reachedOperableBoundaryFrame === undefined) {
+      // 动作在 Timeline Tick 内写入候选，Skill.advance 返回时 passedFrames 可能已经推进；
+      // 这里恰好消费一次，不能拿更新后的局部帧反查或把窗口留给未来路由。
+      const frame = skill.currentTimelineFrame;
+      if (frame === undefined) return;
+      const candidate = skill.takeOperableBoundaryCandidate?.();
+      const passedFrames = skill.passedFrames ?? frame;
+      const directWindows =
+        skill.requiresExecutedOperableBoundaryCandidate === true
+          ? []
+          : (skill.inputWindows?.allowedNextSkills ?? []).filter(
+              window =>
+                passedFrames + 0.0003 >= window.startFrame &&
+                passedFrames <= window.endFrame + 0.0003,
+            );
+      const candidateSourceSkillIds =
+        candidate?.sourceSkillIds ?? skill.operableBoundaryCandidateSourceSkillIds ?? [];
+      const routableDirectWindows = directWindows.filter(window =>
+        this.#hasRoutableAllowedNextSkill(window.sourceSkillIds),
+      );
+      const candidateReachedNow = this.#hasRoutableAllowedNextSkill(candidateSourceSkillIds);
+      const candidatesReachedNow = routableDirectWindows.length > 0 || candidateReachedNow;
+      if (!candidatesReachedNow && skill.canInterrupt !== true) return;
+      const allowedFrame = Math.min(
+        ...(routableDirectWindows.length === 0 ? [] : [frame]),
+        ...(!candidateReachedNow || candidate === undefined ? [] : [candidate.frame]),
+      );
+      skill.markOperableBoundaryReached?.(
+        candidatesReachedNow && Number.isFinite(allowedFrame) ? allowedFrame : undefined,
+      );
+    }
     const durationFrames = skill.reachedOperableBoundaryFrame;
     // 零帧窗口沿用零宽技能块语义：下一次输入最早仍在下一实际帧，不发布零时长事实。
     if (durationFrames === undefined || durationFrames <= 0) return;
@@ -1133,6 +1175,29 @@ export class AbilitySystemRuntime implements FrameRuntime {
       durationFrames,
       reachedAtFrame: this.#resolveActualFrame(),
     });
+  }
+
+  /** 只检查此刻玩家操作能够解析出的技能身份；费用、冷却和未来输入不参与当前块宽。 */
+  #hasRoutableAllowedNextSkill(sourceSkillIds: readonly string[]): boolean {
+    if (sourceSkillIds.length === 0 || this.#playerActionRoutes === undefined) return false;
+    const allowedSkillKeys = new Set(
+      sourceSkillIds.flatMap(sourceSkillId => {
+        const keys = this.#skillKeysByTransitionSkillId.get(sourceSkillId);
+        return keys?.size === 1 ? [[...keys][0]!] : [];
+      }),
+    );
+    for (const [input, route] of Object.entries(this.#playerActionRoutes) as [
+      PlayerSkillInput,
+      NonNullable<
+        import('../../game-data/operatorDefinition').OperatorPlayerActionRoutes
+      >[PlayerSkillInput],
+    ][]) {
+      if (route === undefined) continue;
+      for (const skillKey of allowedSkillKeys) {
+        if (this.resolvePlayerInputSkill(skillKey, input).status === 'matched') return true;
+      }
+    }
+    return false;
   }
 
   #requireSkill(skillId: string, castId?: string, resolveSkillSlot = true): AbilitySkillRuntime {

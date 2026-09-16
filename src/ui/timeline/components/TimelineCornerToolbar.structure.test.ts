@@ -65,4 +65,10 @@ describe('TimelineCornerToolbar legacy behavior parity', () => {
     expect(source).toContain('gap: 4px');
     expect(source).toContain('color-mix(in srgb, var(--ea-gold) 10%, transparent)');
   });
+
+  it('gives 30% to 100% half of the zoom slider travel', () => {
+    expect(source).toContain('timelineZoomPercentToSliderPosition(zoomPercent)');
+    expect(source).toContain('timelineZoomSliderPositionToPercent(');
+    expect(source).toContain(':aria-valuetext="`${zoomPercent}%`"');
+  });
 });

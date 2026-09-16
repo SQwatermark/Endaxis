@@ -164,6 +164,13 @@ export interface SkillCastDocument {
   customDefinition?: SkillDefinition;
 }
 
+/** 玩家在指定帧对这条干员轨道主动使用一次物品。 */
+export interface ConsumableUseDocument {
+  id: string;
+  frame: number;
+  consumableId: string;
+}
+
 /**
  * 一条干员轨道持有自己的养成与配装实例。
  * 实例属于轨道本身，不与其他轨道共享；空轨道整体为 `null`。
@@ -187,6 +194,8 @@ export interface TrackDocument {
     maxUltimateEnergyOverride?: number;
   };
   skillCasts: SkillCastDocument[];
+  /** 旧项目省略时等价于空数组。 */
+  consumableUses?: ConsumableUseDocument[];
 }
 
 /** 四条时间轴轨道使用的稳定零基序号。 */

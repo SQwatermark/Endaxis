@@ -501,6 +501,7 @@ export function validateProjectDocument(value: unknown): ValidationResult {
       }
 
       const skillCastIds = new Set<string>();
+      const consumableUseIds = new Set<string>();
       const customDamageStepKeys = new Map<string, ReadonlySet<string>>();
       const trackIds = new Set<string>();
       scenario.tracks.forEach((track, trackIndex) => {
@@ -587,6 +588,26 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           ),
         );
         validateTrackSkillCastPlacements(track.skillCasts, `${trackPath}.skillCasts`, issues);
+        if (track.consumableUses !== undefined) {
+          if (!Array.isArray(track.consumableUses)) {
+            issues.push({ path: `${trackPath}.consumableUses`, message: 'expected an array' });
+          } else {
+            track.consumableUses.forEach((use, useIndex) => {
+              const usePath = `${trackPath}.consumableUses[${useIndex}]`;
+              if (!isObject(use)) {
+                issues.push({ path: usePath, message: 'expected an object' });
+                return;
+              }
+              const useId = requireString(use, 'id', usePath, issues);
+              if (useId !== null && consumableUseIds.has(useId)) {
+                issues.push({ path: `${usePath}.id`, message: 'duplicate consumable use id' });
+              }
+              if (useId !== null) consumableUseIds.add(useId);
+              requireInteger(use.frame, `${usePath}.frame`, issues);
+              requireString(use, 'consumableId', usePath, issues);
+            });
+          }
+        }
       });
 
       if (!Array.isArray(scenario.connections)) {
@@ -644,6 +665,17 @@ export function validateProjectDocument(value: unknown): ValidationResult {
               });
             }
           });
+          if (Array.isArray(track.consumableUses)) {
+            track.consumableUses.forEach((use, useIndex) => {
+              if (!isObject(use)) return;
+              if (typeof use.frame === 'number' && use.frame < -prepFrames) {
+                issues.push({
+                  path: `${path}.tracks[${trackIndex}].consumableUses[${useIndex}].frame`,
+                  message: 'must not precede the preparation range',
+                });
+              }
+            });
+          }
         });
       }
       if (scenarioId !== null && isObject(scenario.battle)) {

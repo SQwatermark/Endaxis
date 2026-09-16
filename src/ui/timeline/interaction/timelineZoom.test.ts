@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest';
 import {
   normalizeTimelineZoomPercent,
   timelinePxPerFrame,
+  timelineZoomPercentToSliderPosition,
+  timelineZoomSliderPositionToPercent,
   stepTimelineZoomPercent,
   wheelTimelineZoomPercent,
 } from './timelineViewport';
@@ -32,5 +34,24 @@ describe('timelineZoom', () => {
     expect(stepTimelineZoomPercent(200, -1)).toBe(180);
     expect(stepTimelineZoomPercent(30, -1)).toBe(30);
     expect(stepTimelineZoomPercent(2400, 1)).toBe(2400);
+  });
+
+  it('把缩小区间分配到滑杆左半段，100% 固定在中点', () => {
+    expect(timelineZoomPercentToSliderPosition(30)).toBeCloseTo(0);
+    expect(timelineZoomPercentToSliderPosition(100)).toBeCloseTo(500);
+    expect(timelineZoomPercentToSliderPosition(2400)).toBeCloseTo(1000);
+    expect(timelineZoomSliderPositionToPercent(0)).toBe(30);
+    expect(timelineZoomSliderPositionToPercent(500)).toBe(100);
+    expect(timelineZoomSliderPositionToPercent(1000)).toBe(2400);
+    expect(timelineZoomSliderPositionToPercent(250)).toBe(55);
+    expect(timelineZoomSliderPositionToPercent(750)).toBe(490);
+  });
+
+  it('滑杆往返映射不改变已选缩放比例', () => {
+    for (const percent of [30, 40, 50, 75, 100, 150, 300, 600, 1200, 2400]) {
+      expect(
+        timelineZoomSliderPositionToPercent(timelineZoomPercentToSliderPosition(percent)),
+      ).toBe(percent);
+    }
   });
 });

@@ -46,7 +46,11 @@ export type ScenarioRuntimeBuildIndex = Pick<
   Partial<
     Pick<
       GameDataRepository,
-      'getCommonBuffDefinitions' | 'getCommonAbilityEntityDefinitions' | 'getMechanic'
+      | 'getCommonBuffDefinitions'
+      | 'getCommonAbilityEntityDefinitions'
+      | 'getMechanic'
+      | 'getConsumable'
+      | 'getConsumables'
     >
   >;
 
@@ -424,21 +428,47 @@ export function compileScenarioRuntimeAssembly(
   // 准备区只是可编辑范围，不应让空白负时间凭空推进资源恢复和 Buff 计时。
   // 只有确实放置了负帧技能时，战斗运行时才从最早的输入帧启动。
   const initialFrame =
-    options.liveInputInitialFrame ?? Math.min(0, ...timeline.inputs.map(input => input.frame));
+    options.liveInputInitialFrame ??
+    Math.min(
+      0,
+      ...timeline.inputs.map(input => input.frame),
+      ...scenario.battle.controlSwitches.map(control => control.frame),
+      ...scenario.tracks.flatMap(track =>
+        track === null ? [] : (track.consumableUses ?? []).map(use => use.frame),
+      ),
+    );
   const controlTimeline = resolveControlTimeline(
     scenario.tracks,
     options.liveInputInitialFrame === undefined ? scenario.battle.controlSwitches : [],
     initialFrame,
   );
+  const initialControlledOperatorId =
+    scenario.tracks.find(
+      track => track !== null && isOperatorControlledAt(controlTimeline, track.id, initialFrame),
+    )?.id ?? null;
 
   return {
     ...options.environment,
     initialFrame,
-    initialControlledOperatorId: scenario.tracks[0]?.id ?? null,
+    initialControlledOperatorId,
     ...(options.liveInputInitialFrame === undefined ? {} : { deferInitialInput: true }),
     resources,
     enemy: applyMechanicsToScenarioEnemy(compileScenarioEnemy(scenario.enemy), mechanics),
     operators,
+    consumables: options.index.getConsumables?.() ?? [],
+    consumableUses:
+      options.liveInputInitialFrame === undefined
+        ? scenario.tracks.flatMap(track =>
+            track === null
+              ? []
+              : (track.consumableUses ?? []).map(use => ({
+                  frame: use.frame,
+                  useId: use.id,
+                  operatorId: track.id,
+                  consumableId: use.consumableId,
+                })),
+          )
+        : [],
     inputs: timeline.inputs,
     ...(timeline.skillInputGroups === undefined
       ? {}

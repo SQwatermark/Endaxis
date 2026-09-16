@@ -83,6 +83,40 @@ it('keeps target-owned Buff receipts out of skill markers while retaining delega
   expect(projectTimelineHitDetailEntries(entries, 'cast', 'sword')).toEqual([delegated]);
 });
 
+it('keeps spell-burst damage exclusively under its enemy effect marker', () => {
+  const ordinary: CombatReceiptEntry = {
+    sequence: 1,
+    frame: 30,
+    time: 1,
+    event: 'DamageApplied',
+    sourceId: 'typhoeus',
+    targetId: 'enemy',
+    data: { ...baseDamage(), castId: 'cast', hitId: 'hit', stepKey: 'enhanced-basic-hit' },
+  };
+  const burst: CombatReceiptEntry = {
+    ...ordinary,
+    sequence: 2,
+    data: {
+      ...ordinary.data,
+      value: 160,
+      actualDamage: 160,
+      spellBurstType: 'Pulse',
+    },
+  };
+
+  expect(projectTimelineHitOccurrences([ordinary, burst]).get('cast')).toEqual([
+    expect.objectContaining({
+      hitId: 'hit',
+      label: expect.objectContaining({
+        damage: [{ value: 100, damageType: 'physical', isCritical: false }],
+      }),
+    }),
+  ]);
+  expect(projectTimelineHitDetailEntries([ordinary, burst], 'cast', 'hit')).toEqual([ordinary]);
+  expect(projectTimelineHitActualFrames([burst])).toEqual(new Map());
+  expect(projectTimelineHitOccurrences([burst])).toEqual(new Map());
+});
+
 function scenarioWithCast(): ScenarioDocument {
   return {
     id: 'scenario:hit-effects',

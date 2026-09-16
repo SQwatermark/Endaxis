@@ -4,9 +4,10 @@ import { EaButton, EaNumberInput } from '@/design-system';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 import {
-  MIN_TIMELINE_ZOOM_PERCENT,
-  MAX_TIMELINE_ZOOM_PERCENT,
   stepTimelineZoomPercent,
+  timelineZoomPercentToSliderPosition,
+  timelineZoomSliderPositionToPercent,
+  TIMELINE_ZOOM_SLIDER_MAX,
 } from '../interaction/timelineViewport';
 
 /** 时间轴轨道头部上方的编辑工具区，结构与尺寸以旧版 TimelineGrid 为准。 */
@@ -154,13 +155,21 @@ function applyGaugeDraft(): void {
           </svg>
         </EaButton>
         <input
-          :value="zoomPercent"
+          :value="timelineZoomPercentToSliderPosition(zoomPercent)"
           type="range"
-          :min="MIN_TIMELINE_ZOOM_PERCENT"
-          :max="MAX_TIMELINE_ZOOM_PERCENT"
-          step="2"
+          min="0"
+          :max="TIMELINE_ZOOM_SLIDER_MAX"
+          step="1"
           :aria-label="labels.zoom"
-          @input="emit('setZoomPercent', Number(($event.target as HTMLInputElement).value))"
+          :aria-valuetext="`${zoomPercent}%`"
+          @input="
+            emit(
+              'setZoomPercent',
+              timelineZoomSliderPositionToPercent(
+                Number(($event.target as HTMLInputElement).value),
+              ),
+            )
+          "
         />
         <EaButton
           variant="ghost"

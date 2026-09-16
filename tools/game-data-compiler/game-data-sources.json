@@ -19,6 +19,7 @@
     "GemTable",
     "EquipTable",
     "ItemTable",
+    "UseItemTable",
     "EquipSuitTable",
     "DisplayEnemyTypeTable",
     "EnemyAbilityDescTable",

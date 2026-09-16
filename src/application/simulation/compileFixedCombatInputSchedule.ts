@@ -1,6 +1,7 @@
 import type { SkillInputGroup } from '../../core/combat/runtime/combatInputRuntime';
 import type {
   CombatSkillInput,
+  ConsumableUseInput,
   ExternalCombatEventInput,
 } from '../../core/combat/state/environmentState';
 import { compileScenarioExternalEventInputs } from '../../core/compiler/compileScenarioRuntimeAssembly';
@@ -16,7 +17,7 @@ import type { ScheduledCombatFrameInput } from './combatInputSchedule';
  */
 export function compileFixedCombatInputSchedule(
   scenario: ScenarioDocument,
-  index: Pick<GameDataRepository, 'getOperator'>,
+  index: Pick<GameDataRepository, 'getOperator'> & Partial<Pick<GameDataRepository, 'getConsumable'>>,
 ): readonly ScheduledCombatFrameInput[] {
   if (
     scenario.tracks.some(track =>
@@ -35,7 +36,7 @@ export function compileFixedCombatInputSchedule(
 /** 只解析人工排程；连续组的实际接续帧由输入阶段决定。 */
 export function compileCombatInputSchedule(
   scenario: ScenarioDocument,
-  index: Pick<GameDataRepository, 'getOperator'>,
+  index: Pick<GameDataRepository, 'getOperator'> & Partial<Pick<GameDataRepository, 'getConsumable'>>,
 ): { inputs: readonly ScheduledCombatFrameInput[]; groups: readonly SkillInputGroup[] } {
   const groups: SkillInputGroup[] = [];
   let declarationOrder = 0;
@@ -44,6 +45,7 @@ export function compileCombatInputSchedule(
     {
       frame: number;
       controlledOperatorId?: string | null;
+      consumableUses: ConsumableUseInput[];
       skills: (CombatSkillInput & { declarationOrder: number })[];
       externalEvents: ExternalCombatEventInput[];
     }
@@ -52,13 +54,29 @@ export function compileCombatInputSchedule(
     if (!Number.isSafeInteger(frame)) throw new RangeError('input frame must be a safe integer');
     let input = frames.get(frame);
     if (input === undefined) {
-      input = { frame, skills: [], externalEvents: [] };
+      input = { frame, consumableUses: [], skills: [], externalEvents: [] };
       frames.set(frame, input);
     }
     return input;
   };
   for (const track of scenario.tracks) {
     if (track === null) continue;
+    if ((track.consumableUses?.length ?? 0) > 0 && track.operator === null) {
+      throw new Error(`track '${track.id}' cannot use a consumable without an operator`);
+    }
+    for (const use of track.consumableUses ?? []) {
+      if (index.getConsumable === undefined) {
+        throw new Error('consumable game data is required by the input schedule');
+      }
+      if (index.getConsumable(use.consumableId) === null) {
+        throw new Error(`unknown consumable '${use.consumableId}'`);
+      }
+      at(use.frame).consumableUses.push({
+        useId: use.id,
+        operatorId: track.id,
+        consumableId: use.consumableId,
+      });
+    }
     const anchors = new Map<string, number>();
     for (const chain of getSkillCastPlacementChains(track.skillCasts)) {
       for (const cast of chain.casts) anchors.set(cast.id, chain.anchor.placement.startFrame!);

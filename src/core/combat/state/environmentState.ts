@@ -39,6 +39,17 @@ export interface SkillCastInheritanceRegistration {
   readonly skillCastInfo: import('./foundationState').CombatSkillCastInfo;
 }
 
+/** 当前帧主动使用物品；目标由 operatorId 明确指定，不伪装为技能施放。 */
+export interface ConsumableUseInput {
+  readonly useId: string;
+  readonly operatorId: string;
+  readonly consumableId: string;
+}
+
+export interface ScheduledConsumableUseInput extends ConsumableUseInput {
+  readonly frame: number;
+}
+
 /** 全场普通攻击施法身份继承槽及编号进度。 */
 export interface SkillCastInheritanceState {
   readonly registrations: Map<string, SkillCastInheritanceRegistration>;
