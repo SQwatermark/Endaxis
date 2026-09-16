@@ -161,6 +161,7 @@ it('增强型状态逐层保留施加者并在减层时移除最后加入的来�
     id: 'stacked-status',
     stackingType: 'enhance',
     maxStackCount: 4,
+    damageModifiers: [{ enabledSide: 'defender', processors: [] }],
     attributeModifiers: [
       {
         attribute: 'attack',
@@ -179,6 +180,20 @@ it('增强型状态逐层保留施加者并在减层时移除最后加入的来�
     { providerOperatorId: 'operator-a', sourceKind: 'status', sourceId: 'stacked-status' },
     { providerOperatorId: 'operator-b', sourceKind: 'status', sourceId: 'stacked-status' },
   ]);
+  expect(buff.damageModifiers[0]!.resolveContributionSources?.()).toEqual([
+    {
+      providerOperatorId: 'operator-a',
+      sourceKind: 'status',
+      sourceId: 'stacked-status',
+      weight: 1,
+    },
+    {
+      providerOperatorId: 'operator-b',
+      sourceKind: 'status',
+      sourceId: 'stacked-status',
+      weight: 1,
+    },
+  ]);
 
   expect(buff.decreaseEnhanceCount(1, 'absorbed')).toBe(true);
   expect(buff.runtimeState.enhanceSourceIds).toEqual(['operator-a']);
@@ -186,6 +201,14 @@ it('增强型状态逐层保留施加者并在减层时移除最后加入的来�
   expect(attributes.runtimeState.modifiers[0]!.contributionSource?.providerOperatorId).toBe(
     'operator-a',
   );
+  expect(buff.damageModifiers[0]!.resolveContributionSources?.()).toEqual([
+    {
+      providerOperatorId: 'operator-a',
+      sourceKind: 'status',
+      sourceId: 'stacked-status',
+      weight: 1,
+    },
+  ]);
 });
 
 it('容器从复制数据重绑实例、叠层、修正器和护盾且不重放生命周期', () => {

@@ -10,7 +10,12 @@ import {
   type DamageScaleSide,
   type DamageScaleZone,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
-import type { DamageContributionLogEffect, DamageContributionSource } from './damageContribution';
+import {
+  resolveDamageContributionSourceShares,
+  type DamageContributionAttribution,
+  type DamageContributionLogEffect,
+  type DamageContributionSource,
+} from './damageContribution';
 interface DamageScaleZoneDefinition {
   readonly multiplyWithinSide: boolean;
   readonly mergeSidesAdditively: boolean;
@@ -50,14 +55,31 @@ export class DamageScaleAccumulator {
     side: DamageScaleSide,
     zone: DamageScaleZone,
     addition: number,
-    source?: DamageContributionSource,
+    sources?: DamageContributionAttribution,
   ): void {
     const values = side === 'attacker' ? this.#attacker : this.#defender;
     const definition = ZONE_DEFINITIONS[zone];
     values[zone] = definition.multiplyWithinSide
       ? values[zone] * (1 + addition)
       : values[zone] + addition;
-    this.#operations.push({ side, zone, addition, ...(source === undefined ? {} : { source }) });
+    const normalized = resolveDamageContributionSourceShares(sources);
+    if (normalized.length === 0) {
+      this.#operations.push({ side, zone, addition });
+      return;
+    }
+    // 非正乘数无法做对数分解；保留实际值并留在自身项，不制造错误来源。
+    if (definition.multiplyWithinSide && 1 + addition <= 0) {
+      this.#operations.push({ side, zone, addition });
+      return;
+    }
+    const totalWeight = normalized.reduce((sum, share) => sum + share.weight, 0);
+    for (const share of normalized) {
+      const ratio = share.weight / totalWeight;
+      const splitAddition = definition.multiplyWithinSide
+        ? (1 + addition) ** ratio - 1
+        : addition * ratio;
+      this.#operations.push({ side, zone, addition: splitAddition, source: share });
+    }
   }
 
   getZoneValue(zone: DamageScaleZone): number {
@@ -110,14 +132,21 @@ export class DamageScaleAccumulator {
       if (external.length === 0) continue;
       const zoneLogEffect = Math.log(actual / self);
       const totalWeight = external.reduce(
-        (sum, operation) => sum + Math.abs(operation.addition),
+        (sum, operation) =>
+          sum +
+          (ZONE_DEFINITIONS[zone].multiplyWithinSide
+            ? Math.abs(Math.log(1 + operation.addition))
+            : Math.abs(operation.addition)),
         0,
       );
       if (totalWeight <= Number.EPSILON) continue;
       for (const operation of external) {
+        const weight = ZONE_DEFINITIONS[zone].multiplyWithinSide
+          ? Math.abs(Math.log(1 + operation.addition))
+          : Math.abs(operation.addition);
         effects.push({
           ...operation.source!,
-          logEffect: zoneLogEffect * (Math.abs(operation.addition) / totalWeight),
+          logEffect: zoneLogEffect * (weight / totalWeight),
         });
       }
     }

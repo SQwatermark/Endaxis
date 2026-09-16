@@ -446,6 +446,7 @@ export class CombatBuff<Key extends string> {
               sourceKind: restoredState.contributionSourceKind,
               sourceId: definition.id,
             },
+            () => this.damageContributionSources(),
           ),
       );
       this.#duringEnableAction = definition.actions?.duringEnable?.createRuntimeInstance() ?? null;
@@ -545,6 +546,7 @@ export class CombatBuff<Key extends string> {
             sourceKind: this.#state.contributionSourceKind,
             sourceId: definition.id,
           },
+          () => this.damageContributionSources(),
         ),
     );
     this.#state.damageModifiers = this.damageModifiers.map(modifier => modifier.runtimeState);
@@ -1014,6 +1016,19 @@ export class CombatBuff<Key extends string> {
         }),
       );
     });
+  }
+
+  /** 当前聚合修正的逐层来源；实际修正仍只执行一次。 */
+  private damageContributionSources(): readonly import('../damage/damageContribution').DamageContributionSourceShare[] {
+    if (this.#state.enhanceSourceIds.length !== this.#state.lifecycle.enhanceCount) {
+      throw new Error(`buff '${this.definition.id}' layer source ledger is out of sync`);
+    }
+    return this.#state.enhanceSourceIds.map(providerOperatorId => ({
+      providerOperatorId,
+      sourceKind: this.#state.contributionSourceKind,
+      sourceId: this.definition.id,
+      weight: 1,
+    }));
   }
 
   private assertAttributeModifierTargetsSupported(): void {

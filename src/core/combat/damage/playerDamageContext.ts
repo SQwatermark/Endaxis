@@ -29,7 +29,12 @@ import type {
 import type { CombatAttributeModifier, CombatSkillCastInfo } from '../state/foundationState';
 import type { GameplayTag } from '../tags/gameplayTags';
 import { DamageScaleAccumulator } from './damageScale';
-import type { DamageContributionLogEffect, DamageContributionSource } from './damageContribution';
+import {
+  resolveDamageContributionSourceShares,
+  type DamageContributionAttribution,
+  type DamageContributionLogEffect,
+  type DamageContributionSource,
+} from './damageContribution';
 import type { DamageScaleAttributeSnapshot } from './damageScaleAttributes';
 import type {
   PlayerDamageAttackerSnapshot,
@@ -236,22 +241,33 @@ export class PlayerDamageContext {
     this.#hasCalculationResult = true;
   }
 
-  multiplyCalculationValue(scale: number, source?: DamageContributionSource): void {
+  multiplyCalculationValue(scale: number, sources?: DamageContributionAttribution): void {
     if (this.#hasCalculationResult) {
       this.#value *= scale;
     } else {
       this.#pendingCalculationScale *= scale;
     }
-    const external =
-      source?.providerOperatorId !== null &&
-      source?.providerOperatorId !== undefined &&
-      source.providerOperatorId !== this.sourceId;
-    if (!external) {
+    const normalized = resolveDamageContributionSourceShares(sources);
+    if (normalized.length === 0) {
       if (this.#hasCalculationResult) this.#selfValue *= scale;
       else this.#pendingSelfCalculationScale *= scale;
       return;
     }
-    if (scale > 0) this.#calculationLogEffects.push({ ...source, logEffect: Math.log(scale) });
+    if (scale <= 0) {
+      if (this.#hasCalculationResult) this.#selfValue *= scale;
+      else this.#pendingSelfCalculationScale *= scale;
+      return;
+    }
+    const totalWeight = normalized.reduce((sum, share) => sum + share.weight, 0);
+    let selfScale = 1;
+    for (const source of normalized) {
+      const ratio = source.weight / totalWeight;
+      const sourceScale = scale ** ratio;
+      if (this.#isSelfSource(source)) selfScale *= sourceScale;
+      else this.#calculationLogEffects.push({ ...source, logEffect: Math.log(sourceScale) });
+    }
+    if (this.#hasCalculationResult) this.#selfValue *= selfScale;
+    else this.#pendingSelfCalculationScale *= selfScale;
   }
 
   get selfAttackerAttributes(): PlayerDamageAttributeSnapshots['attacker'] {

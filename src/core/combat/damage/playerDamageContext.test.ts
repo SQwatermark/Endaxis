@@ -102,6 +102,45 @@ describe('PlayerDamageContext', () => {
     expect(clear.mock.calls).toEqual([['attacker'], ['defender']]);
   });
 
+  it('splits an aggregate calculation multiplier between layer providers', () => {
+    const context = new PlayerDamageContext({
+      sourceId: 'operator',
+      targetId: 'enemy',
+      damageType: 'physical',
+      targetHealthType: 'normal',
+      ports: {
+        captureAttributeSnapshots: () => createSnapshots(100),
+        applyModifiers: () => undefined,
+        addInstantAttributeModifier: () => undefined,
+        clearInstantAttributeModifiers: () => undefined,
+      },
+    });
+    context.multiplyCalculationValue(2, [
+      {
+        providerOperatorId: 'operator',
+        sourceKind: 'status',
+        sourceId: 'stacked-status',
+        weight: 1,
+      },
+      {
+        providerOperatorId: 'support',
+        sourceKind: 'status',
+        sourceId: 'stacked-status',
+        weight: 1,
+      },
+    ]);
+    context.setCalculationResult(100);
+
+    expect(context.value).toBeCloseTo(200);
+    expect(context.resolveSelfFinalAttackValue()).toBeCloseTo(100 * Math.sqrt(2));
+    expect(context.getContributionLogEffects()).toEqual([
+      expect.objectContaining({
+        providerOperatorId: 'support',
+        logEffect: expect.closeTo(Math.log(Math.sqrt(2)), 10),
+      }),
+    ]);
+  });
+
   it('keeps before-calculation instant attributes through the final snapshot, then clears them', () => {
     let instantResistance = false;
     const clear = vi.fn(() => {

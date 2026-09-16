@@ -25,6 +25,40 @@ export interface DamageContributionSource {
   readonly sourceId: string;
 }
 
+/** 一个聚合修正中某个来源所占的非负权重。 */
+export interface DamageContributionSourceShare extends DamageContributionSource {
+  readonly weight: number;
+}
+
+export type DamageContributionAttribution =
+  DamageContributionSource | readonly DamageContributionSourceShare[];
+
+/** 兼容单一来源调用，并统一成可按权重分摊的来源列表。 */
+export function resolveDamageContributionSourceShares(
+  attribution: DamageContributionAttribution | undefined,
+): readonly DamageContributionSourceShare[] {
+  if (attribution === undefined) return [];
+  return Array.isArray(attribution)
+    ? normalizeDamageContributionSourceShares(
+        attribution as readonly DamageContributionSourceShare[],
+      )
+    : [{ ...(attribution as DamageContributionSource), weight: 1 }];
+}
+
+/** 清理无效权重，并合并同一来源。 */
+export function normalizeDamageContributionSourceShares(
+  shares: readonly DamageContributionSourceShare[],
+): readonly DamageContributionSourceShare[] {
+  const merged = new Map<string, DamageContributionSourceShare>();
+  for (const share of shares) {
+    if (!Number.isFinite(share.weight) || share.weight <= Number.EPSILON) continue;
+    const key = sourceKey(share);
+    const previous = merged.get(key);
+    merged.set(key, { ...share, weight: (previous?.weight ?? 0) + share.weight });
+  }
+  return [...merged.values()];
+}
+
 export interface DamageContributionEntry extends DamageContributionSource {
   /** 对最终伤害的贡献；减伤和负面效果可以为负数。 */
   readonly value: number;

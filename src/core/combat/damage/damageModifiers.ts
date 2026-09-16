@@ -19,7 +19,7 @@ import { resolveBuffModifierNumber } from '../buffs/buffModifierNumberSource';
 import type { DamageModifierState } from '../state/foundationState';
 import { type BuffModifierNumberSource } from '../state/foundationState';
 import { applyDamageModifier } from './damageModifierExecution';
-import type { DamageContributionSource } from './damageContribution';
+import type { DamageContributionSource, DamageContributionSourceShare } from './damageContribution';
 import type {
   DamageModifierSide,
   DamageProcessTiming,
@@ -60,6 +60,7 @@ export class DamageModifier {
     readonly conditionProgram?: DamageModifierConditionProgram,
     restoredState?: DamageModifierState,
     contributionSource?: DamageContributionSource,
+    readonly resolveContributionSources?: () => readonly DamageContributionSourceShare[],
   ) {
     if (definition.condition !== undefined && conditionProgram !== undefined) {
       throw new Error('damage modifier cannot combine a pure condition with a condition program');
@@ -101,7 +102,10 @@ export class DamageModifier {
       side,
       context,
       evaluateCondition,
-      this.runtimeState.contributionSource,
+      this.resolveContributionSources?.() ??
+        (this.runtimeState.contributionSource === undefined
+          ? undefined
+          : [{ ...this.runtimeState.contributionSource, weight: 1 }]),
     );
   }
 }

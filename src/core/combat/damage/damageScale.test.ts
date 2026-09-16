@@ -57,4 +57,37 @@ describe('DamageScaleAccumulator', () => {
       }),
     ]);
   });
+
+  it('splits one aggregate modifier between layer providers without changing its value', () => {
+    const normal = new DamageScaleAccumulator();
+    const sources = [
+      {
+        providerOperatorId: 'attacker',
+        sourceKind: 'status' as const,
+        sourceId: 'stacked-status',
+        weight: 1,
+      },
+      {
+        providerOperatorId: 'support',
+        sourceKind: 'status' as const,
+        sourceId: 'stacked-status',
+        weight: 1,
+      },
+    ];
+    normal.modify('attacker', 'normal', 0.4, sources);
+
+    expect(normal.getFinalValue()).toBeCloseTo(1.4);
+    expect(normal.getSelfValue('attacker')).toBeCloseTo(1.2);
+    expect(normal.getContributionLogEffects('attacker')).toEqual([
+      expect.objectContaining({
+        providerOperatorId: 'support',
+        logEffect: expect.closeTo(Math.log(1.4 / 1.2), 10),
+      }),
+    ]);
+
+    const product = new DamageScaleAccumulator();
+    product.modify('attacker', 'product', 0.44, sources);
+    expect(product.getFinalValue()).toBeCloseTo(1.44);
+    expect(product.getSelfValue('attacker')).toBeCloseTo(1.2);
+  });
 });

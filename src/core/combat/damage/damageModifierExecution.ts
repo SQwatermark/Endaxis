@@ -19,7 +19,10 @@ import type {
   DamageModifierConditionEvaluator,
   DamageModifierConditionProgram,
 } from './damageModifiers';
-import type { DamageContributionSource } from './damageContribution';
+import {
+  resolveDamageContributionSourceShares,
+  type DamageContributionSourceShare,
+} from './damageContribution';
 
 export function applyDamageModifier(
   ownerId: string,
@@ -31,7 +34,7 @@ export function applyDamageModifier(
   side: DamageModifierSide,
   context: PlayerDamageContext,
   evaluateCondition?: DamageModifierConditionEvaluator,
-  contributionSource?: DamageContributionSource,
+  contributionSources?: readonly DamageContributionSourceShare[],
 ): void {
   if (side !== definition.enabledSide || context.getEntityId(side) !== ownerId) {
     return;
@@ -66,7 +69,7 @@ export function applyDamageModifier(
       return;
   }
   for (const processor of definition.processors) {
-    applyProcessor(processor, timing, context, resolveNumber, contributionSource);
+    applyProcessor(processor, timing, context, resolveNumber, contributionSources);
   }
 }
 
@@ -116,7 +119,7 @@ function applyProcessor(
   timing: DamageProcessTiming,
   context: PlayerDamageContext,
   resolveNumber: (value: DamageModifierNumber) => number,
-  contributionSource?: DamageContributionSource,
+  contributionSources?: readonly DamageContributionSourceShare[],
 ): void {
   if (context.damageType === 'lifeDrain') return;
   switch (processor.kind) {
@@ -125,7 +128,7 @@ function applyProcessor(
         timing === processor.timing &&
         processor.targetHealthTypes.includes(context.targetHealthType)
       ) {
-        context.multiplyCalculationValue(processor.scale, contributionSource);
+        context.multiplyCalculationValue(processor.scale, contributionSources);
       }
       return;
     case 'damageScale':
@@ -134,7 +137,7 @@ function applyProcessor(
           processor.side,
           processor.zone,
           resolveNumber(processor.addition),
-          contributionSource,
+          contributionSources,
         );
       }
       return;
@@ -144,12 +147,38 @@ function applyProcessor(
           'slot' in processor.values
             ? attributeModifierValues(processor.values.slot, resolveNumber(processor.values.value))
             : processor.values;
-        context.addInstantAttributeModifier(processor.targetSide, {
-          attribute: processor.attribute,
-          values,
-          timing: processor.attributeTiming,
-          ...(contributionSource === undefined ? {} : { contributionSource }),
-        });
+        const shares = resolveDamageContributionSourceShares(contributionSources);
+        const hasNonPositiveMultiplier = Object.entries(values).some(
+          ([slot, value]) =>
+            (slot === 'finalMultiplier' || slot === 'baseFinalMultiplier') && value <= 0,
+        );
+        if (shares.length === 0 || hasNonPositiveMultiplier) {
+          context.addInstantAttributeModifier(processor.targetSide, {
+            attribute: processor.attribute,
+            values,
+            timing: processor.attributeTiming,
+          });
+          return;
+        }
+        const totalWeight = shares.reduce((sum, share) => sum + share.weight, 0);
+        for (const share of shares) {
+          const ratio = totalWeight <= Number.EPSILON ? 0 : share.weight / totalWeight;
+          context.addInstantAttributeModifier(processor.targetSide, {
+            attribute: processor.attribute,
+            values: Object.fromEntries(
+              Object.entries(values).map(([slot, value]) => [
+                slot,
+                slot === 'finalMultiplier' || slot === 'baseFinalMultiplier'
+                  ? value > 0
+                    ? value ** ratio
+                    : value
+                  : value * ratio,
+              ]),
+            ) as typeof values,
+            timing: processor.attributeTiming,
+            contributionSource: share,
+          });
+        }
       }
   }
 }
