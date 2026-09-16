@@ -86,7 +86,13 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
   getExistingAttachment(): ExistingElementalAttachment | null {
     const match = this.findAttachment();
     this.#projectedAttachment = match?.buff ?? null;
-    return match === undefined ? null : { element: match.element, layers: match.buff.enhanceCount };
+    return match === undefined
+      ? null
+      : {
+          element: match.element,
+          layers: match.buff.enhanceCount,
+          layerSourceIds: [...match.buff.runtimeState.enhanceSourceIds],
+        };
   }
 
   apply(

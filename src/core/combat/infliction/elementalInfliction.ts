@@ -46,6 +46,8 @@ export type ElementalInflictionOutcomeKind = (typeof ELEMENTAL_INFLICTION_OUTCOM
 export interface ExistingElementalAttachment {
   readonly element: InflictionElement;
   readonly layers: number;
+  /** 按层记录实际施加者；消费时冻结，不能用当前 Buff 来源或触发者反推。 */
+  readonly layerSourceIds: readonly string[];
 }
 
 /** 附着状态机返回、等待 Buff 适配器执行的语义操作。 */
@@ -58,6 +60,7 @@ export type ElementalInflictionOperation =
       readonly consumedElement: InflictionElement;
       readonly incomingElement: InflictionElement;
       readonly consumedLayers: number;
+      readonly consumedLayerSourceIds: readonly string[];
     };
 
 /** 解析已还原的空附着、同类附着和异类附着分支。 */
@@ -81,6 +84,7 @@ export function resolveElementalInfliction(
       consumedElement: existingAttachment.element,
       incomingElement,
       consumedLayers: existingAttachment.layers,
+      consumedLayerSourceIds: existingAttachment.layerSourceIds,
     },
   ];
 }

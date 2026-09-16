@@ -89,6 +89,7 @@ describe('ElementalInflictionBuffAdapter', () => {
       consumedElement: 'heat',
       incomingElement: 'electric',
       consumedLayers: existing.layers,
+      consumedLayerSourceIds: existing.layerSourceIds,
     });
     expect(output?.buffId).toBe('status.heat.electric');
     expect(output?.instanceId).not.toBe(applied?.instanceId);
@@ -101,6 +102,7 @@ describe('ElementalInflictionBuffAdapter', () => {
       consumedElement: 'electric',
       incomingElement: 'nature',
       consumedLayers: 1,
+      consumedLayerSourceIds: ['operator'],
     },
   ] as const)('$kind 的两侧前置事件早于创建，添加失败不发布成功事件', operation => {
     const target = new CombatBuffContainer<Attribute>('enemy', new CombatAttributeSet<Attribute>());
@@ -215,12 +217,16 @@ describe('ElementalInflictionBuffAdapter', () => {
     const { target, adapter } = createAdapter();
     for (const operation of resolveElementalInfliction('heat', null)) adapter.apply(operation);
     const existing = adapter.getExistingAttachment();
-    expect(existing).toEqual({ element: 'heat', layers: 1 });
+    expect(existing).toEqual({ element: 'heat', layers: 1, layerSourceIds: ['operator'] });
 
     for (const operation of resolveElementalInfliction('heat', existing)) {
       adapter.apply(operation);
     }
-    expect(adapter.getExistingAttachment()).toEqual({ element: 'heat', layers: 2 });
+    expect(adapter.getExistingAttachment()).toEqual({
+      element: 'heat',
+      layers: 2,
+      layerSourceIds: ['operator', 'operator'],
+    });
     expect(target.getCountById('burst.heat')).toBe(1);
   });
 

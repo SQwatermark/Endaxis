@@ -122,8 +122,6 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
       const instance = this.dependencies.applyOperation(operation, context?.skillCastInfo);
       if (operation.kind === 'consumeAttachment') consumedInstance = instance;
       if (operation.kind === 'createCompoundStatus') outputInstance = instance;
-      if (operation.kind === 'consumeAttachment') {
-      }
     }
     if (consumedInstance && outputInstance) {
       this.dependencies.receipt.record({
@@ -138,6 +136,9 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
           outputBuffId: outputInstance.buffId,
           outputInstanceId: outputInstance.instanceId,
           incomingElement: step.parameters.element,
+          consumedLayerSourceIds:
+            operations.find(operation => operation.kind === 'createCompoundStatus')
+              ?.consumedLayerSourceIds ?? [],
         },
       });
     }
@@ -173,6 +174,7 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
           : {
               consumedElement: compound.consumedElement,
               consumedLayers: compound.consumedLayers,
+              consumedLayerSourceIds: compound.consumedLayerSourceIds,
             }),
         operationKinds: operations.map(operation => operation.kind).join(','),
       },

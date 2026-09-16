@@ -9,23 +9,40 @@ describe('resolveElementalInfliction', () => {
   });
 
   it('triggers a burst before enhancing the same attachment', () => {
-    expect(resolveElementalInfliction('heat', { element: 'heat', layers: 2 })).toEqual([
+    expect(
+      resolveElementalInfliction('heat', {
+        element: 'heat',
+        layers: 2,
+        layerSourceIds: ['a', 'b'],
+      }),
+    ).toEqual([
       { kind: 'triggerBurst', element: 'heat' },
       { kind: 'addAttachment', element: 'heat' },
     ]);
   });
 
   it('consumes a different attachment before creating the compound status', () => {
-    expect(resolveElementalInfliction('nature', { element: 'cryo', layers: 3 })).toEqual([
+    expect(
+      resolveElementalInfliction('nature', {
+        element: 'cryo',
+        layers: 3,
+        layerSourceIds: ['a', 'b', 'a'],
+      }),
+    ).toEqual([
       {
         kind: 'consumeAttachment',
-        attachment: { element: 'cryo', layers: 3 },
+        attachment: {
+          element: 'cryo',
+          layers: 3,
+          layerSourceIds: ['a', 'b', 'a'],
+        },
       },
       {
         kind: 'createCompoundStatus',
         consumedElement: 'cryo',
         incomingElement: 'nature',
         consumedLayers: 3,
+        consumedLayerSourceIds: ['a', 'b', 'a'],
       },
     ]);
   });

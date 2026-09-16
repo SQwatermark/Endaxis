@@ -56,7 +56,11 @@ describe('ElementalBuffRuntime', () => {
 
     expect(runtime.ownerId).toBe('enemy');
     expect(runtime.getCountByIds(['heat-attachment'])).toBe(1);
-    expect(adapter.getExistingAttachment()).toEqual({ element: 'heat', layers: 1 });
+    expect(adapter.getExistingAttachment()).toEqual({
+      element: 'heat',
+      layers: 1,
+      layerSourceIds: ['operator'],
+    });
 
     runtime.advanceFrame();
 
@@ -71,7 +75,11 @@ describe('ElementalBuffRuntime', () => {
     first.apply({ kind: 'addAttachment', element: 'heat' });
 
     const existing = second.getExistingAttachment();
-    expect(existing).toEqual({ element: 'heat', layers: 1 });
+    expect(existing).toEqual({
+      element: 'heat',
+      layers: 1,
+      layerSourceIds: ['operator-a'],
+    });
     for (const operation of resolveElementalInfliction('electric', existing)) {
       second.apply(operation);
     }

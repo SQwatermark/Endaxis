@@ -26,7 +26,11 @@ describe('ElementalInflictionOperationExecutor', () => {
         skillId: 'skill',
         clock: new CombatClock(),
         receipt: { record },
-        getExistingAttachment: () => ({ element: 'heat', layers: 2 }),
+        getExistingAttachment: () => ({
+          element: 'heat',
+          layers: 2,
+          layerSourceIds: ['support-a', 'support-b'],
+        }),
         applyOperation: operation =>
           operation.kind === 'consumeAttachment'
             ? { buffId: 'old', instanceId: 7 }
@@ -50,6 +54,7 @@ describe('ElementalInflictionOperationExecutor', () => {
             consumedInstanceId: 7,
             outputBuffId: 'new',
             outputInstanceId: 9,
+            consumedLayerSourceIds: ['support-a', 'support-b'],
           },
         });
     },
@@ -174,7 +179,12 @@ describe('ElementalInflictionOperationExecutor', () => {
       emitSourceEvent: event => order.push(`source:${event}`),
       emitTargetEvent: event => {
         order.push(`target:${event}`);
-        if (event === 'beforeTakeInfliction') attachment = { element: 'heat', layers: 2 };
+        if (event === 'beforeTakeInfliction')
+          attachment = {
+            element: 'heat',
+            layers: 2,
+            layerSourceIds: ['support-a', 'support-b'],
+          };
       },
       delegate: { execute: vi.fn(() => true), evaluate: vi.fn(() => false) },
     });
@@ -212,6 +222,7 @@ describe('ElementalInflictionOperationExecutor', () => {
         outcomeKind: 'compoundStatus',
         consumedElement: 'heat',
         consumedLayers: 2,
+        consumedLayerSourceIds: ['support-a', 'support-b'],
         operationKinds: 'consumeAttachment,createCompoundStatus',
       },
     });
