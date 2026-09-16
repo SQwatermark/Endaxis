@@ -434,7 +434,50 @@ describe('BuffDefinitionOperationTarget', () => {
         sourceId: 'support-operator',
         definitionOwnerId: 'definition-operator',
         sourceActionId: 'support-passive',
+        contributionSourceKind: 'buff',
       }),
+    ]);
+  });
+
+  it('passes the parent contribution source kind into lifecycle operation chains', () => {
+    const lifecycleSources: unknown[] = [];
+    const target = new BuffDefinitionOperationTarget(
+      new CombatBuffContainer('enemy', new CombatAttributeSet()),
+      {
+        get: () => undefined,
+        compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+      },
+    );
+    target.configureLifecycleOperations(source => {
+      lifecycleSources.push(source);
+      return { execute: () => true, evaluate: () => true };
+    });
+
+    expect(
+      target.apply({
+        buffId: 'compound-status',
+        sourceId: 'operator',
+        definitionOwnerId: 'operator',
+        sourceActionId: 'elemental-infliction',
+        contributionSourceKind: 'status',
+        blackboardValues: {},
+        definition: {
+          stackingType: 'unique',
+          lifecycleSequences: {
+            start: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'started', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+        },
+      }),
+    ).toBe(true);
+    expect(lifecycleSources).toEqual([
+      expect.objectContaining({ contributionSourceKind: 'status' }),
     ]);
   });
 

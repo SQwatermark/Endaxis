@@ -45,6 +45,8 @@ export interface BuffLifecycleOperationSource {
   /** 创建当前 Buff 定义的 AbilitySystem；不能从宿主、来源或触发施法反推。 */
   readonly definitionOwnerId: string;
   readonly sourceActionId: string;
+  /** 当前 Buff 的贡献来源类型；生命周期派生的子 Buff 必须沿用，不能退化成普通 Buff。 */
+  readonly contributionSourceKind: import('../damage/damageContribution').DamageContributionSourceKind;
   /** 普通/叠层回调沿用 Buff 来源施法，点燃使用本次 IgniteAction 的施法身份。 */
   readonly skillCastInfo: CombatSkillCastInfo | null;
   /** 同一 Buff 生命周期内全部序列共用的可复制操作关系。 */

@@ -1586,7 +1586,7 @@ describe('CombatRuntimeAssembly', () => {
         },
       ],
     });
-    const assembly = new CombatRuntimeAssembly({
+    new CombatRuntimeAssembly({
       ...nativeEventRuntimeOptions(),
       enemy: testEnemy,
       resources: {
@@ -1621,10 +1621,23 @@ describe('CombatRuntimeAssembly', () => {
       createOperationExecutor: () => rejectingExecutor,
     });
 
-    expect(assembly.tryStartSkill('source', 'support', 'support-cast')).toBe(true);
+    expect(
+      allyRuntime.apply({
+        buffId: 'source-parent',
+        sourceId: 'source',
+        definitionOwnerId: 'source',
+        sourceActionId: 'support',
+        contributionSourceKind: 'status',
+        blackboardValues: {},
+        definition: parentDefinition,
+      }),
+    ).toBe(true);
     expect(allyBuffs.getCountById('source-parent')).toBe(1);
     expect(allyBuffs.getCountById('source-child')).toBe(1);
     expect(sourceBuffs.getCountById('source-child')).toBe(0);
+    expect(
+      allyBuffs.buffs.find(buff => buff.definition.id === 'source-child')?.runtimeState,
+    ).toMatchObject({ contributionSourceKind: 'status' });
   });
 
   it('emits before-cast events for both direct and deferred skill starts', () => {
@@ -3775,6 +3788,7 @@ describe('CombatRuntimeAssembly', () => {
         sourceId: child.sourceId,
         definitionOwnerId: child.definitionOwnerId,
         sourceActionId: child.sourceActionId,
+        contributionSourceKind: child.runtimeState.contributionSourceKind,
         skillCastInfo: child.skillCastInfo,
       };
       expect(child.skillCastInfo).toBeNull();

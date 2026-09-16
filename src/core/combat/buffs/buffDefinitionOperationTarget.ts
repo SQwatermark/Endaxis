@@ -367,6 +367,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
                 sourceId: actionSourceId,
                 definitionOwnerId: buff.definitionOwnerId,
                 sourceActionId: buff.sourceActionId,
+                contributionSourceKind: buff.runtimeState.contributionSourceKind,
                 skillCastInfo,
                 operations: operations ?? buff.runtimeState.actionHost!.operations,
               }),

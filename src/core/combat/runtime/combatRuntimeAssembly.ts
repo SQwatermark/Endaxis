@@ -3563,6 +3563,7 @@ export class CombatRuntimeAssembly {
     return this.#createOperationChain({
       operator: operationOperator,
       sourceActionId: castId,
+      contributionSourceKind: source.contributionSourceKind,
       ...(cast?.originCastId === undefined ? {} : { castId: cast.originCastId }),
       // 宿主、Buff 来源和触发施法都可能属于不同干员；定义目录使用实例保存的显式身份。
       definitionOperator,
@@ -3631,6 +3632,8 @@ export class CombatRuntimeAssembly {
     readonly castId?: string;
     /** 后代技能使用自身程序执行，但回执与事件继续归因发起这条动作链的来源。 */
     readonly sourceActionId?: string;
+    /** Buff 生命周期派生链沿用根 Buff 的贡献来源类型。 */
+    readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
     /** 跨实体 Buff 生命周期仍从创建该定义的原始 AbilitySystem 解析后代资源。 */
     readonly definitionOperator?: CombatOperatorProgram;
     readonly program: CombatOperationProgram;
@@ -3760,6 +3763,9 @@ export class CombatRuntimeAssembly {
       readProcessingSkillCastId: ownerId =>
         this.#abilitySystems.get(ownerId)?.currentProcessingSkillCastId,
       sourceActionId,
+      ...(options.contributionSourceKind === undefined
+        ? {}
+        : { contributionSourceKind: options.contributionSourceKind }),
       resolveTarget: target => this.#resolveBuffTarget(target, operatorId),
       resolveApplicationTargets: target =>
         this.#resolveBuffApplicationTargets(
