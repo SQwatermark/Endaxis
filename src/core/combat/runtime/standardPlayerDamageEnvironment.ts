@@ -832,7 +832,11 @@ export class StandardPlayerDamageEnvironment {
       emitPoiseSourceEvent: (event, modifier) => this.#emit(operatorId, event, modifier),
       emitPoiseTargetEvent: (event, modifier) => this.#emit('enemy', event, modifier),
       beforePoiseZero: modifier =>
-        this.#poiseBreakBuffs.begin(modifier.sourceId, poiseBreakDefinition),
+        this.#poiseBreakBuffs.begin(
+          modifier.sourceId,
+          poiseBreakDefinition,
+          this.enemyVitals.poiseDamageSourceShares(),
+        ),
       // 配装元素链仍需独立闭环，不能因 HP 伤害可用而自动开放。
       delegate: 'program' in context ? this.#createReactionExecutor(context) : strictTerminal,
     });
@@ -1576,6 +1580,7 @@ export class StandardPlayerDamageEnvironment {
         this.#poiseBreakBuffs.begin(
           payload.sourceId,
           this.#poiseBreakDefinitions.get(payload.sourceId),
+          this.enemyVitals.poiseDamageSourceShares(),
         ),
       delegate: strictTerminal,
     };

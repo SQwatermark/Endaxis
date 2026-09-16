@@ -85,6 +85,7 @@ export function tickVitals(
   ) {
     invalidatePeriodicTimer(state.poiseRecoveryTimer);
     state.poise = state.maxPoise;
+    state.poiseDamageBySource.clear();
     if (state.poiseBrokenEndTime > 0) {
       resetPeriodicTimer(state.poiseBrokenEndTimer, state.poiseBrokenEndTime, true);
     } else {

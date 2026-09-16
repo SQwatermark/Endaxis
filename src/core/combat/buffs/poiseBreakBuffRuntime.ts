@@ -11,7 +11,11 @@ export class PoiseBreakBuffRuntime {
     readonly runtimeState = new Set<number>(),
   ) {}
 
-  begin(sourceId: string, definition: ResolvedSkillBuffDefinition | undefined): void {
+  begin(
+    sourceId: string,
+    definition: ResolvedSkillBuffDefinition | undefined,
+    sourceShares?: readonly { readonly sourceId: string; readonly weight: number }[],
+  ): void {
     if (definition === undefined)
       throw new Error(`poise break requires Buff definition '${POISE_BREAK_BUFF_ID}'`);
     const buff = this.target.applyScoped({
@@ -20,6 +24,12 @@ export class PoiseBreakBuffRuntime {
       sourceId,
       sourceActionId: 'poise-break',
       contributionSourceKind: 'stagger',
+      contributionSourceShares: sourceShares?.map(share => ({
+        providerOperatorId: share.sourceId,
+        sourceKind: 'stagger',
+        sourceId: POISE_BREAK_BUFF_ID,
+        weight: share.weight,
+      })),
       blackboardValues: {},
     });
     if (buff !== null) this.runtimeState.add(buff.instanceId);

@@ -229,6 +229,8 @@ export interface CombatVitalsState {
   readonly poiseBrokenEndTime: number;
   readonly poiseRecoveryTimer: PeriodicTimerState;
   readonly poiseBrokenEndTimer: PeriodicTimerState;
+  /** 当前失衡条本轮实际损失值，按造成者累计；溢出失衡伤害不进入。 */
+  readonly poiseDamageBySource: Map<string, number>;
   readonly healthFloors: Map<number, number>;
   nextHealthFloorId: number;
 }

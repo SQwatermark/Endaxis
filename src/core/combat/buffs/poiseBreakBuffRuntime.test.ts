@@ -9,6 +9,66 @@ import { CombatVitals } from '../resources/combatVitals';
 import { CombatVitalsRuntime } from '../resources/combatVitalsRuntime';
 import { POISE_BREAK_BUFF_ID, PoiseBreakBuffRuntime } from './poiseBreakBuffRuntime';
 
+it('失衡窗口按本轮实际扣除值冻结来源，最后一击的溢出失衡不计入', () => {
+  const container = new CombatBuffContainer<string>('enemy', new CombatAttributeSet<string>());
+  const definition = {
+    stackingType: 'unlimited' as const,
+    damageModifiers: [{ enabledSide: 'defender' as const, processors: [] }],
+  };
+  const target = new BuffDefinitionOperationTarget(container, {
+    get: () => undefined,
+    compile: () => ({ id: POISE_BREAK_BUFF_ID, ...definition }),
+  });
+  const lifecycle = new PoiseBreakBuffRuntime(target);
+  const vitals = new CombatVitals({
+    health: 100,
+    maxHealth: 100,
+    poise: 100,
+    maxPoise: 100,
+    poiseRecoveryTime: 1,
+    poiseRecoveryTimeMultiplier: 1,
+    poiseBrokenEndTime: 0,
+    poiseImmune: false,
+  });
+  const clock = new CombatClock();
+  const receipt = new CombatReceiptCollector();
+  const hit = (sourceId: string, value: number) =>
+    executePoiseDamage({
+      sourceId,
+      targetId: 'enemy',
+      target: vitals,
+      calculationValue: value,
+      outputMultiplier: 1,
+      takenMultiplier: 1,
+      clock,
+      receipt,
+      emitSourceEvent: () => {},
+      emitTargetEvent: () => {},
+      beforePoiseZero: modifier =>
+        lifecycle.begin(modifier.sourceId, definition, vitals.poiseDamageSourceShares()),
+    });
+
+  expect(hit('first', 30).actualDelta).toBe(-30);
+  expect(hit('breaker', 100).actualDelta).toBe(-70);
+  expect(container.buffs[0]!.damageModifiers[0]!.resolveContributionSources?.()).toEqual([
+    {
+      providerOperatorId: 'first',
+      sourceKind: 'stagger',
+      sourceId: POISE_BREAK_BUFF_ID,
+      weight: 30,
+    },
+    {
+      providerOperatorId: 'breaker',
+      sourceKind: 'stagger',
+      sourceId: POISE_BREAK_BUFF_ID,
+      weight: 70,
+    },
+  ]);
+
+  vitals.tick(1);
+  expect(vitals.poiseDamageSourceShares()).toEqual([]);
+});
+
 it('恢复清理列表只解析当前容器的实例，不结束旧分支或同 ID 的其他实例', () => {
   const createTarget = () =>
     new BuffDefinitionOperationTarget(

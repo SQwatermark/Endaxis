@@ -213,6 +213,7 @@ export interface BuffApplicationRequest {
   readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
   readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
+  readonly contributionSourceShares?: readonly import('../damage/damageContribution').DamageContributionSourceShare[];
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
   readonly isExtra?: boolean;

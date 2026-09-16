@@ -88,6 +88,7 @@ export function executePoiseDamage(input: ExecutePoiseDamageInput): PoiseDamageE
   let brokePoise = false;
   if (!modifier.cancelled && input.target.hasPoise) {
     modifier.actualDelta = input.target.applyPoiseDelta(modifier.finalDelta);
+    input.target.recordPoiseDamageSource(input.sourceId, modifier.actualDelta);
     if (modifier.finalDelta < 0) input.emitTargetEvent('takePoiseDamage', modifier);
     brokePoise = input.target.beginPoiseBreakIfZero();
     if (brokePoise) {

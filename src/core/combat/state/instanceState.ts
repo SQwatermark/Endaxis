@@ -276,6 +276,9 @@ export interface BuffInstanceState<Key extends string> {
   /** 当前每一层的施加者，顺序与增层顺序一致；减层从末尾移除。 */
   readonly enhanceSourceIds: string[];
   contributionSourceKind: import('../damage/damageContribution').DamageContributionSourceKind;
+  /** null 使用逐层来源；非 null 为创建时冻结的聚合修正来源权重。 */
+  contributionSourceShares:
+    readonly import('../damage/damageContribution').DamageContributionSourceShare[] | null;
   sourceActionId: string;
   definitionOwnerId: string;
   /** null 表示创建时没有显式的来源属性读取目标；否则恢复时必须按实体身份接回读取端口。 */
@@ -305,6 +308,7 @@ export function createBuffInstanceState<Key extends string>(
     identity,
     enhanceSourceIds: [identity.sourceId],
     contributionSourceKind: 'buff',
+    contributionSourceShares: null,
     sourceActionId: identity.definitionId,
     definitionOwnerId: identity.sourceId,
     sourceAttributeOwnerId: null,

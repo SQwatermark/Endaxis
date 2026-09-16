@@ -94,6 +94,7 @@ import {
   type DamageModifierConditionEvaluator,
   type DamageModifierDefinition,
 } from '../damage/damageModifiers';
+import { normalizeDamageContributionSourceShares } from '../damage/damageContribution';
 import type {
   DamageModifierSide,
   DamageProcessTiming,
@@ -262,6 +263,7 @@ export interface CombatBuffAddOptions {
   readonly sourceActionId?: string;
   /** 贡献归因中的语义类型；只由明确知道来源语义的应用子系统覆盖。 */
   readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
+  readonly contributionSourceShares?: readonly import('../damage/damageContribution').DamageContributionSourceShare[];
   /** 创建该定义的 AbilitySystem；跨实体挂载和事件触发都不改变它。 */
   readonly definitionOwnerId?: string;
   /** 创建时复制的来源施法信息；缺少表示该 Buff 不继承施法身份。 */
@@ -465,6 +467,10 @@ export class CombatBuff<Key extends string> {
       this.blackboard.runtimeState,
     );
     this.#state.contributionSourceKind = options?.contributionSourceKind ?? 'buff';
+    this.#state.contributionSourceShares =
+      options?.contributionSourceShares === undefined
+        ? null
+        : normalizeDamageContributionSourceShares(options.contributionSourceShares);
     this.blackboard.assign(options?.blackboardValues);
     // 对应原生 Buff.Reset：本次赋值完成后收集来源修正，早于寿命/修正器求值。
     // 仅初始化新实例执行；刷新旧实例不会因此重播收集事件。
@@ -1020,6 +1026,7 @@ export class CombatBuff<Key extends string> {
 
   /** 当前聚合修正的逐层来源；实际修正仍只执行一次。 */
   private damageContributionSources(): readonly import('../damage/damageContribution').DamageContributionSourceShare[] {
+    if (this.#state.contributionSourceShares !== null) return this.#state.contributionSourceShares;
     if (this.#state.enhanceSourceIds.length !== this.#state.lifecycle.enhanceCount) {
       throw new Error(`buff '${this.definition.id}' layer source ledger is out of sync`);
     }

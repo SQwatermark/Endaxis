@@ -190,6 +190,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
           blackboardValues: request.blackboardValues,
           sourceActionId: request.sourceActionId ?? request.buffId,
           contributionSourceKind: request.contributionSourceKind,
+          contributionSourceShares: request.contributionSourceShares,
           definitionOwnerId: request.definitionOwnerId ?? request.sourceId,
           ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
           ...(request.finishParentGlobalBuff === undefined

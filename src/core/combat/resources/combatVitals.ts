@@ -115,6 +115,19 @@ export class CombatVitals {
   applyPoiseDelta(delta: number): number {
     return applyVitalsPoiseDelta(this.runtimeState, delta);
   }
+  recordPoiseDamageSource(sourceId: string, actualDelta: number): void {
+    if (actualDelta >= -0.00001) return;
+    this.runtimeState.poiseDamageBySource.set(
+      sourceId,
+      (this.runtimeState.poiseDamageBySource.get(sourceId) ?? 0) - actualDelta,
+    );
+  }
+  poiseDamageSourceShares(): readonly { readonly sourceId: string; readonly weight: number }[] {
+    return [...this.runtimeState.poiseDamageBySource].map(([sourceId, weight]) => ({
+      sourceId,
+      weight,
+    }));
+  }
   beginPoiseBreakIfZero(): boolean {
     return beginVitalsPoiseBreak(this.runtimeState);
   }
@@ -165,6 +178,7 @@ function createCombatVitalsState(snapshot: CombatVitalsSnapshot): CombatVitalsSt
     hasPoiseBrokenTag: false,
     poiseRecoveryTimer: createPeriodicTimerState(),
     poiseBrokenEndTimer: createPeriodicTimerState(),
+    poiseDamageBySource: new Map(),
     healthFloors: new Map(),
     nextHealthFloorId: 1,
   };
