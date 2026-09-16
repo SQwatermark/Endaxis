@@ -134,11 +134,7 @@ export function decomposeDamageContribution(
 
   const totalLogEffect = merged.reduce((sum, effect) => sum + effect.logEffect, 0);
   const expectedLogEffect = Math.log(actualDamage / selfDamage);
-  if (
-    !Number.isFinite(totalLogEffect) ||
-    !Number.isFinite(expectedLogEffect) ||
-    Math.abs(totalLogEffect) <= Number.EPSILON
-  ) {
+  if (!Number.isFinite(totalLogEffect) || !Number.isFinite(expectedLogEffect)) {
     return {
       self: actualDamage,
       external: [],
@@ -155,19 +151,21 @@ export function decomposeDamageContribution(
     Math.abs(actualDamage - selfDamage) <= Number.EPSILON
       ? selfDamage
       : (actualDamage - selfDamage) / expectedLogEffect;
-  const scale = expectedLogEffect / totalLogEffect;
   const external = merged.map(effect => ({
     providerOperatorId: effect.providerOperatorId,
     sourceKind: effect.sourceKind,
     sourceId: effect.sourceId,
-    value: logMean * effect.logEffect * scale,
+    value: logMean * effect.logEffect,
   }));
   const externalTotal = external.reduce((sum, entry) => sum + entry.value, 0);
+  // 已知来源只领取自身可证明的对数影响。公式中还有未登记的乘区时，
+  // 将剩余差额显式留在未归因项，不能按比例放大已知来源来伪造完整解释。
+  const unallocated = actualDamage - selfDamage - externalTotal;
   return {
-    // 以自身项吸收最后的浮点余差，序列化后仍严格守恒。
-    self: actualDamage - externalTotal,
+    self: selfDamage,
     external,
-    unallocated: 0,
+    // 以未归因项吸收最后的浮点余差，序列化后仍严格守恒。
+    unallocated,
     diagnostics,
   };
 }
