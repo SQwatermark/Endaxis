@@ -27,6 +27,8 @@ export interface TimelineHitMarker {
   readonly frameOffset: number;
   /** 在条件分支里，跑不跑取决于当时的条件。 */
   readonly conditional: boolean;
+  /** 由能力实体、Buff 或事件响应追加产生，而不是技能根序列直接造成。 */
+  readonly triggered?: true;
 }
 
 /** 页面算好像素位置后交给组件画出来的命中点。 */
@@ -37,6 +39,10 @@ export interface TimelineHitMarkerView {
   /** 相对技能块左边缘的像素偏移。 */
   readonly leftPx: number;
   readonly title?: string;
+  /** 追加触发的命中；时间轴使用旧版约定的黄色标记。 */
+  readonly triggered?: boolean;
+  /** 同帧追加命中的纵向序号，避免多个黄色标记完全重叠。 */
+  readonly triggeredStackIndex?: number;
   /** 模拟回执确认该命中发生了暴击。 */
   readonly critical?: boolean;
   /** 该命中是否被编辑器强制设为暴击；仅用于复刻旧版命中点反馈。 */
@@ -84,6 +90,7 @@ function collectDamageSteps(
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions,
   buffDefinitions?: OperatorBuffDefinitions,
   activeBuffIds: ReadonlySet<string> = new Set(),
+  triggered = false,
 ): void {
   if (step.kind === 'dealDamage' || step.kind === 'dealFixedDamage') {
     if (step.key === undefined || step.key.length === 0) {
@@ -96,6 +103,7 @@ function collectDamageSteps(
       hitId: deriveHitId(cast.id, step.key),
       frameOffset,
       conditional,
+      ...(triggered ? { triggered: true } : {}),
     });
     return;
   }
@@ -111,6 +119,7 @@ function collectDamageSteps(
           abilityEntityDefinitions,
           buffDefinitions,
           activeBuffIds,
+          triggered,
         );
       }
     return;
@@ -128,6 +137,7 @@ function collectDamageSteps(
           abilityEntityDefinitions,
           buffDefinitions,
           activeBuffIds,
+          triggered,
         );
       }
       return;
@@ -143,6 +153,7 @@ function collectDamageSteps(
         abilityEntityDefinitions,
         buffDefinitions,
         activeBuffIds,
+        triggered,
       );
     if (staticResult === true) return;
     for (const nested of step.whenFalse?.steps ?? []) {
@@ -155,6 +166,7 @@ function collectDamageSteps(
         abilityEntityDefinitions,
         buffDefinitions,
         activeBuffIds,
+        triggered,
       );
     }
     return;
@@ -170,6 +182,7 @@ function collectDamageSteps(
         abilityEntityDefinitions,
         buffDefinitions,
         activeBuffIds,
+        triggered,
       );
     return;
   }
@@ -184,6 +197,7 @@ function collectDamageSteps(
         abilityEntityDefinitions,
         buffDefinitions,
         activeBuffIds,
+        triggered,
       );
     return;
   }
@@ -199,6 +213,7 @@ function collectDamageSteps(
           abilityEntityDefinitions,
           buffDefinitions,
           activeBuffIds,
+          true,
         );
       }
     }
@@ -255,6 +270,7 @@ function collectDamageSteps(
           abilityEntityDefinitions,
           buffDefinitions,
           activeBuffIds,
+          true,
         );
       }
     }
@@ -281,6 +297,7 @@ function collectBuffDamageSteps(
         abilityEntityDefinitions,
         buffDefinitions,
         activeBuffIds,
+        true,
       );
     }
   };

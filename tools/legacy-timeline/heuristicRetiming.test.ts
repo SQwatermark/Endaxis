@@ -72,6 +72,55 @@ it('把同步切换成 Buff 的输入作为已执行的一帧参与后续全局�
   expect(project.scenarios[0]!.battle.simulationRange?.endFrame).toBe(25);
 });
 
+it('技能被中断时以中断帧作为显示结束继续调整后续技能', () => {
+  const firstCastId = 'legacy:test:track:0:cast:0';
+  const secondCastId = 'legacy:test:track:0:cast:1';
+  const project = {
+    scenarios: [
+      {
+        id: 'test',
+        battle: { durationFrames: 60 },
+        tracks: [
+          {
+            skillCasts: [
+              { id: firstCastId, placement: { startFrame: 10 } },
+              { id: secondCastId, placement: { startFrame: 12 } },
+            ],
+          },
+        ],
+      },
+    ],
+  } as unknown as EndaxisProjectDocument;
+  const preparedSource = {
+    scenarioList: [
+      {
+        id: 'test',
+        data: { tracks: [{ actions: [{ startTime: 10 }, { startTime: 12 }] }] },
+      },
+    ],
+  };
+
+  retimeLegacyProjectBySimulation(project, preparedSource, scenario => {
+    const second = scenario.tracks[0]!.skillCasts[1]!;
+    const secondEnabled = second.presentation?.disabled !== true;
+    const secondStart = second.placement.startFrame!;
+    return {
+      receiptEntries: [
+        receipt(10, 'SkillStarted', firstCastId),
+        receipt(18, 'SkillInterrupted', firstCastId),
+        ...(secondEnabled
+          ? [
+              receipt(secondStart, 'SkillStarted', secondCastId),
+              receipt(secondStart + 4, 'SkillOperableBoundaryReached', secondCastId),
+            ]
+          : []),
+      ],
+    };
+  });
+
+  expect(project.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame).toBe(18);
+});
+
 it('在显示边界后寻找下一技能最早允许接续的帧', () => {
   const firstCastId = 'legacy:test:track:0:cast:0';
   const secondCastId = 'legacy:test:track:0:cast:1';

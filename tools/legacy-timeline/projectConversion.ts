@@ -94,38 +94,61 @@ function resolveLegacySkillSequence(
 ): readonly { source: SkillCastDocument['source']; offsetFrames: number }[] | null {
   const explicit = record(action.convertedSequence);
   if (explicit === null || explicit.kind !== 'operatorSkillSequence') return null;
-  const skillGroupKey = string(explicit.skillGroupKey);
-  const parsedVariantKey =
-    explicit.variantKey === undefined ? undefined : string(explicit.variantKey);
-  if (skillGroupKey === null || parsedVariantKey === null) return [];
-  const variantKey = parsedVariantKey ?? undefined;
   const operator = repository.getOperator(operatorSlug);
-  const group = operator?.skillGroups.find(candidate => candidate.key === skillGroupKey);
-  if (group === undefined) return [];
-  let skills;
-  try {
-    skills = resolveSkillGroupPlacementSkills(group, variantKey);
-  } catch {
+  if (operator === null) return [];
+  const parts = [explicit, ...records(explicit.continuations)];
+  const resolvedParts = parts.map(part => {
+    const skillGroupKey = string(part.skillGroupKey);
+    const parsedVariantKey = part.variantKey === undefined ? undefined : string(part.variantKey);
+    if (skillGroupKey === null || parsedVariantKey === null) return null;
+    const variantKey = parsedVariantKey ?? undefined;
+    const group = operator.skillGroups.find(candidate => candidate.key === skillGroupKey);
+    if (group === undefined) return null;
+    let skills;
+    try {
+      skills = resolveSkillGroupPlacementSkills(group, variantKey);
+    } catch {
+      return null;
+    }
+    const policy =
+      variantKey === undefined
+        ? group.placementPolicy
+        : group.variants?.find(candidate => candidate.key === variantKey)?.placementPolicy;
+    return { skillGroupKey, skills, policy };
+  });
+  if (resolvedParts.some(part => part === null)) return [];
+  if (
+    resolvedParts.length > 1 &&
+    resolvedParts.some(part => part!.policy?.kind === 'recursiveInput')
+  ) {
     return [];
   }
-  const policy =
-    variantKey === undefined
-      ? group.placementPolicy
-      : group.variants?.find(candidate => candidate.key === variantKey)?.placementPolicy;
-  if (policy?.kind === 'recursiveInput') {
-    const first = skills.find(skill => skill.key === policy.firstSkillKey);
+  const onlyPart = resolvedParts[0]!;
+  if (onlyPart.policy?.kind === 'recursiveInput') {
+    const first = onlyPart.skills.find(skill => skill.key === onlyPart.policy!.firstSkillKey);
     return first === undefined
       ? []
       : [
           {
-            source: { kind: 'operatorSkill', skillGroupKey, skillKey: first.key },
+            source: {
+              kind: 'operatorSkill',
+              skillGroupKey: onlyPart.skillGroupKey,
+              skillKey: first.key,
+            },
             offsetFrames: 0,
           },
         ];
   }
-  const offsets = layoutSkillGroupPlacement(skills).offsets;
-  return skills.map((skill, index) => ({
-    source: { kind: 'operatorSkill', skillGroupKey, skillKey: skill.key },
+  const flattened = resolvedParts.flatMap(part =>
+    part!.skills.map(skill => ({ skillGroupKey: part!.skillGroupKey, skill })),
+  );
+  const offsets = layoutSkillGroupPlacement(flattened.map(item => item.skill)).offsets;
+  return flattened.map((item, index) => ({
+    source: {
+      kind: 'operatorSkill',
+      skillGroupKey: item.skillGroupKey,
+      skillKey: item.skill.key,
+    },
     offsetFrames: offsets[index]!,
   }));
 }

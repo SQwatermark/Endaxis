@@ -4,11 +4,11 @@ import { gameDataRepository } from '../../src/data/gameDataRepository';
 import { legacySkillIdentity } from './sourcePreparation';
 
 it('contains the complete one-time mapping catalog for the legacy data snapshot', () => {
-  expect(Object.keys(mappings.operators)).toHaveLength(30);
-  expect(Object.keys(mappings.weapons)).toHaveLength(77);
-  expect(Object.keys(mappings.gears)).toHaveLength(243);
+  expect(Object.keys(mappings.operators)).toHaveLength(31);
+  expect(Object.keys(mappings.weapons)).toHaveLength(79);
+  expect(Object.keys(mappings.gears)).toHaveLength(258);
   expect(Object.keys(mappings.enemies)).toHaveLength(82);
-  expect(Object.values(mappings.skills).reduce((sum, rules) => sum + rules.length, 0)).toBe(300);
+  expect(Object.values(mappings.skills).reduce((sum, rules) => sum + rules.length, 0)).toBe(317);
 
   // 旧版把伊冯整套强化普攻保存成一个技能块；新版是可递归分叉的技能序列，不能映射到某一段。
   expect(
@@ -44,6 +44,8 @@ it('public sample weapon asset identities do not assume matching native ID suffi
     ['detonation-unit', 'wpn_artsunit_0010'],
     ['dreams-of-the-starry-beach', 'wpn_artsunit_0013'],
     ['khravengger', 'wpn_greatsword_0013'],
+    ['umbra-of-frigid', 'wpn_artsunit_0019'],
+    ['sufferings-end', 'wpn_artsunit_0020'],
   ] as const) {
     expect(gameDataRepository.getWeapon(mappings.weapons[slug])?.assetSlug).toBe(assetSlug);
   }
@@ -67,9 +69,23 @@ it('keeps each reviewed skill mapping unique and points to an existing group mem
       expect(group, slug + '/' + target.skillGroupKey).toBeDefined();
       if (!('skillKey' in target)) {
         const variantKey = 'variantKey' in target ? target.variantKey : undefined;
-        const variant = group.variants?.find(candidate => candidate.key === variantKey);
-        expect(variant, slug + '/' + variantKey).toBeDefined();
-        expect(variant?.placementPolicy?.kind, slug + '/' + variantKey).toBe('recursiveInput');
+        if (variantKey !== undefined) {
+          const variant = group.variants?.find(candidate => candidate.key === variantKey);
+          expect(variant, slug + '/' + variantKey).toBeDefined();
+        }
+        for (const continuation of 'continuations' in target ? target.continuations : []) {
+          const continuationGroup = definition.skillGroups.find(
+            group => group.key === continuation.skillGroupKey,
+          );
+          expect(continuationGroup, slug + '/' + continuation.skillGroupKey).toBeDefined();
+          if (continuation.variantKey !== undefined)
+            expect(
+              continuationGroup?.variants?.some(
+                candidate => candidate.key === continuation.variantKey,
+              ),
+              slug + '/' + continuation.variantKey,
+            ).toBe(true);
+        }
         continue;
       }
       const skills = [

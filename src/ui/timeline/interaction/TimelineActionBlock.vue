@@ -101,7 +101,12 @@ function setHovered(value: boolean): void {
 }
 
 function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
-  return { left: `${projectTimelineHitMarkerLeftPx(marker.leftPx)}px` };
+  return {
+    left: `${projectTimelineHitMarkerLeftPx(marker.leftPx)}px`,
+    ...(marker.triggeredStackIndex === undefined
+      ? {}
+      : { '--triggered-stack-index': String(marker.triggeredStackIndex) }),
+  };
 }
 
 function customBarStyle(bar: EditableBarDocument, index: number): Record<string, string> {
@@ -189,6 +194,7 @@ function formatDurationFrames(frames: number): string {
       :key="`${hit.hitId}:${hit.executionFrame ?? 'preview'}`"
       class="hit-marker"
       :class="{
+        'is-triggered': hit.triggered,
         'is-critical': hit.critical,
         'is-forced-crit': hit.forcedCritical,
       }"
@@ -782,6 +788,18 @@ function formatDurationFrames(frames: number): string {
   background-color: #ff6b6b;
   border-color: #ffd166;
   box-shadow: 0 0 8px rgba(255, 209, 102, 0.9);
+}
+
+.hit-marker.is-triggered {
+  bottom: calc(-18px - var(--triggered-stack-index, 0) * 10px);
+  background-color: #faad14;
+  border-color: #d48806;
+}
+
+.hit-marker.is-triggered.is-critical,
+.hit-marker.is-triggered.is-forced-crit {
+  background-color: #ff6b6b;
+  border-color: #ffd166;
 }
 
 .hit-marker:hover {

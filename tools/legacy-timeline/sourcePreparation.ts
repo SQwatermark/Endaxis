@@ -5,6 +5,11 @@ export interface LegacySkillSequenceTarget {
   readonly kind: 'operatorSkillSequence';
   readonly skillGroupKey: string;
   readonly variantKey?: string;
+  /** 同一旧技能块实际还包含的后续技能组，按数组顺序紧接在首技能组之后。 */
+  readonly continuations?: readonly {
+    readonly skillGroupKey: string;
+    readonly variantKey?: string;
+  }[];
 }
 
 export type LegacySkillMappingTarget = SkillCastDocument['source'] | LegacySkillSequenceTarget;

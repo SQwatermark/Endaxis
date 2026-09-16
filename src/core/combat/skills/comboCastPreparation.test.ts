@@ -111,7 +111,13 @@ describe('木桩连携施法准备', () => {
     expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
   });
 
-  it('不能把非敌人的智能候选静默改成敌人', () => {
-    expect(() => prepareComboCast({ smartTarget: 'input' }, pending())).toThrow('non-enemy target');
+  it('非敌人候选按原生智能选敌外层回退到固定敌方主目标', () => {
+    const context = {
+      blackboard: new ActionBlackboard(),
+      targetContext: new RuntimeTargetContext(),
+    };
+    applySkillCastStartPreparation(prepareComboCast({ smartTarget: 'input' }, pending()), context);
+    expect(context.targetContext.get('trigger')).toEqual([{ kind: 'enemy' }]);
+    expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
   });
 });

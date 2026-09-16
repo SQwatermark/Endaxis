@@ -156,6 +156,7 @@ describe('projectCastHitMarkers', () => {
       frameOffset: 17,
       stepKey: 'child-hit',
       conditional: false,
+      triggered: true,
     });
   });
 
@@ -189,6 +190,7 @@ describe('projectCastHitMarkers', () => {
       frameOffset: 17,
       stepKey: 'child-hit',
       conditional: false,
+      triggered: true,
     });
   });
 
@@ -230,6 +232,7 @@ describe('projectCastHitMarkers', () => {
         frameOffset: 17,
         stepKey: 'second-hit',
         conditional: false,
+        triggered: true,
       },
     ]);
   });
@@ -274,6 +277,7 @@ describe('projectCastHitMarkers', () => {
         frameOffset: 10,
         stepKey: 'buff-hit',
         conditional: true,
+        triggered: true,
       },
     ]);
   });
@@ -306,6 +310,7 @@ describe('projectCastHitMarkers', () => {
         frameOffset: 16,
         stepKey: 'sword-hit',
         conditional: true,
+        triggered: true,
       },
     ]);
   });

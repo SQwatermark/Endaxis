@@ -71,6 +71,84 @@ interface LegacyResourceAdjustment {
   readonly reason: 'clampedToCurrentNativeMaximum';
 }
 
+type PreparedLegacySource = ReturnType<typeof prepareLegacySource>;
+
+function conversionIssue(path: string, error: unknown) {
+  return { path, message: error instanceof Error ? error.message : String(error) };
+}
+
+function replaceScenarioIndex(path: string, scenarioIndex: number): string {
+  return path.replace(/^scenarioList\[0\]/, `scenarioList[${scenarioIndex}]`);
+}
+
+/** 单个损坏方案不能阻止同一文件里的其他方案转换。 */
+function prepareLegacySourceBestEffort(
+  input: unknown,
+  mappings: ConversionMappings,
+): PreparedLegacySource {
+  try {
+    return prepareLegacySource(input, mappings);
+  } catch (completeError) {
+    if (input === null || typeof input !== 'object' || Array.isArray(input)) throw completeError;
+    const root = input as Record<string, unknown>;
+    if (!Array.isArray(root.scenarioList) || root.scenarioList.length === 0) throw completeError;
+    const preparedScenarios: { prepared: PreparedLegacySource; sourceIndex: number }[] = [];
+    const omittedIssues = [] as { path: string; message: string }[];
+    const seenIds = new Set<string>();
+    root.scenarioList.forEach((scenario, scenarioIndex) => {
+      const id =
+        scenario !== null && typeof scenario === 'object' && !Array.isArray(scenario)
+          ? (scenario as Record<string, unknown>).id
+          : undefined;
+      if (typeof id === 'string' && seenIds.has(id)) {
+        omittedIssues.push({
+          path: `scenarioList[${scenarioIndex}]`,
+          message: `方案 ID ${id} 重复，已省略后出现的方案`,
+        });
+        return;
+      }
+      if (typeof id === 'string') seenIds.add(id);
+      try {
+        preparedScenarios.push({
+          prepared: prepareLegacySource(
+            { ...root, scenarioList: [scenario], activeScenarioId: id },
+            mappings,
+          ),
+          sourceIndex: scenarioIndex,
+        });
+      } catch (error) {
+        omittedIssues.push(conversionIssue(`scenarioList[${scenarioIndex}]`, error));
+      }
+    });
+    if (preparedScenarios.length === 0) throw completeError;
+    const first = preparedScenarios[0]!.prepared;
+    const remap = <T extends { path: string }>(values: readonly T[], scenarioIndex: number) =>
+      values.map(value => ({ ...value, path: replaceScenarioIndex(value.path, scenarioIndex) }));
+    return {
+      source: {
+        ...(first.source as Record<string, unknown>),
+        activeScenarioId: root.activeScenarioId,
+        scenarioList: preparedScenarios.flatMap(({ prepared }) => prepared.source.scenarioList),
+      },
+      issues: [
+        ...omittedIssues,
+        ...preparedScenarios.flatMap(({ prepared, sourceIndex }) =>
+          remap(prepared.issues, sourceIndex),
+        ),
+      ],
+      times: preparedScenarios.flatMap(({ prepared, sourceIndex }) =>
+        remap(prepared.times, sourceIndex),
+      ),
+      identityChanges: preparedScenarios.flatMap(({ prepared, sourceIndex }) =>
+        remap(prepared.identityChanges, sourceIndex),
+      ),
+      unresolvedSkills: preparedScenarios.flatMap(({ prepared, sourceIndex }) =>
+        remap(prepared.unresolvedSkills, sourceIndex),
+      ),
+    };
+  }
+}
+
 function normalizeInitialUltimateEnergy(
   project: EndaxisProjectDocument,
   repository: GameDataRepository,
@@ -111,13 +189,13 @@ function normalizeInitialUltimateEnergy(
   return adjustments;
 }
 
-/** 离线工具的唯一转换入口；有遗漏或目标校验失败时不返回可用项目。 */
+/** 旧项目转换入口；可安全省略的内容写入报告，尽量返回仍可编辑的项目。 */
 export function convertLegacyTimeline(
   input: unknown,
   repository: GameDataRepository,
   mappings: ConversionMappings = {},
 ) {
-  const prepared = prepareLegacySource(input, mappings);
+  const prepared = prepareLegacySourceBestEffort(input, mappings);
   const result = createLegacyProjectImporter(repository).migrate(prepared.source);
   const mechanicAdapters = new MechanicAdapterRegistry([contingencyContractMechanicAdapter]);
   const simulation = new ScenarioSimulationService({
@@ -145,60 +223,84 @@ export function convertLegacyTimeline(
     return session.collectResult();
   };
   const issues = [...prepared.issues];
+  const fatalIssues: { path: string; message: string }[] = [];
+  let project = result.ok ? result.value : null;
   let resourceAdjustments: LegacyResourceAdjustment[] = [];
-  if (!result.ok) issues.push(...result.errors.map(message => ({ path: '', message })));
+  if (!result.ok) fatalIssues.push(...result.errors.map(message => ({ path: '', message })));
   else issues.push(...result.warnings.map(message => ({ path: '', message })));
-  if (result.ok) {
-    const checked = parseProjectDocument(result.value, { gameDataRepository: repository });
-    if (!checked.ok) issues.push({ path: '', message: JSON.stringify(checked) });
-    else resourceAdjustments = normalizeInitialUltimateEnergy(result.value, repository);
+  if (project !== null) {
+    resourceAdjustments = normalizeInitialUltimateEnergy(project, repository);
+    const checked = parseProjectDocument(project, { gameDataRepository: repository });
+    if (!checked.ok) fatalIssues.push({ path: '', message: JSON.stringify(checked) });
   }
-  // 智能重排会启动正式模拟，必须先完成所有静态校验。否则初始资源等非法值会让
-  // 转换器直接抛错，用户既拿不到项目，也拿不到说明具体字段的阻塞报告。
-  const sequenceExpansion =
-    result.ok && issues.length === 0
-      ? expandLegacyRecursiveSkillSequences(
-          result.value,
-          prepared.source,
-          repository,
-          runSimulation,
-        )
-      : { expansions: [], issues: [] };
+  let sequenceExpansion: ReturnType<typeof expandLegacyRecursiveSkillSequences> = {
+    expansions: [],
+    issues: [],
+  };
+  if (project !== null && fatalIssues.length === 0) {
+    const beforeExpansion = structuredClone(project);
+    try {
+      sequenceExpansion = expandLegacyRecursiveSkillSequences(
+        project,
+        prepared.source,
+        repository,
+        runSimulation,
+      );
+    } catch (error) {
+      project = beforeExpansion;
+      issues.push(conversionIssue('', error));
+    }
+  }
   issues.push(...sequenceExpansion.issues);
-  const retiming =
-    result.ok && issues.length === 0
-      ? retimeLegacyProjectBySimulation(
-          result.value,
-          prepared.source,
-          runSimulation,
-          createLegacyRuntimeReplacementResolver(repository),
-          {
-            compileInputs: scenario => simulation.compileFixedInputs(scenario),
-            createSession: (scenario, frame) =>
-              new CheckpointRetimingSession(simulation.createInputCombatSession(scenario, frame)),
-          },
-        )
-      : {
-          timingAdjustments: [],
-          skillFormAdjustments: [],
-          controlSwitchAdjustments: [],
-          inferredControlSwitches: [],
-          simulationStats: {
-            scenarioCount: 0,
-            castCount: 0,
-            candidateProbes: 0,
-            simulationRuns: 0,
-          },
-        };
-  if (result.ok && issues.length === 0) {
-    const checked = parseProjectDocument(result.value, { gameDataRepository: repository });
-    if (!checked.ok) issues.push({ path: '', message: JSON.stringify(checked) });
+  let retiming = {
+    timingAdjustments: [],
+    skillFormAdjustments: [],
+    controlSwitchAdjustments: [],
+    inferredControlSwitches: [],
+    simulationStats: {
+      scenarioCount: 0,
+      castCount: 0,
+      candidateProbes: 0,
+      simulationRuns: 0,
+    },
+  } as ReturnType<typeof retimeLegacyProjectBySimulation>;
+  if (project !== null && fatalIssues.length === 0) {
+    const beforeRetiming = structuredClone(project);
+    try {
+      retiming = retimeLegacyProjectBySimulation(
+        project,
+        prepared.source,
+        runSimulation,
+        createLegacyRuntimeReplacementResolver(repository),
+        {
+          compileInputs: scenario => simulation.compileFixedInputs(scenario),
+          createSession: (scenario, frame) =>
+            new CheckpointRetimingSession(simulation.createInputCombatSession(scenario, frame)),
+        },
+      );
+    } catch (error) {
+      project = beforeRetiming;
+      issues.push({
+        path: '',
+        message: `智能调整时间失败，已保留直接转换的位置：${conversionIssue('', error).message}`,
+      });
+    }
+  }
+  if (project !== null && fatalIssues.length === 0) {
+    const checked = parseProjectDocument(project, { gameDataRepository: repository });
+    if (!checked.ok) fatalIssues.push({ path: '', message: JSON.stringify(checked) });
   }
   return {
-    status: issues.length ? 'blocked' : 'converted',
-    project: result.ok && !issues.length ? result.value : null,
+    status:
+      project === null || fatalIssues.length > 0
+        ? 'blocked'
+        : issues.length > 0
+          ? 'converted-with-issues'
+          : 'converted',
+    project: fatalIssues.length === 0 ? project : null,
     report: {
       issues,
+      fatalIssues,
       times: prepared.times,
       identityChanges: prepared.identityChanges,
       unresolvedSkills: prepared.unresolvedSkills,

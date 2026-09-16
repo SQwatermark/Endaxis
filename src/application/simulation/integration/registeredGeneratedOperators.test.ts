@@ -1260,6 +1260,153 @@ describe('registered generated operators', () => {
     ).toBe(true);
   });
 
+  it.each(['heat', 'electric', 'cryo', 'nature'] as const)(
+    'makes Arcane will-form combo repeat the triggering %s infliction',
+    triggeringElement => {
+      const scenario = createEmptyScenario(
+        `scenario:arcane:combo-infliction:${triggeringElement}`,
+        '诀阵诀·意连携附着回归',
+      );
+      scenario.battle.durationFrames = 180;
+      scenario.tracks[0] = {
+        id: 'track:trigger',
+        operator: {
+          operatorSlug: perlica.slug,
+          level: 90,
+          promoted: true,
+          potential: 0,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 0, 1: 0 },
+        },
+        weapon: null,
+        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+      scenario.tracks[1] = {
+        id: 'track:arcane',
+        operator: {
+          operatorSlug: arcane.slug,
+          level: 90,
+          promoted: true,
+          potential: 5,
+          trustLevel: 4,
+          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+          talentStates: { 0: 2, 1: 2 },
+        },
+        weapon: {
+          weaponSlug: 'wpn_funnel_0016',
+          level: 90,
+          tuned: true,
+          potential: 5,
+          traitLevels: [9, 9, 9],
+        },
+        gears: {
+          armor: {
+            gearSlug: 'item_equip_t4_suit_usp02_body_03',
+            artificingLevels: [3, 3],
+          },
+          gloves: {
+            gearSlug: 'item_equip_t4_suit_fire_natr01_hand_04',
+            artificingLevels: [3, 3, 3],
+          },
+          accessory1: {
+            gearSlug: 'item_equip_t4_suit_usp02_edc_04',
+            artificingLevels: [3, 3],
+          },
+          accessory2: {
+            gearSlug: 'item_equip_t4_suit_usp02_edc_04',
+            artificingLevels: [3, 3],
+          },
+        },
+        initialState: { ultimateEnergy: 0 },
+        skillCasts: [],
+      };
+
+      let placed = placeSkillGroup({
+        scenario,
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'basicAttack',
+        skillKey: 'basicAttack1',
+        startFrame: 1,
+        ids: numberedPlacementIds(`arcane:${triggeringElement}:trigger`),
+      }).scenario;
+      const triggerCast = placed.tracks[0]!.skillCasts[0]!;
+      placed.tracks[0]!.skillCasts[0] = {
+        ...triggerCast,
+        customDefinition: {
+          key: 'basicAttack1',
+          sourceSkillId: 'chr_0004_pelica_attack1',
+          skillType: 'basicAttack',
+          levelSource: 'basicAttack',
+          nativeSkillType: 'attack',
+          timelineBlockFrames: 1,
+          scheduledSequences: [
+            scheduled(
+              0,
+              sequence(
+                step('applyElementalInfliction', {
+                  element: triggeringElement,
+                  isExtra: false,
+                }),
+              ),
+            ),
+          ],
+        },
+      };
+      placed = placeSkillGroup({
+        scenario: placed,
+        trackIndex: 1,
+        operator: arcane,
+        skillGroupKey: 'comboSkill',
+        startFrame: 20,
+        ids: numberedPlacementIds(`arcane:${triggeringElement}:combo`),
+      }).scenario;
+
+      const [arcaneBuild] = resolveScenarioBuilds(placed, gameDataRepository).filter(
+        build => build.operator.slug === arcane.slug,
+      );
+      if (arcaneBuild === undefined) throw new Error('missing Arcane will-form build');
+      expect(resolveOperatorPanel(arcaneBuild).attributes.will).toBeGreaterThan(
+        resolveOperatorPanel(arcaneBuild).attributes.intellect,
+      );
+
+      const result = runStandardPlayerDamageScenarioSimulation({
+        scenario: placed,
+        endFrame: 180,
+        criticalSamples: new ExplicitCriticalSampleSource(Array(40).fill(1)),
+        elementalInflictionDocument: elementalAttachments,
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        options: {
+          index: gameDataRepository,
+          resources: {
+            sharedSpGain: { baseGainEfficiency: 1 },
+            spRecoveryPauseDuration: 1.5,
+            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+            ultimateEnergySystemUnlocked: true,
+          },
+        },
+      });
+      const repeated = result.receiptEntries.filter(
+        entry => entry.event === 'ElementalInflictionApplied' && entry.sourceId === 'track:arcane',
+      );
+      expect(repeated).toContainEqual(
+        expect.objectContaining({
+          data: expect.objectContaining({ requestedElement: triggeringElement }),
+        }),
+      );
+      expect(repeated.some(entry => entry.data?.requestedElement !== triggeringElement)).toBe(
+        false,
+      );
+    },
+  );
+
   it('runs Laevatain basic attack through the default repository', () => {
     const scenario = createEmptyScenario('scenario:laevatain:registered', '莱万汀默认仓库回归');
     scenario.battle.durationFrames = 120;
