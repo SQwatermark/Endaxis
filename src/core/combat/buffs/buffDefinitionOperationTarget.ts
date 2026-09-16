@@ -189,6 +189,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
         {
           blackboardValues: request.blackboardValues,
           sourceActionId: request.sourceActionId ?? request.buffId,
+          contributionSourceKind: request.contributionSourceKind,
           definitionOwnerId: request.definitionOwnerId ?? request.sourceId,
           ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
           ...(request.finishParentGlobalBuff === undefined
@@ -219,32 +220,36 @@ export class BuffDefinitionOperationTarget<Key extends string>
   }
 
   configureBuffConsumedObserver(observer: (event: BuffConsumedEvent) => void): void {
-    this.container.configureConsumedObserver((buff, sourceOperatorId, layers, skillCastInfo) =>
-      observer({
-        buff,
-        sourceOperatorId,
-        ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
-        targetId: this.container.ownerId,
-        buffId: buff.definition.id,
-        layers,
-        buffTags: buff.definition.applyTags ?? [],
-        blackboardValues: buff.blackboard.snapshot(),
-      }),
+    this.container.configureConsumedObserver(
+      (buff, sourceOperatorId, layers, skillCastInfo, layerSourceIds) =>
+        observer({
+          buff,
+          sourceOperatorId,
+          ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
+          targetId: this.container.ownerId,
+          buffId: buff.definition.id,
+          layers,
+          layerSourceIds: layerSourceIds ?? [buff.sourceId],
+          buffTags: buff.definition.applyTags ?? [],
+          blackboardValues: buff.blackboard.snapshot(),
+        }),
     );
   }
 
   configureBuffAbsorbedObserver(observer: (event: BuffConsumedEvent) => void): void {
-    this.container.configureAbsorbedObserver((buff, sourceOperatorId, layers, skillCastInfo) =>
-      observer({
-        buff,
-        sourceOperatorId,
-        ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
-        targetId: this.container.ownerId,
-        buffId: buff.definition.id,
-        layers,
-        buffTags: buff.definition.applyTags ?? [],
-        blackboardValues: buff.blackboard.snapshot(),
-      }),
+    this.container.configureAbsorbedObserver(
+      (buff, sourceOperatorId, layers, skillCastInfo, layerSourceIds) =>
+        observer({
+          buff,
+          sourceOperatorId,
+          ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
+          targetId: this.container.ownerId,
+          buffId: buff.definition.id,
+          layers,
+          layerSourceIds: layerSourceIds ?? [buff.sourceId],
+          buffTags: buff.definition.applyTags ?? [],
+          blackboardValues: buff.blackboard.snapshot(),
+        }),
     );
   }
 

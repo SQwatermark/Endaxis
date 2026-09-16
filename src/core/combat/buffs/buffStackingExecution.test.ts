@@ -87,6 +87,8 @@ describe('Buff stacking data', () => {
       (step, input: 'increase' | 'decrease') => {
         const state = step.state;
         const attributes = {
+          recordSource: () => undefined,
+          removeSources: () => undefined,
           changed: () => {
             state.events.push(`changed:${state.buff.enhanceCount}`);
           },

@@ -2527,7 +2527,12 @@
     "levelCoeffDetail": "Уровень {level}",
     "artsIntensity": "Сила искусств",
     "artsIntensityDetail": "{value} ед.",
-    "effectiveness": "Эффективность"
+    "effectiveness": "Эффективность",
+    "contribution": "Вклад в урон",
+    "selfContribution": "Сам атакующий",
+    "unallocatedContribution": "Не распределено",
+    "environmentContribution": "Окружение",
+    "contributionSource": "{provider} · {source}"
   },
   "actionItem": {
     "damageHitTooltip": "Урон: {damage}",

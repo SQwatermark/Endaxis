@@ -2800,6 +2800,26 @@ function operatorName(slug: string | null): string {
   );
 }
 
+function contributionProviderName(operatorId: string | null): string {
+  if (operatorId === null) return t('hitDetail.environmentContribution');
+  const track = publishedSimulation.value?.scenario.tracks.find(
+    candidate => candidate?.id === operatorId,
+  );
+  return track === null || track === undefined
+    ? operatorId
+    : publishedOperatorName(track.operator?.operatorSlug ?? null);
+}
+
+function contributionSourceName(sourceId: string): string {
+  return resolveBuffDisplayName(
+    sourceId,
+    { t, te },
+    undefined,
+    undefined,
+    operatorBuffDisplayNameKeys.value,
+  );
+}
+
 function enemyName(enemyId: string): string {
   return getEnemyGameName(enemyId, locale.value);
 }
@@ -6562,6 +6582,8 @@ function setPanelDialogVisible(visible: boolean): void {
     "
     :operator-panel="hitDetailOperatorPanel"
     :contribution-source-label="hitDetailContributionSourceLabel"
+    :contribution-provider-label="contributionProviderName"
+    :contribution-source-name="contributionSourceName"
     :damage-type-label="damageElementLabel"
     :skill-type-label="skillTypeLabel"
     :labels="{
@@ -6603,6 +6625,11 @@ function setPanelDialogVisible(visible: boolean): void {
       defenseMultiplier: t('hitDetail.defMult'),
       resistanceMultiplier: t('hitDetail.resMult'),
       defenseDetail: (value: number) => t('hitDetail.defDetail', { def: value }),
+      contribution: t('hitDetail.contribution'),
+      selfContribution: t('hitDetail.selfContribution'),
+      unallocatedContribution: t('hitDetail.unallocatedContribution'),
+      contributionSource: (provider: string, source: string) =>
+        t('hitDetail.contributionSource', { provider, source }),
     }"
     @close="
       hitDetailTarget = null;

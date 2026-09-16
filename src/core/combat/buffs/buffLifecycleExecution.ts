@@ -27,11 +27,13 @@ export function setFiniteBuffDuration(state: BuffLifecycleState, duration: numbe
 export function enhanceBuffLifecycle(
   state: BuffLifecycleState,
   host: {
+    recordSource(): void;
     changed(): void;
     refreshAttributes(): void;
   },
 ): void {
   state.enhanceCount += 1;
+  host.recordSource();
   host.changed();
   host.refreshAttributes();
 }
@@ -41,6 +43,7 @@ export function decreaseBuffEnhancements(
   count: number,
   host: {
     finish(): boolean;
+    removeSources(): void;
     changed(): void;
     refreshAttributes(): void;
     refreshStacking(): void;
@@ -50,6 +53,7 @@ export function decreaseBuffEnhancements(
   if (state.finished || count <= 0) return false;
   if (state.enhanceCount <= count) return host.finish();
   state.enhanceCount -= count;
+  host.removeSources();
   host.changed();
   host.refreshAttributes();
   host.refreshStacking();

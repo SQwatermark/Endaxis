@@ -19,6 +19,7 @@ export class PoiseBreakBuffRuntime {
       definition,
       sourceId,
       sourceActionId: 'poise-break',
+      contributionSourceKind: 'stagger',
       blackboardValues: {},
     });
     if (buff !== null) this.runtimeState.add(buff.instanceId);

@@ -2720,7 +2720,12 @@
     "levelCoeffDetail": "等级 {level}",
     "artsIntensity": "源石技艺强度",
     "artsIntensityDetail": "{value} 点",
-    "effectiveness": "异常效能"
+    "effectiveness": "异常效能",
+    "contribution": "伤害贡献",
+    "selfContribution": "攻击者自身",
+    "unallocatedContribution": "未分配",
+    "environmentContribution": "环境",
+    "contributionSource": "{provider} · {source}"
   },
   "skillNames": {
     "stanceTermination": "姿态中止"

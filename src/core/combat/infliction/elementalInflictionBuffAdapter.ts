@@ -157,7 +157,10 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     };
     this.onBeforeOutputBuff?.(event);
     this.onBeforeAddedBuff?.(event);
-    const added = this.target.add(definition, this.sourceId, options);
+    const added = this.target.add(definition, this.sourceId, {
+      ...options,
+      contributionSourceKind: 'status',
+    });
     if (added === null) return;
     this.onBuffApplied?.(event);
     this.onOutputBuff?.({ ...event, buff: added });

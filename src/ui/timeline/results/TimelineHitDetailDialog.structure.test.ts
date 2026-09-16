@@ -78,6 +78,16 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).not.toContain('data.calculationMultiplier');
   });
 
+  it('shows the frozen per-hit contribution sources without recalculating them in the dialog', () => {
+    expect(source).toContain('data?.contribution');
+    expect(source).toContain('detail.contributionRows');
+    expect(source).toContain('labels.selfContribution');
+    expect(source).toContain('props.contributionProviderLabel(providerOperatorId)');
+    expect(source).toContain('props.contributionSourceName(sourceId)');
+    expect(editorSource).toContain(':contribution-provider-label="contributionProviderName"');
+    expect(editorSource).toContain(':contribution-source-name="contributionSourceName"');
+  });
+
   it('uses the legacy dialog shell and force-critical footer interaction', () => {
     expect(source).toContain('canForceCritical && allowForceCritical !== false');
     expect(source).toContain(':model-value="visible"');

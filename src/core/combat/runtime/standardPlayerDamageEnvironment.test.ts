@@ -2790,14 +2790,17 @@ describe('StandardPlayerDamageEnvironment', () => {
         sourceId: event.sourceOperatorId,
       }),
     );
-    const consumed: number[] = [];
+    const consumed: { readonly layers: number; readonly layerSourceIds: readonly string[] }[] = [];
     context.semanticEvents.register({
       ownerOperatorId: 'operator',
       trigger: { kind: 'elementalAttachmentConsumed' },
       phase: 'dataAction',
       handle: event => {
         if ('payload' in event.event && event.event.event === 'buffConsumed') {
-          consumed.push(event.event.payload.layers);
+          consumed.push({
+            layers: event.event.payload.layers,
+            layerSourceIds: event.event.payload.layerSourceIds ?? [],
+          });
         }
       },
     });
@@ -2822,7 +2825,7 @@ describe('StandardPlayerDamageEnvironment', () => {
       }),
     ).toBe(true);
 
-    expect(consumed).toEqual([2]);
+    expect(consumed).toEqual([{ layers: 2, layerSourceIds: ['operator', 'operator'] }]);
   });
 
   it('records a burst without applying a missing burst buff definition', () => {

@@ -194,6 +194,8 @@ export interface BuffConsumedEvent {
   readonly targetId: string;
   readonly buffId: string;
   readonly layers: number;
+  /** 本次实际消费的每一层施加者；顺序与该实例的增层顺序一致。 */
+  readonly layerSourceIds: readonly string[];
   readonly buffTags: readonly GameplayTag[];
   readonly blackboardValues: Readonly<Record<string, string | number | null>>;
 }
@@ -210,6 +212,7 @@ export interface BuffApplicationRequest {
   /** 后代定义继续从该 AbilitySystem 的目录解析。 */
   readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
+  readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
   readonly blackboardValues: Readonly<Record<string, number>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
   readonly isExtra?: boolean;

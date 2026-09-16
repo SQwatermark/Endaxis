@@ -2738,7 +2738,12 @@
     "levelCoeffDetail": "Level {level}",
     "artsIntensity": "Arts Intensity",
     "artsIntensityDetail": "{value} pts",
-    "effectiveness": "Effectiveness"
+    "effectiveness": "Effectiveness",
+    "contribution": "Damage Contribution",
+    "selfContribution": "Attacker Self",
+    "unallocatedContribution": "Unallocated",
+    "environmentContribution": "Environment",
+    "contributionSource": "{provider} · {source}"
   },
   "skillNames": {
     "stanceTermination": "End Stance"

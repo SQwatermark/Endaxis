@@ -153,6 +153,41 @@ it('正式容器数据图保留 Buff 黑板与属性修正的共享关系', () =
   expect(instance.lifecycle.finished).toBe(false);
 });
 
+it('增强型状态逐层保留施加者并在减层时移除最后加入的来源', () => {
+  const attributes = new CombatAttributeSet<Attribute>();
+  attributes.define('attack', 100, {});
+  const container = new CombatBuffContainer('enemy', attributes);
+  const definition: CombatBuffDefinition<Attribute> = {
+    id: 'stacked-status',
+    stackingType: 'enhance',
+    maxStackCount: 4,
+    attributeModifiers: [
+      {
+        attribute: 'attack',
+        timing: 'runtime',
+        values: attributeModifierValues('addition', 10),
+      },
+    ],
+  };
+  const buff = requireAddedBuff(
+    container.add(definition, 'operator-a', { contributionSourceKind: 'status' }),
+  );
+  container.add(definition, 'operator-b', { contributionSourceKind: 'status' });
+
+  expect(buff.runtimeState.enhanceSourceIds).toEqual(['operator-a', 'operator-b']);
+  expect(attributes.runtimeState.modifiers.map(modifier => modifier.contributionSource)).toEqual([
+    { providerOperatorId: 'operator-a', sourceKind: 'status', sourceId: 'stacked-status' },
+    { providerOperatorId: 'operator-b', sourceKind: 'status', sourceId: 'stacked-status' },
+  ]);
+
+  expect(buff.decreaseEnhanceCount(1, 'absorbed')).toBe(true);
+  expect(buff.runtimeState.enhanceSourceIds).toEqual(['operator-a']);
+  expect(attributes.runtimeState.modifiers).toHaveLength(1);
+  expect(attributes.runtimeState.modifiers[0]!.contributionSource?.providerOperatorId).toBe(
+    'operator-a',
+  );
+});
+
 it('容器从复制数据重绑实例、叠层、修正器和护盾且不重放生命周期', () => {
   const definition: CombatBuffDefinition<Attribute> = {
     id: 'restored-container',

@@ -231,6 +231,8 @@ export interface AbilityConsumedBuffPayload extends AbilityOriginPayload {
   readonly buffId: string;
   readonly buffTags: readonly GameplayTag[];
   readonly layers: number;
+  /** 消费瞬间冻结的逐层施加者，供后续反应和贡献归因使用。 */
+  readonly layerSourceIds?: readonly string[];
   readonly blackboardValues?: Readonly<Record<string, string | number | null>>;
 }
 

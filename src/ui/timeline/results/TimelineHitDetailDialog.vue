@@ -24,6 +24,8 @@ const props = defineProps<{
   operatorPanel: ResolvedOperatorPanel | null;
   operatorPanelForEntry?: (entry: CombatReceiptEntry) => ResolvedOperatorPanel | null;
   contributionSourceLabel: (entry: OperatorPanelContributionReceipt, sequence?: number) => string;
+  contributionProviderLabel: (operatorId: string | null) => string;
+  contributionSourceName: (sourceId: string) => string;
   damageTypeLabel: (value: string) => string;
   skillTypeLabel: (value: string) => string;
   labels: {
@@ -65,6 +67,10 @@ const props = defineProps<{
     defenseMultiplier: string;
     resistanceMultiplier: string;
     defenseDetail: (value: number) => string;
+    contribution: string;
+    selfContribution: string;
+    unallocatedContribution: string;
+    contributionSource: (provider: string, source: string) => string;
   };
 }>();
 
@@ -89,6 +95,7 @@ interface DamageDetail {
   readonly contextRows: readonly DetailRow[];
   readonly baseRows: readonly DetailRow[];
   readonly multiplierRows: readonly DetailRow[];
+  readonly contributionRows: readonly DetailRow[];
 }
 
 interface AttackAttributeContribution {
@@ -217,6 +224,40 @@ function toggleAttackDetail(key: number): void {
   openAttackDetails.value = next;
 }
 
+function projectContributionRows(data: CombatReceiptEntry['data']): readonly DetailRow[] {
+  const raw = data?.contribution;
+  if (raw === null || typeof raw !== 'object' || Array.isArray(raw)) return [];
+  const contribution = raw as Record<string, unknown>;
+  const self = finiteNumber(contribution.self, Number.NaN);
+  if (!Number.isFinite(self) || !Array.isArray(contribution.external)) return [];
+  const rows: DetailRow[] = [{ label: props.labels.selfContribution, value: num(self) }];
+  for (const rawEntry of contribution.external) {
+    if (rawEntry === null || typeof rawEntry !== 'object' || Array.isArray(rawEntry)) continue;
+    const entry = rawEntry as Record<string, unknown>;
+    const value = finiteNumber(entry.value, Number.NaN);
+    const providerOperatorId = entry.providerOperatorId;
+    const sourceId = entry.sourceId;
+    if (
+      !Number.isFinite(value) ||
+      (providerOperatorId !== null && typeof providerOperatorId !== 'string') ||
+      typeof sourceId !== 'string'
+    )
+      continue;
+    rows.push({
+      label: props.labels.contributionSource(
+        props.contributionProviderLabel(providerOperatorId),
+        props.contributionSourceName(sourceId),
+      ),
+      value: value >= 0 ? `+${num(value)}` : num(value),
+    });
+  }
+  const unallocated = finiteNumber(contribution.unallocated);
+  if (Math.abs(unallocated) > Number.EPSILON) {
+    rows.push({ label: props.labels.unallocatedContribution, value: num(unallocated) });
+  }
+  return rows;
+}
+
 const damageDetails = computed<readonly DamageDetail[]>(() =>
   props.entries.flatMap(entry => {
     if (entry.event !== 'DamageApplied') return [];
@@ -330,6 +371,7 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         contextRows,
         baseRows,
         multiplierRows,
+        contributionRows: projectContributionRows(entry.data),
       },
     ];
   }),
@@ -521,6 +563,18 @@ function onClose(): void {
               </tr>
             </tbody>
           </table>
+
+          <template v-if="detail.contributionRows.length > 0">
+            <div class="section-label">{{ labels.contribution }}</div>
+            <table class="stat-table">
+              <tbody>
+                <tr v-for="row in detail.contributionRows" :key="row.label">
+                  <td class="label-cell">{{ row.label }}</td>
+                  <td class="value-cell contribution-value">{{ row.value }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </template>
         </template>
       </div>
       <div v-else class="hit-detail-empty">—</div>
@@ -670,6 +724,9 @@ tr.is-sub {
 }
 .mult-value {
   color: #3b82c4;
+}
+.contribution-value {
+  color: var(--ea-gold);
 }
 .hit-detail-empty {
   padding: 24px 0 18px;

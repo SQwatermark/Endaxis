@@ -260,6 +260,8 @@ export interface CombatBuffAddOptions {
   readonly blackboardValues?: Readonly<Record<string, ActionBlackboardValue>>;
   /** 创建该实例的技能、被动或配装动作身份，用于解释后续生命周期步骤。 */
   readonly sourceActionId?: string;
+  /** 贡献归因中的语义类型；只由明确知道来源语义的应用子系统覆盖。 */
+  readonly contributionSourceKind?: import('../damage/damageContribution').DamageContributionSourceKind;
   /** 创建该定义的 AbilitySystem；跨实体挂载和事件触发都不改变它。 */
   readonly definitionOwnerId?: string;
   /** 创建时复制的来源施法信息；缺少表示该 Buff 不继承施法身份。 */
@@ -441,7 +443,7 @@ export class CombatBuff<Key extends string> {
             restoredState.damageModifiers[index],
             restoredState.damageModifiers[index]!.contributionSource ?? {
               providerOperatorId: sourceId,
-              sourceKind: 'buff',
+              sourceKind: restoredState.contributionSourceKind,
               sourceId: definition.id,
             },
           ),
@@ -461,6 +463,7 @@ export class CombatBuff<Key extends string> {
       { ownerId: owner.ownerId, instanceId, definitionId: definition.id, sourceId },
       this.blackboard.runtimeState,
     );
+    this.#state.contributionSourceKind = options?.contributionSourceKind ?? 'buff';
     this.blackboard.assign(options?.blackboardValues);
     // 对应原生 Buff.Reset：本次赋值完成后收集来源修正，早于寿命/修正器求值。
     // 仅初始化新实例执行；刷新旧实例不会因此重播收集事件。
@@ -539,7 +542,7 @@ export class CombatBuff<Key extends string> {
           undefined,
           {
             providerOperatorId: sourceId,
-            sourceKind: 'buff',
+            sourceKind: this.#state.contributionSourceKind,
             sourceId: definition.id,
           },
         ),
@@ -896,6 +899,7 @@ export class CombatBuff<Key extends string> {
 
   enhance(sourceId: string): void {
     enhanceBuffLifecycle(this.#state.lifecycle, {
+      recordSource: () => this.#state.enhanceSourceIds.push(sourceId),
       changed: () => this.definition.actions?.enhanceChanged?.(this, sourceId),
       refreshAttributes: () => this.replaceAttributeModifiers(this.createAttributeModifiers()),
     });
@@ -912,13 +916,15 @@ export class CombatBuff<Key extends string> {
     reason: BuffFinishReason,
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): boolean {
-    return decreaseBuffEnhancements(this.#state.lifecycle, count, {
+    const decreased = decreaseBuffEnhancements(this.#state.lifecycle, count, {
       finish: () => this.finish(reason, finishSkillCastInfo),
+      removeSources: () => this.#state.enhanceSourceIds.splice(-count, count),
       changed: () => this.definition.actions?.enhanceChanged?.(this, this.sourceId),
       refreshAttributes: () => this.replaceAttributeModifiers(this.createAttributeModifiers()),
       refreshStacking: () => this.#stackingGroup?.refreshAfterEnhanceDecrease(),
       notify: () => this.owner.handleBuffEnhanced(this, -count, reason, finishSkillCastInfo),
     });
+    return decreased;
   }
 
   executeAfterEnhance(sourceId: string, skillCastInfo?: CombatSkillCastInfo | null): void {
@@ -974,6 +980,9 @@ export class CombatBuff<Key extends string> {
   }
 
   private createAttributeModifiers(): readonly CombatAttributeModifier<Key>[] {
+    if (this.#state.enhanceSourceIds.length !== this.#state.lifecycle.enhanceCount) {
+      throw new Error(`buff '${this.definition.id}' layer source ledger is out of sync`);
+    }
     return (this.definition.attributeModifiers ?? []).flatMap(modifier => {
       const attributes =
         typeof modifier.attribute === 'string'
@@ -985,7 +994,7 @@ export class CombatBuff<Key extends string> {
               );
             })());
       return attributes.flatMap(attribute =>
-        Array.from({ length: this.#state.lifecycle.enhanceCount }, () => {
+        this.#state.enhanceSourceIds.map(layerSourceId => {
           const values = resolveBuffAttributeModifierValues(
             this.definition.id,
             modifier.values,
@@ -997,8 +1006,8 @@ export class CombatBuff<Key extends string> {
             modifier.source ?? ATTRIBUTE_MODIFIER_SOURCES.buff,
             modifier.timing,
             {
-              providerOperatorId: this.sourceId,
-              sourceKind: 'buff',
+              providerOperatorId: layerSourceId,
+              sourceKind: this.#state.contributionSourceKind,
               sourceId: this.definition.id,
             },
           );
@@ -1163,12 +1172,14 @@ export class CombatBuffContainer<Key extends string> {
     sourceId: string,
     layers: number,
     skillCastInfo?: CombatSkillCastInfo | null,
+    layerSourceIds?: readonly string[],
   ) => void;
   #onBuffAbsorbed?: (
     buff: CombatBuff<Key>,
     sourceId: string,
     layers: number,
     skillCastInfo?: CombatSkillCastInfo | null,
+    layerSourceIds?: readonly string[],
   ) => void;
 
   constructor(
@@ -1342,6 +1353,7 @@ export class CombatBuffContainer<Key extends string> {
       sourceId: string,
       layers: number,
       skillCastInfo?: CombatSkillCastInfo | null,
+      layerSourceIds?: readonly string[],
     ) => void,
   ): void {
     if (this.#onBuffConsumed !== undefined) {
@@ -1356,6 +1368,7 @@ export class CombatBuffContainer<Key extends string> {
       sourceId: string,
       layers: number,
       skillCastInfo?: CombatSkillCastInfo | null,
+      layerSourceIds?: readonly string[],
     ) => void,
   ): void {
     if (this.#onBuffAbsorbed !== undefined) {
@@ -1536,12 +1549,13 @@ export class CombatBuffContainer<Key extends string> {
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): boolean {
     const layers = buff.enhanceCount;
+    const layerSourceIds = [...buff.runtimeState.enhanceSourceIds];
     if (!buff.finish(reason, finishSkillCastInfo)) return false;
     if (sourceId !== undefined) {
       if (reason === 'early' || reason === 'ignite')
-        this.#onBuffConsumed?.(buff, sourceId, layers, finishSkillCastInfo);
+        this.#onBuffConsumed?.(buff, sourceId, layers, finishSkillCastInfo, layerSourceIds);
       else if (reason === 'absorbed')
-        this.#onBuffAbsorbed?.(buff, sourceId, layers, finishSkillCastInfo);
+        this.#onBuffAbsorbed?.(buff, sourceId, layers, finishSkillCastInfo, layerSourceIds);
     }
     return true;
   }
@@ -1587,7 +1601,9 @@ export class CombatBuffContainer<Key extends string> {
         if (buff.finish(reason, finishSkillCastInfo)) {
           finished += 1;
           if (reason === 'absorbed' && sourceId !== undefined)
-            this.#onBuffAbsorbed?.(buff, sourceId, layers, finishSkillCastInfo);
+            this.#onBuffAbsorbed?.(buff, sourceId, layers, finishSkillCastInfo, [
+              ...buff.runtimeState.enhanceSourceIds,
+            ]);
         }
       }
     }
