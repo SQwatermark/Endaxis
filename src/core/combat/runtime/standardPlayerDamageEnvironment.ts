@@ -27,7 +27,7 @@ import {
   MAIN_ATTRIBUTE_ATTACK_FACTOR,
   SECONDARY_ATTRIBUTE_ATTACK_FACTOR,
 } from '../../game-data/battleConstants';
-import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import { runtimeTargetFromEntityId } from '../../game-data/logicalAbilityEntity';
 import type { HealCalculationAttribute, HealTarget } from '../../game-data/operatorDefinition';
 import { ActionBlackboard } from '../actions/actionBlackboard';
 import { ATTRIBUTE_MODIFIER_SOURCES } from '../state/foundationState';
@@ -393,6 +393,9 @@ export class StandardPlayerDamageEnvironment {
       },
       undefined,
       restoredEnemyBuffs,
+      (buff, producedBy) => this.#recordBuffCreated(buff, producedBy),
+      (buff, previousLayers, sourceId, skillCastInfo) =>
+        this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo),
     );
     this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
       this.#enemyBuffs,
@@ -402,8 +405,8 @@ export class StandardPlayerDamageEnvironment {
       },
       undefined,
       this.#buffAbilityEventRegistrar('enemy'),
-      event => {
-        this.#recordOwnedBuffApplied('enemy', event, this.#enemyBuffs);
+      (event, buff) => {
+        this.#recordOwnedBuffApplied('enemy', event, buff);
         this.#emit('enemy', 'addedBuff', event);
       },
       event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
@@ -539,6 +542,9 @@ export class StandardPlayerDamageEnvironment {
           undefined,
           buff => this.#recordBuffRemoval(entityId, buff, 'other', 'BuffReleased'),
           restoredState,
+          (buff, producedBy) => this.#recordBuffCreated(buff, producedBy),
+          (buff, previousLayers, sourceId, skillCastInfo) =>
+            this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo),
         );
         if (restoredState === undefined) container.addEntityTags(bornTags);
         return new BuffDefinitionOperationTarget(
@@ -1207,6 +1213,9 @@ export class StandardPlayerDamageEnvironment {
         undefined,
         undefined,
         configuredState,
+        (buff, producedBy) => this.#recordBuffCreated(buff, producedBy),
+        (buff, previousLayers, sourceId, skillCastInfo) =>
+          this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo),
       );
       runtime = new BuffDefinitionOperationTarget(
         container,
@@ -1216,8 +1225,8 @@ export class StandardPlayerDamageEnvironment {
         },
         undefined,
         this.#buffAbilityEventRegistrar(operatorId),
-        event => {
-          this.#recordOwnedBuffApplied(operatorId, event, container);
+        (event, buff) => {
+          this.#recordOwnedBuffApplied(operatorId, event, buff);
           this.#emit(operatorId, 'addedBuff', event);
         },
         event => this.#emit(event.sourceId, 'beforeOutputBuff', event),
@@ -1276,18 +1285,10 @@ export class StandardPlayerDamageEnvironment {
     const ids = resolveAbilityEventActionContextBinding(event);
     if (ids === undefined) return undefined;
     return {
-      inputTarget: this.#runtimeTargetFromEntityId(ids.inputTargetId),
+      inputTarget: runtimeTargetFromEntityId(ids.inputTargetId),
       triggerTarget:
-        ids.triggerTargetId === null ? null : this.#runtimeTargetFromEntityId(ids.triggerTargetId),
+        ids.triggerTargetId === null ? null : runtimeTargetFromEntityId(ids.triggerTargetId),
     };
-  }
-
-  #runtimeTargetFromEntityId(entityId: string): RuntimeTargetRef {
-    if (entityId === 'enemy') return { kind: 'enemy' };
-    const abilityEntity = /^ability-entity:([1-9]\d*)$/.exec(entityId);
-    if (abilityEntity !== null)
-      return { kind: 'abilityEntity', instanceId: Number(abilityEntity[1]) };
-    return { kind: 'operator', operatorId: entityId };
   }
 
   #compileInlineBuffDefinition(
@@ -1373,8 +1374,8 @@ export class StandardPlayerDamageEnvironment {
         operatorId,
         this.#ensureElementalDefinitions(),
         undefined,
-        event => {
-          this.#recordOwnedBuffApplied('enemy', event, this.#enemyBuffs);
+        (event, buff) => {
+          this.#recordOwnedBuffApplied('enemy', event, buff);
           this.#emit('enemy', 'addedBuff', event);
         },
         resolveCompoundStatusBlackboard,
@@ -1612,6 +1613,11 @@ export class StandardPlayerDamageEnvironment {
             applied = entry.data;
             receipt.record({
               ...entry,
+              producedBy: {
+                kind: 'buff',
+                ownerId: payload.buffOwnerId,
+                instanceId: payload.buffInstanceId,
+              },
               data: { ...entry.data, ...buffIdentity, canCritical: payload.canCritical },
             });
           } else receipt.record(entry);
@@ -1690,11 +1696,65 @@ export class StandardPlayerDamageEnvironment {
     return receipt;
   }
 
+  /** 分配完成后、Start/Enable 前记录身份；刷新和恢复不重新产生出生事实。 */
+  #recordBuffCreated(
+    buff: CombatBuff<string>,
+    producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
+  ): void {
+    if (this.#clock === null || this.#receipt === null) {
+      throw new Error('Buff created before the environment was bound to a battle');
+    }
+    this.#receipt.record({
+      frame: this.#clock.frame,
+      time: this.#clock.time,
+      event: 'BuffCreated',
+      subject: { kind: 'buff', ...buff.reference },
+      producedBy,
+      ...(buff.sourceId === 'battle'
+        ? {}
+        : { runtimeSource: runtimeTargetFromEntityId(buff.sourceId) }),
+      sourceId: buff.sourceId,
+      targetId: buff.owner.ownerId,
+      data: {
+        buffId: buff.definition.id,
+        sourceActionId: buff.sourceActionId,
+        ...(buff.skillCastInfo?.originCastId === undefined
+          ? {}
+          : { castId: buff.skillCastInfo.originCastId }),
+      },
+    });
+  }
+
+  #recordBuffStackChanged(
+    buff: CombatBuff<string>,
+    previousLayers: number,
+    sourceId?: string,
+    skillCastInfo?: import('../state/foundationState').CombatSkillCastInfo | null,
+  ): void {
+    this.#requireReceipt().record({
+      frame: this.#clock!.frame,
+      time: this.#clock!.time,
+      event: 'BuffStackChanged',
+      targetId: buff.owner.ownerId,
+      ...(sourceId === undefined ? {} : { sourceId }),
+      data: {
+        buffId: buff.definition.id,
+        instanceId: buff.instanceId,
+        previousLayers,
+        layers: buff.enhanceCount,
+        delta: buff.enhanceCount - previousLayers,
+        ...(skillCastInfo?.originCastId === undefined
+          ? {}
+          : { castId: skillCastInfo.originCastId }),
+      },
+    });
+  }
+
   /** Buff 施加成功后记录实例身份与原生展示数据，供时间轴还原生命周期和图标。 */
   #recordOwnedBuffApplied(
     ownerId: string,
     event: import('../buffs/buffOperationExecutor').BuffAppliedEvent,
-    container: CombatBuffContainer<string>,
+    buff: CombatBuff<string>,
   ): void {
     if (this.#clock === null || this.#receipt === null) {
       throw new Error(
@@ -1703,12 +1763,6 @@ export class StandardPlayerDamageEnvironment {
     }
     const clock = this.#clock;
     const receipt = this.#receipt;
-    const buff = [...container.buffs]
-      .reverse()
-      .find(candidate => !candidate.isFinished && candidate.definition.id === event.buffId);
-    if (buff === undefined) {
-      throw new Error(`Applied Buff '${event.buffId}' on '${ownerId}' has no active instance`);
-    }
     const presentation = buff.definition.presentation;
     const simpleModifier = simpleAttributeModifierFact(buff);
     const recordPresentation = (
@@ -1722,6 +1776,9 @@ export class StandardPlayerDamageEnvironment {
         frame: clock.frame,
         time: clock.time,
         event: eventName,
+        ...(eventName === 'BuffApplied' && event.producedBy !== undefined
+          ? { producedBy: event.producedBy }
+          : {}),
         sourceId: event.sourceId,
         targetId: ownerId,
         data: {
@@ -1731,6 +1788,9 @@ export class StandardPlayerDamageEnvironment {
           stackingType: buff.definition.stackingType,
           hasFiniteLifetime: buff.remainingDuration !== null,
           sourceActionId: buff.sourceActionId,
+          ...(event.skillCastInfo?.originCastId === undefined
+            ? {}
+            : { castId: event.skillCastInfo.originCastId }),
           ...(event.iconDurationSourceTargetId === undefined
             ? {}
             : { iconDurationSourceTargetId: event.iconDurationSourceTargetId }),
@@ -1910,6 +1970,22 @@ export class StandardPlayerDamageEnvironment {
     reason?: BuffFinishReason,
     skillCastInfo?: import('../state/foundationState').CombatSkillCastInfo | null,
   ): void {
+    if (layerCount > 0)
+      this.#requireReceipt().record({
+        frame: this.#clock!.frame,
+        time: this.#clock!.time,
+        event: 'BuffEnhanceAttempted',
+        targetId: ownerId,
+        data: {
+          buffId: buff.definition.id,
+          instanceId: buff.instanceId,
+          layers: buff.enhanceCount,
+          attemptedLayers: layerCount,
+          ...(skillCastInfo?.originCastId === undefined
+            ? {}
+            : { castId: skillCastInfo.originCastId }),
+        },
+      });
     this.#emit(ownerId, 'buffEnhanceChanged', {
       // DoesEventHaveTarget(209)=false：只保留发布者，不补造自身目标。
       sourceId: ownerId,

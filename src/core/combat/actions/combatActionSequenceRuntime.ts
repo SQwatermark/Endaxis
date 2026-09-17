@@ -37,6 +37,7 @@ import type {
   CombatSemanticEventRuntime,
 } from '../events/combatSemanticEventRuntime';
 import type { CombatOperationContext, CombatOperationExecutor } from '../skills/skillRuntime';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 import { type TimelineRuntimeState } from '../state/actionState';
 import { compileTimelineActionIntervals } from '../timeline/timelineActionExecution';
 import {
@@ -115,6 +116,9 @@ class ProjectileLifetimeStep extends StatelessCombatStep {
       context.skillCastInfo,
       undefined,
       context.actionSourceId ?? context.buffSourceId ?? this.runtime.ownerOperatorId,
+      undefined,
+      undefined,
+      operationProducer(context),
     );
   }
 }
@@ -605,6 +609,7 @@ class ProjectileFinishCallbackStep extends StatelessCombatStep {
       parent.actionSourceId ?? parent.buffSourceId ?? this.runtime.ownerOperatorId,
       callbackState,
       this.step.callback,
+      operationProducer(parent),
     );
     callbackEntity = projectile.target;
     return true;

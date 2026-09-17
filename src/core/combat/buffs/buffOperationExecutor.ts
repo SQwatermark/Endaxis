@@ -27,6 +27,7 @@ import type { GameplayTag, GameplayTagQueryType } from '../tags/gameplayTags';
 import type { RegisterBuffSemanticEventAction } from './buffLifecycleSequenceRuntime';
 import { buffReferenceKey } from './buffReference';
 import type { BuffApplicationHandle } from './combatBuffs';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -175,6 +176,7 @@ export interface BuffOperationTarget {
 }
 
 export interface BuffAppliedEvent {
+  readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly targetId: string;
   readonly buffId: string;
   readonly sourceId: string;
@@ -203,6 +205,7 @@ export type { BuffApplicationHandle } from './combatBuffs';
 
 /** 定义身份与本次施加覆盖值已经分离求值后的运行时请求。 */
 export interface BuffApplicationRequest {
+  readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly buffId: string;
   /** 缺少表示旧式外部定义引用；内联技能步骤必须携带。 */
   readonly definition?: ResolvedSkillBuffDefinition;
@@ -377,7 +380,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
                 blackboardValues: {},
                 skillCastInfo: context.skillCastInfo,
               };
-      const applied = target.apply(request);
+      const applied = target.apply({
+        ...request,
+        producedBy: operationProducer(context, {
+          ownerId: this.dependencies.sourceId,
+          actionId: this.dependencies.sourceActionId,
+        }),
+      });
       if (applied && entersPhysicalInfliction) {
         this.dependencies.onPhysicalInflictionApplied?.({
           sourceId: this.dependencies.sourceId,
@@ -542,6 +551,10 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
         }
         return {
           buffId,
+          producedBy: operationProducer(context, {
+            ownerId: this.dependencies.sourceId,
+            actionId: this.dependencies.sourceActionId,
+          }),
           ...(definition === undefined ? {} : { definition }),
           // 原生默认 ActionSource：回调来源优先，其次宿主 Buff 创建者；不是持有者。
           sourceId:

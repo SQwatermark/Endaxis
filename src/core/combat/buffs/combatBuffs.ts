@@ -257,6 +257,7 @@ export interface CombatBuffDefinition<Key extends string> {
 
 /** 添加 Buff 实例时由具体行为提供的初始黑板和层数。 */
 export interface CombatBuffAddOptions {
+  readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly blackboardValues?: Readonly<Record<string, ActionBlackboardValue>>;
   /** 创建该实例的技能、被动或配装动作身份，用于解释后续生命周期步骤。 */
   readonly sourceActionId?: string;
@@ -884,8 +885,12 @@ export class CombatBuff<Key extends string> {
   }
 
   enhance(sourceId: string): void {
+    const previousLayers = this.enhanceCount;
     enhanceBuffLifecycle(this.#state.lifecycle, {
-      changed: () => this.definition.actions?.enhanceChanged?.(this, sourceId),
+      changed: () => {
+        this.owner.onBuffStackChanged?.(this, previousLayers, sourceId);
+        this.definition.actions?.enhanceChanged?.(this, sourceId);
+      },
       refreshAttributes: () => this.replaceAttributeModifiers(this.createAttributeModifiers()),
     });
   }
@@ -901,9 +906,13 @@ export class CombatBuff<Key extends string> {
     reason: BuffFinishReason,
     finishSkillCastInfo?: CombatSkillCastInfo | null,
   ): boolean {
+    const previousLayers = this.enhanceCount;
     return decreaseBuffEnhancements(this.#state.lifecycle, count, {
       finish: () => this.finish(reason, finishSkillCastInfo),
-      changed: () => this.definition.actions?.enhanceChanged?.(this, this.sourceId),
+      changed: () => {
+        this.owner.onBuffStackChanged?.(this, previousLayers, undefined, finishSkillCastInfo);
+        this.definition.actions?.enhanceChanged?.(this, this.sourceId);
+      },
       refreshAttributes: () => this.replaceAttributeModifiers(this.createAttributeModifiers()),
       refreshStacking: () => this.#stackingGroup?.refreshAfterEnhanceDecrease(),
       notify: () => this.owner.handleBuffEnhanced(this, -count, reason, finishSkillCastInfo),
@@ -1189,6 +1198,17 @@ export class CombatBuffContainer<Key extends string> {
     ) => void,
     readonly onBuffReleased?: (buff: CombatBuff<Key>) => void,
     restoredState?: BuffContainerState<Key>,
+    readonly onBuffCreated?: (
+      buff: CombatBuff<Key>,
+      producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
+    ) => void,
+    /** 只读观察：实际层数已更新，但尚未执行增强回调；不改变原生事件。 */
+    readonly onBuffStackChanged?: (
+      buff: CombatBuff<Key>,
+      previousLayers: number,
+      sourceId?: string,
+      skillCastInfo?: CombatSkillCastInfo | null,
+    ) => void,
   ) {
     if (restoredState === undefined) {
       this.#state = createBuffContainerState(
@@ -1439,6 +1459,7 @@ export class CombatBuffContainer<Key extends string> {
   ): CombatBuff<Key> {
     const buff = new CombatBuff(definition, this, sourceId, this.#state.nextInstanceId++, options);
     this.#state.instances.set(buff.instanceId, buff.runtimeState);
+    this.onBuffCreated?.(buff, options?.producedBy);
     return buff;
   }
 

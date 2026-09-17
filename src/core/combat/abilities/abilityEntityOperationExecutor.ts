@@ -19,6 +19,7 @@ import type { CallbackSkillHostFactory } from './callbackSkillHost';
 import type { AbilityEntityChildSkillState } from '../state/abilityState';
 import { AbilityEntityChildSkillPrograms } from './abilityEntityChildSkillPrograms';
 import { CombatOperationPrograms } from '../actions/combatOperationPrograms';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 import type { AbilityEntityActionState } from '../state/actionState';
 import {
   createCombatOperationHostState,
@@ -361,6 +362,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       throw new Error('spawnAbilityEntity currentAbilityEntity target requires a current target');
     }
     const entity = this.#entities.spawn({
+      producedBy: operationProducer(context),
       ...(!inheritSourceSkillCastInfo
         ? { skillCastInfo: null }
         : context.skillCastInfo === undefined

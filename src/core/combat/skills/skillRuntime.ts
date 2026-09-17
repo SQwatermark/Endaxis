@@ -36,6 +36,7 @@ export type ScheduleProjectileFinishCallback = (
   sourceId?: string,
   callbackState?: import('../state/instanceState').ProjectileCallbackState,
   callbackProgram?: import('../../compiler/combatProgram').CompiledProjectileCallbackSkillProgram,
+  producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
 ) => ProjectileLifetimeReference;
 
 export interface ProjectileRuntimeDependencies {
@@ -91,6 +92,8 @@ export interface RuntimeSkillTransition {
 
 /** 技能运行时把普通操作和条件判断委托给战斗装配层的端口。 */
 export interface CombatOperationContext {
+  /** 当前执行程序/放置块；不能用继承的 originCastId 代替实际宿主。 */
+  readonly executionActionId?: string;
   /** 仅在执行持有登记的步骤时挂接，实际数据由动作树持有。 */
   actionRegistrationState?: import('../state/actionState').ActionRegistrationState;
   actionBuffReferencesState?: import('../state/actionState').ActionBuffReferencesState;
@@ -333,6 +336,7 @@ export class SkillRuntime {
       targetContext: this.#targetContext,
       actionOwnerId: this.#hostIdentity.actionOwnerId,
       actionSourceId: this.#hostIdentity.actionSourceId,
+      executionActionId: castId ?? this.#program.skillId,
       ...(this.#hostIdentity.actionOwnerAbilityEntity === undefined
         ? {}
         : { actionOwnerAbilityEntity: this.#hostIdentity.actionOwnerAbilityEntity }),

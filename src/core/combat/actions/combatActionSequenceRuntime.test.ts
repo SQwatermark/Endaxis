@@ -951,6 +951,9 @@ describe('CombatActionSequenceRuntime', () => {
         undefined,
         undefined,
         'operator',
+        undefined,
+        undefined,
+        undefined,
       );
   });
 

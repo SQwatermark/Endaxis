@@ -355,6 +355,7 @@ import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt
 import BattleLogPanel from './results/BattleLogPanel.vue';
 import { usePublishedSimulationDisplay } from './results/usePublishedSimulationDisplay';
 import { resolvePublishedBuffSource } from './results/publishedBuffSource';
+import { createCombatObjectIconResolver } from './results/combatObjectIcons';
 import { isEnemyTimelineBuffVisible } from './results/enemyStatusRows';
 
 import TimelineMarkerContextMenu from './interaction/TimelineMarkerContextMenu.vue';
@@ -1328,20 +1329,26 @@ const {
   scenario,
   service: simulationService,
 });
-const { battleLogSnapshot, publishedOperators, publishedWeaponSources, publishedReceiptEntries } =
-  usePublishedSimulationDisplay(
-    publishedSimulation,
-    editorGameDataRepository,
-    () => editorGameDataRepository.getWeapons(),
-    {
-      skill: timelineCastLabel,
-      operator: name =>
-        name.displayName ??
-        (name.assetSlug === null
-          ? t('timeline.emptyTrack')
-          : getOperatorGameName(name.assetSlug, locale.value)),
-    },
-  );
+const {
+  battleLogSnapshot,
+  publishedOperators,
+  publishedWeaponSources,
+  publishedGearIcons,
+  publishedReceiptEntries,
+} = usePublishedSimulationDisplay(
+  publishedSimulation,
+  editorGameDataRepository,
+  () => editorGameDataRepository.getWeapons(),
+  {
+    skill: timelineCastLabel,
+    operator: name =>
+      name.displayName ??
+      (name.assetSlug === null
+        ? t('timeline.emptyTrack')
+        : getOperatorGameName(name.assetSlug, locale.value)),
+  },
+  () => editorGameDataRepository.getGears(),
+);
 const {
   showOperatorDefinitionWorkspace,
   showWeaponDefinitionWorkspace,
@@ -2655,17 +2662,7 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
 }
 
 const publishedHitOccurrences = computed(() =>
-  projectTimelineHitOccurrences(
-    publishedReceiptEntries.value,
-    new Map(
-      (publishedSimulation.value?.scenario.tracks ?? []).flatMap(track => {
-        const keys = track?.operator
-          ? publishedOperators.value.get(track.operator.operatorSlug)?.triggeredHitStepKeys
-          : undefined;
-        return track && keys ? track.skillCasts.map(cast => [cast.id, keys] as const) : [];
-      }),
-    ),
-  ),
+  projectTimelineHitOccurrences(publishedReceiptEntries.value),
 );
 const hitOccurrences = computed(
   () =>
@@ -2929,6 +2926,22 @@ function publishedOperatorName(slug: string | null): string {
   const metadata = publishedOperators.value.get(slug);
   return metadata?.displayName ?? getOperatorGameName(metadata?.assetSlug ?? slug, locale.value);
 }
+
+function publishedOperatorInstanceName(operatorId: string): string {
+  const track = publishedSimulation.value?.scenario.tracks.find(track => track?.id === operatorId);
+  const slug = track?.operator?.operatorSlug;
+  return slug === undefined ? operatorId : publishedOperatorName(slug);
+}
+
+const publishedObjectIcon = computed(() =>
+  createCombatObjectIconResolver(
+    publishedReceiptEntries.value,
+    publishedSimulation.value?.scenario,
+    publishedOperators.value,
+    publishedWeaponSources.value,
+    publishedGearIcons.value,
+  ),
+);
 
 function operatorName(slug: string | null): string {
   if (slug === null) return t('timeline.emptyTrack');
@@ -6686,6 +6699,9 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
+    :object-icon="publishedObjectIcon"
+    :operator-label="publishedOperatorInstanceName"
+    :receipt-entries="publishedReceiptEntries"
     :damage-zone-label="zone => t(`hitDetail.damageZones.${zone}`)"
     v-if="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
     :random-mode="publishedRandomMode"

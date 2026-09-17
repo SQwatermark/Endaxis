@@ -281,12 +281,15 @@ describe('ElementalInflictionBuffAdapter', () => {
 
     adapter.apply({ kind: 'addAttachment', element: 'cryo' });
 
-    expect(onBuffApplied).toHaveBeenCalledWith({
-      targetId: 'enemy',
-      buffId: 'attachment.cryo',
-      sourceId: 'operator',
-      buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
-      skillCastInfo: null,
-    });
+    expect(onBuffApplied).toHaveBeenCalledWith(
+      {
+        targetId: 'enemy',
+        buffId: 'attachment.cryo',
+        sourceId: 'operator',
+        buffTags: ['Skill/Character/Common/SpellStatus/Frozen'],
+        skillCastInfo: null,
+      },
+      target.getInstance(1),
+    );
   });
 });

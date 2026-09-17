@@ -12,6 +12,7 @@ import { attributeModifierValues } from '../attributes/combatAttributes';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { SimulationRandomMode } from '../random/simulationRandom';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 import type { CombatVitals } from '../resources/combatVitals';
 import type { CombatOperationContext, CombatOperationExecutor } from '../skills/skillRuntime';
 import type { CombatClock } from '../time/combatClock';
@@ -338,6 +339,10 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           ? undefined
           : deriveHitId(this.dependencies.castId, step.key));
       executeHealthDamage({
+        producedBy: operationProducer(operationContext, {
+          ownerId: this.dependencies.sourceOperatorId,
+          actionId: this.dependencies.sourceActionId,
+        }),
         appliedDamageModifiers: [
           ...context.appliedDamageModifiers,
           ...(context.attackerAttributes.modifierDetails ?? []),

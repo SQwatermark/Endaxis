@@ -308,7 +308,8 @@ it.each([
   'timedGrowingEnhance',
 ] as const)('%s 增强尝试在后置动作后发布本次来源，满层仍发布', stackingType => {
   const environment = createEnvironment();
-  environment.runtimeOptions.createOperationExecutor(createContext());
+  const context = createContext();
+  environment.runtimeOptions.createOperationExecutor(context);
   const target = environment.runtimeOptions.enemyBuffRuntime;
   if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
   const original = {
@@ -353,6 +354,17 @@ it.each([
   target.container.add(definition, 'operator');
   expect(buff.enhanceCount).toBe(2);
   expect(seen.map(event => event.skillCastInfo)).toEqual([incoming, null]);
+  const entries = (context.receipt as CombatReceiptCollector).entries;
+  expect(
+    entries.filter(entry => entry.event === 'BuffStackChanged').map(entry => entry.data),
+  ).toEqual([
+    { buffId: definition.id, instanceId: buff.instanceId, previousLayers: 1, layers: 2, delta: 1 },
+  ]);
+  expect(
+    entries
+      .filter(entry => entry.event === 'BuffEnhanceAttempted')
+      .map(entry => entry.data?.layers),
+  ).toEqual([2, 2]);
 });
 
 it('标准环境公共事件载荷复用权威映射，不被过程通知的 unknown 放宽', () => {
@@ -529,6 +541,7 @@ it.each([
 
 it('Buff 层数变化在 owner 发布，载荷不伪造目标且消费同一原始对象', () => {
   const environment = createEnvironment();
+  bindBattleWithoutProjectiles(environment, createContext());
   const target = environment.runtimeOptions.enemyBuffRuntime;
   if (!(target instanceof BuffDefinitionOperationTarget)) throw new Error('fixture');
   const received: number[] = [];

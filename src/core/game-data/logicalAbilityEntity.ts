@@ -36,6 +36,18 @@ export function logicalAbilityEntityRuntimeId(instanceId: number): string {
   return `ability-entity:${instanceId}`;
 }
 
+/** 解码既有实体身份；不查询活动目录或推断创建关系。 */
+export function runtimeTargetFromEntityId(entityId: string): RuntimeTargetRef {
+  if (entityId === 'enemy') return { kind: 'enemy' };
+  const match = /^ability-entity:([1-9]\d*)$/.exec(entityId);
+  if (match !== null) {
+    const instanceId = Number(match[1]);
+    if (!Number.isSafeInteger(instanceId)) throw new RangeError('invalid ability entity identity');
+    return { kind: 'abilityEntity', instanceId };
+  }
+  return { kind: 'operator', operatorId: entityId };
+}
+
 /** OwnerSpawnedEntityFinder 经生成期解析后仍需保留的非空间筛选。 */
 export interface OwnerSpawnedAbilityEntityQuery {
   readonly ownerId: string;

@@ -35,6 +35,7 @@ import { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { CombatRuntimeAssembly, type CombatEnemyProgram } from './combatRuntimeAssembly';
 import { prepareCombatRuntimeRestore } from './restoration/combatRuntimeRestorePreparation';
+import { CombatObjectOrigins } from '../../projection/combatObjectOrigins';
 
 const emptyEnemyBuffRuntime = {
   ownerId: 'enemy',
@@ -996,6 +997,15 @@ describe('CombatRuntimeAssembly', () => {
     for (let i = 0; i < 30; i++) assembly.advanceFrame();
     expect(reset).toHaveBeenCalledTimes(1);
     expect(assembly.projectileLifetimes.findSource(1)).toBeUndefined();
+    const origins = new CombatObjectOrigins(assembly.receipt.entries);
+    const historical = origins.get({ kind: 'abilityEntity', instanceId: 1 });
+    expect(historical.fact?.event).toBe('ProjectileLaunched');
+    expect(
+      origins.relations(historical).find(link => link.relation === 'producedBy')?.target.ref,
+    ).toEqual({ kind: 'action', ownerId: 'operator', actionId: 'skill' });
+    expect(
+      origins.relations(historical).find(link => link.relation === 'runtimeSource')?.target.ref,
+    ).toEqual({ kind: 'operator', operatorId: 'operator' });
     const callbackEvents = emitAbilityEvent.mock.calls.filter(
       call => call[0] === 'ability-entity:1',
     );
@@ -2123,6 +2133,9 @@ describe('CombatRuntimeAssembly', () => {
     expect(assembly.projectileLifetimes.activeCount).toBe(1);
     assembly.advanceFrames(3);
     expect(assembly.projectileLifetimes.activeCount).toBe(0);
+    const launched = assembly.receipt.entries.find(entry => entry.event === 'ProjectileLaunched');
+    expect(launched?.subject).toEqual({ kind: 'abilityEntity', instanceId: 2 });
+    expect(launched?.producedBy).toEqual({ kind: 'abilityEntity', instanceId: 1 });
   });
 
   it('lets an AbilityEntity Buff lifecycle finish its owning entity through the shared chain', () => {

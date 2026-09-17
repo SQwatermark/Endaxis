@@ -999,6 +999,7 @@ export class CombatRuntimeAssembly {
         this.resources.sharedSpGainModifiers,
         this.resources.sharedSpRecoveryModifiers,
         preparation.graph.instances.globalBuffs,
+        (state, producedBy) => this.#recordGlobalBuffCreated(state, producedBy),
       );
 
       const buffs = bindRestoredCombatBuffInstances({
@@ -1354,6 +1355,8 @@ export class CombatRuntimeAssembly {
       },
       this.resources.sharedSpGainModifiers,
       this.resources.sharedSpRecoveryModifiers,
+      undefined,
+      (state, producedBy) => this.#recordGlobalBuffCreated(state, producedBy),
     );
     const boundBattleRuntimes =
       options.bindBattleRuntime?.({
@@ -2642,6 +2645,7 @@ export class CombatRuntimeAssembly {
         sourceId = operatorId,
         callbackState,
         callbackProgram,
+        producedBy,
       ) => {
         const entity = this.projectileLifetimes.launch({
           ...(callbackState === undefined ? {} : { callback: callbackState }),
@@ -2663,6 +2667,20 @@ export class CombatRuntimeAssembly {
                     ),
                 },
               }),
+        });
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'ProjectileLaunched',
+          sourceId,
+          subject: entity.target,
+          producedBy,
+          runtimeSource: this.#resolveRuntimeTarget(sourceId),
+          data: {
+            ...(skillCastInfo?.originCastId === undefined
+              ? {}
+              : { castId: skillCastInfo.originCastId }),
+          },
         });
         this.#options.emitAbilityEvent?.(sourceId, 'projectileLaunched', {
           sourceId,
@@ -2968,19 +2986,43 @@ export class CombatRuntimeAssembly {
     };
   }
 
+  #recordGlobalBuffCreated(
+    state: import('../state/foundationState').GlobalBuffInstanceState,
+    producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
+  ): void {
+    this.receipt.record({
+      frame: this.clock.frame,
+      time: this.clock.time,
+      event: 'GlobalBuffCreated',
+      subject: { kind: 'globalBuff', instanceId: state.instanceId },
+      producedBy,
+      sourceId: state.sourceId,
+      data: {
+        buffId: state.id,
+        ...(state.sourceActionId === undefined ? {} : { sourceActionId: state.sourceActionId }),
+      },
+    });
+  }
+
   /** 恢复目录负责数据推进；业务事件与清理顺序仍使用正式装配的同一组钩子。 */
   #createAbilityEntityEventHooks(releaseBuffs = true): CombatAbilityEntityEventHooks {
     return {
-      spawned: entity => {
+      spawned: (entity, producedBy) => {
         const entityId = logicalAbilityEntityRuntimeId(entity.instanceId);
         this.receipt.record({
           frame: this.clock.frame,
           time: this.clock.time,
           event: 'AbilityEntitySpawned',
+          subject: { kind: 'abilityEntity', instanceId: entity.instanceId },
+          producedBy,
+          runtimeSource: entity.source,
           sourceId: entity.ownerId,
           targetId: entityId,
           data: {
             abilityEntityId: entity.abilityEntityId,
+            ...(entity.skillCastInfo?.originCastId === undefined
+              ? {}
+              : { castId: entity.skillCastInfo.originCastId }),
             childSkillId: entity.childSkillId ?? null,
             remainingDurationSeconds: entity.remainingDurationSeconds,
           },
@@ -4588,6 +4630,27 @@ export class CombatRuntimeAssembly {
   }
 
   /** 普通实体与能力实体共用 Buff 生命周期接线，发布与兼容订阅只能维护一份。 */
+  #recordBuffConsumption(
+    eventName: 'BuffConsumed' | 'BuffAbsorbed',
+    event: import('../buffs/buffOperationExecutor').BuffConsumedEvent,
+  ): void {
+    this.receipt.record({
+      frame: this.clock.frame,
+      time: this.clock.time,
+      event: eventName,
+      sourceId: event.sourceOperatorId,
+      targetId: event.targetId,
+      data: {
+        buffId: event.buffId,
+        instanceId: event.buff.instanceId,
+        layers: event.layers,
+        ...(event.skillCastInfo?.originCastId === undefined
+          ? {}
+          : { castId: event.skillCastInfo.originCastId }),
+      },
+    });
+  }
+
   #configureBuffLifecycle(
     target: BuffOperationTarget,
     options: CombatRuntimeAssemblyOptions,
@@ -4596,12 +4659,14 @@ export class CombatRuntimeAssembly {
       this.#createBuffLifecycleOperationChain(source, options),
     );
     target.configureBuffConsumedObserver?.(event => {
+      this.#recordBuffConsumption('BuffConsumed', event);
       options.emitBuffLifecycleAbilityEvent?.('buffConsumed', {
         ...event,
         sourceId: event.sourceOperatorId,
       });
     });
     target.configureBuffAbsorbedObserver?.(event => {
+      this.#recordBuffConsumption('BuffAbsorbed', event);
       options.emitBuffLifecycleAbilityEvent?.('buffAbsorbed', {
         ...event,
         sourceId: event.sourceOperatorId,

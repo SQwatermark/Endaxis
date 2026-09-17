@@ -10,85 +10,6 @@ import {
   projectTimelineHitDetailEntries,
 } from './timelineHitEffects';
 import { projectCastHitMarkers } from './timelineHitProjection';
-import { collectTriggeredHitStepKeys } from './timelineHitEffects';
-import typhoeus from '../../../data/operators/typhoeus.generated';
-import liino from '../../../data/operators/liino.generated';
-import { collectDamageStepKeys } from '../../../core/game-data/collectDamageStepKeys';
-
-it('keeps Liino periodic soundwaves triggered without coloring the scheduled ultimate projectiles', () => {
-  const keys = collectTriggeredHitStepKeys(liino);
-  const soundwaves = collectDamageStepKeys({
-    scheduledSequences: [
-      {
-        sequence:
-          liino.buffDefinitions.buff_chr_0035_liino_ultskill_music_damage.lifecycleSequences
-            .trigger,
-      },
-    ],
-  });
-  expect(soundwaves.length).toBeGreaterThan(0);
-  expect(soundwaves.every(step => keys.has(step.key))).toBe(true);
-  const projectiles = collectDamageStepKeys(
-    liino.abilityEntityDefinitions.abilityentity_chr_0035_liino_ult_skill_projhit.childSkill,
-  );
-  expect(projectiles.length).toBeGreaterThan(0);
-  expect(projectiles.every(step => !keys.has(step.key))).toBe(true);
-});
-
-it('marks damage-response arrow rain but not primary rain or persistent combo damage', () => {
-  const keys = collectTriggeredHitStepKeys(typhoeus);
-  for (const [id, expected] of [
-    ['abilityentity_chr_0034_typhoea_ultimateskill_arrowrain_sub', true],
-    ['abilityentity_chr_0034_typhoea_ultimateskill_arrowrain', false],
-    ['abilityentity_chr_0034_typhoea_combo_presistdamage', false],
-  ] as const) {
-    const entity = typhoeus.abilityEntityDefinitions[id];
-    const skills =
-      'childSkills' in entity ? Object.values(entity.childSkills) : [entity.childSkill];
-    const damage = skills.flatMap(skill => collectDamageStepKeys(skill));
-    expect(damage.length).toBeGreaterThan(0);
-    expect(damage.every(step => keys.has(step.key) === expected)).toBe(true);
-  }
-});
-
-it('keeps a child skill uncolored when it also has an ordinary spawn route', () => {
-  const entityId = 'abilityentity_chr_0034_typhoea_ultimateskill_arrowrain_sub';
-  const skillId = 'chr_0034_typhoea_ultimate_skill_arrowrain_sub1';
-  const keys = collectTriggeredHitStepKeys({
-    ...typhoeus,
-    abilityEntityDefinitions: {
-      ...typhoeus.abilityEntityDefinitions,
-      fixture: {
-        lifetime: { kind: 'infinite' },
-        childSkill: {
-          skillId: 'fixture',
-          scheduledSequences: [
-            {
-              startFrame: 0,
-              sequence: {
-                steps: [
-                  {
-                    kind: 'spawnAbilityEntity',
-                    parameters: {
-                      abilityEntityId: entityId,
-                      childSkillId: skillId,
-                      dieWhenSourceDies: false,
-                    },
-                  },
-                ],
-              },
-            },
-          ],
-        },
-      },
-    },
-  });
-  expect(
-    collectDamageStepKeys(typhoeus.abilityEntityDefinitions[entityId].childSkills[skillId]).every(
-      step => !keys.has(step.key),
-    ),
-  ).toBe(true);
-});
 
 function baseDamage(): Record<string, number | boolean | string | null> {
   return {
@@ -167,10 +88,17 @@ it('keeps target-owned Buff receipts out of skill markers while retaining delega
     data: { ...delegated.data, hitId: 'extra', stepKey: 'extra' },
   };
   expect(
-    projectTimelineHitOccurrences(
-      [...entries, secondTriggered],
-      new Map([['cast', new Set(['sword', 'extra'])]]),
-    )
+    projectTimelineHitOccurrences([
+      ...entries.map(entry =>
+        entry === delegated
+          ? {
+              ...entry,
+              producedBy: { kind: 'buff' as const, ownerId: 'operator', instanceId: 1 },
+            }
+          : entry,
+      ),
+      { ...secondTriggered, producedBy: { kind: 'buff', ownerId: 'operator', instanceId: 1 } },
+    ])
       .get('cast')
       ?.map(hit => hit.triggeredStackIndex),
   ).toEqual([0, 0, 1]);

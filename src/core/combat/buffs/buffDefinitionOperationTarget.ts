@@ -63,7 +63,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
     readonly definitions: CombatBuffDefinitionResolver<Key>,
     readonly currentTarget?: RuntimeTargetRef,
     readonly registerAbilityEventAction?: RegisterBuffAbilityEventAction,
-    readonly onBuffApplied?: (event: BuffAppliedEvent) => void,
+    readonly onBuffApplied?: (event: BuffAppliedEvent, buff: CombatBuff<Key>) => void,
     readonly onBeforeBuffApplied?: (event: BuffAppliedEvent) => void,
     readonly onOutputBuff?: (event: AbilityOutputBuffPayload) => void,
     readonly onBeforeBuffAdded?: (event: BuffAppliedEvent) => void,
@@ -168,6 +168,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
         : this.#compileInlineDefinition(request.buffId, request.definition);
     if (definition === undefined) throw new Error(`unknown combat buff '${request.buffId}'`);
     const event: BuffAppliedEvent = {
+      ...(request.producedBy === undefined ? {} : { producedBy: request.producedBy }),
       targetId: this.ownerId,
       buffId: request.buffId,
       sourceId: request.sourceId,
@@ -188,6 +189,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
         request.sourceId,
         {
           blackboardValues: request.blackboardValues,
+          producedBy: request.producedBy,
           sourceActionId: request.sourceActionId ?? request.buffId,
           definitionOwnerId: request.definitionOwnerId ?? request.sourceId,
           ...(request.skillCastInfo === undefined ? {} : { skillCastInfo: request.skillCastInfo }),
@@ -203,7 +205,7 @@ export class BuffDefinitionOperationTarget<Key extends string>
         },
         buff => {
           // 接收侧 Added → 来源侧 Output → 容器执行已有关键词增强。
-          this.onBuffApplied?.(event);
+          this.onBuffApplied?.(event, buff);
           this.onOutputBuff?.({ ...event, buff });
         },
       );

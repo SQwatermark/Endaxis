@@ -116,6 +116,13 @@ export class CombatReceiptHistory {
     const record: CombatReceiptEntry = Object.freeze({
       ...entry,
       sequence: this.#count,
+      ...(entry.subject === undefined ? {} : { subject: Object.freeze({ ...entry.subject }) }),
+      ...(entry.producedBy === undefined
+        ? {}
+        : { producedBy: Object.freeze({ ...entry.producedBy }) }),
+      ...(entry.runtimeSource === undefined
+        ? {}
+        : { runtimeSource: Object.freeze({ ...entry.runtimeSource }) }),
       ...(entry.data === undefined ? {} : { data: Object.freeze({ ...entry.data }) }),
       ...(entry.appliedDamageModifiers === undefined
         ? {}

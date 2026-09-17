@@ -3,7 +3,18 @@
  * 运行时只能追加已发生事实；本地化文本和面向 UI 的聚合结果不得写入回执。
  */
 import { CombatReceiptHistory, type CombatReceiptView } from './combatReceiptHistory';
+import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import type { BuffReference } from '../state/foundationState';
 export type CombatReceiptValue = boolean | number | string | null;
+
+/** 包装既有身份；编号的作用域是所属战斗结果。 */
+export type CombatObjectRef =
+  | RuntimeTargetRef
+  | ({ readonly kind: 'buff' } & BuffReference)
+  | { readonly kind: 'globalBuff'; readonly instanceId: number }
+  | { readonly kind: 'action'; readonly ownerId: string; readonly actionId: string }
+  | { readonly kind: 'receipt'; readonly sequence: number }
+  | { readonly kind: 'modifier'; readonly sequence: number; readonly index: number };
 
 /** 一条带帧、事实类型和结构化数据的运行时回执。 */
 export interface CombatReceiptEntry {
@@ -13,6 +24,12 @@ export interface CombatReceiptEntry {
   readonly event: string;
   readonly sourceId?: string;
   readonly targetId?: string;
+  /** 创建事实所描述的对象。普通回执自身用 sequence 寻址。 */
+  readonly subject?: CombatObjectRef;
+  /** 直接执行者；缺少表示未记录，不能从归属干员反推。 */
+  readonly producedBy?: CombatObjectRef;
+  /** 原生实体 Source，与直接创建者分别保存。 */
+  readonly runtimeSource?: RuntimeTargetRef;
   readonly data?: Readonly<Record<string, CombatReceiptValue>>;
   readonly appliedDamageModifiers?: readonly import('../damage/damageScale').AppliedDamageModifier[];
 }

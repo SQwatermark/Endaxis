@@ -76,7 +76,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     readonly sourceId: string,
     readonly index: ElementalInflictionBuffIndex<Key>,
     readonly addOptions?: CombatBuffAddOptions,
-    readonly onBuffApplied?: (event: ElementalBuffAppliedPayload) => void,
+    readonly onBuffApplied?: (event: ElementalBuffAppliedPayload, buff: CombatBuff<Key>) => void,
     readonly resolveCompoundStatusBlackboard?: ResolveCompoundStatusBlackboard,
     readonly onBeforeOutputBuff?: (event: ElementalBuffAppliedPayload) => void,
     readonly onOutputBuff?: (event: AbilityOutputBuffPayload) => void,
@@ -159,7 +159,7 @@ export class ElementalInflictionBuffAdapter<Key extends string> {
     this.onBeforeAddedBuff?.(event);
     const added = this.target.add(definition, this.sourceId, options);
     if (added === null) return;
-    this.onBuffApplied?.(event);
+    this.onBuffApplied?.(event, added);
     this.onOutputBuff?.({ ...event, buff: added });
     return { buffId: added.definition.id, instanceId: added.instanceId };
   }

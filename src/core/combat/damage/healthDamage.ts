@@ -112,6 +112,7 @@ export interface HealthDamageReceiptDetail {
 
 /** 在正确事件边界写入一次生命伤害所需的状态和端口。 */
 export interface ExecuteHealthDamageInput {
+  readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly executingSkillGroupKey?: HealthDamageEventPayload['executingSkillGroupKey'];
   readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly sourceId: string;
@@ -180,6 +181,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     input.emitSourceEvent('afterKillEntity', payload);
   }
   input.receipt.record({
+    ...(input.producedBy === undefined ? {} : { producedBy: input.producedBy }),
     frame: input.clock.frame,
     time: input.clock.time,
     event: 'DamageApplied',

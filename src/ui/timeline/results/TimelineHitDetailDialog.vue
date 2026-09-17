@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { EaCheckbox, EaDialog, EaDialogActions } from '../../../design-system/index';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import CombatObjectOriginGraph from './CombatObjectOriginGraph.vue';
+import { CombatObjectOrigins } from '../../../core/projection/combatObjectOrigins';
 /** 结构与视觉以旧版 HitDamageDetailDialog 为规格；UI 只投影回执冻结值。 */
 import { computed, ref, watch } from 'vue';
 import { ArrowRight, Warning } from '@element-plus/icons-vue';
@@ -30,6 +32,9 @@ const props = defineProps<{
     item: import('../../../core/combat/damage/damageScale').AppliedDamageModifier,
   ) => string;
   entries: readonly CombatReceiptEntry[];
+  receiptEntries?: readonly CombatReceiptEntry[];
+  operatorLabel?: (operatorId: string) => string;
+  objectIcon?: import('./combatObjectIcons').CombatObjectIconResolver;
   operatorPanel: ResolvedOperatorPanel | null;
   operatorPanelForEntry?: (entry: CombatReceiptEntry) => ResolvedOperatorPanel | null;
   contributionSourceLabel: (entry: OperatorPanelContributionReceipt, sequence?: number) => string;
@@ -78,6 +83,7 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits<{ close: []; toggleForceCritical: [forced: boolean] }>();
+const origins = computed(() => new CombatObjectOrigins(props.receiptEntries ?? props.entries));
 
 interface DetailRow {
   readonly factor?: number;
@@ -872,6 +878,12 @@ function onClose(): void {
               </tr>
             </tbody>
           </table>
+          <CombatObjectOriginGraph
+            :object-icon="objectIcon"
+            :origins="origins"
+            :sequence="detail.key"
+            :operator-label="operatorLabel"
+          />
         </template>
       </div>
       <div v-else class="hit-detail-empty">—</div>

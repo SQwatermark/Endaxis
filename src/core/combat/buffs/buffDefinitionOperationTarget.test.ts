@@ -8,6 +8,60 @@ import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 type Attribute = 'cost';
 
 describe('BuffDefinitionOperationTarget', () => {
+  it('records births before nested Start and publishes the actual instance, without recreating refreshed Buffs', () => {
+    const order: string[] = [];
+    const born = vi.fn((buff: { instanceId: number }) => order.push(`born:${buff.instanceId}`));
+    const container = new CombatBuffContainer<string>(
+      'operator',
+      new CombatAttributeSet<string>(),
+      undefined,
+      null,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      born,
+    );
+    const applied = vi.fn();
+    let target: BuffDefinitionOperationTarget<string>;
+    const nested: CombatBuffDefinition<string> = {
+      id: 'nested',
+      stackingType: 'unlimited',
+      actions: {
+        start: buff => {
+          order.push(`start:${buff.instanceId}`);
+          if (buff.instanceId === 1)
+            target.apply({ buffId: 'nested', sourceId: 'other', blackboardValues: {} });
+        },
+      },
+    };
+    target = new BuffDefinitionOperationTarget(
+      container,
+      {
+        get: id =>
+          id === 'nested' ? nested : { id, stackingType: 'refresh', durationSeconds: 10 },
+      },
+      undefined,
+      undefined,
+      applied,
+    );
+    const parent = target.applyScoped({
+      buffId: 'nested',
+      sourceId: 'operator',
+      blackboardValues: {},
+    });
+    expect(order).toEqual(['born:1', 'start:1', 'born:2', 'start:2']);
+    expect(applied.mock.calls.map(call => call[1].instanceId)).toEqual([2, 1]);
+    expect(applied.mock.calls[1]?.[1]).toBe(parent);
+    const request = { buffId: 'refresh', sourceId: 'operator', blackboardValues: {} };
+    const first = target.applyScoped(request);
+    expect(target.applyScoped(request)).toBe(first);
+    expect(born).toHaveBeenCalledTimes(3);
+  });
   it('通过当前定义编译端口重建保存实例，不重新施加 Buff', () => {
     const originalContainer = new CombatBuffContainer<string>(
       'operator',
@@ -460,15 +514,18 @@ describe('BuffDefinitionOperationTarget', () => {
         iconDurationSourceTargetId: 'ability-entity:7',
       }),
     ).toBe(true);
-    expect(onBuffApplied).toHaveBeenCalledWith({
-      targetId: 'operator',
-      buffId: 'added-buff',
-      sourceId: 'operator',
-      buffTags: [],
-      skillCastInfo: null,
-      isExtra: false,
-      iconDurationSourceTargetId: 'ability-entity:7',
-    });
+    expect(onBuffApplied).toHaveBeenCalledWith(
+      {
+        targetId: 'operator',
+        buffId: 'added-buff',
+        sourceId: 'operator',
+        buffTags: [],
+        skillCastInfo: null,
+        isExtra: false,
+        iconDurationSourceTargetId: 'ability-entity:7',
+      },
+      target.container.getInstance(1),
+    );
   });
 
   it('publishes before-output identity before attempting to create the Buff instance', () => {
@@ -543,14 +600,17 @@ describe('BuffDefinitionOperationTarget', () => {
         definition: { stackingType: 'unique' },
       }),
     ).toBe(true);
-    expect(observer).toHaveBeenCalledWith({
-      targetId: 'operator',
-      buffId: 'added-buff',
-      sourceId: 'enemy',
-      buffTags: [],
-      skillCastInfo: null,
-      isExtra: false,
-    });
+    expect(observer).toHaveBeenCalledWith(
+      {
+        targetId: 'operator',
+        buffId: 'added-buff',
+        sourceId: 'enemy',
+        buffTags: [],
+        skillCastInfo: null,
+        isExtra: false,
+      },
+      target.container.getInstance(1),
+    );
     expect(observer).toHaveBeenCalledOnce();
   });
 

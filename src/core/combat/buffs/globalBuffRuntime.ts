@@ -30,6 +30,7 @@ import { createGlobalBuffState, type GlobalBuffState } from '../state/instanceSt
 import { COMBAT_FRAME_INTERVAL } from '../time/combatClock';
 import type { BuffApplicationHandle, BuffOperationTarget } from './buffOperationExecutor';
 import { buffReferenceKey } from './buffReference';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 
 type CreateStep = ResolvedCombatStepForKind<'createGlobalBuff'>;
 
@@ -73,6 +74,10 @@ export class GlobalBuffRuntime {
     readonly sharedSpGainModifierSet: SharedSpGainModifierSet | null = null,
     readonly sharedSpRecoveryModifierSet: SharedSpRecoveryModifierSet | null = null,
     restoredState?: GlobalBuffState,
+    readonly onCreated?: (
+      state: GlobalBuffInstanceState,
+      producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
+    ) => void,
   ) {
     this.runtimeState = restoredState ?? createGlobalBuffState();
   }
@@ -125,6 +130,7 @@ export class GlobalBuffRuntime {
   }
 
   add(input: {
+    readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
     readonly id: string;
     readonly definition: SkillGlobalBuffDefinition;
     readonly definitionProgramId?: number;
@@ -196,6 +202,7 @@ export class GlobalBuffRuntime {
     const instance = this.#bindInstance(state, definition, childBindings);
     group.push(state);
     this.runtimeState.groups.set(id, group);
+    this.onCreated?.(state, input.producedBy);
     try {
       for (const target of this.resolvePartyTargets()) {
         if (target.applyScoped === undefined) {
@@ -207,6 +214,7 @@ export class GlobalBuffRuntime {
             throw new Error(`global buff '${id}' child definition '${child.buffId}' is missing`);
           }
           const handle = target.applyScoped({
+            producedBy: { kind: 'globalBuff', instanceId: state.instanceId },
             buffId: child.buffId,
             definition: childDefinition,
             sourceId,
@@ -395,6 +403,10 @@ export class GlobalBuffOperationExecutor implements CombatOperationExecutor {
     for (let index = 0; index < count; index += 1) {
       created.push(
         this.dependencies.runtime.add({
+          producedBy: operationProducer(context, {
+            ownerId: this.dependencies.sourceId,
+            actionId: this.dependencies.sourceActionId,
+          }),
           id: step.parameters.globalBuffId,
           definition: step.parameters.definition,
           definitionProgramId,

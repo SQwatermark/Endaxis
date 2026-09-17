@@ -35,6 +35,7 @@ import {
 } from './logicalAbilityEntityExecution';
 
 export interface LogicalAbilityEntitySpawnRequest {
+  readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   /** 出生时传入控制器的完整来源；null 为明确不继承，undefined 为未提供。 */
   readonly skillCastInfo?: CombatSkillCastInfo | null;
   readonly abilityEntityId: string;
@@ -87,7 +88,10 @@ export interface LogicalAbilityEntityRuntimeHooks {
   /** 宿主阶段：Buff → 子技能时间轴 → 普通Buff回收。不是公共能力事件。 */
   tickBuffs?(entity: LogicalAbilityEntityIdentity): void;
   recycleBuffs?(entity: LogicalAbilityEntityIdentity): void;
-  spawned?(snapshot: LogicalAbilityEntitySnapshot): void;
+  spawned?(
+    snapshot: LogicalAbilityEntitySnapshot,
+    producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
+  ): void;
   childSkillRequested?(snapshot: LogicalAbilityEntitySnapshot, skillId: string): void;
   killed?(snapshot: LogicalAbilityEntitySnapshot, reason: LogicalAbilityEntityFinishReason): void;
   finished?(snapshot: LogicalAbilityEntitySnapshot, reason: LogicalAbilityEntityFinishReason): void;
@@ -312,7 +316,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     this.#instances.set(instance.state.instanceId, instance);
     this.runtimeState.instances.set(instance.state.instanceId, instance.state);
     const snapshot = this.#snapshot(instance);
-    this.#hooks.spawned?.(snapshot);
+    this.#hooks.spawned?.(snapshot, request.producedBy);
     const target = { kind: 'abilityEntity' as const, instanceId: instance.state.instanceId };
     if (request.createChildRuntime !== undefined) {
       this.startChildSkill(
