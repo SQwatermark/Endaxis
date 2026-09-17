@@ -1788,8 +1788,50 @@ export class CombatBuffContainer<Key extends string> {
     for (const state of this.#state.damageModifiers) {
       const modifier = this.#damageBindings.get(state);
       if (modifier === undefined) throw new Error('active damage modifier binding is missing');
-      modifier.apply(timing, side, context, evaluateCondition);
+      modifier.apply(timing, side, context, evaluateCondition, (side, result) => {
+        if (result.kind === 'damageScale' && result.addition === 0) return;
+        // 修正器与所属 Buff 已有对象关系，按身份查询，不另建来源目录。
+        const buff = [...this.#memberBindings.values()].find(buff =>
+          buff.damageModifiers.includes(modifier),
+        );
+        if (buff === undefined) return;
+        context.appliedDamageModifiers.push({
+          buffId: buff.definition.id,
+          sourceId: buff.sourceId,
+          sourceActionId: buff.sourceActionId,
+          side,
+          ...result,
+        });
+      });
     }
+  }
+
+  /** 读取实际注册的直接属性修正，不重算 Buff 定义或保存来源链。 */
+  captureAttributeModifierDetails(
+    side: DamageModifierSide,
+  ): import('../damage/damageScale').AppliedDamageModifier[] {
+    const active = new Set(this.attributes.runtimeState.modifiers);
+    const result: import('../damage/damageScale').AppliedDamageModifier[] = [];
+    for (const buff of this.#memberBindings.values()) {
+      for (const modifier of buff.attributeModifiers) {
+        if (!active.has(modifier)) continue;
+        for (const [slot, value] of Object.entries(modifier.values)) {
+          const neutral = slot === 'finalMultiplier' || slot === 'baseFinalMultiplier' ? 1 : 0;
+          if (value === neutral) continue;
+          result.push({
+            kind: 'attribute',
+            buffId: buff.definition.id,
+            sourceId: buff.sourceId,
+            sourceActionId: buff.sourceActionId,
+            side,
+            attribute: modifier.attribute,
+            slot: slot as import('../attributes/combatAttributes').AttributeModifierSlot,
+            value,
+          });
+        }
+      }
+    }
+    return result;
   }
 
   applyHealModifiers(

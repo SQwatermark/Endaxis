@@ -19,6 +19,7 @@ import { deriveHitId } from '../timeline/deriveHitId';
 import { freezeAttackReceiptDetail, type AttackReceiptSnapshot } from './attackReceiptDetail';
 import { calculateBreakingAttackValue } from './breakingAttackDamage';
 import { classifyDamageTags, injectDamageScaleAttributes } from './damageScaleAttributes';
+import { DAMAGE_SCALE_ZONES } from './damageScale';
 import { executeHealthDamage } from './healthDamage';
 import { calculatePlayerActiveDamage } from './playerActiveDamage';
 import {
@@ -135,6 +136,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     const attributes = this.dependencies.captureAttributeSnapshots(step).attacker;
     snapshots.set(step, {
       attack: attributes.attack,
+      ...(attributes.attackDetail === undefined ? {} : { attackDetail: attributes.attackDetail }),
       attackScale,
       baseValue: attributes.attack * attackScale,
     });
@@ -216,14 +218,30 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         });
       }
       context.applyModifiers('beforeCalculation');
+      const calculationAttackAttributes = context.attackerAttributes;
       context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
-      injectDamageScaleAttributes(context.damageScales, {
-        damageType: step.parameters.damageType,
-        classifications: classifyDamageTags(step.parameters.tags, step.parameters.features),
-        attacker: context.attackerAttributes,
-        defender: context.defenderAttributes,
-        defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
-      });
+      const scaleAttributeDetails: import('./damageScale').AppliedDamageModifier[] = [];
+      injectDamageScaleAttributes(
+        context.damageScales,
+        {
+          damageType: step.parameters.damageType,
+          classifications: classifyDamageTags(step.parameters.tags, step.parameters.features),
+          attacker: context.attackerAttributes,
+          defender: context.defenderAttributes,
+          defenderStaggered: this.dependencies.targetVitals.hasPoiseBrokenTag,
+        },
+        (side, zone, attribute) => {
+          const snapshot =
+            side === 'attacker' ? context.attackerAttributes : context.defenderAttributes;
+          for (const item of [
+            ...(snapshot.modifierDetails ?? []),
+            ...context.appliedDamageModifiers,
+          ]) {
+            if (item.kind === 'attribute' && item.side === side && item.attribute === attribute)
+              scaleAttributeDetails.push({ ...item, zone });
+          }
+        },
+      );
       if (step.kind === 'dealDamage') {
         for (const modifier of step.parameters.instantDamageScaleModifiers ?? []) {
           context.damageScales.modify(
@@ -294,7 +312,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         step.kind === 'dealDamage' && step.parameters.takeAttackSnapshot === true
           ? operationContext?.damageCalculationSnapshots?.get(step)
           : undefined;
-      const receiptAttack = attackSnapshot?.attack ?? context.attackerAttributes.attack;
+      const receiptAttack = attackSnapshot?.attack ?? calculationAttackAttributes.attack;
       const unscaledCalculationValue = context.baseValue * damageScaleMultiplier;
       const calculationMultiplier =
         Math.abs(unscaledCalculationValue) <= Number.EPSILON
@@ -310,13 +328,22 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         step.parameters.damageType === 'true'
           ? 1
           : Math.max(0, 1 - formulaInput.resistancePercent / 100);
-      const attackDetail = this.dependencies.attackDetail;
+      const attackDetail =
+        attackSnapshot === undefined
+          ? (calculationAttackAttributes.attackDetail ?? this.dependencies.attackDetail)
+          : (attackSnapshot.attackDetail ?? this.dependencies.attackDetail);
       const hitId =
         step.hitId ??
         (this.dependencies.castId === undefined || step.key === undefined
           ? undefined
           : deriveHitId(this.dependencies.castId, step.key));
       executeHealthDamage({
+        appliedDamageModifiers: [
+          ...context.appliedDamageModifiers,
+          ...(context.attackerAttributes.modifierDetails ?? []),
+          ...(context.defenderAttributes.modifierDetails ?? []),
+          ...scaleAttributeDetails,
+        ],
         skillCastInfo: skillCastInfo ?? null,
         executingSkillGroupKey: this.dependencies.executingSkillGroupKey,
         sourceId: this.dependencies.sourceOperatorId,
@@ -355,6 +382,14 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
             : {}),
           calculationMultiplier,
           damageScaleMultiplier,
+          ...Object.fromEntries(
+            DAMAGE_SCALE_ZONES.map(zone => [
+              `damageScale:${zone}`,
+              context.damageScales.getZoneValue(zone),
+            ]),
+          ),
+          'damageScale:normal:attacker': context.damageScales.getSideValue('attacker', 'normal'),
+          'damageScale:normal:defender': context.damageScales.getSideValue('defender', 'normal'),
           criticalRate: context.attackerAttributes.criticalRate,
           criticalDamageIncrease: context.attackerAttributes.criticalDamageIncrease,
           criticalExpectationMultiplier,

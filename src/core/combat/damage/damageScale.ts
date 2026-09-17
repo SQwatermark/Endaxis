@@ -15,6 +15,26 @@ interface DamageScaleZoneDefinition {
   readonly mergeSidesAdditively: boolean;
 }
 
+/** 本次实际执行的直接增伤项；仅保存结果，不追溯参数的计算过程。 */
+export type AppliedDamageModifier = {
+  readonly buffId: string;
+  readonly sourceId: string;
+  readonly sourceActionId?: string;
+  readonly side: DamageScaleSide;
+} & DamageModifierResult;
+
+/** 仅描述直接修正的结果，不保存运行时对象或参数计算图。 */
+export type DamageModifierResult =
+  | { readonly kind: 'damageScale'; readonly zone: DamageScaleZone; readonly addition: number }
+  | { readonly kind: 'multiplyValue'; readonly multiplier: number }
+  | {
+      readonly kind: 'attribute';
+      readonly attribute: string;
+      readonly zone?: DamageScaleZone;
+      readonly slot: import('../attributes/combatAttributes').AttributeModifierSlot;
+      readonly value: number;
+    };
+
 const ZONE_DEFINITIONS: Readonly<Record<DamageScaleZone, DamageScaleZoneDefinition>> = {
   product: { multiplyWithinSide: true, mergeSidesAdditively: false },
   normal: { multiplyWithinSide: false, mergeSidesAdditively: false },
@@ -43,6 +63,10 @@ export class DamageScaleAccumulator {
     values[zone] = definition.multiplyWithinSide
       ? values[zone] * (1 + addition)
       : values[zone] + addition;
+  }
+
+  getSideValue(side: DamageScaleSide, zone: DamageScaleZone): number {
+    return (side === 'attacker' ? this.#attacker : this.#defender)[zone];
   }
 
   getZoneValue(zone: DamageScaleZone): number {

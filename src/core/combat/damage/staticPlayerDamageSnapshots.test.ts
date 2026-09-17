@@ -12,6 +12,7 @@ import type {
 import { CombatReceiptCollector } from '../receipt/combatReceipt';
 import { CombatVitals } from '../resources/combatVitals';
 import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
+import { freezeAttackReceiptDetail } from './attackReceiptDetail';
 import type { CombatOperationExecutor } from '../skills/skillRuntime';
 import {
   initializeEnemyCombatAttributes,
@@ -116,6 +117,52 @@ const electricDamage: ResolvedCombatStepForKind<'dealDamage'> = {
 };
 
 describe('resolveStaticPlayerDamageSnapshots', () => {
+  it('freezes dynamic attack components and floored attributes from the same read', () => {
+    const dynamicPanel: ResolvedOperatorPanel = {
+      ...panel,
+      attributes: { strength: 0, agility: 0, intellect: 123.8, will: 60.5 },
+      attackBase: { rawValue: 700, baseMultiplier: 0.2, baseFinalAddition: 10 },
+      attackDetail: {
+        operatorBaseAttack: 500,
+        weaponBaseAttack: 200,
+        attackPercent: 0.2,
+        flatAttack: 10,
+      },
+    };
+    const attributes = createOperatorAttackAttributes(dynamicPanel);
+    const bonus = createCombatAttributeModifier(
+      'Atk',
+      attributeModifierValues('baseMultiplier', 0.18),
+      ATTRIBUTE_MODIFIER_SOURCES.buff,
+      'runtime',
+    );
+    attributes.addModifier(bonus);
+    attributes.addModifier(
+      createCombatAttributeModifier(
+        'Atk',
+        attributeModifierValues('finalMultiplier', 1.1),
+        ATTRIBUTE_MODIFIER_SOURCES.buff,
+        'runtime',
+      ),
+    );
+    const captured = resolveStaticPlayerDamageSnapshots(
+      createContext({ panel: dynamicPanel }),
+      electricDamage,
+      attributes,
+    ).attacker;
+    const frozen = freezeAttackReceiptDetail(captured.attack, captured.attackDetail);
+    const base = (700 * 1.38 + 10) * 1.1;
+    expect(captured.attack).toBe(Math.floor(base * (1 + 123 * 0.005 + 60 * 0.002)));
+    expect(frozen.attackDetailActualBase).toBeCloseTo(base);
+    expect(frozen).toMatchObject({
+      attackDetailIntellect: 123,
+      attackDetailWill: 60,
+      'attackDetailSlot:finalMultiplier': 1.1,
+    });
+    attributes.removeModifier(bonus);
+    attributes.setRawValue('intellect', 999);
+    expect(freezeAttackReceiptDetail(captured.attack, captured.attackDetail)).toEqual(frozen);
+  });
   it('庇护属性保留原始无界槽，只有敌方快照影响对敌伤害', () => {
     const attacker = createOperatorAttackAttributes(panel);
     const defender = new CombatAttributeSet<string>();

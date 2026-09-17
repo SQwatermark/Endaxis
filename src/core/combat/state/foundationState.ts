@@ -1,5 +1,5 @@
 /** 跨状态层共享的数据节点、稳定身份和修正项；不引用执行实现或上层状态。 */
-import { type SkillType } from '../../game-data/operatorDefinition';
+import { type SkillType, type OperatorAttribute } from '../../game-data/operatorDefinition';
 import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
 import { type RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
 import {
@@ -10,6 +10,27 @@ import {
   type PoiseModifierDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers';
 import { type AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
+
+/** 与一次攻击读数同时取得的公式输入；攻击快照必须一起保存，不能事后读取当前属性。 */
+export interface AttackReceiptSnapshot {
+  readonly panelAttack: number;
+  readonly operatorBaseAttack: number;
+  readonly weaponBaseAttack: number;
+  readonly attackPercent: number;
+  readonly flatAttack: number;
+  readonly mainAttribute: OperatorAttribute;
+  readonly secondaryAttribute: OperatorAttribute;
+  readonly attributes: Readonly<Record<OperatorAttribute, number>>;
+  readonly coefficients: Readonly<Record<OperatorAttribute, number>>;
+  readonly runtimeBase?: {
+    readonly raw: number;
+    readonly armed: number;
+    readonly value: number;
+    readonly minimum?: number;
+    readonly maximum?: number;
+    readonly modifiers: AttributeModifierValues;
+  };
+}
 
 export interface SkillCastEventData extends AbilityOriginPayload {
   /** 玩家技能库分类；实体内部技能没有此分类。 */

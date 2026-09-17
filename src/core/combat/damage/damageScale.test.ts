@@ -22,6 +22,8 @@ describe('DamageScaleAccumulator', () => {
     scales.modify('defender', 'normal', 0.3);
 
     expect(scales.getZoneValue('normal')).toBeCloseTo(1.56);
+    expect(scales.getSideValue('attacker', 'normal')).toBeCloseTo(1.2);
+    expect(scales.getSideValue('defender', 'normal')).toBeCloseTo(1.3);
   });
 
   it('clamps negative and NaN zone results to zero', () => {

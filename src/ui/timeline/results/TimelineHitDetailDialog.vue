@@ -3,7 +3,12 @@ import { EaCheckbox, EaDialog, EaDialogActions } from '../../../design-system/in
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 /** 结构与视觉以旧版 HitDamageDetailDialog 为规格；UI 只投影回执冻结值。 */
 import { computed, ref, watch } from 'vue';
-import { ArrowRight } from '@element-plus/icons-vue';
+import { ArrowRight, Warning } from '@element-plus/icons-vue';
+import {
+  DAMAGE_SCALE_ZONES,
+  type AppliedDamageModifier,
+  type DamageScaleZone,
+} from '../../../core/combat/damage/damageScale';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 import type {
   OperatorPanelContributionReceipt,
@@ -20,6 +25,10 @@ const props = defineProps<{
   allowForceCritical?: boolean;
   sourceDescription?: (entry: CombatReceiptEntry) => string | undefined;
   sourceLabel?: string;
+  damageZoneLabel?: (zone: DamageScaleZone) => string;
+  buffLabel?: (
+    item: import('../../../core/combat/damage/damageScale').AppliedDamageModifier,
+  ) => string;
   entries: readonly CombatReceiptEntry[];
   operatorPanel: ResolvedOperatorPanel | null;
   operatorPanelForEntry?: (entry: CombatReceiptEntry) => ResolvedOperatorPanel | null;
@@ -71,12 +80,17 @@ const props = defineProps<{
 const emit = defineEmits<{ close: []; toggleForceCritical: [forced: boolean] }>();
 
 interface DetailRow {
+  readonly factor?: number;
+  readonly tooltip?: string;
   readonly label: string;
   readonly detail?: string;
   readonly value: string;
 }
 
 interface DamageDetail {
+  readonly attackFormulaTooltip?: string;
+  readonly attributeSources: readonly DetailRow[];
+  readonly formulaTooltip?: string;
   readonly key: number;
   readonly headline: number;
   readonly expectedDamage: number;
@@ -85,6 +99,7 @@ interface DamageDetail {
   readonly canCritical: boolean;
   readonly canForceCritical: boolean;
   readonly attackValue: string;
+  readonly attackSources: readonly DetailRow[];
   readonly attackDetail: AttackDetail | null;
   readonly contextRows: readonly DetailRow[];
   readonly baseRows: readonly DetailRow[];
@@ -92,6 +107,7 @@ interface DamageDetail {
 }
 
 interface AttackAttributeContribution {
+  readonly coefficient: number;
   readonly key: string;
   readonly value: number;
   readonly contribution: number;
@@ -100,6 +116,7 @@ interface AttackAttributeContribution {
 }
 
 interface AttackDetail {
+  readonly formula: string;
   readonly basicTotal: number;
   readonly baseAttackTotal: number;
   readonly operatorBaseAttack: number;
@@ -142,6 +159,52 @@ function mult(value: unknown): string {
 
 function differsFromOne(value: number): boolean {
   return Math.abs(value - 1) > 0.000_001;
+}
+
+function modifierTooltip(items: readonly AppliedDamageModifier[]): string | undefined {
+  if (items.length === 0) return undefined;
+  return modifierRows(items)
+    .map(row => `${row.label} ${row.value}`)
+    .join('\n');
+}
+
+function modifierRows(items: readonly AppliedDamageModifier[]): DetailRow[] {
+  return items.map(item => {
+    const name = props.buffLabel?.(item) ?? item.buffId;
+    let value: string;
+    if (item.kind === 'multiplyValue') value = mult(item.multiplier);
+    else if (item.kind === 'damageScale')
+      value =
+        item.zone === 'product'
+          ? mult(1 + item.addition)
+          : `${item.addition >= 0 ? '+' : ''}${pct(item.addition)}`;
+    else {
+      const signed = item.value >= 0 ? '+' : '';
+      const absolute = ['Atk', 'strength', 'agility', 'intellect', 'will'].includes(item.attribute);
+      value =
+        item.slot === 'finalMultiplier' || item.slot === 'baseFinalMultiplier'
+          ? mult(item.value)
+          : item.slot === 'multiplier' || item.slot === 'baseMultiplier'
+            ? `${signed}${pct(item.value)}`
+            : item.attribute.endsWith('Resistance')
+              ? `${signed}${item.value.toFixed(1)}%`
+              : absolute
+                ? `${signed}${item.value.toLocaleString()}`
+                : `${signed}${pct(item.value)}`;
+      const label =
+        item.attribute === 'criticalRate'
+          ? props.labels.criticalRate
+          : item.attribute === 'criticalDamageIncrease'
+            ? props.labels.criticalDamage
+            : item.attribute === 'Atk'
+              ? props.labels.attack
+              : ['strength', 'agility', 'intellect', 'will'].includes(item.attribute)
+                ? props.labels.attributeLabel(item.attribute)
+                : '';
+      if (label) value = `${label} ${value}`;
+    }
+    return { label: name, value };
+  });
 }
 
 function projectAttackDetail(
@@ -187,7 +250,8 @@ function projectAttackDetail(
     .map(key => ({
       key,
       value: values[key],
-      contribution: values[key] * coefficients[key],
+      coefficient: coefficients[key],
+      contribution: Math.floor(values[key]) * coefficients[key],
       isMain: key === data.attackDetailMainAttribute,
       isSecondary: key === data.attackDetailSecondaryAttribute,
     }))
@@ -197,12 +261,98 @@ function projectAttackDetail(
         Number(right.isMain) - Number(left.isMain) ||
         Number(right.isSecondary) - Number(left.isSecondary),
     );
+  const basicTotal = finiteNumber(
+    data.attackDetailActualBase,
+    baseAttackTotal * (1 + attackPercent) + flatAttack,
+  );
+  const rawBase = finiteNumber(data.attackDetailRawBase, baseAttackTotal);
+  // 舍入不能改变公式算出的整数攻击；必要时增加显示精度。
+  let precision = 3;
+  const rounded = (value: number) => Number(value.toFixed(precision));
+  while (
+    precision < 15 &&
+    Math.floor(
+      rounded(basicTotal) *
+        (1 +
+          attributeContributions.reduce(
+            (sum, row) => sum + Math.floor(row.value) * rounded(row.coefficient),
+            0,
+          )),
+    ) !== data.attack
+  )
+    precision++;
+  const precise = (value: number) =>
+    rounded(value).toLocaleString(undefined, { maximumFractionDigits: precision });
+  const attributeFormula = attributeContributions
+    .map(
+      row =>
+        `${props.labels.attributeLabel(row.key)} ${Math.floor(row.value)} × ${precise(row.coefficient)}`,
+    )
+    .join(' + ');
+  const formula = [
+    `${props.labels.attack} = ⌊${props.labels.basicTotal} × (1 + ${props.labels.attributeBonus})⌋`,
+    `= ⌊${precise(basicTotal)} × (1 + ${attributeFormula || '0'})⌋`,
+    `= ${num(data.attack)}`,
+  ];
+  // 基础四槽与最终四槽分阶段显示；不把 Buff 的最终乘数伪装成面板百分比加算。
+  const slot = (name: string, fallback = 0) =>
+    finiteNumber(data[`attackDetailSlot:${name}`], fallback);
+  const armed = finiteNumber(data.attackDetailArmedBase, basicTotal);
+  const bounded = (expression: string, value: number) => {
+    if (typeof data.attackDetailMinimum === 'number' && value < data.attackDetailMinimum)
+      return `max(${precise(data.attackDetailMinimum)}, ${expression})`;
+    if (typeof data.attackDetailMaximum === 'number' && value > data.attackDetailMaximum)
+      return `min(${precise(data.attackDetailMaximum)}, ${expression})`;
+    return expression;
+  };
+  const baseValue = Math.min(
+    finiteNumber(data.attackDetailMaximum, Infinity),
+    Math.max(finiteNumber(data.attackDetailMinimum, -Infinity), rawBase + slot('baseAddition')),
+  );
+  const baseExpression = bounded(
+    `(${precise(rawBase)} + ${precise(slot('baseAddition'))})`,
+    rawBase + slot('baseAddition'),
+  );
+  const baseMultiplier =
+    attackPercent < -1
+      ? `max(0, 1 + ${precise(attackPercent)})`
+      : `(1 + ${precise(attackPercent)})`;
+  formula.push('', `${props.labels.basicTotal}:`);
+  formula.push(`${baseExpression} × ${baseMultiplier} + ${precise(flatAttack)}`);
+  if (slot('baseFinalMultiplier', 1) !== 1)
+    formula[formula.length - 1] =
+      `(${formula[formula.length - 1]}) × ${precise(slot('baseFinalMultiplier', 1))}`;
+  formula[formula.length - 1] =
+    bounded(
+      formula[formula.length - 1]!,
+      (baseValue * Math.max(0, 1 + attackPercent) + flatAttack) * slot('baseFinalMultiplier', 1),
+    ) + ` ≈ ${precise(armed)}`;
+  if (
+    slot('addition') !== 0 ||
+    slot('multiplier') !== 0 ||
+    slot('finalAddition') !== 0 ||
+    slot('finalMultiplier', 1) !== 1
+  ) {
+    const multiplier =
+      slot('multiplier') < -1
+        ? `max(0, 1 + ${precise(slot('multiplier'))})`
+        : `(1 + ${precise(slot('multiplier'))})`;
+    const expression = `((${precise(armed)} + ${precise(slot('addition'))}) × ${multiplier} + ${precise(slot('finalAddition'))}) × ${precise(slot('finalMultiplier', 1))}`;
+    formula.push(
+      bounded(
+        expression,
+        ((armed + slot('addition')) * Math.max(0, 1 + slot('multiplier')) + slot('finalAddition')) *
+          slot('finalMultiplier', 1),
+      ) + ` ≈ ${precise(basicTotal)}`,
+    );
+  }
   return {
-    basicTotal: baseAttackTotal * (1 + attackPercent) + flatAttack,
-    baseAttackTotal,
+    formula: formula.join('\n'),
+    basicTotal,
+    baseAttackTotal: rawBase,
     operatorBaseAttack,
     weaponBaseAttack,
-    attackBonus: baseAttackTotal * attackPercent + flatAttack,
+    attackBonus: basicTotal - rawBase,
     flatAttack,
     attackPercent,
     attackPercentSources: projectAttackPercentContributionSources(panel),
@@ -260,18 +410,63 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
       { label: props.labels.baseDamage, value: num(data.baseDamage) },
     ];
     const multiplierRows: DetailRow[] = [];
-    if (differsFromOne(damageScaleMultiplier)) {
+    const modifiers = entry.appliedDamageModifiers ?? [];
+    const attributes = (side: 'attacker' | 'defender', keys: readonly string[]) =>
+      modifiers.filter(
+        item => item.kind === 'attribute' && item.side === side && keys.includes(item.attribute),
+      );
+    const criticalTooltip = modifierTooltip(
+      attributes('attacker', ['criticalRate', 'criticalDamageIncrease']),
+    );
+    const hasZones = DAMAGE_SCALE_ZONES.some(
+      zone => typeof data[`damageScale:${zone}`] === 'number',
+    );
+    if (hasZones) {
+      for (const zone of DAMAGE_SCALE_ZONES) {
+        if (zone === 'normal' && typeof data['damageScale:normal:attacker'] === 'number') {
+          for (const side of ['attacker', 'defender'] as const) {
+            const value = finiteNumber(data[`damageScale:normal:${side}`], 1);
+            const sources = modifiers.filter(
+              item => item.kind !== 'multiplyValue' && item.zone === zone && item.side === side,
+            );
+            if (!differsFromOne(value) && sources.length === 0) continue;
+            multiplierRows.push({
+              label: side === 'attacker' ? props.labels.damageBonus : props.labels.damageTaken,
+              value: mult(value),
+              factor: value,
+              tooltip: modifierTooltip(sources),
+            });
+          }
+          continue;
+        }
+        const value = finiteNumber(data[`damageScale:${zone}`], 1);
+        const sources = modifiers.filter(
+          item => item.kind !== 'multiplyValue' && item.zone === zone,
+        );
+        if (!differsFromOne(value) && sources.length === 0) continue;
+        multiplierRows.push({
+          label: props.damageZoneLabel?.(zone) ?? props.labels.damageBonus,
+          value: mult(value),
+          factor: value,
+          tooltip: modifierTooltip(sources),
+        });
+      }
+    } else if (differsFromOne(damageScaleMultiplier)) {
       multiplierRows.push({
         label: props.labels.damageBonus,
         detail: damageScaleMultiplier >= 1 ? `+${pct(damageScaleMultiplier - 1)}` : undefined,
         value: mult(damageScaleMultiplier),
+        factor: damageScaleMultiplier,
+        tooltip: modifierTooltip(modifiers.filter(item => item.kind === 'damageScale')),
       });
     }
     if (props.randomMode === 'expected') {
       multiplierRows.push({
         label: props.labels.criticalExpectation,
+        tooltip: criticalTooltip,
         detail: `${props.labels.criticalRate} ${pct(criticalRate)} × ${pct(criticalDamageIncrease)}`,
         value: mult(criticalExpectation),
+        factor: criticalExpectation,
       });
     }
     if (props.randomMode === 'sampled') {
@@ -283,14 +478,22 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
             : props.labels.nonCriticalHit;
       multiplierRows.push({
         label: props.labels.criticalResult,
+        tooltip: criticalTooltip,
         detail: `${props.labels.criticalRate} ${pct(criticalRate)} · ${criticalResult}`,
         value: mult(criticalMultiplier),
+        factor: criticalMultiplier,
       });
     }
     if (differsFromOne(directMultiplier)) {
       multiplierRows.push({
         label: props.labels.directMultiplier,
+        tooltip: modifierTooltip([
+          ...modifiers.filter(item => item.kind === 'multiplyValue'),
+          ...attributes('attacker', ['weaknessDamageMultiplier']),
+          ...attributes('defender', ['shelterDamageMultiplier']),
+        ]),
         value: mult(directMultiplier),
+        factor: directMultiplier,
       });
     }
     if (differsFromOne(damageTakenMultiplier)) {
@@ -298,22 +501,101 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         label: props.labels.damageTaken,
         detail: damageTakenMultiplier >= 1 ? `+${pct(damageTakenMultiplier - 1)}` : undefined,
         value: mult(damageTakenMultiplier),
+        factor: damageTakenMultiplier,
       });
     }
     multiplierRows.push({
       label: props.labels.defenseMultiplier,
       detail: props.labels.defenseDetail(Math.floor(finiteNumber(data.enemyDefense))),
       value: mult(data.defenseMultiplier),
+      factor: finiteNumber(data.defenseMultiplier, 1),
     });
     if (differsFromOne(resistanceMultiplier)) {
       multiplierRows.push({
         label: props.labels.resistanceMultiplier,
+        tooltip: modifierTooltip(
+          attributes('defender', [
+            (
+              {
+                physical: 'PhysicalResistance',
+                heat: 'FireResistance',
+                electric: 'PulseResistance',
+                cryo: 'CrystResistance',
+                nature: 'NaturalResistance',
+                ether: 'EtherResistance',
+              } as Record<string, string>
+            )[damageType ?? ''] ?? '',
+          ]),
+        ),
         detail: pct(finiteNumber(data.enemyResistancePercent) / 100),
         value: mult(resistanceMultiplier),
+        factor: resistanceMultiplier,
       });
     }
+    const forced =
+      props.resultForceCritical &&
+      data.canCritical !== false &&
+      Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001;
+    const formulaNumber = (value: number) =>
+      value.toLocaleString(undefined, { maximumFractionDigits: 6 });
+    const formulaFactors = multiplierRows.map(row => {
+      const critical =
+        row.label === props.labels.criticalExpectation || row.label === props.labels.criticalResult;
+      return `${forced && critical ? props.labels.criticalHit : row.label}（${formulaNumber(forced && critical ? 1 + criticalDamageIncrease : (row.factor ?? 1))}）`;
+    });
+    const formulaBase = standardCalculation
+      ? `${props.labels.attack}（${formulaNumber(finiteNumber(data.attack))}）\n× ${props.labels.skillMultiplier}（${formulaNumber(finiteNumber(data.skillMultiplierPercent) / 100)}）`
+      : `${props.labels.baseDamage}（${formulaNumber(finiteNumber(data.baseDamage))}）`;
+    const formulaResult = forced
+      ? criticalDamage
+      : props.randomMode === 'expected'
+        ? expectedDamage
+        : actualValue;
+    const formulaLabel = forced
+      ? props.labels.forcedDamage
+      : props.randomMode === 'expected'
+        ? props.labels.expectedDamage
+        : props.labels.actualDamage;
+    const formulaTooltip =
+      typeof data.baseDamage === 'number'
+        ? [
+            formulaBase,
+            ...formulaFactors.map(factor => `× ${factor}`),
+            `≈ ${formulaLabel}（${num(formulaResult)}）`,
+          ].join('\n')
+        : undefined;
+    const panel = props.operatorPanelForEntry
+      ? props.operatorPanelForEntry(entry)
+      : props.operatorPanel;
+    const attackDetail = projectAttackDetail(entry.data, panel);
+    const staticAttackSources: DetailRow[] =
+      attackDetail === null && data.usesAttackSnapshot !== true
+        ? (panel?.receipt ?? [])
+            .filter(item => item.stat === 'attack')
+            .map(item => ({
+              label: props.contributionSourceLabel(item, entry.sequence),
+              value: `${item.operation === 'base' ? props.labels.baseAttack : item.operation === 'percent' ? props.labels.percentageAttack : props.labels.flatAttack} ${item.operation === 'percent' ? pct(item.value) : num(item.value)}`,
+            }))
+        : [];
     return [
       {
+        formulaTooltip,
+        attackFormulaTooltip: attackDetail?.formula,
+        attributeSources:
+          data.usesAttackSnapshot === true
+            ? []
+            : modifierRows(
+                attributes('attacker', [
+                  'strength',
+                  'agility',
+                  'intellect',
+                  'will',
+                  'AtkIncreaseFactorFromStr',
+                  'AtkIncreaseFactorFromAgi',
+                  'AtkIncreaseFactorFromWisd',
+                  'AtkIncreaseFactorFromWill',
+                ]),
+              ),
         key: entry.sequence,
         headline: props.randomMode === 'expected' ? expectedDamage : actualValue,
         expectedDamage,
@@ -323,10 +605,11 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         canForceCritical:
           data.canCritical !== false && Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001,
         attackValue: num(data.attack),
-        attackDetail: projectAttackDetail(
-          entry.data,
-          props.operatorPanelForEntry ? props.operatorPanelForEntry(entry) : props.operatorPanel,
-        ),
+        attackSources:
+          data.usesAttackSnapshot === true
+            ? []
+            : [...staticAttackSources, ...modifierRows(attributes('attacker', ['Atk']))],
+        attackDetail,
         contextRows,
         baseRows,
         multiplierRows,
@@ -378,24 +661,39 @@ function onClose(): void {
           <div class="section-label">{{ labels.result }}</div>
           <div class="damage-result">
             <div class="expected-damage">
-              <span class="damage-label">{{
-                resultForceCritical && detail.canForceCritical
-                  ? labels.forcedDamage
-                  : randomMode === 'expected'
-                    ? labels.expectedDamage
-                    : labels.actualDamage
-              }}</span>
-              <span
-                class="damage-value"
-                :class="{ forced: resultForceCritical && detail.canForceCritical }"
+              <span class="damage-label"
                 >{{
-                  num(
-                    resultForceCritical && detail.canForceCritical
-                      ? detail.criticalDamage
-                      : detail.headline,
-                  )
-                }}</span
-              >
+                  resultForceCritical && detail.canForceCritical
+                    ? labels.forcedDamage
+                    : randomMode === 'expected'
+                      ? labels.expectedDamage
+                      : labels.actualDamage
+                }}
+                <el-tooltip
+                  v-if="detail.formulaTooltip"
+                  :content="detail.formulaTooltip"
+                  placement="top"
+                  :show-after="80"
+                  popper-class="hit-detail-source-tooltip"
+                >
+                  <el-icon class="hint-icon" tabindex="0" :aria-label="labels.multipliers"
+                    ><Warning
+                  /></el-icon>
+                </el-tooltip>
+              </span>
+              <span class="damage-result-value">
+                <span
+                  class="damage-value"
+                  :class="{ forced: resultForceCritical && detail.canForceCritical }"
+                  >{{
+                    num(
+                      resultForceCritical && detail.canForceCritical
+                        ? detail.criticalDamage
+                        : detail.headline,
+                    )
+                  }}</span
+                >
+              </span>
             </div>
             <table class="stat-table">
               <tbody>
@@ -420,18 +718,35 @@ function onClose(): void {
             <tbody>
               <tr
                 class="expandable-row"
-                :class="{ 'is-disabled': detail.attackDetail === null }"
-                @click="detail.attackDetail === null ? undefined : toggleAttackDetail(detail.key)"
+                :class="{
+                  'is-disabled': detail.attackDetail === null && detail.attackSources.length === 0,
+                }"
+                @click="
+                  detail.attackDetail !== null || detail.attackSources.length > 0
+                    ? toggleAttackDetail(detail.key)
+                    : undefined
+                "
               >
                 <td class="label-cell">
                   <el-icon
-                    v-if="detail.attackDetail !== null"
+                    v-if="detail.attackDetail !== null || detail.attackSources.length > 0"
                     class="expand-icon"
                     :class="{ 'is-open': openAttackDetails.has(detail.key) }"
                   >
                     <ArrowRight />
                   </el-icon>
                   {{ labels.attack }}
+                  <el-tooltip
+                    v-if="detail.attackFormulaTooltip"
+                    :content="detail.attackFormulaTooltip"
+                    placement="top"
+                    :show-after="80"
+                    popper-class="hit-detail-source-tooltip"
+                  >
+                    <el-icon class="hint-icon" tabindex="0" :aria-label="labels.attack" @click.stop
+                      ><Warning
+                    /></el-icon>
+                  </el-tooltip>
                 </td>
                 <td class="value-cell">{{ detail.attackValue }}</td>
               </tr>
@@ -474,6 +789,14 @@ function onClose(): void {
                   </td>
                   <td class="value-cell">{{ pct(source.value) }}</td>
                 </tr>
+                <tr
+                  v-for="(source, index) in detail.attackSources"
+                  :key="`attack-buff:${index}`"
+                  class="sub-row dim"
+                >
+                  <td class="label-cell indent-4">{{ labels.fromSource(source.label) }}</td>
+                  <td class="value-cell">{{ source.value }}</td>
+                </tr>
                 <tr class="sub-row">
                   <td class="label-cell indent-1">{{ labels.attributeBonus }}</td>
                   <td class="value-cell">
@@ -498,6 +821,24 @@ function onClose(): void {
                   </td>
                   <td class="value-cell">+{{ (row.contribution * 100).toFixed(1) }}%</td>
                 </tr>
+                <tr
+                  v-for="(source, index) in detail.attributeSources"
+                  :key="`attribute-buff:${index}`"
+                  class="sub-row dim"
+                >
+                  <td class="label-cell indent-3">{{ labels.fromSource(source.label) }}</td>
+                  <td class="value-cell">{{ source.value }}</td>
+                </tr>
+              </template>
+              <template v-if="openAttackDetails.has(detail.key) && detail.attackDetail === null">
+                <tr
+                  v-for="(source, index) in detail.attackSources"
+                  :key="`attack-buff:${index}`"
+                  class="sub-row dim"
+                >
+                  <td class="label-cell indent-1">{{ labels.fromSource(source.label) }}</td>
+                  <td class="value-cell">{{ source.value }}</td>
+                </tr>
               </template>
               <tr
                 v-for="row in detail.baseRows"
@@ -515,7 +856,17 @@ function onClose(): void {
             <tbody>
               <tr v-for="row in detail.multiplierRows" :key="row.label">
                 <td class="label-cell">
-                  {{ row.label }}<span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
+                  {{ row.label }}
+                  <el-tooltip
+                    v-if="row.tooltip"
+                    :content="row.tooltip"
+                    placement="top"
+                    :show-after="80"
+                    popper-class="hit-detail-source-tooltip"
+                  >
+                    <span class="hint-icon" aria-hidden="true">ⓘ</span>
+                  </el-tooltip>
+                  <span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
                 </td>
                 <td class="value-cell mult-value">{{ row.value }}</td>
               </tr>
@@ -541,6 +892,15 @@ function onClose(): void {
 </template>
 
 <style scoped>
+.hint-icon {
+  margin-left: 4px;
+  color: inherit;
+  opacity: 0.55;
+  font-size: 12px;
+  line-height: 1;
+  cursor: help;
+  vertical-align: baseline;
+}
 .hit-detail-content {
   color: var(--ea-fg, #f0f0f0);
   font-size: 13px;
@@ -659,6 +1019,11 @@ tr.is-sub {
   font-size: 20px;
   font-weight: 700;
 }
+.damage-result-value {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
 .damage-value.forced {
   color: var(--ea-gold);
   text-shadow: none;
@@ -679,6 +1044,50 @@ tr.is-sub {
 </style>
 
 <style>
+.hit-detail-source-tooltip {
+  max-width: min(320px, calc(100vw - 48px));
+  white-space: pre-line;
+  line-height: 1.45;
+}
+/* 旧版 dark 主题的 Element Plus 提示框；不采用新版通用浮层三角箭头。 */
+html body .el-popper.hit-detail-source-tooltip.is-dark {
+  color: #141414;
+  background: #e5eaf3;
+  border: 1px solid #e5eaf3;
+  border-radius: 4px;
+  padding: 5px 11px;
+  font-size: 12px;
+  box-shadow: none;
+}
+html
+  body
+  .el-popper.el-popper.el-popper.hit-detail-source-tooltip[data-popper-placement]
+  > .el-popper__arrow {
+  width: 10px !important;
+  height: 10px !important;
+}
+html
+  body
+  .el-popper.el-popper.el-popper.hit-detail-source-tooltip[data-popper-placement]
+  > .el-popper__arrow::before {
+  width: 10px !important;
+  height: 10px !important;
+  background: #e5eaf3 !important;
+  transform: rotate(45deg) !important;
+  clip-path: none !important;
+}
+html
+  body
+  .el-popper.el-popper.el-popper.hit-detail-source-tooltip[data-popper-placement^='top']
+  > .el-popper__arrow {
+  bottom: -5px !important;
+}
+html
+  body
+  .el-popper.el-popper.el-popper.hit-detail-source-tooltip[data-popper-placement^='bottom']
+  > .el-popper__arrow {
+  top: -5px !important;
+}
 html[data-theme='dark'] .hit-damage-detail-dialog .damage-value {
   color: #ff6b6b;
 }

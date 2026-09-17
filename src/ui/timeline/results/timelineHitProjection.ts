@@ -31,6 +31,9 @@ export interface TimelineHitMarker {
 
 /** 页面算好像素位置后交给组件画出来的命中点。 */
 export interface TimelineHitMarkerView {
+  /** 由明确的伤害事件响应产生的追加命中；执行宿主类型不参与判定。 */
+  readonly triggered?: boolean;
+  readonly triggeredStackIndex?: number;
   readonly executionFrame?: number;
   readonly stepKey: string;
   readonly hitId: string;

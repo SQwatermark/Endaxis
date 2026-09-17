@@ -2,9 +2,11 @@ import type { OperatorDefinition } from '../../../core/game-data/operatorDefinit
 import { listOperatorSkillDefinitionBindings } from '../../../core/game-data/operatorSkillDefinitions';
 import type { ScenarioDocument } from '../../../core/project/schema';
 import type { TimelineOperatorIndex } from '../timelineEditorViewModel';
+import { collectTriggeredHitStepKeys } from './timelineHitEffects';
 
 /** 结果来源显示所需的最小事实，不复制技能树或模拟状态。 */
 export interface PublishedOperatorMetadata {
+  readonly triggeredHitStepKeys?: ReadonlySet<string>;
   readonly slug: string;
   readonly assetSlug: string;
   readonly displayName: string | undefined;
@@ -33,6 +35,7 @@ export function capturePublishedOperatorMetadata(
     const skills = listOperatorSkillDefinitionBindings(definition).map(binding => binding.skill);
     result.set(slug, {
       slug: definition.slug,
+      triggeredHitStepKeys: collectTriggeredHitStepKeys(definition),
       assetSlug: definition.assetSlug ?? slug,
       displayName: definition.displayName,
       element: definition.element,

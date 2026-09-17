@@ -25,6 +25,7 @@ import {
 import { type PeriodicTimerState } from './environmentState';
 
 export interface DamageCalculationSnapshot {
+  readonly attackDetail?: import('./foundationState').AttackReceiptSnapshot;
   readonly attack: number;
   readonly attackScale: number;
   readonly baseValue: number;

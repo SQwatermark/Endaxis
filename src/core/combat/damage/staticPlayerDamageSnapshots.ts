@@ -19,6 +19,7 @@ import type { PlayerDamageAttributeSnapshots } from './playerDamageContext';
 import type { CombatDamageExecutorContext } from '../runtime/combatRuntimeAssembly';
 import { CombatAttributeSet, attributeModifierValues } from '../attributes/combatAttributes';
 import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
+import { captureAttackReceiptSnapshot } from './attackReceiptDetail';
 
 type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
 
@@ -143,10 +144,12 @@ export function resolveStaticPlayerDamageSnapshots(
     ('program' in context
       ? context.program.statModifiers?.damageToStaggeredEnemyIncrease
       : undefined) ?? 0;
+  const attack = resolveOperatorAttack(panel, operatorAttributes);
   const result: PlayerDamageAttributeSnapshots = {
     attacker: {
       ...attackerDamageScales,
-      attack: resolveOperatorAttack(panel, operatorAttributes),
+      attack,
+      attackDetail: captureAttackReceiptSnapshot(panel, operatorAttributes, attack),
       ...(step.kind === 'dealDamage' && step.parameters.calculation === 'attribute'
         ? (() => {
             const attribute = step.parameters.calculationAttribute;

@@ -14,6 +14,7 @@ export interface CombatReceiptEntry {
   readonly sourceId?: string;
   readonly targetId?: string;
   readonly data?: Readonly<Record<string, CombatReceiptValue>>;
+  readonly appliedDamageModifiers?: readonly import('../damage/damageScale').AppliedDamageModifier[];
 }
 
 /** 运行时追加事实的最小端口，投影层只读取其最终结果。 */

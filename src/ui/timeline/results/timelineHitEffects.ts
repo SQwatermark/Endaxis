@@ -16,6 +16,53 @@ import {
   projectBuffTimelineViz,
 } from '../../../core/projection/buffTimelineViz';
 import type { TimelineHitMarker } from './timelineHitProjection';
+import type { OperatorDefinition } from '../../../core/game-data/operatorDefinition';
+
+/** 沿既有定义引用识别 Buff 派生伤害；普通路径也能到达的步骤不做静态断言。 */
+export function collectTriggeredHitStepKeys(definition: OperatorDefinition): ReadonlySet<string> {
+  const keys = [new Set<string>(), new Set<string>()];
+  const visited = [new WeakSet<object>(), new WeakSet<object>()];
+  function visit(value: unknown, triggered: boolean): void {
+    if (value === null || typeof value !== 'object') return;
+    const mode = triggered ? 1 : 0;
+    if (visited[mode]!.has(value)) return;
+    visited[mode]!.add(value);
+    if (Array.isArray(value)) {
+      for (const item of value) visit(item, triggered);
+      return;
+    }
+    const node = value as Record<string, unknown>;
+    if (
+      (node.kind === 'dealDamage' || node.kind === 'dealFixedDamage') &&
+      typeof node.key === 'string'
+    )
+      keys[mode]!.add(node.key);
+    if (
+      node.kind === 'spawnAbilityEntity' &&
+      node.parameters &&
+      typeof node.parameters === 'object'
+    ) {
+      const parameters = node.parameters as Record<string, unknown>;
+      if (typeof parameters.abilityEntityId === 'string') {
+        const entity = definition.abilityEntityDefinitions?.[parameters.abilityEntityId];
+        if (entity) {
+          const id = parameters.childSkillId;
+          const skill = typeof id === 'string'
+            ? entity.childSkills?.[id] ?? (entity.childSkill?.skillId === id ? entity.childSkill : undefined)
+            : entity.childSkill;
+          visit(skill, triggered);
+          visit(entity.passiveSkills, triggered);
+        }
+      }
+    }
+    for (const [key, child] of Object.entries(node)) {
+      if (key === 'abilityEntityDefinitions') continue;
+      visit(child, key === 'buffDefinitions' ? true : triggered);
+    }
+  }
+  visit(definition, false);
+  return new Set([...keys[1]!].filter(key => !keys[0]!.has(key)));
+}
 
 /** 一个命中点上发生的伤害（保持日志顺序）。 */
 export interface TimelineHitDamageEffect {
@@ -59,17 +106,32 @@ function excludeStandaloneEffectDamage(
 }
 
 /** 定义hitId可重复执行；帧区分可视命中，同帧同身份伤害仍合并查看。 */
-export function projectTimelineHitOccurrences(entries: readonly CombatReceiptEntry[]) {
+export function projectTimelineHitOccurrences(
+  entries: readonly CombatReceiptEntry[],
+  triggeredStepsByCast: ReadonlyMap<string, ReadonlySet<string>> = new Map(),
+) {
   const receipts = projectTimelineHitReceipts(entries);
   const byCast = new Map<
     string,
-    { hitId: string; stepKey: string; frame: number; label: TimelineHitEffectLabel }[]
+    {
+      hitId: string;
+      stepKey: string;
+      frame: number;
+      triggered: boolean;
+      triggeredStackIndex: number;
+      label: TimelineHitEffectLabel;
+    }[]
   >();
   for (const hit of receipts.damages) {
     if (!hit.castId || !hit.hitId || !hit.stepKey) continue;
     const list = byCast.get(hit.castId) ?? [];
     if (list.some(item => item.hitId === hit.hitId && item.frame === hit.frame)) continue;
+    const triggered = triggeredStepsByCast.get(hit.castId)?.has(hit.stepKey) === true;
     list.push({
+      triggered,
+      triggeredStackIndex: triggered
+        ? list.filter(item => item.frame === hit.frame && item.triggered).length
+        : 0,
       hitId: hit.hitId,
       stepKey: hit.stepKey,
       frame: hit.frame,

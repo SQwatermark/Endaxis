@@ -2655,7 +2655,17 @@ function hitMarkerTitle(label: TimelineHitEffectLabel | undefined): string {
 }
 
 const publishedHitOccurrences = computed(() =>
-  projectTimelineHitOccurrences(publishedReceiptEntries.value),
+  projectTimelineHitOccurrences(
+    publishedReceiptEntries.value,
+    new Map(
+      (publishedSimulation.value?.scenario.tracks ?? []).flatMap(track => {
+        const keys = track?.operator
+          ? publishedOperators.value.get(track.operator.operatorSlug)?.triggeredHitStepKeys
+          : undefined;
+        return track && keys ? track.skillCasts.map(cast => [cast.id, keys] as const) : [];
+      }),
+    ),
+  ),
 );
 const hitOccurrences = computed(
   () =>
@@ -2683,6 +2693,8 @@ function castHitMarkers(trackIndex: TrackIndex, castId: string): TimelineHitMark
       executionFrame: hit.frame,
       leftPx: timelineFramePx(hit.frame) - timelineFramePx(publishedStartFrame),
       critical: hit.label.damage.some(damage => damage.isCritical),
+      triggered: hit.triggered,
+      triggeredStackIndex: hit.triggeredStackIndex,
       forcedCritical: cast.simulationInputs?.criticalOverrides?.[hit.stepKey] === true,
       title: hitMarkerTitle(hit.label),
     }));
@@ -6674,10 +6686,23 @@ function setPanelDialogVisible(visible: boolean): void {
     @reset="resetSelectedCastDefinition"
   />
   <TimelineHitDetailDialog
+    :damage-zone-label="zone => t(`hitDetail.damageZones.${zone}`)"
     v-if="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
     :random-mode="publishedRandomMode"
     :operator-panel-for-entry="hitDetailTarget === null ? enemyDamageOperatorPanel : undefined"
     :source-label="t('timeline.buffDetail.source')"
+    :buff-label="
+      item =>
+        buffSourceName(item) ??
+        resolveBuffDisplayName(
+          item.buffId,
+          { t, te },
+          undefined,
+          undefined,
+          operatorBuffDisplayNameKeys,
+        ) ??
+        item.buffId
+    "
     :source-description="hitDetailTarget === null ? enemyDamageSourceDescription : undefined"
     :visible="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
     :allow-force-critical="hitDetailTarget !== null"
@@ -6848,7 +6873,7 @@ function setPanelDialogVisible(visible: boolean): void {
       rotationTime: t('timeline.analysis.rotationTime'),
       dps: t('timeline.analysis.dps'),
       unattributedDamage: (value: string) => t('timeline.analysis.unattributedDamage', { value }),
-      contributionUnavailable: t('timeline.analysis.contributionUnavailable'),
+      damage: t('timeline.analysis.damage'),
       faqTitle: t('timeline.analysis.faqTitle'),
       faq: [
         [t('timeline.analysis.faq1Q'), t('timeline.analysis.faq1A')],

@@ -172,6 +172,7 @@ const damageHits = computed(() =>
     const entry = group[0]!;
     return {
       sequence: entry.sequence,
+      critical: group.some(damage => damage.data?.isCritical === true),
       x: pointX(entry.frame),
       top:
         SECTION_TOPBAR_HEIGHT +
@@ -357,6 +358,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       v-for="hit in damageHits"
       :key="`damage:${hit.sequence}`"
       class="enemy-damage-hit"
+      :class="{ 'is-critical': hit.critical }"
       :style="{ left: `${hit.x}px`, top: `${hit.top}px` }"
       :title="hit.title"
       :aria-label="`${hit.title}`"
@@ -478,6 +480,11 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
   border-color: #fff;
   box-shadow: 0 0 4px color-mix(in srgb, var(--ea-gold) 80%, transparent);
   transform: rotate(45deg) scale(1.3);
+}
+.enemy-damage-hit.is-critical .enemy-damage-diamond {
+  background: #ff6b6b;
+  border-color: #ffd166;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.9);
 }
 </style>
 

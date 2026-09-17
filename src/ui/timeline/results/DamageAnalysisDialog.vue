@@ -34,7 +34,7 @@ const props = defineProps<{
     rotationTime: string;
     dps: string;
     unattributedDamage: (value: string) => string;
-    contributionUnavailable: string;
+    damage: string;
     faqTitle: string;
     faq: readonly (readonly [question: string, answer: string])[];
   };
@@ -55,7 +55,7 @@ function formatNumber(value: number): string {
 function chartData(entries: readonly TimelineDamageAnalysisEntry[]) {
   return entries.map(entry => ({
     name: entry.label,
-    value: Math.round(entry.value),
+    value: entry.value,
     itemStyle: { color: entry.color ?? '#888888' },
   }));
 }
@@ -105,6 +105,33 @@ function pieOption(entries: readonly TimelineDamageAnalysisEntry[]): ChartOption
 }
 
 const operatorChartOption = computed(() => pieOption(props.analysis.byOperator));
+// 未分解伤害计入自身；此阶段不宣称已分配外部增益。
+const contributionChartOption = computed<ChartOption>(() => {
+  const paint = chartPaint.value;
+  const data = chartData(props.analysis.byOperator);
+  return {
+    backgroundColor: 'transparent',
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)', ...paint.tooltip },
+    series: [
+      {
+        type: 'pie',
+        radius: ['0%', '38%'],
+        center: ['50%', '50%'],
+        itemStyle: { borderColor: paint.sliceBorder, borderWidth: 2 },
+        label: { color: paint.label, formatter: '{d}%', fontSize: 11, position: 'inner' },
+        data,
+      },
+      {
+        type: 'pie',
+        radius: ['48%', '68%'],
+        center: ['50%', '50%'],
+        itemStyle: { borderColor: paint.sliceBorder, borderWidth: 1 },
+        label: { color: paint.label, formatter: '{b}\n{d}%', fontSize: 11 },
+        data: data.map(entry => ({ ...entry, name: `${entry.name} ${props.labels.damage}` })),
+      },
+    ],
+  };
+});
 const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageType));
 </script>
 
@@ -152,7 +179,7 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
             </section>
             <section class="chart-card">
               <h3 class="chart-title">{{ labels.contributionByOperator }}</h3>
-              <div class="chart contribution-unavailable">{{ labels.contributionUnavailable }}</div>
+              <VChart :option="contributionChartOption" autoresize class="chart" />
             </section>
             <section class="chart-card">
               <h3 class="chart-title">{{ labels.damageByElement }}</h3>
@@ -272,17 +299,6 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
 .chart {
   width: 100%;
   height: 260px;
-}
-
-.contribution-unavailable {
-  display: grid;
-  place-items: center;
-  box-sizing: border-box;
-  padding: 24px;
-  color: var(--ea-fg-muted);
-  font-size: 12px;
-  line-height: 1.7;
-  text-align: center;
 }
 
 .analysis-note {

@@ -137,29 +137,42 @@ const TYPED_ATTRIBUTES: Partial<
 export function injectDamageScaleAttributes(
   accumulator: DamageScaleAccumulator,
   input: InjectDamageScaleAttributesInput,
+  record?: (
+    side: import('./damageScale').DamageScaleSide,
+    zone: import('./damageScale').DamageScaleZone,
+    attribute: DamageScaleAttributeKey,
+  ) => void,
 ): void {
+  const inject = (
+    side: import('./damageScale').DamageScaleSide,
+    zone: import('./damageScale').DamageScaleZone,
+    attribute: DamageScaleAttributeKey,
+  ) => {
+    accumulator.modify(side, zone, input[side][attribute]);
+    record?.(side, zone, attribute);
+  };
   const typed = getTypedAttributes(input.damageType);
   if (typed !== undefined) {
-    accumulator.modify('attacker', 'normal', input.attacker[typed.damageIncrease]);
+    inject('attacker', 'normal', typed.damageIncrease);
   }
 
   for (const classification of input.classifications) {
     const skillAttribute = SKILL_CLASSIFICATION_ATTRIBUTES[classification];
     if (skillAttribute !== undefined) {
-      accumulator.modify('attacker', 'normal', input.attacker[skillAttribute]);
+      inject('attacker', 'normal', skillAttribute);
     }
     const abnormalAttribute = ABNORMAL_CLASSIFICATION_ATTRIBUTES[classification];
     if (abnormalAttribute !== undefined) {
-      accumulator.modify('attacker', 'abnormalAndBurst', input.attacker[abnormalAttribute]);
+      inject('attacker', 'abnormalAndBurst', abnormalAttribute);
     }
   }
 
   if (input.defenderStaggered) {
-    accumulator.modify('attacker', 'normal', input.attacker.damageToStaggeredEnemyIncrease);
+    inject('attacker', 'normal', 'damageToStaggeredEnemyIncrease');
   }
   if (typed !== undefined) {
-    accumulator.modify('attacker', 'enhanced', input.attacker[typed.enhanced]);
-    accumulator.modify('defender', 'vulnerable', input.defender[typed.vulnerability]);
+    inject('attacker', 'enhanced', typed.enhanced);
+    inject('defender', 'vulnerable', typed.vulnerability);
   }
 }
 

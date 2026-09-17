@@ -117,6 +117,13 @@ export class CombatReceiptHistory {
       ...entry,
       sequence: this.#count,
       ...(entry.data === undefined ? {} : { data: Object.freeze({ ...entry.data }) }),
+      ...(entry.appliedDamageModifiers === undefined
+        ? {}
+        : {
+            appliedDamageModifiers: Object.freeze(
+              entry.appliedDamageModifiers.map(item => Object.freeze({ ...item })),
+            ),
+          }),
     });
     this.#tail.push(record);
     this.#count += 1;

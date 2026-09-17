@@ -368,14 +368,13 @@
       "buff": "Buff",
       "warning": "Damage analysis is for team optimization only. Please do not use it to attack others.",
       "unattributedDamage": "Unattributed damage {value}: the receipt has no skill-block or track source.",
-      "contributionUnavailable": "Receipts do not yet freeze external Buff-provider contributions, so no speculative attribution is shown.",
       "faqTitle": "FAQ",
       "faq1Q": "Why is the damage different from the game?",
       "faq1A": "The analysis uses current game data and compiled combat rules. Missing mechanics, spatial simplifications, version differences, and UI rounding can all cause differences. Check native evidence and simulation diagnostics for the rule involved.",
       "faq2Q": "What are the limitations of the damage calculation?",
       "faq2A": "The analysis only counts damage receipts produced by the formal simulation. It does not invent uncompiled behavior or missing conditions such as distance and target count. Reported simulation diagnostics can prevent some skills from executing.",
       "faq3Q": "How is contribution calculated?",
-      "faq3A": "The current analysis attributes direct damage to its damage source. The new receipts do not yet record enough facts to split each hit among external Buff providers, so the contribution chart stays unavailable instead of presenting an unverifiable estimate.",
+      "faq3A": "Undecomposed damage is counted as the attacker's own damage. External bonus attribution is not connected yet, so the contribution chart currently shows own damage; this does not mean teammate buffs have no effect.",
       "faq4Q": "How is the analysis range chosen?",
       "faq4A": "Counting starts at the scenario's simulation start and ignores earlier preparation damage. Rotation time ends at the last valid damage event. DPS is zero when there is no valid damage."
     },
@@ -2687,6 +2686,15 @@
     "link_cd_reduction": "Combo CD reduction"
   },
   "hitDetail": {
+    "damageZones": {
+      "product": "Independent damage bonus",
+      "normal": "Damage bonus",
+      "abnormalAndBurst": "Abnormal and Arts burst bonus",
+      "enhanced": "Amplification",
+      "combo": "Combo bonus",
+      "vulnerable": "Susceptibility",
+      "race": "Enemy-type bonus"
+    },
     "title": "Damage Detail",
     "context": "Context",
     "result": "Result",

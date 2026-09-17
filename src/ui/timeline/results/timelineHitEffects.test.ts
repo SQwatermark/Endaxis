@@ -10,6 +10,85 @@ import {
   projectTimelineHitDetailEntries,
 } from './timelineHitEffects';
 import { projectCastHitMarkers } from './timelineHitProjection';
+import { collectTriggeredHitStepKeys } from './timelineHitEffects';
+import typhoeus from '../../../data/operators/typhoeus.generated';
+import liino from '../../../data/operators/liino.generated';
+import { collectDamageStepKeys } from '../../../core/game-data/collectDamageStepKeys';
+
+it('keeps Liino periodic soundwaves triggered without coloring the scheduled ultimate projectiles', () => {
+  const keys = collectTriggeredHitStepKeys(liino);
+  const soundwaves = collectDamageStepKeys({
+    scheduledSequences: [
+      {
+        sequence:
+          liino.buffDefinitions.buff_chr_0035_liino_ultskill_music_damage.lifecycleSequences
+            .trigger,
+      },
+    ],
+  });
+  expect(soundwaves.length).toBeGreaterThan(0);
+  expect(soundwaves.every(step => keys.has(step.key))).toBe(true);
+  const projectiles = collectDamageStepKeys(
+    liino.abilityEntityDefinitions.abilityentity_chr_0035_liino_ult_skill_projhit.childSkill,
+  );
+  expect(projectiles.length).toBeGreaterThan(0);
+  expect(projectiles.every(step => !keys.has(step.key))).toBe(true);
+});
+
+it('marks damage-response arrow rain but not primary rain or persistent combo damage', () => {
+  const keys = collectTriggeredHitStepKeys(typhoeus);
+  for (const [id, expected] of [
+    ['abilityentity_chr_0034_typhoea_ultimateskill_arrowrain_sub', true],
+    ['abilityentity_chr_0034_typhoea_ultimateskill_arrowrain', false],
+    ['abilityentity_chr_0034_typhoea_combo_presistdamage', false],
+  ] as const) {
+    const entity = typhoeus.abilityEntityDefinitions[id];
+    const skills =
+      'childSkills' in entity ? Object.values(entity.childSkills) : [entity.childSkill];
+    const damage = skills.flatMap(skill => collectDamageStepKeys(skill));
+    expect(damage.length).toBeGreaterThan(0);
+    expect(damage.every(step => keys.has(step.key) === expected)).toBe(true);
+  }
+});
+
+it('keeps a child skill uncolored when it also has an ordinary spawn route', () => {
+  const entityId = 'abilityentity_chr_0034_typhoea_ultimateskill_arrowrain_sub';
+  const skillId = 'chr_0034_typhoea_ultimate_skill_arrowrain_sub1';
+  const keys = collectTriggeredHitStepKeys({
+    ...typhoeus,
+    abilityEntityDefinitions: {
+      ...typhoeus.abilityEntityDefinitions,
+      fixture: {
+        lifetime: { kind: 'infinite' },
+        childSkill: {
+          skillId: 'fixture',
+          scheduledSequences: [
+            {
+              startFrame: 0,
+              sequence: {
+                steps: [
+                  {
+                    kind: 'spawnAbilityEntity',
+                    parameters: {
+                      abilityEntityId: entityId,
+                      childSkillId: skillId,
+                      dieWhenSourceDies: false,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+    },
+  });
+  expect(
+    collectDamageStepKeys(typhoeus.abilityEntityDefinitions[entityId].childSkills[skillId]).every(
+      step => !keys.has(step.key),
+    ),
+  ).toBe(true);
+});
 
 function baseDamage(): Record<string, number | boolean | string | null> {
   return {
@@ -77,6 +156,29 @@ it('keeps target-owned Buff receipts out of skill markers while retaining delega
       .get('cast')
       ?.map(hit => hit.hitId),
   ).toEqual(['direct', 'sword']);
+  expect(
+    projectTimelineHitOccurrences(entries)
+      .get('cast')
+      ?.map(hit => hit.triggered),
+  ).toEqual([false, false]);
+  const secondTriggered = {
+    ...delegated,
+    sequence: 4,
+    data: { ...delegated.data, hitId: 'extra', stepKey: 'extra' },
+  };
+  expect(
+    projectTimelineHitOccurrences(
+      [...entries, secondTriggered],
+      new Map([['cast', new Set(['sword', 'extra'])]]),
+    )
+      .get('cast')
+      ?.map(hit => hit.triggeredStackIndex),
+  ).toEqual([0, 0, 1]);
+  // 执行者是投射物并不意味着追加触发；普通伤害仍保持红色。
+  expect(
+    projectTimelineHitOccurrences([{ ...direct, sourceId: 'ability-entity:99' }]).get('cast')?.[0]
+      ?.triggered,
+  ).toBe(false);
   expect(projectTimelineHitDetailEntries(entries, 'cast', 'bleed')).toEqual([]);
   expect(projectTimelineHitDetailEntries(entries, 'cast', 'bleed', 30)).toEqual([]);
   expect(projectTimelineHitDetailEntries(entries, 'cast', 'direct')).toEqual([direct]);

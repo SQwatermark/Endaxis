@@ -45,6 +45,21 @@ export interface HealthDamageEventPayload {
 
 /** 旧版伤害详情能够直接显示、且已经由本次公式确定的冻结值。 */
 export interface HealthDamageReceiptDetail {
+  readonly 'damageScale:normal:attacker'?: number;
+  readonly 'damageScale:normal:defender'?: number;
+  readonly attackDetailRawBase?: number;
+  readonly attackDetailArmedBase?: number;
+  readonly attackDetailActualBase?: number;
+  readonly attackDetailMinimum?: number;
+  readonly attackDetailMaximum?: number;
+  readonly 'attackDetailSlot:addition'?: number;
+  readonly 'attackDetailSlot:multiplier'?: number;
+  readonly 'attackDetailSlot:finalAddition'?: number;
+  readonly 'attackDetailSlot:finalMultiplier'?: number;
+  readonly 'attackDetailSlot:baseAddition'?: number;
+  readonly 'attackDetailSlot:baseMultiplier'?: number;
+  readonly 'attackDetailSlot:baseFinalAddition'?: number;
+  readonly 'attackDetailSlot:baseFinalMultiplier'?: number;
   /** 原生动作明确的暴击许可；缺省不代表禁止，不能用暴击率为零替代。 */
   readonly canCritical?: boolean;
   /** 执行伤害动作的真实 Buff 身份；所属实体不一定是伤害目标。 */
@@ -108,6 +123,7 @@ export interface ExecuteHealthDamageInput {
   readonly result: PlayerActiveDamageResult;
   /** 伤害详情使用的公式冻结值；只记录已参与本次结算的标量，不在投影层重算规则。 */
   readonly detail?: HealthDamageReceiptDetail;
+  readonly appliedDamageModifiers?: readonly import('./damageScale').AppliedDamageModifier[];
   readonly target: CombatVitals;
   readonly clock: CombatClock;
   readonly receipt: CombatReceiptSink;
@@ -167,6 +183,9 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     frame: input.clock.frame,
     time: input.clock.time,
     event: 'DamageApplied',
+    ...(input.appliedDamageModifiers?.length
+      ? { appliedDamageModifiers: input.appliedDamageModifiers }
+      : {}),
     sourceId: input.sourceId,
     targetId: input.targetId,
     data: {

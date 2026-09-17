@@ -57,6 +57,25 @@ function createContext(
 }
 
 describe('DamageModifier', () => {
+  it('records only executed direct scales with the resolved value', () => {
+    const modifier = new DamageModifier('operator', {
+      enabledSide: 'attacker',
+      processors: [{ kind: 'damageScale', side: 'attacker', zone: 'normal', addition: 0.2 }],
+    });
+    const record = vi.fn();
+    const context = createContext();
+    modifier.apply('beforeCalculation', 'attacker', context, undefined, record);
+    modifier.apply('afterCalculation', 'defender', context, undefined, record);
+    modifier.apply('afterCalculation', 'attacker', createContext('lifeDrain'), undefined, record);
+    expect(record).not.toHaveBeenCalled();
+    modifier.apply('afterCalculation', 'attacker', context, undefined, record);
+    expect(record).toHaveBeenCalledExactlyOnceWith('attacker', {
+      kind: 'damageScale',
+      zone: 'normal',
+      addition: 0.2,
+    });
+    expect(context.damageScales.getFinalValue()).toBe(1.2);
+  });
   it('only applies a source-skill-cast modifier to damage from the captured cast', () => {
     const modifier = new DamageModifier(
       'operator',

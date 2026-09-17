@@ -87,6 +87,10 @@ export class DamageModifier {
     side: DamageModifierSide,
     context: PlayerDamageContext,
     evaluateCondition?: DamageModifierConditionEvaluator,
+    recordModifier?: (
+      side: import('./damageScale').DamageScaleSide,
+      result: import('./damageScale').DamageModifierResult,
+    ) => void,
   ): void {
     applyDamageModifier(
       this.runtimeState.ownerId,
@@ -98,6 +102,7 @@ export class DamageModifier {
       side,
       context,
       evaluateCondition,
+      recordModifier,
     );
   }
 }

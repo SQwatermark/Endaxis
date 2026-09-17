@@ -37,8 +37,15 @@ import type {
 
 /** 单次伤害包冻结的来源方与目标方属性快照。 */
 export interface PlayerDamageAttributeSnapshots {
-  readonly attacker: PlayerDamageAttackerSnapshot & DamageScaleAttributeSnapshot;
-  readonly defender: PlayerDamageDefenderSnapshot & DamageScaleAttributeSnapshot;
+  readonly attacker: PlayerDamageAttackerSnapshot &
+    DamageScaleAttributeSnapshot & {
+      readonly modifierDetails?: readonly import('./damageScale').AppliedDamageModifier[];
+      readonly attackDetail?: import('../state/foundationState').AttackReceiptSnapshot;
+    };
+  readonly defender: PlayerDamageDefenderSnapshot &
+    DamageScaleAttributeSnapshot & {
+      readonly modifierDetails?: readonly import('./damageScale').AppliedDamageModifier[];
+    };
 }
 
 /** 伤害处理阶段临时加入、结束后必须清理的属性修正请求。 */
@@ -92,6 +99,7 @@ export class PlayerDamageContext {
   readonly skillId?: string;
   readonly skillType?: SkillType;
   readonly damageScales = new DamageScaleAccumulator();
+  readonly appliedDamageModifiers: import('./damageScale').AppliedDamageModifier[] = [];
   readonly #ports: PlayerDamageContextPorts;
   #baseValue = 0;
   #value = 0;

@@ -101,7 +101,10 @@ function setHovered(value: boolean): void {
 }
 
 function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
-  return { left: `${projectTimelineHitMarkerLeftPx(marker.leftPx)}px` };
+  return {
+    left: `${projectTimelineHitMarkerLeftPx(marker.leftPx)}px`,
+    '--hit-offset': `${marker.triggered ? 14 + (marker.triggeredStackIndex ?? 0) * 10 : 0}px`,
+  };
 }
 
 function customBarStyle(bar: EditableBarDocument, index: number): Record<string, string> {
@@ -190,6 +193,7 @@ function formatDurationFrames(frames: number): string {
       class="hit-marker"
       :class="{
         'is-critical': hit.critical,
+        'is-triggered': hit.triggered,
         'is-forced-crit': hit.forcedCritical,
       }"
       :style="markerStyle(hit)"
@@ -766,7 +770,7 @@ function formatDurationFrames(frames: number): string {
   height: 6px;
   background: #ff4d4f;
   border: 1px solid #333;
-  transform: translateX(-50%) rotate(45deg);
+  transform: translate(-50%, var(--hit-offset, 0px)) rotate(45deg);
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
   transition:
     background-color 0.15s ease,
@@ -777,19 +781,28 @@ function formatDurationFrames(frames: number): string {
   cursor: default;
 }
 
-.hit-marker.is-critical,
-.hit-marker.is-forced-crit {
-  background-color: #ff6b6b;
-  border-color: #ffd166;
-  box-shadow: 0 0 8px rgba(255, 209, 102, 0.9);
+.hit-marker.is-triggered {
+  background: #faad14;
+  border-color: #d48806;
 }
 
 .hit-marker:hover {
   background: var(--ea-gold);
   border-color: #fff;
-  transform: translateX(-50%) rotate(45deg) scale(1.65);
+  transform: translate(-50%, var(--hit-offset, 0px)) rotate(45deg) scale(1.65);
   box-shadow: 0 0 8px var(--ea-gold);
   z-index: 30;
+}
+
+.hit-marker.is-triggered:hover {
+  transform: translate(-50%, var(--hit-offset, 0px)) rotate(45deg) scale(1.35);
+}
+
+.hit-marker.is-critical,
+.hit-marker.is-forced-crit {
+  background-color: #ff6b6b;
+  border-color: #ffd166;
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.9);
 }
 
 :global(html[data-theme='light'] .timeline-action-block) {

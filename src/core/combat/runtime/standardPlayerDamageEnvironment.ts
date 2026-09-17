@@ -701,6 +701,22 @@ export class StandardPlayerDamageEnvironment {
   }
 
   /** 主动技能与 Buff 伤害共用双方修正器、即时属性和准备事件接线。 */
+  #withAttributeModifierDetails(
+    snapshots: import('../damage/playerDamageContext').PlayerDamageAttributeSnapshots,
+    operatorBuffs: CombatBuffContainer<string>,
+  ): import('../damage/playerDamageContext').PlayerDamageAttributeSnapshots {
+    return {
+      attacker: {
+        ...snapshots.attacker,
+        modifierDetails: operatorBuffs.captureAttributeModifierDetails('attacker'),
+      },
+      defender: {
+        ...snapshots.defender,
+        modifierDetails: this.#enemyBuffs.captureAttributeModifierDetails('defender'),
+      },
+    };
+  }
+
   #damagePreparationPorts(
     operatorId: string,
     operatorBuffs: CombatBuffContainer<string>,
@@ -786,11 +802,14 @@ export class StandardPlayerDamageEnvironment {
             attackDetail: panelAttackDetail(context.panel)!,
           }),
       captureAttributeSnapshots: step =>
-        resolveStaticPlayerDamageSnapshots(
-          context,
-          step,
-          operatorBuffs.attributes,
-          this.#enemyAttributes,
+        this.#withAttributeModifierDetails(
+          resolveStaticPlayerDamageSnapshots(
+            context,
+            step,
+            operatorBuffs.attributes,
+            this.#enemyAttributes,
+          ),
+          operatorBuffs,
         ),
       criticalSamples: this.options.criticalSamples,
       randomMode: this.options.randomMode,
@@ -1534,11 +1553,14 @@ export class StandardPlayerDamageEnvironment {
       receipt: this.#requireReceipt(),
       ...(panel.attackDetail === undefined ? {} : { attackDetail: panelAttackDetail(panel)! }),
       captureAttributeSnapshots: step =>
-        resolveStaticPlayerDamageSnapshots(
-          { operatorId: sourceId, panel, enemy: this.#requireEnemyIdentity() },
-          step,
-          operatorBuffs.attributes,
-          this.#enemyAttributes,
+        this.#withAttributeModifierDetails(
+          resolveStaticPlayerDamageSnapshots(
+            { operatorId: sourceId, panel, enemy: this.#requireEnemyIdentity() },
+            step,
+            operatorBuffs.attributes,
+            this.#enemyAttributes,
+          ),
+          operatorBuffs,
         ),
       criticalSamples: this.options.criticalSamples,
       randomMode: this.options.randomMode,

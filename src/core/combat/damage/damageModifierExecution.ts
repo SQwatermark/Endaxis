@@ -30,6 +30,10 @@ export function applyDamageModifier(
   side: DamageModifierSide,
   context: PlayerDamageContext,
   evaluateCondition?: DamageModifierConditionEvaluator,
+  recordModifier?: (
+    side: import('./damageScale').DamageScaleSide,
+    result: import('./damageScale').DamageModifierResult,
+  ) => void,
 ): void {
   if (side !== definition.enabledSide || context.getEntityId(side) !== ownerId) {
     return;
@@ -64,7 +68,7 @@ export function applyDamageModifier(
       return;
   }
   for (const processor of definition.processors) {
-    applyProcessor(processor, timing, context, resolveNumber);
+    applyProcessor(processor, timing, context, resolveNumber, recordModifier, side);
   }
 }
 
@@ -114,6 +118,11 @@ function applyProcessor(
   timing: DamageProcessTiming,
   context: PlayerDamageContext,
   resolveNumber: (value: DamageModifierNumber) => number,
+  recordModifier?: (
+    side: import('./damageScale').DamageScaleSide,
+    result: import('./damageScale').DamageModifierResult,
+  ) => void,
+  modifierSide: DamageModifierSide = 'attacker',
 ): void {
   if (context.damageType === 'lifeDrain') return;
   switch (processor.kind) {
@@ -123,15 +132,14 @@ function applyProcessor(
         processor.targetHealthTypes.includes(context.targetHealthType)
       ) {
         context.multiplyCalculationValue(processor.scale);
+        recordModifier?.(modifierSide, { kind: 'multiplyValue', multiplier: processor.scale });
       }
       return;
     case 'damageScale':
       if (timing === 'afterCalculation' && context.targetHealthType === 'normal') {
-        context.damageScales.modify(
-          processor.side,
-          processor.zone,
-          resolveNumber(processor.addition),
-        );
+        const addition = resolveNumber(processor.addition);
+        context.damageScales.modify(processor.side, processor.zone, addition);
+        recordModifier?.(processor.side, { kind: 'damageScale', zone: processor.zone, addition });
       }
       return;
     case 'instantAttribute':
@@ -145,6 +153,16 @@ function applyProcessor(
           values,
           timing: processor.attributeTiming,
         });
+        for (const [slot, value] of Object.entries(values)) {
+          const neutral = slot === 'finalMultiplier' || slot === 'baseFinalMultiplier' ? 1 : 0;
+          if (value !== neutral)
+            recordModifier?.(processor.targetSide, {
+              kind: 'attribute',
+              attribute: processor.attribute,
+              slot: slot as import('../attributes/combatAttributes').AttributeModifierSlot,
+              value,
+            });
+        }
       }
   }
 }

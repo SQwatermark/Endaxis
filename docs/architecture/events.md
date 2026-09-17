@@ -38,6 +38,9 @@
 `SkillCastInfo` 表示施法信息，不等于动作Owner或当前执行实体。
 需要区分未知来源 `undefined`、明确无来源 `null` 和已知来源对象，不能自动借用外层上下文。
 
+结果侧的对象枚举与来源遍历见[战斗对象来源查询方案](object-origins.md)。
+产生、Source、归属和直接加成关系分别查询；查询视图不参与事件执行或对象寿命管理。
+
 ## 临时上下文与持久状态
 
 [响应作用域](../../src/core/combat/events/abilityEventResponseContext.ts) 在进入事件时绑定上下文，
