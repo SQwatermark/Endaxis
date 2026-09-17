@@ -62,6 +62,20 @@ it('keeps a declared skill-group sequence separate from ordinary skill sources',
   expect(action.convertedSequence).toEqual(sequence);
   expect(action.convertedSource).toBeUndefined();
 });
+it('keeps a cross-group continuation as one declared legacy skill chain', () => {
+  const sequence = {
+    kind: 'operatorSkillSequence',
+    skillGroupKey: 'battleSkill',
+    continuations: [{ skillGroupKey: 'basicAttack', variantKey: 'enhancedBasicAttack' }],
+  } as const;
+  const result = prepareLegacySource(input(), {
+    skills: { old: [{ source, target: sequence }] },
+  });
+  expect(result.issues).toEqual([]);
+  expect(result.source.scenarioList[0].data.tracks[0].actions[0].convertedSequence).toEqual(
+    sequence,
+  );
+});
 it('does not guess missing, duplicate, segmented or variant skill mappings', () => {
   expect(prepareLegacySource(input()).unresolvedSkills).toHaveLength(1);
   expect(
@@ -137,7 +151,14 @@ it('accepts unambiguous skill-block connections and rejects derived endpoints', 
   expect(prepareLegacySource(value, mappings).issues).toEqual([]);
 
   connections[0]!.toNodeType = 'hit';
-  expect(prepareLegacySource(value, mappings).issues[0]?.message).toContain('Hit');
+  const invalid = prepareLegacySource(value, mappings);
+  expect(invalid.issues[0]?.message).toContain('Hit');
+  expect(invalid.source.scenarioList[0].data.connections).toEqual([]);
+  connections[0]!.toNodeType = 'action';
+  Object.assign(value.scenarioList[0]!.data.tracks[0]!.actions[1]!, { instanceId: 'cast-a' });
+  const ambiguous = prepareLegacySource(value, mappings);
+  expect(ambiguous.issues[0]?.message).toContain('未唯一对应');
+  expect(ambiguous.source.scenarioList[0].data.connections).toEqual([]);
 });
 it('rejects unknown time units and preserves differing authored/resolved times', () => {
   const value = input();

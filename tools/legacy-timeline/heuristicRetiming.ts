@@ -6,7 +6,6 @@
  * 不要把它们隐藏在存档转换或技能定义中。
  */
 import type { CombatReceiptEntry } from '../../src/core/combat/receipt/combatReceipt';
-import { isDeepStrictEqual } from 'node:util';
 import type { ScheduledCombatFrameInput } from '../../src/application/simulation/combatInputSchedule';
 import type {
   EndaxisProjectDocument,
@@ -16,6 +15,7 @@ import type {
 import {
   projectSkillCastActualDurationFrames,
   projectSkillCastActualStartFrames,
+  projectSkillCastInterruptionFrames,
 } from '../../src/ui/timeline/timelineDisplayTime';
 import {
   isLegacyControlledInputCast,
@@ -24,6 +24,29 @@ import {
 } from './controlInference';
 
 type UnknownRecord = Record<string, unknown>;
+
+/** 严格比较模拟输入中的纯数据；转换器需要同时运行在 Node CLI 和浏览器中。 */
+function isSameInputData(left: unknown, right: unknown): boolean {
+  if (Object.is(left, right)) return true;
+  if (left === null || right === null || typeof left !== 'object' || typeof right !== 'object') {
+    return false;
+  }
+  if (Array.isArray(left) || Array.isArray(right)) {
+    if (!Array.isArray(left) || !Array.isArray(right) || left.length !== right.length) return false;
+    return left.every((value, index) => isSameInputData(value, right[index]));
+  }
+  if (Object.getPrototypeOf(left) !== Object.getPrototypeOf(right)) return false;
+  const leftRecord = left as UnknownRecord;
+  const rightRecord = right as UnknownRecord;
+  const leftKeys = Object.keys(leftRecord);
+  const rightKeys = Object.keys(rightRecord);
+  return (
+    leftKeys.length === rightKeys.length &&
+    leftKeys.every(
+      key => Object.hasOwn(rightRecord, key) && isSameInputData(leftRecord[key], rightRecord[key]),
+    )
+  );
+}
 
 export interface LegacyTimingAdjustment {
   readonly scenarioId: string;
@@ -132,7 +155,7 @@ function firstChangedInputFrame(
   while (
     index < accepted.length &&
     index < candidate.length &&
-    isDeepStrictEqual(accepted[index], candidate[index])
+    isSameInputData(accepted[index], candidate[index])
   )
     index += 1;
   return Math.min(accepted[index]?.frame ?? Infinity, candidate[index]?.frame ?? Infinity);
@@ -298,6 +321,9 @@ function projectDisplayedCastEndFrames(
   for (const [castId, duration] of actualDurations) {
     const startFrame = starts.get(castId);
     if (startFrame !== undefined) ends.set(castId, startFrame + duration);
+  }
+  for (const [castId, interruptionFrame] of projectSkillCastInterruptionFrames(entries)) {
+    ends.set(castId, interruptionFrame);
   }
   for (const entry of entries) {
     if (entry.event !== 'SkillSwitchedToBuff') continue;
@@ -598,7 +624,7 @@ export function retimeLegacyProjectBySimulation(
           }
           const past = (schedule: readonly ScheduledCombatFrameInput[]) =>
             schedule.filter(input => input.frame < checkpointSession!.inputBoundary);
-          if (!isDeepStrictEqual(past(acceptedInputs), past(inputs))) {
+          if (!isSameInputData(past(acceptedInputs), past(inputs))) {
             throw new Error(`candidate '${current.castId}' changes inputs before its checkpoint`);
           }
           const result = checkpointSession.trial(
@@ -692,7 +718,14 @@ export function retimeLegacyProjectBySimulation(
       };
 
       const candidates = inputWindowCandidates(initialAdjustedStartFrame, priorUltimateIntervals);
-      simulateCandidate(initialAdjustedStartFrame);
+      try {
+        simulateCandidate(initialAdjustedStartFrame);
+      } catch (error) {
+        throw new Error(
+          `cast '${current.castId}' probe failed: ${error instanceof Error ? error.message : String(error)}`,
+          { cause: error },
+        );
+      }
       if (settled && castCannotInterruptCurrentSkill(lastReceiptEntries, current.castId)) {
         fallbackActualStarts = actualStarts;
         fallbackActualEnds = actualEnds;

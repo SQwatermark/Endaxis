@@ -101,6 +101,67 @@ it('按当前递归输入路由把旧单块展开为稳定技能序列', { timeo
   expect(new Set(sequence.map(cast => cast.id)).size).toBe(sequence.length);
 });
 
+it('把旧版提弗洛斯战技块展开为战技和完整强化普攻链', { timeout: 15_000 }, () => {
+  const input = fixture();
+  const scenario = input.scenarioList[0]!;
+  scenario.data.operators[0]!.operatorSlug = 'typhoeus';
+  scenario.data.tracks[0]!.id = 'typhoeus';
+  const result = convertLegacyTimeline(
+    input,
+    gameDataRepository,
+    realAxisMappings as ConversionMappings,
+  );
+
+  expect(result.report.issues).toEqual([]);
+  const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
+  expect(casts.map(cast => cast.source)).toMatchObject([
+    { skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack1' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack2' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack3' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack4' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack5' },
+  ]);
+  expect(
+    casts.every(
+      (cast, index) =>
+        index === 0 || cast.placement.startFrame > casts[index - 1]!.placement.startFrame,
+    ),
+  ).toBe(true);
+});
+
+it('按真实旧轴段号把提弗洛斯战技链映射为战技和五段强化普攻', { timeout: 15_000 }, () => {
+  const input = fixture();
+  const scenario = input.scenarioList[0]!;
+  scenario.data.operators[0]!.operatorSlug = 'typhoeus';
+  scenario.data.tracks[0]!.id = 'typhoeus';
+  scenario.data.tracks[0]!.actions = Array.from({ length: 6 }, (_, index) => ({
+    skillId: 'battleSkill',
+    sourceSkillKey: 'battleSkill',
+    type: 'battleSkill',
+    segmentIndex: index + 1,
+    startTime: 300 + index * 120,
+    logicalStartTime: 300 + index * 120,
+  }));
+  const result = convertLegacyTimeline(
+    input,
+    gameDataRepository,
+    realAxisMappings as ConversionMappings,
+  );
+
+  expect(result.report.unresolvedSkills).toEqual([]);
+  expect(
+    result.project!.scenarios[0]!.tracks[0]!.skillCasts.map(cast => cast.source),
+  ).toMatchObject([
+    { skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack1' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack2' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack3' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack4' },
+    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack5' },
+  ]);
+});
+
 it('真实轴的末次诀终结技明确映射为秘仪，不自动替换其他终结技', { timeout: 15_000 }, () => {
   const input = fixture();
   const scenario = input.scenarioList[0]!;
@@ -490,10 +551,10 @@ it('uses an explicit legacy gauge maximum before deciding whether to clamp', () 
     maxUltimateEnergyOverride: 120,
   });
 });
-it('does not publish a project after missing mapping', () => {
+it('omits an unmapped skill and still publishes the rest of the project', () => {
   const result = convertLegacyTimeline(fixture(), gameDataRepository);
-  expect(result.status).toBe('blocked');
-  expect(result.project).toBeNull();
+  expect(result.status).toBe('converted-with-issues');
+  expect(result.project?.scenarios[0]?.tracks[0]).toBeNull();
   expect(result.report.unresolvedSkills).toHaveLength(1);
 });
 
@@ -515,8 +576,8 @@ it('reports a connected omitted skill instead of aborting conversion', () => {
 
   const result = convertLegacyTimeline(input, gameDataRepository);
 
-  expect(result.status).toBe('blocked');
-  expect(result.project).toBeNull();
+  expect(result.status).toBe('converted-with-issues');
+  expect(result.project).not.toBeNull();
   expect(result.report.issues).toContainEqual({
     path: '',
     message: 'test-axis: connection 1 refers to an omitted skill block',
@@ -538,7 +599,7 @@ it('converts old characterId switch markers to the original track index before s
   ]);
 });
 
-it('blocks unresolved control targets rather than silently dropping switch markers', () => {
+it('reports and omits unresolved control targets without discarding the project', () => {
   const input = fixture();
   Object.assign(input.scenarioList[0]!.data, {
     switchEvents: [{ id: 'missing-switch', time: 240, characterId: 'unknown-track' }],
@@ -547,22 +608,22 @@ it('blocks unresolved control targets rather than silently dropping switch marke
   const result = convertLegacyTimeline(input, gameDataRepository, {
     operators: { 'old-perlica': 'perlica' },
   });
-  expect(result.status).toBe('blocked');
-  expect(result.project).toBeNull();
+  expect(result.status).toBe('converted-with-issues');
+  expect(result.project?.scenarios[0]?.battle.controlSwitches).toEqual([]);
+  expect(result.report.issues.length).toBeGreaterThan(0);
 });
 
-it.each([
-  { time: 360, characterId: 'old-perlica', trackIndex: 1 },
-  { time: 240, characterId: 'old-perlica' },
-])('does not guess a conflicting target or clamp unsupported preparation switches: %j', event => {
+it('reports and omits a switch whose explicit track conflicts with its character', () => {
   const input = fixture();
-  Object.assign(input.scenarioList[0]!.data, { switchEvents: [{ id: 'switch', ...event }] });
+  Object.assign(input.scenarioList[0]!.data, {
+    switchEvents: [{ id: 'switch', time: 360, characterId: 'old-perlica', trackIndex: 1 }],
+  });
   input.scenarioList[0]!.data.tracks[0]!.actions = [];
   const result = convertLegacyTimeline(input, gameDataRepository, {
     operators: { 'old-perlica': 'perlica' },
   });
-  expect(result.status).toBe('blocked');
-  expect(result.project).toBeNull();
+  expect(result.status).toBe('converted-with-issues');
+  expect(result.project?.scenarios[0]?.battle.controlSwitches).toEqual([]);
   expect(result.report.issues.length).toBeGreaterThan(0);
 });
 
@@ -599,13 +660,39 @@ it('preserves the active scenario and falls back only for an invalid reference',
   );
 });
 
-it('preserves enemy identity, rank and saved combat overrides, and rejects unresolved identities', () => {
+it('omits a malformed scenario while preserving other scenarios from the same file', () => {
+  const input = fixture();
+  const malformed = structuredClone(input.scenarioList[0]!);
+  malformed.id = 'broken-axis';
+  Object.assign(malformed.data.tracks[0]!, { actions: null });
+  input.scenarioList.push(malformed);
+  const result = convertLegacyTimeline(input, gameDataRepository, {
+    operators: { 'old-perlica': 'perlica' },
+    skills: {
+      'old-perlica': [
+        {
+          source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        },
+      ],
+    },
+  });
+  expect(result.status).toBe('converted-with-issues');
+  expect(result.project?.scenarios.map(scenario => scenario.id)).toEqual(['test-axis']);
+  expect(result.report.issues).toContainEqual({
+    path: 'scenarioList[1]',
+    message: '轨道缺少 actions 数组',
+  });
+});
+
+it('preserves enemy identity and falls back to a custom enemy when the identity is unresolved', () => {
   const input = fixture();
   const data = input.scenarioList[0]!.data;
   data.tracks = [];
   Object.assign(data, { activeEnemyId: 'eny_0071_sandb', activeEnemyLevel: 90 });
   const blocked = convertLegacyTimeline(input, gameDataRepository);
-  expect(blocked.project).toBeNull();
+  expect(blocked.status).toBe('converted-with-issues');
+  expect(blocked.project?.scenarios[0]?.enemy.source.kind).toBe('custom');
   expect(blocked.report.issues.some(issue => issue.message.includes('enemy'))).toBe(true);
   const mapped = convertLegacyTimeline(input, gameDataRepository, {
     enemies: { eny_0071_sandb: 'eny-0071-sandb' },

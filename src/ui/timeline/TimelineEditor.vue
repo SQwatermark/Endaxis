@@ -2,6 +2,7 @@
 import {
   computed,
   defineAsyncComponent,
+  h,
   nextTick,
   onMounted,
   onScopeDispose,
@@ -148,7 +149,11 @@ import {
 } from '../../core/project/schema';
 import { getProjectDefinitionLibrary } from '../../core/project/projectDefinitionLibrary';
 import { createEmptyProject } from '../../core/project/createProject';
-import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
+import {
+  inspectProjectInput,
+  parseProjectDocument,
+  serializeProjectDocument,
+} from '../../core/project/serialization';
 import { openProject } from '../../application/openProject';
 import { useProjectFileSession } from './projectFileSession';
 import {
@@ -158,6 +163,7 @@ import {
   imageFilename,
 } from './timelineExport';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
+import { formatLegacyConversionReport } from './legacyConversionReport';
 import type { ProjectGameDataRepository } from '../../data/projectGameDataRepository';
 import { captureScenarioSimulationGameData } from '../../application/simulation/scenarioSimulationGameData';
 import { diffSkillDefinition } from '../../core/game-data/diffSkillDefinition';
@@ -842,26 +848,144 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   const file = input.files?.[0];
   input.value = '';
   if (file === undefined) return;
+  let legacy = false;
   try {
     const content = await projectFileReader.read(file);
     if (content === null) return;
+    let parsedInput: unknown = content;
+    try {
+      parsedInput = JSON.parse(content) as unknown;
+    } catch {
+      // 当前格式的统一打开入口会给出具体的 JSON 错误。
+    }
+    legacy = inspectProjectInput(parsedInput).kind === 'legacy';
+    if (legacy) {
+      try {
+        await serviceModalBoundary.run(() =>
+          ElMessageBox.confirm(
+            '检测到旧版本轴。确定后会按新版游戏数据自动转换，并根据新版技能时长调整技能位置。原文件不会修改。',
+            '转换旧版本轴',
+            {
+              confirmButtonText: '确定并转换',
+              cancelButtonText: '取消',
+              type: 'warning',
+            },
+          ),
+        );
+      } catch {
+        return;
+      }
+    }
     await ensureAllGameData();
-    const result = openProject(content, {
+    let projectInput: unknown = parsedInput;
+    let convertedLegacyProject = false;
+    let legacyConversionReport: Parameters<typeof formatLegacyConversionReport>[0] | null = null;
+    if (legacy) {
+      const loading = ElLoading.service({
+        lock: true,
+        text: '正在转换旧版本轴…',
+        background: 'rgba(0, 0, 0, 0.9)',
+      });
+      try {
+        const [{ convertLegacyTimeline }, { default: legacyMappings }] = await Promise.all([
+          import('../../../tools/legacy-timeline/convert'),
+          import('../../../tools/legacy-timeline/mappings.2026-08-31.json'),
+        ]);
+        const conversion = convertLegacyTimeline(
+          parsedInput,
+          gameDataRepository,
+          legacyMappings as Parameters<typeof convertLegacyTimeline>[2],
+        );
+        legacyConversionReport = conversion.report;
+        if (conversion.project === null) {
+          await showLegacyConversionReport(conversion.report, true);
+          return;
+        }
+        projectInput = conversion.project;
+        convertedLegacyProject = true;
+      } finally {
+        loading.close();
+      }
+    }
+    const result = openProject(projectInput, {
       gameDataRepository: gameDataRepository,
     });
     if (!result.ok) {
       ElMessage.error(projectOpenFailureMessage(result));
       return;
     }
-    await acceptOpenedProject(result.project, result.gameDataRevisionUpdated);
+    await acceptOpenedProject(
+      result.project,
+      result.gameDataRevisionUpdated,
+      convertedLegacyProject,
+    );
+    if (
+      legacyConversionReport !== null &&
+      (legacyConversionReport.issues.length > 0 || legacyConversionReport.fatalIssues.length > 0)
+    ) {
+      await showLegacyConversionReport(legacyConversionReport, false);
+    }
   } catch (error) {
-    ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
+    if (legacy) {
+      await showLegacyConversionReport(
+        {
+          issues: [],
+          fatalIssues: [
+            { path: '', message: error instanceof Error ? error.message : '旧版本轴转换失败' },
+          ],
+          unresolvedSkills: [],
+          identityChanges: [],
+          sequenceExpansions: [],
+          resourceAdjustments: [],
+          timingAdjustments: [],
+          skillFormAdjustments: [],
+          controlSwitchAdjustments: [],
+          inferredControlSwitches: [],
+        },
+        true,
+      );
+    } else {
+      ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
+    }
+  }
+}
+
+async function showLegacyConversionReport(
+  report: Parameters<typeof formatLegacyConversionReport>[0],
+  blocked: boolean,
+): Promise<void> {
+  const message = formatLegacyConversionReport(report);
+  try {
+    await serviceModalBoundary.run(() =>
+      ElMessageBox.alert(
+        h(
+          'div',
+          {
+            style: {
+              maxHeight: '55vh',
+              overflow: 'auto',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-word',
+            },
+          },
+          message,
+        ),
+        blocked ? '旧版本轴转换失败' : '旧版本轴转换报告',
+        {
+          confirmButtonText: '知道了',
+          type: blocked ? 'error' : 'warning',
+        },
+      ),
+    );
+  } catch {
+    // 关闭报告只结束查看，不改变已经完成的转换结果。
   }
 }
 
 async function acceptOpenedProject(
   project: EndaxisProjectDocument,
   gameDataRevisionUpdated: boolean,
+  convertedLegacyProject = false,
 ): Promise<void> {
   showSkillDefinitionEditor.value = false;
   showOperatorDefinitionWorkspace.value = false;
@@ -870,7 +994,7 @@ async function acceptOpenedProject(
   gearSetDefinitionWorkspaceId.value = null;
   resetSimulationPublication();
   projectSession.replaceProject(project);
-  markOpenedProject(project, gameDataRevisionUpdated);
+  markOpenedProject(project, gameDataRevisionUpdated || convertedLegacyProject);
   selectedTrack.value = 0;
   clearTimelineSelection();
   timelineClipboard.value = null;
@@ -878,9 +1002,11 @@ async function acceptOpenedProject(
   await nextTick();
   void simulateNow();
   ElMessage.success(
-    gameDataRevisionUpdated
-      ? '已按最新游戏数据打开，请重新导出项目。原文件未修改。'
-      : `已打开项目：${scenarioSession.snapshot.scenario.name}`,
+    convertedLegacyProject
+      ? '旧版本轴已自动转换并打开，请导出为新版项目。原文件未修改。'
+      : gameDataRevisionUpdated
+        ? '已按最新游戏数据打开，请重新导出项目。原文件未修改。'
+        : `已打开项目：${scenarioSession.snapshot.scenario.name}`,
   );
 }
 

@@ -5,6 +5,11 @@ export interface LegacySkillSequenceTarget {
   readonly kind: 'operatorSkillSequence';
   readonly skillGroupKey: string;
   readonly variantKey?: string;
+  /** 同一旧技能块实际还包含的后续技能组，按数组顺序紧接在首技能组之后。 */
+  readonly continuations?: readonly {
+    readonly skillGroupKey: string;
+    readonly variantKey?: string;
+  }[];
 }
 
 export type LegacySkillMappingTarget = SkillCastDocument['source'] | LegacySkillSequenceTarget;
@@ -153,6 +158,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         message: '连接列表格式无效',
       });
     }
+    const validConnections: Row[] = [];
     for (const [index, connection] of connections.entries()) {
       object(connection);
       const path = `${prefix}.connections[${index}]`;
@@ -170,18 +176,23 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         });
         continue;
       }
+      let valid = true;
       for (const [endpoint, id] of [
         ['from', connection.fromNodeId ?? connection.from],
         ['to', connection.toNodeId ?? connection.to],
       ] as const) {
         if (typeof id !== 'string' || actionInstanceCounts.get(id) !== 1) {
+          valid = false;
           issues.push({
             path: `${path}.${endpoint}`,
             message: `连接端点 '${String(id)}' 未唯一对应一个旧技能块`,
           });
         }
       }
+      if (valid) validConnections.push(connection);
     }
+    // 局部失败不再阻塞整个项目；迁移器只能收到已经验证的连接，不能把 Hit 端点猜成技能块。
+    d.connections = validConnections;
     if (d.globalConfig?.presetId || d.globalConfig?.customModifiers?.length)
       issues.push({ path: prefix + '.globalConfig', message: '全局配置尚未转换' });
     const constants = d.systemConstants == null ? {} : object(d.systemConstants);
@@ -221,6 +232,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
             path: `${prefix}.switchEvents[${index}]`,
             message: '切入目标不唯一、不存在或与轨道下标冲突',
           });
+          delete event.trackIndex;
           continue;
         }
         event.trackIndex = matches[0]!.trackIndex;
@@ -229,11 +241,13 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         !Number.isInteger(event.trackIndex) ||
         event.trackIndex < 0 ||
         event.trackIndex >= d.tracks.length
-      )
+      ) {
         issues.push({
           path: `${prefix}.switchEvents[${index}]`,
           message: '切入标记缺少有效目标轨道',
         });
+        delete event.trackIndex;
+      }
     }
     for (const [ti, t] of d.tracks.entries()) {
       object(t);

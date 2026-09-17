@@ -26,6 +26,7 @@
     "rossi": "rossi",
     "snowshine": "snowshine",
     "tangtang": "tangtang",
+    "typhoeus": "typhoeus",
     "wulfgard": "wulfgard",
     "xaihi": "xaihi",
     "yvonne": "yvonne",
@@ -50,6 +51,8 @@
     "oblivion": "wpn_funnel_0009",
     "opus-etch-figure": "wpn_funnel_0006",
     "type-42-solemn-phalanx": "wpn_funnel_0016",
+    "umbra-of-frigid": "wpn_funnel_0019",
+    "sufferings-end": "wpn_funnel_0020",
     "darhoff-7": "wpn_claym_0010",
     "industry-01": "wpn_claym_0003",
     "quencher": "wpn_claym_0009",
@@ -353,7 +356,22 @@
     "type-50-yinglung-radar": "item_equip_t4_suit_atk02_edc_01",
     "xiranflow-baton": "item_equip_t4_suit_expend_spell01_edc_02",
     "xiranflow-gloves": "item_equip_t4_suit_expend_spell01_hand_02",
-    "xiranflow-light-armor": "item_equip_t4_suit_expend_spell01_body_02"
+    "xiranflow-light-armor": "item_equip_t4_suit_expend_spell01_body_02",
+    "aic-fieldwork-assault-armor": "item_equip_t4_parts_wuling00_body_04",
+    "aic-fieldwork-assault-gloves": "item_equip_t4_parts_wuling00_hand_04",
+    "aic-fieldwork-assault-push-knife": "item_equip_t4_parts_wuling00_edc_04",
+    "aic-fieldwork-medic-armor": "item_equip_t4_parts_wuling00_body_05",
+    "aic-fieldwork-medic-gloves": "item_equip_t4_parts_wuling00_hand_05",
+    "aic-fieldwork-power-bank": "item_equip_t4_parts_wuling00_edc_05",
+    "deep-rampart-armor": "item_equip_t4_suit_spellburst_body_01",
+    "deep-rampart-comms": "item_equip_t4_suit_spellburst_edc_01",
+    "deep-rampart-gauntlets": "item_equip_t4_suit_spellburst_hand_01",
+    "deepsink-gloves": "item_equip_t4_suit_burst01_hand_02",
+    "eternal-xiranite-bracing-slab-t1": "item_equip_t4_suit_usp02_edc_05",
+    "eternal-xiranite-heavy-slab": "item_equip_t4_suit_usp02_edc_06",
+    "tide-fall-light-armor-t1": "item_equip_t4_suit_burst01_body_02",
+    "turbid-cutting-torch-t1": "item_equip_t4_suit_burst01_edc_03",
+    "wave-swell-heavy-armor": "item_equip_t4_suit_burst01_body_03"
   },
   "enemies": {
     "eny_0007_mimicw": "eny-0007-mimicw",
@@ -3625,6 +3643,229 @@
           "kind": "operatorSkill",
           "skillGroupKey": "battleSkill",
           "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "comboSkill",
+          "sourceSkillKey": "comboSkill",
+          "type": "comboSkill"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "comboSkill",
+          "skillKey": "comboSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "ultimate",
+          "sourceSkillKey": "ultimate",
+          "type": "ultimate"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "ultimate",
+          "skillKey": "ultimate"
+        }
+      },
+      {
+        "source": {
+          "skillId": "dive",
+          "sourceSkillKey": "dive",
+          "type": "dive"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "plungingAttack",
+          "skillKey": "plungingAttack"
+        }
+      },
+      {
+        "source": {
+          "skillId": "finisher",
+          "sourceSkillKey": "finisher",
+          "type": "finisher"
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "finisher",
+          "skillKey": "finisher"
+        }
+      }
+    ],
+    "typhoeus": [
+      {
+        "source": {
+          "skillId": "enhancedBasicAttack",
+          "sourceSkillKey": "enhancedBasicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkillSequence",
+          "skillGroupKey": "basicAttack",
+          "variantKey": "enhancedBasicAttack"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 4
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack4"
+        }
+      },
+      {
+        "source": {
+          "skillId": "basicAttack",
+          "sourceSkillKey": "basicAttack",
+          "type": "basicAttack",
+          "segmentIndex": 5
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "basicAttack5"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill"
+        },
+        "target": {
+          "kind": "operatorSkillSequence",
+          "skillGroupKey": "battleSkill",
+          "continuations": [
+            {
+              "skillGroupKey": "basicAttack",
+              "variantKey": "enhancedBasicAttack"
+            }
+          ]
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 1
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "battleSkill",
+          "skillKey": "battleSkill"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 2
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "floatingAttack1"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 3
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "floatingAttack2"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 4
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "floatingAttack3"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 5
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "floatingAttack4"
+        }
+      },
+      {
+        "source": {
+          "skillId": "battleSkill",
+          "sourceSkillKey": "battleSkill",
+          "type": "battleSkill",
+          "segmentIndex": 6
+        },
+        "target": {
+          "kind": "operatorSkill",
+          "skillGroupKey": "basicAttack",
+          "skillKey": "floatingAttack5"
         }
       },
       {
