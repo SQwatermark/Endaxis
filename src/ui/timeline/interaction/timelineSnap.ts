@@ -19,8 +19,8 @@ export function snapTimelineFrame(
   if (!Number.isInteger(maximumFrame) || maximumFrame < 0) {
     throw new RangeError('maximumFrame must be a non-negative integer');
   }
-  if (!Number.isInteger(minimumFrame) || minimumFrame > 0 || minimumFrame > maximumFrame) {
-    throw new RangeError('minimumFrame must be a non-positive integer within the timeline');
+  if (!Number.isInteger(minimumFrame) || minimumFrame > maximumFrame) {
+    throw new RangeError('minimumFrame must be an integer within the timeline');
   }
   return Math.max(
     minimumFrame,

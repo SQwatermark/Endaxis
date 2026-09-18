@@ -4,10 +4,11 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import { createInteractionSession } from '../../interaction/interactionSession';
 import { createEmptyTimelineActionSelection } from './timelineActionSelection';
 import { useTimelineCastMove } from './useTimelineCastMove';
+import { moveSkillCasts } from './timelineDocumentCommands';
 
 afterEach(() => vi.unstubAllGlobals());
 
-function fixture() {
+function fixture(readOnly = false, minimumInputFrame = 0) {
   const events = new EventTarget();
   class Lane {
     readonly dataset = { trackIndex: '0' };
@@ -50,6 +51,8 @@ function fixture() {
   const scope = effectScope();
   const movement = scope.run(() =>
     useTimelineCastMove({
+      isInputReadOnly: () => readOnly,
+      minimumInputFrame: shallowRef(minimumInputFrame),
       scenario,
       actionSelection,
       interactionSession,
@@ -84,16 +87,16 @@ function fixture() {
     0,
     'cast',
   );
-  const move = () =>
+  const move = (clientX = 30) =>
     events.dispatchEvent(
       Object.assign(new Event('pointermove'), {
         pointerId: 1,
-        clientX: 30,
+        clientX,
         clientY: 100,
       }),
     );
   move();
-  expect(scenario.value.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(30);
+  expect(scenario.value.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(readOnly ? 10 : 30);
   return {
     scenario,
     original,
@@ -103,10 +106,56 @@ function fixture() {
     commitScenario,
     scope,
     move,
+    finish: () =>
+      events.dispatchEvent(
+        Object.assign(new Event('pointerup'), {
+          pointerId: 1,
+          clientX: 30,
+          clientY: 100,
+          stopPropagation() {},
+        }),
+      ),
   };
 }
 
 describe('timeline cast move lifecycle', () => {
+  it('拖入冻结历史时停在继承帧，仍可向后拖动', () => {
+    const f = fixture(false, 5);
+    f.move(-100);
+    expect(f.scenario.value.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(5);
+    f.move(40);
+    expect(f.scenario.value.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(40);
+    f.scope.stop();
+  });
+  it('多选共享位移以最早组首限制继承边界，而非仅限制鼠标抓取的技能', () => {
+    const f = fixture();
+    const base = structuredClone(f.original);
+    base.tracks[0]!.skillCasts.push({
+      ...structuredClone(base.tracks[0]!.skillCasts[0]!),
+      id: 'later',
+      placement: { startFrame: 30 },
+    });
+    const moved = moveSkillCasts(base, new Set(['cast', 'later']), 0, 'later', 5, undefined, 5);
+    expect(moved.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([5, 25]);
+    f.scope.stop();
+  });
+  it('提交被拒绝时撤销预览，不能留下被判为历史输入的非法位置', async () => {
+    const f = fixture();
+    f.commitScenario.mockReturnValue(false);
+    f.finish();
+    await vi.waitFor(() => expect(f.movement.castMoveGesture.value).toBeNull());
+    expect(f.scenario.value).toBe(f.original);
+    expect(f.interactionSession.current).toBeNull();
+    f.scope.stop();
+  });
+  it('只读输入不启动预览或交互模拟，也不提交修改', () => {
+    const f = fixture(true);
+    expect(f.scenario.value).toBe(f.original);
+    expect(f.interactionSession.current).toBeNull();
+    expect(f.simulationService.beginInteractiveSession).not.toHaveBeenCalled();
+    expect(f.commitScenario).not.toHaveBeenCalled();
+    f.scope.stop();
+  });
   it('rolls back a cancelled preview and releases listeners without adding history', () => {
     const f = fixture();
     expect(f.interactionSession.current?.owner).toBe('cast-move');

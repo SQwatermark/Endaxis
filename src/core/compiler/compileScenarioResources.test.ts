@@ -138,7 +138,7 @@ describe('compileScenarioResources', () => {
 
   it('rejects inherited scenarios instead of resetting their runtime resource state', () => {
     const value = scenario();
-    value.inheritance = { sourceScenarioId: 'source', boundaryId: 'cycle:1' };
+    value.inheritance = { sourceScenarioId: 'source', frame: 30 };
 
     expect(() => compileScenarioResources(value, options())).toThrow(
       'inherited resource compilation is not connected',

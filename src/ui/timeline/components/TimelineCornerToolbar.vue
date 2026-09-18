@@ -11,7 +11,8 @@ import {
 } from '../interaction/timelineViewport';
 
 /** 时间轴轨道头部上方的编辑工具区，结构与尺寸以旧版 TimelineGrid 为准。 */
-defineProps<{
+const props = defineProps<{
+  configurationReadOnly?: boolean;
   snapLabel: string;
   zoomPercent: number;
   cursorGuideEnabled: boolean;
@@ -55,6 +56,10 @@ usePopoverInteractionBoundary(
 );
 
 function toggleGaugeEditor(event: Event): void {
+  if (props.configurationReadOnly) {
+    event.preventDefault();
+    return;
+  }
   event.preventDefault();
   gaugeEditorOpen.value = !gaugeEditorOpen.value;
   if (gaugeEditorOpen.value) void nextTick(() => gaugeInput.value?.select());
@@ -77,6 +82,7 @@ function applyGaugeDraft(): void {
           size="sm"
           type="button"
           class="mini-tool-button"
+          :disabled="configurationReadOnly"
           :class="{
             'is-gauge-custom': initialGaugeMode === 'custom',
           }"

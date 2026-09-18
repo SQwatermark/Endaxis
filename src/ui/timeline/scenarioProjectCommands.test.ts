@@ -144,15 +144,15 @@ describe('scenario project commands', () => {
     expect(session.snapshot.project).toBe(result);
   });
 
-  it('refuses to delete a scenario referenced by inheritance', () => {
+  it('deleting an inheritance source leaves its independent copy unchanged', () => {
     const original = project();
     const source = original.scenarios[0]!;
     source.battle.cycleBoundaries.push({ id: 'cycle:1', frame: 30 });
     const child = createEmptyScenario('test:scenario:2', '继承方案');
-    child.inheritance = { sourceScenarioId: source.id, boundaryId: 'cycle:1' };
+    child.inheritance = { sourceScenarioId: source.id, frame: 30 };
     const withChild = { ...original, scenarios: [source, child] };
 
-    expect(deleteActiveScenario(withChild)).toBe(withChild);
+    expect(deleteActiveScenario(withChild).scenarios).toEqual([child]);
     const childActive = { ...withChild, activeScenarioId: child.id };
     const deleted = deleteActiveScenario(childActive);
     expect(deleted.scenarios).toEqual([source]);

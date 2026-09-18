@@ -14,6 +14,7 @@ export interface TimelineMarkerPointerInput {
   /** 抓取点相对标记竖线的位置；在吸附和边界裁定之前扣除。 */
   readonly grabOffsetPx?: number;
   readonly prepExpanded?: boolean;
+  readonly prepEndFrame?: number;
 }
 
 /**
@@ -46,6 +47,7 @@ export function resolveTimelineMarkerPointerFrame(input: TimelineMarkerPointerIn
     input.prepFrames,
     input.pxPerFrame,
     input.prepExpanded,
+    input.prepEndFrame,
   );
   const minimumFrame = input.minimumFrame ?? 0;
   if (!Number.isInteger(minimumFrame) || minimumFrame > input.maximumFrame) {

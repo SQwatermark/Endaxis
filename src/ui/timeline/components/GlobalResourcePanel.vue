@@ -15,6 +15,7 @@ import type { EditableBattleResourceRule } from '../interaction/timelineDocument
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 
 const props = defineProps<{
+  readOnly?: boolean;
   mode?: 'full' | 'modifiers';
   rules: BattleDocument['resourceRules'];
   modifiers: readonly GlobalOperatorStatModifierDocument[];
@@ -133,6 +134,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
           :min="0"
           :step="1"
           :model-value="rules.maxSp"
+          :disabled="readOnly"
           @change="emitNumber('maxSp', $event)"
         />
       </label>
@@ -145,6 +147,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
           :max="rules.maxSp"
           :step="1"
           :model-value="rules.initialSp"
+          :disabled="readOnly"
           @change="emitNumber('initialSp', $event)"
         />
       </label>
@@ -156,6 +159,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
           :min="0"
           :step="0.1"
           :model-value="rules.spRecoveryPerSecond"
+          :disabled="readOnly"
           @change="emitNumber('spRecoveryPerSecond', $event)"
         />
       </label>
@@ -189,6 +193,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
                 size="sm"
                 icon-only
                 type="button"
+                :disabled="readOnly"
                 @click="addModifier(choice)"
                 >＋</EaButton
               >
@@ -200,6 +205,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
             >
               <EaNumberInput
                 class="modifier-value"
+                :disabled="readOnly"
                 size="sm"
                 controls-position="right"
                 :max="choice.modifier === 'skillCooldownReduction' ? 99.999 : undefined"
@@ -212,6 +218,7 @@ function emitNumber(field: EditableBattleResourceRule, value: number | undefined
                 variant="danger"
                 size="sm"
                 type="button"
+                :disabled="readOnly"
                 @click="removeModifier(modifier.id)"
               >
                 {{ t('common.delete') }}

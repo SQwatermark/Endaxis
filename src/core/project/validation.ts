@@ -451,11 +451,6 @@ export function validateProjectDocument(value: unknown): ValidationResult {
     issues.push({ path: '$.scenarios', message: 'expected at least one scenario' });
   } else {
     const scenarioIds = new Set<string>();
-    const boundaryIdsByScenario = new Map<string, Set<string>>();
-    const inheritanceByScenario = new Map<
-      string,
-      { sourceScenarioId: string; boundaryId: string; path: string }
-    >();
     value.scenarios.forEach((scenario, scenarioIndex) => {
       const path = `$.scenarios[${scenarioIndex}]`;
       if (!isObject(scenario)) {
@@ -473,25 +468,8 @@ export function validateProjectDocument(value: unknown): ValidationResult {
         if (!isObject(scenario.inheritance)) {
           issues.push({ path: `${path}.inheritance`, message: 'expected an object' });
         } else {
-          const sourceScenarioId = requireString(
-            scenario.inheritance,
-            'sourceScenarioId',
-            `${path}.inheritance`,
-            issues,
-          );
-          const boundaryId = requireString(
-            scenario.inheritance,
-            'boundaryId',
-            `${path}.inheritance`,
-            issues,
-          );
-          if (scenarioId !== null && sourceScenarioId !== null && boundaryId !== null) {
-            inheritanceByScenario.set(scenarioId, {
-              sourceScenarioId,
-              boundaryId,
-              path: `${path}.inheritance`,
-            });
-          }
+          requireString(scenario.inheritance, 'sourceScenarioId', `${path}.inheritance`, issues);
+          requireInteger(scenario.inheritance.frame, `${path}.inheritance.frame`, issues);
         }
       }
 
@@ -678,43 +656,10 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           }
         });
       }
-      if (scenarioId !== null && isObject(scenario.battle)) {
-        const boundaries = Array.isArray(scenario.battle.cycleBoundaries)
-          ? scenario.battle.cycleBoundaries
-              .filter(isObject)
-              .map(boundary => boundary.id)
-              .filter((id): id is string => typeof id === 'string')
-          : [];
-        boundaryIdsByScenario.set(scenarioId, new Set(boundaries));
-      }
       validateMechanics(scenario.mechanics, `${path}.mechanics`, issues);
       validateGlobalConfig(scenario.globalConfig, `${path}.globalConfig`, issues);
       validateEditor(scenario.editor, `${path}.editor`, issues);
     });
-
-    for (const [scenarioId, inheritance] of inheritanceByScenario) {
-      if (!scenarioIds.has(inheritance.sourceScenarioId)) {
-        issues.push({
-          path: `${inheritance.path}.sourceScenarioId`,
-          message: 'unknown source scenario',
-        });
-      } else if (
-        !boundaryIdsByScenario.get(inheritance.sourceScenarioId)?.has(inheritance.boundaryId)
-      ) {
-        issues.push({ path: `${inheritance.path}.boundaryId`, message: 'unknown cycle boundary' });
-      }
-
-      const visited = new Set<string>([scenarioId]);
-      let cursor: string | undefined = inheritance.sourceScenarioId;
-      while (cursor !== undefined) {
-        if (visited.has(cursor)) {
-          issues.push({ path: inheritance.path, message: 'scenario inheritance must be acyclic' });
-          break;
-        }
-        visited.add(cursor);
-        cursor = inheritanceByScenario.get(cursor)?.sourceScenarioId;
-      }
-    }
 
     if (activeScenarioId !== null && !scenarioIds.has(activeScenarioId)) {
       issues.push({ path: '$.activeScenarioId', message: 'unknown active scenario' });

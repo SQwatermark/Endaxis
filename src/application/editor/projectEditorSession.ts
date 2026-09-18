@@ -1,4 +1,9 @@
 import type { EndaxisProjectDocument, ScenarioDocument } from '../../core/project/schema';
+import {
+  assertScenarioEditAllowed,
+  assertScenarioPolicy,
+  type ScenarioEditPolicy,
+} from './scenarioEditConstraints';
 import type {
   ScenarioCommand,
   ScenarioEditingSession,
@@ -30,6 +35,7 @@ export class ProjectEditorSession {
   constructor(
     initialProject: EndaxisProjectDocument,
     readonly historyLimit = 50,
+    readonly editPolicy: (scenarioId: string) => ScenarioEditPolicy = () => ({}),
   ) {
     if (!Number.isInteger(historyLimit) || historyLimit < 1) {
       throw new RangeError('historyLimit must be a positive integer');
@@ -54,6 +60,12 @@ export class ProjectEditorSession {
     const before = this.#snapshot.project;
     const after = command(before);
     if (after === before) return false;
+    // 项目命令与活动方案命令共用约束；删除整个方案是文档管理，不属于移动输入。
+    for (const previous of before.scenarios) {
+      const next = after.scenarios.find(scenario => scenario.id === previous.id);
+      if (next !== undefined)
+        assertScenarioEditAllowed(previous, next, this.editPolicy(previous.id));
+    }
     this.#undoStack.push({ commandName, before, after });
     if (this.#undoStack.length > this.historyLimit) this.#undoStack.shift();
     this.#redoStack.length = 0;
@@ -62,19 +74,31 @@ export class ProjectEditorSession {
   }
 
   undo(): boolean {
-    const entry = this.#undoStack.pop();
+    const entry = this.#undoStack.at(-1);
     if (entry === undefined) return false;
+    this.#checkHistoryPolicy(entry.before);
+    this.#undoStack.pop();
     this.#redoStack.push(entry);
     this.#publish(entry.before, `undo:${entry.commandName}`);
     return true;
   }
 
   redo(): boolean {
-    const entry = this.#redoStack.pop();
+    const entry = this.#redoStack.at(-1);
     if (entry === undefined) return false;
+    this.#checkHistoryPolicy(entry.after);
+    this.#redoStack.pop();
     this.#undoStack.push(entry);
     this.#publish(entry.after, `redo:${entry.commandName}`);
     return true;
+  }
+
+  #checkHistoryPolicy(next: EndaxisProjectDocument): void {
+    for (const previous of this.#snapshot.project.scenarios) {
+      const target = next.scenarios.find(scenario => scenario.id === previous.id);
+      if (target !== undefined)
+        assertScenarioPolicy(previous, target, this.editPolicy(previous.id));
+    }
   }
 
   /** Replace the opened document and start a fresh history boundary. */

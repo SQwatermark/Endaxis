@@ -11,7 +11,11 @@ import {
   type ContingencyContractTagPresentation,
 } from '../../../data/mechanics/contingencyContractCatalog';
 
-const props = defineProps<{ selectedTagIds: readonly number[]; locale: string }>();
+const props = defineProps<{
+  selectedTagIds: readonly number[];
+  locale: string;
+  readOnly?: boolean;
+}>();
 const emit = defineEmits<{ setSelectedTagIds: [tagIds: readonly number[]] }>();
 const { t } = useI18n({ useScope: 'global' });
 
@@ -272,6 +276,7 @@ function description(tag: ContingencyContractTagPresentation): string {
                   'is-conflict-muted': isConflictMuted(cell.tag),
                 }"
                 @click="toggle(cell.tag)"
+                :disabled="readOnly"
                 :pressed="selected.has(cell.tag.tagId)"
               >
                 <span class="cc-tag-check">✓</span
@@ -297,7 +302,7 @@ function description(tag: ContingencyContractTagPresentation): string {
             size="sm"
             type="button"
             class="cc-clear-btn"
-            :disabled="selectedTags.length === 0"
+            :disabled="readOnly || selectedTags.length === 0"
             @click="emit('setSelectedTagIds', [])"
           >
             {{ t('contingencyContract.reset') }}
@@ -323,6 +328,7 @@ function description(tag: ContingencyContractTagPresentation): string {
               :title="t('contingencyContract.remove')"
               :aria-label="t('contingencyContract.remove')"
               @click="remove(tag.tagId)"
+              :disabled="readOnly"
             >
               <EaDeleteIcon />
             </EaButton>

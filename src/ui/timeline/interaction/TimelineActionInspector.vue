@@ -46,6 +46,7 @@ const props = defineProps<{
   /** 后续成员仅展示已发布的实际输入帧，不允许写入独立开始帧。 */
   actualStartFrame?: number;
   grouped?: boolean;
+  inputReadOnly?: boolean;
 }>();
 
 const emit = defineEmits<{
@@ -195,9 +196,16 @@ function removeCustomBar(barId: string): void {
               size="sm"
               :model-value="cast.placement.startFrame"
               @change="commitStartFrame"
+              :disabled="inputReadOnly || cast.presentation?.locked"
             />
           </label>
-          <EaButton v-if="grouped" variant="ghost" size="sm" @click="$emit('dissolveGroup')">
+          <EaButton
+            v-if="grouped"
+            variant="ghost"
+            size="sm"
+            :disabled="inputReadOnly"
+            @click="$emit('dissolveGroup')"
+          >
             {{ t('timeline.continuousGroup.dissolve') }}
           </EaButton>
         </div>
@@ -217,6 +225,7 @@ function removeCustomBar(barId: string): void {
               :model-value="cast.simulationInputs?.cameraToTargetSignedAngleDegrees"
               :placeholder="t('timeline.inspector.labels.unset')"
               @change="commitCameraTargetAngle"
+              :disabled="inputReadOnly"
             />
             <small class="field-help">{{ t('timeline.inspector.cameraTargetAngleHelp') }}</small>
           </label>
@@ -233,6 +242,7 @@ function removeCustomBar(barId: string): void {
                 :model-value="cast.simulationInputs?.randomSeed"
                 :placeholder="t('timeline.random.useGlobalSeed')"
                 @change="commitRandomSeed"
+                :disabled="inputReadOnly"
               />
               <div class="inline-actions">
                 <EaButton
@@ -242,6 +252,7 @@ function removeCustomBar(barId: string): void {
                   :title="t('timeline.random.roll')"
                   :aria-label="t('timeline.random.roll')"
                   @click="$emit('rollRandomSeed')"
+                  :disabled="inputReadOnly"
                 >
                   <EaDiceIcon />
                 </EaButton>
@@ -250,6 +261,7 @@ function removeCustomBar(barId: string): void {
                   size="sm"
                   type="button"
                   @click="$emit('setRandomSeed', null)"
+                  :disabled="inputReadOnly"
                 >
                   {{ t('battleLog.ui.clear') }}
                 </EaButton>
@@ -283,6 +295,7 @@ function removeCustomBar(barId: string): void {
               type="button"
               class="definition-edit"
               @click="$emit('editDefinition')"
+              :disabled="inputReadOnly"
             >
               {{ t('timeline.skillEditing.edit') }}
             </EaButton>
@@ -292,6 +305,7 @@ function removeCustomBar(barId: string): void {
               type="button"
               class="definition-reset"
               @click="$emit('resetDefinition')"
+              :disabled="inputReadOnly"
             >
               <RefreshLeft />
               <span>{{ t('timeline.skillEditing.reset') }}</span>
@@ -310,6 +324,7 @@ function removeCustomBar(barId: string): void {
             class="definition-reset"
             :title="t('timeline.skillEditing.reset')"
             @click="$emit('resetDefinition')"
+            :disabled="inputReadOnly"
           >
             <RefreshLeft />
             <span>{{ t('timeline.skillEditing.reset') }}</span>
@@ -332,6 +347,7 @@ function removeCustomBar(barId: string): void {
             <EaCheckbox
               :model-value="cast.presentation?.disabled ?? false"
               @change="$emit('setDisabled', $event)"
+              :disabled="inputReadOnly"
             />
           </div>
           <label class="form-group attribute-grid__wide">

@@ -32,6 +32,7 @@ const props = defineProps<{
   locale: string;
   appearance: 'light' | 'dark';
   randomMode: 'expected' | 'sampled';
+  configurationReadOnly?: boolean;
   globalRandomSeed: number;
   labels: {
     rename: string;
@@ -582,6 +583,7 @@ onBeforeUnmount(() => {
                   :key="mode"
                   type="button"
                   @click="$emit('setRandomMode', mode)"
+                  :disabled="configurationReadOnly"
                   :pressed="randomMode === mode"
                 >
                   {{ t(`timeline.random.${mode}`) }}
@@ -599,6 +601,7 @@ onBeforeUnmount(() => {
                 controls-position="right"
                 :model-value="globalRandomSeed"
                 @change="commitGlobalRandomSeed"
+                :disabled="configurationReadOnly"
               />
               <EaButton
                 size="sm"
@@ -607,6 +610,7 @@ onBeforeUnmount(() => {
                 :title="t('timeline.random.roll')"
                 :aria-label="t('timeline.random.roll')"
                 @click="$emit('rollGlobalRandomSeed')"
+                :disabled="configurationReadOnly"
               >
                 <EaDiceIcon />
               </EaButton>
@@ -730,6 +734,7 @@ onBeforeUnmount(() => {
                 type="button"
                 class="header-more-action"
                 @click="$emit('reset')"
+                :disabled="configurationReadOnly"
               >
                 <svg viewBox="0 0 24 24" aria-hidden="true">
                   <polyline points="3 6 5 6 21 6" />

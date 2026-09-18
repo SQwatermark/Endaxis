@@ -4,6 +4,11 @@
  * 不应通过深层 watcher 猜测一次用户操作何时结束。
  */
 import type { ScenarioDocument } from '../../core/project/schema';
+import {
+  assertScenarioEditAllowed,
+  assertScenarioPolicy,
+  type ScenarioEditPolicy,
+} from './scenarioEditConstraints';
 
 export interface ScenarioEditorSnapshot {
   /** 每次有效提交递增；它表示编辑会话修订，不写入存档。 */
@@ -41,7 +46,11 @@ export class ScenarioEditorSession implements ScenarioEditingSession {
   readonly #undoStack: ScenarioHistoryEntry[] = [];
   readonly #redoStack: ScenarioHistoryEntry[] = [];
 
-  constructor(initialScenario: ScenarioDocument, historyLimit = DEFAULT_HISTORY_LIMIT) {
+  constructor(
+    initialScenario: ScenarioDocument,
+    historyLimit = DEFAULT_HISTORY_LIMIT,
+    readonly editPolicy: ScenarioEditPolicy = {},
+  ) {
     if (!Number.isInteger(historyLimit) || historyLimit < 1) {
       throw new RangeError('historyLimit must be a positive integer');
     }
@@ -74,6 +83,7 @@ export class ScenarioEditorSession implements ScenarioEditingSession {
     const previousScenario = this.#snapshot.scenario;
     const nextScenario = command(previousScenario);
     if (nextScenario === previousScenario) return false;
+    assertScenarioEditAllowed(previousScenario, nextScenario, this.editPolicy);
 
     this.#undoStack.push({ commandName, before: previousScenario, after: nextScenario });
     if (this.#undoStack.length > this.#historyLimit) this.#undoStack.shift();
@@ -85,8 +95,10 @@ export class ScenarioEditorSession implements ScenarioEditingSession {
 
   /** 撤销最近一次显式提交；没有历史时返回 `false` 且不产生空修订。 */
   undo(): boolean {
-    const entry = this.#undoStack.pop();
+    const entry = this.#undoStack.at(-1);
     if (entry === undefined) return false;
+    assertScenarioPolicy(this.#snapshot.scenario, entry.before, this.editPolicy);
+    this.#undoStack.pop();
     this.#redoStack.push(entry);
     this.#publish(entry.before, `undo:${entry.commandName}`);
     return true;
@@ -94,8 +106,10 @@ export class ScenarioEditorSession implements ScenarioEditingSession {
 
   /** 重做最近一次撤销；新的有效提交会清空这条重做分支。 */
   redo(): boolean {
-    const entry = this.#redoStack.pop();
+    const entry = this.#redoStack.at(-1);
     if (entry === undefined) return false;
+    assertScenarioPolicy(this.#snapshot.scenario, entry.after, this.editPolicy);
+    this.#redoStack.pop();
     this.#undoStack.push(entry);
     this.#publish(entry.after, `redo:${entry.commandName}`);
     return true;

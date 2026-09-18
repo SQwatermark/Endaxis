@@ -20,6 +20,7 @@ const MIN_BATTLE_DURATION_FRAMES = PROJECT_FPS * 30;
 const MAX_BATTLE_DURATION_FRAMES = PROJECT_FPS * 600;
 
 const props = defineProps<{
+  prepReadOnly?: boolean;
   prepFrames: number;
   durationFrames: number;
   cursorFrame: number;
@@ -28,11 +29,15 @@ const props = defineProps<{
   operations: readonly TimelineOperationMarkerInput[];
   visibleLeftPx: number;
   visibleWidthPx: number;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
 }>();
 
 const emit = defineEmits<{
   seek: [frame: number];
+  prepInfo: [event: MouseEvent];
+  resizeHistory: [event: PointerEvent];
   setPrepFrames: [frames: number];
   setDurationFrames: [frames: number];
 }>();
@@ -60,10 +65,17 @@ const totalWidth = computed(() =>
     activeDurationFrames.value,
     props.pxPerFrame,
     props.prepExpanded,
+    props.prepEndFrame,
   ),
 );
 const prepWidth = computed(() =>
-  frameToTimelinePx(0, activePrepFrames.value, props.pxPerFrame, props.prepExpanded),
+  frameToTimelinePx(
+    props.prepEndFrame ?? 0,
+    activePrepFrames.value,
+    props.pxPerFrame,
+    props.prepExpanded,
+    props.prepEndFrame,
+  ),
 );
 const ticks = computed(() =>
   projectTimelineRulerTicks({
@@ -73,6 +85,7 @@ const ticks = computed(() =>
     visibleLeftPx: props.visibleLeftPx,
     visibleWidthPx: props.visibleWidthPx,
     prepExpanded: props.prepExpanded,
+    prepEndFrame: props.prepEndFrame,
   }),
 );
 const operationMarkers = computed(() =>
@@ -81,6 +94,7 @@ const operationMarkers = computed(() =>
     activePrepFrames.value,
     props.pxPerFrame,
     props.prepExpanded,
+    props.prepEndFrame,
   ),
 );
 
@@ -90,6 +104,10 @@ function snapFrame(frame: number): number {
 }
 
 function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
+  if (kind === 'prep' && props.prepReadOnly) {
+    emit('resizeHistory', event);
+    return;
+  }
   if (event.button !== 0) return;
   if (kind === 'prep' && !props.prepExpanded) return;
   event.preventDefault();
@@ -113,6 +131,7 @@ function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
               activePrepFrames.value,
               props.pxPerFrame,
               props.prepExpanded,
+              props.prepEndFrame,
             ),
           ),
         ),
@@ -148,7 +167,11 @@ function beginResize(kind: 'prep' | 'duration', event: PointerEvent): void {
   window.addEventListener('pointercancel', cancel);
 }
 
-function openPrepEditor(): void {
+function openPrepEditor(event: MouseEvent): void {
+  if (props.prepReadOnly) {
+    emit('prepInfo', event);
+    return;
+  }
   prepDraft.value = props.prepFrames;
   prepEditorOpen.value = true;
   durationEditorOpen.value = false;
@@ -192,7 +215,13 @@ onScopeDispose(() => stopResize?.());
 function seek(event: MouseEvent): void {
   const element = event.currentTarget as HTMLElement;
   const px = event.clientX - element.getBoundingClientRect().left;
-  const actualFrame = timelinePxToFrame(px, props.prepFrames, props.pxPerFrame, props.prepExpanded);
+  const actualFrame = timelinePxToFrame(
+    px,
+    props.prepFrames,
+    props.pxPerFrame,
+    props.prepExpanded,
+    props.prepEndFrame,
+  );
   emit(
     'seek',
     Math.max(-props.prepFrames, Math.min(props.durationFrames, Math.round(actualFrame))),
@@ -204,7 +233,10 @@ function seek(event: MouseEvent): void {
   <div class="ruler-viewport">
     <div class="ruler-content" :style="{ width: `${totalWidth}px` }" @click="seek">
       <div class="prep-zone" :style="{ width: `${prepWidth}px` }"></div>
-      <div class="operation-layer">
+      <div
+        class="operation-layer"
+        :style="{ clipPath: prepExpanded ? undefined : 'inset(0 0 0 18px)' }"
+      >
         <span
           v-for="operation in operationMarkers"
           :key="operation.id"
@@ -246,7 +278,7 @@ function seek(event: MouseEvent): void {
           size="sm"
           icon-only
           type="button"
-          :title="t('timelineGrid.prep.setDurationTitle')"
+          :title="t(prepReadOnly ? 'inheritance.boundary' : 'timelineGrid.prep.setDurationTitle')"
           @pointerdown.stop
           @click.stop="openPrepEditor"
         >
@@ -261,8 +293,15 @@ function seek(event: MouseEvent): void {
             stroke-linejoin="round"
             aria-hidden="true"
           >
-            <circle cx="12" cy="12" r="9"></circle>
-            <path d="M12 7v6l4 2"></path>
+            <template v-if="prepReadOnly">
+              <circle cx="6" cy="5" r="2"></circle>
+              <circle cx="18" cy="19" r="2"></circle>
+              <path d="M6 7v5a7 7 0 0 0 7 7h3M13 5h7m-3-3 3 3-3 3"></path>
+            </template>
+            <template v-else>
+              <circle cx="12" cy="12" r="9"></circle>
+              <path d="M12 7v6l4 2"></path>
+            </template>
           </svg>
         </EaButton>
       </span>

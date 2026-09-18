@@ -16,6 +16,7 @@ export interface TimelineRulerTickProjectionInput {
   readonly visibleWidthPx: number;
   readonly bufferPx?: number;
   readonly prepExpanded?: boolean;
+  readonly prepEndFrame?: number;
 }
 
 /** 按旧版缩放阈值投影现实时间刻度，并只保留可见窗口附近的 DOM。 */
@@ -37,15 +38,17 @@ export function projectTimelineRulerTicks(
     input.prepFrames,
     input.pxPerFrame,
     input.prepExpanded,
+    input.prepEndFrame,
   );
   const visibleEndFrame = timelinePxToExactFrame(
     input.visibleLeftPx + input.visibleWidthPx + bufferPx,
     input.prepFrames,
     input.pxPerFrame,
     input.prepExpanded,
+    input.prepEndFrame,
   );
   const minimumFrame = Math.max(
-    input.prepExpanded === false ? 0 : -input.prepFrames,
+    input.prepExpanded === false ? (input.prepEndFrame ?? 0) : -input.prepFrames,
     visibleStartFrame,
   );
   const maximumFrame = Math.min(input.durationFrames, visibleEndFrame);
@@ -74,7 +77,13 @@ export function projectTimelineRulerTicks(
     }
     result.push({
       key: `time:${roundedFrame}`,
-      left: frameToTimelinePx(roundedFrame, input.prepFrames, input.pxPerFrame, input.prepExpanded),
+      left: frameToTimelinePx(
+        roundedFrame,
+        input.prepFrames,
+        input.pxPerFrame,
+        input.prepExpanded,
+        input.prepEndFrame,
+      ),
       type,
       label,
     });

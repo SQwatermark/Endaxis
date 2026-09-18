@@ -16,6 +16,7 @@ export interface TimelineCastMovePointerInput {
   readonly minimumFrame?: number;
   readonly actualMaximumFrame: number;
   readonly prepExpanded?: boolean;
+  readonly prepEndFrame?: number;
 }
 
 /**
@@ -74,6 +75,7 @@ export function resolveTimelineCastMovePointerFrame(
         input.prepFrames,
         input.pxPerFrame,
         input.prepExpanded,
+        input.prepEndFrame,
       ),
     ),
   );

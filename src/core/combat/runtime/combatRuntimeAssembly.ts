@@ -2392,37 +2392,46 @@ export class CombatRuntimeAssembly {
             continuationPlan: {
               castIds: options.continuationPlanCastIds,
               ignoreInputFailures: options.continuationPlanMode === 'compact',
-              canContinue: (input: ScheduledSkillInput, previous: ScheduledSkillInput) => {
-                if (options.continuationPlanMode === 'compact') {
-                  const timing = this.#inputTiming();
-                  const interruption = timing.find(previous.castId, 'SkillInterrupted');
-                  if (interruption !== undefined && interruption.frame <= this.clock.frame)
-                    return true;
-                  const boundary = timing.find(previous.castId, 'SkillOperableBoundaryReached');
-                  if (boundary !== undefined) return boundary.frame < this.clock.frame;
-                  const processed = timing.find(previous.castId, 'SkillInputProcessed');
-                  const program = this.#skillPrograms.get(
-                    `${previous.operatorId}\u0000${previous.skillId}\u0000${previous.castId ?? ''}`,
-                  );
-                  return (
-                    program !== undefined &&
-                    (processed?.data?.accepted === false || program.timelineBlockFrames === 0) &&
-                    this.clock.frame >=
-                      previous.frame + Math.max(1, program.timelineBlockFrames + 1)
-                  );
-                }
-                const ability = this.#requireAbilitySystem(input.operatorId);
-                const resolution = ability.resolvePlayerInputSkill(input.skillId, input.action);
-                return (
-                  resolution.status === 'matched' &&
-                  ability.evaluatePlayerInputInterruption(input.skillId).status === 'allowed'
-                );
-              },
+              canContinue: (input, previous) =>
+                this.#canPlanContinuation(
+                  input,
+                  previous,
+                  options.continuationPlanMode ?? 'continuation',
+                ),
             },
           }),
       execution: this.#createInputExecution(),
       ...(restoredState === undefined ? {} : { restoredState }),
     });
+  }
+
+  #canPlanContinuation(
+    input: ScheduledSkillInput,
+    previous: ScheduledSkillInput,
+    mode: 'continuation' | 'compact',
+  ): boolean {
+    if (mode === 'compact') {
+      const timing = this.#inputTiming();
+      const interruption = timing.find(previous.castId, 'SkillInterrupted');
+      if (interruption !== undefined && interruption.frame <= this.clock.frame) return true;
+      const boundary = timing.find(previous.castId, 'SkillOperableBoundaryReached');
+      if (boundary !== undefined) return boundary.frame < this.clock.frame;
+      const processed = timing.find(previous.castId, 'SkillInputProcessed');
+      const program = this.#skillPrograms.get(
+        `${previous.operatorId}\u0000${previous.skillId}\u0000${previous.castId ?? ''}`,
+      );
+      return (
+        program !== undefined &&
+        (processed?.data?.accepted === false || program.timelineBlockFrames === 0) &&
+        this.clock.frame >= previous.frame + Math.max(1, program.timelineBlockFrames + 1)
+      );
+    }
+    const ability = this.#requireAbilitySystem(input.operatorId);
+    const resolution = ability.resolvePlayerInputSkill(input.skillId, input.action);
+    return (
+      resolution.status === 'matched' &&
+      ability.evaluatePlayerInputInterruption(input.skillId).status === 'allowed'
+    );
   }
 
   #createExternalCombatEventRuntime(
@@ -2552,6 +2561,10 @@ export class CombatRuntimeAssembly {
               canContinue: previous => {
                 requireCurrentPhase();
                 return this.#canContinueInputGroup(previous);
+              },
+              canPlanContinuation: (input, previous, mode) => {
+                requireCurrentPhase();
+                return this.#canPlanContinuation(input, previous, mode);
               },
             });
           } finally {

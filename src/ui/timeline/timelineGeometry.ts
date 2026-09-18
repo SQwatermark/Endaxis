@@ -9,10 +9,12 @@ export function frameToTimelinePx(
   prepFrames: number,
   pxPerFrame: number,
   prepExpanded = true,
+  prepEndFrame = 0,
 ): number {
-  if (prepExpanded || prepFrames <= 0) return (frame + prepFrames) * pxPerFrame;
-  if (frame <= 0) return ((frame + prepFrames) / prepFrames) * COLLAPSED_PREP_WIDTH_PX;
-  return COLLAPSED_PREP_WIDTH_PX + frame * pxPerFrame;
+  const length = prepFrames + prepEndFrame;
+  if (prepExpanded || length <= 0) return (frame + prepFrames) * pxPerFrame;
+  // 折叠是裁掉历史视野，不是压缩历史时间；跨边界的持续效果仍保持原比例。
+  return COLLAPSED_PREP_WIDTH_PX + (frame - prepEndFrame) * pxPerFrame;
 }
 
 export function timelinePxToExactFrame(
@@ -20,13 +22,12 @@ export function timelinePxToExactFrame(
   prepFrames: number,
   pxPerFrame: number,
   prepExpanded = true,
+  prepEndFrame = 0,
 ): number {
   if (!(pxPerFrame > 0)) throw new RangeError('pxPerFrame must be positive');
-  if (prepExpanded || prepFrames <= 0) return px / pxPerFrame - prepFrames;
-  if (px <= COLLAPSED_PREP_WIDTH_PX) {
-    return (px / COLLAPSED_PREP_WIDTH_PX) * prepFrames - prepFrames;
-  }
-  return (px - COLLAPSED_PREP_WIDTH_PX) / pxPerFrame;
+  const length = prepFrames + prepEndFrame;
+  if (prepExpanded || length <= 0) return px / pxPerFrame - prepFrames;
+  return prepEndFrame + (px - COLLAPSED_PREP_WIDTH_PX) / pxPerFrame;
 }
 
 export function timelinePxToFrame(
@@ -34,8 +35,9 @@ export function timelinePxToFrame(
   prepFrames: number,
   pxPerFrame: number,
   prepExpanded = true,
+  prepEndFrame = 0,
 ): number {
-  return Math.round(timelinePxToExactFrame(px, prepFrames, pxPerFrame, prepExpanded));
+  return Math.round(timelinePxToExactFrame(px, prepFrames, pxPerFrame, prepExpanded, prepEndFrame));
 }
 
 export function timelineTotalWidth(
@@ -43,8 +45,9 @@ export function timelineTotalWidth(
   durationFrames: number,
   pxPerFrame: number,
   prepExpanded = true,
+  prepEndFrame = 0,
 ): number {
-  return frameToTimelinePx(durationFrames, prepFrames, pxPerFrame, prepExpanded);
+  return frameToTimelinePx(durationFrames, prepFrames, pxPerFrame, prepExpanded, prepEndFrame);
 }
 
 export interface TimelineCursorGuidePosition {
@@ -65,12 +68,22 @@ export function resolveTimelineCursorGuidePosition(
   durationFrames: number,
   pxPerFrame: number,
   prepExpanded = true,
+  prepEndFrame = 0,
 ): TimelineCursorGuidePosition {
-  const width = timelineTotalWidth(prepFrames, durationFrames, pxPerFrame, prepExpanded);
+  const width = timelineTotalWidth(
+    prepFrames,
+    durationFrames,
+    pxPerFrame,
+    prepExpanded,
+    prepEndFrame,
+  );
   const leftPx = Math.max(0, Math.min(width, pointerPx));
   const sampleFrame = Math.max(
     -prepFrames,
-    Math.min(durationFrames, timelinePxToFrame(leftPx, prepFrames, pxPerFrame, prepExpanded)),
+    Math.min(
+      durationFrames,
+      timelinePxToFrame(leftPx, prepFrames, pxPerFrame, prepExpanded, prepEndFrame),
+    ),
   );
   return { leftPx, sampleFrame };
 }

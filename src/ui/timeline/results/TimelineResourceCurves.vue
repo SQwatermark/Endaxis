@@ -34,8 +34,11 @@ const props = defineProps<{
   poiseLabel?: string;
   spLabel?: string;
   visibleKinds?: readonly ResourceCurveRow['kind'][];
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
   initialSp?: number;
+  configurationReadOnly?: boolean;
   spRecoveryPerSecond?: number;
   initialSpLabel?: string;
   spRecoveryLabel?: string;
@@ -134,7 +137,13 @@ const hasCurves = computed(() => visibleRows.value.length > 0);
 function pointX(frame: number): number {
   return (
     props.trackHeaderWidth +
-    frameToTimelinePx(frame, props.prepFrames, props.pxPerFrame, props.prepExpanded) -
+    frameToTimelinePx(
+      frame,
+      props.prepFrames,
+      props.pxPerFrame,
+      props.prepExpanded,
+      props.prepEndFrame,
+    ) -
     props.scrollLeft
   );
 }
@@ -273,6 +282,7 @@ const spWarnings = computed(() => {
         :width="width"
         :duration-frames="durationFrames"
         :prep-frames="prepFrames"
+        :prep-end-frame="prepEndFrame"
         :prep-expanded="prepExpanded"
         :px-per-frame="pxPerFrame"
         :track-header-width="trackHeaderWidth"
@@ -285,7 +295,9 @@ const spWarnings = computed(() => {
           <strong>{{ row.label }}</strong>
           <label class="resource-control-row">
             <span>{{ initialSpLabel }}</span>
+            <span v-if="configurationReadOnly">{{ initialSp }}</span>
             <CustomNumberInput
+              v-else
               :model-value="initialSp"
               :min="0"
               :max="row.maxValue"
@@ -296,7 +308,9 @@ const spWarnings = computed(() => {
           </label>
           <label class="resource-control-row">
             <span>{{ spRecoveryLabel }}</span>
+            <span v-if="configurationReadOnly">{{ spRecoveryPerSecond }}</span>
             <CustomNumberInput
+              v-else
               :model-value="spRecoveryPerSecond"
               :min="0"
               :step="0.5"
@@ -331,8 +345,16 @@ const spWarnings = computed(() => {
           row.points,
           poiseBrokenSegments,
           poiseBrokenLabel,
+          prepExpanded,
+          prepEndFrame,
+          scrollLeft,
         ]"
         class="curve-chart"
+        :style="{
+          clipPath: prepExpanded
+            ? undefined
+            : `inset(0 0 0 ${Math.max(trackHeaderWidth, pointX(prepEndFrame ?? 0))}px)`,
+        }"
         :width="width"
         height="100%"
         :viewBox="`0 0 ${width} ${rowHeight(row)}`"

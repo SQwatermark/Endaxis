@@ -1,4 +1,17 @@
 {
+  "inheritance": {
+    "boundary": "继承起点",
+    "collapseHistory": "折叠历史",
+    "expandHistory": "展开历史",
+    "history": "{time} 之前为只读历史，养成配装与战斗配置已锁定。",
+    "source": "查看来源方案",
+    "sourceMissing": "来源方案不可用",
+    "createHere": "从此处创建继承方案",
+    "name": "{name}（继承）",
+    "changed": "方案已变化，请重新选择继承位置。",
+    "failed": "创建继承方案失败",
+    "created": "已创建继承方案，历史输入和构筑已锁定。"
+  },
   "objectOrigins": {
     "previousState": "前一状态",
     "buffState": "Buff · {layers} 层",

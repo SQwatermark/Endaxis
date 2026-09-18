@@ -23,6 +23,7 @@ import {
 } from '../mechanics/mechanicCompiler';
 import { resolveControlTimeline } from '../project/resolveControlTimeline';
 import type { ScenarioDocument } from '../project/schema';
+import { resolveScenarioInitialFrame } from '../project/skillCastPlacement';
 import { applyMechanicsToScenarioEnemy, compileScenarioEnemy } from './compileScenarioEnemy';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import {
@@ -429,14 +430,7 @@ export function compileScenarioRuntimeAssembly(
   // 只有确实放置了负帧技能时，战斗运行时才从最早的输入帧启动。
   const initialFrame =
     options.liveInputInitialFrame ??
-    Math.min(
-      0,
-      ...timeline.inputs.map(input => input.frame),
-      ...scenario.battle.controlSwitches.map(control => control.frame),
-      ...scenario.tracks.flatMap(track =>
-        track === null ? [] : (track.consumableUses ?? []).map(use => use.frame),
-      ),
-    );
+    resolveScenarioInitialFrame(scenario);
   const controlTimeline = resolveControlTimeline(
     scenario.tracks,
     options.liveInputInitialFrame === undefined ? scenario.battle.controlSwitches : [],

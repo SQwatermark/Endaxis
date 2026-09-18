@@ -11,6 +11,7 @@ import {
 export function useTimelineZoom(options: {
   viewport(): HTMLElement | null;
   prepFrames(): number;
+  prepEndFrame?(): number;
   prepExpanded(): boolean;
   trackHeaderWidth: number;
 }) {
@@ -41,6 +42,7 @@ export function useTimelineZoom(options: {
             options.prepFrames(),
             pxPerFrame.value,
             options.prepExpanded(),
+            options.prepEndFrame?.(),
           );
 
     timelineZoomPercent.value = nextPercent;
@@ -55,6 +57,7 @@ export function useTimelineZoom(options: {
           options.prepFrames(),
           pxPerFrame.value,
           options.prepExpanded(),
+          options.prepEndFrame?.(),
         ) -
         anchorOffset,
     );

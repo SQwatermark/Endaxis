@@ -49,6 +49,8 @@ const props = defineProps<{
   pxPerFrame: number;
   trackHeaderWidth: number;
   scrollLeft: number;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
   labels: {
     burst: string;
@@ -112,7 +114,13 @@ function effectName(nameKey: string | undefined, fallback: string): string {
 function pointX(frame: number): number {
   return (
     props.trackHeaderWidth +
-    frameToTimelinePx(frame, props.prepFrames, props.pxPerFrame, props.prepExpanded) -
+    frameToTimelinePx(
+      frame,
+      props.prepFrames,
+      props.pxPerFrame,
+      props.prepExpanded,
+      props.prepEndFrame,
+    ) -
     props.scrollLeft
   );
 }
@@ -357,6 +365,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       :width="width"
       :duration-frames="durationFrames"
       :prep-frames="prepFrames"
+      :prep-end-frame="prepEndFrame"
       :prep-expanded="prepExpanded"
       :px-per-frame="pxPerFrame"
       :track-header-width="trackHeaderWidth"
@@ -392,115 +401,129 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
         </strong>
       </span>
     </EnemyCombatHudSnapshot>
-    <EaButton
-      variant="ghost"
-      size="sm"
-      icon-only
-      v-for="hit in damageHits"
-      :key="`damage:${hit.sequence}`"
-      class="enemy-damage-hit"
-      :class="{ 'is-critical': hit.critical }"
-      :style="{ left: `${hit.x}px`, top: `${hit.top}px` }"
-      :title="hit.title"
-      :aria-label="`${hit.title}`"
-      @mousedown.stop="emit('open-damage-detail', hit.sequence)"
-      @keydown.enter.stop.prevent="emit('open-damage-detail', hit.sequence)"
-      @keydown.space.stop.prevent="emit('open-damage-detail', hit.sequence)"
-    >
-      <img
-        v-if="hit.standaloneIcon"
-        :src="hit.standaloneIcon"
-        class="standalone-damage-icon"
-        alt=""
-      />
-      <span class="enemy-damage-diamond"></span>
-    </EaButton>
-    <span
-      v-for="marker in markers"
-      :key="marker.key"
-      class="anomaly-icon-box effect-marker"
-      :style="{ left: `${marker.x}px`, top: `${marker.top}px` }"
-      :title="marker.title"
-    >
-      <img :src="marker.icon" class="anomaly-icon" alt="" />
-      <span v-if="marker.badge !== undefined" class="anomaly-stacks">{{ marker.badge }}</span>
-    </span>
     <div
-      v-for="buff in buffs"
-      :key="buff.key"
-      class="attachment-item"
-      :style="{ left: `${buff.left}px`, top: `${buff.top}px` }"
-      :title="buff.title"
+      class="enemy-timed-effects"
+      :style="{
+        clipPath: prepExpanded
+          ? undefined
+          : `inset(0 0 0 ${Math.max(trackHeaderWidth, pointX(prepEndFrame ?? 0))}px)`,
+      }"
     >
-      <span
-        class="anomaly-icon-box is-clickable"
-        :style="{ transform: `translateX(${buff.iconOffset}px)` }"
-        role="button"
-        tabindex="0"
-        @click.stop="emit('open-buff-detail', buff.detail)"
-        @keydown.enter.stop.prevent="emit('open-buff-detail', buff.detail)"
-        @keydown.space.stop.prevent="emit('open-buff-detail', buff.detail)"
+      <EaButton
+        variant="ghost"
+        size="sm"
+        icon-only
+        v-for="hit in damageHits"
+        :key="`damage:${hit.sequence}`"
+        class="enemy-damage-hit"
+        :class="{ 'is-critical': hit.critical }"
+        :style="{ left: `${hit.x}px`, top: `${hit.top}px` }"
+        :title="hit.title"
+        :aria-label="`${hit.title}`"
+        @mousedown.stop="emit('open-damage-detail', hit.sequence)"
+        @keydown.enter.stop.prevent="emit('open-damage-detail', hit.sequence)"
+        @keydown.space.stop.prevent="emit('open-damage-detail', hit.sequence)"
       >
-        <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
-        <span v-else class="buff-fallback">+</span>
-        <span class="anomaly-stacks">{{ buff.layers }}</span>
-      </span>
-      <svg
-        v-if="buff.continuedAttachment && buff.barWidthPx > 0"
-        class="attachment-continuation"
-        :width="buff.barWidthPx + 2"
-        height="20"
-        :style="{ color: buff.color ?? 'var(--ea-fg-muted)' }"
-        aria-hidden="true"
-      >
-        <defs>
-          <linearGradient
-            :id="buff.gradientId"
-            gradientUnits="userSpaceOnUse"
-            x1="0"
-            y1="10"
-            :x2="buff.barWidthPx + 2"
-            y2="10"
-          >
-            <stop offset="0%" stop-color="currentColor" stop-opacity="0.8" />
-            <stop
-              offset="100%"
-              :stop-color="buff.endColor ?? buff.color ?? 'currentColor'"
-              stop-opacity="1"
-            />
-          </linearGradient>
-        </defs>
-        <path :d="`M 0 10 H ${buff.barWidthPx + 2}`" class="attachment-continuation-shadow" />
-        <path
-          :d="`M 0 10 H ${buff.barWidthPx + 2}`"
-          class="attachment-continuation-line"
-          :style="{ stroke: `url(#${buff.gradientId})` }"
+        <img
+          v-if="hit.standaloneIcon"
+          :src="hit.standaloneIcon"
+          class="standalone-damage-icon"
+          alt=""
         />
-        <circle
-          r="2"
-          class="attachment-continuation-dot"
+        <span class="enemy-damage-diamond"></span>
+      </EaButton>
+      <span
+        v-for="marker in markers"
+        :key="marker.key"
+        class="anomaly-icon-box effect-marker"
+        :style="{ left: `${marker.x}px`, top: `${marker.top}px` }"
+        :title="marker.title"
+      >
+        <img :src="marker.icon" class="anomaly-icon" alt="" />
+        <span v-if="marker.badge !== undefined" class="anomaly-stacks">{{ marker.badge }}</span>
+      </span>
+      <div
+        v-for="buff in buffs"
+        :key="buff.key"
+        class="attachment-item"
+        :style="{ left: `${buff.left}px`, top: `${buff.top}px` }"
+        :title="buff.title"
+      >
+        <span
+          class="anomaly-icon-box is-clickable"
+          :style="{ transform: `translateX(${buff.iconOffset}px)` }"
+          role="button"
+          tabindex="0"
+          @click.stop="emit('open-buff-detail', buff.detail)"
+          @keydown.enter.stop.prevent="emit('open-buff-detail', buff.detail)"
+          @keydown.space.stop.prevent="emit('open-buff-detail', buff.detail)"
+        >
+          <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
+          <span v-else class="buff-fallback">+</span>
+          <span class="anomaly-stacks">{{ buff.layers }}</span>
+        </span>
+        <svg
+          v-if="buff.continuedAttachment && buff.barWidthPx > 0"
+          class="attachment-continuation"
+          :width="buff.barWidthPx + 2"
+          height="20"
+          :style="{ color: buff.color ?? 'var(--ea-fg-muted)' }"
+          aria-hidden="true"
+        >
+          <defs>
+            <linearGradient
+              :id="buff.gradientId"
+              gradientUnits="userSpaceOnUse"
+              x1="0"
+              y1="10"
+              :x2="buff.barWidthPx + 2"
+              y2="10"
+            >
+              <stop offset="0%" stop-color="currentColor" stop-opacity="0.8" />
+              <stop
+                offset="100%"
+                :stop-color="buff.endColor ?? buff.color ?? 'currentColor'"
+                stop-opacity="1"
+              />
+            </linearGradient>
+          </defs>
+          <path :d="`M 0 10 H ${buff.barWidthPx + 2}`" class="attachment-continuation-shadow" />
+          <path
+            :d="`M 0 10 H ${buff.barWidthPx + 2}`"
+            class="attachment-continuation-line"
+            :style="{ stroke: `url(#${buff.gradientId})` }"
+          />
+          <circle
+            r="2"
+            class="attachment-continuation-dot"
+            :style="{
+              offsetPath: `path('M 0 10 H ${buff.barWidthPx + 2}')`,
+              '--start-color': buff.color,
+              '--end-color': buff.endColor,
+            }"
+          />
+        </svg>
+        <span
+          v-else-if="buff.barWidthPx > 0"
+          class="anomaly-duration-bar generic-buff-bar"
           :style="{
-            offsetPath: `path('M 0 10 H ${buff.barWidthPx + 2}')`,
-            '--start-color': buff.color,
-            '--end-color': buff.endColor,
+            width: `${buff.barWidthPx}px`,
+            ...(buff.color === undefined ? {} : { backgroundColor: buff.color }),
           }"
-        />
-      </svg>
-      <span
-        v-else-if="buff.barWidthPx > 0"
-        class="anomaly-duration-bar generic-buff-bar"
-        :style="{
-          width: `${buff.barWidthPx}px`,
-          ...(buff.color === undefined ? {} : { backgroundColor: buff.color }),
-        }"
-      >
-        <span class="striped-bg"></span>
-      </span>
+        >
+          <span class="striped-bg"></span>
+        </span>
+      </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+.enemy-timed-effects {
+  position: absolute;
+  inset: 0;
+}
+
 .enemy-damage-hit {
   position: absolute;
   z-index: 15;

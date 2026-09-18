@@ -107,8 +107,9 @@ function compileOperatorResource(
 /**
  * 编译一次不继承运行时边界的场景资源快照。
  *
- * `returnedSp` 与恢复暂停剩余时间是新账本的运行时状态，因此从零开始。带 `inheritance` 的场景
- * 必须由来源边界恢复这两项及其他资源状态，本函数会拒绝该输入而不是静默重置。
+ * `returnedSp` 与恢复暂停剩余时间是新账本的运行时状态，因此从零开始。
+ * 继承方案将通过自带历史重放建立切面；正式重放入口尚未接通时保留显式拒绝，
+ * 避免把继承帧错误地当作普通初始化帧。不能查询来源方案恢复资源。
  */
 export function compileScenarioResources(
   scenario: ScenarioDocument,

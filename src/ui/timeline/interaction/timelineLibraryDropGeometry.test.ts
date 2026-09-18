@@ -25,9 +25,9 @@ describe('timeline library drop geometry', () => {
     expect(dropFrame({ clientX: 90 })).toBe(-20);
   });
 
-  it('inverts the compressed preparatory projection when collapsed', () => {
+  it('inverts the cropped preparatory projection when collapsed', () => {
     expect(dropFrame({ clientX: 188, prepExpanded: false })).toBe(30);
-    expect(dropFrame({ clientX: 119, prepExpanded: false })).toBe(-10);
+    expect(dropFrame({ clientX: 119, prepExpanded: false })).toBe(-4);
   });
 
   it('is invariant across zoom levels for the same visible frame', () => {

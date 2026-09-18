@@ -15,6 +15,11 @@ export interface CombatSkillInputPhase extends CombatInputExecution {
     skillProgram?: CombatSkillCastProgram,
   ): boolean;
   canContinue(previous: ScheduledSkillInput): boolean;
+  canPlanContinuation(
+    input: ScheduledSkillInput,
+    previous: ScheduledSkillInput,
+    mode: 'continuation' | 'compact',
+  ): boolean;
 }
 
 /** 一次提交的玩家输入；用于下一帧或尚未提交的起始帧，不能写入已经完成的帧。 */

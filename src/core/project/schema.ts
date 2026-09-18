@@ -341,12 +341,12 @@ export interface BattleDocument {
 }
 
 /**
- * 场景从来源边界派生初始运行时状态。
- * 由此生成的资源与效果刻意不做持久化。
+ * 场景自带完整历史输入；来源仅用于导航，不参与恢复或有效性检查。
  */
 export interface ScenarioInheritanceDocument {
   sourceScenarioId: string;
-  boundaryId: string;
+  /** 最早可编辑的输入帧，历史为严格小于此帧的输入。 */
+  frame: number;
 }
 
 export const GLOBAL_OPERATOR_STAT_MODIFIERS = [

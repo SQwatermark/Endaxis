@@ -24,6 +24,9 @@ import { isInsideTimelineDropRegion } from './interaction/timelineDropRegion';
 import { normalizeDurationBarColorPrefs } from './results/durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
+import { ScenarioEditConstraintError } from '../../application/editor/scenarioEditConstraints';
+import { createInheritedScenario } from '../../application/editor/scenarioInheritance';
+import { getSkillCastPlacementAnchor } from '../../core/project/skillCastPlacement';
 import { EaButton, EaNumberInput, EaSelect, type EaSelectValue } from '@/design-system';
 import { useAppearance } from '../appearance/useAppearance';
 import { formatTimeWithFrames } from './timeFormatting';
@@ -203,7 +206,6 @@ import {
   type TimelineSkillLibraryEntryViewModel,
 } from './timelineEditorViewModel';
 import {
-  COLLAPSED_PREP_WIDTH_PX,
   frameToTimelinePx,
   resolveTimelineCursorGuidePosition,
   timelinePxToFrame,
@@ -299,13 +301,13 @@ import {
 } from './timelineSkillLabels';
 import {
   MAX_PROJECT_SCENARIOS,
+  allocateScenarioId,
   resetProjectScenarios,
   type TimelineResetMode,
   addProjectScenario,
   deleteActiveScenario,
   duplicateActiveScenario,
   renameActiveScenario,
-  scenariosDependingOn,
   switchProjectScenario,
 } from './scenarioProjectCommands';
 import { useTimelineMarqueeGesture } from './interaction/useTimelineMarqueeGesture';
@@ -453,6 +455,7 @@ const {
 } = useTimelineZoom({
   viewport: () => timelineScroll.value,
   prepFrames: () => scenario.value.battle.prepFrames,
+  prepEndFrame: () => scenario.value.inheritance?.frame ?? 0,
   prepExpanded: () => scenario.value.editor.prepExpanded,
   trackHeaderWidth: TIMELINE_TRACK_HEADER_WIDTH,
 });
@@ -768,6 +771,7 @@ const activeProjectScenarioId = computed(() => {
   projectRevision.value;
   return projectSession.snapshot.project.activeScenarioId;
 });
+const configurationReadOnly = computed(() => scenario.value.inheritance !== undefined);
 const damageAnalysis = computed(() =>
   projectPublishedTimelineDamageAnalysis(
     publishedSimulation.value,
@@ -832,7 +836,13 @@ function commitScenario(
   commandName: string,
   command: (current: ScenarioDocument) => ScenarioDocument,
 ): boolean {
-  return scenarioSession.commit(commandName, command);
+  try {
+    return scenarioSession.commit(commandName, command);
+  } catch (error) {
+    if (!(error instanceof ScenarioEditConstraintError)) throw error;
+    ElMessage.warning(t('timelineGrid.action.locked'));
+    return false;
+  }
 }
 
 async function requestOpenProject(): Promise<void> {
@@ -1090,9 +1100,7 @@ async function exportTimelineLongImage(options: {
     await nextTick();
     const timelineMain = document.querySelector<HTMLElement>('.timeline-main');
     if (timelineMain === null) throw new Error('timeline workspace missing');
-    const prepWidth = scenario.value.editor.prepExpanded
-      ? scenario.value.battle.prepFrames * pxPerFrame.value
-      : COLLAPSED_PREP_WIDTH_PX;
+    const prepWidth = timelineFramePx(scenario.value.inheritance?.frame ?? 0);
     const filename = imageFilename(options.filename);
     const blob = await captureTimelineLongImage(timelineMain, {
       durationSeconds: options.duration,
@@ -1775,6 +1783,11 @@ function resolveDisplayedSkillStarts(document: ScenarioDocument): ReadonlyMap<st
 const resolvedSkillCastStartFrames = computed(() => resolveDisplayedSkillStarts(scenario.value));
 const { castMoveGesture, beginCastMove, cancelCastMove, discardCastMove, consumeCastClick } =
   useTimelineCastMove({
+    prepEndFrame: computed(() => scenario.value.inheritance?.frame ?? 0),
+    isInputReadOnly: isHistoricalSkillInput,
+    minimumInputFrame: computed(
+      () => scenario.value.inheritance?.frame ?? -scenario.value.battle.prepFrames,
+    ),
     scenario,
     actionSelection,
     interactionSession,
@@ -1922,10 +1935,17 @@ const timelineWidth = computed(() =>
     scenario.value.battle.durationFrames,
     pxPerFrame.value,
     scenario.value.editor.prepExpanded,
+    scenario.value.inheritance?.frame ?? 0,
   ),
 );
 function timelineFramePx(frame: number, prepFrames = scenario.value.battle.prepFrames): number {
-  return frameToTimelinePx(frame, prepFrames, pxPerFrame.value, scenario.value.editor.prepExpanded);
+  return frameToTimelinePx(
+    frame,
+    prepFrames,
+    pxPerFrame.value,
+    scenario.value.editor.prepExpanded,
+    scenario.value.inheritance?.frame ?? 0,
+  );
 }
 function timelineFrameSpanPx(startFrame: number, durationFrames: number): number {
   return Math.max(0, timelineFramePx(startFrame + durationFrames) - timelineFramePx(startFrame));
@@ -1947,8 +1967,9 @@ function updateTimelineViewportMetrics(): void {
   timelineViewportHeight.value = viewport.clientHeight;
   timelineVerticalScrollbarWidth.value = Math.max(0, viewport.offsetWidth - viewport.clientWidth);
   const scrollbar = timelineHorizontalScrollbar.value;
-  if (scrollbar !== null && Math.abs(scrollbar.scrollLeft - viewport.scrollLeft) > 0.5) {
-    scrollbar.scrollLeft = viewport.scrollLeft;
+  const scrollbarLeft = viewport.scrollLeft;
+  if (scrollbar !== null && Math.abs(scrollbar.scrollLeft - scrollbarLeft) > 0.5) {
+    scrollbar.scrollLeft = scrollbarLeft;
   }
 }
 
@@ -1956,8 +1977,9 @@ function updateTimelineHorizontalScroll(event: Event): void {
   const viewport = timelineScroll.value;
   const scrollbar = event.currentTarget as HTMLElement | null;
   if (viewport === null || scrollbar === null) return;
-  if (Math.abs(viewport.scrollLeft - scrollbar.scrollLeft) > 0.5) {
-    viewport.scrollLeft = scrollbar.scrollLeft;
+  const scrollLeft = scrollbar.scrollLeft;
+  if (Math.abs(viewport.scrollLeft - scrollLeft) > 0.5) {
+    viewport.scrollLeft = scrollLeft;
   }
 }
 
@@ -2069,6 +2091,7 @@ function alignSelectedCastToTarget(event: PointerEvent, targetCastId: string): b
   event.stopPropagation();
   const block = event.currentTarget as HTMLElement;
   const mode = alignmentMode(event, block);
+  if (isHistoricalSkillInput(sourceCastId)) return true;
   let source:
     | { trackIndex: TrackIndex; startFrame: number; durationFrames: number; locked: boolean }
     | undefined;
@@ -2171,6 +2194,7 @@ function timelinePointerActualFrame(pointerPx: number): number {
     scenario.value.battle.prepFrames,
     pxPerFrame.value,
     scenario.value.editor.prepExpanded,
+    scenario.value.inheritance?.frame ?? 0,
   );
 }
 function formatGuideNumber(value: number | null): string {
@@ -3622,6 +3646,10 @@ function beginConsumableUseMove(
   if (surface === null) return;
   event.preventDefault();
   event.stopPropagation();
+  selectedTrack.value = trackIndex;
+  clearTimelineSelection();
+  selectedConsumableUseId.value = useId;
+  if (isHistoricalInputFrame(frame)) return;
   const lease = interactionSession.tryStart('consumable-use-move', () => {
     consumableMoveGesture.value = null;
   });
@@ -3631,9 +3659,6 @@ function beginConsumableUseMove(
     surface.getBoundingClientRect().left -
     TIMELINE_TRACK_HEADER_WIDTH -
     timelineFramePx(frame);
-  selectedTrack.value = trackIndex;
-  selectedConsumableUseId.value = useId;
-  clearTimelineSelection();
   consumableMoveGesture.value = {
     pointerId: event.pointerId,
     trackIndex,
@@ -3704,6 +3729,7 @@ function pointerMarkerFrame(clientX: number, grabOffsetPx = 0, minimumFrame = 0)
     trackHeaderWidthPx: TIMELINE_TRACK_HEADER_WIDTH,
     pxPerFrame: pxPerFrame.value,
     prepFrames: scenario.value.battle.prepFrames,
+    prepEndFrame: scenario.value.inheritance?.frame ?? 0,
     snapFrames: snapFrames.value,
     maximumFrame: scenario.value.battle.durationFrames,
     minimumFrame,
@@ -3775,6 +3801,51 @@ function openExistingMarkerContextMenu(
     trackIndex,
     existing: { kind, id, label },
   };
+}
+
+const creatingInheritedScenario = ref(false);
+async function inheritFromContext(): Promise<void> {
+  const target = markerContextTarget.value;
+  if (target === null || creatingInheritedScenario.value) return;
+  const project = projectSession.snapshot.project;
+  if (project.scenarios.length >= MAX_PROJECT_SCENARIOS) return;
+  const source = scenario.value;
+  const revision = projectRevision.value;
+  const frame = target.frame;
+  markerContextTarget.value = null;
+  creatingInheritedScenario.value = true;
+  const loading = ElLoading.service({ text: t('inheritance.createHere'), lock: true });
+  try {
+    const result = await simulationService.simulate(source, source.battle.durationFrames);
+    if (projectRevision.value !== revision) {
+      ElMessage.warning(t('inheritance.changed'));
+      return;
+    }
+    const frames = new Map<string, number>();
+    for (const entry of result.receiptEntries) {
+      if (entry.event === 'SkillInputProcessed' && typeof entry.data?.castId === 'string')
+        frames.set(entry.data.castId, entry.frame);
+    }
+    const inherited = createInheritedScenario(source, {
+      id: allocateScenarioId(project),
+      name: t('inheritance.name', { name: source.name }),
+      frame,
+      resolveSkillFrame: (document, id) => (document === source ? frames.get(id) : undefined),
+    });
+    projectSession.commit('inheritScenario', current => ({
+      ...current,
+      activeScenarioId: inherited.id,
+      scenarios: [...current.scenarios, inherited],
+    }));
+    ElMessage.success(t('inheritance.created'));
+  } catch (error) {
+    ElMessage.error(
+      `${t('inheritance.failed')}: ${error instanceof Error ? error.message : String(error)}`,
+    );
+  } finally {
+    creatingInheritedScenario.value = false;
+    loading.close();
+  }
 }
 
 function addMarkerFromContext(
@@ -3918,9 +3989,15 @@ function setTimelinePrepFrames(frames: number): void {
 
 function setPrepExpanded(expanded: boolean): void {
   commitScenario('setTimelinePrepExpanded', current => setTimelinePrepExpanded(current, expanded));
+  if (scenario.value.inheritance) void nextTick(locateInheritanceBoundary);
 }
 
 function beginTimelinePrepResize(event: PointerEvent): void {
+  if (scenario.value.inheritance) {
+    beginInheritedHistoryResize(event);
+    return;
+  }
+  if (configurationReadOnly.value) return;
   if (!scenario.value.editor.prepExpanded) return;
   if (event.button !== 0) return;
   const surface = timelineSurface.value;
@@ -3971,6 +4048,44 @@ function beginTimelinePrepResize(event: PointerEvent): void {
 
 onScopeDispose(() => stopTimelinePrepResize?.());
 
+/** 拖动继承分界只调整可见历史宽度，继承帧与已冻结输入保持不变。 */
+function beginInheritedHistoryResize(event: PointerEvent): void {
+  const viewport = timelineScroll.value;
+  if (viewport === null || event.button !== 0 || !scenario.value.editor.prepExpanded) return;
+  event.preventDefault();
+  event.stopPropagation();
+  const lease = interactionSession.tryStart('timeline-prep-resize', () =>
+    stopTimelinePrepResize?.(),
+  );
+  if (lease === null) return;
+  const originX = event.clientX;
+  const originScroll = viewport.scrollLeft;
+  const move = (next: PointerEvent) => {
+    if (next.pointerId !== event.pointerId) return;
+    viewport.scrollLeft = Math.max(0, originScroll + originX - next.clientX);
+    updateTimelineViewportMetrics();
+  };
+  const cleanup = () => {
+    lease.release();
+    window.removeEventListener('pointermove', move);
+    window.removeEventListener('pointerup', finish);
+    window.removeEventListener('pointercancel', cancel);
+    stopTimelinePrepResize = null;
+  };
+  const finish = (next: PointerEvent) => {
+    if (next.pointerId === event.pointerId) cleanup();
+  };
+  const cancel = () => {
+    viewport.scrollLeft = originScroll;
+    updateTimelineViewportMetrics();
+    cleanup();
+  };
+  stopTimelinePrepResize = cancel;
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', finish);
+  window.addEventListener('pointercancel', cancel);
+}
+
 function setTimelineDurationFrames(frames: number): void {
   const boundedFrames = Math.max(PROJECT_FPS * 30, Math.min(PROJECT_FPS * 600, frames));
   commitScenario('setBattleDurationFrames', current =>
@@ -3996,6 +4111,21 @@ function displayedMarkerFrame(kind: TimelineMarkerKind, id: string, frame: numbe
   return gesture?.kind === kind && gesture.id === id ? gesture.previewFrame : frame;
 }
 
+function isHistoricalInputFrame(frame: number): boolean {
+  const boundary = scenario.value.inheritance?.frame;
+  return boundary !== undefined && frame < boundary;
+}
+
+function isHistoricalSkillInput(id: string): boolean {
+  for (const track of scenario.value.tracks) {
+    if (track?.skillCasts.some(cast => cast.id === id))
+      return isHistoricalInputFrame(
+        getSkillCastPlacementAnchor(track.skillCasts, id).placement.startFrame!,
+      );
+  }
+  return false;
+}
+
 function beginMarkerMove(
   event: PointerEvent,
   kind: TimelineMarkerKind,
@@ -4009,6 +4139,14 @@ function beginMarkerMove(
   event.stopPropagation();
   stopMarkerMove?.();
   if (trackIndex !== selectedTrack.value) selectedTrack.value = trackIndex;
+  if (
+    (kind === 'simulationStart' && configurationReadOnly.value) ||
+    ((kind === 'controlSwitch' || kind === 'externalEvent') && isHistoricalInputFrame(frame))
+  ) {
+    clearTimelineSelection();
+    selectedMarker.value = { kind, id };
+    return;
+  }
   const surface = timelineSurface.value;
   if (surface === null) return;
   const lease = interactionSession.tryStart('marker-move', () => stopMarkerMove?.())!;
@@ -4162,6 +4300,7 @@ function updateCursorGuide(event: MouseEvent): void {
     scenario.value.battle.durationFrames,
     pxPerFrame.value,
     scenario.value.editor.prepExpanded,
+    scenario.value.inheritance?.frame ?? 0,
   );
   cursorGuide.value = {
     ...guide,
@@ -4539,6 +4678,7 @@ function dropTimelinePayload(
     dragOffsetPx: payload.dragOffsetX,
     pxPerFrame: pxPerFrame.value,
     prepFrames: scenario.value.battle.prepFrames,
+    prepEndFrame: scenario.value.inheritance?.frame ?? 0,
     prepExpanded: scenario.value.editor.prepExpanded,
     snapFrames: snapFrames.value,
     maximumFrame: scenario.value.battle.durationFrames,
@@ -4604,6 +4744,44 @@ function selectScenario(scenarioId: string): void {
   projectSession.commit('switchScenario', project => switchProjectScenario(project, scenarioId));
 }
 
+function locateInheritanceBoundary(): void {
+  const boundary = scenario.value.inheritance?.frame;
+  const viewport = timelineScroll.value;
+  if (boundary === undefined || viewport === null) return;
+  // 继承边界替代准备区分界，位于轨道头右侧；历史仍保留，向左滚动即可查看。
+  viewport.scrollLeft = scenario.value.editor.prepExpanded
+    ? Math.max(0, timelineFramePx(boundary - 10 * PROJECT_FPS))
+    : 0;
+  updateTimelineViewportMetrics();
+}
+
+function openInheritanceInfo(event: MouseEvent): void {
+  if (!scenario.value.inheritance) return;
+  openExistingMarkerContextMenu(
+    event,
+    'simulationStart',
+    'simulationStart',
+    scenario.value.inheritance.frame,
+    selectedTrack.value,
+    `${t('inheritance.boundary')} · ${formatGuideFrame(scenario.value.inheritance.frame)}`,
+  );
+}
+
+function openInheritedSource(): void {
+  const source = scenario.value.inheritance?.sourceScenarioId;
+  markerContextTarget.value = null;
+  if (source !== undefined && projectScenarios.value.some(item => item.id === source))
+    selectScenario(source);
+}
+
+watch(
+  [() => scenario.value.id, () => scenario.value.inheritance?.frame, timelineScroll],
+  () => {
+    void nextTick(locateInheritanceBoundary);
+  },
+  { immediate: true, flush: 'post' },
+);
+
 function addScenario(): void {
   const project = projectSession.snapshot.project;
   if (project.scenarios.length >= MAX_PROJECT_SCENARIOS) {
@@ -4632,14 +4810,6 @@ function duplicateScenario(): void {
 }
 
 async function removeScenario(): Promise<void> {
-  const project = projectSession.snapshot.project;
-  const dependents = scenariosDependingOn(project, project.activeScenarioId);
-  if (dependents.length > 0) {
-    ElMessage.warning(
-      `该方案被 ${dependents.map(value => value.name).join('、')} 继承，不能删除。`,
-    );
-    return;
-  }
   try {
     await serviceModalBoundary.run(() =>
       ElMessageBox.confirm(
@@ -4981,6 +5151,7 @@ function setTrackInitialUltimateEnergy(trackIndex: TrackIndex, value: number): v
 }
 
 function cycleInitialUltimateEnergyPreset(): void {
+  if (configurationReadOnly.value) return;
   const modes = ['empty', 'full', 'custom'] as const;
   const currentIndex = modes.indexOf(initialUltimateEnergyPresetMode.value);
   const mode = modes[(currentIndex + 1) % modes.length]!;
@@ -4990,6 +5161,7 @@ function cycleInitialUltimateEnergyPreset(): void {
 }
 
 function setUnifiedTrackInitialUltimateEnergy(value: number): void {
+  if (configurationReadOnly.value) return;
   commitScenario('setUnifiedInitialUltimateEnergy', current =>
     setUnifiedInitialUltimateEnergy(current, value, maximumUltimateEnergyByTrack.value),
   );
@@ -5236,7 +5408,7 @@ function setPanelDialogVisible(visible: boolean): void {
             <EaButton
               variant="ghost"
               type="button"
-              :disabled="selectedLoadoutModel.operator === null"
+              :disabled="configurationReadOnly || selectedLoadoutModel.operator === null"
               @click="showOperatorBuildDialog = true"
             >
               {{ t('timeline.operatorTab') }}
@@ -5244,7 +5416,7 @@ function setPanelDialogVisible(visible: boolean): void {
             <EaButton
               variant="ghost"
               type="button"
-              :disabled="selectedLoadoutModel.weapon === null"
+              :disabled="configurationReadOnly || selectedLoadoutModel.weapon === null"
               @click="showWeaponBuildDialog = true"
             >
               {{ t('timeline.weaponTab') }}
@@ -5252,7 +5424,9 @@ function setPanelDialogVisible(visible: boolean): void {
             <EaButton
               variant="ghost"
               type="button"
-              :disabled="!Object.values(selectedLoadoutModel.gears).some(Boolean)"
+              :disabled="
+                configurationReadOnly || !Object.values(selectedLoadoutModel.gears).some(Boolean)
+              "
               @click="showGearBuildDialog = true"
             >
               {{ t('timeline.gearTab') }}
@@ -5288,6 +5462,7 @@ function setPanelDialogVisible(visible: boolean): void {
 
     <template #left-bottom="{ tool }">
       <EnemySettingsPanel
+        :read-only="configurationReadOnly"
         v-if="tool === 'enemy'"
         :enemy="scenario.enemy"
         :definition="selectedEnemyDefinition"
@@ -5338,6 +5513,7 @@ function setPanelDialogVisible(visible: boolean): void {
         @save="saveEnemyValues"
       />
       <GlobalResourcePanel
+        :read-only="configurationReadOnly"
         v-else-if="tool === 'global'"
         mode="modifiers"
         :rules="scenario.battle.resourceRules"
@@ -5364,6 +5540,7 @@ function setPanelDialogVisible(visible: boolean): void {
 
     <template #header>
       <TimelineHeaderToolbar
+        :configuration-read-only="configurationReadOnly"
         :scenario-name="scenario.name"
         :scenarios="projectScenarios"
         :active-scenario-id="activeProjectScenarioId"
@@ -5456,7 +5633,10 @@ function setPanelDialogVisible(visible: boolean): void {
         <div
           ref="timelineSurface"
           class="timeline-surface"
-          :class="{ 'is-library-placing': libraryPlacement !== null }"
+          :class="{
+            'is-library-placing': libraryPlacement !== null,
+            'is-history-collapsed': !scenario.editor.prepExpanded,
+          }"
           :style="timelineSurfaceStyle"
           @mousemove="updateCursorGuide"
           @mouseleave="hideCursorGuide"
@@ -5464,6 +5644,7 @@ function setPanelDialogVisible(visible: boolean): void {
         >
           <div class="corner-placeholder">
             <TimelineCornerToolbar
+              :configuration-read-only="configurationReadOnly"
               :snap-label="snapFrames === PRECISE_TIMELINE_SNAP_FRAMES ? '1f' : '0.1s'"
               :zoom-percent="timelineZoomPercent"
               :cursor-guide-enabled="showCursorGuide"
@@ -5499,10 +5680,12 @@ function setPanelDialogVisible(visible: boolean): void {
             />
           </div>
           <TimelineRuler
+            :prep-read-only="configurationReadOnly"
             class="timeline-ruler"
             :style="{ width: `${timelineWidth}px` }"
             :prep-frames="displayedTimelinePrepFrames"
             :prep-expanded="scenario.editor.prepExpanded"
+            :prep-end-frame="scenario.inheritance?.frame ?? 0"
             :duration-frames="scenario.battle.durationFrames"
             :cursor-frame="cursorFrame"
             :px-per-frame="pxPerFrame"
@@ -5511,6 +5694,8 @@ function setPanelDialogVisible(visible: boolean): void {
             :visible-left-px="Math.max(0, timelineScrollLeft - TIMELINE_TRACK_HEADER_WIDTH)"
             :visible-width-px="timelineViewportWidth"
             @seek="cursorFrame = $event"
+            @prep-info="openInheritanceInfo"
+            @resize-history="beginInheritedHistoryResize"
             @set-prep-frames="setTimelinePrepFrames"
             @set-duration-frames="setTimelineDurationFrames"
           />
@@ -5518,17 +5703,29 @@ function setPanelDialogVisible(visible: boolean): void {
             class="timeline-battle-start-boundary"
             :class="{ 'is-prep-collapsed': !scenario.editor.prepExpanded }"
             :style="{
-              left: `${TIMELINE_TRACK_HEADER_WIDTH + timelineFramePx(0, displayedTimelinePrepFrames)}px`,
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + timelineFramePx(scenario.inheritance?.frame ?? 0, displayedTimelinePrepFrames)}px`,
             }"
-            :title="t('timelineGrid.prep.setDurationTitle')"
+            :title="
+              t(
+                configurationReadOnly
+                  ? 'inheritance.boundary'
+                  : 'timelineGrid.prep.setDurationTitle',
+              )
+            "
             @pointerdown="beginTimelinePrepResize"
+            @contextmenu="openInheritanceInfo"
           ></div>
           <div
-            v-if="scenario.battle.prepFrames > 0 && !scenario.editor.prepExpanded"
+            v-if="
+              scenario.battle.prepFrames + (scenario.inheritance?.frame ?? 0) > 0 &&
+              !scenario.editor.prepExpanded
+            "
             class="prep-collapsed-entry"
             :style="{ left: `${TIMELINE_TRACK_HEADER_WIDTH}px` }"
           >
-            <span>{{ t('timelineGrid.prep.title') }}</span>
+            <span>{{
+              t(configurationReadOnly ? 'inheritance.boundary' : 'timelineGrid.prep.title')
+            }}</span>
             <EaButton
               variant="ghost"
               size="sm"
@@ -5542,10 +5739,10 @@ function setPanelDialogVisible(visible: boolean): void {
             <span>{{ t('timelineGrid.prep.expand') }}</span>
           </div>
           <div
-            v-else-if="scenario.battle.prepFrames > 0"
+            v-else-if="scenario.battle.prepFrames + (scenario.inheritance?.frame ?? 0) > 0"
             class="prep-expanded-collapse"
             :style="{
-              left: `${TIMELINE_TRACK_HEADER_WIDTH + Math.max(0, timelineFramePx(0) - 18)}px`,
+              left: `${TIMELINE_TRACK_HEADER_WIDTH + Math.max(0, timelineFramePx(scenario.inheritance?.frame ?? 0) - 18)}px`,
             }"
           >
             <EaButton
@@ -5553,7 +5750,13 @@ function setPanelDialogVisible(visible: boolean): void {
               size="sm"
               icon-only
               type="button"
-              :title="t('timelineGrid.prep.collapseTitle')"
+              :title="
+                t(
+                  configurationReadOnly
+                    ? 'inheritance.collapseHistory'
+                    : 'timelineGrid.prep.collapseTitle',
+                )
+              "
               @click.stop="setPrepExpanded(false)"
             >
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -5567,6 +5770,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :tracks="viewModel.tracks"
             :px-per-frame="pxPerFrame"
             :prep-expanded="scenario.editor.prepExpanded"
+            :prep-end-frame="scenario.inheritance?.frame ?? 0"
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
             :cast-actual-start-frames="skillCastActualStartFrames"
             :cast-actual-duration-frames="skillCastActualDurationFrames"
@@ -5618,11 +5822,14 @@ function setPanelDialogVisible(visible: boolean): void {
             :source-cast-ids="highlightedTimeDilationSourceIds"
             :prep-frames="scenario.battle.prepFrames"
             :prep-expanded="scenario.editor.prepExpanded"
+            :prep-end-frame="scenario.inheritance?.frame ?? 0"
             :px-per-frame="pxPerFrame"
             :horizontal-offset="TIMELINE_TRACK_HEADER_WIDTH"
           />
           <div
-            v-if="scenario.battle.simulationRange?.startFrame !== undefined"
+            v-if="
+              !scenario.inheritance && scenario.battle.simulationRange?.startFrame !== undefined
+            "
             class="simulation-range-dim simulation-range-dim--start"
             :style="{
               left: `${TIMELINE_TRACK_HEADER_WIDTH}px`,
@@ -5637,7 +5844,9 @@ function setPanelDialogVisible(visible: boolean): void {
             }"
           ></div>
           <div
-            v-if="scenario.battle.simulationRange?.startFrame !== undefined"
+            v-if="
+              !scenario.inheritance && scenario.battle.simulationRange?.startFrame !== undefined
+            "
             class="timeline-marker simulation-range-marker simulation-range-marker--start"
             :class="{ selected: selectedMarker?.kind === 'simulationStart' }"
             :style="{
@@ -5658,7 +5867,11 @@ function setPanelDialogVisible(visible: boolean): void {
                 'simulationStart',
                 scenario.battle.simulationRange.startFrame,
                 selectedTrack,
-                t('timeline.markerLabels.simulationStart'),
+                t(
+                  configurationReadOnly
+                    ? 'inheritance.boundary'
+                    : 'timeline.markerLabels.simulationStart',
+                ),
               )
             "
           >
@@ -5671,7 +5884,13 @@ function setPanelDialogVisible(visible: boolean): void {
                 ),
               )
             }}</span>
-            <b>{{ t('timeline.markerLabels.simulationStart') }}</b>
+            <b>{{
+              t(
+                configurationReadOnly
+                  ? 'inheritance.boundary'
+                  : 'timeline.markerLabels.simulationStart',
+              )
+            }}</b>
           </div>
           <div
             v-if="scenario.battle.simulationRange?.endFrame !== undefined"
@@ -5803,6 +6022,7 @@ function setPanelDialogVisible(visible: boolean): void {
               }"
             >
               <TimelineTrackHeader
+                :read-only="configurationReadOnly"
                 class="track-identity"
                 :track="track"
                 :name="operatorName(track.operatorSlug)"
@@ -5908,6 +6128,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :color="gaugeColorFor(track.trackIndex)"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
+                  :prep-end-frame="scenario.inheritance?.frame ?? 0"
                   :duration-frames="scenario.battle.durationFrames"
                   :px-per-frame="pxPerFrame"
                 />
@@ -5922,6 +6143,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :icon="buffIcon"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
+                  :prep-end-frame="scenario.inheritance?.frame ?? 0"
                   :px-per-frame="pxPerFrame"
                   placement="upper"
                   :action-top="
@@ -5936,6 +6158,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :segments="operatorPassiveUiSegmentsForTarget(track.operatorInstanceId)"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
+                  :prep-end-frame="scenario.inheritance?.frame ?? 0"
                   :px-per-frame="pxPerFrame"
                   :action-top="
                     trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
@@ -5952,6 +6175,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :icon="buffIcon"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
+                  :prep-end-frame="scenario.inheritance?.frame ?? 0"
                   :px-per-frame="pxPerFrame"
                   placement="lower"
                   :action-top="
@@ -5966,6 +6190,7 @@ function setPanelDialogVisible(visible: boolean): void {
                   :segments="comboWindowSegmentsFor(track.operatorInstanceId)"
                   :prep-frames="scenario.battle.prepFrames"
                   :prep-expanded="scenario.editor.prepExpanded"
+                  :prep-end-frame="scenario.inheritance?.frame ?? 0"
                   :px-per-frame="pxPerFrame"
                   :action-top="
                     trackEffectLayout(track.trackIndex, track.operatorInstanceId).actionTop
@@ -5974,11 +6199,15 @@ function setPanelDialogVisible(visible: boolean): void {
                 />
                 <div
                   class="prep-zone"
-                  :style="{ width: `${timelineFramePx(0, displayedTimelinePrepFrames)}px` }"
+                  :style="{
+                    width: `${timelineFramePx(scenario.inheritance?.frame ?? 0, displayedTimelinePrepFrames)}px`,
+                  }"
                 ></div>
                 <div
                   class="battle-start-line"
-                  :style="{ left: `${timelineFramePx(0, displayedTimelinePrepFrames)}px` }"
+                  :style="{
+                    left: `${timelineFramePx(scenario.inheritance?.frame ?? 0, displayedTimelinePrepFrames)}px`,
+                  }"
                 ></div>
                 <EaButton
                   v-for="use in scenario.tracks[track.trackIndex]?.consumableUses ?? []"
@@ -6270,6 +6499,7 @@ function setPanelDialogVisible(visible: boolean): void {
 
     <template #bottom="{ tool, collapsePanel, expandAllToken }">
       <GlobalResourcePanel
+        :read-only="configurationReadOnly"
         v-if="tool === 'global'"
         :rules="scenario.battle.resourceRules"
         :modifiers="scenario.globalConfig.modifiers"
@@ -6316,6 +6546,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :timeline-width="timelineWidth"
                 :prep-frames="scenario.battle.prepFrames"
                 :prep-expanded="scenario.editor.prepExpanded"
+                :prep-end-frame="scenario.inheritance?.frame ?? 0"
                 :px-per-frame="pxPerFrame"
                 :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
                 :scroll-left="timelineScrollLeft"
@@ -6352,6 +6583,7 @@ function setPanelDialogVisible(visible: boolean): void {
                 :cursor-frame="simulationRun.frame"
                 :prep-frames="scenario.battle.prepFrames"
                 :prep-expanded="scenario.editor.prepExpanded"
+                :prep-end-frame="scenario.inheritance?.frame ?? 0"
                 :px-per-frame="pxPerFrame"
                 :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
                 :scroll-left="timelineScrollLeft"
@@ -6367,11 +6599,13 @@ function setPanelDialogVisible(visible: boolean): void {
                 :sp-insufficient-label="t('resourceMonitor.sp.insufficient')"
                 :prep-frames="scenario.battle.prepFrames"
                 :prep-expanded="scenario.editor.prepExpanded"
+                :prep-end-frame="scenario.inheritance?.frame ?? 0"
                 :px-per-frame="pxPerFrame"
                 :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
                 :scroll-left="timelineScrollLeft"
                 :sp-label="t('resourceMonitor.modules.sp')"
                 :initial-sp="scenario.battle.resourceRules.initialSp"
+                :configuration-read-only="configurationReadOnly"
                 :sp-recovery-per-second="scenario.battle.resourceRules.spRecoveryPerSecond"
                 :initial-sp-label="t('resourceMonitor.labels.initialSp')"
                 :sp-recovery-label="t('resourceMonitor.labels.spPerSecond')"
@@ -6383,6 +6617,7 @@ function setPanelDialogVisible(visible: boolean): void {
         <div v-else class="simulation-panel__empty">—</div>
       </section>
       <ContingencyContractPanel
+        :read-only="configurationReadOnly"
         v-else-if="tool === 'contract'"
         :selected-tag-ids="selectedContingencyContractTagIds"
         :locale="locale"
@@ -6394,6 +6629,7 @@ function setPanelDialogVisible(visible: boolean): void {
       <TimelineExternalEventInspector
         v-if="tool === 'inspector' && selectedExternalEventMarker !== null"
         :marker="selectedExternalEventMarker"
+        :read-only="isHistoricalInputFrame(selectedExternalEventMarker.frame)"
         :maximum-frame="scenario.battle.durationFrames"
         :target-label="selectedExternalEventTargetLabel"
         @set-frame="setSelectedExternalEventFrame"
@@ -6403,6 +6639,11 @@ function setPanelDialogVisible(visible: boolean): void {
       <TimelineDocumentMarkerInspector
         v-else-if="tool === 'inspector' && selectedDocumentMarker !== null"
         :kind="selectedDocumentMarker.kind"
+        :read-only="
+          (selectedDocumentMarker.kind === 'simulationStart' && configurationReadOnly) ||
+          (selectedDocumentMarker.kind === 'controlSwitch' &&
+            isHistoricalInputFrame(selectedDocumentMarker.frame))
+        "
         :id="selectedDocumentMarker.id"
         :frame="selectedDocumentMarker.frame"
         :minimum-frame="
@@ -6424,6 +6665,7 @@ function setPanelDialogVisible(visible: boolean): void {
           tool === 'inspector' && selectedLibraryEntry === null && selectedConsumableUse === null
         "
         :cast="selectedCastModel?.cast ?? null"
+        :input-read-only="selectedCastId !== null && isHistoricalSkillInput(selectedCastId)"
         :label="selectedCastModel?.label ?? ''"
         :skill-type="selectedCastModel?.skillType ?? null"
         :edited="selectedCastModel?.edited ?? false"
@@ -6464,6 +6706,7 @@ function setPanelDialogVisible(visible: boolean): void {
           <EaSelect
             size="sm"
             :model-value="selectedConsumableUse.use.consumableId"
+            :disabled="isHistoricalInputFrame(selectedConsumableUse.use.frame)"
             :options="
               consumables.map(item => ({ label: getConsumableGameName(item.id), value: item.id }))
             "
@@ -6478,13 +6721,19 @@ function setPanelDialogVisible(visible: boolean): void {
             :min="-scenario.battle.prepFrames"
             :max="scenario.battle.durationFrames"
             :model-value="selectedConsumableUse.use.frame"
+            :disabled="isHistoricalInputFrame(selectedConsumableUse.use.frame)"
             @change="setSelectedConsumableFrame"
           />
         </label>
         <p>
           {{ getConsumableGameDescription(selectedConsumableUse.use.consumableId) }}
         </p>
-        <EaButton variant="ghost" type="button" @click="removeSelectedConsumableUse">
+        <EaButton
+          variant="ghost"
+          type="button"
+          :disabled="isHistoricalInputFrame(selectedConsumableUse.use.frame)"
+          @click="removeSelectedConsumableUse"
+        >
           {{ t('common.delete') }}
         </EaButton>
       </section>
@@ -6527,6 +6776,7 @@ function setPanelDialogVisible(visible: boolean): void {
     </template>
   </TimelineWorkbenchShell>
   <TimelineActionContextMenu
+    :input-read-only="[...actionSelection.selectedIds].some(isHistoricalSkillInput)"
     :visible="contextMenuTarget !== null"
     :x="contextMenuTarget?.x ?? 0"
     :y="contextMenuTarget?.y ?? 0"
@@ -6559,6 +6809,24 @@ function setPanelDialogVisible(visible: boolean): void {
     @set-color="setContextCastColor"
   />
   <TimelineMarkerContextMenu
+    :inheritance-boundary="
+      configurationReadOnly && markerContextTarget?.existing?.kind === 'simulationStart'
+    "
+    :source-available="
+      projectScenarios.some(item => item.id === scenario.inheritance?.sourceScenarioId)
+    "
+    @open-source="openInheritedSource"
+    :read-only="
+      scenario.inheritance !== undefined &&
+      ((markerContextTarget?.frame ?? 0) < scenario.inheritance.frame ||
+        markerContextTarget?.existing?.kind === 'simulationStart')
+    "
+    :can-inherit="
+      !creatingInheritedScenario &&
+      projectScenarios.length < MAX_PROJECT_SCENARIOS &&
+      (scenario.inheritance === undefined ||
+        (markerContextTarget?.frame ?? 0) >= scenario.inheritance.frame)
+    "
     :visible="markerContextTarget !== null"
     :x="markerContextTarget?.x ?? 0"
     :y="markerContextTarget?.y ?? 0"
@@ -6598,6 +6866,7 @@ function setPanelDialogVisible(visible: boolean): void {
       enemyWeaknessSet: t('timeline.markerContext.enemyWeaknessSet'),
     }"
     @close="markerContextTarget = null"
+    @inherit="inheritFromContext"
     @add-cycle="addMarkerFromContext('cycle')"
     @toggle-simulation-start="addMarkerFromContext('simulationStart')"
     @toggle-simulation-end="addMarkerFromContext('simulationEnd')"
@@ -7908,6 +8177,11 @@ button:disabled {
   z-index: 1;
   height: var(--timeline-track-height, 160px);
   overflow: hidden;
+}
+
+/* 折叠栏只保留展开入口，不展示历史层；跨起点的条带仅露出起点之后的部分。 */
+.timeline-surface.is-history-collapsed .track-lane {
+  clip-path: inset(0 0 0 18px);
 }
 
 .track-lane::before {

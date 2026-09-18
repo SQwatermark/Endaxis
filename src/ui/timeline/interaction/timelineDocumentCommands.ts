@@ -476,6 +476,7 @@ export function moveSkillCasts(
   anchorSkillCastId: string,
   requestedAnchorStartFrame: number,
   resolvedStartFrames?: ReadonlyMap<string, number>,
+  minimumFrame = -scenario.battle.prepFrames,
 ): ScenarioDocument {
   if (
     !Number.isInteger(requestedAnchorStartFrame) ||
@@ -509,7 +510,7 @@ export function moveSkillCasts(
   const minimumStartFrame = Math.min(...frames);
   const maximumStartFrame = Math.max(...frames);
   const delta = Math.max(
-    -scenario.battle.prepFrames - minimumStartFrame,
+    minimumFrame - minimumStartFrame,
     Math.min(scenario.battle.durationFrames - maximumStartFrame, requestedDelta),
   );
   if (delta === 0) return scenario;
@@ -941,11 +942,7 @@ function requireTimelineMarkerFrame(
   frame: number,
   minimumFrame = 0,
 ): void {
-  if (
-    !Number.isInteger(frame) ||
-    frame < minimumFrame ||
-    frame > scenario.battle.durationFrames
-  ) {
+  if (!Number.isInteger(frame) || frame < minimumFrame || frame > scenario.battle.durationFrames) {
     throw new RangeError('timeline marker frame must be an integer inside the editable timeline');
   }
 }

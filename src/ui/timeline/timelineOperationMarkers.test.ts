@@ -75,7 +75,7 @@ describe('timeline operation marker projection', () => {
       2,
       false,
     );
-    expect(markers.find(marker => marker.id === 'prep')?.left).toBe(9);
+    expect(markers.find(marker => marker.id === 'prep')?.left).toBe(-132);
     expect(markers.find(marker => marker.id === 'battle')?.left).toBe(78);
   });
 });

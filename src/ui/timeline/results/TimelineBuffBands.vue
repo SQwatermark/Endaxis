@@ -17,6 +17,8 @@ const props = defineProps<{
   segments: readonly PositionedDisplayBuffTimelineSegment[];
   prepFrames: number;
   pxPerFrame: number;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
   placement?: 'upper' | 'lower';
   actionTop?: number;
@@ -51,12 +53,14 @@ const items = computed(() =>
       props.prepFrames,
       props.pxPerFrame,
       props.prepExpanded,
+      props.prepEndFrame,
     );
     const right = frameToTimelinePx(
       segment.durationEndFrame ?? segment.endFrame,
       props.prepFrames,
       props.pxPerFrame,
       props.prepExpanded,
+      props.prepEndFrame,
     );
     const sourceName = props.sourceName?.(segment);
     const modifierSummary = resolveSimpleBuffModifierDisplayName(

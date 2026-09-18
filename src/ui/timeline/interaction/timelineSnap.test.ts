@@ -16,6 +16,8 @@ describe('timeline snap', () => {
     expect(snapTimelineFrame(8, 3, 120)).toBe(9);
     expect(snapTimelineFrame(-5, 3, 120)).toBe(0);
     expect(snapTimelineFrame(122, 3, 120)).toBe(120);
+    expect(snapTimelineFrame(-5, 3, 120, 5)).toBe(5);
+    expect(snapTimelineFrame(8, 3, 120, 5)).toBe(9);
   });
 
   it('rejects invalid grid and timeline values', () => {

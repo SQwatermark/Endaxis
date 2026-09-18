@@ -9,17 +9,36 @@ import {
 } from './timelineGeometry';
 
 describe('timeline geometry', () => {
+  it.each([600, -60])(
+    'collapses inherited history ending at frame %i without changing frame identity',
+    boundary => {
+      for (const expanded of [true, false]) {
+        for (const frame of [-150, -75, boundary, boundary + 30, 900]) {
+          const px = frameToTimelinePx(frame, 150, 2, expanded, boundary);
+          expect(timelinePxToExactFrame(px, 150, 2, expanded, boundary)).toBeCloseTo(frame);
+        }
+      }
+      expect(frameToTimelinePx(boundary, 150, 2, false, boundary)).toBe(18);
+      expect(frameToTimelinePx(boundary + 30, 150, 2, false, boundary)).toBe(78);
+      const start = frameToTimelinePx(boundary - 30, 150, 2, false, boundary);
+      const end = frameToTimelinePx(boundary + 30, 150, 2, false, boundary);
+      expect(start).toBe(-42);
+      expect(end - start).toBe(120);
+      expect(timelineTotalWidth(150, 900, 2, false, boundary)).toBe(18 + (900 - boundary) * 2);
+    },
+  );
+
   it('places battle frame zero after the preparation area', () => {
     expect(frameToTimelinePx(0, 150, 2)).toBe(300);
     expect(frameToTimelinePx(-150, 150, 2)).toBe(0);
   });
 
-  it('compresses only the preparatory interval when collapsed', () => {
-    expect(frameToTimelinePx(-150, 150, 2, false)).toBe(0);
-    expect(frameToTimelinePx(-75, 150, 2, false)).toBe(COLLAPSED_PREP_WIDTH_PX / 2);
+  it('moves hidden history outside the visible interval without squeezing its contents', () => {
+    expect(frameToTimelinePx(-150, 150, 2, false)).toBe(18 - 300);
+    expect(frameToTimelinePx(-75, 150, 2, false)).toBe(18 - 150);
     expect(frameToTimelinePx(0, 150, 2, false)).toBe(COLLAPSED_PREP_WIDTH_PX);
     expect(frameToTimelinePx(30, 150, 2, false)).toBe(COLLAPSED_PREP_WIDTH_PX + 60);
-    expect(timelinePxToFrame(COLLAPSED_PREP_WIDTH_PX / 2, 150, 2, false)).toBe(-75);
+    expect(timelinePxToExactFrame(COLLAPSED_PREP_WIDTH_PX / 2, 150, 2, false)).toBe(-4.5);
     expect(timelinePxToFrame(COLLAPSED_PREP_WIDTH_PX + 60, 150, 2, false)).toBe(30);
     expect(timelineTotalWidth(150, 900, 2, false)).toBe(COLLAPSED_PREP_WIDTH_PX + 1800);
   });

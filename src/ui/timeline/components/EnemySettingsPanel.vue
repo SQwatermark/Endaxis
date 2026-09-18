@@ -45,6 +45,7 @@ const TIER_WEIGHT: Readonly<Record<EnemyTier, number>> = {
 };
 
 const props = defineProps<{
+  readOnly?: boolean;
   enemy: EnemyDocument;
   definition: EnemyDefinition | null;
   enemies: readonly EnemyDefinition[];
@@ -207,7 +208,12 @@ function removeKnotThreshold(index: number): void {
 
 <template>
   <section class="enemy-settings-panel">
-    <EaButton type="button" class="enemy-select-module" @click="selectorVisible = true">
+    <EaButton
+      type="button"
+      class="enemy-select-module"
+      :disabled="readOnly"
+      @click="selectorVisible = true"
+    >
       <span class="module-deco-line"></span>
       <span class="enemy-avatar-box">
         <img v-if="definition?.iconPath" :src="definition.iconPath" alt="" />
@@ -415,7 +421,7 @@ function removeKnotThreshold(index: number): void {
         append-to-body
         class="armory-dialog next-enemy-stats-dialog"
       >
-        <div class="stats-form">
+        <fieldset class="stats-form" :disabled="readOnly">
           <label
             ><span>{{ labels.enemyHp }}</span
             ><EaNumberInput v-model="draft.hp" size="sm" controls-position="right" :min="1"
@@ -524,11 +530,11 @@ function removeKnotThreshold(index: number): void {
               @change="setDraftNumber(draft.resistances, type, $event)"
             />
           </label>
-        </div>
+        </fieldset>
         <template #footer>
           <EaDialogActions>
             <EaButton type="button" @click="statsVisible = false">{{ labels.close }}</EaButton>
-            <EaButton type="button" variant="primary" @click="saveDraft">
+            <EaButton type="button" variant="primary" :disabled="readOnly" @click="saveDraft">
               {{ labels.confirm }}
             </EaButton>
           </EaDialogActions>
@@ -877,6 +883,10 @@ function removeKnotThreshold(index: number): void {
   text-align: center;
 }
 .stats-form {
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;

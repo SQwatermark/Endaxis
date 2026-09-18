@@ -115,7 +115,7 @@ describe('V2 project document', () => {
     }
   });
 
-  it('persists scenario inheritance as a boundary reference instead of a runtime snapshot', () => {
+  it('persists inheritance time and optional-to-resolve source without a runtime snapshot', () => {
     const project = createEmptyProject({
       createdWith: 'test',
       gameDataRevision: 'fixture',
@@ -125,7 +125,7 @@ describe('V2 project document', () => {
     const inherited = createEmptyScenario('scenario:2', 'Inherited');
     inherited.inheritance = {
       sourceScenarioId: source.id,
-      boundaryId: 'boundary:1',
+      frame: 900,
     };
     project.scenarios.push(inherited);
 
@@ -134,7 +134,7 @@ describe('V2 project document', () => {
     expect(parsed).toEqual({ ok: true, value: project });
   });
 
-  it('rejects dangling and cyclic scenario inheritance', () => {
+  it('allows dangling and cyclic navigation sources but rejects invalid inheritance frames', () => {
     const project = createEmptyProject({
       createdWith: 'test',
       gameDataRevision: 'fixture',
@@ -143,10 +143,14 @@ describe('V2 project document', () => {
     first.battle.cycleBoundaries.push({ id: 'boundary:1', frame: 300 });
     const second = createEmptyScenario('scenario:2', 'Second');
     second.battle.cycleBoundaries.push({ id: 'boundary:2', frame: 600 });
-    first.inheritance = { sourceScenarioId: second.id, boundaryId: 'boundary:2' };
-    second.inheritance = { sourceScenarioId: first.id, boundaryId: 'boundary:missing' };
+    first.inheritance = { sourceScenarioId: second.id, frame: 600 };
+    second.inheritance = { sourceScenarioId: first.id, frame: 900 };
     project.scenarios.push(second);
 
+    expect(validateProjectDocument(project).ok).toBe(true);
+    second.inheritance.sourceScenarioId = 'missing';
+    expect(validateProjectDocument(project).ok).toBe(true);
+    second.inheritance.frame = 0.5;
     const result = validateProjectDocument(project);
 
     expect(result.ok).toBe(false);
@@ -154,12 +158,8 @@ describe('V2 project document', () => {
       expect(result.issues).toEqual(
         expect.arrayContaining([
           {
-            path: '$.scenarios[1].inheritance.boundaryId',
-            message: 'unknown cycle boundary',
-          },
-          {
-            path: '$.scenarios[0].inheritance',
-            message: 'scenario inheritance must be acyclic',
+            path: '$.scenarios[1].inheritance.frame',
+            message: expect.any(String),
           },
         ]),
       );

@@ -4,6 +4,7 @@ import {
   compileFixedCombatInputSchedule,
 } from './compileFixedCombatInputSchedule';
 import { planRecursiveSkillChain, type RecursiveSkillChain } from './recursiveSkillChain';
+import { InheritedScenarioSimulation } from './inheritedScenarioSimulation';
 /**
  * 给页面提供"跑一次模拟"的入口。
  *
@@ -190,6 +191,7 @@ export class ScenarioSimulationService {
   };
   readonly #repositoryRevision: string;
   readonly #cache = new Map<string, MutableCacheEntry>();
+  readonly #inheritedSimulation = new InheritedScenarioSimulation();
   readonly #cacheLimit: number;
   readonly #performanceNow: () => number;
   readonly #performanceSubscribers = new Set<ScenarioSimulationPerformanceSubscriber>();
@@ -339,6 +341,16 @@ export class ScenarioSimulationService {
     continuationPlanCastIds?: readonly string[],
     continuationPlanMode: 'continuation' | 'compact' = 'continuation',
   ): StandardPlayerDamageScenarioResult {
+    if (scenario.inheritance !== undefined) {
+      return this.#inheritedSimulation.run(
+        this,
+        scenario,
+        endFrame,
+        continuationPlanCastIds === undefined
+          ? undefined
+          : { castIds: continuationPlanCastIds, mode: continuationPlanMode },
+      );
+    }
     return runStandardPlayerDamageScenarioSimulation(
       this.#createStandardSimulationInput(
         scenario,
@@ -562,6 +574,7 @@ export class ScenarioSimulationService {
 
   clearCache(): void {
     this.#cache.clear();
+    this.#inheritedSimulation.clear();
   }
 
   #cacheKey(scenario: ScenarioDocument, endFrame: number): string {

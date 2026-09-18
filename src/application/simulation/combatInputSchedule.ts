@@ -36,6 +36,11 @@ interface ScheduleRestoration {
   readonly [scheduleRestoration]: Pick<SavedSchedule, 'nextIndex' | 'skills'>;
 }
 
+interface ContinuationPlan {
+  readonly castIds: readonly string[];
+  readonly mode: 'continuation' | 'compact';
+}
+
 /**
  * 一个试跑分支的人工输入驱动。战斗只接收当前帧，不持有未来排程。
  * 延长观察直接继续当前分支；回退后重建驱动，禁止沿用旧候选游标。
@@ -58,6 +63,7 @@ export class CombatInputSchedule {
     groups: readonly SkillInputGroup[] = [],
     customSkillPrograms: readonly CombatSkillCastProgram[] = [],
     restoration?: ScheduleRestoration,
+    continuationPlan?: ContinuationPlan,
   ) {
     const restored = restoration?.[scheduleRestoration];
     if (restoration !== undefined && restored === undefined) {
@@ -112,7 +118,7 @@ export class CombatInputSchedule {
     this.#generation = session.runtime.generation;
     this.#expectedFrame = session.runtime.frame;
     this.#expectedInitialInputPending = session.runtime.initialInputPending;
-    if (groups.length > 0) {
+    if (groups.length > 0 || continuationPlan !== undefined) {
       const requirePhase = () => {
         if (this.#phase === undefined)
           throw new Error('skill schedule requires the current input phase');
@@ -135,6 +141,16 @@ export class CombatInputSchedule {
           groups: this.#groups,
           canContinue: previous => requirePhase().canContinue(previous),
         },
+        ...(continuationPlan === undefined
+          ? {}
+          : {
+              continuationPlan: {
+                castIds: continuationPlan.castIds,
+                ignoreInputFailures: continuationPlan.mode === 'compact',
+                canContinue: (input, previous) =>
+                  requirePhase().canPlanContinuation(input, previous, continuationPlan.mode),
+              },
+            }),
         ...(restored?.skills === undefined ? {} : { restoredState: restored.skills }),
       });
     }
@@ -215,10 +231,7 @@ export class CombatInputSchedule {
           ...(existing?.skills ?? []),
           ...(input.skills ?? []).map(skill => ({ ...skill, declarationOrder: order++ })),
         ],
-        consumableUses: [
-          ...(existing?.consumableUses ?? []),
-          ...(input.consumableUses ?? []),
-        ],
+        consumableUses: [...(existing?.consumableUses ?? []), ...(input.consumableUses ?? [])],
         externalEvents: [...(existing?.externalEvents ?? []), ...(input.externalEvents ?? [])],
       });
     }
@@ -266,6 +279,7 @@ export class CombatInputSchedule {
     inputsAfterCheckpoint: readonly ScheduledCombatFrameInput[],
     groupsAfterCheckpoint: readonly SkillInputGroup[] = [],
     customSkillProgramsAfterCheckpoint: readonly CombatSkillCastProgram[] = [],
+    continuationPlan?: ContinuationPlan,
   ): CombatInputSchedule {
     this.#assertCurrent();
     const saved = this.#checkpoints.get(checkpoint);
@@ -339,7 +353,7 @@ export class CombatInputSchedule {
       ...customSkillProgramsAfterCheckpoint,
     ];
     let skills: CombatInputRuntimeState | undefined;
-    if (groups.length > 0) {
+    if (groups.length > 0 || continuationPlan !== undefined) {
       const base =
         saved.skills ??
         (() => {
@@ -355,6 +369,7 @@ export class CombatInputSchedule {
         })();
       skills = {
         ...structuredClone(base),
+        continuation: { nextIndex: 1, previous: null, stopped: false },
         groups: [
           ...retainedGroupStates,
           ...groupsAfterCheckpoint.map(group => ({
@@ -374,6 +389,7 @@ export class CombatInputSchedule {
       {
         [scheduleRestoration]: { nextIndex: saved.nextIndex, skills },
       },
+      continuationPlan,
     );
   }
 

@@ -7,6 +7,10 @@ import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInter
 const { t } = useI18n({ useScope: 'global' });
 
 const props = defineProps<{
+  readOnly?: boolean;
+  inheritanceBoundary?: boolean;
+  sourceAvailable?: boolean;
+  canInherit?: boolean;
   visible: boolean;
   x: number;
   y: number;
@@ -46,6 +50,8 @@ const emit = defineEmits<{
   addEnemyWeaknessSet: [];
   controlComboCooldown: [mode: 'cooldown' | 'ready'];
   delete: [];
+  inherit: [];
+  openSource: [];
 }>();
 const menu = ref<HTMLElement | null>(null);
 usePopoverInteractionBoundary(
@@ -88,153 +94,188 @@ onBeforeUnmount(() => {
       @pointerdown.stop
       @contextmenu.prevent
     >
-      <header>{{ existingLabel ?? t('contextMenu.globalOps') }}</header>
-      <template v-if="existingLabel">
-        <EaButton type="button" role="menuitem" class="menu-item danger" @click="$emit('delete')">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-            />
-          </svg>
-          <span>{{ labels.deleteMarker }}</span>
-          <kbd>Delete</kbd>
+      <header v-if="!inheritanceBoundary">{{ existingLabel ?? t('contextMenu.globalOps') }}</header>
+      <template v-if="inheritanceBoundary">
+        <EaButton
+          type="button"
+          role="menuitem"
+          class="menu-item"
+          :disabled="!sourceAvailable"
+          @click="$emit('openSource')"
+        >
+          <span>{{ t(sourceAvailable ? 'inheritance.source' : 'inheritance.sourceMissing') }}</span>
         </EaButton>
       </template>
-      <template v-else>
-        <small class="menu-label">{{ t('comboControl.title') }}</small>
-        <EaButton
-          type="button"
-          class="menu-item combo-control-entry"
-          role="menuitem"
-          @click="$emit('controlComboCooldown', 'ready')"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M20 11a8 8 0 1 1-2.3-5.7" />
-            <path d="M20 4v7h-7" />
-          </svg>
-          <span>{{ t('comboControl.ready') }}</span>
-        </EaButton>
-        <EaButton
-          type="button"
-          class="menu-item combo-control-entry"
-          role="menuitem"
-          @click="$emit('controlComboCooldown', 'cooldown')"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <circle cx="12" cy="12" r="9" />
-            <path d="M12 7v5l3 2" />
-          </svg>
-          <span>{{ t('comboControl.cooldown') }}</span>
-        </EaButton>
-        <div class="divider"></div>
-        <EaButton type="button" class="menu-item" role="menuitem" @click="$emit('addCycle')">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <line x1="12" y1="2" x2="12" y2="22" />
-            <path d="M16 14c2 0 3-1 3-3s-1-3-3-3h-4" />
-            <polyline points="14 10 12 8 14 6" />
-          </svg>
-          <span>{{ labels.addCycle }}</span>
-        </EaButton>
-        <EaButton
-          type="button"
-          class="menu-item"
-          role="menuitem"
-          @click="$emit('toggleSimulationStart')"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <line x1="12" y1="2" x2="12" y2="22" />
-            <line x1="8" y1="6" x2="16" y2="6" />
-            <line x1="8" y1="18" x2="16" y2="18" />
-          </svg>
-          <span>{{
-            hasSimulationStart ? labels.removeSimulationStart : labels.addSimulationStart
-          }}</span>
-        </EaButton>
-        <EaButton
-          type="button"
-          class="menu-item"
-          role="menuitem"
-          @click="$emit('toggleSimulationEnd')"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <line x1="12" y1="2" x2="12" y2="22" />
-            <line x1="8" y1="6" x2="16" y2="6" />
-            <line x1="8" y1="18" x2="16" y2="18" />
-          </svg>
-          <span>{{ hasSimulationEnd ? labels.removeSimulationEnd : labels.addSimulationEnd }}</span>
-        </EaButton>
-        <div class="menu-item has-submenu" role="menuitem" aria-haspopup="menu">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M16 3h5v5M8 21H3v-5M21 3l-7 7M3 21l7-7" />
-          </svg>
-          <span>{{ labels.switchOperator }}</span>
-          <span class="arrow">▶</span>
-          <div class="submenu-list" role="menu">
-            <EaButton
-              v-for="target in switchTargets"
-              :key="target.trackIndex"
-              type="button"
-              class="submenu-list-item"
-              role="menuitem"
-              @click="$emit('addSwitch', target.trackIndex)"
-            >
-              <img v-if="target.avatar" :src="target.avatar" alt="" />
-              <span>{{ target.name }}</span>
-            </EaButton>
+      <EaButton
+        v-if="!inheritanceBoundary"
+        type="button"
+        role="menuitem"
+        class="menu-item"
+        :disabled="canInherit === false"
+        @click="$emit('inherit')"
+      >
+        <span>{{ t('inheritance.createHere') }}</span>
+      </EaButton>
+      <fieldset v-if="!inheritanceBoundary" :disabled="readOnly" class="menu-actions">
+        <template v-if="existingLabel">
+          <EaButton type="button" role="menuitem" class="menu-item danger" @click="$emit('delete')">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+              />
+            </svg>
+            <span>{{ labels.deleteMarker }}</span>
+            <kbd>Delete</kbd>
+          </EaButton>
+        </template>
+        <template v-else>
+          <small class="menu-label">{{ t('comboControl.title') }}</small>
+          <EaButton
+            type="button"
+            class="menu-item combo-control-entry"
+            role="menuitem"
+            @click="$emit('controlComboCooldown', 'ready')"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M20 11a8 8 0 1 1-2.3-5.7" />
+              <path d="M20 4v7h-7" />
+            </svg>
+            <span>{{ t('comboControl.ready') }}</span>
+          </EaButton>
+          <EaButton
+            type="button"
+            class="menu-item combo-control-entry"
+            role="menuitem"
+            @click="$emit('controlComboCooldown', 'cooldown')"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <circle cx="12" cy="12" r="9" />
+              <path d="M12 7v5l3 2" />
+            </svg>
+            <span>{{ t('comboControl.cooldown') }}</span>
+          </EaButton>
+          <div class="divider"></div>
+          <EaButton type="button" class="menu-item" role="menuitem" @click="$emit('addCycle')">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="12" y1="2" x2="12" y2="22" />
+              <path d="M16 14c2 0 3-1 3-3s-1-3-3-3h-4" />
+              <polyline points="14 10 12 8 14 6" />
+            </svg>
+            <span>{{ labels.addCycle }}</span>
+          </EaButton>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            @click="$emit('toggleSimulationStart')"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="12" y1="2" x2="12" y2="22" />
+              <line x1="8" y1="6" x2="16" y2="6" />
+              <line x1="8" y1="18" x2="16" y2="18" />
+            </svg>
+            <span>{{
+              hasSimulationStart ? labels.removeSimulationStart : labels.addSimulationStart
+            }}</span>
+          </EaButton>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            @click="$emit('toggleSimulationEnd')"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <line x1="12" y1="2" x2="12" y2="22" />
+              <line x1="8" y1="6" x2="16" y2="6" />
+              <line x1="8" y1="18" x2="16" y2="18" />
+            </svg>
+            <span>{{
+              hasSimulationEnd ? labels.removeSimulationEnd : labels.addSimulationEnd
+            }}</span>
+          </EaButton>
+          <div class="menu-item has-submenu" role="menuitem" aria-haspopup="menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M16 3h5v5M8 21H3v-5M21 3l-7 7M3 21l7-7" />
+            </svg>
+            <span>{{ labels.switchOperator }}</span>
+            <span class="arrow">▶</span>
+            <div class="submenu-list" role="menu">
+              <EaButton
+                v-for="target in switchTargets"
+                :key="target.trackIndex"
+                type="button"
+                class="submenu-list-item"
+                role="menuitem"
+                @click="$emit('addSwitch', target.trackIndex)"
+              >
+                <img v-if="target.avatar" :src="target.avatar" alt="" />
+                <span>{{ target.name }}</span>
+              </EaButton>
+            </div>
           </div>
-        </div>
-        <EaButton
-          type="button"
-          class="menu-item"
-          role="menuitem"
-          :disabled="!canTargetTrack"
-          @click="$emit('useConsumable')"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M9 3h6v4l3 5v7H6v-7l3-5V3Z" />
-            <path d="M8 12h8" />
-          </svg>
-          <span>{{ labels.useConsumable }}</span>
-        </EaButton>
-        <div class="divider"></div>
-        <small class="menu-label">{{ labels.restrictedHint }}</small>
-        <EaButton
-          type="button"
-          class="menu-item"
-          role="menuitem"
-          :disabled="!canTargetTrack"
-          @click="$emit('addOperatorHit')"
-        >
-          <span class="menu-icon" aria-hidden="true">◎</span><span>{{ labels.operatorHit }}</span>
-        </EaButton>
-        <EaButton
-          type="button"
-          class="menu-item"
-          role="menuitem"
-          :disabled="!canTargetTrack"
-          @click="$emit('addOperatorWeakness')"
-        >
-          <span class="menu-icon" aria-hidden="true">◇</span
-          ><span>{{ labels.operatorWeakness }}</span>
-        </EaButton>
-        <EaButton type="button" class="menu-item" role="menuitem" @click="$emit('addTeamHit')">
-          <span class="menu-icon" aria-hidden="true">◉</span><span>{{ labels.teamHit }}</span>
-        </EaButton>
-        <EaButton
-          type="button"
-          class="menu-item"
-          role="menuitem"
-          @click="$emit('addEnemyWeaknessSet')"
-        >
-          <span class="menu-icon" aria-hidden="true">◈</span
-          ><span>{{ labels.enemyWeaknessSet }}</span>
-        </EaButton>
-      </template>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            :disabled="!canTargetTrack"
+            @click="$emit('useConsumable')"
+          >
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 3h6v4l3 5v7H6v-7l3-5V3Z" />
+              <path d="M8 12h8" />
+            </svg>
+            <span>{{ labels.useConsumable }}</span>
+          </EaButton>
+          <div class="divider"></div>
+          <small class="menu-label">{{ labels.restrictedHint }}</small>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            :disabled="!canTargetTrack"
+            @click="$emit('addOperatorHit')"
+          >
+            <span class="menu-icon" aria-hidden="true">◎</span><span>{{ labels.operatorHit }}</span>
+          </EaButton>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            :disabled="!canTargetTrack"
+            @click="$emit('addOperatorWeakness')"
+          >
+            <span class="menu-icon" aria-hidden="true">◇</span
+            ><span>{{ labels.operatorWeakness }}</span>
+          </EaButton>
+          <EaButton type="button" class="menu-item" role="menuitem" @click="$emit('addTeamHit')">
+            <span class="menu-icon" aria-hidden="true">◉</span><span>{{ labels.teamHit }}</span>
+          </EaButton>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            @click="$emit('addEnemyWeaknessSet')"
+          >
+            <span class="menu-icon" aria-hidden="true">◈</span
+            ><span>{{ labels.enemyWeaknessSet }}</span>
+          </EaButton>
+        </template>
+      </fieldset>
     </div>
   </Teleport>
 </template>
 
 <style scoped>
+.menu-actions {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  min-width: 0;
+}
+.menu-actions:disabled .menu-item {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
 .marker-context-menu {
   position: fixed;
   z-index: 10000;

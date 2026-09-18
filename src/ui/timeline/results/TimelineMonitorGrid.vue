@@ -7,6 +7,8 @@ const props = defineProps<{
   width: number;
   durationFrames: number;
   prepFrames: number;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
   pxPerFrame: number;
   trackHeaderWidth: number;
@@ -18,7 +20,13 @@ const GRID_LINE_FRAME_STEP = 150;
 function pointX(frame: number): number {
   return (
     props.trackHeaderWidth +
-    frameToTimelinePx(frame, props.prepFrames, props.pxPerFrame, props.prepExpanded) -
+    frameToTimelinePx(
+      frame,
+      props.prepFrames,
+      props.pxPerFrame,
+      props.prepExpanded,
+      props.prepEndFrame,
+    ) -
     props.scrollLeft
   );
 }

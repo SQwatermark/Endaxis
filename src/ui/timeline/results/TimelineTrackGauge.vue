@@ -13,6 +13,8 @@ const props = defineProps<{
   prepFrames: number;
   durationFrames: number;
   pxPerFrame: number;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
 }>();
 
@@ -33,7 +35,13 @@ const pathData = computed(() => {
   const points = gaugePoints.value;
   if (points.length === 0) return '';
   const xForFrame = (frame: number) =>
-    frameToTimelinePx(frame, props.prepFrames, props.pxPerFrame, props.prepExpanded);
+    frameToTimelinePx(
+      frame,
+      props.prepFrames,
+      props.pxPerFrame,
+      props.prepExpanded,
+      props.prepEndFrame,
+    );
   const yForRatio = (ratio: number) => BASE_Y - ratio * CHART_HEIGHT;
   const first = points[0]!;
   const endX = xForFrame(props.durationFrames);
@@ -55,6 +63,7 @@ const fullSegments = computed(() => {
     props.prepFrames,
     props.pxPerFrame,
     props.prepExpanded,
+    props.prepEndFrame,
   );
   for (let index = 0; index < points.length; index += 1) {
     const point = points[index]!;
@@ -64,6 +73,7 @@ const fullSegments = computed(() => {
       props.prepFrames,
       props.pxPerFrame,
       props.prepExpanded,
+      props.prepEndFrame,
     );
     const nextPoint = points[index + 1];
     const x2 =
@@ -74,6 +84,7 @@ const fullSegments = computed(() => {
             props.prepFrames,
             props.pxPerFrame,
             props.prepExpanded,
+            props.prepEndFrame,
           );
     // 稀疏点代表“从该帧持续到下一变化帧或显示终点”；失去满能时在下一变化帧结束。
     if (x2 > x1) segments.push({ x1, x2 });
@@ -90,7 +101,9 @@ const glowFilterId = computed(() => `glow-${props.curve?.operatorId ?? 'none'}`)
     <svg
       class="track-gauge-svg"
       :height="CHART_HEIGHT"
-      :width="timelineTotalWidth(prepFrames, durationFrames, pxPerFrame, prepExpanded)"
+      :width="
+        timelineTotalWidth(prepFrames, durationFrames, pxPerFrame, prepExpanded, prepEndFrame)
+      "
     >
       <defs v-if="curve !== null">
         <filter :id="glowFilterId" x="-50%" y="-50%" width="200%" height="200%">

@@ -4,7 +4,7 @@ import { ProjectEditorSession } from '../../application/editor/projectEditorSess
 import { resetProjectScenarios } from './scenarioProjectCommands';
 
 describe('scenario reset', () => {
-  it('clears battle state, detaches boundary dependents and can restore everything with undo', () => {
+  it('clears battle state without changing inherited copies and supports undo', () => {
     const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' });
     const current = project.scenarios[0]!;
     current.battle.cycleBoundaries = [{ id: 'boundary', frame: 30 }];
@@ -17,7 +17,7 @@ describe('scenario reset', () => {
       skillCasts: [],
     };
     const dependent = createEmptyScenario('dependent', 'Dependent');
-    dependent.inheritance = { sourceScenarioId: current.id, boundaryId: 'boundary' };
+    dependent.inheritance = { sourceScenarioId: current.id, frame: 30 };
     project.scenarios.push(dependent);
     const session = new ProjectEditorSession(project);
     session.commit('reset', value => resetProjectScenarios(value, 'currentKeepLoadout'));
@@ -25,7 +25,7 @@ describe('scenario reset', () => {
     expect(reset.scenarios[0]!.tracks[0]!.id).toBe('track');
     expect(reset.scenarios[0]!.tracks[0]!.initialState.ultimateEnergy).toBe(0);
     expect(reset.scenarios[0]!.battle.cycleBoundaries).toEqual([]);
-    expect(reset.scenarios[1]!.inheritance).toBeUndefined();
+    expect(reset.scenarios[1]).toBe(dependent);
     expect(current.battle.cycleBoundaries).toHaveLength(1);
     session.undo();
     expect(session.snapshot.project).toBe(project);

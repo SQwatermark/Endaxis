@@ -29,13 +29,7 @@ export function resetProjectScenarios(
     scenarios:
       mode === 'all'
         ? [reset]
-        : project.scenarios.map(scenario => {
-            if (scenario.id === current.id) return reset;
-            // The reset removes the source boundaries, so direct dependents must stop inheriting them.
-            if (scenario.inheritance?.sourceScenarioId !== current.id) return scenario;
-            const { inheritance: _inheritance, ...detached } = scenario;
-            return detached;
-          }),
+        : project.scenarios.map(scenario => (scenario.id === current.id ? reset : scenario)),
   };
 }
 
@@ -128,20 +122,10 @@ export function duplicateActiveScenario(
   };
 }
 
-export function scenariosDependingOn(
-  project: EndaxisProjectDocument,
-  scenarioId: string,
-): readonly ScenarioDocument[] {
-  return project.scenarios.filter(
-    scenario => scenario.inheritance?.sourceScenarioId === scenarioId,
-  );
-}
-
 export function deleteActiveScenario(project: EndaxisProjectDocument): EndaxisProjectDocument {
   if (project.scenarios.length <= 1) return project;
   const index = project.scenarios.findIndex(scenario => scenario.id === project.activeScenarioId);
-  if (index < 0 || scenariosDependingOn(project, project.activeScenarioId).length > 0)
-    return project;
+  if (index < 0) return project;
   const scenarios = project.scenarios.filter(scenario => scenario.id !== project.activeScenarioId);
   const next = scenarios[Math.max(0, index - 1)] ?? scenarios[0]!;
   return { ...project, activeScenarioId: next.id, scenarios };

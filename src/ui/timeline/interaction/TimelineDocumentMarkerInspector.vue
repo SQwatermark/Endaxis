@@ -18,6 +18,7 @@ const props = defineProps<{
   frame: number;
   minimumFrame: number;
   maximumFrame: number;
+  readOnly?: boolean;
   trackIndex?: TrackIndex;
   trackOptions: readonly { trackIndex: TrackIndex; label: string }[];
 }>();
@@ -32,11 +33,7 @@ const { t } = useI18n({ useScope: 'global' });
 
 function commitFrame(value: number | undefined): void {
   const frame = Number(value);
-  if (
-    Number.isInteger(frame) &&
-    frame >= props.minimumFrame &&
-    frame <= props.maximumFrame
-  ) {
+  if (Number.isInteger(frame) && frame >= props.minimumFrame && frame <= props.maximumFrame) {
     emit('setFrame', frame);
   }
 }
@@ -79,6 +76,7 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
               :step="1"
               :model-value="frame"
               @change="commitFrame"
+              :disabled="readOnly"
             />
           </label>
           <div v-if="kind === 'cycleBoundary' || kind === 'controlSwitch'" class="form-group">
@@ -94,6 +92,7 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
                 trackOptions.map(option => ({ label: option.label, value: option.trackIndex }))
               "
               @change="commitTrackIndex"
+              :disabled="readOnly"
             />
           </label>
         </div>
@@ -109,6 +108,7 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
           type="button"
           class="delete-button"
           @click="$emit('remove')"
+          :disabled="readOnly"
         >
           {{ t('timeline.markerContext.deleteMarker') }}
         </EaButton>

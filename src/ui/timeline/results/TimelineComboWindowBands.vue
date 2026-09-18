@@ -11,6 +11,8 @@ const props = defineProps<{
   pxPerFrame: number;
   actionTop: number;
   label: string;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
 }>();
 
@@ -34,6 +36,7 @@ const items = computed(() =>
         props.prepFrames,
         props.pxPerFrame,
         props.prepExpanded,
+        props.prepEndFrame,
       ),
       width:
         frameToTimelinePx(
@@ -41,12 +44,14 @@ const items = computed(() =>
           props.prepFrames,
           props.pxPerFrame,
           props.prepExpanded,
+          props.prepEndFrame,
         ) -
         frameToTimelinePx(
           segment.startFrame,
           props.prepFrames,
           props.pxPerFrame,
           props.prepExpanded,
+          props.prepEndFrame,
         ),
       duration: formatDuration(durationFrames),
     };

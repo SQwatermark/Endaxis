@@ -10,6 +10,7 @@ export interface TimelineLibraryDropGeometryInput {
   readonly snapFrames: number;
   readonly maximumFrame: number;
   readonly prepExpanded?: boolean;
+  readonly prepEndFrame?: number;
 }
 
 /**
@@ -35,7 +36,13 @@ export function resolveTimelineLibraryDropFrame(input: TimelineLibraryDropGeomet
 
   const contentPx = input.clientX - input.laneLeftPx - input.dragOffsetPx;
   const actualFrame = Math.round(
-    timelinePxToExactFrame(contentPx, input.prepFrames, input.pxPerFrame, input.prepExpanded),
+    timelinePxToExactFrame(
+      contentPx,
+      input.prepFrames,
+      input.pxPerFrame,
+      input.prepExpanded,
+      input.prepEndFrame,
+    ),
   );
   return snapTimelineFrame(actualFrame, input.snapFrames, input.maximumFrame, -input.prepFrames);
 }

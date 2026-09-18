@@ -14,6 +14,8 @@ const props = defineProps<{
   prepFrames: number;
   pxPerFrame: number;
   actionTop: number;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
   operatorName: string;
 }>();
@@ -62,12 +64,14 @@ const items = computed(() =>
       props.prepFrames,
       props.pxPerFrame,
       props.prepExpanded,
+      props.prepEndFrame,
     );
     const right = frameToTimelinePx(
       segment.endFrame,
       props.prepFrames,
       props.pxPerFrame,
       props.prepExpanded,
+      props.prepEndFrame,
     );
     const title = segmentTitle(segment);
     const renderedIconWidth = iconWidth(segment);

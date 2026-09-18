@@ -16,6 +16,7 @@ const props = defineProps<{
   label: string;
   locked: boolean;
   disabled: boolean;
+  inputReadOnly?: boolean;
   color: string | null;
   compactVisible?: boolean;
   compactDisabledReason?: string;
@@ -122,6 +123,7 @@ onBeforeUnmount(() => {
         type="button"
         role="menuitem"
         @click="$emit('delete')"
+        :disabled="inputReadOnly"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <polyline points="3 6 5 6 21 6"></polyline>
@@ -140,7 +142,7 @@ onBeforeUnmount(() => {
         size="sm"
         type="button"
         role="menuitem"
-        :disabled="Boolean(createGroupDisabledReason)"
+        :disabled="inputReadOnly || Boolean(createGroupDisabledReason)"
         :title="createGroupDisabledReason"
         @click="$emit('createGroup')"
       >
@@ -159,6 +161,7 @@ onBeforeUnmount(() => {
         type="button"
         role="menuitem"
         @click="$emit('dissolveGroup')"
+        :disabled="inputReadOnly"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path
@@ -174,7 +177,7 @@ onBeforeUnmount(() => {
         class="menu-item"
         type="button"
         role="menuitem"
-        :disabled="Boolean(compactDisabledReason)"
+        :disabled="inputReadOnly || Boolean(compactDisabledReason)"
         :title="compactDisabledReason"
         @click="$emit('compact')"
       >
@@ -205,6 +208,7 @@ onBeforeUnmount(() => {
         type="button"
         role="menuitem"
         @click="$emit('toggleDisabled')"
+        :disabled="inputReadOnly"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <circle cx="12" cy="12" r="10"></circle>
@@ -293,7 +297,7 @@ onBeforeUnmount(() => {
   cursor: not-allowed;
 }
 
-.menu-item.delete-item:hover {
+.menu-item.delete-item:not(:disabled):hover {
   background: #ff7875;
 }
 

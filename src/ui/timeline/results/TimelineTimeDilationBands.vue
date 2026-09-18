@@ -11,6 +11,8 @@ const props = defineProps<{
   prepFrames: number;
   pxPerFrame: number;
   horizontalOffset: number;
+  prepEndFrame?: number;
+
   prepExpanded: boolean;
 }>();
 
@@ -21,15 +23,28 @@ const visibleBands = computed(() =>
       ...band,
       left:
         props.horizontalOffset +
-        frameToTimelinePx(band.startFrame, props.prepFrames, props.pxPerFrame, props.prepExpanded),
+        frameToTimelinePx(
+          band.startFrame,
+          props.prepFrames,
+          props.pxPerFrame,
+          props.prepExpanded,
+          props.prepEndFrame,
+        ),
       width: Math.max(
         1,
-        frameToTimelinePx(band.endFrame, props.prepFrames, props.pxPerFrame, props.prepExpanded) -
+        frameToTimelinePx(
+          band.endFrame,
+          props.prepFrames,
+          props.pxPerFrame,
+          props.prepExpanded,
+          props.prepEndFrame,
+        ) -
           frameToTimelinePx(
             band.startFrame,
             props.prepFrames,
             props.pxPerFrame,
             props.prepExpanded,
+            props.prepEndFrame,
           ),
       ),
       duration: formatDuration(band.endFrame - band.startFrame),

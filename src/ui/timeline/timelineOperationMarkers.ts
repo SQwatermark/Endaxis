@@ -47,10 +47,17 @@ export function projectTimelineOperationMarkers(
   prepFrames: number,
   pxPerFrame: number,
   prepExpanded = true,
+  prepEndFrame = 0,
 ): readonly TimelineOperationMarkerLayout[] {
   const markers: MutableMarker[] = inputs
     .map(input => {
-      const left = frameToTimelinePx(input.frame, prepFrames, pxPerFrame, prepExpanded);
+      const left = frameToTimelinePx(
+        input.frame,
+        prepFrames,
+        pxPerFrame,
+        prepExpanded,
+        prepEndFrame,
+      );
       const hold = input.kind === 'ultimate';
       const width = hold ? null : input.kind === 'switch' ? 28 : 20;
       // 旧版只用技能持续区间做按键提示的分层避让；按键帽本身仍是自适应文字宽度。
@@ -60,6 +67,7 @@ export function projectTimelineOperationMarkers(
           prepFrames,
           pxPerFrame,
           prepExpanded,
+          prepEndFrame,
         ) - left;
       const collisionWidth = hold
         ? Math.max(42, projectedDurationWidth)

@@ -1,4 +1,17 @@
 {
+  "inheritance": {
+    "boundary": "Inheritance boundary",
+    "collapseHistory": "Collapse history",
+    "expandHistory": "Expand history",
+    "history": "History before {time} is read-only. Build and battle configuration are locked.",
+    "source": "View source scenario",
+    "sourceMissing": "Source scenario unavailable",
+    "createHere": "Create inherited scenario here",
+    "name": "{name} (inherited)",
+    "changed": "The scenario changed. Select the inheritance point again.",
+    "failed": "Failed to create inherited scenario",
+    "created": "Inherited scenario created. History and configuration are locked."
+  },
   "objectOrigins": {
     "previousState": "Previous state",
     "buffState": "Buff · {layers} stacks",

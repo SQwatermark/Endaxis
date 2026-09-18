@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument } from '../../core/project/schema';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
@@ -105,6 +105,141 @@ const testIndex = {
 };
 
 describe('ScenarioSimulationService', () => {
+  it('负帧连续组历史从原初始化帧重放，继承后回执与资源一致', async () => {
+    let identity = 0;
+    const base = createPerlicaScenario();
+    base.battle.prepFrames = 300;
+    const placed = placeSkillGroup({
+      scenario: base,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'basicAttack',
+      startFrame: -180,
+      ids: { allocate: kind => `${kind}:negative:${identity++}` },
+    });
+    const grouped = groupPlacedSkillSequence(placed.scenario, placed.skillCastIds);
+    const inherited = structuredClone(grouped);
+    inherited.inheritance = { frame: 180, sourceScenarioId: 'missing' };
+    const ordinary = await createService().simulate(grouped, 240);
+    const replayed = await createService().simulate(inherited, 240);
+    expect(
+      ordinary.receiptEntries.some(
+        entry => entry.event === 'SkillInputProcessed' && entry.frame < 0,
+      ),
+    ).toBe(true);
+    expect(replayed.receiptEntries).toEqual(ordinary.receiptEntries);
+    expect(replayed.finalResources).toEqual(ordinary.finalResources);
+  });
+  it.each(['continuation', 'compact'] as const)(
+    '继承后的 %s 规划复用前缀且与普通规划一致',
+    async mode => {
+      let identity = 0;
+      const placed = placeSkillGroup({
+        scenario: createPerlicaScenario(),
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'basicAttack',
+        startFrame: 90,
+        ids: { allocate: kind => `${kind}:${identity++}` },
+      });
+      const inherited = structuredClone(placed.scenario);
+      inherited.inheritance = { frame: 60, sourceScenarioId: 'missing' };
+      const service = createService();
+      const create = vi.spyOn(service, 'createInputCombatSession');
+      const ordinary = await createService().planSkillChain(
+        placed.scenario,
+        placed.skillCastIds,
+        600,
+        undefined,
+        mode,
+      );
+      const planned = await service.planSkillChain(
+        inherited,
+        placed.skillCastIds,
+        600,
+        undefined,
+        mode,
+      );
+      expect(planned.status).toBe('planned');
+      expect(ordinary.status).toBe('planned');
+      if (planned.status !== 'planned' || ordinary.status !== 'planned')
+        throw new Error('planning failed');
+      expect(planned.scenario.tracks).toEqual(ordinary.scenario.tracks);
+      expect(planned.run.receiptEntries).toEqual(ordinary.run.receiptEntries);
+      expect(create).toHaveBeenCalledTimes(1);
+    },
+  );
+  it('继承续跑与完整重放一致，修改后缀只恢复前缀，清空缓存后才重建', async () => {
+    const base = createPerlicaScenario();
+    const first = placeSkillGroup({
+      scenario: base,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 1,
+      ids: { allocate: kind => `${kind}:history` },
+    });
+    const second = placeSkillGroup({
+      scenario: first.scenario,
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'battleSkill',
+      startFrame: 180,
+      ids: { allocate: kind => `${kind}:future` },
+    });
+    const inherited = structuredClone(second.scenario);
+    inherited.inheritance = { frame: 60, sourceScenarioId: 'missing' };
+    const service = createService();
+    const create = vi.spyOn(service, 'createInputCombatSession');
+    const full = await createService().simulate(second.scenario, 240);
+    const restored = await service.simulate(inherited, 240);
+    expect(restored.receiptEntries).toEqual(full.receiptEntries);
+    expect(restored.finalResources).toEqual(full.finalResources);
+    expect(create).toHaveBeenCalledTimes(1);
+    const changed = structuredClone(inherited);
+    changed.tracks[0]!.skillCasts.find(cast => cast.id === second.skillCastIds[0])!.placement = {
+      startFrame: 200,
+    };
+    const next = await service.simulate(changed, 260);
+    const ordinary = structuredClone(changed);
+    delete ordinary.inheritance;
+    expect(next.receiptEntries).toEqual(
+      (await createService().simulate(ordinary, 260)).receiptEntries,
+    );
+    expect(create).toHaveBeenCalledTimes(1);
+    const restyled = structuredClone(changed);
+    restyled.tracks[0]!.skillCasts.find(cast => cast.id === first.skillCastIds[0])!.presentation = {
+      color: '#abcdef',
+      locked: true,
+    };
+    expect((await service.simulate(restyled, 260)).receiptEntries).toEqual(next.receiptEntries);
+    expect(create).toHaveBeenCalledTimes(1);
+    service.clearCache();
+    await service.simulate(changed, 260);
+    expect(create).toHaveBeenCalledTimes(2);
+  });
+
+  it('继承首帧输入不重复、不遗漏，并拒绝跨边界的未提交连续成员', async () => {
+    let identity = 0;
+    const placed = placeSkillGroup({
+      scenario: createPerlicaScenario(),
+      trackIndex: 0,
+      operator: perlica,
+      skillGroupKey: 'basicAttack',
+      startFrame: 0,
+      ids: { allocate: kind => `${kind}:first:${identity++}` },
+    });
+    const inherited = structuredClone(placed.scenario);
+    inherited.inheritance = { frame: 0, sourceScenarioId: 'missing' };
+    expect((await createService().simulate(inherited, 120)).receiptEntries).toEqual(
+      (await createService().simulate(placed.scenario, 120)).receiptEntries,
+    );
+    inherited.inheritance.frame = 1;
+    const group = groupPlacedSkillSequence(inherited, placed.skillCastIds);
+    expect(placed.skillCastIds.length).toBeGreaterThan(1);
+    await expect(createService().simulate(group, 120)).rejects.toThrow('crosses');
+  });
+
   it('排程回调只能在当前输入阶段提交，不能保留端口或改写其他帧', () => {
     const session = createService().createInputCombatSession(createPerlicaScenario());
     let retained: CombatSkillInputPhase | undefined;

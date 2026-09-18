@@ -49,6 +49,8 @@ const props = withDefaults(
     trackLayouts: readonly TimelineTrackEffectLayout[];
     actionHeight?: number;
     preview?: ConnectionPreview | null;
+    prepEndFrame?: number;
+
     prepExpanded: boolean;
   }>(),
   {
@@ -117,6 +119,7 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
             props.scenario.battle.prepFrames,
             props.pxPerFrame,
             props.prepExpanded,
+            props.prepEndFrame,
           ),
         // 命中标记渲染在技能块底部边缘，端点与标记中心对齐。
         y: actionTop(found.trackIndex) + props.actionHeight,
@@ -132,6 +135,7 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
       props.scenario.battle.prepFrames,
       props.pxPerFrame,
       props.prepExpanded,
+      props.prepEndFrame,
     );
   const startFrame = resolveCastActualStartFrame(found.skillCast.id, found.skillCast.startFrame);
   const endFrame =
@@ -143,6 +147,7 @@ function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null 
       props.scenario.battle.prepFrames,
       props.pxPerFrame,
       props.prepExpanded,
+      props.prepEndFrame,
     ) -
     (left - props.trackHeaderWidth);
   const top = actionTop(found.trackIndex);
@@ -204,7 +209,11 @@ const previewPath = computed(() => {
 </script>
 
 <template>
-  <svg class="timeline-connections" aria-hidden="true">
+  <svg
+    class="timeline-connections"
+    aria-hidden="true"
+    :style="{ clipPath: prepExpanded ? undefined : `inset(0 0 0 ${trackHeaderWidth + 18}px)` }"
+  >
     <g v-for="connection in projectedConnections" :key="connection.id">
       <path
         class="connection-hit-area"

@@ -12,6 +12,7 @@ import OperatorAvatar from '../../components/OperatorAvatar.vue';
 import { EaButton } from '@/design-system';
 
 const props = defineProps<{
+  readOnly?: boolean;
   track: TimelineTrackViewModel;
   name: string;
   formName?: string | null;
@@ -50,7 +51,7 @@ function selectHeader(): void {
 
 function selectName(): void {
   emit('select');
-  if (props.track.operatorSlug === null) emit('operator');
+  if (!props.readOnly && props.track.operatorSlug === null) emit('operator');
 }
 
 function updateInitialUltimateEnergy(value: unknown): void {
@@ -68,6 +69,10 @@ function leaveReorderTarget(event: DragEvent): void {
 }
 
 function startReorder(event: DragEvent): void {
+  if (props.readOnly) {
+    event.preventDefault();
+    return;
+  }
   const header = (event.currentTarget as HTMLElement).closest('.track-header');
   if (header instanceof HTMLElement && event.dataTransfer !== null) {
     const bounds = header.getBoundingClientRect();
@@ -103,7 +108,7 @@ function startReorder(event: DragEvent): void {
         icon-only
         type="button"
         class="reorder-button"
-        :disabled="!canMoveUp"
+        :disabled="readOnly || !canMoveUp"
         :title="$t('common.moveUp')"
         :aria-label="$t('common.moveUp')"
         @click.stop="$emit('moveUp')"
@@ -112,7 +117,7 @@ function startReorder(event: DragEvent): void {
       </EaButton>
       <span
         class="drag-handle"
-        draggable="true"
+        :draggable="!readOnly"
         aria-hidden="true"
         @dragstart.stop="startReorder"
         @dragend.stop="$emit('reorderDragEnd')"
@@ -132,7 +137,7 @@ function startReorder(event: DragEvent): void {
         icon-only
         type="button"
         class="reorder-button"
-        :disabled="!canMoveDown"
+        :disabled="readOnly || !canMoveDown"
         :title="$t('common.moveDown')"
         :aria-label="$t('common.moveDown')"
         @click.stop="$emit('moveDown')"
@@ -144,7 +149,9 @@ function startReorder(event: DragEvent): void {
       <div v-if="track.operatorSlug" class="initial-gauge-control" @click.stop>
         <span class="initial-gauge-label">{{ $t('timelineGrid.track.initialGaugeShort') }}</span>
         <span class="initial-gauge-input-wrap">
+          <span v-if="readOnly">{{ track.initialUltimateEnergy }}</span>
           <CustomNumberInput
+            v-else
             :model-value="track.initialUltimateEnergy"
             :min="0"
             :max="track.maxUltimateEnergy ?? 0"
@@ -164,6 +171,7 @@ function startReorder(event: DragEvent): void {
           v-if="track.operatorSlug"
           type="button"
           class="avatar-shell avatar-trigger"
+          :disabled="readOnly"
           :title="labels.operator"
           :aria-label="labels.operator"
           @click.stop="$emit('operator')"
@@ -187,6 +195,7 @@ function startReorder(event: DragEvent): void {
           v-else
           type="button"
           class="avatar-shell avatar-trigger"
+          :disabled="readOnly"
           :title="labels.operator"
           :aria-label="labels.operator"
           @click.stop="$emit('operator')"
@@ -230,6 +239,7 @@ function startReorder(event: DragEvent): void {
           icon-only
           type="button"
           class="weapon-slot"
+          :disabled="readOnly"
           :class="{ empty: weaponIcon === null }"
           :title="labels.weapon"
           :aria-label="labels.weapon"
@@ -246,6 +256,7 @@ function startReorder(event: DragEvent): void {
           :key="slot"
           type="button"
           class="gear-slot"
+          :disabled="readOnly"
           :class="{ empty: gearIcons[slot] === null }"
           :title="labels[slot]"
           :aria-label="labels[slot]"

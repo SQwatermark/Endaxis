@@ -24,6 +24,7 @@ import type {
 const props = defineProps<{
   marker: ExternalEventMarkerDocument;
   maximumFrame: number;
+  readOnly?: boolean;
   targetLabel: string;
 }>();
 
@@ -116,6 +117,7 @@ function toggleFeature(feature: DamageFeature): void {
               :step="1"
               :model-value="marker.frame"
               @change="commitFrame"
+              :disabled="readOnly"
             />
           </label>
           <div class="form-group">
@@ -148,6 +150,7 @@ function toggleFeature(feature: DamageFeature): void {
                 })),
               ]"
               @change="setDamageType"
+              :disabled="readOnly"
             />
           </label>
         </section>
@@ -161,6 +164,7 @@ function toggleFeature(feature: DamageFeature): void {
               class="check-field"
               :model-value="marker.event.tags.includes(tag)"
               @change="toggleTag(tag)"
+              :disabled="readOnly"
               >{{ t(`timeline.skillEditing.damageTagNames.${tag}`) }}</EaCheckbox
             >
           </div>
@@ -175,6 +179,7 @@ function toggleFeature(feature: DamageFeature): void {
               class="check-field"
               :model-value="marker.event.features.includes(feature)"
               @change="toggleFeature(feature)"
+              :disabled="readOnly"
               >{{ t(`timeline.skillEditing.damageFeatureNames.${feature}`) }}</EaCheckbox
             >
           </div>
@@ -188,6 +193,7 @@ function toggleFeature(feature: DamageFeature): void {
           type="button"
           class="delete-button"
           @click="$emit('remove')"
+          :disabled="readOnly"
         >
           {{ t('timeline.markerContext.deleteMarker') }}
         </EaButton>

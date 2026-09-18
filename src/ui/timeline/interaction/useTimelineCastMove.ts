@@ -12,6 +12,9 @@ import { resolveTimelineCastMovePointerFrame } from './timelineCastMoveGeometry'
 import type { Ref } from 'vue';
 import type { InteractionSession } from '../../interaction/interactionSession';
 interface TimelineCastMoveOptions {
+  readonly isInputReadOnly?: (castId: string) => boolean;
+  readonly minimumInputFrame?: Readonly<Ref<number>>;
+  readonly prepEndFrame?: Readonly<Ref<number>>;
   readonly scenario: Ref<ScenarioDocument>;
   readonly actionSelection: Readonly<Ref<TimelineActionSelection>>;
   readonly interactionSession: InteractionSession;
@@ -96,7 +99,11 @@ export function useTimelineCastMove(options: TimelineCastMoveOptions) {
     const selectedCasts = scenario.value.tracks.flatMap(track =>
       track === null ? [] : track.skillCasts.filter(candidate => movingIds.has(candidate.id)),
     );
-    if (selectedCasts.some(candidate => candidate.presentation?.locked ?? false)) {
+    if (
+      selectedCasts.some(
+        candidate => candidate.presentation?.locked || options.isInputReadOnly?.(candidate.id),
+      )
+    ) {
       event.preventDefault();
       event.stopPropagation();
       warnLocked();
@@ -125,6 +132,7 @@ export function useTimelineCastMove(options: TimelineCastMoveOptions) {
         scenario.value.battle.prepFrames,
         pxPerFrame.value,
         scenario.value.editor.prepExpanded,
+        options.prepEndFrame?.value,
       ) - initialActualFrame,
     );
     castMoveGesture.value = {
@@ -205,9 +213,10 @@ export function useTimelineCastMove(options: TimelineCastMoveOptions) {
       pxPerFrame: pxPerFrame.value,
       prepFrames: scenario.value.battle.prepFrames,
       prepExpanded: scenario.value.editor.prepExpanded,
+      prepEndFrame: options.prepEndFrame?.value,
       pointerOffsetActualFrames: gesture.pointerOffsetActualFrames,
       snapFrames: snapFrames.value,
-      minimumFrame: -scenario.value.battle.prepFrames,
+      minimumFrame: options.minimumInputFrame?.value ?? -gesture.baseScenario.battle.prepFrames,
       actualMaximumFrame: scenario.value.battle.durationFrames,
     });
   }
@@ -248,6 +257,7 @@ export function useTimelineCastMove(options: TimelineCastMoveOptions) {
       gesture.skillCastId,
       frame.placementFrame,
       gesture.baseStartFrames,
+      options.minimumInputFrame?.value,
     );
     // 多选按共享位移整体限位。预览必须使用命令实际采用的落点，不能让主块单独越界。
     const placedFrame = movedScenario.tracks[gesture.trackIndex]!.skillCasts.find(
@@ -328,7 +338,14 @@ export function useTimelineCastMove(options: TimelineCastMoveOptions) {
     setTimeout(() => {
       if (suppressedCastClickId === gesture.pointerCastId) suppressedCastClickId = null;
     }, 0);
-    commitScenario('moveSkillCasts', () => finalScenario);
+    // 预览不是已提交文档；失败时必须恢复原输入，不能把非法落点留在界面里。
+    scenario.value = gesture.baseScenario;
+    const committed = commitScenario('moveSkillCasts', () => finalScenario);
+    if (!committed) {
+      castMoveGesture.value = null;
+      await simulateNow();
+      return;
+    }
     await nextTick();
     const published = await simulateNow();
     // 只清理仍属于本次松手的预览；失败时保留实际落点，避免回退到不匹配的旧回执。
