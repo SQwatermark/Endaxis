@@ -23,6 +23,7 @@ function project(
   value: number,
   attacker: number,
   defender = 1,
+  extraData: Record<string, number | string> = {},
 ) {
   const c = new CombatReceiptCollector();
   c.record({
@@ -35,6 +36,7 @@ function project(
       value,
       'damageScale:normal:attacker': attacker,
       'damageScale:normal:defender': defender,
+      ...extraData,
     },
     appliedDamageModifiers: modifiers,
   });
@@ -57,6 +59,72 @@ it('护盾吸收后的伤害不能按吸收前的乘法公式分账', () => {
   expect(
     projectHitDamageContribution(origins, origins.get({ kind: 'receipt', sequence: 0 }), 'a'),
   ).toEqual({ self: 50, external: [], diagnostics: ['damage-absorbed'] });
+});
+
+it('直接倍率与已有乘区共用有限分配，保留自身倍率且不依赖记录顺序', () => {
+  const multiply = (sourceId: string, multiplier: number): AppliedDamageModifier => ({
+    kind: 'multiplyValue',
+    buffId: 'direct-scale',
+    sourceId,
+    side: 'attacker',
+    multiplier,
+  });
+  const records = [multiply('a', 2), multiply('b', 1.5), multiply('c', 0.8), modifier('d', 0.25)];
+  const result = project(records, 300, 1.25);
+  expect(result.self).toBeCloseTo(200);
+  expect(result.external.reduce((sum, item) => sum + item.value, 0)).toBeCloseTo(100);
+  expect(result.external.find(item => item.providerOperatorId === 'c')!.value).toBeLessThan(0);
+  expect(result.diagnostics).toEqual([]);
+  const reversed = project([...records].reverse(), 300, 1.25);
+  for (const item of result.external)
+    expect(
+      reversed.external.find(other => other.providerOperatorId === item.providerOperatorId)!.value,
+    ).toBeCloseTo(item.value);
+  for (const multiplier of [0, -1, Infinity, NaN]) {
+    const invalid = project([multiply('b', multiplier)], 300, 1);
+    expect(invalid.self).toBe(300);
+    expect(invalid.external).toEqual([]);
+  }
+});
+
+it('纯加法减抗按百分点分配，保留自身减抗，并拒绝混合槽及无关元素', () => {
+  const resistance = (sourceId: string, value: number): AppliedDamageModifier => ({
+    kind: 'attribute',
+    attribute: 'PulseResistance',
+    slot: 'addition',
+    value,
+    side: 'defender',
+    sourceId,
+    buffId: 'resistance',
+  });
+  const data = {
+    damageType: 'electric',
+    enemyResistancePercent: 10,
+    resistancePercentMultiplier: 0.9,
+  };
+  // 基础抗性 50，自身减抗 10，外部减抗 30：自身伤害 60，外部贡献 30。
+  const result = project([resistance('a', -10), resistance('b', -30)], 90, 1, 1, data);
+  expect(result.self).toBeCloseTo(60);
+  expect(result.external[0]!.value).toBeCloseTo(30);
+  expect(result.diagnostics).toEqual([]);
+  const mixed = project(
+    [
+      resistance('b', -30),
+      { ...resistance('a', 0.5), slot: 'baseMultiplier' } as AppliedDamageModifier,
+    ],
+    90,
+    1,
+    1,
+    data,
+  );
+  expect(mixed.self).toBe(90);
+  expect(mixed.external).toEqual([]);
+  expect(mixed.diagnostics).toContain('unsupported-resistance-slots');
+  expect(
+    project([resistance('b', -30)], 90, 1, 1, { ...data, damageType: 'nature' }).external,
+  ).toEqual([]);
+  expect(project([resistance('b', -30)], 90, 1, 1).external).toEqual([]);
+  expect(project([resistance('b', -120)], 90, 1, 1, data).external).toEqual([]);
 });
 
 it('保留自身加成，并按带符号的同区间外部增量分配', () => {

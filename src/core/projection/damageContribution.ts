@@ -1,9 +1,10 @@
 /**
  * 从已发布命中的直接修正分配贡献。只读来源查询和冻结乘区，不执行技能或重算战斗。
- * 首批支持 damageScale；属性槽和其他未完整记录的修正保留在自身项。
+ * 支持 damageScale、直接 multiplyValue 和纯加法抗性；其他属性槽保留在自身项。
  */
 import { CombatObjectOrigins, type CombatObjectNode } from './combatObjectOrigins';
 import type { CombatObjectRef } from '../combat/receipt/combatReceipt';
+import { ENEMY_RESISTANCE_ATTRIBUTES } from '../combat/damage/playerActiveDamageInput';
 
 export interface HitDamageContribution {
   readonly self: number;
@@ -56,13 +57,70 @@ export function projectHitDamageContribution(
       continue;
     }
     const modifier = item.modifier;
-    // 注入乘区的属性副本不是第二笔加成；在属性槽完整还原前两者都不分配。
+    const identity = { modifier: item.node.ref, providerOperatorId: provider };
+    if (modifier.kind === 'multiplyValue') {
+      if (!Number.isFinite(modifier.multiplier)) return fallback('non-finite-modifier');
+      if (modifier.multiplier <= 0) return fallback('non-positive-factor');
+      // 原处理器直接乘到计算值，记录就是独立因子，无需重算基础伤害或追溯参数。
+      weights.push({ ...identity, logarithm: Math.log(modifier.multiplier) });
+      continue;
+    }
+    if (
+      modifier.kind === 'attribute' &&
+      modifier.side === 'defender' &&
+      Object.values(ENEMY_RESISTANCE_ATTRIBUTES).some(attribute => attribute === modifier.attribute)
+    ) {
+      const expectedAttribute = Object.entries(ENEMY_RESISTANCE_ATTRIBUTES).find(
+        ([damageType]) => damageType === hit.fact?.data?.damageType,
+      )?.[1];
+      if (modifier.attribute !== expectedAttribute) {
+        diagnostics.add('resistance-type-mismatch');
+        continue;
+      }
+      // 敌方抗性从静态原值与原生八槽求值。只有全部已记录槽都是纯加法时，
+      // 百分点变化才能直接换成抗性因子的增量；不猜乘法槽或其他属性的边际效果。
+      const additiveSlots = ['baseAddition', 'baseFinalAddition', 'addition', 'finalAddition'];
+      const sameAttribute = direct.filter(
+        entry =>
+          entry.modifier.kind === 'attribute' &&
+          entry.modifier.side === modifier.side &&
+          entry.modifier.attribute === modifier.attribute,
+      );
+      if (
+        sameAttribute.some(
+          entry =>
+            entry.modifier.kind === 'attribute' && !additiveSlots.includes(entry.modifier.slot),
+        )
+      ) {
+        diagnostics.add('unsupported-resistance-slots');
+        continue;
+      }
+      const actual = hit.fact?.data?.resistancePercentMultiplier;
+      const resistance = hit.fact?.data?.enemyResistancePercent;
+      if (
+        typeof actual !== 'number' ||
+        typeof resistance !== 'number' ||
+        !Number.isFinite(actual) ||
+        !Number.isFinite(resistance) ||
+        actual <= 0 ||
+        Math.abs(actual - (1 - resistance / 100)) > 1e-9
+      )
+        return fallback('missing-or-clamped-resistance');
+      if (!Number.isFinite(modifier.value)) return fallback('non-finite-modifier');
+      let group = groups.get('resistance');
+      if (group === undefined) {
+        group = { actual, items: [] };
+        groups.set('resistance', group);
+      }
+      group.items.push({ ...identity, addition: -modifier.value / 100 });
+      continue;
+    }
+    // 其他属性的槽位语义未完整还原时保留自身，不按原始槽值冒充分区增量。
     if (modifier.kind !== 'damageScale') {
       diagnostics.add('unsupported-modifier');
       continue;
     }
     if (!Number.isFinite(modifier.addition)) return fallback('non-finite-modifier');
-    const identity = { modifier: item.node.ref, providerOperatorId: provider };
     if (modifier.zone === 'product') {
       if (1 + modifier.addition <= 0) return fallback('non-positive-factor');
       weights.push({ ...identity, logarithm: Math.log1p(modifier.addition) });
