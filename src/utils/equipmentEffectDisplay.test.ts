@@ -4,9 +4,30 @@ import { describe, expect, it } from 'vitest';
 import {
   EQUIPMENT_MODIFIER_ICON_PATHS,
   getEquipmentModifierIconPath,
+  formatEquipmentEffectLabel,
+  getEquipmentEffectModifierIds,
 } from './equipmentEffectDisplay';
 
 describe('equipment modifier presentation icons', () => {
+  it('labels staggered-target damage with its dedicated affix', () => {
+    const effect = {
+      stat: { modifier: 'dmgBonus' },
+      condition: { kind: 'enemyStaggered' },
+    };
+    expect(getEquipmentEffectModifierIds(effect.stat, effect.condition)).toEqual([
+      'broken_dmg_bonus',
+    ]);
+    expect(
+      formatEquipmentEffectLabel(
+        effect,
+        key =>
+          key === 'timelineGrid.equipmentDialog.affixFilters.broken_dmg_bonus'
+            ? '对失衡目标伤害加成'
+            : key,
+        'zh-CN',
+      ),
+    ).toBe('对失衡目标伤害加成');
+  });
   it.each([
     ['strength', '/icons/icon_attribute_str.webp'],
     ['intellect', '/icons/icon_attribute_wisd.webp'],

@@ -55,6 +55,7 @@ interface EquipmentStatLike {
 
 interface EquipmentEffectLike {
   stat?: EquipmentStatLike | null;
+  condition?: { kind?: string } | null;
   [key: string]: unknown;
 }
 
@@ -156,7 +157,12 @@ const SKILL_TYPE_DMG_MODIFIER_IDS: Record<string, string> = {
   ultimate: 'ultimate_dmg_bonus',
 };
 
-function getEquipmentDmgBonusModifierIds(stat: EquipmentStatLike): string[] {
+function getEquipmentDmgBonusModifierIds(
+  stat: EquipmentStatLike,
+  condition?: { kind?: string } | null,
+): string[] {
+  if (condition?.kind === 'enemyStaggered') return ['broken_dmg_bonus'];
+
   const elements = normalizeEquipmentStatArray(stat?.elements);
 
   if (elements.length > 0) {
@@ -195,6 +201,7 @@ function getEquipmentDmgBonusModifierIds(stat: EquipmentStatLike): string[] {
 
 export function getEquipmentEffectModifierIds(
   stat: EquipmentStatLike | null | undefined,
+  condition?: { kind?: string } | null,
 ): string[] {
   if (!stat?.modifier) return [];
 
@@ -212,7 +219,7 @@ export function getEquipmentEffectModifierIds(
   if (stat.modifier === 'ultimateGainEfficiency') return ['ult_charge_eff'];
   if (stat.modifier === 'heal') return ['healing_effect'];
   if (stat.modifier === 'protection') return ['final_dmg_reduction'];
-  if (stat.modifier === 'dmgBonus') return getEquipmentDmgBonusModifierIds(stat);
+  if (stat.modifier === 'dmgBonus') return getEquipmentDmgBonusModifierIds(stat, condition);
 
   if (stat.modifier === 'susceptibility') {
     const elements = normalizeEquipmentStatArray(stat.elements);
@@ -244,7 +251,8 @@ export function formatEquipmentEffectLabel(
   const stat = effect?.stat;
   if (!stat) return trOrFallback(t, 'common.unknown', 'Unknown');
 
-  const modifierId = getEquipmentEffectModifierIds(stat)[0] || stat.modifier || '';
+  const modifierId =
+    getEquipmentEffectModifierIds(stat, effect?.condition)[0] || stat.modifier || '';
 
   if (stat.modifier === 'attributeFlat' || stat.modifier === 'attributePercent') {
     const attr = normalizeEquipmentStatArray(stat.attribute)[0];
