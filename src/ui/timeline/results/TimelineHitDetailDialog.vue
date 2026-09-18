@@ -12,11 +12,16 @@ import {
   type DamageScaleZone,
 } from '../../../core/combat/damage/damageScale';
 import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
+import { ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE } from '../../../core/combat/attributes/operatorAttackAttributes';
+import type { OperatorAttribute } from '../../../core/game-data/operatorDefinition';
+import {
+  ATTRIBUTE_MODIFIER_SLOTS,
+  type AttributeModifierSlot,
+} from '../../../../packages/game-data-contract/src/modifiers';
 import type {
   OperatorPanelContributionReceipt,
   ResolvedOperatorPanel,
 } from '../../../core/compiler/resolveOperatorPanel';
-import { projectAttackPercentContributionSources } from '../library/operatorPanelContributionPresentation';
 
 const props = defineProps<{
   visible: boolean;
@@ -41,7 +46,10 @@ const props = defineProps<{
   ) => { name: string; kind: string } | undefined;
   operatorPanel: ResolvedOperatorPanel | null;
   operatorPanelForEntry?: (entry: CombatReceiptEntry) => ResolvedOperatorPanel | null;
-  contributionSourceLabel: (entry: OperatorPanelContributionReceipt, sequence?: number) => string;
+  contributionSourceLabel: (
+    entry: Pick<OperatorPanelContributionReceipt, 'source'>,
+    sequence?: number,
+  ) => string;
   damageTypeLabel: (value: string) => string;
   skillTypeLabel: (value: string) => string;
   labels: {
@@ -59,14 +67,11 @@ const props = defineProps<{
     criticalDamage: string;
     nonCriticalDamage: string;
     attack: string;
+    staticBuildAttack: string;
     basicTotal: string;
-    baseAttack: string;
-    operatorAttack: string;
-    weaponAttack: string;
-    attackBonus: string;
-    flatAttack: string;
-    percentageAttack: string;
+    attackSlot: (slot: AttributeModifierSlot) => string;
     attributeBonus: string;
+    scalingCoefficient: string;
     attributeLabel: (attribute: string) => string;
     fromSource: (name: string) => string;
     skillMultiplier: string;
@@ -99,7 +104,7 @@ interface DetailRow {
 
 interface DamageDetail {
   readonly attackFormulaTooltip?: string;
-  readonly attributeSources: readonly DetailRow[];
+  readonly attributeSources: Readonly<Record<string, readonly DetailRow[]>>;
   readonly formulaTooltip?: string;
   readonly key: number;
   readonly headline: number;
@@ -109,7 +114,10 @@ interface DamageDetail {
   readonly canCritical: boolean;
   readonly canForceCritical: boolean;
   readonly attackValue: string;
+  readonly staticAttack: number | null;
   readonly attackSources: readonly DetailRow[];
+  readonly attackSlotSources: Readonly<Record<AttributeModifierSlot, readonly DetailRow[]>>;
+  readonly otherAttackSlots: readonly AttributeModifierSlot[];
   readonly attackDetail: AttackDetail | null;
   readonly contextRows: readonly DetailRow[];
   readonly baseRows: readonly DetailRow[];
@@ -127,14 +135,6 @@ interface AttackAttributeContribution {
 
 interface AttackDetail {
   readonly formula: string;
-  readonly basicTotal: number;
-  readonly baseAttackTotal: number;
-  readonly operatorBaseAttack: number;
-  readonly weaponBaseAttack: number;
-  readonly attackBonus: number;
-  readonly flatAttack: number;
-  readonly attackPercent: number;
-  readonly attackPercentSources: readonly OperatorPanelContributionReceipt[];
   readonly attributeContributions: readonly AttackAttributeContribution[];
 }
 
@@ -155,32 +155,51 @@ function num(value: unknown): string {
   return Math.floor(finiteNumber(value)).toLocaleString();
 }
 
-function ceilNum(value: unknown): string {
-  return Math.ceil(finiteNumber(value)).toLocaleString();
-}
-
 function pct(value: unknown): string {
-  return `${(finiteNumber(value) * 100).toFixed(1)}%`;
+  return `${(finiteNumber(value) * 100).toLocaleString(undefined, {
+    useGrouping: false,
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 6,
+  })}%`;
 }
 
 function mult(value: unknown): string {
-  return `x${finiteNumber(value).toFixed(3)}`;
+  return `x${finiteNumber(value).toLocaleString(undefined, {
+    useGrouping: false,
+    minimumFractionDigits: 3,
+    maximumFractionDigits: 6,
+  })}`;
 }
 
 function differsFromOne(value: number): boolean {
   return Math.abs(value - 1) > 0.000_001;
 }
 
-function modifierTooltip(items: readonly AppliedDamageModifier[]): string | undefined {
+function renderModifierTooltip(
+  items: readonly AppliedDamageModifier[],
+  sequence: number,
+): string | undefined {
   if (items.length === 0) return undefined;
-  return modifierRows(items)
+  return renderModifierRows(items, sequence)
     .map(row => `${row.label} ${row.value}`)
     .join('\n');
 }
 
-function modifierRows(items: readonly AppliedDamageModifier[]): DetailRow[] {
+function renderModifierRows(
+  items: readonly AppliedDamageModifier[],
+  sequence: number,
+): DetailRow[] {
   return items.map(item => {
-    const name = props.buffLabel?.(item) ?? item.buffId;
+    const name =
+      item.panelSource !== undefined
+        ? props.contributionSourceLabel({ source: item.panelSource }, sequence)
+        : item.buffId !== undefined
+          ? (props.buffLabel?.(item) ?? item.buffId)
+          : ((item.sourceActionId === undefined
+              ? undefined
+              : props.actionPresentation?.(item.sourceId, item.sourceActionId)?.name) ??
+            props.operatorLabel?.(item.sourceId) ??
+            item.sourceId);
     let value: string;
     if (item.kind === 'multiplyValue') value = mult(item.multiplier);
     else if (item.kind === 'damageScale')
@@ -201,6 +220,9 @@ function modifierRows(items: readonly AppliedDamageModifier[]): DetailRow[] {
               : absolute
                 ? `${signed}${item.value.toLocaleString()}`
                 : `${signed}${pct(item.value)}`;
+      const factorAttribute = Object.entries(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE).find(
+        ([, attribute]) => attribute === item.attribute,
+      )?.[0];
       const label =
         item.attribute === 'criticalRate'
           ? props.labels.criticalRate
@@ -210,17 +232,16 @@ function modifierRows(items: readonly AppliedDamageModifier[]): DetailRow[] {
               ? props.labels.attack
               : ['strength', 'agility', 'intellect', 'will'].includes(item.attribute)
                 ? props.labels.attributeLabel(item.attribute)
-                : '';
+                : factorAttribute !== undefined
+                  ? `${props.labels.attributeLabel(factorAttribute)} ${props.labels.scalingCoefficient}`
+                  : '';
       if (label) value = `${label} ${value}`;
     }
     return { label: name, value };
   });
 }
 
-function projectAttackDetail(
-  data: CombatReceiptEntry['data'],
-  panel: ResolvedOperatorPanel | null,
-): AttackDetail | null {
+function projectAttackDetail(data: CombatReceiptEntry['data']): AttackDetail | null {
   if (data === undefined || typeof data.attackDetailMainAttribute !== 'string') return null;
   if (typeof data.attackDetailSecondaryAttribute !== 'string') return null;
   const required = [
@@ -358,14 +379,6 @@ function projectAttackDetail(
   }
   return {
     formula: formula.join('\n'),
-    basicTotal,
-    baseAttackTotal: rawBase,
-    operatorBaseAttack,
-    weaponBaseAttack,
-    attackBonus: basicTotal - rawBase,
-    flatAttack,
-    attackPercent,
-    attackPercentSources: projectAttackPercentContributionSources(panel),
     attributeContributions,
   };
 }
@@ -381,6 +394,9 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
   props.entries.flatMap(entry => {
     if (entry.event !== 'DamageApplied') return [];
     const data = entry.data ?? {};
+    const panel = props.operatorPanelForEntry
+      ? props.operatorPanelForEntry(entry)
+      : props.operatorPanel;
     const actualValue = finiteNumber(data.value);
     const expectedDamage = finiteNumber(data.expectedDamage, actualValue);
     const nonCriticalDamage = finiteNumber(data.nonCriticalDamage, actualValue);
@@ -427,9 +443,14 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
       modifiers.filter(
         item => item.kind === 'attribute' && item.side === side && keys.includes(item.attribute),
       );
-    const criticalTooltip = modifierTooltip(
-      attributes('attacker', ['criticalRate', 'criticalDamageIncrease']),
-    );
+    const modifierRows = (items: readonly AppliedDamageModifier[]) =>
+      renderModifierRows(items, entry.sequence);
+    const modifierTooltip = (items: readonly AppliedDamageModifier[]) =>
+      renderModifierTooltip(items, entry.sequence);
+    const criticalTooltip =
+      [...modifierRows(attributes('attacker', ['criticalRate', 'criticalDamageIncrease']))]
+        .map(row => `${row.label} ${row.value}`)
+        .join('\n') || undefined;
     const hasZones = DAMAGE_SCALE_ZONES.some(
       zone => typeof data[`damageScale:${zone}`] === 'number',
     );
@@ -576,38 +597,33 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
             `≈ ${formulaLabel}（${num(formulaResult)}）`,
           ].join('\n')
         : undefined;
-    const panel = props.operatorPanelForEntry
-      ? props.operatorPanelForEntry(entry)
-      : props.operatorPanel;
-    const attackDetail = projectAttackDetail(entry.data, panel);
-    const staticAttackSources: DetailRow[] =
-      attackDetail === null && data.usesAttackSnapshot !== true
-        ? (panel?.receipt ?? [])
-            .filter(item => item.stat === 'attack')
-            .map(item => ({
-              label: props.contributionSourceLabel(item, entry.sequence),
-              value: `${item.operation === 'base' ? props.labels.baseAttack : item.operation === 'percent' ? props.labels.percentageAttack : props.labels.flatAttack} ${item.operation === 'percent' ? pct(item.value) : num(item.value)}`,
-            }))
-        : [];
+    const attackDetail = projectAttackDetail(entry.data);
+    const attackModifiers = attributes('attacker', ['Atk']);
+    const attackSlotSources = Object.fromEntries(
+      ATTRIBUTE_MODIFIER_SLOTS.map(slot => [
+        slot,
+        modifierRows(
+          attackModifiers.filter(item => item.kind === 'attribute' && item.slot === slot),
+        ),
+      ]),
+    ) as Record<AttributeModifierSlot, DetailRow[]>;
     return [
       {
         formulaTooltip,
         attackFormulaTooltip: attackDetail?.formula,
-        attributeSources:
-          data.usesAttackSnapshot === true
-            ? []
-            : modifierRows(
+        attributeSources: Object.fromEntries(
+          (attackDetail?.attributeContributions ?? []).map(row => [
+            row.key,
+            [
+              ...modifierRows(
                 attributes('attacker', [
-                  'strength',
-                  'agility',
-                  'intellect',
-                  'will',
-                  'AtkIncreaseFactorFromStr',
-                  'AtkIncreaseFactorFromAgi',
-                  'AtkIncreaseFactorFromWisd',
-                  'AtkIncreaseFactorFromWill',
+                  row.key,
+                  ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE[row.key as OperatorAttribute],
                 ]),
               ),
+            ],
+          ]),
+        ),
         key: entry.sequence,
         headline: props.randomMode === 'expected' ? expectedDamage : actualValue,
         expectedDamage,
@@ -617,10 +633,21 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
         canForceCritical:
           data.canCritical !== false && Math.abs(criticalDamage - nonCriticalDamage) > 0.000_001,
         attackValue: num(data.attack),
-        attackSources:
-          data.usesAttackSnapshot === true
-            ? []
-            : [...staticAttackSources, ...modifierRows(attributes('attacker', ['Atk']))],
+        staticAttack: panel?.attack ?? null,
+        attackSources: modifierRows(attackModifiers),
+        attackSlotSources,
+        otherAttackSlots: (
+          [
+            'baseAddition',
+            'baseMultiplier',
+            'baseFinalAddition',
+            'baseFinalMultiplier',
+            'addition',
+            'multiplier',
+            'finalAddition',
+            'finalMultiplier',
+          ] as const
+        ).filter(slot => attackSlotSources[slot].length > 0),
         attackDetail,
         contextRows,
         baseRows,
@@ -649,7 +676,7 @@ function onClose(): void {
       class="hit-damage-detail-dialog"
       :close-on-click-modal="true"
       append-to-body
-      @update:model-value="onClose"
+      @close="onClose"
     >
       <slot name="status" />
       <div
@@ -762,95 +789,31 @@ function onClose(): void {
                 </td>
                 <td class="value-cell">{{ detail.attackValue }}</td>
               </tr>
-              <template v-if="openAttackDetails.has(detail.key) && detail.attackDetail !== null">
-                <tr class="sub-row">
-                  <td class="label-cell indent-1">{{ labels.basicTotal }}</td>
-                  <td class="value-cell">{{ ceilNum(detail.attackDetail.basicTotal) }}</td>
+              <template v-if="openAttackDetails.has(detail.key)">
+                <tr v-if="detail.staticAttack !== null" class="sub-row">
+                  <td class="label-cell indent-1">{{ labels.staticBuildAttack }}</td>
+                  <td class="value-cell">{{ num(detail.staticAttack) }}</td>
                 </tr>
-                <tr class="sub-row">
-                  <td class="label-cell indent-2">{{ labels.baseAttack }}</td>
-                  <td class="value-cell">{{ ceilNum(detail.attackDetail.baseAttackTotal) }}</td>
-                </tr>
-                <tr class="sub-row dim">
-                  <td class="label-cell indent-3">{{ labels.operatorAttack }}</td>
-                  <td class="value-cell">{{ ceilNum(detail.attackDetail.operatorBaseAttack) }}</td>
-                </tr>
-                <tr class="sub-row dim">
-                  <td class="label-cell indent-3">{{ labels.weaponAttack }}</td>
-                  <td class="value-cell">{{ ceilNum(detail.attackDetail.weaponBaseAttack) }}</td>
-                </tr>
-                <tr class="sub-row">
-                  <td class="label-cell indent-2">{{ labels.attackBonus }}</td>
-                  <td class="value-cell">+{{ ceilNum(detail.attackDetail.attackBonus) }}</td>
-                </tr>
-                <tr class="sub-row dim">
-                  <td class="label-cell indent-3">{{ labels.flatAttack }}</td>
-                  <td class="value-cell">+{{ ceilNum(detail.attackDetail.flatAttack) }}</td>
-                </tr>
-                <tr class="sub-row dim">
-                  <td class="label-cell indent-3">{{ labels.percentageAttack }}</td>
-                  <td class="value-cell">{{ pct(detail.attackDetail.attackPercent) }}</td>
-                </tr>
-                <tr
-                  v-for="(source, sourceIndex) in detail.attackDetail.attackPercentSources"
-                  :key="`attack-percent:${sourceIndex}`"
-                  class="sub-row dim"
-                >
-                  <td class="label-cell indent-4">
-                    {{ labels.fromSource(contributionSourceLabel(source, detail.key)) }}
-                  </td>
-                  <td class="value-cell">{{ pct(source.value) }}</td>
-                </tr>
-                <tr
-                  v-for="(source, index) in detail.attackSources"
-                  :key="`attack-buff:${index}`"
-                  class="sub-row dim"
-                >
-                  <td class="label-cell indent-4">{{ labels.fromSource(source.label) }}</td>
-                  <td class="value-cell">{{ source.value }}</td>
-                </tr>
-                <tr class="sub-row">
-                  <td class="label-cell indent-1">{{ labels.attributeBonus }}</td>
-                  <td class="value-cell">
-                    +{{
-                      (
-                        detail.attackDetail.attributeContributions.reduce(
-                          (sum, row) => sum + row.contribution,
-                          0,
-                        ) * 100
-                      ).toFixed(1)
-                    }}%
-                  </td>
-                </tr>
-                <tr
-                  v-for="row in detail.attackDetail.attributeContributions"
-                  :key="row.key"
-                  class="sub-row dim"
-                  :class="{ 'is-main': row.isMain, 'is-sub': row.isSecondary }"
-                >
-                  <td class="label-cell indent-2">
-                    {{ labels.fromSource(labels.attributeLabel(row.key)) }}
-                  </td>
-                  <td class="value-cell">+{{ (row.contribution * 100).toFixed(1) }}%</td>
-                </tr>
-                <tr
-                  v-for="(source, index) in detail.attributeSources"
-                  :key="`attribute-buff:${index}`"
-                  class="sub-row dim"
-                >
-                  <td class="label-cell indent-3">{{ labels.fromSource(source.label) }}</td>
-                  <td class="value-cell">{{ source.value }}</td>
-                </tr>
-              </template>
-              <template v-if="openAttackDetails.has(detail.key) && detail.attackDetail === null">
-                <tr
-                  v-for="(source, index) in detail.attackSources"
-                  :key="`attack-buff:${index}`"
-                  class="sub-row dim"
-                >
-                  <td class="label-cell indent-1">{{ labels.fromSource(source.label) }}</td>
-                  <td class="value-cell">{{ source.value }}</td>
-                </tr>
+                <template v-for="slot in detail.otherAttackSlots" :key="slot">
+                  <tr class="sub-row dim">
+                    <td class="label-cell indent-1">{{ labels.attackSlot(slot) }}</td>
+                    <td class="value-cell"></td>
+                  </tr>
+                  <tr
+                    v-for="(source, index) in detail.attackSlotSources[slot]"
+                    :key="index"
+                    class="sub-row dim"
+                  >
+                    <td class="label-cell indent-2">{{ labels.fromSource(source.label) }}</td>
+                    <td class="value-cell">{{ source.value }}</td>
+                  </tr>
+                </template>
+                <template v-for="(sources, attribute) in detail.attributeSources" :key="attribute">
+                  <tr v-for="(source, index) in sources" :key="index" class="sub-row dim">
+                    <td class="label-cell indent-1">{{ labels.fromSource(source.label) }}</td>
+                    <td class="value-cell">{{ source.value }}</td>
+                  </tr>
+                </template>
               </template>
               <tr
                 v-for="row in detail.baseRows"

@@ -85,19 +85,22 @@ onBeforeUnmount(() => clearTimeout(tooltipTimer));
   >
     <span
       class="timeline-status-segment__body"
-      :role="interactive ? 'button' : undefined"
-      :tabindex="interactive ? 0 : undefined"
-      :aria-label="interactive ? title : undefined"
       @pointerenter="beginTooltip"
       @pointermove="updateTooltipPointer"
       @pointerleave="endTooltip"
-      @focus="showTooltipForFocus"
-      @blur="endTooltip"
-      @click.stop="interactive && emit('activate')"
-      @keydown.enter.stop.prevent="interactive && emit('activate')"
-      @keydown.space.stop.prevent="interactive && emit('activate')"
+      @click.stop
     >
-      <span class="timeline-status-segment__icon">
+      <span
+        class="timeline-status-segment__icon"
+        :role="interactive ? 'button' : undefined"
+        :tabindex="interactive ? 0 : undefined"
+        :aria-label="interactive ? title : undefined"
+        @focus="showTooltipForFocus"
+        @blur="endTooltip"
+        @click.stop="interactive && emit('activate')"
+        @keydown.enter.stop.prevent="interactive && emit('activate')"
+        @keydown.space.stop.prevent="interactive && emit('activate')"
+      >
         <span class="timeline-status-segment__content"><slot name="content" /></span>
         <span v-if="count !== undefined && count !== null" class="timeline-status-segment__count">
           {{ count }}
@@ -142,6 +145,9 @@ onBeforeUnmount(() => clearTimeout(tooltipTimer));
 
 .timeline-status-segment.is-interactive .timeline-status-segment__body {
   pointer-events: auto;
+}
+
+.timeline-status-segment.is-interactive .timeline-status-segment__icon {
   cursor: pointer;
 }
 
@@ -165,8 +171,8 @@ onBeforeUnmount(() => clearTimeout(tooltipTimer));
     box-shadow 0.12s ease;
 }
 
-.timeline-status-segment__body:hover .timeline-status-segment__icon,
-.timeline-status-segment__body:focus-visible .timeline-status-segment__icon {
+.timeline-status-segment__icon:hover,
+.timeline-status-segment__icon:focus-visible {
   z-index: 12;
   transform: scale(1.18);
   filter: brightness(1.18);
@@ -221,7 +227,7 @@ onBeforeUnmount(() => clearTimeout(tooltipTimer));
 }
 
 .timeline-status-segment__body:hover .timeline-status-segment__duration,
-.timeline-status-segment__body:focus-visible .timeline-status-segment__duration {
+.timeline-status-segment__body:focus-within .timeline-status-segment__duration {
   filter: brightness(1.16) saturate(1.08);
   box-shadow:
     0 0 0 1px rgb(255 255 255 / 18%),

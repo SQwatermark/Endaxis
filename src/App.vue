@@ -29,43 +29,12 @@ html,
 
 html.dark {
   --el-bg-color-overlay: #1e1e1e !important;
-  --el-dialog-bg-color: #1e1e1e !important;
   --el-fill-color-blank: #333333 !important;
-}
-
-html.dark .el-overlay-dialog .el-dialog {
-  background-color: #1e1e1e !important;
-  background-image: none !important;
-}
-
-html.dark .el-dialog__header,
-html.dark .el-dialog__body,
-html.dark .el-dialog__footer {
-  background-color: #1e1e1e !important;
 }
 
 html[data-theme='light'] {
   --el-bg-color-overlay: #ffffff !important;
-  --el-dialog-bg-color: #ffffff !important;
   --el-fill-color-blank: var(--ea-surface-soft) !important;
-}
-
-html[data-theme='light'] .el-overlay-dialog .el-dialog {
-  background-color: var(--ea-dialog-bg, #ffffff) !important;
-  background-image: none !important;
-  border: 1px solid var(--ea-dialog-border, #d8dbe0);
-  box-shadow: 0 18px 48px var(--ea-shadow-strong, rgba(26, 27, 30, 0.18));
-}
-
-html[data-theme='light'] .el-dialog__header,
-html[data-theme='light'] .el-dialog__body,
-html[data-theme='light'] .el-dialog__footer {
-  background-color: var(--ea-dialog-bg, #ffffff) !important;
-  color: var(--ea-dialog-body, #3a3d44);
-}
-
-html[data-theme='light'] .el-dialog__title {
-  color: var(--ea-dialog-title, #1a1b1e);
 }
 
 .hidden {

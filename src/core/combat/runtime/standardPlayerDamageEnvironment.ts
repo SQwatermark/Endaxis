@@ -714,11 +714,17 @@ export class StandardPlayerDamageEnvironment {
     return {
       attacker: {
         ...snapshots.attacker,
-        modifierDetails: operatorBuffs.captureAttributeModifierDetails('attacker'),
+        modifierDetails: [
+          ...(snapshots.attacker.modifierDetails ?? []),
+          ...operatorBuffs.captureAttributeModifierDetails('attacker'),
+        ],
       },
       defender: {
         ...snapshots.defender,
-        modifierDetails: this.#enemyBuffs.captureAttributeModifierDetails('defender'),
+        modifierDetails: [
+          ...(snapshots.defender.modifierDetails ?? []),
+          ...this.#enemyBuffs.captureAttributeModifierDetails('defender'),
+        ],
       },
     };
   }

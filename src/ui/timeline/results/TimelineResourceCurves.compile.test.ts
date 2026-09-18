@@ -25,8 +25,8 @@ describe('TimelineResourceCurves compilation', () => {
     expect(source).toContain('class="poise-maximum-line"');
     expect(source).toContain('background: rgba(255, 156, 110, 0.32)');
     expect(monitorSectionBodyMinimums().poise).toBe(26);
-    expect(sectionsSource).toContain('monitorSectionBodyMinimums(props.afflictionMinimumHeight)');
-    expect(sectionsSource).toMatch(/key === 'poise' && !collapsed\[key\]\s*\? '40px'/);
+    expect(sectionsSource).toContain('monitorSectionBodyMinimums()');
+    expect(sectionsSource).toContain('minimumBodyHeight[key] + MONITOR_SECTION_TOPBAR_HEIGHT');
   });
   it('renders receipt intervals using measured poise height and shared timeline coordinates', () => {
     expect(source).toContain('new ResizeObserver(update)');

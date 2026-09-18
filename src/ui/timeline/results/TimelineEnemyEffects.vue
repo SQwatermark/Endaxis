@@ -4,7 +4,7 @@
  * 可见 Buff = 原生图标框 + 层数角标 + 45 度条纹时长条；爆发/反应消费 = 图标标记。
  * 坐标与资源曲线同一体系（准备区偏移 + 每帧像素 + 轨道头宽度，跟随时间轴滚动）。
  */
-import { computed, watch, useId } from 'vue';
+import { computed, onMounted, onBeforeUnmount, ref, useId } from 'vue';
 import { EaButton } from '../../../design-system/index';
 import { elementalAttachments } from '../../../data/buffs/elementalAttachments';
 import { useDurationBarColor } from './durationBarColorContext';
@@ -31,11 +31,11 @@ import { layoutEnemyStatusRows } from './enemyStatusRows';
 import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
 import { findBuffDamageSegment } from './enemyBuffDamageHits';
 import { isPhysicalStatusRowBuff } from './physicalStatusDisplay';
-import { monitorInteractiveContentHeight } from './monitorSectionMinimums';
 import {
-  projectAttachmentContinuations,
-  projectAttachmentConversionLinks,
-} from '../../../core/projection/attachmentContinuations';
+  enemyStatusRowSize,
+  MONITOR_SECTION_TOPBAR_HEIGHT as SECTION_TOPBAR_HEIGHT,
+} from './monitorSectionMinimums';
+import { projectAttachmentConversionLinks } from '../../../core/projection/attachmentContinuations';
 
 const { t, te } = useI18n();
 
@@ -86,14 +86,26 @@ const props = defineProps<{
 const emit = defineEmits<{
   'open-damage-detail': [sequence: number];
   'open-buff-detail': [target: BuffDetailTarget];
-  'minimum-height': [height: number];
 }>();
 
-const ICON_SIZE = 20;
-const EFFECT_ROW_PITCH = ICON_SIZE + 4;
-const SECTION_TOPBAR_HEIGHT = 14;
+const root = ref<HTMLElement | null>(null);
+const height = ref(0);
+let resizeObserver: ResizeObserver | undefined;
+onMounted(() => {
+  if (root.value === null) return;
+  height.value = root.value.clientHeight;
+  resizeObserver = new ResizeObserver(() => {
+    height.value = root.value?.clientHeight ?? 0;
+  });
+  resizeObserver.observe(root.value);
+});
+onBeforeUnmount(() => resizeObserver?.disconnect());
+const iconSize = computed(() =>
+  enemyStatusRowSize(height.value - SECTION_TOPBAR_HEIGHT, statusRows.value.rowCount),
+);
+const rowPitch = computed(() => iconSize.value + 4);
 const durationBarColor = useDurationBarColor();
-const ICON_TOP = 2;
+const ICON_TOP = 0;
 
 const REACTION_BUFF_IDS: Readonly<Record<string, keyof typeof commonBuffPresentationNameKeys>> = {
   electrification: 'buff_common_pulse_pulse_conduct_triggered_do',
@@ -162,11 +174,11 @@ const markers = computed(() =>
       badge: marker.kind === 'reactionConsumed' ? marker.level : 1,
       x:
         pointX(marker.frame) +
-        (statusRows.value.markerPositions[index]?.slot ?? 0) * (ICON_SIZE + 2),
+        (statusRows.value.markerPositions[index]?.slot ?? 0) * (iconSize.value + 2),
       top:
         SECTION_TOPBAR_HEIGHT +
         ICON_TOP +
-        (statusRows.value.markerPositions[index]?.row ?? 0) * EFFECT_ROW_PITCH,
+        (statusRows.value.markerPositions[index]?.row ?? 0) * rowPitch.value,
       title,
     };
   }),
@@ -195,8 +207,8 @@ const damageHits = computed(() =>
         SECTION_TOPBAR_HEIGHT +
         ICON_TOP +
         // 与附着行共用布局；伤害不参与图标横向错位。
-        row * EFFECT_ROW_PITCH +
-        ICON_SIZE -
+        row * rowPitch.value +
+        iconSize.value -
         3,
       title:
         (standalone && typeof entry.data?.buffId === 'string'
@@ -209,9 +221,6 @@ const damageHits = computed(() =>
   }),
 );
 
-const attachmentContinuations = computed(() =>
-  projectAttachmentContinuations(props.buffs, props.attachmentBuffIds ?? new Set()),
-);
 const conversionGradientPrefix = useId();
 const attachmentConversions = computed(() =>
   projectAttachmentConversionLinks(props.buffs, props.viz.attachmentConversions ?? []),
@@ -253,8 +262,7 @@ const buffs = computed(() =>
       getIconAssetPath(buff.iconId);
     return {
       ...buff,
-      continuedAttachment:
-        attachmentContinuations.value.has(buff) || attachmentConversions.value.has(buff),
+      isAttachment: props.attachmentBuffIds?.has(buff.buffId) ?? false,
       gradientId: `${conversionGradientPrefix}-${index}`,
       endColor: resolveDurationBarColor(
         durationBarColor.value,
@@ -264,12 +272,10 @@ const buffs = computed(() =>
       key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
       icon,
       left,
-      iconOffset: (statusRows.value.iconSlots.get(buff) ?? 0) * (ICON_SIZE + 2),
+      iconOffset: (statusRows.value.iconSlots.get(buff) ?? 0) * (iconSize.value + 2),
       top:
-        SECTION_TOPBAR_HEIGHT +
-        ICON_TOP +
-        (statusRows.value.lanes.get(buff) ?? 0) * EFFECT_ROW_PITCH,
-      barWidthPx: Math.max(0, right - left - ICON_SIZE - 2),
+        SECTION_TOPBAR_HEIGHT + ICON_TOP + (statusRows.value.lanes.get(buff) ?? 0) * rowPitch.value,
+      barWidthPx: Math.max(0, right - left - iconSize.value - 2),
       color: resolveDurationBarColor(durationBarColor.value, 'enemy', buff),
       title,
       detail: {
@@ -335,32 +341,13 @@ const buffs = computed(() =>
   }),
 );
 
-const rowCount = computed(() => statusRows.value.rowCount);
-const minimumHeight = computed(() =>
-  Math.max(
-    SECTION_TOPBAR_HEIGHT + 46,
-    SECTION_TOPBAR_HEIGHT + rowCount.value * EFFECT_ROW_PITCH + 2,
-    // Last-row icon and hit targets must not overlap the section resize band.
-    monitorInteractiveContentHeight(
-      SECTION_TOPBAR_HEIGHT +
-        ICON_TOP +
-        Math.max(0, rowCount.value - 1) * EFFECT_ROW_PITCH +
-        ICON_SIZE,
-    ),
-    ...damageHits.value.map(hit => monitorInteractiveContentHeight(hit.top - 3 + 12)),
-    // 156px 摘要宽度一行容纳7个18px图标；保留完整换行和底部内边距。
-    visibleLastHitBuffs.value.length > 7 ? 106 : visibleLastHitBuffs.value.length > 0 ? 84 : 60,
-  ),
-);
-
 const lastHitSummary = computed(() => summarizeLastHitBuffs(buffs.value, props.snapshotFrame));
 const visibleLastHitBuffs = computed(() => lastHitSummary.value.buffs);
 const lastHitBuffOverflow = computed(() => lastHitSummary.value.overflow);
-watch(minimumHeight, height => emit('minimum-height', height), { immediate: true });
 </script>
 
 <template>
-  <div class="enemy-effects" :style="{ minHeight: `${minimumHeight}px` }">
+  <div ref="root" class="enemy-effects" :style="{ '--aff-icon-size': `${iconSize}px` }">
     <TimelineMonitorGrid
       :width="width"
       :duration-frames="durationFrames"
@@ -463,10 +450,10 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
           <span class="anomaly-stacks">{{ buff.layers }}</span>
         </span>
         <svg
-          v-if="buff.continuedAttachment && buff.barWidthPx > 0"
+          v-if="buff.isAttachment && buff.barWidthPx > 0"
           class="attachment-continuation"
           :width="buff.barWidthPx + 2"
-          height="20"
+          :height="iconSize"
           :style="{ color: buff.color ?? 'var(--ea-fg-muted)' }"
           aria-hidden="true"
         >
@@ -475,9 +462,9 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
               :id="buff.gradientId"
               gradientUnits="userSpaceOnUse"
               x1="0"
-              y1="10"
+              :y1="iconSize / 2"
               :x2="buff.barWidthPx + 2"
-              y2="10"
+              :y2="iconSize / 2"
             >
               <stop offset="0%" stop-color="currentColor" stop-opacity="0.8" />
               <stop
@@ -487,9 +474,12 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
               />
             </linearGradient>
           </defs>
-          <path :d="`M 0 10 H ${buff.barWidthPx + 2}`" class="attachment-continuation-shadow" />
           <path
-            :d="`M 0 10 H ${buff.barWidthPx + 2}`"
+            :d="`M 0 ${iconSize / 2} H ${buff.barWidthPx + 2}`"
+            class="attachment-continuation-shadow"
+          />
+          <path
+            :d="`M 0 ${iconSize / 2} H ${buff.barWidthPx + 2}`"
             class="attachment-continuation-line"
             :style="{ stroke: `url(#${buff.gradientId})` }"
           />
@@ -497,7 +487,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
             r="2"
             class="attachment-continuation-dot"
             :style="{
-              offsetPath: `path('M 0 10 H ${buff.barWidthPx + 2}')`,
+              offsetPath: `path('M 0 ${iconSize / 2} H ${buff.barWidthPx + 2}')`,
               '--start-color': buff.color,
               '--end-color': buff.endColor,
             }"
@@ -548,8 +538,8 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 }
 .standalone-damage-icon {
   position: absolute;
-  width: 20px;
-  height: 20px;
+  width: var(--aff-icon-size, 20px);
+  height: var(--aff-icon-size, 20px);
   left: 3px;
   bottom: 6px;
   object-fit: contain;
@@ -661,8 +651,8 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
 .anomaly-icon-box {
   position: relative;
   z-index: 10;
-  width: 20px;
-  height: 20px;
+  width: var(--aff-icon-size, 20px);
+  height: var(--aff-icon-size, 20px);
   flex-shrink: 0;
   box-sizing: border-box;
   display: flex;

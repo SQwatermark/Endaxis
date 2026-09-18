@@ -169,8 +169,8 @@ describe('Next timeline simulation projection retention', () => {
   it('uses the legacy bottom scrollbar as the shared horizontal timeline shift', () => {
     expect(source).toContain('ref="timelineHorizontalScrollbar"');
     expect(source).toContain('@scroll="updateTimelineHorizontalScroll"');
-    expect(source).toContain('scrollbar.scrollLeft = viewport.scrollLeft');
-    expect(source).toContain('viewport.scrollLeft = scrollbar.scrollLeft');
+    expect(source).toContain('syncTimelineScroll(viewport, scrollbar)');
+    expect(source).toContain('syncTimelineScroll(scrollbar, viewport)');
     expect(source).toContain(':style="{ width: `${timelineWidth}px` }"');
     expect(source).toMatch(
       /\.timeline-workspace\s*\{[^}]*grid-template-rows: minmax\(0, 1fr\) 12px/s,

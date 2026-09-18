@@ -21,6 +21,7 @@ import type { InteractionLease } from '../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../interaction/nativeDragLifecycle';
 import { useAsyncModalBoundary } from '../interaction/useAsyncModalBoundary';
 import { isInsideTimelineDropRegion } from './interaction/timelineDropRegion';
+import { createTimelineScrollSync } from './interaction/timelineScrollSync';
 import { normalizeDurationBarColorPrefs } from './results/durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
@@ -359,6 +360,7 @@ import BattleLogPanel from './results/BattleLogPanel.vue';
 import { usePublishedSimulationDisplay } from './results/usePublishedSimulationDisplay';
 import {
   resolvePublishedBuffSource,
+  capturePublishedEquipmentSources,
   resolvePublishedEquipmentTrait,
 } from './results/publishedBuffSource';
 import { createCombatObjectIconResolver } from './results/combatObjectIcons';
@@ -1958,6 +1960,8 @@ const timelineSurfaceStyle = computed<Record<string, string>>(() => ({
   }px`,
 }));
 
+const syncTimelineScroll = createTimelineScrollSync();
+
 function updateTimelineViewportMetrics(): void {
   const viewport = timelineScroll.value;
   if (viewport === null) return;
@@ -1967,20 +1971,14 @@ function updateTimelineViewportMetrics(): void {
   timelineViewportHeight.value = viewport.clientHeight;
   timelineVerticalScrollbarWidth.value = Math.max(0, viewport.offsetWidth - viewport.clientWidth);
   const scrollbar = timelineHorizontalScrollbar.value;
-  const scrollbarLeft = viewport.scrollLeft;
-  if (scrollbar !== null && Math.abs(scrollbar.scrollLeft - scrollbarLeft) > 0.5) {
-    scrollbar.scrollLeft = scrollbarLeft;
-  }
+  if (scrollbar !== null) syncTimelineScroll(viewport, scrollbar);
 }
 
 function updateTimelineHorizontalScroll(event: Event): void {
   const viewport = timelineScroll.value;
   const scrollbar = event.currentTarget as HTMLElement | null;
   if (viewport === null || scrollbar === null) return;
-  const scrollLeft = scrollbar.scrollLeft;
-  if (Math.abs(viewport.scrollLeft - scrollLeft) > 0.5) {
-    viewport.scrollLeft = scrollLeft;
-  }
+  syncTimelineScroll(scrollbar, viewport);
 }
 
 onMounted(() => {
@@ -2370,7 +2368,6 @@ const operatorControlTimeline = computed(() =>
 );
 
 /** 旧版底部摘要固定取最后一次敌人受伤时刻，而不是跟随隐藏的编辑光标。 */
-const enemyEffectsMinimumHeight = ref(60);
 const collapsedMonitorSectionCount = ref(0);
 const enemyLastDamageFrame = computed(() => {
   const current = simulationRun.value;
@@ -2866,7 +2863,7 @@ const hitDetailOperatorPanel = computed(() => {
 });
 
 function hitDetailContributionSourceLabel(
-  entry: OperatorPanelContributionReceipt,
+  entry: Pick<OperatorPanelContributionReceipt, 'source'>,
   sequence?: number,
 ): string {
   const target = hitDetailTarget.value;
@@ -2884,6 +2881,7 @@ function hitDetailContributionSourceLabel(
       operatorSlug === null || operatorSlug === undefined
         ? null
         : (publishedOperators.value.get(operatorSlug) ?? null),
+    weapons: publishedWeaponSources.value,
     locale: locale.value,
     translate: t,
   });
@@ -6521,7 +6519,6 @@ function setPanelDialogVisible(visible: boolean): void {
           <TimelineEnemyStatusSections
             @collapsed-count-change="collapsedMonitorSectionCount = $event"
             :expand-all-token="expandAllToken"
-            :affliction-minimum-height="enemyEffectsMinimumHeight"
             :labels="{
               affliction: t('resourceMonitor.modules.enemyStatus'),
               poise: t('resourceMonitor.modules.stagger'),
@@ -6537,7 +6534,6 @@ function setPanelDialogVisible(visible: boolean): void {
                   hitDetailTarget = null;
                   enemyDamageDetailSequence = $event;
                 "
-                @minimum-height="enemyEffectsMinimumHeight = $event"
                 :duration-frames="scenario.battle.durationFrames"
                 v-if="combatHudSnapshot !== null"
                 :viz="enemyEffectViz"
@@ -7036,6 +7032,7 @@ function setPanelDialogVisible(visible: boolean): void {
     :panel="selectedPanel"
     :operator="panelDialogOperator"
     :operator-name="panelDialogOperatorName"
+    :weapons="capturePublishedEquipmentSources(editorGameDataRepository.getWeapons())"
     @update:visible="setPanelDialogVisible"
   />
   <SkillDefinitionEditorDialog
@@ -7063,15 +7060,17 @@ function setPanelDialogVisible(visible: boolean): void {
     :source-label="t('timeline.buffDetail.source')"
     :buff-label="
       item =>
-        buffSourceName(item) ??
-        resolveBuffDisplayName(
-          item.buffId,
-          { t, te },
-          undefined,
-          undefined,
-          operatorBuffDisplayNameKeys,
-        ) ??
-        item.buffId
+        item.buffId === undefined
+          ? item.sourceId
+          : (buffSourceName(item) ??
+            resolveBuffDisplayName(
+              item.buffId,
+              { t, te },
+              undefined,
+              undefined,
+              operatorBuffDisplayNameKeys,
+            ) ??
+            item.buffId)
     "
     :source-description="hitDetailTarget === null ? enemyDamageSourceDescription : undefined"
     :visible="hitDetailTarget !== null || enemyDamageDetailSequence !== null"
@@ -7100,14 +7099,11 @@ function setPanelDialogVisible(visible: boolean): void {
       criticalDamage: t('hitDetail.critDamage'),
       nonCriticalDamage: t('hitDetail.nonCritDamage'),
       attack: t('hitDetail.attack'),
+      staticBuildAttack: t('hitDetail.staticBuildAttack'),
       basicTotal: t('statDetail.basicTotal'),
-      baseAttack: t('statDetail.baseAtk'),
-      operatorAttack: t('statDetail.operatorAtk'),
-      weaponAttack: t('statDetail.weaponAtk'),
-      attackBonus: t('statDetail.atkBonus'),
-      flatAttack: t('statDetail.flatAtk'),
-      percentageAttack: t('statDetail.percentageAtk'),
+      attackSlot: (slot: string) => t(`statDetail.attackSlots.${slot}`),
       attributeBonus: t('statDetail.attributeBonus'),
+      scalingCoefficient: t('timeline.skillEditing.scalingCoefficient'),
       attributeLabel: (attribute: string) => t(`stats.${attribute}`),
       fromSource: (name: string) => t('statDetail.fromSource', { name }),
       skillMultiplier: t('hitDetail.multiplier'),

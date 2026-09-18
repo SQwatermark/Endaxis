@@ -42,7 +42,7 @@ describe('Next timeline Buff visualization retention', () => {
     expect(statusSegmentSource).toContain('repeating-linear-gradient');
     expect(enemyEffectsSource).toContain('repeating-linear-gradient');
     expect(buffBandsSource).toContain('const ICON_SIZE = 18');
-    expect(enemyEffectsSource).toContain('const ICON_SIZE = 20');
+    expect(enemyEffectsSource).toContain('enemyStatusRowSize(');
     expect(buffBandsSource).toMatch(/\.timeline-buff-bands\s*\{[^}]*z-index: 8;/s);
     expect(buffBandsSource).toContain('timelineUpperBuffTop(segment.lane)');
     expect(buffBandsSource).toContain('.timeline-buff-bands.is-upper');
@@ -54,7 +54,11 @@ describe('Next timeline Buff visualization retention', () => {
     expect(source.match(/:icon="buffIcon"/g)).toHaveLength(3);
     expect(buffBandsSource).toContain('props.icon?.(segment) ?? segment.iconPath');
     expect(buffBandsSource).toContain('props.icon?.(member) ?? member.iconPath');
-    expect(enemyEffectsSource).toContain('props.icon?.(buff) ?? buff.iconPath');
-    expect(enemyEffectsSource).toContain('props.icon?.(member) ?? member.iconPath');
+    expect(enemyEffectsSource).toContain(
+      'isPhysicalStatusRowBuff(buff) ? buff.iconPath : props.icon?.(buff)',
+    );
+    expect(enemyEffectsSource).toContain(
+      'isPhysicalStatusRowBuff(member) ? member.iconPath : props.icon?.(member)',
+    );
   });
 });

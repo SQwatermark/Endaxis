@@ -1,9 +1,8 @@
-import { describe, expect, it } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
+import { ensureLocaleResources } from '../../../i18n';
+import { capturePublishedEquipmentSources } from '../results/publishedBuffSource';
 import type { OperatorPanelContributionReceipt } from '../../../core/compiler/resolveOperatorPanel';
-import {
-  projectAttackPercentContributionSources,
-  resolveOperatorPanelContributionSourceLabel,
-} from './operatorPanelContributionPresentation';
+import { resolveOperatorPanelContributionSourceLabel } from './operatorPanelContributionPresentation';
 
 const context = {
   operator: null,
@@ -19,6 +18,34 @@ function entry(
 }
 
 describe('operator panel contribution presentation', () => {
+  beforeAll(() => ensureLocaleResources('zh-CN', ['weapons']));
+
+  it('uses the published weapon display identity for both base stats and traits', () => {
+    const weapons = capturePublishedEquipmentSources([
+      { slug: 'wpn_funnel_0016', assetSlug: 'wpn_artsunit_0016' },
+    ]);
+    const sources = [
+      { kind: 'weaponBase', weaponSlug: 'wpn_funnel_0016' },
+      {
+        kind: 'equipment',
+        contribution: { kind: 'weaponTrait', slug: 'wpn_funnel_0016', traitKey: 'skill3' },
+      },
+    ] as const;
+    for (const source of sources) {
+      expect(resolveOperatorPanelContributionSourceLabel({ source }, { ...context, weapons })).toBe(
+        '四二式·肃阵',
+      );
+    }
+    const custom = capturePublishedEquipmentSources([
+      { slug: 'wpn_funnel_0016', assetSlug: 'wpn_artsunit_0016', displayName: '自定义武器' },
+    ]);
+    expect(
+      resolveOperatorPanelContributionSourceLabel(
+        { source: sources[0] },
+        { ...context, weapons: custom },
+      ),
+    ).toBe('自定义武器');
+  });
   it('uses stable translated labels for base, trust, and global sources', () => {
     expect(
       resolveOperatorPanelContributionSourceLabel(
@@ -47,18 +74,5 @@ describe('operator panel contribution presentation', () => {
         context,
       ),
     ).toBe('potential 10');
-  });
-
-  it('selects only attack-percent facts for the damage-detail attack tree', () => {
-    const attackPercent = entry({ kind: 'globalConfig', modifierId: 'attack-percent' });
-    const panel = {
-      receipt: [
-        attackPercent,
-        { ...attackPercent, operation: 'flat' as const },
-        { ...attackPercent, stat: 'health' as const },
-      ],
-    };
-    expect(projectAttackPercentContributionSources(panel)).toEqual([attackPercent]);
-    expect(projectAttackPercentContributionSources(null)).toEqual([]);
   });
 });

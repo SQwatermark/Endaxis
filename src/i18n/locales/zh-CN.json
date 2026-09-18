@@ -2709,6 +2709,16 @@
     "atkBonus": "攻击加成",
     "flatAtk": "固定攻击",
     "percentageAtk": "百分比攻击",
+    "attackSlots": {
+      "baseMultiplier": "基础阶段：百分比加算",
+      "baseFinalAddition": "基础阶段：倍率后加算",
+      "baseAddition": "基础阶段：倍率前加算",
+      "baseFinalMultiplier": "基础阶段：独立乘法",
+      "addition": "最终阶段：倍率前加算",
+      "multiplier": "最终阶段：百分比加算",
+      "finalAddition": "最终阶段：倍率后加算",
+      "finalMultiplier": "最终阶段：独立乘法"
+    },
     "attributeBonus": "属性加成",
     "fromSource": "来自 {name}",
     "baseHp": "基础生命",
@@ -2752,6 +2762,7 @@
     "link_cd_reduction": "连携冷却缩减"
   },
   "hitDetail": {
+    "staticBuildAttack": "攻击力",
     "damageZones": {
       "product": "独立增伤",
       "normal": "伤害加成",

@@ -16,12 +16,14 @@ import type {
 } from '../../../core/compiler/resolveOperatorPanel';
 import type { OperatorDefinition } from '../../../core/game-data/operatorDefinition';
 import { resolveOperatorPanelContributionSourceLabel } from './operatorPanelContributionPresentation';
+import type { PublishedBuffSource } from '../results/publishedBuffSource';
 
 const props = defineProps<{
   visible: boolean;
   panel: ResolvedOperatorPanel | null;
   operator: OperatorDefinition | null;
   operatorName: string;
+  weapons?: ReadonlyMap<string, PublishedBuffSource>;
 }>();
 
 const emit = defineEmits<{ 'update:visible': [visible: boolean] }>();
@@ -67,6 +69,7 @@ function statLabel(stat: OperatorPanelStat): string {
 function sourceLabel(entry: OperatorPanelContributionReceipt): string {
   return resolveOperatorPanelContributionSourceLabel(entry, {
     operator: props.operator,
+    weapons: props.weapons,
     locale: locale.value,
     translate: t,
   });

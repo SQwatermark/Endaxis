@@ -237,6 +237,89 @@ describe('PlayerDamageOperationExecutor', () => {
         400 * (damageType === 'true' ? 1 : damageType === 'electric' ? 1.2 : 1.3 * 1.1);
       expect(hit.data?.value).toBeCloseTo(expected);
       expect(targetVitals.health).toBeCloseTo(2000 - expected);
+      executor.execute(
+        {
+          ...DAMAGE_STEP,
+          parameters: {
+            ...DAMAGE_STEP.parameters,
+            stagger: undefined,
+            instantDamageScaleModifiers: [
+              { side: 'attacker', zone: 'product', addition: { kind: 'constant', value: 0.5 } },
+              { side: 'attacker', zone: 'normal', addition: { kind: 'constant', value: 0 } },
+            ],
+            instantAttributeModifiers: [
+              {
+                targetSide: 'attacker',
+                attribute: 'criticalRate',
+                slot: 'finalMultiplier',
+                attributeTiming: 'runtime',
+                value: { kind: 'constant', value: 1 },
+              },
+              {
+                targetSide: 'attacker',
+                attribute: 'criticalRate',
+                slot: 'baseAddition',
+                attributeTiming: 'runtime',
+                value: { kind: 'constant', value: 0.1 },
+              },
+            ],
+          },
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          actionOwnerId: 'actual-owner',
+          executionActionId: 'actual-action',
+        },
+      );
+      const direct = receipt.entries
+        .filter(entry => entry.event === 'DamageApplied')
+        .at(-1)!.appliedDamageModifiers!;
+      expect(direct.filter(item => item.sourceActionId === 'actual-action')).toHaveLength(2);
+      expect(direct).toContainEqual({
+        kind: 'damageScale',
+        sourceId: 'actual-owner',
+        sourceActionId: 'actual-action',
+        side: 'attacker',
+        zone: 'product',
+        addition: 0.5,
+      });
+      expect(direct).toContainEqual({
+        kind: 'attribute',
+        sourceId: 'actual-owner',
+        sourceActionId: 'actual-action',
+        side: 'attacker',
+        attribute: 'criticalRate',
+        slot: 'baseAddition',
+        value: 0.1,
+      });
+      executor.execute(
+        {
+          ...DAMAGE_STEP,
+          parameters: {
+            ...DAMAGE_STEP.parameters,
+            instantDamageScaleModifiers: [
+              { side: 'attacker', zone: 'product', addition: { kind: 'constant', value: 0.5 } },
+            ],
+          },
+        },
+        {
+          blackboard: new ActionBlackboard(),
+          actionOwnerId: 'buff-owner',
+          executionActionId: 'buff-action',
+          executingBuff: { buffId: 'direct-buff', buffOwnerId: 'buff-owner', buffInstanceId: 17 },
+        },
+      );
+      const buffHit = receipt.entries.filter(entry => entry.event === 'DamageApplied').at(-1)!;
+      expect(buffHit.appliedDamageModifiers).toContainEqual({
+        kind: 'damageScale',
+        sourceId: 'buff-owner',
+        sourceActionId: 'buff-action',
+        buffId: 'direct-buff',
+        buff: { ownerId: 'buff-owner', instanceId: 17 },
+        side: 'attacker',
+        zone: 'product',
+        addition: 0.5,
+      });
     },
   );
 
@@ -364,6 +447,7 @@ describe('PlayerDamageOperationExecutor', () => {
   it('applies standard health damage before the hit poise unit', () => {
     let sourceControlled = false;
     let runtimeAttack = 100;
+    let attackModifiers: import('./damageScale').AppliedDamageModifier[] = [];
     const healthEvents: string[] = [];
     const targetVitals = new CombatVitals({
       health: 1000,
@@ -384,7 +468,13 @@ describe('PlayerDamageOperationExecutor', () => {
       targetVitals,
       clock: new CombatClock(),
       receipt,
-      captureAttributeSnapshots: () => createAttributeSnapshots(runtimeAttack),
+      captureAttributeSnapshots: () => {
+        const snapshots = createAttributeSnapshots(runtimeAttack);
+        return {
+          ...snapshots,
+          attacker: { ...snapshots.attacker, modifierDetails: attackModifiers },
+        };
+      },
       criticalSamples: { nextCriticalSample },
       attackDetail: {
         panelAttack: 100,
@@ -520,7 +610,20 @@ describe('PlayerDamageOperationExecutor', () => {
       blackboard: new ActionBlackboard(),
       damageCalculationSnapshots: new DamageCalculationSnapshots(),
     };
+    attackModifiers = [
+      {
+        kind: 'attribute',
+        side: 'attacker',
+        attribute: 'Atk',
+        slot: 'baseMultiplier',
+        value: 0.2,
+        buffId: 'old-buff',
+        sourceId: 'operator',
+        buff: { ownerId: 'operator', instanceId: 7 },
+      },
+    ];
     executor.prepare(snapshotStep, snapshotContext);
+    attackModifiers[0] = { ...attackModifiers[0]!, buffId: 'new-buff' };
     runtimeAttack = 999;
     executor.prepare(snapshotStep, snapshotContext);
     const savedSnapshots = structuredClone(snapshotContext.damageCalculationSnapshots.runtimeState);
@@ -541,6 +644,19 @@ describe('PlayerDamageOperationExecutor', () => {
       skillMultiplierPercent: 100,
       baseDamage: 100,
     });
+    expect(receipt.entries.at(-1)?.appliedDamageModifiers).toContainEqual({
+      kind: 'attribute',
+      side: 'attacker',
+      attribute: 'Atk',
+      slot: 'baseMultiplier',
+      value: 0.2,
+      buffId: 'old-buff',
+      sourceId: 'operator',
+      buff: { ownerId: 'operator', instanceId: 7 },
+    });
+    expect(
+      receipt.entries.at(-1)?.appliedDamageModifiers?.some(item => item.buffId === 'new-buff'),
+    ).toBe(false);
 
     // 未选 Switch 分支内的 IfElse 也必须在 Reset 时建立快照，不能等命中后读实时攻击。
     const branchContext = {

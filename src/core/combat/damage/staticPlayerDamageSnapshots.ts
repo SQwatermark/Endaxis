@@ -19,7 +19,10 @@ import {
 import type { PlayerDamageAttributeSnapshots } from './playerDamageContext';
 import type { CombatDamageExecutorContext } from '../runtime/combatRuntimeAssembly';
 import { CombatAttributeSet, attributeModifierValues } from '../attributes/combatAttributes';
-import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
+import {
+  resolveOperatorAttack,
+  EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES,
+} from '../attributes/operatorAttackAttributes';
 import { captureAttackReceiptSnapshot } from './attackReceiptDetail';
 
 type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
@@ -84,15 +87,25 @@ type DamageSnapshotContext =
 function resolveStaticDamageScales(
   context: DamageSnapshotContext,
   step: DamageStep,
+  record: (
+    modifier: import('../../compiler/resolveOperatorPanel').ResolvedOperatorCombatModifier,
+    attribute: string,
+    slot: 'baseAddition' | 'addition',
+  ) => void,
 ): DamageScaleAttributeSnapshot {
   const result = emptyDamageScaleSnapshot();
   for (const modifier of context.panel?.combatModifiers ?? []) {
     if (modifier.kind === 'staticDamageIncrease') {
       result[STATIC_DAMAGE_INCREASE_ATTRIBUTE[modifier.target]] += modifier.value;
+      record(modifier, STATIC_DAMAGE_INCREASE_ATTRIBUTE[modifier.target], 'addition');
       continue;
     }
     // 原生 damageScale 保留 BaseAddition/Addition 槽，已在属性集构造时安装；这里不能再加一次。
-    if (modifier.kind === 'damageScale') continue;
+    if (modifier.kind === 'damageScale') {
+      const attribute = EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES[modifier.target];
+      if (attribute !== undefined) record(modifier, attribute, modifier.slot);
+      continue;
+    }
     if (modifier.kind !== 'damageBonus') continue;
     if (!includesValue(modifier.damageTypes, step.parameters.damageType)) continue;
     if (
@@ -108,6 +121,7 @@ function resolveStaticDamageScales(
       );
     }
     result[attribute] += modifier.value;
+    record(modifier, attribute, 'addition');
   }
   return result;
 }
@@ -125,7 +139,23 @@ export function resolveStaticPlayerDamageSnapshots(
       `operator '${'program' in context ? context.program.operatorId : context.operatorId}' has no resolved panel`,
     );
   }
-  const staticDamageScales = resolveStaticDamageScales(context, step);
+  const modifierDetails: import('./damageScale').AppliedDamageModifier[] = [];
+  const staticDamageScales = resolveStaticDamageScales(
+    context,
+    step,
+    (modifier, attribute, slot) => {
+      if (modifier.source === undefined || !('value' in modifier) || modifier.value === 0) return;
+    modifierDetails.push({
+        kind: 'attribute',
+        panelSource: modifier.source,
+        sourceId: panel.operatorId,
+        side: 'attacker',
+        attribute,
+        slot,
+        value: modifier.value,
+      });
+    },
+  );
   const attackerDamageScales = Object.fromEntries(
     DAMAGE_SCALE_ATTRIBUTE_KEYS.map(key => [
       key,
@@ -137,8 +167,24 @@ export function resolveStaticPlayerDamageSnapshots(
       ? context.program.statModifiers?.damageToStaggeredEnemyIncrease
       : undefined) ?? 0;
   const attack = resolveOperatorAttack(panel, operatorAttributes);
+  if ('program' in context) {
+    for (const attribute of ['criticalRate', 'damageToStaggeredEnemyIncrease'] as const) {
+      const value = context.program.statModifiers?.[attribute];
+      if (value === undefined || value === 0) continue;
+      modifierDetails.push({
+        kind: 'attribute',
+        sourceId: context.program.operatorId,
+        sourceActionId: context.program.skillId,
+        side: 'attacker',
+        attribute,
+        slot: attribute === 'criticalRate' ? 'baseAddition' : 'addition',
+        value,
+      });
+    }
+  }
   const result: PlayerDamageAttributeSnapshots = {
     attacker: {
+      modifierDetails,
       ...attackerDamageScales,
       attack,
       attackDetail: captureAttackReceiptSnapshot(panel, operatorAttributes, attack),

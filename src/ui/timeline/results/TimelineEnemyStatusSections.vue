@@ -26,11 +26,10 @@ const props = defineProps<{
   labels: Record<SectionKey, string>;
   collapseLabel: string;
   expandLabel: string;
-  afflictionMinimumHeight?: number;
   expandAllToken?: number;
 }>();
 
-const minimumBodyHeight = computed(() => monitorSectionBodyMinimums(props.afflictionMinimumHeight));
+const minimumBodyHeight = monitorSectionBodyMinimums();
 
 const emit = defineEmits<{
   collapsePanel: [];
@@ -110,12 +109,17 @@ function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
   stopResize?.();
   activeResizeLowerKey.value = lowerKey;
   const startY = event.clientY;
+  const previousCursor = document.body.style.cursor;
+  const previousUserSelect = document.body.style.userSelect;
+  document.body.style.cursor = 'ns-resize';
+  document.body.style.userSelect = 'none';
   const topbarHeight = MONITOR_SECTION_TOPBAR_HEIGHT;
   const bodies: Partial<Record<SectionKey, number>> = {};
   for (const key of sectionKeys) {
     if (collapsed[key]) continue;
     const element = root.value.querySelector<HTMLElement>(`[data-section-key="${key}"]`);
-    if (element) bodies[key] = Math.max(0, element.clientHeight - topbarHeight);
+    // flex-basis 使用 border-box；clientHeight 会扣掉边框并取整，导致未拖动的第三段也漂移。
+    if (element) bodies[key] = Math.max(0, element.getBoundingClientRect().height - topbarHeight);
   }
 
   const onMove = (moveEvent: PointerEvent) => {
@@ -125,7 +129,7 @@ function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
       pair.upperKey,
       pair.lowerKey,
       moveEvent.clientY - startY,
-      minimumBodyHeight.value,
+      minimumBodyHeight,
     );
     for (const key of sectionKeys) {
       if (nextBodies[key] !== undefined) sectionWeights[key] = Math.max(0.1, nextBodies[key]);
@@ -135,6 +139,8 @@ function beginSectionResize(lowerKey: SectionKey, event: PointerEvent): void {
     if (finishEvent !== undefined && finishEvent.pointerId !== event.pointerId) return;
     lease.release();
     activeResizeLowerKey.value = null;
+    document.body.style.cursor = previousCursor;
+    document.body.style.userSelect = previousUserSelect;
     window.removeEventListener('pointermove', onMove);
     window.removeEventListener('pointerup', finish);
     window.removeEventListener('pointercancel', finish);
@@ -219,12 +225,9 @@ watch(
         :data-section-key="key"
         :style="{
           '--section-weight': sectionWeights[key],
-          minHeight:
-            key === 'affliction' && !collapsed[key]
-              ? `${minimumBodyHeight.affliction + MONITOR_SECTION_TOPBAR_HEIGHT}px`
-              : key === 'poise' && !collapsed[key]
-                ? '40px'
-                : undefined,
+          minHeight: !collapsed[key]
+            ? `${minimumBodyHeight[key] + MONITOR_SECTION_TOPBAR_HEIGHT}px`
+            : undefined,
         }"
       >
         <span v-if="collapsed[key]" class="section-summary">{{ props.labels[key] }}</span>

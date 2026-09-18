@@ -8,11 +8,11 @@ import effectsSource from './TimelineEnemyEffects.vue?raw';
 import gridSource from './TimelineMonitorGrid.vue?raw';
 
 describe('TimelineEnemyStatusSections legacy layout contract', () => {
-  it('shares the dynamic status height between CSS and divider resizing', () => {
-    expect(source).toContain('monitorSectionBodyMinimums(props.afflictionMinimumHeight)');
+  it('shares legacy fixed minimums between CSS and divider resizing', () => {
+    expect(source).toContain('monitorSectionBodyMinimums()');
     expect(source).toContain('resizeMonitorSectionBodies(');
-    expect(source).toContain('minimumBodyHeight.value');
-    expect(source).toContain('minimumBodyHeight.affliction + MONITOR_SECTION_TOPBAR_HEIGHT');
+    expect(source).toContain('minimumBodyHeight');
+    expect(source).toContain('minimumBodyHeight[key] + MONITOR_SECTION_TOPBAR_HEIGHT');
   });
   it('uses defined foreground tokens for collapsed labels and expand arrows in both themes', () => {
     expect(source).toContain('opacity: 0.88');

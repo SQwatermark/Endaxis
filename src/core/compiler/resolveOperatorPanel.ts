@@ -125,7 +125,9 @@ export interface ResolvedOperatorPanel {
 }
 
 /** 构筑期静态战斗修正；升级增伤保留原生属性身份，配装修正继续保留筛选条件。 */
-export type ResolvedOperatorCombatModifier =
+export type ResolvedOperatorCombatModifier = {
+  readonly source?: OperatorPanelContributionSource;
+} & (
   | ResolvedEquipmentModifier
   | {
       readonly kind: 'staticDamageIncrease';
@@ -142,7 +144,8 @@ export type ResolvedOperatorCombatModifier =
       readonly skillTypes: readonly import('../game-data/operatorDefinition').SkillType[];
       readonly value: number;
       readonly modifierId: string;
-    };
+    }
+);
 
 interface MutablePanelValues {
   attributes: Record<OperatorAttribute, number>;
@@ -237,6 +240,7 @@ function applyUpgradeModifier(
   } else if (modifier.kind === 'addStaticDamageIncrease') {
     combatModifiers.push({
       kind: 'staticDamageIncrease',
+      source,
       target: modifier.target,
       value: modifier.value,
     });
@@ -288,7 +292,7 @@ function applyEquipmentContribution(
       modifier.kind === 'damageScale' ||
       modifier.kind === 'skillCooldownMultiplier'
     ) {
-      combatModifiers.push(modifier);
+      combatModifiers.push({ ...modifier, source });
     } else if (modifier.kind === 'staticHealingIncrease') {
       combatModifiers.push({
         kind: 'staticHealingIncrease',

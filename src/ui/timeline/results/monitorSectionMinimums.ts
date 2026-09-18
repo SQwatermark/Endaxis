@@ -3,9 +3,11 @@ export type MonitorSectionKey = 'affliction' | 'poise' | 'sp';
 export const MONITOR_SECTION_TOPBAR_HEIGHT = 14;
 export const MONITOR_RESIZE_HANDLE_REACH = 6;
 
-/** Interactive content must end before the neighboring separator's hit band. */
-export function monitorInteractiveContentHeight(bottom: number): number {
-  return bottom + MONITOR_RESIZE_HANDLE_REACH;
+/** 旧版按可用高度压缩图标，行间距固定为 4px；低于 14px 时由区域裁切。 */
+export function enemyStatusRowSize(bodyHeight: number, rowCount: number): number {
+  const rows = Math.max(1, rowCount);
+  const available = Math.max(0, bodyHeight - 4 * (rows - 1));
+  return Math.max(14, Math.min(20, Math.floor(available / rows)));
 }
 
 /** 从实际显示高度开始拖动，不能复用已被 min-height 约束改变比例的旧权重。 */
@@ -26,10 +28,10 @@ export function resizeMonitorSectionBodies(
   return { ...bodies, [upper]: nextUpper, [lower]: total - nextUpper };
 }
 
-/** 状态区由实际图标行数决定高度；CSS 和分隔线拖动必须使用同一下限。 */
-export function monitorSectionBodyMinimums(afflictionHeight = 60) {
+/** 与旧版一致：内容密度不能抬高分隔条的拖动下限。 */
+export function monitorSectionBodyMinimums() {
   return {
-    affliction: Math.max(46, afflictionHeight - MONITOR_SECTION_TOPBAR_HEIGHT),
+    affliction: 46,
     poise: 26,
     sp: 52,
   } satisfies Record<MonitorSectionKey, number>;

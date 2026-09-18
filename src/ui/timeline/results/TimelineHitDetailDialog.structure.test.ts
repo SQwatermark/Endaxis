@@ -1,8 +1,116 @@
 import { describe, expect, it } from 'vitest';
 import source from './TimelineHitDetailDialog.vue?raw';
 import editorSource from '../TimelineEditor.vue?raw';
+import { createSSRApp, h, type ComponentOptions } from 'vue';
+import { renderToString } from 'vue/server-renderer';
+import Dialog from './TimelineHitDetailDialog.vue';
+import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
+
+it('keeps flat, additive percentage and independent attack sources separate without changing receipts', async () => {
+  const entry: CombatReceiptEntry = {
+    sequence: 1,
+    frame: 0,
+    time: 0,
+    event: 'DamageApplied',
+    data: { value: 100, attack: 100 },
+    appliedDamageModifiers: [
+      {
+        kind: 'attribute',
+        side: 'attacker',
+        attribute: 'Atk',
+        slot: 'baseFinalAddition',
+        value: -20,
+        sourceId: 'flat',
+      },
+      {
+        kind: 'attribute',
+        side: 'attacker',
+        attribute: 'Atk',
+        slot: 'baseMultiplier',
+        value: 0.18,
+        sourceId: 'percent',
+      },
+      {
+        kind: 'attribute',
+        side: 'attacker',
+        attribute: 'Atk',
+        slot: 'finalMultiplier',
+        value: 1.2,
+        sourceId: 'product',
+      },
+      {
+        kind: 'attribute',
+        side: 'attacker',
+        attribute: 'criticalRate',
+        slot: 'baseAddition',
+        value: 0.1,
+        sourceId: 'critical',
+      },
+    ],
+  };
+  const before = structuredClone(entry);
+  let state: any;
+  await renderToString(
+    createSSRApp({
+      render: () =>
+        h(
+          {
+            ...(Dialog as ComponentOptions),
+            setup(props: any, context: any) {
+              state = (Dialog as any).setup(props, context);
+              return state;
+            },
+            ssrRender: () => {},
+          },
+          {
+            visible: true,
+            randomMode: 'expected',
+            forceCritical: false,
+            resultForceCritical: false,
+            entries: [entry],
+            operatorPanel: {
+              attack: 90,
+              receipt: [
+                {
+                  source: { kind: 'operatorBase', operatorSlug: 'test' },
+                  stat: 'intellect',
+                  operation: 'flat',
+                  value: 100,
+                },
+              ],
+            },
+            contributionSourceLabel: () => '',
+            damageTypeLabel: (s: string) => s,
+            skillTypeLabel: (s: string) => s,
+            labels: { attack: 'ATK', criticalRate: 'CRIT', defenseDetail: () => '' },
+          },
+        ),
+    }),
+  );
+  const detail = state.damageDetails.value[0];
+  expect(detail.staticAttack).toBe(90);
+  expect(detail.attributeSources).toEqual({});
+  expect(detail.attackSlotSources.baseFinalAddition).toEqual([{ label: 'flat', value: 'ATK -20' }]);
+  expect(detail.attackSlotSources.baseMultiplier).toEqual([
+    { label: 'percent', value: 'ATK +18.0%' },
+  ]);
+  expect(detail.attackSlotSources.finalMultiplier).toEqual([
+    { label: 'product', value: 'ATK x1.200' },
+  ]);
+  expect(detail.otherAttackSlots).toEqual([
+    'baseMultiplier',
+    'baseFinalAddition',
+    'finalMultiplier',
+  ]);
+  expect(detail.attackSources).toHaveLength(3);
+  expect(entry).toEqual(before);
+});
 
 describe('TimelineHitDetailDialog structure', () => {
+  it('releases modal ownership when closing starts, before the delayed model update', () => {
+    expect(source).toContain('@close="onClose"');
+    expect(source).not.toContain('@update:model-value="onClose"');
+  });
   it('hides impossible critical results only with explicit permission and gates forced results per receipt', () => {
     expect(source).toContain('canCritical: data.canCritical !== false');
     expect(source).toContain('<tr v-if="detail.canCritical" class="dim">');
@@ -58,13 +166,10 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain('projectAttackDetail');
     expect(source).toContain('<ArrowRight />');
     expect(source).toContain('labels.basicTotal');
-    expect(source).toContain('labels.baseAttack');
-    expect(source).toContain('labels.operatorAttack');
-    expect(source).toContain('labels.weaponAttack');
-    expect(source).toContain('labels.attackBonus');
-    expect(source).toContain('detail.attackDetail.attackPercentSources');
-    expect(source).toContain('contributionSourceLabel(source, detail.key)');
-    expect(source).toContain('class="label-cell indent-4"');
+    expect(source).toContain('labels.staticBuildAttack');
+    expect(source).not.toContain('labels.operatorAttack');
+    expect(source).not.toContain('flatAttackSources');
+    expect(source).not.toContain('staticRows');
     expect(source).toContain('labels.attributeBonus');
     expect(source).toContain('data.skillMultiplierPercent');
     expect(source).toContain('data.baseDamage');
@@ -82,7 +187,7 @@ describe('TimelineHitDetailDialog structure', () => {
     expect(source).toContain('canForceCritical && allowForceCritical !== false');
     expect(source).toContain(':model-value="visible"');
     expect(source).toContain('width="420px"');
-    expect(source).toContain('@update:model-value="onClose"');
+    expect(source).toContain('@close="onClose"');
     expect(source).toContain(':model-value="forceCritical"');
     expect(source).toContain("emit('toggleForceCritical'");
     expect(source).toContain('labels.forceCrit');

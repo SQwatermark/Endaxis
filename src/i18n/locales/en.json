@@ -2727,6 +2727,16 @@
     "atkBonus": "ATK Bonus",
     "flatAtk": "Flat ATK",
     "percentageAtk": "Percentage ATK",
+    "attackSlots": {
+      "baseMultiplier": "Base stage: additive percentage",
+      "baseFinalAddition": "Base stage: post-scaling addition",
+      "baseAddition": "Base stage: pre-scaling addition",
+      "baseFinalMultiplier": "Base stage: independent multiplier",
+      "addition": "Final stage: pre-scaling addition",
+      "multiplier": "Final stage: additive percentage",
+      "finalAddition": "Final stage: post-scaling addition",
+      "finalMultiplier": "Final stage: independent multiplier"
+    },
     "attributeBonus": "Attribute Bonus",
     "fromSource": "from {name}",
     "baseHp": "Base HP",
@@ -2770,6 +2780,7 @@
     "link_cd_reduction": "Combo CD reduction"
   },
   "hitDetail": {
+    "staticBuildAttack": "ATK",
     "damageZones": {
       "product": "Independent damage bonus",
       "normal": "Damage bonus",

@@ -7,6 +7,22 @@ import { ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE } from '../attributes/ope
 import type { AttackReceiptSnapshot } from '../state/foundationState';
 export type { AttackReceiptSnapshot } from '../state/foundationState';
 
+/** 攻击公式真正读取的属性，用于实时与快照伤害的直接来源采集。 */
+export function attackReceiptAttributes(
+  detail: AttackReceiptSnapshot | undefined,
+): readonly string[] {
+  const result = ['Atk'];
+  if (detail === undefined) return result;
+  for (const attribute of Object.keys(
+    ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
+  ) as OperatorAttribute[]) {
+    if (detail.coefficients[attribute] !== 0) result.push(attribute);
+    if (Math.floor(detail.attributes[attribute]) !== 0)
+      result.push(ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE[attribute]);
+  }
+  return result;
+}
+
 export function captureAttackReceiptSnapshot(
   panel: ResolvedOperatorPanel,
   attributes: CombatAttributeSet<string>,

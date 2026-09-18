@@ -9,7 +9,6 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { ActionValueOperand, SkillType } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from '../actions/actionBlackboard';
 import { attributeModifierValues } from '../attributes/combatAttributes';
-import { ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE } from '../attributes/operatorAttackAttributes';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { SimulationRandomMode } from '../random/simulationRandom';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
@@ -18,7 +17,11 @@ import type { CombatVitals } from '../resources/combatVitals';
 import type { CombatOperationContext, CombatOperationExecutor } from '../skills/skillRuntime';
 import type { CombatClock } from '../time/combatClock';
 import { deriveHitId } from '../timeline/deriveHitId';
-import { freezeAttackReceiptDetail, type AttackReceiptSnapshot } from './attackReceiptDetail';
+import {
+  attackReceiptAttributes,
+  freezeAttackReceiptDetail,
+  type AttackReceiptSnapshot,
+} from './attackReceiptDetail';
 import { calculateBreakingAttackValue } from './breakingAttackDamage';
 import { classifyDamageTags, injectDamageScaleAttributes } from './damageScaleAttributes';
 import { DAMAGE_SCALE_ZONES } from './damageScale';
@@ -136,7 +139,16 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       'snapshot damage scale',
     );
     const attributes = this.dependencies.captureAttributeSnapshots(step).attacker;
+    const attackKeys = attackReceiptAttributes(attributes.attackDetail);
     snapshots.set(step, {
+      attackModifiers: structuredClone(
+        (attributes.modifierDetails ?? []).filter(
+          item =>
+            item.kind === 'attribute' &&
+            item.side === 'attacker' &&
+            attackKeys.includes(item.attribute),
+        ),
+      ),
       attack: attributes.attack,
       ...(attributes.attackDetail === undefined ? {} : { attackDetail: attributes.attackDetail }),
       attackScale,
@@ -202,20 +214,43 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     try {
       this.dependencies.emitPreparationEvent('beforeDamageAction', context);
       this.dependencies.emitPreparationEvent('beforeCalculateDamage', context);
+      const executingBuff = operationContext?.executingBuff;
+      const directModifierSource = {
+        sourceId: operationContext?.actionOwnerId ?? this.dependencies.sourceOperatorId,
+        sourceActionId: operationContext?.executionActionId ?? this.dependencies.sourceActionId,
+        ...(executingBuff === undefined
+          ? {}
+          : {
+              buffId: executingBuff.buffId,
+              buff: {
+                ownerId: executingBuff.buffOwnerId,
+                instanceId: executingBuff.buffInstanceId,
+              },
+            }),
+      };
       const instantAttributeModifiers =
         step.kind === 'dealDamage' ? (step.parameters.instantAttributeModifiers ?? []) : [];
       for (const modifier of instantAttributeModifiers) {
+        const value = this.#resolveActionValue(
+          modifier.value,
+          operationContext,
+          `instant attribute ${modifier.attribute}`,
+        );
+        const neutral =
+          modifier.slot === 'finalMultiplier' || modifier.slot === 'baseFinalMultiplier' ? 1 : 0;
+        if (value !== neutral)
+          context.appliedDamageModifiers.push({
+            kind: 'attribute',
+            ...directModifierSource,
+            side: modifier.targetSide,
+            attribute: modifier.attribute,
+            slot: modifier.slot,
+            value,
+          });
         context.addInstantAttributeModifier(modifier.targetSide, {
           attribute: modifier.attribute,
           // 两个最终乘法槽的单位元是 1，不能用全零对象初始化单槽修正。
-          values: attributeModifierValues(
-            modifier.slot,
-            this.#resolveActionValue(
-              modifier.value,
-              operationContext,
-              `instant attribute ${modifier.attribute}`,
-            ),
-          ),
+          values: attributeModifierValues(modifier.slot, value),
           timing: modifier.attributeTiming,
         });
       }
@@ -258,15 +293,20 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       );
       if (step.kind === 'dealDamage') {
         for (const modifier of step.parameters.instantDamageScaleModifiers ?? []) {
-          context.damageScales.modify(
-            modifier.side,
-            modifier.zone,
-            this.#resolveActionValue(
-              modifier.addition,
-              operationContext,
-              `instant damage scale ${modifier.side}/${modifier.zone}`,
-            ),
+          const addition = this.#resolveActionValue(
+            modifier.addition,
+            operationContext,
+            `instant damage scale ${modifier.side}/${modifier.zone}`,
           );
+          if (addition !== 0)
+            context.appliedDamageModifiers.push({
+              kind: 'damageScale',
+              ...directModifierSource,
+              side: modifier.side,
+              zone: modifier.zone,
+              addition,
+            });
+          context.damageScales.modify(modifier.side, modifier.zone, addition);
         }
       }
       const finalAttackValue = context.resolveFinalAttackValue();
@@ -360,6 +400,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           actionId: this.dependencies.sourceActionId,
         }),
         appliedDamageModifiers: [
+          ...(attackSnapshot?.attackModifiers ?? []),
           // 属性来源在公式实际读取阶段收集，不把完整属性快照当成本次生效加成。
           ...context.appliedDamageModifiers.filter(item => item.kind !== 'attribute'),
           ...attributeDetails,
@@ -520,18 +561,8 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         recordAttribute('attacker', step.parameters.calculationAttribute);
       return attributeValue * attackScale + addition;
     }
-    recordAttribute('attacker', 'Atk');
-    // 复用攻击公式已冻结的四维与系数，零系数四维不构成本次攻击的来源。
-    const detail = context.attackerAttributes.attackDetail;
-    if (detail !== undefined) {
-      for (const attribute of Object.keys(
-        ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
-      ) as (keyof typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE)[]) {
-        if (detail.coefficients[attribute] !== 0) recordAttribute('attacker', attribute);
-        if (Math.floor(detail.attributes[attribute]) !== 0)
-          recordAttribute('attacker', ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE[attribute]);
-      }
-    }
+    for (const attribute of attackReceiptAttributes(context.attackerAttributes.attackDetail))
+      recordAttribute('attacker', attribute);
     if (step.parameters.calculation !== 'breakingAttack') {
       return context.attackerAttributes.attack * attackScale;
     }

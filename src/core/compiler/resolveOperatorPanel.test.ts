@@ -190,6 +190,7 @@ describe('resolveOperatorPanel', () => {
     });
     expect(panel.combatModifiers).toContainEqual({
       kind: 'staticDamageIncrease',
+      source: { kind: 'operatorUpgrade', source: 'potential', index: 1 },
       target: 'battleSkill',
       value: 0.15,
     });
@@ -243,8 +244,18 @@ describe('resolveOperatorPanel', () => {
     });
     expect(panel.criticalRate).toBeCloseTo(0.12);
     expect(panel.combatModifiers).toEqual([
-      { kind: 'staticDamageIncrease', target: 'normalAttack', value: 0.15 },
-      { kind: 'staticDamageIncrease', target: 'physical', value: 0.08 },
+      {
+        kind: 'staticDamageIncrease',
+        target: 'normalAttack',
+        value: 0.15,
+        source: { kind: 'operatorUpgrade', source: 'potential', index: 0 },
+      },
+      {
+        kind: 'staticDamageIncrease',
+        target: 'physical',
+        value: 0.08,
+        source: { kind: 'operatorUpgrade', source: 'potential', index: 0 },
+      },
       { kind: 'staticHealingIncrease', target: 'output', value: 0.1 },
     ]);
     expect(panel.receipt).toEqual(
@@ -328,7 +339,15 @@ describe('resolveOperatorPanel', () => {
     expect(panel.defense).toBe(50);
     expect(panel.criticalRate).toBe(0.1);
     expect(panel.combatModifiers).toEqual([
-      { kind: 'damageBonus', damageTypes: 'electric', value: 0.2 },
+      {
+        kind: 'damageBonus',
+        damageTypes: 'electric',
+        value: 0.2,
+        source: {
+          kind: 'equipment',
+          contribution: { kind: 'gearTrait', slug: 'panel-gear', traitKey: 'main-and-critical' },
+        },
+      },
     ]);
   });
 

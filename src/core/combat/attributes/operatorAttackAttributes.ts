@@ -198,7 +198,7 @@ export function createOperatorAttackAttributes(
   return result;
 }
 
-const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES: Readonly<Record<string, DamageScaleAttributeKey>> = {
+export const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES: Readonly<Record<string, DamageScaleAttributeKey>> = {
   normalAttack: 'normalAttackDamageIncrease',
   battleSkill: 'normalSkillDamageIncrease',
   comboSkill: 'comboSkillDamageIncrease',

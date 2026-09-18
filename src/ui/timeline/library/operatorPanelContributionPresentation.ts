@@ -1,8 +1,6 @@
 import type { PublishedOperatorMetadata } from '../results/publishedOperatorMetadata';
-import type {
-  OperatorPanelContributionReceipt,
-  ResolvedOperatorPanel,
-} from '../../../core/compiler/resolveOperatorPanel';
+import type { PublishedBuffSource } from '../results/publishedBuffSource';
+import type { OperatorPanelContributionReceipt } from '../../../core/compiler/resolveOperatorPanel';
 import {
   getGearPieceGameName,
   getGearSetGameName,
@@ -18,6 +16,7 @@ export interface OperatorPanelContributionPresentationContext {
     readonly potentials: readonly Pick<PublishedOperatorMetadata['potentials'][number], 'levels'>[];
   } | null;
   readonly locale: string;
+  readonly weapons?: ReadonlyMap<string, PublishedBuffSource>;
   readonly translate: (key: string, params?: Record<string, unknown>) => string;
 }
 
@@ -26,15 +25,21 @@ export interface OperatorPanelContributionPresentationContext {
  * 不根据数值或技能名称反推来源。
  */
 export function resolveOperatorPanelContributionSourceLabel(
-  entry: OperatorPanelContributionReceipt,
+  entry: Pick<OperatorPanelContributionReceipt, 'source'>,
   context: OperatorPanelContributionPresentationContext,
 ): string {
   const source = entry.source;
+  const weaponName = (slug: string) => {
+    const identity = context.weapons?.get(slug);
+    return identity?.kind === 'weapon'
+      ? (identity.name ?? getWeaponGameName(identity.slug, context.locale))
+      : getWeaponGameName(slug, context.locale);
+  };
   if (source.kind === 'operatorBase') return context.translate('statDetail.baseSource');
   if (source.kind === 'trust') {
     return context.translate('timeline.panel.trustNode', { node: source.node });
   }
-  if (source.kind === 'weaponBase') return getWeaponGameName(source.weaponSlug, context.locale);
+  if (source.kind === 'weaponBase') return weaponName(source.weaponSlug);
   if (source.kind === 'gearBase') return getGearPieceGameName(source.gearSlug, context.locale);
   if (source.kind === 'operatorUpgrade') {
     const operator = context.operator;
@@ -61,19 +66,10 @@ export function resolveOperatorPanelContributionSourceLabel(
   }
   const contribution = source.contribution;
   if (contribution.kind === 'weaponTrait') {
-    return getWeaponGameName(contribution.slug, context.locale);
+    return weaponName(contribution.slug);
   }
   if (contribution.kind === 'gearTrait') {
     return getGearPieceGameName(contribution.slug, context.locale);
   }
   return getGearSetGameName(contribution.slug, context.locale);
-}
-
-/** 旧版攻击折叠树只在“攻击百分比”节点下列出这一乘区的逐来源贡献。 */
-export function projectAttackPercentContributionSources(
-  panel: Pick<ResolvedOperatorPanel, 'receipt'> | null,
-): readonly OperatorPanelContributionReceipt[] {
-  return (
-    panel?.receipt.filter(entry => entry.stat === 'attack' && entry.operation === 'percent') ?? []
-  );
 }

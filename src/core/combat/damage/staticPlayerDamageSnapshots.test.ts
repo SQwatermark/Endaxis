@@ -117,6 +117,60 @@ const electricDamage: ResolvedCombatStepForKind<'dealDamage'> = {
 };
 
 describe('resolveStaticPlayerDamageSnapshots', () => {
+  it('preserves distinct static providers and applies the existing element and skill filters', () => {
+    const first = { kind: 'equipment', contribution: { kind: 'gearSet', slug: 'first' } } as const;
+    const second = {
+      kind: 'equipment',
+      contribution: { kind: 'gearSet', slug: 'second' },
+    } as const;
+    const context = createContext({
+      panel: {
+        ...panel,
+        combatModifiers: [
+          {
+            kind: 'damageBonus',
+            damageTypes: 'electric',
+            skillTypes: 'battleSkill',
+            value: 0.2,
+            source: first,
+          },
+          {
+            kind: 'damageScale',
+            target: 'electric',
+            slot: 'baseAddition',
+            value: 0.1,
+            source: second,
+          },
+        ],
+      },
+    });
+    const attributes = createOperatorAttackAttributes(context.panel!);
+    const electric = resolveStaticPlayerDamageSnapshots(
+      context,
+      electricDamage,
+      attributes,
+    ).attacker;
+    expect(electric.electricDamageIncrease).toBeCloseTo(0.3);
+    expect(electric.modifierDetails?.map(item => item.panelSource)).toEqual([first, second]);
+    const heat = resolveStaticPlayerDamageSnapshots(
+      context,
+      {
+        ...electricDamage,
+        parameters: { ...electricDamage.parameters, damageType: 'heat' },
+      },
+      attributes,
+    ).attacker;
+    expect(heat.modifierDetails?.map(item => item.panelSource)).toEqual([second]);
+    const normal = resolveStaticPlayerDamageSnapshots(
+      {
+        ...context,
+      program: { ...context.program, skillType: 'basicAttack' },
+      },
+      electricDamage,
+      attributes,
+    ).attacker;
+    expect(normal.modifierDetails?.map(item => item.panelSource)).toEqual([second]);
+  });
   it('freezes dynamic attack components and floored attributes from the same read', () => {
     const dynamicPanel: ResolvedOperatorPanel = {
       ...panel,
@@ -212,6 +266,20 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
     expect(
       resolveStaticPlayerDamageSnapshots(boosted, electricDamage, attributes).attacker,
     ).toMatchObject({ criticalRate: (0.15 + 0.3) * 0.5, criticalDamageIncrease: 1.2 });
+    expect(
+      resolveStaticPlayerDamageSnapshots(boosted, electricDamage, attributes).attacker
+        .modifierDetails,
+    ).toEqual([
+      {
+        kind: 'attribute',
+        sourceId: 'operator',
+        sourceActionId: 'battleSkill',
+        side: 'attacker',
+        attribute: 'criticalRate',
+        slot: 'baseAddition',
+        value: 0.3,
+      },
+    ]);
     expect(
       resolveStaticPlayerDamageSnapshots(base, electricDamage, attributes).attacker.criticalRate,
     ).toBeCloseTo(0.075);
@@ -488,6 +556,19 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
 
   it('技能级暴击率修正穿过标准伤害执行器并改变暴击结果', () => {
     const context = createContext({
+      panel: {
+        ...panel,
+        combatModifiers: [
+          ...panel.combatModifiers,
+          {
+            kind: 'damageScale',
+            target: 'staggeredEnemy',
+            slot: 'baseAddition',
+            value: 0.2,
+            source: { kind: 'equipment', contribution: { kind: 'gearSet', slug: 'stagger-set' } },
+          },
+        ],
+      },
       program: {
         ...createContext().program,
         skillGroupKey: 'ultimate',
@@ -516,7 +597,11 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
       clock: context.clock,
       receipt: context.receipt,
       captureAttributeSnapshots: step =>
-        resolveStaticPlayerDamageSnapshots(context, step, createOperatorAttackAttributes(panel)),
+        resolveStaticPlayerDamageSnapshots(
+          context,
+          step,
+          createOperatorAttackAttributes(context.panel!),
+        ),
       // 0.3 高于基础 0.15，但低于技能潜能修正后的 0.45。
       criticalSamples: { nextCriticalSample: () => 0.3 },
       resolveNonRandomRuntimeSnapshot: () => ({
@@ -549,5 +634,31 @@ describe('resolveStaticPlayerDamageSnapshots', () => {
         resistanceMultiplier: 0.8,
       },
     });
+    const hits = () =>
+      (context.receipt as CombatReceiptCollector).entries.filter(
+        entry => entry.event === 'DamageApplied',
+      );
+    const staggerSources = () =>
+      hits()
+        .at(-1)!
+        .appliedDamageModifiers!.filter(
+          item => item.kind === 'attribute' && item.attribute === 'damageToStaggeredEnemyIncrease',
+        );
+    expect(staggerSources()).toEqual([]);
+    targetVitals.runtimeState.hasPoiseBrokenTag = true;
+    executor.execute(electricDamage);
+    expect(hits().at(-1)!.data!.value).toBeCloseTo(298.6666666666667 * 1.2);
+    expect(staggerSources()).toEqual([
+      {
+        kind: 'attribute',
+        sourceId: 'operator',
+        side: 'attacker',
+        zone: 'normal',
+        attribute: 'damageToStaggeredEnemyIncrease',
+        slot: 'baseAddition',
+        value: 0.2,
+        panelSource: { kind: 'equipment', contribution: { kind: 'gearSet', slug: 'stagger-set' } },
+      },
+    ]);
   });
 });
