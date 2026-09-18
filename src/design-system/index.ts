@@ -10,6 +10,8 @@ export { default as EaDiceIcon } from './components/EaDiceIcon/EaDiceIcon.vue';
 export { default as EaFilterChip } from './components/EaFilterChip/EaFilterChip.vue';
 export { default as EaFormField } from './components/EaFormField/EaFormField.vue';
 export { default as EaInput } from './components/EaInput/EaInput.vue';
+export { default as EaMinusIcon } from './components/EaMinusIcon/EaMinusIcon.vue';
+export { default as EaPlusIcon } from './components/EaPlusIcon/EaPlusIcon.vue';
 export { default as EaNumberInput } from './components/EaNumberInput/EaNumberInput.vue';
 export { default as EaOption } from './components/EaOption/EaOption.vue';
 export { default as EaOptionGroup } from './components/EaOptionGroup/EaOptionGroup.vue';

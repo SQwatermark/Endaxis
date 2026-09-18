@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EaTooltip } from '@/design-system';
+import { EaTooltip, EaMinusIcon, EaPlusIcon } from '@/design-system';
 /**
  * Next 时间轴的干员养成编辑弹窗。
  *
@@ -439,9 +439,12 @@ function maxOut(): void {
                     size="sm"
                     type="button"
                     :disabled="(operator.skillLevels[source] ?? 1) <= 1"
+                    icon-only
+                    :title="t('common.decrease')"
+                    :aria-label="t('common.decrease')"
                     @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) - 1)"
                   >
-                    -
+                    <EaMinusIcon />
                   </EaButton>
                   <span class="skill-rank">{{
                     formatOperatorSkillLevel(operator.skillLevels[source] ?? 1)
@@ -450,9 +453,12 @@ function maxOut(): void {
                     size="sm"
                     type="button"
                     :disabled="(operator.skillLevels[source] ?? 1) >= skillMax"
+                    icon-only
+                    :title="t('common.increase')"
+                    :aria-label="t('common.increase')"
                     @click="setSkillLevel(source, (operator.skillLevels[source] ?? 1) + 1)"
                   >
-                    +
+                    <EaPlusIcon />
                   </EaButton>
                 </div>
               </div>

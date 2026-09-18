@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { EaCheckbox, EaDialog, EaDialogActions } from '../../../design-system/index';
+import { EaCheckbox, EaDialog, EaDialogActions, EaTooltip } from '../../../design-system/index';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import CombatObjectOriginGraph from './CombatObjectOriginGraph.vue';
 import { CombatObjectOrigins } from '../../../core/projection/combatObjectOrigins';
@@ -708,7 +708,7 @@ function onClose(): void {
                       ? labels.expectedDamage
                       : labels.actualDamage
                 }}
-                <el-tooltip
+                <EaTooltip
                   v-if="detail.formulaTooltip"
                   :content="detail.formulaTooltip"
                   placement="top"
@@ -718,7 +718,7 @@ function onClose(): void {
                   <el-icon class="hint-icon" tabindex="0" :aria-label="labels.multipliers"
                     ><Warning
                   /></el-icon>
-                </el-tooltip>
+                </EaTooltip>
               </span>
               <span class="damage-result-value">
                 <span
@@ -775,7 +775,7 @@ function onClose(): void {
                     <ArrowRight />
                   </el-icon>
                   {{ labels.attack }}
-                  <el-tooltip
+                  <EaTooltip
                     v-if="detail.attackFormulaTooltip"
                     :content="detail.attackFormulaTooltip"
                     placement="top"
@@ -785,7 +785,7 @@ function onClose(): void {
                     <el-icon class="hint-icon" tabindex="0" :aria-label="labels.attack" @click.stop
                       ><Warning
                     /></el-icon>
-                  </el-tooltip>
+                  </EaTooltip>
                 </td>
                 <td class="value-cell">{{ detail.attackValue }}</td>
               </tr>
@@ -832,7 +832,7 @@ function onClose(): void {
               <tr v-for="row in detail.multiplierRows" :key="row.label">
                 <td class="label-cell">
                   {{ row.label }}
-                  <el-tooltip
+                  <EaTooltip
                     v-if="row.tooltip"
                     :content="row.tooltip"
                     placement="top"
@@ -840,7 +840,7 @@ function onClose(): void {
                     popper-class="hit-detail-source-tooltip"
                   >
                     <span class="hint-icon" aria-hidden="true">ⓘ</span>
-                  </el-tooltip>
+                  </EaTooltip>
                   <span v-if="row.detail" class="mult-detail">{{ row.detail }}</span>
                 </td>
                 <td class="value-cell mult-value">{{ row.value }}</td>

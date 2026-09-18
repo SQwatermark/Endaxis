@@ -1,5 +1,10 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, test } from 'vitest';
+import appSource from '../App.vue?raw';
+
+test('the application root does not override shared design-system styles', () => {
+  expect(appSource).not.toContain('<style');
+});
 import cornerToolbarSource from '../ui/timeline/components/TimelineCornerToolbar.vue?raw';
 import enemySettingsSource from '../ui/timeline/components/EnemySettingsPanel.vue?raw';
 import globalResourceSource from '../ui/timeline/components/GlobalResourcePanel.vue?raw';
@@ -196,8 +201,9 @@ describe('design-system layout regressions', () => {
     const hoverMedia = getBlockBody(controlStyles, '@media (hover: hover) and (pointer: fine)');
     const rule = getRuleBody(hoverMedia, ".ea-button[aria-pressed='true']:hover:not(:disabled)");
 
-    expect(rule).toContain('border-color: var(--ea-gold);');
-    expect(rule).toContain('color: var(--ea-gold);');
+    expect(rule).toContain('border-color: var(--ea-control-pressed-border-hover, var(--ea-gold));');
+    expect(rule).toContain('color: var(--ea-control-pressed-fg-hover, var(--ea-gold));');
+    expect(rule).toContain('--ea-control-pressed-bg-hover');
   });
 
   test('sizes teleported select options with the matching control tokens', () => {

@@ -101,6 +101,8 @@
     "confirmButton": "Reset"
   },
   "common": {
+    "increase": "Increase",
+    "decrease": "Decrease",
     "add": "Add",
     "cancel": "Cancel",
     "close": "Close",

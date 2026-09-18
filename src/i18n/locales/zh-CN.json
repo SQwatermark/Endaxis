@@ -101,6 +101,8 @@
     "confirmButton": "确认重置"
   },
   "common": {
+    "increase": "增加",
+    "decrease": "减少",
     "add": "添加",
     "cancel": "取消",
     "close": "关闭",
