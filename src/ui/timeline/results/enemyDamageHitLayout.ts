@@ -14,18 +14,26 @@ export function layoutEnemyDamageHits(
 ) {
   const rows = layoutEnemyStatusRows(buffs, markers, attachmentIds);
   const candidates = [
-    ...groupEnemyBurstDamageHits(entries).map(group => ({ group, row: rows.attachmentRow })),
-    ...groupEnemyBuffDamageHits(entries).flatMap(group => {
+    ...groupEnemyBurstDamageHits(entries).map(group => ({
+      group,
+      row: rows.attachmentRow,
+      standalone: false,
+    })),
+    ...groupEnemyBuffDamageHits(entries).map(group => {
       const segment = findBuffDamageSegment(group[0]!, buffs);
       const row = segment === undefined ? undefined : rows.lanes.get(segment);
-      return row === undefined ? [] : [{ group, row }];
+      // 没有可见持续条的伤害仍有独立入口，不受 Buff 图标和头顶栏开关影响。
+      return { group, row: row ?? rows.rowCount, standalone: row === undefined };
     }),
   ];
-  const positions = new Map<string, { group: CombatReceiptEntry[]; row: number }>();
-  for (const { group, row } of candidates) {
+  const positions = new Map<
+    string,
+    { group: CombatReceiptEntry[]; row: number; standalone: boolean }
+  >();
+  for (const { group, row, standalone } of candidates) {
     const first = group[0]!;
     const key = JSON.stringify([first.targetId, first.frame, row]);
-    const position = positions.get(key) ?? { group: [], row };
+    const position = positions.get(key) ?? { group: [], row, standalone };
     position.group.push(...group);
     positions.set(key, position);
   }

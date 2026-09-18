@@ -3,7 +3,59 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
 import { capturePublishedOperatorMetadata } from './publishedOperatorMetadata';
 import { arcane } from '../../../data/operators/arcane.generated';
-import { capturePublishedWeaponSources, resolvePublishedBuffSource } from './publishedBuffSource';
+import {
+  capturePublishedEquipmentSources,
+  resolvePublishedBuffSource,
+  resolvePublishedEquipmentTrait,
+} from './publishedBuffSource';
+
+it('从冻结词条定位事件处理器，重复处理器键不强选词条', () => {
+  const weapon = {
+    slug: 'weapon',
+    traits: [
+      { key: 'skill3', eventHandlers: [{ key: 'on-hit' }] },
+      { key: 'skill2', eventHandlers: [{ key: 'shared' }] },
+      { key: 'skill1', eventHandlers: [{ key: 'shared' }] },
+    ],
+  };
+  const source = capturePublishedEquipmentSources([weapon]).get('weapon')!;
+  weapon.traits[0]!.eventHandlers[0]!.key = 'edited';
+  expect(resolvePublishedEquipmentTrait(source, 'equipment:weaponTrait:weapon:on-hit')).toBe(
+    'skill3',
+  );
+  expect(
+    resolvePublishedEquipmentTrait(source, 'upgrade-initialization:weapon-trait:weapon:skill2'),
+  ).toBe('skill2');
+  expect(
+    resolvePublishedEquipmentTrait(source, 'equipment:weaponTrait:weapon:shared'),
+  ).toBeUndefined();
+  expect(
+    resolvePublishedEquipmentTrait(source, 'equipment:weaponTrait:weapon:unknown'),
+  ).toBeUndefined();
+});
+
+it('装备按发布时的处理器定位到具体词条，施法身份不能跨干员串用', () => {
+  const gear = { slug: 'gear', traits: [{ key: 'secondary', eventHandlers: [{ key: 'on-hit' }] }] };
+  const gears = capturePublishedEquipmentSources([gear], 'gear');
+  const source = resolvePublishedBuffSource(
+    { sourceId: 'track', sourceActionId: 'equipment:gearTrait:gear:on-hit' },
+    scenario,
+    operators,
+    new Map(),
+    gears,
+  )!;
+  expect(source.kind).toBe('gear');
+  expect(resolvePublishedEquipmentTrait(source, 'equipment:gearTrait:gear:on-hit')).toBe(
+    'secondary',
+  );
+  expect(
+    resolvePublishedBuffSource(
+      { sourceId: 'another-track', sourceActionId: 'cast' },
+      scenario,
+      operators,
+    ),
+  ).toBeUndefined();
+});
 
 it('captures native weapon presentation identity and custom names without retaining mutable definitions', () => {
   const weapon = {
@@ -11,7 +63,7 @@ it('captures native weapon presentation identity and custom names without retain
     assetSlug: 'wpn_artsunit_0016',
     iconPath: '/icons/weapons/funnel.webp',
   };
-  const captured = capturePublishedWeaponSources([
+  const captured = capturePublishedEquipmentSources([
     weapon,
     { slug: 'custom', displayName: '自定义武器' },
   ]);

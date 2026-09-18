@@ -111,7 +111,23 @@ describe('木桩连携施法准备', () => {
     expect(context.targetContext.get('smart_target')).toEqual([{ kind: 'enemy' }]);
   });
 
-  it('不能把非敌人的智能候选静默改成敌人', () => {
-    expect(() => prepareComboCast({ smartTarget: 'input' }, pending())).toThrow('non-enemy target');
+  it.each(['input', 'trigger'] as const)('保留 %s 中的真实干员目标，不强换成敌人', smartTarget => {
+    const operator = { kind: 'operator' as const, operatorId: 'owner' };
+    const result = prepareComboCast({ smartTarget }, { ...pending(), triggerTarget: operator });
+    expect(result.smartTarget).toEqual(operator);
+    expect(result.trigger).toEqual(operator);
+    expect(result.smartTarget).not.toBe(operator);
+  });
+
+  it('不把尚未支持的能力实体候选静默改成敌人', () => {
+    expect(() =>
+      prepareComboCast(
+        { smartTarget: 'input' },
+        {
+          ...pending(),
+          inputTarget: { kind: 'abilityEntity', instanceId: 1 },
+        },
+      ),
+    ).toThrow('abilityEntity target');
   });
 });

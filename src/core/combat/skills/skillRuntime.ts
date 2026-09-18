@@ -153,6 +153,8 @@ export interface CombatOperationContext {
   ) => boolean;
   /** 仅 Buff 环境提供；动作结束解除监听，不清除已记录的 affix 编号。 */
   readonly bindCurrentBuffSkillAffix?: (skillCastId: number) => number;
+  /** 当前 Buff 由 SkillAffix 绑定的施放编号；0 表示未绑定，与普通来源编号分开读取。 */
+  readonly getCurrentBuffAffixSkillCastId?: () => number;
   readonly finishCurrentBuffSkillAffix?: (affixId: number) => void;
   /** 只由 GlobalBuff 投影出的子 Buff 提供；不得按 ID 猜测父层。 */
   readonly finishParentGlobalBuff?: (reason: 'early' | 'other') => boolean;

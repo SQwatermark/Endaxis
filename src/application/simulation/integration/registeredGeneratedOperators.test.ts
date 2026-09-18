@@ -53,6 +53,7 @@ import {
   projectTimelineHitActualFrames,
 } from '../../../ui/timeline/results/timelineHitEffects';
 import { runStandardPlayerDamageScenarioSimulation } from '../runStandardPlayerDamageScenarioSimulation';
+import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 /** 每次放置独立计数；对照场景可复用相同前缀，但同一次多段放置不能共享释放身份。 */
 function numberedPlacementIds(prefix: string) {
@@ -61,6 +62,49 @@ function numberedPlacementIds(prefix: string) {
 }
 
 describe('registered generated operators', () => {
+  it('使命必达通过连携绑定编号识别击飞，并在十五秒后结束增伤', async () => {
+    const scenario = createEmptyScenario('scenario:delivery-affix', '使命必达连携监听回归');
+    scenario.battle.durationFrames = 700;
+    scenario.tracks[0] = {
+      id: 'track:gilberta',
+      operator: {
+        operatorSlug: 'gilberta',
+        level: 90,
+        promoted: true,
+        potential: 5,
+        trustLevel: 4,
+        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+        talentStates: {},
+      },
+      weapon: {
+        weaponSlug: 'wpn_funnel_0011',
+        level: 90,
+        tuned: true,
+        potential: 5,
+        traitLevels: [9, 9, 9],
+      },
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [0, 120].map((startFrame, i) => ({
+        id: `cast:delivery:${i}`,
+        source: { kind: 'operatorSkill', skillGroupKey: 'comboSkill', skillKey: 'comboSkill' },
+        placement: { startFrame },
+      })),
+    };
+    const { receiptEntries } = await createEditorSimulationService().simulate(scenario, 700);
+    const applied = receiptEntries.filter(
+      e => e.event === 'BuffApplied' && e.data?.buffId === 'buff_wpn_funnel_0011_valid',
+    );
+    expect(applied.length).toBeGreaterThan(0);
+    const last = applied.at(-1)!;
+    expect(receiptEntries).toContainEqual(
+      expect.objectContaining({
+        event: 'BuffFinished',
+        frame: last.frame + 450,
+        data: expect.objectContaining({ buffId: 'buff_wpn_funnel_0011_valid' }),
+      }),
+    );
+  });
   it('applies Estella potential-3 DamageScaleProcessor only to the first battle-skill hit', () => {
     const run = (potential: 2 | 3) => {
       const scenario = createEmptyScenario(`scenario:estella:${potential}`, '艾斯黛拉战技倍率回归');

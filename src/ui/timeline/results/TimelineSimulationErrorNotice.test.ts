@@ -20,6 +20,9 @@ it('renders only the fixed simulation error notice', async () => {
   expect(html).toContain('simulation-error-notice');
   expect(html).toContain('模拟失败');
   expect(html).toContain('bad data');
+  expect(html).toContain('<textarea');
+  expect(html).toContain('readonly');
+  expect(html).toContain('复制');
   expect(html).not.toContain('等待模拟');
   expect(html).not.toContain('上次结果');
 });

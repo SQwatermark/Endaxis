@@ -1,13 +1,14 @@
 import type { BuffTimelineSegment } from '../../../core/projection/buffTimelineViz';
 import type { EnemyEffectMarker } from '../../../core/projection/enemyEffectViz';
+import { isPhysicalStatusRowBuff } from './physicalStatusDisplay';
 
 /** 原生明确排除头顶两栏的内部效果不画敌方持续条；无路由元数据的自定义段仍保留。 */
 export function isEnemyTimelineBuffVisible(buff: BuffTimelineSegment): boolean {
   return !(buff.showInHeadBarCommon === false && buff.showInHeadBarAttached === false);
 }
 
-/** 展示分区，不推导战斗状态。附着身份来自 role，其余消费原生 HUD 元数据。
- * 旧版 ResourceMonitor 顺序：物理头顶状态、附着、异常、普通状态。
+/** 展示分区，不推导战斗状态。四种物理异常和破防使用明确的系统身份，附着身份来自 role。
+ * 分区顺序：物理异常与破防、附着、法术异常、普通状态。
  * 未识别的状态保留在普通区，不能按图标或名称猜测。
  */
 export function layoutEnemyStatusRows<T extends BuffTimelineSegment>(
@@ -20,7 +21,7 @@ export function layoutEnemyStatusRows<T extends BuffTimelineSegment>(
   for (const buff of buffs) {
     const group = attachmentIds.has(buff.buffId)
       ? 1
-      : buff.showInHeadBarAttached === true
+      : isPhysicalStatusRowBuff(buff)
         ? 0
         : buff.iconStyleInSquad === 'SpellAbnormal'
           ? 2
@@ -35,8 +36,8 @@ export function layoutEnemyStatusRows<T extends BuffTimelineSegment>(
     if (group === 2) anomalyRow = offset;
     const ends: number[] = [];
     for (const buff of groups[group]!.sort((a, b) => a.startFrame - b.startFrame)) {
-      // 单一附着槽的切段固定在同一行；叠层/刷新不能被其他 Buff 挤走。
-      let lane = group === 1 ? 0 : ends.findIndex(end => end <= buff.startFrame);
+      // 物理异常与破防共用一行；单一附着槽也固定在同一行。
+      let lane = group <= 1 ? 0 : ends.findIndex(end => end <= buff.startFrame);
       if (lane < 0) lane = ends.length;
       ends[lane] = buff.durationEndFrame ?? buff.endFrame;
       lanes.set(buff, offset + lane);
@@ -58,5 +59,13 @@ export function layoutEnemyStatusRows<T extends BuffTimelineSegment>(
     slots.set(key, slot + 1);
     return { row, slot };
   });
-  return { lanes, markerPositions, attachmentRow, rowCount: offset };
+  const iconSlots = new Map<T, number>();
+  const physicalSlots = new Map<string, number>();
+  for (const buff of groups[0]!) {
+    const key = `${buff.targetId}:${buff.startFrame}`;
+    const slot = physicalSlots.get(key) ?? 0;
+    iconSlots.set(buff, slot);
+    physicalSlots.set(key, slot + 1);
+  }
+  return { lanes, iconSlots, markerPositions, attachmentRow, rowCount: offset };
 }

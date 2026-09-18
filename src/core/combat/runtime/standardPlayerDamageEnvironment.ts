@@ -394,8 +394,8 @@ export class StandardPlayerDamageEnvironment {
       undefined,
       restoredEnemyBuffs,
       (buff, producedBy) => this.#recordBuffCreated(buff, producedBy),
-      (buff, previousLayers, sourceId, skillCastInfo) =>
-        this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo),
+      (buff, previousLayers, sourceId, skillCastInfo, producedBy) =>
+        this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo, producedBy),
     );
     this.#enemyBuffRuntime = new BuffDefinitionOperationTarget(
       this.#enemyBuffs,
@@ -543,8 +543,8 @@ export class StandardPlayerDamageEnvironment {
           buff => this.#recordBuffRemoval(entityId, buff, 'other', 'BuffReleased'),
           restoredState,
           (buff, producedBy) => this.#recordBuffCreated(buff, producedBy),
-          (buff, previousLayers, sourceId, skillCastInfo) =>
-            this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo),
+          (buff, previousLayers, sourceId, skillCastInfo, producedBy) =>
+            this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo, producedBy),
         );
         if (restoredState === undefined) container.addEntityTags(bornTags);
         return new BuffDefinitionOperationTarget(
@@ -993,7 +993,7 @@ export class StandardPlayerDamageEnvironment {
       clock: context.clock,
       receipt: context.receipt,
       getExistingAttachment: () => adapter.getExistingAttachment(),
-      applyOperation: (operation: ElementalInflictionOperation, skillCastInfo) => {
+      applyOperation: (operation: ElementalInflictionOperation, skillCastInfo, producedBy) => {
         if (operation.kind === 'triggerBurst') {
           // 元素目录只提供系统身份；已生成的完整定义必须独占执行，不能再叠加旧聚合回调。
           const buffId = this.#ensureElementalDefinitions().getBurst(operation.element).id;
@@ -1007,12 +1007,13 @@ export class StandardPlayerDamageEnvironment {
               sourceActionId: context.program.skillId,
               blackboardValues: {},
               skillCastInfo,
+              producedBy,
             });
             return buff === null ? undefined : { buffId, instanceId: buff.instanceId };
           }
         }
         // 未迁移的定义继续走兼容目录；定义存在但无效时直接失败，不回退掩盖错误。
-        return adapter.apply(operation, { skillCastInfo });
+        return adapter.apply(operation, { skillCastInfo, producedBy });
       },
       // 原生 TriggerSpellBurstEventAction 只发布事件；后续 DamageAction 自己结算伤害。
       triggerSpellBurst: payload => this.#emitSpellBurstEvents(payload),
@@ -1214,8 +1215,8 @@ export class StandardPlayerDamageEnvironment {
         undefined,
         configuredState,
         (buff, producedBy) => this.#recordBuffCreated(buff, producedBy),
-        (buff, previousLayers, sourceId, skillCastInfo) =>
-          this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo),
+        (buff, previousLayers, sourceId, skillCastInfo, producedBy) =>
+          this.#recordBuffStackChanged(buff, previousLayers, sourceId, skillCastInfo, producedBy),
       );
       runtime = new BuffDefinitionOperationTarget(
         container,
@@ -1730,11 +1731,13 @@ export class StandardPlayerDamageEnvironment {
     previousLayers: number,
     sourceId?: string,
     skillCastInfo?: import('../state/foundationState').CombatSkillCastInfo | null,
+    producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
   ): void {
     this.#requireReceipt().record({
       frame: this.#clock!.frame,
       time: this.#clock!.time,
       event: 'BuffStackChanged',
+      ...(producedBy === undefined ? {} : { producedBy }),
       targetId: buff.owner.ownerId,
       ...(sourceId === undefined ? {} : { sourceId }),
       data: {
@@ -1784,6 +1787,9 @@ export class StandardPlayerDamageEnvironment {
         data: {
           buffId,
           instanceId: buff.instanceId,
+          ...(event.physicalInflictionType === undefined
+            ? {}
+            : { physicalInflictionType: event.physicalInflictionType }),
           layers: buff.enhanceCount,
           stackingType: buff.definition.stackingType,
           hasFiniteLifetime: buff.remainingDuration !== null,

@@ -10,6 +10,7 @@ import type { CombatOperationContext, CombatOperationExecutor } from '../skills/
 import type { CombatSkillCastInfo } from '../state/foundationState';
 import type { GameplayTagPredefine } from '../tags/gameplayTagPredefine';
 import type { KnockDownComponentEvent, OrdinaryKnockDownRuntime } from './ordinaryKnockDownRuntime';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 
 export type KnockDownAbilityEvent =
   | KnockDownComponentEvent
@@ -132,6 +133,11 @@ export class KnockDownOperationExecutor implements CombatOperationExecutor {
   ): void {
     this.dependencies.target.apply({
       buffId,
+      physicalInflictionType: 'knockDown',
+      producedBy: operationProducer(context, {
+        ownerId: payload.sourceId,
+        actionId: context.actionSourceId ?? payload.skillCastInfo.originSkillId,
+      }),
       definition: this.dependencies.resolveBuffDefinition(buffId),
       sourceId: payload.sourceId,
       sourceActionId: context.actionSourceId ?? payload.skillCastInfo.originSkillId,

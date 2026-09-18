@@ -5,6 +5,41 @@ import { parseProjectDocument } from '../../src/core/project/serialization';
 import realAxisMappings from './mappings.2026-08-31.json';
 import type { ConversionMappings } from './sourcePreparation';
 
+it('保留时间允许同轴重叠，智能修复则顺延，且不改变原始输入', () => {
+  const input = fixture();
+  const actions = input.scenarioList[0]!.data.tracks[0]!.actions;
+  actions.push({ ...actions[0]!, startTime: 625, logicalStartTime: 625 });
+  const original = structuredClone(input);
+  const mappings: ConversionMappings = {
+    operators: { 'old-perlica': 'perlica' },
+    skills: {
+      'old-perlica': [
+        {
+          source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        },
+      ],
+    },
+  };
+  const preserved = convertLegacyTimeline(input, gameDataRepository, mappings, {
+    timingMode: 'preserve',
+  });
+  const repaired = convertLegacyTimeline(input, gameDataRepository, mappings, {
+    timingMode: 'repair',
+  });
+  expect(preserved.report.issues).toEqual([]);
+  expect(preserved.report.timingMode).toBe('preserve');
+  expect(preserved.report.timingAdjustments).toEqual([]);
+  expect(
+    preserved.project!.scenarios[0]!.tracks[0]!.skillCasts.map(c => c.placement.startFrame),
+  ).toEqual([162, 163]);
+  expect(repaired.report.timingAdjustments.length).toBeGreaterThan(0);
+  expect(
+    repaired.project!.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame,
+  ).toBeGreaterThan(163);
+  expect(input).toEqual(original);
+});
+
 it('只把技能槽基础技能解析为同组声明的替换形态', () => {
   const laevatain = gameDataRepository.getOperator('laevatain')!;
   expect(

@@ -56,6 +56,24 @@ it('leaves ability-entity-owned Buff damage to the source skill timeline', () =>
   expect(groupEnemyBuffDamageHits([delegated])).toEqual([]);
 });
 
+it('keeps hidden airborne damage and its icon without requiring a headbar row', () => {
+  const start = {
+    ...applied,
+    data: {
+      ...applied.data,
+      iconPath: '/icons/airborne.webp',
+      showInHeadBarCommon: false,
+      showInHeadBarAttached: false,
+    },
+  };
+  const result = projectEnemyEffectViz([start, hit()], 30);
+  expect(result.damageHits).toEqual([hit()]);
+  expect(findBuffDamageSegment(hit(), result.damageBuffs ?? [])?.iconPath).toBe(
+    '/icons/airborne.webp',
+  );
+  expect(projectEnemyEffectViz([hit()], 30).damageHits).toEqual([hit()]);
+});
+
 it('does not confuse instance, owner, target, frame or hidden helper identities', () => {
   expect(findBuffDamageSegment(hit(), [segment])).toBe(segment);
   for (const changed of [

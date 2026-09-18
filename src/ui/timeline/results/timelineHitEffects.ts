@@ -17,6 +17,7 @@ import {
 } from '../../../core/projection/buffTimelineViz';
 import type { TimelineHitMarker } from './timelineHitProjection';
 import { CombatObjectOrigins } from '../../../core/projection/combatObjectOrigins';
+import { isBuffDamageReceipt } from '../../../core/projection/enemyEffectViz';
 
 /** 一个命中点上发生的伤害（保持日志顺序）。 */
 export interface TimelineHitDamageEffect {
@@ -54,6 +55,7 @@ function excludeStandaloneEffectDamage(
   const segments = projectBuffTimelineViz(entries, endFrame);
   return entries.filter(
     entry =>
+      !(isBuffDamageReceipt(entry) && entry.targetId === entry.data?.buffOwnerId) &&
       findBuffTimelineSegmentForDamage(entry, segments) === undefined &&
       !(entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string'),
   );

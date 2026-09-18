@@ -193,6 +193,7 @@ export function executeHealthDamage(input: ExecuteHealthDamageInput): HealthDama
     data: {
       damageType: input.damageType,
       value: result.value,
+      damageBeforeAbsorption: input.result.value,
       actualDamage: stateChange.actualDamage,
       remainingHealth: stateChange.currentHealth,
       isCritical: result.isCritical,

@@ -4,9 +4,9 @@ import type { TimelineOperatorIndex } from '../timelineEditorViewModel';
 import type { TimelineBattleLogSnapshot } from './timelineBattleLogProjection';
 import { capturePublishedBattleLog, type PublishedBattleLogLabels } from './publishedBattleLog';
 import {
-  capturePublishedWeaponSources,
+  capturePublishedEquipmentSources,
   type PublishedBuffSource,
-  type PublishedWeaponIdentity,
+  type PublishedEquipmentIdentity,
 } from './publishedBuffSource';
 import {
   capturePublishedOperatorMetadata,
@@ -17,14 +17,15 @@ import {
 export function usePublishedSimulationDisplay(
   published: Readonly<Ref<PublishedScenarioSimulation | null>>,
   index: TimelineOperatorIndex,
-  getWeapons: () => readonly PublishedWeaponIdentity[],
+  getWeapons: () => readonly PublishedEquipmentIdentity[],
   labels: PublishedBattleLogLabels,
-  getGears?: () => readonly { readonly slug: string; readonly iconPath?: string }[],
+  getGears?: () => readonly PublishedEquipmentIdentity[],
 ) {
   const battleLogSnapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
   const publishedOperators = shallowRef<ReadonlyMap<string, PublishedOperatorMetadata>>(new Map());
   const publishedWeaponSources = shallowRef<ReadonlyMap<string, PublishedBuffSource>>(new Map());
   const publishedGearIcons = shallowRef<ReadonlyMap<string, string>>(new Map());
+  const publishedGearSources = shallowRef<ReadonlyMap<string, PublishedBuffSource>>(new Map());
   // 固定历史视图共用同一份缓存数组，不由每个旧投影重复物化。
   const publishedReceiptEntries = computed(
     () => published.value?.run.receiptHistory.toArray() ?? [],
@@ -37,10 +38,12 @@ export function usePublishedSimulationDisplay(
         publishedOperators.value = new Map();
         publishedWeaponSources.value = new Map();
         publishedGearIcons.value = new Map();
+        publishedGearSources.value = new Map();
         return;
       }
       publishedOperators.value = capturePublishedOperatorMetadata(value.scenario, index);
-      publishedWeaponSources.value = capturePublishedWeaponSources(getWeapons());
+      publishedWeaponSources.value = capturePublishedEquipmentSources(getWeapons());
+      publishedGearSources.value = capturePublishedEquipmentSources(getGears?.() ?? [], 'gear');
       publishedGearIcons.value = new Map(
         (getGears?.() ?? []).flatMap(gear =>
           gear.iconPath ? [[gear.slug, gear.iconPath] as const] : [],
@@ -60,6 +63,7 @@ export function usePublishedSimulationDisplay(
     publishedOperators,
     publishedWeaponSources,
     publishedGearIcons,
+    publishedGearSources,
     publishedReceiptEntries,
   };
 }

@@ -1,9 +1,44 @@
 import { describe, expect, it } from 'vitest';
 import type { OperatorDefinition } from '../../../../core/game-data/operatorDefinition';
+import liino from '../../../../data/operators/liino.generated';
+import { commonBuffDefinitions } from '../../../../data/buffs/generated/commonBuffDefinitions.generated';
 import {
   collectOperatorDefinitionReferences,
   referencesToDefinition,
 } from './operatorDefinitionReferences';
+
+it('梨诺的层数条件不要求提供被查询 Buff 的定义，但创建缺失 Buff 仍须报错', () => {
+  const operator = structuredClone(liino);
+  const knownIds = new Set([
+    ...Object.keys(commonBuffDefinitions),
+    ...Object.keys(operator.buffDefinitions ?? {}),
+  ]);
+  const missingDefinitions = () =>
+    collectOperatorDefinitionReferences(operator).filter(
+      ref => ref.kind === 'buff' && !knownIds.has(ref.id) && ref.usage !== 'instanceFilter',
+    );
+  const queried = collectOperatorDefinitionReferences(operator).filter(
+    ref => ref.id === 'buff_chr_0035_liino_chrdung_armorbreak',
+  );
+  expect(queried).toHaveLength(5);
+  expect(queried.every(ref => ref.usage === 'instanceFilter')).toBe(true);
+  expect(missingDefinitions()).toEqual([]);
+
+  operator.passiveSkills = [
+    {
+      key: 'missing-definition-test',
+      enableSequence: {
+        steps: [
+          {
+            kind: 'applyBuff',
+            parameters: { target: 'caster', buffId: 'missing-buff' },
+          },
+        ],
+      },
+    },
+  ];
+  expect(missingDefinitions()).toMatchObject([{ id: 'missing-buff' }]);
+});
 
 it('结束实例的 ID 保留使用处索引，但不与创建定义依赖混为一类', () => {
   const operator = definition();

@@ -120,6 +120,8 @@ const items = computed(() =>
           return {
             ...(memberSourceName === undefined ? {} : { sourceName: memberSourceName }),
             startFrame: member.startFrame,
+            instanceId: member.instanceId,
+            startSequence: member.startSequence,
             endFrame: member.endFrame,
             layers: member.layers,
             ...(member.startReason === undefined ? {} : { startReason: member.startReason }),

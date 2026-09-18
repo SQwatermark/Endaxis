@@ -1,5 +1,23 @@
 {
   "objectOrigins": {
+    "previousState": "Предыдущее состояние",
+    "buffState": "Эффект · {layers} ур.",
+    "stackedBy": "Источник накопления",
+    "convertedBy": "Преобразование наложения",
+    "traitNumber": "Свойство {number}",
+    "actionKinds": {
+      "skill": "Навык оперативника",
+      "talent": "Талант",
+      "potential": "Потенциал",
+      "weapon": "Навык оружия",
+      "gear": "Свойство экипировки",
+      "gearSet": "Эффект комплекта",
+      "custom": "Пользовательский навык"
+    },
+    "attacker": "Атакующий",
+    "defender": "Защищающийся",
+    "directContribution": "Прямой вклад в этот удар: {value}",
+    "contributionParts": { "self": "Собственный урон", "external": "Вклад в урон союзников" },
     "buffChanges": "Создатели и источники модификаторов",
     "buffEvent": "Запись экземпляра",
     "castEvent": "Запись применения",
@@ -15,6 +33,7 @@
     "affectedLayers": "Затронуто {count} стаков",
     "currentLayers": "Сейчас {count} стаков",
     "events": {
+      "ElementalAttachmentConverted": "Преобразование наложения",
       "BuffApplied": "Применение / обновление",
       "BuffStackChanged": "Изменение стаков",
       "BuffEnhanceAttempted": "Попытка накопления",

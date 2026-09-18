@@ -1,5 +1,23 @@
 {
   "objectOrigins": {
+    "previousState": "Previous state",
+    "buffState": "Buff · {layers} stacks",
+    "stackedBy": "Stacked by",
+    "convertedBy": "Attachment conversion",
+    "traitNumber": "Trait {number}",
+    "actionKinds": {
+      "skill": "Operator skill",
+      "talent": "Talent",
+      "potential": "Potential",
+      "weapon": "Weapon skill",
+      "gear": "Gear trait",
+      "gearSet": "Set effect",
+      "custom": "Custom skill"
+    },
+    "attacker": "Attacker",
+    "defender": "Defender",
+    "directContribution": "Direct contribution to this hit: {value}",
+    "contributionParts": { "self": "Own damage", "external": "Contribution to others" },
     "buffChanges": "Producers and modifier sources",
     "buffEvent": "Instance record",
     "castEvent": "Cast-related record",
@@ -15,6 +33,7 @@
     "affectedLayers": "{count} stacks involved",
     "currentLayers": "Currently {count} stacks",
     "events": {
+      "ElementalAttachmentConverted": "Attachment conversion",
       "BuffApplied": "Apply / refresh",
       "BuffStackChanged": "Stack change",
       "BuffEnhanceAttempted": "Stack attempt",

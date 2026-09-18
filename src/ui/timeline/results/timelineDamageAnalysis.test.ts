@@ -18,6 +18,45 @@ function historyOf(entries: readonly CombatReceiptEntry[]) {
 }
 
 describe('projectTimelineDamageAnalysis', () => {
+  it('按直接提供者汇总贡献，保留负贡献并与攻击者总伤害守恒', () => {
+    const scenario = createTimelineSampleScenario();
+    const attacker = scenario.tracks[0]!;
+    const provider = scenario.tracks[1]!;
+    const result = projectTimelineDamageAnalysis(
+      [
+        {
+          sequence: 0,
+          frame: 0,
+          time: 0,
+          event: 'DamageApplied',
+          sourceId: attacker.id,
+          targetId: 'enemy',
+          data: { value: 80, damageType: 'physical', 'damageScale:normal:attacker': 0.8 },
+          appliedDamageModifiers: [
+            {
+              kind: 'damageScale',
+              zone: 'normal',
+              side: 'attacker',
+              sourceId: provider.id,
+              buffId: 'negative',
+              addition: -0.2,
+            },
+          ],
+        },
+      ],
+      scenario,
+      String,
+      String,
+    );
+    expect(result.totalDamage).toBe(80);
+    expect(result.byOperator[0]!.value).toBe(80);
+    expect(result.byContribution.map(entry => entry.value)).toEqual([100, expect.closeTo(-20)]);
+    expect(result.contributionParts.find(entry => entry.kind === 'external')!.value).toBeCloseTo(
+      -20,
+    );
+    expect(result.byContribution.reduce((sum, entry) => sum + entry.value, 0)).toBeCloseTo(80);
+  });
+
   it('projects real post-preparation simulation damage into chart data', async () => {
     const scenario = createTimelineSampleScenario();
     const cast = scenario.tracks[1]!.skillCasts[0]!;

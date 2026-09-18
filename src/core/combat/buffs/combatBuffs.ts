@@ -884,11 +884,20 @@ export class CombatBuff<Key extends string> {
     this.definition.actions?.beforeEnhance?.(this, sourceId);
   }
 
-  enhance(sourceId: string): void {
+  enhance(
+    sourceId: string,
+    source?: Pick<CombatBuffAddOptions, 'producedBy' | 'skillCastInfo'>,
+  ): void {
     const previousLayers = this.enhanceCount;
     enhanceBuffLifecycle(this.#state.lifecycle, {
       changed: () => {
-        this.owner.onBuffStackChanged?.(this, previousLayers, sourceId);
+        this.owner.onBuffStackChanged?.(
+          this,
+          previousLayers,
+          sourceId,
+          source?.skillCastInfo,
+          source?.producedBy,
+        );
         this.definition.actions?.enhanceChanged?.(this, sourceId);
       },
       refreshAttributes: () => this.replaceAttributeModifiers(this.createAttributeModifiers()),
@@ -1208,6 +1217,7 @@ export class CombatBuffContainer<Key extends string> {
       previousLayers: number,
       sourceId?: string,
       skillCastInfo?: CombatSkillCastInfo | null,
+      producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
     ) => void,
   ) {
     if (restoredState === undefined) {
@@ -1817,6 +1827,7 @@ export class CombatBuffContainer<Key extends string> {
         );
         if (buff === undefined) return;
         context.appliedDamageModifiers.push({
+          buff: buff.reference,
           buffId: buff.definition.id,
           sourceId: buff.sourceId,
           sourceActionId: buff.sourceActionId,
@@ -1841,6 +1852,7 @@ export class CombatBuffContainer<Key extends string> {
           if (value === neutral) continue;
           result.push({
             kind: 'attribute',
+            buff: buff.reference,
             buffId: buff.definition.id,
             sourceId: buff.sourceId,
             sourceActionId: buff.sourceActionId,
@@ -2300,7 +2312,7 @@ class BuffStackingGroup<Key extends string> {
     if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
 
     existing.executeBeforeEnhance(sourceId);
-    this.enhanceWithinLimit(existing, sourceId);
+    this.enhanceWithinLimit(existing, sourceId, options);
     existing.refreshDuration(resolveIncomingDuration(definition, options));
     existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
     return existing;
@@ -2316,7 +2328,7 @@ class BuffStackingGroup<Key extends string> {
 
     const incomingDuration = resolveIncomingDuration(definition, options);
     existing.executeBeforeEnhance(sourceId);
-    this.enhanceWithinLimit(existing, sourceId);
+    this.enhanceWithinLimit(existing, sourceId, options);
     existing.overwriteDuration(incomingDuration);
     existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
     return existing;
@@ -2331,7 +2343,7 @@ class BuffStackingGroup<Key extends string> {
     if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
 
     existing.executeBeforeEnhance(sourceId);
-    this.enhanceWithinLimit(existing, sourceId);
+    this.enhanceWithinLimit(existing, sourceId, options);
     existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null);
     return existing;
   }
@@ -2348,8 +2360,12 @@ class BuffStackingGroup<Key extends string> {
     return buff;
   }
 
-  private enhanceWithinLimit(buff: CombatBuff<Key>, sourceId: string): void {
-    enhanceBuffStacking(this.#state, () => buff.enhance(sourceId));
+  private enhanceWithinLimit(
+    buff: CombatBuff<Key>,
+    sourceId: string,
+    options?: CombatBuffAddOptions,
+  ): void {
+    enhanceBuffStacking(this.#state, () => buff.enhance(sourceId, options));
   }
 
   canTimedGrow(buff: CombatBuff<Key>): boolean {
@@ -2365,7 +2381,7 @@ class BuffStackingGroup<Key extends string> {
     return growBuffStacking(
       this.#state,
       () => this.canTimedGrow(buff),
-      () => buff.enhance(buff.sourceId),
+      () => buff.enhance(buff.sourceId, { producedBy: { kind: 'buff', ...buff.reference } }),
     );
   }
 
@@ -2378,7 +2394,7 @@ class BuffStackingGroup<Key extends string> {
     if (existing === undefined) return this.allocateEnhanced(definition, sourceId, options);
     applyTimedBuffEnhancement(this.#state, {
       before: () => existing.executeBeforeEnhance(sourceId),
-      enhance: () => existing.enhance(sourceId),
+      enhance: () => existing.enhance(sourceId, options),
       resetPeriod: () => existing.resetTimedGrowthPeriod(),
       after: () => existing.executeAfterEnhance(sourceId, options?.skillCastInfo ?? null),
     });

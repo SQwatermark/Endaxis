@@ -10,12 +10,19 @@ import type {
 } from '../../../core/projection/combatObjectOrigins';
 import { combatObjectKey } from '../../../core/combat/receipt/combatObjectIdentity';
 import { layoutCombatOriginGraph, type OriginRelationFilter } from './combatOriginGraphLayout';
+import { projectHitDamageContribution } from '../../../core/projection/damageContribution';
+import { runtimeTargetFromEntityId } from '../../../core/game-data/logicalAbilityEntity';
 
 const props = defineProps<{
   origins: CombatObjectOrigins;
   sequence: number;
+  root?: import('../../../core/combat/receipt/combatReceipt').CombatObjectRef;
   operatorLabel?: (operatorId: string) => string;
   objectIcon?: import('./combatObjectIcons').CombatObjectIconResolver;
+  actionPresentation?: (
+    ownerId: string,
+    actionId: string,
+  ) => { name: string; kind: string } | undefined;
 }>();
 const { t, te } = useI18n();
 const open = ref(false);
@@ -42,6 +49,9 @@ const offset = ref({ x: 20, y: 20 });
 const markerId = useId();
 const relations: readonly CombatObjectRelation[] = [
   'producedBy',
+  'stackedBy',
+  'previousState',
+  'convertedBy',
   'runtimeSource',
   'ownedBy',
   'originCast',
@@ -49,15 +59,46 @@ const relations: readonly CombatObjectRelation[] = [
   'providedBy',
 ];
 const graph = computed(() =>
-  open.value ? layoutCombatOriginGraph(props.origins, props.sequence, filter.value) : null,
+  open.value
+    ? layoutCombatOriginGraph(props.origins, props.sequence, filter.value, 128, props.root)
+    : null,
 );
 const chosen = computed(() => graph.value?.nodes[selection.value]?.object);
+const contribution = computed(() => {
+  if (!open.value) return undefined;
+  if (props.root && props.root.kind !== 'receipt') return undefined;
+  const hit = props.origins.get({ kind: 'receipt', sequence: props.sequence });
+  const source = hit.fact?.sourceId;
+  if (source === undefined) return undefined;
+  const operator = props.origins.providerOperator(
+    props.origins.get(runtimeTargetFromEntityId(source)),
+    props.sequence,
+  );
+  return operator === undefined
+    ? undefined
+    : projectHitDamageContribution(props.origins, hit, operator);
+});
+const chosenContribution = computed(() => {
+  const keys = new Set(chosenModifiers.value.map(item => combatObjectKey(item.node.ref)));
+  const items = contribution.value?.external.filter(item =>
+    keys.has(combatObjectKey(item.modifier)),
+  );
+  return items?.length ? items.reduce((sum, item) => sum + item.value, 0) : undefined;
+});
+const chosenModifiers = computed(() => graph.value?.nodes[selection.value]?.modifiers ?? []);
+function modifierSummary(item: (typeof chosenModifiers.value)[number]): string {
+  const modifier = item.modifier;
+  if (modifier.kind === 'damageScale')
+    return `${t(`hitDetail.damageZones.${modifier.zone}`)} · ${t(`objectOrigins.${modifier.side}`)} · ${modifier.addition >= 0 ? '+' : ''}${(modifier.addition * 100).toFixed(1)}%`;
+  if (modifier.kind === 'multiplyValue') return `×${modifier.multiplier}`;
+  return `${modifier.attribute} · ${modifier.slot} · ${modifier.value}`;
+}
 const chosenFact = computed(() =>
   chosen.value?.fact && chosen.value.fact.sequence <= props.sequence
     ? chosen.value.fact
     : undefined,
 );
-watch([() => props.origins, () => props.sequence, filter], async () => {
+watch([() => props.origins, () => props.sequence, () => props.root, filter], async () => {
   selection.value = 0;
   await nextTick();
   focusRoot();
@@ -119,6 +160,10 @@ function wheel(event: WheelEvent) {
   );
 }
 function description(node: CombatObjectNode): string {
+  if (node.ref.kind === 'action') {
+    const presentation = props.actionPresentation?.(node.ref.ownerId, node.ref.actionId);
+    if (presentation) return presentation.name;
+  }
   if (node.ref.kind === 'modifier')
     return (
       node.fact?.appliedDamageModifiers?.[node.ref.index]?.buffId ??
@@ -148,6 +193,16 @@ function description(node: CombatObjectNode): string {
 }
 
 function nodeKind(node: CombatObjectNode): string {
+  if (
+    node.fact &&
+    ['BuffApplied', 'BuffStackChanged'].includes(node.fact.event) &&
+    typeof node.fact.data?.layers === 'number'
+  )
+    return t('objectOrigins.buffState', { layers: node.fact.data.layers });
+  if (node.ref.kind === 'action') {
+    const presentation = props.actionPresentation?.(node.ref.ownerId, node.ref.actionId);
+    if (presentation) return presentation.kind;
+  }
   const key = `objectOrigins.events.${node.fact?.event}`;
   return node.ref.kind === 'receipt' && te(key)
     ? t(key)
@@ -159,6 +214,8 @@ function changeSummary(node: CombatObjectNode): string | undefined {
   const data = fact.data;
   if (fact.event === 'BuffStackChanged')
     return t('objectOrigins.layerChange', { before: data?.previousLayers, after: data?.layers });
+  if (fact.event === 'ElementalAttachmentConverted')
+    return t('objectOrigins.affectedLayers', { count: data?.consumedLayers });
   if (fact.event === 'BuffEnhanceAttempted')
     return t('objectOrigins.stackAttempt', { count: data?.attemptedLayers, layers: data?.layers });
   if (fact.event === 'BuffConsumed' || fact.event === 'BuffAbsorbed')
@@ -235,7 +292,10 @@ function changeSummary(node: CombatObjectNode): string | undefined {
               v-for="(edge, index) in graph?.edges"
               :key="index"
               class="graph-edge"
-              :class="{ highlighted: edge.from === selection || edge.to === selection }"
+              :class="{
+                highlighted: edge.from === selection || edge.to === selection,
+                muted: edge.from !== selection && edge.to !== selection,
+              }"
               :data-relation="edge.relation"
             >
               <title>{{ t(`objectOrigins.${edge.relation}`) }}</title>
@@ -303,6 +363,18 @@ function changeSummary(node: CombatObjectNode): string | undefined {
           <h3>{{ nodeKind(chosen) }}</h3>
           <p v-if="changeSummary(chosen)">{{ changeSummary(chosen) }}</p>
           <p>{{ description(chosen) }}</p>
+          <ul v-if="chosenModifiers.length">
+            <li v-for="item in chosenModifiers" :key="combatObjectKey(item.node.ref)">
+              {{ modifierSummary(item) }}
+            </li>
+          </ul>
+          <p v-if="chosenContribution !== undefined">
+            {{
+              t('objectOrigins.directContribution', {
+                value: chosenContribution.toLocaleString(undefined, { maximumFractionDigits: 2 }),
+              })
+            }}
+          </p>
           <code>{{ combatObjectKey(chosen.ref) }}</code>
           <p v-if="chosenFact">
             #{{ chosenFact.sequence }} · {{ chosenFact.frame }}f · {{ chosenFact.event }}
@@ -387,6 +459,9 @@ select {
 }
 .graph-edge.highlighted {
   stroke-width: 2.7;
+}
+.graph-edge.muted {
+  opacity: 0.22;
 }
 .graph-edge text {
   stroke: var(--ea-panel);

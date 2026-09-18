@@ -128,7 +128,12 @@ export class CombatReceiptHistory {
         ? {}
         : {
             appliedDamageModifiers: Object.freeze(
-              entry.appliedDamageModifiers.map(item => Object.freeze({ ...item })),
+              entry.appliedDamageModifiers.map(item =>
+                Object.freeze({
+                  ...item,
+                  ...(item.buff === undefined ? {} : { buff: Object.freeze({ ...item.buff }) }),
+                }),
+              ),
             ),
           }),
     });

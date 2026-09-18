@@ -1,6 +1,7 @@
 <script setup lang="ts">
 /** 旧版伤害分析面板的展示结构；所有数值只读取新版同一次正式模拟发布的回执汇总。 */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import VChart from 'vue-echarts';
 import type { ComposeOption } from 'echarts/core';
 import type { PieSeriesOption } from 'echarts/charts';
@@ -43,6 +44,7 @@ const props = defineProps<{
 defineEmits<{ 'update:visible': [visible: boolean] }>();
 
 const { appearance } = useAppearance();
+const { t } = useI18n();
 const hasData = computed(() => props.analysis.totalDamage > 0);
 const numberFormatter = computed(
   () => new Intl.NumberFormat(props.locale, { maximumFractionDigits: 0 }),
@@ -105,10 +107,13 @@ function pieOption(entries: readonly TimelineDamageAnalysisEntry[]): ChartOption
 }
 
 const operatorChartOption = computed(() => pieOption(props.analysis.byOperator));
-// 未分解伤害计入自身；此阶段不宣称已分配外部增益。
+const hasNegativeContribution = computed(() =>
+  props.analysis.contributionParts.some(entry => entry.value < 0),
+);
+// 贡献来自发布结果的直接修正；尚未支持的乘区仍计入自身。
 const contributionChartOption = computed<ChartOption>(() => {
   const paint = chartPaint.value;
-  const data = chartData(props.analysis.byOperator);
+  const data = chartData(props.analysis.byContribution);
   return {
     backgroundColor: 'transparent',
     tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)', ...paint.tooltip },
@@ -127,7 +132,18 @@ const contributionChartOption = computed<ChartOption>(() => {
         center: ['50%', '50%'],
         itemStyle: { borderColor: paint.sliceBorder, borderWidth: 1 },
         label: { color: paint.label, formatter: '{b}\n{d}%', fontSize: 11 },
-        data: data.map(entry => ({ ...entry, name: `${entry.name} ${props.labels.damage}` })),
+        data: props.analysis.byContribution.flatMap(operator =>
+          props.analysis.contributionParts
+            .filter(part => part.key === operator.key && part.value !== 0)
+            .map(part => ({
+              name: `${part.label} · ${t(`objectOrigins.contributionParts.${part.kind}`)}`,
+              value: part.value,
+              itemStyle: {
+                color: part.color ?? '#888888',
+                opacity: part.kind === 'self' ? 1 : 0.6,
+              },
+            })),
+        ),
       },
     ],
   };
@@ -179,7 +195,25 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
             </section>
             <section class="chart-card">
               <h3 class="chart-title">{{ labels.contributionByOperator }}</h3>
-              <VChart :option="contributionChartOption" autoresize class="chart" />
+              <VChart
+                v-if="!hasNegativeContribution"
+                :option="contributionChartOption"
+                autoresize
+                class="chart"
+              />
+              <table v-else class="contribution-values">
+                <tbody>
+                  <tr
+                    v-for="entry in analysis.contributionParts"
+                    :key="`${entry.key}:${entry.kind}`"
+                  >
+                    <th>
+                      {{ entry.label }} · {{ t(`objectOrigins.contributionParts.${entry.kind}`) }}
+                    </th>
+                    <td>{{ formatNumber(entry.value) }}</td>
+                  </tr>
+                </tbody>
+              </table>
             </section>
             <section class="chart-card">
               <h3 class="chart-title">{{ labels.damageByElement }}</h3>
@@ -306,6 +340,23 @@ const damageTypeChartOption = computed(() => pieOption(props.analysis.byDamageTy
   color: var(--ea-fg-muted);
   font-size: 12px;
   line-height: 1.6;
+}
+
+.contribution-values {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.contribution-values th,
+.contribution-values td {
+  padding: 8px;
+  border-bottom: 1px solid var(--ea-border);
+  text-align: left;
+}
+
+.contribution-values td {
+  text-align: right;
 }
 
 .summary-row {

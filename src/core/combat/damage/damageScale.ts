@@ -17,6 +17,8 @@ interface DamageScaleZoneDefinition {
 
 /** 本次实际执行的直接增伤项；仅保存结果，不追溯参数的计算过程。 */
 export type AppliedDamageModifier = {
+  /** 实际执行修正的 Buff 实例；与效果提供者、Buff 定义分别寻址。 */
+  readonly buff?: import('../state/foundationState').BuffReference;
   readonly buffId: string;
   readonly sourceId: string;
   readonly sourceActionId?: string;

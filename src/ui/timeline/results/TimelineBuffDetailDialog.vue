@@ -4,6 +4,9 @@ import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import { computed, ref, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import type { BuffDetailInstance, BuffDetailTarget } from './buffDetail';
+import CombatObjectOriginGraph from './CombatObjectOriginGraph.vue';
+import { CombatObjectOrigins } from '../../../core/projection/combatObjectOrigins';
+import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 
 const { t } = useI18n({ useScope: 'global' });
 
@@ -11,6 +14,13 @@ const props = defineProps<{
   visible: boolean;
   target: BuffDetailTarget | null;
   fps: number;
+  receiptEntries?: readonly CombatReceiptEntry[];
+  operatorLabel?: (operatorId: string) => string;
+  objectIcon?: import('./combatObjectIcons').CombatObjectIconResolver;
+  actionPresentation?: (
+    ownerId: string,
+    actionId: string,
+  ) => { name: string; kind: string } | undefined;
   labels: {
     title: string;
     source: string;
@@ -65,6 +75,18 @@ const durationFrames = computed(() =>
     ? 0
     : Math.max(0, activeInstance.value.endFrame - activeInstance.value.startFrame),
 );
+const origins = computed(() => new CombatObjectOrigins(props.receiptEntries ?? []));
+const originRoot = computed(() =>
+  activeInstance.value?.instanceId === undefined || !props.target
+    ? undefined
+    : {
+        kind: 'buff' as const,
+        ownerId: props.target.targetId,
+        instanceId: activeInstance.value.instanceId,
+      },
+);
+// 精确截到所选窗口形成时；缺少序号不能退回整次模拟结束，以免泄漏未来状态。
+const originSequence = computed(() => activeInstance.value?.startSequence);
 
 function seconds(frames: number): string {
   if (!Number.isFinite(props.fps) || props.fps <= 0) return '—';
@@ -123,7 +145,7 @@ function endReasonText(instance: BuffDetailInstance): string {
             <span v-else>+</span>
             <span class="buff-detail__count">{{ activeInstance.layers }}</span>
           </span>
-          <strong>{{ target.title }}</strong>
+          <strong>{{ activeInstance.title ?? target.title }}</strong>
           <span v-if="(target.instances?.length ?? 0) > 1" class="buff-detail__pager">
             <EaButton size="sm" icon-only :disabled="instanceIndex === 0" @click="instanceIndex--">
               ‹
@@ -168,9 +190,19 @@ function endReasonText(instance: BuffDetailInstance): string {
           <dd>{{ seconds(durationFrames) }} · {{ labels.frames(durationFrames) }}</dd>
           <dt>{{ labels.buffId }}</dt>
           <dd>
-            <code>{{ target.buffId }}</code>
+            <code>{{ activeInstance.buffId ?? target.buffId }}</code>
           </dd>
         </dl>
+        <CombatObjectOriginGraph
+          v-if="originRoot && originSequence !== undefined && receiptEntries?.length"
+          :key="`${originRoot.ownerId}:${originRoot.instanceId}:${originSequence}`"
+          :origins="origins"
+          :root="originRoot"
+          :sequence="originSequence"
+          :operator-label="operatorLabel"
+          :object-icon="objectIcon"
+          :action-presentation="actionPresentation"
+        />
       </template>
     </EaDialog>
   </InputRegionBoundary>

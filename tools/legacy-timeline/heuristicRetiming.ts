@@ -25,6 +25,9 @@ import {
 
 type UnknownRecord = Record<string, unknown>;
 
+/** 保留时间只判断形态和补主控标记，不顺延技能或寻找可接续窗口。 */
+export type LegacyTimingMode = 'repair' | 'preserve';
+
 /** 严格比较模拟输入中的纯数据；转换器需要同时运行在 Node CLI 和浏览器中。 */
 function isSameInputData(left: unknown, right: unknown): boolean {
   if (Object.is(left, right)) return true;
@@ -456,7 +459,9 @@ export function retimeLegacyProjectBySimulation(
   runSimulation: LegacyRetimingSimulationRunner,
   resolveRuntimeReplacement?: LegacyRuntimeReplacementResolver,
   checkpointSupport?: LegacyRetimingCheckpointSupport,
+  timingMode: LegacyTimingMode = 'repair',
 ): LegacyRetimingResult {
+  const repairTiming = timingMode === 'repair';
   const root = record(preparedSource);
   const sourceScenarios = records(root?.scenarioList);
   const timingAdjustments: LegacyTimingAdjustment[] = [];
@@ -527,7 +532,7 @@ export function retimeLegacyProjectBySimulation(
       let candidate = current.sourceStartFrame;
       let sameTrackEndCandidate: number | undefined;
       let globalOrderCandidate: number | undefined;
-      if (index > 0) {
+      if (repairTiming && index > 0) {
         const previousTrack = previousByTrack.get(current.trackIndex);
         if (previousTrack !== undefined) {
           sameTrackEndCandidate = actualEnds.get(previousTrack.castId);
@@ -551,15 +556,19 @@ export function retimeLegacyProjectBySimulation(
         candidate = Math.max(candidate, globalOrderCandidate);
       }
       const priorUltimateIntervals = ultimateIntervals;
-      const outsideDilation = moveOutsideUltimateTimeDilation(candidate, priorUltimateIntervals);
+      const outsideDilation = repairTiming
+        ? moveOutsideUltimateTimeDilation(candidate, priorUltimateIntervals)
+        : { frame: candidate, intervalEnd: undefined };
       let adjustedStartFrame = outsideDilation.frame;
       let ultimateTimeDilationEndFrame = outsideDilation.intervalEnd;
-      const separatedStartFrame = moveAfterConflictingControlledInput(
-        scenario,
-        current,
-        ordered.slice(0, index),
-        adjustedStartFrame,
-      );
+      const separatedStartFrame = repairTiming
+        ? moveAfterConflictingControlledInput(
+            scenario,
+            current,
+            ordered.slice(0, index),
+            adjustedStartFrame,
+          )
+        : adjustedStartFrame;
       const controlInputSeparationFrames = separatedStartFrame - adjustedStartFrame;
       if (controlInputSeparationFrames > 0) {
         const separatedOutsideDilation = moveOutsideUltimateTimeDilation(
@@ -726,7 +735,11 @@ export function retimeLegacyProjectBySimulation(
           { cause: error },
         );
       }
-      if (settled && castCannotInterruptCurrentSkill(lastReceiptEntries, current.castId)) {
+      if (
+        repairTiming &&
+        settled &&
+        castCannotInterruptCurrentSkill(lastReceiptEntries, current.castId)
+      ) {
         fallbackActualStarts = actualStarts;
         fallbackActualEnds = actualEnds;
         fallbackUltimateIntervals = ultimateIntervals;

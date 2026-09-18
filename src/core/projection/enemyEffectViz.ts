@@ -5,7 +5,7 @@
  * `ElementalInflictionApplied` / `ElementalReactionApplied` 是战斗语义事实，不是第二份 UI 状态。
  */
 import type { CombatReceiptEntry, CombatReceiptValue } from '../combat/receipt/combatReceipt';
-import { findBuffTimelineSegmentForDamage, projectBuffTimelineViz } from './buffTimelineViz';
+import { projectBuffTimelineViz, type BuffTimelineSegment } from './buffTimelineViz';
 
 export function isBuffDamageReceipt(entry: CombatReceiptEntry): boolean {
   return (
@@ -31,6 +31,8 @@ export interface EnemyEffectViz {
   readonly markers: readonly EnemyEffectMarker[];
   /** 实际伤害回执本身提供身份与详情，不按时间匹配爆发图标。 */
   readonly damageHits?: readonly CombatReceiptEntry[];
+  /** 伤害来源的展示元数据；即便头顶状态栏隐藏，仍可用于瞬时伤害图标。 */
+  readonly damageBuffs?: readonly BuffTimelineSegment[];
   readonly attachmentConversions?: readonly AttachmentConversion[];
 }
 
@@ -102,12 +104,11 @@ export function projectEnemyEffectViz(
   const attachmentConversions: AttachmentConversion[] = [];
   const buffSegments = projectBuffTimelineViz(entries, endFrame);
   for (const entry of entries) {
-    const visibleBuffDamage =
-      isBuffDamageReceipt(entry) &&
-      findBuffTimelineSegmentForDamage(entry, buffSegments) !== undefined;
+    const enemyBuffDamage =
+      isBuffDamageReceipt(entry) && entry.targetId === entry.data?.buffOwnerId;
     if (
       (entry.event === 'DamageApplied' && typeof entry.data?.spellBurstType === 'string') ||
-      visibleBuffDamage
+      enemyBuffDamage
     ) {
       damageHits.push(entry);
       if (typeof entry.data?.spellBurstType === 'string') {
@@ -154,6 +155,7 @@ export function projectEnemyEffectViz(
   return {
     markers,
     ...(damageHits.length ? { damageHits } : {}),
+    ...(damageHits.length && buffSegments.length ? { damageBuffs: buffSegments } : {}),
     ...(attachmentConversions.length ? { attachmentConversions } : {}),
   };
 }

@@ -4,7 +4,7 @@ import { CombatObjectOrigins } from '../../../core/projection/combatObjectOrigin
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { createCombatObjectIconResolver } from './combatObjectIcons';
 import { capturePublishedOperatorMetadata } from './publishedOperatorMetadata';
-import { capturePublishedWeaponSources } from './publishedBuffSource';
+import { capturePublishedEquipmentSources } from './publishedBuffSource';
 import { arcane } from '../../../data/operators/arcane.generated';
 
 it('uses exact Buff instance icons at the hit boundary and reuses them for consumption', () => {
@@ -82,7 +82,7 @@ it('uses published operator, skill and weapon identities, including the timeline
     c.entries,
     scenario,
     operators,
-    capturePublishedWeaponSources([{ slug: 'item', iconPath: '/weapon.webp' }]),
+    capturePublishedEquipmentSources([{ slug: 'item', iconPath: '/weapon.webp' }]),
   );
   expect(icon(q.get({ kind: 'operator', operatorId: 'track' }), 0)).toBe(
     '/operators/arcane/avatar.webp',

@@ -168,6 +168,9 @@ export class BuffDefinitionOperationTarget<Key extends string>
         : this.#compileInlineDefinition(request.buffId, request.definition);
     if (definition === undefined) throw new Error(`unknown combat buff '${request.buffId}'`);
     const event: BuffAppliedEvent = {
+      ...(request.physicalInflictionType === undefined
+        ? {}
+        : { physicalInflictionType: request.physicalInflictionType }),
       ...(request.producedBy === undefined ? {} : { producedBy: request.producedBy }),
       targetId: this.ownerId,
       buffId: request.buffId,

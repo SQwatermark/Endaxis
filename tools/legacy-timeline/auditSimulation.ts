@@ -27,7 +27,16 @@ try {
     '/tools/legacy-timeline/simulationAudit.ts',
   );
   const project = parsed.value;
-  const service = createEditorSimulationService(project.definitionLibrary);
+  const { createProjectGameDataRepository } = await server.ssrLoadModule(
+    '/src/data/projectGameDataRepository.ts',
+  );
+  const { createProjectGameDataIndex } = await server.ssrLoadModule(
+    '/src/core/project/projectDefinitionLibrary.ts',
+  );
+  const repository = await createProjectGameDataRepository(project);
+  const service = createEditorSimulationService(
+    createProjectGameDataIndex(repository, project.definitionLibrary),
+  );
   const scenarios = [];
   for (const scenario of project.scenarios)
     scenarios.push(await auditScenarioSimulation(service, scenario));

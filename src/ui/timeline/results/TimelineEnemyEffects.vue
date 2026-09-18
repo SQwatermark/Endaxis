@@ -29,6 +29,8 @@ import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 import { summarizeLastHitBuffs } from './lastHitBuffSummary';
 import { layoutEnemyStatusRows } from './enemyStatusRows';
 import { layoutEnemyDamageHits } from './enemyDamageHitLayout';
+import { findBuffDamageSegment } from './enemyBuffDamageHits';
+import { isPhysicalStatusRowBuff } from './physicalStatusDisplay';
 import { monitorInteractiveContentHeight } from './monitorSectionMinimums';
 import {
   projectAttachmentContinuations,
@@ -168,10 +170,17 @@ const damageHits = computed(() =>
     props.buffs,
     props.viz.markers,
     props.attachmentBuffIds ?? new Set(),
-  ).map(({ group, row }) => {
+  ).map(({ group, row, standalone }) => {
     const entry = group[0]!;
+    const buff = findBuffDamageSegment(entry, props.viz.damageBuffs ?? []);
     return {
       sequence: entry.sequence,
+      standaloneIcon: standalone
+        ? ((buff && props.icon?.(buff)) ??
+          buff?.iconPath ??
+          getIconAssetPath(buff?.iconId) ??
+          DEFAULT_GAME_ICON_PATH)
+        : undefined,
       critical: group.some(damage => damage.data?.isCritical === true),
       x: pointX(entry.frame),
       top:
@@ -181,9 +190,13 @@ const damageHits = computed(() =>
         row * EFFECT_ROW_PITCH +
         ICON_SIZE -
         3,
-      title: group
-        .map(hit => String(Math.floor(Number(hit.data?.expectedDamage ?? hit.data?.value ?? 0))))
-        .join(' / '),
+      title:
+        (standalone && typeof entry.data?.buffId === 'string'
+          ? `${resolveBuffDisplayName(entry.data.buffId, { t, te })}: `
+          : '') +
+        group
+          .map(hit => String(Math.floor(Number(hit.data?.expectedDamage ?? hit.data?.value ?? 0))))
+          .join(' / '),
     };
   }),
 );
@@ -208,7 +221,7 @@ const buffs = computed(() =>
       },
       { t, te },
     );
-    const title =
+    const baseTitle =
       props.displayName?.(buff) ??
       resolveBuffDisplayName(
         buff.buffId,
@@ -221,7 +234,15 @@ const buffs = computed(() =>
         sourceName,
         props.operatorBuffNameKeys,
       );
-    const icon = props.icon?.(buff) ?? buff.iconPath ?? getIconAssetPath(buff.iconId);
+    const title = buff.windows.some(member => member.buffId !== buff.buffId)
+      ? [
+          ...new Set(buff.windows.map(member => resolveBuffDisplayName(member.buffId, { t, te }))),
+        ].join(' / ')
+      : baseTitle;
+    const icon =
+      (isPhysicalStatusRowBuff(buff) ? buff.iconPath : props.icon?.(buff)) ??
+      buff.iconPath ??
+      getIconAssetPath(buff.iconId);
     return {
       ...buff,
       continuedAttachment:
@@ -235,6 +256,7 @@ const buffs = computed(() =>
       key: `${buff.buffId}:${buff.instanceId}:${buff.startFrame}`,
       icon,
       left,
+      iconOffset: (statusRows.value.iconSlots.get(buff) ?? 0) * (ICON_SIZE + 2),
       top:
         SECTION_TOPBAR_HEIGHT +
         ICON_TOP +
@@ -267,15 +289,34 @@ const buffs = computed(() =>
             { t, te },
           );
           return {
+            buffId: member.buffId,
+            title:
+              props.displayName?.(member) ??
+              resolveBuffDisplayName(
+                member.buffId,
+                { t, te },
+                {
+                  attribute: member.simpleModifierAttribute,
+                  slot: member.simpleModifierSlot,
+                  value: member.simpleModifierValue,
+                },
+                memberSourceName,
+                props.operatorBuffNameKeys,
+              ),
             ...(memberSourceName === undefined ? {} : { sourceName: memberSourceName }),
             startFrame: member.startFrame,
+            instanceId: member.instanceId,
+            startSequence: member.startSequence,
             endFrame: member.endFrame,
             layers: member.layers,
             ...(member.startReason === undefined ? {} : { startReason: member.startReason }),
             ...(member.endReason === undefined ? {} : { endReason: member.endReason }),
             ...(member.stackingType === undefined ? {} : { stackingType: member.stackingType }),
             ...(member.parentBuffId === undefined ? {} : { parentBuffId: member.parentBuffId }),
-            icon: props.icon?.(member) ?? member.iconPath ?? getIconAssetPath(member.iconId),
+            icon:
+              (isPhysicalStatusRowBuff(member) ? member.iconPath : props.icon?.(member)) ??
+              member.iconPath ??
+              getIconAssetPath(member.iconId),
             ...(memberModifierSummary === undefined
               ? {}
               : { modifierSummary: memberModifierSummary }),
@@ -366,6 +407,12 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       @keydown.enter.stop.prevent="emit('open-damage-detail', hit.sequence)"
       @keydown.space.stop.prevent="emit('open-damage-detail', hit.sequence)"
     >
+      <img
+        v-if="hit.standaloneIcon"
+        :src="hit.standaloneIcon"
+        class="standalone-damage-icon"
+        alt=""
+      />
       <span class="enemy-damage-diamond"></span>
     </EaButton>
     <span
@@ -387,6 +434,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
     >
       <span
         class="anomaly-icon-box is-clickable"
+        :style="{ transform: `translateX(${buff.iconOffset}px)` }"
         role="button"
         tabindex="0"
         @click.stop="emit('open-buff-detail', buff.detail)"
@@ -395,7 +443,7 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
       >
         <img v-if="buff.icon" :src="buff.icon" class="anomaly-icon" alt="" />
         <span v-else class="buff-fallback">+</span>
-        <span class="anomaly-stacks">{{ Math.max(1, buff.layers) }}</span>
+        <span class="anomaly-stacks">{{ buff.layers }}</span>
       </span>
       <svg
         v-if="buff.continuedAttachment && buff.barWidthPx > 0"
@@ -474,6 +522,16 @@ watch(minimumHeight, height => emit('minimum-height', height), { immediate: true
   transform: rotate(45deg);
   pointer-events: none;
   transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.standalone-damage-icon {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  left: 3px;
+  bottom: 6px;
+  object-fit: contain;
+  background: var(--ea-bg-panel, #252525);
+  border: 1px solid var(--ea-border, #666);
 }
 .enemy-damage-hit:hover .enemy-damage-diamond {
   background: var(--ea-gold);

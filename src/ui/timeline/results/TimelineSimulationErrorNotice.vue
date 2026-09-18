@@ -1,16 +1,45 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n';
+import { ref } from 'vue';
+import { EaButton } from '../../../design-system/index';
 
-defineProps<{
+const props = defineProps<{
   error: string | null;
 }>();
 const { t } = useI18n();
+const errorText = ref<HTMLTextAreaElement>();
+async function copyError() {
+  if (props.error === null) return;
+  try {
+    await navigator.clipboard.writeText(props.error);
+  } catch {
+    // 浏览器不允许剪贴板写入时仍能用 Ctrl+C 复制完整文本，不再抛出第二条错误。
+    errorText.value?.focus();
+    errorText.value?.select();
+  }
+}
 </script>
 
 <template>
-  <aside v-if="error !== null" class="simulation-error-notice" role="alert" :title="error">
-    <strong>{{ t('timeline.simulationFailed') }}</strong>
-    <span>{{ error }}</span>
+  <aside
+    v-if="error !== null"
+    class="simulation-error-notice"
+    role="alert"
+    @pointerdown.stop
+    @mousedown.stop
+    @keydown.stop
+  >
+    <header>
+      <strong>{{ t('timeline.simulationFailed') }}</strong>
+      <EaButton size="sm" variant="ghost" @click="copyError">{{ t('common.copy') }}</EaButton>
+    </header>
+    <textarea
+      ref="errorText"
+      readonly
+      :value="error"
+      :aria-label="t('timeline.simulationFailed')"
+      spellcheck="false"
+    />
   </aside>
 </template>
 
@@ -25,7 +54,7 @@ const { t } = useI18n();
   grid-template-rows: auto 1fr;
   gap: 3px;
   width: 360px;
-  height: 64px;
+  height: 120px;
   padding: 9px 12px;
   border: 1px solid rgb(210 75 75 / 45%);
   border-radius: 6px;
@@ -33,7 +62,15 @@ const { t } = useI18n();
   box-shadow: 0 6px 18px rgb(0 0 0 / 22%);
   color: var(--ea-fg-muted);
   font-size: 11px;
-  pointer-events: none;
+  pointer-events: auto;
+  user-select: text;
+  -webkit-user-select: text;
+}
+
+.simulation-error-notice header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .simulation-error-notice strong {
@@ -42,14 +79,21 @@ const { t } = useI18n();
   line-height: 16px;
 }
 
-.simulation-error-notice span {
-  display: -webkit-box;
+.simulation-error-notice textarea {
+  width: 100%;
+  min-height: 0;
   min-width: 0;
-  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  resize: none;
+  overflow: auto;
+  user-select: text;
+  -webkit-user-select: text;
   line-height: 15px;
   overflow-wrap: anywhere;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
 }
 
 @media (max-width: 480px) {

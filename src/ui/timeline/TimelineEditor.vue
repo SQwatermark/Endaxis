@@ -41,6 +41,7 @@ import {
   getOperatorPotentialName,
   getOperatorTalentName,
   getWeaponGameName,
+  getWeaponSkillName,
 } from '../gameText';
 import SkillLibraryCard from './library/SkillLibraryCard.vue';
 import {
@@ -354,9 +355,16 @@ import {
 import type { CombatReceiptEntry } from '../../core/combat/receipt/combatReceipt';
 import BattleLogPanel from './results/BattleLogPanel.vue';
 import { usePublishedSimulationDisplay } from './results/usePublishedSimulationDisplay';
-import { resolvePublishedBuffSource } from './results/publishedBuffSource';
+import {
+  resolvePublishedBuffSource,
+  resolvePublishedEquipmentTrait,
+} from './results/publishedBuffSource';
 import { createCombatObjectIconResolver } from './results/combatObjectIcons';
 import { isEnemyTimelineBuffVisible } from './results/enemyStatusRows';
+import {
+  isPhysicalStatusRowBuff,
+  projectPhysicalStatusDisplay,
+} from './results/physicalStatusDisplay';
 
 import TimelineMarkerContextMenu from './interaction/TimelineMarkerContextMenu.vue';
 import ConsumableSelectionDialog from './components/ConsumableSelectionDialog.vue';
@@ -850,6 +858,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   input.value = '';
   if (file === undefined) return;
   let legacy = false;
+  const legacyTimingMode = ref<'repair' | 'preserve'>('repair');
   try {
     const content = await projectFileReader.read(file);
     if (content === null) return;
@@ -864,7 +873,28 @@ async function handleProjectFileChange(event: Event): Promise<void> {
       try {
         await serviceModalBoundary.run(() =>
           ElMessageBox.confirm(
-            '检测到旧版本轴。确定后会按新版游戏数据自动转换，并根据新版技能时长调整技能位置。原文件不会修改。',
+            () =>
+              h('div', [
+                h('p', '检测到旧版本轴。请选择技能时间的处理方式，原文件不会修改。'),
+                h(EaSelect, {
+                  modelValue: legacyTimingMode.value,
+                  'aria-label': '旧轴时间处理方式',
+                  options: [
+                    { label: '智能修复时间', value: 'repair' },
+                    { label: '保留原时间', value: 'preserve' },
+                  ],
+                  'onUpdate:modelValue': value => {
+                    if (value === 'repair' || value === 'preserve') legacyTimingMode.value = value;
+                  },
+                }),
+                h(
+                  'p',
+                  legacyTimingMode.value === 'repair'
+                    ? '按新版技能时长和接续规则顺延技能，可能改变增益覆盖。'
+                    : '保留旧轴技能位置，仅换算帧率。重叠和不可接续会在轴上显示告警。',
+                ),
+                h('p', '两种方式都会判断技能形态，并按需要补主控切换。'),
+              ]),
             '转换旧版本轴',
             {
               confirmButtonText: '确定并转换',
@@ -896,6 +926,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
           parsedInput,
           gameDataRepository,
           legacyMappings as Parameters<typeof convertLegacyTimeline>[2],
+          { timingMode: legacyTimingMode.value },
         );
         legacyConversionReport = conversion.report;
         if (conversion.project === null) {
@@ -1334,6 +1365,7 @@ const {
   publishedOperators,
   publishedWeaponSources,
   publishedGearIcons,
+  publishedGearSources,
   publishedReceiptEntries,
 } = usePublishedSimulationDisplay(
   publishedSimulation,
@@ -2420,15 +2452,27 @@ function comboWindowSegmentsFor(operatorId: string | null) {
 const positionedBuffsByTarget = computed(() => {
   const grouped = new Map<string, BuffTimelineSegment[]>();
   for (const segment of buffTimelineSegments.value) {
-    if (segment.targetId === SINGLE_ENEMY_TARGET_ID && !isEnemyTimelineBuffVisible(segment))
+    if (
+      segment.targetId === SINGLE_ENEMY_TARGET_ID &&
+      (isPhysicalStatusRowBuff(segment) || !isEnemyTimelineBuffVisible(segment))
+    )
       continue;
     const list = grouped.get(segment.targetId) ?? [];
     list.push(segment);
     grouped.set(segment.targetId, list);
   }
+  const physical = projectPhysicalStatusDisplay(
+    publishedReceiptEntries.value,
+    simulationRun.value?.frame ?? 0,
+  ).filter(segment => segment.targetId === SINGLE_ENEMY_TARGET_ID);
+  if (physical.length && !grouped.has(SINGLE_ENEMY_TARGET_ID))
+    grouped.set(SINGLE_ENEMY_TARGET_ID, []);
   const positioned = new Map<string, PositionedDisplayBuffTimelineSegment[]>();
   for (const [targetId, segments] of grouped) {
-    const displaySegments = mergeOverlappingBuffTimelineSegments(segments);
+    const displaySegments = [
+      ...mergeOverlappingBuffTimelineSegments(segments),
+      ...(targetId === SINGLE_ENEMY_TARGET_ID ? physical : []),
+    ];
     positioned.set(
       targetId,
       targetId === SINGLE_ENEMY_TARGET_ID
@@ -3037,6 +3081,41 @@ function buffSourceName(segment: BuffPresentationSource): string | undefined {
     case 'potential':
       return getOperatorPotentialName(source.slug, source.index, locale.value);
   }
+}
+
+function publishedActionPresentation(
+  ownerId: string,
+  actionId: string,
+): { name: string; kind: string } | undefined {
+  const source = resolvePublishedBuffSource(
+    { sourceId: ownerId, sourceActionId: actionId },
+    publishedSimulation.value?.scenario,
+    publishedOperators.value,
+    publishedWeaponSources.value,
+    publishedGearSources.value,
+  );
+  if (!source) return undefined;
+  const sourceName = buffSourceName({ sourceId: ownerId, sourceActionId: actionId });
+  if (!sourceName) return undefined;
+  let name: string = sourceName;
+  if (source.kind === 'weapon') {
+    const trait = resolvePublishedEquipmentTrait(source, actionId);
+    if (trait)
+      name += ` · ${
+        trait === 'skill1' || trait === 'skill2' || trait === 'skill3'
+          ? getWeaponSkillName(source.slug, trait, locale.value)
+          : trait
+      }`;
+  }
+  if (source.kind === 'gear') {
+    const trait = resolvePublishedEquipmentTrait(source, actionId);
+    name = source.name ?? getGearPieceGameName(source.slug, locale.value) ?? source.slug;
+    if (trait)
+      name += ` · ${t('objectOrigins.traitNumber', { number: source.traits!.findIndex(item => item.key === trait) + 1 })}`;
+  }
+  if (source.kind === 'skill' || source.kind === 'talent' || source.kind === 'potential')
+    name = `${publishedOperatorInstanceName(ownerId)} · ${name}`;
+  return { name, kind: t(`objectOrigins.actionKinds.${source.kind}`) };
 }
 
 function openBuffDetail(target: BuffDetailTarget): void {
@@ -6700,6 +6779,7 @@ function setPanelDialogVisible(visible: boolean): void {
   />
   <TimelineHitDetailDialog
     :object-icon="publishedObjectIcon"
+    :action-presentation="publishedActionPresentation"
     :operator-label="publishedOperatorInstanceName"
     :receipt-entries="publishedReceiptEntries"
     :damage-zone-label="zone => t(`hitDetail.damageZones.${zone}`)"
@@ -6778,6 +6858,10 @@ function setPanelDialogVisible(visible: boolean): void {
     @toggle-force-critical="toggleHitDetailForceCritical"
   />
   <TimelineBuffDetailDialog
+    :receipt-entries="publishedReceiptEntries"
+    :operator-label="publishedOperatorInstanceName"
+    :object-icon="publishedObjectIcon"
+    :action-presentation="publishedActionPresentation"
     v-if="buffDetailTarget !== null"
     :visible="buffDetailTarget !== null"
     :target="buffDetailTarget"

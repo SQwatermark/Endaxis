@@ -2,6 +2,8 @@ import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatRece
 import type { DamageType } from '../../../core/game-data/operatorDefinition';
 import type { ScenarioDocument, TrackIndex } from '../../../core/project/schema';
 import type { PublishedScenarioSimulation } from '../useScenarioSimulation';
+import { CombatObjectOrigins } from '../../../core/projection/combatObjectOrigins';
+import { projectHitDamageContribution } from '../../../core/projection/damageContribution';
 
 /** 分析的归属、统计区间和回执必须来自同一次发布，不能混入正在编辑的场景。 */
 export function projectPublishedTimelineDamageAnalysis(
@@ -17,6 +19,8 @@ export function projectPublishedTimelineDamageAnalysis(
       rotationSeconds: 0,
       dps: 0,
       byOperator: [],
+      byContribution: [],
+      contributionParts: [],
       byDamageType: [],
       unattributedDamage: 0,
     };
@@ -43,6 +47,10 @@ export interface TimelineDamageAnalysis {
   readonly rotationSeconds: number;
   readonly dps: number;
   readonly byOperator: readonly TimelineDamageAnalysisEntry[];
+  readonly byContribution: readonly TimelineDamageAnalysisEntry[];
+  readonly contributionParts: readonly (TimelineDamageAnalysisEntry & {
+    readonly kind: 'self' | 'external';
+  })[];
   readonly byDamageType: readonly TimelineDamageAnalysisEntry[];
   readonly unattributedDamage: number;
 }
@@ -64,6 +72,8 @@ export function projectTimelineDamageAnalysis(
   damageTypeColor?: (damageType: DamageType) => string | undefined,
 ): TimelineDamageAnalysis {
   const castToTrack = new Map<string, TrackIndex>();
+  const history = [...receipts];
+  const origins = new CombatObjectOrigins(history);
   const sourceToTrack = new Map<string, TrackIndex>();
   scenario.tracks.forEach((track, index) => {
     if (track === null) return;
@@ -76,12 +86,15 @@ export function projectTimelineDamageAnalysis(
   // 可向前编辑的长度，不能当成统计起点，否则默认会漏掉 0 到 prepFrames 之间的伤害。
   const startFrame = scenario.battle.simulationRange?.startFrame ?? 0;
   const operatorTotals = new Map<TrackIndex, number>();
+  const contributionTotals = new Map<TrackIndex, number>();
+  const selfTotals = new Map<TrackIndex, number>();
+  const externalTotals = new Map<TrackIndex, number>();
   const typeTotals = new Map<DamageType, number>();
   let totalDamage = 0;
   let unattributedDamage = 0;
   let lastDamageFrame = startFrame;
 
-  for (const receipt of receipts) {
+  for (const receipt of history) {
     if (receipt.event !== 'DamageApplied' || receipt.targetId !== 'enemy') continue;
     if (receipt.frame < startFrame) continue;
     const value = finiteNumber(receipt.data?.value);
@@ -98,7 +111,28 @@ export function projectTimelineDamageAnalysis(
       (castId === null ? undefined : castToTrack.get(castId)) ??
       (receipt.sourceId === undefined ? undefined : sourceToTrack.get(receipt.sourceId));
     if (trackIndex === undefined) unattributedDamage += value;
-    else operatorTotals.set(trackIndex, (operatorTotals.get(trackIndex) ?? 0) + value);
+    else {
+      operatorTotals.set(trackIndex, (operatorTotals.get(trackIndex) ?? 0) + value);
+      const contribution = projectHitDamageContribution(
+        origins,
+        origins.get({ kind: 'receipt', sequence: receipt.sequence }),
+        scenario.tracks[trackIndex]!.id,
+      );
+      let self = contribution.self;
+      for (const item of contribution.external) {
+        const providerTrack = sourceToTrack.get(item.providerOperatorId);
+        if (providerTrack === undefined) self += item.value;
+        else {
+          contributionTotals.set(
+            providerTrack,
+            (contributionTotals.get(providerTrack) ?? 0) + item.value,
+          );
+          externalTotals.set(providerTrack, (externalTotals.get(providerTrack) ?? 0) + item.value);
+        }
+      }
+      contributionTotals.set(trackIndex, (contributionTotals.get(trackIndex) ?? 0) + self);
+      selfTotals.set(trackIndex, (selfTotals.get(trackIndex) ?? 0) + self);
+    }
   }
 
   const entries = <K extends string | number>(
@@ -124,6 +158,17 @@ export function projectTimelineDamageAnalysis(
     rotationSeconds,
     dps: rotationSeconds <= 0 ? 0 : totalDamage / rotationSeconds,
     byOperator: entries(operatorTotals, operatorLabel, operatorColor),
+    byContribution: entries(contributionTotals, operatorLabel, operatorColor),
+    contributionParts: [
+      ...entries(selfTotals, operatorLabel, operatorColor).map(item => ({
+        ...item,
+        kind: 'self' as const,
+      })),
+      ...entries(externalTotals, operatorLabel, operatorColor).map(item => ({
+        ...item,
+        kind: 'external' as const,
+      })),
+    ],
     byDamageType: entries(typeTotals, damageTypeLabel, damageTypeColor),
     unattributedDamage,
   };

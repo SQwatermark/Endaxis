@@ -350,11 +350,24 @@ it.each([
     expect(buff.enhanceCount).toBe(2);
     expect(seen).toEqual([]);
   }
-  target.container.add(definition, 'operator', { skillCastInfo: incoming });
+  const incomingProducer = {
+    kind: 'action' as const,
+    ownerId: 'operator',
+    actionId: 'passive:incoming-talent',
+  };
+  target.container.add(definition, 'operator', {
+    skillCastInfo: incoming,
+    producedBy: incomingProducer,
+  });
   target.container.add(definition, 'operator');
   expect(buff.enhanceCount).toBe(2);
   expect(seen.map(event => event.skillCastInfo)).toEqual([incoming, null]);
   const entries = (context.receipt as CombatReceiptCollector).entries;
+  expect(entries.find(entry => entry.event === 'BuffStackChanged')?.producedBy).toEqual(
+    stackingType === 'timedGrowingEnhance'
+      ? { kind: 'buff', ownerId: 'enemy', instanceId: buff.instanceId }
+      : incomingProducer,
+  );
   expect(
     entries.filter(entry => entry.event === 'BuffStackChanged').map(entry => entry.data),
   ).toEqual([

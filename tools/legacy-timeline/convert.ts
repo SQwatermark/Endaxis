@@ -10,6 +10,7 @@ import type { EndaxisProjectDocument } from '../../src/core/project/schema';
 import {
   retimeLegacyProjectBySimulation,
   type LegacyRuntimeReplacementResolver,
+  type LegacyTimingMode,
 } from './heuristicRetiming';
 import { ScenarioSimulationService } from '../../src/application/simulation/scenarioSimulationService';
 import { CheckpointRetimingSession } from './checkpointRetiming';
@@ -194,6 +195,7 @@ export function convertLegacyTimeline(
   input: unknown,
   repository: GameDataRepository,
   mappings: ConversionMappings = {},
+  options: { readonly timingMode?: LegacyTimingMode } = {},
 ) {
   const prepared = prepareLegacySourceBestEffort(input, mappings);
   const result = createLegacyProjectImporter(repository).migrate(prepared.source);
@@ -277,12 +279,13 @@ export function convertLegacyTimeline(
           createSession: (scenario, frame) =>
             new CheckpointRetimingSession(simulation.createInputCombatSession(scenario, frame)),
         },
+        options.timingMode,
       );
     } catch (error) {
       project = beforeRetiming;
       issues.push({
         path: '',
-        message: `智能调整时间失败，已保留直接转换的位置：${conversionIssue('', error).message}`,
+        message: `${options.timingMode === 'preserve' ? '保留时间的形态判断失败' : '智能调整时间失败'}，已保留直接转换的位置：${conversionIssue('', error).message}`,
       });
     }
   }
@@ -299,6 +302,7 @@ export function convertLegacyTimeline(
           : 'converted',
     project: fatalIssues.length === 0 ? project : null,
     report: {
+      timingMode: options.timingMode ?? 'repair',
       issues,
       fatalIssues,
       times: prepared.times,
@@ -316,7 +320,9 @@ export function convertLegacyTimeline(
         count: s.data.tracks.reduce((n: number, t: any) => n + t.actions.length, 0),
       })),
       limitations: [
-        '按旧版全局技能顺序，使用新版逐步模拟的开始、结束、允许接续窗口和终结技时间膨胀区间修正放置帧',
+        options.timingMode === 'preserve'
+          ? '保留旧轴技能位置（换算为新版帧率），不修复重叠或不可接续；仍判断技能形态并补主控切换'
+          : '按旧版全局技能顺序，使用新版逐步模拟的开始、结束、允许接续窗口和终结技时间膨胀区间修正放置帧',
         '旧轴默认第1轨道为主控，并在其他干员的普攻、强化普攻、下落攻击或处决开始时补主控切换标记',
         '使用当前游戏定义重算；旧 hits、Buff、面板、伤害等快照不迁移',
         '连接只支持可唯一对应技能块的 action-to-action 端点；未实现旧自定义行为、派生端点、继承状态、合约及非中性全局修正',

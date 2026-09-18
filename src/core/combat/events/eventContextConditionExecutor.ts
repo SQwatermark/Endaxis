@@ -291,12 +291,21 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       return skill !== undefined && condition.skillIds.includes(skill.payload.skillId);
     }
     if (condition.kind === 'eventSkillCastMatchesBuffSource') {
+      // 原生 CheckSkillCastId：Buff 读取 affix 编号，0 直接失败，不回退普通创建来源。
+      // 技能动作环境仍读取自身施放编号。见 combat-spec/skill-affix-identity-2026-09-04.md。
+      const isBuff = context.executingBuff !== undefined;
+      if (isBuff && context.getCurrentBuffAffixSkillCastId === undefined)
+        throw new Error('skill-cast check requires the current Buff affix identity');
+      const expected = isBuff
+        ? context.getCurrentBuffAffixSkillCastId!()
+        : context.skillCastInfo?.skillCastId;
       return (
-        context?.skillCastInfo !== undefined &&
+        expected !== undefined &&
+        (!isBuff || expected !== 0) &&
         ('payload' in context.event
           ? abilityEventSkillCastInfo(context.event)
           : context.eventSkillCastInfo
-        )?.skillCastId === context.skillCastInfo.skillCastId
+        )?.skillCastId === expected
       );
     }
     if (condition.kind === 'eventBuffIdMatch') {

@@ -6,6 +6,7 @@ import type { CombatCondition } from '../../game-data/operatorDefinition';
  */
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 import type { CombatOperationContext, CombatOperationExecutor } from '../skills/skillRuntime';
 import type { CombatSkillCastInfo } from '../state/foundationState';
 import type { CombatClock } from '../time/combatClock';
@@ -53,6 +54,7 @@ export interface ElementalInflictionOperationDependencies {
   readonly applyOperation: (
     operation: ElementalInflictionOperation,
     skillCastInfo: CombatSkillCastInfo | undefined,
+    producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
   ) => ElementalInflictionBuffIdentity | void;
   readonly triggerSpellBurst?: (payload: {
     readonly burstType: 'Fire' | 'Pulse' | 'Cryst' | 'Natural';
@@ -116,20 +118,27 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
     this.dependencies.emitTargetEvent('beforeTakeInfliction', payload);
     const existing = this.dependencies.getExistingAttachment();
     const operations = resolveElementalInfliction(step.parameters.element, existing);
+    const producedBy = operationProducer(context, {
+      ownerId: this.dependencies.sourceOperatorId,
+      actionId: this.dependencies.castId ?? this.dependencies.skillId,
+    });
     let consumedInstance: ElementalInflictionBuffIdentity | void = undefined;
     let outputInstance: ElementalInflictionBuffIdentity | void = undefined;
     for (const operation of operations) {
-      const instance = this.dependencies.applyOperation(operation, context?.skillCastInfo);
+      const instance = this.dependencies.applyOperation(
+        operation,
+        context?.skillCastInfo,
+        producedBy,
+      );
       if (operation.kind === 'consumeAttachment') consumedInstance = instance;
       if (operation.kind === 'createCompoundStatus') outputInstance = instance;
-      if (operation.kind === 'consumeAttachment') {
-      }
     }
     if (consumedInstance && outputInstance) {
       this.dependencies.receipt.record({
         frame: this.dependencies.clock.frame,
         time: this.dependencies.clock.time,
         event: 'ElementalAttachmentConverted',
+        ...(producedBy === undefined ? {} : { producedBy }),
         sourceId: this.dependencies.sourceOperatorId,
         targetId: this.dependencies.targetId,
         data: {
@@ -138,6 +147,8 @@ export class ElementalInflictionOperationExecutor implements CombatOperationExec
           outputBuffId: outputInstance.buffId,
           outputInstanceId: outputInstance.instanceId,
           incomingElement: step.parameters.element,
+          consumedLayers: existing?.layers ?? 0,
+          ...(this.dependencies.castId === undefined ? {} : { castId: this.dependencies.castId }),
         },
       });
     }

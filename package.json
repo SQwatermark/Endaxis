@@ -59,6 +59,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@dagrejs/dagre": "^3.1.1",
     "@vueuse/core": "^14.1.0",
     "@zumer/snapdom": "^2.0.1",
     "echarts": "^6.0.0",

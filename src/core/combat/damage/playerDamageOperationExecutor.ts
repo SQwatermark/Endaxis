@@ -393,8 +393,14 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
               context.damageScales.getZoneValue(zone),
             ]),
           ),
-          'damageScale:normal:attacker': context.damageScales.getSideValue('attacker', 'normal'),
-          'damageScale:normal:defender': context.damageScales.getSideValue('defender', 'normal'),
+          ...Object.fromEntries(
+            DAMAGE_SCALE_ZONES.flatMap(zone =>
+              (['attacker', 'defender'] as const).map(side => [
+                `damageScale:${zone}:${side}`,
+                context.damageScales.getSideValue(side, zone),
+              ]),
+            ),
+          ),
           criticalRate: context.attackerAttributes.criticalRate,
           criticalDamageIncrease: context.attackerAttributes.criticalDamageIncrease,
           criticalExpectationMultiplier,

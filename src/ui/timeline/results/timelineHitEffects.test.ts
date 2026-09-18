@@ -66,6 +66,12 @@ it('keeps target-owned Buff receipts out of skill markers while retaining delega
     data: { ...buff.data, hitId: 'sword', stepKey: 'sword', buffOwnerId: 'ability-entity:2' },
   };
   const entries = [buffApplied, direct, buff, delegated];
+  // 没有可见 Buff 段时也由敌人伤害入口展示，不能重复挂回技能块。
+  expect(
+    projectTimelineHitOccurrences([direct, buff, delegated])
+      .get('cast')
+      ?.map(hit => hit.hitId),
+  ).toEqual(['direct', 'sword']);
   expect(projectTimelineHitActualFrames(entries)).toEqual(
     new Map([
       ['direct', 30],

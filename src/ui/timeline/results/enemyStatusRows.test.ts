@@ -154,7 +154,7 @@ describe('enemy status presentation rows', () => {
 
   it('uses explicit attachment identity ahead of native HUD metadata and retains unknown states', () => {
     const attachment = buff('electric', { showInHeadBarAttached: true });
-    const physical = buff('physical', { showInHeadBarAttached: true });
+    const physical = buff('buff_physical_no_guard', { showInHeadBarAttached: true });
     const anomaly = buff('anomaly', { iconStyleInSquad: 'SpellAbnormal' });
     const unknown = buff('unknown', { iconId: 'icon_battle_frozen' });
     const result = layoutEnemyStatusRows(

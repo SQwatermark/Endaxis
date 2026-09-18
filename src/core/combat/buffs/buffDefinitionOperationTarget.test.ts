@@ -51,12 +51,15 @@ describe('BuffDefinitionOperationTarget', () => {
     );
     const parent = target.applyScoped({
       buffId: 'nested',
+      physicalInflictionType: 'airborne',
       sourceId: 'operator',
       blackboardValues: {},
     });
     expect(order).toEqual(['born:1', 'start:1', 'born:2', 'start:2']);
     expect(applied.mock.calls.map(call => call[1].instanceId)).toEqual([2, 1]);
     expect(applied.mock.calls[1]?.[1]).toBe(parent);
+    expect(applied.mock.calls[1]?.[0].physicalInflictionType).toBe('airborne');
+    expect(applied.mock.calls[0]?.[0].physicalInflictionType).toBeUndefined();
     const request = { buffId: 'refresh', sourceId: 'operator', blackboardValues: {} };
     const first = target.applyScoped(request);
     expect(target.applyScoped(request)).toBe(first);

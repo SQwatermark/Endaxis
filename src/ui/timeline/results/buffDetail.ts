@@ -20,6 +20,12 @@ export interface BuffDetailTarget {
 }
 
 export interface BuffDetailInstance {
+  /** 物理异常与破防共用一个显示入口时，每项仍保留各自名称与定义身份。 */
+  readonly buffId?: string;
+  readonly title?: string;
+  /** 合并展示后仍保留真实实例，追溯时不能按 Buff 定义名称寻找。 */
+  readonly instanceId?: number;
+  readonly startSequence?: number;
   readonly sourceName?: string;
   readonly startFrame: number;
   readonly endFrame: number;

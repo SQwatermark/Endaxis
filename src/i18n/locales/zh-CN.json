@@ -1,5 +1,23 @@
 {
   "objectOrigins": {
+    "previousState": "前一状态",
+    "buffState": "Buff · {layers} 层",
+    "stackedBy": "叠层来源",
+    "convertedBy": "附着转化",
+    "traitNumber": "词条 {number}",
+    "actionKinds": {
+      "skill": "干员技能",
+      "talent": "天赋",
+      "potential": "潜能",
+      "weapon": "武器技能",
+      "gear": "装备词条",
+      "gearSet": "套装效果",
+      "custom": "自定义技能"
+    },
+    "attacker": "攻击方",
+    "defender": "受击方",
+    "directContribution": "本次直接伤害贡献：{value}",
+    "contributionParts": { "self": "自身伤害", "external": "对他人的增益贡献" },
     "buffChanges": "产生与增益来源",
     "buffEvent": "实例记录",
     "castEvent": "施法相关记录",
@@ -15,6 +33,7 @@
     "affectedLayers": "涉及 {count} 层",
     "currentLayers": "当前 {count} 层",
     "events": {
+      "ElementalAttachmentConverted": "附着转化",
       "BuffApplied": "施加 / 刷新",
       "BuffStackChanged": "层数变化",
       "BuffEnhanceAttempted": "叠层尝试",

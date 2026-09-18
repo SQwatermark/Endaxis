@@ -78,7 +78,10 @@ function collectValueReferences(
           path: `${childPath}[${index}]`,
           ownerKind: owner.kind,
           ownerId: owner.id,
-          ...(instanceFilter ? { usage: 'instanceFilter' as const } : {}),
+          // 层数条件只统计目标已有实例；没有匹配实例时为 0，不需要创建定义。
+          ...(instanceFilter || ('kind' in value && value.kind === 'buffIdStackCompare')
+            ? { usage: 'instanceFilter' as const }
+            : {}),
         });
       });
     } else if (

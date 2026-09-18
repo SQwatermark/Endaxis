@@ -11,6 +11,44 @@ const terminal = {
 };
 
 describe('EventContextConditionExecutor', () => {
+  it('物理异常事件按 Buff 的 affix 编号匹配，不能拿普通创建来源代替', () => {
+    const executor = new EventContextConditionExecutor(terminal);
+    const cast = {
+      skillCastId: 42,
+      originSkillId: 'combo',
+      originSkillType: 'comboSkill' as const,
+      nonReturnedSpCost: 0,
+    };
+    const context = {
+      blackboard: new ActionBlackboard(),
+      executingBuff: { buffId: 'listener', buffOwnerId: 'owner', buffInstanceId: 1 },
+      skillCastInfo: { ...cast, skillCastId: 99 },
+      event: {
+        event: 'afterOutputPhysicalInfliction' as const,
+        payload: {
+          sourceId: 'owner',
+          targetId: 'enemy',
+          type: 'airborne' as const,
+          skillCastInfo: cast,
+        },
+      },
+    };
+    const condition = { kind: 'eventSkillCastMatchesBuffSource' as const };
+    expect(
+      executor.evaluate(condition, { ...context, getCurrentBuffAffixSkillCastId: () => 42 }),
+    ).toBe(true);
+    expect(
+      executor.evaluate(condition, { ...context, getCurrentBuffAffixSkillCastId: () => 99 }),
+    ).toBe(false);
+    expect(
+      executor.evaluate(condition, {
+        ...context,
+        skillCastInfo: cast,
+        getCurrentBuffAffixSkillCastId: () => 0,
+      }),
+    ).toBe(false);
+    expect(() => executor.evaluate(condition, context)).toThrow('current Buff affix identity');
+  });
   it('实体技能事件不能借来源分类参与玩家技能类型判断', () => {
     const executor = new EventContextConditionExecutor(terminal);
     expect(() =>

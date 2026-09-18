@@ -165,8 +165,9 @@ describe('ElementalInflictionOperationExecutor', () => {
         order.push('query');
         return attachment;
       },
-      applyOperation: (operation, source) => {
+      applyOperation: (operation, source, producedBy) => {
         expect(source).toEqual(skillCastInfo);
+        expect(producedBy).toEqual({ kind: 'action', ownerId: 'operator', actionId: 'skill' });
         order.push(`apply:${operation.kind}`);
         applied.push(operation);
         if (operation.kind === 'consumeAttachment') attachment = null;

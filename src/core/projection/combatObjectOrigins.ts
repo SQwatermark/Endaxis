@@ -1,9 +1,21 @@
 import type { CombatObjectRef, CombatReceiptEntry } from '../combat/receipt/combatReceipt';
 import { combatObjectKey } from '../combat/receipt/combatObjectIdentity';
 import { runtimeTargetFromEntityId } from '../game-data/logicalAbilityEntity';
+import type { AppliedDamageModifier } from '../combat/damage/damageScale';
+
+/** 图、明细与贡献共用的直接修正事实；索引对应原回执，不按定义名去重。 */
+export interface CombatDirectModifier {
+  readonly node: CombatObjectNode;
+  readonly modifier: AppliedDamageModifier;
+  readonly buff?: CombatObjectNode;
+  readonly provider: CombatObjectNode;
+}
 
 export type CombatObjectRelation =
   | 'producedBy'
+  | 'stackedBy'
+  | 'previousState'
+  | 'convertedBy'
   | 'runtimeSource'
   | 'ownedBy'
   | 'originCast'
@@ -71,6 +83,7 @@ export class CombatObjectOrigins {
   readonly #firstSeen = new Map<string, number>();
   readonly #buffEvents = new Map<string, number[]>();
   readonly #castEvents = new Map<string, number[]>();
+  readonly #conversions = new Map<string, number[]>();
 
   constructor(entries: Iterable<CombatReceiptEntry>) {
     for (const entry of entries) {
@@ -107,6 +120,20 @@ export class CombatObjectOrigins {
     }
     // 收齐出生记录后才发出句柄；Buff 的 Start 可在同帧同步产生其他对象。
     for (const entry of this.#receipts.values()) {
+      if (
+        entry.event === 'ElementalAttachmentConverted' &&
+        entry.targetId !== undefined &&
+        typeof entry.data?.outputInstanceId === 'number'
+      ) {
+        const key = combatObjectKey({
+          kind: 'buff',
+          ownerId: entry.targetId,
+          instanceId: entry.data.outputInstanceId,
+        });
+        const values = this.#conversions.get(key) ?? [];
+        values.push(entry.sequence);
+        this.#conversions.set(key, values);
+      }
       const buff = eventBuff(entry);
       if (buff !== undefined) {
         this.get(buff);
@@ -167,6 +194,59 @@ export class CombatObjectOrigins {
     return runtimeTargetFromEntityId(id);
   }
 
+  /** 用已有回执寻址实例在某一时点的层数状态，不创建运行时历史镜像。 */
+  buffState(buff: CombatObjectNode, throughSequence: number): CombatObjectNode {
+    this.#requireOwned(buff);
+    if (buff.ref.kind !== 'buff') return buff;
+    const events = (this.#buffEvents.get(combatObjectKey(buff.ref)) ?? [])
+      .map(sequence => this.#receipts.get(sequence)!)
+      .filter(entry => entry.sequence <= throughSequence)
+      .sort((a, b) => a.sequence - b.sequence);
+    const initial = events.find(entry => entry.event === 'BuffApplied');
+    const changes = events.filter(
+      entry =>
+        entry.event === 'BuffStackChanged' &&
+        typeof entry.data?.delta === 'number' &&
+        entry.data.delta !== 0 &&
+        entry.sequence > (initial?.sequence ?? -1),
+    );
+    const state = changes.at(-1) ?? initial;
+    return state ? this.get({ kind: 'receipt', sequence: state.sequence }) : buff;
+  }
+
+  /** 只接受本查询签发的命中对象，确保同序号的兄弟分支不会混用。 */
+  directModifiers(hit: CombatObjectNode): readonly CombatDirectModifier[] {
+    this.#requireOwned(hit);
+    if (hit.ref.kind !== 'receipt' || hit.fact?.event !== 'DamageApplied') return [];
+    return (hit.fact.appliedDamageModifiers ?? []).map((modifier, index) => ({
+      node: this.get({ kind: 'modifier', sequence: hit.fact!.sequence, index }),
+      modifier,
+      ...(modifier.buff === undefined
+        ? {}
+        : {
+            buff: this.get({ kind: 'buff', ...modifier.buff }),
+          }),
+      provider: this.get(
+        modifier.sourceActionId === undefined
+          ? runtimeTargetFromEntityId(modifier.sourceId)
+          : { kind: 'action', ownerId: modifier.sourceId, actionId: modifier.sourceActionId },
+      ),
+    }));
+  }
+
+  /** 只沿归属解析直接提供者；不沿产生者、增益或消费关系递归分配。 */
+  providerOperator(provider: CombatObjectNode, throughSequence: number): string | undefined {
+    this.#requireOwned(provider);
+    if (provider.ref.kind === 'operator') return provider.ref.operatorId;
+    const result = this.findAncestor(provider, node => node.ref.kind === 'operator', {
+      relations: ['ownedBy'],
+      throughSequence,
+    });
+    return result.status === 'found' && result.node.ref.kind === 'operator'
+      ? result.node.ref.operatorId
+      : undefined;
+  }
+
   /** 边的类别由回执协议解释，不能从任意对象字段递归猜测。 */
   relations(node: CombatObjectNode, throughSequence = Infinity): readonly CombatObjectLink[] {
     this.#requireOwned(node);
@@ -181,22 +261,37 @@ export class CombatObjectOrigins {
       if (ref !== undefined) links.push({ relation, target: this.get(ref), sequence });
     };
     if (node.ref.kind === 'modifier') {
-      const modifier = fact?.appliedDamageModifiers?.[node.ref.index];
-      if (modifier !== undefined)
-        add(
-          'providedBy',
-          modifier.sourceActionId === undefined
-            ? this.#entity(modifier.sourceId)
-            : { kind: 'action', ownerId: modifier.sourceId, actionId: modifier.sourceActionId },
-        );
+      const direct = this.directModifiers(
+        this.get({ kind: 'receipt', sequence: node.ref.sequence }),
+      )[node.ref.index];
+      if (direct !== undefined) {
+        add('providedBy', direct.provider.ref);
+        add('producedBy', direct.buff?.ref);
+      }
       return links;
     }
     if (fact !== undefined) {
+      if (
+        fact.event === 'ElementalAttachmentConverted' &&
+        fact.targetId !== undefined &&
+        typeof fact.data?.consumedInstanceId === 'number'
+      ) {
+        add('consumedBuff', {
+          kind: 'buff',
+          ownerId: fact.targetId,
+          instanceId: fact.data.consumedInstanceId,
+        });
+        add('eventSource', this.#entity(fact.sourceId));
+      }
       if (node.ref.kind === 'receipt') {
         const buff = eventBuff(fact);
         if (buff !== undefined) {
+          if (fact.event === 'BuffStackChanged') {
+            const previous = this.buffState(this.get(buff), fact.sequence - 1);
+            add('previousState', previous.ref);
+          }
           add(buffEventRelations[fact.event]!, buff);
-          add('eventSource', this.#entity(fact.sourceId));
+          add('eventSource', fact.producedBy ?? this.#entity(fact.sourceId));
         }
       }
       add('producedBy', fact.producedBy);
@@ -221,6 +316,10 @@ export class CombatObjectOrigins {
         : node.ref.kind === 'action'
           ? this.#castEvents.get(combatObjectKey(node.ref))
           : undefined;
+    if (node.ref.kind === 'buff') {
+      const state = this.buffState(node, throughSequence);
+      if (state !== node) add('stackedBy', state.ref, state.fact?.sequence);
+    }
     for (const sequence of events ?? []) {
       if (sequence <= throughSequence)
         add(
@@ -229,6 +328,10 @@ export class CombatObjectOrigins {
           sequence,
         );
     }
+    if (node.ref.kind === 'buff')
+      for (const sequence of this.#conversions.get(combatObjectKey(node.ref)) ?? [])
+        if (sequence <= throughSequence)
+          add('convertedBy', { kind: 'receipt', sequence }, sequence);
     return links;
   }
 

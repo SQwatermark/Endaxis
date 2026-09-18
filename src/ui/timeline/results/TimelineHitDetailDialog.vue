@@ -35,6 +35,10 @@ const props = defineProps<{
   receiptEntries?: readonly CombatReceiptEntry[];
   operatorLabel?: (operatorId: string) => string;
   objectIcon?: import('./combatObjectIcons').CombatObjectIconResolver;
+  actionPresentation?: (
+    ownerId: string,
+    actionId: string,
+  ) => { name: string; kind: string } | undefined;
   operatorPanel: ResolvedOperatorPanel | null;
   operatorPanelForEntry?: (entry: CombatReceiptEntry) => ResolvedOperatorPanel | null;
   contributionSourceLabel: (entry: OperatorPanelContributionReceipt, sequence?: number) => string;
@@ -416,7 +420,9 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
       { label: props.labels.baseDamage, value: num(data.baseDamage) },
     ];
     const multiplierRows: DetailRow[] = [];
-    const modifiers = entry.appliedDamageModifiers ?? [];
+    const modifiers = origins.value
+      .directModifiers(origins.value.get({ kind: 'receipt', sequence: entry.sequence }))
+      .map(item => item.modifier);
     const attributes = (side: 'attacker' | 'defender', keys: readonly string[]) =>
       modifiers.filter(
         item => item.kind === 'attribute' && item.side === side && keys.includes(item.attribute),
@@ -879,6 +885,7 @@ function onClose(): void {
             </tbody>
           </table>
           <CombatObjectOriginGraph
+            :action-presentation="actionPresentation"
             :object-icon="objectIcon"
             :origins="origins"
             :sequence="detail.key"

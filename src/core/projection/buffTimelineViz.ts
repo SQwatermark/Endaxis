@@ -11,6 +11,8 @@ export interface BuffTimelineSegment {
   readonly buffId: string;
   readonly instanceId: number;
   readonly startFrame: number;
+  /** 形成这一展示段的回执序号；同帧的多次叠层也必须分别截断。 */
+  readonly startSequence?: number;
   readonly endFrame: number;
   /** 图标持续条的原生倒计时终点；缺省与 Buff 生命周期终点一致。 */
   readonly durationEndFrame?: number;
@@ -419,6 +421,7 @@ export function projectBuffTimelineViz(
       buffId,
       instanceId,
       startFrame: entry.frame,
+      startSequence: entry.sequence,
       endFrame,
       startReason:
         entry.event === 'BuffPresentationStarted'

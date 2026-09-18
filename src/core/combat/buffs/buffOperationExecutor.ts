@@ -176,6 +176,8 @@ export interface BuffOperationTarget {
 }
 
 export interface BuffAppliedEvent {
+  /** 本次物理异常输入；即便实际只施加破防，也保留动作类型供展示。 */
+  readonly physicalInflictionType?: 'airborne' | 'knockDown' | 'crush' | 'fracture';
   readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly targetId: string;
   readonly buffId: string;
@@ -205,6 +207,7 @@ export type { BuffApplicationHandle } from './combatBuffs';
 
 /** 定义身份与本次施加覆盖值已经分离求值后的运行时请求。 */
 export interface BuffApplicationRequest {
+  readonly physicalInflictionType?: BuffAppliedEvent['physicalInflictionType'];
   readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly buffId: string;
   /** 缺少表示旧式外部定义引用；内联技能步骤必须携带。 */
@@ -382,6 +385,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               };
       const applied = target.apply({
         ...request,
+        physicalInflictionType: step.parameters.type,
         producedBy: operationProducer(context, {
           ownerId: this.dependencies.sourceId,
           actionId: this.dependencies.sourceActionId,

@@ -552,6 +552,7 @@ export function attachBuffLifecycleSequences<Key extends string>(
         : resolveProjectileRuntimeDependencies(buff.definitionOwnerId)),
       finishCurrentBuff: (reason, sourceId, skillCastInfo) =>
         buff.owner.finishInstance(buff, reason, sourceId, skillCastInfo),
+      getCurrentBuffAffixSkillCastId: () => buff.affixSkillCastId,
       bindCurrentBuffSkillAffix: skillCastId => {
         buff.recordBuffAffixSkillCastId(skillCastId);
         const host = buff.runtimeState.actionHost!;

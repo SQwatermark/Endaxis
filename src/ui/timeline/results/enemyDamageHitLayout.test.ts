@@ -37,7 +37,7 @@ it('shares an entry at an instance boundary while retaining all receipt identiti
   expect(JSON.stringify({ entries, buffs })).toBe(before);
 });
 
-it('keeps different rows and frames separate and excludes invisible helpers and audit records', () => {
+it('keeps hidden-source damage accessible while excluding audit records', () => {
   const a = hit(1, 1),
     b = hit(2, 2);
   const later = { ...hit(3, 1), frame: 11 };
@@ -49,11 +49,18 @@ it('keeps different rows and frames separate and excludes invisible helpers and 
     [],
     new Set(),
   );
-  expect(positions).toHaveLength(3);
-  expect(positions.flatMap(p => p.group)).toEqual([a, b, later]);
+  expect(positions).toHaveLength(4);
+  expect(positions.flatMap(p => p.group)).toEqual([a, b, later, hidden]);
+  expect(positions.find(p => p.group.includes(hidden))).toMatchObject({ standalone: true });
   expect(positions.find(p => p.group.includes(a))!.row).not.toBe(
     positions.find(p => p.group.includes(b))!.row,
   );
+});
+
+it('retains damage without any visible Buff or icon metadata', () => {
+  const entry = hit(1, 1);
+  const positions = layoutEnemyDamageHits([entry], [], [], new Set());
+  expect(positions).toEqual([{ group: [entry], row: 3, standalone: true }]);
 });
 
 it('shares a burst and an explicitly visible attachment hit without counting a receipt twice', () => {
