@@ -1423,7 +1423,7 @@ describe('attachBuffLifecycleSequences', () => {
     expect(first.runtimeState.actionHost!.scheduled!.passedFrames).toBe(2);
   });
 
-  it('乱序声明的 Buff 局部时间线按执行顺序恢复，且不重放已过帧', () => {
+  it('乱序声明的 Buff 局部时间线恢复后仍按声明顺序跨过节点，且不重放已过帧', () => {
     const createDefinition = (reached: string[]) =>
       attachBuffLifecycleSequences<never>(
         { id: 'restored-scheduled', stackingType: 'unique' },
@@ -1441,12 +1441,23 @@ describe('attachBuffLifecycleSequences', () => {
         undefined,
         [
           {
-            startFrame: 3,
+            startFrame: 4,
             sequence: {
               steps: [
                 {
                   kind: 'setContextFlag',
                   parameters: { flag: 'future', value: true, target: 'caster' },
+                },
+              ],
+            },
+          },
+          {
+            startFrame: 3,
+            sequence: {
+              steps: [
+                {
+                  kind: 'setContextFlag',
+                  parameters: { flag: 'earlier-future', value: true, target: 'caster' },
                 },
               ],
             },
@@ -1491,9 +1502,9 @@ describe('attachBuffLifecycleSequences', () => {
     restored.bindRestoredInstances(state =>
       state.identity.definitionId === restoredDefinition.id ? restoredDefinition : undefined,
     );
-    restored.tick(1 / 30);
+    restored.tick(2 / 30);
 
-    expect(restoredReached).toEqual(['future']);
+    expect(restoredReached).toEqual(['future', 'earlier-future']);
     expect(originalReached).toEqual(['past']);
   });
 

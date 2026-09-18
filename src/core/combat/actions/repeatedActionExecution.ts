@@ -1,5 +1,5 @@
 /**
- * 重复动作的无状态执行算法。保留原生 float32 运算、首次 Tick 跳过及严格大于的目标间隔判定。
+ * 重复动作的无状态执行算法。保留 float32 运算、各动作启动语义及严格大于的目标间隔判定。
  * 执行动作体的端口只在本次调用内使用；计数赋值与同步动作的先后顺序保持不变。
  */
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
@@ -12,11 +12,13 @@ export function executeRepeatedAction(
   parameters: RepeatedActionParameters,
   executeBody: () => void,
 ): void {
-  state.skipInitialTick = true;
+  state.skipInitialTick = parameters.nativeTickInterval === undefined;
   state.timerSeconds = 0;
   state.scanCount = 0;
   state.targetTriggerCount = 0;
   state.lastTargetTriggerSeconds = 0;
+  // TickIntervalAction.ExecuteInternal 主动 OnTick(0)，但不跳过后续普通 Tick。
+  // 其他重复动作保留各自启动语义。
   scanRepeatedAction(state, parameters, executeBody);
 }
 

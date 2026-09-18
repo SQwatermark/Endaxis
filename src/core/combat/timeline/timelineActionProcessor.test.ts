@@ -94,7 +94,7 @@ describe('TimelineActionProcessor', () => {
     expect(processor.isComplete).toBe(true);
     processor.reset(context);
     processor.tick(2, 0, context);
-    expect(events).toEqual(['later:execute', 'later:tick', 'later:end']);
+    expect(events).toEqual(['later:execute']);
   });
 
   it.each(['execute', 'tick'] as const)(
@@ -128,24 +128,32 @@ describe('TimelineActionProcessor', () => {
       expect(events).toEqual(
         phase === 'execute'
           ? ['first:execute', 'first:end']
-          : ['first:execute', 'first:tick', 'first:end'],
+          : ['first:execute', 'same-frame:execute', 'first:tick', 'first:end', 'same-frame:end'],
       );
       expect(processor.isComplete).toBe(true);
     },
   );
 
-  it('executes and ends an action at its scheduled frame', () => {
-    const events: string[] = [];
-    const processor = new TimelineActionProcessor([timelineAction(2, 'action', events)]);
-    processor.reset(context);
+  it.each([undefined, 2])(
+    'defers the first Tick/End for a zero-length interval with end %s',
+    endFrame => {
+      const events: string[] = [];
+      const processor = new TimelineActionProcessor([
+        { ...timelineAction(2, 'action', events), endFrame },
+      ]);
+      processor.reset(context);
 
-    processor.tick(1, 1 / 30, context);
-    processor.tick(2, 1 / 30, context);
-    processor.tick(3, 1 / 30, context);
+      processor.tick(1, 1 / 30, context);
+      processor.tick(2, 1 / 30, context);
+      expect(events).toEqual(['action:execute']);
+      expect(processor.isComplete).toBe(false);
+      // It is the next visit, not necessarily the next frame.
+      processor.tick(2, 0, context);
 
-    expect(events).toEqual(['action:execute', 'action:tick', 'action:end']);
-    expect(processor.isComplete).toBe(true);
-  });
+      expect(events).toEqual(['action:execute', 'action:tick', 'action:end']);
+      expect(processor.isComplete).toBe(true);
+    },
+  );
 
   it('uses source order for equal start frames', () => {
     const events: string[] = [];
@@ -157,14 +165,124 @@ describe('TimelineActionProcessor', () => {
 
     processor.tick(1, 1 / 30, context);
 
+    expect(events).toEqual(['first:execute', 'second:execute']);
+  });
+
+  it('restores a just-executed instant interval without replaying Execute or losing End', () => {
+    class RestorableRecordingStep extends RecordingStep {
+      override bindExecutionData(data: null): void {
+        // This probe has no step-local data; lifecycle is stored by ActionSequence.
+        expect(data).toBeNull();
+      }
+    }
+    const events: string[] = [];
+    const original = new TimelineActionProcessor([timelineAction(0, 'action', events)]);
+    original.reset(context);
+    original.tick(0, 0, context);
+    expect(events).toEqual(['action:execute']);
+    const saved = structuredClone(original.runtimeState);
+    events.length = 0;
+    const restored = new TimelineActionProcessor(
+      [
+        {
+          startFrame: 0,
+          sequence: new ActionSequence(
+            [new RestorableRecordingStep('action', events)],
+            undefined,
+            saved.sequences[0],
+          ),
+        },
+      ],
+      {},
+      saved,
+    );
+    expect(restored.isComplete).toBe(false);
+    expect(events).toEqual([]);
+    restored.tick(1, 1 / 30, context);
+    restored.tick(2, 1 / 30, context);
+    expect(events).toEqual(['action:tick', 'action:end']);
+    expect(restored.isComplete).toBe(true);
+    expect(original.isComplete).toBe(false);
+  });
+
+  it('keeps a zero-length scoped effect through later same-frame hits, then removes it before next-frame hits', () => {
+    let active = false;
+    const observed: boolean[] = [];
+    class EffectStep extends CombatStep {
+      execute(): void {
+        active = true;
+      }
+      override end(): void {
+        active = false;
+      }
+    }
+    class HitStep extends CombatStep {
+      execute(): void {
+        observed.push(active);
+      }
+    }
+    const processor = new TimelineActionProcessor([
+      { startFrame: 0, endFrame: 0, sequence: new ActionSequence([new EffectStep()]) },
+      { startFrame: 0, sequence: new ActionSequence([new HitStep()]) },
+      { startFrame: 1, sequence: new ActionSequence([new HitStep()]) },
+    ]);
+    processor.reset(context);
+    processor.tick(0, 0, context);
+    expect(observed).toEqual([true]);
+    processor.tick(1, 1 / 30, context);
+    expect(observed).toEqual([true, false]);
+  });
+
+  it('ends an earlier source interval before a same-frame later source hit', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([
+      rangedTimelineAction(0, 2, 'buff', events),
+      timelineAction(2, 'hit', events),
+    ]);
+    processor.reset(context);
+    processor.tick(0, 0, context);
+    events.length = 0;
+    processor.tick(2, 1 / 30, context);
+    expect(events).toEqual(['buff:tick', 'buff:end', 'hit:execute']);
+  });
+
+  it('interleaves new and running nodes in source order rather than start-frame order', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([
+      timelineAction(2, 'hit', events),
+      rangedTimelineAction(0, 2, 'buff', events),
+    ]);
+    processor.reset(context);
+    processor.tick(0, 0, context);
+    events.length = 0;
+    processor.tick(2, 1 / 30, context);
+    expect(events).toEqual(['hit:execute', 'buff:tick', 'buff:end']);
+    expect(processor.isComplete).toBe(false);
+    events.length = 0;
+    processor.tick(3, 1 / 30, context);
+    expect(events).toEqual(['hit:tick', 'hit:end']);
+    expect(processor.isComplete).toBe(true);
+  });
+
+  it('keeps source order when one update crosses several pending starts', () => {
+    const events: string[] = [];
+    const processor = new TimelineActionProcessor([
+      timelineAction(2, 'first', events),
+      timelineAction(0, 'second', events),
+    ]);
+    processor.reset(context);
+    processor.tick(2, 1 / 30, context);
+    expect(events).toEqual(['first:execute', 'second:execute']);
+    processor.tick(3, 1 / 30, context);
     expect(events).toEqual([
       'first:execute',
+      'second:execute',
       'first:tick',
       'first:end',
-      'second:execute',
       'second:tick',
       'second:end',
     ]);
+    expect(processor.isComplete).toBe(true);
   });
 
   it('executes actions only when their frames are reached', () => {
@@ -179,7 +297,7 @@ describe('TimelineActionProcessor', () => {
 
     processor.tick(2, 1 / 30, context);
 
-    expect(events).toEqual(['second:execute', 'second:tick', 'second:end']);
+    expect(events).toEqual(['first:tick', 'first:end', 'second:execute']);
   });
 
   it('does not execute future actions when a skill finishes early', () => {
@@ -195,7 +313,7 @@ describe('TimelineActionProcessor', () => {
 
     processor.end(2, context);
 
-    expect(events).toEqual(['action:execute', 'action:tick', 'action:end']);
+    expect(events).toEqual(['action:execute', 'action:end']);
     expect(lifecycle.started).toHaveBeenCalledTimes(1);
     expect(lifecycle.ended).toHaveBeenCalledTimes(1);
     expect(processor.isComplete).toBe(true);
@@ -212,7 +330,7 @@ describe('TimelineActionProcessor', () => {
 
     processor.finish(2, context);
 
-    expect(events).toEqual(['current:execute', 'current:tick', 'current:end']);
+    expect(events).toEqual(['current:execute', 'current:end']);
     expect(processor.isComplete).toBe(true);
   });
 
@@ -225,13 +343,7 @@ describe('TimelineActionProcessor', () => {
     processor.tick(3, 1 / 30, context);
     processor.tick(4, 1 / 30, context);
 
-    expect(events).toEqual([
-      'ranged:execute',
-      'ranged:tick',
-      'ranged:tick',
-      'ranged:tick',
-      'ranged:end',
-    ]);
+    expect(events).toEqual(['ranged:execute', 'ranged:tick', 'ranged:tick', 'ranged:end']);
     expect(processor.isComplete).toBe(true);
   });
 
@@ -243,7 +355,7 @@ describe('TimelineActionProcessor', () => {
 
     processor.end(3, context);
 
-    expect(events).toEqual(['ranged:execute', 'ranged:tick', 'ranged:end']);
+    expect(events).toEqual(['ranged:execute', 'ranged:end']);
   });
 
   it('skips pending actions whose start frame is before a jump destination', () => {
@@ -257,6 +369,8 @@ describe('TimelineActionProcessor', () => {
     processor.jumpTo(5, 1, context);
     processor.tick(5, 1 / 30, context);
 
+    expect(events).toEqual(['destination:execute']);
+    processor.tick(6, 1 / 30, context);
     expect(events).toEqual(['destination:execute', 'destination:tick', 'destination:end']);
     expect(processor.isComplete).toBe(true);
   });
@@ -269,7 +383,7 @@ describe('TimelineActionProcessor', () => {
 
     processor.jumpTo(5, 1, context);
 
-    expect(events).toEqual(['crossed:execute', 'crossed:tick', 'crossed:end']);
+    expect(events).toEqual(['crossed:execute', 'crossed:end']);
     expect(processor.isComplete).toBe(true);
   });
 
@@ -282,7 +396,7 @@ describe('TimelineActionProcessor', () => {
     processor.jumpTo(5, 1, context);
     processor.tick(5, 1 / 30, context);
 
-    expect(events).toEqual(['spanning:execute', 'spanning:tick', 'spanning:tick']);
+    expect(events).toEqual(['spanning:execute', 'spanning:tick']);
     expect(processor.isComplete).toBe(false);
   });
 
@@ -296,7 +410,7 @@ describe('TimelineActionProcessor', () => {
     expect(events).toEqual([]);
     expect(processor.isComplete).toBe(false);
     processor.tick(5, 1 / 30, context);
-    expect(events).toEqual(['exact:execute', 'exact:tick', 'exact:end']);
+    expect(events).toEqual(['exact:execute']);
   });
 
   it('ends the currently starting action after a reentrant jump and skips crossed actions', () => {
@@ -318,6 +432,8 @@ describe('TimelineActionProcessor', () => {
 
     processor.tick(1, 1 / 30, context);
     processor.tick(5, 0, context);
+    expect(events).toEqual(['jumping:execute', 'jumping:end', 'destination:execute']);
+    processor.tick(6, 1 / 30, context);
 
     expect(events).toEqual([
       'jumping:execute',

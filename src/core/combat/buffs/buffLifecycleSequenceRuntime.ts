@@ -50,8 +50,7 @@ import type {
 } from '../state/foundationState';
 import { type AbilityResponseEventName } from '../state/foundationState';
 import { COMBAT_FRAMES_PER_SECOND } from '../time/combatClock';
-import { compileTimelineActionIntervals } from '../timeline/timelineActionExecution';
-import { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
+import type { TimelineActionProcessor } from '../timeline/timelineActionProcessor';
 import type {
   BuffDuringEnableAction,
   BuffLifecycleActions,
@@ -102,10 +101,8 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
     actions: readonly CompiledTimelineAction[],
     runtimeFor: (buff: CombatBuff<Key>) => CombatActionSequenceRuntime,
   ) {
-    // 保存的 sequences 按实际执行顺序排列；恢复绑定必须采用同一顺序，而非定义声明顺序。
-    this.#actions = compileTimelineActionIntervals(actions).map(
-      interval => actions[interval.sourceIndex]!,
-    );
+    // 保留配置顺序；公共 createTimeline 负责到期索引和切面数组之间的映射。
+    this.#actions = actions;
     this.#runtimeFor = runtimeFor;
   }
 
@@ -132,41 +129,20 @@ class BuffScheduledSequenceAction<Key extends string> implements BuffDuringEnabl
       );
     }
     const runtime = this.#runtimeFor(buff);
-    const restoreSequence = (action: CompiledTimelineAction, index: number) => {
-      try {
-        return runtime.createSequence(
-          action.sequence,
-          runtime.context,
-          saved.timeline!.sequences[index],
-        );
-      } catch (cause) {
-        throw new Error(
-          `restored Buff '${buff.owner.ownerId}:${buff.definition.id}:${buff.instanceId}' scheduled action ${index} cannot bind (${action.sequence.steps.length} program steps, ${saved.timeline!.sequences[index]?.steps.length} saved steps)`,
-          { cause },
-        );
-      }
-    };
-    this.#timeline = new TimelineActionProcessor(
-      this.#actions.map((action, index) => ({
-        startFrame: action.startFrame,
-        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
-        sequence: restoreSequence(action, index),
-      })),
-      {},
-      saved.timeline,
-    );
+    try {
+      this.#timeline = runtime.createTimeline(this.#actions, {}, saved.timeline);
+    } catch (cause) {
+      throw new Error(
+        `restored Buff '${buff.owner.ownerId}:${buff.definition.id}:${buff.instanceId}' scheduled actions cannot bind`,
+        { cause },
+      );
+    }
   }
 
   tryExecute(buff: CombatBuff<Key>): boolean {
     if (this.#timeline !== null) throw new Error(`Buff '${buff.definition.id}' timeline is active`);
     const runtime = this.#runtimeFor(buff);
-    this.#timeline = new TimelineActionProcessor(
-      this.#actions.map(action => ({
-        startFrame: action.startFrame,
-        ...(action.endFrame === undefined ? {} : { endFrame: action.endFrame }),
-        sequence: runtime.createSequence(action.sequence),
-      })),
-    );
+    this.#timeline = runtime.createTimeline(this.#actions);
     this.#state.passedFrames = 0;
     this.#state.timeline = this.#timeline.runtimeState;
     buff.runtimeState.actionHost!.scheduled = this.#state;

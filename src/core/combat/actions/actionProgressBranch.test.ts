@@ -38,15 +38,16 @@ function createSession() {
 }
 
 describe('action progress branches', () => {
-  it('restores skipped first tick, single catch-up and a jump that has not happened yet', () => {
+  it('restores initialized interval progress, single catch-up and a jump that has not happened yet', () => {
     const session = createSession();
     session.step({ start: true, delta: 0, allowed: false });
+    expect(session.read().hits).toBe(1);
     const first = session.save();
     session.step({ delta: 0.5, allowed: true });
-    expect(session.read().hits).toBe(1);
+    expect(session.read().hits).toBe(2);
     expect(session.read().jumps).toBe(0);
     session.step({ delta: 0.5, allowed: true });
-    expect(session.read().hits).toBe(2);
+    expect(session.read().hits).toBe(3);
     expect(session.read().jumps).toBe(1);
     const jumped = session.save();
     session.restore(first);
@@ -56,7 +57,7 @@ describe('action progress branches', () => {
     expect(session.read().jumps).toBe(0);
     session.restore(jumped);
     session.step({ delta: 0, allowed: true });
-    expect(session.read().hits).toBe(3);
+    expect(session.read().hits).toBe(4);
     expect(session.read().jumps).toBe(1);
     const expected = session.read();
     session.restore(waiting);

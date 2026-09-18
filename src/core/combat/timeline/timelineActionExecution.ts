@@ -35,7 +35,7 @@ export function compileTimelineActionIntervals(
       throw new TypeError(`timeline action ${index} must use endFrame >= startFrame`);
     }
   });
-  // 原生同帧排序尚未确认，继续使用有记录的来源顺序作为确定性回退。
+  // 起点排序仅供到期游标检索；执行时按 sourceIndex 恢复原生配置顺序。
   return actions
     .map((action, sourceIndex) => ({
       startFrame: action.startFrame,
@@ -67,50 +67,56 @@ export function tickTimelineActions(
   host: TimelineActionExecutionHost,
 ): void {
   if (state.ended) return;
-  // 已开始的区间行为在后续帧继续推进；本帧新开始的行为由下方分支推进一次。
-  for (const indexedAction of state.active) {
-    host.tick(indexedAction, deltaTime);
+  // 原生 Load 保留配置顺序，_TickInternal 按该顺序逐项推进和结束。
+  // 按起点排序的程序只用于定位到期项，不能把活动节点和新节点分成两个执行阶段。
+  const pendingStart = state.nextPendingIndex;
+  const due = [...state.active];
+  for (let index = pendingStart; index < program.length; index += 1) {
+    if (program[index]!.startFrame > currentFrame) break;
+    due.push(index);
   }
-
-  while (
-    !state.ended &&
-    state.nextPendingIndex < program.length &&
-    program[state.nextPendingIndex]!.startFrame <= currentFrame
-  ) {
-    const indexedAction = state.nextPendingIndex;
-    state.nextPendingIndex += 1;
+  due.sort((left, right) => program[left]!.sourceIndex - program[right]!.sourceIndex);
+  // 本次调用内的乱序完成集合，不进入切面；返回前游标已经越过全部到期项。
+  const started = new Set<number>();
+  for (const indexedAction of due) {
+    if (state.ended) break;
+    if (indexedAction < pendingStart) {
+      // 前一节点的同步 End / JumpTo 可能已经结束这个活动项。
+      if (!state.active.includes(indexedAction)) continue;
+      host.tick(indexedAction, deltaTime);
+      const activeIndex = state.active.indexOf(indexedAction);
+      if (
+        activeIndex >= 0 &&
+        (program[indexedAction]!.endFrame ?? program[indexedAction]!.startFrame) <= currentFrame
+      ) {
+        state.active.splice(activeIndex, 1);
+        endInterval(indexedAction, currentFrame, host);
+      }
+      continue;
+    }
+    // 跳转或结束会推进游标，已跳过的节点不能从本帧候选列表重新启动。
+    if (indexedAction < state.nextPendingIndex) continue;
+    started.add(indexedAction);
+    while (started.has(state.nextPendingIndex)) state.nextPendingIndex += 1;
     state.starting = indexedAction;
     state.startingCrossedByJump = false;
     state.startingJumpDestination = null;
     host.started(indexedAction, currentFrame);
     host.execute(indexedAction);
-    if (!state.startingCrossedByJump) {
-      host.tick(indexedAction, deltaTime);
-    }
-    // Execute 或首次 Tick 均可通过同步事件结束宿主。两者返回后都要清理，
-    // 不能把已经结束的区间重新放回 active。
+    // 同步 JumpTo / CastEnd 保留原有当前序列收尾协议。
     if (state.startingCrossedByJump) {
       endInterval(indexedAction, state.startingJumpDestination!, host);
+    } else {
+      // 原生 Pending 分支直接进入下一节点，首次普通 Tick/End 留到后续访问。
+      // 瞬时区间也进入活动集合，复用既有切面状态保存 Execute 后的寿命。
+      state.active.push(indexedAction);
     }
     state.starting = null;
     state.startingJumpDestination = null;
-    if (state.startingCrossedByJump) {
-      state.startingCrossedByJump = false;
-    } else if (program[indexedAction]!.endFrame === undefined) {
-      endInterval(indexedAction, currentFrame, host);
-    } else {
-      state.active.push(indexedAction);
-    }
-  }
-
-  for (let index = state.active.length - 1; index >= 0; index -= 1) {
-    const indexedAction = state.active[index]!;
-    if (program[indexedAction]!.endFrame! > currentFrame) continue;
-    state.active.splice(index, 1);
-    endInterval(indexedAction, currentFrame, host);
+    state.startingCrossedByJump = false;
+    while (started.has(state.nextPendingIndex)) state.nextPendingIndex += 1;
   }
 }
-
 /**
  * 原生 JumpTo：跳过起始帧严格早于目标的待执行项，正常结束到期活动项。
  * 跨越目标的活动项继续存活，目标帧上的待执行项留给下次 Tick。反向跳转没有证据支持。
@@ -141,7 +147,8 @@ export function jumpToTimelineActions(
 
   for (let index = state.active.length - 1; index >= 0; index -= 1) {
     const indexedAction = state.active[index]!;
-    if (program[indexedAction]!.endFrame! > destinationFrame) continue;
+    if ((program[indexedAction]!.endFrame ?? program[indexedAction]!.startFrame) > destinationFrame)
+      continue;
     state.active.splice(index, 1);
     endInterval(indexedAction, destinationFrame, host);
   }

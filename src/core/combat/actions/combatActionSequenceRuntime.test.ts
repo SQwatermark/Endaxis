@@ -1681,7 +1681,7 @@ describe('CombatActionSequenceRuntime', () => {
     expect(fixture.executed).toEqual([]);
   });
 
-  it('按旧版 TickIntervalAction 首次即时、单精度周期和单次追赶执行', () => {
+  it('按原生 TickIntervalAction 启动时触发，后续 Tick 使用单精度周期和单次追赶', () => {
     const fixture = createFixture();
     const action = fixture.runtime.createSequence(
       sequence({
@@ -1694,11 +1694,37 @@ describe('CombatActionSequenceRuntime', () => {
     );
 
     action.execute({});
+    expect(fixture.executed).toEqual(['interval']);
     action.tick(0, {});
     action.tick(0.5, {});
     action.tick(0, {});
 
     // 0.5 秒已经跨过多个周期，但原生每次宿主更新最多只追赶一次。
+    expect(fixture.executed).toEqual(['interval', 'interval', 'interval']);
+  });
+
+  it('原生周期动作自身在 Execute 内触发一次，后续首次普通 Tick 不跳过，终点 Tick 先于 End', () => {
+    const fixture = createFixture();
+    const timeline = fixture.runtime.createTimeline([
+      {
+        startFrame: 1,
+        endFrame: 3,
+        sequence: sequence({
+          kind: 'repeatEachTick',
+          parameters: { nativeTickInterval: { executeEachFrame: false, intervalSeconds: 0.033 } },
+          body: sequence(operation('interval')),
+        }),
+      },
+    ]);
+    timeline.reset({});
+    timeline.tick(1, 1 / 30, {});
+    expect(fixture.executed).toEqual(['interval']);
+    timeline.tick(2, 1 / 30, {});
+    expect(fixture.executed).toEqual(['interval', 'interval']);
+    timeline.tick(3, 1 / 30, {});
+    expect(fixture.executed).toEqual(['interval', 'interval', 'interval']);
+    expect(timeline.isComplete).toBe(true);
+    timeline.tick(4, 1 / 30, {});
     expect(fixture.executed).toEqual(['interval', 'interval', 'interval']);
   });
 
