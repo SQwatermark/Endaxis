@@ -9,6 +9,7 @@ import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { ActionValueOperand, SkillType } from '../../game-data/operatorDefinition';
 import { resolveActionValueOperand } from '../actions/actionBlackboard';
 import { attributeModifierValues } from '../attributes/combatAttributes';
+import { ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE } from '../attributes/operatorAttackAttributes';
 import type { CriticalSampleSource } from '../random/criticalSampleSource';
 import type { SimulationRandomMode } from '../random/simulationRandom';
 import type { CombatReceiptSink } from '../receipt/combatReceipt';
@@ -220,7 +221,19 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       }
       context.applyModifiers('beforeCalculation');
       const calculationAttackAttributes = context.attackerAttributes;
-      context.setCalculationResult(this.#resolveCalculationResult(step, context, operationContext));
+      const attributeDetails: import('./damageScale').AppliedDamageModifier[] = [];
+      const recordAttribute = (side: 'attacker' | 'defender', attribute: string) => {
+        const snapshot =
+          side === 'attacker' ? context.attackerAttributes : context.defenderAttributes;
+        attributeDetails.push(
+          ...[...(snapshot.modifierDetails ?? []), ...context.appliedDamageModifiers].filter(
+            item => item.kind === 'attribute' && item.side === side && item.attribute === attribute,
+          ),
+        );
+      };
+      context.setCalculationResult(
+        this.#resolveCalculationResult(step, context, operationContext, recordAttribute),
+      );
       const scaleAttributeDetails: import('./damageScale').AppliedDamageModifier[] = [];
       injectDamageScaleAttributes(
         context.damageScales,
@@ -259,31 +272,34 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       const finalAttackValue = context.resolveFinalAttackValue();
       const runtimeSnapshot = this.dependencies.resolveNonRandomRuntimeSnapshot(step);
       const criticalOverride = this.dependencies.resolveCriticalOverride?.(step);
-      const formulaInput = resolvePlayerActiveDamageInput({
-        step,
-        finalAttackValue,
-        attacker: context.attackerAttributes,
-        defender: context.defenderAttributes,
-        runtime: {
-          ...runtimeSnapshot,
-          // DamageEnums：Shatter 属于 IgniteDamageSet，不属于 PhysicalInfliction。
-          appliesIgniteDamageMultiplier:
-            runtimeSnapshot.appliesIgniteDamageMultiplier ||
-            (step.parameters.features ?? []).includes('shatter'),
-          appliesPhysicalInflictionDamageMultiplier:
-            runtimeSnapshot.appliesPhysicalInflictionDamageMultiplier ||
-            (step.parameters.features ?? []).includes('physicalInfliction'),
-          criticalSample:
-            criticalOverride === undefined && context.attackerAttributes.criticalRate > 0.00001
-              ? this.dependencies.criticalSamples.nextCriticalSample({
-                  expectedSequenceId: this.dependencies.sourceOperatorId,
-                  ...(this.dependencies.castId === undefined
-                    ? {}
-                    : { castId: this.dependencies.castId }),
-                })
-              : 0,
+      const formulaInput = resolvePlayerActiveDamageInput(
+        {
+          step,
+          finalAttackValue,
+          attacker: context.attackerAttributes,
+          defender: context.defenderAttributes,
+          runtime: {
+            ...runtimeSnapshot,
+            // DamageEnums：Shatter 属于 IgniteDamageSet，不属于 PhysicalInfliction。
+            appliesIgniteDamageMultiplier:
+              runtimeSnapshot.appliesIgniteDamageMultiplier ||
+              (step.parameters.features ?? []).includes('shatter'),
+            appliesPhysicalInflictionDamageMultiplier:
+              runtimeSnapshot.appliesPhysicalInflictionDamageMultiplier ||
+              (step.parameters.features ?? []).includes('physicalInfliction'),
+            criticalSample:
+              criticalOverride === undefined && context.attackerAttributes.criticalRate > 0.00001
+                ? this.dependencies.criticalSamples.nextCriticalSample({
+                    expectedSequenceId: this.dependencies.sourceOperatorId,
+                    ...(this.dependencies.castId === undefined
+                      ? {}
+                      : { castId: this.dependencies.castId }),
+                  })
+                : 0,
+          },
         },
-      });
+        recordAttribute,
+      );
       const damageResult = calculatePlayerActiveDamage(
         criticalOverride === undefined
           ? formulaInput
@@ -344,11 +360,18 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
           actionId: this.dependencies.sourceActionId,
         }),
         appliedDamageModifiers: [
-          ...context.appliedDamageModifiers,
-          ...(context.attackerAttributes.modifierDetails ?? []),
-          ...(context.defenderAttributes.modifierDetails ?? []),
+          // 属性来源在公式实际读取阶段收集，不把完整属性快照当成本次生效加成。
+          ...context.appliedDamageModifiers.filter(item => item.kind !== 'attribute'),
+          ...attributeDetails,
           ...scaleAttributeDetails,
-        ],
+        ].filter(item =>
+          item.kind === 'damageScale'
+            ? item.addition !== 0
+            : item.kind === 'multiplyValue'
+              ? item.multiplier !== 1
+              : item.value !==
+                (item.slot === 'finalMultiplier' || item.slot === 'baseFinalMultiplier' ? 1 : 0),
+        ),
         skillCastInfo: skillCastInfo ?? null,
         executingSkillGroupKey: this.dependencies.executingSkillGroupKey,
         sourceId: this.dependencies.sourceOperatorId,
@@ -462,6 +485,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     step: DamageStep,
     context: PlayerDamageContext,
     operationContext: CombatOperationContext | undefined,
+    recordAttribute: (side: 'attacker' | 'defender', attribute: string) => void,
   ): number {
     if (step.kind === 'dealFixedDamage') {
       return this.#resolveActionValue(
@@ -492,7 +516,21 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
         operationContext,
         'dynamic damage calculation addition',
       );
+      if (step.parameters.calculationAttribute !== undefined)
+        recordAttribute('attacker', step.parameters.calculationAttribute);
       return attributeValue * attackScale + addition;
+    }
+    recordAttribute('attacker', 'Atk');
+    // 复用攻击公式已冻结的四维与系数，零系数四维不构成本次攻击的来源。
+    const detail = context.attackerAttributes.attackDetail;
+    if (detail !== undefined) {
+      for (const attribute of Object.keys(
+        ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE,
+      ) as (keyof typeof ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE)[]) {
+        if (detail.coefficients[attribute] !== 0) recordAttribute('attacker', attribute);
+        if (Math.floor(detail.attributes[attribute]) !== 0)
+          recordAttribute('attacker', ATTACK_FACTOR_ATTRIBUTE_BY_OPERATOR_ATTRIBUTE[attribute]);
+      }
     }
     if (step.parameters.calculation !== 'breakingAttack') {
       return context.attackerAttributes.attack * attackScale;

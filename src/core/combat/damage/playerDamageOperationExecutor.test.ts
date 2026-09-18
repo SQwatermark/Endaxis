@@ -56,6 +56,190 @@ function createAttributeSnapshots(attack = 100, defense = 0, criticalRate = 0) {
 }
 
 describe('PlayerDamageOperationExecutor', () => {
+  it.each([
+    ['electric', 'standard'],
+    ['nature', 'standard'],
+    ['true', 'standard'],
+    ['electric', 'fixed'],
+    ['electric', 'attribute'],
+  ] as const)(
+    'records attributes used by %s / %s at their calculation stage',
+    (damageType, calculation) => {
+      const snapshots = createAttributeSnapshots();
+      let afterCalculation = false;
+      const receipt = new CombatReceiptCollector();
+      const attribute = (
+        name: string,
+        side: 'attacker' | 'defender',
+        value: number,
+      ): import('./damageScale').AppliedDamageModifier => ({
+        kind: 'attribute',
+        buffId: `${side}:${name}`,
+        sourceId: 'support',
+        side,
+        attribute: name,
+        slot: 'baseAddition',
+        value,
+      });
+      const targetVitals = new CombatVitals({
+        health: 2000,
+        maxHealth: 2000,
+        maxPoise: 0,
+        poise: 0,
+        poiseRecoveryTime: 0,
+        poiseRecoveryTimeMultiplier: 1,
+        poiseBrokenEndTime: 0,
+        poiseImmune: false,
+      });
+      const executor = new PlayerDamageOperationExecutor({
+        sourceOperatorId: 'operator',
+        targetId: 'enemy',
+        targetVitals,
+        clock: new CombatClock(),
+        receipt,
+        captureAttributeSnapshots: () => ({
+          attacker: {
+            ...snapshots.attacker,
+            calculationAttributeValue: 100,
+            attackDetail: {
+              panelAttack: 100,
+              operatorBaseAttack: 100,
+              weaponBaseAttack: 0,
+              attackPercent: 0,
+              flatAttack: 0,
+              mainAttribute: 'strength',
+              secondaryAttribute: 'agility',
+              attributes: { strength: 10, agility: 10, intellect: 0, will: 10 },
+              coefficients: { strength: 0.01, agility: 0.005, intellect: 0, will: 0 },
+            },
+            electricEnhancedDamageIncrease: 0.2,
+            natureEnhancedDamageIncrease: 0.3,
+            modifierDetails: [
+              attribute('Atk', 'attacker', afterCalculation ? 99 : 10),
+              attribute('strength', 'attacker', 5),
+              attribute('will', 'attacker', 5),
+              attribute('AtkIncreaseFactorFromWill', 'attacker', 0.01),
+              attribute('AtkIncreaseFactorFromWisd', 'attacker', 0.01),
+              attribute('Def', 'attacker', 12),
+              attribute('SlowActionSpeedScalar', 'attacker', 0.2),
+              attribute('healOutputIncrease', 'attacker', 0.4),
+              attribute('criticalRate', 'attacker', afterCalculation ? 0.2 : 0.1),
+              attribute('electricEnhancedDamageIncrease', 'attacker', 0.2),
+              attribute('natureEnhancedDamageIncrease', 'attacker', 0.3),
+              attribute('comboSkillDamageIncrease', 'attacker', 0.8),
+              attribute('damageToStaggeredEnemyIncrease', 'attacker', 0.9),
+              attribute('normalSkillDamageIncrease', 'attacker', 0),
+            ],
+          },
+          defender: {
+            ...snapshots.defender,
+            natureVulnerabilityIncrease: 0.1,
+            modifierDetails: [
+              attribute('natureVulnerabilityIncrease', 'defender', 0.1),
+              attribute('PulseResistance', 'defender', 10),
+              attribute('NaturalResistance', 'defender', 20),
+              attribute('weaknessDamageMultiplier', 'defender', 0.2),
+            ],
+          },
+        }),
+        criticalSamples: { nextCriticalSample: () => 1 },
+        resolveNonRandomRuntimeSnapshot: () => ({
+          runtimeExtensionMultiplier: 1,
+          appliesIgniteDamageMultiplier: false,
+          appliesPhysicalInflictionDamageMultiplier: false,
+        }),
+        applyDamageModifiers: (timing, side, context) => {
+          if (timing !== 'afterCalculation' || side !== 'attacker') return;
+          afterCalculation = true;
+          context.appliedDamageModifiers.push(
+            {
+              kind: 'damageScale',
+              buffId: 'zero',
+              sourceId: 'support',
+              side,
+              zone: 'normal',
+              addition: 0,
+            },
+            { kind: 'multiplyValue', buffId: 'identity', sourceId: 'support', side, multiplier: 1 },
+          );
+        },
+        addInstantAttributeModifier: () => undefined,
+        clearInstantAttributeModifiers: () => undefined,
+        emitPreparationEvent: () => undefined,
+        resolvePoiseMultipliers: () => ({ output: 1, taken: 1 }),
+        emitHealthSourceEvent: () => undefined,
+        emitHealthTargetEvent: () => undefined,
+        emitPoiseSourceEvent: () => undefined,
+        emitPoiseTargetEvent: () => undefined,
+        delegate: { execute: () => false, evaluate: () => false },
+      });
+      executor.execute(
+        calculation === 'fixed'
+          ? {
+              kind: 'dealFixedDamage',
+              parameters: { damageType, value: 400, tags: ['normalSkill'] },
+            }
+          : {
+              ...DAMAGE_STEP,
+              parameters: {
+                ...DAMAGE_STEP.parameters,
+                damageType,
+                stagger: undefined,
+                calculation,
+                ...(calculation === 'attribute' ? { calculationAttribute: 'Def' } : {}),
+              },
+            },
+      );
+      const hit = receipt.entries.find(entry => entry.event === 'DamageApplied')!;
+      expect(hit.appliedDamageModifiers).toEqual([
+        ...(calculation === 'fixed'
+          ? []
+          : [
+              attribute(
+                calculation === 'attribute' ? 'Def' : 'Atk',
+                'attacker',
+                calculation === 'attribute' ? 12 : 10,
+              ),
+            ]),
+        ...(calculation === 'standard'
+          ? [
+              attribute('strength', 'attacker', 5),
+              attribute('AtkIncreaseFactorFromWill', 'attacker', 0.01),
+            ]
+          : []),
+        attribute('criticalRate', 'attacker', 0.2),
+        ...(damageType === 'true'
+          ? []
+          : [
+              attribute(
+                damageType === 'electric' ? 'PulseResistance' : 'NaturalResistance',
+                'defender',
+                damageType === 'electric' ? 10 : 20,
+              ),
+            ]),
+        ...(damageType === 'true'
+          ? []
+          : [
+              {
+                ...attribute(
+                  `${damageType}EnhancedDamageIncrease`,
+                  'attacker',
+                  damageType === 'electric' ? 0.2 : 0.3,
+                ),
+                zone: 'enhanced',
+              },
+            ]),
+        ...(damageType === 'nature'
+          ? [{ ...attribute('natureVulnerabilityIncrease', 'defender', 0.1), zone: 'vulnerable' }]
+          : []),
+      ]);
+      const expected =
+        400 * (damageType === 'true' ? 1 : damageType === 'electric' ? 1.2 : 1.3 * 1.1);
+      expect(hit.data?.value).toBeCloseTo(expected);
+      expect(targetVitals.health).toBeCloseTo(2000 - expected);
+    },
+  );
+
   function runCriticalPolicy(
     randomMode: 'expected' | 'sampled',
     override?: boolean,

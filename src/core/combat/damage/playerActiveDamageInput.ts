@@ -10,6 +10,15 @@ import {
 } from './playerActiveDamage';
 export type { ResistibleDamageType } from './playerActiveDamage';
 
+export const ENEMY_RESISTANCE_ATTRIBUTES = {
+  physical: 'PhysicalResistance',
+  heat: 'FireResistance',
+  electric: 'PulseResistance',
+  cryo: 'CrystResistance',
+  nature: 'NaturalResistance',
+  ether: 'EtherResistance',
+} as const;
+
 /** 目标在一次命中开始时冻结的各类伤害抗性。 */
 export interface DamageResistanceSnapshot {
   readonly percent: number;
@@ -61,13 +70,10 @@ export interface ResolvePlayerActiveDamageInput {
 }
 
 /** 在所有修正阶段完成后解析已还原的标准攻击倍率路径。 */
-export function resolvePlayerActiveDamageInput({
-  step,
-  finalAttackValue,
-  attacker,
-  defender,
-  runtime,
-}: ResolvePlayerActiveDamageInput): PlayerActiveDamageInput {
+export function resolvePlayerActiveDamageInput(
+  { step, finalAttackValue, attacker, defender, runtime }: ResolvePlayerActiveDamageInput,
+  recordAttribute?: (side: 'attacker' | 'defender', attribute: string) => void,
+): PlayerActiveDamageInput {
   if (step.kind === 'dealDamage' && step.parameters.attackScalePerStatusStack !== undefined) {
     throw new Error('status-stack attack scale must be resolved before damage input construction');
   }
@@ -78,6 +84,14 @@ export function resolvePlayerActiveDamageInput({
   const resistance = usesDamageResistance(step.parameters.damageType)
     ? defender.resistances[step.parameters.damageType]
     : { percent: 0, damageTakenMultiplier: 1 };
+
+  // 命中同时发布实际与期望暴击读数，保留这两项的直接来源。
+  recordAttribute?.('attacker', 'criticalRate');
+  recordAttribute?.('attacker', 'criticalDamageIncrease');
+  recordAttribute?.('attacker', 'weaknessDamageMultiplier');
+  recordAttribute?.('defender', 'shelterDamageMultiplier');
+  if (usesDamageResistance(step.parameters.damageType))
+    recordAttribute?.('defender', ENEMY_RESISTANCE_ATTRIBUTES[step.parameters.damageType]);
 
   return {
     finalAttackValue,

@@ -10,6 +10,7 @@ import type {
   UpgradeStaticDamageIncreaseTarget,
 } from '../../game-data/operatorDefinition';
 import type { PlayerDamageDefenderSnapshot } from './playerActiveDamageInput';
+import { ENEMY_RESISTANCE_ATTRIBUTES } from './playerActiveDamageInput';
 import {
   DAMAGE_SCALE_ATTRIBUTE_KEYS,
   type DamageScaleAttributeKey,
@@ -22,15 +23,6 @@ import { resolveOperatorAttack } from '../attributes/operatorAttackAttributes';
 import { captureAttackReceiptSnapshot } from './attackReceiptDetail';
 
 type DamageStep = ResolvedCombatStepForKind<'dealDamage' | 'dealFixedDamage'>;
-
-const ENEMY_RESISTANCE_ATTRIBUTES = {
-  physical: 'PhysicalResistance',
-  heat: 'FireResistance',
-  electric: 'PulseResistance',
-  cryo: 'CrystResistance',
-  nature: 'NaturalResistance',
-  ether: 'EtherResistance',
-} as const;
 
 /** 安装敌人的抗性及伤害区间属性，Buff 修改与命中快照必须读取同一属性集。 */
 export function initializeEnemyCombatAttributes(
