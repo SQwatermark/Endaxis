@@ -3806,12 +3806,16 @@ function openExistingMarkerContextMenu(
 const creatingInheritedScenario = ref(false);
 async function inheritFromContext(): Promise<void> {
   const target = markerContextTarget.value;
-  if (target === null || creatingInheritedScenario.value) return;
+  if (target?.existing?.kind !== 'cycleBoundary' || creatingInheritedScenario.value) return;
+  const boundary = scenario.value.battle.cycleBoundaries.find(
+    item => item.id === target.existing?.id,
+  );
+  if (boundary === undefined) return;
   const project = projectSession.snapshot.project;
   if (project.scenarios.length >= MAX_PROJECT_SCENARIOS) return;
   const source = scenario.value;
   const revision = projectRevision.value;
-  const frame = target.frame;
+  const frame = boundary.frame;
   markerContextTarget.value = null;
   creatingInheritedScenario.value = true;
   const loading = ElLoading.service({ text: t('inheritance.createHere'), lock: true });
@@ -6809,6 +6813,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @set-color="setContextCastColor"
   />
   <TimelineMarkerContextMenu
+    :cycle-boundary="markerContextTarget?.existing?.kind === 'cycleBoundary'"
     :inheritance-boundary="
       configurationReadOnly && markerContextTarget?.existing?.kind === 'simulationStart'
     "

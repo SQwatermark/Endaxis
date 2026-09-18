@@ -9,6 +9,7 @@ const { t } = useI18n({ useScope: 'global' });
 const props = defineProps<{
   readOnly?: boolean;
   inheritanceBoundary?: boolean;
+  cycleBoundary?: boolean;
   sourceAvailable?: boolean;
   canInherit?: boolean;
   visible: boolean;
@@ -107,15 +108,17 @@ onBeforeUnmount(() => {
         </EaButton>
       </template>
       <EaButton
-        v-if="!inheritanceBoundary"
+        v-if="cycleBoundary && !inheritanceBoundary"
         type="button"
         role="menuitem"
         class="menu-item"
         :disabled="canInherit === false"
         @click="$emit('inherit')"
       >
+        <span class="menu-icon" aria-hidden="true">⟲</span>
         <span>{{ t('inheritance.createHere') }}</span>
       </EaButton>
+      <div v-if="cycleBoundary && !inheritanceBoundary" class="divider"></div>
       <fieldset v-if="!inheritanceBoundary" :disabled="readOnly" class="menu-actions">
         <template v-if="existingLabel">
           <EaButton type="button" role="menuitem" class="menu-item danger" @click="$emit('delete')">

@@ -6,7 +6,7 @@
     "history": "History before {time} is read-only. Build and battle configuration are locked.",
     "source": "View source scenario",
     "sourceMissing": "Source scenario unavailable",
-    "createHere": "Create inherited scenario here",
+    "createHere": "Inherit and create a new scenario",
     "name": "{name} (inherited)",
     "changed": "The scenario changed. Select the inheritance point again.",
     "failed": "Failed to create inherited scenario",
