@@ -12,7 +12,7 @@ import { poiseProgressPoints, poiseDisplayPoints, spDisplayPoints } from './reso
 import type { SharedSpCurve } from '../../../core/projection/resourceCurves';
 import type { EnemyHealthCurve } from '../../../core/projection/enemyHealthCurves';
 import type { PoiseCurve } from '../../../core/projection/poiseCurves';
-import type { PoiseBrokenSegment } from '../../../core/projection/poiseCurves';
+import type { PoiseBrokenSegment, PoiseKnotSegment } from '../../../core/projection/poiseCurves';
 import { frameToTimelinePx } from '../timelineGeometry';
 import TimelineMonitorGrid from './TimelineMonitorGrid.vue';
 
@@ -30,6 +30,8 @@ const props = defineProps<{
   enemyHealthCurve?: EnemyHealthCurve | null;
   poiseCurve?: PoiseCurve | null;
   poiseBrokenSegments?: readonly PoiseBrokenSegment[];
+  poiseKnotSegments?: readonly PoiseKnotSegment[];
+  poiseKnotThresholds?: readonly number[];
   enemyHealthLabel?: string;
   poiseLabel?: string;
   spLabel?: string;
@@ -330,9 +332,16 @@ const spWarnings = computed(() => {
           >
           <span v-if="row.kind === 'poise'" class="label-readout-bar">
             <i
+              class="label-readout-fill"
               :style="{
                 width: `${Math.max(0, Math.min(1, readoutValue(row) / Math.max(1, row.maxValue))) * 100}%`,
               }"
+            ></i>
+            <i
+              v-for="threshold in poiseKnotThresholds ?? []"
+              :key="threshold"
+              class="label-readout-knot"
+              :style="{ left: `${threshold * 100}%` }"
             ></i>
           </span>
         </template>
@@ -344,6 +353,7 @@ const spWarnings = computed(() => {
           rowHeight(row),
           row.points,
           poiseBrokenSegments,
+          poiseKnotSegments,
           poiseBrokenLabel,
           prepExpanded,
           prepEndFrame,
@@ -385,6 +395,17 @@ const spWarnings = computed(() => {
             <rect width="10" height="10" fill="#ff9c6e" fill-opacity="0.1" />
             <rect width="2" height="10" fill="#ffd591" fill-opacity="0.6" />
           </pattern>
+          <pattern
+            v-if="row.kind === 'poise'"
+            id="poise-knot-pattern"
+            width="8"
+            height="8"
+            patternUnits="userSpaceOnUse"
+            patternTransform="rotate(45)"
+          >
+            <rect width="8" height="8" fill="#fa8c16" fill-opacity="0.05" />
+            <rect width="2" height="8" fill="#fa8c16" fill-opacity="0.5" />
+          </pattern>
         </defs>
         <template v-if="row.kind === 'sp'">
           <line
@@ -412,6 +433,16 @@ const spWarnings = computed(() => {
           </text>
         </template>
         <g v-if="row.kind === 'poise'">
+          <rect
+            v-for="segment in poiseKnotSegments ?? []"
+            :key="`knot:${segment.startFrame}:${segment.endFrame}`"
+            :x="pointX(segment.startFrame)"
+            y="0"
+            :width="Math.max(0, pointX(segment.endFrame) - pointX(segment.startFrame))"
+            :height="rowHeight(row)"
+            fill="url(#poise-knot-pattern)"
+            class="poise-knot-zone"
+          />
           <g
             v-for="segment in poiseBrokenSegments ?? []"
             :key="`${segment.startFrame}:${segment.endFrame}`"
@@ -590,6 +621,7 @@ const spWarnings = computed(() => {
 }
 
 .label-readout-bar {
+  position: relative;
   display: block;
   width: 100%;
   height: 5px;
@@ -598,11 +630,22 @@ const spWarnings = computed(() => {
   background: var(--ea-fill-soft, rgb(255 255 255 / 8%));
 }
 
-.label-readout-bar i {
+.label-readout-fill {
   display: block;
   height: 100%;
   background: #d46b08;
   transition: width 0.16s ease;
+}
+
+.label-readout-knot {
+  position: absolute;
+  top: 0;
+  width: 2px;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid #f5c89a;
+  background: #4c362b;
+  transform: translateX(-50%);
 }
 
 .resource-control-row {
@@ -686,6 +729,19 @@ const spWarnings = computed(() => {
 
 .poise-broken-zone {
   animation: poise-broken-flash 2s infinite alternate;
+}
+
+.poise-knot-zone {
+  animation: poise-knot-pulse 1.5s infinite alternate;
+}
+
+@keyframes poise-knot-pulse {
+  0% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 0.8;
+  }
 }
 
 .poise-broken-label {

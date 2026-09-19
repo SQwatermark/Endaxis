@@ -262,7 +262,7 @@ function seek(event: MouseEvent): void {
         :key="tick.key"
         class="tick"
         :class="`tick--${tick.type}`"
-        :style="{ left: `${tick.left}px` }"
+        :style="{ left: `${Math.round(tick.left)}px` }"
       >
         <span v-if="tick.label" class="tick-label">{{ tick.label }}</span>
       </span>
@@ -507,6 +507,7 @@ function seek(event: MouseEvent): void {
   width: 1px;
   background: var(--ea-mark);
   transform: translateX(-0.5px);
+  image-rendering: pixelated;
   pointer-events: none;
 }
 
@@ -516,13 +517,19 @@ function seek(event: MouseEvent): void {
   background: var(--ea-mark-strong);
 }
 
+.tick--major {
+  z-index: 2;
+}
+
 .tick--majorDim {
   background: var(--ea-mark);
+  z-index: 1;
 }
 
 .tick--minor {
   height: 10px;
   background: var(--ea-mark-major);
+  z-index: 1;
 }
 
 .tick--frame {
@@ -575,7 +582,11 @@ function seek(event: MouseEvent): void {
   bottom: 0;
   left: 6px;
   width: 2px;
-  background: var(--ea-mark-strong);
+  background: color-mix(in srgb, var(--ea-mark-strong) 70%, transparent);
+}
+
+.axis-boundary--end::before {
+  background: rgb(0 229 255 / 55%);
 }
 
 .axis-boundary button {

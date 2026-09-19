@@ -32,7 +32,11 @@ it.each(['repeat', 'convert', 'consume'])(
       initialState: { ultimateEnergy: 0 },
       skillCasts: [1, 100].map((startFrame, index) => ({
         id: `cast:${index}`,
-        source: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'battleSkill',
+          skillKey: 'chr_0004_pelica_normal_skill',
+        },
         placement: { startFrame },
       })),
     };
@@ -41,13 +45,24 @@ it.each(['repeat', 'convert', 'consume'])(
       second.id = 'track:1';
       second.operator!.operatorSlug = mode === 'consume' ? 'perlica' : 'wulfgard';
       second.skillCasts = second.skillCasts.slice(1);
+      if (mode === 'convert' && second.skillCasts[0]?.source.kind === 'operatorSkill') {
+        second.skillCasts[0].source.skillKey = 'chr_0006_wolfgd_normal_skill';
+      }
       scenario.tracks[1] = second;
       scenario.tracks[0]!.skillCasts = scenario.tracks[0]!.skillCasts.slice(0, 1);
       if (mode === 'consume') {
         scenario.tracks[0]!.operator!.operatorSlug = 'wulfgard';
+        const firstSource = scenario.tracks[0]!.skillCasts[0]?.source;
+        if (firstSource?.kind === 'operatorSkill') {
+          firstSource.skillKey = 'chr_0006_wolfgd_normal_skill';
+        }
         const third = structuredClone(second);
         third.id = 'track:2';
         third.operator!.operatorSlug = 'arclight';
+        const thirdSource = third.skillCasts[0]?.source;
+        if (thirdSource?.kind === 'operatorSkill') {
+          thirdSource.skillKey = 'chr_0007_ikut_normal_skill';
+        }
         third.skillCasts[0]!.id = 'cast:consume';
         third.skillCasts[0]!.placement.startFrame = 180;
         scenario.tracks[2] = third;

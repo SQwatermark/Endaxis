@@ -1073,7 +1073,7 @@ export function createSkillEditorStep(
         },
       };
     case 'overrideBasicAttackMapping':
-      return { kind, parameters: { sourceSkillId: 'custom-native-skill' } };
+      return { kind, parameters: { skillId: 'custom-native-skill' } };
     case 'changePlayerActionMode':
       return { kind, parameters: { modeId: 'custom-mode', lifetime: 'finishByAction' } };
     case 'changeNativeSkillType':

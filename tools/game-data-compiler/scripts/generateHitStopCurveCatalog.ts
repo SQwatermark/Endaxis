@@ -6,6 +6,7 @@ import {
   renderHitStopCurveCatalogModule,
 } from '../src/source/hitStopCurveCatalog.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 
 export async function generateHitStopCurveCatalog(args: {
   readonly sourceUrl: string;
@@ -27,7 +28,7 @@ export async function generateHitStopCurveCatalog(args: {
   if (typeof preview.text !== 'string')
     throw new Error(`${args.sourceUrl}: missing TypeTree dump text`);
   const source = parseHitStopCurveCatalogDumpSource(preview.text, args.sourceUrl);
-  const content = renderHitStopCurveCatalogModule(source);
+  const content = await formatGeneratedSource(renderHitStopCurveCatalogModule(source), args.output);
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content)
       throw new Error(`${args.output}: generated HitStop curve catalog is stale`);

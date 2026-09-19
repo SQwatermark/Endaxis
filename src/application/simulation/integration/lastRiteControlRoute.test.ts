@@ -22,17 +22,29 @@ it.each([null, 0])('别礼开场普攻夹战技：切入帧 %s 决定旁路，�
     skillCasts: [
       {
         id: 'a1',
-        source: { kind: 'operatorSkill', skillGroupKey: 'basicAttack', skillKey: 'basicAttack1' },
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'basicAttack',
+          skillKey: 'chr_0026_lastrite_attack1',
+        },
         placement: { startFrame: 3 },
       },
       {
         id: 'battle',
-        source: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'battleSkill',
+          skillKey: 'chr_0026_lastrite_normal_skill',
+        },
         placement: { startFrame: 16 },
       },
       {
         id: 'a2',
-        source: { kind: 'operatorSkill', skillGroupKey: 'basicAttack', skillKey: 'basicAttack2' },
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'basicAttack',
+          skillKey: 'chr_0026_lastrite_attack2',
+        },
         placement: { startFrame: 24 },
       },
     ],
@@ -67,7 +79,7 @@ it.each([null, 0])('别礼开场普攻夹战技：切入帧 %s 决定旁路，�
   expect(
     run.receiptEntries.find(e => e.event === 'SkillInputProcessed' && e.data?.castId === 'a2')
       ?.data,
-  ).toMatchObject({ skillId: 'basicAttack2', accepted: true });
+  ).toMatchObject({ skillId: 'chr_0026_lastrite_attack2', accepted: true });
   expect(run.receiptEntries.some(e => e.frame < 0)).toBe(false);
   expect(scenario).toEqual(before);
 });

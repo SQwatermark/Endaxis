@@ -42,8 +42,12 @@ describe('next Zhuang Fangyi definition', () => {
     ]);
     const battle = zhuangFangyi.skillGroups.find(group => group.key === 'battleSkill');
     const combo = zhuangFangyi.skillGroups.find(group => group.key === 'comboSkill');
-    expect(battle?.replacementSkills?.map(skill => skill.key)).toEqual(['enhancedBattleSkill']);
-    expect(combo?.replacementSkills?.map(skill => skill.key)).toEqual(['enhancedComboSkill']);
+    expect(battle?.replacementSkills?.map(skill => skill.key)).toEqual([
+      'chr_0030_zhuangfy_normal_skill_ult',
+    ]);
+    expect(combo?.replacementSkills?.map(skill => skill.key)).toEqual([
+      'chr_0030_zhuangfy_combo_skill_ult',
+    ]);
 
     const skills = zhuangFangyi.skillGroups.flatMap(group => [
       ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
@@ -67,14 +71,14 @@ describe('next Zhuang Fangyi definition', () => {
     expect(ultimateBuff?.skillSlotReplacements).toEqual([
       {
         skillGroupKey: 'battleSkill',
-        targetSkillKey: 'enhancedBattleSkill',
-        revertedSkillKey: 'battleSkill',
+        targetSkillKey: 'chr_0030_zhuangfy_normal_skill_ult',
+        revertedSkillKey: 'chr_0030_zhuangfy_normal_skill',
         inheritOriginSkillCooldownProgress: false,
       },
       {
         skillGroupKey: 'comboSkill',
-        targetSkillKey: 'enhancedComboSkill',
-        revertedSkillKey: 'comboSkill',
+        targetSkillKey: 'chr_0030_zhuangfy_combo_skill_ult',
+        revertedSkillKey: 'chr_0030_zhuangfy_combo_skill',
         inheritOriginSkillCooldownProgress: true,
       },
     ]);

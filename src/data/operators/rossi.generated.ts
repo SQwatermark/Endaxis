@@ -585,10 +585,9 @@ const sharedActionSequence4: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0028_wulfa_attack1',
+    key: 'chr_0028_wulfa_attack1',
     timelineBlockFrames: 9,
     naturalDurationFrames: 139,
     exclusiveFrame: 15,
@@ -599,12 +598,10 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 3,
           endFrame: 34,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0028_wulfa_attack2',
+          targetSkillId: 'chr_0028_wulfa_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 9, endFrame: 34, sourceSkillIds: ['chr_0028_wulfa_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 9, endFrame: 34, skillIds: ['chr_0028_wulfa_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -649,13 +646,11 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         9,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0028_wulfa_attack2'] })),
         34,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack2',
+    timelineContinuationSkillId: 'chr_0028_wulfa_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -663,10 +658,9 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.27, 0.3, 0.32, 0.35, 0.38, 0.41, 0.43, 0.46, 0.49, 0.52, 0.56, 0.61] },
 );
 
-export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0028_wulfa_attack2',
+    key: 'chr_0028_wulfa_attack2',
     timelineBlockFrames: 12,
     naturalDurationFrames: 151,
     exclusiveFrame: 20,
@@ -677,12 +671,10 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 4,
           endFrame: 35,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0028_wulfa_attack3',
+          targetSkillId: 'chr_0028_wulfa_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 34, sourceSkillIds: ['chr_0028_wulfa_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 34, skillIds: ['chr_0028_wulfa_attack3'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -756,13 +748,11 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         12,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0028_wulfa_attack3'] })),
         34,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack3',
+    timelineContinuationSkillId: 'chr_0028_wulfa_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -774,10 +764,9 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0028_wulfa_attack3',
+    key: 'chr_0028_wulfa_attack3',
     timelineBlockFrames: 15,
     naturalDurationFrames: 209,
     exclusiveFrame: 25,
@@ -788,12 +777,10 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 5,
           endFrame: 35,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0028_wulfa_attack4',
+          targetSkillId: 'chr_0028_wulfa_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 15, endFrame: 36, sourceSkillIds: ['chr_0028_wulfa_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 15, endFrame: 36, skillIds: ['chr_0028_wulfa_attack4'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -879,13 +866,11 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         15,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0028_wulfa_attack4'] })),
         36,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack4',
+    timelineContinuationSkillId: 'chr_0028_wulfa_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -897,10 +882,9 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0028_wulfa_attack4',
+    key: 'chr_0028_wulfa_attack4',
     timelineBlockFrames: 36,
     naturalDurationFrames: 329,
     exclusiveFrame: 239,
@@ -911,18 +895,18 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 18,
           endFrame: 65,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0028_wulfa_attack5',
+          targetSkillId: 'chr_0028_wulfa_attack5',
         },
         {
           startFrame: 207,
           endFrame: 246,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0028_wulfa_attack5',
+          targetSkillId: 'chr_0028_wulfa_attack5',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 36, endFrame: 67, sourceSkillIds: ['chr_0028_wulfa_attack5'] },
-        { startFrame: 225, endFrame: 250, sourceSkillIds: ['chr_0028_wulfa_attack5'] },
+        { startFrame: 36, endFrame: 67, skillIds: ['chr_0028_wulfa_attack5'] },
+        { startFrame: 225, endFrame: 250, skillIds: ['chr_0028_wulfa_attack5'] },
       ],
     },
     costFrame: 8,
@@ -1254,20 +1238,16 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
       scheduled(188, sequence(step('finishTimeline', {})), 189),
       scheduled(
         36,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0028_wulfa_attack5'] })),
         67,
       ),
       scheduled(
         225,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0028_wulfa_attack5'] })),
         250,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack5',
+    timelineContinuationSkillId: 'chr_0028_wulfa_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1279,10 +1259,9 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0028_wulfa_attack5',
+    key: 'chr_0028_wulfa_attack5',
     timelineBlockFrames: 31,
     naturalDurationFrames: 146,
     exclusiveFrame: 30,
@@ -1293,12 +1272,10 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 27,
           endFrame: 60,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0028_wulfa_attack1',
+          targetSkillId: 'chr_0028_wulfa_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 45, endFrame: 60, sourceSkillIds: ['chr_0028_wulfa_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 45, endFrame: 60, skillIds: ['chr_0028_wulfa_attack1'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -1421,13 +1398,11 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         45,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0028_wulfa_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0028_wulfa_attack1'] })),
         60,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0028_wulfa_attack1',
+    timelineContinuationSkillId: 'chr_0028_wulfa_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1440,10 +1415,9 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiFinisher: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0028_wulfa_power_attack',
+    key: 'chr_0028_wulfa_power_attack',
     timelineBlockFrames: 66,
     naturalDurationFrames: 216,
     exclusiveFrame: 65,
@@ -1592,10 +1566,9 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0028_wulfa_plunging_attack_end',
+    key: 'chr_0028_wulfa_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 161,
     exclusiveFrame: 20,
@@ -1640,10 +1613,9 @@ export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0028_wulfa_normal_skill',
+    key: 'chr_0028_wulfa_normal_skill',
     timelineBlockFrames: 38,
     naturalDurationFrames: 475,
     exclusiveFrame: 272,
@@ -1653,7 +1625,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 38,
           endFrame: 56,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0028_wulfa_normal_skill',
             'chr_0028_wulfa_combo_2_skill',
             'chr_0028_wulfa_combo_3_skill',
@@ -1662,7 +1634,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 258,
           endFrame: 277,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0028_wulfa_normal_skill',
             'chr_0028_wulfa_combo_2_skill',
             'chr_0028_wulfa_combo_3_skill',
@@ -2757,10 +2729,9 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_combo_2_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill2',
-    sourceSkillId: 'chr_0028_wulfa_combo_2_skill',
+    key: 'chr_0028_wulfa_combo_2_skill',
     timelineBlockFrames: 37,
     naturalDurationFrames: 198,
     exclusiveFrame: 65,
@@ -2770,7 +2741,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 37,
           endFrame: 65,
-          sourceSkillIds: ['chr_0028_wulfa_normal_skill', 'chr_0028_wulfa_combo_3_skill'],
+          skillIds: ['chr_0028_wulfa_normal_skill', 'chr_0028_wulfa_combo_3_skill'],
         },
       ],
     },
@@ -3046,10 +3017,10 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
             sequence(
               step('changeSkillSlot', {
                 skillGroupKey: 'comboSkill',
-                targetSkillKey: 'comboSkill3',
+                targetSkillKey: 'chr_0028_wulfa_combo_3_skill',
                 inheritOriginSkillCooldownProgress: false,
                 lifetime: 'infinite',
-                revertedSkillKey: 'comboSkill2',
+                revertedSkillKey: 'chr_0028_wulfa_combo_2_skill',
               }),
             ),
           ),
@@ -3194,18 +3165,17 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_combo_3_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill3',
-    sourceSkillId: 'chr_0028_wulfa_combo_3_skill',
+    key: 'chr_0028_wulfa_combo_3_skill',
     timelineBlockFrames: 52,
     naturalDurationFrames: 409,
     exclusiveFrame: 259,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 52, endFrame: 72, sourceSkillIds: ['chr_0028_wulfa_normal_skill'] },
-        { startFrame: 249, endFrame: 269, sourceSkillIds: ['chr_0028_wulfa_normal_skill'] },
+        { startFrame: 52, endFrame: 72, skillIds: ['chr_0028_wulfa_normal_skill'] },
+        { startFrame: 249, endFrame: 269, skillIds: ['chr_0028_wulfa_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -3657,7 +3627,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
           }),
           step('changeSkillSlot', {
             skillGroupKey: 'comboSkill',
-            targetSkillKey: 'comboSkill2',
+            targetSkillKey: 'chr_0028_wulfa_combo_2_skill',
             inheritOriginSkillCooldownProgress: false,
             lifetime: 'infinite',
           }),
@@ -4521,10 +4491,9 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiUltimate: SkillDefinition = withSkillBlackboard(
+export const rossiChr_0028_wulfa_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0028_wulfa_ultimate_skill',
+    key: 'chr_0028_wulfa_ultimate_skill',
     timelineBlockFrames: 156,
     naturalDurationFrames: 311,
     exclusiveFrame: 155,
@@ -5401,10 +5370,9 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const rossiPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const rossiCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -5441,65 +5409,79 @@ export const rossi: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        rossiBasicAttack1,
-        rossiBasicAttack2,
-        rossiBasicAttack3,
-        rossiBasicAttack4,
-        rossiBasicAttack5,
+        rossiChr_0028_wulfa_attack1,
+        rossiChr_0028_wulfa_attack2,
+        rossiChr_0028_wulfa_attack3,
+        rossiChr_0028_wulfa_attack4,
+        rossiChr_0028_wulfa_attack5,
       ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: rossiFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: rossiChr_0028_wulfa_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: rossiPlungingAttack,
+      skills: rossiChr_0028_wulfa_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: rossiBattleSkill,
+      skills: rossiChr_0028_wulfa_normal_skill,
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: rossiComboSkill2,
-      placementSequenceSkillKeys: ['comboSkill2', 'comboSkill3'],
-      replacementSkills: [rossiComboSkill3],
+      skills: rossiChr_0028_wulfa_combo_2_skill,
+      placementSequenceSkillKeys: ['chr_0028_wulfa_combo_2_skill', 'chr_0028_wulfa_combo_3_skill'],
+      replacementSkills: [rossiChr_0028_wulfa_combo_3_skill],
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: rossiUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: rossiChr_0028_wulfa_ultimate_skill,
+    },
   ],
-  dodgeSkill: rossiPerfectDodge,
+  dodgeSkill: rossiCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill2', replacementSkillKeys: ['comboSkill3'] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0028_wulfa_normal_skill', replacementSkillKeys: [] },
+    {
+      key: 'comboSkill',
+      baseSkillKey: 'chr_0028_wulfa_combo_2_skill',
+      replacementSkillKeys: ['chr_0028_wulfa_combo_3_skill'],
+    },
+    { key: 'ultimate', baseSkillKey: 'chr_0028_wulfa_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'finisher',
-        'plungingAttack',
+        'chr_0028_wulfa_attack1',
+        'chr_0028_wulfa_attack2',
+        'chr_0028_wulfa_attack3',
+        'chr_0028_wulfa_attack4',
+        'chr_0028_wulfa_attack5',
+        'chr_0028_wulfa_power_attack',
+        'chr_0028_wulfa_plunging_attack_end',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0028_wulfa_attack1',
+        'chr_0028_wulfa_attack2',
+        'chr_0028_wulfa_attack3',
+        'chr_0028_wulfa_attack4',
+        'chr_0028_wulfa_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0028_wulfa_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -5508,7 +5490,7 @@ export const rossi: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill2',
+      skillKey: 'chr_0028_wulfa_combo_2_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,
@@ -5542,7 +5524,7 @@ export const rossi: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill2',
+      skillKey: 'chr_0028_wulfa_combo_2_skill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,
@@ -5715,7 +5697,7 @@ export const rossi: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0028_wulfa_combo_2_skill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
           value: 1.15,
@@ -5723,7 +5705,7 @@ export const rossi: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill3',
+          skillKey: 'chr_0028_wulfa_combo_3_skill',
           blackboardKey: 'atk_scale_s',
           operation: 'multiply',
           value: 1.15,
@@ -5731,7 +5713,7 @@ export const rossi: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill3',
+          skillKey: 'chr_0028_wulfa_combo_3_skill',
           blackboardKey: 'atk_scale_f',
           operation: 'multiply',
           value: 1.15,
@@ -5739,7 +5721,7 @@ export const rossi: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill3',
+          skillKey: 'chr_0028_wulfa_combo_3_skill',
           blackboardKey: 'damage_add',
           operation: 'multiply',
           value: 1.15,

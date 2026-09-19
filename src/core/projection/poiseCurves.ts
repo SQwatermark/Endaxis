@@ -19,6 +19,12 @@ export interface PoiseBrokenSegment {
   readonly endFrame: number;
 }
 
+/** 失衡值向上越过节点后，在旧版资源监控器中显示的节点条纹区间。 */
+export interface PoiseKnotSegment {
+  readonly startFrame: number;
+  readonly endFrame: number;
+}
+
 /** 曲线初始失衡；调用方必须传和这次模拟完全一致的敌人数值。 */
 export interface PoiseCurveInitial {
   readonly poise: number;
@@ -90,6 +96,30 @@ export function projectPoiseCurveFromReceipt(
   ];
   changes.sort((left, right) => left.sequence - right.sequence);
   return projectPoiseCurvePoints(initial, changes, initialFrame);
+}
+
+/**
+ * 节点阈值是已损失失衡值的比例；只用实际失衡结算判断向上跨越。
+ * 这里复刻旧版监控器的条纹时段，不将其当作原生节点 Buff 或运行时状态。
+ */
+export function projectPoiseKnotSegments(
+  entries: readonly CombatReceiptEntry[],
+  maxPoise: number,
+  knotThresholds: readonly number[],
+  durationFrames: number,
+  endFrame: number,
+): readonly PoiseKnotSegment[] {
+  if (maxPoise <= 0 || durationFrames <= 0 || knotThresholds.length === 0) return [];
+  return projectPoiseChangePoints(entries).flatMap(change => {
+    if (change.frame > endFrame || change.actualDelta >= 0 || change.brokePoise) return [];
+    const crossed = knotThresholds.some(threshold => {
+      const remainingPoise = maxPoise * (1 - threshold);
+      return change.previousPoise > remainingPoise && change.currentPoise <= remainingPoise;
+    });
+    return crossed
+      ? [{ startFrame: change.frame, endFrame: Math.min(endFrame, change.frame + durationFrames) }]
+      : [];
+  });
 }
 
 function projectPoiseCurvePoints(

@@ -29,7 +29,7 @@ describe('arclight generated operator', () => {
   });
 
   it('compiles battle skill SP cost into squad ultimate energy instead of an inline buff', () => {
-    const battleSkill = findSkill('battleSkill');
+    const battleSkill = findSkill('chr_0007_ikut_normal_skill');
     const steps = battleSkill.scheduledSequences.flatMap((sequence: ScheduledSequenceDefinition) =>
       sequence.sequence.steps.map(step => step.kind),
     );
@@ -37,7 +37,7 @@ describe('arclight generated operator', () => {
   });
 
   it('keeps the stack-triggered party electric damage buff as converted runtime behavior', () => {
-    const battleSkill = findSkill('battleSkill');
+    const battleSkill = findSkill('chr_0007_ikut_normal_skill');
     const source = JSON.stringify([
       battleSkill,
       arclightGeneratedOperator.buffDefinitions?.buff_chr_0007_ikut_normal_skill_extra_count,
@@ -51,7 +51,7 @@ describe('arclight generated operator', () => {
   });
 
   it('owns ultimate AbilityEntity damage on the child local timeline only', () => {
-    const ultimate = findSkill('ultimate');
+    const ultimate = findSkill('chr_0007_ikut_ultimate_skill');
     const spawn = ultimate.scheduledSequences
       .flatMap(sequence => sequence.sequence.steps)
       .find(step => step.kind === 'spawnAbilityEntity');

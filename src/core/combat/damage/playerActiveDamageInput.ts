@@ -1,4 +1,5 @@
 import type { ResolvedCombatStepForKind } from '../../compiler/combatProgram';
+import type { DamageModifierSide } from '../../../../packages/game-data-contract/src/modifiers';
 /**
  * 有状态伤害上下文进入纯伤害公式前的解析边界。
  * 调用方需先完成事件与 Buff 修正；返回值应视为该命中公式阶段的冻结输入。
@@ -72,7 +73,7 @@ export interface ResolvePlayerActiveDamageInput {
 /** 在所有修正阶段完成后解析已还原的标准攻击倍率路径。 */
 export function resolvePlayerActiveDamageInput(
   { step, finalAttackValue, attacker, defender, runtime }: ResolvePlayerActiveDamageInput,
-  recordAttribute?: (side: 'attacker' | 'defender', attribute: string) => void,
+  recordAttribute?: (side: DamageModifierSide, attribute: string) => void,
 ): PlayerActiveDamageInput {
   if (step.kind === 'dealDamage' && step.parameters.attackScalePerStatusStack !== undefined) {
     throw new Error('status-stack attack scale must be resolved before damage input construction');

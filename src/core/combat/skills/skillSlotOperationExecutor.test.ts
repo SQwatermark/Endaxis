@@ -20,7 +20,7 @@ describe('SkillSlotOperationExecutor', () => {
     });
     const step: ResolvedCombatOperationStep = {
       kind: 'overrideBasicAttackMapping',
-      parameters: { sourceSkillId: 'native.heavy' },
+      parameters: { skillId: 'native.heavy' },
     };
     executor.execute(step, context);
     expect(register).toHaveBeenCalledWith('native.heavy');

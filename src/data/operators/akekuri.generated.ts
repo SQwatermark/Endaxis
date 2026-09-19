@@ -2,10 +2,9 @@
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import { branch, scheduled, sequence, step, withSkillBlackboard } from './definitionHelpers';
 
-export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0019_karin_attack1',
+    key: 'chr_0019_karin_attack1',
     timelineBlockFrames: 14,
     naturalDurationFrames: 90,
     exclusiveFrame: 17,
@@ -16,12 +15,10 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 1,
           endFrame: 32,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0019_karin_attack2',
+          targetSkillId: 'chr_0019_karin_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 14, endFrame: 32, sourceSkillIds: ['chr_0019_karin_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 14, endFrame: 32, skillIds: ['chr_0019_karin_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -58,13 +55,11 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         14,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0019_karin_attack2'] })),
         32,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0019_karin_attack2',
+    timelineContinuationSkillId: 'chr_0019_karin_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -72,10 +67,9 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
 );
 
-export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0019_karin_attack2',
+    key: 'chr_0019_karin_attack2',
     timelineBlockFrames: 22,
     naturalDurationFrames: 112,
     exclusiveFrame: 28,
@@ -86,12 +80,10 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 13,
           endFrame: 38,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0019_karin_attack3',
+          targetSkillId: 'chr_0019_karin_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 22, endFrame: 38, sourceSkillIds: ['chr_0019_karin_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 22, endFrame: 38, skillIds: ['chr_0019_karin_attack3'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -166,13 +158,11 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         22,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0019_karin_attack3'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0019_karin_attack3',
+    timelineContinuationSkillId: 'chr_0019_karin_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -185,10 +175,9 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0019_karin_attack3',
+    key: 'chr_0019_karin_attack3',
     timelineBlockFrames: 21,
     naturalDurationFrames: 95,
     exclusiveFrame: 27,
@@ -199,12 +188,10 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 11,
           endFrame: 36,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0019_karin_attack4',
+          targetSkillId: 'chr_0019_karin_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 21, endFrame: 36, sourceSkillIds: ['chr_0019_karin_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 21, endFrame: 36, skillIds: ['chr_0019_karin_attack4'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -249,13 +236,11 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         21,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0019_karin_attack4'] })),
         36,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0019_karin_attack4',
+    timelineContinuationSkillId: 'chr_0019_karin_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -263,10 +248,9 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73] },
 );
 
-export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0019_karin_attack4',
+    key: 'chr_0019_karin_attack4',
     timelineBlockFrames: 35,
     naturalDurationFrames: 110,
     exclusiveFrame: 34,
@@ -277,12 +261,10 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 24,
           endFrame: 52,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0019_karin_attack1',
+          targetSkillId: 'chr_0019_karin_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 35, endFrame: 52, sourceSkillIds: ['chr_0019_karin_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 35, endFrame: 52, skillIds: ['chr_0019_karin_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -375,13 +357,11 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         35,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0019_karin_attack1'] })),
         52,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0019_karin_attack1',
+    timelineContinuationSkillId: 'chr_0019_karin_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -394,10 +374,9 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0019_karin_power_attack',
+    key: 'chr_0019_karin_power_attack',
     timelineBlockFrames: 37,
     naturalDurationFrames: 137,
     exclusiveFrame: 60,
@@ -407,7 +386,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 37,
           endFrame: 60,
-          sourceSkillIds: ['chr_0019_karin_normal_skill', 'chr_0019_karin_combo_skill'],
+          skillIds: ['chr_0019_karin_normal_skill', 'chr_0019_karin_combo_skill'],
         },
       ],
     },
@@ -516,10 +495,9 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0019_karin_plunging_attack_end',
+    key: 'chr_0019_karin_plunging_attack_end',
     timelineBlockFrames: 14,
     naturalDurationFrames: 95,
     exclusiveFrame: 13,
@@ -564,10 +542,9 @@ export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0019_karin_normal_skill',
+    key: 'chr_0019_karin_normal_skill',
     timelineBlockFrames: 41,
     naturalDurationFrames: 125,
     exclusiveFrame: 40,
@@ -621,10 +598,9 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
   { atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2], poise: 10 },
 );
 
-export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0019_karin_ultimate_skill',
+    key: 'chr_0019_karin_ultimate_skill',
     timelineBlockFrames: 129,
     naturalDurationFrames: 233,
     exclusiveFrame: 150,
@@ -635,14 +611,14 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
           startFrame: 120,
           endFrame: 201,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0019_karin_attack1',
+          targetSkillId: 'chr_0019_karin_attack1',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 129,
           endFrame: 201,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0019_karin_normal_skill',
             'chr_0019_karin_attack1',
             'chr_0019_karin_combo_skill',
@@ -881,17 +857,16 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
+export const akekuriChr_0019_karin_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0019_karin_combo_skill',
+    key: 'chr_0019_karin_combo_skill',
     timelineBlockFrames: 38,
     naturalDurationFrames: 136,
     exclusiveFrame: 55,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 38, endFrame: 71, sourceSkillIds: ['chr_0019_karin_normal_skill'] },
+        { startFrame: 38, endFrame: 71, skillIds: ['chr_0019_karin_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1102,10 +1077,9 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const akekuriPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const akekuriCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1140,51 +1114,71 @@ export const akekuri: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [akekuriBasicAttack1, akekuriBasicAttack2, akekuriBasicAttack3, akekuriBasicAttack4],
+      skills: [
+        akekuriChr_0019_karin_attack1,
+        akekuriChr_0019_karin_attack2,
+        akekuriChr_0019_karin_attack3,
+        akekuriChr_0019_karin_attack4,
+      ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: akekuriFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: akekuriChr_0019_karin_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: akekuriPlungingAttack,
+      skills: akekuriChr_0019_karin_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: akekuriBattleSkill,
+      skills: akekuriChr_0019_karin_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: akekuriUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: akekuriChr_0019_karin_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: akekuriComboSkill,
+      skills: akekuriChr_0019_karin_combo_skill,
     },
   ],
-  dodgeSkill: akekuriPerfectDodge,
+  dodgeSkill: akekuriCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0019_karin_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0019_karin_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0019_karin_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0019_karin_attack1',
+        'chr_0019_karin_attack2',
+        'chr_0019_karin_attack3',
+        'chr_0019_karin_attack4',
+        'chr_0019_karin_plunging_attack_end',
+        'chr_0019_karin_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0019_karin_attack1',
+        'chr_0019_karin_attack2',
+        'chr_0019_karin_attack3',
+        'chr_0019_karin_attack4',
+      ],
+      defaultSkillKey: 'chr_0019_karin_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1193,7 +1187,7 @@ export const akekuri: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0019_karin_combo_skill',
       event: 'poiseZero',
       immediately: false,
       initialValues: null,
@@ -1206,7 +1200,7 @@ export const akekuri: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0019_karin_combo_skill',
       event: 'poiseKnotBreak',
       immediately: false,
       initialValues: null,

@@ -10,10 +10,9 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0020_meurs_attack1',
+    key: 'chr_0020_meurs_attack1',
     timelineBlockFrames: 21,
     naturalDurationFrames: 114,
     exclusiveFrame: 25,
@@ -24,12 +23,10 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 39,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0020_meurs_attack2',
+          targetSkillId: 'chr_0020_meurs_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 21, endFrame: 39, sourceSkillIds: ['chr_0020_meurs_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 21, endFrame: 39, skillIds: ['chr_0020_meurs_attack2'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -91,13 +88,11 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         21,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0020_meurs_attack2'] })),
         39,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack2',
+    timelineContinuationSkillId: 'chr_0020_meurs_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -109,10 +104,9 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0020_meurs_attack2',
+    key: 'chr_0020_meurs_attack2',
     timelineBlockFrames: 21,
     naturalDurationFrames: 126,
     exclusiveFrame: 25,
@@ -123,12 +117,10 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 35,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0020_meurs_attack3',
+          targetSkillId: 'chr_0020_meurs_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 21, endFrame: 35, sourceSkillIds: ['chr_0020_meurs_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 21, endFrame: 35, skillIds: ['chr_0020_meurs_attack3'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -185,13 +177,11 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         21,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0020_meurs_attack3'] })),
         35,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack3',
+    timelineContinuationSkillId: 'chr_0020_meurs_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -203,10 +193,9 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0020_meurs_attack3',
+    key: 'chr_0020_meurs_attack3',
     timelineBlockFrames: 28,
     naturalDurationFrames: 126,
     exclusiveFrame: 32,
@@ -217,12 +206,10 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 44,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0020_meurs_attack4',
+          targetSkillId: 'chr_0020_meurs_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 28, endFrame: 44, sourceSkillIds: ['chr_0020_meurs_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 28, endFrame: 44, skillIds: ['chr_0020_meurs_attack4'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -272,13 +259,11 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         28,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0020_meurs_attack4'] })),
         44,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack4',
+    timelineContinuationSkillId: 'chr_0020_meurs_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -290,10 +275,9 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0020_meurs_attack4',
+    key: 'chr_0020_meurs_attack4',
     timelineBlockFrames: 45,
     naturalDurationFrames: 114,
     exclusiveFrame: 47,
@@ -304,12 +288,10 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 60,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0020_meurs_attack1',
+          targetSkillId: 'chr_0020_meurs_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 45, endFrame: 60, sourceSkillIds: ['chr_0020_meurs_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 45, endFrame: 60, skillIds: ['chr_0020_meurs_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -373,13 +355,11 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         45,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0020_meurs_attack1'] })),
         60,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack1',
+    timelineContinuationSkillId: 'chr_0020_meurs_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -393,10 +373,9 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const catcherFinisher: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0020_meurs_power_attack',
+    key: 'chr_0020_meurs_power_attack',
     timelineBlockFrames: 35,
     naturalDurationFrames: 135,
     exclusiveFrame: 75,
@@ -406,7 +385,7 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 35,
           endFrame: 75,
-          sourceSkillIds: ['chr_0020_meurs_normal_skill', 'chr_0020_meurs_combo_skill'],
+          skillIds: ['chr_0020_meurs_normal_skill', 'chr_0020_meurs_combo_skill'],
         },
       ],
     },
@@ -495,10 +474,9 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const catcherPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0020_meurs_plunging_attack_end',
+    key: 'chr_0020_meurs_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 108,
     exclusiveFrame: 20,
@@ -541,17 +519,16 @@ export const catcherPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0020_meurs_normal_skill',
+    key: 'chr_0020_meurs_normal_skill',
     timelineBlockFrames: 95,
     naturalDurationFrames: 373,
     exclusiveFrame: 285,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 95, endFrame: 129, sourceSkillIds: ['chr_0020_meurs_normal_skill'] },
+        { startFrame: 95, endFrame: 129, skillIds: ['chr_0020_meurs_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -795,17 +772,16 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0020_meurs_combo_skill',
+    key: 'chr_0020_meurs_combo_skill',
     timelineBlockFrames: 24,
     naturalDurationFrames: 98,
     exclusiveFrame: 45,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 24, endFrame: 60, sourceSkillIds: ['chr_0020_meurs_normal_skill'] },
+        { startFrame: 24, endFrame: 60, skillIds: ['chr_0020_meurs_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -963,10 +939,9 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const catcherUltimate: SkillDefinition = withSkillBlackboard(
+export const catcherChr_0020_meurs_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0020_meurs_ultimate_skill',
+    key: 'chr_0020_meurs_ultimate_skill',
     timelineBlockFrames: 103,
     naturalDurationFrames: 193,
     exclusiveFrame: 120,
@@ -976,7 +951,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 103,
           endFrame: 120,
-          sourceSkillIds: ['chr_0020_meurs_combo_skill', 'chr_0020_meurs_normal_skill'],
+          skillIds: ['chr_0020_meurs_combo_skill', 'chr_0020_meurs_normal_skill'],
         },
       ],
     },
@@ -1166,10 +1141,9 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const catcherPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const catcherCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1204,51 +1178,71 @@ export const catcher: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [catcherBasicAttack1, catcherBasicAttack2, catcherBasicAttack3, catcherBasicAttack4],
+      skills: [
+        catcherChr_0020_meurs_attack1,
+        catcherChr_0020_meurs_attack2,
+        catcherChr_0020_meurs_attack3,
+        catcherChr_0020_meurs_attack4,
+      ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: catcherFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: catcherChr_0020_meurs_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: catcherPlungingAttack,
+      skills: catcherChr_0020_meurs_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: catcherBattleSkill,
+      skills: catcherChr_0020_meurs_normal_skill,
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: catcherComboSkill,
+      skills: catcherChr_0020_meurs_combo_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: catcherUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: catcherChr_0020_meurs_ultimate_skill,
+    },
   ],
-  dodgeSkill: catcherPerfectDodge,
+  dodgeSkill: catcherCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0020_meurs_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0020_meurs_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0020_meurs_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0020_meurs_attack1',
+        'chr_0020_meurs_attack2',
+        'chr_0020_meurs_attack3',
+        'chr_0020_meurs_attack4',
+        'chr_0020_meurs_plunging_attack_end',
+        'chr_0020_meurs_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0020_meurs_attack1',
+        'chr_0020_meurs_attack2',
+        'chr_0020_meurs_attack3',
+        'chr_0020_meurs_attack4',
+      ],
+      defaultSkillKey: 'chr_0020_meurs_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1257,7 +1251,7 @@ export const catcher: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0020_meurs_combo_skill',
       event: 'takeDamage',
       immediately: false,
       initialValues: null,
@@ -1301,7 +1295,7 @@ export const catcher: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0020_meurs_combo_skill',
       event: 'weaknessSet',
       immediately: false,
       initialValues: null,

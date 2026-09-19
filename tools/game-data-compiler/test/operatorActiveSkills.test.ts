@@ -7,8 +7,8 @@ import { SKILL_TYPES } from '../../../packages/game-data-contract/src/primitives
 
 describe('Operator 主动技能入口', () => {
   it('省略旧编译器选择仍按同一原始动作图生成技能', () => {
-    const identity = entry('attack', 'basicAttack', 'attack.json');
-    const files = { 'attack.json': activeSkillFixture('native_attack') };
+    const identity = entry('basicAttack', 'native_attack.json');
+    const files = { 'native_attack.json': activeSkillFixture('native_attack') };
     const automatic = compileOperatorActiveSkills([identity], files, {}, 'fixture.skills');
     for (const kind of ['basicAttack', 'resolvedSequence', 'resolvedDamageSequence']) {
       const legacy = compileOperatorActiveSkills(
@@ -22,7 +22,7 @@ describe('Operator 主动技能入口', () => {
     expect(automatic.entries[0]!.projectionConfig).toBeNull();
   });
 
-  it('兼容列表保留既有顺序，当前支持值域与契约一致', () => {
+  it('主动技能列表保留顺序；闪避由运行时模板注入', () => {
     expect(OPERATOR_ACTIVE_SKILL_TYPES).toEqual([
       'basicAttack',
       'finisher',
@@ -31,39 +31,39 @@ describe('Operator 主动技能入口', () => {
       'comboSkill',
       'ultimate',
     ]);
-    expect([...OPERATOR_ACTIVE_SKILL_TYPES].sort()).toEqual([...SKILL_TYPES].sort());
+    expect([...OPERATOR_ACTIVE_SKILL_TYPES].sort()).toEqual(
+      SKILL_TYPES.filter(type => type !== 'dodge').sort(),
+    );
   });
 
-  it('绑定编辑器 key、原生 skillId 与公共 SkillData 定义', () => {
+  it('从 SkillData 文件名取得技能身份并绑定公共定义', () => {
     const result = compileOperatorActiveSkills(
       [
         {
-          key: 'basicAttack1',
           skillType: 'basicAttack',
           levelSource: 'basicAttack',
-          source: 'attack_1.json',
+          source: 'native_attack_1.json',
           compile: { kind: 'resolvedSequence' },
         },
         {
-          key: 'battleSkill',
           skillType: 'battleSkill',
           levelSource: 'battleSkill',
-          source: 'battle.json',
+          source: 'native_battle.json',
           enhancementStateBuffId: 'buff_native_battle_enhancement',
           compile: { kind: 'resolvedSequence' },
         },
       ],
       {
-        'attack_1.json': activeSkillFixture('native_attack_1'),
-        'battle.json': activeSkillFixture('native_battle'),
+        'native_attack_1.json': activeSkillFixture('native_attack_1'),
+        'native_battle.json': activeSkillFixture('native_battle'),
       },
       {},
       'perlica.skills',
     );
 
-    expect(result.entries.map(entry => [entry.key, entry.skillId, entry.skillType])).toEqual([
-      ['basicAttack1', 'native_attack_1', 'basicAttack'],
-      ['battleSkill', 'native_battle', 'battleSkill'],
+    expect(result.entries.map(entry => [entry.key, entry.skillType])).toEqual([
+      ['native_attack_1', 'basicAttack'],
+      ['native_battle', 'battleSkill'],
     ]);
     expect(result.entries[0]!.projectionConfig).toEqual({ kind: 'resolvedSequence' });
     expect(result.entries[1]!.enhancementStateBuffId).toBe('buff_native_battle_enhancement');
@@ -76,30 +76,22 @@ describe('Operator 主动技能入口', () => {
   it('拒绝重复身份、不安全路径、未知技能类型与缺失文件', () => {
     expect(() =>
       parseOperatorActiveSkillEntries(
-        [entry('same', 'basicAttack', 'one.json'), entry('same', 'basicAttack', 'two.json')],
+        [entry('basicAttack', 'one.json'), entry('basicAttack', 'one.json')],
         'fixture.skills',
       ),
-    ).toThrow('duplicate value "same"');
+    ).toThrow('duplicate value "one"');
     expect(() =>
-      parseOperatorActiveSkillEntries(
-        [entry('one', 'basicAttack', '../one.json')],
-        'fixture.skills',
-      ),
+      parseOperatorActiveSkillEntries([entry('basicAttack', '../one.json')], 'fixture.skills'),
     ).toThrow('expected a safe JSON file name');
     expect(() =>
-      parseOperatorActiveSkillEntries([entry('one', 'passive', 'one.json')], 'fixture.skills'),
+      parseOperatorActiveSkillEntries([entry('passive', 'one.json')], 'fixture.skills'),
     ).toThrow('unsupported operator skill type "passive"');
     expect(() =>
-      compileOperatorActiveSkills(
-        [entry('one', 'basicAttack', 'missing.json')],
-        {},
-        {},
-        'fixture.skills',
-      ),
+      compileOperatorActiveSkills([entry('basicAttack', 'missing.json')], {}, {}, 'fixture.skills'),
     ).toThrow('missing SkillData file missing.json');
   });
 });
 
-function entry(key: string, skillType: string, source: string) {
-  return { key, skillType, levelSource: skillType, source };
+function entry(skillType: string, source: string) {
+  return { skillType, levelSource: skillType, source };
 }

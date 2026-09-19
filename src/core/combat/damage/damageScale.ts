@@ -10,33 +10,11 @@ import {
   type DamageScaleSide,
   type DamageScaleZone,
 } from '../../../../packages/game-data-contract/src/modifiers.ts';
+export type { AppliedDamageModifier, DamageModifierResult } from '../state/foundationState';
 interface DamageScaleZoneDefinition {
   readonly multiplyWithinSide: boolean;
   readonly mergeSidesAdditively: boolean;
 }
-
-/** 本次实际执行的直接增伤项；仅保存结果，不追溯参数的计算过程。 */
-export type AppliedDamageModifier = {
-  readonly panelSource?: import('../../compiler/resolveOperatorPanel').OperatorPanelContributionSource;
-  /** 实际执行修正的 Buff 实例；与效果提供者、Buff 定义分别寻址。 */
-  readonly buff?: import('../state/foundationState').BuffReference;
-  readonly buffId?: string;
-  readonly sourceId: string;
-  readonly sourceActionId?: string;
-  readonly side: DamageScaleSide;
-} & DamageModifierResult;
-
-/** 仅描述直接修正的结果，不保存运行时对象或参数计算图。 */
-export type DamageModifierResult =
-  | { readonly kind: 'damageScale'; readonly zone: DamageScaleZone; readonly addition: number }
-  | { readonly kind: 'multiplyValue'; readonly multiplier: number }
-  | {
-      readonly kind: 'attribute';
-      readonly attribute: string;
-      readonly zone?: DamageScaleZone;
-      readonly slot: import('../attributes/combatAttributes').AttributeModifierSlot;
-      readonly value: number;
-    };
 
 const ZONE_DEFINITIONS: Readonly<Record<DamageScaleZone, DamageScaleZoneDefinition>> = {
   product: { multiplyWithinSide: true, mergeSidesAdditively: false },

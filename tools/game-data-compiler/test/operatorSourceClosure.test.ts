@@ -57,10 +57,9 @@ describe('Operator 来源闭包', () => {
       },
       manifestSkills: [
         {
-          key: 'basic',
           skillType: 'basicAttack',
           levelSource: 'basicAttack',
-          source: 'basic.json',
+          source: 'native_basic.json',
           compile: {},
         },
       ],
@@ -70,11 +69,11 @@ describe('Operator 来源闭包', () => {
           skillType: 'basicAttack',
           levelSource: 'basicAttack',
           nativeGroupType: 0,
-          skillKeys: ['basic'],
+          skillKeys: ['native_basic'],
         },
       ],
       skillDataBySourceFile: {
-        'basic.json': activeSkillWithOwnerSpawnedAbilityEntityQueryFixture('native_basic'),
+        'native_basic.json': activeSkillWithOwnerSpawnedAbilityEntityQueryFixture('native_basic'),
       },
       skillDataById: {},
       buffDefinitionNodes: [],
@@ -110,8 +109,7 @@ describe('Operator 来源闭包', () => {
       baseAttack: [30, 88, 150, 211, 272, 303],
     });
     expect(result.skillLibrary.activeSkills.entries[0]).toMatchObject({
-      key: 'basic',
-      skillId: 'native_basic',
+      key: 'native_basic',
     });
     expect(result.progression.potential.unlocks).toMatchObject([
       { level: 1, effectId: 'potential_effect' },
@@ -121,7 +119,7 @@ describe('Operator 来源闭包', () => {
     expect(result.definitionClosure).toMatchObject({ missing: [] });
     expect(result.activeSkillAbilityEntityQueries).toMatchObject([
       {
-        skillKey: 'basic',
+        skillKey: 'native_basic',
         skillId: 'native_basic',
         queries: [
           {

@@ -117,7 +117,16 @@ export async function downloadGameDataSources(args: DownloadArguments): Promise<
       let reason = akedb ? 'not-in-akedb-index' : undefined;
       if (akedb && (tableName || akedb.assets.json.has(logicalPath))) {
         try {
-          return tableName ? await akedb.table(tableName) : await akedb.asset('json', logicalPath);
+          const item = tableName
+            ? await akedb.table(tableName)
+            : await akedb.asset('json', logicalPath);
+          if (
+            tableName !== 'GlobalConst' ||
+            typeof (parseJson(item.content) as Record<string, unknown>).maxDashEnergyLimit ===
+              'number'
+          )
+            return item;
+          reason = 'akedb-missing-required-field';
         } catch (error) {
           if (!isMissingResource(error)) throw error;
           reason = 'akedb-http-404';

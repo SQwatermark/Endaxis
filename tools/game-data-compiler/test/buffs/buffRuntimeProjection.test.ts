@@ -124,7 +124,7 @@ describe('公共 Buff 运行时投影', () => {
       steps: [
         {
           kind: 'overrideBasicAttackMapping',
-          parameters: { sourceSkillId: 'chr_0017_yvonne_ult_attack_end' },
+          parameters: { skillId: 'chr_0017_yvonne_ult_attack_end' },
         },
       ],
     });
@@ -1337,7 +1337,10 @@ describe('公共 Buff 运行时投影', () => {
     expect(project(new Set([entry.buffId])).steps).toEqual([]);
     assignment.useDirectValue = false;
     expect(project().steps[0]).toMatchObject({
-      parameters: { blackboardAssignments: { rate: { kind: 'blackboard', key: 'source_rate' } } },
+      parameters:
+        family === 'buffApplication'
+          ? { copiedBlackboardAssignments: { rate: 'source_rate' } }
+          : { blackboardAssignments: { rate: { kind: 'blackboard', key: 'source_rate' } } },
     });
     assignment.useDirectValue = true;
     assignment.valueType = 'Numeric';
@@ -1466,10 +1469,11 @@ describe('公共 Buff 运行时投影', () => {
         parameters: {
           buffId: 'buff_common_pulse_pulse_conduct_triggered_do',
           target: 'enemy',
-          blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
         },
       },
     ]);
+    // 同名黑板值由源作用域直接继承；反应步骤仍显式读取该值作为最终时长。
+    expect(project().steps[1]!.parameters).not.toHaveProperty('blackboardAssignments');
 
     action.buffs = [{ ...action.buffs[0]!, assignments: [] }];
     expect(project).toThrow('unsupported electrification trigger Buff shape');
@@ -3347,9 +3351,6 @@ describe('公共 Buff 运行时投影', () => {
                       parameters: {
                         buffId: 'buff_child',
                         target: 'buffOwner',
-                        blackboardAssignments: {
-                          atk_up: { kind: 'blackboard', key: 'atk_up' },
-                        },
                       },
                     },
                   ],
@@ -3360,6 +3361,10 @@ describe('公共 Buff 运行时投影', () => {
         },
       ],
     });
+    const condition = definition.abilityEventResponses?.[0]?.sequence.steps[0];
+    if (condition?.kind !== 'conditional' || condition.whenTrue.steps[0]?.kind !== 'applyBuff')
+      throw new Error('expected guarded child Buff');
+    expect(condition.whenTrue.steps[0].parameters).not.toHaveProperty('blackboardAssignments');
   });
 
   it('把原生 Main 属性修正保留为运行时主属性选择器', () => {

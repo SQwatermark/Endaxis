@@ -63,10 +63,10 @@ export function finishAbilitySkillSlotReplacement(
 /** 新登记排在已有映射之后，查询时保持后登记优先的顺序。 */
 export function registerAbilityBasicAttackMapping(
   state: AbilitySystemState,
-  sourceSkillId: string,
+  skillId: string,
 ): number {
   const id = state.nextBasicAttackMappingId++;
-  state.buffBasicAttackMappings.set(id, sourceSkillId);
+  state.buffBasicAttackMappings.set(id, skillId);
   return id;
 }
 

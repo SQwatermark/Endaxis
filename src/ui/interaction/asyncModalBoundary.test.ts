@@ -197,7 +197,7 @@ describe('service modal input lifetime', () => {
   });
 
   it('covers both imperative confirmations and excludes inactive map menus', () => {
-    expect(editor.match(/serviceModalBoundary\.run\(/g)).toHaveLength(2);
+    expect(editor.match(/serviceModalBoundary\.run\(/g)).toHaveLength(3);
     expect(hook).toContain('onScopeDispose(() => boundary.dispose())');
     expect(map).toContain('active: () => active.value && contextMenu.value !== undefined');
   });

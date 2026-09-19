@@ -113,7 +113,7 @@ export async function captureTimelineLongImage(
       width,
       height,
       backgroundColor: getComputedStyle(timelineMain).backgroundColor || '#191a1d',
-      exclude: ['.timeline-horizontal-scrollbar', '.panel-chrome', '.bottom-panel-collapse'],
+      exclude: ['.timeline-horizontal-scrollbar', '.bottom-panel-collapse'],
     });
     return await capture.toBlob({ type: 'webp', quality: 0.94, dpr: 1 });
   } finally {

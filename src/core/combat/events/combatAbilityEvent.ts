@@ -441,7 +441,7 @@ export function damageAbilityEvent(event: AbilityEventCandidate): DamageAbilityE
   }
 }
 
-/** 用户注入的受击事实：只通知监听器，没有敌人执行、生命写入或虚构伤害结果。 */
+/** 极限闪避标记声明的可闪避受击：只通知监听器，不写入生命或伤害结果。 */
 export interface ExternalOperatorHitPayload {
   readonly external: true;
   readonly sourceId: 'enemy';

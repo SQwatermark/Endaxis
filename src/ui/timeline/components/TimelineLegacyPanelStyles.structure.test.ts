@@ -21,7 +21,8 @@ describe('legacy panel visual contracts', () => {
     expect(header).toContain('class="header-more-tool-row__check"');
     expect(header).toContain('header-more-action--icon');
     expect(header).toContain('<span>{{ labels.open }}</span>');
-    expect(header).toContain('<span>{{ labels.export }}</span>');
+    expect(header).toContain('@click="runProjectAction(\'receive\')"');
+    expect(header).toContain("{{ t('common.receive') }}");
     expect(header).toContain('<span>{{ labels.reset }}</span>');
     expect(header).toContain('popper-class="header-more-popper"');
     expect(header).toContain('<EaPopover');

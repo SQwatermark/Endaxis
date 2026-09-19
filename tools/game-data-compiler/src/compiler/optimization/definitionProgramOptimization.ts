@@ -65,7 +65,7 @@ export function createDefinitionProgramOptimizer(
       sequence: sequence(value.sequence, `${path}[${index}].sequence`, id),
     }));
   const skill = (value: SkillDefinition, path: string): SkillDefinition => {
-    const id = value.sourceSkillId ?? value.key;
+    const id = value.key;
     const optimized: SkillDefinition = {
       ...value,
       scheduledSequences: scheduled(value.scheduledSequences, `${path}.scheduledSequences`, id),

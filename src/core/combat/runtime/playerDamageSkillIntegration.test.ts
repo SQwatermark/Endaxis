@@ -23,7 +23,7 @@ function findPerlicaBattleSkill(): SkillDefinition {
   const group = perlica.skillGroups.find(candidate => candidate.key === 'battleSkill');
   if (group === undefined) throw new Error('missing Perlica battle-skill group');
   const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
-  const skill = skills.find(candidate => candidate.key === 'battleSkill');
+  const skill = skills.find(candidate => candidate.key === 'chr_0004_pelica_normal_skill');
   if (skill === undefined) throw new Error('missing Perlica battle skill');
   return skill;
 }

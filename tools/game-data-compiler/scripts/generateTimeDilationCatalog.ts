@@ -6,6 +6,7 @@ import {
   renderTimeDilationCatalogModule,
 } from '../src/source/timeDilationCatalogSource.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 
 export async function generateTimeDilationCatalog(args: {
@@ -29,9 +30,9 @@ export async function generateTimeDilationCatalog(args: {
   if (typeof preview.text !== 'string')
     throw new Error(`${args.sourceUrl}: missing TypeTree dump text`);
   const source = parseTimeDilationCatalogDumpSource(preview.text, args.sourceUrl);
-  const content = renderTimeDilationCatalogModule(
-    source,
-    readGameplayTagPaths(args.gameplayTagCatalog),
+  const content = await formatGeneratedSource(
+    renderTimeDilationCatalogModule(source, readGameplayTagPaths(args.gameplayTagCatalog)),
+    args.output,
   );
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content)

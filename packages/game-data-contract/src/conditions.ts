@@ -699,6 +699,8 @@ export const COMBAT_CONDITION_KINDS = [
   'eventDamageTypeIn',
   'eventInflictionElementIn',
   'eventPhysicalInflictionTypeIn',
+  'eventProjectilePerfectDodgeCooldownEquals',
+  'eventProjectileIgnoreImmuneLevelCompare',
   'eventSkillTypeIn',
   'eventCustomAbilityNameMatch',
   'currentSkillTypeIn',

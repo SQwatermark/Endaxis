@@ -12,6 +12,8 @@ import {
   type PostSkillCastRequest,
   type SkillCastStartPreparation,
   type ActionBlackboardState,
+  type AppliedDamageModifier,
+  type CombatObjectRef,
 } from './foundationState';
 import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
 import { type NativeSkillType, type PlayerSkillInput } from '../../game-data/operatorDefinition';
@@ -25,7 +27,7 @@ import {
 import { type PeriodicTimerState } from './environmentState';
 
 export interface DamageCalculationSnapshot {
-  readonly attackModifiers?: readonly import('../damage/damageScale').AppliedDamageModifier[];
+  readonly attackModifiers?: readonly AppliedDamageModifier[];
   readonly attackDetail?: import('./foundationState').AttackReceiptSnapshot;
   readonly attack: number;
   readonly attackScale: number;
@@ -244,7 +246,7 @@ export interface SkillExecutionState {
   preparedSkillCastId: number;
   preparedSkillCastInfo: CombatSkillCastInfo | undefined;
   /** 本次延迟施放请求的产生者；开始回执记录后清除。 */
-  preparedProducer: import('../receipt/combatReceipt').CombatObjectRef | undefined;
+  preparedProducer: CombatObjectRef | undefined;
   inheritedSkillCastInfo: CombatSkillCastInfo | undefined;
   preparedSkipApplyCost: boolean;
   preparedForceTimelinePayment: boolean;
@@ -254,7 +256,7 @@ export interface SkillExecutionState {
   reachedOperableBoundaryFrame: number | undefined;
   /** 本帧实际执行的 AllowNextSkillAction 所公开的候选；AbilitySystem 在技能 Tick 后解释玩家路由。 */
   operableBoundaryCandidateFrame: number | undefined;
-  readonly operableBoundaryCandidateSourceSkillIds: string[];
+  readonly operableBoundaryCandidateSkillIds: string[];
   preparedStartBlackboard: Readonly<Record<string, number>>;
 }
 
@@ -281,7 +283,7 @@ export function createSkillExecutionState(): SkillExecutionState {
     timelineFinishRequested: false,
     reachedOperableBoundaryFrame: undefined,
     operableBoundaryCandidateFrame: undefined,
-    operableBoundaryCandidateSourceSkillIds: [],
+    operableBoundaryCandidateSkillIds: [],
     preparedStartBlackboard: {},
   };
 }

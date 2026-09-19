@@ -57,7 +57,7 @@ describe('compileScenarioTimeline', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     const cast = scenario.tracks[0]!.skillCasts[0]!;
     cast.customDefinition = {
-      key: 'battleSkill',
+      key: 'chr_0004_pelica_normal_skill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
       timelineBlockFrames: 1,
@@ -142,7 +142,7 @@ describe('compileScenarioTimeline', () => {
   it('compiles ability entity additions and overrides from a project operator template', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     scenario.tracks[0]!.skillCasts[0]!.customDefinition = {
-      key: 'battleSkill',
+      key: 'chr_0004_pelica_normal_skill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
       timelineBlockFrames: 1,
@@ -191,13 +191,13 @@ describe('compileScenarioTimeline', () => {
     expect(compiled.operators[0]!.operatorId).toBe('track:0');
     expect(compiled.operators[0]!.skills).toEqual([]);
     expect(compiled.operators[0]!.skillCasts?.map(binding => binding.program.skillId)).toContain(
-      'battleSkill',
+      'chr_0004_pelica_normal_skill',
     );
     expect(compiled.inputs).toEqual([
       {
         frame: 60,
         operatorId: 'track:0',
-        skillId: 'battleSkill',
+        skillId: 'chr_0004_pelica_normal_skill',
         castId: 'skillCast:1',
         action: 'battleSkill',
       },
@@ -229,18 +229,18 @@ describe('compileScenarioTimeline', () => {
       {
         frame: 60,
         operatorId: 'track:0',
-        skillId: 'battleSkill',
+        skillId: 'chr_0004_pelica_normal_skill',
         castId: 'skillCast:1',
         action: 'battleSkill',
       },
     ]);
     expect(
       compiled.operators[0]!.skillCasts?.map(binding => [binding.program.skillId, binding.castId]),
-    ).toEqual([['battleSkill', 'skillCast:1']]);
+    ).toEqual([['chr_0004_pelica_normal_skill', 'skillCast:1']]);
     expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
       expect.objectContaining({
         skillGroupKey: 'battleSkill',
-        baseSkillKey: 'battleSkill',
+        baseSkillKey: 'chr_0004_pelica_normal_skill',
         replacementSkillKeys: ['battleSkillVariant'],
       }),
     );
@@ -299,7 +299,7 @@ describe('compileScenarioTimeline', () => {
     expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
       expect.objectContaining({
         skillGroupKey: 'battleSkill',
-        baseSkillKey: 'battleSkill',
+        baseSkillKey: 'chr_0004_pelica_normal_skill',
         replacementSkillKeys: ['battleSkillEnd'],
       }),
     );
@@ -343,7 +343,6 @@ describe('compileScenarioTimeline', () => {
       key: 'battleSkillRoutedToCombo',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      sourceSkillId: 'native_combo',
       timelineBlockFrames: 1,
       costs: [{ resource: 'sp', value: [10, 20, 30, 40, 50, 60, 70] }],
       costFrame: 0,
@@ -421,7 +420,7 @@ describe('compileScenarioTimeline', () => {
     expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
       expect.objectContaining({
         skillGroupKey: 'battleSkill',
-        baseSkillKey: 'battleSkill',
+        baseSkillKey: 'chr_0004_pelica_normal_skill',
         replacementSkillKeys: ['battleSkillRoutedToCombo'],
       }),
     );
@@ -435,14 +434,14 @@ describe('compileScenarioTimeline', () => {
       {
         frame: 60,
         operatorId: 'track:0',
-        skillId: 'battleSkill',
+        skillId: 'chr_0004_pelica_normal_skill',
         castId: 'skillCast:1',
         action: 'battleSkill',
       },
       {
         frame: 60,
         operatorId: 'track:0',
-        skillId: 'ultimate',
+        skillId: 'chr_0004_pelica_ultimate_skill',
         castId: 'skillCast:2',
         action: 'ultimate',
       },
@@ -553,7 +552,7 @@ describe('compileScenarioTimeline', () => {
       getOperator: slug => (slug === operator.slug ? operator : null),
     });
     const ultimate = compiled.operators[0]!.skillCasts?.find(
-      binding => binding.program.skillId === 'ultimate',
+      binding => binding.program.skillId === 'chr_0004_pelica_ultimate_skill',
     )?.program;
 
     expect(ultimate?.costs).toEqual([{ resource: 'ultimateEnergy', value: 68 }]);
@@ -579,7 +578,7 @@ describe('compileScenarioTimeline', () => {
     const program = binding.program;
 
     expect(binding.castId).toBe(cast.id);
-    expect(program.skillId).toBe('battleSkill');
+    expect(program.skillId).toBe('chr_0004_pelica_normal_skill');
     expect(program.timelineBlockFrames).toBe(99);
     expect(program.costs).toEqual([{ resource: 'sp', value: 123 }]);
   });
@@ -588,7 +587,7 @@ describe('compileScenarioTimeline', () => {
     const scenario = place(createScenario(), 'battleSkill', 60);
     const cast = scenario.tracks[0]!.skillCasts[0]!;
     cast.customDefinition = {
-      key: 'battleSkill',
+      key: 'chr_0004_pelica_normal_skill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
       timelineBlockFrames: 30,

@@ -1,5 +1,6 @@
 import { createEmptyScenario } from '../../../core/project/createProject';
 import { PROJECT_FPS, type TrackIndex } from '../../../core/project/schema';
+import { gameDataRepository } from '../../../data/gameDataRepository';
 
 /** 公开轴动作坐标摘录，不是存档迁移器。来源与未保留项见 public-share-regression-samples.md。 */
 export const LOW_STAR_SHARE_URL = 'https://www.end-axis.com/shares/6960d9afaf72c0e43d122dfb';
@@ -60,6 +61,20 @@ const tracks: readonly { slug: string; actions: readonly (readonly [number, stri
   },
 ];
 
+function resolveFixtureSkill(slug: string, legacyKey: string) {
+  const skillGroupKey = legacyKey.startsWith('basicAttack') ? 'basicAttack' : legacyKey;
+  const group = gameDataRepository
+    .getOperator(slug)
+    ?.skillGroups.find(candidate => candidate.key === skillGroupKey);
+  if (!group) throw new Error(`missing ${slug}/${skillGroupKey} in regression fixture`);
+  const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+  const index =
+    skillGroupKey === 'basicAttack' ? Number(legacyKey.slice('basicAttack'.length)) - 1 : 0;
+  const skill = skills[index];
+  if (!skill) throw new Error(`missing ${slug}/${legacyKey} in regression fixture`);
+  return { skillGroupKey, skillKey: skill.key };
+}
+
 export function createLowStarShareRegressionScenario() {
   const scenario = createEmptyScenario('public-share-low-star', '公开轴动作回归（非完整转换）');
   scenario.battle.durationFrames = 35 * PROJECT_FPS;
@@ -84,7 +99,7 @@ export function createLowStarShareRegressionScenario() {
       weapon: null,
       gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
       initialState: { ultimateEnergy: 0 },
-      skillCasts: track.actions.map(([sourceFrame, skillKey], actionIndex) => {
+      skillCasts: track.actions.map(([sourceFrame, legacyKey], actionIndex) => {
         const id = `public-share:${index}:${actionIndex}`;
         // Convert the original integer frame directly; legacy compiler millisecond rounding
         // must not turn a 30 FPS half-frame tie into a different placement.
@@ -97,11 +112,7 @@ export function createLowStarShareRegressionScenario() {
         });
         return {
           id,
-          source: {
-            kind: 'operatorSkill',
-            skillGroupKey: skillKey.startsWith('basicAttack') ? 'basicAttack' : skillKey,
-            skillKey,
-          },
+          source: { kind: 'operatorSkill', ...resolveFixtureSkill(track.slug, legacyKey) },
           placement: { startFrame: frame },
         };
       }),

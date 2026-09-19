@@ -15,7 +15,6 @@ import externalEventInspectorSource from '../ui/timeline/interaction/TimelineExt
 import headerToolbarSource from '../ui/timeline/components/TimelineHeaderToolbar.vue?raw';
 import rulerSource from '../ui/timeline/components/TimelineRuler.vue?raw';
 import trackHeaderSource from '../ui/timeline/components/TimelineTrackHeader.vue?raw';
-import workbenchShellSource from '../ui/timeline/components/TimelineWorkbenchShell.vue?raw';
 
 const elementPlusStyles = readFileSync(
   new URL('./styles/element-plus.css', import.meta.url),
@@ -97,9 +96,6 @@ describe('design-system layout regressions', () => {
     );
     expect(cornerToolbarSource).toMatch(
       /\.zoom-step\.ea-button\.ea-button--icon-only\s*\{[^}]*width:\s*10px;[^}]*height:\s*10px;/s,
-    );
-    expect(workbenchShellSource).toMatch(
-      /\.panel-chrome__button\.ea-button\.ea-button--icon-only\s*\{[^}]*width:\s*20px;[^}]*height:\s*20px;/s,
     );
   });
 

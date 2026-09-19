@@ -226,9 +226,7 @@
       "AbilityEntityChildSkillRequested": "Ability entity child skill",
       "TimeDilationStarted": "Time dilation start",
       "PassiveSkillEnabled": "Passive enabled",
-      "OperatorUpgradeInitialized": "Upgrade effect initialization",
-      "ExternalOperatorHitProcessed": "External operator-hit marker",
-      "ExternalOperatorWeaknessTriggeredOutputProcessed": "External weakness marker"
+      "OperatorUpgradeInitialized": "Upgrade effect initialization"
     },
     "receiptDetails": {
       "overhealing": "Overhealing {value}",
@@ -502,7 +500,6 @@
       "smallImageExported": "Small image exported: {filename}"
     },
     "header": {
-      "projectDirty": "Project has unexported changes",
       "display": "Display",
       "displayTooltip": "Timeline display and guide line",
       "more": "More",
@@ -739,26 +736,13 @@
       "dodge": "Dodge here",
       "perfectDodge": "Perfect dodge here",
       "switchToDodge": "Switch to dodge",
-      "switchToPerfectDodge": "Switch to perfect dodge",
-      "restrictedHint": "Only supplement events the target-dummy model cannot produce naturally",
-      "operatorHit": "Current operator is hit",
-      "operatorWeakness": "Current operator triggers enemy weakness",
-      "teamHit": "All operators are hit",
-      "enemyWeaknessSet": "Enemy weakness is set"
+      "switchToPerfectDodge": "Switch to perfect dodge"
     },
     "markerInspector": {
-      "title": "External event",
+      "title": "Combo cooldown",
       "event": "Event type",
       "target": "Target",
-      "teamTarget": "Current team",
-      "hitContext": "Hit context",
-      "unknownDamageType": "Unknown damage type",
-      "boundaryHint": "This only declares an external fact the target-dummy model cannot produce. It does not simulate enemy skills, health loss, or active behavior.",
-      "eventKinds": {
-        "operatorHit": "Operator is hit",
-        "operatorWeaknessTriggeredOutput": "Operator triggers enemy weakness",
-        "enemyWeaknessSet": "Enemy weakness is set"
-      }
+      "teamTarget": "Current team"
     },
     "documentMarkerInspector": {
       "title": "Timeline marker",
@@ -823,20 +807,13 @@
       "cycleBoundary": "Cycle boundary",
       "simulationStart": "Simulation start",
       "simulationEnd": "Simulation end",
-      "teamExternalEvent": "Team external event",
-      "teamHit": "Team hit",
       "controlSwitch": "Operator switch",
       "dodge": "Dodge",
       "perfectDodge": "Perfect dodge",
-      "dodgeIncomplete": "Some native behavior lacks evidence; confirmed behavior was applied",
-      "operatorWeakness": "Enemy weakness triggered",
-      "hitShort": "Hit",
-      "weaknessShort": "Weakness",
-      "enemyWeaknessSet": "Set weakness"
+      "dodgeIncomplete": "Some native behavior lacks evidence; confirmed behavior was applied"
     },
     "skillEditing": {
       "runtimeFields": {
-        "sourceSkillId": "Native skill ID",
         "nativeSkillType": "Initial native skill type",
         "smartTarget": "Smart target source",
         "naturalDurationFrames": "Natural duration (frames)",
@@ -1628,6 +1605,10 @@
         "changeResourceByActionValue": "Changes SP or ultimate energy from a constant or action blackboard value.",
         "gainSquadUltimateEnergyFromSkillCost": "Converts the actual SP cost of this skill into squad ultimate energy.",
         "gainFinisherSp": "Restores shared SP using the finisher-specific rule.",
+        "recoverDashEnergy": "Restores native dodge energy by the action value.",
+        "recordPerfectDodge": "Records that this dodge succeeded as a perfect dodge.",
+        "markCurrentSkillCanDash": "Marks that the current skill can now be interrupted by a dodge.",
+        "overrideMultiDashLimit": "Temporarily overrides the consecutive dodge limit.",
         "applyStatus": "Applies an Endaxis semantic status with duration, stacks, and combat modifiers.",
         "consumeStatus": "Consumes stacks of a semantic status on the target.",
         "jumpTimeline": "Advances the host-local timeline to a frame. An optional condition is retried during the action interval, and the jump occurs only once.",
@@ -1778,6 +1759,10 @@
         "changeResourceByActionValue": "Change resource by action value",
         "gainSquadUltimateEnergyFromSkillCost": "Gain ultimate energy from skill cost",
         "gainFinisherSp": "Gain finisher SP",
+        "recoverDashEnergy": "Restore dodge energy",
+        "recordPerfectDodge": "Record perfect dodge",
+        "markCurrentSkillCanDash": "Allow dodge interruption",
+        "overrideMultiDashLimit": "Override consecutive dodge limit",
         "applyStatus": "Apply status",
         "consumeStatus": "Consume status",
         "jumpTimeline": "Jump timeline",
@@ -2110,6 +2095,7 @@
       "buffLayoutLoose": "Loose",
       "buffLayoutMode": "Buff layout: {mode}",
       "horizontalScroll": "Timeline horizontal scrollbar",
+      "verticalScroll": "Timeline vertical scrollbar",
       "resizeTrack": "Drag to resize adjacent tracks; double-click to reset",
       "connectionTool": "Connection tool (Alt+L)",
       "cursorGuide": "Guide line (Ctrl+G)",

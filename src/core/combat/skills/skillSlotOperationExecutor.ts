@@ -21,7 +21,7 @@ export interface SkillSlotOperationExecutorOptions {
   readonly finishSkillSlotReplacement?: (skillGroupKey: string, registrationId: number) => void;
   readonly activatePlayerActionMode?: (modeId: string) => number;
   readonly finishPlayerActionMode?: (registrationId: number) => void;
-  readonly overrideBasicAttackMapping?: (sourceSkillId: string) => number;
+  readonly overrideBasicAttackMapping?: (skillId: string) => number;
   readonly finishBasicAttackMapping?: (registrationId: number) => void;
   readonly setMultiDashLimit?: (limit: number | null) => void;
   readonly changeNativeSkillType?: (skillKey: string, nativeSkillType: NativeSkillType) => void;
@@ -39,7 +39,7 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
       if (register === undefined || finish === undefined || state === undefined)
         throw new Error('basic-attack mapping requires action state and lifecycle ports');
       if (state.registrationId !== null) finish(state.registrationId);
-      state.registrationId = register(step.parameters.sourceSkillId);
+      state.registrationId = register(step.parameters.skillId);
       return true;
     }
     if (step.kind === 'changePlayerActionMode') {

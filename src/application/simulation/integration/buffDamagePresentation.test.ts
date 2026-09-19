@@ -28,7 +28,12 @@ it('links real Perlica then Wulfgard burning damage to visible status segments',
       skillCasts: [
         {
           id: `cast:${index}`,
-          source: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          source: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey:
+              slug === 'perlica' ? 'chr_0004_pelica_normal_skill' : 'chr_0006_wolfgd_normal_skill',
+          },
           placement: { startFrame: index === 0 ? 1 : 100 },
         },
       ],

@@ -24,7 +24,6 @@ import {
   avywenna,
   catcher,
   camille,
-  chenQianyu,
   daPan,
   ember,
   endministrator,
@@ -46,7 +45,8 @@ import {
   zhuangFangyi,
 } from '../../../data/operators';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
-import { laevatainBasicAttack1 } from '../../../data/operators/laevatain.generated';
+import { getSkill } from '../../../data/operators/testUtils';
+const laevatainBasicAttack1 = getSkill(laevatain, 'chr_0016_laevat_attack1');
 import { projectTimelineEditor } from '../../../ui/timeline/timelineEditorViewModel';
 import {
   projectHitEffectsByCast,
@@ -87,7 +87,11 @@ describe('registered generated operators', () => {
       initialState: { ultimateEnergy: 0 },
       skillCasts: [0, 120].map((startFrame, i) => ({
         id: `cast:delivery:${i}`,
-        source: { kind: 'operatorSkill', skillGroupKey: 'comboSkill', skillKey: 'comboSkill' },
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'comboSkill',
+          skillKey: 'chr_0013_aglina_combo_skill',
+        },
         placement: { startFrame },
       })),
     };
@@ -192,7 +196,7 @@ describe('registered generated operators', () => {
         trackIndex: 0,
         operator: liino,
         skillGroupKey: 'battleSkill',
-        skillKey: 'battleSkill',
+        skillKey: 'chr_0035_liino_normal_skill',
         startFrame: 1,
         ids: { allocate: kind => `${kind}:liino:battle-start` },
       }).scenario;
@@ -201,7 +205,7 @@ describe('registered generated operators', () => {
         trackIndex: 0,
         operator: liino,
         skillGroupKey: 'battleSkill',
-        skillKey: 'battleSkillEnd',
+        skillKey: 'chr_0035_liino_normal_skill_end',
         startFrame: endAt,
         ids: { allocate: kind => `${kind}:liino:battle-end` },
       }).scenario;
@@ -277,7 +281,7 @@ describe('registered generated operators', () => {
           sourceId: 'track:liino',
           data: expect.objectContaining({
             castId: 'skillCast:liino:battle-end',
-            skillId: 'battleSkillEnd',
+            skillId: 'chr_0035_liino_normal_skill_end',
           }),
         }),
       );
@@ -309,7 +313,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: liino,
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkill',
+      skillKey: 'chr_0035_liino_normal_skill',
       startFrame: 1,
       ids: { allocate: kind => `${kind}:liino:deferred-battle` },
     }).scenario;
@@ -318,7 +322,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: liino,
       skillGroupKey: 'comboSkill',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0035_liino_combo_skill',
       startFrame: 20,
       ids: { allocate: kind => `${kind}:liino:deferred-combo` },
     }).scenario;
@@ -348,7 +352,7 @@ describe('registered generated operators', () => {
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:liino',
-        data: expect.objectContaining({ skillId: 'battleSkillCombo' }),
+        data: expect.objectContaining({ skillId: 'chr_0035_liino_normal_skill_combo' }),
       }),
     );
   });
@@ -391,7 +395,7 @@ describe('registered generated operators', () => {
             trackIndex: 0,
             operator: liino,
             skillGroupKey: 'battleSkill',
-            skillKey: 'battleSkillEnd',
+            skillKey: 'chr_0035_liino_normal_skill_end',
             startFrame: 180,
             ids: { allocate: kind => `${kind}:liino:ultimate-end` },
           }).scenario
@@ -957,7 +961,7 @@ describe('registered generated operators', () => {
         trackIndex: 0,
         operator: xaihi,
         skillGroupKey: 'basicAttack',
-        skillKey: 'basicAttack5',
+        skillKey: 'chr_0011_seraph_attack5',
         startFrame,
         ids,
       }).scenario;
@@ -992,141 +996,8 @@ describe('registered generated operators', () => {
     expect(windows).toHaveLength(1);
     expect(windows[0]).toMatchObject({
       frame: 119,
-      data: { nextSkillKey: 'comboSkill' },
+      data: { nextSkillKey: 'chr_0011_seraph_combo_skill' },
     });
-  });
-
-  it('applies Chen talent 2 poise damage from an explicit weakness-window output fact', () => {
-    const scenario = createEmptyScenario('scenario:chen:talent2', '陈千语天赋二回归');
-    scenario.battle.durationFrames = 2;
-    scenario.enemy.editable.stagger.maximum = 100;
-    scenario.tracks[0] = {
-      id: 'track:chen',
-      operator: {
-        operatorSlug: chenQianyu.slug,
-        level: 90,
-        promoted: true,
-        potential: 0,
-        trustLevel: 4,
-        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-        talentStates: { 0: 0, 1: 2 },
-      },
-      weapon: null,
-      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-      initialState: { ultimateEnergy: 0 },
-      skillCasts: [],
-    };
-    scenario.battle.externalEventMarkers = [
-      {
-        id: 'weakness:chen',
-        frame: 0,
-        target: { scope: 'operator', trackIndex: 0 },
-        event: { kind: 'operatorWeaknessTriggeredOutput' },
-      },
-    ];
-    const placed = placeSkillGroup({
-      scenario,
-      trackIndex: 0,
-      operator: chenQianyu,
-      skillGroupKey: 'basicAttack',
-      startFrame: 1,
-      ids: numberedPlacementIds('chen'),
-    }).scenario;
-
-    const result = runStandardPlayerDamageScenarioSimulation({
-      scenario: placed,
-      endFrame: 1,
-      criticalSamples: new ExplicitCriticalSampleSource([]),
-      resolveNonRandomRuntimeSnapshot: () => ({
-        runtimeExtensionMultiplier: 1,
-        appliesIgniteDamageMultiplier: false,
-        appliesPhysicalInflictionDamageMultiplier: false,
-      }),
-      options: {
-        index: gameDataRepository,
-        resources: {
-          sharedSpGain: { baseGainEfficiency: 1 },
-          spRecoveryPauseDuration: 1.5,
-          ultimateEnergySystemUnlocked: true,
-          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-        },
-      },
-    });
-
-    expect(result.receiptEntries).toContainEqual(
-      expect.objectContaining({
-        event: 'ExternalOperatorWeaknessTriggeredOutputProcessed',
-        sourceId: 'track:chen',
-        targetId: 'enemy',
-      }),
-    );
-    expect(result.receiptEntries).toContainEqual(
-      expect.objectContaining({
-        event: 'PoiseApplied',
-        sourceId: 'track:chen',
-        targetId: 'enemy',
-        data: expect.objectContaining({ calculatedDamage: 10, currentPoise: 90 }),
-      }),
-    );
-  });
-
-  it('opens Catcher combo window from the explicit enemy weakness-set fact', () => {
-    const scenario = createEmptyScenario('scenario:catcher:combo', 'Catcher 连携条件回归');
-    scenario.battle.durationFrames = 30;
-    scenario.tracks[0] = {
-      id: 'track:catcher',
-      operator: {
-        operatorSlug: catcher.slug,
-        level: 90,
-        promoted: true,
-        potential: 0,
-        trustLevel: 4,
-        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-        talentStates: { 0: 0, 1: 0 },
-      },
-      weapon: null,
-      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-      initialState: { ultimateEnergy: 0 },
-      skillCasts: [],
-    };
-    scenario.battle.externalEventMarkers = [
-      {
-        id: 'weakness:set',
-        frame: 0,
-        target: { scope: 'team' },
-        event: { kind: 'enemyWeaknessSet' },
-      },
-    ];
-
-    const result = runStandardPlayerDamageScenarioSimulation({
-      scenario,
-      endFrame: 30,
-      criticalSamples: new ExplicitCriticalSampleSource([]),
-      resolveNonRandomRuntimeSnapshot: () => ({
-        runtimeExtensionMultiplier: 1,
-        appliesIgniteDamageMultiplier: false,
-        appliesPhysicalInflictionDamageMultiplier: false,
-      }),
-      options: {
-        index: gameDataRepository,
-        resources: {
-          sharedSpGain: { baseGainEfficiency: 1 },
-          spRecoveryPauseDuration: 1.5,
-          ultimateEnergySystemUnlocked: true,
-          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-        },
-      },
-    });
-
-    expect(result.receiptEntries).toContainEqual(
-      expect.objectContaining({
-        event: 'ExternalEnemyWeaknessSetProcessed',
-        sourceId: 'enemy',
-      }),
-    );
-    expect(result.receiptEntries).toContainEqual(
-      expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:catcher' }),
-    );
   });
 
   it('lets Da Pan Crush consume no-guard before the same-frame hit and activate talent 1', () => {
@@ -1255,7 +1126,9 @@ describe('registered generated operators', () => {
       gameDataRepository.getCommonAbilityEntityDefinitions?.() ?? {},
       panel.attributes,
     );
-    expect(allSkills.find(skill => skill.skillId === 'comboSkill')?.cooldownFrames).toBe(360);
+    expect(
+      allSkills.find(skill => skill.skillId === 'chr_0032_lizhiyan_combo_skill')?.cooldownFrames,
+    ).toBe(360);
     expect(compileOperatorEntityBlackboardInitialValues(build.operator, panel)).toMatchObject({
       EntityBB_wisd_greater_will: 1,
     });
@@ -1286,7 +1159,7 @@ describe('registered generated operators', () => {
         entry =>
           entry.event === 'SkillStarted' &&
           entry.sourceId === 'track:arcane' &&
-          entry.data?.skillId === 'battleSkill',
+          entry.data?.skillId === 'chr_0032_lizhiyan_normal_skill',
       ),
     ).toHaveLength(1);
     expect(
@@ -1364,7 +1237,7 @@ describe('registered generated operators', () => {
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:laevatain',
-        data: expect.objectContaining({ skillId: 'basicAttack1' }),
+        data: expect.objectContaining({ skillId: 'chr_0016_laevat_attack1' }),
       }),
     );
     expect(
@@ -1403,17 +1276,16 @@ describe('registered generated operators', () => {
         trackIndex: 0,
         operator: laevatain,
         skillGroupKey: 'basicAttack',
-        skillKey: 'basicAttack1',
+        skillKey: 'chr_0016_laevat_attack1',
         startFrame: 1,
         ids: { allocate: kind => `${kind}:laevatain:talent1:${talentLevel}` },
       }).scenario;
       const cast = placed.tracks[0]?.skillCasts[0];
       if (cast === undefined) throw new Error('missing Laevatain test cast');
       const attachmentAndHit = (key: string): SkillDefinition => ({
-        key: 'basicAttack1',
+        key: laevatainBasicAttack1.key,
         skillType: 'basicAttack',
         levelSource: 'basicAttack',
-        sourceSkillId: laevatainBasicAttack1.sourceSkillId,
         nativeSkillType: laevatainBasicAttack1.nativeSkillType,
         timelineBlockFrames: 1,
         scheduledSequences: [
@@ -1435,10 +1307,9 @@ describe('registered generated operators', () => {
         ],
       });
       const probe: SkillDefinition = {
-        key: 'basicAttack1',
+        key: laevatainBasicAttack1.key,
         skillType: 'basicAttack',
         levelSource: 'basicAttack',
-        sourceSkillId: laevatainBasicAttack1.sourceSkillId,
         nativeSkillType: laevatainBasicAttack1.nativeSkillType,
         timelineBlockFrames: 1,
         scheduledSequences: [
@@ -1557,7 +1428,7 @@ describe('registered generated operators', () => {
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:yvonne',
-        data: expect.objectContaining({ skillId: 'basicAttack1' }),
+        data: expect.objectContaining({ skillId: 'chr_0017_yvonne_attack1' }),
       }),
     );
     expect(
@@ -1594,15 +1465,6 @@ describe('registered generated operators', () => {
       startFrame: 1,
       ids: numberedPlacementIds('ember'),
     }).scenario;
-    placed.battle.externalEventMarkers = [
-      {
-        id: 'hit:ember-talent2',
-        frame: 0,
-        target: { scope: 'operator', trackIndex: 0 },
-        event: { kind: 'operatorHit', tags: [], features: [] },
-      },
-    ];
-
     const result = runStandardPlayerDamageScenarioSimulation({
       scenario: placed,
       endFrame: 120,
@@ -1627,14 +1489,7 @@ describe('registered generated operators', () => {
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:ember',
-        data: expect.objectContaining({ skillId: 'basicAttack1' }),
-      }),
-    );
-    expect(result.receiptEntries).toContainEqual(
-      expect.objectContaining({
-        event: 'ExternalOperatorHitProcessed',
-        sourceId: 'enemy',
-        targetId: 'track:ember',
+        data: expect.objectContaining({ skillId: 'chr_0009_azrila_attack1' }),
       }),
     );
     expect(
@@ -1642,78 +1497,6 @@ describe('registered generated operators', () => {
         entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:ember',
       ),
     ).toBe(true);
-  });
-
-  it('applies Fluorite talent 2 only when the external hit type and patched probability match', () => {
-    const run = (potential: 1 | 2) => {
-      const scenario = createEmptyScenario(
-        `scenario:fluorite:talent2:${potential}`,
-        '萤石天赋二默认仓库回归',
-      );
-      scenario.battle.durationFrames = 120;
-      scenario.tracks[0] = {
-        id: 'track:fluorite',
-        operator: {
-          operatorSlug: fluorite.slug,
-          level: 90,
-          promoted: true,
-          potential,
-          trustLevel: 4,
-          skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-          talentStates: { 1: 2 },
-        },
-        weapon: null,
-        gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-        initialState: { ultimateEnergy: 0 },
-        skillCasts: [],
-      };
-      const placed = placeSkillGroup({
-        scenario,
-        trackIndex: 0,
-        operator: fluorite,
-        skillGroupKey: 'basicAttack',
-        startFrame: 1,
-        ids: numberedPlacementIds(`fluorite:${potential}`),
-      }).scenario;
-      placed.battle.externalEventMarkers = [
-        {
-          id: `hit:fluorite:${potential}`,
-          frame: 0,
-          target: { scope: 'operator', trackIndex: 0 },
-          event: { kind: 'operatorHit', damageType: 'heat', tags: [], features: [] },
-        },
-      ];
-
-      const result = runStandardPlayerDamageScenarioSimulation({
-        scenario: placed,
-        endFrame: 120,
-        criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
-        probabilitySamples: new ExplicitProbabilitySampleSource([0.25]),
-        resolveNonRandomRuntimeSnapshot: () => ({
-          runtimeExtensionMultiplier: 1,
-          appliesIgniteDamageMultiplier: false,
-          appliesPhysicalInflictionDamageMultiplier: false,
-        }),
-        options: {
-          index: gameDataRepository,
-          resources: {
-            sharedSpGain: { baseGainEfficiency: 1 },
-            spRecoveryPauseDuration: 1.5,
-            ultimateEnergySystemUnlocked: true,
-            normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-          },
-        },
-      });
-      return result.receiptEntries.find(
-        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:fluorite',
-      )?.data?.value as number | undefined;
-    };
-
-    const withoutPotential2 = run(1);
-    const withPotential2 = run(2);
-    expect(withoutPotential2).toBeTypeOf('number');
-    expect(withPotential2).toBeTypeOf('number');
-    expect(withPotential2!).toBeGreaterThan(withoutPotential2!);
   });
 
   it('reduces Fluorite combo cooldown once when her nature infliction reaches the enemy', () => {
@@ -2047,7 +1830,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: camille,
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkillDuringUltimate',
+      skillKey: 'chr_0033_camille_normal_skill_2',
       startFrame: 180,
       ids,
     }).scenario;
@@ -2077,20 +1860,23 @@ describe('registered generated operators', () => {
       result.receiptEntries
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => entry.data?.skillId),
-    ).toEqual(['ultimate', 'battleSkillDuringUltimate']);
+    ).toEqual(['chr_0033_camille_ultimate_skill', 'chr_0033_camille_normal_skill_2']);
     expect(
       result.receiptEntries.filter(entry => entry.event === 'ComboWindowUnavailableAtStart'),
     ).toEqual([]);
     const slotChanges = result.receiptEntries
       .filter(entry => entry.event === 'SkillSlotChanged' && entry.sourceId === 'track:camille')
       .map(entry => entry.data?.targetSkillKey);
-    expect(slotChanges).toEqual(['battleSkillDuringUltimate', 'battleSkill']);
+    expect(slotChanges).toEqual([
+      'chr_0033_camille_normal_skill_2',
+      'chr_0033_camille_normal_skill',
+    ]);
     expect(
       result.receiptEntries.some(
         entry =>
           entry.event === 'SpChanged' &&
           entry.sourceId === 'track:camille' &&
-          entry.data?.skillId === 'battleSkillDuringUltimate' &&
+          entry.data?.skillId === 'chr_0033_camille_normal_skill_2' &&
           entry.data?.requestedValue === -40,
       ),
     ).toBe(true);
@@ -2166,7 +1952,7 @@ describe('registered generated operators', () => {
       if (camilleCast === undefined) throw new Error('missing Camille weapon probe cast');
       const camilleComboDefinition = camille.skillGroups
         .flatMap(group => (Array.isArray(group.skills) ? group.skills : [group.skills]))
-        .find(skill => skill.key === 'comboSkill1');
+        .find(skill => skill.key === 'chr_0033_camille_combo_skill');
       if (camilleComboDefinition === undefined)
         throw new Error('missing Camille combo skill definition');
       placed.tracks[0]!.skillCasts = [
@@ -2282,7 +2068,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: zhuangFangyi,
       skillGroupKey: 'battleSkill',
-      skillKey: 'enhancedBattleSkill',
+      skillKey: 'chr_0030_zhuangfy_normal_skill_ult',
       startFrame: 100,
       ids,
     }).scenario;
@@ -2313,14 +2099,14 @@ describe('registered generated operators', () => {
       result.receiptEntries
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => entry.data?.skillId),
-    ).toEqual(['ultimate', 'enhancedBattleSkill']);
+    ).toEqual(['chr_0030_zhuangfy_ultimate_skill', 'chr_0030_zhuangfy_normal_skill_ult']);
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'SkillSlotChanged',
         sourceId: 'track:zhuang-fangyi',
         data: expect.objectContaining({
           skillGroupKey: 'battleSkill',
-          targetSkillKey: 'enhancedBattleSkill',
+          targetSkillKey: 'chr_0030_zhuangfy_normal_skill_ult',
         }),
       }),
     );
@@ -2345,7 +2131,8 @@ describe('registered generated operators', () => {
     ).toBe(true);
     const enhancedBattleCastId = placed.tracks[0]!.skillCasts.find(
       cast =>
-        cast.source.kind === 'operatorSkill' && cast.source.skillKey === 'enhancedBattleSkill',
+        cast.source.kind === 'operatorSkill' &&
+        cast.source.skillKey === 'chr_0030_zhuangfy_normal_skill_ult',
     )!.id;
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
@@ -2472,7 +2259,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: zhuangFangyi,
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack1',
+      skillKey: 'chr_0030_zhuangfy_attack1',
       startFrame: 1,
       ids,
     }).scenario;
@@ -2481,7 +2268,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: zhuangFangyi,
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack2',
+      skillKey: 'chr_0030_zhuangfy_attack2',
       // 第一段施放当帧不推进；接续窗口要在下一次输入阶段才能观察到。
       startFrame: 17,
       ids,
@@ -2510,7 +2297,9 @@ describe('registered generated operators', () => {
     });
 
     const attack2CastId = placed.tracks[0]!.skillCasts.find(
-      cast => cast.source.kind === 'operatorSkill' && cast.source.skillKey === 'basicAttack2',
+      cast =>
+        cast.source.kind === 'operatorSkill' &&
+        cast.source.skillKey === 'chr_0030_zhuangfy_attack2',
     )!.id;
     expect(
       result.receiptEntries.filter(
@@ -2524,7 +2313,10 @@ describe('registered generated operators', () => {
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:zhuang-fangyi',
-        data: expect.objectContaining({ skillId: 'basicAttack2', castId: attack2CastId }),
+        data: expect.objectContaining({
+          skillId: 'chr_0030_zhuangfy_attack2',
+          castId: attack2CastId,
+        }),
       }),
     );
   });
@@ -2645,7 +2437,7 @@ describe('registered generated operators', () => {
       trackIndex: 0,
       operator: zhuangFangyi,
       skillGroupKey: 'enhancedBasicAttack',
-      skillKey: 'enhancedBasicAttack3',
+      skillKey: 'chr_0030_zhuangfy_attack3_ult',
       startFrame: 1,
       ids: { allocate: kind => `${kind}:zhuang-fangyi:enhanced-basic-attack` },
     }).scenario;
@@ -2869,77 +2661,6 @@ describe('registered generated operators', () => {
       entry => entry.event === 'HealingApplied' && entry.targetId === 'track:perlica',
     );
     expect(initialHealing?.data?.requestedHealing).toBeCloseTo(expectedInitialHealing);
-  });
-
-  it('runs Snowshine counter branch from an explicit external hit fact', () => {
-    const scenario = createEmptyScenario('scenario:snowshine:counter', '雪绒反击入口回归');
-    scenario.battle.durationFrames = 180;
-    scenario.tracks[0] = {
-      id: 'track:snowshine',
-      operator: {
-        operatorSlug: snowshine.slug,
-        level: 90,
-        promoted: true,
-        potential: 5,
-        trustLevel: 4,
-        skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
-        talentStates: { 0: 2, 1: 2 },
-      },
-      weapon: null,
-      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
-      initialState: { ultimateEnergy: 0 },
-      skillCasts: [],
-    };
-    const placed = placeSkillGroup({
-      scenario,
-      trackIndex: 0,
-      operator: snowshine,
-      skillGroupKey: 'battleSkill',
-      startFrame: 1,
-      ids: { allocate: kind => `${kind}:snowshine:counter` },
-    }).scenario;
-    placed.battle.externalEventMarkers = [
-      {
-        id: 'hit:snowshine:counter',
-        frame: 2,
-        target: { scope: 'operator', trackIndex: 0 },
-        event: { kind: 'operatorHit', tags: [], features: [] },
-      },
-    ];
-
-    const result = runStandardPlayerDamageScenarioSimulation({
-      scenario: placed,
-      endFrame: 180,
-      criticalSamples: new ExplicitCriticalSampleSource(Array(20).fill(1)),
-      elementalInflictionDocument: elementalAttachments,
-      resolveNonRandomRuntimeSnapshot: () => ({
-        runtimeExtensionMultiplier: 1,
-        appliesIgniteDamageMultiplier: false,
-        appliesPhysicalInflictionDamageMultiplier: false,
-      }),
-      options: {
-        index: gameDataRepository,
-        resources: {
-          sharedSpGain: { baseGainEfficiency: 1 },
-          spRecoveryPauseDuration: 1.5,
-          normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
-          ultimateEnergySystemUnlocked: true,
-        },
-      },
-    });
-
-    expect(result.receiptEntries).toContainEqual(
-      expect.objectContaining({
-        event: 'ExternalOperatorHitProcessed',
-        sourceId: 'enemy',
-        targetId: 'track:snowshine',
-      }),
-    );
-    expect(
-      result.receiptEntries.some(
-        entry => entry.event === 'DamageApplied' && entry.sourceId === 'track:snowshine',
-      ),
-    ).toBe(true);
   });
 
   it('runs Wulfgard battle skill through the registered production repository', () => {
@@ -3251,7 +2972,7 @@ describe('registered generated operators', () => {
     expect(perlica.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillKey: 'comboSkill',
+        skillKey: 'chr_0004_pelica_combo_skill',
         event: 'beforeTakeDamage',
         immediately: false,
         initialValues: null,
@@ -3275,7 +2996,7 @@ describe('registered generated operators', () => {
     expect(wulfgard.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillKey: 'comboSkill',
+        skillKey: 'chr_0006_wolfgd_combo_skill',
         event: 'beforeTakeInfliction',
         immediately: false,
         initialValues: null,
@@ -3285,7 +3006,7 @@ describe('registered generated operators', () => {
     expect(lastRite.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillKey: 'comboSkill',
+        skillKey: 'chr_0026_lastrite_combo_skill',
         event: 'beforeTakeInfliction',
         immediately: false,
         initialValues: null,
@@ -3295,7 +3016,7 @@ describe('registered generated operators', () => {
     expect(tangtang.comboSkillConditions).toEqual([
       expect.objectContaining({
         key: 'native-combo:0',
-        skillKey: 'comboSkill',
+        skillKey: 'chr_0027_tangtang_combo_skill',
         event: 'takeDamage',
         immediately: false,
         initialValues: null,
@@ -3315,7 +3036,7 @@ describe('registered generated operators', () => {
       }),
       expect.objectContaining({
         key: 'native-combo:1',
-        skillKey: 'comboSkill',
+        skillKey: 'chr_0027_tangtang_combo_skill',
         event: 'beforeTakeInfliction',
       }),
     ]);
@@ -3504,11 +3225,11 @@ describe('registered generated operators', () => {
       initialState: { ultimateEnergy: 0 },
       skillCasts: (
         [
-          ['skillCast:sample:6', 'basicAttack1', 11],
-          ['skillCast:sample:7', 'basicAttack2', 26],
-          ['skillCast:sample:8', 'basicAttack3', 41],
-          ['skillCast:sample:9', 'basicAttack4', 67],
-          ['skillCast:sample:10', 'basicAttack5', 84],
+          ['skillCast:sample:6', 'chr_0030_zhuangfy_attack1', 11],
+          ['skillCast:sample:7', 'chr_0030_zhuangfy_attack2', 26],
+          ['skillCast:sample:8', 'chr_0030_zhuangfy_attack3', 41],
+          ['skillCast:sample:9', 'chr_0030_zhuangfy_attack4', 67],
+          ['skillCast:sample:10', 'chr_0030_zhuangfy_attack5', 84],
         ] as const
       )
         .map(([id, skillKey, startFrame]): SkillCastDocument => ({
@@ -3526,7 +3247,7 @@ describe('registered generated operators', () => {
           source: {
             kind: 'operatorSkill' as const,
             skillGroupKey: 'comboSkill',
-            skillKey: 'comboSkill',
+            skillKey: 'chr_0030_zhuangfy_combo_skill',
             action: 'comboSkill' as const,
           },
           placement: { startFrame: 147 },
@@ -3552,7 +3273,7 @@ describe('registered generated operators', () => {
           source: {
             kind: 'operatorSkill',
             skillGroupKey: 'battleSkill',
-            skillKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
             action: 'battleSkill',
           },
           placement: { startFrame: 41 },
@@ -3609,8 +3330,8 @@ describe('registered generated operators', () => {
   it('binds Rossi native combo conditions to combo 2 without borrowing combo 3 cooldown', () => {
     expect(rossi.comboSkillConditions).toHaveLength(2);
     expect(rossi.comboSkillConditions?.map(condition => condition.skillKey)).toEqual([
-      'comboSkill2',
-      'comboSkill2',
+      'chr_0028_wulfa_combo_2_skill',
+      'chr_0028_wulfa_combo_2_skill',
     ]);
   });
 

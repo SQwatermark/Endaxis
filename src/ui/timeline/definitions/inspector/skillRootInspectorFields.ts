@@ -7,13 +7,6 @@ const field = inspectorField<SkillDefinition>();
 
 /** Only own scalar properties; windows, conditions and sequences belong in the structure graph. */
 export const skillRuntimeIdentityFields = [
-  field('sourceSkillId', {
-    editor: 'text',
-    labelKey: 'timeline.skillEditing.runtimeFields.sourceSkillId',
-    helpKey: '用于原生事件守卫；不等于编辑器技能标识。不知道时保留未设置。',
-    optional: true,
-    create: () => '',
-  }),
   field('nativeSkillType', {
     editor: 'enum',
     options: NATIVE_SKILL_TYPES,

@@ -1,6 +1,6 @@
 /**
  * 存档与文本/对象输入之间的稳定 I/O 边界。
- * 解析前先识别版本并校验，序列化只接受合法项目，不能在这里补算派生数据。
+ * 解析时只识别当前项目格式与旧版异构格式；序列化只接受合法的当前项目。
  */
 import type { EndaxisProjectDocument, JsonObject } from './schema';
 import { PROJECT_SCHEMA_VERSION } from './schema';
@@ -22,7 +22,6 @@ export type ParseProjectResult =
   | { ok: true; value: EndaxisProjectDocument }
   | { ok: false; kind: 'invalid-json'; message: string }
   | { ok: false; kind: 'legacy'; message: string }
-  | { ok: false; kind: 'migration-failed'; errors: string[] }
   | { ok: false; kind: 'unsupported-version'; schemaVersion: number }
   | { ok: false; kind: 'invalid-document'; issues: ValidationIssue[] };
 
@@ -75,7 +74,7 @@ export function parseProjectDocument(
     return {
       ok: false,
       kind: 'legacy',
-      message: 'legacy project detected; migrate it before loading the V2 document',
+      message: '检测到旧版存档，请使用旧轴转换入口',
     };
   }
   if (inspection.kind === 'unsupported' && inspection.schemaVersion !== undefined) {

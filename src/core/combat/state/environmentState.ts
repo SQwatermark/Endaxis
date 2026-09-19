@@ -5,15 +5,10 @@
  * 它不负责校验初始配置，也不执行资源、生命或时间推进；这些操作留在 runtime 目录。
  */
 import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
-import {
-  type ElementalReaction,
-  type DamageFeature,
-  type DamageTag,
-  type PlayerSkillInput,
-} from '../../game-data/operatorDefinition';
+import { type ElementalReaction, type PlayerSkillInput } from '../../game-data/operatorDefinition';
 import { type GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
-import type { CombatObjectRef } from '../receipt/combatReceipt';
 import {
+  type CombatObjectRef,
   type SharedSpGainModifierState,
   type SharedSpRecoveryModifierState,
   type SkillSimulationInputs,
@@ -460,16 +455,7 @@ export type ScheduledDodgeInput = DodgeInput & { readonly frame: number };
 
 export interface ExternalCombatEventInput {
   readonly targetOperatorIds: readonly string[];
-  readonly event:
-    | {
-        readonly kind: 'operatorHit';
-        readonly damageType?: import('../../game-data/operatorDefinition').DamageType;
-        readonly tags: readonly DamageTag[];
-        readonly features: readonly DamageFeature[];
-      }
-    | { readonly kind: 'operatorWeaknessTriggeredOutput' }
-    | { readonly kind: 'enemyWeaknessSet' }
-    | { readonly kind: 'comboCooldownControl'; readonly mode: 'cooldown' | 'ready' };
+  readonly event: { readonly kind: 'comboCooldownControl'; readonly mode: 'cooldown' | 'ready' };
 }
 
 export interface ScheduledExternalCombatEventInput extends ExternalCombatEventInput {

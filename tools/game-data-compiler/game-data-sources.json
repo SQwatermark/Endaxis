@@ -1,5 +1,6 @@
 {
   "tableCfg": [
+    "GlobalConst",
     "CharacterTable",
     "AttributeMetaTable",
     "CharGrowthTable",

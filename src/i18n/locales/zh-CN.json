@@ -226,9 +226,7 @@
       "AbilityEntityChildSkillRequested": "能力实体子技能请求",
       "TimeDilationStarted": "时间膨胀开始",
       "PassiveSkillEnabled": "被动启用",
-      "OperatorUpgradeInitialized": "养成效果初始化",
-      "ExternalOperatorHitProcessed": "外部受击标记",
-      "ExternalOperatorWeaknessTriggeredOutputProcessed": "外部弱点触发标记"
+      "OperatorUpgradeInitialized": "养成效果初始化"
     },
     "receiptDetails": {
       "overhealing": "过量治疗 {value}",
@@ -502,7 +500,6 @@
       "smallImageExported": "小图已导出：{filename}"
     },
     "header": {
-      "projectDirty": "项目有未导出修改",
       "display": "显示",
       "displayTooltip": "时间轴显示与辅助线",
       "more": "更多",
@@ -739,26 +736,13 @@
       "dodge": "在此处闪避",
       "perfectDodge": "在此处极限闪避",
       "switchToDodge": "切换为闪避",
-      "switchToPerfectDodge": "切换为极限闪避",
-      "restrictedHint": "仅补充木桩模型无法自然产生的事件",
-      "operatorHit": "当前干员受到攻击",
-      "operatorWeakness": "当前干员触发敌方弱点",
-      "teamHit": "全队受到攻击",
-      "enemyWeaknessSet": "敌人被设置弱点"
+      "switchToPerfectDodge": "切换为极限闪避"
     },
     "markerInspector": {
-      "title": "外部事件",
+      "title": "连携冷却",
       "event": "事件类型",
       "target": "作用对象",
-      "teamTarget": "当前全队",
-      "hitContext": "受击上下文",
-      "unknownDamageType": "未知伤害类型",
-      "boundaryHint": "这里只声明木桩模型无法自然产生的外部事实；不会模拟敌方技能、扣血或主动行为。",
-      "eventKinds": {
-        "operatorHit": "干员受到攻击",
-        "operatorWeaknessTriggeredOutput": "干员触发敌方弱点",
-        "enemyWeaknessSet": "敌人被设置弱点"
-      }
+      "teamTarget": "当前全队"
     },
     "documentMarkerInspector": {
       "title": "时间轴标记",
@@ -823,20 +807,13 @@
       "cycleBoundary": "循环分界线",
       "simulationStart": "模拟起始线",
       "simulationEnd": "模拟终止线",
-      "teamExternalEvent": "全队外部事件",
-      "teamHit": "全队受击",
       "controlSwitch": "切入干员",
       "dodge": "闪避",
       "perfectDodge": "极限闪避",
-      "dodgeIncomplete": "部分原生行为尚无足够证据，已执行可确定部分",
-      "operatorWeakness": "触发敌方弱点",
-      "hitShort": "受击",
-      "weaknessShort": "弱点",
-      "enemyWeaknessSet": "设置弱点"
+      "dodgeIncomplete": "部分原生行为尚无足够证据，已执行可确定部分"
     },
     "skillEditing": {
       "runtimeFields": {
-        "sourceSkillId": "原生技能 ID",
         "nativeSkillType": "原生技能类型初值",
         "smartTarget": "智能目标存储来源",
         "naturalDurationFrames": "自然结束帧",
@@ -1614,6 +1591,10 @@
         "changeResourceByActionValue": "从动作黑板或常量读取数值，再改变技力或终结技能量。",
         "gainSquadUltimateEnergyFromSkillCost": "根据本次技能实际消耗的技力，为队伍成员换算终结技能量。",
         "gainFinisherSp": "按处决专用规则为全队回复共享技力。",
+        "recoverDashEnergy": "按动作数值回复原生闪避体力。",
+        "recordPerfectDodge": "记录本次闪避成功进入极限闪避。",
+        "markCurrentSkillCanDash": "标记当前技能已进入允许闪避打断的阶段。",
+        "overrideMultiDashLimit": "临时覆盖连续闪避次数上限。",
         "applyStatus": "施加 Endaxis 的语义状态，可设置持续时间、层数和战斗修正。",
         "consumeStatus": "从目标身上消费指定语义状态的层数。",
         "jumpTimeline": "推进宿主局部时间轴到指定帧；可选条件会在动作区间内持续重试，且只跳转一次。",
@@ -1764,6 +1745,10 @@
         "changeResourceByActionValue": "按动作值改变资源",
         "gainSquadUltimateEnergyFromSkillCost": "按技能消耗获得终结技能量",
         "gainFinisherSp": "处决回复技力",
+        "recoverDashEnergy": "回复闪避体力",
+        "recordPerfectDodge": "记录极限闪避",
+        "markCurrentSkillCanDash": "允许当前技能被闪避打断",
+        "overrideMultiDashLimit": "覆盖连续闪避上限",
         "applyStatus": "施加状态",
         "consumeStatus": "消耗状态",
         "jumpTimeline": "跳转时间轴",
@@ -2092,6 +2077,7 @@
       "buffLayoutLoose": "松散",
       "buffLayoutMode": "Buff 排布：{mode}",
       "horizontalScroll": "时间轴水平滚动条",
+      "verticalScroll": "时间轴纵向滚动条",
       "resizeTrack": "拖动调整相邻轨道高度，双击重置",
       "connectionTool": "连线工具 (Alt+L)",
       "cursorGuide": "辅助线 (Ctrl+G)",

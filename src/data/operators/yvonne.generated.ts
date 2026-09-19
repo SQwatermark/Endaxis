@@ -351,10 +351,9 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0017_yvonne_attack1',
+    key: 'chr_0017_yvonne_attack1',
     timelineBlockFrames: 16,
     naturalDurationFrames: 121,
     exclusiveFrame: 20,
@@ -365,12 +364,12 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 27,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_attack2',
+          targetSkillId: 'chr_0017_yvonne_attack2',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 16, endFrame: 27, sourceSkillIds: ['chr_0017_yvonne_attack2'] },
-        { startFrame: 0, endFrame: 27, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+        { startFrame: 16, endFrame: 27, skillIds: ['chr_0017_yvonne_attack2'] },
+        { startFrame: 0, endFrame: 27, skillIds: ['chr_0017_yvonne_attack5'] },
       ],
     },
     costFrame: 9,
@@ -386,20 +385,16 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         16,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack2'] })),
         27,
       ),
       scheduled(
         0,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack5'] })),
         27,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack2',
+    timelineContinuationSkillId: 'chr_0017_yvonne_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -407,10 +402,9 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.24, 0.26, 0.28, 0.31, 0.33, 0.35, 0.38, 0.4, 0.42, 0.45, 0.49, 0.53] },
 );
 
-export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0017_yvonne_attack2',
+    key: 'chr_0017_yvonne_attack2',
     timelineBlockFrames: 14,
     naturalDurationFrames: 126,
     exclusiveFrame: 20,
@@ -421,12 +415,12 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 28,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_attack3',
+          targetSkillId: 'chr_0017_yvonne_attack3',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 14, endFrame: 28, sourceSkillIds: ['chr_0017_yvonne_attack3'] },
-        { startFrame: 0, endFrame: 28, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+        { startFrame: 14, endFrame: 28, skillIds: ['chr_0017_yvonne_attack3'] },
+        { startFrame: 0, endFrame: 28, skillIds: ['chr_0017_yvonne_attack5'] },
       ],
     },
     costFrame: 9,
@@ -451,20 +445,16 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         14,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack3'] })),
         28,
       ),
       scheduled(
         0,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack5'] })),
         28,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack3',
+    timelineContinuationSkillId: 'chr_0017_yvonne_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -476,10 +466,9 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0017_yvonne_attack3',
+    key: 'chr_0017_yvonne_attack3',
     timelineBlockFrames: 20,
     naturalDurationFrames: 127,
     exclusiveFrame: 21,
@@ -490,12 +479,12 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 34,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_attack4',
+          targetSkillId: 'chr_0017_yvonne_attack4',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 20, endFrame: 34, sourceSkillIds: ['chr_0017_yvonne_attack4'] },
-        { startFrame: 0, endFrame: 34, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
+        { startFrame: 20, endFrame: 34, skillIds: ['chr_0017_yvonne_attack4'] },
+        { startFrame: 0, endFrame: 34, skillIds: ['chr_0017_yvonne_attack5'] },
       ],
     },
     costFrame: 9,
@@ -529,20 +518,16 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         20,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack4'] })),
         34,
       ),
       scheduled(
         0,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack5'] })),
         34,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack4',
+    timelineContinuationSkillId: 'chr_0017_yvonne_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -554,10 +539,9 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0017_yvonne_attack4',
+    key: 'chr_0017_yvonne_attack4',
     timelineBlockFrames: 24,
     naturalDurationFrames: 156,
     exclusiveFrame: 25,
@@ -568,12 +552,10 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 38,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_attack5',
+          targetSkillId: 'chr_0017_yvonne_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 24, endFrame: 38, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 24, endFrame: 38, skillIds: ['chr_0017_yvonne_attack5'] }],
       hasConditionalActions: true,
     },
     costFrame: 9,
@@ -589,13 +571,11 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack5'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack5',
+    timelineContinuationSkillId: 'chr_0017_yvonne_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -603,19 +583,16 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.41, 0.45, 0.49, 0.53, 0.58, 0.62, 0.66, 0.7, 0.74, 0.79, 0.85, 0.92] },
 );
 
-export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0017_yvonne_attack5',
+    key: 'chr_0017_yvonne_attack5',
     timelineBlockFrames: 37,
     naturalDurationFrames: 145,
     exclusiveFrame: 37,
     offsetRecordFrame: 21,
     inputWindows: {
       hasConditionalActions: true,
-      allowedNextSkills: [
-        { startFrame: 37, endFrame: 60, sourceSkillIds: ['chr_0017_yvonne_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 37, endFrame: 60, skillIds: ['chr_0017_yvonne_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -700,9 +677,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
               value: { kind: 'constant', value: 1 },
             },
             sequence(
-              step('reachSkillOperableBoundary', {
-                sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1'],
-              }),
+              step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_ult_attack2_1'] }),
             ),
             sequence(
               branch(
@@ -715,7 +690,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
                 },
                 sequence(
                   step('reachSkillOperableBoundary', {
-                    sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1'],
+                    skillIds: ['chr_0017_yvonne_ult_attack2_1'],
                   }),
                 ),
                 undefined,
@@ -750,9 +725,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
                 },
                 sequence(),
                 sequence(
-                  step('reachSkillOperableBoundary', {
-                    sourceSkillIds: ['chr_0017_yvonne_attack1'],
-                  }),
+                  step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack1'] }),
                 ),
                 { alwaysNext: true },
               ),
@@ -763,7 +736,7 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
         60,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack1',
+    timelineContinuationSkillId: 'chr_0017_yvonne_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -778,10 +751,9 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_ult_attack1_1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack1',
-    sourceSkillId: 'chr_0017_yvonne_ult_attack1_1',
+    key: 'chr_0017_yvonne_ult_attack1_1',
     timelineBlockFrames: 21,
     naturalDurationFrames: 77,
     exclusiveFrame: 28,
@@ -792,21 +764,21 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 26,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
+          targetSkillId: 'chr_0017_yvonne_ult_attack2_1',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 21,
           endFrame: 26,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1', 'chr_0017_yvonne_ult_attack_end'],
+          skillIds: ['chr_0017_yvonne_ult_attack2_1', 'chr_0017_yvonne_ult_attack_end'],
         },
         {
           startFrame: 0,
           endFrame: 26,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
-        { startFrame: 21, endFrame: 26, sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1'] },
+        { startFrame: 21, endFrame: 26, skillIds: ['chr_0017_yvonne_ult_attack2_1'] },
       ],
     },
     costFrame: 9,
@@ -1030,7 +1002,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
         21,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1', 'chr_0017_yvonne_ult_attack_end'],
+            skillIds: ['chr_0017_yvonne_ult_attack2_1', 'chr_0017_yvonne_ult_attack_end'],
           }),
         ),
         26,
@@ -1039,13 +1011,13 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+            skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
           }),
         ),
         26,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
+    timelineContinuationSkillId: 'chr_0017_yvonne_ult_attack2_1',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -1058,10 +1030,9 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_ult_attack2_1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack2A',
-    sourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
+    key: 'chr_0017_yvonne_ult_attack2_1',
     timelineBlockFrames: 23,
     naturalDurationFrames: 133,
     exclusiveFrame: 31,
@@ -1072,21 +1043,21 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
+          targetSkillId: 'chr_0017_yvonne_ult_attack2_2',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 23,
           endFrame: 30,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack2_2', 'chr_0017_yvonne_ult_attack_end'],
+          skillIds: ['chr_0017_yvonne_ult_attack2_2', 'chr_0017_yvonne_ult_attack_end'],
         },
         {
           startFrame: 0,
           endFrame: 30,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
-        { startFrame: 23, endFrame: 30, sourceSkillIds: ['chr_0017_yvonne_ult_attack2_2'] },
+        { startFrame: 23, endFrame: 30, skillIds: ['chr_0017_yvonne_ult_attack2_2'] },
       ],
     },
     costFrame: 9,
@@ -1445,7 +1416,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         23,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack2_2', 'chr_0017_yvonne_ult_attack_end'],
+            skillIds: ['chr_0017_yvonne_ult_attack2_2', 'chr_0017_yvonne_ult_attack_end'],
           }),
         ),
         30,
@@ -1454,13 +1425,13 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+            skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
           }),
         ),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
+    timelineContinuationSkillId: 'chr_0017_yvonne_ult_attack2_2',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -1468,10 +1439,9 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
 
-export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_ult_attack2_2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack2B',
-    sourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
+    key: 'chr_0017_yvonne_ult_attack2_2',
     timelineBlockFrames: 12,
     naturalDurationFrames: 123,
     exclusiveFrame: 22,
@@ -1482,21 +1452,21 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 20,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
+          targetSkillId: 'chr_0017_yvonne_ult_attack3_1',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 12,
           endFrame: 20,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack3_1', 'chr_0017_yvonne_ult_attack_end'],
+          skillIds: ['chr_0017_yvonne_ult_attack3_1', 'chr_0017_yvonne_ult_attack_end'],
         },
         {
           startFrame: 0,
           endFrame: 20,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
-        { startFrame: 12, endFrame: 20, sourceSkillIds: ['chr_0017_yvonne_ult_attack3_1'] },
+        { startFrame: 12, endFrame: 20, skillIds: ['chr_0017_yvonne_ult_attack3_1'] },
       ],
     },
     costFrame: 9,
@@ -1791,7 +1761,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         12,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack3_1', 'chr_0017_yvonne_ult_attack_end'],
+            skillIds: ['chr_0017_yvonne_ult_attack3_1', 'chr_0017_yvonne_ult_attack_end'],
           }),
         ),
         20,
@@ -1800,13 +1770,13 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+            skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
           }),
         ),
         20,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
+    timelineContinuationSkillId: 'chr_0017_yvonne_ult_attack3_1',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -1814,10 +1784,9 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
 
-export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_ult_attack3_1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack3A',
-    sourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
+    key: 'chr_0017_yvonne_ult_attack3_1',
     timelineBlockFrames: 28,
     naturalDurationFrames: 163,
     exclusiveFrame: 45,
@@ -1828,21 +1797,21 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 36,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
+          targetSkillId: 'chr_0017_yvonne_ult_attack3_2',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 28,
           endFrame: 36,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+          skillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
         },
         {
           startFrame: 0,
           endFrame: 36,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
-        { startFrame: 28, endFrame: 36, sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2'] },
+        { startFrame: 28, endFrame: 36, skillIds: ['chr_0017_yvonne_ult_attack3_2'] },
       ],
     },
     costFrame: 9,
@@ -2585,7 +2554,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
         28,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+            skillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
           }),
         ),
         36,
@@ -2594,13 +2563,13 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
         0,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+            skillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
           }),
         ),
         36,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
+    timelineContinuationSkillId: 'chr_0017_yvonne_ult_attack3_2',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -2608,10 +2577,9 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
 
-export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_ult_attack3_2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack3B',
-    sourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
+    key: 'chr_0017_yvonne_ult_attack3_2',
     timelineBlockFrames: 16,
     naturalDurationFrames: 151,
     exclusiveFrame: 28,
@@ -2622,18 +2590,18 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 24,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
+          targetSkillId: 'chr_0017_yvonne_ult_attack3_2',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 0, endFrame: 24, sourceSkillIds: ['chr_0017_yvonne_attack5'] },
-        { startFrame: 0, endFrame: 28, sourceSkillIds: ['chr_0017_yvonne_ult_attack_end'] },
+        { startFrame: 0, endFrame: 24, skillIds: ['chr_0017_yvonne_attack5'] },
+        { startFrame: 0, endFrame: 28, skillIds: ['chr_0017_yvonne_ult_attack_end'] },
         {
           startFrame: 16,
           endFrame: 24,
-          sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+          skillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
         },
-        { startFrame: 16, endFrame: 24, sourceSkillIds: ['chr_0017_yvonne_ult_attack_end'] },
+        { startFrame: 16, endFrame: 24, skillIds: ['chr_0017_yvonne_ult_attack_end'] },
       ],
     },
     costFrame: 9,
@@ -3347,17 +3315,13 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         0,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_attack5'] })),
         24,
       ),
       scheduled(
         0,
         sequence(
-          step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end'],
-          }),
+          step('reachSkillOperableBoundary', { skillIds: ['chr_0017_yvonne_ult_attack_end'] }),
         ),
         28,
       ),
@@ -3365,14 +3329,14 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
         16,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+            skillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
           }),
         ),
         24,
       ),
       scheduled(0, sharedActionSequence5, 18),
     ],
-    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack_end',
+    timelineContinuationSkillId: 'chr_0017_yvonne_ult_attack_end',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -3380,10 +3344,9 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
   { atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2] },
 );
 
-export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_ult_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttackEnd',
-    sourceSkillId: 'chr_0017_yvonne_ult_attack_end',
+    key: 'chr_0017_yvonne_ult_attack_end',
     timelineBlockFrames: 61,
     naturalDurationFrames: 161,
     exclusiveFrame: 60,
@@ -3809,10 +3772,9 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0017_yvonne_power_attack',
+    key: 'chr_0017_yvonne_power_attack',
     timelineBlockFrames: 29,
     naturalDurationFrames: 135,
     exclusiveFrame: 45,
@@ -3822,7 +3784,7 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 29,
           endFrame: 47,
-          sourceSkillIds: ['chr_0017_yvonne_normal_skill', 'chr_0017_yvonne_combo_skill'],
+          skillIds: ['chr_0017_yvonne_normal_skill', 'chr_0017_yvonne_combo_skill'],
         },
       ],
     },
@@ -3985,10 +3947,9 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0017_yvonne_plunging_attack_end',
+    key: 'chr_0017_yvonne_plunging_attack_end',
     timelineBlockFrames: 2,
     naturalDurationFrames: 130,
     exclusiveFrame: 20,
@@ -3998,7 +3959,7 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 2,
           endFrame: 20,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0017_yvonne_ult_attack3_1',
             'chr_0017_yvonne_ult_attack3_2',
             'chr_0017_yvonne_ult_attack_end',
@@ -4171,17 +4132,16 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0017_yvonne_normal_skill',
+    key: 'chr_0017_yvonne_normal_skill',
     timelineBlockFrames: 34,
     naturalDurationFrames: 150,
     exclusiveFrame: 34,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 34, endFrame: 56, sourceSkillIds: ['chr_0017_yvonne_normal_skill'] },
+        { startFrame: 34, endFrame: 56, skillIds: ['chr_0017_yvonne_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -4257,10 +4217,9 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0017_yvonne_ultimate_skill',
+    key: 'chr_0017_yvonne_ultimate_skill',
     timelineBlockFrames: 65,
     naturalDurationFrames: 126,
     exclusiveFrame: 64,
@@ -4433,17 +4392,16 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
+export const yvonneChr_0017_yvonne_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0017_yvonne_combo_skill',
+    key: 'chr_0017_yvonne_combo_skill',
     timelineBlockFrames: 19,
     naturalDurationFrames: 130,
     exclusiveFrame: 24,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 19, endFrame: 56, sourceSkillIds: ['chr_0017_yvonne_normal_skill'] },
+        { startFrame: 19, endFrame: 56, skillIds: ['chr_0017_yvonne_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -4532,10 +4490,9 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const yvonnePerfectDodge: SkillDefinition = withSkillBlackboard(
+export const yvonneCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -4571,11 +4528,11 @@ export const yvonne: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        yvonneBasicAttack1,
-        yvonneBasicAttack2,
-        yvonneBasicAttack3,
-        yvonneBasicAttack4,
-        yvonneBasicAttack5,
+        yvonneChr_0017_yvonne_attack1,
+        yvonneChr_0017_yvonne_attack2,
+        yvonneChr_0017_yvonne_attack3,
+        yvonneChr_0017_yvonne_attack4,
+        yvonneChr_0017_yvonne_attack5,
       ],
       variants: [
         {
@@ -4583,79 +4540,89 @@ export const yvonne: OperatorDefinition = {
           levelSource: 'ultimate',
           placementPolicy: {
             kind: 'recursiveInput',
-            firstSkillKey: 'ultimateAttack1',
-            terminalSkillKey: 'ultimateAttackEnd',
+            firstSkillKey: 'chr_0017_yvonne_ult_attack1_1',
+            terminalSkillKey: 'chr_0017_yvonne_ult_attack_end',
             maxSegments: 24,
             fallback: 'sequence',
           },
           libraryPresentation: 'enhanced',
           skills: [
-            yvonneUltimateAttack1,
-            yvonneUltimateAttack2A,
-            yvonneUltimateAttack2B,
-            yvonneUltimateAttack3A,
-            yvonneUltimateAttack3B,
-            yvonneUltimateAttackEnd,
+            yvonneChr_0017_yvonne_ult_attack1_1,
+            yvonneChr_0017_yvonne_ult_attack2_1,
+            yvonneChr_0017_yvonne_ult_attack2_2,
+            yvonneChr_0017_yvonne_ult_attack3_1,
+            yvonneChr_0017_yvonne_ult_attack3_2,
+            yvonneChr_0017_yvonne_ult_attack_end,
           ],
         },
       ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: yvonneFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: yvonneChr_0017_yvonne_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: yvonnePlungingAttack,
+      skills: yvonneChr_0017_yvonne_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: yvonneBattleSkill,
+      skills: yvonneChr_0017_yvonne_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: yvonneUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: yvonneChr_0017_yvonne_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: yvonneComboSkill,
+      skills: yvonneChr_0017_yvonne_combo_skill,
     },
   ],
-  dodgeSkill: yvonnePerfectDodge,
+  dodgeSkill: yvonneCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0017_yvonne_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0017_yvonne_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0017_yvonne_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
-        'ultimateAttack1',
-        'ultimateAttack2A',
-        'ultimateAttack2B',
-        'ultimateAttack3A',
-        'ultimateAttack3B',
-        'ultimateAttackEnd',
+        'chr_0017_yvonne_attack1',
+        'chr_0017_yvonne_attack2',
+        'chr_0017_yvonne_attack3',
+        'chr_0017_yvonne_attack4',
+        'chr_0017_yvonne_attack5',
+        'chr_0017_yvonne_plunging_attack_end',
+        'chr_0017_yvonne_power_attack',
+        'chr_0017_yvonne_ult_attack1_1',
+        'chr_0017_yvonne_ult_attack2_1',
+        'chr_0017_yvonne_ult_attack2_2',
+        'chr_0017_yvonne_ult_attack3_1',
+        'chr_0017_yvonne_ult_attack3_2',
+        'chr_0017_yvonne_ult_attack_end',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0017_yvonne_attack1',
+        'chr_0017_yvonne_attack2',
+        'chr_0017_yvonne_attack3',
+        'chr_0017_yvonne_attack4',
+        'chr_0017_yvonne_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0017_yvonne_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -4667,43 +4634,31 @@ export const yvonne: OperatorDefinition = {
       modeLayer: 'default',
       defaultEnabled: false,
       normalAttackSkillKeys: [
-        'ultimateAttack1',
-        'ultimateAttack2A',
-        'ultimateAttack2B',
-        'ultimateAttack3A',
-        'ultimateAttack3B',
+        'chr_0017_yvonne_ult_attack1_1',
+        'chr_0017_yvonne_ult_attack2_1',
+        'chr_0017_yvonne_ult_attack2_2',
+        'chr_0017_yvonne_ult_attack3_1',
+        'chr_0017_yvonne_ult_attack3_2',
       ],
-      commandMappings: {
-        basicAttack: {
-          sourceSkillId: 'chr_0017_yvonne_ult_attack1_1',
-          skillKey: 'ultimateAttack1',
-        },
-      },
+      commandMappings: { basicAttack: { skillId: 'chr_0017_yvonne_ult_attack1_1' } },
     },
     {
       modeId: 'ult_end',
       modeLayer: 'default',
       defaultEnabled: false,
-      commandMappings: {
-        basicAttack: {
-          sourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
-          skillKey: 'ultimateAttack3B',
-        },
-      },
+      commandMappings: { basicAttack: { skillId: 'chr_0017_yvonne_ult_attack3_2' } },
     },
     {
       modeId: 'talent_1',
       modeLayer: 'default',
       defaultEnabled: false,
-      commandMappings: {
-        basicAttack: { sourceSkillId: 'chr_0017_yvonne_attack5', skillKey: 'basicAttack5' },
-      },
+      commandMappings: { basicAttack: { skillId: 'chr_0017_yvonne_attack5' } },
     },
   ],
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0017_yvonne_combo_skill',
       event: 'beforeTakeDamage',
       immediately: false,
       initialValues: null,
@@ -4892,7 +4847,7 @@ export const yvonne: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'basicAttack',
-          skillKey: 'ultimateAttackEnd',
+          skillKey: 'chr_0017_yvonne_ult_attack_end',
           blackboardKey: 'crit_dmg_up',
           operation: 'assign',
           value: 0.3,
@@ -4900,7 +4855,7 @@ export const yvonne: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'basicAttack',
-          skillKey: 'ultimateAttackEnd',
+          skillKey: 'chr_0017_yvonne_ult_attack_end',
           blackboardKey: 'atk_up',
           operation: 'assign',
           value: 0.1,
@@ -6090,7 +6045,7 @@ export const yvonne: OperatorDefinition = {
       attributeModifiers: [],
       lifecycleSequences: {
         enable: sequence(
-          step('overrideBasicAttackMapping', { sourceSkillId: 'chr_0017_yvonne_attack5' }),
+          step('overrideBasicAttackMapping', { skillId: 'chr_0017_yvonne_attack5' }),
         ),
       },
       abilityEventResponses: [
@@ -6410,9 +6365,7 @@ export const yvonne: OperatorDefinition = {
               inheritParent: true,
             },
             body: sequence(
-              step('overrideBasicAttackMapping', {
-                sourceSkillId: 'chr_0017_yvonne_ult_attack_end',
-              }),
+              step('overrideBasicAttackMapping', { skillId: 'chr_0017_yvonne_ult_attack_end' }),
             ),
           },
           {

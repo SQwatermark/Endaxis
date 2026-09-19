@@ -5,7 +5,7 @@ import {
   parseProjectDocument,
   serializeProjectDocument,
 } from './serialization';
-import type { TrackDocument } from './schema';
+import { PROJECT_SCHEMA_VERSION, type TrackDocument } from './schema';
 import { validateProjectDocument } from './validation';
 
 function createTrack(): TrackDocument {
@@ -27,7 +27,7 @@ function createTrack(): TrackDocument {
   };
 }
 
-describe('V2 project document', () => {
+describe('current project document', () => {
   it('round-trips an empty project without adding runtime state', () => {
     const project = createEmptyProject({
       createdWith: 'test',
@@ -192,16 +192,6 @@ describe('V2 project document', () => {
         mode: { kind: 'perfectDodge', successDelayFrames: -1 },
       },
     ];
-    malformed.scenarios[0].battle.externalEventMarkers.push({
-      id: 'hit:invalid',
-      frame: 30,
-      target: { scope: 'operator', trackIndex: 4 },
-      event: {
-        kind: 'operatorHit',
-        tags: ['healing'],
-        features: ['airborne', 'airborne'],
-      },
-    });
     malformed.scenarios[0].editor.trackHeightWeights = [1, 1, 1];
     malformed.scenarios[0].globalConfig.modifiers.push({
       id: 'modifier:1',
@@ -247,18 +237,6 @@ describe('V2 project document', () => {
           {
             path: '$.scenarios[0].battle.dodgeMarkers[0].mode.successDelayFrames',
             message: 'expected a non-negative integer',
-          },
-          {
-            path: '$.scenarios[0].battle.externalEventMarkers[0].target.trackIndex',
-            message: 'expected a track index from 0 to 3',
-          },
-          {
-            path: '$.scenarios[0].battle.externalEventMarkers[0].event.tags[0]',
-            message: 'unknown value',
-          },
-          {
-            path: '$.scenarios[0].battle.externalEventMarkers[0].event.features[1]',
-            message: 'duplicate value',
           },
           {
             path: '$.scenarios[0].editor.trackHeightWeights',
@@ -726,5 +704,20 @@ describe('V2 project document', () => {
 
     expect(inspectProjectInput(legacy)).toEqual({ kind: 'legacy' });
     expect(parseProjectDocument(legacy)).toMatchObject({ ok: false, kind: 'legacy' });
+  });
+
+  it('rejects other Next schema versions instead of treating them as legacy input', () => {
+    const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
+    const oldNext = { ...project, schemaVersion: PROJECT_SCHEMA_VERSION - 1 };
+
+    expect(inspectProjectInput(oldNext)).toEqual({
+      kind: 'unsupported',
+      schemaVersion: PROJECT_SCHEMA_VERSION - 1,
+    });
+    expect(parseProjectDocument(oldNext)).toEqual({
+      ok: false,
+      kind: 'unsupported-version',
+      schemaVersion: PROJECT_SCHEMA_VERSION - 1,
+    });
   });
 });

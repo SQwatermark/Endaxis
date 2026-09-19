@@ -43,11 +43,7 @@ it('contains the complete one-time mapping catalog for the legacy data snapshot'
     Object.values(mappings.skills).every(rules =>
       rules
         .filter(rule => rule.source.sourceSkillKey === 'dive')
-        .every(
-          rule =>
-            rule.target.skillGroupKey === 'plungingAttack' &&
-            rule.target.skillKey === 'plungingAttack',
-        ),
+        .every(rule => rule.target.skillGroupKey === 'plungingAttack'),
     ),
   ).toBe(true);
 });
@@ -130,18 +126,31 @@ it('keeps each reviewed skill mapping unique and points to an existing group mem
     mappings.skills.rossi
       .filter(r => r.source.sourceSkillKey === 'comboSkill')
       .map(r => r.target.skillKey),
-  ).toEqual(['comboSkill2', 'comboSkill3']);
+  ).toEqual(['chr_0028_wulfa_combo_2_skill', 'chr_0028_wulfa_combo_3_skill']);
   expect(
     mappings.skills.mifu
       .filter(r => r.source.sourceSkillKey === 'battleSkill')
       .map(r => r.target.skillKey),
-  ).toEqual(['battleSkill1', 'battleSkill2', 'battleSkill3']);
+  ).toEqual([
+    'chr_0031_mifu_normalskill_1',
+    'chr_0031_mifu_normalskill_2',
+    'chr_0031_mifu_normalskill_3',
+  ]);
   expect(
     mappings.skills['last-rite']
       .filter(r => r.source.sourceSkillKey === 'basicAttack')
       .map(r => r.target.skillKey),
-  ).toEqual(['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4']);
+  ).toEqual([
+    'chr_0026_lastrite_attack1',
+    'chr_0026_lastrite_attack2',
+    'chr_0026_lastrite_attack3',
+    'chr_0026_lastrite_attack4',
+  ]);
   expect(mappings.skills.camille.find(r => r.source.sourceSkillKey === 'ultimate')?.target).toEqual(
-    { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+    {
+      kind: 'operatorSkill',
+      skillGroupKey: 'ultimate',
+      skillKey: 'chr_0033_camille_ultimate_skill',
+    },
   );
 });

@@ -4,9 +4,10 @@ import fileSessionSource from './projectFileSession.ts?raw';
 import toolbarSource from './components/TimelineHeaderToolbar.vue?raw';
 
 describe('Next project I/O shell', () => {
-  it('opens against the only latest data library and marks a normalized project unsaved', () => {
+  it('opens against the latest data library without tracking an export baseline', () => {
     expect(editorSource).toContain('result.gameDataRevisionUpdated');
-    expect(fileSessionSource).toContain('projectDirty.value = gameDataRevisionUpdated');
+    expect(fileSessionSource).not.toContain('savedProjectSnapshot');
+    expect(fileSessionSource).not.toContain('projectDirty');
     expect(editorSource).not.toContain('prepareDefaultWeaponMigration');
     expect(editorSource).not.toContain('WeaponMigrationDialog');
   });
@@ -14,7 +15,7 @@ describe('Next project I/O shell', () => {
   it('routes project files through the application open boundary', () => {
     expect(editorSource).toContain('import { openProject }');
     expect(editorSource).toContain('await projectFileReader.read(file)');
-    expect(editorSource).toContain('if (content === null) return');
+    expect(editorSource).toContain('if (content !== null) await openProjectContent(content)');
     expect(editorSource).toContain('openProject(projectInput,');
     expect(fileSessionSource).toContain('projectSession.snapshot.revision');
     expect(fileSessionSource).toContain('projectFileReader.dispose()');
@@ -32,9 +33,6 @@ describe('Next project I/O shell', () => {
     expect(editorSource).toContain('legacyMappings as Parameters<typeof convertLegacyTimeline>[2]');
     expect(editorSource).toContain('showLegacyConversionReport(conversion.report, true)');
     expect(editorSource).toContain("'旧版本轴转换报告'");
-    expect(editorSource).toContain(
-      'markOpenedProject(project, gameDataRevisionUpdated || convertedLegacyProject)',
-    );
     expect(editorSource.indexOf("'转换旧版本轴'")).toBeLessThan(
       editorSource.indexOf("'../../../tools/legacy-timeline/convert'"),
     );
@@ -51,7 +49,7 @@ describe('Next project I/O shell', () => {
     expect(toolbarSource).toContain('export: [];');
     expect(toolbarSource).toContain('open: [];');
     expect(toolbarSource).toContain('@click="$emit(\'export\')"');
-    expect(toolbarSource).toContain('@click="$emit(\'open\')"');
+    expect(toolbarSource).toContain('@click="runProjectAction(\'open\')"');
   });
 
   it('allocates future timeline identities against the opened document', () => {
@@ -59,13 +57,14 @@ describe('Next project I/O shell', () => {
     expect(editorSource).not.toContain('nextDocumentId');
   });
 
-  it('protects dirty projects before replacing or leaving the page', () => {
-    expect(fileSessionSource).toContain('snapshot.project !== savedProjectSnapshot');
-    expect(editorSource).toContain('ElMessageBox.confirm');
+  it('only protects pending or failed browser autosaves before leaving the page', () => {
     expect(fileSessionSource).toContain(
-      "window.addEventListener('beforeunload', protectUnsavedProject)",
+      "window.addEventListener('beforeunload', protectPendingBrowserSave)",
     );
-    expect(editorSource).toContain(':project-dirty="projectDirty"');
-    expect(toolbarSource).toContain('class="dirty-indicator"');
+    expect(fileSessionSource).toContain(
+      'pendingBrowserSaves === 0 && browserSaveError.value === null',
+    );
+    expect(editorSource).not.toContain('confirmProjectReplacement');
+    expect(toolbarSource).not.toContain('dirty-indicator');
   });
 });

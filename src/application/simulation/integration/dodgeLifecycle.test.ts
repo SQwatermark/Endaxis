@@ -123,7 +123,14 @@ describe('闪避输入、恢复与连续组集成', () => {
     value.tracks[0]!.operator!.operatorSlug = rossi.slug;
     const runtime = new CombatRuntimeAssembly(prepare(value, true).compiled);
     runtime.applyInitialInput({
-      skills: [{ operatorId: 'op', skillId: 'basicAttack1', action: 'basicAttack', castId: 'a1' }],
+      skills: [
+        {
+          operatorId: 'op',
+          skillId: 'chr_0028_wulfa_attack1',
+          action: 'basicAttack',
+          castId: 'a1',
+        },
+      ],
     });
     for (let frame = 1; frame < 9; frame += 1) runtime.advanceInputFrame({});
     runtime.advanceInputFrame({
@@ -135,7 +142,7 @@ describe('闪避输入、恢复与连续组集成', () => {
       runtime.receipt.entries.find(entry => entry.event === 'DashInputExecuted')?.data,
     ).toMatchObject({ interruptedCastId: 'a1' });
     expect(runtime.stateGraph.operators.get('op')!.ability.comboOffsetTargetSkillKey).toBe(
-      'basicAttack2',
+      'chr_0028_wulfa_attack2',
     );
   });
 
@@ -177,12 +184,19 @@ describe('闪避输入、恢复与连续组集成', () => {
   });
 
   it.each([
-    [1, 'basicAttack1'],
-    [9, 'basicAttack2'],
+    [1, 'chr_0004_pelica_attack1'],
+    [9, 'chr_0004_pelica_attack2'],
   ] as const)('佩丽卡 A1 执行 %i 帧后闪避，保留目标 %s', (frames, expected) => {
     const runtime = new CombatRuntimeAssembly(prepare(scenario(), true).compiled);
     runtime.applyInitialInput({
-      skills: [{ operatorId: 'op', skillId: 'basicAttack1', action: 'basicAttack', castId: 'a1' }],
+      skills: [
+        {
+          operatorId: 'op',
+          skillId: 'chr_0004_pelica_attack1',
+          action: 'basicAttack',
+          castId: 'a1',
+        },
+      ],
     });
     for (let frame = 1; frame < frames; frame += 1) {
       runtime.advanceInputFrame({});
@@ -229,7 +243,12 @@ describe('闪避输入、恢复与连续组集成', () => {
         { kind: 'perfectDodgeSuccess', dodgeId: 'source', operatorId: 'op' },
       ],
       skills: [
-        { operatorId: 'op', skillId: 'basicAttack1', action: 'basicAttack', castId: 'attack' },
+        {
+          operatorId: 'op',
+          skillId: 'chr_0004_pelica_attack1',
+          action: 'basicAttack',
+          castId: 'attack',
+        },
       ],
     });
     expect(
@@ -352,7 +371,7 @@ describe('闪避输入、恢复与连续组集成', () => {
     assembly.advanceInputFrame({
       dodges: [{ kind: 'dash', dodgeId: 'd1', operatorId: 'op', direction: 'forward' }],
     });
-    expect(assembly.tryStartSkill('op', 'battleSkill')).toBe(true);
+    expect(assembly.tryStartSkill('op', 'chr_0004_pelica_normal_skill')).toBe(true);
     expect(assembly.stateGraph.operators.get('op')!.center.state).toBe('skill');
   });
 
@@ -426,7 +445,14 @@ describe('闪避输入、恢复与连续组集成', () => {
       dodges: [{ kind: 'dash', dodgeId: 'd1', operatorId: 'op', direction: 'forward' }],
     });
     assembly.advanceInputFrame({
-      skills: [{ operatorId: 'op', skillId: 'basicAttack1', action: 'basicAttack', castId: 'a1' }],
+      skills: [
+        {
+          operatorId: 'op',
+          skillId: 'chr_0004_pelica_attack1',
+          action: 'basicAttack',
+          castId: 'a1',
+        },
+      ],
     });
     const events = assembly.receipt.entries.filter(e => e.frame === 2);
     expect(events.find(e => e.event === 'SkillInputBlockedByDashWindow')?.data).toMatchObject({
@@ -461,7 +487,12 @@ describe('闪避输入、恢复与连续组集成', () => {
     for (const assembly of [parent, child]) {
       assembly.advanceInputFrame({
         skills: [
-          { operatorId: 'op', skillId: 'basicAttack1', action: 'basicAttack', castId: 'a1' },
+          {
+            operatorId: 'op',
+            skillId: 'chr_0004_pelica_attack1',
+            action: 'basicAttack',
+            castId: 'a1',
+          },
         ],
       });
       assembly.advanceInputFrame({
@@ -482,7 +513,7 @@ describe('闪避输入、恢复与连续组集成', () => {
         source: {
           kind: 'operatorSkill',
           skillGroupKey: 'basicAttack',
-          skillKey: 'basicAttack1',
+          skillKey: 'chr_0004_pelica_attack1',
           action: 'basicAttack',
         },
         placement: { startFrame: 1 },
@@ -492,7 +523,7 @@ describe('闪避输入、恢复与连续组集成', () => {
         source: {
           kind: 'operatorSkill',
           skillGroupKey: 'basicAttack',
-          skillKey: 'basicAttack2',
+          skillKey: 'chr_0004_pelica_attack2',
           action: 'basicAttack',
         },
         placement: { afterCastId: 'a1' },

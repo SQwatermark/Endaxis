@@ -26,7 +26,7 @@ function createScenario(camilleTalentLevel: number): ScenarioDocument {
         source: {
           kind: 'operatorSkill',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0033_camille_normal_skill',
         },
         placement: { startFrame: 1 },
       },
@@ -35,7 +35,7 @@ function createScenario(camilleTalentLevel: number): ScenarioDocument {
         source: {
           kind: 'operatorSkill',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
         },
         placement: { startFrame: 220 },
       },
@@ -61,7 +61,7 @@ function createScenario(camilleTalentLevel: number): ScenarioDocument {
         source: {
           kind: 'operatorSkill',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0028_wulfa_normal_skill',
         },
         placement: { startFrame: 300 },
       },

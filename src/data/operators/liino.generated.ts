@@ -118,10 +118,9 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0035_liino_combo_skill',
+    key: 'chr_0035_liino_combo_skill',
     timelineBlockFrames: 68,
     naturalDurationFrames: 150,
     exclusiveFrame: 98,
@@ -131,7 +130,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 68,
           endFrame: 109,
-          sourceSkillIds: ['chr_0035_liino_normal_skill', 'chr_0035_liino_normal_skill_combo'],
+          skillIds: ['chr_0035_liino_normal_skill', 'chr_0035_liino_normal_skill_combo'],
         },
       ],
     },
@@ -555,10 +554,9 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0035_liino_attack1',
+    key: 'chr_0035_liino_attack1',
     timelineBlockFrames: 12,
     naturalDurationFrames: 103,
     exclusiveFrame: 18,
@@ -569,12 +567,10 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0035_liino_attack2',
+          targetSkillId: 'chr_0035_liino_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 30, sourceSkillIds: ['chr_0035_liino_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 30, skillIds: ['chr_0035_liino_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -642,13 +638,11 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         12,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0035_liino_attack2'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0035_liino_attack2',
+    timelineContinuationSkillId: 'chr_0035_liino_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -660,10 +654,9 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0035_liino_attack2',
+    key: 'chr_0035_liino_attack2',
     timelineBlockFrames: 20,
     naturalDurationFrames: 175,
     exclusiveFrame: 30,
@@ -674,12 +667,10 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 38,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0035_liino_attack3',
+          targetSkillId: 'chr_0035_liino_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 20, endFrame: 38, sourceSkillIds: ['chr_0035_liino_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 20, endFrame: 38, skillIds: ['chr_0035_liino_attack3'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -712,13 +703,11 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         20,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0035_liino_attack3'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0035_liino_attack3',
+    timelineContinuationSkillId: 'chr_0035_liino_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -730,10 +719,9 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0035_liino_attack3',
+    key: 'chr_0035_liino_attack3',
     timelineBlockFrames: 24,
     naturalDurationFrames: 163,
     exclusiveFrame: 27,
@@ -744,12 +732,10 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 44,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0035_liino_attack4',
+          targetSkillId: 'chr_0035_liino_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 24, endFrame: 44, sourceSkillIds: ['chr_0035_liino_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 24, endFrame: 44, skillIds: ['chr_0035_liino_attack4'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -1118,13 +1104,11 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0035_liino_attack4'] })),
         44,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0035_liino_attack4',
+    timelineContinuationSkillId: 'chr_0035_liino_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1136,10 +1120,9 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0035_liino_attack4',
+    key: 'chr_0035_liino_attack4',
     timelineBlockFrames: 18,
     naturalDurationFrames: 212,
     exclusiveFrame: 56,
@@ -1150,12 +1133,10 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 33,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0035_liino_attack5',
+          targetSkillId: 'chr_0035_liino_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 18, endFrame: 33, sourceSkillIds: ['chr_0035_liino_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 18, endFrame: 33, skillIds: ['chr_0035_liino_attack5'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -1677,13 +1658,11 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0035_liino_attack5'] })),
         33,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0035_liino_attack5',
+    timelineContinuationSkillId: 'chr_0035_liino_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1695,10 +1674,9 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0035_liino_attack5',
+    key: 'chr_0035_liino_attack5',
     timelineBlockFrames: 28,
     naturalDurationFrames: 173,
     exclusiveFrame: 46,
@@ -1709,12 +1687,10 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 49,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0035_liino_attack1',
+          targetSkillId: 'chr_0035_liino_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 28, endFrame: 49, sourceSkillIds: ['chr_0035_liino_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 28, endFrame: 49, skillIds: ['chr_0035_liino_attack1'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -1939,13 +1915,11 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         28,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0035_liino_attack1'] })),
         49,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0035_liino_attack1',
+    timelineContinuationSkillId: 'chr_0035_liino_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1957,10 +1931,9 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoFinisher: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0035_liino_power_attack',
+    key: 'chr_0035_liino_power_attack',
     timelineBlockFrames: 58,
     naturalDurationFrames: 219,
     exclusiveFrame: 68,
@@ -1970,7 +1943,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 58,
           endFrame: 74,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0035_liino_normal_skill',
             'chr_0035_liino_combo_skill',
             'chr_0035_liino_power_attack',
@@ -2279,18 +2252,15 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0035_liino_plunging_attack_end',
+    key: 'chr_0035_liino_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 121,
     exclusiveFrame: 20,
     offsetRecordFrame: 0,
     inputWindows: {
-      allowedNextSkills: [
-        { startFrame: 11, endFrame: 20, sourceSkillIds: ['chr_0012_avywen_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 11, endFrame: 20, skillIds: ['chr_0012_avywen_attack1'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -2501,10 +2471,9 @@ export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0035_liino_normal_skill',
+    key: 'chr_0035_liino_normal_skill',
     timelineBlockFrames: 50,
     naturalDurationFrames: 2100,
     exclusiveFrame: 1821,
@@ -2514,17 +2483,17 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 50,
           endFrame: 1872,
-          sourceSkillIds: ['chr_0035_liino_combo_skill', 'chr_0035_liino_normal_skill_end'],
+          skillIds: ['chr_0035_liino_combo_skill', 'chr_0035_liino_normal_skill_end'],
         },
         {
           startFrame: 1959,
           endFrame: 2092,
-          sourceSkillIds: ['chr_0035_liino_combo_skill', 'chr_0035_liino_normal_skill_end'],
+          skillIds: ['chr_0035_liino_combo_skill', 'chr_0035_liino_normal_skill_end'],
         },
         {
           startFrame: 1817,
           endFrame: 1872,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0035_liino_combo_skill',
             'chr_0035_liino_normal_skill',
             'chr_0035_liino_power_attack',
@@ -2533,7 +2502,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 2024,
           endFrame: 2092,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0035_liino_combo_skill',
             'chr_0035_liino_normal_skill',
             'chr_0035_liino_power_attack',
@@ -3446,10 +3415,9 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBattleSkillEnd: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_normal_skill_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkillEnd',
-    sourceSkillId: 'chr_0035_liino_normal_skill_end',
+    key: 'chr_0035_liino_normal_skill_end',
     timelineBlockFrames: 1,
     naturalDurationFrames: 1,
     exclusiveFrame: 0,
@@ -3474,10 +3442,9 @@ export const liinoBattleSkillEnd: SkillDefinition = withSkillBlackboard(
   { atk_scale: 1, atk_up: 0.5 },
 );
 
-export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_normal_skill_combo: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkillCombo',
-    sourceSkillId: 'chr_0035_liino_normal_skill_combo',
+    key: 'chr_0035_liino_normal_skill_combo',
     timelineBlockFrames: 1955,
     naturalDurationFrames: 2100,
     exclusiveFrame: 1954,
@@ -3487,12 +3454,12 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 0,
           endFrame: 1800,
-          sourceSkillIds: ['chr_0035_liino_normal_skill_end', 'chr_0035_liino_combo_skill'],
+          skillIds: ['chr_0035_liino_normal_skill_end', 'chr_0035_liino_combo_skill'],
         },
         {
           startFrame: 1723,
           endFrame: 1800,
-          sourceSkillIds: ['chr_0035_liino_normal_skill_end', 'chr_0035_liino_normal_skill'],
+          skillIds: ['chr_0035_liino_normal_skill_end', 'chr_0035_liino_normal_skill'],
         },
       ],
     },
@@ -3876,22 +3843,21 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoUltimate: SkillDefinition = withSkillBlackboard(
+export const liinoChr_0035_liino_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0035_liino_ultimate_skill',
+    key: 'chr_0035_liino_ultimate_skill',
     timelineBlockFrames: 77,
     naturalDurationFrames: 660,
     exclusiveFrame: 543,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 77, endFrame: 527, sourceSkillIds: ['chr_0035_liino_normal_skill_end'] },
-        { startFrame: 163, endFrame: 527, sourceSkillIds: ['chr_0035_liino_combo_skill'] },
+        { startFrame: 77, endFrame: 527, skillIds: ['chr_0035_liino_normal_skill_end'] },
+        { startFrame: 163, endFrame: 527, skillIds: ['chr_0035_liino_combo_skill'] },
         {
           startFrame: 527,
           endFrame: 580,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0035_liino_normal_skill',
             'chr_0035_liino_combo_skill',
             'chr_0035_liino_attack1',
@@ -4082,10 +4048,10 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
         sequence(
           step('changeSkillSlot', {
             skillGroupKey: 'battleSkill',
-            targetSkillKey: 'battleSkillEnd',
+            targetSkillKey: 'chr_0035_liino_normal_skill_end',
             inheritOriginSkillCooldownProgress: true,
             lifetime: 'finishByAction',
-            revertedSkillKey: 'battleSkill',
+            revertedSkillKey: 'chr_0035_liino_normal_skill',
           }),
         ),
         527,
@@ -4341,10 +4307,9 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const liinoCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -4360,7 +4325,7 @@ export const liinoPerfectDodge: SkillDefinition = withSkillBlackboard(
 export const liino: OperatorDefinition = {
   slug: 'liino',
   gameId: 'LIINO',
-  skillDisplayNameKeys: { battleSkillEnd: 'skillNames.stanceTermination' },
+  skillDisplayNameKeys: { chr_0035_liino_normal_skill_end: 'skillNames.stanceTermination' },
   rarity: 6,
   weaponType: 'polearm',
   element: 'electric',
@@ -4386,66 +4351,86 @@ export const liino: OperatorDefinition = {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: liinoComboSkill,
+      skills: liinoChr_0035_liino_combo_skill,
     },
     {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        liinoBasicAttack1,
-        liinoBasicAttack2,
-        liinoBasicAttack3,
-        liinoBasicAttack4,
-        liinoBasicAttack5,
+        liinoChr_0035_liino_attack1,
+        liinoChr_0035_liino_attack2,
+        liinoChr_0035_liino_attack3,
+        liinoChr_0035_liino_attack4,
+        liinoChr_0035_liino_attack5,
       ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: liinoFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: liinoChr_0035_liino_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: liinoPlungingAttack,
+      skills: liinoChr_0035_liino_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: liinoBattleSkill,
-      replacementSkills: [liinoBattleSkillEnd, liinoBattleSkillCombo],
-      replacementSkillPlacements: { battleSkillEnd: 'standard', battleSkillCombo: 'internal' },
+      skills: liinoChr_0035_liino_normal_skill,
+      replacementSkills: [
+        liinoChr_0035_liino_normal_skill_end,
+        liinoChr_0035_liino_normal_skill_combo,
+      ],
+      replacementSkillPlacements: {
+        chr_0035_liino_normal_skill_end: 'standard',
+        chr_0035_liino_normal_skill_combo: 'internal',
+      },
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: liinoUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: liinoChr_0035_liino_ultimate_skill,
+    },
   ],
-  dodgeSkill: liinoPerfectDodge,
+  dodgeSkill: liinoCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: ['battleSkillEnd'] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    {
+      key: 'battleSkill',
+      baseSkillKey: 'chr_0035_liino_normal_skill',
+      replacementSkillKeys: ['chr_0035_liino_normal_skill_end'],
+    },
+    { key: 'comboSkill', baseSkillKey: 'chr_0035_liino_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0035_liino_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0035_liino_attack1',
+        'chr_0035_liino_attack2',
+        'chr_0035_liino_attack3',
+        'chr_0035_liino_attack4',
+        'chr_0035_liino_attack5',
+        'chr_0035_liino_plunging_attack_end',
+        'chr_0035_liino_power_attack',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0035_liino_attack1',
+        'chr_0035_liino_attack2',
+        'chr_0035_liino_attack3',
+        'chr_0035_liino_attack4',
+        'chr_0035_liino_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0035_liino_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -4454,7 +4439,7 @@ export const liino: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0035_liino_combo_skill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,
@@ -4489,7 +4474,7 @@ export const liino: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0035_liino_combo_skill',
       event: 'buffEndsEarly',
       immediately: false,
       initialValues: null,
@@ -4531,7 +4516,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'talent_a',
           operation: 'assign',
           value: [1, 1],
@@ -4539,7 +4524,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'shelter',
           operation: 'assign',
           value: [-0.1, -0.2],
@@ -4547,7 +4532,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'healtaken_rate',
           operation: 'assign',
           value: [0.1, 0.2],
@@ -4555,7 +4540,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'shelter_duration',
           operation: 'assign',
           value: [3, 3],
@@ -4624,7 +4609,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'potential_atb_return',
           operation: 'assign',
           value: 25,
@@ -4632,7 +4617,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'atk_up',
           operation: 'add',
           value: 0.06,
@@ -4753,7 +4738,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
           value: 1.2,
@@ -4761,7 +4746,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'atk_scale_2',
           operation: 'multiply',
           value: 1.2,
@@ -4769,7 +4754,7 @@ export const liino: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0035_liino_normal_skill',
           blackboardKey: 'atk_scale_3',
           operation: 'multiply',
           value: 1.2,
@@ -5609,8 +5594,8 @@ export const liino: OperatorDefinition = {
       skillSlotReplacements: [
         {
           skillGroupKey: 'battleSkill',
-          targetSkillKey: 'battleSkillEnd',
-          revertedSkillKey: 'battleSkill',
+          targetSkillKey: 'chr_0035_liino_normal_skill_end',
+          revertedSkillKey: 'chr_0035_liino_normal_skill',
           inheritOriginSkillCooldownProgress: true,
         },
       ],

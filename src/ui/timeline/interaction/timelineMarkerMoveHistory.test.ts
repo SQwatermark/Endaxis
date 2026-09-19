@@ -21,7 +21,7 @@ function createSession() {
       id: 'external:1',
       frame: 60,
       target: { scope: 'team' },
-      event: { kind: 'operatorHit', tags: [], features: [] },
+      event: { kind: 'comboCooldownControl', mode: 'cooldown' },
     },
   ];
   scenario.battle.simulationRange = { startFrame: 15, endFrame: 300 };

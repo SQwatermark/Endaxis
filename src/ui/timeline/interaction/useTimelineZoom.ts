@@ -4,6 +4,7 @@ import {
   normalizeTimelineZoomPercent,
   resolveTimelineWheelIntent,
   timelinePxPerFrame,
+  timelineWheelDeltaPx,
   wheelTimelineZoomPercent,
 } from './timelineViewport';
 
@@ -66,12 +67,22 @@ export function useTimelineZoom(options: {
   function handleTimelineWheel(
     event: Pick<
       WheelEvent,
-      'ctrlKey' | 'shiftKey' | 'deltaX' | 'deltaY' | 'clientX' | 'preventDefault'
+      'ctrlKey' | 'shiftKey' | 'deltaX' | 'deltaY' | 'deltaMode' | 'clientX' | 'preventDefault'
     >,
   ): void {
     const intent = resolveTimelineWheelIntent(event);
-    if (intent.kind === 'nativeVerticalScroll') return;
     event.preventDefault();
+    if (intent.kind === 'verticalPan') {
+      const viewport = options.viewport();
+      if (viewport !== null) {
+        viewport.scrollTop += timelineWheelDeltaPx(
+          intent.deltaPx,
+          event.deltaMode,
+          viewport.clientHeight,
+        );
+      }
+      return;
+    }
     if (intent.kind === 'horizontalPan') {
       const viewport = options.viewport();
       if (viewport !== null) viewport.scrollLeft += intent.deltaPx;

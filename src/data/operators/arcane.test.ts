@@ -9,11 +9,11 @@ describe('next generated Arcane definition', () => {
     const basic = arcane.skillGroups.find(group => group.key === 'basicAttack');
     if (basic === undefined) throw new Error('missing basic attack group');
     expect(getGroupSkills(basic).map(skill => skill.key)).toEqual([
-      'basicAttack1',
-      'basicAttack2',
-      'basicAttack3',
-      'basicAttack4',
-      'basicAttack5',
+      'chr_0032_lizhiyan_attack1',
+      'chr_0032_lizhiyan_attack2',
+      'chr_0032_lizhiyan_attack3',
+      'chr_0032_lizhiyan_attack4',
+      'chr_0032_lizhiyan_attack5',
     ]);
     expect(
       arcane.skillGroups.flatMap(group => [
@@ -42,7 +42,9 @@ describe('next generated Arcane definition', () => {
 
   it('keeps battle-skill pulses on its generated ability entity child', () => {
     const spawn = collectSteps({
-      steps: getSkill('battleSkill').scheduledSequences.flatMap(item => item.sequence.steps),
+      steps: getSkill('chr_0032_lizhiyan_normal_skill').scheduledSequences.flatMap(
+        item => item.sequence.steps,
+      ),
     }).find(step => step.kind === 'spawnAbilityEntity');
     expect(spawn).toMatchObject({
       kind: 'spawnAbilityEntity',
@@ -62,7 +64,9 @@ describe('next generated Arcane definition', () => {
 
   it('owns the arcana slot replacement in Buff lifecycle state', () => {
     const group = arcane.skillGroups.find(candidate => candidate.key === 'ultimate');
-    expect(group?.replacementSkills?.map(skill => skill.key)).toEqual(['arcana']);
+    expect(group?.replacementSkills?.map(skill => skill.key)).toEqual([
+      'chr_0032_lizhiyan_ultimate_skill2',
+    ]);
     const replacementDefinitions = Object.values(arcane.buffDefinitions ?? {}).filter(
       definition => definition.skillSlotReplacements !== undefined,
     );
@@ -73,8 +77,8 @@ describe('next generated Arcane definition', () => {
           skillSlotReplacements: [
             expect.objectContaining({
               skillGroupKey: 'ultimate',
-              targetSkillKey: 'arcana',
-              revertedSkillKey: 'ultimate',
+              targetSkillKey: 'chr_0032_lizhiyan_ultimate_skill2',
+              revertedSkillKey: 'chr_0032_lizhiyan_ultimate_skill',
             }),
           ],
         }),

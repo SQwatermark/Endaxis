@@ -3,8 +3,7 @@ import type { OperatorDefinition, SkillDefinition } from './operatorDefinition';
 import { installCompiledSkillDefinition } from './installCompiledSkillDefinition';
 
 const original: SkillDefinition = {
-  key: 'battleSkill',
-  sourceSkillId: 'skill_source',
+  key: 'skill_source',
   timelineBlockFrames: 1,
   scheduledSequences: [],
 };
@@ -29,9 +28,9 @@ describe('installCompiledSkillDefinition', () => {
   });
 
   it('rejects missing, duplicate, and conflicting-key bindings', () => {
-    expect(() =>
-      installCompiledSkillDefinition(operator, { ...original, sourceSkillId: 'missing' }),
-    ).toThrow('must match exactly once; matched 0');
+    expect(() => installCompiledSkillDefinition(operator, { ...original, key: 'missing' })).toThrow(
+      'must match exactly once; matched 0',
+    );
     expect(() =>
       installCompiledSkillDefinition(
         { ...operator, skillGroups: [...operator.skillGroups, ...operator.skillGroups] },
@@ -39,7 +38,7 @@ describe('installCompiledSkillDefinition', () => {
       ),
     ).toThrow('must match exactly once; matched 2');
     expect(() => installCompiledSkillDefinition(operator, { ...original, key: 'wrong' })).toThrow(
-      'key mismatch',
+      'must match exactly once; matched 0',
     );
   });
 });

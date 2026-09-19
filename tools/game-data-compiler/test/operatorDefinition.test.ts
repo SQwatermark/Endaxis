@@ -309,11 +309,11 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
     expect(operator.playerActionRoutes?.basicAttack).toMatchObject({
       kind: 'basicAttack',
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0012_avywen_attack1',
+        'chr_0012_avywen_attack2',
+        'chr_0012_avywen_attack3',
+        'chr_0012_avywen_attack4',
+        'chr_0012_avywen_attack5',
       ],
     });
     expect(operator.talents).toHaveLength(2);

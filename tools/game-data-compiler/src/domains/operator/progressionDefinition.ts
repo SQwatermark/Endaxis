@@ -398,7 +398,7 @@ function resolveSkill(
   context: OperatorProgressionDefinitionContext,
   path: string,
 ) {
-  const skills = context.skills.filter(skill => skill.skillId === skillId);
+  const skills = context.skills.filter(skill => skill.key === skillId);
   if (skills.length !== 1) throw new Error(`${path}: expected one skill binding for '${skillId}'`);
   const skill = skills[0]!;
   const groups = context.skillGroups.filter(

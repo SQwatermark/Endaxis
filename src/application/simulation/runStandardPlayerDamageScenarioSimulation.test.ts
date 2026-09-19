@@ -12,10 +12,8 @@ import { gilberta as gilbertaGeneratedOperator } from '../../data/operators/gilb
 import { rossi as rossiGeneratedOperator } from '../../data/operators/rossi.generated';
 import { camille as camilleGeneratedOperator } from '../../data/operators/camille.generated';
 import { chenQianyu as chenQianyuGeneratedOperator } from '../../data/operators/chen-qianyu.generated';
-import {
-  estella as estellaGeneratedOperator,
-  estellaBattleSkill,
-} from '../../data/operators/estella.generated';
+import { estella as estellaGeneratedOperator } from '../../data/operators/estella.generated';
+import { getSkill } from '../../data/operators/testUtils';
 import { mifu as mifuGeneratedOperator } from '../../data/operators/mifu.generated';
 import { akekuri } from '../../data/operators/akekuri.generated';
 import { commonBuffDefinitions } from '../../data/buffs/commonDefinitions';
@@ -25,6 +23,8 @@ import { placeSkillGroup } from '../../ui/timeline/interaction/placeSkillGroup';
 import { StandardPlayerDamageCompatibilityError } from '../../core/combat/runtime/standardPlayerDamageCompatibility';
 import { runStandardPlayerDamageScenarioSimulation } from './runStandardPlayerDamageScenarioSimulation';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
+
+const estellaBattleSkill = getSkill(estellaGeneratedOperator, 'chr_0021_whiten_normal_skill');
 import { MechanicAdapterRegistry } from '../../core/mechanics/mechanicCompiler';
 import { projectBuffTimelineViz } from '../../core/projection/buffTimelineViz';
 import { findBuffDamageSegment } from '../../ui/timeline/results/enemyBuffDamageHits';
@@ -242,7 +242,7 @@ function createGeneratedTeamScenario() {
       trackIndex: 0,
       operator: arclightGeneratedOperator,
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack5',
+      skillKey: 'chr_0007_ikut_attack5',
       startFrame: 1,
     },
     {
@@ -490,7 +490,7 @@ function createGeneratedEndministratorIgniteScenario(talent1Level?: 1 | 2) {
     trackIndex: 0,
     operator: endministratorGeneratedOperator,
     skillGroupKey: 'comboSkill',
-    skillKey: 'comboSkill',
+    skillKey: 'chr_0003_endminf_combo_skill',
     startFrame: 1,
     ids,
   }).scenario;
@@ -499,7 +499,7 @@ function createGeneratedEndministratorIgniteScenario(talent1Level?: 1 | 2) {
     trackIndex: 0,
     operator: endministratorGeneratedOperator,
     skillGroupKey: 'ultimate',
-    skillKey: 'ultimate',
+    skillKey: 'chr_0003_endminf_ultimate_skill',
     startFrame: 80,
     ids,
   }).scenario;
@@ -562,7 +562,7 @@ function createGeneratedLastRitePartyBuffScenario() {
     trackIndex: 1,
     operator: lastRiteGeneratedOperator,
     skillGroupKey: 'basicAttack',
-    skillKey: 'basicAttack4',
+    skillKey: 'chr_0026_lastrite_attack4',
     startFrame: 40,
     ids,
   }).scenario;
@@ -773,7 +773,7 @@ function createGeneratedMifuProtectionScenario() {
     trackIndex: 0,
     operator: mifuGeneratedOperator,
     skillGroupKey: 'battleSkill',
-    skillKey: 'battleSkill2',
+    skillKey: 'chr_0031_mifu_normalskill_2',
     startFrame: 160,
     ids,
   }).scenario;
@@ -839,9 +839,9 @@ function createGeneratedMifuBattleChainScenario() {
   const ids = { allocate: (kind: string) => `${kind}:mifu-chain:${++nextId}` };
   let placed = scenario;
   for (const [skillKey, startFrame] of [
-    ['battleSkill1', 1],
-    ['battleSkill2', 40],
-    ['battleSkill3', 120],
+    ['chr_0031_mifu_normalskill_1', 1],
+    ['chr_0031_mifu_normalskill_2', 40],
+    ['chr_0031_mifu_normalskill_3', 120],
   ] as const) {
     placed = placeSkillGroup({
       scenario: placed,
@@ -1093,7 +1093,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         trackIndex: 0,
         operator: chenQianyuGeneratedOperator,
         skillGroupKey: 'basicAttack',
-        skillKey: 'basicAttack1',
+        skillKey: 'chr_0005_chen_attack1',
         startFrame: 40,
         ids,
       }).scenario;
@@ -1402,7 +1402,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         trackIndex: rossiTrack as 0 | 1,
         operator: rossiGeneratedOperator,
         skillGroupKey: 'basicAttack',
-        skillKey: 'basicAttack4',
+        skillKey: 'chr_0028_wulfa_attack4',
         startFrame: 1,
         ids: { allocate: kind => `${kind}:rossi-attack4` },
       }).scenario;
@@ -1482,7 +1482,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       trackIndex: 0,
       operator: rossiGeneratedOperator,
       skillGroupKey: 'comboSkill',
-      skillKey: 'comboSkill2',
+      skillKey: 'chr_0028_wulfa_combo_2_skill',
       startFrame: 1,
       ids: { allocate: kind => `${kind}:rossi-combo` },
     }).scenario;
@@ -1679,7 +1679,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         trackIndex: 0,
         operator: rossiGeneratedOperator,
         skillGroupKey: 'comboSkill',
-        skillKey: 'comboSkill2',
+        skillKey: 'chr_0028_wulfa_combo_2_skill',
         startFrame: 1,
         ids: { allocate: kind => `${kind}:rossi-qte-first` },
       }).scenario;
@@ -1690,7 +1690,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         skillGroupKey: 'comboSkill',
         // 时间轴保存玩家显式选择的具体技能形态。原生换槽状态只负责
         // 校验此时输入实际会解析成什么，不再暗中改写技能块。
-        skillKey: 'comboSkill3',
+        skillKey: 'chr_0028_wulfa_combo_3_skill',
         startFrame: comboSkill3StartFrame,
         ids: { allocate: kind => `${kind}:rossi-qte-second-${comboSkill3StartFrame}` },
       }).scenario;
@@ -1772,7 +1772,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(outside.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'ComboWindowConsumed',
-        data: expect.objectContaining({ nextSkillKey: 'comboSkill3' }),
+        data: expect.objectContaining({ nextSkillKey: 'chr_0028_wulfa_combo_3_skill' }),
       }),
     );
   });
@@ -1805,7 +1805,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         trackIndex: 0,
         operator: rossiGeneratedOperator,
         skillGroupKey: 'comboSkill',
-        skillKey: 'comboSkill2',
+        skillKey: 'chr_0028_wulfa_combo_2_skill',
         startFrame: 1,
         ids: { allocate: kind => `${kind}:rossi-pause-combo` },
       }).scenario;
@@ -1815,7 +1815,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
           trackIndex: 0,
           operator: rossiGeneratedOperator,
           skillGroupKey: 'finisher',
-          skillKey: 'finisher',
+          skillKey: 'chr_0028_wulfa_power_attack',
           startFrame: 60,
           ids: { allocate: kind => `${kind}:rossi-pause-power` },
         }).scenario;
@@ -1883,7 +1883,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:tangtang',
-        data: expect.objectContaining({ skillId: 'comboSkill' }),
+        data: expect.objectContaining({ skillId: 'chr_0027_tangtang_combo_skill' }),
       }),
     );
     expect(
@@ -2074,20 +2074,24 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       result.receiptEntries
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => entry.data?.skillId),
-    ).toEqual(['comboSkill', 'ultimate', 'battleSkill2']);
+    ).toEqual([
+      'chr_0031_mifu_combo_skill',
+      'chr_0031_mifu_ultimate_skill',
+      'chr_0031_mifu_normalskill_2',
+    ]);
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'CombatStepReached',
         frame: 1,
         sourceId: 'track:mifu',
-        data: expect.objectContaining({ skillId: 'comboSkill', kind: 'applyBuff' }),
+        data: expect.objectContaining({ skillId: 'chr_0031_mifu_combo_skill', kind: 'applyBuff' }),
       }),
     );
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:mifu',
-        data: expect.objectContaining({ skillId: 'battleSkill2' }),
+        data: expect.objectContaining({ skillId: 'chr_0031_mifu_normalskill_2' }),
       }),
     );
     // 原生终结技第 98 帧明确配置 0 倍率 DamageAction；它仍执行命中与停帧动作。
@@ -2131,7 +2135,11 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       result.receiptEntries
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => entry.data?.skillId),
-    ).toEqual(['battleSkill1', 'battleSkill2', 'battleSkill3']);
+    ).toEqual([
+      'chr_0031_mifu_normalskill_1',
+      'chr_0031_mifu_normalskill_2',
+      'chr_0031_mifu_normalskill_3',
+    ]);
     const damageSteps = result.receiptEntries
       .filter(entry => entry.event === 'DamageApplied')
       .map(entry => String(entry.data?.stepKey));
@@ -2222,7 +2230,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       result.receiptEntries
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => entry.data?.skillId),
-    ).toEqual(['comboSkill', 'ultimate']);
+    ).toEqual(['chr_0003_endminf_combo_skill', 'chr_0003_endminf_ultimate_skill']);
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'BuffFinished',
@@ -2365,7 +2373,10 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       expect.objectContaining({
         event: 'TimeDilationEnded',
         sourceId: 'track:sample:arclight',
-        data: expect.objectContaining({ sourceActionId: 'ultimate', reason: 'stopped' }),
+        data: expect.objectContaining({
+          sourceActionId: 'chr_0007_ikut_ultimate_skill',
+          reason: 'stopped',
+        }),
       }),
     );
     const arclightDamage = result.receiptEntries.filter(
@@ -2407,7 +2418,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       expect.objectContaining({
         event: 'SkillStarted',
         sourceId: 'track:sample:arclight',
-        data: expect.objectContaining({ skillId: 'battleSkill' }),
+        data: expect.objectContaining({ skillId: 'chr_0007_ikut_normal_skill' }),
       }),
     );
   });
@@ -2570,11 +2581,11 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => [entry.sourceId, entry.data?.skillId]),
     ).toEqual([
-      ['track:0', 'basicAttack5'],
-      ['track:1', 'comboSkill'],
-      ['track:1', 'battleSkill'],
-      ['track:1', 'ultimate'],
-      ['track:1', 'ultimate'],
+      ['track:0', 'chr_0007_ikut_attack5'],
+      ['track:1', 'chr_0004_pelica_combo_skill'],
+      ['track:1', 'chr_0004_pelica_normal_skill'],
+      ['track:1', 'chr_0004_pelica_ultimate_skill'],
+      ['track:1', 'chr_0004_pelica_ultimate_skill'],
     ]);
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({ event: 'ComboWindowOpened', sourceId: 'track:1' }),
@@ -2595,28 +2606,34 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
       expect.objectContaining({
         event: 'SkillCostApplied',
         sourceId: 'track:1',
-        data: expect.objectContaining({ skillId: 'battleSkill', nonReturnedSpCost: 100 }),
+        data: expect.objectContaining({
+          skillId: 'chr_0004_pelica_normal_skill',
+          nonReturnedSpCost: 100,
+        }),
       }),
     );
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'SkillCostApplied',
         sourceId: 'track:1',
-        data: expect.objectContaining({ skillId: 'ultimate', remainingUltimateEnergy: 0 }),
+        data: expect.objectContaining({
+          skillId: 'chr_0004_pelica_ultimate_skill',
+          remainingUltimateEnergy: 0,
+        }),
       }),
     );
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'SkillCooldownUnavailableAtStart',
         sourceId: 'track:1',
-        data: expect.objectContaining({ skillId: 'ultimate' }),
+        data: expect.objectContaining({ skillId: 'chr_0004_pelica_ultimate_skill' }),
       }),
     );
     expect(result.receiptEntries).toContainEqual(
       expect.objectContaining({
         event: 'SkillCostUnavailableAtStart',
         sourceId: 'track:1',
-        data: expect.objectContaining({ skillId: 'ultimate' }),
+        data: expect.objectContaining({ skillId: 'chr_0004_pelica_ultimate_skill' }),
       }),
     );
     expect(
@@ -2624,7 +2641,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         entry =>
           entry.event === 'SkillCostApplied' &&
           entry.sourceId === 'track:1' &&
-          entry.data?.skillId === 'ultimate',
+          entry.data?.skillId === 'chr_0004_pelica_ultimate_skill',
       ),
     ).toHaveLength(2);
     expect(result.receiptEntries).toContainEqual(
@@ -2664,15 +2681,15 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => entry.data?.skillId),
     ).toEqual([
-      'basicAttack1',
-      'basicAttack2',
-      'basicAttack3',
-      'basicAttack4',
-      'comboSkill',
-      'battleSkill',
-      'ultimate',
-      'plungingAttack',
-      'finisher',
+      'chr_0004_pelica_attack1',
+      'chr_0004_pelica_attack2',
+      'chr_0004_pelica_attack3',
+      'chr_0004_pelica_attack4',
+      'chr_0004_pelica_combo_skill',
+      'chr_0004_pelica_normal_skill',
+      'chr_0004_pelica_ultimate_skill',
+      'chr_0004_pelica_plunging_attack_end',
+      'chr_0004_pelica_power_attack',
     ]);
     expect(result.receiptEntries.some(entry => entry.event === 'ComboWindowOpened')).toBe(true);
     expect(result.receiptEntries.some(entry => entry.event === 'ComboWindowConsumed')).toBe(true);
@@ -2698,7 +2715,8 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(result.enemyVitals.finalPoise).toBe(0);
 
     const finisherRecoveryIndex = result.receiptEntries.findIndex(
-      entry => entry.event === 'SpChanged' && entry.data?.skillId === 'finisher',
+      entry =>
+        entry.event === 'SpChanged' && entry.data?.skillId === 'chr_0004_pelica_power_attack',
     );
     expect(finisherRecoveryIndex).toBeGreaterThan(0);
     const finisherRecovery = result.receiptEntries[finisherRecoveryIndex]!;
@@ -2713,7 +2731,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     expect(finisherRecovery).toMatchObject({
       sourceId: 'track:0',
       data: {
-        skillId: 'finisher',
+        skillId: 'chr_0004_pelica_power_attack',
         baseValue: 80,
         gainKind: 'gain',
       },
@@ -2906,6 +2924,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
     const createScenario = (withContract: boolean, withPowerAttack = false) => {
       let scenario = createPerlicaScenario();
       scenario.battle.resourceRules.initialSp = 0;
+      scenario.battle.resourceRules.spRecoveryPerSecond = 10;
       if (withPowerAttack) {
         scenario = placeSkillGroup({
           scenario,

@@ -55,9 +55,9 @@ describe('生成套装正式定义', () => {
                       parameters: {
                         buffId: 'buff_equipsuit_usp_02_AddAttack',
                         target: 'partyExceptCaster',
-                        blackboardAssignments: {
-                          dmg_up: { kind: 'blackboard', key: 'dmg_up' },
-                          duration: { kind: 'blackboard', key: 'duration' },
+                        copiedBlackboardAssignments: {
+                          dmg_up: 'dmg_up',
+                          duration: 'duration',
                         },
                       },
                     },
@@ -384,9 +384,9 @@ describe('生成套装正式定义', () => {
                         target: 'party',
                         source: 'buffOwner',
                         asChildBuff: true,
-                        blackboardAssignments: {
-                          dmg_up: { kind: 'blackboard', key: 'dmg_up' },
-                          duration: { kind: 'blackboard', key: 'duration' },
+                        copiedBlackboardAssignments: {
+                          dmg_up: 'dmg_up',
+                          duration: 'duration',
                         },
                       },
                     },
@@ -839,9 +839,11 @@ describe('生成套装正式定义', () => {
                     target: 'eventTarget',
                     source: 'buffOwner',
                     asChildBuff: true,
+                    copiedBlackboardAssignments: {
+                      value: 'dmg_taken_down2',
+                      duration: 'duration',
+                    },
                     blackboardAssignments: {
-                      value: { kind: 'blackboard', key: 'dmg_taken_down2' },
-                      duration: { kind: 'blackboard', key: 'duration' },
                       priority: { kind: 'constant', value: 1 },
                     },
                   },

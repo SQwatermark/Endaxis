@@ -14,7 +14,7 @@ export interface CombatSkillCooldownConfiguration {
 
 export interface RestoredCombatSkillCooldownBinding {
   readonly program: CompiledSkillCooldownProgram;
-  readonly sourceSkillIds: ReadonlySet<string>;
+  readonly skillIds: ReadonlySet<string>;
   readonly cooldown: SkillCooldown;
   readonly configuration: CombatSkillCooldownConfiguration;
 }
@@ -75,7 +75,7 @@ export function bindRestoredCombatSkillCooldowns(
     {
       readonly program: CompiledSkillCooldownProgram;
       readonly configuration: CombatSkillCooldownConfiguration;
-      readonly sourceSkillIds: Set<string>;
+      readonly skillIds: Set<string>;
     }
   >();
   for (const program of programs) {
@@ -92,13 +92,16 @@ export function bindRestoredCombatSkillCooldowns(
           `skill '${program.skillId}' of '${operator.operatorId}' has inconsistent cooldown configuration`,
         );
       }
-      if (program.sourceSkillId !== undefined) existing.sourceSkillIds.add(program.sourceSkillId);
+      if (program.nativeSkillType !== undefined)
+        existing.skillIds.add(program.executionSkillId ?? program.skillId);
       continue;
     }
     definitions.set(program.skillId, {
       program,
       configuration,
-      sourceSkillIds: new Set(program.sourceSkillId === undefined ? [] : [program.sourceSkillId]),
+      skillIds: new Set(
+        program.nativeSkillType === undefined ? [] : [program.executionSkillId ?? program.skillId],
+      ),
     });
   }
   for (const skillId of states.keys()) {
@@ -132,7 +135,7 @@ export function bindRestoredCombatSkillCooldowns(
     );
     result.set(skillId, {
       program: definition.program,
-      sourceSkillIds: definition.sourceSkillIds,
+      skillIds: definition.skillIds,
       cooldown,
       configuration: definition.configuration,
     });

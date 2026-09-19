@@ -51,9 +51,9 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly reachedOperableBoundaryFrame?: number;
   /** 本帧实际执行的 AllowNextSkillAction 候选，由 AbilitySystem 按当前玩家路由筛选。 */
   readonly operableBoundaryCandidateFrame?: number;
-  readonly operableBoundaryCandidateSourceSkillIds?: readonly string[];
+  readonly operableBoundaryCandidateSkillIds?: readonly string[];
   takeOperableBoundaryCandidate?():
-    { readonly frame: number; readonly sourceSkillIds: readonly string[] } | undefined;
+    { readonly frame: number; readonly skillIds: readonly string[] } | undefined;
   markOperableBoundaryReached?(frame?: number): void;
   readonly state: RuntimeSkillState;
   /** 当前技能局部整数执行帧；仅 casting 实例提供。 */
@@ -661,11 +661,11 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   /** Buff 映射高于 Skill/Mode；按注册身份撤销，不恢复已失效的快照。 */
-  overrideBasicAttackMapping(sourceSkillId: string): {
+  overrideBasicAttackMapping(skillId: string): {
     readonly registrationId: number;
     finish(): void;
   } {
-    const token = registerAbilityBasicAttackMapping(this.runtimeState, sourceSkillId);
+    const token = registerAbilityBasicAttackMapping(this.runtimeState, skillId);
     return {
       registrationId: token,
       finish: () => this.finishBasicAttackMapping(token),
@@ -686,12 +686,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
         reason: 'multiple Buff command mappings have unresolved priority',
       };
     }
-    const sourceSkillId = [...targets][0]!;
-    const keys = this.#skillKeysByTransitionSkillId.get(sourceSkillId);
+    const skillId = [...targets][0]!;
+    const keys = this.#skillKeysByTransitionSkillId.get(skillId);
     if (keys === undefined || keys.size !== 1) {
       return {
         status: 'unknown' as const,
-        reason: `Buff command mapping target '${sourceSkillId}' is not unique`,
+        reason: `Buff command mapping target '${skillId}' is not unique`,
       };
     }
     const actualSkillKey = [...keys][0]!;
@@ -710,7 +710,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
     if (current === null || current.currentTimelineFrame === undefined) return null;
     const frame = current.currentTimelineFrame;
-    const expectedSourceSkillIds = new Set(
+    const expectedSkillIds = new Set(
       this.#skills
         .filter(skill => skill.skillId === expectedSkillKey)
         .map(skill => skill.transitionSkillId ?? skill.skillId),
@@ -719,7 +719,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
       window =>
         window.input === 'basicAttack' && window.startFrame <= frame && frame <= window.endFrame,
     );
-    const targets = new Set(mappings.map(mapping => mapping.targetSourceSkillId));
+    const targets = new Set(mappings.map(mapping => mapping.targetSkillId));
     if (targets.size > 1) {
       return {
         status: 'unknown',
@@ -731,7 +731,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
         window =>
           window.startFrame <= frame &&
           frame <= window.endFrame &&
-          window.sourceSkillIds.some(sourceSkillId => expectedSourceSkillIds.has(sourceSkillId)),
+          window.skillIds.some(skillId => expectedSkillIds.has(skillId)),
       );
       if (explicitlyAllowed) {
         // 部分技能只用 AllowNextSkillAction 开放下一段，没有同时改写 CommandMapping；
@@ -774,15 +774,17 @@ export class AbilitySystemRuntime implements FrameRuntime {
       return { status: 'unknown', reason: 'multiple active modes override basic-attack routing' };
     }
     const mapping = mappings[0]!;
-    if (mapping.skillKey === undefined) {
+    const keys = this.#skillKeysByTransitionSkillId.get(mapping.skillId);
+    if (keys === undefined || keys.size !== 1) {
       return {
         status: 'unknown',
-        reason: `active mode maps basic attack to unconverted native skill '${mapping.sourceSkillId}'`,
+        reason: `active mode maps basic attack to unconverted native skill '${mapping.skillId}'`,
       };
     }
-    return mapping.skillKey === expectedSkillKey
-      ? { status: 'matched', actualSkillKey: mapping.skillKey }
-      : { status: 'mismatched', actualSkillKey: mapping.skillKey };
+    const actualSkillKey = [...keys][0]!;
+    return actualSkillKey === expectedSkillKey
+      ? { status: 'matched', actualSkillKey }
+      : { status: 'mismatched', actualSkillKey };
   }
 
   #resolveComboOffsetBasicAttackMapping(expectedSkillKey: string) {
@@ -829,14 +831,14 @@ export class AbilitySystemRuntime implements FrameRuntime {
     const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
     if (current === null) return { status: 'allowed' };
     const next = this.#requireSkill(expectedSkillKey, castId, false);
-    const nextSourceSkillId = next.transitionSkillId ?? next.skillId;
+    const nextSkillId = next.transitionSkillId ?? next.skillId;
     const frame = current.currentTimelineFrame;
     if (frame !== undefined) {
       const explicitlyAllowed = (current.inputWindows?.allowedNextSkills ?? []).some(
         window =>
           window.startFrame <= frame &&
           frame <= window.endFrame &&
-          window.sourceSkillIds.includes(nextSourceSkillId),
+          window.skillIds.includes(nextSkillId),
       );
       if (explicitlyAllowed) return { status: 'allowed' };
     }
@@ -1327,12 +1329,12 @@ export class AbilitySystemRuntime implements FrameRuntime {
                 passedFrames + 0.0003 >= window.startFrame &&
                 passedFrames <= window.endFrame + 0.0003,
             );
-      const candidateSourceSkillIds =
-        candidate?.sourceSkillIds ?? skill.operableBoundaryCandidateSourceSkillIds ?? [];
+      const candidateSkillIds =
+        candidate?.skillIds ?? skill.operableBoundaryCandidateSkillIds ?? [];
       const routableDirectWindows = directWindows.filter(window =>
-        this.#hasRoutableAllowedNextSkill(window.sourceSkillIds),
+        this.#hasRoutableAllowedNextSkill(window.skillIds),
       );
-      const candidateReachedNow = this.#hasRoutableAllowedNextSkill(candidateSourceSkillIds);
+      const candidateReachedNow = this.#hasRoutableAllowedNextSkill(candidateSkillIds);
       const candidatesReachedNow = routableDirectWindows.length > 0 || candidateReachedNow;
       if (!candidatesReachedNow && skill.canInterrupt !== true) return;
       const allowedFrame = Math.min(
@@ -1355,11 +1357,11 @@ export class AbilitySystemRuntime implements FrameRuntime {
   }
 
   /** 只检查此刻玩家操作能够解析出的技能身份；费用、冷却和未来输入不参与当前块宽。 */
-  #hasRoutableAllowedNextSkill(sourceSkillIds: readonly string[]): boolean {
-    if (sourceSkillIds.length === 0 || this.#playerActionRoutes === undefined) return false;
+  #hasRoutableAllowedNextSkill(skillIds: readonly string[]): boolean {
+    if (skillIds.length === 0 || this.#playerActionRoutes === undefined) return false;
     const allowedSkillKeys = new Set(
-      sourceSkillIds.flatMap(sourceSkillId => {
-        const keys = this.#skillKeysByTransitionSkillId.get(sourceSkillId);
+      skillIds.flatMap(skillId => {
+        const keys = this.#skillKeysByTransitionSkillId.get(skillId);
         return keys?.size === 1 ? [[...keys][0]!] : [];
       }),
     );

@@ -16,7 +16,7 @@ describe('equipment definition editor coverage', () => {
   it('定义、贡献、词条和实例分别拥有契约穷尽账本', () => {
     expect(Object.keys(WEAPON_DEFINITION_EDITOR_COVERAGE)).toHaveLength(8);
     expect(Object.keys(GEAR_DEFINITION_EDITOR_COVERAGE)).toHaveLength(9);
-    expect(Object.keys(GEAR_SET_DEFINITION_EDITOR_COVERAGE)).toHaveLength(8);
+    expect(Object.keys(GEAR_SET_DEFINITION_EDITOR_COVERAGE)).toHaveLength(9);
     expect(Object.keys(EQUIPMENT_CONTRIBUTION_EDITOR_COVERAGE)).toHaveLength(6);
     expect(Object.keys(WEAPON_TRAIT_EDITOR_COVERAGE)).toHaveLength(8);
     expect(Object.keys(GEAR_TRAIT_EDITOR_COVERAGE)).toHaveLength(9);

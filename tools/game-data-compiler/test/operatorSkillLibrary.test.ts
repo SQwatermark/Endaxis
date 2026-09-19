@@ -9,16 +9,16 @@ describe('Operator 技能库组装', () => {
       characterId: 'chr_test',
       sourcePath: 'perlica',
       manifestSkills: [
-        skill('basicAttack1', 'basicAttack', 'attack.json'),
-        skill('battleSkill', 'battleSkill', 'battle.json'),
+        skill('basicAttack', 'native_attack.json'),
+        skill('battleSkill', 'native_battle.json'),
       ],
       manifestSkillGroups: [
-        group('basicAttack', 'basicAttack', 'basicAttack', 0, ['basicAttack1']),
-        group('battleSkill', 'battleSkill', 'battleSkill', 1, ['battleSkill']),
+        group('basicAttack', 'basicAttack', 'basicAttack', 0, ['native_attack']),
+        group('battleSkill', 'battleSkill', 'battleSkill', 1, ['native_battle']),
       ],
       skillDataBySourceFile: {
-        'attack.json': activeSkillFixture('native_attack'),
-        'battle.json': activeSkillFixture('native_battle'),
+        'native_attack.json': activeSkillFixture('native_attack'),
+        'native_battle.json': activeSkillFixture('native_battle'),
       },
       skillPatchTable: {},
       charGrowthTable: {
@@ -31,7 +31,7 @@ describe('Operator 技能库组装', () => {
       },
     });
 
-    expect(result.activeSkills.entries.map(entry => entry.skillId)).toEqual([
+    expect(result.activeSkills.entries.map(entry => entry.key)).toEqual([
       'native_attack',
       'native_battle',
     ]);
@@ -44,11 +44,11 @@ describe('Operator 技能库组装', () => {
       compileOperatorSkillLibrarySource({
         characterId: 'chr_test',
         sourcePath: 'fixture',
-        manifestSkills: [skill('basicAttack1', 'basicAttack', 'attack.json')],
+        manifestSkills: [skill('basicAttack', 'native_attack.json')],
         manifestSkillGroups: [
-          group('basicAttack', 'basicAttack', 'basicAttack', 0, ['basicAttack1']),
+          group('basicAttack', 'basicAttack', 'basicAttack', 0, ['native_attack']),
         ],
-        skillDataBySourceFile: { 'attack.json': activeSkillFixture('native_attack') },
+        skillDataBySourceFile: { 'native_attack.json': activeSkillFixture('native_attack') },
         skillPatchTable: {},
         charGrowthTable: {
           chr_test: {
@@ -60,8 +60,8 @@ describe('Operator 技能库组装', () => {
   });
 });
 
-function skill(key: string, skillType: string, source: string) {
-  return { key, skillType, levelSource: skillType, source, compile: { kind: 'resolvedSequence' } };
+function skill(skillType: string, source: string) {
+  return { skillType, levelSource: skillType, source, compile: { kind: 'resolvedSequence' } };
 }
 
 function group(

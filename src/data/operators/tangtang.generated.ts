@@ -264,10 +264,9 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0027_tangtang_attack1',
+    key: 'chr_0027_tangtang_attack1',
     timelineBlockFrames: 7,
     naturalDurationFrames: 90,
     exclusiveFrame: 15,
@@ -278,12 +277,10 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0027_tangtang_attack2',
+          targetSkillId: 'chr_0027_tangtang_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 7, endFrame: 30, sourceSkillIds: ['chr_0027_tangtang_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 7, endFrame: 30, skillIds: ['chr_0027_tangtang_attack2'] }],
     },
     costFrame: 3,
     scheduledSequences: [
@@ -322,13 +319,11 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         7,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0027_tangtang_attack2'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack2',
+    timelineContinuationSkillId: 'chr_0027_tangtang_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -336,10 +331,9 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
 );
 
-export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0027_tangtang_attack2',
+    key: 'chr_0027_tangtang_attack2',
     timelineBlockFrames: 18,
     naturalDurationFrames: 117,
     exclusiveFrame: 18,
@@ -350,11 +344,11 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 39,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0027_tangtang_attack3',
+          targetSkillId: 'chr_0027_tangtang_attack3',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 18, endFrame: 39, sourceSkillIds: ['chr_0027_tangtang_attack3'] },
+        { startFrame: 18, endFrame: 39, skillIds: ['chr_0027_tangtang_attack3'] },
       ],
     },
     costFrame: 9,
@@ -447,13 +441,11 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0027_tangtang_attack3'] })),
         39,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack3',
+    timelineContinuationSkillId: 'chr_0027_tangtang_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -466,10 +458,9 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0027_tangtang_attack3',
+    key: 'chr_0027_tangtang_attack3',
     timelineBlockFrames: 26,
     naturalDurationFrames: 115,
     exclusiveFrame: 30,
@@ -480,11 +471,11 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 43,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0027_tangtang_attack4',
+          targetSkillId: 'chr_0027_tangtang_attack4',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 26, endFrame: 43, sourceSkillIds: ['chr_0027_tangtang_attack4'] },
+        { startFrame: 26, endFrame: 43, skillIds: ['chr_0027_tangtang_attack4'] },
       ],
     },
     costFrame: 9,
@@ -650,13 +641,11 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         26,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0027_tangtang_attack4'] })),
         43,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack4',
+    timelineContinuationSkillId: 'chr_0027_tangtang_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -669,10 +658,9 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0027_tangtang_attack4',
+    key: 'chr_0027_tangtang_attack4',
     timelineBlockFrames: 24,
     naturalDurationFrames: 143,
     exclusiveFrame: 28,
@@ -683,11 +671,11 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 50,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0027_tangtang_attack5',
+          targetSkillId: 'chr_0027_tangtang_attack5',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 24, endFrame: 50, sourceSkillIds: ['chr_0027_tangtang_attack5'] },
+        { startFrame: 24, endFrame: 50, skillIds: ['chr_0027_tangtang_attack5'] },
       ],
     },
     costFrame: 9,
@@ -755,13 +743,11 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0027_tangtang_attack5'] })),
         50,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack5',
+    timelineContinuationSkillId: 'chr_0027_tangtang_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -774,10 +760,9 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0027_tangtang_attack5',
+    key: 'chr_0027_tangtang_attack5',
     timelineBlockFrames: 36,
     naturalDurationFrames: 190,
     exclusiveFrame: 36,
@@ -788,11 +773,11 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 77,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0027_tangtang_attack1',
+          targetSkillId: 'chr_0027_tangtang_attack1',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 36, endFrame: 77, sourceSkillIds: ['chr_0027_tangtang_attack1'] },
+        { startFrame: 36, endFrame: 77, skillIds: ['chr_0027_tangtang_attack1'] },
       ],
     },
     costFrame: 9,
@@ -863,13 +848,11 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         36,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0027_tangtang_attack1'] })),
         77,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack1',
+    timelineContinuationSkillId: 'chr_0027_tangtang_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -882,10 +865,9 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0027_tangtang_power_attack',
+    key: 'chr_0027_tangtang_power_attack',
     timelineBlockFrames: 48,
     naturalDurationFrames: 121,
     exclusiveFrame: 47,
@@ -1017,10 +999,9 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0027_tangtang_plunging_attack_end',
+    key: 'chr_0027_tangtang_plunging_attack_end',
     timelineBlockFrames: 16,
     naturalDurationFrames: 118,
     exclusiveFrame: 15,
@@ -1055,17 +1036,16 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
 );
 
-export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0027_tangtang_normal_skill',
+    key: 'chr_0027_tangtang_normal_skill',
     timelineBlockFrames: 50,
     naturalDurationFrames: 136,
     exclusiveFrame: 50,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 50, endFrame: 76, sourceSkillIds: ['chr_0027_tangtang_normal_skill'] },
+        { startFrame: 50, endFrame: 76, skillIds: ['chr_0027_tangtang_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1350,10 +1330,9 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0027_tangtang_ultimate_skill',
+    key: 'chr_0027_tangtang_ultimate_skill',
     timelineBlockFrames: 85,
     naturalDurationFrames: 202,
     exclusiveFrame: 84,
@@ -1364,7 +1343,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
           startFrame: 82,
           endFrame: 174,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0027_tangtang_attack1',
+          targetSkillId: 'chr_0027_tangtang_attack1',
         },
       ],
     },
@@ -1541,17 +1520,16 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
+export const tangtangChr_0027_tangtang_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0027_tangtang_combo_skill',
+    key: 'chr_0027_tangtang_combo_skill',
     timelineBlockFrames: 31,
     naturalDurationFrames: 200,
     exclusiveFrame: 41,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 31, endFrame: 93, sourceSkillIds: ['chr_0027_tangtang_normal_skill'] },
+        { startFrame: 31, endFrame: 93, skillIds: ['chr_0027_tangtang_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1734,10 +1712,9 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const tangtangPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const tangtangCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1774,68 +1751,77 @@ export const tangtang: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        tangtangBasicAttack1,
-        tangtangBasicAttack2,
-        tangtangBasicAttack3,
-        tangtangBasicAttack4,
-        tangtangBasicAttack5,
+        tangtangChr_0027_tangtang_attack1,
+        tangtangChr_0027_tangtang_attack2,
+        tangtangChr_0027_tangtang_attack3,
+        tangtangChr_0027_tangtang_attack4,
+        tangtangChr_0027_tangtang_attack5,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: tangtangFinisher,
+      skills: tangtangChr_0027_tangtang_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: tangtangPlungingAttack,
+      skills: tangtangChr_0027_tangtang_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: tangtangBattleSkill,
+      skills: tangtangChr_0027_tangtang_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: tangtangUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: tangtangChr_0027_tangtang_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: tangtangComboSkill,
+      skills: tangtangChr_0027_tangtang_combo_skill,
     },
   ],
-  dodgeSkill: tangtangPerfectDodge,
+  dodgeSkill: tangtangCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    {
+      key: 'battleSkill',
+      baseSkillKey: 'chr_0027_tangtang_normal_skill',
+      replacementSkillKeys: [],
+    },
+    { key: 'comboSkill', baseSkillKey: 'chr_0027_tangtang_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0027_tangtang_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0027_tangtang_attack1',
+        'chr_0027_tangtang_attack2',
+        'chr_0027_tangtang_attack3',
+        'chr_0027_tangtang_attack4',
+        'chr_0027_tangtang_attack5',
+        'chr_0027_tangtang_plunging_attack_end',
+        'chr_0027_tangtang_power_attack',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0027_tangtang_attack1',
+        'chr_0027_tangtang_attack2',
+        'chr_0027_tangtang_attack3',
+        'chr_0027_tangtang_attack4',
+        'chr_0027_tangtang_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0027_tangtang_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1847,25 +1833,25 @@ export const tangtang: OperatorDefinition = {
       modeLayer: 'default',
       defaultEnabled: false,
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0027_tangtang_attack1',
+        'chr_0027_tangtang_attack2',
+        'chr_0027_tangtang_attack3',
+        'chr_0027_tangtang_attack4',
+        'chr_0027_tangtang_attack5',
       ],
-      commandMappings: { basicAttack: { sourceSkillId: 'chr_0027_tangtang_ult_attack3' } },
+      commandMappings: { basicAttack: { skillId: 'chr_0027_tangtang_ult_attack3' } },
     },
     {
       modeId: 'ult_end',
       modeLayer: 'default',
       defaultEnabled: false,
-      commandMappings: { basicAttack: { sourceSkillId: 'chr_0027_tangtang_ult_attack5' } },
+      commandMappings: { basicAttack: { skillId: 'chr_0027_tangtang_ult_attack5' } },
     },
   ],
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0027_tangtang_combo_skill',
       event: 'takeDamage',
       immediately: false,
       initialValues: null,
@@ -1891,7 +1877,7 @@ export const tangtang: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0027_tangtang_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,

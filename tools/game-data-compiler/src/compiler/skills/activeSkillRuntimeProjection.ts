@@ -1136,7 +1136,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
         allowedNextSkills.push({
           startFrame: timeline.startFrame,
           endFrame: timeline.endFrame,
-          sourceSkillIds: action.skillIds,
+          skillIds: action.skillIds,
         });
         continue;
       }
@@ -1149,7 +1149,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
           startFrame: timeline.startFrame,
           endFrame: timeline.endFrame,
           input: 'basicAttack',
-          targetSourceSkillId: mapping.skillId.length === 0 ? null : mapping.skillId,
+          targetSkillId: mapping.skillId.length === 0 ? null : mapping.skillId,
         });
       }
     }

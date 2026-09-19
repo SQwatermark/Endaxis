@@ -147,12 +147,17 @@ async function setup(slugs: readonly string[] = ['one', 'two']) {
   const globalBuffCatalog = path.join(root, 'global.json');
   const skillSettingCatalog = path.join(root, 'settings.json');
   const gameplayTagCatalog = path.join(root, 'tags.ts');
+  const timeDilationCatalog = path.join(root, 'time.ts');
   await fs.writeFile(manifest, JSON.stringify({ operators: slugs.map(slug => ({ slug })) }));
   await fs.writeFile(globalBuffCatalog, '{}');
   await fs.writeFile(skillSettingCatalog, '{}');
   await fs.writeFile(
     gameplayTagCatalog,
     "export const GAMEPLAY_TAG_PATHS = Object.freeze([\n  'fixture',\n] as const);\n",
+  );
+  await fs.writeFile(
+    timeDilationCatalog,
+    "export const TIME_DILATION_PRIORITY_DEFINITIONS = Object.freeze([{ tagPath: 'TimeDilation/Priority/Fixture', value: 1 }] as const);\n",
   );
   return {
     manifest,
@@ -161,7 +166,7 @@ async function setup(slugs: readonly string[] = ['one', 'two']) {
     skillPatchTable: 'unused-skill-patch',
     buffDataRoot: root,
     gameplayTagCatalog,
-    timeDilationCatalog: 'unused-time',
+    timeDilationCatalog,
     globalBuffCatalog,
     skillSettingCatalog,
     outputRoot: path.join(root, 'operators'),

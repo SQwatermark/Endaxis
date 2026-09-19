@@ -226,7 +226,7 @@ it('主动技能及实体共用调度子集，结束帧和技能来源信息保�
     Active['scheduledSequences'][number]
   >().toEqualTypeOf<CompiledActiveSkillTimelineSequenceSource>();
   expectTypeOf<{}>().not.toExtend<Pick<CompiledActiveSkillTimelineSequenceSource, 'endFrame'>>();
-  expectTypeOf<{}>().not.toExtend<Pick<Active, 'blackboard' | 'sourceSkillId' | 'costFrame'>>();
+  expectTypeOf<{}>().not.toExtend<Pick<Active, 'blackboard' | 'key' | 'costFrame'>>();
   expectTypeOf<Extract<keyof Active, 'eventHandlers' | 'availability'>>().toBeNever();
 });
 

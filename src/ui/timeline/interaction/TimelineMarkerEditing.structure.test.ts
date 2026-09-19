@@ -25,22 +25,17 @@ describe('Next timeline marker editing structure', () => {
     expect(documentInspectorSource).toContain("emit('setSuccessDelayFrames'");
   });
 
-  it('keeps external facts explicitly restricted in the marker menu', () => {
-    expect(menuSource).toContain('labels.restrictedHint');
-    expect(menuSource).not.toContain('仅补充木桩模型无法自然产生的事件');
-    expect(menuSource).toContain("$emit('addOperatorHit')");
-    expect(menuSource).toContain("$emit('addOperatorWeakness')");
-    expect(menuSource).toContain("$emit('addTeamHit')");
+  it('only exposes supported combo cooldown controls in the external marker menu', () => {
+    expect(menuSource).toContain("$emit('controlComboCooldown'");
+    expect(menuSource).not.toContain('addOperatorHit');
+    expect(menuSource).not.toContain('addOperatorWeakness');
+    expect(menuSource).not.toContain('addTeamHit');
   });
 
-  it('edits the proven external hit context from the marker inspector', () => {
+  it('shows the combo cooldown control marker in its inspector', () => {
     expect(editorSource).toContain('<TimelineExternalEventInspector');
-    expect(editorSource).toContain('updateExternalEventMarker(current, marker.id, { event })');
-    expect(inspectorSource).toContain('DAMAGE_TYPES');
-    expect(inspectorSource).toContain('DAMAGE_TAGS');
-    expect(inspectorSource).toContain('DAMAGE_FEATURES');
-    expect(inspectorSource).toContain('boundaryHint');
-    expect(inspectorSource).not.toContain('enemyDamage');
+    expect(inspectorSource).toContain('comboControl.${marker.event.mode}');
+    expect(inspectorSource).not.toContain('DAMAGE_TYPES');
   });
 
   it('routes document-backed timeline markers through a focused inspector', () => {
@@ -65,7 +60,6 @@ describe('Next timeline marker editing structure', () => {
     expect(editorSource).toContain("t('timeline.markerLabels.controlSwitch')");
     expect(editorSource).toContain("'timeline.markerLabels.simulationStart'");
     expect(editorSource).toContain("'timeline.markerLabels.simulationEnd'");
-    expect(editorSource).toContain("t('timeline.markerLabels.hitShort')");
     expect(editorSource).not.toContain('<b>循环分界线</b>');
     expect(editorSource).not.toContain("? '受击' : '弱点'");
     expect(editorSource).not.toContain('<b>模拟起始线</b>');
@@ -90,6 +84,10 @@ describe('Next timeline marker editing structure', () => {
     expect(menuSource).toContain('role="menu"');
     expect(menuSource).toContain('role="menuitem"');
     expect(menuSource).not.toContain("querySelector<HTMLButtonElement>('button:not(:disabled)')");
+  });
+
+  it('aligns the switch-operator submenu label with the other menu actions', () => {
+    expect(menuSource).toMatch(/\.menu-item\.has-submenu\s*\{[^}]*gap: var\(--ea-control-gap\);/);
   });
 
   it('restores the legacy global menu and cycle/start/end line presentation', () => {

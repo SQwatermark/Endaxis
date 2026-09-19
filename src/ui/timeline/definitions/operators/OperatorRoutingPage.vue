@@ -49,7 +49,7 @@ function add(node: SkillStructureNode) {
     node.kind === '未设置路由'
       ? { kind: 'skillSlot', skillSlotKey: '' }
       : node.kind === '未设置映射'
-        ? { sourceSkillId: '' }
+        ? { skillId: '' }
         : undefined;
   if (!item) return;
   props.history.commit(replaceStructureValueAtPath(props.value, path, item), { path });
@@ -197,19 +197,13 @@ function add(node: SkillStructureNode) {
           </template>
           <template
             v-else-if="node.kind === '命令映射'"
-            v-for="mapping in [current as { sourceSkillId: string; skillKey?: string }]"
+            v-for="mapping in [current as { skillId: string }]"
             :key="'kind-4:' + node.sourcePath"
           >
-            <label :data-property-path="JSON.stringify(['sourceSkillId'])"
-              >原生技能 ID<input
-                :value="mapping.sourceSkillId"
-                @change="
-                  update({ ...mapping, sourceSkillId: text($event) }, ['sourceSkillId'])
-                " /></label
-            ><label :data-property-path="JSON.stringify(['skillKey'])"
-              >已转换技能标识（可不设）<input
-                :value="mapping.skillKey ?? ''"
-                @change="update({ ...mapping, skillKey: text($event) || undefined }, ['skillKey'])"
+            <label :data-property-path="JSON.stringify(['skillId'])"
+              >技能 ID<input
+                :value="mapping.skillId"
+                @change="update({ ...mapping, skillId: text($event) }, ['skillId'])"
             /></label>
           </template>
           <p v-else>

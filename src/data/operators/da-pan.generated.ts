@@ -161,10 +161,9 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
   },
 );
 
-export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0018_dapan_attack1',
+    key: 'chr_0018_dapan_attack1',
     timelineBlockFrames: 15,
     naturalDurationFrames: 176,
     exclusiveFrame: 20,
@@ -175,12 +174,10 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0018_dapan_attack2',
+          targetSkillId: 'chr_0018_dapan_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 15, endFrame: 30, sourceSkillIds: ['chr_0018_dapan_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 15, endFrame: 30, skillIds: ['chr_0018_dapan_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -242,13 +239,11 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         15,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0018_dapan_attack2'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack2',
+    timelineContinuationSkillId: 'chr_0018_dapan_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -260,10 +255,9 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0018_dapan_attack2',
+    key: 'chr_0018_dapan_attack2',
     timelineBlockFrames: 20,
     naturalDurationFrames: 171,
     exclusiveFrame: 30,
@@ -274,12 +268,10 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 25,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0018_dapan_attack3',
+          targetSkillId: 'chr_0018_dapan_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 20, endFrame: 25, sourceSkillIds: ['chr_0018_dapan_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 20, endFrame: 25, skillIds: ['chr_0018_dapan_attack3'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -324,13 +316,11 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         20,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0018_dapan_attack3'] })),
         25,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack3',
+    timelineContinuationSkillId: 'chr_0018_dapan_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -342,10 +332,9 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0018_dapan_attack3',
+    key: 'chr_0018_dapan_attack3',
     timelineBlockFrames: 25,
     naturalDurationFrames: 193,
     exclusiveFrame: 38,
@@ -356,12 +345,10 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 40,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0018_dapan_attack4',
+          targetSkillId: 'chr_0018_dapan_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 25, endFrame: 40, sourceSkillIds: ['chr_0018_dapan_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 25, endFrame: 40, skillIds: ['chr_0018_dapan_attack4'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -467,13 +454,11 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         25,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0018_dapan_attack4'] })),
         40,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack4',
+    timelineContinuationSkillId: 'chr_0018_dapan_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -488,10 +473,9 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0018_dapan_attack4',
+    key: 'chr_0018_dapan_attack4',
     timelineBlockFrames: 45,
     naturalDurationFrames: 236,
     exclusiveFrame: 60,
@@ -502,12 +486,10 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 70,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0018_dapan_attack1',
+          targetSkillId: 'chr_0018_dapan_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 45, endFrame: 70, sourceSkillIds: ['chr_0018_dapan_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 45, endFrame: 70, skillIds: ['chr_0018_dapan_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -554,13 +536,11 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         45,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0018_dapan_attack1'] })),
         70,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack1',
+    timelineContinuationSkillId: 'chr_0018_dapan_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -574,10 +554,9 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const daPanFinisher: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0018_dapan_power_attack',
+    key: 'chr_0018_dapan_power_attack',
     timelineBlockFrames: 35,
     naturalDurationFrames: 215,
     exclusiveFrame: 46,
@@ -587,7 +566,7 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 35,
           endFrame: 56,
-          sourceSkillIds: ['chr_0018_dapan_normal_skill', 'chr_0018_dapan_combo_skill'],
+          skillIds: ['chr_0018_dapan_normal_skill', 'chr_0018_dapan_combo_skill'],
         },
       ],
     },
@@ -678,10 +657,9 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0018_dapan_plunging_attack_end',
+    key: 'chr_0018_dapan_plunging_attack_end',
     timelineBlockFrames: 16,
     naturalDurationFrames: 188,
     exclusiveFrame: 15,
@@ -731,17 +709,16 @@ export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0018_dapan_normal_skill',
+    key: 'chr_0018_dapan_normal_skill',
     timelineBlockFrames: 65,
     naturalDurationFrames: 210,
     exclusiveFrame: 65,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 65, endFrame: 89, sourceSkillIds: ['chr_0018_dapan_normal_skill'] },
+        { startFrame: 65, endFrame: 89, skillIds: ['chr_0018_dapan_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -976,10 +953,9 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const daPanUltimate: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0018_dapan_ultimate_skill',
+    key: 'chr_0018_dapan_ultimate_skill',
     timelineBlockFrames: 86,
     naturalDurationFrames: 235,
     exclusiveFrame: 100,
@@ -989,7 +965,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 86,
           endFrame: 120,
-          sourceSkillIds: ['chr_0018_dapan_normal_skill', 'chr_0018_dapan_combo_skill'],
+          skillIds: ['chr_0018_dapan_normal_skill', 'chr_0018_dapan_combo_skill'],
         },
       ],
     },
@@ -1293,17 +1269,16 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
+export const daPanChr_0018_dapan_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0018_dapan_combo_skill',
+    key: 'chr_0018_dapan_combo_skill',
     timelineBlockFrames: 24,
     naturalDurationFrames: 146,
     exclusiveFrame: 52,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 24, endFrame: 59, sourceSkillIds: ['chr_0018_dapan_normal_skill'] },
+        { startFrame: 24, endFrame: 59, skillIds: ['chr_0018_dapan_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1671,10 +1646,9 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const daPanPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const daPanCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1709,51 +1683,71 @@ export const daPan: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [daPanBasicAttack1, daPanBasicAttack2, daPanBasicAttack3, daPanBasicAttack4],
+      skills: [
+        daPanChr_0018_dapan_attack1,
+        daPanChr_0018_dapan_attack2,
+        daPanChr_0018_dapan_attack3,
+        daPanChr_0018_dapan_attack4,
+      ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: daPanFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: daPanChr_0018_dapan_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: daPanPlungingAttack,
+      skills: daPanChr_0018_dapan_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: daPanBattleSkill,
+      skills: daPanChr_0018_dapan_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: daPanUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: daPanChr_0018_dapan_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: daPanComboSkill,
+      skills: daPanChr_0018_dapan_combo_skill,
     },
   ],
-  dodgeSkill: daPanPerfectDodge,
+  dodgeSkill: daPanCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0018_dapan_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0018_dapan_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0018_dapan_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'plungingAttack',
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'finisher',
+        'chr_0018_dapan_plunging_attack_end',
+        'chr_0018_dapan_attack1',
+        'chr_0018_dapan_attack2',
+        'chr_0018_dapan_attack3',
+        'chr_0018_dapan_attack4',
+        'chr_0018_dapan_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0018_dapan_attack1',
+        'chr_0018_dapan_attack2',
+        'chr_0018_dapan_attack3',
+        'chr_0018_dapan_attack4',
+      ],
+      defaultSkillKey: 'chr_0018_dapan_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1762,7 +1756,7 @@ export const daPan: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0018_dapan_combo_skill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,

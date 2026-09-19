@@ -14,3 +14,19 @@ export function createTimelineScrollSync() {
     observed.set(target, target.scrollLeft);
   };
 }
+
+interface VerticalScrollTarget {
+  scrollTop: number;
+}
+
+/** 纵向假滚动条与轨道视口共用已观察位置，避免异步 scroll 事件互相回写。 */
+export function createTimelineVerticalScrollSync() {
+  const observed = new WeakMap<VerticalScrollTarget, number>();
+  return (source: VerticalScrollTarget, target: VerticalScrollTarget): void => {
+    const top = source.scrollTop;
+    if (observed.get(source) === top) return;
+    observed.set(source, top);
+    if (Math.abs(target.scrollTop - top) > 0.5) target.scrollTop = top;
+    observed.set(target, target.scrollTop);
+  };
+}

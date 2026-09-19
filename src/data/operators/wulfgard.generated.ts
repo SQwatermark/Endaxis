@@ -10,10 +10,9 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0006_wolfgd_attack1',
+    key: 'chr_0006_wolfgd_attack1',
     timelineBlockFrames: 24,
     naturalDurationFrames: 121,
     exclusiveFrame: 30,
@@ -24,12 +23,10 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 49,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0006_wolfgd_attack2',
+          targetSkillId: 'chr_0006_wolfgd_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 24, endFrame: 49, sourceSkillIds: ['chr_0006_wolfgd_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 24, endFrame: 49, skillIds: ['chr_0006_wolfgd_attack2'] }],
     },
     costFrame: 13,
     scheduledSequences: [
@@ -131,13 +128,11 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0006_wolfgd_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0006_wolfgd_attack2'] })),
         49,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0006_wolfgd_attack2',
+    timelineContinuationSkillId: 'chr_0006_wolfgd_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -149,10 +144,9 @@ export const wulfgardBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0006_wolfgd_attack2',
+    key: 'chr_0006_wolfgd_attack2',
     timelineBlockFrames: 23,
     naturalDurationFrames: 129,
     exclusiveFrame: 35,
@@ -163,12 +157,10 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 38,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0006_wolfgd_attack3',
+          targetSkillId: 'chr_0006_wolfgd_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 23, endFrame: 38, sourceSkillIds: ['chr_0006_wolfgd_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 23, endFrame: 38, skillIds: ['chr_0006_wolfgd_attack3'] }],
     },
     costFrame: 11,
     scheduledSequences: [
@@ -270,13 +262,11 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         23,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0006_wolfgd_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0006_wolfgd_attack3'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0006_wolfgd_attack3',
+    timelineContinuationSkillId: 'chr_0006_wolfgd_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -288,10 +278,9 @@ export const wulfgardBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0006_wolfgd_attack3',
+    key: 'chr_0006_wolfgd_attack3',
     timelineBlockFrames: 32,
     naturalDurationFrames: 146,
     exclusiveFrame: 52,
@@ -302,12 +291,10 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 52,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0006_wolfgd_attack4',
+          targetSkillId: 'chr_0006_wolfgd_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 32, endFrame: 52, sourceSkillIds: ['chr_0006_wolfgd_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 32, endFrame: 52, skillIds: ['chr_0006_wolfgd_attack4'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -457,13 +444,11 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         32,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0006_wolfgd_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0006_wolfgd_attack4'] })),
         52,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0006_wolfgd_attack4',
+    timelineContinuationSkillId: 'chr_0006_wolfgd_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -475,10 +460,9 @@ export const wulfgardBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0006_wolfgd_attack4',
+    key: 'chr_0006_wolfgd_attack4',
     timelineBlockFrames: 53,
     naturalDurationFrames: 141,
     exclusiveFrame: 52,
@@ -547,10 +531,9 @@ export const wulfgardBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0006_wolfgd_power_attack',
+    key: 'chr_0006_wolfgd_power_attack',
     timelineBlockFrames: 34,
     naturalDurationFrames: 150,
     exclusiveFrame: 60,
@@ -560,7 +543,7 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 34,
           endFrame: 58,
-          sourceSkillIds: ['chr_0006_wolfgd_normal_skill', 'chr_0006_wolfgd_combo_skill'],
+          skillIds: ['chr_0006_wolfgd_normal_skill', 'chr_0006_wolfgd_combo_skill'],
         },
       ],
     },
@@ -643,18 +626,15 @@ export const wulfgardFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0006_wolfgd_plunging_attack_end',
+    key: 'chr_0006_wolfgd_plunging_attack_end',
     timelineBlockFrames: 8,
     naturalDurationFrames: 120,
     exclusiveFrame: 20,
     offsetRecordFrame: 0,
     inputWindows: {
-      allowedNextSkills: [
-        { startFrame: 8, endFrame: 20, sourceSkillIds: ['chr_0006_wolfgd_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 8, endFrame: 20, skillIds: ['chr_0006_wolfgd_attack1'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -681,18 +661,17 @@ export const wulfgardPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0006_wolfgd_normal_skill',
+    key: 'chr_0006_wolfgd_normal_skill',
     timelineBlockFrames: 32,
     naturalDurationFrames: 272,
     exclusiveFrame: 159,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 32, endFrame: 54, sourceSkillIds: ['chr_0006_wolfgd_normal_skill'] },
-        { startFrame: 152, endFrame: 184, sourceSkillIds: ['chr_0006_wolfgd_normal_skill'] },
+        { startFrame: 32, endFrame: 54, skillIds: ['chr_0006_wolfgd_normal_skill'] },
+        { startFrame: 152, endFrame: 184, skillIds: ['chr_0006_wolfgd_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1126,17 +1105,16 @@ export const wulfgardBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0006_wolfgd_combo_skill',
+    key: 'chr_0006_wolfgd_combo_skill',
     timelineBlockFrames: 30,
     naturalDurationFrames: 138,
     exclusiveFrame: 30,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 30, endFrame: 65, sourceSkillIds: ['chr_0006_wolfgd_normal_skill'] },
+        { startFrame: 30, endFrame: 65, skillIds: ['chr_0006_wolfgd_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1208,10 +1186,9 @@ export const wulfgardComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
+export const wulfgardChr_0006_wolfgd_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0006_wolfgd_ultimate_skill',
+    key: 'chr_0006_wolfgd_ultimate_skill',
     timelineBlockFrames: 75,
     naturalDurationFrames: 168,
     exclusiveFrame: 80,
@@ -1221,7 +1198,7 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 75,
           endFrame: 89,
-          sourceSkillIds: ['chr_0006_wolfgd_normal_skill', 'chr_0006_wolfgd_combo_skill'],
+          skillIds: ['chr_0006_wolfgd_normal_skill', 'chr_0006_wolfgd_combo_skill'],
         },
       ],
     },
@@ -1419,10 +1396,9 @@ export const wulfgardUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const wulfgardPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const wulfgardCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1458,60 +1434,70 @@ export const wulfgard: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        wulfgardBasicAttack1,
-        wulfgardBasicAttack2,
-        wulfgardBasicAttack3,
-        wulfgardBasicAttack4,
+        wulfgardChr_0006_wolfgd_attack1,
+        wulfgardChr_0006_wolfgd_attack2,
+        wulfgardChr_0006_wolfgd_attack3,
+        wulfgardChr_0006_wolfgd_attack4,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: wulfgardFinisher,
+      skills: wulfgardChr_0006_wolfgd_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: wulfgardPlungingAttack,
+      skills: wulfgardChr_0006_wolfgd_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: wulfgardBattleSkill,
+      skills: wulfgardChr_0006_wolfgd_normal_skill,
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: wulfgardComboSkill,
+      skills: wulfgardChr_0006_wolfgd_combo_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: wulfgardUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: wulfgardChr_0006_wolfgd_ultimate_skill,
+    },
   ],
-  dodgeSkill: wulfgardPerfectDodge,
+  dodgeSkill: wulfgardCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0006_wolfgd_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0006_wolfgd_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0006_wolfgd_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0006_wolfgd_attack1',
+        'chr_0006_wolfgd_attack2',
+        'chr_0006_wolfgd_attack3',
+        'chr_0006_wolfgd_attack4',
+        'chr_0006_wolfgd_plunging_attack_end',
+        'chr_0006_wolfgd_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0006_wolfgd_attack1',
+        'chr_0006_wolfgd_attack2',
+        'chr_0006_wolfgd_attack3',
+        'chr_0006_wolfgd_attack4',
+      ],
+      defaultSkillKey: 'chr_0006_wolfgd_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1520,7 +1506,7 @@ export const wulfgard: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0006_wolfgd_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,

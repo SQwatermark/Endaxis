@@ -2,15 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
 import type { OperatorDefinition, SkillDefinition } from '../../core/game-data/operatorDefinition';
 import type { OperatorInstanceDocument } from '../../core/project/schema';
-import { gilbertaBattleSkill } from './gilberta.generated';
-import { fluoriteBattleSkill } from './fluorite.generated';
-import { lifengComboSkill, lifengUltimate } from './lifeng.generated';
-import {
-  rossiBattleSkill,
-  rossiComboSkill2,
-  rossiComboSkill3,
-  rossiUltimate,
-} from './rossi.generated';
+import { getSkill } from './testUtils';
+import { rossiChr_0028_wulfa_combo_3_skill } from './rossi.generated';
 import {
   alesh,
   antal,
@@ -42,6 +35,15 @@ import {
   yvonne,
   zhuangFangyi,
 } from './index';
+
+const gilbertaBattleSkill = getSkill(gilberta, 'chr_0013_aglina_normal_skill');
+const fluoriteBattleSkill = getSkill(fluorite, 'chr_0022_bounda_normal_skill');
+const lifengComboSkill = getSkill(lifeng, 'chr_0015_lifeng_combo_skill');
+const lifengUltimate = getSkill(lifeng, 'chr_0015_lifeng_ultimate_skill');
+const rossiBattleSkill = getSkill(rossi, 'chr_0028_wulfa_normal_skill');
+const rossiComboSkill2 = getSkill(rossi, 'chr_0028_wulfa_combo_2_skill');
+const rossiComboSkill3 = rossiChr_0028_wulfa_combo_3_skill;
+const rossiUltimate = getSkill(rossi, 'chr_0028_wulfa_ultimate_skill');
 
 const generatedOperators: readonly [OperatorDefinition, number][] = [
   [gilberta, 9],
@@ -90,15 +92,19 @@ describe('新增的完整技能转换干员', () => {
   it('卡缪的普通连携与终结技后追猎保持不同输入身份', () => {
     const combo = camille.skillGroups.find(group => group.key === 'comboSkill');
     const battle = camille.skillGroups.find(group => group.key === 'battleSkill');
-    expect(combo?.skills).toMatchObject({ key: 'comboSkill1' });
-    expect(combo?.replacementSkillPlacements).toEqual({ comboSkill2: 'internal' });
+    expect(combo?.skills).toMatchObject({ key: 'chr_0033_camille_combo_skill' });
+    expect(combo?.replacementSkillPlacements).toEqual({
+      chr_0033_camille_combo_skill_2: 'internal',
+    });
     expect(battle?.routedReplacementSkills).toEqual([
       expect.objectContaining({
-        skill: expect.objectContaining({ key: 'battleSkillDuringUltimate' }),
-        executionSkillKey: 'comboSkill2',
+        skill: expect.objectContaining({ key: 'chr_0033_camille_normal_skill_2' }),
+        executionSkillKey: 'chr_0033_camille_combo_skill_2',
       }),
     ]);
-    expect(camille.skillDisplayNameKeys?.battleSkillDuringUltimate).toBe('skillNames.pursuit');
+    expect(camille.skillDisplayNameKeys?.chr_0033_camille_normal_skill_2).toBe(
+      'skillNames.pursuit',
+    );
   });
 
   it('梨诺终结技同时保留对敌声波与友方治疗分支', () => {
@@ -113,8 +119,8 @@ describe('新增的完整技能转换干员', () => {
     expect(serialized).toContain('dealDamage');
     expect(serialized).toContain('heal');
     expect(liino.comboSkillConditions).toMatchObject([
-      { event: 'addedBuff', skillKey: 'comboSkill', immediately: false },
-      { event: 'buffEndsEarly', skillKey: 'comboSkill', immediately: false },
+      { event: 'addedBuff', skillKey: 'chr_0035_liino_combo_skill', immediately: false },
+      { event: 'buffEndsEarly', skillKey: 'chr_0035_liino_combo_skill', immediately: false },
     ]);
     expect(JSON.stringify(liino.comboSkillConditions)).toContain(
       'Skill/Character/chr_0035_liino/NormalSkillMusic',
@@ -185,7 +191,7 @@ describe('新增的完整技能转换干员', () => {
   it('Avywenna 处决保留三段破防倍率，并在首段伤害后读取敌人处决技力', () => {
     const finisher = avywenna.skillGroups
       .flatMap(group => (Array.isArray(group.skills) ? group.skills : [group.skills]))
-      .find(skill => skill.key === 'finisher') as SkillDefinition | undefined;
+      .find(skill => skill.key === 'chr_0012_avywen_power_attack') as SkillDefinition | undefined;
     expect(finisher).toBeDefined();
     const damageSteps = finisher!.scheduledSequences.flatMap(item =>
       item.sequence.steps.filter(step => step.kind === 'dealDamage'),
@@ -217,16 +223,16 @@ describe('新增的完整技能转换干员', () => {
         (Array.isArray(group.skills) ? group.skills : [group.skills]).map(skill => skill.key),
       ),
     ).toEqual([
-      'basicAttack1',
-      'basicAttack2',
-      'basicAttack3',
-      'basicAttack4',
-      'basicAttack5',
-      'finisher',
-      'plungingAttack',
-      'battleSkill',
-      'ultimate',
-      'comboSkill',
+      'chr_0003_endminf_attack1',
+      'chr_0003_endminf_attack2',
+      'chr_0003_endminf_attack3',
+      'chr_0003_endminf_attack4',
+      'chr_0003_endminf_attack5',
+      'chr_0003_endminf_power_attack2',
+      'chr_0003_endminf_plunging_attack_end',
+      'chr_0003_endminf_normal_skill',
+      'chr_0003_endminf_ultimate_skill',
+      'chr_0003_endminf_combo_skill',
     ]);
   });
 

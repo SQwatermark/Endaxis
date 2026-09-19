@@ -165,9 +165,6 @@ type EnvironmentOptions = Pick<
   | 'probabilitySamples'
   | 'readSourceAttributeValue'
   | 'emitOperatorEnterFight'
-  | 'emitExternalOperatorHit'
-  | 'emitExternalOperatorWeaknessTriggeredOutput'
-  | 'emitExternalEnemyWeaknessSet'
   | 'emitBuffLifecycleAbilityEvent'
 >;
 
@@ -588,19 +585,6 @@ export class StandardPlayerDamageEnvironment {
         this.#emit(operatorId, 'enterFight', {
           sourceId: operatorId,
           targetId: operatorId,
-        }),
-      emitExternalOperatorHit: (operatorId, payload) => {
-        this.#emit(operatorId, 'beforeTakeDamage', payload);
-        this.#emit(operatorId, 'takeDamage', payload);
-      },
-      emitExternalOperatorWeaknessTriggeredOutput: operatorId =>
-        this.#emit(operatorId, 'afterOutputWeaknessTriggered', {
-          sourceId: operatorId,
-          targetId: 'enemy',
-        }),
-      emitExternalEnemyWeaknessSet: () =>
-        this.#emit('enemy', 'weaknessSet', {
-          sourceId: 'enemy',
         }),
       emitBuffLifecycleAbilityEvent: (event, payload) =>
         this.#emit(payload.sourceId, event, payload),

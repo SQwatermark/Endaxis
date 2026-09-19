@@ -81,7 +81,7 @@ describe('battle axis commands', () => {
         id: 'external:latest',
         frame: 150,
         target: { scope: 'operator', trackIndex: 0 },
-        event: { kind: 'operatorHit', tags: [], features: [] },
+        event: { kind: 'comboCooldownControl', mode: 'cooldown' },
       },
     ];
     original.battle.simulationRange = { endFrame: 180 };
@@ -1003,30 +1003,26 @@ describe('timeline marker commands', () => {
       'external:1',
       90,
       { scope: 'operator', trackIndex: 0 },
-      { kind: 'operatorHit', tags: [], features: [] },
+      { kind: 'comboCooldownControl', mode: 'cooldown' },
     );
     expect(added.battle.externalEventMarkers?.[0]).toEqual({
       id: 'external:1',
       frame: 90,
       target: { scope: 'operator', trackIndex: 0 },
-      event: { kind: 'operatorHit', tags: [], features: [] },
+      event: { kind: 'comboCooldownControl', mode: 'cooldown' },
     });
     expect(
       moveExternalEventMarker(added, 'external:1', 120).battle.externalEventMarkers?.[0]?.frame,
     ).toBe(120);
     const configured = updateExternalEventMarker(added, 'external:1', {
       event: {
-        kind: 'operatorHit',
-        damageType: 'physical',
-        tags: ['normalAttack'],
-        features: ['canBreakWeakness'],
+        kind: 'comboCooldownControl',
+        mode: 'ready',
       },
     });
     expect(configured.battle.externalEventMarkers?.[0]?.event).toEqual({
-      kind: 'operatorHit',
-      damageType: 'physical',
-      tags: ['normalAttack'],
-      features: ['canBreakWeakness'],
+      kind: 'comboCooldownControl',
+      mode: 'ready',
     });
     expect(updateExternalEventMarker(added, 'missing', {})).toBe(added);
     expect(removeExternalEventMarker(added, 'external:1').battle.externalEventMarkers).toEqual([]);

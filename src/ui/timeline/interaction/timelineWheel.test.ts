@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest';
-import { resolveTimelineWheelIntent } from './timelineViewport';
+import { resolveTimelineWheelIntent, timelineWheelDeltaPx } from './timelineViewport';
 
 describe('resolveTimelineWheelIntent', () => {
   test('gives Ctrl zoom priority and preserves wheel direction', () => {
@@ -20,9 +20,15 @@ describe('resolveTimelineWheelIntent', () => {
     ).toEqual({ kind: 'horizontalPan', deltaPx: 32 });
   });
 
-  test('leaves an ordinary wheel event to native vertical scrolling', () => {
+  test('routes an ordinary wheel event to direct vertical movement', () => {
     expect(
       resolveTimelineWheelIntent({ ctrlKey: false, shiftKey: false, deltaX: 0, deltaY: 80 }),
-    ).toEqual({ kind: 'nativeVerticalScroll' });
+    ).toEqual({ kind: 'verticalPan', deltaPx: 80 });
   });
+});
+
+test('converts line and page wheel deltas before moving the viewport', () => {
+  expect(timelineWheelDeltaPx(3, 1, 600)).toBe(48);
+  expect(timelineWheelDeltaPx(1, 2, 600)).toBe(600);
+  expect(timelineWheelDeltaPx(80, 0, 600)).toBe(80);
 });

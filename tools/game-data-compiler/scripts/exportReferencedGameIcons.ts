@@ -473,7 +473,7 @@ function sourcePlanForReference(
     };
   }
   const stem = path.posix.basename(publicPath, '.webp');
-  if (stem === 'default' || stem === 'default_icon') {
+  if (stem === 'default' || stem === 'default_icon' || publicPath === '/icons/global_config.webp') {
     return { sourceNames: [], preferredPathSegments: [], localOnly: true };
   }
   if (publicPath.startsWith('/weapons/')) {

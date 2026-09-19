@@ -67,8 +67,18 @@ it.each([false, true])('伊冯正式战技 SkillAffix 生命周期 interruption=
   const listenerEvents = entries.filter(
     entry => entry.data?.buffId === 'buff_chr_0017_yvonne_normal_skill_listener',
   );
-  expect(listenerEvents.map(entry => entry.event)).toEqual(['BuffApplied', 'BuffFinished']);
-  const [applied, finished] = listenerEvents;
+  expect(listenerEvents.map(entry => entry.event)).toEqual([
+    'BuffCreated',
+    'BuffApplied',
+    'BuffFinished',
+  ]);
+  const [created, applied, finished] = listenerEvents;
+  expect(created!.subject).toMatchObject({
+    kind: 'buff',
+    ownerId: applied!.targetId,
+    instanceId: applied!.data!.instanceId,
+  });
+  expect(created!.sequence).toBeLessThan(applied!.sequence);
   expect(applied!.frame).toBe(1);
   expect(finished!.data).toMatchObject({ instanceId: applied!.data!.instanceId, reason: 'other' });
   const damage = entries.filter(

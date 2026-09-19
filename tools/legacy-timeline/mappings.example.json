@@ -11,7 +11,7 @@
         "target": {
           "kind": "operatorSkill",
           "skillGroupKey": "battleSkill",
-          "skillKey": "battleSkill"
+          "skillKey": "chr_0004_pelica_normal_skill"
         }
       }
     ]

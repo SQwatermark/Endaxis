@@ -48,7 +48,11 @@ export function createTimelineSampleScenario(): ScenarioDocument {
     skillCasts: [
       {
         id: ABILITY_ENTITY_SAMPLE_CAST_ID,
-        source: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'ultimate',
+          skillKey: 'chr_0007_ikut_ultimate_skill',
+        },
         placement: { startFrame: 30 },
         // 初始样例保留一个可直接启用的真实终结技，默认禁用以保持首次打开时的空轴状态。
         presentation: { disabled: true },

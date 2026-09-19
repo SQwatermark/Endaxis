@@ -65,7 +65,7 @@ describe('Operator 主动技能正式运行定义', () => {
     };
 
     const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
-      key: 'basicAttack1',
+      key: 'native.attack1',
       skillType: 'basicAttack',
       value: source,
       sourcePath: 'native.attack1.json',
@@ -79,10 +79,10 @@ describe('Operator 主动技能正式运行定义', () => {
           startFrame: 6,
           endFrame: 9,
           input: 'basicAttack',
-          targetSourceSkillId: 'native.attack2',
+          targetSkillId: 'native.attack2',
         },
       ],
-      allowedNextSkills: [{ startFrame: 6, endFrame: 9, sourceSkillIds: ['native.attack2'] }],
+      allowedNextSkills: [{ startFrame: 6, endFrame: 9, skillIds: ['native.attack2'] }],
     });
     expect(
       renderOperatorActiveSkillRuntimeDefinitionSource({
@@ -100,7 +100,7 @@ describe('Operator 主动技能正式运行定义', () => {
       { key: 'atb', valueDouble: 3, valueStr: '', isDynamic: true },
     ];
     const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
-      key: 'comboSkill',
+      key: 'dynamic',
       skillType: 'comboSkill',
       value: source,
       sourcePath: 'dynamic',
@@ -125,7 +125,7 @@ describe('Operator 主动技能正式运行定义', () => {
     (source.castData as Record<string, unknown>).startCdFrame = 3;
     source.exclusiveFrame = 20;
     const definition = compileOperatorActiveSkillRuntimeDefinitionSource({
-      key: 'battleSkill',
+      key: 'battle',
       skillType: 'battleSkill',
       value: source,
       sourcePath: 'battle.json',
@@ -139,8 +139,7 @@ describe('Operator 主动技能正式运行定义', () => {
       context,
     });
     expect(definition).toMatchObject({
-      key: 'battleSkill',
-      sourceSkillId: 'battle',
+      key: 'battle',
       blackboard: { attack_scale: [1, 1.2] },
       timelineBlockFrames: 21,
       naturalDurationFrames: 30,
@@ -165,7 +164,7 @@ describe('Operator 主动技能正式运行定义', () => {
         },
       },
     });
-    expect(rendered.relativePath).toBe('fixture.battleSkill.runtime.generated.ts');
+    expect(rendered.relativePath).toBe('fixture.battle.runtime.generated.ts');
     expect(rendered.content).toContain('satisfies SkillDefinition');
     expect(rendered.content).toContain('export const supplementalBuffDefinitions');
     expect(rendered.content).toContain('"durationSeconds": 2');
@@ -222,7 +221,7 @@ describe('Operator 主动技能正式运行定义', () => {
     (source.castData as Record<string, unknown>).startCdFrame = 0;
     expect(() =>
       compileOperatorActiveSkillRuntimeDefinitionSource({
-        key: 'battleSkill',
+        key: 'battle',
         skillType: 'battleSkill',
         value: source,
         sourcePath: 'battle.json',

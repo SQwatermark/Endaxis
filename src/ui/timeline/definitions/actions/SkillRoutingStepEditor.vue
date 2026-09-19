@@ -103,7 +103,7 @@ function setSlotLifetime(event: Event): void {
     <template v-else-if="step.kind === 'overrideBasicAttackMapping'">
       <label>
         <span>普攻目标原生技能 ID（随动作结束撤销）</span>
-        <input :value="step.parameters.sourceSkillId" @input="setString('sourceSkillId', $event)" />
+        <input :value="step.parameters.skillId" @input="setString('skillId', $event)" />
       </label>
     </template>
     <template v-else-if="step.kind === 'changePlayerActionMode'">

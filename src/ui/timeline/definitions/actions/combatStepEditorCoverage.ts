@@ -18,7 +18,11 @@ export const PENDING_COMBAT_STEP_EDITOR_KINDS = {
   'runtime-structure': [
     'hideUi',
     'launchProjectileLifetime',
+    'markCurrentSkillCanDash',
+    'overrideMultiDashLimit',
     'reachSkillOperableBoundary',
+    'recordPerfectDodge',
+    'recoverDashEnergy',
     'showComboRingQte',
   ],
   'stump-low': [],

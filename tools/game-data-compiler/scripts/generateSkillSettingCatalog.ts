@@ -6,6 +6,7 @@ import {
   renderSkillSettingDocument,
 } from '../src/source/skillSettingDumpSource.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 
 export async function generateSkillSettingCatalog(args: {
   readonly sourceUrl: string;
@@ -29,19 +30,29 @@ export async function generateSkillSettingCatalog(args: {
   if (typeof preview.text !== 'string')
     throw new Error(`${args.sourceUrl}: missing TypeTree dump text`);
   const source = parseSkillSettingDumpSource(preview.text, args.sourceUrl);
-  const content = renderSkillSettingDocument(source, args.revision);
-  const runtimeContent = renderRuntimeSkillSettings(source, args.revision);
+  const content = await formatGeneratedSource(
+    renderSkillSettingDocument(source, args.revision),
+    args.output,
+  );
+  const runtimeContent =
+    args.runtimeOutput === undefined
+      ? undefined
+      : await formatGeneratedSource(
+          renderRuntimeSkillSettings(source, args.revision),
+          args.runtimeOutput,
+        );
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content)
       throw new Error(`${args.output}: generated SkillSetting catalog is stale`);
     if (
+      runtimeContent !== undefined &&
       args.runtimeOutput !== undefined &&
       (await fs.readFile(args.runtimeOutput, 'utf8')).replaceAll('\r\n', '\n') !== runtimeContent
     )
       throw new Error(`${args.runtimeOutput}: generated runtime SkillSetting data is stale`);
   } else {
     await writeAtomicBytes(args.output, new TextEncoder().encode(content));
-    if (args.runtimeOutput !== undefined) {
+    if (runtimeContent !== undefined && args.runtimeOutput !== undefined) {
       await writeAtomicBytes(args.runtimeOutput, new TextEncoder().encode(runtimeContent));
     }
   }

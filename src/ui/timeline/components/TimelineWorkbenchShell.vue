@@ -32,7 +32,6 @@ const props = defineProps<{
     inspector: string;
     performance: string;
     battleLog: string;
-    resetPanel: string;
     collapsePanel: string;
   };
 }>();
@@ -273,7 +272,7 @@ watch(
           :active="!bottomCollapsed && bottomTool === 'global'"
           :label="props.labels.globalConfig"
           @click="selectBottom('global')"
-          icon="/icons/setting_tab_setting.webp"
+          icon="/icons/global_config.webp"
         />
         <EaActivityRailButton
           class="activity-button activity-button--contract"
@@ -296,35 +295,6 @@ watch(
     </aside>
 
     <aside v-show="!leftCollapsed" class="workbench-panel left-panel" :style="leftStackStyle">
-      <div class="panel-chrome panel-chrome--left">
-        <EaButton
-          variant="ghost"
-          size="sm"
-          icon-only
-          type="button"
-          class="panel-chrome__button"
-          :title="props.labels.resetPanel"
-          :aria-label="props.labels.resetPanel"
-          @click="resetPanelSize('left')"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 12a9 9 0 1 0 3-6.7" />
-            <path d="M3 3v5h5" />
-          </svg>
-        </EaButton>
-        <EaButton
-          variant="ghost"
-          size="sm"
-          icon-only
-          type="button"
-          class="panel-chrome__button"
-          :title="props.labels.collapsePanel"
-          :aria-label="props.labels.collapsePanel"
-          @click="toggleLeft"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m15 18-6-6 6-6" /></svg>
-        </EaButton>
-      </div>
       <div class="left-main">
         <slot name="left" :reset-panel="() => resetPanelSize('left')" />
       </div>
@@ -364,23 +334,6 @@ watch(
         >
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6" /></svg>
         </EaButton>
-        <div class="panel-chrome panel-chrome--bottom">
-          <EaButton
-            variant="ghost"
-            size="sm"
-            icon-only
-            type="button"
-            class="panel-chrome__button"
-            :title="props.labels.resetPanel"
-            :aria-label="props.labels.resetPanel"
-            @click="resetPanelSize('bottom')"
-          >
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M3 12a9 9 0 1 0 3-6.7" />
-              <path d="M3 3v5h5" />
-            </svg>
-          </EaButton>
-        </div>
         <slot
           name="bottom"
           :tool="bottomTool"
@@ -397,35 +350,6 @@ watch(
       @dblclick="resetPanelSize('right')"
     ></div>
     <aside v-show="!rightCollapsed" class="workbench-panel right-panel">
-      <div class="panel-chrome panel-chrome--right">
-        <EaButton
-          variant="ghost"
-          size="sm"
-          icon-only
-          type="button"
-          class="panel-chrome__button"
-          :title="props.labels.resetPanel"
-          :aria-label="props.labels.resetPanel"
-          @click="resetPanelSize('right')"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M3 12a9 9 0 1 0 3-6.7" />
-            <path d="M3 3v5h5" />
-          </svg>
-        </EaButton>
-        <EaButton
-          variant="ghost"
-          size="sm"
-          icon-only
-          type="button"
-          class="panel-chrome__button"
-          :title="props.labels.collapsePanel"
-          :aria-label="props.labels.collapsePanel"
-          @click="rightCollapsed = true"
-        >
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 18 6-6-6-6" /></svg>
-        </EaButton>
-      </div>
       <slot name="right" :tool="rightTool" />
     </aside>
 
@@ -549,61 +473,6 @@ watch(
   min-height: 0;
   overflow: hidden;
   background: var(--ea-workbench-panel);
-}
-
-.panel-chrome {
-  position: absolute;
-  top: 8px;
-  right: 0;
-  z-index: 35;
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 2px 4px 2px 6px;
-  border: 1px solid var(--ea-border-soft);
-  border-right: 0;
-  border-radius: 0;
-  background: var(--ea-workbench-panel);
-  opacity: 0.56;
-  transition: opacity 0.14s ease;
-}
-
-.panel-chrome:focus-within {
-  opacity: 1;
-}
-
-.panel-chrome__button {
-  width: 20px;
-  height: 20px;
-  display: inline-grid;
-  place-items: center;
-  padding: 0;
-  border: 0;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--ea-icon-muted);
-  cursor: pointer;
-}
-
-.panel-chrome__button.ea-button.ea-button--icon-only {
-  width: 20px;
-  min-width: 20px;
-  height: 20px;
-}
-
-.panel-chrome__button:focus-visible {
-  background: transparent;
-  color: var(--ea-icon-strong);
-}
-
-.panel-chrome__button svg {
-  width: 11px;
-  height: 11px;
-  fill: none;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
 }
 
 .left-panel {
@@ -768,14 +637,5 @@ watch(
 
 .resizer--right {
   grid-column: 5;
-}
-@media (hover: hover) and (pointer: fine) {
-  .workbench-panel:hover > .panel-chrome {
-    opacity: 1;
-  }
-  .panel-chrome__button.ea-button:hover:not(:disabled) {
-    background: transparent;
-    color: var(--ea-icon-strong);
-  }
 }
 </style>

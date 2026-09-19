@@ -229,9 +229,7 @@
       "AbilityEntityChildSkillRequested": "Дочерний навык сущности",
       "TimeDilationStarted": "Начало замедления времени",
       "PassiveSkillEnabled": "Пассивный навык включён",
-      "OperatorUpgradeInitialized": "Инициализация улучшений",
-      "ExternalOperatorHitProcessed": "Внешняя метка попадания по оперативнику",
-      "ExternalOperatorWeaknessTriggeredOutputProcessed": "Внешняя метка слабости"
+      "OperatorUpgradeInitialized": "Инициализация улучшений"
     },
     "receiptDetails": {
       "overhealing": "Избыточное лечение {value}",
@@ -505,7 +503,6 @@
       "smallImageExported": "Миниатюра экспортирована: {filename}"
     },
     "header": {
-      "projectDirty": "В проекте есть неэкспортированные изменения",
       "more": "Ещё",
       "moreTooltip": "Вид, проект и настройки",
       "sectionView": "Вид",
@@ -701,26 +698,13 @@
       "dodge": "Уклониться здесь",
       "perfectDodge": "Идеальное уклонение здесь",
       "switchToDodge": "Переключить на уклонение",
-      "switchToPerfectDodge": "Переключить на идеальное уклонение",
-      "restrictedHint": "Только события, которые модель манекена не создаёт естественно",
-      "operatorHit": "Текущий оперативник получает удар",
-      "operatorWeakness": "Текущий оперативник активирует слабость врага",
-      "teamHit": "Все оперативники получают удар",
-      "enemyWeaknessSet": "Врагу установлена уязвимость"
+      "switchToPerfectDodge": "Переключить на идеальное уклонение"
     },
     "markerInspector": {
-      "title": "Внешнее событие",
+      "title": "Откат комбо",
       "event": "Тип события",
       "target": "Цель",
-      "teamTarget": "Текущий отряд",
-      "hitContext": "Контекст попадания",
-      "unknownDamageType": "Неизвестный тип урона",
-      "boundaryHint": "Здесь задаётся только внешний факт, который модель манекена не может создать сама. Навыки врага, потеря здоровья и активное поведение не симулируются.",
-      "eventKinds": {
-        "operatorHit": "Оперативник получает удар",
-        "operatorWeaknessTriggeredOutput": "Оперативник активирует слабость врага",
-        "enemyWeaknessSet": "Врагу установлена уязвимость"
-      }
+      "teamTarget": "Текущий отряд"
     },
     "documentMarkerInspector": {
       "title": "Маркер шкалы времени",
@@ -785,20 +769,13 @@
       "cycleBoundary": "Граница цикла",
       "simulationStart": "Начало симуляции",
       "simulationEnd": "Конец симуляции",
-      "teamExternalEvent": "Внешнее событие отряда",
-      "teamHit": "Удар по отряду",
       "controlSwitch": "Смена оперативника",
       "dodge": "Уклонение",
       "perfectDodge": "Идеальное уклонение",
-      "dodgeIncomplete": "Для части исходного поведения недостаточно данных; подтверждённая часть применена",
-      "operatorWeakness": "Активирована слабость врага",
-      "hitShort": "Удар",
-      "weaknessShort": "Слабость",
-      "enemyWeaknessSet": "Установить уязвимость"
+      "dodgeIncomplete": "Для части исходного поведения недостаточно данных; подтверждённая часть применена"
     },
     "skillEditing": {
       "runtimeFields": {
-        "sourceSkillId": "Исходный ID навыка",
         "nativeSkillType": "Исходный тип навыка",
         "smartTarget": "Источник умной цели",
         "naturalDurationFrames": "Естественная длительность (кадры)",
@@ -1590,6 +1567,10 @@
         "changeResourceByActionValue": "Изменяет ресурс константой или значением из таблицы навыка.",
         "gainSquadUltimateEnergyFromSkillCost": "Преобразует фактическую стоимость навыка в SP в энергию ультимейта отряда.",
         "gainFinisherSp": "Восстанавливает общие SP по специальному правилу добивания.",
+        "recoverDashEnergy": "Восстанавливает энергию уклонения по значению действия.",
+        "recordPerfectDodge": "Отмечает успешное идеальное уклонение.",
+        "markCurrentSkillCanDash": "Отмечает момент, когда текущий навык можно прервать уклонением.",
+        "overrideMultiDashLimit": "Временно меняет предел последовательных уклонений.",
         "applyStatus": "Накладывает смысловой статус Endaxis с длительностью, слоями и модификаторами боя.",
         "consumeStatus": "Снимает слои указанного смыслового статуса с цели.",
         "jumpTimeline": "Переводит локальную шкалу времени владельца к указанному кадру. Необязательное условие повторно проверяется в интервале действия, а переход выполняется только один раз.",
@@ -1740,6 +1721,10 @@
         "changeResourceByActionValue": "Изменить ресурс по значению действия",
         "gainSquadUltimateEnergyFromSkillCost": "Получить энергию ультимейта от стоимости навыка",
         "gainFinisherSp": "Получить ОН от добивания",
+        "recoverDashEnergy": "Восстановить энергию уклонения",
+        "recordPerfectDodge": "Записать идеальное уклонение",
+        "markCurrentSkillCanDash": "Разрешить прерывание уклонением",
+        "overrideMultiDashLimit": "Изменить предел уклонений",
         "applyStatus": "Наложить состояние",
         "consumeStatus": "Поглотить состояние",
         "jumpTimeline": "Переход по шкале времени",
@@ -2048,6 +2033,7 @@
       "buffLayoutLoose": "Свободный",
       "buffLayoutMode": "Раскладка баффов: {mode}",
       "horizontalScroll": "Горизонтальная полоса прокрутки шкалы времени",
+      "verticalScroll": "Вертикальная полоса прокрутки шкалы времени",
       "resizeTrack": "Перетащите, чтобы изменить высоту соседних дорожек; дважды щёлкните для сброса",
       "connectionTool": "Связи (Alt+L)",
       "cursorGuide": "Направляющие (Ctrl+G)",

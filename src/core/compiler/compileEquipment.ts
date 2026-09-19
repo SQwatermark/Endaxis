@@ -22,12 +22,8 @@ import type {
 } from '../game-data/operatorDefinition';
 import type { ResolvedActionSequence, ResolvedSkillBuffDefinition } from './combatProgram';
 import { compileActionSequence, compileOperatorBuffResources } from './compileSkill';
-
-/** 一项编译结果来自哪件定义对象及其中哪条能力。 */
-export type EquipmentContributionSource =
-  | { readonly kind: 'weaponTrait'; readonly slug: string; readonly traitKey: string }
-  | { readonly kind: 'gearTrait'; readonly slug: string; readonly traitKey: string }
-  | { readonly kind: 'gearSet'; readonly slug: string };
+import type { EquipmentContributionSource } from '../combat/state/foundationState';
+export type { EquipmentContributionSource } from '../combat/state/foundationState';
 
 /** 等级值已展开、可交给 Build Resolver 聚合的常驻修正。 */
 export type ResolvedEquipmentModifier =

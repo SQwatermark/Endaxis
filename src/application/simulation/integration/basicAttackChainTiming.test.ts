@@ -163,12 +163,12 @@ describe('generated basic attack chain input timing', () => {
         cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
       ),
     ).toEqual([
-      'ultimateAttack1',
-      'ultimateAttack2A',
-      'ultimateAttack2B',
-      'ultimateAttack3A',
-      'ultimateAttack3B',
-      'ultimateAttackEnd',
+      'chr_0017_yvonne_ult_attack1_1',
+      'chr_0017_yvonne_ult_attack2_1',
+      'chr_0017_yvonne_ult_attack2_2',
+      'chr_0017_yvonne_ult_attack3_1',
+      'chr_0017_yvonne_ult_attack3_2',
+      'chr_0017_yvonne_ult_attack_end',
     ]);
     expect(result?.scenario).toEqual(placed.fallback?.scenario);
     expect(scenario.tracks[0]!.skillCasts).toHaveLength(0);
@@ -214,14 +214,14 @@ describe('generated basic attack chain input timing', () => {
         cast.source.kind === 'operatorSkill' ? cast.source.skillKey : '',
       );
       expect(keys.slice(0, 5)).toEqual([
-        'ultimateAttack1',
-        'ultimateAttack2A',
-        'ultimateAttack2B',
-        'ultimateAttack3A',
-        'ultimateAttack3B',
+        'chr_0017_yvonne_ult_attack1_1',
+        'chr_0017_yvonne_ult_attack2_1',
+        'chr_0017_yvonne_ult_attack2_2',
+        'chr_0017_yvonne_ult_attack3_1',
+        'chr_0017_yvonne_ult_attack3_2',
       ]);
-      expect(keys.filter(key => key === 'ultimateAttack3B').length).toBeGreaterThan(1);
-      expect(keys.at(-1)).toBe('ultimateAttackEnd');
+      expect(keys.filter(key => key === 'chr_0017_yvonne_ult_attack3_2').length).toBeGreaterThan(1);
+      expect(keys.at(-1)).toBe('chr_0017_yvonne_ult_attack_end');
       expect(casts.length).toBeLessThanOrEqual(24);
       expect(casts[0]!.placement.startFrame).toBe(startFrame);
       for (let i = 1; i < casts.length; i++)
@@ -295,7 +295,7 @@ describe('generated basic attack chain input timing', () => {
         trackIndex: 0,
         operator: perlica,
         skillGroupKey: 'basicAttack',
-        skillKey: 'basicAttack1',
+        skillKey: 'chr_0004_pelica_attack1',
         startFrame: 100,
         ids: { allocate: () => 'selected:basic' },
       });
@@ -397,7 +397,7 @@ describe('generated basic attack chain input timing', () => {
     expect(result.scenario.tracks[0]!.skillCasts.map(c => c.placement.startFrame)).toEqual([1, 46]);
     expect(
       result.run.availabilityDiagnostics.some(
-        d => d.skillId === 'basicAttack4' && d.reasons.includes('skillInputMismatch'),
+        d => d.skillId === 'chr_0004_pelica_attack4' && d.reasons.includes('skillInputMismatch'),
       ),
     ).toBe(true);
     expect(
@@ -573,10 +573,11 @@ describe('generated basic attack chain input timing', () => {
           cast.placement.startFrame = starts[castIndex]! - (castIndex === index ? 1 : 0);
         });
         const run = await service.simulate(scenario, 240);
+        const castSource = originalCasts[index]!.source;
         expect(run.availabilityDiagnostics).toContainEqual(
           expect.objectContaining({
             frame: starts[index]! - 1,
-            skillId: `basicAttack${index + 1}`,
+            skillId: castSource.kind === 'operatorSkill' ? castSource.skillKey : undefined,
             reasons: expect.arrayContaining(['skillInterruptUnavailable']),
           }),
         );
@@ -602,11 +603,11 @@ describe('generated basic attack chain input timing', () => {
             duration: entry.data?.durationSeconds,
           }));
         expect(ownerStops).toEqual([
-          { frame: 10, skill: 'basicAttack1', duration: 0.067 },
-          { frame: 19, skill: 'basicAttack1', duration: 0.067 },
-          { frame: 32, skill: 'basicAttack2', duration: 0.1 },
-          { frame: 59, skill: 'basicAttack3', duration: 0.167 },
-          { frame: 92, skill: 'basicAttack4', duration: 0.3 },
+          { frame: 10, skill: 'chr_0015_lifeng_attack1', duration: 0.067 },
+          { frame: 19, skill: 'chr_0015_lifeng_attack1', duration: 0.067 },
+          { frame: 32, skill: 'chr_0015_lifeng_attack2', duration: 0.1 },
+          { frame: 59, skill: 'chr_0015_lifeng_attack3', duration: 0.167 },
+          { frame: 92, skill: 'chr_0015_lifeng_attack5', duration: 0.3 },
         ]);
       }
     },

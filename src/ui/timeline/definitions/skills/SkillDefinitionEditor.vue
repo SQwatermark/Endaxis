@@ -563,8 +563,8 @@ function beginAddChild(
       draft.value,
       node.sourcePath,
       mapping
-        ? { startFrame: 0, endFrame: 0, input: 'basicAttack', targetSourceSkillId: null }
-        : { startFrame: 0, endFrame: 0, sourceSkillIds: [] },
+        ? { startFrame: 0, endFrame: 0, input: 'basicAttack', targetSkillId: null }
+        : { startFrame: 0, endFrame: 0, skillIds: [] },
     );
     commitStructureDraft(next.root, undefined, next.itemPath);
     void nextTick().then(() => selectStructurePath(next.itemPath));

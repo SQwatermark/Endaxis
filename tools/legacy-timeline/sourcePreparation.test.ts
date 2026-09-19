@@ -77,7 +77,7 @@ it('按旧连携段号字段还原两段技能，且不把矛盾的段号当成�
     result.source.scenarioList[0].data.tracks[0].actions.map(
       (action: { convertedSource: { skillKey: string } }) => action.convertedSource.skillKey,
     ),
-  ).toEqual(['comboSkill2', 'comboSkill3']);
+  ).toEqual(['chr_0028_wulfa_combo_2_skill', 'chr_0028_wulfa_combo_3_skill']);
   value.scenarioList[0]!.data.tracks[0]!.actions[0]!.comboSegmentIndex = 2;
   expect(prepareLegacySource(value, fullMappings).unresolvedSkills).toHaveLength(1);
 });
@@ -149,7 +149,7 @@ it('loads early identities, armory defaults, root constants and action connectio
   const data = result.source.scenarioList[0].data;
   expect(data.systemConstants).toEqual({ initialSp: 150, staggerBreakDuration: 300 });
   expect(data.tracks[0].id).toBe('perlica');
-  expect(data.tracks[0].actions[0].convertedSource.skillKey).toBe('comboSkill');
+  expect(data.tracks[0].actions[0].convertedSource.skillKey).toBe('chr_0004_pelica_combo_skill');
   expect(data.operators[0]).toMatchObject({
     level: 90,
     promoted: true,

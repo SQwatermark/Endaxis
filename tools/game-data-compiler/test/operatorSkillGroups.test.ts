@@ -17,7 +17,7 @@ const SKILLS: readonly OperatorSkillIdentitySource[] = (
     ['comboSkill', 'combo_skill', 'comboSkill'],
     ['ultimate', 'ultimate_skill', 'ultimate'],
   ] as const
-).map(([key, skillId, skillType]) => ({ key, skillId, skillType }));
+).map(([, key, skillType]) => ({ key, skillType }));
 
 describe('干员技能等级组', () => {
   it('读取基础组与变体的通用递归放置策略，并校验端点和回退预算', () => {
@@ -127,8 +127,8 @@ describe('干员技能等级组', () => {
 
   it('把强化普攻保留在普攻释放组，但按其原生终结技等级组校验', () => {
     const skills: readonly OperatorSkillIdentitySource[] = [
-      { key: 'basic', skillId: 'basic', skillType: 'basicAttack' },
-      { key: 'enhanced', skillId: 'enhanced', skillType: 'basicAttack' },
+      { key: 'basic', skillType: 'basicAttack' },
+      { key: 'enhanced', skillType: 'basicAttack' },
     ];
     const groups = parseOperatorSkillGroupSources(
       [
@@ -162,7 +162,7 @@ describe('干员技能等级组', () => {
   it('拒绝重复归属、技能类型错配和原生组漂移', () => {
     const duplicate = operatorGroups();
     duplicate[1]!.skillType = 'basicAttack';
-    duplicate[1]!.skillKeys = ['basicAttack1'];
+    duplicate[1]!.skillKeys = ['attack_1'];
     expect(() =>
       validateOperatorSkillGroups(
         parseOperatorSkillGroupSources(duplicate, 'fixture.skillGroups'),
@@ -220,19 +220,25 @@ describe('干员技能等级组', () => {
 
   it('显式的运行时替换技能可注册在组中，且只允许该集合包含原生等级组外的内部技能', () => {
     const skills: readonly OperatorSkillIdentitySource[] = [
-      { key: 'base', skillId: 'native_base', skillType: 'ultimate' },
-      { key: 'enhanced', skillId: 'native_enhanced', skillType: 'ultimate' },
-      { key: 'exit', skillId: 'internal_exit', skillType: 'ultimate' },
+      { key: 'native_base', skillType: 'ultimate' },
+      { key: 'native_enhanced', skillType: 'ultimate' },
+      { key: 'internal_exit', skillType: 'ultimate' },
     ];
     const groups = parseOperatorSkillGroupSources(
-      [group('ultimate', 'ultimate', 'ultimate', 2, ['base', 'enhanced', 'exit'])],
+      [
+        group('ultimate', 'ultimate', 'ultimate', 2, [
+          'native_base',
+          'native_enhanced',
+          'internal_exit',
+        ]),
+      ],
       'fixture.skillGroups',
     );
     const nativeGroups = [nativeSource(2, ['native_base', 'native_enhanced'])];
 
     expect(() =>
       validateOperatorSkillGroups(groups, skills, nativeGroups, {
-        runtimeReplacementSkillKeys: ['enhanced', 'exit'],
+        runtimeReplacementSkillKeys: ['native_enhanced', 'internal_exit'],
       }),
     ).not.toThrow();
     expect(() => validateOperatorSkillGroups(groups, skills, nativeGroups)).toThrow(
@@ -243,12 +249,12 @@ describe('干员技能等级组', () => {
 
 function operatorGroups(): Array<Record<string, unknown> & { skillKeys: string[] }> {
   return [
-    group('basicAttack', 'basicAttack', 'basicAttack', 0, ['basicAttack1', 'basicAttack2']),
-    group('finisher', 'finisher', 'basicAttack', 0, ['finisher']),
-    group('plungingAttack', 'plungingAttack', 'basicAttack', 0, ['plungingAttack']),
-    group('battleSkill', 'battleSkill', 'battleSkill', 1, ['battleSkill']),
-    group('comboSkill', 'comboSkill', 'comboSkill', 3, ['comboSkill']),
-    group('ultimate', 'ultimate', 'ultimate', 2, ['ultimate']),
+    group('basicAttack', 'basicAttack', 'basicAttack', 0, ['attack_1', 'attack_2']),
+    group('finisher', 'finisher', 'basicAttack', 0, ['power_attack']),
+    group('plungingAttack', 'plungingAttack', 'basicAttack', 0, ['plunging']),
+    group('battleSkill', 'battleSkill', 'battleSkill', 1, ['normal_skill']),
+    group('comboSkill', 'comboSkill', 'comboSkill', 3, ['combo_skill']),
+    group('ultimate', 'ultimate', 'ultimate', 2, ['ultimate_skill']),
   ];
 }
 

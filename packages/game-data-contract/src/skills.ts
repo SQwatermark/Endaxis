@@ -194,10 +194,8 @@ export interface OperatorPlayerActionModeDefinition {
       Record<
         PlayerSkillInput,
         {
-          /** 操作在原生数据中请求的技能 ID。 */
-          readonly sourceSkillId: string;
-          /** 已解析到干员定义时对应的技能键。 */
-          readonly skillKey?: string;
+          /** 该操作请求的技能 ID。 */
+          readonly skillId: string;
         }
       >
     >
@@ -256,7 +254,7 @@ export interface SkillInputCommandMappingWindow {
   /** 此窗口覆盖的玩家操作。 */
   readonly input: 'basicAttack';
   /** 空值是原生的“该窗口没有直接技能路由”，不得回退为基础技能。 */
-  readonly targetSourceSkillId: string | null;
+  readonly targetSkillId: string | null;
 }
 
 /** 原生 AllowNextSkillAction 只授予提前接续许可，不负责选择技能。 */
@@ -266,7 +264,7 @@ export interface SkillAllowedNextWindow {
   /** 可以提前接续的结束帧。 */
   readonly endFrame: number;
   /** 此窗口允许请求的原生技能 ID。 */
-  readonly sourceSkillIds: readonly string[];
+  readonly skillIds: readonly string[];
 }
 
 /** 事件触发器筛选干员自身或全队来源的范围。 */
@@ -285,7 +283,7 @@ export type ComboSkillPriority = (typeof COMBO_SKILL_PRIORITIES)[number];
  * 它描述战斗身份和时序，不承载翻译后的名称或编辑器布局。
  */
 export interface SkillDefinition extends SkillActionProgramDefinition {
-  /** 技能在干员定义中的唯一名称。 */
+  /** 原生 SkillData.skillId，也是干员定义和时间轴引用此技能时使用的唯一 ID。 */
   key: string;
   /**
    * 此技能执行体参与战斗事件与中断优先级判断时使用的分类。
@@ -297,8 +295,6 @@ export interface SkillDefinition extends SkillActionProgramDefinition {
   nativeSkillType?: NativeSkillType;
   /** 从原生 CharGrowthTable 技能组成员关系得到的等级来源；不属于编辑器分组。 */
   levelSource?: SkillLevelSource;
-  /** 原始游戏数据中的技能身份；事件守卫不得用编辑器 key 冒充它。 */
-  sourceSkillId?: string;
   /**
    * 该次释放所创建的强化状态 Buff 身份。时间轴只按实际 Buff 回执投影生命周期；
    * 省略表示没有已取证的强化状态，不能把任意自身 Buff 猜成强化条。
@@ -313,7 +309,7 @@ export interface SkillDefinition extends SkillActionProgramDefinition {
    * 已保留实际 AllowNext 动作的定义。正式块宽读取实际动作候选或 canInterrupt，不按该 ID
    * 预选未来输入。
    */
-  timelineContinuationSourceSkillId?: string;
+  timelineContinuationSkillId?: string;
   /**
    * 原生 `SkillData.durationFrame` 的运行时自然结束周期，已按原生 getter 钳制为至少 1 帧。
    * 它不决定技能块宽度，也不能用 `exclusiveFrame` 或最后一个可见战斗动作代替。
@@ -390,9 +386,9 @@ export interface SkillGroupDefinition {
   placementPolicy?: SkillGroupPlacementPolicy;
   /** 技能组在干员定义中的唯一名称。 */
   key: string;
-  /** @deprecated 迁移期展示元数据；模拟不得读取，最终由卡片展示语义替代。 */
+  /** 技能库卡片、图标和放置操作使用的技能类别；实际执行仍读取具体技能的类别。 */
   skillType: SkillType;
-  /** @deprecated 迁移期展示元数据；等级必须读取 SkillDefinition.levelSource。 */
+  /** 技能组默认的养成等级来源；具体技能可以有自己的等级来源。 */
   levelSource: SkillLevelSource;
   /** 单个可放置技能，或作为一个技能库条目放置的有序技能链。 */
   skills: SkillDefinition | readonly SkillDefinition[];
@@ -447,9 +443,9 @@ export interface SkillGroupVariantDefinition {
 export interface RoutedSkillReplacementDefinition {
   /** 已合并输入包装器资源规则、且拥有独立稳定 key 的执行定义。 */
   skill: SkillDefinition;
-  /** @deprecated 迁移期路由元数据；执行分类必须读取 `skill.skillType`。 */
+  /** 替换形态在技能库中的分类；实际执行读取 `skill.skillType`。 */
   skillType: SkillType;
-  /** @deprecated 迁移期路由元数据；养成等级必须读取 `skill.levelSource`。 */
+  /** 替换形态在技能库中的等级来源；实际倍率读取 `skill.levelSource`。 */
   levelSource: SkillLevelSource;
   /** 执行体在原生养成定义中的技能组身份。 */
   executionSkillGroupKey: string;

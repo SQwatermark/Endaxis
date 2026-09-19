@@ -963,7 +963,7 @@ describe('compileSkill', () => {
   });
 
   it('compiles Perlica battle skill into a single-level runtime program', () => {
-    const skill = findPerlicaSkill('battleSkill');
+    const skill = findPerlicaSkill('chr_0004_pelica_normal_skill');
 
     const program = compileSkill({
       operatorId: perlica.slug,
@@ -975,7 +975,7 @@ describe('compileSkill', () => {
 
     expect(program).toMatchObject({
       operatorId: 'perlica',
-      skillId: 'battleSkill',
+      skillId: 'chr_0004_pelica_normal_skill',
       timelineBlockFrames: 28,
       costFrame: 0,
       costs: [{ resource: 'sp', value: 100 }],
@@ -1006,7 +1006,7 @@ describe('compileSkill', () => {
   });
 
   it('resolves nested level values without retaining level arrays', () => {
-    const skill = findPerlicaSkill('comboSkill');
+    const skill = findPerlicaSkill('chr_0004_pelica_combo_skill');
 
     const program = compileSkill({
       operatorId: perlica.slug,
@@ -1179,7 +1179,7 @@ describe('compileSkill', () => {
   });
 
   it('rejects a level outside the recovered value table', () => {
-    const skill = findPerlicaSkill('battleSkill');
+    const skill = findPerlicaSkill('chr_0004_pelica_normal_skill');
 
     expect(() =>
       compileSkill({

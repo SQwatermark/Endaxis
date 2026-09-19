@@ -99,8 +99,8 @@ export interface OperatorDefinitionAssemblyInput {
   readonly playerActionModes?: readonly OperatorPlayerActionModeDefinition[];
   /** 所有技能组共用的、由最终构筑属性决定的说明文本形态。 */
   readonly presentationVariants?: readonly SkillPresentationVariantDefinition[];
-  /** `_InitSkills` 从 CharacterData 注册出的原生类型初值，以 sourceSkillId 为键。 */
-  readonly nativeSkillTypeBySourceId?: Readonly<Record<string, NativeSkillType>>;
+  /** `_InitSkills` 从 CharacterData 注册出的原生类型初值，以 skillId 为键。 */
+  readonly nativeSkillTypeBySkillId?: Readonly<Record<string, NativeSkillType>>;
   readonly nativePlayerActionRouting?: {
     readonly slotBaseSkillKeys: Readonly<Record<'battleSkill' | 'comboSkill' | 'ultimate', string>>;
     readonly basicAttackSkillKeys: readonly string[];
@@ -165,11 +165,10 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     const expected = skillLibrary.activeSkills.entries.find(
       entry => entry.key === item.definition.key,
     );
-    if (!expected || expected.skillId !== item.definition.sourceSkillId)
-      throw new Error(`skill identity mismatch ${item.definition.key}`);
+    if (!expected) throw new Error(`skill identity mismatch ${item.definition.key}`);
     compiledDefinitions.set(
       item.definition.key,
-      assignGeneratedDamageStepKeys(item.definition, item.definition.sourceSkillId),
+      assignGeneratedDamageStepKeys(item.definition, item.definition.key),
     );
   }
   requireExactIdentities(
@@ -250,7 +249,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     costResources: new Map(
       input.activeSkills.flatMap(item =>
         item.definition.costs?.length === 1
-          ? [[item.definition.sourceSkillId, item.definition.costs[0]!.resource] as const]
+          ? [[item.definition.key, item.definition.costs[0]!.resource] as const]
           : [],
       ),
     ),
@@ -717,11 +716,9 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   for (const [key, definition] of definitions) {
     const identity = skillIdentityByKey.get(key);
     if (identity === undefined) throw new Error(`skill '${key}' has no runtime identity`);
-    const nativeSkillType =
-      definition.sourceSkillId === undefined
-        ? undefined
-        : input.nativeSkillTypeBySourceId?.[definition.sourceSkillId];
-    if (input.nativeSkillTypeBySourceId !== undefined && nativeSkillType === undefined) {
+    const executionSkillId = routedSkills.get(key)?.targetSkillKey ?? key;
+    const nativeSkillType = input.nativeSkillTypeBySkillId?.[executionSkillId];
+    if (input.nativeSkillTypeBySkillId !== undefined && nativeSkillType === undefined) {
       throw new Error(`skill '${key}' has no native SkillType initialization evidence`);
     }
     definitions.set(key, {
@@ -863,7 +860,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   // 只从本次完整主动技能库的原生 skillId 建立额外归属，不按 Buff 名称反猜角色。
   const privateBuffCharacterIds = new Set([sourceCharacterId]);
   for (const { definition } of combatSkills) {
-    const match = /^(chr_\d+_[^_]+)_/.exec(definition.sourceSkillId);
+    const match = /^(chr_\d+_[^_]+)_/.exec(definition.key);
     if (match !== null) privateBuffCharacterIds.add(match[1]!);
   }
   for (const [id, definition] of Object.entries(buffClosure.definitions)) {
@@ -964,7 +961,7 @@ export function selectSingleSkillTimelineBlockFrames(
   }[],
   runtimeReplacementSkillKeys: ReadonlySet<string>,
 ): void {
-  const routableSourceSkillIds = new Set(
+  const routableSkillIds = new Set(
     groups.flatMap(group =>
       group.skillKeys
         .filter(
@@ -972,7 +969,7 @@ export function selectSingleSkillTimelineBlockFrames(
             !runtimeReplacementSkillKeys.has(key) ||
             group.replacementPlacements[key] !== 'internal',
         )
-        .map(key => definitions.get(key)?.sourceSkillId)
+        .map(key => definitions.get(key)?.key)
         .filter((id): id is string => id !== undefined),
     ),
   );
@@ -995,7 +992,7 @@ export function selectSingleSkillTimelineBlockFrames(
             transition =>
               transition.direct &&
               transition.startFrame > 0 &&
-              transition.skillIds.some(id => routableSourceSkillIds.has(id)),
+              transition.skillIds.some(id => routableSkillIds.has(id)),
           )
           .map(transition => transition.startFrame),
       );
@@ -1045,7 +1042,7 @@ export function selectBasicAttackTimelineBlockFrames(
       const nextDefinition = definitions.get(nextKey);
       if (definition === undefined || nextDefinition === undefined) continue;
       const matching = definition.allowNextSkillTransitions.filter(item =>
-        item.skillIds.includes(nextDefinition.sourceSkillId),
+        item.skillIds.includes(nextDefinition.key),
       );
       if (matching.length === 0) continue;
       const direct = matching.filter(item => item.direct);
@@ -1067,12 +1064,12 @@ export function selectBasicAttackTimelineBlockFrames(
       }
       selectedFrames.set(key, frame);
       const previousTarget = selectedTargets.get(key);
-      if (previousTarget !== undefined && previousTarget !== nextDefinition.sourceSkillId) {
+      if (previousTarget !== undefined && previousTarget !== nextDefinition.key) {
         throw new Error(
-          `basic attack '${key}' has conflicting ordered continuations '${previousTarget}' and '${nextDefinition.sourceSkillId}'`,
+          `basic attack '${key}' has conflicting ordered continuations '${previousTarget}' and '${nextDefinition.key}'`,
         );
       }
-      selectedTargets.set(key, nextDefinition.sourceSkillId);
+      selectedTargets.set(key, nextDefinition.key);
       selectedWindows.set(
         key,
         candidates
@@ -1097,16 +1094,16 @@ export function selectBasicAttackTimelineBlockFrames(
   }
   for (const [key, frame] of selectedFrames) {
     const definition = definitions.get(key)!;
-    const continuationSourceSkillId = selectedTargets.get(key)!;
+    const continuationSkillId = selectedTargets.get(key)!;
     const recoveredAllowedNextSkills = (selectedWindows.get(key) ?? []).map(window => ({
       ...window,
-      sourceSkillIds: [continuationSourceSkillId],
+      skillIds: [continuationSkillId],
     }));
     const existingAllowedNextSkills = definition.inputWindows?.allowedNextSkills ?? [];
     definitions.set(key, {
       ...definition,
       timelineBlockFrames: frame,
-      timelineContinuationSourceSkillId: continuationSourceSkillId,
+      timelineContinuationSkillId: continuationSkillId,
       inputWindows: {
         ...definition.inputWindows,
         allowedNextSkills: [...existingAllowedNextSkills, ...recoveredAllowedNextSkills].filter(
@@ -1115,10 +1112,8 @@ export function selectBasicAttackTimelineBlockFrames(
               candidate =>
                 candidate.startFrame === window.startFrame &&
                 candidate.endFrame === window.endFrame &&
-                candidate.sourceSkillIds.length === window.sourceSkillIds.length &&
-                candidate.sourceSkillIds.every(
-                  (id, idIndex) => id === window.sourceSkillIds[idIndex],
-                ),
+                candidate.skillIds.length === window.skillIds.length &&
+                candidate.skillIds.every((id, idIndex) => id === window.skillIds[idIndex]),
             ) === windowIndex,
         ),
       },
@@ -1221,7 +1216,7 @@ function compileOperatorBuffSkillSlotReplacements(
   runtimeReplacementSkillKeys: ReadonlySet<string>,
   baseSkillKeyBySlot?: Readonly<Record<'battleSkill' | 'comboSkill' | 'ultimate', string>>,
 ): ReadonlyMap<string, readonly SkillBuffSlotReplacement[]> {
-  const skillKeyByNativeId = new Map(skills.map(skill => [skill.sourceSkillId, skill.key]));
+  const knownSkillIds = new Set(skills.map(skill => skill.key));
   const result = new Map<string, readonly SkillBuffSlotReplacement[]>();
   for (const [buffId, source] of sources) {
     const replacements: SkillBuffSlotReplacement[] = [];
@@ -1236,7 +1231,9 @@ function compileOperatorBuffSkillSlotReplacements(
           // 不得把其配置的生命周期或目标技能当成实际替换关系。
           if (!node.metadata.enabled) continue;
           const action = node.body.value.action;
-          const restoredSkillKey = skillKeyByNativeId.get(action.targetSkillId);
+          const restoredSkillKey = knownSkillIds.has(action.targetSkillId)
+            ? action.targetSkillId
+            : undefined;
           const isDirectComboRestore =
             event.event === 'OnBuffFinish' &&
             directNodes.has(node) &&
@@ -1273,7 +1270,9 @@ function compileOperatorBuffSkillSlotReplacements(
               `${node.sourcePath}: skill-slot input cache override must be a non-negative literal`,
             );
           }
-          const targetSkillKey = skillKeyByNativeId.get(action.targetSkillId);
+          const targetSkillKey = knownSkillIds.has(action.targetSkillId)
+            ? action.targetSkillId
+            : undefined;
           if (targetSkillKey === undefined || !runtimeReplacementSkillKeys.has(targetSkillKey)) {
             throw new Error(
               `${node.sourcePath}: target skill is not an audited runtime replacement`,
@@ -1287,11 +1286,10 @@ function compileOperatorBuffSkillSlotReplacements(
                 : 'ultimate';
           let revertedSkillKey: string;
           if (action.specificRevertedSkillId) {
-            const specific = skillKeyByNativeId.get(action.revertedSkillId);
-            if (specific === undefined) {
+            if (!knownSkillIds.has(action.revertedSkillId)) {
               throw new Error(`${node.sourcePath}: unknown specific reverted skill`);
             }
-            revertedSkillKey = specific;
+            revertedSkillKey = action.revertedSkillId;
           } else {
             if (action.revertedSkillId !== '') {
               throw new Error(`${node.sourcePath}: unexpected reverted skill ID`);

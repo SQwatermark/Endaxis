@@ -566,7 +566,6 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
   /** 路由包装器的行为养成补丁按真实执行体身份匹配；费用和冷却仍使用槽位身份。 */
   readonly executionSkillGroupKey?: string;
   readonly executionSkillId?: string;
-  readonly sourceSkillId?: string;
   /** 只有玩家操作、伤害分类或对应事件确实需要时才存在；原生实体技能不得伪造。 */
   readonly skillType?: SkillType;
   /** 原生技能实例的初始可变分类；不同于伤害/养成使用的 Endaxis skillType。 */
@@ -575,7 +574,7 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
   /** 时间轴投影使用的技能块宽度，不参与技能生命周期和中断判断。 */
   readonly timelineBlockFrames?: number;
   /** 有序连段下一技能身份；也标记程序已保留 AllowNext 动作，但不预选正式边界目标。 */
-  readonly timelineContinuationSourceSkillId?: string;
+  readonly timelineContinuationSkillId?: string;
   /** 原生技能实例的自然结束周期；与块宽、可中断边界彼此独立。 */
   readonly naturalDurationFrames?: number;
   readonly exclusiveFrame?: number;
@@ -612,7 +611,8 @@ export type CompiledSkillCooldownProgram = Pick<
   | 'operatorId'
   | 'skillGroupKey'
   | 'skillId'
-  | 'sourceSkillId'
+  | 'executionSkillId'
+  | 'nativeSkillType'
   | 'skillType'
   | 'inputWindows'
   | 'cooldownFrames'

@@ -16,6 +16,7 @@ import {
   generateWeaponDefinitions,
   renderWeaponDefinitionsFromCompiled,
 } from '../scripts/generateWeaponDefinitions.ts';
+import { formatGeneratedSource } from '../scripts/formatGeneratedSource.ts';
 import {
   compileGearDefinitionsFromFiles,
   generateGearDefinitions,
@@ -222,7 +223,15 @@ describe('复用已编译批次渲染', () => {
       await generateWeaponDefinitions({ ...source.weapon, output, auditOutput, check: false }),
     ).toEqual(rendered.summary);
     expect(reads.mock.calls.filter(([file]) => file === table)).toHaveLength(2);
-    expectFiles(output, rendered.files);
+    expectFiles(
+      output,
+      await Promise.all(
+        rendered.files.map(async file => ({
+          ...file,
+          content: await formatGeneratedSource(file.content, path.join(output, file.relativePath)),
+        })),
+      ),
+    );
     expectFiles(auditOutput, rendered.auditFiles);
     const auditFile = path.join(auditOutput, rendered.auditFiles[0]!.relativePath);
     fs.writeFileSync(auditFile, 'keep audit during check');

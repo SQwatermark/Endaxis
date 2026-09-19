@@ -36,18 +36,18 @@ describe('timeline marker move gesture wiring', () => {
   it('keeps track-local markers selected when the completed click reaches the lane', () => {
     const trackSwitchMarker = source.slice(
       source.indexOf('class="timeline-marker track-switch-marker"'),
-      source.indexOf('class="timeline-marker operator-event-marker"'),
+      source.indexOf('class="timeline-marker dodge-marker"'),
     );
-    const operatorEventMarker = source.slice(
-      source.indexOf('class="timeline-marker operator-event-marker"'),
+    const dodgeMarker = source.slice(
+      source.indexOf('class="timeline-marker dodge-marker"'),
       source.indexOf(
         '<TimelineActionBlock',
-        source.indexOf('class="timeline-marker operator-event-marker"'),
+        source.indexOf('class="timeline-marker dodge-marker"'),
       ),
     );
 
     expect(trackSwitchMarker).toContain('@click.stop');
-    expect(operatorEventMarker).toContain('@click.stop');
+    expect(dodgeMarker).toContain('@click.stop');
   });
 
   it('keeps the legacy switch marker stack and anchors it above the action lane', () => {

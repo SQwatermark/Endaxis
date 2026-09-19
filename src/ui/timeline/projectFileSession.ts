@@ -1,22 +1,18 @@
 import { onScopeDispose, ref } from 'vue';
 import type { ProjectEditorSession } from '../../application/editor/projectEditorSession';
-import type { EndaxisProjectDocument } from '../../core/project/schema';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { saveBrowserProject } from '../../data/browserProjectStorage';
 import { downloadBlob, projectFilename } from './timelineExport';
 
-/** 项目会话拥有浏览器自动保存、文件读取代次、导出基线和离页保护。 */
+/** 项目会话负责浏览器自动保存、文件读取代次和保存未完成时的离页保护。 */
 export function useProjectFileSession(
   projectSession: ProjectEditorSession,
   options: { persistToBrowser?: boolean } = {},
 ) {
-  let savedProjectSnapshot = projectSession.snapshot.project;
-  const projectDirty = ref(false);
   const browserSaveError = ref<string | null>(null);
   let pendingBrowserSaves = 0;
   const projectFileReader = createProjectFileReader(() => projectSession.snapshot.revision);
   const unsubscribe = projectSession.subscribe(snapshot => {
-    projectDirty.value = snapshot.project !== savedProjectSnapshot;
     if (options.persistToBrowser) {
       pendingBrowserSaves += 1;
       void saveBrowserProject(snapshot.project).then(
@@ -32,10 +28,6 @@ export function useProjectFileSession(
       );
     }
   });
-  function markOpenedProject(project: EndaxisProjectDocument, gameDataRevisionUpdated: boolean) {
-    if (!gameDataRevisionUpdated) savedProjectSnapshot = project;
-    projectDirty.value = gameDataRevisionUpdated;
-  }
   function exportProjectFile(filename?: string) {
     const project = projectSession.snapshot.project;
     const content = serializeProjectDocument(project, true);
@@ -47,27 +39,22 @@ export function useProjectFileSession(
       content,
       filename === undefined ? `${fileBase || 'endaxis-project'}.json` : projectFilename(filename),
     );
-    savedProjectSnapshot = project;
-    projectDirty.value = false;
   }
-  function protectUnsavedProject(event: BeforeUnloadEvent) {
-    if (!projectDirty.value) return;
-    if (options.persistToBrowser && pendingBrowserSaves === 0 && browserSaveError.value === null)
+  function protectPendingBrowserSave(event: BeforeUnloadEvent) {
+    if (!options.persistToBrowser || (pendingBrowserSaves === 0 && browserSaveError.value === null))
       return;
     event.preventDefault();
     event.returnValue = '';
   }
-  window.addEventListener('beforeunload', protectUnsavedProject);
+  window.addEventListener('beforeunload', protectPendingBrowserSave);
   onScopeDispose(() => {
     unsubscribe();
     projectFileReader.dispose();
-    window.removeEventListener('beforeunload', protectUnsavedProject);
+    window.removeEventListener('beforeunload', protectPendingBrowserSave);
   });
   return {
-    projectDirty,
     browserSaveError,
     projectFileReader,
-    markOpenedProject,
     exportProjectFile,
   };
 }

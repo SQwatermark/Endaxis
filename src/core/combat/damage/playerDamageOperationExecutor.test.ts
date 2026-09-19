@@ -12,6 +12,7 @@ import { PlayerDamageOperationExecutor } from './playerDamageOperationExecutor';
 import { CombatActionSequenceRuntime } from '../actions/combatActionSequenceRuntime';
 import { deriveHitId } from '../timeline/deriveHitId';
 import { NATIVE_SKILL_HAS_HIT_BLACKBOARD_KEY } from '../../../../packages/game-data-contract/src/conditions';
+import type { DamageModifierSide } from '../../../../packages/game-data-contract/src/modifiers';
 
 const DAMAGE_STEP: ResolvedCombatStepForKind<'dealDamage'> = {
   kind: 'dealDamage',
@@ -70,7 +71,7 @@ describe('PlayerDamageOperationExecutor', () => {
       const receipt = new CombatReceiptCollector();
       const attribute = (
         name: string,
-        side: 'attacker' | 'defender',
+        side: DamageModifierSide,
         value: number,
       ): import('./damageScale').AppliedDamageModifier => ({
         kind: 'attribute',

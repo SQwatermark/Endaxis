@@ -437,7 +437,8 @@ describe('生成武器的正式模拟门禁', () => {
       'comboSkill',
     ]);
     const combo = result.receiptEntries.find(
-      entry => entry.event === 'SkillStarted' && entry.data?.skillId === 'comboSkill',
+      entry =>
+        entry.event === 'SkillStarted' && entry.data?.skillId === 'chr_0032_lizhiyan_combo_skill',
     )!;
     const inflictions = result.receiptEntries.filter(
       entry =>
@@ -453,7 +454,8 @@ describe('生成武器的正式模拟门禁', () => {
       ['battleSkill', 'comboSkill'],
     );
     const baselineCombo = baseline.receiptEntries.find(
-      entry => entry.event === 'SkillStarted' && entry.data?.skillId === 'comboSkill',
+      entry =>
+        entry.event === 'SkillStarted' && entry.data?.skillId === 'chr_0032_lizhiyan_combo_skill',
     )!;
     expect(
       baseline.receiptEntries

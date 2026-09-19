@@ -13,7 +13,7 @@ export function adjustMatchingSkillCooldowns(
     string,
     {
       readonly program: Pick<CompiledSkillCooldownProgram, 'operatorId' | 'skillId' | 'skillType'>;
-      readonly sourceSkillIds: ReadonlySet<string>;
+      readonly skillIds: ReadonlySet<string>;
       readonly cooldown: SkillCooldown;
     }
   >,
@@ -26,12 +26,12 @@ export function adjustMatchingSkillCooldowns(
 ): number {
   const matchedKeys = new Set<string>();
   let changed = 0;
-  for (const { program, sourceSkillIds } of ledgers.values()) {
+  for (const { program, skillIds } of ledgers.values()) {
     if (
       program.operatorId !== operatorId ||
       (skill.kind === 'type'
         ? program.skillType !== skill.skillType
-        : program.skillId !== skill.skillId && !sourceSkillIds.has(skill.skillId))
+        : program.skillId !== skill.skillId && !skillIds.has(skill.skillId))
     )
       continue;
     const key = `${operatorId}\u0000${program.skillId}`;

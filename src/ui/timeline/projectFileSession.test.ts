@@ -64,23 +64,18 @@ it('keeps refresh protection and exposes the error when browser autosave fails',
   }
 });
 
-it('tracks the saved identity through edits, undo and normalized project loading', () => {
+it('does not warn about unexported edits when browser persistence is disabled', () => {
   vi.stubGlobal('window', new EventTarget());
-  const initial = createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' });
-  const project = new ProjectEditorSession(initial);
+  const project = new ProjectEditorSession(
+    createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' }),
+  );
   const scope = effectScope();
-  const files = scope.run(() => useProjectFileSession(project))!;
+  scope.run(() => useProjectFileSession(project));
   try {
     project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
-    expect(files.projectDirty.value).toBe(true);
-    project.undo();
-    expect(files.projectDirty.value).toBe(false);
-    const normalized = { ...initial, gameDataRevision: 'updated' };
-    project.replaceProject(normalized);
-    files.markOpenedProject(normalized, true);
-    expect(files.projectDirty.value).toBe(true);
-    files.markOpenedProject(normalized, false);
-    expect(files.projectDirty.value).toBe(false);
+    const event = new Event('beforeunload', { cancelable: true });
+    window.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(false);
   } finally {
     scope.stop();
   }
@@ -92,8 +87,9 @@ it('cancels pending file reads and removes leave protection when its scope ends'
   const project = new ProjectEditorSession(
     createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' }),
   );
+  saveBrowserProjectMock.mockImplementation(() => new Promise<void>(() => {}));
   const scope = effectScope();
-  const files = scope.run(() => useProjectFileSession(project))!;
+  const files = scope.run(() => useProjectFileSession(project, { persistToBrowser: true }))!;
   project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
   const before = new Event('beforeunload', { cancelable: true });
   target.dispatchEvent(before);

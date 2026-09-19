@@ -43,7 +43,12 @@ function frozenFixture() {
   scenario.tracks[0]!.consumableUses = [{ id: 'item', frame: 12, consumableId: 'medicine' }];
   scenario.battle.controlSwitches = [{ id: 'switch', frame: 15, trackIndex: 0 }];
   scenario.battle.externalEventMarkers = [
-    { id: 'event', frame: 18, target: { scope: 'team' }, event: { kind: 'enemyWeaknessSet' } },
+    {
+      id: 'event',
+      frame: 18,
+      target: { scope: 'team' },
+      event: { kind: 'comboCooldownControl', mode: 'cooldown' },
+    },
   ];
   return scenario;
 }

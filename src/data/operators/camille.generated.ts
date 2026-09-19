@@ -251,10 +251,9 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0033_camille_attack1',
+    key: 'chr_0033_camille_attack1',
     timelineBlockFrames: 12,
     naturalDurationFrames: 118,
     exclusiveFrame: 13,
@@ -265,12 +264,10 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 29,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0033_camille_attack2',
+          targetSkillId: 'chr_0033_camille_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 29, sourceSkillIds: ['chr_0033_camille_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 29, skillIds: ['chr_0033_camille_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -354,13 +351,11 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         12,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0033_camille_attack2'] })),
         29,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0033_camille_attack2',
+    timelineContinuationSkillId: 'chr_0033_camille_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -373,10 +368,9 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0033_camille_attack2',
+    key: 'chr_0033_camille_attack2',
     timelineBlockFrames: 15,
     naturalDurationFrames: 124,
     exclusiveFrame: 19,
@@ -387,12 +381,10 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 34,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0033_camille_attack3',
+          targetSkillId: 'chr_0033_camille_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 15, endFrame: 34, sourceSkillIds: ['chr_0033_camille_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 15, endFrame: 34, skillIds: ['chr_0033_camille_attack3'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -476,13 +468,11 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         15,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0033_camille_attack3'] })),
         34,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0033_camille_attack3',
+    timelineContinuationSkillId: 'chr_0033_camille_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -495,10 +485,9 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0033_camille_attack3',
+    key: 'chr_0033_camille_attack3',
     timelineBlockFrames: 13,
     naturalDurationFrames: 130,
     exclusiveFrame: 19,
@@ -509,12 +498,10 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0033_camille_attack4',
+          targetSkillId: 'chr_0033_camille_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 13, endFrame: 30, sourceSkillIds: ['chr_0033_camille_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 13, endFrame: 30, skillIds: ['chr_0033_camille_attack4'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -571,13 +558,11 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         13,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0033_camille_attack4'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0033_camille_attack4',
+    timelineContinuationSkillId: 'chr_0033_camille_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -589,10 +574,9 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0033_camille_attack4',
+    key: 'chr_0033_camille_attack4',
     timelineBlockFrames: 22,
     naturalDurationFrames: 187,
     exclusiveFrame: 29,
@@ -603,12 +587,10 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 34,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0033_camille_attack5',
+          targetSkillId: 'chr_0033_camille_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 22, endFrame: 34, sourceSkillIds: ['chr_0033_camille_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 22, endFrame: 34, skillIds: ['chr_0033_camille_attack5'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -821,13 +803,11 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         22,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0033_camille_attack5'] })),
         34,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0033_camille_attack5',
+    timelineContinuationSkillId: 'chr_0033_camille_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -842,10 +822,9 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0033_camille_attack5',
+    key: 'chr_0033_camille_attack5',
     timelineBlockFrames: 42,
     naturalDurationFrames: 171,
     exclusiveFrame: 41,
@@ -942,10 +921,9 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleFinisher: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0033_camille_power_attack',
+    key: 'chr_0033_camille_power_attack',
     timelineBlockFrames: 39,
     naturalDurationFrames: 230,
     exclusiveFrame: 50,
@@ -955,7 +933,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 39,
           endFrame: 46,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0033_camille_normal_skill',
             'chr_0033_camille_normal_skill_2',
             'chr_0033_camille_combo_skill',
@@ -1386,10 +1364,9 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0033_camille_plunging_attack_end',
+    key: 'chr_0033_camille_plunging_attack_end',
     timelineBlockFrames: 16,
     naturalDurationFrames: 149,
     exclusiveFrame: 15,
@@ -1434,17 +1411,16 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0033_camille_normal_skill',
+    key: 'chr_0033_camille_normal_skill',
     timelineBlockFrames: 18,
     naturalDurationFrames: 192,
     exclusiveFrame: 26,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 18, endFrame: 34, sourceSkillIds: ['chr_0033_camille_combo_skill'] },
+        { startFrame: 18, endFrame: 34, skillIds: ['chr_0033_camille_combo_skill'] },
       ],
     },
     costFrame: 0,
@@ -1551,10 +1527,9 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_normal_skill_2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkillDuringUltimate',
-    sourceSkillId: 'chr_0033_camille_combo_skill_2',
+    key: 'chr_0033_camille_normal_skill_2',
     timelineBlockFrames: 87,
     naturalDurationFrames: 213,
     exclusiveFrame: 86,
@@ -1564,7 +1539,7 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
         {
           startFrame: 79,
           endFrame: 127,
-          sourceSkillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
+          skillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
         },
       ],
     },
@@ -1745,10 +1720,9 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
   },
 );
 
-export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill1',
-    sourceSkillId: 'chr_0033_camille_combo_skill',
+    key: 'chr_0033_camille_combo_skill',
     timelineBlockFrames: 51,
     naturalDurationFrames: 191,
     exclusiveFrame: 63,
@@ -1758,7 +1732,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 51,
           endFrame: 63,
-          sourceSkillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
+          skillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
         },
       ],
     },
@@ -2065,10 +2039,9 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_combo_skill_2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill2',
-    sourceSkillId: 'chr_0033_camille_combo_skill_2',
+    key: 'chr_0033_camille_combo_skill_2',
     timelineBlockFrames: 87,
     naturalDurationFrames: 213,
     exclusiveFrame: 86,
@@ -2078,7 +2051,7 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 79,
           endFrame: 127,
-          sourceSkillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
+          skillIds: ['chr_0033_camille_normal_skill', 'chr_0033_camille_normal_skill_2'],
         },
       ],
     },
@@ -2257,10 +2230,9 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camilleUltimate: SkillDefinition = withSkillBlackboard(
+export const camilleChr_0033_camille_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0033_camille_ultimate_skill',
+    key: 'chr_0033_camille_ultimate_skill',
     timelineBlockFrames: 125,
     naturalDurationFrames: 236,
     exclusiveFrame: 133,
@@ -2270,7 +2242,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 125,
           endFrame: 150,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0033_camille_normal_skill',
             'chr_0033_camille_normal_skill_2',
             'chr_0033_camille_combo_skill',
@@ -2527,10 +2499,9 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const camillePerfectDodge: SkillDefinition = withSkillBlackboard(
+export const camilleCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -2546,7 +2517,7 @@ export const camillePerfectDodge: SkillDefinition = withSkillBlackboard(
 export const camille: OperatorDefinition = {
   slug: 'camille',
   gameId: 'CAMILLE',
-  skillDisplayNameKeys: { battleSkillDuringUltimate: 'skillNames.pursuit' },
+  skillDisplayNameKeys: { chr_0033_camille_normal_skill_2: 'skillNames.pursuit' },
   rarity: 6,
   weaponType: 'polearm',
   element: 'heat',
@@ -2567,33 +2538,38 @@ export const camille: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        camilleBasicAttack1,
-        camilleBasicAttack2,
-        camilleBasicAttack3,
-        camilleBasicAttack4,
-        camilleBasicAttack5,
+        camilleChr_0033_camille_attack1,
+        camilleChr_0033_camille_attack2,
+        camilleChr_0033_camille_attack3,
+        camilleChr_0033_camille_attack4,
+        camilleChr_0033_camille_attack5,
       ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: camilleFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: camilleChr_0033_camille_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: camillePlungingAttack,
+      skills: camilleChr_0033_camille_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: camilleBattleSkill,
-      replacementSkillPlacements: { battleSkillDuringUltimate: 'standard' },
+      skills: camilleChr_0033_camille_normal_skill,
+      replacementSkillPlacements: { chr_0033_camille_normal_skill_2: 'standard' },
       routedReplacementSkills: [
         {
-          skill: camilleBattleSkillDuringUltimate,
+          skill: camilleChr_0033_camille_normal_skill_2,
           skillType: 'comboSkill',
           levelSource: 'comboSkill',
           executionSkillGroupKey: 'comboSkill',
-          executionSkillKey: 'comboSkill2',
+          executionSkillKey: 'chr_0033_camille_combo_skill_2',
         },
       ],
     },
@@ -2601,45 +2577,50 @@ export const camille: OperatorDefinition = {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: camilleComboSkill1,
-      replacementSkills: [camilleComboSkill2],
-      replacementSkillPlacements: { comboSkill2: 'internal' },
+      skills: camilleChr_0033_camille_combo_skill,
+      replacementSkills: [camilleChr_0033_camille_combo_skill_2],
+      replacementSkillPlacements: { chr_0033_camille_combo_skill_2: 'internal' },
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: camilleUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: camilleChr_0033_camille_ultimate_skill,
+    },
   ],
-  dodgeSkill: camillePerfectDodge,
+  dodgeSkill: camilleCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
     {
       key: 'battleSkill',
-      baseSkillKey: 'battleSkill',
-      replacementSkillKeys: ['battleSkillDuringUltimate'],
+      baseSkillKey: 'chr_0033_camille_normal_skill',
+      replacementSkillKeys: ['chr_0033_camille_normal_skill_2'],
     },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill1', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0033_camille_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0033_camille_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0033_camille_attack1',
+        'chr_0033_camille_attack2',
+        'chr_0033_camille_attack3',
+        'chr_0033_camille_attack4',
+        'chr_0033_camille_attack5',
+        'chr_0033_camille_plunging_attack_end',
+        'chr_0033_camille_power_attack',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0033_camille_attack1',
+        'chr_0033_camille_attack2',
+        'chr_0033_camille_attack3',
+        'chr_0033_camille_attack4',
+        'chr_0033_camille_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0033_camille_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -2648,7 +2629,7 @@ export const camille: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill1',
+      skillKey: 'chr_0033_camille_combo_skill',
       event: 'buffAbsorbed',
       immediately: false,
       initialValues: null,
@@ -2665,7 +2646,7 @@ export const camille: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill1',
+      skillKey: 'chr_0033_camille_combo_skill',
       event: 'buffConsumed',
       immediately: false,
       initialValues: null,
@@ -2689,7 +2670,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'talent_0',
           operation: 'assign',
           value: [1, 1],
@@ -2697,7 +2678,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'combo_duration',
           operation: 'assign',
           value: [15, 15],
@@ -2705,7 +2686,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'heal_base',
           operation: 'assign',
           value: [30, 60],
@@ -2713,7 +2694,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'heal_sub_multi',
           operation: 'assign',
           value: [0.15, 0.3],
@@ -2721,7 +2702,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'talent_0',
           operation: 'assign',
           value: [1, 1],
@@ -2729,7 +2710,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'combo_duration',
           operation: 'assign',
           value: [15, 15],
@@ -2737,7 +2718,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'heal_base',
           operation: 'assign',
           value: [30, 60],
@@ -2745,7 +2726,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'heal_sub_multi',
           operation: 'assign',
           value: [0.15, 0.3],
@@ -2832,7 +2813,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0033_camille_normal_skill',
           blackboardKey: 'weak_scale',
           operation: 'add',
           value: 0.05,
@@ -2840,7 +2821,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0033_camille_normal_skill',
           blackboardKey: 'vulnerable_scale',
           operation: 'add',
           value: 0.05,
@@ -2848,7 +2829,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0033_camille_normal_skill',
           blackboardKey: 'bat_duration',
           operation: 'add',
           value: 15,
@@ -2868,13 +2849,13 @@ export const camille: OperatorDefinition = {
         {
           kind: 'addSkillCooldownFrames',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           frames: -60,
         },
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'atk_scale_1_1',
           operation: 'multiply',
           value: 1.3,
@@ -2882,7 +2863,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'atk_scale_1_2',
           operation: 'multiply',
           value: 1.3,
@@ -2890,7 +2871,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'atk_scale_1_3',
           operation: 'multiply',
           value: 1.3,
@@ -2898,7 +2879,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'atk_scale_2_1',
           operation: 'multiply',
           value: 1.3,
@@ -2906,7 +2887,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'atk_scale_2_2',
           operation: 'multiply',
           value: 1.3,
@@ -2914,7 +2895,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'atk_scale_2_3',
           operation: 'multiply',
           value: 1.3,
@@ -2922,7 +2903,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'atk_scale_2_4',
           operation: 'multiply',
           value: 1.3,
@@ -2930,7 +2911,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill1',
+          skillKey: 'chr_0033_camille_combo_skill',
           blackboardKey: 'atb',
           operation: 'multiply',
           value: 1.15,
@@ -2938,7 +2919,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'atb',
           operation: 'multiply',
           value: 1.15,
@@ -2946,7 +2927,7 @@ export const camille: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'comboSkill',
-          skillKey: 'comboSkill2',
+          skillKey: 'chr_0033_camille_combo_skill_2',
           blackboardKey: 'atb_ex',
           operation: 'multiply',
           value: 1.15,
@@ -3056,7 +3037,7 @@ export const camille: OperatorDefinition = {
       lifecycleSequences: {
         enable: sequence(
           step('changeNativeSkillType', {
-            targetSkillKey: 'comboSkill2',
+            targetSkillKey: 'chr_0033_camille_combo_skill_2',
             nativeSkillType: 'comboSkill',
           }),
         ),
@@ -3352,8 +3333,8 @@ export const camille: OperatorDefinition = {
       skillSlotReplacements: [
         {
           skillGroupKey: 'battleSkill',
-          targetSkillKey: 'battleSkillDuringUltimate',
-          revertedSkillKey: 'battleSkill',
+          targetSkillKey: 'chr_0033_camille_normal_skill_2',
+          revertedSkillKey: 'chr_0033_camille_normal_skill',
           inheritOriginSkillCooldownProgress: false,
         },
       ],

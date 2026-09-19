@@ -6,6 +6,7 @@ import {
   renderMovementSettingCatalogModule,
 } from '../src/source/movementSettingCatalogSource.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 
 export async function generateMovementSettingCatalog(args: {
   readonly sourceUrl: string;
@@ -29,7 +30,10 @@ export async function generateMovementSettingCatalog(args: {
   if (typeof preview.text !== 'string')
     throw new Error(`${args.sourceUrl}: missing TypeTree dump text`);
   const source = parseMovementSettingCatalogDumpSource(preview.text, args.sourceUrl);
-  const content = renderMovementSettingCatalogModule(source);
+  const content = await formatGeneratedSource(
+    renderMovementSettingCatalogModule(source),
+    args.output,
+  );
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content)
       throw new Error(`${args.output}: generated MovementSetting catalog is stale`);

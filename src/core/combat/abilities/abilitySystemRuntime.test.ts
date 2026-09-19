@@ -237,7 +237,7 @@ describe('AbilitySystemRuntime', () => {
             startFrame: 0,
             endFrame: 20,
             input: 'basicAttack' as const,
-            targetSourceSkillId: 'attack',
+            targetSkillId: 'attack',
           },
         ],
       },
@@ -733,12 +733,12 @@ describe('AbilitySystemRuntime', () => {
               startFrame: 0,
               endFrame: 8,
               input: 'basicAttack' as const,
-              targetSourceSkillId: 'native.next',
+              targetSkillId: 'native.next',
             },
           ],
           allowedNextSkills: [
-            { startFrame: 0, endFrame: 8, sourceSkillIds: ['native.cleanup'] },
-            { startFrame: 5, endFrame: 8, sourceSkillIds: ['native.next'] },
+            { startFrame: 0, endFrame: 8, skillIds: ['native.cleanup'] },
+            { startFrame: 5, endFrame: 8, skillIds: ['native.next'] },
           ],
         },
         canInterrupt: false,
@@ -950,7 +950,7 @@ describe('AbilitySystemRuntime', () => {
           modeLayer: 'ultimate',
           defaultEnabled: true,
           commandMappings: {
-            basicAttack: { sourceSkillId: 'native.attack1', skillKey: 'attack1' },
+            basicAttack: { skillId: 'attack1' },
           },
         },
       ],
@@ -991,7 +991,7 @@ describe('AbilitySystemRuntime', () => {
           defaultEnabled: false,
           normalAttackSkillKeys: ['enhancedAttack'],
           commandMappings: {
-            basicAttack: { sourceSkillId: 'native.enhanced', skillKey: 'enhancedAttack' },
+            basicAttack: { skillId: 'enhancedAttack' },
           },
         },
       ],
@@ -1030,7 +1030,7 @@ describe('AbilitySystemRuntime', () => {
         modeLayer: 'mode',
         defaultEnabled: true,
         commandMappings: {
-          basicAttack: { sourceSkillId: 'native.modeAttack', skillKey: 'modeAttack' },
+          basicAttack: { skillId: 'modeAttack' },
         },
       },
     ] as const;
@@ -1127,7 +1127,7 @@ describe('AbilitySystemRuntime', () => {
           modeId: 'ultimateMode',
           modeLayer: 'ultimate',
           defaultEnabled: true,
-          commandMappings: { basicAttack: { sourceSkillId: 'native.missing' } },
+          commandMappings: { basicAttack: { skillId: 'native.missing' } },
         },
       ],
     });
@@ -1170,10 +1170,10 @@ describe('AbilitySystemRuntime', () => {
               startFrame: 5,
               endFrame: 10,
               input: 'basicAttack',
-              targetSourceSkillId: 'native.attack2',
+              targetSkillId: 'native.attack2',
             },
           ],
-          allowedNextSkills: [{ startFrame: 7, endFrame: 10, sourceSkillIds: ['native.attack2'] }],
+          allowedNextSkills: [{ startFrame: 7, endFrame: 10, skillIds: ['native.attack2'] }],
         },
       },
     });
@@ -1232,7 +1232,7 @@ describe('AbilitySystemRuntime', () => {
             {
               startFrame: 5,
               endFrame: 10,
-              sourceSkillIds: ['native.attack1', 'native.attack2'],
+              skillIds: ['native.attack1', 'native.attack2'],
             },
           ],
         },

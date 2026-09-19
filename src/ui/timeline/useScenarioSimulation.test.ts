@@ -88,7 +88,7 @@ describe('useScenarioSimulation', () => {
     const source = {
       kind: 'operatorSkill' as const,
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack1',
+      skillKey: 'chr_0004_pelica_attack1',
     };
     initial.tracks[0]!.skillCasts = [
       { id: 'first', source, placement: { startFrame: 55 } },
@@ -104,7 +104,7 @@ describe('useScenarioSimulation', () => {
             time: 55 / 30,
             event: 'SkillCostUnavailableAtStart',
             sourceId: 'track:0',
-            data: { castId: 'second', skillId: 'basicAttack1' },
+            data: { castId: 'second', skillId: 'chr_0004_pelica_attack1' },
           },
           {
             sequence: 1,
@@ -135,7 +135,7 @@ describe('useScenarioSimulation', () => {
             {
               frame: 55,
               sourceId: 'track:0',
-              skillId: 'basicAttack1',
+              skillId: 'chr_0004_pelica_attack1',
               reasons: ['resourceUnavailable'],
               receiptSequences: [0],
             },
@@ -415,7 +415,7 @@ describe('useScenarioSimulation', () => {
         expect(
           earlyRun.availabilityDiagnostics.some(
             d =>
-              d.skillId === 'basicAttack2' &&
+              d.skillId === 'chr_0004_pelica_attack2' &&
               d.reasons.includes('skillInterruptUnavailable') &&
               d.currentCastId === casts[0]!.id,
           ),
@@ -772,7 +772,7 @@ describe('useScenarioSimulation', () => {
         {
           frame: 1,
           sourceId: 'track:0',
-          skillId: 'plungingAttack',
+          skillId: 'chr_0004_pelica_plunging_attack_end',
           reasons: ['resourceUnavailable' as const],
           receiptSequences: [0],
         },

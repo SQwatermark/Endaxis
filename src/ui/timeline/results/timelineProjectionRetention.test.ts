@@ -173,7 +173,7 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain('syncTimelineScroll(scrollbar, viewport)');
     expect(source).toContain(':style="{ width: `${timelineWidth}px` }"');
     expect(source).toMatch(
-      /\.timeline-workspace\s*\{[^}]*grid-template-rows: minmax\(0, 1fr\) 12px/s,
+      /\.timeline-workspace\s*\{[^}]*grid-template-columns: minmax\(0, 1fr\);[^}]*grid-template-rows: minmax\(0, 1fr\);/s,
     );
     expect(source).toMatch(/\.timeline-horizontal-scrollbar\s*\{[^}]*margin-left: 180px/s);
     expect(source).toMatch(/\.timeline-scroll\s*\{[^}]*overflow-x: hidden/s);

@@ -33,6 +33,7 @@ describe('scenario project commands', () => {
     expect(renamed.scenarios[0]?.name).toBe('主方案');
     expect(added.scenarios).toHaveLength(2);
     expect(added.scenarios[1]?.name).toBe('副方案');
+    expect(added.scenarios[1]?.battle.resourceRules.spRecoveryPerSecond).toBe(8);
     expect(switched.activeScenarioId).toBe(renamed.activeScenarioId);
   });
 

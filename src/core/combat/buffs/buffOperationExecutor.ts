@@ -1,4 +1,4 @@
-import type { CombatCondition } from '../../game-data/operatorDefinition';
+import type { CombatCondition, PhysicalInflictionType } from '../../game-data/operatorDefinition';
 import {
   abilityEventSourceId,
   abilityEventTargetId,
@@ -180,7 +180,7 @@ export interface BuffOperationTarget {
 
 export interface BuffAppliedEvent {
   /** 本次物理异常输入；即便实际只施加破防，也保留动作类型供展示。 */
-  readonly physicalInflictionType?: 'airborne' | 'knockDown' | 'crush' | 'fracture';
+  readonly physicalInflictionType?: PhysicalInflictionType;
   readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   readonly targetId: string;
   readonly buffId: string;

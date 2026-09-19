@@ -124,10 +124,19 @@ it('captures the generated Arcane replacement skill through the shared definitio
   const original = structuredClone(scenario);
   original.tracks[0]!.operator!.operatorSlug = 'arcane';
   const captured = capturePublishedOperatorMetadata(original, { getOperator: () => arcane });
-  expect(captured.get('arcane')?.skillKeys).toContain('arcana');
+  expect(captured.get('arcane')?.skillKeys).toContain('chr_0032_lizhiyan_ultimate_skill2');
   expect(
-    resolvePublishedBuffSource({ sourceActionId: 'arcana', sourceId: 'track' }, original, captured),
-  ).toEqual({ kind: 'skill', slug: 'arcane', key: 'arcana', fallbackKey: 'ultimate' });
+    resolvePublishedBuffSource(
+      { sourceActionId: 'chr_0032_lizhiyan_ultimate_skill2', sourceId: 'track' },
+      original,
+      captured,
+    ),
+  ).toEqual({
+    kind: 'skill',
+    slug: 'arcane',
+    key: 'chr_0032_lizhiyan_ultimate_skill2',
+    fallbackKey: 'ultimate',
+  });
 });
 
 it('keeps the skill identity while carrying its own level-source title fallback', () => {

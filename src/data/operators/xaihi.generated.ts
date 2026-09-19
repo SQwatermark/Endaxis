@@ -275,10 +275,9 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0011_seraph_attack1',
+    key: 'chr_0011_seraph_attack1',
     timelineBlockFrames: 13,
     naturalDurationFrames: 117,
     exclusiveFrame: 14,
@@ -289,12 +288,10 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 25,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0011_seraph_attack2',
+          targetSkillId: 'chr_0011_seraph_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 13, endFrame: 25, sourceSkillIds: ['chr_0011_seraph_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 13, endFrame: 25, skillIds: ['chr_0011_seraph_attack2'] }],
     },
     costFrame: 11,
     scheduledSequences: [
@@ -309,13 +306,11 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         13,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0011_seraph_attack2'] })),
         25,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack2',
+    timelineContinuationSkillId: 'chr_0011_seraph_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -327,10 +322,9 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0011_seraph_attack2',
+    key: 'chr_0011_seraph_attack2',
     timelineBlockFrames: 17,
     naturalDurationFrames: 121,
     exclusiveFrame: 20,
@@ -341,12 +335,10 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 28,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0011_seraph_attack3',
+          targetSkillId: 'chr_0011_seraph_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 17, endFrame: 28, sourceSkillIds: ['chr_0011_seraph_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 17, endFrame: 28, skillIds: ['chr_0011_seraph_attack3'] }],
     },
     costFrame: 7,
     scheduledSequences: [
@@ -361,13 +353,11 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         17,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0011_seraph_attack3'] })),
         28,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack3',
+    timelineContinuationSkillId: 'chr_0011_seraph_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -379,10 +369,9 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0011_seraph_attack3',
+    key: 'chr_0011_seraph_attack3',
     timelineBlockFrames: 14,
     naturalDurationFrames: 125,
     exclusiveFrame: 14,
@@ -393,12 +382,10 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 25,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0011_seraph_attack4',
+          targetSkillId: 'chr_0011_seraph_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 14, endFrame: 25, sourceSkillIds: ['chr_0011_seraph_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 14, endFrame: 25, skillIds: ['chr_0011_seraph_attack4'] }],
     },
     costFrame: 11,
     scheduledSequences: [
@@ -413,13 +400,11 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         14,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0011_seraph_attack4'] })),
         25,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack4',
+    timelineContinuationSkillId: 'chr_0011_seraph_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -431,10 +416,9 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0011_seraph_attack4',
+    key: 'chr_0011_seraph_attack4',
     timelineBlockFrames: 21,
     naturalDurationFrames: 128,
     exclusiveFrame: 24,
@@ -445,12 +429,10 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 33,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0011_seraph_attack5',
+          targetSkillId: 'chr_0011_seraph_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 21, endFrame: 33, sourceSkillIds: ['chr_0011_seraph_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 21, endFrame: 33, skillIds: ['chr_0011_seraph_attack5'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -474,13 +456,11 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         21,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0011_seraph_attack5'] })),
         33,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack5',
+    timelineContinuationSkillId: 'chr_0011_seraph_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -492,10 +472,9 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0011_seraph_attack5',
+    key: 'chr_0011_seraph_attack5',
     timelineBlockFrames: 33,
     naturalDurationFrames: 137,
     exclusiveFrame: 33,
@@ -506,12 +485,10 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 40,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0011_seraph_attack1',
+          targetSkillId: 'chr_0011_seraph_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 33, endFrame: 40, sourceSkillIds: ['chr_0011_seraph_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 33, endFrame: 40, skillIds: ['chr_0011_seraph_attack1'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -549,13 +526,11 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         33,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0011_seraph_attack1'] })),
         40,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack1',
+    timelineContinuationSkillId: 'chr_0011_seraph_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -568,10 +543,9 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0011_seraph_power_attack',
+    key: 'chr_0011_seraph_power_attack',
     timelineBlockFrames: 34,
     naturalDurationFrames: 160,
     exclusiveFrame: 50,
@@ -581,7 +555,7 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 34,
           endFrame: 53,
-          sourceSkillIds: ['chr_0011_seraph_normal_skill', 'chr_0011_seraph_combo_skill'],
+          skillIds: ['chr_0011_seraph_normal_skill', 'chr_0011_seraph_combo_skill'],
         },
       ],
     },
@@ -659,10 +633,9 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0011_seraph_plunging_attack_end',
+    key: 'chr_0011_seraph_plunging_attack_end',
     timelineBlockFrames: 13,
     naturalDurationFrames: 116,
     exclusiveFrame: 12,
@@ -705,10 +678,9 @@ export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0011_seraph_normal_skill',
+    key: 'chr_0011_seraph_normal_skill',
     timelineBlockFrames: 31,
     naturalDurationFrames: 145,
     exclusiveFrame: 30,
@@ -792,17 +764,16 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0011_seraph_combo_skill',
+    key: 'chr_0011_seraph_combo_skill',
     timelineBlockFrames: 25,
     naturalDurationFrames: 122,
     exclusiveFrame: 42,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 25, endFrame: 60, sourceSkillIds: ['chr_0011_seraph_normal_skill'] },
+        { startFrame: 25, endFrame: 60, skillIds: ['chr_0011_seraph_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -900,10 +871,9 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
+export const xaihiChr_0011_seraph_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0011_seraph_ultimate_skill',
+    key: 'chr_0011_seraph_ultimate_skill',
     timelineBlockFrames: 67,
     naturalDurationFrames: 183,
     exclusiveFrame: 80,
@@ -913,7 +883,7 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 67,
           endFrame: 100,
-          sourceSkillIds: ['chr_0011_seraph_normal_skill', 'chr_0011_seraph_combo_skill'],
+          skillIds: ['chr_0011_seraph_normal_skill', 'chr_0011_seraph_combo_skill'],
         },
       ],
     },
@@ -1004,10 +974,9 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const xaihiPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const xaihiCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1043,63 +1012,73 @@ export const xaihi: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        xaihiBasicAttack1,
-        xaihiBasicAttack2,
-        xaihiBasicAttack3,
-        xaihiBasicAttack4,
-        xaihiBasicAttack5,
+        xaihiChr_0011_seraph_attack1,
+        xaihiChr_0011_seraph_attack2,
+        xaihiChr_0011_seraph_attack3,
+        xaihiChr_0011_seraph_attack4,
+        xaihiChr_0011_seraph_attack5,
       ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: xaihiFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: xaihiChr_0011_seraph_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: xaihiPlungingAttack,
+      skills: xaihiChr_0011_seraph_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: xaihiBattleSkill,
+      skills: xaihiChr_0011_seraph_normal_skill,
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: xaihiComboSkill,
+      skills: xaihiChr_0011_seraph_combo_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: xaihiUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: xaihiChr_0011_seraph_ultimate_skill,
+    },
   ],
-  dodgeSkill: xaihiPerfectDodge,
+  dodgeSkill: xaihiCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0011_seraph_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0011_seraph_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0011_seraph_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0011_seraph_attack1',
+        'chr_0011_seraph_attack2',
+        'chr_0011_seraph_attack3',
+        'chr_0011_seraph_attack4',
+        'chr_0011_seraph_attack5',
+        'chr_0011_seraph_plunging_attack_end',
+        'chr_0011_seraph_power_attack',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0011_seraph_attack1',
+        'chr_0011_seraph_attack2',
+        'chr_0011_seraph_attack3',
+        'chr_0011_seraph_attack4',
+        'chr_0011_seraph_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0011_seraph_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },

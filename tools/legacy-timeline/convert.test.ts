@@ -16,7 +16,11 @@ it('保留时间允许同轴重叠，智能修复则顺延，且不改变原始�
       'old-perlica': [
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },
@@ -59,7 +63,11 @@ it('展示连线未迁移单独报告，不视为模拟内容缺失', () => {
       'old-perlica': [
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },
@@ -115,31 +123,31 @@ it('只把技能槽基础技能解析为同组声明的替换形态', () => {
     resolveLegacyRuntimeReplacementSkillKey(
       laevatain,
       'battleSkill',
-      'battleSkill',
-      'battleSkillDuringUltimate',
+      'chr_0016_laevat_normal_skill',
+      'chr_0016_laevat_normal_skill_during_ult',
     ),
-  ).toBe('battleSkillDuringUltimate');
+  ).toBe('chr_0016_laevat_normal_skill_during_ult');
   expect(
     resolveLegacyRuntimeReplacementSkillKey(
       laevatain,
       'battleSkill',
-      'battleSkillDuringUltimate',
-      'battleSkill',
+      'chr_0016_laevat_normal_skill_during_ult',
+      'chr_0016_laevat_normal_skill',
     ),
   ).toBeNull();
   expect(
     resolveLegacyRuntimeReplacementSkillKey(
       laevatain,
       'basicAttack',
-      'basicAttack1',
-      'ultimateAttack1',
+      'chr_0016_laevat_attack1',
+      'chr_0016_laevat_ult_attack1',
     ),
   ).toBeNull();
   expect(
     resolveLegacyRuntimeReplacementSkillKey(
       laevatain,
       'battleSkill',
-      'battleSkill',
+      'chr_0016_laevat_normal_skill',
       'missingReplacement',
     ),
   ).toBeNull();
@@ -177,7 +185,11 @@ it('按当前递归输入路由把旧单块展开为稳定技能序列', { timeo
       'old-yvonne': [
         {
           source: { skillId: 'ultimate', sourceSkillKey: 'ultimate', type: 'ultimate' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'ultimate',
+            skillKey: 'chr_0017_yvonne_ultimate_skill',
+          },
         },
         {
           source: {
@@ -201,7 +213,7 @@ it('按当前递归输入路由把旧单块展开为稳定技能序列', { timeo
   const sequence = casts.filter(cast => cast.id.includes(':cast:1'));
   expect(sequence.length).toBeGreaterThan(6);
   expect(sequence[0]!.id).toBe('legacy:test-axis:track:0:cast:1');
-  expect(sequence.at(-1)!.source).toMatchObject({ skillKey: 'ultimateAttackEnd' });
+  expect(sequence.at(-1)!.source).toMatchObject({ skillKey: 'chr_0017_yvonne_ult_attack_end' });
   expect(new Set(sequence.map(cast => cast.id)).size).toBe(sequence.length);
 });
 
@@ -219,12 +231,12 @@ it('把旧版提弗洛斯战技块展开为战技和完整强化普攻链', { ti
   expect(result.report.issues).toEqual([]);
   const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
   expect(casts.map(cast => cast.source)).toMatchObject([
-    { skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack1' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack2' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack3' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack4' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack5' },
+    { skillGroupKey: 'battleSkill', skillKey: 'chr_0034_typhoea_normal_skill_floating_start' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack1' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack2' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack3' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack4' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack5' },
   ]);
   expect(
     casts.every(
@@ -257,12 +269,12 @@ it('按真实旧轴段号把提弗洛斯战技链映射为战技和五段强化�
   expect(
     result.project!.scenarios[0]!.tracks[0]!.skillCasts.map(cast => cast.source),
   ).toMatchObject([
-    { skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack1' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack2' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack3' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack4' },
-    { skillGroupKey: 'basicAttack', skillKey: 'floatingAttack5' },
+    { skillGroupKey: 'battleSkill', skillKey: 'chr_0034_typhoea_normal_skill_floating_start' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack1' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack2' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack3' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack4' },
+    { skillGroupKey: 'basicAttack', skillKey: 'chr_0034_typhoea_floating_attack5' },
   ]);
 });
 
@@ -286,8 +298,14 @@ it('真实轴的末次诀终结技明确映射为秘仪，不自动替换其他�
   );
   expect(result.report.issues).toEqual([]);
   const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
-  expect(casts[39]!.source).toMatchObject({ skillGroupKey: 'ultimate', skillKey: 'ultimate' });
-  expect(casts[47]!.source).toMatchObject({ skillGroupKey: 'ultimate', skillKey: 'arcana' });
+  expect(casts[39]!.source).toMatchObject({
+    skillGroupKey: 'ultimate',
+    skillKey: 'chr_0032_lizhiyan_ultimate_skill',
+  });
+  expect(casts[47]!.source).toMatchObject({
+    skillGroupKey: 'ultimate',
+    skillKey: 'chr_0032_lizhiyan_ultimate_skill2',
+  });
 });
 
 it.each(['inst_e889ock', 'different-share-instance'])(
@@ -315,9 +333,12 @@ it.each(['inst_e889ock', 'different-share-instance'])(
     expect(result.report.issues).toEqual([]);
     expect(JSON.stringify(input)).toBe(before);
     const casts = result.project!.scenarios[0]!.tracks[0]!.skillCasts;
-    expect(casts[2]!.source).toMatchObject({ skillKey: 'ultimate' });
+    expect(casts[2]!.source).toMatchObject({ skillKey: 'chr_0032_lizhiyan_ultimate_skill' });
     expect(casts[3]!.source).toMatchObject({
-      skillKey: instanceId === 'inst_e889ock' ? 'arcana' : 'ultimate',
+      skillKey:
+        instanceId === 'inst_e889ock'
+          ? 'chr_0032_lizhiyan_ultimate_skill2'
+          : 'chr_0032_lizhiyan_ultimate_skill',
     });
   },
 );
@@ -402,7 +423,11 @@ it('keeps old empty track placeholders without treating them as unresolved opera
       'old-perlica': [
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },
@@ -419,7 +444,11 @@ it('produces a current reloadable document only after explicit skill mapping and
       'old-perlica': [
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },
@@ -442,7 +471,11 @@ it('clamps an excessive stored gauge to the current native maximum before retimi
       'old-perlica': [
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },
@@ -506,11 +539,19 @@ it('retimes from simulated starts, same-track ends, and ultimate dilation', () =
       'old-perlica': [
         {
           source: { skillId: 'ultimate', sourceSkillKey: 'ultimate', type: 'ultimate' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'ultimate',
+            skillKey: 'chr_0004_pelica_ultimate_skill',
+          },
         },
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },
@@ -574,7 +615,11 @@ it('preserves validated action-to-action connections with migrated cast identiti
       'old-perlica': [
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },
@@ -749,7 +794,7 @@ it('preserves the active scenario and falls back only for an invalid reference',
           target: {
             kind: 'operatorSkill' as const,
             skillGroupKey: 'battleSkill',
-            skillKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
           },
         },
       ],
@@ -776,7 +821,11 @@ it('omits a malformed scenario while preserving other scenarios from the same fi
       'old-perlica': [
         {
           source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
-          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+          target: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'battleSkill',
+            skillKey: 'chr_0004_pelica_normal_skill',
+          },
         },
       ],
     },

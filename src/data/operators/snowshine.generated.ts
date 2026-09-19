@@ -11,10 +11,9 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0014_aurora_attack1',
+    key: 'chr_0014_aurora_attack1',
     timelineBlockFrames: 32,
     naturalDurationFrames: 111,
     exclusiveFrame: 35,
@@ -25,12 +24,10 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 47,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0014_aurora_attack2',
+          targetSkillId: 'chr_0014_aurora_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 32, endFrame: 47, sourceSkillIds: ['chr_0014_aurora_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 32, endFrame: 47, skillIds: ['chr_0014_aurora_attack2'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -80,13 +77,11 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         32,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0014_aurora_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0014_aurora_attack2'] })),
         47,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0014_aurora_attack2',
+    timelineContinuationSkillId: 'chr_0014_aurora_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -98,10 +93,9 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0014_aurora_attack2',
+    key: 'chr_0014_aurora_attack2',
     timelineBlockFrames: 28,
     naturalDurationFrames: 110,
     exclusiveFrame: 30,
@@ -112,12 +106,10 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 43,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0014_aurora_attack3',
+          targetSkillId: 'chr_0014_aurora_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 28, endFrame: 43, sourceSkillIds: ['chr_0014_aurora_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 28, endFrame: 43, skillIds: ['chr_0014_aurora_attack3'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -162,13 +154,11 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         28,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0014_aurora_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0014_aurora_attack3'] })),
         43,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0014_aurora_attack3',
+    timelineContinuationSkillId: 'chr_0014_aurora_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -180,10 +170,9 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0014_aurora_attack3',
+    key: 'chr_0014_aurora_attack3',
     timelineBlockFrames: 61,
     naturalDurationFrames: 131,
     exclusiveFrame: 65,
@@ -194,12 +183,10 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 75,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0014_aurora_attack1',
+          targetSkillId: 'chr_0014_aurora_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 61, endFrame: 75, sourceSkillIds: ['chr_0014_aurora_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 61, endFrame: 75, skillIds: ['chr_0014_aurora_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -318,13 +305,11 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         61,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0014_aurora_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0014_aurora_attack1'] })),
         75,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0014_aurora_attack1',
+    timelineContinuationSkillId: 'chr_0014_aurora_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -340,10 +325,9 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const snowshineFinisher: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0014_aurora_power_attack',
+    key: 'chr_0014_aurora_power_attack',
     timelineBlockFrames: 41,
     naturalDurationFrames: 133,
     exclusiveFrame: 75,
@@ -353,7 +337,7 @@ export const snowshineFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 41,
           endFrame: 75,
-          sourceSkillIds: ['chr_0014_aurora_normal_skill', 'chr_0014_aurora_combo_skill'],
+          skillIds: ['chr_0014_aurora_normal_skill', 'chr_0014_aurora_combo_skill'],
         },
       ],
     },
@@ -425,10 +409,9 @@ export const snowshineFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const snowshinePlungingAttack: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0014_aurora_plunging_attack_end',
+    key: 'chr_0014_aurora_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 90,
     exclusiveFrame: 20,
@@ -471,17 +454,16 @@ export const snowshinePlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0014_aurora_normal_skill',
+    key: 'chr_0014_aurora_normal_skill',
     timelineBlockFrames: 106,
     naturalDurationFrames: 208,
     exclusiveFrame: 145,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 135, endFrame: 145, sourceSkillIds: ['chr_0014_aurora_normal_skill'] },
+        { startFrame: 135, endFrame: 145, skillIds: ['chr_0014_aurora_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -763,17 +745,16 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0014_aurora_combo_skill',
+    key: 'chr_0014_aurora_combo_skill',
     timelineBlockFrames: 15,
     naturalDurationFrames: 123,
     exclusiveFrame: 45,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 15, endFrame: 60, sourceSkillIds: ['chr_0014_aurora_normal_skill'] },
+        { startFrame: 15, endFrame: 60, skillIds: ['chr_0014_aurora_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -937,10 +918,9 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
+export const snowshineChr_0014_aurora_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0014_aurora_ultimate_skill',
+    key: 'chr_0014_aurora_ultimate_skill',
     timelineBlockFrames: 71,
     naturalDurationFrames: 142,
     exclusiveFrame: 90,
@@ -950,7 +930,7 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 71,
           endFrame: 90,
-          sourceSkillIds: ['chr_0014_aurora_normal_skill', 'chr_0014_aurora_combo_skill'],
+          skillIds: ['chr_0014_aurora_normal_skill', 'chr_0014_aurora_combo_skill'],
         },
       ],
     },
@@ -1064,10 +1044,9 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const snowshinePerfectDodge: SkillDefinition = withSkillBlackboard(
+export const snowshineCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1102,49 +1081,68 @@ export const snowshine: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [snowshineBasicAttack1, snowshineBasicAttack2, snowshineBasicAttack3],
+      skills: [
+        snowshineChr_0014_aurora_attack1,
+        snowshineChr_0014_aurora_attack2,
+        snowshineChr_0014_aurora_attack3,
+      ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: snowshineFinisher,
+      skills: snowshineChr_0014_aurora_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: snowshinePlungingAttack,
+      skills: snowshineChr_0014_aurora_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: snowshineBattleSkill,
+      skills: snowshineChr_0014_aurora_normal_skill,
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: snowshineComboSkill,
+      skills: snowshineChr_0014_aurora_combo_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: snowshineUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: snowshineChr_0014_aurora_ultimate_skill,
+    },
   ],
-  dodgeSkill: snowshinePerfectDodge,
+  dodgeSkill: snowshineCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0014_aurora_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0014_aurora_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0014_aurora_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
-      skillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'plungingAttack', 'finisher'],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3'],
-      defaultSkillKey: 'basicAttack1',
+      skillKeys: [
+        'chr_0014_aurora_attack1',
+        'chr_0014_aurora_attack2',
+        'chr_0014_aurora_attack3',
+        'chr_0014_aurora_plunging_attack_end',
+        'chr_0014_aurora_power_attack',
+      ],
+      normalAttackSkillKeys: [
+        'chr_0014_aurora_attack1',
+        'chr_0014_aurora_attack2',
+        'chr_0014_aurora_attack3',
+      ],
+      defaultSkillKey: 'chr_0014_aurora_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1153,7 +1151,7 @@ export const snowshine: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0014_aurora_combo_skill',
       event: 'takeDamage',
       immediately: false,
       initialValues: null,

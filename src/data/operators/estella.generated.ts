@@ -161,10 +161,9 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
   },
 );
 
-export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0021_whiten_attack1',
+    key: 'chr_0021_whiten_attack1',
     timelineBlockFrames: 13,
     naturalDurationFrames: 105,
     exclusiveFrame: 18,
@@ -175,12 +174,10 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 6,
           endFrame: 28,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0021_whiten_attack2',
+          targetSkillId: 'chr_0021_whiten_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 13, endFrame: 28, sourceSkillIds: ['chr_0021_whiten_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 13, endFrame: 28, skillIds: ['chr_0021_whiten_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -230,13 +227,11 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         13,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0021_whiten_attack2'] })),
         28,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack2',
+    timelineContinuationSkillId: 'chr_0021_whiten_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -244,10 +239,9 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
 );
 
-export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0021_whiten_attack2',
+    key: 'chr_0021_whiten_attack2',
     timelineBlockFrames: 16,
     naturalDurationFrames: 123,
     exclusiveFrame: 28,
@@ -258,12 +252,10 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 7,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0021_whiten_attack3',
+          targetSkillId: 'chr_0021_whiten_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 16, endFrame: 30, sourceSkillIds: ['chr_0021_whiten_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 16, endFrame: 30, skillIds: ['chr_0021_whiten_attack3'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -313,13 +305,11 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         16,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0021_whiten_attack3'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack3',
+    timelineContinuationSkillId: 'chr_0021_whiten_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -327,10 +317,9 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
 );
 
-export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0021_whiten_attack3',
+    key: 'chr_0021_whiten_attack3',
     timelineBlockFrames: 28,
     naturalDurationFrames: 153,
     exclusiveFrame: 28,
@@ -341,12 +330,10 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 15,
           endFrame: 43,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0021_whiten_attack4',
+          targetSkillId: 'chr_0021_whiten_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 28, endFrame: 43, sourceSkillIds: ['chr_0021_whiten_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 28, endFrame: 43, skillIds: ['chr_0021_whiten_attack4'] }],
     },
     costFrame: 20,
     scheduledSequences: [
@@ -440,13 +427,11 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         28,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0021_whiten_attack4'] })),
         43,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack4',
+    timelineContinuationSkillId: 'chr_0021_whiten_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -459,10 +444,9 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0021_whiten_attack4',
+    key: 'chr_0021_whiten_attack4',
     timelineBlockFrames: 46,
     naturalDurationFrames: 134,
     exclusiveFrame: 46,
@@ -473,12 +457,10 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 24,
           endFrame: 59,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0021_whiten_attack1',
+          targetSkillId: 'chr_0021_whiten_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 46, endFrame: 59, sourceSkillIds: ['chr_0021_whiten_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 46, endFrame: 59, skillIds: ['chr_0021_whiten_attack1'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -530,13 +512,11 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         46,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0021_whiten_attack1'] })),
         59,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack1',
+    timelineContinuationSkillId: 'chr_0021_whiten_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -549,10 +529,9 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const estellaFinisher: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0021_whiten_power_attack',
+    key: 'chr_0021_whiten_power_attack',
     timelineBlockFrames: 30,
     naturalDurationFrames: 151,
     exclusiveFrame: 50,
@@ -562,7 +541,7 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 30,
           endFrame: 58,
-          sourceSkillIds: ['chr_0021_whiten_normal_skill', 'chr_0021_whiten_combo_skill'],
+          skillIds: ['chr_0021_whiten_normal_skill', 'chr_0021_whiten_combo_skill'],
         },
       ],
     },
@@ -645,10 +624,9 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const estellaPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0021_whiten_plunging_attack_end',
+    key: 'chr_0021_whiten_plunging_attack_end',
     timelineBlockFrames: 16,
     naturalDurationFrames: 175,
     exclusiveFrame: 15,
@@ -698,10 +676,9 @@ export const estellaPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0021_whiten_normal_skill',
+    key: 'chr_0021_whiten_normal_skill',
     timelineBlockFrames: 46,
     naturalDurationFrames: 121,
     exclusiveFrame: 45,
@@ -871,10 +848,9 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const estellaUltimate: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0021_whiten_ultimate_skill',
+    key: 'chr_0021_whiten_ultimate_skill',
     timelineBlockFrames: 60,
     naturalDurationFrames: 168,
     exclusiveFrame: 77,
@@ -885,14 +861,14 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
           startFrame: 51,
           endFrame: 77,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0021_whiten_attack1',
+          targetSkillId: 'chr_0021_whiten_attack1',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 60,
           endFrame: 77,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0021_whiten_attack1',
             'chr_0021_whiten_normal_skill',
             'chr_0021_whiten_combo_skill',
@@ -1144,17 +1120,16 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
+export const estellaChr_0021_whiten_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0021_whiten_combo_skill',
+    key: 'chr_0021_whiten_combo_skill',
     timelineBlockFrames: 20,
     naturalDurationFrames: 154,
     exclusiveFrame: 33,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 20, endFrame: 59, sourceSkillIds: ['chr_0021_whiten_normal_skill'] },
+        { startFrame: 20, endFrame: 59, skillIds: ['chr_0021_whiten_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1703,10 +1678,9 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const estellaPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const estellaCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1741,51 +1715,71 @@ export const estella: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [estellaBasicAttack1, estellaBasicAttack2, estellaBasicAttack3, estellaBasicAttack4],
+      skills: [
+        estellaChr_0021_whiten_attack1,
+        estellaChr_0021_whiten_attack2,
+        estellaChr_0021_whiten_attack3,
+        estellaChr_0021_whiten_attack4,
+      ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: estellaFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: estellaChr_0021_whiten_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: estellaPlungingAttack,
+      skills: estellaChr_0021_whiten_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: estellaBattleSkill,
+      skills: estellaChr_0021_whiten_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: estellaUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: estellaChr_0021_whiten_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: estellaComboSkill,
+      skills: estellaChr_0021_whiten_combo_skill,
     },
   ],
-  dodgeSkill: estellaPerfectDodge,
+  dodgeSkill: estellaCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0021_whiten_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0021_whiten_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0021_whiten_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0021_whiten_attack1',
+        'chr_0021_whiten_attack2',
+        'chr_0021_whiten_attack3',
+        'chr_0021_whiten_attack4',
+        'chr_0021_whiten_plunging_attack_end',
+        'chr_0021_whiten_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0021_whiten_attack1',
+        'chr_0021_whiten_attack2',
+        'chr_0021_whiten_attack3',
+        'chr_0021_whiten_attack4',
+      ],
+      defaultSkillKey: 'chr_0021_whiten_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1794,7 +1788,7 @@ export const estella: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0021_whiten_combo_skill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,

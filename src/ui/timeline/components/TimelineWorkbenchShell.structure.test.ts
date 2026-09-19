@@ -80,7 +80,7 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
 
   it('uses the legacy activity icons and pressed-state semantics', () => {
     expect(source).toContain('icon="/icons/btn_character.webp"');
-    expect(source).toContain('icon="/icons/setting_tab_setting.webp"');
+    expect(source).toContain('icon="/icons/global_config.webp"');
     expect(source).toContain('icon="/contingency_contract/deco_contract_028.webp"');
     expect(source).toContain('icon="/icons/btn_week_raid.webp"');
     expect(source).toContain('icon="/icons/btn_manual.webp"');
@@ -133,19 +133,15 @@ describe('TimelineWorkbenchShell legacy behavior parity', () => {
     expect(source).toContain('<template #icon>');
   });
 
-  it('owns consistent reset and collapse chrome for every resizable panel', () => {
-    expect(source.match(/class="panel-chrome /g)).toHaveLength(3);
-    expect(source).toContain('@click="resetPanelSize(\'left\')"');
-    expect(source).toContain('@click="resetPanelSize(\'right\')"');
-    expect(source).toContain('@click="resetPanelSize(\'bottom\')"');
+  it('keeps resize reset on dividers without panel chrome controls', () => {
+    expect(source).not.toContain('panel-chrome');
+    expect(source).toContain('@dblclick="resetPanelSize(\'left\')"');
+    expect(source).toContain('@dblclick="resetPanelSize(\'right\')"');
+    expect(source).toContain('@dblclick="resetPanelSize(\'bottom\')"');
     expect(source).toContain('@click="toggleLeft"');
-    expect(source).toContain('@click="rightCollapsed = true"');
     expect(source).toContain('v-if="bottomTool !== \'enemy\'"');
     expect(source).toContain('class="bottom-panel-collapse"');
     expect(source).toContain('@click="collapseBottom"');
-    expect(source).toContain('opacity: 0.56');
-    expect(source).toContain('.workbench-panel:hover > .panel-chrome');
-    expect(source).toContain('.panel-chrome:focus-within');
   });
 
   it('uses the legacy centered control to collapse the complete resource monitor', () => {

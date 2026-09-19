@@ -222,19 +222,7 @@ export function compileScenarioExternalEventInputs(
       return {
         frame: marker.frame,
         targetOperatorIds,
-        event:
-          marker.event.kind === 'operatorHit'
-            ? {
-                kind: marker.event.kind,
-                ...(marker.event.damageType === undefined
-                  ? {}
-                  : { damageType: marker.event.damageType }),
-                tags: [...marker.event.tags],
-                features: [...marker.event.features],
-              }
-            : marker.event.kind === 'comboCooldownControl'
-              ? { kind: marker.event.kind, mode: marker.event.mode }
-              : { kind: marker.event.kind },
+        event: { kind: marker.event.kind, mode: marker.event.mode },
         order,
       };
     })
@@ -453,7 +441,12 @@ export function compileScenarioRuntimeAssembly(
           skillGroupKey: program.skillGroupKey,
           skillId: program.skillId,
           skillType: program.skillType,
-          ...(program.sourceSkillId === undefined ? {} : { sourceSkillId: program.sourceSkillId }),
+          ...(program.executionSkillId === undefined
+            ? {}
+            : { executionSkillId: program.executionSkillId }),
+          ...(program.nativeSkillType === undefined
+            ? {}
+            : { nativeSkillType: program.nativeSkillType }),
           ...(program.cooldownFrames === undefined
             ? {}
             : { cooldownFrames: program.cooldownFrames }),

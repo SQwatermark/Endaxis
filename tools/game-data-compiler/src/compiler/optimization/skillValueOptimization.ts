@@ -159,7 +159,7 @@ export function pruneUnusedSkillValues(
     collect(program, path);
     return program;
   });
-  const skillId = skill.sourceSkillId ?? skill.key;
+  const skillId = skill.key;
   if (unresolvedAccess)
     return {
       skill,

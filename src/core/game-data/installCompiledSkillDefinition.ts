@@ -4,24 +4,16 @@ import type {
   SkillGroupDefinition,
 } from './operatorDefinition';
 
-/**
- * 用完整动作图编译产物替换旧转换器中的同源技能，同时保留干员其余已转换数据。
- * 匹配只使用原生 sourceSkillId，并要求全干员定义中恰好命中一次。
- */
+/** 按技能 ID 替换干员定义中的技能，且必须恰好命中一次。 */
 export function installCompiledSkillDefinition(
   operator: OperatorDefinition,
   compiled: SkillDefinition,
   supplementalBuffDefinitions: NonNullable<OperatorDefinition['buffDefinitions']> = {},
 ): OperatorDefinition {
-  if (!compiled.sourceSkillId) throw new Error('compiled skill definition requires sourceSkillId');
   let matches = 0;
   const replace = (skill: SkillDefinition): SkillDefinition => {
-    if (skill.sourceSkillId !== compiled.sourceSkillId) return skill;
+    if (skill.key !== compiled.key) return skill;
     matches += 1;
-    if (skill.key !== compiled.key)
-      throw new Error(
-        `compiled skill '${compiled.sourceSkillId}' key mismatch: '${skill.key}' != '${compiled.key}'`,
-      );
     return compiled;
   };
   const replaceSet = (
@@ -60,8 +52,6 @@ export function installCompiledSkillDefinition(
     },
   };
   if (matches !== 1)
-    throw new Error(
-      `compiled skill '${compiled.sourceSkillId}' must match exactly once; matched ${matches}`,
-    );
+    throw new Error(`compiled skill '${compiled.key}' must match exactly once; matched ${matches}`);
   return result;
 }

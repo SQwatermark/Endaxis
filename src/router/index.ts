@@ -23,7 +23,6 @@ const timelineRouteProps = (route: { meta: Record<PropertyKey, unknown> }) => {
     gameDataRepository,
     browserPersistenceEnabled: route.meta.timelineBrowserPersistenceEnabled === true,
     browserRestoreError: route.meta.timelineBrowserRestoreError,
-    browserProjectRevisionUpdated: route.meta.timelineBrowserProjectRevisionUpdated === true,
   };
 };
 
@@ -67,7 +66,6 @@ async function prepareSavedTimelineRoute(to: {
   }
   to.meta.timelineInitialProject = result.project;
   to.meta.timelineGameDataRepository = gameDataRepository;
-  to.meta.timelineBrowserProjectRevisionUpdated = result.gameDataRevisionUpdated;
 }
 
 const routes: RouteRecordRaw[] = [

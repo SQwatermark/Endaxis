@@ -22,16 +22,22 @@ import {
 
 const context: OperatorProgressionDefinitionContext = {
   skills: [
-    { key: 'battleSkill', skillId: 'chr_0012_avywen_normal_skill', skillType: 'battleSkill' },
-    { key: 'comboSkill', skillId: 'chr_0012_avywen_combo_skill', skillType: 'comboSkill' },
-    { key: 'ultimate', skillId: 'chr_0012_avywen_ultimate_skill', skillType: 'ultimate' },
+    { key: 'chr_0012_avywen_normal_skill', skillType: 'battleSkill' },
+    { key: 'chr_0012_avywen_combo_skill', skillType: 'comboSkill' },
+    { key: 'chr_0012_avywen_ultimate_skill', skillType: 'ultimate' },
   ],
   skillGroups: (['battleSkill', 'comboSkill', 'ultimate'] as const).map((key, index) => ({
     key,
     skillType: key,
     levelSource: key,
     nativeGroupType: index + 1,
-    skillKeys: [key],
+    skillKeys: [
+      {
+        battleSkill: 'chr_0012_avywen_normal_skill',
+        comboSkill: 'chr_0012_avywen_combo_skill',
+        ultimate: 'chr_0012_avywen_ultimate_skill',
+      }[key],
+    ],
     replacementPlacements: {},
     variants: [],
   })),
@@ -375,13 +381,13 @@ describe('干员养成正式定义组装', () => {
       })),
     };
     const patch = compileOperatorPotentialDefinition(progression(), { level: 5 }, multi);
-    expect(patch.modifiers?.[0]).toMatchObject({ skillKey: 'battleSkill' });
+    expect(patch.modifiers?.[0]).toMatchObject({ skillKey: 'chr_0012_avywen_normal_skill' });
     expect(
       compileOperatorPotentialDefinition(progression(), { level: 4 }, multi).modifiers?.[0],
     ).toMatchObject({
       kind: 'multiplySkillCost',
       skillGroupKey: 'ultimate',
-      skillKey: 'ultimate',
+      skillKey: 'chr_0012_avywen_ultimate_skill',
     });
   });
 

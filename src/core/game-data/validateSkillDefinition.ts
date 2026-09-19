@@ -79,8 +79,8 @@ export function validateSkillDefinition(
   if (record.nativeSkillType !== undefined)
     requireEnum(record, 'nativeSkillType', NATIVE_SKILL_TYPES_SET, path, out);
   requireNonNegativeInteger(record, 'timelineBlockFrames', path, out);
-  if (record.timelineContinuationSourceSkillId !== undefined) {
-    requireString(record, 'timelineContinuationSourceSkillId', path, out);
+  if (record.timelineContinuationSkillId !== undefined) {
+    requireString(record, 'timelineContinuationSkillId', path, out);
   }
   if (record.naturalDurationFrames !== undefined) {
     requirePositiveInteger(record, 'naturalDurationFrames', path, out);
@@ -151,18 +151,13 @@ export function validateSkillDefinition(
             push(out, `${itemPath}.endFrame`, 'expected endFrame >= startFrame');
           if (field === 'commandMappings') {
             requireEnum(row, 'input', new Set(['basicAttack']), itemPath, out);
-            if (row.targetSourceSkillId !== null)
-              requireString(row, 'targetSourceSkillId', itemPath, out);
-          } else if (!Array.isArray(row.sourceSkillIds)) {
-            push(out, `${itemPath}.sourceSkillIds`, 'expected an array');
+            if (row.targetSkillId !== null) requireString(row, 'targetSkillId', itemPath, out);
+          } else if (!Array.isArray(row.skillIds)) {
+            push(out, `${itemPath}.skillIds`, 'expected an array');
           } else {
-            row.sourceSkillIds.forEach((sourceSkillId, sourceIndex) => {
-              if (typeof sourceSkillId !== 'string' || sourceSkillId.length === 0)
-                push(
-                  out,
-                  `${itemPath}.sourceSkillIds[${sourceIndex}]`,
-                  'expected a non-empty string',
-                );
+            row.skillIds.forEach((skillId, sourceIndex) => {
+              if (typeof skillId !== 'string' || skillId.length === 0)
+                push(out, `${itemPath}.skillIds[${sourceIndex}]`, 'expected a non-empty string');
             });
           }
         });

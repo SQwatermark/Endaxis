@@ -1903,12 +1903,12 @@ function validateCombatStep(
     case 'markCurrentSkillCanDash':
       break;
     case 'reachSkillOperableBoundary':
-      if (!Array.isArray(parameters.sourceSkillIds) || parameters.sourceSkillIds.length === 0) {
-        push(out, `${path}.parameters.sourceSkillIds`, 'expected a non-empty array');
+      if (!Array.isArray(parameters.skillIds) || parameters.skillIds.length === 0) {
+        push(out, `${path}.parameters.skillIds`, 'expected a non-empty array');
       } else {
-        parameters.sourceSkillIds.forEach((sourceSkillId, index) => {
-          if (typeof sourceSkillId !== 'string' || sourceSkillId.length === 0) {
-            push(out, `${path}.parameters.sourceSkillIds[${index}]`, 'expected a non-empty string');
+        parameters.skillIds.forEach((skillId, index) => {
+          if (typeof skillId !== 'string' || skillId.length === 0) {
+            push(out, `${path}.parameters.skillIds[${index}]`, 'expected a non-empty string');
           }
         });
       }
@@ -2226,7 +2226,7 @@ function validateCombatStep(
       }
       break;
     case 'overrideBasicAttackMapping':
-      requireString(parameters, 'sourceSkillId', `${path}.parameters`, out);
+      requireString(parameters, 'skillId', `${path}.parameters`, out);
       break;
     case 'overrideMultiDashLimit':
       validateActionValueOperand(parameters.dashCount, `${path}.parameters.dashCount`, out);

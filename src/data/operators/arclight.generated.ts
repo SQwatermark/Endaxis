@@ -10,10 +10,9 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0007_ikut_attack1',
+    key: 'chr_0007_ikut_attack1',
     timelineBlockFrames: 9,
     naturalDurationFrames: 64,
     exclusiveFrame: 21,
@@ -24,12 +23,10 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 26,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0007_ikut_attack2',
+          targetSkillId: 'chr_0007_ikut_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 9, endFrame: 26, sourceSkillIds: ['chr_0007_ikut_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 9, endFrame: 26, skillIds: ['chr_0007_ikut_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -65,11 +62,11 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         9,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack2'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0007_ikut_attack2'] })),
         26,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack2',
+    timelineContinuationSkillId: 'chr_0007_ikut_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -77,10 +74,9 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23] },
 );
 
-export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0007_ikut_attack2',
+    key: 'chr_0007_ikut_attack2',
     timelineBlockFrames: 10,
     naturalDurationFrames: 74,
     exclusiveFrame: 15,
@@ -91,12 +87,10 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 26,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0007_ikut_attack3',
+          targetSkillId: 'chr_0007_ikut_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 10, endFrame: 26, sourceSkillIds: ['chr_0007_ikut_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 10, endFrame: 26, skillIds: ['chr_0007_ikut_attack3'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -132,11 +126,11 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         10,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack3'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0007_ikut_attack3'] })),
         26,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack3',
+    timelineContinuationSkillId: 'chr_0007_ikut_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -144,10 +138,9 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28] },
 );
 
-export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0007_ikut_attack3',
+    key: 'chr_0007_ikut_attack3',
     timelineBlockFrames: 20,
     naturalDurationFrames: 71,
     exclusiveFrame: 33,
@@ -158,12 +151,10 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0007_ikut_attack4',
+          targetSkillId: 'chr_0007_ikut_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 20, endFrame: 30, sourceSkillIds: ['chr_0007_ikut_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 20, endFrame: 30, skillIds: ['chr_0007_ikut_attack4'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -239,11 +230,11 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         20,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack4'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0007_ikut_attack4'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack4',
+    timelineContinuationSkillId: 'chr_0007_ikut_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -255,10 +246,9 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0007_ikut_attack4',
+    key: 'chr_0007_ikut_attack4',
     timelineBlockFrames: 27,
     naturalDurationFrames: 77,
     exclusiveFrame: 36,
@@ -269,12 +259,10 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 40,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0007_ikut_attack5',
+          targetSkillId: 'chr_0007_ikut_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 27, endFrame: 40, sourceSkillIds: ['chr_0007_ikut_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 27, endFrame: 40, skillIds: ['chr_0007_ikut_attack5'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -327,11 +315,11 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         27,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack5'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0007_ikut_attack5'] })),
         40,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack5',
+    timelineContinuationSkillId: 'chr_0007_ikut_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -343,10 +331,9 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0007_ikut_attack5',
+    key: 'chr_0007_ikut_attack5',
     timelineBlockFrames: 27,
     naturalDurationFrames: 83,
     exclusiveFrame: 26,
@@ -357,12 +344,10 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 40,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0007_ikut_attack1',
+          targetSkillId: 'chr_0007_ikut_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 29, endFrame: 40, sourceSkillIds: ['chr_0007_ikut_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 29, endFrame: 40, skillIds: ['chr_0007_ikut_attack1'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -422,11 +407,11 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         29,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack1'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0007_ikut_attack1'] })),
         40,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack1',
+    timelineContinuationSkillId: 'chr_0007_ikut_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -438,10 +423,9 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arclightFinisher: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0007_ikut_power_attack',
+    key: 'chr_0007_ikut_power_attack',
     timelineBlockFrames: 40,
     naturalDurationFrames: 131,
     exclusiveFrame: 68,
@@ -451,7 +435,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 40,
           endFrame: 68,
-          sourceSkillIds: ['chr_0007_ikut_normal_skill', 'chr_0007_ikut_combo_skill'],
+          skillIds: ['chr_0007_ikut_normal_skill', 'chr_0007_ikut_combo_skill'],
         },
       ],
     },
@@ -556,10 +540,9 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0007_ikut_plunging_attack_end',
+    key: 'chr_0007_ikut_plunging_attack_end',
     timelineBlockFrames: 26,
     naturalDurationFrames: 88,
     exclusiveFrame: 25,
@@ -609,18 +592,17 @@ export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0007_ikut_normal_skill',
+    key: 'chr_0007_ikut_normal_skill',
     timelineBlockFrames: 36,
     naturalDurationFrames: 214,
     exclusiveFrame: 164,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 36, endFrame: 60, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
-        { startFrame: 162, endFrame: 188, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
+        { startFrame: 36, endFrame: 60, skillIds: ['chr_0007_ikut_normal_skill'] },
+        { startFrame: 162, endFrame: 188, skillIds: ['chr_0007_ikut_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -973,10 +955,9 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arclightUltimate: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0007_ikut_ultimate_skill',
+    key: 'chr_0007_ikut_ultimate_skill',
     timelineBlockFrames: 77,
     naturalDurationFrames: 141,
     exclusiveFrame: 85,
@@ -986,7 +967,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 77,
           endFrame: 89,
-          sourceSkillIds: ['chr_0007_ikut_normal_skill', 'chr_0007_ikut_combo_skill'],
+          skillIds: ['chr_0007_ikut_normal_skill', 'chr_0007_ikut_combo_skill'],
         },
       ],
     },
@@ -1093,17 +1074,16 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
+export const arclightChr_0007_ikut_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0007_ikut_combo_skill',
+    key: 'chr_0007_ikut_combo_skill',
     timelineBlockFrames: 27,
     naturalDurationFrames: 86,
     exclusiveFrame: 37,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 27, endFrame: 60, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
+        { startFrame: 27, endFrame: 60, skillIds: ['chr_0007_ikut_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1251,10 +1231,9 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arclightPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const arclightCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1290,68 +1269,73 @@ export const arclight: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        arclightBasicAttack1,
-        arclightBasicAttack2,
-        arclightBasicAttack3,
-        arclightBasicAttack4,
-        arclightBasicAttack5,
+        arclightChr_0007_ikut_attack1,
+        arclightChr_0007_ikut_attack2,
+        arclightChr_0007_ikut_attack3,
+        arclightChr_0007_ikut_attack4,
+        arclightChr_0007_ikut_attack5,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: arclightFinisher,
+      skills: arclightChr_0007_ikut_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: arclightPlungingAttack,
+      skills: arclightChr_0007_ikut_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: arclightBattleSkill,
+      skills: arclightChr_0007_ikut_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: arclightUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: arclightChr_0007_ikut_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: arclightComboSkill,
+      skills: arclightChr_0007_ikut_combo_skill,
     },
   ],
-  dodgeSkill: arclightPerfectDodge,
+  dodgeSkill: arclightCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0007_ikut_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0007_ikut_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0007_ikut_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0007_ikut_attack1',
+        'chr_0007_ikut_attack2',
+        'chr_0007_ikut_attack3',
+        'chr_0007_ikut_attack4',
+        'chr_0007_ikut_attack5',
+        'chr_0007_ikut_plunging_attack_end',
+        'chr_0007_ikut_power_attack',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0007_ikut_attack1',
+        'chr_0007_ikut_attack2',
+        'chr_0007_ikut_attack3',
+        'chr_0007_ikut_attack4',
+        'chr_0007_ikut_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0007_ikut_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1360,7 +1344,7 @@ export const arclight: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0007_ikut_combo_skill',
       event: 'outputBuff',
       immediately: false,
       initialValues: null,
@@ -1377,7 +1361,7 @@ export const arclight: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0007_ikut_combo_skill',
       event: 'buffEndsEarly',
       immediately: false,
       initialValues: null,

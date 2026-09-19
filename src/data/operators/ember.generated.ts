@@ -10,10 +10,9 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0009_azrila_attack1',
+    key: 'chr_0009_azrila_attack1',
     timelineBlockFrames: 24,
     naturalDurationFrames: 163,
     exclusiveFrame: 38,
@@ -24,12 +23,10 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 38,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0009_azrila_attack2',
+          targetSkillId: 'chr_0009_azrila_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 24, endFrame: 38, sourceSkillIds: ['chr_0009_azrila_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 24, endFrame: 38, skillIds: ['chr_0009_azrila_attack2'] }],
     },
     costFrame: 15,
     scheduledSequences: [
@@ -78,13 +75,11 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0009_azrila_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0009_azrila_attack2'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0009_azrila_attack2',
+    timelineContinuationSkillId: 'chr_0009_azrila_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -92,10 +87,9 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86] },
 );
 
-export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0009_azrila_attack2',
+    key: 'chr_0009_azrila_attack2',
     timelineBlockFrames: 18,
     naturalDurationFrames: 151,
     exclusiveFrame: 26,
@@ -106,12 +100,10 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 41,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0009_azrila_attack3',
+          targetSkillId: 'chr_0009_azrila_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 18, endFrame: 41, sourceSkillIds: ['chr_0009_azrila_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 18, endFrame: 41, skillIds: ['chr_0009_azrila_attack3'] }],
     },
     costFrame: 6,
     scheduledSequences: [
@@ -160,13 +152,11 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0009_azrila_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0009_azrila_attack3'] })),
         41,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0009_azrila_attack3',
+    timelineContinuationSkillId: 'chr_0009_azrila_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -174,10 +164,9 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
 );
 
-export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0009_azrila_attack3',
+    key: 'chr_0009_azrila_attack3',
     timelineBlockFrames: 35,
     naturalDurationFrames: 182,
     exclusiveFrame: 47,
@@ -188,12 +177,10 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 50,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0009_azrila_attack4',
+          targetSkillId: 'chr_0009_azrila_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 35, endFrame: 50, sourceSkillIds: ['chr_0009_azrila_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 35, endFrame: 50, skillIds: ['chr_0009_azrila_attack4'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -242,13 +229,11 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         35,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0009_azrila_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0009_azrila_attack4'] })),
         50,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0009_azrila_attack4',
+    timelineContinuationSkillId: 'chr_0009_azrila_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -256,10 +241,9 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49] },
 );
 
-export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0009_azrila_attack4',
+    key: 'chr_0009_azrila_attack4',
     timelineBlockFrames: 53,
     naturalDurationFrames: 180,
     exclusiveFrame: 52,
@@ -336,10 +320,9 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const emberFinisher: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0009_azrila_power_attack',
+    key: 'chr_0009_azrila_power_attack',
     timelineBlockFrames: 28,
     naturalDurationFrames: 222,
     exclusiveFrame: 50,
@@ -349,7 +332,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 28,
           endFrame: 44,
-          sourceSkillIds: ['chr_0009_azrila_normal_skill', 'chr_0009_azrila_combo_skill'],
+          skillIds: ['chr_0009_azrila_normal_skill', 'chr_0009_azrila_combo_skill'],
         },
       ],
     },
@@ -465,18 +448,15 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0009_azrila_plunging_attack_end',
+    key: 'chr_0009_azrila_plunging_attack_end',
     timelineBlockFrames: 12,
     naturalDurationFrames: 128,
     exclusiveFrame: 20,
     offsetRecordFrame: 0,
     inputWindows: {
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 21, sourceSkillIds: ['chr_0009_azrila_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 21, skillIds: ['chr_0009_azrila_attack1'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -523,17 +503,16 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0009_azrila_normal_skill',
+    key: 'chr_0009_azrila_normal_skill',
     timelineBlockFrames: 51,
     naturalDurationFrames: 162,
     exclusiveFrame: 55,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 51, endFrame: 60, sourceSkillIds: ['chr_0009_azrila_normal_skill'] },
+        { startFrame: 51, endFrame: 60, skillIds: ['chr_0009_azrila_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -767,10 +746,9 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const emberUltimate: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0009_azrila_ultimate_skill',
+    key: 'chr_0009_azrila_ultimate_skill',
     timelineBlockFrames: 59,
     naturalDurationFrames: 262,
     exclusiveFrame: 90,
@@ -780,7 +758,7 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 59,
           endFrame: 90,
-          sourceSkillIds: ['chr_0009_azrila_normal_skill', 'chr_0009_azrila_combo_skill'],
+          skillIds: ['chr_0009_azrila_normal_skill', 'chr_0009_azrila_combo_skill'],
         },
       ],
     },
@@ -904,17 +882,16 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const emberComboSkill: SkillDefinition = withSkillBlackboard(
+export const emberChr_0009_azrila_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0009_azrila_combo_skill',
+    key: 'chr_0009_azrila_combo_skill',
     timelineBlockFrames: 39,
     naturalDurationFrames: 161,
     exclusiveFrame: 38,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 40, endFrame: 60, sourceSkillIds: ['chr_0009_azrila_normal_skill'] },
+        { startFrame: 40, endFrame: 60, skillIds: ['chr_0009_azrila_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1108,10 +1085,9 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const emberPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const emberCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1146,51 +1122,71 @@ export const ember: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [emberBasicAttack1, emberBasicAttack2, emberBasicAttack3, emberBasicAttack4],
+      skills: [
+        emberChr_0009_azrila_attack1,
+        emberChr_0009_azrila_attack2,
+        emberChr_0009_azrila_attack3,
+        emberChr_0009_azrila_attack4,
+      ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: emberFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: emberChr_0009_azrila_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: emberPlungingAttack,
+      skills: emberChr_0009_azrila_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: emberBattleSkill,
+      skills: emberChr_0009_azrila_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: emberUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: emberChr_0009_azrila_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: emberComboSkill,
+      skills: emberChr_0009_azrila_combo_skill,
     },
   ],
-  dodgeSkill: emberPerfectDodge,
+  dodgeSkill: emberCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0009_azrila_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0009_azrila_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0009_azrila_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0009_azrila_attack1',
+        'chr_0009_azrila_attack2',
+        'chr_0009_azrila_attack3',
+        'chr_0009_azrila_attack4',
+        'chr_0009_azrila_plunging_attack_end',
+        'chr_0009_azrila_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0009_azrila_attack1',
+        'chr_0009_azrila_attack2',
+        'chr_0009_azrila_attack3',
+        'chr_0009_azrila_attack4',
+      ],
+      defaultSkillKey: 'chr_0009_azrila_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1199,7 +1195,7 @@ export const ember: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0009_azrila_combo_skill',
       event: 'takeDamage',
       immediately: false,
       initialValues: null,

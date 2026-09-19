@@ -188,10 +188,9 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0029_pograni_attack1',
+    key: 'chr_0029_pograni_attack1',
     timelineBlockFrames: 12,
     naturalDurationFrames: 118,
     exclusiveFrame: 17,
@@ -202,12 +201,10 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 7,
           endFrame: 29,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0029_pograni_attack2',
+          targetSkillId: 'chr_0029_pograni_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 29, sourceSkillIds: ['chr_0029_pograni_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 29, skillIds: ['chr_0029_pograni_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -252,13 +249,11 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         12,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0029_pograni_attack2'] })),
         29,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack2',
+    timelineContinuationSkillId: 'chr_0029_pograni_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -266,10 +261,9 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.23, 0.25, 0.28, 0.3, 0.32, 0.35, 0.37, 0.39, 0.41, 0.44, 0.48, 0.52] },
 );
 
-export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0029_pograni_attack2',
+    key: 'chr_0029_pograni_attack2',
     timelineBlockFrames: 19,
     naturalDurationFrames: 124,
     exclusiveFrame: 22,
@@ -280,12 +274,10 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 7,
           endFrame: 39,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0029_pograni_attack3',
+          targetSkillId: 'chr_0029_pograni_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 19, endFrame: 39, sourceSkillIds: ['chr_0029_pograni_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 19, endFrame: 39, skillIds: ['chr_0029_pograni_attack3'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -369,13 +361,11 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         19,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0029_pograni_attack3'] })),
         39,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack3',
+    timelineContinuationSkillId: 'chr_0029_pograni_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -387,10 +377,9 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0029_pograni_attack3',
+    key: 'chr_0029_pograni_attack3',
     timelineBlockFrames: 19,
     naturalDurationFrames: 175,
     exclusiveFrame: 29,
@@ -401,12 +390,10 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 11,
           endFrame: 37,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0029_pograni_attack4',
+          targetSkillId: 'chr_0029_pograni_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 19, endFrame: 37, sourceSkillIds: ['chr_0029_pograni_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 19, endFrame: 37, skillIds: ['chr_0029_pograni_attack4'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -494,13 +481,11 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         19,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0029_pograni_attack4'] })),
         37,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack4',
+    timelineContinuationSkillId: 'chr_0029_pograni_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -513,10 +498,9 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0029_pograni_attack4',
+    key: 'chr_0029_pograni_attack4',
     timelineBlockFrames: 18,
     naturalDurationFrames: 125,
     exclusiveFrame: 26,
@@ -527,12 +511,10 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 10,
           endFrame: 33,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0029_pograni_attack5',
+          targetSkillId: 'chr_0029_pograni_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 18, endFrame: 33, sourceSkillIds: ['chr_0029_pograni_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 18, endFrame: 33, skillIds: ['chr_0029_pograni_attack5'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -792,13 +774,11 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0029_pograni_attack5'] })),
         33,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack5',
+    timelineContinuationSkillId: 'chr_0029_pograni_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -811,10 +791,9 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0029_pograni_attack5',
+    key: 'chr_0029_pograni_attack5',
     timelineBlockFrames: 24,
     naturalDurationFrames: 124,
     exclusiveFrame: 32,
@@ -825,12 +804,10 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 15,
           endFrame: 32,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0029_pograni_attack1',
+          targetSkillId: 'chr_0029_pograni_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 24, endFrame: 32, sourceSkillIds: ['chr_0029_pograni_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 24, endFrame: 32, skillIds: ['chr_0029_pograni_attack1'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -900,13 +877,11 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0029_pograni_attack1'] })),
         32,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack1',
+    timelineContinuationSkillId: 'chr_0029_pograni_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -919,10 +894,9 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0029_pograni_power_attack',
+    key: 'chr_0029_pograni_power_attack',
     timelineBlockFrames: 27,
     naturalDurationFrames: 145,
     exclusiveFrame: 47,
@@ -932,7 +906,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 27,
           endFrame: 49,
-          sourceSkillIds: ['chr_0029_pograni_normal_skill', 'chr_0029_pograni_combo_skill'],
+          skillIds: ['chr_0029_pograni_normal_skill', 'chr_0029_pograni_combo_skill'],
         },
       ],
     },
@@ -1079,58 +1053,57 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const pogranichnikPlungingAttack: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0029_pograni_plunging_attack_end',
-    timelineBlockFrames: 21,
-    naturalDurationFrames: 93,
-    exclusiveFrame: 20,
-    offsetRecordFrame: 0,
-    costFrame: 0,
-    scheduledSequences: [
-      scheduled(
-        3,
-        sequence(
-          step(
-            'dealDamage',
-            {
-              damageType: 'physical',
-              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-              tags: ['normalAttack', 'plungingAttack'],
-            },
-            'chr_0029_pograni_plunging_attack_end:/scheduledSequences/0/sequence/steps/0',
-          ),
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+export const pogranichnikChr_0029_pograni_plunging_attack_end: SkillDefinition =
+  withSkillBlackboard(
+    {
+      key: 'chr_0029_pograni_plunging_attack_end',
+      timelineBlockFrames: 21,
+      naturalDurationFrames: 93,
+      exclusiveFrame: 20,
+      offsetRecordFrame: 0,
+      costFrame: 0,
+      scheduledSequences: [
+        scheduled(
+          3,
+          sequence(
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: ['normalAttack', 'plungingAttack'],
+              },
+              'chr_0029_pograni_plunging_attack_end:/scheduledSequences/0/sequence/steps/0',
             ),
-            undefined,
-            { alwaysNext: true },
+            branch(
+              { kind: 'casterControlled' },
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'normalAttack',
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
           ),
+          8,
         ),
-        8,
-      ),
-    ],
-    skillType: 'plungingAttack',
-    levelSource: 'basicAttack',
-    nativeSkillType: 'attack',
-  },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
-);
+      ],
+      skillType: 'plungingAttack',
+      levelSource: 'basicAttack',
+      nativeSkillType: 'attack',
+    },
+    { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  );
 
-export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0029_pograni_normal_skill',
+    key: 'chr_0029_pograni_normal_skill',
     timelineBlockFrames: 45,
     naturalDurationFrames: 218,
     exclusiveFrame: 55,
@@ -1140,7 +1113,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 48,
           endFrame: 55,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0029_pograni_attack1',
             'chr_0029_pograni_attack2',
             'chr_0029_pograni_attack3',
@@ -1148,7 +1121,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
             'chr_0029_pograni_attack5',
           ],
         },
-        { startFrame: 45, endFrame: 55, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 45, endFrame: 55, skillIds: ['chr_0029_pograni_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1569,24 +1542,23 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0029_pograni_combo_skill',
+    key: 'chr_0029_pograni_combo_skill',
     timelineBlockFrames: 66,
     naturalDurationFrames: 728,
     exclusiveFrame: 649,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 66, endFrame: 96, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
-        { startFrame: 266, endFrame: 296, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
-        { startFrame: 442, endFrame: 460, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
-        { startFrame: 628, endFrame: 660, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 66, endFrame: 96, skillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 266, endFrame: 296, skillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 442, endFrame: 460, skillIds: ['chr_0029_pograni_normal_skill'] },
+        { startFrame: 628, endFrame: 660, skillIds: ['chr_0029_pograni_normal_skill'] },
         {
           startFrame: 72,
           endFrame: 96,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0029_pograni_attack1',
             'chr_0029_pograni_attack2',
             'chr_0029_pograni_attack3',
@@ -1597,7 +1569,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 272,
           endFrame: 296,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0029_pograni_attack1',
             'chr_0029_pograni_attack2',
             'chr_0029_pograni_attack3',
@@ -1608,7 +1580,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 446,
           endFrame: 460,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0029_pograni_attack1',
             'chr_0029_pograni_attack2',
             'chr_0029_pograni_attack3',
@@ -1619,7 +1591,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 632,
           endFrame: 660,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0029_pograni_attack1',
             'chr_0029_pograni_attack2',
             'chr_0029_pograni_attack3',
@@ -2223,10 +2195,9 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
+export const pogranichnikChr_0029_pograni_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0029_pograni_ultimate_skill',
+    key: 'chr_0029_pograni_ultimate_skill',
     timelineBlockFrames: 91,
     naturalDurationFrames: 210,
     exclusiveFrame: 90,
@@ -2396,10 +2367,9 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const pogranichnikPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const pogranichnikCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -2435,73 +2405,73 @@ export const pogranichnik: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        pogranichnikBasicAttack1,
-        pogranichnikBasicAttack2,
-        pogranichnikBasicAttack3,
-        pogranichnikBasicAttack4,
-        pogranichnikBasicAttack5,
+        pogranichnikChr_0029_pograni_attack1,
+        pogranichnikChr_0029_pograni_attack2,
+        pogranichnikChr_0029_pograni_attack3,
+        pogranichnikChr_0029_pograni_attack4,
+        pogranichnikChr_0029_pograni_attack5,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: pogranichnikFinisher,
+      skills: pogranichnikChr_0029_pograni_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: pogranichnikPlungingAttack,
+      skills: pogranichnikChr_0029_pograni_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: pogranichnikBattleSkill,
+      skills: pogranichnikChr_0029_pograni_normal_skill,
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: pogranichnikComboSkill,
+      skills: pogranichnikChr_0029_pograni_combo_skill,
     },
     {
       key: 'ultimate',
       skillType: 'ultimate',
       levelSource: 'ultimate',
-      skills: pogranichnikUltimate,
+      skills: pogranichnikChr_0029_pograni_ultimate_skill,
     },
   ],
-  dodgeSkill: pogranichnikPerfectDodge,
+  dodgeSkill: pogranichnikCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0029_pograni_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0029_pograni_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0029_pograni_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'finisher',
-        'plungingAttack',
+        'chr_0029_pograni_attack1',
+        'chr_0029_pograni_attack2',
+        'chr_0029_pograni_attack3',
+        'chr_0029_pograni_attack4',
+        'chr_0029_pograni_attack5',
+        'chr_0029_pograni_power_attack',
+        'chr_0029_pograni_plunging_attack_end',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0029_pograni_attack1',
+        'chr_0029_pograni_attack2',
+        'chr_0029_pograni_attack3',
+        'chr_0029_pograni_attack4',
+        'chr_0029_pograni_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0029_pograni_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -2510,7 +2480,7 @@ export const pogranichnik: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0029_pograni_combo_skill',
       event: 'beforeAddedBuff',
       immediately: false,
       initialValues: null,

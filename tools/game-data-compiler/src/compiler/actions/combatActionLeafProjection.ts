@@ -2041,7 +2041,7 @@ export function compileActionNode(
       return [
         {
           kind: 'reachSkillOperableBoundary',
-          parameters: { sourceSkillIds: action.skillIds },
+          parameters: { skillIds: action.skillIds },
         },
       ];
     }
@@ -2059,7 +2059,7 @@ export function compileActionNode(
     }
     return mappings.map(mapping => ({
       kind: 'overrideBasicAttackMapping',
-      parameters: { sourceSkillId: mapping.skillId },
+      parameters: { skillId: mapping.skillId },
     }));
   }
   if (node.body.value.family === 'comboPending') {

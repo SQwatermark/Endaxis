@@ -24,7 +24,7 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
     SkillDefinition,
     | 'key'
     | 'timelineBlockFrames'
-    | 'timelineContinuationSourceSkillId'
+    | 'timelineContinuationSkillId'
     | 'naturalDurationFrames'
     | 'cooldownFrames'
     | 'enhancementStateBuffId'
@@ -32,7 +32,6 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
     Required<
       Pick<
         SkillDefinition,
-        | 'sourceSkillId'
         | 'blackboard'
         | 'costFrame'
         | 'exclusiveFrame'
@@ -67,6 +66,9 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
       preserveSkillOperableBoundary: input.skillType === 'basicAttack',
     },
   });
+  if (runtime.skillId !== input.key) {
+    throw new Error(`${input.sourcePath}: skill identity does not match SkillData.skillId`);
+  }
   const root = requireRecord(input.value, input.sourcePath);
   const cast = requireRecord(root.castData, `${input.sourcePath}.castData`);
   const costFrame = requireNonNegativeInteger(
@@ -75,7 +77,6 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
   );
   const definition: CompiledOperatorActiveSkillRuntimeDefinitionSource = {
     key: input.key,
-    sourceSkillId: runtime.skillId,
     blackboard: Object.fromEntries(
       Object.entries(runtime.blackboard).map(([key, values]) => [key, collapse(values)]),
     ),

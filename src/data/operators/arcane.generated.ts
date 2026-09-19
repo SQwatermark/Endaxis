@@ -97,10 +97,9 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0032_lizhiyan_attack1',
+    key: 'chr_0032_lizhiyan_attack1',
     timelineBlockFrames: 10,
     naturalDurationFrames: 224,
     exclusiveFrame: 30,
@@ -111,11 +110,11 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 3,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0032_lizhiyan_attack2',
+          targetSkillId: 'chr_0032_lizhiyan_attack2',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 10, endFrame: 30, sourceSkillIds: ['chr_0032_lizhiyan_attack2'] },
+        { startFrame: 10, endFrame: 30, skillIds: ['chr_0032_lizhiyan_attack2'] },
       ],
     },
     costFrame: 9,
@@ -197,13 +196,11 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         10,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0032_lizhiyan_attack2'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack2',
+    timelineContinuationSkillId: 'chr_0032_lizhiyan_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -215,10 +212,9 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0032_lizhiyan_attack2',
+    key: 'chr_0032_lizhiyan_attack2',
     timelineBlockFrames: 14,
     naturalDurationFrames: 215,
     exclusiveFrame: 30,
@@ -229,11 +225,11 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 32,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0032_lizhiyan_attack3',
+          targetSkillId: 'chr_0032_lizhiyan_attack3',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 14, endFrame: 32, sourceSkillIds: ['chr_0032_lizhiyan_attack3'] },
+        { startFrame: 14, endFrame: 32, skillIds: ['chr_0032_lizhiyan_attack3'] },
       ],
     },
     costFrame: 11,
@@ -330,13 +326,11 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         14,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0032_lizhiyan_attack3'] })),
         32,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack3',
+    timelineContinuationSkillId: 'chr_0032_lizhiyan_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -352,10 +346,9 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0032_lizhiyan_attack3',
+    key: 'chr_0032_lizhiyan_attack3',
     timelineBlockFrames: 22,
     naturalDurationFrames: 235,
     exclusiveFrame: 30,
@@ -366,11 +359,11 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 39,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0032_lizhiyan_attack4',
+          targetSkillId: 'chr_0032_lizhiyan_attack4',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 22, endFrame: 39, sourceSkillIds: ['chr_0032_lizhiyan_attack4'] },
+        { startFrame: 22, endFrame: 39, skillIds: ['chr_0032_lizhiyan_attack4'] },
       ],
     },
     costFrame: 13,
@@ -447,13 +440,11 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         22,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0032_lizhiyan_attack4'] })),
         39,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack4',
+    timelineContinuationSkillId: 'chr_0032_lizhiyan_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -466,10 +457,9 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0032_lizhiyan_attack4',
+    key: 'chr_0032_lizhiyan_attack4',
     timelineBlockFrames: 18,
     naturalDurationFrames: 230,
     exclusiveFrame: 26,
@@ -480,11 +470,11 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 39,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0032_lizhiyan_attack5',
+          targetSkillId: 'chr_0032_lizhiyan_attack5',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 18, endFrame: 39, sourceSkillIds: ['chr_0032_lizhiyan_attack5'] },
+        { startFrame: 18, endFrame: 39, skillIds: ['chr_0032_lizhiyan_attack5'] },
       ],
     },
     costFrame: 13,
@@ -651,13 +641,11 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0032_lizhiyan_attack5'] })),
         39,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack5',
+    timelineContinuationSkillId: 'chr_0032_lizhiyan_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -670,10 +658,9 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0032_lizhiyan_attack5',
+    key: 'chr_0032_lizhiyan_attack5',
     timelineBlockFrames: 40,
     naturalDurationFrames: 300,
     exclusiveFrame: 41,
@@ -684,11 +671,11 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 50,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0032_lizhiyan_attack1',
+          targetSkillId: 'chr_0032_lizhiyan_attack1',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 40, endFrame: 50, sourceSkillIds: ['chr_0032_lizhiyan_attack1'] },
+        { startFrame: 40, endFrame: 50, skillIds: ['chr_0032_lizhiyan_attack1'] },
       ],
     },
     costFrame: 13,
@@ -839,13 +826,11 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         40,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0032_lizhiyan_attack1'] })),
         50,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack1',
+    timelineContinuationSkillId: 'chr_0032_lizhiyan_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -863,10 +848,9 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0032_lizhiyan_power_attack',
+    key: 'chr_0032_lizhiyan_power_attack',
     timelineBlockFrames: 34,
     naturalDurationFrames: 163,
     exclusiveFrame: 51,
@@ -876,7 +860,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 34,
           endFrame: 51,
-          sourceSkillIds: ['chr_0032_lizhiyan_normal_skill', 'chr_0032_lizhiyan_combo_skill'],
+          skillIds: ['chr_0032_lizhiyan_normal_skill', 'chr_0032_lizhiyan_combo_skill'],
         },
       ],
     },
@@ -1073,10 +1057,9 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0032_lizhiyan_plunging_attack_end',
+    key: 'chr_0032_lizhiyan_plunging_attack_end',
     timelineBlockFrames: 13,
     naturalDurationFrames: 120,
     exclusiveFrame: 12,
@@ -1126,17 +1109,16 @@ export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0032_lizhiyan_normal_skill',
+    key: 'chr_0032_lizhiyan_normal_skill',
     timelineBlockFrames: 24,
     naturalDurationFrames: 225,
     exclusiveFrame: 32,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 24, endFrame: 56, sourceSkillIds: ['chr_0032_lizhiyan_combo_skill'] },
+        { startFrame: 24, endFrame: 56, skillIds: ['chr_0032_lizhiyan_combo_skill'] },
       ],
     },
     costFrame: 0,
@@ -1189,17 +1171,16 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0032_lizhiyan_combo_skill',
+    key: 'chr_0032_lizhiyan_combo_skill',
     timelineBlockFrames: 16,
     naturalDurationFrames: 122,
     exclusiveFrame: 23,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 16, endFrame: 39, sourceSkillIds: ['chr_0032_lizhiyan_normal_skill'] },
+        { startFrame: 16, endFrame: 39, skillIds: ['chr_0032_lizhiyan_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1529,10 +1510,9 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill',
+    key: 'chr_0032_lizhiyan_ultimate_skill',
     timelineBlockFrames: 48,
     naturalDurationFrames: 308,
     exclusiveFrame: 72,
@@ -1542,7 +1522,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 48,
           endFrame: 79,
-          sourceSkillIds: ['chr_0032_lizhiyan_combo_skill', 'chr_0032_lizhiyan_normal_skill'],
+          skillIds: ['chr_0032_lizhiyan_combo_skill', 'chr_0032_lizhiyan_normal_skill'],
         },
       ],
     },
@@ -2006,10 +1986,9 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcaneArcana: SkillDefinition = withSkillBlackboard(
+export const arcaneChr_0032_lizhiyan_ultimate_skill2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'arcana',
-    sourceSkillId: 'chr_0032_lizhiyan_ultimate_skill2',
+    key: 'chr_0032_lizhiyan_ultimate_skill2',
     timelineBlockFrames: 60,
     naturalDurationFrames: 287,
     exclusiveFrame: 75,
@@ -2019,7 +1998,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 60,
           endFrame: 91,
-          sourceSkillIds: ['chr_0032_lizhiyan_normal_skill', 'chr_0032_lizhiyan_combo_skill'],
+          skillIds: ['chr_0032_lizhiyan_normal_skill', 'chr_0032_lizhiyan_combo_skill'],
         },
       ],
     },
@@ -2230,7 +2209,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
         sequence(
           step('changeSkillSlot', {
             skillGroupKey: 'ultimate',
-            targetSkillKey: 'ultimate',
+            targetSkillKey: 'chr_0032_lizhiyan_ultimate_skill',
             inheritOriginSkillCooldownProgress: false,
             lifetime: 'infinite',
           }),
@@ -2449,10 +2428,9 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const arcanePerfectDodge: SkillDefinition = withSkillBlackboard(
+export const arcaneCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -2490,11 +2468,11 @@ export const arcane: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        arcaneBasicAttack1,
-        arcaneBasicAttack2,
-        arcaneBasicAttack3,
-        arcaneBasicAttack4,
-        arcaneBasicAttack5,
+        arcaneChr_0032_lizhiyan_attack1,
+        arcaneChr_0032_lizhiyan_attack2,
+        arcaneChr_0032_lizhiyan_attack3,
+        arcaneChr_0032_lizhiyan_attack4,
+        arcaneChr_0032_lizhiyan_attack5,
       ],
       presentationVariants: [
         {
@@ -2521,7 +2499,7 @@ export const arcane: OperatorDefinition = {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: arcaneFinisher,
+      skills: arcaneChr_0032_lizhiyan_power_attack,
       presentationVariants: [
         {
           key: 'int',
@@ -2547,7 +2525,7 @@ export const arcane: OperatorDefinition = {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: arcanePlungingAttack,
+      skills: arcaneChr_0032_lizhiyan_plunging_attack_end,
       presentationVariants: [
         {
           key: 'int',
@@ -2573,7 +2551,7 @@ export const arcane: OperatorDefinition = {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: arcaneBattleSkill,
+      skills: arcaneChr_0032_lizhiyan_normal_skill,
       presentationVariants: [
         {
           key: 'int',
@@ -2599,7 +2577,7 @@ export const arcane: OperatorDefinition = {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: arcaneComboSkill,
+      skills: arcaneChr_0032_lizhiyan_combo_skill,
       presentationVariants: [
         {
           key: 'int',
@@ -2625,9 +2603,9 @@ export const arcane: OperatorDefinition = {
       key: 'ultimate',
       skillType: 'ultimate',
       levelSource: 'ultimate',
-      skills: arcaneUltimate,
-      replacementSkills: [arcaneArcana],
-      replacementSkillPlacements: { arcana: 'standard' },
+      skills: arcaneChr_0032_lizhiyan_ultimate_skill,
+      replacementSkills: [arcaneChr_0032_lizhiyan_ultimate_skill2],
+      replacementSkillPlacements: { chr_0032_lizhiyan_ultimate_skill2: 'standard' },
       presentationVariants: [
         {
           key: 'int',
@@ -2650,35 +2628,43 @@ export const arcane: OperatorDefinition = {
       ],
     },
   ],
-  dodgeSkill: arcanePerfectDodge,
+  dodgeSkill: arcaneCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: ['arcana'] },
+    {
+      key: 'battleSkill',
+      baseSkillKey: 'chr_0032_lizhiyan_normal_skill',
+      replacementSkillKeys: [],
+    },
+    { key: 'comboSkill', baseSkillKey: 'chr_0032_lizhiyan_combo_skill', replacementSkillKeys: [] },
+    {
+      key: 'ultimate',
+      baseSkillKey: 'chr_0032_lizhiyan_ultimate_skill',
+      replacementSkillKeys: ['chr_0032_lizhiyan_ultimate_skill2'],
+    },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0032_lizhiyan_attack1',
+        'chr_0032_lizhiyan_attack2',
+        'chr_0032_lizhiyan_attack3',
+        'chr_0032_lizhiyan_attack4',
+        'chr_0032_lizhiyan_attack5',
+        'chr_0032_lizhiyan_plunging_attack_end',
+        'chr_0032_lizhiyan_power_attack',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0032_lizhiyan_attack1',
+        'chr_0032_lizhiyan_attack2',
+        'chr_0032_lizhiyan_attack3',
+        'chr_0032_lizhiyan_attack4',
+        'chr_0032_lizhiyan_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0032_lizhiyan_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -2687,7 +2673,7 @@ export const arcane: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0032_lizhiyan_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2700,7 +2686,7 @@ export const arcane: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0032_lizhiyan_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2730,7 +2716,7 @@ export const arcane: OperatorDefinition = {
     },
     {
       key: 'native-combo:2',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0032_lizhiyan_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2760,7 +2746,7 @@ export const arcane: OperatorDefinition = {
     },
     {
       key: 'native-combo:3',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0032_lizhiyan_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2790,7 +2776,7 @@ export const arcane: OperatorDefinition = {
     },
     {
       key: 'native-combo:4',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0032_lizhiyan_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: { consumed_layer: 0, consumed_type: 0 },
@@ -2951,14 +2937,14 @@ export const arcane: OperatorDefinition = {
         {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
-          skillKey: 'ultimate',
+          skillKey: 'chr_0032_lizhiyan_ultimate_skill',
           resource: 'ultimateEnergy',
           multiplier: 0.85,
         },
         {
           kind: 'multiplySkillCost',
           skillGroupKey: 'ultimate',
-          skillKey: 'arcana',
+          skillKey: 'chr_0032_lizhiyan_ultimate_skill2',
           resource: 'ultimateEnergy',
           multiplier: 0.85,
         },
@@ -2984,7 +2970,7 @@ export const arcane: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
-          skillKey: 'arcana',
+          skillKey: 'chr_0032_lizhiyan_ultimate_skill2',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
           value: 1.3,
@@ -2992,7 +2978,7 @@ export const arcane: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'ultimate',
-          skillKey: 'arcana',
+          skillKey: 'chr_0032_lizhiyan_ultimate_skill2',
           blackboardKey: 'cd_minus',
           operation: 'add',
           value: 0.3,
@@ -4935,8 +4921,8 @@ export const arcane: OperatorDefinition = {
       skillSlotReplacements: [
         {
           skillGroupKey: 'ultimate',
-          targetSkillKey: 'arcana',
-          revertedSkillKey: 'ultimate',
+          targetSkillKey: 'chr_0032_lizhiyan_ultimate_skill2',
+          revertedSkillKey: 'chr_0032_lizhiyan_ultimate_skill',
           inheritOriginSkillCooldownProgress: false,
         },
       ],
@@ -5156,8 +5142,8 @@ export const arcane: OperatorDefinition = {
       skillSlotReplacements: [
         {
           skillGroupKey: 'ultimate',
-          targetSkillKey: 'arcana',
-          revertedSkillKey: 'ultimate',
+          targetSkillKey: 'chr_0032_lizhiyan_ultimate_skill2',
+          revertedSkillKey: 'chr_0032_lizhiyan_ultimate_skill',
           inheritOriginSkillCooldownProgress: false,
         },
       ],

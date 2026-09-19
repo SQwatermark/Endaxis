@@ -6,6 +6,7 @@ import { skillSettings } from '../../../data/combat/skillSettings';
 import { projectBuffTimelineViz } from '../../../core/projection/buffTimelineViz';
 import { projectEnemyEffectViz } from '../../../core/projection/enemyEffectViz';
 import { findBuffDamageSegment } from '../../../ui/timeline/results/enemyBuffDamageHits';
+import { layoutEnemyDamageHits } from '../../../ui/timeline/results/enemyDamageHitLayout';
 
 it('does not quantize through legacy millisecond-rounded display times', () => {
   const { quantization } = createLowStarShareRegressionScenario();
@@ -38,8 +39,25 @@ it('runs the public low-star action sequence with native definitions without rew
   const segments = projectBuffTimelineViz(run.receiptEntries, run.frame);
   const hits = projectEnemyEffectViz(run.receiptEntries, run.frame).damageHits ?? [];
   expect(hits.length).toBeGreaterThan(0);
-  for (const hit of hits)
-    expect(findBuffDamageSegment(hit, segments), JSON.stringify(hit)).toBeDefined();
+  const positionedHits = layoutEnemyDamageHits(
+    run.receiptEntries,
+    segments,
+    projectEnemyEffectViz(run.receiptEntries, run.frame).markers,
+    new Set(),
+  );
+  const positionedSequences = new Set(
+    positionedHits.flatMap(position => position.group.map(entry => entry.sequence)),
+  );
+  for (const hit of hits) {
+    expect(positionedSequences.has(hit.sequence), JSON.stringify(hit)).toBe(true);
+    if (findBuffDamageSegment(hit, segments) === undefined)
+      expect(
+        positionedHits.some(
+          position =>
+            position.standalone && position.group.some(entry => entry.sequence === hit.sequence),
+        ),
+      ).toBe(true);
+  }
   expect(segments.some(segment => segment.buffId === 'buff_common_cryst_fire_triggered')).toBe(
     true,
   );

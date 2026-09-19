@@ -69,10 +69,9 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   },
 );
 
-export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0031_mifu_attack1',
+    key: 'chr_0031_mifu_attack1',
     timelineBlockFrames: 17,
     naturalDurationFrames: 196,
     exclusiveFrame: 27,
@@ -83,12 +82,10 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 38,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0031_mifu_attack2',
+          targetSkillId: 'chr_0031_mifu_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 17, endFrame: 38, sourceSkillIds: ['chr_0031_mifu_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 17, endFrame: 38, skillIds: ['chr_0031_mifu_attack2'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -306,11 +303,11 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         17,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0031_mifu_attack2'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0031_mifu_attack2'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0031_mifu_attack2',
+    timelineContinuationSkillId: 'chr_0031_mifu_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -323,10 +320,9 @@ export const mifuBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0031_mifu_attack2',
+    key: 'chr_0031_mifu_attack2',
     timelineBlockFrames: 21,
     naturalDurationFrames: 217,
     exclusiveFrame: 29,
@@ -337,12 +333,10 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 67,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0031_mifu_attack3',
+          targetSkillId: 'chr_0031_mifu_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 21, endFrame: 67, sourceSkillIds: ['chr_0031_mifu_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 21, endFrame: 67, skillIds: ['chr_0031_mifu_attack3'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -456,11 +450,11 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         21,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0031_mifu_attack3'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0031_mifu_attack3'] })),
         67,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0031_mifu_attack3',
+    timelineContinuationSkillId: 'chr_0031_mifu_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -473,10 +467,9 @@ export const mifuBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0031_mifu_attack3',
+    key: 'chr_0031_mifu_attack3',
     timelineBlockFrames: 37,
     naturalDurationFrames: 425,
     exclusiveFrame: 54,
@@ -487,12 +480,10 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 76,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0031_mifu_attack4',
+          targetSkillId: 'chr_0031_mifu_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 37, endFrame: 76, sourceSkillIds: ['chr_0031_mifu_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 37, endFrame: 76, skillIds: ['chr_0031_mifu_attack4'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -1057,11 +1048,11 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         37,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0031_mifu_attack4'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0031_mifu_attack4'] })),
         76,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0031_mifu_attack4',
+    timelineContinuationSkillId: 'chr_0031_mifu_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1076,10 +1067,9 @@ export const mifuBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0031_mifu_attack4',
+    key: 'chr_0031_mifu_attack4',
     timelineBlockFrames: 38,
     naturalDurationFrames: 280,
     exclusiveFrame: 54,
@@ -1090,12 +1080,10 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 99,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0031_mifu_attack1',
+          targetSkillId: 'chr_0031_mifu_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 38, endFrame: 99, sourceSkillIds: ['chr_0031_mifu_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 38, endFrame: 99, skillIds: ['chr_0031_mifu_attack1'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -1207,11 +1195,11 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         38,
-        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0031_mifu_attack1'] })),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0031_mifu_attack1'] })),
         99,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0031_mifu_attack1',
+    timelineContinuationSkillId: 'chr_0031_mifu_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1225,18 +1213,15 @@ export const mifuBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0031_mifu_plunging_attack_end',
+    key: 'chr_0031_mifu_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 206,
     exclusiveFrame: 20,
     offsetRecordFrame: 0,
     inputWindows: {
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 21, sourceSkillIds: ['chr_0009_azrila_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 21, skillIds: ['chr_0009_azrila_attack1'] }],
     },
     costFrame: 0,
     scheduledSequences: [
@@ -1283,10 +1268,9 @@ export const mifuPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const mifuFinisher: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_powerattack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0031_mifu_powerattack',
+    key: 'chr_0031_mifu_powerattack',
     timelineBlockFrames: 38,
     naturalDurationFrames: 282,
     exclusiveFrame: 53,
@@ -1296,7 +1280,7 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 38,
           endFrame: 67,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0031_mifu_combo_skill',
             'chr_0031_mifu_normalskill_1',
             'chr_0031_mifu_normalskill_2',
@@ -1529,10 +1513,9 @@ export const mifuFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9], atk_scale2: 0.58 },
 );
 
-export const mifuBattleSkill1: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_normalskill_1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill1',
-    sourceSkillId: 'chr_0031_mifu_normalskill_1',
+    key: 'chr_0031_mifu_normalskill_1',
     timelineBlockFrames: 11,
     naturalDurationFrames: 203,
     exclusiveFrame: 125,
@@ -1543,18 +1526,18 @@ export const mifuBattleSkill1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 131,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0031_mifu_attack2',
+          targetSkillId: 'chr_0031_mifu_attack2',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 11, endFrame: 30, sourceSkillIds: ['chr_0031_mifu_normalskill_2'] },
-        { startFrame: 115, endFrame: 131, sourceSkillIds: ['chr_0031_mifu_normalskill_2'] },
-        { startFrame: 11, endFrame: 30, sourceSkillIds: ['chr_0031_mifu_attack2'] },
-        { startFrame: 115, endFrame: 131, sourceSkillIds: ['chr_0031_mifu_attack2'] },
-        { startFrame: 11, endFrame: 30, sourceSkillIds: ['chr_0031_mifu_powerattack'] },
-        { startFrame: 115, endFrame: 131, sourceSkillIds: ['chr_0031_mifu_powerattack'] },
-        { startFrame: 11, endFrame: 30, sourceSkillIds: ['chr_0031_mifu_combo_skill'] },
-        { startFrame: 115, endFrame: 131, sourceSkillIds: ['chr_0031_mifu_combo_skill'] },
+        { startFrame: 11, endFrame: 30, skillIds: ['chr_0031_mifu_normalskill_2'] },
+        { startFrame: 115, endFrame: 131, skillIds: ['chr_0031_mifu_normalskill_2'] },
+        { startFrame: 11, endFrame: 30, skillIds: ['chr_0031_mifu_attack2'] },
+        { startFrame: 115, endFrame: 131, skillIds: ['chr_0031_mifu_attack2'] },
+        { startFrame: 11, endFrame: 30, skillIds: ['chr_0031_mifu_powerattack'] },
+        { startFrame: 115, endFrame: 131, skillIds: ['chr_0031_mifu_powerattack'] },
+        { startFrame: 11, endFrame: 30, skillIds: ['chr_0031_mifu_combo_skill'] },
+        { startFrame: 115, endFrame: 131, skillIds: ['chr_0031_mifu_combo_skill'] },
       ],
     },
     costFrame: 0,
@@ -1681,23 +1664,22 @@ export const mifuBattleSkill1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_normalskill_2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill2',
-    sourceSkillId: 'chr_0031_mifu_normalskill_2',
+    key: 'chr_0031_mifu_normalskill_2',
     timelineBlockFrames: 28,
     naturalDurationFrames: 150,
     exclusiveFrame: 34,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 28, endFrame: 62, sourceSkillIds: ['chr_0031_mifu_normalskill_3'] },
-        { startFrame: 28, endFrame: 62, sourceSkillIds: ['chr_0031_mifu_powerattack'] },
-        { startFrame: 28, endFrame: 62, sourceSkillIds: ['chr_0031_mifu_combo_skill'] },
+        { startFrame: 28, endFrame: 62, skillIds: ['chr_0031_mifu_normalskill_3'] },
+        { startFrame: 28, endFrame: 62, skillIds: ['chr_0031_mifu_powerattack'] },
+        { startFrame: 28, endFrame: 62, skillIds: ['chr_0031_mifu_combo_skill'] },
         {
           startFrame: 28,
           endFrame: 62,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0031_mifu_attack1',
             'chr_0031_mifu_attack2',
             'chr_0031_mifu_attack3',
@@ -2348,10 +2330,9 @@ export const mifuBattleSkill2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_normalskill_3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill3',
-    sourceSkillId: 'chr_0031_mifu_normalskill_3',
+    key: 'chr_0031_mifu_normalskill_3',
     timelineBlockFrames: 46,
     naturalDurationFrames: 241,
     exclusiveFrame: 45,
@@ -2712,24 +2693,23 @@ export const mifuBattleSkill3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuUltimate: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0031_mifu_ultimate_skill',
+    key: 'chr_0031_mifu_ultimate_skill',
     timelineBlockFrames: 113,
     naturalDurationFrames: 249,
     exclusiveFrame: 118,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 113, endFrame: 124, sourceSkillIds: ['chr_0031_mifu_powerattack'] },
-        { startFrame: 113, endFrame: 124, sourceSkillIds: ['chr_0031_mifu_normalskill_2'] },
-        { startFrame: 113, endFrame: 124, sourceSkillIds: ['chr_0031_mifu_normalskill_3'] },
-        { startFrame: 113, endFrame: 124, sourceSkillIds: ['chr_0031_mifu_combo_skill'] },
+        { startFrame: 113, endFrame: 124, skillIds: ['chr_0031_mifu_powerattack'] },
+        { startFrame: 113, endFrame: 124, skillIds: ['chr_0031_mifu_normalskill_2'] },
+        { startFrame: 113, endFrame: 124, skillIds: ['chr_0031_mifu_normalskill_3'] },
+        { startFrame: 113, endFrame: 124, skillIds: ['chr_0031_mifu_combo_skill'] },
         {
           startFrame: 113,
           endFrame: 124,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0031_mifu_attack1',
             'chr_0031_mifu_attack2',
             'chr_0031_mifu_attack3',
@@ -3212,26 +3192,25 @@ export const mifuUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
+export const mifuChr_0031_mifu_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0031_mifu_combo_skill',
+    key: 'chr_0031_mifu_combo_skill',
     timelineBlockFrames: 35,
     naturalDurationFrames: 211,
     exclusiveFrame: 41,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 35, endFrame: 73, sourceSkillIds: ['chr_0031_mifu_powerattack'] },
+        { startFrame: 35, endFrame: 73, skillIds: ['chr_0031_mifu_powerattack'] },
         {
           startFrame: 35,
           endFrame: 73,
-          sourceSkillIds: ['chr_0031_mifu_normalskill_2', 'chr_0031_mifu_normalskill_3'],
+          skillIds: ['chr_0031_mifu_normalskill_2', 'chr_0031_mifu_normalskill_3'],
         },
         {
           startFrame: 35,
           endFrame: 73,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0031_mifu_attack1',
             'chr_0031_mifu_attack2',
             'chr_0031_mifu_attack3',
@@ -3626,10 +3605,9 @@ export const mifuComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const mifuPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const mifuCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -3664,57 +3642,81 @@ export const mifu: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [mifuBasicAttack1, mifuBasicAttack2, mifuBasicAttack3, mifuBasicAttack4],
+      skills: [
+        mifuChr_0031_mifu_attack1,
+        mifuChr_0031_mifu_attack2,
+        mifuChr_0031_mifu_attack3,
+        mifuChr_0031_mifu_attack4,
+      ],
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: mifuPlungingAttack,
+      skills: mifuChr_0031_mifu_plunging_attack_end,
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: mifuFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: mifuChr_0031_mifu_powerattack,
+    },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: mifuBattleSkill1,
-      placementSequenceSkillKeys: ['battleSkill1', 'battleSkill2', 'battleSkill3'],
-      replacementSkills: [mifuBattleSkill2, mifuBattleSkill3],
+      skills: mifuChr_0031_mifu_normalskill_1,
+      placementSequenceSkillKeys: [
+        'chr_0031_mifu_normalskill_1',
+        'chr_0031_mifu_normalskill_2',
+        'chr_0031_mifu_normalskill_3',
+      ],
+      replacementSkills: [mifuChr_0031_mifu_normalskill_2, mifuChr_0031_mifu_normalskill_3],
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: mifuUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: mifuChr_0031_mifu_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: mifuComboSkill,
+      skills: mifuChr_0031_mifu_combo_skill,
     },
   ],
-  dodgeSkill: mifuPerfectDodge,
+  dodgeSkill: mifuCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
     {
       key: 'battleSkill',
-      baseSkillKey: 'battleSkill1',
-      replacementSkillKeys: ['battleSkill2', 'battleSkill3'],
+      baseSkillKey: 'chr_0031_mifu_normalskill_1',
+      replacementSkillKeys: ['chr_0031_mifu_normalskill_2', 'chr_0031_mifu_normalskill_3'],
     },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0031_mifu_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0031_mifu_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0031_mifu_attack1',
+        'chr_0031_mifu_attack2',
+        'chr_0031_mifu_attack3',
+        'chr_0031_mifu_attack4',
+        'chr_0031_mifu_plunging_attack_end',
+        'chr_0031_mifu_powerattack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0031_mifu_attack1',
+        'chr_0031_mifu_attack2',
+        'chr_0031_mifu_attack3',
+        'chr_0031_mifu_attack4',
+      ],
+      defaultSkillKey: 'chr_0031_mifu_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -3723,7 +3725,7 @@ export const mifu: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0031_mifu_combo_skill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,
@@ -3767,7 +3769,7 @@ export const mifu: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill3',
+          skillKey: 'chr_0031_mifu_normalskill_3',
           blackboardKey: 'talent',
           operation: 'assign',
           value: [1, 1],
@@ -3775,7 +3777,7 @@ export const mifu: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill3',
+          skillKey: 'chr_0031_mifu_normalskill_3',
           blackboardKey: 'crushmultiadd_talent',
           operation: 'assign',
           value: [0.1, 0.2],
@@ -3915,7 +3917,7 @@ export const mifu: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill1',
+          skillKey: 'chr_0031_mifu_normalskill_1',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
           value: 1.1,
@@ -3923,7 +3925,7 @@ export const mifu: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill2',
+          skillKey: 'chr_0031_mifu_normalskill_2',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
           value: 1.1,
@@ -3931,7 +3933,7 @@ export const mifu: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill2',
+          skillKey: 'chr_0031_mifu_normalskill_2',
           blackboardKey: 'atk_scale2',
           operation: 'multiply',
           value: 1.1,
@@ -3939,7 +3941,7 @@ export const mifu: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill3',
+          skillKey: 'chr_0031_mifu_normalskill_3',
           blackboardKey: 'atk_scale',
           operation: 'multiply',
           value: 1.1,
@@ -4119,8 +4121,8 @@ export const mifu: OperatorDefinition = {
       skillSlotReplacements: [
         {
           skillGroupKey: 'battleSkill',
-          targetSkillKey: 'battleSkill2',
-          revertedSkillKey: 'battleSkill1',
+          targetSkillKey: 'chr_0031_mifu_normalskill_2',
+          revertedSkillKey: 'chr_0031_mifu_normalskill_1',
           inheritOriginSkillCooldownProgress: false,
         },
       ],
@@ -4190,8 +4192,8 @@ export const mifu: OperatorDefinition = {
       skillSlotReplacements: [
         {
           skillGroupKey: 'battleSkill',
-          targetSkillKey: 'battleSkill3',
-          revertedSkillKey: 'battleSkill1',
+          targetSkillKey: 'chr_0031_mifu_normalskill_3',
+          revertedSkillKey: 'chr_0031_mifu_normalskill_1',
           inheritOriginSkillCooldownProgress: false,
         },
       ],

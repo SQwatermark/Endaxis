@@ -56,7 +56,8 @@ export async function verifyGameDataSnapshot(root: string, catalog: GameDataSour
     if (
       entry.provider === 'vfs-index-browser' &&
       entry.fallbackReason !== 'not-in-akedb-index' &&
-      entry.fallbackReason !== 'akedb-http-404'
+      entry.fallbackReason !== 'akedb-http-404' &&
+      entry.fallbackReason !== 'akedb-missing-required-field'
     ) {
       throw new Error(`VFS source lacks a hybrid fallback reason: ${logicalPath}`);
     }

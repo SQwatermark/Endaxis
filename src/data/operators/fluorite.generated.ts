@@ -66,10 +66,9 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0022_bounda_attack1',
+    key: 'chr_0022_bounda_attack1',
     timelineBlockFrames: 22,
     naturalDurationFrames: 132,
     exclusiveFrame: 25,
@@ -80,12 +79,10 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 10,
           endFrame: 40,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0022_bounda_attack2',
+          targetSkillId: 'chr_0022_bounda_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 22, endFrame: 40, sourceSkillIds: ['chr_0022_bounda_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 22, endFrame: 40, skillIds: ['chr_0022_bounda_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -124,13 +121,11 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         22,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0022_bounda_attack2'] })),
         40,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack2',
+    timelineContinuationSkillId: 'chr_0022_bounda_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -138,10 +133,9 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
 );
 
-export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0022_bounda_attack2',
+    key: 'chr_0022_bounda_attack2',
     timelineBlockFrames: 15,
     naturalDurationFrames: 106,
     exclusiveFrame: 20,
@@ -152,12 +146,10 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 10,
           endFrame: 36,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0022_bounda_attack3',
+          targetSkillId: 'chr_0022_bounda_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 15, endFrame: 36, sourceSkillIds: ['chr_0022_bounda_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 15, endFrame: 36, skillIds: ['chr_0022_bounda_attack3'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -196,13 +188,11 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         15,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0022_bounda_attack3'] })),
         36,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack3',
+    timelineContinuationSkillId: 'chr_0022_bounda_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -214,10 +204,9 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0022_bounda_attack3',
+    key: 'chr_0022_bounda_attack3',
     timelineBlockFrames: 18,
     naturalDurationFrames: 137,
     exclusiveFrame: 25,
@@ -228,18 +217,18 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 10,
           endFrame: 24,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0022_bounda_attack4',
+          targetSkillId: 'chr_0022_bounda_attack4',
         },
         {
           startFrame: 24,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0022_bounda_attack4_1',
+          targetSkillId: 'chr_0022_bounda_attack4_1',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 18, endFrame: 24, sourceSkillIds: ['chr_0022_bounda_attack4'] },
-        { startFrame: 24, endFrame: 30, sourceSkillIds: ['chr_0022_bounda_attack4_1'] },
+        { startFrame: 18, endFrame: 24, skillIds: ['chr_0022_bounda_attack4'] },
+        { startFrame: 24, endFrame: 30, skillIds: ['chr_0022_bounda_attack4_1'] },
       ],
     },
     costFrame: 9,
@@ -299,20 +288,16 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0022_bounda_attack4'] })),
         24,
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack4_1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0022_bounda_attack4_1'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack4',
+    timelineContinuationSkillId: 'chr_0022_bounda_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -320,10 +305,9 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.26, 0.28, 0.31, 0.33, 0.36, 0.38, 0.41, 0.43, 0.46, 0.49, 0.53, 0.57] },
 );
 
-export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0022_bounda_attack4',
+    key: 'chr_0022_bounda_attack4',
     timelineBlockFrames: 56,
     naturalDurationFrames: 153,
     exclusiveFrame: 55,
@@ -334,12 +318,10 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 29,
           endFrame: 71,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0022_bounda_attack1',
+          targetSkillId: 'chr_0022_bounda_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 52, endFrame: 71, sourceSkillIds: ['chr_0022_bounda_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 52, endFrame: 71, skillIds: ['chr_0022_bounda_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -369,9 +351,7 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         52,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0022_bounda_attack1'] })),
         71,
       ),
     ],
@@ -387,10 +367,9 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_attack4_1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0022_bounda_attack4_1',
+    key: 'chr_0022_bounda_attack4_1',
     timelineBlockFrames: 49,
     naturalDurationFrames: 150,
     exclusiveFrame: 52,
@@ -401,12 +380,10 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 10,
           endFrame: 70,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0022_bounda_attack1',
+          targetSkillId: 'chr_0022_bounda_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 49, endFrame: 70, sourceSkillIds: ['chr_0022_bounda_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 49, endFrame: 70, skillIds: ['chr_0022_bounda_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -436,13 +413,11 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         49,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0022_bounda_attack1'] })),
         70,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack1',
+    timelineContinuationSkillId: 'chr_0022_bounda_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -455,10 +430,9 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0022_bounda_power_attack',
+    key: 'chr_0022_bounda_power_attack',
     timelineBlockFrames: 22,
     naturalDurationFrames: 127,
     exclusiveFrame: 45,
@@ -468,7 +442,7 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 22,
           endFrame: 45,
-          sourceSkillIds: ['chr_0022_bounda_normal_skill', 'chr_0022_bounda_combo_skill'],
+          skillIds: ['chr_0022_bounda_normal_skill', 'chr_0022_bounda_combo_skill'],
         },
       ],
     },
@@ -564,10 +538,9 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0022_bounda_plunging_attack_end',
+    key: 'chr_0022_bounda_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 90,
     exclusiveFrame: 20,
@@ -610,10 +583,9 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0022_bounda_normal_skill',
+    key: 'chr_0022_bounda_normal_skill',
     timelineBlockFrames: 35,
     naturalDurationFrames: 101,
     exclusiveFrame: 34,
@@ -720,10 +692,9 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0022_bounda_ultimate_skill',
+    key: 'chr_0022_bounda_ultimate_skill',
     timelineBlockFrames: 77,
     naturalDurationFrames: 120,
     exclusiveFrame: 90,
@@ -734,14 +705,14 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
           startFrame: 68,
           endFrame: 94,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0022_bounda_attack1',
+          targetSkillId: 'chr_0022_bounda_attack1',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 77,
           endFrame: 94,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0022_bounda_attack1',
             'chr_0022_bounda_normal_skill',
             'chr_0022_bounda_combo_skill',
@@ -994,17 +965,16 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
+export const fluoriteChr_0022_bounda_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0022_bounda_combo_skill',
+    key: 'chr_0022_bounda_combo_skill',
     timelineBlockFrames: 17,
     naturalDurationFrames: 93,
     exclusiveFrame: 24,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 17, endFrame: 56, sourceSkillIds: ['chr_0022_bounda_normal_skill'] },
+        { startFrame: 17, endFrame: 56, skillIds: ['chr_0022_bounda_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1129,10 +1099,9 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const fluoritePerfectDodge: SkillDefinition = withSkillBlackboard(
+export const fluoriteCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1168,62 +1137,72 @@ export const fluorite: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        fluoriteBasicAttack1,
-        fluoriteBasicAttack2,
-        fluoriteBasicAttack3,
-        fluoriteBasicAttack4,
-        fluoriteBasicAttack5,
+        fluoriteChr_0022_bounda_attack1,
+        fluoriteChr_0022_bounda_attack2,
+        fluoriteChr_0022_bounda_attack3,
+        fluoriteChr_0022_bounda_attack4,
+        fluoriteChr_0022_bounda_attack4_1,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: fluoriteFinisher,
+      skills: fluoriteChr_0022_bounda_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: fluoritePlungingAttack,
+      skills: fluoriteChr_0022_bounda_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: fluoriteBattleSkill,
+      skills: fluoriteChr_0022_bounda_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: fluoriteUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: fluoriteChr_0022_bounda_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: fluoriteComboSkill,
+      skills: fluoriteChr_0022_bounda_combo_skill,
     },
   ],
-  dodgeSkill: fluoritePerfectDodge,
+  dodgeSkill: fluoriteCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0022_bounda_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0022_bounda_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0022_bounda_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0022_bounda_attack1',
+        'chr_0022_bounda_attack2',
+        'chr_0022_bounda_attack3',
+        'chr_0022_bounda_attack4',
+        'chr_0022_bounda_attack4_1',
+        'chr_0022_bounda_plunging_attack_end',
+        'chr_0022_bounda_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0022_bounda_attack1',
+        'chr_0022_bounda_attack2',
+        'chr_0022_bounda_attack3',
+        'chr_0022_bounda_attack4',
+      ],
+      defaultSkillKey: 'chr_0022_bounda_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1232,7 +1211,7 @@ export const fluorite: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0022_bounda_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,
@@ -1261,7 +1240,7 @@ export const fluorite: OperatorDefinition = {
     },
     {
       key: 'native-combo:1',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0022_bounda_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,

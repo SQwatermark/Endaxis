@@ -1,25 +1,8 @@
 <script setup lang="ts">
-/** 外部事实标记的实例级 Inspector；只编辑已有 schema 字段，不扩张外部事件种类。 */
+/** 连携冷却控制标记的实例级 Inspector。 */
 import { useI18n } from 'vue-i18n';
-import {
-  EaButton,
-  EaCheckbox,
-  EaNumberInput,
-  EaSelect,
-  type EaSelectValue,
-} from '../../../design-system/index';
-import {
-  DAMAGE_FEATURES,
-  DAMAGE_TAGS,
-  DAMAGE_TYPES,
-  type DamageFeature,
-  type DamageTag,
-  type DamageType,
-} from '../../../core/game-data/operatorDefinition';
-import type {
-  ExternalCombatEventDocument,
-  ExternalEventMarkerDocument,
-} from '../../../core/project/schema';
+import { EaButton, EaNumberInput } from '../../../design-system/index';
+import type { ExternalEventMarkerDocument } from '../../../core/project/schema';
 
 const props = defineProps<{
   marker: ExternalEventMarkerDocument;
@@ -30,7 +13,6 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   setFrame: [frame: number];
-  setEvent: [event: ExternalCombatEventDocument];
   remove: [];
 }>();
 
@@ -41,44 +23,6 @@ function commitFrame(value: number | undefined): void {
   if (Number.isInteger(frame) && frame >= 0 && frame <= props.maximumFrame) {
     emit('setFrame', frame);
   }
-}
-
-function updateHit(
-  patch: Partial<Extract<ExternalCombatEventDocument, { kind: 'operatorHit' }>>,
-): void {
-  if (props.marker.event.kind !== 'operatorHit') return;
-  emit('setEvent', { ...props.marker.event, ...patch });
-}
-
-function setDamageType(selected: EaSelectValue | EaSelectValue[]): void {
-  const value = String(selected);
-  if (value === '') {
-    const hit = props.marker.event;
-    if (hit.kind !== 'operatorHit') return;
-    const { damageType: _damageType, ...withoutDamageType } = hit;
-    emit('setEvent', withoutDamageType);
-    return;
-  }
-  const damageType = value as DamageType;
-  if (DAMAGE_TYPES.includes(damageType)) updateHit({ damageType });
-}
-
-function toggleTag(tag: DamageTag): void {
-  if (props.marker.event.kind !== 'operatorHit') return;
-  updateHit({
-    tags: props.marker.event.tags.includes(tag)
-      ? props.marker.event.tags.filter(item => item !== tag)
-      : [...props.marker.event.tags, tag],
-  });
-}
-
-function toggleFeature(feature: DamageFeature): void {
-  if (props.marker.event.kind !== 'operatorHit') return;
-  updateHit({
-    features: props.marker.event.features.includes(feature)
-      ? props.marker.event.features.filter(item => item !== feature)
-      : [...props.marker.event.features, feature],
-  });
 }
 </script>
 
@@ -96,11 +40,7 @@ function toggleFeature(feature: DamageFeature): void {
           <div class="form-group attribute-grid__wide">
             <span>{{ t('timeline.markerInspector.event') }}</span>
             <div class="readonly-field">
-              {{
-                marker.event.kind === 'comboCooldownControl'
-                  ? t(`comboControl.${marker.event.mode}`)
-                  : t(`timeline.markerInspector.eventKinds.${marker.event.kind}`)
-              }}
+              {{ t(`comboControl.${marker.event.mode}`) }}
             </div>
           </div>
           <div class="form-group attribute-grid__wide">
@@ -125,66 +65,8 @@ function toggleFeature(feature: DamageFeature): void {
             <div class="readonly-field">{{ marker.id }}</div>
           </div>
         </div>
-        <small class="field-help">{{
-          t(
-            marker.event.kind === 'comboCooldownControl'
-              ? 'comboControl.hint'
-              : 'timeline.markerInspector.boundaryHint',
-          )
-        }}</small>
+        <small class="field-help">{{ t('comboControl.hint') }}</small>
       </section>
-
-      <template v-if="marker.event.kind === 'operatorHit'">
-        <section class="section-container">
-          <div class="panel-tag-mini">{{ t('timeline.markerInspector.hitContext') }}</div>
-          <label class="form-group">
-            <span>{{ t('timeline.skillEditing.damageType') }}</span>
-            <EaSelect
-              size="sm"
-              :model-value="marker.event.damageType ?? ''"
-              :options="[
-                { value: '', label: t('timeline.markerInspector.unknownDamageType') },
-                ...DAMAGE_TYPES.map(item => ({
-                  value: item,
-                  label: t(`timeline.skillEditing.damageTypes.${item}`),
-                })),
-              ]"
-              @change="setDamageType"
-              :disabled="readOnly"
-            />
-          </label>
-        </section>
-
-        <section class="section-container">
-          <div class="panel-tag-mini">{{ t('timeline.skillEditing.damageTags') }}</div>
-          <div class="option-grid">
-            <EaCheckbox
-              v-for="tag in DAMAGE_TAGS"
-              :key="tag"
-              class="check-field"
-              :model-value="marker.event.tags.includes(tag)"
-              @change="toggleTag(tag)"
-              :disabled="readOnly"
-              >{{ t(`timeline.skillEditing.damageTagNames.${tag}`) }}</EaCheckbox
-            >
-          </div>
-        </section>
-
-        <section class="section-container">
-          <div class="panel-tag-mini">{{ t('timeline.skillEditing.damageFeatures') }}</div>
-          <div class="option-grid">
-            <EaCheckbox
-              v-for="feature in DAMAGE_FEATURES"
-              :key="feature"
-              class="check-field"
-              :model-value="marker.event.features.includes(feature)"
-              @change="toggleFeature(feature)"
-              :disabled="readOnly"
-              >{{ t(`timeline.skillEditing.damageFeatureNames.${feature}`) }}</EaCheckbox
-            >
-          </div>
-        </section>
-      </template>
 
       <section class="section-container danger-section">
         <EaButton

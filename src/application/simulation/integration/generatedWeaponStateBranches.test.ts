@@ -10,9 +10,12 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import { generatedWeaponDefinitions } from '../../../data/equipment/generated-weapons/index.generated';
 import { gameDataRepository } from '../../../data/gameDataRepository';
 import { skillSettings } from '../../../data/combat/skillSettings';
-import { daPanComboSkill } from '../../../data/operators/da-pan.generated';
+import { daPan } from '../../../data/operators/da-pan.generated';
+import { getSkill } from '../../../data/operators/testUtils';
 import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGroup';
 import { ScenarioSimulationService } from '../scenarioSimulationService';
+
+const daPanComboSkill = getSkill(daPan, 'chr_0018_dapan_combo_skill');
 
 // 受控排程只隔离输入；真实公共破防/猛击定义、武器安装、事件、消费和伤害均经生产管线。
 describe('生成武器的目标状态与层数伤害分支', () => {

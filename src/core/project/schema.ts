@@ -288,21 +288,11 @@ export interface ControlSwitchDocument {
 export type ExternalEventTargetDocument =
   { scope: 'operator'; trackIndex: TrackIndex } | { scope: 'team' };
 
-/** 只收录固定木桩无法经正常操作链产生、且已有真实消费者证据的外部事实。 */
-export type ExternalCombatEventDocument =
-  | {
-      kind: 'operatorHit';
-      /** 旧项目可以省略；缺失类型只表示未知，不能通过具体伤害类型条件。 */
-      damageType?: import('../game-data/operatorDefinition').DamageType;
-      tags: import('../game-data/operatorDefinition').DamageTag[];
-      features: import('../game-data/operatorDefinition').DamageFeature[];
-    }
-  /** 敌方弱点窗口回投给指定攻击者 AbilitySystem 的 OnAfterOutputWeaknessTriggered。 */
-  | { kind: 'operatorWeaknessTriggeredOutput' }
-  /** SetWeaknessAction 在唯一敌人上发布的无目标 OnSetWeakness；只允许全队作用域。 */
-  | { kind: 'enemyWeaknessSet' }
-  /** 用户排轴控制，不发布受击或技能释放事件，也不创建连携候选。 */
-  | { kind: 'comboCooldownControl'; mode: 'cooldown' | 'ready' };
+/** 用户排轴控制，不发布受击或技能释放事件，也不创建连携候选。 */
+export type ExternalCombatEventDocument = {
+  kind: 'comboCooldownControl';
+  mode: 'cooldown' | 'ready';
+};
 
 /**
  * 用户显式声明的外部事件标记。它不代表敌方技能，也不会自行扣减生命。

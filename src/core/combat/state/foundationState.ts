@@ -2,15 +2,67 @@
 import { type SkillType, type OperatorAttribute } from '../../game-data/operatorDefinition';
 import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
 import { type RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import type { CombatObjectRef } from '../receipt/combatReceipt';
 import {
+  type AttributeModifierSlot,
   type AttributeModifierTiming,
   type AttributeModifierValues,
+  type DamageScaleSide,
+  type DamageScaleZone,
   type DamageModifierDefinition,
   type HealModifierDefinition,
   type PoiseModifierDefinition,
 } from '../../../../packages/game-data-contract/src/modifiers';
 import { type AbilityEvent } from '../../../../packages/game-data-contract/src/abilityEvents';
+
+/** 一项配装贡献的原始定义位置。 */
+export type EquipmentContributionSource =
+  | { readonly kind: 'weaponTrait'; readonly slug: string; readonly traitKey: string }
+  | { readonly kind: 'gearTrait'; readonly slug: string; readonly traitKey: string }
+  | { readonly kind: 'gearSet'; readonly slug: string };
+
+/** 面板数值贡献的来源，供伤害快照追溯。 */
+export type OperatorPanelContributionSource =
+  | { readonly kind: 'operatorBase'; readonly operatorSlug: string }
+  | { readonly kind: 'trust'; readonly operatorSlug: string; readonly node: number }
+  | {
+      readonly kind: 'operatorUpgrade';
+      readonly source: 'talent' | 'potential';
+      readonly index: number;
+    }
+  | { readonly kind: 'weaponBase'; readonly weaponSlug: string }
+  | { readonly kind: 'gearBase'; readonly gearSlug: string }
+  | { readonly kind: 'equipment'; readonly contribution: EquipmentContributionSource }
+  | { readonly kind: 'globalConfig'; readonly modifierId: string };
+
+/** 战斗中的稳定对象身份；回执和切面使用同一份数据类型。 */
+export type CombatObjectRef =
+  | RuntimeTargetRef
+  | ({ readonly kind: 'buff' } & BuffReference)
+  | { readonly kind: 'globalBuff'; readonly instanceId: number }
+  | { readonly kind: 'action'; readonly ownerId: string; readonly actionId: string }
+  | { readonly kind: 'receipt'; readonly sequence: number }
+  | { readonly kind: 'modifier'; readonly sequence: number; readonly index: number };
+
+export type DamageModifierResult =
+  | { readonly kind: 'damageScale'; readonly zone: DamageScaleZone; readonly addition: number }
+  | { readonly kind: 'multiplyValue'; readonly multiplier: number }
+  | {
+      readonly kind: 'attribute';
+      readonly attribute: string;
+      readonly zone?: DamageScaleZone;
+      readonly slot: AttributeModifierSlot;
+      readonly value: number;
+    };
+
+/** 已实际应用的伤害修正快照。 */
+export type AppliedDamageModifier = {
+  readonly panelSource?: OperatorPanelContributionSource;
+  readonly buff?: BuffReference;
+  readonly buffId?: string;
+  readonly sourceId: string;
+  readonly sourceActionId?: string;
+  readonly side: DamageScaleSide;
+} & DamageModifierResult;
 
 /** 与一次攻击读数同时取得的公式输入；攻击快照必须一起保存，不能事后读取当前属性。 */
 export interface AttackReceiptSnapshot {

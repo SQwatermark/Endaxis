@@ -73,7 +73,10 @@ function template(
     compileComboSkillConditionDefinitionSource(
       source,
       blackboards,
-      { key: `condition:${index}`, skillKey: 'comboSkill' },
+      {
+        key: `condition:${index}`,
+        skillKey: actualCombo ? 'chr_0032_lizhiyan_combo_skill' : 'chr_0004_pelica_combo_skill',
+      },
       {
         gameplayTagRegistry: fixtureGameplayTagRegistry,
         actionOwnerTarget: 'caster',

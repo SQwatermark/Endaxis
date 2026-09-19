@@ -863,7 +863,7 @@ class SkillOperableBoundaryStep extends StatelessCombatStep {
 
   execute(): void {
     this.runtime.hooks.stepReached?.(this.step);
-    this.operationContext.reachSkillOperableBoundary?.(this.step.parameters.sourceSkillIds);
+    this.operationContext.reachSkillOperableBoundary?.(this.step.parameters.skillIds);
   }
 }
 

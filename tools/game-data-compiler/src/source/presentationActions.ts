@@ -48,7 +48,7 @@ export interface PlaySoundActionSource {
 export interface SkillTypeMutationActionSource {
   readonly kind: 'skillTypeMutation';
   readonly target: TargetReferenceSource;
-  readonly sourceSkillId: string;
+  readonly skillId: string;
   readonly nativeSkillType: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
 }
 
@@ -139,7 +139,7 @@ export interface OtherCameraPresentationActionSource {
     | 'typhoeaHudHint';
   readonly readBlackboardKeys?: readonly string[];
   readonly target?: TargetReferenceSource;
-  readonly sourceSkillId?: string;
+  readonly skillId?: string;
   readonly nativeSkillType?: import('../../../../packages/game-data-contract/src/index.ts').NativeSkillType;
   readonly value?: ScalarSource;
 }
@@ -629,7 +629,7 @@ export function parseSkillTypeMutationSource(
   return {
     kind: 'skillTypeMutation' as const,
     target,
-    sourceSkillId: requireNonEmptyString(skillId.value, `${path}.skillId.value`),
+    skillId: requireNonEmptyString(skillId.value, `${path}.skillId.value`),
     nativeSkillType,
   };
 }

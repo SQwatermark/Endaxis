@@ -148,9 +148,12 @@ describe('scenario reset', () => {
   it('resets all scenarios without deleting the project template library', () => {
     const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' });
     project.scenarios.push(createEmptyScenario('second', 'Second'));
-    const reset = resetProjectScenarios(project, 'all');
+    project.activeScenarioId = 'second';
+    const reset = resetProjectScenarios(project, 'all', '方案1');
     expect(reset.scenarios).toHaveLength(1);
+    expect(reset.scenarios[0]!.name).toBe('方案1');
     expect(reset.scenarios[0]!.tracks).toEqual([null, null, null, null]);
+    expect(reset.scenarios[0]!.battle.resourceRules.spRecoveryPerSecond).toBe(8);
     expect(reset.definitionLibrary).toBe(project.definitionLibrary);
     expect(reset.activeScenarioId).toBe(project.activeScenarioId);
     expect(project.scenarios).toHaveLength(2);

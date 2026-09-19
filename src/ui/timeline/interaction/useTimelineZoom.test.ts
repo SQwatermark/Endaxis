@@ -5,7 +5,9 @@ import { useTimelineZoom } from './useTimelineZoom';
 function fixture() {
   const viewport = {
     scrollLeft: 100,
+    scrollTop: 100,
     clientWidth: 1000,
+    clientHeight: 600,
     getBoundingClientRect: () => ({ left: 20 }),
   } as HTMLElement;
   const zoom = useTimelineZoom({
@@ -33,7 +35,7 @@ describe('timeline viewport zoom session', () => {
     expect(viewport.scrollLeft).toBeCloseTo(610);
   });
 
-  it('leaves ordinary scrolling native and routes modified scrolling', async () => {
+  it('moves vertically without native easing and keeps modified scrolling', async () => {
     const { viewport, zoom } = fixture();
     const preventDefault = vi.fn();
     const event = {
@@ -41,17 +43,19 @@ describe('timeline viewport zoom session', () => {
       shiftKey: false,
       deltaX: 0,
       deltaY: 40,
+      deltaMode: 0,
       clientX: 220,
       preventDefault,
     };
     zoom.handleTimelineWheel(event);
-    expect(preventDefault).not.toHaveBeenCalled();
+    expect(viewport.scrollTop).toBe(140);
+    expect(preventDefault).toHaveBeenCalledTimes(1);
     zoom.handleTimelineWheel({ ...event, shiftKey: true });
     expect(viewport.scrollLeft).toBe(140);
     zoom.handleTimelineWheel({ ...event, ctrlKey: true, deltaY: -40 });
     await nextTick();
     expect(zoom.timelineZoomPercent.value).toBeGreaterThan(100);
-    expect(preventDefault).toHaveBeenCalledTimes(2);
+    expect(preventDefault).toHaveBeenCalledTimes(3);
   });
 
   it('supports initialization without a mounted viewport', async () => {

@@ -249,7 +249,7 @@ describe('独立游戏数据契约边界', () => {
       CompiledGearSetStaticDefinitionSource: ['slug'],
       CompiledOperatorActiveSkillRuntimeDefinitionSource: [
         'key',
-        'sourceSkillId',
+        'skillId',
         'blackboard',
         'timelineBlockFrames',
         'costFrame',

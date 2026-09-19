@@ -2,444 +2,339 @@
 import type { WeaponDefinition } from '../../../../core/game-data/equipmentDefinition';
 
 const definition = {
-  "slug": "wpn_claym_0013",
-  "rarity": 6,
-  "weaponType": "greatsword",
-  "baseAttackAtLevelNodes": [
-    51,
-    148,
-    250,
-    352,
-    454,
-    505
-  ],
-  "traits": [
+  slug: 'wpn_claym_0013',
+  rarity: 6,
+  weaponType: 'greatsword',
+  baseAttackAtLevelNodes: [51, 148, 250, 352, 454, 505],
+  traits: [
     {
-      "key": "skill1",
-      "levelCount": 9,
-      "modifiers": [
+      key: 'skill1',
+      levelCount: 9,
+      modifiers: [
         {
-          "kind": "attribute",
-          "attribute": "strength",
-          "operation": "flat",
-          "value": [
-            20,
-            36,
-            52,
-            68,
-            84,
-            100,
-            116,
-            132,
-            156
-          ]
-        }
-      ],
-      "buffDefinitions": {
-        "buff_wpn_claym_0013_combo_skill": {
-          "stackingType": "refresh",
-          "priority": 0,
-          "maxStackCount": {
-            "blackboardKey": "max_stack"
-          },
-          "durationSeconds": {
-            "blackboardKey": "duration2"
-          },
-          "triggerIntervalSeconds": 0,
-          "waitFirstTriggerInterval": true,
-          "maxTriggerCount": 1,
-          "presentation": {
-            "visible": true,
-            "iconId": "icon_battle_cryst_dmg_up",
-            "iconPath": "/icons/icon_battle_cryst_dmg_up.webp",
-            "showInHeadBarCommon": false,
-            "showInHeadBarAttached": false,
-            "showInSquadIcon": true,
-            "onlyShowForMainCharacter": false,
-            "blinkInMainCharHpBar": false,
-            "showProgressInHpBar": false,
-            "showProgressInNormalSkillButton": false,
-            "useWeakProgressInNormalSkillButton": false,
-            "showProgressInUltimateSkillButton": false,
-            "forceRaiseIconEvent": false,
-            "showWarningBackground": false,
-            "playStrongInAnimation": false,
-            "hasCharHpBarVfxType": false,
-            "charHpBarVfxType": "Fire",
-            "iconStyleInSquad": "Default",
-            "abnormalColorType": "Physical",
-            "orderPriority": {
-              "useDirectoryValue": false,
-              "value": 0,
-              "category": "CommonCharBuff"
-            }
-          },
-          "applyTags": [],
-          "extendTags": [],
-          "blackboard": {
-            "cryst_dmg_up2": 0,
-            "duration2": 0
-          },
-          "attributeModifiers": [
-            {
-              "attribute": "cryoDamageIncrease",
-              "slot": "baseAddition",
-              "value": {
-                "blackboardKey": "cryst_dmg_up2"
-              }
-            }
-          ]
+          kind: 'attribute',
+          attribute: 'strength',
+          operation: 'flat',
+          value: [20, 36, 52, 68, 84, 100, 116, 132, 156],
         },
-        "buff_wpn_claym_0013_normal_skill": {
-          "stackingType": "refresh",
-          "priority": 0,
-          "maxStackCount": {
-            "blackboardKey": "max_stack"
+      ],
+      buffDefinitions: {
+        buff_wpn_claym_0013_combo_skill: {
+          stackingType: 'refresh',
+          priority: 0,
+          maxStackCount: {
+            blackboardKey: 'max_stack',
           },
-          "durationSeconds": {
-            "blackboardKey": "duration"
+          durationSeconds: {
+            blackboardKey: 'duration2',
           },
-          "triggerIntervalSeconds": 0,
-          "waitFirstTriggerInterval": true,
-          "maxTriggerCount": 1,
-          "presentation": {
-            "visible": true,
-            "iconId": "icon_battle_cryst_dmg_up",
-            "iconPath": "/icons/icon_battle_cryst_dmg_up.webp",
-            "showInHeadBarCommon": false,
-            "showInHeadBarAttached": false,
-            "showInSquadIcon": true,
-            "onlyShowForMainCharacter": false,
-            "blinkInMainCharHpBar": false,
-            "showProgressInHpBar": false,
-            "showProgressInNormalSkillButton": false,
-            "useWeakProgressInNormalSkillButton": false,
-            "showProgressInUltimateSkillButton": false,
-            "forceRaiseIconEvent": false,
-            "showWarningBackground": false,
-            "playStrongInAnimation": false,
-            "hasCharHpBarVfxType": false,
-            "charHpBarVfxType": "Fire",
-            "iconStyleInSquad": "Default",
-            "abnormalColorType": "Physical",
-            "orderPriority": {
-              "useDirectoryValue": false,
-              "value": 0,
-              "category": "CommonCharBuff"
-            }
+          triggerIntervalSeconds: 0,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: 1,
+          presentation: {
+            visible: true,
+            iconId: 'icon_battle_cryst_dmg_up',
+            iconPath: '/icons/icon_battle_cryst_dmg_up.webp',
+            showInHeadBarCommon: false,
+            showInHeadBarAttached: false,
+            showInSquadIcon: true,
+            onlyShowForMainCharacter: false,
+            blinkInMainCharHpBar: false,
+            showProgressInHpBar: false,
+            showProgressInNormalSkillButton: false,
+            useWeakProgressInNormalSkillButton: false,
+            showProgressInUltimateSkillButton: false,
+            forceRaiseIconEvent: false,
+            showWarningBackground: false,
+            playStrongInAnimation: false,
+            hasCharHpBarVfxType: false,
+            charHpBarVfxType: 'Fire',
+            iconStyleInSquad: 'Default',
+            abnormalColorType: 'Physical',
+            orderPriority: {
+              useDirectoryValue: false,
+              value: 0,
+              category: 'CommonCharBuff',
+            },
           },
-          "applyTags": [],
-          "extendTags": [],
-          "blackboard": {
-            "cryst_dmg_up": 0,
-            "duration": 0
+          applyTags: [],
+          extendTags: [],
+          blackboard: {
+            cryst_dmg_up2: 0,
+            duration2: 0,
           },
-          "attributeModifiers": [
+          attributeModifiers: [
             {
-              "attribute": "cryoDamageIncrease",
-              "slot": "baseAddition",
-              "value": {
-                "blackboardKey": "cryst_dmg_up"
-              }
-            }
-          ]
-        }
-      }
+              attribute: 'cryoDamageIncrease',
+              slot: 'baseAddition',
+              value: {
+                blackboardKey: 'cryst_dmg_up2',
+              },
+            },
+          ],
+        },
+        buff_wpn_claym_0013_normal_skill: {
+          stackingType: 'refresh',
+          priority: 0,
+          maxStackCount: {
+            blackboardKey: 'max_stack',
+          },
+          durationSeconds: {
+            blackboardKey: 'duration',
+          },
+          triggerIntervalSeconds: 0,
+          waitFirstTriggerInterval: true,
+          maxTriggerCount: 1,
+          presentation: {
+            visible: true,
+            iconId: 'icon_battle_cryst_dmg_up',
+            iconPath: '/icons/icon_battle_cryst_dmg_up.webp',
+            showInHeadBarCommon: false,
+            showInHeadBarAttached: false,
+            showInSquadIcon: true,
+            onlyShowForMainCharacter: false,
+            blinkInMainCharHpBar: false,
+            showProgressInHpBar: false,
+            showProgressInNormalSkillButton: false,
+            useWeakProgressInNormalSkillButton: false,
+            showProgressInUltimateSkillButton: false,
+            forceRaiseIconEvent: false,
+            showWarningBackground: false,
+            playStrongInAnimation: false,
+            hasCharHpBarVfxType: false,
+            charHpBarVfxType: 'Fire',
+            iconStyleInSquad: 'Default',
+            abnormalColorType: 'Physical',
+            orderPriority: {
+              useDirectoryValue: false,
+              value: 0,
+              category: 'CommonCharBuff',
+            },
+          },
+          applyTags: [],
+          extendTags: [],
+          blackboard: {
+            cryst_dmg_up: 0,
+            duration: 0,
+          },
+          attributeModifiers: [
+            {
+              attribute: 'cryoDamageIncrease',
+              slot: 'baseAddition',
+              value: {
+                blackboardKey: 'cryst_dmg_up',
+              },
+            },
+          ],
+        },
+      },
     },
     {
-      "key": "skill2",
-      "levelCount": 9,
-      "modifiers": [
+      key: 'skill2',
+      levelCount: 9,
+      modifiers: [
         {
-          "kind": "panelStat",
-          "stat": "attackPercent",
-          "value": [
-            0.05,
-            0.09,
-            0.13,
-            0.17,
-            0.21,
-            0.25,
-            0.29,
-            0.33,
-            0.39
-          ]
-        }
-      ]
+          kind: 'panelStat',
+          stat: 'attackPercent',
+          value: [0.05, 0.09, 0.13, 0.17, 0.21, 0.25, 0.29, 0.33, 0.39],
+        },
+      ],
     },
     {
-      "key": "skill3",
-      "levelCount": 9,
-      "modifiers": [
+      key: 'skill3',
+      levelCount: 9,
+      modifiers: [
         {
-          "kind": "damageScale",
-          "target": "battleSkill",
-          "slot": "baseAddition",
-          "value": [
-            0.2,
-            0.24,
-            0.28,
-            0.32,
-            0.36,
-            0.4,
-            0.44,
-            0.48,
-            0.56
-          ]
+          kind: 'damageScale',
+          target: 'battleSkill',
+          slot: 'baseAddition',
+          value: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
         },
         {
-          "kind": "damageScale",
-          "target": "comboSkill",
-          "slot": "baseAddition",
-          "value": [
-            0.2,
-            0.24,
-            0.28,
-            0.32,
-            0.36,
-            0.4,
-            0.44,
-            0.48,
-            0.56
-          ]
+          kind: 'damageScale',
+          target: 'comboSkill',
+          slot: 'baseAddition',
+          value: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
         },
         {
-          "kind": "damageScale",
-          "target": "ultimate",
-          "slot": "baseAddition",
-          "value": [
-            0.2,
-            0.24,
-            0.28,
-            0.32,
-            0.36,
-            0.4,
-            0.44,
-            0.48,
-            0.56
-          ]
-        }
+          kind: 'damageScale',
+          target: 'ultimate',
+          slot: 'baseAddition',
+          value: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
+        },
       ],
-      "eventHandlers": [
+      eventHandlers: [
         {
-          "key": "skill3:event:0:sequence:0",
-          "abilityEvent": "beforeOutputInfliction",
-          "priority": 0,
-          "sequence": {
-            "steps": [
+          key: 'skill3:event:0:sequence:0',
+          abilityEvent: 'beforeOutputInfliction',
+          priority: 0,
+          sequence: {
+            steps: [
               {
-                "kind": "conditional",
-                "parameters": {
-                  "condition": {
-                    "kind": "originSkillTypeIn",
-                    "skillTypes": [
-                      "battleSkill"
-                    ]
-                  }
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'originSkillTypeIn',
+                    skillTypes: ['battleSkill'],
+                  },
                 },
-                "whenTrue": {
-                  "steps": [
+                whenTrue: {
+                  steps: [
                     {
-                      "kind": "conditional",
-                      "parameters": {
-                        "condition": {
-                          "kind": "eventInflictionElementIn",
-                          "elements": [
-                            "cryo"
-                          ]
-                        }
+                      kind: 'conditional',
+                      parameters: {
+                        condition: {
+                          kind: 'eventInflictionElementIn',
+                          elements: ['cryo'],
+                        },
                       },
-                      "whenTrue": {
-                        "steps": [
+                      whenTrue: {
+                        steps: [
                           {
-                            "kind": "conditional",
-                            "parameters": {
-                              "condition": {
-                                "kind": "not",
-                                "condition": {
-                                  "kind": "timedMarkerPresent",
-                                  "target": "caster",
-                                  "markerId": "wpn_claym_0013_1"
-                                }
-                              }
+                            kind: 'conditional',
+                            parameters: {
+                              condition: {
+                                kind: 'not',
+                                condition: {
+                                  kind: 'timedMarkerPresent',
+                                  target: 'caster',
+                                  markerId: 'wpn_claym_0013_1',
+                                },
+                              },
                             },
-                            "whenTrue": {
-                              "steps": [
+                            whenTrue: {
+                              steps: [
                                 {
-                                  "kind": "applyBuff",
-                                  "parameters": {
-                                    "buffId": "buff_wpn_claym_0013_normal_skill",
-                                    "target": "caster",
-                                    "inheritSourceSkillCastInfo": true,
-                                    "copiedBlackboardAssignments": {
-                                      "cryst_dmg_up": "cryst_dmg_up",
-                                      "duration": "duration"
-                                    }
-                                  }
+                                  kind: 'applyBuff',
+                                  parameters: {
+                                    buffId: 'buff_wpn_claym_0013_normal_skill',
+                                    target: 'caster',
+                                    inheritSourceSkillCastInfo: true,
+                                    copiedBlackboardAssignments: {
+                                      cryst_dmg_up: 'cryst_dmg_up',
+                                      duration: 'duration',
+                                    },
+                                  },
                                 },
                                 {
-                                  "kind": "createTimedMarker",
-                                  "parameters": {
-                                    "target": "caster",
-                                    "markerId": "wpn_claym_0013_1",
-                                    "durationSeconds": {
-                                      "kind": "constant",
-                                      "value": 0.1
+                                  kind: 'createTimedMarker',
+                                  parameters: {
+                                    target: 'caster',
+                                    markerId: 'wpn_claym_0013_1',
+                                    durationSeconds: {
+                                      kind: 'constant',
+                                      value: 0.1,
                                     },
-                                    "autoFinishByAction": false
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
+                                    autoFinishByAction: false,
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
         },
         {
-          "key": "skill3:event:1:sequence:0",
-          "abilityEvent": "beforeOutputDamage",
-          "priority": 0,
-          "sequence": {
-            "steps": [
+          key: 'skill3:event:1:sequence:0',
+          abilityEvent: 'beforeOutputDamage',
+          priority: 0,
+          sequence: {
+            steps: [
               {
-                "kind": "conditional",
-                "parameters": {
-                  "condition": {
-                    "kind": "eventDamageTagsMatch",
-                    "match": "hasAll",
-                    "tags": [
-                      "comboSkill"
-                    ]
-                  }
+                kind: 'conditional',
+                parameters: {
+                  condition: {
+                    kind: 'eventDamageTagsMatch',
+                    match: 'hasAll',
+                    tags: ['comboSkill'],
+                  },
                 },
-                "whenTrue": {
-                  "steps": [
+                whenTrue: {
+                  steps: [
                     {
-                      "kind": "conditional",
-                      "parameters": {
-                        "condition": {
-                          "kind": "buffStackCompare",
-                          "target": "actionInputTarget",
-                          "tagQueryType": "hasAny",
-                          "buffTags": [
-                            "Skill/Character/Common/SpellInflict/CrystInflict"
-                          ],
-                          "operator": "greaterOrEqual",
-                          "value": {
-                            "kind": "constant",
-                            "value": 1
-                          }
-                        }
+                      kind: 'conditional',
+                      parameters: {
+                        condition: {
+                          kind: 'buffStackCompare',
+                          target: 'actionInputTarget',
+                          tagQueryType: 'hasAny',
+                          buffTags: ['Skill/Character/Common/SpellInflict/CrystInflict'],
+                          operator: 'greaterOrEqual',
+                          value: {
+                            kind: 'constant',
+                            value: 1,
+                          },
+                        },
                       },
-                      "whenTrue": {
-                        "steps": [
+                      whenTrue: {
+                        steps: [
                           {
-                            "kind": "conditional",
-                            "parameters": {
-                              "condition": {
-                                "kind": "not",
-                                "condition": {
-                                  "kind": "timedMarkerPresent",
-                                  "target": "caster",
-                                  "markerId": "wpn_claym_0013_2"
-                                }
-                              }
+                            kind: 'conditional',
+                            parameters: {
+                              condition: {
+                                kind: 'not',
+                                condition: {
+                                  kind: 'timedMarkerPresent',
+                                  target: 'caster',
+                                  markerId: 'wpn_claym_0013_2',
+                                },
+                              },
                             },
-                            "whenTrue": {
-                              "steps": [
+                            whenTrue: {
+                              steps: [
                                 {
-                                  "kind": "applyBuff",
-                                  "parameters": {
-                                    "buffId": "buff_wpn_claym_0013_combo_skill",
-                                    "target": "caster",
-                                    "inheritSourceSkillCastInfo": true,
-                                    "copiedBlackboardAssignments": {
-                                      "cryst_dmg_up2": "cryst_dmg_up2",
-                                      "duration2": "duration2"
-                                    }
-                                  }
+                                  kind: 'applyBuff',
+                                  parameters: {
+                                    buffId: 'buff_wpn_claym_0013_combo_skill',
+                                    target: 'caster',
+                                    inheritSourceSkillCastInfo: true,
+                                    copiedBlackboardAssignments: {
+                                      cryst_dmg_up2: 'cryst_dmg_up2',
+                                      duration2: 'duration2',
+                                    },
+                                  },
                                 },
                                 {
-                                  "kind": "createTimedMarker",
-                                  "parameters": {
-                                    "target": "caster",
-                                    "markerId": "wpn_claym_0013_2",
-                                    "durationSeconds": {
-                                      "kind": "constant",
-                                      "value": 0.1
+                                  kind: 'createTimedMarker',
+                                  parameters: {
+                                    target: 'caster',
+                                    markerId: 'wpn_claym_0013_2',
+                                    durationSeconds: {
+                                      kind: 'constant',
+                                      value: 0.1,
                                     },
-                                    "autoFinishByAction": false
-                                  }
-                                }
-                              ]
-                            }
-                          }
-                        ]
-                      }
-                    }
-                  ]
-                }
-              }
-            ]
-          }
-        }
+                                    autoFinishByAction: false,
+                                  },
+                                },
+                              ],
+                            },
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+            ],
+          },
+        },
       ],
-      "blackboard": {
-        "cryst_dmg_up": [
-          0.1,
-          0.12,
-          0.14,
-          0.16,
-          0.18,
-          0.2,
-          0.22,
-          0.24,
-          0.28
-        ],
-        "cryst_dmg_up2": [
-          0.2,
-          0.24,
-          0.28,
-          0.32,
-          0.36,
-          0.4,
-          0.44,
-          0.48,
-          0.56
-        ],
-        "duration": [
-          15,
-          15,
-          15,
-          15,
-          15,
-          15,
-          15,
-          15,
-          15
-        ],
-        "duration2": [
-          15,
-          15,
-          15,
-          15,
-          15,
-          15,
-          15,
-          15,
-          15
-        ]
-      }
-    }
+      blackboard: {
+        cryst_dmg_up: [0.1, 0.12, 0.14, 0.16, 0.18, 0.2, 0.22, 0.24, 0.28],
+        cryst_dmg_up2: [0.2, 0.24, 0.28, 0.32, 0.36, 0.4, 0.44, 0.48, 0.56],
+        duration: [15, 15, 15, 15, 15, 15, 15, 15, 15],
+        duration2: [15, 15, 15, 15, 15, 15, 15, 15, 15],
+      },
+    },
   ],
-  "assetSlug": "wpn_greatsword_0013",
-  "iconPath": "/weapons/greatsword/wpn_greatsword_0013.webp"
+  assetSlug: 'wpn_greatsword_0013',
+  iconPath: '/weapons/greatsword/wpn_greatsword_0013.webp',
 } as const satisfies WeaponDefinition;
 
 export default definition;

@@ -44,8 +44,9 @@ it('selects on add, permits repeated and empty references, and cancels without a
   editor.choose('empty');
   expect(updates).toHaveLength(0);
   editor.pick(event);
-  editor.choose('skill:basicAttack1');
-  expect(updates.at(-1)!.placementSequenceSkillKeys).toEqual(['basicAttack1']);
+  const firstSkillKey = 'key' in group.skills ? group.skills.key : group.skills[0]!.key;
+  editor.choose(`skill:${firstSkillKey}`);
+  expect(updates.at(-1)!.placementSequenceSkillKeys).toEqual([firstSkillKey]);
   expect(editor.picker.value).toBeUndefined();
   editor.pick(event);
   editor.choose('empty');

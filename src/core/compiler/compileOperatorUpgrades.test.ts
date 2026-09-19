@@ -1010,8 +1010,8 @@ describe('operator upgrade compilation', () => {
       build({ operatorSlug: camilleGeneratedOperator.slug, potential: 3 }),
       camilleGeneratedOperator,
     );
-    const combo1 = programs.find(program => program.skillId === 'comboSkill1')!;
-    const combo2 = programs.find(program => program.skillId === 'comboSkill2')!;
+    const combo1 = programs.find(program => program.skillId === 'chr_0033_camille_combo_skill')!;
+    const combo2 = programs.find(program => program.skillId === 'chr_0033_camille_combo_skill_2')!;
 
     expect(combo1.cooldownFrames).toBe(480);
     expect(combo2.cooldownFrames).toBeUndefined();
@@ -1028,9 +1028,12 @@ describe('operator upgrade compilation', () => {
       chenQianyuGeneratedOperator,
     );
 
-    expect(programs.find(program => program.skillId === 'comboSkill')!.cooldownFrames).toBe(360);
     expect(
-      programs.find(program => program.skillId === 'ultimate')!.initialBlackboard.potential5,
+      programs.find(program => program.skillId === 'chr_0005_chen_combo_skill')!.cooldownFrames,
+    ).toBe(360);
+    expect(
+      programs.find(program => program.skillId === 'chr_0005_chen_ultimate_skill')!
+        .initialBlackboard.potential5,
     ).toBe(1);
   });
 
@@ -1040,7 +1043,7 @@ describe('operator upgrade compilation', () => {
       build({ operatorSlug: gilbertaGeneratedOperator.slug, potential: 5 }),
       gilbertaGeneratedOperator,
     );
-    const combo = programs.find(program => program.skillId === 'comboSkill')!;
+    const combo = programs.find(program => program.skillId === 'chr_0013_aglina_combo_skill')!;
 
     expect(combo.cooldownFrames).toBe(510);
     expect(combo.initialBlackboard.atk_scale).toBeCloseTo(3.15 * 1.3);
@@ -1068,7 +1071,10 @@ describe('operator upgrade compilation', () => {
     );
     const comboPrograms = programs.filter(program => program.skillGroupKey === 'comboSkill');
 
-    expect(comboPrograms.map(program => program.skillId)).toEqual(['comboSkill1', 'comboSkill2']);
+    expect(comboPrograms.map(program => program.skillId)).toEqual([
+      'chr_0033_camille_combo_skill',
+      'chr_0033_camille_combo_skill_2',
+    ]);
     expect(comboPrograms.every(program => program.initialBlackboard.talent_0 === 1)).toBe(true);
     expect(comboPrograms.every(program => program.initialBlackboard.heal_base === 60)).toBe(true);
   });

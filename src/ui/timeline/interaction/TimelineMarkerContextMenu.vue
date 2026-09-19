@@ -37,11 +37,6 @@ const props = defineProps<{
     switchToDodge: string;
     switchToPerfectDodge: string;
     useConsumable: string;
-    restrictedHint: string;
-    operatorHit: string;
-    operatorWeakness: string;
-    teamHit: string;
-    enemyWeaknessSet: string;
   };
 }>();
 const emit = defineEmits<{
@@ -54,10 +49,6 @@ const emit = defineEmits<{
   setDodgeMode: [mode: 'dodge' | 'perfectDodge'];
   copyMarker: [];
   useConsumable: [];
-  addOperatorHit: [];
-  addOperatorWeakness: [];
-  addTeamHit: [];
-  addEnemyWeaknessSet: [];
   controlComboCooldown: [mode: 'cooldown' | 'ready'];
   delete: [];
   inherit: [];
@@ -282,39 +273,6 @@ onBeforeUnmount(() => {
             <span class="menu-icon" aria-hidden="true">✦</span
             ><span>{{ labels.perfectDodge }}</span>
           </EaButton>
-          <div class="divider"></div>
-          <small class="menu-label">{{ labels.restrictedHint }}</small>
-          <EaButton
-            type="button"
-            class="menu-item"
-            role="menuitem"
-            :disabled="!canTargetTrack"
-            @click="$emit('addOperatorHit')"
-          >
-            <span class="menu-icon" aria-hidden="true">◎</span><span>{{ labels.operatorHit }}</span>
-          </EaButton>
-          <EaButton
-            type="button"
-            class="menu-item"
-            role="menuitem"
-            :disabled="!canTargetTrack"
-            @click="$emit('addOperatorWeakness')"
-          >
-            <span class="menu-icon" aria-hidden="true">◇</span
-            ><span>{{ labels.operatorWeakness }}</span>
-          </EaButton>
-          <EaButton type="button" class="menu-item" role="menuitem" @click="$emit('addTeamHit')">
-            <span class="menu-icon" aria-hidden="true">◉</span><span>{{ labels.teamHit }}</span>
-          </EaButton>
-          <EaButton
-            type="button"
-            class="menu-item"
-            role="menuitem"
-            @click="$emit('addEnemyWeaknessSet')"
-          >
-            <span class="menu-icon" aria-hidden="true">◈</span
-            ><span>{{ labels.enemyWeaknessSet }}</span>
-          </EaButton>
         </template>
       </fieldset>
     </div>
@@ -431,6 +389,7 @@ onBeforeUnmount(() => {
 }
 .menu-item.has-submenu {
   justify-content: space-between;
+  gap: var(--ea-control-gap);
 }
 .menu-item .arrow {
   margin-left: 10px;
@@ -455,13 +414,17 @@ onBeforeUnmount(() => {
   display: flex;
 }
 .submenu-list-item {
+  width: 100%;
   height: 32px;
   padding: 0 12px;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
   gap: 8px;
   border: 0;
+  border-radius: 0;
   background: transparent;
+  box-shadow: none;
   color: #ccc;
   font: inherit;
   cursor: pointer;

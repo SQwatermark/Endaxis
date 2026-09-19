@@ -1,68 +1,50 @@
-import { describe, expect, it } from 'vitest';
-import { CombatReceiptCollector } from '../receipt/combatReceipt';
+import { describe, expect, it, vi } from 'vitest';
 import { CombatClock } from '../time/combatClock';
-import { createNativeEventFixture } from './nativeEventTestFixture';
 import { ExternalCombatEventRuntime } from './externalCombatEventRuntime';
 
 describe('ExternalCombatEventRuntime', () => {
-  it('绑定保存游标后只处理尚未发生的外部事实', () => {
+  it('恢复游标后只处理尚未发生的连携冷却控制', () => {
     const events = [0, 2].map(frame => ({
       frame,
       targetOperatorIds: ['operator'],
-      event: { kind: 'enemyWeaknessSet' as const },
+      event: { kind: 'comboCooldownControl' as const, mode: 'ready' as const },
     }));
-    const originalClock = new CombatClock();
-    const originalReceipt = new CombatReceiptCollector();
-    const originalCalls: number[] = [];
-    const original = new ExternalCombatEventRuntime({
-      clock: originalClock,
-      receipt: originalReceipt,
-      events,
-      emitEnemyWeaknessSet: () => originalCalls.push(originalClock.frame),
-    });
+    const clock = new CombatClock();
+    const controlComboCooldown = vi.fn();
+    const original = new ExternalCombatEventRuntime({ clock, events, controlComboCooldown });
     original.applyCurrentFrame();
-    originalClock.advanceFrame();
-    original.applyCurrentFrame();
-    const saved = structuredClone({
-      clock: originalClock.runtimeState,
-      events: original.runtimeState,
-    });
-    const savedHistory = originalReceipt.history.snapshot();
+    clock.advanceFrame();
+    const saved = structuredClone({ clock: clock.runtimeState, events: original.runtimeState });
 
-    originalClock.advanceFrame();
-    original.applyCurrentFrame();
     const restoredClock = new CombatClock(saved.clock);
-    const restoredReceipt = new CombatReceiptCollector(savedHistory);
-    const restoredCalls: number[] = [];
+    const restoredControl = vi.fn();
     const restored = new ExternalCombatEventRuntime({
       clock: restoredClock,
-      receipt: restoredReceipt,
       events,
       restoredState: saved.events,
-      emitEnemyWeaknessSet: () => restoredCalls.push(restoredClock.frame),
+      controlComboCooldown: restoredControl,
     });
-    expect(restored.runtimeState).toBe(saved.events);
     restored.applyCurrentFrame();
     restoredClock.advanceFrame();
     restored.applyCurrentFrame();
 
-    expect(restoredCalls).toEqual([2]);
+    expect(restoredControl).toHaveBeenCalledExactlyOnceWith('operator', 'ready');
+    clock.advanceFrame();
+    original.applyCurrentFrame();
     expect(restored.runtimeState).toEqual(original.runtimeState);
-    expect(restoredReceipt.entries).toEqual(originalReceipt.entries);
   });
 
-  it('允许替换未来事实，但拒绝把不同的已消费前缀绑定到保存游标', () => {
+  it('允许替换未来输入，但拒绝把不同的已消费前缀绑定到保存游标', () => {
     const clock = new CombatClock();
-    const receipt = new CombatReceiptCollector();
     const consumed = {
       frame: 0,
       targetOperatorIds: ['operator'],
-      event: { kind: 'enemyWeaknessSet' as const },
+      event: { kind: 'comboCooldownControl' as const, mode: 'cooldown' as const },
     };
     const original = new ExternalCombatEventRuntime({
       clock,
-      receipt,
       events: [consumed, { ...consumed, frame: 4 }],
+      controlComboCooldown: vi.fn(),
     });
     original.applyCurrentFrame();
     const saved = structuredClone(original.runtimeState);
@@ -71,7 +53,6 @@ describe('ExternalCombatEventRuntime', () => {
       () =>
         new ExternalCombatEventRuntime({
           clock,
-          receipt,
           events: [consumed],
           restoredState: structuredClone(saved),
         }),
@@ -80,164 +61,30 @@ describe('ExternalCombatEventRuntime', () => {
       () =>
         new ExternalCombatEventRuntime({
           clock,
-          receipt,
-          events: [{ ...consumed, targetOperatorIds: ['other'] }],
+          events: [{ ...consumed, event: { ...consumed.event, mode: 'ready' } }],
           restoredState: structuredClone(saved),
         }),
     ).toThrow('external event prefix does not match program');
   });
 
-  it('dispatches explicit operator hit facts without creating a damage result', () => {
-    const clock = new CombatClock();
-    const { semanticEvents: events, dispatcher } = createNativeEventFixture();
-    const receipt = new CombatReceiptCollector();
-    const received: string[] = [];
-    const abilityEvents: unknown[] = [];
-    for (const operatorId of ['operator:a', 'operator:b']) {
-      events.register({
-        ownerOperatorId: operatorId,
-        trigger: { kind: 'operatorHit' },
-        phase: 'skill',
-        handle: context => {
-          if ('payload' in context.event && context.event.event === 'takeDamage') {
-            received.push(`${operatorId}:${context.event.payload.tags.join(',')}`);
-          }
-        },
-      });
-    }
-    const runtime = new ExternalCombatEventRuntime({
-      clock,
-      emitOperatorHitAbilityEvent: (operatorId, payload) => {
-        abilityEvents.push({ operatorId, payload });
-        dispatcher.dispatch({ event: 'takeDamage', payload }, []);
-      },
-      receipt,
-      events: [
-        {
-          frame: 0,
-          targetOperatorIds: ['operator:b'],
-          event: { kind: 'operatorHit', tags: ['normalSkill'], features: ['airborne'] },
-        },
-      ],
-    });
-
-    runtime.applyCurrentFrame();
-
-    expect(received).toEqual(['operator:b:normalSkill']);
-    expect(abilityEvents).toEqual([
-      {
-        operatorId: 'operator:b',
-        payload: {
-          external: true,
-          sourceId: 'enemy',
-          targetId: 'operator:b',
-          tags: ['normalSkill'],
-          features: ['airborne'],
-        },
-      },
-    ]);
-    expect(receipt.entries).toEqual([
-      expect.objectContaining({
-        event: 'ExternalOperatorHitProcessed',
-        sourceId: 'enemy',
-        targetId: 'operator:b',
-      }),
-    ]);
-    expect(receipt.entries.some(entry => entry.event === 'DamageApplied')).toBe(false);
-  });
-
-  it('requires ordered logical-frame inputs', () => {
+  it('按逻辑帧顺序处理输入', () => {
     expect(
       () =>
         new ExternalCombatEventRuntime({
           clock: new CombatClock(),
-          receipt: new CombatReceiptCollector(),
           events: [
             {
               frame: 2,
-              targetOperatorIds: ['operator:a'],
-              event: { kind: 'operatorHit', tags: [], features: [] },
+              targetOperatorIds: ['operator'],
+              event: { kind: 'comboCooldownControl', mode: 'ready' },
             },
             {
               frame: 1,
-              targetOperatorIds: ['operator:a'],
-              event: { kind: 'operatorHit', tags: [], features: [] },
+              targetOperatorIds: ['operator'],
+              event: { kind: 'comboCooldownControl', mode: 'cooldown' },
             },
           ],
         }),
     ).toThrow('scheduled external event inputs must be ordered by frame');
   });
-
-  it('dispatches weakness-trigger output only to the selected attacker ability system', () => {
-    const clock = new CombatClock();
-    const receipt = new CombatReceiptCollector();
-    const received: string[] = [];
-    const runtime = new ExternalCombatEventRuntime({
-      clock,
-      receipt,
-      emitOperatorWeaknessTriggeredOutput: operatorId => received.push(operatorId),
-      events: [
-        {
-          frame: 0,
-          targetOperatorIds: ['operator:chen'],
-          event: { kind: 'operatorWeaknessTriggeredOutput' },
-        },
-      ],
-    });
-
-    runtime.applyCurrentFrame();
-
-    expect(received).toEqual(['operator:chen']);
-    expect(receipt.entries).toContainEqual(
-      expect.objectContaining({
-        event: 'ExternalOperatorWeaknessTriggeredOutputProcessed',
-        sourceId: 'operator:chen',
-        targetId: 'enemy',
-      }),
-    );
-  });
-
-  it('dispatches enemy weakness-set once as a global untargeted fact', () => {
-    const clock = new CombatClock();
-    const receipt = new CombatReceiptCollector();
-    const received: string[] = [];
-    const runtime = new ExternalCombatEventRuntime({
-      clock,
-      receipt,
-      emitEnemyWeaknessSet: () => received.push('enemy'),
-      events: [
-        {
-          frame: 0,
-          targetOperatorIds: ['operator:a', 'operator:b'],
-          event: { kind: 'enemyWeaknessSet' },
-        },
-      ],
-    });
-
-    runtime.applyCurrentFrame();
-
-    expect(received).toEqual(['enemy']);
-    expect(receipt.entries).toContainEqual(
-      expect.objectContaining({
-        event: 'ExternalEnemyWeaknessSetProcessed',
-        sourceId: 'enemy',
-        targetId: 'enemy',
-      }),
-    );
-  });
-});
-
-it('外部受击缺少原始发布入口时明确失败，不静默丢弃', () => {
-  const runtime = new ExternalCombatEventRuntime({
-    clock: new CombatClock(),
-    receipt: new CombatReceiptCollector(),
-    events: [
-      {
-        frame: 0,
-        targetOperatorIds: ['operator'],
-        event: { kind: 'operatorHit', tags: [], features: [] },
-      },
-    ],
-  });
-  expect(() => runtime.applyCurrentFrame()).toThrow('requires an ability event publisher');
 });

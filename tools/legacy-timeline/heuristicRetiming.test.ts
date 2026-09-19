@@ -358,7 +358,7 @@ it.each([
       canInterrupt: secondStart >= 260,
       inputWindows: {
         allowedNextSkills: earlyWindow
-          ? [{ startFrame: 20, endFrame: 22, sourceSkillIds: ['next'] }]
+          ? [{ startFrame: 20, endFrame: 22, skillIds: ['next'] }]
           : [],
       },
       canStart: () => true,

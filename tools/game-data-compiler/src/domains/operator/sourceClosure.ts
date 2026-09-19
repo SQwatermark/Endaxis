@@ -212,7 +212,7 @@ export function resolveOperatorSourceClosure(
     ? skillLibrary.activeSkills.entries
         .map(entry => ({
           skillKey: entry.key,
-          skillId: entry.skillId,
+          skillId: entry.key,
           queries: compileActiveSkillAbilityEntityQueriesSource(
             entry.definition.definition,
             queryContext.catalog,

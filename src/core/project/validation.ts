@@ -332,11 +332,11 @@ function validateSkillCast(
     } else {
       const def = value.customDefinition as Record<string, unknown>;
       if (isObject(value.source) && value.source.kind === 'operatorSkill') {
-        const sourceSkillKey = (value.source as Record<string, unknown>).skillKey;
-        if (typeof sourceSkillKey === 'string' && def.key !== sourceSkillKey) {
+        const castSkillKey = (value.source as Record<string, unknown>).skillKey;
+        if (typeof castSkillKey === 'string' && def.key !== castSkillKey) {
           issues.push({
             path: `${defPath}.key`,
-            message: `custom definition key must match source skill key '${sourceSkillKey}'`,
+            message: `custom definition key must match cast skill key '${castSkillKey}'`,
           });
         }
       }

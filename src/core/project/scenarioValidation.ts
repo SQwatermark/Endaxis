@@ -3,12 +3,7 @@
  * 这里只检查持久化结构和引用关系，不应调用游戏数据或执行战斗规则。
  */
 import { ENEMY_EDITABLE_FIELDS, GLOBAL_OPERATOR_STAT_MODIFIERS, type JsonObject } from './schema';
-import {
-  DAMAGE_FEATURES,
-  DAMAGE_TAGS,
-  DAMAGE_TYPES,
-  SKILL_TYPES,
-} from '../game-data/operatorDefinition';
+import { SKILL_TYPES } from '../game-data/operatorDefinition';
 import { ENEMY_RANKS } from '../game-data/enemyRank';
 import {
   isObject,
@@ -25,9 +20,6 @@ import {
 const enemyEditableFields = new Set<string>(ENEMY_EDITABLE_FIELDS);
 const globalOperatorStatModifiers = new Set<string>(GLOBAL_OPERATOR_STAT_MODIFIERS);
 const skillTypes = new Set<string>(SKILL_TYPES);
-const damageTags = new Set<string>(DAMAGE_TAGS);
-const damageFeatures = new Set<string>(DAMAGE_FEATURES);
-const damageTypes = new Set<string>(DAMAGE_TYPES);
 const enemyRanks = new Set<string>(ENEMY_RANKS);
 
 export function validateOperatorInstance(
@@ -298,72 +290,20 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
           issues.push({ path: `${entryPath}.event`, message: 'expected an object' });
           return;
         }
-        if (
-          entry.event.kind !== 'operatorHit' &&
-          entry.event.kind !== 'operatorWeaknessTriggeredOutput' &&
-          entry.event.kind !== 'enemyWeaknessSet' &&
-          entry.event.kind !== 'comboCooldownControl'
-        ) {
+        if (entry.event.kind !== 'comboCooldownControl') {
           issues.push({ path: `${entryPath}.event.kind`, message: 'unknown external event kind' });
           return;
         }
-        if (entry.event.kind === 'comboCooldownControl') {
-          if (entry.event.mode !== 'cooldown' && entry.event.mode !== 'ready') {
-            issues.push({
-              path: `${entryPath}.event.mode`,
-              message: 'unknown cooldown control mode',
-            });
-          }
-          if (!isObject(entry.target) || entry.target.scope !== 'team') {
-            issues.push({
-              path: `${entryPath}.target.scope`,
-              message: 'cooldown control requires team scope',
-            });
-          }
-          return;
-        }
-        if (entry.event.kind === 'enemyWeaknessSet') {
-          if (!isObject(entry.target) || entry.target.scope !== 'team') {
-            issues.push({
-              path: `${entryPath}.target.scope`,
-              message: 'enemy weakness-set event requires team scope',
-            });
-          }
-          return;
-        }
-        if (entry.event.kind === 'operatorWeaknessTriggeredOutput') return;
-        if (
-          entry.event.damageType !== undefined &&
-          (typeof entry.event.damageType !== 'string' || !damageTypes.has(entry.event.damageType))
-        ) {
+        if (entry.event.mode !== 'cooldown' && entry.event.mode !== 'ready') {
           issues.push({
-            path: `${entryPath}.event.damageType`,
-            message: 'unknown damage type',
+            path: `${entryPath}.event.mode`,
+            message: 'unknown cooldown control mode',
           });
         }
-        for (const [field, allowed] of [
-          ['tags', damageTags],
-          ['features', damageFeatures],
-        ] as const) {
-          const values = entry.event[field];
-          if (!Array.isArray(values)) {
-            issues.push({ path: `${entryPath}.event.${field}`, message: 'expected an array' });
-            continue;
-          }
-          const seen = new Set<string>();
-          values.forEach((value, index) => {
-            if (typeof value !== 'string' || !allowed.has(value)) {
-              issues.push({
-                path: `${entryPath}.event.${field}[${index}]`,
-                message: 'unknown value',
-              });
-            } else if (seen.has(value)) {
-              issues.push({
-                path: `${entryPath}.event.${field}[${index}]`,
-                message: 'duplicate value',
-              });
-            }
-            if (typeof value === 'string') seen.add(value);
+        if (!isObject(entry.target) || entry.target.scope !== 'team') {
+          issues.push({
+            path: `${entryPath}.target.scope`,
+            message: 'cooldown control requires team scope',
           });
         }
       },

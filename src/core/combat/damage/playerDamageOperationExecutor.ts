@@ -257,7 +257,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
       context.applyModifiers('beforeCalculation');
       const calculationAttackAttributes = context.attackerAttributes;
       const attributeDetails: import('./damageScale').AppliedDamageModifier[] = [];
-      const recordAttribute = (side: 'attacker' | 'defender', attribute: string) => {
+      const recordAttribute = (side: DamageModifierSide, attribute: string) => {
         const snapshot =
           side === 'attacker' ? context.attackerAttributes : context.defenderAttributes;
         attributeDetails.push(
@@ -526,7 +526,7 @@ export class PlayerDamageOperationExecutor implements CombatOperationExecutor {
     step: DamageStep,
     context: PlayerDamageContext,
     operationContext: CombatOperationContext | undefined,
-    recordAttribute: (side: 'attacker' | 'defender', attribute: string) => void,
+    recordAttribute: (side: DamageModifierSide, attribute: string) => void,
   ): number {
     if (step.kind === 'dealFixedDamage') {
       return this.#resolveActionValue(

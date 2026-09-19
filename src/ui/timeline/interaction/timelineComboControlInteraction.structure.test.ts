@@ -21,7 +21,10 @@ describe('combo control editor wiring', () => {
     );
     expect(gesture.indexOf('const wasComboControlSelected')).toBeGreaterThan(0);
     expect(gesture.indexOf('const wasComboControlSelected')).toBeLessThan(
-      gesture.indexOf('clearTimelineSelection();'),
+      gesture.indexOf(
+        'clearTimelineSelection();',
+        gesture.indexOf('const wasComboControlSelected'),
+      ),
     );
     expect(gesture).toContain(
       'if (!gesture.dragStarted && wasComboControlSelected) clearTimelineSelection();',

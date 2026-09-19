@@ -1,13 +1,14 @@
 import { expect, it } from 'vitest';
 import { CombatReceiptCollector } from '../combat/receipt/combatReceipt';
 import type { AppliedDamageModifier } from '../combat/damage/damageScale';
+import type { DamageModifierSide } from '../../../packages/game-data-contract/src/modifiers';
 import { CombatObjectOrigins } from './combatObjectOrigins';
 import { projectHitDamageContribution } from './damageContribution';
 
 function modifier(
   sourceId: string,
   addition: number,
-  side: 'attacker' | 'defender' = 'attacker',
+  side: DamageModifierSide = 'attacker',
 ): AppliedDamageModifier {
   return {
     kind: 'damageScale',

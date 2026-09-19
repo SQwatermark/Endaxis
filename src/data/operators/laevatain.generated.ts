@@ -12,10 +12,9 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
-export const laevatainBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0016_laevat_attack1',
+    key: 'chr_0016_laevat_attack1',
     timelineBlockFrames: 10,
     naturalDurationFrames: 120,
     exclusiveFrame: 16,
@@ -26,12 +25,10 @@ export const laevatainBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 33,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_attack2',
+          targetSkillId: 'chr_0016_laevat_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 10, endFrame: 33, sourceSkillIds: ['chr_0016_laevat_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 10, endFrame: 33, skillIds: ['chr_0016_laevat_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -68,13 +65,11 @@ export const laevatainBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         10,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0016_laevat_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0016_laevat_attack2'] })),
         33,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_attack2',
+    timelineContinuationSkillId: 'chr_0016_laevat_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -82,10 +77,9 @@ export const laevatainBasicAttack1: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36] },
 );
 
-export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0016_laevat_attack2',
+    key: 'chr_0016_laevat_attack2',
     timelineBlockFrames: 16,
     naturalDurationFrames: 140,
     exclusiveFrame: 25,
@@ -96,12 +90,10 @@ export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 37,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_attack3',
+          targetSkillId: 'chr_0016_laevat_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 16, endFrame: 38, sourceSkillIds: ['chr_0016_laevat_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 16, endFrame: 38, skillIds: ['chr_0016_laevat_attack3'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -179,13 +171,11 @@ export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         16,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0016_laevat_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0016_laevat_attack3'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_attack3',
+    timelineContinuationSkillId: 'chr_0016_laevat_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -197,10 +187,9 @@ export const laevatainBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0016_laevat_attack3',
+    key: 'chr_0016_laevat_attack3',
     timelineBlockFrames: 12,
     naturalDurationFrames: 105,
     exclusiveFrame: 22,
@@ -211,12 +200,10 @@ export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 32,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_attack4',
+          targetSkillId: 'chr_0016_laevat_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 32, sourceSkillIds: ['chr_0016_laevat_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 32, skillIds: ['chr_0016_laevat_attack4'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -261,13 +248,11 @@ export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         12,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0016_laevat_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0016_laevat_attack4'] })),
         32,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_attack4',
+    timelineContinuationSkillId: 'chr_0016_laevat_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -275,10 +260,9 @@ export const laevatainBasicAttack3: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
 );
 
-export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0016_laevat_attack4',
+    key: 'chr_0016_laevat_attack4',
     timelineBlockFrames: 22,
     naturalDurationFrames: 121,
     exclusiveFrame: 35,
@@ -289,12 +273,10 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 5,
           endFrame: 45,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_attack5',
+          targetSkillId: 'chr_0016_laevat_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 22, endFrame: 45, sourceSkillIds: ['chr_0016_laevat_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 22, endFrame: 45, skillIds: ['chr_0016_laevat_attack5'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -410,13 +392,11 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         22,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0016_laevat_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0016_laevat_attack5'] })),
         45,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_attack5',
+    timelineContinuationSkillId: 'chr_0016_laevat_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -428,10 +408,9 @@ export const laevatainBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0016_laevat_attack5',
+    key: 'chr_0016_laevat_attack5',
     timelineBlockFrames: 34,
     naturalDurationFrames: 145,
     exclusiveFrame: 42,
@@ -442,12 +421,10 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 4,
           endFrame: 46,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_attack1',
+          targetSkillId: 'chr_0016_laevat_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 34, endFrame: 46, sourceSkillIds: ['chr_0016_laevat_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 34, endFrame: 46, skillIds: ['chr_0016_laevat_attack1'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -555,13 +532,11 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         34,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0016_laevat_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0016_laevat_attack1'] })),
         46,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_attack1',
+    timelineContinuationSkillId: 'chr_0016_laevat_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -575,10 +550,9 @@ export const laevatainBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_ult_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack1',
-    sourceSkillId: 'chr_0016_laevat_ult_attack1',
+    key: 'chr_0016_laevat_ult_attack1',
     timelineBlockFrames: 17,
     naturalDurationFrames: 155,
     exclusiveFrame: 25,
@@ -589,16 +563,16 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 32,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_ult_attack2',
+          targetSkillId: 'chr_0016_laevat_ult_attack2',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 17,
           endFrame: 32,
-          sourceSkillIds: ['chr_0016_laevat_ult_attack2', 'chr_0016_laevat_attack1'],
+          skillIds: ['chr_0016_laevat_ult_attack2', 'chr_0016_laevat_attack1'],
         },
-        { startFrame: 17, endFrame: 32, sourceSkillIds: ['chr_0016_laevat_ult_attack2'] },
+        { startFrame: 17, endFrame: 32, skillIds: ['chr_0016_laevat_ult_attack2'] },
       ],
     },
     costFrame: 9,
@@ -683,13 +657,13 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
         17,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0016_laevat_ult_attack2', 'chr_0016_laevat_attack1'],
+            skillIds: ['chr_0016_laevat_ult_attack2', 'chr_0016_laevat_attack1'],
           }),
         ),
         32,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_ult_attack2',
+    timelineContinuationSkillId: 'chr_0016_laevat_ult_attack2',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -702,10 +676,9 @@ export const laevatainUltimateAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_ult_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack2',
-    sourceSkillId: 'chr_0016_laevat_ult_attack2',
+    key: 'chr_0016_laevat_ult_attack2',
     timelineBlockFrames: 27,
     naturalDurationFrames: 245,
     exclusiveFrame: 36,
@@ -716,16 +689,16 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 44,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_ult_attack3',
+          targetSkillId: 'chr_0016_laevat_ult_attack3',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 27,
           endFrame: 44,
-          sourceSkillIds: ['chr_0016_laevat_ult_attack3', 'chr_0016_laevat_attack1'],
+          skillIds: ['chr_0016_laevat_ult_attack3', 'chr_0016_laevat_attack1'],
         },
-        { startFrame: 27, endFrame: 44, sourceSkillIds: ['chr_0016_laevat_ult_attack3'] },
+        { startFrame: 27, endFrame: 44, skillIds: ['chr_0016_laevat_ult_attack3'] },
       ],
     },
     costFrame: 8,
@@ -881,13 +854,13 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
         27,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0016_laevat_ult_attack3', 'chr_0016_laevat_attack1'],
+            skillIds: ['chr_0016_laevat_ult_attack3', 'chr_0016_laevat_attack1'],
           }),
         ),
         44,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_ult_attack3',
+    timelineContinuationSkillId: 'chr_0016_laevat_ult_attack3',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -902,10 +875,9 @@ export const laevatainUltimateAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_ult_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack3',
-    sourceSkillId: 'chr_0016_laevat_ult_attack3',
+    key: 'chr_0016_laevat_ult_attack3',
     timelineBlockFrames: 14,
     naturalDurationFrames: 180,
     exclusiveFrame: 20,
@@ -916,16 +888,16 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 28,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_ult_attack4',
+          targetSkillId: 'chr_0016_laevat_ult_attack4',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 14,
           endFrame: 28,
-          sourceSkillIds: ['chr_0016_laevat_ult_attack4', 'chr_0016_laevat_attack1'],
+          skillIds: ['chr_0016_laevat_ult_attack4', 'chr_0016_laevat_attack1'],
         },
-        { startFrame: 14, endFrame: 28, sourceSkillIds: ['chr_0016_laevat_ult_attack4'] },
+        { startFrame: 14, endFrame: 28, skillIds: ['chr_0016_laevat_ult_attack4'] },
       ],
     },
     costFrame: 8,
@@ -1011,13 +983,13 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
         14,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0016_laevat_ult_attack4', 'chr_0016_laevat_attack1'],
+            skillIds: ['chr_0016_laevat_ult_attack4', 'chr_0016_laevat_attack1'],
           }),
         ),
         28,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_ult_attack4',
+    timelineContinuationSkillId: 'chr_0016_laevat_ult_attack4',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -1030,10 +1002,9 @@ export const laevatainUltimateAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_ult_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimateAttack4',
-    sourceSkillId: 'chr_0016_laevat_ult_attack4',
+    key: 'chr_0016_laevat_ult_attack4',
     timelineBlockFrames: 35,
     naturalDurationFrames: 181,
     exclusiveFrame: 47,
@@ -1044,16 +1015,16 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 68,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0016_laevat_ult_attack1',
+          targetSkillId: 'chr_0016_laevat_ult_attack1',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 35,
           endFrame: 68,
-          sourceSkillIds: ['chr_0016_laevat_ult_attack1', 'chr_0016_laevat_attack1'],
+          skillIds: ['chr_0016_laevat_ult_attack1', 'chr_0016_laevat_attack1'],
         },
-        { startFrame: 35, endFrame: 68, sourceSkillIds: ['chr_0016_laevat_ult_attack1'] },
+        { startFrame: 35, endFrame: 68, skillIds: ['chr_0016_laevat_ult_attack1'] },
       ],
     },
     costFrame: 8,
@@ -1184,13 +1155,13 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
         35,
         sequence(
           step('reachSkillOperableBoundary', {
-            sourceSkillIds: ['chr_0016_laevat_ult_attack1', 'chr_0016_laevat_attack1'],
+            skillIds: ['chr_0016_laevat_ult_attack1', 'chr_0016_laevat_attack1'],
           }),
         ),
         68,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0016_laevat_ult_attack1',
+    timelineContinuationSkillId: 'chr_0016_laevat_ult_attack1',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -1206,10 +1177,9 @@ export const laevatainUltimateAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0016_laevat_power_attack',
+    key: 'chr_0016_laevat_power_attack',
     timelineBlockFrames: 42,
     naturalDurationFrames: 141,
     exclusiveFrame: 50,
@@ -1219,7 +1189,7 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 42,
           endFrame: 62,
-          sourceSkillIds: ['chr_0016_laevat_normal_skill', 'chr_0016_laevat_combo_skill'],
+          skillIds: ['chr_0016_laevat_normal_skill', 'chr_0016_laevat_combo_skill'],
         },
       ],
     },
@@ -1370,10 +1340,9 @@ export const laevatainFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const laevatainPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0016_laevat_plunging_attack_end',
+    key: 'chr_0016_laevat_plunging_attack_end',
     timelineBlockFrames: 14,
     naturalDurationFrames: 145,
     exclusiveFrame: 13,
@@ -1423,10 +1392,9 @@ export const laevatainPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0016_laevat_normal_skill',
+    key: 'chr_0016_laevat_normal_skill',
     timelineBlockFrames: 118,
     naturalDurationFrames: 282,
     exclusiveFrame: 117,
@@ -1624,368 +1592,364 @@ export const laevatainBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainBattleSkillDuringUltimate: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'battleSkillDuringUltimate',
-    sourceSkillId: 'chr_0016_laevat_normal_skill_during_ult',
-    timelineBlockFrames: 33,
-    naturalDurationFrames: 271,
-    exclusiveFrame: 115,
-    offsetRecordFrame: 0,
-    inputWindows: {
-      allowedNextSkills: [
-        {
-          startFrame: 33,
-          endFrame: 75,
-          sourceSkillIds: [
-            'chr_0016_laevat_normal_skill',
-            'chr_0016_laevat_normal_skill_during_ult',
-          ],
-        },
-      ],
-    },
-    costFrame: 0,
-    scheduledSequences: [
-      scheduled(
-        0,
-        sequence(
-          branch(
-            {
-              kind: 'buffIdStackCompare',
+export const laevatainChr_0016_laevat_normal_skill_during_ult: SkillDefinition =
+  withSkillBlackboard(
+    {
+      key: 'chr_0016_laevat_normal_skill_during_ult',
+      timelineBlockFrames: 33,
+      naturalDurationFrames: 271,
+      exclusiveFrame: 115,
+      offsetRecordFrame: 0,
+      inputWindows: {
+        allowedNextSkills: [
+          {
+            startFrame: 33,
+            endFrame: 75,
+            skillIds: ['chr_0016_laevat_normal_skill', 'chr_0016_laevat_normal_skill_during_ult'],
+          },
+        ],
+      },
+      costFrame: 0,
+      scheduledSequences: [
+        scheduled(
+          0,
+          sequence(
+            branch(
+              {
+                kind: 'buffIdStackCompare',
+                target: 'caster',
+                buffIds: ['buff_chr_0016_laevat_energy'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 4 },
+              },
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_chr_0016_laevat_has_max_energy',
+                  target: 'caster',
+                  inheritSourceSkillCastInfo: true,
+                }),
+              ),
+            ),
+          ),
+          3,
+        ),
+        scheduled(
+          24,
+          sequence(
+            step('jumpTimeline', {
+              destinationFrame: 75,
+              condition: {
+                kind: 'buffIdStackCompare',
+                target: 'caster',
+                buffIds: ['buff_chr_0016_laevat_has_max_energy'],
+                operator: 'greaterOrEqual',
+                value: { kind: 'constant', value: 1 },
+              },
+            }),
+          ),
+          27,
+        ),
+        scheduled(39, sequence(step('jumpTimeline', { destinationFrame: 196 })), 40),
+        scheduled(195, sequence(step('jumpTimeline', { destinationFrame: 270 })), 196),
+        scheduled(
+          13,
+          sequence(
+            repeatEachTick(
+              sequence(
+                branch(
+                  {
+                    kind: 'all',
+                    conditions: [
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'enemy',
+                        buffIds: ['buff_common_energy_shard_attached_fire'],
+                        operator: 'greaterOrEqual',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'triggered_burning', fallback: 0 },
+                        operator: 'equal',
+                        right: { kind: 'constant', value: 0 },
+                      },
+                    ],
+                  },
+                  sequence(
+                    step('modifyActionValue', {
+                      key: 'triggered_burning',
+                      operation: 'add',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                  ),
+                  undefined,
+                  { alwaysNext: true },
+                ),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise' },
+                  },
+                  'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/4/sequence/steps/0/body/steps/1',
+                ),
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.15 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'char_hard_stop' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'entered', fallback: 0 },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+                    step('modifyActionValue', {
+                      key: 'entered',
+                      operation: 'add',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                    step('applyBuff', {
+                      buffId: 'buff_chr_0016_laevat_energy',
+                      target: 'caster',
+                      inheritSourceSkillCastInfo: true,
+                    }),
+                  ),
+                ),
+              ),
+              {
+                nativeChanneling: {
+                  executeEachFrame: true,
+                  triggerIntervalSeconds: 0.033,
+                  maxCountPerTarget: 1,
+                  targetTriggerIntervalSeconds: 0.033,
+                },
+              },
+            ),
+          ),
+          14,
+        ),
+        scheduled(
+          23,
+          sequence(
+            repeatEachTick(
+              sequence(
+                branch(
+                  {
+                    kind: 'all',
+                    conditions: [
+                      {
+                        kind: 'buffIdStackCompare',
+                        target: 'enemy',
+                        buffIds: ['buff_common_energy_shard_attached_fire'],
+                        operator: 'greaterOrEqual',
+                        value: { kind: 'constant', value: 1 },
+                      },
+                      {
+                        kind: 'actionValueCompare',
+                        left: { kind: 'blackboard', key: 'triggered_burning', fallback: 0 },
+                        operator: 'equal',
+                        right: { kind: 'constant', value: 0 },
+                      },
+                    ],
+                  },
+                  sequence(
+                    step('modifyActionValue', {
+                      key: 'triggered_burning',
+                      operation: 'add',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                  ),
+                  undefined,
+                  { alwaysNext: true },
+                ),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise' },
+                  },
+                  'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/5/sequence/steps/0/body/steps/1',
+                ),
+                step('startTimeDilation', {
+                  scope: 'entity',
+                  durationSeconds: { kind: 'constant', value: 0.25 },
+                  slot: 'TimeDilation/Layer/Entity/HitStop',
+                  priority: 10,
+                  curve: { kind: 'named', key: 'char_hard_stop' },
+                  finishByAction: false,
+                  targets: ['enemy', 'caster'],
+                }),
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'entered', fallback: 0 },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 0 },
+                  },
+                  sequence(
+                    step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
+                    step('modifyActionValue', {
+                      key: 'entered',
+                      operation: 'add',
+                      value: { kind: 'constant', value: 1 },
+                    }),
+                  ),
+                ),
+              ),
+              {
+                nativeChanneling: {
+                  executeEachFrame: true,
+                  triggerIntervalSeconds: 0.033,
+                  maxCountPerTarget: 1,
+                  targetTriggerIntervalSeconds: 0.033,
+                },
+              },
+            ),
+          ),
+          24,
+        ),
+        scheduled(
+          98,
+          sequence(
+            step('modifyActionValue', {
+              key: 'atk_scale_3',
+              operation: 'multiply',
+              value: { kind: 'blackboard', key: 'ratio' },
+            }),
+            step('finishBuffsById', {
               target: 'caster',
               buffIds: ['buff_chr_0016_laevat_energy'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 4 },
-            },
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_chr_0016_laevat_has_max_energy',
-                target: 'caster',
-                inheritSourceSkillCastInfo: true,
-              }),
+              reason: 'other',
+            }),
+            repeatEachTick(
+              sequence(
+                step('applyBuff', {
+                  buffId: 'buff_common_fire_fire_burning_triggered',
+                  target: 'enemy',
+                  inheritSourceSkillCastInfo: true,
+                  copiedBlackboardAssignments: {
+                    duration: 'duration',
+                    extra_scaling: 'extra_scaling',
+                  },
+                }),
+                step('modifyActionValue', {
+                  key: 'second_hit',
+                  operation: 'add',
+                  value: { kind: 'constant', value: 1 },
+                }),
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
+                    operator: 'equal',
+                    right: { kind: 'constant', value: 1 },
+                  },
+                  sequence(
+                    step('changeResourceByActionValue', {
+                      resource: 'sp',
+                      amount: { kind: 'blackboard', key: 'atb' },
+                      coefficient: { kind: 'constant', value: 1 },
+                      recipient: 'team',
+                      spGainKind: 'refund',
+                      spGainSource: 'skill',
+                    }),
+                  ),
+                  undefined,
+                  { alwaysNext: true },
+                ),
+                step(
+                  'dealDamage',
+                  {
+                    damageType: 'heat',
+                    attackScale: { kind: 'blackboard', key: 'atk_scale_3' },
+                    tags: ['normalSkill'],
+                    features: ['canBreakWeakness'],
+                    stagger: { kind: 'blackboard', key: 'poise' },
+                  },
+                  'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/6/sequence/steps/2/body/steps/3',
+                ),
+                branch(
+                  {
+                    kind: 'actionValueCompare',
+                    left: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
+                    operator: 'lessOrEqual',
+                    right: { kind: 'constant', value: 1 },
+                  },
+                  sequence(
+                    step('startTimeDilation', {
+                      scope: 'entity',
+                      durationSeconds: { kind: 'constant', value: 0.65 },
+                      slot: 'TimeDilation/Layer/Entity/HitStop',
+                      priority: 10,
+                      curve: { kind: 'named', key: 'char_normal_attack' },
+                      finishByAction: false,
+                      targets: ['enemy', 'caster'],
+                    }),
+                  ),
+                ),
+              ),
+              {
+                nativeChanneling: {
+                  executeEachFrame: true,
+                  triggerIntervalSeconds: 0.033,
+                  maxCountPerTarget: 1,
+                  targetTriggerIntervalSeconds: 0.033,
+                },
+              },
             ),
           ),
+          99,
         ),
-        3,
-      ),
-      scheduled(
-        24,
-        sequence(
-          step('jumpTimeline', {
-            destinationFrame: 75,
-            condition: {
-              kind: 'buffIdStackCompare',
+        scheduled(
+          0,
+          sequence(
+            step('applyBuff', {
+              buffId: 'buff_chr_0016_laevat_pause_ult',
               target: 'caster',
-              buffIds: ['buff_chr_0016_laevat_has_max_energy'],
-              operator: 'greaterOrEqual',
-              value: { kind: 'constant', value: 1 },
-            },
-          }),
-        ),
-        27,
-      ),
-      scheduled(39, sequence(step('jumpTimeline', { destinationFrame: 196 })), 40),
-      scheduled(195, sequence(step('jumpTimeline', { destinationFrame: 270 })), 196),
-      scheduled(
-        13,
-        sequence(
-          repeatEachTick(
-            sequence(
-              branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'enemy',
-                      buffIds: ['buff_common_energy_shard_attached_fire'],
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'triggered_burning', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                  ],
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'triggered_burning',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'heat',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale' },
-                  tags: ['normalSkill'],
-                  features: ['canBreakWeakness'],
-                  stagger: { kind: 'blackboard', key: 'poise' },
-                },
-                'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/4/sequence/steps/0/body/steps/1',
-              ),
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.15 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'entered', fallback: 0 },
-                  operator: 'equal',
-                  right: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                  step('modifyActionValue', {
-                    key: 'entered',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                  step('applyBuff', {
-                    buffId: 'buff_chr_0016_laevat_energy',
-                    target: 'caster',
-                    inheritSourceSkillCastInfo: true,
-                  }),
-                ),
-              ),
-            ),
-            {
-              nativeChanneling: {
-                executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
-                maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
-              },
-            },
+              inheritSourceSkillCastInfo: true,
+              finishByAction: true,
+            }),
           ),
+          115,
         ),
-        14,
-      ),
-      scheduled(
-        23,
-        sequence(
-          repeatEachTick(
-            sequence(
-              branch(
-                {
-                  kind: 'all',
-                  conditions: [
-                    {
-                      kind: 'buffIdStackCompare',
-                      target: 'enemy',
-                      buffIds: ['buff_common_energy_shard_attached_fire'],
-                      operator: 'greaterOrEqual',
-                      value: { kind: 'constant', value: 1 },
-                    },
-                    {
-                      kind: 'actionValueCompare',
-                      left: { kind: 'blackboard', key: 'triggered_burning', fallback: 0 },
-                      operator: 'equal',
-                      right: { kind: 'constant', value: 0 },
-                    },
-                  ],
-                },
-                sequence(
-                  step('modifyActionValue', {
-                    key: 'triggered_burning',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'heat',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale_2' },
-                  tags: ['normalSkill'],
-                  features: ['canBreakWeakness'],
-                  stagger: { kind: 'blackboard', key: 'poise' },
-                },
-                'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/5/sequence/steps/0/body/steps/1',
-              ),
-              step('startTimeDilation', {
-                scope: 'entity',
-                durationSeconds: { kind: 'constant', value: 0.25 },
-                slot: 'TimeDilation/Layer/Entity/HitStop',
-                priority: 10,
-                curve: { kind: 'named', key: 'char_hard_stop' },
-                finishByAction: false,
-                targets: ['enemy', 'caster'],
-              }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'entered', fallback: 0 },
-                  operator: 'equal',
-                  right: { kind: 'constant', value: 0 },
-                },
-                sequence(
-                  step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
-                  step('modifyActionValue', {
-                    key: 'entered',
-                    operation: 'add',
-                    value: { kind: 'constant', value: 1 },
-                  }),
-                ),
-              ),
-            ),
-            {
-              nativeChanneling: {
-                executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
-                maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
-              },
-            },
-          ),
-        ),
-        24,
-      ),
-      scheduled(
-        98,
-        sequence(
-          step('modifyActionValue', {
-            key: 'atk_scale_3',
-            operation: 'multiply',
-            value: { kind: 'blackboard', key: 'ratio' },
-          }),
-          step('finishBuffsById', {
-            target: 'caster',
-            buffIds: ['buff_chr_0016_laevat_energy'],
-            reason: 'other',
-          }),
-          repeatEachTick(
-            sequence(
-              step('applyBuff', {
-                buffId: 'buff_common_fire_fire_burning_triggered',
-                target: 'enemy',
-                inheritSourceSkillCastInfo: true,
-                copiedBlackboardAssignments: {
-                  duration: 'duration',
-                  extra_scaling: 'extra_scaling',
-                },
-              }),
-              step('modifyActionValue', {
-                key: 'second_hit',
-                operation: 'add',
-                value: { kind: 'constant', value: 1 },
-              }),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
-                  operator: 'equal',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('changeResourceByActionValue', {
-                    resource: 'sp',
-                    amount: { kind: 'blackboard', key: 'atb' },
-                    coefficient: { kind: 'constant', value: 1 },
-                    recipient: 'team',
-                    spGainKind: 'refund',
-                    spGainSource: 'skill',
-                  }),
-                ),
-                undefined,
-                { alwaysNext: true },
-              ),
-              step(
-                'dealDamage',
-                {
-                  damageType: 'heat',
-                  attackScale: { kind: 'blackboard', key: 'atk_scale_3' },
-                  tags: ['normalSkill'],
-                  features: ['canBreakWeakness'],
-                  stagger: { kind: 'blackboard', key: 'poise' },
-                },
-                'chr_0016_laevat_normal_skill_during_ult:/scheduledSequences/6/sequence/steps/2/body/steps/3',
-              ),
-              branch(
-                {
-                  kind: 'actionValueCompare',
-                  left: { kind: 'blackboard', key: 'second_hit', fallback: 0 },
-                  operator: 'lessOrEqual',
-                  right: { kind: 'constant', value: 1 },
-                },
-                sequence(
-                  step('startTimeDilation', {
-                    scope: 'entity',
-                    durationSeconds: { kind: 'constant', value: 0.65 },
-                    slot: 'TimeDilation/Layer/Entity/HitStop',
-                    priority: 10,
-                    curve: { kind: 'named', key: 'char_normal_attack' },
-                    finishByAction: false,
-                    targets: ['enemy', 'caster'],
-                  }),
-                ),
-              ),
-            ),
-            {
-              nativeChanneling: {
-                executeEachFrame: true,
-                triggerIntervalSeconds: 0.033,
-                maxCountPerTarget: 1,
-                targetTriggerIntervalSeconds: 0.033,
-              },
-            },
-          ),
-        ),
-        99,
-      ),
-      scheduled(
-        0,
-        sequence(
-          step('applyBuff', {
-            buffId: 'buff_chr_0016_laevat_pause_ult',
-            target: 'caster',
-            inheritSourceSkillCastInfo: true,
-            finishByAction: true,
-          }),
-        ),
-        115,
-      ),
-    ],
-    costs: [{ resource: 'sp', value: 100 }],
-    skillType: 'battleSkill',
-    levelSource: 'battleSkill',
-    nativeSkillType: 'normalSkill',
-  },
-  {
-    atb: 0,
-    atk_scale: [1.47, 1.61, 1.76, 1.91, 2.05, 2.2, 2.35, 2.49, 2.64, 2.82, 3.04, 3.3],
-    atk_scale_2: [1.64, 1.81, 1.97, 2.14, 2.3, 2.47, 2.63, 2.79, 2.96, 3.16, 3.41, 3.7],
-    atk_scale_3: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
-    duration: 5,
-    entered: 0,
-    extra_scaling: 1,
-    poise: 10,
-    ratio: 1,
-    second_hit: 0,
-    triggered_burning: 0,
-  },
-);
+      ],
+      costs: [{ resource: 'sp', value: 100 }],
+      skillType: 'battleSkill',
+      levelSource: 'battleSkill',
+      nativeSkillType: 'normalSkill',
+    },
+    {
+      atb: 0,
+      atk_scale: [1.47, 1.61, 1.76, 1.91, 2.05, 2.2, 2.35, 2.49, 2.64, 2.82, 3.04, 3.3],
+      atk_scale_2: [1.64, 1.81, 1.97, 2.14, 2.3, 2.47, 2.63, 2.79, 2.96, 3.16, 3.41, 3.7],
+      atk_scale_3: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9],
+      duration: 5,
+      entered: 0,
+      extra_scaling: 1,
+      poise: 10,
+      ratio: 1,
+      second_hit: 0,
+      triggered_burning: 0,
+    },
+  );
 
-export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0016_laevat_ultimate_skill',
+    key: 'chr_0016_laevat_ultimate_skill',
     timelineBlockFrames: 74,
     naturalDurationFrames: 245,
     exclusiveFrame: 73,
@@ -2081,10 +2045,9 @@ export const laevatainUltimate: SkillDefinition = withSkillBlackboard(
   { duration: 15 },
 );
 
-export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
+export const laevatainChr_0016_laevat_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0016_laevat_combo_skill',
+    key: 'chr_0016_laevat_combo_skill',
     timelineBlockFrames: 41,
     naturalDurationFrames: 180,
     exclusiveFrame: 57,
@@ -2094,10 +2057,7 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 41,
           endFrame: 85,
-          sourceSkillIds: [
-            'chr_0016_laevat_normal_skill',
-            'chr_0016_laevat_normal_skill_during_ult',
-          ],
+          skillIds: ['chr_0016_laevat_normal_skill', 'chr_0016_laevat_normal_skill_during_ult'],
         },
       ],
     },
@@ -2372,10 +2332,9 @@ export const laevatainComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const laevatainPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const laevatainCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -2412,11 +2371,11 @@ export const laevatain: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        laevatainBasicAttack1,
-        laevatainBasicAttack2,
-        laevatainBasicAttack3,
-        laevatainBasicAttack4,
-        laevatainBasicAttack5,
+        laevatainChr_0016_laevat_attack1,
+        laevatainChr_0016_laevat_attack2,
+        laevatainChr_0016_laevat_attack3,
+        laevatainChr_0016_laevat_attack4,
+        laevatainChr_0016_laevat_attack5,
       ],
       variants: [
         {
@@ -2424,10 +2383,10 @@ export const laevatain: OperatorDefinition = {
           levelSource: 'ultimate',
           libraryPresentation: 'enhanced',
           skills: [
-            laevatainUltimateAttack1,
-            laevatainUltimateAttack2,
-            laevatainUltimateAttack3,
-            laevatainUltimateAttack4,
+            laevatainChr_0016_laevat_ult_attack1,
+            laevatainChr_0016_laevat_ult_attack2,
+            laevatainChr_0016_laevat_ult_attack3,
+            laevatainChr_0016_laevat_ult_attack4,
           ],
         },
       ],
@@ -2436,67 +2395,72 @@ export const laevatain: OperatorDefinition = {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: laevatainFinisher,
+      skills: laevatainChr_0016_laevat_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: laevatainPlungingAttack,
+      skills: laevatainChr_0016_laevat_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: laevatainBattleSkill,
-      replacementSkills: [laevatainBattleSkillDuringUltimate],
-      replacementSkillPlacements: { battleSkillDuringUltimate: 'enhanced' },
+      skills: laevatainChr_0016_laevat_normal_skill,
+      replacementSkills: [laevatainChr_0016_laevat_normal_skill_during_ult],
+      replacementSkillPlacements: { chr_0016_laevat_normal_skill_during_ult: 'enhanced' },
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: laevatainUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: laevatainChr_0016_laevat_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: laevatainComboSkill,
+      skills: laevatainChr_0016_laevat_combo_skill,
     },
   ],
-  dodgeSkill: laevatainPerfectDodge,
+  dodgeSkill: laevatainCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
     {
       key: 'battleSkill',
-      baseSkillKey: 'battleSkill',
-      replacementSkillKeys: ['battleSkillDuringUltimate'],
+      baseSkillKey: 'chr_0016_laevat_normal_skill',
+      replacementSkillKeys: ['chr_0016_laevat_normal_skill_during_ult'],
     },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0016_laevat_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0016_laevat_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'ultimateAttack1',
-        'ultimateAttack2',
-        'ultimateAttack3',
-        'ultimateAttack4',
-        'finisher',
+        'chr_0016_laevat_attack1',
+        'chr_0016_laevat_attack2',
+        'chr_0016_laevat_attack3',
+        'chr_0016_laevat_attack4',
+        'chr_0016_laevat_attack5',
+        'chr_0016_laevat_plunging_attack_end',
+        'chr_0016_laevat_ult_attack1',
+        'chr_0016_laevat_ult_attack2',
+        'chr_0016_laevat_ult_attack3',
+        'chr_0016_laevat_ult_attack4',
+        'chr_0016_laevat_power_attack',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0016_laevat_attack1',
+        'chr_0016_laevat_attack2',
+        'chr_0016_laevat_attack3',
+        'chr_0016_laevat_attack4',
+        'chr_0016_laevat_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0016_laevat_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -2508,20 +2472,18 @@ export const laevatain: OperatorDefinition = {
       modeLayer: 'ult',
       defaultEnabled: false,
       normalAttackSkillKeys: [
-        'ultimateAttack1',
-        'ultimateAttack2',
-        'ultimateAttack3',
-        'ultimateAttack4',
+        'chr_0016_laevat_ult_attack1',
+        'chr_0016_laevat_ult_attack2',
+        'chr_0016_laevat_ult_attack3',
+        'chr_0016_laevat_ult_attack4',
       ],
-      commandMappings: {
-        basicAttack: { sourceSkillId: 'chr_0016_laevat_ult_attack1', skillKey: 'ultimateAttack1' },
-      },
+      commandMappings: { basicAttack: { skillId: 'chr_0016_laevat_ult_attack1' } },
     },
   ],
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0016_laevat_combo_skill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,
@@ -2583,7 +2545,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0016_laevat_normal_skill',
           blackboardKey: 'atb',
           operation: 'add',
           value: 20,
@@ -2591,7 +2553,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkillDuringUltimate',
+          skillKey: 'chr_0016_laevat_normal_skill_during_ult',
           blackboardKey: 'atb',
           operation: 'add',
           value: 20,
@@ -2599,7 +2561,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkillDuringUltimate',
+          skillKey: 'chr_0016_laevat_normal_skill_during_ult',
           blackboardKey: 'ratio',
           operation: 'assign',
           value: 1.2,
@@ -2607,7 +2569,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0016_laevat_normal_skill',
           blackboardKey: 'ratio',
           operation: 'assign',
           value: 1.2,
@@ -2627,7 +2589,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0016_laevat_normal_skill',
           blackboardKey: 'duration',
           operation: 'multiply',
           value: 1.5,
@@ -2635,7 +2597,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkill',
+          skillKey: 'chr_0016_laevat_normal_skill',
           blackboardKey: 'extra_scaling',
           operation: 'assign',
           value: 1.5,
@@ -2643,7 +2605,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkillDuringUltimate',
+          skillKey: 'chr_0016_laevat_normal_skill_during_ult',
           blackboardKey: 'duration',
           operation: 'multiply',
           value: 1.5,
@@ -2651,7 +2613,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkillDuringUltimate',
+          skillKey: 'chr_0016_laevat_normal_skill_during_ult',
           blackboardKey: 'extra_scaling',
           operation: 'assign',
           value: 1.5,
@@ -2675,7 +2637,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'basicAttack',
-          skillKey: 'ultimateAttack1',
+          skillKey: 'chr_0016_laevat_ult_attack1',
           blackboardKey: 'ratio',
           operation: 'assign',
           value: 1.2,
@@ -2683,7 +2645,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'basicAttack',
-          skillKey: 'ultimateAttack2',
+          skillKey: 'chr_0016_laevat_ult_attack2',
           blackboardKey: 'ratio',
           operation: 'assign',
           value: 1.2,
@@ -2691,7 +2653,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'basicAttack',
-          skillKey: 'ultimateAttack3',
+          skillKey: 'chr_0016_laevat_ult_attack3',
           blackboardKey: 'ratio',
           operation: 'assign',
           value: 1.2,
@@ -2699,7 +2661,7 @@ export const laevatain: OperatorDefinition = {
         {
           kind: 'patchSkillBlackboard',
           skillGroupKey: 'basicAttack',
-          skillKey: 'ultimateAttack4',
+          skillKey: 'chr_0016_laevat_ult_attack4',
           blackboardKey: 'ratio',
           operation: 'assign',
           value: 1.2,
@@ -3708,8 +3670,8 @@ export const laevatain: OperatorDefinition = {
       skillSlotReplacements: [
         {
           skillGroupKey: 'battleSkill',
-          targetSkillKey: 'battleSkillDuringUltimate',
-          revertedSkillKey: 'battleSkill',
+          targetSkillKey: 'chr_0016_laevat_normal_skill_during_ult',
+          revertedSkillKey: 'chr_0016_laevat_normal_skill',
           inheritOriginSkillCooldownProgress: false,
         },
       ],

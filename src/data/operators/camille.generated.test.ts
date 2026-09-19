@@ -14,11 +14,10 @@ describe('camille generated operator', () => {
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
       executionSkillGroupKey: 'comboSkill',
-      executionSkillKey: 'comboSkill2',
+      executionSkillKey: 'chr_0033_camille_combo_skill_2',
       skill: {
-        key: 'battleSkillDuringUltimate',
-        sourceSkillId: 'chr_0033_camille_combo_skill_2',
-        timelineBlockFrames: 79,
+        key: 'chr_0033_camille_normal_skill_2',
+        timelineBlockFrames: 87,
         costs: [{ resource: 'sp', value: 40 }],
         costFrame: 0,
         cooldownFrames: 90,
@@ -27,8 +26,8 @@ describe('camille generated operator', () => {
     expect(henshin?.skillSlotReplacements).toEqual([
       {
         skillGroupKey: 'battleSkill',
-        targetSkillKey: 'battleSkillDuringUltimate',
-        revertedSkillKey: 'battleSkill',
+        targetSkillKey: 'chr_0033_camille_normal_skill_2',
+        revertedSkillKey: 'chr_0033_camille_normal_skill',
         inheritOriginSkillCooldownProgress: false,
       },
     ]);
@@ -49,13 +48,14 @@ describe('camille generated operator', () => {
       'camille',
       build,
       camilleGeneratedOperator,
-    ).find(skill => skill.skillId === 'battleSkillDuringUltimate');
+    ).find(skill => skill.skillId === 'chr_0033_camille_normal_skill_2');
 
     expect(program).toMatchObject({
       skillGroupKey: 'battleSkill',
       skillType: 'comboSkill',
       skillLevel: 7,
-      sourceSkillId: 'chr_0033_camille_combo_skill_2',
+      skillId: 'chr_0033_camille_normal_skill_2',
+      executionSkillId: 'chr_0033_camille_combo_skill_2',
       cooldownFrames: 90,
       costs: [{ resource: 'sp', value: 40 }],
       initialBlackboard: { atk_scale_2_4: 2.28 },
@@ -77,7 +77,7 @@ describe('camille generated operator', () => {
       'camille',
       build,
       camilleGeneratedOperator,
-    ).find(skill => skill.skillId === 'battleSkillDuringUltimate')!;
+    ).find(skill => skill.skillId === 'chr_0033_camille_normal_skill_2')!;
 
     expect(program.initialBlackboard.atk_scale_2_4).toBeCloseTo(2.28 * 1.3);
     expect(program.initialBlackboard.atb).toBeCloseTo(18 * 1.15);

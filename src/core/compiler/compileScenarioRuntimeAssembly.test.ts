@@ -162,27 +162,19 @@ describe('compileScenarioRuntimeAssembly', () => {
       ...settings,
       environment: { ...settings.environment, createOperationExecutor },
     });
-    expect(compiled.dashTiming).toEqual({
-      dashOffsetFrames: 30,
-      blockAttackFramesInDash: 3,
-      allowAttackAfterFramesInDash: 10.5,
-      blockAttackFramesInPerfectDodge: 3,
-      allowAttackAfterFramesInPerfectDodge: 7.5,
-      blockDashAfterPerfectDodgeFrames: 15,
-      dashInputCooldownFrames: 24,
-      dashSecondDashIntervalFrames: 9,
-    });
     const operator = compiled.operators[0]!;
     expect(operator.skills).toEqual([]);
     expect(compiled.inputs).toEqual([]);
     expect(operator.skillSlotGroups).toContainEqual(
       expect.objectContaining({
         skillGroupKey: 'comboSkill',
-        baseSkillKey: 'comboSkill',
+        baseSkillKey: 'chr_0004_pelica_combo_skill',
         replacementSkillKeys: [],
       }),
     );
-    const combo = operator.skillCooldownPrograms!.find(program => program.skillId === 'comboSkill');
+    const combo = operator.skillCooldownPrograms!.find(
+      program => program.skillId === 'chr_0004_pelica_combo_skill',
+    );
     expect(combo).toMatchObject({
       operatorId: 'track:0',
       skillType: 'comboSkill',
@@ -236,13 +228,13 @@ describe('compileScenarioRuntimeAssembly', () => {
         program => program.skillType === 'comboSkill',
       ).map(program => [program.skillId, program.cooldownFrames]),
     ).toEqual([
-      ['comboSkill', 75],
+      ['chr_0004_pelica_combo_skill', 75],
       ['replacement', 165],
     ]);
     expect(compiled.operators[0]!.skillSlotGroups).toContainEqual(
       expect.objectContaining({
         skillGroupKey: 'comboSkill',
-        baseSkillKey: 'comboSkill',
+        baseSkillKey: 'chr_0004_pelica_combo_skill',
         replacementSkillKeys: ['replacement'],
       }),
     );
@@ -265,7 +257,7 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(compiled.operators[0]!.skillCasts![0]!.program.cooldownFrames).toBe(123);
     expect(
       compiled.operators[0]!.skillCooldownPrograms!.find(
-        program => program.skillId === 'comboSkill',
+        program => program.skillId === 'chr_0004_pelica_combo_skill',
       )!.cooldownFrames,
     ).not.toBe(123);
     expect(() => new CombatRuntimeAssembly(compiled)).not.toThrow();
@@ -567,26 +559,26 @@ describe('compileScenarioRuntimeAssembly', () => {
     expect(compiled.isOperatorControlled?.('track:1', -90)).toBe(true);
   });
 
-  it('compiles external hit markers to stable operator instances in timeline order', () => {
+  it('compiles combo cooldown markers to stable operator instances in timeline order', () => {
     const scenario = createScenario();
     scenario.battle.externalEventMarkers = [
       {
-        id: 'hit:late',
+        id: 'combo:late',
         frame: 60,
         target: { scope: 'team' },
-        event: { kind: 'operatorHit', tags: ['ultimateSkill'], features: ['airborne'] },
+        event: { kind: 'comboCooldownControl', mode: 'ready' },
       },
       {
-        id: 'hit:early',
+        id: 'combo:early',
         frame: 30,
-        target: { scope: 'operator', trackIndex: 0 },
-        event: { kind: 'operatorWeaknessTriggeredOutput' },
+        target: { scope: 'team' },
+        event: { kind: 'comboCooldownControl', mode: 'cooldown' },
       },
       {
-        id: 'weakness:set',
+        id: 'combo:middle',
         frame: 45,
         target: { scope: 'team' },
-        event: { kind: 'enemyWeaknessSet' },
+        event: { kind: 'comboCooldownControl', mode: 'ready' },
       },
     ];
 
@@ -594,34 +586,34 @@ describe('compileScenarioRuntimeAssembly', () => {
       {
         frame: 30,
         targetOperatorIds: ['track:0'],
-        event: { kind: 'operatorWeaknessTriggeredOutput' },
+        event: { kind: 'comboCooldownControl', mode: 'cooldown' },
       },
       {
         frame: 45,
         targetOperatorIds: ['track:0'],
-        event: { kind: 'enemyWeaknessSet' },
+        event: { kind: 'comboCooldownControl', mode: 'ready' },
       },
       {
         frame: 60,
         targetOperatorIds: ['track:0'],
-        event: { kind: 'operatorHit', tags: ['ultimateSkill'], features: ['airborne'] },
+        event: { kind: 'comboCooldownControl', mode: 'ready' },
       },
     ]);
   });
 
-  it('rejects external hit markers on empty tracks', () => {
+  it('rejects combo cooldown markers on empty operator tracks', () => {
     const scenario = createScenario();
     scenario.battle.externalEventMarkers = [
       {
-        id: 'hit:empty',
+        id: 'combo:empty',
         frame: 0,
         target: { scope: 'operator', trackIndex: 1 },
-        event: { kind: 'operatorHit', tags: [], features: [] },
+        event: { kind: 'comboCooldownControl', mode: 'ready' },
       },
     ];
 
     expect(() => compileScenarioRuntimeAssembly(scenario, options())).toThrow(
-      "external event marker 'hit:empty' references empty track 1",
+      "external event marker 'combo:empty' references empty track 1",
     );
   });
 

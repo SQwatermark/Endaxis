@@ -29,9 +29,9 @@ function track(slug: string, weaponSlug: string, casts: [string, string, number]
 it('别礼普攻触发的幻影仍继承战技来源，并触发赫拉芬格战技附着增益', async () => {
   const scenario = createEmptyScenario('phantom-origin', '幻影来源');
   scenario.tracks[0] = track('last-rite', 'wpn_claym_0013', [
-    ['basicAttack', 'basicAttack1', 3],
-    ['battleSkill', 'battleSkill', 16],
-    ['basicAttack', 'basicAttack4', 100],
+    ['basicAttack', 'chr_0026_lastrite_attack1', 3],
+    ['battleSkill', 'chr_0026_lastrite_normal_skill', 16],
+    ['basicAttack', 'chr_0026_lastrite_attack4', 100],
   ]);
   const before = structuredClone(scenario);
   const run = await createEditorSimulationService().simulate(scenario, 300);
@@ -40,7 +40,7 @@ it('别礼普攻触发的幻影仍继承战技来源，并触发赫拉芬格战�
     e => e.event === 'ElementalInflictionApplied' && e.sourceId === 'last-rite',
   );
   expect(infliction?.data).toMatchObject({
-    skillId: 'battleSkill',
+    skillId: 'chr_0026_lastrite_normal_skill',
     castId: 'last-rite:1',
     requestedElement: 'cryo',
   });
@@ -55,8 +55,8 @@ it('别礼普攻触发的幻影仍继承战技来源，并触发赫拉芬格战�
 it('同一装备被动创建的多个持续动作Buff各自持有执行状态', async () => {
   const scenario = createEmptyScenario('passive-buff-instances', '武器Buff实例隔离');
   scenario.tracks[0] = track('arcane', 'wpn_funnel_0016', [
-    ['comboSkill', 'comboSkill', 1],
-    ['comboSkill', 'comboSkill', 100],
+    ['comboSkill', 'chr_0032_lizhiyan_combo_skill', 1],
+    ['comboSkill', 'chr_0032_lizhiyan_combo_skill', 100],
   ]);
   scenario.tracks[0]!.gears = {
     armor: { gearSlug: 'item_equip_t4_suit_usp02_body_03', artificingLevels: [3, 3] },

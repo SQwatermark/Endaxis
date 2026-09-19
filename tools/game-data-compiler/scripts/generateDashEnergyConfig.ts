@@ -6,6 +6,7 @@ import {
   renderDashEnergyConfigModule,
 } from '../src/source/dashEnergyConfigSource.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 
 export async function generateDashEnergyConfig(args: {
   readonly source: string;
@@ -14,7 +15,7 @@ export async function generateDashEnergyConfig(args: {
 }) {
   const raw = await fs.readFile(args.source, 'utf8');
   const source = parseDashEnergyConfigSource(JSON.parse(raw), args.source);
-  const content = renderDashEnergyConfigModule(source);
+  const content = await formatGeneratedSource(renderDashEnergyConfigModule(source), args.output);
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content) {
       throw new Error(`${args.output}: generated Dash energy config is stale`);

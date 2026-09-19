@@ -222,10 +222,10 @@ describe('player input windows', () => {
           startFrame: 5,
           endFrame: 8,
           input: 'basicAttack',
-          targetSourceSkillId: 'native.attack2',
+          targetSkillId: 'native.attack2',
         },
       ],
-      allowedNextSkills: [{ startFrame: 5, endFrame: 8, sourceSkillIds: ['native.attack2'] }],
+      allowedNextSkills: [{ startFrame: 5, endFrame: 8, skillIds: ['native.attack2'] }],
     });
     expect(result.timelineBlockFrames).toBe(31);
     expect(result.scheduledSequences).toEqual([]);

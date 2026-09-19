@@ -61,12 +61,8 @@ export interface NativeOperatorSkillGroupSource {
   readonly skillIds: readonly string[];
 }
 
-/** 正式技能分类与原生技能 ID 的绑定；原生 ID 不是编辑器 key。 */
-export type OperatorSkillIdentitySource = Readonly<
-  Pick<SkillGroupDefinition, 'key' | 'skillType'>
-> & {
-  readonly skillId: string;
-};
+/** 主动技能的原生 ID 和分类。 */
+export type OperatorSkillIdentitySource = Readonly<Pick<SkillGroupDefinition, 'key' | 'skillType'>>;
 
 /** 配置中的链接计划，装配前保留原生等级组和有序技能键，不提前内联技能定义。 */
 export type OperatorSkillGroupVariantSource = Readonly<
@@ -349,9 +345,9 @@ export function validateOperatorSkillGroups(
   // 可操作技能组中。其文件身份与 castType 由被动编译入口校验，本层只负责在出现时排除。
   requireKnown(routedKeys, new Set(skillByKey.keys()), 'routedSkillKeys');
   requireKnown(runtimeReplacementKeys, new Set(skillByKey.keys()), 'runtimeReplacementSkillKeys');
-  const generatedIds = new Set(skills.map(skill => skill.skillId));
+  const generatedIds = new Set(skills.map(skill => skill.key));
   const runtimeReplacementIds = new Set(
-    runtimeReplacementKeys.map(key => skillByKey.get(key)!.skillId),
+    runtimeReplacementKeys.map(key => skillByKey.get(key)!.key),
   );
   const missingNativeSkillIds = [...generatedIds]
     .filter(id => !actualIds.has(id) && !runtimeReplacementIds.has(id))
@@ -363,7 +359,7 @@ export function validateOperatorSkillGroups(
   }
   requireDisjoint(generatedIds, equivalent, 'simulationEquivalentNativeSkillIds');
   requireDisjoint(generatedIds, passive, 'basePassiveSkillIds');
-  const routedIds = new Set(routedKeys.map(key => skillByKey.get(key)!.skillId));
+  const routedIds = new Set(routedKeys.map(key => skillByKey.get(key)!.key));
   const omitted = new Set([...routingOnly, ...equivalent, ...passive]);
   const normalizedActual = new Map(
     [...actual].map(([type, ids]) => [type, ids.filter(id => !omitted.has(id))]),
@@ -398,7 +394,7 @@ export function validateOperatorSkillGroups(
         throw new Error(`skillGroups.${path}: skill type does not match '${key}'`);
       }
       const ids = expected.get(nativeType) ?? [];
-      ids.push(skill.skillId);
+      ids.push(skill.key);
       expected.set(nativeType, ids);
       assigned.push(key);
     }

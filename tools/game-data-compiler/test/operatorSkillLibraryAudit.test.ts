@@ -6,33 +6,33 @@ import { parseOperatorSkillGroupValidationOptions } from '../src/domains/operato
 
 describe('Operator 技能库批量审计', () => {
   it('内部运行技能例外与正式生成共用读取器；不再误报等级组外的已声明技能', () => {
-    const base = operator('internal', 'chr_internal', 'exit.json');
-    base.skills.push({ ...base.skills[0]!, key: 'main', source: 'main.json' });
-    base.skillGroups[0]!.skillKeys.push('main');
+    const base = operator('internal', 'chr_internal', 'native_exit.json');
+    base.skills.push({ ...base.skills[0]!, source: 'native_main.json' });
+    base.skillGroups[0]!.skillKeys.push('native_main');
     const run = (extra: object) =>
       auditOperatorSkillLibraries(
         { operators: [{ ...base, ...extra }] },
         {
-          'exit.json': activeSkillFixture('native_exit'),
-          'main.json': activeSkillFixture('native_main'),
+          'native_exit.json': activeSkillFixture('native_exit'),
+          'native_main.json': activeSkillFixture('native_main'),
         },
         {},
         { chr_internal: { skillGroupMap: { normal: nativeGroup('normal', ['native_main']) } } },
       );
     expect(run({}).blockedCount).toBe(1);
-    expect(run({ runtimeReplacementSkillKeys: ['basic'] }).supportedCount).toBe(1);
+    expect(run({ runtimeReplacementSkillKeys: ['native_exit'] }).supportedCount).toBe(1);
     expect(run({ runtimeReplacementSkillKeys: ['unknown'] }).entries[0]!.error).toContain(
       'unknown IDs',
     );
-    expect(run({ runtimeReplacementSkillKeys: ['basic', 'basic'] }).entries[0]!.error).toContain(
-      'distinct',
-    );
+    expect(
+      run({ runtimeReplacementSkillKeys: ['native_exit', 'native_exit'] }).entries[0]!.error,
+    ).toContain('distinct');
     const values = {
       routingOnlyNativeSkillIds: ['route'],
       simulationEquivalentNativeSkillIds: ['equivalent'],
       basePassiveSkillIds: ['passive'],
       routedSkillKeys: ['routed'],
-      runtimeReplacementSkillKeys: ['internal'],
+      runtimeReplacementSkillKeys: ['native_internal'],
     };
     expect(parseOperatorSkillGroupValidationOptions(values, 'operator')).toEqual(values);
   });
@@ -40,13 +40,13 @@ describe('Operator 技能库批量审计', () => {
     const report = auditOperatorSkillLibraries(
       {
         operators: [
-          operator('valid', 'chr_valid', 'valid.json'),
-          operator('drifted', 'chr_drifted', 'drifted.json'),
+          operator('valid', 'chr_valid', 'native_valid.json'),
+          operator('drifted', 'chr_drifted', 'actual_drifted.json'),
         ],
       },
       {
-        'valid.json': activeSkillFixture('native_valid'),
-        'drifted.json': activeSkillFixture('actual_drifted'),
+        'native_valid.json': activeSkillFixture('native_valid'),
+        'actual_drifted.json': activeSkillFixture('actual_drifted'),
       },
       {},
       {
@@ -70,8 +70,8 @@ describe('Operator 技能库批量审计', () => {
 
   it('完整来源闭包将单个干员的来源错误保留为阻塞诊断', () => {
     const report = auditOperatorSourceClosures({
-      manifest: { operators: [operator('missing-character', 'chr_missing', 'valid.json')] },
-      skillDataBySourceFile: { 'valid.json': activeSkillFixture('native_valid') },
+      manifest: { operators: [operator('missing-character', 'chr_missing', 'native_valid.json')] },
+      skillDataBySourceFile: { 'native_valid.json': activeSkillFixture('native_valid') },
       skillDataById: { native_valid: activeSkillFixture('native_valid') },
       buffDataById: {},
       projectileDataById: {},
@@ -96,14 +96,14 @@ function operator(slug: string, charId: string, source: string) {
     gameId: slug.replaceAll('-', '_').toUpperCase(),
     exportName: `${slug.replaceAll('-', '_')}GeneratedSource`,
     charId,
-    skills: [{ key: 'basic', skillType: 'basicAttack', levelSource: 'basicAttack', source }],
+    skills: [{ skillType: 'basicAttack', levelSource: 'basicAttack', source }],
     skillGroups: [
       {
         key: 'basicAttack',
         skillType: 'basicAttack',
         levelSource: 'basicAttack',
         nativeGroupType: 0,
-        skillKeys: ['basic'],
+        skillKeys: [source.slice(0, -'.json'.length)],
       },
     ],
   };

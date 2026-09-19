@@ -23,7 +23,10 @@ import type { InteractionLease } from '../interaction/interactionSession';
 import { observeNativeDragLifetime } from '../interaction/nativeDragLifecycle';
 import { useAsyncModalBoundary } from '../interaction/useAsyncModalBoundary';
 import { isInsideTimelineDropRegion } from './interaction/timelineDropRegion';
-import { createTimelineScrollSync } from './interaction/timelineScrollSync';
+import {
+  createTimelineScrollSync,
+  createTimelineVerticalScrollSync,
+} from './interaction/timelineScrollSync';
 import { normalizeDurationBarColorPrefs } from './results/durationBarColor';
 import { useI18n } from 'vue-i18n';
 import { ElLoading, ElMessage, ElMessageBox } from 'element-plus';
@@ -122,7 +125,10 @@ import { projectEnemyEffectViz } from '../../core/projection/enemyEffectViz';
 import { elementalAttachments } from '../../data/buffs/elementalAttachments';
 
 import { SINGLE_ENEMY_TARGET_ID } from '../../core/projection/enemyHealthChangePoints';
-import { projectPoiseBrokenSegments } from '../../core/projection/poiseCurves';
+import {
+  projectPoiseBrokenSegments,
+  projectPoiseKnotSegments,
+} from '../../core/projection/poiseCurves';
 import { projectComboWindowTimelineViz } from '../../core/projection/comboWindowTimelineViz';
 import { projectSkillCooldownTimelineViz } from '../../core/projection/skillCooldownTimelineViz';
 import { projectTimelineComboCooldowns } from '../../core/projection/timelineComboCooldowns';
@@ -293,7 +299,6 @@ import {
   updateDodgeMarker,
   addExternalEventMarker,
   moveExternalEventMarker,
-  updateExternalEventMarker,
   removeExternalEventMarker,
   setSimulationRangeBoundary,
   clearSimulationRangeBoundary,
@@ -622,6 +627,7 @@ const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
 const timelineHorizontalScrollbar = ref<HTMLElement | null>(null);
+const timelineVerticalScrollbar = ref<HTMLElement | null>(null);
 const timelineScrollLeft = ref(0);
 const timelineScrollTop = ref(0);
 const timelineViewportWidth = ref(1200);
@@ -633,6 +639,10 @@ const displayedCompactTrackHeights = computed(() =>
   ),
 );
 const timelineVerticalScrollbarWidth = ref(0);
+const timelineVerticalScrollRange = ref(0);
+const timelineVerticalScrollbarHeight = computed(() =>
+  Math.max(0, timelineViewportHeight.value - TIMELINE_RULER_HEIGHT - 12),
+);
 let timelineResizeObserver: ResizeObserver | null = null;
 const connectionDrag = ref<{
   pointerId: number;
@@ -752,7 +762,6 @@ const props = defineProps<{
   gameDataRepository: ProjectGameDataRepository;
   browserPersistenceEnabled?: boolean;
   browserRestoreError?: string;
-  browserProjectRevisionUpdated?: boolean;
 }>();
 const gameDataRepository = props.gameDataRepository;
 const consumables = gameDataRepository.getConsumables();
@@ -766,6 +775,7 @@ const initialProject = suppliedProject?.ok
   ? structuredClone(suppliedProject.value)
   : createEmptyProject({
       projectId: 'sample',
+      scenarioName: t('timeline.scenario.defaultName', { index: 1 }),
       createdWith: 'endaxis',
       gameDataRevision: gameDataRepository.revision,
     });
@@ -806,11 +816,12 @@ const publishedGlobalRandomSeed = computed(
   () => publishedSimulation.value?.scenario.battle.random?.globalSeed ?? 0,
 );
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
-const { projectDirty, browserSaveError, projectFileReader, markOpenedProject, exportProjectFile } =
-  useProjectFileSession(projectSession, {
+const { browserSaveError, projectFileReader, exportProjectFile } = useProjectFileSession(
+  projectSession,
+  {
     persistToBrowser: props.browserPersistenceEnabled === true,
-  });
-if (props.browserProjectRevisionUpdated) markOpenedProject(initialProject, true);
+  },
+);
 watch(browserSaveError, error => {
   if (error !== null) ElMessage.error(`浏览器自动保存失败：${error}`);
 });
@@ -870,30 +881,11 @@ function commitScenario(
   }
 }
 
-async function confirmProjectReplacement(): Promise<boolean> {
-  if (projectDirty.value) {
-    try {
-      await serviceModalBoundary.run(() =>
-        ElMessageBox.confirm('当前项目有尚未导出的修改。继续加载会替换整个项目。', '加载项目', {
-          confirmButtonText: '继续加载',
-          cancelButtonText: '取消',
-          type: 'warning',
-        }),
-      );
-    } catch {
-      return false;
-    }
-  }
-  return true;
-}
-
-async function requestOpenProject(): Promise<void> {
-  if (!(await confirmProjectReplacement())) return;
+function requestOpenProject(): void {
   projectFileInput.value?.click();
 }
 
-async function requestReceiveProject(): Promise<void> {
-  if (!(await confirmProjectReplacement())) return;
+function requestReceiveProject(): void {
   showReceiveDialog.value = true;
 }
 
@@ -1093,7 +1085,6 @@ async function acceptOpenedProject(
   gearSetDefinitionWorkspaceId.value = null;
   resetSimulationPublication();
   projectSession.replaceProject(project);
-  markOpenedProject(project, gameDataRevisionUpdated || convertedLegacyProject);
   selectedTrack.value = 0;
   clearTimelineSelection();
   timelineClipboard.value = null;
@@ -2079,9 +2070,11 @@ const timelineSurfaceStyle = computed<Record<string, string>>(() => ({
   '--timeline-grid-origin': `${
     TIMELINE_TRACK_HEADER_WIDTH + timelineFramePx(0, displayedTimelinePrepFrames.value)
   }px`,
+  '--timeline-grid-origin-lane': `${timelineFramePx(0, displayedTimelinePrepFrames.value)}px`,
 }));
 
 const syncTimelineScroll = createTimelineScrollSync();
+const syncTimelineVerticalScroll = createTimelineVerticalScrollSync();
 
 function updateTimelineViewportMetrics(): void {
   const viewport = timelineScroll.value;
@@ -2090,9 +2083,13 @@ function updateTimelineViewportMetrics(): void {
   timelineScrollTop.value = viewport.scrollTop;
   timelineViewportWidth.value = viewport.clientWidth;
   timelineViewportHeight.value = viewport.clientHeight;
-  timelineVerticalScrollbarWidth.value = Math.max(0, viewport.offsetWidth - viewport.clientWidth);
+  timelineVerticalScrollRange.value = Math.max(0, viewport.scrollHeight - viewport.clientHeight);
+  timelineVerticalScrollbarWidth.value =
+    buffLayoutMode.value === 'compact' || timelineVerticalScrollRange.value === 0 ? 0 : 8;
   const scrollbar = timelineHorizontalScrollbar.value;
   if (scrollbar !== null) syncTimelineScroll(viewport, scrollbar);
+  const verticalScrollbar = timelineVerticalScrollbar.value;
+  if (verticalScrollbar !== null) syncTimelineVerticalScroll(viewport, verticalScrollbar);
 }
 
 function updateTimelineHorizontalScroll(event: Event): void {
@@ -2102,11 +2099,18 @@ function updateTimelineHorizontalScroll(event: Event): void {
   syncTimelineScroll(scrollbar, viewport);
 }
 
+function updateTimelineVerticalScroll(event: Event): void {
+  const viewport = timelineScroll.value;
+  const scrollbar = event.currentTarget as HTMLElement | null;
+  if (viewport !== null && scrollbar !== null) syncTimelineVerticalScroll(scrollbar, viewport);
+}
+
 onMounted(() => {
   updateTimelineViewportMetrics();
   if (typeof ResizeObserver === 'undefined' || timelineScroll.value === null) return;
   timelineResizeObserver = new ResizeObserver(updateTimelineViewportMetrics);
   timelineResizeObserver.observe(timelineScroll.value);
+  if (timelineSurface.value !== null) timelineResizeObserver.observe(timelineSurface.value);
 });
 
 onScopeDispose(() => {
@@ -2450,6 +2454,18 @@ const poiseBrokenSegments = computed(() => {
   return current === null
     ? []
     : projectPoiseBrokenSegments(publishedReceiptEntries.value, current.frame);
+});
+const poiseKnotSegments = computed(() => {
+  const current = simulationRun.value;
+  if (current === null) return [];
+  const stagger = scenario.value.enemy.editable.stagger;
+  return projectPoiseKnotSegments(
+    publishedReceiptEntries.value,
+    stagger.maximum,
+    stagger.knotThresholds,
+    stagger.knotBreakDurationFrames,
+    current.frame,
+  );
 });
 
 /** 所有持续状态统一由原生可见 Buff 生命周期投影，Buff 实例就是稳定展示身份。 */
@@ -4018,16 +4034,7 @@ async function inheritFromContext(): Promise<void> {
 }
 
 function addMarkerFromContext(
-  kind:
-    | 'cycle'
-    | 'simulationStart'
-    | 'simulationEnd'
-    | 'operatorHit'
-    | 'operatorWeakness'
-    | 'teamHit'
-    | 'enemyWeaknessSet'
-    | 'comboCooldown'
-    | 'comboReady',
+  kind: 'cycle' | 'simulationStart' | 'simulationEnd' | 'comboCooldown' | 'comboReady',
 ): void {
   const target = markerContextTarget.value;
   if (target === null || target.existing !== undefined) return;
@@ -4047,21 +4054,11 @@ function addMarkerFromContext(
           : setSimulationRangeBoundary(current, boundary, battleFrame),
     );
   } else {
-    const event: ExternalCombatEventDocument =
-      kind === 'comboCooldown' || kind === 'comboReady'
-        ? { kind: 'comboCooldownControl', mode: kind === 'comboReady' ? 'ready' : 'cooldown' }
-        : kind === 'operatorWeakness'
-          ? { kind: 'operatorWeaknessTriggeredOutput' }
-          : kind === 'enemyWeaknessSet'
-            ? { kind: 'enemyWeaknessSet' }
-            : { kind: 'operatorHit', tags: [], features: [] };
-    const eventTarget =
-      kind === 'teamHit' ||
-      kind === 'enemyWeaknessSet' ||
-      kind === 'comboCooldown' ||
-      kind === 'comboReady'
-        ? ({ scope: 'team' } as const)
-        : ({ scope: 'operator', trackIndex: target.trackIndex } as const);
+    const event: ExternalCombatEventDocument = {
+      kind: 'comboCooldownControl',
+      mode: kind === 'comboReady' ? 'ready' : 'cooldown',
+    };
+    const eventTarget = { scope: 'team' } as const;
     commitScenario('addExternalEventMarker', current =>
       addExternalEventMarker(
         current,
@@ -4172,14 +4169,6 @@ function setSelectedExternalEventFrame(frame: number): void {
   if (marker === null) return;
   commitScenario('moveExternalEventMarker', current =>
     moveExternalEventMarker(current, marker.id, frame),
-  );
-}
-
-function setSelectedExternalEvent(event: ExternalCombatEventDocument): void {
-  const marker = selectedExternalEventMarker.value;
-  if (marker === null) return;
-  commitScenario('updateExternalEventMarker', current =>
-    updateExternalEventMarker(current, marker.id, { event }),
   );
 }
 
@@ -4960,7 +4949,12 @@ function dropTimelinePayload(
 const resetDialogVisible = ref(false);
 
 function resetScenario(mode: TimelineResetMode): void {
-  const command = (project: EndaxisProjectDocument) => resetProjectScenarios(project, mode);
+  const command = (project: EndaxisProjectDocument) =>
+    resetProjectScenarios(
+      project,
+      mode,
+      mode === 'all' ? t('timeline.scenario.defaultName', { index: 1 }) : undefined,
+    );
   const changed =
     mode === 'currentKeepLoadout' && scenario.value.inheritance !== undefined
       ? projectSession.commit('resetScenarios', command)
@@ -5669,7 +5663,6 @@ function setPanelDialogVisible(visible: boolean): void {
       inspector: t('timeline.activityBar.inspector'),
       performance: t('timeline.performance.title'),
       battleLog: t('timeline.activityBar.battleLog'),
-      resetPanel: t('common.reset'),
       collapsePanel: t('common.close'),
     }"
   >
@@ -5836,7 +5829,6 @@ function setPanelDialogVisible(visible: boolean): void {
         :scenarios="projectScenarios"
         :active-scenario-id="activeProjectScenarioId"
         :max-scenarios="MAX_PROJECT_SCENARIOS"
-        :project-dirty="projectDirty"
         :cursor-guide-enabled="showCursorGuide"
         :box-select-enabled="boxSelectEnabled"
         :connection-tool-enabled="connectionToolEnabled"
@@ -5880,7 +5872,6 @@ function setPanelDialogVisible(visible: boolean): void {
           appearance: t('common.appearance'),
           appearanceLight: t('common.appearanceLight'),
           appearanceDark: t('common.appearanceDark'),
-          projectDirty: t('timeline.header.projectDirty'),
           locales: {
             zhCN: t('locale.zhCNShort'),
             en: t('locale.enShort'),
@@ -6254,16 +6245,11 @@ function setPanelDialogVisible(visible: boolean): void {
             :key="marker.id"
             class="timeline-marker team-event-marker"
             :class="{
-              'combo-cooldown-guide': marker.event.kind === 'comboCooldownControl',
-              'is-ready':
-                marker.event.kind === 'comboCooldownControl' && marker.event.mode === 'ready',
+              'combo-cooldown-guide': true,
+              'is-ready': marker.event.mode === 'ready',
               selected: selectedMarker?.kind === 'externalEvent' && selectedMarker.id === marker.id,
             }"
-            :title="
-              marker.event.kind === 'comboCooldownControl'
-                ? t(`comboControl.${marker.event.mode}`)
-                : undefined
-            "
+            :title="t(`comboControl.${marker.event.mode}`)"
             :style="{
               left: `${TIMELINE_TRACK_HEADER_WIDTH + timelineFramePx(displayedMarkerFrame('externalEvent', marker.id, marker.frame))}px`,
             }"
@@ -6275,13 +6261,11 @@ function setPanelDialogVisible(visible: boolean): void {
                 marker.id,
                 marker.frame,
                 selectedTrack,
-                marker.event.kind === 'comboCooldownControl'
-                  ? t(`comboControl.${marker.event.mode}`)
-                  : t('timeline.markerLabels.teamExternalEvent'),
+                t(`comboControl.${marker.event.mode}`),
               )
             "
           >
-            <div v-if="marker.event.kind === 'comboCooldownControl'" class="combo-cooldown-marker">
+            <div class="combo-cooldown-marker">
               <svg v-if="marker.event.mode === 'ready'" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M20 11a8 8 0 1 1-2.3-5.7" />
                 <path d="M20 4v7h-7" />
@@ -6291,14 +6275,6 @@ function setPanelDialogVisible(visible: boolean): void {
                 <path d="M12 7v5l3 2" />
               </svg>
             </div>
-            <span v-if="marker.event.kind !== 'comboCooldownControl'"
-              >{{ displayedMarkerFrame('externalEvent', marker.id, marker.frame) }}f</span
-            >
-            <b v-if="marker.event.kind !== 'comboCooldownControl'">{{
-              marker.event.kind === 'enemyWeaknessSet'
-                ? t('timeline.markerLabels.enemyWeaknessSet')
-                : t('timeline.markerLabels.teamHit')
-            }}</b>
           </div>
 
           <div class="track-stack">
@@ -6653,51 +6629,6 @@ function setPanelDialogVisible(visible: boolean): void {
                   ></span>
                   <i class="dodge-marker__pointer"></i>
                 </div>
-                <div
-                  v-for="marker in (scenario.battle.externalEventMarkers ?? []).filter(
-                    item =>
-                      item.target.scope === 'operator' &&
-                      item.target.trackIndex === track.trackIndex,
-                  )"
-                  :key="marker.id"
-                  class="timeline-marker operator-event-marker"
-                  :class="{
-                    selected:
-                      selectedMarker?.kind === 'externalEvent' && selectedMarker.id === marker.id,
-                  }"
-                  :style="{
-                    left: `${timelineFramePx(displayedMarkerFrame('externalEvent', marker.id, marker.frame))}px`,
-                  }"
-                  @pointerdown="
-                    beginMarkerMove(
-                      $event,
-                      'externalEvent',
-                      marker.id,
-                      marker.frame,
-                      track.trackIndex,
-                    )
-                  "
-                  @click.stop
-                  @contextmenu="
-                    openExistingMarkerContextMenu(
-                      $event,
-                      'externalEvent',
-                      marker.id,
-                      marker.frame,
-                      track.trackIndex,
-                      marker.event.kind === 'operatorHit'
-                        ? t('timeline.markerContext.operatorHit')
-                        : t('timeline.markerLabels.operatorWeakness'),
-                    )
-                  "
-                >
-                  <span>{{
-                    marker.event.kind === 'operatorHit'
-                      ? t('timeline.markerLabels.hitShort')
-                      : t('timeline.markerLabels.weaknessShort')
-                  }}</span>
-                  <b>{{ displayedMarkerFrame('externalEvent', marker.id, marker.frame) }}f</b>
-                </div>
                 <TimelineSkillCastGroupMarker
                   v-for="group in skillCastGroupsByTrack[track.trackIndex]"
                   :key="group.anchor.id"
@@ -6838,6 +6769,21 @@ function setPanelDialogVisible(visible: boolean): void {
           :style="{ width: `${timelineWidth}px` }"
         ></div>
       </div>
+      <div
+        ref="timelineVerticalScrollbar"
+        class="timeline-vertical-scrollbar"
+        :class="{
+          'is-hidden': buffLayoutMode === 'compact' || timelineVerticalScrollRange === 0,
+        }"
+        :aria-label="t('timelineGrid.toolbar.verticalScroll')"
+        tabindex="0"
+        @scroll="updateTimelineVerticalScroll"
+      >
+        <div
+          class="timeline-vertical-scrollbar__spacer"
+          :style="{ height: `${timelineVerticalScrollbarHeight + timelineVerticalScrollRange}px` }"
+        ></div>
+      </div>
     </div>
     <div
       v-if="libraryPlacement !== null && placementPointer !== null"
@@ -6923,6 +6869,8 @@ function setPanelDialogVisible(visible: boolean): void {
             <template #poise>
               <TimelineResourceCurves
                 :poise-broken-segments="poiseBrokenSegments"
+                :poise-knot-segments="poiseKnotSegments"
+                :poise-knot-thresholds="scenario.enemy.editable.stagger.knotThresholds"
                 :poise-broken-label="t('resourceMonitor.stagger.weak')"
                 :sp-curve="simulationRun.resourceCurves.sp"
                 :poise-curve="simulationRun.poiseCurve"
@@ -6983,7 +6931,6 @@ function setPanelDialogVisible(visible: boolean): void {
         :maximum-frame="scenario.battle.durationFrames"
         :target-label="selectedExternalEventTargetLabel"
         @set-frame="setSelectedExternalEventFrame"
-        @set-event="setSelectedExternalEvent"
         @remove="removeSelectedExternalEvent"
       />
       <TimelineDocumentMarkerInspector
@@ -7280,11 +7227,6 @@ function setPanelDialogVisible(visible: boolean): void {
       switchToDodge: t('timeline.markerContext.switchToDodge'),
       switchToPerfectDodge: t('timeline.markerContext.switchToPerfectDodge'),
       useConsumable: t('consumable.useFromContext'),
-      restrictedHint: t('timeline.markerContext.restrictedHint'),
-      operatorHit: t('timeline.markerContext.operatorHit'),
-      operatorWeakness: t('timeline.markerContext.operatorWeakness'),
-      teamHit: t('timeline.markerContext.teamHit'),
-      enemyWeaknessSet: t('timeline.markerContext.enemyWeaknessSet'),
     }"
     @close="markerContextTarget = null"
     @inherit="inheritFromContext"
@@ -7296,10 +7238,6 @@ function setPanelDialogVisible(visible: boolean): void {
     @set-dodge-mode="setDodgeMarkerModeFromContext"
     @copy-marker="copyDodgeMarkerFromContext"
     @use-consumable="openConsumableSelectionFromContext"
-    @add-operator-hit="addMarkerFromContext('operatorHit')"
-    @add-operator-weakness="addMarkerFromContext('operatorWeakness')"
-    @add-team-hit="addMarkerFromContext('teamHit')"
-    @add-enemy-weakness-set="addMarkerFromContext('enemyWeaknessSet')"
     @control-combo-cooldown="
       addMarkerFromContext($event === 'ready' ? 'comboReady' : 'comboCooldown')
     "
@@ -7855,10 +7793,12 @@ button:disabled {
 }
 
 .timeline-workspace {
+  position: relative;
   width: 100%;
   height: 100%;
   display: grid;
-  grid-template-rows: minmax(0, 1fr) 12px;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
 }
 
@@ -7883,11 +7823,17 @@ button:disabled {
 }
 
 .timeline-scroll {
+  grid-column: 1;
   grid-row: 1;
   width: 100%;
   min-height: 0;
   overflow-x: hidden;
   overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.timeline-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .timeline-scroll.is-compact-buff-layout {
@@ -7895,7 +7841,11 @@ button:disabled {
 }
 
 .timeline-horizontal-scrollbar {
-  grid-row: 2;
+  grid-column: 1;
+  grid-row: 1;
+  align-self: end;
+  position: relative;
+  z-index: 100;
   min-width: 0;
   height: 12px;
   margin-left: 180px;
@@ -7914,6 +7864,33 @@ button:disabled {
   height: 1px;
 }
 
+.timeline-vertical-scrollbar {
+  position: absolute;
+  z-index: 100;
+  top: 60px;
+  right: 0;
+  bottom: 12px;
+  width: 8px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  opacity: 0.7;
+  transition: opacity 200ms ease;
+}
+
+.timeline-vertical-scrollbar:hover,
+.timeline-vertical-scrollbar:focus-visible {
+  opacity: 1;
+}
+
+.timeline-vertical-scrollbar.is-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.timeline-vertical-scrollbar__spacer {
+  width: 1px;
+}
+
 .timeline-scroll.is-panning {
   cursor: grabbing;
   user-select: none;
@@ -7923,9 +7900,6 @@ button:disabled {
   position: relative;
   min-width: 100%;
   min-height: 100%;
-  background-image: linear-gradient(to right, var(--ea-grid-line) 1px, transparent 1px);
-  background-position-x: var(--timeline-grid-origin);
-  background-size: var(--timeline-grid-step) 100%;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -8006,7 +7980,7 @@ button:disabled {
   bottom: 0;
   left: 6px;
   width: 2px;
-  background: var(--ea-mark-strong, rgba(255, 255, 255, 0.38));
+  background: color-mix(in srgb, var(--ea-mark-strong) 70%, transparent);
   pointer-events: none;
 }
 
@@ -8523,29 +8497,6 @@ button:disabled {
   border-top-color: #fff;
 }
 
-.operator-event-marker {
-  top: 116px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 3px 5px;
-  border: 1px solid #a61d24;
-  border-radius: 3px;
-  background: rgb(64 12 16 / 92%);
-  color: #ffccc7;
-  font-size: 10px;
-  transform: translateX(-50%);
-}
-
-.operator-event-marker::before {
-  content: '';
-  position: absolute;
-  left: 50%;
-  bottom: 100%;
-  height: 14px;
-  border-left: 1px dashed #ff7875;
-}
-
 .timeline-marker.selected:not(.simulation-range-marker):not(.cycle-boundary-marker):not(
     .track-switch-marker
   ) {
@@ -8686,6 +8637,10 @@ button:disabled {
   z-index: 1;
   height: var(--timeline-track-height, 160px);
   overflow: hidden;
+  background-image: linear-gradient(to right, var(--ea-grid-line) 1px, transparent 1px);
+  background-position: var(--timeline-grid-origin-lane) var(--timeline-action-top);
+  background-size: var(--timeline-grid-step) 54px;
+  background-repeat: repeat-x;
 }
 
 /* 折叠栏只保留展开入口，不展示历史层；跨起点的条带仅露出起点之后的部分。 */

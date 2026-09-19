@@ -27,13 +27,16 @@ function simulate(attacks: readonly { key: string; frame: number }[] = []) {
     initialState: { ultimateEnergy: 200 },
     skillCasts: [],
   };
-  for (const [index, cast] of [{ key: 'ultimate', frame: 1 }, ...attacks].entries()) {
+  for (const [index, cast] of [
+    { key: 'chr_0017_yvonne_ultimate_skill', frame: 1 },
+    ...attacks,
+  ].entries()) {
     scenario = placeSkillGroup({
       scenario,
       trackIndex: 0,
       operator: yvonne,
-      skillGroupKey: cast.key === 'ultimate' ? 'ultimate' : 'basicAttack',
-      ...(cast.key.startsWith('ultimateAttack') ? { variantKey: 'enhancedBasicAttack' } : {}),
+      skillGroupKey: cast.key === 'chr_0017_yvonne_ultimate_skill' ? 'ultimate' : 'basicAttack',
+      ...(cast.key.includes('_ult_attack') ? { variantKey: 'enhancedBasicAttack' } : {}),
       skillKey: cast.key,
       startFrame: cast.frame,
       ids: { allocate: kind => `${kind}:${index}` },
@@ -71,11 +74,11 @@ it('伊冯真实结束 Buff 覆盖3B循环路由，重击结束后撤销', () =>
   expect(endBuff).toBeDefined();
   const frame = endBuff!.frame;
   const entries = simulate([
-    { key: 'ultimateAttack3B', frame: frame - 48 },
-    { key: 'ultimateAttack3B', frame: frame - 32 },
-    { key: 'ultimateAttack3B', frame: frame - 16 },
-    { key: 'ultimateAttackEnd', frame: frame + 1 },
-    { key: 'basicAttack1', frame: frame + 200 },
+    { key: 'chr_0017_yvonne_ult_attack3_2', frame: frame - 48 },
+    { key: 'chr_0017_yvonne_ult_attack3_2', frame: frame - 32 },
+    { key: 'chr_0017_yvonne_ult_attack3_2', frame: frame - 16 },
+    { key: 'chr_0017_yvonne_ult_attack_end', frame: frame + 1 },
+    { key: 'chr_0017_yvonne_attack1', frame: frame + 200 },
   ]);
   const routeErrors = entries.filter(
     entry =>
@@ -102,7 +105,7 @@ it('伊冯真实结束 Buff 覆盖3B循环路由，重击结束后撤销', () =>
   )!;
   expect(expired).toBeDefined();
   for (const when of [frame - 1, expired.frame + 1]) {
-    const outside = simulate([{ key: 'ultimateAttackEnd', frame: when }]);
+    const outside = simulate([{ key: 'chr_0017_yvonne_ult_attack_end', frame: when }]);
     expect(
       outside.some(
         entry =>
@@ -111,7 +114,7 @@ it('伊冯真实结束 Buff 覆盖3B循环路由，重击结束后撤销', () =>
       ),
     ).toBe(true);
   }
-  const afterExpiry = simulate([{ key: 'basicAttack1', frame: expired.frame + 1 }]);
+  const afterExpiry = simulate([{ key: 'chr_0017_yvonne_attack1', frame: expired.frame + 1 }]);
   expect(
     afterExpiry.filter(
       entry =>

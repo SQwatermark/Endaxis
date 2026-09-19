@@ -142,9 +142,26 @@ function applyGaugeDraft(): void {
       </EaButton>
     </div>
 
-    <div class="zoom-row" :title="labels.zoom">
+    <div class="zoom-row">
       <div class="zoom-info">
-        <span>SCALE</span><strong>{{ zoomPercent }}%</strong>
+        <span>SCALE</span>
+        <div class="zoom-value">
+          <EaButton
+            variant="ghost"
+            size="sm"
+            icon-only
+            type="button"
+            class="zoom-reset"
+            :disabled="zoomPercent === 100"
+            :aria-label="`${labels.zoom}: 100%`"
+            @click="emit('setZoomPercent', 100)"
+          >
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 11a8 8 0 1 1-2.3-5.7M20 4v5h-5" />
+            </svg>
+          </EaButton>
+          <strong>{{ zoomPercent }}%</strong>
+        </div>
       </div>
       <div class="zoom-slider-row">
         <EaButton
@@ -333,7 +350,7 @@ function applyGaugeDraft(): void {
   padding: 0;
   border: 0;
   background: transparent;
-  color: inherit;
+  color: var(--ea-fg-secondary, #aaa);
   font: inherit;
   cursor: pointer;
   transition: color 0.2s;
@@ -346,10 +363,44 @@ function applyGaugeDraft(): void {
 }
 
 .zoom-info {
-  align-items: baseline;
   justify-content: space-between;
   padding: 0 2px;
   width: 100%;
+}
+
+.zoom-value {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.zoom-reset.ea-button.ea-button--icon-only {
+  width: 13px;
+  min-width: 13px;
+  height: 13px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #fff;
+}
+
+.zoom-reset svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.zoom-reset.ea-button.ea-button--icon-only:hover:not(:disabled) {
+  color: var(--ea-gold);
+}
+
+.zoom-reset.ea-button.ea-button--icon-only:disabled {
+  color: var(--ea-fg-muted, #777);
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .zoom-info strong {
@@ -361,7 +412,7 @@ function applyGaugeDraft(): void {
 }
 
 .zoom-info > span {
-  color: #555;
+  color: var(--ea-fg-secondary, #aaa);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.5px;

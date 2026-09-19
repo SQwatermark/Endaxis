@@ -79,10 +79,10 @@ export function timelinePxPerFrame(percent: number): number {
 export type TimelineWheelIntent =
   | { readonly kind: 'zoom'; readonly direction: -1 | 1 }
   | { readonly kind: 'horizontalPan'; readonly deltaPx: number }
-  | { readonly kind: 'nativeVerticalScroll' };
+  | { readonly kind: 'verticalPan'; readonly deltaPx: number };
 
 /**
- * 复刻旧版时间轴的滚轮修饰键：Ctrl 围绕指针缩放，Shift 横向平移，无修饰键交给原生纵向滚动。
+ * Ctrl 围绕指针缩放，Shift 横向平移。普通滚轮直接移动视口，避免原生平滑滚动在边界缓停。
  */
 export function resolveTimelineWheelIntent(input: {
   readonly ctrlKey: boolean;
@@ -99,7 +99,18 @@ export function resolveTimelineWheelIntent(input: {
       deltaPx: input.deltaY === 0 ? input.deltaX : input.deltaY,
     };
   }
-  return { kind: 'nativeVerticalScroll' };
+  return { kind: 'verticalPan', deltaPx: input.deltaY };
+}
+
+/** WheelEvent 可能以像素、行或页报告位移；统一换算为视口像素。 */
+export function timelineWheelDeltaPx(
+  delta: number,
+  deltaMode: number,
+  viewportHeight: number,
+): number {
+  if (deltaMode === 1) return delta * 16;
+  if (deltaMode === 2) return delta * viewportHeight;
+  return delta;
 }
 
 /** 计算中键拖拽平移后的滚动位置，独立于 DOM 事件以便验证方向和边界。 */

@@ -8,10 +8,8 @@ it('preserves distinct mapping/permission paths and explicit null routes', () =>
     timelineBlockFrames: 0,
     scheduledSequences: [],
     inputWindows: {
-      commandMappings: [
-        { startFrame: 1, endFrame: 4, input: 'basicAttack', targetSourceSkillId: null },
-      ],
-      allowedNextSkills: [{ startFrame: 2, endFrame: 5, sourceSkillIds: ['native-next'] }],
+      commandMappings: [{ startFrame: 1, endFrame: 4, input: 'basicAttack', targetSkillId: null }],
+      allowedNextSkills: [{ startFrame: 2, endFrame: 5, skillIds: ['native-next'] }],
     },
   };
   const root = buildSkillInputWindowGraph(skill);
@@ -24,7 +22,7 @@ it('preserves distinct mapping/permission paths and explicit null routes', () =>
       expect(resolveStructureValue(skill, child.sourcePath)).toBeDefined(),
     ),
   );
-  expect(skill.inputWindows!.commandMappings![0]!.targetSourceSkillId).toBeNull();
+  expect(skill.inputWindows!.commandMappings![0]!.targetSkillId).toBeNull();
   expect(root.children[0]!.children[0]!.canDelete).toBe(true);
 });
 it('does not invent absent windows', () => {

@@ -86,10 +86,9 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0015_lifeng_attack1',
+    key: 'chr_0015_lifeng_attack1',
     timelineBlockFrames: 24,
     naturalDurationFrames: 187,
     exclusiveFrame: 25,
@@ -100,12 +99,10 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 32,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0015_lifeng_attack2',
+          targetSkillId: 'chr_0015_lifeng_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 24, endFrame: 32, sourceSkillIds: ['chr_0015_lifeng_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 24, endFrame: 32, skillIds: ['chr_0015_lifeng_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -125,13 +122,11 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         24,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0015_lifeng_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0015_lifeng_attack2'] })),
         32,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0015_lifeng_attack2',
+    timelineContinuationSkillId: 'chr_0015_lifeng_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -143,10 +138,9 @@ export const lifengBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0015_lifeng_attack2',
+    key: 'chr_0015_lifeng_attack2',
     timelineBlockFrames: 18,
     naturalDurationFrames: 131,
     exclusiveFrame: 18,
@@ -157,12 +151,10 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 24,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0015_lifeng_attack3',
+          targetSkillId: 'chr_0015_lifeng_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 18, endFrame: 24, sourceSkillIds: ['chr_0015_lifeng_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 18, endFrame: 24, skillIds: ['chr_0015_lifeng_attack3'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -243,13 +235,11 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0015_lifeng_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0015_lifeng_attack3'] })),
         24,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0015_lifeng_attack3',
+    timelineContinuationSkillId: 'chr_0015_lifeng_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -257,10 +247,9 @@ export const lifengBasicAttack2: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.29, 0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.49, 0.52, 0.56, 0.6, 0.65] },
 );
 
-export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0015_lifeng_attack3',
+    key: 'chr_0015_lifeng_attack3',
     timelineBlockFrames: 14,
     naturalDurationFrames: 115,
     exclusiveFrame: 14,
@@ -271,12 +260,10 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0015_lifeng_attack5',
+          targetSkillId: 'chr_0015_lifeng_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 14, endFrame: 30, sourceSkillIds: ['chr_0015_lifeng_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 14, endFrame: 30, skillIds: ['chr_0015_lifeng_attack5'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -326,13 +313,11 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         14,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0015_lifeng_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0015_lifeng_attack5'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0015_lifeng_attack5',
+    timelineContinuationSkillId: 'chr_0015_lifeng_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -344,10 +329,9 @@ export const lifengBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0015_lifeng_attack5',
+    key: 'chr_0015_lifeng_attack5',
     timelineBlockFrames: 35,
     naturalDurationFrames: 192,
     exclusiveFrame: 35,
@@ -358,12 +342,10 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 46,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0015_lifeng_attack1',
+          targetSkillId: 'chr_0015_lifeng_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 35, endFrame: 46, sourceSkillIds: ['chr_0015_lifeng_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 35, endFrame: 46, skillIds: ['chr_0015_lifeng_attack1'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -475,13 +457,11 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         35,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0015_lifeng_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0015_lifeng_attack1'] })),
         46,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0015_lifeng_attack1',
+    timelineContinuationSkillId: 'chr_0015_lifeng_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -495,10 +475,9 @@ export const lifengBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lifengFinisher: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0015_lifeng_power_attack',
+    key: 'chr_0015_lifeng_power_attack',
     timelineBlockFrames: 33,
     naturalDurationFrames: 194,
     exclusiveFrame: 68,
@@ -508,7 +487,7 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 33,
           endFrame: 68,
-          sourceSkillIds: ['chr_0015_lifeng_normal_skill', 'chr_0015_lifeng_combo_skill'],
+          skillIds: ['chr_0015_lifeng_normal_skill', 'chr_0015_lifeng_combo_skill'],
         },
       ],
     },
@@ -636,10 +615,9 @@ export const lifengFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0015_lifeng_plunging_attack_end',
+    key: 'chr_0015_lifeng_plunging_attack_end',
     timelineBlockFrames: 26,
     naturalDurationFrames: 181,
     exclusiveFrame: 25,
@@ -689,17 +667,16 @@ export const lifengPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0015_lifeng_normal_skill',
+    key: 'chr_0015_lifeng_normal_skill',
     timelineBlockFrames: 67,
     naturalDurationFrames: 216,
     exclusiveFrame: 70,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 67, endFrame: 89, sourceSkillIds: ['chr_0015_lifeng_normal_skill'] },
+        { startFrame: 67, endFrame: 89, skillIds: ['chr_0015_lifeng_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -827,10 +804,9 @@ export const lifengBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lifengUltimate: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0015_lifeng_ultimate_skill',
+    key: 'chr_0015_lifeng_ultimate_skill',
     timelineBlockFrames: 66,
     naturalDurationFrames: 190,
     exclusiveFrame: 75,
@@ -840,7 +816,7 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 66,
           endFrame: 80,
-          sourceSkillIds: ['chr_0015_lifeng_normal_skill', 'chr_0015_lifeng_combo_skill'],
+          skillIds: ['chr_0015_lifeng_normal_skill', 'chr_0015_lifeng_combo_skill'],
         },
       ],
     },
@@ -939,17 +915,16 @@ export const lifengUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
+export const lifengChr_0015_lifeng_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0015_lifeng_combo_skill',
+    key: 'chr_0015_lifeng_combo_skill',
     timelineBlockFrames: 50,
     naturalDurationFrames: 168,
     exclusiveFrame: 64,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 50, endFrame: 89, sourceSkillIds: ['chr_0015_lifeng_normal_skill'] },
+        { startFrame: 50, endFrame: 89, skillIds: ['chr_0015_lifeng_normal_skill'] },
       ],
     },
     costFrame: 9,
@@ -1069,10 +1044,9 @@ export const lifengComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lifengPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const lifengCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1107,51 +1081,71 @@ export const lifeng: OperatorDefinition = {
       key: 'basicAttack',
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
-      skills: [lifengBasicAttack1, lifengBasicAttack2, lifengBasicAttack3, lifengBasicAttack4],
+      skills: [
+        lifengChr_0015_lifeng_attack1,
+        lifengChr_0015_lifeng_attack2,
+        lifengChr_0015_lifeng_attack3,
+        lifengChr_0015_lifeng_attack5,
+      ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: lifengFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: lifengChr_0015_lifeng_power_attack,
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: lifengPlungingAttack,
+      skills: lifengChr_0015_lifeng_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: lifengBattleSkill,
+      skills: lifengChr_0015_lifeng_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: lifengUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: lifengChr_0015_lifeng_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: lifengComboSkill,
+      skills: lifengChr_0015_lifeng_combo_skill,
     },
   ],
-  dodgeSkill: lifengPerfectDodge,
+  dodgeSkill: lifengCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0015_lifeng_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0015_lifeng_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0015_lifeng_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0015_lifeng_attack1',
+        'chr_0015_lifeng_attack2',
+        'chr_0015_lifeng_attack3',
+        'chr_0015_lifeng_attack5',
+        'chr_0015_lifeng_plunging_attack_end',
+        'chr_0015_lifeng_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0015_lifeng_attack1',
+        'chr_0015_lifeng_attack2',
+        'chr_0015_lifeng_attack3',
+        'chr_0015_lifeng_attack5',
+      ],
+      defaultSkillKey: 'chr_0015_lifeng_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1160,7 +1154,7 @@ export const lifeng: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0015_lifeng_combo_skill',
       event: 'beforeTakeDamage',
       immediately: false,
       initialValues: null,

@@ -5,6 +5,7 @@ import {
   projectPoiseBrokenSegments,
   projectPoiseCurve,
   projectPoiseCurveFromReceipt,
+  projectPoiseKnotSegments,
 } from './poiseCurves';
 
 const INITIAL = { poise: 300, maxPoise: 300 };
@@ -155,6 +156,58 @@ describe('projectPoiseCurve', () => {
         },
       ]),
     ).toThrow('restored to 250, expected 300');
+  });
+});
+
+describe('projectPoiseKnotSegments', () => {
+  const applied = (
+    frame: number,
+    previousPoise: number,
+    currentPoise: number,
+    brokePoise = false,
+  ): CombatReceiptEntry => ({
+    sequence: frame,
+    frame,
+    time: frame / 30,
+    event: 'PoiseApplied',
+    sourceId: 'perlica',
+    targetId: 'enemy',
+    data: {
+      calculationValue: previousPoise - currentPoise,
+      calculatedDamage: previousPoise - currentPoise,
+      requestedDelta: currentPoise - previousPoise,
+      actualDelta: currentPoise - previousPoise,
+      previousPoise,
+      currentPoise,
+      cancelled: false,
+      cancelledByImmunity: false,
+      poiseImmune: false,
+      ignorePoiseImmune: false,
+      brokePoise,
+      inPoiseRecovery: brokePoise,
+      hasPoiseBrokenTag: brokePoise,
+    },
+  });
+
+  it('只在实际失衡向上跨过节点时显示旧版条纹，同一命中跨多个节点只显示一次', () => {
+    const entries = [
+      applied(10, 300, 250),
+      applied(20, 250, 140),
+      applied(25, 140, 100),
+      applied(30, 100, 0, true),
+      applied(90, 300, 130),
+    ];
+    expect(projectPoiseKnotSegments(entries, 300, [0.25, 0.5], 60, 100)).toEqual([
+      { startFrame: 20, endFrame: 80 },
+      { startFrame: 90, endFrame: 100 },
+    ]);
+    expect(projectPoiseKnotSegments(entries, 300, [0.25, 0.5], 60, 19)).toEqual([]);
+  });
+
+  it('没有节点或节点时长时不显示条纹', () => {
+    const entries = [applied(20, 300, 140)];
+    expect(projectPoiseKnotSegments(entries, 300, [], 60, 100)).toEqual([]);
+    expect(projectPoiseKnotSegments(entries, 300, [0.5], 0, 100)).toEqual([]);
   });
 });
 

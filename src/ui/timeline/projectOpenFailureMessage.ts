@@ -16,8 +16,6 @@ export function projectOpenFailureMessage(
     }
     if (result.cause.kind === 'unsupported-version')
       return `不支持项目版本 ${result.cause.schemaVersion}`;
-    if (result.cause.kind === 'migration-failed')
-      return `旧项目迁移失败：${result.cause.errors[0] ?? '未知错误'}`;
     return result.cause.message;
   }
   if (result.kind === 'definition-validation-failed') {

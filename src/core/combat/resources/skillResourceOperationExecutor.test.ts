@@ -518,7 +518,7 @@ describe('SkillResourceOperationExecutor', () => {
         skillGroupKey: 'battleSkill',
         skillType: 'battleSkill',
         skillLevel: 12,
-        skill: findSkill('battleSkill'),
+        skill: findSkill('chr_0004_pelica_normal_skill'),
       }),
       { clock, resources, receipt, operations, allocateSkillCastId: () => 1 },
     );

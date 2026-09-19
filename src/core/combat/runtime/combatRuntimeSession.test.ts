@@ -222,12 +222,12 @@ function createFixture(
     {
       frame: 0,
       targetOperatorIds: ['operator'],
-      event: { kind: 'enemyWeaknessSet' as const },
+      event: { kind: 'comboCooldownControl' as const, mode: 'cooldown' as const },
     },
     {
       frame: 4,
       targetOperatorIds: ['operator'],
-      event: { kind: 'enemyWeaknessSet' as const },
+      event: { kind: 'comboCooldownControl' as const, mode: 'cooldown' as const },
     },
   ];
   const original = new CombatRuntimeAssembly({
@@ -427,12 +427,6 @@ it('从同一完整帧按 A、B、A 回退，失败候选不替换当前装配',
     session
       .readHistory()
       .toArray()
-      .filter(entry => entry.event === 'ExternalEnemyWeaknessSetProcessed'),
-  ).toHaveLength(2);
-  expect(
-    session
-      .readHistory()
-      .toArray()
       .filter(entry => entry.event === 'SkillInputProcessed'),
   ).toHaveLength(2);
   expect(() =>
@@ -472,7 +466,12 @@ it('本帧技能与人工标记随分支回退，空输入帧不读取原切人�
   session.advanceInputFrame({
     controlledOperatorId: null,
     skills: [{ operatorId: 'operator', skillId: 'skill', castId: 'cast:a' }],
-    externalEvents: [{ targetOperatorIds: ['operator'], event: { kind: 'enemyWeaknessSet' } }],
+    externalEvents: [
+      {
+        targetOperatorIds: ['operator'],
+        event: { kind: 'comboCooldownControl', mode: 'cooldown' },
+      },
+    ],
   });
   const first = session.readState();
   expect(first.inputs.control.get('operator')).toBe(false);
@@ -481,12 +480,6 @@ it('本帧技能与人工标记随分支回退，空输入帧不读取原切人�
       .readHistory()
       .toArray()
       .filter(entry => entry.event === 'SkillInputProcessed'),
-  ).toHaveLength(1);
-  expect(
-    session
-      .readHistory()
-      .toArray()
-      .filter(entry => entry.event === 'ExternalEnemyWeaknessSetProcessed'),
   ).toHaveLength(1);
   session.restore(checkpoint);
   expect(session.readState()).toEqual(before);
@@ -498,12 +491,6 @@ it('本帧技能与人工标记随分支回退，空输入帧不读取原切人�
       .readHistory()
       .toArray()
       .some(entry => entry.event === 'SkillInputProcessed'),
-  ).toBe(false);
-  expect(
-    session
-      .readHistory()
-      .toArray()
-      .some(entry => entry.event === 'ExternalEnemyWeaknessSetProcessed'),
   ).toBe(false);
   expect(readControl).not.toHaveBeenCalled();
 });
@@ -529,7 +516,10 @@ it('开场输入前保存，原帧试放、回退换技能，不额外推进时�
   const input = {
     skills: [{ operatorId: 'operator', skillId: 'skill', castId: 'cast:a' }],
     externalEvents: [
-      { targetOperatorIds: ['operator'], event: { kind: 'enemyWeaknessSet' as const } },
+      {
+        targetOperatorIds: ['operator'],
+        event: { kind: 'comboCooldownControl' as const, mode: 'cooldown' as const },
+      },
     ],
   };
   expect(initial.inputs.initialInputPending).toBe(true);

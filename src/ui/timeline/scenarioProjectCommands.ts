@@ -55,13 +55,17 @@ function resetInheritedFuture(current: ScenarioDocument, boundary: number): Scen
 export function resetProjectScenarios(
   project: EndaxisProjectDocument,
   mode: TimelineResetMode,
+  resetAllScenarioName?: string,
 ): EndaxisProjectDocument {
   const current = project.scenarios.find(scenario => scenario.id === project.activeScenarioId);
   if (current === undefined) return project;
   const reset =
     mode === 'currentKeepLoadout' && current.inheritance !== undefined
       ? resetInheritedFuture(current, current.inheritance.frame)
-      : createEmptyScenario(current.id, current.name);
+      : createEmptyScenario(
+          current.id,
+          mode === 'all' ? (resetAllScenarioName ?? current.name) : current.name,
+        );
   if (mode === 'currentKeepLoadout' && current.inheritance === undefined) {
     reset.tracks = current.tracks.map(track =>
       track === null

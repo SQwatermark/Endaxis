@@ -918,7 +918,11 @@ it('opens Xaihi window, not the controlled teammate window, when both crystal us
   scenario.tracks[0] = track('arcane', []);
   scenario.tracks[0].skillCasts = [50, 140].map((startFrame, index) => ({
     id: `heavy:${index}`,
-    source: { kind: 'operatorSkill', skillGroupKey: 'basicAttack', skillKey: 'basicAttack5' },
+    source: {
+      kind: 'operatorSkill',
+      skillGroupKey: 'basicAttack',
+      skillKey: 'chr_0032_lizhiyan_attack5',
+    },
     placement: { startFrame },
   }));
   scenario.tracks[1] = track('xaihi', [['battleSkill', 'battleSkill', 1]]);
@@ -961,7 +965,8 @@ it('keeps Tangtang Qingbo cooldown at 10.2 seconds through ordinary combo dilati
     resources,
   }).simulate(scenario, 400);
   const entries = result.receiptEntries.filter(
-    entry => entry.sourceId === 'tangtang' && entry.data?.skillId === 'comboSkill',
+    entry =>
+      entry.sourceId === 'tangtang' && entry.data?.skillId === 'chr_0027_tangtang_combo_skill',
   );
   const reserved = entries.find(entry => entry.event === 'SkillCooldownReserved');
   const ready = entries.find(entry => entry.event === 'SkillCooldownReady');
@@ -971,6 +976,22 @@ it('keeps Tangtang Qingbo cooldown at 10.2 seconds through ordinary combo dilati
 
 /** 真实轴首轮 A4 缺伤害的最小对照；不携带私人存档或旧版伤害快照。 */
 function track(slug: string, casts: readonly (readonly [string, string, number])[]): TrackDocument {
+  const operator = gameDataRepository.getOperator(slug);
+  if (!operator) throw new Error(`missing fixture operator '${slug}'`);
+  const resolveSkillId = (groupKey: string, selection: string): string => {
+    const group = operator.skillGroups.find(item => item.key === groupKey);
+    if (!group) throw new Error(`missing fixture skill group '${slug}/${groupKey}'`);
+    const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
+    if (selection === 'arcana') {
+      const replacement = group.replacementSkills?.[0];
+      if (!replacement) throw new Error(`missing fixture replacement '${slug}/${selection}'`);
+      return replacement.key;
+    }
+    const ordinal = selection.match(/^basicAttack([1-9][0-9]*)$/);
+    const skill = ordinal ? skills[Number(ordinal[1]) - 1] : skills[0];
+    if (!skill) throw new Error(`missing fixture skill '${slug}/${selection}'`);
+    return skill.key;
+  };
   return {
     id: slug,
     operator: {
@@ -987,7 +1008,11 @@ function track(slug: string, casts: readonly (readonly [string, string, number])
     initialState: { ultimateEnergy: 0 },
     skillCasts: casts.map(([skillGroupKey, skillKey, startFrame]) => ({
       id: `${slug}:${skillKey}`,
-      source: { kind: 'operatorSkill', skillGroupKey, skillKey },
+      source: {
+        kind: 'operatorSkill',
+        skillGroupKey,
+        skillKey: resolveSkillId(skillGroupKey, skillKey),
+      },
       placement: { startFrame },
     })),
   };

@@ -23,7 +23,11 @@ it.each([0, 3])(
       skillCasts: [
         {
           id: 'ultimate',
-          source: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+          source: {
+            kind: 'operatorSkill',
+            skillGroupKey: 'ultimate',
+            skillKey: 'chr_0025_ardelia_ultimate_skill',
+          },
           placement: { startFrame: 1 },
         },
       ],

@@ -1,5 +1,6 @@
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -123,9 +124,16 @@ export async function generateWeaponDefinitions(args: Arguments): Promise<{
 }> {
   const compiled = compileWeaponDefinitionsFromFiles(args);
   const rendered = renderWeaponDefinitionsFromCompiled(compiled, args.optimization);
-  if (args.check) checkGeneratedFiles(args.output, rendered.files);
+  const files: RenderedWeaponDefinitionFileSource[] = [];
+  for (const file of rendered.files) {
+    files.push({
+      ...file,
+      content: await formatGeneratedSource(file.content, path.join(args.output, file.relativePath)),
+    });
+  }
+  if (args.check) checkGeneratedFiles(args.output, files);
   else {
-    await writeWeaponDefinitionFiles(args.output, rendered.files);
+    await writeWeaponDefinitionFiles(args.output, files);
     await writeWeaponDefinitionFiles(
       args.auditOutput ?? path.resolve('tmp/generated-next-weapons'),
       rendered.auditFiles,

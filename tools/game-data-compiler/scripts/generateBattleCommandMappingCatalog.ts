@@ -6,6 +6,7 @@ import {
   renderBattleCommandMappingCatalogModule,
 } from '../src/source/battleCommandMappingCatalogSource.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 
 export async function generateBattleCommandMappingCatalog(args: {
   readonly sourceUrl: string;
@@ -29,7 +30,10 @@ export async function generateBattleCommandMappingCatalog(args: {
   if (typeof preview.text !== 'string')
     throw new Error(`${args.sourceUrl}: missing TypeTree dump text`);
   const source = parseBattleCommandMappingCatalogDumpSource(preview.text, args.sourceUrl);
-  const content = renderBattleCommandMappingCatalogModule(source);
+  const content = await formatGeneratedSource(
+    renderBattleCommandMappingCatalogModule(source),
+    args.output,
+  );
   if (args.check) {
     if ((await fs.readFile(args.output, 'utf8')).replaceAll('\r\n', '\n') !== content)
       throw new Error(`${args.output}: generated BattleCommandMapping catalog is stale`);

@@ -8,6 +8,7 @@ import type { GameplayTagPredefineDocument } from '../../../packages/game-data-c
 import { parseGameplayTagPredefineTableSource } from '../src/source/gameplayTagPredefineTable.ts';
 import { compileGameplayTagPredefine } from '../src/compiler/catalogs/gameplayTagPredefine.ts';
 import { writeAtomicBytes } from './downloadGameDataSources.ts';
+import { formatGeneratedSource } from './formatGeneratedSource.ts';
 
 // 生成内容描述的是未来正式文件，而不是候选暂存文件的物理位置。
 const GAMEPLAY_TAG_CONTRACT_IMPORT = '../../../packages/game-data-contract/src/gameplayTags.ts';
@@ -33,7 +34,10 @@ export async function generateGameplayTagPredefine(
     sourceSha256: createHash('sha256').update(bytes).digest('hex'),
     ...definition,
   };
-  const content = `/** 由原生 GameplayTagPredefineTable 生成；请通过 generate:game-data:tag-predefine 重建。 */\nimport type { GameplayTagPredefineDocument } from ${JSON.stringify(GAMEPLAY_TAG_CONTRACT_IMPORT)};\n\nexport const GAMEPLAY_TAG_PREDEFINE: GameplayTagPredefineDocument = ${JSON.stringify(document, null, 2)};\n`;
+  const content = await formatGeneratedSource(
+    `/** 由原生 GameplayTagPredefineTable 生成；请通过 generate:game-data:tag-predefine 重建。 */\nimport type { GameplayTagPredefineDocument } from ${JSON.stringify(GAMEPLAY_TAG_CONTRACT_IMPORT)};\n\nexport const GAMEPLAY_TAG_PREDEFINE: GameplayTagPredefineDocument = ${JSON.stringify(document, null, 2)};\n`,
+    output,
+  );
   if (check) {
     if ((await fs.readFile(output, 'utf8')) !== content)
       throw new Error(`${output}: generated GameplayTag predefine is stale`);

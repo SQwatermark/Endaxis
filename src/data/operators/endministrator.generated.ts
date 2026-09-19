@@ -250,10 +250,9 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
   },
 );
 
-export const endministratorBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0003_endminf_attack1',
+    key: 'chr_0003_endminf_attack1',
     timelineBlockFrames: 9,
     naturalDurationFrames: 179,
     exclusiveFrame: 12,
@@ -264,12 +263,10 @@ export const endministratorBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 5,
           endFrame: 24,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0003_endminf_attack2',
+          targetSkillId: 'chr_0003_endminf_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 9, endFrame: 24, sourceSkillIds: ['chr_0003_endminf_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 9, endFrame: 24, skillIds: ['chr_0003_endminf_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -314,13 +311,11 @@ export const endministratorBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         9,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0003_endminf_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0003_endminf_attack2'] })),
         24,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0003_endminf_attack2',
+    timelineContinuationSkillId: 'chr_0003_endminf_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -332,10 +327,9 @@ export const endministratorBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0003_endminf_attack2',
+    key: 'chr_0003_endminf_attack2',
     timelineBlockFrames: 12,
     naturalDurationFrames: 105,
     exclusiveFrame: 15,
@@ -346,12 +340,10 @@ export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 4,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0003_endminf_attack3',
+          targetSkillId: 'chr_0003_endminf_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 12, endFrame: 30, sourceSkillIds: ['chr_0003_endminf_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 12, endFrame: 30, skillIds: ['chr_0003_endminf_attack3'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -396,13 +388,11 @@ export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         12,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0003_endminf_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0003_endminf_attack3'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0003_endminf_attack3',
+    timelineContinuationSkillId: 'chr_0003_endminf_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -414,10 +404,9 @@ export const endministratorBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0003_endminf_attack3',
+    key: 'chr_0003_endminf_attack3',
     timelineBlockFrames: 17,
     naturalDurationFrames: 101,
     exclusiveFrame: 22,
@@ -428,12 +417,10 @@ export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 12,
           endFrame: 35,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0003_endminf_attack4',
+          targetSkillId: 'chr_0003_endminf_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 17, endFrame: 35, sourceSkillIds: ['chr_0003_endminf_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 17, endFrame: 35, skillIds: ['chr_0003_endminf_attack4'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -521,13 +508,11 @@ export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         17,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0003_endminf_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0003_endminf_attack4'] })),
         35,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0003_endminf_attack4',
+    timelineContinuationSkillId: 'chr_0003_endminf_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -540,10 +525,9 @@ export const endministratorBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0003_endminf_attack4',
+    key: 'chr_0003_endminf_attack4',
     timelineBlockFrames: 32,
     naturalDurationFrames: 127,
     exclusiveFrame: 34,
@@ -554,12 +538,10 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 18,
           endFrame: 45,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0003_endminf_attack5',
+          targetSkillId: 'chr_0003_endminf_attack5',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 32, endFrame: 45, sourceSkillIds: ['chr_0003_endminf_attack5'] },
-      ],
+      allowedNextSkills: [{ startFrame: 32, endFrame: 45, skillIds: ['chr_0003_endminf_attack5'] }],
     },
     costFrame: 8,
     scheduledSequences: [
@@ -721,13 +703,11 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         32,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0003_endminf_attack5'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0003_endminf_attack5'] })),
         45,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0003_endminf_attack5',
+    timelineContinuationSkillId: 'chr_0003_endminf_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -740,10 +720,9 @@ export const endministratorBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_attack5: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack5',
-    sourceSkillId: 'chr_0003_endminf_attack5',
+    key: 'chr_0003_endminf_attack5',
     timelineBlockFrames: 25,
     naturalDurationFrames: 125,
     exclusiveFrame: 26,
@@ -754,12 +733,10 @@ export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
           startFrame: 15,
           endFrame: 32,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0003_endminf_attack1',
+          targetSkillId: 'chr_0003_endminf_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 25, endFrame: 32, sourceSkillIds: ['chr_0003_endminf_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 25, endFrame: 32, skillIds: ['chr_0003_endminf_attack1'] }],
     },
     costFrame: 12,
     scheduledSequences: [
@@ -840,13 +817,11 @@ export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         25,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0003_endminf_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0003_endminf_attack1'] })),
         32,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0003_endminf_attack1',
+    timelineContinuationSkillId: 'chr_0003_endminf_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -859,10 +834,9 @@ export const endministratorBasicAttack5: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_power_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0003_endminf_power_attack2',
+    key: 'chr_0003_endminf_power_attack2',
     timelineBlockFrames: 27,
     naturalDurationFrames: 192,
     exclusiveFrame: 47,
@@ -872,7 +846,7 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 27,
           endFrame: 58,
-          sourceSkillIds: ['chr_0003_endminf_normal_skill', 'chr_0003_endminf_combo_skill'],
+          skillIds: ['chr_0003_endminf_normal_skill', 'chr_0003_endminf_combo_skill'],
         },
       ],
     },
@@ -1005,65 +979,64 @@ export const endministratorFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const endministratorPlungingAttack: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0003_endminf_plunging_attack_end',
-    timelineBlockFrames: 21,
-    naturalDurationFrames: 154,
-    exclusiveFrame: 20,
-    offsetRecordFrame: 0,
-    costFrame: 0,
-    scheduledSequences: [
-      scheduled(
-        1,
-        sequence(
-          step(
-            'dealDamage',
-            {
-              damageType: 'physical',
-              attackScale: { kind: 'blackboard', key: 'atk_scale' },
-              tags: ['normalAttack', 'plungingAttack'],
-            },
-            'chr_0003_endminf_plunging_attack_end:/scheduledSequences/0/sequence/steps/0',
-          ),
-          branch(
-            { kind: 'casterControlled' },
-            sequence(
-              step('changeResourceByActionValue', {
-                resource: 'sp',
-                amount: { kind: 'blackboard', key: 'atb' },
-                coefficient: { kind: 'constant', value: 1 },
-                recipient: 'team',
-                spGainKind: 'gain',
-                spGainSource: 'normalAttack',
-              }),
+export const endministratorChr_0003_endminf_plunging_attack_end: SkillDefinition =
+  withSkillBlackboard(
+    {
+      key: 'chr_0003_endminf_plunging_attack_end',
+      timelineBlockFrames: 21,
+      naturalDurationFrames: 154,
+      exclusiveFrame: 20,
+      offsetRecordFrame: 0,
+      costFrame: 0,
+      scheduledSequences: [
+        scheduled(
+          1,
+          sequence(
+            step(
+              'dealDamage',
+              {
+                damageType: 'physical',
+                attackScale: { kind: 'blackboard', key: 'atk_scale' },
+                tags: ['normalAttack', 'plungingAttack'],
+              },
+              'chr_0003_endminf_plunging_attack_end:/scheduledSequences/0/sequence/steps/0',
             ),
-            undefined,
-            { alwaysNext: true },
+            branch(
+              { kind: 'casterControlled' },
+              sequence(
+                step('changeResourceByActionValue', {
+                  resource: 'sp',
+                  amount: { kind: 'blackboard', key: 'atb' },
+                  coefficient: { kind: 'constant', value: 1 },
+                  recipient: 'team',
+                  spGainKind: 'gain',
+                  spGainSource: 'normalAttack',
+                }),
+              ),
+              undefined,
+              { alwaysNext: true },
+            ),
           ),
+          6,
         ),
-        6,
-      ),
-    ],
-    skillType: 'plungingAttack',
-    levelSource: 'basicAttack',
-    nativeSkillType: 'attack',
-  },
-  { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
-);
+      ],
+      skillType: 'plungingAttack',
+      levelSource: 'basicAttack',
+      nativeSkillType: 'attack',
+    },
+    { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
+  );
 
-export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0003_endminf_normal_skill',
+    key: 'chr_0003_endminf_normal_skill',
     timelineBlockFrames: 24,
     naturalDurationFrames: 151,
     exclusiveFrame: 28,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 24, endFrame: 54, sourceSkillIds: ['chr_0003_endminf_normal_skill'] },
+        { startFrame: 24, endFrame: 54, skillIds: ['chr_0003_endminf_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1624,10 +1597,9 @@ export const endministratorBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0003_endminf_ultimate_skill',
+    key: 'chr_0003_endminf_ultimate_skill',
     timelineBlockFrames: 56,
     naturalDurationFrames: 250,
     exclusiveFrame: 55,
@@ -1782,17 +1754,16 @@ export const endministratorUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
+export const endministratorChr_0003_endminf_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0003_endminf_combo_skill',
+    key: 'chr_0003_endminf_combo_skill',
     timelineBlockFrames: 23,
     naturalDurationFrames: 164,
     exclusiveFrame: 30,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 23, endFrame: 54, sourceSkillIds: ['chr_0003_endminf_normal_skill'] },
+        { startFrame: 23, endFrame: 54, skillIds: ['chr_0003_endminf_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1945,10 +1916,9 @@ export const endministratorComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const endministratorPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const endministratorCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1984,73 +1954,73 @@ export const endministrator: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        endministratorBasicAttack1,
-        endministratorBasicAttack2,
-        endministratorBasicAttack3,
-        endministratorBasicAttack4,
-        endministratorBasicAttack5,
+        endministratorChr_0003_endminf_attack1,
+        endministratorChr_0003_endminf_attack2,
+        endministratorChr_0003_endminf_attack3,
+        endministratorChr_0003_endminf_attack4,
+        endministratorChr_0003_endminf_attack5,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: endministratorFinisher,
+      skills: endministratorChr_0003_endminf_power_attack2,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: endministratorPlungingAttack,
+      skills: endministratorChr_0003_endminf_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: endministratorBattleSkill,
+      skills: endministratorChr_0003_endminf_normal_skill,
     },
     {
       key: 'ultimate',
       skillType: 'ultimate',
       levelSource: 'ultimate',
-      skills: endministratorUltimate,
+      skills: endministratorChr_0003_endminf_ultimate_skill,
     },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: endministratorComboSkill,
+      skills: endministratorChr_0003_endminf_combo_skill,
     },
   ],
-  dodgeSkill: endministratorPerfectDodge,
+  dodgeSkill: endministratorCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0003_endminf_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0003_endminf_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0003_endminf_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
-        'plungingAttack',
-        'finisher',
+        'chr_0003_endminf_attack1',
+        'chr_0003_endminf_attack2',
+        'chr_0003_endminf_attack3',
+        'chr_0003_endminf_attack4',
+        'chr_0003_endminf_attack5',
+        'chr_0003_endminf_plunging_attack_end',
+        'chr_0003_endminf_power_attack2',
       ],
       normalAttackSkillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'basicAttack5',
+        'chr_0003_endminf_attack1',
+        'chr_0003_endminf_attack2',
+        'chr_0003_endminf_attack3',
+        'chr_0003_endminf_attack4',
+        'chr_0003_endminf_attack5',
       ],
-      defaultSkillKey: 'basicAttack1',
+      defaultSkillKey: 'chr_0003_endminf_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -2059,7 +2029,7 @@ export const endministrator: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0003_endminf_combo_skill',
       event: 'outputDamage',
       immediately: false,
       initialValues: null,

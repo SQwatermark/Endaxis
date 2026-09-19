@@ -6,7 +6,7 @@ const getSkill = (key: string) => findSkill(perlica, key);
 
 describe('next Perlica definition', () => {
   it('keeps infliction, damage, and energy gain in source order', () => {
-    const steps = getSkill('battleSkill')
+    const steps = getSkill('chr_0004_pelica_normal_skill')
       .scheduledSequences.flatMap(item => collectSteps(item.sequence))
       .filter(step =>
         ['applyElementalInfliction', 'dealDamage', 'gainSquadUltimateEnergyFromSkillCost'].includes(
@@ -22,7 +22,7 @@ describe('next Perlica definition', () => {
   });
 
   it('models combo impact as supported semantic operations', () => {
-    const skill = getSkill('comboSkill');
+    const skill = getSkill('chr_0004_pelica_combo_skill');
     const steps = collectSteps(
       skill.scheduledSequences.find(item => item.startFrame === 24)!.sequence,
     ).filter(step =>
@@ -70,7 +70,12 @@ describe('next Perlica definition', () => {
   });
 
   it('marks only the final normal-attack hit as the last combo hit', () => {
-    const normalAttackHits = ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4']
+    const normalAttackHits = [
+      'chr_0004_pelica_attack1',
+      'chr_0004_pelica_attack2',
+      'chr_0004_pelica_attack3',
+      'chr_0004_pelica_attack4',
+    ]
       .map(key => getSkill(key))
       .flatMap(skill => skill.scheduledSequences)
       .flatMap(scheduledSequence => collectSteps(scheduledSequence.sequence))
@@ -88,12 +93,12 @@ describe('next Perlica definition', () => {
   });
 
   it('uses the third normal attack per-hit scales instead of its rounded display totals', () => {
-    const damageHits = getSkill('basicAttack3')
+    const damageHits = getSkill('chr_0004_pelica_attack3')
       .scheduledSequences.flatMap(scheduledSequence => collectSteps(scheduledSequence.sequence))
       .filter(step => step.kind === 'dealDamage');
 
     expect(damageHits).toHaveLength(3);
-    expect(getSkill('basicAttack3').blackboard?.atk_scale).toEqual([
+    expect(getSkill('chr_0004_pelica_attack3').blackboard?.atk_scale).toEqual([
       0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28,
     ]);
     expect(damageHits.map(hit => hit.parameters.attackScale)).toEqual([
@@ -107,7 +112,7 @@ describe('next Perlica definition', () => {
     expect('comboSkillRegistrations' in perlica).toBe(false);
     expect(perlica.comboSkillConditions).toHaveLength(1);
     expect(perlica.comboSkillConditions?.[0]).toMatchObject({
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0004_pelica_combo_skill',
       event: 'beforeTakeDamage',
       immediately: false,
     });
@@ -129,13 +134,13 @@ describe('next Perlica definition', () => {
   });
 
   it('uses breaking-attack calculation only for the finisher', () => {
-    const finisherSteps = getSkill('finisher').scheduledSequences.flatMap(item =>
-      collectSteps(item.sequence),
+    const finisherSteps = getSkill('chr_0004_pelica_power_attack').scheduledSequences.flatMap(
+      item => collectSteps(item.sequence),
     );
     const finisherDamage = finisherSteps[0];
-    const plungingDamage = getSkill('plungingAttack').scheduledSequences.flatMap(item =>
-      collectSteps(item.sequence),
-    )[0];
+    const plungingDamage = getSkill(
+      'chr_0004_pelica_plunging_attack_end',
+    ).scheduledSequences.flatMap(item => collectSteps(item.sequence))[0];
 
     expect(finisherDamage).toMatchObject({
       kind: 'dealDamage',

@@ -2,7 +2,10 @@ import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import { perlica } from '../../../data/operators/perlica.generated';
 import { liino } from '../../../data/operators/liino.generated';
-import { arcaneUltimate } from '../../../data/operators/arcane.generated';
+import { arcane } from '../../../data/operators/arcane.generated';
+import { getSkill } from '../../../data/operators/testUtils';
+
+const arcaneUltimate = getSkill(arcane, 'chr_0032_lizhiyan_ultimate_skill');
 import { listOperatorSkillDefinitionBindings } from '../../game-data/operatorSkillDefinitions';
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
 import { compileSkill } from '../../compiler/compileSkill';
@@ -30,7 +33,7 @@ function createBattleSkillRuntime(
   initialSp: number,
   costFrame?: number,
   cooldownFrames?: number,
-  skillDefinition: SkillDefinition = findPerlicaSkill('battleSkill'),
+  skillDefinition: SkillDefinition = findPerlicaSkill('chr_0004_pelica_normal_skill'),
   emitSkillEnd?: ConstructorParameters<typeof SkillRuntime>[1]['emitSkillEnd'],
   emitAfterSkillApplyCost?: ConstructorParameters<
     typeof SkillRuntime
@@ -280,7 +283,7 @@ describe('SkillRuntime', () => {
       skillGroupKey: 'battleSkill',
       skillType: 'battleSkill',
       skillLevel: 12,
-      skill: findPerlicaSkill('battleSkill'),
+      skill: findPerlicaSkill('chr_0004_pelica_normal_skill'),
     });
     let nextId = 1;
     const create = () =>
@@ -830,7 +833,7 @@ describe('SkillRuntime', () => {
 
   it('梨诺生成的终止动作走原生 Buff 旁路，不产生新的技能释放或费用事件', () => {
     const definition = listOperatorSkillDefinitionBindings(liino).find(
-      ({ skill }) => skill.sourceSkillId === 'chr_0035_liino_normal_skill_end',
+      ({ skill }) => skill.key === 'chr_0035_liino_normal_skill_end',
     )?.skill;
     expect(definition).toBeDefined();
     expect(definition!.nativeSkillType).toBe('extraActiveSkill');
@@ -1306,8 +1309,7 @@ describe('SkillRuntime', () => {
 
   it('keeps the current combo segment alive until the next independent input window', () => {
     const first = createBattleSkillRuntime(300, undefined, undefined, {
-      key: 'enhancedBasicAttack1',
-      sourceSkillId: 'native.enhancedAttack1',
+      key: 'native.enhancedAttack1',
       skillType: 'basicAttack',
       timelineBlockFrames: 22,
       naturalDurationFrames: 160,
@@ -1318,22 +1320,21 @@ describe('SkillRuntime', () => {
             startFrame: 0,
             endFrame: 60,
             input: 'basicAttack',
-            targetSourceSkillId: 'native.enhancedAttack2',
+            targetSkillId: 'native.enhancedAttack2',
           },
         ],
         allowedNextSkills: [
           {
             startFrame: 22,
             endFrame: 60,
-            sourceSkillIds: ['native.enhancedAttack2'],
+            skillIds: ['native.enhancedAttack2'],
           },
         ],
       },
       scheduledSequences: [{ startFrame: 0, sequence: { steps: [] } }],
     });
     const second = createBattleSkillRuntime(300, undefined, undefined, {
-      key: 'enhancedBasicAttack2',
-      sourceSkillId: 'native.enhancedAttack2',
+      key: 'native.enhancedAttack2',
       skillType: 'basicAttack',
       timelineBlockFrames: 27,
       naturalDurationFrames: 155,
@@ -1345,8 +1346,8 @@ describe('SkillRuntime', () => {
       playerActionRoutes: {
         basicAttack: {
           kind: 'basicAttack',
-          skillKeys: ['enhancedBasicAttack1', 'enhancedBasicAttack2'],
-          defaultSkillKey: 'enhancedBasicAttack1',
+          skillKeys: ['native.enhancedAttack1', 'native.enhancedAttack2'],
+          defaultSkillKey: 'native.enhancedAttack1',
         },
       },
       playerActionModes: [
@@ -1354,18 +1355,17 @@ describe('SkillRuntime', () => {
           modeId: 'enhancedMode',
           modeLayer: 'enhancedMode',
           defaultEnabled: true,
-          normalAttackSkillKeys: ['enhancedBasicAttack1', 'enhancedBasicAttack2'],
+          normalAttackSkillKeys: ['native.enhancedAttack1', 'native.enhancedAttack2'],
           commandMappings: {
             basicAttack: {
-              sourceSkillId: 'native.enhancedAttack1',
-              skillKey: 'enhancedBasicAttack1',
+              skillId: 'native.enhancedAttack1',
             },
           },
         },
       ],
     });
 
-    expect(ability.tryStartSkill('enhancedBasicAttack1')).toBe(true);
+    expect(ability.tryStartSkill('native.enhancedAttack1')).toBe(true);
     for (let frame = 0; frame < 22; frame++) {
       first.clock.advanceFrame();
       second.clock.advanceFrame();
@@ -1373,11 +1373,11 @@ describe('SkillRuntime', () => {
     }
 
     expect(first.runtime.state).toBe('casting');
-    expect(ability.resolvePlayerInputSkill('enhancedBasicAttack2', 'basicAttack')).toEqual({
+    expect(ability.resolvePlayerInputSkill('native.enhancedAttack2', 'basicAttack')).toEqual({
       status: 'matched',
-      actualSkillKey: 'enhancedBasicAttack2',
+      actualSkillKey: 'native.enhancedAttack2',
     });
-    expect(ability.evaluatePlayerInputInterruption('enhancedBasicAttack2')).toEqual({
+    expect(ability.evaluatePlayerInputInterruption('native.enhancedAttack2')).toEqual({
       status: 'allowed',
     });
   });
@@ -1835,7 +1835,7 @@ describe('SkillRuntime', () => {
     first.runtime.tryStart();
     expect(first.runtime.skillCastInfo).toEqual({
       skillCastId: 1,
-      originSkillId: 'battleSkill',
+      originSkillId: 'chr_0004_pelica_normal_skill',
       originSkillType: 'battleSkill',
       nonReturnedSpCost: 100,
     });
@@ -1941,7 +1941,7 @@ describe('SkillRuntime', () => {
       99,
       0,
       undefined,
-      findPerlicaSkill('battleSkill'),
+      findPerlicaSkill('chr_0004_pelica_normal_skill'),
       undefined,
       emitted,
     );
@@ -2024,7 +2024,7 @@ describe('SkillRuntime', () => {
       skillGroupKey: 'battleSkill',
       skillType: 'battleSkill',
       skillLevel: 12,
-      skill: { ...findPerlicaSkill('battleSkill'), costFrame: 3 },
+      skill: { ...findPerlicaSkill('chr_0004_pelica_normal_skill'), costFrame: 3 },
     });
     const clock = new CombatClock();
     const resources = new CombatResources({

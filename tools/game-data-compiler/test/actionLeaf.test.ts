@@ -2740,7 +2740,7 @@ describe('公共 Action 叶子分派', () => {
       action: {
         kind: 'skillTypeMutation',
         target: expect.objectContaining({ targetSource: 'Owner' }),
-        sourceSkillId: 'chr_0030_zhuangfy_ultimate_skill_end',
+        skillId: 'chr_0030_zhuangfy_ultimate_skill_end',
         nativeSkillType: 'attachSkill',
       },
     });
@@ -2766,7 +2766,7 @@ describe('公共 Action 叶子分派', () => {
       action: {
         kind: 'skillTypeMutation',
         target: expect.objectContaining({ targetSource: 'Owner' }),
-        sourceSkillId: 'some_other_skill',
+        skillId: 'some_other_skill',
         nativeSkillType: 'attachSkill',
       },
     });

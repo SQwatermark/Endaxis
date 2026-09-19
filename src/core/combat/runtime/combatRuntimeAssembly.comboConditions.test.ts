@@ -430,7 +430,7 @@ describe('assembly 原生常驻连携条件', () => {
             kind: 'adjustSkillCooldown',
             parameters: {
               target: 'caster',
-              skill: { kind: 'id', skillId: 'native-combo' },
+              skill: { kind: 'id', skillId: 'combo' },
               operation: 'reduce',
               basis,
               value: { kind: 'constant', value: basis === 'baseDurationRatio' ? 0.5 : 5 },
@@ -443,7 +443,7 @@ describe('assembly 原生常驻连携条件', () => {
         operators: [
           {
             ...f.owner,
-            skillCooldownPrograms: [{ ...combo(), sourceSkillId: 'native-combo' }],
+            skillCooldownPrograms: [combo()],
             initializationPrograms: [
               {
                 key: 'set',
@@ -556,10 +556,10 @@ describe('assembly 原生常驻连携条件', () => {
 
   it('同一原生来源的不同施放实例共用冷却账本', () => {
     const f = setup();
-    f.owner.skills = [{ ...combo(), sourceSkillId: 'native-combo' }];
+    f.owner.skills = [combo()];
     f.owner.skillCasts = ['a', 'b'].map(castId => ({
       castId,
-      program: { ...combo(), sourceSkillId: 'native-combo' },
+      program: combo(),
     }));
     f.owner.skills.push(
       action('reset', [
@@ -567,7 +567,7 @@ describe('assembly 原生常驻连携条件', () => {
           kind: 'adjustSkillCooldown',
           parameters: {
             target: 'caster',
-            skill: { kind: 'id', skillId: 'native-combo' },
+            skill: { kind: 'id', skillId: 'combo' },
             operation: 'set',
             basis: 'absoluteSeconds',
             value: { kind: 'constant', value: 0 },

@@ -146,8 +146,8 @@ describe('SkillLibraryCard legacy structure parity', () => {
   });
 
   it('uses the old library header and section hierarchy in the Next editor', () => {
-    expect(workbenchSource).toContain('class="panel-chrome panel-chrome--left"');
-    expect(workbenchSource).toContain('@click="resetPanelSize(\'left\')"');
+    expect(workbenchSource).not.toContain('panel-chrome');
+    expect(workbenchSource).toContain('@dblclick="resetPanelSize(\'left\')"');
     expect(editorSource).toContain("t('actionLibrary.section.operatorStatusAdjust')");
     expect(editorSource).toContain("t('actionLibrary.hints.clickOrDrag')");
     expect(editorSource).toContain('grid-template-columns: repeat(3, minmax(0, 1fr))');

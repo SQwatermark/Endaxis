@@ -24,6 +24,7 @@ import { generateMovementSettingCatalog } from './generateMovementSettingCatalog
 import { generateDashEnergyConfig } from './generateDashEnergyConfig.ts';
 import { generateHitStopCurveCatalog } from './generateHitStopCurveCatalog.ts';
 import { generateSkillSettingCatalog } from './generateSkillSettingCatalog.ts';
+import { formatGeneratedCandidate, formatGeneratedSource } from './formatGeneratedSource.ts';
 import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
 import { generateContingencyContractLocales } from './generateContingencyContractLocales.ts';
 import { generateConsumableDefinitions } from './generateConsumableDefinitions.ts';
@@ -785,9 +786,29 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           'icons',
           'gameplay-tags-after-generation',
         ];
-        const unavailable = typeCheckDependencies.filter(
+        const generationUnavailable = typeCheckDependencies.filter(
           id => stages.find(item => item.id === id)?.status !== 'passed',
         );
+        if (generationUnavailable.length === 0) {
+          await stage('generated-format', () =>
+            formatGeneratedCandidate(candidateRoot, [
+              ...GAME_DATA_PUBLISH_DIRECTORY_OUTPUTS,
+              ...GAME_DATA_PUBLISH_FILE_OUTPUTS,
+            ]),
+          );
+        } else {
+          stages.push({
+            id: 'generated-format',
+            status: 'blocked',
+            detail: { unavailableStages: generationUnavailable },
+          });
+        }
+        const unavailable = [
+          ...generationUnavailable,
+          ...(stages.find(item => item.id === 'generated-format')?.status === 'passed'
+            ? []
+            : ['generated-format']),
+        ];
         if (unavailable.length === 0) {
           const candidateTypeCheckOkay = await stage('candidate-type-check', async () => ({
             ...typeCheckCandidateOverlay({
@@ -1127,10 +1148,10 @@ async function exportCandidateGameLocales(projectRoot: string, input: CandidateL
       );
     counts[locale] = {};
     for (const file of expectedFiles) {
-      const document = requireRecord(
-        await readJson(path.join(directory, file)),
-        `${locale}/${file}`,
-      );
+      const output = path.join(directory, file);
+      const formatted = await formatGeneratedSource(await fs.readFile(output, 'utf8'), output);
+      await fs.writeFile(output, formatted, 'utf8');
+      const document = requireRecord(await readJson(output), `${locale}/${file}`);
       const count = Object.keys(document).length;
       if (count === 0) throw new Error(`${locale}/${file}: empty locale document`);
       counts[locale]![file.slice(0, -'.json'.length)] = count;

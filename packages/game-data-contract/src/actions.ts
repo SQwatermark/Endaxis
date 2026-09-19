@@ -1257,7 +1257,7 @@ export interface CombatStepParameters {
    */
   reachSkillOperableBoundary: {
     /** 此窗口允许接续的原生 Skill ID。 */
-    sourceSkillIds: readonly string[];
+    skillIds: readonly string[];
   };
   /** 把当前技能的本次施放标为可由 Dash 输入打断。 */
   markCurrentSkillCanDash: Record<string, never>;
@@ -1397,7 +1397,7 @@ export interface CombatStepParameters {
   /** Buff 动作有效期间覆盖普攻命令；结束时只移除本次注册。 */
   overrideBasicAttackMapping: {
     /** Buff 有效期内普通攻击操作请求的原生技能 ID。 */
-    sourceSkillId: string;
+    skillId: string;
   };
   /** 动作有效期间覆盖当前干员可连续执行的 Dash 次数；负数表示无限。 */
   overrideMultiDashLimit: {

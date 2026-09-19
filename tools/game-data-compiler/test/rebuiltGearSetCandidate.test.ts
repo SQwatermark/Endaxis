@@ -21,14 +21,17 @@ import { createCombatCondition } from '../../../src/ui/timeline/definitions/acti
 import { createEmptyScenario } from '../../../src/core/project/createProject';
 import { compileScenarioEquipment } from '../../../src/core/compiler/compileScenarioEquipment';
 import { perlica } from '../../../src/data/operators/perlica.generated';
-import { perlicaBattleSkill } from '../../../src/data/operators/perlica.generated';
+import { getSkill } from '../../../src/data/operators/testUtils';
 import { commonBuffDefinitions } from '../../../src/data/buffs/commonDefinitions';
 import { skillSettings } from '../../../src/data/combat/skillSettings';
 import { placeSkillGroup } from '../../../src/ui/timeline/interaction/placeSkillGroup';
 import { ScenarioSimulationService } from '../../../src/application/simulation/scenarioSimulationService';
 
 it('全局冷却编辑器工厂输出通过公共定义校验', () => {
-  const step = createSkillEditorStep(perlicaBattleSkill, 'setGlobalCooldown');
+  const step = createSkillEditorStep(
+    getSkill(perlica, 'chr_0004_pelica_normal_skill'),
+    'setGlobalCooldown',
+  );
   expect(
     validateGearSetDefinition({
       slug: 'fixture',

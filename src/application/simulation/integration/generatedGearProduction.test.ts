@@ -32,7 +32,7 @@ describe('generated gear production integration', () => {
       Array.from(digest, byte => byte.toString(16).padStart(2, '0')).join(''),
     ]).toEqual([
       'endaxis-definitions-latest',
-      'e8a56955ec3ef22e96681b741c1c01c7172cb3b71997a3fd78dd17262d40b8e4',
+      'efd9edef416d75e8dd405bbeff9df0c7a73bfdf99463fee7db4370c541b81ad5',
     ]);
   });
 
@@ -140,7 +140,11 @@ describe('generated gear production integration', () => {
       const placements = withTermination
         ? [
             { skillGroupKey: 'ultimate', startFrame: 1 },
-            { skillGroupKey: 'battleSkill', skillKey: 'battleSkillEnd', startFrame: 180 },
+            {
+              skillGroupKey: 'battleSkill',
+              skillKey: 'chr_0035_liino_normal_skill_end',
+              startFrame: 180,
+            },
             { skillGroupKey: 'battleSkill', startFrame: 300 },
             { skillGroupKey: 'battleSkill', startFrame: 540 },
           ]

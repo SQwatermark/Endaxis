@@ -48,22 +48,22 @@ function number(field: 'startFrame' | 'endFrame', event: Event) {
         <label
           ><input
             type="checkbox"
-            :checked="(value as SkillInputCommandMappingWindow).targetSourceSkillId !== null"
+            :checked="(value as SkillInputCommandMappingWindow).targetSkillId !== null"
             @change="
               emit('update', {
                 ...(value as object),
-                targetSourceSkillId: ($event.target as HTMLInputElement).checked ? '' : null,
+                targetSkillId: ($event.target as HTMLInputElement).checked ? '' : null,
               })
             "
           />窗口内有直接技能路由</label
         >
-        <label v-if="(value as SkillInputCommandMappingWindow).targetSourceSkillId !== null"
+        <label v-if="(value as SkillInputCommandMappingWindow).targetSkillId !== null"
           >目标原生技能 ID<input
-            :value="(value as SkillInputCommandMappingWindow).targetSourceSkillId ?? ''"
+            :value="(value as SkillInputCommandMappingWindow).targetSkillId ?? ''"
             @change="
               emit('update', {
                 ...(value as object),
-                targetSourceSkillId: ($event.target as HTMLInputElement).value,
+                targetSkillId: ($event.target as HTMLInputElement).value,
               })
             "
         /></label>
@@ -71,11 +71,11 @@ function number(field: 'startFrame' | 'endFrame', event: Event) {
       </template>
       <label v-else
         >允许接续的原生技能 ID（每行一个）<textarea
-          :value="(value as SkillAllowedNextWindow).sourceSkillIds.join('\n')"
+          :value="(value as SkillAllowedNextWindow).skillIds.join('\n')"
           @change="
             emit('update', {
               ...(value as object),
-              sourceSkillIds: ($event.target as HTMLTextAreaElement).value
+              skillIds: ($event.target as HTMLTextAreaElement).value
                 .split('\n')
                 .filter(x => x.trim()),
             })

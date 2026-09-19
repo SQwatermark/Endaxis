@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest';
 import { GAMEPLAY_TAG_PREDEFINE } from '../../../data/combat/gameplayTagPredefine.generated';
-import {
-  gilbertaBattleSkill,
-  gilberta as gilbertaGeneratedOperator,
-} from '../../../data/operators/gilberta.generated';
+import { gilberta as gilbertaGeneratedOperator } from '../../../data/operators/gilberta.generated';
+import { getSkill } from '../../../data/operators/testUtils';
+
+const gilbertaBattleSkill = getSkill(gilbertaGeneratedOperator, 'chr_0013_aglina_normal_skill');
 import type {
   CompiledOperatorPassiveProgram,
   CompiledSkillProgram,
@@ -1551,8 +1551,8 @@ describe('CombatRuntimeAssembly', () => {
       compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
     });
     const hidden = skill({
-      skillId: 'hidden',
-      sourceSkillId: 'native-hidden',
+      skillId: 'native-hidden',
+      nativeSkillType: 'normalSkill',
       costs: [],
       costFrame: undefined,
       timelineActions: [

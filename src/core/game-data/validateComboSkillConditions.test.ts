@@ -9,7 +9,7 @@ import { parseProjectDocument, serializeProjectDocument } from '../project/seria
 
 const entry: ComboSkillConditionDefinition = {
   key: 'condition',
-  skillKey: 'comboSkill',
+  skillKey: 'chr_0004_pelica_combo_skill',
   event: 'beforeTakeInfliction',
   immediately: false,
   initialValues: { count: 1, label: 'local', empty: null },

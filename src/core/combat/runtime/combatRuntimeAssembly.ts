@@ -5,7 +5,6 @@ import {
 } from '../abilities/abilitySystemExecution';
 import { createCallbackSkillHostFactory } from '../abilities/callbackSkillHost';
 import type { RegisterPassiveAbilityEventAction } from '../abilities/passiveAbilityEventRuntime';
-import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
 import {
   createOperatorCenterState,
   type OperatorCenterState,
@@ -537,15 +536,6 @@ export interface CombatRuntimeEnvironmentOptions extends CombatRuntimeInputRules
   ) => void;
   /** 所有开局附着 Buff 注册完成后，为每名干员发布一次本场入战事实。 */
   readonly emitOperatorEnterFight?: (operatorId: string) => void;
-  /** 外部受击标记只向 Ability 监听器陈述事实，不执行敌方行为或生命变化。 */
-  readonly emitExternalOperatorHit?: (
-    operatorId: string,
-    payload: ExternalOperatorHitPayload,
-  ) => void;
-  /** 显式补入敌方弱点窗口回投给攻击者的事件，不创建敌方弱点状态。 */
-  readonly emitExternalOperatorWeaknessTriggeredOutput?: (operatorId: string) => void;
-  /** 显式补入唯一敌人被设置弱点的无目标事件，不创建或推进弱点窗口。 */
-  readonly emitExternalEnemyWeaknessSet?: () => void;
   /** Buff 消费/吸收的原生 AbilityEvent 阶段；语义事件仍由装配根并行发布给配装与养成。 */
   readonly emitBuffLifecycleAbilityEvent?: (
     event: 'buffConsumed' | 'buffAbsorbed',
@@ -731,7 +721,7 @@ export class CombatRuntimeAssembly {
     {
       readonly cooldown: SkillCooldown;
       readonly program: CompiledSkillCooldownProgram;
-      readonly sourceSkillIds: Set<string>;
+      readonly skillIds: Set<string>;
       readonly periodFrames?: number;
       readonly commitFrame?: number;
     }
@@ -1147,7 +1137,7 @@ export class CombatRuntimeAssembly {
             this.#skillCooldowns.set(`${operator.operatorId}\u0000${skillId}`, {
               cooldown: binding.cooldown,
               program: binding.program,
-              sourceSkillIds: new Set(binding.sourceSkillIds),
+              skillIds: new Set(binding.skillIds),
               ...binding.configuration,
             });
           }
@@ -1583,12 +1573,7 @@ export class CombatRuntimeAssembly {
           this.#createSkillRuntime(
             runtimeOperator,
             program,
-            {
-              ...cooldownPrograms.get(program.skillId)!,
-              ...(program.sourceSkillId === undefined
-                ? {}
-                : { sourceSkillId: program.sourceSkillId }),
-            },
+            cooldownPrograms.get(program.skillId)!,
             options.enemy,
             entityBlackboard,
             statusRuntime,
@@ -1611,12 +1596,7 @@ export class CombatRuntimeAssembly {
           this.#createSkillRuntime(
             runtimeOperator,
             program,
-            {
-              ...cooldownPrograms.get(program.skillId)!,
-              ...(program.sourceSkillId === undefined
-                ? {}
-                : { sourceSkillId: program.sourceSkillId }),
-            },
+            cooldownPrograms.get(program.skillId)!,
             options.enemy,
             entityBlackboard,
             statusRuntime,
@@ -2395,7 +2375,7 @@ export class CombatRuntimeAssembly {
           sourceId: operatorId,
           targetId: operatorId,
           skillType: program.skillType,
-          skillId: program.sourceSkillId ?? program.skillId,
+          skillId: program.executionSkillId ?? program.skillId,
           skillCastId,
           skillCastInfo: effectiveInheritedSkillCastInfo ?? {
             skillCastId,
@@ -2626,10 +2606,6 @@ export class CombatRuntimeAssembly {
           });
         }
       },
-      emitOperatorHitAbilityEvent: options.emitExternalOperatorHit,
-      emitOperatorWeaknessTriggeredOutput: options.emitExternalOperatorWeaknessTriggeredOutput,
-      emitEnemyWeaknessSet: options.emitExternalEnemyWeaknessSet,
-      receipt: this.receipt,
       ...(restoredState === undefined ? {} : { restoredState }),
     });
   }
@@ -2900,8 +2876,8 @@ export class CombatRuntimeAssembly {
       ]);
     };
     const registerNativeSkill = (program: CompiledSkillProgram): boolean => {
-      if (program.sourceSkillId === undefined) return false;
-      const nativeKey = `${operator.operatorId}\u0000${program.sourceSkillId}`;
+      if (program.nativeSkillType === undefined) return false;
+      const nativeKey = `${operator.operatorId}\u0000${program.executionSkillId ?? program.skillId}`;
       if (this.#ambiguousNativeSkillKeys.has(nativeKey)) return true;
       const previous = this.#nativeSkillKeys.get(nativeKey);
       if (previous !== undefined && previous !== program.skillId) {
@@ -3325,7 +3301,8 @@ export class CombatRuntimeAssembly {
           `skill '${program.skillId}' of '${operatorId}' has inconsistent cooldown configuration`,
         );
       }
-      if (program.sourceSkillId !== undefined) existing.sourceSkillIds.add(program.sourceSkillId);
+      if (program.nativeSkillType !== undefined)
+        existing.skillIds.add(program.executionSkillId ?? program.skillId);
       return { cooldown: existing.cooldown, advancesCooldown: false };
     }
     const cooldown = new SkillCooldown(
@@ -3338,7 +3315,9 @@ export class CombatRuntimeAssembly {
     this.#skillCooldowns.set(key, {
       cooldown,
       program,
-      sourceSkillIds: new Set(program.sourceSkillId === undefined ? [] : [program.sourceSkillId]),
+      skillIds: new Set(
+        program.nativeSkillType === undefined ? [] : [program.executionSkillId ?? program.skillId],
+      ),
       ...(periodFrames === undefined
         ? {}
         : {
@@ -3852,9 +3831,8 @@ export class CombatRuntimeAssembly {
         this.#requireAbilitySystem(operatorId).activatePlayerActionMode(modeId).registrationId,
       finishPlayerActionMode: id =>
         this.#requireAbilitySystem(operatorId).finishPlayerActionModeActivation(id),
-      overrideBasicAttackMapping: sourceSkillId =>
-        this.#requireAbilitySystem(operatorId).overrideBasicAttackMapping(sourceSkillId)
-          .registrationId,
+      overrideBasicAttackMapping: skillId =>
+        this.#requireAbilitySystem(operatorId).overrideBasicAttackMapping(skillId).registrationId,
       finishBasicAttackMapping: id =>
         this.#requireAbilitySystem(operatorId).finishBasicAttackMapping(id),
       setMultiDashLimit: limit => {
@@ -4575,7 +4553,6 @@ export class CombatRuntimeAssembly {
       program: {
         ...template,
         skillId: sourceActionId,
-        sourceSkillId: sourceActionId,
         initialBlackboard: {},
         timelineBlockFrames: 0,
         cooldownFrames: undefined,

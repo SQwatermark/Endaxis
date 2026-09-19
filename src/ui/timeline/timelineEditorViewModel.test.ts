@@ -169,10 +169,12 @@ describe('projectTimelineEditor', () => {
       entry => entry.skillGroupKey === 'battleSkill',
     );
     expect(battleEntries).toHaveLength(2);
-    expect(battleEntries[0]?.skills.map(skill => skill.skillKey)).toEqual(['battleSkill']);
+    expect(battleEntries[0]?.skills.map(skill => skill.skillKey)).toEqual([
+      'chr_0016_laevat_normal_skill',
+    ]);
     expect(battleEntries[1]).toMatchObject({
-      placementSkillKey: 'battleSkillDuringUltimate',
-      groupPlacementSkillKeys: ['battleSkillDuringUltimate'],
+      placementSkillKey: 'chr_0016_laevat_normal_skill_during_ult',
+      groupPlacementSkillKeys: ['chr_0016_laevat_normal_skill_during_ult'],
     });
   });
 
@@ -200,9 +202,9 @@ describe('projectTimelineEditor', () => {
     expect(battleEntries).toHaveLength(1);
     expect(battleEntries[0]?.placementSkillKey).toBeUndefined();
     expect(battleEntries[0]?.groupPlacementSkillKeys).toEqual([
-      'battleSkill1',
-      'battleSkill2',
-      'battleSkill3',
+      'chr_0031_mifu_normalskill_1',
+      'chr_0031_mifu_normalskill_2',
+      'chr_0031_mifu_normalskill_3',
     ]);
 
     const placed = placeSkillGroup({
@@ -210,7 +212,7 @@ describe('projectTimelineEditor', () => {
       trackIndex: 0,
       operator: mifu,
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkill1',
+      skillKey: 'chr_0031_mifu_normalskill_1',
       startFrame: 1,
       ids: { allocate: kind => `${kind}:mifu` },
     }).scenario;
@@ -232,7 +234,7 @@ describe('projectTimelineEditor', () => {
       trackIndex: 0,
       operator: mifu,
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkill2',
+      skillKey: 'chr_0031_mifu_normalskill_2',
       startFrame: 1,
       ids: { allocate: kind => `${kind}:mifu-2` },
     }).scenario;
@@ -266,7 +268,7 @@ describe('projectTimelineEditor', () => {
       trackIndex: 0,
       operator: camille,
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkillDuringUltimate',
+      skillKey: 'chr_0033_camille_normal_skill_2',
       startFrame: 1,
       ids: { allocate: kind => `${kind}:camille-routed` },
     }).scenario;
@@ -278,11 +280,11 @@ describe('projectTimelineEditor', () => {
     expect(battleEntries).toHaveLength(2);
     expect(battleEntries[0]).toMatchObject({ skillType: 'battleSkill', level: 4 });
     expect(battleEntries[1]).toMatchObject({
-      placementSkillKey: 'battleSkillDuringUltimate',
+      placementSkillKey: 'chr_0033_camille_normal_skill_2',
       skillType: 'comboSkill',
       level: 5,
       enhanced: false,
-      groupPlacementSkillKeys: ['battleSkillDuringUltimate'],
+      groupPlacementSkillKeys: ['chr_0033_camille_normal_skill_2'],
     });
     expect(track.skillCasts[0]?.skillType).toBe('comboSkill');
   });
@@ -312,52 +314,60 @@ describe('projectTimelineEditor', () => {
     };
 
     const zhuangEntries = project(zhuangFangyi);
-    expect(zhuangEntries.some(entry => entry.placementSkillKey === 'ultimateEnd')).toBe(false);
+    expect(
+      zhuangEntries.some(
+        entry => entry.placementSkillKey === 'chr_0030_zhuangfy_ultimate_skill_end',
+      ),
+    ).toBe(false);
     expect(
       zhuangEntries.find(entry => entry.skillGroupKey === 'enhancedBasicAttack'),
     ).toMatchObject({ enhanced: true });
     expect(
-      zhuangEntries.find(entry => entry.placementSkillKey === 'enhancedBattleSkill'),
+      zhuangEntries.find(entry => entry.placementSkillKey === 'chr_0030_zhuangfy_normal_skill_ult'),
     ).toMatchObject({ enhanced: true });
     expect(
-      zhuangEntries.find(entry => entry.placementSkillKey === 'enhancedComboSkill'),
+      zhuangEntries.find(entry => entry.placementSkillKey === 'chr_0030_zhuangfy_combo_skill_ult'),
     ).toMatchObject({ enhanced: true });
 
-    expect(project(arcane).find(entry => entry.placementSkillKey === 'arcana')).toMatchObject({
+    expect(
+      project(arcane).find(
+        entry => entry.placementSkillKey === 'chr_0032_lizhiyan_ultimate_skill2',
+      ),
+    ).toMatchObject({
       enhanced: false,
       skillType: 'ultimate',
     });
     expect(
-      project(liino).find(entry => entry.placementSkillKey === 'battleSkillEnd'),
+      project(liino).find(entry => entry.placementSkillKey === 'chr_0035_liino_normal_skill_end'),
     ).toMatchObject({
       enhanced: false,
       skillType: 'battleSkill',
     });
     expect(project(liino).filter(entry => entry.skillGroupKey === 'battleSkill')).toEqual([
       expect.objectContaining({
-        groupPlacementSkillKeys: ['battleSkill'],
+        groupPlacementSkillKeys: ['chr_0035_liino_normal_skill'],
         skills: [expect.objectContaining({ timelineBlockFrames: 50 })],
       }),
       expect.objectContaining({
-        placementSkillKey: 'battleSkillEnd',
-        groupPlacementSkillKeys: ['battleSkillEnd'],
+        placementSkillKey: 'chr_0035_liino_normal_skill_end',
+        groupPlacementSkillKeys: ['chr_0035_liino_normal_skill_end'],
       }),
     ]);
     expect(project(camille).filter(entry => entry.skillGroupKey === 'comboSkill')).toEqual([
-      expect.objectContaining({ groupPlacementSkillKeys: ['comboSkill1'] }),
+      expect.objectContaining({ groupPlacementSkillKeys: ['chr_0033_camille_combo_skill'] }),
     ]);
     expect(project(camille).filter(entry => entry.skillGroupKey === 'battleSkill')).toEqual([
-      expect.objectContaining({ groupPlacementSkillKeys: ['battleSkill'] }),
+      expect.objectContaining({ groupPlacementSkillKeys: ['chr_0033_camille_normal_skill'] }),
       expect.objectContaining({
-        placementSkillKey: 'battleSkillDuringUltimate',
-        groupPlacementSkillKeys: ['battleSkillDuringUltimate'],
+        placementSkillKey: 'chr_0033_camille_normal_skill_2',
+        groupPlacementSkillKeys: ['chr_0033_camille_normal_skill_2'],
         skillType: 'comboSkill',
       }),
     ]);
     expect(project(rossi).filter(entry => entry.skillGroupKey === 'comboSkill')).toEqual([
       expect.objectContaining({
         enhanced: false,
-        groupPlacementSkillKeys: ['comboSkill2', 'comboSkill3'],
+        groupPlacementSkillKeys: ['chr_0028_wulfa_combo_2_skill', 'chr_0028_wulfa_combo_3_skill'],
         skills: [
           expect.objectContaining({ timelineBlockFrames: 37 }),
           expect.objectContaining({ timelineBlockFrames: 52 }),

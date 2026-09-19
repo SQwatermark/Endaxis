@@ -14,8 +14,7 @@ it('edits runtime identity and timings without rewriting display width or other 
     ...value,
     naturalDurationFrames: undefined,
   });
-  const source = skillRuntimeIdentityFields.find(x => x.key === 'sourceSkillId')!;
-  expect(source.write(value, 'native-id')).toEqual({ ...value, sourceSkillId: 'native-id' });
+  expect(skillRuntimeIdentityFields.some(x => x.key === 'skillId')).toBe(false);
   expect(value).not.toHaveProperty('nativeSkillType');
   const cooldown = skillRuntimeTimingFields.find(x => x.key === 'cooldownFrames')!;
   expect(cooldown.write(value, [90, 60, 30])).toEqual({ ...value, cooldownFrames: [90, 60, 30] });

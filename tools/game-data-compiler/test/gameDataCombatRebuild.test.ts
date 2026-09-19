@@ -25,6 +25,11 @@ const mocks = vi.hoisted(() => ({
 vi.mock('../scripts/generateCombatDefinitionCandidates.ts', () => ({
   generateCombatDefinitionCandidates: mocks.combat,
 }));
+// 本测试只验证重建阶段编排；格式化器对正式输出清单的遍历另行验证。
+vi.mock('../scripts/formatGeneratedSource.ts', async importOriginal => ({
+  ...(await importOriginal<typeof import('../scripts/formatGeneratedSource.ts')>()),
+  formatGeneratedCandidate: async () => ({ fileCount: 0 }),
+}));
 // 完整路径若绕回这些旧入口，会多编译一次并破坏本轮共用来源。
 vi.mock('../scripts/generateGearDefinitions.ts', () => ({
   generateGearDefinitions: mocks.oldGenerator,
@@ -69,11 +74,20 @@ vi.mock('../scripts/generateTimeDilationCatalog.ts', () => ({
 vi.mock('../scripts/generateBattleCommandMappingCatalog.ts', () => ({
   generateBattleCommandMappingCatalog: async () => ({}),
 }));
+vi.mock('../scripts/generateMovementSettingCatalog.ts', () => ({
+  generateMovementSettingCatalog: async () => ({}),
+}));
 vi.mock('../scripts/generateHitStopCurveCatalog.ts', () => ({
   generateHitStopCurveCatalog: async () => ({}),
 }));
 vi.mock('../scripts/generateSkillSettingCatalog.ts', () => ({
   generateSkillSettingCatalog: async () => ({}),
+}));
+vi.mock('../scripts/generateDashEnergyConfig.ts', () => ({
+  generateDashEnergyConfig: async ({ output, check }: { output: string; check: boolean }) => {
+    if (!check) await json(output, { fixture: 'dash-energy' });
+    return {};
+  },
 }));
 vi.mock('../scripts/generateGlobalBuffCatalog.ts', () => ({
   generateGlobalBuffCatalog: mocks.globalBuffs,
@@ -224,7 +238,7 @@ beforeEach(() => {
         JSON.stringify({
           candidates: [
             {
-              path: `assets/beyond/dynamicassets/gamedata/gameplayconfig/${name}`,
+              path: `assets/beyond/dynamicassets/gamedata/gameplayconfig/${name === 'movementsetting_default.asset' ? 'movementsetting/' : ''}${name}`,
               previewUrl: `/fixture/${name}`,
             },
           ],
@@ -258,6 +272,7 @@ async function setup() {
     'EquipSuitTable',
     'SkillPatchTable',
     'CharGrowthTable',
+    'GlobalConst',
     'UseItemTable',
     'ItemTable',
   ])

@@ -18,10 +18,10 @@ import {
   type SourceRecord,
 } from '../../source/primitives.ts';
 
-const ENTRY_REQUIRED_FIELDS = new Set(['key', 'skillType', 'levelSource', 'source']);
+const ENTRY_REQUIRED_FIELDS = new Set(['skillType', 'levelSource', 'source']);
 const ENTRY_OPTIONAL_FIELDS = ['compile', 'enhancementStateBuffId'] as const;
 
-/** 兼容旧入口的支持列表和遍历顺序；类型身份归契约，不能把排序差异误当成新枚举。 */
+/** 主动技能支持列表和遍历顺序；类型身份归契约，不能把排序差异误当成新枚举。 */
 export const OPERATOR_ACTIVE_SKILL_TYPES = [
   'basicAttack',
   'finisher',
@@ -31,7 +31,7 @@ export const OPERATOR_ACTIVE_SKILL_TYPES = [
   'ultimate',
 ] as const satisfies readonly SkillType[];
 
-/** operators.json 中的领域身份；普通技能按原始动作图编译，compile 仅保留路由及旧配置兼容信息。 */
+/** 技能身份从原生 SkillData 文件名取得；compile 只描述额外的执行路由。 */
 export type OperatorActiveSkillEntrySource = Readonly<
   Pick<SkillGroupDefinition, 'key' | 'skillType' | 'levelSource'>
 > & {
@@ -42,7 +42,6 @@ export type OperatorActiveSkillEntrySource = Readonly<
 };
 
 export interface CompiledOperatorActiveSkillEntrySource extends OperatorActiveSkillEntrySource {
-  readonly skillId: string;
   readonly definition: CompiledActiveSkillDefinitionSource;
 }
 
@@ -86,7 +85,7 @@ export function parseOperatorActiveSkillEntries(
     }
     return {
       sourcePath: path,
-      key: requireNonEmptyString(row.key, `${path}.key`),
+      key: sourceFile.slice(0, -'.json'.length),
       skillType,
       levelSource: levelSource satisfies SkillLevelSource,
       sourceFile,
@@ -108,7 +107,7 @@ export function parseOperatorActiveSkillEntries(
 }
 
 /**
- * 将 Operator 的编辑器技能身份绑定到文件内原生 skillId，再进入公共主动 SkillData 批量入口。
+ * 校验 SkillData 文件名与文件内 skillId 相同，再进入公共主动技能批量编译入口。
  */
 export function compileOperatorActiveSkills(
   manifestValue: unknown,
@@ -126,6 +125,9 @@ export function compileOperatorActiveSkills(
     const raw = files[entry.sourceFile];
     const root = requireRecord(raw, entry.sourceFile);
     const skillId = requireNonEmptyString(root.skillId, `${entry.sourceFile}.skillId`);
+    if (skillId !== entry.key) {
+      throw new Error(`${entry.sourcePath}.source: file name does not match SkillData.skillId`);
+    }
     if (skillId in skillDataById) {
       throw new Error(
         `${entry.sourcePath}.source: duplicate native skillId ${JSON.stringify(skillId)}`,
@@ -139,7 +141,7 @@ export function compileOperatorActiveSkills(
   return {
     entries: entries.map((entry, index) => {
       const skillId = requests[index]!.skillId;
-      return { ...entry, skillId, definition: definitionById.get(skillId)! };
+      return { ...entry, definition: definitionById.get(skillId)! };
     }),
     definitions: batch.definitions,
   };

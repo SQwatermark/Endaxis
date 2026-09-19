@@ -18,11 +18,9 @@ import type {
   GlobalOperatorStatModifierDocument,
   OperatorInstanceDocument,
 } from '../project/schema';
-import type {
-  CompiledEquipmentContribution,
-  EquipmentContributionSource,
-  ResolvedEquipmentModifier,
-} from './compileEquipment';
+import type { CompiledEquipmentContribution, ResolvedEquipmentModifier } from './compileEquipment';
+import type { OperatorPanelContributionSource } from '../combat/state/foundationState';
+export type { OperatorPanelContributionSource } from '../combat/state/foundationState';
 import { resolveActiveOperatorUpgrades } from './compileOperatorUpgrades';
 import { compileResolvedScenarioEquipment } from './compileScenarioEquipment';
 import type { ResolvedScenarioBuild } from './resolveScenarioBuilds';
@@ -66,19 +64,6 @@ export type OperatorPanelStat =
   | 'ultimateEnergyGainEfficiency'
   | 'skillCooldownReduction'
   | 'staggerDamagePercent';
-
-export type OperatorPanelContributionSource =
-  | { readonly kind: 'operatorBase'; readonly operatorSlug: string }
-  | { readonly kind: 'trust'; readonly operatorSlug: string; readonly node: number }
-  | {
-      readonly kind: 'operatorUpgrade';
-      readonly source: 'talent' | 'potential';
-      readonly index: number;
-    }
-  | { readonly kind: 'weaponBase'; readonly weaponSlug: string }
-  | { readonly kind: 'gearBase'; readonly gearSlug: string }
-  | { readonly kind: 'equipment'; readonly contribution: EquipmentContributionSource }
-  | { readonly kind: 'globalConfig'; readonly modifierId: string };
 
 /** 一项进入面板聚合的原始贡献；百分比使用小数。 */
 export interface OperatorPanelContributionReceipt {

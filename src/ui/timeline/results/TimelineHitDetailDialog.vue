@@ -17,6 +17,7 @@ import type { OperatorAttribute } from '../../../core/game-data/operatorDefiniti
 import {
   ATTRIBUTE_MODIFIER_SLOTS,
   type AttributeModifierSlot,
+  type DamageModifierSide,
 } from '../../../../packages/game-data-contract/src/modifiers';
 import type {
   OperatorPanelContributionReceipt,
@@ -439,7 +440,7 @@ const damageDetails = computed<readonly DamageDetail[]>(() =>
     const modifiers = origins.value
       .directModifiers(origins.value.get({ kind: 'receipt', sequence: entry.sequence }))
       .map(item => item.modifier);
-    const attributes = (side: 'attacker' | 'defender', keys: readonly string[]) =>
+    const attributes = (side: DamageModifierSide, keys: readonly string[]) =>
       modifiers.filter(
         item => item.kind === 'attribute' && item.side === side && keys.includes(item.attribute),
       );

@@ -120,7 +120,7 @@ export interface CombatOperationContext {
   readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
   /** InheritBuffAction 把已找到的同一实例从当前技能结束清理集合解除附着。 */
   readonly detachBuffFromCurrentSkill?: (buff: BuffApplicationHandle) => void;
-  /** 只在由下一技能打断的 CastEnd 期间存在；值是下一技能的原生 sourceSkillId。 */
+  /** 只在由下一技能打断的 CastEnd 期间存在；值是下一技能的原生 skillId。 */
   readonly pendingNextSkillId?: string;
   /** 把已脱离当前动作寿命的同一 Buff 实例转交给下一技能。 */
   readonly attachBuffToNextSkill?: (buff: BuffApplicationHandle) => void;
@@ -179,7 +179,7 @@ export interface CombatOperationContext {
   /** 仅由技能时间轴宿主提供；结束当前技能且不改写局部帧。 */
   readonly requestTimelineFinish?: () => void;
   /** 原生 AllowNext 窗口实际进入活动分支时，通知技能宿主保存本帧候选。 */
-  readonly reachSkillOperableBoundary?: (sourceSkillIds: readonly string[]) => void;
+  readonly reachSkillOperableBoundary?: (skillIds: readonly string[]) => void;
   /** 原生 MarkCanDash 只标记当前技能的本次施放。 */
   readonly markCurrentSkillCanDash?: () => void;
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
@@ -350,8 +350,7 @@ export class SkillRuntime {
         : { createCallbackSkillHost: dependencies.createCallbackSkillHost }),
       requestTimelineJump: destinationFrame => this.#requestTimelineJump(destinationFrame),
       requestTimelineFinish: () => this.#requestTimelineFinish(),
-      reachSkillOperableBoundary: sourceSkillIds =>
-        this.#reachSkillOperableBoundary(sourceSkillIds),
+      reachSkillOperableBoundary: skillIds => this.#reachSkillOperableBoundary(skillIds),
       markCurrentSkillCanDash: () => {
         this.runtimeState.markedCanDash = true;
       },
@@ -439,9 +438,9 @@ export class SkillRuntime {
     return this.#program.skillId;
   }
 
-  /** 原生动作的技能继承白名单使用表内 Skill ID，而不是编辑器稳定 key。 */
+  /** 路由包装器用实际执行技能 ID，其余技能用自身 ID。 */
   get transitionSkillId(): string {
-    return this.#program.sourceSkillId ?? this.#program.skillId;
+    return this.#program.executionSkillId ?? this.#program.skillId;
   }
 
   /** 文档中的技能释放身份；单元测试程序可能缺失。 */
@@ -472,7 +471,7 @@ export class SkillRuntime {
   }
 
   get requiresExecutedOperableBoundaryCandidate(): boolean {
-    return this.#program.timelineContinuationSourceSkillId !== undefined;
+    return this.#program.timelineContinuationSkillId !== undefined;
   }
 
   get reachedOperableBoundaryFrame(): number | undefined {
@@ -483,19 +482,19 @@ export class SkillRuntime {
     return this.#execution.operableBoundaryCandidateFrame;
   }
 
-  get operableBoundaryCandidateSourceSkillIds(): readonly string[] {
-    return this.#execution.operableBoundaryCandidateSourceSkillIds;
+  get operableBoundaryCandidateSkillIds(): readonly string[] {
+    return this.#execution.operableBoundaryCandidateSkillIds;
   }
 
   takeOperableBoundaryCandidate():
-    { readonly frame: number; readonly sourceSkillIds: readonly string[] } | undefined {
+    { readonly frame: number; readonly skillIds: readonly string[] } | undefined {
     const frame = this.#execution.operableBoundaryCandidateFrame;
-    if (frame === undefined || this.#execution.operableBoundaryCandidateSourceSkillIds.length === 0)
+    if (frame === undefined || this.#execution.operableBoundaryCandidateSkillIds.length === 0)
       return undefined;
-    const sourceSkillIds = [...this.#execution.operableBoundaryCandidateSourceSkillIds];
+    const skillIds = [...this.#execution.operableBoundaryCandidateSkillIds];
     this.#execution.operableBoundaryCandidateFrame = undefined;
-    this.#execution.operableBoundaryCandidateSourceSkillIds.length = 0;
-    return { frame, sourceSkillIds };
+    this.#execution.operableBoundaryCandidateSkillIds.length = 0;
+    return { frame, skillIds };
   }
 
   markOperableBoundaryReached(frame = this.currentTimelineFrame): void {
@@ -992,16 +991,16 @@ export class SkillRuntime {
     this.record('SkillTimelineFinished');
   }
 
-  #reachSkillOperableBoundary(sourceSkillIds: readonly string[]): void {
+  #reachSkillOperableBoundary(skillIds: readonly string[]): void {
     if (this.#execution.reachedOperableBoundaryFrame !== undefined) return;
     const frame = this.currentTimelineFrame;
     if (this.#execution.operableBoundaryCandidateFrame !== frame) {
       this.#execution.operableBoundaryCandidateFrame = frame;
-      this.#execution.operableBoundaryCandidateSourceSkillIds.length = 0;
+      this.#execution.operableBoundaryCandidateSkillIds.length = 0;
     }
-    for (const sourceSkillId of sourceSkillIds) {
-      if (!this.#execution.operableBoundaryCandidateSourceSkillIds.includes(sourceSkillId)) {
-        this.#execution.operableBoundaryCandidateSourceSkillIds.push(sourceSkillId);
+    for (const skillId of skillIds) {
+      if (!this.#execution.operableBoundaryCandidateSkillIds.includes(skillId)) {
+        this.#execution.operableBoundaryCandidateSkillIds.push(skillId);
       }
     }
   }
@@ -1037,7 +1036,7 @@ export class SkillRuntime {
       sourceId: this.#hostIdentity.eventSourceId,
       targetId: this.#hostIdentity.eventSourceId,
       skillType: this.#program.skillType,
-      skillId: this.#program.sourceSkillId ?? this.#program.skillId,
+      skillId: this.#program.executionSkillId ?? this.#program.skillId,
       skillCastId: this.#execution.skillCastId,
     };
   }

@@ -4,17 +4,9 @@
  */
 import { CombatReceiptHistory, type CombatReceiptView } from './combatReceiptHistory';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import type { BuffReference } from '../state/foundationState';
+import type { AppliedDamageModifier, CombatObjectRef } from '../state/foundationState';
+export type { CombatObjectRef } from '../state/foundationState';
 export type CombatReceiptValue = boolean | number | string | null;
-
-/** 包装既有身份；编号的作用域是所属战斗结果。 */
-export type CombatObjectRef =
-  | RuntimeTargetRef
-  | ({ readonly kind: 'buff' } & BuffReference)
-  | { readonly kind: 'globalBuff'; readonly instanceId: number }
-  | { readonly kind: 'action'; readonly ownerId: string; readonly actionId: string }
-  | { readonly kind: 'receipt'; readonly sequence: number }
-  | { readonly kind: 'modifier'; readonly sequence: number; readonly index: number };
 
 /** 一条带帧、事实类型和结构化数据的运行时回执。 */
 export interface CombatReceiptEntry {
@@ -31,7 +23,7 @@ export interface CombatReceiptEntry {
   /** 原生实体 Source，与直接创建者分别保存。 */
   readonly runtimeSource?: RuntimeTargetRef;
   readonly data?: Readonly<Record<string, CombatReceiptValue>>;
-  readonly appliedDamageModifiers?: readonly import('../damage/damageScale').AppliedDamageModifier[];
+  readonly appliedDamageModifiers?: readonly AppliedDamageModifier[];
 }
 
 /** 运行时追加事实的最小端口，投影层只读取其最终结果。 */

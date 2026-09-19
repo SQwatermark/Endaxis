@@ -1352,9 +1352,6 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     operatorId: input.operatorId,
     skillGroupKey: input.skillGroupKey,
     skillId: input.skill.key,
-    ...(input.skill.sourceSkillId === undefined
-      ? {}
-      : { sourceSkillId: input.skill.sourceSkillId }),
     skillType: input.skillType,
     ...(input.skill.nativeSkillType === undefined
       ? {}
@@ -1363,9 +1360,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     initialBlackboard,
     ...(input.skill.smartTarget === undefined ? {} : { smartTarget: input.skill.smartTarget }),
     timelineBlockFrames: input.skill.timelineBlockFrames,
-    ...(input.skill.timelineContinuationSourceSkillId === undefined
+    ...(input.skill.timelineContinuationSkillId === undefined
       ? {}
-      : { timelineContinuationSourceSkillId: input.skill.timelineContinuationSourceSkillId }),
+      : { timelineContinuationSkillId: input.skill.timelineContinuationSkillId }),
     ...(input.skill.naturalDurationFrames === undefined
       ? {}
       : { naturalDurationFrames: input.skill.naturalDurationFrames }),

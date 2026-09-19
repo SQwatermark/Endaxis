@@ -8,19 +8,17 @@ function fixture(overrides: Record<string, unknown> = {}) {
   const entries = parseOperatorActiveSkillEntries(
     [
       {
-        key: 'wrapper',
         source: 'wrapper.json',
         skillType: 'battleSkill',
         levelSource: 'battleSkill',
         compile: config,
       },
-      { key: 'combo', source: 'combo.json', skillType: 'comboSkill', levelSource: 'comboSkill' },
+      { source: 'combo.json', skillType: 'comboSkill', levelSource: 'comboSkill' },
     ],
     'fixture.skills',
   );
   const wrapper: CompiledOperatorActiveSkillRuntimeDefinitionSource = {
     key: 'wrapper',
-    sourceSkillId: 'native_wrapper',
     blackboard: {},
     costFrame: 3,
     exclusiveFrame: 1,
@@ -55,7 +53,6 @@ function fixture(overrides: Record<string, unknown> = {}) {
       definition: {
         ...wrapper,
         key: 'combo',
-        sourceSkillId: 'native_combo',
         switchToBuffCast: undefined,
       },
     },

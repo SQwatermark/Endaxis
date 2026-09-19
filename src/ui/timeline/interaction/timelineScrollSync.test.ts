@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { createTimelineScrollSync } from './timelineScrollSync';
+import { createTimelineScrollSync, createTimelineVerticalScrollSync } from './timelineScrollSync';
 
 describe('timeline horizontal scroll synchronization', () => {
   it('does not rewind a newer scrollbar drag when the viewport echo arrives first', () => {
@@ -31,4 +31,16 @@ describe('timeline horizontal scroll synchronization', () => {
     sync(viewport, scrollbar);
     expect(scrollbar.scrollLeft).toBe(0);
   });
+});
+
+it('纵向视口接近边缘时，不把假滚动条的旧回声写回去', () => {
+  const sync = createTimelineVerticalScrollSync();
+  const viewport = { scrollTop: 90 };
+  const scrollbar = { scrollTop: 0 };
+  sync(viewport, scrollbar);
+  viewport.scrollTop = 96;
+  sync(scrollbar, viewport);
+  expect(viewport.scrollTop).toBe(96);
+  sync(viewport, scrollbar);
+  expect(scrollbar.scrollTop).toBe(96);
 });

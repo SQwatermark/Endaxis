@@ -15,7 +15,6 @@ const props = defineProps<{
   scenarios: readonly { readonly id: string; readonly name: string }[];
   activeScenarioId: string;
   maxScenarios: number;
-  projectDirty: boolean;
   cursorGuideEnabled: boolean;
   boxSelectEnabled: boolean;
   connectionToolEnabled: boolean;
@@ -52,7 +51,6 @@ const props = defineProps<{
     appearance: string;
     appearanceLight: string;
     appearanceDark: string;
-    projectDirty: string;
     locales: { zhCN: string; en: string; ru: string };
   };
 }>();
@@ -238,8 +236,7 @@ onBeforeUnmount(() => {
             @keydown.esc.prevent="cancelRename"
           />
           <strong v-else class="ts-title-text" @dblclick="beginRename">{{ scenarioName }}</strong>
-          <span class="ts-deco-bracket">]</span
-          ><i v-if="projectDirty" class="dirty-indicator" :title="labels.projectDirty">●</i>
+          <span class="ts-deco-bracket">]</span>
         </div>
       </div>
       <div
@@ -749,13 +746,6 @@ onBeforeUnmount(() => {
 <style scoped>
 .toolbar-no-shrink {
   flex-shrink: 0;
-}
-
-.dirty-indicator {
-  flex: none;
-  color: var(--ea-gold);
-  font-size: 8px;
-  font-style: normal;
 }
 
 /* The selectors below intentionally mirror the upstream TimelineEditor contract. */

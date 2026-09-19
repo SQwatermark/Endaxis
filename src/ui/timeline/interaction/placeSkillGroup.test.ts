@@ -49,8 +49,8 @@ describe('placeSkillGroup', () => {
     const group = operator.skillGroups.find(group => group.key === 'basicAttack')!;
     group.placementPolicy = {
       kind: 'recursiveInput',
-      firstSkillKey: 'basicAttack1',
-      terminalSkillKey: 'basicAttack4',
+      firstSkillKey: 'chr_0004_pelica_attack1',
+      terminalSkillKey: 'chr_0004_pelica_attack4',
       maxSegments: 8,
       fallback: 'sequence',
     };
@@ -64,7 +64,7 @@ describe('placeSkillGroup', () => {
     });
     expect(placed.skillCastIds).toHaveLength(1);
     expect(placed.extension?.reservedCastIds).toHaveLength(7);
-    expect(placed.extension?.terminalSkillKey).toBe('basicAttack4');
+    expect(placed.extension?.terminalSkillKey).toBe('chr_0004_pelica_attack4');
     expect(placed.fallback?.skillCastIds).toHaveLength(4);
     delete group.placementPolicy;
     const ordinary = placeLibrarySkillGroup({
@@ -95,17 +95,17 @@ describe('placeSkillGroup', () => {
       entry => entry.variantKey === 'enhancedBasicAttack',
     )!;
     expect(entry.skills.map(skill => skill.key)).toEqual([
-      'ultimateAttack1',
-      'ultimateAttack2A',
-      'ultimateAttack2B',
-      'ultimateAttack3A',
-      'ultimateAttack3B',
-      'ultimateAttackEnd',
+      'chr_0017_yvonne_ult_attack1_1',
+      'chr_0017_yvonne_ult_attack2_1',
+      'chr_0017_yvonne_ult_attack2_2',
+      'chr_0017_yvonne_ult_attack3_1',
+      'chr_0017_yvonne_ult_attack3_2',
+      'chr_0017_yvonne_ult_attack_end',
     ]);
     const placed = placeLibrarySkillGroup(input);
     expect(placed.scenario.tracks[0]!.skillCasts).toHaveLength(1);
     expect(placed.scenario.tracks[0]!.skillCasts[0]!.source).toMatchObject({
-      skillKey: 'ultimateAttack1',
+      skillKey: 'chr_0017_yvonne_ult_attack1_1',
     });
     expect(placed.extension?.reservedCastIds).toHaveLength(23);
     const fallback = placed.fallback!;
@@ -117,11 +117,11 @@ describe('placeSkillGroup', () => {
     expect(fallback.skillCastIds).toHaveLength(6);
     expect(fallback.skillCastIds[0]).toBe(placed.skillCastIds[0]);
     expect(fallback.scenario.tracks[0]!.skillCasts[0]!.placement.startFrame).toBe(90);
-    const single = placeLibrarySkillGroup({ ...input, skillKey: 'ultimateAttackEnd' });
+    const single = placeLibrarySkillGroup({ ...input, skillKey: 'chr_0017_yvonne_ult_attack_end' });
     expect(single.extension).toBeUndefined();
     expect(single.scenario.tracks[0]!.skillCasts).toHaveLength(1);
     expect(single.scenario.tracks[0]!.skillCasts[0]!.source).toMatchObject({
-      skillKey: 'ultimateAttackEnd',
+      skillKey: 'chr_0017_yvonne_ult_attack_end',
     });
   });
   it('stores the semantic action from explicit native routing on new casts', () => {
@@ -139,7 +139,7 @@ describe('placeSkillGroup', () => {
     expect(result.scenario.tracks[0]!.skillCasts[0]!.source).toEqual({
       kind: 'operatorSkill',
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkill',
+      skillKey: 'chr_0012_avywen_normal_skill',
       action: 'battleSkill',
     });
   });
@@ -172,7 +172,7 @@ describe('placeSkillGroup', () => {
     expect(casts[0]?.source).toEqual({
       kind: 'operatorSkill',
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack1',
+      skillKey: 'chr_0004_pelica_attack1',
       action: 'basicAttack',
     });
     const grouped = groupPlacedSkillSequence(result.scenario, result.skillCastIds);
@@ -203,7 +203,7 @@ describe('placeSkillGroup', () => {
     expect(cast.source).toEqual({
       kind: 'operatorSkill',
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkill',
+      skillKey: 'chr_0004_pelica_normal_skill',
       action: 'battleSkill',
     });
   });
@@ -214,7 +214,7 @@ describe('placeSkillGroup', () => {
       trackIndex: 0,
       operator: perlica,
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack3',
+      skillKey: 'chr_0004_pelica_attack3',
       startFrame: 45,
       ids: createIds(),
     });
@@ -224,7 +224,7 @@ describe('placeSkillGroup', () => {
     expect(casts[0]!.source).toEqual({
       kind: 'operatorSkill',
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack3',
+      skillKey: 'chr_0004_pelica_attack3',
       action: 'basicAttack',
     });
     expect(casts[0]!.placement.startFrame).toBe(45);
@@ -245,10 +245,22 @@ describe('placeSkillGroup', () => {
 
     expect(result.scenario.tracks[0]!.skillCasts).toHaveLength(4);
     expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.source)).toEqual([
-      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack1' }),
-      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack2' }),
-      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack3' }),
-      expect.objectContaining({ skillGroupKey: 'basicAttack', skillKey: 'ultimateAttack4' }),
+      expect.objectContaining({
+        skillGroupKey: 'basicAttack',
+        skillKey: 'chr_0016_laevat_ult_attack1',
+      }),
+      expect.objectContaining({
+        skillGroupKey: 'basicAttack',
+        skillKey: 'chr_0016_laevat_ult_attack2',
+      }),
+      expect.objectContaining({
+        skillGroupKey: 'basicAttack',
+        skillKey: 'chr_0016_laevat_ult_attack3',
+      }),
+      expect.objectContaining({
+        skillGroupKey: 'basicAttack',
+        skillKey: 'chr_0016_laevat_ult_attack4',
+      }),
     ]);
     const grouped = groupPlacedSkillSequence(result.scenario, result.skillCastIds);
     expect(grouped.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
@@ -267,7 +279,7 @@ describe('placeSkillGroup', () => {
       trackIndex: 0,
       operator: laevatain,
       skillGroupKey: 'battleSkill',
-      skillKey: 'battleSkillDuringUltimate',
+      skillKey: 'chr_0016_laevat_normal_skill_during_ult',
       startFrame: 120,
       ids: createIds(),
     });
@@ -277,7 +289,7 @@ describe('placeSkillGroup', () => {
         source: {
           kind: 'operatorSkill',
           skillGroupKey: 'battleSkill',
-          skillKey: 'battleSkillDuringUltimate',
+          skillKey: 'chr_0016_laevat_normal_skill_during_ult',
           action: 'battleSkill',
         },
       }),
@@ -300,7 +312,11 @@ describe('placeSkillGroup', () => {
       result.scenario.tracks[0]!.skillCasts.map(cast =>
         cast.source.kind === 'operatorSkill' ? cast.source.skillKey : null,
       ),
-    ).toEqual(['battleSkill1', 'battleSkill2', 'battleSkill3']);
+    ).toEqual([
+      'chr_0031_mifu_normalskill_1',
+      'chr_0031_mifu_normalskill_2',
+      'chr_0031_mifu_normalskill_3',
+    ]);
     expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual([
       10, 22, 51,
     ]);
@@ -316,11 +332,11 @@ describe('placeSkillGroup', () => {
         trackIndex: 0,
         operator: zhuangFangyi,
         skillGroupKey: 'ultimate',
-        skillKey: 'ultimateEnd',
+        skillKey: 'chr_0030_zhuangfy_ultimate_skill_end',
         startFrame: 10,
         ids: createIds(),
       }),
-    ).toThrow("skill group 'ultimate' has no skill 'ultimateEnd'");
+    ).toThrow("skill group 'ultimate' has no skill 'chr_0030_zhuangfy_ultimate_skill_end'");
   });
 
   it('rejects a definition that does not match the track build', () => {

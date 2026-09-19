@@ -628,20 +628,6 @@ import type {
 import { CombatRuntimeAssembly } from './combatRuntimeAssembly';
 import { StandardPlayerDamageEnvironment } from './standardPlayerDamageEnvironment';
 
-it('正式发布链向连携转交同一事件对象，不重新投影或包装', () => {
-  const environment = createEnvironment();
-  let published: unknown;
-  environment.eventsFor('enemy').registerCallback('weaknessSet', event => {
-    expect(event.payload).toEqual({ sourceId: 'enemy' });
-    published = event;
-  });
-  const combo = vi.spyOn(environment.comboConditions, 'onAbilityEvent');
-  environment.runtimeOptions.emitExternalEnemyWeaknessSet?.();
-  expect(published).toBeDefined();
-  expect(combo).toHaveBeenCalledOnce();
-  expect(combo.mock.calls[0]![0]).toBe(published);
-});
-
 it('发布链的连携准入不因完整事件收窄而放开增强/普通结束通知', () => {
   const environment = createEnvironment();
   environment.runtimeOptions.createOperationExecutor(createContext());

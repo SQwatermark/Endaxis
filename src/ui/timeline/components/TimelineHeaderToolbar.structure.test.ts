@@ -129,8 +129,8 @@ describe('TimelineHeaderToolbar structure', () => {
     expect(source).toContain("$emit('setAppearance', 'dark')");
   });
 
-  it('localizes the unsaved-project indicator', () => {
-    expect(source).toContain(':title="labels.projectDirty"');
-    expect(source).not.toContain('title="项目有未导出修改"');
+  it('keeps the project title free of export-status decorations', () => {
+    expect(source).not.toContain('projectDirty');
+    expect(source).not.toContain('dirty-indicator');
   });
 });

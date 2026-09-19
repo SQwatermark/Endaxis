@@ -58,7 +58,11 @@ it('uses published operator, skill and weapon identities, including the timeline
     skillCasts: [
       {
         id: 'cast',
-        source: { kind: 'operatorSkill', skillGroupKey: 'ultimate', skillKey: 'ultimate' },
+        source: {
+          kind: 'operatorSkill',
+          skillGroupKey: 'ultimate',
+          skillKey: 'chr_0032_lizhiyan_ultimate_skill',
+        },
         placement: { startFrame: 0 },
       },
     ],

@@ -75,10 +75,9 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0026_lastrite_attack1',
+    key: 'chr_0026_lastrite_attack1',
     timelineBlockFrames: 20,
     naturalDurationFrames: 171,
     exclusiveFrame: 25,
@@ -89,11 +88,11 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 35,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0026_lastrite_attack2',
+          targetSkillId: 'chr_0026_lastrite_attack2',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 20, endFrame: 35, sourceSkillIds: ['chr_0026_lastrite_attack2'] },
+        { startFrame: 20, endFrame: 35, skillIds: ['chr_0026_lastrite_attack2'] },
       ],
     },
     costFrame: 9,
@@ -144,13 +143,11 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         20,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0026_lastrite_attack2'] })),
         35,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack2',
+    timelineContinuationSkillId: 'chr_0026_lastrite_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -162,10 +159,9 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0026_lastrite_attack2',
+    key: 'chr_0026_lastrite_attack2',
     timelineBlockFrames: 29,
     naturalDurationFrames: 175,
     exclusiveFrame: 34,
@@ -176,11 +172,11 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 44,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0026_lastrite_attack3',
+          targetSkillId: 'chr_0026_lastrite_attack3',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 29, endFrame: 44, sourceSkillIds: ['chr_0026_lastrite_attack3'] },
+        { startFrame: 29, endFrame: 44, skillIds: ['chr_0026_lastrite_attack3'] },
       ],
     },
     costFrame: 9,
@@ -265,13 +261,11 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         29,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0026_lastrite_attack3'] })),
         44,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack3',
+    timelineContinuationSkillId: 'chr_0026_lastrite_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -284,10 +278,9 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0026_lastrite_attack3',
+    key: 'chr_0026_lastrite_attack3',
     timelineBlockFrames: 36,
     naturalDurationFrames: 230,
     exclusiveFrame: 47,
@@ -298,11 +291,11 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 48,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0026_lastrite_attack4',
+          targetSkillId: 'chr_0026_lastrite_attack4',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 36, endFrame: 48, sourceSkillIds: ['chr_0026_lastrite_attack4'] },
+        { startFrame: 36, endFrame: 48, skillIds: ['chr_0026_lastrite_attack4'] },
       ],
     },
     costFrame: 9,
@@ -425,13 +418,11 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         36,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0026_lastrite_attack4'] })),
         48,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack4',
+    timelineContinuationSkillId: 'chr_0026_lastrite_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -444,10 +435,9 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0026_lastrite_attack4',
+    key: 'chr_0026_lastrite_attack4',
     timelineBlockFrames: 46,
     naturalDurationFrames: 182,
     exclusiveFrame: 54,
@@ -458,11 +448,11 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 54,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0026_lastrite_attack1',
+          targetSkillId: 'chr_0026_lastrite_attack1',
         },
       ],
       allowedNextSkills: [
-        { startFrame: 46, endFrame: 54, sourceSkillIds: ['chr_0026_lastrite_attack1'] },
+        { startFrame: 46, endFrame: 54, skillIds: ['chr_0026_lastrite_attack1'] },
       ],
     },
     costFrame: 9,
@@ -614,13 +604,11 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         46,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0026_lastrite_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0026_lastrite_attack1'] })),
         54,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0026_lastrite_attack1',
+    timelineContinuationSkillId: 'chr_0026_lastrite_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -635,10 +623,9 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0026_lastrite_power_attack',
+    key: 'chr_0026_lastrite_power_attack',
     timelineBlockFrames: 40,
     naturalDurationFrames: 176,
     exclusiveFrame: 58,
@@ -648,7 +635,7 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 40,
           endFrame: 58,
-          sourceSkillIds: ['chr_0026_lastrite_normal_skill', 'chr_0026_lastrite_combo_skill'],
+          skillIds: ['chr_0026_lastrite_normal_skill', 'chr_0026_lastrite_combo_skill'],
         },
       ],
     },
@@ -726,10 +713,9 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0026_lastrite_plunging_attack_end',
+    key: 'chr_0026_lastrite_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 133,
     exclusiveFrame: 20,
@@ -772,10 +758,9 @@ export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0026_lastrite_normal_skill',
+    key: 'chr_0026_lastrite_normal_skill',
     timelineBlockFrames: 34,
     naturalDurationFrames: 429,
     exclusiveFrame: 373,
@@ -785,7 +770,7 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 34,
           endFrame: 51,
-          sourceSkillIds: [
+          skillIds: [
             'chr_0026_lastrite_attack1',
             'chr_0026_lastrite_attack2',
             'chr_0026_lastrite_attack3',
@@ -956,10 +941,9 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0026_lastrite_ultimate_skill',
+    key: 'chr_0026_lastrite_ultimate_skill',
     timelineBlockFrames: 140,
     naturalDurationFrames: 360,
     exclusiveFrame: 170,
@@ -970,14 +954,14 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
           startFrame: 86,
           endFrame: 170,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0026_lastrite_combo_skill',
+          targetSkillId: 'chr_0026_lastrite_combo_skill',
         },
       ],
       allowedNextSkills: [
         {
           startFrame: 140,
           endFrame: 170,
-          sourceSkillIds: ['chr_0026_lastrite_normal_skill', 'chr_0026_lastrite_combo_skill'],
+          skillIds: ['chr_0026_lastrite_normal_skill', 'chr_0026_lastrite_combo_skill'],
         },
       ],
     },
@@ -1158,17 +1142,16 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
+export const lastRiteChr_0026_lastrite_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0026_lastrite_combo_skill',
+    key: 'chr_0026_lastrite_combo_skill',
     timelineBlockFrames: 65,
     naturalDurationFrames: 216,
     exclusiveFrame: 90,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 65, endFrame: 91, sourceSkillIds: ['chr_0026_lastrite_normal_skill'] },
+        { startFrame: 65, endFrame: 91, skillIds: ['chr_0026_lastrite_normal_skill'] },
       ],
     },
     costFrame: 0,
@@ -1396,10 +1379,9 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const lastRitePerfectDodge: SkillDefinition = withSkillBlackboard(
+export const lastRiteCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1435,60 +1417,74 @@ export const lastRite: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        lastRiteBasicAttack1,
-        lastRiteBasicAttack2,
-        lastRiteBasicAttack3,
-        lastRiteBasicAttack4,
+        lastRiteChr_0026_lastrite_attack1,
+        lastRiteChr_0026_lastrite_attack2,
+        lastRiteChr_0026_lastrite_attack3,
+        lastRiteChr_0026_lastrite_attack4,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: lastRiteFinisher,
+      skills: lastRiteChr_0026_lastrite_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: lastRitePlungingAttack,
+      skills: lastRiteChr_0026_lastrite_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: lastRiteBattleSkill,
+      skills: lastRiteChr_0026_lastrite_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: lastRiteUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: lastRiteChr_0026_lastrite_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: lastRiteComboSkill,
+      skills: lastRiteChr_0026_lastrite_combo_skill,
     },
   ],
-  dodgeSkill: lastRitePerfectDodge,
+  dodgeSkill: lastRiteCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    {
+      key: 'battleSkill',
+      baseSkillKey: 'chr_0026_lastrite_normal_skill',
+      replacementSkillKeys: [],
+    },
+    { key: 'comboSkill', baseSkillKey: 'chr_0026_lastrite_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0026_lastrite_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0026_lastrite_attack1',
+        'chr_0026_lastrite_attack2',
+        'chr_0026_lastrite_attack3',
+        'chr_0026_lastrite_attack4',
+        'chr_0026_lastrite_plunging_attack_end',
+        'chr_0026_lastrite_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0026_lastrite_attack1',
+        'chr_0026_lastrite_attack2',
+        'chr_0026_lastrite_attack3',
+        'chr_0026_lastrite_attack4',
+      ],
+      defaultSkillKey: 'chr_0026_lastrite_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1497,7 +1493,7 @@ export const lastRite: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0026_lastrite_combo_skill',
       event: 'beforeTakeInfliction',
       immediately: false,
       initialValues: null,

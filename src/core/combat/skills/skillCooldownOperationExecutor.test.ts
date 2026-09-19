@@ -13,7 +13,7 @@ it('按原生别名匹配共享账本，去重且不修改其他干员', () => {
   other.setRemainingFrames(70);
   const binding = {
     program: { operatorId: 'a', skillId: 'skill', skillType: 'comboSkill' as const },
-    sourceSkillIds: new Set(['native-skill']),
+    skillIds: new Set(['native-skill']),
     cooldown,
   };
   const ledgers = new Map([

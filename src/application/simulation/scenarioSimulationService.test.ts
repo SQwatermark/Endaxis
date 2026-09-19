@@ -2,7 +2,10 @@ import { describe, expect, it, vi } from 'vitest';
 import { createEmptyScenario } from '../../core/project/createProject';
 import type { ScenarioDocument } from '../../core/project/schema';
 import type { OperatorDefinition } from '../../core/game-data/operatorDefinition';
-import { perlica, perlicaBattleSkill } from '../../data/operators/perlica.generated';
+import { perlica } from '../../data/operators/perlica.generated';
+import { getSkill } from '../../data/operators/testUtils';
+
+const perlicaBattleSkill = getSkill(perlica, 'chr_0004_pelica_normal_skill');
 import { commonBuffDefinitions } from '../../data/buffs/commonDefinitions';
 import {
   placeSkillGroup,
@@ -516,7 +519,7 @@ describe('ScenarioSimulationService', () => {
         skills: [
           {
             operatorId: 'track:0',
-            skillId: 'plungingAttack',
+            skillId: 'chr_0004_pelica_plunging_attack_end',
             castId: originalCastId,
             declarationOrder: 0,
           },
@@ -530,7 +533,7 @@ describe('ScenarioSimulationService', () => {
         .toArray()
         .find(entry => entry.event === 'SkillStarted' && entry.data?.castId === originalCastId)
         ?.data?.skillId,
-    ).toBe('plungingAttack');
+    ).toBe('chr_0004_pelica_plunging_attack_end');
     expect(driver.session.runtime.readState().shared.clock.frame).toBe(0);
     driver.discardCheckpoint(saved);
   });
@@ -579,7 +582,7 @@ describe('ScenarioSimulationService', () => {
           id: 'weakness',
           frame: 180,
           target: { scope: 'team' },
-          event: { kind: 'enemyWeaknessSet' },
+          event: { kind: 'comboCooldownControl', mode: 'cooldown' },
         },
       ];
       const planned = compileCombatInputSchedule(candidate, testIndex);
@@ -685,7 +688,7 @@ describe('ScenarioSimulationService', () => {
       trackIndex: 0,
       operator: attacker,
       skillGroupKey: 'basicAttack',
-      skillKey: 'basicAttack4',
+      skillKey: 'chr_0004_pelica_attack4',
       startFrame: 1,
       ids,
     }).scenario;
@@ -991,7 +994,7 @@ describe('ScenarioSimulationService', () => {
         id: 'weakness',
         frame: 1,
         target: { scope: 'team' },
-        event: { kind: 'enemyWeaknessSet' },
+        event: { kind: 'comboCooldownControl', mode: 'cooldown' },
       },
     ];
     const service = createService();

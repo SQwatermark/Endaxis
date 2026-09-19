@@ -113,10 +113,9 @@ const sharedActionSequence2: ActionSequenceDefinition = sequence(
   ),
 );
 
-export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_attack1: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack1',
-    sourceSkillId: 'chr_0013_aglina_attack1',
+    key: 'chr_0013_aglina_attack1',
     timelineBlockFrames: 18,
     naturalDurationFrames: 91,
     exclusiveFrame: 30,
@@ -127,12 +126,10 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 30,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0013_aglina_attack2',
+          targetSkillId: 'chr_0013_aglina_attack2',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 18, endFrame: 30, sourceSkillIds: ['chr_0013_aglina_attack2'] },
-      ],
+      allowedNextSkills: [{ startFrame: 18, endFrame: 30, skillIds: ['chr_0013_aglina_attack2'] }],
     },
     costFrame: 9,
     scheduledSequences: [
@@ -191,13 +188,11 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         18,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack2'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0013_aglina_attack2'] })),
         30,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack2',
+    timelineContinuationSkillId: 'chr_0013_aglina_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -209,10 +204,9 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_attack2: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack2',
-    sourceSkillId: 'chr_0013_aglina_attack2',
+    key: 'chr_0013_aglina_attack2',
     timelineBlockFrames: 22,
     naturalDurationFrames: 118,
     exclusiveFrame: 30,
@@ -223,12 +217,10 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 29,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0013_aglina_attack3',
+          targetSkillId: 'chr_0013_aglina_attack3',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 22, endFrame: 29, sourceSkillIds: ['chr_0013_aglina_attack3'] },
-      ],
+      allowedNextSkills: [{ startFrame: 22, endFrame: 29, skillIds: ['chr_0013_aglina_attack3'] }],
     },
     costFrame: 11,
     scheduledSequences: [
@@ -326,13 +318,11 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         22,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack3'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0013_aglina_attack3'] })),
         29,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack3',
+    timelineContinuationSkillId: 'chr_0013_aglina_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -344,10 +334,9 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_attack3: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack3',
-    sourceSkillId: 'chr_0013_aglina_attack3',
+    key: 'chr_0013_aglina_attack3',
     timelineBlockFrames: 23,
     naturalDurationFrames: 138,
     exclusiveFrame: 38,
@@ -358,12 +347,10 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 38,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0013_aglina_attack4',
+          targetSkillId: 'chr_0013_aglina_attack4',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 23, endFrame: 38, sourceSkillIds: ['chr_0013_aglina_attack4'] },
-      ],
+      allowedNextSkills: [{ startFrame: 23, endFrame: 38, skillIds: ['chr_0013_aglina_attack4'] }],
     },
     costFrame: 13,
     scheduledSequences: [
@@ -396,13 +383,11 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         23,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack4'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0013_aglina_attack4'] })),
         38,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack4',
+    timelineContinuationSkillId: 'chr_0013_aglina_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -414,10 +399,9 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_attack4: SkillDefinition = withSkillBlackboard(
   {
-    key: 'basicAttack4',
-    sourceSkillId: 'chr_0013_aglina_attack4',
+    key: 'chr_0013_aglina_attack4',
     timelineBlockFrames: 40,
     naturalDurationFrames: 147,
     exclusiveFrame: 50,
@@ -428,12 +412,10 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
           startFrame: 0,
           endFrame: 50,
           input: 'basicAttack',
-          targetSourceSkillId: 'chr_0013_aglina_attack1',
+          targetSkillId: 'chr_0013_aglina_attack1',
         },
       ],
-      allowedNextSkills: [
-        { startFrame: 40, endFrame: 50, sourceSkillIds: ['chr_0013_aglina_attack1'] },
-      ],
+      allowedNextSkills: [{ startFrame: 40, endFrame: 50, skillIds: ['chr_0013_aglina_attack1'] }],
     },
     costFrame: 13,
     scheduledSequences: [
@@ -508,13 +490,11 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
       ),
       scheduled(
         40,
-        sequence(
-          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack1'] }),
-        ),
+        sequence(step('reachSkillOperableBoundary', { skillIds: ['chr_0013_aglina_attack1'] })),
         50,
       ),
     ],
-    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack1',
+    timelineContinuationSkillId: 'chr_0013_aglina_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -527,10 +507,9 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_power_attack: SkillDefinition = withSkillBlackboard(
   {
-    key: 'finisher',
-    sourceSkillId: 'chr_0013_aglina_power_attack',
+    key: 'chr_0013_aglina_power_attack',
     timelineBlockFrames: 43,
     naturalDurationFrames: 125,
     exclusiveFrame: 50,
@@ -540,7 +519,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 43,
           endFrame: 50,
-          sourceSkillIds: ['chr_0013_aglina_normal_skill', 'chr_0013_aglina_combo_skill'],
+          skillIds: ['chr_0013_aglina_normal_skill', 'chr_0013_aglina_combo_skill'],
         },
       ],
     },
@@ -698,10 +677,9 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
   { atk_scale: [4, 4.4, 4.8, 5.2, 5.6, 6, 6.4, 6.8, 7.2, 7.7, 8.3, 9] },
 );
 
-export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_plunging_attack_end: SkillDefinition = withSkillBlackboard(
   {
-    key: 'plungingAttack',
-    sourceSkillId: 'chr_0013_aglina_plunging_attack_end',
+    key: 'chr_0013_aglina_plunging_attack_end',
     timelineBlockFrames: 21,
     naturalDurationFrames: 94,
     exclusiveFrame: 20,
@@ -751,17 +729,16 @@ export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
   { atb: 0, atk_scale: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8] },
 );
 
-export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_normal_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'battleSkill',
-    sourceSkillId: 'chr_0013_aglina_normal_skill',
+    key: 'chr_0013_aglina_normal_skill',
     timelineBlockFrames: 123,
     naturalDurationFrames: 203,
     exclusiveFrame: 135,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 123, endFrame: 148, sourceSkillIds: ['chr_0013_aglina_combo_skill'] },
+        { startFrame: 123, endFrame: 148, skillIds: ['chr_0013_aglina_combo_skill'] },
       ],
     },
     costFrame: 0,
@@ -988,10 +965,9 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_ultimate_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'ultimate',
-    sourceSkillId: 'chr_0013_aglina_ultimate_skill',
+    key: 'chr_0013_aglina_ultimate_skill',
     timelineBlockFrames: 64,
     naturalDurationFrames: 116,
     exclusiveFrame: 85,
@@ -1001,7 +977,7 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
         {
           startFrame: 64,
           endFrame: 91,
-          sourceSkillIds: ['chr_0013_aglina_normal_skill', 'chr_0013_aglina_combo_skill'],
+          skillIds: ['chr_0013_aglina_normal_skill', 'chr_0013_aglina_combo_skill'],
         },
       ],
     },
@@ -1127,18 +1103,17 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
+export const gilbertaChr_0013_aglina_combo_skill: SkillDefinition = withSkillBlackboard(
   {
-    key: 'comboSkill',
-    sourceSkillId: 'chr_0013_aglina_combo_skill',
+    key: 'chr_0013_aglina_combo_skill',
     timelineBlockFrames: 53,
     naturalDurationFrames: 130,
     exclusiveFrame: 72,
     offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
-        { startFrame: 53, endFrame: 72, sourceSkillIds: ['chr_0013_aglina_normal_skill'] },
-        { startFrame: 53, endFrame: 72, sourceSkillIds: ['chr_0013_aglina_ultimate_skill'] },
+        { startFrame: 53, endFrame: 72, skillIds: ['chr_0013_aglina_normal_skill'] },
+        { startFrame: 53, endFrame: 72, skillIds: ['chr_0013_aglina_ultimate_skill'] },
       ],
     },
     costFrame: 0,
@@ -1560,10 +1535,9 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const gilbertaPerfectDodge: SkillDefinition = withSkillBlackboard(
+export const gilbertaCommon_character_perfect_dodge: SkillDefinition = withSkillBlackboard(
   {
-    key: 'perfectDodge',
-    sourceSkillId: 'common_character_perfect_dodge',
+    key: 'common_character_perfect_dodge',
     timelineBlockFrames: 16,
     naturalDurationFrames: 15,
     exclusiveFrame: 15,
@@ -1599,60 +1573,70 @@ export const gilberta: OperatorDefinition = {
       skillType: 'basicAttack',
       levelSource: 'basicAttack',
       skills: [
-        gilbertaBasicAttack1,
-        gilbertaBasicAttack2,
-        gilbertaBasicAttack3,
-        gilbertaBasicAttack4,
+        gilbertaChr_0013_aglina_attack1,
+        gilbertaChr_0013_aglina_attack2,
+        gilbertaChr_0013_aglina_attack3,
+        gilbertaChr_0013_aglina_attack4,
       ],
     },
     {
       key: 'finisher',
       skillType: 'finisher',
       levelSource: 'basicAttack',
-      skills: gilbertaFinisher,
+      skills: gilbertaChr_0013_aglina_power_attack,
     },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
-      skills: gilbertaPlungingAttack,
+      skills: gilbertaChr_0013_aglina_plunging_attack_end,
     },
     {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: gilbertaBattleSkill,
+      skills: gilbertaChr_0013_aglina_normal_skill,
     },
-    { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: gilbertaUltimate },
+    {
+      key: 'ultimate',
+      skillType: 'ultimate',
+      levelSource: 'ultimate',
+      skills: gilbertaChr_0013_aglina_ultimate_skill,
+    },
     {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: gilbertaComboSkill,
+      skills: gilbertaChr_0013_aglina_combo_skill,
     },
   ],
-  dodgeSkill: gilbertaPerfectDodge,
+  dodgeSkill: gilbertaCommon_character_perfect_dodge,
   dashBuffs: [
     { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
-    { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
-    { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
-    { key: 'ultimate', baseSkillKey: 'ultimate', replacementSkillKeys: [] },
+    { key: 'battleSkill', baseSkillKey: 'chr_0013_aglina_normal_skill', replacementSkillKeys: [] },
+    { key: 'comboSkill', baseSkillKey: 'chr_0013_aglina_combo_skill', replacementSkillKeys: [] },
+    { key: 'ultimate', baseSkillKey: 'chr_0013_aglina_ultimate_skill', replacementSkillKeys: [] },
   ],
   playerActionRoutes: {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: [
-        'basicAttack1',
-        'basicAttack2',
-        'basicAttack3',
-        'basicAttack4',
-        'plungingAttack',
-        'finisher',
+        'chr_0013_aglina_attack1',
+        'chr_0013_aglina_attack2',
+        'chr_0013_aglina_attack3',
+        'chr_0013_aglina_attack4',
+        'chr_0013_aglina_plunging_attack_end',
+        'chr_0013_aglina_power_attack',
       ],
-      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
-      defaultSkillKey: 'basicAttack1',
+      normalAttackSkillKeys: [
+        'chr_0013_aglina_attack1',
+        'chr_0013_aglina_attack2',
+        'chr_0013_aglina_attack3',
+        'chr_0013_aglina_attack4',
+      ],
+      defaultSkillKey: 'chr_0013_aglina_attack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
     comboSkill: { kind: 'skillSlot', skillSlotKey: 'comboSkill' },
@@ -1661,7 +1645,7 @@ export const gilberta: OperatorDefinition = {
   comboSkillConditions: [
     {
       key: 'native-combo:0',
-      skillKey: 'comboSkill',
+      skillKey: 'chr_0013_aglina_combo_skill',
       event: 'addedBuff',
       immediately: false,
       initialValues: null,

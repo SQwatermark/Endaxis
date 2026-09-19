@@ -5,9 +5,9 @@ import { placeSkillGroup } from '../../../ui/timeline/interaction/placeSkillGrou
 import { createEditorSimulationService } from '../testSupport/editorSimulationService';
 
 it.each([
-  { battleSkill: 'battleSkill1', frame: 200, mismatch: true },
-  { battleSkill: 'battleSkill2', frame: 200, mismatch: false },
-  { battleSkill: 'battleSkill1', frame: 900, mismatch: false },
+  { battleSkill: 'chr_0031_mifu_normalskill_1', frame: 200, mismatch: true },
+  { battleSkill: 'chr_0031_mifu_normalskill_2', frame: 200, mismatch: false },
+  { battleSkill: 'chr_0031_mifu_normalskill_1', frame: 900, mismatch: false },
 ])(
   '弭弗连携后放 $battleSkill @ $frame，替换告警=$mismatch',
   async ({ battleSkill, frame, mismatch }) => {
@@ -57,7 +57,7 @@ it.each([
     if (mismatch)
       expect(routeWarnings[0]).toMatchObject({
         skillId: battleSkill,
-        actualSkillId: 'battleSkill2',
+        actualSkillId: 'chr_0031_mifu_normalskill_2',
       });
     // 告警不阻止操作，也不把用户明确放置的第一段隐式替换掉。
     expect(

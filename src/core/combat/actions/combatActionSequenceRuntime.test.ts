@@ -101,7 +101,7 @@ describe('CombatActionSequenceRuntime', () => {
     const first = bind(original);
     const definition = sequence({
       kind: 'overrideBasicAttackMapping',
-      parameters: { sourceSkillId: 'current' },
+      parameters: { skillId: 'current' },
     });
     const action = first.runtime.createSequence(definition);
     action.execute({});
@@ -399,7 +399,7 @@ describe('CombatActionSequenceRuntime', () => {
         parameters: { count: { kind: 'blackboard', key: 'count' } },
         body: sequence(operation('hit')),
       },
-      { kind: 'reachSkillOperableBoundary', parameters: { sourceSkillIds: ['native'] } },
+      { kind: 'reachSkillOperableBoundary', parameters: { skillIds: ['native'] } },
       { kind: 'finishTimeline', parameters: {} },
     );
     const bind = () => {
@@ -1791,7 +1791,7 @@ describe('CombatActionSequenceRuntime', () => {
     const action = runtime.createSequence(
       sequence({
         kind: 'reachSkillOperableBoundary',
-        parameters: { sourceSkillIds: ['native.attack5'] },
+        parameters: { skillIds: ['native.attack5'] },
       }),
     );
 
