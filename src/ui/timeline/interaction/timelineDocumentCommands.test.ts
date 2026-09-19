@@ -26,8 +26,6 @@ import {
   removeSkillCasts,
   resetSkillCastToTemplate,
   setSkillCastColor,
-  setSkillCastCustomBars,
-  setSkillCastCameraTargetAngle,
   setSkillCastDisabled,
   setSkillCastForcedCritical,
   setSkillCastLocked,
@@ -89,33 +87,6 @@ describe('battle axis commands', () => {
     expect(setBattleDurationFrames(original, 60).battle.durationFrames).toBe(180);
     expect(setBattleDurationFrames(original, 240).battle.durationFrames).toBe(240);
     expect(() => setBattleDurationFrames(original, 0)).toThrow('positive integer');
-  });
-});
-
-describe('skill cast custom bars', () => {
-  it('replaces an isolated real-frame presentation list without mutating the source', () => {
-    const original = scenario();
-    const bars = [{ id: 'bar:1', text: '强化', offsetFrames: 6, durationFrames: 90 }];
-
-    const updated = setSkillCastCustomBars(original, 0, 'cast:1', bars);
-
-    expect(updated.tracks[0]!.skillCasts[0]!.presentation?.customBars).toEqual(bars);
-    expect(original.tracks[0]!.skillCasts[0]!.presentation?.customBars).toBeUndefined();
-    expect(setSkillCastCustomBars(updated, 0, 'cast:1', bars)).toBe(updated);
-  });
-
-  it('rejects invalid identities and frame values', () => {
-    const original = scenario();
-    expect(() =>
-      setSkillCastCustomBars(original, 0, 'cast:1', [
-        { id: '', text: '', offsetFrames: 0, durationFrames: 1 },
-      ]),
-    ).toThrow('non-empty and unique');
-    expect(() =>
-      setSkillCastCustomBars(original, 0, 'cast:1', [
-        { id: 'bar:1', text: '', offsetFrames: -1, durationFrames: 1 },
-      ]),
-    ).toThrow('offsetFrames');
   });
 });
 
@@ -340,17 +311,17 @@ describe('手动技能组命令', () => {
     }));
     value.connections = [
       {
-        id: 'manual-hit',
+        id: 'manual-cast',
         consumption: false,
         from: { kind: 'skillCast', skillCastId: 'cast:1' },
-        to: { kind: 'damageHit', skillCastId: 'cast:3', stepKey: 'stable-hit' },
+        to: { kind: 'skillCast', skillCastId: 'cast:3' },
       },
     ];
     return value;
   }
   const grouped = () => createSkillCastGroup(loose(), members, frames);
 
-  it('按实际顺序成组，仅组首保存帧，身份和手工命中连线保持原样', () => {
+  it('按实际顺序成组，仅组首保存帧，身份和技能块连线保持原样', () => {
     const original = loose();
     const value = createSkillCastGroup(original, new Set(['cast:3', 'cast:1', 'cast:2']), frames);
     expect(value.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
@@ -445,7 +416,7 @@ describe('手动技能组命令', () => {
     expect(dissolveSkillCastGroups(value, members, actual)).toBe(value);
   });
 
-  it('删中间项重连，删组首交出原锚点，只移除真正消失的命中端点', () => {
+  it('删中间项重连，删组首交出原锚点，只移除指向被删技能块的连线', () => {
     const original = grouped();
     const middle = removeSkillCast(original, 0, 'cast:2');
     expect(middle.tracks[0]!.skillCasts.map(cast => cast.placement)).toEqual([
@@ -658,30 +629,6 @@ describe('moveSkillCast', () => {
     expect(original.tracks[0]!.skillCasts[0]!.presentation).toBeUndefined();
   });
 
-  it('sets and clears a cast-specific signed camera angle', () => {
-    const original = scenario();
-    const configured = setSkillCastCameraTargetAngle(original, 0, 'cast:1', -37.5);
-
-    expect(
-      configured.tracks[0]!.skillCasts[0]!.simulationInputs?.cameraToTargetSignedAngleDegrees,
-    ).toBe(-37.5);
-    expect(original.tracks[0]!.skillCasts[0]!.simulationInputs).toBeUndefined();
-    expect(setSkillCastCameraTargetAngle(configured, 0, 'cast:1', -37.5)).toBe(configured);
-
-    const cleared = setSkillCastCameraTargetAngle(configured, 0, 'cast:1', null);
-    expect(cleared.tracks[0]!.skillCasts[0]!.simulationInputs).toBeUndefined();
-  });
-
-  it('rejects an invalid cast-specific signed camera angle', () => {
-    const original = scenario();
-    expect(() => setSkillCastCameraTargetAngle(original, 0, 'cast:1', 181)).toThrow(
-      'between -180 and 180 degrees',
-    );
-    expect(() => setSkillCastCameraTargetAngle(original, 0, 'cast:1', Number.NaN)).toThrow(
-      'between -180 and 180 degrees',
-    );
-  });
-
   it('stores forced critical hits by stable step key and removes empty simulation inputs', () => {
     const original = scenario();
     const forced = setSkillCastForcedCritical(original, 0, 'cast:1', 'damage:1', true);
@@ -696,17 +643,13 @@ describe('moveSkillCast', () => {
   });
 
   it('stores and clears a skill-block random seed without changing other simulation inputs', () => {
-    const angled = setSkillCastCameraTargetAngle(scenario(), 0, 'cast:1', 30);
-    const seeded = setSkillCastRandomSeed(angled, 0, 'cast:1', 123);
+    const seeded = setSkillCastRandomSeed(scenario(), 0, 'cast:1', 123);
     expect(seeded.tracks[0]!.skillCasts[0]!.simulationInputs).toEqual({
-      cameraToTargetSignedAngleDegrees: 30,
       randomSeed: 123,
     });
 
     const cleared = setSkillCastRandomSeed(seeded, 0, 'cast:1', null);
-    expect(cleared.tracks[0]!.skillCasts[0]!.simulationInputs).toEqual({
-      cameraToTargetSignedAngleDegrees: 30,
-    });
+    expect(cleared.tracks[0]!.skillCasts[0]!.simulationInputs).toBeUndefined();
   });
 
   it('stores an independent complete custom definition and can return to the template', () => {
@@ -779,7 +722,7 @@ describe('moveSkillCast', () => {
         id: 'connection:1',
         consumption: false,
         from: { kind: 'skillCast', skillCastId: 'cast:1' },
-        to: { kind: 'damageHit', skillCastId: 'cast:2', stepKey: 'hit:1' },
+        to: { kind: 'skillCast', skillCastId: 'cast:2' },
       },
       {
         id: 'connection:2',

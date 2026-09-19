@@ -1,6 +1,7 @@
 import { frameToTimelinePx } from './timelineGeometry';
 
 export type TimelineOperationMarkerKind = 'skill' | 'combo' | 'ultimate' | 'switch';
+export type OperationKeycapMode = 'keyboard' | 'gamepad';
 
 export interface TimelineOperationMarkerInput {
   readonly id: string;
@@ -33,11 +34,25 @@ interface MutableMarker extends Omit<TimelineOperationMarkerLayout, 'top' | 'hei
   fontSize: number;
 }
 
-function markerLabel(kind: TimelineOperationMarkerKind, trackIndex: number): string {
+export function timelineOperationKeycapLabel(
+  kind: TimelineOperationMarkerKind,
+  trackIndex: number,
+  mode: OperationKeycapMode,
+  compact = false,
+): string {
+  if (mode === 'gamepad') {
+    // 游戏手柄说明图：技能轮盘为 LB + X/Y/B/A，切人为 LB + 左/上/右/下。
+    const skillButtons = ['X', 'Y', 'B', 'A'];
+    const switchDirections = ['←', '↑', '→', '↓'];
+    if (kind === 'skill') return `LB+${skillButtons[trackIndex]}`;
+    if (kind === 'combo') return 'RB';
+    if (kind === 'ultimate') return `LB+${skillButtons[trackIndex]}${compact ? 'H' : ' (Hold)'}`;
+    return `LB+${switchDirections[trackIndex]}`;
+  }
   const key = trackIndex + 1;
   if (kind === 'skill') return String(key);
   if (kind === 'combo') return 'E';
-  if (kind === 'ultimate') return `${key} (Hold)`;
+  if (kind === 'ultimate') return compact ? `${key}H` : `${key} (Hold)`;
   return `F${key}`;
 }
 
@@ -48,6 +63,7 @@ export function projectTimelineOperationMarkers(
   pxPerFrame: number,
   prepExpanded = true,
   prepEndFrame = 0,
+  keycapMode: OperationKeycapMode = 'keyboard',
 ): readonly TimelineOperationMarkerLayout[] {
   const markers: MutableMarker[] = inputs
     .map(input => {
@@ -59,7 +75,15 @@ export function projectTimelineOperationMarkers(
         prepEndFrame,
       );
       const hold = input.kind === 'ultimate';
-      const width = hold ? null : input.kind === 'switch' ? 28 : 20;
+      const width = hold
+        ? null
+        : keycapMode === 'gamepad'
+          ? input.kind === 'combo'
+            ? 24
+            : 40
+          : input.kind === 'switch'
+            ? 28
+            : 20;
       // 旧版只用技能持续区间做按键提示的分层避让；按键帽本身仍是自适应文字宽度。
       const projectedDurationWidth =
         frameToTimelinePx(
@@ -70,14 +94,14 @@ export function projectTimelineOperationMarkers(
           prepEndFrame,
         ) - left;
       const collisionWidth = hold
-        ? Math.max(42, projectedDurationWidth)
+        ? Math.max(keycapMode === 'gamepad' ? 78 : 42, projectedDurationWidth)
         : input.kind === 'switch'
-          ? 28
-          : 24;
+          ? (width ?? 28)
+          : Math.max(24, width ?? 20);
       return {
         id: input.id,
         kind: input.kind,
-        label: markerLabel(input.kind, input.trackIndex),
+        label: timelineOperationKeycapLabel(input.kind, input.trackIndex, keycapMode),
         left,
         width,
         right: left + collisionWidth,

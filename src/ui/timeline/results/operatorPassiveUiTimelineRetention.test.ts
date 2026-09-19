@@ -51,6 +51,6 @@ describe('operator passive UI timeline retention', () => {
     expect(editorSource).toContain('<TimelineOperatorPassiveUiDetailDialog');
     expect(detailSource).toContain("segment.kind === 'numeric'");
     expect(detailSource).toContain("segment.kind === 'buffProgress'");
-    expect(detailSource).toContain('segment.reserveArrows');
+    expect(detailSource).not.toContain('segment.reserveArrows');
   });
 });

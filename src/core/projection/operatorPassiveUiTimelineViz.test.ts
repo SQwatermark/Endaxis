@@ -160,7 +160,7 @@ describe('projectOperatorPassiveUiTimelineViz', () => {
     ]);
   });
 
-  it('直接按三个原生 Buff 的层数投影 Typhoea 箭矢 HUD，不复制战斗状态', () => {
+  it('只按战斗中的猎矢和启示层数投影 Typhoea HUD', () => {
     const definition = {
       kind: 'buffCounters' as const,
       appearance: 'typhoeaArrows' as const,
@@ -171,6 +171,14 @@ describe('projectOperatorPassiveUiTimelineViz', () => {
       maximumPoints: 8,
     };
     const entries: CombatReceiptEntry[] = [
+      {
+        sequence: -1,
+        frame: 1,
+        time: 1 / 30,
+        event: 'BuffApplied',
+        targetId: 'operator:1',
+        data: { buffId: 'reserve', instanceId: 0, layers: 3 },
+      },
       {
         sequence: 0,
         frame: 2,
@@ -206,7 +214,6 @@ describe('projectOperatorPassiveUiTimelineViz', () => {
         operatorId: 'operator:1',
         startFrame: 2,
         endFrame: 4,
-        reserveArrows: 0,
         battleArrows: 2,
         points: 0,
         maximumArrows: 4,
@@ -218,7 +225,6 @@ describe('projectOperatorPassiveUiTimelineViz', () => {
         operatorId: 'operator:1',
         startFrame: 4,
         endFrame: 8,
-        reserveArrows: 0,
         battleArrows: 2,
         points: 6,
         maximumArrows: 4,
@@ -230,7 +236,6 @@ describe('projectOperatorPassiveUiTimelineViz', () => {
         operatorId: 'operator:1',
         startFrame: 8,
         endFrame: 10,
-        reserveArrows: 0,
         battleArrows: 0,
         points: 6,
         maximumArrows: 4,

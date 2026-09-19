@@ -30,14 +30,12 @@ import {
 } from './scenarioValidation';
 import { validateSkillDefinition } from '../game-data/validateSkillDefinition';
 import { validateComboSkillConditions } from '../game-data/validateComboSkillConditions';
-import { collectDamageStepKeys } from '../game-data/collectDamageStepKeys';
 import {
   isObject,
   requireBoolean,
   requireEnum,
   requireFiniteNumber,
   requireInteger,
-  requireNonNegativeInteger,
   requireString,
   type ValidationIssue,
 } from './validationHelpers';
@@ -182,7 +180,6 @@ function validateSkillCast(
   value: unknown,
   path: string,
   skillCastIds: Set<string>,
-  customDamageStepKeys: Map<string, ReadonlySet<string>>,
   issues: ValidationIssue[],
 ): void {
   if (!isObject(value)) {
@@ -254,33 +251,11 @@ function validateSkillCast(
       ) {
         issues.push({ path: `${path}.presentation.color`, message: 'expected a string or null' });
       }
-      if (value.presentation.customBars !== undefined) {
-        const barsPath = `${path}.presentation.customBars`;
-        if (!Array.isArray(value.presentation.customBars)) {
-          issues.push({ path: barsPath, message: 'expected an array' });
-        } else {
-          const barIds = new Set<string>();
-          value.presentation.customBars.forEach((bar, index) => {
-            const barPath = `${barsPath}[${index}]`;
-            if (!isObject(bar)) {
-              issues.push({ path: barPath, message: 'expected an object' });
-              return;
-            }
-            const barId = requireString(bar, 'id', barPath, issues);
-            if (barId !== null) {
-              if (barIds.has(barId)) {
-                issues.push({ path: `${barPath}.id`, message: 'duplicate custom bar id' });
-              }
-              barIds.add(barId);
-            }
-            requireString(bar, 'text', barPath, issues);
-            requireNonNegativeInteger(bar.offsetFrames, `${barPath}.offsetFrames`, issues);
-            requireNonNegativeInteger(bar.durationFrames, `${barPath}.durationFrames`, issues);
-            if (bar.color !== undefined && typeof bar.color !== 'string') {
-              issues.push({ path: `${barPath}.color`, message: 'expected a string' });
-            }
-          });
-        }
+      if ('customBars' in value.presentation) {
+        issues.push({
+          path: `${path}.presentation.customBars`,
+          message: 'custom time bars are no longer supported',
+        });
       }
     }
   }
@@ -290,14 +265,11 @@ function validateSkillCast(
     if (!isObject(value.simulationInputs)) {
       issues.push({ path: inputPath, message: 'expected an object' });
     } else {
-      if (value.simulationInputs.cameraToTargetSignedAngleDegrees !== undefined) {
-        const angle = value.simulationInputs.cameraToTargetSignedAngleDegrees;
-        if (typeof angle !== 'number' || !Number.isFinite(angle) || angle < -180 || angle > 180) {
-          issues.push({
-            path: `${inputPath}.cameraToTargetSignedAngleDegrees`,
-            message: 'expected a finite angle in [-180, 180]',
-          });
-        }
+      if ('cameraToTargetSignedAngleDegrees' in value.simulationInputs) {
+        issues.push({
+          path: `${inputPath}.cameraToTargetSignedAngleDegrees`,
+          message: 'camera-to-target angle input is no longer supported',
+        });
       }
       if (value.simulationInputs.randomSeed !== undefined) {
         const seed = value.simulationInputs.randomSeed;
@@ -342,16 +314,6 @@ function validateSkillCast(
       }
       const sdIssues = validateSkillDefinition(value.customDefinition, defPath);
       for (const sd of sdIssues) issues.push(sd);
-      if (id !== null) {
-        customDamageStepKeys.set(
-          id,
-          new Set(
-            collectDamageStepKeys(value.customDefinition)
-              .map(entry => entry.key)
-              .filter(key => key.length > 0),
-          ),
-        );
-      }
     }
   }
 }
@@ -401,7 +363,6 @@ function validateEndpoint(
   value: unknown,
   path: string,
   skillCastIds: Set<string>,
-  customDamageStepKeys: ReadonlyMap<string, ReadonlySet<string>>,
   issues: ValidationIssue[],
 ): void {
   if (!isObject(value)) {
@@ -412,14 +373,8 @@ function validateEndpoint(
   if (skillCastId !== null && !skillCastIds.has(skillCastId)) {
     issues.push({ path: `${path}.skillCastId`, message: 'unknown skill cast reference' });
   }
-  if (value.kind === 'damageHit') {
-    const stepKey = requireString(value, 'stepKey', path, issues);
-    const knownKeys = skillCastId === null ? undefined : customDamageStepKeys.get(skillCastId);
-    if (stepKey !== null && knownKeys !== undefined && !knownKeys.has(stepKey)) {
-      issues.push({ path: `${path}.stepKey`, message: 'unknown damage step key reference' });
-    }
-  } else if (value.kind !== 'skillCast') {
-    issues.push({ path: `${path}.kind`, message: "expected 'skillCast' or 'damageHit'" });
+  if (value.kind !== 'skillCast') {
+    issues.push({ path: `${path}.kind`, message: "expected 'skillCast'" });
   }
 }
 
@@ -480,7 +435,6 @@ export function validateProjectDocument(value: unknown): ValidationResult {
 
       const skillCastIds = new Set<string>();
       const consumableUseIds = new Set<string>();
-      const customDamageStepKeys = new Map<string, ReadonlySet<string>>();
       const trackIds = new Set<string>();
       scenario.tracks.forEach((track, trackIndex) => {
         if (track === null) return;
@@ -561,7 +515,6 @@ export function validateProjectDocument(value: unknown): ValidationResult {
             skillCast,
             `${trackPath}.skillCasts[${skillCastIndex}]`,
             skillCastIds,
-            customDamageStepKeys,
             issues,
           ),
         );
@@ -604,20 +557,8 @@ export function validateProjectDocument(value: unknown): ValidationResult {
           }
           if (connectionId !== null) connectionIds.add(connectionId);
           requireBoolean(connection.consumption, `${connectionPath}.consumption`, issues);
-          validateEndpoint(
-            connection.from,
-            `${connectionPath}.from`,
-            skillCastIds,
-            customDamageStepKeys,
-            issues,
-          );
-          validateEndpoint(
-            connection.to,
-            `${connectionPath}.to`,
-            skillCastIds,
-            customDamageStepKeys,
-            issues,
-          );
+          validateEndpoint(connection.from, `${connectionPath}.from`, skillCastIds, issues);
+          validateEndpoint(connection.to, `${connectionPath}.to`, skillCastIds, issues);
         });
       }
 

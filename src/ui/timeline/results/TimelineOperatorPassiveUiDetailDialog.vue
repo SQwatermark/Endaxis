@@ -92,8 +92,6 @@ function seconds(frames: number): string {
           <template v-else>
             <dt>{{ t('timeline.passiveUi.battleArrows') }}</dt>
             <dd>{{ segment.battleArrows }} / {{ segment.maximumArrows }}</dd>
-            <dt>{{ t('timeline.passiveUi.reserveArrows') }}</dt>
-            <dd>{{ segment.reserveArrows }} / {{ segment.maximumArrows }}</dd>
             <dt>{{ t('timeline.passiveUi.points') }}</dt>
             <dd>{{ segment.points }} / {{ segment.maximumPoints }}</dd>
           </template>

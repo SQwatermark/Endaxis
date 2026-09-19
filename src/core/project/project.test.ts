@@ -335,7 +335,6 @@ describe('current project document', () => {
       presentation: {
         locked: false,
         disabled: false,
-        customBars: [],
       },
       customDefinition: {
         key: 'battleSkill',
@@ -403,9 +402,9 @@ describe('current project document', () => {
     });
     scenario.tracks[0] = track;
     scenario.connections.push({
-      id: 'connection:hit',
+      id: 'connection:cast',
       consumption: false,
-      from: { kind: 'damageHit', skillCastId: 'cast:1', stepKey: 'hit:1' },
+      from: { kind: 'skillCast', skillCastId: 'cast:1' },
       to: { kind: 'skillCast', skillCastId: 'cast:1' },
     });
 
@@ -437,9 +436,8 @@ describe('current project document', () => {
         expect(branch.whenTrue.steps[0]?.kind).toBe('setContextFlag');
       }
       expect(parsed.value.scenarios[0]?.connections[0]?.from).toEqual({
-        kind: 'damageHit',
+        kind: 'skillCast',
         skillCastId: 'cast:1',
-        stepKey: 'hit:1',
       });
       expect(JSON.stringify(sequence)).not.toContain('beforeDamage');
       expect(JSON.stringify(sequence)).not.toContain('afterDamage');
@@ -583,19 +581,19 @@ describe('current project document', () => {
       );
     }
 
-    const invalidHitReference = JSON.parse(serializeProjectDocument(project));
-    invalidHitReference.scenarios[0].connections[0].from.stepKey = 'missing:hit';
-    const invalidHitReferenceResult = validateProjectDocument(invalidHitReference);
-    expect(invalidHitReferenceResult.ok).toBe(false);
-    if (!invalidHitReferenceResult.ok) {
-      expect(invalidHitReferenceResult.issues).toContainEqual({
-        path: '$.scenarios[0].connections[0].from.stepKey',
-        message: 'unknown damage step key reference',
+    const invalidConnectionEndpoint = JSON.parse(serializeProjectDocument(project));
+    invalidConnectionEndpoint.scenarios[0].connections[0].from.kind = 'damageHit';
+    const invalidConnectionEndpointResult = validateProjectDocument(invalidConnectionEndpoint);
+    expect(invalidConnectionEndpointResult.ok).toBe(false);
+    if (!invalidConnectionEndpointResult.ok) {
+      expect(invalidConnectionEndpointResult.issues).toContainEqual({
+        path: '$.scenarios[0].connections[0].from.kind',
+        message: "expected 'skillCast'",
       });
     }
   });
 
-  it('validates cast-specific camera direction input without inventing a default', () => {
+  it('validates cast-specific random inputs', () => {
     const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
     const track = createTrack();
     track.skillCasts.push({
@@ -607,7 +605,6 @@ describe('current project document', () => {
       },
       placement: { startFrame: 0 },
       simulationInputs: {
-        cameraToTargetSignedAngleDegrees: -45,
         randomSeed: 7,
         criticalOverrides: { 'damage:1': true },
       },
@@ -615,16 +612,6 @@ describe('current project document', () => {
     project.scenarios[0]!.tracks[0] = track;
 
     expect(validateProjectDocument(project).ok).toBe(true);
-
-    track.skillCasts[0]!.simulationInputs = { cameraToTargetSignedAngleDegrees: 181 };
-    const invalid = validateProjectDocument(project);
-    expect(invalid.ok).toBe(false);
-    if (!invalid.ok) {
-      expect(invalid.issues).toContainEqual({
-        path: '$.scenarios[0].tracks[0].skillCasts[0].simulationInputs.cameraToTargetSignedAngleDegrees',
-        message: 'expected a finite angle in [-180, 180]',
-      });
-    }
 
     track.skillCasts[0]!.simulationInputs = { randomSeed: -1 };
     const invalidSeed = validateProjectDocument(project);
@@ -636,7 +623,7 @@ describe('current project document', () => {
       });
   });
 
-  it('accepts partial presentation fields and validates custom display bars', () => {
+  it('accepts partial presentation fields', () => {
     const project = createEmptyProject({
       createdWith: 'test',
       gameDataRevision: 'fixture',
@@ -653,45 +640,39 @@ describe('current project document', () => {
       placement: { startFrame: 0 },
       presentation: {
         locked: true,
-        customBars: [
-          {
-            id: 'bar:1',
-            text: '测试条',
-            offsetFrames: 0,
-            durationFrames: 30,
-          },
-        ],
       },
     });
     scenario.tracks[0] = track;
 
     expect(validateProjectDocument(project).ok).toBe(true);
+  });
 
-    const malformed = structuredClone(project) as unknown as {
+  it('rejects removed per-cast angle input and custom time bars', () => {
+    const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'fixture' });
+    const track = createTrack();
+    track.skillCasts.push({
+      id: 'cast:removed-fields',
+      source: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+      placement: { startFrame: 0 },
+    });
+    project.scenarios[0]!.tracks[0] = track;
+
+    const withRemovedFields = structuredClone(project) as unknown as {
       scenarios: {
-        tracks: ({ skillCasts: { presentation: { customBars: unknown[] } }[] } | null)[];
+        tracks: ({ skillCasts: { presentation: object; simulationInputs: object }[] } | null)[];
       }[];
     };
-    malformed.scenarios[0]!.tracks[0]!.skillCasts[0]!.presentation.customBars.push({
-      id: 'bar:1',
-      text: '',
-      offsetFrames: -1,
-      durationFrames: 1.5,
-    });
-    const result = validateProjectDocument(malformed);
+    const cast = withRemovedFields.scenarios[0]!.tracks[0]!.skillCasts[0]!;
+    cast.presentation = { customBars: [] };
+    cast.simulationInputs = { cameraToTargetSignedAngleDegrees: 30 };
+    const result = validateProjectDocument(withRemovedFields);
     expect(result.ok).toBe(false);
     if (!result.ok) {
-      expect(result.issues).toContainEqual(
-        expect.objectContaining({ message: 'duplicate custom bar id' }),
-      );
-      expect(result.issues).toContainEqual(
-        expect.objectContaining({ path: expect.stringContaining('.text') }),
-      );
-      expect(result.issues).toContainEqual(
-        expect.objectContaining({ path: expect.stringContaining('.offsetFrames') }),
-      );
-      expect(result.issues).toContainEqual(
-        expect.objectContaining({ path: expect.stringContaining('.durationFrames') }),
+      expect(result.issues.map(issue => issue.path)).toEqual(
+        expect.arrayContaining([
+          '$.scenarios[0].tracks[0].skillCasts[0].presentation.customBars',
+          '$.scenarios[0].tracks[0].skillCasts[0].simulationInputs.cameraToTargetSignedAngleDegrees',
+        ]),
       );
     }
   });

@@ -853,9 +853,6 @@ function createGeneratedMifuBattleChainScenario() {
       ids,
     }).scenario;
   }
-  placed.tracks[0]!.skillCasts.at(-1)!.simulationInputs = {
-    cameraToTargetSignedAngleDegrees: 0,
-  };
   return { scenario: placed, operator: battleChainOperator };
 }
 

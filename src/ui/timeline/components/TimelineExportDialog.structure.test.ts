@@ -5,15 +5,21 @@ import cardSource from './TimelineShareCard.vue?raw';
 import exportSource from '../timelineExport.ts?raw';
 
 describe('timeline export dialogs', () => {
-  it('keeps the legacy export entry fields and action order', () => {
-    expect(dialogSource).toContain('width="640px"');
+  it('matches the V2 export sections, scope choice and action order', () => {
+    expect(dialogSource).toContain('width="680px"');
     expect(dialogSource).toContain('Endaxis_Timeline_');
+    expect(dialogSource).toContain('export-section--data');
+    expect(dialogSource).toContain('export-section--image');
+    expect(dialogSource).toContain('role="radiogroup"');
+    expect(dialogSource).toContain("scope = 'current'");
+    expect(dialogSource).toContain("scope = 'all'");
     const actions = ['exportJson', 'copyCode', 'exportSmallImage', 'exportImage'];
     for (let index = 1; index < actions.length; index += 1) {
       expect(dialogSource.indexOf(actions[index - 1]!)).toBeLessThan(
         dialogSource.indexOf(actions[index]!),
       );
     }
+    expect(dialogSource).not.toContain('EaDialogActions');
   });
 
   it('renders small-image preview and all legacy visual controls', () => {
@@ -28,7 +34,9 @@ describe('timeline export dialogs', () => {
       expect(smallSource).toContain(field);
     }
     expect(cardSource).toContain('timeline-share-card');
-    expect(cardSource).toContain('grid-template-columns: 36px repeat(4, minmax(0, 1fr)) 76px');
+    expect(cardSource).toContain(
+      'grid-template-columns: 36px repeat(4, minmax(0, 1fr)) var(--share-operation-width)',
+    );
     expect(cardSource).toContain('height: `${52 + timelineHeight}px`');
     expect(cardSource).toContain('top: `${top(action.startFrame)}px`');
     expect(smallSource).toContain('small-export__preview-inner');

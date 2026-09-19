@@ -76,8 +76,10 @@ it('展示连线未迁移单独报告，不视为模拟内容缺失', () => {
   expect(result.project).not.toBeNull();
   expect(result.report.simulationIssues).toEqual([]);
   expect(result.report.presentationIssues).toHaveLength(1);
+  expect(result.report.presentationIssues[0]?.message).toContain('V3 不支持 Hit 或效果节点连线');
   expect(result.report.issues).toEqual(result.report.presentationIssues);
   expect(result.project!.scenarios[0]!.tracks[0]!.skillCasts).toHaveLength(1);
+  expect(result.project!.scenarios[0]!.connections).toEqual([]);
 });
 
 it('把旧版空闪避块转换为同轨普通闪避标签，不生成技能块或极限闪避收益', () => {

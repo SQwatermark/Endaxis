@@ -67,6 +67,7 @@ import TimelineExternalEventInspector from './interaction/TimelineExternalEventI
 import TimelineDocumentMarkerInspector from './interaction/TimelineDocumentMarkerInspector.vue';
 import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
 import TimelineConnectionLayer from './interaction/TimelineConnectionLayer.vue';
+import TimelineConnectionContextMenu from './interaction/TimelineConnectionContextMenu.vue';
 import TimelineCursorGuide, {
   type TimelineCursorGaugeRow,
 } from './components/TimelineCursorGuide.vue';
@@ -155,7 +156,6 @@ import type { OperatorUltimateEnergyCurve } from '../../core/projection/resource
 import {
   PROJECT_FPS,
   type EndaxisProjectDocument,
-  type EditableBarDocument,
   type ExternalCombatEventDocument,
   type ProjectDefinitionLibraryDocument,
   type ScenarioDocument,
@@ -169,7 +169,8 @@ import {
   serializeProjectDocument,
 } from '../../core/project/serialization';
 import { openProject } from '../../application/openProject';
-import { useProjectFileSession } from './projectFileSession';
+import { selectProjectExportScope, useProjectFileSession } from './projectFileSession';
+import type { ExportScenarioScope } from './components/TimelineExportDialog.vue';
 import {
   captureTimelineLongImage,
   compressProjectCode,
@@ -177,6 +178,7 @@ import {
   downloadBlob,
   imageFilename,
 } from './timelineExport';
+import { embedProjectCodeInWebp } from './webpProjectData';
 import { projectOpenFailureMessage } from './projectOpenFailureMessage';
 import { formatLegacyConversionReport } from './legacyConversionReport';
 import type { ProjectGameDataRepository } from '../../data/projectGameDataRepository';
@@ -269,8 +271,6 @@ import {
   setSkillCastLocked,
   setSkillCastDisabled,
   setSkillCastColor,
-  setSkillCastCustomBars,
-  setSkillCastCameraTargetAngle,
   setSkillCastRandomSeed,
   setSkillCastForcedCritical,
   setSkillCastCustomDefinition,
@@ -348,7 +348,7 @@ import { projectRossiComboSuccessCastIds } from '../operators/rossi/comboSuccess
 import {
   canCreateSkillCastConnection,
   createSkillCastConnection,
-  createDamageHitConnection,
+  retargetSkillCastConnection,
   removeTimelineConnection,
   updateTimelineConnection,
   type TimelineConnectionPort,
@@ -484,6 +484,12 @@ watch(showCursorGuide, visible =>
 );
 const boxSelectEnabled = ref(false);
 const connectionToolEnabled = ref(false);
+const KEYCAP_MODE_STORAGE_KEY = 'endaxis:timeline-keycap-mode:v1';
+const savedKeycapMode = window.localStorage.getItem(KEYCAP_MODE_STORAGE_KEY);
+const keycapMode = ref<'keyboard' | 'gamepad'>(
+  savedKeycapMode === 'gamepad' || savedKeycapMode === 'xbox' ? 'gamepad' : 'keyboard',
+);
+watch(keycapMode, mode => window.localStorage.setItem(KEYCAP_MODE_STORAGE_KEY, mode));
 const BUFF_LAYOUT_STORAGE_KEY = 'endaxis:timeline-buff-layout:v1';
 const TRACK_HEIGHTS_STORAGE_KEY = 'endaxis:timeline-compact-track-heights:v1';
 const buffLayoutMode = ref<'compact' | 'loose'>(
@@ -645,12 +651,21 @@ const timelineVerticalScrollbarHeight = computed(() =>
 );
 let timelineResizeObserver: ResizeObserver | null = null;
 const connectionDrag = ref<{
-  pointerId: number;
+  /** 面板按钮启动的连线等待下一次点击目标，因此没有固定 pointerId。 */
+  pointerId: number | null;
   lease: InteractionLease;
   skillCastId: string;
+  existingConnectionId?: string;
   port: TimelineConnectionPort;
   pointer: { x: number; y: number };
 } | null>(null);
+const selectedConnectionId = ref<string | null>(null);
+const connectionContextTarget = ref<{ id: string; x: number; y: number } | null>(null);
+const contextConnection = computed(() =>
+  scenario.value.connections.find(
+    connection => connection.id === connectionContextTarget.value?.id,
+  ),
+);
 type TimelineDragPayload =
   | {
       kind: 'librarySkill';
@@ -908,7 +923,10 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   input.value = '';
   if (file === undefined) return;
   try {
-    const content = await projectFileReader.read(file);
+    const content =
+      /\.webp$/i.test(file.name) || file.type === 'image/webp'
+        ? await projectFileReader.readWebp(file)
+        : await projectFileReader.read(file);
     if (content !== null) await openProjectContent(content);
   } catch (error) {
     ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
@@ -1100,10 +1118,9 @@ async function acceptOpenedProject(
   );
 }
 
-function exportProject(filename?: string): void {
+function exportProject(options: { filename: string; scope: ExportScenarioScope }): void {
   try {
-    exportProjectFile(filename);
-    showExportDialog.value = false;
+    exportProjectFile(options.filename, options.scope);
     ElMessage.success(t('timeline.export.exportJson'));
   } catch (error) {
     ElMessage.error(
@@ -1114,10 +1131,9 @@ function exportProject(filename?: string): void {
   }
 }
 
-async function copyProjectCode(): Promise<void> {
+async function copyProjectCode(options: { scope: ExportScenarioScope }): Promise<void> {
   try {
-    const json = serializeProjectDocument(projectSession.snapshot.project);
-    await navigator.clipboard.writeText(await compressProjectCode(json));
+    await navigator.clipboard.writeText(await createProjectShareCode(options.scope));
     ElMessage.success(t('timeline.share.copied'));
   } catch (error) {
     ElMessage.error(
@@ -1126,6 +1142,17 @@ async function copyProjectCode(): Promise<void> {
       }),
     );
   }
+}
+
+async function createProjectShareCode(scope: ExportScenarioScope): Promise<string> {
+  const json = serializeProjectDocument(
+    selectProjectExportScope(projectSession.snapshot.project, scope),
+  );
+  return compressProjectCode(json);
+}
+
+function createCurrentScenarioShareCode(): Promise<string> {
+  return createProjectShareCode('current');
 }
 
 function openSmallImageExport(options: { filename: string; duration: number }): void {
@@ -1156,7 +1183,13 @@ async function exportTimelineLongImage(options: {
       prepWidth,
       trackHeaderWidth: TIMELINE_TRACK_HEADER_WIDTH,
     });
-    downloadBlob(blob, filename);
+    let exportImage = blob;
+    try {
+      exportImage = await embedProjectCodeInWebp(blob, await createCurrentScenarioShareCode());
+    } catch (error) {
+      console.error('无法把项目数据写入长图', error);
+    }
+    downloadBlob(exportImage, filename);
     ElMessage.success(t('timeline.export.imageExported', { filename }));
   } catch (error) {
     ElMessage.error(
@@ -1743,7 +1776,14 @@ const occupiedTrackOptions = computed(() =>
   ),
 );
 function connectionPort(value: string | undefined, fallback: TimelineConnectionPort) {
-  return value === 'top' || value === 'right' || value === 'bottom' || value === 'left'
+  return value === 'top' ||
+    value === 'right' ||
+    value === 'bottom' ||
+    value === 'left' ||
+    value === 'top-left' ||
+    value === 'top-right' ||
+    value === 'bottom-left' ||
+    value === 'bottom-right'
     ? value
     : fallback;
 }
@@ -1789,11 +1829,8 @@ const selectedCastConnections = computed(() => {
         id: connection.id,
         outgoing,
         otherLabel: timelineCastLabelById(other.skillCastId),
-        targetKind: connection.to.kind,
-        ...(connection.to.kind === 'damageHit' ? { targetStepKey: connection.to.stepKey } : {}),
         fromPort: connectionPort(connection.from.port, 'right'),
         toPort: connectionPort(connection.to.port, 'left'),
-        consumption: connection.consumption,
       } as const;
     });
 });
@@ -3554,14 +3591,23 @@ function pointerInTimelineSurface(event: PointerEvent): { x: number; y: number }
 }
 
 function updateConnectionDrag(event: PointerEvent): void {
-  if (connectionDrag.value?.pointerId !== event.pointerId) return;
+  if (
+    connectionDrag.value === null ||
+    (connectionDrag.value.pointerId !== null && connectionDrag.value.pointerId !== event.pointerId)
+  )
+    return;
   const pointer = pointerInTimelineSurface(event);
   if (pointer === null || connectionDrag.value === null) return;
   connectionDrag.value = { ...connectionDrag.value, pointer };
 }
 
 function cancelConnectionDrag(event?: PointerEvent): void {
-  if (event !== undefined && connectionDrag.value?.pointerId !== event.pointerId) return;
+  if (
+    event !== undefined &&
+    connectionDrag.value?.pointerId !== null &&
+    connectionDrag.value?.pointerId !== event.pointerId
+  )
+    return;
   connectionDrag.value?.lease.release();
   connectionDrag.value = null;
   window.removeEventListener('pointermove', updateConnectionDrag);
@@ -3571,40 +3617,46 @@ function cancelConnectionDrag(event?: PointerEvent): void {
 
 function finishConnectionDrag(event: PointerEvent): void {
   const drag = connectionDrag.value;
-  if (drag?.pointerId !== event.pointerId) return;
-  cancelConnectionDrag();
-  if (drag === null) return;
-
-  const target = document
-    .elementsFromPoint(event.clientX, event.clientY)
+  if (drag === null || (drag.pointerId !== null && drag.pointerId !== event.pointerId)) return;
+  const elements = document.elementsFromPoint(event.clientX, event.clientY);
+  const target = elements
     .map(element =>
       element.closest<HTMLElement>('[data-connection-action-id][data-connection-port]'),
     )
     .find((element): element is HTMLElement => element !== null);
-  const targetSkillCastId = target?.dataset.connectionActionId;
-  const targetPortValue = target?.dataset.connectionPort;
+  const block = elements
+    .map(element => element.closest<HTMLElement>('[data-timeline-action-id]'))
+    .find((element): element is HTMLElement => element !== null);
+  cancelConnectionDrag();
+  const targetSkillCastId = target?.dataset.connectionActionId ?? block?.dataset.timelineActionId;
+  let targetPortValue = target?.dataset.connectionPort;
+  if (targetPortValue === undefined && block !== undefined) {
+    const rect = block.getBoundingClientRect();
+    const distances = [
+      ['left', event.clientX - rect.left],
+      ['right', rect.right - event.clientX],
+      ['top', event.clientY - rect.top],
+      ['bottom', rect.bottom - event.clientY],
+    ] as const;
+    targetPortValue = distances.reduce((nearest, current) =>
+      current[1] < nearest[1] ? current : nearest,
+    )[0];
+  }
   if (targetSkillCastId === undefined || targetPortValue === undefined) return;
   if (targetSkillCastId === drag.skillCastId) return;
 
-  if (targetPortValue.startsWith('hit:')) {
-    const toStepKey = targetPortValue.slice('hit:'.length);
-    const targetTrackIndex = viewModel.value.tracks.findIndex(track =>
-      track.skillCasts.some(castModel => castModel.id === targetSkillCastId),
-    );
-    const targetMarkers =
-      targetTrackIndex < 0 ? [] : castHitMarkers(targetTrackIndex as TrackIndex, targetSkillCastId);
-    commitScenario('createDamageHitConnection', current =>
-      createDamageHitConnection(current, {
-        id: ids.allocate('connection'),
-        fromSkillCastId: drag.skillCastId,
-        fromPort: drag.port,
-        toSkillCastId: targetSkillCastId,
-        toStepKey,
-        targetMarkers,
-      }),
+  if (drag.existingConnectionId !== undefined) {
+    commitScenario('retargetTimelineConnection', current =>
+      retargetSkillCastConnection(
+        current,
+        drag.existingConnectionId!,
+        targetSkillCastId,
+        targetPortValue as TimelineConnectionPort,
+      ),
     );
     return;
   }
+
   commitScenario('createTimelineConnection', current =>
     createSkillCastConnection(current, {
       id: ids.allocate('connection'),
@@ -3636,7 +3688,12 @@ function isConnectionTargetValid(targetSkillCastId: string): boolean {
   const drag = connectionDrag.value;
   return (
     drag === null ||
-    canCreateSkillCastConnection(scenario.value, drag.skillCastId, targetSkillCastId)
+    canCreateSkillCastConnection(
+      scenario.value,
+      drag.skillCastId,
+      targetSkillCastId,
+      drag.existingConnectionId,
+    )
   );
 }
 
@@ -3651,14 +3708,83 @@ function toggleBuffLayout(): void {
 }
 
 function deleteTimelineConnection(connectionId: string): void {
+  if (selectedConnectionId.value === connectionId) selectedConnectionId.value = null;
+  if (connectionContextTarget.value?.id === connectionId) connectionContextTarget.value = null;
   commitScenario('removeTimelineConnection', current =>
     removeTimelineConnection(current, connectionId),
   );
 }
 
+function selectTimelineConnection(connectionId: string): void {
+  selectedConnectionId.value = selectedConnectionId.value === connectionId ? null : connectionId;
+  clearTimelineSelection();
+}
+
+function openConnectionContextMenu(event: MouseEvent, connectionId: string): void {
+  selectedConnectionId.value = connectionId;
+  clearTimelineSelection();
+  connectionContextTarget.value = { id: connectionId, x: event.clientX, y: event.clientY };
+}
+
+function updateConnectionContextPort(side: 'from' | 'to', port: TimelineConnectionPort): void {
+  const target = connectionContextTarget.value;
+  if (target === null) return;
+  updateSelectedCastConnection(target.id, side === 'from' ? { fromPort: port } : { toPort: port });
+  connectionContextTarget.value = null;
+}
+
+function beginConnectionRetarget(event: PointerEvent, connectionId: string): void {
+  if (event.button !== 0) return;
+  const connection = scenario.value.connections.find(candidate => candidate.id === connectionId);
+  if (connection === undefined) return;
+  const pointer = pointerInTimelineSurface(event);
+  if (pointer === null) return;
+  const lease = interactionSession.tryStart('connection-drag', cancelConnectionDrag);
+  if (lease === null) return;
+  selectedConnectionId.value = connectionId;
+  connectionDrag.value = {
+    skillCastId: connection.from.skillCastId,
+    port: connectionPort(connection.from.port, 'right'),
+    existingConnectionId: connectionId,
+    pointer,
+    pointerId: event.pointerId,
+    lease,
+  };
+  window.addEventListener('pointermove', updateConnectionDrag);
+  window.addEventListener('pointerup', finishConnectionDrag);
+  window.addEventListener('pointercancel', cancelConnectionDrag);
+}
+
 function beginSelectedCastConnection(): void {
-  if (selectedCastModel.value === null) return;
+  const selected = selectedCastModel.value;
+  if (selected === null) return;
+  if (connectionDrag.value !== null) {
+    cancelConnectionDrag();
+    return;
+  }
+  const block = document.querySelector<HTMLElement>(
+    `[data-timeline-action-id="${CSS.escape(selected.cast.id)}"]`,
+  );
+  const surface = timelineSurface.value;
+  if (block === null || surface === null) return;
+  const blockRect = block.getBoundingClientRect();
+  const surfaceRect = surface.getBoundingClientRect();
+  const lease = interactionSession.tryStart('connection-drag', cancelConnectionDrag);
+  if (lease === null) return;
   connectionToolEnabled.value = true;
+  connectionDrag.value = {
+    skillCastId: selected.cast.id,
+    port: 'right',
+    pointer: {
+      x: blockRect.right - surfaceRect.left,
+      y: blockRect.top + blockRect.height / 2 - surfaceRect.top,
+    },
+    pointerId: null,
+    lease,
+  };
+  window.addEventListener('pointermove', updateConnectionDrag);
+  window.addEventListener('pointerup', finishConnectionDrag);
+  window.addEventListener('pointercancel', cancelConnectionDrag);
 }
 
 function updateSelectedCastConnection(
@@ -3672,6 +3798,8 @@ function updateSelectedCastConnection(
 
 function handleActionSelection(event: MouseEvent, skillCastId: string): void {
   if (consumeCastClick(skillCastId)) return;
+  selectedConnectionId.value = null;
+  connectionContextTarget.value = null;
   selectedConsumableUseId.value = null;
   applyActionSelection(
     selectTimelineAction(actionSelection.value, skillCastId, event.ctrlKey || event.metaKey),
@@ -5368,7 +5496,10 @@ function cycleOccupiedTrack(direction: -1 | 1): boolean {
 }
 
 const hasTimelineContextMenu = computed(
-  () => contextMenuTarget.value !== null || markerContextTarget.value !== null,
+  () =>
+    contextMenuTarget.value !== null ||
+    markerContextTarget.value !== null ||
+    connectionContextTarget.value !== null,
 );
 
 useInteractionBarrier(interactionSession, () => hasTimelineContextMenu.value);
@@ -5405,7 +5536,11 @@ useKeyboardShortcutScope({
         pasteClipboardAtTimelinePosition();
         return true;
       },
-      delete: deleteSelectedActions,
+      delete: () => {
+        if (selectedConnectionId.value === null) return deleteSelectedActions();
+        deleteTimelineConnection(selectedConnectionId.value);
+        return true;
+      },
       nudgeLeft: () => nudgeSelectedActions(-1),
       nudgeRight: () => nudgeSelectedActions(1),
       toggleSnapPrecision,
@@ -5504,14 +5639,6 @@ function setContextCastColor(color: string | null): void {
   contextMenuTarget.value = null;
 }
 
-function setSelectedCastCameraTargetAngle(angleDegrees: number | null): void {
-  const selected = selectedCastModel.value;
-  if (selected === null) return;
-  commitScenario('setSkillCastCameraTargetAngle', current =>
-    setSkillCastCameraTargetAngle(current, selected.trackIndex, selected.cast.id, angleDegrees),
-  );
-}
-
 function setSelectedCastRandomSeed(seed: number | null): void {
   const selected = selectedCastModel.value;
   if (selected === null) return;
@@ -5586,31 +5713,6 @@ function setSelectedCastColor(color: string | null): void {
   );
 }
 
-function addSelectedCastCustomBar(): void {
-  const selected = selectedCastModel.value;
-  if (selected === null) return;
-  const bars = selected.cast.presentation?.customBars ?? [];
-  commitScenario('addSkillCastCustomBar', current =>
-    setSkillCastCustomBars(current, selected.trackIndex, selected.cast.id, [
-      ...bars,
-      {
-        id: ids.allocate('customBar'),
-        text: '',
-        offsetFrames: 0,
-        durationFrames: PROJECT_FPS,
-      },
-    ]),
-  );
-}
-
-function setSelectedCastCustomBars(bars: readonly EditableBarDocument[]): void {
-  const selected = selectedCastModel.value;
-  if (selected === null) return;
-  commitScenario('setSkillCastCustomBars', current =>
-    setSkillCastCustomBars(current, selected.trackIndex, selected.cast.id, bars),
-  );
-}
-
 function resetSelectedCastDefinition(): void {
   const selected = selectedCastModel.value;
   if (selected === null || !selected.edited) return;
@@ -5649,7 +5751,7 @@ function setPanelDialogVisible(visible: boolean): void {
     ref="projectFileInput"
     class="project-file-input"
     type="file"
-    accept="application/json,.json"
+    accept="application/json,.json,image/webp,.webp"
     @change="handleProjectFileChange"
   />
   <TimelineWorkbenchShell
@@ -5835,6 +5937,7 @@ function setPanelDialogVisible(visible: boolean): void {
         @toggle-box-select="toggleBoxSelect"
         @toggle-connection-tool="toggleConnectionTool"
         :buff-layout-mode="buffLayoutMode"
+        :keycap-mode="keycapMode"
         @toggle-cursor-guide="toggleCursorGuide"
         @set-buff-layout="buffLayoutMode = $event"
         :view-layers="timelineViewLayers"
@@ -5869,6 +5972,9 @@ function setPanelDialogVisible(visible: boolean): void {
           viewOperatorsEmpty: t('timeline.header.hideEffectsEmpty'),
           shortcuts: t('timeline.header.shortcutsLabel'),
           preferences: t('timeline.header.sectionPrefs'),
+          keycapMode: t('display.keycapMode'),
+          keyboardKeycaps: t('display.keyboardKeycaps'),
+          gamepadKeycaps: t('display.gamepadKeycaps'),
           appearance: t('common.appearance'),
           appearanceLight: t('common.appearanceLight'),
           appearanceDark: t('common.appearanceDark'),
@@ -5893,6 +5999,7 @@ function setPanelDialogVisible(visible: boolean): void {
         @toggle-operator-effects="toggleOperatorEffectsVisibility"
         @set-locale="selectTimelineLocale"
         @set-appearance="setAppearance"
+        @set-keycap-mode="keycapMode = $event"
         @set-random-mode="setScenarioRandomMode"
         @set-global-random-seed="setGlobalRandomSeed"
         @roll-global-random-seed="rollGlobalRandomSeed"
@@ -5972,6 +6079,7 @@ function setPanelDialogVisible(visible: boolean): void {
             :px-per-frame="pxPerFrame"
             :snap-frames="snapFrames"
             :operations="rulerOperations"
+            :keycap-mode="keycapMode"
             :visible-left-px="Math.max(0, timelineScrollLeft - TIMELINE_TRACK_HEADER_WIDTH)"
             :visible-width-px="timelineViewportWidth"
             @seek="cursorFrame = $event"
@@ -6055,7 +6163,9 @@ function setPanelDialogVisible(visible: boolean): void {
             :track-header-width="TIMELINE_TRACK_HEADER_WIDTH"
             :cast-actual-start-frames="skillCastActualStartFrames"
             :cast-actual-duration-frames="skillCastActualDurationFrames"
-            :hit-actual-frames="hitActualFrames"
+            :selected-connection-id="selectedConnectionId"
+            :hovered-skill-cast-id="hoveredCastId"
+            :dragging-connection="connectionDrag !== null"
             :visible-track-indices="visibleEffectTrackIndices"
             :ruler-height="TIMELINE_RULER_HEIGHT"
             :track-layouts="
@@ -6064,7 +6174,9 @@ function setPanelDialogVisible(visible: boolean): void {
               )
             "
             :preview="connectionDrag"
-            @remove="deleteTimelineConnection"
+            @select="selectTimelineConnection"
+            @contextmenu="openConnectionContextMenu"
+            @retarget="beginConnectionRetarget"
           />
           <div
             v-if="showCursorGuide && cursorGuide !== null && marqueeStyle === null"
@@ -6700,12 +6812,6 @@ function setPanelDialogVisible(visible: boolean): void {
                         )
                       : []
                   "
-                  :custom-bars="
-                    timelineViewLayers.skillDecorations &&
-                    isOperatorEffectsVisible(track.trackIndex)
-                      ? cast.customBars
-                      : []
-                  "
                   :cooldown-bars="
                     timelineViewLayers.skillDecorations &&
                     isOperatorEffectsVisible(track.trackIndex)
@@ -7022,15 +7128,17 @@ function setPanelDialogVisible(visible: boolean): void {
         :cast="selectedCastModel?.cast ?? null"
         :input-read-only="selectedCastId !== null && isHistoricalSkillInput(selectedCastId)"
         :label="selectedCastModel?.label ?? ''"
-        :skill-type="selectedCastModel?.skillType ?? null"
         :edited="selectedCastModel?.edited ?? false"
         :diff-count="selectedCastModel?.diffCount ?? 0"
         :template-definition="selectedCastModel?.templateDefinition ?? null"
         :current-definition="selectedCastModel?.currentDefinition ?? null"
+        :skill-level="selectedCastModel?.skillLevel ?? 1"
         :minimum-frame="-scenario.battle.prepFrames"
         :maximum-frame="scenario.battle.durationFrames"
         :connections="selectedCastConnections"
-        :connection-tool-enabled="connectionToolEnabled"
+        :connection-dragging="
+          connectionDrag !== null && connectionDrag.skillCastId === selectedCastId
+        "
         :actual-start-frame="
           selectedCastId === null ? undefined : skillCastPlacementActualFrames.get(selectedCastId)
         "
@@ -7038,15 +7146,12 @@ function setPanelDialogVisible(visible: boolean): void {
         @dissolve-group="dissolveSelectedSkillCastGroups"
         @edit-definition="showSkillDefinitionEditor = true"
         @reset-definition="resetSelectedCastDefinition"
-        @set-camera-target-angle="setSelectedCastCameraTargetAngle"
         @set-random-seed="setSelectedCastRandomSeed"
         @roll-random-seed="rollSelectedCastRandomSeed"
         @set-start-frame="setSelectedCastStartFrame"
         @set-locked="setSelectedCastLocked"
         @set-disabled="setSelectedCastDisabled"
         @set-color="setSelectedCastColor"
-        @add-custom-bar="addSelectedCastCustomBar"
-        @set-custom-bars="setSelectedCastCustomBars"
         @begin-connection="beginSelectedCastConnection"
         @remove-connection="deleteTimelineConnection"
         @update-connection="updateSelectedCastConnection"
@@ -7130,6 +7235,16 @@ function setPanelDialogVisible(visible: boolean): void {
       />
     </template>
   </TimelineWorkbenchShell>
+  <TimelineConnectionContextMenu
+    :visible="connectionContextTarget !== null && contextConnection !== undefined"
+    :x="connectionContextTarget?.x ?? 0"
+    :y="connectionContextTarget?.y ?? 0"
+    :from-port="connectionPort(contextConnection?.from.port, 'right')"
+    :to-port="connectionPort(contextConnection?.to.port, 'left')"
+    @close="connectionContextTarget = null"
+    @delete="contextConnection && deleteTimelineConnection(contextConnection.id)"
+    @change-port="updateConnectionContextPort"
+  />
   <TimelineActionContextMenu
     :input-read-only="[...actionSelection.selectedIds].some(isHistoricalSkillInput)"
     :visible="contextMenuTarget !== null"
@@ -7529,21 +7644,9 @@ function setPanelDialogVisible(visible: boolean): void {
   <TimelineExportDialog
     v-if="showExportDialog"
     :visible="showExportDialog"
+    :current-scenario-name="scenario.name"
+    :scenario-count="projectScenarios.length"
     :max-duration="Math.max(10, Math.round(scenario.battle.durationFrames / PROJECT_FPS))"
-    :labels="{
-      title: t('timeline.export.dialogTitle'),
-      filename: t('timeline.export.filenameLabel'),
-      filenamePlaceholder: t('timeline.export.filenamePlaceholder'),
-      duration: t('timeline.export.durationLabel'),
-      durationHint: t('timeline.export.durationHintMax', {
-        max: Math.max(10, Math.round(scenario.battle.durationFrames / PROJECT_FPS)),
-      }),
-      cancel: t('common.cancel'),
-      exportJson: t('timeline.export.exportJson'),
-      copyCode: t('timeline.export.copyCode'),
-      exportSmallImage: t('timeline.export.exportSmallImage'),
-      exportImage: t('timeline.export.exportImage'),
-    }"
     @update:visible="showExportDialog = $event"
     @export-json="exportProject"
     @copy-code="copyProjectCode"
@@ -7560,6 +7663,8 @@ function setPanelDialogVisible(visible: boolean): void {
     :tracks="exportShareTracks"
     :prep-frames="scenario.battle.prepFrames"
     :editor-appearance="appearance"
+    :keycap-mode="keycapMode"
+    :create-share-code="createCurrentScenarioShareCode"
     :labels="{
       title: t('timeline.export.smallPreviewTitle'),
       filename: t('timeline.export.filenameLabel'),

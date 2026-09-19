@@ -114,19 +114,12 @@ describe('Next timeline simulation projection retention', () => {
     expect(source).toContain('projectSkillCooldownTimelineViz');
     expect(source).toContain('cooldownBarsForCast(cast.id, cast.startFrame)');
     expect(actionBlockSource).toContain('class="cooldown-timeline-bar"');
-    expect(actionBlockSource).toContain("'is-pending': !bar.completed");
-    expect(actionBlockSource).toContain('class="cooldown-timeline-bar__start"');
     expect(actionBlockSource).toContain('class="cooldown-timeline-bar__end"');
-    expect(actionBlockSource).toMatch(/\.cooldown-timeline-bar\s*\{[^}]*border-top: 2px/s);
+    expect(actionBlockSource).toMatch(/\.cooldown-timeline-bar\s*\{[^}]*height: 2px;/s);
   });
 
-  it('keeps custom duration bars as independent two-ended 2px annotations', () => {
-    expect(actionBlockSource).toContain('class="custom-timeline-bar"');
-    expect(actionBlockSource).toContain('class="custom-timeline-bar__start"');
-    expect(actionBlockSource).toContain('class="custom-timeline-bar__end"');
-    expect(actionBlockSource).toContain('class="custom-timeline-bar__duration"');
-    expect(actionBlockSource).toMatch(/\.custom-timeline-bar\s*\{[^}]*border-top: 2px/s);
-    expect(actionBlockSource).toMatch(/\.custom-timeline-bar__duration\s*\{[^}]*font-size: 10px/s);
+  it('does not render user-defined duration bars', () => {
+    expect(actionBlockSource).not.toContain('custom-timeline-bar');
   });
 
   it('feeds workbench result panels only from Next documents and simulation projections', () => {

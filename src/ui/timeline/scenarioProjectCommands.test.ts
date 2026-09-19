@@ -51,9 +51,6 @@ describe('scenario project commands', () => {
           id: 'cast:old',
           source: { kind: 'operatorSkill', skillGroupKey: 'group-key', skillKey: 'skill-key' },
           placement: { startFrame: 10 },
-          presentation: {
-            customBars: [{ id: 'bar:old', text: 'bar', offsetFrames: 0, durationFrames: 3 }],
-          },
         },
       ],
     };
@@ -61,7 +58,7 @@ describe('scenario project commands', () => {
       id: 'connection:old',
       consumption: false,
       from: { kind: 'skillCast', skillCastId: 'cast:old' },
-      to: { kind: 'damageHit', skillCastId: 'cast:old', stepKey: 'damage:key' },
+      to: { kind: 'skillCast', skillCastId: 'cast:old' },
     });
     source.battle.cycleBoundaries.push({ id: 'cycle:old', frame: 30 });
     source.battle.controlSwitches.push({ id: 'switch:old', frame: 10, trackIndex: 0 });
@@ -76,7 +73,6 @@ describe('scenario project commands', () => {
     expect(validateProjectDocument(result)).toEqual({ ok: true, value: result });
 
     copiedCast.placement = { startFrame: 20 };
-    copiedCast.presentation!.customBars![0]!.text = '副本标记';
     copy.connections[0]!.to.skillCastId = 'edited';
     copy.tracks[0]!.initialState.ultimateEnergy = 50;
     copy.battle.cycleBoundaries[0]!.frame = 60;
@@ -107,7 +103,7 @@ describe('scenario project commands', () => {
       id: 'group:connection',
       consumption: false,
       from: { kind: 'skillCast', skillCastId: 'a' },
-      to: { kind: 'damageHit', skillCastId: 'c', stepKey: 'damage:key' },
+      to: { kind: 'skillCast', skillCastId: 'c' },
     });
     original.scenarios[0] = createSkillCastGroup(
       source,

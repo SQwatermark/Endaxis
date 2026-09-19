@@ -46,7 +46,6 @@ function segmentTitle(segment: PositionedOperatorPassiveUiTimelineSegment): stri
         : t('timeline.passiveUi.counterState', {
             battle: segment.battleArrows,
             maximumArrows: segment.maximumArrows,
-            reserve: segment.reserveArrows,
             points: segment.points,
             maximumPoints: segment.maximumPoints,
           });

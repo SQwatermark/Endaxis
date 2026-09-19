@@ -23,10 +23,10 @@ describe('CameraTargetAngleConditionExecutor', () => {
     ).toBe(true);
   });
 
-  it('fails at the condition site when the cast omitted its spatial input', () => {
+  it('uses zero when no spatial angle is supplied', () => {
     const executor = new CameraTargetAngleConditionExecutor(undefined, delegate);
 
-    expect(() =>
+    expect(
       executor.evaluate(
         {
           kind: 'cameraToTargetAngleCompare',
@@ -35,6 +35,6 @@ describe('CameraTargetAngleConditionExecutor', () => {
         },
         { blackboard: new ActionBlackboard() },
       ),
-    ).toThrow('skill cast requires cameraToTargetSignedAngleDegrees simulation input');
+    ).toBe(false);
   });
 });

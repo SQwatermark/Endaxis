@@ -12,6 +12,7 @@ import {
 } from '../../gameAssetPaths';
 import type { PublishedOperatorMetadata } from './publishedOperatorMetadata';
 import { resolvePublishedBuffSource, type PublishedBuffSource } from './publishedBuffSource';
+import { physicalStatusIconPath } from './physicalStatusDisplay';
 
 export type CombatObjectIconResolver = (
   node: CombatObjectNode,
@@ -75,6 +76,9 @@ export function createCombatObjectIconResolver(
   };
   const presentationIcon = (entry: CombatReceiptEntry): string | undefined => {
     const data = entry.data;
+    const physicalIcon =
+      typeof data?.buffId === 'string' ? physicalStatusIconPath(data.buffId) : undefined;
+    if (physicalIcon) return physicalIcon;
     const source = resolvePublishedBuffSource(
       {
         sourceId: entry.sourceId,

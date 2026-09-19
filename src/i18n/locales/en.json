@@ -96,7 +96,14 @@
     "ready": "Reset all combo cooldowns",
     "hint": "Set team combo cooldowns without creating a combo window or casting a skill. Skills run before markers on the same frame."
   },
-  "display": { "title": "Display", "cursorGuide": "Cursor guide", "buffLayout": "Buff layout" },
+  "display": {
+    "title": "Display",
+    "cursorGuide": "Cursor guide",
+    "buffLayout": "Buff layout",
+    "keycapMode": "Operation keys",
+    "keyboardKeycaps": "Keyboard",
+    "gamepadKeycaps": "Gamepad"
+  },
   "reset": {
     "title": "Choose Reset Scope",
     "currentKeepLoadout": "Reset Current Project and Keep Loadout",
@@ -473,16 +480,28 @@
     },
     "export": {
       "copyCode": "Copy Data Code",
-      "dialogTitle": "Export Settings",
+      "copyCodeDescription": "Copy a compact code for sharing and import",
+      "dialogTitle": "Export and Share",
+      "dataSectionTitle": "Project Data",
       "durationHintMax": "Maximum support {max}s",
       "durationLabel": "Export Duration (seconds)",
       "smallDurationHint": "Battle time only — prep (negative) is not included",
       "exportImage": "Export Long Image",
+      "exportImageDescription": "Export the full current timeline",
       "exportSmallImage": "Export Small Image",
+      "exportSmallImageDescription": "Open a preview and adjust the card layout",
       "exportJson": "Export JSON",
+      "exportJsonDescription": "Download a restorable project file",
       "failed": "Export failed: {msg}",
       "filenameLabel": "File Name",
+      "filenameHint": "Used by JSON and image files; data codes do not use it",
       "filenamePlaceholder": "Please enter file name",
+      "imageSectionTitle": "Current Scenario Image",
+      "scopeLabel": "Data Export Scope",
+      "scopeCurrent": "Current Scenario",
+      "scopeAll": "All Scenarios",
+      "allScenariosCount": "Includes all {count} scenarios",
+      "currentScenarioName": "Current scenario: {name}",
       "imageExported": "Timeline image exported: {filename}",
       "rendering": "Rendering timeline image for the first {seconds} seconds...",
       "smallPreviewTitle": "Small Image Preview",
@@ -659,7 +678,7 @@
         "notFound": "Skill not found (the scenario may have changed or data was updated)",
         "start": "Start Time",
         "end": "End Time",
-        "duration": "Duration",
+        "duration": "Timeline block duration",
         "spCost": "SP Cost",
         "cooldown": "Cooldown",
         "gaugeCost": "Ult Gauge Cost",
@@ -1787,21 +1806,18 @@
         "actionId": "Action ID",
         "sourceKind": "Source type",
         "skillType": "Skill type",
-        "customBarOffsetFrames": "Offset (frames)",
-        "customBarDurationFrames": "Duration (frames)",
+        "duration": "Duration",
+        "cooldown": "Cooldown",
         "startFrame": "Start frame",
         "locked": "Locked",
         "disabled": "Disabled",
         "color": "Color",
-        "cameraTargetAngle": "Signed camera-to-target angle (degrees)",
         "unset": "Not set"
       },
       "sourceKinds": {
         "operatorSkill": "Operator skill template",
         "custom": "Free display block"
-      },
-      "cameraTargetAngleHelp": "Range: -180° to 180°. Only required by skills that read this spatial condition; leaving it blank makes no directional assumption and fails where it is read.",
-      "connectionDragHelp": "The connection tool is active. Drag from this action's edge port to another action or HIT."
+      }
     },
     "libraryInspector": {
       "operator": "Operator",
@@ -1920,11 +1936,10 @@
         "typhoeaArrows": "Hunting Arrows empower Typhoeus's shots. Every 2 Signs convert to 1 Hunting Arrow."
       },
       "numericState": "{value} / {maximum}",
-      "counterState": "Hunting Arrows {battle}/{maximumArrows}, out-of-combat recovery {reserve}/{maximumArrows}, Signs {points}/{maximumPoints}",
+      "counterState": "Hunting Arrows {battle}/{maximumArrows}, Signs {points}/{maximumPoints}",
       "mode": "Current stance",
       "modes": { "normal": "Vocalist Stance", "ultimate": "Cosmovoice Stance" },
       "battleArrows": "Hunting Arrows",
-      "reserveArrows": "Out-of-combat recovery",
       "points": "Signs"
     },
     "buffDetail": {
@@ -2644,15 +2659,6 @@
       "spKindRefundShort": "Ref",
       "bindEffects": "Bind Status Icon",
       "bindPlaceholder": "Select status to bind"
-    },
-    "bars": {
-      "title": "Custom Time Bars",
-      "system": "Timing System",
-      "activeItems": "Active Entries",
-      "empty": "No time bars",
-      "namePlaceholder": "Entry Name",
-      "offsetS": "Trigger Time (f)",
-      "durationS": "Duration (f)"
     },
     "effects": {
       "title": "Status Effects & Layout",

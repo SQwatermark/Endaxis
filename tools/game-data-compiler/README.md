@@ -122,6 +122,88 @@ node --max-old-space-size=2048 --experimental-strip-types tools/game-data-compil
 
 ## 重建与发布
 
+### 游戏版本更新时怎么做
+
+本节用于游戏更新后，把**本项目使用的**新增和修改内容更新到正式数据。不要把“下载了新版文件”
+等同于“已经支持新版全部内容”：新干员、技能组和人工限定的范围仍需审阅，新的原生行为也可能需要先在
+combat-spec 查证，再扩展转换器。原始来源、隔离候选、正式产物是三个不同位置；不要直接修改
+`src/data/**/generated`、`*.generated.ts`、`src/i18n/game-locales` 或导出的图片。
+
+1. **确认版本和来源。** 检查工作树，保存已有修改；核对 AKEDB 快照版本、客户端/VFS 的游戏版本，
+   并确认 Unity worker 可访问同一套游戏资源。本机路径和服务地址看
+   [本地环境](../../docs/development/local-environment.md)，不要从旧交接记录复制。`--version` 可以锁定
+   AKEDB 版本；VFS 补件的哈希只能证明取到了哪些文件，不能证明它们与 AKEDB 同版本。
+   版本未对齐时先记录并查证受影响文件，不把混合来源称作纯同版本数据。
+2. **先跑完整候选，不发布。** 在仓库根目录执行下方命令。`--workers 2` 用于控制本机并发，
+   如机器容量允许再调整。完整候选需要 `--unity-worker`；`--tables-only` 只检查表格和单件装备，
+   不能用来完成版本更新。
+
+   ```powershell
+   npm run rebuild:game-data -- --version '<AKEDB版本>' --unity-worker '<Unity-worker路径>' --workers 2
+   ```
+
+   命令会在 `tmp/game-data-rebuild/run-*` 中保存来源、候选、审计和 `report.json`。未发布的完整候选
+   即使各阶段通过也返回退出码 `2`；`1` 表示有阶段失败。若网络来源不稳定，可用已经由下载器生成、
+   带 `source-provenance.json` 的冻结目录重试，仍会重新核对每个来源文件：
+
+   ```powershell
+   npm run rebuild:game-data -- --source-root '<冻结来源目录>' --version '<AKEDB版本>' --unity-worker '<Unity-worker路径>' --workers 2
+   ```
+
+3. **审阅新增、删除和变化。** 打开本轮 `report.json`，检查 `sources`、`source-coverage`、
+   `content-inventory`、`operator-refresh-review` 以及每个领域的 `comparison`。
+   `content-inventory` 列出来源与已配置的干员、套装身份差异；它包括非玩家记录和表现变体，
+   不能把所有新 ID 直接加入配置。`audit/operator-refresh.json` 指出角色模板新增/固定引用变化、
+   技能库及技能组的阻塞项。候选差异中的 `added`、`changed`、`removed` 都要追到同版本来源，
+   尤其要检查新技能是否在正确的技能组、旧技能是否真的被移除。被报告为 `blocked` 的审阅项
+   不能被其他阶段的 `passed` 掩盖。
+4. **只为确实需要人工判断的内容改配置。** 以下文件是版本更新时的检查点，不要求每次全部修改：
+
+   - `game-data-sources.json`：本项目需要新的表、集合或单文件，而下载清单尚未包含它时。
+   - `config/operators.json`：新可玩干员、原生技能组/变体、养成节点、确有依据的产品展示元数据
+     变化时。普通技能编译器由源动作推断，不逐技能填 `compile`。
+   - `config/gearSetIdentities.json`、`config/gearSetIcons.json`：新套装确属产品范围时登记身份，
+     并选择该套装中一件装备的 ID 作为图标来源。
+   - `config/equipmentAssets.json`：武器、装备或套装的来源图片有歧义，需要按对象指定资源别名时；
+     普通装备由表格自动转换。
+   - `config/systemBuffRoots.json`、`config/globalBuffIdentities.json`：新的公共/全局 Buff 确实被
+     已支持机制引用，而自动引用闭包未覆盖时。
+   - `config/commonBuffPresentationNames.json`：公共 Buff 缺少可用的展示名称，且项目需要明确的
+     本地化术语映射时。
+   - `config/contingencyContractSimulationScope.json`：新危机合约效果需要按本项目单敌人模拟范围
+     明确纳入、排除或说明原因时。
+   - `config/enemies/runtime-defaults.json`：敌人的项目运行时默认值有新证据时；新增敌人的表格与
+     rank 由生成器读取。
+   - `config/locales/enum-terms.zh.json`、`enum-terms.en.json`：新枚举术语需要项目自有的中英文
+     名称时；游戏文本优先从本轮表格生成。
+
+   配置中的 ID 和资源必须能在**本轮来源**中找到。若失败原因是未识别的动作、字段、引用或
+   时间语义，应补原生证据和转换规则，不靠填零、复制旧生成文件或跳过该对象放行。
+   来源未提供的新游戏机制也不能仅靠增加配置宣布支持。
+
+5. **重跑同一版本候选，直到关口闭合。** 修改配置或转换器后，从冻结来源重跑完整候选。
+   重点检查 `combat-definitions`、`enemies`、`consumables`、`locales`、`icons`、
+   `generated-format`、`candidate-type-check`、`candidate-assets`、`candidate-operator-skills`、
+   `candidate-equipment` 和 `sources-after-generation` 均为 `passed`。候选会独立重编译、检查
+   确定性、类型、资源引用以及技能和配装模拟；它不会读取旧正式产物补缺。仍需用受影响干员、
+   武器、套装和真实轴做定向数值/时序回归，检查可见名称、图标和富文本；自动候选门禁不保证
+   原生机制已完全复刻。
+6. **发布并复核。** 候选没有未解释差异后，用相同版本与来源执行：
+
+   ```powershell
+   npm run rebuild:game-data -- --source-root '<冻结来源目录>' --version '<AKEDB版本>' --publish --unity-worker '<Unity-worker路径>' --workers 2
+   ```
+
+   发布命令**会重新生成并检查**，不是复制上一次候选。成功应返回 `0`，且本轮 `report.json` 中
+   `fullRebuild`、`published` 为 `true`，`remaining` 为空。随后检查 `git diff --stat`、
+   逐项审阅生成产物和手写配置的差异；删除的文件确认确已不再引用。按改动范围运行相关测试、
+   `npm run type-check` 和 `git diff --check`。重型检查串行执行，Vitest 用 `--maxWorkers=1`。
+   记录来源版本/哈希、VFS 混合来源、候选报告、定向验收和未支持范围；`tmp/` 来源与审计文件不提交。
+
+完整重建目前只覆盖本转换器登记的发布领域；例如未支持的物品效果、敌人主动行为或
+新的 HUD prefab 不会因为版本更新而自动获得模拟支持。发现这类内容，应明确列出范围和证据，
+决定是否扩展转换器与运行时，再用正式流程重建。
+
 ### 主动使用物品
 
 下载清单包含 `UseItemTable`、`ItemTable`、中英文文本表和完整 `BuffData`。完整重建会在隔离候选目录中生成

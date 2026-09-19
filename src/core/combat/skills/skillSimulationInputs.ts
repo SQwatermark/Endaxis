@@ -7,7 +7,6 @@ export function sameSkillSimulationInputs(
   const a = left.criticalOverrides ?? {};
   const b = right.criticalOverrides ?? {};
   return (
-    left.cameraToTargetSignedAngleDegrees === right.cameraToTargetSignedAngleDegrees &&
     left.randomSeed === right.randomSeed &&
     Object.keys(a).length === Object.keys(b).length &&
     Object.entries(a).every(([key, value]) => Object.hasOwn(b, key) && b[key] === value)

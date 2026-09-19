@@ -15,7 +15,6 @@ import type {
   ExternalEventMarkerDocument,
   ExternalEventTargetDocument,
   DodgeMarkerDocument,
-  EditableBarDocument,
   GlobalOperatorStatModifierDocument,
   SkillCastDocument,
 } from '../../../core/project/schema';
@@ -553,7 +552,7 @@ export function moveSkillCasts(
   return { ...scenario, tracks };
 }
 
-/** 把同轨连续选区变成手动链；已有链必须完整选中，技能与命中连线身份均不重建。 */
+/** 把同轨连续选区变成手动链；已有链必须完整选中，技能块和连线身份均不重建。 */
 export function createSkillCastGroup(
   scenario: ScenarioDocument,
   castIds: ReadonlySet<string>,
@@ -683,96 +682,6 @@ export function setSkillCastColor(
   if ((cast.presentation?.color ?? null) === color) return scenario;
   const skillCasts = [...track.skillCasts];
   skillCasts[castIndex] = { ...cast, presentation: { ...cast.presentation, color } };
-  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
-  tracks[trackIndex] = { ...track, skillCasts };
-  return { ...scenario, tracks };
-}
-
-/**
- * 替换技能块的辅助展示条。展示条使用实际战斗帧，不参与技能编译；完整列表作为一次命令提交，
- * 使 Inspector 中的增删改与时间轴撤销/重做保持同一粒度。
- */
-export function setSkillCastCustomBars(
-  scenario: ScenarioDocument,
-  trackIndex: TrackIndex,
-  skillCastId: string,
-  customBars: readonly EditableBarDocument[],
-): ScenarioDocument {
-  const ids = new Set<string>();
-  for (const bar of customBars) {
-    if (bar.id.length === 0 || ids.has(bar.id)) {
-      throw new TypeError('custom bar ids must be non-empty and unique');
-    }
-    ids.add(bar.id);
-    if (!Number.isInteger(bar.offsetFrames) || bar.offsetFrames < 0) {
-      throw new RangeError('custom bar offsetFrames must be a non-negative integer');
-    }
-    if (!Number.isInteger(bar.durationFrames) || bar.durationFrames < 0) {
-      throw new RangeError('custom bar durationFrames must be a non-negative integer');
-    }
-    if (bar.color !== undefined && bar.color.length === 0) {
-      throw new TypeError('custom bar color must not be empty');
-    }
-  }
-
-  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  const current = cast.presentation?.customBars ?? [];
-  if (JSON.stringify(current) === JSON.stringify(customBars)) return scenario;
-
-  const skillCasts = [...track.skillCasts];
-  skillCasts[castIndex] = {
-    ...cast,
-    presentation: {
-      ...cast.presentation,
-      customBars: customBars.map(bar => ({ ...bar })),
-    },
-  };
-  const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
-  tracks[trackIndex] = { ...track, skillCasts };
-  return { ...scenario, tracks };
-}
-
-/**
- * 设置一次技能释放所需的显式空间输入。
- * null 表示删除输入；运行时若技能确实读取该输入，会在对应条件处原地报错。
- */
-export function setSkillCastCameraTargetAngle(
-  scenario: ScenarioDocument,
-  trackIndex: TrackIndex,
-  skillCastId: string,
-  angleDegrees: number | null,
-): ScenarioDocument {
-  if (
-    angleDegrees !== null &&
-    (!Number.isFinite(angleDegrees) || angleDegrees < -180 || angleDegrees > 180)
-  ) {
-    throw new RangeError('camera-to-target signed angle must be between -180 and 180 degrees');
-  }
-
-  const { track, castIndex, cast } = locateSkillCast(scenario, trackIndex, skillCastId);
-  if ((cast.simulationInputs?.cameraToTargetSignedAngleDegrees ?? null) === angleDegrees) {
-    return scenario;
-  }
-
-  const skillCasts = [...track.skillCasts];
-  if (angleDegrees === null) {
-    const { cameraToTargetSignedAngleDegrees: _removed, ...remainingInputs } =
-      cast.simulationInputs ?? {};
-    const { simulationInputs: _oldInputs, ...castWithoutInputs } = cast;
-    skillCasts[castIndex] =
-      Object.keys(remainingInputs).length === 0
-        ? castWithoutInputs
-        : { ...castWithoutInputs, simulationInputs: remainingInputs };
-  } else {
-    skillCasts[castIndex] = {
-      ...cast,
-      simulationInputs: {
-        ...cast.simulationInputs,
-        cameraToTargetSignedAngleDegrees: angleDegrees,
-      },
-    };
-  }
-
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   tracks[trackIndex] = { ...track, skillCasts };
   return { ...scenario, tracks };

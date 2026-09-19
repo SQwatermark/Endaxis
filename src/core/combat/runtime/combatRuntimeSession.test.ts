@@ -570,17 +570,13 @@ it('开场未提交时不能跨过输入边界，空输入提交后才开始正�
   expect(session.readState()).toEqual(initial);
 });
 
-it('同一程序按本次输入角度执行，参数随截面恢复且不引用调用方对象', () => {
+it('镜头夹角条件在截面恢复后仍按零度计算', () => {
   const { session } = createFixture(undefined, true, true, false, true);
   const before = session.save();
-  const parameters = { cameraToTargetSignedAngleDegrees: 30 };
   session.applyInitialInput({
-    skills: [
-      { operatorId: 'operator', skillId: 'skill', castId: 'cast:a', simulationInputs: parameters },
-    ],
+    skills: [{ operatorId: 'operator', skillId: 'skill', castId: 'cast:a' }],
   });
   const submitted = session.save();
-  parameters.cameraToTargetSignedAngleDegrees = -30;
   const selected = () =>
     session
       .readState()
@@ -588,16 +584,14 @@ it('同一程序按本次输入角度执行，参数随截面恢复且不引用�
       .skills.get('skill\u0000cast:a')!
       .blackboard.values.get('selected');
   session.advanceFrames(2);
-  expect(selected()).toBe(1);
+  expect(selected()).toBe(2);
   const first = session.readState();
   session.restore(submitted);
   session.advanceFrames(2);
   expect(session.readState()).toEqual(first);
   session.restore(before);
   session.applyInitialInput({
-    skills: [
-      { operatorId: 'operator', skillId: 'skill', castId: 'cast:a', simulationInputs: parameters },
-    ],
+    skills: [{ operatorId: 'operator', skillId: 'skill', castId: 'cast:a' }],
   });
   session.advanceFrames(2);
   expect(selected()).toBe(2);
@@ -614,7 +608,6 @@ it('未预编译的施放身份复用定义，活动截面可恢复且试放不�
         operatorId: 'operator',
         skillId: 'skill',
         castId: 'live:first',
-        simulationInputs: { cameraToTargetSignedAngleDegrees: 30 },
       },
     ],
   });
@@ -629,7 +622,7 @@ it('未预编译的施放身份复用定义，活动截面可恢复且试放不�
       .get('operator')!
       .skills.get('skill\u0000live:first')!
       .blackboard.values.get('selected'),
-  ).toBe(1);
+  ).toBe(2);
   trial.restore(active);
   trial.advanceFrames(2);
   expect(trial.readState()).toEqual(completed);
@@ -640,7 +633,6 @@ it('未预编译的施放身份复用定义，活动截面可恢复且试放不�
         operatorId: 'operator',
         skillId: 'skill',
         castId: 'live:second',
-        simulationInputs: { cameraToTargetSignedAngleDegrees: -30 },
       },
     ],
   });

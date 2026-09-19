@@ -184,7 +184,6 @@ function scenarioWithCast(): ScenarioDocument {
             presentation: {
               locked: false,
               disabled: false,
-              customBars: [],
             },
             customDefinition: {
               key: 'battleSkill',

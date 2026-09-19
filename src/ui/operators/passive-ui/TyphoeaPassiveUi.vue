@@ -3,7 +3,7 @@
  * 提弗洛斯原生战斗 HUD。
  *
  * 三张图取自 OverlayInfoNodeTyphoea.prefab 引用的 Unity Sprite：底图 76×56、箭矢 40×8、点 12×12。
- * prefab 将箭矢按 1px 间距纵排，并将八个点从左下开始按两列横向填充。
+ * prefab 将箭矢按 1px 间距纵排，猎矢自下而上积攒、自上而下消耗；八个点从左下开始按两列横向填充。
  */
 import type { PassiveUiWidgetState } from './state';
 
@@ -71,7 +71,7 @@ function pointPosition(index: number) {
   bottom: 10px;
   left: 8px;
   display: flex;
-  flex-direction: column;
+  flex-direction: column-reverse;
   gap: 1px;
 }
 
@@ -89,7 +89,6 @@ function pointPosition(index: number) {
   background: rgb(29 255 231);
   -webkit-mask: url('/next/passive-ui/typhoea-arrow.webp') center / contain no-repeat;
   mask: url('/next/passive-ui/typhoea-arrow.webp') center / contain no-repeat;
-  clip-path: inset(0 0 0 21%);
   opacity: 0;
 }
 

@@ -4044,13 +4044,7 @@ export class CombatRuntimeAssembly {
       },
       { state: operationHost.state.timedMarkers, programs: operationHost.programs },
     );
-    const angleConditions = new CameraTargetAngleConditionExecutor(
-      context =>
-        this.#castParameters.get(
-          `${definitionOperator.operatorId}\u0000${options.castId ?? context.skillCastInfo?.originCastId ?? program.skillId}`,
-        )?.cameraToTargetSignedAngleDegrees,
-      timedMarkerOperations,
-    );
+    const angleConditions = new CameraTargetAngleConditionExecutor(0, timedMarkerOperations);
     const superArmorConditions = new EnemySuperArmorConditionExecutor(
       enemy.superArmor,
       angleConditions,

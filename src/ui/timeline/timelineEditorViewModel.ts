@@ -5,7 +5,6 @@
 import type { OperatorDefinition, SkillType } from '../../core/game-data/operatorDefinition';
 import type {
   DefinitionActionSource,
-  EditableBarDocument,
   ScenarioDocument,
   SkillCastDocument,
   TrackIndex,
@@ -67,7 +66,6 @@ export interface TimelineSkillCastViewModel {
   /** 模板仍存在但内部稳定键已被自由编辑到无法解析时，技能块原地保留并显示此错误。 */
   readonly resolutionIssue?: string;
   readonly color?: string | null;
-  readonly customBars: readonly EditableBarDocument[];
 }
 
 /** 一条轨道在编辑器中需要的定义身份、技能库和已放置动作。 */
@@ -146,7 +144,6 @@ function projectSkillCast(
     disabled: skillCast.presentation?.disabled ?? false,
     locked: skillCast.presentation?.locked ?? false,
     edited: skillCast.customDefinition !== undefined,
-    customBars: skillCast.presentation?.customBars ?? [],
     ...(resolutionIssue === undefined ? {} : { resolutionIssue }),
     ...(skillCast.presentation?.color === undefined ? {} : { color: skillCast.presentation.color }),
   };

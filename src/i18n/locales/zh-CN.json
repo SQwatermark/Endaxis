@@ -96,7 +96,14 @@
     "ready": "所有连携冷却立即回转",
     "hint": "设置全队连携冷却；不会创建连携窗口或触发技能释放。同帧先执行技能，再执行此标记。"
   },
-  "display": { "title": "显示", "cursorGuide": "辅助线", "buffLayout": "Buff 布局" },
+  "display": {
+    "title": "显示",
+    "cursorGuide": "辅助线",
+    "buffLayout": "Buff 布局",
+    "keycapMode": "操作键位",
+    "keyboardKeycaps": "键鼠",
+    "gamepadKeycaps": "手柄"
+  },
   "reset": {
     "title": "选择重置范围",
     "currentKeepLoadout": "重置当前方案并保留配装",
@@ -473,16 +480,28 @@
     },
     "export": {
       "copyCode": "复制数据码",
-      "dialogTitle": "导出设置",
+      "copyCodeDescription": "复制用于快速分享和导入的数据码",
+      "dialogTitle": "导出与分享",
+      "dataSectionTitle": "项目数据",
       "durationHintMax": "最大支持 {max}s",
       "durationLabel": "导出时长 (秒)",
       "smallDurationHint": "按战斗时间计算，不含备战（负数）段",
       "exportImage": "导出长图",
+      "exportImageDescription": "导出当前时间轴的完整长图",
       "exportSmallImage": "导出小图",
+      "exportSmallImageDescription": "打开预览并调整卡片布局",
       "exportJson": "导出 JSON",
+      "exportJsonDescription": "下载可完整还原的数据文件",
       "failed": "导出失败：{msg}",
       "filenameLabel": "文件名称",
+      "filenameHint": "用于 JSON 和图片文件；数据码不使用文件名",
       "filenamePlaceholder": "请输入文件名",
+      "imageSectionTitle": "当前方案图片",
+      "scopeLabel": "数据导出范围",
+      "scopeCurrent": "当前方案",
+      "scopeAll": "全部方案",
+      "allScenariosCount": "包含全部 {count} 个方案",
+      "currentScenarioName": "当前方案：{name}",
       "imageExported": "长图已导出：{filename}",
       "rendering": "正在渲染前 {seconds} 秒的长图...",
       "smallPreviewTitle": "小图预览与微调",
@@ -659,7 +678,7 @@
         "notFound": "未找到该技能（可能已切换方案或数据已更新）",
         "start": "开始时间",
         "end": "结束时间",
-        "duration": "持续时间",
+        "duration": "技能块时长",
         "spCost": "技力消耗",
         "cooldown": "冷却时间",
         "gaugeCost": "充能消耗",
@@ -1769,21 +1788,18 @@
         "actionId": "动作 ID",
         "sourceKind": "来源类型",
         "skillType": "技能类型",
-        "customBarOffsetFrames": "偏移帧数",
-        "customBarDurationFrames": "持续帧数",
+        "duration": "持续时间",
+        "cooldown": "冷却时间",
         "startFrame": "开始帧",
         "locked": "锁定",
         "disabled": "禁用",
         "color": "颜色",
-        "cameraTargetAngle": "镜头到目标的有符号夹角（度）",
         "unset": "未设置"
       },
       "sourceKinds": {
         "operatorSkill": "干员技能模板",
         "custom": "自由展示块"
-      },
-      "cameraTargetAngleHelp": "范围 -180° 到 180°。仅在技能读取该空间条件时需要；留空不会假定方向，并会在实际读取处报错。",
-      "connectionDragHelp": "已启用连线工具；从本技能块边缘端口拖到目标技能块或 HIT。"
+      }
     },
     "libraryInspector": {
       "operator": "所属干员",
@@ -1902,11 +1918,10 @@
         "typhoeaArrows": "猎矢可强化提弗洛斯的射击；每2点启示可以转化为1枚猎矢。"
       },
       "numericState": "{value} / {maximum}",
-      "counterState": "猎矢 {battle}/{maximumArrows}，场外恢复 {reserve}/{maximumArrows}，启示 {points}/{maximumPoints}",
+      "counterState": "猎矢 {battle}/{maximumArrows}，启示 {points}/{maximumPoints}",
       "mode": "当前姿态",
       "modes": { "normal": "演唱姿态", "ultimate": "高歌姿态" },
       "battleArrows": "猎矢",
-      "reserveArrows": "场外恢复猎矢",
       "points": "启示"
     },
     "buffDetail": {
@@ -2626,15 +2641,6 @@
       "spKindRefundShort": "返",
       "bindEffects": "绑定状态图标",
       "bindPlaceholder": "选择要绑定的状态"
-    },
-    "bars": {
-      "title": "自定义时间条",
-      "system": "时序系统",
-      "activeItems": "活跃条目",
-      "empty": "暂无时间条",
-      "namePlaceholder": "条目名称",
-      "offsetS": "触发时间(f)",
-      "durationS": "持续时间(f)"
     },
     "effects": {
       "title": "状态效果与排布",

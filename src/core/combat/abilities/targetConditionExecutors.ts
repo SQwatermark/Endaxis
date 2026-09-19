@@ -53,7 +53,7 @@ export class EnemySuperArmorConditionExecutor implements CombatOperationExecutor
   }
 }
 
-/** 求值本次释放显式提供的镜头→目标有符号夹角；空间简化模型不会自行补造该值。 */
+/** 求值镜头到目标的有符号夹角；木桩模型未提供方向时按 0° 处理。 */
 export class CameraTargetAngleConditionExecutor implements CombatOperationExecutor {
   constructor(
     private readonly signedAngleDegrees:
@@ -78,11 +78,8 @@ export class CameraTargetAngleConditionExecutor implements CombatOperationExecut
       typeof this.signedAngleDegrees === 'function'
         ? this.signedAngleDegrees(context)
         : this.signedAngleDegrees;
-    if (angle === undefined) {
-      throw new Error('skill cast requires cameraToTargetSignedAngleDegrees simulation input');
-    }
     return compareCombatNumbers(
-      angle,
+      angle ?? 0,
       resolveActionValueOperand(condition.value, context.blackboard),
       condition.operator,
     );

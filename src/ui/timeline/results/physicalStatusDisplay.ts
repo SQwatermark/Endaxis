@@ -11,11 +11,12 @@ import {
 } from '../../../core/projection/buffTimelineViz';
 
 const NO_GUARD = 'buff_physical_no_guard';
+/** 时间轴和对象来源图的物理异常入口沿用原生 termicon；Buff 自身的原生 presentation 保持原样。 */
 const actionIcons: Readonly<Record<string, string>> = {
-  airborne: '/icons/airborne.webp',
+  airborne: '/icons/icon_term_ba_airborne.webp',
   knockDown: '/icons/icon_term_ba_knockdown.webp',
-  crush: '/icons/knockback.webp',
-  fracture: '/icons/icon_battle_fracture.webp',
+  crush: '/icons/icon_term_ba_crush.webp',
+  fracture: '/icons/icon_term_ba_fracture.webp',
 };
 const physicalActions: Readonly<Record<string, string>> = {
   buff_physical_airborne: 'airborne',
@@ -23,6 +24,11 @@ const physicalActions: Readonly<Record<string, string>> = {
   buff_physical_crushed: 'crush',
   buff_physical_do_fracture: 'fracture',
 };
+
+export function physicalStatusIconPath(buffId: string): string | undefined {
+  const action = physicalActions[buffId];
+  return action === undefined ? undefined : actionIcons[action];
+}
 
 /** 这一行仅包含四种物理异常和破防；不按颜色、图标或头顶栏位置判断。 */
 export function isPhysicalStatusRowBuff(buff: Pick<BuffTimelineSegment, 'buffId'>): boolean {
@@ -41,8 +47,7 @@ export function projectPhysicalStatusDisplay(
   );
   const segments = projectBuffTimelineViz(
     physicalEntries.map(entry => {
-      const action = physicalActions[String(entry.data?.buffId)];
-      const iconPath = action === undefined ? undefined : actionIcons[action];
+      const iconPath = physicalStatusIconPath(String(entry.data?.buffId));
       return iconPath === undefined || entry.event !== 'BuffApplied'
         ? entry
         : {

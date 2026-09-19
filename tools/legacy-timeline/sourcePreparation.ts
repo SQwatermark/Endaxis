@@ -211,7 +211,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
       if (!actionOnly) {
         issues.push({
           path,
-          message: '只支持技能块之间的连接；Hit 和效果端点没有可直接搬运的稳定身份',
+          message: 'V3 不支持 Hit 或效果节点连线，已删除这条连线；只保留技能块之间的连线',
           impact: 'presentation',
         });
         continue;

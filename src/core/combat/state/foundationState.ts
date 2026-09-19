@@ -332,7 +332,6 @@ export interface SkillCastStartPreparation {
 
 /** 一次人工施放的模拟参数，不属于技能定义。 */
 export interface SkillSimulationInputs {
-  readonly cameraToTargetSignedAngleDegrees?: number;
   readonly randomSeed?: number;
   readonly criticalOverrides?: Readonly<Record<string, boolean>>;
 }

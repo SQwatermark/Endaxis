@@ -40,7 +40,6 @@ export type OperatorPassiveUiTimelineSegment =
       readonly operatorId: string;
       readonly startFrame: number;
       readonly endFrame: number;
-      readonly reserveArrows: number;
       readonly battleArrows: number;
       readonly points: number;
       readonly maximumArrows: number;
@@ -170,7 +169,6 @@ function projectBuffProgressSegments(
 }
 
 interface BuffCounterState {
-  readonly reserveArrows: number;
   readonly battleArrows: number;
   readonly points: number;
 }
@@ -188,14 +186,10 @@ function projectBuffCounterSegments(
   },
 ): readonly OperatorPassiveUiTimelineSegment[] {
   const segments: OperatorPassiveUiTimelineSegment[] = [];
-  let state: BuffCounterState = { reserveArrows: 0, battleArrows: 0, points: 0 };
+  let state: BuffCounterState = { battleArrows: 0, points: 0 };
   let startFrame = 0;
   const close = (frame: number): void => {
-    if (
-      frame <= startFrame ||
-      (state.reserveArrows === 0 && state.battleArrows === 0 && state.points === 0)
-    )
-      return;
+    if (frame <= startFrame || (state.battleArrows === 0 && state.points === 0)) return;
     segments.push({
       kind: 'buffCounters',
       appearance: source.definition.appearance,
@@ -213,13 +207,11 @@ function projectBuffCounterSegments(
     const buffId = stringData(entry.data, 'buffId');
     if (buffId === undefined) continue;
     const field =
-      buffId === source.definition.reserveArrowBuffId
-        ? ('reserveArrows' as const)
-        : buffId === source.definition.battleArrowBuffId
-          ? ('battleArrows' as const)
-          : buffId === source.definition.pointBuffId
-            ? ('points' as const)
-            : null;
+      buffId === source.definition.battleArrowBuffId
+        ? ('battleArrows' as const)
+        : buffId === source.definition.pointBuffId
+          ? ('points' as const)
+          : null;
     if (field === null) continue;
     const maximum =
       field === 'points' ? source.definition.maximumPoints : source.definition.maximumArrows;

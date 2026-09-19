@@ -10,7 +10,7 @@ import { computed, ref } from 'vue';
 import { EditPen } from '@element-plus/icons-vue';
 import { EaButton } from '../../../design-system/index';
 import type { SkillType } from '../../../core/game-data/operatorDefinition';
-import { PROJECT_FPS, type EditableBarDocument } from '../../../core/project/schema';
+import { PROJECT_FPS } from '../../../core/project/schema';
 import type { TimelineConnectionPort } from './timelineConnections';
 import {
   projectTimelineHitMarkerLeftPx,
@@ -43,12 +43,10 @@ const props = defineProps<{
   warning?: boolean;
   warningText?: string;
   warningFallbackText?: string;
-  /** 技能块上的独立命中点标记；同时是连线工具的伤害命中端点。 */
+  /** 技能块上的独立命中点标记，点击后打开命中详情。 */
   hits?: readonly TimelineHitMarkerView[];
   /** 由该技能产生的时间膨胀流光，沿用旧版从技能块左侧开始并裁剪到块内。 */
   timeDilationSegments?: readonly { readonly left: number; readonly width: number }[];
-  /** 技能块实例上的辅助展示条；帧值按玩家编辑的实际战斗时间直接投影。 */
-  customBars?: readonly EditableBarDocument[];
   /** 由运行时冷却回执投影出的现实时间持续条；不预测模拟终点外的结束帧。 */
   cooldownBars?: readonly {
     readonly offsetFrames: number;
@@ -76,10 +74,10 @@ const emit = defineEmits<{
 const connectionPorts: readonly TimelineConnectionPort[] = ['top', 'right', 'bottom', 'left'];
 const hovered = ref(false);
 const showConnectionPorts = computed(() => {
-  if (!props.connectionToolEnabled) return false;
   if (props.connectionDragging) {
     return hovered.value && props.connectionSourceActionId !== props.actionId;
   }
+  if (!props.connectionToolEnabled) return false;
   return hovered.value || props.selected === true;
 });
 
@@ -107,21 +105,12 @@ function markerStyle(marker: TimelineHitMarkerView): Record<string, string> {
   };
 }
 
-function customBarStyle(bar: EditableBarDocument, index: number): Record<string, string> {
-  return {
-    left: `${bar.offsetFrames * props.pxPerFrame}px`,
-    top: `${56 + index * 15}px`,
-    width: `${Math.max(1, bar.durationFrames * props.pxPerFrame)}px`,
-    color: bar.color ?? '#69c0ff',
-  };
-}
-
 function cooldownBarStyle(index: number): Record<string, string> {
   const bar = props.cooldownBars?.[index];
   if (bar === undefined) return {};
   return {
     left: `${bar.offsetFrames * props.pxPerFrame}px`,
-    top: `${56 + (props.customBars?.length ?? 0) * 15 + index * 15}px`,
+    top: `${56 + ((props.skillType === 'ultimate' ? 1 : 0) + index) * 8}px`,
     width: `${Math.max(1, bar.durationFrames * props.pxPerFrame)}px`,
   };
 }
@@ -129,14 +118,13 @@ function cooldownBarStyle(index: number): Record<string, string> {
 function enhancementBarStyle(index: number): Record<string, string> {
   const bar = props.enhancementBars?.[index];
   if (bar === undefined) return {};
+  const firstRow =
+    props.skillType === 'ultimate'
+      ? Math.max(2, 1 + (props.cooldownBars?.length ?? 0))
+      : (props.cooldownBars?.length ?? 0);
   return {
     left: `${bar.offsetFrames * props.pxPerFrame}px`,
-    top: `${
-      56 +
-      (props.customBars?.length ?? 0) * 15 +
-      (props.cooldownBars?.length ?? 0) * 15 +
-      index * 15
-    }px`,
+    top: `${56 + (firstRow + index) * 8}px`,
     width: `${Math.max(1, bar.durationFrames * props.pxPerFrame)}px`,
   };
 }
@@ -197,8 +185,6 @@ function formatDurationFrames(frames: number): string {
       }"
       :style="markerStyle(hit)"
       :title="hit.title ?? ''"
-      :data-connection-action-id="actionId"
-      :data-connection-port="`hit:${hit.stepKey}`"
       draggable="false"
       @pointerdown.stop
       @mousedown.stop.prevent="$emit('hitClick', hit.hitId, hit.executionFrame)"
@@ -270,26 +256,12 @@ function formatDurationFrames(frames: number): string {
       </svg>
     </span>
     <span
-      v-for="(bar, index) in (customBars ?? []).filter(bar => bar.durationFrames > 0)"
-      :key="bar.id"
-      class="custom-timeline-bar"
-      :style="customBarStyle(bar, index)"
-      aria-hidden="true"
-    >
-      <span class="custom-timeline-bar__start"></span>
-      <span v-if="bar.text" class="custom-timeline-bar__label">{{ bar.text }}</span>
-      <span class="custom-timeline-bar__duration">{{ bar.durationFrames }}f</span>
-      <span class="custom-timeline-bar__end"></span>
-    </span>
-    <span
       v-for="(bar, index) in cooldownBars ?? []"
       :key="`cooldown:${index}`"
       class="cooldown-timeline-bar"
-      :class="{ 'is-pending': !bar.completed }"
       :style="cooldownBarStyle(index)"
       aria-hidden="true"
     >
-      <span class="cooldown-timeline-bar__start"></span>
       <span class="cooldown-timeline-bar__duration">{{
         formatDurationFrames(bar.durationFrames)
       }}</span>
@@ -299,11 +271,9 @@ function formatDurationFrames(frames: number): string {
       v-for="(bar, index) in enhancementBars ?? []"
       :key="`enhancement:${index}`"
       class="enhancement-timeline-bar"
-      :class="{ 'is-pending': !bar.completed }"
       :style="enhancementBarStyle(index)"
       aria-hidden="true"
     >
-      <span class="enhancement-timeline-bar__start"></span>
       <span class="enhancement-timeline-bar__duration">{{
         formatDurationFrames(bar.durationFrames)
       }}</span>
@@ -552,63 +522,13 @@ function formatDurationFrames(frames: number): string {
   border-radius: 0 2px 2px 0;
 }
 
-.custom-timeline-bar {
-  position: absolute;
-  z-index: 2;
-  height: 2px;
-  border-top: 2px solid currentColor;
-  opacity: 0.78;
-  pointer-events: none;
-}
-
-.custom-timeline-bar__label {
-  position: absolute;
-  right: calc(100% + 6px);
-  top: -7px;
-  color: currentColor;
-  font-size: 10px;
-  font-weight: 700;
-  line-height: 1;
-  text-shadow: 0 1px 2px rgb(0 0 0 / 80%);
-}
-
-.custom-timeline-bar__duration {
-  position: absolute;
-  top: 3px;
-  left: 0;
-  color: currentColor;
-  font-size: 10px;
-  line-height: 1;
-}
-
-.custom-timeline-bar__start,
-.custom-timeline-bar__end {
-  position: absolute;
-  top: -5px;
-  width: 1px;
-  height: 8px;
-  background: currentColor;
-}
-
-.custom-timeline-bar__start {
-  left: 0;
-}
-
-.custom-timeline-bar__end {
-  right: 0;
-}
-
 .cooldown-timeline-bar {
   position: absolute;
   z-index: 2;
   height: 2px;
-  border-top: 2px solid var(--action-accent);
-  opacity: 0.62;
+  background: var(--action-accent);
+  opacity: 0.6;
   pointer-events: none;
-}
-
-.cooldown-timeline-bar.is-pending {
-  border-top-style: dashed;
 }
 
 .cooldown-timeline-bar__duration {
@@ -621,17 +541,12 @@ function formatDurationFrames(frames: number): string {
   line-height: 1;
 }
 
-.cooldown-timeline-bar__start,
 .cooldown-timeline-bar__end {
   position: absolute;
-  top: -5px;
+  top: -3px;
   width: 1px;
   height: 8px;
   background: var(--action-accent);
-}
-
-.cooldown-timeline-bar__start {
-  left: 0;
 }
 
 .cooldown-timeline-bar__end {
@@ -642,13 +557,9 @@ function formatDurationFrames(frames: number): string {
   position: absolute;
   z-index: 2;
   height: 2px;
-  border-top: 2px solid #b37feb;
+  background: #b37feb;
   opacity: 0.8;
   pointer-events: none;
-}
-
-.enhancement-timeline-bar.is-pending {
-  border-top-style: dashed;
 }
 
 .enhancement-timeline-bar__duration {
@@ -661,17 +572,12 @@ function formatDurationFrames(frames: number): string {
   line-height: 1;
 }
 
-.enhancement-timeline-bar__start,
 .enhancement-timeline-bar__end {
   position: absolute;
-  top: -5px;
+  top: -3px;
   width: 1px;
   height: 8px;
   background: #b37feb;
-}
-
-.enhancement-timeline-bar__start {
-  left: 0;
 }
 
 .enhancement-timeline-bar__end {

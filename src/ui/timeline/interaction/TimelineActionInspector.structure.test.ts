@@ -16,28 +16,22 @@ describe('TimelineActionInspector current-layer editing', () => {
     expect(editorSource).toContain("commitScenario('setSkillCastLocked'");
     expect(editorSource).toContain("commitScenario('setSkillCastDisabled'");
     expect(editorSource).toContain("commitScenario('setSkillCastColor'");
-    expect(editorSource).toContain("commitScenario('setSkillCastCustomBars'");
     expect(editorSource).toContain("commitScenario('updateTimelineConnection'");
   });
 
-  it('restores instance custom bars and connection management without duplicating skill logic', () => {
-    expect(source).toContain("t('propertiesPanel.bars.title')");
-    expect(source).toContain("'setCustomBars',");
+  it('keeps connection management without custom display bars', () => {
+    expect(source).not.toContain('customBars');
     expect(source).toContain("t('propertiesPanel.connections.title')");
-    expect(source).toContain('timeline.inspector.labels.customBarOffsetFrames');
-    expect(source).toContain('timeline.inspector.labels.customBarDurationFrames');
-    expect(source).not.toContain("t('propertiesPanel.bars.offsetS')");
-    expect(source).not.toContain("t('propertiesPanel.bars.durationS')");
     expect(source).toContain("$emit('removeConnection'");
     expect(source).toContain("$emit('updateConnection'");
-    expect(source).not.toContain('timelineBlockFrames');
+    expect(source).toContain('timelineBlockFrames');
     expect(source).not.toContain('scheduledSequences');
   });
 
-  it('keeps immutable source identities read-only and definition editing separate', () => {
-    expect(source).toContain('{{ cast.id }}');
-    expect(source).toContain('sourceKindLabel(cast.source.kind)');
-    expect(source).toContain('skillTypeLabel(skillType)');
+  it('shows useful skill timing while leaving definition editing separate', () => {
+    expect(source).toContain('skillDuration');
+    expect(source).toContain('skillCooldown');
+    expect(source).not.toContain('{{ cast.id }}');
     expect(source).toContain('connectionPortLabel(port)');
     expect(source).toContain("$emit('editDefinition')");
   });

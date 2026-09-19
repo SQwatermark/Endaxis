@@ -7,7 +7,6 @@ import type { ValidationIssue } from '../project/validation';
 import type { GearDefinition, GearSlotType, WeaponDefinition } from './equipmentDefinition';
 import type { GameDataRepository } from './gameDataRepository';
 import type { OperatorDefinition } from './operatorDefinition';
-import { collectDamageStepKeys } from './collectDamageStepKeys';
 import { listSkillGroupDefinitionBindings } from './operatorSkillDefinitions';
 
 type BuildDefinitionIndex = {
@@ -57,7 +56,6 @@ export function validateProjectBuildDefinitionReferences(
   project.scenarios.forEach((scenario, scenarioIndex) => {
     const scenarioPath = `$.scenarios[${scenarioIndex}]`;
 
-    const damageStepKeysByCastId = new Map<string, ReadonlySet<string>>();
     scenario.tracks.forEach((track, trackIndex) => {
       if (track === null) return;
       const trackPath = `${scenarioPath}.tracks[${trackIndex}]`;
@@ -104,11 +102,6 @@ export function validateProjectBuildDefinitionReferences(
               });
               continue;
             }
-            const effective = cast.customDefinition ?? skill;
-            damageStepKeysByCastId.set(
-              cast.id,
-              new Set(collectDamageStepKeys(effective).map(entry => entry.key)),
-            );
           }
           const weapon = track.weapon;
           if (weapon !== null) {
@@ -220,20 +213,6 @@ export function validateProjectBuildDefinitionReferences(
               issues,
             );
           }
-        }
-      }
-    });
-
-    scenario.connections.forEach((connection, connectionIndex) => {
-      for (const endpointName of ['from', 'to'] as const) {
-        const endpoint = connection[endpointName];
-        if (endpoint.kind !== 'damageHit') continue;
-        const known = damageStepKeysByCastId.get(endpoint.skillCastId);
-        if (known !== undefined && !known.has(endpoint.stepKey)) {
-          issues.push({
-            path: `${scenarioPath}.connections[${connectionIndex}].${endpointName}.stepKey`,
-            message: `unknown damage step '${endpoint.stepKey}'`,
-          });
         }
       }
     });

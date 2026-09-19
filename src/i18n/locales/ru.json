@@ -99,7 +99,10 @@
   "display": {
     "title": "Отображение",
     "cursorGuide": "Направляющая",
-    "buffLayout": "Расположение эффектов"
+    "buffLayout": "Расположение эффектов",
+    "keycapMode": "Клавиши действий",
+    "keyboardKeycaps": "Клавиатура",
+    "gamepadKeycaps": "Геймпад"
   },
   "reset": {
     "title": "Выберите область сброса",
@@ -476,16 +479,28 @@
     },
     "export": {
       "copyCode": "Копировать дата-код",
-      "dialogTitle": "Настройки экспорта",
+      "copyCodeDescription": "Скопировать код для обмена и импорта",
+      "dialogTitle": "Экспорт и обмен",
+      "dataSectionTitle": "Данные проекта",
       "durationHintMax": "Максимум {max}с",
       "durationLabel": "Длительность экспорта (сек.)",
       "smallDurationHint": "Только боевое время — подготовка (отрицательная) не входит",
       "exportImage": "Экспорт длинного изображения",
+      "exportImageDescription": "Экспорт полного изображения текущей шкалы",
       "exportSmallImage": "Экспорт миниатюры",
+      "exportSmallImageDescription": "Открыть предпросмотр и настроить карточку",
       "exportJson": "Экспорт JSON",
+      "exportJsonDescription": "Скачать файл для восстановления проекта",
       "failed": "Ошибка экспорта: {msg}",
       "filenameLabel": "Имя файла",
+      "filenameHint": "Для JSON и изображений; код данных не использует имя файла",
       "filenamePlaceholder": "Введите имя файла",
+      "imageSectionTitle": "Изображение текущего сценария",
+      "scopeLabel": "Область экспорта данных",
+      "scopeCurrent": "Текущий сценарий",
+      "scopeAll": "Все сценарии",
+      "allScenariosCount": "Все сценарии: {count}",
+      "currentScenarioName": "Текущий сценарий: {name}",
       "imageExported": "Изображение таймлайна экспортировано: {filename}",
       "rendering": "Рендеринг изображения таймлайна для первых {seconds} сек...",
       "smallPreviewTitle": "Превью миниатюры",
@@ -627,7 +642,7 @@
         "notFound": "Навык не найден (возможно, проект изменён или данные обновлены)",
         "start": "Время начала",
         "end": "Время окончания",
-        "duration": "Длительность",
+        "duration": "Длительность блока",
         "spCost": "Затраты SP",
         "cooldown": "Перезарядка",
         "gaugeCost": "Затраты ульты",
@@ -1749,21 +1764,18 @@
         "actionId": "ID действия",
         "sourceKind": "Тип источника",
         "skillType": "Тип навыка",
-        "customBarOffsetFrames": "Смещение (кадры)",
-        "customBarDurationFrames": "Длительность (кадры)",
+        "duration": "Длительность",
+        "cooldown": "Перезарядка",
         "startFrame": "Начальный кадр",
         "locked": "Заблокировано",
         "disabled": "Отключено",
         "color": "Цвет",
-        "cameraTargetAngle": "Знаковый угол камера–цель (градусы)",
         "unset": "Не задано"
       },
       "sourceKinds": {
         "operatorSkill": "Шаблон навыка оперативника",
         "custom": "Свободный блок отображения"
-      },
-      "cameraTargetAngleHelp": "Диапазон: от -180° до 180°. Требуется только навыкам с этим пространственным условием; пустое значение не предполагает направление и вызывает ошибку в месте чтения.",
-      "connectionDragHelp": "Инструмент связей включён. Перетащите от порта этого действия к другому действию или HIT."
+      }
     },
     "libraryInspector": {
       "operator": "Оператор",
@@ -1882,11 +1894,10 @@
         "typhoeaArrows": "Охотничьи стрелы усиливают выстрелы. Каждые 2 знака превращаются в 1 охотничью стрелу."
       },
       "numericState": "{value} / {maximum}",
-      "counterState": "Охотничьи стрелы {battle}/{maximumArrows}, восстановление вне боя {reserve}/{maximumArrows}, знаки {points}/{maximumPoints}",
+      "counterState": "Охотничьи стрелы {battle}/{maximumArrows}, знаки {points}/{maximumPoints}",
       "mode": "Текущая стойка",
       "modes": { "normal": "Певческая стойка", "ultimate": "Стойка полного голоса" },
       "battleArrows": "Охотничьи стрелы",
-      "reserveArrows": "Восстановление вне боя",
       "points": "Знаки"
     },
     "buffDetail": {
@@ -2440,15 +2451,6 @@
       "spKindRefundShort": "Воз",
       "bindEffects": "Привязать статус",
       "bindPlaceholder": "Выберите статус"
-    },
-    "bars": {
-      "title": "Кастом. таймлайн",
-      "system": "Система таймингов",
-      "activeItems": "Активные записи",
-      "empty": "Нет таймлайнов",
-      "namePlaceholder": "Имя записи",
-      "offsetS": "Активация (f)",
-      "durationS": "Время (f)"
     },
     "effects": {
       "title": "Статус эффекты",

@@ -2,10 +2,11 @@
 /**
  * 把已保存的连线画到时间轴上。
  *
- * 只负责画，不改数据；连到命中点的线，端点按命中点实际位置算，不用技能块位置顶替。
- * 技能块宽度与命中实际帧来自父级模拟投影；定义偏移只用于尚无回执的展示。
+ * 只负责技能块连线的投影和交互事件，文档修改由编辑器统一提交。
+ * 位置采用技能块实际开始帧和显示时长，与块边缘保持对齐。
  */
 import { computed } from 'vue';
+import { useI18n } from 'vue-i18n';
 import type {
   ConnectionDocument,
   ConnectionEndpoint,
@@ -14,7 +15,6 @@ import type {
 import type { TimelineConnectionPort } from './timelineConnections';
 import type { TimelineTrackViewModel } from '../timelineEditorViewModel';
 import { frameToTimelinePx } from '../timelineGeometry';
-import { resolveDamageHitConnectionFrame } from './timelineConnections';
 import type { TimelineTrackEffectLayout } from '../results/timelineTrackEffectLayout';
 
 interface Point {
@@ -36,13 +36,15 @@ interface ConnectionPreview {
 const props = withDefaults(
   defineProps<{
     scenario: ScenarioDocument;
-    /** 已投影的时间轴轨道视图模型，提供技能块宽度与命中标记。 */
+    /** 已投影的时间轴轨道视图模型，提供技能块宽度与颜色。 */
     tracks: readonly TimelineTrackViewModel[];
     pxPerFrame: number;
     trackHeaderWidth: number;
     castActualStartFrames: ReadonlyMap<string, number>;
     castActualDurationFrames: ReadonlyMap<string, number>;
-    hitActualFrames: ReadonlyMap<string, number>;
+    selectedConnectionId?: string | null;
+    hoveredSkillCastId?: string | null;
+    draggingConnection?: boolean;
     /** 隐藏某干员效果时，其连接线也不参与投影。 */
     visibleTrackIndices?: readonly number[];
     rulerHeight: number;
@@ -60,13 +62,35 @@ const props = withDefaults(
   },
 );
 
-const emit = defineEmits<{ remove: [connectionId: string] }>();
+const emit = defineEmits<{
+  select: [connectionId: string];
+  contextmenu: [event: MouseEvent, connectionId: string];
+  retarget: [event: PointerEvent, connectionId: string];
+}>();
+const { t } = useI18n({ useScope: 'global' });
+
+const skillColors: Record<string, string> = {
+  basicAttack: '#a5a5a8',
+  battleSkill: '#ff5a5f',
+  comboSkill: '#facc15',
+  ultimate: '#22c55e',
+};
+
+function skillColor(skillCastId: string): string {
+  const found = findSkillCast(skillCastId);
+  if (found === null) return '#ccc';
+  return found.skillCast.color ?? skillColors[found.skillCast.skillType ?? ''] ?? '#ccc';
+}
 
 const ports: Record<TimelineConnectionPort, { x: number; y: number }> = {
   top: { x: 0.5, y: 0 },
   right: { x: 1, y: 0.5 },
   bottom: { x: 0.5, y: 1 },
   left: { x: 0, y: 0.5 },
+  'top-left': { x: 0, y: 0 },
+  'top-right': { x: 1, y: 0 },
+  'bottom-left': { x: 0, y: 1 },
+  'bottom-right': { x: 1, y: 1 },
 };
 
 const directions: Record<TimelineConnectionPort, Point> = {
@@ -74,6 +98,10 @@ const directions: Record<TimelineConnectionPort, Point> = {
   right: { x: 1, y: 0 },
   bottom: { x: 0, y: 1 },
   left: { x: -1, y: 0 },
+  'top-left': { x: -1, y: -1 },
+  'top-right': { x: 1, y: -1 },
+  'bottom-left': { x: -1, y: 1 },
+  'bottom-right': { x: 1, y: 1 },
 };
 
 function actionTop(trackIndex: number): number {
@@ -94,40 +122,16 @@ function findSkillCast(skillCastId: string) {
   return null;
 }
 
-function resolveEndpoint(endpoint: ConnectionEndpoint): ResolvedEndpoint | null {
+function resolveEndpoint(
+  endpoint: ConnectionEndpoint,
+  fallbackPort: TimelineConnectionPort,
+): ResolvedEndpoint | null {
   const found = findSkillCast(endpoint.skillCastId);
   if (found === null) return null;
-  if (endpoint.kind === 'damageHit') {
-    const publishedStartFrame =
-      props.castActualStartFrames.get(found.skillCast.id) ?? found.skillCast.startFrame;
-    const frame = resolveDamageHitConnectionFrame(
-      endpoint.skillCastId,
-      endpoint.stepKey,
-      publishedStartFrame,
-      found.skillCast.hitMarkers,
-      props.hitActualFrames,
-    );
-    if (frame === null) return null;
-    const actualOffset = frame - publishedStartFrame;
-    return {
-      point: {
-        x:
-          props.trackHeaderWidth +
-          frameToTimelinePx(
-            resolveCastActualStartFrame(found.skillCast.id, found.skillCast.startFrame) +
-              actualOffset,
-            props.scenario.battle.prepFrames,
-            props.pxPerFrame,
-            props.prepExpanded,
-            props.prepEndFrame,
-          ),
-        // 命中标记渲染在技能块底部边缘，端点与标记中心对齐。
-        y: actionTop(found.trackIndex) + props.actionHeight,
-      },
-      port: 'top',
-    };
-  }
-  const port = (endpoint.port ?? 'right') as TimelineConnectionPort;
+  const port =
+    endpoint.port !== undefined && endpoint.port in ports
+      ? (endpoint.port as TimelineConnectionPort)
+      : fallbackPort;
   const left =
     props.trackHeaderWidth +
     frameToTimelinePx(
@@ -185,13 +189,17 @@ function pathData(
 
 const projectedConnections = computed(() =>
   props.scenario.connections.flatMap((connection: ConnectionDocument) => {
-    const start = resolveEndpoint(connection.from);
-    const end = resolveEndpoint(connection.to);
+    const start = resolveEndpoint(connection.from, 'right');
+    const end = resolveEndpoint(connection.to, 'left');
     if (start === null || end === null) return [];
     return [
       {
         ...connection,
         path: pathData(start.point, start.port, end.point, end.port),
+        startPoint: start.point,
+        endPoint: end.point,
+        startColor: skillColor(connection.from.skillCastId),
+        endColor: skillColor(connection.to.skillCastId),
       },
     ];
   }),
@@ -199,11 +207,10 @@ const projectedConnections = computed(() =>
 
 const previewPath = computed(() => {
   if (props.preview === null) return null;
-  const start = resolveEndpoint({
-    kind: 'skillCast',
-    skillCastId: props.preview.skillCastId,
-    port: props.preview.port,
-  });
+  const start = resolveEndpoint(
+    { kind: 'skillCast', skillCastId: props.preview.skillCastId, port: props.preview.port },
+    'right',
+  );
   return start === null ? null : pathData(start.point, start.port, props.preview.pointer, 'left');
 });
 </script>
@@ -214,16 +221,68 @@ const previewPath = computed(() => {
     aria-hidden="true"
     :style="{ clipPath: prepExpanded ? undefined : `inset(0 0 0 ${trackHeaderWidth + 18}px)` }"
   >
-    <g v-for="connection in projectedConnections" :key="connection.id">
-      <path
-        class="connection-hit-area"
-        :d="connection.path"
-        @contextmenu.prevent.stop="emit('remove', connection.id)"
-      />
+    <g
+      v-for="connection in projectedConnections"
+      :key="connection.id"
+      class="connector-group"
+      :class="{
+        'is-selected': selectedConnectionId === connection.id,
+        'is-highlighted':
+          hoveredSkillCastId === connection.from.skillCastId ||
+          hoveredSkillCastId === connection.to.skillCastId,
+        'is-dimmed':
+          hoveredSkillCastId &&
+          hoveredSkillCastId !== connection.from.skillCastId &&
+          hoveredSkillCastId !== connection.to.skillCastId &&
+          selectedConnectionId !== connection.id &&
+          !draggingConnection,
+        'is-dragging': draggingConnection,
+      }"
+      @click.stop="emit('select', connection.id)"
+      @contextmenu.prevent.stop="emit('contextmenu', $event, connection.id)"
+    >
+      <defs>
+        <linearGradient
+          :id="`connection-gradient-${connection.id}`"
+          gradientUnits="userSpaceOnUse"
+          :x1="connection.startPoint.x"
+          :y1="connection.startPoint.y"
+          :x2="connection.endPoint.x"
+          :y2="connection.endPoint.y"
+        >
+          <stop offset="0%" :stop-color="connection.startColor" stop-opacity="0.8" />
+          <stop offset="100%" :stop-color="connection.endColor" />
+        </linearGradient>
+      </defs>
+      <path class="connection-hit-area" :d="connection.path" :stroke="connection.endColor">
+        <title>{{ t('connection.deleteHint') }}</title>
+      </path>
+      <path class="connection-shadow" :d="connection.path" />
       <path
         class="connection-path"
-        :class="{ 'is-consumption': connection.consumption }"
         :d="connection.path"
+        :stroke="
+          selectedConnectionId === connection.id
+            ? '#fff'
+            : `url(#connection-gradient-${connection.id})`
+        "
+      />
+      <circle
+        class="moving-circle"
+        r="2"
+        :style="{
+          offsetPath: `path('${connection.path}')`,
+          '--start-color': connection.startColor,
+          '--end-color': connection.endColor,
+        }"
+      />
+      <circle
+        v-if="selectedConnectionId === connection.id && !draggingConnection"
+        class="target-handle"
+        :cx="connection.endPoint.x"
+        :cy="connection.endPoint.y"
+        r="5"
+        @pointerdown.stop.prevent="emit('retarget', $event, connection.id)"
       />
     </g>
     <path v-if="previewPath" class="connection-path is-preview" :d="previewPath" />
@@ -242,32 +301,117 @@ const previewPath = computed(() => {
 }
 
 .connection-path,
-.connection-hit-area {
+.connection-hit-area,
+.connection-shadow {
   fill: none;
   stroke-linecap: round;
 }
 
 .connection-path {
-  stroke: var(--ea-gold);
-  stroke-width: 2px;
+  stroke-width: 2;
   stroke-dasharray: 10 5;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.65));
+  pointer-events: none;
+  animation: dash-flow 0.5s linear infinite;
+}
+
+.connector-group {
+  cursor: pointer;
+  transition:
+    opacity 0.2s,
+    filter 0.2s;
+}
+
+.connector-group.is-dimmed {
+  opacity: 0.1;
+  filter: grayscale(0.8);
+}
+
+.connector-group.is-dragging {
   pointer-events: none;
 }
 
-.connection-path.is-consumption {
-  opacity: 0.55;
-  stroke-dasharray: 2 6;
+.connector-group.is-highlighted .connection-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.4));
+}
+
+.connector-group.is-selected .connection-path {
+  stroke-width: 3;
+  filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.9));
+}
+
+.connection-shadow {
+  stroke: rgba(0, 0, 0, 0.3);
+  stroke-width: 3;
+  filter: blur(2px);
+  transform: translateY(1px);
+  pointer-events: none;
 }
 
 .connection-path.is-preview {
-  opacity: 0.55;
+  stroke: var(--ea-gold);
+  opacity: 0.5;
 }
 
 .connection-hit-area {
-  stroke: transparent;
-  stroke-width: 12px;
+  stroke-width: 12;
+  stroke-opacity: 0;
   pointer-events: stroke;
-  cursor: context-menu;
+  transition: stroke-opacity 0.2s;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .connector-group:hover .connection-hit-area {
+    stroke-opacity: 0.4;
+  }
+}
+
+.target-handle {
+  fill: #fff;
+  stroke: #333;
+  stroke-width: 1;
+  cursor: grab;
+  pointer-events: auto;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .target-handle:hover {
+    r: 7;
+    fill: var(--ea-gold);
+  }
+}
+
+.moving-circle {
+  pointer-events: none;
+  animation:
+    move-along-path 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite,
+    color-pulse 1.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@keyframes dash-flow {
+  from {
+    stroke-dashoffset: 15;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes move-along-path {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@keyframes color-pulse {
+  from {
+    fill: var(--start-color);
+  }
+  to {
+    fill: var(--end-color);
+  }
 }
 </style>

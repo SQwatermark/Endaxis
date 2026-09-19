@@ -58,7 +58,7 @@ it('merges airborne and the guard it creates, preserving both identities and the
   const before = JSON.stringify(entries);
   const segments = projectPhysicalStatusDisplay(entries, 100);
   expect(segments).toHaveLength(1);
-  expect(segments[0]).toMatchObject({ iconPath: '/icons/airborne.webp', layers: 2 });
+  expect(segments[0]).toMatchObject({ iconPath: '/icons/icon_term_ba_airborne.webp', layers: 2 });
   expect(segments[0]!.windows.map(buff => buff.instanceId)).toEqual([1, 2]);
   const hit: CombatReceiptEntry = {
     sequence: 3,
@@ -92,15 +92,20 @@ it('does not merge unrelated same-frame states or states on another target', () 
   expect([...rows.iconSlots.values()]).toEqual([0, 1, 0]);
 });
 
-it.each(['airborne', 'knockDown', 'crush', 'fracture'])(
+it.each([
+  ['airborne', '/icons/icon_term_ba_airborne.webp'],
+  ['knockDown', '/icons/icon_term_ba_knockdown.webp'],
+  ['crush', '/icons/icon_term_ba_crush.webp'],
+  ['fracture', '/icons/icon_term_ba_fracture.webp'],
+])(
   'shows %s input when it only creates guard, without fabricating a second Buff',
-  type => {
+  (type, iconPath) => {
     const entry = applied(1, 0, guardId, 1);
     const [display] = projectPhysicalStatusDisplay(
       [{ ...entry, data: { ...entry.data, physicalInflictionType: type } }],
       100,
     );
-    expect(display!.iconPath).toMatch(/\.webp$/);
+    expect(display!.iconPath).toBe(iconPath);
     expect(display!.windows).toHaveLength(1);
     expect(display!.windows[0]!.buffId).toBe(guardId);
   },
@@ -122,9 +127,9 @@ it('keeps successive stacking causes separate and puts consuming fracture on the
   const segments = projectPhysicalStatusDisplay(entries, 100);
   expect(segments.map(segment => segment.layers)).toEqual([1, 2, 0]);
   expect(segments.map(segment => segment.iconPath)).toEqual([
-    '/icons/airborne.webp',
+    '/icons/icon_term_ba_airborne.webp',
     '/icons/icon_term_ba_knockdown.webp',
-    '/icons/icon_battle_fracture.webp',
+    '/icons/icon_term_ba_fracture.webp',
   ]);
   expect(segments.map(segment => segment.durationEndFrame)).toEqual([20, 40, 100]);
   expect([...layoutEnemyStatusRows(segments, [], new Set()).lanes.values()]).toEqual([0, 0, 0]);

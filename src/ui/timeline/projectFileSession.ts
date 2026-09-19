@@ -1,8 +1,23 @@
 import { onScopeDispose, ref } from 'vue';
 import type { ProjectEditorSession } from '../../application/editor/projectEditorSession';
+import type { EndaxisProjectDocument } from '../../core/project/schema';
 import { serializeProjectDocument } from '../../core/project/serialization';
 import { saveBrowserProject } from '../../data/browserProjectStorage';
-import { downloadBlob, projectFilename } from './timelineExport';
+import { decompressProjectCode, downloadBlob, projectFilename } from './timelineExport';
+import type { ExportScenarioScope } from './components/TimelineExportDialog.vue';
+import { readProjectCodeFromWebp } from './webpProjectData';
+
+/** 当前方案导出为可独立打开的项目；继承历史已复制在方案内，去掉指向未导出方案的编辑边界。 */
+export function selectProjectExportScope(
+  project: EndaxisProjectDocument,
+  scope: ExportScenarioScope,
+): EndaxisProjectDocument {
+  if (scope === 'all') return project;
+  const active = project.scenarios.find(scenario => scenario.id === project.activeScenarioId);
+  if (active === undefined) throw new Error('当前方案不存在');
+  const { inheritance: _inheritance, ...standalone } = active;
+  return { ...project, scenarios: [standalone] };
+}
 
 /** 项目会话负责浏览器自动保存、文件读取代次和保存未完成时的离页保护。 */
 export function useProjectFileSession(
@@ -28,8 +43,8 @@ export function useProjectFileSession(
       );
     }
   });
-  function exportProjectFile(filename?: string) {
-    const project = projectSession.snapshot.project;
+  function exportProjectFile(filename?: string, scope: ExportScenarioScope = 'all') {
+    const project = selectProjectExportScope(projectSession.snapshot.project, scope);
     const content = serializeProjectDocument(project, true);
     const activeScenario = project.scenarios.find(value => value.id === project.activeScenarioId);
     const fileBase = (activeScenario?.name ?? project.activeScenarioId)
@@ -64,24 +79,34 @@ export function useProjectFileSession(
 export function createProjectFileReader(getProjectRevision: () => number) {
   let generation = 0;
   let disposed = false;
-  return {
-    async read(file: Pick<File, 'text'>): Promise<string | null> {
-      if (disposed) return null;
-      const request = ++generation;
-      const revision = getProjectRevision();
-      const current = () => !disposed && request === generation;
-      let content: string;
-      try {
-        content = await file.text();
-      } catch (error) {
-        if (!current()) return null;
-        throw error;
-      }
+  async function readUsing(readContent: () => Promise<string>): Promise<string | null> {
+    if (disposed) return null;
+    const request = ++generation;
+    const revision = getProjectRevision();
+    const current = () => !disposed && request === generation;
+    let content: string;
+    try {
+      content = await readContent();
+    } catch (error) {
       if (!current()) return null;
-      if (revision !== getProjectRevision()) {
-        throw new Error('读取文件期间当前项目已变化，请重新加载');
-      }
-      return content;
+      throw error;
+    }
+    if (!current()) return null;
+    if (revision !== getProjectRevision()) {
+      throw new Error('读取文件期间当前项目已变化，请重新加载');
+    }
+    return content;
+  }
+  return {
+    read(file: Pick<File, 'text'>): Promise<string | null> {
+      return readUsing(() => file.text());
+    },
+    readWebp(file: Blob): Promise<string | null> {
+      return readUsing(async () => {
+        const code = await readProjectCodeFromWebp(file);
+        if (code === null) throw new Error('这张 WebP 图片没有 Endaxis 项目数据');
+        return decompressProjectCode(code);
+      });
     },
     dispose(): void {
       disposed = true;

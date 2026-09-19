@@ -325,6 +325,19 @@ function migrateConnections(
     }
   }
   return records(source.connections).flatMap((connection, index) => {
+    if (
+      (connection.fromNodeType != null && connection.fromNodeType !== 'action') ||
+      (connection.toNodeType != null && connection.toNodeType !== 'action') ||
+      connection.fromEffectId != null ||
+      connection.toEffectId != null ||
+      connection.fromEffectIndex != null ||
+      connection.toEffectIndex != null
+    ) {
+      warnings.push(
+        `${scenarioId}: 第 ${index + 1} 条连线使用 Hit 或效果端点；V3 不支持，已删除这条连线`,
+      );
+      return [];
+    }
     const fromLegacyId = string(connection.fromNodeId) ?? string(connection.from);
     const toLegacyId = string(connection.toNodeId) ?? string(connection.to);
     const fromId = fromLegacyId === null ? undefined : castIdsByLegacyInstance.get(fromLegacyId);

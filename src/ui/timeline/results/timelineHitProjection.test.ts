@@ -24,7 +24,6 @@ function createCast(steps: CombatStepDefinition[]): SkillCastDocument {
     presentation: {
       locked: false,
       disabled: false,
-      customBars: [],
     },
     customDefinition: {
       key: 'battleSkill',

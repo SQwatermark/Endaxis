@@ -1,48 +1,46 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { RefreshLeft } from '@element-plus/icons-vue';
 import {
   EaButton,
   EaCheckbox,
   EaDiceIcon,
-  EaInput,
+  EaDeleteIcon,
   EaNumberInput,
+  EaPlusIcon,
   EaSelect,
   type EaSelectValue,
 } from '../../../design-system/index';
-import type { SkillType, SkillDefinition } from '../../../core/game-data/operatorDefinition';
-import type { EditableBarDocument, SkillCastDocument } from '../../../core/project/schema';
-import type { TimelineConnectionPort } from './timelineConnections';
+import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
+import { PROJECT_FPS, type SkillCastDocument } from '../../../core/project/schema';
+import { connectionPortI18nKey, type TimelineConnectionPort } from './timelineConnections';
 
 interface InspectorConnection {
   readonly id: string;
   readonly outgoing: boolean;
   readonly otherLabel: string;
-  readonly targetKind: 'skillCast' | 'damageHit';
-  readonly targetStepKey?: string;
   readonly fromPort: TimelineConnectionPort;
   readonly toPort: TimelineConnectionPort;
-  readonly consumption: boolean;
 }
 
 interface InspectorConnectionPatch {
   readonly fromPort?: TimelineConnectionPort;
   readonly toPort?: TimelineConnectionPort;
-  readonly consumption?: boolean;
 }
 
 const props = defineProps<{
   cast: SkillCastDocument | null;
   label: string;
-  skillType: SkillType | null;
   edited: boolean;
   diffCount: number;
   templateDefinition: SkillDefinition | null;
   currentDefinition: SkillDefinition | null;
+  skillLevel: number;
   minimumFrame: number;
   maximumFrame: number;
   connections: readonly InspectorConnection[];
-  connectionToolEnabled: boolean;
+  connectionDragging: boolean;
   /** 后续成员仅展示已发布的实际输入帧，不允许写入独立开始帧。 */
   actualStartFrame?: number;
   grouped?: boolean;
@@ -52,15 +50,12 @@ const props = defineProps<{
 const emit = defineEmits<{
   editDefinition: [];
   resetDefinition: [];
-  setCameraTargetAngle: [angleDegrees: number | null];
   setRandomSeed: [seed: number | null];
   rollRandomSeed: [];
   setStartFrame: [frame: number];
   setLocked: [locked: boolean];
   setDisabled: [disabled: boolean];
   setColor: [color: string | null];
-  addCustomBar: [];
-  setCustomBars: [bars: readonly EditableBarDocument[]];
   beginConnection: [];
   removeConnection: [connectionId: string];
   updateConnection: [connectionId: string, patch: InspectorConnectionPatch];
@@ -68,42 +63,48 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n({ useScope: 'global' });
-const connectionPorts: readonly TimelineConnectionPort[] = ['top', 'right', 'bottom', 'left'];
+const connectionPorts: readonly TimelineConnectionPort[] = [
+  'right',
+  'left',
+  'top',
+  'bottom',
+  'top-right',
+  'bottom-right',
+  'top-left',
+  'bottom-left',
+];
+const skillDuration = computed(() =>
+  props.currentDefinition === null
+    ? null
+    : `${Number((props.currentDefinition.timelineBlockFrames / PROJECT_FPS).toFixed(2))}s`,
+);
+const skillCooldown = computed(() => {
+  const frames = props.currentDefinition?.cooldownFrames;
+  if (frames === undefined) return null;
+  const value = Array.isArray(frames) ? frames[props.skillLevel - 1] : frames;
+  return value === undefined ? null : `${Number((value / PROJECT_FPS).toFixed(2))}s`;
+});
+const skillCosts = computed(() =>
+  (props.currentDefinition?.costs ?? []).flatMap((cost, index) => {
+    const amount = Array.isArray(cost.value) ? cost.value[props.skillLevel - 1] : cost.value;
+    return amount === undefined
+      ? []
+      : [
+          {
+            index,
+            label: t(`propertiesPanel.labels.${cost.resource === 'sp' ? 'spCost' : 'gaugeCost'}`),
+            amount,
+          },
+        ];
+  }),
+);
 
 function connectionPort(value: EaSelectValue | EaSelectValue[]): TimelineConnectionPort {
   return String(value) as TimelineConnectionPort;
 }
 
 function connectionPortLabel(port: TimelineConnectionPort): string {
-  return t(`connection.portPosition.${port}`);
-}
-
-function sourceKindLabel(kind: SkillCastDocument['source']['kind']): string {
-  return t(`timeline.inspector.sourceKinds.${kind}`);
-}
-
-function skillTypeLabel(type: SkillType): string {
-  const key: Record<SkillType, string> = {
-    basicAttack: 'attack',
-    battleSkill: 'skill',
-    comboSkill: 'link',
-    ultimate: 'ultimate',
-    finisher: 'execution',
-    plungingAttack: 'dive',
-    dodge: 'dodge',
-  };
-  return t(`skillType.${key[type]}`);
-}
-
-function commitCameraTargetAngle(value: number | undefined): void {
-  if (value === undefined) {
-    emit('setCameraTargetAngle', null);
-    return;
-  }
-  const angle = Number(value);
-  if (Number.isFinite(angle) && angle >= -180 && angle <= 180) {
-    emit('setCameraTargetAngle', angle);
-  }
+  return t(connectionPortI18nKey(port));
 }
 
 function commitStartFrame(value: number | undefined): void {
@@ -121,61 +122,33 @@ function commitRandomSeed(value: number | undefined): void {
   }
   if (Number.isInteger(value) && value >= 0 && value <= 0xffffffff) emit('setRandomSeed', value);
 }
-
-function updateCustomBar(
-  barId: string,
-  patch: Partial<Pick<EditableBarDocument, 'text' | 'offsetFrames' | 'durationFrames' | 'color'>>,
-): void {
-  if (props.cast === null) return;
-  emit(
-    'setCustomBars',
-    (props.cast.presentation?.customBars ?? []).map(bar =>
-      bar.id === barId ? { ...bar, ...patch } : bar,
-    ),
-  );
-}
-
-function updateCustomBarFrame(
-  bar: EditableBarDocument,
-  field: 'offsetFrames' | 'durationFrames',
-  value: number | undefined,
-): void {
-  if (value !== undefined && Number.isInteger(value) && value >= 0) {
-    updateCustomBar(bar.id, { [field]: value });
-  }
-}
-
-function removeCustomBar(barId: string): void {
-  if (props.cast === null) return;
-  emit(
-    'setCustomBars',
-    (props.cast.presentation?.customBars ?? []).filter(bar => bar.id !== barId),
-  );
-}
 </script>
 
 <template>
   <section class="properties-panel">
     <header class="panel-header">
-      <div class="header-icon-bar"></div>
-      <h3>{{ cast === null ? t('propertiesPanel.noSelection') : label }}</h3>
+      <div class="header-main-row">
+        <div class="header-icon-bar"></div>
+        <h3>{{ cast === null ? t('propertiesPanel.noSelection') : label }}</h3>
+      </div>
+      <div class="header-divider"></div>
     </header>
 
     <div v-if="cast !== null" class="scrollable-content">
       <section class="section-container">
         <div class="panel-tag-mini">{{ t('timeline.inspector.sections.basic') }}</div>
         <div class="attribute-grid">
-          <div class="form-group">
-            <span>{{ t('timeline.inspector.labels.actionId') }}</span>
-            <div class="readonly-field">{{ cast.id }}</div>
+          <div v-if="skillDuration !== null" class="form-group">
+            <span>{{ t('timeline.inspector.labels.duration') }}</span>
+            <div class="readonly-field">{{ skillDuration }}</div>
           </div>
-          <div class="form-group">
-            <span>{{ t('timeline.inspector.labels.sourceKind') }}</span>
-            <div class="readonly-field">{{ sourceKindLabel(cast.source.kind) }}</div>
+          <div v-if="skillCooldown !== null" class="form-group">
+            <span>{{ t('timeline.inspector.labels.cooldown') }}</span>
+            <div class="readonly-field">{{ skillCooldown }}</div>
           </div>
-          <div v-if="skillType !== null" class="form-group">
-            <span>{{ t('timeline.inspector.labels.skillType') }}</span>
-            <div class="readonly-field">{{ skillTypeLabel(skillType) }}</div>
+          <div v-for="cost in skillCosts" :key="cost.index" class="form-group">
+            <span>{{ cost.label }}</span>
+            <div class="readonly-field">{{ cost.amount }}</div>
           </div>
           <div v-if="cast.placement.afterCastId !== undefined" class="form-group">
             <span>{{ t('timeline.inspector.labels.startFrame') }}</span>
@@ -215,21 +188,6 @@ function removeCustomBar(barId: string): void {
       <section class="section-container">
         <div class="panel-tag-mini">{{ t('timeline.inspector.sections.simulation') }}</div>
         <div class="attribute-grid">
-          <label class="form-group attribute-grid__wide">
-            <span>{{ t('timeline.inspector.labels.cameraTargetAngle') }}</span>
-            <EaNumberInput
-              class="number-field"
-              :min="-180"
-              :max="180"
-              controls-position="right"
-              size="sm"
-              :model-value="cast.simulationInputs?.cameraToTargetSignedAngleDegrees"
-              :placeholder="t('timeline.inspector.labels.unset')"
-              @change="commitCameraTargetAngle"
-              :disabled="inputReadOnly"
-            />
-            <small class="field-help">{{ t('timeline.inspector.cameraTargetAngleHelp') }}</small>
-          </label>
           <div class="form-group attribute-grid__wide">
             <span>{{ t('timeline.random.castSeed') }}</span>
             <div class="random-seed-row">
@@ -369,95 +327,6 @@ function removeCustomBar(barId: string): void {
       </section>
 
       <section class="section-container">
-        <div class="panel-tag-mini">
-          {{ t('propertiesPanel.bars.title') }} ({{ cast.presentation?.customBars?.length ?? 0 }})
-        </div>
-        <EaButton
-          variant="ghost"
-          size="sm"
-          icon-only
-          type="button"
-          class="section-add"
-          @click="$emit('addCustomBar')"
-          >＋</EaButton
-        >
-        <div v-if="(cast.presentation?.customBars?.length ?? 0) === 0" class="empty-hint">
-          {{ t('propertiesPanel.bars.empty') }}
-        </div>
-        <div v-else class="custom-bars">
-          <article
-            v-for="bar in cast.presentation?.customBars ?? []"
-            :key="bar.id"
-            class="bar-card"
-          >
-            <div class="bar-card__header">
-              <EaInput
-                class="text-field"
-                size="sm"
-                :model-value="bar.text"
-                :placeholder="t('propertiesPanel.bars.namePlaceholder')"
-                @change="updateCustomBar(bar.id, { text: $event })"
-              />
-              <EaButton
-                variant="danger"
-                size="sm"
-                icon-only
-                type="button"
-                class="remove-button"
-                @click="removeCustomBar(bar.id)"
-              >
-                ×
-              </EaButton>
-            </div>
-            <div class="attribute-grid">
-              <label class="form-group">
-                <span>{{ t('timeline.inspector.labels.customBarOffsetFrames') }}</span>
-                <EaNumberInput
-                  class="number-field"
-                  size="sm"
-                  controls-position="right"
-                  :min="0"
-                  :step="1"
-                  :model-value="bar.offsetFrames"
-                  @change="updateCustomBarFrame(bar, 'offsetFrames', $event)"
-                />
-              </label>
-              <label class="form-group">
-                <span>{{ t('timeline.inspector.labels.customBarDurationFrames') }}</span>
-                <EaNumberInput
-                  class="number-field"
-                  size="sm"
-                  controls-position="right"
-                  :min="0"
-                  :step="1"
-                  :model-value="bar.durationFrames"
-                  @change="updateCustomBarFrame(bar, 'durationFrames', $event)"
-                />
-              </label>
-            </div>
-            <div class="bar-color-editor">
-              <input
-                type="color"
-                :value="bar.color ?? '#69c0ff'"
-                :title="t('timeline.inspector.labels.color')"
-                @change="
-                  updateCustomBar(bar.id, { color: ($event.target as HTMLInputElement).value })
-                "
-              />
-              <code>{{ bar.color ?? '#69c0ff' }}</code>
-              <EaButton
-                size="sm"
-                type="button"
-                @click="updateCustomBar(bar.id, { color: undefined })"
-              >
-                {{ t('battleLog.ui.clear') }}
-              </EaButton>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="section-container">
         <div class="panel-tag-mini">{{ t('propertiesPanel.connections.title') }}</div>
         <div class="connection-summary">
           <span>
@@ -470,16 +339,14 @@ function removeCustomBar(barId: string): void {
             class="connection-add"
             @click="$emit('beginConnection')"
           >
+            <EaPlusIcon :size="10" :stroke-width="4" />
             {{
-              connectionToolEnabled
+              connectionDragging
                 ? t('propertiesPanel.connections.chooseTarget')
                 : t('propertiesPanel.connections.new')
             }}
           </EaButton>
         </div>
-        <small v-if="connectionToolEnabled" class="field-help">
-          {{ t('timeline.inspector.connectionDragHelp') }}
-        </small>
         <div v-if="connections.length === 0" class="empty-hint">
           {{ t('propertiesPanel.connections.empty') }}
         </div>
@@ -491,28 +358,26 @@ function removeCustomBar(barId: string): void {
             :class="connection.outgoing ? 'is-outgoing' : 'is-incoming'"
           >
             <div class="connection-card__title">
-              <span>{{ connection.outgoing ? label : connection.otherLabel }}</span>
-              <b>→</b>
-              <span>{{ connection.outgoing ? connection.otherLabel : label }}</span>
-              <EaButton
-                variant="danger"
-                size="sm"
-                icon-only
-                type="button"
-                class="remove-button"
-                @click="$emit('removeConnection', connection.id)"
+              <span class="connection-node">{{
+                connection.outgoing ? label : connection.otherLabel
+              }}</span>
+              <b
+                class="connection-direction"
+                :class="connection.outgoing ? 'is-outgoing' : 'is-incoming'"
+                >{{
+                  t(connection.outgoing ? 'connection.direction.to' : 'connection.direction.from')
+                }}</b
               >
-                ×
-              </EaButton>
-            </div>
-            <div v-if="connection.targetKind === 'damageHit'" class="connection-hit">
-              HIT · {{ connection.targetStepKey }}
+              <span class="connection-node is-target">{{
+                connection.outgoing ? connection.otherLabel : label
+              }}</span>
             </div>
             <div class="connection-ports">
               <label>
                 <span>{{ t('propertiesPanel.connections.outPort') }}</span>
                 <EaSelect
                   size="sm"
+                  variant="inline"
                   :model-value="connection.fromPort"
                   :options="
                     connectionPorts.map(port => ({ value: port, label: connectionPortLabel(port) }))
@@ -522,10 +387,12 @@ function removeCustomBar(barId: string): void {
                   "
                 />
               </label>
-              <label v-if="connection.targetKind === 'skillCast'">
+              <b class="connection-port-arrow">&gt;&gt;</b>
+              <label>
                 <span>{{ t('propertiesPanel.connections.inPort') }}</span>
                 <EaSelect
                   size="sm"
+                  variant="inline"
                   :model-value="connection.toPort"
                   :options="
                     connectionPorts.map(port => ({ value: port, label: connectionPortLabel(port) }))
@@ -536,12 +403,18 @@ function removeCustomBar(barId: string): void {
                 />
               </label>
             </div>
-            <EaCheckbox
-              class="connection-consumption"
-              :model-value="connection.consumption"
-              @change="$emit('updateConnection', connection.id, { consumption: $event })"
-              >{{ t('propertiesPanel.connections.consume') }}</EaCheckbox
-            >
+            <div class="connection-actions">
+              <EaButton
+                variant="danger"
+                size="sm"
+                icon-only
+                type="button"
+                :title="t('common.delete')"
+                @click="$emit('removeConnection', connection.id)"
+              >
+                <EaDeleteIcon />
+              </EaButton>
+            </div>
           </article>
         </div>
       </section>
@@ -555,21 +428,38 @@ function removeCustomBar(barId: string): void {
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  gap: 15px;
-  padding: 15px;
+  gap: var(--ea-space-3);
+  padding: var(--ea-space-3);
   overflow-y: auto;
+  scrollbar-width: none;
   background: var(--ea-workbench-panel);
   color: var(--ea-fg);
   font-size: 13px;
 }
 
+.properties-panel::-webkit-scrollbar {
+  display: none;
+}
+
 .panel-header {
   min-width: 0;
   display: flex;
+  flex-direction: column;
+  gap: var(--ea-space-1);
+}
+
+.header-main-row {
+  min-width: 0;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid var(--ea-border-soft);
+  gap: var(--ea-space-2);
+}
+
+.header-divider {
+  height: 2px;
+  margin-top: 3px;
+  background: linear-gradient(90deg, var(--ea-gold), transparent);
+  opacity: 0.3;
 }
 
 .header-icon-bar {
@@ -593,27 +483,17 @@ function removeCustomBar(barId: string): void {
   min-height: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--ea-space-3);
 }
 
 .section-container {
   position: relative;
-  padding: 20px 10px 12px;
-  border: 1px solid var(--ea-border-soft);
-  border-left: 2px solid var(--ea-border-strong);
+  flex-shrink: 0;
+  margin-top: var(--ea-space-3);
+  padding: var(--ea-space-3);
+  border: 1px solid color-mix(in srgb, var(--ea-fg) 10%, transparent);
+  border-left: 3px solid color-mix(in srgb, var(--ea-fg) 20%, transparent);
   background: var(--ea-fill-soft);
-}
-
-.section-add {
-  position: absolute;
-  top: 2px;
-  right: 6px;
-  border: 0;
-  background: transparent;
-  color: var(--ea-gold);
-  font-size: 16px;
-  line-height: 1;
-  cursor: pointer;
 }
 
 .empty-hint {
@@ -622,59 +502,9 @@ function removeCustomBar(barId: string): void {
   text-align: center;
 }
 
-.custom-bars {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.bar-card {
-  min-width: 0;
-  padding: 8px;
-  border: 1px solid color-mix(in srgb, #69c0ff 40%, var(--ea-border-soft));
-  background: color-mix(in srgb, #69c0ff 5%, transparent);
-}
-
-.bar-card__header {
-  min-width: 0;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 8px;
-}
-
-.bar-color-editor {
-  min-width: 0;
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr) auto;
-  align-items: center;
-  gap: 6px;
-  margin-top: 8px;
-}
-
-.bar-color-editor input {
-  width: 28px;
-  height: 24px;
-  padding: 1px;
-  border: 1px solid var(--ea-border-strong);
-  background: var(--ea-workbench-panel);
-}
-
-.bar-color-editor code {
-  min-width: 0;
-  overflow: hidden;
-  color: var(--ea-fg-muted);
-  text-overflow: ellipsis;
-}
-
-.remove-button {
-  flex: 0 0 auto;
-}
-
 .connection-summary,
 .connection-card__title,
-.connection-ports,
-.connection-consumption {
+.connection-ports {
   min-width: 0;
   display: flex;
   align-items: center;
@@ -696,55 +526,104 @@ function removeCustomBar(barId: string): void {
 
 .connection-card {
   min-width: 0;
-  padding: 8px;
-  border: 1px solid var(--ea-border-soft);
-  border-left: 2px solid #8b5cf6;
-  background: var(--ea-workbench-panel);
+  padding: var(--ea-space-2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-left: 3px solid var(--ea-gold);
+  background: var(--ea-fill-soft);
+  transition:
+    background-color var(--ea-control-transition),
+    border-color var(--ea-control-transition);
 }
 
 .connection-card.is-incoming {
-  border-left-color: #22c55e;
+  border-left-color: #00e5ff;
 }
 
-.connection-card__title span {
+.connection-card__title {
+  justify-content: space-between;
+  padding-bottom: 4px;
+}
+
+.connection-node {
   min-width: 0;
+  width: 38%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  font-size: 11px;
+  color: var(--ea-fg);
 }
 
-.connection-card__title span:last-of-type {
-  flex: 1;
+.connection-node.is-target {
+  text-align: right;
 }
 
-.connection-hit {
-  margin: 6px 0;
-  color: #ff7277;
-  font:
-    10px Consolas,
-    monospace;
-  overflow-wrap: anywhere;
+.connection-direction {
+  min-width: 40px;
+  padding: 2px 6px;
+  text-align: center;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  border: 1px solid;
+  opacity: 0.8;
+}
+
+.connection-direction.is-outgoing {
+  color: var(--ea-gold);
+  background: color-mix(in srgb, var(--ea-gold) 10%, transparent);
+  border-color: color-mix(in srgb, var(--ea-gold) 20%, transparent);
+}
+
+.connection-direction.is-incoming {
+  color: #00e5ff;
+  background: rgba(0, 229, 255, 0.1);
+  border-color: rgba(0, 229, 255, 0.2);
 }
 
 .connection-ports {
-  margin-top: 8px;
+  width: fit-content;
+  max-width: 100%;
+  margin: 4px auto 2px;
+  padding: 2px 10px;
+  gap: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.4);
 }
 
 .connection-ports label {
   min-width: 0;
-  flex: 1;
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  display: flex;
   align-items: center;
   gap: 4px;
-  color: var(--ea-fg-muted);
+  color: #666;
+  font-size: 9px;
+  font-weight: 700;
+}
+
+.connection-ports :deep(.ea-select) {
+  width: 72px;
   font-size: 10px;
 }
 
-.connection-consumption {
-  margin-top: 8px;
-  color: var(--ea-fg-muted);
-  font-size: 10px;
+.connection-port-arrow {
+  font-size: 8px;
+  letter-spacing: -1px;
+  color: #444;
+}
+
+.connection-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  height: 24px;
+  margin-top: 2px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .connection-card:hover {
+    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.06);
+  }
 }
 
 .field-help {
@@ -771,21 +650,11 @@ function removeCustomBar(barId: string): void {
   flex: 1 1 auto;
 }
 
-.panel-tag-mini {
-  position: absolute;
-  top: 0;
-  left: 0;
-  padding: 2px 8px;
-  background: var(--ea-active-fill);
-  color: var(--ea-fg-muted);
-  font-size: 10px;
-  font-weight: 700;
-}
-
 .attribute-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px 8px;
+  gap: var(--ea-space-2) var(--ea-space-3);
+  padding: var(--ea-space-2);
 }
 
 .attribute-grid__wide {
@@ -820,15 +689,6 @@ function removeCustomBar(barId: string): void {
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.color-swatch {
-  display: inline-block;
-  width: 14px;
-  height: 14px;
-  border-radius: 3px;
-  border: 1px solid var(--ea-border);
-  flex-shrink: 0;
 }
 
 .toggle-field {

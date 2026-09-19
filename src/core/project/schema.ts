@@ -125,15 +125,6 @@ export interface CustomActionDefinition {
 /** 时间轴技能释放所引用的游戏定义，或尚未接入模拟的自由展示块来源。 */
 export type SkillCastSource = DefinitionActionSource | CustomActionDefinition;
 
-/** 用户添加在技能块上的辅助展示条。 */
-export interface EditableBarDocument {
-  id: string;
-  text: string;
-  offsetFrames: number;
-  durationFrames: number;
-  color?: string;
-}
-
 /** 独立技能或手动组首保存作者帧，后续技能只保存前驱身份，计算出的起点不写回存档。 */
 export type SkillCastPlacementDocument =
   { startFrame: number; afterCastId?: never } | { afterCastId: string; startFrame?: never };
@@ -144,17 +135,14 @@ export interface SkillCastDocument {
   /** 用于找到游戏数据中的技能模板。 */
   source: SkillCastSource;
   placement: SkillCastPlacementDocument;
-  /** 纯展示覆盖（颜色、锁定、自定义展示条等），不包含技能逻辑。 */
+  /** 纯展示覆盖（颜色、锁定等），不包含技能逻辑。 */
   presentation?: {
     locked?: boolean;
     disabled?: boolean;
     color?: string | null;
-    customBars?: EditableBarDocument[];
   };
-  /** 无法由零距离单敌人模型推导、但由玩家在本次释放时决定的最小模拟输入。 */
+  /** 玩家在本次释放时决定的随机模拟输入。 */
   simulationInputs?: {
-    /** 镜头前向到施法者→目标方向、绕世界上轴的有符号角度（度）。 */
-    cameraToTargetSignedAngleDegrees?: number;
     /** 随机模式下只接管这个技能块及其派生行为；省略时使用场景全局种子。 */
     randomSeed?: number;
     /** 按伤害 step key 覆盖本次结果；true 为暴击，false 为明确不暴击。 */
@@ -208,16 +196,8 @@ export type TrackListDocument = [
   TrackDocument | null,
 ];
 
-/** 用户连线可以指向的技能块或具体伤害命中端点。 */
-export type ConnectionEndpoint =
-  | { kind: 'skillCast'; skillCastId: string; port?: string }
-  | {
-      kind: 'damageHit';
-      skillCastId: string;
-      /** 技能定义中 damage step 的稳定 key；运行时 hitId 由 deriveHitId(castId, stepKey) 派生 */
-      stepKey: string;
-      port?: string;
-    };
+/** 用户连线只连接两个技能块，端口控制线条从哪一侧进出。 */
+export type ConnectionEndpoint = { kind: 'skillCast'; skillCastId: string; port?: string };
 
 /** 用户在两个时间轴端点之间建立的一条逻辑连接。 */
 export interface ConnectionDocument {

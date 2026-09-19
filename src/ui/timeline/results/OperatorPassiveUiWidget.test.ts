@@ -87,9 +87,9 @@ describe('专属 HUD 外观通过通用容器显示', () => {
     ).toHaveLength(3);
     expect(arrows).toContain('/next/passive-ui/typhoea-bg.webp');
     expect(typhoeaSource).toContain("url('/next/passive-ui/typhoea-arrow.webp')");
+    expect(typhoeaSource).not.toContain('clip-path: inset(0 0 0 21%)');
     expect(typhoeaSource).toContain("url('/next/passive-ui/typhoea-point.webp')");
-    expect(typhoeaSource).toContain('clip-path: inset(0 0 0 21%)');
-    expect(typhoeaSource).toContain('flex-direction: column');
+    expect(typhoeaSource).toContain('flex-direction: column-reverse');
     expect(typhoeaSource).toContain('bottom: `${Math.floor((index - 1) / 2) * 9}px`');
     expect(typhoeaSource).not.toContain('clip-path: polygon');
     expect(passiveUiSkins.typhoeaArrows).toMatchObject({ width: 76, height: 56 });

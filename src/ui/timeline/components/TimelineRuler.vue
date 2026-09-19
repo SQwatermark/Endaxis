@@ -12,6 +12,7 @@ import { frameToTimelinePx, timelinePxToFrame, timelineTotalWidth } from '../tim
 import {
   projectTimelineOperationMarkers,
   type TimelineOperationMarkerInput,
+  type OperationKeycapMode,
 } from '../timelineOperationMarkers';
 import { projectTimelineRulerTicks } from '../timelineRulerTicks';
 const interactionSession = useInteractionSession();
@@ -27,6 +28,7 @@ const props = defineProps<{
   pxPerFrame: number;
   snapFrames: number;
   operations: readonly TimelineOperationMarkerInput[];
+  keycapMode: OperationKeycapMode;
   visibleLeftPx: number;
   visibleWidthPx: number;
   prepEndFrame?: number;
@@ -95,6 +97,7 @@ const operationMarkers = computed(() =>
     props.pxPerFrame,
     props.prepExpanded,
     props.prepEndFrame,
+    props.keycapMode,
   ),
 );
 
@@ -436,7 +439,6 @@ function seek(event: MouseEvent): void {
 .key-cap--skill {
   border-color: var(--ea-keycap-skill-border, #888);
   background: var(--ea-keycap-skill-bg, #3a3a3a);
-  width: 20px !important;
 }
 
 .key-cap--combo {
@@ -444,7 +446,6 @@ function seek(event: MouseEvent): void {
   border-color: var(--ea-gold);
   background: color-mix(in srgb, var(--ea-gold) 20%, transparent);
   color: var(--ea-gold);
-  width: 20px !important;
 }
 
 .key-cap--combo.is-perfect {
@@ -461,7 +462,6 @@ function seek(event: MouseEvent): void {
   border-color: #d3adff;
   background: rgb(211 173 255 / 20%);
   color: #d3adff;
-  width: 28px !important;
 }
 
 .key-cap.is-hold {

@@ -1,8 +1,16 @@
+import { readFile } from 'node:fs/promises';
 import { effectScope } from 'vue';
-import { afterEach, expect, it, vi } from 'vitest';
-import { createEmptyProject } from '../../core/project/createProject';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { createEmptyProject, createEmptyScenario } from '../../core/project/createProject';
+import { parseProjectDocument, serializeProjectDocument } from '../../core/project/serialization';
 import { ProjectEditorSession } from '../../application/editor/projectEditorSession';
-import { useProjectFileSession } from './projectFileSession';
+import { compressProjectCode } from './timelineExport';
+import { embedProjectCodeInWebp } from './webpProjectData';
+import {
+  createProjectFileReader,
+  selectProjectExportScope,
+  useProjectFileSession,
+} from './projectFileSession';
 
 const { saveBrowserProjectMock } = vi.hoisted(() => ({ saveBrowserProjectMock: vi.fn() }));
 vi.mock('../../data/browserProjectStorage', () => ({ saveBrowserProject: saveBrowserProjectMock }));
@@ -10,6 +18,47 @@ vi.mock('../../data/browserProjectStorage', () => ({ saveBrowserProject: saveBro
 afterEach(() => {
   vi.unstubAllGlobals();
   vi.clearAllMocks();
+});
+
+describe('project export scope', () => {
+  it('keeps every scenario when exporting the whole project', () => {
+    const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' });
+    project.scenarios.push(createEmptyScenario('scenario:2', 'Second'));
+
+    expect(selectProjectExportScope(project, 'all')).toBe(project);
+  });
+
+  it('exports an inherited current scenario as a standalone, importable project', () => {
+    const project = createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' });
+    const child = createEmptyScenario('scenario:2', 'Second');
+    child.inheritance = { frame: 30, sourceScenarioId: project.activeScenarioId };
+    project.scenarios.push(child);
+    project.activeScenarioId = child.id;
+
+    const exported = selectProjectExportScope(project, 'current');
+    expect(exported.scenarios.map(scenario => scenario.id)).toEqual([child.id]);
+    expect(exported.scenarios[0]?.inheritance).toBeUndefined();
+    expect(child.inheritance).toBeDefined();
+    expect(parseProjectDocument(serializeProjectDocument(exported)).ok).toBe(true);
+  });
+});
+
+it('reads an exported WebP through the project file reader', async () => {
+  const bytes = await readFile(
+    new URL('../../../public/next/passive-ui/typhoea-bg.webp', import.meta.url),
+  );
+  const content = '{"kind":"test"}';
+  const image = await embedProjectCodeInWebp(
+    new Blob([Uint8Array.from(bytes)], { type: 'image/webp' }),
+    await compressProjectCode(content),
+  );
+  let revision = 0;
+  const reader = createProjectFileReader(() => revision);
+  await expect(reader.readWebp(image)).resolves.toBe(content);
+  revision += 1;
+  await expect(reader.readWebp(image)).resolves.toBe(content);
+  reader.dispose();
+  await expect(reader.readWebp(image)).resolves.toBeNull();
 });
 
 it('allows refresh after browser autosave completes, but protects edits while it is pending', async () => {

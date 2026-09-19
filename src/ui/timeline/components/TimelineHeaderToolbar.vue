@@ -7,6 +7,7 @@ import { useI18n } from 'vue-i18n';
 import TimelineDurationBarColorControls from '../results/TimelineDurationBarColorControls.vue';
 import { resolveScenarioTabsScrollMask } from '../scenarioTabsScrollMask';
 import type { TimelineViewLayerId, TimelineViewLayers } from '../results/timelineViewLayers';
+import type { OperationKeycapMode } from '../timelineOperationMarkers';
 import { useInteractionSession } from '../../interaction/interactionSessionContext';
 import { usePopoverInteractionBoundary } from '../../interaction/usePopoverInteractionBoundary';
 
@@ -19,6 +20,7 @@ const props = defineProps<{
   boxSelectEnabled: boolean;
   connectionToolEnabled: boolean;
   buffLayoutMode: 'compact' | 'loose';
+  keycapMode: OperationKeycapMode;
   viewLayers: TimelineViewLayers;
   viewLayerIds: readonly TimelineViewLayerId[];
   operatorEffects: readonly {
@@ -48,6 +50,9 @@ const props = defineProps<{
     viewOperatorsEmpty: string;
     shortcuts: string;
     preferences: string;
+    keycapMode: string;
+    keyboardKeycaps: string;
+    gamepadKeycaps: string;
     appearance: string;
     appearanceLight: string;
     appearanceDark: string;
@@ -60,6 +65,7 @@ const emit = defineEmits<{
   toggleBoxSelect: [];
   toggleConnectionTool: [];
   setBuffLayout: [mode: 'compact' | 'loose'];
+  setKeycapMode: [mode: OperationKeycapMode];
   reset: [];
   open: [];
   receive: [];
@@ -602,6 +608,20 @@ onBeforeUnmount(() => {
           </section>
           <section class="header-more-section">
             <h4 class="header-more-section__title">{{ labels.preferences }}</h4>
+            <div class="header-more-mode-row">
+              <span>{{ labels.keycapMode }}</span>
+              <div class="header-more-segment" role="group" :aria-label="labels.keycapMode">
+                <EaButton
+                  v-for="mode in ['keyboard', 'gamepad'] as const"
+                  :key="mode"
+                  type="button"
+                  @click="$emit('setKeycapMode', mode)"
+                  :pressed="keycapMode === mode"
+                >
+                  {{ mode === 'keyboard' ? labels.keyboardKeycaps : labels.gamepadKeycaps }}
+                </EaButton>
+              </div>
+            </div>
             <div class="header-more-mode-row">
               <span>{{ t('timeline.random.mode') }}</span>
               <div class="header-more-segment" role="group" :aria-label="t('timeline.random.mode')">

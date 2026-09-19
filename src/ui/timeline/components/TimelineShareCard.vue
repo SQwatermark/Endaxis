@@ -6,6 +6,11 @@
  * 同一份稳定输入，调整尺寸时也不会触发战斗模拟。
  */
 import { computed, ref } from 'vue';
+import {
+  timelineOperationKeycapLabel,
+  type OperationKeycapMode,
+  type TimelineOperationMarkerKind,
+} from '../timelineOperationMarkers';
 
 export interface TimelineShareAction {
   readonly id: string;
@@ -36,6 +41,7 @@ const props = defineProps<{
   showDurationBars: boolean;
   showCombatIcons: boolean;
   showKeycaps: boolean;
+  keycapMode: OperationKeycapMode;
   showPrep: boolean;
   showTimeTicks: boolean;
   watermark: string;
@@ -90,10 +96,17 @@ function durationStyle(action: TimelineShareAction): Record<string, string> {
 }
 
 function keycap(action: TimelineShareAction, trackIndex: number): string | null {
-  if (action.skillType === 'battleSkill') return String(trackIndex + 1);
-  if (action.skillType === 'comboSkill') return 'E';
-  if (action.skillType === 'ultimate') return `${trackIndex + 1}H`;
-  return null;
+  const kind: TimelineOperationMarkerKind | null =
+    action.skillType === 'battleSkill'
+      ? 'skill'
+      : action.skillType === 'comboSkill'
+        ? 'combo'
+        : action.skillType === 'ultimate'
+          ? 'ultimate'
+          : null;
+  return kind === null
+    ? null
+    : timelineOperationKeycapLabel(kind, trackIndex, props.keycapMode, true);
 }
 
 function visible(action: TimelineShareAction): boolean {
@@ -108,11 +121,12 @@ function visible(action: TimelineShareAction): boolean {
   <article
     ref="rootEl"
     class="timeline-share-card"
-    :class="[`is-${appearance}`]"
+    :class="[`is-${appearance}`, { 'is-gamepad-keycaps': keycapMode === 'gamepad' }]"
     :style="{
       width: `${Math.max(280, Math.min(540, cardWidth))}px`,
       height: `${52 + timelineHeight}px`,
       '--share-second': `${pxPerSecond}px`,
+      '--share-operation-width': keycapMode === 'gamepad' ? '120px' : '76px',
     }"
     :title="scenarioName"
   >
@@ -190,7 +204,10 @@ function visible(action: TimelineShareAction): boolean {
             :key="action.id"
             class="share-keycap"
             :class="[`is-${action.skillType ?? 'custom'}`]"
-            :style="{ top: `${top(action.startFrame)}px`, left: `${4 + trackIndex * 18}px` }"
+            :style="{
+              top: `${top(action.startFrame)}px`,
+              left: `${keycapMode === 'gamepad' ? 2 + trackIndex * 30 : 4 + trackIndex * 18}px`,
+            }"
           >
             {{ keycap(action, trackIndex) }}
           </span>
@@ -233,7 +250,7 @@ function visible(action: TimelineShareAction): boolean {
 
 .share-header {
   display: grid;
-  grid-template-columns: 36px repeat(4, minmax(0, 1fr)) 76px;
+  grid-template-columns: 36px repeat(4, minmax(0, 1fr)) var(--share-operation-width);
   flex: 0 0 52px;
   align-items: center;
   padding: 6px 4px 8px;
@@ -270,7 +287,7 @@ function visible(action: TimelineShareAction): boolean {
 .share-body {
   position: relative;
   display: grid;
-  grid-template-columns: 36px minmax(0, 1fr) 76px;
+  grid-template-columns: 36px minmax(0, 1fr) var(--share-operation-width);
   flex: 0 0 auto;
 }
 
@@ -476,6 +493,11 @@ function visible(action: TimelineShareAction): boolean {
   font-size: 8px;
   font-weight: 700;
   line-height: 1;
+}
+
+.is-gamepad-keycaps .share-keycap {
+  width: 28px;
+  font-size: 7px;
 }
 
 .share-keycap.is-comboSkill {

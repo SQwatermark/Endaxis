@@ -1,7 +1,29 @@
 import { describe, expect, it } from 'vitest';
-import { projectTimelineOperationMarkers } from './timelineOperationMarkers';
+import {
+  projectTimelineOperationMarkers,
+  timelineOperationKeycapLabel,
+} from './timelineOperationMarkers';
 
 describe('timeline operation marker projection', () => {
+  it('uses the default bindings shown by the in-game controller guide', () => {
+    expect(
+      [0, 1, 2, 3].map(index => timelineOperationKeycapLabel('skill', index, 'gamepad')),
+    ).toEqual(['LB+X', 'LB+Y', 'LB+B', 'LB+A']);
+    expect(
+      [0, 1, 2, 3].map(index => timelineOperationKeycapLabel('switch', index, 'gamepad')),
+    ).toEqual(['LB+←', 'LB+↑', 'LB+→', 'LB+↓']);
+    expect(timelineOperationKeycapLabel('combo', 2, 'gamepad')).toBe('RB');
+    expect(timelineOperationKeycapLabel('ultimate', 2, 'gamepad')).toBe('LB+B (Hold)');
+    const markers = projectTimelineOperationMarkers(
+      [{ id: 'skill', kind: 'skill', trackIndex: 0, frame: 0 }],
+      0,
+      1,
+      true,
+      0,
+      'gamepad',
+    );
+    expect(markers[0]).toMatchObject({ label: 'LB+X', width: 40 });
+  });
   it('同一时刻保持轨道输入顺序，不按实例 ID 重排', () => {
     const markers = projectTimelineOperationMarkers(
       [

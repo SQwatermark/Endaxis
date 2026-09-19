@@ -3,43 +3,17 @@ import { createEmptyScenario } from '../../../core/project/createProject';
 import type { ScenarioDocument, SkillCastDocument } from '../../../core/project/schema';
 import {
   canCreateSkillCastConnection,
-  createDamageHitConnection,
   createSkillCastConnection,
+  retargetSkillCastConnection,
   removeTimelineConnection,
   updateTimelineConnection,
-  resolveDamageHitConnectionFrame,
 } from './timelineConnections';
-import { projectCastHitMarkers } from '../results/timelineHitProjection';
-import { deriveHitId } from '../../../core/combat/timeline/deriveHitId';
 
-function cast(id: string, scheduledHitId?: string): SkillCastDocument {
+function cast(id: string): SkillCastDocument {
   return {
     id,
     source: { kind: 'custom', actionType: 'test', name: id },
     placement: { startFrame: 0 },
-    ...(scheduledHitId === undefined
-      ? {}
-      : {
-          customDefinition: {
-            key: id,
-            timelineBlockFrames: 30,
-            costs: [],
-            scheduledSequences: [
-              {
-                startFrame: 5,
-                sequence: {
-                  steps: [
-                    {
-                      kind: 'dealDamage',
-                      parameters: { damageType: 'physical', attackScale: 1, tags: [] },
-                      key: scheduledHitId,
-                    },
-                  ],
-                },
-              },
-            ],
-          },
-        }),
   };
 }
 
@@ -59,50 +33,12 @@ function scenarioWithCasts(): ScenarioDocument {
     weapon: null,
     gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
     initialState: { ultimateEnergy: 0 },
-    skillCasts: [cast('cast:1'), cast('cast:2', 'hit:2')],
+    skillCasts: [cast('cast:1'), cast('cast:2')],
   };
   return scenario;
 }
 
 describe('timeline connections', () => {
-  it('resolves dynamic hits from actual identity without requiring a static marker', () => {
-    const frames = new Map([[deriveHitId('cast:2', 'dynamic:damage'), 1330]]);
-    expect(resolveDamageHitConnectionFrame('cast:2', 'dynamic:damage', 1200, [], frames)).toBe(
-      1330,
-    );
-    expect(
-      resolveDamageHitConnectionFrame('cast:1', 'dynamic:damage', 1200, [], frames),
-    ).toBeNull();
-    const markers = [
-      {
-        hitId: deriveHitId('cast:2', 'dynamic:damage'),
-        stepKey: 'dynamic:damage',
-        frameOffset: 10,
-        conditional: false,
-      },
-    ];
-    expect(resolveDamageHitConnectionFrame('cast:2', 'dynamic:damage', 1200, markers, frames)).toBe(
-      1330,
-    );
-    expect(
-      resolveDamageHitConnectionFrame('cast:2', 'dynamic:damage', 1200, markers, new Map()),
-    ).toBe(1210);
-  });
-  it('accepts a runtime-projected step without requiring static preview offsets', () => {
-    const connected = createDamageHitConnection(scenarioWithCasts(), {
-      id: 'runtime-link',
-      fromSkillCastId: 'cast:1',
-      fromPort: 'right',
-      toSkillCastId: 'cast:2',
-      toStepKey: 'dynamic:damage',
-      targetMarkers: [{ stepKey: 'dynamic:damage' }],
-    });
-    expect(connected.connections[0]?.to).toEqual({
-      kind: 'damageHit',
-      skillCastId: 'cast:2',
-      stepKey: 'dynamic:damage',
-    });
-  });
   it('exposes the same target validity used by the document command', () => {
     const original = scenarioWithCasts();
     expect(canCreateSkillCastConnection(original, 'cast:1', 'cast:2')).toBe(true);
@@ -180,57 +116,22 @@ describe('timeline connections', () => {
     ).toBe(original);
   });
 
-  it('creates a connection to a documented damage hit and rejects invalid targets', () => {
-    const original = scenarioWithCasts();
-    const targetCast = original.tracks[0]!.skillCasts.find(candidate => candidate.id === 'cast:2')!;
-    const targetMarkers = projectCastHitMarkers(targetCast, targetCast.customDefinition!);
-    const connected = createDamageHitConnection(original, {
-      id: 'connection:hit',
+  it('retargets a selected connection without changing its identity', () => {
+    const original = createSkillCastConnection(scenarioWithCasts(), {
+      id: 'connection:1',
       fromSkillCastId: 'cast:1',
       fromPort: 'right',
       toSkillCastId: 'cast:2',
-      toStepKey: 'hit:2',
-      targetMarkers,
+      toPort: 'left',
     });
-
-    expect(connected.connections).toEqual([
-      {
-        id: 'connection:hit',
-        consumption: false,
-        from: { kind: 'skillCast', skillCastId: 'cast:1', port: 'right' },
-        to: { kind: 'damageHit', skillCastId: 'cast:2', stepKey: 'hit:2' },
-      },
-    ]);
-    expect(
-      createDamageHitConnection(original, {
-        id: 'connection:missing-hit',
-        fromSkillCastId: 'cast:1',
-        fromPort: 'right',
-        toSkillCastId: 'cast:2',
-        toStepKey: 'hit:missing',
-        targetMarkers,
-      }),
-    ).toBe(original);
-    expect(
-      createDamageHitConnection(original, {
-        id: 'connection:no-hits',
-        fromSkillCastId: 'cast:1',
-        fromPort: 'right',
-        toSkillCastId: 'cast:1',
-        toStepKey: 'hit:2',
-        targetMarkers,
-      }),
-    ).toBe(original);
-    expect(
-      createDamageHitConnection(connected, {
-        id: 'connection:duplicate',
-        fromSkillCastId: 'cast:1',
-        fromPort: 'left',
-        toSkillCastId: 'cast:2',
-        toStepKey: 'hit:2',
-        targetMarkers,
-      }),
-    ).toBe(connected);
+    const changed = retargetSkillCastConnection(original, 'connection:1', 'cast:2', 'top');
+    expect(changed.connections[0]).toMatchObject({
+      id: 'connection:1',
+      from: { skillCastId: 'cast:1', port: 'right' },
+      to: { skillCastId: 'cast:2', port: 'top' },
+    });
+    expect(retargetSkillCastConnection(changed, 'connection:1', 'cast:1', 'left')).toBe(changed);
+    expect(retargetSkillCastConnection(changed, 'connection:1', 'missing', 'left')).toBe(changed);
   });
 });
 

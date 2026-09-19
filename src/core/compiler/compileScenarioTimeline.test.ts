@@ -102,7 +102,6 @@ describe('compileScenarioTimeline', () => {
   it('copies cast-specific simulation inputs into the input instead of the skill program', () => {
     const scenario = place(createScenario(), 'battleSkill', 0);
     scenario.tracks[0]!.skillCasts[0]!.simulationInputs = {
-      cameraToTargetSignedAngleDegrees: 22.5,
       randomSeed: 7,
       criticalOverrides: { 'damage:1': true },
     };
@@ -110,7 +109,6 @@ describe('compileScenarioTimeline', () => {
     const compiled = compileScenarioTimeline(scenario, index());
 
     expect(compiled.inputs[0]?.simulationInputs).toEqual({
-      cameraToTargetSignedAngleDegrees: 22.5,
       randomSeed: 7,
       criticalOverrides: { 'damage:1': true },
     });

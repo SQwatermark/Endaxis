@@ -27,7 +27,6 @@ function cast(id: string, startFrame: number): SkillCastDocument {
     presentation: {
       locked: false,
       disabled: false,
-      customBars: [{ id: `bar:${id}`, text: id, offsetFrames: 0, durationFrames: 10 }],
     },
     customDefinition: {
       key: id,
@@ -64,7 +63,7 @@ function scenario(): ScenarioDocument {
     {
       id: 'connection:internal',
       consumption: false,
-      from: { kind: 'damageHit', skillCastId: 'cast:1', stepKey: 'hit:cast:1' },
+      from: { kind: 'skillCast', skillCastId: 'cast:1' },
       to: { kind: 'skillCast', skillCastId: 'cast:2' },
     },
     {
@@ -109,7 +108,7 @@ describe('timelineClipboard', () => {
     ).toThrow('editable timeline');
   });
 
-  it('完整组仅平移组首，并重映射内部前驱及手工命中端点', () => {
+  it('完整组仅平移组首，并重映射内部前驱及技能块连线', () => {
     const original = scenario();
     original.tracks[0]!.skillCasts[1]!.placement = { afterCastId: 'cast:1' };
     const clipboard = copyTimelineActions(original, new Set(['cast:1', 'cast:2']))!;
@@ -123,9 +122,8 @@ describe('timelineClipboard', () => {
       { afterCastId: 'skillCast:new:1' },
     ]);
     expect(pasted.scenario.connections.at(-1)!.from).toEqual({
-      kind: 'damageHit',
+      kind: 'skillCast',
       skillCastId: 'skillCast:new:1',
-      stepKey: 'hit:cast:1',
     });
     expect(original.tracks[0]!.skillCasts[1]!.placement).toEqual({ afterCastId: 'cast:1' });
   });
@@ -166,18 +164,13 @@ describe('timelineClipboard', () => {
 
     expect(created.map(value => value.id)).toEqual(['skillCast:new:1', 'skillCast:new:2']);
     expect(created.map(value => value.placement.startFrame)).toEqual([100, 115]);
-    expect(created.map(value => value.presentation?.customBars?.[0]!.id)).toEqual([
-      'bar:cast:1',
-      'bar:cast:2',
-    ]);
     expect(pasted.scenario.connections).toHaveLength(3);
     expect(pasted.scenario.connections.at(-1)).toEqual({
       id: 'connection:new:1',
       consumption: false,
       from: {
-        kind: 'damageHit',
+        kind: 'skillCast',
         skillCastId: 'skillCast:new:1',
-        stepKey: 'hit:cast:1',
       },
       to: { kind: 'skillCast', skillCastId: 'skillCast:new:2' },
     });
