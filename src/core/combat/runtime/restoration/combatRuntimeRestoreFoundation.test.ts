@@ -9,7 +9,8 @@ import { CombatSemanticEventRuntime } from '../../events/combatSemanticEventRunt
 import { SimulationRandomSource } from '../../random/simulationRandom';
 import { CombatVitals } from '../../resources/combatVitals';
 import { CombatSkillPrograms } from '../../skills/combatSkillPrograms';
-import { createAbilitySystemState } from '../../state/abilityState';
+import { TimedMarkerContainer } from '../../status/timedMarkers';
+import { createAbilitySystemState, createOperatorCenterState } from '../../state/abilityState';
 import type { CombatStateGraph } from '../../state/combatState';
 import {
   createSimulationRandomState,
@@ -118,6 +119,12 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
         continuation: { nextIndex: 1, previous: null, stopped: false },
         groups: [],
       },
+      dodges: {
+        nextInputIndex: 0,
+        previousInput: null,
+        executedDashIds: new Set(),
+        declaredSuccessIds: new Set(),
+      },
       externalEvents: { nextEventIndex: 0, previousEvent: null },
     },
     environment: saved.environment,
@@ -128,6 +135,7 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
         {
           blackboard: saved.operatorBuffs.entityBlackboard,
           ability: createAbilitySystemState(),
+          center: createOperatorCenterState(),
           skills: new Map(),
           passives: new Map(),
           equipment: null,
@@ -164,6 +172,14 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   entityState.buffContainerCreated = true;
   entityState.buffs = createBuffContainerState(undefined, entityState.blackboard);
   graph.instances.abilityEntities.instances.set(entityTarget.instanceId, entityState);
+  for (const [ownerId, state] of [
+    ['enemy', graph.enemy.timedMarkers],
+    ['operator', graph.operators.get('operator')!.timedMarkers],
+  ] as const) {
+    const markers = new TimedMarkerContainer(ownerId, originalShared.clock, {}, state);
+    markers.add('scaled-marker', 3, originalShared.clock, 'globalScaled');
+    markers.add('global-marker', 3, originalShared.clock, 'global');
+  }
   const assemblyGraph = structuredClone(graph);
   const program = {
     operatorId: 'operator',
@@ -246,6 +262,9 @@ it('整场恢复基础阶段直接绑定共享账本、环境和全部基础 Buf
   });
   const { foundation: restored, entities, objects, frame } = candidate;
   expect(candidate.enemyTimedMarkers.runtimeState).toBe(graph.enemy.timedMarkers);
+  expect(candidate.enemyTimedMarkers.has('scaled-marker')).toBe(true);
+  expect(candidate.enemyTimedMarkers.has('global-marker')).toBe(true);
+  expect(objects.operators.cores.get('operator')!.timedMarkers.has('scaled-marker')).toBe(true);
 
   expect(restored.shared.runtimeState).toBe(saved.shared);
   expect(restored.shared.clock.runtimeState).toBe(saved.shared.clock);

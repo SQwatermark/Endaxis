@@ -17,7 +17,10 @@ describe('operatorDefinitionEditorCoverage', () => {
       'playerActionRoutes',
       'playerActionModes',
       'skillAliases',
+      'dodgeSkill',
+      'dashBuffs',
       'buffDisplayNameKeys',
+      'skillDisplayNameKeys',
       'comboSkillPriority',
       'passiveUi',
       'conversionSupport',
@@ -29,7 +32,7 @@ describe('operatorDefinitionEditorCoverage', () => {
       identityReadOnly: 2,
       editable: 13,
       structureEditable: 8,
-      preservedOnly: 8,
+      preservedOnly: 11,
     });
   });
 });

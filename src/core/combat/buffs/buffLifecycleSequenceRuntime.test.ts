@@ -2225,7 +2225,8 @@ describe('attachBuffLifecycleSequences', () => {
         execute: (_step, context) => {
           reached.push(context?.buffSourceId ?? '<missing>');
           expect(context?.skillCastInfo).toEqual(cast);
-          expect(context?.actionSourceId).toBe('operator');
+          expect(context?.actionSourceId).toBe('original-source');
+          expect(context?.actionInputTarget).toEqual({ kind: 'operator', operatorId: 'operator' });
           if (finishMode !== 'deferred')
             container.finishInstance(buff, finishMode, 'nested-source', cast);
           return true;
@@ -2279,7 +2280,9 @@ describe('attachBuffLifecycleSequences', () => {
 
       expect(container.ignite('PhysicalStatus', 'operator')).toBe(0);
       expect(container.ignite('EndminUlt', 'operator', cast)).toBe(1);
-      expect(reached).toEqual(finishMode === 'deferred' ? ['operator', 'operator'] : ['operator']);
+      expect(reached).toEqual(
+        finishMode === 'deferred' ? ['original-source', 'original-source'] : ['original-source'],
+      );
       expect(consumed).toEqual(
         finishMode === 'other'
           ? []

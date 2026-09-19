@@ -77,12 +77,26 @@ it('uses published operator, skill and weapon identities, including the timeline
       iconPath: '/buff.webp',
     },
   });
+  c.record({
+    event: 'BuffApplied',
+    frame: 0,
+    time: 0,
+    sourceId: 'track',
+    targetId: 'track',
+    data: {
+      instanceId: 2,
+      sourceActionId: 'upgrade-initialization:gear-set:suit_fixture',
+      iconPath: '/native-buff.webp',
+    },
+  });
   const q = new CombatObjectOrigins(c.entries);
   const icon = createCombatObjectIconResolver(
     c.entries,
     scenario,
     operators,
     capturePublishedEquipmentSources([{ slug: 'item', iconPath: '/weapon.webp' }]),
+    new Map(),
+    new Map([['suit_fixture', '/set.webp']]),
   );
   expect(icon(q.get({ kind: 'operator', operatorId: 'track' }), 0)).toBe(
     '/operators/arcane/avatar.webp',
@@ -91,6 +105,7 @@ it('uses published operator, skill and weapon identities, including the timeline
     '/operators/arcane/ultimate.webp',
   );
   expect(icon(q.get({ kind: 'buff', ownerId: 'track', instanceId: 1 }), 0)).toBe('/weapon.webp');
+  expect(icon(q.get({ kind: 'buff', ownerId: 'track', instanceId: 2 }), 1)).toBe('/set.webp');
   expect(
     icon(
       q.get({ kind: 'action', ownerId: 'track', actionId: 'upgrade-initialization:talent:1' }),

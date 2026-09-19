@@ -13,7 +13,10 @@ import type {
   CombatSkillCastProgram,
 } from '../combat/runtime/combatRuntimeAssembly';
 import { isOperatorControlledAt } from '../combat/skills/operatorControlTimeline';
-import type { ScheduledExternalCombatEventInput } from '../combat/state/environmentState';
+import type {
+  ScheduledDodgeInput,
+  ScheduledExternalCombatEventInput,
+} from '../combat/state/environmentState';
 import type { GameDataRepository } from '../game-data/gameDataRepository';
 import type { OperatorDefinition } from '../game-data/operatorDefinition';
 import {
@@ -239,6 +242,54 @@ export function compileScenarioExternalEventInputs(
     .map(({ order: _order, ...input }) => input);
 }
 
+/**
+ * 把一个闪避标签拆成原生执行顺序中的输入事实。极限闪避先进入 Dash，成功事实随后到达；
+ * 同帧时也保持这个顺序，避免成功声明观察到尚未开始的 Dash。
+ */
+export function compileScenarioDodgeInputs(
+  scenario: ScenarioDocument,
+): readonly ScheduledDodgeInput[] {
+  return (scenario.battle.dodgeMarkers ?? [])
+    .flatMap((marker, declarationOrder) => {
+      const track = scenario.tracks[marker.trackIndex];
+      if (track === null) {
+        throw new Error(`dodge marker '${marker.id}' references empty track ${marker.trackIndex}`);
+      }
+      const dash: ScheduledDodgeInput & { readonly declarationOrder: number; readonly phase: 0 } = {
+        kind: 'dash',
+        frame: marker.frame,
+        dodgeId: marker.id,
+        operatorId: track.id,
+        direction: marker.direction,
+        declarationOrder,
+        phase: 0,
+      };
+      if (marker.mode.kind === 'dodge') return [dash];
+      const successFrame = marker.frame + marker.mode.successDelayFrames;
+      if (!Number.isSafeInteger(successFrame)) {
+        throw new RangeError(`dodge marker '${marker.id}' success frame must be a safe integer`);
+      }
+      return [
+        dash,
+        {
+          kind: 'perfectDodgeSuccess' as const,
+          frame: successFrame,
+          dodgeId: marker.id,
+          operatorId: track.id,
+          declarationOrder,
+          phase: 1 as const,
+        },
+      ];
+    })
+    .sort(
+      (left, right) =>
+        left.frame - right.frame ||
+        left.phase - right.phase ||
+        left.declarationOrder - right.declarationOrder,
+    )
+    .map(({ declarationOrder: _declarationOrder, phase: _phase, ...input }) => input);
+}
+
 function bindOperatorRuntimes(
   operators: readonly CombatOperatorProgram[],
   bindings: ReadonlyMap<string, CombatOperatorRuntimeBindings> | undefined,
@@ -389,6 +440,14 @@ export function compileScenarioRuntimeAssembly(
       return {
         ...operator,
         definitionSkillPrograms: definitionPrograms.get(operator.operatorId)!,
+        ...(build.operator.dodgeSkill === undefined
+          ? {}
+          : {
+              dodgeProgram: {
+                skillId: build.operator.dodgeSkill.key,
+                dashBuffs: build.operator.dashBuffs ?? [],
+              },
+            }),
         skillCooldownPrograms: definitionPrograms.get(operator.operatorId)!.map(program => ({
           operatorId: program.operatorId,
           skillGroupKey: program.skillGroupKey,
@@ -428,9 +487,7 @@ export function compileScenarioRuntimeAssembly(
   );
   // 准备区只是可编辑范围，不应让空白负时间凭空推进资源恢复和 Buff 计时。
   // 只有确实放置了负帧技能时，战斗运行时才从最早的输入帧启动。
-  const initialFrame =
-    options.liveInputInitialFrame ??
-    resolveScenarioInitialFrame(scenario);
+  const initialFrame = options.liveInputInitialFrame ?? resolveScenarioInitialFrame(scenario);
   const controlTimeline = resolveControlTimeline(
     scenario.tracks,
     options.liveInputInitialFrame === undefined ? scenario.battle.controlSwitches : [],
@@ -471,6 +528,8 @@ export function compileScenarioRuntimeAssembly(
       options.liveInputInitialFrame === undefined
         ? compileScenarioExternalEventInputs(scenario)
         : [],
+    dodgeInputs:
+      options.liveInputInitialFrame === undefined ? compileScenarioDodgeInputs(scenario) : [],
     isOperatorControlled: (operatorId, frame) =>
       isOperatorControlledAt(controlTimeline, operatorId, frame),
   };

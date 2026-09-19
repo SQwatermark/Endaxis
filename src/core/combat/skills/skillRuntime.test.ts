@@ -2,6 +2,7 @@ import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import { perlica } from '../../../data/operators/perlica.generated';
 import { liino } from '../../../data/operators/liino.generated';
+import { arcaneUltimate } from '../../../data/operators/arcane.generated';
 import { listOperatorSkillDefinitionBindings } from '../../game-data/operatorSkillDefinitions';
 import type { SkillDefinition } from '../../game-data/operatorDefinition';
 import { compileSkill } from '../../compiler/compileSkill';
@@ -213,7 +214,11 @@ describe('SkillRuntime', () => {
     });
     const originalAbility = new AbilitySystemRuntime({ skills: [original] });
     originalAbility.tryStartSkill(program.skillId);
-    const originalBuff = { reference: createTestBuffReference(), finish: vi.fn() };
+    const originalBuff = {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: vi.fn(),
+    };
     original.attachBuffToCast(1, originalBuff);
     clock.advanceFrame();
     originalAbility.advanceFrame();
@@ -227,7 +232,7 @@ describe('SkillRuntime', () => {
     const restoredClock = new CombatClock(saved.clock);
     const restoredReceipt = new CombatReceiptCollector(savedHistory);
     const allocateSkillCastId = vi.fn(() => 2);
-    const restoredBuff = { reference: originalBuff.reference, finish: vi.fn() };
+    const restoredBuff = { isRecycled: false, reference: originalBuff.reference, finish: vi.fn() };
     const resumed = new SkillRuntime(
       program,
       {
@@ -569,7 +574,11 @@ describe('SkillRuntime', () => {
     };
     const ability = new AbilitySystemRuntime({ skills: [callback.runtime] });
     expect(ability.tryStartProjectileCallbackSkill('callback', source)).toBe(true);
-    const attached = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
+    const attached = {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: vi.fn(() => true),
+    };
     callback.runtime.attachBuffToCast(77, attached);
     source.nonReturnedSpCost = 99;
     callback.simulation.advanceFrames(2);
@@ -1010,8 +1019,16 @@ describe('SkillRuntime', () => {
   it('keeps attachments on the addressed runtime while another skill is casting', () => {
     const previous = createBattleSkillRuntime(300).runtime;
     const next = createBattleSkillRuntime(300).runtime;
-    const oldBuff = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
-    const newBuff = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
+    const oldBuff = {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: vi.fn(() => true),
+    };
+    const newBuff = {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: vi.fn(() => true),
+    };
     previous.prepareSkillCastId(10);
     previous.tryStart();
     previous.attachBuffToCast(10, oldBuff);
@@ -1036,6 +1053,7 @@ describe('SkillRuntime', () => {
         () => order.push('skillEnd'),
       );
       const first = {
+        isRecycled: false,
         reference: createTestBuffReference(),
         finish: vi.fn(() => {
           order.push('first');
@@ -1043,6 +1061,7 @@ describe('SkillRuntime', () => {
         }),
       };
       const alreadyFinished = {
+        isRecycled: false,
         reference: createTestBuffReference(),
         finish: vi.fn(() => {
           order.push('second');
@@ -1091,12 +1110,18 @@ describe('SkillRuntime', () => {
           },
         ],
       });
-      const addedDuringEnd = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
+      const addedDuringEnd = {
+        isRecycled: false,
+        reference: createTestBuffReference(),
+        finish: vi.fn(() => true),
+      };
       const addedDuringBuffFinish = {
+        isRecycled: false,
         reference: createTestBuffReference(),
         finish: vi.fn(() => true),
       };
       const original = {
+        isRecycled: false,
         reference: createTestBuffReference(),
         finish: vi.fn(() => {
           fixture.runtime.attachInheritedBuff(addedDuringBuffFinish);
@@ -1120,14 +1145,97 @@ describe('SkillRuntime', () => {
     },
   );
 
+  it('清理每个附属引用时重新检查有效性，前一个回调可回收后一个实例', () => {
+    const fixture = createBattleSkillRuntime(300);
+    const later = {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: vi.fn(() => true),
+    };
+    const first = {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: vi.fn(() => {
+        later.isRecycled = true;
+        return true;
+      }),
+    };
+    fixture.runtime.tryStart();
+    fixture.runtime.attachInheritedBuff(first);
+    fixture.runtime.attachInheritedBuff(later);
+    fixture.runtime.end();
+    expect(first.finish).toHaveBeenCalledOnce();
+    expect(later.finish).not.toHaveBeenCalled();
+    expect(fixture.runtime.runtimeState.execution.attachedBuffs.size).toBe(0);
+  });
+
+  it('MarkCanDash 只打开当前施放的闪避窗口并进入切面数据', () => {
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      key: 'mark-can-dash',
+      timelineBlockFrames: 10,
+      naturalDurationFrames: 20,
+      exclusiveFrame: 100,
+      scheduledSequences: [
+        {
+          startFrame: 1,
+          sequence: {
+            steps: [{ kind: 'markCurrentSkillCanDash', parameters: {} }],
+          },
+        },
+      ],
+    });
+
+    fixture.runtime.tryStart();
+    expect(fixture.runtime.canInterrupt).toBe(false);
+    expect(fixture.runtime.canDash).toBe(false);
+
+    fixture.simulation.advanceFrames(1);
+
+    expect(fixture.runtime.canInterrupt).toBe(false);
+    expect(fixture.runtime.canDash).toBe(true);
+    expect(structuredClone(fixture.runtime.runtimeState).markedCanDash).toBe(true);
+
+    fixture.runtime.interrupt('dash');
+    fixture.runtime.tryStart();
+    expect(fixture.runtime.canDash).toBe(false);
+  });
+
+  it('chr_0032_lizhiyan 终结技按原生第 48 帧开放闪避', () => {
+    const markWindow = arcaneUltimate.scheduledSequences.find(item =>
+      item.sequence.steps.some(step => step.kind === 'markCurrentSkillCanDash'),
+    );
+    expect(markWindow?.startFrame).toBe(48);
+    const fixture = createBattleSkillRuntime(300, undefined, undefined, {
+      ...arcaneUltimate,
+      scheduledSequences: markWindow === undefined ? [] : [markWindow],
+    });
+    fixture.runtime.prepareForcedTimelineCast();
+    fixture.runtime.tryStart();
+
+    fixture.simulation.advanceFrames(47);
+    expect(fixture.runtime.canDash).toBe(false);
+
+    fixture.simulation.advanceFrames(1);
+    expect(fixture.runtime.canDash).toBe(true);
+    expect(fixture.runtime.canInterrupt).toBe(false);
+  });
+
   it('keeps equal local Buff numbers on different owners distinct', () => {
     const fixture = createBattleSkillRuntime(300, undefined, undefined, {
       key: 'attachment-owner-identity',
       timelineBlockFrames: 0,
       scheduledSequences: [],
     });
-    const first = { reference: { ownerId: 'first', instanceId: 1 }, finish: vi.fn(() => true) };
-    const second = { reference: { ownerId: 'second', instanceId: 1 }, finish: vi.fn(() => true) };
+    const first = {
+      isRecycled: false,
+      reference: { ownerId: 'first', instanceId: 1 },
+      finish: vi.fn(() => true),
+    };
+    const second = {
+      isRecycled: false,
+      reference: { ownerId: 'second', instanceId: 1 },
+      finish: vi.fn(() => true),
+    };
     fixture.runtime.tryStart();
     fixture.runtime.attachInheritedBuff(first);
     fixture.runtime.attachInheritedBuff(second);

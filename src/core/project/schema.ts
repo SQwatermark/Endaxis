@@ -314,6 +314,15 @@ export interface ExternalEventMarkerDocument {
   event: ExternalCombatEventDocument;
 }
 
+/** 时间轴上一次普通闪避或人工声明成功的极限闪避输入。 */
+export interface DodgeMarkerDocument {
+  id: string;
+  frame: number;
+  trackIndex: 0 | 1 | 2 | 3;
+  direction: 'forward' | 'backward';
+  mode: { kind: 'dodge' } | { kind: 'perfectDodge'; successDelayFrames: number };
+}
+
 /** 一次模拟的时间范围、共享资源规则与控制事件。敌人失衡规则归敌人实例所有。 */
 export interface BattleDocument {
   prepFrames: number;
@@ -338,6 +347,8 @@ export interface BattleDocument {
   controlSwitches: ControlSwitchDocument[];
   /** 旧 schema-1 文档可以省略；省略与空数组语义相同。 */
   externalEventMarkers?: ExternalEventMarkerDocument[];
+  /** 旧 schema-1 文档可以省略；省略与空数组语义相同。 */
+  dodgeMarkers?: DodgeMarkerDocument[];
 }
 
 /**

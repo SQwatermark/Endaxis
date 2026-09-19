@@ -26,6 +26,33 @@ import { StateStepper } from '../runtime/stateStepper';
 
 type Attribute = 'attack';
 
+it('引用在回收回调中仍有效，回收后失效；错误编号和宿主仍拒绝', () => {
+  const container = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());
+  const definition: CombatBuffDefinition<Attribute> = { id: 'same', stackingType: 'unlimited' };
+  const buff = requireAddedBuff(container.add(definition, 'source'));
+  let callbacks = 0;
+  buff.onRecycled(() => {
+    callbacks++;
+    expect(buff.isRecycled).toBe(false);
+    expect(container.resolveHandle(buff.reference)).toBe(buff);
+    buff.recycleFinished();
+  });
+  buff.finish('other', null);
+  expect(container.resolveHandle(buff.reference)).toBe(buff);
+  container.recycleFinishedBuffs();
+  expect(callbacks).toBe(1);
+  expect(buff.isRecycled).toBe(true);
+  const next = requireAddedBuff(container.add(definition, 'source'));
+  expect(container.resolveHandle(buff.reference)).toBeUndefined();
+  expect(container.resolveHandle(next.reference)).toBe(next);
+  expect(() => container.resolveHandle({ ownerId: 'owner', instanceId: 100 })).toThrow(
+    'never allocated',
+  );
+  expect(() => container.resolveHandle({ ownerId: 'other', instanceId: next.instanceId })).toThrow(
+    'does not match',
+  );
+});
+
 it('恢复护盾保留余额和创建时参数，耗尽只结束新分支的 Buff', () => {
   const oldContainer = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());
   const newContainer = new CombatBuffContainer('owner', new CombatAttributeSet<Attribute>());

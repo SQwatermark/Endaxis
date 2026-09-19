@@ -137,7 +137,7 @@ export function compileEquipmentDefinitionSource(
 }
 
 /** ItemTable 的 iconId 自带稳定系列段；沿用既有 public/equipment 目录约定。 */
-function projectEquipmentIconPath(iconId: string): string {
+export function projectEquipmentIconPath(iconId: string): string {
   const match = /^item_equip_t\d+_(?:suit|parts)_(.+)_(?:body|hand|edc)_\d+$/.exec(iconId);
   if (match?.[1] === undefined) {
     throw new Error(`equipment icon identity '${iconId}' has no stable series segment`);

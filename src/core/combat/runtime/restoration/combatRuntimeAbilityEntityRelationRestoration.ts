@@ -18,6 +18,7 @@ import { AbilityEntityChildSkillRuntime } from '../../abilities/abilityEntityChi
 import type { CallbackSkillHostFactory } from '../../abilities/callbackSkillHost';
 import type { RegisterPassiveAbilityEventAction } from '../../abilities/passiveAbilityEventRuntime';
 import type { ActionBlackboard } from '../../actions/actionBlackboard';
+import type { CombatOperationPrograms } from '../../actions/combatOperationPrograms';
 import { buffReferenceKey } from '../../buffs/buffReference';
 import type { BuffApplicationHandle } from '../../buffs/combatBuffs';
 import type {
@@ -51,6 +52,7 @@ export interface RestoreCombatRuntimeAbilityEntityRelationsOptions {
   readonly entities: RestoredCombatAbilityEntityDirectory;
   readonly operators: RestoredCombatRuntimeOperators;
   readonly childSkillPrograms: AbilityEntityChildSkillPrograms;
+  readonly combatOperationPrograms?: CombatOperationPrograms;
   readonly createPassiveOperations: (input: {
     readonly ownerId: string;
     readonly entity: AbilityEntityTargetRef;
@@ -88,7 +90,11 @@ export function bindRestoredCombatRuntimeAbilityEntityRelations(
       const definition =
         operator === undefined
           ? undefined
-          : resolveRestoredAbilityEntityDefinition(operator, state);
+          : resolveRestoredAbilityEntityDefinition(
+              operator,
+              state,
+              options.combatOperationPrograms,
+            );
       if (definition === undefined) {
         throw new Error(
           `restored AbilityEntity '${instanceId}' definition '${state.abilityEntityId}' does not exist for '${state.ownerId}'`,
@@ -196,11 +202,17 @@ export function bindRestoredCombatRuntimeAbilityEntityRelations(
   };
 }
 
-/** 优先按保存的来源施法定位技能内定义；无施法来源时只接受唯一的固定定义。 */
+/** 恢复创建时的实际定义；独立实体目录未登记程序时，才按显式来源或唯一固定定义查找。 */
 export function resolveRestoredAbilityEntityDefinition(
   operator: CombatOperatorProgram,
   state: LogicalAbilityEntityState,
+  programsDirectory?: CombatOperationPrograms,
 ): ResolvedAbilityEntityDefinition | undefined {
+  if (state.definitionProgramId !== undefined) {
+    if (programsDirectory === undefined)
+      throw new Error('restored AbilityEntity requires its combat operation program directory');
+    return programsDirectory.resolve<ResolvedAbilityEntityDefinition>(state.definitionProgramId);
+  }
   const programs = [...operator.skills, ...(operator.definitionSkillPrograms ?? [])];
   const origin = state.skillCastInfo;
   if (origin != null) {

@@ -21,15 +21,21 @@ const props = defineProps<{
   hasSimulationStart: boolean;
   hasSimulationEnd: boolean;
   existingLabel?: string;
+  existingDodgeMode?: 'dodge' | 'perfectDodge';
   labels: {
     title: string;
     deleteMarker: string;
+    copyMarker: string;
     addCycle: string;
     addSimulationStart: string;
     removeSimulationStart: string;
     addSimulationEnd: string;
     removeSimulationEnd: string;
     switchOperator: string;
+    dodge: string;
+    perfectDodge: string;
+    switchToDodge: string;
+    switchToPerfectDodge: string;
     useConsumable: string;
     restrictedHint: string;
     operatorHit: string;
@@ -44,6 +50,9 @@ const emit = defineEmits<{
   toggleSimulationStart: [];
   toggleSimulationEnd: [];
   addSwitch: [trackIndex: number];
+  addDodge: [mode: 'dodge' | 'perfectDodge'];
+  setDodgeMode: [mode: 'dodge' | 'perfectDodge'];
+  copyMarker: [];
   useConsumable: [];
   addOperatorHit: [];
   addOperatorWeakness: [];
@@ -121,6 +130,31 @@ onBeforeUnmount(() => {
       <div v-if="cycleBoundary && !inheritanceBoundary" class="divider"></div>
       <fieldset v-if="!inheritanceBoundary" :disabled="readOnly" class="menu-actions">
         <template v-if="existingLabel">
+          <EaButton
+            v-if="existingDodgeMode"
+            type="button"
+            role="menuitem"
+            class="menu-item"
+            @click="$emit('copyMarker')"
+          >
+            <span class="menu-icon" aria-hidden="true">⧉</span>
+            <span>{{ labels.copyMarker }}</span>
+            <kbd>Ctrl+C</kbd>
+          </EaButton>
+          <EaButton
+            v-if="existingDodgeMode"
+            type="button"
+            role="menuitem"
+            class="menu-item"
+            @click="$emit('setDodgeMode', existingDodgeMode === 'dodge' ? 'perfectDodge' : 'dodge')"
+          >
+            <span class="menu-icon" aria-hidden="true">{{
+              existingDodgeMode === 'dodge' ? '✦' : '↝'
+            }}</span>
+            <span>{{
+              existingDodgeMode === 'dodge' ? labels.switchToPerfectDodge : labels.switchToDodge
+            }}</span>
+          </EaButton>
           <EaButton type="button" role="menuitem" class="menu-item danger" @click="$emit('delete')">
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
@@ -228,6 +262,25 @@ onBeforeUnmount(() => {
               <path d="M8 12h8" />
             </svg>
             <span>{{ labels.useConsumable }}</span>
+          </EaButton>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            :disabled="!canTargetTrack"
+            @click="$emit('addDodge', 'dodge')"
+          >
+            <span class="menu-icon" aria-hidden="true">↝</span><span>{{ labels.dodge }}</span>
+          </EaButton>
+          <EaButton
+            type="button"
+            class="menu-item"
+            role="menuitem"
+            :disabled="!canTargetTrack"
+            @click="$emit('addDodge', 'perfectDodge')"
+          >
+            <span class="menu-icon" aria-hidden="true">✦</span
+            ><span>{{ labels.perfectDodge }}</span>
           </EaButton>
           <div class="divider"></div>
           <small class="menu-label">{{ labels.restrictedHint }}</small>

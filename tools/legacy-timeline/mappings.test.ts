@@ -3,6 +3,31 @@ import mappings from './mappings.2026-08-31.json';
 import { gameDataRepository } from '../../src/data/gameDataRepository';
 import { legacySkillIdentity } from './sourcePreparation';
 
+it('resolves historical gamedata targets and does not collapse an enhanced attack sequence', () => {
+  for (const rule of mappings.historicalSkills) {
+    const target = rule.target;
+    const operator = gameDataRepository.getOperator(rule.operator)!;
+    const group = operator.skillGroups.find(group => group.key === target.skillGroupKey)!;
+    expect(group, rule.id).toBeDefined();
+    if (target.kind === 'operatorSkillSequence') {
+      expect(
+        group.variants?.some(v => v.key === target.variantKey),
+        rule.id,
+      ).toBe(true);
+    } else if (target.kind === 'operatorSkill') {
+      const skills = [
+        ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
+        ...(group.replacementSkills ?? []),
+        ...(group.variants ?? []).flatMap(v => (Array.isArray(v.skills) ? v.skills : [v.skills])),
+      ];
+      expect(
+        skills.some(s => s.key === target.skillKey),
+        rule.id,
+      ).toBe(true);
+    }
+  }
+});
+
 it('contains the complete one-time mapping catalog for the legacy data snapshot', () => {
   expect(Object.keys(mappings.operators)).toHaveLength(31);
   expect(Object.keys(mappings.weapons)).toHaveLength(79);
@@ -73,7 +98,7 @@ it('keeps each reviewed skill mapping unique and points to an existing group mem
           const variant = group.variants?.find(candidate => candidate.key === variantKey);
           expect(variant, slug + '/' + variantKey).toBeDefined();
         }
-        for (const continuation of 'continuations' in target ? target.continuations : []) {
+        for (const continuation of 'continuations' in target ? (target.continuations ?? []) : []) {
           const continuationGroup = definition.skillGroups.find(
             group => group.key === continuation.skillGroupKey,
           );

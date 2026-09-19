@@ -78,6 +78,14 @@ describe('next Zhuang Fangyi definition', () => {
         inheritOriginSkillCooldownProgress: true,
       },
     ]);
+    expect(ultimateBuff?.lifecycleSequences?.enable?.steps).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          kind: 'overrideMultiDashLimit',
+          parameters: { dashCount: { kind: 'constant', value: -1 } },
+        }),
+      ]),
+    );
   });
 
   it.each(Array.from({ length: 12 }, (_, index) => index + 1))(

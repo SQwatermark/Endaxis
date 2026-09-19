@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_wisd01',
+  iconPath: '/equipment/wisd01/item_equip_t2_suit_wisd01_edc_03.webp',
   modifiers: [
     {
       kind: 'attribute',

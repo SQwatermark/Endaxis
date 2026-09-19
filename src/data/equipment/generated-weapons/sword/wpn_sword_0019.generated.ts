@@ -168,19 +168,10 @@ const definition = {
                         "target": "party",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "dmg_up": {
-                            "kind": "blackboard",
-                            "key": "dmg_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "max_stack": {
-                            "kind": "blackboard",
-                            "key": "max_stack"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "dmg_up": "dmg_up",
+                          "duration": "duration",
+                          "max_stack": "max_stack"
                         }
                       }
                     }

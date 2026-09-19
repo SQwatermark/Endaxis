@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_combo_cd01',
+  iconPath: '/equipment/combo_cd01/item_equip_t4_suit_combo_cd01_body_01.webp',
   modifiers: [
     {
       kind: 'skillCooldownMultiplier',
@@ -52,19 +53,10 @@ const definition = {
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         asChildBuff: true,
-                        blackboardAssignments: {
-                          spell_up: {
-                            kind: 'blackboard',
-                            key: 'spell_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
-                          max_stack: {
-                            kind: 'blackboard',
-                            key: 'max_stack',
-                          },
+                        copiedBlackboardAssignments: {
+                          spell_up: 'spell_up',
+                          duration: 'duration',
+                          max_stack: 'max_stack',
                         },
                       },
                     },

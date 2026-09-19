@@ -114,7 +114,9 @@ export async function auditCandidateEquipment(args: AuditArguments) {
     const runtimeSkillSettings = await server.ssrLoadModule('/src/data/combat/skillSettings.ts');
     const attachmentModule = await server.ssrLoadModule('/src/data/buffs/elementalAttachments.ts');
     const projectModule = await server.ssrLoadModule('/src/core/project/createProject.ts');
-    const placementModule = await server.ssrLoadModule('/src/ui/timeline/placeSkillGroup.ts');
+    const placementModule = await server.ssrLoadModule(
+      '/src/ui/timeline/interaction/placeSkillGroup.ts',
+    );
     const serviceModule = await server.ssrLoadModule(
       '/src/application/simulation/scenarioSimulationService.ts',
     );

@@ -209,10 +209,7 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
                 buffId: 'buff_chr_0011_seraph_talent_1_crystup',
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  cryst_up: { kind: 'blackboard', key: 'cryst_up' },
-                  duration: { kind: 'blackboard', key: 'duration' },
-                },
+                copiedBlackboardAssignments: { cryst_up: 'cryst_up', duration: 'duration' },
               }),
             ),
             undefined,
@@ -285,6 +282,7 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 13,
     naturalDurationFrames: 117,
     exclusiveFrame: 14,
+    offsetRecordFrame: 10,
     inputWindows: {
       commandMappings: [
         {
@@ -309,12 +307,24 @@ export const xaihiBasicAttack1: SkillDefinition = withSkillBlackboard(
         ]),
         10,
       ),
+      scheduled(
+        13,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack2'] }),
+        ),
+        25,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34] },
+  {
+    atb: 0,
+    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+  },
 );
 
 export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -324,6 +334,7 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 17,
     naturalDurationFrames: 121,
     exclusiveFrame: 20,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -348,12 +359,24 @@ export const xaihiBasicAttack2: SkillDefinition = withSkillBlackboard(
         ]),
         7,
       ),
+      scheduled(
+        17,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack3'] }),
+        ),
+        28,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36] },
+  {
+    atb: 0,
+    atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
+    display_atk_scale: [0.16, 0.18, 0.19, 0.21, 0.22, 0.24, 0.26, 0.27, 0.29, 0.31, 0.33, 0.36],
+  },
 );
 
 export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -363,6 +386,7 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 14,
     naturalDurationFrames: 125,
     exclusiveFrame: 14,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -387,12 +411,24 @@ export const xaihiBasicAttack3: SkillDefinition = withSkillBlackboard(
         ]),
         8,
       ),
+      scheduled(
+        14,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack4'] }),
+        ),
+        25,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47] },
+  {
+    atb: 0,
+    atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
+    display_atk_scale: [0.21, 0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.38, 0.4, 0.44, 0.47],
+  },
 );
 
 export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -402,6 +438,7 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 128,
     exclusiveFrame: 24,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -435,12 +472,24 @@ export const xaihiBasicAttack4: SkillDefinition = withSkillBlackboard(
         ]),
         7,
       ),
+      scheduled(
+        21,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack5'] }),
+        ),
+        33,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37] },
+  {
+    atb: 0,
+    atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
+    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
+  },
 );
 
 export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -450,6 +499,7 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 33,
     naturalDurationFrames: 137,
     exclusiveFrame: 33,
+    offsetRecordFrame: 19,
     inputWindows: {
       commandMappings: [
         {
@@ -497,7 +547,15 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         19,
       ),
+      scheduled(
+        33,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0011_seraph_attack1'] }),
+        ),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0011_seraph_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -506,6 +564,7 @@ export const xaihiBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 15,
     atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
     poise: 15,
+    display_atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
   },
 );
 
@@ -516,6 +575,7 @@ export const xaihiFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 34,
     naturalDurationFrames: 160,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -606,6 +666,7 @@ export const xaihiPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 13,
     naturalDurationFrames: 116,
     exclusiveFrame: 12,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -651,6 +712,7 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 31,
     naturalDurationFrames: 145,
     exclusiveFrame: 30,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -702,12 +764,12 @@ export const xaihiBattleSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0011_seraph_spawnball',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-              heal_value: { kind: 'blackboard', key: 'heal_value' },
-              buff_duration: { kind: 'blackboard', key: 'buff_duration' },
-              will_up: { kind: 'blackboard', key: 'will_up' },
+            copiedBlackboardAssignments: {
+              atk_up: 'atk_up',
+              atk_scale: 'atk_scale',
+              heal_value: 'heal_value',
+              buff_duration: 'buff_duration',
+              will_up: 'will_up',
             },
           }),
         ),
@@ -737,6 +799,7 @@ export const xaihiComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 25,
     naturalDurationFrames: 122,
     exclusiveFrame: 42,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 25, endFrame: 60, sourceSkillIds: ['chr_0011_seraph_normal_skill'] },
@@ -844,6 +907,7 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 67,
     naturalDurationFrames: 183,
     exclusiveFrame: 80,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -911,11 +975,11 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0011_seraph_atk_buff',
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              duration: { kind: 'blackboard', key: 'duration' },
-              wisd_up: { kind: 'blackboard', key: 'wisd_up' },
-              wisd_max: { kind: 'blackboard', key: 'wisd_max' },
+            copiedBlackboardAssignments: {
+              atk_up: 'atk_up',
+              duration: 'duration',
+              wisd_up: 'wisd_up',
+              wisd_max: 'wisd_max',
             },
           }),
         ),
@@ -938,6 +1002,22 @@ export const xaihiUltimate: SkillDefinition = withSkillBlackboard(
       0.00028, 0.0003,
     ],
   },
+);
+
+export const xaihiPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const xaihi: OperatorDefinition = {
@@ -991,6 +1071,10 @@ export const xaihi: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: xaihiUltimate },
   ],
+  dodgeSkill: xaihiPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1007,6 +1091,13 @@ export const xaihi: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -1370,9 +1461,9 @@ export const xaihi: OperatorDefinition = {
                     target: 'buffOwner',
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      buff_duration: { kind: 'blackboard', key: 'buff_duration' },
-                      atk_up: { kind: 'blackboard', key: 'atk_up' },
+                    copiedBlackboardAssignments: {
+                      buff_duration: 'buff_duration',
+                      atk_up: 'atk_up',
                     },
                   }),
                 ),
@@ -1458,13 +1549,13 @@ export const xaihi: OperatorDefinition = {
                               target: 'buffOwner',
                               sourceContextKey: 'seraph',
                               inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                                heal_value: { kind: 'blackboard', key: 'heal_value' },
-                                potential_1: { kind: 'blackboard', key: 'potential_1' },
-                                buff_duration: { kind: 'blackboard', key: 'buff_duration' },
-                                atk_up: { kind: 'blackboard', key: 'atk_up' },
-                                will_up: { kind: 'blackboard', key: 'will_up' },
+                              copiedBlackboardAssignments: {
+                                atk_scale: 'atk_scale',
+                                heal_value: 'heal_value',
+                                potential_1: 'potential_1',
+                                buff_duration: 'buff_duration',
+                                atk_up: 'atk_up',
+                                will_up: 'will_up',
                               },
                             }),
                             step('createTimedMarker', {

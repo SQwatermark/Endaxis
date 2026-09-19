@@ -324,9 +324,24 @@ export function compileOperatorDefinitionSkills(
       }),
     );
   });
-  return applyOperatorUpgradeSkillPatches(skills, resolveActiveOperatorUpgrades(build, operator), {
-    buildAttributes,
-  });
+  const runtimeSkills =
+    operator.dodgeSkill === undefined
+      ? []
+      : [
+          compileSkill({
+            operatorId: trackId,
+            skillGroupKey: 'dodge',
+            skillType: 'dodge',
+            skillLevel: 1,
+            skill: operator.dodgeSkill,
+            abilityEntityDefinitions,
+          }),
+        ];
+  return applyOperatorUpgradeSkillPatches(
+    [...skills, ...runtimeSkills],
+    resolveActiveOperatorUpgrades(build, operator),
+    { buildAttributes },
+  );
 }
 
 interface ResolvedTimelineTrack {

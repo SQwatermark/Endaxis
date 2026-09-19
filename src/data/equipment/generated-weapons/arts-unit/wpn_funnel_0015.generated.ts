@@ -292,19 +292,10 @@ const definition = {
                                     "target": "caster",
                                     "inheritSourceSkillCastInfo": true,
                                     "asChildBuff": true,
-                                    "blackboardAssignments": {
-                                      "pulse_dmg_up": {
-                                        "kind": "blackboard",
-                                        "key": "pulse_dmg_up2"
-                                      },
-                                      "max_stack": {
-                                        "kind": "blackboard",
-                                        "key": "max_stack"
-                                      },
-                                      "duration": {
-                                        "kind": "blackboard",
-                                        "key": "duration"
-                                      }
+                                    "copiedBlackboardAssignments": {
+                                      "pulse_dmg_up": "pulse_dmg_up2",
+                                      "max_stack": "max_stack",
+                                      "duration": "duration"
                                     }
                                   }
                                 },
@@ -357,15 +348,9 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "pulse_dmg_up": {
-                            "kind": "blackboard",
-                            "key": "pulse_dmg_up3"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration2"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "pulse_dmg_up": "pulse_dmg_up3",
+                          "duration": "duration2"
                         }
                       }
                     }

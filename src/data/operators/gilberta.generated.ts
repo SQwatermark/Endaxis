@@ -120,6 +120,7 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 91,
     exclusiveFrame: 30,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -188,12 +189,24 @@ export const gilbertaBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         7,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack2'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68] },
+  {
+    atb: 0,
+    atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+  },
 );
 
 export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -203,6 +216,7 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 118,
     exclusiveFrame: 30,
+    offsetRecordFrame: 4,
     inputWindows: {
       commandMappings: [
         {
@@ -310,12 +324,24 @@ export const gilbertaBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack3'] }),
+        ),
+        29,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41] },
+  {
+    atb: 0,
+    atk_scale: [0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.29, 0.31, 0.32, 0.35, 0.37, 0.41],
+    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
+  },
 );
 
 export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -325,6 +351,7 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 23,
     naturalDurationFrames: 138,
     exclusiveFrame: 38,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -367,12 +394,24 @@ export const gilbertaBasicAttack3: SkillDefinition = withSkillBlackboard(
         ]),
         15,
       ),
+      scheduled(
+        23,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack4'] }),
+        ),
+        38,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3] },
+  {
+    atb: 0,
+    atk_scale: [0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.22, 0.23, 0.24, 0.26, 0.28, 0.3],
+    display_atk_scale: [0.41, 0.45, 0.49, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.78, 0.84, 0.91],
+  },
 );
 
 export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -382,6 +421,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 40,
     naturalDurationFrames: 147,
     exclusiveFrame: 50,
+    offsetRecordFrame: 23,
     inputWindows: {
       commandMappings: [
         {
@@ -466,7 +506,15 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
         ]),
         27,
       ),
+      scheduled(
+        40,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0013_aglina_attack1'] }),
+        ),
+        50,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0013_aglina_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -474,6 +522,7 @@ export const gilbertaBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 16,
     atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.37],
+    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.12],
     poise: 16,
   },
 );
@@ -485,6 +534,7 @@ export const gilbertaFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 43,
     naturalDurationFrames: 125,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -655,6 +705,7 @@ export const gilbertaPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 94,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -707,6 +758,7 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 123,
     naturalDurationFrames: 203,
     exclusiveFrame: 135,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 123, endFrame: 148, sourceSkillIds: ['chr_0013_aglina_combo_skill'] },
@@ -919,12 +971,20 @@ export const gilbertaBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale_explosion: [0.58, 0.63, 0.69, 0.75, 0.81, 0.86, 0.92, 0.98, 1.04, 1.11, 1.2, 1.3],
     atk_scale_pull: [0.24, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.55],
+    cam_angle: 0,
+    cam_duration: 0,
     heal_const: 0,
     heal_scale: 0,
+    input_angle: 0,
+    maxChargeTime: 0,
     poise: 10,
     potential: 0,
     radius: 5.2,
     radiusadd_display: 0,
+    recovercost: 0,
+    display_atk_scale_pull: [
+      0.97, 1.07, 1.17, 1.26, 1.36, 1.46, 1.56, 1.65, 1.75, 1.87, 2.02, 2.19,
+    ],
   },
 );
 
@@ -935,6 +995,7 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 64,
     naturalDurationFrames: 116,
     exclusiveFrame: 85,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1043,20 +1104,26 @@ export const gilbertaUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [3.33, 3.67, 4, 4.33, 4.67, 5, 5.34, 5.67, 6, 6.42, 6.92, 7.5],
+    damage_scale: 0.5,
     duration: 5,
     final_resistance_scalar: 0,
     final_resistance_scalar_inair: 0,
     move_speed_scalar: 0.8,
     poise: 20,
+    potential_lv: 0,
     potential2: 0,
     potential2_onceadd: 0,
     radius: 5,
     resistance_scalar: 0,
     resistance_scalar_inair: 0,
+    select_radius: 10,
     spell_vulnerable_perstack: 0.1,
     spell_vulnerable_rate: [0.18, 0.18, 0.18, 0.22, 0.22, 0.22, 0.26, 0.26, 0.26, 0.3, 0.3, 0.3],
     wisd_increase: 0,
     wisd_increase_inair: 0,
+    spell_vulnerable_4stack: [
+      0.252, 0.252, 0.252, 0.308, 0.308, 0.308, 0.364, 0.364, 0.364, 0.42, 0.42, 0.42,
+    ],
   },
 );
 
@@ -1067,6 +1134,7 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 53,
     naturalDurationFrames: 130,
     exclusiveFrame: 72,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 53, endFrame: 72, sourceSkillIds: ['chr_0013_aglina_normal_skill'] },
@@ -1492,6 +1560,22 @@ export const gilbertaComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const gilbertaPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const gilberta: OperatorDefinition = {
   slug: 'gilberta',
   gameId: 'GILBERTA',
@@ -1547,6 +1631,10 @@ export const gilberta: OperatorDefinition = {
       skills: gilbertaComboSkill,
     },
   ],
+  dodgeSkill: gilbertaPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1563,6 +1651,7 @@ export const gilberta: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1802,7 +1891,7 @@ export const gilberta: OperatorDefinition = {
                 source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 asChildBuff: true,
-                blackboardAssignments: { add: { kind: 'blackboard', key: 'add' } },
+                copiedBlackboardAssignments: { add: 'add' },
               }),
             ),
           ),
@@ -1964,7 +2053,7 @@ export const gilberta: OperatorDefinition = {
                 source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
-                blackboardAssignments: { rate: { kind: 'blackboard', key: 'FinalRate' } },
+                copiedBlackboardAssignments: { rate: 'FinalRate' },
               }),
             ),
           },

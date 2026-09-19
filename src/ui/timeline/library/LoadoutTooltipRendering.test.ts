@@ -42,6 +42,52 @@ describe('构筑 tooltip 渲染', () => {
     expect(html).toContain('终结技');
     expect(html).toContain('高歌姿态');
     expect(html).toContain('game-rich-text');
+    expect(html).toContain('终结技能量');
+    expect(html).not.toContain('>ultimateEnergy<');
+  });
+
+  it('战技消耗使用技力的中文名称', async () => {
+    const html = await renderComponent(OperatorSkillTooltip, {
+      operator: gameDataRepository.getOperator('arcane'),
+      operatorSlug: 'arcane',
+      skillKey: 'battleSkill',
+      skillLevel: 1,
+      skillTypeName: '战技',
+    });
+    expect(html).toContain('技力');
+    expect(html).not.toContain('>sp<');
+  });
+
+  it('提弗洛斯战技显示自身消耗，而非按战技等级升级的强化普攻', async () => {
+    const html = await renderComponent(OperatorSkillTooltip, {
+      operator: gameDataRepository.getOperator('typhoeus'),
+      operatorSlug: 'typhoeus',
+      skillKey: 'battleSkill',
+      skillLevel: 1,
+      skillTypeName: '战技',
+    });
+    expect(html).toMatch(
+      /operator-skill-tooltip-resource[^>]*><span[^>]*>技力<\/span><span[^>]*>100<\/span>/,
+    );
+  });
+
+  it('诀的两种形态显示各自说明与相同的原生基础冷却', async () => {
+    const operator = gameDataRepository.getOperator('arcane');
+    for (const [form, name] of [
+      ['int', '阵诀·智'],
+      ['will', '阵诀·意'],
+    ] as const) {
+      const html = await renderComponent(OperatorSkillTooltip, {
+        operator,
+        operatorSlug: 'arcane',
+        skillKey: 'comboSkill',
+        skillLevel: 12,
+        skillTypeName: '连携',
+        activeFormKey: form,
+      });
+      expect(html).toContain(name);
+      expect(html).toContain('18秒');
+    }
   });
 
   it('曜夜选择 tooltip 按潜能状态渲染正确等级和值', async () => {

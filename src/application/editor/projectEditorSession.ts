@@ -24,6 +24,7 @@ interface ProjectHistoryEntry {
   readonly commandName: string;
   readonly before: EndaxisProjectDocument;
   readonly after: EndaxisProjectDocument;
+  readonly replacedScenarioId?: string;
 }
 
 export class ProjectEditorSession {
@@ -56,6 +57,15 @@ export class ProjectEditorSession {
   }
 
   commit(commandName: string, command: ProjectCommand): boolean {
+    return this.#commit(commandName, command);
+  }
+
+  /** 整体重置活动方案时允许替换继承身份；同一事务内的其他方案仍受编辑约束。 */
+  commitScenarioReplacement(commandName: string, command: ProjectCommand): boolean {
+    return this.#commit(commandName, command, this.#snapshot.project.activeScenarioId);
+  }
+
+  #commit(commandName: string, command: ProjectCommand, replacedScenarioId?: string): boolean {
     if (commandName.length === 0) throw new Error('project command name must not be empty');
     const before = this.#snapshot.project;
     const after = command(before);
@@ -63,10 +73,10 @@ export class ProjectEditorSession {
     // 项目命令与活动方案命令共用约束；删除整个方案是文档管理，不属于移动输入。
     for (const previous of before.scenarios) {
       const next = after.scenarios.find(scenario => scenario.id === previous.id);
-      if (next !== undefined)
+      if (next !== undefined && previous.id !== replacedScenarioId)
         assertScenarioEditAllowed(previous, next, this.editPolicy(previous.id));
     }
-    this.#undoStack.push({ commandName, before, after });
+    this.#undoStack.push({ commandName, before, after, replacedScenarioId });
     if (this.#undoStack.length > this.historyLimit) this.#undoStack.shift();
     this.#redoStack.length = 0;
     this.#publish(after, commandName);
@@ -76,7 +86,7 @@ export class ProjectEditorSession {
   undo(): boolean {
     const entry = this.#undoStack.at(-1);
     if (entry === undefined) return false;
-    this.#checkHistoryPolicy(entry.before);
+    this.#checkHistoryPolicy(entry.before, entry.replacedScenarioId);
     this.#undoStack.pop();
     this.#redoStack.push(entry);
     this.#publish(entry.before, `undo:${entry.commandName}`);
@@ -86,17 +96,17 @@ export class ProjectEditorSession {
   redo(): boolean {
     const entry = this.#redoStack.at(-1);
     if (entry === undefined) return false;
-    this.#checkHistoryPolicy(entry.after);
+    this.#checkHistoryPolicy(entry.after, entry.replacedScenarioId);
     this.#redoStack.pop();
     this.#undoStack.push(entry);
     this.#publish(entry.after, `redo:${entry.commandName}`);
     return true;
   }
 
-  #checkHistoryPolicy(next: EndaxisProjectDocument): void {
+  #checkHistoryPolicy(next: EndaxisProjectDocument, replacedScenarioId?: string): void {
     for (const previous of this.#snapshot.project.scenarios) {
       const target = next.scenarios.find(scenario => scenario.id === previous.id);
-      if (target !== undefined)
+      if (target !== undefined && previous.id !== replacedScenarioId)
         assertScenarioPolicy(previous, target, this.editPolicy(previous.id));
     }
   }

@@ -198,6 +198,20 @@ export type CombatCondition =
       probability: ActionValueOperand;
     }
   | {
+      /** 检查当前命中角色的投射物是否处于完美闪避冷却。 */
+      kind: 'eventProjectilePerfectDodgeCooldownEquals';
+      /** 原生 CheckProjectileInPerfectDodgeCd.isInCd。 */
+      value: boolean;
+    }
+  | {
+      /** 比较当前命中角色的投射物免疫忽略等级。 */
+      kind: 'eventProjectileIgnoreImmuneLevelCompare';
+      /** 原生 CheckProjectileIgnoreImmuneLevel.checkType。 */
+      operator: ComparisonOperator;
+      /** 原生免疫忽略等级枚举的整数值。 */
+      value: number;
+    }
+  | {
       /** 比较本次释放 Context 中已查询目标组的实例数量。 */
       kind: 'contextTargetCountCompare';
       /** 动作环境中的目标组名称。 */

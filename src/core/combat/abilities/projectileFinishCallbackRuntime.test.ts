@@ -283,6 +283,7 @@ describe('projectile callback action lifecycle', () => {
           if (step.parameters.flag === 'write') {
             context!.blackboard.assignDynamic('value', 2);
             context!.attachBuffToCurrentSkill!({
+              isRecycled: false,
               reference: createTestBuffReference(),
               finish: (reason, source) => {
                 expect([reason, source]).toEqual(['other', null]);
@@ -454,10 +455,11 @@ describe('projectile callback action lifecycle', () => {
     parent.end({});
     expect(trace).toEqual([]);
     scheduler.advanceFrame();
-    expect(trace).toEqual(['callback', 'end-callback']);
+    // 首次启动只有 Execute；本夹具不推进回调技能，End 留到投射物回收清理。
+    expect(trace).toEqual(['callback']);
     parent.end({});
     scheduler.advanceFrame();
-    expect(trace).toEqual(['callback', 'end-callback']);
+    expect(trace).toEqual(['callback']);
     scheduler.advanceFrame();
     expect(trace).toEqual(['callback', 'end-callback', 'reset']);
     scheduler.advanceFrame();

@@ -1,6 +1,8 @@
 import type { ScenarioDocument } from '../../core/project/schema';
 import {
   getSkillCastPlacementChains,
+  getDodgeMarkerHistory,
+  resolveDodgeMarkerLastInputFrame,
   resolveScenarioInitialFrame,
 } from '../../core/project/skillCastPlacement';
 import { CombatInputSchedule, type CombatInputScheduleCheckpoint } from './combatInputSchedule';
@@ -57,6 +59,8 @@ export class InheritedScenarioSimulation {
     prefix.battle.externalEventMarkers = prefix.battle.externalEventMarkers?.filter(
       marker => marker.frame < boundary,
     );
+    if (prefix.battle.dodgeMarkers !== undefined)
+      prefix.battle.dodgeMarkers = getDodgeMarkerHistory(prefix.battle.dodgeMarkers, boundary);
     // 编辑范围和展示内容不参与历史运行环境，也不使前缀失效。
     delete prefix.battle.simulationRange;
     prefix.battle.durationFrames = Math.max(0, boundary);
@@ -104,12 +108,16 @@ export class InheritedScenarioSimulation {
     suffix.battle.externalEventMarkers = suffix.battle.externalEventMarkers?.filter(
       marker => marker.frame >= boundary,
     );
+    suffix.battle.dodgeMarkers = suffix.battle.dodgeMarkers?.filter(
+      marker => resolveDodgeMarkerLastInputFrame(marker) >= boundary,
+    );
     const plan = service.compileInputSchedule(suffix);
     if (continuationPlan?.castIds.some(id => historicalIds.has(id)))
       throw new Error('continuation planning cannot change inherited history');
     const branch = saved.schedule.forkWithInputsAfterCheckpoint(
       saved.checkpoint,
-      plan.inputs,
+      // 一个标签可以跨过边界，但历史 Dash 不得重放，只提交仍在未来的成功事实。
+      plan.inputs.filter(input => input.frame >= boundary),
       plan.groups,
       plan.customSkillPrograms,
       continuationPlan,

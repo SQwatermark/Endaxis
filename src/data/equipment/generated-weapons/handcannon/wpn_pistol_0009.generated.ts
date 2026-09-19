@@ -522,11 +522,8 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_cd",
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "cd": {
-                                  "kind": "blackboard",
-                                  "key": "cd"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cd": "cd"
                               }
                             }
                           },
@@ -536,19 +533,10 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_f",
                               "target": "eventTarget",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "damage_taken_up_fire": {
-                                  "kind": "blackboard",
-                                  "key": "dmg_taken_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "lv": {
-                                  "kind": "blackboard",
-                                  "key": "lv"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "damage_taken_up_fire": "dmg_taken_up",
+                                "duration": "duration",
+                                "lv": "lv"
                               }
                             }
                           },
@@ -611,11 +599,8 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_cd",
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "cd": {
-                                  "kind": "blackboard",
-                                  "key": "cd"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cd": "cd"
                               }
                             }
                           },
@@ -625,19 +610,10 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_p",
                               "target": "eventTarget",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "damage_taken_up_pulse": {
-                                  "kind": "blackboard",
-                                  "key": "dmg_taken_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "lv": {
-                                  "kind": "blackboard",
-                                  "key": "lv"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "damage_taken_up_pulse": "dmg_taken_up",
+                                "duration": "duration",
+                                "lv": "lv"
                               }
                             }
                           },
@@ -700,11 +676,8 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_cd",
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "cd": {
-                                  "kind": "blackboard",
-                                  "key": "cd"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cd": "cd"
                               }
                             }
                           },
@@ -714,19 +687,10 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_c",
                               "target": "eventTarget",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "damage_taken_up_cryst": {
-                                  "kind": "blackboard",
-                                  "key": "dmg_taken_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "lv": {
-                                  "kind": "blackboard",
-                                  "key": "lv"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "damage_taken_up_cryst": "dmg_taken_up",
+                                "duration": "duration",
+                                "lv": "lv"
                               }
                             }
                           },
@@ -789,11 +753,8 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_cd",
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "cd": {
-                                  "kind": "blackboard",
-                                  "key": "cd"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cd": "cd"
                               }
                             }
                           },
@@ -803,19 +764,10 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0009_dmg_taken_up_n",
                               "target": "eventTarget",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "damage_taken_up_natural": {
-                                  "kind": "blackboard",
-                                  "key": "dmg_taken_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "lv": {
-                                  "kind": "blackboard",
-                                  "key": "lv"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "damage_taken_up_natural": "dmg_taken_up",
+                                "duration": "duration",
+                                "lv": "lv"
                               }
                             }
                           },

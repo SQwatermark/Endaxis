@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_expend_spell01',
+  iconPath: '/equipment/expend_spell01/item_equip_t4_suit_expend_spell01_body_02.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -70,19 +71,10 @@ const definition = {
                         },
                         inheritSourceSkillCastInfo: true,
                         asChildBuff: true,
-                        blackboardAssignments: {
-                          spell_dmg_up: {
-                            kind: 'blackboard',
-                            key: 'spell_dmg_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
-                          max_stack: {
-                            kind: 'blackboard',
-                            key: 'max_stack',
-                          },
+                        copiedBlackboardAssignments: {
+                          spell_dmg_up: 'spell_dmg_up',
+                          duration: 'duration',
+                          max_stack: 'max_stack',
                         },
                       },
                     },

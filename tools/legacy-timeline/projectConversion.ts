@@ -239,6 +239,7 @@ function migrateTrack(
   }
 
   const skillCasts = records(source.actions).flatMap((action, actionIndex) => {
+    if (record(action.convertedDodge) !== null) return [];
     const skillSource = resolveLegacySkillSource(repository, operatorSlug, action);
     const skillSequence = resolveLegacySkillSequence(repository, operatorSlug, action);
     const startFrame = integer(action.startTime) ?? integer(action.logicalStartTime);
@@ -469,6 +470,31 @@ function migrateScenario(
               },
             ];
       }),
+      dodgeMarkers: records(source.tracks).flatMap((track, trackIndex) =>
+        records(track.actions).flatMap((action, actionIndex) => {
+          const converted = record(action.convertedDodge);
+          const frame = integer(action.startTime) ?? integer(action.logicalStartTime);
+          if (
+            converted === null ||
+            converted.direction !== 'forward' ||
+            frame === null ||
+            trackIndex < 0 ||
+            trackIndex > 3 ||
+            tracks[trackIndex] === null
+          ) {
+            return [];
+          }
+          return [
+            {
+              id: `legacy:${scenarioId}:track:${trackIndex}:dodge:${actionIndex}`,
+              frame,
+              trackIndex: trackIndex as 0 | 1 | 2 | 3,
+              direction: 'forward' as const,
+              mode: { kind: 'dodge' as const },
+            },
+          ];
+        }),
+      ),
       externalEventMarkers: [],
     },
     mechanics: { selections: [] },

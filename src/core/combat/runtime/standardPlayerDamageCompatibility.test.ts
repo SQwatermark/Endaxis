@@ -89,6 +89,16 @@ function compatibilityInput(
 }
 
 describe('standardPlayerDamageCompatibility', () => {
+  it('accepts the native skill-local Dash window marker in a scheduled skill', () => {
+    expect(
+      inspectStandardPlayerDamageCompatibility(
+        compatibilityInput(
+          operator({ steps: [{ kind: 'markCurrentSkillCanDash', parameters: {} }] }),
+        ),
+      ),
+    ).toEqual([]);
+  });
+
   it('admits ultimate recovery restrictions handled by the assembled resource executor', () => {
     expect(
       inspectStandardPlayerDamageCompatibility(

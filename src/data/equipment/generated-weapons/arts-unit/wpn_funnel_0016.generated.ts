@@ -89,23 +89,11 @@ const definition = {
                           "target": "buffOwner",
                           "inheritSourceSkillCastInfo": true,
                           "asChildBuff": true,
-                          "blackboardAssignments": {
-                            "spell_dmg_up": {
-                              "kind": "blackboard",
-                              "key": "spell_dmg_up"
-                            },
-                            "duration": {
-                              "kind": "blackboard",
-                              "key": "duration"
-                            },
-                            "atk_up2": {
-                              "kind": "blackboard",
-                              "key": "atk_up2"
-                            },
-                            "duration2": {
-                              "kind": "blackboard",
-                              "key": "duration2"
-                            }
+                          "copiedBlackboardAssignments": {
+                            "spell_dmg_up": "spell_dmg_up",
+                            "duration": "duration",
+                            "atk_up2": "atk_up2",
+                            "duration2": "duration2"
                           }
                         }
                       }
@@ -130,23 +118,11 @@ const definition = {
                           "target": "buffOwner",
                           "inheritSourceSkillCastInfo": true,
                           "asChildBuff": true,
-                          "blackboardAssignments": {
-                            "spell_dmg_taken_up": {
-                              "kind": "blackboard",
-                              "key": "spell_dmg_taken_up"
-                            },
-                            "duration3": {
-                              "kind": "blackboard",
-                              "key": "duration3"
-                            },
-                            "spell_dmg_taken_up2": {
-                              "kind": "blackboard",
-                              "key": "spell_dmg_taken_up2"
-                            },
-                            "duration4": {
-                              "kind": "blackboard",
-                              "key": "duration4"
-                            }
+                          "copiedBlackboardAssignments": {
+                            "spell_dmg_taken_up": "spell_dmg_taken_up",
+                            "duration3": "duration3",
+                            "spell_dmg_taken_up2": "spell_dmg_taken_up2",
+                            "duration4": "duration4"
                           }
                         }
                       }
@@ -200,15 +176,9 @@ const definition = {
                             "target": "eventTarget",
                             "inheritSourceSkillCastInfo": true,
                             "asChildBuff": true,
-                            "blackboardAssignments": {
-                              "spell_dmg_taken_up": {
-                                "kind": "blackboard",
-                                "key": "spell_dmg_taken_up"
-                              },
-                              "duration3": {
-                                "kind": "blackboard",
-                                "key": "duration3"
-                              }
+                            "copiedBlackboardAssignments": {
+                              "spell_dmg_taken_up": "spell_dmg_taken_up",
+                              "duration3": "duration3"
                             }
                           }
                         }
@@ -257,15 +227,9 @@ const definition = {
                                   "target": "eventTarget",
                                   "inheritSourceSkillCastInfo": true,
                                   "asChildBuff": true,
-                                  "blackboardAssignments": {
-                                    "spell_dmg_taken_up2": {
-                                      "kind": "blackboard",
-                                      "key": "spell_dmg_taken_up2"
-                                    },
-                                    "duration4": {
-                                      "kind": "blackboard",
-                                      "key": "duration4"
-                                    }
+                                  "copiedBlackboardAssignments": {
+                                    "spell_dmg_taken_up2": "spell_dmg_taken_up2",
+                                    "duration4": "duration4"
                                   }
                                 }
                               }
@@ -367,15 +331,9 @@ const definition = {
                     "inheritSourceSkillCastInfo": true,
                     "finishByAction": true,
                     "asChildBuff": true,
-                    "blackboardAssignments": {
-                      "duration": {
-                        "kind": "blackboard",
-                        "key": "duration3"
-                      },
-                      "duration_dynamic": {
-                        "kind": "blackboard",
-                        "key": "duration_dynamic"
-                      }
+                    "copiedBlackboardAssignments": {
+                      "duration": "duration3",
+                      "duration_dynamic": "duration_dynamic"
                     }
                   }
                 }
@@ -470,15 +428,9 @@ const definition = {
                     "inheritSourceSkillCastInfo": true,
                     "finishByAction": true,
                     "asChildBuff": true,
-                    "blackboardAssignments": {
-                      "duration": {
-                        "kind": "blackboard",
-                        "key": "duration4"
-                      },
-                      "duration_dynamic": {
-                        "kind": "blackboard",
-                        "key": "duration_dynamic"
-                      }
+                    "copiedBlackboardAssignments": {
+                      "duration": "duration4",
+                      "duration_dynamic": "duration_dynamic"
                     }
                   }
                 }
@@ -589,15 +541,9 @@ const definition = {
                             "target": "buffOwner",
                             "inheritSourceSkillCastInfo": true,
                             "asChildBuff": true,
-                            "blackboardAssignments": {
-                              "spell_dmg_up": {
-                                "kind": "blackboard",
-                                "key": "spell_dmg_up"
-                              },
-                              "duration": {
-                                "kind": "blackboard",
-                                "key": "duration"
-                              }
+                            "copiedBlackboardAssignments": {
+                              "spell_dmg_up": "spell_dmg_up",
+                              "duration": "duration"
                             }
                           }
                         }
@@ -646,15 +592,9 @@ const definition = {
                                   "target": "buffOwner",
                                   "inheritSourceSkillCastInfo": true,
                                   "asChildBuff": true,
-                                  "blackboardAssignments": {
-                                    "atk_up2": {
-                                      "kind": "blackboard",
-                                      "key": "atk_up2"
-                                    },
-                                    "duration2": {
-                                      "kind": "blackboard",
-                                      "key": "duration2"
-                                    }
+                                  "copiedBlackboardAssignments": {
+                                    "atk_up2": "atk_up2",
+                                    "duration2": "duration2"
                                   }
                                 }
                               }
@@ -874,23 +814,11 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "spell_dmg_up": {
-                            "kind": "blackboard",
-                            "key": "spell_dmg_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "atk_up2": {
-                            "kind": "blackboard",
-                            "key": "atk_up2"
-                          },
-                          "duration2": {
-                            "kind": "blackboard",
-                            "key": "duration2"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "spell_dmg_up": "spell_dmg_up",
+                          "duration": "duration",
+                          "atk_up2": "atk_up2",
+                          "duration2": "duration2"
                         }
                       }
                     }
@@ -915,23 +843,11 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "spell_dmg_taken_up": {
-                            "kind": "blackboard",
-                            "key": "spell_dmg_taken_up"
-                          },
-                          "duration3": {
-                            "kind": "blackboard",
-                            "key": "duration3"
-                          },
-                          "spell_dmg_taken_up2": {
-                            "kind": "blackboard",
-                            "key": "spell_dmg_taken_up2"
-                          },
-                          "duration4": {
-                            "kind": "blackboard",
-                            "key": "duration4"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "spell_dmg_taken_up": "spell_dmg_taken_up",
+                          "duration3": "duration3",
+                          "spell_dmg_taken_up2": "spell_dmg_taken_up2",
+                          "duration4": "duration4"
                         }
                       }
                     }
@@ -1019,23 +935,11 @@ const definition = {
                     "target": "caster",
                     "inheritSourceSkillCastInfo": true,
                     "asChildBuff": true,
-                    "blackboardAssignments": {
-                      "spell_dmg_up": {
-                        "kind": "blackboard",
-                        "key": "spell_dmg_up"
-                      },
-                      "duration": {
-                        "kind": "blackboard",
-                        "key": "duration"
-                      },
-                      "atk_up2": {
-                        "kind": "blackboard",
-                        "key": "atk_up2"
-                      },
-                      "duration2": {
-                        "kind": "blackboard",
-                        "key": "duration2"
-                      }
+                    "copiedBlackboardAssignments": {
+                      "spell_dmg_up": "spell_dmg_up",
+                      "duration": "duration",
+                      "atk_up2": "atk_up2",
+                      "duration2": "duration2"
                     }
                   }
                 }
@@ -1060,23 +964,11 @@ const definition = {
                     "target": "caster",
                     "inheritSourceSkillCastInfo": true,
                     "asChildBuff": true,
-                    "blackboardAssignments": {
-                      "spell_dmg_taken_up": {
-                        "kind": "blackboard",
-                        "key": "spell_dmg_taken_up"
-                      },
-                      "duration3": {
-                        "kind": "blackboard",
-                        "key": "duration3"
-                      },
-                      "spell_dmg_taken_up2": {
-                        "kind": "blackboard",
-                        "key": "spell_dmg_taken_up2"
-                      },
-                      "duration4": {
-                        "kind": "blackboard",
-                        "key": "duration4"
-                      }
+                    "copiedBlackboardAssignments": {
+                      "spell_dmg_taken_up": "spell_dmg_taken_up",
+                      "duration3": "duration3",
+                      "spell_dmg_taken_up2": "spell_dmg_taken_up2",
+                      "duration4": "duration4"
                     }
                   }
                 }

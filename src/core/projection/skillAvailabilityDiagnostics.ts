@@ -15,6 +15,7 @@ export const SKILL_AVAILABILITY_DIAGNOSTIC_REASONS = [
   'ultimateInputDuringPresentation',
   'skillCommonTagUnavailable',
   'skillTypeTagUnavailable',
+  'attackDuringDashWindow',
 ] as const;
 
 /** UI 可按稳定枚举映射本地化文本，核心投影不携带显示文案。 */
@@ -34,11 +35,14 @@ export interface SkillAvailabilityDiagnostic {
   readonly inputResolutionDetail?: string;
   /** 无法提前中断时正在执行的技能。 */
   readonly currentSkillId?: string;
+  /** 当时正在执行的轴上释放身份；显示文案不从技能 ID 猜实例。 */
+  readonly currentCastId?: string;
   /** 中断判定缺少证据时的具体边界。 */
   readonly interruptionDetail?: string;
 }
 
 function readReason(event: string): SkillAvailabilityDiagnosticReason | undefined {
+  if (event === 'SkillInputBlockedByDashWindow') return 'attackDuringDashWindow';
   if (event === 'UltimateInputBlockedByPresentation') return 'ultimateInputDuringPresentation';
   if (event === 'SkillInputBlockedByCommonTag') return 'skillCommonTagUnavailable';
   if (event === 'SkillInputBlockedByTypeTag') return 'skillTypeTagUnavailable';
@@ -68,6 +72,7 @@ export function projectSkillAvailabilityDiagnostics(
     const actualSkillId = mismatch?.data?.actualSkillId;
     const inputResolutionDetail = inputUnknown?.data?.reason;
     const currentSkillId = interruptionBlocked?.data?.currentSkillId;
+    const currentCastId = interruptionBlocked?.data?.currentCastId;
     const interruptionDetail = interruptionUnknown?.data?.reason;
     return {
       ...diagnostic,
@@ -78,6 +83,7 @@ export function projectSkillAvailabilityDiagnostics(
       ...(typeof currentSkillId === 'string' && currentSkillId.length > 0
         ? { currentSkillId }
         : {}),
+      ...(typeof currentCastId === 'string' && currentCastId.length > 0 ? { currentCastId } : {}),
       ...(typeof interruptionDetail === 'string' && interruptionDetail.length > 0
         ? { interruptionDetail }
         : {}),

@@ -163,19 +163,10 @@ const definition = {
                         "target": "party",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "atk_up": {
-                            "kind": "blackboard",
-                            "key": "atk_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "lv": {
-                            "kind": "blackboard",
-                            "key": "lv"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "atk_up": "atk_up",
+                          "duration": "duration",
+                          "lv": "lv"
                         }
                       }
                     }

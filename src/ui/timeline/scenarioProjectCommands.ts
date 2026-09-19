@@ -1,9 +1,55 @@
 import { createEmptyScenario } from '../../core/project/createProject';
+import {
+  getDodgeMarkerHistory,
+  getSkillCastPlacementChains,
+} from '../../core/project/skillCastPlacement';
 import type { EndaxisProjectDocument, ScenarioDocument } from '../../core/project/schema';
 
 export const MAX_PROJECT_SCENARIOS = 14;
 
 export type TimelineResetMode = 'currentKeepLoadout' | 'current' | 'all';
+
+/** 保留继承关系时只清除边界之后的安排；历史和运行配置仍属于这个方案。 */
+function resetInheritedFuture(current: ScenarioDocument, boundary: number): ScenarioDocument {
+  const historicalCastIds = new Set(
+    current.tracks.flatMap(track =>
+      track === null
+        ? []
+        : getSkillCastPlacementChains(track.skillCasts)
+            .filter(chain => chain.anchor.placement.startFrame! < boundary)
+            .flatMap(chain => chain.casts.map(cast => cast.id)),
+    ),
+  );
+  return {
+    ...current,
+    tracks: current.tracks.map(track =>
+      track === null
+        ? null
+        : {
+            ...track,
+            skillCasts: track.skillCasts.filter(cast => historicalCastIds.has(cast.id)),
+            consumableUses: track.consumableUses?.filter(use => use.frame < boundary),
+          },
+    ) as ScenarioDocument['tracks'],
+    connections: current.connections.filter(
+      connection =>
+        historicalCastIds.has(connection.from.skillCastId) &&
+        historicalCastIds.has(connection.to.skillCastId),
+    ),
+    battle: {
+      ...current.battle,
+      cycleBoundaries: current.battle.cycleBoundaries.filter(marker => marker.frame < boundary),
+      controlSwitches: current.battle.controlSwitches.filter(marker => marker.frame < boundary),
+      externalEventMarkers: current.battle.externalEventMarkers?.filter(
+        marker => marker.frame < boundary,
+      ),
+      dodgeMarkers:
+        current.battle.dodgeMarkers === undefined
+          ? undefined
+          : getDodgeMarkerHistory(current.battle.dodgeMarkers, boundary),
+    },
+  };
+}
 
 /** Reset timeline data as one undoable project command; project templates remain in the library. */
 export function resetProjectScenarios(
@@ -12,8 +58,11 @@ export function resetProjectScenarios(
 ): EndaxisProjectDocument {
   const current = project.scenarios.find(scenario => scenario.id === project.activeScenarioId);
   if (current === undefined) return project;
-  const reset = createEmptyScenario(current.id, current.name);
-  if (mode === 'currentKeepLoadout') {
+  const reset =
+    mode === 'currentKeepLoadout' && current.inheritance !== undefined
+      ? resetInheritedFuture(current, current.inheritance.frame)
+      : createEmptyScenario(current.id, current.name);
+  if (mode === 'currentKeepLoadout' && current.inheritance === undefined) {
     reset.tracks = current.tracks.map(track =>
       track === null
         ? null

@@ -1,6 +1,7 @@
 import type { ScenarioDocument } from '../../core/project/schema';
 import {
   getSkillCastPlacementChains,
+  getDodgeMarkerHistory,
   resolveScenarioInitialFrame,
 } from '../../core/project/skillCastPlacement';
 
@@ -63,6 +64,8 @@ export function createInheritedScenario(
   result.battle.externalEventMarkers = result.battle.externalEventMarkers?.filter(
     marker => marker.frame < frame,
   );
+  if (result.battle.dodgeMarkers !== undefined)
+    result.battle.dodgeMarkers = getDodgeMarkerHistory(result.battle.dodgeMarkers, frame);
   result.battle.cycleBoundaries = result.battle.cycleBoundaries.filter(
     marker => marker.frame < frame,
   );

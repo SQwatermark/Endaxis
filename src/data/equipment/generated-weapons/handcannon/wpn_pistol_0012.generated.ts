@@ -190,15 +190,9 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "nature_dmg_up_mult": {
-                                  "kind": "blackboard",
-                                  "key": "nature_dmg_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "nature_dmg_up_mult": "nature_dmg_up",
+                                "duration": "duration"
                               }
                             }
                           }

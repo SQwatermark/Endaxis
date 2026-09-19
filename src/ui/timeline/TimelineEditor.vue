@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { projectDodgeMarkerDiagnostics } from '../../core/projection/dodgeMarkerDiagnostics';
+import { projectDodgeMarkerEffects } from '../../core/projection/dodgeMarkerEffects';
 import {
   computed,
   defineAsyncComponent,
@@ -66,6 +68,7 @@ import TimelineCursorGuide, {
   type TimelineCursorGaugeRow,
 } from './components/TimelineCursorGuide.vue';
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
+import TimelineReceiveDialog from './components/TimelineReceiveDialog.vue';
 import type { TimelineShareTrack } from './components/TimelineShareCard.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
@@ -164,6 +167,7 @@ import { useProjectFileSession } from './projectFileSession';
 import {
   captureTimelineLongImage,
   compressProjectCode,
+  decompressProjectCode,
   downloadBlob,
   imageFilename,
 } from './timelineExport';
@@ -246,6 +250,7 @@ import {
 } from './interaction/timelineEditorSelection';
 import {
   copyTimelineActions,
+  copyTimelineDodgeMarker,
   pasteTimelineActions,
   type TimelineActionClipboard,
 } from './interaction/timelineClipboard';
@@ -282,6 +287,10 @@ import {
   moveControlSwitch,
   setControlSwitchTrack,
   removeControlSwitch,
+  addDodgeMarker,
+  moveDodgeMarker,
+  removeDodgeMarker,
+  updateDodgeMarker,
   addExternalEventMarker,
   moveExternalEventMarker,
   updateExternalEventMarker,
@@ -296,7 +305,9 @@ import {
 } from '../keyboard/keyboardShortcutRouter';
 import {
   skillLibrarySegmentLabel,
+  skillLibraryNameEntry,
   timelineSkillBlockLabel,
+  timelineSkillBlockLabelForKey,
   timelineSkillSegmentLabel,
   type TimelineSkillSegmentLabels,
 } from './timelineSkillLabels';
@@ -468,13 +479,6 @@ watch(showCursorGuide, visible =>
 );
 const boxSelectEnabled = ref(false);
 const connectionToolEnabled = ref(false);
-const AUTO_GROUP_BASIC_ATTACK_STORAGE_KEY = 'endaxis:timeline-auto-group-basic-attack-sequences:v1';
-const autoGroupBasicAttackSequences = ref(
-  window.localStorage.getItem(AUTO_GROUP_BASIC_ATTACK_STORAGE_KEY) !== 'false',
-);
-watch(autoGroupBasicAttackSequences, enabled =>
-  window.localStorage.setItem(AUTO_GROUP_BASIC_ATTACK_STORAGE_KEY, String(enabled)),
-);
 const BUFF_LAYOUT_STORAGE_KEY = 'endaxis:timeline-buff-layout:v1';
 const TRACK_HEIGHTS_STORAGE_KEY = 'endaxis:timeline-compact-track-heights:v1';
 const buffLayoutMode = ref<'compact' | 'loose'>(
@@ -593,6 +597,8 @@ const selectedCastId = computed(() => actionSelection.value.primaryId);
 const showSkillDefinitionEditor = ref(false);
 const showDamageAnalysis = ref(false);
 const showExportDialog = ref(false);
+const showReceiveDialog = ref(false);
+const receivingProjectCode = ref(false);
 const showSmallImageExport = ref(false);
 const smallImageExportInitial = ref({ filename: '', duration: 60 });
 const showShortcutHelp = ref(false);
@@ -611,6 +617,7 @@ const timelineClipboard = shallowRef<TimelineActionClipboard | null>(null);
 const projectFileInput = ref<HTMLInputElement | null>(null);
 const cursorFrame = ref(30);
 const cursorGuide = ref<{ leftPx: number; sampleFrame: number } | null>(null);
+const timelinePointerClientX = ref<number | null>(null);
 const snapFrames = ref<number>(PRECISE_TIMELINE_SNAP_FRAMES);
 const timelineSurface = ref<HTMLElement | null>(null);
 const timelineScroll = ref<HTMLElement | null>(null);
@@ -732,6 +739,8 @@ const markerMoveGesture = shallowRef<{
   id: string;
   initialFrame: number;
   previewFrame: number;
+  /** 闪避拖动期间的原轴；预览可模拟，松手后才提交一次编辑记录。 */
+  baseScenario: ScenarioDocument;
 } | null>(null);
 let stopMarkerMove: (() => void) | null = null;
 let markerMoveAutoScrollFrame: number | null = null;
@@ -741,6 +750,9 @@ const props = defineProps<{
   initialScenario?: ScenarioDocument;
   initialProject?: unknown;
   gameDataRepository: ProjectGameDataRepository;
+  browserPersistenceEnabled?: boolean;
+  browserRestoreError?: string;
+  browserProjectRevisionUpdated?: boolean;
 }>();
 const gameDataRepository = props.gameDataRepository;
 const consumables = gameDataRepository.getConsumables();
@@ -794,8 +806,19 @@ const publishedGlobalRandomSeed = computed(
   () => publishedSimulation.value?.scenario.battle.random?.globalSeed ?? 0,
 );
 const ids = createProjectDocumentIdAllocator(() => projectSession.snapshot.project);
-const { projectDirty, projectFileReader, markOpenedProject, exportProjectFile } =
-  useProjectFileSession(projectSession);
+const { projectDirty, browserSaveError, projectFileReader, markOpenedProject, exportProjectFile } =
+  useProjectFileSession(projectSession, {
+    persistToBrowser: props.browserPersistenceEnabled === true,
+  });
+if (props.browserProjectRevisionUpdated) markOpenedProject(initialProject, true);
+watch(browserSaveError, error => {
+  if (error !== null) ElMessage.error(`浏览器自动保存失败：${error}`);
+});
+onMounted(() => {
+  if (props.browserRestoreError !== undefined) {
+    ElMessage.error(`浏览器项目恢复失败：${props.browserRestoreError}`);
+  }
+});
 const scenario = shallowRef(scenarioSession.snapshot.scenario);
 const timelinePrepPreviewFrames = ref<number | null>(null);
 const displayedTimelinePrepFrames = computed(
@@ -847,7 +870,7 @@ function commitScenario(
   }
 }
 
-async function requestOpenProject(): Promise<void> {
+async function confirmProjectReplacement(): Promise<boolean> {
   if (projectDirty.value) {
     try {
       await serviceModalBoundary.run(() =>
@@ -858,10 +881,33 @@ async function requestOpenProject(): Promise<void> {
         }),
       );
     } catch {
-      return;
+      return false;
     }
   }
+  return true;
+}
+
+async function requestOpenProject(): Promise<void> {
+  if (!(await confirmProjectReplacement())) return;
   projectFileInput.value?.click();
+}
+
+async function requestReceiveProject(): Promise<void> {
+  if (!(await confirmProjectReplacement())) return;
+  showReceiveDialog.value = true;
+}
+
+async function receiveProjectCode(code: string): Promise<void> {
+  if (receivingProjectCode.value) return;
+  receivingProjectCode.value = true;
+  try {
+    const content = await decompressProjectCode(code);
+    if (await openProjectContent(content)) showReceiveDialog.value = false;
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : t('timeline.share.importFailed'));
+  } finally {
+    receivingProjectCode.value = false;
+  }
 }
 
 async function handleProjectFileChange(event: Event): Promise<void> {
@@ -869,11 +915,18 @@ async function handleProjectFileChange(event: Event): Promise<void> {
   const file = input.files?.[0];
   input.value = '';
   if (file === undefined) return;
-  let legacy = false;
-  const legacyTimingMode = ref<'repair' | 'preserve'>('repair');
   try {
     const content = await projectFileReader.read(file);
-    if (content === null) return;
+    if (content !== null) await openProjectContent(content);
+  } catch (error) {
+    ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
+  }
+}
+
+async function openProjectContent(content: string): Promise<boolean> {
+  let legacy = false;
+  const legacyTimingMode = ref<'repair' | 'preserve'>('preserve');
+  try {
     let parsedInput: unknown = content;
     try {
       parsedInput = JSON.parse(content) as unknown;
@@ -916,7 +969,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
           ),
         );
       } catch {
-        return;
+        return false;
       }
     }
     await ensureAllGameData();
@@ -943,7 +996,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
         legacyConversionReport = conversion.report;
         if (conversion.project === null) {
           await showLegacyConversionReport(conversion.report, true);
-          return;
+          return false;
         }
         projectInput = conversion.project;
         convertedLegacyProject = true;
@@ -956,7 +1009,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     });
     if (!result.ok) {
       ElMessage.error(projectOpenFailureMessage(result));
-      return;
+      return false;
     }
     await acceptOpenedProject(
       result.project,
@@ -969,6 +1022,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     ) {
       await showLegacyConversionReport(legacyConversionReport, false);
     }
+    return true;
   } catch (error) {
     if (legacy) {
       await showLegacyConversionReport(
@@ -991,6 +1045,7 @@ async function handleProjectFileChange(event: Event): Promise<void> {
     } else {
       ElMessage.error(error instanceof Error ? error.message : '打开项目失败');
     }
+    return false;
   }
 }
 
@@ -1376,6 +1431,7 @@ const {
   publishedWeaponSources,
   publishedGearIcons,
   publishedGearSources,
+  publishedGearSetIcons,
   publishedReceiptEntries,
 } = usePublishedSimulationDisplay(
   publishedSimulation,
@@ -1390,6 +1446,40 @@ const {
         : getOperatorGameName(name.assetSlug, locale.value)),
   },
   () => editorGameDataRepository.getGears(),
+  () => editorGameDataRepository.getGearSets(),
+);
+const dodgeMarkerResults = computed(() =>
+  projectDodgeMarkerDiagnostics(publishedReceiptEntries.value),
+);
+const dodgeMarkerWarningIds = computed(
+  () =>
+    new Set(
+      [...dodgeMarkerResults.value]
+        .filter(([, result]) => result.status !== 'normal')
+        .map(([id]) => id),
+    ),
+);
+const dodgeMarkerDiagnosticsById = computed(
+  () =>
+    new Map(
+      [...dodgeMarkerResults.value].map(([id, result]) => [
+        id,
+        result.messages.flatMap(message => {
+          if (message.code === 'interruptedSkill') {
+            const label =
+              message.castId === undefined ? undefined : axisSkillBlockLabel(message.castId);
+            return label === undefined
+              ? []
+              : [
+                  t('timeline.documentMarkerInspector.results.interruptedSkill', {
+                    skillName: label,
+                  }),
+                ];
+          }
+          return [t(`timeline.documentMarkerInspector.results.${message.code}`)];
+        }),
+      ]),
+    ),
 );
 const {
   showOperatorDefinitionWorkspace,
@@ -1626,11 +1716,25 @@ const selectedDocumentMarker = computed(() => {
     const marker = scenario.value.battle.controlSwitches.find(item => item.id === selection.id);
     return marker === undefined ? null : { ...marker, kind: selection.kind };
   }
+  if (selection.kind === 'dodge') {
+    const marker = (scenario.value.battle.dodgeMarkers ?? []).find(
+      item => item.id === selection.id,
+    );
+    return marker === undefined ? null : { ...marker, kind: selection.kind };
+  }
   const frame =
     selection.kind === 'simulationStart'
       ? scenario.value.battle.simulationRange?.startFrame
       : scenario.value.battle.simulationRange?.endFrame;
   return frame === undefined ? null : { id: selection.id, kind: selection.kind, frame };
+});
+const selectedDodgeEffects = computed(() => {
+  const marker = selectedDocumentMarker.value;
+  if (marker?.kind !== 'dodge') return [];
+  const operatorId = scenario.value.tracks[marker.trackIndex]?.id;
+  return operatorId === undefined
+    ? []
+    : projectDodgeMarkerEffects(publishedReceiptEntries.value, operatorId, marker.id);
 });
 const occupiedTrackOptions = computed(() =>
   scenario.value.tracks.flatMap((track, index) =>
@@ -1653,12 +1757,29 @@ function connectionPort(value: string | undefined, fallback: TimelineConnectionP
     : fallback;
 }
 
-function timelineCastLabelById(skillCastId: string): string {
+function axisSkillBlockLabel(skillCastId: string): string | undefined {
   for (const track of viewModel.value.tracks) {
     const cast = track.skillCasts.find(candidate => candidate.id === skillCastId);
     if (cast !== undefined) return timelineCastLabel(cast, track);
   }
-  return skillCastId;
+  return undefined;
+}
+
+/** 实际路由可能指向尚未放置的技能，仍使用轴上技能块的命名规则展示。 */
+function triggeredSkillBlockLabel(skillCastId: string, skillKey: string): string | undefined {
+  const track = viewModel.value.tracks.find(candidate =>
+    candidate.skillCasts.some(cast => cast.id === skillCastId),
+  );
+  if (track === undefined) return undefined;
+  return (
+    timelineSkillBlockLabelForKey(track.skillLibrary, skillKey, skillSegmentLabels(), entry =>
+      skillTypeLabel(entry.skillType),
+    ) ?? undefined
+  );
+}
+
+function timelineCastLabelById(skillCastId: string): string {
+  return axisSkillBlockLabel(skillCastId) ?? skillCastId;
 }
 
 const selectedCastConnections = computed(() => {
@@ -2213,9 +2334,13 @@ function castWarningTitle(castId: string): string {
       if (reason === 'skillGroupInterrupted') return t('timeline.continuousGroup.interrupted');
       if (reason.startsWith('skillInputMismatch:')) {
         const mismatch = /^skillInputMismatch: expected '(.+)', actual '(.+)'$/.exec(reason);
-        return mismatch === null
-          ? '操作实际会触发其他技能；时间轴仍执行已放置技能'
-          : `操作实际会触发 '${mismatch[2]}'，不是已放置的 '${mismatch[1]}'；时间轴仍执行已放置技能`;
+        const label = axisSkillBlockLabel(castId);
+        const actualLabel =
+          mismatch === null ? undefined : triggeredSkillBlockLabel(castId, mismatch[2]!);
+        if (actualLabel === undefined) return '操作实际会触发其他技能；时间轴仍执行已放置技能';
+        return label === undefined
+          ? `操作实际会触发${actualLabel}；时间轴仍执行已放置技能`
+          : `操作实际会触发${actualLabel}，不是已放置的${label}；时间轴仍执行已放置技能`;
       }
       if (reason === 'skillInputUnknown') return '缺少该操作的原生技能路由证据';
       if (reason.startsWith('skillInputUnknown:'))
@@ -2226,9 +2351,22 @@ function castWarningTitle(castId: string): string {
         return '干员当前标签状态禁止施法；时间轴仍执行已放置技能';
       if (reason === 'skillTypeTagUnavailable')
         return '干员当前标签状态禁止释放该类型技能；时间轴仍执行已放置技能';
-      if (reason === 'skillInterruptUnavailable') return '当前技能尚不能被该操作中断';
-      if (reason.startsWith('skillInterruptUnavailable:'))
-        return `当前技能尚不能被该操作中断（${reason.slice('skillInterruptUnavailable: '.length)}）；时间轴仍执行已放置技能`;
+      if (reason === 'attackDuringDashWindow')
+        return t('timeline.documentMarkerInspector.results.attackDuringDashWindow');
+      if (reason === 'skillInterruptUnavailable') {
+        const label = axisSkillBlockLabel(castId);
+        return label === undefined ? '技能接续窗口尚未开放' : `${label}尚不能在此时刻接续`;
+      }
+      if (reason.startsWith('skillInterruptUnavailable:')) {
+        const currentCastId = /^skillInterruptUnavailable: cast '(.+)'$/.exec(reason)?.[1];
+        const currentLabel =
+          currentCastId === undefined ? undefined : axisSkillBlockLabel(currentCastId);
+        const incomingLabel = axisSkillBlockLabel(castId);
+        if (incomingLabel === undefined) return '技能接续窗口尚未开放；时间轴仍执行已放置技能';
+        return currentLabel === undefined
+          ? `${incomingLabel}尚不能在此时刻接续；时间轴仍执行${incomingLabel}`
+          : `${currentLabel}尚不能被${incomingLabel}中断；时间轴仍执行${incomingLabel}`;
+      }
       if (reason === 'skillInterruptUnknown') return '缺少当前技能的中断判定证据';
       if (reason.startsWith('skillInterruptUnknown:'))
         return `无法确定当前技能能否被中断：${formatPlayerInputEvidenceDetail(reason.slice('skillInterruptUnknown: '.length))}`;
@@ -2251,7 +2389,7 @@ function formatPlayerInputEvidenceDetail(detail: string): string {
   if (detail === 'current skill has conditional next-skill actions')
     return '当前技能的接续白名单位于未闭环的条件分支';
   const mappingTarget = /^command mapping target '(.+)' is not unique$/.exec(detail);
-  if (mappingTarget !== null) return `命令映射目标 '${mappingTarget[1]}' 无法唯一对应到技能模板`;
+  if (mappingTarget !== null) return '命令映射目标无法唯一对应到技能模板';
   const missingDefault = /^input '(.+)' has no default skill slot$/.exec(detail);
   if (missingDefault !== null) return `操作 '${missingDefault[1]}' 没有默认技能槽位`;
   return detail;
@@ -3006,6 +3144,7 @@ const publishedObjectIcon = computed(() =>
     publishedOperators.value,
     publishedWeaponSources.value,
     publishedGearIcons.value,
+    publishedGearSetIcons.value,
   ),
 );
 
@@ -3059,7 +3198,9 @@ function buffIcon(segment: BuffPresentationSource): string | undefined {
     publishedOperators.value,
     publishedWeaponSources.value,
   );
-  return source?.kind === 'weapon' ? source.iconPath : undefined;
+  if (source?.kind === 'weapon') return source.iconPath;
+  if (source?.kind === 'gearSet') return publishedGearSetIcons.value.get(source.slug);
+  return undefined;
 }
 
 function buffSourceName(segment: BuffPresentationSource): string | undefined {
@@ -3152,10 +3293,24 @@ function openOperatorPassiveUiDetail(
   passiveUiDetailTitle.value = title;
 }
 
+function operatorSkillDisplayName(operatorSlug: string | null, skillKey: string): string | null {
+  const nameKey = editorGameDataRepository.getOperator(operatorSlug ?? '')?.skillDisplayNameKeys?.[
+    skillKey
+  ];
+  if (nameKey === undefined) return null;
+  const translated = t(nameKey);
+  return translated === nameKey ? null : translated;
+}
+
 function skillLibraryEntryName(entry: TimelineSkillLibraryEntryViewModel): string {
   const assetSlug = selectedTrackModel.value.operatorAssetSlug;
   if (assetSlug === null) return entry.placementSkillKey ?? entry.variantKey ?? entry.skillGroupKey;
   if (entry.placementSkillKey !== undefined) {
+    const displayName = operatorSkillDisplayName(
+      selectedTrackModel.value.operatorSlug,
+      entry.placementSkillKey,
+    );
+    if (displayName !== null) return displayName;
     return getOperatorCombatSkillName(assetSlug, entry.placementSkillKey, locale.value);
   }
   const nameEntry =
@@ -3198,6 +3353,13 @@ function skillSegmentLabels(): TimelineSkillSegmentLabels {
 }
 
 function skillLibraryTypeLabel(entry: TimelineSkillLibraryEntryViewModel): string {
+  if (entry.placementSkillKey !== undefined) {
+    const displayName = operatorSkillDisplayName(
+      selectedTrackModel.value.operatorSlug,
+      entry.placementSkillKey,
+    );
+    if (displayName !== null) return displayName;
+  }
   const type = skillTypeLabel(entry.skillType);
   return entry.enhanced ? t('skillType.enhanced', { type }) : type;
 }
@@ -3225,7 +3387,12 @@ function timelineCastLabel(
   const fallbackLabel = cast.skillType === null ? source.skillKey : skillTypeLabel(cast.skillType);
   return entry === undefined
     ? fallbackLabel
-    : timelineSkillBlockLabel(entry, source.skillKey, skillSegmentLabels(), fallbackLabel);
+    : timelineSkillBlockLabel(
+        entry,
+        source.skillKey,
+        skillSegmentLabels(),
+        operatorSkillDisplayName(track.operatorSlug, source.skillKey) ?? fallbackLabel,
+      );
 }
 
 const OPERATOR_ELEMENT_SKILL_COLORS: Readonly<Record<string, string>> = {
@@ -3922,6 +4089,56 @@ function addSwitchMarkerFromContext(trackIndex: number): void {
   markerContextTarget.value = null;
 }
 
+function skillLibraryCardName(entry: TimelineSkillLibraryEntryViewModel): string {
+  return skillLibraryEntryName(skillLibraryNameEntry(entry, selectedTrackModel.value.skillLibrary));
+}
+
+function addDodgeMarkerFromContext(mode: 'dodge' | 'perfectDodge'): void {
+  const target = markerContextTarget.value;
+  if (target === null || target.existing !== undefined) return;
+  commitScenario('addDodgeMarker', current =>
+    addDodgeMarker(current, {
+      id: ids.allocate('dodge'),
+      frame: target.frame,
+      trackIndex: target.trackIndex,
+      direction: 'forward',
+      mode:
+        mode === 'perfectDodge'
+          ? { kind: 'perfectDodge', successDelayFrames: 0 }
+          : { kind: 'dodge' },
+    }),
+  );
+  markerContextTarget.value = null;
+}
+
+function setDodgeMarkerMode(id: string, mode: 'dodge' | 'perfectDodge'): void {
+  const marker = (scenario.value.battle.dodgeMarkers ?? []).find(item => item.id === id);
+  if (marker === undefined || marker.mode.kind === mode) return;
+  const successDelayFrames = Math.max(
+    0,
+    (scenario.value.inheritance?.frame ?? marker.frame) - marker.frame,
+  );
+  commitScenario('updateDodgeMarker', current =>
+    updateDodgeMarker(current, id, {
+      mode: mode === 'perfectDodge' ? { kind: mode, successDelayFrames } : { kind: mode },
+    }),
+  );
+}
+
+function setDodgeMarkerModeFromContext(mode: 'dodge' | 'perfectDodge'): void {
+  const existing = markerContextTarget.value?.existing;
+  if (existing?.kind !== 'dodge') return;
+  setDodgeMarkerMode(existing.id, mode);
+  markerContextTarget.value = null;
+}
+
+function copyDodgeMarkerFromContext(): void {
+  const existing = markerContextTarget.value?.existing;
+  if (existing?.kind !== 'dodge') return;
+  timelineClipboard.value = copyTimelineDodgeMarker(scenario.value, existing.id);
+  markerContextTarget.value = null;
+}
+
 function removeSelectedMarker(kind: TimelineMarkerKind, id: string): boolean {
   const changed = commitScenario('removeTimelineMarker', current =>
     kind === 'cycleBoundary'
@@ -3930,7 +4147,9 @@ function removeSelectedMarker(kind: TimelineMarkerKind, id: string): boolean {
         ? removeControlSwitch(current, id)
         : kind === 'externalEvent'
           ? removeExternalEventMarker(current, id)
-          : clearSimulationRangeBoundary(current, kind === 'simulationStart' ? 'start' : 'end'),
+          : kind === 'dodge'
+            ? removeDodgeMarker(current, id)
+            : clearSimulationRangeBoundary(current, kind === 'simulationStart' ? 'start' : 'end'),
   );
   if (changed) selectedMarker.value = null;
   return changed;
@@ -3977,11 +4196,13 @@ function setSelectedDocumentMarkerFrame(frame: number): void {
       ? moveCycleBoundary(current, marker.id, frame)
       : marker.kind === 'controlSwitch'
         ? moveControlSwitch(current, marker.id, frame)
-        : setSimulationRangeBoundary(
-            current,
-            marker.kind === 'simulationStart' ? 'start' : 'end',
-            frame,
-          ),
+        : marker.kind === 'dodge'
+          ? moveDodgeMarker(current, marker.id, frame)
+          : setSimulationRangeBoundary(
+              current,
+              marker.kind === 'simulationStart' ? 'start' : 'end',
+              frame,
+            ),
   );
 }
 
@@ -4103,6 +4324,30 @@ function setSelectedControlSwitchTrack(trackIndex: TrackIndex): void {
   );
 }
 
+function updateSelectedDodgeMarker(patch: Parameters<typeof updateDodgeMarker>[2]): void {
+  const marker = selectedDocumentMarker.value;
+  if (marker?.kind !== 'dodge') return;
+  commitScenario('updateDodgeMarker', current => updateDodgeMarker(current, marker.id, patch));
+}
+
+function setSelectedDodgeTrack(trackIndex: TrackIndex): void {
+  updateSelectedDodgeMarker({ trackIndex });
+}
+
+function setSelectedDodgeDirection(direction: 'forward' | 'backward'): void {
+  updateSelectedDodgeMarker({ direction });
+}
+
+function setSelectedDodgeMode(mode: 'dodge' | 'perfectDodge'): void {
+  const marker = selectedDocumentMarker.value;
+  if (marker?.kind !== 'dodge') return;
+  setDodgeMarkerMode(marker.id, mode);
+}
+
+function setSelectedDodgeSuccessDelayFrames(successDelayFrames: number): void {
+  updateSelectedDodgeMarker({ mode: { kind: 'perfectDodge', successDelayFrames } });
+}
+
 function removeSelectedDocumentMarker(): void {
   const marker = selectedDocumentMarker.value;
   if (marker !== null) removeSelectedMarker(marker.kind, marker.id);
@@ -4143,7 +4388,8 @@ function beginMarkerMove(
   if (trackIndex !== selectedTrack.value) selectedTrack.value = trackIndex;
   if (
     (kind === 'simulationStart' && configurationReadOnly.value) ||
-    ((kind === 'controlSwitch' || kind === 'externalEvent') && isHistoricalInputFrame(frame))
+    ((kind === 'controlSwitch' || kind === 'externalEvent' || kind === 'dodge') &&
+      isHistoricalInputFrame(frame))
   ) {
     clearTimelineSelection();
     selectedMarker.value = { kind, id };
@@ -4174,7 +4420,9 @@ function beginMarkerMove(
     id,
     initialFrame: frame,
     previewFrame: frame,
+    baseScenario: scenario.value,
   };
+  if (kind === 'dodge') simulationService.beginInteractiveSession();
   const update = (pointerId: number, clientX: number, clientY: number, fromAutoScroll = false) => {
     let gesture = markerMoveGesture.value;
     if (gesture === null || gesture.pointerId !== pointerId) return;
@@ -4194,19 +4442,29 @@ function beginMarkerMove(
       return;
     }
     if (!fromAutoScroll) scheduleMarkerMoveAutoScroll(update);
+    const previewFrame = pointerMarkerFrame(
+      clientX,
+      grabOffsetPx,
+      kind === 'dodge'
+        ? (scenario.value.inheritance?.frame ?? -scenario.value.battle.prepFrames)
+        : kind === 'controlSwitch'
+          ? -scenario.value.battle.prepFrames
+          : 0,
+    );
+    if (previewFrame === gesture.previewFrame) return;
     markerMoveGesture.value = {
       ...gesture,
       dragStarted: true,
-      previewFrame: pointerMarkerFrame(
-        clientX,
-        grabOffsetPx,
-        kind === 'controlSwitch' ? -scenario.value.battle.prepFrames : 0,
-      ),
+      previewFrame,
     };
+    if (kind === 'dodge') {
+      scenario.value = moveDodgeMarker(gesture.baseScenario, id, previewFrame);
+    }
   };
   const move = (moveEvent: PointerEvent) =>
     update(moveEvent.pointerId, moveEvent.clientX, moveEvent.clientY);
   const cleanup = () => {
+    if (kind === 'dodge') simulationService.endInteractiveSession();
     lease.release();
     window.removeEventListener('pointermove', move);
     window.removeEventListener('pointerup', finish);
@@ -4218,6 +4476,7 @@ function beginMarkerMove(
   const cancel = (cancelEvent?: PointerEvent) => {
     const gesture = markerMoveGesture.value;
     if (cancelEvent !== undefined && gesture?.pointerId !== cancelEvent.pointerId) return;
+    if (gesture?.kind === 'dodge') scenario.value = gesture.baseScenario;
     markerMoveGesture.value = null;
     cleanup();
   };
@@ -4228,6 +4487,7 @@ function beginMarkerMove(
     markerMoveGesture.value = null;
     cleanup();
     if (!gesture.dragStarted && wasComboControlSelected) clearTimelineSelection();
+    if (gesture.kind === 'dodge') scenario.value = gesture.baseScenario;
     if (gesture.previewFrame === gesture.initialFrame) return;
     commitScenario('moveTimelineMarker', current =>
       gesture.kind === 'cycleBoundary'
@@ -4236,11 +4496,13 @@ function beginMarkerMove(
           ? moveControlSwitch(current, gesture.id, gesture.previewFrame)
           : gesture.kind === 'externalEvent'
             ? moveExternalEventMarker(current, gesture.id, gesture.previewFrame)
-            : setSimulationRangeBoundary(
-                current,
-                gesture.kind === 'simulationStart' ? 'start' : 'end',
-                gesture.previewFrame,
-              ),
+            : gesture.kind === 'dodge'
+              ? moveDodgeMarker(current, gesture.id, gesture.previewFrame)
+              : setSimulationRangeBoundary(
+                  current,
+                  gesture.kind === 'simulationStart' ? 'start' : 'end',
+                  gesture.previewFrame,
+                ),
     );
   };
   stopMarkerMove = cancel;
@@ -4280,17 +4542,23 @@ function scheduleMarkerMoveAutoScroll(
 function updateCursorGuide(event: MouseEvent): void {
   const surface = timelineSurface.value;
   if (surface === null) {
+    timelinePointerClientX.value = null;
     cursorGuide.value = null;
     placementPointer.value = null;
     return;
   }
+  const surfaceRect = surface.getBoundingClientRect();
+  timelinePointerClientX.value =
+    event.clientX >= surfaceRect.left + TIMELINE_TRACK_HEADER_WIDTH &&
+    event.clientY >= surfaceRect.top + TIMELINE_RULER_HEIGHT
+      ? event.clientX
+      : null;
   placementPointer.value =
     libraryPlacement.value === null ? null : { x: event.clientX, y: event.clientY };
   if (!showCursorGuide.value) {
     cursorGuide.value = null;
     return;
   }
-  const surfaceRect = surface.getBoundingClientRect();
   if (event.clientY < surfaceRect.top + TIMELINE_RULER_HEIGHT) {
     cursorGuide.value = null;
     return;
@@ -4310,6 +4578,7 @@ function updateCursorGuide(event: MouseEvent): void {
 }
 
 function hideCursorGuide(): void {
+  timelinePointerClientX.value = null;
   cursorGuide.value = null;
   placementPointer.value = null;
 }
@@ -4396,7 +4665,6 @@ async function placeGroup(
     operatorSlug === null ? null : editorGameDataRepository.getOperator(operatorSlug);
   if (operator === null) return;
   const shouldAutoGroup =
-    autoGroupBasicAttackSequences.value &&
     skillKey === undefined &&
     operator.skillGroups.find(group => group.key === skillGroupKey)?.skillType === 'basicAttack';
   const result = placeLibrarySkillGroup({
@@ -4692,9 +4960,11 @@ function dropTimelinePayload(
 const resetDialogVisible = ref(false);
 
 function resetScenario(mode: TimelineResetMode): void {
-  const changed = projectSession.commit('resetScenarios', project =>
-    resetProjectScenarios(project, mode),
-  );
+  const command = (project: EndaxisProjectDocument) => resetProjectScenarios(project, mode);
+  const changed =
+    mode === 'currentKeepLoadout' && scenario.value.inheritance !== undefined
+      ? projectSession.commit('resetScenarios', command)
+      : projectSession.commitScenarioReplacement('resetScenarios', command);
   if (!changed) return;
   resetTransientScenarioUi();
   cursorFrame.value = 0;
@@ -4971,16 +5241,30 @@ async function compactSelectedSkills(): Promise<void> {
   commitScenario('compactSelectedSkills', () => compacted);
 }
 
-function pasteClipboardAtCursor(): void {
+function pasteClipboardAtTimelinePosition(): void {
   const clipboard = timelineClipboard.value;
   if (clipboard === null) return;
-  const pasteFrame = snapTimelineFrame(
-    cursorFrame.value,
-    snapFrames.value,
-    scenario.value.battle.durationFrames,
-    -scenario.value.battle.prepFrames,
-  );
+  const minimumFrame =
+    clipboard.dodgeMarker === undefined
+      ? -scenario.value.battle.prepFrames
+      : (scenario.value.inheritance?.frame ?? -scenario.value.battle.prepFrames);
+  const pasteFrame =
+    timelinePointerClientX.value === null
+      ? snapTimelineFrame(
+          cursorFrame.value,
+          snapFrames.value,
+          scenario.value.battle.durationFrames,
+          minimumFrame,
+        )
+      : pointerMarkerFrame(timelinePointerClientX.value, 0, minimumFrame);
   const result = pasteTimelineActions(scenario.value, clipboard, pasteFrame, ids);
+  if (result.dodgeMarkerId !== undefined) {
+    if (commitScenario('pasteDodgeMarker', () => result.scenario)) {
+      clearTimelineSelection();
+      selectedMarker.value = { kind: 'dodge', id: result.dodgeMarkerId };
+    }
+    return;
+  }
   if (result.skillCastIds.length === 0) return;
   commitScenario('pasteSkillCasts', () => result.scenario);
   applyActionSelection({
@@ -4990,6 +5274,10 @@ function pasteClipboardAtCursor(): void {
 }
 
 function copySelectedActions(): boolean {
+  if (selectedMarker.value?.kind === 'dodge') {
+    timelineClipboard.value = copyTimelineDodgeMarker(scenario.value, selectedMarker.value.id);
+    return timelineClipboard.value !== null;
+  }
   if (actionSelection.value.selectedIds.size === 0) return false;
   timelineClipboard.value = copyTimelineActions(
     scenario.value,
@@ -5109,7 +5397,7 @@ useKeyboardShortcutScope({
     if (isKeyboardShortcutIsolationTarget(event.target)) return false;
     if (event.type === 'copy') return copySelectedActions();
     if (event.type !== 'paste' || timelineClipboard.value === null) return false;
-    pasteClipboardAtCursor();
+    pasteClipboardAtTimelinePosition();
     return true;
   },
   handle: event => {
@@ -5120,7 +5408,7 @@ useKeyboardShortcutScope({
       copy: copySelectedActions,
       paste: () => {
         if (timelineClipboard.value === null) return false;
-        pasteClipboardAtCursor();
+        pasteClipboardAtTimelinePosition();
         return true;
       },
       delete: deleteSelectedActions,
@@ -5360,6 +5648,7 @@ function setPanelDialogVisible(visible: boolean): void {
   <TimelineResetDialog
     v-if="resetDialogVisible"
     v-model="resetDialogVisible"
+    :inherited="scenario.inheritance !== undefined"
     @confirm="resetScenario"
   />
   <input
@@ -5444,8 +5733,8 @@ function setPanelDialogVisible(visible: boolean): void {
             <SkillLibraryCard
               v-for="entry in selectedTrackModel.skillLibrary"
               :key="entry.entryKey"
-              :name="skillLibraryEntryName(entry)"
-              :tooltip="skillLibraryEntryName(entry)"
+              :name="skillLibraryCardName(entry)"
+              :tooltip="skillLibraryTypeLabel(entry)"
               :type-label="skillLibraryTypeLabel(entry)"
               :duration="skillDurationSeconds(entry)"
               :icon="skillDisplayIcon(entry.skillType, selectedTrackModel.operatorSlug)"
@@ -5551,10 +5840,8 @@ function setPanelDialogVisible(visible: boolean): void {
         :cursor-guide-enabled="showCursorGuide"
         :box-select-enabled="boxSelectEnabled"
         :connection-tool-enabled="connectionToolEnabled"
-        :auto-group-basic-attack-sequences="autoGroupBasicAttackSequences"
         @toggle-box-select="toggleBoxSelect"
         @toggle-connection-tool="toggleConnectionTool"
-        @set-auto-group-basic-attack-sequences="autoGroupBasicAttackSequences = $event"
         :buff-layout-mode="buffLayoutMode"
         @toggle-cursor-guide="toggleCursorGuide"
         @set-buff-layout="buffLayoutMode = $event"
@@ -5608,6 +5895,7 @@ function setPanelDialogVisible(visible: boolean): void {
         @add="addScenario"
         @select="selectScenario"
         @open="requestOpenProject"
+        @receive="requestReceiveProject"
         @export="showExportDialog = true"
         @reset="resetDialogVisible = true"
         @toggle-view-layer="toggleTimelineViewLayer"
@@ -6304,6 +6592,68 @@ function setPanelDialogVisible(visible: boolean): void {
                   <i class="track-switch-marker__pointer"></i>
                 </div>
                 <div
+                  v-for="marker in (scenario.battle.dodgeMarkers ?? []).filter(
+                    item => item.trackIndex === track.trackIndex,
+                  )"
+                  :key="marker.id"
+                  class="timeline-marker dodge-marker"
+                  :class="{
+                    'dodge-marker--perfect': marker.mode.kind === 'perfectDodge',
+                    'dodge-marker--warning': dodgeMarkerWarningIds.has(marker.id),
+                    selected: selectedMarker?.kind === 'dodge' && selectedMarker.id === marker.id,
+                    dragging:
+                      markerMoveGesture?.kind === 'dodge' &&
+                      markerMoveGesture.id === marker.id &&
+                      markerMoveGesture.dragStarted,
+                  }"
+                  :style="{
+                    left: `${timelineFramePx(displayedMarkerFrame('dodge', marker.id, marker.frame))}px`,
+                  }"
+                  :title="
+                    dodgeMarkerDiagnosticsById.get(marker.id)?.join('\n') ||
+                    t(`timeline.markerLabels.${marker.mode.kind}`)
+                  "
+                  @pointerdown="
+                    beginMarkerMove($event, 'dodge', marker.id, marker.frame, track.trackIndex)
+                  "
+                  @click.stop
+                  @contextmenu="
+                    openExistingMarkerContextMenu(
+                      $event,
+                      'dodge',
+                      marker.id,
+                      marker.frame,
+                      track.trackIndex,
+                      t(`timeline.markerLabels.${marker.mode.kind}`),
+                    )
+                  "
+                >
+                  <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 15c4-7 9-8 16-6M13 5l7 4-5 6" />
+                    <path
+                      v-if="marker.mode.kind === 'perfectDodge'"
+                      d="m6 4 .8 2.2L9 7l-2.2.8L6 10l-.8-2.2L3 7l2.2-.8Z"
+                    />
+                  </svg>
+                  <span v-if="dodgeMarkerWarningIds.has(marker.id)" class="dodge-marker__warning">{{
+                    dodgeMarkerResults.get(marker.id)?.status === 'warning' ? '!' : '?'
+                  }}</span>
+                  <span
+                    v-if="
+                      selectedMarker?.kind === 'dodge' &&
+                      selectedMarker.id === marker.id &&
+                      marker.mode.kind === 'perfectDodge' &&
+                      marker.mode.successDelayFrames > 0
+                    "
+                    class="dodge-marker__success-point"
+                    :style="{
+                      left: `calc(50% + ${timelineFramePx(marker.frame + marker.mode.successDelayFrames) - timelineFramePx(marker.frame)}px)`,
+                    }"
+                    aria-hidden="true"
+                  ></span>
+                  <i class="dodge-marker__pointer"></i>
+                </div>
+                <div
                   v-for="marker in (scenario.battle.externalEventMarkers ?? []).filter(
                     item =>
                       item.target.scope === 'operator' &&
@@ -6641,23 +6991,81 @@ function setPanelDialogVisible(visible: boolean): void {
         :kind="selectedDocumentMarker.kind"
         :read-only="
           (selectedDocumentMarker.kind === 'simulationStart' && configurationReadOnly) ||
-          (selectedDocumentMarker.kind === 'controlSwitch' &&
+          ((selectedDocumentMarker.kind === 'controlSwitch' ||
+            selectedDocumentMarker.kind === 'dodge') &&
             isHistoricalInputFrame(selectedDocumentMarker.frame))
         "
         :id="selectedDocumentMarker.id"
+        :success-read-only="
+          selectedDocumentMarker.kind === 'dodge' &&
+          selectedDocumentMarker.mode.kind === 'perfectDodge'
+            ? isHistoricalInputFrame(
+                selectedDocumentMarker.frame + selectedDocumentMarker.mode.successDelayFrames,
+              )
+            : false
+        "
+        :minimum-success-delay-frames="
+          Math.max(
+            0,
+            (scenario.inheritance?.frame ?? selectedDocumentMarker.frame) -
+              selectedDocumentMarker.frame,
+          )
+        "
         :frame="selectedDocumentMarker.frame"
         :minimum-frame="
-          selectedDocumentMarker.kind === 'controlSwitch' ? -scenario.battle.prepFrames : 0
+          selectedDocumentMarker.kind === 'controlSwitch' || selectedDocumentMarker.kind === 'dodge'
+            ? -scenario.battle.prepFrames
+            : 0
         "
         :maximum-frame="scenario.battle.durationFrames"
         :track-index="
-          selectedDocumentMarker.kind === 'controlSwitch'
+          selectedDocumentMarker.kind === 'controlSwitch' || selectedDocumentMarker.kind === 'dodge'
             ? selectedDocumentMarker.trackIndex
             : undefined
         "
+        :direction="
+          selectedDocumentMarker.kind === 'dodge' ? selectedDocumentMarker.direction : undefined
+        "
+        :dodge-mode="
+          selectedDocumentMarker.kind === 'dodge' ? selectedDocumentMarker.mode.kind : undefined
+        "
+        :success-delay-frames="
+          selectedDocumentMarker.kind === 'dodge' &&
+          selectedDocumentMarker.mode.kind === 'perfectDodge'
+            ? selectedDocumentMarker.mode.successDelayFrames
+            : undefined
+        "
+        :dodge-diagnostics="
+          selectedDocumentMarker.kind === 'dodge'
+            ? (dodgeMarkerDiagnosticsById.get(selectedDocumentMarker.id) ?? [])
+            : []
+        "
+        :dodge-effects="selectedDodgeEffects"
+        :receipt-entries="publishedReceiptEntries"
+        :operator-label="publishedOperatorInstanceName"
+        :object-icon="publishedObjectIcon"
+        :action-presentation="publishedActionPresentation"
+        :buff-label="
+          buffId =>
+            resolveBuffDisplayName(
+              buffId,
+              { t, te },
+              undefined,
+              undefined,
+              operatorBuffDisplayNameKeys,
+            )
+        "
+        :skill-cast-label="axisSkillBlockLabel"
         :track-options="occupiedTrackOptions"
         @set-frame="setSelectedDocumentMarkerFrame"
-        @set-track-index="setSelectedControlSwitchTrack"
+        @set-track-index="
+          selectedDocumentMarker.kind === 'dodge'
+            ? setSelectedDodgeTrack($event)
+            : setSelectedControlSwitchTrack($event)
+        "
+        @set-direction="setSelectedDodgeDirection"
+        @set-dodge-mode="setSelectedDodgeMode"
+        @set-success-delay-frames="setSelectedDodgeSuccessDelayFrames"
         @remove="removeSelectedDocumentMarker"
       />
       <TimelineActionInspector
@@ -6850,15 +7258,27 @@ function setPanelDialogVisible(visible: boolean): void {
     :has-simulation-start="scenario.battle.simulationRange?.startFrame !== undefined"
     :has-simulation-end="scenario.battle.simulationRange?.endFrame !== undefined"
     :existing-label="markerContextTarget?.existing?.label"
+    :existing-dodge-mode="
+      markerContextTarget?.existing?.kind === 'dodge'
+        ? scenario.battle.dodgeMarkers?.find(
+            marker => marker.id === markerContextTarget?.existing?.id,
+          )?.mode.kind
+        : undefined
+    "
     :labels="{
       title: t('timeline.markerContext.title'),
       deleteMarker: t('timeline.markerContext.deleteMarker'),
+      copyMarker: t('timeline.markerContext.copyMarker'),
       addCycle: t('timeline.markerContext.addCycle'),
       addSimulationStart: t('timeline.markerContext.addSimulationStart'),
       removeSimulationStart: t('timeline.markerContext.removeSimulationStart'),
       addSimulationEnd: t('timeline.markerContext.addSimulationEnd'),
       removeSimulationEnd: t('timeline.markerContext.removeSimulationEnd'),
       switchOperator: t('timeline.markerContext.switchOperator'),
+      dodge: t('timeline.markerContext.dodge'),
+      perfectDodge: t('timeline.markerContext.perfectDodge'),
+      switchToDodge: t('timeline.markerContext.switchToDodge'),
+      switchToPerfectDodge: t('timeline.markerContext.switchToPerfectDodge'),
       useConsumable: t('consumable.useFromContext'),
       restrictedHint: t('timeline.markerContext.restrictedHint'),
       operatorHit: t('timeline.markerContext.operatorHit'),
@@ -6872,6 +7292,9 @@ function setPanelDialogVisible(visible: boolean): void {
     @toggle-simulation-start="addMarkerFromContext('simulationStart')"
     @toggle-simulation-end="addMarkerFromContext('simulationEnd')"
     @add-switch="addSwitchMarkerFromContext"
+    @add-dodge="addDodgeMarkerFromContext"
+    @set-dodge-mode="setDodgeMarkerModeFromContext"
+    @copy-marker="copyDodgeMarkerFromContext"
     @use-consumable="openConsumableSelectionFromContext"
     @add-operator-hit="addMarkerFromContext('operatorHit')"
     @add-operator-weakness="addMarkerFromContext('operatorWeakness')"
@@ -7158,6 +7581,12 @@ function setPanelDialogVisible(visible: boolean): void {
     :title="passiveUiDetailTitle"
     :fps="PROJECT_FPS"
     @update:visible="passiveUiDetailSegment = $event ? passiveUiDetailSegment : null"
+  />
+  <TimelineReceiveDialog
+    :visible="showReceiveDialog"
+    :busy="receivingProjectCode"
+    @update:visible="showReceiveDialog = $event"
+    @receive="receiveProjectCode"
   />
   <TimelineExportDialog
     v-if="showExportDialog"
@@ -7995,6 +8424,85 @@ button:disabled {
   border-right: 5px solid transparent;
   border-left: 5px solid transparent;
   filter: drop-shadow(0 1px 2px rgb(0 0 0 / 40%));
+}
+
+.dodge-marker {
+  top: calc(var(--timeline-action-top, 55px) - 34px);
+  width: 24px;
+  height: 24px;
+  z-index: 31;
+  display: grid;
+  place-items: center;
+  border: 1px solid #67e8f9;
+  border-radius: 3px;
+  background: rgb(9 35 43 / 94%);
+  color: #a5f3fc;
+  transform: translateX(-50%);
+  cursor: grab;
+}
+
+.dodge-marker.dragging {
+  cursor: grabbing;
+}
+
+.dodge-marker--perfect {
+  border-color: #f6d365;
+  background: rgb(58 44 8 / 95%);
+  color: #ffe69a;
+}
+
+.dodge-marker > svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.8;
+}
+
+.dodge-marker__pointer {
+  position: absolute;
+  top: 23px;
+  width: 0;
+  height: 0;
+  border-top: 6px solid currentColor;
+  border-right: 4px solid transparent;
+  border-left: 4px solid transparent;
+}
+
+.dodge-marker__success-point {
+  position: absolute;
+  top: 26px;
+  width: 7px;
+  height: 7px;
+  border: 1px solid #ffe69a;
+  background: #3a2c08;
+  box-shadow: 0 0 5px #f6d365;
+  transform: translateX(-50%) rotate(45deg);
+  pointer-events: none;
+}
+
+.dodge-marker__warning {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  display: grid;
+  width: 12px;
+  height: 12px;
+  place-items: center;
+  border: 1px solid #151515;
+  border-radius: 50%;
+  background: #f1c40f;
+  color: #171717;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.dodge-marker.selected {
+  border-color: #fff;
+  box-shadow: 0 0 7px currentColor;
 }
 
 .timeline-marker.track-switch-marker.selected {

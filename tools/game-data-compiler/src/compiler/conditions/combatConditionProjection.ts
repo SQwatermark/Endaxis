@@ -50,6 +50,7 @@ export function canOmitUnusedNativeCondition(
     'moveInput',
     'targetContains',
     'targetInScreen',
+    'perfectDodgeDirection',
   ].includes(condition.kind);
 }
 
@@ -99,6 +100,38 @@ function compileConditionLeaf(
   targetGroups: ReadonlyMap<string, ProjectedTargetGroup> = new Map(),
 ): CompiledBuffConditionSource {
   if (condition.kind === 'constant') return { kind: 'constant', value: condition.value };
+  if (condition.kind === 'damageIgnoreImmuneLevel') {
+    // 当前模拟器唯一的玩家受击入口是用户声明的外部命中，免疫忽略等级固定为原生 Default(0)。
+    // 只接受公共闪避监听器的“0 <= 0”形状；其他比较必须等载荷显式携带该字段后再投影。
+    if (condition.comparison !== 'LE' || condition.level !== 0)
+      throw new Error(`${sourcePath}: unsupported damage ignore-immune-level comparison`);
+    return { kind: 'constant', value: true };
+  }
+  if (condition.kind === 'projectilePerfectDodgeCooldown') {
+    if (context.nativeAbilityEvent !== 'OnBeforeHitByProjectile') {
+      throw new Error(`${sourcePath}: projectile cooldown check requires OnBeforeHitByProjectile`);
+    }
+    return {
+      kind: 'eventProjectilePerfectDodgeCooldownEquals',
+      value: condition.isInCooldown,
+    };
+  }
+  if (condition.kind === 'projectileIgnoreImmuneLevel') {
+    if (context.nativeAbilityEvent !== 'OnBeforeHitByProjectile') {
+      throw new Error(
+        `${sourcePath}: projectile ignore-immune-level check requires OnBeforeHitByProjectile`,
+      );
+    }
+    const operator = COMPARISON_OPERATORS[condition.comparison];
+    if (operator === undefined) {
+      throw new Error(`${sourcePath}: unsupported projectile ignore-immune-level comparison`);
+    }
+    return {
+      kind: 'eventProjectileIgnoreImmuneLevelCompare',
+      operator,
+      value: condition.level,
+    };
+  }
   if (condition.kind === 'moveInput') {
     // Endaxis 的技能块没有移动轴输入；未提供输入表示静止。原生条件在零轴时返回 false，
     // 后续 SaveMoveAxisAngle/方向 JumpTo 因 Sequence 短路不可达。若战斗程序仍消费角度，
@@ -463,6 +496,9 @@ function compileConditionLeaf(
       'contextBuff',
       'buffStack',
       'targetIdentity',
+      // 接收事件不会改变固定 Buff Owner 的身份。极限闪避监听器检查 Owner 是否为
+      // 当前主控，仍由场景控制时间线在执行帧求值，不能在生成阶段折叠。
+      'mainOperator',
       'floatCompare',
       'originSkillType',
       'skillCastId',
@@ -1734,6 +1770,7 @@ function singleBuffConditionTarget(
   | 'actionInputTarget'
   | 'currentTarget' {
   if (context.actionTargetTarget === 'currentOperator') return 'currentTarget';
+  if (context.actionTargetTarget === 'actionInputTarget') return 'actionInputTarget';
   if (context.actionTargetTarget === 'eventSource' || context.actionTargetTarget === 'eventTarget')
     return 'actionInputTarget';
   if (

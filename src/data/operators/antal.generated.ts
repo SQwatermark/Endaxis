@@ -192,6 +192,7 @@ export const antalBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 15,
     naturalDurationFrames: 69,
     exclusiveFrame: 21,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -255,7 +256,15 @@ export const antalBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        15,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0023_antal_attack2'] }),
+        ),
+        26,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0023_antal_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -270,6 +279,7 @@ export const antalBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 90,
     exclusiveFrame: 31,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -333,12 +343,24 @@ export const antalBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
+      scheduled(
+        20,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0023_antal_attack3'] }),
+        ),
+        31,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0023_antal_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63] },
+  {
+    atb: 0,
+    atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
+    display_atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
+  },
 );
 
 export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -348,6 +370,7 @@ export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 107,
     exclusiveFrame: 33,
+    offsetRecordFrame: 14,
     inputWindows: {
       commandMappings: [
         {
@@ -464,7 +487,15 @@ export const antalBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         18,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0023_antal_attack4'] }),
+        ),
+        33,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0023_antal_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -479,6 +510,7 @@ export const antalBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 38,
     naturalDurationFrames: 109,
     exclusiveFrame: 43,
+    offsetRecordFrame: 27,
     inputWindows: {
       commandMappings: [
         {
@@ -529,7 +561,15 @@ export const antalBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         27,
       ),
+      scheduled(
+        38,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0023_antal_attack1'] }),
+        ),
+        48,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0023_antal_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -548,6 +588,7 @@ export const antalFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 32,
     naturalDurationFrames: 124,
     exclusiveFrame: 42,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -694,6 +735,7 @@ export const antalPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 85,
     exclusiveFrame: 15,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -739,6 +781,7 @@ export const antalBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 31,
     naturalDurationFrames: 108,
     exclusiveFrame: 30,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -764,14 +807,14 @@ export const antalBattleSkill: SkillDefinition = withSkillBlackboard(
             target: 'caster',
             source: 'enemy',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              rate: { kind: 'blackboard', key: 'rate' },
-              duration: { kind: 'blackboard', key: 'duration' },
-              potential_3: { kind: 'blackboard', key: 'potential_3' },
-              potential_3_atb: { kind: 'blackboard', key: 'potential_3_atb' },
-              potential_5: { kind: 'blackboard', key: 'potential_5' },
-              delay_time: { kind: 'blackboard', key: 'delay_time' },
-              potential_5_rate: { kind: 'blackboard', key: 'potential_5_rate' },
+            copiedBlackboardAssignments: {
+              rate: 'rate',
+              duration: 'duration',
+              potential_3: 'potential_3',
+              potential_3_atb: 'potential_3_atb',
+              potential_5: 'potential_5',
+              delay_time: 'delay_time',
+              potential_5_rate: 'potential_5_rate',
             },
           }),
           step(
@@ -830,6 +873,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 108,
     exclusiveFrame: 45,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 24, endFrame: 63, sourceSkillIds: ['chr_0023_antal_normal_skill'] },
@@ -972,9 +1016,7 @@ export const antalComboSkill: SkillDefinition = withSkillBlackboard(
                                   target: 'buffOwner',
                                   source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
-                                  blackboardAssignments: {
-                                    duration: { kind: 'blackboard', key: 'duration' },
-                                  },
+                                  copiedBlackboardAssignments: { duration: 'duration' },
                                 }),
                               ),
                             },
@@ -1672,6 +1714,7 @@ export const antalUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 56,
     naturalDurationFrames: 112,
     exclusiveFrame: 60,
+    offsetRecordFrame: 0,
     inputWindows: {
       commandMappings: [
         {
@@ -1751,10 +1794,7 @@ export const antalUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0023_antal_utimate_skill',
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'duration' },
-              rate: { kind: 'blackboard', key: 'rate' },
-            },
+            copiedBlackboardAssignments: { duration: 'duration', rate: 'rate' },
           }),
         ),
         51,
@@ -1767,6 +1807,22 @@ export const antalUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   { duration: 12, rate: [0.08, 0.09, 0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.2] },
+);
+
+export const antalPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const antal: OperatorDefinition = {
@@ -1814,6 +1870,10 @@ export const antal: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: antalUltimate },
   ],
+  dodgeSkill: antalPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1830,6 +1890,7 @@ export const antal: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -2061,14 +2122,14 @@ export const antal: OperatorDefinition = {
             source: 'buffOwner',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              rate: { kind: 'blackboard', key: 'rate' },
-              duration: { kind: 'blackboard', key: 'duration' },
-              potential_3: { kind: 'blackboard', key: 'potential_3' },
-              potential_3_atb: { kind: 'blackboard', key: 'potential_3_atb' },
-              potential_5_rate: { kind: 'blackboard', key: 'potential_5_rate' },
-              potential_5: { kind: 'blackboard', key: 'potential_5' },
-              delay_time: { kind: 'blackboard', key: 'delay_time' },
+            copiedBlackboardAssignments: {
+              rate: 'rate',
+              duration: 'duration',
+              potential_3: 'potential_3',
+              potential_3_atb: 'potential_3_atb',
+              potential_5_rate: 'potential_5_rate',
+              potential_5: 'potential_5',
+              delay_time: 'delay_time',
             },
           }),
         ),

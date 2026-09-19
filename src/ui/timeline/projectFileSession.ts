@@ -2,15 +2,35 @@ import { onScopeDispose, ref } from 'vue';
 import type { ProjectEditorSession } from '../../application/editor/projectEditorSession';
 import type { EndaxisProjectDocument } from '../../core/project/schema';
 import { serializeProjectDocument } from '../../core/project/serialization';
+import { saveBrowserProject } from '../../data/browserProjectStorage';
 import { downloadBlob, projectFilename } from './timelineExport';
 
-/** 文件会话拥有读取代次、导出基线和离页保护；项目解析及替换确认仍由应用入口负责。 */
-export function useProjectFileSession(projectSession: ProjectEditorSession) {
+/** 项目会话拥有浏览器自动保存、文件读取代次、导出基线和离页保护。 */
+export function useProjectFileSession(
+  projectSession: ProjectEditorSession,
+  options: { persistToBrowser?: boolean } = {},
+) {
   let savedProjectSnapshot = projectSession.snapshot.project;
   const projectDirty = ref(false);
+  const browserSaveError = ref<string | null>(null);
+  let pendingBrowserSaves = 0;
   const projectFileReader = createProjectFileReader(() => projectSession.snapshot.revision);
   const unsubscribe = projectSession.subscribe(snapshot => {
     projectDirty.value = snapshot.project !== savedProjectSnapshot;
+    if (options.persistToBrowser) {
+      pendingBrowserSaves += 1;
+      void saveBrowserProject(snapshot.project).then(
+        () => {
+          browserSaveError.value = null;
+          pendingBrowserSaves -= 1;
+        },
+        error => {
+          browserSaveError.value =
+            error instanceof Error ? error.message : '浏览器项目自动保存失败';
+          pendingBrowserSaves -= 1;
+        },
+      );
+    }
   });
   function markOpenedProject(project: EndaxisProjectDocument, gameDataRevisionUpdated: boolean) {
     if (!gameDataRevisionUpdated) savedProjectSnapshot = project;
@@ -32,6 +52,8 @@ export function useProjectFileSession(projectSession: ProjectEditorSession) {
   }
   function protectUnsavedProject(event: BeforeUnloadEvent) {
     if (!projectDirty.value) return;
+    if (options.persistToBrowser && pendingBrowserSaves === 0 && browserSaveError.value === null)
+      return;
     event.preventDefault();
     event.returnValue = '';
   }
@@ -41,7 +63,13 @@ export function useProjectFileSession(projectSession: ProjectEditorSession) {
     projectFileReader.dispose();
     window.removeEventListener('beforeunload', protectUnsavedProject);
   });
-  return { projectDirty, projectFileReader, markOpenedProject, exportProjectFile };
+  return {
+    projectDirty,
+    browserSaveError,
+    projectFileReader,
+    markOpenedProject,
+    exportProjectFile,
+  };
 }
 
 /** File selection is replaceable work: only the newest read may reach project parsing.

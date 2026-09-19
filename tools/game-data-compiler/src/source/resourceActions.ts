@@ -35,6 +35,17 @@ export interface ResourceGainActionSource {
   readonly target: TargetReferenceSource;
 }
 
+/** RecoverDashEnergy 的完整原生载荷。它操作 PlayerController 的共享闪避体力。 */
+export interface DashEnergyRecoveryActionSource {
+  readonly kind: 'dashEnergyRecovery';
+  readonly amount: ScalarSource;
+  readonly canRecoverWhenOverdraft: boolean;
+}
+
+export interface BattleDetailRecordActionSource {
+  readonly kind: 'recordPerfectDodge';
+}
+
 /** GainBreakingAttackAtb：从命中目标读取处决技力基值，再乘动作 factor。 */
 export interface FinisherSpGainActionSource {
   readonly kind: 'finisherSpGain';
@@ -154,6 +165,39 @@ export function parseResourceGainActionSource(
     source: parseTargetReferenceSource(action.source, `${path}.source`),
     target: parseTargetReferenceSource(action.target, `${path}.target`),
   };
+}
+
+export function parseDashEnergyRecoveryActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): DashEnergyRecoveryActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([...ACTION_META_FIELDS, 'energyNum', 'canRecoverWhenOverdraft']),
+    path,
+  );
+  return {
+    kind: 'dashEnergyRecovery',
+    amount: parseScalarSource(action.energyNum, `${path}.energyNum`, inheritedBlackboard),
+    canRecoverWhenOverdraft: requireBoolean(
+      action.canRecoverWhenOverdraft,
+      `${path}.canRecoverWhenOverdraft`,
+    ),
+  };
+}
+
+export function parseBattleDetailRecordActionSource(
+  value: unknown,
+  path: string,
+): BattleDetailRecordActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(action, new Set([...ACTION_META_FIELDS, 'recordType']), path);
+  const recordType = action.recordType;
+  if (recordType !== 'Dodge' && recordType !== 1)
+    throw new Error(`${path}.recordType: unsupported value ${JSON.stringify(recordType)}`);
+  return { kind: 'recordPerfectDodge' };
 }
 
 /** 严格读取 GainBreakingAttackAtb 的完整 1.4.4 载荷。 */

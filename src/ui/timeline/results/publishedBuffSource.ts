@@ -67,8 +67,8 @@ export function resolvePublishedBuffSource(
 ): PublishedBuffSource | undefined {
   const id = source.sourceActionId;
   if (id === undefined || scenario === undefined) return undefined;
+  // 技能块 ID 在方案内全局唯一；Buff 的 sourceId 可能是接收者，不能拿它限制施法轨道。
   for (const track of scenario.tracks) {
-    if (source.sourceId !== undefined && track?.id !== source.sourceId) continue;
     const cast = track?.skillCasts.find(cast => cast.id === id);
     if (cast === undefined) continue;
     if (cast.source.kind === 'custom') return { kind: 'custom', name: cast.source.name };

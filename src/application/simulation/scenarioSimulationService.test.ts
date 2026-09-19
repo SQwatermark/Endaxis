@@ -105,6 +105,39 @@ const testIndex = {
 };
 
 describe('ScenarioSimulationService', () => {
+  it('继承切在 Dash 与成功之间，只重放历史输入，修改成功时刻可以复用同一切面', async () => {
+    const base = createPerlicaScenario();
+    base.battle.resourceRules.initialSp = 0;
+    base.battle.resourceRules.spRecoveryPerSecond = 0;
+    base.battle.dodgeMarkers = [
+      {
+        id: 'split',
+        frame: 1,
+        trackIndex: 0,
+        direction: 'forward',
+        mode: { kind: 'perfectDodge', successDelayFrames: 5 },
+      },
+    ];
+    const inherited = structuredClone(base);
+    inherited.inheritance = { frame: 3, sourceScenarioId: base.id };
+    const service = createService();
+    const create = vi.spyOn(service, 'createInputCombatSession');
+    for (const delay of [5, 6, undefined]) {
+      inherited.battle.dodgeMarkers![0]!.mode =
+        delay === undefined
+          ? { kind: 'dodge' }
+          : { kind: 'perfectDodge', successDelayFrames: delay };
+      const ordinary = structuredClone(inherited);
+      delete ordinary.inheritance;
+      const resumed = await service.simulate(inherited, 30);
+      const full = await createService().simulate(ordinary, 30);
+      expect(resumed.receiptEntries).toEqual(full.receiptEntries);
+      expect(resumed.finalResources).toEqual(full.finalResources);
+      expect(resumed.receiptEntries.filter(e => e.event === 'DashInputExecuted')).toHaveLength(1);
+      expect(resumed.finalResources.sp).toBe(delay === undefined ? 0 : 7);
+    }
+    expect(create).toHaveBeenCalledTimes(1);
+  });
   it('负帧连续组历史从原初始化帧重放，继承后回执与资源一致', async () => {
     let identity = 0;
     const base = createPerlicaScenario();
@@ -893,6 +926,52 @@ describe('ScenarioSimulationService', () => {
     parent.advanceToFrame(30);
     expect(parent.runtime.readState()).toEqual(result);
   });
+
+  it.each(['expected', 'sampled'] as const)(
+    '%s 模式下技能块种子隔离同轨前面新增技能的暴击取样',
+    async mode => {
+      const empty = createPerlicaScenario();
+      empty.battle.random = { mode, globalSeed: 123 };
+      empty.globalConfig.modifiers = [
+        { id: 'global:crit', kind: 'operatorStat', modifier: 'criticalRate', value: 0.3 },
+      ];
+      const later = placeSkillGroup({
+        scenario: empty,
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'battleSkill',
+        startFrame: 180,
+        ids: { allocate: kind => `${kind}:later` },
+      }).scenario;
+      const laterCast = later.tracks[0]!.skillCasts[0]!;
+      laterCast.simulationInputs = { randomSeed: 7 };
+      const withEarlier = placeSkillGroup({
+        scenario: structuredClone(later),
+        trackIndex: 0,
+        operator: perlica,
+        skillGroupKey: 'battleSkill',
+        startFrame: 1,
+        ids: { allocate: kind => `${kind}:earlier` },
+      }).scenario;
+      const service = createService();
+      const hits = async (scenario: ScenarioDocument) =>
+        (await service.simulate(scenario, 240)).receiptEntries
+          .filter(
+            entry =>
+              entry.event === 'DamageApplied' &&
+              entry.data?.castId === laterCast.id &&
+              entry.data?.stepKey !== undefined,
+          )
+          .map(entry => ({
+            stepKey: entry.data?.stepKey,
+            isCritical: entry.data?.isCritical,
+            criticalRate: entry.data?.criticalRate,
+          }));
+      const baseline = await hits(later);
+      expect(baseline.length).toBeGreaterThan(0);
+      expect(await hits(withEarlier)).toEqual(baseline);
+    },
+  );
 
   it('逐帧应用会话不编译未来放置，新施放及恢复使用正式伤害投影', () => {
     const scenario = placeSkillGroup({

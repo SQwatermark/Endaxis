@@ -43,7 +43,11 @@ function operatorBuffRuntime(ownerId: string): OperatorBuffRuntime {
     ownerId,
     advanceFrame: () => undefined,
     apply: () => true,
-    applyScoped: () => ({ reference: createTestBuffReference(), finish: () => true }),
+    applyScoped: () => ({
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: () => true,
+    }),
     getCountByIds: () => 0,
     findFirstByIds: () => undefined,
     finishByIds: () => 0,

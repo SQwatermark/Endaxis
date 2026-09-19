@@ -129,13 +129,13 @@ export interface OtherCameraPresentationActionSource {
     | 'interruptHenshinListenerOmitted'
     | 'cutsceneCleanupListenerOmitted'
     | 'strafeMode'
-    | 'dashLimit'
     | 'bombClear'
     | 'skillTypeMutation'
     | 'passiveUiValue'
     | 'animatorAimOffset'
     | 'squadTeleportOmitted'
-    | 'dashWindowOmitted'
+    | 'perfectDodgeAnimationOmitted'
+    | 'firstDashAnimationParameterOmitted'
     | 'typhoeaHudHint';
   readonly readBlackboardKeys?: readonly string[];
   readonly target?: TargetReferenceSource;
@@ -229,17 +229,57 @@ export function parseTryToTeleportSquadActionSource(
   return { kind: 'squadTeleportOmitted' };
 }
 
-/** 只开放玩家位移输入窗口；固定木桩伤害模型不模拟玩家移动。 */
-export function parseMarkCanDashActionSource(
+/**
+ * 选择前闪、后闪或侧闪动画，并可把角色表现强制留在战斗待机；零空间战斗模拟不消费动画状态。
+ * 字段仍完整校验，防止以后原生动作增加影响技能、Buff 或资源的参数却被静默忽略。
+ */
+export function parsePlayPerfectDodgeAnimActionSource(
   value: unknown,
   path: string,
 ): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
   requireExactFields(
-    requireRecord(value, path),
-    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'forceFightIdle',
+      'forceFightIdleDuration',
+    ]),
     path,
   );
-  return { kind: 'dashWindowOmitted' };
+  requireBoolean(action.forceFightIdle, `${path}.forceFightIdle`);
+  requireNumber(action.forceFightIdleDuration, `${path}.forceFightIdleDuration`);
+  return { kind: 'perfectDodgeAnimationOmitted' };
+}
+
+/**
+ * 极限闪避成功链把首次 Dash 动画参数改为 false。该参数只被 IFix 表现逻辑消费，
+ * 零空间模拟没有动画状态；仍严格限制字段和值，避免把未来新增的战斗参数静默裁掉。
+ */
+export function parseSetFirstDashParamActionSource(
+  value: unknown,
+  path: string,
+): CameraPresentationActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'isFirstDash',
+    ]),
+    path,
+  );
+  if (requireBoolean(action.isFirstDash, `${path}.isFirstDash`))
+    throw new Error(`${path}.isFirstDash: true branch has not been audited`);
+  return { kind: 'firstDashAnimationParameterOmitted' };
 }
 
 /**
@@ -518,43 +558,6 @@ export function parseSetStrafeModeActionSource(
     if (!Number.isFinite(yawOffset)) throw new Error(`${path}.yawOffset: expected finite number`);
   }
   return { kind: 'strafeMode' };
-}
-
-/** 多段闪避输入上限不参与时间轴技能伤害结算；当前只接纳形态 Buff 的 Owner/-1 载荷。 */
-export function parseOverrideMultiDashLimitActionSource(
-  value: unknown,
-  path: string,
-): CameraPresentationActionSource {
-  const action = requireRecord(value, path);
-  requireExactFields(
-    action,
-    new Set([
-      '$type',
-      'isEnable',
-      'priorityLevel',
-      'priorityOffset',
-      'serverActionIndex',
-      'targetSetting',
-      'dashCount',
-    ]),
-    path,
-  );
-  const target = parseTargetReferenceSource(action.targetSetting, `${path}.targetSetting`);
-  const dashCount = requireRecord(action.dashCount, `${path}.dashCount`);
-  requireExactFields(
-    dashCount,
-    new Set(['useBlackboardKey', 'value', 'blackboardKey']),
-    `${path}.dashCount`,
-  );
-  if (
-    !isPlainTargetReference(target, 'Owner') ||
-    requireBoolean(dashCount.useBlackboardKey, `${path}.dashCount.useBlackboardKey`) ||
-    requireNumber(dashCount.value, `${path}.dashCount.value`) !== -1 ||
-    requireString(dashCount.blackboardKey, `${path}.dashCount.blackboardKey`) !== ''
-  ) {
-    throw new Error(`${path}: unsupported multi-dash limit projection`);
-  }
-  return { kind: 'dashLimit' };
 }
 
 /** BombClearAction 清理角色手持炸弹状态；Next 时间轴没有炸弹交互对象。 */

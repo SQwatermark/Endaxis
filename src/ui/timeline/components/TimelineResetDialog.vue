@@ -13,6 +13,7 @@ const props = withDefaults(
   defineProps<{
     modelValue: boolean;
     lockScroll?: boolean;
+    inherited?: boolean;
   }>(),
   { lockScroll: true },
 );
@@ -40,8 +41,12 @@ const options = computed(() => [
   {
     mode: 'currentKeepLoadout' as const,
     icon: 'loadout',
-    title: t('reset.currentKeepLoadout'),
-    description: t('reset.currentKeepLoadoutDescription'),
+    title: t(props.inherited ? 'reset.currentKeepInheritance' : 'reset.currentKeepLoadout'),
+    description: t(
+      props.inherited
+        ? 'reset.currentKeepInheritanceDescription'
+        : 'reset.currentKeepLoadoutDescription',
+    ),
   },
   {
     mode: 'current' as const,
@@ -208,6 +213,16 @@ function confirm() {
   margin: 0;
   font-size: 18px;
   font-weight: 700;
+}
+
+.timeline-reset-option__icon svg {
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .timeline-reset-options {

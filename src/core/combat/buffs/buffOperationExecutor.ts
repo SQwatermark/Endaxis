@@ -11,7 +11,10 @@ import {
  * 执行技能序列中面向施法者或敌方 Buff 容器的查询与结束操作。
  * 这里只暴露动作需要的最小端口；目标身份到具体容器的映射由战斗装配层决定。
  */
-import { compareCombatNumbers } from '../../../../packages/game-data-contract/src/primitives';
+import {
+  compareCombatNumbers,
+  type ActionBlackboardValue,
+} from '../../../../packages/game-data-contract/src/primitives';
 import type {
   ResolvedCombatOperationStep,
   ResolvedCombatStepParameters,
@@ -216,7 +219,7 @@ export interface BuffApplicationRequest {
   /** 后代定义继续从该 AbilitySystem 的目录解析。 */
   readonly definitionOwnerId?: string;
   readonly sourceActionId?: string;
-  readonly blackboardValues: Readonly<Record<string, number>>;
+  readonly blackboardValues: Readonly<Record<string, ActionBlackboardValue>>;
   readonly skillCastInfo?: CombatSkillCastInfo;
   readonly isExtra?: boolean;
   /** 已在执行点解析为稳定实例身份的原生图标倒计时来源。 */
@@ -246,6 +249,8 @@ export interface BuffOperationDependencies {
   ) => string | undefined;
   /** Ability 事件响应中把原生 Target 解析为事件载荷的真实 targetId。 */
   readonly resolveEventTarget?: (targetId: string) => BuffOperationTarget;
+  /** 解析既有实例引用；已回收返回空，不要求其宿主仍可作为新动作目标。 */
+  readonly resolveBuffReference?: (reference: BuffReference) => BuffApplicationHandle | undefined;
   /** 从当前动作所属干员、原始技能等级对应的附属对象表解析定义。 */
   readonly resolveBuffDefinition?: (buffId: string) => ResolvedSkillBuffDefinition | undefined;
   readonly onPhysicalInflictionApplied?: (event: AbilityPhysicalInflictionPayload) => void;
@@ -466,8 +471,11 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
       }
       const assignments = step.parameters.blackboardAssignments ?? {};
       const stringAssignments = step.parameters.stringBlackboardAssignments ?? {};
+      const copiedAssignments = step.parameters.copiedBlackboardAssignments ?? {};
       if (
-        (Object.keys(assignments).length > 0 || Object.keys(stringAssignments).length > 0) &&
+        (Object.keys(assignments).length > 0 ||
+          Object.keys(stringAssignments).length > 0 ||
+          Object.keys(copiedAssignments).length > 0) &&
         context === undefined
       ) {
         throw new Error('applyBuff runtime values require a combat operation context');
@@ -566,7 +574,9 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
               ? (context?.actionSourceId ?? context?.buffSourceId ?? this.dependencies.sourceId)
               : sourceTarget!.ownerId,
           definitionOwnerId: this.dependencies.definitionOwnerId ?? this.dependencies.sourceId,
-          ...(sourceTarget?.getAttributeValue === undefined
+          // 已解析定义且没有来源属性消费者时，不建立多余的活对象依赖；来源身份仍保留。
+          ...((definition !== undefined && !requiresSourceAttributeValue) ||
+          sourceTarget?.getAttributeValue === undefined
             ? {}
             : {
                 getSourceAttributeValue: sourceTarget.getAttributeValue.bind(sourceTarget),
@@ -581,6 +591,13 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
                 [key, resolveActionValueOperand(operand, context!.blackboard)] as const,
             ),
             ...Object.entries(stringAssignments),
+            ...Object.entries(copiedAssignments).map(([targetKey, sourceKey]) => {
+              const value = context!.blackboard.getValue(sourceKey);
+              if (value === undefined) {
+                throw new Error(`action blackboard value '${sourceKey}' is missing`);
+              }
+              return [targetKey, value] as const;
+            }),
           ]),
           ...(step.parameters.inheritSourceSkillCastInfo && inheritedSkillCastInfo !== undefined
             ? { skillCastInfo: inheritedSkillCastInfo }
@@ -941,6 +958,7 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
     target: BuffApplicationTarget,
     context?: CombatOperationContext,
   ): readonly BuffOperationTarget[] {
+    if (target === 'actionInputTarget') return [this.#resolveSingleTarget(target, context)];
     if (target === 'eventSource') {
       const resolve = this.dependencies.resolveEventTarget;
       if (resolve === undefined) {
@@ -1161,10 +1179,16 @@ export class BuffOperationExecutor implements CombatOperationExecutor {
 
   #resolveActionBuff(reference: BuffReference): BuffApplicationHandle | undefined {
     const key = buffReferenceKey(reference);
+    const resolve = this.dependencies.resolveBuffReference;
+    if (resolve !== undefined) {
+      this.#buffHandleBindings.delete(key);
+      const bound = resolve(reference);
+      return bound?.isRecycled === true || bound?.isFinished === true ? undefined : bound;
+    }
     const cached = this.#buffHandleBindings.get(key);
     if (cached !== undefined) {
       this.#buffHandleBindings.delete(key);
-      return cached.isFinished === true ? undefined : cached;
+      return cached.isRecycled || cached.isFinished === true ? undefined : cached;
     }
     const target = this.dependencies.resolveEventTarget?.(reference.ownerId);
     if (target?.resolveHandle === undefined) {

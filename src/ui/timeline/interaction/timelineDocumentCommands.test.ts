@@ -6,13 +6,16 @@ import {
   addControlSwitch,
   addCycleBoundary,
   addExternalEventMarker,
+  addDodgeMarker,
   applyInitialUltimateEnergyPreset,
   moveControlSwitch,
   moveCycleBoundary,
   moveExternalEventMarker,
+  moveDodgeMarker,
   removeControlSwitch,
   removeCycleBoundary,
   removeExternalEventMarker,
+  removeDodgeMarker,
   clearSimulationRangeBoundary,
   createSkillDefinitionDraft,
   createSkillCastGroup,
@@ -31,6 +34,7 @@ import {
   setSkillCastRandomSeed,
   setSkillCastCustomDefinition,
   setUnifiedInitialUltimateEnergy,
+  updateDodgeMarker,
   setGlobalOperatorStatModifiers,
   setSimulationRangeBoundary,
   setControlSwitchTrack,
@@ -954,6 +958,42 @@ describe('timeline marker commands', () => {
       -150,
     );
     expect(() => moveControlSwitch(added, 'switch:prep', -151)).toThrow('editable timeline');
+  });
+
+  it('adds, configures, moves and removes dodge markers on occupied tracks', () => {
+    const original = scenario();
+    original.battle.prepFrames = 30;
+    const added = addDodgeMarker(original, {
+      id: 'dodge:1',
+      frame: -10,
+      trackIndex: 0,
+      direction: 'forward',
+      mode: { kind: 'dodge' },
+    });
+    const configured = updateDodgeMarker(added, 'dodge:1', {
+      direction: 'backward',
+      mode: { kind: 'perfectDodge', successDelayFrames: 5 },
+    });
+    const moved = moveDodgeMarker(configured, 'dodge:1', 20);
+
+    expect(configured.battle.dodgeMarkers?.[0]).toEqual({
+      id: 'dodge:1',
+      frame: -10,
+      trackIndex: 0,
+      direction: 'backward',
+      mode: { kind: 'perfectDodge', successDelayFrames: 5 },
+    });
+    expect(moved.battle.dodgeMarkers?.[0]?.frame).toBe(20);
+    expect(removeDodgeMarker(moved, 'dodge:1').battle.dodgeMarkers).toEqual([]);
+    expect(() =>
+      addDodgeMarker(original, {
+        id: 'empty',
+        frame: 0,
+        trackIndex: 1,
+        direction: 'forward',
+        mode: { kind: 'dodge' },
+      }),
+    ).toThrow('track 1 is empty');
   });
 
   it('persists only the explicitly supplied external fact and target', () => {

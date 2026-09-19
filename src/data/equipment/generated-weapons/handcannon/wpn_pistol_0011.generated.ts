@@ -241,15 +241,9 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "cryst_dmg_up2": {
-                                  "kind": "blackboard",
-                                  "key": "cryst_dmg_up2"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cryst_dmg_up2": "cryst_dmg_up2",
+                                "duration": "duration"
                               }
                             }
                           }
@@ -301,15 +295,9 @@ const definition = {
                               "target": "eventTarget",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "spell_damage_taken_up": {
-                                  "kind": "blackboard",
-                                  "key": "spell_damage_taken_up"
-                                },
-                                "duration2": {
-                                  "kind": "blackboard",
-                                  "key": "duration2"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "spell_damage_taken_up": "spell_damage_taken_up",
+                                "duration2": "duration2"
                               }
                             }
                           }

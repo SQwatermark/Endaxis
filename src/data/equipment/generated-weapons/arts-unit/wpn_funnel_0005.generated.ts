@@ -160,19 +160,10 @@ const definition = {
                         "target": "partyExceptCasterAndSameCharacterType",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "atk_up": {
-                            "kind": "blackboard",
-                            "key": "atk_up"
-                          },
-                          "lv": {
-                            "kind": "blackboard",
-                            "key": "lv"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "duration": "duration",
+                          "atk_up": "atk_up",
+                          "lv": "lv"
                         }
                       }
                     }

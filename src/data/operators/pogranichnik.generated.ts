@@ -15,6 +15,45 @@ import {
   withSkillBlackboard,
 } from './definitionHelpers';
 
+const sharedActionSequence5: ActionSequenceDefinition = sequence(
+  step('readBuffBlackboard', {
+    target: 'buffSource',
+    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
+    desiredKey: 'duration',
+    outputKey: 'duration_temp',
+  }),
+  step('readBuffBlackboard', {
+    target: 'buffSource',
+    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
+    desiredKey: 'atk_up',
+    outputKey: 'atk_up_temp',
+  }),
+  step('readBuffBlackboard', {
+    target: 'buffSource',
+    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
+    desiredKey: 'physpell_up',
+    outputKey: 'physpell_up_temp',
+  }),
+  step('readBuffBlackboard', {
+    target: 'buffSource',
+    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
+    desiredKey: 'max_stack_owner',
+    outputKey: 'max_stack_owner_temp',
+  }),
+  step('applyBuff', {
+    buffId: 'buff_chr_0029_pograni_talent1',
+    target: 'buffSource',
+    source: 'buffSource',
+    inheritSourceSkillCastInfo: true,
+    copiedBlackboardAssignments: {
+      duration: 'duration_temp',
+      atk_up: 'atk_up_temp',
+      physpell_up: 'physpell_up_temp',
+      max_stack: 'max_stack_owner_temp',
+    },
+  }),
+);
+
 const sharedActionSequence1: ActionSequenceDefinition = sequence(
   step('calculateActionValue', {
     key: 'calc_atb1',
@@ -55,45 +94,6 @@ const sharedActionSequence1: ActionSequenceDefinition = sequence(
     amount: { kind: 'blackboard', key: 'usp' },
     coefficient: { kind: 'constant', value: 1 },
     recipient: 'caster',
-  }),
-);
-
-const sharedActionSequence5: ActionSequenceDefinition = sequence(
-  step('readBuffBlackboard', {
-    target: 'buffSource',
-    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent2'] },
-    desiredKey: 'duration',
-    outputKey: 'duration_temp',
-  }),
-  step('readBuffBlackboard', {
-    target: 'buffSource',
-    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
-    desiredKey: 'atk_up',
-    outputKey: 'atk_up_temp',
-  }),
-  step('readBuffBlackboard', {
-    target: 'buffSource',
-    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
-    desiredKey: 'physpell_up',
-    outputKey: 'physpell_up_temp',
-  }),
-  step('readBuffBlackboard', {
-    target: 'buffSource',
-    query: { kind: 'id', buffIds: ['buff_chr_0029_pograni_talent1_exist'] },
-    desiredKey: 'max_stack_owner',
-    outputKey: 'max_stack_owner_temp',
-  }),
-  step('applyBuff', {
-    buffId: 'buff_chr_0029_pograni_talent1',
-    target: 'buffSource',
-    source: 'buffSource',
-    inheritSourceSkillCastInfo: true,
-    blackboardAssignments: {
-      duration: { kind: 'blackboard', key: 'duration_temp' },
-      atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
-      physpell_up: { kind: 'blackboard', key: 'physpell_up_temp' },
-      max_stack: { kind: 'blackboard', key: 'max_stack_owner_temp' },
-    },
   }),
 );
 
@@ -149,11 +149,11 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
         target: 'eventSource',
         source: 'buffSource',
         inheritSourceSkillCastInfo: true,
-        blackboardAssignments: {
-          duration: { kind: 'blackboard', key: 'duration_temp' },
-          atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
-          physpell_up: { kind: 'blackboard', key: 'physpell_up_temp' },
-          max_stack: { kind: 'blackboard', key: 'max_stack_owner_temp' },
+        copiedBlackboardAssignments: {
+          duration: 'duration_temp',
+          atk_up: 'atk_up_temp',
+          physpell_up: 'physpell_up_temp',
+          max_stack: 'max_stack_owner_temp',
         },
       }),
     ),
@@ -163,11 +163,11 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
         target: 'eventSource',
         source: 'buffSource',
         inheritSourceSkillCastInfo: true,
-        blackboardAssignments: {
-          duration: { kind: 'blackboard', key: 'duration_temp' },
-          atk_up: { kind: 'blackboard', key: 'atk_up_temp' },
-          physpell_up: { kind: 'blackboard', key: 'physpell_up_temp' },
-          max_stack: { kind: 'blackboard', key: 'max_stack_team_temp' },
+        copiedBlackboardAssignments: {
+          duration: 'duration_temp',
+          atk_up: 'atk_up_temp',
+          physpell_up: 'physpell_up_temp',
+          max_stack: 'max_stack_team_temp',
         },
       }),
     ),
@@ -195,6 +195,7 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 12,
     naturalDurationFrames: 118,
     exclusiveFrame: 17,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -249,7 +250,15 @@ export const pogranichnikBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         9,
       ),
+      scheduled(
+        12,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack2'] }),
+        ),
+        29,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -264,6 +273,7 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 19,
     naturalDurationFrames: 124,
     exclusiveFrame: 22,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -357,12 +367,24 @@ export const pogranichnikBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         20,
       ),
+      scheduled(
+        19,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack3'] }),
+        ),
+        39,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.14, 0.15, 0.17, 0.18, 0.2, 0.21, 0.22, 0.24, 0.25, 0.27, 0.29, 0.32] },
+  {
+    atb: 0,
+    atk_scale: [0.14, 0.15, 0.17, 0.18, 0.2, 0.21, 0.22, 0.24, 0.25, 0.27, 0.29, 0.32],
+    display_atk_scale: [0.28, 0.31, 0.34, 0.36, 0.39, 0.42, 0.45, 0.48, 0.5, 0.54, 0.58, 0.63],
+  },
 );
 
 export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -372,6 +394,7 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 19,
     naturalDurationFrames: 175,
     exclusiveFrame: 29,
+    offsetRecordFrame: 9,
     inputWindows: {
       commandMappings: [
         {
@@ -469,7 +492,15 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         16,
       ),
+      scheduled(
+        19,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack4'] }),
+        ),
+        37,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -478,6 +509,7 @@ export const pogranichnikBasicAttack3: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
     poise: 0,
+    display_atk_scale: [0.33, 0.36, 0.4, 0.43, 0.46, 0.5, 0.53, 0.56, 0.59, 0.64, 0.68, 0.74],
   },
 );
 
@@ -488,6 +520,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 125,
     exclusiveFrame: 26,
+    offsetRecordFrame: 3,
     inputWindows: {
       commandMappings: [
         {
@@ -757,7 +790,15 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         16,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack5'] }),
+        ),
+        33,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -766,6 +807,7 @@ export const pogranichnikBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.06, 0.07, 0.08, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.13, 0.14],
     poise: 0,
+    display_atk_scale: [0.38, 0.42, 0.46, 0.5, 0.53, 0.57, 0.61, 0.65, 0.69, 0.73, 0.79, 0.86],
   },
 );
 
@@ -776,6 +818,7 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 124,
     exclusiveFrame: 32,
+    offsetRecordFrame: 16,
     inputWindows: {
       commandMappings: [
         {
@@ -855,7 +898,15 @@ export const pogranichnikBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         21,
       ),
+      scheduled(
+        24,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0029_pograni_attack1'] }),
+        ),
+        32,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0029_pograni_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -875,6 +926,7 @@ export const pogranichnikFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 27,
     naturalDurationFrames: 145,
     exclusiveFrame: 47,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1034,6 +1086,7 @@ export const pogranichnikPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 93,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1081,6 +1134,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 45,
     naturalDurationFrames: 218,
     exclusiveFrame: 55,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1405,7 +1459,7 @@ export const pogranichnikBattleSkill: SkillDefinition = withSkillBlackboard(
                     target: 'buffOwner',
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+                    copiedBlackboardAssignments: { duration: 'duration' },
                   }),
                 ),
               },
@@ -1522,6 +1576,7 @@ export const pogranichnikComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 66,
     naturalDurationFrames: 728,
     exclusiveFrame: 649,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 66, endFrame: 96, sourceSkillIds: ['chr_0029_pograni_normal_skill'] },
@@ -2175,6 +2230,7 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 91,
     naturalDurationFrames: 210,
     exclusiveFrame: 90,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -2325,16 +2381,35 @@ export const pogranichnikUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
+    angle: 120,
     atb_final: [30, 30, 30, 30, 30, 30, 30, 30, 30, 40, 40, 40],
     atb_trigger: [7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 7.5, 10, 10, 10],
     atk_scale_final: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
     atk_scale_rush: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
     atk_scale_trigger: [0.45, 0.49, 0.53, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.92, 1],
+    center_radius: 6,
     duration: 30,
+    height: 4,
     poise_final: 15,
     poise_rush: 10,
     radius: 5,
   },
+);
+
+export const pogranichnikPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const pogranichnik: OperatorDefinition = {
@@ -2398,6 +2473,10 @@ export const pogranichnik: OperatorDefinition = {
       skills: pogranichnikUltimate,
     },
   ],
+  dodgeSkill: pogranichnikPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -2414,6 +2493,13 @@ export const pogranichnik: OperatorDefinition = {
         'basicAttack5',
         'finisher',
         'plungingAttack',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -2601,11 +2687,11 @@ export const pogranichnik: OperatorDefinition = {
                           target: 'caster',
                           inheritSourceSkillCastInfo: true,
                           asChildBuff: true,
-                          blackboardAssignments: {
-                            duration: { kind: 'blackboard', key: 'duration' },
-                            atk_up: { kind: 'blackboard', key: 'atk_up' },
-                            physpell_up: { kind: 'blackboard', key: 'physpell_up' },
-                            max_stack: { kind: 'blackboard', key: 'max_stack_owner' },
+                          copiedBlackboardAssignments: {
+                            duration: 'duration',
+                            atk_up: 'atk_up',
+                            physpell_up: 'physpell_up',
+                            max_stack: 'max_stack_owner',
                           },
                         }),
                       ),
@@ -2827,7 +2913,7 @@ export const pogranichnik: OperatorDefinition = {
             count: { kind: 'blackboard', key: 'count' },
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+            copiedBlackboardAssignments: { duration: 'duration' },
           }),
         ),
         enable: sequence(
@@ -2914,10 +3000,10 @@ export const pogranichnik: OperatorDefinition = {
                       target: 'buffOwner',
                       source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
-                        atb_final: { kind: 'blackboard', key: 'atb_final' },
-                        poise_final: { kind: 'blackboard', key: 'poise_final' },
+                      copiedBlackboardAssignments: {
+                        atk_scale_final: 'atk_scale_final',
+                        atb_final: 'atb_final',
+                        poise_final: 'poise_final',
                       },
                     }),
                     step('createTimedMarker', {
@@ -3040,10 +3126,10 @@ export const pogranichnik: OperatorDefinition = {
                               target: 'buffOwner',
                               source: 'buffSource',
                               inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
-                                atb_final: { kind: 'blackboard', key: 'atb_final' },
-                                poise_final: { kind: 'blackboard', key: 'poise_final' },
+                              copiedBlackboardAssignments: {
+                                atk_scale_final: 'atk_scale_final',
+                                atb_final: 'atb_final',
+                                poise_final: 'poise_final',
                               },
                             }),
                             step('createTimedMarker', {
@@ -3301,13 +3387,13 @@ export const pogranichnik: OperatorDefinition = {
                       buffId: 'buff_chr_0029_pograni_ultimate_skill',
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        duration: { kind: 'blackboard', key: 'duration' },
-                        atk_scale_trigger: { kind: 'blackboard', key: 'atk_scale_trigger' },
-                        atk_scale_final: { kind: 'blackboard', key: 'atk_scale_final' },
-                        atb_trigger: { kind: 'blackboard', key: 'atb_trigger' },
-                        atb_final: { kind: 'blackboard', key: 'atb_final' },
-                        poise_final: { kind: 'blackboard', key: 'poise_final' },
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
+                        atk_scale_trigger: 'atk_scale_trigger',
+                        atk_scale_final: 'atk_scale_final',
+                        atb_trigger: 'atb_trigger',
+                        atb_final: 'atb_final',
+                        poise_final: 'poise_final',
                       },
                     }),
                   ),

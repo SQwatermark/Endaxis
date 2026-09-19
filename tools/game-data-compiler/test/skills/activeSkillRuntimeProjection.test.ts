@@ -24,6 +24,18 @@ const ACTIVE_CONTEXT = {
 } as const;
 
 describe('HideUI active source projection', () => {
+  it('保留原生 offsetRecordFrame 作为普攻连段身份提交点', () => {
+    const value = activeWithActions([]);
+    value.offsetRecordFrame = 17;
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value,
+      sourcePath: 'active.offset-record',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+    expect(result.offsetRecordFrame).toBe(17);
+  });
+
   it.each([false, true])('保留独立动作区间与分支 %s，不作为纯表现过滤', onlyBlockInput => {
     const result = compileActiveSkillRuntimeProjectionSource({
       value: activeWithActions([meta('HideUIAction', { onlyBlockInput })]),
@@ -37,6 +49,23 @@ describe('HideUI active source projection', () => {
       endFrame: 8,
       sequence: { steps: [{ kind: 'hideUi', parameters: { onlyBlockInput } }] },
     });
+  });
+
+  it('把原生 MarkCanDash 投影成当前施放的可闪避状态步骤', () => {
+    const result = compileActiveSkillRuntimeProjectionSource({
+      value: activeWithActions([meta('MarkCanDash', {})]),
+      sourcePath: 'active.mark-can-dash',
+      patch: null,
+      context: ACTIVE_CONTEXT,
+    });
+
+    expect(result.scheduledSequences).toMatchObject([
+      {
+        startFrame: 5,
+        endFrame: 8,
+        sequence: { steps: [{ kind: 'markCurrentSkillCanDash', parameters: {} }] },
+      },
+    ]);
   });
 });
 

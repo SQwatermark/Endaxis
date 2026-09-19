@@ -4,7 +4,7 @@
  * 这里只检查保存数据的身份、引用和寿命宿主归属，不解析固定定义，也不创建 Buff 句柄。
  */
 import { logicalAbilityEntityRuntimeId } from '../../../game-data/logicalAbilityEntity';
-import { buffReferenceKey } from '../../buffs/buffReference';
+import { buffReferenceKey, resolveBuffReferenceState } from '../../buffs/buffReference';
 import type { ActionSequenceState, TimelineRuntimeState } from '../../state/actionState';
 import type { CombatStateGraph } from '../../state/combatState';
 import { type BuffReference } from '../../state/foundationState';
@@ -52,6 +52,20 @@ function requireReference(
     throw new Error(`restored ${label} key '${savedKey}' does not match '${key}'`);
   }
   if (!instanceKeys.has(key)) throw new Error(`restored ${label} '${key}' is missing`);
+}
+
+/** ObjectPtr 可以已经失效，但宿主、分配记录及引用键必须真实存在。 */
+function validateAttachedReference(
+  reference: BuffReference,
+  containers: ReadonlyMap<string, BuffContainerState<string>>,
+  savedKey: string,
+): void {
+  if (savedKey !== buffReferenceKey(reference))
+    throw new Error(`restored attached Buff key '${savedKey}' does not match its identity`);
+  const container = containers.get(reference.ownerId);
+  if (container === undefined)
+    throw new Error(`restored attached Buff owner '${reference.ownerId}' is missing`);
+  resolveBuffReferenceState(container, reference);
 }
 
 /**
@@ -177,13 +191,13 @@ export function prepareCombatBuffRestore(graph: CombatStateGraph): PreparedComba
   for (const operator of graph.operators.values()) {
     for (const skill of operator.skills.values()) {
       for (const [key, reference] of skill.execution.attachedBuffs) {
-        requireReference(reference, instanceKeys, 'attached Buff', key);
+        validateAttachedReference(reference, containers, key);
       }
     }
   }
   for (const projectile of graph.instances.projectiles.instances.values()) {
     for (const [key, reference] of projectile.callback?.host?.skill.execution.attachedBuffs ?? []) {
-      requireReference(reference, instanceKeys, 'projectile callback attached Buff', key);
+      validateAttachedReference(reference, containers, key);
     }
   }
 

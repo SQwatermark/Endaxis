@@ -23,7 +23,7 @@ export type TimelineSkillDiagnosticReason =
   | 'skillGroupInterrupted'
   | `skillInputMismatch: expected '${string}', actual '${string}'`
   | `skillInputUnknown: ${string}`
-  | `skillInterruptUnavailable: current '${string}'`
+  | `skillInterruptUnavailable: cast '${string}'`
   | `skillInterruptUnknown: ${string}`;
 
 export interface UseScenarioSimulationOptions {
@@ -240,8 +240,8 @@ export function useScenarioSimulation(
             return `skillInputMismatch: expected '${diagnostic.skillId}', actual '${diagnostic.actualSkillId}'` as const;
           if (reason === 'skillInputUnknown' && diagnostic.inputResolutionDetail !== undefined)
             return `skillInputUnknown: ${diagnostic.inputResolutionDetail}` as const;
-          if (reason === 'skillInterruptUnavailable' && diagnostic.currentSkillId !== undefined)
-            return `skillInterruptUnavailable: current '${diagnostic.currentSkillId}'` as const;
+          if (reason === 'skillInterruptUnavailable' && diagnostic.currentCastId !== undefined)
+            return `skillInterruptUnavailable: cast '${diagnostic.currentCastId}'` as const;
           if (reason === 'skillInterruptUnknown' && diagnostic.interruptionDetail !== undefined)
             return `skillInterruptUnknown: ${diagnostic.interruptionDetail}` as const;
           return reason;

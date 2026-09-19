@@ -62,6 +62,17 @@ export interface OperatorDefinitionAssemblyInput {
       readonly sourcePath: string;
     }[];
   }[];
+  /** CharacterData.dodgeSkillId 指向的隐藏完美闪避技能；参与运行闭包但不进入技能库。 */
+  readonly dodgeSkill?: {
+    readonly definition: CompiledOperatorActiveSkillRuntimeDefinitionSource;
+    readonly runtimeBuffIds: readonly string[];
+    readonly abilityEntitySpawns: readonly {
+      readonly abilityEntityId: string;
+      readonly skillId: string;
+      readonly sourcePath: string;
+    }[];
+  };
+  readonly dashBuffs?: OperatorDefinition['dashBuffs'];
   readonly talentBindings: readonly { readonly index: number }[];
   readonly potentialBindings: readonly { readonly level: number }[];
   readonly entityCatalog: CompiledAbilityEntityTemplateCatalogSource;
@@ -93,6 +104,7 @@ export interface OperatorDefinitionAssemblyInput {
   readonly nativePlayerActionRouting?: {
     readonly slotBaseSkillKeys: Readonly<Record<'battleSkill' | 'comboSkill' | 'ultimate', string>>;
     readonly basicAttackSkillKeys: readonly string[];
+    readonly normalAttackSkillKeys: readonly string[];
     readonly defaultBasicAttackSkillKey?: string;
     readonly playerActionModes: readonly OperatorPlayerActionModeDefinition[];
   };
@@ -165,7 +177,16 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     [...compiledDefinitions.keys()],
     'skills',
   );
+  const combatSkills = [
+    ...input.activeSkills,
+    ...(input.dodgeSkill === undefined ? [] : [input.dodgeSkill]),
+  ];
   selectBasicAttackTimelineBlockFrames(compiledDefinitions, skillLibrary.skillGroups);
+  selectSingleSkillTimelineBlockFrames(
+    compiledDefinitions,
+    skillLibrary.skillGroups,
+    new Set(input.runtimeReplacementSkillKeys ?? []),
+  );
   const talentPassivePlans = input.talentBindings.map(binding => {
     const effectIds = progression.talentNodes
       .filter(node => node.nodeType === 'passiveSkill' && node.passiveSkill.index === binding.index)
@@ -271,12 +292,13 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     bindings.set(spawn.abilityEntityId, skillIds);
     return added;
   };
-  for (const spawn of input.activeSkills.flatMap(item => item.abilityEntitySpawns)) {
+  for (const spawn of combatSkills.flatMap(item => item.abilityEntitySpawns)) {
     addEntityBinding(spawn);
   }
   const baseRoots = [
     ...new Set([
-      ...input.activeSkills.flatMap(item => item.runtimeBuffIds),
+      ...combatSkills.flatMap(item => item.runtimeBuffIds),
+      ...(input.dashBuffs ?? []).map(item => item.buffId),
       ...progression.compiledEffectBundles.flatMap(bundle =>
         bundle.entries.flatMap(entry => (entry.kind === 'buff' ? [entry.buffId] : [])),
       ),
@@ -345,9 +367,10 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       input.loadBuff,
       globalBuffCatalog,
       collectCompiledDefaultKeywordCarrierIds([
-        ...input.activeSkills.map(item => item.definition),
+        ...combatSkills.map(item => item.definition),
         preliminaryAbilityEntityDefinitions,
       ]),
+      new Map((input.dashBuffs ?? []).map(item => [item.buffId, item.blackboard] as const)),
     );
     for (const source of sources.values()) {
       const sequences = [
@@ -518,7 +541,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   );
   roots = [...new Set([...baseRoots, ...collectCompiledBuffIds(compiledAbilityEntityDefinitions)])];
   const provenDefaultKeywordCarrierRootIds = collectCompiledDefaultKeywordCarrierIds([
-    ...input.activeSkills.map(item => item.definition),
+    ...combatSkills.map(item => item.definition),
     compiledAbilityEntityDefinitions,
   ]);
   type FixedBuffTarget = 'caster' | 'enemy' | 'currentAbilityEntity';
@@ -556,8 +579,13 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     registerRootBuffOwner(buffId, 'caster');
     registerRootBuffSource(buffId, 'caster');
   }
+  // Center Dash 状态安装到执行闪避的角色，来源也是该角色；它不属于敌方系统根。
+  for (const application of input.dashBuffs ?? []) {
+    registerRootBuffOwner(application.buffId, 'caster');
+    registerRootBuffSource(application.buffId, 'caster');
+  }
   for (const application of collectCompiledBuffApplications([
-    ...input.activeSkills.map(item => item.definition),
+    ...combatSkills.map(item => item.definition),
     compiledAbilityEntityDefinitions,
     input.comboSkillConditions ?? [],
   ])) {
@@ -603,17 +631,18 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
     rootBuffOwnerTargets,
     new Set([
       ...entityBuffIdentityReads,
-      ...collectCompiledBuffIdentityReadIds(input.activeSkills.map(item => item.definition)),
+      ...collectCompiledBuffIdentityReadIds(combatSkills.map(item => item.definition)),
       ...collectCompiledBuffIdentityReadIds(input.comboSkillConditions ?? []),
     ]),
     input.gameplayTagRegistry,
     rootBuffSourceTargets,
     provenDefaultKeywordCarrierRootIds,
     collectCompiledBuffCapturedTargetGroups([
-      ...input.activeSkills.map(item => item.definition),
+      ...combatSkills.map(item => item.definition),
       compiledAbilityEntityDefinitions,
       input.comboSkillConditions ?? [],
     ]),
+    new Map((input.dashBuffs ?? []).map(item => [item.buffId, item.blackboard] as const)),
   );
   const blocked = buffClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`operator Buff closure blocked: ${JSON.stringify(blocked)}`);
@@ -624,6 +653,14 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       hydrate(stripSkillGroupCompilationEvidence(definition)),
     ]),
   );
+  const dodgeSkill =
+    input.dodgeSkill === undefined
+      ? undefined
+      : {
+          ...hydrate(stripSkillGroupCompilationEvidence(input.dodgeSkill.definition)),
+          skillType: 'dodge' as const,
+          nativeSkillType: 'dodge' as const,
+        };
   const routedSkills = new Map((input.routedSkills ?? []).map(item => [item.key, item] as const));
   for (const routed of routedSkills.values()) {
     const wrapper = definitions.get(routed.key);
@@ -825,7 +862,7 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   // 产品身份可与实际复用的角色资源身份不同（管理员统一使用女管理员动作数据）。
   // 只从本次完整主动技能库的原生 skillId 建立额外归属，不按 Buff 名称反猜角色。
   const privateBuffCharacterIds = new Set([sourceCharacterId]);
-  for (const { definition } of input.activeSkills) {
+  for (const { definition } of combatSkills) {
     const match = /^(chr_\d+_[^_]+)_/.exec(definition.sourceSkillId);
     if (match !== null) privateBuffCharacterIds.add(match[1]!);
   }
@@ -859,6 +896,8 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       return passiveUi === undefined ? {} : { passiveUi };
     })(),
     skillGroups,
+    ...(dodgeSkill === undefined ? {} : { dodgeSkill }),
+    ...(input.dashBuffs === undefined ? {} : { dashBuffs: input.dashBuffs }),
     ...compileOperatorPlayerActionRouting(input, definitions, skillSlotReplacements),
     ...(input.comboSkillConditions === undefined
       ? {}
@@ -891,6 +930,11 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       throw new Error(`operator '${operator.slug}' names unknown private Buff '${id}'`);
     }
   }
+  for (const key of Object.keys(operator.skillDisplayNameKeys ?? {})) {
+    if (!skillLibrary.activeSkills.entries.some(skill => skill.key === key)) {
+      throw new Error(`operator '${operator.slug}' names unknown skill '${key}'`);
+    }
+  }
   return {
     operator,
     commonBuffDefinitions: commonBuffs,
@@ -906,6 +950,68 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
       omittedEntityVisualOnlyBuffIds: [...entityVisualOnlyBuffIds],
     },
   };
+}
+
+/** 可放置技能（包括序列后续段）的预览宽度取首个可操作窗口或无条件结束点；原生技能仍按完整时长执行。 */
+export function selectSingleSkillTimelineBlockFrames(
+  definitions: Map<string, CompiledOperatorActiveSkillRuntimeDefinitionSource>,
+  groups: readonly {
+    readonly skillType: SkillType;
+    readonly skillKeys: readonly string[];
+    readonly replacementPlacements: Readonly<
+      Record<string, 'sequence' | 'standard' | 'enhanced' | 'internal'>
+    >;
+  }[],
+  runtimeReplacementSkillKeys: ReadonlySet<string>,
+): void {
+  const routableSourceSkillIds = new Set(
+    groups.flatMap(group =>
+      group.skillKeys
+        .filter(
+          key =>
+            !runtimeReplacementSkillKeys.has(key) ||
+            group.replacementPlacements[key] !== 'internal',
+        )
+        .map(key => definitions.get(key)?.sourceSkillId)
+        .filter((id): id is string => id !== undefined),
+    ),
+  );
+  for (const group of groups) {
+    if (group.skillType === 'basicAttack') continue;
+    const visibleKeys = group.skillKeys.filter(key => !runtimeReplacementSkillKeys.has(key));
+    const placementKeys = [
+      ...(visibleKeys.length === 1 ? visibleKeys : []),
+      ...group.skillKeys.filter(
+        key =>
+          runtimeReplacementSkillKeys.has(key) && group.replacementPlacements[key] !== 'internal',
+      ),
+    ];
+    for (const key of placementKeys) {
+      const definition = definitions.get(key);
+      if (definition === undefined) continue;
+      const firstInputFrame = Math.min(
+        ...definition.allowNextSkillTransitions
+          .filter(
+            transition =>
+              transition.direct &&
+              transition.startFrame > 0 &&
+              transition.skillIds.some(id => routableSourceSkillIds.has(id)),
+          )
+          .map(transition => transition.startFrame),
+      );
+      const firstFinishFrame = Math.min(
+        ...definition.scheduledSequences
+          .filter(scheduled =>
+            scheduled.sequence.steps.some(step => step.kind === 'finishTimeline'),
+          )
+          .map(scheduled => scheduled.startFrame),
+      );
+      const frame = Math.min(firstInputFrame, firstFinishFrame);
+      if (Number.isFinite(frame) && frame < definition.timelineBlockFrames) {
+        definitions.set(key, { ...definition, timelineBlockFrames: frame });
+      }
+    }
+  }
 }
 
 /**
@@ -1091,6 +1197,7 @@ function compileOperatorPlayerActionRouting(
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: native.basicAttackSkillKeys,
+      normalAttackSkillKeys: native.normalAttackSkillKeys,
       ...(native.defaultBasicAttackSkillKey === undefined
         ? {}
         : { defaultSkillKey: native.defaultBasicAttackSkillKey }),

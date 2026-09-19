@@ -50,6 +50,7 @@ export type OperatorRuntimeAttribute =
   | 'ComboSkillCooldownRecoveryScalar'
   | 'KeywordSpeedUpScalar'
   | 'SlowActionSpeedScalar'
+  | 'TurnRateScalar'
   | 'UltimateSpGainScalar'
   | 'KnockDownTimeAddition'
   | 'criticalRate'
@@ -191,6 +192,9 @@ export function createOperatorAttackAttributes(
   result.define('KeywordSpeedUpScalar', 1, { minimum: 0.1, maximum: 1.3 });
   // combat-spec derived-attributes：该原生属性默认 0，只派生移动速度；固定零距离模型仍须承载 Buff。
   result.define('SlowActionSpeedScalar', 0, {});
+  // AttributeMetaTable[14]：转向速率倍率默认 1、无上下限。固定站桩模型不消费转向，
+  // 但通用闪避 Buff 会修改该属性，因此仍需在同一个原生属性集中承载修正与生命周期。
+  result.define('TurnRateScalar', 1, {});
   // AttributeMetaTable[44]: 正向终结技能量回复在每次结算时读取该动态属性。
   result.define('UltimateSpGainScalar', input.ultimateEnergyGainEfficiency ?? 1, {
     minimum: 0,
@@ -198,19 +202,20 @@ export function createOperatorAttackAttributes(
   return result;
 }
 
-export const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES: Readonly<Record<string, DamageScaleAttributeKey>> = {
-  normalAttack: 'normalAttackDamageIncrease',
-  battleSkill: 'normalSkillDamageIncrease',
-  comboSkill: 'comboSkillDamageIncrease',
-  ultimate: 'ultimateSkillDamageIncrease',
-  physical: 'physicalDamageIncrease',
-  heat: 'heatDamageIncrease',
-  electric: 'electricDamageIncrease',
-  cryo: 'cryoDamageIncrease',
-  nature: 'natureDamageIncrease',
-  ether: 'etherDamageIncrease',
-  staggeredEnemy: 'damageToStaggeredEnemyIncrease',
-};
+export const EQUIPMENT_DAMAGE_SCALE_ATTRIBUTES: Readonly<Record<string, DamageScaleAttributeKey>> =
+  {
+    normalAttack: 'normalAttackDamageIncrease',
+    battleSkill: 'normalSkillDamageIncrease',
+    comboSkill: 'comboSkillDamageIncrease',
+    ultimate: 'ultimateSkillDamageIncrease',
+    physical: 'physicalDamageIncrease',
+    heat: 'heatDamageIncrease',
+    electric: 'electricDamageIncrease',
+    cryo: 'cryoDamageIncrease',
+    nature: 'natureDamageIncrease',
+    ether: 'etherDamageIncrease',
+    staggeredEnemy: 'damageToStaggeredEnemyIncrease',
+  };
 
 /** 在命中时读取当前系数；返回值继续保持现有面板与伤害输入使用的整数攻击。 */
 export function resolveOperatorAttack(

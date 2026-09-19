@@ -163,7 +163,6 @@ function formatDurationFrames(frames: number): string {
     }"
     :data-skill-type="skillType"
     :style="blockStyle"
-    :title="[label, warningText].filter(Boolean).join(' · ')"
     :draggable="false"
     @pointerdown="beginMove"
     @click.stop="$emit('select', $event)"

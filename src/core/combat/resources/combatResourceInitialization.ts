@@ -4,6 +4,17 @@ import type { CombatResourceSnapshot } from './combatResources';
 import type { CombatResourceState, OperatorResources } from '../state/environmentState';
 
 export function createCombatResourceState(snapshot: CombatResourceSnapshot): CombatResourceState {
+  const dashEnergy = snapshot.dashEnergy ?? {
+    spent: 0,
+    capacity: null,
+    inOverdraft: false,
+  };
+  requireNonNegativeFinite(dashEnergy.spent, 'dashEnergy.spent');
+  if (dashEnergy.capacity !== null) {
+    requireNonNegativeFinite(dashEnergy.capacity, 'dashEnergy.capacity');
+    if (dashEnergy.spent > dashEnergy.capacity + 1)
+      throw new RangeError('dashEnergy.spent exceeds the native overdraft boundary');
+  }
   requireNonNegativeFinite(snapshot.sp, 'sp');
   requireNonNegativeFinite(snapshot.maxSp, 'maxSp');
   requireNonNegativeFinite(snapshot.returnedSp, 'returnedSp');
@@ -58,6 +69,7 @@ export function createCombatResourceState(snapshot: CombatResourceSnapshot): Com
     return runtime;
   });
   return {
+    dashEnergy: { ...dashEnergy },
     sp: snapshot.sp,
     maxSp: snapshot.maxSp,
     returnedSp: snapshot.returnedSp,

@@ -4,7 +4,9 @@ import { pathToFileURL } from 'node:url';
 import { format, resolveConfig } from 'prettier';
 import { GameplayTagRegistry } from '../src/source/nativeGameplayTags.ts';
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
-import { requireRecord } from '../src/source/primitives.ts';
+import { requireRecord, requireString } from '../src/source/primitives.ts';
+import { parseItemIdentitySource } from '../src/source/itemIdentity.ts';
+import { projectEquipmentIconPath } from '../src/domains/equipment/formalDefinition.ts';
 import type { CompiledEquipmentSuitRuntimeBatchSource } from '../src/domains/equipment/suitRuntimeDefinition.ts';
 import type { DefinitionOptimizationMode } from '../src/compiler/optimization/definitionOptimization.ts';
 import { optimizeGearSetDefinitionPrograms } from '../src/compiler/optimization/equipmentDefinitionOptimization.ts';
@@ -48,7 +50,33 @@ export async function compileGearSetDefinitionsFromFiles(input: GearSetDefinitio
     gameplayTagRegistry,
   );
   assertNoBlockedDiagnostics(batch);
-  return batch;
+  const iconEquipmentIds = requireRecord(
+    JSON.parse(
+      await readFile(resolve(import.meta.dirname, '../config/gearSetIcons.json'), 'utf8'),
+    ) as unknown,
+    'gearSetIcons',
+  );
+  const needsIcons = batch.definitions.some(
+    definition => iconEquipmentIds[definition.slug] !== undefined,
+  );
+  const itemTable = needsIcons ? requireRecord(await table('ItemTable'), 'ItemTable') : null;
+  const equipTable = needsIcons ? requireRecord(await table('EquipTable'), 'EquipTable') : null;
+  const definitions = batch.definitions.map(definition => {
+    if (!needsIcons) return definition;
+    const equipmentId = requireString(
+      iconEquipmentIds[definition.slug],
+      `gearSetIcons.${definition.slug}`,
+    );
+    const equipment = requireRecord(equipTable![equipmentId], `EquipTable.${equipmentId}`);
+    if (equipment.suitID !== definition.slug)
+      throw new Error(
+        `gearSetIcons.${definition.slug}: ${equipmentId} does not belong to this set`,
+      );
+    const identity = parseItemIdentitySource(itemTable![equipmentId], equipmentId);
+    const { slug, ...contribution } = definition;
+    return { slug, iconPath: projectEquipmentIconPath(identity.iconId), ...contribution };
+  });
+  return { ...batch, definitions };
 }
 
 /** 正式生成遍历来源表的全部身份，不再用历史发布名单截断新增内容。 */

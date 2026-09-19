@@ -17,6 +17,7 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 163,
     exclusiveFrame: 38,
+    offsetRecordFrame: 13,
     inputWindows: {
       commandMappings: [
         {
@@ -75,12 +76,20 @@ export const emberBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         18,
       ),
+      scheduled(
+        24,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0009_azrila_attack2'] }),
+        ),
+        38,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0009_azrila_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86] },
+  { atb: 0, atk_scale: [0.38, 0.42, 0.46, 0.5, 0.54, 0.57, 0.61, 0.65, 0.69, 0.74, 0.79, 0.86] },
 );
 
 export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -90,6 +99,7 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 151,
     exclusiveFrame: 26,
+    offsetRecordFrame: 6,
     inputWindows: {
       commandMappings: [
         {
@@ -148,12 +158,20 @@ export const emberBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0009_azrila_attack3'] }),
+        ),
+        41,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0009_azrila_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
+  { atb: 0, atk_scale: [0.54, 0.59, 0.64, 0.7, 0.75, 0.8, 0.86, 0.91, 0.96, 1.03, 1.11, 1.2] },
 );
 
 export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -163,6 +181,7 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 35,
     naturalDurationFrames: 182,
     exclusiveFrame: 47,
+    offsetRecordFrame: 18,
     inputWindows: {
       commandMappings: [
         {
@@ -221,12 +240,20 @@ export const emberBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         22,
       ),
+      scheduled(
+        35,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0009_azrila_attack4'] }),
+        ),
+        50,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0009_azrila_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49] },
+  { atb: 0, atk_scale: [0.66, 0.73, 0.8, 0.86, 0.93, 0.99, 1.06, 1.13, 1.19, 1.28, 1.38, 1.49] },
 );
 
 export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -236,6 +263,7 @@ export const emberBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 53,
     naturalDurationFrames: 180,
     exclusiveFrame: 52,
+    offsetRecordFrame: 26,
     costFrame: 12,
     scheduledSequences: [
       scheduled(
@@ -315,6 +343,7 @@ export const emberFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 28,
     naturalDurationFrames: 222,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -443,6 +472,7 @@ export const emberPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 12,
     naturalDurationFrames: 128,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 12, endFrame: 21, sourceSkillIds: ['chr_0009_azrila_attack1'] },
@@ -500,6 +530,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 51,
     naturalDurationFrames: 162,
     exclusiveFrame: 55,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 51, endFrame: 60, sourceSkillIds: ['chr_0009_azrila_normal_skill'] },
@@ -582,10 +613,8 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
-                blackboardAssignments: {
-                  rate: { kind: 'blackboard', key: 'shelterrate' },
-                  duration: { kind: 'constant', value: -1 },
-                },
+                blackboardAssignments: { duration: { kind: 'constant', value: -1 } },
+                copiedBlackboardAssignments: { rate: 'shelterrate' },
               }),
             ),
             undefined,
@@ -657,10 +686,7 @@ export const emberBattleSkill: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  rate: { kind: 'blackboard', key: 'shelterrate' },
-                  duration: { kind: 'blackboard', key: 'extratime' },
-                },
+                copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
               }),
             ),
             undefined,
@@ -748,6 +774,7 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 59,
     naturalDurationFrames: 262,
     exclusiveFrame: 90,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -823,12 +850,12 @@ export const emberUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0009_azrila_ultimateshield',
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'duration' },
-              hp_percent: { kind: 'blackboard', key: 'hp_percent' },
-              potential_5: { kind: 'blackboard', key: 'potential_5' },
-              extraattack: { kind: 'blackboard', key: 'extraattack' },
-              FinalShield: { kind: 'blackboard', key: 'FinalShield' },
+            copiedBlackboardAssignments: {
+              duration: 'duration',
+              hp_percent: 'hp_percent',
+              potential_5: 'potential_5',
+              extraattack: 'extraattack',
+              FinalShield: 'FinalShield',
             },
           }),
         ),
@@ -884,6 +911,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 39,
     naturalDurationFrames: 161,
     exclusiveFrame: 38,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 40, endFrame: 60, sourceSkillIds: ['chr_0009_azrila_normal_skill'] },
@@ -924,10 +952,8 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
-                blackboardAssignments: {
-                  rate: { kind: 'blackboard', key: 'shelterrate' },
-                  duration: { kind: 'constant', value: -1 },
-                },
+                blackboardAssignments: { duration: { kind: 'constant', value: -1 } },
+                copiedBlackboardAssignments: { rate: 'shelterrate' },
               }),
             ),
             undefined,
@@ -962,10 +988,7 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0009_azrila_normal_skill_shelter',
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  rate: { kind: 'blackboard', key: 'shelterrate' },
-                  duration: { kind: 'blackboard', key: 'extratime' },
-                },
+                copiedBlackboardAssignments: { rate: 'shelterrate', duration: 'extratime' },
               }),
             ),
             undefined,
@@ -1085,6 +1108,22 @@ export const emberComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const emberPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const ember: OperatorDefinition = {
   slug: 'ember',
   gameId: 'EMBER',
@@ -1130,6 +1169,10 @@ export const ember: OperatorDefinition = {
       skills: emberComboSkill,
     },
   ],
+  dodgeSkill: emberPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1146,6 +1189,7 @@ export const ember: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1461,10 +1505,7 @@ export const ember: OperatorDefinition = {
               source: 'buffOwner',
               inheritSourceSkillCastInfo: true,
               asChildBuff: true,
-              blackboardAssignments: {
-                attack: { kind: 'blackboard', key: 'attack' },
-                duration: { kind: 'blackboard', key: 'duration' },
-              },
+              copiedBlackboardAssignments: { attack: 'attack', duration: 'duration' },
             }),
           ),
         },
@@ -1611,7 +1652,7 @@ export const ember: OperatorDefinition = {
                 source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
                 asChildBuff: true,
-                blackboardAssignments: { extraattack: { kind: 'blackboard', key: 'extraattack' } },
+                copiedBlackboardAssignments: { extraattack: 'extraattack' },
               }),
             ),
           ),

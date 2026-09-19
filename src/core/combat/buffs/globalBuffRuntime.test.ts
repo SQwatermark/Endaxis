@@ -33,6 +33,7 @@ function target(ownerId: string) {
     applyScoped(request: BuffApplicationRequest) {
       requests.push(request);
       return {
+        isRecycled: false,
         reference: { ownerId, instanceId: requests.length },
         finish(reason: 'early' | 'absorbed' | 'other', source: unknown) {
           expect(source).toBeNull();
@@ -292,6 +293,7 @@ describe('GlobalBuffRuntime', () => {
     restored.bindRestoredInstances({
       resolveDefinition: () => restorableDefinition,
       resolveChild: reference => ({
+        isRecycled: false,
         reference,
         finish: reason => {
           childFinished.push(reason);
@@ -355,6 +357,7 @@ describe('GlobalBuffRuntime', () => {
         return step.parameters.definition;
       },
       resolveChild: reference => ({
+        isRecycled: false,
         reference,
         finish: reason => {
           restoredChildFinishes.push(reason);

@@ -197,6 +197,37 @@ beforeAll(() => {
     fs.mkdirSync(path.dirname(destination), { recursive: true });
     fs.writeFileSync(destination, JSON.stringify(data));
   }
+  const dashBuffFixture = structuredClone(
+    fixture.files['BuffData/buff_common_full_immune_medium.json']!.data,
+  ) as Record<string, unknown>;
+  Object.assign(dashBuffFixture, {
+    id: 'buff_common_dash',
+    attributeModifier: { isConvertedAttribute: false, attributeModifiers: [] },
+    damageModifier: [],
+    healModifier: [],
+    poiseModifier: [],
+    globalModifier: [],
+    shieldConfigs: [],
+    applyTags: [],
+    tagsAfterTriggerExtendBuffAction: [],
+    buffEventAction: [],
+    abilityEventAction: [],
+    igniteEventAction: [],
+    timelineActions: [],
+    blackboard: [],
+  });
+  fs.writeFileSync(
+    path.join(sourceRoot, 'BuffData/buff_common_dash.json'),
+    JSON.stringify(dashBuffFixture),
+  );
+  const dodgeFixture = structuredClone(
+    fixture.files['SkillData/chr_0012_avywen_attack1.json']!.data,
+  ) as Record<string, unknown>;
+  dodgeFixture.skillId = 'common_character_perfect_dodge';
+  fs.writeFileSync(
+    path.join(sourceRoot, 'SkillData/common_character_perfect_dodge.json'),
+    JSON.stringify(dodgeFixture),
+  );
   const runtimeTemplatePath = path.join(
     sourceRoot,
     'CharacterData/chr_0012_avywen.runtime-template.json',
@@ -275,6 +306,16 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
     const operator = candidate.operator;
     expect(operator.skillGroups).toHaveLength(6);
     expect(operator.skillGroups.flatMap(group => group.skills)).toHaveLength(10);
+    expect(operator.playerActionRoutes?.basicAttack).toMatchObject({
+      kind: 'basicAttack',
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
+      ],
+    });
     expect(operator.talents).toHaveLength(2);
     expect(operator.potentials).toEqual(avywenna.potentials);
     for (const key of [
@@ -300,7 +341,7 @@ describe('原始整名候选：不依赖旧 Operator 补空', () => {
     expect(
       Object.keys(candidate.commonBuffDefinitions).every(id => !id.startsWith('buff_chr_')),
     ).toBe(true);
-    expect(candidate.audit.buffSourceCount).toBe(10);
+    expect(candidate.audit.buffSourceCount).toBe(11);
     for (const skill of operator.skillGroups.flatMap(group => group.skills))
       expect(validateSkillDefinition(skill)).toEqual([]);
     for (const entity of Object.values(operator.abilityEntityDefinitions!))

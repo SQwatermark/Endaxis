@@ -29,7 +29,25 @@ function runtimeTemplate() {
       namespace: 'Beyond.Gameplay.Core',
       assembly: 'Gameplay.Beyond',
     },
-    data: { id: 'chr_0032_lizhiyan' },
+    data: {
+      id: 'chr_0032_lizhiyan',
+      dashBuff: [
+        {
+          buffId: 'buff_common_dash',
+          assignBlackboard: true,
+          assignItems: [
+            {
+              targetKey: 'dodgeSkillId',
+              inputValueKey: '',
+              useDirectValue: true,
+              directValueType: 1,
+              numericValue: 0,
+              stringValue: 'dodge_skill',
+            },
+          ],
+        },
+      ],
+    },
     abilitySystem: {
       modeConfig: {
         modes: [
@@ -201,6 +219,7 @@ describe('角色运行模板来源', () => {
     expect(parsed.conditions?.conditions).toHaveLength(5);
     expect(parsed.conditions?.referenceSources).toHaveLength(14);
     expect(parsed.playerActionSource).toMatchObject({
+      dodgeSkillId: 'dodge_skill',
       slotSkillIds: {
         battleSkill: 'normal_skill',
         comboSkill: 'chr_0032_lizhiyan_combo_skill',
@@ -233,6 +252,9 @@ describe('角色运行模板来源', () => {
         },
       ],
     });
+    expect(parsed.dashBuffs).toEqual([
+      { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'dodge_skill' } },
+    ]);
   });
 
   it('来源哈希和原生类型不完整时失败，不把别的角色模板当作 Arcane', () => {

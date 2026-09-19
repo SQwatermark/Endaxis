@@ -63,6 +63,8 @@ export function isPlainOwnerTarget(target: TargetReferenceSource): boolean {
 
 /** 原生动作身份由宿主及事件方向共同投影，不能把物理事件来源一律当作 ActionSource。 */
 export interface CombatActionProjectionContextSource {
+  /** 完整 Buff 施加链已证明只会解析到纯表现 Buff 的动态 ID 黑板键。 */
+  readonly combatInvisibleDynamicBuffBlackboardKeys?: ReadonlySet<string>;
   /** 仅基础攻击组装配保留 AllowNextSkillAction，用于按实际条件分支发布技能块边界。 */
   readonly preserveSkillOperableBoundary?: boolean;
   /** 当前 Buff AbilityEvent；仅用于投影原生事件负载条件，不替代公开事件身份。 */
@@ -78,6 +80,7 @@ export interface CombatActionProjectionContextSource {
   /** 主动命中可显式绑定 enemy；不伪造 Buff 事件。接收侧 Target 是事件施加者。 */
   readonly actionTargetTarget:
     | 'caster'
+    | 'actionInputTarget'
     | 'enemy'
     | 'buffOwner'
     | 'currentAbilityEntity'

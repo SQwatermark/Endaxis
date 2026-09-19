@@ -258,6 +258,7 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 12,
     naturalDurationFrames: 118,
     exclusiveFrame: 13,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -351,7 +352,15 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
+      scheduled(
+        12,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack2'] }),
+        ),
+        29,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0033_camille_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -360,6 +369,7 @@ export const camilleBasicAttack1: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.125, 0.138, 0.15, 0.163, 0.175, 0.188, 0.2, 0.213, 0.225, 0.241, 0.259, 0.281],
     atk_scale_2: [0.125, 0.138, 0.15, 0.163, 0.175, 0.188, 0.2, 0.213, 0.225, 0.241, 0.259, 0.281],
+    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
   },
 );
 
@@ -370,6 +380,7 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 15,
     naturalDurationFrames: 124,
     exclusiveFrame: 19,
+    offsetRecordFrame: 10,
     inputWindows: {
       commandMappings: [
         {
@@ -463,7 +474,15 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         16,
       ),
+      scheduled(
+        15,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack3'] }),
+        ),
+        34,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0033_camille_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -472,6 +491,7 @@ export const camilleBasicAttack2: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.193, 0.208, 0.225],
     atk_scale_2: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.193, 0.208, 0.225],
+    display_atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.385, 0.415, 0.45],
   },
 );
 
@@ -482,6 +502,7 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 13,
     naturalDurationFrames: 130,
     exclusiveFrame: 19,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -548,7 +569,15 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         22,
       ),
+      scheduled(
+        13,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack4'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0033_camille_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -556,6 +585,7 @@ export const camilleBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     atb: 0,
     atk_scale: [0.075, 0.083, 0.09, 0.098, 0.105, 0.113, 0.12, 0.128, 0.135, 0.144, 0.156, 0.169],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
 );
 
@@ -566,6 +596,7 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 187,
     exclusiveFrame: 29,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -788,7 +819,15 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         15,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0033_camille_attack5'] }),
+        ),
+        34,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0033_camille_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -797,6 +836,9 @@ export const camilleBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.385, 0.415, 0.45],
     atk_scale_2: [0.02, 0.022, 0.024, 0.026, 0.028, 0.03, 0.032, 0.034, 0.036, 0.039, 0.042, 0.045],
+    display_atk_scale: [
+      0.34, 0.374, 0.408, 0.442, 0.476, 0.51, 0.544, 0.578, 0.612, 0.655, 0.706, 0.765,
+    ],
   },
 );
 
@@ -807,6 +849,7 @@ export const camilleBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 42,
     naturalDurationFrames: 171,
     exclusiveFrame: 41,
+    offsetRecordFrame: 21,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -906,6 +949,7 @@ export const camilleFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 39,
     naturalDurationFrames: 230,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1349,6 +1393,7 @@ export const camillePlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 149,
     exclusiveFrame: 15,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1396,6 +1441,7 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 192,
     exclusiveFrame: 26,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 18, endFrame: 34, sourceSkillIds: ['chr_0033_camille_combo_skill'] },
@@ -1492,9 +1538,13 @@ export const camilleBattleSkill: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'normalSkill',
   },
   {
+    atb_obtain: 0,
     atk_scale: [0.89, 0.98, 1.07, 1.16, 1.25, 1.34, 1.43, 1.51, 1.6, 1.72, 1.85, 2],
     bat_atk_scale: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
     bat_duration: 45,
+    cam_angle: 0,
+    cam_duration: 0,
+    input_angle: 0,
     poise: 10,
     vulnerable_scale: [0.05, 0.05, 0.05, 0.055, 0.055, 0.055, 0.06, 0.06, 0.06, 0.065, 0.065, 0.07],
     weak_scale: [0.05, 0.05, 0.05, 0.055, 0.055, 0.055, 0.06, 0.06, 0.06, 0.065, 0.065, 0.07],
@@ -1505,9 +1555,10 @@ export const camilleBattleSkillDuringUltimate: SkillDefinition = withSkillBlackb
   {
     key: 'battleSkillDuringUltimate',
     sourceSkillId: 'chr_0033_camille_combo_skill_2',
-    timelineBlockFrames: 79,
+    timelineBlockFrames: 87,
     naturalDurationFrames: 213,
     exclusiveFrame: 86,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1701,6 +1752,7 @@ export const camilleComboSkill1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 51,
     naturalDurationFrames: 191,
     exclusiveFrame: 63,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -2017,9 +2069,10 @@ export const camilleComboSkill2: SkillDefinition = withSkillBlackboard(
   {
     key: 'comboSkill2',
     sourceSkillId: 'chr_0033_camille_combo_skill_2',
-    timelineBlockFrames: 79,
+    timelineBlockFrames: 87,
     naturalDurationFrames: 213,
     exclusiveFrame: 86,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -2211,6 +2264,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 125,
     naturalDurationFrames: 236,
     exclusiveFrame: 133,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -2437,7 +2491,7 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0033_camille_ult_henshin_state',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: { duration: { kind: 'blackboard', key: 'duration' } },
+            copiedBlackboardAssignments: { duration: 'duration' },
           }),
         ),
         119,
@@ -2473,9 +2527,26 @@ export const camilleUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const camillePerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const camille: OperatorDefinition = {
   slug: 'camille',
   gameId: 'CAMILLE',
+  skillDisplayNameKeys: { battleSkillDuringUltimate: 'skillNames.pursuit' },
   rarity: 6,
   weaponType: 'polearm',
   element: 'heat',
@@ -2530,9 +2601,15 @@ export const camille: OperatorDefinition = {
       key: 'comboSkill',
       skillType: 'comboSkill',
       levelSource: 'comboSkill',
-      skills: [camilleComboSkill1, camilleComboSkill2],
+      skills: camilleComboSkill1,
+      replacementSkills: [camilleComboSkill2],
+      replacementSkillPlacements: { comboSkill2: 'internal' },
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: camilleUltimate },
+  ],
+  dodgeSkill: camillePerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
     {
@@ -2554,6 +2631,13 @@ export const camille: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -2701,18 +2785,15 @@ export const camille: OperatorDefinition = {
                       buffId: 'buff_chr_0033_camille_talent1_atkup',
                       target: 'caster',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        atk_up: { kind: 'blackboard', key: 'atk_up' },
-                        duration: { kind: 'blackboard', key: 'duration' },
-                      },
+                      copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                     }),
                     step('applyBuff', {
                       buffId: 'buff_chr_0033_camille_talent1_atkup',
                       target: 'partyExceptCaster',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        atk_up: { kind: 'blackboard', key: 'atk_up_teammate' },
-                        duration: { kind: 'blackboard', key: 'duration' },
+                      copiedBlackboardAssignments: {
+                        atk_up: 'atk_up_teammate',
+                        duration: 'duration',
                       },
                     }),
                     branch(
@@ -2722,18 +2803,15 @@ export const camille: OperatorDefinition = {
                           buffId: 'buff_chr_0033_camille_talent1_atkup',
                           target: 'caster',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            atk_up: { kind: 'blackboard', key: 'atk_up' },
-                            duration: { kind: 'blackboard', key: 'duration' },
-                          },
+                          copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                         }),
                         step('applyBuff', {
                           buffId: 'buff_chr_0033_camille_talent1_atkup',
                           target: 'partyExceptCaster',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            atk_up: { kind: 'blackboard', key: 'atk_up_teammate' },
-                            duration: { kind: 'blackboard', key: 'duration' },
+                          copiedBlackboardAssignments: {
+                            atk_up: 'atk_up_teammate',
+                            duration: 'duration',
                           },
                         }),
                       ),
@@ -3342,10 +3420,10 @@ export const camille: OperatorDefinition = {
                   iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
                   finishByAction: true,
                   asChildBuff: true,
-                  blackboardAssignments: {
-                    weak_scale: { kind: 'blackboard', key: 'EntityBB_weak_scale' },
-                    vulnerable_scale: { kind: 'blackboard', key: 'EntityBB_vulnerable_scale' },
-                    duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
+                  copiedBlackboardAssignments: {
+                    weak_scale: 'EntityBB_weak_scale',
+                    vulnerable_scale: 'EntityBB_vulnerable_scale',
+                    duration: 'EntityBB_bat_duration',
                   },
                 }),
               ),
@@ -3373,9 +3451,7 @@ export const camille: OperatorDefinition = {
                   target: 'caster',
                   inheritSourceSkillCastInfo: true,
                   iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
-                  blackboardAssignments: {
-                    bat_duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
-                  },
+                  copiedBlackboardAssignments: { bat_duration: 'EntityBB_bat_duration' },
                 }),
               ),
               6,
@@ -3426,10 +3502,10 @@ export const camille: OperatorDefinition = {
                   iconDurationSource: { kind: 'actionOwnerAbilityEntity' },
                   finishByAction: true,
                   asChildBuff: true,
-                  blackboardAssignments: {
-                    weak_scale: { kind: 'blackboard', key: 'EntityBB_weak_scale' },
-                    vulnerable_scale: { kind: 'blackboard', key: 'EntityBB_vulnerable_scale' },
-                    duration: { kind: 'blackboard', key: 'EntityBB_bat_duration' },
+                  copiedBlackboardAssignments: {
+                    weak_scale: 'EntityBB_weak_scale',
+                    vulnerable_scale: 'EntityBB_vulnerable_scale',
+                    duration: 'EntityBB_bat_duration',
                   },
                 }),
               ),
@@ -3535,15 +3611,9 @@ export const camille: OperatorDefinition = {
                               target: 'enemy',
                               sourceContextKey: 'src',
                               inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                bat_atk_scale: {
-                                  kind: 'blackboard',
-                                  key: 'EntityBB_bat_atk_scale',
-                                },
-                                combo_duration: {
-                                  kind: 'blackboard',
-                                  key: 'EntityBB_combo_duration',
-                                },
+                              copiedBlackboardAssignments: {
+                                bat_atk_scale: 'EntityBB_bat_atk_scale',
+                                combo_duration: 'EntityBB_combo_duration',
                               },
                             }),
                           ),

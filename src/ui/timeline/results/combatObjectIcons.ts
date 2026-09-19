@@ -25,6 +25,7 @@ export function createCombatObjectIconResolver(
   operators: ReadonlyMap<string, PublishedOperatorMetadata>,
   weapons: ReadonlyMap<string, PublishedBuffSource>,
   gearIcons: ReadonlyMap<string, string> = new Map(),
+  gearSetIcons: ReadonlyMap<string, string> = new Map(),
 ): CombatObjectIconResolver {
   const presentations = new Map<string, CombatReceiptEntry[]>();
   const owners = new Map(
@@ -58,6 +59,7 @@ export function createCombatObjectIconResolver(
     );
     if (source?.kind === 'weapon') return source.iconPath;
     if (source?.kind === 'gear') return gearIcons.get(source.slug);
+    if (source?.kind === 'gearSet') return gearSetIcons.get(source.slug);
     if (source?.kind === 'talent') {
       // 来源名称使用展开等级后的索引，图标按天赋槽位编号。
       const talents = byAsset.get(source.slug)?.talents ?? [];
@@ -84,6 +86,7 @@ export function createCombatObjectIconResolver(
     );
     return (
       (source?.kind === 'weapon' ? source.iconPath : undefined) ??
+      (source?.kind === 'gearSet' ? gearSetIcons.get(source.slug) : undefined) ??
       (typeof data?.iconPath === 'string' ? data.iconPath : undefined) ??
       (typeof data?.iconId === 'string' ? (getIconAssetPath(data.iconId) ?? undefined) : undefined)
     );

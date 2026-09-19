@@ -9,6 +9,7 @@ it('captures on publication, shares history and clears all display sources synch
   const published = shallowRef<PublishedScenarioSimulation | null>(null);
   const weapon = { slug: 'weapon', displayName: 'original' };
   const gear = { slug: 'gear', iconPath: '/original.webp' };
+  const gearSet = { slug: 'set', iconPath: '/set-original.webp' };
   const getWeapons = vi.fn(() => [weapon]);
   const scope = effectScope();
   const display = scope.run(() =>
@@ -21,6 +22,7 @@ it('captures on publication, shares history and clears all display sources synch
         operator: () => '',
       },
       () => [gear],
+      () => [gearSet],
     ),
   )!;
   try {
@@ -33,7 +35,9 @@ it('captures on publication, shares history and clears all display sources synch
     expect(display.publishedReceiptEntries.value).toBe(receiptHistory.toArray());
     weapon.displayName = 'edited';
     gear.iconPath = '/edited.webp';
+    gearSet.iconPath = '/set-edited.webp';
     expect(display.publishedGearIcons.value.get('gear')).toBe('/original.webp');
+    expect(display.publishedGearSetIcons.value.get('set')).toBe('/set-original.webp');
     expect(display.publishedWeaponSources.value.get('weapon')).toMatchObject({ name: 'original' });
     expect(getWeapons).toHaveBeenCalledTimes(1);
     published.value = null;
@@ -41,6 +45,7 @@ it('captures on publication, shares history and clears all display sources synch
     expect(display.publishedOperators.value.size).toBe(0);
     expect(display.publishedWeaponSources.value.size).toBe(0);
     expect(display.publishedGearIcons.value.size).toBe(0);
+    expect(display.publishedGearSetIcons.value.size).toBe(0);
     expect(display.publishedReceiptEntries.value).toEqual([]);
   } finally {
     scope.stop();

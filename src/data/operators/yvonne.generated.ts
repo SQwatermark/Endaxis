@@ -358,6 +358,7 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 121,
     exclusiveFrame: 20,
+    offsetRecordFrame: 11,
     inputWindows: {
       commandMappings: [
         {
@@ -383,7 +384,22 @@ export const yvonneBasicAttack1: SkillDefinition = withSkillBlackboard(
         ]),
         11,
       ),
+      scheduled(
+        16,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack2'] }),
+        ),
+        27,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
+        ),
+        27,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -398,6 +414,7 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 14,
     naturalDurationFrames: 126,
     exclusiveFrame: 20,
+    offsetRecordFrame: 11,
     inputWindows: {
       commandMappings: [
         {
@@ -432,12 +449,31 @@ export const yvonneBasicAttack2: SkillDefinition = withSkillBlackboard(
         ]),
         14,
       ),
+      scheduled(
+        14,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack3'] }),
+        ),
+        28,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
+        ),
+        28,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28] },
+  {
+    atb: 0,
+    atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28],
+    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
+  },
 );
 
 export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -447,6 +483,7 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 127,
     exclusiveFrame: 21,
+    offsetRecordFrame: 6,
     inputWindows: {
       commandMappings: [
         {
@@ -490,12 +527,31 @@ export const yvonneBasicAttack3: SkillDefinition = withSkillBlackboard(
         ]),
         12,
       ),
+      scheduled(
+        20,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack4'] }),
+        ),
+        34,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
+        ),
+        34,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.24] },
+  {
+    atb: 0,
+    atk_scale: [0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.24],
+    display_atk_scale: [0.32, 0.35, 0.38, 0.41, 0.44, 0.47, 0.5, 0.54, 0.57, 0.61, 0.65, 0.71],
+  },
 );
 
 export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -505,6 +561,7 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 156,
     exclusiveFrame: 25,
+    offsetRecordFrame: 11,
     inputWindows: {
       commandMappings: [
         {
@@ -530,7 +587,15 @@ export const yvonneBasicAttack4: SkillDefinition = withSkillBlackboard(
         ]),
         11,
       ),
+      scheduled(
+        24,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
+        ),
+        38,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -545,7 +610,13 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 37,
     naturalDurationFrames: 145,
     exclusiveFrame: 37,
-    inputWindows: { hasConditionalActions: true },
+    offsetRecordFrame: 21,
+    inputWindows: {
+      hasConditionalActions: true,
+      allowedNextSkills: [
+        { startFrame: 37, endFrame: 60, sourceSkillIds: ['chr_0017_yvonne_attack1'] },
+      ],
+    },
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -617,7 +688,82 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         24,
       ),
+      scheduled(
+        34,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(
+              step('reachSkillOperableBoundary', {
+                sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1'],
+              }),
+            ),
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_end'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                sequence(
+                  step('reachSkillOperableBoundary', {
+                    sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1'],
+                  }),
+                ),
+                undefined,
+                { alwaysNext: true },
+              ),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        60,
+      ),
+      scheduled(
+        37,
+        sequence(
+          branch(
+            {
+              kind: 'buffIdStackCompare',
+              target: 'caster',
+              buffIds: ['buff_chr_0017_yvonne_ultimate_skill'],
+              operator: 'greaterOrEqual',
+              value: { kind: 'constant', value: 1 },
+            },
+            sequence(),
+            sequence(
+              branch(
+                {
+                  kind: 'buffIdStackCompare',
+                  target: 'caster',
+                  buffIds: ['buff_chr_0017_yvonne_ultimate_skill_end'],
+                  operator: 'greaterOrEqual',
+                  value: { kind: 'constant', value: 1 },
+                },
+                sequence(),
+                sequence(
+                  step('reachSkillOperableBoundary', {
+                    sourceSkillIds: ['chr_0017_yvonne_attack1'],
+                  }),
+                ),
+                { alwaysNext: true },
+              ),
+            ),
+            { alwaysNext: true },
+          ),
+        ),
+        60,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -626,7 +772,9 @@ export const yvonneBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 17,
     atk_scale: [0.56, 0.62, 0.67, 0.73, 0.79, 0.84, 0.9, 0.96, 1.01, 1.08, 1.17, 1.26],
     cnt: 0,
+    dmg_up: 0,
     poise: 17,
+    display_atk_scale: [0.56, 0.62, 0.67, 0.73, 0.79, 0.84, 0.9, 0.96, 1.01, 1.08, 1.17, 1.26],
   },
 );
 
@@ -637,6 +785,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 77,
     exclusiveFrame: 28,
+    offsetRecordFrame: 9,
     inputWindows: {
       commandMappings: [
         {
@@ -657,6 +806,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
           endFrame: 26,
           sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
+        { startFrame: 21, endFrame: 26, sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1'] },
       ],
     },
     costFrame: 9,
@@ -708,9 +858,9 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0017_yvonne_ultimate_skill_layer',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              crit_rate_up: { kind: 'blackboard', key: 'crit_rate_up' },
-              normal_dmg_up: { kind: 'blackboard', key: 'normal_dmg_up' },
+            copiedBlackboardAssignments: {
+              crit_rate_up: 'crit_rate_up',
+              normal_dmg_up: 'normal_dmg_up',
             },
           }),
         ),
@@ -723,9 +873,9 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0017_yvonne_ultimate_skill_layer',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              crit_rate_up: { kind: 'blackboard', key: 'crit_rate_up' },
-              normal_dmg_up: { kind: 'blackboard', key: 'normal_dmg_up' },
+            copiedBlackboardAssignments: {
+              crit_rate_up: 'crit_rate_up',
+              normal_dmg_up: 'normal_dmg_up',
             },
           }),
         ),
@@ -738,9 +888,9 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0017_yvonne_ultimate_skill_layer',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              crit_rate_up: { kind: 'blackboard', key: 'crit_rate_up' },
-              normal_dmg_up: { kind: 'blackboard', key: 'normal_dmg_up' },
+            copiedBlackboardAssignments: {
+              crit_rate_up: 'crit_rate_up',
+              normal_dmg_up: 'normal_dmg_up',
             },
           }),
         ),
@@ -876,7 +1026,26 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
         ),
         23,
       ),
+      scheduled(
+        21,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack2_1', 'chr_0017_yvonne_ult_attack_end'],
+          }),
+        ),
+        26,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          }),
+        ),
+        26,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack2_1',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -885,6 +1054,7 @@ export const yvonneUltimateAttack1: SkillDefinition = withSkillBlackboard(
     atk_scale: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2],
     crit_rate_up: 0.06,
     normal_dmg_up: 0.03,
+    layer: 10,
   },
 );
 
@@ -895,6 +1065,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 23,
     naturalDurationFrames: 133,
     exclusiveFrame: 31,
+    offsetRecordFrame: 11,
     inputWindows: {
       commandMappings: [
         {
@@ -915,6 +1086,7 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
           endFrame: 30,
           sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
+        { startFrame: 23, endFrame: 30, sourceSkillIds: ['chr_0017_yvonne_ult_attack2_2'] },
       ],
     },
     costFrame: 9,
@@ -1269,7 +1441,26 @@ export const yvonneUltimateAttack2A: SkillDefinition = withSkillBlackboard(
         ),
         24,
       ),
+      scheduled(
+        23,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack2_2', 'chr_0017_yvonne_ult_attack_end'],
+          }),
+        ),
+        30,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack2_2',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -1284,6 +1475,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 12,
     naturalDurationFrames: 123,
     exclusiveFrame: 22,
+    offsetRecordFrame: 1,
     inputWindows: {
       commandMappings: [
         {
@@ -1304,6 +1496,7 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
           endFrame: 20,
           sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
+        { startFrame: 12, endFrame: 20, sourceSkillIds: ['chr_0017_yvonne_ult_attack3_1'] },
       ],
     },
     costFrame: 9,
@@ -1594,7 +1787,26 @@ export const yvonneUltimateAttack2B: SkillDefinition = withSkillBlackboard(
         ),
         13,
       ),
+      scheduled(
+        12,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack3_1', 'chr_0017_yvonne_ult_attack_end'],
+          }),
+        ),
+        20,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          }),
+        ),
+        20,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack3_1',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -1609,6 +1821,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 28,
     naturalDurationFrames: 163,
     exclusiveFrame: 45,
+    offsetRecordFrame: 13,
     inputWindows: {
       commandMappings: [
         {
@@ -1629,6 +1842,7 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
           endFrame: 36,
           sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
         },
+        { startFrame: 28, endFrame: 36, sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2'] },
       ],
     },
     costFrame: 9,
@@ -2367,7 +2581,26 @@ export const yvonneUltimateAttack3A: SkillDefinition = withSkillBlackboard(
         12,
       ),
       scheduled(12, sharedActionSequence5, 32),
+      scheduled(
+        28,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+          }),
+        ),
+        36,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end', 'chr_0017_yvonne_attack5'],
+          }),
+        ),
+        36,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack3_2',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -2382,6 +2615,7 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 151,
     exclusiveFrame: 28,
+    offsetRecordFrame: 150,
     inputWindows: {
       commandMappings: [
         {
@@ -2399,6 +2633,7 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
           endFrame: 24,
           sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
         },
+        { startFrame: 16, endFrame: 24, sourceSkillIds: ['chr_0017_yvonne_ult_attack_end'] },
       ],
     },
     costFrame: 9,
@@ -3110,8 +3345,34 @@ export const yvonneUltimateAttack3B: SkillDefinition = withSkillBlackboard(
         ),
         40,
       ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0017_yvonne_attack5'] }),
+        ),
+        24,
+      ),
+      scheduled(
+        0,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack_end'],
+          }),
+        ),
+        28,
+      ),
+      scheduled(
+        16,
+        sequence(
+          step('reachSkillOperableBoundary', {
+            sourceSkillIds: ['chr_0017_yvonne_ult_attack3_2', 'chr_0017_yvonne_ult_attack_end'],
+          }),
+        ),
+        24,
+      ),
       scheduled(0, sharedActionSequence5, 18),
     ],
+    timelineContinuationSourceSkillId: 'chr_0017_yvonne_ult_attack_end',
     skillType: 'basicAttack',
     levelSource: 'ultimate',
     nativeSkillType: 'attack',
@@ -3126,6 +3387,7 @@ export const yvonneUltimateAttackEnd: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 61,
     naturalDurationFrames: 161,
     exclusiveFrame: 60,
+    offsetRecordFrame: 28,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -3554,6 +3816,7 @@ export const yvonneFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 29,
     naturalDurationFrames: 135,
     exclusiveFrame: 45,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -3729,6 +3992,7 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 2,
     naturalDurationFrames: 130,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -3783,7 +4047,7 @@ export const yvonnePlungingAttack: SkillDefinition = withSkillBlackboard(
                         buffId: 'buff_chr_0017_yvonne_potential_5_cd',
                         target: 'caster',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: { cd: { kind: 'blackboard', key: 'cd' } },
+                        copiedBlackboardAssignments: { cd: 'cd' },
                       }),
                       step(
                         'dealDamage',
@@ -3914,6 +4178,7 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 34,
     naturalDurationFrames: 150,
     exclusiveFrame: 34,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 34, endFrame: 56, sourceSkillIds: ['chr_0017_yvonne_normal_skill'] },
@@ -3940,18 +4205,18 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
             source: 'enemy',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            blackboardAssignments: {
-              atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-              poise: { kind: 'blackboard', key: 'poise' },
-              consume_cnt: { kind: 'blackboard', key: 'consume_cnt' },
-              gained_atb: { kind: 'blackboard', key: 'gained_atb' },
-              has_potential2: { kind: 'blackboard', key: 'has_potential2' },
-              atb_return: { kind: 'blackboard', key: 'atb_return' },
-              count: { kind: 'blackboard', key: 'count' },
-              atk_scale_layer: { kind: 'blackboard', key: 'atk_scale_layer' },
-              usp_base: { kind: 'blackboard', key: 'usp_base' },
-              usp_layer: { kind: 'blackboard', key: 'usp_layer' },
-              atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
+            copiedBlackboardAssignments: {
+              atk_scale: 'atk_scale',
+              poise: 'poise',
+              consume_cnt: 'consume_cnt',
+              gained_atb: 'gained_atb',
+              has_potential2: 'has_potential2',
+              atb_return: 'atb_return',
+              count: 'count',
+              atk_scale_layer: 'atk_scale_layer',
+              usp_base: 'usp_base',
+              usp_layer: 'usp_layer',
+              atk_scale2: 'atk_scale2',
             },
           }),
         ),
@@ -3964,10 +4229,7 @@ export const yvonneBattleSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0017_yvonne_normal_skill_listener',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              crit_up: { kind: 'blackboard', key: 'crit_up' },
-              atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
-            },
+            copiedBlackboardAssignments: { crit_up: 'crit_up', atk_scale2: 'atk_scale2' },
           }),
         ),
         2,
@@ -4002,6 +4264,7 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 65,
     naturalDurationFrames: 126,
     exclusiveFrame: 64,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4070,13 +4333,13 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0017_yvonne_ultimate_skill',
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  duration: { kind: 'blackboard', key: 'duration' },
-                  has_potential4: { kind: 'blackboard', key: 'has_potential4' },
-                  ex_usp_up: { kind: 'blackboard', key: 'ex_usp_up' },
-                  has_potential5: { kind: 'blackboard', key: 'has_potential5' },
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
+                copiedBlackboardAssignments: {
+                  duration: 'duration',
+                  has_potential4: 'has_potential4',
+                  ex_usp_up: 'ex_usp_up',
+                  has_potential5: 'has_potential5',
+                  atk_up: 'atk_up',
+                  crit_dmg_up: 'crit_dmg_up',
                 },
               }),
             ),
@@ -4085,13 +4348,13 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0017_yvonne_ultimate_skill',
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  duration: { kind: 'blackboard', key: 'duration' },
-                  has_potential4: { kind: 'blackboard', key: 'has_potential4' },
-                  ex_usp_up: { kind: 'blackboard', key: 'ex_usp_up' },
-                  has_potential5: { kind: 'blackboard', key: 'has_potential5' },
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
+                copiedBlackboardAssignments: {
+                  duration: 'duration',
+                  has_potential4: 'has_potential4',
+                  ex_usp_up: 'ex_usp_up',
+                  has_potential5: 'has_potential5',
+                  atk_up: 'atk_up',
+                  crit_dmg_up: 'crit_dmg_up',
                 },
               }),
             ),
@@ -4157,6 +4420,7 @@ export const yvonneUltimate: SkillDefinition = withSkillBlackboard(
     nativeSkillType: 'ultimateSkill',
   },
   {
+    atk_scale_extra: [2.67, 2.94, 3.2, 3.47, 3.74, 4, 4.27, 4.54, 4.8, 5.14, 5.54, 6],
     atk_scale1: [0.089, 0.098, 0.107, 0.116, 0.125, 0.134, 0.143, 0.151, 0.16, 0.172, 0.185, 0.2],
     atk_scale2: [1.33, 1.47, 1.6, 1.73, 1.86, 2, 2.13, 2.26, 2.4, 2.56, 2.76, 3],
     atk_up: 0.3,
@@ -4176,6 +4440,7 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 19,
     naturalDurationFrames: 130,
     exclusiveFrame: 24,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 19, endFrame: 56, sourceSkillIds: ['chr_0017_yvonne_normal_skill'] },
@@ -4247,15 +4512,40 @@ export const yvonneComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale_boom: [0.89, 0.98, 1.07, 1.16, 1.25, 1.34, 1.42, 1.51, 1.6, 1.71, 1.85, 2],
     atk_scale_tick: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
+    cam_angle: 0,
+    cam_angle2: 0,
+    cam_duration: 0,
+    cam_duration2: 0,
     duration: 3,
     has_potential1: 0,
+    input_angle: 0,
+    input_angle2: 0,
     interval: 0.75,
     maxcnt: 4,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
     poise: 10,
     radius: 4,
+    select_radius: 7,
     usp: 10,
     usp_extra: 10,
   },
+);
+
+export const yvonnePerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const yvonne: OperatorDefinition = {
@@ -4331,6 +4621,10 @@ export const yvonne: OperatorDefinition = {
       skills: yvonneComboSkill,
     },
   ],
+  dodgeSkill: yvonnePerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -4353,6 +4647,13 @@ export const yvonne: OperatorDefinition = {
         'ultimateAttack3A',
         'ultimateAttack3B',
         'ultimateAttackEnd',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -4755,13 +5056,13 @@ export const yvonne: OperatorDefinition = {
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_scale_boom: { kind: 'blackboard', key: 'atk_scale_boom' },
-              radius: { kind: 'blackboard', key: 'radius' },
-              has_potential1: { kind: 'blackboard', key: 'has_potential1' },
-              poise: { kind: 'blackboard', key: 'poise' },
-              had_added_usp: { kind: 'blackboard', key: 'has_added_usp' },
-              usp: { kind: 'blackboard', key: 'usp' },
+            copiedBlackboardAssignments: {
+              atk_scale_boom: 'atk_scale_boom',
+              radius: 'radius',
+              has_potential1: 'has_potential1',
+              poise: 'poise',
+              had_added_usp: 'has_added_usp',
+              usp: 'usp',
             },
           }),
         ),
@@ -4882,10 +5183,7 @@ export const yvonne: OperatorDefinition = {
                       target: 'eventTarget',
                       source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        crit_up: { kind: 'blackboard', key: 'crit_up' },
-                        atk_scale2: { kind: 'blackboard', key: 'atk_scale2' },
-                      },
+                      copiedBlackboardAssignments: { crit_up: 'crit_up', atk_scale2: 'atk_scale2' },
                     }),
                   ),
                 ),
@@ -5765,7 +6063,7 @@ export const yvonne: OperatorDefinition = {
                       target: 'buffSource',
                       source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: { dmg_up: { kind: 'blackboard', key: 'dmg_up' } },
+                      copiedBlackboardAssignments: { dmg_up: 'dmg_up' },
                     }),
                     step('createTimedMarker', {
                       target: 'buffOwner',
@@ -5810,7 +6108,7 @@ export const yvonne: OperatorDefinition = {
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
                   lifetimeOwner: 'currentCastSkill',
-                  blackboardAssignments: { dmg_up: { kind: 'blackboard', key: 'dmg_up' } },
+                  copiedBlackboardAssignments: { dmg_up: 'dmg_up' },
                 }),
               ),
             ),
@@ -5904,7 +6202,7 @@ export const yvonne: OperatorDefinition = {
                     target: 'buffSource',
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: { ex_usp_up: { kind: 'blackboard', key: 'ex_usp_up' } },
+                    copiedBlackboardAssignments: { ex_usp_up: 'ex_usp_up' },
                   }),
                 ),
               ),
@@ -5935,10 +6233,7 @@ export const yvonne: OperatorDefinition = {
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     asChildBuff: true,
-                    blackboardAssignments: {
-                      atk_up: { kind: 'blackboard', key: 'atk_up' },
-                      crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
-                    },
+                    copiedBlackboardAssignments: { atk_up: 'atk_up', crit_dmg_up: 'crit_dmg_up' },
                   }),
                 ),
               ),
@@ -5985,10 +6280,10 @@ export const yvonne: OperatorDefinition = {
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
-              has_potential5: { kind: 'blackboard', key: 'has_potential5' },
+            copiedBlackboardAssignments: {
+              atk_up: 'atk_up',
+              crit_dmg_up: 'crit_dmg_up',
+              has_potential5: 'has_potential5',
             },
           }),
         ),
@@ -6078,10 +6373,7 @@ export const yvonne: OperatorDefinition = {
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     asChildBuff: true,
-                    blackboardAssignments: {
-                      atk_up: { kind: 'blackboard', key: 'atk_up' },
-                      crit_dmg_up: { kind: 'blackboard', key: 'crit_dmg_up' },
-                    },
+                    copiedBlackboardAssignments: { atk_up: 'atk_up', crit_dmg_up: 'crit_dmg_up' },
                   }),
                 ),
               ),
@@ -6429,16 +6721,16 @@ export const yvonne: OperatorDefinition = {
                 buffId: 'buff_chr_0017_yvonne_combo_skill',
                 target: 'currentAbilityEntity',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  radius: { kind: 'blackboard', key: 'radius' },
-                  atk_scale_tick: { kind: 'blackboard', key: 'atk_scale_tick' },
-                  duration: { kind: 'blackboard', key: 'duration' },
-                  atk_scale_boom: { kind: 'blackboard', key: 'atk_scale_boom' },
-                  poise: { kind: 'blackboard', key: 'poise' },
-                  has_potential1: { kind: 'blackboard', key: 'has_potential1' },
-                  interval: { kind: 'blackboard', key: 'interval' },
-                  maxcnt: { kind: 'blackboard', key: 'maxcnt' },
-                  usp: { kind: 'blackboard', key: 'usp_extra' },
+                copiedBlackboardAssignments: {
+                  radius: 'radius',
+                  atk_scale_tick: 'atk_scale_tick',
+                  duration: 'duration',
+                  atk_scale_boom: 'atk_scale_boom',
+                  poise: 'poise',
+                  has_potential1: 'has_potential1',
+                  interval: 'interval',
+                  maxcnt: 'maxcnt',
+                  usp: 'usp_extra',
                 },
               }),
             ),

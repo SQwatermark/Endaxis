@@ -232,6 +232,8 @@ export type PlayerActionRouteDefinition =
       readonly kind: 'basicAttack';
       /** 原生 normalAttackList、处决和下落等路径能够请求的技能全集。 */
       readonly skillKeys: readonly string[];
+      /** CharacterData.normalAttackList 给出的默认有序普攻连段，不包含处决和下落攻击。 */
+      readonly normalAttackSkillKeys?: readonly string[];
       /** 只有 SkillDataBundle/default mode 的命令映射已导入时才允许设置。 */
       readonly defaultSkillKey?: string;
     };
@@ -319,6 +321,8 @@ export interface SkillDefinition extends SkillActionProgramDefinition {
   naturalDurationFrames?: number;
   /** 原生 SkillData.exclusiveFrame；只在需要读取当前技能可中断状态时参与运行时判断。 */
   exclusiveFrame?: number;
+  /** 原生 SkillData.offsetRecordFrame；到达时把下一段普攻提交为连段偏移目标。 */
+  offsetRecordFrame?: number;
   /**
    * 从原生顶层直连输入 Action 保留的操作解析证据。两类窗口职责不同：
    * commandMappings 选择该操作当前指向的技能，allowedNextSkills 只决定能否提前中断。

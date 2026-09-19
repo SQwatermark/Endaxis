@@ -158,15 +158,9 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "normal_atk_up_valid": {
-                            "kind": "blackboard",
-                            "key": "normal_atk_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "normal_atk_up_valid": "normal_atk_up",
+                          "duration": "duration"
                         }
                       }
                     }

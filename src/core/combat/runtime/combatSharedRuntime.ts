@@ -12,7 +12,7 @@ import type {
   CombatResourceSnapshot,
 } from '../resources/combatResources';
 import { CombatResources } from '../resources/combatResources';
-import type { CombatSharedState } from '../state/environmentState';
+import { createPlayerMultiDashState, type CombatSharedState } from '../state/environmentState';
 import { ComboWindowRuntime } from '../skills/comboWindowRuntime';
 import { GlobalCooldowns } from '../skills/globalCooldowns';
 import { BasicAttackSkillCastInheritanceRegistry } from '../skills/skillCastInheritanceOperationExecutor';
@@ -113,6 +113,7 @@ export class CombatSharedRuntime {
     this.runtimeState = state ?? {
       clock: this.clock.runtimeState,
       resources: this.resources.runtimeState,
+      multiDash: createPlayerMultiDashState(),
       timeDilation: this.timeDilation?.runtimeState ?? null,
       comboWindows: this.comboWindows.runtimeState,
       ultimatePresentation: this.ultimatePresentation.runtimeState,

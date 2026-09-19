@@ -190,15 +190,9 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "phy_dmg_up_mult": {
-                                  "kind": "blackboard",
-                                  "key": "phy_dmg_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "phy_dmg_up_mult": "phy_dmg_up",
+                                "duration": "duration"
                               }
                             }
                           }

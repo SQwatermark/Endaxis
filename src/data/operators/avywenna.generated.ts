@@ -118,6 +118,7 @@ export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 8,
     naturalDurationFrames: 188,
     exclusiveFrame: 20,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -177,7 +178,15 @@ export const avywennaBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        8,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0012_avywen_attack2'] }),
+        ),
+        27,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0012_avywen_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -192,6 +201,7 @@ export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 14,
     naturalDurationFrames: 224,
     exclusiveFrame: 17,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -251,7 +261,15 @@ export const avywennaBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        14,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0012_avywen_attack3'] }),
+        ),
+        25,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0012_avywen_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -266,6 +284,7 @@ export const avywennaBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 10,
     naturalDurationFrames: 183,
     exclusiveFrame: 17,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -316,7 +335,15 @@ export const avywennaBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        10,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0012_avywen_attack4'] }),
+        ),
+        25,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0012_avywen_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -331,6 +358,7 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 208,
     exclusiveFrame: 30,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -434,7 +462,15 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         19,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0012_avywen_attack5'] }),
+        ),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0012_avywen_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -443,6 +479,7 @@ export const avywennaBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
     atk_scale_2: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
   },
 );
 
@@ -453,6 +490,7 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 45,
     naturalDurationFrames: 192,
     exclusiveFrame: 45,
+    offsetRecordFrame: 24,
     inputWindows: {
       commandMappings: [
         {
@@ -509,7 +547,15 @@ export const avywennaBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         25,
       ),
+      scheduled(
+        45,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0012_avywen_attack1'] }),
+        ),
+        55,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0012_avywen_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -528,6 +574,7 @@ export const avywennaFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 29,
     naturalDurationFrames: 207,
     exclusiveFrame: 44,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -683,6 +730,7 @@ export const avywennaPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 11,
     naturalDurationFrames: 228,
     exclusiveFrame: 15,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 11, endFrame: 15, sourceSkillIds: ['chr_0012_avywen_attack1'] },
@@ -740,6 +788,7 @@ export const avywennaBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 34,
     naturalDurationFrames: 306,
     exclusiveFrame: 38,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 34, endFrame: 60, sourceSkillIds: ['chr_0012_avywen_normal_skill'] },
@@ -1167,6 +1216,7 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 254,
     exclusiveFrame: 40,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 21, endFrame: 68, sourceSkillIds: ['chr_0012_avywen_normal_skill'] },
@@ -1284,11 +1334,19 @@ export const avywennaComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [1.69, 1.86, 2.03, 2.19, 2.36, 2.53, 2.7, 2.87, 3.04, 3.25, 3.5, 3.8],
+    atk_scale_lance_back: 1,
+    cam_angle: 0,
+    cam_duration: 0,
+    input_angle: 0,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
     poise: 10,
+    poise_lance: 0,
     potential_2: 0,
     radius: 4,
     talent0_usp: 0,
     usp: 10,
+    lance_duration: 30,
   },
 );
 
@@ -1299,6 +1357,7 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 57,
     naturalDurationFrames: 273,
     exclusiveFrame: 65,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1397,9 +1456,9 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0012_avywen_ultimate_skill_debuff',
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  pulse_vul_rate: { kind: 'blackboard', key: 'pulse_vul_rate' },
-                  pulse_vul_duration: { kind: 'blackboard', key: 'pulse_vul_duration' },
+                copiedBlackboardAssignments: {
+                  pulse_vul_rate: 'pulse_vul_rate',
+                  pulse_vul_duration: 'pulse_vul_duration',
                 },
               }),
             ),
@@ -1463,13 +1522,34 @@ export const avywennaUltimate: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [4.22, 4.64, 5.07, 5.49, 5.91, 6.33, 6.75, 7.18, 7.6, 8.13, 8.76, 9.5],
+    atk_scale_ulti_lance_back: 1,
     poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
+    poise_lance: 0,
     potential_2: 0,
     pulse_vul_duration: 0,
     pulse_vul_rate: 0,
     radius: 5,
     talent0_usp: 0,
+    lance_duration_ult: 30,
+    pulse_resist_down_duration: [5, 5, 5, 5, 5, 5, 5, 5, 5, 6, 7, 8],
+    pulse_resist_down_rate: [0.3, 0.32, 0.32, 0.32, 0.32, 0.34, 0.34, 0.34, 0.34, 0.36, 0.38, 0.4],
   },
+);
+
+export const avywennaPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const avywenna: OperatorDefinition = {
@@ -1528,6 +1608,10 @@ export const avywenna: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: avywennaUltimate },
   ],
+  dodgeSkill: avywennaPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1544,6 +1628,13 @@ export const avywenna: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },

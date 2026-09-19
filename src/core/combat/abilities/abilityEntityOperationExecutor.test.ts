@@ -223,12 +223,13 @@ describe('AbilityEntityOperationExecutor', () => {
 
   it('does not retain the source cast identity when the native spawn disables inheritance', () => {
     const entities = new LogicalAbilityEntityRuntime({});
+    const definition = { lifetime: { kind: 'limited' as const, durationSeconds: 3 } };
     const executor = new AbilityEntityOperationExecutor(
       'typhoeus',
       entities,
       { execute: () => false, evaluate: () => false },
       undefined,
-      () => ({ lifetime: { kind: 'limited', durationSeconds: 3 } }),
+      () => definition,
     );
 
     executor.execute(
@@ -255,6 +256,11 @@ describe('AbilityEntityOperationExecutor', () => {
     expect(entity).toBeDefined();
     expect(entities.snapshot(entity!).sourceSkillCastId).toBeUndefined();
     expect(entities.snapshot(entity!).skillCastInfo).toBeNull();
+    const saved = structuredClone(entities.runtimeState).instances.get(
+      entities.snapshot(entity!).instanceId,
+    )!;
+    expect(saved.definitionProgramId).toBeDefined();
+    expect(executor.programs.resolve(saved.definitionProgramId!)).toBe(definition);
   });
 
   it('resolves template duration and stacking limit from spawn entity-blackboard assignments', () => {

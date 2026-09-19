@@ -271,15 +271,9 @@ const definition = {
                                     "buffId": "buff_wpn_claym_0013_normal_skill",
                                     "target": "caster",
                                     "inheritSourceSkillCastInfo": true,
-                                    "blackboardAssignments": {
-                                      "cryst_dmg_up": {
-                                        "kind": "blackboard",
-                                        "key": "cryst_dmg_up"
-                                      },
-                                      "duration": {
-                                        "kind": "blackboard",
-                                        "key": "duration"
-                                      }
+                                    "copiedBlackboardAssignments": {
+                                      "cryst_dmg_up": "cryst_dmg_up",
+                                      "duration": "duration"
                                     }
                                   }
                                 },
@@ -365,15 +359,9 @@ const definition = {
                                     "buffId": "buff_wpn_claym_0013_combo_skill",
                                     "target": "caster",
                                     "inheritSourceSkillCastInfo": true,
-                                    "blackboardAssignments": {
-                                      "cryst_dmg_up2": {
-                                        "kind": "blackboard",
-                                        "key": "cryst_dmg_up2"
-                                      },
-                                      "duration2": {
-                                        "kind": "blackboard",
-                                        "key": "duration2"
-                                      }
+                                    "copiedBlackboardAssignments": {
+                                      "cryst_dmg_up2": "cryst_dmg_up2",
+                                      "duration2": "duration2"
                                     }
                                   }
                                 },

@@ -35,6 +35,7 @@ it('场景输入与环境端口互不重叠，完整装配选项由两者组成'
     | 'inputs'
     | 'skillInputGroups'
     | 'externalEvents'
+    | 'dodgeInputs'
     | 'initialControlledOperatorId'
     | 'isOperatorControlled'
   >();
@@ -160,6 +161,16 @@ describe('compileScenarioRuntimeAssembly', () => {
     const compiled = compileScenarioRuntimeAssembly(createScenario(), {
       ...settings,
       environment: { ...settings.environment, createOperationExecutor },
+    });
+    expect(compiled.dashTiming).toEqual({
+      dashOffsetFrames: 30,
+      blockAttackFramesInDash: 3,
+      allowAttackAfterFramesInDash: 10.5,
+      blockAttackFramesInPerfectDodge: 3,
+      allowAttackAfterFramesInPerfectDodge: 7.5,
+      blockDashAfterPerfectDodgeFrames: 15,
+      dashInputCooldownFrames: 24,
+      dashSecondDashIntervalFrames: 9,
     });
     const operator = compiled.operators[0]!;
     expect(operator.skills).toEqual([]);
@@ -611,6 +622,70 @@ describe('compileScenarioRuntimeAssembly', () => {
 
     expect(() => compileScenarioRuntimeAssembly(scenario, options())).toThrow(
       "external event marker 'hit:empty' references empty track 1",
+    );
+  });
+
+  it('compiles dodge markers in frame, phase and declaration order', () => {
+    const scenario = createScenario();
+    scenario.battle.prepFrames = 30;
+    scenario.battle.dodgeMarkers = [
+      {
+        id: 'perfect',
+        frame: -10,
+        trackIndex: 0,
+        direction: 'backward',
+        mode: { kind: 'perfectDodge', successDelayFrames: 5 },
+      },
+      {
+        id: 'same-frame',
+        frame: -5,
+        trackIndex: 0,
+        direction: 'forward',
+        mode: { kind: 'dodge' },
+      },
+    ];
+
+    const compiled = compileScenarioRuntimeAssembly(scenario, options());
+
+    expect(compiled.initialFrame).toBe(-10);
+    expect(compiled.dodgeInputs).toEqual([
+      {
+        kind: 'dash',
+        frame: -10,
+        dodgeId: 'perfect',
+        operatorId: 'track:0',
+        direction: 'backward',
+      },
+      {
+        kind: 'dash',
+        frame: -5,
+        dodgeId: 'same-frame',
+        operatorId: 'track:0',
+        direction: 'forward',
+      },
+      {
+        kind: 'perfectDodgeSuccess',
+        frame: -5,
+        dodgeId: 'perfect',
+        operatorId: 'track:0',
+      },
+    ]);
+  });
+
+  it('rejects dodge markers on empty tracks', () => {
+    const scenario = createScenario();
+    scenario.battle.dodgeMarkers = [
+      {
+        id: 'empty',
+        frame: 0,
+        trackIndex: 1,
+        direction: 'forward',
+        mode: { kind: 'dodge' },
+      },
+    ];
+
+    expect(() => compileScenarioRuntimeAssembly(scenario, options())).toThrow(
+      "dodge marker 'empty' references empty track 1",
     );
   });
 

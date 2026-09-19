@@ -107,6 +107,64 @@ it('未来组无需后续成员回执即可移除，不会阻止历史继承', (
   expect(inherited.battle.controlSwitches.map(marker => marker.id)).toEqual(['old']);
 });
 
+it('继承只保留历史 Dash，未来成功可以独立添加、修改和移除', () => {
+  const original = source();
+  original.battle.dodgeMarkers = [
+    {
+      id: 'perfect',
+      frame: 10,
+      trackIndex: 0,
+      direction: 'forward',
+      mode: { kind: 'perfectDodge', successDelayFrames: 5 },
+    },
+  ];
+
+  const split = createInheritedScenario(original, {
+    id: 'copy',
+    name: 'Copy',
+    frame: 12,
+    resolveSkillFrame: (_, id) => (id === 'b' ? 10 : 20),
+  });
+  expect(split.battle.dodgeMarkers?.[0]?.mode).toEqual({ kind: 'dodge' });
+  const session = new ScenarioEditorSession(split);
+  expect(
+    session.commit('success', before => {
+      const next = structuredClone(before);
+      next.battle.dodgeMarkers![0]!.mode = { kind: 'perfectDodge', successDelayFrames: 5 };
+      return next;
+    }),
+  ).toBe(true);
+  expect(() =>
+    session.commit('past-success', before => {
+      const next = structuredClone(before);
+      next.battle.dodgeMarkers![0]!.mode = { kind: 'perfectDodge', successDelayFrames: 1 };
+      return next;
+    }),
+  ).toThrow('frozen-input-history');
+  expect(() =>
+    session.commit('past-dash', before => {
+      const next = structuredClone(before);
+      next.battle.dodgeMarkers![0]!.direction = 'backward';
+      return next;
+    }),
+  ).toThrow('frozen-input-history');
+  expect(
+    session.commit('remove-success', before => {
+      const next = structuredClone(before);
+      next.battle.dodgeMarkers![0]!.mode = { kind: 'dodge' };
+      return next;
+    }),
+  ).toBe(true);
+
+  const inherited = createInheritedScenario(original, {
+    id: 'copy',
+    name: 'Copy',
+    frame: 16,
+    resolveSkillFrame: (_, id) => (id === 'b' ? 10 : 20),
+  });
+  expect(inherited.battle.dodgeMarkers?.map(marker => marker.id)).toEqual(['perfect']);
+});
+
 it('继承后的历史连续组可查看和改外观，不能改输入，未来连续组无需历史位置重算', () => {
   const inherited = createInheritedScenario(source(), {
     id: 'copy',

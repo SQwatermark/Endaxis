@@ -120,6 +120,8 @@ export function createGlobalBuffState(): GlobalBuffState {
 
 /** 能力实体的身份、寿命、标记、子技能与黑板数据。 */
 export interface LogicalAbilityEntityState {
+  /** 创建时实际使用的固定定义槽位；与是否继承伤害施法来源无关。 */
+  readonly definitionProgramId?: number;
   buffContainerCreated: boolean;
   buffs: BuffContainerState | null;
   readonly childSkills: AbilityEntityChildSkillState[];

@@ -1342,7 +1342,8 @@
       "charId": "chr_0033_camille",
       "basePassiveSkillIds": ["chr_0033_camille_passive_listen_normal_skill"],
       "outputStage": "complete",
-      "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate"],
+      "skillDisplayNameKeys": { "battleSkillDuringUltimate": "skillNames.pursuit" },
+      "runtimeReplacementSkillKeys": ["battleSkillDuringUltimate", "comboSkill2"],
       "routedSkillKeys": ["battleSkillDuringUltimate"],
       "routingOnlyNativeSkillIds": ["chr_0033_camille_normal_skill_2"],
       "talents": [{ "index": 0 }, { "index": 1 }],
@@ -1388,6 +1389,7 @@
           "skillType": "comboSkill",
           "levelSource": "comboSkill",
           "nativeGroupType": 3,
+          "replacementPlacements": { "comboSkill2": "internal" },
           "skillKeys": ["comboSkill1", "comboSkill2"]
         },
         {
@@ -3812,7 +3814,8 @@
       "exportName": "liinoGeneratedSource",
       "gameId": "LIINO",
       "charId": "chr_0035_liino",
-      "runtimeReplacementSkillKeys": ["battleSkillEnd"],
+      "skillDisplayNameKeys": { "battleSkillEnd": "skillNames.stanceTermination" },
+      "runtimeReplacementSkillKeys": ["battleSkillEnd", "battleSkillCombo"],
       "talents": [{ "index": 0 }, { "index": 1 }],
       "potentials": [{}, {}, {}, {}, {}],
       "skillGroups": [
@@ -3855,7 +3858,7 @@
           "skillType": "battleSkill",
           "levelSource": "battleSkill",
           "nativeGroupType": 1,
-          "replacementPlacements": { "battleSkillEnd": "standard" },
+          "replacementPlacements": { "battleSkillEnd": "standard", "battleSkillCombo": "internal" },
           "skillKeys": ["battleSkill", "battleSkillEnd", "battleSkillCombo"]
         },
         {

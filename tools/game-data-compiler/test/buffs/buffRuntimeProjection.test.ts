@@ -665,7 +665,7 @@ describe('公共 Buff 运行时投影', () => {
     expect([...collectBuffSpawnedAbilityEntityContextKeys(changed)]).toEqual(['laser_target']);
   });
 
-  it('把点燃者作为 Source/Target、Buff 宿主作为 Owner 编译点燃响应', () => {
+  it('点燃响应的 Target 读取点燃者，Source 仍是 Buff 原来源', () => {
     const source = sourceFixture();
     const response = source.graph.abilityEvents[0]!.actions[0]!;
     const projected = compileBuffRuntimeDefinitionSource({
@@ -720,7 +720,7 @@ describe('公共 Buff 运行时投影', () => {
             {
               kind: 'readBuffBlackboard',
               parameters: {
-                target: 'caster',
+                target: 'actionInputTarget',
                 query: { kind: 'id', buffIds: ['buff.potential'] },
                 desiredKey: 'ratio',
                 outputKey: 'ratio_dynamic',

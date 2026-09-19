@@ -167,6 +167,7 @@ export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 14,
     naturalDurationFrames: 110,
     exclusiveFrame: 19,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -247,12 +248,22 @@ export const chenQianyuBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
+      scheduled(
+        14,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0005_chen_attack2'] })),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0005_chen_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23] },
+  {
+    atb: 0,
+    atk_scale: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
+    display_atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
+  },
 );
 
 export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -262,6 +273,7 @@ export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 10,
     naturalDurationFrames: 127,
     exclusiveFrame: 15,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -307,7 +319,13 @@ export const chenQianyuBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         9,
       ),
+      scheduled(
+        10,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0005_chen_attack3'] })),
+        26,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0005_chen_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -322,6 +340,7 @@ export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 135,
     exclusiveFrame: 22,
+    offsetRecordFrame: 9,
     inputWindows: {
       commandMappings: [
         {
@@ -402,12 +421,22 @@ export const chenQianyuBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         13,
       ),
+      scheduled(
+        18,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0005_chen_attack4'] })),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0005_chen_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.13, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28, 0.3] },
+  {
+    atb: 0,
+    atk_scale: [0.13, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28, 0.3],
+    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.38, 0.4, 0.43, 0.46, 0.48, 0.52, 0.56, 0.6],
+  },
 );
 
 export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -417,6 +446,7 @@ export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 108,
     exclusiveFrame: 30,
+    offsetRecordFrame: 4,
     inputWindows: {
       commandMappings: [
         {
@@ -497,12 +527,22 @@ export const chenQianyuBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         11,
       ),
+      scheduled(
+        21,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0005_chen_attack5'] })),
+        31,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0005_chen_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34] },
+  {
+    atb: 0,
+    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+  },
 );
 
 export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -512,6 +552,7 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 32,
     naturalDurationFrames: 126,
     exclusiveFrame: 42,
+    offsetRecordFrame: 16,
     inputWindows: {
       commandMappings: [
         {
@@ -595,7 +636,13 @@ export const chenQianyuBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         21,
       ),
+      scheduled(
+        32,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0005_chen_attack1'] })),
+        42,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0005_chen_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -615,6 +662,7 @@ export const chenQianyuFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 30,
     naturalDurationFrames: 154,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -749,6 +797,7 @@ export const chenQianyuPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 122,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -794,6 +843,7 @@ export const chenQianyuBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 25,
     naturalDurationFrames: 136,
     exclusiveFrame: 32,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 25, endFrame: 54, sourceSkillIds: ['chr_0005_chen_normal_skill'] },
@@ -1081,6 +1131,7 @@ export const chenQianyuComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 23,
     naturalDurationFrames: 168,
     exclusiveFrame: 40,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 23, endFrame: 40, sourceSkillIds: ['chr_0005_chen_normal_skill'] },
@@ -1293,6 +1344,7 @@ export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 112,
     naturalDurationFrames: 264,
     exclusiveFrame: 130,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1505,6 +1557,22 @@ export const chenQianyuUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const chenQianyuPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const chenQianyu: OperatorDefinition = {
   slug: 'chen-qianyu',
   gameId: 'CHENQIANYU',
@@ -1561,6 +1629,10 @@ export const chenQianyu: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: chenQianyuUltimate },
   ],
+  dodgeSkill: chenQianyuPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1577,6 +1649,13 @@ export const chenQianyu: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -1776,10 +1855,7 @@ export const chenQianyu: OperatorDefinition = {
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  blackboardAssignments: {
-                    atk: { kind: 'blackboard', key: 'atk' },
-                    duration: { kind: 'blackboard', key: 'duration' },
-                  },
+                  copiedBlackboardAssignments: { atk: 'atk', duration: 'duration' },
                 }),
               ),
             ),
@@ -1798,10 +1874,7 @@ export const chenQianyu: OperatorDefinition = {
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  blackboardAssignments: {
-                    atk: { kind: 'blackboard', key: 'atk' },
-                    duration: { kind: 'blackboard', key: 'duration' },
-                  },
+                  copiedBlackboardAssignments: { atk: 'atk', duration: 'duration' },
                 }),
               ),
             ),
@@ -1820,10 +1893,7 @@ export const chenQianyu: OperatorDefinition = {
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  blackboardAssignments: {
-                    atk: { kind: 'blackboard', key: 'atk' },
-                    duration: { kind: 'blackboard', key: 'duration' },
-                  },
+                  copiedBlackboardAssignments: { atk: 'atk', duration: 'duration' },
                 }),
               ),
             ),

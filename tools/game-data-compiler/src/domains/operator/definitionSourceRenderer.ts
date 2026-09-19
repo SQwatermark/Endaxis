@@ -99,6 +99,9 @@ export function renderOperatorDefinitionSource(input: { readonly operator: Recor
     },
   );
   operator.skillGroups = skillGroups;
+  if (operator.dodgeSkill !== undefined) {
+    operator.dodgeSkill = registerSkill(operator.dodgeSkill, 'operator.dodgeSkill');
+  }
 
   const renderedOperator = renderValue(operator, context);
   const sharedSequenceDeclarations = sharedSequences.definitions.map(definition => {

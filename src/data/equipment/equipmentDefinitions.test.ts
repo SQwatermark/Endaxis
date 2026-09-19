@@ -1,4 +1,6 @@
 import { describe, expect, it } from 'vitest';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 import {
   validateGearDefinition,
   validateGearSetDefinition,
@@ -20,6 +22,12 @@ describe('equipmentDefinitions', () => {
     );
     expect(gearDefinitions.every(definition => Boolean(definition.assetSlug))).toBe(true);
     expect(gearDefinitions.every(definition => definition.iconPath?.endsWith('.webp'))).toBe(true);
+    expect(gearSetDefinitions.every(definition => definition.iconPath?.endsWith('.webp'))).toBe(
+      true,
+    );
+    for (const set of gearSetDefinitions) {
+      expect(existsSync(join('public', set.iconPath!.slice(1))), set.slug).toBe(true);
+    }
     expect(
       gearDefinitions.find(definition => definition.slug === 'item_equip_t4_suit_atk02_hand_02'),
     ).toMatchObject({

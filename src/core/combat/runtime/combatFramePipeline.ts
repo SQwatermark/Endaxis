@@ -21,6 +21,9 @@ export interface CombatFramePipeline {
   readonly enemyStatuses?: FrameRuntime;
   readonly operatorStatuses: readonly FrameRuntime[];
   readonly comboWindows: FrameRuntime;
+  /** PlayerController 的连续闪避窗口，每帧只推进一次。 */
+  readonly playerMultiDash: FrameRuntime;
+  readonly operatorCenters: readonly FrameRuntime[];
   readonly abilities: readonly FrameRuntime[];
   readonly bindInputPhases: boolean;
 }
@@ -67,6 +70,8 @@ export function bindCombatFramePipeline(
   for (const status of systems.operatorStatuses) simulation.add(status);
   // 本帧归零的连携窗口不能再被同帧输入消费。
   simulation.add(systems.comboWindows);
+  simulation.add(systems.playerMultiDash);
+  for (const center of systems.operatorCenters) simulation.add(center);
   if (systems.bindInputPhases) simulation.addInputPhase('skillInputs');
   for (const ability of systems.abilities) simulation.add(ability);
   simulation.add({ advanceFrame: () => projectiles.advanceAbilityFrame() });

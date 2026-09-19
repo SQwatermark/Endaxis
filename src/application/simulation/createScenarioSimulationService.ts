@@ -14,6 +14,7 @@ export function createScenarioSimulationService(repository: GameDataRepository) 
     repositoryRevision: repository.revision,
     spellInflictionSettings: skillSettings,
     resources: {
+      // 未取得账号的 ServerGameVarDashEnergyLimit；只记录相对消耗和返还，不把全局最大值当账号余额。
       sharedSpGain: { baseGainEfficiency: skillSettingResources.atbGainEfficiency },
       spRecoveryPauseDuration: skillSettingResources.atbRecoverInterval,
       ultimateEnergySystemUnlocked: true,

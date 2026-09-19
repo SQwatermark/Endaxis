@@ -183,6 +183,15 @@ describe('V2 project document', () => {
       frame: 30,
       trackIndex: 4,
     });
+    malformed.scenarios[0].battle.dodgeMarkers = [
+      {
+        id: 'dodge:invalid',
+        frame: -181,
+        trackIndex: 4,
+        direction: 'sideways',
+        mode: { kind: 'perfectDodge', successDelayFrames: -1 },
+      },
+    ];
     malformed.scenarios[0].battle.externalEventMarkers.push({
       id: 'hit:invalid',
       frame: 30,
@@ -222,6 +231,22 @@ describe('V2 project document', () => {
           {
             path: '$.scenarios[0].battle.controlSwitches[0].trackIndex',
             message: 'expected a track index from 0 to 3',
+          },
+          {
+            path: '$.scenarios[0].battle.dodgeMarkers[0].frame',
+            message: 'expected an integer no earlier than -150',
+          },
+          {
+            path: '$.scenarios[0].battle.dodgeMarkers[0].trackIndex',
+            message: 'expected a track index from 0 to 3',
+          },
+          {
+            path: '$.scenarios[0].battle.dodgeMarkers[0].direction',
+            message: 'unknown dodge direction',
+          },
+          {
+            path: '$.scenarios[0].battle.dodgeMarkers[0].mode.successDelayFrames',
+            message: 'expected a non-negative integer',
           },
           {
             path: '$.scenarios[0].battle.externalEventMarkers[0].target.trackIndex',

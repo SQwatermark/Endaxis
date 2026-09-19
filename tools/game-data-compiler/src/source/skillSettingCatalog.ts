@@ -45,24 +45,51 @@ export function parseSkillSettingCatalogSource(
   requireArray(root.enhanceFormulas, `${path}.enhanceFormulas`).forEach((value, index) => {
     const formulaPath = `${path}.enhanceFormulas[${index}]`;
     const formula = requireRecord(value, formulaPath);
-    requireExactFields(formula, new Set(['key', 'formulaType', 'paramA', 'paramB']), formulaPath);
     const key = requireNonEmptyString(formula.key, `${formulaPath}.key`);
     if (formulas.has(key)) throw new Error(`${formulaPath}.key: duplicate ${key}`);
-    const kind = requireNonEmptyString(formula.formulaType, `${formulaPath}.formulaType`);
-    const paramA = requireNumber(formula.paramA, `${formulaPath}.paramA`);
-    const paramB = requireNumber(formula.paramB, `${formulaPath}.paramB`);
-    formulas.set(
-      key,
-      kind === 'none'
-        ? { kind }
-        : kind === 'linear'
-          ? { kind, paramA }
-          : kind === 'saturating'
-            ? { kind, paramA, paramB }
-            : (() => {
-                throw new Error(`${formulaPath}.formulaType: unsupported ${kind}`);
-              })(),
-    );
+    const kindField = formula.formulaType === undefined ? 'kind' : 'formulaType';
+    const kind = requireNonEmptyString(formula[kindField], `${formulaPath}.${kindField}`);
+    if (kind === 'none') {
+      requireExactFields(
+        formula,
+        new Set(
+          kindField === 'formulaType' ? ['key', kindField, 'paramA', 'paramB'] : ['key', kindField],
+        ),
+        formulaPath,
+      );
+      if (kindField === 'formulaType') {
+        requireNumber(formula.paramA, `${formulaPath}.paramA`);
+        requireNumber(formula.paramB, `${formulaPath}.paramB`);
+      }
+      formulas.set(key, { kind });
+      return;
+    }
+    if (kind === 'linear') {
+      requireExactFields(
+        formula,
+        new Set(
+          kindField === 'formulaType'
+            ? ['key', kindField, 'paramA', 'paramB']
+            : ['key', kindField, 'paramA'],
+        ),
+        formulaPath,
+      );
+      formulas.set(key, {
+        kind,
+        paramA: requireNumber(formula.paramA, `${formulaPath}.paramA`),
+      });
+      return;
+    }
+    if (kind === 'saturating') {
+      requireExactFields(formula, new Set(['key', kindField, 'paramA', 'paramB']), formulaPath);
+      formulas.set(key, {
+        kind,
+        paramA: requireNumber(formula.paramA, `${formulaPath}.paramA`),
+        paramB: requireNumber(formula.paramB, `${formulaPath}.paramB`),
+      });
+      return;
+    }
+    throw new Error(`${formulaPath}.${kindField}: unsupported ${kind}`);
   });
   const data = new Map<string, SkillSettingCatalogEntrySource>();
   requireArray(root.data, `${path}.data`).forEach((value, index) => {

@@ -522,6 +522,13 @@ export interface OperatorDefinition {
   trustAttributeBonus?: TrustAttributeBonusDefinition;
   /** 技能库中可以放置的技能组。 */
   skillGroups: readonly SkillGroupDefinition[];
+  /** 完美闪避成功后由中心状态机施放的隐藏技能；不作为普通技能块出现在技能库。 */
+  dodgeSkill?: import('./skills.ts').SkillDefinition;
+  /** 进入原生 Dash 状态时附着到当前干员的 Buff，以及创建实例时写入的字面黑板。 */
+  dashBuffs?: readonly {
+    readonly buffId: string;
+    readonly blackboard: Readonly<Record<string, number | string>>;
+  }[];
   /** 战斗时可被 Buff/Mode 改写的技能槽；独立于技能库分组。 */
   skillSlots?: readonly import('./skills.ts').OperatorSkillSlotDefinition[];
   /** 四类玩家语义动作的原生路由；缺失边必须诊断为 unknown。 */
@@ -539,6 +546,8 @@ export interface OperatorDefinition {
   buffDefinitions?: OperatorBuffDefinitions;
   /** 此干员附属 Buff 的名称翻译键；仅用于展示，不进入战斗回执。 */
   buffDisplayNameKeys?: Readonly<Record<string, string>>;
+  /** 干员专属技能入口的名称翻译键；按技能 key 查找，不改变技能路由。 */
+  skillDisplayNameKeys?: Readonly<Record<string, string>>;
   /** 干员级能力实体蓝图；子技能按引用它的技能等级编译。 */
   abilityEntityDefinitions?: OperatorAbilityEntityDefinitions;
   /** 原生角色常驻连携条件；多段连携的后续窗口仍由技能序列中的步骤开启。 */

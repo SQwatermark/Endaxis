@@ -5,7 +5,9 @@ import { CombatAttributeSet } from '../attributes/combatAttributes';
 import { CombatBuffContainer } from './combatBuffs';
 import { GameplayTagRegistry } from '../tags/gameplayTags';
 import { ActionBlackboard } from '../actions/actionBlackboard';
-import { BuffOperationExecutor } from './buffOperationExecutor';
+import { CombatActionSequenceRuntime } from '../actions/combatActionSequenceRuntime';
+import { BuffOperationExecutor, type BuffApplicationRequest } from './buffOperationExecutor';
+import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 import { RuntimeTargetContext } from '../abilities/runtimeTargetContext';
 import type { CombatOperationExecutor } from '../skills/skillRuntime';
@@ -19,6 +21,128 @@ const delegate: CombatOperationExecutor = {
 };
 
 describe('BuffOperationExecutor', () => {
+  it('Buff 黑板查询与施加都使用动作输入目标，不误读 Buff 来源或迭代目标', () => {
+    const recipient = Object.assign(new CombatBuffContainer('enemy', new CombatAttributeSet()), {
+      apply: vi.fn(() => true),
+    });
+    recipient.add(
+      { id: 'input-value', stackingType: 'unique', blackboard: { value: 8 } },
+      'creator',
+    );
+    const executor = new BuffOperationExecutor({
+      sourceId: 'creator',
+      resolveTarget: () => {
+        throw new Error('不得回退固定施法者');
+      },
+      resolveEventTarget: id => {
+        expect(id).toBe('enemy');
+        return recipient;
+      },
+      delegate,
+    });
+    const definition: ActionSequenceDefinition = {
+      steps: [
+        {
+          kind: 'readBuffBlackboard',
+          parameters: {
+            target: 'actionInputTarget',
+            query: { kind: 'id', buffIds: ['input-value'] },
+            desiredKey: 'value',
+            outputKey: 'read-value',
+          },
+        },
+        {
+          kind: 'applyBuff',
+          parameters: { target: 'actionInputTarget', buffId: 'bonus' },
+        },
+      ],
+    };
+    const blackboard = new ActionBlackboard();
+    const context = {
+      blackboard,
+      buffSourceId: 'creator',
+      buffOwnerId: 'holder',
+      currentTarget: { kind: 'operator' as const, operatorId: 'other' },
+      actionInputTarget: { kind: 'enemy' as const },
+    };
+    expect(
+      new CombatActionSequenceRuntime(executor, context)
+        .createSequence(compileActionSequence(definition, 1))
+        .executeInstant({}),
+    ).toBe(true);
+    expect(blackboard.getNumber('read-value')).toBe(8);
+    expect(recipient.apply).toHaveBeenCalledOnce();
+  });
+  it.each([
+    ['inline', false],
+    ['catalog', false],
+    ['inline', true],
+    ['catalog', true],
+  ] as const)('%s 定义仅在护盾读取来源属性时保留属性端口：%s', (lookup, shield) => {
+    const definition: ResolvedSkillBuffDefinition = {
+      stackingType: 'unlimited',
+      ...(shield
+        ? {
+            shields: [
+              {
+                infinityValue: false,
+                value: {
+                  attributeSource: 'buffSource',
+                  attribute: 'attack',
+                  multiplier: 1,
+                  addition: 0,
+                },
+                absorbCount: -1,
+                absorbAllDamageWhenConsumed: false,
+                removeBuffWhenConsumed: true,
+                priority: 'normal',
+                replaceHitEffect: false,
+                damageAbsorptions: [],
+              },
+            ],
+          }
+        : {}),
+    };
+    const apply = vi.fn((_request: BuffApplicationRequest) => true);
+    const target = Object.assign(new CombatBuffContainer('target', new CombatAttributeSet()), {
+      apply,
+    });
+    const source = Object.assign(
+      new CombatBuffContainer('ability-entity:1', new CombatAttributeSet()),
+      {
+        getAttributeValue: vi.fn(() => 400),
+      },
+    );
+    const executor = new BuffOperationExecutor({
+      sourceId: 'operator',
+      resolveTarget: () => target,
+      resolveEventTarget: () => source,
+      resolveBuffDefinition: () => (lookup === 'catalog' ? definition : undefined),
+      delegate,
+    });
+    executor.execute(
+      {
+        kind: 'applyBuff',
+        parameters: {
+          buffId: 'counter-or-shield',
+          target: 'caster',
+          source: 'buffSource',
+          ...(lookup === 'inline' ? { definition } : {}),
+        },
+      },
+      { blackboard: new ActionBlackboard(), buffSourceId: source.ownerId },
+    );
+    const request = apply.mock.calls[0]![0];
+    expect(request.sourceId).toBe(source.ownerId);
+    if (shield) {
+      expect(request.sourceAttributeOwnerId).toBe(source.ownerId);
+      expect(request.getSourceAttributeValue!('attack')).toBe(400);
+    } else {
+      expect(request).not.toHaveProperty('sourceAttributeOwnerId');
+      expect(request).not.toHaveProperty('getSourceAttributeValue');
+      expect(source.getAttributeValue).not.toHaveBeenCalled();
+    }
+  });
   it.each(['buffOwner', 'buffSource', 'currentTarget'] as const)(
     '标签结束目标 %s 通过定义校验、编译并结束绑定对象的 Buff',
     target => {
@@ -809,11 +933,10 @@ describe('BuffOperationExecutor', () => {
 
   it('resolves Crush assignments only when the existing no-guard layer is consumed', () => {
     let noGuardCount = 1;
-    const applied: Array<{ buffId: string; blackboardValues: Readonly<Record<string, number>> }> =
-      [];
+    const applied: import('./buffOperationExecutor').BuffApplicationRequest[] = [];
     const target = {
       ownerId: 'enemy',
-      apply: (request: { buffId: string; blackboardValues: Readonly<Record<string, number>> }) => {
+      apply: (request: import('./buffOperationExecutor').BuffApplicationRequest) => {
         applied.push(request);
         if (request.buffId === 'buff_physical_crushed') noGuardCount = 0;
         return true;
@@ -874,6 +997,7 @@ describe('BuffOperationExecutor', () => {
     const target = {
       ownerId: 'enemy',
       applyScoped: () => ({
+        isRecycled: false,
         reference: createTestBuffReference(),
         finish: (reason: string) => {
           finished.push(reason);
@@ -915,7 +1039,7 @@ describe('BuffOperationExecutor', () => {
 
   it('transfers the same action-duration Buff handle only to an allowed next native skill', () => {
     const finish = vi.fn(() => true);
-    const handle = { reference: createTestBuffReference(), finish };
+    const handle = { isRecycled: false, reference: createTestBuffReference(), finish };
     const target = {
       ownerId: 'ability-entity',
       applyScoped: () => handle,
@@ -965,7 +1089,7 @@ describe('BuffOperationExecutor', () => {
     recycled => {
       const reference = createTestBuffReference();
       const oldFinish = vi.fn(() => true);
-      const oldHandle = { reference, finish: oldFinish, isFinished: false };
+      const oldHandle = { isRecycled: false, reference, finish: oldFinish, isFinished: false };
       const step = {
         kind: 'applyBuff' as const,
         parameters: {
@@ -977,6 +1101,10 @@ describe('BuffOperationExecutor', () => {
       const originalState = { active: false, references: [] };
       const original = new BuffOperationExecutor({
         sourceId: 'operator',
+        resolveBuffReference: saved => {
+          expect(saved).toEqual(reference);
+          return recycled ? undefined : oldHandle;
+        },
         resolveTarget: () => ({
           ownerId: reference.ownerId,
           applyScoped: () => oldHandle,
@@ -998,30 +1126,20 @@ describe('BuffOperationExecutor', () => {
 
       const restoredState = structuredClone(originalState);
       oldHandle.isFinished = recycled;
+      oldHandle.isRecycled = recycled;
       const newFinish = vi.fn(() => true);
-      const newHandle = { reference, finish: newFinish };
+      const newHandle = { isRecycled: false, reference, finish: newFinish };
       const restored = new BuffOperationExecutor({
         sourceId: 'operator',
         resolveTarget: () => {
           throw new Error('restored End must resolve the saved owner identity');
         },
-        resolveEventTarget: ownerId => {
-          expect(ownerId).toBe(reference.ownerId);
-          return {
-            ownerId,
-            resolveHandle: saved => {
-              expect(saved).toEqual(reference);
-              return recycled ? undefined : newHandle;
-            },
-            getCountByIds: () => 0,
-            finishByIds: () => 0,
-            holdByIds: () => ({ release: () => undefined }),
-            getCountByTags: () => 0,
-            matchesEntityTags: () => false,
-            findFirstByIds: () => undefined,
-            findFirstByTags: () => undefined,
-            finishByTags: () => 0,
-          };
+        resolveEventTarget: () => {
+          throw new Error('old references must not require a live owner target');
+        },
+        resolveBuffReference: saved => {
+          expect(saved).toEqual(reference);
+          return recycled ? undefined : newHandle;
         },
         delegate,
       });
@@ -1047,7 +1165,7 @@ describe('BuffOperationExecutor', () => {
 
   it('detaches and transfers the same existing Buff instance during an allowed skill transition', () => {
     const finish = vi.fn(() => true);
-    const handle = { reference: createTestBuffReference(), finish };
+    const handle = { isRecycled: false, reference: createTestBuffReference(), finish };
     const target = {
       ownerId: 'operator',
       findFirstHandleByIds: () => handle,
@@ -1098,7 +1216,7 @@ describe('BuffOperationExecutor', () => {
 
   it('ends an inherited existing Buff when no next skill is available', () => {
     const finish = vi.fn(() => true);
-    const handle = { reference: createTestBuffReference(), finish };
+    const handle = { isRecycled: false, reference: createTestBuffReference(), finish };
     const target = {
       ownerId: 'operator',
       findFirstHandleByIds: () => handle,
@@ -1147,7 +1265,11 @@ describe('BuffOperationExecutor', () => {
     'rejectedCastSkill',
     'missingCastSkill',
   ] as const)('attaches scoped Buff handles to the current %s owner', owner => {
-    const child = { reference: createTestBuffReference(), finish: vi.fn(() => true) };
+    const child = {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: vi.fn(() => true),
+    };
     const addCurrentBuffChild = vi.fn();
     const usesAttachingSkillLifetime = [
       'castSkill',

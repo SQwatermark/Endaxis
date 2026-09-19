@@ -5,7 +5,12 @@ import {
 } from './timelineActionSelection';
 
 export type TimelineMarkerKind =
-  'cycleBoundary' | 'controlSwitch' | 'externalEvent' | 'simulationStart' | 'simulationEnd';
+  | 'cycleBoundary'
+  | 'controlSwitch'
+  | 'externalEvent'
+  | 'dodge'
+  | 'simulationStart'
+  | 'simulationEnd';
 
 export type TimelinePrimarySelection =
   | { readonly kind: 'track'; readonly trackIndex: TrackIndex }

@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_pulse_cryst01',
+  iconPath: '/equipment/pulse_cryst01/item_equip_t4_suit_pulse_cryst01_edc_02.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -52,15 +53,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
-                          pulse_dmg_up: {
-                            kind: 'blackboard',
-                            key: 'pulse_dmg_up',
-                          },
+                        copiedBlackboardAssignments: {
+                          duration: 'duration',
+                          pulse_dmg_up: 'pulse_dmg_up',
                         },
                       },
                     },
@@ -93,15 +88,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration2',
-                          },
-                          cryst_dmg_up: {
-                            kind: 'blackboard',
-                            key: 'cryst_dmg_up',
-                          },
+                        copiedBlackboardAssignments: {
+                          duration: 'duration2',
+                          cryst_dmg_up: 'cryst_dmg_up',
                         },
                       },
                     },

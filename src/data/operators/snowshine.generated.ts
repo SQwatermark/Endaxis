@@ -18,6 +18,7 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 32,
     naturalDurationFrames: 111,
     exclusiveFrame: 35,
+    offsetRecordFrame: 19,
     inputWindows: {
       commandMappings: [
         {
@@ -77,12 +78,24 @@ export const snowshineBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         20,
       ),
+      scheduled(
+        32,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0014_aurora_attack2'] }),
+        ),
+        47,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0014_aurora_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24] },
+  {
+    atb: 0,
+    atk_scale: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
+    env_dmg: 20,
+  },
 );
 
 export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -92,6 +105,7 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 28,
     naturalDurationFrames: 110,
     exclusiveFrame: 30,
+    offsetRecordFrame: 19,
     inputWindows: {
       commandMappings: [
         {
@@ -146,12 +160,24 @@ export const snowshineBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         20,
       ),
+      scheduled(
+        28,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0014_aurora_attack3'] }),
+        ),
+        43,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0014_aurora_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.59, 0.64, 0.7, 0.76, 0.82, 0.88, 0.94, 0.99, 1.05, 1.13, 1.21, 1.32] },
+  {
+    atb: 0,
+    atk_scale: [0.59, 0.64, 0.7, 0.76, 0.82, 0.88, 0.94, 0.99, 1.05, 1.13, 1.21, 1.32],
+    env_dmg: 25,
+  },
 );
 
 export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -161,6 +187,7 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 61,
     naturalDurationFrames: 131,
     exclusiveFrame: 65,
+    offsetRecordFrame: 39,
     inputWindows: {
       commandMappings: [
         {
@@ -289,7 +316,15 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         43,
       ),
+      scheduled(
+        61,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0014_aurora_attack1'] }),
+        ),
+        75,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0014_aurora_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -299,6 +334,8 @@ export const snowshineBasicAttack3: SkillDefinition = withSkillBlackboard(
     atk_scale: [1, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.93, 2.08, 2.25],
     atk_scale1: 0,
     atk_scale2: 0.8,
+    env_dmg: 25,
+    env_dmg2: 30,
     poise: 23,
   },
 );
@@ -310,6 +347,7 @@ export const snowshineFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 41,
     naturalDurationFrames: 133,
     exclusiveFrame: 75,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -394,6 +432,7 @@ export const snowshinePlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 90,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -436,9 +475,10 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkill',
     sourceSkillId: 'chr_0014_aurora_normal_skill',
-    timelineBlockFrames: 135,
+    timelineBlockFrames: 106,
     naturalDurationFrames: 208,
     exclusiveFrame: 145,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 135, endFrame: 145, sourceSkillIds: ['chr_0014_aurora_normal_skill'] },
@@ -590,10 +630,8 @@ export const snowshineBattleSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0014_aurora_reduce_damage',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: 1 },
-              taken_dmg: { kind: 'blackboard', key: 'taken_dmg' },
-            },
+            blackboardAssignments: { duration: { kind: 'constant', value: 1 } },
+            copiedBlackboardAssignments: { taken_dmg: 'taken_dmg' },
           }),
         ),
         108,
@@ -732,6 +770,7 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 15,
     naturalDurationFrames: 123,
     exclusiveFrame: 45,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 15, endFrame: 60, sourceSkillIds: ['chr_0014_aurora_normal_skill'] },
@@ -880,6 +919,8 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: 0.42,
+    cam_angle: 0,
+    cam_duration: 0,
     duration: 3,
     heal_scale: [0.22, 0.27, 0.31, 0.36, 0.38, 0.4, 0.43, 0.45, 0.47, 0.48, 0.49, 0.5],
     heal_scale_loop: [0.06, 0.07, 0.08, 0.09, 0.1, 0.1, 0.11, 0.11, 0.12, 0.12, 0.12, 0.13],
@@ -887,8 +928,12 @@ export const snowshineComboSkill: SkillDefinition = withSkillBlackboard(
       96, 115.2, 134.4, 153.6, 163.2, 172.8, 182.4, 192, 201.6, 206.4, 211.2, 216,
     ],
     heal_static_value_loop: [24, 28.8, 33.6, 38.4, 40.8, 43.2, 45.6, 48, 50.4, 51.6, 52.8, 54],
+    input_angle: 0,
     interval: 0.5,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
     usp: 10,
+    trigger_hp_ratio: 0.6,
   },
 );
 
@@ -899,6 +944,7 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 71,
     naturalDurationFrames: 142,
     exclusiveFrame: 90,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1007,13 +1053,31 @@ export const snowshineUltimate: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [2, 2.2, 2.4, 2.6, 2.8, 3, 3.2, 3.4, 3.6, 3.85, 4.15, 4.5],
     extra_duration: 0,
+    frozen_level: 1,
     poise: [15, 15, 15, 15, 15, 15, 15, 15, 15, 20, 20, 20],
     potential_2: 0,
     potential_2_range: 0,
     atk_scale_loop: [0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.46, 0.49, 0.52, 0.55, 0.6, 0.65],
     duration: 5,
+    forst_allow_count: 2,
     interval: 0.5,
   },
+);
+
+export const snowshinePerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const snowshine: OperatorDefinition = {
@@ -1066,6 +1130,10 @@ export const snowshine: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: snowshineUltimate },
   ],
+  dodgeSkill: snowshinePerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1075,6 +1143,7 @@ export const snowshine: OperatorDefinition = {
     basicAttack: {
       kind: 'basicAttack',
       skillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'plungingAttack', 'finisher'],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1299,11 +1368,8 @@ export const snowshine: OperatorDefinition = {
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: 0.5 },
-              potential_1: { kind: 'blackboard', key: 'potential_1' },
-              taken_dmg: { kind: 'blackboard', key: 'taken_dmg' },
-            },
+            blackboardAssignments: { duration: { kind: 'constant', value: 0.5 } },
+            copiedBlackboardAssignments: { potential_1: 'potential_1', taken_dmg: 'taken_dmg' },
           }),
         ),
       },
@@ -1447,9 +1513,7 @@ export const snowshine: OperatorDefinition = {
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              extra_duration: { kind: 'blackboard', key: 'extra_duration' },
-            },
+            copiedBlackboardAssignments: { extra_duration: 'extra_duration' },
           }),
         ),
       },

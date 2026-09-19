@@ -40,6 +40,75 @@ it('保留时间允许同轴重叠，智能修复则顺延，且不改变原始�
   expect(input).toEqual(original);
 });
 
+it('展示连线未迁移单独报告，不视为模拟内容缺失', () => {
+  const input = fixture();
+  Object.assign(input.scenarioList[0]!.data, {
+    connections: [
+      {
+        id: 'legacy-effect-connection',
+        fromNodeType: 'effect',
+        fromNodeId: 'old-effect',
+        toNodeType: 'action',
+        toNodeId: 'old-action',
+      },
+    ],
+  });
+  const mappings: ConversionMappings = {
+    operators: { 'old-perlica': 'perlica' },
+    skills: {
+      'old-perlica': [
+        {
+          source: { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' },
+          target: { kind: 'operatorSkill', skillGroupKey: 'battleSkill', skillKey: 'battleSkill' },
+        },
+      ],
+    },
+  };
+  const result = convertLegacyTimeline(input, gameDataRepository, mappings);
+  expect(result.project).not.toBeNull();
+  expect(result.report.simulationIssues).toEqual([]);
+  expect(result.report.presentationIssues).toHaveLength(1);
+  expect(result.report.issues).toEqual(result.report.presentationIssues);
+  expect(result.project!.scenarios[0]!.tracks[0]!.skillCasts).toHaveLength(1);
+});
+
+it('把旧版空闪避块转换为同轨普通闪避标签，不生成技能块或极限闪避收益', () => {
+  const input = fixture();
+  const scenario = input.scenarioList[0]!;
+  scenario.data.operators[0]!.operatorSlug = 'rossi';
+  scenario.data.tracks[0]!.id = 'ROSSI';
+  Object.assign(scenario.data.tracks[0]!, {
+    actions: [
+      {
+        id: 'ROSSI_dodge',
+        type: 'dodge',
+        startTime: 660,
+        logicalStartTime: 660,
+        duration: 30,
+      },
+    ],
+  });
+
+  const result = convertLegacyTimeline(
+    input,
+    gameDataRepository,
+    realAxisMappings as ConversionMappings,
+    { timingMode: 'preserve' },
+  );
+
+  expect(result.report.issues).toEqual([]);
+  expect(result.project!.scenarios[0]!.tracks[0]!.skillCasts).toEqual([]);
+  expect(result.project!.scenarios[0]!.battle.dodgeMarkers).toEqual([
+    {
+      id: 'legacy:test-axis:track:0:dodge:0',
+      frame: 180,
+      trackIndex: 0,
+      direction: 'forward',
+      mode: { kind: 'dodge' },
+    },
+  ]);
+});
+
 it('只把技能槽基础技能解析为同组声明的替换形态', () => {
   const laevatain = gameDataRepository.getOperator('laevatain')!;
   expect(
@@ -160,7 +229,7 @@ it('把旧版提弗洛斯战技块展开为战技和完整强化普攻链', { ti
   expect(
     casts.every(
       (cast, index) =>
-        index === 0 || cast.placement.startFrame > casts[index - 1]!.placement.startFrame,
+        index === 0 || cast.placement.startFrame! > casts[index - 1]!.placement.startFrame!,
     ),
   ).toBe(true);
 });

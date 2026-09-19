@@ -2,7 +2,33 @@
  * 解释用户手动建立的技能顺序链。链保留每项释放身份，不等同于游戏定义中的技能组。
  * 这里只解析引用与显示起点；实际接续边界由模拟提供，任何估计或模拟帧都不写回存档。
  */
-import type { ScenarioDocument, SkillCastDocument } from './schema';
+import type { DodgeMarkerDocument, ScenarioDocument, SkillCastDocument } from './schema';
+
+/** 截取已经发生的闪避事实；保留 Dash，但不把尚未发生的成功声明带入历史。 */
+export function getDodgeMarkerHistory(
+  markers: readonly DodgeMarkerDocument[],
+  boundary: number,
+): DodgeMarkerDocument[] {
+  return markers
+    .filter(marker => marker.frame < boundary)
+    .map(marker =>
+      resolveDodgeMarkerLastInputFrame(marker) >= boundary
+        ? { ...marker, mode: { kind: 'dodge' } }
+        : { ...marker, mode: { ...marker.mode } },
+    );
+}
+
+/** 闪避标签所代表的最后一个输入帧；普通闪避只有 Dash，极限闪避还包含成功事实。 */
+export function resolveDodgeMarkerLastInputFrame(marker: DodgeMarkerDocument): number {
+  const frame =
+    marker.mode.kind === 'perfectDodge'
+      ? marker.frame + marker.mode.successDelayFrames
+      : marker.frame;
+  if (!Number.isSafeInteger(frame)) {
+    throw new RangeError(`dodge marker '${marker.id}' last input frame must be a safe integer`);
+  }
+  return frame;
+}
 
 /** 作者输入确定的初始化帧；准备区的显示长度不会凭空增加战斗历史。 */
 export function resolveScenarioInitialFrame(scenario: ScenarioDocument): number {
@@ -19,6 +45,7 @@ export function resolveScenarioInitialFrame(scenario: ScenarioDocument): number 
           ],
     ),
     ...scenario.battle.controlSwitches.map(marker => marker.frame),
+    ...(scenario.battle.dodgeMarkers ?? []).map(marker => marker.frame),
   );
 }
 

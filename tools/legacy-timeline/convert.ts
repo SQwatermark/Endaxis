@@ -143,6 +143,9 @@ function prepareLegacySourceBestEffort(
       identityChanges: preparedScenarios.flatMap(({ prepared, sourceIndex }) =>
         remap(prepared.identityChanges, sourceIndex),
       ),
+      ignoredCustomizations: preparedScenarios.flatMap(({ prepared, sourceIndex }) =>
+        remap(prepared.ignoredCustomizations, sourceIndex),
+      ),
       unresolvedSkills: preparedScenarios.flatMap(({ prepared, sourceIndex }) =>
         remap(prepared.unresolvedSkills, sourceIndex),
       ),
@@ -259,6 +262,7 @@ export function convertLegacyTimeline(
     skillFormAdjustments: [],
     controlSwitchAdjustments: [],
     inferredControlSwitches: [],
+    dodgeMarkerAdjustments: [],
     simulationStats: {
       scenarioCount: 0,
       castCount: 0,
@@ -304,9 +308,12 @@ export function convertLegacyTimeline(
     report: {
       timingMode: options.timingMode ?? 'repair',
       issues,
+      simulationIssues: issues.filter(issue => issue.impact !== 'presentation'),
+      presentationIssues: issues.filter(issue => issue.impact === 'presentation'),
       fatalIssues,
       times: prepared.times,
       identityChanges: prepared.identityChanges,
+      ignoredCustomizations: prepared.ignoredCustomizations,
       unresolvedSkills: prepared.unresolvedSkills,
       sequenceExpansions: sequenceExpansion.expansions,
       resourceAdjustments,
@@ -314,6 +321,7 @@ export function convertLegacyTimeline(
       skillFormAdjustments: retiming.skillFormAdjustments,
       controlSwitchAdjustments: retiming.controlSwitchAdjustments,
       inferredControlSwitches: retiming.inferredControlSwitches,
+      dodgeMarkerAdjustments: retiming.dodgeMarkerAdjustments,
       retimingSimulationStats: retiming.simulationStats,
       sourceActionCounts: prepared.source.scenarioList.map((s: any) => ({
         id: s.id,
@@ -324,6 +332,7 @@ export function convertLegacyTimeline(
           ? '保留旧轴技能位置（换算为新版帧率），不修复重叠或不可接续；仍判断技能形态并补主控切换'
           : '按旧版全局技能顺序，使用新版逐步模拟的开始、结束、允许接续窗口和终结技时间膨胀区间修正放置帧',
         '旧轴默认第1轨道为主控，并在其他干员的普攻、强化普攻、下落攻击或处决开始时补主控切换标记',
+        '标准旧闪避块转换为同轨普通向前闪避标签；旧格式没有方向或极限闪避成功事实，因此不补成功收益',
         '使用当前游戏定义重算；旧 hits、Buff、面板、伤害等快照不迁移',
         '连接只支持可唯一对应技能块的 action-to-action 端点；未实现旧自定义行为、派生端点、继承状态、合约及非中性全局修正',
       ],

@@ -73,6 +73,7 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 132,
     exclusiveFrame: 25,
+    offsetRecordFrame: 13,
     inputWindows: {
       commandMappings: [
         {
@@ -121,12 +122,20 @@ export const fluoriteBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         14,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack2'] }),
+        ),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
+  { atb: 0, atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56] },
 );
 
 export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -136,6 +145,7 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 15,
     naturalDurationFrames: 106,
     exclusiveFrame: 20,
+    offsetRecordFrame: 9,
     inputWindows: {
       commandMappings: [
         {
@@ -184,12 +194,24 @@ export const fluoriteBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
+      scheduled(
+        15,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack3'] }),
+        ),
+        36,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73] },
+  {
+    atb: 0,
+    atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73],
+    display_atk_scale: [0.33, 0.36, 0.39, 0.42, 0.46, 0.49, 0.52, 0.55, 0.59, 0.63, 0.67, 0.73],
+  },
 );
 
 export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -199,6 +221,7 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 137,
     exclusiveFrame: 25,
+    offsetRecordFrame: 9,
     inputWindows: {
       commandMappings: [
         {
@@ -274,7 +297,22 @@ export const fluoriteBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         10,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack4'] }),
+        ),
+        24,
+      ),
+      scheduled(
+        24,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack4_1'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -286,9 +324,10 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
     sourceSkillId: 'chr_0022_bounda_attack4',
-    timelineBlockFrames: 52,
+    timelineBlockFrames: 56,
     naturalDurationFrames: 153,
     exclusiveFrame: 55,
+    offsetRecordFrame: 29,
     inputWindows: {
       commandMappings: [
         {
@@ -328,6 +367,13 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         29,
       ),
+      scheduled(
+        52,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack1'] }),
+        ),
+        71,
+      ),
     ],
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
@@ -337,6 +383,7 @@ export const fluoriteBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 15,
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
     attack_poise: 15,
+    display_atk_scale: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
   },
 );
 
@@ -347,6 +394,7 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 49,
     naturalDurationFrames: 150,
     exclusiveFrame: 52,
+    offsetRecordFrame: 26,
     inputWindows: {
       commandMappings: [
         {
@@ -386,7 +434,15 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         26,
       ),
+      scheduled(
+        49,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0022_bounda_attack1'] }),
+        ),
+        70,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0022_bounda_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -395,6 +451,7 @@ export const fluoriteBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 15,
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.02, 1.08, 1.16, 1.25, 1.35],
     attack_poise: 15,
+    display_atk_scale: [1.8, 1.98, 2.16, 2.34, 2.52, 2.7, 2.88, 3.06, 3.24, 3.47, 3.74, 4.05],
   },
 );
 
@@ -405,6 +462,7 @@ export const fluoriteFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 127,
     exclusiveFrame: 45,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -513,6 +571,7 @@ export const fluoritePlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 90,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -558,6 +617,7 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 35,
     naturalDurationFrames: 101,
     exclusiveFrame: 34,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -646,8 +706,14 @@ export const fluoriteBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [1.87, 2.06, 2.24, 2.43, 2.62, 2.8, 2.99, 3.18, 3.36, 3.6, 3.88, 4.2],
+    boom_up: 0.3,
+    cam_angle: 0,
+    cam_duration: 0,
+    consume_cnt: 0,
     duration: 3,
     duration_potential: 0,
+    gained_atb: 0,
+    input_angle: 0,
     move_speed_scalar: 0.3,
     poise: 10,
     potential_lv: 0,
@@ -661,6 +727,7 @@ export const fluoriteUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 77,
     naturalDurationFrames: 120,
     exclusiveFrame: 90,
+    offsetRecordFrame: 0,
     inputWindows: {
       commandMappings: [
         {
@@ -934,6 +1001,7 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 17,
     naturalDurationFrames: 93,
     exclusiveFrame: 24,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 17, endFrame: 56, sourceSkillIds: ['chr_0022_bounda_normal_skill'] },
@@ -1061,6 +1129,22 @@ export const fluoriteComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const fluoritePerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const fluorite: OperatorDefinition = {
   slug: 'fluorite',
   gameId: 'FLUORITE',
@@ -1117,6 +1201,10 @@ export const fluorite: OperatorDefinition = {
       skills: fluoriteComboSkill,
     },
   ],
+  dodgeSkill: fluoritePerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1134,6 +1222,7 @@ export const fluorite: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1457,10 +1546,7 @@ export const fluorite: OperatorDefinition = {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            atk_up: { kind: 'blackboard', key: 'atk_up' },
-                            duration: { kind: 'blackboard', key: 'duration' },
-                          },
+                          copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                         }),
                       ),
                     ),
@@ -1503,10 +1589,7 @@ export const fluorite: OperatorDefinition = {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            atk_up: { kind: 'blackboard', key: 'atk_up' },
-                            duration: { kind: 'blackboard', key: 'duration' },
-                          },
+                          copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                         }),
                       ),
                     ),
@@ -1549,10 +1632,7 @@ export const fluorite: OperatorDefinition = {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            atk_up: { kind: 'blackboard', key: 'atk_up' },
-                            duration: { kind: 'blackboard', key: 'duration' },
-                          },
+                          copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                         }),
                       ),
                     ),
@@ -1595,10 +1675,7 @@ export const fluorite: OperatorDefinition = {
                           target: 'buffSource',
                           source: 'buffSource',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            atk_up: { kind: 'blackboard', key: 'atk_up' },
-                            duration: { kind: 'blackboard', key: 'duration' },
-                          },
+                          copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
                         }),
                       ),
                     ),

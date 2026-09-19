@@ -204,4 +204,6 @@ export interface GearSetDefinition extends EquipmentContributionDefinition {
   readonly slug: string;
   /** 缺少本地化资源时可使用的套装名称。 */
   readonly displayName?: string;
+  /** 套装效果在时间轴上的展示图标；独立于效果自身的原生图标。 */
+  readonly iconPath?: string;
 }

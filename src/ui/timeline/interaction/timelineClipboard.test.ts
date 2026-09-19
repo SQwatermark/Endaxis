@@ -2,7 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { createEmptyScenario } from '../../../core/project/createProject';
 import type { ScenarioDocument, SkillCastDocument } from '../../../core/project/schema';
 import type { TimelineDocumentIdAllocator, TimelineDocumentIdKind } from './placeSkillGroup';
-import { copyTimelineActions, pasteTimelineActions } from './timelineClipboard';
+import {
+  copyTimelineActions,
+  copyTimelineDodgeMarker,
+  pasteTimelineActions,
+} from './timelineClipboard';
 
 function ids(): TimelineDocumentIdAllocator {
   const counters = new Map<TimelineDocumentIdKind, number>();
@@ -74,6 +78,37 @@ function scenario(): ScenarioDocument {
 }
 
 describe('timelineClipboard', () => {
+  it('复制极限闪避时保留方向、目标和成功延迟，粘贴只重建标签 ID 与起点', () => {
+    const original = scenario();
+    original.battle.dodgeMarkers = [
+      {
+        id: 'dodge:source',
+        frame: 30,
+        trackIndex: 0,
+        direction: 'backward',
+        mode: { kind: 'perfectDodge', successDelayFrames: 8 },
+      },
+    ];
+    const clipboard = copyTimelineDodgeMarker(original, 'dodge:source')!;
+    const pasted = pasteTimelineActions(original, clipboard, 80, ids());
+    expect(pasted.dodgeMarkerId).toBe('dodge:new:1');
+    expect(pasted.skillCastIds).toEqual([]);
+    expect(pasted.scenario.battle.dodgeMarkers).toEqual([
+      original.battle.dodgeMarkers[0],
+      {
+        id: 'dodge:new:1',
+        frame: 80,
+        trackIndex: 0,
+        direction: 'backward',
+        mode: { kind: 'perfectDodge', successDelayFrames: 8 },
+      },
+    ]);
+    expect(original.battle.dodgeMarkers).toHaveLength(1);
+    expect(() =>
+      pasteTimelineActions(original, clipboard, original.battle.durationFrames + 1, ids()),
+    ).toThrow('editable timeline');
+  });
+
   it('完整组仅平移组首，并重映射内部前驱及手工命中端点', () => {
     const original = scenario();
     original.tracks[0]!.skillCasts[1]!.placement = { afterCastId: 'cast:1' };

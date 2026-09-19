@@ -137,13 +137,13 @@ import {
   parseForceTargetInFightActionSource,
   parseInterruptHenshinTagListenerActionSource,
   parseSetStrafeModeActionSource,
-  parseOverrideMultiDashLimitActionSource,
   parseBombClearActionSource,
   parseSkillTypeMutationSource,
   parseNotifyCharacterPassiveUiActionSource,
   parseAnimatorAimOffsetActionSource,
   parseTryToTeleportSquadActionSource,
-  parseMarkCanDashActionSource,
+  parsePlayPerfectDodgeAnimActionSource,
+  parseSetFirstDashParamActionSource,
   parseTyphoeaHudHintActionSource,
   type DebugPrintActionSource,
   type CameraPresentationActionSource,
@@ -194,11 +194,15 @@ import {
   parseGlobalCooldownApplicationSource,
   parseFinisherSpGainActionSource,
   parseResourceGainActionSource,
+  parseDashEnergyRecoveryActionSource,
+  parseBattleDetailRecordActionSource,
   parseTimedMarkerApplicationSource,
   parseSkillCooldownMutationActionSource,
   type GlobalCooldownApplicationSource,
   type FinisherSpGainActionSource,
   type ResourceGainActionSource,
+  type DashEnergyRecoveryActionSource,
+  type BattleDetailRecordActionSource,
   type TimedMarkerApplicationSource,
   type SkillCooldownMutationActionSource,
 } from './resourceActions.ts';
@@ -230,12 +234,16 @@ import {
   parseBlockMoveInterruptSkillActionSource,
   parseComboCacheActionSource,
   parseMarkCanInterruptActionSource,
+  parseMarkCanDashActionSource,
+  parseOverrideMultiDashLimitActionSource,
   parsePauseComboSkillTimeActionSource,
   type AllowNextSkillActionSource,
   type AddEntityControlTagsActionSource,
   type BlockMoveInterruptSkillActionSource,
   type ComboCacheActionSource,
   type MarkCanInterruptActionSource,
+  type MarkCanDashActionSource,
+  type OverrideMultiDashLimitActionSource,
   type PauseComboSkillTimeActionSource,
 } from './inputControlActions.ts';
 import {
@@ -273,6 +281,7 @@ import {
 } from './presentationCalculationActions.ts';
 import {
   parseAdditionalBattleShapeActionSource,
+  parseDynamicBattleShapeActionSource,
   parseSelfRotateActionSource,
   parseTeleportActionSource,
   parseDisableRootMotionActionSource,
@@ -285,6 +294,7 @@ import {
   parseSaveTargetDistanceActionSource,
   parseSkillAiMoveActionSource,
   type AdditionalBattleShapeActionSource,
+  type DynamicBattleShapeActionSource,
   type CustomRootMotionActionSource,
   type BoneAttachActionSource,
   type DisableRootMotionActionSource,
@@ -383,6 +393,10 @@ const CONDITION_ACTION_NAMES = new Set([
   'CheckComboSkillCameraAlphaSetting',
   'CheckSkillCameraMotionFree',
   'CheckHasMoveInput',
+  'CheckPerfectDodgeDirection',
+  'CheckDamageIgnoreImmuneLevel',
+  'CheckProjectileInPerfectDodgeCd',
+  'CheckProjectileIgnoreImmuneLevel',
   'CheckCustomAbilityEvent',
 ]);
 
@@ -447,6 +461,7 @@ export type KnownNativeActionLeafSource =
       readonly family: 'spatial';
       readonly action:
         | AdditionalBattleShapeActionSource
+        | DynamicBattleShapeActionSource
         | SelfRotateActionSource
         | TeleportActionSource
         | ReceiveMoveInputActionSource
@@ -460,6 +475,8 @@ export type KnownNativeActionLeafSource =
     }
   | { readonly family: 'spatialMeasurement'; readonly action: SaveTargetDistanceActionSource }
   | { readonly family: 'resource'; readonly action: ResourceGainActionSource }
+  | { readonly family: 'dashEnergyRecovery'; readonly action: DashEnergyRecoveryActionSource }
+  | { readonly family: 'battleDetailRecord'; readonly action: BattleDetailRecordActionSource }
   | { readonly family: 'finisherSpGain'; readonly action: FinisherSpGainActionSource }
   | {
       readonly family: 'inputControl';
@@ -467,6 +484,8 @@ export type KnownNativeActionLeafSource =
         | ComboCacheActionSource
         | AllowNextSkillActionSource
         | MarkCanInterruptActionSource
+        | MarkCanDashActionSource
+        | OverrideMultiDashLimitActionSource
         | BlockMoveInterruptSkillActionSource
         | PauseComboSkillTimeActionSource
         | AddEntityControlTagsActionSource;
@@ -896,6 +915,11 @@ export function tryParseKnownNativeActionLeafSource(
         family: 'spatial',
         action: parseAdditionalBattleShapeActionSource(value, path),
       };
+    case 'CreateDynamicBattleShape':
+      return {
+        family: 'spatial',
+        action: parseDynamicBattleShapeActionSource(value, path),
+      };
     case 'TeleportAction':
       return {
         family: 'spatial',
@@ -1024,8 +1048,8 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'OverrideMultiDashLimit':
       return {
-        family: 'presentation',
-        action: parseOverrideMultiDashLimitActionSource(value, path),
+        family: 'inputControl',
+        action: parseOverrideMultiDashLimitActionSource(value, path, inheritedBlackboard),
       };
     case 'BombClearAction':
       return {
@@ -1054,8 +1078,18 @@ export function tryParseKnownNativeActionLeafSource(
       };
     case 'MarkCanDash':
       return {
-        family: 'presentation',
+        family: 'inputControl',
         action: parseMarkCanDashActionSource(value, path),
+      };
+    case 'PlayPerfectDodgeAnim':
+      return {
+        family: 'presentation',
+        action: parsePlayPerfectDodgeAnimActionSource(value, path),
+      };
+    case 'SetFirstDashParam':
+      return {
+        family: 'presentation',
+        action: parseSetFirstDashParamActionSource(value, path),
       };
     case 'IgniteBuffTextAction':
       return {
@@ -1245,6 +1279,16 @@ export function tryParseKnownNativeActionLeafSource(
       return {
         family: 'resource',
         action: parseResourceGainActionSource(value, path, inheritedBlackboard),
+      };
+    case 'RecoverDashEnergy':
+      return {
+        family: 'dashEnergyRecovery',
+        action: parseDashEnergyRecoveryActionSource(value, path, inheritedBlackboard),
+      };
+    case 'RecordBattleDetails':
+      return {
+        family: 'battleDetailRecord',
+        action: parseBattleDetailRecordActionSource(value, path),
       };
     case 'SwitchModeAction':
       return {

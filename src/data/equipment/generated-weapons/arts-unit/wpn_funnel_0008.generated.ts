@@ -164,19 +164,10 @@ const definition = {
                   "buffId": "buff_wpn_funnel_0008_magic_damage_taken_up",
                   "target": "eventTarget",
                   "inheritSourceSkillCastInfo": true,
-                  "blackboardAssignments": {
-                    "spell_damage_taken_up": {
-                      "kind": "blackboard",
-                      "key": "spell_damage_taken_up"
-                    },
-                    "duration": {
-                      "kind": "blackboard",
-                      "key": "duration"
-                    },
-                    "lv": {
-                      "kind": "blackboard",
-                      "key": "lv"
-                    }
+                  "copiedBlackboardAssignments": {
+                    "spell_damage_taken_up": "spell_damage_taken_up",
+                    "duration": "duration",
+                    "lv": "lv"
                   }
                 }
               }

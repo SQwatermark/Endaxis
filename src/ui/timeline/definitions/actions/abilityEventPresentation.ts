@@ -9,6 +9,7 @@ export const abilityEventLabelsZh = {
   abilityEntitySpawned: '能力实体生成',
   abilityEntityFinished: '能力实体结束',
   projectileLaunched: '投射物发射',
+  beforeHitByProjectile: '投射物命中前',
   beforeTakeDamage: '受到伤害前',
   beforeCalculateDamage: '伤害计算前',
   beforeDamageAction: '伤害动作前',
@@ -52,6 +53,7 @@ export const abilityEventLabelsZh = {
   buffConsumed: 'Buff 被消耗',
   buffAbsorbed: 'Buff 被吸收',
   skillSpGained: '技能 SP 增加',
+  perfectDodge: '极限闪避成功',
 } satisfies Record<AbilityEvent, string>;
 
 export function abilityEventDisplayLabel(event: string, locale: string): string {

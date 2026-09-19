@@ -11,6 +11,7 @@ import type {
   OwnerSpawnedAbilityEntityQuery,
   RuntimeTargetRef,
 } from '../../game-data/logicalAbilityEntity';
+import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { ActionBlackboard, type ActionBlackboardValue } from '../actions/actionBlackboard';
 import type { BuffApplicationHandle } from '../buffs/combatBuffs';
 import type { FrameRuntime } from '../runtime/combatSimulation';
@@ -35,6 +36,8 @@ import {
 } from './logicalAbilityEntityExecution';
 
 export interface LogicalAbilityEntitySpawnRequest {
+  /** 固定程序目录中的实体定义；独立使用实体目录时可不提供。 */
+  readonly definitionProgramId?: number;
   readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   /** 出生时传入控制器的完整来源；null 为明确不继承，undefined 为未提供。 */
   readonly skillCastInfo?: CombatSkillCastInfo | null;
@@ -268,6 +271,9 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
     instance = {
       identity: Object.freeze({ instanceId, abilityEntityId: request.abilityEntityId }),
       state: {
+        ...(request.definitionProgramId === undefined
+          ? {}
+          : { definitionProgramId: request.definitionProgramId }),
         childBuffs: [],
         childSkills: [],
         passiveAbilities: new Map(),
@@ -296,7 +302,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       },
       blackboard,
       timedMarkers: new TimedMarkerContainer(
-        `abilityEntity:${instanceId}`,
+        logicalAbilityEntityRuntimeId(instanceId),
         {
           get time() {
             return instance.state.elapsedDurationSeconds;
@@ -570,7 +576,7 @@ export class LogicalAbilityEntityRuntime implements FrameRuntime {
       state,
       blackboard,
       timedMarkers: new TimedMarkerContainer(
-        `abilityEntity:${state.instanceId}`,
+        logicalAbilityEntityRuntimeId(state.instanceId),
         {
           get time() {
             return instance.state.elapsedDurationSeconds;

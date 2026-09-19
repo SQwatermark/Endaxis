@@ -39,6 +39,7 @@ it('恢复装备来源时按原订阅响应，并只解析一次子 Buff', () =>
   );
   original.enable(0);
   original.addChildBuff(0, {
+    isRecycled: false,
     reference: { ownerId: 'operator', instanceId: 8 },
     finish: () => true,
   });
@@ -71,6 +72,7 @@ it('恢复装备来源时按原订阅响应，并只解析一次子 Buff', () =>
   });
   const finish = vi.fn(() => true);
   const resolve = vi.fn((reference: { ownerId: string; instanceId: number }) => ({
+    isRecycled: false,
     reference,
     finish,
   }));

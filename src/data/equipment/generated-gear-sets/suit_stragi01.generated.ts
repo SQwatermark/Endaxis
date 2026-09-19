@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_stragi01',
+  iconPath: '/equipment/stragi01/item_equip_t1_suit_stragi01_edc_01.webp',
   modifiers: [
     {
       kind: 'panelStat',

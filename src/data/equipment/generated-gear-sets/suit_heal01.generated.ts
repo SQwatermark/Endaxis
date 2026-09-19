@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_heal01',
+  iconPath: '/equipment/heal01/item_equip_t4_suit_heal01_edc_03.webp',
   modifiers: [
     {
       kind: 'staticHealingIncrease',
@@ -140,18 +141,14 @@ const definition = {
                         inheritSourceSkillCastInfo: true,
                         asChildBuff: true,
                         blackboardAssignments: {
-                          value: {
-                            kind: 'blackboard',
-                            key: 'dmg_taken_down2',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
                           priority: {
                             kind: 'constant',
                             value: 1,
                           },
+                        },
+                        copiedBlackboardAssignments: {
+                          value: 'dmg_taken_down2',
+                          duration: 'duration',
                         },
                       },
                     },
@@ -186,18 +183,14 @@ const definition = {
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         blackboardAssignments: {
-                          value: {
-                            kind: 'blackboard',
-                            key: 'dmg_taken_down',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
                           priority: {
                             kind: 'constant',
                             value: 0,
                           },
+                        },
+                        copiedBlackboardAssignments: {
+                          value: 'dmg_taken_down',
+                          duration: 'duration',
                         },
                       },
                     },

@@ -135,24 +135,33 @@ describe('SimulationRandomSource', () => {
     expect(withLocalCast.nextCriticalSample()).not.toBe(sameLocalCast.nextCriticalSample());
   });
 
-  it('keeps expected mode independent from saved seeds', () => {
+  it('期望模式中技能块种子隔离同一干员先前的取样，并改变本块序列起点', () => {
     const firstState = createSimulationRandomState();
     const secondState = createSimulationRandomState();
     submitSimulationCastSeed(firstState, 'cast-a', 2);
-    submitSimulationCastSeed(secondState, 'cast-a', 1000);
+    submitSimulationCastSeed(secondState, 'cast-a', 2);
     const first = new SimulationRandomSource({ mode: 'expected', globalSeed: 1 }, () => firstState);
     const second = new SimulationRandomSource(
       { mode: 'expected', globalSeed: 999 },
       () => secondState,
     );
-
-    expect([
+    first.nextCriticalSample({ expectedSequenceId: 'operator-a' });
+    first.nextCriticalSample({ expectedSequenceId: 'operator-a' });
+    const seededSamples = [
       first.nextCriticalSample({ castId: 'cast-a' }),
       first.nextCriticalSample({ castId: 'cast-a' }),
-    ]).toEqual([
+    ];
+    expect(seededSamples).toEqual([
       second.nextCriticalSample({ castId: 'cast-a' }),
       second.nextCriticalSample({ castId: 'cast-a' }),
     ]);
+    const changedState = createSimulationRandomState();
+    submitSimulationCastSeed(changedState, 'cast-a', 1000);
+    const changed = new SimulationRandomSource(
+      { mode: 'expected', globalSeed: 1 },
+      () => changedState,
+    );
+    expect(changed.nextCriticalSample({ castId: 'cast-a' })).not.toBe(seededSamples[0]);
   });
 
   it('恢复时固定全局配置和已消费施放种子，但允许修改未来施放种子', () => {

@@ -16,6 +16,7 @@ export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 166,
     exclusiveFrame: 15,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -79,7 +80,15 @@ export const perlicaBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        16,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0004_pelica_attack2'] }),
+        ),
+        27,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0004_pelica_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -94,6 +103,7 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 168,
     exclusiveFrame: 22,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -205,12 +215,24 @@ export const perlicaBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0004_pelica_attack3'] }),
+        ),
+        28,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0004_pelica_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34] },
+  {
+    atb: 0,
+    atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.3, 0.33, 0.36, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.62, 0.68],
+  },
 );
 
 export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -220,6 +242,7 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 26,
     naturalDurationFrames: 173,
     exclusiveFrame: 29,
+    offsetRecordFrame: 22,
     inputWindows: {
       commandMappings: [
         {
@@ -379,12 +402,24 @@ export const perlicaBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         22,
       ),
+      scheduled(
+        26,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0004_pelica_attack4'] }),
+        ),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0004_pelica_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28] },
+  {
+    atb: 0,
+    atk_scale: [0.12, 0.14, 0.15, 0.16, 0.17, 0.19, 0.2, 0.21, 0.22, 0.24, 0.26, 0.28],
+    display_atk_scale: [0.37, 0.41, 0.45, 0.48, 0.52, 0.56, 0.59, 0.63, 0.67, 0.71, 0.77, 0.84],
+  },
 );
 
 export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -394,6 +429,7 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 44,
     naturalDurationFrames: 269,
     exclusiveFrame: 43,
+    offsetRecordFrame: 27,
     inputWindows: {
       commandMappings: [
         {
@@ -459,7 +495,15 @@ export const perlicaBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         27,
       ),
+      scheduled(
+        54,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0004_pelica_attack1'] }),
+        ),
+        64,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0004_pelica_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -478,6 +522,7 @@ export const perlicaFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 35,
     naturalDurationFrames: 135,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -583,6 +628,7 @@ export const perlicaPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 168,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -650,6 +696,7 @@ export const perlicaBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 28,
     naturalDurationFrames: 155,
     exclusiveFrame: 30,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 28, endFrame: 54, sourceSkillIds: ['chr_0004_pelica_normal_skill'] },
@@ -702,6 +749,7 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 25,
     naturalDurationFrames: 115,
     exclusiveFrame: 45,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 25, endFrame: 54, sourceSkillIds: ['chr_0004_pelica_normal_skill'] },
@@ -735,9 +783,9 @@ export const perlicaComboSkill: SkillDefinition = withSkillBlackboard(
                     buffId: 'buff_common_pulse_pulse_conduct_triggered',
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      duration: { kind: 'blackboard', key: 'duration' },
-                      extra_scaling: { kind: 'blackboard', key: 'extra_scaling' },
+                    copiedBlackboardAssignments: {
+                      duration: 'duration',
+                      extra_scaling: 'extra_scaling',
                     },
                   }),
                   step(
@@ -807,6 +855,7 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 63,
     naturalDurationFrames: 114,
     exclusiveFrame: 85,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -903,7 +952,24 @@ export const perlicaUltimate: SkillDefinition = withSkillBlackboard(
     crit: 0,
     poise: 20,
     radius: 4,
+    select_radius: 10,
   },
+);
+
+export const perlicaPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const perlica: OperatorDefinition = {
@@ -951,6 +1017,10 @@ export const perlica: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: perlicaUltimate },
   ],
+  dodgeSkill: perlicaPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -967,6 +1037,7 @@ export const perlica: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1118,10 +1189,7 @@ export const perlica: OperatorDefinition = {
                   target: 'buffOwner',
                   source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: {
-                    atk_up: { kind: 'blackboard', key: 'atk_up' },
-                    atk_duration: { kind: 'blackboard', key: 'atk_duration' },
-                  },
+                  copiedBlackboardAssignments: { atk_up: 'atk_up', atk_duration: 'atk_duration' },
                 }),
               ),
             ),

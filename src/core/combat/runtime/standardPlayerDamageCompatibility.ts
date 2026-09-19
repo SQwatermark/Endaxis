@@ -403,6 +403,7 @@ function inspectSequence(
       case 'showComboRingQte':
       case 'changeSkillSlot':
       case 'overrideBasicAttackMapping':
+      case 'overrideMultiDashLimit':
       case 'changePlayerActionMode':
       case 'changeNativeSkillType':
       case 'adjustSkillCooldown':
@@ -475,6 +476,7 @@ function inspectSequence(
         return;
       case 'finishTimeline':
       case 'reachSkillOperableBoundary':
+      case 'markCurrentSkillCanDash':
         return;
       case 'scheduleProjectileFinishCallback':
         step.callback.timelineActions.forEach((action, index) =>

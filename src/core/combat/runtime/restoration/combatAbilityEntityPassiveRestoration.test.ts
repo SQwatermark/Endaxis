@@ -76,6 +76,7 @@ it('恢复能力实体被动时保留实体动作身份和子 Buff 所有权', (
   enable.executeInstant({});
   original.enable();
   original.addChildBuff({
+    isRecycled: false,
     reference: { ownerId: 'ability-entity:7', instanceId: 3 },
     finish: () => true,
   });
@@ -110,7 +111,7 @@ it('恢复能力实体被动时保留实体动作身份和子 Buff 所有权', (
     },
   });
   const finish = vi.fn(() => true);
-  const resolve = vi.fn(reference => ({ reference, finish }));
+  const resolve = vi.fn(reference => ({ isRecycled: false, reference, finish }));
   copied.passive.host.childBuffs.push(copied.passive.host.childBuffs[0]!);
   expect(() => restored.bindRestoredChildren(resolve)).toThrow(/duplicated/);
   expect(resolve).not.toHaveBeenCalled();

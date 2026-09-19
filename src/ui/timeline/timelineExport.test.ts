@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { compressProjectCode, imageFilename, projectFilename } from './timelineExport';
+import {
+  compressProjectCode,
+  decompressProjectCode,
+  imageFilename,
+  projectFilename,
+} from './timelineExport';
 import source from './timelineExport.ts?raw';
 
 describe('timeline export helpers', () => {
@@ -23,5 +28,7 @@ describe('timeline export helpers', () => {
       new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')),
     ).text();
     expect(text).toBe('{"kind":"EndaxisProject"}');
+    expect(await decompressProjectCode(code)).toBe('{"kind":"EndaxisProject"}');
+    await expect(decompressProjectCode('not a code!')).rejects.toThrow('无效的数据码');
   });
 });

@@ -1,7 +1,7 @@
 import { expect, it, vi } from 'vitest';
 import type { CompiledOperatorPassiveProgram } from '../../../compiler/combatProgram';
 import { ActionBlackboard } from '../../actions/actionBlackboard';
-import { createAbilitySystemState } from '../../state/abilityState';
+import { createAbilitySystemState, createOperatorCenterState } from '../../state/abilityState';
 import { CombatActionSequenceRuntime } from '../../actions/combatActionSequenceRuntime';
 import { createCombatOperationHostState } from '../../state/actionState';
 import { CombatOperationPrograms } from '../../actions/combatOperationPrograms';
@@ -35,6 +35,7 @@ it('单干员来源协调器恢复被动并在统一关系阶段接回子 Buff',
   const state: CombatOperatorState = {
     blackboard: operatorBlackboard.runtimeState,
     ability: createAbilitySystemState(),
+    center: createOperatorCenterState(),
     skills: new Map(),
     passives: new Map([[passive.key, passiveState]]),
     equipment: null,
@@ -48,6 +49,7 @@ it('单干员来源协调器恢复被动并在统一关系阶段接回子 Buff',
   };
   const finish = vi.fn(() => true);
   const resolve = vi.fn((reference: { ownerId: string; instanceId: number }) => ({
+    isRecycled: false,
     reference,
     finish,
   }));

@@ -253,6 +253,8 @@ export function analyzeConditionUsage(condition: CombatCondition): DefinitionVal
     case 'elementalInflictionPresent':
     case 'elementalReactionActive':
     case 'deckAttributeCompare':
+    case 'eventProjectilePerfectDodgeCooldownEquals':
+    case 'eventProjectileIgnoreImmuneLevelCompare':
       return outputs();
     default: {
       // 新条件必须明确登记；外部未校验输入也不能默认成纯读取。
@@ -488,12 +490,14 @@ export function analyzeStepUsage(
           Object.values(buff.blackboardAssignments ?? {}),
         ) ?? []),
       ]);
-      return typeof step.parameters.buffId === 'string'
-        ? usage
-        : {
-            ...usage,
-            reads: new Set([...usage.reads, step.parameters.buffId.blackboardKey]),
-          };
+      const reads = new Set([
+        ...usage.reads,
+        ...Object.values(step.parameters.copiedBlackboardAssignments ?? {}),
+      ]);
+      if (typeof step.parameters.buffId !== 'string') {
+        reads.add(step.parameters.buffId.blackboardKey);
+      }
+      return { ...usage, reads };
     }
     case 'createGlobalBuff':
       return effect([
@@ -528,7 +532,6 @@ export function analyzeStepUsage(
     case 'applyElementalInfliction':
     case 'triggerSpellBurst':
     case 'triggerCustomAbilityEvent':
-    case 'castSkillDuringAction':
     case 'consumeElementalReaction':
     case 'outputAirborne':
     case 'outputKnockDown':
@@ -559,6 +562,13 @@ export function analyzeStepUsage(
     case 'changeNativeSkillType':
     case 'inheritSkillCastInfoForBasicAttack':
       return effect();
+    case 'castSkillDuringAction':
+      return typeof step.parameters.skillId === 'string'
+        ? effect()
+        : {
+            ...effect(),
+            reads: new Set([step.parameters.skillId.blackboardKey]),
+          };
     case 'scheduleProjectileFinishCallback':
       // 回调保存父 direct 快照，并用它覆盖自身初值。汇总全部延时入口的读写，不能因回调
       // 声明了同名默认值就减键；嵌套的实体传值或其他未知访问会继续向父板上传。

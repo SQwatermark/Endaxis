@@ -6,6 +6,28 @@ export interface TimelineSkillSegmentLabels {
   readonly comboSkill: string;
 }
 
+/** 变体卡片的小字沿用同类型原始技能名；强化普攻也可能独立成组。 */
+export function skillLibraryNameEntry(
+  entry: TimelineSkillLibraryEntryViewModel,
+  entries: readonly TimelineSkillLibraryEntryViewModel[],
+): TimelineSkillLibraryEntryViewModel {
+  if (!entry.enhanced && entry.variantKey === undefined && entry.placementSkillKey === undefined) {
+    return entry;
+  }
+  const baseEntries = entries.filter(
+    candidate =>
+      candidate.skillType === entry.skillType &&
+      !candidate.enhanced &&
+      candidate.variantKey === undefined &&
+      candidate.placementSkillKey === undefined,
+  );
+  return (
+    baseEntries.find(candidate => candidate.skillGroupKey === entry.skillGroupKey) ??
+    baseEntries[0] ??
+    entry
+  );
+}
+
 function sequenceIndex(entry: TimelineSkillLibraryEntryViewModel, skillKey: string): number | null {
   if (entry.groupPlacementSkillKeys.length < 2) return null;
   const index = entry.groupPlacementSkillKeys.indexOf(skillKey);
@@ -57,4 +79,17 @@ export function timelineSkillBlockLabel(
 ): string {
   const label = timelineSkillSegmentLabel(entry, skillKey, labels) ?? fallbackLabel;
   return entry.enhanced ? `${label}*` : label;
+}
+
+/** 路由实际触发的技能即使没有放在轴上，也按技能块规则命名；重名时不猜所属技能组。 */
+export function timelineSkillBlockLabelForKey(
+  entries: readonly TimelineSkillLibraryEntryViewModel[],
+  skillKey: string,
+  labels: TimelineSkillSegmentLabels,
+  fallbackLabel: (entry: TimelineSkillLibraryEntryViewModel) => string,
+): string | null {
+  const matches = entries.filter(entry => entry.skills.some(skill => skill.skillKey === skillKey));
+  if (matches.length !== 1) return null;
+  const entry = matches[0]!;
+  return timelineSkillBlockLabel(entry, skillKey, labels, fallbackLabel(entry));
 }

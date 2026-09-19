@@ -182,6 +182,13 @@ export function validateOperatorDefinition(
     skillIdentities.add(identity);
     issues.push(...validateSkillDefinition(skill, skillPath));
   }
+  if (definition.dodgeSkill !== undefined) {
+    issues.push(...validateSkillDefinition(definition.dodgeSkill, `${path}.dodgeSkill`));
+    if (definition.dodgeSkill.skillType !== 'dodge')
+      push(issues, `${path}.dodgeSkill.skillType`, "expected 'dodge'");
+    if (definition.dodgeSkill.nativeSkillType !== 'dodge')
+      push(issues, `${path}.dodgeSkill.nativeSkillType`, "expected 'dodge'");
+  }
 
   issues.push(
     ...validateComboSkillConditions(

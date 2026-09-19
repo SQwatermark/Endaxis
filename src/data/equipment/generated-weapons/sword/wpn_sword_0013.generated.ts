@@ -202,15 +202,9 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up_ex": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up_ex"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up_ex": "atk_up_ex",
+                                "duration": "duration"
                               }
                             }
                           },
@@ -232,15 +226,9 @@ const definition = {
                               "target": "partyExceptCaster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up_ex": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up_ex"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up_ex": "atk_up_ex",
+                                "duration": "duration"
                               }
                             }
                           }

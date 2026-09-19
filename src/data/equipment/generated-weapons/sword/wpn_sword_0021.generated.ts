@@ -186,11 +186,8 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "duration": "duration"
                         }
                       }
                     }
@@ -226,11 +223,8 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "duration": "duration"
                         }
                       }
                     }
@@ -284,11 +278,8 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "lifetimeOwner": "currentCastSkill",
-                              "blackboardAssignments": {
-                                "phy_dmg_up": {
-                                  "kind": "blackboard",
-                                  "key": "phy_dmg_up"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "phy_dmg_up": "phy_dmg_up"
                               }
                             }
                           }

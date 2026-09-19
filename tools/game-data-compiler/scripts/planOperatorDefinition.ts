@@ -231,13 +231,40 @@ export function planOperatorDefinition(
     gameplayTagRegistry,
     args.sources,
   );
+  const dodgeSkill =
+    runtimeTemplate === undefined
+      ? undefined
+      : planOperatorActiveSkillRuntime({
+          ...args,
+          key: 'perfectDodge',
+          skillType: 'dodge',
+          sourceFile: `${runtimeTemplate.playerActionSource.dodgeSkillId}.json`,
+          supplementalBuffIds: [],
+          preserveBuffIds: crossSkillObservedBuffIds,
+          allowMissingSkillPatch: true,
+          compileSkillSlotReplacement,
+          compileSkillTypeMutation,
+        });
   const nativePlayerActionRouting =
     runtimeTemplate === undefined
       ? undefined
       : compileNativePlayerActionRouting(runtimeTemplate.playerActionSource, activeSkills);
+  // CharacterData.dashBuff 为空时，原生 Center Dash 状态仍安装公共 Dash Buff，
+  // 并把该角色的隐藏 Dodge 技能 ID 写入监听链；角色显式配置仍优先。
+  const dashBuffs =
+    runtimeTemplate === undefined
+      ? undefined
+      : (runtimeTemplate.dashBuffs ?? [
+          {
+            buffId: 'buff_common_dash',
+            blackboard: { dodgeSkillId: runtimeTemplate.playerActionSource.dodgeSkillId },
+          },
+        ]);
   const candidate = assembleOperatorDefinition({
     foundation,
     activeSkills,
+    ...(dodgeSkill === undefined ? {} : { dodgeSkill }),
+    ...(dashBuffs === undefined ? {} : { dashBuffs }),
     ...(presentationVariants.length === 0 ? {} : { presentationVariants }),
     runtimeReplacementSkillKeys,
     ...(playerActionRouting === undefined ? {} : playerActionRouting),
@@ -489,6 +516,7 @@ function planOperatorRuntimeTemplate(
     ),
     comboSkillPriority: template.comboSkillPriority,
     playerActionSource: template.playerActionSource,
+    dashBuffs: template.dashBuffs,
   };
 }
 
@@ -529,6 +557,9 @@ function compileNativePlayerActionRouting(
     const key = keyBySourceId.get(sourceSkillId);
     return key === undefined ? [] : [key];
   });
+  const normalAttackSkillKeys = source.normalAttackSkillIds.map(sourceSkillId =>
+    requireSkillKey(sourceSkillId, 'CharacterData.normalAttackList'),
+  );
   const defaultBasicAttackSourceId = source.defaultCommandSkillIds.basicAttack;
   const defaultBasicAttackSkillKey =
     defaultBasicAttackSourceId === undefined
@@ -569,6 +600,7 @@ function compileNativePlayerActionRouting(
   return {
     slotBaseSkillKeys,
     basicAttackSkillKeys,
+    normalAttackSkillKeys,
     ...(defaultBasicAttackSkillKey === undefined ? {} : { defaultBasicAttackSkillKey }),
     playerActionModes,
   };
@@ -747,6 +779,7 @@ function parsePlayerActionRouting(
     const kind = requireNonEmptyString(route.kind, `${routePath}.kind`);
     if (kind === 'basicAttack') {
       const expected = new Set(['kind', 'skillKeys']);
+      if (route.normalAttackSkillKeys !== undefined) expected.add('normalAttackSkillKeys');
       if (route.defaultSkillKey !== undefined) expected.add('defaultSkillKey');
       requireExactFields(route, expected, routePath);
       const skillKeys = optionalStrings(route.skillKeys, `${routePath}.skillKeys`) ?? [];
@@ -761,9 +794,17 @@ function parsePlayerActionRouting(
       if (defaultSkillKey !== undefined && !skillKeys.includes(defaultSkillKey)) {
         throw new Error(`${routePath}.defaultSkillKey: must be included in skillKeys`);
       }
+      const normalAttackSkillKeys =
+        optionalStrings(route.normalAttackSkillKeys, `${routePath}.normalAttackSkillKeys`) ?? [];
+      for (const key of normalAttackSkillKeys) {
+        if (!skillKeys.includes(key)) {
+          throw new Error(`${routePath}.normalAttackSkillKeys: '${key}' is not in skillKeys`);
+        }
+      }
       playerActionRoutes[input] = {
         kind: 'basicAttack',
         skillKeys,
+        ...(normalAttackSkillKeys.length === 0 ? {} : { normalAttackSkillKeys }),
         ...(defaultSkillKey === undefined ? {} : { defaultSkillKey }),
       };
       continue;

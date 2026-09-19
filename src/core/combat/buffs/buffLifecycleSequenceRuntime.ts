@@ -17,6 +17,7 @@ import type {
   ResolvedSkillBuffLifecycleSequences,
 } from '../../compiler/combatProgram';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import { runtimeTargetFromEntityId } from '../../game-data/logicalAbilityEntity';
 import type { SkillBuffSlotReplacement } from '../../game-data/operatorDefinition';
 import { RuntimeTargetContext } from '../abilities/runtimeTargetContext';
 import type { ActionSequence } from '../actions/actionSequence';
@@ -878,9 +879,10 @@ export function attachBuffLifecycleSequences<Key extends string>(
               runtime
                 .createSequence(response.sequence, {
                   ...runtime.context,
-                  actionSourceId: sourceId,
-                  skillCastInfo,
-                  buffSourceId: sourceId,
+                  // OnIgnite 保留 Buff 来源，只把点燃者作为输入目标。
+                  actionSourceId: buff.sourceId,
+                  ...(skillCastInfo === undefined ? {} : { skillCastInfo }),
+                  actionInputTarget: runtimeTargetFromEntityId(sourceId),
                 })
                 .executeInstant({});
               finishAfterIgnited ||= response.finishAfterIgnited;

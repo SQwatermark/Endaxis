@@ -180,19 +180,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "phy_dmg_up": {
-                                  "kind": "blackboard",
-                                  "key": "phy_dmg_up2"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "max_stack": "max_stack",
+                                "phy_dmg_up": "phy_dmg_up2",
+                                "duration": "duration"
                               }
                             }
                           },

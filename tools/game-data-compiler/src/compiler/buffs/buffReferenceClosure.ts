@@ -20,6 +20,7 @@ export function collectBuffRuntimeClosure(
   buffData: Record<string, unknown> | ((id: string) => unknown),
   globalBuffCatalog?: GlobalBuffTemplateCatalogSource,
   provenDefaultKeywordCarrierRootIds: ReadonlySet<string> = new Set(),
+  rootBlackboards: ReadonlyMap<string, Readonly<Record<string, number | string>>> = new Map(),
 ): Map<string, BuffRuntimeSource> {
   const result = new Map<string, BuffRuntimeSource>();
   const references = new Map<string, readonly DefinitionReferenceSource[]>();
@@ -84,6 +85,7 @@ export function collectBuffRuntimeClosure(
           result,
           references,
           provenDefaultKeywordCarrierRootIds,
+          rootBlackboards,
         );
         for (const candidate of candidates) if (!result.has(candidate)) queue.push(candidate);
       }
@@ -110,6 +112,7 @@ function resolveKeywordChildCandidates(
   sources: ReadonlyMap<string, BuffRuntimeSource>,
   references: ReadonlyMap<string, readonly DefinitionReferenceSource[]>,
   provenDefaultKeywordCarrierRootIds: ReadonlySet<string>,
+  rootBlackboards: ReadonlyMap<string, Readonly<Record<string, number | string>>>,
 ): readonly string[] {
   const fail = (): never => {
     throw new Error(
@@ -117,6 +120,16 @@ function resolveKeywordChildCandidates(
     );
   };
   // _DoApplyKeywordBuff 只有显式覆盖才修改此键；外部根的施加参数无法在本闭包中证明。
+  if (ref.usage === 'apply' && ref.blackboardKey !== null) {
+    const resolved = resolveStaticStringBlackboardCandidates(
+      id,
+      ref.blackboardKey,
+      roots,
+      sources,
+      rootBlackboards,
+    );
+    if (resolved !== null && resolved.length > 0) return resolved;
+  }
   if (
     (roots.includes(id) && !provenDefaultKeywordCarrierRootIds.has(id)) ||
     ref.usage !== 'apply' ||
@@ -144,11 +157,16 @@ function resolveKeywordChildCandidates(
     )
   )
     return fail();
-  if (provenDefaultKeywordCarrierRootIds.has(id)) return [declared.value];
+  const candidates = new Set<string>();
+  if (provenDefaultKeywordCarrierRootIds.has(id)) candidates.add(declared.value);
   const incoming = [...references.values()]
     .flat()
     .filter(item => item.id === id && ['apply', 'aura', 'keywordCarrier'].includes(item.usage));
-  if (!incoming.length || incoming.some(item => item.usage !== 'keywordCarrier')) return fail();
+  if (
+    !provenDefaultKeywordCarrierRootIds.has(id) &&
+    (!incoming.length || incoming.some(item => item.usage !== 'keywordCarrier'))
+  )
+    return fail();
   const creators = [...sources.values()]
     .flatMap(nodes)
     .filter(
@@ -158,8 +176,7 @@ function resolveKeywordChildCandidates(
         node.body.value.family === 'keywordBuff' &&
         node.body.value.action.carrierBuffId === id,
     );
-  if (!creators.length) return fail();
-  const candidates = new Set<string>();
+  if (!creators.length) return candidates.size > 0 ? [...candidates] : fail();
   for (const node of creators) {
     if (node.body.kind !== 'leaf' || node.body.value.family !== 'keywordBuff') return fail();
     const action = node.body.value.action;
@@ -171,4 +188,97 @@ function resolveKeywordChildCandidates(
     candidates.add(action.childBuffId.value);
   }
   return [...candidates];
+}
+
+/**
+ * 沿 CreateBuff 的字面黑板赋值反向求一个字符串键的所有静态候选。
+ * 根实例覆盖、直接赋值和父 Buff 黑板转发是三种已解析的数据来源；任何未知来路都会保留阻断。
+ */
+function resolveStaticStringBlackboardCandidates(
+  buffId: string,
+  key: string,
+  roots: readonly string[],
+  sources: ReadonlyMap<string, BuffRuntimeSource>,
+  rootBlackboards: ReadonlyMap<string, Readonly<Record<string, number | string>>>,
+  visiting: ReadonlySet<string> = new Set(),
+): readonly string[] | null {
+  const visitKey = `${buffId}\u0000${key}`;
+  if (visiting.has(visitKey)) return null;
+  const source = sources.get(buffId);
+  if (source === undefined) return null;
+  const nextVisiting = new Set(visiting).add(visitKey);
+  const declared = source.graph.declaredBlackboard.find(item => item.key === key);
+  const defaultValue =
+    declared !== undefined && !declared.isDynamic && typeof declared.value === 'string'
+      ? declared.value
+      : null;
+  const candidates = new Set<string>();
+  let hasPath = false;
+  let unknown = false;
+
+  if (roots.includes(buffId)) {
+    hasPath = true;
+    const rootBlackboard = rootBlackboards.get(buffId);
+    const rootValue =
+      rootBlackboard === undefined ? undefined : (rootBlackboard[key] ?? defaultValue);
+    // 根 Buff 的实例黑板由外部施加者决定。只有调用方明确提供了覆盖值才能静态解析；
+    // 声明默认值是否可用于关键词载体，继续交给下方经过审计的默认-child 协议判断。
+    if (rootBlackboard !== undefined && typeof rootValue === 'string' && rootValue.length > 0)
+      candidates.add(rootValue);
+    else unknown = true;
+  }
+
+  for (const [parentId, parent] of sources) {
+    for (const node of nodes(parent)) {
+      if (
+        !node.metadata.enabled ||
+        node.body.kind !== 'leaf' ||
+        node.body.value.family !== 'buffApplication'
+      )
+        continue;
+      for (const entry of node.body.value.action.buffs) {
+        if (entry.readIdFromBlackboard || entry.buffId !== buffId) continue;
+        hasPath = true;
+        const assignment = entry.assignments.find(item => item.targetKey === key);
+        if (assignment === undefined) {
+          // 普通 CreateBuff 没有显式赋值时，调用点仍可能通过尚未建模的实例黑板来源
+          // 覆盖声明值；不能把默认值当成已证明的数据流。
+          unknown = true;
+          continue;
+        }
+        if (assignment.useDirectValue) {
+          if (assignment.valueType === 'String' && assignment.stringValue.length > 0)
+            candidates.add(assignment.stringValue);
+          else unknown = true;
+          continue;
+        }
+        const inherited = resolveStaticStringBlackboardCandidates(
+          parentId,
+          assignment.inputValueKey,
+          roots,
+          sources,
+          rootBlackboards,
+          nextVisiting,
+        );
+        if (inherited === null || inherited.length === 0) unknown = true;
+        else for (const value of inherited) candidates.add(value);
+      }
+    }
+  }
+  if (!hasPath) return null;
+  return unknown ? null : [...candidates];
+}
+
+/**
+ * 返回完整闭包已经证明的字符串黑板候选；null 表示仍存在未知施加来路。
+ * 供投影阶段判断动态 Buff 创建是否只有纯表现候选，不得用于猜测一般动态引用。
+ */
+export function resolveProvenStringBlackboardCandidates(
+  buffId: string,
+  key: string,
+  roots: readonly string[],
+  sources: ReadonlyMap<string, BuffRuntimeSource>,
+  rootBlackboards: ReadonlyMap<string, Readonly<Record<string, number | string>>>,
+): readonly string[] | null {
+  return resolveStaticStringBlackboardCandidates(buffId, key, roots, sources, rootBlackboards);
 }

@@ -10,12 +10,14 @@ import {
   type EquipmentEventState,
   type OperatorInitializationState,
   type OperatorUpgradeEventState,
+  type OperatorCenterState,
   type PassiveAbilityEventState,
   type SkillCooldownState,
   type SkillRuntimeState,
 } from './abilityState';
 import {
   type CombatInputRuntimeState,
+  type DodgeInputRuntimeState,
   type CombatSharedState,
   type CombatStatusState,
   type ExternalCombatEventRuntimeState,
@@ -36,6 +38,7 @@ import {
 
 /** 单个干员已接入的全部可变数据。 */
 export interface CombatOperatorState {
+  readonly center: OperatorCenterState;
   readonly blackboard: ActionBlackboardState;
   readonly ability: AbilitySystemState;
   readonly skills: Map<string, SkillRuntimeState>;
@@ -58,6 +61,7 @@ export interface CombatStateGraph {
     readonly castParameters: Map<string, SkillSimulationInputs>;
     readonly control: Map<string, boolean>;
     readonly skills: CombatInputRuntimeState;
+    readonly dodges: DodgeInputRuntimeState;
     readonly externalEvents: ExternalCombatEventRuntimeState;
   };
   readonly environment: StandardCombatEnvironmentState | null;

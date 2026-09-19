@@ -194,19 +194,10 @@ const definition = {
                               "target": "eventTarget",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "spell_taken_up": {
-                                  "kind": "blackboard",
-                                  "key": "spell_dmg_taken_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "lv": {
-                                  "kind": "blackboard",
-                                  "key": "lv"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "spell_taken_up": "spell_dmg_taken_up",
+                                "duration": "duration",
+                                "lv": "lv"
                               }
                             }
                           }

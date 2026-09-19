@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_criti01',
+  iconPath: '/equipment/criti01/item_equip_t4_suit_criti01_edc_03.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -42,23 +43,11 @@ const definition = {
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
                   asChildBuff: true,
-                  blackboardAssignments: {
-                    atk_up: {
-                      kind: 'blackboard',
-                      key: 'atk_up',
-                    },
-                    crit_up2: {
-                      kind: 'blackboard',
-                      key: 'crit_up2',
-                    },
-                    duration: {
-                      kind: 'blackboard',
-                      key: 'duration',
-                    },
-                    max_stack: {
-                      kind: 'blackboard',
-                      key: 'max_stack',
-                    },
+                  copiedBlackboardAssignments: {
+                    atk_up: 'atk_up',
+                    crit_up2: 'crit_up2',
+                    duration: 'duration',
+                    max_stack: 'max_stack',
                   },
                 },
               },
@@ -146,11 +135,8 @@ const definition = {
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
                       asChildBuff: true,
-                      blackboardAssignments: {
-                        crit_up2: {
-                          kind: 'blackboard',
-                          key: 'crit_up2',
-                        },
+                      copiedBlackboardAssignments: {
+                        crit_up2: 'crit_up2',
                       },
                     },
                   },

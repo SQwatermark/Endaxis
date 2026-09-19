@@ -23,9 +23,11 @@ it('reports failures only after attempting all remaining unregister and child cl
     order.push('cleanup');
   });
   host.addChildBuff({
+    isRecycled: false,
     reference: createTestBuffReference(),
     finish: () => {
       host.addChildBuff({
+        isRecycled: false,
         reference: createTestBuffReference(),
         finish: () => {
           order.push('late');
@@ -54,6 +56,7 @@ it('unregisters then cleans the enabled host, including children created by clea
   const order: string[] = [];
   host.register({ dispose: () => order.push('unregister') });
   const late = {
+    isRecycled: false,
     reference: createTestBuffReference(),
     finish: vi.fn(() => {
       order.push('late');
@@ -61,6 +64,7 @@ it('unregisters then cleans the enabled host, including children created by clea
     }),
   };
   host.addChildBuff({
+    isRecycled: false,
     reference: createTestBuffReference(),
     finish: () => {
       order.push('child');
@@ -88,7 +92,7 @@ it('can release a failed initialization before enable without enabling its actio
     expect(host.canExecuteAction).toBe(false);
     return true;
   });
-  host.addChildBuff({ reference: createTestBuffReference(), finish });
+  host.addChildBuff({ isRecycled: false, reference: createTestBuffReference(), finish });
   host.dispose();
   expect(finish).toHaveBeenCalledOnce();
 });
@@ -98,6 +102,7 @@ it('stores subscription and child identities without storing their runtime objec
   const host = new AbilityEventHostLifecycle();
   const registration = dispatcher.registerAction('changed', 3, () => {});
   const child = {
+    isRecycled: false,
     reference: { ownerId: 'owner', instanceId: 7 },
     finish: vi.fn(() => true),
   };
@@ -120,6 +125,7 @@ it('forgets a child Buff that finishes while its Ability host remains enabled', 
   const finish = vi.fn(() => true);
   let notifyFinished: (() => void) | undefined;
   host.addChildBuff({
+    isRecycled: false,
     reference: { ownerId: 'owner', instanceId: 7 },
     finish,
     bindFinishedCallback: callback => {
@@ -141,7 +147,7 @@ it('binds restored subscriptions and child Buffs without changing saved data', (
   const registration = dispatcher.registerAction('changed', 3, () => {});
   const reference = { ownerId: 'owner', instanceId: 7 };
   original.register(registration);
-  original.addChildBuff({ reference, finish: () => true });
+  original.addChildBuff({ isRecycled: false, reference, finish: () => true });
   original.enable();
 
   const state = structuredClone({ host: original.runtimeState, events: dispatcher.runtimeState });
@@ -156,7 +162,7 @@ it('binds restored subscriptions and child Buffs without changing saved data', (
   const finish = vi.fn(() => true);
   restored.bindRestoredChildren(saved =>
     buffReferenceKey(saved) === buffReferenceKey(reference)
-      ? { reference: saved, finish }
+      ? { isRecycled: false, reference: saved, finish }
       : undefined,
   );
 

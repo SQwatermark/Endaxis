@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_attri01',
+  iconPath: '/equipment/attri01/item_equip_t4_suit_attri01_edc_04.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -50,15 +51,9 @@ const definition = {
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         asChildBuff: true,
-                        blackboardAssignments: {
-                          dmg_up: {
-                            kind: 'blackboard',
-                            key: 'dmg_up',
-                          },
-                          max_stack: {
-                            kind: 'blackboard',
-                            key: 'max_stack',
-                          },
+                        copiedBlackboardAssignments: {
+                          dmg_up: 'dmg_up',
+                          max_stack: 'max_stack',
                         },
                       },
                     },
@@ -158,11 +153,8 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          dmg_up: {
-                            kind: 'blackboard',
-                            key: 'dmg_up',
-                          },
+                        copiedBlackboardAssignments: {
+                          dmg_up: 'dmg_up',
                         },
                       },
                     },

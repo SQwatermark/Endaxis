@@ -59,7 +59,7 @@ it('owns children even when the passive has no event responses', () => {
     },
   );
   const finish = vi.fn(() => true);
-  host.addChildBuff({ reference: createTestBuffReference(), finish });
+  host.addChildBuff({ isRecycled: false, reference: createTestBuffReference(), finish });
   host.enable();
   host.dispose();
   host.dispose();

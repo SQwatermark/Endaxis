@@ -44,6 +44,7 @@ export const GEAR_DEFINITION_EDITOR_COVERAGE = {
 export const GEAR_SET_DEFINITION_EDITOR_COVERAGE = {
   slug: 'fixedIdentity',
   displayName: 'editable',
+  iconPath: 'editable',
   modifiers: 'structureEditable',
   eventHandlers: 'structureEditable',
   buffDefinitions: 'structureEditable',

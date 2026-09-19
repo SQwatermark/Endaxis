@@ -104,6 +104,7 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 10,
     naturalDurationFrames: 224,
     exclusiveFrame: 30,
+    offsetRecordFrame: 10,
     inputWindows: {
       commandMappings: [
         {
@@ -194,12 +195,24 @@ export const arcaneBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         12,
       ),
+      scheduled(
+        10,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack2'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.062, 0.069, 0.075, 0.081, 0.087, 0.094, 0.1, 0.106, 0.112, 0.12, 0.129, 0.14] },
+  {
+    atb: 0,
+    atk_scale: [0.062, 0.069, 0.075, 0.081, 0.087, 0.094, 0.1, 0.106, 0.112, 0.12, 0.129, 0.14],
+    display_atk_scale: [0.19, 0.21, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42],
+  },
 );
 
 export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -209,6 +222,7 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 14,
     naturalDurationFrames: 215,
     exclusiveFrame: 30,
+    offsetRecordFrame: 11,
     inputWindows: {
       commandMappings: [
         {
@@ -314,7 +328,15 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         14,
       ),
+      scheduled(
+        14,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack3'] }),
+        ),
+        32,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -322,6 +344,11 @@ export const arcaneBasicAttack2: SkillDefinition = withSkillBlackboard(
   {
     atb: 0,
     atk_scale: [0.071, 0.078, 0.085, 0.092, 0.099, 0.107, 0.114, 0.121, 0.128, 0.137, 0.147, 0.16],
+    poise: 0,
+    rand_offset_x: 0,
+    rand_offset_y: 0,
+    rand_scale: 0,
+    display_atk_scale: [0.21, 0.23, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.38, 0.41, 0.44, 0.48],
   },
 );
 
@@ -332,6 +359,7 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 235,
     exclusiveFrame: 30,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -417,12 +445,25 @@ export const arcaneBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         14,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack4'] }),
+        ),
+        39,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38] },
+  {
+    atb: 0,
+    atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38],
+    poise: 0,
+    display_atk_scale: [0.33, 0.37, 0.4, 0.43, 0.47, 0.5, 0.53, 0.57, 0.6, 0.64, 0.69, 0.75],
+  },
 );
 
 export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -432,6 +473,7 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 230,
     exclusiveFrame: 26,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -607,12 +649,25 @@ export const arcaneBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         36,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack5'] }),
+        ),
+        39,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.045, 0.049, 0.053, 0.058, 0.062, 0.067, 0.071, 0.076, 0.08, 0.086, 0.092, 0.1] },
+  {
+    atb: 0,
+    atk_scale: [0.045, 0.049, 0.053, 0.058, 0.062, 0.067, 0.071, 0.076, 0.08, 0.086, 0.092, 0.1],
+    display_atk_scale: [0.36, 0.39, 0.43, 0.46, 0.5, 0.53, 0.57, 0.61, 0.64, 0.69, 0.74, 0.8],
+    poise: 0,
+  },
 );
 
 export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -622,6 +677,7 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 40,
     naturalDurationFrames: 300,
     exclusiveFrame: 41,
+    offsetRecordFrame: 22,
     inputWindows: {
       commandMappings: [
         {
@@ -781,7 +837,15 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         25,
       ),
+      scheduled(
+        40,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0032_lizhiyan_attack1'] }),
+        ),
+        50,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0032_lizhiyan_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -789,8 +853,13 @@ export const arcaneBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     atb: 17,
     atk_scale: [0.47, 0.52, 0.56, 0.61, 0.66, 0.71, 0.75, 0.8, 0.85, 0.9, 0.98, 1.06],
+    finish_angle1: 20,
+    finish_angle2: 160,
     isHitbyMain: 0,
     poise: 17,
+    start_angle1: 60,
+    start_angle2: 120,
+    display_atk_scale: [0.47, 0.52, 0.56, 0.61, 0.66, 0.71, 0.75, 0.8, 0.85, 0.9, 0.98, 1.06],
   },
 );
 
@@ -801,6 +870,7 @@ export const arcaneFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 34,
     naturalDurationFrames: 163,
     exclusiveFrame: 51,
+    offsetRecordFrame: 21,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1010,6 +1080,7 @@ export const arcanePlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 13,
     naturalDurationFrames: 120,
     exclusiveFrame: 12,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1062,6 +1133,7 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 225,
     exclusiveFrame: 32,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 24, endFrame: 56, sourceSkillIds: ['chr_0032_lizhiyan_combo_skill'] },
@@ -1106,7 +1178,12 @@ export const arcaneBattleSkill: SkillDefinition = withSkillBlackboard(
     atk_scale: 2.85,
     atk_scale_will: [1.33, 1.47, 1.6, 1.73, 1.87, 2, 2.13, 2.27, 2.4, 2.57, 2.77, 3],
     atk_scale_wisd: [2.22, 2.45, 2.67, 2.89, 3.11, 3.33, 3.56, 3.78, 4, 4.28, 4.61, 5],
+    atk_scale_wisd_ratio: 1.5,
+    cam_angle: 0,
+    cam_duration: 0,
+    consume_cnt: 0,
     duration: 6,
+    input_angle: 0,
     poise: 10,
     radius: 5,
   },
@@ -1119,6 +1196,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 122,
     exclusiveFrame: 23,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 16, endFrame: 39, sourceSkillIds: ['chr_0032_lizhiyan_normal_skill'] },
@@ -1368,21 +1446,21 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_total',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration_total: { kind: 'blackboard', key: 'duration_total' },
-              duration_final: { kind: 'blackboard', key: 'duration_final' },
-              rate_final: { kind: 'blackboard', key: 'rate_final' },
-              trigger_time: { kind: 'blackboard', key: 'trigger_time' },
-              isWisd: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
-              atk_scale_boom: { kind: 'blackboard', key: 'atk_scale_boom' },
-              poise_boom: { kind: 'blackboard', key: 'poise_boom' },
-              radius: { kind: 'blackboard', key: 'radius' },
-              duration_seal2: { kind: 'blackboard', key: 'duration' },
-              rate_pre: { kind: 'blackboard', key: 'rate_pre' },
-              atk_scale_touch: { kind: 'blackboard', key: 'atk_scale_touch' },
-              poise_touch: { kind: 'blackboard', key: 'poise_touch' },
-              usp: { kind: 'blackboard', key: 'usp' },
-              atb_return_wisd: { kind: 'blackboard', key: 'atb_return_wisd' },
+            copiedBlackboardAssignments: {
+              duration_total: 'duration_total',
+              duration_final: 'duration_final',
+              rate_final: 'rate_final',
+              trigger_time: 'trigger_time',
+              isWisd: 'EntityBB_wisd_greater_will',
+              atk_scale_boom: 'atk_scale_boom',
+              poise_boom: 'poise_boom',
+              radius: 'radius',
+              duration_seal2: 'duration',
+              rate_pre: 'rate_pre',
+              atk_scale_touch: 'atk_scale_touch',
+              poise_touch: 'poise_touch',
+              usp: 'usp',
+              atb_return_wisd: 'atb_return_wisd',
             },
           }),
         ),
@@ -1417,6 +1495,7 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     atk_scale_laser1: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.55, 0.6],
     atk_scale_laser2: [1.15, 1.27, 1.38, 1.5, 1.62, 1.73, 1.85, 1.96, 2.08, 2.22, 2.39, 2.6],
     atk_scale_touch: [0.35, 0.39, 0.42, 0.46, 0.5, 0.53, 0.57, 0.6, 0.64, 0.68, 0.73, 0.8],
+    atk_scale_wisd_ratio: 5,
     cd_reduce: 0,
     consumed_layer: 0,
     consumed_type: 0,
@@ -1429,6 +1508,8 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     duration_total: 0,
     duration_will: 6,
     max_spell_vul_will: [0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.07, 0.075, 0.075, 0.075, 0.08],
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
     poise_boom: 5,
     poise_laser: 0,
     poise_touch: 5,
@@ -1440,6 +1521,11 @@ export const arcaneComboSkill: SkillDefinition = withSkillBlackboard(
     trigger_time: 0,
     usp: 10,
     will: 0,
+    display_atk_scale_laser_wisd: [
+      2.22, 2.44, 2.66, 2.89, 3.11, 3.33, 3.55, 3.77, 4, 4.27, 4.61, 5,
+    ],
+    display_max_spell_vul_will: [560, 560, 560, 560, 560, 560, 560, 560, 600, 600, 600, 640],
+    duration_wisd: 2,
   },
 );
 
@@ -1450,6 +1536,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 48,
     naturalDurationFrames: 308,
     exclusiveFrame: 72,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1623,9 +1710,9 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0032_lizhiyan_ultimate_skill_listener_owner',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'duration' },
-              isWisd: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+            copiedBlackboardAssignments: {
+              duration: 'duration',
+              isWisd: 'EntityBB_wisd_greater_will',
             },
           }),
         ),
@@ -1657,10 +1744,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_common_natural_natural_corrupt_triggered',
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  count: { kind: 'blackboard', key: 'count' },
-                  duration: { kind: 'blackboard', key: 'duration2' },
-                },
+                copiedBlackboardAssignments: { count: 'count', duration: 'duration2' },
               }),
             ),
             sequence(
@@ -1829,9 +1913,9 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                             buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              rate: { kind: 'blackboard', key: 'spell_vul_rate_calc' },
-                              duration: { kind: 'blackboard', key: 'duration_vul' },
+                            copiedBlackboardAssignments: {
+                              rate: 'spell_vul_rate_calc',
+                              duration: 'duration_vul',
                             },
                           }),
                         ),
@@ -1845,9 +1929,9 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
                             buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
                             target: 'enemy',
                             inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              rate: { kind: 'blackboard', key: 'spell_vul_rate' },
-                              duration: { kind: 'blackboard', key: 'duration_vul' },
+                            copiedBlackboardAssignments: {
+                              rate: 'spell_vul_rate',
+                              duration: 'duration_vul',
                             },
                           }),
                         ),
@@ -1886,6 +1970,7 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
         ),
         72,
       ),
+      scheduled(48, sequence(step('markCurrentSkillCanDash', {})), 79),
     ],
     cooldownFrames: 600,
     costs: [{ resource: 'ultimateEnergy', value: 100 }],
@@ -1907,11 +1992,17 @@ export const arcaneUltimate: SkillDefinition = withSkillBlackboard(
     lv: 0,
     poise: 10,
     radius: 30,
+    select_radius: 10,
     spell_vul_rate: 0,
     spell_vul_rate_calc: 0,
     spell_vul_rate_per_will: 0,
     spell_vul_rate_potential: 0,
     will: 0,
+    display_atk_scale_laser: [1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6],
+    display_atk_scale_laser_will: [
+      1.6, 1.76, 1.92, 2.08, 2.24, 2.4, 2.56, 2.72, 2.88, 3.08, 3.32, 3.6,
+    ],
+    laser_count: 8,
   },
 );
 
@@ -1922,6 +2013,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 60,
     naturalDurationFrames: 287,
     exclusiveFrame: 75,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1997,9 +2089,7 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                         inheritSourceSkillCastInfo: true,
                         finishByAction: true,
                         asChildBuff: true,
-                        blackboardAssignments: {
-                          enhance_rate: { kind: 'blackboard', key: 'enhance_rate' },
-                        },
+                        copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
                       }),
                     ),
                   ),
@@ -2170,9 +2260,9 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
                     buffId: 'buff_chr_0032_lizhiyan_talent1_vulnerable',
                     target: 'enemy',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      rate: { kind: 'blackboard', key: 'spell_vul_rate' },
-                      duration: { kind: 'blackboard', key: 'duration_vul' },
+                    copiedBlackboardAssignments: {
+                      rate: 'spell_vul_rate',
+                      duration: 'duration_vul',
                     },
                   }),
                 ),
@@ -2359,6 +2449,22 @@ export const arcaneArcana: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const arcanePerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const arcane: OperatorDefinition = {
   slug: 'arcane',
   gameId: 'ARCANE',
@@ -2390,13 +2496,78 @@ export const arcane: OperatorDefinition = {
         arcaneBasicAttack4,
         arcaneBasicAttack5,
       ],
+      presentationVariants: [
+        {
+          key: 'int',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+        },
+        {
+          key: 'will',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'less',
+            right: 'will',
+          },
+        },
+      ],
     },
-    { key: 'finisher', skillType: 'finisher', levelSource: 'basicAttack', skills: arcaneFinisher },
+    {
+      key: 'finisher',
+      skillType: 'finisher',
+      levelSource: 'basicAttack',
+      skills: arcaneFinisher,
+      presentationVariants: [
+        {
+          key: 'int',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+        },
+        {
+          key: 'will',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'less',
+            right: 'will',
+          },
+        },
+      ],
+    },
     {
       key: 'plungingAttack',
       skillType: 'plungingAttack',
       levelSource: 'basicAttack',
       skills: arcanePlungingAttack,
+      presentationVariants: [
+        {
+          key: 'int',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'greaterOrEqual',
+            right: 'will',
+          },
+        },
+        {
+          key: 'will',
+          condition: {
+            kind: 'deckAttributeCompare',
+            left: 'intellect',
+            operator: 'less',
+            right: 'will',
+          },
+        },
+      ],
     },
     {
       key: 'battleSkill',
@@ -2455,6 +2626,8 @@ export const arcane: OperatorDefinition = {
       skillType: 'ultimate',
       levelSource: 'ultimate',
       skills: arcaneUltimate,
+      replacementSkills: [arcaneArcana],
+      replacementSkillPlacements: { arcana: 'standard' },
       presentationVariants: [
         {
           key: 'int',
@@ -2475,9 +2648,11 @@ export const arcane: OperatorDefinition = {
           },
         },
       ],
-      replacementSkills: [arcaneArcana],
-      replacementSkillPlacements: { arcana: 'standard' },
     },
+  ],
+  dodgeSkill: arcanePerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
@@ -2495,6 +2670,13 @@ export const arcane: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -2882,10 +3064,7 @@ export const arcane: OperatorDefinition = {
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              duration_vul: { kind: 'blackboard', key: 'duration' },
-              rate: { kind: 'blackboard', key: 'rate_pre' },
-            },
+            copiedBlackboardAssignments: { duration_vul: 'duration', rate: 'rate_pre' },
           }),
         ),
         trigger: sequence(
@@ -3505,11 +3684,11 @@ export const arcane: OperatorDefinition = {
               target: 'enemy',
               source: 'buffSource',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                duration: { kind: 'blackboard', key: 'duration_final' },
-                rate_pre: { kind: 'blackboard', key: 'rate_final' },
-                trigger_time: { kind: 'blackboard', key: 'trigger_time' },
-                isWisd: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
+              copiedBlackboardAssignments: {
+                duration: 'duration_final',
+                rate_pre: 'rate_final',
+                trigger_time: 'trigger_time',
+                isWisd: 'EntityBB_wisd_greater_will',
               },
             }),
             step('applyBuff', {
@@ -3517,11 +3696,11 @@ export const arcane: OperatorDefinition = {
               target: 'enemy',
               source: 'buffSource',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                duration: { kind: 'blackboard', key: 'duration_final' },
-                wisd_greater_will: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
-                atk_scale_early_finish: { kind: 'blackboard', key: 'atk_scale_boom' },
-                poise_early_finish: { kind: 'blackboard', key: 'poise_boom' },
+              copiedBlackboardAssignments: {
+                duration: 'duration_final',
+                wisd_greater_will: 'EntityBB_wisd_greater_will',
+                atk_scale_early_finish: 'atk_scale_boom',
+                poise_early_finish: 'poise_boom',
               },
             }),
           ),
@@ -3591,13 +3770,13 @@ export const arcane: OperatorDefinition = {
               target: 'enemy',
               source: 'buffSource',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                duration: { kind: 'blackboard', key: 'duration_seal2' },
-                isWisd: { kind: 'blackboard', key: 'EntityBB_wisd_greater_will' },
-                rate_pre: { kind: 'blackboard', key: 'rate_pre' },
-                atk_scale_early_finish: { kind: 'blackboard', key: 'atk_scale_boom' },
-                poise_early_finish: { kind: 'blackboard', key: 'poise_boom' },
-                atb_return_wisd: { kind: 'blackboard', key: 'atb_return_wisd' },
+              copiedBlackboardAssignments: {
+                duration: 'duration_seal2',
+                isWisd: 'EntityBB_wisd_greater_will',
+                rate_pre: 'rate_pre',
+                atk_scale_early_finish: 'atk_scale_boom',
+                poise_early_finish: 'poise_boom',
+                atb_return_wisd: 'atb_return_wisd',
               },
             }),
             forEachTarget(
@@ -4119,9 +4298,9 @@ export const arcane: OperatorDefinition = {
                               target: 'currentAbilityEntity',
                               source: 'buffSource',
                               inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                atk_scale_laser: { kind: 'blackboard', key: 'atk_scale_laser' },
-                                usp_step: { kind: 'blackboard', key: 'usp_step' },
+                              copiedBlackboardAssignments: {
+                                atk_scale_laser: 'atk_scale_laser',
+                                usp_step: 'usp_step',
                               },
                             }),
                           ),
@@ -4214,11 +4393,8 @@ export const arcane: OperatorDefinition = {
                                           target: 'currentAbilityEntity',
                                           source: 'buffSource',
                                           inheritSourceSkillCastInfo: true,
-                                          blackboardAssignments: {
-                                            atk_scale_laser: {
-                                              kind: 'blackboard',
-                                              key: 'atk_scale_laser',
-                                            },
+                                          copiedBlackboardAssignments: {
+                                            atk_scale_laser: 'atk_scale_laser',
                                           },
                                         }),
                                       ),
@@ -4259,11 +4435,8 @@ export const arcane: OperatorDefinition = {
                                               target: 'currentAbilityEntity',
                                               source: 'buffSource',
                                               inheritSourceSkillCastInfo: true,
-                                              blackboardAssignments: {
-                                                atk_scale_laser: {
-                                                  kind: 'blackboard',
-                                                  key: 'atk_scale_laser',
-                                                },
+                                              copiedBlackboardAssignments: {
+                                                atk_scale_laser: 'atk_scale_laser',
                                               },
                                             }),
                                           ),
@@ -4706,9 +4879,7 @@ export const arcane: OperatorDefinition = {
                             source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                             asChildBuff: true,
-                            blackboardAssignments: {
-                              enhance_rate: { kind: 'blackboard', key: 'enhance_rate' },
-                            },
+                            copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
                           }),
                         ),
                       ),
@@ -4895,9 +5066,7 @@ export const arcane: OperatorDefinition = {
                             source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
                             asChildBuff: true,
-                            blackboardAssignments: {
-                              enhance_rate: { kind: 'blackboard', key: 'enhance_rate' },
-                            },
+                            copiedBlackboardAssignments: { enhance_rate: 'enhance_rate' },
                           }),
                         ),
                       ),
@@ -5060,9 +5229,7 @@ export const arcane: OperatorDefinition = {
                             target: 'currentAbilityEntity',
                             source: 'buffSource',
                             inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              atk_scale_laser: { kind: 'blackboard', key: 'atk_scale_laser' },
-                            },
+                            copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
                           }),
                         ),
                       ),
@@ -5100,9 +5267,7 @@ export const arcane: OperatorDefinition = {
                                 target: 'currentAbilityEntity',
                                 source: 'buffSource',
                                 inheritSourceSkillCastInfo: true,
-                                blackboardAssignments: {
-                                  atk_scale_laser: { kind: 'blackboard', key: 'atk_scale_laser' },
-                                },
+                                copiedBlackboardAssignments: { atk_scale_laser: 'atk_scale_laser' },
                               }),
                             ),
                           ),
@@ -5254,10 +5419,10 @@ export const arcane: OperatorDefinition = {
                           target: 'enemy',
                           inheritSourceSkillCastInfo: true,
                           finishByAction: true,
-                          blackboardAssignments: {
-                            atk_scale_early_finish: { kind: 'blackboard', key: 'atk_scale_boom' },
-                            poise_early_finish: { kind: 'blackboard', key: 'poise_boom' },
-                            atb_return_wisd: { kind: 'blackboard', key: 'atb_return_wisd' },
+                          copiedBlackboardAssignments: {
+                            atk_scale_early_finish: 'atk_scale_boom',
+                            poise_early_finish: 'poise_boom',
+                            atb_return_wisd: 'atb_return_wisd',
                           },
                         }),
                         step('createTimedMarker', {
@@ -5521,13 +5686,13 @@ export const arcane: OperatorDefinition = {
                               buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finisher_wisd',
                               target: 'currentAbilityEntity',
                               inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                atk_scale_laser1: { kind: 'blackboard', key: 'atk_scale_laser1' },
-                                atk_scale_laser2: { kind: 'blackboard', key: 'atk_scale_laser2' },
-                                poise_final: { kind: 'blackboard', key: 'poise_laser' },
-                                isWisd: { kind: 'blackboard', key: 'isWisd' },
-                                cd_reduce: { kind: 'blackboard', key: 'cd_reduce' },
-                                atb_return_wisd: { kind: 'blackboard', key: 'atb_return_wisd' },
+                              copiedBlackboardAssignments: {
+                                atk_scale_laser1: 'atk_scale_laser1',
+                                atk_scale_laser2: 'atk_scale_laser2',
+                                poise_final: 'poise_laser',
+                                isWisd: 'isWisd',
+                                cd_reduce: 'cd_reduce',
+                                atb_return_wisd: 'atb_return_wisd',
                               },
                             }),
                           ),
@@ -5581,10 +5746,10 @@ export const arcane: OperatorDefinition = {
                           buffId: 'buff_chr_0032_lizhiyan_combo_skill_seal_finisher',
                           target: 'enemy',
                           inheritSourceSkillCastInfo: true,
-                          blackboardAssignments: {
-                            atk_scale_laser2: { kind: 'blackboard', key: 'atk_scale_laser2' },
-                            poise_final: { kind: 'blackboard', key: 'poise_laser' },
-                            isWisd: { kind: 'blackboard', key: 'isWisd' },
+                          copiedBlackboardAssignments: {
+                            atk_scale_laser2: 'atk_scale_laser2',
+                            poise_final: 'poise_laser',
+                            isWisd: 'isWisd',
                           },
                         }),
                         step('createTimedMarker', {
@@ -5625,14 +5790,14 @@ export const arcane: OperatorDefinition = {
                       buffId: 'buff_chr_0032_lizhiyan_combo_skill_spell_vulnerable',
                       target: 'enemy',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        rate: { kind: 'blackboard', key: 'rate_final' },
-                        duration_vul: { kind: 'blackboard', key: 'duration_calc' },
-                        atk_scale_calc: { kind: 'blackboard', key: 'atk_scale_calc' },
-                        poise_final: { kind: 'blackboard', key: 'poise_laser' },
-                        isWisd: { kind: 'blackboard', key: 'isWisd' },
-                        atk_scale_laser1: { kind: 'blackboard', key: 'atk_scale_laser1' },
-                        atk_scale_laser2: { kind: 'blackboard', key: 'atk_scale_laser2' },
+                      copiedBlackboardAssignments: {
+                        rate: 'rate_final',
+                        duration_vul: 'duration_calc',
+                        atk_scale_calc: 'atk_scale_calc',
+                        poise_final: 'poise_laser',
+                        isWisd: 'isWisd',
+                        atk_scale_laser1: 'atk_scale_laser1',
+                        atk_scale_laser2: 'atk_scale_laser2',
                       },
                     }),
                   ),

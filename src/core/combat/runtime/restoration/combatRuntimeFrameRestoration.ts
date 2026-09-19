@@ -10,6 +10,7 @@ import { OperatorControlRuntime } from '../../skills/operatorControlRuntime';
 import { CombatResourceRuntime } from '../../resources/combatResourceRuntime';
 import { CombatSimulation } from '../combatSimulation';
 import { CombatStatusRuntime } from '../../status/combatStatusRuntime';
+import { PlayerMultiDashRuntime } from '../../skills/playerMultiDashRuntime';
 
 export interface RestoreCombatRuntimeFrameOptions {
   readonly preparation: CombatRuntimeRestorePreparation;
@@ -17,6 +18,8 @@ export interface RestoreCombatRuntimeFrameOptions {
   readonly entities: RestoredCombatAbilityEntityDirectory;
   readonly objects: RestoredCombatRuntimeObjectGraph;
   readonly enemyStatusContainer?: CombatStatusContainer;
+  readonly operatorCenters?: readonly import('../combatSimulation').FrameRuntime[];
+  readonly playerMultiDash?: import('../combatSimulation').FrameRuntime;
   /** 输入运行时已经绑定保存游标时，在与普通装配完全相同的位置安装两个输入阶段。 */
   readonly bindInputPhases?: boolean;
 }
@@ -65,6 +68,7 @@ export function bindRestoredCombatRuntimeFrame(
     options.preparation.graph.inputs.control,
   );
   const cores = [...options.objects.operators.cores.values()];
+  const multiDash = new PlayerMultiDashRuntime();
   bindCombatFramePipeline(simulation, {
     timeDilation: shared.timeDilation,
     control,
@@ -78,6 +82,14 @@ export function bindRestoredCombatRuntimeFrame(
     enemyStatuses,
     operatorStatuses: cores.flatMap(core => (core.statuses === undefined ? [] : [core.statuses])),
     comboWindows: shared.comboWindows,
+    playerMultiDash: options.playerMultiDash ?? {
+      advanceFrame: () =>
+        multiDash.advanceFrame(
+          shared.runtimeState.multiDash,
+          shared.timeDilation?.currentGlobalScale ?? 1,
+        ),
+    },
+    operatorCenters: options.operatorCenters ?? [],
     abilities: cores.map(core => core.ability),
     bindInputPhases: options.bindInputPhases === true,
   });

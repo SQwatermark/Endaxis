@@ -41,6 +41,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly nativeSkillType?: NativeSkillType;
   /** 场景技能块在宿主局部时钟中的可操作宽度；非场景测试运行时可省略。 */
   readonly timelineBlockFrames?: number;
+  /** 原生普攻连段身份提交点。 */
+  readonly offsetRecordFrame?: number;
   /** 正式块宽由技能实际执行和 canInterrupt 决定，静态宽度只供预览。 */
   readonly usesRuntimeOperableBoundary?: boolean;
   /** 该技能已保留 AllowNext 动作；静态窗口只作诊断，边界必须等待实际执行候选。 */
@@ -60,6 +62,8 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   readonly passedFrames?: number;
   /** 原生当前技能可打断状态；只有读取 mustBeforeExclusiveTime 的切换路径才要求提供。 */
   readonly canInterrupt?: boolean;
+  /** 当前技能是否允许 Dash；包含 MarkCanDash 对本次施放打开的独立窗口。 */
+  readonly canDash?: boolean;
   readonly skillCastInfo?: CombatSkillCastInfo;
   /** 当前或已预分配的本次释放编号；不读取 Buff/事件的普通来源。 */
   readonly processingSkillCastId?: number;
@@ -73,6 +77,7 @@ export interface AbilitySkillRuntime extends FrameRuntime {
   prepareCastInput?(input: {
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+    readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   }): void;
   prepareForcedTimelineCast?(): void;
   attachBuffToCast?(skillCastId: number, buff: BuffApplicationHandle): void;
@@ -169,9 +174,14 @@ export interface AbilitySystemRuntimeOptions {
   readonly resolveTickDeltas?: () => AbilityTickDeltas;
   /** 帧末延迟施放在真正启动前回到装配根，复用施放前事件与运行时参数准备。 */
   readonly beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
+  readonly onPostSkillCastResolved?: (request: PostSkillCastRequest, started: boolean) => void;
   /** 提供后才发布场景技能块的实例级实际结束边界。 */
   readonly resolveActualFrame?: () => number;
   readonly onSkillOperableBoundaryReached?: (fact: SkillOperableBoundaryFact) => void;
+  /** 当前技能真正开始或被清空后通知中心状态；恢复绑定不发布生命周期事件。 */
+  readonly onCurrentSkillChanged?: (type: NativeSkillType | null) => void;
+  /** 原生 BattleCommandMappingConfig.dashOffsetCacheTime 换算后的帧数。 */
+  readonly dashOffsetFrames?: number;
 }
 
 /** 按原生 PreLateTick 主干顺序推进一个实体的战斗能力。 */
@@ -197,18 +207,23 @@ export class AbilitySystemRuntime implements FrameRuntime {
   readonly #actionRuntime?: FrameRuntime;
   readonly #resolveTickDeltas: () => AbilityTickDeltas;
   readonly #beforePostSkillCastStart?: (request: PostSkillCastRequest) => void;
+  readonly #onPostSkillCastResolved: AbilitySystemRuntimeOptions['onPostSkillCastResolved'];
   readonly #operableBoundaries: SkillOperableBoundaryRuntime | null;
   readonly #resolveActualFrame?: () => number;
   readonly #onSkillOperableBoundaryReached?: (fact: SkillOperableBoundaryFact) => void;
   readonly #emitBeforeSkillCast: AbilitySystemRuntimeOptions['emitBeforeSkillCast'];
   readonly #onPostSkillCastRequest?: AbilitySystemRuntimeOptions['onPostSkillCastRequest'];
+  readonly #dashOffsetFrames: number | undefined;
+  readonly #onCurrentSkillChanged: AbilitySystemRuntimeOptions['onCurrentSkillChanged'];
 
   /** 运行对象按数据中的稳定技能身份即时解析，不在字段中另存一份当前对象引用。 */
   get #currentSkill(): AbilitySkillRuntime | null {
     return this.#resolveStoredSkill(this.runtimeState.currentSkillKey);
   }
   set #currentSkill(skill: AbilitySkillRuntime | null) {
+    const previousKey = this.runtimeState.currentSkillKey;
     this.runtimeState.currentSkillKey = skill === null ? null : abilitySkillKey(skill);
+    if (skill === null && previousKey !== null) this.#onCurrentSkillChanged?.(null);
   }
   get #processingSkill(): AbilitySkillRuntime | null {
     return this.#resolveStoredSkill(this.runtimeState.processingSkillKey);
@@ -249,7 +264,15 @@ export class AbilitySystemRuntime implements FrameRuntime {
       }
     }
     this.#beforePostSkillCastStart = options.beforePostSkillCastStart;
+    this.#onPostSkillCastResolved = options.onPostSkillCastResolved;
     this.#onPostSkillCastRequest = options.onPostSkillCastRequest;
+    this.#dashOffsetFrames = options.dashOffsetFrames;
+    this.#onCurrentSkillChanged = options.onCurrentSkillChanged;
+    if (
+      this.#dashOffsetFrames !== undefined &&
+      (!Number.isFinite(this.#dashOffsetFrames) || this.#dashOffsetFrames < 0)
+    )
+      throw new RangeError('dashOffsetFrames must be non-negative');
     if (
       (options.resolveActualFrame === undefined) !==
       (options.onSkillOperableBoundaryReached === undefined)
@@ -413,11 +436,39 @@ export class AbilitySystemRuntime implements FrameRuntime {
       }
       this.#resolveStoredSkill(restored.currentSkillKey);
       this.#resolveStoredSkill(restored.processingSkillKey);
+      if (
+        restored.comboOffsetTargetSkillKey !== null &&
+        !this.#skills.some(skill => skill.skillId === restored.comboOffsetTargetSkillKey)
+      )
+        throw new Error(
+          `restored combo offset target '${restored.comboOffsetTargetSkillKey}' is not registered`,
+        );
+      if (restored.comboOffsetModifier !== null) {
+        const offset = restored.comboOffsetModifier;
+        if (
+          !Number.isFinite(offset.remainingFrames) ||
+          offset.remainingFrames <= 0 ||
+          !this.#skills.some(skill => skill.skillId === offset.targetSkillKey)
+        )
+          throw new Error('restored combo offset modifier does not match the skill program');
+      }
+      if (
+        restored.comboOffsetRecordedSkillKey !== null &&
+        !this.#skillsById.has(restored.comboOffsetRecordedSkillKey)
+      )
+        throw new Error(
+          `restored combo offset record '${restored.comboOffsetRecordedSkillKey}' is not registered`,
+        );
     }
   }
 
   get currentSkillId(): string | null {
     return this.#currentSkill?.skillId ?? null;
+  }
+
+  /** 当前正在执行的释放身份；用于把输入诊断准确定位到轴上的技能块。 */
+  get currentSkillCastId(): string | undefined {
+    return this.#currentSkill?.state === 'casting' ? this.#currentSkill.castId : undefined;
   }
 
   /** 原生 curProcessingSkill：同步临时技能优先，随后回到仍在执行的当前技能。 */
@@ -468,6 +519,32 @@ export class AbilitySystemRuntime implements FrameRuntime {
     return this.#currentSkill?.state === 'casting'
       ? this.#currentSkill.currentTimelineFrame
       : undefined;
+  }
+
+  /** CenterDashState.OnEnter：Dash 独立于技能接续许可，直接以 Dash 原因结束当前技能。 */
+  interruptCurrentSkillForDash(): {
+    readonly skillId: string;
+    readonly castId: string | undefined;
+    readonly nativeSkillType: NativeSkillType;
+    readonly timelineFrame: number | undefined;
+    readonly canInterrupt: boolean | undefined;
+    readonly canDash: boolean | undefined;
+  } | null {
+    const current = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
+    if (current === null) return null;
+    const result = {
+      skillId: current.skillId,
+      castId: current.castId,
+      nativeSkillType: this.runtimeState.nativeSkillTypeBySkillId.get(current.skillId)!,
+      timelineFrame: current.currentTimelineFrame,
+      canInterrupt: current.canInterrupt,
+      canDash: current.canDash,
+    };
+    if (result.nativeSkillType === 'attack' || this.runtimeState.comboOffsetModifier !== null)
+      this.#createComboOffset('dash', null);
+    current.interrupt('dash');
+    if (this.#currentSkill === current && current.state !== 'casting') this.#currentSkill = null;
+    return result;
   }
 
   /** CharacterData 原生战技路由的当前身份；缺少路由时不按 UI 分组猜测。 */
@@ -565,6 +642,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
       if (buffMapped !== null) return buffMapped;
       const mapped = this.#resolveCurrentBasicAttackMapping(expectedSkillKey);
       if (mapped !== null) return mapped;
+      const offsetMapped = this.#resolveComboOffsetBasicAttackMapping(expectedSkillKey);
+      if (offsetMapped !== null) return offsetMapped;
       const modeMapped = this.#resolveActiveModeBasicAttackMapping(expectedSkillKey);
       if (modeMapped !== null) return modeMapped;
       if (route.defaultSkillKey === undefined) {
@@ -706,6 +785,14 @@ export class AbilitySystemRuntime implements FrameRuntime {
       : { status: 'mismatched', actualSkillKey: mapping.skillKey };
   }
 
+  #resolveComboOffsetBasicAttackMapping(expectedSkillKey: string) {
+    const actualSkillKey = this.runtimeState.comboOffsetModifier?.targetSkillKey;
+    if (actualSkillKey === undefined) return null;
+    return actualSkillKey === expectedSkillKey
+      ? { status: 'matched' as const, actualSkillKey }
+      : { status: 'mismatched' as const, actualSkillKey };
+  }
+
   /** SwitchModeAction 在一个 modeLayer 上替换活动模式，并返回按动作寿命恢复的句柄。 */
   activatePlayerActionMode(modeId: string): { readonly registrationId: number; finish(): void } {
     const mode = this.#playerActionModes.get(modeId);
@@ -818,6 +905,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     input: {
       readonly skipApplyCost: boolean;
       readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+      readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
     },
     resolveSkillSlot = true,
   ): void {
@@ -975,6 +1063,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
     if (!skill.tryStart()) {
       throw new Error(`skill '${skillId}' became unavailable during synchronous cast start`);
     }
+    this.#onSkillCastStart(skill);
     this.#beginSkillOperableBoundary(skill);
     return true;
   }
@@ -1057,7 +1146,9 @@ export class AbilitySystemRuntime implements FrameRuntime {
         this.#onSkillOperableBoundaryReached!(fact);
       }
     }
+    this.#commitComboOffsetTargetAtRecordFrame();
     if (this.#currentSkill?.state !== 'casting') this.#currentSkill = null;
+    this.#advanceComboOffset(deltas.globalScaledDeltaSeconds * COMBAT_FRAMES_PER_SECOND);
     this.#flushPostSkillCastRequest();
     this.#buffRuntime?.recycleFinishedBuffs?.();
     this.#actionRuntime?.advanceFrame();
@@ -1074,6 +1165,7 @@ export class AbilitySystemRuntime implements FrameRuntime {
       request.resolveSkillSlot !== false,
     );
     if (request.interruptCurrentSkillOnlyWhenTargetCastable === true && !nextSkill.canStart()) {
+      this.#onPostSkillCastResolved?.(request, false);
       return;
     }
     // 与同步施放一致：旧技能结束回调应当能观察到已经登记的新 CurrentSkill。
@@ -1082,11 +1174,14 @@ export class AbilitySystemRuntime implements FrameRuntime {
     this.#beforePostSkillCastStart?.(request);
     const beforeCastStart = this.#takeBeforeCastStart(nextSkill);
     beforeCastStart?.();
-    if (nextSkill.tryStart()) {
+    const started = nextSkill.tryStart();
+    if (started) {
+      this.#onSkillCastStart(nextSkill);
       this.#beginSkillOperableBoundary(nextSkill);
     } else {
       this.#currentSkill = null;
     }
+    this.#onPostSkillCastResolved?.(request, started);
   }
 
   #interruptForNextSkill(previousSkill: AbilitySkillRuntime, nextSkill: AbilitySkillRuntime): void {
@@ -1099,6 +1194,88 @@ export class AbilitySystemRuntime implements FrameRuntime {
         nextSkill.attachInheritedBuff(buff);
       },
     });
+  }
+
+  #onSkillCastStart(skill: AbilitySkillRuntime): void {
+    this.#onCurrentSkillChanged?.(this.nativeSkillTypeForSkill(skill.skillId));
+    if (
+      this.runtimeState.nativeSkillTypeBySkillId.get(skill.skillId) !== 'attack' ||
+      skill.skillType === 'plungingAttack'
+    )
+      return;
+    this.runtimeState.comboOffsetTargetSkillKey = skill.skillId;
+    this.runtimeState.comboOffsetRecordedSkillKey = null;
+    if (this.runtimeState.comboOffsetModifier !== null)
+      this.runtimeState.comboOffsetModifier.skillCasted = true;
+    if (skill.offsetRecordFrame === 0) this.#commitComboOffsetTargetAtRecordFrame();
+  }
+
+  #commitComboOffsetTargetAtRecordFrame(): void {
+    const skill = this.#currentSkill?.state === 'casting' ? this.#currentSkill : null;
+    if (
+      skill === null ||
+      this.runtimeState.nativeSkillTypeBySkillId.get(skill.skillId) !== 'attack' ||
+      skill.skillType === 'plungingAttack' ||
+      skill.offsetRecordFrame === undefined ||
+      (skill.passedFrames ?? 0) + 0.0003 < skill.offsetRecordFrame
+    )
+      return;
+    const identity = abilitySkillKey(skill);
+    if (this.runtimeState.comboOffsetRecordedSkillKey === identity) return;
+    const sequence = this.#currentNormalAttackSequence();
+    if (sequence === null || sequence.length === 0) return;
+    const currentIndex = sequence.indexOf(skill.skillId);
+    const nextSkillKey = sequence[(currentIndex + 1) % sequence.length]!;
+    this.#clearComboOffset(false);
+    this.runtimeState.comboOffsetTargetSkillKey = nextSkillKey;
+    this.runtimeState.comboOffsetRecordedSkillKey = identity;
+  }
+
+  #currentNormalAttackSequence(): readonly string[] | null {
+    const modeSequences = [...this.runtimeState.activePlayerActionModeByLayer.values()].flatMap(
+      modeId => {
+        const sequence = this.#playerActionModes.get(modeId)?.normalAttackSkillKeys;
+        return sequence === undefined ? [] : [sequence];
+      },
+    );
+    if (modeSequences.length > 0) {
+      const first = modeSequences[0]!;
+      const hasConflict = modeSequences.some(
+        sequence =>
+          sequence.length !== first.length ||
+          sequence.some((skillKey, index) => skillKey !== first[index]),
+      );
+      return hasConflict ? null : first;
+    }
+    const route = this.#playerActionRoutes?.basicAttack;
+    return route?.kind === 'basicAttack' ? (route.normalAttackSkillKeys ?? null) : null;
+  }
+
+  #createComboOffset(trigger: 'dash' | 'skill' | 'jump', triggerSkillKey: string | null): boolean {
+    const targetSkillKey = this.runtimeState.comboOffsetTargetSkillKey;
+    if (targetSkillKey === null || this.#dashOffsetFrames === undefined) return false;
+    this.#clearComboOffset(false);
+    this.runtimeState.comboOffsetModifier = {
+      trigger,
+      triggerSkillKey,
+      targetSkillKey,
+      remainingFrames: this.#dashOffsetFrames,
+      reduceDuration: trigger === 'dash',
+      skillCasted: false,
+    };
+    return true;
+  }
+
+  #advanceComboOffset(deltaFrames: number): void {
+    const offset = this.runtimeState.comboOffsetModifier;
+    if (offset === null || !offset.reduceDuration) return;
+    offset.remainingFrames -= deltaFrames;
+    if (offset.remainingFrames <= 0.0003) this.#clearComboOffset(false);
+  }
+
+  #clearComboOffset(clearTarget: boolean): void {
+    this.runtimeState.comboOffsetModifier = null;
+    if (clearTarget) this.runtimeState.comboOffsetTargetSkillKey = null;
   }
 
   #beginSkillOperableBoundary(skill: AbilitySkillRuntime): void {
@@ -1167,8 +1344,8 @@ export class AbilitySystemRuntime implements FrameRuntime {
       );
     }
     const durationFrames = skill.reachedOperableBoundaryFrame;
-    // 零帧窗口沿用零宽技能块语义：下一次输入最早仍在下一实际帧，不发布零时长事实。
-    if (durationFrames === undefined || durationFrames <= 0) return;
+    // 起始帧就允许接续也是有效边界。消费者仍在下一实际帧放置输入，不能漏掉零帧事实。
+    if (durationFrames === undefined || durationFrames < 0) return;
     this.runtimeState.registeredOperableBoundaryCastIds.add(skill.castId);
     this.#onSkillOperableBoundaryReached({
       castId: skill.castId,

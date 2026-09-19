@@ -218,6 +218,18 @@ function createAssembly(
           typeof CombatRuntimeAssembly
         >[0]['registerPassiveAbilityEventAction'];
         combatSkillPrograms?: CombatSkillPrograms;
+        dodgeProgram?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['operators'][number]['dodgeProgram'];
+        dodgeInputs?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['dodgeInputs'];
+        dashTiming?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['dashTiming'];
+        createOperatorBuffRuntime?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['createOperatorBuffRuntime'];
+        skillAvailabilityTags?: GameplayTagPredefine;
+        resolveDashControllerState?: ConstructorParameters<
+          typeof CombatRuntimeAssembly
+        >[0]['resolveDashControllerState'];
       },
   isOperatorControlled?: (operatorId: string, frame: number) => boolean,
   resolveVitals?: ConstructorParameters<typeof CombatRuntimeAssembly>[0]['resolveVitals'],
@@ -264,6 +276,11 @@ function createAssembly(
       continue;
     programs.push(binding.program);
   }
+  const resolvedSkillAvailabilityTags =
+    ('programs' in input ? input.skillAvailabilityTags : undefined) ?? skillAvailabilityTags;
+  const resolvedCreateOperatorBuffRuntime =
+    ('programs' in input ? input.createOperatorBuffRuntime : undefined) ??
+    createOperatorBuffRuntime;
   return new CombatRuntimeAssembly({
     ...nativeEventRuntimeOptions(),
     ...('programs' in input
@@ -275,7 +292,12 @@ function createAssembly(
     ...('programs' in input && input.registerPassiveAbilityEventAction
       ? { registerPassiveAbilityEventAction: input.registerPassiveAbilityEventAction }
       : {}),
-    ...(skillAvailabilityTags === undefined ? {} : { skillAvailabilityTags }),
+    ...(resolvedSkillAvailabilityTags === undefined
+      ? {}
+      : { skillAvailabilityTags: resolvedSkillAvailabilityTags }),
+    ...('programs' in input && input.resolveDashControllerState !== undefined
+      ? { resolveDashControllerState: input.resolveDashControllerState }
+      : {}),
     ...('programs' in input && input.combatSkillPrograms !== undefined
       ? { combatSkillPrograms: input.combatSkillPrograms }
       : {}),
@@ -311,6 +333,9 @@ function createAssembly(
         ...('programs' in input && input.definitionSkillPrograms !== undefined
           ? { definitionSkillPrograms: input.definitionSkillPrograms }
           : {}),
+        ...('programs' in input && input.dodgeProgram !== undefined
+          ? { dodgeProgram: input.dodgeProgram }
+          : {}),
         ...(buffDefinitions === undefined ? {} : { buffDefinitions }),
         ...(skillSlotGroups === undefined ? {} : { skillSlotGroups }),
         ...(playerActionRoutes === undefined ? {} : { playerActionRoutes }),
@@ -324,7 +349,15 @@ function createAssembly(
         ? input.createOperationExecutor
         : () => rejectingExecutor,
     ...(inputs === undefined ? {} : { inputs }),
-    ...(createOperatorBuffRuntime === undefined ? {} : { createOperatorBuffRuntime }),
+    ...('programs' in input && input.dodgeInputs !== undefined
+      ? { dodgeInputs: input.dodgeInputs }
+      : {}),
+    ...('programs' in input && input.dashTiming !== undefined
+      ? { dashTiming: input.dashTiming }
+      : {}),
+    ...(resolvedCreateOperatorBuffRuntime === undefined
+      ? {}
+      : { createOperatorBuffRuntime: resolvedCreateOperatorBuffRuntime }),
     ...(createAbilityEntityBuffRuntime === undefined ? {} : { createAbilityEntityBuffRuntime }),
     ...(isOperatorControlled === undefined ? {} : { isOperatorControlled }),
     ...(resolveVitals === undefined ? {} : { resolveVitals }),
@@ -333,6 +366,210 @@ function createAssembly(
 }
 
 describe('CombatRuntimeAssembly', () => {
+  it('缺少未查明的闪避数据时保留输入并记录局部告警，不终止整场模拟', () => {
+    const current = skill({
+      skillId: 'current',
+      costs: [],
+      timelineBlockFrames: 30,
+      exclusiveFrame: 30,
+    });
+    const assembly = createAssembly({
+      programs: [current],
+      registerCombatAbilityEvent: nativeEventRuntimeOptions().registerCombatAbilityEvent,
+    });
+    expect(assembly.tryStartSkill('operator', 'current')).toBe(true);
+
+    expect(() =>
+      assembly.advanceInputFrame({
+        dodges: [
+          { kind: 'dash', dodgeId: 'd1', operatorId: 'operator', direction: 'forward' },
+          { kind: 'perfectDodgeSuccess', dodgeId: 'd1', operatorId: 'operator' },
+        ],
+      }),
+    ).not.toThrow();
+
+    expect(assembly.stateGraph.operators.get('operator')?.center).toMatchObject({
+      state: 'dash',
+      dashId: 'd1',
+      dashTimingKnown: false,
+    });
+    expect(assembly.receipt.entries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ event: 'SkillInterrupted' }),
+        expect.objectContaining({
+          event: 'DashInputExecuted',
+          data: expect.objectContaining({ timingKnown: false }),
+        }),
+        expect.objectContaining({
+          event: 'DodgeInputForced',
+          data: expect.objectContaining({
+            dodgeId: 'd1',
+            operatorNotControlled: true,
+          }),
+        }),
+        expect.objectContaining({
+          event: 'DodgeInputPartiallySimulated',
+          data: expect.objectContaining({
+            dodgeId: 'd1',
+            missingDashTiming: true,
+            missingDodgeProgram: true,
+            missingDashTagRules: true,
+          }),
+        }),
+        expect.objectContaining({
+          event: 'PerfectDodgeDeclarationForced',
+          data: expect.objectContaining({
+            dodgeId: 'd1',
+            missingDodgeProgram: true,
+            dashNotActive: false,
+          }),
+        }),
+      ]),
+    );
+  });
+
+  it('原生闪避标签门禁逐项告警，但时间轴声明的 Dash 仍然执行', () => {
+    const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
+    const container = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+    container.addEntityTags([
+      table.getQuery('InImmobilized').tags[0]!,
+      table.getQuery('InDisableDash').tags[0]!,
+      table.getTag('SuperArmor'),
+    ]);
+    const assembly = createAssembly({
+      programs: [],
+      registerCombatAbilityEvent: nativeEventRuntimeOptions().registerCombatAbilityEvent,
+      createOperatorBuffRuntime: () => asBuffRuntime(container),
+      skillAvailabilityTags: table,
+      resolveDashControllerState: () => ({
+        playerActionEnabled: false,
+        movementGaitAllowsDash: false,
+        isInAir: true,
+      }),
+    });
+
+    assembly.advanceInputFrame({
+      dodges: [{ kind: 'dash', dodgeId: 'blocked', operatorId: 'operator', direction: 'forward' }],
+    });
+
+    expect(assembly.receipt.entries).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          event: 'DashInputExecuted',
+          producedBy: {
+            kind: 'action',
+            ownerId: 'operator',
+            actionId: 'dash:blocked',
+          },
+        }),
+        expect.objectContaining({
+          event: 'DodgeInputForced',
+          data: expect.objectContaining({
+            dodgeId: 'blocked',
+            inImmobilized: true,
+            inDisableDash: true,
+            hasSuperArmor: true,
+            playerActionDisabled: true,
+            movementGaitTooLow: true,
+            isInAir: true,
+          }),
+        }),
+      ]),
+    );
+  });
+
+  it('Dash 中断当前技能并附着原生 Buff，成功事实经原生监听请求隐藏 Dodge 技能', () => {
+    const container = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
+    const buffRuntime = new BuffDefinitionOperationTarget(container, {
+      get: () => undefined,
+      compile: entry => ({ id: entry.id, stackingType: entry.stackingType }),
+    });
+    const current = skill({
+      skillId: 'current',
+      costs: [],
+      timelineBlockFrames: 30,
+      exclusiveFrame: 30,
+    });
+    const dodge = skill({
+      skillGroupKey: 'dodge',
+      skillId: 'perfectDodge',
+      skillType: 'dodge',
+      nativeSkillType: 'dodge',
+      costs: [],
+      costFrame: undefined,
+      timelineBlockFrames: 2,
+      exclusiveFrame: 2,
+    });
+    let assembly!: CombatRuntimeAssembly;
+    assembly = createAssembly(
+      {
+        programs: [current, dodge],
+        skillCooldownPrograms: [current, dodge],
+        registerCombatAbilityEvent: nativeEventRuntimeOptions().registerCombatAbilityEvent,
+        emitAbilityEvent: (_operatorId, event) => {
+          if (event !== 'beforeTakeDamage') return;
+          assembly.requestPostSkillCast('operator', {
+            skillId: 'perfectDodge',
+            resolveSkillSlot: false,
+          });
+        },
+        dodgeProgram: {
+          skillId: 'perfectDodge',
+          dashBuffs: [{ buffId: 'dash-buff', blackboard: { dodgeSkillId: 'perfectDodge' } }],
+        },
+        dashTiming: {
+          dashOffsetFrames: 30,
+          blockAttackFramesInDash: 2,
+          allowAttackAfterFramesInDash: 4,
+          blockAttackFramesInPerfectDodge: 2,
+          allowAttackAfterFramesInPerfectDodge: 4,
+          blockDashAfterPerfectDodgeFrames: 3,
+          dashInputCooldownFrames: 24,
+          dashSecondDashIntervalFrames: 9,
+        },
+      },
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      () => buffRuntime,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { 'dash-buff': { stackingType: 'unique' } },
+    );
+    expect(assembly.tryStartSkill('operator', 'current')).toBe(true);
+
+    assembly.advanceInputFrame({
+      dodges: [
+        { kind: 'dash', dodgeId: 'd1', operatorId: 'operator', direction: 'forward' },
+        { kind: 'perfectDodgeSuccess', dodgeId: 'd1', operatorId: 'operator' },
+      ],
+    });
+    assembly.advanceInputFrame({});
+
+    expect(
+      assembly.receipt.entries.findLast(entry => entry.event === 'SkillStarted')?.data?.skillId,
+    ).toBe('perfectDodge');
+    expect(assembly.stateGraph.operators.get('operator')?.center).toMatchObject({
+      state: 'free',
+      dashId: null,
+      perfectDodgeActive: false,
+      perfectDodgeConsumed: true,
+    });
+    expect(container.getCountByIds(['dash-buff'])).toBe(0);
+    expect(assembly.receipt.entries.map(entry => entry.event)).toEqual(
+      expect.arrayContaining([
+        'SkillInterrupted',
+        'DashInputExecuted',
+        'PerfectDodgeDeclared',
+        'PerfectDodgeSkillStarted',
+      ]),
+    );
+  });
+
   it('Buff 容器接入干员节点并与技能共用实体黑板，清理不改写副本', () => {
     const container = new CombatBuffContainer<string>('operator', new CombatAttributeSet<string>());
     const target = new BuffDefinitionOperationTarget(container, { get: () => undefined });
@@ -775,6 +1012,83 @@ describe('CombatRuntimeAssembly', () => {
       ]);
     },
   );
+
+  it('Dash 中断连续组前段后，等待原生攻击接续窗口再放置下一段', () => {
+    const programs = ['a', 'b'].map(castId =>
+      skill({
+        skillId: castId,
+        castId,
+        costs: [],
+        costFrame: undefined,
+        timelineBlockFrames: 30,
+        naturalDurationFrames: 300,
+        exclusiveFrame: 300,
+      }),
+    );
+    const assembly = new CombatRuntimeAssembly({
+      ...nativeEventRuntimeOptions(),
+      enemy: testEnemy,
+      enemyBuffRuntime: emptyEnemyBuffRuntime,
+      resources: {
+        sp: 100,
+        maxSp: 300,
+        returnedSp: 0,
+        sharedSpGain: { baseGainEfficiency: 1 },
+        spRecovery: { valuePerSecond: 0, pauseDuration: 0, pauseRemaining: 0 },
+        ultimateEnergySystemUnlocked: true,
+        normalSkillUltimateEnergy: { selfGainPerSp: 0, otherGainPerSp: 0 },
+        squad: [
+          {
+            operatorId: 'operator',
+            ultimateEnergy: 0,
+            maxUltimateEnergy: 100,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTags: null,
+          },
+        ],
+      },
+      operators: [{ operatorId: 'operator', skills: programs }],
+      initialControlledOperatorId: 'operator',
+      inputs: programs.map((program, declarationOrder) => ({
+        frame: 0,
+        operatorId: 'operator',
+        skillId: program.skillId,
+        castId: program.castId!,
+        declarationOrder,
+      })),
+      skillInputGroups: [{ anchorCastId: 'a', castIds: ['a', 'b'] }],
+      dodgeInputs: [
+        { frame: 1, kind: 'dash', dodgeId: 'd1', operatorId: 'operator', direction: 'forward' },
+      ],
+      dashTiming: {
+        dashOffsetFrames: 30,
+        blockAttackFramesInDash: 1,
+        allowAttackAfterFramesInDash: 4,
+        blockAttackFramesInPerfectDodge: 1,
+        allowAttackAfterFramesInPerfectDodge: 3,
+        blockDashAfterPerfectDodgeFrames: 15,
+        dashInputCooldownFrames: 24,
+        dashSecondDashIntervalFrames: 9,
+      },
+      createOperationExecutor: () => rejectingExecutor,
+    });
+
+    assembly.advanceFrames(4);
+    expect(
+      assembly.receipt.entries
+        .filter(entry => entry.event === 'SkillInputProcessed')
+        .map(entry => [entry.data?.castId, entry.frame]),
+    ).toEqual([['a', 0]]);
+    assembly.advanceFrame();
+    expect(
+      assembly.receipt.entries
+        .filter(entry => entry.event === 'SkillInputProcessed')
+        .map(entry => [entry.data?.castId, entry.frame]),
+    ).toEqual([
+      ['a', 0],
+      ['b', 5],
+    ]);
+  });
 
   it('嵌套投射物的正式来源查询保留一层实体关系，发射事件归实际发射者', () => {
     const emitAbilityEvent = vi.fn();
@@ -4238,6 +4552,40 @@ describe('CombatRuntimeAssembly', () => {
         data: expect.objectContaining({ skillId: 'comboSkill', reason: 'windowMissing' }),
       }),
     );
+  });
+
+  it('does not consume a combo window when a combo-typed skill starts from the battle input', () => {
+    const pursuit = skill({
+      skillId: 'pursuit',
+      skillType: 'comboSkill',
+      skillGroupKey: 'battleSkill',
+      costs: [],
+    });
+    const assembly = createAssembly(
+      [pursuit],
+      undefined,
+      undefined,
+      emptyEnemyBuffRuntime,
+      undefined,
+      testEnemy,
+      undefined,
+      undefined,
+      undefined,
+      [{ skillGroupKey: 'battleSkill', baseSkillKey: 'pursuit', replacementSkillKeys: [] }],
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      undefined,
+      { battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' } },
+    );
+
+    expect(assembly.tryStartPlayerInput('operator', 'pursuit', undefined, 'battleSkill')).toBe(
+      true,
+    );
+    expect(
+      assembly.receipt.entries.filter(entry => entry.event === 'ComboWindowUnavailableAtStart'),
+    ).toEqual([]);
   });
 
   it('advances an environment-created operator Buff runtime as the ability-system owner', () => {

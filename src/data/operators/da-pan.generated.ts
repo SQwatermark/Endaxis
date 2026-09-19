@@ -168,6 +168,7 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 15,
     naturalDurationFrames: 176,
     exclusiveFrame: 20,
+    offsetRecordFrame: 13,
     inputWindows: {
       commandMappings: [
         {
@@ -239,12 +240,24 @@ export const daPanBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         15,
       ),
+      scheduled(
+        15,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack2'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.28, 0.31, 0.34, 0.37, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.63] },
+  {
+    atb: 0,
+    atk_scale: [0.28, 0.31, 0.34, 0.37, 0.39, 0.42, 0.45, 0.48, 0.51, 0.54, 0.58, 0.63],
+    env_dmg: 20,
+  },
 );
 
 export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -254,6 +267,7 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 171,
     exclusiveFrame: 30,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -308,12 +322,24 @@ export const daPanBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        20,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack3'] }),
+        ),
+        25,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75] },
+  {
+    atb: 0,
+    atk_scale: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
+    env_dmg: 20,
+  },
 );
 
 export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -323,6 +349,7 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 25,
     naturalDurationFrames: 193,
     exclusiveFrame: 38,
+    offsetRecordFrame: 10,
     inputWindows: {
       commandMappings: [
         {
@@ -438,7 +465,15 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         24,
       ),
+      scheduled(
+        25,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack4'] }),
+        ),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -447,6 +482,9 @@ export const daPanBasicAttack3: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.17, 0.18, 0.2, 0.22, 0.23, 0.25, 0.27, 0.28, 0.3, 0.32, 0.35, 0.38],
     atk_scale_2: [0.34, 0.37, 0.4, 0.44, 0.47, 0.5, 0.54, 0.57, 0.6, 0.64, 0.7, 0.75],
+    env_dmg: 5,
+    env_dmg2: 15,
+    display_atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.97, 1.04, 1.13],
   },
 );
 
@@ -457,6 +495,7 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 45,
     naturalDurationFrames: 236,
     exclusiveFrame: 60,
+    offsetRecordFrame: 32,
     inputWindows: {
       commandMappings: [
         {
@@ -513,7 +552,15 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         33,
       ),
+      scheduled(
+        45,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0018_dapan_attack1'] }),
+        ),
+        70,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0018_dapan_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -521,7 +568,9 @@ export const daPanBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 21,
     atk_scale: [0.6, 0.66, 0.72, 0.78, 0.84, 0.9, 0.96, 1.03, 1.09, 1.16, 1.25, 1.36],
+    env_dmg: 50,
     poise: 20,
+    talent_heal: 0,
   },
 );
 
@@ -532,6 +581,7 @@ export const daPanFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 35,
     naturalDurationFrames: 215,
     exclusiveFrame: 46,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -635,6 +685,7 @@ export const daPanPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 188,
     exclusiveFrame: 15,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -687,6 +738,7 @@ export const daPanBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 65,
     naturalDurationFrames: 210,
     exclusiveFrame: 65,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 65, endFrame: 89, sourceSkillIds: ['chr_0018_dapan_normal_skill'] },
@@ -931,6 +983,7 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 86,
     naturalDurationFrames: 235,
     exclusiveFrame: 100,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1129,10 +1182,10 @@ export const daPanUltimate: SkillDefinition = withSkillBlackboard(
                     buffId: 'buff_chr_0018_dapan_talent_1_preparation',
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      duration: { kind: 'blackboard', key: 'talent_1_duration' },
-                      max_stack: { kind: 'blackboard', key: 'talent_1_stack' },
-                      talent_1_cd_reduce: { kind: 'blackboard', key: 'talent_1_cd_reduce' },
+                    copiedBlackboardAssignments: {
+                      duration: 'talent_1_duration',
+                      max_stack: 'talent_1_stack',
+                      talent_1_cd_reduce: 'talent_1_cd_reduce',
                     },
                   }),
                 ),
@@ -1247,6 +1300,7 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 146,
     exclusiveFrame: 52,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 24, endFrame: 59, sourceSkillIds: ['chr_0018_dapan_normal_skill'] },
@@ -1617,6 +1671,22 @@ export const daPanComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const daPanPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const daPan: OperatorDefinition = {
   slug: 'da-pan',
   gameId: 'DAPAN',
@@ -1662,6 +1732,10 @@ export const daPan: OperatorDefinition = {
       skills: daPanComboSkill,
     },
   ],
+  dodgeSkill: daPanPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1678,6 +1752,7 @@ export const daPan: OperatorDefinition = {
         'basicAttack4',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1875,10 +1950,10 @@ export const daPan: OperatorDefinition = {
                       source: 'buffSource',
                       count: { kind: 'blackboard', key: 'consumedLayer' },
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_up: { kind: 'blackboard', key: 'dmg_up' },
-                        duration: { kind: 'blackboard', key: 'duration' },
-                        stack: { kind: 'blackboard', key: 'stack' },
+                      copiedBlackboardAssignments: {
+                        dmg_up: 'dmg_up',
+                        duration: 'duration',
+                        stack: 'stack',
                       },
                     }),
                   ),
@@ -2007,9 +2082,7 @@ export const daPan: OperatorDefinition = {
                   target: 'buffOwner',
                   source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: {
-                    cd_reduce: { kind: 'blackboard', key: 'talent_1_cd_reduce' },
-                  },
+                  copiedBlackboardAssignments: { cd_reduce: 'talent_1_cd_reduce' },
                 }),
               ),
             ),

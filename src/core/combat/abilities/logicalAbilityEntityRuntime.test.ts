@@ -1,6 +1,7 @@
 import { createTestBuffReference } from '../buffs/buffTestFixtures';
 import { describe, expect, it, vi } from 'vitest';
 import { LogicalAbilityEntityRuntime } from './logicalAbilityEntityRuntime';
+import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
 import { ActionBlackboard } from '../actions/actionBlackboard';
 import { StateStepper } from '../runtime/stateStepper';
 import {
@@ -48,10 +49,12 @@ describe('LogicalAbilityEntityRuntime', () => {
       definition: { lifetime: { kind: 'infinite' } },
     });
     original.addChildBuff(first, {
+      isRecycled: false,
       reference: { ownerId: 'first', instanceId: 1 },
       finish: () => true,
     });
     original.addChildBuff(second, {
+      isRecycled: false,
       reference: { ownerId: 'second', instanceId: 2 },
       finish: () => true,
     });
@@ -62,7 +65,7 @@ describe('LogicalAbilityEntityRuntime', () => {
       restored.bindRestoredRelations({
         resolveChildBuff: reference => {
           if (reference.ownerId === 'second') throw new Error('missing second child');
-          return { reference, finish: () => true };
+          return { isRecycled: false, reference, finish: () => true };
         },
       }),
     ).toThrow('missing second child');
@@ -71,6 +74,7 @@ describe('LogicalAbilityEntityRuntime', () => {
     const secondFinish = vi.fn(() => true);
     restored.bindRestoredRelations({
       resolveChildBuff: reference => ({
+        isRecycled: false,
         reference,
         finish: reference.ownerId === 'first' ? firstFinish : secondFinish,
       }),
@@ -92,7 +96,11 @@ describe('LogicalAbilityEntityRuntime', () => {
     });
     original.timedMarkers(entity).add('window', 0.5);
     const childReference = createTestBuffReference();
-    original.addChildBuff(entity, { reference: childReference, finish: () => true });
+    original.addChildBuff(entity, {
+      isRecycled: false,
+      reference: childReference,
+      finish: () => true,
+    });
     const reset = original.onReset(entity, () => {});
     original.advanceFrame();
     const saved = structuredClone(original.runtimeState);
@@ -108,10 +116,17 @@ describe('LogicalAbilityEntityRuntime', () => {
     expect(spawned).not.toHaveBeenCalled();
     expect(restored.entityBlackboard(entity).getNumber('damage')).toBe(12);
     expect(restored.timedMarkers(entity).has('window')).toBe(true);
+    if (entity.kind !== 'abilityEntity') throw new Error('expected an ability entity');
+    expect(restored.timedMarkers(entity).ownerId).toBe(
+      logicalAbilityEntityRuntimeId(entity.instanceId),
+    );
+    expect(restored.timedMarkers(entity).runtimeState.entries[0]!.ownerId).toBe(
+      logicalAbilityEntityRuntimeId(entity.instanceId),
+    );
     restored.bindRestoredRelations({
       resolveChildBuff: reference => {
         expect(reference).toEqual(childReference);
-        return { reference, finish: childFinish };
+        return { isRecycled: false, reference, finish: childFinish };
       },
     });
     const restoredReset = vi.fn();
@@ -137,7 +152,7 @@ describe('LogicalAbilityEntityRuntime', () => {
       definition: { lifetime: { kind: 'infinite' } },
     });
     const reference = createTestBuffReference();
-    runtime.addChildBuff(entity, { reference, finish: () => true });
+    runtime.addChildBuff(entity, { isRecycled: false, reference, finish: () => true });
     const calls: string[] = [];
     runtime.onReset(entity, () => {
       calls.push('first');
@@ -261,10 +276,18 @@ describe('LogicalAbilityEntityRuntime', () => {
     });
     const firstFinish = vi.fn(() => {
       order.push('first');
-      runtime.addChildBuff(entity, { reference: createTestBuffReference(), finish: lateFinish });
+      runtime.addChildBuff(entity, {
+        isRecycled: false,
+        reference: createTestBuffReference(),
+        finish: lateFinish,
+      });
       return true;
     });
-    runtime.addChildBuff(entity, { reference: createTestBuffReference(), finish: firstFinish });
+    runtime.addChildBuff(entity, {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: firstFinish,
+    });
     runtime.onReset(entity, () => order.push('reset'));
     runtime.finish(entity);
     expect(firstFinish).toHaveBeenCalledExactlyOnceWith('other', null);

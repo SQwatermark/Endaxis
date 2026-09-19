@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_spellburst',
+  iconPath: '/equipment/spellburst/item_equip_t4_suit_spellburst_edc_01.webp',
   modifiers: [
     {
       kind: 'damageScale',
@@ -85,19 +86,10 @@ const definition = {
                               source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               asChildBuff: true,
-                              blackboardAssignments: {
-                                phy_spell_up: {
-                                  kind: 'blackboard',
-                                  key: 'phy_spell_up',
-                                },
-                                duration: {
-                                  kind: 'blackboard',
-                                  key: 'duration',
-                                },
-                                max_stack: {
-                                  kind: 'blackboard',
-                                  key: 'max_stack',
-                                },
+                              copiedBlackboardAssignments: {
+                                phy_spell_up: 'phy_spell_up',
+                                duration: 'duration',
+                                max_stack: 'max_stack',
                               },
                             },
                           },

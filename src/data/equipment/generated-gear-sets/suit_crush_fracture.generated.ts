@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_crush_fracture',
+  iconPath: '/equipment/crush_fracture/item_equip_t4_suit_crush_fracture_edc_01.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -173,19 +174,10 @@ const definition = {
                               source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               asChildBuff: true,
-                              blackboardAssignments: {
-                                priority: {
-                                  kind: 'blackboard',
-                                  key: 'phy_dmg_up_final',
-                                },
-                                phy_dmg_up: {
-                                  kind: 'blackboard',
-                                  key: 'phy_dmg_up_final',
-                                },
-                                duration: {
-                                  kind: 'blackboard',
-                                  key: 'duration',
-                                },
+                              copiedBlackboardAssignments: {
+                                priority: 'phy_dmg_up_final',
+                                phy_dmg_up: 'phy_dmg_up_final',
+                                duration: 'duration',
                               },
                             },
                           },

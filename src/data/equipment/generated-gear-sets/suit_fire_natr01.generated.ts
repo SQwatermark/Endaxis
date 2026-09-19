@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_fire_natr01',
+  iconPath: '/equipment/fire_natr01/item_equip_t4_suit_fire_natr01_edc_02.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -52,15 +53,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
-                          fire_dmg_up: {
-                            kind: 'blackboard',
-                            key: 'fire_dmg_up',
-                          },
+                        copiedBlackboardAssignments: {
+                          duration: 'duration',
+                          fire_dmg_up: 'fire_dmg_up',
                         },
                       },
                     },
@@ -93,15 +88,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration2',
-                          },
-                          nature_dmg_up: {
-                            kind: 'blackboard',
-                            key: 'nature_dmg_up',
-                          },
+                        copiedBlackboardAssignments: {
+                          duration: 'duration2',
+                          nature_dmg_up: 'nature_dmg_up',
                         },
                       },
                     },

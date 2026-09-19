@@ -233,15 +233,9 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "heal_up": {
-                            "kind": "blackboard",
-                            "key": "heal_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "heal_up": "heal_up",
+                          "duration": "duration"
                         }
                       }
                     }
@@ -291,15 +285,9 @@ const definition = {
                               "target": "party",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "spell_dmg_up": {
-                                  "kind": "blackboard",
-                                  "key": "spell_dmg_up"
-                                },
-                                "duration2": {
-                                  "kind": "blackboard",
-                                  "key": "duration2"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "spell_dmg_up": "spell_dmg_up",
+                                "duration2": "duration2"
                               }
                             }
                           }

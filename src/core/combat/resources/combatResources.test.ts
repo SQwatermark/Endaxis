@@ -215,6 +215,7 @@ describe('CombatResources', () => {
 
     const snapshot = resources.snapshot();
     expect(snapshot).toEqual({
+      dashEnergy: { spent: 0, capacity: null, inOverdraft: false },
       sp: 60,
       maxSp: 300,
       returnedSp: 0,
@@ -250,6 +251,41 @@ describe('CombatResources', () => {
         },
       ],
     });
+  });
+
+  it('tracks shared Dash cost and native perfect-dodge half refund without guessing capacity', () => {
+    const resources = createResources();
+
+    expect(resources.consumeDashEnergy()).toEqual({ accepted: true, legalityKnown: false });
+    expect(resources.runtimeState.dashEnergy).toEqual({
+      spent: 1,
+      capacity: null,
+      inOverdraft: false,
+    });
+    expect(resources.recoverDashEnergy(0.5, true)).toEqual({
+      requestedValue: 0.5,
+      actualValue: 0.5,
+      previousSpent: 1,
+      currentSpent: 0.5,
+      capacity: null,
+      wasInOverdraft: false,
+      isInOverdraft: false,
+    });
+  });
+
+  it('allows one native overdraft Dash and rejects the next until permitted recovery', () => {
+    const resources = new CombatResources({
+      ...createResources().snapshot(),
+      dashEnergy: { spent: 0, capacity: 0, inOverdraft: false },
+    });
+
+    expect(resources.consumeDashEnergy()).toEqual({ accepted: true, legalityKnown: true });
+    expect(resources.runtimeState.dashEnergy.inOverdraft).toBe(true);
+    expect(resources.consumeDashEnergy()).toEqual({ accepted: false, legalityKnown: true });
+    expect(resources.recoverDashEnergy(0.5, false).actualValue).toBe(0);
+    expect(resources.runtimeState.dashEnergy.inOverdraft).toBe(true);
+    resources.recoverDashEnergy(0.5, true);
+    expect(resources.runtimeState.dashEnergy.inOverdraft).toBe(false);
   });
 
   it('持有一次战斗唯一的共享 SP 效率注册表', () => {

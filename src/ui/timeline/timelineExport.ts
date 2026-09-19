@@ -38,6 +38,20 @@ export async function compressProjectCode(json: string): Promise<string> {
   return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 }
 
+/** 读取本版及旧版共用的 gzip + URL-safe Base64 数据码。 */
+export async function decompressProjectCode(code: string): Promise<string> {
+  const trimmed = code.trim();
+  if (!/^[A-Za-z0-9_-]+={0,2}$/.test(trimmed)) throw new Error('无效的数据码');
+  const base64 = trimmed
+    .replace(/-/g, '+')
+    .replace(/_/g, '/')
+    .padEnd(Math.ceil(trimmed.length / 4) * 4, '=');
+  const bytes = Uint8Array.from(atob(base64), character => character.charCodeAt(0));
+  return new Response(
+    new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip')),
+  ).text();
+}
+
 export interface TimelineLongImageOptions {
   readonly durationSeconds: number;
   readonly pxPerFrame: number;

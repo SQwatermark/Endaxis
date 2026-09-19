@@ -37,6 +37,45 @@ export interface AdditionalBattleShapeActionSource {
   readonly followTargetRotation: boolean;
 }
 
+export interface DynamicBattleShapeActionSource {
+  readonly kind: 'dynamicBattleShape';
+  readonly shapeType: string | number;
+  readonly durationSeconds: number;
+  readonly intervalSeconds: number;
+}
+
+/** 闪避等状态按固定间隔刷新角色自身的战斗碰撞形状。 */
+export function parseDynamicBattleShapeActionSource(
+  value: unknown,
+  path: string,
+): DynamicBattleShapeActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'shapeType',
+      'duration',
+      'interval',
+    ]),
+    path,
+  );
+  const durationSeconds = requireNumber(action.duration, `${path}.duration`);
+  const intervalSeconds = requireNumber(action.interval, `${path}.interval`);
+  if (durationSeconds < 0 || intervalSeconds <= 0)
+    throw new Error(`${path}: expected non-negative duration and positive interval`);
+  return {
+    kind: 'dynamicBattleShape',
+    shapeType: requireNamedOrInteger(action.shapeType, `${path}.shapeType`),
+    durationSeconds,
+    intervalSeconds,
+  };
+}
+
 /**
  * 原生动作向目标 AdditionalBattleShapeComponent 注册额外战斗碰撞形状。
  * 来源层完整保留目标、动态形状键和寿命；固定木桩投影是否省略由编译层决定。

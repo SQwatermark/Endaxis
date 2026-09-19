@@ -1,6 +1,7 @@
 import type { CombatStateGraph } from '../../core/combat/state/combatState';
 import {
   CombatRuntimeAssembly,
+  getCombatRuntimeInputRules,
   type CombatRuntimeAssemblyOptions,
 } from '../../core/combat/runtime/combatRuntimeAssembly';
 import {
@@ -97,10 +98,10 @@ function createRestoreAssembly(
       enemy: compiled.enemy,
       operators: compiled.operators,
       ...(compiled.consumables === undefined ? {} : { consumables: compiled.consumables }),
-      ...(compiled.consumableUses === undefined
-        ? {}
-        : { consumableUses: compiled.consumableUses }),
+      ...(compiled.consumableUses === undefined ? {} : { consumableUses: compiled.consumableUses }),
       ...(compiled.inputs === undefined ? {} : { inputs: compiled.inputs }),
+      ...(compiled.dodgeInputs === undefined ? {} : { dodgeInputs: compiled.dodgeInputs }),
+      ...getCombatRuntimeInputRules(compiled),
       ...(compiled.skillInputGroups === undefined
         ? {}
         : { skillInputGroups: compiled.skillInputGroups }),
@@ -118,9 +119,6 @@ function createRestoreAssembly(
               programs: programs.timeDilation,
             },
           }),
-      ...(compiled.skillAvailabilityTags === undefined
-        ? {}
-        : { skillAvailabilityTags: compiled.skillAvailabilityTags }),
       ...(compiled.enemyStatusContainer === undefined
         ? {}
         : { enemyStatusContainer: compiled.enemyStatusContainer }),

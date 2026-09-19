@@ -210,19 +210,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "pd_up": {
-                                  "kind": "blackboard",
-                                  "key": "phy_dmg_up2"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "pd_up": "phy_dmg_up2",
+                                "duration": "duration",
+                                "max_stack": "max_stack"
                               }
                             }
                           },
@@ -233,19 +224,10 @@ const definition = {
                               "target": "partyExceptCaster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "pd_up": {
-                                  "kind": "blackboard",
-                                  "key": "phy_dmg_up3"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "pd_up": "phy_dmg_up3",
+                                "duration": "duration",
+                                "max_stack": "max_stack"
                               }
                             }
                           },

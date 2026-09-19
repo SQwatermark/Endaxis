@@ -84,6 +84,8 @@ export type CompiledBuffConditionSource =
       | 'targetStaggered'
       | 'probability'
       | 'abilityEntityTimedMarkerPresent'
+      | 'eventProjectilePerfectDodgeCooldownEquals'
+      | 'eventProjectileIgnoreImmuneLevelCompare'
     >
   | (Condition<'healthCompare'> & {
       readonly target:
@@ -154,6 +156,7 @@ type BuffApplicationParameters = Omit<
 > & {
   readonly target:
     | 'caster'
+    | 'actionInputTarget'
     | 'enemy'
     | 'currentAbilityEntity'
     | 'eventTarget'
@@ -268,6 +271,7 @@ export type CompiledBuffStepSource =
   | Step<'castSkillDuringAction'>
   | Step<'changeSkillSlot'>
   | Step<'overrideBasicAttackMapping'>
+  | Step<'overrideMultiDashLimit'>
   | Step<'changePlayerActionMode'>
   | Step<'changeNativeSkillType'>
   | Step<'setCharacterPassiveUiValue'>
@@ -327,6 +331,7 @@ export type CompiledBuffStepSource =
     >
   | Step<'finishTimeline'>
   | Step<'reachSkillOperableBoundary'>
+  | Step<'markCurrentSkillCanDash'>
   | Step<'storeCurrentTimelineFrame'>
   | Step<'storeEventSpGainAmount'>
   | Step<
@@ -424,6 +429,8 @@ export type CompiledBuffStepSource =
         readonly coefficient: CompiledActionValueOperandSource;
       }
     >
+  | Step<'recoverDashEnergy'>
+  | Step<'recordPerfectDodge'>
   | Step<
       'gainSquadUltimateEnergyFromSkillCost',
       Omit<Parameters<'gainSquadUltimateEnergyFromSkillCost'>, 'coefficient'> & {

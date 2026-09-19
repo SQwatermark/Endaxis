@@ -92,6 +92,25 @@ describe('公共 Action 叶子分派', () => {
         outputKey: 'hp',
       },
     });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.RecoverDashEnergy+Data, Gameplay.Beyond',
+          energyNum: { useBlackboardKey: false, value: 0.5, blackboardKey: '' },
+          canRecoverWhenOverdraft: true,
+        },
+        'fixture.recoverDashEnergy',
+        {},
+      ),
+    ).toEqual({
+      family: 'dashEnergyRecovery',
+      action: {
+        kind: 'dashEnergyRecovery',
+        amount: { value: 0.5, blackboardKey: null, levelValues: null },
+        canRecoverWhenOverdraft: true,
+      },
+    });
   });
 
   it('保留 RayCastEffectAction 写出的命中目标组与位置组', () => {
@@ -312,7 +331,6 @@ describe('公共 Action 叶子分派', () => {
         'Beyond.Gameplay.Core.TryToTeleportSquadAction+Data, Gameplay.Beyond',
         'squadTeleportOmitted',
       ],
-      ['Beyond.Gameplay.Core.MarkCanDash+Data, Gameplay.Beyond', 'dashWindowOmitted'],
     ] as const) {
       expect(parseKnownNativeActionLeafSource({ ...META, $type }, `fixture.${kind}`, {})).toEqual({
         family: 'presentation',
@@ -326,6 +344,141 @@ describe('公共 Action 叶子分派', () => {
         ),
       ).toThrow('unexpected fields');
     }
+    const markCanDashType = 'Beyond.Gameplay.Core.MarkCanDash+Data, Gameplay.Beyond';
+    expect(
+      parseKnownNativeActionLeafSource(
+        { ...META, $type: markCanDashType },
+        'fixture.markCanDash',
+        {},
+      ),
+    ).toEqual({ family: 'inputControl', action: { kind: 'markCanDash' } });
+    expect(() =>
+      parseKnownNativeActionLeafSource(
+        { ...META, $type: markCanDashType, unexpected: true },
+        'fixture.markCanDash.unsafe',
+        {},
+      ),
+    ).toThrow('unexpected fields');
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.OverrideMultiDashLimit+Data, Gameplay.Beyond',
+          targetSetting: targetFixture('Owner'),
+          dashCount: scalarFixture(-1),
+        },
+        'fixture.overrideMultiDashLimit',
+        {},
+      ),
+    ).toEqual({
+      family: 'inputControl',
+      action: {
+        kind: 'overrideMultiDashLimit',
+        target: expect.objectContaining({ targetSource: 'Owner' }),
+        dashCount: { value: -1, blackboardKey: null, levelValues: null },
+      },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.PlayPerfectDodgeAnim+Data, Gameplay.Beyond',
+          forceFightIdle: false,
+          forceFightIdleDuration: 10,
+        },
+        'fixture.perfectDodgeAnimation',
+        {},
+      ),
+    ).toEqual({
+      family: 'presentation',
+      action: { kind: 'perfectDodgeAnimationOmitted' },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.CheckPerfectDodgeDirection+Data, Gameplay.Beyond',
+          dirType: 'Forward',
+        },
+        'fixture.perfectDodgeDirection',
+        {},
+      ),
+    ).toEqual({
+      family: 'condition',
+      action: {
+        kind: 'perfectDodgeDirection',
+        sourceType: 'CheckPerfectDodgeDirection',
+        direction: 'Forward',
+      },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.CreateDynamicBattleShape+Data, Gameplay.Beyond',
+          shapeType: 'SimplifiedBox',
+          duration: 0.3,
+          interval: 0.07,
+        },
+        'fixture.dynamicBattleShape',
+        {},
+      ),
+    ).toEqual({
+      family: 'spatial',
+      action: {
+        kind: 'dynamicBattleShape',
+        shapeType: 'SimplifiedBox',
+        durationSeconds: 0.3,
+        intervalSeconds: 0.07,
+      },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type: 'Beyond.Gameplay.Core.SetSuperArmorAction+Data, Gameplay.Beyond',
+          targetSettings: targetFixture('Source'),
+          superArmorValue: {
+            useBlackboardKey: false,
+            value: 35,
+            blackboardKey: 'superarmor',
+            useCustomValue: false,
+          },
+          impactResistance: {
+            useBlackboardKey: false,
+            value: 100,
+            blackboardKey: '',
+            useCustomValue: false,
+          },
+        },
+        'fixture.staticSuperArmorWithDormantKey',
+        {},
+      ),
+    ).toMatchObject({
+      family: 'selfDefense',
+      action: { kind: 'setSuperArmor', superArmorValue: 35, impactResistance: 100 },
+    });
+    expect(
+      parseKnownNativeActionLeafSource(
+        {
+          ...META,
+          $type:
+            'Beyond.Gameplay.Core.Conditions.CheckDamageIgnoreImmuneLevel+Data, Gameplay.Beyond',
+          checkType: 'LE',
+          ignoreImmuneLevel: 0,
+        },
+        'fixture.damageIgnoreImmuneLevel',
+        {},
+      ),
+    ).toEqual({
+      family: 'condition',
+      action: {
+        kind: 'damageIgnoreImmuneLevel',
+        sourceType: 'CheckDamageIgnoreImmuneLevel',
+        comparison: 'LE',
+        level: 0,
+      },
+    });
   });
 
   it('严格解析原生职业位集并映射到公共干员定位', () => {
@@ -1270,7 +1423,7 @@ describe('公共 Action 叶子分派', () => {
     });
   });
 
-  it('只把固定施法者、静态木桩目标和字面量技能投影为原生延迟施法槽', () => {
+  it('只把固定施法者、静态木桩目标和可解析技能 ID 投影为原生延迟施法槽', () => {
     const makeCast = (overrides: Record<string, unknown> = {}) => ({
       ...META,
       $type: 'Example.CastSkill+Data, Example',
@@ -1319,13 +1472,25 @@ describe('公共 Action 叶子分派', () => {
         },
       ],
     });
-    expect(() =>
+    expect(
       compile(
         makeCast({
           skillId: { value: '', useBlackboardKey: true, blackboardKey: 'child_skill' },
         }),
       ),
-    ).toThrow('unsupported deferred skill cast source/target/id');
+    ).toEqual({
+      steps: [
+        {
+          kind: 'castSkillDuringAction',
+          parameters: {
+            skillId: { blackboardKey: 'child_skill' },
+            target: 'enemy',
+            skipApplyCost: true,
+            inheritSourceSkillCastInfo: true,
+          },
+        },
+      ],
+    });
     expect(compile(makeCast({ target: targetFixture('Target', undefined, 'ignored') }))).toEqual({
       steps: [
         {

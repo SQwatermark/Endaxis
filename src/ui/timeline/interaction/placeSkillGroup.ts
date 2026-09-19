@@ -24,6 +24,7 @@ export type TimelineDocumentIdKind =
   | 'cycleBoundary'
   | 'controlSwitch'
   | 'externalEvent'
+  | 'dodge'
   | 'consumableUse';
 
 export interface TimelineDocumentIdAllocator {

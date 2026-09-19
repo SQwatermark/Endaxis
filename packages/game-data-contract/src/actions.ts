@@ -446,8 +446,8 @@ export interface CombatStepParameters {
   };
   /** 原生 CastSkill：动作栈返回后覆盖写入 AbilitySystem 的单槽延迟施放请求。 */
   castSkillDuringAction: {
-    /** 原生表内 Skill ID；装配层必须映射到同干员的稳定技能键。 */
-    skillId: string;
+    /** 原生表内 Skill ID；可以直接给定，也可以从当前动作黑板读取。装配层必须映射到同干员的稳定技能键。 */
+    skillId: ActionStringOperand;
     /** 目标技能作用于施法者还是敌人。 */
     target: 'caster' | 'enemy';
     /** 是否跳过目标技能自己的资源消耗。 */
@@ -649,6 +649,11 @@ export interface CombatStepParameters {
     blackboardAssignments?: Readonly<Record<string, LevelValues | ActionValueOperand>>;
     /** 原生字符串输入的字面覆盖；与数值赋值分开，避免把字符串伪装成计算操作数。 */
     stringBlackboardAssignments?: Readonly<Record<string, string>>;
+    /**
+     * 原生 useDirectValue=false：从当前动作黑板按实际值类型复制到新 Buff。
+     * 键是目标 Buff 黑板键，值是当前动作黑板来源键。
+     */
+    copiedBlackboardAssignments?: Readonly<Record<string, string>>;
     /**
      * 原生 KeywordAction.enhancingList：只附着到本次创建的关键词载体实例，不能改写共享模板。
      * value 在创建边沿从当前动作黑板求值，随后由载体自身监听普通 Buff 的加入边沿。
@@ -1192,6 +1197,15 @@ export interface CombatStepParameters {
     /** 是否跳过目标自身的终结技能量获取倍率。 */
     ignoreUltimateEnergyGainMultiplier?: boolean;
   };
+  /** 返还 PlayerController 持有的全队共享闪避体力。 */
+  recoverDashEnergy: {
+    /** 返还的闪避份数；原生极限闪避公共监听器当前配置为 0.5。 */
+    amount: ActionValueOperand;
+    /** 已进入透支时，是否允许本次返还同时解除透支。 */
+    canRecoverWhenOverdraft: boolean;
+  };
+  /** 记录一次极限闪避成功，并发布原生 OnPerfectDodge 能力事件。 */
+  recordPerfectDodge: Record<string, never>;
   /** 按本次技能费用为全队生成终结技能量。 */
   gainSquadUltimateEnergyFromSkillCost: {
     /** 技能费用换算为全队终结技能量的系数。 */
@@ -1245,6 +1259,8 @@ export interface CombatStepParameters {
     /** 此窗口允许接续的原生 Skill ID。 */
     sourceSkillIds: readonly string[];
   };
+  /** 把当前技能的本次施放标为可由 Dash 输入打断。 */
+  markCurrentSkillCanDash: Record<string, never>;
   /** 按条件选择真假分支。 */
   conditional: {
     /** 决定执行哪个分支的条件。 */
@@ -1383,6 +1399,11 @@ export interface CombatStepParameters {
     /** Buff 有效期内普通攻击操作请求的原生技能 ID。 */
     sourceSkillId: string;
   };
+  /** 动作有效期间覆盖当前干员可连续执行的 Dash 次数；负数表示无限。 */
+  overrideMultiDashLimit: {
+    /** 原生 OverrideMultiDashLimit 的 dashCount，可读取动作黑板。 */
+    dashCount: ActionValueOperand;
+  };
   /** SwitchModeAction：只改变后续玩家操作的原生路由，结束时恢复同层上一模式。 */
   changePlayerActionMode: {
     /** 要启用的模式 ID。 */
@@ -1486,6 +1507,8 @@ export const COMBAT_STEP_KINDS = [
   'setHealthFloor',
   'changeResource',
   'changeResourceByActionValue',
+  'recoverDashEnergy',
+  'recordPerfectDodge',
   'gainSquadUltimateEnergyFromSkillCost',
   'gainFinisherSp',
   'applyStatus',
@@ -1493,6 +1516,7 @@ export const COMBAT_STEP_KINDS = [
   'jumpTimeline',
   'finishTimeline',
   'reachSkillOperableBoundary',
+  'markCurrentSkillCanDash',
   'conditional',
   'switch',
   'once',
@@ -1506,6 +1530,7 @@ export const COMBAT_STEP_KINDS = [
   'showComboRingQte',
   'changeSkillSlot',
   'overrideBasicAttackMapping',
+  'overrideMultiDashLimit',
   'changePlayerActionMode',
   'changeNativeSkillType',
   'setCharacterPassiveUiValue',

@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_atk01',
+  iconPath: '/equipment/atk01/item_equip_t3_suit_atk01_edc_04.webp',
   modifiers: [
     {
       kind: 'damageScale',
@@ -62,15 +63,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          atk_up: {
-                            kind: 'blackboard',
-                            key: 'atk_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
+                        copiedBlackboardAssignments: {
+                          atk_up: 'atk_up',
+                          duration: 'duration',
                         },
                       },
                     },
@@ -102,15 +97,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          atk_up: {
-                            kind: 'blackboard',
-                            key: 'atk_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
+                        copiedBlackboardAssignments: {
+                          atk_up: 'atk_up',
+                          duration: 'duration',
                         },
                       },
                     },
@@ -142,15 +131,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          atk_up: {
-                            kind: 'blackboard',
-                            key: 'atk_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
+                        copiedBlackboardAssignments: {
+                          atk_up: 'atk_up',
+                          duration: 'duration',
                         },
                       },
                     },

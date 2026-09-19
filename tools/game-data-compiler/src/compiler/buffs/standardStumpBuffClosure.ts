@@ -32,6 +32,7 @@ import {
 } from '../combatProjectionCommon.ts';
 import { collectNativeActionNodes } from '../../source/controlFlow.ts';
 import { collectCombatInvisibleBuffClosureIds } from './combatInvisibleBuffClosure.ts';
+import { resolveProvenStringBlackboardCandidates } from './buffReferenceClosure.ts';
 import type { CompiledBuffCapturedTargetGroupsSource } from './compiledBuffMetadata.ts';
 
 export interface StandardStumpBuffClosureDiagnostic {
@@ -73,6 +74,7 @@ export function compileStandardStumpBuffClosure(
     string,
     CompiledBuffCapturedTargetGroupsSource
   > = new Map(),
+  rootBuffBlackboards: ReadonlyMap<string, Readonly<Record<string, number | string>>> = new Map(),
 ): CompiledStandardStumpBuffClosure {
   const buffData =
     typeof buffDataValue === 'function'
@@ -87,6 +89,7 @@ export function compileStandardStumpBuffClosure(
     buffData,
     globalBuffCatalog,
     provenDefaultKeywordCarrierRootIds,
+    rootBuffBlackboards,
   );
   const rootBuffIdSet = new Set(rootBuffIds);
   const {
@@ -237,6 +240,22 @@ export function compileStandardStumpBuffClosure(
       });
     }
     try {
+      const combatInvisibleDynamicBuffBlackboardKeys = new Set(
+        source.graph.declaredBlackboard.flatMap(item => {
+          const candidates = resolveProvenStringBlackboardCandidates(
+            buffId,
+            item.key,
+            rootBuffIds,
+            sources,
+            rootBuffBlackboards,
+          );
+          return candidates !== null &&
+            candidates.length > 0 &&
+            candidates.every(candidate => omittedBuffIds.has(candidate))
+            ? [item.key]
+            : [];
+        }),
+      );
       definitions[buffId] = compileBuffRuntimeDefinitionSource(
         source,
         omittedBuffIds,
@@ -245,6 +264,9 @@ export function compileStandardStumpBuffClosure(
         abilityEntityQueries,
         {
           gameplayTagRegistry: gameplayTagRegistry ?? abilityEntityQueries?.gameplayTagRegistry,
+          ...(combatInvisibleDynamicBuffBlackboardKeys.size === 0
+            ? {}
+            : { combatInvisibleDynamicBuffBlackboardKeys }),
           ...(buffOwnerTargets.has(buffId)
             ? { fixedBuffOwnerTarget: buffOwnerTargets.get(buffId)! }
             : {}),

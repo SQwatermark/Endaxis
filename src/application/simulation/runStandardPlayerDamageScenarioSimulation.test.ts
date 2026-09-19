@@ -884,6 +884,61 @@ function runGeneratedLifengScenario(talentLevel: number) {
 }
 
 describe('runStandardPlayerDamageScenarioSimulation', () => {
+  it('uses the generated common dash listener for a complete perfect-dodge flow', () => {
+    const scenario = createPerlicaScenario();
+    scenario.battle.resourceRules = {
+      ...scenario.battle.resourceRules,
+      initialSp: 0,
+      spRecoveryPerSecond: 0,
+    };
+    scenario.battle.dodgeMarkers = [
+      {
+        id: 'dodge:generated-perfect',
+        frame: 1,
+        trackIndex: 0,
+        direction: 'forward',
+        mode: { kind: 'perfectDodge', successDelayFrames: 0 },
+      },
+    ];
+
+    const result = runStandardPlayerDamageScenarioSimulation({
+      scenario,
+      endFrame: 3,
+      criticalSamples: {
+        nextCriticalSample: () => {
+          throw new Error('perfect dodge must not draw a damage critical sample');
+        },
+      },
+      resolveNonRandomRuntimeSnapshot: () => {
+        throw new Error('perfect dodge must not resolve a damage snapshot');
+      },
+      options: {
+        ...standardOptions(),
+        index: {
+          ...standardOptions().index,
+          getCommonBuffDefinitions: () => commonBuffDefinitions,
+        },
+      },
+    });
+
+    const events = result.receiptEntries.map(entry => entry.event);
+    expect(events).toEqual(
+      expect.arrayContaining([
+        'DashInputExecuted',
+        'PerfectDodgeDeclared',
+        'PerfectDodgeSucceeded',
+        'DashEnergyChanged',
+        'SkillStarted',
+      ]),
+    );
+    expect(result.finalResources.sp).toBe(7);
+    expect(result.finalResources.dashEnergy).toMatchObject({
+      spent: 0.5,
+      capacity: null,
+      inOverdraft: false,
+    });
+  });
+
   it('refunds Estella talent SP after she outputs the native shatter buff', () => {
     const run = (talentLevel: 1 | 2) => {
       // The damage half of Estella's battle skill independently reads the still-unresolved
@@ -1933,7 +1988,7 @@ describe('runStandardPlayerDamageScenarioSimulation', () => {
         entry.data.iconDurationSourceTargetId === markerCreated?.targetId,
     );
 
-    expect(markerCreated?.targetId).toMatch(/^abilityEntity:\d+:timed-marker:\d+$/);
+    expect(markerCreated?.targetId).toMatch(/^ability-entity:\d+:timed-marker:\d+$/);
     expect(markerFinished).toEqual(
       expect.objectContaining({
         frame: expect.any(Number),

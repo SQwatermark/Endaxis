@@ -108,6 +108,13 @@ export function takeSimulationRandomSample(
 ): number {
   bindSimulationRandomConfiguration(state, settings);
   if (settings.mode === 'expected') {
+    if (request?.castSeed !== undefined) {
+      if (request.castId === undefined || request.castId.length === 0)
+        throw new Error('a cast seed requires a non-empty cast id');
+      const streamKey = `${kind}:cast:${request.castId}`;
+      const shift = mixSeed(request.castSeed, streamKey) / 0x100000000;
+      return (takeEvenSample(state, streamKey) + shift) % 1;
+    }
     const scope =
       request?.expectedSequenceId === undefined ? 'global' : `source:${request.expectedSequenceId}`;
     return takeEvenSample(state, `${kind}:${scope}`);

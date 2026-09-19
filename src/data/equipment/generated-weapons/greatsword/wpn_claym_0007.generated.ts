@@ -201,15 +201,9 @@ const definition = {
                               "target": "controlledOperator",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "shield_valid": {
-                                  "kind": "blackboard",
-                                  "key": "shield_valid"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "shield_valid": "shield_valid",
+                                "duration": "duration"
                               }
                             }
                           }

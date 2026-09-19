@@ -5,6 +5,8 @@ import type {
 import type { CombatCondition } from '../../game-data/operatorDefinition';
 import type { CombatSkillCastInfo } from '../state/foundationState';
 import type { CombatOperationContext, CombatOperationExecutor } from './skillRuntime';
+import { operationProducer } from '../receipt/combatObjectIdentity';
+import type { CombatObjectRef } from '../receipt/combatReceipt';
 
 type CastStep = ResolvedCombatStepForKind<'castSkillDuringAction'>;
 
@@ -14,6 +16,7 @@ export interface SkillCastOperationExecutorDependencies {
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
     readonly interruptCurrentSkillOnlyWhenTargetCastable?: boolean;
+    readonly producedBy?: CombatObjectRef;
   }) => void;
   readonly delegate: CombatOperationExecutor;
 }
@@ -49,13 +52,27 @@ export class SkillCastOperationExecutor implements CombatOperationExecutor {
     if (step.parameters.inheritSourceSkillCastInfo && inherited === undefined) {
       throw new Error('deferred skill cast requires source SkillCastInfo');
     }
+    const nativeSkillId = resolveNativeSkillId(step.parameters.skillId, context);
     this.dependencies.request({
-      nativeSkillId: step.parameters.skillId,
+      nativeSkillId,
       skipApplyCost: step.parameters.skipApplyCost,
+      producedBy: operationProducer(context),
       ...(step.parameters.interruptCurrentSkillOnlyWhenTargetCastable
         ? { interruptCurrentSkillOnlyWhenTargetCastable: true }
         : {}),
       ...(inherited === undefined ? {} : { inheritedSkillCastInfo: inherited }),
     });
   }
+}
+
+function resolveNativeSkillId(
+  operand: string | { readonly blackboardKey: string },
+  context: CombatOperationContext | undefined,
+): string {
+  if (typeof operand === 'string') return operand;
+  const value = context?.blackboard.getString(operand.blackboardKey);
+  if (value === undefined || value.length === 0) {
+    throw new Error(`deferred skill id blackboard '${operand.blackboardKey}' is missing`);
+  }
+  return value;
 }

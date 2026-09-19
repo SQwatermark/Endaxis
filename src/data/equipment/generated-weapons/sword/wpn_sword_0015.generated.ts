@@ -206,15 +206,9 @@ const definition = {
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
                               "lifetimeOwner": "currentCastSkill",
-                              "blackboardAssignments": {
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "duration": "duration",
+                                "max_stack": "max_stack"
                               }
                             }
                           },
@@ -292,11 +286,8 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "lifetimeOwner": "currentCastSkill",
-                        "blackboardAssignments": {
-                          "phy_dmg_up": {
-                            "kind": "blackboard",
-                            "key": "phy_dmg"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "phy_dmg_up": "phy_dmg"
                         }
                       }
                     }

@@ -90,6 +90,7 @@ function skillTypeLabel(type: SkillType): string {
     ultimate: 'ultimate',
     finisher: 'execution',
     plungingAttack: 'dive',
+    dodge: 'dodge',
   };
   return t(`skillType.${key[type]}`);
 }

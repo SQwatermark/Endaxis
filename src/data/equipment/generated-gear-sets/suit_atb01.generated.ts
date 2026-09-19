@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_atb01',
+  iconPath: '/equipment/atb01/item_equip_t4_suit_atb01_edc_04.webp',
   modifiers: [
     {
       kind: 'skillCooldownMultiplier',
@@ -52,15 +53,9 @@ const definition = {
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
                         asChildBuff: true,
-                        blackboardAssignments: {
-                          dmg_up: {
-                            kind: 'blackboard',
-                            key: 'dmg_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
+                        copiedBlackboardAssignments: {
+                          dmg_up: 'dmg_up',
+                          duration: 'duration',
                         },
                       },
                     },

@@ -9,6 +9,7 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 14,
     naturalDurationFrames: 90,
     exclusiveFrame: 17,
+    offsetRecordFrame: 9,
     inputWindows: {
       commandMappings: [
         {
@@ -55,12 +56,20 @@ export const akekuriBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         10,
       ),
+      scheduled(
+        14,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack2'] }),
+        ),
+        32,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0019_karin_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
+  { atb: 0, atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
 );
 
 export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -70,6 +79,7 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 112,
     exclusiveFrame: 28,
+    offsetRecordFrame: 16,
     inputWindows: {
       commandMappings: [
         {
@@ -154,7 +164,15 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         17,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack3'] }),
+        ),
+        38,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0019_karin_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -163,6 +181,7 @@ export const akekuriBasicAttack2: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.13, 0.14, 0.15, 0.16, 0.18, 0.19, 0.2, 0.21, 0.23, 0.24, 0.26, 0.28],
     atk_scale_2: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
   },
 );
 
@@ -173,6 +192,7 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 95,
     exclusiveFrame: 27,
+    offsetRecordFrame: 10,
     inputWindows: {
       commandMappings: [
         {
@@ -227,7 +247,15 @@ export const akekuriBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         11,
       ),
+      scheduled(
+        21,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack4'] }),
+        ),
+        36,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0019_karin_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -242,6 +270,7 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 35,
     naturalDurationFrames: 110,
     exclusiveFrame: 34,
+    offsetRecordFrame: 19,
     inputWindows: {
       commandMappings: [
         {
@@ -344,7 +373,15 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         22,
       ),
+      scheduled(
+        35,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0019_karin_attack1'] }),
+        ),
+        52,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0019_karin_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -353,6 +390,7 @@ export const akekuriBasicAttack4: SkillDefinition = withSkillBlackboard(
     atb: 19,
     atk_scale: [0.17, 0.18, 0.2, 0.21, 0.23, 0.25, 0.26, 0.28, 0.3, 0.32, 0.34, 0.37],
     poise: 17,
+    display_atk_scale: [0.5, 0.54, 0.59, 0.64, 0.69, 0.74, 0.79, 0.84, 0.89, 0.95, 1.03, 1.11],
   },
 );
 
@@ -363,6 +401,7 @@ export const akekuriFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 37,
     naturalDurationFrames: 137,
     exclusiveFrame: 60,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -484,6 +523,7 @@ export const akekuriPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 14,
     naturalDurationFrames: 95,
     exclusiveFrame: 13,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -531,6 +571,7 @@ export const akekuriBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 41,
     naturalDurationFrames: 125,
     exclusiveFrame: 40,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -587,6 +628,7 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 129,
     naturalDurationFrames: 233,
     exclusiveFrame: 150,
+    offsetRecordFrame: 0,
     inputWindows: {
       commandMappings: [
         {
@@ -626,7 +668,7 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
                 target: 'party',
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
-                blackboardAssignments: { atk: { kind: 'blackboard', key: 'atk' } },
+                copiedBlackboardAssignments: { atk: 'atk' },
               }),
             ),
           ),
@@ -779,18 +821,13 @@ export const akekuriUltimate: SkillDefinition = withSkillBlackboard(
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
-                blackboardAssignments: {
-                  potential_5_duration: { kind: 'blackboard', key: 'potential_5_duration' },
-                },
+                copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0019_karin_talent_2_combo',
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  imbue_scale: { kind: 'blackboard', key: 'imbue_scale' },
-                  duration: { kind: 'blackboard', key: 'duration' },
-                },
+                copiedBlackboardAssignments: { imbue_scale: 'imbue_scale', duration: 'duration' },
               }),
             ),
           ),
@@ -851,6 +888,7 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 38,
     naturalDurationFrames: 136,
     exclusiveFrame: 55,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 38, endFrame: 71, sourceSkillIds: ['chr_0019_karin_normal_skill'] },
@@ -1064,6 +1102,22 @@ export const akekuriComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const akekuriPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const akekuri: OperatorDefinition = {
   slug: 'akekuri',
   gameId: 'AKEKURI',
@@ -1109,6 +1163,10 @@ export const akekuri: OperatorDefinition = {
       skills: akekuriComboSkill,
     },
   ],
+  dodgeSkill: akekuriPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1125,6 +1183,7 @@ export const akekuri: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1302,10 +1361,7 @@ export const akekuri: OperatorDefinition = {
                   target: 'buffOwner',
                   source: 'buffOwner',
                   inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: {
-                    duration: { kind: 'blackboard', key: 'duration' },
-                    atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  },
+                  copiedBlackboardAssignments: { duration: 'duration', atk_up: 'atk_up' },
                 }),
               ),
             ),
@@ -1432,9 +1488,7 @@ export const akekuri: OperatorDefinition = {
                 target: 'buffOwner',
                 source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  potential_5_duration: { kind: 'blackboard', key: 'potential_5_duration' },
-                },
+                copiedBlackboardAssignments: { potential_5_duration: 'potential_5_duration' },
               }),
             ),
             sequence(

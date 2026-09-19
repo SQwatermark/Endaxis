@@ -8,9 +8,11 @@ import {
   type EaSelectValue,
 } from '../../../design-system/index';
 import type { TrackIndex } from '../../../core/project/schema';
+import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
+import CombatObjectOriginGraph from '../results/CombatObjectOriginGraph.vue';
 
 export type TimelineDocumentMarkerKind =
-  'cycleBoundary' | 'controlSwitch' | 'simulationStart' | 'simulationEnd';
+  'cycleBoundary' | 'controlSwitch' | 'dodge' | 'simulationStart' | 'simulationEnd';
 
 const props = defineProps<{
   kind: TimelineDocumentMarkerKind;
@@ -19,13 +21,34 @@ const props = defineProps<{
   minimumFrame: number;
   maximumFrame: number;
   readOnly?: boolean;
+  /** 历史 Dash 已冻结时，仍可编辑尚未发生的成功声明。 */
+  successReadOnly?: boolean;
+  minimumSuccessDelayFrames?: number;
   trackIndex?: TrackIndex;
+  direction?: 'forward' | 'backward';
+  dodgeMode?: 'dodge' | 'perfectDodge';
+  successDelayFrames?: number;
+  /** 已发布模拟中与当前闪避标记对应的实际执行事实；纯文本可直接选择复制。 */
+  dodgeDiagnostics?: readonly string[];
+  dodgeEffects?: readonly CombatReceiptEntry[];
+  receiptEntries?: readonly CombatReceiptEntry[];
+  operatorLabel?: (operatorId: string) => string;
+  objectIcon?: import('../results/combatObjectIcons').CombatObjectIconResolver;
+  actionPresentation?: (
+    ownerId: string,
+    actionId: string,
+  ) => { name: string; kind: string } | undefined;
+  buffLabel?: (buffId: string) => string;
+  skillCastLabel?: (castId: string) => string | undefined;
   trackOptions: readonly { trackIndex: TrackIndex; label: string }[];
 }>();
 
 const emit = defineEmits<{
   setFrame: [frame: number];
   setTrackIndex: [trackIndex: TrackIndex];
+  setDirection: [direction: 'forward' | 'backward'];
+  setDodgeMode: [mode: 'dodge' | 'perfectDodge'];
+  setSuccessDelayFrames: [frames: number];
   remove: [];
 }>();
 
@@ -46,6 +69,39 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
   ) {
     emit('setTrackIndex', trackIndex as TrackIndex);
   }
+}
+
+function commitDirection(value: EaSelectValue | EaSelectValue[]): void {
+  if (value === 'forward' || value === 'backward') emit('setDirection', value);
+}
+
+function commitDodgeMode(value: EaSelectValue | EaSelectValue[]): void {
+  if (value === 'dodge' || value === 'perfectDodge') emit('setDodgeMode', value);
+}
+
+function commitSuccessDelay(value: number | undefined): void {
+  const frames = Number(value);
+  if (Number.isInteger(frames) && frames >= (props.minimumSuccessDelayFrames ?? 0))
+    emit('setSuccessDelayFrames', frames);
+}
+
+function effectDetail(entry: CombatReceiptEntry): string {
+  const data = entry.data;
+  if (entry.event === 'BuffApplied' || entry.event === 'BuffStackChanged') {
+    return typeof data?.buffId === 'string' ? (props.buffLabel?.(data.buffId) ?? data.buffId) : '';
+  }
+  if (entry.event === 'SpChanged' || entry.event === 'UltimateEnergyChanged') {
+    return typeof data?.actualValue === 'number'
+      ? `${data.actualValue >= 0 ? '+' : ''}${data.actualValue}`
+      : '';
+  }
+  if (entry.event === 'TimeDilationStarted') {
+    return typeof data?.durationSeconds === 'number' ? `${data.durationSeconds}s` : '';
+  }
+  if (entry.event === 'SkillStarted') {
+    return typeof data?.castId === 'string' ? (props.skillCastLabel?.(data.castId) ?? '') : '';
+  }
+  return '';
 }
 </script>
 
@@ -79,11 +135,17 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
               :disabled="readOnly"
             />
           </label>
-          <div v-if="kind === 'cycleBoundary' || kind === 'controlSwitch'" class="form-group">
+          <div
+            v-if="kind === 'cycleBoundary' || kind === 'controlSwitch' || kind === 'dodge'"
+            class="form-group"
+          >
             <span>{{ t('timeline.documentMarkerInspector.markerId') }}</span>
             <div class="readonly-field">{{ id }}</div>
           </div>
-          <label v-if="kind === 'controlSwitch'" class="form-group attribute-grid__wide">
+          <label
+            v-if="kind === 'controlSwitch' || kind === 'dodge'"
+            class="form-group attribute-grid__wide"
+          >
             <span>{{ t('timeline.documentMarkerInspector.targetTrack') }}</span>
             <EaSelect
               size="sm"
@@ -95,10 +157,86 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
               :disabled="readOnly"
             />
           </label>
+          <label v-if="kind === 'dodge'" class="form-group">
+            <span>{{ t('timeline.documentMarkerInspector.direction') }}</span>
+            <EaSelect
+              size="sm"
+              :model-value="direction"
+              :options="[
+                { label: t('timeline.documentMarkerInspector.forward'), value: 'forward' },
+                { label: t('timeline.documentMarkerInspector.backward'), value: 'backward' },
+              ]"
+              @change="commitDirection"
+              :disabled="readOnly"
+            />
+          </label>
+          <label v-if="kind === 'dodge'" class="form-group">
+            <span>{{ t('timeline.documentMarkerInspector.dodgeResult') }}</span>
+            <EaSelect
+              size="sm"
+              :model-value="dodgeMode"
+              :options="[
+                { label: t('timeline.markerLabels.dodge'), value: 'dodge' },
+                { label: t('timeline.markerLabels.perfectDodge'), value: 'perfectDodge' },
+              ]"
+              @change="commitDodgeMode"
+              :disabled="successReadOnly ?? readOnly"
+            />
+          </label>
+          <label
+            v-if="kind === 'dodge' && dodgeMode === 'perfectDodge'"
+            class="form-group attribute-grid__wide"
+          >
+            <span>{{ t('timeline.documentMarkerInspector.successDelayFrames') }}</span>
+            <EaNumberInput
+              size="sm"
+              controls-position="right"
+              :min="minimumSuccessDelayFrames ?? 0"
+              :step="1"
+              :model-value="successDelayFrames ?? 0"
+              @change="commitSuccessDelay"
+              :disabled="successReadOnly ?? readOnly"
+            />
+          </label>
         </div>
         <small class="field-help">
           {{ t(`timeline.documentMarkerInspector.hints.${kind}`) }}
         </small>
+      </section>
+
+      <section v-if="kind === 'dodge'" class="section-container">
+        <div class="panel-tag-mini">
+          {{ t('timeline.documentMarkerInspector.simulationResult') }}
+        </div>
+        <div v-if="dodgeDiagnostics?.length" class="dodge-diagnostics">
+          <div v-for="(diagnostic, index) in dodgeDiagnostics" :key="index" class="readonly-field">
+            {{ diagnostic }}
+          </div>
+        </div>
+        <div v-else class="readonly-field">
+          {{ t('timeline.documentMarkerInspector.results.noPublishedResult') }}
+        </div>
+      </section>
+
+      <section v-if="kind === 'dodge' && dodgeEffects?.length" class="section-container">
+        <div class="panel-tag-mini">{{ t('timeline.documentMarkerInspector.effects') }}</div>
+        <div class="dodge-effects">
+          <div v-for="effect in dodgeEffects" :key="effect.sequence" class="dodge-effect">
+            <div class="dodge-effect__fact">
+              {{ t('timeline.documentMarkerInspector.effectFrame', { frame: effect.frame }) }} ·
+              {{ t(`timeline.documentMarkerInspector.effectEvents.${effect.event}`) }}
+              <span v-if="effectDetail(effect)">{{ effectDetail(effect) }}</span>
+            </div>
+            <CombatObjectOriginGraph
+              v-if="receiptEntries?.length"
+              :sequence="effect.sequence"
+              :receipt-entries="receiptEntries"
+              :operator-label="operatorLabel"
+              :object-icon="objectIcon"
+              :action-presentation="actionPresentation"
+            />
+          </div>
+        </div>
       </section>
 
       <section class="section-container danger-section">
@@ -203,6 +341,34 @@ function commitTrackIndex(value: EaSelectValue | EaSelectValue[]): void {
   margin-top: 9px;
   color: var(--ea-text-muted, #7f8790);
   line-height: 1.45;
+}
+
+.dodge-diagnostics {
+  display: grid;
+  gap: 6px;
+  user-select: text;
+}
+
+.dodge-effects {
+  display: grid;
+  gap: 6px;
+}
+
+.dodge-effect {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 6px 8px;
+  background: rgb(255 255 255 / 4%);
+}
+
+.dodge-effect__fact {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+  user-select: text;
 }
 
 .danger-section {

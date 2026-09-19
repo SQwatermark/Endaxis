@@ -77,6 +77,28 @@ export function projectStringBuffAssignments(
   );
 }
 
+/** 原生非直接赋值不声明值类型；运行时必须按来源黑板中的实际类型复制。 */
+function projectCopiedBuffAssignments(
+  assignments: readonly BlackboardAssignmentSource[],
+): Readonly<Record<string, string>> {
+  return Object.fromEntries(
+    assignments.flatMap(item =>
+      item.useDirectValue ? [] : [[item.targetKey, item.inputValueKey] as const],
+    ),
+  );
+}
+
+/** CreateBuff 的直接数值赋值；非直接项由 projectCopiedBuffAssignments 保留原类型。 */
+function projectDirectNumericBuffAssignments(
+  assignments: readonly BlackboardAssignmentSource[],
+  sourcePath: string,
+): Readonly<Record<string, CompiledActionValueOperandSource>> {
+  return projectBuffAssignments(
+    assignments.filter(item => item.useDirectValue),
+    sourcePath,
+  );
+}
+
 export function compileActionNode(
   node: NativeActionNodeSource<KnownNativeActionLeafSource>,
   visualOnlyIds: ReadonlySet<string>,
@@ -196,6 +218,13 @@ export function compileActionNode(
       'damage',
       // 受击侧 Buff 可以治疗自身；heal 分支仍严格校验 healer、目标和计算式。
       'heal',
+      // 极限闪避监听器在受击前从自身黑板读取隐藏 Dodge 技能；具体施法者、目标和 ID
+      // 仍由 skillCast 投影逐字段校验，不能据此放宽其他动作族。
+      'skillCast',
+      // 这两个动作不读取事件来源或目标：前者恢复 PlayerController 的共享闪避能量，
+      // 后者只记录一次已成功的极限闪避。动作分支仍严格校验原生字段。
+      'dashEnergyRecovery',
+      'battleDetailRecord',
     ].includes(node.body.value.family)
   )
     throw new Error(
@@ -422,8 +451,8 @@ export function compileActionNode(
     if (
       !casterIsFixedCaster ||
       (!targetIsStaticEnemy && !targetIsFixedCaster) ||
-      action.skillId.blackboardKey !== null ||
-      action.skillId.value.length === 0
+      (action.skillId.blackboardKey === null && action.skillId.value.length === 0) ||
+      (action.skillId.blackboardKey !== null && action.skillId.blackboardKey.length === 0)
     ) {
       throw new Error(`${node.sourcePath}: unsupported deferred skill cast source/target/id`);
     }
@@ -431,7 +460,10 @@ export function compileActionNode(
       {
         kind: 'castSkillDuringAction',
         parameters: {
-          skillId: action.skillId.value,
+          skillId:
+            action.skillId.blackboardKey === null
+              ? action.skillId.value
+              : { blackboardKey: action.skillId.blackboardKey },
           target: targetIsFixedCaster ? 'caster' : 'enemy',
           skipApplyCost: action.skipApplyCost,
           inheritSourceSkillCastInfo: action.inheritSourceSkillCastId,
@@ -1675,6 +1707,20 @@ export function compileActionNode(
         ]
       : [operation];
   }
+  if (node.body.value.family === 'dashEnergyRecovery') {
+    return [
+      {
+        kind: 'recoverDashEnergy',
+        parameters: {
+          amount: actionValueOperand(node.body.value.action.amount),
+          canRecoverWhenOverdraft: node.body.value.action.canRecoverWhenOverdraft,
+        },
+      },
+    ];
+  }
+  if (node.body.value.family === 'battleDetailRecord') {
+    return [{ kind: 'recordPerfectDodge', parameters: {} }];
+  }
   if (node.body.value.family === 'finisherSpGain') {
     const action = node.body.value.action;
     const targetIsProvenEnemy =
@@ -1913,8 +1959,7 @@ export function compileActionNode(
       action.target.postProcessorTypes.length !== 0 ||
       !action.releaseByAction ||
       action.durationSeconds !== 0 ||
-      !action.followTargetPosition ||
-      !action.followTargetRotation
+      !action.followTargetPosition
     ) {
       throw new Error(`${node.sourcePath}: unsupported additional battle shape projection`);
     }
@@ -1973,6 +2018,23 @@ export function compileActionNode(
   }
   if (node.body.value.family === 'inputControl') {
     const action = node.body.value.action;
+    if (action.kind === 'markCanDash') {
+      return [{ kind: 'markCurrentSkillCanDash', parameters: {} }];
+    }
+    if (action.kind === 'overrideMultiDashLimit') {
+      if (
+        !isPlainTargetReference(action.target, 'Owner', '') ||
+        context.fixedBuffOwnerTarget !== 'caster'
+      ) {
+        throw new Error(`${node.sourcePath}: multi-dash limit requires an operator Buff owner`);
+      }
+      return [
+        {
+          kind: 'overrideMultiDashLimit',
+          parameters: { dashCount: actionValueOperand(action.dashCount) },
+        },
+      ];
+    }
     // AllowNextSkillAction 的条件分支必须进入运行时，才能让实际走到的有序下一段
     // 窗口决定技能块边界。没有有序下一段身份的技能会忽略这条轻量事实。
     if (action.kind === 'allowNextSkill' && context.preserveSkillOperableBoundary === true) {
@@ -2205,8 +2267,11 @@ function compileBuffApplication(
       throw new Error(`${sourcePath}: Buff identity or blackboard key is empty`);
   }
   // 纯表现子 Buff 的动作生命周期只持有并清理表现资源；来源已完整解析后可从无渲染后端省略。
-  if (action.buffs.every(entry => !entry.readIdFromBlackboard && visualOnlyIds.has(entry.buffId)))
-    return [];
+  const isPresentationOnlyEntry = (entry: (typeof action.buffs)[number]) =>
+    entry.readIdFromBlackboard
+      ? context.combatInvisibleDynamicBuffBlackboardKeys?.has(entry.buffIdKey) === true
+      : visualOnlyIds.has(entry.buffId);
+  if (action.buffs.every(isPresentationOnlyEntry)) return [];
   if (
     action.buffs.length === 1 &&
     !action.buffs[0]!.readIdFromBlackboard &&
@@ -2333,13 +2398,21 @@ function compileBuffApplication(
   if (target === null || source === null)
     throw new Error(`${sourcePath}: unsupported Buff target/source`);
   const steps = action.buffs.flatMap((entry, index) => {
-    if (!entry.readIdFromBlackboard && visualOnlyIds.has(entry.buffId)) return [];
+    if (isPresentationOnlyEntry(entry)) return [];
     const assignments = entry.assignBlackboard
-      ? projectBuffAssignments(entry.assignments, `${sourcePath}.buffs[${index}]`)
+      ? projectDirectNumericBuffAssignments(entry.assignments, `${sourcePath}.buffs[${index}]`)
       : {};
     const stringAssignments = entry.assignBlackboard
       ? projectStringBuffAssignments(entry.assignments)
       : {};
+    const copiedAssignments = entry.assignBlackboard
+      ? projectCopiedBuffAssignments(entry.assignments)
+      : {};
+    const reactionDuration =
+      assignments.duration ??
+      (copiedAssignments.duration === undefined
+        ? undefined
+        : ({ kind: 'blackboard', key: copiedAssignments.duration } as const));
     const reactionSteps: CompiledBuffStepSource[] = [];
     if (
       !entry.readIdFromBlackboard &&
@@ -2351,7 +2424,7 @@ function compileBuffApplication(
         !reactionTargetIsEnemy ||
         action.count.blackboardKey !== null ||
         action.count.value !== 1 ||
-        assignments.duration === undefined
+        reactionDuration === undefined
       ) {
         throw new Error(`${sourcePath}: unsupported electrification trigger Buff shape`);
       }
@@ -2363,7 +2436,7 @@ function compileBuffApplication(
         parameters: {
           reaction: 'electrification',
           target: 'enemy',
-          durationSeconds: assignments.duration,
+          durationSeconds: reactionDuration,
           effectiveness: 1,
         },
       });
@@ -2410,6 +2483,9 @@ function compileBuffApplication(
           ...(Object.keys(stringAssignments).length === 0
             ? {}
             : { stringBlackboardAssignments: stringAssignments }),
+          ...(Object.keys(copiedAssignments).length === 0
+            ? {}
+            : { copiedBlackboardAssignments: copiedAssignments }),
         },
       },
     ];

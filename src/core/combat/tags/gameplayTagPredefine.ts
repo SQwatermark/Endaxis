@@ -96,6 +96,24 @@ export class GameplayTagPredefine {
     }
   }
 
+  /**
+   * PlayerController.OnSprintPressed 与 Center 的三条进入 Dash 转换共同使用的门禁。
+   * 三项原生查询彼此独立；全部返回，便于时间轴在强制执行非法输入时完整说明原因。
+   */
+  getDashInputBlockers(
+    entity: Pick<EntityTags, 'matchesEntityTags'>,
+  ): readonly ('InImmobilized' | 'InDisableDash' | 'SuperArmor')[] {
+    const blockers: ('InImmobilized' | 'InDisableDash' | 'SuperArmor')[] = [];
+    for (const name of ['InImmobilized', 'InDisableDash'] as const) {
+      const query = this.getQuery(name);
+      if (entity.matchesEntityTags(query.tags, query.queryType)) blockers.push(name);
+    }
+    if (entity.matchesEntityTags([this.getTag('SuperArmor')], 'hasAny')) {
+      blockers.push('SuperArmor');
+    }
+    return blockers;
+  }
+
   canAddTag(entity: EntityTags, tag: GameplayTag): boolean {
     const query = this.#immunity.get(tag);
     return query === undefined || !entity.matchesEntityTags(query.tags, query.queryType);

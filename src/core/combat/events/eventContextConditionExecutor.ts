@@ -111,7 +111,9 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
       condition.kind !== 'eventSourceMatchesBuffSourceEntitySource' &&
       condition.kind !== 'eventSourceControlled' &&
       condition.kind !== 'actionInputTargetObjectTypeMatch' &&
-      condition.kind !== 'actionInputTargetIdentityMatch'
+      condition.kind !== 'actionInputTargetIdentityMatch' &&
+      condition.kind !== 'eventProjectilePerfectDodgeCooldownEquals' &&
+      condition.kind !== 'eventProjectileIgnoreImmuneLevelCompare'
     ) {
       return context === undefined
         ? this.delegate.evaluate(condition)
@@ -155,6 +157,24 @@ export class EventContextConditionExecutor implements CombatOperationExecutor {
     }
     if (context?.event === undefined) {
       throw new Error(`${condition.kind} requires a combat event context`);
+    }
+    if (condition.kind === 'eventProjectilePerfectDodgeCooldownEquals') {
+      return (
+        'event' in context.event &&
+        context.event.event === 'beforeHitByProjectile' &&
+        context.event.payload.isInPerfectDodgeCooldown === condition.value
+      );
+    }
+    if (condition.kind === 'eventProjectileIgnoreImmuneLevelCompare') {
+      return (
+        'event' in context.event &&
+        context.event.event === 'beforeHitByProjectile' &&
+        compareCombatNumbers(
+          context.event.payload.ignoreImmuneLevel,
+          condition.value,
+          condition.operator,
+        )
+      );
     }
     const damage = damageAbilityEvent(context.event);
     if (condition.kind === 'eventSourceMatchesBuffSource') {

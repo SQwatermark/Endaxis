@@ -151,6 +151,8 @@ function resolveStep(
       return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'reachSkillOperableBoundary':
       return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'markCurrentSkillCanDash':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'forEachContextTarget':
       return {
         ...keyed,
@@ -759,6 +761,10 @@ function resolveStep(
         },
       };
     }
+    case 'recoverDashEnergy':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
+    case 'recordPerfectDodge':
+      return { ...keyed, kind: step.kind, parameters: step.parameters };
     case 'gainSquadUltimateEnergyFromSkillCost':
       return {
         ...keyed,
@@ -891,6 +897,7 @@ function resolveStep(
     case 'showComboRingQte':
     case 'changeSkillSlot':
     case 'overrideBasicAttackMapping':
+    case 'overrideMultiDashLimit':
     case 'changePlayerActionMode':
     case 'changeNativeSkillType':
     case 'setCharacterPassiveUiValue':
@@ -1365,6 +1372,9 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
     ...(input.skill.exclusiveFrame === undefined
       ? {}
       : { exclusiveFrame: input.skill.exclusiveFrame }),
+    ...(input.skill.offsetRecordFrame === undefined
+      ? {}
+      : { offsetRecordFrame: input.skill.offsetRecordFrame }),
     ...(input.skill.inputWindows === undefined ? {} : { inputWindows: input.skill.inputWindows }),
     ...(cooldownFrames === undefined ? {} : { cooldownFrames }),
     ...(input.skill.costFrame === undefined ? {} : { costFrame: input.skill.costFrame }),

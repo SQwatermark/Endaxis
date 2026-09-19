@@ -167,19 +167,10 @@ const definition = {
                                   "target": "buffSource",
                                   "source": "buffSource",
                                   "inheritSourceSkillCastInfo": true,
-                                  "blackboardAssignments": {
-                                    "dmg_up": {
-                                      "kind": "blackboard",
-                                      "key": "dmg_up_dynamic"
-                                    },
-                                    "crit_up2": {
-                                      "kind": "blackboard",
-                                      "key": "crit_up2_dynamic"
-                                    },
-                                    "duration": {
-                                      "kind": "blackboard",
-                                      "key": "duration"
-                                    }
+                                  "copiedBlackboardAssignments": {
+                                    "dmg_up": "dmg_up_dynamic",
+                                    "crit_up2": "crit_up2_dynamic",
+                                    "duration": "duration"
                                   }
                                 }
                               }
@@ -232,19 +223,10 @@ const definition = {
                                   "target": "buffSource",
                                   "source": "buffSource",
                                   "inheritSourceSkillCastInfo": true,
-                                  "blackboardAssignments": {
-                                    "dmg_up": {
-                                      "kind": "blackboard",
-                                      "key": "dmg_up"
-                                    },
-                                    "crit_up2": {
-                                      "kind": "blackboard",
-                                      "key": "crit_up2"
-                                    },
-                                    "duration": {
-                                      "kind": "blackboard",
-                                      "key": "duration"
-                                    }
+                                  "copiedBlackboardAssignments": {
+                                    "dmg_up": "dmg_up",
+                                    "crit_up2": "crit_up2",
+                                    "duration": "duration"
                                   }
                                 }
                               }

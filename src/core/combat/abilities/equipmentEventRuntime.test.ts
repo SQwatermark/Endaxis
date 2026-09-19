@@ -54,12 +54,17 @@ describe('EquipmentEventRuntime', () => {
     const error = new Error('first child cleanup');
     const second = vi.fn(() => true);
     runtime.addChildBuff(0, {
+      isRecycled: false,
       reference: createTestBuffReference(),
       finish: () => {
         throw error;
       },
     });
-    runtime.addChildBuff(1, { reference: createTestBuffReference(), finish: second });
+    runtime.addChildBuff(1, {
+      isRecycled: false,
+      reference: createTestBuffReference(),
+      finish: second,
+    });
     expect(() => runtime.dispose()).toThrow(error);
     expect(second).toHaveBeenCalledExactlyOnceWith('other', null);
     expect(() => runtime.blackboardFor(1)).toThrow('not active');
@@ -81,6 +86,7 @@ describe('EquipmentEventRuntime', () => {
       }),
     );
     runtime.addChildBuff(0, {
+      isRecycled: false,
       reference: createTestBuffReference(),
       finish: () => {
         native.emitOutputDamage({ sourceId: 'operator:a', tags: ['normalSkill'] });
@@ -398,6 +404,7 @@ describe('EquipmentEventRuntime', () => {
     );
     const originalChildFinish = vi.fn(() => true);
     original.addChildBuff(0, {
+      isRecycled: false,
       reference: { ownerId: 'operator:a', instanceId: 9 },
       finish: originalChildFinish,
     });
@@ -432,7 +439,11 @@ describe('EquipmentEventRuntime', () => {
       copied.equipment,
     );
     const restoredChildFinish = vi.fn(() => true);
-    restored.bindRestoredChildren(reference => ({ reference, finish: restoredChildFinish }));
+    restored.bindRestoredChildren(reference => ({
+      isRecycled: false,
+      reference,
+      finish: restoredChildFinish,
+    }));
     restoredDispatcher.dispatch(
       {
         event: 'skillSpGained',
@@ -576,6 +587,7 @@ describe('EquipmentEventRuntime', () => {
     const { semanticEvents: events, emitOutputDamage } = createNativeEventFixture();
     const finished: string[] = [];
     const child = (id: string) => ({
+      isRecycled: false,
       reference: createTestBuffReference(),
       finish: (reason: unknown, source: unknown) => {
         expect(reason).toBe('other');
@@ -625,6 +637,7 @@ describe('EquipmentEventRuntime', () => {
       execute: (_step, context) => {
         const id = ++nextChild;
         context!.addAbilityChildBuff!({
+          isRecycled: false,
           reference: createTestBuffReference(),
           finish: () => {
             finished.push(id);

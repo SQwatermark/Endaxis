@@ -68,6 +68,7 @@ it('恢复干员被动时保留黑板、启用序列、订阅和子 Buff 所有�
   originalEnable.executeInstant({});
   original.enable();
   original.addChildBuff({
+    isRecycled: false,
     reference: { ownerId: 'operator', instanceId: 4 },
     finish: () => true,
   });
@@ -100,7 +101,7 @@ it('恢复干员被动时保留黑板、启用序列、订阅和子 Buff 所有�
     },
   });
   const finish = vi.fn(() => true);
-  restored.bindRestoredChildren(reference => ({ reference, finish }));
+  restored.bindRestoredChildren(reference => ({ isRecycled: false, reference, finish }));
   restoredDispatcher.dispatch(
     {
       event: 'abilityEntityFinished',

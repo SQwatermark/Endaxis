@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_generaltype',
+  iconPath: '/equipment/wuling00/item_equip_t4_parts_wuling00_edc_01.webp',
   modifiers: [
     {
       kind: 'panelStat',

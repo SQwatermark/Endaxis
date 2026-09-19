@@ -47,6 +47,9 @@ export class ActionBlackboard {
     const value = readActionBlackboard(this.#state, key);
     return typeof value === 'number' ? value : undefined;
   }
+  getValue(key: string): ActionBlackboardValue | undefined {
+    return readActionBlackboard(this.#state, key);
+  }
   assignDynamic(key: string, value: number): boolean {
     return assignDynamicBlackboard(this.#state, key, value);
   }

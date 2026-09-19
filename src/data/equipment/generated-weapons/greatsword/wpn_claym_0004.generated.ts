@@ -197,11 +197,8 @@ const definition = {
                               "buffId": "buff_wpn_claym_0004_cd",
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "cd_duration": {
-                                  "kind": "blackboard",
-                                  "key": "cd_duraton"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cd_duration": "cd_duraton"
                               }
                             }
                           },
@@ -212,19 +209,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "phy_damage_up2": {
-                                  "kind": "blackboard",
-                                  "key": "phy_damage_up2"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "phy_damage_up2": "phy_damage_up2",
+                                "duration": "duration",
+                                "max_stack": "max_stack"
                               }
                             }
                           }

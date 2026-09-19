@@ -491,6 +491,26 @@ export function validateBuffApplication(
       }
     }
   }
+  if (parameters.copiedBlackboardAssignments !== undefined) {
+    const assignments = asRecord(
+      parameters.copiedBlackboardAssignments,
+      `${path}.parameters.copiedBlackboardAssignments`,
+      out,
+    );
+    if (assignments !== null) {
+      for (const [key, value] of Object.entries(assignments)) {
+        if (key.trim().length === 0)
+          push(out, `${path}.parameters.copiedBlackboardAssignments`, 'contains an empty key');
+        if (typeof value !== 'string' || value.trim().length === 0) {
+          push(
+            out,
+            `${path}.parameters.copiedBlackboardAssignments.${key}`,
+            'expected a non-empty source key',
+          );
+        }
+      }
+    }
+  }
   if (parameters.inheritSourceSkillCastInfo !== undefined) {
     requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
   }

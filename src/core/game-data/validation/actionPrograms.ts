@@ -835,6 +835,27 @@ function validateCombatStep(
           }
         }
       }
+      if (parameters.copiedBlackboardAssignments !== undefined) {
+        const assignments = asRecord(
+          parameters.copiedBlackboardAssignments,
+          `${path}.parameters.copiedBlackboardAssignments`,
+          out,
+        );
+        if (assignments !== null) {
+          for (const [key, value] of Object.entries(assignments)) {
+            if (key.trim().length === 0) {
+              push(out, `${path}.parameters.copiedBlackboardAssignments`, 'contains an empty key');
+            }
+            if (typeof value !== 'string' || value.trim().length === 0) {
+              push(
+                out,
+                `${path}.parameters.copiedBlackboardAssignments.${key}`,
+                'expected a non-empty source key',
+              );
+            }
+          }
+        }
+      }
       break;
     }
     case 'applyElementalInfliction':
@@ -1879,6 +1900,8 @@ function validateCombatStep(
       break;
     case 'finishTimeline':
       break;
+    case 'markCurrentSkillCanDash':
+      break;
     case 'reachSkillOperableBoundary':
       if (!Array.isArray(parameters.sourceSkillIds) || parameters.sourceSkillIds.length === 0) {
         push(out, `${path}.parameters.sourceSkillIds`, 'expected a non-empty array');
@@ -2170,7 +2193,7 @@ function validateCombatStep(
       }
       break;
     case 'castSkillDuringAction':
-      requireString(parameters, 'skillId', `${path}.parameters`, out);
+      validateActionStringOperand(parameters.skillId, `${path}.parameters.skillId`, out);
       requireEnum(parameters, 'target', new Set(['caster', 'enemy']), `${path}.parameters`, out);
       requireBoolean(parameters, 'skipApplyCost', `${path}.parameters`, out);
       requireBoolean(parameters, 'inheritSourceSkillCastInfo', `${path}.parameters`, out);
@@ -2204,6 +2227,9 @@ function validateCombatStep(
       break;
     case 'overrideBasicAttackMapping':
       requireString(parameters, 'sourceSkillId', `${path}.parameters`, out);
+      break;
+    case 'overrideMultiDashLimit':
+      validateActionValueOperand(parameters.dashCount, `${path}.parameters.dashCount`, out);
       break;
     case 'changePlayerActionMode':
       requireString(parameters, 'modeId', `${path}.parameters`, out);

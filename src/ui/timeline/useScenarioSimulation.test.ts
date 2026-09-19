@@ -414,7 +414,10 @@ describe('useScenarioSimulation', () => {
         const earlyRun = await service.simulate(early, 300);
         expect(
           earlyRun.availabilityDiagnostics.some(
-            d => d.skillId === 'basicAttack2' && d.reasons.includes('skillInterruptUnavailable'),
+            d =>
+              d.skillId === 'basicAttack2' &&
+              d.reasons.includes('skillInterruptUnavailable') &&
+              d.currentCastId === casts[0]!.id,
           ),
         ).toBe(true);
       } finally {

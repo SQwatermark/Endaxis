@@ -200,15 +200,9 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up",
+                                "duration": "duration"
                               }
                             }
                           }
@@ -271,15 +265,9 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up_dynamic"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up_dynamic",
+                                "duration": "duration"
                               }
                             }
                           }

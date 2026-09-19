@@ -1,12 +1,20 @@
 import { expect, it, vi } from 'vitest';
-import type { CompiledAbilityEntityChildSkillProgram } from '../../../compiler/combatProgram';
+import type {
+  CompiledAbilityEntityChildSkillProgram,
+  ResolvedAbilityEntityDefinition,
+} from '../../../compiler/combatProgram';
+import { CombatOperationPrograms } from '../../actions/combatOperationPrograms';
+import type { CombatOperatorProgram } from '../combatRuntimeAssembly';
 import type { BuffOperationTarget } from '../../buffs/buffOperationExecutor';
 import { CombatBuffContainer } from '../../buffs/combatBuffs';
 import { CombatAttributeSet } from '../../attributes/combatAttributes';
 import { AbilityEntityChildSkillPrograms } from '../../abilities/abilityEntityChildSkillPrograms';
 import { AbilityEntityChildSkillRuntime } from '../../abilities/abilityEntityChildSkillRuntime';
 import { CombatSemanticEventRuntime } from '../../events/combatSemanticEventRuntime';
-import { bindRestoredCombatRuntimeAbilityEntityRelations } from './combatRuntimeAbilityEntityRelationRestoration';
+import {
+  bindRestoredCombatRuntimeAbilityEntityRelations,
+  resolveRestoredAbilityEntityDefinition,
+} from './combatRuntimeAbilityEntityRelationRestoration';
 import { LogicalAbilityEntityRuntime } from '../../abilities/logicalAbilityEntityRuntime';
 
 const childProgram = {
@@ -30,6 +38,41 @@ const childProgram = {
     },
   ],
 } satisfies CompiledAbilityEntityChildSkillProgram;
+
+it('不继承施法来源的实体仍恢复创建时的定义，不选同名的另一份定义', () => {
+  const programs = new CombatOperationPrograms();
+  const selected: ResolvedAbilityEntityDefinition = {
+    lifetime: { kind: 'infinite' },
+    childSkill: childProgram,
+  };
+  const other: ResolvedAbilityEntityDefinition = {
+    lifetime: { kind: 'infinite' },
+    childSkill: { ...childProgram, skillId: 'other' },
+  };
+  const runtime = new LogicalAbilityEntityRuntime({});
+  const entity = runtime.spawn({
+    abilityEntityId: 'arrow',
+    ownerId: 'operator',
+    source: { kind: 'operator', operatorId: 'operator' },
+    skillCastInfo: null,
+    definitionProgramId: programs.slot(selected),
+    definition: { lifetime: { kind: 'infinite' } },
+  });
+  const state = structuredClone(runtime.runtimeState).instances.get(entity.instanceId)!;
+  const operator = {
+    operatorId: 'operator',
+    skills: [],
+    abilityEntityDefinitions: { arrow: other },
+  } as CombatOperatorProgram;
+  expect(resolveRestoredAbilityEntityDefinition(operator, state, programs)).toBe(selected);
+  expect(state.skillCastInfo).toBeNull();
+  expect(() => resolveRestoredAbilityEntityDefinition(operator, state)).toThrow(
+    'program directory',
+  );
+  expect(() =>
+    resolveRestoredAbilityEntityDefinition(operator, state, new CombatOperationPrograms()),
+  ).toThrow('is missing');
+});
 
 it('统一恢复能力实体子技能和直属子 Buff，且不重放子技能开始', () => {
   const programs = new AbilityEntityChildSkillPrograms();
@@ -57,7 +100,7 @@ it('统一恢复能力实体子技能和直属子 Buff，且不重放子技能�
     .get(entity.instanceId)!
     .childSkills.push(originalChild.runtimeState);
   const reference = { ownerId: 'ability-entity:1', instanceId: 4 };
-  original.addChildBuff(entity, { reference, finish: () => true });
+  original.addChildBuff(entity, { isRecycled: false, reference, finish: () => true });
 
   const restoredRuntime = new LogicalAbilityEntityRuntime({
     restoredState: structuredClone(original.runtimeState),
@@ -67,7 +110,7 @@ it('统一恢复能力实体子技能和直属子 Buff，且不重放子技能�
   const target = Object.assign(
     new CombatBuffContainer(reference.ownerId, new CombatAttributeSet<string>()),
     {
-      resolveHandle: () => ({ reference, finish }),
+      resolveHandle: () => ({ isRecycled: false, reference, finish }),
     },
   ) satisfies BuffOperationTarget;
   const entities = {

@@ -39,6 +39,12 @@ export interface SpRecoverySnapshot {
 
 /** 创建一次战斗资源账本所需的完整初始状态。 */
 export interface CombatResourceSnapshot {
+  /** 账号侧闪避体力；省略时只追踪相对消耗，不据此拒绝闪避输入。 */
+  readonly dashEnergy?: {
+    readonly spent: number;
+    readonly capacity: number | null;
+    readonly inOverdraft: boolean;
+  };
   readonly sp: number;
   readonly maxSp: number;
   readonly returnedSp: number;
@@ -99,6 +105,16 @@ export interface UltimateEnergyChangeOptions {
   readonly ignoreGainMultiplier?: boolean;
 }
 
+export interface DashEnergyChange {
+  readonly requestedValue: number;
+  readonly actualValue: number;
+  readonly previousSpent: number;
+  readonly currentSpent: number;
+  readonly capacity: number | null;
+  readonly wasInOverdraft: boolean;
+  readonly isInOverdraft: boolean;
+}
+
 export interface CombatResourceRuntimeResolvers {
   /** 原生每次正向回能时读取目标当前 UltimateSpGainScalar。 */
   readonly ultimateEnergyGainMultiplier?: (operatorId: string) => number;
@@ -141,6 +157,7 @@ export class CombatResources {
   /** 导出当前余额及聚合许可，供初始化和展示使用；不包含动态注册项，不能用于切面恢复。 */
   snapshot(): CombatResourceSnapshot {
     return {
+      dashEnergy: { ...this.runtimeState.dashEnergy },
       sp: this.runtimeState.sp,
       maxSp: this.runtimeState.maxSp,
       returnedSp: this.runtimeState.returnedSp,
@@ -162,6 +179,52 @@ export class CombatResources {
             : new Set(member.allowedUltimateEnergyRecoveryTags),
       })),
       normalSkillUltimateEnergy: { ...this.runtimeState.normalSkillUltimateEnergy },
+    };
+  }
+
+  /**
+   * 普通闪避扣除 1 份共享体力。上限未知时只记录相对消耗，合法性返回未知。
+   * 上限已知时，原生允许最后一次输入进入透支，之后才拒绝新的 Dash。
+   */
+  consumeDashEnergy(): { readonly accepted: boolean; readonly legalityKnown: boolean } {
+    const state = this.runtimeState.dashEnergy;
+    if (state.inOverdraft) return { accepted: false, legalityKnown: state.capacity !== null };
+    state.spent = Math.fround(state.spent + 1);
+    if (state.capacity !== null && state.spent > state.capacity) {
+      state.spent = state.capacity;
+      state.inOverdraft = true;
+    }
+    return { accepted: true, legalityKnown: state.capacity !== null };
+  }
+
+  /** 按 RecoverDashEnergy 语义返还共享闪避体力，并在配置允许时解除透支。 */
+  recoverDashEnergy(amount: number, canRecoverWhenOverdraft: boolean): DashEnergyChange {
+    if (!Number.isFinite(amount) || amount < 0)
+      throw new RangeError('dash energy recovery must be a non-negative finite number');
+    const state = this.runtimeState.dashEnergy;
+    const previousSpent = state.spent;
+    const wasInOverdraft = state.inOverdraft;
+    if (state.inOverdraft && !canRecoverWhenOverdraft) {
+      return {
+        requestedValue: amount,
+        actualValue: 0,
+        previousSpent,
+        currentSpent: state.spent,
+        capacity: state.capacity,
+        wasInOverdraft,
+        isInOverdraft: state.inOverdraft,
+      };
+    }
+    if (canRecoverWhenOverdraft) state.inOverdraft = false;
+    state.spent = Math.fround(Math.max(0, state.spent - amount));
+    return {
+      requestedValue: amount,
+      actualValue: Math.fround(previousSpent - state.spent),
+      previousSpent,
+      currentSpent: state.spent,
+      capacity: state.capacity,
+      wasInOverdraft,
+      isInOverdraft: state.inOverdraft,
     };
   }
 
@@ -264,6 +327,8 @@ function validateRestoredResourceState(
   state: CombatResourceState,
 ): void {
   if (state.maxSp !== snapshot.maxSp) throw new Error('restored max SP does not match scenario');
+  if (state.dashEnergy.capacity !== (snapshot.dashEnergy?.capacity ?? null))
+    throw new Error('restored Dash energy capacity does not match scenario');
   if (state.spRecoveryPerSecond !== snapshot.spRecovery.valuePerSecond) {
     throw new Error('restored SP recovery does not match scenario');
   }

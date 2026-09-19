@@ -26,6 +26,7 @@ describe('公共 Buff 独立所有权', () => {
       'buff_common_cryst_cryst_triggered',
       'buff_common_natural_natural_triggered',
       'buff_common_poise_break_damage_taken_scale',
+      'buff_common_dash',
     ]);
   });
   it('相同 ID 的相同定义只保留一份，冲突定义严格失败', () => {
@@ -43,7 +44,7 @@ describe('公共 Buff 独立所有权', () => {
     [['buff_common_test', 'buff_common_test'], 'duplicate system Buff roots'],
     [['buff_chr_0011_test'], 'invalid system Buff root'],
     [['buff_common_test/../../other'], 'invalid system Buff root'],
-    [[{ id: 'buff_common_test', damage: 100 }], 'expected string'],
+    [[{ id: 'buff_common_test', damage: 100 }], 'unexpected fields'],
   ])('系统根拒绝重复、非公共身份和内嵌行为：%j', (roots, message) => {
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), 'endaxis-system-roots-'));
     try {

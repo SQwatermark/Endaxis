@@ -21,7 +21,7 @@ describe('SkillLibraryCard legacy structure parity', () => {
     expect(source).toContain("content: '>'");
   });
 
-  it('always leaves a native title fallback for the complete skill name', () => {
+  it('keeps a native title fallback when no tooltip is supplied', () => {
     expect(source).toContain(':title="tooltip || name"');
   });
 
@@ -41,7 +41,11 @@ describe('SkillLibraryCard legacy structure parity', () => {
     expect(editorSource).not.toContain('<OperatorSkillTooltip');
     expect(editorSource).not.toContain('selectedTrackLegacyOperatorSheet');
     expect(editorSource).not.toContain('operator-edit-tooltip-popper');
-    expect(editorSource).toContain(':tooltip="skillLibraryEntryName(entry)"');
+    expect(editorSource).toContain(':tooltip="skillLibraryTypeLabel(entry)"');
+    expect(editorSource).toContain(':name="skillLibraryCardName(entry)"');
+    expect(editorSource).toContain(
+      'skillLibraryNameEntry(entry, selectedTrackModel.value.skillLibrary)',
+    );
   });
 
   it('uses the old native drag-and-drop gesture instead of turning drag into sticky placement', () => {

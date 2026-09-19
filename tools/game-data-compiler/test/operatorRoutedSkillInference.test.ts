@@ -24,6 +24,7 @@ function fixture(overrides: Record<string, unknown> = {}) {
     blackboard: {},
     costFrame: 3,
     exclusiveFrame: 1,
+    offsetRecordFrame: 0,
     naturalDurationFrames: 1,
     timelineBlockFrames: 1,
     allowNextSkillTransitions: [],

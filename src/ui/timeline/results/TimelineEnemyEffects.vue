@@ -123,6 +123,12 @@ function effectName(nameKey: string | undefined, fallback: string): string {
   return key !== '' && te(key) ? t(key) : fallback;
 }
 
+function spellBurstTitle(burstType: string | undefined): string {
+  if (burstType === undefined) return props.labels.burst;
+  const key = `timeline.skillEditing.spellBurstTypes.${burstType}`;
+  return te(key) ? t(key) : `${props.labels.burst} ${burstType}`;
+}
+
 function pointX(frame: number): number {
   return (
     props.trackHeaderWidth +
@@ -164,7 +170,7 @@ const markers = computed(() =>
       marker.kind === 'attachmentTrigger'
         ? resolveBuffDisplayName(attachment?.id ?? marker.element ?? '', { t, te })
         : marker.kind === 'burst'
-          ? `${props.labels.burst} ${marker.burstType ?? ''}`
+          ? spellBurstTitle(marker.burstType)
           : `${props.labels.reactionConsumed} ${effectName(configuredNameKey(REACTION_BUFF_IDS[marker.reaction ?? '']), marker.reaction ?? '')}`;
     return {
       key: `${index}:${marker.kind}:${marker.frame}:${marker.reaction ?? marker.burstType ?? ''}`,

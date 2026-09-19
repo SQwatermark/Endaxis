@@ -125,6 +125,7 @@ export const liinoComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 68,
     naturalDurationFrames: 150,
     exclusiveFrame: 98,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -561,6 +562,7 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 12,
     naturalDurationFrames: 103,
     exclusiveFrame: 18,
+    offsetRecordFrame: 3,
     inputWindows: {
       commandMappings: [
         {
@@ -638,12 +640,24 @@ export const liinoBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         11,
       ),
+      scheduled(
+        12,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack2'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0035_liino_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.094, 0.103, 0.112, 0.122, 0.131, 0.14, 0.15, 0.159, 0.168, 0.18, 0.194, 0.21] },
+  {
+    atb: 0,
+    atk_scale: [0.094, 0.103, 0.112, 0.122, 0.131, 0.14, 0.15, 0.159, 0.168, 0.18, 0.194, 0.21],
+    display_atk_scale: [0.19, 0.21, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42],
+  },
 );
 
 export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -653,6 +667,7 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 175,
     exclusiveFrame: 30,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -695,12 +710,24 @@ export const liinoBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         19,
       ),
+      scheduled(
+        20,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack3'] }),
+        ),
+        38,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0035_liino_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.054, 0.059, 0.064, 0.07, 0.075, 0.08, 0.086, 0.091, 0.096, 0.103, 0.111, 0.12] },
+  {
+    atb: 0,
+    atk_scale: [0.054, 0.059, 0.064, 0.07, 0.075, 0.08, 0.086, 0.091, 0.096, 0.103, 0.111, 0.12],
+    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.56, 0.6],
+  },
 );
 
 export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -710,6 +737,7 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 163,
     exclusiveFrame: 27,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -1088,7 +1116,15 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         32,
       ),
+      scheduled(
+        24,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack4'] }),
+        ),
+        44,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0035_liino_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1096,6 +1132,7 @@ export const liinoBasicAttack3: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [0.22, 0.24, 0.26, 0.29, 0.31, 0.33, 0.35, 0.37, 0.4, 0.42, 0.46, 0.5],
     atk_scale_2: [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.02, 0.02, 0.02, 0.02, 0.02],
+    display_atk_scale: [0.27, 0.29, 0.32, 0.35, 0.37, 0.4, 0.43, 0.45, 0.48, 0.51, 0.56, 0.6],
   },
 );
 
@@ -1106,6 +1143,7 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 212,
     exclusiveFrame: 56,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -1637,12 +1675,24 @@ export const liinoBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         63,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack5'] }),
+        ),
+        33,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0035_liino_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.036, 0.04, 0.043, 0.047, 0.05, 0.054, 0.058, 0.061, 0.065, 0.069, 0.075, 0.081] },
+  {
+    atb: 0,
+    atk_scale: [0.036, 0.04, 0.043, 0.047, 0.05, 0.054, 0.058, 0.061, 0.065, 0.069, 0.075, 0.081],
+    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
+  },
 );
 
 export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -1652,6 +1702,7 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 28,
     naturalDurationFrames: 173,
     exclusiveFrame: 46,
+    offsetRecordFrame: 17,
     inputWindows: {
       commandMappings: [
         {
@@ -1886,7 +1937,15 @@ export const liinoBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         20,
       ),
+      scheduled(
+        28,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0035_liino_attack1'] }),
+        ),
+        49,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0035_liino_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -1905,6 +1964,7 @@ export const liinoFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 58,
     naturalDurationFrames: 219,
     exclusiveFrame: 68,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -2223,9 +2283,10 @@ export const liinoPlungingAttack: SkillDefinition = withSkillBlackboard(
   {
     key: 'plungingAttack',
     sourceSkillId: 'chr_0035_liino_plunging_attack_end',
-    timelineBlockFrames: 11,
+    timelineBlockFrames: 21,
     naturalDurationFrames: 121,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 11, endFrame: 20, sourceSkillIds: ['chr_0012_avywen_attack1'] },
@@ -2447,6 +2508,7 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 50,
     naturalDurationFrames: 2100,
     exclusiveFrame: 1821,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -3118,12 +3180,12 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
               'chr_0035_liino_combo_skill',
               'chr_0035_liino_normal_skill_combo',
             ],
-            blackboardAssignments: {
-              music_frame: { kind: 'blackboard', key: 'normalskill_frame' },
-              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-              heal_value: { kind: 'blackboard', key: 'heal_value' },
-              atk_scale_2: { kind: 'blackboard', key: 'atk_scale_2' },
-              hit_tigger: { kind: 'blackboard', key: 'atk_trigger' },
+            copiedBlackboardAssignments: {
+              music_frame: 'normalskill_frame',
+              heal_rate: 'heal_rate',
+              heal_value: 'heal_value',
+              atk_scale_2: 'atk_scale_2',
+              hit_tigger: 'atk_trigger',
             },
           }),
         ),
@@ -3138,13 +3200,13 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             inheritToNextSkillIds: ['chr_0035_liino_combo_skill'],
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'music_duration' },
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              healtaken_rate: { kind: 'blackboard', key: 'healtaken_rate' },
-              shelter: { kind: 'blackboard', key: 'shelter' },
-              shelter_duration: { kind: 'blackboard', key: 'shelter_duration' },
-              talent_a: { kind: 'blackboard', key: 'talent_a' },
+            copiedBlackboardAssignments: {
+              duration: 'music_duration',
+              atk_up: 'atk_up',
+              healtaken_rate: 'healtaken_rate',
+              shelter: 'shelter',
+              shelter_duration: 'shelter_duration',
+              talent_a: 'talent_a',
             },
           }),
           step('applyBuff', {
@@ -3153,11 +3215,11 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             inheritToNextSkillIds: ['chr_0035_liino_combo_skill'],
-            blackboardAssignments: {
-              vfx_music_duration: { kind: 'blackboard', key: 'music_duration' },
-              atk_scale: { kind: 'blackboard', key: 'atk_scale_3' },
-              heal_value: { kind: 'blackboard', key: 'heal_value' },
-              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
+            copiedBlackboardAssignments: {
+              vfx_music_duration: 'music_duration',
+              atk_scale: 'atk_scale_3',
+              heal_value: 'heal_value',
+              heal_rate: 'heal_rate',
             },
           }),
         ),
@@ -3384,13 +3446,42 @@ export const liinoBattleSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const liinoBattleSkillEnd: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'battleSkillEnd',
+    sourceSkillId: 'chr_0035_liino_normal_skill_end',
+    timelineBlockFrames: 1,
+    naturalDurationFrames: 1,
+    exclusiveFrame: 0,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    switchToBuffCast: {
+      currentSkillTypes: ['battleSkill', 'ultimate'],
+      asSkillCast: false,
+      sequence: sequence(
+        step('applyBuff', {
+          buffId: 'buff_chr_0035_liino_skill_end',
+          target: 'caster',
+          inheritSourceSkillCastInfo: true,
+        }),
+      ),
+    },
+    skillType: 'battleSkill',
+    levelSource: 'battleSkill',
+    nativeSkillType: 'extraActiveSkill',
+  },
+  { atk_scale: 1, atk_up: 0.5 },
+);
+
 export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
   {
     key: 'battleSkillCombo',
     sourceSkillId: 'chr_0035_liino_normal_skill_combo',
-    timelineBlockFrames: 0,
+    timelineBlockFrames: 1955,
     naturalDurationFrames: 2100,
     exclusiveFrame: 1954,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -3785,33 +3876,6 @@ export const liinoBattleSkillCombo: SkillDefinition = withSkillBlackboard(
   },
 );
 
-export const liinoBattleSkillEnd: SkillDefinition = withSkillBlackboard(
-  {
-    key: 'battleSkillEnd',
-    sourceSkillId: 'chr_0035_liino_normal_skill_end',
-    timelineBlockFrames: 1,
-    naturalDurationFrames: 1,
-    exclusiveFrame: 0,
-    costFrame: 0,
-    scheduledSequences: [],
-    switchToBuffCast: {
-      currentSkillTypes: ['battleSkill', 'ultimate'],
-      asSkillCast: false,
-      sequence: sequence(
-        step('applyBuff', {
-          buffId: 'buff_chr_0035_liino_skill_end',
-          target: 'caster',
-          inheritSourceSkillCastInfo: true,
-        }),
-      ),
-    },
-    skillType: 'battleSkill',
-    levelSource: 'battleSkill',
-    nativeSkillType: 'extraActiveSkill',
-  },
-  { atk_scale: 1, atk_up: 0.5 },
-);
-
 export const liinoUltimate: SkillDefinition = withSkillBlackboard(
   {
     key: 'ultimate',
@@ -3819,6 +3883,7 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 77,
     naturalDurationFrames: 660,
     exclusiveFrame: 543,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 77, endFrame: 527, sourceSkillIds: ['chr_0035_liino_normal_skill_end'] },
@@ -3910,9 +3975,9 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0035_liino_ultskill_music_heal_start',
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              heal_value: { kind: 'blackboard', key: 'ultheal03_value' },
-              heal_rate: { kind: 'blackboard', key: 'ultheal03_rate' },
+            copiedBlackboardAssignments: {
+              heal_value: 'ultheal03_value',
+              heal_rate: 'ultheal03_rate',
             },
           }),
         ),
@@ -3937,9 +4002,9 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0035_liino_ultskill_music_heal',
             target: 'party',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              heal_value: { kind: 'blackboard', key: 'ultheal02_value' },
-              heal_rate: { kind: 'blackboard', key: 'ultheal02_rate' },
+            copiedBlackboardAssignments: {
+              heal_value: 'ultheal02_value',
+              heal_rate: 'ultheal02_rate',
             },
           }),
         ),
@@ -4090,15 +4155,15 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
-                blackboardAssignments: {
-                  duration: { kind: 'blackboard', key: 'ultmusic_duration' },
-                  finish_duration: { kind: 'blackboard', key: 'finish_duration' },
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  spellenhance_rate: { kind: 'blackboard', key: 'fnlatk_up' },
-                  talent_a: { kind: 'blackboard', key: 'talent_a' },
-                  shelter: { kind: 'blackboard', key: 'shelter' },
-                  shelter_duration: { kind: 'blackboard', key: 'shelter_duration' },
-                  healtaken_rate: { kind: 'blackboard', key: 'healtaken_rate' },
+                copiedBlackboardAssignments: {
+                  duration: 'ultmusic_duration',
+                  finish_duration: 'finish_duration',
+                  atk_up: 'atk_up',
+                  spellenhance_rate: 'fnlatk_up',
+                  talent_a: 'talent_a',
+                  shelter: 'shelter',
+                  shelter_duration: 'shelter_duration',
+                  healtaken_rate: 'healtaken_rate',
                 },
               }),
             ),
@@ -4113,15 +4178,15 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
-                blackboardAssignments: {
-                  duration: { kind: 'blackboard', key: 'ultmusic_duration' },
-                  finish_duration: { kind: 'blackboard', key: 'finish_duration' },
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  spellenhance_rate: { kind: 'blackboard', key: 'fnlatk_up' },
-                  talent_a: { kind: 'blackboard', key: 'talent_a' },
-                  shelter: { kind: 'blackboard', key: 'shelter' },
-                  shelter_duration: { kind: 'blackboard', key: 'shelter_duration' },
-                  healtaken_rate: { kind: 'blackboard', key: 'healtaken_rate' },
+                copiedBlackboardAssignments: {
+                  duration: 'ultmusic_duration',
+                  finish_duration: 'finish_duration',
+                  atk_up: 'atk_up',
+                  spellenhance_rate: 'fnlatk_up',
+                  talent_a: 'talent_a',
+                  shelter: 'shelter',
+                  shelter_duration: 'shelter_duration',
+                  healtaken_rate: 'healtaken_rate',
                 },
               }),
             ),
@@ -4139,12 +4204,12 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             inheritToNextSkillIds: ['chr_0035_liino_combo_skill'],
-            blackboardAssignments: {
-              vfx_music_duration: { kind: 'blackboard', key: 'ultmusic_duration' },
-              atk_scale_3: { kind: 'blackboard', key: 'atk_scale_3' },
-              music_damage_trigger: { kind: 'blackboard', key: 'ultmusic_trigger' },
-              ultheal_value: { kind: 'blackboard', key: 'ultheal_value' },
-              ultheal_rate: { kind: 'blackboard', key: 'ultheal_rate' },
+            copiedBlackboardAssignments: {
+              vfx_music_duration: 'ultmusic_duration',
+              atk_scale_3: 'atk_scale_3',
+              music_damage_trigger: 'ultmusic_trigger',
+              ultheal_value: 'ultheal_value',
+              ultheal_rate: 'ultheal_rate',
             },
           }),
         ),
@@ -4245,21 +4310,26 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
     healtaken_rate: 0,
     music_loop: 0,
     poise: 20,
+    potential_2: 0,
     pulse_vul_duration: 0,
     pulse_vul_rate: 0,
     radius: 5,
     shelter: 0,
     shelter_duration: 0,
+    shelter_teammate: 0,
     spell_vulnerable_rate: 0,
     spellenhance_rate: 0.2,
     talent_a: 0,
     talent_b: 0,
+    talent0_usp: 0,
+    teammate_rate: 0,
     ultheal_rate: [36, 43.2, 50.4, 57.6, 61.2, 64.8, 68.4, 72, 75.6, 77.4, 79.2, 81],
     ultheal_value: [0.08, 0.1, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.18, 0.18, 0.19],
     ultheal02_rate: 0,
     ultheal02_value: 0,
     ultheal03_rate: [324, 388.8, 453.6, 518.4, 550.8, 583.2, 615.6, 648, 680.4, 696.6, 712.8, 729],
     ultheal03_value: [0.76, 0.91, 1.06, 1.21, 1.29, 1.36, 1.44, 1.51, 1.59, 1.63, 1.66, 1.7],
+    ultmusic_atk_ratio: 0.5,
     ultmusic_duration: 15,
     ultmusic_trigger: 1.5,
     will_max: [0.4, 0.4, 0.4, 0.4, 0.45, 0.45, 0.45, 0.45, 0.45, 0.5, 0.55, 0.6],
@@ -4267,12 +4337,30 @@ export const liinoUltimate: SkillDefinition = withSkillBlackboard(
       0.00018, 0.0002, 0.00021, 0.00023, 0.00025, 0.00027, 0.00028, 0.0003, 0.00032, 0.00034,
       0.00037, 0.0004,
     ],
+    display_atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
   },
+);
+
+export const liinoPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const liino: OperatorDefinition = {
   slug: 'liino',
   gameId: 'LIINO',
+  skillDisplayNameKeys: { battleSkillEnd: 'skillNames.stanceTermination' },
   rarity: 6,
   weaponType: 'polearm',
   element: 'electric',
@@ -4323,11 +4411,15 @@ export const liino: OperatorDefinition = {
       key: 'battleSkill',
       skillType: 'battleSkill',
       levelSource: 'battleSkill',
-      skills: [liinoBattleSkill, liinoBattleSkillCombo],
-      replacementSkills: [liinoBattleSkillEnd],
-      replacementSkillPlacements: { battleSkillEnd: 'standard' },
+      skills: liinoBattleSkill,
+      replacementSkills: [liinoBattleSkillEnd, liinoBattleSkillCombo],
+      replacementSkillPlacements: { battleSkillEnd: 'standard', battleSkillCombo: 'internal' },
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: liinoUltimate },
+  ],
+  dodgeSkill: liinoPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
   ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: ['battleSkillEnd'] },
@@ -4345,6 +4437,13 @@ export const liino: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -5040,10 +5139,7 @@ export const liino: OperatorDefinition = {
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              duration: { kind: 'blackboard', key: 'duration' },
-            },
+            copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration' },
           }),
         ),
       },
@@ -5746,10 +5842,7 @@ export const liino: OperatorDefinition = {
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
                 asChildBuff: true,
-                blackboardAssignments: {
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  duration: { kind: 'blackboard', key: 'duration_atkup' },
-                },
+                copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration_atkup' },
               }),
             ),
           },
@@ -5928,11 +6021,11 @@ export const liino: OperatorDefinition = {
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     asChildBuff: true,
-                    blackboardAssignments: {
-                      music_frame: { kind: 'blackboard', key: 'music_frame' },
-                      atk_scale_2: { kind: 'blackboard', key: 'atk_scale_2' },
-                      heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-                      heal_value: { kind: 'blackboard', key: 'heal_value' },
+                    copiedBlackboardAssignments: {
+                      music_frame: 'music_frame',
+                      atk_scale_2: 'atk_scale_2',
+                      heal_rate: 'heal_rate',
+                      heal_value: 'heal_value',
                     },
                   }),
                 ),
@@ -5949,11 +6042,11 @@ export const liino: OperatorDefinition = {
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
                     asChildBuff: true,
-                    blackboardAssignments: {
-                      music_frame: { kind: 'blackboard', key: 'music_frame' },
-                      heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-                      heal_value: { kind: 'blackboard', key: 'heal_value' },
-                      atk_scale_2: { kind: 'blackboard', key: 'atk_scale_2' },
+                    copiedBlackboardAssignments: {
+                      music_frame: 'music_frame',
+                      heal_rate: 'heal_rate',
+                      heal_value: 'heal_value',
+                      atk_scale_2: 'atk_scale_2',
                     },
                   }),
                 ),
@@ -6220,10 +6313,7 @@ export const liino: OperatorDefinition = {
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              shelter: { kind: 'blackboard', key: 'shelter' },
-              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-            },
+            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           }),
         ),
       },
@@ -6269,10 +6359,7 @@ export const liino: OperatorDefinition = {
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              shelter: { kind: 'blackboard', key: 'shelter' },
-              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-            },
+            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           }),
         ),
       },
@@ -6317,10 +6404,7 @@ export const liino: OperatorDefinition = {
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              shelter: { kind: 'blackboard', key: 'shelter' },
-              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-            },
+            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           }),
         ),
       },
@@ -6365,10 +6449,7 @@ export const liino: OperatorDefinition = {
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              shelter: { kind: 'blackboard', key: 'shelter' },
-              heal_rate: { kind: 'blackboard', key: 'heal_rate' },
-            },
+            copiedBlackboardAssignments: { shelter: 'shelter', heal_rate: 'heal_rate' },
           }),
         ),
       },
@@ -6395,9 +6476,9 @@ export const liino: OperatorDefinition = {
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
             asChildBuff: true,
-            blackboardAssignments: {
-              spellenhance_rate: { kind: 'blackboard', key: 'spellenhance_rate' },
-              duration: { kind: 'blackboard', key: 'duration' },
+            copiedBlackboardAssignments: {
+              spellenhance_rate: 'spellenhance_rate',
+              duration: 'duration',
             },
           }),
         ),
@@ -6705,10 +6786,7 @@ export const liino: OperatorDefinition = {
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
                 asChildBuff: true,
-                blackboardAssignments: {
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  duration: { kind: 'blackboard', key: 'duration_atkup' },
-                },
+                copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'duration_atkup' },
               }),
               step('applyBuff', {
                 buffId: 'buff_chr_0035_liino_ultskill_buff_atkup',
@@ -6717,9 +6795,9 @@ export const liino: OperatorDefinition = {
                 inheritSourceSkillCastInfo: true,
                 finishByAction: true,
                 asChildBuff: true,
-                blackboardAssignments: {
-                  spellenhance_rate: { kind: 'blackboard', key: 'spellenhance_rate' },
-                  finish_duration: { kind: 'blackboard', key: 'finish_duration' },
+                copiedBlackboardAssignments: {
+                  spellenhance_rate: 'spellenhance_rate',
+                  finish_duration: 'finish_duration',
                 },
               }),
             ),

@@ -20,7 +20,8 @@ export interface ScenarioEditPolicy {
   readonly resolveSkillFrame?: (scenario: ScenarioDocument, castId: string) => number | undefined;
 }
 
-type ScenarioInputKind = 'skill' | 'consumable' | 'controlSwitch' | 'externalEvent';
+type ScenarioInputKind =
+  'skill' | 'consumable' | 'controlSwitch' | 'externalEvent' | 'dodge' | 'dodgeSuccess';
 interface EditableInput {
   kind: ScenarioInputKind;
   id: string;
@@ -75,6 +76,19 @@ function inputs(scenario: ScenarioDocument, policy: ScenarioEditPolicy): Editabl
     result.push({ kind: 'controlSwitch', id: marker.id, frame: marker.frame, value: marker });
   for (const marker of scenario.battle.externalEventMarkers ?? [])
     result.push({ kind: 'externalEvent', id: marker.id, frame: marker.frame, value: marker });
+  for (const marker of scenario.battle.dodgeMarkers ?? []) {
+    const { mode, ...dash } = marker;
+    result.push({ kind: 'dodge', id: marker.id, frame: marker.frame, value: dash });
+    if (mode.kind === 'perfectDodge') {
+      const frame = marker.frame + mode.successDelayFrames;
+      result.push({
+        kind: 'dodgeSuccess',
+        id: marker.id,
+        frame,
+        value: { id: marker.id, trackIndex: marker.trackIndex, frame },
+      });
+    }
+  }
   return result;
 }
 

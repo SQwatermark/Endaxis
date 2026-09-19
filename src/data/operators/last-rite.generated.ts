@@ -82,6 +82,7 @@ export const lastRiteBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 171,
     exclusiveFrame: 25,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -168,6 +169,7 @@ export const lastRiteBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 29,
     naturalDurationFrames: 175,
     exclusiveFrame: 34,
+    offsetRecordFrame: 10,
     inputWindows: {
       commandMappings: [
         {
@@ -289,6 +291,7 @@ export const lastRiteBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 36,
     naturalDurationFrames: 230,
     exclusiveFrame: 47,
+    offsetRecordFrame: 29,
     inputWindows: {
       commandMappings: [
         {
@@ -448,6 +451,7 @@ export const lastRiteBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 46,
     naturalDurationFrames: 182,
     exclusiveFrame: 54,
+    offsetRecordFrame: 21,
     inputWindows: {
       commandMappings: [
         {
@@ -638,6 +642,7 @@ export const lastRiteFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 40,
     naturalDurationFrames: 176,
     exclusiveFrame: 58,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -728,6 +733,7 @@ export const lastRitePlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 133,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -773,6 +779,7 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 34,
     naturalDurationFrames: 429,
     exclusiveFrame: 373,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -843,13 +850,13 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0026_lastrite_normal_skill_main_start',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-              duration: { kind: 'blackboard', key: 'duration' },
-              atb: { kind: 'blackboard', key: 'atb' },
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              potential_1: { kind: 'blackboard', key: 'potential_1' },
-              usp: { kind: 'blackboard', key: 'usp' },
+            copiedBlackboardAssignments: {
+              atk_scale: 'atk_scale',
+              duration: 'duration',
+              atb: 'atb',
+              atk_up: 'atk_up',
+              potential_1: 'potential_1',
+              usp: 'usp',
             },
           }),
         ),
@@ -890,13 +897,13 @@ export const lastRiteBattleSkill: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0026_lastrite_normal_skill_self',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-              duration: { kind: 'blackboard', key: 'duration' },
-              atb: { kind: 'blackboard', key: 'atb' },
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              potential_1: { kind: 'blackboard', key: 'potential_1' },
-              poise: { kind: 'blackboard', key: 'poise' },
+            copiedBlackboardAssignments: {
+              atk_scale: 'atk_scale',
+              duration: 'duration',
+              atb: 'atb',
+              atk_up: 'atk_up',
+              potential_1: 'potential_1',
+              poise: 'poise',
             },
           }),
           step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
@@ -956,6 +963,7 @@ export const lastRiteUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 140,
     naturalDurationFrames: 360,
     exclusiveFrame: 170,
+    offsetRecordFrame: 0,
     inputWindows: {
       commandMappings: [
         {
@@ -1157,6 +1165,7 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 65,
     naturalDurationFrames: 216,
     exclusiveFrame: 90,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 65, endFrame: 91, sourceSkillIds: ['chr_0026_lastrite_normal_skill'] },
@@ -1387,6 +1396,22 @@ export const lastRiteComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const lastRitePerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const lastRite: OperatorDefinition = {
   slug: 'last-rite',
   gameId: 'LASTRITE',
@@ -1442,6 +1467,10 @@ export const lastRite: OperatorDefinition = {
       skills: lastRiteComboSkill,
     },
   ],
+  dodgeSkill: lastRitePerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1458,6 +1487,7 @@ export const lastRite: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1837,9 +1867,7 @@ export const lastRite: OperatorDefinition = {
                                   target: 'enemy',
                                   source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
-                                  blackboardAssignments: {
-                                    atk_scale1: { kind: 'blackboard', key: 'atk_scale' },
-                                  },
+                                  copiedBlackboardAssignments: { atk_scale1: 'atk_scale' },
                                 }),
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
@@ -1854,9 +1882,7 @@ export const lastRite: OperatorDefinition = {
                                   target: 'enemy',
                                   source: 'buffSource',
                                   inheritSourceSkillCastInfo: true,
-                                  blackboardAssignments: {
-                                    atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                                  },
+                                  copiedBlackboardAssignments: { atk_scale: 'atk_scale' },
                                 }),
                                 step('applyBuff', {
                                   buffId: 'buff_chr_0026_lastrite_normal_skill_tag',
@@ -1930,13 +1956,13 @@ export const lastRite: OperatorDefinition = {
                 target: 'buffSource',
                 source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                  duration: { kind: 'blackboard', key: 'duration' },
-                  atb: { kind: 'blackboard', key: 'atb' },
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  poise: { kind: 'blackboard', key: 'poise' },
-                  potential_1: { kind: 'blackboard', key: 'potential_1' },
+                copiedBlackboardAssignments: {
+                  atk_scale: 'atk_scale',
+                  duration: 'duration',
+                  atb: 'atb',
+                  atk_up: 'atk_up',
+                  poise: 'poise',
+                  potential_1: 'potential_1',
                 },
               }),
             ),
@@ -1988,12 +2014,12 @@ export const lastRite: OperatorDefinition = {
               target: 'buffSource',
               source: 'buffSource',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-                duration: { kind: 'blackboard', key: 'duration' },
-                atb: { kind: 'blackboard', key: 'atb' },
-                atk_up: { kind: 'blackboard', key: 'atk_up' },
-                potential_1: { kind: 'blackboard', key: 'potential_1' },
+              copiedBlackboardAssignments: {
+                atk_scale: 'atk_scale',
+                duration: 'duration',
+                atb: 'atb',
+                atk_up: 'atk_up',
+                potential_1: 'potential_1',
               },
             }),
             step('gainSquadUltimateEnergyFromSkillCost', { coefficient: 1 }),
@@ -2165,13 +2191,13 @@ export const lastRite: OperatorDefinition = {
             target: 'party',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'duration' },
-              atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-              atb: { kind: 'blackboard', key: 'atb' },
-              poise: { kind: 'blackboard', key: 'poise' },
-              atk_up: { kind: 'blackboard', key: 'atk_up' },
-              potential_1: { kind: 'blackboard', key: 'potential_1' },
+            copiedBlackboardAssignments: {
+              duration: 'duration',
+              atk_scale: 'atk_scale',
+              atb: 'atb',
+              poise: 'poise',
+              atk_up: 'atk_up',
+              potential_1: 'potential_1',
             },
           }),
           step('changeResourceByActionValue', {
@@ -2280,9 +2306,9 @@ export const lastRite: OperatorDefinition = {
                       target: 'eventTarget',
                       source: 'buffSource',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        crystal_vul: { kind: 'blackboard', key: 'crystal_vul' },
-                        duration: { kind: 'blackboard', key: 'duration' },
+                      copiedBlackboardAssignments: {
+                        crystal_vul: 'crystal_vul',
+                        duration: 'duration',
                       },
                     }),
                   ),

@@ -175,4 +175,28 @@ describe('SkillSlotOperationExecutor', () => {
     expect(changeNativeSkillType).toHaveBeenCalledWith('ultimateEnd', 'attachSkill');
     expect(changeSkillSlot).not.toHaveBeenCalled();
   });
+
+  it('把负的连续 Dash 上限转成原生无限值，并在动作结束时清除', () => {
+    const setMultiDashLimit = vi.fn();
+    const context = {
+      blackboard: new ActionBlackboard(),
+      actionRegistrationState: { registrationId: null as number | null },
+    };
+    const executor = new SkillSlotOperationExecutor({
+      changeSkillSlot: vi.fn(),
+      setMultiDashLimit,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+    const step: ResolvedCombatOperationStep = {
+      kind: 'overrideMultiDashLimit',
+      parameters: { dashCount: { kind: 'constant', value: -1 } },
+    };
+
+    expect(executor.execute(step, context)).toBe(true);
+    expect(setMultiDashLimit).toHaveBeenLastCalledWith(0x7fffffff);
+    executor.end(step, context);
+    executor.end(step, context);
+    expect(setMultiDashLimit).toHaveBeenLastCalledWith(null);
+    expect(setMultiDashLimit).toHaveBeenCalledTimes(2);
+  });
 });

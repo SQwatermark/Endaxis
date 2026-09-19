@@ -12,6 +12,7 @@ import {
   type PlayerSkillInput,
 } from '../../game-data/operatorDefinition';
 import { type GameplayTag } from '../../../../packages/game-data-contract/src/gameplayTags';
+import type { CombatObjectRef } from '../receipt/combatReceipt';
 import {
   type SharedSpGainModifierState,
   type SharedSpRecoveryModifierState,
@@ -193,8 +194,19 @@ export interface OperatorResources extends Omit<
   allowedUltimateEnergyRecoveryTags: ReadonlySet<GameplayTag> | null;
 }
 
+/** PlayerController 持有的全队共享闪避体力。capacity 为 null 时仅记录相对满值的消耗。 */
+export interface DashEnergyState {
+  /** 已经从满值消耗的份数；一次普通闪避增加 1，极限闪避当前返还 0.5。 */
+  spent: number;
+  /** 账号侧闪避体力上限；游戏数据中没有该账号属性时保持 null。 */
+  readonly capacity: number | null;
+  /** 原生 currentDashCount 低于零后进入的透支状态。 */
+  inOverdraft: boolean;
+}
+
 /** 技力、终结技能量与回能限制的数据图。 */
 export interface CombatResourceState {
+  readonly dashEnergy: DashEnergyState;
   sp: number;
   readonly maxSp: number;
   returnedSp: number;
@@ -246,6 +258,8 @@ export interface TimeDilationSource {
   readonly sourceId: string;
   readonly sourceActionId: string;
   readonly sourceCastId?: string;
+  /** 创建本实例的执行宿主；与展示用的来源技能 ID 分开保存。 */
+  readonly producedBy?: CombatObjectRef;
 }
 
 export interface TimeDilationInstanceSnapshot {
@@ -344,10 +358,42 @@ export interface ExternalCombatEventRuntimeState {
   previousEvent: ScheduledExternalCombatEventInput | null;
 }
 
+/** 闪避输入及人工极限闪避成功事实当前消费到的位置。 */
+export interface DodgeInputRuntimeState {
+  nextInputIndex: number;
+  previousInput: ScheduledDodgeInput | null;
+  /** 只包含已经提交的身份，供逐帧调用与恢复分支检查重复输入。 */
+  readonly executedDashIds: Set<string>;
+  readonly declaredSuccessIds: Set<string>;
+}
+
+export function createDodgeInputState(): DodgeInputRuntimeState {
+  return {
+    nextInputIndex: 0,
+    previousInput: null,
+    executedDashIds: new Set(),
+    declaredSuccessIds: new Set(),
+  };
+}
+
+/** PlayerController 持有的全队连续闪避计数与距上次闪避的时间。 */
+export interface PlayerMultiDashState {
+  /** 距上一次实际执行 Dash 的模拟帧数；null 表示尚未执行过。 */
+  framesSinceLastDash: number | null;
+  /** 当前连续 Dash 串中的次数；超过外侧输入窗口后下一次会重置为 1。 */
+  count: number;
+}
+
+export function createPlayerMultiDashState(): PlayerMultiDashState {
+  return { framesSinceLastDash: null, count: 0 };
+}
+
 /** 所有干员和动态实例共享的战斗数据。 */
 export interface CombatSharedState {
   readonly clock: CombatClockState;
   readonly resources: CombatResourceState;
+  /** 原生 PlayerController 的连续闪避窗口；切人不会重置。 */
+  readonly multiDash: PlayerMultiDashState;
   readonly timeDilation: TimeDilationState | null;
   readonly comboWindows: ComboWindowState;
   readonly ultimatePresentation: UltimatePresentationState;
@@ -395,6 +441,22 @@ export interface ScheduledSkillInput extends CombatSkillInput {
   /** 动态组与固定输入落在同帧时，仍按轨道和块的原始声明顺序执行。 */
   readonly declarationOrder?: number;
 }
+
+/** 时间轴提交给中心状态机的闪避操作；成功事实与 Dash 输入分开排序。 */
+export type DodgeInput =
+  | {
+      readonly kind: 'dash';
+      readonly dodgeId: string;
+      readonly operatorId: string;
+      readonly direction: 'forward' | 'backward';
+    }
+  | {
+      readonly kind: 'perfectDodgeSuccess';
+      readonly dodgeId: string;
+      readonly operatorId: string;
+    };
+
+export type ScheduledDodgeInput = DodgeInput & { readonly frame: number };
 
 export interface ExternalCombatEventInput {
   readonly targetOperatorIds: readonly string[];

@@ -34,7 +34,7 @@ it('从冻结词条定位事件处理器，重复处理器键不强选词条', (
   ).toBeUndefined();
 });
 
-it('装备按发布时的处理器定位到具体词条，施法身份不能跨干员串用', () => {
+it('装备按发布时的处理器定位到具体词条', () => {
   const gear = { slug: 'gear', traits: [{ key: 'secondary', eventHandlers: [{ key: 'on-hit' }] }] };
   const gears = capturePublishedEquipmentSources([gear], 'gear');
   const source = resolvePublishedBuffSource(
@@ -48,13 +48,6 @@ it('装备按发布时的处理器定位到具体词条，施法身份不能跨�
   expect(resolvePublishedEquipmentTrait(source, 'equipment:gearTrait:gear:on-hit')).toBe(
     'secondary',
   );
-  expect(
-    resolvePublishedBuffSource(
-      { sourceId: 'another-track', sourceActionId: 'cast' },
-      scenario,
-      operators,
-    ),
-  ).toBeUndefined();
 });
 
 it('captures native weapon presentation identity and custom names without retaining mutable definitions', () => {
@@ -146,6 +139,22 @@ it('keeps the skill identity while carrying its own level-source title fallback'
       resolvePublishedBuffSource({ sourceActionId, sourceId: 'track' }, scenario, withTitles),
     ).toEqual({ kind: 'skill', slug: 'native', key: 'skill', fallbackKey: 'ultimate' });
   }
+});
+
+it('Buff 的接收者和施法者位于不同轨道时仍按全局技能块 ID 找施法者', () => {
+  const crossTrack = structuredClone(scenario);
+  crossTrack.tracks[1] = {
+    ...crossTrack.tracks[0]!,
+    id: 'receiving-track',
+    skillCasts: [],
+  };
+  expect(
+    resolvePublishedBuffSource(
+      { sourceId: 'receiving-track', sourceActionId: 'cast' },
+      crossTrack,
+      operators,
+    ),
+  ).toEqual({ kind: 'skill', slug: 'native', key: 'skill' });
 });
 
 it.each([

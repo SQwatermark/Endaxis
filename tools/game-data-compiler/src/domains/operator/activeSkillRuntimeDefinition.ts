@@ -32,7 +32,12 @@ export type CompiledOperatorActiveSkillRuntimeDefinitionSource = Readonly<
     Required<
       Pick<
         SkillDefinition,
-        'sourceSkillId' | 'blackboard' | 'costFrame' | 'exclusiveFrame' | 'naturalDurationFrames'
+        | 'sourceSkillId'
+        | 'blackboard'
+        | 'costFrame'
+        | 'exclusiveFrame'
+        | 'offsetRecordFrame'
+        | 'naturalDurationFrames'
       >
     >
 > & {
@@ -78,6 +83,7 @@ export function compileOperatorActiveSkillRuntimeDefinitionSource(input: {
     // SkillData.duration getter 使用 max(durationFrame, 1) / 30；正式契约保存运行时帧语义。
     naturalDurationFrames: Math.max(runtime.durationFrame, 1),
     exclusiveFrame: runtime.exclusiveFrame,
+    offsetRecordFrame: runtime.offsetRecordFrame,
     allowNextSkillTransitions: runtime.allowNextSkillTransitions,
     ...(runtime.inputWindows === undefined ? {} : { inputWindows: runtime.inputWindows }),
     costFrame,

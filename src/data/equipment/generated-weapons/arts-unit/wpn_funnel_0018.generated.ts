@@ -176,19 +176,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           },
@@ -199,19 +190,10 @@ const definition = {
                               "target": "partyExceptCaster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up2"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up2",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           }
@@ -262,19 +244,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           },
@@ -285,19 +258,10 @@ const definition = {
                               "target": "partyExceptCaster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up2"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up2",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           }
@@ -348,19 +312,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           },
@@ -371,19 +326,10 @@ const definition = {
                               "target": "partyExceptCaster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up2"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up2",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           }
@@ -434,19 +380,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           },
@@ -457,19 +394,10 @@ const definition = {
                               "target": "partyExceptCaster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "atk_up": {
-                                  "kind": "blackboard",
-                                  "key": "atk_up2"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "atk_up": "atk_up2",
+                                "max_stack": "max_stack",
+                                "duration": "duration"
                               }
                             }
                           }
@@ -507,19 +435,10 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "atk_up": {
-                            "kind": "blackboard",
-                            "key": "atk_up"
-                          },
-                          "max_stack": {
-                            "kind": "blackboard",
-                            "key": "max_stack"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "atk_up": "atk_up",
+                          "max_stack": "max_stack",
+                          "duration": "duration"
                         }
                       }
                     },
@@ -530,19 +449,10 @@ const definition = {
                         "target": "partyExceptCaster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "atk_up": {
-                            "kind": "blackboard",
-                            "key": "atk_up2"
-                          },
-                          "max_stack": {
-                            "kind": "blackboard",
-                            "key": "max_stack"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "atk_up": "atk_up2",
+                          "max_stack": "max_stack",
+                          "duration": "duration"
                         }
                       }
                     }

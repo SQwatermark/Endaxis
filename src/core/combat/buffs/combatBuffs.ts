@@ -41,7 +41,7 @@ import {
   setFiniteBuffDuration,
   tickBuffLifecycle,
 } from './buffLifecycleExecution';
-import { buffReferenceKey } from './buffReference';
+import { buffReferenceKey, resolveBuffReferenceState } from './buffReference';
 import { SHIELD_EPSILON, absorbShieldDamage, refreshShieldConsumed } from './buffShieldExecution';
 import {
   applyTimedBuffEnhancement,
@@ -277,12 +277,16 @@ export interface CombatBuffAddOptions {
 /** 由宿主精确持有的实例结束端口；null 是已知空施法，省略仍表示未核实。 */
 export interface BuffApplicationHandle {
   readonly reference: import('../state/foundationState').BuffReference;
+  /** 回收完成后引用失效；仅结束、或正在执行回收回调时仍有效。 */
+  readonly isRecycled: boolean;
   readonly isFinished?: boolean;
   finish(reason: BuffFinishReason, finishSkillCastInfo?: CombatSkillCastInfo | null): boolean;
   bindFinishedCallback?(callback: () => void): { dispose(): void };
 }
 
 export class CombatBuff<Key extends string> {
+  /** 仅防止同步回收回调重入；完整帧保存点不会处于回收调用栈中。 */
+  #recycling = false;
   readonly #state: BuffInstanceState<Key>;
   /** 供容器统一持有实例数据；对象回调和宿主绑定不进入此结构。 */
   get runtimeState(): BuffInstanceState<Key> {
@@ -626,19 +630,21 @@ export class CombatBuff<Key extends string> {
 
   /** 仅供容器独立回收阶段使用；结束不隐式调用此方法。 */
   recycleFinished(): void {
-    if (this.#state.lifecycle.recycled) return;
+    if (this.#state.lifecycle.recycled || this.#recycling) return;
     if (!this.#state.lifecycle.finished) throw new Error('Cannot recycle an active Buff');
     const callbacks = this.#state.recycleCallbackIds.map(id => {
       const callback = this.#recycleCallbacks.get(id);
       if (callback === undefined) throw new Error(`Buff recycle callback '${id}' is not bound`);
       return callback;
     });
-    this.#state.lifecycle.recycled = true;
+    this.#recycling = true;
     this.#stackingGroup?.removeRecycled(this);
     this.#stackingGroup = null;
     try {
       for (const callback of callbacks) callback();
     } finally {
+      this.#state.lifecycle.recycled = true;
+      this.#recycling = false;
       this.#recycleCallbacks.clear();
       this.#state.recycleCallbackIds.length = 0;
     }
@@ -1398,6 +1404,7 @@ export class CombatBuffContainer<Key extends string> {
         `Buff reference owner '${reference.ownerId}' does not match '${this.ownerId}'`,
       );
     }
+    if (resolveBuffReferenceState(this.#state, reference) === undefined) return undefined;
     return this.getInstance(reference.instanceId);
   }
 

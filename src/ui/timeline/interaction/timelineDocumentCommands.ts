@@ -14,11 +14,15 @@ import type {
   ExternalCombatEventDocument,
   ExternalEventMarkerDocument,
   ExternalEventTargetDocument,
+  DodgeMarkerDocument,
   EditableBarDocument,
   GlobalOperatorStatModifierDocument,
   SkillCastDocument,
 } from '../../../core/project/schema';
-import { getSkillCastPlacementChains } from '../../../core/project/skillCastPlacement';
+import {
+  getSkillCastPlacementChains,
+  resolveDodgeMarkerLastInputFrame,
+} from '../../../core/project/skillCastPlacement';
 import type { SkillDefinition } from '../../../core/game-data/operatorDefinition';
 import { validateSkillDefinition } from '../../../core/game-data/validateSkillDefinition';
 
@@ -60,6 +64,7 @@ function battleDurationContentFloor(scenario: ScenarioDocument): number {
     ...scenario.battle.cycleBoundaries.map(marker => marker.frame),
     ...scenario.battle.controlSwitches.map(marker => marker.frame),
     ...(scenario.battle.externalEventMarkers ?? []).map(marker => marker.frame),
+    ...(scenario.battle.dodgeMarkers ?? []).map(resolveDodgeMarkerLastInputFrame),
     scenario.battle.simulationRange?.startFrame ?? 0,
     scenario.battle.simulationRange?.endFrame ?? 0,
   ];
@@ -144,7 +149,7 @@ export function setGlobalOperatorStatModifiers(
 }
 
 /**
- * 交换两条轨道及其视觉顺序，并让主控切换事件继续指向原来的干员轨道。
+ * 交换两条轨道及其视觉顺序，所有绑定轨道的标记继续指向原来的干员。
  * 技能块和配装随轨道对象一起移动，不需要逐项改写引用。
  */
 export function swapTimelineTracks(
@@ -155,19 +160,34 @@ export function swapTimelineTracks(
   if (leftIndex === rightIndex) return scenario;
   const tracks = [...scenario.tracks] as ScenarioDocument['tracks'];
   [tracks[leftIndex], tracks[rightIndex]] = [tracks[rightIndex], tracks[leftIndex]];
-  const controlSwitches = scenario.battle.controlSwitches.map(controlSwitch => ({
-    ...controlSwitch,
+  const remap = <T extends { trackIndex: TrackIndex }>(marker: T): T => ({
+    ...marker,
     trackIndex:
-      controlSwitch.trackIndex === leftIndex
+      marker.trackIndex === leftIndex
         ? rightIndex
-        : controlSwitch.trackIndex === rightIndex
+        : marker.trackIndex === rightIndex
           ? leftIndex
-          : controlSwitch.trackIndex,
-  }));
+          : marker.trackIndex,
+  });
   return {
     ...scenario,
     tracks,
-    battle: { ...scenario.battle, controlSwitches },
+    battle: {
+      ...scenario.battle,
+      controlSwitches: scenario.battle.controlSwitches.map(remap),
+      ...(scenario.battle.dodgeMarkers === undefined
+        ? {}
+        : { dodgeMarkers: scenario.battle.dodgeMarkers.map(remap) }),
+      ...(scenario.battle.externalEventMarkers === undefined
+        ? {}
+        : {
+            externalEventMarkers: scenario.battle.externalEventMarkers.map(marker =>
+              marker.target.scope === 'operator'
+                ? { ...marker, target: remap(marker.target) }
+                : marker,
+            ),
+          }),
+    },
   };
 }
 
@@ -1082,6 +1102,72 @@ export function removeControlSwitch(scenario: ScenarioDocument, id: string): Sce
   const controlSwitches = scenario.battle.controlSwitches.filter(item => item.id !== id);
   if (controlSwitches.length === scenario.battle.controlSwitches.length) return scenario;
   return { ...scenario, battle: { ...scenario.battle, controlSwitches } };
+}
+
+export function addDodgeMarker(
+  scenario: ScenarioDocument,
+  marker: DodgeMarkerDocument,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, marker.frame, -scenario.battle.prepFrames);
+  if (scenario.tracks[marker.trackIndex] === null) {
+    throw new Error(`track ${marker.trackIndex} is empty`);
+  }
+  resolveDodgeMarkerLastInputFrame(marker);
+  if (marker.mode.kind === 'perfectDodge' && marker.mode.successDelayFrames < 0) {
+    throw new RangeError('perfect dodge success delay must be non-negative');
+  }
+  const current = scenario.battle.dodgeMarkers ?? [];
+  if (marker.id.length === 0 || current.some(item => item.id === marker.id)) {
+    throw new Error(`invalid or duplicate dodge marker id '${marker.id}'`);
+  }
+  return {
+    ...scenario,
+    battle: { ...scenario.battle, dodgeMarkers: [...current, marker] },
+  };
+}
+
+export function moveDodgeMarker(
+  scenario: ScenarioDocument,
+  id: string,
+  frame: number,
+): ScenarioDocument {
+  requireTimelineMarkerFrame(scenario, frame, -scenario.battle.prepFrames);
+  const current = scenario.battle.dodgeMarkers ?? [];
+  const index = current.findIndex(item => item.id === id);
+  if (index < 0 || current[index]!.frame === frame) return scenario;
+  const dodgeMarkers = [...current];
+  dodgeMarkers[index] = { ...dodgeMarkers[index]!, frame };
+  resolveDodgeMarkerLastInputFrame(dodgeMarkers[index]!);
+  return { ...scenario, battle: { ...scenario.battle, dodgeMarkers } };
+}
+
+/** 更新闪避方向、目标轨道或极限闪避声明；时间由移动命令单独维护。 */
+export function updateDodgeMarker(
+  scenario: ScenarioDocument,
+  id: string,
+  patch: Partial<Pick<DodgeMarkerDocument, 'trackIndex' | 'direction' | 'mode'>>,
+): ScenarioDocument {
+  const current = scenario.battle.dodgeMarkers ?? [];
+  const index = current.findIndex(item => item.id === id);
+  if (index < 0) return scenario;
+  const updated = { ...current[index]!, ...patch };
+  if (scenario.tracks[updated.trackIndex] === null) {
+    throw new Error(`track ${updated.trackIndex} is empty`);
+  }
+  if (updated.mode.kind === 'perfectDodge' && updated.mode.successDelayFrames < 0) {
+    throw new RangeError('perfect dodge success delay must be non-negative');
+  }
+  resolveDodgeMarkerLastInputFrame(updated);
+  const dodgeMarkers = [...current];
+  dodgeMarkers[index] = updated;
+  return { ...scenario, battle: { ...scenario.battle, dodgeMarkers } };
+}
+
+export function removeDodgeMarker(scenario: ScenarioDocument, id: string): ScenarioDocument {
+  const current = scenario.battle.dodgeMarkers ?? [];
+  const dodgeMarkers = current.filter(item => item.id !== id);
+  if (dodgeMarkers.length === current.length) return scenario;
+  return { ...scenario, battle: { ...scenario.battle, dodgeMarkers } };
 }
 
 export function addExternalEventMarker(

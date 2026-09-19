@@ -3,18 +3,21 @@ import { computed, nextTick, ref, useId, watch } from 'vue';
 import { useI18n } from 'vue-i18n';
 import { EaButton, EaDialog } from '../../../design-system/index';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
+import { CombatObjectOrigins } from '../../../core/projection/combatObjectOrigins';
 import type {
   CombatObjectNode,
-  CombatObjectOrigins,
   CombatObjectRelation,
 } from '../../../core/projection/combatObjectOrigins';
+import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 import { combatObjectKey } from '../../../core/combat/receipt/combatObjectIdentity';
 import { layoutCombatOriginGraph, type OriginRelationFilter } from './combatOriginGraphLayout';
 import { projectHitDamageContribution } from '../../../core/projection/damageContribution';
 import { runtimeTargetFromEntityId } from '../../../core/game-data/logicalAbilityEntity';
 
 const props = defineProps<{
-  origins: CombatObjectOrigins;
+  origins?: CombatObjectOrigins;
+  /** 未提供现成索引时，首次打开图再为这份固定结果建立索引。 */
+  receiptEntries?: readonly CombatReceiptEntry[];
   sequence: number;
   root?: import('../../../core/combat/receipt/combatReceipt').CombatObjectRef;
   operatorLabel?: (operatorId: string) => string;
@@ -26,6 +29,11 @@ const props = defineProps<{
 }>();
 const { t, te } = useI18n();
 const open = ref(false);
+const origins = computed(
+  () =>
+    props.origins ??
+    (open.value && props.receiptEntries ? new CombatObjectOrigins(props.receiptEntries) : null),
+);
 const filter = ref<OriginRelationFilter>('buffChanges');
 const selection = ref(0);
 const failedIcons = ref(new Set<string>());
@@ -59,24 +67,24 @@ const relations: readonly CombatObjectRelation[] = [
   'providedBy',
 ];
 const graph = computed(() =>
-  open.value
-    ? layoutCombatOriginGraph(props.origins, props.sequence, filter.value, 128, props.root)
+  open.value && origins.value
+    ? layoutCombatOriginGraph(origins.value, props.sequence, filter.value, 128, props.root)
     : null,
 );
 const chosen = computed(() => graph.value?.nodes[selection.value]?.object);
 const contribution = computed(() => {
-  if (!open.value) return undefined;
+  if (!open.value || !origins.value) return undefined;
   if (props.root && props.root.kind !== 'receipt') return undefined;
-  const hit = props.origins.get({ kind: 'receipt', sequence: props.sequence });
+  const hit = origins.value.get({ kind: 'receipt', sequence: props.sequence });
   const source = hit.fact?.sourceId;
   if (source === undefined) return undefined;
-  const operator = props.origins.providerOperator(
-    props.origins.get(runtimeTargetFromEntityId(source)),
+  const operator = origins.value.providerOperator(
+    origins.value.get(runtimeTargetFromEntityId(source)),
     props.sequence,
   );
   return operator === undefined
     ? undefined
-    : projectHitDamageContribution(props.origins, hit, operator);
+    : projectHitDamageContribution(origins.value, hit, operator);
 });
 const chosenContribution = computed(() => {
   const keys = new Set(chosenModifiers.value.map(item => combatObjectKey(item.node.ref)));
@@ -98,7 +106,7 @@ const chosenFact = computed(() =>
     ? chosen.value.fact
     : undefined,
 );
-watch([() => props.origins, () => props.sequence, () => props.root, filter], async () => {
+watch([origins, () => props.sequence, () => props.root, filter], async () => {
   selection.value = 0;
   await nextTick();
   focusRoot();

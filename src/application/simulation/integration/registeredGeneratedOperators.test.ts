@@ -242,6 +242,14 @@ describe('registered generated operators', () => {
         }),
       );
       if (endAt === 120) {
+        const boundary = result.receiptEntries.find(
+          entry =>
+            entry.event === 'SkillOperableBoundaryReached' &&
+            entry.data?.castId === 'skillCast:liino:battle-start',
+        );
+        expect(boundary?.frame).toBeGreaterThan(1);
+        expect(boundary?.frame).toBeLessThan(120);
+        expect(boundary?.data?.durationFrames).toBe(50);
         // The native listener begins at skill-local frame 90; test termination inside that window.
         for (const buffId of [
           'buff_chr_0035_liino_normalskill_music_tag',
@@ -2070,6 +2078,9 @@ describe('registered generated operators', () => {
         .filter(entry => entry.event === 'SkillStarted')
         .map(entry => entry.data?.skillId),
     ).toEqual(['ultimate', 'battleSkillDuringUltimate']);
+    expect(
+      result.receiptEntries.filter(entry => entry.event === 'ComboWindowUnavailableAtStart'),
+    ).toEqual([]);
     const slotChanges = result.receiptEntries
       .filter(entry => entry.event === 'SkillSlotChanged' && entry.sourceId === 'track:camille')
       .map(entry => entry.data?.targetSkillKey);

@@ -151,10 +151,7 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
             buffId: 'buff_chr_0025_ardelia_normal_skill_vulnerable',
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'duration_vul' },
-              rate: { kind: 'blackboard', key: 'rate_vul_base' },
-            },
+            copiedBlackboardAssignments: { duration: 'duration_vul', rate: 'rate_vul_base' },
           }),
           step('finishBuffsByTag', {
             target: 'enemy',
@@ -389,6 +386,7 @@ export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 11,
     naturalDurationFrames: 110,
     exclusiveFrame: 15,
+    offsetRecordFrame: 6,
     inputWindows: {
       commandMappings: [
         {
@@ -413,7 +411,15 @@ export const ardeliaBasicAttack1: SkillDefinition = withSkillBlackboard(
         ]),
         7,
       ),
+      scheduled(
+        11,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0025_ardelia_attack2'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0025_ardelia_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -428,6 +434,7 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 118,
     exclusiveFrame: 26,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -461,12 +468,24 @@ export const ardeliaBasicAttack2: SkillDefinition = withSkillBlackboard(
         ]),
         11,
       ),
+      scheduled(
+        20,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0025_ardelia_attack3'] }),
+        ),
+        36,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0025_ardelia_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45] },
+  {
+    atb: 0,
+    atk_scale: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
+    atk_scale_display: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
+  },
 );
 
 export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -476,6 +495,7 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 45,
     naturalDurationFrames: 164,
     exclusiveFrame: 47,
+    offsetRecordFrame: 27,
     inputWindows: {
       commandMappings: [
         {
@@ -626,12 +646,24 @@ export const ardeliaBasicAttack3: SkillDefinition = withSkillBlackboard(
         ]),
         40,
       ),
+      scheduled(
+        45,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0025_ardelia_attack4'] }),
+        ),
+        58,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0025_ardelia_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08] },
+  {
+    atb: 0,
+    atk_scale: [0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06, 0.06, 0.06, 0.07, 0.07, 0.08],
+    atk_scale_display: [0.53, 0.58, 0.63, 0.68, 0.74, 0.79, 0.84, 0.89, 0.95, 1.01, 1.09, 1.18],
+  },
 );
 
 export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -641,6 +673,7 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 50,
     naturalDurationFrames: 198,
     exclusiveFrame: 50,
+    offsetRecordFrame: 24,
     inputWindows: {
       commandMappings: [
         {
@@ -751,7 +784,15 @@ export const ardeliaBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         198,
       ),
+      scheduled(
+        50,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0025_ardelia_attack1'] }),
+        ),
+        58,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0025_ardelia_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -770,6 +811,7 @@ export const ardeliaFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 57,
     naturalDurationFrames: 215,
     exclusiveFrame: 65,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -979,6 +1021,7 @@ export const ardeliaPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 23,
     naturalDurationFrames: 156,
     exclusiveFrame: 22,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1054,6 +1097,7 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 47,
     naturalDurationFrames: 378,
     exclusiveFrame: 239,
+    offsetRecordFrame: 7,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 47, endFrame: 52, sourceSkillIds: ['chr_0025_ardelia_attack1'] },
@@ -1288,15 +1332,19 @@ export const ardeliaBattleSkill: SkillDefinition = withSkillBlackboard(
   {
     additional_def_decrease: 0,
     atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
+    cam_angle: 0,
     def_decrease: 0,
     duration_vul: 30,
     heal_scale: 0,
     heal_value: 0,
+    input_angle: 0,
     poise: 10,
     potential2: 0,
+    rate_vul: 0,
     rate_vul_base: [0.12, 0.12, 0.12, 0.13, 0.13, 0.13, 0.14, 0.14, 0.16, 0.17, 0.18, 0.2],
     sheep_num: 0,
     talent1: 0,
+    rate_vul_max: [0.36, 0.36, 0.36, 0.37, 0.37, 0.37, 0.38, 0.38, 0.4, 0.41, 0.42, 0.4],
   },
 );
 
@@ -1307,6 +1355,7 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 23,
     naturalDurationFrames: 160,
     exclusiveFrame: 40,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 23, endFrame: 40, sourceSkillIds: ['chr_0025_ardelia_normal_skill'] },
@@ -1484,8 +1533,15 @@ export const ardeliaComboSkill: SkillDefinition = withSkillBlackboard(
   {
     atk_scale: [0.45, 0.49, 0.54, 0.58, 0.62, 0.67, 0.71, 0.76, 0.8, 0.86, 0.93, 1],
     atk_scale_boom: [1.11, 1.22, 1.33, 1.44, 1.55, 1.67, 1.78, 1.89, 2, 2.14, 2.3, 2.5],
+    cam_angle: 0,
+    cam_duration: 0,
     count: 0,
     duration_corrupt: 7,
+    input_angle: 0,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
+    posie: 0,
+    potential3: 0,
     potential5_dmg_rate: 0,
     potential5_duration: 0,
     usp: 10,
@@ -1500,6 +1556,7 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 209,
     naturalDurationFrames: 261,
     exclusiveFrame: 223,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1610,9 +1667,29 @@ export const ardeliaUltimate: SkillDefinition = withSkillBlackboard(
     poise: [2, 2, 2, 2, 2, 2, 2, 2, 2, 3, 3, 3],
     potential2: 0,
     potential3_duration: 0,
+    potential3_rate: 0,
     radius: 4,
+    ranCount: 0,
+    select_radius: 10,
+    tarDisMax: 0,
     duration: 3,
   },
+);
+
+export const ardeliaPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const ardelia: OperatorDefinition = {
@@ -1660,6 +1737,10 @@ export const ardelia: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: ardeliaUltimate },
   ],
+  dodgeSkill: ardeliaPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1676,6 +1757,7 @@ export const ardelia: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -2346,9 +2428,7 @@ export const ardelia: OperatorDefinition = {
                 buffId: 'buff_common_natural_natural_corrupt_triggered',
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  duration: { kind: 'blackboard', key: 'duration_corrupt_final' },
-                },
+                copiedBlackboardAssignments: { duration: 'duration_corrupt_final' },
               }),
               step(
                 'dealDamage',

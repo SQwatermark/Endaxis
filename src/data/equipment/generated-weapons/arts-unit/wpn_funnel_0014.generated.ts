@@ -167,19 +167,10 @@ const definition = {
                         "target": "party",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "dmg_up": {
-                            "kind": "blackboard",
-                            "key": "dmg_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "lv": {
-                            "kind": "blackboard",
-                            "key": "lv"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "dmg_up": "dmg_up",
+                          "duration": "duration",
+                          "lv": "lv"
                         }
                       }
                     }
@@ -214,19 +205,10 @@ const definition = {
                         "target": "party",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "dmg_up": {
-                            "kind": "blackboard",
-                            "key": "dmg_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "lv": {
-                            "kind": "blackboard",
-                            "key": "lv"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "dmg_up": "dmg_up",
+                          "duration": "duration",
+                          "lv": "lv"
                         }
                       }
                     }

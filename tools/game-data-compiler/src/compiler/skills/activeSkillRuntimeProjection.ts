@@ -63,6 +63,7 @@ export interface CompiledActiveSkillRuntimeProjectionSource {
   readonly durationFrame: number;
   readonly timelineBlockFrames: number;
   readonly exclusiveFrame: number;
+  readonly offsetRecordFrame: number;
   /**
    * 原生输入窗口的编译期证据。它只供最终技能组装配选择“下一段”窗口，
    * 不属于 Endaxis 运行时技能契约，也不能直接按最早帧压成技能块宽度。
@@ -1085,6 +1086,9 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
   const exclusiveFrame = Number(prepared.root.exclusiveFrame);
   if (!Number.isInteger(exclusiveFrame) || exclusiveFrame < 0)
     throw new Error(`${input.sourcePath}.exclusiveFrame: expected non-negative integer`);
+  const offsetRecordFrame = Number(prepared.root.offsetRecordFrame);
+  if (!Number.isInteger(offsetRecordFrame) || offsetRecordFrame < 0)
+    throw new Error(`${input.sourcePath}.offsetRecordFrame: expected non-negative integer`);
   const allowNextSkillTransitions = graph.actionGroup.timelineActions.flatMap(timeline => {
     const directNodes = new Set(timeline.sequence.actions);
     return collectNativeActionNodes(timeline.sequence).flatMap(node => {
@@ -1355,6 +1359,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     // 多段基础攻击仍可在整名装配时用明确的有序下一段生成更紧凑的技能库预览。
     timelineBlockFrames: exclusiveFrame + 1,
     exclusiveFrame,
+    offsetRecordFrame,
     allowNextSkillTransitions,
     ...(inputWindows === undefined ? {} : { inputWindows }),
     // combat-spec skill-blackboard：动态声明也进入实例初值；补丁同名键后覆盖。

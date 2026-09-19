@@ -237,19 +237,10 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "spell_dmg_up2": {
-                            "kind": "blackboard",
-                            "key": "spell_dmg_up2"
-                          },
-                          "phy_spell_up": {
-                            "kind": "blackboard",
-                            "key": "phy_spell_up"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "duration": "duration",
+                          "spell_dmg_up2": "spell_dmg_up2",
+                          "phy_spell_up": "phy_spell_up"
                         }
                       }
                     }

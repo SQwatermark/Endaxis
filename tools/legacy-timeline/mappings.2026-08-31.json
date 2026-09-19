@@ -1,4 +1,505 @@
 {
+  "historicalSkills": [
+    {
+      "operator": "rossi",
+      "id": "ROSSI_link",
+      "type": "link",
+      "name": "一段连携（旧单段入口）",
+      "evidence": "旧版 9a2bbf28:public/gamedata.json，ROSSI 的 link 与二段连携变体分开；419be04a 将其改成多段连携",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "comboSkill",
+        "skillKey": "comboSkill2"
+      }
+    },
+    {
+      "operator": "rossi",
+      "id": "ROSSI_variant_v_1772384921148",
+      "type": "link",
+      "name": "二段连携",
+      "evidence": "旧版 9a2bbf28:public/gamedata.json，ROSSI.variants 中 v_1772384921148 明确名为二段连携；419be04a 将其并入多段连携",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "comboSkill",
+        "skillKey": "comboSkill3"
+      }
+    },
+    {
+      "operator": "zhuang-fangyi",
+      "id": "ZHUANGFANGYI_variant_v_1776605099210_seg1",
+      "type": "attack",
+      "segmentIndex": 1,
+      "name": "强化重击 1",
+      "evidence": "用户于 2026-09-18 明确指定该旧变体映射到强化重击；不是 Git 历史推断",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "enhancedBasicAttack",
+        "skillKey": "enhancedBasicAttack1"
+      }
+    },
+    {
+      "operator": "zhuang-fangyi",
+      "id": "ZHUANGFANGYI_variant_v_1776605099210_seg2",
+      "type": "attack",
+      "segmentIndex": 2,
+      "name": "强化重击 2",
+      "evidence": "用户于 2026-09-18 明确指定该旧变体映射到强化重击；不是 Git 历史推断",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "enhancedBasicAttack",
+        "skillKey": "enhancedBasicAttack2"
+      }
+    },
+    {
+      "operator": "zhuang-fangyi",
+      "id": "ZHUANGFANGYI_variant_v_1776605099210_seg3",
+      "type": "attack",
+      "segmentIndex": 3,
+      "name": "强化重击 3",
+      "evidence": "用户于 2026-09-18 明确指定该旧变体映射到强化重击；不是 Git 历史推断",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "enhancedBasicAttack",
+        "skillKey": "enhancedBasicAttack3"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1765344369190",
+      "type": "link",
+      "name": "连携破防一",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "comboSkill",
+        "skillKey": "comboSkill"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1765344406616",
+      "type": "link",
+      "name": "连携破防二",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "comboSkill",
+        "skillKey": "comboSkill"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1765344414601",
+      "type": "link",
+      "name": "连携破防三",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "comboSkill",
+        "skillKey": "comboSkill"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1769951260084",
+      "type": "skill",
+      "name": "战技碎甲一",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1769951289374",
+      "type": "skill",
+      "name": "战技碎甲二",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1769951316434",
+      "type": "skill",
+      "name": "战技碎甲三",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1769951765567",
+      "type": "skill",
+      "name": "战技碎甲四",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "ardelia",
+      "id": "ARDELIA_variant_v_1769956153200",
+      "type": "skill",
+      "name": "强化战技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "yvonne",
+      "id": "YVONNE_variant_v_1770188884725",
+      "type": "attack",
+      "name": "强化重击",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkillSequence",
+        "skillGroupKey": "basicAttack",
+        "variantKey": "enhancedBasicAttack"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1765344039364",
+      "type": "attack",
+      "name": "强化重击",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkillSequence",
+        "skillGroupKey": "basicAttack",
+        "variantKey": "enhancedBasicAttack"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1765344039364_seg1",
+      "type": "attack",
+      "segmentIndex": 1,
+      "name": "强化重击 1",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "basicAttack",
+        "skillKey": "ultimateAttack1"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1765344039364_seg2",
+      "type": "attack",
+      "segmentIndex": 2,
+      "name": "强化重击 2",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "basicAttack",
+        "skillKey": "ultimateAttack2"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1765344039364_seg3",
+      "type": "attack",
+      "segmentIndex": 3,
+      "name": "强化重击 3",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "basicAttack",
+        "skillKey": "ultimateAttack3"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1765344039364_seg4",
+      "type": "attack",
+      "segmentIndex": 4,
+      "name": "强化重击 4",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "basicAttack",
+        "skillKey": "ultimateAttack4"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1767269025680",
+      "type": "skill",
+      "name": "大招内战技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkillDuringUltimate"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1765344189692",
+      "type": "skill",
+      "name": "大招内强化战技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkillDuringUltimate"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1770210431243",
+      "type": "skill",
+      "name": "强化战技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "lifeng",
+      "id": "LIFENG_variant_v_1770220323639",
+      "type": "ultimate",
+      "name": "强化终结技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "ultimate",
+        "skillKey": "ultimate"
+      }
+    },
+    {
+      "operator": "tangtang",
+      "id": "TANGTANG_variant_v_1773574418027",
+      "type": "skill",
+      "name": "战技涡流一",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "tangtang",
+      "id": "TANGTANG_variant_v_1773574623127",
+      "type": "skill",
+      "name": "战技涡流二",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "tangtang",
+      "id": "TANGTANG_variant_v_1773575180695",
+      "type": "ultimate",
+      "name": "终结技无涡流",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "ultimate",
+        "skillKey": "ultimate"
+      }
+    },
+    {
+      "operator": "tangtang",
+      "id": "TANGTANG_variant_v_1773575266144",
+      "type": "ultimate",
+      "name": "终结技涡流一",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "ultimate",
+        "skillKey": "ultimate"
+      }
+    },
+    {
+      "operator": "tangtang",
+      "id": "TANGTANG_variant_v_1773575425784",
+      "type": "ultimate",
+      "name": "终结技涡流二",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "ultimate",
+        "skillKey": "ultimate"
+      }
+    },
+    {
+      "operator": "rossi",
+      "id": "ROSSI_variant_v_1774882564197",
+      "type": "skill",
+      "name": "强化战技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "arclight",
+      "id": "ARCLIGHT_variant_v_1767273184428",
+      "type": "skill",
+      "name": "强化战技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "avywenna",
+      "id": "AVYWENNA_variant_v_1767273720814",
+      "type": "skill",
+      "name": "战技-回收雷枪",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "wulfgard",
+      "id": "WULFGARD_variant_v_1765344273644",
+      "type": "skill",
+      "name": "强化战技",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "alesh",
+      "id": "ALESH_variant_v_1767274880488",
+      "type": "skill",
+      "name": "强化战技一",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "alesh",
+      "id": "ALESH_variant_v_1770207286109",
+      "type": "skill",
+      "name": "强化战技二",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "alesh",
+      "id": "ALESH_variant_v_1770207294718",
+      "type": "skill",
+      "name": "强化战技三",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "alesh",
+      "id": "ALESH_variant_v_1770207303546",
+      "type": "skill",
+      "name": "强化战技四",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "alesh",
+      "id": "ALESH_variant_v_1770218653119",
+      "type": "link",
+      "name": "强化连携",
+      "evidence": "9b92b0d7^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "comboSkill",
+        "skillKey": "comboSkill"
+      }
+    },
+    {
+      "operator": "pogranichnik",
+      "id": "POGRANICHNK_variant_v_1766424867630",
+      "type": "link",
+      "name": "连携4",
+      "evidence": "b3d1b26d^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "comboSkill",
+        "skillKey": "comboSkill"
+      }
+    },
+    {
+      "operator": "yvonne",
+      "id": "YVONNE_variant_v_1765344226962",
+      "type": "skill",
+      "name": "强化战技",
+      "evidence": "b3d1b26d^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "laevatain",
+      "id": "LAEVATAIN_variant_v_1765344082644",
+      "type": "skill",
+      "name": "强化战技",
+      "evidence": "b3d1b26d^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "battleSkill",
+        "skillKey": "battleSkill"
+      }
+    },
+    {
+      "operator": "lifeng",
+      "id": "LIFENG_variant_v_1765344650632",
+      "type": "ultimate",
+      "name": "强化大招",
+      "evidence": "b3d1b26d^:public/gamedata.json",
+      "target": {
+        "kind": "operatorSkill",
+        "skillGroupKey": "ultimate",
+        "skillKey": "ultimate"
+      }
+    }
+  ],
   "operators": {
     "akekuri": "akekuri",
     "alesh": "alesh",

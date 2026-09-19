@@ -2,9 +2,13 @@ import type { SkillInputGroup } from '../../core/combat/runtime/combatInputRunti
 import type {
   CombatSkillInput,
   ConsumableUseInput,
+  DodgeInput,
   ExternalCombatEventInput,
 } from '../../core/combat/state/environmentState';
-import { compileScenarioExternalEventInputs } from '../../core/compiler/compileScenarioRuntimeAssembly';
+import {
+  compileScenarioDodgeInputs,
+  compileScenarioExternalEventInputs,
+} from '../../core/compiler/compileScenarioRuntimeAssembly';
 import { compileSkillCastPlayerInput } from '../../core/compiler/compileScenarioTimeline';
 import type { GameDataRepository } from '../../core/game-data/gameDataRepository';
 import type { ScenarioDocument } from '../../core/project/schema';
@@ -17,7 +21,8 @@ import type { ScheduledCombatFrameInput } from './combatInputSchedule';
  */
 export function compileFixedCombatInputSchedule(
   scenario: ScenarioDocument,
-  index: Pick<GameDataRepository, 'getOperator'> & Partial<Pick<GameDataRepository, 'getConsumable'>>,
+  index: Pick<GameDataRepository, 'getOperator'> &
+    Partial<Pick<GameDataRepository, 'getConsumable'>>,
 ): readonly ScheduledCombatFrameInput[] {
   if (
     scenario.tracks.some(track =>
@@ -36,7 +41,8 @@ export function compileFixedCombatInputSchedule(
 /** 只解析人工排程；连续组的实际接续帧由输入阶段决定。 */
 export function compileCombatInputSchedule(
   scenario: ScenarioDocument,
-  index: Pick<GameDataRepository, 'getOperator'> & Partial<Pick<GameDataRepository, 'getConsumable'>>,
+  index: Pick<GameDataRepository, 'getOperator'> &
+    Partial<Pick<GameDataRepository, 'getConsumable'>>,
 ): { inputs: readonly ScheduledCombatFrameInput[]; groups: readonly SkillInputGroup[] } {
   const groups: SkillInputGroup[] = [];
   let declarationOrder = 0;
@@ -46,6 +52,7 @@ export function compileCombatInputSchedule(
       frame: number;
       controlledOperatorId?: string | null;
       consumableUses: ConsumableUseInput[];
+      dodges?: DodgeInput[];
       skills: (CombatSkillInput & { declarationOrder: number })[];
       externalEvents: ExternalCombatEventInput[];
     }
@@ -106,6 +113,10 @@ export function compileCombatInputSchedule(
   }
   for (const { frame, ...event } of compileScenarioExternalEventInputs(scenario)) {
     at(frame).externalEvents.push(event);
+  }
+  for (const { frame, ...dodge } of compileScenarioDodgeInputs(scenario)) {
+    const input = at(frame);
+    (input.dodges ??= []).push(dodge);
   }
   return { inputs: [...frames.values()].sort((left, right) => left.frame - right.frame), groups };
 }

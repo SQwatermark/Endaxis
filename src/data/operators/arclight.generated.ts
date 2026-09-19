@@ -17,6 +17,7 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 9,
     naturalDurationFrames: 64,
     exclusiveFrame: 21,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -62,7 +63,13 @@ export const arclightBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         6,
       ),
+      scheduled(
+        9,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack2'] })),
+        26,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -77,6 +84,7 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 10,
     naturalDurationFrames: 74,
     exclusiveFrame: 15,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -122,7 +130,13 @@ export const arclightBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         6,
       ),
+      scheduled(
+        10,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack3'] })),
+        26,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -137,6 +151,7 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 71,
     exclusiveFrame: 33,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -222,12 +237,22 @@ export const arclightBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         14,
       ),
+      scheduled(
+        20,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack4'] })),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29] },
+  {
+    atb: 0,
+    atk_scale: [0.13, 0.14, 0.16, 0.17, 0.18, 0.2, 0.21, 0.22, 0.23, 0.25, 0.27, 0.29],
+    display_atk_scale: [0.26, 0.29, 0.31, 0.34, 0.36, 0.39, 0.42, 0.44, 0.47, 0.5, 0.54, 0.59],
+  },
 );
 
 export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -237,6 +262,7 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 27,
     naturalDurationFrames: 77,
     exclusiveFrame: 36,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -299,12 +325,22 @@ export const arclightBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         20,
       ),
+      scheduled(
+        27,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack5'] })),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27] },
+  {
+    atb: 0,
+    atk_scale: [0.12, 0.13, 0.14, 0.16, 0.17, 0.18, 0.19, 0.2, 0.22, 0.23, 0.25, 0.27],
+    display_atk_scale: [0.36, 0.4, 0.43, 0.47, 0.5, 0.54, 0.58, 0.61, 0.65, 0.69, 0.75, 0.81],
+  },
 );
 
 export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
@@ -314,6 +350,7 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 27,
     naturalDurationFrames: 83,
     exclusiveFrame: 26,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -383,7 +420,13 @@ export const arclightBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         14,
       ),
+      scheduled(
+        29,
+        sequence(step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0007_ikut_attack1'] })),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0007_ikut_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -402,6 +445,7 @@ export const arclightFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 40,
     naturalDurationFrames: 131,
     exclusiveFrame: 68,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -519,6 +563,7 @@ export const arclightPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 26,
     naturalDurationFrames: 88,
     exclusiveFrame: 25,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -571,6 +616,7 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 36,
     naturalDurationFrames: 214,
     exclusiveFrame: 164,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 36, endFrame: 60, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
@@ -705,10 +751,10 @@ export const arclightBattleSkill: SkillDefinition = withSkillBlackboard(
                     buffId: 'buff_chr_0007_ikut_normal_skill_extra_count',
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      pulse_up: { kind: 'blackboard', key: 'pulse_up' },
-                      duration: { kind: 'blackboard', key: 'duration' },
-                      count: { kind: 'blackboard', key: 'count' },
+                    copiedBlackboardAssignments: {
+                      pulse_up: 'pulse_up',
+                      duration: 'duration',
+                      count: 'count',
                     },
                   }),
                 ),
@@ -934,6 +980,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 77,
     naturalDurationFrames: 141,
     exclusiveFrame: 85,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -1039,6 +1086,7 @@ export const arclightUltimate: SkillDefinition = withSkillBlackboard(
   {
     atk_scale1: [1.56, 1.71, 1.87, 2.02, 2.18, 2.34, 2.49, 2.65, 2.8, 3, 3.23, 3.5],
     atk_scale2: [2.44, 2.69, 2.93, 3.18, 3.42, 3.67, 3.91, 4.15, 4.4, 4.7, 5.07, 5.5],
+    isWall: 0,
     poise1: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
     poise2: [7, 7, 7, 7, 7, 7, 7, 7, 7, 10, 10, 10],
     radius: 1,
@@ -1052,6 +1100,7 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 27,
     naturalDurationFrames: 86,
     exclusiveFrame: 37,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 27, endFrame: 60, sourceSkillIds: ['chr_0007_ikut_normal_skill'] },
@@ -1202,6 +1251,22 @@ export const arclightComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const arclightPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const arclight: OperatorDefinition = {
   slug: 'arclight',
   gameId: 'ARCLIGHT',
@@ -1258,6 +1323,10 @@ export const arclight: OperatorDefinition = {
       skills: arclightComboSkill,
     },
   ],
+  dodgeSkill: arclightPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1274,6 +1343,13 @@ export const arclight: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -1539,10 +1615,7 @@ export const arclight: OperatorDefinition = {
                 target: 'party',
                 source: 'buffSource',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  pulse_up: { kind: 'blackboard', key: 'final_pulse_up' },
-                  duration: { kind: 'blackboard', key: 'duration' },
-                },
+                copiedBlackboardAssignments: { pulse_up: 'final_pulse_up', duration: 'duration' },
               }),
               step('finishBuffsById', {
                 target: 'buffOwner',

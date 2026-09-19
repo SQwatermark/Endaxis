@@ -136,6 +136,7 @@ class OperationStep extends StatelessCombatStep {
     if (
       step.kind === 'changePlayerActionMode' ||
       step.kind === 'overrideBasicAttackMapping' ||
+      step.kind === 'overrideMultiDashLimit' ||
       step.kind === 'skillAffix' ||
       (step.kind === 'changeSkillSlot' && step.parameters.lifetime !== undefined)
     )
@@ -206,12 +207,18 @@ class OperationStep extends StatelessCombatStep {
   }
 
   #registrationKind():
-    'playerActionMode' | 'basicAttackMapping' | 'skillSlotReplacement' | 'skillAffix' {
+    | 'playerActionMode'
+    | 'basicAttackMapping'
+    | 'multiDashLimit'
+    | 'skillSlotReplacement'
+    | 'skillAffix' {
     switch (this.step.kind) {
       case 'changePlayerActionMode':
         return 'playerActionMode';
       case 'overrideBasicAttackMapping':
         return 'basicAttackMapping';
+      case 'overrideMultiDashLimit':
+        return 'multiDashLimit';
       case 'changeSkillSlot':
         return 'skillSlotReplacement';
       case 'skillAffix':
@@ -860,6 +867,23 @@ class SkillOperableBoundaryStep extends StatelessCombatStep {
   }
 }
 
+class MarkCurrentSkillCanDashStep extends StatelessCombatStep {
+  constructor(
+    readonly step: ResolvedCombatStepForKind<'markCurrentSkillCanDash'>,
+    readonly runtime: CombatActionSequenceRuntime,
+    readonly operationContext: CombatOperationContext,
+  ) {
+    super();
+  }
+
+  execute(): void {
+    this.runtime.hooks.stepReached?.(this.step);
+    const mark = this.operationContext.markCurrentSkillCanDash;
+    if (mark === undefined) throw new Error('markCurrentSkillCanDash requires a skill host');
+    mark();
+  }
+}
+
 class CombatEventListenerStep extends CombatStep {
   readonly #registrations: AbilityEventRegistration[] = [];
   #state: CombatEventListenerState = { responses: [] };
@@ -1060,6 +1084,9 @@ export class CombatActionSequenceRuntime {
       }
       if (step.kind === 'reachSkillOperableBoundary') {
         return new SkillOperableBoundaryStep(step, this, operationContext);
+      }
+      if (step.kind === 'markCurrentSkillCanDash') {
+        return new MarkCurrentSkillCanDashStep(step, this, operationContext);
       }
       if (step.kind === 'once') return new OnceStep(step, this, operationContext);
       if (step.kind === 'withActionBlackboardScope') {

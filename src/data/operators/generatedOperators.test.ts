@@ -56,7 +56,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [lastRite, 9],
   [chenQianyu, 10],
   [rossi, 11],
-  [camille, 12],
+  [camille, 11],
   [tangtang, 10],
   [laevatain, 15],
   [mifu, 11],
@@ -71,7 +71,7 @@ const generatedOperators: readonly [OperatorDefinition, number][] = [
   [avywenna, 10],
   [catcher, 9],
   [ardelia, 9],
-  [liino, 12],
+  [liino, 11],
 ];
 
 function hasUpgradeBehavior(
@@ -87,6 +87,20 @@ function hasUpgradeBehavior(
 }
 
 describe('新增的完整技能转换干员', () => {
+  it('卡缪的普通连携与终结技后追猎保持不同输入身份', () => {
+    const combo = camille.skillGroups.find(group => group.key === 'comboSkill');
+    const battle = camille.skillGroups.find(group => group.key === 'battleSkill');
+    expect(combo?.skills).toMatchObject({ key: 'comboSkill1' });
+    expect(combo?.replacementSkillPlacements).toEqual({ comboSkill2: 'internal' });
+    expect(battle?.routedReplacementSkills).toEqual([
+      expect.objectContaining({
+        skill: expect.objectContaining({ key: 'battleSkillDuringUltimate' }),
+        executionSkillKey: 'comboSkill2',
+      }),
+    ]);
+    expect(camille.skillDisplayNameKeys?.battleSkillDuringUltimate).toBe('skillNames.pursuit');
+  });
+
   it('梨诺终结技同时保留对敌声波与友方治疗分支', () => {
     expect(liino.conversionSupport).toEqual({
       completeness: 'complete',
@@ -375,7 +389,7 @@ describe('新增的完整技能转换干员', () => {
     expect(rossi.buffDefinitions?.buff_chr_0028_wulfa_tut_comboskill_success).toBeDefined();
   });
 
-  it.each(generatedOperators)('每个技能都被分配到技能组', (operator, count) => {
+  it.each(generatedOperators)('每个可放置技能都被分配到技能组', (operator, count) => {
     const skills = operator.skillGroups.flatMap(group => [
       ...(Array.isArray(group.skills) ? group.skills : [group.skills]),
       ...(group.variants ?? []).flatMap(variant =>

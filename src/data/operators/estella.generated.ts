@@ -168,6 +168,7 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 13,
     naturalDurationFrames: 105,
     exclusiveFrame: 18,
+    offsetRecordFrame: 6,
     inputWindows: {
       commandMappings: [
         {
@@ -227,7 +228,15 @@ export const estellaBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         7,
       ),
+      scheduled(
+        13,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack2'] }),
+        ),
+        28,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -242,6 +251,7 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 123,
     exclusiveFrame: 28,
+    offsetRecordFrame: 6,
     inputWindows: {
       commandMappings: [
         {
@@ -301,7 +311,15 @@ export const estellaBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         7,
       ),
+      scheduled(
+        16,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack3'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -316,6 +334,7 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 28,
     naturalDurationFrames: 153,
     exclusiveFrame: 28,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -419,7 +438,15 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         19,
       ),
+      scheduled(
+        28,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack4'] }),
+        ),
+        43,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -428,6 +455,7 @@ export const estellaBasicAttack3: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
     atk_scale2: [0.2, 0.22, 0.24, 0.26, 0.28, 0.3, 0.32, 0.34, 0.36, 0.39, 0.42, 0.45],
+    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
   },
 );
 
@@ -438,6 +466,7 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 46,
     naturalDurationFrames: 134,
     exclusiveFrame: 46,
+    offsetRecordFrame: 21,
     inputWindows: {
       commandMappings: [
         {
@@ -499,7 +528,15 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         22,
       ),
+      scheduled(
+        46,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0021_whiten_attack1'] }),
+        ),
+        59,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0021_whiten_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -507,6 +544,7 @@ export const estellaBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 19,
     atk_scale: [0.4, 0.44, 0.48, 0.52, 0.56, 0.6, 0.64, 0.68, 0.72, 0.77, 0.83, 0.9],
+    atk_scale_2: 0,
     poise: 17,
   },
 );
@@ -518,6 +556,7 @@ export const estellaFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 30,
     naturalDurationFrames: 151,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -613,6 +652,7 @@ export const estellaPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 175,
     exclusiveFrame: 15,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -665,6 +705,7 @@ export const estellaBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 46,
     naturalDurationFrames: 121,
     exclusiveFrame: 45,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -837,6 +878,7 @@ export const estellaUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 60,
     naturalDurationFrames: 168,
     exclusiveFrame: 77,
+    offsetRecordFrame: 0,
     inputWindows: {
       commandMappings: [
         {
@@ -1109,6 +1151,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 20,
     naturalDurationFrames: 154,
     exclusiveFrame: 33,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 20, endFrame: 59, sourceSkillIds: ['chr_0021_whiten_normal_skill'] },
@@ -1147,10 +1190,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                         buffId: 'buff_chr_0021_whiten_combo_skill_physical_vulnerable',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration: { kind: 'blackboard', key: 'duration' },
-                          rate: { kind: 'blackboard', key: 'rate' },
-                        },
+                        copiedBlackboardAssignments: { duration: 'duration', rate: 'rate' },
                       }),
                       step('applyPhysicalInfliction', {
                         type: 'airborne',
@@ -1297,10 +1337,7 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
                         buffId: 'buff_chr_0021_whiten_combo_skill_physical_vulnerable',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration: { kind: 'blackboard', key: 'duration' },
-                          rate: { kind: 'blackboard', key: 'rate' },
-                        },
+                        copiedBlackboardAssignments: { duration: 'duration', rate: 'rate' },
                       }),
                       step('applyPhysicalInfliction', {
                         type: 'airborne',
@@ -1666,6 +1703,22 @@ export const estellaComboSkill: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const estellaPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const estella: OperatorDefinition = {
   slug: 'estella',
   gameId: 'ESTELLA',
@@ -1711,6 +1764,10 @@ export const estella: OperatorDefinition = {
       skills: estellaComboSkill,
     },
   ],
+  dodgeSkill: estellaPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1727,6 +1784,7 @@ export const estella: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1979,7 +2037,7 @@ export const estella: OperatorDefinition = {
                   target: 'buffSource',
                   source: 'buffSource',
                   inheritSourceSkillCastInfo: true,
-                  blackboardAssignments: { atb: { kind: 'blackboard', key: 'atb' } },
+                  copiedBlackboardAssignments: { atb: 'atb' },
                 }),
               ),
             ),

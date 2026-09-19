@@ -15,6 +15,7 @@ import { resolveTimeScaleCurve } from './timeScaleCurve';
 import type { TimeDilationRuntime } from './timeDilationRuntime';
 import { createTimeDilationActionState, type TimeDilationActionState } from '../state/actionState';
 import { CombatOperationPrograms } from '../actions/combatOperationPrograms';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -74,6 +75,7 @@ export class TimeDilationOperationExecutor implements CombatOperationExecutor {
     const source = {
       sourceId: this.dependencies.sourceId,
       sourceActionId: this.dependencies.sourceActionId,
+      producedBy: operationProducer(context),
       ...(context.skillCastInfo?.originCastId === undefined
         ? {}
         : { sourceCastId: context.skillCastInfo.originCastId }),

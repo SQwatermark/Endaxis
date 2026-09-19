@@ -14,6 +14,7 @@ const labels = {
   ultimate: '终结技',
   finisher: '处决',
   plungingAttack: '下落攻击',
+  dodge: '极限闪避',
 };
 function flag(field: keyof typeof flags, event: Event) {
   if (!props.value) return;

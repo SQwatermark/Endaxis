@@ -14,6 +14,17 @@ describe('Next timeline marker editing structure', () => {
     expect(editorSource).toContain('simulation-range-dim');
   });
 
+  it('renders editable Dodge markers and keeps incomplete native evidence local to the marker', () => {
+    expect(menuSource).toContain("$emit('addDodge', 'dodge')");
+    expect(menuSource).toContain("$emit('addDodge', 'perfectDodge')");
+    expect(editorSource).toContain('scenario.battle.dodgeMarkers');
+    expect(editorSource).toContain('projectDodgeMarkerDiagnostics(publishedReceiptEntries.value)');
+    expect(editorSource).toContain('dodge-marker__warning');
+    expect(documentInspectorSource).toContain("kind === 'dodge'");
+    expect(documentInspectorSource).toContain("emit('setDodgeMode'");
+    expect(documentInspectorSource).toContain("emit('setSuccessDelayFrames'");
+  });
+
   it('keeps external facts explicitly restricted in the marker menu', () => {
     expect(menuSource).toContain('labels.restrictedHint');
     expect(menuSource).not.toContain('仅补充木桩模型无法自然产生的事件');
@@ -52,8 +63,8 @@ describe('Next timeline marker editing structure', () => {
   it('localizes visible marker labels and their context-menu names', () => {
     expect(editorSource).toContain("t('timeline.markerLabels.cycleBoundary')");
     expect(editorSource).toContain("t('timeline.markerLabels.controlSwitch')");
-    expect(editorSource).toContain("t('timeline.markerLabels.simulationStart')");
-    expect(editorSource).toContain("t('timeline.markerLabels.simulationEnd')");
+    expect(editorSource).toContain("'timeline.markerLabels.simulationStart'");
+    expect(editorSource).toContain("'timeline.markerLabels.simulationEnd'");
     expect(editorSource).toContain("t('timeline.markerLabels.hitShort')");
     expect(editorSource).not.toContain('<b>循环分界线</b>');
     expect(editorSource).not.toContain("? '受击' : '弱点'");
@@ -97,7 +108,7 @@ describe('Next timeline marker editing structure', () => {
     );
     expect(editorSource).toContain('.simulation-range-marker.selected');
     expect(editorSource).toContain('.cycle-boundary-marker.selected');
-    expect(editorSource).toContain(':not(\n    .track-switch-marker\n  )');
+    expect(editorSource).toMatch(/:not\(\s*\.track-switch-marker\s*\)/);
     expect(editorSource).toContain('.track-switch-marker.selected .track-switch-marker__avatar');
     expect(editorSource).toContain('border-color: #fff');
   });

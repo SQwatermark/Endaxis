@@ -220,27 +220,12 @@ const definition = {
                   "target": "party",
                   "inheritSourceSkillCastInfo": true,
                   "asChildBuff": true,
-                  "blackboardAssignments": {
-                    "dmg_up": {
-                      "kind": "blackboard",
-                      "key": "dmg_up"
-                    },
-                    "phy_spell_up": {
-                      "kind": "blackboard",
-                      "key": "phy_spell_up"
-                    },
-                    "def_up": {
-                      "kind": "blackboard",
-                      "key": "def_up"
-                    },
-                    "duration": {
-                      "kind": "blackboard",
-                      "key": "duration"
-                    },
-                    "hp_up": {
-                      "kind": "blackboard",
-                      "key": "hp_up_c"
-                    }
+                  "copiedBlackboardAssignments": {
+                    "dmg_up": "dmg_up",
+                    "phy_spell_up": "phy_spell_up",
+                    "def_up": "def_up",
+                    "duration": "duration",
+                    "hp_up": "hp_up_c"
                   }
                 }
               }

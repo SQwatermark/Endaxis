@@ -98,11 +98,22 @@ export interface LegacyInferredControlSwitch {
   readonly inferredFrame: number;
 }
 
+export interface LegacyDodgeMarkerAdjustment {
+  readonly scenarioId: string;
+  readonly markerId: string;
+  readonly trackIndex: number;
+  readonly sourceFrame: number;
+  readonly adjustedFrame: number;
+  readonly previousCastId?: string;
+  readonly nextCastId?: string;
+}
+
 export interface LegacyRetimingResult {
   readonly timingAdjustments: readonly LegacyTimingAdjustment[];
   readonly skillFormAdjustments: readonly LegacySkillFormAdjustment[];
   readonly controlSwitchAdjustments: readonly LegacyControlSwitchAdjustment[];
   readonly inferredControlSwitches: readonly LegacyInferredControlSwitch[];
+  readonly dodgeMarkerAdjustments: readonly LegacyDodgeMarkerAdjustment[];
   readonly simulationStats: {
     readonly scenarioCount: number;
     readonly castCount: number;
@@ -397,30 +408,62 @@ function retimeControlSwitches(
     const simulationTarget = workingSwitches.find(item => item.id === switchId);
     if (target === undefined || simulationTarget === undefined) continue;
 
-    const previous = processed.findLast(item => item.sourceStartFrame <= sourceFrame);
-    const next = processed.find(item => item.sourceStartFrame >= sourceFrame);
-    let frame = sourceFrame;
-    if (previous !== undefined) {
-      const previousStart = scenario.tracks[previous.trackIndex]?.skillCasts.find(
-        cast => cast.id === previous.castId,
-      )?.placement.startFrame;
-      if (previousStart !== undefined)
-        frame = previousStart + (sourceFrame - previous.sourceStartFrame);
-    } else if (next !== undefined) {
-      const nextStart = scenario.tracks[next.trackIndex]?.skillCasts.find(
-        cast => cast.id === next.castId,
-      )?.placement.startFrame;
-      if (nextStart !== undefined) frame = nextStart - (next.sourceStartFrame - sourceFrame);
-    }
-    if (next !== undefined) {
-      const nextStart = scenario.tracks[next.trackIndex]?.skillCasts.find(
-        cast => cast.id === next.castId,
-      )?.placement.startFrame;
-      if (nextStart !== undefined) frame = Math.min(frame, nextStart);
-    }
+    const { frame } = retimeMarkerFrame(scenario, processed, sourceFrame);
     target.frame = frame;
     simulationTarget.frame = frame;
   }
+}
+
+function retimeMarkerFrame(
+  scenario: ScenarioDocument,
+  processed: readonly OrderedCast[],
+  sourceFrame: number,
+): { readonly frame: number; readonly previous?: OrderedCast; readonly next?: OrderedCast } {
+  const previous = processed.findLast(item => item.sourceStartFrame <= sourceFrame);
+  const next = processed.find(item => item.sourceStartFrame >= sourceFrame);
+  let frame = sourceFrame;
+  if (previous !== undefined) {
+    const previousStart = scenario.tracks[previous.trackIndex]?.skillCasts.find(
+      cast => cast.id === previous.castId,
+    )?.placement.startFrame;
+    if (previousStart !== undefined) {
+      frame = previousStart + (sourceFrame - previous.sourceStartFrame);
+    }
+  } else if (next !== undefined) {
+    const nextStart = scenario.tracks[next.trackIndex]?.skillCasts.find(
+      cast => cast.id === next.castId,
+    )?.placement.startFrame;
+    if (nextStart !== undefined) frame = nextStart - (next.sourceStartFrame - sourceFrame);
+  }
+  if (next !== undefined) {
+    const nextStart = scenario.tracks[next.trackIndex]?.skillCasts.find(
+      cast => cast.id === next.castId,
+    )?.placement.startFrame;
+    if (nextStart !== undefined) frame = Math.min(frame, nextStart);
+  }
+  return { frame, previous, next };
+}
+
+function retimeDodgeMarkers(
+  scenario: ScenarioDocument,
+  working: ScenarioDocument,
+  sourceData: UnknownRecord,
+  processed: readonly OrderedCast[],
+): void {
+  records(sourceData.tracks).forEach((sourceTrack, trackIndex) => {
+    records(sourceTrack.actions).forEach((action, actionIndex) => {
+      if (record(action.convertedDodge) === null) return;
+      const sourceFrame = integer(action.startTime) ?? integer(action.logicalStartTime);
+      if (sourceFrame === null) return;
+      const markerId = `legacy:${scenario.id}:track:${trackIndex}:dodge:${actionIndex}`;
+      const target = scenario.battle.dodgeMarkers?.find(marker => marker.id === markerId);
+      const simulationTarget = working.battle.dodgeMarkers?.find(marker => marker.id === markerId);
+      if (target === undefined || simulationTarget === undefined) return;
+      const { frame } = retimeMarkerFrame(scenario, processed, sourceFrame);
+      target.frame = frame;
+      simulationTarget.frame = frame;
+    });
+  });
 }
 
 function moveAfterConflictingControlledInput(
@@ -468,6 +511,7 @@ export function retimeLegacyProjectBySimulation(
   const skillFormAdjustments: LegacySkillFormAdjustment[] = [];
   const controlSwitchAdjustments: LegacyControlSwitchAdjustment[] = [];
   const inferredControlSwitches: LegacyInferredControlSwitch[] = [];
+  const dodgeMarkerAdjustments: LegacyDodgeMarkerAdjustment[] = [];
   let retimedScenarioCount = 0;
   let retimedCastCount = 0;
   let candidateProbes = 0;
@@ -825,6 +869,7 @@ export function retimeLegacyProjectBySimulation(
       }
     }
     retimeControlSwitches(scenario, working, sourceData, ordered);
+    retimeDodgeMarkers(scenario, working, sourceData, ordered);
     const inferred = synchronizeLegacyInferredControlSwitches(
       scenario,
       ordered.map((item, order) => ({ ...item, order })),
@@ -862,12 +907,33 @@ export function retimeLegacyProjectBySimulation(
         inferredFrame: controlSwitch.frame,
       });
     }
+    records(sourceData.tracks).forEach((sourceTrack, trackIndex) => {
+      records(sourceTrack.actions).forEach((action, actionIndex) => {
+        if (record(action.convertedDodge) === null) return;
+        const sourceFrame = integer(action.startTime) ?? integer(action.logicalStartTime);
+        if (sourceFrame === null) return;
+        const markerId = `legacy:${scenario.id}:track:${trackIndex}:dodge:${actionIndex}`;
+        const marker = scenario.battle.dodgeMarkers?.find(item => item.id === markerId);
+        if (marker === undefined || marker.frame === sourceFrame) return;
+        const { previous, next } = retimeMarkerFrame(scenario, ordered, sourceFrame);
+        dodgeMarkerAdjustments.push({
+          scenarioId: scenario.id,
+          markerId,
+          trackIndex,
+          sourceFrame,
+          adjustedFrame: marker.frame,
+          ...(previous === undefined ? {} : { previousCastId: previous.castId }),
+          ...(next === undefined ? {} : { nextCastId: next.castId }),
+        });
+      });
+    });
   }
   return {
     timingAdjustments,
     skillFormAdjustments,
     controlSwitchAdjustments,
     inferredControlSwitches,
+    dodgeMarkerAdjustments,
     simulationStats: {
       scenarioCount: retimedScenarioCount,
       castCount: retimedCastCount,

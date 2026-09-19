@@ -249,6 +249,72 @@ const sharedActionSequence10: ActionSequenceDefinition = sequence(
   ),
 );
 
+const sharedActionSequence8: ActionSequenceDefinition = sequence(
+  branch(
+    {
+      kind: 'actionValueCompare',
+      left: { kind: 'blackboard', key: 'talent_2_2', fallback: 0 },
+      operator: 'greater',
+      right: { kind: 'constant', value: 0.5 },
+    },
+    sequence(
+      step('applyBuff', {
+        buffId: 'buff_chr_0028_wulfa_normal_bleed',
+        target: 'enemy',
+        blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
+        copiedBlackboardAssignments: {
+          duration: 'duration_bleed',
+          atk_scale: 'atk_scale_bleed',
+          extra_atk_scale: 'bleed_critical_damage_scale',
+          damage_cd: 'bleed_critical_damage_interval',
+          damage_up: 'damage_up',
+          heal_scale: 'heal_scale',
+          talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+        },
+      }),
+      step(
+        'dealDamage',
+        {
+          damageType: 'heat',
+          attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+          tags: ['normalSkill'],
+          features: ['canBreakWeakness'],
+          stagger: { kind: 'blackboard', key: 'poise_2' },
+        },
+        '\u0000endaxis-generated-identity:0',
+      ),
+    ),
+    sequence(
+      step('applyBuff', {
+        buffId: 'buff_chr_0028_wulfa_normal_bleed',
+        target: 'enemy',
+        blackboardAssignments: { talent_2: { kind: 'constant', value: 0 } },
+        copiedBlackboardAssignments: {
+          duration: 'duration_bleed',
+          atk_scale: 'atk_scale_bleed',
+          extra_atk_scale: 'bleed_critical_damage_scale',
+          damage_cd: 'bleed_critical_damage_interval',
+          damage_up: 'damage_up',
+          heal_scale: 'heal_scale',
+          talent2_burning_damage_scale: 'talent2_burning_damage_scale',
+        },
+      }),
+      step(
+        'dealDamage',
+        {
+          damageType: 'heat',
+          attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
+          tags: ['normalSkill'],
+          features: ['canBreakWeakness'],
+          stagger: { kind: 'blackboard', key: 'poise_2' },
+        },
+        '\u0000endaxis-generated-identity:1',
+      ),
+    ),
+    { alwaysNext: true },
+  ),
+);
+
 const sharedActionSequence3: ActionSequenceDefinition = sequence(
   {
     kind: 'withActionBlackboardScope',
@@ -341,72 +407,6 @@ const sharedActionSequence3: ActionSequenceDefinition = sequence(
   },
 );
 
-const sharedActionSequence8: ActionSequenceDefinition = sequence(
-  branch(
-    {
-      kind: 'actionValueCompare',
-      left: { kind: 'blackboard', key: 'talent_2_2', fallback: 0 },
-      operator: 'greater',
-      right: { kind: 'constant', value: 0.5 },
-    },
-    sequence(
-      step('applyBuff', {
-        buffId: 'buff_chr_0028_wulfa_normal_bleed',
-        target: 'enemy',
-        blackboardAssignments: {
-          duration: { kind: 'blackboard', key: 'duration_bleed' },
-          atk_scale: { kind: 'blackboard', key: 'atk_scale_bleed' },
-          extra_atk_scale: { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-          damage_cd: { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-          talent_2: { kind: 'constant', value: 1 },
-          damage_up: { kind: 'blackboard', key: 'damage_up' },
-          heal_scale: { kind: 'blackboard', key: 'heal_scale' },
-          talent2_burning_damage_scale: { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-        },
-      }),
-      step(
-        'dealDamage',
-        {
-          damageType: 'heat',
-          attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-          tags: ['normalSkill'],
-          features: ['canBreakWeakness'],
-          stagger: { kind: 'blackboard', key: 'poise_2' },
-        },
-        '\u0000endaxis-generated-identity:0',
-      ),
-    ),
-    sequence(
-      step('applyBuff', {
-        buffId: 'buff_chr_0028_wulfa_normal_bleed',
-        target: 'enemy',
-        blackboardAssignments: {
-          duration: { kind: 'blackboard', key: 'duration_bleed' },
-          atk_scale: { kind: 'blackboard', key: 'atk_scale_bleed' },
-          extra_atk_scale: { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-          damage_cd: { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-          talent_2: { kind: 'constant', value: 0 },
-          damage_up: { kind: 'blackboard', key: 'damage_up' },
-          heal_scale: { kind: 'blackboard', key: 'heal_scale' },
-          talent2_burning_damage_scale: { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
-        },
-      }),
-      step(
-        'dealDamage',
-        {
-          damageType: 'heat',
-          attackScale: { kind: 'blackboard', key: 'atk_scale_once' },
-          tags: ['normalSkill'],
-          features: ['canBreakWeakness'],
-          stagger: { kind: 'blackboard', key: 'poise_2' },
-        },
-        '\u0000endaxis-generated-identity:1',
-      ),
-    ),
-    { alwaysNext: true },
-  ),
-);
-
 const sharedActionSequence7: ActionSequenceDefinition = sequence(
   branch(
     {
@@ -419,15 +419,15 @@ const sharedActionSequence7: ActionSequenceDefinition = sequence(
       step('applyBuff', {
         buffId: 'buff_chr_0028_wulfa_normal_bleed',
         target: 'enemy',
-        blackboardAssignments: {
-          duration: { kind: 'blackboard', key: 'duration_bleed' },
-          atk_scale: { kind: 'blackboard', key: 'atk_scale_bleed' },
-          extra_atk_scale: { kind: 'blackboard', key: 'bleed_critical_damage_scale' },
-          damage_cd: { kind: 'blackboard', key: 'bleed_critical_damage_interval' },
-          talent_2: { kind: 'constant', value: 1 },
-          damage_up: { kind: 'blackboard', key: 'damage_up' },
-          heal_scale: { kind: 'blackboard', key: 'heal_scale' },
-          talent2_burning_damage_scale: { kind: 'blackboard', key: 'talent2_burning_damage_scale' },
+        blackboardAssignments: { talent_2: { kind: 'constant', value: 1 } },
+        copiedBlackboardAssignments: {
+          duration: 'duration_bleed',
+          atk_scale: 'atk_scale_bleed',
+          extra_atk_scale: 'bleed_critical_damage_scale',
+          damage_cd: 'bleed_critical_damage_interval',
+          damage_up: 'damage_up',
+          heal_scale: 'heal_scale',
+          talent2_burning_damage_scale: 'talent2_burning_damage_scale',
         },
       }),
       step(
@@ -592,6 +592,7 @@ export const rossiBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 9,
     naturalDurationFrames: 139,
     exclusiveFrame: 15,
+    offsetRecordFrame: 8,
     inputWindows: {
       commandMappings: [
         {
@@ -669,6 +670,7 @@ export const rossiBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 12,
     naturalDurationFrames: 151,
     exclusiveFrame: 20,
+    offsetRecordFrame: 9,
     inputWindows: {
       commandMappings: [
         {
@@ -779,6 +781,7 @@ export const rossiBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 15,
     naturalDurationFrames: 209,
     exclusiveFrame: 25,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -898,9 +901,10 @@ export const rossiBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     key: 'basicAttack4',
     sourceSkillId: 'chr_0028_wulfa_attack4',
-    timelineBlockFrames: 225,
+    timelineBlockFrames: 36,
     naturalDurationFrames: 329,
     exclusiveFrame: 239,
+    offsetRecordFrame: 15,
     inputWindows: {
       commandMappings: [
         {
@@ -1282,6 +1286,7 @@ export const rossiBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 31,
     naturalDurationFrames: 146,
     exclusiveFrame: 30,
+    offsetRecordFrame: 15,
     inputWindows: {
       commandMappings: [
         {
@@ -1442,6 +1447,7 @@ export const rossiFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 66,
     naturalDurationFrames: 216,
     exclusiveFrame: 65,
+    offsetRecordFrame: 0,
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -1593,6 +1599,7 @@ export const rossiPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 161,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1640,6 +1647,7 @@ export const rossiBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 38,
     naturalDurationFrames: 475,
     exclusiveFrame: 272,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -2756,6 +2764,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 37,
     naturalDurationFrames: 198,
     exclusiveFrame: 65,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -2919,11 +2928,11 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 target: 'enemy',
                 inheritSourceSkillCastInfo: true,
                 blackboardAssignments: {
-                  atk_scale: { kind: 'blackboard', key: 'atk_scale_once' },
                   trigger_times: { kind: 'constant', value: 3 },
                   damage_interval: { kind: 'constant', value: 0.125 },
                   duration: { kind: 'constant', value: 0.3 },
                 },
+                copiedBlackboardAssignments: { atk_scale: 'atk_scale_once' },
               }),
               step('calculateActionValue', {
                 key: 'count',
@@ -3015,9 +3024,7 @@ export const rossiComboSkill2: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0028_wulfa_combo_2_qte_timerlistening',
                 target: 'caster',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  time_succeed: { kind: 'blackboard', key: 'time_succeed' },
-                },
+                copiedBlackboardAssignments: { time_succeed: 'time_succeed' },
               }),
             ),
             undefined,
@@ -3194,6 +3201,7 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 52,
     naturalDurationFrames: 409,
     exclusiveFrame: 259,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 52, endFrame: 72, sourceSkillIds: ['chr_0028_wulfa_normal_skill'] },
@@ -4316,10 +4324,10 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0028_wulfa_combo_criticalrate',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'crit_increase_duration' },
-              critical_rate: { kind: 'blackboard', key: 'crit_increase_rate' },
-              critical_damage_inc: { kind: 'blackboard', key: 'crit_damage_increase_rate' },
+            copiedBlackboardAssignments: {
+              duration: 'crit_increase_duration',
+              critical_rate: 'crit_increase_rate',
+              critical_damage_inc: 'crit_damage_increase_rate',
             },
           }),
         ),
@@ -4332,10 +4340,10 @@ export const rossiComboSkill3: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0028_wulfa_combo_criticalrate',
             target: 'caster',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'blackboard', key: 'crit_increase_duration' },
-              critical_rate: { kind: 'blackboard', key: 'crit_increase_rate' },
-              critical_damage_inc: { kind: 'blackboard', key: 'crit_damage_increase_rate' },
+            copiedBlackboardAssignments: {
+              duration: 'crit_increase_duration',
+              critical_rate: 'crit_increase_rate',
+              critical_damage_inc: 'crit_damage_increase_rate',
             },
           }),
         ),
@@ -4520,6 +4528,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 156,
     naturalDurationFrames: 311,
     exclusiveFrame: 155,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -4852,9 +4861,7 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
             target: 'caster',
             inheritSourceSkillCastInfo: true,
             finishByAction: true,
-            blackboardAssignments: {
-              critical_damage_up_to_bleed: { kind: 'blackboard', key: 'crit_damage_up_to_bleed' },
-            },
+            copiedBlackboardAssignments: { critical_damage_up_to_bleed: 'crit_damage_up_to_bleed' },
           }),
         ),
         208,
@@ -5394,6 +5401,22 @@ export const rossiUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const rossiPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const rossi: OperatorDefinition = {
   slug: 'rossi',
   gameId: 'ROSSI',
@@ -5448,6 +5471,10 @@ export const rossi: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: rossiUltimate },
   ],
+  dodgeSkill: rossiPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill2', replacementSkillKeys: ['comboSkill3'] },
@@ -5464,6 +5491,13 @@ export const rossi: OperatorDefinition = {
         'basicAttack5',
         'finisher',
         'plungingAttack',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -5854,11 +5888,11 @@ export const rossi: OperatorDefinition = {
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              atk_scale: { kind: 'blackboard', key: 'atk_scale' },
-              poise: { kind: 'blackboard', key: 'poise' },
-              trigger_times: { kind: 'blackboard', key: 'trigger_times' },
-              damage_interval: { kind: 'blackboard', key: 'damage_interval' },
+            copiedBlackboardAssignments: {
+              atk_scale: 'atk_scale',
+              poise: 'poise',
+              trigger_times: 'trigger_times',
+              damage_interval: 'damage_interval',
             },
           }),
         ),
@@ -6278,14 +6312,11 @@ export const rossi: OperatorDefinition = {
                           buffId: 'buff_chr_0028_wulfa_normal_bleed_crit_extra_damage',
                           target: 'buffOwner',
                           source: 'buffSource',
-                          blackboardAssignments: {
-                            atk_scale: { kind: 'blackboard', key: 'extra_atk_scale' },
-                            damage_cd: { kind: 'blackboard', key: 'damage_cd' },
-                            heal_scale: { kind: 'blackboard', key: 'heal_scale' },
-                            burning_damage_scale: {
-                              kind: 'blackboard',
-                              key: 'talent2_burning_damage_scale',
-                            },
+                          copiedBlackboardAssignments: {
+                            atk_scale: 'extra_atk_scale',
+                            damage_cd: 'damage_cd',
+                            heal_scale: 'heal_scale',
+                            burning_damage_scale: 'talent2_burning_damage_scale',
                           },
                         }),
                       ),

@@ -82,7 +82,7 @@ import { SkillTimelineJumpGate } from './skillTimelineJump';
 
 /** 技能实例从可释放到结束的运行时生命周期状态。 */
 /** 当前已闭环、会改变技能结束事实的中断来源。 */
-export type RuntimeSkillInterruptReason = 'default' | 'castNextSkill';
+export type RuntimeSkillInterruptReason = 'default' | 'dash' | 'castNextSkill';
 
 /** CastEnd 在结束时间轴动作期间暴露的唯一技能转场输入。 */
 export interface RuntimeSkillTransition {
@@ -180,6 +180,8 @@ export interface CombatOperationContext {
   readonly requestTimelineFinish?: () => void;
   /** 原生 AllowNext 窗口实际进入活动分支时，通知技能宿主保存本帧候选。 */
   readonly reachSkillOperableBoundary?: (sourceSkillIds: readonly string[]) => void;
+  /** 原生 MarkCanDash 只标记当前技能的本次施放。 */
+  readonly markCurrentSkillCanDash?: () => void;
   /** 仅由技能时间轴宿主提供；返回原生 StoreCurSkillExecuteFrame 使用的整数局部帧。 */
   readonly getCurrentTimelineFrame?: () => number;
   /** 已发射投射物的 duration-finish 注册端口；注册项不归当前技能寿命所有。 */
@@ -267,7 +269,8 @@ export class SkillRuntime {
   readonly #advancesCooldown: boolean;
   #timeline: TimelineActionProcessor | null = null;
   readonly #timelineJump = new SkillTimelineJumpGate();
-  readonly #attachedBuffBindings = new Map<string, BuffApplicationHandle>();
+  // null 表示原实例已回收；保留引用身份，直到正常的技能清理阶段移除。
+  readonly #attachedBuffBindings = new Map<string, BuffApplicationHandle | null>();
   readonly #hostIdentity: SkillRuntimeHostIdentity;
   #pendingTransition: RuntimeSkillTransition | null = null;
 
@@ -349,6 +352,9 @@ export class SkillRuntime {
       requestTimelineFinish: () => this.#requestTimelineFinish(),
       reachSkillOperableBoundary: sourceSkillIds =>
         this.#reachSkillOperableBoundary(sourceSkillIds),
+      markCurrentSkillCanDash: () => {
+        this.runtimeState.markedCanDash = true;
+      },
       getCurrentTimelineFrame: () => roundToEven(this.#execution.passedFrames),
       ...(dependencies.scheduleProjectileFinishCallback === undefined
         ? {}
@@ -395,6 +401,7 @@ export class SkillRuntime {
     }
     this.runtimeState = restored?.state ?? {
       castId,
+      markedCanDash: false,
       execution: this.#execution,
       blackboard: this.#blackboard.runtimeState,
       initialBlackboard: this.#initialBlackboard,
@@ -407,9 +414,12 @@ export class SkillRuntime {
     if (restored !== undefined) {
       for (const [key, reference] of this.#execution.attachedBuffs) {
         const binding = restored.resolveAttachedBuff(reference);
-        if (binding === undefined || buffReferenceKey(binding.reference) !== key)
-          throw new Error(`restored attached Buff ${key} is missing`);
-        this.#attachedBuffBindings.set(key, binding);
+        if (
+          buffReferenceKey(reference) !== key ||
+          (binding !== undefined && buffReferenceKey(binding.reference) !== key)
+        )
+          throw new Error(`restored attached Buff ${key} has a different identity`);
+        this.#attachedBuffBindings.set(key, binding ?? null);
       }
       if (restored.state.timeline !== null)
         this.#timeline = this.#createTimeline(restored.state.timeline);
@@ -441,6 +451,11 @@ export class SkillRuntime {
 
   get skillType(): CompiledSkillExecutionProgram['skillType'] {
     return this.#program.skillType;
+  }
+
+  /** 普攻执行到此帧后，连段接续目标才更新为下一段。 */
+  get offsetRecordFrame(): number | undefined {
+    return this.#program.offsetRecordFrame;
   }
 
   get nativeSkillType(): CompiledSkillExecutionProgram['nativeSkillType'] {
@@ -504,6 +519,11 @@ export class SkillRuntime {
     }
     // 原生按秒比较 passedTime > exclusiveFrame / 30 + 0.00001。
     return this.#execution.passedFrames > this.#program.exclusiveFrame + 0.0003;
+  }
+
+  /** 原生 Skill.canDash：先复用 canInterrupt，再读取本次施放的 MarkCanDash 标记。 */
+  get canDash(): boolean {
+    return this.canInterrupt || this.runtimeState.markedCanDash;
   }
 
   get inputWindows(): CompiledSkillExecutionProgram['inputWindows'] {
@@ -589,6 +609,7 @@ export class SkillRuntime {
   prepareCastInput(input: {
     readonly skipApplyCost: boolean;
     readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
+    readonly producedBy?: import('../receipt/combatReceipt').CombatObjectRef;
   }): void {
     if (this.#execution.state === 'casting') {
       throw new Error(`skill '${this.#program.skillId}' is already casting`);
@@ -602,6 +623,7 @@ export class SkillRuntime {
       this.#execution.preparedSkillCastId = inherited.skillCastId;
     }
     this.#execution.preparedSkipApplyCost = input.skipApplyCost;
+    this.#execution.preparedProducer = input.producedBy;
   }
 
   /** 时间轴声明的玩家操作即使原生门槛不满足也继续执行，并按旧版展示规则扣费。 */
@@ -726,6 +748,7 @@ export class SkillRuntime {
       this.record('SkillCostUnavailableAtStart');
     }
 
+    this.runtimeState.markedCanDash = false;
     this.#timeline = this.#createTimeline();
     this.#blackboard.restore(this.#initialBlackboard);
     this.#targetContext.clear();
@@ -738,7 +761,8 @@ export class SkillRuntime {
     beginSkillCast(this.#execution, this.#dependencies.clock.frame, () =>
       this.#dependencies.allocateSkillCastId(),
     );
-    this.record('SkillStarted');
+    this.record('SkillStarted', undefined, undefined, this.#execution.preparedProducer);
+    this.#execution.preparedProducer = undefined;
     const afterCastStart = this.#execution.preparedCastStart;
     this.#execution.preparedCastStart = undefined;
     if (afterCastStart !== undefined)
@@ -832,12 +856,14 @@ export class SkillRuntime {
     event: string,
     data?: Readonly<Record<string, boolean | number | string | null>>,
     targetId?: string,
+    producedBy?: import('../receipt/combatReceipt').CombatObjectRef,
   ): void {
     this.#dependencies.receipt.record({
       frame: this.#dependencies.clock.frame,
       time: this.#dependencies.clock.time,
       event,
       sourceId: this.#hostIdentity.eventSourceId,
+      ...(producedBy === undefined ? {} : { producedBy }),
       ...(targetId === undefined ? {} : { targetId }),
       data: {
         skillId: this.#program.skillId,
@@ -984,22 +1010,25 @@ export class SkillRuntime {
     this.#dependencies.emitSkillEnd?.(this.#skillEventPayload());
   }
 
-  #finishAttachedBuffs(attachedAtEnd: readonly BuffApplicationHandle[]): void {
+  #finishAttachedBuffs(
+    attachedAtEnd: readonly (readonly [string, BuffApplicationHandle | null])[],
+  ): void {
     // CastEnd 在 OnSkillEnd 之前正序 MarkFinish(Other)，不传入结束来源/施法信息。
-    for (const buff of attachedAtEnd) buff.finish('other', null);
+    for (const [, buff] of attachedAtEnd) {
+      if (buff !== null && !buff.isRecycled) buff.finish('other', null);
+    }
     // CastEnd 在时间轴清理前取快照；清理中新增的实例不属于本次移除集合。
-    for (const buff of attachedAtEnd) {
-      const key = buffReferenceKey(buff.reference);
+    for (const [key] of attachedAtEnd) {
       this.#execution.attachedBuffs.delete(key);
       this.#attachedBuffBindings.delete(key);
     }
   }
 
-  #captureAttachedBuffs(): readonly BuffApplicationHandle[] {
+  #captureAttachedBuffs(): readonly (readonly [string, BuffApplicationHandle | null])[] {
     return [...this.#execution.attachedBuffs.keys()].map(key => {
       const buff = this.#attachedBuffBindings.get(key);
       if (buff === undefined) throw new Error(`attached Buff binding ${key} is missing`);
-      return buff;
+      return [key, buff] as const;
     });
   }
 

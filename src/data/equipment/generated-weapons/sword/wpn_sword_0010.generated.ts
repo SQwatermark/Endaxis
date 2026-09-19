@@ -138,19 +138,10 @@ const definition = {
                                   "target": "buffSource",
                                   "source": "buffSource",
                                   "inheritSourceSkillCastInfo": true,
-                                  "blackboardAssignments": {
-                                    "dmg_up": {
-                                      "kind": "blackboard",
-                                      "key": "dmg_up"
-                                    },
-                                    "max_stack": {
-                                      "kind": "blackboard",
-                                      "key": "max_stack"
-                                    },
-                                    "duration": {
-                                      "kind": "blackboard",
-                                      "key": "duration"
-                                    }
+                                  "copiedBlackboardAssignments": {
+                                    "dmg_up": "dmg_up",
+                                    "max_stack": "max_stack",
+                                    "duration": "duration"
                                   }
                                 }
                               },

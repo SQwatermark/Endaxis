@@ -24,6 +24,8 @@ export interface ResolvedOperatorResourceRules {
 
 /** 场景文档之外、组装完整资源快照所需的已解析规则。 */
 export interface CompileScenarioResourcesOptions {
+  /** GlobalConst 的账号能量上限换算出的共享闪避次数；缺失时只记录相对消耗。 */
+  readonly dashEnergyCapacity?: number;
   readonly sharedSpGain: SharedSpGainSettings;
   readonly spRecoveryPauseDuration: number;
   readonly ultimateEnergySystemUnlocked: boolean;
@@ -133,6 +135,9 @@ export function compileScenarioResources(
   }
 
   requireFinite(options.sharedSpGain.baseGainEfficiency, 'options.sharedSpGain.baseGainEfficiency');
+  if (options.dashEnergyCapacity !== undefined) {
+    requireNonNegativeFinite(options.dashEnergyCapacity, 'options.dashEnergyCapacity');
+  }
   requireNonNegativeFinite(options.spRecoveryPauseDuration, 'options.spRecoveryPauseDuration');
   requireFinite(
     options.normalSkillUltimateEnergy.selfGainPerSp,
@@ -157,6 +162,15 @@ export function compileScenarioResources(
   });
 
   return {
+    ...(options.dashEnergyCapacity === undefined
+      ? {}
+      : {
+          dashEnergy: {
+            spent: 0,
+            capacity: options.dashEnergyCapacity,
+            inOverdraft: false,
+          },
+        }),
     sp: rules.initialSp,
     maxSp: rules.maxSp,
     returnedSp: 0,

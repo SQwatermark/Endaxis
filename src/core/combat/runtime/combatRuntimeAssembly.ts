@@ -6,11 +6,17 @@ import {
 import { createCallbackSkillHostFactory } from '../abilities/callbackSkillHost';
 import type { RegisterPassiveAbilityEventAction } from '../abilities/passiveAbilityEventRuntime';
 import type { ExternalOperatorHitPayload } from '../events/combatAbilityEvent';
-import type { SkillCooldownState, SkillRuntimeState } from '../state/abilityState';
+import {
+  createOperatorCenterState,
+  type OperatorCenterState,
+  type SkillCooldownState,
+  type SkillRuntimeState,
+} from '../state/abilityState';
 import type { CombatStateGraph } from '../state/combatState';
 import type {
   CombatInputRuntimeState,
   CombatSharedState,
+  DodgeInputRuntimeState,
   ExternalCombatEventRuntimeState,
 } from '../state/environmentState';
 /**
@@ -35,7 +41,11 @@ import type { ResolvedOperatorPanel } from '../../compiler/resolveOperatorPanel'
 import type { EnemyRank } from '../../game-data/enemyRank';
 import type { ConsumableDefinition } from '../../game-data/consumableDefinition';
 import type { RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
-import { logicalAbilityEntityRuntimeId } from '../../game-data/logicalAbilityEntity';
+import {
+  logicalAbilityEntityRuntimeId,
+  runtimeTargetFromEntityId,
+} from '../../game-data/logicalAbilityEntity';
+import type { BuffReference } from '../state/foundationState';
 import type {
   CombatStepParameters,
   CombatTarget,
@@ -112,6 +122,8 @@ import {
   type CombatInputExecution,
 } from '../skills/combatInputExecution';
 import { CombatSkillPrograms } from '../skills/combatSkillPrograms';
+import { DodgeInputRuntime, recordDodgeReceipt } from '../skills/dodgeInputRuntime';
+import { createDodgeInputState } from '../state/environmentState';
 import { prepareComboCast } from '../skills/comboCastPreparation';
 import type {
   ComboConditionRegistration,
@@ -123,6 +135,11 @@ import { GlobalCooldowns } from '../skills/globalCooldowns';
 import { HideUiOperationExecutor } from '../skills/hideUiOperationExecutor';
 import { OperatorControlConditionExecutor } from '../skills/operatorControlConditionExecutor';
 import { OperatorControlRuntime } from '../skills/operatorControlRuntime';
+import {
+  OperatorCenterStateRuntime,
+  type DashTimingProgram,
+} from '../skills/operatorCenterStateRuntime';
+import { PlayerMultiDashRuntime } from '../skills/playerMultiDashRuntime';
 import { SkillCastIdAllocator } from '../skills/skillCastInfo';
 import {
   BasicAttackSkillCastInheritanceRegistry,
@@ -152,6 +169,7 @@ import type { TimeDilationInstanceSnapshot } from '../state/environmentState';
 import {
   type ScheduledExternalCombatEventInput,
   type ScheduledConsumableUseInput,
+  type ScheduledDodgeInput,
   type ScheduledSkillInput,
 } from '../state/environmentState';
 import type { AbilityEventSubscriptionReference } from '../state/foundationState';
@@ -219,6 +237,14 @@ export interface CombatOperatorProgram {
   readonly skillCasts?: readonly CombatSkillCastProgram[];
   /** 完整定义中的未放置技能；只供原生 CastSkill/换槽等内部路由启动。 */
   readonly definitionSkillPrograms?: readonly CompiledSkillProgram[];
+  /** 中心 Dash 状态使用的隐藏技能与入场 Buff；不属于时间轴可放置技能目录。 */
+  readonly dodgeProgram?: {
+    readonly skillId: string;
+    readonly dashBuffs: readonly {
+      readonly buffId: string;
+      readonly blackboard: Readonly<Record<string, number | string>>;
+    }[];
+  };
   /** 完整定义的静态冷却目录，独立于时间轴放置；缺省仅供底层程序兼容。 */
   readonly skillCooldownPrograms?: readonly CompiledSkillCooldownProgram[];
   /** 与技能等级解耦的干员附属 Buff 蓝图；不含任何单次模拟实例状态。 */
@@ -376,6 +402,7 @@ export interface CombatRuntimeScenarioOptions {
   /** 当前版本可主动使用的物品目录；物品输入只引用稳定 ID。 */
   readonly consumables?: readonly ConsumableDefinition[];
   readonly consumableUses?: readonly ScheduledConsumableUseInput[];
+  readonly dodgeInputs?: readonly ScheduledDodgeInput[];
   readonly inputs?: readonly ScheduledSkillInput[];
   /** 正式连续组由锚点启动，其余成员按实际块边界逐段开始。 */
   readonly skillInputGroups?: readonly SkillInputGroup[];
@@ -391,15 +418,39 @@ export interface CombatRuntimeAssemblyOptions
   extends CombatRuntimeScenarioOptions, CombatRuntimeEnvironmentOptions {}
 
 /** 应用装配层提供的运行时端口与模拟选项；新增字段在此显式确定归属。 */
-export interface CombatRuntimeEnvironmentOptions {
+export interface CombatRuntimeInputRules {
+  /** BattleCommandMappingConfig 的三项原生 Dash 计时；存在闪避输入时必须提供。 */
+  readonly dashTiming?: DashTimingProgram;
+  readonly skillAvailabilityTags?: import('../tags/gameplayTagPredefine').GameplayTagPredefine;
+  readonly resolveDashControllerState?: (operatorId: string) => {
+    readonly playerActionEnabled: boolean;
+    readonly movementGaitAllowsDash: boolean;
+    readonly isInAir: boolean;
+  };
+}
+
+/** 新建与恢复共用的输入规则；只提取规则，不复制宿主、当前状态或未来排程。 */
+export function getCombatRuntimeInputRules(
+  options: CombatRuntimeInputRules,
+): CombatRuntimeInputRules {
+  return {
+    ...(options.dashTiming === undefined ? {} : { dashTiming: options.dashTiming }),
+    ...(options.skillAvailabilityTags === undefined
+      ? {}
+      : { skillAvailabilityTags: options.skillAvailabilityTags }),
+    ...(options.resolveDashControllerState === undefined
+      ? {}
+      : { resolveDashControllerState: options.resolveDashControllerState }),
+  };
+}
+
+export interface CombatRuntimeEnvironmentOptions extends CombatRuntimeInputRules {
   /** 同一切面树共享的能力实体子技能程序目录；普通新战斗省略时创建一份。 */
   readonly abilityEntityChildSkillPrograms?: AbilityEntityChildSkillPrograms;
   /** 同一切面树共享的编译动作槽目录；恢复分支必须沿用原目录。 */
   readonly combatOperationPrograms?: CombatOperationPrograms;
   /** 同一切面树共享的普通技能程序与伤害快照槽位目录；恢复分支必须沿用原目录。 */
   readonly combatSkillPrograms?: CombatSkillPrograms;
-  /** 游戏预定义标签查询；仅诊断作者输入，不阻止时间轴强制释放。 */
-  readonly skillAvailabilityTags?: import('../tags/gameplayTagPredefine').GameplayTagPredefine;
   /** 准备期从负帧开始；省略时保持独立运行时原有的第 0 帧起点。 */
   readonly initialFrame?: number;
   readonly submitCastRandomSeed?: (castId: string, seed?: number) => void;
@@ -531,7 +582,7 @@ export interface CombatRuntimeEnvironmentOptions {
 }
 
 /** 从同一切面树的固定程序与标准环境配置建立完整的当前分支装配。 */
-export interface CombatRuntimeAssemblyRestoreOptions {
+export interface CombatRuntimeAssemblyRestoreOptions extends CombatRuntimeInputRules {
   readonly receiptHistory: import('../receipt/combatReceiptHistory').CombatReceiptView;
   readonly graph: CombatStateGraph;
   readonly resources: CombatResourceSnapshot;
@@ -539,6 +590,7 @@ export interface CombatRuntimeAssemblyRestoreOptions {
   readonly operators: readonly CombatOperatorProgram[];
   readonly consumables?: readonly ConsumableDefinition[];
   readonly consumableUses?: readonly ScheduledConsumableUseInput[];
+  readonly dodgeInputs?: readonly ScheduledDodgeInput[];
   readonly inputs?: readonly ScheduledSkillInput[];
   readonly skillInputGroups?: readonly SkillInputGroup[];
   readonly externalEvents?: readonly ScheduledExternalCombatEventInput[];
@@ -551,7 +603,6 @@ export interface CombatRuntimeAssemblyRestoreOptions {
     readonly config: TimeDilationRuntimeConfig;
     readonly programs: TimeDilationPrograms;
   };
-  readonly skillAvailabilityTags?: import('../tags/gameplayTagPredefine').GameplayTagPredefine;
   readonly enemyStatusContainer?: CombatStatusContainer;
 }
 
@@ -563,6 +614,9 @@ type CombatAbilityRuntimeBindings = Pick<
   | 'resolveActualFrame'
   | 'onSkillOperableBoundaryReached'
   | 'resolveTickDeltas'
+  | 'dashOffsetFrames'
+  | 'onCurrentSkillChanged'
+  | 'onPostSkillCastResolved'
 >;
 
 type CombatAbilityEntityEventHooks = Pick<
@@ -583,6 +637,9 @@ const unsupportedReactiveTerminal: CombatOperationExecutor = {
     throw new Error(`reactive event handler cannot evaluate '${condition.kind}'`);
   },
 };
+
+/** Center Dash 是固定行为程序；单次输入身份由 producedBy 保留，不进入程序查找键。 */
+const CENTER_DASH_ACTION_ID = 'center:dash';
 
 /**
  * 普通 execute/end/evaluate 仍沿完整责任链传播；Reset 阶段的原生计算准备只交给
@@ -610,6 +667,8 @@ export class CombatRuntimeAssembly {
   /** 普通整轴模拟使用的固定输入计划；逐帧会话改由调用方在每一帧提交输入。 */
   readonly #scheduledFrameInputs: import('./combatSimulation').CombatFrameInputs;
   readonly #inputRuntime: CombatInputRuntime;
+  readonly #dodgeInputRuntime: DodgeInputRuntime;
+  readonly #dodgeInputState: DodgeInputRuntimeState;
   #inputExecution: CombatInputExecution | undefined;
   #groupTiming: SkillInputGroupTiming | undefined;
   readonly #externalEventRuntime: ExternalCombatEventRuntime;
@@ -645,6 +704,10 @@ export class CombatRuntimeAssembly {
   readonly #consumables = new Map<string, ConsumableDefinition>();
   readonly #entityBlackboards = new Map<string, ActionBlackboard>();
   readonly #abilitySystems = new Map<string, AbilitySystemRuntime>();
+  readonly #operatorCenters = new Map<string, OperatorCenterStateRuntime>();
+  readonly #playerMultiDash: PlayerMultiDashRuntime;
+  readonly #playerMultiDashState: import('../state/environmentState').PlayerMultiDashState;
+  readonly #operatorCenterStates = new Map<string, OperatorCenterState>();
   readonly #skillPrograms = new Map<string, CompiledSkillProgram>();
   readonly #skillStates = new Map<string, Map<string, SkillRuntimeState>>();
   readonly #cooldownStates = new Map<string, Map<string, SkillCooldownState>>();
@@ -802,6 +865,9 @@ export class CombatRuntimeAssembly {
         ...(restoreOptions.consumableUses === undefined
           ? {}
           : { consumableUses: restoreOptions.consumableUses }),
+        ...(restoreOptions.dodgeInputs === undefined
+          ? {}
+          : { dodgeInputs: restoreOptions.dodgeInputs }),
         ...(restoreOptions.inputs === undefined ? {} : { inputs: restoreOptions.inputs }),
         ...(restoreOptions.skillInputGroups === undefined
           ? {}
@@ -816,9 +882,7 @@ export class CombatRuntimeAssembly {
         ...(restoreOptions.timeDilation === undefined
           ? {}
           : { timeDilation: { config: restoreOptions.timeDilation.config } }),
-        ...(restoreOptions.skillAvailabilityTags === undefined
-          ? {}
-          : { skillAvailabilityTags: restoreOptions.skillAvailabilityTags }),
+        ...getCombatRuntimeInputRules(restoreOptions),
         ...(restoreOptions.enemyStatusContainer === undefined
           ? {}
           : { enemyStatusContainer: restoreOptions.enemyStatusContainer }),
@@ -856,6 +920,7 @@ export class CombatRuntimeAssembly {
       };
     }
     this.#options = options;
+    this.#dodgeInputState = restored?.preparation.graph.inputs.dodges ?? createDodgeInputState();
     this.#castParameters = restored?.preparation.graph.inputs.castParameters ?? new Map();
     if (options.deferInitialInput || restored?.preparation.graph.inputs.initialInputPending) {
       this.#requireLiveInputs();
@@ -864,6 +929,8 @@ export class CombatRuntimeAssembly {
       const preparation = restored.preparation;
       const foundation = restoredFoundation!;
       const sharedRuntime = foundation.shared;
+      this.#playerMultiDashState = sharedRuntime.runtimeState.multiDash;
+      this.#playerMultiDash = new PlayerMultiDashRuntime(options.dashTiming);
       this.clock = sharedRuntime.clock;
       this.resources = sharedRuntime.resources;
       this.receipt = sharedRuntime.receipt;
@@ -881,6 +948,7 @@ export class CombatRuntimeAssembly {
         this.clock,
         undefined,
         preparation.graph.enemy.timedMarkers,
+        { global: this.clock, globalScaled: this.timeDilation ?? this.clock },
       );
 
       for (const [operatorId, program] of preparation.programs) {
@@ -933,6 +1001,7 @@ export class CombatRuntimeAssembly {
           ...(runtimeOperator.comboConditionPrograms ?? []).map(
             program => `native-combo-condition:${program.key}`,
           ),
+          ...(runtimeOperator.dodgeProgram?.dashBuffs.length ? [CENTER_DASH_ACTION_ID] : []),
         ]) {
           this.#registerRestoredReactiveOperationBinding(runtimeOperator, sourceActionId, options);
         }
@@ -955,7 +1024,7 @@ export class CombatRuntimeAssembly {
         const definition =
           operator === undefined
             ? undefined
-            : resolveRestoredAbilityEntityDefinition(operator, state);
+            : resolveRestoredAbilityEntityDefinition(operator, state, this.combatOperationPrograms);
         if (operator !== undefined && definition !== undefined) {
           for (const passive of definition.passiveSkills ?? []) {
             this.#registerRestoredReactiveOperationBinding(
@@ -1063,6 +1132,11 @@ export class CombatRuntimeAssembly {
           this.#operators.set(operator.operatorId, operator);
           this.#entityBlackboards.set(operator.operatorId, core.blackboard);
           this.#abilitySystems.set(operator.operatorId, core.ability);
+          this.#bindOperatorCenter(
+            operator,
+            preparation.operators.get(operator.operatorId)!.center,
+            options,
+          );
           this.#operatorTimedMarkers.set(operator.operatorId, core.timedMarkers);
           if (core.statuses !== undefined)
             this.#operatorStatuses.set(operator.operatorId, core.statuses);
@@ -1156,6 +1230,7 @@ export class CombatRuntimeAssembly {
         entities,
         operators,
         childSkillPrograms: this.abilityEntityChildSkillPrograms,
+        combatOperationPrograms: this.combatOperationPrograms,
         createPassiveOperations: ({ ownerId, entity, program, state }) => {
           const operator = this.#operators.get(ownerId)!;
           const sourceActionId = `ability-entity:${entity.instanceId}:passive:${program.key}`;
@@ -1268,6 +1343,7 @@ export class CombatRuntimeAssembly {
       this.#installComboSkillConditions(true);
 
       this.#inputRuntime = this.#createCombatInputRuntime(options, preparation.graph.inputs.skills);
+      this.#dodgeInputRuntime = this.#createDodgeInputRuntime(options);
       this.#externalEventRuntime = this.#createExternalCombatEventRuntime(
         options,
         preparation.graph.inputs.externalEvents,
@@ -1284,6 +1360,14 @@ export class CombatRuntimeAssembly {
           abilityEntityRelations,
         },
         bindInputPhases: true,
+        playerMultiDash: {
+          advanceFrame: () =>
+            this.#playerMultiDash.advanceFrame(
+              this.#playerMultiDashState,
+              this.timeDilation?.currentGlobalScale ?? 1,
+            ),
+        },
+        operatorCenters: this.#centerFrameRuntimes(),
         ...(options.enemyStatusContainer === undefined
           ? {}
           : { enemyStatusContainer: options.enemyStatusContainer }),
@@ -1294,6 +1378,7 @@ export class CombatRuntimeAssembly {
       this.#scheduledFrameInputs = {
         skillInputs: () => {
           this.#applyScheduledConsumables();
+          this.#dodgeInputRuntime.applyCurrentFrame(this.#dodgeInputState);
           this.#inputRuntime.applyCurrentFrame();
         },
         externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
@@ -1326,6 +1411,8 @@ export class CombatRuntimeAssembly {
             },
           }),
     });
+    this.#playerMultiDashState = sharedRuntime.runtimeState.multiDash;
+    this.#playerMultiDash = new PlayerMultiDashRuntime(options.dashTiming);
     this.clock = sharedRuntime.clock;
     this.resources = sharedRuntime.resources;
     this.receipt = sharedRuntime.receipt;
@@ -1584,6 +1671,10 @@ export class CombatRuntimeAssembly {
       );
     }
 
+    for (const operator of this.#operators.values()) {
+      this.#bindOperatorCenter(operator, createOperatorCenterState(), options);
+    }
+
     try {
       for (const operator of options.operators) {
         const contributions = operator.equipmentContributions ?? [];
@@ -1837,25 +1928,34 @@ export class CombatRuntimeAssembly {
           return status === undefined ? [] : [status];
         }),
         comboWindows: this.comboWindows,
+        playerMultiDash: {
+          advanceFrame: () =>
+            this.#playerMultiDash.advanceFrame(
+              this.#playerMultiDashState,
+              this.timeDilation?.currentGlobalScale ?? 1,
+            ),
+        },
+        operatorCenters: this.#centerFrameRuntimes(),
         abilities: options.operators.map(operator =>
           this.#requireAbilitySystem(operator.operatorId),
         ),
         bindInputPhases: true,
       });
       this.#inputRuntime = this.#createCombatInputRuntime(options);
+      this.#dodgeInputRuntime = this.#createDodgeInputRuntime(options);
       this.#externalEventRuntime = this.#createExternalCombatEventRuntime(options);
       this.#scheduledFrameInputs = {
         skillInputs: () => {
           this.#applyScheduledConsumables();
+          this.#dodgeInputRuntime.applyCurrentFrame(this.#dodgeInputState);
           this.#inputRuntime.applyCurrentFrame();
         },
         externalEvents: () => this.#externalEventRuntime.applyCurrentFrame(),
       };
       if (!options.deferInitialInput) {
         this.#operatorControl.advanceFrame();
-        this.#applyScheduledConsumables();
-        this.#inputRuntime.applyCurrentFrame();
-        this.#externalEventRuntime.applyCurrentFrame();
+        this.#scheduledFrameInputs.skillInputs?.();
+        this.#scheduledFrameInputs.externalEvents?.();
       }
     } catch (error) {
       failAfterAbilityHostCleanup(error, [
@@ -1872,6 +1972,7 @@ export class CombatRuntimeAssembly {
         initialInputPending: options.deferInitialInput === true,
         control: this.#operatorControl.runtimeState,
         skills: this.#inputRuntime.runtimeState,
+        dodges: this.#dodgeInputState,
         externalEvents: this.#externalEventRuntime.runtimeState,
       },
       environment: boundBattleRuntimes.environmentState ?? null,
@@ -1892,6 +1993,7 @@ export class CombatRuntimeAssembly {
           return [
             operatorId,
             {
+              center: this.#operatorCenterStates.get(operatorId)!,
               blackboard: blackboard.runtimeState,
               ability: ability.runtimeState,
               skills,
@@ -1959,6 +2061,30 @@ export class CombatRuntimeAssembly {
     else if (simulationInputs.randomSeed !== undefined)
       throw new Error('a cast seed requires a cast id');
     this.#ensureCastInstance(operatorId, expectedSkillId, castId);
+    const center = this.#operatorCenters.get(operatorId);
+    const centerState = this.#operatorCenterStates.get(operatorId);
+    if (
+      ability.nativeSkillTypeForSkill(expectedSkillId) === 'attack' &&
+      center !== undefined &&
+      centerState !== undefined
+    ) {
+      const window = center.inspect(centerState);
+      if (window.canConsumeAttack === false || window.canLeaveForAttack === false) {
+        this.receipt.record({
+          frame: this.clock.frame,
+          time: this.clock.time,
+          event: 'SkillInputBlockedByDashWindow',
+          sourceId: operatorId,
+          data: {
+            skillId: expectedSkillId,
+            ...(castId === undefined ? {} : { castId }),
+            dodgeId: centerState.dashId,
+            attackInputBlocked: window.canConsumeAttack === false,
+            attackTransitionBlocked: window.canLeaveForAttack === false,
+          },
+        });
+      }
+    }
     const tagRules = this.#options.skillAvailabilityTags;
     if (tagRules !== undefined) {
       const blocker = tagRules.getCommonSkillCastBlocker(
@@ -2071,6 +2197,9 @@ export class CombatRuntimeAssembly {
           skillId: expectedSkillId,
           assessedSkillId: interruptionSkillId,
           currentSkillId: interruption.currentSkillKey,
+          ...(ability.currentSkillCastId === undefined
+            ? {}
+            : { currentCastId: ability.currentSkillCastId }),
           // 保存输入阶段实际读到的局部帧，不用两个全局输入时刻相减推测。
           // 膨胀与同帧推进顺序都会使这两个量不同。
           ...(ability.currentSkillTimelineFrame === undefined
@@ -2094,7 +2223,14 @@ export class CombatRuntimeAssembly {
       });
     }
     if (!ability.canStartSkill(expectedSkillId, castId, false)) return false;
-    this.#prepareSkillStart(operatorId, expectedSkillId, castId, undefined, false);
+    this.#prepareSkillStart(
+      operatorId,
+      expectedSkillId,
+      castId,
+      undefined,
+      false,
+      action === 'comboSkill',
+    );
     return ability.tryStartTimelineSkill(expectedSkillId, castId);
   }
 
@@ -2172,6 +2308,7 @@ export class CombatRuntimeAssembly {
     castId?: string,
     inheritedSkillCastInfo?: import('../state/foundationState').CombatSkillCastInfo,
     resolveSkillSlot = true,
+    consumeComboWindow = true,
   ): void {
     const ability = this.#requireAbilitySystem(operatorId);
     const definitionSkillId = ability.resolveSkillId(skillId, undefined, resolveSkillSlot);
@@ -2188,7 +2325,7 @@ export class CombatRuntimeAssembly {
     const skillCastId =
       effectiveInheritedSkillCastInfo?.skillCastId ?? this.#skillCastIds.allocate();
     ability.prepareSkillCastId(skillId, castId, skillCastId, resolveSkillSlot);
-    if (program?.skillType === 'comboSkill') {
+    if (program?.skillType === 'comboSkill' && consumeComboWindow) {
       const result = this.comboWindows.consume(
         operatorId,
         resolvedSkillId,
@@ -2238,7 +2375,10 @@ export class CombatRuntimeAssembly {
           resolveSkillSlot,
         );
     }
-    if (program?.skillType !== 'comboSkill' && program?.smartTarget !== undefined)
+    if (
+      (program?.skillType !== 'comboSkill' || !consumeComboWindow) &&
+      program?.smartTarget !== undefined
+    )
       ability.prepareAfterSkillCastStart(
         skillId,
         castId,
@@ -2291,7 +2431,24 @@ export class CombatRuntimeAssembly {
   }
 
   #canContinueInputGroup(previous: ScheduledSkillInput): boolean {
-    return this.#inputTiming().canContinue(previous, this.clock.frame);
+    const center = this.#operatorCenters.get(previous.operatorId);
+    const state = this.#operatorCenterStates.get(previous.operatorId);
+    if (
+      center !== undefined &&
+      state !== undefined &&
+      center.inspect(state).canLeaveForAttack === false
+    )
+      return false;
+    const timing = this.#inputTiming();
+    if (timing.canContinue(previous, this.clock.frame)) return true;
+    const interruption = timing.find(previous.castId, 'SkillInterrupted');
+    if (interruption?.data?.reason !== 'dash' || interruption.frame >= this.clock.frame) {
+      return false;
+    }
+    if (center === undefined || state === undefined) return false;
+    const canLeaveForAttack = center.inspect(state).canLeaveForAttack;
+    // 缺少原生窗口时不把连续组永久卡死；已知窗口则等待实际开放。
+    return canLeaveForAttack !== false;
   }
 
   #inputTiming(): SkillInputGroupTiming {
@@ -2516,6 +2673,7 @@ export class CombatRuntimeAssembly {
     if (
       (this.#options.inputs?.length ?? 0) > 0 ||
       (this.#options.consumableUses?.length ?? 0) > 0 ||
+      (this.#options.dodgeInputs?.length ?? 0) > 0 ||
       (this.#options.externalEvents?.length ?? 0) > 0 ||
       (this.#options.skillInputGroups?.length ?? 0) > 0 ||
       this.#options.continuationPlanCastIds !== undefined
@@ -2530,6 +2688,14 @@ export class CombatRuntimeAssembly {
       controlInputs: () => this.#operatorControl.applyInput(input.controlledOperatorId),
       skillInputs: () => {
         for (const use of input.consumableUses ?? []) this.#applyConsumableUse(use);
+        // 同帧先执行全部 Dash，再处理成功声明，与固定排程一致。
+        for (const kind of ['dash', 'perfectDodgeSuccess'] as const)
+          for (const dodge of input.dodges ?? [])
+            if (dodge.kind === kind)
+              this.#dodgeInputRuntime.applyInput(this.#dodgeInputState, {
+                ...dodge,
+                frame: this.clock.frame,
+              });
         const execution = this.#createInputExecution();
         if (typeof input.skills === 'function') {
           let active = true;
@@ -2955,20 +3121,41 @@ export class CombatRuntimeAssembly {
   /** 能力系统的事件和推进端口不携带初始状态，可直接用于新建或绑定保存数据。 */
   #createAbilityRuntimeBindings(operatorId: string): CombatAbilityRuntimeBindings {
     return {
+      onPostSkillCastResolved: () => {
+        const state = this.#operatorCenterStates.get(operatorId);
+        if (state?.pendingPerfectDodgeId != null) {
+          recordDodgeReceipt(this.receipt, this.clock, operatorId, state.pendingPerfectDodgeId, {
+            event: 'PerfectDodgeDeclarationRejected',
+            data: { reason: 'nativeSkillNotStarted' },
+          });
+          state.pendingPerfectDodgeId = null;
+        }
+      },
+      onCurrentSkillChanged: type => {
+        const center = this.#operatorCenters.get(operatorId);
+        const state = this.#operatorCenterStates.get(operatorId);
+        if (center !== undefined && state !== undefined) center.onSkillChanged(state, type);
+      },
+      ...(this.#options.dashTiming === undefined
+        ? {}
+        : { dashOffsetFrames: this.#options.dashTiming.dashOffsetFrames }),
       onPostSkillCastRequest: info => this.#options.onPostSkillCastRequest?.(operatorId, info),
       beforePostSkillCastStart: request => {
+        const ability = this.#requireAbilitySystem(operatorId);
         this.#prepareSkillStart(
           operatorId,
           request.skillId,
           request.castId,
           request.inheritedSkillCastInfo,
           request.resolveSkillSlot !== false,
+          false,
         );
-        this.#requireAbilitySystem(operatorId).prepareCastInput(
+        ability.prepareCastInput(
           request.skillId,
           request.castId,
           {
             skipApplyCost: request.skipApplyCost ?? false,
+            ...(request.producedBy === undefined ? {} : { producedBy: request.producedBy }),
             ...(request.inheritedSkillCastInfo === undefined
               ? {}
               : { inheritedSkillCastInfo: request.inheritedSkillCastInfo }),
@@ -3670,6 +3857,9 @@ export class CombatRuntimeAssembly {
           .registrationId,
       finishBasicAttackMapping: id =>
         this.#requireAbilitySystem(operatorId).finishBasicAttackMapping(id),
+      setMultiDashLimit: limit => {
+        this.#requireAbilitySystem(operatorId).runtimeState.overrideMultiDashLimit = limit;
+      },
       changeNativeSkillType: (skillKey, nativeSkillType) =>
         this.#requireAbilitySystem(operatorId).changeNativeSkillType(skillKey, nativeSkillType),
       delegate: cooldownDelegate,
@@ -3828,6 +4018,7 @@ export class CombatRuntimeAssembly {
       resolveAbilityEntityTimedMarkerSource: (target, markerId) =>
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
+      resolveBuffReference: reference => this.#resolveBuffReference(reference),
       resolveBuffDefinition: buffId => definitionOperator.buffDefinitions?.[buffId],
       onPhysicalInflictionApplied: event => this.#publishAfterPhysicalInfliction(event),
       onBeforeOutputPhysicalInfliction: payload => this.#publishBeforePhysicalInfliction(payload),
@@ -4018,6 +4209,14 @@ export class CombatRuntimeAssembly {
             throw new Error('SP gain requires an ability event publisher');
           this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
         },
+        onPerfectDodge: sourceOperatorId => {
+          if (this.#options.emitAbilityEvent === undefined)
+            throw new Error('perfect Dodge record requires an ability event publisher');
+          this.#options.emitAbilityEvent(sourceOperatorId, 'perfectDodge', {
+            sourceId: sourceOperatorId,
+            targetId: sourceOperatorId,
+          });
+        },
         delegate,
       },
       { state: operationHost.state.resources, programs: operationHost.programs },
@@ -4149,6 +4348,7 @@ export class CombatRuntimeAssembly {
       resolveAbilityEntityTimedMarkerSource: (target, markerId) =>
         this.abilityEntities.timedMarkers(target).latestActiveSourceTargetId(markerId),
       resolveEventTarget: targetId => this.#resolveBuffTargetById(targetId),
+      resolveBuffReference: reference => this.#resolveBuffReference(reference),
       resolveBuffDefinition: buffId => operator.buffDefinitions?.[buffId],
       onPhysicalInflictionApplied: event => this.#publishAfterPhysicalInfliction(event),
       onBeforeOutputPhysicalInfliction: payload => this.#publishBeforePhysicalInfliction(payload),
@@ -4338,6 +4538,14 @@ export class CombatRuntimeAssembly {
             throw new Error('SP gain requires an ability event publisher');
           this.#options.emitAbilityEvent(event.sourceOperatorId, 'skillSpGained', event);
         },
+        onPerfectDodge: sourceOperatorId => {
+          if (this.#options.emitAbilityEvent === undefined)
+            throw new Error('perfect Dodge record requires an ability event publisher');
+          this.#options.emitAbilityEvent(sourceOperatorId, 'perfectDodge', {
+            sourceId: sourceOperatorId,
+            targetId: sourceOperatorId,
+          });
+        },
         delegate: blackboardOperations,
       },
       { state: operationHost.state.resources, programs: operationHost.programs },
@@ -4492,6 +4700,9 @@ export class CombatRuntimeAssembly {
       time: this.clock.time,
       event,
       ...(instance.source?.sourceId === undefined ? {} : { sourceId: instance.source.sourceId }),
+      ...(event === 'TimeDilationEnded' || instance.source?.producedBy === undefined
+        ? {}
+        : { producedBy: instance.source.producedBy }),
       ...(entityId === undefined ? {} : { targetId: entityId }),
       data: {
         instanceId: instance.id,
@@ -4556,6 +4767,247 @@ export class CombatRuntimeAssembly {
       throw new Error(`combat operator '${operatorId}' has no Buff operation target`);
     }
     return casterBuffs;
+  }
+
+  /** 原生 ObjectPtr 的旧引用可随宿主回收失效；不能用必须存活的新动作目标入口解析。 */
+  #resolveBuffReference(reference: BuffReference): BuffApplicationHandle | undefined {
+    if (!Number.isSafeInteger(reference.instanceId) || reference.instanceId <= 0)
+      throw new Error('Buff reference requires a positive instance id');
+    const owner = runtimeTargetFromEntityId(reference.ownerId);
+    if (owner.kind === 'abilityEntity') {
+      if (owner.instanceId >= this.#abilityEntityInstanceIds.runtimeState.next)
+        throw new Error(`Buff owner '${reference.ownerId}' was never allocated`);
+      const target = this.#abilityEntityBuffs.get(owner.instanceId);
+      if (target !== undefined) {
+        if (target.resolveHandle === undefined)
+          throw new Error(`Buff owner '${reference.ownerId}' cannot resolve instance references`);
+        return target.resolveHandle(reference);
+      }
+      if (
+        !this.abilityEntities.isActive(owner) &&
+        !this.projectileLifetimes.runtimeState.instances.has(owner.instanceId)
+      )
+        return undefined;
+      throw new Error(`live Buff owner '${reference.ownerId}' has no Buff container`);
+    }
+    const target = this.#resolveBuffTargetById(reference.ownerId);
+    if (target.resolveHandle === undefined)
+      throw new Error(`Buff owner '${reference.ownerId}' cannot resolve instance references`);
+    return target.resolveHandle(reference);
+  }
+
+  /** 帧端口只保存干员身份；中心算法在步进中取得当前分支的数据。 */
+  #centerFrameRuntimes(): readonly FrameRuntime[] {
+    return [...this.#operatorCenters].map(([operatorId, center]) => ({
+      advanceFrame: () =>
+        center.advanceFrame(
+          this.#operatorCenterStates.get(operatorId)!,
+          this.timeDilation?.getEntityScale(operatorId) ?? 1,
+        ),
+    }));
+  }
+
+  #bindOperatorCenter(
+    operator: CombatOperatorProgram,
+    state: OperatorCenterState,
+    options: CombatRuntimeAssemblyOptions,
+  ): void {
+    if (this.#operatorCenterStates.has(operator.operatorId))
+      throw new Error(`duplicate center state for operator '${operator.operatorId}'`);
+    this.#operatorCenterStates.set(operator.operatorId, state);
+    const ability = this.#requireAbilitySystem(operator.operatorId);
+    const dashBuffs = operator.dodgeProgram?.dashBuffs ?? [];
+    const target =
+      dashBuffs.length === 0 ? undefined : this.#operatorBuffs.get(operator.operatorId);
+    const apply = target?.applyScoped?.bind(target);
+    if (dashBuffs.length > 0) {
+      this.#registerRestoredReactiveOperationBinding(operator, CENTER_DASH_ACTION_ID, options);
+    }
+    this.#operatorCenters.set(
+      operator.operatorId,
+      new OperatorCenterStateRuntime({
+        operatorId: operator.operatorId,
+        clock: this.clock,
+        ...(options.dashTiming === undefined ? {} : { timing: options.dashTiming }),
+        receipt: this.receipt,
+        interruptCurrentSkillForDash: () => ability.interruptCurrentSkillForDash(),
+        addDashBuffs: dashId =>
+          dashBuffs.map(application => {
+            if (target === undefined) {
+              throw new Error(`operator '${operator.operatorId}' has no Buff runtime for Dash`);
+            }
+            if (apply === undefined) {
+              throw new Error(
+                `operator '${operator.operatorId}' Buff runtime cannot apply scoped Dash Buffs`,
+              );
+            }
+            const definition = operator.buffDefinitions?.[application.buffId];
+            if (definition === undefined)
+              throw new Error(
+                `operator '${operator.operatorId}' Dash Buff '${application.buffId}' has no definition`,
+              );
+            const handle = apply!({
+              buffId: application.buffId,
+              definition,
+              sourceId: operator.operatorId,
+              definitionOwnerId: operator.operatorId,
+              sourceActionId: CENTER_DASH_ACTION_ID,
+              blackboardValues: application.blackboard,
+              producedBy: {
+                kind: 'action',
+                ownerId: operator.operatorId,
+                actionId: `dash:${dashId}`,
+              },
+            });
+            if (handle === null)
+              throw new Error(
+                `operator '${operator.operatorId}' Dash Buff '${application.buffId}' was rejected`,
+              );
+            return handle.reference;
+          }),
+        clearDashBuffs: references => {
+          for (const reference of references) target?.resolveHandle?.(reference)?.finish('early');
+        },
+      }),
+    );
+  }
+
+  #createDodgeInputRuntime(options: CombatRuntimeAssemblyOptions): DodgeInputRuntime {
+    return new DodgeInputRuntime(
+      {
+        clock: this.clock,
+        inputs: options.dodgeInputs ?? [],
+        executeDash: input => {
+          const center = this.#operatorCenters.get(input.operatorId);
+          if (center === undefined)
+            throw new Error(`operator '${input.operatorId}' has no CenterState runtime`);
+          const state = this.#operatorCenterStates.get(input.operatorId)!;
+          const centerBefore = center.inspect(state);
+          const ability = this.#requireAbilitySystem(input.operatorId);
+          const multiDashBefore = this.#playerMultiDash.inspect(
+            this.#playerMultiDashState,
+            ability.runtimeState.overrideMultiDashLimit,
+          );
+          const operatorWasControlled =
+            this.#operatorControl.runtimeState.get(input.operatorId) === true;
+          const dashTagBlockers = options.skillAvailabilityTags?.getDashInputBlockers(
+            this.#resolveBuffTarget('caster', input.operatorId),
+          );
+          const dashControllerState = options.resolveDashControllerState?.(input.operatorId);
+          // 只维护内部账本以便切面和原生返还动作一致；体力不参与排轴闪避许可或 UI 诊断。
+          this.resources.consumeDashEnergy();
+          const interrupted = center.enterDash(state, {
+            dashId: input.dodgeId,
+            operatorId: input.operatorId,
+            direction: input.direction,
+          });
+          this.#playerMultiDash.recordDash(this.#playerMultiDashState);
+          const ultimateCannotDash =
+            interrupted?.nativeSkillType === 'ultimateSkill' && interrupted.canDash !== true;
+          if (
+            !operatorWasControlled ||
+            centerBefore.perfectDodgeDashAvailable === false ||
+            multiDashBefore.canStartMultiDash === false ||
+            ultimateCannotDash ||
+            (dashTagBlockers?.length ?? 0) > 0 ||
+            dashControllerState?.playerActionEnabled === false ||
+            dashControllerState?.movementGaitAllowsDash === false ||
+            dashControllerState?.isInAir === true
+          ) {
+            recordDodgeReceipt(this.receipt, this.clock, input.operatorId, input.dodgeId, {
+              event: 'DodgeInputForced',
+              data: {
+                operatorNotControlled: !operatorWasControlled,
+                perfectDodgeDashBlocked: centerBefore.perfectDodgeDashAvailable === false,
+                repeatDashTooEarly: multiDashBefore.repeatDashTooEarly === true,
+                multiDashLimitReached: multiDashBefore.multiDashLimitReached === true,
+                ultimateCannotDash,
+                inImmobilized: dashTagBlockers?.includes('InImmobilized') === true,
+                inDisableDash: dashTagBlockers?.includes('InDisableDash') === true,
+                hasSuperArmor: dashTagBlockers?.includes('SuperArmor') === true,
+                playerActionDisabled: dashControllerState?.playerActionEnabled === false,
+                movementGaitTooLow: dashControllerState?.movementGaitAllowsDash === false,
+                isInAir: dashControllerState?.isInAir === true,
+                ...(interrupted === null
+                  ? {}
+                  : {
+                      interruptedSkillId: interrupted.skillId,
+                      interruptedTimelineFrame: interrupted.timelineFrame,
+                    }),
+              },
+            });
+          }
+          const operator = this.#operators.get(input.operatorId);
+          if (
+            options.dashTiming === undefined ||
+            operator?.dodgeProgram === undefined ||
+            options.skillAvailabilityTags === undefined
+          ) {
+            recordDodgeReceipt(this.receipt, this.clock, input.operatorId, input.dodgeId, {
+              event: 'DodgeInputPartiallySimulated',
+              data: {
+                missingDashTiming: options.dashTiming === undefined,
+                missingDodgeProgram: operator?.dodgeProgram === undefined,
+                missingDashTagRules: options.skillAvailabilityTags === undefined,
+              },
+            });
+          }
+        },
+        declarePerfectDodgeSuccess: input => {
+          const center = this.#operatorCenters.get(input.operatorId);
+          const operator = this.#operators.get(input.operatorId);
+          if (center === undefined)
+            throw new Error(`operator '${input.operatorId}' has no CenterState runtime`);
+          const missingDodgeProgram = operator?.dodgeProgram === undefined;
+          const state = this.#operatorCenterStates.get(input.operatorId)!;
+          const dashNotActive = !center.canDeclarePerfectDodgeSuccess(state, input.dodgeId);
+          recordDodgeReceipt(this.receipt, this.clock, input.operatorId, input.dodgeId, {
+            event: 'PerfectDodgeDeclared',
+            data: {},
+          });
+          if (missingDodgeProgram || dashNotActive) {
+            recordDodgeReceipt(this.receipt, this.clock, input.operatorId, input.dodgeId, {
+              event: 'PerfectDodgeDeclarationForced',
+              data: { missingDodgeProgram, dashNotActive },
+            });
+            // 输入已被记录；找不到对应的 Dash 时，不能把它广播给另一轮监听器。
+            return;
+          }
+          if (this.#options.emitAbilityEvent === undefined) {
+            recordDodgeReceipt(this.receipt, this.clock, input.operatorId, input.dodgeId, {
+              event: 'PerfectDodgeDeclarationRejected',
+              data: { reason: 'missingAbilityEventPublisher' },
+            });
+            return;
+          }
+          state.perfectDodgeConsumed = true;
+          state.pendingPerfectDodgeId = input.dodgeId;
+          const ability = this.#requireAbilitySystem(input.operatorId);
+          const previousRequest = ability.runtimeState.postSkillCastRequest;
+          // 时间轴标签只声明“本次 Dash 窗口收到一次可闪避的直接攻击”。
+          // 技力、时间膨胀、体力返还、成功 Buff 和 Dodge 技能均由公共监听 Buff 的原生动作链产生。
+          this.#options.emitAbilityEvent(input.operatorId, 'beforeTakeDamage', {
+            external: true,
+            sourceId: 'enemy',
+            targetId: input.operatorId,
+            tags: [],
+            features: [],
+          });
+          const pending = ability.runtimeState.postSkillCastRequest;
+          if (
+            state.pendingPerfectDodgeId !== null &&
+            (pending === previousRequest || pending?.skillId !== operator?.dodgeProgram?.skillId)
+          ) {
+            state.pendingPerfectDodgeId = null;
+            recordDodgeReceipt(this.receipt, this.clock, input.operatorId, input.dodgeId, {
+              event: 'PerfectDodgeDeclarationRejected',
+              data: { reason: 'nativeSuccessNotTriggered' },
+            });
+          }
+        },
+      },
+      this.#dodgeInputState,
+    );
   }
 
   #resolveBuffTargetById(targetId: string): BuffOperationTarget {
@@ -4756,8 +5208,8 @@ export class CombatRuntimeAssembly {
     isOperatorControlled: CombatRuntimeAssemblyOptions['isOperatorControlled'],
     resolveOperatorVitals: CombatRuntimeAssemblyOptions['resolveOperatorVitals'],
   ): readonly BuffOperationTarget[] {
-    if (target === 'currentTarget') {
-      throw new Error('currentTarget must be resolved from the active operation context');
+    if (target === 'currentTarget' || target === 'actionInputTarget') {
+      throw new Error(`${target} must be resolved from the active operation context`);
     }
     if (
       target === 'eventTarget' ||

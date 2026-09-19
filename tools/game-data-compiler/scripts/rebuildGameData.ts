@@ -19,6 +19,9 @@ import { auditOperatorSkillLibraries } from '../src/audits/operatorSkillLibrarie
 import { readGameplayTagPaths } from './readGameplayTagPaths.ts';
 import { readAbilityEntityTemplates } from './readAbilityEntityTemplates.ts';
 import { generateTimeDilationCatalog } from './generateTimeDilationCatalog.ts';
+import { generateBattleCommandMappingCatalog } from './generateBattleCommandMappingCatalog.ts';
+import { generateMovementSettingCatalog } from './generateMovementSettingCatalog.ts';
+import { generateDashEnergyConfig } from './generateDashEnergyConfig.ts';
 import { generateHitStopCurveCatalog } from './generateHitStopCurveCatalog.ts';
 import { generateSkillSettingCatalog } from './generateSkillSettingCatalog.ts';
 import { generateGlobalBuffCatalog } from './generateGlobalBuffCatalog.ts';
@@ -92,6 +95,9 @@ const GAME_DATA_PUBLISH_FILE_OUTPUTS = [
   'src/data/combat/gameplayTagPredefine.generated.ts',
   'src/data/combat/hitStopCurveCatalog.generated.ts',
   'src/data/combat/timeDilationCatalog.generated.ts',
+  'src/data/combat/battleCommandMappingCatalog.generated.ts',
+  'src/data/combat/movementSettingCatalog.generated.ts',
+  'src/data/combat/dashEnergyConfig.generated.ts',
   'src/data/combat/skillSettings.generated.ts',
   ...GAME_LOCALE_REBUILD_OUTPUTS,
 ] as const;
@@ -141,6 +147,9 @@ export const GAME_DATA_REBUILD_BOUNDARIES = [
       'src/data/combat/gameplayTagPredefine.generated.ts',
       'src/data/combat/hitStopCurveCatalog.generated.ts',
       'src/data/combat/timeDilationCatalog.generated.ts',
+      'src/data/combat/battleCommandMappingCatalog.generated.ts',
+      'src/data/combat/movementSettingCatalog.generated.ts',
+      'src/data/combat/dashEnergyConfig.generated.ts',
       'src/data/combat/skillSettings.generated.ts',
       'src/data/mechanics/generated',
     ],
@@ -365,6 +374,18 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
           candidateRoot,
           'src/data/combat/timeDilationCatalog.generated.ts',
         );
+        const battleCommandMappingCatalog = path.join(
+          candidateRoot,
+          'src/data/combat/battleCommandMappingCatalog.generated.ts',
+        );
+        const movementSettingCatalog = path.join(
+          candidateRoot,
+          'src/data/combat/movementSettingCatalog.generated.ts',
+        );
+        const dashEnergyConfig = path.join(
+          candidateRoot,
+          'src/data/combat/dashEnergyConfig.generated.ts',
+        );
         const hitStopCurveCatalog = path.join(
           candidateRoot,
           'src/data/combat/hitStopCurveCatalog.generated.ts',
@@ -415,6 +436,52 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
             sourceUrl,
             deterministicCheck: 'passed',
             note: '来自当前 VFS manifest；在 VFS 与 AKEDB 版本身份闭合前仍只是候选。',
+          };
+        });
+        const battleCommandMappingOkay = await stage('battle-command-mapping', async () => {
+          const sourceUrl = await resolveNamedManifestAssetPreview(
+            args.vfsBase,
+            'battlecommandmappingconfig.asset',
+            'assets/beyond/dynamicassets/gamedata/gameplayconfig/battlecommandmappingconfig.asset',
+          );
+          const input = { sourceUrl, output: battleCommandMappingCatalog, check: false };
+          const generated = await generateBattleCommandMappingCatalog(input);
+          await generateBattleCommandMappingCatalog({ ...input, check: true });
+          return {
+            ...generated,
+            sourceUrl,
+            deterministicCheck: 'passed',
+            note: '来自当前 VFS manifest；保留原生秒值，不在生成边界量化为帧。',
+          };
+        });
+        const movementSettingOkay = await stage('movement-setting', async () => {
+          const sourceUrl = await resolveNamedManifestAssetPreview(
+            args.vfsBase,
+            'movementsetting_default.asset',
+            'assets/beyond/dynamicassets/gamedata/gameplayconfig/movementsetting/movementsetting_default.asset',
+          );
+          const input = { sourceUrl, output: movementSettingCatalog, check: false };
+          const generated = await generateMovementSettingCatalog(input);
+          await generateMovementSettingCatalog({ ...input, check: true });
+          return {
+            ...generated,
+            sourceUrl,
+            deterministicCheck: 'passed',
+            note: '来自当前 VFS manifest；连续 Dash 的内外窗口保留原生秒值。',
+          };
+        });
+        const dashEnergyOkay = await stage('dash-energy', async () => {
+          const input = {
+            source: path.join(sourceRoot, 'TableCfg-current/GlobalConst.json'),
+            output: dashEnergyConfig,
+            check: false,
+          };
+          const generated = await generateDashEnergyConfig(input);
+          await generateDashEnergyConfig({ ...input, check: true });
+          return {
+            ...generated,
+            deterministicCheck: 'passed',
+            note: '账号能量上限除以单次 Dash 消耗，生成模拟使用的共享闪避次数。',
           };
         });
         const hitStopOkay = await stage('hit-stop', async () => {
@@ -495,6 +562,9 @@ export async function rebuildGameData(args: RebuildArguments, projectRoot = PROJ
         if (
           contingencyContractOkay &&
           timeDilationOkay &&
+          battleCommandMappingOkay &&
+          movementSettingOkay &&
+          dashEnergyOkay &&
           hitStopOkay &&
           skillSettingOkay &&
           globalBuffsOkay

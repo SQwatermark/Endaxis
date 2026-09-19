@@ -104,6 +104,15 @@ describe('compileScenarioResources', () => {
     });
   });
 
+  it('用已解析的原生容量初始化共享闪避体力', () => {
+    const compiled = compileScenarioResources(scenario(), {
+      ...options(),
+      dashEnergyCapacity: 8,
+    });
+
+    expect(compiled.dashEnergy).toEqual({ spent: 0, capacity: 8, inOverdraft: false });
+  });
+
   it('uses the user maximum override without requiring a resolved maximum', () => {
     const value = scenario();
     value.tracks[0]!.initialState.maxUltimateEnergyOverride = 60;

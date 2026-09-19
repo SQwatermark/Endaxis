@@ -243,6 +243,8 @@ export const SKILL_TYPES = [
   'finisher',
   /** 下落攻击。 */
   'plungingAttack',
+  /** 完美闪避成功后由中心状态机触发的隐藏技能。 */
+  'dodge',
 ] as const;
 
 /** 技能库、养成等级和战斗事件共同使用的技能大类。 */
@@ -363,6 +365,8 @@ export const BUFF_SINGLE_TARGETS = [
   'buffSource',
   /** forEachContextTarget 正在迭代的动态实体；只允许在该作用域内求值。 */
   'currentTarget',
+  /** 本次动作序列的输入目标；点燃回调中为点燃者，不等于 Buff 来源。 */
+  'actionInputTarget',
 ] as const;
 
 /** 需要解析到单个 Buff 容器的实例级目标。 */

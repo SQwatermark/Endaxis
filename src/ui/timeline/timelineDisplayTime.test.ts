@@ -18,6 +18,14 @@ function receipt(
 }
 
 describe('timeline display time', () => {
+  it('keeps one input frame for a boundary reached at cast start', () => {
+    expect([
+      ...projectSkillCastActualDurationFrames([
+        receipt(0, 10, 'SkillStarted', { castId: 'instant' }),
+        receipt(1, 10, 'SkillOperableBoundaryReached', { castId: 'instant', durationFrames: 0 }),
+      ]),
+    ]).toEqual([['instant', 1]]);
+  });
   it('separates confirmed interruption from natural end and local display boundary', () => {
     const entries = [
       receipt(0, -10, 'SkillStarted', { castId: 'a' }),

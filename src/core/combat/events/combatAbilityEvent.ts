@@ -188,6 +188,12 @@ export interface ProjectileLaunchedPayload {
   readonly entity: AbilityResetReference;
 }
 
+/** 投射物命中闪避角色前的原生上下文；它不等同于伤害包。 */
+export interface ProjectileHitAbilityEventPayload extends AbilityOriginPayload {
+  readonly isInPerfectDodgeCooldown: boolean;
+  readonly ignoreImmuneLevel: number;
+}
+
 export interface AbilityPhysicalInflictionPayload extends AbilityOriginPayload {
   readonly type?: PhysicalInflictionType;
   readonly attachBuffToCurrentSkill?: (buff: BuffApplicationHandle) => void;
@@ -285,6 +291,7 @@ export function spGainAbilityEvent(event: AbilityEventCandidate): SpGainAbilityE
 /** 每个公共事件只在此关联一种载荷；不按 Buff/技能/装备重新定义范围。 */
 export interface AbilityEventPayloadMap {
   projectileLaunched: ProjectileLaunchedPayload;
+  beforeHitByProjectile: ProjectileHitAbilityEventPayload;
   enterFight: AbilityOriginPayload;
   ownerSwitchToCenter: AbilityOriginPayload;
   ownerSwitchToGuard: AbilityOriginPayload;
@@ -335,6 +342,7 @@ export interface AbilityEventPayloadMap {
   buffConsumed: AbilityConsumedBuffPayload;
   buffAbsorbed: AbilityConsumedBuffPayload;
   skillSpGained: AbilitySpGainPayload;
+  perfectDodge: AbilityOriginPayload;
 }
 
 /** 按事件名索引，保留 event 与 payload 的关联；新增公共事件必须补齐载荷定义。 */

@@ -212,15 +212,9 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "nature_dmg_up": {
-                            "kind": "blackboard",
-                            "key": "nature_dmg_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "nature_dmg_up": "nature_dmg_up",
+                          "duration": "duration"
                         }
                       }
                     },
@@ -261,15 +255,9 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "nature_dmg_up2": {
-                                  "kind": "blackboard",
-                                  "key": "nature_dmg_up2"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "nature_dmg_up2": "nature_dmg_up2",
+                                "duration": "duration"
                               }
                             }
                           }

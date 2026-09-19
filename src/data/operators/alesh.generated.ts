@@ -16,6 +16,7 @@ export const aleshBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 12,
     naturalDurationFrames: 130,
     exclusiveFrame: 25,
+    offsetRecordFrame: 7,
     inputWindows: {
       commandMappings: [
         {
@@ -70,7 +71,15 @@ export const aleshBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        12,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0024_deepfin_attack2'] }),
+        ),
+        25,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0024_deepfin_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -85,6 +94,7 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 10,
     naturalDurationFrames: 128,
     exclusiveFrame: 25,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -154,7 +164,15 @@ export const aleshBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         8,
       ),
+      scheduled(
+        10,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0024_deepfin_attack3'] }),
+        ),
+        25,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0024_deepfin_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -169,6 +187,7 @@ export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 145,
     exclusiveFrame: 29,
+    offsetRecordFrame: 13,
     inputWindows: {
       commandMappings: [
         {
@@ -229,7 +248,15 @@ export const aleshBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         14,
       ),
+      scheduled(
+        16,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0024_deepfin_attack4'] }),
+        ),
+        31,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0024_deepfin_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -244,6 +271,7 @@ export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 22,
     naturalDurationFrames: 90,
     exclusiveFrame: 30,
+    offsetRecordFrame: 15,
     inputWindows: {
       commandMappings: [
         {
@@ -298,7 +326,15 @@ export const aleshBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         16,
       ),
+      scheduled(
+        22,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0024_deepfin_attack5'] }),
+        ),
+        33,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0024_deepfin_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -313,6 +349,7 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 31,
     naturalDurationFrames: 104,
     exclusiveFrame: 40,
+    offsetRecordFrame: 18,
     inputWindows: {
       commandMappings: [
         {
@@ -402,7 +439,15 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         20,
       ),
+      scheduled(
+        31,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0024_deepfin_attack1'] }),
+        ),
+        40,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0024_deepfin_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -411,6 +456,7 @@ export const aleshBasicAttack5: SkillDefinition = withSkillBlackboard(
     atb: 19,
     atk_scale: [0.28, 0.3, 0.33, 0.36, 0.39, 0.41, 0.44, 0.47, 0.5, 0.53, 0.57, 0.62],
     poise: 17,
+    atk_scale_display: [0.55, 0.61, 0.66, 0.72, 0.77, 0.83, 0.88, 0.94, 0.99, 1.06, 1.14, 1.24],
   },
 );
 
@@ -421,6 +467,7 @@ export const aleshFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 47,
     naturalDurationFrames: 113,
     exclusiveFrame: 75,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -567,6 +614,7 @@ export const aleshPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 92,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -614,6 +662,7 @@ export const aleshBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 51,
     naturalDurationFrames: 126,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -965,6 +1014,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 39,
     naturalDurationFrames: 213,
     exclusiveFrame: 130,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 39, endFrame: 65, sourceSkillIds: ['chr_0024_deepfin_normal_skill'] },
@@ -1223,10 +1273,7 @@ export const aleshComboSkill: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0024_deepfin_potential_3',
                 target: 'party',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  atk_up: { kind: 'blackboard', key: 'atk_up' },
-                  duration: { kind: 'blackboard', key: 'Duration' },
-                },
+                copiedBlackboardAssignments: { atk_up: 'atk_up', duration: 'Duration' },
               }),
             ),
             undefined,
@@ -1268,6 +1315,7 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 96,
     naturalDurationFrames: 180,
     exclusiveFrame: 110,
+    offsetRecordFrame: 0,
     inputWindows: {
       commandMappings: [
         {
@@ -1487,6 +1535,22 @@ export const aleshUltimate: SkillDefinition = withSkillBlackboard(
   },
 );
 
+export const aleshPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
+);
+
 export const alesh: OperatorDefinition = {
   slug: 'alesh',
   gameId: 'ALESH',
@@ -1538,6 +1602,10 @@ export const alesh: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: aleshUltimate },
   ],
+  dodgeSkill: aleshPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1554,6 +1622,13 @@ export const alesh: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },

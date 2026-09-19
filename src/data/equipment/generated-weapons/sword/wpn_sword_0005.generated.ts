@@ -163,19 +163,10 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "atk_up2": {
-                            "kind": "blackboard",
-                            "key": "atk_up2"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "max_stack": {
-                            "kind": "blackboard",
-                            "key": "max_stack"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "atk_up2": "atk_up2",
+                          "duration": "duration",
+                          "max_stack": "max_stack"
                         }
                       }
                     },

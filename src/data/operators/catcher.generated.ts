@@ -17,6 +17,7 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 114,
     exclusiveFrame: 25,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -88,12 +89,24 @@ export const catcherBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         14,
       ),
+      scheduled(
+        21,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack2'] }),
+        ),
+        39,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79] },
+  {
+    atb: 0,
+    atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
+    env_dmg: 20,
+  },
 );
 
 export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -103,6 +116,7 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 126,
     exclusiveFrame: 25,
+    offsetRecordFrame: 10,
     inputWindows: {
       commandMappings: [
         {
@@ -169,12 +183,24 @@ export const catcherBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         13,
       ),
+      scheduled(
+        21,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack3'] }),
+        ),
+        35,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.39, 0.42, 0.46, 0.5, 0.54, 0.58, 0.62, 0.65, 0.69, 0.74, 0.8, 0.87] },
+  {
+    atb: 0,
+    atk_scale: [0.39, 0.42, 0.46, 0.5, 0.54, 0.58, 0.62, 0.65, 0.69, 0.74, 0.8, 0.87],
+    env_dmg: 20,
+  },
 );
 
 export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
@@ -184,6 +210,7 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 28,
     naturalDurationFrames: 126,
     exclusiveFrame: 32,
+    offsetRecordFrame: 16,
     inputWindows: {
       commandMappings: [
         {
@@ -243,12 +270,24 @@ export const catcherBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         17,
       ),
+      scheduled(
+        28,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack4'] }),
+        ),
+        44,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atb: 0, atk_scale: [0.54, 0.59, 0.65, 0.7, 0.76, 0.81, 0.86, 0.92, 0.97, 1.04, 1.12, 1.22] },
+  {
+    atb: 0,
+    atk_scale: [0.54, 0.59, 0.65, 0.7, 0.76, 0.81, 0.86, 0.92, 0.97, 1.04, 1.12, 1.22],
+    env_dmg: 20,
+  },
 );
 
 export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
@@ -258,6 +297,7 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 45,
     naturalDurationFrames: 114,
     exclusiveFrame: 47,
+    offsetRecordFrame: 23,
     inputWindows: {
       commandMappings: [
         {
@@ -331,7 +371,15 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         25,
       ),
+      scheduled(
+        45,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0020_meurs_attack1'] }),
+        ),
+        60,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0020_meurs_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -339,6 +387,8 @@ export const catcherBasicAttack4: SkillDefinition = withSkillBlackboard(
   {
     atb: 25,
     atk_scale: [0.71, 0.78, 0.85, 0.92, 0.99, 1.07, 1.14, 1.21, 1.28, 1.37, 1.47, 1.6],
+    atk_scale2: 0.5,
+    env_dmg: 40,
     poise: 22,
   },
 );
@@ -350,6 +400,7 @@ export const catcherFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 35,
     naturalDurationFrames: 135,
     exclusiveFrame: 75,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -451,6 +502,7 @@ export const catcherPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 21,
     naturalDurationFrames: 108,
     exclusiveFrame: 20,
+    offsetRecordFrame: 0,
     costFrame: 9,
     scheduledSequences: [
       scheduled(
@@ -496,6 +548,7 @@ export const catcherBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 95,
     naturalDurationFrames: 373,
     exclusiveFrame: 285,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 95, endFrame: 129, sourceSkillIds: ['chr_0020_meurs_normal_skill'] },
@@ -749,6 +802,7 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 98,
     exclusiveFrame: 45,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 24, endFrame: 60, sourceSkillIds: ['chr_0020_meurs_normal_skill'] },
@@ -839,10 +893,10 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0020_meurs_combo_skill_shield',
                 target: 'casterAndLowestHealthRatioOperatorExceptCaster',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  shield_def_rate: { kind: 'blackboard', key: 'shield_def_rate' },
-                  shield_base: { kind: 'blackboard', key: 'shield_base' },
-                  duration: { kind: 'blackboard', key: 'shield_duration' },
+                copiedBlackboardAssignments: {
+                  shield_def_rate: 'shield_def_rate',
+                  shield_base: 'shield_base',
+                  duration: 'shield_duration',
                 },
               }),
             ),
@@ -862,10 +916,10 @@ export const catcherComboSkill: SkillDefinition = withSkillBlackboard(
                 buffId: 'buff_chr_0020_meurs_combo_skill_shield',
                 target: 'casterAndControlledOperator',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  shield_def_rate: { kind: 'blackboard', key: 'shield_def_rate' },
-                  shield_base: { kind: 'blackboard', key: 'shield_base' },
-                  duration: { kind: 'blackboard', key: 'shield_duration' },
+                copiedBlackboardAssignments: {
+                  shield_def_rate: 'shield_def_rate',
+                  shield_base: 'shield_base',
+                  duration: 'shield_duration',
                 },
               }),
             ),
@@ -916,6 +970,7 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 103,
     naturalDurationFrames: 193,
     exclusiveFrame: 120,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         {
@@ -949,9 +1004,9 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
             buffId: 'buff_chr_0020_meurs_ult_weak',
             target: 'enemy',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              weak_scale: { kind: 'blackboard', key: 'weak_scale' },
-              weak_duration: { kind: 'blackboard', key: 'weak_duration' },
+            copiedBlackboardAssignments: {
+              weak_scale: 'weak_scale',
+              weak_duration: 'weak_duration',
             },
           }),
         ),
@@ -1107,7 +1162,24 @@ export const catcherUltimate: SkillDefinition = withSkillBlackboard(
     talent_1: 0,
     weak_duration: 8,
     weak_scale: [0.2, 0.2, 0.2, 0.2, 0.2, 0.25, 0.25, 0.25, 0.25, 0.3, 0.3, 0.3],
+    poise_display: 20,
   },
+);
+
+export const catcherPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const catcher: OperatorDefinition = {
@@ -1155,6 +1227,10 @@ export const catcher: OperatorDefinition = {
     },
     { key: 'ultimate', skillType: 'ultimate', levelSource: 'ultimate', skills: catcherUltimate },
   ],
+  dodgeSkill: catcherPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1171,6 +1247,7 @@ export const catcher: OperatorDefinition = {
         'plungingAttack',
         'finisher',
       ],
+      normalAttackSkillKeys: ['basicAttack1', 'basicAttack2', 'basicAttack3', 'basicAttack4'],
       defaultSkillKey: 'basicAttack1',
     },
     battleSkill: { kind: 'skillSlot', skillSlotKey: 'battleSkill' },
@@ -1445,10 +1522,8 @@ export const catcher: OperatorDefinition = {
             target: 'buffOwner',
             source: 'buffSource',
             inheritSourceSkillCastInfo: true,
-            blackboardAssignments: {
-              duration: { kind: 'constant', value: 0.5 },
-              taken_dmg: { kind: 'blackboard', key: 'taken_dmg' },
-            },
+            blackboardAssignments: { duration: { kind: 'constant', value: 0.5 } },
+            copiedBlackboardAssignments: { taken_dmg: 'taken_dmg' },
           }),
         ),
       },

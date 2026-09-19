@@ -33,7 +33,7 @@ const levelIndex = computed(() => level.value - 1);
 const binding = computed(
   () =>
     listOperatorSkillDefinitionBindings(props.operator).find(
-      candidate => candidate.skill.levelSource === props.skillKey,
+      candidate => candidate.group.key === props.skillKey && candidate.origin === 'base',
     ) ?? null,
 );
 const skill = computed<SkillDefinition | null>(() => binding.value?.skill ?? null);

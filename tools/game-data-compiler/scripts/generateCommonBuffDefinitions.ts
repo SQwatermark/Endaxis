@@ -8,7 +8,12 @@ import {
   checkGeneratedDefinitionFiles,
 } from '../src/compiler/publication/writeGeneratedDefinitionFiles.ts';
 import { renderCommonBuffDefinitionsSource } from '../src/domains/operator/definitionSourceRenderer.ts';
-import { requireArray, requireNonEmptyString, requireRecord } from '../src/source/primitives.ts';
+import {
+  requireArray,
+  requireExactFields,
+  requireNonEmptyString,
+  requireRecord,
+} from '../src/source/primitives.ts';
 import { planOperatorDefinition } from './planOperatorDefinition.ts';
 import { OperatorPlanningSources } from './operatorPlanningSources.ts';
 import { compileStandardStumpBuffClosure } from '../src/compiler/buffs/standardStumpBuffClosure.ts';
@@ -17,6 +22,7 @@ import { readGameplayTagPaths } from './generateOperatorActiveSkillRuntime.ts';
 import type { OperatorBuffDefinitions } from '../../../packages/game-data-contract/src/buffs.ts';
 import type { DefinitionOptimizationMode } from '../src/compiler/optimization/definitionOptimization.ts';
 import { optimizeCommonBuffDefinitions } from '../src/compiler/optimization/equipmentDefinitionOptimization.ts';
+import { readGeneratedTimeDilationPriorities } from '../src/compiler/catalogs/generatedTimeDilationCatalog.ts';
 
 interface Arguments {
   readonly manifest: string;
@@ -87,6 +93,7 @@ export async function renderCollectedCommonBuffDefinitions(
     | 'globalBuffCatalog'
     | 'skillSettingCatalog'
     | 'gameplayTagCatalog'
+    | 'timeDilationCatalog'
     | 'optimization'
   >,
   collector: CommonBuffCollector<OperatorBuffDefinitions[string]>,
@@ -95,23 +102,39 @@ export async function renderCollectedCommonBuffDefinitions(
   const readSource = sources?.readJson ?? read;
   // 系统附着产生的 Buff 不一定被干员技能直接引用，仍须进入同一公共定义所有权。
   // 清单仅声明根身份；动作、倍率、标签和生命周期全部走公共原始 Buff 编译器。
-  const systemRoots = readSystemBuffRoots(
+  const systemRootDeclarations = readSystemBuffRootDeclarations(
     path.resolve(scriptDirectory, '../config/systemBuffRoots.json'),
   );
+  const systemRoots = systemRootDeclarations.map(item => item.buffId);
+  const timeDilationPriorities = readGeneratedTimeDilationPriorities(args.timeDilationCatalog);
   const systemClosure = compileStandardStumpBuffClosure(
     systemRoots,
     (id: string) => readSource(path.join(args.buffDataRoot, `${id}.json`)),
     readSource(args.globalBuffCatalog),
     readSource(args.skillSettingCatalog),
     undefined,
-    undefined,
-    new Map(systemRoots.map(id => [id, 'enemy' as const])),
+    () => ({
+      resolveTimeDilationPriority: (tagId: number, sourcePath: string) => {
+        const priority = timeDilationPriorities.get(tagId);
+        if (priority === undefined)
+          throw new Error(`${sourcePath}: unknown time-dilation priority ${tagId}`);
+        return priority;
+      },
+    }),
+    new Map(systemRootDeclarations.map(item => [item.buffId, item.owner] as const)),
     new Set(),
     new GameplayTagRegistry(
       sources?.gameplayTags(args.gameplayTagCatalog) ??
         readGameplayTagPaths(args.gameplayTagCatalog),
     ),
-    new Map(systemRoots.map(id => [id, 'caster' as const])),
+    new Map(systemRootDeclarations.map(item => [item.buffId, item.source] as const)),
+    new Set(),
+    new Map(),
+    new Map(
+      systemRootDeclarations.flatMap(item =>
+        item.buffId === 'buff_common_dash' ? [[item.buffId, {}] as const] : [],
+      ),
+    ),
   );
   const blocked = systemClosure.diagnostics.filter(item => item.status === 'blocked');
   if (blocked.length) throw new Error(`system Buff roots are blocked: ${JSON.stringify(blocked)}`);
@@ -146,15 +169,50 @@ export async function renderCollectedCommonBuffDefinitions(
   };
 }
 
-/** 当前清单只承载玩家向唯一敌人施加的系统 Buff；新增其他宿主时必须扩展明确的场景声明。 */
-export function readSystemBuffRoots(sourcePath: string): string[] {
+export interface SystemBuffRootDeclaration {
+  readonly buffId: string;
+  readonly owner: 'caster' | 'enemy';
+  readonly source: 'caster' | 'enemy';
+}
+
+/** 字符串沿用“玩家施加给敌人”；其他宿主必须在清单中显式声明。 */
+export function readSystemBuffRootDeclarations(sourcePath: string): SystemBuffRootDeclaration[] {
   const roots = requireArray(read(sourcePath), sourcePath).map((value, index) => {
-    const id = requireNonEmptyString(value, `${sourcePath}[${index}]`);
+    const itemPath = `${sourcePath}[${index}]`;
+    const declaration =
+      typeof value === 'string'
+        ? {
+            buffId: requireNonEmptyString(value, itemPath),
+            owner: 'enemy' as const,
+            source: 'caster' as const,
+          }
+        : (() => {
+            const item = requireRecord(value, itemPath);
+            requireExactFields(item, new Set(['buffId', 'owner', 'source']), itemPath);
+            const buffId = requireNonEmptyString(item.buffId, `${itemPath}.buffId`);
+            const owner = requireNonEmptyString(item.owner, `${itemPath}.owner`);
+            const source = requireNonEmptyString(item.source, `${itemPath}.source`);
+            if (owner !== 'caster' && owner !== 'enemy')
+              throw new Error(`${itemPath}.owner: unsupported system Buff owner ${owner}`);
+            if (source !== 'caster' && source !== 'enemy')
+              throw new Error(`${itemPath}.source: unsupported system Buff source ${source}`);
+            return {
+              buffId,
+              owner: owner as SystemBuffRootDeclaration['owner'],
+              source: source as SystemBuffRootDeclaration['source'],
+            };
+          })();
+    const id = declaration.buffId;
     if (!/^buff_common_[a-z0-9_]+$/.test(id)) throw new Error(`invalid system Buff root '${id}'`);
-    return id;
+    return declaration;
   });
-  if (new Set(roots).size !== roots.length) throw new Error('duplicate system Buff roots');
+  if (new Set(roots.map(item => item.buffId)).size !== roots.length)
+    throw new Error('duplicate system Buff roots');
   return roots;
+}
+
+export function readSystemBuffRoots(sourcePath: string): string[] {
+  return readSystemBuffRootDeclarations(sourcePath).map(item => item.buffId);
 }
 
 export function readPresentationNameKeys(sourcePath: string): Record<string, string> {

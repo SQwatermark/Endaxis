@@ -58,6 +58,18 @@ export interface MarkCanInterruptActionSource {
   readonly kind: 'markCanInterrupt';
 }
 
+/** 把当前技能的本次施放标为可由 Dash 输入打断。 */
+export interface MarkCanDashActionSource {
+  readonly kind: 'markCanDash';
+}
+
+/** 动作寿命内覆盖目标角色允许的连续 Dash 次数；负数在原生运行时表示无限。 */
+export interface OverrideMultiDashLimitActionSource {
+  readonly kind: 'overrideMultiDashLimit';
+  readonly target: TargetReferenceSource;
+  readonly dashCount: ScalarSource;
+}
+
 /**
  * 动作寿命内阻止移动技能打断当前技能，OnEnd 时移除对应句柄。
  * Endaxis 时间轴直接指定施法时刻，不模拟客户端移动输入与技能打断仲裁。
@@ -169,6 +181,45 @@ export function parseMarkCanInterruptActionSource(
     path,
   );
   return { kind: 'markCanInterrupt' };
+}
+
+export function parseMarkCanDashActionSource(
+  value: unknown,
+  path: string,
+): MarkCanDashActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set(['$type', 'isEnable', 'priorityLevel', 'priorityOffset', 'serverActionIndex']),
+    path,
+  );
+  return { kind: 'markCanDash' };
+}
+
+export function parseOverrideMultiDashLimitActionSource(
+  value: unknown,
+  path: string,
+  inheritedBlackboard: BlackboardLevelValues,
+): OverrideMultiDashLimitActionSource {
+  const action = requireRecord(value, path);
+  requireExactFields(
+    action,
+    new Set([
+      '$type',
+      'isEnable',
+      'priorityLevel',
+      'priorityOffset',
+      'serverActionIndex',
+      'targetSetting',
+      'dashCount',
+    ]),
+    path,
+  );
+  return {
+    kind: 'overrideMultiDashLimit',
+    target: parseTargetReferenceSource(action.targetSetting, `${path}.targetSetting`),
+    dashCount: parseScalarSource(action.dashCount, `${path}.dashCount`, inheritedBlackboard),
+  };
 }
 
 export function parseBlockMoveInterruptSkillActionSource(

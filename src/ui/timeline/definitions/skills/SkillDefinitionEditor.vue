@@ -1257,6 +1257,7 @@ function reset(): void {
                       ultimate: '终结技',
                       finisher: '处决',
                       plungingAttack: '下落攻击',
+                      dodge: '极限闪避',
                     }[kind]
                   }}
                 </option>

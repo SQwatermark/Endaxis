@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_burst01',
+  iconPath: '/equipment/burst01/item_equip_t4_suit_burst01_edc_01.webp',
   modifiers: [
     {
       kind: 'damageScale',
@@ -83,15 +84,9 @@ const definition = {
                               source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               asChildBuff: true,
-                              blackboardAssignments: {
-                                spell_dmg_up: {
-                                  kind: 'blackboard',
-                                  key: 'spell_dmg_up',
-                                },
-                                duration: {
-                                  kind: 'blackboard',
-                                  key: 'duration',
-                                },
+                              copiedBlackboardAssignments: {
+                                spell_dmg_up: 'spell_dmg_up',
+                                duration: 'duration',
                               },
                             },
                           },
@@ -145,15 +140,9 @@ const definition = {
                               source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               asChildBuff: true,
-                              blackboardAssignments: {
-                                spell_dmg_up: {
-                                  kind: 'blackboard',
-                                  key: 'spell_dmg_up',
-                                },
-                                duration: {
-                                  kind: 'blackboard',
-                                  key: 'duration',
-                                },
+                              copiedBlackboardAssignments: {
+                                spell_dmg_up: 'spell_dmg_up',
+                                duration: 'duration',
                               },
                             },
                           },
@@ -207,15 +196,9 @@ const definition = {
                               source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               asChildBuff: true,
-                              blackboardAssignments: {
-                                spell_dmg_up: {
-                                  kind: 'blackboard',
-                                  key: 'spell_dmg_up',
-                                },
-                                duration: {
-                                  kind: 'blackboard',
-                                  key: 'duration',
-                                },
+                              copiedBlackboardAssignments: {
+                                spell_dmg_up: 'spell_dmg_up',
+                                duration: 'duration',
                               },
                             },
                           },
@@ -269,15 +252,9 @@ const definition = {
                               source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
                               asChildBuff: true,
-                              blackboardAssignments: {
-                                spell_dmg_up: {
-                                  kind: 'blackboard',
-                                  key: 'spell_dmg_up',
-                                },
-                                duration: {
-                                  kind: 'blackboard',
-                                  key: 'duration',
-                                },
+                              copiedBlackboardAssignments: {
+                                spell_dmg_up: 'spell_dmg_up',
+                                duration: 'duration',
                               },
                             },
                           },

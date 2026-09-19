@@ -16,6 +16,7 @@ import { CombatSkillPrograms } from '../../skills/combatSkillPrograms';
 import { SkillCooldown } from '../../skills/skillCooldown';
 import { SkillRuntime, type CombatOperationExecutor } from '../../skills/skillRuntime';
 import { TimedMarkerContainer } from '../../status/timedMarkers';
+import { createOperatorCenterState } from '../../state/abilityState';
 
 const program: CompiledSkillProgram = {
   operatorId: 'operator',
@@ -64,6 +65,8 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
   statusTemplate.apply({ statusKey: 'charge', sourceId: 'operator', skillId: 'skill' });
   const markers = new TimedMarkerContainer('operator', clock);
   markers.add('window', 1);
+  const scaledClock = { time: 0 };
+  markers.add('scaled-window', 1, scaledClock, 'globalScaled');
   const cooldown = new SkillCooldown(30, 0);
   const operationState = createCombatOperationHostState();
   const fixed = new CombatSkillPrograms().register(program);
@@ -83,6 +86,7 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
   const saved = structuredClone({
     blackboard: blackboard.runtimeState,
     ability: ability.runtimeState,
+    center: createOperatorCenterState(),
     skills: new Map([['skill\u0000', skill.runtimeState]]),
     passives: new Map(),
     equipment: null,
@@ -129,6 +133,7 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
     clock: restoredClock,
     receipt: restoredReceipt,
     preboundStatusRuntime: preboundStatus,
+    globalScaledClock: scaledClock,
     createSkillDependencies: (binding, context) => ({
       clock: restoredClock,
       receipt: restoredReceipt,
@@ -145,6 +150,10 @@ it('单个干员核心恢复保持黑板、状态、标记、冷却、技能和�
   expect(restored.statuses!.container.runtimeState).toBe(saved.statuses);
   expect(restored.statuses).toBe(preboundStatus);
   expect(restored.timedMarkers.runtimeState).toBe(saved.timedMarkers);
+  expect(restored.timedMarkers.has('scaled-window')).toBe(true);
+  scaledClock.time = 2;
+  expect(restored.timedMarkers.has('scaled-window')).toBe(false);
+  expect(restored.timedMarkers.has('window')).toBe(true);
   expect(restored.cooldowns.get('skill')!.cooldown.runtimeState).toBe(saved.cooldowns.get('skill'));
   expect(restored.skills.get('skill\u0000')!.runtimeState).toBe(saved.skills.get('skill\u0000'));
   expect(restored.ability.runtimeState).toBe(saved.ability);

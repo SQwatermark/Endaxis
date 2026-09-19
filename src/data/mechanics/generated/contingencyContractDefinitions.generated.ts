@@ -565,15 +565,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'dmg_scale',
-                        },
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'dmg_scale',
+                        duration: 'duration',
                       },
                     },
                   },
@@ -606,15 +600,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'dmg_scale',
-                        },
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'dmg_scale',
+                        duration: 'duration',
                       },
                     },
                   },
@@ -647,15 +635,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'dmg_scale',
-                        },
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'dmg_scale',
+                        duration: 'duration',
                       },
                     },
                   },
@@ -688,15 +670,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'dmg_scale',
-                        },
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'dmg_scale',
+                        duration: 'duration',
                       },
                     },
                   },
@@ -729,15 +705,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'dmg_scale',
-                        },
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'dmg_scale',
+                        duration: 'duration',
                       },
                     },
                   },
@@ -1023,11 +993,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
                       },
                     },
                   },
@@ -1052,11 +1019,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
                       },
                     },
                   },
@@ -1081,11 +1045,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
                       },
                     },
                   },
@@ -1110,11 +1071,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
                       },
                     },
                   },
@@ -1147,11 +1105,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        duration: {
-                          kind: 'blackboard',
-                          key: 'duration',
-                        },
+                      copiedBlackboardAssignments: {
+                        duration: 'duration',
                       },
                     },
                   },
@@ -1777,11 +1732,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                             target: 'buffOwner',
                             source: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              hp_ratio: {
-                                kind: 'blackboard',
-                                key: 'hp_ratio',
-                              },
+                            copiedBlackboardAssignments: {
+                              hp_ratio: 'hp_ratio',
                             },
                           },
                         },
@@ -1880,11 +1832,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                     target: 'buffOwner',
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      hp_ratio: {
-                        kind: 'blackboard',
-                        key: 'hp_ratio',
-                      },
+                    copiedBlackboardAssignments: {
+                      hp_ratio: 'hp_ratio',
                     },
                   },
                 },
@@ -2015,11 +1964,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
               target: 'buffOwner',
               source: 'buffOwner',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                dmg_scale: {
-                  kind: 'blackboard',
-                  key: 'dmg_scale',
-                },
+              copiedBlackboardAssignments: {
+                dmg_scale: 'dmg_scale',
               },
             },
           },
@@ -2176,11 +2122,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                             target: 'buffOwner',
                             source: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              hp_ratio: {
-                                kind: 'blackboard',
-                                key: 'hp_ratio',
-                              },
+                            copiedBlackboardAssignments: {
+                              hp_ratio: 'hp_ratio',
                             },
                           },
                         },
@@ -2319,11 +2262,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
                       asChildBuff: true,
-                      blackboardAssignments: {
-                        hp_ratio: {
-                          kind: 'blackboard',
-                          key: 'hp_ratio',
-                        },
+                      copiedBlackboardAssignments: {
+                        hp_ratio: 'hp_ratio',
                       },
                     },
                   },
@@ -2375,11 +2315,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
               buffId: 'buff_cc_enemy_inflict_stack_resist_add_listener',
               target: 'buffOwner',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                dmg_scale: {
-                  kind: 'blackboard',
-                  key: 'dmg_scale',
-                },
+              copiedBlackboardAssignments: {
+                dmg_scale: 'dmg_scale',
               },
             },
           },
@@ -2474,11 +2411,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'd_dmg_scale',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'd_dmg_scale',
                       },
                     },
                   },
@@ -2554,11 +2488,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'd_dmg_scale',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'd_dmg_scale',
                       },
                     },
                   },
@@ -2634,11 +2565,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'd_dmg_scale',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'd_dmg_scale',
                       },
                     },
                   },
@@ -2714,11 +2642,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'd_dmg_scale',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'd_dmg_scale',
                       },
                     },
                   },
@@ -2794,11 +2719,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                       target: 'buffOwner',
                       source: 'buffOwner',
                       inheritSourceSkillCastInfo: true,
-                      blackboardAssignments: {
-                        dmg_scale: {
-                          kind: 'blackboard',
-                          key: 'd_dmg_scale',
-                        },
+                      copiedBlackboardAssignments: {
+                        dmg_scale: 'd_dmg_scale',
                       },
                     },
                   },
@@ -3348,15 +3270,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
               target: 'buffOwner',
               source: 'buffOwner',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                chr_heal_ratio: {
-                  kind: 'blackboard',
-                  key: 'chr_heal_ratio',
-                },
-                eny_heal_ratio: {
-                  kind: 'blackboard',
-                  key: 'eny_heal_ratio',
-                },
+              copiedBlackboardAssignments: {
+                chr_heal_ratio: 'chr_heal_ratio',
+                eny_heal_ratio: 'eny_heal_ratio',
               },
             },
           },
@@ -3367,15 +3283,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
               target: 'buffOwner',
               source: 'buffOwner',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                chr_heal_ratio: {
-                  kind: 'blackboard',
-                  key: 'chr_shield_ratio',
-                },
-                eny_heal_ratio: {
-                  kind: 'blackboard',
-                  key: 'eny_heal_ratio',
-                },
+              copiedBlackboardAssignments: {
+                chr_heal_ratio: 'chr_shield_ratio',
+                eny_heal_ratio: 'eny_heal_ratio',
               },
             },
           },
@@ -3630,11 +3540,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                               key: 'heal_times',
                             },
                             inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              eny_heal_ratio: {
-                                kind: 'blackboard',
-                                key: 'eny_heal_ratio',
-                              },
+                            copiedBlackboardAssignments: {
+                              eny_heal_ratio: 'eny_heal_ratio',
                             },
                           },
                         },
@@ -3909,11 +3816,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                               key: 'heal_times',
                             },
                             inheritSourceSkillCastInfo: true,
-                            blackboardAssignments: {
-                              eny_heal_ratio: {
-                                kind: 'blackboard',
-                                key: 'eny_heal_ratio',
-                              },
+                            copiedBlackboardAssignments: {
+                              eny_heal_ratio: 'eny_heal_ratio',
                             },
                           },
                         },
@@ -3966,11 +3870,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                     target: 'enemy',
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      eny_heal_ratio: {
-                        kind: 'blackboard',
-                        key: 'eny_heal_ratio',
-                      },
+                    copiedBlackboardAssignments: {
+                      eny_heal_ratio: 'eny_heal_ratio',
                     },
                   },
                 },
@@ -4045,11 +3946,8 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                     target: 'enemy',
                     source: 'buffSource',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      eny_heal_ratio: {
-                        kind: 'blackboard',
-                        key: 'eny_heal_ratio',
-                      },
+                    copiedBlackboardAssignments: {
+                      eny_heal_ratio: 'eny_heal_ratio',
                     },
                   },
                 },
@@ -4116,15 +4014,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
               target: 'buffOwner',
               source: 'buffOwner',
               inheritSourceSkillCastInfo: true,
-              blackboardAssignments: {
-                ratio: {
-                  kind: 'blackboard',
-                  key: 'ratio',
-                },
-                duration: {
-                  kind: 'blackboard',
-                  key: 'duration',
-                },
+              copiedBlackboardAssignments: {
+                ratio: 'ratio',
+                duration: 'duration',
               },
             },
           },
@@ -4181,15 +4073,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                             source: 'buffOwner',
                             inheritSourceSkillCastInfo: true,
                             asChildBuff: true,
-                            blackboardAssignments: {
-                              ratio: {
-                                kind: 'blackboard',
-                                key: 'ratio',
-                              },
-                              duration: {
-                                kind: 'blackboard',
-                                key: 'duration',
-                              },
+                            copiedBlackboardAssignments: {
+                              ratio: 'ratio',
+                              duration: 'duration',
                             },
                           },
                         },
@@ -4323,15 +4209,9 @@ export const contingencyContractBuffDefinitions = Object.freeze({
                 target: 'buffOwner',
                 source: 'buffOwner',
                 inheritSourceSkillCastInfo: true,
-                blackboardAssignments: {
-                  ratio: {
-                    kind: 'blackboard',
-                    key: 'ratio',
-                  },
-                  duration: {
-                    kind: 'blackboard',
-                    key: 'duration',
-                  },
+                copiedBlackboardAssignments: {
+                  ratio: 'ratio',
+                  duration: 'duration',
                 },
               },
             },

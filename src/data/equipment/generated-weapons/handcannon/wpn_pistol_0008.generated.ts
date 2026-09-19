@@ -302,15 +302,9 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "dmg_up_final": {
-                            "kind": "blackboard",
-                            "key": "spell_dmg_up2"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "duration": "duration",
+                          "dmg_up_final": "spell_dmg_up2"
                         }
                       }
                     }
@@ -357,15 +351,9 @@ const definition = {
                               "buffId": "buff_wpn_pistol_0008_extra_valid",
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
-                              "blackboardAssignments": {
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration2"
-                                },
-                                "dmg_up_final": {
-                                  "kind": "blackboard",
-                                  "key": "spell_dmg_up3"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "duration": "duration2",
+                                "dmg_up_final": "spell_dmg_up3"
                               }
                             }
                           }

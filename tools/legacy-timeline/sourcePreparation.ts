@@ -1,4 +1,10 @@
 import { PROJECT_FPS, type SkillCastDocument } from '../../src/core/project/schema';
+import {
+  hydrateLegacyTrack,
+  isLegacyDodgeAction,
+  normalizeLegacySkill,
+  resolveLegacyOperator,
+} from './legacyFormat';
 
 /** 一个旧技能块对应当前技能库中的整组技能；具体分段和默认间距取当前干员定义。 */
 export interface LegacySkillSequenceTarget {
@@ -15,6 +21,16 @@ export interface LegacySkillSequenceTarget {
 export type LegacySkillMappingTarget = SkillCastDocument['source'] | LegacySkillSequenceTarget;
 
 export interface ConversionMappings {
+  /** 历史 gamedata.json 中的完整技能块身份；同时校验所属干员、类别和段号。 */
+  historicalSkills?: readonly {
+    operator: string;
+    id: string;
+    type: string;
+    segmentIndex?: number;
+    name: string;
+    evidence: string;
+    target: LegacySkillMappingTarget;
+  }[];
   operators?: Record<string, string>;
   weapons?: Record<string, string>;
   gears?: Record<string, string>;
@@ -57,6 +73,8 @@ export function legacySkillIdentity(action: LegacySkillIdentity): LegacySkillIde
 export interface ConversionIssue {
   path: string;
   message: string;
+  /** 展示问题不影响技能、状态和伤害输入的完整性；未标注的仍按模拟内容问题处理。 */
+  impact?: 'presentation';
 }
 export interface TimeConversion {
   path: string;
@@ -105,6 +123,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
   const sourceFps = root.timeUnit === 'frame' ? root.fps : 1;
   if (!Number.isFinite(sourceFps) || sourceFps <= 0) throw new Error('帧存档必须明确提供有效 fps');
   const issues: ConversionIssue[] = [];
+  const ignoredCustomizations: ConversionIssue[] = [];
   const times: TimeConversion[] = [];
   const identityChanges: { path: string; from: string; to: string }[] = [];
   const unresolvedSkills: { path: string; operator: string; source: LegacySkillIdentity }[] = [];
@@ -127,8 +146,15 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
       });
       d.activeEnemyId = enemyTarget;
     }
+    // 用户明确选择按标准技能转换，旧技能覆盖不参与目标定义，也不阻塞转换。
+    if (hasConfiguredValue(d.characterOverrides)) {
+      ignoredCustomizations.push({
+        path: prefix + '.characterOverrides',
+        message: '已忽略旧技能自定义覆盖，按标准技能定义转换',
+      });
+    }
+    delete d.characterOverrides;
     for (const key of [
-      'characterOverrides',
       'weaponOverrides',
       'equipmentCategoryOverrides',
       'inheritedInitialEffects',
@@ -162,6 +188,19 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
     for (const [index, connection] of connections.entries()) {
       object(connection);
       const path = `${prefix}.connections[${index}]`;
+      // 早期连线没有节点类型；只有端点唯一对应技能块且未指定效果时才能补齐。
+      for (const side of ['from', 'to'] as const) {
+        const id = connection[`${side}NodeId`] ?? connection[side];
+        if (
+          connection[`${side}NodeType`] == null &&
+          connection[`${side}EffectId`] == null &&
+          connection[`${side}EffectIndex`] == null &&
+          actionInstanceCounts.get(id) === 1
+        ) {
+          connection[`${side}NodeType`] = 'action';
+          connection[`${side}NodeId`] = id;
+        }
+      }
       const actionOnly =
         connection.fromNodeType === 'action' &&
         connection.toNodeType === 'action' &&
@@ -173,6 +212,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         issues.push({
           path,
           message: '只支持技能块之间的连接；Hit 和效果端点没有可直接搬运的稳定身份',
+          impact: 'presentation',
         });
         continue;
       }
@@ -186,6 +226,7 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
           issues.push({
             path: `${path}.${endpoint}`,
             message: `连接端点 '${String(id)}' 未唯一对应一个旧技能块`,
+            impact: 'presentation',
           });
         }
       }
@@ -195,8 +236,13 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
     d.connections = validConnections;
     if (d.globalConfig?.presetId || d.globalConfig?.customModifiers?.length)
       issues.push({ path: prefix + '.globalConfig', message: '全局配置尚未转换' });
-    const constants = d.systemConstants == null ? {} : object(d.systemConstants);
-    if (d.systemConstants == null) {
+    // 项目加载先应用根级常量，再应用方案局部覆盖；每个方案独立复制后换算时间。
+    const inheritedConstants =
+      root.systemConstants == null ? undefined : object(root.systemConstants);
+    const localConstants = d.systemConstants == null ? undefined : object(d.systemConstants);
+    const constants = { ...structuredClone(inheritedConstants ?? {}), ...localConstants };
+    d.systemConstants = constants;
+    if (localConstants === undefined && inheritedConstants === undefined) {
       issues.push({
         path: `${prefix}.systemConstants`,
         message: '缺少旧战斗常量，不能完整还原该方案',
@@ -217,12 +263,17 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         message: '处决承伤修正尚未转换',
       });
     if (!Array.isArray(d.tracks) || d.tracks.length > 4) throw new Error('只支持最多四条轨道');
-    // 旧 SwitchEvent 保存的是轨道 characterId，必须在干员身份重映射之前解析。
+    // 旧 SwitchEvent 可能仍保存 gameId，而轨道已保存 slug；两侧共用旧身份解析。
     for (const [index, event] of (d.switchEvents ?? []).entries()) {
       object(event);
       const matches = d.tracks
         .map((track: Row, trackIndex: number) => ({ id: track.id, trackIndex }))
-        .filter((track: { id: unknown }) => track.id === event.characterId);
+        .filter(
+          (track: { id: unknown }) =>
+            typeof track.id === 'string' &&
+            typeof event.characterId === 'string' &&
+            resolveLegacyOperator(track.id) === resolveLegacyOperator(event.characterId),
+        );
       if (event.characterId !== undefined) {
         if (
           matches.length !== 1 ||
@@ -251,12 +302,15 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
     }
     for (const [ti, t] of d.tracks.entries()) {
       object(t);
-      const oldOperator = t.id;
+      hydrateLegacyTrack(t, d, mappings, ti);
+      const rawOperator = t.id;
+      const oldOperator =
+        typeof rawOperator === 'string' ? resolveLegacyOperator(rawOperator) : rawOperator;
       const mappedOperator = mappings.operators?.[oldOperator];
       if (mappedOperator) {
         identityChanges.push({
           path: prefix + '.tracks[' + ti + '].id',
-          from: oldOperator,
+          from: rawOperator,
           to: mappedOperator,
         });
         t.id = mappedOperator;
@@ -266,11 +320,32 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         object(action);
         delete action.convertedSource;
         delete action.convertedSequence;
+        delete action.convertedDodge;
         const path = wrapper.id + '/' + ti + '/' + ai;
-        const identity = legacySkillIdentity(action);
+        if (isLegacyDodgeAction(oldOperator, action)) {
+          // 旧块没有方向字段；向前是新版普通闪避标签的中性导入约定，不补极限闪避收益。
+          action.convertedDodge = { direction: 'forward' };
+          continue;
+        }
+        const identity = legacySkillIdentity(normalizeLegacySkill(oldOperator, action));
         const candidates = (mappings.skills?.[oldOperator] ?? []).filter(
           rule => JSON.stringify(legacySkillIdentity(rule.source)) === JSON.stringify(identity),
         );
+        const historical =
+          action.skillId === undefined && action.sourceSkillKey === undefined
+            ? (mappings.historicalSkills ?? []).filter(
+                rule =>
+                  rule.operator === oldOperator &&
+                  rule.id === action.id &&
+                  rule.type === action.type &&
+                  rule.segmentIndex ===
+                    (action.segmentIndex ??
+                      (action.type === 'link'
+                        ? action.comboSegmentIndex
+                        : action.attackSegmentIndex)) &&
+                  action.variantKey === undefined,
+              )
+            : [];
         const guarded = (mappings.guardedActions ?? []).filter(
           rule =>
             rule.path === path &&
@@ -283,17 +358,23 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
           continue;
         }
         const override = guarded[0]?.target ?? mappings.actions?.[path];
-        const target = override ?? (candidates.length === 1 ? candidates[0]!.target : undefined);
+        const matches = [...candidates, ...historical];
+        const target = override ?? (matches.length === 1 ? matches[0]!.target : undefined);
         if (target?.kind === 'operatorSkillSequence') action.convertedSequence = target;
         else if (target) action.convertedSource = target;
         else {
-          issues.push({ path, message: candidates.length ? '技能映射不唯一' : '缺少显式技能映射' });
+          issues.push({
+            path,
+            message: matches.length
+              ? '技能映射不唯一'
+              : `缺少显式技能映射${action.id ? `：${action.id}` : ''}`,
+          });
           unresolvedSkills.push({ path, operator: oldOperator, source: identity });
         }
       }
     }
     for (const op of d.operators ?? []) {
-      const target = mappings.operators?.[op.operatorSlug];
+      const target = mappings.operators?.[resolveLegacyOperator(op.operatorSlug)];
       if (target) op.operatorSlug = target;
     }
     for (const [collection, key, map] of [
@@ -356,5 +437,5 @@ export function prepareLegacySource(input: unknown, mappings: ConversionMappings
         convert(row, prefix + '.' + key + '[' + index + ']'),
       );
   }
-  return { source: root, issues, times, identityChanges, unresolvedSkills };
+  return { source: root, issues, ignoredCustomizations, times, identityChanges, unresolvedSkills };
 }

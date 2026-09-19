@@ -211,6 +211,7 @@ export interface ActionBuffReferencesState {
 export type ActionStepData =
   | { readonly kind: 'playerActionMode'; readonly activation: ActionRegistrationState }
   | { readonly kind: 'basicAttackMapping'; readonly activation: ActionRegistrationState }
+  | { readonly kind: 'multiDashLimit'; readonly activation: ActionRegistrationState }
   | { readonly kind: 'skillSlotReplacement'; readonly activation: ActionRegistrationState }
   | { readonly kind: 'skillAffix'; readonly activation: ActionRegistrationState }
   | { readonly kind: 'actionDurationBuffs'; readonly buffs: ActionBuffReferencesState }

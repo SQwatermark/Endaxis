@@ -288,6 +288,8 @@ export interface ResolvedCombatStepParameters {
     coefficient?: number | ActionValueOperand;
     ultimateRecoveryTag?: GameplayTag;
   };
+  recoverDashEnergy: CombatStepParameters['recoverDashEnergy'];
+  recordPerfectDodge: CombatStepParameters['recordPerfectDodge'];
   gainSquadUltimateEnergyFromSkillCost: { coefficient: number };
   gainFinisherSp: CombatStepParameters['gainFinisherSp'];
   restrictUltimateEnergyRecovery: Omit<
@@ -306,6 +308,7 @@ export interface ResolvedCombatStepParameters {
   jumpTimeline: CombatStepParameters['jumpTimeline'];
   finishTimeline: CombatStepParameters['finishTimeline'];
   reachSkillOperableBoundary: CombatStepParameters['reachSkillOperableBoundary'];
+  markCurrentSkillCanDash: CombatStepParameters['markCurrentSkillCanDash'];
   conditional: CombatStepParameters['conditional'];
   switch: CombatStepParameters['switch'];
   once: CombatStepParameters['once'];
@@ -317,6 +320,7 @@ export interface ResolvedCombatStepParameters {
   showComboRingQte: CombatStepParameters['showComboRingQte'];
   changeSkillSlot: CombatStepParameters['changeSkillSlot'];
   overrideBasicAttackMapping: CombatStepParameters['overrideBasicAttackMapping'];
+  overrideMultiDashLimit: CombatStepParameters['overrideMultiDashLimit'];
   changePlayerActionMode: CombatStepParameters['changePlayerActionMode'];
   changeNativeSkillType: CombatStepParameters['changeNativeSkillType'];
   setCharacterPassiveUiValue: CombatStepParameters['setCharacterPassiveUiValue'];
@@ -453,6 +457,8 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   setHealthFloor: 'operation',
   changeResource: 'operation',
   changeResourceByActionValue: 'operation',
+  recoverDashEnergy: 'operation',
+  recordPerfectDodge: 'operation',
   gainSquadUltimateEnergyFromSkillCost: 'operation',
   gainFinisherSp: 'operation',
   applyStatus: 'operation',
@@ -460,6 +466,7 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   jumpTimeline: 'sequence',
   finishTimeline: 'sequence',
   reachSkillOperableBoundary: 'sequence',
+  markCurrentSkillCanDash: 'sequence',
   conditional: 'sequence',
   switch: 'sequence',
   once: 'sequence',
@@ -473,6 +480,7 @@ export const COMBAT_STEP_EXECUTION_ROUTES = {
   showComboRingQte: 'operation',
   changeSkillSlot: 'operation',
   overrideBasicAttackMapping: 'operation',
+  overrideMultiDashLimit: 'operation',
   changePlayerActionMode: 'operation',
   changeNativeSkillType: 'operation',
   setCharacterPassiveUiValue: 'operation',
@@ -571,6 +579,8 @@ export interface CompiledSkillExecutionProgram extends CompiledSkillActionProgra
   /** 原生技能实例的自然结束周期；与块宽、可中断边界彼此独立。 */
   readonly naturalDurationFrames?: number;
   readonly exclusiveFrame?: number;
+  /** 原生普攻连段身份提交点；到达后下一次 Dash 可保存该目标。 */
+  readonly offsetRecordFrame?: number;
   /** 原生技能局部输入映射与接续窗口；已无等级值，运行时只读。 */
   readonly inputWindows?: import('../game-data/operatorDefinition').SkillDefinition['inputWindows'];
   readonly cooldownFrames?: number;

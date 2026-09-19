@@ -4,7 +4,65 @@ import { createEmptyProject } from '../../core/project/createProject';
 import { ProjectEditorSession } from '../../application/editor/projectEditorSession';
 import { useProjectFileSession } from './projectFileSession';
 
-afterEach(() => vi.unstubAllGlobals());
+const { saveBrowserProjectMock } = vi.hoisted(() => ({ saveBrowserProjectMock: vi.fn() }));
+vi.mock('../../data/browserProjectStorage', () => ({ saveBrowserProject: saveBrowserProjectMock }));
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+  vi.clearAllMocks();
+});
+
+it('allows refresh after browser autosave completes, but protects edits while it is pending', async () => {
+  const target = new EventTarget();
+  vi.stubGlobal('window', target);
+  let completeSave!: () => void;
+  saveBrowserProjectMock.mockImplementation(
+    () =>
+      new Promise<void>(resolve => {
+        completeSave = resolve;
+      }),
+  );
+  const project = new ProjectEditorSession(
+    createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' }),
+  );
+  const scope = effectScope();
+  scope.run(() => useProjectFileSession(project, { persistToBrowser: true }));
+  try {
+    project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
+    const pending = new Event('beforeunload', { cancelable: true });
+    target.dispatchEvent(pending);
+    expect(pending.defaultPrevented).toBe(true);
+    completeSave();
+    await Promise.resolve();
+    const saved = new Event('beforeunload', { cancelable: true });
+    target.dispatchEvent(saved);
+    expect(saved.defaultPrevented).toBe(false);
+    expect(saveBrowserProjectMock).toHaveBeenCalledWith(project.snapshot.project);
+  } finally {
+    scope.stop();
+  }
+});
+
+it('keeps refresh protection and exposes the error when browser autosave fails', async () => {
+  const target = new EventTarget();
+  vi.stubGlobal('window', target);
+  saveBrowserProjectMock.mockRejectedValue(new Error('storage unavailable'));
+  const project = new ProjectEditorSession(
+    createEmptyProject({ createdWith: 'test', gameDataRevision: 'test' }),
+  );
+  const scope = effectScope();
+  const files = scope.run(() => useProjectFileSession(project, { persistToBrowser: true }))!;
+  try {
+    project.commit('edit', value => ({ ...value, createdWith: 'edited' }));
+    await Promise.resolve();
+    expect(files.browserSaveError.value).toBe('storage unavailable');
+    const event = new Event('beforeunload', { cancelable: true });
+    target.dispatchEvent(event);
+    expect(event.defaultPrevented).toBe(true);
+  } finally {
+    scope.stop();
+  }
+});
 
 it('tracks the saved identity through edits, undo and normalized project loading', () => {
   vi.stubGlobal('window', new EventTarget());

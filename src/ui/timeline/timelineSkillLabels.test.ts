@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import type { TimelineSkillLibraryEntryViewModel } from './timelineEditorViewModel';
 import {
+  skillLibraryNameEntry,
   skillLibrarySegmentLabel,
   timelineSkillBlockLabel,
+  timelineSkillBlockLabelForKey,
   timelineSkillSegmentLabel,
   type TimelineSkillSegmentLabels,
 } from './timelineSkillLabels';
@@ -34,6 +36,20 @@ function skillLibraryEntry(
 }
 
 describe('skill sequence labels', () => {
+  it('shows the original basic-attack name for a separately grouped enhanced attack', () => {
+    const basic = {
+      ...skillLibraryEntry('basicAttack', ['basic']),
+      entryKey: 'basic',
+      skillGroupKey: 'basicAttack',
+    };
+    const enhanced = {
+      ...skillLibraryEntry('basicAttack', ['enhanced'], true),
+      entryKey: 'enhanced',
+      skillGroupKey: 'enhancedBasicAttack',
+    };
+    expect(skillLibraryNameEntry(enhanced, [basic, enhanced])).toBe(basic);
+    expect(skillLibraryNameEntry(basic, [basic, enhanced])).toBe(basic);
+  });
   it('uses operation notation in the skill library', () => {
     const entry = skillLibraryEntry('basicAttack', ['attack-1', 'attack-2', 'attack-3']);
 
@@ -119,5 +135,17 @@ describe('skill sequence labels', () => {
         '普攻',
       ),
     ).toBe('重击*');
+  });
+
+  it('names an unplaced routed skill like its timeline block, without guessing ambiguous groups', () => {
+    const enhanced = skillLibraryEntry(
+      'basicAttack',
+      ['attack-1', 'attack-2', 'heavy-attack'],
+      true,
+    );
+    expect(timelineSkillBlockLabelForKey([enhanced], 'attack-2', labels, () => '普攻')).toBe('A2*');
+    expect(
+      timelineSkillBlockLabelForKey([enhanced, enhanced], 'attack-2', labels, () => '普攻'),
+    ).toBeNull();
   });
 });

@@ -19,6 +19,24 @@ function setup() {
 }
 
 describe('原生预定义标签的安装与退出', () => {
+  it('闪避输入分别报告定身、禁止闪避和霸体三项原生门禁', () => {
+    const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
+    const target = new CombatBuffContainer('operator', new CombatAttributeSet<string>());
+    const immobilized = table.getQuery('InImmobilized').tags[0]!;
+    const disableDash = table.getQuery('InDisableDash').tags[0]!;
+    const superArmor = table.getTag('SuperArmor');
+    target.addEntityTags([immobilized, disableDash, superArmor]);
+    expect(table.getDashInputBlockers(target)).toEqual([
+      'InImmobilized',
+      'InDisableDash',
+      'SuperArmor',
+    ]);
+    target.removeEntityTags([immobilized]);
+    expect(table.getDashInputBlockers(target)).toEqual(['InDisableDash', 'SuperArmor']);
+    target.removeEntityTags([disableDash, superArmor]);
+    expect(table.getDashInputBlockers(target)).toEqual([]);
+  });
+
   it('主战技禁用仅作用于身份相符的 NormalSkill，且沉默先短路', () => {
     const table = new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE);
     const target = new CombatBuffContainer('operator', new CombatAttributeSet<string>());

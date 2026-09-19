@@ -96,8 +96,8 @@ export function projectSkillCastActualDurationFrames(
       throw new Error(`skill cast '${castId}' reached its operable boundary without starting`);
     }
     const elapsedFrames = entry.frame - startFrame;
-    if (elapsedFrames <= 0) {
-      throw new Error(`skill cast '${castId}' has a non-positive actual duration`);
+    if (elapsedFrames < 0) {
+      throw new Error(`skill cast '${castId}' has a negative actual duration`);
     }
     // 此事实产生于本帧技能更新阶段；本帧玩家输入已经消费完毕。
     // 块体覆盖到下一输入边界，不能把帧末事实画成该帧开始而留下 1f 缝隙。

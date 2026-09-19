@@ -210,15 +210,9 @@ const definition = {
                                                           "buffId": "buff_wpn_funnel_0006_valid",
                                                           "target": "partyExceptCaster",
                                                           "inheritSourceSkillCastInfo": true,
-                                                          "blackboardAssignments": {
-                                                            "spell_dmg_up": {
-                                                              "kind": "blackboard",
-                                                              "key": "spell_dmg_up_final"
-                                                            },
-                                                            "duration": {
-                                                              "kind": "blackboard",
-                                                              "key": "duration"
-                                                            }
+                                                          "copiedBlackboardAssignments": {
+                                                            "spell_dmg_up": "spell_dmg_up_final",
+                                                            "duration": "duration"
                                                           }
                                                         }
                                                       }
@@ -390,23 +384,11 @@ const definition = {
                         "target": "caster",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "spell_dmg_up": {
-                            "kind": "blackboard",
-                            "key": "spell_dmg_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          },
-                          "max_stack": {
-                            "kind": "blackboard",
-                            "key": "max_stack"
-                          },
-                          "spell_dmg_up2": {
-                            "kind": "blackboard",
-                            "key": "spell_dmg_up2"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "spell_dmg_up": "spell_dmg_up",
+                          "duration": "duration",
+                          "max_stack": "max_stack",
+                          "spell_dmg_up2": "spell_dmg_up2"
                         }
                       }
                     }

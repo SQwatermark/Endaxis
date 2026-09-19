@@ -90,7 +90,7 @@ const sharedActionSequence5: ActionSequenceDefinition = sequence(
     buffId: 'buff_chr_0027_tangtang_water',
     target: 'caster',
     inheritSourceSkillCastInfo: true,
-    blackboardAssignments: { duration_water: { kind: 'blackboard', key: 'duration_water' } },
+    copiedBlackboardAssignments: { duration_water: 'duration_water' },
   }),
   step('findOwnerSpawnedAbilityEntities', {
     saveToContextKey: 'water_group',
@@ -204,7 +204,7 @@ const sharedActionSequence4: ActionSequenceDefinition = sequence(
         buffId: 'buff_chr_0027_tangtang_water',
         target: 'caster',
         inheritSourceSkillCastInfo: true,
-        blackboardAssignments: { duration_water: { kind: 'blackboard', key: 'duration_water' } },
+        copiedBlackboardAssignments: { duration_water: 'duration_water' },
       }),
       forEachContextTarget(
         'water_abilityentity01',
@@ -271,6 +271,7 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 7,
     naturalDurationFrames: 90,
     exclusiveFrame: 15,
+    offsetRecordFrame: 3,
     inputWindows: {
       commandMappings: [
         {
@@ -319,12 +320,20 @@ export const tangtangBasicAttack1: SkillDefinition = withSkillBlackboard(
         ),
         3,
       ),
+      scheduled(
+        7,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack2'] }),
+        ),
+        30,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack2',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
-  { atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
+  { atb: 0, atk_scale: [0.23, 0.25, 0.27, 0.29, 0.32, 0.34, 0.36, 0.39, 0.41, 0.44, 0.47, 0.51] },
 );
 
 export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
@@ -334,6 +343,7 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 18,
     naturalDurationFrames: 117,
     exclusiveFrame: 18,
+    offsetRecordFrame: 6,
     inputWindows: {
       commandMappings: [
         {
@@ -435,7 +445,15 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
         ),
         10,
       ),
+      scheduled(
+        18,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack3'] }),
+        ),
+        39,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack3',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -444,6 +462,7 @@ export const tangtangBasicAttack2: SkillDefinition = withSkillBlackboard(
     atb: 0,
     atk_scale_1: [0.1, 0.11, 0.12, 0.13, 0.14, 0.15, 0.16, 0.17, 0.18, 0.19, 0.21, 0.23],
     atk_scale_2: [0.15, 0.17, 0.18, 0.2, 0.21, 0.23, 0.24, 0.26, 0.27, 0.29, 0.31, 0.34],
+    display_atk_scale: [0.25, 0.28, 0.3, 0.33, 0.35, 0.38, 0.4, 0.43, 0.45, 0.48, 0.52, 0.56],
   },
 );
 
@@ -454,6 +473,7 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 26,
     naturalDurationFrames: 115,
     exclusiveFrame: 30,
+    offsetRecordFrame: 5,
     inputWindows: {
       commandMappings: [
         {
@@ -628,14 +648,24 @@ export const tangtangBasicAttack3: SkillDefinition = withSkillBlackboard(
         ),
         18,
       ),
+      scheduled(
+        26,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack4'] }),
+        ),
+        43,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack4',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
   {
+    atb: 0,
     atk_scale_1: [0.05, 0.06, 0.06, 0.07, 0.07, 0.08, 0.08, 0.09, 0.09, 0.1, 0.1, 0.11],
     atk_scale_2: [0.03, 0.03, 0.03, 0.03, 0.04, 0.04, 0.04, 0.04, 0.05, 0.05, 0.05, 0.06],
+    display_atk_scale: [0.35, 0.39, 0.42, 0.46, 0.49, 0.53, 0.56, 0.6, 0.63, 0.67, 0.73, 0.79],
   },
 );
 
@@ -646,6 +676,7 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 24,
     naturalDurationFrames: 143,
     exclusiveFrame: 28,
+    offsetRecordFrame: 12,
     inputWindows: {
       commandMappings: [
         {
@@ -722,14 +753,24 @@ export const tangtangBasicAttack4: SkillDefinition = withSkillBlackboard(
         ),
         28,
       ),
+      scheduled(
+        24,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack5'] }),
+        ),
+        50,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack5',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
   },
   {
+    atb: 0,
     atk_scale_1: [0.08, 0.09, 0.1, 0.1, 0.11, 0.12, 0.13, 0.14, 0.14, 0.15, 0.17, 0.18],
     atk_scale_2: [0.21, 0.23, 0.25, 0.27, 0.29, 0.31, 0.33, 0.35, 0.37, 0.39, 0.43, 0.46],
+    display_atk_scale: [0.37, 0.4, 0.44, 0.47, 0.51, 0.55, 0.58, 0.62, 0.66, 0.7, 0.76, 0.82],
   },
 );
 
@@ -740,6 +781,7 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 36,
     naturalDurationFrames: 190,
     exclusiveFrame: 36,
+    offsetRecordFrame: 22,
     inputWindows: {
       commandMappings: [
         {
@@ -819,7 +861,15 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
         ),
         22,
       ),
+      scheduled(
+        36,
+        sequence(
+          step('reachSkillOperableBoundary', { sourceSkillIds: ['chr_0027_tangtang_attack1'] }),
+        ),
+        77,
+      ),
     ],
+    timelineContinuationSourceSkillId: 'chr_0027_tangtang_attack1',
     skillType: 'basicAttack',
     levelSource: 'basicAttack',
     nativeSkillType: 'attack',
@@ -827,6 +877,7 @@ export const tangtangBasicAttack5: SkillDefinition = withSkillBlackboard(
   {
     atb: 18,
     atk_scale: [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9, 0.96, 1.04, 1.13],
+    cnt: 0,
     poise: 18,
   },
 );
@@ -838,6 +889,7 @@ export const tangtangFinisher: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 48,
     naturalDurationFrames: 121,
     exclusiveFrame: 47,
+    offsetRecordFrame: 0,
     costFrame: 4,
     scheduledSequences: [
       scheduled(
@@ -972,6 +1024,7 @@ export const tangtangPlungingAttack: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 16,
     naturalDurationFrames: 118,
     exclusiveFrame: 15,
+    offsetRecordFrame: 0,
     costFrame: 0,
     scheduledSequences: [
       scheduled(
@@ -1009,6 +1062,7 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 50,
     naturalDurationFrames: 136,
     exclusiveFrame: 50,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 50, endFrame: 76, sourceSkillIds: ['chr_0027_tangtang_normal_skill'] },
@@ -1256,17 +1310,26 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atb_return: 20,
+    atb_return_02: 40,
+    atk_scale_02: 0,
     atk_scale_1: [0.16, 0.176, 0.192, 0.208, 0.224, 0.24, 0.256, 0.272, 0.288, 0.308, 0.332, 0.36],
+    cam_angle: 0,
+    cam_duration: 0,
     duration: 5,
     duration_spellvulnerable: 15,
+    duration_tornado: 3,
+    hit_cnt: 4,
     hit_cntmax: 10,
     hit_duration: 5,
+    input_angle: 0,
     max_stack: 0,
     normalskillwatermove_cnt: 0,
     poise_tornado: 0,
     poise1: 2,
+    potential_5_CrystDamageIncrease: 0,
     potential3: 0,
     potential5: 0,
+    potential5_duration: 0,
     rate_spellvulnerable: [
       0.03, 0.03, 0.03, 0.035, 0.035, 0.035, 0.04, 0.04, 0.04, 0.045, 0.045, 0.05,
     ],
@@ -1278,7 +1341,12 @@ export const tangtangBattleSkill: SkillDefinition = withSkillBlackboard(
     tornado_atk_scale01: 0,
     tornado_atk_scale02: 0,
     tornado_atk_scale03: 0,
+    tornado_usp_01: 0,
+    tornado_usp_02: 0,
     water_cnt: 0,
+    display_atk_scale1: [0.8, 0.88, 0.96, 1.04, 1.12, 1.2, 1.28, 1.36, 1.44, 1.54, 1.66, 1.8],
+    display_atk_scale2: [1.33, 1.47, 1.6, 1.74, 1.87, 2, 2.14, 2.27, 2.4, 2.57, 2.77, 3],
+    display_poise: 10,
   },
 );
 
@@ -1289,6 +1357,7 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 85,
     naturalDurationFrames: 202,
     exclusiveFrame: 84,
+    offsetRecordFrame: 0,
     inputWindows: {
       commandMappings: [
         {
@@ -1449,10 +1518,12 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     duration: 12,
     duration_spellvulnerable: 0,
     duration_talent1buff: 3,
+    poise1: 0,
     poise2: 15,
     poise3: 20,
     potential1: 0,
     potential3_rate_spellvulnerable: 0,
+    potential4: 0,
     potential5: 0,
     rate_spellvulnerable: 0,
     rate_spellvulnerable_02: 0,
@@ -1465,6 +1536,8 @@ export const tangtangUltimate: SkillDefinition = withSkillBlackboard(
     tornado_atk_scale01: 0,
     tornado_atk_scale02: 0,
     tornado_atk_scale03: 0,
+    display_atk_scale: [1.42, 1.56, 1.71, 1.85, 1.99, 2.13, 2.28, 2.42, 2.56, 2.74, 2.95, 3.2],
+    display_duration: 4,
   },
 );
 
@@ -1475,6 +1548,7 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     timelineBlockFrames: 31,
     naturalDurationFrames: 200,
     exclusiveFrame: 41,
+    offsetRecordFrame: 0,
     inputWindows: {
       allowedNextSkills: [
         { startFrame: 31, endFrame: 93, sourceSkillIds: ['chr_0027_tangtang_normal_skill'] },
@@ -1634,15 +1708,22 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
   },
   {
     atk_scale: [1.067, 1.173, 1.28, 1.387, 1.494, 1.6, 1.707, 1.814, 1.92, 2.054, 2.214, 2.4],
+    cam_angle2: 0,
+    cam_duration2: 0,
     combowater_cnt: 0,
     dmg_up_water_ult: 0,
     duration: 3,
     duration_talent1buff: 0,
     duration_water: 30,
+    input_angle2: 0,
     max_stack: 0,
+    owner_mainchar_alpha: 0,
+    owner_mainchar_distance: 0,
     poise: 10,
     potential1: 0,
+    potential3_duration: 0,
     potential5: 0,
+    potential5_dmg_up_water_ult: 0,
     range_talent1buff: 5,
     ratio_speed: 0,
     ratio_speedreduction: 0,
@@ -1651,6 +1732,22 @@ export const tangtangComboSkill: SkillDefinition = withSkillBlackboard(
     tar_cnt: 0,
     usp: 10,
   },
+);
+
+export const tangtangPerfectDodge: SkillDefinition = withSkillBlackboard(
+  {
+    key: 'perfectDodge',
+    sourceSkillId: 'common_character_perfect_dodge',
+    timelineBlockFrames: 16,
+    naturalDurationFrames: 15,
+    exclusiveFrame: 15,
+    offsetRecordFrame: 0,
+    costFrame: 0,
+    scheduledSequences: [],
+    skillType: 'dodge',
+    nativeSkillType: 'dodge',
+  },
+  {},
 );
 
 export const tangtang: OperatorDefinition = {
@@ -1710,6 +1807,10 @@ export const tangtang: OperatorDefinition = {
       skills: tangtangComboSkill,
     },
   ],
+  dodgeSkill: tangtangPerfectDodge,
+  dashBuffs: [
+    { buffId: 'buff_common_dash', blackboard: { dodgeSkillId: 'common_character_perfect_dodge' } },
+  ],
   skillSlots: [
     { key: 'battleSkill', baseSkillKey: 'battleSkill', replacementSkillKeys: [] },
     { key: 'comboSkill', baseSkillKey: 'comboSkill', replacementSkillKeys: [] },
@@ -1726,6 +1827,13 @@ export const tangtang: OperatorDefinition = {
         'basicAttack5',
         'plungingAttack',
         'finisher',
+      ],
+      normalAttackSkillKeys: [
+        'basicAttack1',
+        'basicAttack2',
+        'basicAttack3',
+        'basicAttack4',
+        'basicAttack5',
       ],
       defaultSkillKey: 'basicAttack1',
     },
@@ -3402,18 +3510,12 @@ export const tangtang: OperatorDefinition = {
                     buffId: 'buff_chr_0027_tangtang_ultskill_waterwake',
                     target: 'caster',
                     inheritSourceSkillCastInfo: true,
-                    blackboardAssignments: {
-                      talent2_ultskill: { kind: 'blackboard', key: 'talent2_ultskill' },
-                      dmg_up_water_ult: { kind: 'blackboard', key: 'dmg_up_water_ult' },
-                      rate_spellvulnerable: { kind: 'blackboard', key: 'rate_spellvulnerable' },
-                      rate_spellvulnerable_02: {
-                        kind: 'blackboard',
-                        key: 'rate_spellvulnerable_02',
-                      },
-                      duration_spellvulnerable: {
-                        kind: 'blackboard',
-                        key: 'duration_spellvulnerable',
-                      },
+                    copiedBlackboardAssignments: {
+                      talent2_ultskill: 'talent2_ultskill',
+                      dmg_up_water_ult: 'dmg_up_water_ult',
+                      rate_spellvulnerable: 'rate_spellvulnerable',
+                      rate_spellvulnerable_02: 'rate_spellvulnerable_02',
+                      duration_spellvulnerable: 'duration_spellvulnerable',
                     },
                   }),
                 ),
@@ -3529,15 +3631,9 @@ export const tangtang: OperatorDefinition = {
                         buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'duration_spellvulnerable',
-                          },
-                          rate_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'rate_spellvulnerable_02',
-                          },
+                        copiedBlackboardAssignments: {
+                          duration_spellvulnerable: 'duration_spellvulnerable',
+                          rate_spellvulnerable: 'rate_spellvulnerable_02',
                         },
                       }),
                     ),
@@ -3679,15 +3775,9 @@ export const tangtang: OperatorDefinition = {
                         buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'duration_spellvulnerable',
-                          },
-                          rate_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'rate_spellvulnerable_02',
-                          },
+                        copiedBlackboardAssignments: {
+                          duration_spellvulnerable: 'duration_spellvulnerable',
+                          rate_spellvulnerable: 'rate_spellvulnerable_02',
                         },
                       }),
                     ),
@@ -3829,15 +3919,9 @@ export const tangtang: OperatorDefinition = {
                         buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'duration_spellvulnerable',
-                          },
-                          rate_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'rate_spellvulnerable_02',
-                          },
+                        copiedBlackboardAssignments: {
+                          duration_spellvulnerable: 'duration_spellvulnerable',
+                          rate_spellvulnerable: 'rate_spellvulnerable_02',
                         },
                       }),
                     ),
@@ -3978,12 +4062,9 @@ export const tangtang: OperatorDefinition = {
                         buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'duration_spellvulnerable',
-                          },
-                          rate_spellvulnerable: { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                        copiedBlackboardAssignments: {
+                          duration_spellvulnerable: 'duration_spellvulnerable',
+                          rate_spellvulnerable: 'rate_spellvulnerable',
                         },
                       }),
                     ),
@@ -4125,12 +4206,9 @@ export const tangtang: OperatorDefinition = {
                         buffId: 'buff_chr_0027_tangtang_normalskill_spellvulnerable',
                         target: 'enemy',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          duration_spellvulnerable: {
-                            kind: 'blackboard',
-                            key: 'duration_spellvulnerable',
-                          },
-                          rate_spellvulnerable: { kind: 'blackboard', key: 'rate_spellvulnerable' },
+                        copiedBlackboardAssignments: {
+                          duration_spellvulnerable: 'duration_spellvulnerable',
+                          rate_spellvulnerable: 'rate_spellvulnerable',
                         },
                       }),
                     ),

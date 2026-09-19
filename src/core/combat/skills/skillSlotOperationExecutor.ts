@@ -4,6 +4,7 @@ import type { CombatOperationContext } from './skillRuntime';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 import type { CombatOperationExecutor } from './skillRuntime';
 import type { NativeSkillType } from '../../game-data/operatorDefinition';
+import { resolveActionValueOperand } from '../actions/actionBlackboard';
 
 export interface SkillSlotOperationExecutorOptions {
   readonly changeSkillSlot: (
@@ -22,6 +23,7 @@ export interface SkillSlotOperationExecutorOptions {
   readonly finishPlayerActionMode?: (registrationId: number) => void;
   readonly overrideBasicAttackMapping?: (sourceSkillId: string) => number;
   readonly finishBasicAttackMapping?: (registrationId: number) => void;
+  readonly setMultiDashLimit?: (limit: number | null) => void;
   readonly changeNativeSkillType?: (skillKey: string, nativeSkillType: NativeSkillType) => void;
   readonly delegate: CombatOperationExecutor;
 }
@@ -48,6 +50,17 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
         throw new Error('native player-action mode requires action state and lifecycle ports');
       if (state.registrationId !== null) finish(state.registrationId);
       state.registrationId = activate(step.parameters.modeId);
+      return true;
+    }
+    if (step.kind === 'overrideMultiDashLimit') {
+      const setLimit = this.options.setMultiDashLimit;
+      const state = context?.actionRegistrationState;
+      if (setLimit === undefined || context === undefined || state === undefined)
+        throw new Error('multi-dash limit requires action state and lifecycle ports');
+      const raw = resolveActionValueOperand(step.parameters.dashCount, context.blackboard);
+      const nativeLimit = Math.trunc(raw);
+      setLimit(nativeLimit < 0 ? 0x7fffffff : nativeLimit);
+      state.registrationId = 0;
       return true;
     }
     if (step.kind === 'changeNativeSkillType') {
@@ -116,6 +129,15 @@ export class SkillSlotOperationExecutor implements CombatOperationExecutor {
       if (state === undefined || finish === undefined)
         throw new Error('native player-action mode requires action state and lifecycle ports');
       if (state.registrationId !== null) finish(state.registrationId);
+      state.registrationId = null;
+      return;
+    }
+    if (step.kind === 'overrideMultiDashLimit') {
+      const state = context?.actionRegistrationState;
+      const setLimit = this.options.setMultiDashLimit;
+      if (state === undefined || setLimit === undefined)
+        throw new Error('multi-dash limit requires action state and lifecycle ports');
+      if (state.registrationId !== null) setLimit(null);
       state.registrationId = null;
       return;
     }

@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_poise01',
+  iconPath: '/equipment/poise01/item_equip_t4_suit_poise01_edc_02.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -51,15 +52,9 @@ const definition = {
                         target: 'buffOwner',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          phy_dmg_up: {
-                            kind: 'blackboard',
-                            key: 'phy_dmg_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
+                        copiedBlackboardAssignments: {
+                          phy_dmg_up: 'phy_dmg_up',
+                          duration: 'duration',
                         },
                       },
                     },
@@ -87,15 +82,9 @@ const definition = {
                               target: 'buffOwner',
                               source: 'buffOwner',
                               inheritSourceSkillCastInfo: true,
-                              blackboardAssignments: {
-                                phy_dmg_up2: {
-                                  kind: 'blackboard',
-                                  key: 'phy_dmg_up2',
-                                },
-                                duration: {
-                                  kind: 'blackboard',
-                                  key: 'duration2',
-                                },
+                              copiedBlackboardAssignments: {
+                                phy_dmg_up2: 'phy_dmg_up2',
+                                duration: 'duration2',
                               },
                             },
                           },

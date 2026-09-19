@@ -44,6 +44,7 @@ import {
 import { createEnemyCombatVitals } from '../../core/combat/resources/combatVitalsFactory';
 import { assertStandardPlayerDamageCompatibility } from '../../core/combat/runtime/standardPlayerDamageCompatibility';
 import { timeDilationRuntimeConfig } from '../../data/combat/timeDilationConfig';
+import { createNativeDashTimingProgram } from '../../data/combat/battleCommandMappingCatalog';
 import { gameplayTagRegistry } from '../../data/combat/gameplayTagCatalog';
 import { GAMEPLAY_TAG_PREDEFINE } from '../../data/combat/gameplayTagPredefine.generated';
 import { GameplayTagPredefine } from '../../core/combat/tags/gameplayTagPredefine';
@@ -185,6 +186,7 @@ export function prepareStandardPlayerDamageScenarioRuntime(
     environment: {
       ...environment.runtimeOptions,
       skillAvailabilityTags: new GameplayTagPredefine(GAMEPLAY_TAG_PREDEFINE),
+      dashTiming: createNativeDashTimingProgram(),
       timeDilation: {
         config: timeDilationRuntimeConfig,
       },

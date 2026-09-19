@@ -121,6 +121,88 @@ it('技能被中断时以中断帧作为显示结束继续调整后续技能', (
   expect(project.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame).toBe(18);
 });
 
+it('让旧闪避标签随前一技能顺延，同时保留它相对技能的旧时间差', () => {
+  const firstCastId = 'legacy:test:track:0:cast:0';
+  const secondCastId = 'legacy:test:track:0:cast:1';
+  const markerId = 'legacy:test:track:0:dodge:2';
+  const project = {
+    scenarios: [
+      {
+        id: 'test',
+        battle: {
+          durationFrames: 60,
+          dodgeMarkers: [
+            {
+              id: markerId,
+              frame: 13,
+              trackIndex: 0,
+              direction: 'forward',
+              mode: { kind: 'dodge' },
+            },
+          ],
+        },
+        tracks: [
+          {
+            skillCasts: [
+              { id: firstCastId, placement: { startFrame: 10 } },
+              { id: secondCastId, placement: { startFrame: 12 } },
+            ],
+          },
+        ],
+      },
+    ],
+  } as unknown as EndaxisProjectDocument;
+  const preparedSource = {
+    scenarioList: [
+      {
+        id: 'test',
+        data: {
+          tracks: [
+            {
+              actions: [
+                { startTime: 10 },
+                { startTime: 12 },
+                { startTime: 13, convertedDodge: { direction: 'forward' } },
+              ],
+            },
+          ],
+        },
+      },
+    ],
+  };
+
+  const result = retimeLegacyProjectBySimulation(project, preparedSource, scenario => {
+    const second = scenario.tracks[0]!.skillCasts[1]!;
+    const secondEnabled = second.presentation?.disabled !== true;
+    const secondStart = second.placement.startFrame!;
+    return {
+      receiptEntries: [
+        receipt(10, 'SkillStarted', firstCastId),
+        receipt(18, 'SkillInterrupted', firstCastId),
+        ...(secondEnabled
+          ? [
+              receipt(secondStart, 'SkillStarted', secondCastId),
+              receipt(secondStart + 4, 'SkillOperableBoundaryReached', secondCastId),
+            ]
+          : []),
+      ],
+    };
+  });
+
+  expect(project.scenarios[0]!.tracks[0]!.skillCasts[1]!.placement.startFrame).toBe(18);
+  expect(project.scenarios[0]!.battle.dodgeMarkers![0]!.frame).toBe(19);
+  expect(result.dodgeMarkerAdjustments).toEqual([
+    {
+      scenarioId: 'test',
+      markerId,
+      trackIndex: 0,
+      sourceFrame: 13,
+      adjustedFrame: 19,
+      previousCastId: secondCastId,
+    },
+  ]);
+});
+
 it('在显示边界后寻找下一技能最早允许接续的帧', () => {
   const firstCastId = 'legacy:test:track:0:cast:0';
   const secondCastId = 'legacy:test:track:0:cast:1';

@@ -168,15 +168,9 @@ const definition = {
                         "target": "party",
                         "inheritSourceSkillCastInfo": true,
                         "asChildBuff": true,
-                        "blackboardAssignments": {
-                          "dmg_up": {
-                            "kind": "blackboard",
-                            "key": "dmg_up"
-                          },
-                          "duration": {
-                            "kind": "blackboard",
-                            "key": "duration"
-                          }
+                        "copiedBlackboardAssignments": {
+                          "dmg_up": "dmg_up",
+                          "duration": "duration"
                         }
                       }
                     }

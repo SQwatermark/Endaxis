@@ -362,6 +362,7 @@ export class AbilityEntityOperationExecutor implements CombatOperationExecutor {
       throw new Error('spawnAbilityEntity currentAbilityEntity target requires a current target');
     }
     const entity = this.#entities.spawn({
+      definitionProgramId: this.programs.slot(definition),
       producedBy: operationProducer(context),
       ...(!inheritSourceSkillCastInfo
         ? { skillCastInfo: null }

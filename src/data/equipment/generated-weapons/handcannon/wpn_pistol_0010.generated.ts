@@ -189,19 +189,10 @@ const definition = {
                               "target": "caster",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "cryst_dmg_up_valid": {
-                                  "kind": "blackboard",
-                                  "key": "cryst_dmg_up2"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                },
-                                "max_stack": {
-                                  "kind": "blackboard",
-                                  "key": "max_stack"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cryst_dmg_up_valid": "cryst_dmg_up2",
+                                "duration": "duration",
+                                "max_stack": "max_stack"
                               }
                             }
                           }

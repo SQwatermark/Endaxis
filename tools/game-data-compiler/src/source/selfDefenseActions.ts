@@ -41,9 +41,14 @@ export function parseSetSuperArmorActionSource(
       new Set(['useBlackboardKey', 'value', 'blackboardKey', 'useCustomValue']),
       `${path}.${field}`,
     );
+    const useBlackboardKey = requireBoolean(
+      scalar.useBlackboardKey,
+      `${path}.${field}.useBlackboardKey`,
+    );
+    // Unity 序列化会保留未启用分支的旧键名；只有开关本身决定当前数值来源。
+    requireString(scalar.blackboardKey, `${path}.${field}.blackboardKey`);
     if (
-      requireBoolean(scalar.useBlackboardKey, `${path}.${field}.useBlackboardKey`) ||
-      requireString(scalar.blackboardKey, `${path}.${field}.blackboardKey`) !== '' ||
+      useBlackboardKey ||
       requireBoolean(scalar.useCustomValue, `${path}.${field}.useCustomValue`)
     )
       throw new Error(`${path}.${field}: dynamic/custom super armor is unsupported`);

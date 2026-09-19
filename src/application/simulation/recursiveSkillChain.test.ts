@@ -57,6 +57,27 @@ function fixture() {
   };
 }
 
+it('零帧接续边界仍把后续输入放在下一实际帧', () => {
+  const input = fixture();
+  const originalRun = input.run;
+  const result = planRecursiveSkillChain({
+    ...input,
+    run: (scenario, frame) => ({
+      receiptEntries: originalRun(scenario, frame + 1)
+        .receiptEntries.map(entry =>
+          entry.event === 'SkillOperableBoundaryReached'
+            ? { ...entry, frame: entry.frame - 1 }
+            : entry,
+        )
+        .filter(entry => entry.frame <= frame),
+    }),
+  });
+  expect(result.skillCastIds).toHaveLength(24);
+  expect(result.scenario.tracks[0]!.skillCasts.map(cast => cast.placement.startFrame)).toEqual(
+    Array.from({ length: 24 }, (_, index) => index + 1),
+  );
+});
+
 it.each([8, 24])('路由永远循环也遵守配置的%d段身份预算，临时探针不会留在文档中', limit => {
   const input = fixture();
   input.extension.reservedCastIds = input.extension.reservedCastIds.slice(0, limit - 1);

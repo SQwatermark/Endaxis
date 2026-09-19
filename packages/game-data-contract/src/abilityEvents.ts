@@ -25,6 +25,7 @@ export const ABILITY_EVENTS = [
   'abilityEntitySpawned',
   'abilityEntityFinished',
   'projectileLaunched',
+  'beforeHitByProjectile',
   'beforeTakeDamage',
   'beforeCalculateDamage',
   'beforeDamageAction',
@@ -68,6 +69,7 @@ export const ABILITY_EVENTS = [
   'buffConsumed',
   'buffAbsorbed',
   'skillSpGained',
+  'perfectDodge',
 ] as const;
 
 /** 一种可监听的能力事件名称。 */
@@ -84,6 +86,8 @@ export type AbilityEventTriggerEndpoint = AbilityEventActionContextEndpoint | nu
  * 未列出的事件不能用于需要完整动作环境的监听器或连携条件。
  */
 export const ABILITY_EVENT_ACTION_CONTEXT_BINDINGS = {
+  /** 投射物是输入目标，闪避中的角色是事件来源和触发者。 */
+  beforeHitByProjectile: { inputTarget: 'eventSource', triggerTarget: 'eventTarget' },
   /** 新实体是输入目标，创建它的对象是事件来源和触发者。 */
   abilityEntitySpawned: { inputTarget: 'eventTarget', triggerTarget: 'eventSource' },
   /** 结束的实体是输入目标，结束它的对象是事件来源和触发者。 */

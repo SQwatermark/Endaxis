@@ -8,7 +8,11 @@ import type { CombatReceiptSink } from '../../receipt/combatReceipt';
 import type { CombatOperatorState } from '../../state/combatState';
 import type { BuffReference } from '../../state/foundationState';
 import { CombatStatusRuntime } from '../../status/combatStatusRuntime';
-import { TimedMarkerContainer, type TimedMarkerContainerHooks } from '../../status/timedMarkers';
+import {
+  TimedMarkerContainer,
+  type TimedMarkerContainerHooks,
+  type TimedMarkerClock,
+} from '../../status/timedMarkers';
 import type { CombatClock } from '../../time/combatClock';
 import type { CombatOperatorProgram } from '../combatRuntimeAssembly';
 import type { RestoreCombatOperatorAbilitySystemOptions } from './combatOperatorAbilitySystemRestoration';
@@ -27,6 +31,8 @@ export interface RestoreCombatOperatorCoreOptions {
   /** 完整装配在 Buff 生命周期操作链创建前建立的当前分支状态运行时。 */
   readonly preboundStatusRuntime?: CombatStatusRuntime;
   readonly timedMarkerHooks?: TimedMarkerContainerHooks;
+  /** 恢复标记创建时使用的全局缩放时钟，不能临时改用未缩放时间。 */
+  readonly globalScaledClock?: TimedMarkerClock;
   readonly createSkillDependencies: (
     binding: PreparedCombatSkillRestoreBinding,
     context: {
@@ -106,6 +112,7 @@ export function bindRestoredCombatOperatorCore(
     options.clock,
     options.timedMarkerHooks,
     options.state.timedMarkers,
+    { global: options.clock, globalScaled: options.globalScaledClock ?? options.clock },
   );
   const cooldowns = bindRestoredCombatSkillCooldowns(options.operator, options.state.cooldowns);
   const context = { blackboard, statuses, timedMarkers };

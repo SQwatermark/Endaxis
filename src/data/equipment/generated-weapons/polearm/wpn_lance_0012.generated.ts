@@ -296,15 +296,9 @@ const definition = {
                                     "target": "caster",
                                     "inheritSourceSkillCastInfo": true,
                                     "asChildBuff": true,
-                                    "blackboardAssignments": {
-                                      "all_attr_up2": {
-                                        "kind": "blackboard",
-                                        "key": "all_attr_up2"
-                                      },
-                                      "duration": {
-                                        "kind": "blackboard",
-                                        "key": "duration"
-                                      }
+                                    "copiedBlackboardAssignments": {
+                                      "all_attr_up2": "all_attr_up2",
+                                      "duration": "duration"
                                     }
                                   }
                                 },
@@ -384,15 +378,9 @@ const definition = {
                                     "target": "caster",
                                     "inheritSourceSkillCastInfo": true,
                                     "asChildBuff": true,
-                                    "blackboardAssignments": {
-                                      "all_attr_up": {
-                                        "kind": "blackboard",
-                                        "key": "all_attr_up"
-                                      },
-                                      "duration": {
-                                        "kind": "blackboard",
-                                        "key": "duration"
-                                      }
+                                    "copiedBlackboardAssignments": {
+                                      "all_attr_up": "all_attr_up",
+                                      "duration": "duration"
                                     }
                                   }
                                 },

@@ -6,6 +6,9 @@ import resetDialogSource from './TimelineResetDialog.vue?raw';
 describe('TimelineHeaderToolbar structure', () => {
   it('allows long reset descriptions to wrap inside the option card', () => {
     expect(resetDialogSource).toMatch(/\.timeline-reset-option\s*\{[\s\S]*?white-space:\s*normal;/);
+    expect(resetDialogSource).toMatch(
+      /\.timeline-reset-option__icon svg\s*\{[\s\S]*?width:\s*18px;[\s\S]*?height:\s*18px;/,
+    );
   });
 
   it('keeps the legacy scenario-management interaction instead of disabled placeholders', () => {
@@ -46,24 +49,31 @@ describe('TimelineHeaderToolbar structure', () => {
     expect(source).toContain(':aria-expanded="moreMenuOpen"');
     expect(source).toContain('popper-class="header-more-popper"');
     expect(source).toContain('@click="$emit(\'shortcuts\')"');
-    expect(source).toContain('@click="$emit(\'open\')"');
-    expect(source).toContain('@click="$emit(\'reset\')"');
+    expect(source).toContain('@click="runProjectAction(\'open\')"');
+    expect(source).toContain('@click="runProjectAction(\'receive\')"');
+    expect(source).toContain('@click="runProjectAction(\'reset\')"');
+    expect(source).toContain("t('timeline.header.moreTooltip')");
+    expect(source).toContain("t('timeline.header.loadTooltip')");
+    expect(source).toContain("t('timeline.header.receiveTooltip')");
+    expect(source).toContain("t('timeline.header.resetTooltip')");
+    expect(source).toContain("t('timeline.header.languageTooltip')");
+    expect(source).toContain("t('timeline.header.shortcutsTooltip')");
     expect(source).toContain('class="header-more-tool-row__icon"');
     expect(source).toContain('width="18"');
     expect(source).toContain('class="header-more-tool-row__check"');
     expect(source).toContain('width="13"');
   });
 
-  it('把偏好放在编辑工具与项目之间', () => {
+  it('将项目放在编辑工具后、偏好和外观前，不再显示普攻序列开关', () => {
     const editTools = source.indexOf("t('timeline.header.sectionEditTools')");
-    const autoGroup = source.indexOf("t('timeline.header.autoGroupBasicAttackSequences')");
-    const preferences = source.indexOf('{{ labels.preferences }}');
     const project = source.indexOf("t('timeline.header.sectionProject')");
+    const preferences = source.indexOf('{{ labels.preferences }}');
+    const appearance = source.indexOf('header-more-pref-row--appearance');
     expect(editTools).toBeGreaterThan(-1);
-    expect(autoGroup).toBeGreaterThan(editTools);
-    expect(autoGroup).toBeLessThan(preferences);
-    expect(preferences).toBeGreaterThan(editTools);
-    expect(project).toBeGreaterThan(preferences);
+    expect(project).toBeGreaterThan(editTools);
+    expect(preferences).toBeGreaterThan(project);
+    expect(appearance).toBeGreaterThan(preferences);
+    expect(source).not.toContain('autoGroupBasicAttackSequences');
   });
 
   it('keeps the legacy analysis, export, display, and more commands permanently visible', () => {

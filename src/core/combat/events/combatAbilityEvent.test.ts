@@ -86,6 +86,7 @@ it('发布、数据动作、技能与连携共享同一事件和原始操作端�
   dispatcher.registerAction(published.event, 0, event => {
     check(event, 'action');
     event.payload.attachBuffToCurrentSkill?.({
+      isRecycled: false,
       reference: createTestBuffReference(),
       finish: () => true,
     });

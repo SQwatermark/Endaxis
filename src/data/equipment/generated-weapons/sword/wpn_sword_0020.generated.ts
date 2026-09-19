@@ -184,15 +184,9 @@ const definition = {
                               "target": "eventTarget",
                               "inheritSourceSkillCastInfo": true,
                               "asChildBuff": true,
-                              "blackboardAssignments": {
-                                "cryst_dmg_up": {
-                                  "kind": "blackboard",
-                                  "key": "cryst_dmg_up"
-                                },
-                                "duration": {
-                                  "kind": "blackboard",
-                                  "key": "duration"
-                                }
+                              "copiedBlackboardAssignments": {
+                                "cryst_dmg_up": "cryst_dmg_up",
+                                "duration": "duration"
                               }
                             }
                           }

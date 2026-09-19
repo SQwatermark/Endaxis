@@ -53,6 +53,24 @@ function parseAttackTypeMaskSource(value: unknown, path: string): AttackTypeMask
 
 export type NativeConditionSource =
   | (ConditionIdentity & { readonly kind: 'constant'; readonly value: boolean })
+  | (ConditionIdentity & {
+      readonly kind: 'perfectDodgeDirection';
+      readonly direction: 'Forward' | 'Backward';
+    })
+  | (ConditionIdentity & {
+      readonly kind: 'damageIgnoreImmuneLevel';
+      readonly comparison: string;
+      readonly level: number;
+    })
+  | (ConditionIdentity & {
+      readonly kind: 'projectilePerfectDodgeCooldown';
+      readonly isInCooldown: boolean;
+    })
+  | (ConditionIdentity & {
+      readonly kind: 'projectileIgnoreImmuneLevel';
+      readonly comparison: string;
+      readonly level: number;
+    })
   | (ConditionIdentity & CheckCustomAbilityEventSource)
   | (ConditionIdentity & { readonly kind: 'squadInFight'; readonly inverted: boolean })
   | (ConditionIdentity & {
@@ -365,6 +383,85 @@ export function parseConditionLeafSource(
   const sourceType = typeof condition.$type === 'string' ? nativeActionName(condition.$type) : '';
 
   switch (sourceType) {
+    case 'CheckProjectileInPerfectDodgeCd':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'isInCd',
+        ]),
+        path,
+      );
+      return {
+        kind: 'projectilePerfectDodgeCooldown',
+        sourceType,
+        isInCooldown: requireBoolean(condition.isInCd, `${path}.isInCd`),
+      };
+    case 'CheckProjectileIgnoreImmuneLevel':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'checkType',
+          'ignoreImmuneLevel',
+        ]),
+        path,
+      );
+      return {
+        kind: 'projectileIgnoreImmuneLevel',
+        sourceType,
+        comparison: requireNonEmptyString(condition.checkType, `${path}.checkType`),
+        level: parseProjectileIgnoreImmuneLevel(
+          condition.ignoreImmuneLevel,
+          `${path}.ignoreImmuneLevel`,
+        ),
+      };
+    case 'CheckPerfectDodgeDirection': {
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'dirType',
+        ]),
+        path,
+      );
+      const direction = requireNonEmptyString(condition.dirType, `${path}.dirType`);
+      if (direction !== 'Forward' && direction !== 'Backward')
+        throw new Error(`${path}.dirType: unsupported perfect-dodge direction ${direction}`);
+      return { kind: 'perfectDodgeDirection', sourceType, direction };
+    }
+    case 'CheckDamageIgnoreImmuneLevel':
+      requireExactFields(
+        condition,
+        new Set([
+          '$type',
+          'isEnable',
+          'priorityLevel',
+          'priorityOffset',
+          'serverActionIndex',
+          'checkType',
+          'ignoreImmuneLevel',
+        ]),
+        path,
+      );
+      return {
+        kind: 'damageIgnoreImmuneLevel',
+        sourceType,
+        comparison: requireNonEmptyString(condition.checkType, `${path}.checkType`),
+        level: requireInteger(condition.ignoreImmuneLevel, `${path}.ignoreImmuneLevel`),
+      };
     case 'ReturnFalseAction':
       requireExactFields(
         condition,
@@ -967,6 +1064,19 @@ export function parseConditionLeafSource(
     default:
       throw new Error(`${path}: condition parser has not migrated ${JSON.stringify(sourceType)}`);
   }
+}
+
+/** 原生 ProjectileIgnoreImmuneLevel 的三个顺序枚举值。 */
+function parseProjectileIgnoreImmuneLevel(value: unknown, path: string): number {
+  if (typeof value === 'number') return requireInteger(value, path);
+  const name = requireNonEmptyString(value, path);
+  const level = {
+    Default: 0,
+    IgnorePerfectDodgeListener: 1,
+    IgnoreDashImmune: 2,
+  }[name];
+  if (level === undefined) throw new Error(`${path}: unsupported projectile immune level ${name}`);
+  return level;
 }
 
 function projectProfessionRole(value: string, path: string): OperatorRole {

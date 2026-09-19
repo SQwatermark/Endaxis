@@ -66,6 +66,9 @@ vi.mock('../scripts/readGameplayTagPaths.ts', () => ({ readGameplayTagPaths: () 
 vi.mock('../scripts/generateTimeDilationCatalog.ts', () => ({
   generateTimeDilationCatalog: async () => ({}),
 }));
+vi.mock('../scripts/generateBattleCommandMappingCatalog.ts', () => ({
+  generateBattleCommandMappingCatalog: async () => ({}),
+}));
 vi.mock('../scripts/generateHitStopCurveCatalog.ts', () => ({
   generateHitStopCurveCatalog: async () => ({}),
 }));

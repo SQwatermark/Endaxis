@@ -369,6 +369,37 @@ export function validateBattle(value: unknown, path: string, issues: ValidationI
       },
     );
   }
+  if (value.dodgeMarkers !== undefined) {
+    validateTimedEntries(
+      value.dodgeMarkers,
+      `${path}.dodgeMarkers`,
+      (entry, entryPath) => {
+        if (![0, 1, 2, 3].includes(entry.trackIndex as number)) {
+          issues.push({
+            path: `${entryPath}.trackIndex`,
+            message: 'expected a track index from 0 to 3',
+          });
+        }
+        if (entry.direction !== 'forward' && entry.direction !== 'backward') {
+          issues.push({ path: `${entryPath}.direction`, message: 'unknown dodge direction' });
+        }
+        if (!isObject(entry.mode)) {
+          issues.push({ path: `${entryPath}.mode`, message: 'expected an object' });
+        } else if (entry.mode.kind === 'perfectDodge') {
+          requireNonNegativeInteger(
+            entry.mode.successDelayFrames,
+            `${entryPath}.mode.successDelayFrames`,
+            issues,
+          );
+        } else if (entry.mode.kind !== 'dodge') {
+          issues.push({ path: `${entryPath}.mode.kind`, message: 'unknown dodge mode' });
+        }
+      },
+      typeof value.prepFrames === 'number' && Number.isInteger(value.prepFrames)
+        ? -Math.max(0, value.prepFrames)
+        : 0,
+    );
+  }
 }
 
 export function validateGlobalConfig(

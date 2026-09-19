@@ -19,7 +19,6 @@ const props = defineProps<{
   cursorGuideEnabled: boolean;
   boxSelectEnabled: boolean;
   connectionToolEnabled: boolean;
-  autoGroupBasicAttackSequences: boolean;
   buffLayoutMode: 'compact' | 'loose';
   viewLayers: TimelineViewLayers;
   viewLayerIds: readonly TimelineViewLayerId[];
@@ -62,10 +61,10 @@ const emit = defineEmits<{
   toggleCursorGuide: [];
   toggleBoxSelect: [];
   toggleConnectionTool: [];
-  setAutoGroupBasicAttackSequences: [enabled: boolean];
   setBuffLayout: [mode: 'compact' | 'loose'];
   reset: [];
   open: [];
+  receive: [];
   export: [];
   rename: [name: string];
   duplicate: [];
@@ -133,6 +132,13 @@ function finishRename(): void {
 function cancelRename(): void {
   renaming.value = false;
   renameDraft.value = props.scenarioName;
+}
+
+function runProjectAction(action: 'open' | 'receive' | 'reset'): void {
+  moreMenuOpen.value = false;
+  if (action === 'open') emit('open');
+  else if (action === 'receive') emit('receive');
+  else emit('reset');
 }
 
 const localeIds = ['zh-CN', 'en', 'ru'] as const;
@@ -451,7 +457,7 @@ onBeforeUnmount(() => {
           <EaButton
             size="sm"
             type="button"
-            :title="labels.more"
+            :title="t('timeline.header.moreTooltip')"
             :aria-label="labels.more"
             :aria-expanded="moreMenuOpen"
             :data-keyboard-shortcut-scope="moreMenuOpen ? 'overlay' : undefined"
@@ -547,29 +553,53 @@ onBeforeUnmount(() => {
                   <polyline v-if="connectionToolEnabled" points="3,8 6.5,11.5 13,4.5" />
                 </svg>
               </EaButton>
+            </div>
+          </section>
+          <section class="header-more-section">
+            <h4 class="header-more-section__title">{{ t('timeline.header.sectionProject') }}</h4>
+            <div class="header-more-actions">
               <EaButton
+                size="sm"
                 type="button"
-                class="header-more-check-row header-more-tool-row"
-                :aria-pressed="autoGroupBasicAttackSequences"
-                :title="t('timeline.header.autoGroupBasicAttackSequencesHint')"
-                @click="$emit('setAutoGroupBasicAttackSequences', !autoGroupBasicAttackSequences)"
+                class="header-more-action"
+                :title="t('timeline.header.loadTooltip')"
+                @click="runProjectAction('open')"
               >
-                <span class="header-more-tool-row__label">{{
-                  t('timeline.header.autoGroupBasicAttackSequences')
-                }}</span>
-                <svg
-                  class="header-more-tool-row__check"
-                  viewBox="0 0 16 16"
-                  width="13"
-                  height="13"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                  aria-hidden="true"
-                >
-                  <rect x="1" y="1" width="14" height="14" rx="2" />
-                  <polyline v-if="autoGroupBasicAttackSequences" points="3,8 6.5,11.5 13,4.5" />
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <polyline points="7 10 12 15 17 10" />
+                  <line x1="12" y1="15" x2="12" y2="3" />
                 </svg>
+                <span>{{ labels.open }}</span>
+              </EaButton>
+              <EaButton
+                size="sm"
+                type="button"
+                class="header-more-action"
+                :title="t('timeline.header.receiveTooltip')"
+                @click="runProjectAction('receive')"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polyline points="9 11 12 14 22 4" />
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
+                </svg>
+                <span>{{ t('common.receive') }}</span>
+              </EaButton>
+              <EaButton
+                variant="danger"
+                size="sm"
+                type="button"
+                class="header-more-action"
+                :title="t('timeline.header.resetTooltip')"
+                @click="runProjectAction('reset')"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <polyline points="3 6 5 6 21 6" />
+                  <path
+                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  />
+                </svg>
+                <span>{{ labels.reset }}</span>
               </EaButton>
             </div>
           </section>
@@ -616,13 +646,14 @@ onBeforeUnmount(() => {
               </EaButton>
             </div>
             <div class="header-more-pref-row">
-              <div class="header-more-locale">
+              <div class="header-more-locale" :title="t('timeline.header.languageTooltip')">
                 <EaButton
                   size="sm"
                   v-for="localeId in localeIds"
                   :key="localeId"
                   type="button"
                   class="header-more-locale__btn"
+                  :title="t(`locale.${localeId === 'zh-CN' ? 'zhCN' : localeId}`)"
                   @click="$emit('setLocale', localeId)"
                   :pressed="locale === localeId"
                 >
@@ -634,7 +665,7 @@ onBeforeUnmount(() => {
                 icon-only
                 class="header-more-action header-more-action--icon"
                 type="button"
-                :title="labels.shortcuts"
+                :title="t('timeline.header.shortcutsTooltip')"
                 :aria-label="labels.shortcuts"
                 @click="$emit('shortcuts')"
               >
@@ -707,43 +738,6 @@ onBeforeUnmount(() => {
                   </svg>
                 </EaButton>
               </div>
-            </div>
-          </section>
-          <section class="header-more-section">
-            <h4 class="header-more-section__title">{{ t('timeline.header.sectionProject') }}</h4>
-            <div class="header-more-actions">
-              <EaButton size="sm" type="button" class="header-more-action" @click="$emit('open')">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="7 10 12 15 17 10" />
-                  <line x1="12" y1="15" x2="12" y2="3" />
-                </svg>
-                <span>{{ labels.open }}</span>
-              </EaButton>
-              <EaButton size="sm" type="button" class="header-more-action" @click="$emit('export')">
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                  <polyline points="17 8 12 3 7 8" />
-                  <line x1="12" y1="3" x2="12" y2="15" />
-                </svg>
-                <span>{{ labels.export }}</span>
-              </EaButton>
-              <EaButton
-                variant="danger"
-                size="sm"
-                type="button"
-                class="header-more-action"
-                @click="$emit('reset')"
-                :disabled="configurationReadOnly"
-              >
-                <svg viewBox="0 0 24 24" aria-hidden="true">
-                  <polyline points="3 6 5 6 21 6" />
-                  <path
-                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                  />
-                </svg>
-                <span>{{ labels.reset }}</span>
-              </EaButton>
             </div>
           </section>
         </div>

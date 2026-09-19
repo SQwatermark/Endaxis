@@ -2,6 +2,7 @@
 import { type SkillType, type OperatorAttribute } from '../../game-data/operatorDefinition';
 import { type ActionBlackboardValue } from '../../../../packages/game-data-contract/src/primitives';
 import { type RuntimeTargetRef } from '../../game-data/logicalAbilityEntity';
+import type { CombatObjectRef } from '../receipt/combatReceipt';
 import {
   type AttributeModifierTiming,
   type AttributeModifierValues,
@@ -288,6 +289,8 @@ export interface SkillSimulationInputs {
 export interface PostSkillCastRequest {
   readonly skillId: string;
   readonly castId?: string;
+  /** 提交这次延迟施放的执行宿主；技能开始时用于连接来源回执。 */
+  readonly producedBy?: CombatObjectRef;
   readonly skipApplyCost?: boolean;
   readonly inheritedSkillCastInfo?: CombatSkillCastInfo;
   /** 原生 forceInterruptCurSkill 分支：先检查请求技能可启动，失败时不得结束当前技能。 */

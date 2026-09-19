@@ -3,6 +3,7 @@ import type { GearSetDefinition } from '../../../core/game-data/equipmentDefinit
 
 const definition = {
   slug: 'suit_usp02',
+  iconPath: '/equipment/usp02/item_equip_t4_suit_usp02_edc_01.webp',
   modifiers: [
     {
       kind: 'panelStat',
@@ -55,15 +56,9 @@ const definition = {
                         target: 'partyExceptCaster',
                         source: 'buffOwner',
                         inheritSourceSkillCastInfo: true,
-                        blackboardAssignments: {
-                          dmg_up: {
-                            kind: 'blackboard',
-                            key: 'dmg_up',
-                          },
-                          duration: {
-                            kind: 'blackboard',
-                            key: 'duration',
-                          },
+                        copiedBlackboardAssignments: {
+                          dmg_up: 'dmg_up',
+                          duration: 'duration',
                         },
                       },
                     },

@@ -6,6 +6,7 @@ import type {
 import {
   requireArray,
   requireBoolean,
+  requireExactFields,
   requireInteger,
   requireNonEmptyString,
   requireRecord,
@@ -14,6 +15,7 @@ import {
 import { parseActiveSkillTypesSource } from './activeSkillTypes.ts';
 import { parseAbilitySystemBlackboardsSource } from './abilitySystemBlackboards.ts';
 import { parseUnityComboSkillConditionsSource } from './unityComboSkillConditions.ts';
+import { parseBlackboardAssignmentsSource } from './assignments.ts';
 
 const COMBO_SKILL_PRIORITIES: Readonly<Record<number, ComboSkillPriority>> = {
   // GetBestCastInfo 0x06D8FE23：0→默认，1→首黑板值，2→敌人品阶分支。
@@ -67,6 +69,7 @@ export function parseOperatorRuntimeTemplateSource(
       `${path}.abilitySystem.skillDataBundle.comboSkillPriorityType`,
     ),
     playerActionSource: parsePlayerActionSource(ability, bundle, path),
+    dashBuffs: parseDashBuffs(data.dashBuff, `${path}.data.dashBuff`),
     blackboards: parseAbilitySystemBlackboardsSource(ability, `${path}.abilitySystem`),
     ...(options.parseComboConditions === false
       ? {}
@@ -78,6 +81,34 @@ export function parseOperatorRuntimeTemplateSource(
           ),
         }),
   };
+}
+
+function parseDashBuffs(value: unknown, path: string) {
+  if (value === undefined) return undefined;
+  return requireArray(value, path).map((raw, index) => {
+    const itemPath = `${path}[${index}]`;
+    const item = requireRecord(raw, itemPath);
+    requireExactFields(item, new Set(['buffId', 'assignBlackboard', 'assignItems']), itemPath);
+    const assignBlackboard = requireBoolean(item.assignBlackboard, `${itemPath}.assignBlackboard`);
+    const assignments = parseBlackboardAssignmentsSource(
+      item.assignItems,
+      `${itemPath}.assignItems`,
+      { enabled: assignBlackboard },
+    );
+    if (!assignBlackboard && assignments.length > 0)
+      throw new Error(`${itemPath}.assignItems: expected empty array when assignment is disabled`);
+    const blackboard: Record<string, number | string> = {};
+    for (const assignment of assignments) {
+      if (!assignment.useDirectValue)
+        throw new Error(`${itemPath}.assignItems: indirect Dash Buff assignment is unsupported`);
+      blackboard[assignment.targetKey] =
+        assignment.valueType === 'Numeric' ? assignment.numericValue : assignment.stringValue;
+    }
+    return {
+      buffId: requireNonEmptyString(item.buffId, `${itemPath}.buffId`),
+      blackboard,
+    };
+  });
 }
 
 function parseComboSkillPriority(value: unknown, path: string): ComboSkillPriority {
@@ -148,7 +179,7 @@ function parsePlayerActionSource(
   const normalSkillId = requireNonEmptyString(bundle.normalSkillId, `${path}.normalSkillId`);
   const comboSkillId = requireNonEmptyString(bundle.comboSkillId, `${path}.comboSkillId`);
   const ultimateSkillId = requireNonEmptyString(bundle.ultimateSkillId, `${path}.ultimateSkillId`);
-  requireNonEmptyString(bundle.dodgeSkillId, `${path}.dodgeSkillId`);
+  const dodgeSkillId = requireNonEmptyString(bundle.dodgeSkillId, `${path}.dodgeSkillId`);
   const initialNativeSkillTypeById: Record<string, NativeSkillType> = {};
   const register = (skillId: string, type: NativeSkillType) => {
     const previous = initialNativeSkillTypeById[skillId];
@@ -162,6 +193,7 @@ function parsePlayerActionSource(
   }
   for (const [skillId, type] of Object.entries(activeTypes)) register(skillId, type);
   for (const skillId of allPassiveSkillIds) register(skillId, 'passiveSkill');
+  register(dodgeSkillId, 'dodge');
 
   const modeConfig = requireRecord(ability.modeConfig, `${rootPath}.abilitySystem.modeConfig`);
   const modes = requireArray(modeConfig.modes, `${rootPath}.abilitySystem.modeConfig.modes`).map(
@@ -199,6 +231,7 @@ function parsePlayerActionSource(
     allNormalAttackIds,
     allActiveSkillIds,
     allPassiveSkillIds,
+    dodgeSkillId,
     normalAttackSkillIds: parseStringArray(bundle.normalAttackList, `${path}.normalAttackList`),
     breakingAttackSkillIds: [...enabledBreakingNormalAttacks],
     plungingAttackStartId: requireString(

@@ -20,12 +20,14 @@ export function usePublishedSimulationDisplay(
   getWeapons: () => readonly PublishedEquipmentIdentity[],
   labels: PublishedBattleLogLabels,
   getGears?: () => readonly PublishedEquipmentIdentity[],
+  getGearSets?: () => readonly PublishedEquipmentIdentity[],
 ) {
   const battleLogSnapshot = shallowRef<TimelineBattleLogSnapshot | null>(null);
   const publishedOperators = shallowRef<ReadonlyMap<string, PublishedOperatorMetadata>>(new Map());
   const publishedWeaponSources = shallowRef<ReadonlyMap<string, PublishedBuffSource>>(new Map());
   const publishedGearIcons = shallowRef<ReadonlyMap<string, string>>(new Map());
   const publishedGearSources = shallowRef<ReadonlyMap<string, PublishedBuffSource>>(new Map());
+  const publishedGearSetIcons = shallowRef<ReadonlyMap<string, string>>(new Map());
   // 固定历史视图共用同一份缓存数组，不由每个旧投影重复物化。
   const publishedReceiptEntries = computed(
     () => published.value?.run.receiptHistory.toArray() ?? [],
@@ -39,6 +41,7 @@ export function usePublishedSimulationDisplay(
         publishedWeaponSources.value = new Map();
         publishedGearIcons.value = new Map();
         publishedGearSources.value = new Map();
+        publishedGearSetIcons.value = new Map();
         return;
       }
       publishedOperators.value = capturePublishedOperatorMetadata(value.scenario, index);
@@ -47,6 +50,11 @@ export function usePublishedSimulationDisplay(
       publishedGearIcons.value = new Map(
         (getGears?.() ?? []).flatMap(gear =>
           gear.iconPath ? [[gear.slug, gear.iconPath] as const] : [],
+        ),
+      );
+      publishedGearSetIcons.value = new Map(
+        (getGearSets?.() ?? []).flatMap(set =>
+          set.iconPath ? [[set.slug, set.iconPath] as const] : [],
         ),
       );
       battleLogSnapshot.value = capturePublishedBattleLog(
@@ -64,6 +72,7 @@ export function usePublishedSimulationDisplay(
     publishedWeaponSources,
     publishedGearIcons,
     publishedGearSources,
+    publishedGearSetIcons,
     publishedReceiptEntries,
   };
 }

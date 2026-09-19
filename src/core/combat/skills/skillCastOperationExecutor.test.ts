@@ -89,4 +89,54 @@ describe('SkillCastOperationExecutor', () => {
       inheritedSkillCastInfo: undefined,
     });
   });
+
+  it('resolves the native skill id from the action blackboard', () => {
+    const request = vi.fn();
+    const executor = new SkillCastOperationExecutor({
+      request,
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+    const blackboard = new ActionBlackboard({ dodgeSkillId: 'chr_test_dodge_skill' });
+
+    executor.execute(
+      {
+        kind: 'castSkillDuringAction',
+        parameters: {
+          skillId: { blackboardKey: 'dodgeSkillId' },
+          target: 'enemy',
+          skipApplyCost: true,
+          inheritSourceSkillCastInfo: false,
+        },
+      },
+      { blackboard },
+    );
+
+    expect(request).toHaveBeenCalledWith({
+      nativeSkillId: 'chr_test_dodge_skill',
+      skipApplyCost: true,
+      inheritedSkillCastInfo: undefined,
+    });
+  });
+
+  it('rejects a missing blackboard skill id', () => {
+    const executor = new SkillCastOperationExecutor({
+      request: vi.fn(),
+      delegate: { execute: () => false, evaluate: () => false },
+    });
+
+    expect(() =>
+      executor.execute(
+        {
+          kind: 'castSkillDuringAction',
+          parameters: {
+            skillId: { blackboardKey: 'dodgeSkillId' },
+            target: 'enemy',
+            skipApplyCost: true,
+            inheritSourceSkillCastInfo: false,
+          },
+        },
+        { blackboard: new ActionBlackboard() },
+      ),
+    ).toThrow("deferred skill id blackboard 'dodgeSkillId' is missing");
+  });
 });

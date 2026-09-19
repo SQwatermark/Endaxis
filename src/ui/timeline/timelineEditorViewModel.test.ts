@@ -333,10 +333,35 @@ describe('projectTimelineEditor', () => {
       enhanced: false,
       skillType: 'battleSkill',
     });
+    expect(project(liino).filter(entry => entry.skillGroupKey === 'battleSkill')).toEqual([
+      expect.objectContaining({
+        groupPlacementSkillKeys: ['battleSkill'],
+        skills: [expect.objectContaining({ timelineBlockFrames: 50 })],
+      }),
+      expect.objectContaining({
+        placementSkillKey: 'battleSkillEnd',
+        groupPlacementSkillKeys: ['battleSkillEnd'],
+      }),
+    ]);
+    expect(project(camille).filter(entry => entry.skillGroupKey === 'comboSkill')).toEqual([
+      expect.objectContaining({ groupPlacementSkillKeys: ['comboSkill1'] }),
+    ]);
+    expect(project(camille).filter(entry => entry.skillGroupKey === 'battleSkill')).toEqual([
+      expect.objectContaining({ groupPlacementSkillKeys: ['battleSkill'] }),
+      expect.objectContaining({
+        placementSkillKey: 'battleSkillDuringUltimate',
+        groupPlacementSkillKeys: ['battleSkillDuringUltimate'],
+        skillType: 'comboSkill',
+      }),
+    ]);
     expect(project(rossi).filter(entry => entry.skillGroupKey === 'comboSkill')).toEqual([
       expect.objectContaining({
         enhanced: false,
         groupPlacementSkillKeys: ['comboSkill2', 'comboSkill3'],
+        skills: [
+          expect.objectContaining({ timelineBlockFrames: 37 }),
+          expect.objectContaining({ timelineBlockFrames: 52 }),
+        ],
       }),
     ]);
   });

@@ -13,6 +13,7 @@ import { resolveActionValueOperand } from '../actions/actionBlackboard';
 import type { AbilitySpGainPayload } from '../events/combatAbilityEvent';
 import { CombatOperationPrograms } from '../actions/combatOperationPrograms';
 import type { SkillResourceActionState } from '../state/actionState';
+import { operationProducer } from '../receipt/combatObjectIdentity';
 
 type RuntimeOperation = ResolvedCombatOperationStep;
 
@@ -28,6 +29,7 @@ export interface SkillResourceOperationDependencies {
   /** 当前敌人的处决技力回复基础值；技能步骤只保存自身倍率。 */
   readonly finisherSpRecovery: number;
   readonly onSpGained?: (event: AbilitySpGainPayload) => void;
+  readonly onPerfectDodge?: (sourceOperatorId: string) => void;
   readonly delegate: CombatOperationExecutor;
 }
 
@@ -80,6 +82,38 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         context,
       );
     }
+    if (step.kind === 'recoverDashEnergy') {
+      if (context === undefined)
+        throw new Error('recoverDashEnergy requires a combat operation context');
+      const amount = Math.fround(
+        resolveActionValueOperand(step.parameters.amount, context.blackboard),
+      );
+      const change = this.dependencies.resources.recoverDashEnergy(
+        amount,
+        step.parameters.canRecoverWhenOverdraft,
+      );
+      this.dependencies.receipt.record({
+        frame: this.dependencies.clock.frame,
+        time: this.dependencies.clock.time,
+        event: 'DashEnergyChanged',
+        sourceId: this.dependencies.sourceOperatorId,
+        producedBy: operationProducer(context),
+        data: { skillId: this.dependencies.sourceActionId, ...change },
+      });
+      return true;
+    }
+    if (step.kind === 'recordPerfectDodge') {
+      this.dependencies.onPerfectDodge?.(this.dependencies.sourceOperatorId);
+      this.dependencies.receipt.record({
+        frame: this.dependencies.clock.frame,
+        time: this.dependencies.clock.time,
+        event: 'PerfectDodgeSucceeded',
+        sourceId: this.dependencies.sourceOperatorId,
+        producedBy: operationProducer(context),
+        data: { skillId: this.dependencies.sourceActionId },
+      });
+      return true;
+    }
     if (
       step.kind === 'changeResource' &&
       step.parameters.resource === 'sp' &&
@@ -91,7 +125,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
         step.parameters.spGainKind,
         step.parameters.spGainSource ?? 'default',
       );
-      this.#recordSpChange(change, step.parameters.spGainSource ?? 'default');
+      this.#recordSpChange(change, step.parameters.spGainSource ?? 'default', context);
       return true;
     }
 
@@ -111,14 +145,14 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
           ignoreGainMultiplier: step.parameters.ignoreUltimateEnergyGainMultiplier,
         },
       );
-      this.#recordUltimateEnergyChange(change);
+      this.#recordUltimateEnergyChange(change, context);
       return true;
     }
 
     if (step.kind === 'gainFinisherSp') {
       const baseValue = Math.fround(this.dependencies.finisherSpRecovery * step.parameters.factor);
       const change = this.dependencies.resources.gainSp(baseValue, 'gain', 'powerAttack');
-      this.#recordSpChange(change, 'powerAttack');
+      this.#recordSpChange(change, 'powerAttack', context);
       return true;
     }
 
@@ -133,7 +167,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       this.dependencies.getNonReturnedSpCost(),
       step.parameters.coefficient,
     );
-    for (const change of changes) this.#recordUltimateEnergyChange(change);
+    for (const change of changes) this.#recordUltimateEnergyChange(change, context);
     return true;
   }
 
@@ -146,7 +180,7 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
           handle,
           step.parameters.clearUltimateEnergyOnEnd,
         );
-        if (clearChange !== null) this.#recordUltimateEnergyChange(clearChange);
+        if (clearChange !== null) this.#recordUltimateEnergyChange(clearChange, context);
         this.runtimeState.ultimateRecoveryRestrictionHandles.delete(slot);
       }
       return;
@@ -160,12 +194,13 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
       : this.dependencies.delegate.evaluate(condition, context);
   }
 
-  #recordSpChange(change: SpChange, source: SpGainSource): void {
+  #recordSpChange(change: SpChange, source: SpGainSource, context?: CombatOperationContext): void {
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,
       event: 'SpChanged',
       sourceId: this.dependencies.sourceOperatorId,
+      producedBy: operationProducer(context),
       data: {
         skillId: this.dependencies.sourceActionId,
         recipient: 'team',
@@ -191,12 +226,16 @@ export class SkillResourceOperationExecutor implements CombatOperationExecutor {
     }
   }
 
-  #recordUltimateEnergyChange(change: UltimateEnergyChange): void {
+  #recordUltimateEnergyChange(
+    change: UltimateEnergyChange,
+    context?: CombatOperationContext,
+  ): void {
     this.dependencies.receipt.record({
       frame: this.dependencies.clock.frame,
       time: this.dependencies.clock.time,
       event: 'UltimateEnergyChanged',
       sourceId: this.dependencies.sourceOperatorId,
+      producedBy: operationProducer(context),
       targetId: change.operatorId,
       data: {
         skillId: this.dependencies.sourceActionId,

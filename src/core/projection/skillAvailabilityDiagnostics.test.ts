@@ -19,6 +19,14 @@ function receipt(
 }
 
 describe('projectSkillAvailabilityDiagnostics', () => {
+  it('实际执行的技能仍显示闪避窗口未开放的原因', () => {
+    expect(
+      projectSkillAvailabilityDiagnostics([
+        receipt(0, 'SkillInputBlockedByDashWindow'),
+        receipt(1, 'SkillStarted'),
+      ])[0]?.reasons,
+    ).toEqual(['attackDuringDashWindow']);
+  });
   it('projects common tag blockers alongside other availability diagnostics', () => {
     expect(
       projectSkillAvailabilityDiagnostics([
@@ -135,7 +143,11 @@ describe('projectSkillAvailabilityDiagnostics', () => {
           data: { skillId: 'battleSkill', reason: 'conditional input route' },
         }),
         receipt(11, 'SkillInputCannotInterruptCurrentSkill', {
-          data: { skillId: 'battleSkill', currentSkillId: 'basicAttack2' },
+          data: {
+            skillId: 'battleSkill',
+            currentSkillId: 'basicAttack2',
+            currentCastId: 'cast-a3',
+          },
         }),
         receipt(12, 'SkillInputInterruptionUnknown', {
           data: { skillId: 'battleSkill', reason: 'missing interrupt boundary' },
@@ -150,6 +162,7 @@ describe('projectSkillAvailabilityDiagnostics', () => {
         receiptSequences: [10, 11, 12],
         inputResolutionDetail: 'conditional input route',
         currentSkillId: 'basicAttack2',
+        currentCastId: 'cast-a3',
         interruptionDetail: 'missing interrupt boundary',
       },
     ]);

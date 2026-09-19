@@ -121,12 +121,11 @@ const BUFF_BEFORE_TAKE_CONTEXT: CombatActionProjectionContextSource = {
   restrictEventSourceTargetProjection: true,
 };
 
-// IgniteAction 以被点燃 Buff 的 owner 为 ActionOwner，而本次点燃者同时作为
-// ActionSource 和输入 Target；生命周期运行时会用点燃调用携带的 sourceId 绑定该来源。
+// OnIgnite 保留 Buff 的 Owner/Source；点燃者只作为输入 Target，施法信息临时取点燃动作环境。
 const BUFF_IGNITE_CONTEXT: CombatActionProjectionContextSource = {
   actionOwnerTarget: 'buffOwner',
   actionSourceTarget: 'caster',
-  actionTargetTarget: 'caster',
+  actionTargetTarget: 'actionInputTarget',
 };
 
 type BuffProjectionTargetGroup = ProjectedTargetGroup | 'guaranteedSingletonZeroSpace';

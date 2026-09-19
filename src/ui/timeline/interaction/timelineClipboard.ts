@@ -1,15 +1,17 @@
 /**
- * 负责复制、粘贴时间轴动作及其内部身份图。
- * 剪贴板属于编辑器临时状态；粘贴会为动作、调度、命中、展示条和内部连线重新分配 ID。
+ * 负责复制、粘贴时间轴技能及闪避标签。技能内部的连线随复制一起重建。
+ * 剪贴板属于编辑器临时状态；粘贴会为技能、连线及闪避标签重新分配文档 ID。
  */
 import type {
   ConnectionDocument,
   ConnectionEndpoint,
+  DodgeMarkerDocument,
   ScenarioDocument,
   SkillCastDocument,
   TrackIndex,
 } from '../../../core/project/schema';
 import type { TimelineDocumentIdAllocator } from './placeSkillGroup';
+import { addDodgeMarker } from './timelineDocumentCommands';
 
 interface ClipboardCast {
   readonly trackIndex: TrackIndex;
@@ -20,11 +22,23 @@ export interface TimelineActionClipboard {
   readonly originFrame: number;
   readonly casts: readonly ClipboardCast[];
   readonly connections: readonly ConnectionDocument[];
+  readonly dodgeMarker?: DodgeMarkerDocument;
 }
 
 export interface PasteTimelineActionsResult {
   readonly scenario: ScenarioDocument;
   readonly skillCastIds: readonly string[];
+  readonly dodgeMarkerId?: string;
+}
+
+export function copyTimelineDodgeMarker(
+  scenario: ScenarioDocument,
+  id: string,
+): TimelineActionClipboard | null {
+  const marker = scenario.battle.dodgeMarkers?.find(item => item.id === id);
+  return marker === undefined
+    ? null
+    : { originFrame: marker.frame, casts: [], connections: [], dodgeMarker: cloneValue(marker) };
 }
 
 function cloneValue<T>(value: T): T {
@@ -96,6 +110,18 @@ export function pasteTimelineActions(
 ): PasteTimelineActionsResult {
   if (!Number.isInteger(startFrame) || startFrame < -scenario.battle.prepFrames) {
     throw new RangeError('startFrame must be an integer within the visible timeline');
+  }
+  if (clipboard.dodgeMarker !== undefined) {
+    const marker = {
+      ...cloneValue(clipboard.dodgeMarker),
+      id: ids.allocate('dodge'),
+      frame: startFrame,
+    };
+    return {
+      scenario: addDodgeMarker(scenario, marker),
+      skillCastIds: [],
+      dodgeMarkerId: marker.id,
+    };
   }
   if (clipboard.casts.length === 0) return { scenario, skillCastIds: [] };
 

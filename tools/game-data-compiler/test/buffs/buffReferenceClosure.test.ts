@@ -51,6 +51,28 @@ describe('有证据的关键词默认 child 依赖闭包', () => {
     ]).toContain(child);
   });
 
+  it('同一载体既按默认 child 使用又被字面覆盖时收集两种依赖', () => {
+    const overrideChild = 'buff_test_keyword_override_child';
+    const mixed: Record<string, any> = structuredClone(input);
+    mixed[overrideChild] = structuredClone(mixed[child]);
+    mixed[overrideChild].id = overrideChild;
+    const action = mixed[root].buffEventAction[0]!.actions[0]!.actionData[0]!;
+    action.overrideChildBuffId = true;
+    action.childBuffId = {
+      useBlackboardKey: false,
+      value: overrideChild,
+      blackboardKey: '',
+    };
+
+    const closure = collectBuffRuntimeClosure(
+      [root, carrier],
+      mixed,
+      undefined,
+      new Set([carrier]),
+    );
+    expect([...closure.keys()]).toEqual(expect.arrayContaining([child, overrideChild]));
+  });
+
   it('按需读取同一依赖闭包，动态默认 child 不要求调用方预先全量加载', () => {
     const loaded: string[] = [];
     const data: Record<string, unknown> = input;

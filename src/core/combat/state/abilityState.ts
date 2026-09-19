@@ -49,6 +49,44 @@ export interface SkillOperableBoundaryFact {
   readonly reachedAtFrame: number;
 }
 
+export type CenterStateKind = 'free' | 'attack' | 'skill' | 'dash';
+
+/**
+ * 原生 CenterStateMachine 中由玩家移动/技能输入共同维护的可恢复状态。
+ * 专属 Dodge 仍是普通技能实例；perfectDodgeActive 只说明当前处于该技能阶段。
+ */
+export interface OperatorCenterState {
+  state: CenterStateKind;
+  dashId: string | null;
+  direction: 'forward' | 'backward';
+  /** 当前 Dash 的原生攻击窗口数值是否已有可靠证据。 */
+  dashTimingKnown: boolean;
+  attackBlockRemainingFrames: number;
+  attackAllowRemainingFrames: number;
+  perfectDodgeDashBlockRemainingFrames: number;
+  perfectDodgeActive: boolean;
+  perfectDodgeConsumed: boolean;
+  /** 已提交原生成功事件、等待隐藏技能实际启动的标签；不能用后来 Dash 的身份替换。 */
+  pendingPerfectDodgeId: string | null;
+  readonly dashBuffReferences: BuffReference[];
+}
+
+export function createOperatorCenterState(): OperatorCenterState {
+  return {
+    state: 'free',
+    dashId: null,
+    direction: 'forward',
+    dashTimingKnown: false,
+    attackBlockRemainingFrames: 0,
+    attackAllowRemainingFrames: 0,
+    perfectDodgeDashBlockRemainingFrames: 0,
+    perfectDodgeActive: false,
+    perfectDodgeConsumed: false,
+    pendingPerfectDodgeId: null,
+    dashBuffReferences: [],
+  };
+}
+
 export interface PendingSkillOperableBoundary {
   readonly castId: string;
   readonly durationFrames: number;
@@ -95,6 +133,16 @@ export interface AbilitySkillSlotState {
   currentSkillKey: string;
 }
 
+/** ComboController 唯一的连段偏移包；只保存可恢复数据，映射效果由 AbilitySystem 即时解释。 */
+export interface ComboOffsetModifierState {
+  readonly trigger: 'dash' | 'skill' | 'jump';
+  readonly triggerSkillKey: string | null;
+  readonly targetSkillKey: string;
+  remainingFrames: number;
+  reduceDuration: boolean;
+  skillCasted: boolean;
+}
+
 /** 单个干员的技能选择、形态切换和延迟施放数据。 */
 export interface AbilitySystemState {
   readonly skillSlotReplacements: Map<
@@ -123,6 +171,13 @@ export interface AbilitySystemState {
   readonly registeredOperableBoundaryCastIds: Set<string>;
   readonly buffBasicAttackMappings: Map<number, string>;
   nextBasicAttackMappingId: number;
+  /** 当前动作寿命内的连续 Dash 次数覆盖；null 使用原生默认值 2。 */
+  overrideMultiDashLimit: number | null;
+  /** 最近一次技能开始或普攻 offsetRecordFrame 提交的后继身份。 */
+  comboOffsetTargetSkillKey: string | null;
+  comboOffsetModifier: ComboOffsetModifierState | null;
+  /** 已执行 offsetRecordFrame 提交的当前施放身份，防止每帧重复刷新。 */
+  comboOffsetRecordedSkillKey: string | null;
   currentSkillKey: string | null;
   processingSkillKey: string | null;
   postSkillCastRequest: PostSkillCastRequest | null;
@@ -142,6 +197,10 @@ export function createAbilitySystemState(): AbilitySystemState {
     registeredOperableBoundaryCastIds: new Set(),
     buffBasicAttackMappings: new Map(),
     nextBasicAttackMappingId: 0,
+    overrideMultiDashLimit: null,
+    comboOffsetTargetSkillKey: null,
+    comboOffsetModifier: null,
+    comboOffsetRecordedSkillKey: null,
     currentSkillKey: null,
     processingSkillKey: null,
     postSkillCastRequest: null,
@@ -184,6 +243,8 @@ export interface SkillExecutionState {
   skillCastId: number;
   preparedSkillCastId: number;
   preparedSkillCastInfo: CombatSkillCastInfo | undefined;
+  /** 本次延迟施放请求的产生者；开始回执记录后清除。 */
+  preparedProducer: import('../receipt/combatReceipt').CombatObjectRef | undefined;
   inheritedSkillCastInfo: CombatSkillCastInfo | undefined;
   preparedSkipApplyCost: boolean;
   preparedForceTimelinePayment: boolean;
@@ -211,6 +272,7 @@ export function createSkillExecutionState(): SkillExecutionState {
     skillCastId: 0,
     preparedSkillCastId: 0,
     preparedSkillCastInfo: undefined,
+    preparedProducer: undefined,
     inheritedSkillCastInfo: undefined,
     preparedSkipApplyCost: false,
     preparedForceTimelinePayment: false,
@@ -227,6 +289,8 @@ export function createSkillExecutionState(): SkillExecutionState {
 /** 一个技能宿主已经接入的完整数据。 */
 export interface SkillRuntimeState {
   readonly castId: string | null;
+  /** 当前这次施放是否已经执行原生 MarkCanDash；新一次施放会清零。 */
+  markedCanDash: boolean;
   readonly execution: SkillExecutionState;
   readonly blackboard: ActionBlackboardState;
   readonly initialBlackboard: Readonly<Record<string, ActionBlackboardValue>>;
