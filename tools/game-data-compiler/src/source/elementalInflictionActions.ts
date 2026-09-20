@@ -162,7 +162,7 @@ export function parseSpellAbnormalLifecycleEventSource(
 }
 
 // EnergyShardType 是 0 起始的独立枚举，不是含 Physical 的 DamageType，也不是异常类型枚举。
-// Enum=4 是原生成员，但不是可施加的法术状态；证据见 force-spell-status-action.md。
+// Enum=4 是原生成员，但不是 ForceSpellStatusAction 可施加的法术状态。
 const ENERGY_SHARD_TYPES = new Map([
   [0, 'Fire'],
   [1, 'Pulse'],
@@ -226,7 +226,7 @@ export function parseForcedElementalStatusActionSource(
 }
 
 /**
- * 与 combat-spec SpellInflictionDataAdapter 同构的严格来源切片。动作会进入元素附着生命周期，
+ * 严格读取 SpellInfliction 的原生载荷。动作会进入元素附着生命周期，
  * 不能像表现或空间动作一样省略。
  */
 export function parseElementalInflictionActionSource(
@@ -264,7 +264,7 @@ export function parseElementalInflictionActionSource(
 }
 
 /**
- * combat-spec spell-infliction-on-character.md：完整保留角色异常动作载荷。
+ * 完整保留角色法术异常动作的原生载荷。
  * 场景能否省略由投影层结合 owner/source/target 证明，来源层不吞语义。
  */
 export function parseCharacterSpellInflictionActionSource(

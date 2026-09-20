@@ -15,7 +15,7 @@ export interface BuffTimePauseActionSource {
 
 /**
  * PauseBuffTime 只切换当前执行 Buff 实例的暂停状态；它没有目标选择或持续时间参数。
- * 原生语义见 combat-spec/docs/pause-buff-time.md，宿主约束由投影层验证。
+ * Buff 暂停计时的宿主约束由投影层验证。
  */
 export function parseBuffTimePauseActionSource(
   value: unknown,

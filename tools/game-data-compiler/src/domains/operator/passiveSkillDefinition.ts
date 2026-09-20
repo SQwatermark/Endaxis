@@ -389,7 +389,7 @@ interface CollectedBuffReactionProjection {
 }
 
 /**
- * combat-spec 已确认 OnCollectOutputBuffBbValue 在腐蚀输出 Buff 创建前修改其 duration 与
+ * OnCollectOutputBuffBbValue 在腐蚀输出 Buff 创建前修改其 duration 与
  * max_def_decrease。固定模型把这一数据流投影为正式反应修正，不安装一个运行时永远不会收到
  * 该原生收集事件的伪监听器。形状不完全匹配时返回 undefined，后续普通 Buff 编译会严格报错。
  */

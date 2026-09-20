@@ -472,7 +472,7 @@ function compileConditionLeaf(
     )
       throw new Error(`${sourcePath}: unsupported zero-distance condition endpoints/options`);
     // ForEach guarantees a concrete entity; an absent target must not become distance zero.
-    // Native lessThan=true is <=, not < (combat-spec foreach-target-and-distance.md).
+    // 原生 lessThan=true 的比较是 <=，不是 <。
     return {
       kind: 'actionValueCompare',
       left: { kind: 'constant', value: 0 },
@@ -485,7 +485,7 @@ function compileConditionLeaf(
     return { kind: 'constant', value: !condition.inverted };
   }
   if (condition.kind === 'dungeonCategory' && !condition.needDetailedConfig) {
-    // combat-spec/check-dungeon-category.md：原生在配置服务可用且不要求详细配置时
+    // CheckDungeonCategory 原生在配置服务可用且不要求详细配置时
     // 直接返回 true，不读取 category list。Endaxis 的正式模拟入口已经绑定 Battle，
     // 因而对应配置环境可用；列表和 returnTrueWhenInList 都只是序列化残留。
     return { kind: 'constant', value: true };
@@ -1348,7 +1348,7 @@ function compileConditionLeaf(
     return { kind: 'eventSourceTargetMatch', operator: 'equal' };
   }
   if (condition.kind === 'buffStack') {
-    // combat-spec：Environment 不走目标解析，精确读取正在执行的 Buff，而非同 ID 总层数。
+    // Environment 不走目标解析，精确读取正在执行的 Buff，而非同 ID 总层数。
     if (condition.buffCheckType === 'Environment') {
       const operator = COMPARISON_OPERATORS[condition.comparison];
       if (
@@ -1516,7 +1516,7 @@ function compileConditionLeaf(
       condition.buffCheckType === 'Id' &&
       condition.buffIds.every(id => id.length > 0)
     ) {
-      // combat-spec/check-main-character-condition-inventory.md：公共目标解析器只在
+      // 公共目标解析器只在
       // targetSource=Context 时读取 targetGroupKey。Liino 的监听响应保留了 Owner+"tar"
       // 这一陈旧组名，仍必须读取 ActionOwner，不能据此改读 Context 或拒绝来源数据。
       return {

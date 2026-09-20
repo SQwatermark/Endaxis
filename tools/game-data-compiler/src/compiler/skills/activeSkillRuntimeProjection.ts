@@ -343,7 +343,7 @@ function evaluateStaticStumpConditionSequence(
         )
       )
         return undefined;
-      // combat-spec 已确认 lessThan=true 的原生语义是 <=。纳入非负目标半径只会让
+      // lessThan=true 的原生语义是 <=。纳入非负目标半径只会让
       // MainCharacter 到唯一木桩的有效距离更小；因此这里只证明 <= 非负阈值的真值。
       if (!condition.lessThan || condition.distance < 0) return undefined;
       continue;
@@ -1362,7 +1362,7 @@ export function compileActiveSkillRuntimeProjectionSource(input: {
     offsetRecordFrame,
     allowNextSkillTransitions,
     ...(inputWindows === undefined ? {} : { inputWindows }),
-    // combat-spec skill-blackboard：动态声明也进入实例初值；补丁同名键后覆盖。
+    // 动态声明也进入技能实例初值；补丁同名键后覆盖。
     // 此处位于动作投影输出边界，不能回灌到上面的静态解析环境消除动态引用。
     blackboard: {
       ...numericDeclaredBlackboard(graph.declaredBlackboard, true),

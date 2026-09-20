@@ -9,7 +9,7 @@ export interface InterruptActionSource {
   readonly immobilizedTime: number;
 }
 
-/** combat-spec 已恢复完整载荷；Endaxis 只会在静态木桩目标上显式省略控制结果。 */
+/** 保留完整原生载荷；Endaxis 在静态木桩目标上显式省略控制结果。 */
 export function parseInterruptActionSource(value: unknown, path: string): InterruptActionSource {
   const action = requireRecord(value, path);
   requireExactFields(

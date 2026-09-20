@@ -54,6 +54,14 @@ describe('timeline connections', () => {
     });
     expect(canCreateSkillCastConnection(connected, 'cast:1', 'cast:2')).toBe(false);
     expect(canCreateSkillCastConnection(connected, 'cast:2', 'cast:1')).toBe(true);
+    expect(canCreateSkillCastConnection(connected, 'cast:1', 'cast:2', 'connection:1')).toBe(true);
+    expect(canCreateSkillCastConnection(connected, 'cast:1', 'cast:2', 'connection:other')).toBe(
+      false,
+    );
+    expect(canCreateSkillCastConnection(connected, 'cast:1', 'cast:1', 'connection:1')).toBe(false);
+    expect(canCreateSkillCastConnection(connected, 'cast:1', 'missing', 'connection:1')).toBe(
+      false,
+    );
   });
 
   it('creates and removes a directed skill-cast connection', () => {

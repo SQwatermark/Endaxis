@@ -1,14 +1,23 @@
 import {
-  requireArray, requireExactFields, requireNativeEnum, requireRecord, requireString,
+  requireArray,
+  requireExactFields,
+  requireNativeEnum,
+  requireRecord,
+  requireString,
 } from './primitives.ts';
 import { parseTagQuerySource, type TagQuerySource } from './tagQuery.ts';
 
 // 原生 BuffFindSettings.CheckType，不是所有名为 checkType 的字段。
-// 证据：combat-spec/docs/buff-assignment-source-encoding.md。
 const CHECK_TYPES = new Map([
-  [0, 'Id'], [1, 'Tag'], [2, 'Environment'], [3, 'Context'],
+  [0, 'Id'],
+  [1, 'Tag'],
+  [2, 'Environment'],
+  [3, 'Context'],
 ] as const);
-const STACK_NUM_TYPES = new Map([[0, 'BuffCount'], [1, 'BuffIdCount']] as const);
+const STACK_NUM_TYPES = new Map([
+  [0, 'BuffCount'],
+  [1, 'BuffIdCount'],
+] as const);
 
 /** 原生 BuffStackNumType，与 Buff 查询配套但不是 CheckType 枚举。 */
 export function readBuffStackNumType(value: unknown, path: string) {

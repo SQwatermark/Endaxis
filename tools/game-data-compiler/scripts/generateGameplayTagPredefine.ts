@@ -13,7 +13,7 @@ import { formatGeneratedSource } from './formatGeneratedSource.ts';
 // 生成内容描述的是未来正式文件，而不是候选暂存文件的物理位置。
 const GAMEPLAY_TAG_CONTRACT_IMPORT = '../../../packages/game-data-contract/src/gameplayTags.ts';
 
-/** 输入必须是 Endaxis 下载器管理的原始表；只负责转换，不隐式寻找 combat-spec 或旧生成数据。 */
+/** 输入必须是下载器管理的原始表；只负责转换，不隐式寻找外部仓库或旧生成数据。 */
 export async function generateGameplayTagPredefine(
   input: string,
   output: string,

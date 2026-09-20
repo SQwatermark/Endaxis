@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 /**
  * 战斗步骤编辑器的统一入口。
  *

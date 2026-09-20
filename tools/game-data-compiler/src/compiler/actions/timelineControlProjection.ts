@@ -17,7 +17,7 @@ export function projectTimelineJump(
 ): CompiledBuffStepSource | null {
   if (node.body.kind !== 'timelineJump') return null;
   const { destinationFrame, condition } = node.body;
-  // avywen-return-lance-lifecycle.md：只开放已有证据的向前跳转，跨目标帧后不得再尝试反向跳转。
+  // 只开放已有原生证据的向前跳转，跨目标帧后不得再尝试反向跳转。
   if (
     !context.timelineRange ||
     !Number.isInteger(destinationFrame) ||

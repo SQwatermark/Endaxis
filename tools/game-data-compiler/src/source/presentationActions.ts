@@ -1712,7 +1712,7 @@ export function parseEffectActionSource(
   if ('bigEffectTarget' in action) {
     parseTargetReferenceSource(action.bigEffectTarget, `${path}.bigEffectTarget`);
   }
-  // 句柄写回可能有后续消费者，不能沿用纯表现省略；边界依据见 combat-spec/presentation-actions。
+  // 句柄写回可能有后续消费者，不能按纯表现动作省略。
   if (requireString(action.saveEffectIdToBlackboard, `${path}.saveEffectIdToBlackboard`) !== '') {
     throw new Error(
       `${path}.saveEffectIdToBlackboard: effect handle consumers require explicit projection`,
@@ -1727,7 +1727,7 @@ export function parseEffectActionSource(
 }
 
 /**
- * combat-spec 1.4.4 的 PlaySoundAction.ExecuteInternal 只解析目标并进入音频播放路径。
+ * 1.4.4 的 PlaySoundAction.ExecuteInternal 只解析目标并进入音频播放路径。
  * 来源层仍完整校验已知字段；投影层可据此将它保留为有证据的表现 no-op。
  */
 export function parsePlaySoundActionSource(value: unknown, path: string): PlaySoundActionSource {
@@ -1811,7 +1811,7 @@ export function parsePlaySoundActionSource(value: unknown, path: string): PlaySo
   };
 }
 
-/** 1.4.4 原生 fallback 直接返回 true，不读取 bbKey；完整保存载荷，见 combat-spec/docs/combo-condition-leaves.md。 */
+/** 1.4.4 原生 fallback 直接返回 true，不读取 bbKey；仍完整保存载荷。 */
 export function parseDebugPrintActionSource(value: unknown, path: string): DebugPrintActionSource {
   const action = requireRecord(value, path);
   requireExactFields(

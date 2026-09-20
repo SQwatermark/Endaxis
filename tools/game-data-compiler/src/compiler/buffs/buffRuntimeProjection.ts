@@ -94,7 +94,7 @@ export type {
   CombatActionProjectionContextSource,
   CombatActionProjectionExtensionsSource,
 } from '../combatProjectionCommon.ts';
-// buff-lifecycle.md：Start/Enable 没有外部能力事件，Source 是创建者，Target/InputTarget 是持有者。
+// Start/Enable 没有外部能力事件，Source 是创建者，Target/InputTarget 是持有者。
 // 生命周期执行器以 Buff 来源绑定 caster；不能从不存在的 event 中读取来源或目标。
 const BUFF_LIFECYCLE_CONTEXT: CombatActionProjectionContextSource = {
   actionOwnerTarget: 'buffOwner',
@@ -102,7 +102,7 @@ const BUFF_LIFECYCLE_CONTEXT: CombatActionProjectionContextSource = {
   actionTargetTarget: 'buffOwner',
 };
 
-// before-output-buff.md / Buff.BindAbilityEventEnvironment：205 的输入是新 Buff 施加者，
+// Buff.BindAbilityEventEnvironment：205 的输入是新 Buff 施加者，
 // 但监听 Buff 的 ActionSource 始终是该监听器的创建者，不能用物理事件 sourceId 替代。
 const BUFF_BEFORE_ADDED_CONTEXT: CombatActionProjectionContextSource = {
   actionOwnerTarget: 'buffOwner',
@@ -2068,7 +2068,7 @@ function createBuffSequenceProjection(
         // 投影递归验证整棵子树。若结果完全为空，DoOnce 的已执行状态也没有战斗消费者。
         return { steps: [], state: partyTargetGroups };
       }
-      // combat-spec/do-once-action：子序列即时执行，返回 false 也消耗此次机会。
+      // DoOnceAction 的子序列即时执行，返回 false 也消耗此次机会。
       // 技能实例内允许同步资源回复、创建公共 GlobalBuff，以及“创建一次 Buff + 静态敌人控制”的直接叶子组合；
       // Buff 自己仍进入独立生命周期，不能把其持续动作偷换成 DoOnce 子序列生命周期。
       if (

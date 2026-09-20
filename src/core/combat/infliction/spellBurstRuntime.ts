@@ -1,8 +1,8 @@
 /**
  * 法术爆发的伤害执行。
  *
- * 倍率来自 SkillSetting 的"法术爆发伤害倍率"（原生 ReadSkillSettingData 语义，公式已由
- * combat-spec 复刻）：倍率 = 定义值 × 增强公式(来源附着增强属性)。之后走标准玩家伤害公式
+ * 倍率来自 SkillSetting 的“法术爆发伤害倍率”，按原生 ReadSkillSettingData 计算：
+ * 倍率 = 定义值 × 增强公式(来源附着增强属性)。之后走标准玩家伤害公式
  * （防御、抗性、暴击），最后写入敌人生命账本。数据缺失时明确报错，不假装打出伤害。
  */
 import type { CombatBuffSpellBurstDefinition } from '../buffs/combatBuffDefinitions';
@@ -37,7 +37,7 @@ export interface SpellBurstResult {
   readonly remainingHealth: number;
 }
 
-/** 按增强公式计算倍率乘数；无公式时退化为 1（与 combat-spec 一致）。 */
+/** 按原生增强公式计算倍率乘数；无公式时为 1。 */
 export function resolveSpellBurstEnhanceFactor(
   settings: CompoundStatusSkillSettingSource,
   enhanceFormulaKey: string,

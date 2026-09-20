@@ -52,7 +52,7 @@ export interface NativeOperatorCharacterTableSource {
   readonly attributeKeyFrames: readonly CharacterAttributeKeyFrameSource[];
 }
 
-/** 严格读取 combat-spec 已确认的 CharacterTable 战斗字段。 */
+/** 严格读取 CharacterTable 的战斗字段。 */
 export function parseNativeOperatorCharacterTableSource(
   characterTableValue: unknown,
   characterId: string,

@@ -1,6 +1,6 @@
 import { requireNativeEnum, type SourceRecord } from './primitives.ts';
 
-// 1.4.4 metadata 的精确常量；工厂分派依据见 combat-spec/docs/passive-skill-dispatch.md。
+// 1.4.4 metadata 的精确常量，用于被动技能工厂分派。
 // 仅在来源边界兼容命名导出与 VFS 整数导出，不让原生整数泄漏到编译结果。
 const CAST_TYPES = new Map([
   [0, 'Active'],

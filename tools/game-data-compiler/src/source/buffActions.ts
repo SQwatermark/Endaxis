@@ -62,7 +62,7 @@ export function parseBuffIgniteActionSource(value: unknown, path: string): BuffI
   };
 }
 
-/** combat-spec OnPhysicalNoGuardStartAction：只发布关卡统计事件，不施加破防。 */
+/** OnPhysicalNoGuardStartAction 只发布关卡统计事件，不施加破防。 */
 export function parsePhysicalNoGuardStartedEventSource(
   value: unknown,
   path: string,
@@ -380,7 +380,10 @@ function parseBuffEntries(value: unknown, path: string): BuffApplicationEntrySou
   });
 }
 
-const BUFF_ICON_DURATION_SOURCES = new Map([[0, 'AbilityEntity'], [1, 'TimedMarker']] as const);
+const BUFF_ICON_DURATION_SOURCES = new Map([
+  [0, 'AbilityEntity'],
+  [1, 'TimedMarker'],
+] as const);
 
 export function parseBuffIconDuration(value: unknown, path: string): BuffIconDurationSource {
   const source = requireRecord(value, path);

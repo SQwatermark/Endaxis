@@ -66,7 +66,6 @@ import TimelineActionContextMenu from './interaction/TimelineActionContextMenu.v
 import TimelineActionInspector from './interaction/TimelineActionInspector.vue';
 import TimelineLibrarySkillInspector from './library/TimelineLibrarySkillInspector.vue';
 import TimelineExternalEventInspector from './interaction/TimelineExternalEventInspector.vue';
-import TimelineDocumentMarkerInspector from './interaction/TimelineDocumentMarkerInspector.vue';
 import TimelineCornerToolbar from './components/TimelineCornerToolbar.vue';
 import TimelineConnectionLayer from './interaction/TimelineConnectionLayer.vue';
 import TimelineConnectionContextMenu from './interaction/TimelineConnectionContextMenu.vue';
@@ -74,7 +73,6 @@ import TimelineCursorGuide, {
   type TimelineCursorGaugeRow,
 } from './components/TimelineCursorGuide.vue';
 import TimelineHeaderToolbar from './components/TimelineHeaderToolbar.vue';
-import TimelineReceiveDialog from './components/TimelineReceiveDialog.vue';
 import type { TimelineShareTrack } from './components/TimelineShareCard.vue';
 import TimelineRuler from './components/TimelineRuler.vue';
 import TimelineTrackHeader from './components/TimelineTrackHeader.vue';
@@ -445,6 +443,13 @@ const OperatorSelectionDialog = defineLazyDialog(
 );
 const WeaponSelectionDialog = defineLazyDialog(() => import('./library/WeaponSelectionDialog.vue'));
 const TimelineResetDialog = defineLazyDialog(() => import('./components/TimelineResetDialog.vue'));
+const TimelineReceiveDialog = defineLazyDialog(
+  () => import('./components/TimelineReceiveDialog.vue'),
+);
+// 标记详情包含来源图，只在选中标记时加载，避免布局库进入时间轴启动包。
+const TimelineDocumentMarkerInspector = defineAsyncComponent(
+  () => import('./interaction/TimelineDocumentMarkerInspector.vue'),
+);
 const TimelineHitDetailDialog = defineLazyDialog(
   () => import('./results/TimelineHitDetailDialog.vue'),
 );
@@ -7733,6 +7738,7 @@ function setPanelDialogVisible(visible: boolean): void {
     @update:visible="passiveUiDetailSegment = $event ? passiveUiDetailSegment : null"
   />
   <TimelineReceiveDialog
+    v-if="showReceiveDialog"
     :visible="showReceiveDialog"
     :busy="receivingProjectCode"
     @update:visible="showReceiveDialog = $event"

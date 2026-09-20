@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 import type { CombatStepForKind } from '../../../../../packages/game-data-contract/src/actions';
 /**
  * 编辑 spawnAbilityEntity 的自包含定义与生成参数。

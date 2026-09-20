@@ -27,7 +27,7 @@ export function parseReturnSequence(value: unknown, path: string) {
 /**
  * 故意有界的测试载体，不是生产干员转换器。只选择写入、潜能条件/倍率/伤害、到达回能守卫。
  * 未纳入命中资格、拉拽/中断、时间膨胀、终结技枪附着及发射/回收生命周期。
- * hit→reach 只由已审计 ProjectileData 首帧形状与 combat-spec 原生阶段顺序产生。
+ * hit→reach 只由已审计 ProjectileData 首帧形状与原生阶段顺序产生。
  * 此切片的伤害/资源均读 ActionSource；没有把投射物 Owner 的原生行为映射成 caster。
  */
 export function makeReturnProjection(index: number, hit = true, runtimeOverride?: unknown) {

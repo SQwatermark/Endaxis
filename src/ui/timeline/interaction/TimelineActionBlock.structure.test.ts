@@ -92,9 +92,6 @@ describe('TimelineActionBlock legacy visual parity', () => {
       ':connection-source-action-id="connectionDrag?.skillCastId ?? null"',
     );
     expect(editorSource).toContain(':connection-target-valid="isConnectionTargetValid(cast.id)"');
-    expect(editorSource).toContain(
-      'canCreateSkillCastConnection(scenario.value, drag.skillCastId, targetSkillCastId)',
-    );
     expect(editorSource).toContain('if (targetSkillCastId === drag.skillCastId) return;');
     expect(source).toContain("'is-invalid-target': connectionTargetValid === false");
     expect(source).toContain('.connection-port.is-invalid-target');

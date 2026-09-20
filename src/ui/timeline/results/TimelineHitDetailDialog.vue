@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 import { EaCheckbox, EaDialog, EaDialogActions, EaTooltip } from '../../../design-system/index';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import CombatObjectOriginGraph from './CombatObjectOriginGraph.vue';

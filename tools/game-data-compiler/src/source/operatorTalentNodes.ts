@@ -72,7 +72,7 @@ export interface OperatorTalentNodeSource {
   };
 }
 
-/** 严格读取 combat-spec 已确认的 CharGrowthTable.talentNodeMap 来源事实。 */
+/** 严格读取 CharGrowthTable.talentNodeMap 的原生字段。 */
 export function parseOperatorTalentNodeSources(
   charGrowthTableValue: unknown,
   characterId: string,

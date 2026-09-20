@@ -48,7 +48,7 @@ function projectTimeDilationCurveKeys(
 ): readonly TimeScaleCurveKeyDefinition[] {
   return keys.map((key, index) => {
     const { weightedMode } = key;
-    // combat-spec AnimationCurveEvaluator：WeightedIn=1、WeightedOut=2，仅支持 0..3。
+    // AnimationCurveEvaluator：WeightedIn=1、WeightedOut=2，仅支持 0..3。
     if (weightedMode !== 0 && weightedMode !== 1 && weightedMode !== 2 && weightedMode !== 3) {
       throw new Error(
         `${sourcePath}.timeScaleCurve[${index}].weightedMode: unsupported value ${weightedMode}`,
@@ -522,7 +522,7 @@ export function compileBuffLeafNode(
       action.target.finderType === null &&
       action.target.validatorTypes.length === 0 &&
       action.target.postProcessorTypes.length === 0;
-    // combat-spec/spawn-ability-entity.md：开关只决定子技能 SaveTarget 保存首项还是全部。
+    // SpawnAbilityEntity 的开关只决定子技能 SaveTarget 保存首项还是全部。
     // 无目标/无子技能时不产生差异；既有投影已证明的单一敌人、施术者或当前实体也等价。
     // 空间点组可能有多项，不能把“零空间”误当“只有一个输入目标”。
     if (
@@ -602,7 +602,7 @@ export function compileBuffLeafNode(
     // 与 dieOnEnd 走两条独立分支：前者只调用已生成实体的特效暂停接口，
     // 后者才结束逻辑实体。Next 无渲染后端因而完整保留来源事实，
     // 但不为 pauseEffectOnEnd 生成战斗步骤；dieOnEnd 由 finishByAction 保留。
-    // combat-spec SpawnAbilityEntity.ExecuteInternal：只有 overrideDuration=true 才求值
+    // SpawnAbilityEntity.ExecuteInternal：只有 overrideDuration=true 才求值
     // duration；关闭时其中的字面值/黑板键是未选中的序列化残留。Target 与原生公共解析器一致，
     // 不读取序列化 targetGroupKey。出生位置、挂点和旋转均已
     // 由来源 IR 严格保留；零空间模型只保留实体身份、
@@ -721,7 +721,7 @@ export function compileBuffLeafNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported AbilityEntity target mutation`);
     }
-    // combat-spec/set-ability-entity-target.md：原生动作把输入 Target 的独立副本写回当前
+    // SetAbilityEntityTarget 把输入 Target 的独立副本写回当前
     // AbilityEntityController。Endaxis 只有一个敌人实例，当前输入与后续 Finder 都已严格投影为
     // 同一 enemy，故这次赋值不改变可观察目标身份；不向其他目标形状推广该省略。
     return { steps: [], state: partyTargetGroups };
@@ -768,7 +768,7 @@ export function compileBuffLeafNode(
       ) {
         throw new Error(`${node.sourcePath}: unsupported LaunchUpward stump projection`);
       }
-      // combat-spec/docs/launch-upward-action.md：该动作直接进入敌人的控制/空间状态，
+      // LaunchUpwardAction 直接进入敌人的控制/空间状态，
       // 不经过 AirborneAction 的破防、状态 Buff 或物理异常事件链。Always 使控制结果
       // 不改变后续序列分支；固定木桩不模拟位移、受控生命周期和原生特效。
       return { steps: [], state: partyTargetGroups };
@@ -787,7 +787,7 @@ export function compileBuffLeafNode(
       if (!sourceIsCaster || !targetIsEnemy || action.deadOption !== 'AllValid') {
         throw new Error(`${node.sourcePath}: unsupported TakeDown stump projection`);
       }
-      // combat-spec/take-down-action.md：该动作进入敌人的受控动画状态机，不产生伤害、
+      // TakeDownAction 进入敌人的受控动画状态机，不产生伤害、
       // 资源或物理异常事件。固定木桩没有主动/受控行为，邻接数值动作仍按原序执行。
       return { steps: [], state: partyTargetGroups };
     }
@@ -1181,7 +1181,7 @@ export function compileBuffLeafNode(
                   : currentAbilityEntity
                     ? ([] as const)
                     : null;
-      // combat-spec TimeDilationAction：开关选择命名曲线时，内嵌曲线只是序列化残留。
+      // TimeDilationAction：开关选择命名曲线时，内嵌曲线只是序列化残留。
       const usesNamedCurve = action.useCurveKey && action.curveKey.length > 0;
       // useCurveKey 是来源选择器；内联模式下命名 key 可以保留为未选中的序列化残值。
       const usesInlineCurve = !action.useCurveKey && action.inlineCurveKeys.length > 0;
@@ -1191,7 +1191,7 @@ export function compileBuffLeafNode(
         targets?.length === 1 &&
         targets[0] === 'enemy'
       ) {
-        // combat-spec/time-dilation.md：空字面曲线的实际求值仍未知。固定木桩没有敌方主动
+        // 空字面曲线的原生求值仍未知。固定木桩没有敌方主动
         // 行为或敌方技能时钟，故该实体减速对模拟不可观测；宿主 Buff 的寿命和图标照常保留。
         return { steps: [], state: partyTargetGroups };
       }
@@ -1379,7 +1379,7 @@ export function compileBuffLeafNode(
     const inlineGlobalAffectsAll =
       !action.useCurveKey && action.inlineCurveKeys.length > 0 && action.ignoreTargets.length === 0;
     if (inlineGlobalAffectsAll) {
-      // combat-spec/time-dilation：Global 分支只解析 ignoreTargets；effectTargets
+      // TimeDilationAction 的 Global 分支只解析 ignoreTargets；effectTargets
       // 属于同一序列化结构的 Entity 分支字段，在 Global 模式下不读取。
       return {
         steps: [
@@ -1548,7 +1548,7 @@ export function compileBuffLeafNode(
       write.selectorOwner === 'ActionOwner' &&
       write.selectorOwnerContextKey === ''
     ) {
-      // combat-spec/selector-pipeline.md：该 Finder 复制 AbilityEntity 控制器保存的施法目标，
+      // 该 Finder 复制 AbilityEntity 控制器保存的施法目标，
       // 不是重新做空间搜索。当前能力实体由唯一敌人目标的技能链创建，因此句柄在木桩模型中
       // 精确投影为同一个 enemy；缺宿主或非能力实体宿主仍保持失败关闭。
       const nextGroups = new Map(partyTargetGroups);
@@ -2441,7 +2441,7 @@ function projectCharacterTeamQuery(
   const selectorOwnerMatchesCaster =
     (write.selectorOwner === 'ActionOwner' &&
       (context.actionOwnerTarget === 'caster' || context.fixedBuffOwnerTarget === 'caster')) ||
-    // combat-spec/selector-pipeline.md：CharacterTeamFinder 直接读取全局 squadMembers；
+    // CharacterTeamFinder 直接读取全局 squadMembers；
     // selector owner 只需被公共管线成功解析，不参与其候选队伍计算。能力实体 ActionOwner
     // 是有效 AbilitySystem，且此处的 ActionSource 已独立证明为施术者。
     (write.selectorOwner === 'ActionOwner' &&

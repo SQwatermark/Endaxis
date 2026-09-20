@@ -413,7 +413,7 @@ function parseTargetPostProcessorAction(
   };
 }
 
-// 完整原生常量见 combat-spec/docs/convert-to-target-context.md；支持子集不等于枚举序号。
+// 原生 ConvertToTargetContext 的完整枚举；支持子集不等于枚举序号。
 const CONTEXT_OPERATIONS = new Map([
   [0, 'None'],
   [1, 'ConvertEntityToPosition'],
@@ -654,7 +654,7 @@ function parseMergeTargetAction(
     path,
   );
   // 新开关额外合入可受击对象通道；关闭时仍是已有的普通目标去重合并。
-  // 不把未建模通道混入敌人/队伍身份，证据见 combat-spec/docs/merge-target-action.md。
+  // 未建模的目标通道不能混入敌人或队伍身份。
   if (
     'mergeHittableTargets' in action &&
     requireBoolean(action.mergeHittableTargets, `${path}.mergeHittableTargets`)

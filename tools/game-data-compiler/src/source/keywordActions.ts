@@ -14,7 +14,7 @@ import {
 } from './scalar.ts';
 import { parseTargetReferenceSource, type TargetReferenceSource } from './target.ts';
 
-// combat-spec keyword-actions.md：来自 GetKeywordBuffName 的原生跳转表和元数据字符串，
+// 来自 GetKeywordBuffName 的原生跳转表和元数据字符串，
 // 不是根据 Buff ID 命名规律生成。其它关键词族须取得自身映射证据后再加入。
 const VULNERABLE_CARRIERS = {
   All: 'buff_common_affixes_vulnerable_all',
@@ -177,16 +177,16 @@ function parseKeywordBuffActionSource(
     throw new Error(`${path}.subType: unsupported keyword subtype ${JSON.stringify(subType)}`);
   const identity =
     keyword === 'Shelter'
-      ? // 1.4.4 KeywordActionType=4 → slot 0x0F0AB3C8；见 combat-spec/keyword-actions.md。
+      ? // 1.4.4 KeywordActionType=4 → slot 0x0F0AB3C8。
         ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_shelter' } as const)
       : keyword === 'Weak'
-        ? // 1.4.4 KeywordActionType=0 与固定载体；见 combat-spec/keyword-actions.md。
+        ? // 1.4.4 KeywordActionType=0 与固定载体。
           ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_weak' } as const)
         : keyword === 'Slow'
-          ? // 1.4.4 KeywordActionType=2 → slot 0x0F0AB3E8；见 combat-spec/keyword-actions.md。
+          ? // 1.4.4 KeywordActionType=2 → slot 0x0F0AB3E8。
             ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_slow' } as const)
           : keyword === 'Speedup'
-            ? // 1.4.4 KeywordActionType=5 → slot 0x0F0AB3D8；见 combat-spec/keyword-actions.md。
+            ? // 1.4.4 KeywordActionType=5 → slot 0x0F0AB3D8。
               ({ keyword, subType: null, carrierBuffId: 'buff_common_affixes_speedup' } as const)
             : {
                 keyword,

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 import { EaButton } from '../../../../design-system/index';
 import type { CombatStepForKind } from '../../../../../packages/game-data-contract/src/actions';
 import type { SkillStructureNode as StructureNodeContract } from '../skillStructureMindMapModel';

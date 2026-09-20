@@ -59,7 +59,7 @@ export interface SetIgnoreGlobalTimeScaleActionSource {
   readonly revertOnEnd: boolean;
 }
 
-/** combat-spec: SealAction 是固定 Seal 槽位/优先级的敌方实体局部时间膨胀。 */
+/** SealAction 是固定 Seal 槽位/优先级的敌方实体局部时间膨胀。 */
 export interface SealTimeDilationActionSource {
   readonly kind: 'sealTimeDilation';
   readonly attacker: TargetReferenceSource;

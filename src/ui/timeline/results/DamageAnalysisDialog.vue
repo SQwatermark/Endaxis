@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElCollapse, ElCollapseItem } from 'element-plus';
 /** 旧版伤害分析面板的展示结构；所有数值只读取新版同一次正式模拟发布的回执汇总。 */
 import { computed } from 'vue';
 import { useI18n } from 'vue-i18n';

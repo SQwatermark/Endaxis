@@ -54,7 +54,7 @@ export function compileEventTargetSimpleDamageOperationSource(
   }
   // alwaysNext=false 只在原生伤害应用失败时截断后续序列。这里的目标已经严格证明为唯一、
   // 存活且可受击的固定木桩，Endaxis 也不建模伤害免疫失败，因此两种取值的可见结果相同。
-  // combat-spec target-resolution：GetTargetsView 仅在 InstantSearch 执行 selectorData。
+  // GetTargetsView 仅在 InstantSearch 执行 selectorData。
   // Context 读取已保存的组；残留选择器仍由来源层解析，但不能变成这次伤害的过滤条件。
   if (action.target.targetSource === 'Context') {
     if (
@@ -67,7 +67,7 @@ export function compileEventTargetSimpleDamageOperationSource(
   } else {
     requireFixedTarget(action.target, 'Target', `${sourcePath}.target`);
   }
-  // combat-spec 的 DamageAction 适配边界已闭环：effectSource 只决定表现归属，
+  // 原生 DamageAction 中 effectSource 只决定表现归属，
   // 不参与 attacker、倍率或目标结算。投射物回调的 Owner 因而无需冒充施术干员；
   // Context 分支只读取前序保存的表现锚点，同样不执行残留 selectorData。
   if (
@@ -109,7 +109,7 @@ export function compileEventTargetSimpleDamageOperationSource(
   ) {
     throw new Error(`${sourcePath}: unsupported simple event DamageUnit behavior`);
   }
-  // combat-spec / 1.4.4 DamageAction._ProcessDamage: damageAttributeType (+0x14)
+  // 1.4.4 DamageAction._ProcessDamage: damageAttributeType (+0x14)
   // branches at RVA 0x0353FFE5. Only the Poise branch at 0x035415A3 reads the
   // +0x68 poiseCalculation field. A serialized object on an Hp unit is inactive
   // payload and must not synthesize an additional poise operation.
@@ -457,7 +457,7 @@ function compileSimplePoiseOperand(
   // 仍会被反序列化，但不会进入 PoisePack 或失衡公式，因此其字面值/黑板键都是序列化残留。
   // PoisePack 原生规格不保存元素字段，修正器只读取 decorate mask；仍验证来源元素是已知枚举。
   projectNativeDamageElement(unit.damageType, `${sourcePath}.units[${unitIndex}].damageType`);
-  // combat-spec definite-value-calculation：applyScale=false 不求值 valueScale；启用时
+  // 原生定值计算在 applyScale=false 时不求值 valueScale；启用时
   // valueScale 以单精度解析后乘到基础值，运行时由 stagger multiplier 保留这一步。
   return {
     value: scalarOperand(calculation.value),

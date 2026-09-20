@@ -9,8 +9,8 @@ export interface CompiledAbilitySystemBlackboardsSource {
 
 /**
  * 模板 Assign 的字面初值投影，不走 SkillPatch，也不把动态项过滤成编译期常量。
- * 原生清板/实体生命周期及每条条件独立复制见 combat-spec/combo-condition-environment.md、
- * combo-smart-target-and-template-init.md。保留原 source 中的动态标记和精确字段路径。
+ * 每条连携条件独立复制黑板；实体黑板按实体生命周期维护。
+ * 保留原 source 中的动态标记和精确字段路径。
  */
 export function compileAbilitySystemBlackboardsSource(
   source: AbilitySystemBlackboardsSource,

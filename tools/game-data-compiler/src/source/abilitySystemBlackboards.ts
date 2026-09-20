@@ -15,7 +15,6 @@ export interface AbilitySystemBlackboardsSource {
 
 /**
  * 只读取 AbilitySystemData / SkillDataBundle 已证明的两层黑板，不声称整个组件转换完整。
- * 原生证据：combat-spec/docs/combo-smart-target-and-template-init.md、combo-condition-environment.md。
  * entity 属于实例；comboCondition 属于每条条件注册，禁用时保留来源但不能安装初值。
  * 不去除 EntityBB_，不合并同名键，不把动态初值当作运行期常量。
  */

@@ -169,7 +169,6 @@ export function parseDistanceValidatorSources(
 /**
  * 仅供已分别取证的三个后处理器共用普通目标通道校验，不推广到其他同名字段。
  * 旧结构缺失等价于 Targets；受击列表独立存在，不能以单敌人模型抹掉差异。
- * 原生依据集中在 combat-spec/docs/selector-pipeline.md 的当前镜像小节。
  */
 export function requireOrdinaryTargetProcessor(
   value: unknown,

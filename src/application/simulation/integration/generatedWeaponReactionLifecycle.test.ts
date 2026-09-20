@@ -18,7 +18,7 @@ import { staticEquipmentContribution } from '../testSupport/staticEquipmentContr
 
 // 边界测试使用受控技能排程，不冒充真实干员动作时序。武器、公共反应定义、装备安装、
 // 附着消费、接收方 Buff 事件和最终 hit 全部走生产管线，不直接发布事件或手加武器 Buff。
-// 原生规则依据 combat-spec/docs/{buff-lifecycle,timed-marker-lifecycle}.md。
+// 遵循原生 Buff 与定时标记的生命周期规则。
 describe('生成反应武器的连续触发生命周期', () => {
   it.each(
     [

@@ -190,7 +190,7 @@ export function createOperatorAttackAttributes(
   // AttributeMetaTable[92]：关键词“加速”的原生倍率，默认 1，范围 [0.1, 1.3]。
   // 固定站桩模型未必消费其动作速度，但汤汤等 Buff 仍会按原生槽位修改它。
   result.define('KeywordSpeedUpScalar', 1, { minimum: 0.1, maximum: 1.3 });
-  // combat-spec derived-attributes：该原生属性默认 0，只派生移动速度；固定零距离模型仍须承载 Buff。
+  // 该原生属性默认 0，只派生移动速度；固定零距离模型仍须承载 Buff。
   result.define('SlowActionSpeedScalar', 0, {});
   // AttributeMetaTable[14]：转向速率倍率默认 1、无上下限。固定站桩模型不消费转向，
   // 但通用闪避 Buff 会修改该属性，因此仍需在同一个原生属性集中承载修正与生命周期。

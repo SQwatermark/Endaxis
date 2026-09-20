@@ -54,7 +54,6 @@ function withEventContext<T>(
   try {
     context.event = event;
     // 原生只读取栈顶事件；新事件未提供来源时不能继承外层事件的来源。
-    // 依据 combat-spec/origin-skill-event-context.md。
     context.eventSkillCastInfo = skillCastInfo;
     context.actionInputTarget = targets?.inputTarget;
     context.targetContext = targetContext;

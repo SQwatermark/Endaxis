@@ -1,6 +1,6 @@
 import { requireNativeEnum } from './primitives.ts';
 
-// 精确原生类型与常量见 combat-spec/docs/target-resolution.md；不按字段同形合并不同枚举。
+// 按精确原生类型读取常量，不按字段同形合并不同枚举。
 const TARGET_SOURCES = new Map([
   [0, 'Target'],
   [1, 'Source'],

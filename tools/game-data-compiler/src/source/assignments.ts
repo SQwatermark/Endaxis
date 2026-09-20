@@ -9,8 +9,12 @@ import {
   requireString,
 } from './primitives.ts';
 
-// 原生 DataPair.ValueType；证据见 combat-spec/docs/buff-assignment-source-encoding.md。
-const VALUE_TYPES = new Map([[0, 'Numeric'], [1, 'String'], [2, 'Any']] as const);
+// 原生 DataPair.ValueType 的枚举值。
+const VALUE_TYPES = new Map([
+  [0, 'Numeric'],
+  [1, 'String'],
+  [2, 'Any'],
+] as const);
 
 export function readBlackboardAssignmentValueType(value: unknown, path: string) {
   const result = requireNativeEnum(value, VALUE_TYPES, path);

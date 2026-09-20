@@ -29,7 +29,7 @@ export interface GlobalPartyAuraBuffInputSource {
   readonly assignments: readonly BlackboardAssignmentSource[];
 }
 
-/** combat-spec 已取证的 GlobalAura + 存活友方 Character 窄分支。 */
+/** 已取证的 GlobalAura + 存活友方 Character 分支。 */
 export interface GlobalPartyAuraActionSource {
   readonly kind: 'globalPartyAura';
   readonly debugName: string;
@@ -121,7 +121,7 @@ function parseAuraRecord(value: unknown, path: string): Record<string, unknown> 
     path,
   );
   if (hasInfluenceFilters) {
-    // combat-spec/docs/aura-influence-lifecycle.md：新来源配置默认解析 Action Source 的阵营。
+    // 新来源配置默认解析 Action Source 的阵营。
     requirePlainAuraTarget(
       parseTargetReferenceSource(action.filterFactionSource, `${path}.filterFactionSource`),
       'Source',

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 import type { CombatStepForKind } from '../../../../../packages/game-data-contract/src/actions';
 /**
  * 编辑普通时间膨胀与终结技专用时间膨胀。

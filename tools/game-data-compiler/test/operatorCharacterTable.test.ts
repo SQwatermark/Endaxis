@@ -8,7 +8,7 @@ import {
 } from '../src/index.ts';
 
 describe('干员 CharacterTable 适配', () => {
-  it('按 combat-spec 严格读取身份、默认武器和精确属性关键帧', () => {
+  it('严格读取身份、默认武器和精确属性关键帧', () => {
     const character = parseOperatorCharacterTableSource(characterTable(), 'chr_0004_pelica', {
       CriticalRate: 0.05,
     });

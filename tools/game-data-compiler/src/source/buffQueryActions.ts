@@ -30,7 +30,7 @@ export interface BuffStackReadActionSource {
 
 /**
  * 1.4.4 的简单 SaveBuffStackNum 是单 ID 的增强层数读取。其唯一生产样本与
- * combat-spec 适配器都证明它复用 Advanced 的 Id + BuffCount 语义。
+ * 原生适配复用 Advanced 的 Id + BuffCount 语义。
  */
 export function parseSimpleBuffStackReadActionSource(
   value: unknown,
@@ -70,7 +70,7 @@ export function parseSimpleBuffStackReadActionSource(
   };
 }
 
-/** combat-spec StoreBuffCount：当前 Buff 或目标上指定 ID 的累计 enhanceCnt。 */
+/** StoreBuffCount：当前 Buff 或目标上指定 ID 的累计 enhanceCnt。 */
 export function parseStoreBuffCountActionSource(
   value: unknown,
   path: string,

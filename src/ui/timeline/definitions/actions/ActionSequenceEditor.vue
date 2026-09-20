@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 /**
  * 编辑一条不带时间偏移的同步动作序列。
  * 技能调度、事件监听和 Buff 生命周期共用这里的步骤增删、排序、复制与参数编辑。

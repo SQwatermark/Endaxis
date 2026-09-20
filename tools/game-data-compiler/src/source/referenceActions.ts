@@ -54,7 +54,7 @@ export interface ProjectilePresetPointSource {
 /** 原生 LaunchProjectile.Data 使用的模式；只接收导出层已还原的枚举名称。 */
 export type ProjectileTargetFilterModeSource = 'None' | 'OnlyHit' | 'NeverHit';
 
-// combat-spec/launch-projectile-skill-routing.md：元数据常量表的精确值，不按声明顺序推断。
+// 发射投射物的元数据常量表，不按声明顺序推断枚举值。
 const PROJECTILE_TARGET_FILTER_MODES = new Map<number, ProjectileTargetFilterModeSource>([
   [0, 'None'],
   [1, 'OnlyHit'],
@@ -243,7 +243,7 @@ export function parseProjectileLaunchActionSource(
   path: string,
 ): ProjectileLaunchActionSource {
   const action = requireRecord(value, path);
-  // combat-spec/launch-projectile-skill-routing.md：旧结构无此字段组；当前结构的
+  // 旧结构无此字段组；当前结构的
   // None 不解析过滤目标，false 不额外发射。只允许整组缺失，不能吞掉残缺的新数据。
   const targetControlFields = [
     'targetFilterMode',

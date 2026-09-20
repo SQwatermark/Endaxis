@@ -1,7 +1,7 @@
 import type { ResolvedSkillBuffDefinition } from '../../compiler/combatProgram';
 import type { BuffDefinitionOperationTarget } from './buffDefinitionOperationTarget';
 
-/** 原生固定身份；行为和倍率只能来自导出的定义。依据 combat-spec/docs/poise-break-buff.md。 */
+/** 原生破防的固定身份；行为和倍率只能来自导出的定义。 */
 export const POISE_BREAK_BUFF_ID = 'buff_common_poise_break_damage_taken_scale';
 
 export class PoiseBreakBuffRuntime {

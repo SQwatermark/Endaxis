@@ -34,7 +34,7 @@ export interface ProjectileCallbackInvocationSource {
 
 /**
  * 将已证明可同步执行的一次发射包装成独立宿主和回调 direct 板，不推导命中次数/回调顺序。
- * combat-spec/launch-projectile-skill-routing.md、skill-blackboard.md：同投射物共享实体板，
+ * 同投射物共享实体板，
  * 回调 direct 各自以静态初值再合入发射快照。不同发射不复用，即使处于同一 ForEach 静态路径。
  *
  * 调用方必须提供有来源的模板初值，以及场景层已证明的同步事件顺序。这里只接受每个技能

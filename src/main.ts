@@ -1,6 +1,5 @@
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
-import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
 import 'element-plus/theme-chalk/dark/css-vars.css';
 import './design-system/styles/index.css';
@@ -20,7 +19,6 @@ async function bootstrap() {
   const app = createApp(App);
   const pinia = createPinia();
   app.use(pinia);
-  app.use(ElementPlus);
   app.use(router);
   app.use(i18n);
   // A failed initial route (including lazy game-text imports) used to mount

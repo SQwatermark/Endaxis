@@ -13,7 +13,7 @@ import { CombatAttributeSet } from '../../../../src/core/combat/attributes/comba
 import { GameplayTagRegistry } from '../../../../src/core/combat/tags/gameplayTags';
 
 const statusPath = 'Skill/Character/Common/PhysicalStatus/KnockdownStatus';
-// 真实免疫路径/ID 摘自 combat-spec/docs/physical-infliction-actions.md；不是完整生产配置。
+// 原生物理异常使用的免疫路径与 ID；不是完整生产配置。
 function sourceTable() {
   return {
     predefinedTags: { Immobilized: { tagId: 430405417 } },

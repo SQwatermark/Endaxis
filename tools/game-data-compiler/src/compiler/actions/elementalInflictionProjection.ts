@@ -3,7 +3,7 @@ import { projectNativeDamageElement } from '../../source/damageElement.ts';
 import type { ElementalInflictionActionSource } from '../../source/elementalInflictionActions.ts';
 import type { CombatActionProjectionContextSource } from '../combatProjectionCommon.ts';
 
-/** combat-spec spell-infliction.md：Source 与 Owner 是独立身份，不因宿主类型改变目标。 */
+/** 法术异常的 Source 与 Owner 是独立身份，不因宿主类型改变目标。 */
 export function projectElementalInflictionAction(
   action: ElementalInflictionActionSource,
   path: string,

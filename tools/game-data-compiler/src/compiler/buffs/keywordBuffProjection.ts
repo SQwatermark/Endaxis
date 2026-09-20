@@ -11,7 +11,7 @@ export function projectKeywordBuffAction(
   context: CombatActionProjectionContextSource,
   partyTargetGroups: ReadonlyMap<string, ProjectedTargetGroup>,
 ): CompiledBuffStepSource {
-  // combat-spec keyword-actions.md：增强在普通 Buff 成功加入边沿按列表顺序持久改写 rate。
+  // 关键词增强在普通 Buff 成功加入边沿按列表顺序持久改写 rate。
   if (
     action.overrideChildBuffId &&
     (action.childBuffId.blackboardKey !== null || action.childBuffId.value.trim().length === 0)

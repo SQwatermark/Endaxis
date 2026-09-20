@@ -16,7 +16,7 @@ const ACTION_META_FIELDS = [
   'serverActionIndex',
 ];
 
-/** combat-spec ChangeSkillActionDataAdapter 完整保留的原生槽位替换载荷。 */
+/** 完整保留 ChangeSkillAction 的原生槽位替换载荷。 */
 export interface SkillSlotReplacementActionSource {
   readonly kind: 'skillSlotReplacement';
   readonly skillSource: TargetReferenceSource;

@@ -66,8 +66,8 @@ function inspectBuff(id: string, loadBuff: (id: string) => unknown): BuffPresent
     const root = requireRecord(value, `BuffData.${id}`);
     // 表现闭包也必须走完整 Buff 两阶段黑板与动作解析；只追引用的宽松图会把已经支持的
     // Effect/ShowHide 等动作留成 untracked，既无法验证字段，也会错误阻塞纯表现闭包。
-    // 只有严格解析尚未覆盖的表现管线动作才退回引用图；例如 combat-spec 尚未恢复
-    // ConvertEntityToSlot 的变换语义，但递归闭包可以证明其输出最终只供镜头动作消费。
+    // 只有严格解析尚未覆盖的表现管线动作才退回引用图；例如 ConvertEntityToSlot 的
+    // 变换语义尚未恢复，但递归闭包可以证明其输出最终只供镜头动作消费。
     let strictlyParsed = true;
     let graph;
     try {

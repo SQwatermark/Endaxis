@@ -548,7 +548,7 @@ export function parseMoveToActionSource(
     path,
   );
   parseNumberVector3(action.fixAngle, `${path}.fixAngle`);
-  // 新版只增加移动请求更新、追踪目标与朝向开关；原生消费者见 combat-spec/move-to-action。
+  // 新版只增加移动请求更新、追踪目标与朝向开关，由 MoveToAction 读取。
   // 不改变伤害目标或外层调度。旧数据可缺省，显式字段仍严格校验，不向运行时添加空间参数。
   for (const key of ['manualTick', 'updateLatestMainCharacter', 'dontClampFaceToMoveDirToXZ']) {
     if (key in action) requireBoolean(action[key], `${path}.${key}`);

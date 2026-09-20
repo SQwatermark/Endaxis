@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 /**
  * 敌人实例的选择与属性编辑界面。
  * 组件复用旧版布局语言，但只处理草稿和展示；定义解析、默认值捕获与事务提交由外层协调器负责。

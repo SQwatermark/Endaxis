@@ -405,7 +405,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       enabled.some(item => item.event === 'hit') &&
       isPresentationOnlyProjectileCallback(callback('block'))
     ) {
-      // combat-spec 已闭环首 Tick 先做敌人 collision/hit、随后才移动并检测 block。
+      // 原生首 Tick 先做敌人 collision/hit、随后才移动并检测 block。
       // 这里不猜测墙体是否存在；只证明 block 子技能即使可达也完全是表现，而 hit
       // 仍由首碰撞形状严格验证。故产品投影只执行影响伤害的 hit 回调。
       const hit = compileZeroDistanceFirstTickHitProjectileSource({
@@ -452,7 +452,7 @@ export function createZeroDistanceProjectileProjectionExtensionSource(input: {
       enabled.some(item => item.event === 'hit') &&
       enabled[0]!.skillId === enabled[1]!.skillId
     ) {
-      // combat-spec 已闭环首 Tick 顺序为 collision(hit) → move/block；零距离唯一木桩
+      // 原生首 Tick 顺序为 collision(hit) → move/block；零距离唯一木桩
       // 先命中并以 maxHitCount=1 结束该投射物，因此同路由的 block 是未到达备选。
       return [
         compileZeroDistanceFirstTickHitProjectileSource({
@@ -609,7 +609,7 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
     throw new Error(`${sourcePath}: hitOnReach target is not a proven zero-space point`);
   }
   assertSupportedFirstTickShape(runtime, sourcePath, {
-    // combat-spec 已证明 allowHitSameTarget=false 使同一目标在整枚投射物
+    // 原生 allowHitSameTarget=false 使同一目标在整枚投射物
     // 生命周期内最多成功命中一次。因此唯一木桩下，-1 与首击回收的 1
     // 对 hit-only 路由都只产生一次战斗可见回调。
     maxHitCounts: new Set([-1, 1]),
@@ -619,7 +619,7 @@ export function compileZeroDistanceFirstTickHitProjectileSource(input: {
     allowHitOnReach: true,
     allowFinishByFirstHitCount: true,
     // hit-only 路由没有后续战斗回调；allowHitSameTarget=false 已由
-    // combat-spec 证明为整枚投射物的每目标一次过滤，因此实体在
+    // 原生命中过滤实现为整枚投射物的每目标一次过滤，因此实体在
     // 首次命中后继续存活不会对唯一木桩产生第二次可见结果。
     allowPersistentSingleTargetHit: true,
     // 两段直线都在零空间同点时，原生首 tick 只在 collision 后 advance；
@@ -972,7 +972,7 @@ export function compileZeroDistanceProjectileLaunchFromSources(input: {
 
 /**
  * 只投影“首帧与唯一木桩重叠且同帧到达”的 ProjectileData 形状。
- * combat-spec 已证明该边界的原生阶段为 collision(hit) → move/reach；其他形状严格拒绝。
+ * 该形状的原生阶段为 collision(hit) → move/reach；其他形状严格拒绝。
  */
 export function compileZeroDistanceFirstTickProjectileSource(input: {
   readonly sourcePath: string;
@@ -1004,7 +1004,7 @@ export function compileZeroDistanceFirstTickProjectileSource(input: {
 
 /**
  * 新增目标控制会改变命中资格或发射数量，不能由“零距离”自动推出无影响。
- * combat-spec 已证明 OnlyHit 是白名单：仅当过滤集合静态包含唯一敌人时可消去。
+ * OnlyHit 是白名单：仅当过滤集合静态包含唯一敌人时可消去。
  * 即使没有战斗回调，发射仍须通过此守卫并保留对象寿命。
  */
 function assertSupportedLaunchTargetControls(
@@ -1359,7 +1359,7 @@ function isPlainZeroSpaceFixedPoint(
     return true;
   }
   if (contextTargetIsProvenZeroSpace) {
-    // combat-spec/TargetResolution：TargetSource.Context 只按 targetGroupKey 读取已保存句柄，
+    // TargetSource.Context 只按 targetGroupKey 读取已保存句柄，
     // TargetSettings 内同时序列化的 finder/validator/post-processor 字段不进入该分支。
     // 零空间证明来自目标组生产者，不能让这些未读取的残留字段反向否定它。
     return true;

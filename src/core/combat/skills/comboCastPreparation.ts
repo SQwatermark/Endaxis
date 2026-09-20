@@ -5,9 +5,8 @@ import type { SkillCastStartPreparation } from '../state/foundationState';
 /**
  * 固定木桩投影：普通选敌设置、唯一有效敌人、距离为零；不模拟镜头、锁定菜单或 dummy 坐标。
  * 敌人与队伍干员均保留实际目标身份。原生 FindSmartTarget 检查 alive、IsUnmarkable 和距离，
- * 不按敌我阵营直接拒绝干员（combo-smart-target-and-template-init.md）。
+ * 不按敌我阵营直接拒绝干员。
  * 本投影沿用固定有效实体、零距离的前提；能力实体与空间点的可选中语义仍需单独支持。
- * 原生顺序见 combat-spec/docs/combo-cast-preparation.md、skill-smart-target-outer.md。
  */
 export function prepareComboCast(
   program: Pick<CompiledSkillProgram, 'smartTarget'>,

@@ -1,7 +1,6 @@
 /**
  * 已审计 Ability 事件的连携条件阶段。每条注册保留自己的 direct 板，共享 owner 的实体板。
  * 只产出 Pending 数据，不选择候选、不施法，也不把它降格为附着后的语义事件。
- * 原生依据：combat-spec/docs/combo-condition-environment.md、combo-event-gates-and-pending.md。
  */
 import type { ResolvedActionSequence } from '../../compiler/combatProgram';
 import type {

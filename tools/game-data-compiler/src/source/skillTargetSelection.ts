@@ -26,7 +26,6 @@ export interface SkillTargetSelectionHeaderSource {
 
 /**
  * SkillData 目标选择策略头；同版本 MemoryPack 数值与 AKEDB 命名枚举归一到同一身份。
- * 证据：combat-spec/docs/skill-smart-target-outer.md。
  * 只表示已读取策略/虚拟位置配置，不表示 Buff/Tag/层数评分参数或 dummy 位置生成已支持。
  * 施法目标设置、当前主目标/锁定目标和 SkillSetting 范围属于运行输入，不能从这些字段补默认。
  */

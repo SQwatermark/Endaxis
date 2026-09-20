@@ -99,7 +99,7 @@ function assembleUpgrade(
             throw new Error(
               `${entry.sourcePath}: attached Buff has an unrepresentable build condition`,
             );
-          // combat-spec CharMiscFeature.Start → RefreshTalentBuff/RefreshPotentialBuff：角色直接给自身加 Buff，
+          // CharMiscFeature.Start → RefreshTalentBuff/RefreshPotentialBuff：角色直接给自身加 Buff，
           // 不是 AddPassiveSkill。初始黑板只来自 attachBuff，不继承某次技能的施放信息。
           return [
             {
@@ -324,7 +324,7 @@ function compileModifier(
         },
       ];
     }
-    // combat-spec 已确认 CoolDownDisplay 只进入界面展示冷却调用链；不能把它当作第二次
+    // CoolDownDisplay 只进入界面展示冷却调用链；不能把它当作第二次
     // 运行时冷却修正。Next 当前没有单独的构筑后冷却文案协议，因此明确略过该展示项。
     if (entry.parameter === 'cooldownDisplay' && entry.operation === 'add') return [];
     if (condition !== null) fail('skill cost modifier has an unrepresentable build condition');

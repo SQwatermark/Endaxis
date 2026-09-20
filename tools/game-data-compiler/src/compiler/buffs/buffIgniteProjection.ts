@@ -25,7 +25,7 @@ export function projectBuffIgniteAction(
       return 'enemy';
     }
     // 原生 Target 直接返回当前动作的 inputTarget，序列化 targetGroupKey 不参与解析
-    //（combat-spec TargetResolution.GetTargetsView）。不能把残留组名误当作 Context 读取。
+    //（TargetResolution.GetTargetsView）。不能把残留组名误当作 Context 读取。
     if (target.targetSource === 'Target') {
       const projected = context.actionTargetTarget;
       if (projected === 'currentOperator') {

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 /**
  * 编辑生成期已经归约为实体身份或运行时 Context 的能力实体查询。
  *

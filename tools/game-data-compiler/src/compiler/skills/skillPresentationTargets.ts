@@ -240,7 +240,7 @@ export function collectPresentationSelectionTimelineIndexes(
 }
 
 /**
- * PhysicsCast 需要真实物理世界才能决定分支。这里只证明 combat-spec 记录的最窄不可见形状：
+ * PhysicsCast 需要真实物理世界才能决定分支。这里只接受已取证的最窄不可见形状：
  * 不写距离、不 Tick；两个分支仅从命中点/动作实体派生固定位置组，且这些组与命中点在动作之后
  * 都没有消费者。较早时间线中的同名临时组不会被倒推成该动作的输出消费者。
  */

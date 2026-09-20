@@ -34,7 +34,6 @@ __pycache__/
 *audit.json
 
 # 每台开发机自己的路径、工作树、服务和连接信息。
-# 共享仓库只保留 docs/handoff/local-environment.example.md 模板。
 /.local/
 
 .eslintcache

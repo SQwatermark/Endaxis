@@ -13,13 +13,9 @@ import {
 import { verifyGameDataSnapshot } from '../scripts/verifyGameDataSnapshot.ts';
 
 const roots: string[] = [];
-it('只允许 i18n 目录提交生成 JSON', async () => {
-  const files = await fs.readdir(path.resolve('src'), { recursive: true });
-  expect(
-    files
-      .map(file => file.replaceAll('\\', '/'))
-      .filter(file => file.endsWith('.json') && !file.startsWith('i18n/')),
-  ).toEqual([]);
+it('正式游戏定义目录不保留 JSON 中间产物', async () => {
+  const files = await fs.readdir(path.resolve('src/data'), { recursive: true });
+  expect(files.filter(file => file.endsWith('.json'))).toEqual([]);
 });
 
 it('候选类型门禁使用当前应用配置，不引用已经删除的 Next 配置', async () => {

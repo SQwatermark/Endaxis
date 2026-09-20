@@ -1,7 +1,6 @@
 /**
  * character-template-prefix-v1 的已解码 RID 适配，非新的动作语义解析器。
  * 仅接受下方白名单中的已审计直接叶子；转换序列化字段后仍进入唯一公共 Action/Condition 读取器。
- * 证据：combat-spec combo-condition-leaves.md / Runtime/TargetResolution.cs / MathUtils.cs。
  */
 import { parseComboSkillConditionsSource } from './comboSkillConditions.ts';
 import { parseBuffIconDuration } from './buffActions.ts';

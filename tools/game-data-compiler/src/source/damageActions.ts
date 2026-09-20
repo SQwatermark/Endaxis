@@ -81,7 +81,7 @@ export type DamageProcessorSource =
       readonly addition: ScalarSource;
     }
   | {
-      /** AfterCalculation 飘字元数据；combat-spec 已确认不修改伤害数值。 */
+      /** AfterCalculation 飘字元数据，不修改伤害数值。 */
       readonly kind: 'damageTextPresentation';
       readonly style: string;
       readonly useHpChangeAsDisplayValue: boolean;
@@ -267,7 +267,7 @@ export function parseDamageUnitSource(
   const hasAttackCalculation = 'atkCalculation' in unit && unit.atkCalculation !== null;
   const hasPoiseCalculation = 'poiseCalculation' in unit && unit.poiseCalculation !== null;
   if (hasPoiseCalculation && attributeType === 'Hp') {
-    // combat-spec: DamageAction._ProcessDamage branches on damageAttributeType at
+    // DamageAction._ProcessDamage branches on damageAttributeType at
     // 0x0353FFE5. The Hp branch never reads the +0x68 poiseCalculation field, but
     // real data may still serialize an inactive calculation object (Gilberta battle skill).
     requireRecord(unit.poiseCalculation, `${path}.poiseCalculation`);
@@ -398,7 +398,7 @@ export function parseDamageProcessors(
       );
       if (hasExportedCache) {
         // 原生每次处理伤害时由 modifier 与当前黑板重新装载缓存；只接受导出器写出的空初态。
-        // 证据见 combat-spec/docs/damage-processors.md，不能据此忽略真实 modifier 或非空运行状态。
+        // 此处只处理该原生分支，不能据此忽略真实 modifier 或非空运行状态。
         const loaderPath = `${processorPath}.m_attributeModifierLoader`;
         requireExactFields(
           requireRecord(processor.m_attributeModifierLoader, loaderPath),

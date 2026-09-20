@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 /**
  * 时间轴动作的基础右键菜单，只负责定位、展示和派发命令意图。
  * 存档修改由编辑器应用层完成；Teleport 用于避免轨道裁剪和指针事件穿透。

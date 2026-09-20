@@ -2148,7 +2148,7 @@ describe('公共 Buff 运行时投影', () => {
     });
   });
 
-  it('按 combat-spec 保留 FinishBuffAdvanced 的 Buff 来源目标与吸收原因', () => {
+  it('保留 FinishBuffAdvanced 的 Buff 来源目标与吸收原因', () => {
     const source = sourceFixture();
     const sequence = source.graph.abilityEvents[0]!.actions[0]!;
     const metadata = sequence.actions[0]!.metadata;

@@ -67,7 +67,7 @@ const COMBAT_RUNTIME_ATTRIBUTE_KEYS: Readonly<Partial<Record<AttributeTypeSource
   CrystEnhancedDmgIncrease: 'cryoEnhancedDamageIncrease',
   NaturalEnhancedDmgIncrease: 'natureEnhancedDamageIncrease',
   EtherEnhancedDmgIncrease: 'etherEnhancedDamageIncrease',
-  // combat-spec/keyword-actions.md：载体属性进入既有伤害模型的 Vulnerable 区，不新增伤害公式。
+  // 关键词载体属性进入既有伤害模型的 Vulnerable 区，不新增伤害公式。
   PhysicalVulnerableDmgIncrease: 'physicalVulnerabilityIncrease',
   FireVulnerableDmgIncrease: 'heatVulnerabilityIncrease',
   PulseVulnerableDmgIncrease: 'electricVulnerabilityIncrease',

@@ -329,7 +329,7 @@ export function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: OnPhysicalNoGuardStart requires a Buff environment`);
     }
-    // combat-spec：该动作只发布 GameLevelEvent/BattleRecorder 事实；Next 木桩没有其消费者，
+    // 该动作只发布 GameLevelEvent/BattleRecorder 事实；被动木桩没有其消费者，
     // 状态本身由承载 Buff 生命周期表示，故不重复建立另一套状态。
     return [];
   }
@@ -483,7 +483,7 @@ export function compileActionNode(
     ) {
       throw new Error(`${node.sourcePath}: unsupported AI marker owner`);
     }
-    // combat-spec/ai-marker-action.md：消费者位于敌方主动 AI 行为。Endaxis 的被动单木桩
+    // AI 标记的消费者位于敌方主动 AI 行为。Endaxis 的被动单木桩
     // 不执行该系统；来源字段仍被完整解析，不能伪装为 GameplayTag 或 TimedMarker。
     return [];
   }
@@ -592,7 +592,7 @@ export function compileActionNode(
     if (
       node.body.value.action.events.every(event => event.abilityEvent === 'OnBeforeOutputAirborne')
     ) {
-      // combat-spec 的 1.4.4 AirborneAction 反编译路径只发布通用物理异常事件，
+      // 1.4.4 AirborneAction 反编译路径只发布通用物理异常事件，
       // 明确不合成旧的 OnBeforeOutputAirborne/OnAfterOutputAirborne 事件。
       return [];
     }
@@ -862,7 +862,7 @@ export function compileActionNode(
       {
         kind: 'finishBuffsById',
         parameters: {
-          // combat-spec 的公共 TargetSettings 语义：Buff 环境 Owner 是 Buff 接收者，
+          // TargetSettings：Buff 环境 Owner 是 Buff 接收者，
           // Source 是 Buff 来源。这里保持二者身份，不因多数样本使用 Owner 而合并。
           target,
           buffIds,
@@ -1558,7 +1558,7 @@ export function compileActionNode(
       {
         kind: 'storeSourceAttributeValue',
         parameters: {
-          // combat-spec StoreAttributeValue：Sub 由目标副属性决定，attributeType 此时不参与选择。
+          // StoreAttributeValue：Sub 由目标副属性决定，attributeType 此时不参与选择。
           // 保留动态属性读取，不能把生成时面板或 SkillPatch 等级值固化为快照。
           attribute:
             action.primaryAttributeType === 'Sub'
@@ -1976,7 +1976,7 @@ export function compileActionNode(
           context.staticEnemyTargetGroupKeys?.has(action.target.targetGroupKey) === true));
     if (!targetIsProvenEnemy)
       throw new Error(`${node.sourcePath}: unsupported BoneAttach target projection`);
-    // combat-spec：BoneAttach 只接管目标移动/旋转，临时添加 BeCaught、Undeadable
+    // BoneAttach 只接管目标移动/旋转，临时添加 BeCaught、Undeadable
     // 与地图传送限制，并在结束时恢复。固定敌人是不会死亡或主动移动的唯一木桩，
     // 所有距离又归零；这些状态不会改变对敌伤害、Buff、资源或技能时间轴。
     return [];
@@ -2329,7 +2329,7 @@ function compileBuffApplication(
   ) {
     throw new Error(`${sourcePath}: unsupported CreateBuff inheritance policy`);
   }
-  // combat-spec/create-buff-action-data.md：inheritSourceSkillCastId 不被原生 ExecuteInternal 读取；
+  // CreateBuffAction 的 inheritSourceSkillCastId 不被原生 ExecuteInternal 读取；
   // 实际施放信息继承只由 inheritSourceSkillCastInfo 控制。
   const target: BuffApplicationTarget | null = targetsQueriedSource
     ? 'currentTarget'

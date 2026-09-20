@@ -29,7 +29,7 @@ export interface KnockDownComponentInvocation {
 }
 
 /**
- * combat-spec/knockdown-action.md 的普通倒地数值切片。
+ * 普通倒地动作的数值模拟。
  * 只持有控制阶段和 PeriodicTimer，标签仍在原有 Buff 容器中；不实现敌人动作、朝向或浮空。
  * 宿主必须显式绑定到期策略与实体 delta，不能偷偷用 Buff 时钟或零秒起身替代。
  */

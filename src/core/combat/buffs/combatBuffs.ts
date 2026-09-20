@@ -1461,7 +1461,7 @@ export class CombatBuffContainer<Key extends string> {
       this.#state.memberIds.push(buff.instanceId);
     }
     if (buff === null) return null;
-    // combat-spec/before-output-buff.md：成功事件先于已有关键词增强；刷新旧实例也走成功尾部。
+    // 成功事件先于已有关键词增强；刷新旧实例也走成功尾部。
     afterPublished?.(buff);
     for (const active of this.#iterateBuffs()) {
       if (!active.isFinished) active.applyKeywordEnhancements(definition.id);
@@ -2534,7 +2534,7 @@ function resolveBuffPriority<Key extends string>(
   definition: CombatBuffDefinition<Key>,
   blackboard: ActionBlackboard,
 ): number {
-  // combat-spec/buff-priority-loading.md：Stack 等非优先级类型不会加载残留的配置字段。
+  // Stack 等非优先级类型不会加载残留的配置字段。
   if (
     definition.stackingType !== 'highPriority' &&
     definition.stackingType !== 'highPriorityWithMaxStack'

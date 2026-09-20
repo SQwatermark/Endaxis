@@ -173,7 +173,7 @@ export function parseWeaponSkillLevelOneTags(
   return output;
 }
 
-/** 严格复现 combat-spec 中已确认的非 iFix 武器技能等级算法。 */
+/** 严格复现原生非 iFix 路径的武器技能等级算法。 */
 export function resolveWeaponSkillLevels(
   skillIds: readonly string[],
   breakthroughLevel: number,

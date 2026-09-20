@@ -13,7 +13,7 @@ export interface GameplayTagPredefineTableSource {
   readonly tagName2Immune: Readonly<Record<string, readonly number[]>>;
 }
 
-/** combat-spec GameplayTagPredefineDataAdapter：三个字典及每个载荷都严格读取。 */
+/** 严格读取 GameplayTagPredefineData 的三个字典及各自载荷。 */
 export function parseGameplayTagPredefineTableSource(
   value: unknown,
   path: string,

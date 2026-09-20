@@ -337,7 +337,6 @@ function compileWeaponAbilityBlackboard(
 
 // 编译期身份：相同 Buff/赋值不代表相同安装阶段。Ability.Enable 的普通启动安装
 // 在响应启用前，Toggle.DoEnable 的首次安装在响应启用后；不可跨阶段合并。
-// 证据：combat-spec/docs/ability-enable-event-order.md。
 type PlannedBuffInstallation = MaterializedPassiveBuffInstallationSource<LevelValues> & {
   readonly phase: 'beforeEnable' | 'afterEnable';
 };

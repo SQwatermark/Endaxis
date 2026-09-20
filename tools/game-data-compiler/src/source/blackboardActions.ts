@@ -6,7 +6,7 @@ import {
   requireRecord,
 } from './primitives.ts';
 
-// combat-spec/docs/compound-status-action-contracts.md：OperationType 元数据常量。
+// OperationType 的原生元数据常量。
 const BLACKBOARD_OPERATIONS = new Map([
   [0, 'Assign'],
   [1, 'Add'],
@@ -89,7 +89,7 @@ export interface EntityPropertySnapshotActionSource {
   readonly outputKey: string;
 }
 
-/** 严格读取 StoreEntityProperty；属性枚举及公式字段来自 combat-spec 的原生适配证据。 */
+/** 严格读取 StoreEntityProperty 的属性枚举及公式字段。 */
 export function parseEntityPropertySnapshotActionSource(
   value: unknown,
   path: string,

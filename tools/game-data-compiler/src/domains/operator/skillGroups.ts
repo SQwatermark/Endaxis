@@ -111,7 +111,7 @@ export function parseOperatorSkillGroupValidationOptions(
   };
 }
 
-/** 按 combat-spec 的相同字段边界严格读取原生技能等级组。 */
+/** 严格读取原生技能等级组的字段。 */
 export function parseNativeOperatorSkillGroupSources(
   tableValue: unknown,
   characterId: string,

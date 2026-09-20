@@ -48,7 +48,7 @@ export function compileAbilityEntityChildSkillSource(
       actionOwnerTarget: 'currentAbilityEntity',
       actionSourceTarget: 'caster',
       actionTargetTarget: 'enemy',
-      // combat-spec/spawn-ability-entity.md：装配器只会把
+      // SpawnAbilityEntity 装配器只会把
       // inheritSourceSkillCastId=true 的 Spawn 绑定为子技能。原生 OnSpawn
       // 把该 SkillCastInfo 保存到控制器，并用同一份值 TryCast 实体技能。
       actionEnvironmentSkillCastInfoIsSourceCast: true,

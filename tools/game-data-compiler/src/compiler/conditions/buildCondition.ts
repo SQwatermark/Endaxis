@@ -18,7 +18,7 @@ export interface CompiledBuildConditionGroupSource {
   readonly conditions: readonly CompiledBuildConditionSource[];
 }
 
-/** 14010 是 combat-spec 已确认的 CompareCharDeckAttr；其他 condType 不猜语义。 */
+/** 14010 对应原生 CompareCharDeckAttr；其他 condType 不猜语义。 */
 export function compileBuildConditionSource(
   source: SkillConditionSource,
 ): CompiledBuildConditionSource {

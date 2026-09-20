@@ -2,7 +2,7 @@ import {
   COMBAT_OBJECT_TYPES,
   type CombatObjectTypeSelection,
 } from '../../../../packages/game-data-contract/src/primitives.ts';
-/** 1.4.4 ObjectType 身份；证据：combat-spec Runtime/CombatEntity.cs、CheckObjectTypeMatchAction.cs。 */
+/** 1.4.4 ObjectType 身份，对应 CombatEntity 与 CheckObjectTypeMatchAction 的类型判断。 */
 const OBJECT_TYPES: Readonly<Record<string, number>> = {
   All: -1,
   Invalid: 1,

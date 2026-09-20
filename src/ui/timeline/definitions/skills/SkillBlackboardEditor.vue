@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ElIcon } from 'element-plus';
 /**
  * 编辑技能每次释放时初始化的动作黑板。
  * 键是技能内部稳定身份；逐级数值显式编辑，不隐式补齐不存在的等级。

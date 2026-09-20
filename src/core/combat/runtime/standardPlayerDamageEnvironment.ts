@@ -1945,7 +1945,7 @@ export class StandardPlayerDamageEnvironment {
       reason,
     });
     if (reason === 'early' || reason === 'ignite') {
-      // combat-spec/consume-buff-single：提前消费在 OnFinishedBuff 之后同步广播
+      // ConsumeBuffSingle 提前消费在 OnFinishedBuff 之后同步广播
       // OnBuffEndsEarly，并携带同一 FinishBuffEventData。
       this.#emit(ownerId, 'buffEndsEarly', {
         buff,

@@ -5,7 +5,7 @@ import { TimedMarkerOperationExecutor } from '../status/timedMarkerOperationExec
 import { ActionBlackboard } from '../actions/actionBlackboard';
 import type { ResolvedCombatOperationStep } from '../../compiler/combatProgram';
 
-describe('战斗级全局冷却（combat-spec GlobalCooldownTests 对应行为）', () => {
+describe('战斗级全局冷却', () => {
   it('恢复同帧清理位置，不提前删除刚写入的过期项，也不保留另一分支的刷新', () => {
     const clock = { time: 1 };
     const original = new GlobalCooldowns(clock);
