@@ -24,7 +24,7 @@ jobs:
           - os: ubuntu-latest
             node: '22.12.0'
           - os: windows-latest
-            node: '24'
+            node: '22.12.0'
     env:
       HUSKY: '0'
     steps:
