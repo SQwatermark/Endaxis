@@ -1,6 +1,6 @@
 import { expect, it } from 'vitest';
 import { prepareLegacySource, type ConversionMappings } from './sourcePreparation';
-import mappingData from './mappings.2026-08-31.json';
+import mappingData from './mappings.json';
 // JSON 导入会把 kind 扩宽为 string；目标身份另由 mappings.test.ts 逐条校验。
 const fullMappings = mappingData as ConversionMappings;
 const source = { skillId: 'battleSkill', sourceSkillKey: 'battleSkill', type: 'battleSkill' };

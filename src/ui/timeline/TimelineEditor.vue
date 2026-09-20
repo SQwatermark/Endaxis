@@ -1030,7 +1030,7 @@ async function openProjectContent(content: string): Promise<boolean> {
       try {
         const [{ convertLegacyTimeline }, { default: legacyMappings }] = await Promise.all([
           import('../../application/legacyTimeline/convert'),
-          import('../../application/legacyTimeline/mappings.2026-08-31.json'),
+          import('../../application/legacyTimeline/mappings.json'),
         ]);
         const conversion = convertLegacyTimeline(
           parsedInput,
@@ -6059,6 +6059,7 @@ function setPanelDialogVisible(visible: boolean): void {
             lowerBuffs: t('timeline.header.viewLayers.lowerBuffs'),
             gauge: t('timeline.header.viewLayers.gauge'),
             skillDecorations: t('timeline.header.viewLayers.skillDecorations'),
+            skillErrors: t('timeline.header.viewLayers.skillErrors'),
             hitMarkers: t('timeline.header.viewLayers.hitMarkers'),
             comboWindows: t('timeline.header.viewLayers.comboWindows'),
             switchMarkers: t('timeline.header.viewLayers.switchMarkers'),
@@ -6887,9 +6888,10 @@ function setPanelDialogVisible(visible: boolean): void {
                   :connection-source-action-id="connectionDrag?.skillCastId ?? null"
                   :connection-target-valid="isConnectionTargetValid(cast.id)"
                   :warning="
-                    (compatibleSkillCastReceiptIds.has(cast.id) &&
+                    timelineViewLayers.skillErrors &&
+                    ((compatibleSkillCastReceiptIds.has(cast.id) &&
                       diagnosticsByCastId.has(cast.id)) ||
-                    cast.resolutionIssue !== undefined
+                      cast.resolutionIssue !== undefined)
                   "
                   :warning-text="cast.resolutionIssue ?? castWarningTitle(cast.id)"
                   :warning-fallback-text="t('common.warning')"
@@ -7718,6 +7720,10 @@ function setPanelDialogVisible(visible: boolean): void {
     @update:visible="buffDetailTarget = $event ? buffDetailTarget : null"
   />
   <TimelineOperatorPassiveUiDetailDialog
+    :receipt-entries="publishedReceiptEntries"
+    :operator-label="publishedOperatorInstanceName"
+    :object-icon="publishedObjectIcon"
+    :action-presentation="publishedActionPresentation"
     v-if="passiveUiDetailSegment !== null"
     :visible="passiveUiDetailSegment !== null"
     :segment="passiveUiDetailSegment"

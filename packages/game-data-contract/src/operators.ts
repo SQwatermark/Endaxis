@@ -422,59 +422,70 @@ export interface OperatorEntityBlackboardInitializerDefinition {
 }
 
 /** 原生角色专属 HUD 的可读外观身份；纹理路径和动画参数仍由 UI 资产层维护。 */
-export type OperatorPassiveUiAppearance = OperatorPassiveUiDefinition['appearance'];
+export type OperatorPassiveUiAppearance = Extract<
+  OperatorPassiveUiDefinition,
+  { appearance: string }
+>['appearance'];
 
-/** 角色专属 HUD 可以读取的状态及其外观。 */
-export interface OperatorPassiveUiDefinitionMap {
-  /** 显示一个数值计数的角色专属 HUD。 */
-  numeric: {
-    /** 保留已有箭矢数值展示兼容；原生Typhoea prefab投影使用buffCounters。 */
-    readonly kind: 'numeric';
-    /** 可选择的角色专属外观。 */
-    readonly appearance:
-      | 'tangtangDroplets'
-      | 'laevatainCounter'
-      | 'zhuangFangyiThunder'
-      | 'arcaneSigils'
-      | 'typhoeaArrows';
-    /** 计数显示的上限。 */
-    readonly maximum: number;
-    /** 达到该值时原生节点进入满层/强化状态；没有独立满层态时省略。 */
-    readonly activeAt?: number;
-  };
-  /** 显示普通状态与终结技状态 Buff 进度的 HUD。 */
-  buffProgress: {
-    /** HUD 类型判别值。 */
-    readonly kind: 'buffProgress';
-    /** 使用的角色专属外观。 */
-    readonly appearance: 'liinoMusic';
-    /** 普通状态读取的 Buff ID。 */
-    readonly normalBuffId: string;
-    /** 终结技状态读取的 Buff ID。 */
-    readonly ultimateBuffId: string;
-  };
-  /** 同时显示多种 Buff 层数的角色专属 HUD。 */
-  buffCounters: {
-    /** Typhoea 原生 HUD 同时观察三种 Buff 层数；不复制为独立战斗状态。 */
-    readonly kind: 'buffCounters';
-    /** 使用的角色专属外观。 */
-    readonly appearance: 'typhoeaArrows';
-    /** 后备箭层数对应的 Buff ID。 */
-    readonly reserveArrowBuffId: string;
-    /** 战斗箭层数对应的 Buff ID。 */
-    readonly battleArrowBuffId: string;
-    /** 点数层数对应的 Buff ID。 */
-    readonly pointBuffId: string;
-    /** 箭数量显示上限。 */
-    readonly maximumArrows: number;
-    /** 点数显示上限。 */
-    readonly maximumPoints: number;
-  };
+/** 读取 NotifyCharPassiveUIAction 发布的数值；不从 Buff 层数或能力实体推算状态。 */
+export interface NumericPassiveUiDefinition {
+  /** 运行时通过 CharacterPassiveUiValueChanged 回执提供当前干员的显示数值。 */
+  readonly kind: 'numeric';
+  /** 可选择的角色专属外观。 */
+  readonly appearance:
+    'tangtangDroplets' | 'laevatainCounter' | 'zhuangFangyiThunder' | 'arcaneSigils';
+  /** 计数显示的上限。 */
+  readonly maximum: number;
+  /** 达到该值时原生节点进入满层/强化状态；没有独立满层态时省略。 */
+  readonly activeAt?: number;
+}
+
+/** 原生 UICharPassiveLiino：观察两种演唱姿态 Buff。 */
+export interface LiinoPassiveUiDefinition {
+  /** HUD 类型判别值。 */
+  readonly kind: 'buffProgress';
+  /** 使用的角色专属外观。 */
+  readonly appearance: 'liinoMusic';
+  /** 普通状态读取的 Buff ID。 */
+  readonly normalBuffId: string;
+  /** 终结技状态读取的 Buff ID。 */
+  readonly ultimateBuffId: string;
+}
+
+/** 原生 UICharPassiveTyphoea：观察后备猎矢、战斗猎矢与启示。 */
+export interface TyphoeaPassiveUiDefinition {
+  /** Typhoea 原生 HUD 同时观察三种 Buff 层数；不复制为独立战斗状态。 */
+  readonly kind: 'buffCounters';
+  /** 使用的角色专属外观。 */
+  readonly appearance: 'typhoeaArrows';
+  /** 后备箭层数对应的 Buff ID。 */
+  readonly reserveArrowBuffId: string;
+  /** 战斗箭层数对应的 Buff ID。 */
+  readonly battleArrowBuffId: string;
+  /** 点数层数对应的 Buff ID。 */
+  readonly pointBuffId: string;
+  /** 箭数量显示上限。 */
+  readonly maximumArrows: number;
+  /** 点数显示上限。 */
+  readonly maximumPoints: number;
+}
+
+/** 显示归属当前干员、匹配定义的在场能力实体数量；不创建战斗状态。 */
+export interface AbilityEntityCountPassiveUiDefinition {
+  readonly kind: 'abilityEntityCount';
+  readonly abilityEntityId: string;
+  /** 图标资源路径。 */
+  readonly icon: string;
+  /** 实体显示名称的 i18n 键。 */
+  readonly nameKey: string;
 }
 
 /** 任意一种角色专属 HUD 定义。 */
 export type OperatorPassiveUiDefinition =
-  OperatorPassiveUiDefinitionMap[keyof OperatorPassiveUiDefinitionMap];
+  | NumericPassiveUiDefinition
+  | LiinoPassiveUiDefinition
+  | TyphoeaPassiveUiDefinition
+  | AbilityEntityCountPassiveUiDefinition;
 
 /** 原生角色常驻条件；独立于技能块，也不复用旧手写语义连携规则。 */
 export interface ComboSkillConditionDefinition {

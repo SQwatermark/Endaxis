@@ -232,6 +232,15 @@ export function collectOperatorDefinitionReferences(
   }
 
   const presentation = definition.passiveUi;
+  if (presentation?.kind === 'abilityEntityCount' && presentation.abilityEntityId) {
+    references.push({
+      kind: 'entity',
+      id: presentation.abilityEntityId,
+      path: 'passiveUi.abilityEntityId',
+      ownerKind: 'operator',
+      ownerId: definition.slug,
+    });
+  }
   const presentationBuffs =
     presentation?.kind === 'buffProgress'
       ? { normalBuffId: presentation.normalBuffId, ultimateBuffId: presentation.ultimateBuffId }

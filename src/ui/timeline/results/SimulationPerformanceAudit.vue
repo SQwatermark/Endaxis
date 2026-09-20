@@ -22,7 +22,7 @@ const props = defineProps<{
 }>();
 
 const CHART_WIDTH = 360;
-const CHART_HEIGHT = 42;
+const CHART_HEIGHT = 72;
 const MAX_VISIBLE_SAMPLES = 30;
 const recentSamples = computed(() => props.samples.slice(-MAX_VISIBLE_SAMPLES));
 const summary = computed(() => summarizeSimulationPerformance(props.samples, props.budgetMs));
@@ -69,29 +69,36 @@ function formatPercent(value: number | null): string {
 <template>
   <section class="performance-audit" :aria-label="labels.title">
     <header class="performance-audit__header">
-      <div class="performance-audit__title">
-        {{ labels.title }}
+      <div class="performance-audit__heading-row">
+        <span class="performance-audit__heading-bar" aria-hidden="true"></span>
+        <h3>{{ labels.title }}</h3>
         <span class="performance-audit__count">{{ summary.sampleCount }}</span>
       </div>
-      <dl class="performance-audit__metrics">
-        <div>
-          <dt>{{ labels.latest }}</dt>
-          <dd>{{ formatMs(summary.latestMs) }}</dd>
-        </div>
-        <div>
-          <dt>{{ labels.p95 }}</dt>
-          <dd :class="{ 'is-over-budget': (summary.p95Ms ?? 0) > budgetMs }">
-            {{ formatMs(summary.p95Ms) }}
-          </dd>
-        </div>
-        <div>
-          <dt>{{ labels.cacheHit }}</dt>
-          <dd>{{ formatPercent(summary.cacheHitRate) }}</dd>
-        </div>
-      </dl>
+      <div class="performance-audit__heading-divider" aria-hidden="true"></div>
     </header>
 
-    <div v-if="recentSamples.length > 0" class="performance-audit__chart-wrap">
+    <dl class="performance-audit__metrics">
+      <div>
+        <dt>{{ labels.latest }}</dt>
+        <dd>{{ formatMs(summary.latestMs) }}</dd>
+      </div>
+      <div>
+        <dt>{{ labels.p95 }}</dt>
+        <dd :class="{ 'is-over-budget': (summary.p95Ms ?? 0) > budgetMs }">
+          {{ formatMs(summary.p95Ms) }}
+        </dd>
+      </div>
+      <div>
+        <dt>{{ labels.cacheHit }}</dt>
+        <dd>{{ formatPercent(summary.cacheHitRate) }}</dd>
+      </div>
+    </dl>
+
+    <div v-if="recentSamples.length > 0" class="performance-audit__chart-section">
+      <div class="performance-audit__chart-heading">
+        <span>{{ labels.budget }}</span>
+        <strong>{{ budgetMs.toFixed(1) }} ms</strong>
+      </div>
       <svg
         class="performance-audit__chart"
         :viewBox="`0 0 ${CHART_WIDTH} ${CHART_HEIGHT}`"
@@ -144,12 +151,6 @@ function formatPercent(value: number | null): string {
           />
         </g>
       </svg>
-      <span
-        class="performance-audit__budget-label"
-        :style="{ bottom: `${(budgetMs / chartMaximum) * 100}%` }"
-      >
-        {{ labels.budget }} {{ budgetMs }}ms
-      </span>
     </div>
     <div v-else class="performance-audit__empty">{{ labels.noSamples }}</div>
 
@@ -163,74 +164,121 @@ function formatPercent(value: number | null): string {
 
 <style scoped>
 .performance-audit {
-  padding: 7px 10px 6px;
-  border-bottom: 1px solid var(--ea-border-soft);
-  background: color-mix(in srgb, var(--ea-fill-soft) 35%, transparent);
-  font-size: 10px;
+  height: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+  padding: var(--ea-space-3);
+  overflow-y: auto;
+  background: var(--ea-workbench-panel);
+  color: var(--ea-fg);
+  font-size: 13px;
 }
 
 .performance-audit__header {
+  min-width: 0;
   display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 25px;
+  flex-direction: column;
+  gap: var(--ea-space-1);
 }
 
-.performance-audit__title {
-  flex: 1;
-  min-width: 90px;
+.performance-audit__heading-row {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--ea-space-2);
+}
+
+.performance-audit__heading-bar {
+  width: 4px;
+  height: 18px;
+  flex: none;
+  background: var(--ea-gold);
+}
+
+.performance-audit__heading-row h3 {
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
   color: var(--ea-fg);
-  font-size: 11px;
-  font-weight: 700;
+  font-size: 18px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.performance-audit__heading-divider {
+  height: 2px;
+  margin-top: 3px;
+  background: linear-gradient(90deg, var(--ea-gold), transparent);
+  opacity: 0.3;
 }
 
 .performance-audit__count {
-  margin-left: 4px;
+  margin-left: auto;
   color: var(--ea-fg-muted);
   font-variant-numeric: tabular-nums;
-  font-weight: 400;
+  font-size: 11px;
 }
 
 .performance-audit__metrics {
-  display: flex;
-  gap: 16px;
-  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin: 14px 0 0;
 }
 
 .performance-audit__metrics > div {
-  display: grid;
-  grid-template-columns: auto auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
   gap: 5px;
+  padding: 8px;
+  border: 1px solid var(--ea-border-soft);
+  background: var(--ea-fill-soft);
 }
 
 .performance-audit__metrics dt {
   color: var(--ea-fg-muted);
+  overflow-wrap: anywhere;
 }
 
 .performance-audit__metrics dd {
-  min-width: 38px;
   margin: 0;
   color: var(--ea-fg);
-  text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 700;
+  white-space: nowrap;
 }
 
 .performance-audit__metrics dd.is-over-budget {
   color: #ff7875;
 }
 
-.performance-audit__chart-wrap {
-  position: relative;
-  height: 42px;
-  margin-top: 4px;
+.performance-audit__chart-section {
+  min-width: 0;
+  margin-top: 18px;
+}
+
+.performance-audit__chart-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+  color: var(--ea-fg-muted);
+}
+
+.performance-audit__chart-heading strong {
+  color: var(--ea-fg);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
 }
 
 .performance-audit__chart {
   display: block;
   width: 100%;
-  height: 100%;
-  overflow: visible;
+  height: 72px;
+  overflow: hidden;
 }
 
 .performance-audit__budget-line {
@@ -264,27 +312,18 @@ function formatPercent(value: number | null): string {
   vector-effect: non-scaling-stroke;
 }
 
-.performance-audit__budget-label {
-  position: absolute;
-  right: 2px;
-  padding-left: 4px;
-  transform: translateY(50%);
-  background: var(--ea-bg);
-  color: #ff7875;
-  line-height: 12px;
-}
-
 .performance-audit__empty {
   display: grid;
-  height: 36px;
+  min-height: 88px;
   place-items: center;
   color: var(--ea-fg-muted);
 }
 
 .performance-audit__legend {
   display: flex;
-  gap: 12px;
-  margin-top: 5px;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  margin-top: 12px;
   color: var(--ea-fg-muted);
 }
 

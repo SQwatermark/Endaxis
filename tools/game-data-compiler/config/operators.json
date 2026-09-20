@@ -564,6 +564,12 @@
     },
     {
       "slug": "xaihi",
+      "passiveUi": {
+        "kind": "abilityEntityCount",
+        "abilityEntityId": "abilityentity_chr_0011_seraph_normal_skill",
+        "icon": "/operators/xaihi/battle.webp",
+        "nameKey": "effects.name.auxiliaryCrystal"
+      },
       "exportName": "xaihiGeneratedSource",
       "gameId": "XAIHI",
       "charId": "chr_0011_seraph",

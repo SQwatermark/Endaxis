@@ -557,6 +557,7 @@
         "lowerBuffs": "Lower track effects",
         "gauge": "Ultimate charge curve",
         "skillDecorations": "Skill decorations",
+        "skillErrors": "Skill error hints",
         "hitMarkers": "Hit markers",
         "comboWindows": "Combo windows",
         "switchMarkers": "Switch markers",

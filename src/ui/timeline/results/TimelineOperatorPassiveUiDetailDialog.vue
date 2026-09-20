@@ -6,12 +6,21 @@ import { useI18n } from 'vue-i18n';
 import type { PositionedOperatorPassiveUiTimelineSegment } from '../../../core/projection/operatorPassiveUiTimelineViz';
 import InputRegionBoundary from '../../keyboard/InputRegionBoundary.vue';
 import OperatorPassiveUiWidget from './OperatorPassiveUiWidget.vue';
+import CombatObjectOriginGraph from './CombatObjectOriginGraph.vue';
+import type { CombatReceiptEntry } from '../../../core/combat/receipt/combatReceipt';
 
 const props = defineProps<{
   visible: boolean;
   segment: PositionedOperatorPassiveUiTimelineSegment | null;
   title: string;
   fps: number;
+  receiptEntries?: readonly CombatReceiptEntry[];
+  operatorLabel?: (operatorId: string) => string;
+  objectIcon?: import('./combatObjectIcons').CombatObjectIconResolver;
+  actionPresentation?: (
+    ownerId: string,
+    actionId: string,
+  ) => { name: string; kind: string } | undefined;
 }>();
 
 const emit = defineEmits<{
@@ -29,9 +38,28 @@ const numericValueLabel = computed(() => {
 });
 
 const description = computed(() => {
-  if (props.segment === null) return '';
+  if (props.segment === null || props.segment.kind === 'abilityEntityCount') return '';
   return t(`timeline.passiveUi.descriptions.${props.segment.appearance}`);
 });
+const sourceSequence = computed(() => {
+  let sequence = 0;
+  for (const entry of props.receiptEntries ?? []) {
+    if (entry.frame > (props.segment?.startFrame ?? 0)) break;
+    sequence = entry.sequence;
+  }
+  return sequence;
+});
+const entityIcon: import('./combatObjectIcons').CombatObjectIconResolver = (node, sequence) => {
+  const segment = props.segment;
+  const ref = node.ref;
+  if (
+    segment?.kind === 'abilityEntityCount' &&
+    ref.kind === 'abilityEntity' &&
+    segment.entities.some(entity => entity.instanceId === ref.instanceId)
+  )
+    return segment.icon;
+  return props.objectIcon?.(node, sequence);
+};
 
 function seconds(frames: number): string {
   if (!Number.isFinite(props.fps) || props.fps <= 0) return '—';
@@ -52,7 +80,15 @@ function seconds(frames: number): string {
       <template v-if="segment !== null">
         <header class="passive-detail__header">
           <span class="passive-detail__preview">
+            <img
+              v-if="segment.kind === 'abilityEntityCount'"
+              :src="segment.icon"
+              alt=""
+              width="44"
+              height="44"
+            />
             <OperatorPassiveUiWidget
+              v-else
               :appearance="segment.appearance"
               :active="segment.kind === 'numeric' && segment.active"
               :mode="segment.kind === 'buffProgress' ? segment.mode : undefined"
@@ -78,10 +114,14 @@ function seconds(frames: number): string {
           <strong>{{ title }}</strong>
         </header>
 
-        <p class="passive-detail__description">{{ description }}</p>
+        <p v-if="description" class="passive-detail__description">{{ description }}</p>
 
         <dl class="passive-detail__facts">
-          <template v-if="segment.kind === 'numeric'">
+          <template v-if="segment.kind === 'abilityEntityCount'">
+            <dt>{{ t(segment.nameKey) }}</dt>
+            <dd>× {{ segment.entities.length }}</dd>
+          </template>
+          <template v-else-if="segment.kind === 'numeric'">
             <dt>{{ numericValueLabel }}</dt>
             <dd>{{ segment.value }} / {{ segment.maximum }}</dd>
           </template>
@@ -111,6 +151,19 @@ function seconds(frames: number): string {
             {{ t('timeline.buffDetail.frames', { value: durationFrames }) }}
           </dd>
         </dl>
+        <template v-if="segment.kind === 'abilityEntityCount'">
+          <div v-for="entity in segment.entities" :key="entity.instanceId">
+            <span>{{ t(segment.nameKey) }} #{{ entity.instanceId }}</span>
+            <CombatObjectOriginGraph
+              :root="entity"
+              :sequence="sourceSequence"
+              :receipt-entries="receiptEntries"
+              :operator-label="operatorLabel"
+              :object-icon="entityIcon"
+              :action-presentation="actionPresentation"
+            />
+          </div>
+        </template>
       </template>
     </EaDialog>
   </InputRegionBoundary>

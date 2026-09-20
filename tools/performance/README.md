@@ -1,5 +1,7 @@
 # 真实轴性能基线
 
+本目录为开发用离线诊断工具，不参与网页打包。类型检查：`npx tsc -p tools/performance/tsconfig.json`。
+
 仓库根目录执行（只读项目文件，报告写标准输出）：
 
 ```powershell

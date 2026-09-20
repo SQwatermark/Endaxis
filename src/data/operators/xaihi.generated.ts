@@ -1006,6 +1006,12 @@ export const xaihi: OperatorDefinition = {
     baseAttack: [30, 86, 144, 203, 262, 291],
     baseHealth: [500, 1566, 2689, 3811, 4934, 5495],
   },
+  passiveUi: {
+    kind: 'abilityEntityCount',
+    abilityEntityId: 'abilityentity_chr_0011_seraph_normal_skill',
+    icon: '/operators/xaihi/battle.webp',
+    nameKey: 'effects.name.auxiliaryCrystal',
+  },
   skillGroups: [
     {
       key: 'basicAttack',

@@ -335,11 +335,13 @@ function patchSkillBlackboard(
   });
 }
 
-function multiplySkillCost(
-  programs: readonly CompiledSkillProgram[],
+export function multiplySkillCost<
+  T extends Pick<CompiledSkillProgram, 'skillId' | 'executionSkillId' | 'skillGroupKey' | 'costs'>,
+>(
+  programs: readonly T[],
   modifier: Extract<UpgradeModifierDefinition, { kind: 'multiplySkillCost' }>,
   path: string,
-): readonly CompiledSkillProgram[] {
+): readonly T[] {
   requireMultiplier(modifier.multiplier, `${path}.multiplier`);
   const targets = programs.filter(
     program =>

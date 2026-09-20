@@ -1,4 +1,11 @@
-import type { OperatorPassiveUiDefinitionMap } from '../../../packages/game-data-contract/src/operators';
+import type {
+  NumericPassiveUiDefinition,
+  LiinoPassiveUiDefinition,
+  TyphoeaPassiveUiDefinition,
+  AbilityEntityCountPassiveUiDefinition,
+} from '../../../packages/game-data-contract/src/operators';
+import { projectAbilityEntityCountStatus } from './abilityEntityCountStatus';
+import type { AbilityEntityTargetRef } from '../game-data/logicalAbilityEntity';
 /**
  * 把干员专属 UI 的离散回执投影成时间轴持续段。
  *
@@ -14,9 +21,15 @@ export interface OperatorPassiveUiTimelineSource {
 }
 
 export type OperatorPassiveUiTimelineSegment =
+  | (AbilityEntityCountPassiveUiDefinition & {
+      readonly operatorId: string;
+      readonly startFrame: number;
+      readonly endFrame: number;
+      readonly entities: readonly AbilityEntityTargetRef[];
+    })
   | {
       readonly kind: 'numeric';
-      readonly appearance: OperatorPassiveUiDefinitionMap['numeric']['appearance'];
+      readonly appearance: NumericPassiveUiDefinition['appearance'];
       readonly operatorId: string;
       readonly startFrame: number;
       readonly endFrame: number;
@@ -26,7 +39,7 @@ export type OperatorPassiveUiTimelineSegment =
     }
   | {
       readonly kind: 'buffProgress';
-      readonly appearance: OperatorPassiveUiDefinitionMap['buffProgress']['appearance'];
+      readonly appearance: LiinoPassiveUiDefinition['appearance'];
       readonly operatorId: string;
       readonly startFrame: number;
       readonly endFrame: number;
@@ -36,7 +49,7 @@ export type OperatorPassiveUiTimelineSegment =
     }
   | {
       readonly kind: 'buffCounters';
-      readonly appearance: OperatorPassiveUiDefinitionMap['buffCounters']['appearance'];
+      readonly appearance: TyphoeaPassiveUiDefinition['appearance'];
       readonly operatorId: string;
       readonly startFrame: number;
       readonly endFrame: number;
@@ -74,7 +87,7 @@ function projectNumericSegments(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
   source: OperatorPassiveUiTimelineSource & {
-    readonly definition: OperatorPassiveUiDefinitionMap['numeric'];
+    readonly definition: NumericPassiveUiDefinition;
   },
 ): readonly OperatorPassiveUiTimelineSegment[] {
   const segments: OperatorPassiveUiTimelineSegment[] = [];
@@ -115,11 +128,11 @@ function projectNumericSegments(
   return segments;
 }
 
-function projectBuffProgressSegments(
+function projectLiinoSegments(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
   source: OperatorPassiveUiTimelineSource & {
-    readonly definition: OperatorPassiveUiDefinitionMap['buffProgress'];
+    readonly definition: LiinoPassiveUiDefinition;
   },
 ): readonly OperatorPassiveUiTimelineSegment[] {
   type OpenSegment = Extract<OperatorPassiveUiTimelineSegment, { readonly kind: 'buffProgress' }>;
@@ -178,11 +191,11 @@ function counterValue(entry: CombatReceiptEntry, maximum: number): number | unde
   return normalizedNumericValue(numberData(entry.data, 'layers') ?? 1, maximum);
 }
 
-function projectBuffCounterSegments(
+function projectTyphoeaSegments(
   entries: readonly CombatReceiptEntry[],
   endFrame: number,
   source: OperatorPassiveUiTimelineSource & {
-    readonly definition: OperatorPassiveUiDefinitionMap['buffCounters'];
+    readonly definition: TyphoeaPassiveUiDefinition;
   },
 ): readonly OperatorPassiveUiTimelineSegment[] {
   const segments: OperatorPassiveUiTimelineSegment[] = [];
@@ -238,18 +251,31 @@ export function projectOperatorPassiveUiTimelineViz(
   }
   return sources.flatMap(source => {
     switch (source.definition.kind) {
+      case 'abilityEntityCount': {
+        const definition = source.definition;
+        return projectAbilityEntityCountStatus(
+          entries,
+          endFrame,
+          source.operatorId,
+          definition.abilityEntityId,
+        ).segments.map(segment => ({
+          ...definition,
+          ...segment,
+          operatorId: source.operatorId,
+        }));
+      }
       case 'numeric':
         return projectNumericSegments(entries, endFrame, {
           ...source,
           definition: source.definition,
         });
       case 'buffProgress':
-        return projectBuffProgressSegments(entries, endFrame, {
+        return projectLiinoSegments(entries, endFrame, {
           ...source,
           definition: source.definition,
         });
       case 'buffCounters':
-        return projectBuffCounterSegments(entries, endFrame, {
+        return projectTyphoeaSegments(entries, endFrame, {
           ...source,
           definition: source.definition,
         });

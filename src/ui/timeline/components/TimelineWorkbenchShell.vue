@@ -364,6 +364,14 @@ watch(
           icon="/icons/btn_week_raid.webp"
         />
         <EaActivityRailButton
+          class="activity-button activity-button--battle-log"
+          side="right"
+          :active="!rightCollapsed && rightTool === 'battleLog'"
+          :label="props.labels.battleLog"
+          @click="selectRight('battleLog')"
+          icon="/icons/btn_manual.webp"
+        />
+        <EaActivityRailButton
           class="activity-button activity-button--performance"
           side="right"
           :active="!rightCollapsed && rightTool === 'performance'"
@@ -376,20 +384,13 @@ watch(
               viewBox="0 0 24 24"
               aria-hidden="true"
             >
-              <path d="M4 18a8 8 0 1 1 16 0" />
-              <path d="m12 14 4-4" />
-              <path d="M7 18h10" />
+              <path d="M3 20h18" />
+              <rect x="5" y="12" width="3" height="6" />
+              <rect x="11" y="7" width="3" height="11" />
+              <rect x="17" y="10" width="3" height="8" />
             </svg>
           </template>
         </EaActivityRailButton>
-        <EaActivityRailButton
-          class="activity-button activity-button--battle-log"
-          side="right"
-          :active="!rightCollapsed && rightTool === 'battleLog'"
-          :label="props.labels.battleLog"
-          @click="selectRight('battleLog')"
-          icon="/icons/btn_manual.webp"
-        />
       </div>
     </aside>
   </div>
@@ -462,9 +463,14 @@ watch(
 .activity-performance-icon {
   fill: none;
   stroke: currentColor;
-  stroke-width: 1.7;
+  stroke-width: 1.2;
   stroke-linecap: square;
   stroke-linejoin: miter;
+}
+
+.activity-performance-icon rect {
+  fill: currentColor;
+  stroke: none;
 }
 
 .workbench-panel {

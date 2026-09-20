@@ -1,5 +1,5 @@
 import { expect, it } from 'vitest';
-import mappings from './mappings.2026-08-31.json';
+import mappings from './mappings.json';
 import { gameDataRepository } from '../../data/gameDataRepository';
 import { legacySkillIdentity } from './sourcePreparation';
 

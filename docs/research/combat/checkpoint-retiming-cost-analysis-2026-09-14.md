@@ -3,7 +3,7 @@
 ## 测量范围
 
 Windows 笔记本、PowerShell、Node v24.13.0，当前 `refactor/common-game-data` 未提交工作树。
-使用 `Endaxis_Timeline_2026-08-31.json` 和 `mappings.2026-08-31.json`，共三场景、102 技能、
+使用 `Endaxis_Timeline_2026-08-31.json` 和 `src/application/legacyTimeline/mappings.json`，共三场景、102 技能、
 127 候选、128 试跑分支。串行执行，先暖机，再计时三次；每轮开始前显式 GC。
 
 计时包含 `convertLegacyTimeline` 全部同步工作，不包含模块加载、读写文件、产物一致性比较。

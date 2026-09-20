@@ -1269,6 +1269,14 @@ function compileAbilityEntityChildSkill(
   };
 }
 
+/** 仅解析等级化费用，供资源上限展示与完整技能编译共用。 */
+export function compileSkillCosts(skill: Pick<SkillDefinition, 'costs'>, skillLevel: number) {
+  return (skill.costs ?? []).map((cost, index) => ({
+    resource: cost.resource,
+    value: resolveLevelValue(cost.value, skillLevel, `costs[${index}].value`),
+  }));
+}
+
 export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
   if (!Number.isInteger(input.skillLevel) || input.skillLevel <= 0) {
     throw new RangeError('skillLevel must be a positive integer');
@@ -1291,10 +1299,7 @@ export function compileSkill(input: CompileSkillInput): CompiledSkillProgram {
       `skill '${input.skill.key}' uses legacy eventHandlers without a listener interval`,
     );
   }
-  const costs = (input.skill.costs ?? []).map((cost, index) => ({
-    resource: cost.resource,
-    value: resolveLevelValue(cost.value, input.skillLevel, `costs[${index}].value`),
-  }));
+  const costs = compileSkillCosts(input.skill, input.skillLevel);
   const initialBlackboard = compileSkillBlackboard(
     input.skill.blackboard,
     input.skillLevel,

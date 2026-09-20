@@ -1,5 +1,7 @@
 # Inspector 元数据与属性编辑架构
 
+工具自身的类型检查：`npx tsc -p tools/inspector-schema/tsconfig.json`。
+
 ## 目标与五层职责
 
 采用游戏引擎属性编辑器架构。权威结构位于 packages/game-data-contract；不得向契约或战斗运行时引入 Vue、显示名称或编译器依赖。

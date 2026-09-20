@@ -19,7 +19,8 @@ describe('operator passive UI timeline retention', () => {
     expect(bandsSource).toContain('TimelineStatusSegment');
     expect(bandsSource).toContain('interactive');
     expect(bandsSource).toContain('@activate="emit(\'open-detail\', item, item.name)"');
-    expect(bandsSource).toContain(':count="item.kind === \'numeric\' ? item.value : null"');
+    expect(bandsSource).toContain("item.kind === 'numeric'");
+    expect(bandsSource).toContain('item.value');
     expect(bandsSource).toContain('segment.value');
     expect(bandsSource).toContain('segment.endFrame');
     expect(statusSegmentSource).toContain('timeline-status-segment__count');

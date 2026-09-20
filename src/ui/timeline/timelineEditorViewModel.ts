@@ -21,6 +21,7 @@ import { projectCastHitMarkers, type TimelineHitMarker } from './results/timelin
 import { listSkillGroupLibraryPlacements } from '../../application/editor/skillGroupPlacement';
 import { orderTimelineSkillLibrary } from './library/skillLibraryOrder';
 import { resolveSkillCastStartFrames } from '../../core/project/skillCastPlacement';
+import { resolveOperatorMaxUltimateEnergy } from '../../core/compiler/resolveScenarioResourceRules';
 
 /** UI 投影读取干员定义的最小端口。 */
 export interface TimelineOperatorIndex {
@@ -81,28 +82,6 @@ export interface TimelineTrackViewModel {
   readonly skillLibrary: readonly TimelineSkillLibraryEntryViewModel[];
   readonly skillCasts: readonly TimelineSkillCastViewModel[];
   readonly issues: readonly string[];
-}
-
-/**
- * 从终结技定义中解析能量上限。原生资源上限与终结技消耗一致；若定义缺失或出现多个不同
- * 消耗值，则保持未知并交给后续资源规则解析器处理，UI 不自行猜测。
- */ export function resolveOperatorMaxUltimateEnergy(
-  operator: OperatorDefinition,
-  skillLevel: number,
-): number | null {
-  const values = new Set<number>();
-  for (const group of operator.skillGroups) {
-    if (group.skillType !== 'ultimate') continue;
-    const skills = Array.isArray(group.skills) ? group.skills : [group.skills];
-    for (const skill of skills) {
-      for (const cost of skill.costs ?? []) {
-        if (cost.resource !== 'ultimateEnergy') continue;
-        const value = typeof cost.value === 'number' ? cost.value : cost.value[skillLevel - 1];
-        if (value !== undefined) values.add(value);
-      }
-    }
-  }
-  return values.size === 1 ? [...values][0]! : null;
 }
 
 /** 时间轴页面的一次只读投影；模拟结果会在后续作为独立投影并入。 */
@@ -233,6 +212,14 @@ function projectTrack(
     track.skillCasts,
     cast => durations.get(cast.id) ?? 0,
   );
+  let maxUltimateEnergy = track.initialState.maxUltimateEnergyOverride ?? null;
+  if (maxUltimateEnergy === null && operator !== null && operatorInstance !== null) {
+    try {
+      maxUltimateEnergy = resolveOperatorMaxUltimateEnergy(operator, operatorInstance) ?? null;
+    } catch (error) {
+      issues.push(error instanceof Error ? error.message : String(error));
+    }
+  }
 
   return {
     trackIndex,
@@ -241,11 +228,7 @@ function projectTrack(
     operatorAssetSlug: operator?.assetSlug ?? operator?.slug ?? null,
     operatorSupport: operator === null ? null : projectOperatorSupport(operator),
     initialUltimateEnergy: track.initialState.ultimateEnergy,
-    maxUltimateEnergy:
-      track.initialState.maxUltimateEnergyOverride ??
-      (operator === null || operatorInstance === null
-        ? null
-        : resolveOperatorMaxUltimateEnergy(operator, operatorInstance.skillLevels.ultimate ?? 1)),
+    maxUltimateEnergy,
     skillLibrary,
     skillCasts: skillCasts.map(cast => ({ ...cast, startFrame: startFrames.get(cast.id)! })),
     issues,

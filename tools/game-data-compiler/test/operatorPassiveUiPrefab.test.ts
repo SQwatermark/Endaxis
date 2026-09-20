@@ -4,6 +4,23 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { compileOperatorPassiveUiPrefabComponent } from '../src/domains/operator/passiveUiPrefab.ts';
 import { projectOperatorPassiveUiPrefabSnapshots } from '../src/source/operatorPassiveUiPrefabSnapshots.ts';
+import { compileOperatorProductPassiveUi } from '../src/domains/operator/passiveUi.ts';
+
+it('compiles configured entity presence without a dedicated appearance or Buff counter', () => {
+  const config = {
+    kind: 'abilityEntityCount',
+    abilityEntityId: 'crystal',
+    icon: '/crystal.webp',
+    nameKey: 'entities.crystal',
+  };
+  expect(
+    compileOperatorProductPassiveUi(config, { crystal: { lifetime: { kind: 'infinite' } } }),
+  ).toEqual(config);
+  expect(() => compileOperatorProductPassiveUi(config, {})).toThrow('unknown ability entity');
+  expect(() => compileOperatorProductPassiveUi({ ...config, maximumUses: 2 }, {})).toThrow(
+    'unknown component field',
+  );
+});
 
 describe('operator passive UI prefab component projection', () => {
   it('derives numeric bounds from the dedicated component fields', () => {

@@ -262,6 +262,7 @@ export function planOperatorDefinition(
         ]);
   const candidate = assembleOperatorDefinition({
     foundation,
+    productPassiveUi: row.passiveUi,
     activeSkills,
     ...(dodgeSkill === undefined ? {} : { dodgeSkill }),
     ...(dashBuffs === undefined ? {} : { dashBuffs }),

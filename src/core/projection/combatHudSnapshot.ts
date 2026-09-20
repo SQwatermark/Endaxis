@@ -1,4 +1,11 @@
-import type { OperatorPassiveUiDefinitionMap } from '../../../packages/game-data-contract/src/operators';
+import type {
+  NumericPassiveUiDefinition,
+  LiinoPassiveUiDefinition,
+  TyphoeaPassiveUiDefinition,
+  AbilityEntityCountPassiveUiDefinition,
+} from '../../../packages/game-data-contract/src/operators';
+import { projectAbilityEntityCountStatus } from './abilityEntityCountStatus';
+import type { AbilityEntityTargetRef } from '../game-data/logicalAbilityEntity';
 /**
  * 把已经完成的战斗投影采样为某一帧的 HUD 快照。
  *
@@ -49,16 +56,19 @@ export interface OperatorCombatHudSnapshot {
 }
 
 export type CombatHudPassiveUiSnapshot =
+  | (AbilityEntityCountPassiveUiDefinition & {
+      readonly entities: readonly AbilityEntityTargetRef[];
+    })
   | {
       readonly kind: 'numeric';
-      readonly appearance: OperatorPassiveUiDefinitionMap['numeric']['appearance'];
+      readonly appearance: NumericPassiveUiDefinition['appearance'];
       readonly value: number;
       readonly maximum: number;
       readonly active: boolean;
     }
   | {
       readonly kind: 'buffProgress';
-      readonly appearance: OperatorPassiveUiDefinitionMap['buffProgress']['appearance'];
+      readonly appearance: LiinoPassiveUiDefinition['appearance'];
       readonly mode: 'normal' | 'ultimate';
       readonly buffId: string;
       readonly instanceId: number;
@@ -66,7 +76,7 @@ export type CombatHudPassiveUiSnapshot =
     }
   | {
       readonly kind: 'buffCounters';
-      readonly appearance: OperatorPassiveUiDefinitionMap['buffCounters']['appearance'];
+      readonly appearance: TyphoeaPassiveUiDefinition['appearance'];
       readonly reserveArrows: number;
       readonly battleArrows: number;
       readonly points: number;
@@ -513,6 +523,18 @@ function passiveUiSnapshotsAtFrame(
 ): ReadonlyMap<string, CombatHudPassiveUiSnapshot> {
   const result = new Map<string, CombatHudPassiveUiSnapshot>();
   for (const { operatorId, definition } of definitions) {
+    if (definition.kind === 'abilityEntityCount') {
+      result.set(operatorId, {
+        ...definition,
+        entities: projectAbilityEntityCountStatus(
+          entries,
+          frame,
+          operatorId,
+          definition.abilityEntityId,
+        ).entities,
+      });
+      continue;
+    }
     if (definition.kind === 'numeric') {
       let value = 0;
       for (const entry of entries) {

@@ -13,6 +13,63 @@ import {
 } from '../../data/operators';
 import { placeSkillGroup } from './interaction/placeSkillGroup';
 import { projectTimelineEditor } from './timelineEditorViewModel';
+import { arclight } from '../../data/operators/arclight.generated';
+import { applyInitialUltimateEnergyPreset } from './interaction/timelineDocumentCommands';
+import { compileOperatorDefinitionSkills } from '../../core/compiler/compileScenarioTimeline';
+import { compileScenarioResources } from '../../core/compiler/compileScenarioResources';
+
+it.each([0, 5])(
+  'full initial charge matches compiled Arclight costs at potential %s',
+  potential => {
+    const scenario = createEmptyScenario('full-charge', 'Full charge');
+    const build = {
+      operatorSlug: arclight.slug,
+      level: 90,
+      promoted: true,
+      potential,
+      trustLevel: 4,
+      skillLevels: { basicAttack: 12, battleSkill: 12, comboSkill: 12, ultimate: 12 },
+      talentStates: {},
+    };
+    scenario.tracks[0] = {
+      id: 'owner',
+      operator: build,
+      weapon: null,
+      gears: { armor: null, gloves: null, accessory1: null, accessory2: null },
+      initialState: { ultimateEnergy: 0 },
+      skillCasts: [],
+    };
+    const view = projectTimelineEditor(scenario, { getOperator: () => arclight });
+    const full = applyInitialUltimateEnergyPreset(
+      scenario,
+      'full',
+      view.tracks.map(track => track.maxUltimateEnergy),
+    );
+    const compiled = compileOperatorDefinitionSkills('owner', build, arclight);
+    const maximum = compiled.find(
+      skill => skill.skillType === 'ultimate' && skill.costs.length > 0,
+    )!.costs[0]!.value;
+    expect(maximum).toBe(potential === 0 ? 90 : 76.5);
+    expect(full.tracks[0]!.initialState.ultimateEnergy).toBe(maximum);
+    const resources = compileScenarioResources(full, {
+      sharedSpGain: { baseGainEfficiency: 1 },
+      spRecoveryPauseDuration: 1.5,
+      ultimateEnergySystemUnlocked: true,
+      normalSkillUltimateEnergy: { selfGainPerSp: 0.065, otherGainPerSp: 0.065 },
+      operators: new Map([
+        [
+          'owner',
+          {
+            maxUltimateEnergy: maximum,
+            ultimateEnergyGainMultiplier: 1,
+            allowedUltimateEnergyRecoveryTags: null,
+          },
+        ],
+      ]),
+    });
+    expect(resources.squad[0]!.ultimateEnergy).toBe(resources.squad[0]!.maxUltimateEnergy);
+  },
+);
 
 describe('projectTimelineEditor', () => {
   it('keeps a cast in place and reports a local issue after its template skill key is edited', () => {

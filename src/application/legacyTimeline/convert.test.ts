@@ -2,7 +2,7 @@ import { expect, it } from 'vitest';
 import { convertLegacyTimeline, resolveLegacyRuntimeReplacementSkillKey } from './convert';
 import { gameDataRepository } from '../../data/gameDataRepository';
 import { parseProjectDocument } from '../../core/project/serialization';
-import realAxisMappings from './mappings.2026-08-31.json';
+import realAxisMappings from './mappings.json';
 import type { ConversionMappings } from './sourcePreparation';
 
 it('保留时间允许同轴重叠，智能修复则顺延，且不改变原始输入', () => {

@@ -1,7 +1,7 @@
 # 旧时间轴转换命令行入口
 
 网页和命令行共用 `src/application/legacyTimeline` 中的转换逻辑与旧版映射快照。
-本目录只保留命令行入口、离线模拟审计及命令行示例配置；正式网页按需加载转换逻辑，
+本目录只保留命令行入口与离线模拟审计；正式网页按需加载转换逻辑，
 不会引用本目录或游戏数据编译器。多条真实轴已转换并通过运行检查。
 网页“更多 → 项目 → 加载”已接入旧轴导入，但仍不是完整旧格式兼容器。
 
@@ -16,13 +16,13 @@
 在仓库根目录执行：
 
 ```powershell
-npm run convert:legacy-timeline -- "C:\Users\sqwat\Downloads\Endaxis_Timeline_2026-08-31.json" tmp/converted-axis --mappings tools/legacy-timeline/mappings.example.json
+npm run convert:legacy-timeline -- "C:\Users\sqwat\Downloads\Endaxis_Timeline_2026-08-31.json" tmp/converted-axis --mappings src/application/legacyTimeline/mappings.json
 ```
 
 输出目录必须不存在，父目录须存在。只写新目录，不覆盖旧存档。
 成功输出 project.json 和 report.json；有遗漏/目标校验失败只输出报告并以非零状态结束。
-示例配置只演示字段。旧版 2026-08-31 数据快照统一使用
-`src/application/legacyTimeline/mappings.2026-08-31.json`；
+旧版数据快照统一使用
+`src/application/legacyTimeline/mappings.json`；
 原生样本依据归 [combat-spec](../../../combat-spec-operator-completion/docs/research/README.md)。
 成功转换不等于新旧模拟结果一致。
 报告的 `issues` 保留所有诊断，同时分为 `simulationIssues` 和 `presentationIssues`。
@@ -69,7 +69,7 @@ node --experimental-strip-types tools/legacy-timeline/auditSimulation.ts tmp/con
 技能 12、天赋满级，潜能取旧表默认；武器 90 级突破，潜能与技能档位按旧表稀有度；
 装备保留非零精锻档位，零档按旧版补建规则取 3，不可精锻装备不加精锻。
 已有实例不覆盖，轨道 stats 等派生属性不再次叠加。
-`legacyLoadDefaults.2026-09-18.json` 是该版本数据表的静态快照，记录 gameId、默认潜能、
+`legacyLoadDefaults.json` 是旧版 2026-09-18 数据表的静态快照，记录 gameId、默认潜能、
 技能/天赋档位、武器潜能和装备等级，不依赖本机旧工作树运行，也不读取新版默认养成。
 
 历史时间戳变体由映射表的 historicalSkills 精确匹配干员、完整 ID、类别与段号，不按显示名称猜测。
@@ -86,7 +86,7 @@ node --experimental-strip-types tools/legacy-timeline/auditSimulation.ts tmp/con
 按用户确定的转换策略，忽略 characterOverrides，使用标准技能定义；报告的 ignoredCustomizations
 记录被忽略的配置，不将其作为转换失败。武器和装备覆盖仍沿用原有诊断。
 
-`mappings.2026-08-31.json` 是针对旧版数据快照一次性生成、再人工核对少量例外后的完整目录，
+`mappings.json` 是针对旧版数据快照一次性生成、再人工核对少量例外后的完整目录，
 不是随着每条待转换时间轴逐项补充的清单。它目前覆盖 31 名干员、79 把武器、258 件装备、
 82 个敌人、317 种标准技能身份及 39 条历史技能身份（其中庄方宜 3 条由用户明确指定）。转换新时间轴时应先直接使用这份文件；只有旧版
 数据定义本身发生变化，才需要重新整理整份映射。

@@ -74,6 +74,14 @@ export function validateOperatorDefinition(
 ): SkillDefinitionValidationIssue[] {
   const issues: SkillDefinitionValidationIssue[] = [];
   const presentation = definition.passiveUi;
+  if (presentation?.kind === 'abilityEntityCount') {
+    for (const field of ['abilityEntityId', 'icon', 'nameKey'] as const) {
+      if (typeof presentation[field] !== 'string' || presentation[field].trim() === '')
+        push(issues, `${path}.passiveUi.${field}`, 'expected a non-empty string');
+    }
+    if (!definition.abilityEntityDefinitions?.[presentation.abilityEntityId])
+      push(issues, `${path}.passiveUi.abilityEntityId`, 'unknown ability entity');
+  }
   if (presentation !== undefined) {
     // These are structural display inputs, not inferred combat restrictions.
     for (const [field, value] of Object.entries(presentation)) {

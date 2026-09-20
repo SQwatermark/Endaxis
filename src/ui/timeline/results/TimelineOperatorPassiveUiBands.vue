@@ -29,11 +29,14 @@ const ICON_HEIGHT = 16;
 const BAR_GAP = 2;
 
 function iconWidth(segment: PositionedOperatorPassiveUiTimelineSegment): number {
+  if (segment.kind === 'abilityEntityCount') return 18;
   const skin = passiveUiSkins[segment.appearance];
   return Math.min(30, Math.max(18, (skin.width / skin.height) * ICON_HEIGHT + 2));
 }
 
 function segmentTitle(segment: PositionedOperatorPassiveUiTimelineSegment): string {
+  if (segment.kind === 'abilityEntityCount')
+    return `${props.operatorName} · ${t(segment.nameKey)} × ${segment.entities.length}`;
   const label = t(`timeline.passiveUi.appearances.${segment.appearance}`);
   const state =
     segment.kind === 'numeric'
@@ -53,6 +56,7 @@ function segmentTitle(segment: PositionedOperatorPassiveUiTimelineSegment): stri
 }
 
 function segmentName(segment: PositionedOperatorPassiveUiTimelineSegment): string {
+  if (segment.kind === 'abilityEntityCount') return `${props.operatorName} · ${t(segment.nameKey)}`;
   return `${props.operatorName} · ${t(`timeline.passiveUi.appearances.${segment.appearance}`)}`;
 }
 
@@ -81,7 +85,7 @@ const items = computed(() =>
           ? `${segment.operatorId}:numeric:${segment.startFrame}:${segment.value}`
           : segment.kind === 'buffProgress'
             ? `${segment.operatorId}:${segment.buffId}:${segment.instanceId}:${segment.startFrame}`
-            : `${segment.operatorId}:buffCounters:${segment.startFrame}`,
+            : `${segment.operatorId}:${segment.kind}:${segment.startFrame}`,
       title,
       name: segmentName(segment),
       left,
@@ -107,14 +111,28 @@ const items = computed(() =>
       :top="item.top"
       :width="item.width"
       :title="item.title"
-      :count="item.kind === 'numeric' ? item.value : null"
+      :count="
+        item.kind === 'abilityEntityCount'
+          ? item.entities.length
+          : item.kind === 'numeric'
+            ? item.value
+            : null
+      "
       :active="item.kind === 'numeric' && item.active"
       :icon-width="item.iconWidth"
       interactive
       @activate="emit('open-detail', item, item.name)"
     >
       <template #content>
+        <img
+          v-if="item.kind === 'abilityEntityCount'"
+          :src="item.icon"
+          alt=""
+          draggable="false"
+          :style="{ width: `${ICON_HEIGHT}px`, height: `${ICON_HEIGHT}px`, objectFit: 'contain' }"
+        />
         <OperatorPassiveUiWidget
+          v-else
           :appearance="item.appearance"
           :active="item.kind === 'numeric' && item.active"
           :mode="item.kind === 'buffProgress' ? item.mode : undefined"

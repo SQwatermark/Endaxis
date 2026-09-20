@@ -5,8 +5,16 @@
 import type { CombatOperatorProgram } from '../combat/runtime/combatRuntimeAssembly';
 import type { ResolvedOperatorResourceRules } from './compileScenarioResources';
 import type { ResolvedOperatorPanel } from './resolveOperatorPanel';
+import type { OperatorDefinition } from '../game-data/operatorDefinition';
+import type { OperatorInstanceDocument } from '../project/schema';
+import { listOperatorSkillDefinitionBindings } from '../game-data/operatorSkillDefinitions';
+import { compileSkillCosts } from './compileSkill';
+import { multiplySkillCost, resolveActiveOperatorUpgrades } from './compileOperatorUpgrades';
 
-function resolveMaxUltimateEnergy(operator: CombatOperatorProgram): number | undefined {
+function resolveMaxUltimateEnergy(operator: {
+  readonly operatorId: string;
+  readonly skills: readonly Pick<CombatOperatorProgram['skills'][number], 'skillType' | 'costs'>[];
+}): number | undefined {
   const values = new Set<number>();
   for (const skill of operator.skills) {
     if (skill.skillType !== 'ultimate') continue;
@@ -20,6 +28,43 @@ function resolveMaxUltimateEnergy(operator: CombatOperatorProgram): number | und
     );
   }
   return values.values().next().value;
+}
+
+/** 编辑器只解析费用及其养成修正，不编译动作图；与模拟共用费用解析、补丁和上限判定。 */
+export function resolveOperatorMaxUltimateEnergy(
+  operator: OperatorDefinition,
+  build: OperatorInstanceDocument,
+): number | undefined {
+  let skills = listOperatorSkillDefinitionBindings(operator).map(
+    ({ group, skill, routedReplacement }) => ({
+      skillId: skill.key,
+      skillGroupKey: group.key,
+      executionSkillId: routedReplacement?.executionSkillKey,
+      skillType: skill.skillType ?? group.skillType,
+      costs: compileSkillCosts(skill, build.skillLevels[skill.levelSource ?? group.key] ?? 1),
+    }),
+  );
+  if (
+    !skills.some(
+      skill =>
+        skill.skillType === 'ultimate' &&
+        skill.costs.some(cost => cost.resource === 'ultimateEnergy'),
+    )
+  )
+    return undefined;
+  for (const upgrade of resolveActiveOperatorUpgrades(build, operator)) {
+    for (const [index, modifier] of (upgrade.definition.modifiers ?? []).entries()) {
+      if (modifier.kind !== 'multiplySkillCost') continue;
+      skills = [
+        ...multiplySkillCost(
+          skills,
+          modifier,
+          `${upgrade.source} '${upgrade.index}'.modifiers[${index}]`,
+        ),
+      ];
+    }
+  }
+  return resolveMaxUltimateEnergy({ operatorId: operator.slug, skills });
 }
 
 /**

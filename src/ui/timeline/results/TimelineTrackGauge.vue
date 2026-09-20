@@ -25,10 +25,15 @@ const BASE_Y = 50;
 const gaugePoints = computed(() => {
   const curve = props.curve;
   if (curve === null || curve.maxValue <= 0) return [];
-  return curve.points.map(point => ({
+  const points = curve.points.map(point => ({
     frame: point.frame,
     ratio: Math.min(point.value / curve.maxValue, 1),
   }));
+  const first = points[0];
+  // 首个输入可晚于准备区起点；此前没有资源事件，显示初始值即可，不改曲线事实或模拟起点。
+  return first !== undefined && first.frame > -props.prepFrames
+    ? [{ frame: -props.prepFrames, ratio: first.ratio }, ...points.slice(1)]
+    : points;
 });
 
 const pathData = computed(() => {

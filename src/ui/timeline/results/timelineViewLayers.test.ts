@@ -12,6 +12,7 @@ describe('timeline view layers', () => {
       hitMarkers: false,
       upperEffects: true,
       lowerBuffs: true,
+      skillErrors: true,
       comboWindows: true,
       effectLinks: true,
     });
@@ -22,5 +23,6 @@ describe('timeline view layers', () => {
     const updated = toggleTimelineViewLayerState(original, 'gauge');
     expect(updated.gauge).toBe(false);
     expect(original.gauge).toBe(true);
+    expect(toggleTimelineViewLayerState(original, 'skillErrors').skillErrors).toBe(false);
   });
 });

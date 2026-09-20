@@ -2,6 +2,25 @@ import { createSSRApp, h } from 'vue';
 import { renderToString } from 'vue/server-renderer';
 import { it, expect } from 'vitest';
 import Page from './OperatorStatusPresentationPage.vue';
+it('edits entity presence with a definition, icon and translation key only', async () => {
+  const html = await renderToString(
+    createSSRApp({
+      render: () =>
+        h(Page, {
+          value: {
+            kind: 'abilityEntityCount',
+            abilityEntityId: 'entity',
+            icon: '/entity.webp',
+            nameKey: 'entities.example',
+          },
+        }),
+    }),
+  );
+  for (const value of ['能力实体数量', 'entity', '/entity.webp', 'entities.example'])
+    expect(html).toContain(value);
+  expect(html).not.toContain('显示上限');
+  expect(html).not.toContain('剩余回复次数');
+});
 it('shows an explicit add action for absent configuration', async () => {
   const html = await renderToString(createSSRApp({ render: () => h(Page, {}) }));
   expect(html).toContain('添加状态指示器');

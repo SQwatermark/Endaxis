@@ -557,6 +557,7 @@
         "lowerBuffs": "轨道下层效果",
         "gauge": "终结技充能曲线",
         "skillDecorations": "技能装饰",
+        "skillErrors": "技能错误提示",
         "hitMarkers": "伤害判定点",
         "comboWindows": "连携窗口",
         "switchMarkers": "换人标记",

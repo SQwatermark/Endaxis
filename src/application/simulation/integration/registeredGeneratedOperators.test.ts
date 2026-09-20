@@ -998,6 +998,20 @@ describe('registered generated operators', () => {
       frame: 119,
       data: { nextSkillKey: 'chr_0011_seraph_combo_skill' },
     });
+    const crystalSegments = projectOperatorPassiveUiTimelineViz(result.receiptEntries, 180, [
+      {
+        operatorId: 'track:xaihi:crystal-combo-window',
+        definition: xaihi.passiveUi!,
+      },
+    ]);
+    expect(crystalSegments).toHaveLength(1);
+    expect(crystalSegments[0]).toMatchObject({
+      kind: 'abilityEntityCount',
+      endFrame: 180,
+      entities: [expect.objectContaining({ kind: 'abilityEntity' })],
+    });
+    // 治疗次数耗尽只打开连携窗口；晶体仍在场，不应隐藏或伪装成剩余治疗次数。
+    expect(crystalSegments[0]!.startFrame).toBeLessThan(119);
   });
 
   it('lets Da Pan Crush consume no-guard before the same-frame hit and activate talent 1', () => {

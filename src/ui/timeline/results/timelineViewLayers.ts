@@ -4,6 +4,7 @@ export const TIMELINE_VIEW_LAYER_IDS = [
   'lowerBuffs',
   'gauge',
   'skillDecorations',
+  'skillErrors',
   'hitMarkers',
   'comboWindows',
   'switchMarkers',

@@ -3,7 +3,7 @@
  * 默认值快照取自该版本的数据表；不使用新版默认养成，不把轨道派生属性当成构筑输入。
  * 这里只补旧格式，后续仍通过已有映射转换到新版定义。无法识别的变体保留原身份供诊断。
  */
-import catalog from './legacyLoadDefaults.2026-09-18.json';
+import catalog from './legacyLoadDefaults.json';
 import type { ConversionMappings, LegacySkillIdentity } from './sourcePreparation';
 
 const normalize = (value: string) =>

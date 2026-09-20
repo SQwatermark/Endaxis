@@ -49,9 +49,13 @@ import {
   compileTargetGroupAbilityEntityQuerySource,
   compileTargetReferenceAbilityEntityQuerySource,
 } from '../../compiler/abilities/abilityEntityQuery.ts';
-import { compileOperatorPassiveUiDefinition } from './passiveUi.ts';
+import {
+  compileOperatorPassiveUiDefinition,
+  compileOperatorProductPassiveUi,
+} from './passiveUi.ts';
 
 export interface OperatorDefinitionAssemblyInput {
+  readonly productPassiveUi?: unknown;
   readonly foundation: ReturnType<typeof compileOperatorFoundationSource>;
   readonly activeSkills: readonly {
     readonly definition: CompiledOperatorActiveSkillRuntimeDefinitionSource;
@@ -886,10 +890,17 @@ export function assembleOperatorDefinition(input: OperatorDefinitionAssemblyInpu
   const operator: OperatorDefinition = {
     ...header,
     ...(() => {
-      const passiveUi = compileOperatorPassiveUiDefinition(
+      const nativePassiveUi = compileOperatorPassiveUiDefinition(
         foundation.character.charPassiveUiPrefabName,
         `${foundation.character.sourcePath}.charPassiveUIPrefabName`,
       );
+      const productPassiveUi = compileOperatorProductPassiveUi(
+        input.productPassiveUi,
+        abilityEntityDefinitions,
+      );
+      if (nativePassiveUi !== undefined && productPassiveUi !== undefined)
+        throw new Error('passiveUi: product component conflicts with the native mounted component');
+      const passiveUi = nativePassiveUi ?? productPassiveUi;
       return passiveUi === undefined ? {} : { passiveUi };
     })(),
     skillGroups,

@@ -2,7 +2,10 @@ import type { Component } from 'vue';
 import type {
   OperatorPassiveUiAppearance,
   OperatorPassiveUiDefinition,
-  OperatorPassiveUiDefinitionMap,
+  NumericPassiveUiDefinition,
+  LiinoPassiveUiDefinition,
+  TyphoeaPassiveUiDefinition,
+  AbilityEntityCountPassiveUiDefinition,
 } from '../../../../packages/game-data-contract/src/operators';
 import TangtangPassiveUi from './TangtangPassiveUi.vue';
 import LaevatainPassiveUi from './LaevatainPassiveUi.vue';
@@ -47,12 +50,18 @@ export const passiveUiSkins = {
     width: 76,
     height: 56,
     label: '猎物清点',
-    numeric: true,
+    numeric: false,
   },
-} as const satisfies Record<
-  OperatorPassiveUiAppearance,
-  { component: Component; width: number; height: number; label: string; numeric: boolean }
->;
+} as const satisfies {
+  [Appearance in OperatorPassiveUiAppearance]: {
+    component: Component;
+    width: number;
+    height: number;
+    label: string;
+    /** 仅接受原生数值通知的外观可以出现在数值型指示器选项中。 */
+    numeric: Appearance extends NumericPassiveUiDefinition['appearance'] ? true : false;
+  };
+};
 
 export const numericPassiveUiAppearances = Object.fromEntries(
   Object.entries(passiveUiSkins)
@@ -77,7 +86,18 @@ const defaults = {
     maximumArrows: 1,
     maximumPoints: 1,
   },
-} satisfies OperatorPassiveUiDefinitionMap;
+  abilityEntityCount: {
+    kind: 'abilityEntityCount',
+    abilityEntityId: '',
+    icon: '',
+    nameKey: '',
+  },
+} satisfies {
+  numeric: NumericPassiveUiDefinition;
+  buffProgress: LiinoPassiveUiDefinition;
+  buffCounters: TyphoeaPassiveUiDefinition;
+  abilityEntityCount: AbilityEntityCountPassiveUiDefinition;
+};
 
 export function createPassiveUiDefinition(
   kind: OperatorPassiveUiDefinition['kind'],

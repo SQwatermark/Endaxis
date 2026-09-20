@@ -68,8 +68,9 @@ function patch(field: string, event: Event, numeric = false) {
       <button :aria-expanded="adding" @click="adding = !adding">＋ 添加状态指示器</button>
       <div v-if="adding" class="choices">
         <button @click="create('numeric')">数值计数</button
-        ><button @click="create('buffProgress')">Buff 进度</button
-        ><button @click="create('buffCounters')">多组 Buff 计数</button>
+        ><button @click="create('buffProgress')">黎诺演唱姿态</button
+        ><button @click="create('buffCounters')">提弗洛斯猎物清点</button>
+        <button @click="create('abilityEntityCount')">能力实体数量</button>
       </div>
     </div>
     <template v-else>
@@ -78,10 +79,14 @@ function patch(field: string, event: Event, numeric = false) {
           value.kind === 'numeric'
             ? '数值计数'
             : value.kind === 'buffProgress'
-              ? 'Buff 进度'
-              : '多组 Buff 计数'
+              ? '黎诺演唱姿态'
+              : value.kind === 'buffCounters'
+                ? '提弗洛斯猎物清点'
+                : '能力实体数量'
         }}</strong
-        ><span>使用已有原生 HUD 外观</span>
+        ><span>{{
+          value.kind === 'abilityEntityCount' ? '使用配置的图标与名称' : '使用已有原生 HUD 外观'
+        }}</span>
       </div>
       <p class="source-note" v-if="value.kind === 'numeric'">
         读取来源：角色行为发布的专属界面数值（CharacterPassiveUiValueChanged）。选择外观不会自动创建或绑定
@@ -90,8 +95,11 @@ function patch(field: string, event: Event, numeric = false) {
       <p class="source-note" v-else-if="value.kind === 'buffProgress'">
         读取来源：下方指定 Buff 的进度；普通状态与终结技状态使用各自的 Buff。
       </p>
-      <p class="source-note" v-else>
+      <p class="source-note" v-else-if="value.kind === 'buffCounters'">
         读取来源：下方三种 Buff 的层数。箭矢两组共用显示上限，点数使用独立上限。
+      </p>
+      <p class="source-note" v-else>
+        显示归属当前干员的指定能力实体在场数量；点击后可查询具体实例及来源。
       </p>
       <div class="fields" v-if="value.kind === 'numeric'">
         <h4>外观与范围</h4>
@@ -150,7 +158,7 @@ function patch(field: string, event: Event, numeric = false) {
           @reveal="emit('revealBuff', $event)"
         />
       </div>
-      <div class="fields" v-else>
+      <div class="fields" v-else-if="value.kind === 'buffCounters'">
         <h4>箭矢 <small>外观：箭矢与点数</small></h4>
         <BuffIdReferenceField
           v-for="field in ['reserveArrowBuffId', 'battleArrowBuffId'] as const"
@@ -184,6 +192,19 @@ function patch(field: string, event: Event, numeric = false) {
             type="number"
             :value="value.maximumPoints"
             @change="patch('maximumPoints', $event, true)"
+        /></label>
+      </div>
+      <div class="fields" v-else>
+        <label :data-property-path="JSON.stringify(['abilityEntityId'])"
+          >能力实体 ID<input
+            :value="value.abilityEntityId"
+            @change="patch('abilityEntityId', $event)"
+        /></label>
+        <label :data-property-path="JSON.stringify(['icon'])"
+          >图标路径<input :value="value.icon" @change="patch('icon', $event)"
+        /></label>
+        <label :data-property-path="JSON.stringify(['nameKey'])"
+          >名称 i18n 键<input :value="value.nameKey" @change="patch('nameKey', $event)"
         /></label>
       </div>
     </template>
